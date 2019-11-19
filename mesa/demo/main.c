@@ -939,7 +939,10 @@ static void init_modules(mscc_appl_init_t *init)
     mscc_appl_symreg_init(init);
     mscc_appl_trace_init(init);
     mscc_appl_test_init(init);
+    mscc_appl_kr_init(init);
     mscc_appl_example_init(init);
+    mscc_appl_uio_init(init);
+    mscc_appl_spi_init(init);
 }
 
 typedef struct {

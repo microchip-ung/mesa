@@ -198,6 +198,7 @@ typedef enum {
     VTSS_DEBUG_GROUP_AFI,       /**< Automatic Frame Injector */
     VTSS_DEBUG_GROUP_MACSEC,    /**< 802.1AE MacSec */
     VTSS_DEBUG_GROUP_SERDES,    /**< Serdes Macroes */
+    VTSS_DEBUG_GROUP_KR,        /**< 5G/10G/25Base-KR */
 
     /* New groups are added above this line */
     VTSS_DEBUG_GROUP_COUNT      /**< Number of groups */

@@ -177,6 +177,59 @@ u32 vtss_to_pcs25g(u32 port)
     }
 }
 
+u32 vtss_to_sd10g_kr(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0: return VTSS_TO_SD10G_KR_0;
+    case 1: return VTSS_TO_SD10G_KR_1;
+    case 2: return VTSS_TO_SD10G_KR_2;
+    case 3: return VTSS_TO_SD10G_KR_3;
+    case 4: return VTSS_TO_SD10G_KR_4;
+    case 5: return VTSS_TO_SD10G_KR_5;
+    case 6: return VTSS_TO_SD10G_KR_6;
+    case 7: return VTSS_TO_SD10G_KR_7;
+    case 8: return VTSS_TO_SD10G_KR_8;
+    case 9: return VTSS_TO_SD10G_KR_9;
+    case 10: return VTSS_TO_SD10G_KR_10;
+    case 11: return VTSS_TO_SD10G_KR_11;
+    case 12: return VTSS_TO_SD10G_KR_12;
+    case 13: return VTSS_TO_SD10G_KR_13;
+    case 14: return VTSS_TO_SD10G_KR_14;
+    case 15: return VTSS_TO_SD10G_KR_15;
+    case 16: return VTSS_TO_SD10G_KR_16;
+    case 17: return VTSS_TO_SD10G_KR_17;
+    case 18: return VTSS_TO_SD10G_KR_18;
+    case 19: return VTSS_TO_SD10G_KR_19;
+    default:
+        VTSS_E("illegal 10G port number %d",p);
+        return 0;
+    }
+}
+
+u32 vtss_to_sd6g_kr(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0: return VTSS_TO_SD6G_KR_0;
+    case 1: return VTSS_TO_SD6G_KR_1;
+    case 2: return VTSS_TO_SD6G_KR_2;
+    case 3: return VTSS_TO_SD6G_KR_3;
+    case 4: return VTSS_TO_SD6G_KR_4;
+    case 5: return VTSS_TO_SD6G_KR_5;
+    case 6: return VTSS_TO_SD6G_KR_6;
+    case 7: return VTSS_TO_SD6G_KR_7;
+    case 8: return VTSS_TO_SD6G_KR_8;
+    case 9: return VTSS_TO_SD6G_KR_9;
+    case 10: return VTSS_TO_SD6G_KR_10;
+    case 11: return VTSS_TO_SD6G_KR_11;
+    case 12: return VTSS_TO_SD6G_KR_12;
+    default:
+        VTSS_E("illegal 10G port number %d",p);
+        return 0;
+    }
+}
+
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 p = VTSS_CHIP_PORT(port_no);
@@ -649,18 +702,123 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
 
+/* typedef struct { */
+/*     BOOL complete;            /\**< Aneg completed successfully                      *\/ */
+/*     BOOL active;              /\**< Aneg is running between LD and LP                *\/ */
+/*     BOOL request_10g;         /\**< 10G rate is negotiated (needs to be configured)  *\/ */
+/*     BOOL request_1g;          /\**< 1G rate is negotiated (needs to be configured)   *\/ */
+/*     BOOL request_fec_change;  /\**< FEC enable is negotiated (needs to be enabled)   *\/ */
+/*     BOOL fec_enable;          /\**< FEC disable is negotiated (needs to be disabled) *\/ */
+/*     u32  sm;                  /\**< (debug) Aneg state machine                       *\/ */
+/*     BOOL lp_aneg_able;        /\**< (debug) Link partner aneg ability                *\/ */
+/*     BOOL block_lock;          /\**< (debug) PCS block lock                           *\/ */
+/* } vtss_port_10g_kr_status_aneg_t; */
+
+
 static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_10g_kr_status_t *const status)
 {
+    u32 val;
+    u32 tgt;   u32 p = VTSS_CHIP_PORT(port_no);
+    if (p < 12 || p == 64) {
+        tgt = vtss_to_sd6g_kr(p);
+    } else {
+        tgt = vtss_to_sd10g_kr(p);
+    }
+
+    REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
+    vtss_port_10g_kr_conf_t *aneg = &vtss_state->port.kr_conf[port_no];
+    u32 tgt;   u32 p = VTSS_CHIP_PORT(port_no);
+    u32 abil;
+
+    if (p < 12 || p == 64) {
+        tgt = vtss_to_sd6g_kr(p);
+    } else {
+        tgt = vtss_to_sd10g_kr(p);
+    }
+
+    if (aneg->aneg.enable) {
+
+        printf("kr ena:%d\n",aneg->aneg.enable);
+        /* AN Selector */
+        REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
+              VTSS_F_IP_KRANEG_LD_ADV0_ADV0(0x1));
+
+
+        /* AN Technology aneg field bit
+           bit 5 = 1000Base-KX,
+           bit 7 = 10GBase-KR */
+
+        abil = VTSS_BIT(5) | VTSS_BIT(7);
+
+
+        REG_WRM(VTSS_IP_KRANEG_LD_ADV1(tgt),
+                VTSS_F_IP_KRANEG_LD_ADV1_ADV1(abil),
+                VTSS_M_IP_KRANEG_LD_ADV1_ADV1);
+
+        /* AN FEC aneg field
+           bit 14 = fec aneg,
+           bit 15 = fec requested */
+        abil = (VTSS_BIT(14) | VTSS_BIT(15));
+        REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt),
+                VTSS_F_IP_KRANEG_LD_ADV2_ADV2(abil),
+                VTSS_M_IP_KRANEG_LD_ADV2_ADV2);
+
+        // Freeze break link timer
+        REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt),
+                VTSS_BIT(8),
+                VTSS_BIT(8));
+
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(1),
+                VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
+
+
+    }
+
+    // KR Autoneg
+
+    // Clear aneg history
+    REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
+            VTSS_F_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR(1),
+            VTSS_M_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR);
+
+    REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
+           VTSS_F_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR(0),
+           VTSS_M_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR);
+
+    // Disable / Enable Auto-neg
+    REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+           VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
+           VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+
+    if (aneg->aneg.enable) {
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(1),
+                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+
+
+        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
+                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(1),
+                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE);
+    }
+
+    // Release the break link timer
+    REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt),
+            0,
+            VTSS_BIT(8))
+
+
     return VTSS_RC_OK;
 }
+
 #endif /* VTSS_FEATURE_10G_BASE_KR */
 
 
@@ -2412,6 +2570,7 @@ static vtss_rc fa_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no
     return VTSS_RC_OK;
 }
 
+
 /* - Debug print --------------------------------------------------- */
 
 #define FA_DEBUG_MAC(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_MAC_##addr, i, "MAC_"name)
@@ -2499,6 +2658,155 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
+{
+    if (bt) {
+        pr("%s ",name);
+    }
+}
+static char *fa_kr_aneg_sm(u32 reg)
+{
+    switch (reg) {
+    case 0:  return "AN_ENABLE";
+    case 1:  return "XMI_DISABLE";
+    case 2:  return "ABILITY_DET";
+    case 3:  return "ACK_DET";
+    case 4:  return "COMPLETE_ACK";
+    case 5:  return "TRAIN";
+    case 6:  return "AN_GOOD_CHK";
+    case 7:  return "AN_GOOD";
+    case 8:  return "RATE_DET";
+    case 11: return "LINK_STAT_CHK";
+    case 12: return "PARLL_DET_FAULT";
+    case 13: return "WAIT_RATE_DONE";
+    case 14: return "NXTPG_WAIT";
+    default: return "?";
+    }
+    return "?";
+}
+
+static char *fa_kr_aneg_rate(u32 reg)
+{
+    switch (reg) {
+    case 0:  return "No Change";
+    case 7:  return "25G-KR";
+    case 8:  return "25G-KR-S";
+    case 9:  return "10G-KR";
+    case 10: return "10G-KX4";
+    case 11: return "5G-KR";
+    case 12: return "2.5G-KX";
+    case 13: return "1G-KX";
+    default: return "other";
+    }
+    return "other";
+}
+vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
+                         const vtss_debug_printf_t pr,
+                         const vtss_debug_info_t   *const info,
+                         vtss_port_no_t port_no)
+{
+    u32 val;
+    u32 tgt; u32 p = VTSS_CHIP_PORT(port_no);
+    if (p < 12 || p == 64) {
+        tgt = vtss_to_sd6g_kr(p);
+    } else {
+        tgt = vtss_to_sd10g_kr(p);
+    }
+    pr("Port %d:",p);
+    REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
+    REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
+    if (val > 0) {
+        pr("\n  IRQ:       ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_KR_ACTV(val),    "KR_ACTV");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_LPSVALID(val),   "LPSVALID");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_WT_DONE(val),    "LPSVALID");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_MW_DONE(val),    "MW_DONE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_BER_BUSY_0(val), "BER_BUSY_0");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_BER_BUSY_1(val), "BER_BUSY_1");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_REM_RDY_0(val),  "REM_RDY_0");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_REM_RDY_1(val),  "REM_RDY_1");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_FRLOCK_0(val),   "FRLOCK_0");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_FRLOCK_1(val),   "FRLOCK_1");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_DME_VIOL_0(val), "DME_VIOL_0");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_DME_VIOL_1(val), "DME_VIOL_1");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_AN_XMIT_DISABLE(val), "AN_XMIT_DISABLE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_AN_TRAIN(val),   "AN_TRAIN");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE_DET(val),"AN_RATE_DET");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_CMPL_ACK(val),   "CMPL_ACK");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_AN_GOOD(val),    "AN_GOOD");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_LINK_FAIL(val),  "LINK_FAIL");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_ABD_FAIL(val),   "ABD_FAIL");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_ACK_FAIL(val),   "ACK_FAIL");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_NP_FAIL(val),    "NP_FAIL");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_NP_RX(val),      "NP_RX");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_INCP_LINK(val),  "INCP_LINK");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_GEN0_DONE(val),  "GEN0_DONE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_IRQ_VEC_GEN1_DONE(val),  "GEN1_DONE");
+        pr("AN_RATE:%s ",fa_kr_aneg_rate(VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(val)));
+    }
+    REG_RD(VTSS_IP_KRANEG_FW_MSG(tgt), &val);
+    if (val > 0) {
+        pr("\n  FW_MSG:    ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_TR_DONE(val),     "TR_DONE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_TR_DONE(val),     "TR_DONE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_LDCOEF_VLD(val),  "LDCOEF_VLD");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_LDSTAT_VLD(val),  "LDSTAT_VLD");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_NP_LOADED(val),   "NP_LOADED");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_RATE_DONE(val),   "RATE_DONE");
+    }
+    REG_RD(VTSS_IP_KRANEG_FW_REQ(tgt), &val);
+    if (val > 0) {
+        pr("\n  FW_REQ:    ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_REQ_BER_EN(val),         "BER_EN");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_REQ_GEN0_TMR_START(val), "GEN0_TMR_START");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_REQ_GEN1_TMR_START(val), "GEN1_TMR_START");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_REQ_WT_START(val),       "WT_START");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_REQ_MW_START(val),       "MW_START");
+    }
+    REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &val);
+    REG_WR(VTSS_IP_KRANEG_AN_SM(tgt), val);
+    if (val > 0) {
+        pr("\n  AN_SM:     ");
+        pr("%s ",fa_kr_aneg_sm(VTSS_X_IP_KRANEG_AN_SM_ABDET_CNT(val)));
+        pr("ABDET_CNT:%d ",VTSS_X_IP_KRANEG_AN_SM_ABDET_CNT(val));
+    }
+    REG_RD(VTSS_IP_KRANEG_AN_HIST(tgt), &val);
+    REG_WR(VTSS_IP_KRANEG_AN_HIST(tgt), val);
+    if (val > 0) {
+        pr("\n  AN_HIST:   0x%x",val);
+    }
+    REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &val);
+    REG_WR(VTSS_IP_KRANEG_AN_STS0(tgt), val);
+    if (val > 0) {
+        pr("\n  AN_STAT_0: ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_PARDETFLT(val),     "PARDETFLT");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_NPSTAT(val),        "NPSTAT");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_PG_RCVD(val),       "PG_RCVD");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_AN_COMPLETE(val),   "AN_COMPLETE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_REM_FLT(val),       "REM_FLT");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_AN_ABLE(val),       "AN_ABLE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_LINKSTAT(val),      "LINKSTAT");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS0_AN_LP_ABLE(val),    "AN_LP_ABLE");
+    }
+
+    REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &val);
+    REG_WR(VTSS_IP_KRANEG_AN_STS1(tgt), val);
+    if (val > 0) {
+        pr("\n  AN_STAT_1: ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS1_KR_ACTV(val),       "KR_ACTV");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS1_SYNC8B10B(val),     "SYNC8B10B");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS1_SYNC10G(val),       "SYNC10G");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS1_NONCE_MATCH(val),   "NONCE");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_AN_STS1_INCP_LINK(val),     "INCP_LINK");
+        pr("LINK_HCD:%s ",fa_kr_aneg_rate(VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(val)));
+    }
+
+
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info)
@@ -2527,6 +2835,30 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
             continue;
 
         VTSS_RC(fa_debug_chip_serdes(vtss_state, pr, info, port_no));
+    } /* Port loop */
+
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_debug_kr(vtss_state_t *vtss_state,
+                           const vtss_debug_printf_t pr,
+                           const vtss_debug_info_t   *const info)
+
+{
+    vtss_port_no_t port_no;
+
+    if (info->has_action && info->action == 0) {
+        pr("Serdes actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Dump kr\n");
+        return VTSS_RC_OK;
+    }
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        if (info->port_list[port_no] == 0)
+            continue;
+
+        VTSS_RC(fa_debug_chip_kr(vtss_state, pr, info, port_no));
     } /* Port loop */
 
 
@@ -2830,8 +3162,10 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, fa_debug_port_cnt, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, fa_debug_wm, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_SERDES, fa_debug_serdes, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, fa_debug_kr, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
+
 
 /* - Initialization ------------------------------------------------ */
 

@@ -169,6 +169,7 @@ typedef enum {
     MESA_DEBUG_GROUP_AFI,       // Automatic Frame Injector
     MESA_DEBUG_GROUP_MACSEC,    // 802.1AE MacSec
     MESA_DEBUG_GROUP_SERDES,    // Serdes Macroes
+    MESA_DEBUG_GROUP_KR,        // 5G/10G/25G-KR
 
     // New groups are added above this line
     MESA_DEBUG_GROUP_COUNT      // Number of groups
