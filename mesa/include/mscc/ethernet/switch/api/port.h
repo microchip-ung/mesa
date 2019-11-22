@@ -606,11 +606,36 @@ mesa_rc mesa_mmd_write(const mesa_inst_t            inst,
 /* 10G KR Backplane Ethernet (version 2, JR2-C and newer)                     */
 /******************************************************************************/
 
+
+typedef struct {
+    mesa_bool_t tr_done;
+    mesa_bool_t ldcoef_vld;
+    mesa_bool_t ldstat_vld;
+    mesa_bool_t np_loaded;
+    mesa_bool_t rate_done;    
+} mesa_port_10g_kr_fw_msg_t;
+
+
+typedef struct {
+    mesa_bool_t ber_enable;
+} mesa_port_10g_kr_fw_req_t;
+
+mesa_rc mesa_port_10g_kr_fw_msg_set(const mesa_inst_t inst,
+                                    const mesa_port_no_t port_no,
+                                    const mesa_port_10g_kr_fw_msg_t *const fw_msg);
+
+mesa_rc mesa_port_10g_kr_fw_req_get(const mesa_inst_t inst,
+                                    const mesa_port_no_t port_no,
+                                    mesa_port_10g_kr_fw_req_t *const fw_req);
+
+
 // 10G KR Aneg status
 typedef struct {
     mesa_bool_t complete;           // Aneg completed successfully
     mesa_bool_t active;             // Aneg is running
-    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured)
+    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured) 
+    mesa_bool_t request_5g;         // 5G rate is negotiated (needs to be configured)
+    mesa_bool_t request_2g5;        // 2G5 rate is negotiated (needs to be configured)
     mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
     mesa_bool_t fec_enable;         // FEC must be enabled/disabled
@@ -646,6 +671,9 @@ typedef struct {
 typedef struct {
     mesa_bool_t enable;   // 10G KR Autoneg enable
     mesa_bool_t adv_10g;  // Advertise 10G
+    mesa_bool_t adv_5g;   // Advertise 5G
+    mesa_bool_t adv_2g5;  // Advertise 2G5
+    mesa_bool_t adv_1g;   // Advertise 1G
     mesa_bool_t fec_abil; // Advertise FEC ability
     mesa_bool_t fec_req;  // Advertise FEC request
 } mesa_port_10g_kr_aneg_t CAP(PORT_10GBASE_KR_V2);

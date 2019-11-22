@@ -630,6 +630,8 @@ typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
     BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
+    BOOL request_5g;          /**< 5G rate is negotiated (needs to be configured)   */
+    BOOL request_2g5;         /**< 2G5 rate is negotiated (needs to be configured)   */
     BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
     BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
@@ -665,6 +667,9 @@ typedef struct {
 typedef struct {
     BOOL enable;           /**< 10G KR Autoneg enable  */
     BOOL adv_10g;          /**< Advertise 10G          */
+    BOOL adv_5g;           /**< Advertise 5G           */
+    BOOL adv_2g5;          /**< Advertise 2G5          */
+    BOOL adv_1g;           /**< Advertise 1G           */
     BOOL fec_abil;         /**< Set FEC ability        */
     BOOL fec_req;          /**< Set FEC request        */
 } vtss_port_10g_kr_aneg_t;
@@ -676,8 +681,8 @@ typedef struct {
 
 /** \brief 10G KR configuration structures */
 typedef struct {
-    vtss_port_10g_kr_aneg_t  aneg;    /**< 10G-KR Aneg apability, 802.3ap Clause 73      */
-    vtss_port_10g_kr_train_t train;   /**< 10G-KR Training parameters, 802.3ap Clause 72 */
+    vtss_port_10g_kr_aneg_t   aneg;    /**< 10G-KR Aneg apability, 802.3ap Clause 73      */
+    vtss_port_10g_kr_train_t  train;   /**< 10G-KR Training parameters, 802.3ap Clause 72 */
 } vtss_port_10g_kr_conf_t;
 
 
@@ -722,6 +727,28 @@ vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
 vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
                                     const vtss_port_no_t port_no,
                                     vtss_port_10g_kr_status_t *const status);
+
+typedef struct {
+    BOOL tr_done;
+    BOOL ldcoef_vld;
+    BOOL ldstat_vld;
+    BOOL np_loaded;
+    BOOL rate_done;    
+} vtss_port_10g_kr_fw_msg_t;
+
+
+typedef struct {
+    BOOL ber_enable;
+} vtss_port_10g_kr_fw_req_t;
+
+vtss_rc vtss_port_10g_kr_fw_msg_set(const vtss_inst_t inst,
+                                    const vtss_port_no_t port_no,
+                                    const vtss_port_10g_kr_fw_msg_t *const fw_msg);
+
+vtss_rc vtss_port_10g_kr_fw_req_get(const vtss_inst_t inst,
+                                    const vtss_port_no_t port_no,
+                                    vtss_port_10g_kr_fw_req_t *const fw_req);
+
 
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */

@@ -1181,7 +1181,7 @@ int main(int argc, char **argv)
             }
         }
         tv.tv_sec = 0;
-        tv.tv_usec = 10000;
+        tv.tv_usec = 10;
         if (select(fd_max + 1, &rfds, NULL, NULL, &tv) < 0) {
             T_E("select() failed");
         } else {
