@@ -635,6 +635,7 @@ typedef struct {
     BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
     BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
+    u32  sts1;
     u32  sm;                  /**< (debug) Aneg state machine                       */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
     BOOL block_lock;          /**< (debug) PCS block lock                           */
@@ -746,6 +747,10 @@ typedef struct {
 
 typedef struct {
     BOOL ber_enable;
+    BOOL gen0_tmr_start;
+    BOOL gen1_tmr_start;
+    BOOL wt_start;
+    BOOL mw_start;
 } vtss_port_10g_kr_fw_req_t;
 
 vtss_rc vtss_port_10g_kr_fw_msg_set(const vtss_inst_t inst,

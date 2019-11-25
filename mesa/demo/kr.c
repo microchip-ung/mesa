@@ -45,6 +45,9 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 };
 
 meba_inst_t meba_global_inst;
+
+mesa_port_speed_t speed_test[100];
+
 /* ================================================================= *
  *  CLI
  * ================================================================= */
@@ -229,6 +232,30 @@ void print_irq_vector(uint32_t p, uint32_t vector)
     printf("\n");
 }
 
+void kr_parallel_spd(mesa_port_no_t iport, mesa_port_10g_kr_conf_t *conf,
+                     mesa_port_speed_t *spd, mesa_port_interface_t *if_type)
+
+{
+    if (conf->aneg.adv_10g && (speed_test[iport] == MESA_SPEED_10G)) {
+        *if_type = MESA_PORT_INTERFACE_SFI;
+        *spd = MESA_SPEED_10G;
+        speed_test[iport] = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    } else if (conf->aneg.adv_5g && (speed_test[iport] == MESA_SPEED_5G)) {
+        *if_type = MESA_PORT_INTERFACE_SFI;
+        *spd = MESA_SPEED_5G;
+        speed_test[iport] = MESA_SPEED_2500M;
+        speed_test[iport] = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    } else if (conf->aneg.adv_2g5 && (speed_test[iport] == MESA_SPEED_2500M)) {
+        *if_type = MESA_PORT_INTERFACE_SERDES;
+        *spd = MESA_SPEED_2500M;
+        speed_test[iport] = MESA_SPEED_1G;
+    } else  {
+        *if_type = MESA_PORT_INTERFACE_SERDES;
+        *spd = MESA_SPEED_1G;
+        speed_test[iport] = MESA_SPEED_10G;;
+    }
+}
+
 void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
@@ -237,6 +264,7 @@ void kr_poll(meba_inst_t inst)
     mesa_port_10g_kr_fw_msg_t fw_msg = {0};
     mesa_port_conf_t        pconf;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
+    mesa_port_10g_kr_fw_req_t req_msg = {0};
 
     for (iport = 0; iport < meba_cnt; iport++) {
         if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
@@ -250,29 +278,35 @@ void kr_poll(meba_inst_t inst)
 
         (void)print_irq_vector(iport, status.irq.vector);
 
-        (void) mesa_port_conf_get(NULL, iport, &pconf);
+        (void)mesa_port_conf_get(NULL, iport, &pconf);
 
-        if (status.aneg.request_10g) {
-            pconf.if_type = MESA_PORT_INTERFACE_SFI;
-            pconf.speed = MESA_SPEED_10G;
-        } else if (status.aneg.request_5g) {
-            pconf.if_type = MESA_PORT_INTERFACE_SFI;
-            pconf.speed = MESA_SPEED_5G;
-        } else if (status.aneg.request_2g5) {
-            pconf.if_type = MESA_PORT_INTERFACE_SERDES;
-            pconf.speed = MESA_SPEED_2500M;
-        } else if (status.aneg.request_1g) {
-            pconf.if_type = MESA_PORT_INTERFACE_SERDES;
-            pconf.speed = MESA_SPEED_1G;
+        if (status.irq.vector & VTSS_BIT(14)) {
+            // Parallel detect
+            kr_parallel_spd(iport, &conf, &pconf.speed, &pconf.if_type);
+            req_msg.gen0_tmr_start = 1;
+
         } else {
-            continue;
+            if (status.aneg.request_10g) {
+                pconf.if_type = MESA_PORT_INTERFACE_SFI;
+                pconf.speed = MESA_SPEED_10G;
+            } else if (status.aneg.request_5g) {
+                pconf.if_type = MESA_PORT_INTERFACE_SFI;
+                pconf.speed = MESA_SPEED_5G;
+            } else if (status.aneg.request_2g5) {
+                pconf.if_type = MESA_PORT_INTERFACE_SERDES;
+                pconf.speed = MESA_SPEED_2500M;
+            } else if (status.aneg.request_1g) {
+                pconf.if_type = MESA_PORT_INTERFACE_SERDES;
+                pconf.speed = MESA_SPEED_1G;
+            } else {
+                continue;
+            }
         }
+
         (void)mesa_port_conf_set(NULL, iport, &pconf);
         fw_msg.rate_done = 1;
-        if (mesa_port_10g_kr_fw_msg_set(NULL, iport, &fw_msg) != MESA_RC_OK) {
-            return;
-        }
-
+        (void)mesa_port_10g_kr_fw_msg_set(NULL, iport, &fw_msg);
+        (void)mesa_port_10g_kr_fw_req_get(NULL, iport, &req_msg);
     }
 }
 
@@ -375,6 +409,7 @@ static void kr_init(meba_inst_t inst)
     meba_global_inst = inst;
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
+        speed_test[port_no] = MESA_SPEED_10G;
     }
 
 }

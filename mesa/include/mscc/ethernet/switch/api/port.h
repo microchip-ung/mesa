@@ -618,6 +618,10 @@ typedef struct {
 
 typedef struct {
     mesa_bool_t ber_enable;
+    mesa_bool_t gen0_tmr_start;
+    mesa_bool_t gen1_tmr_start;
+    mesa_bool_t wt_start;
+    mesa_bool_t mw_start;
 } mesa_port_10g_kr_fw_req_t;
 
 mesa_rc mesa_port_10g_kr_fw_msg_set(const mesa_inst_t inst,
@@ -639,6 +643,7 @@ typedef struct {
     mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
     mesa_bool_t fec_enable;         // FEC must be enabled/disabled
+    uint32_t    sts1;
     uint32_t    sm;                 // (debug) Aneg state machine
     mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
     mesa_bool_t block_lock;         // (debug) PCS block lock
