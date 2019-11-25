@@ -19,7 +19,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 */
- 
+
 #include <stdio.h>
 #include "mscc/ethernet/switch/api.h"
 #include "mscc/ethernet/board/api.h"
@@ -94,7 +94,7 @@ static int cli_parm_keyword(cli_req_t *req)
     return 0;
 }
 
-
+uint32_t my_cnt = 0;
 
 static void cli_cmd_port_kr(cli_req_t *req)
 {
@@ -120,12 +120,10 @@ static void cli_cmd_port_kr(cli_req_t *req)
             conf.aneg.fec_abil = mreq->fec || mreq->all;
             conf.aneg.fec_req = mreq->fec || mreq->all;
 
-            printf("10g:%d 5g:%d mreq->all:%d\n",conf.aneg.adv_10g, conf.aneg.adv_5g, mreq->all);
-            
             if (mesa_port_10g_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                 cli_printf("KR set failed for port %u\n", uport);
             }
-            
+            my_cnt = 0;
         }
     }
 }
@@ -164,7 +162,73 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         }
     }
 }
-// uint32_t cnt = 0;
+
+static void print_reg_bit(uint32_t  bt, char *name)
+{
+    if (bt > 0) {
+        printf("%s ",name);
+    }
+}
+static char *fa_kr_aneg_rate(uint32_t reg)
+{
+    switch (reg) {
+    case 0:  return "No Change";
+    case 7:  return "25G-KR";
+    case 8:  return "25G-KR-S";
+    case 9:  return "10G-KR";
+    case 10: return "10G-KX4";
+    case 11: return "5G-KR";
+    case 12: return "2.5G-KX";
+    case 13: return "1G-KX";
+    default: return "other";
+    }
+    return "other";
+}
+#define VTSS_BIT(x) (1 << (x))
+
+void print_irq_vector(uint32_t p, uint32_t vector)
+{
+    if (vector == 0) {
+        return;
+    }
+    if (my_cnt > 100) {
+        return;
+    }
+    my_cnt++;
+    printf("Port:%d IRQ: ",p+1);
+    print_reg_bit((VTSS_BIT(29) & vector),  "KR_ACTV");
+    print_reg_bit((VTSS_BIT(28) & vector),  "LPSVALID");
+    print_reg_bit((VTSS_BIT(27) & vector),  "LPCVALID");
+    print_reg_bit((VTSS_BIT(26) & vector),  "WT_DONE");
+    print_reg_bit((VTSS_BIT(25) & vector),  "MW_DONE");
+    print_reg_bit((VTSS_BIT(24) & vector),  "BER_BUSY_0");
+    print_reg_bit((VTSS_BIT(23) & vector),  "BER_BUSY_1");
+    print_reg_bit((VTSS_BIT(22) & vector),  "REM_RDY_0");
+    print_reg_bit((VTSS_BIT(21) & vector),  "REM_RDY_1");
+    print_reg_bit((VTSS_BIT(20) & vector),  "FRLOCK_0");
+    print_reg_bit((VTSS_BIT(19) & vector),  "FRLOCK_1");
+    print_reg_bit((VTSS_BIT(18) & vector),  "DME_VIOL_0");
+    print_reg_bit((VTSS_BIT(17) & vector),  "DME_VIOL_1");
+    print_reg_bit((VTSS_BIT(16) & vector),  "AN_XMIT_DISABLE");
+    print_reg_bit((VTSS_BIT(15) & vector),  "TRAIN");
+    print_reg_bit((VTSS_BIT(14) & vector),  "RATE_DET");
+    print_reg_bit((VTSS_BIT(13) & vector),  "CMPL_ACK");
+    print_reg_bit((VTSS_BIT(12) & vector),  "AN_GOOD");
+    print_reg_bit((VTSS_BIT(11) & vector),  "LINK_FAIL");
+    print_reg_bit((VTSS_BIT(10) & vector),  "ABD_FAIL");
+    print_reg_bit((VTSS_BIT(9)  & vector),  "ACK_FAIL");
+    print_reg_bit((VTSS_BIT(8)  & vector),  "NP_FAIL");
+    print_reg_bit((VTSS_BIT(7)  & vector),  "NP_RX");
+    print_reg_bit((VTSS_BIT(6)  & vector),  "INCP_LINK");
+    print_reg_bit((VTSS_BIT(5)  & vector),  "GEN0_DONE");
+    print_reg_bit((VTSS_BIT(4)  & vector),  "GEN1_DONE");
+
+    if ((0xf & vector) > 0) {
+        printf("%s ",fa_kr_aneg_rate((0xf & vector)));
+    }
+    printf("\n");
+}
+
 void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
@@ -173,25 +237,6 @@ void kr_poll(meba_inst_t inst)
     mesa_port_10g_kr_fw_msg_t fw_msg = {0};
     mesa_port_conf_t        pconf;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
-
-    /* (void)mesa_port_10g_kr_conf_get(NULL, 0, &conf); */
-    
-    /* if (!conf.aneg.enable) { */
-    /*     cli_printf("(TBR)Enable KR on port 1 and 2\n"); */
-    /*     mesa_port_10g_kr_conf_t conf = {0}; */
-    /*     conf.aneg.enable = 1; */
-    /*     conf.aneg.adv_10g = 1; */
-    /*     if (mesa_port_10g_kr_conf_set(NULL, 0, &conf) != MESA_RC_OK) { */
-    /*         cli_printf("KR set failed\n"); */
-    /*     } */
-    /*     if (mesa_port_10g_kr_conf_set(NULL, 1, &conf) != MESA_RC_OK) { */
-    /*         cli_printf("KR set failed\n"); */
-    /*     } */
-    /* } */
-
-    /* cnt++; */
-    /* if (cnt % 1000 == 0) */
-    /*     T_I("1000"); */
 
     for (iport = 0; iport < meba_cnt; iport++) {
         if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
@@ -202,30 +247,28 @@ void kr_poll(meba_inst_t inst)
         if (mesa_port_10g_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
             return;
         }
+
+        (void)print_irq_vector(iport, status.irq.vector);
+
         (void) mesa_port_conf_get(NULL, iport, &pconf);
-        
+
         if (status.aneg.request_10g) {
             pconf.if_type = MESA_PORT_INTERFACE_SFI;
             pconf.speed = MESA_SPEED_10G;
-            printf("p:%d 10G request\n",iport);
-        } else if (status.aneg.request_5g) {            
+        } else if (status.aneg.request_5g) {
             pconf.if_type = MESA_PORT_INTERFACE_SFI;
             pconf.speed = MESA_SPEED_5G;
-            printf("p:%d 5G request\n",iport);
         } else if (status.aneg.request_2g5) {
             pconf.if_type = MESA_PORT_INTERFACE_SERDES;
             pconf.speed = MESA_SPEED_2500M;
-            printf("p:%d 2G5 request\n",iport);
         } else if (status.aneg.request_1g) {
             pconf.if_type = MESA_PORT_INTERFACE_SERDES;
             pconf.speed = MESA_SPEED_1G;
-            printf("p:%d 1G request\n",iport);
         } else {
             continue;
         }
-
         (void)mesa_port_conf_set(NULL, iport, &pconf);
-        fw_msg.rate_done = 1; 
+        fw_msg.rate_done = 1;
         if (mesa_port_10g_kr_fw_msg_set(NULL, iport, &fw_msg) != MESA_RC_OK) {
             return;
         }
@@ -296,7 +339,7 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
-    
+
 
 };
 
@@ -333,7 +376,7 @@ static void kr_init(meba_inst_t inst)
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
     }
-   
+
 }
 
 

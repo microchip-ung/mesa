@@ -659,11 +659,19 @@ typedef struct {
     uint32_t    uncorrected_block_cnt; // Un-corrected block count
 } mesa_port_10g_kr_status_fec_t CAP(PORT_10GBASE_KR_V2);
 
+// 10G KR IRQ status */
+typedef struct {
+    uint32_t vector;
+    mesa_bool_t timer0;
+} mesa_port_10g_kr_status_irq_t;
+
+
 // 10G KR Aneg and Training structures
 typedef struct {
     mesa_port_10g_kr_status_aneg_t  aneg;  // Aneg structure
     mesa_port_10g_kr_status_train_t train; // Training structure
     mesa_port_10g_kr_status_fec_t   fec;   // FEC structure
+    mesa_port_10g_kr_status_irq_t   irq;   // IRQ Vector
 } mesa_port_10g_kr_status_t CAP(PORT_10GBASE_KR_V2);
 
 

@@ -655,11 +655,18 @@ typedef struct {
     u32 uncorrected_block_cnt;  /**< Un-corrected block count  */
 } vtss_port_10g_kr_status_fec_t;
 
+/** \brief 10G KR IRQ status */
+typedef struct {
+    u32 vector;
+    BOOL timer0;
+} vtss_port_10g_kr_status_irq_t;
+
 /** \brief 10G KR Aneg and Training structures */
 typedef struct {
     vtss_port_10g_kr_status_aneg_t aneg;   /**< Aneg structure      */
     vtss_port_10g_kr_status_train_t train; /**< Training structure  */
     vtss_port_10g_kr_status_fec_t fec;     /**< FEC structure       */
+    vtss_port_10g_kr_status_irq_t irq;     /**< IRQ Vector         */
 } vtss_port_10g_kr_status_t;
 
 
