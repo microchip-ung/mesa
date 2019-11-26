@@ -737,29 +737,21 @@ vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
                                     vtss_port_10g_kr_status_t *const status);
 
 typedef struct {
-    BOOL tr_done;
-    BOOL ldcoef_vld;
-    BOOL ldstat_vld;
-    BOOL np_loaded;
-    BOOL rate_done;    
-} vtss_port_10g_kr_fw_msg_t;
-
-
-typedef struct {
     BOOL ber_enable;
     BOOL gen0_tmr_start;
     BOOL gen1_tmr_start;
     BOOL wt_start;
     BOOL mw_start;
+    BOOL tr_done;
+    BOOL ldcoef_vld;
+    BOOL ldstat_vld;
+    BOOL np_loaded;
+    BOOL rate_done;    
 } vtss_port_10g_kr_fw_req_t;
 
-vtss_rc vtss_port_10g_kr_fw_msg_set(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_port_10g_kr_fw_msg_t *const fw_msg);
-
-vtss_rc vtss_port_10g_kr_fw_req_get(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_10g_kr_fw_req_t *const fw_req);
+vtss_rc vtss_port_10g_kr_fw_req(const vtss_inst_t inst,
+                                const vtss_port_no_t port_no,
+                                vtss_port_10g_kr_fw_req_t *const fw_req);
 
 
 

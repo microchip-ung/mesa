@@ -605,32 +605,22 @@ mesa_rc mesa_mmd_write(const mesa_inst_t            inst,
 /******************************************************************************/
 /* 10G KR Backplane Ethernet (version 2, JR2-C and newer)                     */
 /******************************************************************************/
-
-
-typedef struct {
-    mesa_bool_t tr_done;
-    mesa_bool_t ldcoef_vld;
-    mesa_bool_t ldstat_vld;
-    mesa_bool_t np_loaded;
-    mesa_bool_t rate_done;    
-} mesa_port_10g_kr_fw_msg_t;
-
-
 typedef struct {
     mesa_bool_t ber_enable;
     mesa_bool_t gen0_tmr_start;
     mesa_bool_t gen1_tmr_start;
     mesa_bool_t wt_start;
     mesa_bool_t mw_start;
+    mesa_bool_t tr_done;
+    mesa_bool_t ldcoef_vld;
+    mesa_bool_t ldstat_vld;
+    mesa_bool_t np_loaded;
+    mesa_bool_t rate_done;
 } mesa_port_10g_kr_fw_req_t;
 
-mesa_rc mesa_port_10g_kr_fw_msg_set(const mesa_inst_t inst,
-                                    const mesa_port_no_t port_no,
-                                    const mesa_port_10g_kr_fw_msg_t *const fw_msg);
-
-mesa_rc mesa_port_10g_kr_fw_req_get(const mesa_inst_t inst,
-                                    const mesa_port_no_t port_no,
-                                    mesa_port_10g_kr_fw_req_t *const fw_req);
+mesa_rc mesa_port_10g_kr_fw_req(const mesa_inst_t inst,
+                                const mesa_port_no_t port_no,
+                                mesa_port_10g_kr_fw_req_t *const fw_req);
 
 
 // 10G KR Aneg status

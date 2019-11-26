@@ -261,7 +261,6 @@ void kr_poll(meba_inst_t inst)
     mesa_port_no_t        iport;
     mesa_port_10g_kr_status_t status;
     mesa_port_10g_kr_conf_t conf;
-    mesa_port_10g_kr_fw_msg_t fw_msg = {0};
     mesa_port_conf_t        pconf;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
     mesa_port_10g_kr_fw_req_t req_msg = {0};
@@ -304,9 +303,8 @@ void kr_poll(meba_inst_t inst)
         }
 
         (void)mesa_port_conf_set(NULL, iport, &pconf);
-        fw_msg.rate_done = 1;
-        (void)mesa_port_10g_kr_fw_msg_set(NULL, iport, &fw_msg);
-        (void)mesa_port_10g_kr_fw_req_get(NULL, iport, &req_msg);
+        req_msg.rate_done = 1;
+        (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
     }
 }
 

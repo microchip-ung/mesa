@@ -1205,27 +1205,9 @@ vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
 /* - 10GBase KR --------------------------------------------------- */
-vtss_rc vtss_port_10g_kr_fw_msg_set(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_port_10g_kr_fw_msg_t *const fw_msg)
-
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->port.kr_fw_msg_conf[port_no] = *fw_msg;
-        rc = VTSS_FUNC_COLD(port.kr_fw_msg, port_no);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_fw_req_get(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_10g_kr_fw_req_t *const fw_req)
+vtss_rc vtss_port_10g_kr_fw_req(const vtss_inst_t inst,
+                                const vtss_port_no_t port_no,
+                                vtss_port_10g_kr_fw_req_t *const fw_req)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;

@@ -386,7 +386,6 @@ typedef struct {
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
     vtss_port_10g_kr_conf_t       kr_conf[VTSS_PORT_ARRAY_SIZE];
     BOOL                          kr_fec_enable[VTSS_PORT_ARRAY_SIZE];
-    vtss_port_10g_kr_fw_msg_t     kr_fw_msg_conf[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
     vtss_port_chip_counters_t     counters[VTSS_PORT_ARRAY_SIZE];
     vtss_port_chip_counters_t     cpu_counters;
