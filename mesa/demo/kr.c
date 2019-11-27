@@ -46,7 +46,80 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 meba_inst_t meba_global_inst;
 
-mesa_port_speed_t speed_test[100];
+#define KR_ACTV            (29)
+#define KR_LPSVALID        (28)
+#define KR_LPCVALID        (27)
+#define KR_WT_DONE         (26)
+#define KR_MW_DONE         (25)
+#define KR_BER_BUSY_0      (24)
+#define KR_BER_BUSY_1      (23)
+#define KR_REM_RDY_0       (22)
+#define KR_REM_RDY_1       (21)
+#define KR_FRLOCK_0        (20)
+#define KR_FRLOCK_1        (19)
+#define KR_DME_VIOL_0      (18)
+#define KR_DME_VIOL_1      (17)
+#define KR_AN_XMIT_DISABLE (16)
+#define KR_TRAIN           (15)
+#define KR_RATE_DET        (14)
+#define KR_CMPL_ACK        (13)
+#define KR_AN_GOOD         (12)
+#define KR_LINK_FAIL       (11)
+#define KR_ABD_FAIL        (10)
+#define KR_ACK_FAIL        (9)
+#define KR_NP_FAIL         (8)
+#define KR_NP_RX           (7)
+#define KR_INCP_LINK       (6)
+#define KR_GEN0_DONE       (5)
+#define KR_GEN1_DONE       (4)
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+
+typedef enum {
+    INITILIZE,
+    SEND_TRAINING,
+    TRAIN_LOCAL,
+    TRAIN_REMOTE,
+    SEND_DATA,
+    TAINING_FAILURE
+} train_state_t;
+
+typedef enum {
+    GO_TO_MIN,
+    CALCULATE_BER,
+    MOVE_TO_MID_MARK,
+    LOCAL_RX_TRAINED
+} ber_state_t;
+
+typedef struct {
+    train_state_t current_state;
+    ber_state_t ber_state;
+    mesa_bool_t training;
+    mesa_port_speed_t next_parallel_spd;
+} kr_train_t;
+
+typedef enum {
+    INIT,
+    INCR,
+    DECR,
+    HOLD
+} kr_ld_coefficient_t;
+
+typedef enum {
+    MAX,
+    MIN,
+    UPDATED,
+} kr_lp_coefficient_t;
+
+
+kr_train_t kr_tr_state[100];
 
 /* ================================================================= *
  *  CLI
@@ -63,6 +136,7 @@ typedef enum {
 
 typedef struct {
     mesa_bool_t all;
+    mesa_bool_t train;
     mesa_bool_t fec;
     mesa_bool_t adv10g;
     mesa_bool_t adv5g;
@@ -89,6 +163,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->adv10g = 1;
     } else if (!strncasecmp(found, "fec", 7)) {
         mreq->fec = 1;
+    } else if (!strncasecmp(found, "train", 5)) {
+        mreq->train = 1;
     } else if (!strncasecmp(found, "all", 3)) {
         mreq->all = 1;
     } else
@@ -115,6 +191,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
         }
 
         if (req->set) {
+            conf.train.enable = mreq->train;
             conf.aneg.enable = 1;
             conf.aneg.adv_1g = mreq->adv1g || mreq->all;
             conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
@@ -135,38 +212,16 @@ static void cli_cmd_port_kr(cli_req_t *req)
 static void cli_cmd_port_kr_status(cli_req_t *req)
 {
     mesa_port_no_t        uport, iport;
-    mesa_port_10g_kr_status_t status;
-    mesa_port_10g_kr_conf_t conf;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
         if (req->port_list[uport] == 0) {
             continue;
         }
-
-        if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
-            continue;
-        }
-
-        if (mesa_port_10g_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
-            return;
-        }
-
-        if (conf.aneg.enable) {
-            cli_printf("LP aneg ability                 :%s\n", status.aneg.lp_aneg_able ? "Yes" : "No");
-            cli_printf("Aneg active (running)           :%s\n", status.aneg.active ? "Yes" : "No");
-            cli_printf("PCS block lock                  :%s\n", status.aneg.block_lock ? "Yes" : "No");
-            cli_printf("Aneg complete                   :%s\n", status.aneg.complete ? "Yes" : "No");
-            cli_printf("  Enable 10G request            :%s\n", status.aneg.request_10g ? "Yes" : "No");
-            cli_printf("  Enable 1G request             :%s\n", status.aneg.request_1g ? "Yes" : "No");
-            cli_printf("  FEC change request            :%s\n", status.aneg.request_fec_change ? "Yes" : "No");
-        } else {
-            cli_printf("Aneg                            :Disabled\n");
-        }
     }
 }
 
-static void print_reg_bit(uint32_t  bt, char *name)
+static void bit2txt(uint32_t  bt, char *name)
 {
     if (bt > 0) {
         printf("%s ",name);
@@ -187,7 +242,7 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     }
     return "other";
 }
-#define VTSS_BIT(x) (1 << (x))
+#define BT(x) (1 << (x))
 
 void print_irq_vector(uint32_t p, uint32_t vector)
 {
@@ -199,32 +254,32 @@ void print_irq_vector(uint32_t p, uint32_t vector)
     }
     my_cnt++;
     printf("Port:%d IRQ: ",p+1);
-    print_reg_bit((VTSS_BIT(29) & vector),  "KR_ACTV");
-    print_reg_bit((VTSS_BIT(28) & vector),  "LPSVALID");
-    print_reg_bit((VTSS_BIT(27) & vector),  "LPCVALID");
-    print_reg_bit((VTSS_BIT(26) & vector),  "WT_DONE");
-    print_reg_bit((VTSS_BIT(25) & vector),  "MW_DONE");
-    print_reg_bit((VTSS_BIT(24) & vector),  "BER_BUSY_0");
-    print_reg_bit((VTSS_BIT(23) & vector),  "BER_BUSY_1");
-    print_reg_bit((VTSS_BIT(22) & vector),  "REM_RDY_0");
-    print_reg_bit((VTSS_BIT(21) & vector),  "REM_RDY_1");
-    print_reg_bit((VTSS_BIT(20) & vector),  "FRLOCK_0");
-    print_reg_bit((VTSS_BIT(19) & vector),  "FRLOCK_1");
-    print_reg_bit((VTSS_BIT(18) & vector),  "DME_VIOL_0");
-    print_reg_bit((VTSS_BIT(17) & vector),  "DME_VIOL_1");
-    print_reg_bit((VTSS_BIT(16) & vector),  "AN_XMIT_DISABLE");
-    print_reg_bit((VTSS_BIT(15) & vector),  "TRAIN");
-    print_reg_bit((VTSS_BIT(14) & vector),  "RATE_DET");
-    print_reg_bit((VTSS_BIT(13) & vector),  "CMPL_ACK");
-    print_reg_bit((VTSS_BIT(12) & vector),  "AN_GOOD");
-    print_reg_bit((VTSS_BIT(11) & vector),  "LINK_FAIL");
-    print_reg_bit((VTSS_BIT(10) & vector),  "ABD_FAIL");
-    print_reg_bit((VTSS_BIT(9)  & vector),  "ACK_FAIL");
-    print_reg_bit((VTSS_BIT(8)  & vector),  "NP_FAIL");
-    print_reg_bit((VTSS_BIT(7)  & vector),  "NP_RX");
-    print_reg_bit((VTSS_BIT(6)  & vector),  "INCP_LINK");
-    print_reg_bit((VTSS_BIT(5)  & vector),  "GEN0_DONE");
-    print_reg_bit((VTSS_BIT(4)  & vector),  "GEN1_DONE");
+    bit2txt((BT(KR_ACTV)       & vector),  "KR_ACTV");
+    bit2txt((BT(KR_LPSVALID)   & vector),  "LPSVALID");
+    bit2txt((BT(KR_LPCVALID)   & vector),  "LPCVALID");
+    bit2txt((BT(KR_WT_DONE)    & vector),  "WT_DONE");
+    bit2txt((BT(KR_MW_DONE)    & vector),  "MW_DONE");
+    bit2txt((BT(KR_BER_BUSY_0) & vector),  "BER_BUSY_0");
+    bit2txt((BT(KR_BER_BUSY_1) & vector),  "BER_BUSY_1");
+    bit2txt((BT(KR_REM_RDY_0)  & vector),  "REM_RDY_0");
+    bit2txt((BT(KR_REM_RDY_1)  & vector),  "REM_RDY_1");
+    bit2txt((BT(KR_FRLOCK_0)   & vector),  "FRLOCK_0");
+    bit2txt((BT(KR_FRLOCK_1)   & vector),  "FRLOCK_1");
+    bit2txt((BT(KR_DME_VIOL_0) & vector),  "DME_VIOL_0");
+    bit2txt((BT(KR_DME_VIOL_1) & vector),  "DME_VIOL_1");
+    bit2txt((BT(KR_AN_XMIT_DISABLE) & vector),  "AN_XMIT_DISABLE");
+    bit2txt((BT(KR_TRAIN)      & vector),  "TRAIN");
+    bit2txt((BT(KR_RATE_DET)   & vector),  "RATE_DET");
+    bit2txt((BT(KR_CMPL_ACK)   & vector),  "CMPL_ACK");
+    bit2txt((BT(KR_AN_GOOD)    & vector),  "AN_GOOD");
+    bit2txt((BT(KR_LINK_FAIL)  & vector),  "LINK_FAIL");
+    bit2txt((BT(KR_ABD_FAIL)   & vector),  "ABD_FAIL");
+    bit2txt((BT(KR_ACK_FAIL)   & vector),  "ACK_FAIL");
+    bit2txt((BT(KR_NP_FAIL)    & vector),  "NP_FAIL");
+    bit2txt((BT(KR_NP_RX)      & vector),  "NP_RX");
+    bit2txt((BT(KR_INCP_LINK)  & vector),  "INCP_LINK");
+    bit2txt((BT(KR_GEN0_DONE)  & vector),  "GEN0_DONE");
+    bit2txt((BT(KR_GEN1_DONE)  & vector),  "GEN1_DONE");
 
     if ((0xf & vector) > 0) {
         printf("%s ",fa_kr_aneg_rate((0xf & vector)));
@@ -232,85 +287,142 @@ void print_irq_vector(uint32_t p, uint32_t vector)
     printf("\n");
 }
 
-void kr_parallel_spd(mesa_port_no_t iport, mesa_port_10g_kr_conf_t *conf,
-                     mesa_port_speed_t *spd, mesa_port_interface_t *if_type)
-
+mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_10g_kr_conf_t *conf)
 {
-    if (conf->aneg.adv_10g && (speed_test[iport] == MESA_SPEED_10G)) {
-        *if_type = MESA_PORT_INTERFACE_SFI;
-        *spd = MESA_SPEED_10G;
-        speed_test[iport] = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
-    } else if (conf->aneg.adv_5g && (speed_test[iport] == MESA_SPEED_5G)) {
-        *if_type = MESA_PORT_INTERFACE_SFI;
-        *spd = MESA_SPEED_5G;
-        speed_test[iport] = MESA_SPEED_2500M;
-        speed_test[iport] = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
-    } else if (conf->aneg.adv_2g5 && (speed_test[iport] == MESA_SPEED_2500M)) {
-        *if_type = MESA_PORT_INTERFACE_SERDES;
-        *spd = MESA_SPEED_2500M;
-        speed_test[iport] = MESA_SPEED_1G;
+    if (conf->aneg.adv_10g && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_10G)) {
+        kr_tr_state[iport].next_parallel_spd = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+        return MESA_SPEED_10G;
+    } else if (conf->aneg.adv_5g && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_5G)) {
+        kr_tr_state[iport].next_parallel_spd = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+        return MESA_SPEED_5G;
+    } else if (conf->aneg.adv_2g5 && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_2500M)) {
+        kr_tr_state[iport].next_parallel_spd = MESA_SPEED_1G;
+        return MESA_SPEED_2500M;
     } else  {
-        *if_type = MESA_PORT_INTERFACE_SERDES;
-        *spd = MESA_SPEED_1G;
-        speed_test[iport] = MESA_SPEED_10G;;
+        kr_tr_state[iport].next_parallel_spd = MESA_SPEED_10G;;
+        return MESA_SPEED_1G;
     }
+}
+
+uint16_t update_coef(kr_ld_coefficient_t ld)
+{
+    uint16_t coef = 0;
+
+    switch (ld) {
+    case INIT:
+        coef = 1 << 12;
+        break;
+    case DECR:
+        coef = 1 << 1;
+        break;
+    case INCR:
+        coef = 1 << 0;
+        break;
+    case HOLD:
+        coef = 0;
+        break;
+    default:
+        printf("Dunno\n");
+        break;
+    }
+    return coef;
+}
+
+#define KR_ANEG_RATE_25G 7
+#define KR_ANEG_RATE_10G 9
+#define KR_ANEG_RATE_5G 11
+#define KR_ANEG_RATE_2G5 12
+#define KR_ANEG_RATE_1G 13
+
+mesa_port_speed_t kr_irq2spd(uint32_t irq)
+{
+    switch (irq) {
+    case KR_ANEG_RATE_25G: return MESA_SPEED_25G;
+    case KR_ANEG_RATE_10G: return MESA_SPEED_10G;
+    case KR_ANEG_RATE_5G:  return MESA_SPEED_5G;
+    case KR_ANEG_RATE_2G5: return MESA_SPEED_2500M;
+    case KR_ANEG_RATE_1G:  return MESA_SPEED_1G;
+    default:
+        cli_printf("KR speed not supported\n");
+    }
+    return MESA_SPEED_10G;
+}
+
+void perform_lp_training(mesa_port_no_t p, uint32_t irq)
+{
+    mesa_port_10g_kr_frame_t frm;
+
+    if (irq == KR_TRAIN) {
+        frm.type = MESA_COEFFICIENT_UPDATE_FRM;
+        frm.data = update_coef(INIT);
+        (void)mesa_port_10g_kr_train_frame(NULL, p, &frm);
+    }
+
 }
 
 void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
-    mesa_port_10g_kr_status_t status;
-    mesa_port_10g_kr_conf_t conf;
+    mesa_port_10g_kr_status_t kr_sts;
+    mesa_port_10g_kr_conf_t kr;
     mesa_port_conf_t        pconf;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
     mesa_port_10g_kr_fw_req_t req_msg = {0};
 
     for (iport = 0; iport < meba_cnt; iport++) {
-        if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
-            !conf.aneg.enable) {
+        if (mesa_port_10g_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
+            !kr.aneg.enable) {
             continue;
         }
 
-        if (mesa_port_10g_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+        if (mesa_port_10g_kr_status_get(NULL, iport, &kr_sts) != MESA_RC_OK || (kr_sts.irq.vector == 0)) {
             return;
         }
 
-        (void)print_irq_vector(iport, status.irq.vector);
-
         (void)mesa_port_conf_get(NULL, iport, &pconf);
 
-        if (status.irq.vector & VTSS_BIT(14)) {
-            // Parallel detect
-            kr_parallel_spd(iport, &conf, &pconf.speed, &pconf.if_type);
-            req_msg.gen0_tmr_start = 1;
+        (void)print_irq_vector(iport, kr_sts.irq.vector);
 
-        } else {
-            if (status.aneg.request_10g) {
-                pconf.if_type = MESA_PORT_INTERFACE_SFI;
-                pconf.speed = MESA_SPEED_10G;
-            } else if (status.aneg.request_5g) {
-                pconf.if_type = MESA_PORT_INTERFACE_SFI;
-                pconf.speed = MESA_SPEED_5G;
-            } else if (status.aneg.request_2g5) {
-                pconf.if_type = MESA_PORT_INTERFACE_SERDES;
-                pconf.speed = MESA_SPEED_2500M;
-            } else if (status.aneg.request_1g) {
-                pconf.if_type = MESA_PORT_INTERFACE_SERDES;
-                pconf.speed = MESA_SPEED_1G;
-            } else {
-                continue;
-            }
+        if (kr_sts.irq.vector & BT(KR_TRAIN)) {
+            kr_tr_state[iport].training = TRUE;
+            req_msg.start_training = TRUE;
+            (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+            (void)perform_lp_training(iport, KR_TRAIN);
         }
 
-        (void)mesa_port_conf_set(NULL, iport, &pconf);
-        req_msg.rate_done = 1;
-        (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+        if (kr_sts.irq.vector & BT(KR_AN_GOOD)) {
+            if (pconf.speed < MESA_SPEED_5G) {
+                req_msg.aneg_disable = TRUE;
+                (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+                return;
+            }            
+        }
+
+        if (kr_sts.irq.vector & BT(KR_RATE_DET)) {
+            // Parallel detect speed change
+            pconf.speed = kr_parallel_spd(iport, &kr);
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            req_msg.gen0_tmr_start = 1;
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
+            req_msg.rate_done = 1;
+            (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+
+        }
+
+        if ((kr_sts.irq.vector & 0xf) > 0) {
+            // Aneg speed change request
+            pconf.speed = kr_irq2spd(kr_sts.irq.vector & 0xf);
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
+            req_msg.rate_done = 1;
+            (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+        }
     }
 }
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec]",
+        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec]",
         "Set or show kr",
         cli_cmd_port_kr
     },
@@ -331,47 +443,46 @@ static cli_parm_t cli_parm_table[] = {
     },
     {
         "all",
-        "advertise all",
+        "all: advertise everything",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
         "adv-1g",
-        "advertise speed",
+        "adv-1g: advertise 1g",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
         "adv-2g5",
-        "advertise speed",
+        "adv-2g5: advertise 2g5",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
         "adv-5g",
-        "advertise speed",
+        "adv-5g: advertise 5g",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
         "adv-10g",
-        "advertise speed",
+        "adv-10g: advertise 10g",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
         "fec",
-        "advertise fec",
+        "fec: advertise fec capability",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
-        "all",
-        "advertise all",
+        "train",
+        "train: enable training",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
-
 
 };
 
@@ -407,7 +518,7 @@ static void kr_init(meba_inst_t inst)
     meba_global_inst = inst;
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
-        speed_test[port_no] = MESA_SPEED_10G;
+        kr_tr_state[port_no].next_parallel_spd = MESA_SPEED_10G;
     }
 
 }

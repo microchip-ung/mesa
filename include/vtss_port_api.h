@@ -656,10 +656,8 @@ typedef struct {
     u32 uncorrected_block_cnt;  /**< Un-corrected block count  */
 } vtss_port_10g_kr_status_fec_t;
 
-/** \brief 10G KR IRQ status */
 typedef struct {
     u32 vector;
-    BOOL timer0;
 } vtss_port_10g_kr_status_irq_t;
 
 /** \brief 10G KR Aneg and Training structures */
@@ -746,13 +744,31 @@ typedef struct {
     BOOL ldcoef_vld;
     BOOL ldstat_vld;
     BOOL np_loaded;
-    BOOL rate_done;    
+    BOOL rate_done;
+    BOOL start_training;
+    BOOL aneg_disable;
 } vtss_port_10g_kr_fw_req_t;
+
+
 
 vtss_rc vtss_port_10g_kr_fw_req(const vtss_inst_t inst,
                                 const vtss_port_no_t port_no,
                                 vtss_port_10g_kr_fw_req_t *const fw_req);
 
+typedef enum
+{
+    VTSS_COEFFICIENT_UPDATE_FRM,
+    VTSS_STATUS_REPORT_FRM
+} vtss_port_10g_kr_frm_type_t;
+
+typedef struct {
+    vtss_port_10g_kr_frm_type_t type;
+    u16 data;
+} vtss_port_10g_kr_frame_t;
+
+vtss_rc vtss_port_10g_kr_train_frame(const vtss_inst_t inst,
+                                     const vtss_port_no_t port_no,
+                                     vtss_port_10g_kr_frame_t *const frm);
 
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */

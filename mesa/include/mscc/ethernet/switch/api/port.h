@@ -616,11 +616,28 @@ typedef struct {
     mesa_bool_t ldstat_vld;
     mesa_bool_t np_loaded;
     mesa_bool_t rate_done;
+    mesa_bool_t start_training;
+    mesa_bool_t aneg_disable;
 } mesa_port_10g_kr_fw_req_t;
 
 mesa_rc mesa_port_10g_kr_fw_req(const mesa_inst_t inst,
                                 const mesa_port_no_t port_no,
                                 mesa_port_10g_kr_fw_req_t *const fw_req);
+
+typedef enum
+{
+    MESA_COEFFICIENT_UPDATE_FRM,
+    MESA_STATUS_REPORT_FRM
+} mesa_port_10g_kr_frm_type_t;
+
+typedef struct {
+    mesa_port_10g_kr_frm_type_t type;
+    uint16_t data;
+} mesa_port_10g_kr_frame_t;
+
+mesa_rc mesa_port_10g_kr_train_frame(const mesa_inst_t inst,
+                                     const mesa_port_no_t port_no,
+                                     mesa_port_10g_kr_frame_t *const frm);
 
 
 // 10G KR Aneg status
@@ -657,7 +674,6 @@ typedef struct {
 // 10G KR IRQ status */
 typedef struct {
     uint32_t vector;
-    mesa_bool_t timer0;
 } mesa_port_10g_kr_status_irq_t;
 
 
