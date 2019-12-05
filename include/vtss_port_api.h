@@ -647,6 +647,8 @@ typedef struct {
     u8 cm_ob_tap_result;  /**< The minus 1 coefficient c(-1). 7-bit signed, range: -32..31 */
     u8 cp_ob_tap_result;  /**< The 0 coefficient c(0).        7-bit signed, range: -32..31 */
     u8 c0_ob_tap_result;  /**< The plus 1 coefficient c(1).   7-bit signed, range: -32..31 */
+    u32 frame_sent;
+    u16 frame_errors;
 } vtss_port_10g_kr_status_train_t;
 
 /** \brief 10G KR FEC status */
@@ -746,6 +748,8 @@ typedef struct {
     BOOL np_loaded;
     BOOL rate_done;
     BOOL start_training;
+    BOOL stop_training;
+    BOOL training_failure;
     BOOL aneg_disable;
 } vtss_port_10g_kr_fw_req_t;
 
@@ -766,9 +770,13 @@ typedef struct {
     u16 data;
 } vtss_port_10g_kr_frame_t;
 
-vtss_rc vtss_port_10g_kr_train_frame(const vtss_inst_t inst,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_10g_kr_frame_t *const frm);
+vtss_rc vtss_port_10g_kr_train_frm_set(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       const vtss_port_10g_kr_frame_t *const frm);
+
+vtss_rc vtss_port_10g_kr_train_frm_get(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       vtss_port_10g_kr_frame_t *const frm);
 
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */

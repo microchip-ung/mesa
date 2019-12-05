@@ -768,9 +768,9 @@ static vtss_rc fa_port_10g_kr_speed_set(vtss_state_t *vtss_state,
 
 }
 
-static vtss_rc fa_port_10g_kr_frame(vtss_state_t *vtss_state,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_10g_kr_frame_t *const frm)
+static vtss_rc fa_port_10g_kr_frame_set(vtss_state_t *vtss_state,
+                                        const vtss_port_no_t port_no,
+                                        const vtss_port_10g_kr_frame_t *const frm)
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
@@ -786,6 +786,23 @@ static vtss_rc fa_port_10g_kr_frame(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_LDSTAT_VLD);
     }
 
+    return VTSS_RC_OK;
+}
+
+
+static vtss_rc fa_port_10g_kr_frame_get(vtss_state_t *vtss_state,
+                                        const vtss_port_no_t port_no,
+                                        vtss_port_10g_kr_frame_t *const frm)
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), val;
+
+    if (frm->type == VTSS_COEFFICIENT_UPDATE_FRM) {
+        REG_RD(VTSS_IP_KRANEG_LP_COEF_UPD(tgt), &val);
+    } else {
+        REG_RD(VTSS_IP_KRANEG_LP_STS_RPT(tgt), &val);
+    }
+
+    frm->data = (u16)val;
     return VTSS_RC_OK;
 }
 
@@ -824,9 +841,29 @@ static vtss_rc fa_port_10g_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
-        REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt),
-                VTSS_F_IP_KRANEG_FW_REQ_MW_START(1),
-                VTSS_M_IP_KRANEG_FW_REQ_MW_START);
+        /* REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt), */
+        /*         VTSS_F_IP_KRANEG_FW_REQ_MW_START(1), */
+        /*         VTSS_M_IP_KRANEG_FW_REQ_MW_START); */
+
+    }
+
+    if (fw_req->stop_training){
+        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
+                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
+
+    }
+
+    if (fw_req->training_failure){
+        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0) |
+                VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
+                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
+                VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
+
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(1),
+                VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
 
     }
 
@@ -844,7 +881,7 @@ static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_10g_kr_status_t *const status)
 {
-    u32 irq, sts0, sts1;
+    u32 irq, sts0, sts1, tr;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
@@ -858,6 +895,13 @@ static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
     status->aneg.request_1g = (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) == KR_ANEG_RATE_1G);
     status->irq.vector = irq;
     status->aneg.sts1 = sts1;
+
+    REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
+    status->train.frame_sent = tr;
+
+    REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &tr);
+    status->train.frame_errors = tr;
+
 
     if (irq > 0) {
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), irq);
@@ -924,6 +968,10 @@ static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
 
     }
 
+    REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
+            VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(!kr->train.enable),
+            VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
+
     // Clear aneg history
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR(1),
@@ -950,6 +998,10 @@ static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
             VTSS_F_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE(kr->train.enable),
             VTSS_M_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE);
 
+    REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+            VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(0),
+            VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
+    
 
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
 
@@ -3390,7 +3442,8 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_fw_req = fa_port_10g_kr_fw_req;
 
 
-        state->kr_frame = fa_port_10g_kr_frame;
+        state->kr_frame_set = fa_port_10g_kr_frame_set;
+        state->kr_frame_get = fa_port_10g_kr_frame_get;
 
 #endif /* VTSS_FEATURE_10G_BASE_KR */
         state->status_get = fa_port_status_get;

@@ -617,6 +617,8 @@ typedef struct {
     mesa_bool_t np_loaded;
     mesa_bool_t rate_done;
     mesa_bool_t start_training;
+    mesa_bool_t stop_training;
+    mesa_bool_t training_failure;
     mesa_bool_t aneg_disable;
 } mesa_port_10g_kr_fw_req_t;
 
@@ -635,10 +637,13 @@ typedef struct {
     uint16_t data;
 } mesa_port_10g_kr_frame_t;
 
-mesa_rc mesa_port_10g_kr_train_frame(const mesa_inst_t inst,
-                                     const mesa_port_no_t port_no,
-                                     mesa_port_10g_kr_frame_t *const frm);
+mesa_rc mesa_port_10g_kr_train_frm_set(const mesa_inst_t inst,
+                                       const mesa_port_no_t port_no,
+                                       const mesa_port_10g_kr_frame_t *const frm);
 
+mesa_rc mesa_port_10g_kr_train_frm_get(const mesa_inst_t inst,
+                                       const mesa_port_no_t port_no,
+                                       mesa_port_10g_kr_frame_t *const frm);
 
 // 10G KR Aneg status
 typedef struct {
@@ -662,6 +667,8 @@ typedef struct {
     uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed, range: -32..31
     uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed, range: -32..31
     uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed, range: -32..31
+    uint32_t frame_sent;
+    uint16_t frame_errors;
 } mesa_port_10g_kr_status_train_t CAP(PORT_10GBASE_KR_V2);
 
 // 10G KR FEC status

@@ -1221,9 +1221,9 @@ vtss_rc vtss_port_10g_kr_fw_req(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_port_10g_kr_train_frame(const vtss_inst_t inst,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_10g_kr_frame_t *const frm)
+vtss_rc vtss_port_10g_kr_train_frm_get(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       vtss_port_10g_kr_frame_t *const frm)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -1231,7 +1231,23 @@ vtss_rc vtss_port_10g_kr_train_frame(const vtss_inst_t inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_frame, port_no, frm);
+        rc = VTSS_FUNC_COLD(port.kr_frame_get, port_no, frm);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_10g_kr_train_frm_set(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       const vtss_port_10g_kr_frame_t *const frm)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_frame_set, port_no, frm);
     }
     VTSS_EXIT();
     return rc;
