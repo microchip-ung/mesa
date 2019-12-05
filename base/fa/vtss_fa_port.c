@@ -828,33 +828,33 @@ static vtss_rc fa_port_10g_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
     }
 
-    if (fw_req->rate_done) {
-        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
-                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(1),
-                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE);
 
-        REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer
+    if (fw_req->rate_done || fw_req->tr_done ) {
+        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
+                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(fw_req->rate_done) |
+                VTSS_F_IP_KRANEG_FW_MSG_TR_DONE(fw_req->tr_done),
+                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
+                VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
+
+        if (fw_req->rate_done) {
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer
+        }
     }
 
     if (fw_req->start_training){
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
-
-        /* REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt), */
-        /*         VTSS_F_IP_KRANEG_FW_REQ_MW_START(1), */
-        /*         VTSS_M_IP_KRANEG_FW_REQ_MW_START); */
-
     }
 
-    if (fw_req->stop_training){
+    if (fw_req->stop_training) {
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
     }
 
-    if (fw_req->training_failure){
+    if (fw_req->training_failure) {
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0) |
                 VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
@@ -2944,7 +2944,6 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
     REG_RD(VTSS_IP_KRANEG_FW_MSG(tgt), &val);
     if (val > 0) {
         pr("\n  FW_MSG:    ");
-        print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_TR_DONE(val),     "TR_DONE");
         print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_TR_DONE(val),     "TR_DONE");
         print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_LDCOEF_VLD(val),  "LDCOEF_VLD");
         print_reg_bit(pr, VTSS_X_IP_KRANEG_FW_MSG_LDSTAT_VLD(val),  "LDSTAT_VLD");
