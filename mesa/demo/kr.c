@@ -54,32 +54,32 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 meba_inst_t meba_global_inst;
 
-#define KR_ACTV            (29)
-#define KR_LPSVALID        (28)
-#define KR_LPCVALID        (27)
-#define KR_WT_DONE         (26)
-#define KR_MW_DONE         (25)
-#define KR_BER_BUSY_0      (24)
-#define KR_BER_BUSY_1      (23)
-#define KR_REM_RDY_0       (22)
-#define KR_REM_RDY_1       (21)
-#define KR_FRLOCK_0        (20)
-#define KR_FRLOCK_1        (19)
-#define KR_DME_VIOL_0      (18)
-#define KR_DME_VIOL_1      (17)
-#define KR_AN_XMIT_DISABLE (16)
-#define KR_TRAIN           (15)
-#define KR_RATE_DET        (14)
-#define KR_CMPL_ACK        (13)
-#define KR_AN_GOOD         (12)
-#define KR_LINK_FAIL       (11)
-#define KR_ABD_FAIL        (10)
-#define KR_ACK_FAIL        (9)
-#define KR_NP_FAIL         (8)
-#define KR_NP_RX           (7)
-#define KR_INCP_LINK       (6)
-#define KR_GEN0_DONE       (5)
-#define KR_GEN1_DONE       (4)
+#define KR_ACTV            (1 << 29)
+#define KR_LPSVALID        (1 << 28)
+#define KR_LPCVALID        (1 << 27)
+#define KR_WT_DONE         (1 << 26)
+#define KR_MW_DONE         (1 << 25)
+#define KR_BER_BUSY_0      (1 << 24)
+#define KR_BER_BUSY_1      (1 << 23)
+#define KR_REM_RDY_0       (1 << 22)
+#define KR_REM_RDY_1       (1 << 21)
+#define KR_FRLOCK_0        (1 << 20)
+#define KR_FRLOCK_1        (1 << 19)
+#define KR_DME_VIOL_0      (1 << 18)
+#define KR_DME_VIOL_1      (1 << 17)
+#define KR_AN_XMIT_DISABLE (1 << 16)
+#define KR_TRAIN           (1 << 15)
+#define KR_RATE_DET        (1 << 14)
+#define KR_CMPL_ACK        (1 << 13)
+#define KR_AN_GOOD         (1 << 12)
+#define KR_LINK_FAIL       (1 << 11)
+#define KR_ABD_FAIL        (1 << 10)
+#define KR_ACK_FAIL        (1 << 9)
+#define KR_NP_FAIL         (1 << 8)
+#define KR_NP_RX           (1 << 7)
+#define KR_INCP_LINK       (1 << 6)
+#define KR_GEN0_DONE       (1 << 5)
+#define KR_GEN1_DONE       (1 << 4)
 
 #ifndef TRUE
 #define TRUE 1
@@ -151,7 +151,44 @@ typedef enum {
 kr_train_t kr_tr_state[100] = {0};
 
 uint32_t my_cnt = 0;
-uint32_t my_limit = 1000;
+uint32_t my_limit = 0;
+
+#define BT(x) (1 << (x))
+#define VTSS_BITMASK(x)               ((1 << (x)) - 1)
+#define BITFIELD(x,o,w)  (((x) >> (o)) & VTSS_BITMASK(w))
+
+
+void kr_printf(const char *fmt, ...)
+{
+
+    va_list ap;
+    char local_buf[1024];
+
+    if (my_limit > 0 && (my_cnt == (my_limit-1))) {
+        cli_printf("----->kr_printf disable\n");
+    }
+
+    if (my_cnt >= my_limit) {
+        return;
+    }
+    my_cnt++;
+
+    va_start(ap, fmt);
+    vsnprintf(local_buf, 1024, fmt, ap);
+    va_end(ap);
+
+    printf("%s",local_buf);
+}
+
+
+static char *bit2txt(uint32_t  bt, char *name)
+{
+    if (bt > 0) {
+        return name;
+//        T_I("%s ",name);
+    }
+    return "";
+}
 
 char *ber2txt(ber_stage_t st)
 {
@@ -187,6 +224,41 @@ char *tap2txt(kr_tap_t st)
     default:  return "ILLEGAL";
     }
 }
+
+char *irq2txt(u32 irq)
+{
+    switch (irq) {
+    case KR_ACTV:       return  "KR_ACTV";
+    case KR_LPSVALID:   return  "KR_LPSVALID";
+    case KR_LPCVALID:   return  "KR_LPCVALID";
+    case KR_WT_DONE:    return  "WT_DONE";
+    case KR_MW_DONE:    return  "MW_DONE";
+    case KR_BER_BUSY_0: return  "BER_BUSY_0";
+    case KR_BER_BUSY_1: return  "BER_BUSY_1";
+    case KR_REM_RDY_0:  return  "REM_RDY_0";
+    case KR_REM_RDY_1:  return  "REM_RDY_1";
+    case KR_FRLOCK_0:   return  "FRLOCK_0";
+    case KR_FRLOCK_1:   return  "FRLOCK_1";
+    case KR_DME_VIOL_0: return  "DME_VIOL_0";
+    case KR_DME_VIOL_1: return  "DME_VIOL_1";
+    case KR_AN_XMIT_DISABLE: return  "AN_XMIT_DISABLE";
+    case KR_TRAIN:      return  "TRAIN";
+    case KR_RATE_DET:   return  "RATE_DET";
+    case KR_CMPL_ACK:   return  "CMPL_ACK";
+    case KR_AN_GOOD:    return  "AN_GOOD";
+    case KR_LINK_FAIL:  return  "LINK_FAIL";
+    case KR_ABD_FAIL:   return  "ABD_FAIL";
+    case KR_ACK_FAIL:   return  "ACK_FAIL";
+    case KR_NP_FAIL:    return  "NP_FAIL";
+    case KR_NP_RX:      return  "NP_RX";
+    case KR_INCP_LINK:  return  "INCP_LINK";
+    case KR_GEN0_DONE:  return  "GEN0_DONE";
+    case KR_GEN1_DONE:  return  "GEN1_DONE";
+    case 0:  return "";
+    default:  return "ILLEGAL";
+    }
+}
+
 
 char *sts2txt(kr_status_report_t vector)
 {
@@ -301,7 +373,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             continue;
         }
         krs = &kr_tr_state[iport];
-        
+
         cli_printf("Port %d\n",uport);
         cli_printf("  BER STAGE         : %s\n",ber2txt(krs->ber_training_stage));
         cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap));
@@ -331,31 +403,6 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
 }
 
 
-void kr_printf(const char *fmt, ...)
-{
-
-    va_list ap;
-    char local_buf[1024];
-
-    if (my_cnt > my_limit) {
-        return;
-    }
-    my_cnt++;
-
-    va_start(ap, fmt);
-    vsnprintf(local_buf, 1024, fmt, ap);
-    va_end(ap);
-
-    printf("%s",local_buf);
-}
-
-
-static void bit2txt(uint32_t  bt, char *name)
-{
-    if (bt > 0) {
-        printf("%s ",name);
-    }
-}
 static char *fa_kr_aneg_rate(uint32_t reg)
 {
     switch (reg) {
@@ -371,9 +418,6 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     }
     return "other";
 }
-#define BT(x) (1 << (x))
-#define VTSS_BITMASK(x)               ((1 << (x)) - 1)
-#define BITFIELD(x,o,w)  (((x) >> (o)) & VTSS_BITMASK(w))
 
 //VTSS_EXTRACT_BITFIELD(x,5,1)
 
@@ -402,49 +446,50 @@ void print_irq_vector(uint32_t p, uint32_t vector)
 {
     struct timeval tv;
     int            s;
+    char buf[100], *b;
 
     if (vector == 0) {
         return;
     }
-    if (my_cnt > my_limit) {
-        return;
-    }
+    /* if (my_cnt > my_limit) { */
+    /*     return; */
+    /* } */
     (void)gettimeofday(&tv, NULL);
     s = (tv.tv_sec % 60);
 
-    printf("Port:%d (%02u:%03lu)\n",p+1,s,tv.tv_usec/1000);
-    printf("       IRQ:");
-    bit2txt((BT(KR_ACTV)       & vector),  "KR_ACTV");
-    bit2txt((BT(KR_LPSVALID)   & vector),  "LPSVALID");
-    bit2txt((BT(KR_LPCVALID)   & vector),  "LPCVALID");
-    bit2txt((BT(KR_WT_DONE)    & vector),  "WT_DONE");
-    bit2txt((BT(KR_MW_DONE)    & vector),  "MW_DONE");
-    bit2txt((BT(KR_BER_BUSY_0) & vector),  "BER_BUSY_0");
-    bit2txt((BT(KR_BER_BUSY_1) & vector),  "BER_BUSY_1");
-    bit2txt((BT(KR_REM_RDY_0)  & vector),  "REM_RDY_0");
-    bit2txt((BT(KR_REM_RDY_1)  & vector),  "REM_RDY_1");
-    bit2txt((BT(KR_FRLOCK_0)   & vector),  "FRLOCK_0");
-    bit2txt((BT(KR_FRLOCK_1)   & vector),  "FRLOCK_1");
-    bit2txt((BT(KR_DME_VIOL_0) & vector),  "DME_VIOL_0");
-    bit2txt((BT(KR_DME_VIOL_1) & vector),  "DME_VIOL_1");
-    bit2txt((BT(KR_AN_XMIT_DISABLE) & vector),  "AN_XMIT_DISABLE");
-    bit2txt((BT(KR_TRAIN)      & vector),  "TRAIN");
-    bit2txt((BT(KR_RATE_DET)   & vector),  "RATE_DET");
-    bit2txt((BT(KR_CMPL_ACK)   & vector),  "CMPL_ACK");
-    bit2txt((BT(KR_AN_GOOD)    & vector),  "AN_GOOD");
-    bit2txt((BT(KR_LINK_FAIL)  & vector),  "LINK_FAIL");
-    bit2txt((BT(KR_ABD_FAIL)   & vector),  "ABD_FAIL");
-    bit2txt((BT(KR_ACK_FAIL)   & vector),  "ACK_FAIL");
-    bit2txt((BT(KR_NP_FAIL)    & vector),  "NP_FAIL");
-    bit2txt((BT(KR_NP_RX)      & vector),  "NP_RX");
-    bit2txt((BT(KR_INCP_LINK)  & vector),  "INCP_LINK");
-    bit2txt((BT(KR_GEN0_DONE)  & vector),  "GEN0_DONE");
-    bit2txt((BT(KR_GEN1_DONE)  & vector),  "GEN1_DONE");
-
+    b = &buf[0];
+    b += sprintf(b, "Port:%d (%02u:%03lu)\n",p+1,s,tv.tv_usec/1000);
+    b += sprintf(b, "       IRQ:");
+    b += sprintf(b, "%s", bit2txt((KR_ACTV & vector),       "KR_ACTV "));
+    b += sprintf(b, "%s", bit2txt((KR_LPSVALID & vector),   "KR_LPSVALID "));
+    b += sprintf(b, "%s", bit2txt((KR_WT_DONE & vector),    "WT_DONE "));
+    b += sprintf(b, "%s", bit2txt((KR_MW_DONE & vector),    "MW_DONE "));
+    b += sprintf(b, "%s", bit2txt((KR_BER_BUSY_0 & vector), "BER_BUSY_0 "));
+    b += sprintf(b, "%s", bit2txt((KR_BER_BUSY_1 & vector), "BER_BUSY_1 "));
+    b += sprintf(b, "%s", bit2txt((KR_REM_RDY_0 & vector),  "REM_RDY_0 "));
+    b += sprintf(b, "%s", bit2txt((KR_REM_RDY_1 & vector),  "REM_RDY_1 "));
+    b += sprintf(b, "%s", bit2txt((KR_FRLOCK_0 & vector),   "FRLOCK_0 "));
+    b += sprintf(b, "%s", bit2txt((KR_FRLOCK_1 & vector),   "FRLOCK_1 "));
+    b += sprintf(b, "%s", bit2txt((KR_DME_VIOL_0 & vector), "DME_VIOL_0 "));
+    b += sprintf(b, "%s", bit2txt((KR_DME_VIOL_1 & vector), "DME_VIOL_1 "));
+    b += sprintf(b, "%s", bit2txt((KR_AN_XMIT_DISABLE & vector),  "AN_XMIT_DISABLE "));
+    b += sprintf(b, "%s", bit2txt((KR_TRAIN & vector),      "TRAIN "));
+    b += sprintf(b, "%s", bit2txt((KR_RATE_DET & vector),   "RATE_DET "));
+    b += sprintf(b, "%s", bit2txt((KR_CMPL_ACK & vector),   "CMPL_ACK "));
+    b += sprintf(b, "%s", bit2txt((KR_AN_GOOD & vector),    "AN_GOOD "));
+    b += sprintf(b, "%s", bit2txt((KR_LINK_FAIL & vector),  "LINK_FAIL "));
+    b += sprintf(b, "%s", bit2txt((KR_ABD_FAIL & vector),   "ABD_FAIL "));
+    b += sprintf(b, "%s", bit2txt((KR_ACK_FAIL & vector),   "ACK_FAIL "));
+    b += sprintf(b, "%s", bit2txt((KR_NP_FAIL & vector),    "NP_FAIL "));
+    b += sprintf(b, "%s", bit2txt((KR_NP_RX & vector),      "ACK_NP_RX "));
+    b += sprintf(b, "%s", bit2txt((KR_INCP_LINK & vector),  "INCP_LINK "));
+    b += sprintf(b, "%s", bit2txt((KR_GEN0_DONE & vector),  "GEN0_DONE "));
+    b += sprintf(b, "%s", bit2txt((KR_GEN1_DONE & vector),  "GEN1_DONE "));
+    
     if ((0xf & vector) > 0) {
-        printf("%s ",fa_kr_aneg_rate((0xf & vector)));
+        sprintf(b, "%s",fa_kr_aneg_rate((0xf & vector)));
     }
-    printf("\n");
+    T_I("%s",buf);
 }
 
 mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_10g_kr_conf_t *conf)
@@ -521,6 +566,11 @@ kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
         status = status << 2;
     }
 
+    kr_train_t *krs = &kr_tr_state[p];
+    if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
+        status += BT(15);
+    }
+
     return status;
 }
 
@@ -543,7 +593,7 @@ uint16_t update_coef(kr_coefficient_t ld, kr_tap_t tap)
     case INCR:   return (1 << (0 + offset));
     case HOLD:   return 0;
     default:
-        printf("Illegal prm\n");
+        kr_printf("Illegal prm\n");
         break;
     }
     return 0;
@@ -567,7 +617,7 @@ kr_status_report_t kr_status_report(uint16_t data, kr_tap_t tap)
     case 2:  return MINIMUM;
     case 3:  return MAXIMUM;
     default:
-        printf("Illegal prm\n");
+        kr_printf("Illegal prm\n");
         break;
     }
     return 0;
@@ -640,7 +690,7 @@ void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     kr_status_report_t lp_status = 0;
     mesa_port_10g_kr_fw_req_t req_msg = {0};
 
-    kr_printf("         TAP:%s BER:%s STATE:%s\n",tap2txt(krs->current_tap),
+    kr_printf("         IRQ:%s TAP:%s BER:%s STATE:%s\n",irq2txt(irq), tap2txt(krs->current_tap),
               ber2txt(krs->ber_training_stage), state2txt(krs->current_state));
 
     if (irq == KR_TRAIN) {
@@ -654,7 +704,7 @@ void perform_lp_training(mesa_port_no_t p, uint32_t irq)
        frm.type = MESA_STATUS_REPORT_FRM;
        (void)mesa_port_10g_kr_train_frm_get(NULL, p, &frm);
        lp_status = kr_status_report(frm.data, krs->current_tap);
-       kr_printf("         RX STS FRM: %s\n", sts2txt(lp_status));
+       kr_printf("         RX STS FRM: %s (%x)\n", sts2txt(lp_status),frm.data);
     }
 
     switch (krs->ber_training_stage) {
@@ -755,6 +805,15 @@ void perform_lp_training(mesa_port_no_t p, uint32_t irq)
                 if (krs->decr_cnt == 0) {
                     if (krs->current_tap == CP1) {
                         krs->ber_training_stage = LOCAL_RX_TRAINED;
+
+                        mesa_port_10g_kr_frame_t frm;
+                        //  Receiver Ready
+                        frm.data = BT(15);
+                        frm.type = MESA_STATUS_REPORT_FRM;
+                        // Send Status report
+                        (void)mesa_port_10g_kr_train_frm_set(NULL, p, &frm);
+                        kr_printf("       TX STS FRM: RECEIVER READY\n");
+
                     } else {
                         krs->current_tap = next_tap(krs->current_tap);
                         krs->ber_training_stage = GO_TO_MIN;
@@ -795,7 +854,7 @@ void kr_poll(meba_inst_t inst)
 
         if ((mesa_port_10g_kr_status_get(NULL, iport, &kr_sts) != MESA_RC_OK)
             || (kr_sts.irq.vector == 0)) {
-            return;
+            continue;
         }
         krs = &kr_tr_state[iport];
         krs->status = kr_sts;
@@ -804,24 +863,23 @@ void kr_poll(meba_inst_t inst)
         (void)print_irq_vector(iport, kr_sts.irq.vector);
 
         // KR_AN_XMIT_DISABLE. Aneg is restarted.
-        if (kr_sts.irq.vector & BT(KR_AN_XMIT_DISABLE)) {
+        if (kr_sts.irq.vector & KR_AN_XMIT_DISABLE) {
             if (krs->training_started) {
-                // TBD
-                /* krs->training_started = FALSE; */
-                /* req_msg.stop_training = TRUE; */
-                /* (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg); */
+                krs->training_started = FALSE;
+                req_msg.stop_training = TRUE;
+                (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
             }
         }
         // KR_TRAIN. Start Training
-        if (kr_sts.irq.vector & BT(KR_TRAIN)) {
+        if (kr_sts.irq.vector & KR_TRAIN) {
             if (kr.train.enable) {
                 krs->current_state = SEND_TRAINING;
                 krs->training_started = TRUE;
                 krs->remote_rx_ready = FALSE;
                 krs->local_rx_ready = FALSE;
                 req_msg.start_training = TRUE;
+                req_msg.mw_start = TRUE;
                 (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
-                kr_printf("       perform_lp_training(KR_TRAIN)\n");
                 (void)perform_lp_training(iport, KR_TRAIN);
             } else {
                 krs->current_state = SEND_DATA;
@@ -834,14 +892,14 @@ void kr_poll(meba_inst_t inst)
         }
 
         // KR_FRLOCK_1. Training frame lock attained. Change state to TRAIN_LOCAL
-        if ((kr_sts.irq.vector & BT(KR_FRLOCK_1)) && krs->training_started) {
+        if ((kr_sts.irq.vector & KR_FRLOCK_1) && krs->training_started) {
             if (krs->current_state == SEND_TRAINING) {
                 krs->current_state = TRAIN_LOCAL;
             }
         }
 
         // KR_FRLOCK_0. Training frame lock is lost during training
-        if ((kr_sts.irq.vector & BT(KR_FRLOCK_0)) && krs->training_started) {
+        if ((kr_sts.irq.vector & KR_FRLOCK_0) && krs->training_started) {
             if ((krs->current_state == TRAIN_LOCAL) || (krs->current_state == TRAIN_REMOTE)) {
                 krs->current_state = SEND_TRAINING;
                 krs->remote_rx_ready = FALSE;
@@ -850,79 +908,74 @@ void kr_poll(meba_inst_t inst)
         }
 
         // KR_LPCVALID
-        if ((kr_sts.irq.vector & BT(KR_LPCVALID)) && krs->training_started) {
-            if (iport != 1) {
-                mesa_port_10g_kr_frame_t frm;
-                frm.type = MESA_COEFFICIENT_UPDATE_FRM;
-                (void)mesa_port_10g_kr_train_frm_get(NULL, iport, &frm);
+        if ((kr_sts.irq.vector & KR_LPCVALID) && krs->training_started) {
+            mesa_port_10g_kr_frame_t frm;
+            frm.type = MESA_COEFFICIENT_UPDATE_FRM;
+            (void)mesa_port_10g_kr_train_frm_get(NULL, iport, &frm);
 
-                //  Update Serdes
-                frm.data = coef2status(iport, frm.data);
+            //  Update Serdes
+            frm.data = coef2status(iport, frm.data);
 
-                // Send Status report
-                frm.type = MESA_STATUS_REPORT_FRM;
-                (void)mesa_port_10g_kr_train_frm_set(NULL, iport, &frm);
-            }
-
+            // Send Status report
+            frm.type = MESA_STATUS_REPORT_FRM;
+            (void)mesa_port_10g_kr_train_frm_set(NULL, iport, &frm);
         }
 
         // KR_LPSVALID
-        if ((kr_sts.irq.vector & BT(KR_LPSVALID)) && krs->training_started) {
+        if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
             if (krs->ber_training_stage != LOCAL_RX_TRAINED) {
-                kr_printf("       perform_lp_training(KR_LPSVALID)\n");
                 perform_lp_training(iport, KR_LPSVALID);
             } else {
-                printf("current_state=TRAIN_REMOTE\n");
                 krs->current_state = TRAIN_REMOTE;
             }
         }
 
+
         // KR_BER_BUSY_1
-        if (kr_sts.irq.vector & BT(KR_BER_BUSY_1)) {
-            kr_printf("       perform_lp_training(KR_BER_BUSY_1)\n");
+        if (kr_sts.irq.vector & KR_BER_BUSY_1) {
             perform_lp_training(iport, KR_BER_BUSY_1);
         }
 
         // KR_BER_BUSY_0
-        if (kr_sts.irq.vector & BT(KR_BER_BUSY_0)) {
-            kr_printf("       perform_lp_training(KR_BER_BUSY_0)\n");
+        if (kr_sts.irq.vector & KR_BER_BUSY_0) {
             perform_lp_training(iport, KR_BER_BUSY_0);
         }
 
         /* // KR_DME_VIOL_1 */
-        if (kr_sts.irq.vector & BT(KR_DME_VIOL_1)) {
-            kr_printf("       perform_lp_training(KR_DME_VIOL_1)\n");
+        if (kr_sts.irq.vector & KR_DME_VIOL_1) {
             perform_lp_training(iport, KR_DME_VIOL_1);
         }
 
         // KR_DME_VIOL_0
-        if (kr_sts.irq.vector & BT(KR_DME_VIOL_0)) {
+        if (kr_sts.irq.vector & KR_DME_VIOL_0) {
             // Do nothing
         }
 
         // KR_REM_RDY_1
-        if (kr_sts.irq.vector & BT(KR_REM_RDY_1)) {
+        if (kr_sts.irq.vector & KR_REM_RDY_1) {
             krs->remote_rx_ready = TRUE;
         }
 
         // KR_REM_RDY_0
-        if (kr_sts.irq.vector & BT(KR_REM_RDY_0)) {
+        if (kr_sts.irq.vector & KR_REM_RDY_0) {
             krs->remote_rx_ready = FALSE;
         }
 
         // KR_WT_DONE
-        if (kr_sts.irq.vector & BT(KR_WT_DONE)) {
+        if (kr_sts.irq.vector & KR_WT_DONE) {
             if (krs->current_state ==  LINK_READY) {
+                krs->current_state = SEND_DATA;
                 krs->training_started = FALSE;
                 req_msg.stop_training = TRUE;
                 req_msg.tr_done = TRUE;
                 (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
                 krs->signal_detect = TRUE;
+                printf("Port:%d - Training completed\n",iport);
             }
         }
 
         // KR_MW_DONE
-        if (kr_sts.irq.vector & BT(KR_MW_DONE)) {
+        if (kr_sts.irq.vector & KR_MW_DONE) {
             req_msg.training_failure = TRUE;
             (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
         }
@@ -935,16 +988,17 @@ void kr_poll(meba_inst_t inst)
         }
 
         // KR_AN_GOOD
-        if (kr_sts.irq.vector & BT(KR_AN_GOOD)) {
+        if (kr_sts.irq.vector & KR_AN_GOOD) {
             if (pconf.speed < MESA_SPEED_5G) {
                 req_msg.aneg_disable = TRUE;
                 (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
-                return;
+                continue;
+
             }
         }
 
         // KR_RATE_DET
-        if (kr_sts.irq.vector & BT(KR_RATE_DET)) {
+        if (kr_sts.irq.vector & KR_RATE_DET) {
             // Parallel detect speed change
             pconf.speed = kr_parallel_spd(iport, &kr);
             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
@@ -1088,7 +1142,7 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         kr_init(init->board_inst);
         break;
 
-    case MSCC_INIT_CMD_POLL:
+    case MSCC_INIT_CMD_POLL_FAST:
         kr_poll(init->board_inst);
 
         break;
