@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -24,139 +24,18 @@
 #include "mscc/ethernet/switch/api.h"
 #include "mscc/ethernet/board/api.h"
 #include "main.h"
-#include "trace.h"
 #include "cli.h"
+#include "kr.h"
 #include <sys/time.h>
 
 typedef uint32_t u32;
 typedef uint16_t u16;
 
-static mscc_appl_trace_module_t trace_module = {
-    .name = "kr"
-};
-
-enum {
-    TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
-};
-
-static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
-    // TRACE_GROUP_DEFAULT
-    {
-        .name = "default",
-        .level = MESA_TRACE_LEVEL_ERROR
-    },
-};
-
-
-#define BER_THRESHOLD      (10)
-#define KR_AN_RATE         (0xF)
-
 meba_inst_t meba_global_inst;
-
-#define KR_ACTV            (1 << 29)
-#define KR_LPSVALID        (1 << 28)
-#define KR_LPCVALID        (1 << 27)
-#define KR_WT_DONE         (1 << 26)
-#define KR_MW_DONE         (1 << 25)
-#define KR_BER_BUSY_0      (1 << 24)
-#define KR_BER_BUSY_1      (1 << 23)
-#define KR_REM_RDY_0       (1 << 22)
-#define KR_REM_RDY_1       (1 << 21)
-#define KR_FRLOCK_0        (1 << 20)
-#define KR_FRLOCK_1        (1 << 19)
-#define KR_DME_VIOL_0      (1 << 18)
-#define KR_DME_VIOL_1      (1 << 17)
-#define KR_AN_XMIT_DISABLE (1 << 16)
-#define KR_TRAIN           (1 << 15)
-#define KR_RATE_DET        (1 << 14)
-#define KR_CMPL_ACK        (1 << 13)
-#define KR_AN_GOOD         (1 << 12)
-#define KR_LINK_FAIL       (1 << 11)
-#define KR_ABD_FAIL        (1 << 10)
-#define KR_ACK_FAIL        (1 << 9)
-#define KR_NP_FAIL         (1 << 8)
-#define KR_NP_RX           (1 << 7)
-#define KR_INCP_LINK       (1 << 6)
-#define KR_GEN0_DONE       (1 << 5)
-#define KR_GEN1_DONE       (1 << 4)
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-
-typedef enum {
-    INITILIZE,
-    SEND_TRAINING,
-    TRAIN_LOCAL,
-    TRAIN_REMOTE,
-    SEND_DATA,
-    TRAINING_FAILURE,
-    LINK_READY
-} train_state_t;
-
-typedef enum {
-    GO_TO_MIN,
-    CALCULATE_BER,
-    MOVE_TO_MID_MARK,
-    LOCAL_RX_TRAINED
-} ber_stage_t;
-
-
-typedef enum {
-    CM1,
-    C0,
-    CP1,
-} kr_tap_t;
-
-typedef struct {
-    train_state_t current_state;
-    ber_stage_t ber_training_stage;
-    mesa_bool_t signal_detect;
-    mesa_bool_t training_started;
-    mesa_bool_t remote_rx_ready;
-    mesa_bool_t local_rx_ready;
-    mesa_bool_t dme_viol_handled;
-    mesa_bool_t dme_viol;
-    mesa_bool_t ber_busy;
-    mesa_bool_t tap_max_reached;
-    mesa_port_speed_t next_parallel_spd;
-    kr_tap_t current_tap;
-    uint32_t  tap_idx;
-    mesa_port_10g_kr_status_t status;
-    uint16_t  ber_cnt[3][64];
-    uint16_t  decr_cnt;
-} kr_train_t;
-
-typedef enum {
-    HOLD = 0,
-    INCR = 1,
-    DECR = 2,
-    INIT = 0x1000,
-    PRESET = 0x2000
-} kr_coefficient_t;
-
-typedef enum {
-    NOT_UPDATED = 0,
-    UPDATED = 1,
-    MINIMUM = 2,
-    MAXIMUM = 3,
-} kr_status_report_t;
-
 kr_train_t kr_tr_state[100] = {0};
 
 uint32_t my_cnt = 0;
 uint32_t my_limit = 0;
-
-#define BT(x) (1 << (x))
-#define VTSS_BITMASK(x)               ((1 << (x)) - 1)
-#define BITFIELD(x,o,w)  (((x) >> (o)) & VTSS_BITMASK(w))
-
 
 void kr_printf(const char *fmt, ...)
 {
@@ -513,6 +392,11 @@ u32 coef_now[3];
 u32 coef_max = 10;
 u32 coef_min = 0;
 
+kr_status_report_t apply_to_serdes(mesa_port_no_t p, kr_tap_t tap, kr_coefficient_t coef)
+{
+    
+}
+
 kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
 {
     kr_coefficient_t coef = data;
@@ -532,6 +416,8 @@ kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
         }
     }
     kr_printf("       RX COEF FRM: %s\n",coef2txt(coef));
+
+    status = apply_to_serdes(p, tap, coef);
 
     if (coef == INIT) {
         coef_now[CM1] = coef_max / 2;
@@ -845,6 +731,9 @@ void kr_poll(meba_inst_t inst)
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
     mesa_port_10g_kr_fw_req_t req_msg = {0};
     kr_train_t *krs;
+    struct timeval tv;
+    int            s;
+   
 
     for (iport = 0; iport < meba_cnt; iport++) {
         if (mesa_port_10g_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
@@ -873,6 +762,9 @@ void kr_poll(meba_inst_t inst)
         // KR_TRAIN. Start Training
         if (kr_sts.irq.vector & KR_TRAIN) {
             if (kr.train.enable) {
+                (void)gettimeofday(&tv, NULL);
+                s = (tv.tv_sec % 60);
+                printf("Port:%d (%02u:%03lu)\n",iport+1,s,tv.tv_usec/1000);
                 krs->current_state = SEND_TRAINING;
                 krs->training_started = TRUE;
                 krs->remote_rx_ready = FALSE;
@@ -970,6 +862,9 @@ void kr_poll(meba_inst_t inst)
                 req_msg.tr_done = TRUE;
                 (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
                 krs->signal_detect = TRUE;
+                (void)gettimeofday(&tv, NULL);
+                s = (tv.tv_sec % 60);
+                printf("Port:%d (%02u:%03lu)\n",iport+1,s,tv.tv_usec/1000);
                 printf("Port:%d - Training completed\n",iport);
             }
         }
