@@ -682,13 +682,10 @@ static kr_tap_t next_tap(kr_tap_t tap)
 {
     switch (tap) {
     case CM1:
-        kr_printf("Next tap: C0\n");
         return C0;
     case C0:
-        kr_printf("Next tap: CP1\n");
         return CP1;
     case CP1:
-        kr_printf("Next tap: Done\n");
         return 0;
     }
     return 0;
@@ -842,6 +839,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
 
                     } else {
                         krs->current_tap = next_tap(krs->current_tap);
+                        kr_printf("       (LPT)Next tap:%s\n",tap2txt(krs->current_tap));
                         krs->ber_training_stage = GO_TO_MIN;
                     }
                 } else if (lp_status == NOT_UPDATED) {
@@ -980,6 +978,28 @@ static void kr_poll(meba_inst_t inst)
             krs->time = get_time_ms(&krs->time_start);
         }
 
+        /* if (kr_sts.irq.vector & KR_WT_DONE) { */
+        /*     // TMP fix for errors when the LP turns of training */
+        /*     kr_sts.irq.vector &= ~KR_DME_VIOL_0; */
+        /*     kr_sts.irq.vector &= ~KR_DME_VIOL_1; */
+        /*     kr_sts.irq.vector &= ~KR_REM_RDY_0; */
+        /* } */
+
+        // KR_WT_DONE
+        if (kr_sts.irq.vector & KR_WT_DONE) {
+            if (krs->current_state ==  LINK_READY) {
+                kr_printf("       (WT_DONE)STOP Training\n");
+                krs->current_state = SEND_DATA;
+                krs->training_started = FALSE;
+                req_msg.stop_training = TRUE;
+                req_msg.tr_done = TRUE;
+                (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+                krs->signal_detect = TRUE;
+                krs->time = get_time_ms(&krs->time_start);
+                printf("Port:%d - Training completed (%d)\n",iport+1,krs->time);
+            }
+        }
+
         // KR_BER_BUSY_1
         if (kr_sts.irq.vector & KR_BER_BUSY_1) {
             perform_lp_training(iport, KR_BER_BUSY_1);
@@ -991,8 +1011,9 @@ static void kr_poll(meba_inst_t inst)
         }
 
         /* // KR_DME_VIOL_1 */
-        if (kr_sts.irq.vector & KR_DME_VIOL_1) {
+        if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started) {
             perform_lp_training(iport, KR_DME_VIOL_1);
+
         }
 
         // KR_DME_VIOL_0
@@ -1010,26 +1031,12 @@ static void kr_poll(meba_inst_t inst)
             krs->remote_rx_ready = FALSE;
         }
 
-        // KR_WT_DONE
-        if (kr_sts.irq.vector & KR_WT_DONE) {
-            if (krs->current_state ==  LINK_READY) {
-                kr_printf("       (WT_DONE)STOP Training\n");
-                krs->current_state = SEND_DATA;
-                krs->training_started = FALSE;
-                req_msg.stop_training = TRUE;
-                req_msg.tr_done = TRUE;
-                (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
-                krs->signal_detect = TRUE;
-                krs->time = get_time_ms(&krs->time_start);
-                printf("Port:%d - Training completed (%d)\n",iport+1,krs->time);
-            }
-        }
-
         // KR_MW_DONE
-        if (kr_sts.irq.vector & KR_MW_DONE) {
+        if ((kr_sts.irq.vector & KR_MW_DONE) && krs->training_started) {
             kr_printf("       (MW_DONE)MAX Wait done - Failure\n");
             req_msg.training_failure = TRUE;
             (void)mesa_port_10g_kr_fw_req(NULL, iport, &req_msg);
+
         }
 
         // WT_START
