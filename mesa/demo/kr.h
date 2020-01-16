@@ -129,6 +129,10 @@ typedef struct {
     mesa_port_10g_kr_status_t status;
     uint16_t  ber_cnt[3][64];
     uint16_t  decr_cnt;
+    uint16_t  tap_max_cnt[3];
+    uint16_t  tap_mid_cnt[3];
+    uint32_t  time;
+    struct timeval time_start;
 } kr_train_t;
 
 typedef enum {

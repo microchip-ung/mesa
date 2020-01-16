@@ -778,6 +778,37 @@ vtss_rc vtss_port_10g_kr_train_frm_get(const vtss_inst_t inst,
                                        const vtss_port_no_t port_no,
                                        vtss_port_10g_kr_frame_t *const frm);
 
+typedef enum {
+    VTSS_COEF_PRESET,
+    VTSS_COEF_INIT,
+    VTSS_COEF_CP1,
+    VTSS_COEF_C0,
+    VTSS_COEF_CM1
+} vtss_port_10g_kr_coef_type_t;
+
+typedef enum {
+    VTSS_COEF_HOLD,
+    VTSS_COEF_INCR,
+    VTSS_COEF_DECR
+} vtss_port_10g_kr_coef_update_t;
+
+typedef struct {
+    vtss_port_10g_kr_coef_type_t type;
+    vtss_port_10g_kr_coef_update_t update;
+} vtss_port_10g_kr_coef_t;
+
+typedef enum {
+    VTSS_COEF_NOT_UPDATED = 0,
+    VTSS_COEF_UPDATED = 1,
+    VTSS_COEF_MINIMUM = 2,
+    VTSS_COEF_MAXIMUM = 3
+} vtss_port_10g_kr_coef_status_t;
+
+vtss_rc vtss_port_10g_kr_coef_set(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  const vtss_port_10g_kr_coef_t *const coef,
+                                  vtss_port_10g_kr_coef_status_t *const sts);
+
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
 

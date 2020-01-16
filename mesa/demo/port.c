@@ -1336,7 +1336,7 @@ static void port_init(meba_inst_t inst)
         mesa_port_list_set(&member, port_no, 1);
     mesa_pvlan_port_members_set(NULL, 1,  &member);
   
-    printf("(TBR)Ports 1-8 added PVLAN 1\n");
+//    printf("(TBR)Ports 1-8 added PVLAN 1\n");
 }
 
 static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *driver,

@@ -357,7 +357,12 @@ typedef struct {
     vtss_rc (* kr_frame_get)(struct vtss_state_s *vtss_state,
                              const vtss_port_no_t port_no,
                               vtss_port_10g_kr_frame_t *const frm);
-    
+
+    vtss_rc (* kr_coef_set)(struct vtss_state_s *vtss_state,
+                            const vtss_port_no_t port_no,
+                            const vtss_port_10g_kr_coef_t *const coef,
+                            vtss_port_10g_kr_coef_status_t *const sts);
+
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 

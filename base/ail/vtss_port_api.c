@@ -1253,6 +1253,23 @@ vtss_rc vtss_port_10g_kr_train_frm_set(const vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_10g_kr_coef_set(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  const vtss_port_10g_kr_coef_t *const coef,
+                                  vtss_port_10g_kr_coef_status_t *const sts)
+{
+   vtss_state_t *vtss_state;
+   vtss_rc      rc;
+
+   VTSS_D("port_no: %u", port_no);
+   VTSS_ENTER();
+   if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+       rc = VTSS_FUNC_COLD(port.kr_coef_set, port_no, coef, sts);
+   }
+   VTSS_EXIT();
+   return rc;
+}
+
 vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
                                     const vtss_port_no_t port_no,
                                     vtss_port_10g_kr_status_t *const status)

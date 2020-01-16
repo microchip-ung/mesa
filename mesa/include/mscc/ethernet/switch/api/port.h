@@ -742,6 +742,42 @@ mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
                                     mesa_port_10g_kr_status_t *const status)
     CAP(PORT_10GBASE_KR_V2);
 
+
+typedef enum {
+    MESA_COEF_PRESET,
+    MESA_COEF_INIT,
+    MESA_COEF_CP1,
+    MESA_COEF_C0,
+    MESA_COEF_CM1
+} mesa_port_10g_kr_coef_type_t CAP(PORT_10GBASE_KR_V2);
+
+typedef enum {
+    MESA_COEF_HOLD,
+    MESA_COEF_INCR,
+    MESA_COEF_DECR
+} mesa_port_10g_kr_coef_update_t CAP(PORT_10GBASE_KR_V2);
+
+typedef struct {
+    mesa_port_10g_kr_coef_type_t type;
+    mesa_port_10g_kr_coef_update_t update;
+} mesa_port_10g_kr_coef_t CAP(PORT_10GBASE_KR_V2);
+
+typedef enum {
+    MESA_COEF_NOT_UPDATED = 0,
+    MESA_COEF_UPDATED = 1,
+    MESA_COEF_MINIMUM = 2,
+    MESA_COEF_MAXIMUM = 3
+} mesa_port_10g_kr_coef_status_t CAP(PORT_10GBASE_KR_V2);
+
+mesa_rc mesa_port_10g_kr_coef_set(const mesa_inst_t inst,
+                                  const mesa_port_no_t port_no,
+                                  const mesa_port_10g_kr_coef_t *const coef,
+                                  mesa_port_10g_kr_coef_status_t *const sts)
+    CAP(PORT_10GBASE_KR_V2);
+
+
+
+
 // Port loopback
 typedef enum
 {
