@@ -15,10 +15,10 @@
  *  Features
  * ================================================================= */
 #if defined(VTSS_CHIP_9668)
-#define VTSS_ARCH_MASERATI                         /**< Maserati architecture */
+#define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
 #endif
 
-#if defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */

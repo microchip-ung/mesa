@@ -5618,7 +5618,7 @@ static void vtss_cmn_key_type_get(vtss_state_t *vtss_state, vtss_port_no_t port_
         /* The first port in the list determines the key type */
         conf = &vtss_state->l2.vcl_port_conf[port_no];
         key->key_type = conf->key_type;
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         if (lookup == 1) {
             key->key_type = vtss_state->vcap.port_conf[port_no].key_type_is1_1;
         }
@@ -5697,7 +5697,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     is1->port_no = vtss_cmn_first_port_no_get(vtss_state, vce->key.port_list);
     is1->flags = VTSS_IS1_FLAG_TRI_VID;
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     if (vtss_state->arch == VTSS_ARCH_SRVL) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
     }

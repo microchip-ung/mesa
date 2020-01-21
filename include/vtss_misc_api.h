@@ -519,11 +519,11 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #define VTSS_GPIOS         64
 #endif /* VTSS_ARCH_SPARX5 */
 
-#if defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         (8*6)
-#endif /* VTSS_ARCH_MASERATI */
+#endif /* VTSS_ARCH_LAN966X */
 
 /** \brief GPIO number */
 typedef u32 vtss_gpio_no_t;

@@ -21,11 +21,11 @@
 #define VTSS_FEATURE_ES0  /* VCAP ES0 */
 #endif /* VTSS_ARCH_OCELOT */
 
-#if defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_IS1  /* VCAP IS1 */
 #define VTSS_FEATURE_IS2  /* VCAP IS2 */
 #define VTSS_FEATURE_ES0  /* VCAP ES0 */
-#endif /* VTSS_ARCH_MASERATI */
+#endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_FEATURE_IS2            /* VCAP IS2 */
@@ -569,9 +569,9 @@ typedef struct {
 typedef struct {
     vtss_is1_type_t      type;      /**< Frame type */
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     vtss_vcap_key_type_t key_type;  /**< Key type */
-#endif /* VTSS_ARCH_OCELOT/JAGUAR_2/VTSS_ARCH_SPARX5/VTSS_ARCH_MASERATI */
+#endif /* VTSS_ARCH_OCELOT/JAGUAR_2/VTSS_ARCH_SPARX5/VTSS_ARCH_LAN966X */
 #if defined(VTSS_ARCH_OCELOT)
     vtss_vcap_u16_t      isdx;      /**< ISDX */
 #endif /* VTSS_ARCH_OCELOT */
@@ -760,7 +760,7 @@ typedef enum {
     VTSS_ES0_QOS_MAPPED
 } vtss_es0_qos_t;
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 
 #if defined(VTSS_FEATURE_MPLS)
 #if defined(VTSS_CHIP_LYNX_2) || defined(VTSS_CHIP_JAGUAR_2) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SPARX5)
@@ -836,7 +836,7 @@ typedef enum {
 
 /* ES0 action */
 typedef struct {
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     /* For Serval, the following two fields replace the tag related fields below */
     vtss_es0_tag_conf_t       outer_tag;
     vtss_es0_tag_conf_t       inner_tag;
@@ -1154,7 +1154,7 @@ typedef struct {
 #define VTSS_IS2_CNT      VTSS_SRVL_IS2_CNT
 #elif defined(VTSS_ARCH_LUTON26)
 #define VTSS_IS2_CNT      VTSS_L26_IS2_CNT
-#elif defined(VTSS_ARCH_MASERATI)
+#elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_IS2_CNT      VTSS_MAS_IS2_CNT
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
@@ -1221,7 +1221,7 @@ typedef struct {
 } vtss_es2_info_t;
 #endif /* VTSS_FEATURE_ES2 */
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 typedef struct {
     BOOL dmac_dip[3]; /* Aggregated dmac_dip flag - one per IS1 lookup */
 } vtss_dmac_dip_conf_t;
@@ -1335,7 +1335,7 @@ typedef struct {
 #endif /* VTSS_ARCH_LUTON26 */
     vtss_acl_port_conf_t          acl_old_port_conf;
     vtss_acl_port_conf_t          acl_port_conf[VTSS_PORT_ARRAY_SIZE];
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_vcap_port_conf_t         port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_vcap_port_conf_t         port_conf_old;
     vtss_dmac_dip_conf_t          dmac_dip_conf[VTSS_PORT_ARRAY_SIZE];/* Aggregated dmac_dip flag - per port per IS1 lookup */
