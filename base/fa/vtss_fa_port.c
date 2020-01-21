@@ -1104,7 +1104,7 @@ static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
     vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
     u32 pcs2pma = st->pcs2pma, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
-    /* sts1 = fa_coef_get(port_no, coef, &pcs2pma, &tap_dly, &tap_adv, 0); */
+    (void)fa_coef_get(port_no, coef, &pcs2pma, &tap_dly, &tap_adv, 0);
     sts2 = fa_coef_get(port_no, coef, &pcs2pma, &tap_dly, &tap_adv, 1);
 
 
