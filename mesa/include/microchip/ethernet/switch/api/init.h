@@ -55,6 +55,7 @@ typedef enum {
     MESA_TARGET_7552TSN       = 0x47552, // SparX-5-128i Industrial Switch
     MESA_TARGET_7556TSN       = 0x47556, // SparX-5-160i Industrial Switch
     MESA_TARGET_7558TSN       = 0x47558, // SparX-5-200i Industrial Switch
+    MESA_TARGET_LAN9668       = 0x9668,  // LAN9668 switch
 } mesa_target_type_t;
 
 // Create structure

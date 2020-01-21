@@ -20,13 +20,18 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
+#define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
+#define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_VCAP                         /**< VCAP */
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
-#define VTSS_FEATURE_SERDES_MACRO_SETTINGS       /**< Hooks for Serdes Macro configuration */
+#define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */
+#define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
+#define VTSS_AFI_V1                               /**< AFI API version 1 */
 #endif
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \

@@ -30,6 +30,10 @@
 #include "../fa/vtss_fa.h"
 #endif
 
+#if defined(VTSS_ARCH_LAN966X)
+#include "../lan966x/vtss_lan966x.h"
+#endif
+
 #if defined(VTSS_CHIP_CU_PHY) || defined(VTSS_CHIP_10G_PHY)
 #if defined (VTSS_OPT_PHY_TIMESTAMP)
 #include "../phy/ts/vtss_phy_ts.h"
@@ -354,6 +358,12 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         VTSS_RC(vtss_fa_inst_create(vtss_state));
         break;
 #endif /* VTSS_ARCH_SPARX5 */
+#if defined(VTSS_ARCH_LAN966X)
+    case VTSS_TARGET_LAN9668:
+        arch = VTSS_ARCH_LAN_966X;
+        VTSS_RC(vtss_lan966x_inst_create(vtss_state));
+        break;
+#endif
     default:
         VTSS_E("unknown target: 0x%05x", create->target);
         return VTSS_RC_ERROR;
