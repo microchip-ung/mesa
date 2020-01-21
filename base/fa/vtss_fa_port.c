@@ -495,7 +495,7 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
             if ((port_conf->speed == VTSS_SPEED_25G) ||
                 (port_conf->speed == VTSS_SPEED_10G) ||
                 (port_conf->speed == VTSS_SPEED_5G)) {
-                clk_div = 2; /* Divide by 66/32 */
+                clk_div = 1; /* Divide by 2 */
             }
 
             if (port_conf->serdes.media_type == VTSS_SD10G_MEDIA_SR) { /* Optical SFP with LOS signal connected to serial GPIO */
@@ -2018,28 +2018,38 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL power_down)
 {
     u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
+    BOOL pd_serdes = 1;
 
-    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
-    if (type == FA_SERDES_TYPE_6G) {
-        sd_tgt = VTSS_TO_SD6G_LANE(indx);
-    } else if (type == FA_SERDES_TYPE_10G) {
-        sd_tgt = VTSS_TO_SD10G_LANE(indx);
-    } else {
-        sd_tgt = VTSS_TO_SD25G_LANE(indx);
+    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
+        pd_serdes = 0; // Do not power down multi-port serdes
     }
 
-    if (type == FA_SERDES_TYPE_25G) {
-        REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
-                VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
-                VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
-    } else {
-        // 6G and 10G
-        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
-                VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
-                VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+    if (pd_serdes) {
+        VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
+        if (type == FA_SERDES_TYPE_6G) {
+            sd_tgt = VTSS_TO_SD6G_LANE(indx);
+        } else if (type == FA_SERDES_TYPE_10G) {
+            sd_tgt = VTSS_TO_SD10G_LANE(indx);
+        } else {
+            sd_tgt = VTSS_TO_SD25G_LANE(indx);
+        }
+
+        if (type == FA_SERDES_TYPE_25G) {
+            REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
+                    VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
+        } else {
+            // 6G and 10G
+            REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
+                    VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
+                    VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+        }
     }
 
-    if (power_down) {
+    if (power_down) { // Covers shadow and primary ports
         DEV_WRM(DEV_RST_CTRL, port, VTSS_F_DEV10G_DEV_RST_CTRL_PCS_RX_RST(1), VTSS_M_DEV10G_DEV_RST_CTRL_PCS_RX_RST);
     }
     return VTSS_RC_OK;
@@ -2533,7 +2543,10 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
 
-    VTSS_I("port_no:%d (port:%d), shutdown:%d", port_no, port, conf->power_down);
+    VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
+           port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
+           VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
+           vtss_port_spd_txt(conf->speed), conf->fdx ? "FDX" : "HDX", conf->power_down, conf->serdes.media_type);
 
     if (!fa_vrfy_spd_iface(vtss_state, port_no, conf->if_type, conf->speed, conf->fdx)) {
         return VTSS_RC_ERROR;
@@ -2575,11 +2588,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
         }
 
     }
-
-    VTSS_D("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d",
-           port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
-           VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
-           vtss_port_spd_txt(conf->speed), conf->fdx ? "FDX" : "HDX", conf->power_down);
 
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
    VTSS_RC(fa_port_mux_set(vtss_state, port_no));
@@ -2638,7 +2646,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     u32              sd_indx = 0, sd_type, sd_tgt;
-    BOOL             no_sd = 0;
+    BOOL             analog_sd = 0;
 
     if (conf->power_down) {
         /* Disabled port is considered down */
@@ -2699,13 +2707,11 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         if (sd_type != FA_SERDES_TYPE_25G) {
             /* Check the analog loss of signal detect of the 10G-Serdes */
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DF(sd_tgt), &val2);
-            no_sd = VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
+            analog_sd = !VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
         } else {
             /* Check the analog loss of signal detect of the 25G-Serdes */
-            if (conf->speed != VTSS_SPEED_25G) {
-                REG_RD(VTSS_SD25G_TARGET_LANE_DE(sd_tgt), &val2);
-                no_sd = VTSS_X_SD25G_TARGET_LANE_DE_LN_PMA_RXEI(val2); // 0 = link
-            }
+            REG_RD(VTSS_SD25G_TARGET_LANE_DE(sd_tgt), &val2);
+            analog_sd = !VTSS_X_SD25G_TARGET_LANE_DE_LN_PMA_RXEI(val2); // 0 = link
         }
         /* MAC10G Tx Monitor Sticky bit Register */
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
@@ -2715,8 +2721,22 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
             REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
         }
-        /* Combine status from PCS and Analog Macro */
-        status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && !no_sd;
+
+        if ((sd_type == FA_SERDES_TYPE_25G) && (conf->speed == VTSS_SPEED_25G)) {
+            /* PCS and Analog Macro SD must agree on link status */
+            if (VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd) {
+                status->link = TRUE;
+                vtss_state->port.link[port_no] = TRUE;
+            } else if (VTSS_BOOL(value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && !analog_sd) {
+                status->link = FALSE;
+                vtss_state->port.link[port_no] = FALSE;
+            } else {
+                status->link = vtss_state->port.link[port_no];
+            }
+        } else {
+            /* Combine status from PCS and Analog Macro */
+            status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
+        }
         status->speed = conf->speed;
         break;
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
