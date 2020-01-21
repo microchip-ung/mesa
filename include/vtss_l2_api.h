@@ -1632,7 +1632,7 @@ vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                     
                                           vtss_vlan_trans_port2grp_conf_t       *conf,
                                           BOOL                                  next);
 
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
 /** \brief VCAP port configuration */
 typedef struct {
     vtss_vcap_key_type_t key_type_is1_1; /**< Key type for second IS1 lookup */

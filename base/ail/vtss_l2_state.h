@@ -45,6 +45,12 @@ typedef struct {
 #define VTSS_PGIDS VTSS_PGID_FA
 #endif /* VTSS_ARCH_SPARX5 */
 
+#if defined(VTSS_ARCH_MASERATI)
+#define VTSS_PGID_MAS (89)  //TBD_HENRIKB
+#undef VTSS_PGIDS
+#define VTSS_PGIDS VTSS_PGID_MAS
+#endif /* VTSS_ARCH_MASERATI */
+
 /* Pseudo PGID for IPv4/IPv6 MC */
 #define VTSS_PGID_NONE VTSS_PGIDS
 

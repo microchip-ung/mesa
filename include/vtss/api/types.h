@@ -823,6 +823,15 @@ typedef u32 vtss_packet_tx_grp_t;
 #define VTSS_PACKET_TX_GRP_CNT      2  /**< Number of Tx packet groups */
 #endif /* VTSS_ARCH_SPARX5 */
 
+#if defined(VTSS_ARCH_MASERATI)
+#undef  VTSS_PACKET_RX_QUEUE_CNT
+#define VTSS_PACKET_RX_QUEUE_CNT    8  /**< Number of Rx packet queues */
+#undef  VTSS_PACKET_RX_GRP_CNT
+#define VTSS_PACKET_RX_GRP_CNT      2  /**< Number of Rx packet groups to which any queue can map */
+#undef  VTSS_PACKET_TX_GRP_CNT
+#define VTSS_PACKET_TX_GRP_CNT      2  /**< Number of Tx packet groups */
+#endif /* VTSS_ARCH_MASERATI */
+
 #define VTSS_PACKET_RX_QUEUE_NONE  (0xffffffff) /**< Rx queue not selected for a particular type of frames */
 #define VTSS_PACKET_RX_QUEUE_START (0)          /**< Rx queue start number */
 #define VTSS_PACKET_RX_QUEUE_END   (VTSS_PACKET_RX_QUEUE_START + VTSS_PACKET_RX_QUEUE_CNT) /**< Rx queue end number */

@@ -14,6 +14,21 @@
 /* ================================================================= *
  *  Features
  * ================================================================= */
+#if defined(VTSS_CHIP_9668)
+#define VTSS_ARCH_MASERATI                         /**< Maserati architecture */
+#endif
+
+#if defined(VTSS_ARCH_MASERATI)
+#define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
+#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_VCAP                         /**< VCAP */
+#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
+#define VTSS_FEATURE_QOS                          /**< QoS */
+#define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
+#define VTSS_FEATURE_SERDES_MACRO_SETTINGS       /**< Hooks for Serdes Macro configuration */
+#endif
+
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \
     defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7558)
 #define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-5 architecture */

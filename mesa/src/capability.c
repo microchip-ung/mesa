@@ -49,6 +49,15 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX   /* FA-FIXME */  5242870 /* fps.    0x7ffff *         10 =      5.242.870 fps.       */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN  /* FA-FIXME */        3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX  /* FA-FIXME */      207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
+#elif defined(VTSS_ARCH_MASERATI)
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN           100 /* kbps.         1 *    100.000 =        100.000 bps.       */
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX       3276700 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.       */
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN         4096 /* bytes.        1 *      4.096 =          4.096 bytes.     */
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX       245760 /* bytes.     0x3c *      4.096 =        245.760 bytes.     */
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN         100 /* fps.          1 *        100 =            100 fps.       */
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX     3276700 /* fps .    0x7fff *    100.000 =      3.276.700 fps.       */
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN         32 /* frames.       1 *       32,8 =             32,8 frames.  */
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX       2067 /* frames.    0x3f *       32,8 =          2.066,4 frames.  */
 #else
 #error "Add architecture here!"
 #endif
@@ -85,6 +94,11 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX      /* FA-FIXME */ 13107100 /* kbps.   0x1ffff *    100.000 = 13.107.100.000 bps.   */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN     /* FA-FIXME */     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX     /* FA-FIXME */   258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
+#elif defined(VTSS_ARCH_MASERATI)
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN            100 /* kbps.         1 *    100.000 =        100.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX        3281943 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN          4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX        258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #else
 #error "Add architecture here!"
 #endif
@@ -108,7 +122,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MAX   0
 
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_MASERATI)
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN               0 /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX               0 /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN              0 /* undefined */
@@ -148,7 +162,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX      VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_MASERATI)
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MIN        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MAX        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_BURST_MIN       0 /* undefined */
@@ -1748,6 +1762,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         /* Jaguar 3 architectures */
 #elif defined(VTSS_ARCH_SPARX5)
         c = 8;
+#elif defined(VTSS_ARCH_MASERATI)
+        c = 9;
 #else
 #error Unsupported platform
 #endif
