@@ -133,7 +133,7 @@ typedef enum {
     VTSS_ARCH_SRVL,    /* Serval */
     VTSS_ARCH_JR1,     /* Jaguar-1 */
     VTSS_ARCH_JR2,     /* Jaguar-2 */
-    VTSS_ARCH_FA,      /* FA */
+    VTSS_ARCH_ANT,      /* FA */
     VTSS_ARCH_LAN_966X,/* LAN966X */
 } vtss_arch_t;
 
