@@ -1092,6 +1092,31 @@ static vtss_port_10g_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_10g_kr_
     return status;
 }
 
+static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 sd_indx, sd_type, sd_tgt;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0(st->tap_dly),
+            VTSS_M_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0(st->tap_adv),
+            VTSS_M_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(st->pcs2pma >> 6),
+            VTSS_M_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(st->pcs2pma & 0x3F),
+            VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
+
+    return VTSS_RC_OK;
+
+}
 
 
 static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
@@ -1118,6 +1143,9 @@ static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
         st->pcs2pma = pcs2pma;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
+
+        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, st));
+
     }
     *sts = sts2;
     /* if (port_no == 0) { */
@@ -1186,6 +1214,7 @@ static vtss_rc fa_port_10g_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_REQ_WT_START |
                 VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START |
                 VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
+
     }
 
 
@@ -1264,7 +1293,6 @@ static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
 
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &tr);
     status->train.frame_errors = tr;
-
 
     if (irq > 0) {
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), irq);
@@ -1355,6 +1383,10 @@ static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
 
     }
+    // Number of frames for BER calculation
+    REG_WRM(VTSS_IP_KRANEG_FRCNT_BER(tgt),
+            VTSS_F_IP_KRANEG_FRCNT_BER_FRCNT_BER(100),
+            VTSS_M_IP_KRANEG_FRCNT_BER_FRCNT_BER);
 
     // Disable / Enable training
     REG_WRM(VTSS_IP_KRANEG_KR_PMD_CTRL(tgt),
