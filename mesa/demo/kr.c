@@ -47,6 +47,8 @@ mesa_bool_t skip_training[100] = {0};
 mesa_bool_t log_in_mem = 1;
 struct timeval start;
 u32 first = 1;
+mesa_bool_t BASE_KR_V2 = 0;
+mesa_bool_t BASE_KR_V3 = 0;
 
 void kr_printf(const char *fmt, ...)
 {
@@ -227,37 +229,56 @@ static void fa_kr_reset_state(u32 p) {
 static void cli_cmd_port_kr(cli_req_t *req)
 {
     mesa_port_no_t        uport, iport;
-    mesa_port_kr_conf_t conf;
     port_cli_req_t        *mreq = req->module_req;
 
-    memset(txt_buffer, 0, BUF_SIZE);
-
-
-    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
-        uport = iport2uport(iport);
-        if (req->port_list[uport] == 0) {
-            continue;
-        }
-        if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
-            continue;
-        }
-
-        (void)fa_kr_reset_state(iport);
-
-        if (req->set) {
-            conf.aneg.enable = 1;
-            conf.train.enable = mreq->train || mreq->all;
-            conf.aneg.adv_1g = mreq->adv1g || mreq->all;
-            conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
-            conf.aneg.adv_5g = mreq->adv5g || mreq->all;
-            conf.aneg.adv_10g = mreq->adv10g || mreq->all;
-            conf.aneg.fec_abil = mreq->fec || mreq->all;
-            conf.aneg.fec_req = mreq->fec || mreq->all;
-
-            if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
-                cli_printf("KR set failed for port %u\n", uport);
+    if (BASE_KR_V3) {
+        mesa_port_kr_conf_t conf = {0};
+        memset(txt_buffer, 0, BUF_SIZE);
+        for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+            uport = iport2uport(iport);
+            if (req->port_list[uport] == 0) {
+                continue;
             }
-            my_cnt = 0;
+            if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
+                continue;
+            }
+
+            (void)fa_kr_reset_state(iport);
+
+            if (req->set) {
+                conf.aneg.enable = 1;
+                conf.train.enable = mreq->train || mreq->all;
+                conf.aneg.adv_1g = mreq->adv1g || mreq->all;
+                conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
+                conf.aneg.adv_5g = mreq->adv5g || mreq->all;
+                conf.aneg.adv_10g = mreq->adv10g || mreq->all;
+                conf.aneg.fec_abil = mreq->fec || mreq->all;
+                conf.aneg.fec_req = mreq->fec || mreq->all;
+
+                if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
+                    cli_printf("KR set failed for port %u\n", uport);
+                }
+                my_cnt = 0;
+            }
+        }
+    } else if (BASE_KR_V2) {
+        mesa_port_10g_kr_conf_t conf = {0};
+        for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+            uport = iport2uport(iport);
+            if (req->port_list[uport] == 0) {
+                continue;
+            }
+            if (req->set) {
+                conf.aneg.enable = 1;
+                conf.train.enable = mreq->train || mreq->all;
+                conf.aneg.adv_10g = mreq->adv10g || mreq->all;
+                /* conf.aneg.fec_abil = mreq->fec || mreq->all; */
+                /* conf.aneg.fec_req = mreq->fec || mreq->all; */
+                
+                if (mesa_port_10g_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
+                    cli_printf("KR set failed for port %u\n", uport);
+                }
+            }
         }
     }
 }
@@ -277,13 +298,95 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
     }
 }
 
+static u32 tap_result(u32 value, u32 mask)
+{
+    if ((value & ~mask) > 0) {
+        return ((~value) + 1) & mask;
+    } else {
+        return value;
+    }
+}
+
+static void cli_cmd_port_kr_v2_status(cli_req_t *req)
+
+{
+    mesa_port_no_t uport, iport;
+    mesa_port_10g_kr_status_t status;
+    mesa_port_10g_kr_conf_t conf;
+    
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0) {
+            continue;
+        }
+
+        if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
+            !conf.aneg.enable) {
+            continue;
+        }
+
+        if (mesa_port_10g_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+            cli_printf("Port:%d Could not read status\n",iport);
+            continue;
+        }
+
+        cli_printf("Port %u\n", iport);
+        cli_printf("LP aneg ability                 :%s\n", status.aneg.lp_aneg_able ? "Yes" : "No");
+        cli_printf("Aneg active (running)           :%s\n", status.aneg.active ? "Yes" : "No");
+        cli_printf("PCS block lock                  :%s\n", status.aneg.block_lock ? "Yes" : "No");
+        cli_printf("Aneg complete                   :%s\n", status.aneg.complete ? "Yes" : "No");
+        cli_printf("  Enable 10G request            :%s\n", status.aneg.request_10g ? "Yes" : "No");
+        cli_printf("  Enable 1G request             :%s\n", status.aneg.request_1g ? "Yes" : "No");
+        cli_printf("  FEC change request            :%s\n", status.aneg.request_fec_change ? "Yes" : "No");
+
+        mesa_bool_t cm = (status.train.cm_ob_tap_result >> 6) > 0 ? 1 : 0;
+        mesa_bool_t cp = (status.train.cp_ob_tap_result >> 6) > 0 ? 1 : 0;
+        mesa_bool_t c0 = (status.train.c0_ob_tap_result >> 6) > 0 ? 1 : 0;
+        if (conf.train.enable) {
+            cli_printf("Training complete (BER method)  :%s\n", status.train.complete ? "Yes" : "No");
+            cli_printf("  CM OB tap (7-bit signed)      :%s%d (%d)\n", cm ? "-" : "+", tap_result(status.train.cm_ob_tap_result, 0x3f), status.train.cm_ob_tap_result);
+            cli_printf("  CP OB tap (7-bit signed)      :%s%d (%d)\n", cp ? "-" : "+", tap_result(status.train.cp_ob_tap_result, 0x3f), status.train.cp_ob_tap_result);
+            cli_printf("  C0 OB tap (7-bit signed)      :%s%d (%d)\n", c0 ? "-" : "+", tap_result(status.train.c0_ob_tap_result, 0x3f), status.train.c0_ob_tap_result);
+        } else {
+            cli_printf("Training                        :Disabled\n");
+        }
+
+        cli_printf("FEC                             :%s\n", status.fec.enable ? "Enabled" : "Disabled");
+        if (status.fec.enable) {
+            cli_printf("  Corrected block count         :%d\n", status.fec.corrected_block_cnt);
+            cli_printf("  Un-corrected block count      :%d\n", status.fec.uncorrected_block_cnt);
+        }
+    }
+}
+
+static char *fa_kr_aneg_rate(uint32_t reg)
+{
+    switch (reg) {
+    case 0:  return "No Change";
+    case 7:  return "25G-KR";
+    case 8:  return "25G-KR-S";
+    case 9:  return "10G-KR";
+    case 10: return "10G-KX4";
+    case 11: return "5G-KR";
+    case 12: return "2.5G-KX";
+    case 13: return "1G-KX";
+    default: return "other";
+    }
+    return "other";
+}
 
 static void cli_cmd_port_kr_status(cli_req_t *req)
 {
     mesa_port_no_t          uport, iport;
-    mesa_port_kr_conf_t kr;
+    mesa_port_kr_conf_t     kr;
+    mesa_port_kr_status_t   sts;
     kr_train_t              *krs;
     port_cli_req_t          *mreq = req->module_req;
+
+    if (BASE_KR_V2) {
+        cli_cmd_port_kr_v2_status(req);
+        return;            
+    }
 
     if (mreq->all) {
         printf("Txt buffer:\n%s\n",txt_buffer);
@@ -298,8 +401,14 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             !kr.aneg.enable) {
             continue;
         }
+        if (mesa_port_kr_status_get(NULL, iport, &sts) != MESA_RC_OK) {
+            cli_printf("Port:%d Could not read kr status\n",uport);
+            continue;
+        }
         krs = &kr_tr_state[iport];
         cli_printf("Port %d\n",uport);
+        cli_printf("  ANEG completed    : %s\n",sts.aneg.complete ? "Yes" : "No");
+        cli_printf("  Speed             : %s\n",fa_kr_aneg_rate(sts.aneg.sts1 & 0xF));
         cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
         cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap));
         cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
@@ -346,24 +455,6 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         cli_printf("  TRAINING STATUS   : %s\n",krs->current_state == SEND_DATA ? "OK" : "Failed");
     }
 }
-
-
-static char *fa_kr_aneg_rate(uint32_t reg)
-{
-    switch (reg) {
-    case 0:  return "No Change";
-    case 7:  return "25G-KR";
-    case 8:  return "25G-KR-S";
-    case 9:  return "10G-KR";
-    case 10: return "10G-KX4";
-    case 11: return "5G-KR";
-    case 12: return "2.5G-KX";
-    case 13: return "1G-KX";
-    default: return "other";
-    }
-    return "other";
-}
-
 
 static char *coef2txt(uint32_t vector)
 {
@@ -438,7 +529,7 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
     }
 
     kr_printf("%s\n",buf);
-//    printf("%s\n",buf);
+    printf("%s\n",buf);
 }
 
 static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf_t *conf)
@@ -1094,6 +1185,26 @@ static void kr_poll(meba_inst_t inst)
     }
 }
 
+static void kr_poll_v2(meba_inst_t inst)
+{
+    mesa_port_no_t iport;
+    mesa_port_10g_kr_status_t status;
+    mesa_port_10g_kr_conf_t conf;
+    uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
+
+    for (iport = 0; iport < meba_cnt; iport++) {
+
+        if ((mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) ||
+            !conf.aneg.enable) {
+            continue;
+        }
+
+        // 10G KR surveilance
+        (void)(mesa_port_10g_kr_status_get(NULL, iport, &status));
+    }
+
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {
         "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec]",
@@ -1218,6 +1329,11 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         break;
 
     case MSCC_INIT_CMD_INIT:
+        if (mesa_capability(NULL, MESA_CAP_PORT_10GBASE_KR_V3)) {
+            BASE_KR_V3 = 1;
+        } else if (mesa_capability(NULL, MESA_CAP_PORT_10GBASE_KR_V2)) {
+            BASE_KR_V2 = 1;
+        }
         kr_init(init->board_inst);
         kr_cli_init();
         break;
@@ -1227,7 +1343,11 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         break;
 
     case MSCC_INIT_CMD_POLL_FAST:
-        kr_poll(init->board_inst);
+        if (BASE_KR_V3) {
+            kr_poll(init->board_inst);
+        } else if (BASE_KR_V2) {
+            kr_poll_v2(init->board_inst);
+        }
         break;
 
     default:
