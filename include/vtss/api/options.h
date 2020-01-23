@@ -22,8 +22,10 @@
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
+#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_VCAP                         /**< VCAP */
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */

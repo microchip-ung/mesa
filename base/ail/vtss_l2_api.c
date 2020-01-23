@@ -4504,7 +4504,7 @@ vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 vtss_rc vtss_vcap_port_conf_get(const vtss_inst_t     inst,
                                 const vtss_port_no_t  port_no,
                                 vtss_vcap_port_conf_t *const conf)
@@ -4543,7 +4543,7 @@ vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t           inst,
     VTSS_EXIT();
     return rc;
 }
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 
 /* VLAN counters */
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)

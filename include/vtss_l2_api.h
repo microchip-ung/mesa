@@ -542,9 +542,9 @@ typedef struct
     vtss_vid_t            untagged_vid;   /**< Port untagged VLAN ID (UVID, egress) */
     vtss_vlan_frame_t     frame_type;     /**< Acceptable frame type (ingress) */
     BOOL                  ingress_filter; /**< Ingress filtering */
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_etype_t          s_etype;        /**< Alternative S-tag Ethernet Type, if non-zero */
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 } vtss_vlan_port_conf_t;
 
 /**

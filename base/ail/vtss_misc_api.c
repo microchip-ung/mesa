@@ -788,4 +788,12 @@ vtss_rc vtss_misc_appdata_set(const vtss_inst_t inst,
     return rc;
 }
 
+#if defined(VTSS_ARCH_LAN966X)
+vtss_rc vtss_symreg_data_get(const vtss_inst_t   inst,
+                             vtss_symreg_data_t *const data)
+{
+    return VTSS_RC_ERROR;
+}
+#endif
+
 #endif /* VTSS_FEATURE_MISC */

@@ -27,11 +27,11 @@ typedef struct {
 
 /* Number of destination masks */
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_PGID_LUTON26 64
 #undef VTSS_PGIDS
 #define VTSS_PGIDS        VTSS_PGID_LUTON26
-#endif /* VTSS_ARCH_LUTON26/SERVAL */
+#endif
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PGID_JAGUAR_2 1077
@@ -569,10 +569,10 @@ typedef struct {
                                           const vtss_vlan_trans_port2grp_conf_t *conf);
     vtss_rc (* vlan_trans_port_conf_get) (struct vtss_state_s *vtss_state,
                                           vtss_vlan_trans_port2grp_conf_t *conf, BOOL next);
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_rc (* vcap_port_conf_set)(struct vtss_state_s *vtss_state,
                                    const vtss_port_no_t port_no);
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     vtss_rc (* vlan_counters_get)(struct vtss_state_s *vtss_state,
                                   const vtss_vid_t          vid,

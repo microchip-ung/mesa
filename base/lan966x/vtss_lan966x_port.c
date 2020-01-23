@@ -7,6 +7,24 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 
+vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
+    vtss_vlan_port_type_t vlan_type = vtss_state->l2.vlan_port_conf[port_no].port_type;
+    u32                   port = VTSS_CHIP_PORT(port_no);
+    u32                   etype, aware;
+
+    /* S-ports and VLAN unaware ports both suport 0x88a8 (in addition to 0x8100) */
+    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? vtss_state->l2.vlan_conf.s_etype :
+             vlan_type == VTSS_VLAN_PORT_TYPE_C ? VTSS_ETYPE_TAG_C : VTSS_ETYPE_TAG_S);
+    aware = (max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1);
+    REG_WR(DEV_MAC_TAGS_CFG(port),
+           DEV_MAC_TAGS_CFG_TAG_ID(etype) |
+           (aware? DEV_MAC_TAGS_CFG_VLAN_AWR_ENA_M : 0) |
+           DEV_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA_M);
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_port_clause_37_control_get(vtss_state_t *vtss_state,
                                                   const vtss_port_no_t port_no,
                                                   vtss_port_clause_37_control_t *const control)

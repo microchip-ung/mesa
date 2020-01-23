@@ -9,7 +9,7 @@
 #ifndef _LAN966X_MESA_REGS_H_
 #define _LAN966X_MESA_REGS_H_
 
-#include <linux/bitops.h>
+#define GENMASK(h, l) VTSS_ENCODE_BITMASK(l, (h) - (l) + 1)
 
 #define LAN966x_BUILD_ID 1579083018
 
