@@ -603,59 +603,17 @@ mesa_rc mesa_mmd_write(const mesa_inst_t            inst,
     CAP(PORT_10G);
 
 /******************************************************************************/
-/* 10G KR Backplane Ethernet (version 2, JR2-C and newer)                     */
+/* 10G KR Backplane Ethernet (version 2, JR2-C)                               */
 /******************************************************************************/
-typedef struct {
-    mesa_bool_t ber_enable;
-    mesa_bool_t gen0_tmr_start;
-    mesa_bool_t gen1_tmr_start;
-    mesa_bool_t wt_start;
-    mesa_bool_t mw_start;
-    mesa_bool_t tr_done;
-    mesa_bool_t ldcoef_vld;
-    mesa_bool_t ldstat_vld;
-    mesa_bool_t np_loaded;
-    mesa_bool_t rate_done;
-    mesa_bool_t start_training;
-    mesa_bool_t stop_training;
-    mesa_bool_t training_failure;
-    mesa_bool_t aneg_disable;
-} mesa_port_10g_kr_fw_req_t;
-
-mesa_rc mesa_port_10g_kr_fw_req(const mesa_inst_t inst,
-                                const mesa_port_no_t port_no,
-                                mesa_port_10g_kr_fw_req_t *const fw_req);
-
-typedef enum
-{
-    MESA_COEFFICIENT_UPDATE_FRM,
-    MESA_STATUS_REPORT_FRM
-} mesa_port_10g_kr_frm_type_t;
-
-typedef struct {
-    mesa_port_10g_kr_frm_type_t type;
-    uint16_t data;
-} mesa_port_10g_kr_frame_t;
-
-mesa_rc mesa_port_10g_kr_train_frm_set(const mesa_inst_t inst,
-                                       const mesa_port_no_t port_no,
-                                       const mesa_port_10g_kr_frame_t *const frm);
-
-mesa_rc mesa_port_10g_kr_train_frm_get(const mesa_inst_t inst,
-                                       const mesa_port_no_t port_no,
-                                       mesa_port_10g_kr_frame_t *const frm);
 
 // 10G KR Aneg status
 typedef struct {
     mesa_bool_t complete;           // Aneg completed successfully
     mesa_bool_t active;             // Aneg is running
-    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured) 
-    mesa_bool_t request_5g;         // 5G rate is negotiated (needs to be configured)
-    mesa_bool_t request_2g5;        // 2G5 rate is negotiated (needs to be configured)
+    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured)
     mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
     mesa_bool_t fec_enable;         // FEC must be enabled/disabled
-    uint32_t    sts1;
     uint32_t    sm;                 // (debug) Aneg state machine
     mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
     mesa_bool_t block_lock;         // (debug) PCS block lock
@@ -667,8 +625,6 @@ typedef struct {
     uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed, range: -32..31
     uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed, range: -32..31
     uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed, range: -32..31
-    uint32_t frame_sent;
-    uint16_t frame_errors;
 } mesa_port_10g_kr_status_train_t CAP(PORT_10GBASE_KR_V2);
 
 // 10G KR FEC status
@@ -678,18 +634,11 @@ typedef struct {
     uint32_t    uncorrected_block_cnt; // Un-corrected block count
 } mesa_port_10g_kr_status_fec_t CAP(PORT_10GBASE_KR_V2);
 
-// 10G KR IRQ status */
-typedef struct {
-    uint32_t vector;
-} mesa_port_10g_kr_status_irq_t;
-
-
 // 10G KR Aneg and Training structures
 typedef struct {
     mesa_port_10g_kr_status_aneg_t  aneg;  // Aneg structure
     mesa_port_10g_kr_status_train_t train; // Training structure
     mesa_port_10g_kr_status_fec_t   fec;   // FEC structure
-    mesa_port_10g_kr_status_irq_t   irq;   // IRQ Vector
 } mesa_port_10g_kr_status_t CAP(PORT_10GBASE_KR_V2);
 
 
@@ -697,9 +646,6 @@ typedef struct {
 typedef struct {
     mesa_bool_t enable;   // 10G KR Autoneg enable
     mesa_bool_t adv_10g;  // Advertise 10G
-    mesa_bool_t adv_5g;   // Advertise 5G
-    mesa_bool_t adv_2g5;  // Advertise 2G5
-    mesa_bool_t adv_1g;   // Advertise 1G
     mesa_bool_t fec_abil; // Advertise FEC ability
     mesa_bool_t fec_req;  // Advertise FEC request
 } mesa_port_10g_kr_aneg_t CAP(PORT_10GBASE_KR_V2);
@@ -743,37 +689,181 @@ mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
     CAP(PORT_10GBASE_KR_V2);
 
 
+/******************************************************************************/
+/* 10G KR Backplane Ethernet (version 3, Sparx-5)                     */
+/******************************************************************************/
+typedef struct {
+    mesa_bool_t ber_enable;
+    mesa_bool_t gen0_tmr_start;
+    mesa_bool_t gen1_tmr_start;
+    mesa_bool_t wt_start;
+    mesa_bool_t mw_start;
+    mesa_bool_t tr_done;
+    mesa_bool_t ldcoef_vld;
+    mesa_bool_t ldstat_vld;
+    mesa_bool_t np_loaded;
+    mesa_bool_t rate_done;
+    mesa_bool_t start_training;
+    mesa_bool_t stop_training;
+    mesa_bool_t training_failure;
+    mesa_bool_t aneg_disable;
+} mesa_port_kr_fw_req_t CAP(PORT_10GBASE_KR_V3);
+
+mesa_rc mesa_port_kr_fw_req(const mesa_inst_t inst,
+                                const mesa_port_no_t port_no,
+                                mesa_port_kr_fw_req_t *const fw_req)
+    CAP(PORT_10GBASE_KR_V3);
+
+typedef enum
+{
+    MESA_COEFFICIENT_UPDATE_FRM,
+    MESA_STATUS_REPORT_FRM
+} mesa_port_kr_frm_type_t CAP(PORT_10GBASE_KR_V3);
+
+typedef struct {
+    mesa_port_kr_frm_type_t type;
+    uint16_t data;
+} mesa_port_kr_frame_t CAP(PORT_10GBASE_KR_V3);
+
+mesa_rc mesa_port_kr_train_frm_set(const mesa_inst_t inst,
+                                       const mesa_port_no_t port_no,
+                                       const mesa_port_kr_frame_t *const frm)
+    CAP(PORT_10GBASE_KR_V3);
+
+mesa_rc mesa_port_kr_train_frm_get(const mesa_inst_t inst,
+                                       const mesa_port_no_t port_no,
+                                       mesa_port_kr_frame_t *const frm)
+    CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR Aneg status
+typedef struct {
+    mesa_bool_t complete;           // Aneg completed successfully
+    mesa_bool_t active;             // Aneg is running
+    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured) 
+    mesa_bool_t request_5g;         // 5G rate is negotiated (needs to be configured)
+    mesa_bool_t request_2g5;        // 2G5 rate is negotiated (needs to be configured)
+    mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
+    mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
+    mesa_bool_t fec_enable;         // FEC must be enabled/disabled
+    uint32_t    sts1;
+    uint32_t    sm;                 // (debug) Aneg state machine
+    mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
+    mesa_bool_t block_lock;         // (debug) PCS block lock
+} mesa_port_kr_status_aneg_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR Training status
+typedef struct {
+    mesa_bool_t complete;     // Training completed successfully, tap settings applied.
+    uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed, range: -32..31
+    uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed, range: -32..31
+    uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed, range: -32..31
+    uint32_t frame_sent;
+    uint16_t frame_errors;
+} mesa_port_kr_status_train_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR FEC status
+typedef struct {
+    mesa_bool_t enable;                // FEC enabled
+    uint32_t    corrected_block_cnt;   // Corrected block count
+    uint32_t    uncorrected_block_cnt; // Un-corrected block count
+} mesa_port_kr_status_fec_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR IRQ status */
+typedef struct {
+    uint32_t vector;
+} mesa_port_kr_status_irq_t;
+
+
+// 10G KR Aneg and Training structures
+typedef struct {
+    mesa_port_kr_status_aneg_t  aneg;  // Aneg structure
+    mesa_port_kr_status_train_t train; // Training structure
+    mesa_port_kr_status_fec_t   fec;   // FEC structure
+    mesa_port_kr_status_irq_t   irq;   // IRQ Vector
+} mesa_port_kr_status_t CAP(PORT_10GBASE_KR_V3);
+
+
+// 10G KR Link Advertisement capability config
+typedef struct {
+    mesa_bool_t enable;   // 10G KR Autoneg enable
+    mesa_bool_t adv_10g;  // Advertise 10G
+    mesa_bool_t adv_5g;   // Advertise 5G
+    mesa_bool_t adv_2g5;  // Advertise 2G5
+    mesa_bool_t adv_1g;   // Advertise 1G
+    mesa_bool_t fec_abil; // Advertise FEC ability
+    mesa_bool_t fec_req;  // Advertise FEC request
+} mesa_port_kr_aneg_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR Training config
+typedef struct {
+    mesa_bool_t enable; // Enable 10G KR training, BER method used
+} mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR configuration structures
+typedef struct {
+    mesa_port_kr_aneg_t  aneg;  // 10G-KR Aneg capability, 802.3ap Clause 73
+    mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
+} mesa_port_kr_conf_t CAP(PORT_10GBASE_KR_V3);
+
+
+// Set 10G KR configuration incl. aneg and training.
+// Aneg is started which starts the training process.
+// The results can be read through mesa_port_kr_status_get().
+// port_no [IN]  Port number.
+// conf [IN]  Configuration structure.
+mesa_rc mesa_port_kr_conf_set(const mesa_inst_t inst,
+                                  const mesa_port_no_t port_no,
+                                  const mesa_port_kr_conf_t *const conf)
+    CAP(PORT_10GBASE_KR_V3);
+
+// Get 10G KR configuration
+// port_no [IN]   Port number.
+// conf [OUT]  Configuration structure.
+mesa_rc mesa_port_kr_conf_get(const mesa_inst_t inst,
+                                  const mesa_port_no_t port_no,
+                                  mesa_port_kr_conf_t *const conf)
+    CAP(PORT_10GBASE_KR_V3);
+
+// Get 10G KR Aneg and training status
+// port_no [IN]  Port number.
+// status [OUT]  KR Aneg and Training status
+mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
+                                    const mesa_port_no_t port_no,
+                                    mesa_port_kr_status_t *const status)
+    CAP(PORT_10GBASE_KR_V3);
+
+
 typedef enum {
     MESA_COEF_PRESET,
     MESA_COEF_INIT,
     MESA_COEF_CP1,
     MESA_COEF_C0,
     MESA_COEF_CM1
-} mesa_port_10g_kr_coef_type_t CAP(PORT_10GBASE_KR_V2);
+} mesa_port_kr_coef_type_t CAP(PORT_10GBASE_KR_V3);
 
 typedef enum {
     MESA_COEF_HOLD,
     MESA_COEF_INCR,
     MESA_COEF_DECR
-} mesa_port_10g_kr_coef_update_t CAP(PORT_10GBASE_KR_V2);
+} mesa_port_kr_coef_update_t CAP(PORT_10GBASE_KR_V3);
 
 typedef struct {
-    mesa_port_10g_kr_coef_type_t type;
-    mesa_port_10g_kr_coef_update_t update;
-} mesa_port_10g_kr_coef_t CAP(PORT_10GBASE_KR_V2);
+    mesa_port_kr_coef_type_t type;
+    mesa_port_kr_coef_update_t update;
+} mesa_port_kr_coef_t CAP(PORT_10GBASE_KR_V3);
 
 typedef enum {
     MESA_COEF_NOT_UPDATED = 0,
     MESA_COEF_UPDATED = 1,
     MESA_COEF_MINIMUM = 2,
     MESA_COEF_MAXIMUM = 3
-} mesa_port_10g_kr_coef_status_t CAP(PORT_10GBASE_KR_V2);
+} mesa_port_kr_coef_status_t CAP(PORT_10GBASE_KR_V3);
 
-mesa_rc mesa_port_10g_kr_coef_set(const mesa_inst_t inst,
+mesa_rc mesa_port_kr_coef_set(const mesa_inst_t inst,
                                   const mesa_port_no_t port_no,
-                                  const mesa_port_10g_kr_coef_t *const coef,
-                                  mesa_port_10g_kr_coef_status_t *const sts)
-    CAP(PORT_10GBASE_KR_V2);
+                                  const mesa_port_kr_coef_t *const coef,
+                                  mesa_port_kr_coef_status_t *const sts)
+    CAP(PORT_10GBASE_KR_V3);
 
 
 

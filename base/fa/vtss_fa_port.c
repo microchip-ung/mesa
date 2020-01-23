@@ -699,7 +699,7 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
 typedef struct {
     u32  pcs2pma;
@@ -736,7 +736,7 @@ u32 vtss_to_sd_kr(u32 p)
     }
 }
 
-static vtss_rc fa_port_10g_kr_speed_set(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
 {
@@ -775,7 +775,7 @@ static vtss_rc fa_port_10g_kr_speed_set(vtss_state_t *vtss_state,
 
 }
 
-const char *vtss_kr_status2txt(vtss_port_10g_kr_coef_status_t sts)
+const char *vtss_kr_status2txt(vtss_port_kr_coef_status_t sts)
 {
     switch (sts) {
     case VTSS_COEF_NOT_UPDATED: return "NOT_UPDATED";
@@ -786,7 +786,7 @@ const char *vtss_kr_status2txt(vtss_port_10g_kr_coef_status_t sts)
     return "?   ";
 }
 
-const char *vtss_kr_upd2txt(vtss_port_10g_kr_coef_update_t upd)
+const char *vtss_kr_upd2txt(vtss_port_kr_coef_update_t upd)
 {
     switch (upd) {
     case VTSS_COEF_HOLD: return "HOLD";
@@ -796,7 +796,7 @@ const char *vtss_kr_upd2txt(vtss_port_10g_kr_coef_update_t upd)
     return "?   ";
 }
 
-const char *vtss_kr_coef2txt(vtss_port_10g_kr_coef_type_t coef)
+const char *vtss_kr_coef2txt(vtss_port_kr_coef_type_t coef)
 {
     switch (coef) {
     case VTSS_COEF_PRESET: return "PRESET";
@@ -836,12 +836,12 @@ const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
     return "?   ";
 }
 
-static vtss_port_10g_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_10g_kr_coef_t *const coef,
+static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *const coef,
                                                   u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, BOOL verify_only)
 {
     u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
     int _pcs2pma = *pcs2pma, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
-    vtss_port_10g_kr_coef_status_t status = VTSS_COEF_UPDATED;
+    vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
     vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
 
     switch (coef->type) {
@@ -1092,7 +1092,7 @@ static vtss_port_10g_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_10g_kr_
     return status;
 }
 
-static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
 {
     u32 sd_indx, sd_type, sd_tgt;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
@@ -1119,13 +1119,13 @@ static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
 }
 
 
-static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
-                                       const vtss_port_10g_kr_coef_t *const coef,
-                                       vtss_port_10g_kr_coef_status_t *const sts)
+                                       const vtss_port_kr_coef_t *const coef,
+                                       vtss_port_kr_coef_status_t *const sts)
 {
 //    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    vtss_port_10g_kr_coef_status_t sts2;
+    vtss_port_kr_coef_status_t sts2;
     vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
     u32 pcs2pma = st->pcs2pma, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
@@ -1144,7 +1144,7 @@ static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
 
-        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, st));
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, st));
 
     }
     *sts = sts2;
@@ -1156,9 +1156,9 @@ static vtss_rc fa_port_10g_kr_coef_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_10g_kr_frame_set(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
-                                        const vtss_port_10g_kr_frame_t *const frm)
+                                        const vtss_port_kr_frame_t *const frm)
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
@@ -1178,9 +1178,9 @@ static vtss_rc fa_port_10g_kr_frame_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_10g_kr_frame_get(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
-                                        vtss_port_10g_kr_frame_t *const frm)
+                                        vtss_port_kr_frame_t *const frm)
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), val;
 
@@ -1194,9 +1194,9 @@ static vtss_rc fa_port_10g_kr_frame_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_10g_kr_fw_req(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                                      const vtss_port_no_t port_no,
-                                     vtss_port_10g_kr_fw_req_t *const fw_req)
+                                     vtss_port_kr_fw_req_t *const fw_req)
 
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
@@ -1266,9 +1266,9 @@ static vtss_rc fa_port_10g_kr_fw_req(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
-                                      vtss_port_10g_kr_status_t *const status)
+                                      vtss_port_kr_status_t *const status)
 {
     u32 irq, sts0, sts1, tr;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
@@ -1317,10 +1317,10 @@ static vtss_rc fa_port_10g_kr_status(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
-    vtss_port_10g_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
+    vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
     u32 abil = 0;
 
@@ -2658,8 +2658,8 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     VTSS_RC(vtss_fa_qos_tas_port_conf_update(vtss_state, port_no));
 #endif
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-    VTSS_RC(fa_port_10g_kr_speed_set(vtss_state, port_no));
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+    VTSS_RC(fa_port_kr_speed_set(vtss_state, port_no));
 #endif
 
     return VTSS_RC_OK;
@@ -3830,16 +3830,16 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->clause_37_status_get = fa_port_clause_37_status_get;
         state->clause_37_control_get = fa_port_clause_37_control_get;
         state->clause_37_control_set = fa_port_clause_37_control_set;
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-        state->kr_conf_set = fa_port_10g_kr_conf_set;
-        state->kr_status = fa_port_10g_kr_status;
-        state->kr_fw_req = fa_port_10g_kr_fw_req;
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+        state->kr_conf_set = fa_port_kr_conf_set;
+        state->kr_status = fa_port_kr_status;
+        state->kr_fw_req = fa_port_kr_fw_req;
 
 
-        state->kr_frame_set = fa_port_10g_kr_frame_set;
-        state->kr_frame_get = fa_port_10g_kr_frame_get;
+        state->kr_frame_set = fa_port_kr_frame_set;
+        state->kr_frame_get = fa_port_kr_frame_get;
 
-        state->kr_coef_set = fa_port_10g_kr_coef_set;
+        state->kr_coef_set = fa_port_kr_coef_set;
 
 #endif /* VTSS_FEATURE_10G_BASE_KR */
         state->status_get = fa_port_status_get;

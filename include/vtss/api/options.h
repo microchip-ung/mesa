@@ -28,7 +28,7 @@
 #if defined(VTSS_ARCH_SPARX5)
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
-#define VTSS_FEATURE_10GBASE_KR_V2                /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). JR2-C version.  */
+#define VTSS_FEATURE_10GBASE_KR_V3                /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). Sparx5 version.  */
 // //#define VTSS_FEATURE_WARM_START                  /**< Warm start */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */

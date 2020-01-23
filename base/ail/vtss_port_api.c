@@ -1205,71 +1205,6 @@ vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
 /* - 10GBase KR --------------------------------------------------- */
-vtss_rc vtss_port_10g_kr_fw_req(const vtss_inst_t inst,
-                                const vtss_port_no_t port_no,
-                                vtss_port_10g_kr_fw_req_t *const fw_req)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_fw_req, port_no, fw_req);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_train_frm_get(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       vtss_port_10g_kr_frame_t *const frm)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_frame_get, port_no, frm);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_train_frm_set(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       const vtss_port_10g_kr_frame_t *const frm)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_frame_set, port_no, frm);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_coef_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const vtss_port_10g_kr_coef_t *const coef,
-                                  vtss_port_10g_kr_coef_status_t *const sts)
-{
-   vtss_state_t *vtss_state;
-   vtss_rc      rc;
-
-   VTSS_D("port_no: %u", port_no);
-   VTSS_ENTER();
-   if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-       rc = VTSS_FUNC_COLD(port.kr_coef_set, port_no, coef, sts);
-   }
-   VTSS_EXIT();
-   return rc;
-}
-
 vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
                                     const vtss_port_no_t port_no,
                                     vtss_port_10g_kr_status_t *const status)
@@ -1280,7 +1215,11 @@ vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_status, port_no, status);
+        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
+            rc = VTSS_RC_ERROR;
+        } else {
+            rc = VTSS_FUNC_COLD(port.kr_status, port_no, status);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -1296,8 +1235,12 @@ vtss_rc vtss_port_10g_kr_conf_set(const vtss_inst_t inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->port.kr_conf[port_no] = *conf;
-        rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
+        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
+            rc = VTSS_RC_ERROR;
+        } else {
+            vtss_state->port.kr_conf[port_no] = *conf;
+            rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -1313,13 +1256,137 @@ vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        *conf = vtss_state->port.kr_conf[port_no];
+        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
+            rc = VTSS_RC_ERROR;
+        } else {
+            *conf = vtss_state->port.kr_conf[port_no];
+        }
+
     }
     VTSS_EXIT();
     return rc;
 }
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
+
+
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+/* - 10GBase KR --------------------------------------------------- */
+vtss_rc vtss_port_kr_fw_req(const vtss_inst_t inst,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_fw_req_t *const fw_req)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_fw_req, port_no, fw_req);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_train_frm_get(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       vtss_port_kr_frame_t *const frm)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_frame_get, port_no, frm);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_train_frm_set(const vtss_inst_t inst,
+                                       const vtss_port_no_t port_no,
+                                       const vtss_port_kr_frame_t *const frm)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_frame_set, port_no, frm);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  const vtss_port_kr_coef_t *const coef,
+                                  vtss_port_kr_coef_status_t *const sts)
+{
+   vtss_state_t *vtss_state;
+   vtss_rc      rc;
+
+   VTSS_D("port_no: %u", port_no);
+   VTSS_ENTER();
+   if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+       rc = VTSS_FUNC_COLD(port.kr_coef_set, port_no, coef, sts);
+   }
+   VTSS_EXIT();
+   return rc;
+}
+
+vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
+                                    const vtss_port_no_t port_no,
+                                    vtss_port_kr_status_t *const status)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_status, port_no, status);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  const vtss_port_kr_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        vtss_state->port.kr_conf[port_no] = *conf;
+        rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  vtss_port_kr_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        *conf = vtss_state->port.kr_conf[port_no];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
 vtss_rc vtss_port_test_conf_get(const vtss_inst_t      inst,
                                 const vtss_port_no_t   port_no,

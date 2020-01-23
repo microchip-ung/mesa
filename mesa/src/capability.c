@@ -262,6 +262,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_PORT_10GBASE_KR_V3:
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+        c = 1;
+#endif
+        break;
+
     case MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT:
 #if defined(VTSS_FEATURE_TIMESTAMP)
         c = VTSS_PORTS + VTSS_TS_IO_ARRAY_SIZE;

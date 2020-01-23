@@ -61,7 +61,8 @@ typedef enum {
     MESA_CAP_PORT_MUX,                      /**< Port multiplexer */
     MESA_CAP_PORT_MUX_AUTO,                 /**< Port multiplexer auto mode */
     MESA_CAP_PORT_QS_CONF,                  /**< Port queue system configuration */
-    MESA_CAP_PORT_10GBASE_KR_V2,            /**< 802.3ap Backplane Ethernet (version 2, JR2-RevC and newer) */
+    MESA_CAP_PORT_10GBASE_KR_V2,            /**< 802.3ap Backplane Ethernet (version 2, JR2-RevC) */
+    MESA_CAP_PORT_10GBASE_KR_V3,            /**< 802.3ap Backplane Ethernet (version 3, Sparx-5) */
     MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT,    /**< Number of PTP ports counting physical and virtual ports */
     MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD, /**< The max length of the frames counted in the last range of the frame counter group */
     MESA_CAP_PORT_PCS_CONF,                 /**< Specific control of the 1G PCS */

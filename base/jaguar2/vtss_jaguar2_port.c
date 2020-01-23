@@ -1646,7 +1646,7 @@ static vtss_rc jr2_port_10g_kr_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_FEATURE_10G_BASE_KR */
+#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
 
 static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -3847,7 +3847,7 @@ vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
         state->kr_conf_set = jr2_port_10g_kr_conf_set;
         state->kr_status = jr2_port_10g_kr_status;
-#endif /* VTSS_FEATURE_10G_BASE_KR */
+#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
         state->status_get = jr2_port_status_get;
         state->counters_update = jr2_port_counters_update;
         state->counters_clear = jr2_port_counters_clear;
