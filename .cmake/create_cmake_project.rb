@@ -54,7 +54,7 @@ tc_base = nil
 
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk]
-    brsdk_name = "mscc-brsdk-#{name}-#{c[:brsdk]}"
+    brsdk_name = "mscc-brsdk-#{c[:arch]}-#{c[:brsdk]}"
     brsdk_name += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] != "brsdk"
     brsdk_base = "/opt/mscc/#{brsdk_name}"
     base = brsdk_base

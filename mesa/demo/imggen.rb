@@ -17,7 +17,7 @@ $machines = {
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-            { :name => "pcb134", :file => "mscc-ls1046a-jaguar2-pcb110.dtb"},
+          { :name => "pcbxxx", :file => "mchp-ls1046a-lan966x_mesa.dtb"},
         ],
         :fdtaddr => "<0x90000000>",
         :rootfs => "rootfs.tar",
