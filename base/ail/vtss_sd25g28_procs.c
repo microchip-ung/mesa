@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -536,8 +537,8 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_dis_2ndorder[0]   =                        1;
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
     ret_val->ln_r_dfe_rstn[0]   =                              mode_args->ln_r_dfe_rstn;
-    ret_val->ln_cfg_alos_thr_2_0[0]   =                        preset.ln_cfg_alos_thr_2_0;//was 7
-    ret_val->ln_cfg_itx_ipcml_base_1_0[0]   =                  mode_args->ln_cfg_itx_ipcml_base;
+    ret_val->ln_cfg_alos_thr_2_0[0]   =                        0;
+    ret_val->ln_cfg_itx_ipcml_base_1_0[0]   =                  0;
     ret_val->ln_cfg_rx_reserve_7_0[0]   =                      0xbf;
     ret_val->ln_cfg_rx_reserve_15_8[0]   =                     0x61;
     ret_val->ln_cfg_rxterm_2_0[0]   =                          mode_args->ln_rxterm;
