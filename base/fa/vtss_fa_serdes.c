@@ -1587,6 +1587,41 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t *vtss_state, vtss_port_no_
 
     return VTSS_RC_OK;
 }
+// Apply board specific TX equalizer settings
+static vtss_rc vtss_fa_sd_board_settings(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 sd_indx, u32 sd_type)
+{
+    vtss_rc rc = VTSS_RC_OK;
+    vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
+    u32 value, sd_tgt;
+
+    if (vtss_state->init_conf.serdes_tap_get == NULL) {
+        return VTSS_RC_OK; // Not available
+    }
+
+    // Get the port post-cursor settings neeeded on the specific board
+    rc = vtss_state->init_conf.serdes_tap_get(NULL, port_no, speed, VTSS_SERDES_POST_CURSOR, &value);
+
+    if (rc == VTSS_RC_OK) {
+        if (sd_type == FA_SERDES_TYPE_25G) {
+            sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+            REG_WRM(VTSS_SD25G_TARGET_LANE_07(sd_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_07_LN_CFG_EN_DLY(1),
+                    VTSS_M_SD25G_TARGET_LANE_07_LN_CFG_EN_DLY);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_03(sd_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0(value),
+                    VTSS_M_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0);
+
+        } else {
+            sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
+            REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt),
+                    VTSS_F_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0(value),
+                    VTSS_M_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0);
+        }
+    }
+
+    return VTSS_RC_OK;
+}
 
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode)
 {
@@ -1600,6 +1635,9 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
     } else {
         VTSS_RC(fa_sd10g_cfg(vtss_state, port_no,  mode, sd_type));
     }
+
+    /*  Apply board specific TX equalizer settings */
+    VTSS_RC(vtss_fa_sd_board_settings(vtss_state, port_no, sd_indx, sd_type));
 
     /*  Apply board specific TX equalizer settings */
     VTSS_RC(vtss_fa_sd_board_settings(vtss_state, port_no, sd_indx, sd_type));
