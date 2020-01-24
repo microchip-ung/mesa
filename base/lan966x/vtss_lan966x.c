@@ -9,6 +9,13 @@
 /* ================================================================= *
  *  Register access
  * ================================================================= */
+void vtss_lan966x_reg_error(const char *file, int line) {
+    printf("\n\nFATAL ERROR at %s:%d> Index exceed replication!\n\n", file, line);
+    vtss_callout_trace_printf(VTSS_TRACE_LAYER, VTSS_TRACE_GROUP_DEFAULT,
+                              VTSS_TRACE_LEVEL_ERROR, file, line, file,
+                              "Index exceed replication!");
+}
+
 /* Read target register using current CPU interface */
 static inline vtss_rc lan966x_rd_direct(vtss_state_t *vtss_state, u32 reg, u32 *value)
 {
@@ -159,6 +166,14 @@ static vtss_rc lan966x_restart_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
 {
+    u32 val;
+
+    REG_RD(GCB_BUILDID, &val);
+    if (val != LAN966x_BUILD_ID) {
+        VTSS_E("Unexpected build id. Got: %08x Expected %08x", val, LAN966x_BUILD_ID);
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
 
     return VTSS_RC_OK;

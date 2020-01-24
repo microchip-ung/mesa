@@ -18,55 +18,132 @@
 /* ================================================================= *
  *  Register access
  * ================================================================= */
-// TBD
-#define IOREG(t,_z2,_z3,_z4,_z5,_z6,_z7,_z8,_z9,_z10,_z11) (_z2 +_z5)
+extern vtss_rc (*vtss_lan966x_wr)(vtss_state_t *vtss_state, u32 addr, u32 val);
+extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *val);
+vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 val, u32 mask);
+void vtss_lan966x_reg_error(const char *file, int line);
+
+// TODO This should come from the CML file and go into the auto-generated header
+#define VTSS_LAN966X_TARGET_MAX 22
+inline u32 vtss_lan966x_target_id_to_addr(int target_id)
+{
+    switch (target_id) {
+        case  0: return 0x00300000;
+        case  1: return 0x00280000;
+        case  2: return 0x00100000;
+        case  3: return 0x00110000;
+        case  4: return 0x00120000;
+        case  5: return 0x00130000;
+        case  6: return 0x00140000;
+        case  7: return 0x00150000;
+        case  8: return 0x00160000;
+        case  9: return 0x00170000;
+        case 10: return 0x00070000;
+        case 11: return 0x00ff0000;
+        case 12: return 0x000a0000;
+        case 13: return 0x00000000;
+        case 14: return 0x00090000;
+        case 15: return 0x00080000;
+        case 16: return 0x00200000;
+        case 17: return 0x00030000;
+        case 18: return 0x00380000;
+        case 19: return 0x00010000;
+        case 20: return 0x00040000;
+        case 21: return 0x00050000;
+        case 22: return 0x00060000;
+        default: return 0xffffffff;
+    }
+}
+// End of hard-coded Adaro constants. //////////////////////////////////////////
+
+inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
+                   int gbase, int ginst, int gcnt, int gwidth,
+                   int raddr, int rinst, int rcnt, int rwidth)
+{
+    if (tbaseid + tinst > VTSS_LAN966X_TARGET_MAX || tinst >= tcnt ||
+        ginst >= gcnt || rinst >= rcnt) {
+        vtss_lan966x_reg_error(file, line);
+        return 0xffffffff;
+    }
+
+    return (vtss_lan966x_target_id_to_addr(tbaseid + tinst) +
+            gbase + ((ginst) * gwidth) +
+            raddr + ((rinst) * rwidth)) / 4;
+}
+
+#define IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,                \
+              raddr, rinst, rcnt, rwidth)                                      \
+        __ioreg(__FILE__, __LINE__, tbaseid, tinst, tcnt, gbase, ginst, gcnt,  \
+                gwidth, raddr, rinst, rcnt, rwidth)
+
 #define REG_ADDR(p) IOREG(p)
 
-extern vtss_rc (*vtss_lan966x_wr)(vtss_state_t *vtss_state, u32 addr, u32 value);
-extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
-vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
+#define REG_RD(...) REG_RD_(__VA_ARGS__)
+#define REG_RD_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,              \
+               raddr, rinst, rcnt, rwidth, val)                                \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_rd(vtss_state, o, val);                    \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
-#define REG_RD(p, val)                                                  \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_rd(vtss_state, IOREG(p), val);      \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
+#define REG_WR(...) REG_WR_(__VA_ARGS__)
+#define REG_WR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,              \
+               raddr, rinst, rcnt, rwidth, val)                                \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_wr(vtss_state, o, val);                    \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
-#define REG_WR(p, val)                                                  \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_wr(vtss_state, IOREG(p), val);      \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
+#define REG_WRM(...) REG_WRM_(__VA_ARGS__)
+#define REG_WRM_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,             \
+                raddr, rinst, rcnt, rwidth, val, msk)                          \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, val, msk);              \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
-#define REG_WRM(p, val, msk)                                            \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, IOREG(p), val, msk); \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
+#define REG_WRM_SET(...) REG_WRM_SET_(__VA_ARGS__)
+#define REG_WRM_SET_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,         \
+                    raddr, rinst, rcnt, rwidth, msk)                           \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, msk, msk);              \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
-#define REG_WRM_SET(p, msk)                                             \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, IOREG(p), msk, msk); \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
+#define REG_WRM_CLR(...) REG_WRM_CLR_(__VA_ARGS__)
+#define REG_WRM_CLR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,         \
+                    raddr, rinst, rcnt, rwidth, msk)                           \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, 0, msk);                \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
-#define REG_WRM_CLR(p, msk)                                             \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, IOREG(p), 0, msk);  \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
-
-#define REG_WRM_CTL(p, _cond_, msk)                                     \
-    {                                                                   \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, IOREG(p), (_cond_) ? (msk) : 0, msk); \
-        if (__rc != VTSS_RC_OK)                                         \
-            return __rc;                                                \
-    }
+#define REG_WRM_CTL(...) REG_WRM_CTL_(__VA_ARGS__)
+#define REG_WRM_CTL_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,         \
+                    raddr, rinst, rcnt, rwidth, _cond_, msk)                   \
+    do {                                                                       \
+        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth,        \
+                      raddr, rinst, rcnt, rwidth);                             \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o,                         \
+                                        (_cond_) ? (msk) : 0, msk);            \
+        if (__rc != VTSS_RC_OK)                                                \
+            return __rc;                                                       \
+    } while (0)
 
 /* ================================================================= *
  *  Chip ports

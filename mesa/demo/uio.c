@@ -84,46 +84,69 @@ mesa_rc uio_reg_io_init(void)
     }
 
     while((dent = readdir(dir)) != NULL) {
-        if (dent->d_name[0] != '.') {
-            snprintf(fn, sizeof(fn), "%s/%s/name", top, dent->d_name);
-            if ((fp = fopen(fn, "r"))) {
-                const char *rrd = fgets(devname, sizeof(devname), fp);
-                fclose(fp);
-                if (rrd && (strstr(devname, driver) || strstr(devname, "vcoreiii_switch"))) {
-                    snprintf(uio_path, sizeof(uio_path), "%s/%s/device/irqctl", top, dent->d_name);
-                    snprintf(iodev, sizeof(iodev), "/dev/%s", dent->d_name);
-                    snprintf(fn, sizeof(fn), "%s/%s/maps/map0/size", top, dent->d_name);
-                    if ((fp = fopen(fn, "r"))) {
-                        if (fscanf(fp, "%zi", &mapsize)) {
-                            fclose(fp);
-                            rc = MESA_RC_OK;
-                            break;
-                        }
-                        fclose(fp);
-                    }
-                }
-            }
+        if (dent->d_name[0] == '.') {
+            continue;
         }
+
+        snprintf(fn, sizeof(fn), "%s/%s/name", top, dent->d_name);
+        fp = fopen(fn, "r");
+        if (!fp) {
+            T_E("UIO: Failed to open: %s", fn);
+            continue;
+        }
+
+        const char *rrd = fgets(devname, sizeof(devname), fp);
+        fclose(fp);
+
+        if (!rrd) {
+            T_E("UIO: Failed to read: %s", fn);
+            continue;
+        }
+
+        T_D("UIO: %s -> %s", fn, devname);
+        if (!strstr(devname, "mscc_switch") &&
+            !strstr(devname, "vcoreiii_switch") &&
+            !strstr(devname, "lan966x_uio")) {
+            continue;
+        }
+
+        snprintf(iodev, sizeof(iodev), "/dev/%s", dent->d_name);
+        snprintf(fn, sizeof(fn), "%s/%s/maps/map0/size", top, dent->d_name);
+        fp = fopen(fn, "r");
+        if (!fp) {
+            continue;
+        }
+
+        if (fscanf(fp, "%zi", &mapsize)) {
+            fclose(fp);
+            rc = MESA_RC_OK;
+            T_I("Using UIO device: %s", devname)
+            break;
+        }
+        fclose(fp);
     }
     closedir(dir);
 
-    if (rc == MESA_RC_OK) {
-        /* Open the UIO device file */
-        T_D("Using UIO, found '%s' driver at %s", driver, iodev);
-        dev_fd = open(iodev, O_RDWR);
-        if (dev_fd < 1) {
-            T_E("open(%s) failed", iodev);
-            rc = MESA_RC_ERROR;
+    if (rc != MESA_RC_OK) {
+        T_E("No suitable UIO device found!");
+        return rc;
+    }
+
+    /* Open the UIO device file */
+    T_D("Using UIO, found '%s' driver at %s", driver, iodev);
+    dev_fd = open(iodev, O_RDWR);
+    if (dev_fd < 1) {
+        T_E("open(%s) failed", iodev);
+        rc = MESA_RC_ERROR;
+    } else {
+        /* mmap the UIO device */
+        base_mem = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, dev_fd, 0);
+        if(base_mem != MAP_FAILED) {
+            T_D("Mapped register memory @ %p", base_mem);
+            // printf("Buildid (maybe): 0x%08x\n", *(base_mem + (0x70008 / 4)));
         } else {
-            /* mmap the UIO device */
-            base_mem = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, dev_fd, 0);
-            if(base_mem != MAP_FAILED) {
-                T_D("Mapped register memory @ %p", base_mem);
-                uio_fd = dev_fd;
-            } else {
-                T_E("mmap failed");
-                rc = MESA_RC_ERROR;
-            }
+            T_E("mmap failed");
+            rc = MESA_RC_ERROR;
         }
     }
     return rc;
