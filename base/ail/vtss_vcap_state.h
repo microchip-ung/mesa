@@ -496,9 +496,9 @@ typedef struct
     vtss_vcap_bit_t dmac_mc; /**< Multicast DMAC */
     vtss_vcap_bit_t dmac_bc; /**< Broadcast DMAC */
     vtss_vcap_u48_t smac;    /**< SMAC */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if !defined(VTSS_ARCH_LUTON26)
     vtss_vcap_u48_t dmac;    /**< DMAC */
-#endif /* VTSS_ARCH_OCELOT/JAGUAR_2 */
+#endif
 } vtss_is1_mac_t; /**< MAC header */
 
 typedef struct
@@ -531,9 +531,9 @@ typedef struct {
     vtss_vcap_vr_t  dscp;     /**< DSCP field (6 bit) */
     vtss_vcap_u8_t  proto;    /**< Protocol */
     vtss_vcap_ip_t  sip;      /**< Source IP address */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if !defined(VTSS_ARCH_LUTON26)
     vtss_vcap_ip_t  dip;      /**< Destination IP address */
-#endif /* VTSS_ARCH_OCELOT/JAGUAR_2 */
+#endif
     vtss_vcap_vr_t  sport;    /**< UDP/TCP: Source port */
     vtss_vcap_vr_t  dport;    /**< UDP/TCP: Destination port */
 } vtss_is1_frame_ipv4_t;
@@ -543,9 +543,9 @@ typedef struct {
     vtss_vcap_vr_t   dscp;  /**< DSCP field (6 bit) */
     vtss_vcap_u8_t   proto; /**< Protocol */
     vtss_vcap_u128_t sip;   /**< Source IP address */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if !defined(VTSS_ARCH_LUTON26)
     vtss_vcap_u128_t dip;   /**< Destination IP adddress */
-#endif /* VTSS_ARCH_OCELOT/JAGUAR_2 */
+#endif
     vtss_vcap_vr_t   sport; /**< UDP/TCP: Source port */
     vtss_vcap_vr_t   dport; /**< UDP/TCP: Destination port */
 } vtss_is1_frame_ipv6_t;

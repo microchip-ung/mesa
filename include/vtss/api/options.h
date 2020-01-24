@@ -19,22 +19,64 @@
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
-#define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
+#define VTSS_FEATURE_WARM_START                   /**< Warm start */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
-#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
-#define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
-#define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
-#define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
-#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
-#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
-#define VTSS_FEATURE_VCAP                         /**< VCAP */
-#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
+#define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
+#define VTSS_FEATURE_PORT_IFH                     /**< Port IFH control */
+#define VTSS_FEATURE_PORT_CNT_BRIDGE              /**< Bridge counters */
+#define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
+#define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
+#define VTSS_FEATURE_QCL_KEY_TYPE                 /**< QoS: QoS Control Lists, different key types per port */
+#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
+#define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
+#define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
+#define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT       /**< QoS: Scheduler supports variable number of DWRR inputs */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB  /**< QoS: Egress Queue Shapers has Excess Bandwidth support */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
+#define VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB       /**< QoS: Egress shapers has DLB support */
+#define VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT        /**< Qos: Egress shapers have rate type support - line or date rate */
+#define VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE     /**< QoS: DSCP remarking is DP aware */
+#define VTSS_FEATURE_QOS_WRED_V2                  /**< QoS: WRED global - per queue (0..7), per dpl (0..1) */
+#define VTSS_FEATURE_QOS_POLICER_DLB              /**< DLB policers */
+#define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER         /**< QoS: Has CPU queue shaper */
+#define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
+//#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
+#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
+#define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
+#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
+#define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
+#define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
+#define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
+#define VTSS_FEATURE_VCAP                         /**< VCAP */
+#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
+#define VTSS_FEATURE_ACL_EXT_DIP                  /**< ACL extended IPv6 rule with DIP matching */
+#define VTSS_FEATURE_LED_POW_REDUC               /**< LED power reduction */
+#define VTSS_FEATURE_MIRROR_CPU                   /**< CPU mirroring */
+//#define VTSS_FEATURE_EVC_POLICERS                 /**< EVC/ECE policers */
+#define VTSS_FEATURE_IRQ_CONTROL                  /**< General IRQ support */
+//#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
+#define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */
+#define VTSS_FEATURE_SYNCE                        /**< SYNCE - L1 syncronization feature */
+//#define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
+#define VTSS_FEATURE_FAN                          /**< Fan control */
+#define VTSS_FEATURE_PTP_RS422                    /**< Support for the RS422 serial/1PPS interface */
+//#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
+#define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
+#define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
+#define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
+#define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
+#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
+#define VTSS_FEATURE_VOP_V1                       /**< Version 1 OAM implementation. Serval-1 platform */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V1                               /**< AFI API version 1 */
-#endif
+#endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \
     defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7558)

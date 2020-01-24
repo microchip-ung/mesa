@@ -239,9 +239,9 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->ptp_event_poll = lan966x_ptp_event_poll;
         state->ptp_event_enable = lan966x_ptp_event_enable;
 #if defined(VTSS_FEATURE_IRQ_CONTROL)
-        state->misc.irq_cfg = lan966x_misc_irq_cfg;
-        state->misc.irq_status = lan966x_misc_irq_status;
-        state->misc.irq_enable = lan966x_misc_irq_enable;
+        state->irq_cfg = lan966x_misc_irq_cfg;
+        state->irq_status = lan966x_misc_irq_status;
+        state->irq_enable = lan966x_misc_irq_enable;
 #endif
 #if defined(VTSS_FEATURE_EEE)
         vtss_state->eee.port_conf_set = lan966x_eee_port_conf_set;
