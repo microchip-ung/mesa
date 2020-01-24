@@ -39,8 +39,8 @@ static vtss_rc lan966x_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_
 /* - Debug print --------------------------------------------------- */
 
 vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  const vtss_debug_info_t   *const info)
+                                     const vtss_debug_printf_t pr,
+                                     const vtss_debug_info_t   *const info)
 {
     return VTSS_RC_OK;
 }
