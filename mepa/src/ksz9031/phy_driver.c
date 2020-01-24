@@ -71,6 +71,9 @@
 #define CTL1000_AS_MASTER	0x0800
 #define CTL1000_ENABLE_MASTER	0x1000
 
+#define MII_KSZ9031RN_FLP_BURST_TX_LO	3
+#define MII_KSZ9031RN_FLP_BURST_TX_HI	4
+
 
 typedef struct {
     unsigned autoneg;
@@ -115,34 +118,59 @@ static int phy_write(phy_device *phydev, uint32_t regnum, uint16_t val)
     return 0;
 }
 
-///**
-// * genphy_restart_aneg - Enable and Restart Autonegotiation
-// * @phydev: target phy_device struct
-// */
-//static int genphy_restart_aneg(phy_device *phydev)
-//{
-//    /* Don't isolate the PHY if we're negotiating */
-//    return phy_modify(phydev, MII_BMCR, BMCR_ISOLATE,
-//              BMCR_ANENABLE | BMCR_ANRESTART);
-//}
-//
-///* Center KSZ9031RNX FLP timing at 16ms. */
-//static int center_flp_timing(phy_device_t *phydev)
-//{
-//    int result;
-//
-//    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_HI,
-//                   0x0006);
-//    if (result)
-//        return result;
-//
-//    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_LO,
-//                   0x1A80);
-//    if (result)
-//        return result;
-//
-//    return genphy_restart_aneg(phydev);
-//}
+int phy_modify(phy_device *phydev, uint32_t regnum, uint16_t mask, uint16_t set)
+{
+    uint16_t  value;
+
+    if ((value = phy_read(phydev, regnum)) < 0) {
+        return -1;
+    }
+
+    value &= ~mask;
+    value |= (set & mask);
+
+    if ((value = phy_write(phydev, regnum, value)) < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+int phy_write_mmd(phy_device *phydev, int devad, uint32_t regnum, uint16_t val)
+{
+    if (phydev->address.mmd_write(NULL, phydev->address.port_no, devad, regnum, val) != MESA_RC_OK) {
+        return -1;
+    }
+    return 0;
+}
+
+/**
+ * genphy_restart_aneg - Enable and Restart Autonegotiation
+ * @phydev: target phy_device struct
+ */
+static int genphy_restart_aneg(phy_device *phydev)
+{
+    /* Don't isolate the PHY if we're negotiating */
+    return phy_modify(phydev, MII_BMCR, BMCR_ISOLATE,
+              BMCR_ANENABLE | BMCR_ANRESTART);
+}
+
+/* Center KSZ9031RNX FLP timing at 16ms. */
+static int center_flp_timing(phy_device *phydev)
+{
+    int result;
+
+    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_HI,
+                   0x0006);
+    if (result)
+        return result;
+
+    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_LO,
+                   0x1A80);
+    if (result)
+        return result;
+
+    return genphy_restart_aneg(phydev);
+}
 
 /**
  * phy_polling_mode - Convenience function for testing whether polling is
@@ -302,7 +330,7 @@ static mesa_rc ksz_conf_set(meba_phy_device_t             *dev,
     if (result < 0)
         goto err_force_master;
 
-//    return ksz9031_center_flp_timing(phydev);
+    return center_flp_timing(phydev);
 
 err_force_master:
     T_D("failed to force the phy to master mode\n");
@@ -313,7 +341,8 @@ static meba_phy_device_t *ksz_probe(meba_phy_driver_t                *drv,
                                     const meba_phy_driver_address_t  *mode)
 {
     uint32_t         cnt;
-    mesa_port_map_t  port_map;
+    mesa_port_map_t  *port_map = NULL;
+    mesa_port_no_t   port_no = mode->val.mscc_address.port_no;
 
     meba_phy_device_t *device = (meba_phy_device_t *)calloc(1, sizeof(meba_phy_device_t));
     if (device == NULL)
@@ -333,16 +362,21 @@ static meba_phy_device_t *ksz_probe(meba_phy_driver_t                *drv,
 
     /* Get the MIIM access information */
     cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
-    (void)mesa_port_map_get(NULL, cnt, &port_map);
+    if ((port_map = calloc(cnt, sizeof(*port_map))) == NULL) {
+        free(device);
+        free(priv);
+        return NULL;
+    }
+    (void)mesa_port_map_get(NULL, cnt, port_map);
 
     priv->phydev.address = mode->val.mscc_address;
-    priv->phydev.chip_no = port_map.chip_no;
-    priv->phydev.miim_controller = port_map.miim_controller;
-    priv->phydev.miim_addr = port_map.miim_addr;
+    priv->phydev.chip_no = port_map[port_no].chip_no;
+    priv->phydev.miim_controller = port_map[port_no].miim_controller;
+    priv->phydev.miim_addr = port_map[port_no].miim_addr;
+    priv->phydev.irq = PHY_POLL;
 
     device->drv = drv;
     device->data = priv;
-    ((priv_data_t *)device->data)->phydev.irq = PHY_POLL;
 
     return device;
 }
@@ -359,8 +393,8 @@ meba_phy_drivers_t driver_init()
     meba_phy_drivers_t res;
     static meba_phy_driver_t ksz_drivers[1] = {};
 
-    ksz_drivers[0].id = 0xB552;
-    ksz_drivers[0].mask = 0x0000FFff;
+    ksz_drivers[0].id = 0;
+    ksz_drivers[0].mask = 0;
     ksz_drivers[0].meba_phy_driver_delete = ksz_delete;
     ksz_drivers[0].meba_phy_driver_reset = NULL;
     ksz_drivers[0].meba_phy_driver_poll = ksz_poll;
