@@ -741,25 +741,307 @@ static vtss_rc lan966x_sflow_port_conf_set(vtss_state_t *vtss_state,
                                            const vtss_port_no_t port_no,
                                            const vtss_sflow_port_conf_t *const new_conf)
 {
-    u32 hw_rate, value;
+    u32 hw_rate;
     vtss_sflow_port_conf_t *cur_conf = &vtss_state->l2.sflow_conf[port_no];
     vtss_sflow_type_t type = (new_conf->sampling_rate == 0 ? VTSS_SFLOW_TYPE_NONE : new_conf->type);
 
     *cur_conf = *new_conf;
     hw_rate = lan966x_sflow_hw_rate(new_conf->sampling_rate, &cur_conf->sampling_rate);
-    value  = ANA_SFLOW_CFG_SF_RATE(hw_rate);
-    value |= (type == VTSS_SFLOW_TYPE_ALL || type == VTSS_SFLOW_TYPE_RX ? ANA_SFLOW_CFG_SF_SAMPLE_RX_M : 0);
-    value |= (type == VTSS_SFLOW_TYPE_ALL || type == VTSS_SFLOW_TYPE_TX ? ANA_SFLOW_CFG_SF_SAMPLE_TX_M : 0);
-    REG_WR(ANA_SFLOW_CFG(VTSS_CHIP_PORT(port_no)), value);
+    REG_WR(ANA_SFLOW_CFG(VTSS_CHIP_PORT(port_no)),
+           ANA_SFLOW_CFG_SF_RATE(hw_rate) |
+           (type == VTSS_SFLOW_TYPE_ALL || type == VTSS_SFLOW_TYPE_RX ? ANA_SFLOW_CFG_SF_SAMPLE_RX_M : 0) |
+           (type == VTSS_SFLOW_TYPE_ALL || type == VTSS_SFLOW_TYPE_TX ? ANA_SFLOW_CFG_SF_SAMPLE_TX_M : 0));
     return VTSS_RC_OK;
 }
 
-/* - Debug print --------------------------------------------------- */
+/* ================================================================= *
+ *  Debug print
+ * ================================================================= */
+static vtss_rc lan966x_debug_mac_table(vtss_state_t *vtss_state,
+                                       const vtss_debug_printf_t pr,
+                                       const vtss_debug_info_t   *const info)
+{
+    u32  value, port;
+    BOOL header = 1;
+
+    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+        if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
+            continue;
+        if (header)
+            pr("Port  ID  Learn  L_Auto  L_CPU  L_DROP  PM_DROP PM_CPU Mirror\n");
+        header = 0;
+
+        REG_RD(ANA_PORT_CFG(port), &value);
+        pr("%-4u  %-2u  %-5u  %-6u  %-5u  %-6u  %-7u  %-6u  %u\n",
+           port,
+           ANA_PORT_CFG_PORTID_VAL_X(value),
+           VTSS_BOOL(value & ANA_PORT_CFG_LEARN_ENA_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_LEARNAUTO_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_LEARNCPU_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_LEARNDROP_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_LOCKED_PORTMOVE_DROP_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_LOCKED_PORTMOVE_CPU_M),
+           VTSS_BOOL(value & ANA_PORT_CFG_SRC_MIRROR_ENA_M));
+    }
+    if (!header)
+        pr("\n");
+
+    /* Read and clear analyzer sticky bits */
+    REG_RD(ANA_ANEVENTS, &value);
+    REG_WR(ANA_ANEVENTS, value);
+    vtss_debug_print_sticky(pr, "FLOOD_DISCARD", value, ANA_ANEVENTS_FLOOD_DISCARD_M);
+    vtss_debug_print_sticky(pr, "MSTI_DROP", value, ANA_ANEVENTS_MSTI_DROP_M);
+    vtss_debug_print_sticky(pr, "ACLKILL", value, ANA_ANEVENTS_ACLKILL_M);
+    vtss_debug_print_sticky(pr, "ACLUSED", value, ANA_ANEVENTS_ACLUSED_M);
+    vtss_debug_print_sticky(pr, "AUTOAGE", value, ANA_ANEVENTS_AUTOAGE_M);
+    vtss_debug_print_sticky(pr, "VS2TTL1", value, ANA_ANEVENTS_VS2TTL1_M);
+    vtss_debug_print_sticky(pr, "LEARN_DROP", value, ANA_ANEVENTS_LEARN_DROP_M);
+    vtss_debug_print_sticky(pr, "AGED_ENTRY", value, ANA_ANEVENTS_AGED_ENTRY_M);
+    vtss_debug_print_sticky(pr, "CPU_LEARN_FAILED", value, ANA_ANEVENTS_CPU_LEARN_FAILED_M);
+    vtss_debug_print_sticky(pr, "AUTO_LEARN_FAILED", value, ANA_ANEVENTS_AUTO_LEARN_FAILED_M);
+    vtss_debug_print_sticky(pr, "LEARN_REMOVE", value, ANA_ANEVENTS_LEARN_REMOVE_M);
+    vtss_debug_print_sticky(pr, "AUTO_LEARNED", value, ANA_ANEVENTS_AUTO_LEARNED_M);
+    vtss_debug_print_sticky(pr, "AUTO_MOVED", value, ANA_ANEVENTS_AUTO_MOVED_M);
+    vtss_debug_print_sticky(pr, "CLASSIFIED_DROP", value, ANA_ANEVENTS_CLASSIFIED_DROP_M);
+    vtss_debug_print_sticky(pr, "CLASSIFIED_COPY", value, ANA_ANEVENTS_CLASSIFIED_COPY_M);
+    vtss_debug_print_sticky(pr, "VLAN_DISCARD", value, ANA_ANEVENTS_VLAN_DISCARD_M);
+    vtss_debug_print_sticky(pr, "FWD_DISCARD", value, ANA_ANEVENTS_FWD_DISCARD_M);
+    vtss_debug_print_sticky(pr, "MULTICAST_FLOOD", value, ANA_ANEVENTS_MULTICAST_FLOOD_M);
+    vtss_debug_print_sticky(pr, "UNICAST_FLOOD", value, ANA_ANEVENTS_UNICAST_FLOOD_M);
+    vtss_debug_print_sticky(pr, "DEST_KNOWN", value, ANA_ANEVENTS_DEST_KNOWN_M);
+    vtss_debug_print_sticky(pr, "BUCKET3_MATCH", value, ANA_ANEVENTS_BUCKET3_MATCH_M);
+    vtss_debug_print_sticky(pr, "BUCKET2_MATCH", value, ANA_ANEVENTS_BUCKET2_MATCH_M);
+    vtss_debug_print_sticky(pr, "BUCKET1_MATCH", value, ANA_ANEVENTS_BUCKET1_MATCH_M);
+    vtss_debug_print_sticky(pr, "BUCKET0_MATCH", value, ANA_ANEVENTS_BUCKET0_MATCH_M);
+    vtss_debug_print_sticky(pr, "CPU_OPERATION", value, ANA_ANEVENTS_CPU_OPERATION_M);
+    vtss_debug_print_sticky(pr, "DMAC_LOOKUP", value, ANA_ANEVENTS_DMAC_LOOKUP_M);
+    vtss_debug_print_sticky(pr, "SMAC_LOOKUP", value, ANA_ANEVENTS_SMAC_LOOKUP_M);
+    vtss_debug_print_sticky(pr, "SEQ_GEN_ERR_0", value, ANA_ANEVENTS_SEQ_GEN_ERR_0_M);
+    vtss_debug_print_sticky(pr, "SEQ_GEN_ERR_1", value, ANA_ANEVENTS_SEQ_GEN_ERR_1_M);
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_src_table(vtss_state_t *vtss_state,
+                                       const vtss_debug_printf_t pr,
+                                       const vtss_debug_info_t   *const info)
+{
+    u32 port, mask;
+
+    vtss_debug_print_header(pr, "Source Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, pr, "Port  ");
+    for (port = 0; port <= VTSS_CHIP_PORTS;  port++) {
+        REG_RD(ANA_PGID(PGID_SRC + port), &mask);
+        mask = ANA_PGID_PGID_X(mask);
+        pr("%-4u  ", port);
+        vtss_lan966x_debug_print_mask(pr, mask);
+    }
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_aggr(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    u32 i, mask, value;
+
+    VTSS_RC(lan966x_debug_src_table(vtss_state, pr, info));
+
+    vtss_debug_print_header(pr, "Aggregation Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, pr, "AC    ");
+    for (i = 0; i < LAN966X_ACS; i++) {
+        REG_RD(ANA_PGID(PGID_AGGR + i), &mask);
+        mask = ANA_PGID_PGID_X(mask);
+        pr("%-4u  ", i);
+        vtss_lan966x_debug_print_mask(pr, mask);
+    }
+    pr("\n");
+
+    vtss_debug_print_header(pr, "Destination Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, pr, "PGID  CPU  Queue  ");
+    for (i = 0; i < VTSS_PGIDS; i++) {
+        REG_RD(ANA_PGID(i), &value);
+        mask = ANA_PGID_PGID_X(value);
+        pr("%-4u  %-3u  %-5u  ",
+           i,
+           mask & VTSS_BIT(VTSS_CHIP_PORT_CPU) ? 1 : 0,
+           ANA_PGID_CPUQ_DST_PGID_X(value));
+        vtss_lan966x_debug_print_mask(pr, mask);
+    }
+    pr("\n");
+
+    vtss_debug_print_header(pr, "Flooding PGIDs");
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        REG_RD(ANA_FLOODING(i), &value);
+        pr("UNICAST_%u  : %u\n", i, ANA_FLOODING_FLD_UNICAST_X(value));
+        pr("MULTICAST_%u: %u\n", i, ANA_FLOODING_FLD_MULTICAST_X(value));
+        pr("BROADCAST_%u: %u\n", i, ANA_FLOODING_FLD_BROADCAST_X(value));
+    }
+    REG_RD(ANA_FLOODING_IPMC, &value);
+    pr("MC4_CTRL   : %u\n", ANA_FLOODING_IPMC_FLD_MC4_CTRL_X(value));
+    pr("MC4_DATA   : %u\n", ANA_FLOODING_IPMC_FLD_MC4_DATA_X(value));
+    pr("MC6_CTRL   : %u\n", ANA_FLOODING_IPMC_FLD_MC6_CTRL_X(value));
+    pr("MC6_DATA   : %u\n", ANA_FLOODING_IPMC_FLD_MC6_DATA_X(value));
+    pr("\n");
+
+    vtss_lan966x_debug_reg_header(pr, "Aggr. Mode");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_AGGR_CFG), "AGGR_CFG");
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_stp(vtss_state_t *vtss_state,
+                                 const vtss_debug_printf_t pr,
+                                 const vtss_debug_info_t   *const info)
+{
+    u32  port;
+    BOOL header = 1;
+
+    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+        if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
+            continue;
+        if (header)
+            vtss_lan966x_debug_reg_header(pr, "ANA");
+        header = 0;
+        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_PORT_CFG(port)), port, "PORT_CFG");
+    }
+    if (!header)
+        pr("\n");
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
+                                   const vtss_debug_printf_t pr,
+                                   const vtss_debug_info_t   *const info)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    vtss_vid_t        vid;
+    vtss_vlan_entry_t *vlan_entry;
+    BOOL              header = 1;
+    vtss_port_no_t    port_no;
+    u32               port, value, mask = 0, fid;
+    char              buf[32];
+
+    for (port = 0; port < (VTSS_CHIP_PORTS + 2); port++) {
+        if (port < VTSS_CHIP_PORTS) {
+            /* Normal ports */
+            if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
+                continue;
+            sprintf(buf, "Port %u (%u)", port, port_no);
+        } else {
+            /* CPU ports */
+            if (!info->full)
+                continue;
+            sprintf(buf, "Port %u (CPU)", port);
+        }
+
+        vtss_lan966x_debug_reg_header(pr, buf);
+        if (port != VTSS_CHIP_PORT_CPU_1) {
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_VLAN_CFG(port)), port, "ANA:VLAN_CFG");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_DROP_CFG(port)), port, "ANA:DROP_CFG");
+        }
+        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_PORT_VLAN_CFG(port)), port, "REW:VLAN_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_TAG_CFG(port)), port, "REW:TAG_CFG");
+        pr("\n");
+    }
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_VLAN_ETYPE_CFG), "ETYPE_CFG");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_ADVLEARN), "ADVLEARN");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_VLANMASK), "VLANMASK");
+    pr("\n");
+
+    for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
+        vlan_entry = &vtss_state->l2.vlan_table[vid];
+        if (!vlan_entry->enabled && !info->full)
+            continue;
+
+        REG_WR(ANA_VLANTIDX, ANA_VLANTIDX_V_INDEX(vid));
+        REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_READ));
+        if (lan966x_vlan_table_idle(vtss_state) != VTSS_RC_OK)
+            continue;
+        REG_RD(ANA_VLANACCESS, &value);
+        mask = ANA_VLANACCESS_VLAN_PORT_MASK_X(value);
+        REG_RD(ANA_VLANTIDX, &value);
+        REG_RD(ANA_FID_MAP(vid), &fid);
+        fid = ANA_FID_MAP_FID_VAL_X(fid);
+        if (header)
+            vtss_lan966x_debug_print_port_header(vtss_state, pr, "VID   FID  Lrn  Mir  Prv  ");
+        header = 0;
+
+        pr("%-6u%-5u%-5u%-5u%-5u", vid, fid,
+           value & ANA_VLANTIDX_VLAN_LEARN_DISABLED_M ? 0 : 1,
+           value & ANA_VLANTIDX_VLAN_MIRROR_M ? 1 : 0,
+           value & ANA_VLANTIDX_VLAN_PRIV_VLAN_M ? 1 : 0);
+        vtss_lan966x_debug_print_mask(pr, mask);
+
+        /* Leave critical region briefly */
+        VTSS_EXIT_ENTER();
+    }
+    if (!header)
+        pr("\n");
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_debug_pvlan(vtss_state_t *vtss_state,
+                                   const vtss_debug_printf_t pr,
+                                   const vtss_debug_info_t   *const info)
+{
+    vtss_lan966x_debug_reg_header(pr, "ANA");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_ISOLATED_PORTS), "ISOLATED_PORTS");
+    pr("\n");
+
+    return lan966x_debug_src_table(vtss_state, pr, info);
+}
+
+static vtss_rc lan966x_debug_mirror(vtss_state_t *vtss_state,
+                                    const vtss_debug_printf_t pr,
+                                    const vtss_debug_info_t   *const info)
+{
+    u32 port, value, mask = 0;
+
+    /* Calculate ingress mirror mask */
+    for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
+        REG_RD(ANA_PORT_CFG(port), &value);
+        if (value & ANA_PORT_CFG_SRC_MIRROR_ENA_M)
+            mask |= VTSS_BIT(port);
+    }
+    vtss_lan966x_debug_print_port_header(vtss_state, pr, "Mirror   ");
+    pr("Ingress  ");
+    vtss_lan966x_debug_print_mask(pr, mask);
+    REG_RD(ANA_EMIRRORPORTS, &mask);
+    pr("Egress   ");
+    vtss_lan966x_debug_print_mask(pr, mask);
+    REG_RD(ANA_MIRRORPORTS, &mask);
+    pr("Ports    ");
+    vtss_lan966x_debug_print_mask(pr, mask);
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
 
 vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info)
 {
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN, lan966x_debug_vlan, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN, lan966x_debug_pvlan, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE, lan966x_debug_mac_table, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT, lan966x_debug_vxlat, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR, lan966x_debug_aggr, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, lan966x_debug_stp, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR, lan966x_debug_mirror, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
@@ -767,11 +1049,76 @@ vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_l2_port_map_set(vtss_state_t *vtss_state)
 {
+    u32 i;
+
+    /* Set the number of available PGIDs */
+    vtss_state->l2.pgid_count = (VTSS_PGIDS - VTSS_CHIP_PORTS + vtss_state->port_count);
+
+    /* Reserve PGIDs for flooding */
+    VTSS_RC(lan966x_flood_conf_set(vtss_state));
+
+    /* Setup flooding PGIDs */
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        REG_WR(ANA_FLOODING(i),
+               ANA_FLOODING_FLD_UNICAST(PGID_UC) |
+               ANA_FLOODING_FLD_BROADCAST(PGID_MC) |
+               ANA_FLOODING_FLD_MULTICAST(PGID_MC));
+    }
+    REG_WR(ANA_FLOODING_IPMC,
+           ANA_FLOODING_IPMC_FLD_MC4_CTRL(PGID_MC) |
+           ANA_FLOODING_IPMC_FLD_MC4_DATA(PGID_MCIPV4) |
+           ANA_FLOODING_IPMC_FLD_MC6_CTRL(PGID_MC) |
+           ANA_FLOODING_IPMC_FLD_MC6_DATA(PGID_MCIPV6));
     return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
 {
+    vtss_vid_t vid;
+    u32        port;
+
+    /* Clear MAC table */
+    REG_WR(ANA_MACACCESS, ANA_MACACCESS_MAC_TABLE_CMD(MACACCESS_CMD_INIT));
+
+    /* Clear VLAN table */
+    REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_INIT));
+
+    /* Setup chip ports */
+    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+        /* Default VLAN port configuration */
+        VTSS_RC(lan966x_vlan_port_conf_apply(vtss_state, port,
+                                             &vtss_state->l2.vlan_port_conf[0]));
+    }
+
+    /* Clear VLAN table masks */
+    for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
+        if (vid == VTSS_VID_DEFAULT) /* Default VLAN includes all ports */
+            continue;
+        REG_WR(ANA_VLANTIDX, ANA_VLANTIDX_V_INDEX(vid));
+        REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_WRITE));
+        VTSS_RC(lan966x_vlan_table_idle(vtss_state));
+    }
+
+    /* Setup VLAN configuration */
+    VTSS_RC(lan966x_vlan_conf_apply(vtss_state, 0));
+
+    /* Setup aggregation mode */
+    VTSS_RC(lan966x_aggr_mode_set(vtss_state));
+
+    /* Set MAC age time to default value */
+    VTSS_RC(lan966x_mac_table_age_time_set(vtss_state));
+
+    /* Disable learning for frames discarded by VLAN ingress filtering */
+    REG_WR(ANA_ADVLEARN, ANA_ADVLEARN_VLAN_CHK_M);
+
+    /* Ignore CPU copy flag in DMAC lookup */
+    REG_WRM_SET(ANA_AGENCTRL, ANA_AGENCTRL_IGNORE_DMAC_FLAGS_M);
+
+    /* Setup frame ageing to 2 seconds (6.5 us units) */
+    REG_WR(SYS_FRM_AGING,
+           SYS_FRM_AGING_AGE_TX_ENA_M |
+           SYS_FRM_AGING_MAX_AGE(2*2000000/13));
+
     return VTSS_RC_OK;
 }
 
@@ -819,7 +1166,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mirror_cpu_ingress_set = lan966x_mirror_cpu_ingress_set;
         state->mirror_cpu_egress_set = lan966x_mirror_cpu_egress_set;
         state->eps_port_set = vtss_cmn_eps_port_set;
-        state->sflow_port_conf_set         = lan966x_sflow_port_conf_set;
+        state->sflow_port_conf_set = lan966x_sflow_port_conf_set;
         state->sflow_sampling_rate_convert = lan966x_sflow_sampling_rate_convert;
         // TBD: state->vcl_port_conf_set = vtss_lan966x_vcap_port_conf_set;
         state->vce_add = vtss_cmn_vce_add;
@@ -827,8 +1174,8 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_group_add = vtss_cmn_vlan_trans_group_add;
         state->vlan_trans_group_del = vtss_cmn_vlan_trans_group_del;
         state->vlan_trans_group_get = vtss_cmn_vlan_trans_group_get;
-        state->vlan_trans_port_conf_set  = vtss_cmn_vlan_trans_port_conf_set;
-        state->vlan_trans_port_conf_get  = vtss_cmn_vlan_trans_port_conf_get;
+        state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
+        state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
         // TBD: state->vcap_port_conf_set = lan966x_vcap_port_conf_set;
         // TBD: state->iflow_conf_set = lan966x_iflow_conf_set;
         state->ac_count = LAN966X_ACS;
@@ -838,9 +1185,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
-        if (!vtss_state->warm_start_cur) {
-            VTSS_RC(lan966x_l2_init(vtss_state));
-        }
+        VTSS_RC(lan966x_l2_init(vtss_state));
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:

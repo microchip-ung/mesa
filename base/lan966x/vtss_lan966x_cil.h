@@ -20,6 +20,7 @@
  * ================================================================= */
 // TBD
 #define IOREG(t,_z2,_z3,_z4,_z5,_z6,_z7,_z8,_z9,_z10,_z11) (_z2 +_z5)
+#define REG_ADDR(p) IOREG(p)
 
 extern vtss_rc (*vtss_lan966x_wr)(vtss_state_t *vtss_state, u32 addr, u32 value);
 extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
@@ -91,6 +92,14 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
  * ================================================================= */
 vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
+void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
+                                          const vtss_debug_printf_t pr, const char *txt);
+void vtss_lan966x_debug_print_mask(const vtss_debug_printf_t pr, u32 mask);
+void vtss_lan966x_debug_reg_header(const vtss_debug_printf_t pr, const char *name) ;
+void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
+                            const vtss_debug_printf_t pr, u32 addr, const char *name);
+void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
+                                 const vtss_debug_printf_t pr, u32 addr, u32 i, const char *name);
 
 vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
