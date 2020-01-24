@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,8 +53,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
     ret_val->txmargin=0x0; //as per AN_0003
     ret_val->ln_cfg_ctle_rstn =0;//Default; What does this setting do?
     ret_val->ln_r_dfe_rstn =0;//Default; 
-    ret_val->ln_cfg_itx_ipcml_base =0;//Default; 
-    ret_val->com_pll_reserve =0xf;//Default;
+    ret_val->ln_cfg_itx_ipcml_base =0;//Default;
+    ret_val->com_pll_reserve =0;//Default;
     switch(f_mode) {
       case VTSS_SD25G28_MODE_25G_ETH :
       case VTSS_SD25G28_MODE_25G_LAN :   {
@@ -70,7 +69,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ck_bitwidth = 3; 
         ret_val->subrate = 0; 
         ret_val->com_txcal_en = 0; 
-        ret_val->com_tx_reserve_msb = (0x26<<1);//Default is 0x20<<1 
+        ret_val->com_tx_reserve_msb = (0x26<<1);//Default is 0x20<<1
         ret_val->com_tx_reserve_lsb = ((3<<6) + (3<<4)); 
         ret_val->ln_tx_reserve_msb = ((3<<6)+(0<<5)+(0<<4)+(1<<3)+(2<<1)); 
         ret_val->ln_tx_reserve_lsb = ((3<<6)+(3<<4)+(3<<2)+(2<<0)); 
@@ -209,16 +208,17 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->tx_pre_div = 0;//_004
         ret_val->fifo_ck_div = 0;
         ret_val->pre_divsel= 0;//=Fref 
-        ret_val->vco_div_mode = 1; //div by 2 
+        ret_val->vco_div_mode = 1; //div by 2
         ret_val->sel_div = 6;// *160 
         ret_val->ck_bitwidth = 3; 
         ret_val->subrate = 2; 
         ret_val->com_txcal_en = 1; 
-        ret_val->com_tx_reserve_msb = (0x26<<1);//08Jan mail [11:8] =0xc 
-        ret_val->com_tx_reserve_lsb = (0xf<<4); 
-        ret_val->ln_cfg_itx_ipcml_base =2;//; 
-        ret_val->ln_tx_reserve_msb = ((0<<6)+(0<<5)+(0<<4)+(1<<3)+(0<<1)); 
-        ret_val->ln_tx_reserve_lsb = ((2<<6)+(0<<4)+(0xa<<0)); //09Jan Mail 
+        ret_val->com_pll_reserve = 0xf;
+        ret_val->com_tx_reserve_msb = (0x26<<1);//08Jan mail [11:8] =0xc
+        ret_val->com_tx_reserve_lsb = (0xf<<4);
+        ret_val->ln_cfg_itx_ipcml_base =2;//;
+        ret_val->ln_tx_reserve_msb = ((0<<6)+(0<<5)+(0<<4)+(1<<3)+(0<<1));
+        ret_val->ln_tx_reserve_lsb = ((2<<6)+(0<<4)+(0xa<<0)); //09Jan Mail
         ret_val->ln_bw= 0;
         ret_val->ln_cfg_pi_bw_3_0 = 0; //_004
         ret_val->ln_rxterm=(1<<2);//_004
@@ -353,7 +353,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
                                         //ctle related signals
 
                                         preset.ln_cfg_eqC_force_3_0        = 0xf; 
-                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 8;
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 0xf;
                                         preset.ln_cfg_eqR_force_3_0        = 4;
                                         mode_args->dfe_enable              = 0;
 
@@ -515,7 +515,6 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_iscan_en[0]   =                            0; 
     ret_val->l1_pcs_en_fast_iscan[0]   =                       0;  
     ret_val->l0_cfg_bw_1_0[0]   =                              0;
-    ret_val->cfg_en_dummy[0]   =                               0;
     ret_val->cfg_pll_reserve_3_0[0]   =                        mode_args->com_pll_reserve;
     ret_val->l0_cfg_txcal_en[0]   =                            mode_args->com_txcal_en;
     ret_val->l0_cfg_tx_reserve_15_8[0]   =                     mode_args->com_tx_reserve_msb;
@@ -538,7 +537,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
     ret_val->ln_r_dfe_rstn[0]   =                              mode_args->ln_r_dfe_rstn;
     ret_val->ln_cfg_alos_thr_2_0[0]   =                        0;
-    ret_val->ln_cfg_itx_ipcml_base_1_0[0]   =                  0;
+    ret_val->ln_cfg_itx_ipcml_base_1_0[0]   =                  mode_args->ln_cfg_itx_ipcml_base;
     ret_val->ln_cfg_rx_reserve_7_0[0]   =                      0xbf;
     ret_val->ln_cfg_rx_reserve_15_8[0]   =                     0x61;
     ret_val->ln_cfg_rxterm_2_0[0]   =                          mode_args->ln_rxterm;
