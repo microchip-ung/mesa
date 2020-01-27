@@ -125,19 +125,27 @@ typedef struct {
     mesa_bool_t ber_busy_sw;
     mesa_bool_t tap_max_reached;
     mesa_bool_t receiver_ready_sent;
+    mesa_bool_t kr_mw_done;
     mesa_port_speed_t next_parallel_spd;
     kr_tap_t current_tap;
     uint32_t  tap_idx;
     uint16_t  ber_cnt[3][64];
     uint32_t  frm_sent[3][64];
     uint16_t  decr_cnt;
-    uint16_t  tap_max_cnt[3];
-    uint16_t  tap_mid_cnt[3];
+    uint16_t  lp_tap_max_cnt[3];
+    uint16_t  lp_tap_mid_cnt[3];
+    uint16_t  ld_tap_max_cnt[3];
+    uint16_t  ld_tap_mid_cnt[3];
     uint32_t  tr_time_ld;
     uint32_t  tr_time_rd;
     struct timeval time_start;
     mesa_port_kr_status_t status;
 } kr_train_t;
+
+typedef struct {
+    
+} kr_aneg_t;
+
 
 typedef enum {
     HOLD = 0,

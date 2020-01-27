@@ -836,6 +836,8 @@ const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
     return "?   ";
 }
 
+u32 cnt=0;
+
 static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *const coef,
                                                   u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, BOOL verify_only)
 {
@@ -942,10 +944,10 @@ static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *
             if (0 <= _tap_dly && _tap_dly <= 19) {
                 dG  = 7;
                 dCa = 2;
-                dCd = 1;
+                dCd = 0;
             } else if (20 <= _tap_dly && _tap_dly <= 31) {
                 dG  = 4;
-                dCa = 3;
+                dCa = 2;
                 dCd = 1;
             }
         } else if (150 <= _pcs2pma && _pcs2pma <= 187) {
@@ -962,7 +964,7 @@ static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *
             if (0 <= _tap_dly && _tap_dly <= 10) {
                 dG  = 10;
                 dCa = 2;
-                dCd = 1;
+                dCd = 0;
             } else if (11 <= _tap_dly && _tap_dly <= 31) {
                 dG  = 6;
                 dCa = 2;
@@ -977,9 +979,9 @@ static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *
             }
         } else if (221 <= _pcs2pma && _pcs2pma <= 255) {
             if (0 <= _tap_dly && _tap_dly <= 31) {
-                dG  = 6;
-                dCa = 3;
-                dCd = 1;
+                dG  = 12;
+                dCa = 2;
+                dCd = 0;
                 adv_dly_sum = 18;
             }
         } else {
@@ -1030,9 +1032,7 @@ static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *
             status = VTSS_COEF_MINIMUM;
         }
         sts_code = VTSS_KR_STS_MIN_TAP_DLY_ABOVE_31;
-    }
-
-    if (_tap_adv < 0) {
+    } else if (_tap_adv < 0) {
         status = VTSS_COEF_MAXIMUM;
         sts_code = VTSS_KR_STS_MAX_TAP_ADV_BELOW_0;
     } else if ((_tap_adv + _tap_dly) >= adv_dly_sum) {
@@ -1070,14 +1070,23 @@ static vtss_port_kr_coef_status_t fa_coef_get(u32 p, const vtss_port_kr_coef_t *
         }
     }
 
-    if (p == 0) {
-        if (verify_only) {
-            VTSS_I("p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
-                   p, vtss_kr_coef2txt(coef->type), vtss_kr_upd2txt(coef->update), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
-                   _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
-        }
-
+    if (((coef->update == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+        ((coef->update == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+               p, vtss_kr_coef2txt(coef->type), vtss_kr_upd2txt(coef->update), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
+               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
+
+    /* if (p == 0) { */
+    /*     if (verify_only && (coef->type == 2)) { */
+    /*         cnt++; */
+    /*         printf("p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s) (%d)\n", */
+    /*                p, vtss_kr_coef2txt(coef->type), vtss_kr_upd2txt(coef->update), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv, */
+    /*                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), cnt); */
+
+    /*     } */
+
+    /* } */
 
     if (status == VTSS_COEF_MINIMUM || status == VTSS_COEF_MAXIMUM) {
         return status;
@@ -1272,6 +1281,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
 {
     u32 irq, sts0, sts1, tr;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
     REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts1);
@@ -1285,8 +1295,14 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     status->irq.vector = irq;
     status->aneg.sts1 = sts1;
 
-    /* if (VTSS_X_IP_KRANEG_IRQ_VEC_LPCVALID(irq)) */
-    /*     printf("P:%d rx LPCVALID\n",port_no); */
+    /* REG_RD(VTSS_IP_KRANEG_KR_PMD_STS(tgt), &tr); */
+    /* status->train.complete = VTSS_X_IP_KRANEG_KR_PMD_STS_RCVR_RDY(tr) && */
+    /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_TR_FAIL(tr) && */
+    /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_STPROT(tr); */
+
+    status->train.c0_ob_tap_result = st->pcs2pma;
+    status->train.cm_ob_tap_result = st->tap_dly;
+    status->train.cp_ob_tap_result = st->tap_adv;
 
     REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
     status->train.frame_sent = tr;
