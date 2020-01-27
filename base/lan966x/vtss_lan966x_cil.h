@@ -169,6 +169,8 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
  * ================================================================= */
 vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
+vtss_rc vtss_lan966x_counter_update(vtss_state_t *vtss_state,
+                                    u32 *addr, vtss_chip_counter_t *counter, BOOL clear);
 void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
                                           const vtss_debug_printf_t pr, const char *txt);
 void vtss_lan966x_debug_print_mask(const vtss_debug_printf_t pr, u32 mask);
@@ -177,6 +179,8 @@ void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr, u32 addr, const char *name);
 void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr, u32 addr, u32 i, const char *name);
+void vtss_lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                            vtss_chip_counter_t *c1, vtss_chip_counter_t *c2);
 
 // Port API
 vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

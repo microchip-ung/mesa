@@ -61,6 +61,17 @@ u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[])
     return mask;
 }
 
+vtss_rc vtss_lan966x_counter_update(vtss_state_t *vtss_state,
+                                    u32 *addr, vtss_chip_counter_t *counter, BOOL clear)
+{
+    u32 value;
+
+    REG_RD(SYS_CNT(*addr), &value);
+    *addr = (*addr + 1); /* Next counter address */
+    vtss_cmn_counter_32_update(value, counter, clear);
+    return VTSS_RC_OK;
+}
+
 /* ================================================================= *
  *  Debug print utility functions
  * ================================================================= */
@@ -108,6 +119,20 @@ void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
 
     sprintf(buf, "%s_%u", name, i);
     vtss_lan966x_debug_reg(vtss_state, pr, addr, buf);
+}
+
+void vtss_lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                            vtss_chip_counter_t *c1, vtss_chip_counter_t *c2)
+{
+    char buf[80];
+
+    sprintf(buf, "rx_%s:", col1);
+    pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
+    if (col2 != NULL) {
+        sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
+        pr("%-28s%10" PRIu64, buf, c2 ? c2->prev : (u64) 0);
+    }
+    pr("\n");
 }
 
 /* ================================================================= *
