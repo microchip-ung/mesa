@@ -264,7 +264,7 @@ static mesa_rc ksz_poll(meba_phy_device_t *dev, meba_phy_driver_status_t *status
 {
     phy_device *phydev = &((priv_data_t *)dev->data)->phydev;
 
-    T_D("Enter");
+    T_D("Enter  port_no %u", phydev->address.port_no);
 
     if (genphy_read_status(phydev)) {
         return MESA_RC_ERROR;

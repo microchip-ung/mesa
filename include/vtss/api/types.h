@@ -420,6 +420,13 @@ typedef enum {
 #endif /* VTSS_PORT_COUNT < 65 */
 #endif
 
+#if defined(VTSS_ARCH_LAN966X)
+#if (VTSS_PORT_COUNT < 4)
+#undef VTSS_PORT_COUNT
+#define VTSS_PORT_COUNT 4 /**< Number of ports */
+#endif /* VTSS_PORT_COUNT < 4 */
+#endif
+
 /* Number of ports may optionally be less than number of chip ports */
 #if VTSS_OPT_PORT_COUNT && ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
 #define VTSS_PORTS VTSS_OPT_PORT_COUNT /**< Number of ports */

@@ -133,6 +133,35 @@ const char *mesa_sfp_if2txt(meba_sfp_transreceiver_t sfp)
     return "?   ";
 }
 
+mesa_trace_level_t meba_to_mesa_level(meba_trace_level_t  level)
+{
+    switch(level) {
+    case MEBA_TRACE_LVL_RACKET:
+    case MEBA_TRACE_LVL_NOISE: return MESA_TRACE_LEVEL_NOISE;
+    case MEBA_TRACE_LVL_DEBUG: return MESA_TRACE_LEVEL_DEBUG;
+    case MEBA_TRACE_LVL_INFO:
+    case MEBA_TRACE_LVL_WARNING: return MESA_TRACE_LEVEL_INFO;
+    case MEBA_TRACE_LVL_ERROR: return MESA_TRACE_LEVEL_ERROR;
+    case MEBA_TRACE_LVL_NONE: return MESA_TRACE_LEVEL_NONE;
+    }
+    return MESA_TRACE_LEVEL_NONE;
+}
+
+static void debug_func(meba_trace_level_t  level,
+                       const char          *location,
+                       uint32_t            line_no,
+                       const char          *fmt,
+                       ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    if (trace_groups[TRACE_GROUP_DEFAULT].level >= meba_to_mesa_level(level)) {
+        mscc_appl_trace_vprintf(trace_module.name, trace_groups[TRACE_GROUP_DEFAULT].name, meba_to_mesa_level(level), "phy_driver.c", line_no, location, fmt, args);
+    }
+    va_end(args);
+}
+
 static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
                                  mesa_port_interface_t if_type,
                                  mesa_port_speed_t speed_in,
@@ -1179,6 +1208,7 @@ static void port_init(meba_inst_t inst)
             }
             pc->speed = (cap & MEBA_PORT_CAP_25G_FDX) ? MESA_SPEED_25G : MESA_SPEED_10G;
             break;
+        case MESA_PORT_INTERFACE_GMII:
         case MESA_PORT_INTERFACE_SGMII:
         case MESA_PORT_INTERFACE_RGMII:
         case MESA_PORT_INTERFACE_QSGMII:

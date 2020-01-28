@@ -48,7 +48,7 @@ const char *vtss_func;
 vtss_rc vtss_port_no_check(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     if (port_no >= vtss_state->port_count) {
-        VTSS_E("%s: illegal port_no: %u", vtss_func ? vtss_func : "?", port_no);
+        VTSS_E("%s: illegal port_no: %u.  port_count: %u", vtss_func ? vtss_func : "?", port_no, vtss_state->port_count);
         return VTSS_RC_ERROR;
     }
 

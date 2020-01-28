@@ -252,6 +252,7 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->fan.cool_lvl_set = lan966x_fan_cool_lvl_set;
         vtss_state->fan.rotation_get = lan966x_fan_rotation_get;
 #endif
+        state->gpio_count = VTSS_GPIOS;
         break;
 
     case VTSS_INIT_CMD_POLL:
