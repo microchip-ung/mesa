@@ -104,5 +104,5 @@ cd -
 echo "----Run test----"
 ./$file | libeasy/xml2console.rb
 if [ $rel == 1 ]; then
-   et release
+    et release
 fi

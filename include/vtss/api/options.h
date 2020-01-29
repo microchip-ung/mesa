@@ -42,6 +42,10 @@
 #define VTSS_FEATURE_QOS_POLICER_DLB              /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER         /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
+//#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
 //#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
@@ -56,11 +60,15 @@
 #define VTSS_FEATURE_VCAP                         /**< VCAP */
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */
 #define VTSS_FEATURE_ACL_EXT_DIP                  /**< ACL extended IPv6 rule with DIP matching */
-#define VTSS_FEATURE_LED_POW_REDUC               /**< LED power reduction */
+#define VTSS_FEATURE_LED_POW_REDUC                /**< LED power reduction */
 #define VTSS_FEATURE_MIRROR_CPU                   /**< CPU mirroring */
 //#define VTSS_FEATURE_EVC_POLICERS                 /**< EVC/ECE policers */
 #define VTSS_FEATURE_IRQ_CONTROL                  /**< General IRQ support */
-//#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
+#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
+#define VTSS_FEATURE_XSTAT                        /**< Ingress and egress statistics */
+#define VTSS_FEATURE_XDLB                         /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */
 #define VTSS_FEATURE_SYNCE                        /**< SYNCE - L1 syncronization feature */
@@ -72,8 +80,8 @@
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
-#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
-#define VTSS_FEATURE_VOP_V1                       /**< Version 1 OAM implementation. Serval-1 platform */
+//#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
+//#define VTSS_FEATURE_VOP_V1                       /**< Version 1 OAM implementation. Serval-1 platform */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V1                               /**< AFI API version 1 */
 #endif /* VTSS_ARCH_LAN966X */

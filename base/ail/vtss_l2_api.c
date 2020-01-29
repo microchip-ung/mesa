@@ -3099,16 +3099,21 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
 {
     vtss_l2_state_t    *state = &vtss_state->l2;
     vtss_xrow_header_t *hdr;
+    u16                dummy, cnt;
 
+#if defined(VTSS_ARCH_LAN966X)
+    cnt = 0;
+#else
     /* Dummy blocks of 8 instances are reserved for normal/default traffic */
-    u16                dummy;
+    cnt = 8;
+#endif
 
     hdr = &state->pol_table.hdr;
     hdr->name = "policer";
     hdr->max_count = VTSS_EVC_POL_CNT;
     hdr->row = state->pol_table.row;
     dummy = VTSS_POL_STAT_NONE;
-    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, 8, &dummy));
+    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
     hdr->move = vtss_cmn_pol_move;
     hdr->clear = vtss_cmn_pol_clear;
 
@@ -3117,7 +3122,7 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr->max_count = VTSS_EVC_STAT_CNT;
     hdr->row = state->istat_table.row;
     dummy = VTSS_POL_STAT_NONE;
-    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, 8, &dummy));
+    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
     hdr->move = vtss_cmn_istat_move;
     hdr->clear = vtss_cmn_istat_clear;
 
@@ -3126,7 +3131,7 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr->max_count = VTSS_EVC_STAT_CNT;
     hdr->row = state->estat_table.row;
     dummy = VTSS_POL_STAT_NONE;
-    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, 8, &dummy));
+    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
     hdr->move = vtss_cmn_estat_move;
     hdr->clear = vtss_cmn_estat_clear;
 
@@ -3136,7 +3141,7 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr->max_count = VTSS_MSTREAM_CNT;
     hdr->row = state->ms_table.row;
     dummy = VTSS_POL_STAT_NONE;
-    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, 8, &dummy));
+    VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
     hdr->move = vtss_mstream_move;
     hdr->clear = vtss_mstream_clear;
 #endif
@@ -3150,6 +3155,14 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
 
 static vtss_rc vtss_class_cnt_get(const vtss_class_cnt_t class_cnt, u8 *cnt)
 {
+#if defined(VTSS_ARCH_LAN966X)
+    // Only one class supported
+    if (class_cnt != 1) {
+        VTSS_E("illegal class count: %u", class_cnt);
+        return VTSS_RC_ERROR;
+    }
+    *cnt = class_cnt;
+#else
     if (class_cnt == 0 || class_cnt > 8) {
         VTSS_E("illegal class count: %u", class_cnt);
         return VTSS_RC_ERROR;
@@ -3163,6 +3176,7 @@ static vtss_rc vtss_class_cnt_get(const vtss_class_cnt_t class_cnt, u8 *cnt)
         /* 8 classes */
         *cnt = 8;
     }
+#endif
     return VTSS_RC_OK;
 }
 
@@ -3229,10 +3243,20 @@ vtss_rc vtss_ingress_cnt_free(const vtss_inst_t           inst,
         } else {
             rc = vtss_cmn_istat_free(vtss_state, &stat->idx);
             stat->cnt = 0;
+            stat->sdx = 0;
         }
     }
     VTSS_EXIT();
     return rc;
+}
+
+static u16 vtss_icnt_idx(vtss_xstat_entry_t *stat, vtss_cosid_t cosid)
+{
+#if defined(VTSS_ARCH_LAN966X)
+    return stat->sdx;
+#else
+    return (stat->idx + cosid);
+#endif
 }
 
 vtss_rc vtss_ingress_cnt_get(const vtss_inst_t           inst,
@@ -3247,7 +3271,7 @@ vtss_rc vtss_ingress_cnt_get(const vtss_inst_t           inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((stat = vtss_istat_lookup(vtss_state, id)) != NULL && cosid < stat->cnt) {
-            rc = VTSS_FUNC(l2.icnt_get, stat->idx + cosid, counters);
+            rc = VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, cosid), counters);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -3267,7 +3291,7 @@ vtss_rc vtss_ingress_cnt_clear(const vtss_inst_t           inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((stat = vtss_istat_lookup(vtss_state, id)) != NULL && cosid < stat->cnt) {
-            rc = VTSS_FUNC(l2.icnt_get, stat->idx + cosid, NULL);
+            rc = VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, cosid), NULL);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -3718,7 +3742,9 @@ vtss_rc vtss_iflow_alloc(const vtss_inst_t inst,
             }
             conf = &sdx->conf;
             memset(conf, 0, sizeof(*conf));
+#if defined(VTSS_FEATURE_VOP)
             conf->voe_idx = VTSS_VOE_IDX_NONE;
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
             conf->voi_idx = VTSS_VOI_IDX_NONE;
 #endif
@@ -3747,6 +3773,16 @@ vtss_rc vtss_iflow_free(const vtss_inst_t     inst,
                 } else {
                     prev->next = cur->next;
                 }
+#if defined(VTSS_ARCH_LAN966X)
+                if (cur->conf.cnt_enable) {
+                    vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, cur->conf.cnt_id);
+
+                    if (stat != NULL) {
+                        // Remove reference from ingress counters to flow
+                        stat->sdx = 0;
+                    }
+                }
+#endif
                 vtss_cmn_sdx_free(vtss_state, cur, TRUE);
                 rc = VTSS_RC_OK;
                 break;
@@ -3804,18 +3840,6 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
         if ((sdx = vtss_iflow_lookup(vtss_state, id)) == NULL) {
             rc = VTSS_RC_ERROR;
         } else {
-#if defined(VTSS_FEATURE_XSTAT)
-            if (conf->cnt_enable) {
-                vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, conf->cnt_id);
-
-                if (stat == NULL) {
-                    rc = VTSS_RC_ERROR;
-                } else {
-                    stat_idx = stat->idx;
-                    stat_cnt = stat->cnt;
-                }
-            }
-#endif
 #if defined(VTSS_FEATURE_XDLB)
             if (conf->dlb_enable) {
                 vtss_xpol_entry_t *pol = vtss_pol_lookup(vtss_state, conf->dlb_id);
@@ -3836,6 +3860,27 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
                     rc = VTSS_RC_ERROR;
                 } else {
                     ms_idx = ms->idx;
+                }
+            }
+#endif
+#if defined(VTSS_FEATURE_XSTAT)
+            if (conf->cnt_enable && rc == VTSS_RC_OK) {
+                vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, conf->cnt_id);
+
+                if (stat == NULL) {
+                    rc = VTSS_RC_ERROR;
+                } else {
+                    stat_idx = stat->idx;
+                    stat_cnt = stat->cnt;
+#if defined(VTSS_ARCH_LAN966X)
+                    // Ingress counters can only be mapped to one flow
+                    if (stat->sdx == 0 || stat->sdx == sdx->sdx) {
+                        stat->sdx = sdx->sdx;
+                    } else {
+                        VTSS_E("cnt_id %u already mapped to iflow %u", conf->cnt_id, sdx->sdx);
+                        rc = VTSS_RC_ERROR;
+                    }
+#endif
                 }
             }
 #endif
@@ -4048,10 +4093,12 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     }
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
+#if defined(VTSS_FEATURE_VOP)
         if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;
         }
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
         if (eflow->conf.voi_idx != VTSS_VOI_IDX_NONE) {
             entry.action.voi_idx = eflow->conf.voi_idx;
@@ -4065,7 +4112,9 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     if (stat != NULL) {
         u32 cosid;
 
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         es0->esdx = stat->idx;
+#endif
         for (cosid = 0; cosid < 8; cosid++) {
             entry.action.esdx_cosid_offset |= ((cosid < stat->cnt ? cosid : (stat->cnt - 1))<< (cosid * 3));
         }
@@ -4312,7 +4361,9 @@ vtss_rc vtss_eflow_alloc(const vtss_inst_t inst,
                 eflow->used = 1;
                 conf = &eflow->conf;
                 memset(conf, 0, sizeof(*conf));
+#if defined(VTSS_FEATURE_VOP)
                 conf->voe_idx = VTSS_VOE_IDX_NONE;
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
                 conf->voi_idx = VTSS_VOI_IDX_NONE;
 #endif
@@ -5744,7 +5795,9 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
         }
 #endif
     }
+#if defined(VTSS_FEATURE_VOP)
     action->oam_detect = vce->action.oam_detect;
+#endif
 #if defined(VTSS_ARCH_OCELOT)
     action->oam_enable = (vce->action.oam_detect != VTSS_OAM_DETECT_NONE) ? 1 : 0;
 #endif
@@ -5890,7 +5943,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_XDLB)
             pr("DLB   ");
 #endif
+#if defined(VTSS_FEATURE_VOP)
             pr("VOE   ");
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
             pr("MIP   ");
 #endif
@@ -5913,7 +5968,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_XDLB)
         vtss_debug_print_w6(pr, conf->dlb_enable, conf->dlb_id);
 #endif
+#if defined(VTSS_FEATURE_VOP)
         vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE, conf->voe_idx);
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
         vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE, conf->voi_idx);
 #endif
@@ -5966,7 +6023,9 @@ static void vtss_debug_print_eflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_XSTAT)
         vtss_debug_print_w6(pr, conf->cnt_enable, conf->cnt_id);
 #endif
+#if defined(VTSS_FEATURE_VOP)
         vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE, conf->voe_idx);
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
         vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE, conf->voi_idx);
 #endif
@@ -6039,7 +6098,7 @@ static void vtss_debug_print_istat(vtss_state_t *vtss_state,
         if (first) {
             first = FALSE;
             pr("Ingress Counters:\n\n");
-            pr("ID    IDX   CNT  COSID  Green/Yellow/Red Frames  ");
+            pr("ID    SDX   IDX   CNT  COSID  Green/Yellow/Red Frames  ");
             strcpy(buf, "Green/Yellow/Red Bytes");
 #if defined(VTSS_FEATURE_PSFP)
             if (vtss_state->init_conf.psfp_counters_enable) {
@@ -6050,12 +6109,12 @@ static void vtss_debug_print_istat(vtss_state_t *vtss_state,
         }
         for (j = 0; j < stat->cnt; j++) {
             if (j == 0) {
-                pr("%-6u%-6u%-5u", i, stat->idx, stat->cnt);
+                pr("%-6u%-6u%-6u%-5u", i, stat->sdx, stat->idx, stat->cnt);
             } else {
-                pr("%-17s", "");
+                pr("%-23s", "");
             }
             pr("%-7u", j);
-            if (VTSS_FUNC(l2.icnt_get, stat->idx + j, &cnt) == VTSS_RC_OK) {
+            if (VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, j), &cnt) == VTSS_RC_OK) {
                 sprintf(buf, "%"PRIu64"/%"PRIu64"/%"PRIu64,
                         cnt.rx_green.frames, cnt.rx_yellow.frames, cnt.rx_red.frames);
                 pr("%-25s", buf);
@@ -6141,7 +6200,7 @@ static void vtss_debug_print_dlb(vtss_state_t *vtss_state,
     vtss_xpol_entry_t       *pol;
     vtss_dlb_policer_conf_t *conf;
     u16                     i, j;
-    BOOL                    first = TRUE;
+    BOOL                    first = TRUE, cm = 1;
 
     vtss_debug_print_xrow(vtss_state, pr, info, &vtss_state->l2.pol_table.hdr);
     for (i = 0; i < VTSS_EVC_POL_CNT; i++) {
@@ -6165,12 +6224,15 @@ static void vtss_debug_print_dlb(vtss_state_t *vtss_state,
                 pr("%-17s", "");
             }
             conf = &vtss_state->l2.pol_conf[pol->idx + j];
+#if defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
+            cm = conf->cm;
+#endif
             pr("%-7u%-5u%-8s%-4u%-4u%-6s%-12u%-12u%-12u%-12u",
                j,
                conf->enable,
                conf->type == VTSS_POLICER_TYPE_MEF ? "MEF" :
                conf->type == VTSS_POLICER_TYPE_SINGLE ? "SINGLE" : "?",
-               conf->cm, conf->cf, conf->line_rate ? "Line" : "Data", conf->cir, conf->cbs, conf->eir, conf->ebs);
+               cm, conf->cf, conf->line_rate ? "Line" : "Data", conf->cir, conf->cbs, conf->eir, conf->ebs);
 #if defined(VTSS_FEATURE_PSFP)
             {
                 vtss_dlb_policer_status_t status;

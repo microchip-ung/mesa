@@ -180,7 +180,7 @@ vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 static vtss_rc lan966x_port_map_set(vtss_state_t *vtss_state)
 {
-    return VTSS_RC_OK;
+    return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
 }
 
 static vtss_rc lan966x_restart_conf_set(vtss_state_t *vtss_state)

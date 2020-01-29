@@ -62,6 +62,12 @@ typedef struct {
 #define VTSS_SDX_CNT VTSS_SRVL_SDX_CNT
 #endif /* VTSS_ARCH_OCELOT */
 
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_SDX_CNT      255
+#define VTSS_EVC_POL_CNT  256 /* DLB policers */
+#define VTSS_EVC_STAT_CNT 256 /* ISDX/ESDX statistics */
+#endif
+
 #define VTSS_POL_STAT_NONE 0  /* The NO Policer/SDX statistics value */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)

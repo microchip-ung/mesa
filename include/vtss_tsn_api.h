@@ -10,8 +10,13 @@
 /* - FRER compound streams ----------------------------------------- */
 
 // Number of member streams and compound streams */
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_MSTREAM_CNT 256
+#define VTSS_CSTREAM_CNT 128
+#else
 #define VTSS_MSTREAM_CNT 1024
 #define VTSS_CSTREAM_CNT 512
+#endif
 
 // FRER compound stream ID.
 // Sequence recovery can be enabled to eliminate duplicate frames.
@@ -140,7 +145,11 @@ typedef struct {
 typedef u16 vtss_psfp_gate_id_t;
 
 // Number of PSFP gates */
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_PSFP_GATE_CNT 256
+#else
 #define VTSS_PSFP_GATE_CNT 1023
+#endif
 
 // PSFP Gate Control Entry configuration
 typedef struct {
@@ -224,7 +233,11 @@ vtss_rc vtss_psfp_gate_status_get(const vtss_inst_t         inst,
 typedef u16 vtss_psfp_filter_id_t;
 
 // Number of PSFP filters */
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_PSFP_FILTER_CNT 256
+#else
 #define VTSS_PSFP_FILTER_CNT 1023
+#endif
 
 // PSFP filter configuration
 typedef struct {

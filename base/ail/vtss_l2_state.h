@@ -406,6 +406,7 @@ typedef struct {
 typedef struct {
     u16 idx; /* Allocated idx */
     u8  cnt; /* Number of classes, zero means unused */
+    u16 sdx; /* Associated ISDX (LAN966X) */
 } vtss_xstat_entry_t;
 
 typedef struct {
@@ -446,12 +447,10 @@ typedef struct {
 typedef struct {
     u32                 max_count; /* Maximum number of rules */
     u32                 poll_idx;  /* Counter polling index */
-#if defined(VTSS_FEATURE_VOP)
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_sdx_counters_t sdx_table[VTSS_EVC_STAT_CNT];
 #else
     vtss_sdx_counters_t sdx_table[VTSS_SDX_CNT + 1]; /* Allow 1-based indexing (index zero is unused) */
-#endif
 #endif
     vtss_sdx_list_t     isdx;      /* ISDX list */
     vtss_sdx_list_t     esdx;      /* ESDX list */

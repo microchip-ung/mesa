@@ -975,12 +975,12 @@ vtss_rc vtss_vce_add(const vtss_inst_t    inst,
 vtss_rc vtss_vce_del(const vtss_inst_t    inst,
                      const vtss_vce_id_t  vce_id);
 
+/** \brief Class/COSID count */
+typedef u8 vtss_class_cnt_t;
+
 #if defined(VTSS_FEATURE_XSTAT)
 
 /* - Ingress counters ---------------------------------------------- */
-
-/** \brief Class/COSID count */
-typedef u8 vtss_class_cnt_t;
 
 /** \brief Ingress counter ID */
 typedef u16 vtss_ingress_cnt_id_t;

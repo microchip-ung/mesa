@@ -664,12 +664,233 @@ static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_p
 {
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
 {
     return VTSS_RC_OK;
 }
+
+static vtss_rc lan966x_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
+{
+    memset(counters, 0, sizeof(*counters));
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counters_t *counters)
+{
+    memset(counters, 0, sizeof(*counters));
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_policer_update(vtss_state_t *vtss_state, u16 idx)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_counters_update(vtss_state_t *vtss_state,
+                                       vtss_stat_idx_t *stat_idx,
+                                       BOOL clear)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
+{
+    return VTSS_RC_OK;
+}
+
+/* ================================================================= *
+ *  FRER
+ * ================================================================= */
+static vtss_rc lan966x_cstream_conf_set(vtss_state_t *vtss_state, const vtss_frer_cstream_id_t id)
+{
+    vtss_frer_stream_conf_t *conf = &vtss_state->l2.cstream_conf[id];
+    BOOL                    vector = (conf->alg == VTSS_FRER_RECOVERY_ALG_VECTOR);
+
+    REG_WR(QSYS_FRER_CFG_CMP(id),
+           QSYS_FRER_CFG_CMP_TAKE_NO_SEQUENCE(conf->take_no_seq ? 1 : 0) |
+           QSYS_FRER_CFG_CMP_VECTOR_ALGORITHM(vector) |
+           QSYS_FRER_CFG_CMP_HISTORY_LENGTH(conf->hlen < 2 ? 1 : (conf->hlen - 1)) |
+           QSYS_FRER_CFG_CMP_RESET_TICKS(conf->reset_time ? conf->reset_time : 1) |
+           QSYS_FRER_CFG_CMP_RESET(1) |
+           QSYS_FRER_CFG_CMP_ENABLE(conf->recovery));
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_mstream_conf_set(vtss_state_t *vtss_state, const u16 idx)
+{
+    vtss_frer_stream_conf_t *conf = &vtss_state->l2.mstream_conf[idx];
+    BOOL                    vector = (conf->alg == VTSS_FRER_RECOVERY_ALG_VECTOR);
+
+    REG_WR(QSYS_FRER_CFG_MBM(idx),
+           QSYS_FRER_CFG_MBM_TAKE_NO_SEQUENCE(conf->take_no_seq ? 1 : 0) |
+           QSYS_FRER_CFG_MBM_VECTOR_ALGORITHM(vector) |
+           QSYS_FRER_CFG_MBM_HISTORY_LENGTH(conf->hlen < 2 ? 1 : (conf->hlen - 1)) |
+           QSYS_FRER_CFG_MBM_RESET_TICKS(conf->reset_time ? conf->reset_time : 1) |
+           QSYS_FRER_CFG_MBM_RESET(1) |
+           QSYS_FRER_CFG_MBM_ENABLE(conf->recovery) |
+           QSYS_FRER_CFG_MBM_COMPOUND_HANDLE(conf->cstream_id));
+    return VTSS_RC_OK;
+}
+
+#define FRER_CNT(name, i, cnt, clr)              \
+{                                                \
+    u32 value;                                   \
+    REG_RD(QSYS_CNT_##name(i), &value);   \
+    vtss_cmn_counter_32_update(value, cnt, clr); \
+}
+
+static vtss_rc lan966x_frer_cnt_get(vtss_frer_chip_counters_t *c,
+                                    vtss_frer_counters_t *counters)
+{
+    if (counters != NULL) {
+        counters->out_of_order_packets = c->out_of_order_packets.value;
+        counters->rogue_packets = c->rogue_packets.value;
+        counters->passed_packets = c->passed_packets.value;
+        counters->discarded_packets = c->discarded_packets.value;
+        counters->lost_packets = c->lost_packets.value;
+        counters->tagless_packets = c->tagless_packets.value;
+        counters->resets = c->resets.value;
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_cstream_cnt_update(vtss_state_t *vtss_state,
+                                          const vtss_frer_cstream_id_t id,
+                                          vtss_frer_counters_t *counters,
+                                          BOOL clr)
+{
+    vtss_frer_chip_counters_t *c = &vtss_state->l2.cs_counters[id];
+
+    FRER_CNT(CMP_OO, id, &c->out_of_order_packets, clr);
+    FRER_CNT(CMP_RG, id, &c->rogue_packets, clr);
+    FRER_CNT(CMP_PS, id, &c->passed_packets, clr);
+    FRER_CNT(CMP_DC, id, &c->discarded_packets, clr);
+    FRER_CNT(CMP_LS, id, &c->lost_packets, clr);
+    FRER_CNT(CMP_TL, id, &c->tagless_packets, clr);
+    FRER_CNT(CMP_RS, id, &c->resets, clr);
+    return lan966x_frer_cnt_get(c, counters);
+}
+
+static vtss_rc lan966x_cstream_cnt_get(vtss_state_t *vtss_state,
+                                       const vtss_frer_cstream_id_t id,
+                                       vtss_frer_counters_t *counters)
+{
+    return lan966x_cstream_cnt_update(vtss_state, id, counters, counters == NULL);
+}
+
+static vtss_rc lan966x_mstream_cnt_update(vtss_state_t *vtss_state,
+                                          const u16 idx,
+                                          vtss_frer_counters_t *counters,
+                                          BOOL clr)
+{
+    vtss_frer_chip_counters_t *c = &vtss_state->l2.ms_counters[idx];
+
+    FRER_CNT(MBM_OO, idx, &c->out_of_order_packets, clr);
+    FRER_CNT(MBM_RG, idx, &c->rogue_packets, clr);
+    FRER_CNT(MBM_PS, idx, &c->passed_packets, clr);
+    FRER_CNT(MBM_DC, idx, &c->discarded_packets, clr);
+    FRER_CNT(MBM_LS, idx, &c->lost_packets, clr);
+    FRER_CNT(MBM_TL, idx, &c->tagless_packets, clr);
+    FRER_CNT(MBM_RS, idx, &c->resets, clr);
+    return lan966x_frer_cnt_get(c, counters);
+}
+
+static vtss_rc lan966x_mstream_cnt_get(vtss_state_t *vtss_state,
+                                       const u16 idx,
+                                       vtss_frer_counters_t *counters)
+{
+    return lan966x_mstream_cnt_update(vtss_state, idx, counters, counters == NULL);
+}
+
+/* ================================================================= *
+ *  PSFP
+ * ================================================================= */
+static u32 lan966x_psfp_prio(vtss_opt_prio_t *prio)
+{
+    return (prio->value + (prio->enable ? 0x8 : 0));
+}
+
+static vtss_rc lan966x_gate_conf_set(vtss_state_t *vtss_state, const vtss_psfp_gate_id_t id)
+{
+    vtss_psfp_state_t     *psfp = &vtss_state->l2.psfp;
+    vtss_psfp_gate_conf_t *conf = &psfp->gate[id];
+    vtss_psfp_gcl_conf_t  *gcl_conf = &conf->config;
+    vtss_psfp_gcl_t       *gcl = &psfp->admin_gcl[id];
+    vtss_psfp_gce_t       *gce;
+    u32                   i, t = 0;
+
+    REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(id));
+    REG_WR(ANA_SG_CFG_1, gcl_conf->base_time.nanoseconds);
+    REG_WR(ANA_SG_CFG_2, gcl_conf->base_time.seconds);
+    REG_WR(ANA_SG_CFG_3,
+           ANA_SG_CFG_3_BASE_TIME_SEC_MSB(gcl_conf->base_time.sec_msb) |
+           ANA_SG_CFG_3_LIST_LENGTH(gcl->gcl_length) |
+           ANA_SG_CFG_3_GATE_ENABLE(conf->enable) |
+           ANA_SG_CFG_3_INIT_IPS(lan966x_psfp_prio(&conf->prio)) |
+           ANA_SG_CFG_3_INIT_GATE_STATE(conf->gate_open ? 1 : 0) |
+           ANA_SG_CFG_3_INVALID_RX_ENA(conf->close_invalid_rx.enable ? 1 : 0) |
+           ANA_SG_CFG_3_INVALID_RX(conf->close_invalid_rx.value ? 1 : 0) |
+           ANA_SG_CFG_3_OCTETS_EXCEEDED_ENA(conf->close_octets_exceeded.enable ? 1 : 0) |
+           ANA_SG_CFG_3_OCTETS_EXCEEDED(conf->close_octets_exceeded.value ? 1 : 0));
+    REG_WR(ANA_SG_CFG_4, gcl_conf->cycle_time);
+    REG_WR(ANA_SG_CFG_5, gcl_conf->cycle_time_ext);
+    for (i = 0; i < gcl->gcl_length; i++) {
+        gce = &gcl->gce[i];
+        REG_WR(ANA_SG_GCL_GS_CFG(i),
+               ANA_SG_GCL_GS_CFG_IPS(lan966x_psfp_prio(&gce->prio)) |
+               ANA_SG_GCL_GS_CFG_GATE_STATE(gce->gate_open ? 1 : 0));
+        t += gce->time_interval;
+        REG_WR(ANA_SG_GCL_TI_CFG(i), t);
+        REG_WR(ANA_SG_GCL_OCT_CFG(i), gce->octet_max);
+    }
+    if (conf->config_change) {
+        REG_WR(ANA_SG_ACCESS_CTRL,
+               ANA_SG_ACCESS_CTRL_SGID(id) |
+               ANA_SG_ACCESS_CTRL_CONFIG_CHANGE(1));
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_gate_status_get(vtss_state_t *vtss_state,
+                                       const vtss_psfp_gate_id_t id,
+                                       vtss_psfp_gate_status_t *const status)
+{
+    u32 value, prio;
+#if defined(VTSS_FEATURE_TIMESTAMP)
+    u64 tc;
 #endif
+
+    REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(id));
+    REG_RD(ANA_SG_STS_1, &status->config_change_time.nanoseconds);
+    REG_RD(ANA_SG_STS_2, &status->config_change_time.seconds);
+    REG_RD(ANA_SG_STS_3, &value);
+    status->config_change_time.sec_msb = ANA_SG_STS_3_CFG_CHG_TIME_SEC_MSB_X(value);
+    status->gate_open = ANA_SG_STS_3_GATE_STATE_X(value);
+    prio = ANA_SG_STS_3_IPS_X(value);
+    status->prio.enable = (prio & 0x8 ? 1 : 0);
+    status->prio.value = (prio & 0x7);
+    status->config_pending = ANA_SG_STS_3_CONFIG_PENDING_X(value);
+#if defined(VTSS_FEATURE_TIMESTAMP)
+    return VTSS_FUNC(ts.timeofday_get, &status->current_time, &tc);
+#else
+    return VTSS_RC_OK;
+#endif
+}
+
+static vtss_rc lan966x_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp_filter_id_t id)
+{
+    vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[id];
+
+    REG_WR(ANA_SFIDACCESS,
+           ANA_SFIDACCESS_B_O_FRM(conf->block_oversize.value ? 1 : 0) |
+           ANA_SFIDACCESS_B_O_FRM_ENA(conf->block_oversize.enable ? 1 : 0) |
+           ANA_SFIDACCESS_MAX_SDU_LEN(conf->max_sdu));
+    //TBD: Gate mapping
+
+    return VTSS_RC_OK;
+}
 
 /* ================================================================= *
  *  SFLOW
@@ -1177,11 +1398,21 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
         state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
         // TBD: state->vcap_port_conf_set = lan966x_vcap_port_conf_set;
-        // TBD: state->iflow_conf_set = lan966x_iflow_conf_set;
+        state->iflow_conf_set = lan966x_iflow_conf_set;
+        state->icnt_get = lan966x_icnt_get;
+        state->ecnt_get = lan966x_ecnt_get;
+        state->policer_update = lan966x_policer_update;
+        state->counters_update = lan966x_counters_update;
+        state->isdx_update = lan966x_isdx_update;
+        state->cstream_conf_set = lan966x_cstream_conf_set;
+        state->mstream_conf_set = lan966x_mstream_conf_set;
+        state->cstream_cnt_get = lan966x_cstream_cnt_get;
+        state->mstream_cnt_get = lan966x_mstream_cnt_get;
+        state->psfp_gate_conf_set = lan966x_gate_conf_set;
+        state->psfp_gate_status_get = lan966x_gate_status_get;
+        state->psfp_filter_conf_set = lan966x_filter_conf_set;
         state->ac_count = LAN966X_ACS;
-        // TBD: state->sdx_info.max_count = LAN966X_EVC_CNT;
-        // TBD: if (state->sdx_info.max_count > VTSS_LAN966X_SDX_CNT)
-        // TBD      state->sdx_info.max_count = VTSS_LAN966X_SDX_CNT;
+        state->sdx_info.max_count = VTSS_SDX_CNT;
         break;
 
     case VTSS_INIT_CMD_INIT:
