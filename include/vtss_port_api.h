@@ -916,8 +916,8 @@ typedef enum {
 
 vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
-                                  const vtss_port_kr_coef_t *const coef,
-                                  vtss_port_kr_coef_status_t *const sts);
+                                  const u16 coef,
+                                  u16 *const sts);
 
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */

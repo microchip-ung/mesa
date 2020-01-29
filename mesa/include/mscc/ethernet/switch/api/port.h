@@ -861,8 +861,8 @@ typedef enum {
 
 mesa_rc mesa_port_kr_coef_set(const mesa_inst_t inst,
                                   const mesa_port_no_t port_no,
-                                  const mesa_port_kr_coef_t *const coef,
-                                  mesa_port_kr_coef_status_t *const sts)
+                                  const uint16_t coef,
+                                  uint16_t *const sts)
     CAP(PORT_10GBASE_KR_V3);
 
 

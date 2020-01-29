@@ -486,10 +486,10 @@ static char *coef2txt(uint32_t vector)
     return "INVALID";
 }
 
-static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)    
+static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
 {
     u32 action = 0;
-    
+
     if (BT(13) & frm_in) {
         sprintf(tap_out, "PRESET ");
         sprintf(action_out, "PRESET ");
@@ -506,28 +506,28 @@ static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
     }
     if ((frm_in & 0xc) > 0) {
         tap_out += sprintf(tap_out, "C0 ");
-        action = frm_in >> 2 & 3;
+        action = (frm_in >> 2) & 3;
     }
     if ((frm_in & 0x30) > 0 ) {
         tap_out += sprintf(tap_out, "CP1 ");
-        action = frm_in >> 4 & 3;
+        action = (frm_in >> 4) & 3;
     }
-    if ((frm_in & 0xf) == 0 ) {
+    if ((frm_in & 0x3f) == 0 ) {
         tap_out += sprintf(tap_out, "ANY ");
         action = 0;
     }
 
     if (action == 1) {
-        action_out += sprintf(action_out, "INCR");
+        sprintf(action_out, "INCR");
     } else if (action == 2) {
-        action_out += sprintf(action_out, "DECR");
+        sprintf(action_out, "DECR");
     } else {
-        action_out += sprintf(action_out, "HOLD");
+        sprintf(action_out, "HOLD");
     }
 }
 
 
-static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)    
+static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)
 {
     u32 action = 0;
 
@@ -540,21 +540,21 @@ static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)
     }
     if ((frm_in & 0xc) > 0) {
         tap_out += sprintf(tap_out, "C0 ");
-        action = frm_in >> 2 & 3;
+        action = (frm_in >> 2) & 3;
     }
     if ((frm_in & 0x30) > 0 ) {
         tap_out += sprintf(tap_out, "CP1 ");
-        action = frm_in >> 4 & 3;
+        action = (frm_in >> 4) & 3;
     }
-    if ((frm_in & 0xf) == 0 ) {
+    if ((frm_in & 0x3f) == 0 ) {
         tap_out += sprintf(tap_out, "ANY ");
         action = 0;
     }
 
     if (action == 0) {
-        sprintf(action_out, "NOT UPDATED");
+        sprintf(action_out, "not_updated");
     } else if (action == 1) {
-        sprintf(action_out, "UPDATED");
+        sprintf(action_out, "updated");
     } else if (action == 2) {
         sprintf(action_out, "MINIMUM");
     } else if (action == 3) {
@@ -680,7 +680,7 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
             status = UPDATED;
         } else {
             api_coef.type = MESA_COEF_INIT;
-            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
+//            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
             status = sts;
             printf("INIT status:%d\n",status);
         }
@@ -692,7 +692,7 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
             status = UPDATED;
         } else {
             api_coef.type = MESA_COEF_PRESET;
-            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
+//            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
             status = sts;
         }
     } else if (coef == HOLD) {
@@ -708,7 +708,7 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
 
         } else {
             api_coef.update = MESA_COEF_INCR;
-            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
+//            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
             status = sts;
         }
         krs->ld_tap_max_cnt[tap]++;
@@ -726,7 +726,7 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
             }
         } else {
             api_coef.update = MESA_COEF_DECR;
-            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
+//            mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
             status = sts;
         }
         if ((krs->ld_tap_mid_cnt[tap]) > 0) {
@@ -771,6 +771,33 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
     /* if (p == 0) */
     /*     printf("p:%d TAP:%s Action:%s -> Status:%s/%s\n",p, coef_tap, coef_act, sts_tap, sts_act); */
 
+
+    return status;
+}
+
+
+static uint16_t coef2status_api(mesa_port_no_t p, uint16_t data)
+{
+    uint16_t status;
+    kr_train_t *krs = &kr_tr_state[p];
+
+    mesa_port_kr_coef_set(NULL, p, data, &status);
+
+    char coef_tap[20] = {0};
+    char coef_act[20] = {0};
+    (void)raw_coef2txt(data, coef_tap, coef_act);
+    char sts_tap[20] = {0};
+    char sts_act[20] = {0};
+    (void)raw_sts2txt(status, sts_tap, sts_act);
+
+    if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
+        status += BT(15);
+    }
+
+    if (p == 0)
+        if ((status & 0x3f) != 0) {
+            printf("p:%d TAP:%s Action:%s -> Status:%s/ %s \n",p, coef_tap, coef_act, sts_tap, sts_act);
+        }
 
     return status;
 }
@@ -1216,7 +1243,13 @@ static void kr_poll(meba_inst_t inst)
             frm.type = MESA_COEFFICIENT_UPDATE_FRM;
             (void)mesa_port_kr_train_frm_get(NULL, iport, &frm);
             //  Update Serdes
-            frm.data = coef2status(iport, frm.data);
+//            frm.data = coef2status(iport, frm.data);
+            if (API_TEST) {
+                frm.data = coef2status_api(iport, frm.data);
+            } else {
+                frm.data = coef2status(iport, frm.data);
+            }
+
             // Send Status report
             frm.type = MESA_STATUS_REPORT_FRM;
             (void)mesa_port_kr_train_frm_set(NULL, iport, &frm);
