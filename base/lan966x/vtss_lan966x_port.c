@@ -285,6 +285,23 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+    vtss_port_conf_t  *conf = &vtss_state->port.conf[port_no];
+    BOOL              disable = conf->power_down;
+    u32               i;
+
+    if (!disable) {
+        /* Core: Enable port for frame transfer */
+        for (i = 0; i < 8; ++i) {
+            REG_WRM(QSYS_SW_PORT_MODE(i), QSYS_SW_PORT_MODE_PORT_ENA(0), QSYS_SW_PORT_MODE_PORT_ENA_M);
+        }
+        for (i = 0; i < 4; ++i) {
+            REG_WRM(DEV_MAC_ENA_CFG(i), DEV_MAC_ENA_CFG_RX_ENA(1) | DEV_MAC_ENA_CFG_TX_ENA(1), DEV_MAC_ENA_CFG_RX_ENA_M | DEV_MAC_ENA_CFG_TX_ENA_M);
+            REG_WRM(DEV_MAC_MODE_CFG(i), DEV_MAC_MODE_CFG_GIGA_MODE_ENA(1), DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M);
+            REG_WR(DEV_CLOCK_CFG(i), DEV_CLOCK_CFG_LINK_SPEED(1));
+            REG_WRM(QSYS_SW_PORT_MODE(i), QSYS_SW_PORT_MODE_PORT_ENA(1), QSYS_SW_PORT_MODE_PORT_ENA_M);
+        }
+    }
+
     return VTSS_RC_OK;
 }
 

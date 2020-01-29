@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 oc/op/j2/j48/st/ca/fa [<test_server>] <test_script>"
+   echo "Usage: $0 oc/op/j2/j48/st/ca/fa/mi [<test_server>] <test_script>"
    exit
 fi
 
@@ -58,6 +58,11 @@ case $chip in
      dir=build-arm64
      ;;
 
+     mi)
+     ts=dk-t30
+     img=fit_ls1046_lan9668.itb
+     dir=build-lan966x
+     ;;
 
      *)
      echo "Illegal chip: $chip"
