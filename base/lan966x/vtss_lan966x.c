@@ -210,7 +210,7 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
     /* Enable switch core */
     REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(1), SYS_RESET_CFG_CORE_ENA_M);
 
-    return VTSS_RC_OK;
+    return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_INIT);
 }
 
 static vtss_rc lan966x_register_access_mode_set(vtss_state_t *vtss_state)

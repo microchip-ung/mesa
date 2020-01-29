@@ -285,23 +285,174 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    vtss_port_conf_t  *conf = &vtss_state->port.conf[port_no];
-    BOOL              disable = conf->power_down;
-    u32               i;
+    vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
+    u32                    port = VTSS_CHIP_PORT(port_no);
+    u32                    value, link_speed, delay = 0;
+    BOOL                   disable = conf->power_down;
+    vtss_port_speed_t      speed = conf->speed;
+    vtss_port_frame_gaps_t gaps;
 
-    if (!disable) {
-        /* Core: Enable port for frame transfer */
-        for (i = 0; i < 8; ++i) {
-            REG_WRM(QSYS_SW_PORT_MODE(i), QSYS_SW_PORT_MODE_PORT_ENA(0), QSYS_SW_PORT_MODE_PORT_ENA_M);
-        }
-        for (i = 0; i < 4; ++i) {
-            REG_WRM(DEV_MAC_ENA_CFG(i), DEV_MAC_ENA_CFG_RX_ENA(1) | DEV_MAC_ENA_CFG_TX_ENA(1), DEV_MAC_ENA_CFG_RX_ENA_M | DEV_MAC_ENA_CFG_TX_ENA_M);
-            REG_WRM(DEV_MAC_MODE_CFG(i), DEV_MAC_MODE_CFG_GIGA_MODE_ENA(1), DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M);
-            REG_WR(DEV_CLOCK_CFG(i), DEV_CLOCK_CFG_LINK_SPEED(1));
-            REG_WRM(QSYS_SW_PORT_MODE(i), QSYS_SW_PORT_MODE_PORT_ENA(1), QSYS_SW_PORT_MODE_PORT_ENA_M);
-        }
+    /* Verify speed and interface type */
+    switch (speed) {
+    case VTSS_SPEED_10M:
+        link_speed = 3;
+        break;
+    case VTSS_SPEED_100M:
+        link_speed = 2;
+        break;
+    case VTSS_SPEED_1G:
+    case VTSS_SPEED_2500M:
+        link_speed = 1;
+        break;
+    default:
+        VTSS_E("illegal speed:%d, port %u", speed, port);
+        return VTSS_RC_ERROR;
     }
 
+    switch (conf->if_type) {
+    case VTSS_PORT_INTERFACE_NO_CONNECTION:
+        disable = 1;
+        break;
+    case VTSS_PORT_INTERFACE_GMII:
+        break;
+    default:
+        VTSS_E("illegal interface, port %u", port);
+        return VTSS_RC_ERROR;
+    }
+
+    /* 1: Reset the PCS Rx clock domain  */
+    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
+
+    /* 2: Disable MAC frame reception */
+    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_RX_ENA_M);
+
+    /* 3: Disable traffic being sent to or from switch port */
+    REG_WRM_CLR(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
+
+    /* 4: Disable dequeuing from the egress queues  */
+    REG_WRM_SET(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
+
+    /* 5: Disable Flowcontrol */
+    REG_WRM_CLR(SYS_PAUSE_CFG(port), SYS_PAUSE_CFG_PAUSE_ENA_M);
+
+    /* 5.1: Disable PFC */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_TX_PFC_ENA(0),
+            QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
+
+    /* 6: Wait a worst case time 8ms (jumbo/10Mbit) */
+    VTSS_MSLEEP(8);
+
+    /* 7: Disable HDX backpressure (Bugzilla 3203) */
+    REG_WRM_CLR(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_HDX_MODE_M);
+
+    /* 8: Flush the queues accociated with the port */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_AGING_MODE(3),
+            QSYS_SW_PORT_MODE_AGING_MODE_M);
+
+    /* 9: Enable dequeuing from the egress queues */
+    REG_WRM_CLR(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
+
+    /* 10: Wait until flushing is complete */
+    do {
+        REG_RD(QSYS_SW_STATUS(port), &value);
+        VTSS_MSLEEP(1);
+        delay++;
+        if (delay == 2000) {
+            VTSS_E("Flush timeout chip port %u",port);
+            break;
+        }
+    } while (value & QSYS_SW_STATUS_EQ_AVAIL_M);
+    /* 11: Reset the Port and MAC clock domains */
+    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
+    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PORT_RST_M);
+    VTSS_MSLEEP(1);
+    REG_WRM_SET(DEV_CLOCK_CFG(port),
+                DEV_CLOCK_CFG_MAC_TX_RST_M |
+                DEV_CLOCK_CFG_MAC_RX_RST_M |
+                DEV_CLOCK_CFG_PORT_RST_M);
+
+    /* 12: Clear flushing */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_AGING_MODE(0),
+            QSYS_SW_PORT_MODE_AGING_MODE_M);
+
+    /* The port is disabled and flushed, now set up the port in the new operating mode */
+
+    /* Configure framelength check (from ethertype / length field) */
+    REG_WRM_CTL(DEV_MAC_ADV_CHK_CFG(port), conf->frame_length_chk, DEV_MAC_ADV_CHK_CFG_LEN_DROP_ENA_M);
+
+    /* GIG/FDX mode */
+    if (conf->fdx) {
+        value = DEV_MAC_MODE_CFG_FDX_ENA_M;
+        if (speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) {
+            value |= DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M;
+        }
+    } else {
+        REG_WRM_SET(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_HDX_MODE_M);
+        value = (conf->flow_control.obey ? DEV_MAC_MODE_CFG_FC_WORD_SYNC_ENA_M : 0);
+    }
+    REG_WR(DEV_MAC_MODE_CFG(port), value);
+
+    /* Default gaps */
+    gaps.fdx_gap = 15;
+    if (speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) {
+        gaps.fdx_gap = 5;
+    }
+    if (conf->fdx) {
+        gaps.hdx_gap_1 = 0;
+        gaps.hdx_gap_2 = 0;
+    } else {
+        gaps.hdx_gap_1 = 5;
+        gaps.hdx_gap_2 = 5;
+    }
+
+    /* Non default gaps */
+    if (conf->frame_gaps.fdx_gap != VTSS_FRAME_GAP_DEFAULT)
+        gaps.fdx_gap = conf->frame_gaps.fdx_gap;
+    if (conf->frame_gaps.hdx_gap_1 != VTSS_FRAME_GAP_DEFAULT)
+        gaps.hdx_gap_1 = conf->frame_gaps.hdx_gap_1;
+    if (conf->frame_gaps.hdx_gap_2 != VTSS_FRAME_GAP_DEFAULT)
+        gaps.hdx_gap_2 = conf->frame_gaps.hdx_gap_2;
+
+    /* Set MAC IFG Gaps */
+    REG_WR(DEV_MAC_IFG_CFG(port),
+           DEV_MAC_IFG_CFG_TX_IFG(gaps.fdx_gap) |
+           DEV_MAC_IFG_CFG_RX_IFG1(gaps.hdx_gap_1) |
+           DEV_MAC_IFG_CFG_RX_IFG2(gaps.hdx_gap_2));
+
+    /* Load seed and set MAC HDX late collision */
+    value = (DEV_MAC_HDX_CFG_RETRY_EXC_COL_ENA(conf->exc_col_cont ? 1 : 0) |
+             DEV_MAC_HDX_CFG_LATE_COL_POS(67));
+    REG_WR(DEV_MAC_HDX_CFG(port), DEV_MAC_HDX_CFG_SEED_LOAD_M | value);
+    VTSS_NSLEEP(1000);
+    REG_WR(DEV_MAC_HDX_CFG(port), value);
+
+    // TBD: PCS setup
+
+    /* Set Max Length and maximum tags allowed */
+    REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
+    VTSS_RC(vtss_lan966x_port_max_tags_set(vtss_state, port_no));
+
+    if (!disable) {
+        /* Enable MAC module */
+        REG_WR(DEV_MAC_ENA_CFG(port),
+               DEV_MAC_ENA_CFG_RX_ENA_M |
+               DEV_MAC_ENA_CFG_TX_ENA_M);
+
+        /* Take MAC, Port, Phy (intern) and PCS (SGMII/Serdes) clock out of reset */
+        REG_WR(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_LINK_SPEED(link_speed));
+
+        /* Configure flow control */
+        // TBD: VTSS_RC(srvl_port_fc_setup(vtss_state, port, conf));
+
+        /* Core: Enable port for frame transfer */
+        REG_WRM_SET(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
+
+        /* Notify QoS module about port configuration change */
+        //TBD: VTSS_RC(vtss_srvl_qos_port_conf_change(vtss_state, port_no, port, link_speed));
+    }
     return VTSS_RC_OK;
 }
 

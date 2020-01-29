@@ -241,7 +241,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_INJ_HDR:
     case MESA_CAP_PORT_XTR_HDR:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_LAN966X)
         c = 1;
 #endif
         break;
@@ -289,7 +289,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 1526;
 #else
         c = 1518;
@@ -349,6 +349,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_CHIP_FAMILY_JAGUAR2;
 #elif defined(VTSS_ARCH_SPARX5)
         c = MESA_CHIP_FAMILY_SPARX5;
+#elif defined(VTSS_ARCH_LAN966X)
+        c = MESA_CHIP_FAMILY_LAN966X;
 #endif
         break;
 
@@ -423,7 +425,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_PORT_IPMC:
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 1;
 #endif
         break;
@@ -443,6 +445,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = 0x07;
 #elif defined(VTSS_ARCH_OCELOT)
         c = 0x0a;
+#elif defined(VTSS_ARCH_LAN966X)
+        c = 0x0d;
 #endif
         break;
 
@@ -453,13 +457,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_MASQ_PORT:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_PACKET_INS_TAG:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LUTON26)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26)
         c = 1;
 #endif
         break;
@@ -480,7 +484,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_AUTO_TAGGING:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
 #endif
         break;
@@ -570,7 +574,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_SVL_FID_CNT:
 #if defined(VTSS_FEATURE_VLAN_SVL)
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 63;
 #else
         c = 4095;
@@ -624,7 +628,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 32767;
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 4096;
 #endif
         break;
@@ -648,7 +652,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_TPID_AWARE:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         /* Older devices are not fully VLAN aware */
 #else
         c = 1;

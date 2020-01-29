@@ -17,6 +17,7 @@ typedef enum {
     MESA_CHIP_FAMILY_JAGUAR2 = 7, /**< Jaguar-2 */
     MESA_CHIP_FAMILY_OCELOT  = 8, /**< Ocelot/Ferret */
     MESA_CHIP_FAMILY_SPARX5  = 9, /**< SparX-5 */
+    MESA_CHIP_FAMILY_LAN966X = 10,/**< LAN966X */
 } mesa_chip_family_t;
 
 typedef enum {
