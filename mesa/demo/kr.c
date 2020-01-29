@@ -163,8 +163,8 @@ char *irq2txt(u32 irq)
 char *sts2txt(kr_status_report_t vector)
 {
     switch (vector & 0xff) {
-    case MAXIMUM: return "MAXIMUM";
-    case MINIMUM: return "MINIMUM";
+    case MAXIMUM: return "-->MAXIMUM";
+    case MINIMUM: return "-->MINIMUM";
     case UPDATED:  return "UPDATED";
     case NOT_UPDATED:  return "NOT_UPDATED";
     default:  return "ILLEGAL";
@@ -486,6 +486,82 @@ static char *coef2txt(uint32_t vector)
     return "INVALID";
 }
 
+static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)    
+{
+    u32 action = 0;
+    
+    if (BT(13) & frm_in) {
+        sprintf(tap_out, "PRESET ");
+        sprintf(action_out, "PRESET ");
+        return;
+    }
+    if (BT(12) & frm_in) {
+        tap_out += sprintf(tap_out, "INIT ");
+        action_out += sprintf(action_out, "INIT ");
+        return;
+    }
+    if ((frm_in & 0x3) > 0) {
+        tap_out += sprintf(tap_out, "CM1 ");
+        action = frm_in & 0x3;
+    }
+    if ((frm_in & 0xc) > 0) {
+        tap_out += sprintf(tap_out, "C0 ");
+        action = frm_in >> 2 & 3;
+    }
+    if ((frm_in & 0x30) > 0 ) {
+        tap_out += sprintf(tap_out, "CP1 ");
+        action = frm_in >> 4 & 3;
+    }
+    if ((frm_in & 0xf) == 0 ) {
+        tap_out += sprintf(tap_out, "ANY ");
+        action = 0;
+    }
+
+    if (action == 1) {
+        action_out += sprintf(action_out, "INCR");
+    } else if (action == 2) {
+        action_out += sprintf(action_out, "DECR");
+    } else {
+        action_out += sprintf(action_out, "HOLD");
+    }
+}
+
+
+static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)    
+{
+    u32 action = 0;
+
+    if (BT(15) & frm_in) {
+        sprintf(tap_out, "RX READY ");
+    }
+    if ((frm_in & 0x3) > 0) {
+        tap_out += sprintf(tap_out, "CM1 ");
+        action = frm_in & 0x3;
+    }
+    if ((frm_in & 0xc) > 0) {
+        tap_out += sprintf(tap_out, "C0 ");
+        action = frm_in >> 2 & 3;
+    }
+    if ((frm_in & 0x30) > 0 ) {
+        tap_out += sprintf(tap_out, "CP1 ");
+        action = frm_in >> 4 & 3;
+    }
+    if ((frm_in & 0xf) == 0 ) {
+        tap_out += sprintf(tap_out, "ANY ");
+        action = 0;
+    }
+
+    if (action == 0) {
+        sprintf(action_out, "NOT UPDATED");
+    } else if (action == 1) {
+        sprintf(action_out, "UPDATED");
+    } else if (action == 2) {
+        sprintf(action_out, "MINIMUM");
+    } else if (action == 3) {
+        sprintf(action_out, "MAXIMUM");
+    }
+}
+
 
 static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
 {
@@ -606,6 +682,7 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
             api_coef.type = MESA_COEF_INIT;
             mesa_port_kr_coef_set(NULL, p, &api_coef, &sts);
             status = sts;
+            printf("INIT status:%d\n",status);
         }
     } else if (coef == PRESET) {
         if (!API_TEST) {
@@ -675,7 +752,6 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
         status += BT(15);
     }
 
-
     if (tap == CP1) {
         status = status << 4;
     } else if (tap == C0) {
@@ -683,6 +759,18 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
     } else if (coef == PRESET) {
         status = (status << 4) | (status << 2) |  status;
     }
+
+    char coef_tap[20] = {0};
+    char coef_act[20] = {0};
+    (void)raw_coef2txt(data, coef_tap, coef_act);
+    char sts_tap[20] = {0};
+    char sts_act[20] = {0};
+    (void)raw_sts2txt(status, sts_tap, sts_act);
+
+
+    /* if (p == 0) */
+    /*     printf("p:%d TAP:%s Action:%s -> Status:%s/%s\n",p, coef_tap, coef_act, sts_tap, sts_act); */
+
 
     return status;
 }
