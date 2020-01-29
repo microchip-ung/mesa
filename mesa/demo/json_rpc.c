@@ -13,6 +13,7 @@
 #include <mesa-rpc.h>
 #include "trace.h"
 #include "main.h"
+#include "port.h"
 #include "cli.h"
 
 static mscc_appl_trace_module_t trace_module = {
@@ -1386,6 +1387,19 @@ static mesa_rc mesa_rpc_mesa_tx_timestamp_idx_alloc(json_rpc_req_t *req)
     return MESA_RC_OK;
 }
 
+static mesa_rc appl_port_status_get(json_rpc_req_t *req)
+{
+    mesa_port_no_t      port_no;
+    mesa_port_status_t  status;
+
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &port_no));
+
+    MESA_RC(json_rpc_call(req, mscc_appl_port_status_get(port_no, &status)));
+    MESA_RC(json_rpc_add_json_null(req, req->result));
+    MESA_RC(json_rpc_add_mesa_port_status_t(req, req->result, &status));
+    return MESA_RC_OK;
+}
+
 static mesa_rc mesa_rpc_packet_tx_frame(json_rpc_req_t *req)
 {
     mesa_packet_tx_info_t tx_info;
@@ -1433,6 +1447,7 @@ static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_qos_dpl_group_conf_set", mesa_rpc_mesa_qos_dpl_group_conf_set },
     { "mesa_tx_timestamp_idx_alloc", mesa_rpc_mesa_tx_timestamp_idx_alloc },
     { "mesa_tx_timestamp_get", tx_timestamp_get },
+    { "mscc_appl_port_status_get", appl_port_status_get },
     { "mesa_misc_get", misc_get },
     { "mesa_packet_tx_frame", mesa_rpc_packet_tx_frame },
     { "mesa_event_get", event_get },

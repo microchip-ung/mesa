@@ -23,12 +23,12 @@ test "check port wireing" do
             $ts.links.each do |link2|
                 if link[:pc] == link2[:pc]
                     check_poll 0.2, 30, "Dut link must be down: #{link2[:dut]}" do
-                        r = $ts.dut.call("mesa_port_status_get", link2[:dut])
+                        r = $ts.dut.call("mscc_appl_port_status_get", link2[:dut])
                         not r["link"]
                     end
                 else
                     check_poll 0.2, 30, "Dut link must be up: #{link2[:dut]}" do
-                        r = $ts.dut.call("mesa_port_status_get", link2[:dut])
+                        r = $ts.dut.call("mscc_appl_port_status_get", link2[:dut])
                         r["link"]
                     end
                 end

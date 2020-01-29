@@ -24,7 +24,7 @@ test "Derive port wireing" do
     link_db = []
     $c.times do |i|
         begin
-            r = $ts.dut.call("mesa_port_status_get", i)
+            r = $ts.dut.call("mscc_appl_port_status_get", i)
             link_db << i if r["link"]
         rescue
         end
@@ -43,7 +43,7 @@ test "Derive port wireing" do
 
         $c.times do |i|
             begin
-                r = $ts.dut.call("mesa_port_status_get", i)
+                r = $ts.dut.call("mscc_appl_port_status_get", i)
                 link_db << i if r["link"]
             rescue
             end

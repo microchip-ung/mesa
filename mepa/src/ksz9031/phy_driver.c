@@ -10,6 +10,7 @@
 
 #include "phy_driver.h"
 
+#define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_D(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_I(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_W(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
@@ -264,7 +265,7 @@ static mesa_rc ksz_poll(meba_phy_device_t *dev, meba_phy_driver_status_t *status
 {
     phy_device *phydev = &((priv_data_t *)dev->data)->phydev;
 
-    T_D("Enter  port_no %u", phydev->address.port_no);
+    T_N("Enter  port_no %u", phydev->address.port_no);
 
     if (genphy_read_status(phydev)) {
         return MESA_RC_ERROR;
@@ -362,6 +363,15 @@ static meba_phy_device_t *ksz_probe(meba_phy_driver_t                *drv,
     return device;
 }
 
+static mesa_rc ksz_status_1g_get(meba_phy_device_t *dev, mesa_phy_status_1g_t *status)
+{
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
+
+    T_D("_________________Enter__________________________");
+
+    return MESA_RC_OK;
+}
+
 static mesa_rc ksz_delete(meba_phy_device_t *dev)
 {
     VTSS_FREE(dev->data);
@@ -387,7 +397,7 @@ meba_phy_drivers_t driver_init()
     ksz_drivers[0].meba_phy_driver_veriphy_get = NULL;
     ksz_drivers[0].meba_phy_driver_media_set = NULL;
     ksz_drivers[0].meba_phy_driver_probe = ksz_probe;
-    ksz_drivers[0].meba_phy_driver_status_1g_get = NULL;
+    ksz_drivers[0].meba_phy_driver_status_1g_get = ksz_status_1g_get;
 
     res.phy_drv = ksz_drivers;
     res.count = 1;

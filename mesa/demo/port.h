@@ -49,4 +49,6 @@ typedef struct {
     meba_sfp_driver_t     sfp_driver;
 } port_entry_t;
 
+mesa_rc mscc_appl_port_status_get(const mesa_port_no_t  port_no,
+                                  mesa_port_status_t    *const status);
 #endif /* _MSCC_APPL_PORT_H_ */
