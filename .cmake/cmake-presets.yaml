@@ -12,7 +12,6 @@ presets:
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake"
         :cmake:            "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/bin/cmake"
         :legal:            "mipsel-mips32r2-linux-gnu/smb/legal-info"
-        :release_artifact: true
 
     mipsel-debug:
         :arch:             "mipsel"
@@ -44,7 +43,6 @@ presets:
         :toolchainfile:    "arm64-armv8_a-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "arm64-armv8_a-linux-gnu/x86_64-linux/bin/cmake"
         :legal:            "arm64-armv8_a-linux-gnu/fireant/legal-info"
-        :release_artifact: true
 
     arm64-debug:
         :arch:             "arm64"
@@ -75,7 +73,6 @@ presets:
         :toolchainfile:    "arm-cortex_a8-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "arm-cortex_a8-linux-gnu/x86_64-linux/bin/cmake"
         :legal:            "arm-cortex_a8-linux-gnu/bbb/legal-info"
-        :release_artifact: true
 
     arm-debug:
         :arch:             "arm"
@@ -94,5 +91,4 @@ presets:
         :toolchainfile:    "x86_64-nocona-linux-gnu/share/buildroot/toolchainfile.cmake"
         :cmake:            "x86_64-nocona-linux-gnu/bin/cmake"
         :legal:            "x86_64-nocona-linux-gnu/legal-info"
-        :release_artifact: true
 
