@@ -871,11 +871,11 @@ typedef struct {
 
 /** \brief Packet registration per port */
 typedef struct {
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_packet_reg_type_t          ipmc_ctrl_reg; /**< IP MC Control, NORMAL/FORWARD/CPU_COPY supported */
     vtss_packet_reg_type_t          igmp_reg;      /**< IGMP, NORMAL/FORWARD/CPU_ONLY supported */
     vtss_packet_reg_type_t          mld_reg;       /**< MLD, NORMAL/FORWARD/CPU_ONLY supported */
-#endif /* VTSS_ARCH_OCELOT */
+#endif
     vtss_packet_reg_type_t          bpdu_reg[16];  /**< BPDU range: 01-80-C2-00-00-0X */
     vtss_packet_reg_type_t          garp_reg[16];  /**< GARP range: 01-80-C2-00-00-2X */
 #if defined(VTSS_FEATURE_PACKET_PORT_L2CP_REG)

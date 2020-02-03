@@ -313,11 +313,11 @@ typedef enum {
     VTSS_TAG_TYPE_S_CUSTOM_TAGGED, /**< Frame was received with a custom S-tag            */
 } vtss_tag_type_t;
 
-#define VTSS_FA_PACKET_HDR_SIZE_BYTES  40 /**< Max header size. Worst case: INJ (36 bytes for IFH + 4 bytes for VLAN tag) */
-#define VTSS_JR2_PACKET_HDR_SIZE_BYTES 32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for VLAN tag) */
-#define VTSS_SVL_PACKET_HDR_SIZE_BYTES 20 /**< Max header size. Worst case: INJ (16 bytes for IFH + 4 bytes for VLAN tag)                         */
-#define VTSS_L26_PACKET_HDR_SIZE_BYTES 16 /**< Max header size. Worst case: INJ (8 bytes for IFH + 4 for timestamp + 4 for VLAN tag)              */
-#define VTSS_LAN966X_PACKET_HDR_SIZE_BYTES 20 /**< Max header size. Worst case: INJ ()              */
+#define VTSS_FA_PACKET_HDR_SIZE_BYTES      40 /**< Max header size. Worst case: INJ (36 bytes for IFH + 4 bytes for VLAN tag) */
+#define VTSS_JR2_PACKET_HDR_SIZE_BYTES     32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for VLAN tag) */
+#define VTSS_SVL_PACKET_HDR_SIZE_BYTES     20 /**< Max header size. Worst case: INJ (16 bytes for IFH + 4 bytes for VLAN tag) */
+#define VTSS_L26_PACKET_HDR_SIZE_BYTES     16 /**< Max header size. Worst case: INJ (8 bytes for IFH + 4 for timestamp + 4 for VLAN tag) */
+#define VTSS_LAN966X_PACKET_HDR_SIZE_BYTES 32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for VLAN tag) */
 
 // Find the largest required header size.
 #if defined(VTSS_ARCH_SPARX5)
@@ -614,8 +614,8 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
 #define VTSS_PACKET_TX_IFH_MAX     16  /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX     16  /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_PACKET_TX_IFH_MAX     16  /**< Tx IFH byte length (Constant) */
-#define VTSS_PACKET_RX_IFH_MAX     16  /**< Rx IFH byte length (Constant) */
+#define VTSS_PACKET_TX_IFH_MAX     28  /**< Tx IFH byte length (Constant) */
+#define VTSS_PACKET_RX_IFH_MAX     28  /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_LUTON26)
 #define VTSS_PACKET_TX_IFH_MAX     12  /**< Tx IFH byte length (Varies: 8/12 depending on PTP) */
 #define VTSS_PACKET_RX_IFH_MAX     8   /**< Rx IFH byte length */

@@ -14,6 +14,7 @@
 #include "../ail/vtss_util.h"
 #include "vtss_lan966x.h"
 #include "vtss_lan966x_regs.h"
+#include "vtss_lan966x_ifh.h"
 
 /* ================================================================= *
  *  Register access
@@ -164,10 +165,13 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 #define PGID_AGGR   (VTSS_PGIDS)
 #define PGID_SRC    (PGID_AGGR + LAN966X_ACS)
 
+#define LAN966X_BUFFER_CELL_SZ        64
+
 /* ================================================================= *
  *  Common functions
  * ================================================================= */
 vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state);
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
 vtss_rc vtss_lan966x_counter_update(vtss_state_t *vtss_state,
                                     u32 *addr, vtss_chip_counter_t *counter, BOOL clear);

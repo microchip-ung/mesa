@@ -47,6 +47,12 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
 /* ================================================================= *
  *  Utility functions
  * ================================================================= */
+u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state)
+{
+    // Core clock 156.25 Mhz means period 6400 ps
+    return 6400;
+}
+
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[])
 {
     vtss_port_no_t port_no;
@@ -96,7 +102,7 @@ void vtss_lan966x_debug_reg_header(const vtss_debug_printf_t pr, const char *nam
 {
     char buf[64];
 
-    sprintf(buf, "%-32s  Addr   ", name);
+    sprintf(buf, "%-32s  ", name);
     vtss_debug_print_reg_header(pr, buf);
 }
 
@@ -107,7 +113,7 @@ void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
     char buf[200];
 
     if (vtss_lan966x_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        sprintf(buf, "%-32s  0x%08x", name, addr);
+        sprintf(buf, "%-32s  ", name);
         vtss_debug_print_reg(pr, buf, value);
     }
 }

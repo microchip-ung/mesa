@@ -1296,7 +1296,7 @@ static vtss_rc lan966x_l2_port_map_set(vtss_state_t *vtss_state)
 static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
 {
     vtss_vid_t vid;
-    u32        port;
+    u32        port, value;
 
     /* Clear MAC table */
     REG_WR(ANA_MACACCESS, ANA_MACACCESS_MAC_TABLE_CMD(MACACCESS_CMD_INIT));
@@ -1339,6 +1339,10 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
     REG_WR(SYS_FRM_AGING,
            SYS_FRM_AGING_AGE_TX_ENA_M |
            SYS_FRM_AGING_MAX_AGE(2*2000000/13));
+
+    /* Set FRER TicksPerSecond to 1000 */
+    value = (1000000000/(8*256*vtss_lan966x_clk_period_ps(vtss_state)));
+    REG_WR(QSYS_FRER_CFG, QSYS_FRER_CFG_WATCHDOG_PRESCALER(value));
 
     return VTSS_RC_OK;
 }
