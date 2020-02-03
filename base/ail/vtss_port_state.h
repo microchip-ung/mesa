@@ -376,6 +376,11 @@ typedef struct {
                             const u16 coef_in,
                             u16 *const sts_out);
 
+    vtss_rc (* kr_eye_dim)(struct vtss_state_s *vtss_state,
+                           const vtss_port_no_t port_no,
+                          vtss_port_kr_eye_dim_t *const eye);
+
+
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 

@@ -130,12 +130,14 @@ typedef struct {
     kr_tap_t current_tap;
     uint32_t  tap_idx;
     uint16_t  ber_cnt[3][64];
-    uint32_t  frm_sent[3][64];
+    uint32_t  frm_sent;
+    uint16_t  eye_height[3][64];
+    uint16_t  final_eye_height;
     uint16_t  decr_cnt;
     uint16_t  lp_tap_max_cnt[3];
-    uint16_t  lp_tap_mid_cnt[3];
+    uint16_t  lp_tap_end_cnt[3];
     uint16_t  ld_tap_max_cnt[3];
-    uint16_t  ld_tap_mid_cnt[3];
+    uint16_t  ld_tap_end_cnt[3];
     uint32_t  tr_time_ld;
     uint32_t  tr_time_rd;
     struct timeval time_start;

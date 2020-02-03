@@ -1173,7 +1173,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
     /*     } */
     /* } */
 
-    if ((coef == VTSS_COEF_PRESET) || (coef == VTSS_COEF_INIT)) {
+    if ((tap == VTSS_COEF_PRESET) || (tap == VTSS_COEF_INIT)) {
         status_out = (status << 4) | (status << 2) |  status;
     } else if (tap == VTSS_COEF_CP1) {
         status_out = status << 4;
@@ -1363,6 +1363,16 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     return VTSS_RC_OK;
+}
+
+
+static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no,
+                                  vtss_port_kr_eye_dim_t *const eye)
+{
+
+
+    return fa_kr_eye_height(vtss_state,  port_no, 10, &eye->height);
 }
 
 
@@ -3947,6 +3957,8 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_frame_get = fa_port_kr_frame_get;
 
         state->kr_coef_set = fa_port_kr_coef_set;
+
+        state->kr_eye_dim = fa_port_kr_eye_dim;
 
 #endif /* VTSS_FEATURE_10G_BASE_KR */
         state->status_get = fa_port_status_get;

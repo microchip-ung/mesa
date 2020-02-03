@@ -865,7 +865,24 @@ mesa_rc mesa_port_kr_coef_set(const mesa_inst_t inst,
                                   uint16_t *const sts)
     CAP(PORT_10GBASE_KR_V3);
 
+/** \brief 10G KR eye info */
+typedef struct {
+    uint32_t height;
+} mesa_port_kr_eye_dim_t CAP(PORT_10GBASE_KR_V3);
 
+/**
+ * \brief Get 10G KR eye dimension
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param eye     [OUT] KR eye dimension
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_kr_eye_dim_get(const mesa_inst_t inst,
+                                 const mesa_port_no_t port_no,
+                                 mesa_port_kr_eye_dim_t *const eye)
+    CAP(PORT_10GBASE_KR_V3);
 
 
 // Port loopback

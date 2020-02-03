@@ -919,6 +919,23 @@ vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
                                   const u16 coef,
                                   u16 *const sts);
 
+/** \brief 10G KR eye info */
+typedef struct {
+    u32 height;
+} vtss_port_kr_eye_dim_t;
+
+/**
+ * \brief Get 10G KR eye dimension
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param eye     [OUT] KR eye dimension
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_eye_dim_get(const vtss_inst_t inst,
+                                 const vtss_port_no_t port_no,
+                                 vtss_port_kr_eye_dim_t *const eye);
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
