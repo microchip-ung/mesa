@@ -16,6 +16,7 @@
  * ================================================================= */
 #if defined(VTSS_CHIP_9668)
 #define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
+#define VTSS_ARCH_LAN966X_FPGA                    /**< LAN966X FPGA */
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
@@ -83,7 +84,7 @@
 //#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
 //#define VTSS_FEATURE_VOP_V1                       /**< Version 1 OAM implementation. Serval-1 platform */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
-#define VTSS_AFI_V1                               /**< AFI API version 1 */
+#define VTSS_AFI_V2                               /**< AFI API version 2 */
 #endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \

@@ -49,8 +49,11 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
  * ================================================================= */
 u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state)
 {
-    // Core clock 156.25 Mhz means period 6400 ps
-    return 6400;
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+    return 15125;
+#else
+    return 6154;
+#endif
 }
 
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[])

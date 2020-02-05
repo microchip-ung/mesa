@@ -194,19 +194,23 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 #define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
 #define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
 #define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
-#endif /* VTSS_ARCH_JAGUAR_2_B || VTSS_ARCH_JAGUAR_2_C */
+#endif
 
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
 #define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
 #define VTSS_AFI_FAST_INJ_BPS_MAX 25000000000ULL /**< Max rate in bits per second: 25Gbps (including IFG and preamble) */
-#endif /* VTSS_ARCH_SPARX5 */
+#endif
 
-#if defined(VTSS_ARCH_SERVAL_T)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define VTSS_AFI_SLOW_INJ_CNT     64             /**< Maximum number of simultaneous slow injections */
+#else
 #define VTSS_AFI_SLOW_INJ_CNT     2048           /**< Maximum number of simultaneous slow injections */
+#endif
 #define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
 #define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
-#endif /* VTSS_ARCH_SERVAL_T */
+#endif
 
 #define VTSS_AFI_SLOW_INJ_FPH_MAX (60 * 60 * 300) /**< Maximum number of frames per hour supported by slow injections */
 
@@ -278,7 +282,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_FAST_INJ_CNT 32 /**< Maximum number of simultaneous fast injections */
-#elif defined(VTSS_ARCH_SERVAL_T)
+#elif defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_AFI_FAST_INJ_CNT 16 /**< Maximum number of simultaneous fast injections */
 #else
 #error "Unsupported architecture"

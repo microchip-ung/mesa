@@ -203,7 +203,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      u32                   *const ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci;
+    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos;
     const vtss_vlan_tag_t *tag = &info->tag;
 
     if (ifh == NULL) {
@@ -280,7 +280,9 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
 
         // DP and priority
         IFH_SET(ifh, DP, info->dp);
-        IFH_SET(ifh, QOS_CLASS, info->cos >= 8 ? 7 : info->cos);
+        cos = (info->cos >= 8 ? 7 : info->cos);
+        IFH_SET(ifh, QOS_CLASS, cos);
+        IFH_SET(ifh, IPV, cos);
 
         // TCI
         tci = (tag->tpid == 0 || tag->tpid == 0x8100 ? 0 : 1); // Tag type
