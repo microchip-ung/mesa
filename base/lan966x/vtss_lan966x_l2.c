@@ -671,15 +671,85 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     return VTSS_RC_OK;
 }
 
+vtss_rc lan966x_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, BOOL clr)
+{
+    vtss_sdx_counters_t *c;
+    u32                 base, *p = &base;
+    u16                 idx;
+
+    /* Update ingress counters, if active */
+    idx = stat_idx->idx;
+    if (idx != 0) {
+        /* ISDX counters */
+        c = &vtss_state->l2.sdx_info.sdx_table[idx];
+        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx + 640));
+        base = 0x280; // TBD
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green.bytes, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green.frames, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_yellow.bytes, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_yellow.frames, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_red.bytes, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_red.frames, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_discard.bytes, clr));  // Green drops
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_discard.frames, clr)); // Green drops
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_discard.bytes, clr));  // Yellow drops
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_discard.frames, clr)); // Yellow drops
+    }
+
+    /* Update egress counters, if active */
+    idx = stat_idx->edx;
+    if (idx != 0) {
+        c = &vtss_state->l2.sdx_info.sdx_table[idx];
+        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx + 768));
+        base = 0x300; // TBD
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green.bytes, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green.frames, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow.bytes, clr));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow.frames, clr));
+    }
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
 {
-    memset(counters, 0, sizeof(*counters));
+    vtss_stat_idx_t     sidx;
+    vtss_sdx_counters_t *c = &vtss_state->l2.sdx_info.sdx_table[idx];
+
+    sidx.idx = idx;
+    sidx.edx = 0;
+    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, counters == NULL));
+
+    if (counters != NULL) {
+        memset(counters, 0, sizeof(*counters));
+        counters->rx_green.frames = c->rx_green.frames.value;
+        counters->rx_green.bytes = c->rx_green.bytes.value;
+        counters->rx_yellow.frames = c->rx_yellow.frames.value;
+        counters->rx_yellow.bytes = c->rx_yellow.bytes.value;
+        counters->rx_red.frames = c->rx_red.frames.value;
+        counters->rx_red.bytes = c->rx_red.bytes.value;
+        counters->rx_discard.frames = (c->rx_discard.frames.value + c->tx_discard.frames.value); // Green and yellow
+        counters->rx_discard.bytes = (c->rx_discard.bytes.value + c->tx_discard.bytes.value);    // Green and yellow
+        //TBD: PSFP counters
+    }
     return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counters_t *counters)
 {
-    memset(counters, 0, sizeof(*counters));
+    vtss_stat_idx_t     sidx;
+    vtss_sdx_counters_t *c = &vtss_state->l2.sdx_info.sdx_table[idx];
+
+    sidx.idx = 0;
+    sidx.edx = idx;
+    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, counters == NULL));
+
+    if (counters != NULL) {
+        memset(counters, 0, sizeof(*counters));
+        counters->tx_green.frames = c->tx_green.frames.value;
+        counters->tx_green.bytes = c->tx_green.bytes.value;
+        counters->tx_yellow.frames = c->tx_yellow.frames.value;
+        counters->tx_yellow.bytes = c->tx_yellow.bytes.value;
+    }
     return VTSS_RC_OK;
 }
 
@@ -1015,7 +1085,6 @@ static vtss_rc lan966x_debug_mac_table(vtss_state_t *vtss_state,
     vtss_debug_print_sticky(pr, "ACLKILL", value, ANA_ANEVENTS_ACLKILL_M);
     vtss_debug_print_sticky(pr, "ACLUSED", value, ANA_ANEVENTS_ACLUSED_M);
     vtss_debug_print_sticky(pr, "AUTOAGE", value, ANA_ANEVENTS_AUTOAGE_M);
-    vtss_debug_print_sticky(pr, "VS2TTL1", value, ANA_ANEVENTS_VS2TTL1_M);
     vtss_debug_print_sticky(pr, "LEARN_DROP", value, ANA_ANEVENTS_LEARN_DROP_M);
     vtss_debug_print_sticky(pr, "AGED_ENTRY", value, ANA_ANEVENTS_AGED_ENTRY_M);
     vtss_debug_print_sticky(pr, "CPU_LEARN_FAILED", value, ANA_ANEVENTS_CPU_LEARN_FAILED_M);
@@ -1347,6 +1416,25 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
+{
+    vtss_l2_state_t *state = &vtss_state->l2;
+    vtss_stat_idx_t sidx;
+    u32             idx;
+
+    /* Poll counters for one SDX entry, giving 256 seconds between each poll.
+       This ensures that any counter can wrap only once between each poll.
+       On a 10Gbps port, a 32-bit frame counter would take about
+       0xffffffff/14.880.000.000 = 288 seconds to wrap. */
+    idx = state->sdx_info.poll_idx;
+    sidx.idx = idx;
+    sidx.edx = idx;
+    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, FALSE));
+    idx++;
+    state->sdx_info.poll_idx = (idx < VTSS_EVC_STAT_CNT ? idx : 0);
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
     vtss_l2_state_t *state = &vtss_state->l2;
@@ -1425,6 +1513,10 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_PORT_MAP:
         VTSS_RC(lan966x_l2_port_map_set(vtss_state));
+        break;
+
+    case VTSS_INIT_CMD_POLL:
+        VTSS_RC(lan966x_l2_poll(vtss_state));
         break;
 
     default:

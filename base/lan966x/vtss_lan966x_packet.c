@@ -12,7 +12,7 @@
  * ================================================================= */
 
 // IFH is 28 bytes (7 words)
-#define LAN966X_IFH_SIZE  28
+#define LAN966X_IFH_SIZE  IFH_LEN
 #define LAN966X_IFH_WORDS (LAN966X_IFH_SIZE / 4)
 
 static vtss_rc lan966x_npi_mask_set(vtss_state_t *vtss_state)
