@@ -193,6 +193,7 @@ typedef struct {
     mesa_bool_t adv2g5;
     mesa_bool_t adv1g;
     uint32_t    value;
+    mesa_bool_t dis;
 } port_cli_req_t;
 
 
@@ -218,6 +219,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->train = 1;
     } else if (!strncasecmp(found, "all", 3)) {
         mreq->all = 1;
+    } else if (!strncasecmp(found, "disable", 3)) {
+        mreq->dis = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -251,7 +254,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             (void)fa_kr_reset_state(iport);
 
             if (req->set) {
-                conf.aneg.enable = 1;
+                conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.aneg.adv_1g = mreq->adv1g || mreq->all;
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
@@ -264,6 +267,10 @@ static void cli_cmd_port_kr(cli_req_t *req)
                     cli_printf("KR set failed for port %u\n", uport);
                 }
                 my_cnt = 0;
+            } else {
+                cli_printf("Port: %d\n", uport);
+                cli_printf("  KR aneg: %s\n", conf.aneg.enable ? "Enabled" : "Disabled");
+                cli_printf("  KR training: %s\n", conf.train.enable ? "Enabled" : "Disabled");
             }
         }
     } else if (BASE_KR_V2) {
@@ -414,7 +421,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         cli_printf("Port %d\n",uport);
         cli_printf("  ANEG completed    : %s\n",sts.aneg.complete ? "Yes" : "No");
         cli_printf("  Speed             : %s\n",fa_kr_aneg_rate(sts.aneg.sts1 & 0xF));
-        cli_printf("  \nThis device training details:\n");
+        cli_printf("  \n  This device training details:\n");
         cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
         cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap));
         cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
@@ -1024,6 +1031,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
             krs->ber_busy = FALSE;
             krs->ber_cnt[krs->current_tap][krs->tap_idx] = krs->status.train.frame_errors;
             kr_printf("       (LPT)GET_EYE 1 (%d ms)\n",get_time_ms(&krs->time_start));
+            krs->ignore_fail = TRUE;
             krs->eye_height[krs->current_tap][krs->tap_idx] = get_api_eye_height(p);
             kr_printf("       (LPT)GET_EYE 2 (%d ms)\n",get_time_ms(&krs->time_start));
             if (krs->tap_max_reached) {
@@ -1175,11 +1183,13 @@ static void kr_poll(meba_inst_t inst)
         if (kr_sts.irq.vector & KR_DME_VIOL_0 || kr_sts.irq.vector & KR_DME_VIOL_1 ||
             kr_sts.irq.vector & KR_REM_RDY_0 || kr_sts.irq.vector & KR_REM_RDY_0 ||
             kr_sts.irq.vector & KR_FRLOCK_0) {
-            kr_printf("       (FAIL)Rx IRQ Errors\n");
-            kr_sts.irq.vector &= ~KR_DME_VIOL_0;
-            kr_sts.irq.vector &= ~KR_DME_VIOL_1;
-            kr_sts.irq.vector &= ~KR_REM_RDY_0;
-            kr_sts.irq.vector &= ~KR_FRLOCK_0;
+            if (krs->ignore_fail) { // Needed due to failures during eye height calculation
+                kr_printf("       (FAIL)Rx IRQ Errors\n");
+                kr_sts.irq.vector &= ~KR_DME_VIOL_0;
+                kr_sts.irq.vector &= ~KR_DME_VIOL_1;
+                kr_sts.irq.vector &= ~KR_REM_RDY_0;
+                kr_sts.irq.vector &= ~KR_FRLOCK_0;
+            }
 
         }
 
@@ -1256,7 +1266,6 @@ static void kr_poll(meba_inst_t inst)
             } else {
                 frm.data = coef2status(iport, frm.data);
             }
-
             // Send Status report
             frm.type = MESA_STATUS_REPORT_FRM;
             (void)mesa_port_kr_train_frm_set(NULL, iport, &frm);
@@ -1264,6 +1273,9 @@ static void kr_poll(meba_inst_t inst)
 
         // KR_LPSVALID
         if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
+            if (krs->ignore_fail) {
+                krs->ignore_fail = FALSE;
+            }
             if (krs->ber_training_stage != LOCAL_RX_TRAINED) {
                 perform_lp_training(iport, KR_LPSVALID);
             } else {
@@ -1340,6 +1352,7 @@ static void kr_poll(meba_inst_t inst)
             send_sts_report(iport, BT(15));
             send_sts_report(iport, BT(15));
             send_sts_report(iport, BT(15));
+            send_sts_report(iport, 0); // needed to avoid KR_REM_RDY_1 during next training restart
 
             req_msg.wt_start = TRUE;
             (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
@@ -1402,7 +1415,7 @@ static void kr_poll_v2(meba_inst_t inst)
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec]",
+        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec] [disable]",
         "Set or show kr",
         cli_cmd_port_kr
     },
@@ -1469,6 +1482,13 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
+    {
+        "disable",
+        "disable: disable kr",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
     {
         "pr",
         "print out",

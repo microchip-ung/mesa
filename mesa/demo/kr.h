@@ -126,6 +126,7 @@ typedef struct {
     mesa_bool_t tap_max_reached;
     mesa_bool_t receiver_ready_sent;
     mesa_bool_t kr_mw_done;
+    mesa_bool_t ignore_fail;
     mesa_port_speed_t next_parallel_spd;
     kr_tap_t current_tap;
     uint32_t  tap_idx;

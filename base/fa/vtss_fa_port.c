@@ -1441,12 +1441,11 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
     u32 abil = 0;
 
+    /* AN Selector */
+    REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
+           VTSS_F_IP_KRANEG_LD_ADV0_ADV0(kr->aneg.enable));
+
     if (kr->aneg.enable) {
-        /* AN Selector */
-        REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
-              VTSS_F_IP_KRANEG_LD_ADV0_ADV0(0x1));
-
-
         /* AN Technology aneg field bit
            LD_ADV1 bit 5 = 1000Base-KX,
            LD_ADV1 bit 7 = 10GBase-KR */
@@ -1469,11 +1468,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         abil = kr->aneg.fec_req ? VTSS_BIT(14) : 0;
         abil += kr->aneg.fec_req ? VTSS_BIT(15) : 0;
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
-
-        REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
-                VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(!kr->train.enable),
-                VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
-
     }
 
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
