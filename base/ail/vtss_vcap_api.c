@@ -958,6 +958,31 @@ void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry)
     is1->entry = entry;
 }
 
+#if defined(VTSS_ARCH_LAN966X)
+vtss_rc vtss_vcap_is1_update(vtss_state_t *vtss_state, vtss_is1_action_t *act)
+{
+    vtss_vcap_obj_t      *obj = &vtss_state->vcap.is1.obj;
+    vtss_vcap_entry_t    *cur;
+    vtss_vcap_data_t     *data;
+    vtss_vcap_key_size_t key_size;
+    vtss_vcap_idx_t      idx;
+    u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
+
+    memset(ndx, 0, sizeof(ndx));
+    for (cur = obj->used; cur != NULL; cur = cur->next) {
+        data = &cur->data;
+        key_size = data->key_size;
+        if (data->u.is1.isdx == act->isdx) {
+            idx.key_size = key_size;
+            vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
+            VTSS_FUNC_RC(vcap.is1_entry_update, &idx, act);
+        }
+        ndx[key_size]++;
+    }
+    return VTSS_RC_OK;
+}
+#endif
+
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 vtss_rc vtss_vcap_clm_update(vtss_state_t *vtss_state, const vtss_qos_egress_map_id_t id)
 {

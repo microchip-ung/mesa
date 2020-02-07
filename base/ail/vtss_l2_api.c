@@ -5784,7 +5784,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     if (vce->action.flow_id != VTSS_IFLOW_ID_NONE) {
         action->isdx_enable = TRUE;
         action->isdx = vce->action.flow_id;
-
+        is1->isdx = action->isdx;
 #if defined(VTSS_FEATURE_VOP_V2)
         if ((sdx = vtss_iflow_lookup(vtss_state, vce->action.flow_id)) != NULL) {
             if (sdx->conf.voi_idx != VTSS_VOI_IDX_NONE) {

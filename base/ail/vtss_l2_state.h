@@ -198,6 +198,12 @@ typedef struct {
     vtss_chip_counter_pair_t tx_discard; /**< Tx discarded frames/bytes */
     vtss_chip_counter_pair_t tx_green;   /**< Tx green frames/bytes */
     vtss_chip_counter_pair_t tx_yellow;  /**< Tx yellow frames/bytes */
+#if defined(VTSS_ARCH_LAN966X)
+    // PSFP counters
+    vtss_chip_counter_t      rx_match;
+    vtss_chip_counter_t      rx_gate_discard;
+    vtss_chip_counter_t      rx_sdu_discard;
+#endif
 } vtss_sdx_counters_t;
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)

@@ -666,14 +666,50 @@ static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_p
 }
 #endif
 
-static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
+static vtss_rc lan966x_sdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 {
-    return VTSS_RC_OK;
+    vtss_iflow_conf_t       *conf;
+    vtss_frer_iflow_conf_t  *frer;
+    vtss_psfp_iflow_conf_t  *psfp;
+    vtss_psfp_filter_conf_t *filter;
+    vtss_is1_action_t       act;
+
+    if (sdx == NULL) {
+        return VTSS_RC_ERROR;
+    }
+
+    conf = &sdx->conf;
+    frer = &conf->frer;
+    psfp = &conf->psfp;
+    memset(&act, 0, sizeof(act));
+    act.isdx = sdx->sdx;
+    act.dlb_enable = conf->dlb_enable;
+    act.dlb = conf->dlb_id;
+    act.mstream_enable = frer->mstream_enable;
+    act.mstream = frer->mstream_id;
+    if (psfp->filter_enable) {
+        filter = &vtss_state->l2.psfp.filter[psfp->filter_id];
+        act.sfid_enable = psfp->filter_enable;
+        act.sfid = psfp->filter_id;
+        act.sgid_enable = filter->gate_enable;
+        act.sgid = filter->gate_id;
+    }
+    act.ct_disable = conf->cut_through_disable;
+    VTSS_I("sdx: %u, dlb: %u/%u, mstream: %u/%u, filter: %u/%u, gate: %u/%u, ct_disable: %u",
+           act.isdx, act.dlb_enable, act.dlb, act.mstream_enable, act.mstream,
+           act.sfid_enable, act.sfid, act.sgid_enable, act.sgid, act.ct_disable);
+    return vtss_vcap_is1_update(vtss_state, &act);
 }
 
-vtss_rc lan966x_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, BOOL clr)
+static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
+{
+    return lan966x_sdx_update(vtss_state, vtss_iflow_lookup(vtss_state, id));
+}
+
+vtss_rc lan966x_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, BOOL clr)
 {
     vtss_sdx_counters_t *c;
+    vtss_sdx_entry_t    *sdx;
     u32                 base, *p = &base;
     u16                 idx;
 
@@ -694,6 +730,15 @@ vtss_rc lan966x_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *s
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_discard.frames, clr)); // Green drops
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_discard.bytes, clr));  // Yellow drops
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_discard.frames, clr)); // Yellow drops
+
+        // PSFP counters
+        if ((sdx = vtss_iflow_lookup(vtss_state, idx)) != NULL && sdx->conf.psfp.filter_enable) {
+            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(sdx->conf.psfp.filter_id + 512));
+            base = 0x200;
+            VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_match, clr));
+            VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_gate_discard, clr));
+            VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_sdu_discard, clr));
+        }
     }
 
     /* Update egress counters, if active */
@@ -717,10 +762,9 @@ static vtss_rc lan966x_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_
 
     sidx.idx = idx;
     sidx.edx = 0;
-    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, counters == NULL));
+    VTSS_RC(lan966x_counters_update(vtss_state, &sidx, counters == NULL));
 
     if (counters != NULL) {
-        memset(counters, 0, sizeof(*counters));
         counters->rx_green.frames = c->rx_green.frames.value;
         counters->rx_green.bytes = c->rx_green.bytes.value;
         counters->rx_yellow.frames = c->rx_yellow.frames.value;
@@ -729,7 +773,15 @@ static vtss_rc lan966x_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_
         counters->rx_red.bytes = c->rx_red.bytes.value;
         counters->rx_discard.frames = (c->rx_discard.frames.value + c->tx_discard.frames.value); // Green and yellow
         counters->rx_discard.bytes = (c->rx_discard.bytes.value + c->tx_discard.bytes.value);    // Green and yellow
-        //TBD: PSFP counters
+        counters->tx_discard.frames = 0;
+        counters->tx_discard.bytes = 0;
+
+        // PSFP counters
+        counters->rx_match = c->rx_match.value;
+        counters->rx_sdu_discard = c->rx_sdu_discard.value;
+        counters->rx_sdu_pass = (counters->rx_match - counters->rx_sdu_discard);
+        counters->rx_gate_discard = c->rx_gate_discard.value;
+        counters->rx_gate_pass = (counters->rx_sdu_pass - counters->rx_gate_discard);
     }
     return VTSS_RC_OK;
 }
@@ -741,10 +793,9 @@ static vtss_rc lan966x_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_c
 
     sidx.idx = 0;
     sidx.edx = idx;
-    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, counters == NULL));
+    VTSS_RC(lan966x_counters_update(vtss_state, &sidx, counters == NULL));
 
     if (counters != NULL) {
-        memset(counters, 0, sizeof(*counters));
         counters->tx_green.frames = c->tx_green.frames.value;
         counters->tx_green.bytes = c->tx_green.bytes.value;
         counters->tx_yellow.frames = c->tx_yellow.frames.value;
@@ -754,13 +805,6 @@ static vtss_rc lan966x_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_c
 }
 
 static vtss_rc lan966x_policer_update(vtss_state_t *vtss_state, u16 idx)
-{
-    return VTSS_RC_OK;
-}
-
-static vtss_rc lan966x_counters_update(vtss_state_t *vtss_state,
-                                       vtss_stat_idx_t *stat_idx,
-                                       BOOL clear)
 {
     return VTSS_RC_OK;
 }
@@ -952,13 +996,21 @@ static vtss_rc lan966x_gate_status_get(vtss_state_t *vtss_state,
 static vtss_rc lan966x_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp_filter_id_t id)
 {
     vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[id];
+    vtss_sdx_entry_t        *sdx;
 
+    REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(id));
     REG_WR(ANA_SFIDACCESS,
            ANA_SFIDACCESS_B_O_FRM(conf->block_oversize.value ? 1 : 0) |
            ANA_SFIDACCESS_B_O_FRM_ENA(conf->block_oversize.enable ? 1 : 0) |
-           ANA_SFIDACCESS_MAX_SDU_LEN(conf->max_sdu));
-    //TBD: Gate mapping
+           ANA_SFIDACCESS_MAX_SDU_LEN(conf->max_sdu) |
+           ANA_SFIDACCESS_SFID_TBL_CMD(2)); // WRITE
 
+    // Update IS1 mappings to gate
+    for (sdx = vtss_state->l2.sdx_info.iflow; sdx != NULL; sdx = sdx->next) {
+        if (sdx->conf.psfp.filter_enable && sdx->conf.psfp.filter_id == id) {
+            VTSS_RC(lan966x_sdx_update(vtss_state, sdx));
+        }
+    }
     return VTSS_RC_OK;
 }
 
@@ -1429,7 +1481,7 @@ static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
     idx = state->sdx_info.poll_idx;
     sidx.idx = idx;
     sidx.edx = idx;
-    VTSS_RC(lan966x_sdx_counters_update(vtss_state, &sidx, FALSE));
+    VTSS_RC(lan966x_counters_update(vtss_state, &sidx, FALSE));
     idx++;
     state->sdx_info.poll_idx = (idx < VTSS_EVC_STAT_CNT ? idx : 0);
     return VTSS_RC_OK;

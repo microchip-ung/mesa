@@ -476,6 +476,17 @@ typedef struct {
     BOOL                   mpls_ip_enable;      /**< Enable MPLS profiles for MPLS encap'd IP frames */
     BOOL                   mpls_cw_enable;      /**< Process PW Control Word */
 #endif /* VTSS_ARCH_JAGUAR_2 */
+#if defined(VTSS_ARCH_LAN966X)
+    BOOL                   dlb_enable;
+    u16                    dlb;
+    BOOL                   mstream_enable;
+    u16                    mstream;
+    BOOL                   sfid_enable;
+    u16                    sfid;
+    BOOL                   sgid_enable;
+    u16                    sgid;
+    BOOL                   ct_disable;
+#endif
 } vtss_is1_action_t;
 
 typedef enum
@@ -616,6 +627,7 @@ typedef struct {
     u8               lookup;      /* Lookup (Serval) or first flag (L26/JR) */
     u8               flags;       /* Flags, see above */
     u16              map_id;      /* Ingress QoS map ID */
+    u16              isdx;
     u32              vid_range;   /* VID range */
     u32              dscp_range;  /* DSCP range */
     u32              sport_range; /* Source port range */
@@ -1115,6 +1127,13 @@ typedef struct {
 
 #if defined(VTSS_ARCH_OCELOT)
 #define VTSS_IS1_CNT      VTSS_SRVL_IS1_CNT
+#elif defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define VTSS_LAN966X_IS1_CNT (16 * 4)
+#else
+#define VTSS_LAN966X_IS1_CNT (192 * 4)
+#endif
+#define VTSS_IS1_CNT VTSS_LAN966X_IS1_CNT
 #else
 #define VTSS_IS1_CNT      VTSS_L26_IS1_CNT
 #endif
@@ -1155,7 +1174,12 @@ typedef struct {
 #elif defined(VTSS_ARCH_LUTON26)
 #define VTSS_IS2_CNT      VTSS_L26_IS2_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_IS2_CNT      VTSS_MAS_IS2_CNT
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define VTSS_LAN966X_IS2_CNT (16 * 4)
+#else
+#define VTSS_LAN966X_IS2_CNT (64 * 4)
+#endif
+#define VTSS_IS2_CNT      VTSS_LAN966X_IS2_CNT
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 4096
@@ -1190,6 +1214,13 @@ typedef struct {
 #define VTSS_ES0_CNT VTSS_JR2_ES0_CNT
 #elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_ES0_CNT VTSS_SRVL_ES0_CNT
+#elif defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define VTSS_LAN966X_ES0_CNT 16
+#else
+#define VTSS_LAN966X_ES0_CNT 256
+#endif
+#define VTSS_ES0_CNT VTSS_LAN966X_ES0_CNT
 #elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_FA_ES0_CNT 4096
 #define VTSS_ES0_CNT    VTSS_FA_ES0_CNT
@@ -1236,6 +1267,10 @@ typedef struct {
     vtss_rc (* clm_entry_update_masq_hit_ena)(struct vtss_state_s *vtss_state,
                                              vtss_vcap_type_t type, vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, BOOL enable);
 #endif /* VTSS_FEATURE_CLM */
+#if defined(VTSS_FEATURE_IS1)
+    vtss_rc (* is1_entry_update)(struct vtss_state_s *vtss_state,
+                                 vtss_vcap_idx_t *idx, vtss_is1_action_t *act);
+#endif
 #if defined(VTSS_FEATURE_IS2)
     vtss_rc (* is2_entry_update)(struct vtss_state_s *vtss_state,
                                  vtss_vcap_idx_t *idx, vtss_is2_data_t *is2);
@@ -1403,6 +1438,7 @@ void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry);
 void vtss_vcap_debug_print_is1(struct vtss_state_s *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info);
+vtss_rc vtss_vcap_is1_update(struct vtss_state_s *vtss_state, vtss_is1_action_t *act);
 #endif /* VTSS_FEATURE_IS1/CLM */
 #if defined(VTSS_FEATURE_CLM)
 void vtss_vcap_debug_print_clm_a(struct vtss_state_s *vtss_state,
