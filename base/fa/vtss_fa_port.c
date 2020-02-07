@@ -1243,7 +1243,6 @@ static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
         st->pcs2pma = pcs2pma;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
-
         VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, st));
     }
 
@@ -1370,9 +1369,9 @@ static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   vtss_port_kr_eye_dim_t *const eye)
 {
-
-
-    return fa_kr_eye_height(vtss_state,  port_no, 10, &eye->height);
+    eye->height = 10;
+    u32 action = vtss_state->port.kr_conf[port_no].train.eye_diag ? 10 : 3;
+    return fa_kr_eye_height(vtss_state,  port_no, action, &eye->height);
 }
 
 

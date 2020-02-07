@@ -797,6 +797,7 @@ typedef struct {
 // 10G KR Training config
 typedef struct {
     mesa_bool_t enable; // Enable 10G KR training, BER method used
+    mesa_bool_t eye_diag;// Use eye diagram for calculation if height instead of chip calculation 
 } mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR configuration structures

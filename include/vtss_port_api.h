@@ -795,6 +795,7 @@ typedef struct {
 /** \brief 10G KR Training config */
 typedef struct {
     BOOL enable;            /**< Enable 10G KR training, BER method used */
+    BOOL eye_diag;          /**< Use eye diagram for calculation if height instead of chip calculation */
 } vtss_port_kr_train_t;
 
 /** \brief 10G KR configuration structures */

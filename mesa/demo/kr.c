@@ -187,6 +187,7 @@ typedef enum {
 typedef struct {
     mesa_bool_t all;
     mesa_bool_t train;
+    mesa_bool_t eye;
     mesa_bool_t fec;
     mesa_bool_t adv10g;
     mesa_bool_t adv5g;
@@ -217,6 +218,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->fec = 1;
     } else if (!strncasecmp(found, "train", 5)) {
         mreq->train = 1;
+    } else if (!strncasecmp(found, "eyediag", 5)) {
+        mreq->eye = 1;
     } else if (!strncasecmp(found, "all", 3)) {
         mreq->all = 1;
     } else if (!strncasecmp(found, "disable", 3)) {
@@ -256,6 +259,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (req->set) {
                 conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
+                conf.train.eye_diag = mreq->eye;
                 conf.aneg.adv_1g = mreq->adv1g || mreq->all;
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
@@ -909,7 +913,7 @@ static u32 get_best_eye(u32 p, kr_tap_t tap)
     u32 indx = 0;
     for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
 
-        if (krs->eye_height[tap][i] > max ) {
+        if (krs->eye_height[tap][i] >= max ) {
             max = krs->eye_height[tap][i];
             indx = i;
         }
@@ -1096,7 +1100,9 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
                         krs->ber_training_stage = LOCAL_RX_TRAINED;
                         krs->frm_sent = krs->status.train.frame_sent;
                         kr_printf("       (LPT)LOCAL_RX_TRAINED\n");
-                        krs->final_eye_height = get_api_eye_height(p);
+                        for (u32 i = 0; ((i < 3) && (krs->final_eye_height < 10)); i++) {
+                            krs->final_eye_height = get_api_eye_height(p);
+                        }
                     } else {
                         krs->current_tap = next_tap(krs->current_tap);
                         kr_printf("       (LPT)Next tap:%s\n",tap2txt(krs->current_tap));
@@ -1415,7 +1421,7 @@ static void kr_poll_v2(meba_inst_t inst)
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec] [disable]",
+        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec] [disable] [eyediag]",
         "Set or show kr",
         cli_cmd_port_kr
     },
@@ -1485,6 +1491,12 @@ static cli_parm_t cli_parm_table[] = {
     {
         "disable",
         "disable: disable kr",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+    {
+        "eyediag",
+        "eyediag: use eye diagram instead of eye height",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
