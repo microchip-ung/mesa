@@ -3151,7 +3151,7 @@ static vtss_rc srvl_acl_policer_set(vtss_state_t *vtss_state,
                                     const vtss_acl_policer_no_t policer_no)
 {
     vtss_acl_policer_conf_t  *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
-    vtss_srvl_policer_conf_t pol_conf;
+    vtss_policer_conf_t      pol_conf;
     
     memset(&pol_conf, 0, sizeof(pol_conf));
     if (conf->bit_rate_enable) {

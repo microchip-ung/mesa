@@ -172,6 +172,9 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 #define LAN966X_POLICER_QUEUE 9  // 9-80  : Queue policers (72)
 #define LAN96XX_POLICER_ACL   81 // 81-96 : ACL policers (16)
 #define LAN96XX_POLICER_DLB   97 // 97-255: DLB policers (159)
+#define LAN966X_POLICER_CNT     224 /* Total number of policers */
+
+#define LAN966X_PRIOS        8   /* Number of priorities */
 
 /* ================================================================= *
  *  Common functions
@@ -198,6 +201,8 @@ vtss_rc vtss_lan966x_port_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state);
+u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue);
 
 // Packet API
 vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -240,6 +245,12 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
+                                          const vtss_debug_printf_t pr,
+                                          const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_debug_is1_all(vtss_state_t *vtss_state,
+                                   const vtss_debug_printf_t pr,
+                                   const vtss_debug_info_t   *const info);
 
 // OAM API
 vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

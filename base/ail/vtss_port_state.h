@@ -545,7 +545,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_PORT_IFH)
     vtss_port_ifh_t               ifh_conf[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_PORT_IFH */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_LAN966X)
     u32                           buf_prio_shr[VTSS_PRIOS]; /* Initial values of buf_prio_shr_i or buf_prio_shr_e watermarks */
 #endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) */
     vtss_port_forward_t           forward[VTSS_PORT_ARRAY_SIZE];

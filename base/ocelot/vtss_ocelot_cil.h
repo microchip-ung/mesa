@@ -83,18 +83,6 @@
 #define SRVL_EVC_CNT 256
 #endif /* VTSS_CHIP_SERVAL */
 
-typedef struct {
-    BOOL disable;    /* Disable policer */
-    BOOL frame_rate; /* Enable frame rate policing (always single bucket) */
-    BOOL dual;       /* Enable dual leaky bucket mode */
-    BOOL data_rate;  /* Enable data rate policing */
-    u32  cir;        /* CIR in kbps/fps (ignored in single bucket mode) */
-    u32  cbs;        /* CBS in bytes/frames (ignored in single bucket mode) */
-    u32  eir;        /* EIR (PIR) in kbps/fps */
-    u32  ebs;        /* EBS (PBS) in bytes/frames */
-    BOOL cf;         /* Coupling flag (ignored in single bucket mode) */
-} vtss_srvl_policer_conf_t;
-
 #define SEG_I(idx) vtss_state->mpls.segment_conf[idx]
 #define XC_I(idx)  vtss_state->mpls.xc_conf[idx]
 #define VP_I(idx)  vtss_state->mpls.vprofile_conf[idx]
@@ -196,7 +184,7 @@ vtss_rc vtss_srvl_qos_port_conf_change(vtss_state_t *vtss_state,
                                        const u32 link_speed);
 vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
                                        u32 policer,
-                                       vtss_srvl_policer_conf_t *conf);
+                                       vtss_policer_conf_t *conf);
 vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
                                       vtss_shaper_t           *shaper,
                                       u32                      se,

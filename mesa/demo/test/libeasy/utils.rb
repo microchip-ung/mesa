@@ -393,6 +393,7 @@ def chip_family_to_id(txt)
     when "MESA_CHIP_FAMILY_JAGUAR2"; return 7
     when "MESA_CHIP_FAMILY_OCELOT";  return 8
     when "MESA_CHIP_FAMILY_SPARX5"; return 9
+    when "MESA_CHIP_FAMILY_LAN966X"; return 10
     else; t_e("mesa_chip_family '#{txt}' not known")
     end
 end

@@ -1494,7 +1494,7 @@ u32 vtss_cmn_qos_chip_prio(vtss_state_t *vtss_state, const vtss_prio_t prio)
     if (prio < vtss_state->qos.prio_count) {
         return (prio * vtss_state->qos.conf.prios) / vtss_state->qos.prio_count;
     } else {
-        VTSS_E("illegal prio: %u", prio);
+        VTSS_E("illegal prio: %u  prio_count: %u", prio, vtss_state->qos.prio_count);
         return 0;
     }
 }
@@ -1570,6 +1570,52 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, size_t num,
         cost[i] = MAX(1, c) - 1; // Force range to be 0..(c_max - 1)
     }
     return VTSS_RC_OK;
+}
+
+u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode)
+{
+    if (rate == VTSS_PACKET_RATE_DISABLED) {
+        return 0; /* Disabled */
+    }
+
+    switch (mode) {
+    case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU:
+        return 3; /* Police both CPU and front port destinations */
+    case VTSS_STORM_POLICER_MODE_PORTS_ONLY:
+        return 2; /* Police front port destinations only */
+    case VTSS_STORM_POLICER_MODE_CPU_ONLY:
+        return 1; /* Police CPU destination only */
+    default:
+        return 0; /* Disabled */
+    }
+}
+
+u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
+{
+    int i;
+    u32 new_rate;
+
+    if (rate > 512) {
+        /* Supported rate = 1k, 2k, 4k, 8k, 16k, 32k, 64k, 128k, 256k, 512k and 1024k frames per second*/
+        new_rate = VTSS_DIV_ROUND_UP(rate, 1000);
+        *unit = 0; /* Base unit is 1 kiloframes per second */
+    } else {
+        /* Supported rate = 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512 frames per second */
+        new_rate = rate;
+        *unit = 1; /* Base unit is 1 frame per second */
+    }
+
+    for (i = 0; i < 10; i++) {
+        if ((u32)(1 << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
+            break;
+        }
+    }
+
+    /*
+     * Note that we return 10 if there is no match in the for loop above.
+     * This is the maximum allowed rate of 2^10 = 1024 kiloframes per second
+     */
+    return i;
 }
 
 /* Add QCE */

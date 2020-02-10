@@ -200,6 +200,16 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_misc_poll_1sec(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_FEATURE_STORM_POLICER_DROP_COUNTER)
+    u32 i, value;
+    for (i = 0; i < 3; ++i) {   /* If any storm policer has counted since last time then the storm event is set active */
+        REG_RD(QSYS_STORMLIM_STAT(i), &value);
+        if (vtss_state->qos.storm_policer_drop_counter[i] != value) {
+            vtss_state->qos.storm = TRUE;
+        }
+        vtss_state->qos.storm_policer_drop_counter[i] = value;
+    }
+#endif
     return VTSS_RC_OK;
 }
 

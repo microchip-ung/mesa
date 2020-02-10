@@ -7,7 +7,7 @@
 
 #if defined(VTSS_FEATURE_QOS)
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 
 #define VTSS_QOS_DWRR_COST_BIT_WIDTH 5
 
@@ -43,7 +43,19 @@ typedef struct {
 
 #endif /* VTSS_ARCH_LUTON26 */
 
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+typedef struct {
+    BOOL disable;    /* Disable policer */
+    BOOL frame_rate; /* Enable frame rate policing (always single bucket) */
+    BOOL dual;       /* Enable dual leaky bucket mode */
+    BOOL data_rate;  /* Enable data rate policing */
+    u32  cir;        /* CIR in kbps/fps (ignored in single bucket mode) */
+    u32  cbs;        /* CBS in bytes/frames (ignored in single bucket mode) */
+    u32  eir;        /* EIR (PIR) in kbps/fps */
+    u32  ebs;        /* EBS (PBS) in bytes/frames */
+    BOOL cf;         /* Coupling flag (ignored in single bucket mode) */
+} vtss_policer_conf_t;
+
 typedef struct {
     u32 rate_pwm;       /**< Target relative rate of CIR PWM Serval fix. Unit: kbps. Valid values are 0, 100, 200, and 300. Use 0 to disable the CIR PWM Serval fix */
     u32 rate_pwm_high;  /**< High rate of CIR PWM Serval fix.            Unit: 100 kbps */
@@ -519,7 +531,7 @@ typedef struct {
     u16                 lb_set_grp_idx[LB_SET_CNT];     /* The LB group index for this LB set */
 #endif
 
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_shaper_calibrate_t port_shaper[VTSS_PORT_ARRAY_SIZE];
     vtss_shaper_calibrate_t queue_shaper[VTSS_PORT_ARRAY_SIZE][VTSS_QUEUE_ARRAY_SIZE];
 #endif /* defined(VTSS_ARCH_OCELOT) */
@@ -548,12 +560,18 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     vtss_qos_fp_state_t fp;
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
+#if defined(VTSS_FEATURE_STORM_POLICER_DROP_COUNTER)
+    u32   storm_policer_drop_counter[3];
+    BOOL  storm;
+#endif
 } vtss_qos_state_t;
 
 vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state);
 vtss_rc vtss_qos_restart_sync(struct vtss_state_s *vtss_state);
 
 u32 vtss_cmn_qos_chip_prio(struct vtss_state_s *vtss_state, const vtss_prio_t prio);
+u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit);
+u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode);
 vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, size_t num, u8 bit_width);
 vtss_rc vtss_cmn_qce_add(struct vtss_state_s *vtss_state,

@@ -289,6 +289,22 @@ static vtss_rc lan966x_vcap_range_commit(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+/* - Debug print --------------------------------------------------- */
+
+vtss_rc vtss_lan966x_debug_is1_all(vtss_state_t *vtss_state,
+                                   const vtss_debug_printf_t pr,
+                                   const vtss_debug_info_t   *const info)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
+                                          const vtss_debug_printf_t pr,
+                                          const vtss_debug_info_t   *const info)
+{
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info)

@@ -20,6 +20,7 @@
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
+#define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
 #define VTSS_FEATURE_WARM_START                   /**< Warm start */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */

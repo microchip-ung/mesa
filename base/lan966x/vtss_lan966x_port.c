@@ -7,6 +7,37 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 
+u32 wm_dec(u32 value)
+{
+    if (value & 0x20) {     /* Bit 5 indicate that the Watermark value must be multiplied by 16 */
+        return (value & 0x1F) * 16; /* Watermark value is bit 0 to bit 4 */
+    }
+    return value;
+}
+
+u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue)
+{
+    u32 wm_high;
+    REG_RD(QSYS_RES_CFG((queue + 216)), &wm_high); /* Shared ingress high watermark for queue - common for all dpls */
+    return wm_dec(wm_high) * 64; /* Convert from 64 byte chunks to bytes */
+}
+
+vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state)
+{
+    u32 q;
+
+    /* Update BUF_PRIO_SHR_E sharing watermarks according to AN1121 Section 7 WRED Operation */
+    for (q = 0; q < VTSS_PRIOS; q++) {
+        if (vtss_state->qos.conf.red_v2[q][0].enable || vtss_state->qos.conf.red_v2[q][1].enable) {
+            REG_WR(QSYS_RES_CFG((q + 216 + 512)), 0); /* WRED is enabled for DP0 or DP1 - set watermark to zero */
+        } else {
+            REG_WR(QSYS_RES_CFG((q + 216 + 512)), vtss_state->port.buf_prio_shr[q]); /* Restore initial value */
+        }
+    }
+
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
