@@ -473,9 +473,9 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         cli_printf("  LD CM1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CM1],krs->ld_tap_end_cnt[CM1]);
         cli_printf("  LD C0  MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[C0], krs->ld_tap_end_cnt[C0]);
         cli_printf("  LD CP1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CP1],krs->ld_tap_end_cnt[CP1]);
-        cli_printf("  LD CM (tap_dly)   : %d\n",sts.train.cm_ob_tap_result);
-        cli_printf("  LD C0 (pc2pma)    : %d\n",sts.train.c0_ob_tap_result);
-        cli_printf("  LD CP (tap_adv)   : %d\n",sts.train.cp_ob_tap_result);
+        cli_printf("  LD CM (tap_dly)   : %d (%d)\n",sts.train.cm_ob_tap_result, krs->ld_org_tap_val[CM1]);
+        cli_printf("  LD C0 (pc2pma)    : %d (%d)\n",sts.train.c0_ob_tap_result, krs->ld_org_tap_val[C0]);
+        cli_printf("  LD CP (tap_adv)   : %d (%d)\n",sts.train.cp_ob_tap_result, krs->ld_org_tap_val[CP1]);
         cli_printf("  TRAINING TIME     : %d ms. (This device is tuning Tx Serdes).\n",krs->tr_time_rd);
 
     }
@@ -977,7 +977,6 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
 
     if (irq == KR_TRAIN) {
         send_coef_update(p, INIT, krs->current_tap, "KR_TRAIN");
-//        send_coef_update(p, PRESET, krs->current_tap, "KR_TRAIN");
         krs->ber_training_stage = GO_TO_MIN;
         krs->current_tap = CM1;
         return;
@@ -993,7 +992,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     switch (krs->ber_training_stage) {
     case GO_TO_MIN:
         if (irq == KR_LPSVALID) {
-            if (lp_status == UPDATED) {
+            if (lp_status == UPDATED || lp_status == MAXIMUM) {
                 send_coef_update(p, HOLD, krs->current_tap, "GO_TO_MIN");
                 if (krs->dme_viol_handled) {
                     req_msg.ber_enable = TRUE;
@@ -1207,6 +1206,9 @@ static void kr_poll(meba_inst_t inst)
                 (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
             }
             fa_kr_reset_state(iport);
+            krs->ld_org_tap_val[CM1] = kr_sts.train.cm_ob_tap_result;
+            krs->ld_org_tap_val[CP1] = kr_sts.train.cp_ob_tap_result;
+            krs->ld_org_tap_val[C0] = kr_sts.train.c0_ob_tap_result;
         }
         // KR_TRAIN. Start Training
         if (kr_sts.irq.vector & KR_TRAIN) {

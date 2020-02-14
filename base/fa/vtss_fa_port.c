@@ -816,9 +816,12 @@ typedef enum {
     VTSS_KR_STS_MAX_TAP_DLY_BELOW_0,
     VTSS_KR_STS_MIN_TAP_DLY_ABOVE_31,
     VTSS_KR_STS_MAX_TAP_ADV_BELOW_0,
+    VTSS_KR_STS_MAX_TAP_ADV_ABOVE_15,
     VTSS_KR_STS_MIN_ADV_DLY_ABOVE_LIMIT,
     VTSS_KR_STS_MIN_ADV_DLY_OUT_OF_RANGE,
     VTSS_KR_STS_MIN_TAP_ADV_ABOVE_14,
+    VTSS_KR_STS_MAX_TAP_AMP_BELOW_48,
+    VTSS_KR_STS_MAX_TAP_AMP_ABOVE_94
 } vtss_port_kr_status_codes_t;
 
 const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
@@ -830,9 +833,12 @@ const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
     case VTSS_KR_STS_MAX_TAP_DLY_BELOW_0:     return "TAP_DLY_BELOW_0";
     case VTSS_KR_STS_MIN_TAP_DLY_ABOVE_31:    return "TAP_DLY_ABOVE_31";
     case VTSS_KR_STS_MAX_TAP_ADV_BELOW_0:     return "TAP_ADV_BELOW_0";
+    case VTSS_KR_STS_MAX_TAP_ADV_ABOVE_15:     return"TAP_ADV_ABOVE_15";
     case VTSS_KR_STS_MIN_ADV_DLY_ABOVE_LIMIT: return "SUM_ADV_DLY_ABOVE_LIMIT";
     case VTSS_KR_STS_MIN_ADV_DLY_OUT_OF_RANGE:return "SUM_ADV_DLY_OUT_OF_RANGE";
     case VTSS_KR_STS_MIN_TAP_ADV_ABOVE_14:    return "SUM_TAP_ADV_ABOVE_14";
+    case VTSS_KR_STS_MAX_TAP_AMP_BELOW_48:    return "TAP_DLY_BELOW_48";
+    case VTSS_KR_STS_MAX_TAP_AMP_ABOVE_94:    return "TAP_DLY_ABOVE_94";
     }
     return "?   ";
 }
@@ -1163,15 +1169,138 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
 
-    /* if (p == 0) { */
-    /*     if (verify_only) { */
-    /*         if (action != VTSS_COEF_HOLD) { */
-    /*             printf("p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s) \n", */
-    /*                    p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv, */
-    /*                    _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code)); */
-    /*         } */
-    /*     } */
-    /* } */
+    if ((tap == VTSS_COEF_PRESET) || (tap == VTSS_COEF_INIT)) {
+        status_out = (status << 4) | (status << 2) |  status;
+    } else if (tap == VTSS_COEF_CP1) {
+        status_out = status << 4;
+    } else if (tap == VTSS_COEF_C0) {
+        status_out = status << 2;
+    } else {
+        status_out = status;
+    }
+    
+    if (verify_only) {
+        if (action != VTSS_COEF_HOLD) {
+            if (status == VTSS_COEF_MINIMUM ||
+                status == VTSS_COEF_MAXIMUM) {
+                printf("p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s) \n",
+                       p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
+                       _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
+            }
+        }
+    }
+    
+    if (status == VTSS_COEF_MINIMUM ||
+        status == VTSS_COEF_MAXIMUM) {
+        return status_out; // Do not apply the new settings
+    }
+
+    if (!verify_only) {
+        *tap_dly = _tap_dly;
+        *pcs2pma = _pcs2pma;
+        *tap_adv = _tap_adv;
+    }
+
+    return status_out;
+}
+
+static vtss_port_kr_coef_status_t fa_coef_status_25g_get(u32 p, const u16 coef,
+                                                         u32 *amp_code, u32 *tap_dly, u32 *tap_adv, BOOL verify_only)
+{
+    int _amp_code = *amp_code, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
+    vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
+    vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
+    vtss_port_kr_coef_type_t tap = coef2tap(coef);
+    vtss_port_kr_coef_update_t action = coef2act(coef);
+    u16 status_out = 0;
+
+    switch (tap) {
+    case VTSS_COEF_PRESET:
+        _amp_code = 80;
+        _tap_adv = 0;
+        _tap_dly = 0;
+        break;
+    case VTSS_COEF_INIT:
+        _amp_code = 80;
+        _tap_adv = 4;
+        _tap_dly = 22;
+        break;
+    case VTSS_COEF_CP1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (0 <= _tap_dly && _tap_dly <= 31) {
+            if (action == VTSS_COEF_INCR) {
+                _tap_dly -= 2;
+            } else {
+                _tap_dly += 2;
+            }
+        } else {
+            VTSS_E("Should not occur (_tap_dly=%d)",_tap_dly);
+        }
+        if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_MAX_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_MIN_TAP_DLY_ABOVE_31;
+        }
+        break;
+    case VTSS_COEF_C0:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (48 <= _amp_code && _amp_code <= 94) {
+            if (action == VTSS_COEF_INCR) {
+                _amp_code += 1;
+            } else {
+                _amp_code -= 1;
+            }
+        } else {
+            VTSS_E("Should not occur (_amp_code=%d)",_amp_code);
+        }
+        if (_amp_code < 48) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_MAX_TAP_AMP_BELOW_48;
+        } else if (_amp_code > 94) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_MAX_TAP_AMP_ABOVE_94;
+        }
+        break;
+    case VTSS_COEF_CM1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (0 <= _tap_adv && _tap_adv <= 31) {
+            if (action == VTSS_COEF_INCR) {
+                _tap_adv -= 2;
+            } else {
+                _tap_adv += 2;
+            }
+        } else {
+            VTSS_E("Should not occur (_tap_adv=%d)",_tap_adv);
+        }
+        if (_tap_adv < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_MAX_TAP_ADV_BELOW_0;
+        } else if (_tap_adv > 15) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_MAX_TAP_ADV_ABOVE_15;
+        }
+        break;
+    default:{ VTSS_E("COEF tap not supported"); }
+    }
+
+
+    if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+        ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+               p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _amp_code,*amp_code,_tap_dly, *tap_dly, _tap_adv, *tap_adv,
+               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
+    }
 
     if ((tap == VTSS_COEF_PRESET) || (tap == VTSS_COEF_INIT)) {
         status_out = (status << 4) | (status << 2) |  status;
@@ -1182,7 +1311,18 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
     } else {
         status_out = status;
     }
-
+    
+    if (verify_only) {
+        if (action != VTSS_COEF_HOLD) {
+            if (status == VTSS_COEF_MINIMUM ||
+                status == VTSS_COEF_MAXIMUM) {
+                printf("p:%d Tap:%s Action:%s  _amp_code=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s) \n",
+                       p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _amp_code,*amp_code,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
+                       _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
+            }
+        }
+    }
+    
     if (status == VTSS_COEF_MINIMUM ||
         status == VTSS_COEF_MAXIMUM) {
         return status_out; // Do not apply the new settings
@@ -1190,7 +1330,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
 
     if (!verify_only) {
         *tap_dly = _tap_dly;
-        *pcs2pma = _pcs2pma;
+        *amp_code = _amp_code;
         *tap_adv = _tap_adv;
     }
 
@@ -1230,14 +1370,27 @@ static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
                                        u16 *const sts_out)
 {
 //    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    vtss_port_kr_coef_status_t sts_tmp;
+    u32 port = VTSS_CHIP_PORT(port_no);
+    vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
     vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
     u32 pcs2pma = st->pcs2pma, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
-    // Calculate next settings
-    (void)fa_coef_status_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 0);
-    // Verify calculated settings
-    sts_tmp = fa_coef_status_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 1);
+    if (VTSS_PORT_IS_10G(port)) {
+        // Calculate next settings
+        (void)fa_coef_status_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 0);
+        // Verify calculated settings
+        sts_tmp = fa_coef_status_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 1);
+    } else if (VTSS_PORT_IS_25G(port)) {
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_10G) {
+
+        } else {
+            // 25G Serdes in 25G mode
+            // Calculate next settings
+            (void)fa_coef_status_25g_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 0);
+            // Verify calculated settings
+            sts_tmp = fa_coef_status_25g_get(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, 1);
+        }
+    }
 
     if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED) {
         st->pcs2pma = pcs2pma;
@@ -1379,9 +1532,8 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
-    u32 irq, sts0, sts1, tr;
+    u32 irq, sts0, sts1, tr, val1, val2;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
     REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts1);
@@ -1400,9 +1552,19 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_TR_FAIL(tr) && */
     /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_STPROT(tr); */
 
-    status->train.c0_ob_tap_result = st->pcs2pma;
-    status->train.cm_ob_tap_result = st->tap_dly;
-    status->train.cp_ob_tap_result = st->tap_adv;
+    
+    u32 sd_indx, sd_type, sd_tgt;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
+
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt), &val1);
+    status->train.cm_ob_tap_result = (u16)val1;
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt), &val1);
+    status->train.cp_ob_tap_result = (u16)val1;
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt), &val1);
+    val1 = VTSS_X_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(val1) << 6;
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt), &val2);
+    status->train.c0_ob_tap_result = (u16)(val1 + val2);   
 
     REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
     status->train.frame_sent = tr;

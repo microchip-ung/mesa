@@ -723,8 +723,8 @@ static vtss_rc fa_10g_kr_vref_incr(vtss_state_t *vtss_state, u32 sd_tgt, u32 inc
 }
 static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, const vtss_debug_printf_t pr, u32 *height)
 {
-    u32 val, cnt = 0, vref;
-    u32 eye_res[140][10] = {0};
+    u32 val, cnt = 0;
+    u32 eye_res[10] = {0};
     u32 vref_cnt = 0;
     u32 top = 0;
     u32 bottom = 0;
@@ -733,14 +733,9 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, const 
     BOOL first = 1;
     u32 repeat;
 
-    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DB(sd_tgt), &vref);
-
-    for (u32 x = 0; x < 128; x++) {
-        for (u32 y = 0; y < 9; y++) {
-            eye_res[x][y] = 0xff;
-        }
+    for (u32 y = 0; y < 9; y++) {
+        eye_res[y] = 0xff;
     }
-
 
     while (TRUE) {
         cnt = 0;
@@ -753,24 +748,18 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, const 
             cnt++;
         }
 
-        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D3(sd_tgt), &eye_res[vref_cnt][2]);
+        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D3(sd_tgt), &eye_res[2]);
         if (bottom_found) {
-            if (eye_res[vref_cnt][2] != 0xFF) {
+            if (eye_res[2] != 0xFF) {
                 if (first) {
                     first = 0;
                     repeat = 10;
-                } else if (eye_res[vref_cnt][2] == 0) {
+                } else if (eye_res[2] == 0) {
                     repeat = 5;
                 } else {
                     repeat = 2;
                 }
                 fa_10g_kr_vref_incr(vtss_state, sd_tgt, repeat);
-
-                for (u32 x = 0; x < repeat; x++) {
-                    for (u32 y = 0; y < 9; y++) {
-                        eye_res[vref_cnt+x][y] = eye_res[vref_cnt][2];
-                    }
-                }
                 vref_cnt += repeat;
                 continue;
             } else {
@@ -778,12 +767,12 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, const 
                 vref_cnt += 2;
             }
         }
-        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D4(sd_tgt), &eye_res[vref_cnt][3]);
+        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D4(sd_tgt), &eye_res[3]);
 
         if (!bottom_found || !top_found) {
             u32 sum = 0;
             for (u16 a = 0; a < 8; a++) {
-                sum += eye_res[vref_cnt][a];
+                sum += eye_res[a];
             }
 
             if (!bottom_found && (sum != 2040)) {
@@ -1351,6 +1340,10 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
         if (ret_val != NULL) {
             *ret_val = height;
         }
+        if (pr != NULL) {
+            pr("Eye height = %d\n", height);
+        }
+
     } else {
         rc = fa_serdes_10g_eye_dimension(vtss_state, sd_tgt, &height, port_no);
         if (ret_val != NULL) {

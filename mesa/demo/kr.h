@@ -139,6 +139,7 @@ typedef struct {
     uint16_t  lp_tap_end_cnt[3];
     uint16_t  ld_tap_max_cnt[3];
     uint16_t  ld_tap_end_cnt[3];
+    uint16_t  ld_org_tap_val[3];
     uint32_t  tr_time_ld;
     uint32_t  tr_time_rd;
     struct timeval time_start;
