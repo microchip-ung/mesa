@@ -179,6 +179,9 @@ u32 vtss_to_pcs25g(u32 port)
 u32 vtss_to_sd10g_kr(u32 port)
 {
     u32 p = VTSS_PORT_DEV_INDX(port);
+    if (VTSS_PORT_IS_25G(port)) {
+        p += 12; // VTSS_TO_SD10G_KR covers 10G and 25G, where 25G starts index 12.
+    }
     switch (p) {
     case 0: return VTSS_TO_SD10G_KR_0;
     case 1: return VTSS_TO_SD10G_KR_1;
@@ -1178,7 +1181,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
     } else {
         status_out = status;
     }
-    
+
     if (verify_only) {
         if (action != VTSS_COEF_HOLD) {
             if (status == VTSS_COEF_MINIMUM ||
@@ -1189,7 +1192,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_get(u32 p, const u16 coef,
             }
         }
     }
-    
+
     if (status == VTSS_COEF_MINIMUM ||
         status == VTSS_COEF_MAXIMUM) {
         return status_out; // Do not apply the new settings
@@ -1311,7 +1314,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_25g_get(u32 p, const u16 coef,
     } else {
         status_out = status;
     }
-    
+
     if (verify_only) {
         if (action != VTSS_COEF_HOLD) {
             if (status == VTSS_COEF_MINIMUM ||
@@ -1322,7 +1325,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_25g_get(u32 p, const u16 coef,
             }
         }
     }
-    
+
     if (status == VTSS_COEF_MINIMUM ||
         status == VTSS_COEF_MAXIMUM) {
         return status_out; // Do not apply the new settings
@@ -1337,7 +1340,7 @@ static vtss_port_kr_coef_status_t fa_coef_status_25g_get(u32 p, const u16 coef,
     return status_out;
 }
 
-static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
 {
     u32 sd_indx, sd_type, sd_tgt;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
@@ -1358,6 +1361,79 @@ static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t
     REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
             VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(st->pcs2pma & 0x3F),
             VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
+
+    return VTSS_RC_OK;
+
+}
+
+static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
+{
+    if  (0 <= ampcode && ampcode < 16) {
+        *ipdriver = 6;
+        *vcdriver = ampcode;
+    } else if (16 <= ampcode && ampcode < 32) {
+        *ipdriver = 5;
+        *vcdriver = ampcode - 16;
+    } else if (32 <= ampcode && ampcode < 46) {
+        *ipdriver = 7;
+        *vcdriver = ampcode - 30;
+    } else if (46 <= ampcode && ampcode < 58) {
+        *ipdriver = 4;
+        *vcdriver = ampcode - 42;
+    } else if (58 <= ampcode && ampcode < 69) {
+        *ipdriver = 3;
+        *vcdriver = ampcode - 53;
+    } else if (69 <= ampcode && ampcode < 79) {
+        *ipdriver = 2;
+        *vcdriver = ampcode - 63;
+    } else if (79 <= ampcode && ampcode < 88) {
+        *ipdriver = 0;
+        *vcdriver = ampcode - 72;
+    } else if (88 <= ampcode && ampcode < 102) {
+        *ipdriver = 1;
+        *vcdriver = ampcode - 86;
+    }
+}
+
+static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
+
+    (void)kr_ampcode_2_drv(st->pcs2pma, &ipdriver, &vcdriver);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
+            VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
+            VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt),
+            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
+            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
+
+    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(st->tap_dly) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(st->tap_adv),
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV);
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (VTSS_PORT_IS_10G(port)) {
+        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, st));
+    } else {
+        VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, st));
+    }
 
     return VTSS_RC_OK;
 
@@ -1552,7 +1628,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_TR_FAIL(tr) && */
     /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_STPROT(tr); */
 
-    
+
     u32 sd_indx, sd_type, sd_tgt;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
     sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
@@ -1564,7 +1640,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt), &val1);
     val1 = VTSS_X_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(val1) << 6;
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt), &val2);
-    status->train.c0_ob_tap_result = (u16)(val1 + val2);   
+    status->train.c0_ob_tap_result = (u16)(val1 + val2);
 
     REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
     status->train.frame_sent = tr;
@@ -1608,12 +1684,14 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
 
     if (kr->aneg.enable) {
         /* AN Technology aneg field bit
-           LD_ADV1 bit 5 = 1000Base-KX,
-           LD_ADV1 bit 7 = 10GBase-KR */
+           LD_ADV1 bit 5  = 1000Base-KX,
+           LD_ADV1 bit 7  = 10GBase-KR
+           LD_ADV1 bit 15 = 25GBase-KR */
 
-        abil = kr->aneg.adv_10g ? VTSS_BIT(7) : 0;
+        abil = kr->aneg.adv_25g ? VTSS_BIT(15) : 0;
+        abil += kr->aneg.adv_10g ? VTSS_BIT(7) : 0;
         abil += kr->aneg.adv_1g ? VTSS_BIT(5) : 0;
-        REG_WRM(VTSS_IP_KRANEG_LD_ADV1(tgt), abil, VTSS_BIT(5) | VTSS_BIT(7));
+        REG_WRM(VTSS_IP_KRANEG_LD_ADV1(tgt), abil, VTSS_BIT(5) | VTSS_BIT(7) | VTSS_BIT(15));
 
         /* AN Technology aneg field bit
            LD_ADV2 bit 0 = 2.5G-KX,

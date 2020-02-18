@@ -147,6 +147,12 @@ typedef struct {
 } kr_train_t;
 
 typedef struct {
+    mesa_port_speed_t next_parallel_spd;
+    mesa_bool_t cap_25g;
+} kr_conf_t;
+
+
+typedef struct {
     
 } kr_aneg_t;
 

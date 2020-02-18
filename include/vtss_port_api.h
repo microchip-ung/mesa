@@ -784,6 +784,7 @@ typedef struct {
 /** \brief 10G KR Link Advertisement capability config */
 typedef struct {
     BOOL enable;           /**< 10G KR Autoneg enable  */
+    BOOL adv_25g;          /**< Advertise 25G          */
     BOOL adv_10g;          /**< Advertise 10G          */
     BOOL adv_5g;           /**< Advertise 5G           */
     BOOL adv_2g5;          /**< Advertise 2G5          */

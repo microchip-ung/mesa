@@ -1464,6 +1464,22 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
     return rc;
 }
 
+/*  In:  API port
+    Out: Index (sd_indx) of the Serdes:
+      0-12 for 6G ports
+      0-11 for 10G ports
+      0-7  for 25G ports
+    Out: Type (sd_type) of the Serdes:
+      FA_SERDES_TYPE_6G
+      FA_SERDES_TYPE_10G
+      FA_SERDES_TYPE_25G
+
+    To get target of SD_LANE which is numbered 0-33:
+    target = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_xxG_START)
+
+    On other targets indx can be used directly:
+    E.g. target = VTSS_TO_SD25G_LANE(sd_indx)
+ */
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
 {
     u32 p = VTSS_CHIP_PORT(port_no);

@@ -786,6 +786,7 @@ typedef struct {
 // 10G KR Link Advertisement capability config
 typedef struct {
     mesa_bool_t enable;   // 10G KR Autoneg enable
+    mesa_bool_t adv_25g;  // Advertise 25G
     mesa_bool_t adv_10g;  // Advertise 10G
     mesa_bool_t adv_5g;   // Advertise 5G
     mesa_bool_t adv_2g5;  // Advertise 2G5

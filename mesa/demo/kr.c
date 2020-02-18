@@ -34,10 +34,11 @@ typedef uint16_t u16;
 
 meba_inst_t meba_global_inst;
 kr_train_t kr_tr_state[100] = {0};
+kr_conf_t kr_conf_state[100] = {0};
 
 // For debug
 #define BUF_SIZE 1000000
-#define API_TEST 1
+#define API_TEST 0
 uint32_t my_limit = 2000;
 uint32_t my_cnt = 0;
 uint32_t coef_now[100][3];
@@ -189,6 +190,7 @@ typedef struct {
     mesa_bool_t train;
     mesa_bool_t eye;
     mesa_bool_t fec;
+    mesa_bool_t adv25g;
     mesa_bool_t adv10g;
     mesa_bool_t adv5g;
     mesa_bool_t adv2g5;
@@ -214,6 +216,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->adv5g = 1;
     } else if (!strncasecmp(found, "adv-10g", 7)) {
         mreq->adv10g = 1;
+    } else if (!strncasecmp(found, "adv-25g", 7)) {
+        mreq->adv25g = 1;
     } else if (!strncasecmp(found, "fec", 7)) {
         mreq->fec = 1;
     } else if (!strncasecmp(found, "train", 5)) {
@@ -264,6 +268,10 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
+                if (kr_conf_state[iport].cap_25g) {
+                    conf.aneg.adv_25g = mreq->adv25g || mreq->all;
+                }
+
                 conf.aneg.fec_abil = mreq->fec || mreq->all;
                 conf.aneg.fec_req = mreq->fec || mreq->all;
 
@@ -581,7 +589,7 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
 {
     struct timeval tv;
     int            s;
-    char buf[100] = {0}, *b;
+    char buf[200] = {0}, *b;
 
     kr_train_t *krs = &kr_tr_state[p];
 
@@ -647,17 +655,17 @@ static u32 get_time_ms(struct timeval *store)
 
 static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf_t *conf)
 {
-    if (conf->aneg.adv_10g && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_10G)) {
-        kr_tr_state[iport].next_parallel_spd = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    if (conf->aneg.adv_10g && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_10G)) {
+        kr_conf_state[iport].next_parallel_spd = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
         return MESA_SPEED_10G;
-    } else if (conf->aneg.adv_5g && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_5G)) {
-        kr_tr_state[iport].next_parallel_spd = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    } else if (conf->aneg.adv_5g && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_5G)) {
+        kr_conf_state[iport].next_parallel_spd = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
         return MESA_SPEED_5G;
-    } else if (conf->aneg.adv_2g5 && (kr_tr_state[iport].next_parallel_spd == MESA_SPEED_2500M)) {
-        kr_tr_state[iport].next_parallel_spd = MESA_SPEED_1G;
+    } else if (conf->aneg.adv_2g5 && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_2500M)) {
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_1G;
         return MESA_SPEED_2500M;
     } else  {
-        kr_tr_state[iport].next_parallel_spd = MESA_SPEED_10G;;
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_10G;;
         return MESA_SPEED_1G;
     }
 }
@@ -665,7 +673,7 @@ static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf
 static u32 get_api_eye_height(mesa_port_no_t p)
 {
     mesa_port_kr_eye_dim_t eye;
-
+    return 10;
     if (mesa_port_kr_eye_dim_get(NULL, p, &eye) == MESA_RC_OK) {
         return eye.height;
     } else {
@@ -1124,7 +1132,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     }
 
 }
-
+mesa_bool_t stop_all = 0;
 static void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
@@ -1135,7 +1143,11 @@ static void kr_poll(meba_inst_t inst)
     mesa_port_kr_fw_req_t req_msg = {0};
     kr_train_t *krs;
 
+    if (stop_all)
+        return;
+
     for (iport = 0; iport < meba_cnt; iport++) {
+
         if (mesa_port_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
             !kr.aneg.enable) {
             continue;
@@ -1154,15 +1166,15 @@ static void kr_poll(meba_inst_t inst)
             /* coef_max[1][C0]  = 17; */
             /* coef_max[1][CP1] = 22; */
 
+            for (u32 x = 0; x < 20; x++) {
+                coef_max[x][CM1] = 2;
+                coef_max[x][C0]  = 2;
+                coef_max[x][CP1] = 2;
 
-            coef_max[0][CM1] = 2;
-            coef_max[0][C0]  = 2;
-            coef_max[0][CP1] = 2;
-
-            coef_max[1][CM1] = 2;
-            coef_max[1][C0]  = 2;
-            coef_max[1][CP1] = 2;
-
+                coef_max[x][CM1] = 2;
+                coef_max[x][C0]  = 2;
+                coef_max[x][CP1] = 2;
+            }
 
             (void)gettimeofday(&start, NULL);
             first = 0;
@@ -1222,6 +1234,7 @@ static void kr_poll(meba_inst_t inst)
                 req_msg.mw_start = TRUE;
                 (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
                 (void)perform_lp_training(iport, KR_TRAIN);
+                stop_all = 1;
             } else {
                 krs->current_state = SEND_DATA;
                 krs->training_started = FALSE;
@@ -1423,7 +1436,7 @@ static void kr_poll_v2(meba_inst_t inst)
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [fec] [disable] [eyediag]",
+        "Port KR aneg [<port_list>] [all] [train] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [adv-25g] [fec] [disable] [eyediag]",
         "Set or show kr",
         cli_cmd_port_kr
     },
@@ -1478,6 +1491,13 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
+    {
+        "adv-25g",
+        "adv-25g: advertise 25g",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
     {
         "fec",
         "fec: advertise fec capability",
@@ -1539,12 +1559,19 @@ static void kr_init(meba_inst_t inst)
 {
     uint32_t              port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
     mesa_port_no_t        port_no;
+    meba_port_entry_t     meba;
 
     /* Store the meba inst globally */
     meba_global_inst = inst;
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
-        kr_tr_state[port_no].next_parallel_spd = MESA_SPEED_10G;
+        kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;
+
+        if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &meba) != MESA_RC_OK) {
+            continue;
+        }
+
+        kr_conf_state[port_no].cap_25g = (meba.cap & MEBA_PORT_CAP_25G_FDX) > 0 ? 1 : 0;
     }
 }
 
