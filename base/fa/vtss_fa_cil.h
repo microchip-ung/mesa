@@ -288,7 +288,8 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf);
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
-
+vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state, const vtss_port_no_t port_no, const u16 coef_in, u16 *const status_out);
+    
 
 /* Miscellaneous functions */
 vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -300,9 +301,6 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
                           const vtss_chip_no_t   chip_no,
                           const vtss_gpio_no_t   gpio_no,
                           const vtss_gpio_mode_t mode);
-vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info);
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock);
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr);

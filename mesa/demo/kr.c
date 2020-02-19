@@ -38,7 +38,7 @@ kr_conf_t kr_conf_state[100] = {0};
 
 // For debug
 #define BUF_SIZE 1000000
-#define API_TEST 0
+#define API_TEST 1
 uint32_t my_limit = 2000;
 uint32_t my_cnt = 0;
 uint32_t coef_now[100][3];
@@ -433,7 +433,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         cli_printf("Port %d\n",uport);
         cli_printf("  ANEG completed    : %s\n",sts.aneg.complete ? "Yes" : "No");
         cli_printf("  Speed             : %s\n",fa_kr_aneg_rate(sts.aneg.sts1 & 0xF));
-        cli_printf("  \n  This device training details:\n");
+        cli_printf("  This device training details:\n");
         cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
         cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap));
         cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
@@ -477,7 +477,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         cli_printf("  TRAINING TIME     : %d ms. (Remote is tuning Tx Serdes).\n",krs->tr_time_ld);
         cli_printf("  TRAINING STATUS   : %s\n",krs->current_state == SEND_DATA ? "OK" : "Failed");
 
-        cli_printf("\n  Remote device training details:\n");
+        cli_printf("  Remote device training details:\n");
         cli_printf("  LD CM1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CM1],krs->ld_tap_end_cnt[CM1]);
         cli_printf("  LD C0  MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[C0], krs->ld_tap_end_cnt[C0]);
         cli_printf("  LD CP1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CP1],krs->ld_tap_end_cnt[CP1]);
@@ -1132,7 +1132,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     }
 
 }
-mesa_bool_t stop_all = 0;
+
 static void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
@@ -1142,9 +1142,6 @@ static void kr_poll(meba_inst_t inst)
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
     mesa_port_kr_fw_req_t req_msg = {0};
     kr_train_t *krs;
-
-    if (stop_all)
-        return;
 
     for (iport = 0; iport < meba_cnt; iport++) {
 
@@ -1234,7 +1231,6 @@ static void kr_poll(meba_inst_t inst)
                 req_msg.mw_start = TRUE;
                 (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
                 (void)perform_lp_training(iport, KR_TRAIN);
-                stop_all = 1;
             } else {
                 krs->current_state = SEND_DATA;
                 krs->training_started = FALSE;

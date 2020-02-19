@@ -352,6 +352,1102 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+
+#define BT(x) (1 << (x))
+typedef struct {
+    u32  pcs2pma;
+    u32  tap_dly;
+    u32  tap_adv;
+} vtss_port_kr_temp_storage_t;
+
+vtss_port_kr_temp_storage_t kr_coef_store[VTSS_PORTS] = {0};
+
+const char *raw_sts2txt(u32 frm_in)
+{
+    u32 action = 0;
+
+    if ((frm_in & 0x3) > 0) {
+        action = frm_in & 0x3;
+    } else if ((frm_in & 0xc) > 0) {
+        action = (frm_in >> 2) & 3;
+    } else if ((frm_in & 0x30) > 0 ) {
+        action = (frm_in >> 4) & 3;
+    } else if ((frm_in & 0x3f) == 0 ) {
+        action = 0;
+    }
+    if (action == 0) {
+        return "NOT_UPDATED";
+    } else if (action == 1) {
+        return "UPDATED";
+    } else if (action == 2) {
+        return "MINUMUN";
+    } else if (action == 3) {
+        return "MAXIMUM";
+    }
+    return "?";
+}
+
+const vtss_port_kr_coef_status_t raw_sts2enum(u32 frm_in)
+{
+    u32 action = 0;
+
+    if ((frm_in & 0x3) > 0) {
+        action = frm_in & 0x3;
+    } else if ((frm_in & 0xc) > 0) {
+        action = (frm_in >> 2) & 3;
+    } else if ((frm_in & 0x30) > 0 ) {
+        action = (frm_in >> 4) & 3;
+    } else if ((frm_in & 0x3f) == 0 ) {
+        action = 0;
+    }
+    if (action == 0) {
+        return VTSS_COEF_NOT_UPDATED;
+    } else if (action == 1) {
+        return VTSS_COEF_UPDATED;
+    } else if (action == 2) {
+        return VTSS_COEF_MINIMUM;
+    } else if (action == 3) {
+        return VTSS_COEF_MAXIMUM;
+    }
+    return VTSS_COEF_NOT_UPDATED;
+}
+
+
+const char *vtss_kr_status2txt(vtss_port_kr_coef_status_t sts)
+{
+    switch (sts) {
+    case VTSS_COEF_NOT_UPDATED: return "NOT_UPDATED";
+    case VTSS_COEF_UPDATED:     return "UPDATED";
+    case VTSS_COEF_MINIMUM:     return "MINIMUM";
+    case VTSS_COEF_MAXIMUM:     return "MAXIMUM";
+    }
+    return "?   ";
+}
+
+const char *vtss_kr_upd2txt(vtss_port_kr_coef_update_t upd)
+{
+    switch (upd) {
+    case VTSS_COEF_HOLD: return "HOLD";
+    case VTSS_COEF_INCR: return "INCR";
+    case VTSS_COEF_DECR: return "DECR";
+    }
+    return "?   ";
+}
+
+const char *vtss_kr_coef2txt(vtss_port_kr_coef_type_t coef)
+{
+    switch (coef) {
+    case VTSS_COEF_PRESET: return "PRESET";
+    case VTSS_COEF_INIT:   return "INIT";
+    case VTSS_COEF_CP1:    return "CP1";
+    case VTSS_COEF_C0:     return "C0";
+    case VTSS_COEF_CM1:    return "CM1";
+    }
+    return "?   ";
+}
+
+typedef enum {
+    VTSS_KR_STS_UPDATED,
+    VTSS_KR_STS_PCS2PMA_BELOW_30,
+    VTSS_KR_STS_PCS2PMA_ABOVE_255,
+    VTSS_KR_STS_TAP_DLY_BELOW_0,
+    VTSS_KR_STS_TAP_DLY_ABOVE_31,
+    VTSS_KR_STS_TAP_ADV_BELOW_0,
+    VTSS_KR_STS_TAP_ADV_ABOVE_15,
+    VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT,
+    VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT,
+    VTSS_KR_STS_ADV_DLY_OUT_OF_RANGE,
+    VTSS_KR_STS_TAP_ADV_ABOVE_14,
+    VTSS_KR_STS_TAP_AMP_BELOW_48,
+    VTSS_KR_STS_AMP_CODE_BELOW_16,
+    VTSS_KR_STS_AMP_CODE_ABOVE_94,
+} vtss_port_kr_status_codes_t;
+
+const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
+{
+    switch (sts) {
+    case VTSS_KR_STS_UPDATED:             return "OK";
+    case VTSS_KR_STS_PCS2PMA_BELOW_30:    return "PCS2PMA_BELOW_30";
+    case VTSS_KR_STS_PCS2PMA_ABOVE_255:   return "PCS2PMA_ABOVE_255";
+    case VTSS_KR_STS_TAP_DLY_BELOW_0:     return "TAP_DLY_BELOW_0";
+    case VTSS_KR_STS_TAP_DLY_ABOVE_31:    return "TAP_DLY_ABOVE_31";
+    case VTSS_KR_STS_TAP_ADV_BELOW_0:     return "TAP_ADV_BELOW_0";
+    case VTSS_KR_STS_TAP_ADV_ABOVE_15:     return"TAP_ADV_ABOVE_15";
+    case VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT: return "SUM_ADV_DLY_ABOVE_LIMIT";
+    case VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT: return "TAP_ADV_ABOVE_LIMIT";
+    case VTSS_KR_STS_ADV_DLY_OUT_OF_RANGE:return "SUM_ADV_DLY_OUT_OF_RANGE";
+    case VTSS_KR_STS_TAP_ADV_ABOVE_14:    return "SUM_TAP_ADV_ABOVE_14";
+    case VTSS_KR_STS_TAP_AMP_BELOW_48:    return "TAP_DLY_BELOW_48";
+    case VTSS_KR_STS_AMP_CODE_BELOW_16:   return "AMP_CODE_BELOW_16";
+    case VTSS_KR_STS_AMP_CODE_ABOVE_94:   return "AMP_CODE_ABOVE_94";
+
+    }
+    return "?   ";
+}
+
+u32 cnt=0;
+
+static vtss_port_kr_coef_type_t coef2tap(u16 frm_in)
+{
+    if (BT(13) & frm_in) {
+        return VTSS_COEF_PRESET;
+    } else if (BT(12) & frm_in) {
+        return VTSS_COEF_INIT;
+    } else if ((frm_in & 0x3) > 0) {
+        return VTSS_COEF_CM1;
+    } else if ((frm_in & 0xc) > 0) {
+        return VTSS_COEF_C0;
+    } else if ((frm_in & 0x30) > 0 ) {
+        return VTSS_COEF_CP1;
+    }
+    return VTSS_COEF_CM1;
+}
+
+static vtss_port_kr_coef_update_t coef2act(u16 frm_in)
+{
+    u32 action = 0;
+
+    if ((frm_in & 0x3) > 0) {
+        action = frm_in & 0x3;
+    } else if ((frm_in & 0xc) > 0) {
+        action = (frm_in >> 2) & 3;
+    } else if  ((frm_in & 0x30) > 0 ) {
+        action = (frm_in >> 4) & 3;
+    } else if ((frm_in & 0xf) == 0 ) {
+        action = 0;
+    }
+
+    if (action == 1) {
+        return VTSS_COEF_INCR;
+    } else if (action == 2) {
+        return VTSS_COEF_DECR;
+    } else {
+        return VTSS_COEF_HOLD;
+    }
+}
+
+
+
+static vtss_port_kr_coef_status_t coef2sts(u16 frm_in)
+{
+    u16 action = 0;
+
+    if ((frm_in & 0xc) > 0) {
+        action = (frm_in >> 2) & 3;
+    } else if ((frm_in & 0x30) > 0) {
+        action = (frm_in >> 4) & 3;
+    } else if ((frm_in & 0x3) > 0) {
+        action = frm_in & 0x3;
+    }
+    if (action == 1) {
+        return VTSS_COEF_UPDATED;
+    } else if (action == 2) {
+        return VTSS_COEF_MINIMUM;
+    } else if (action == 3) {
+        return VTSS_COEF_MAXIMUM;
+    }
+    return VTSS_COEF_NOT_UPDATED;
+}
+
+static vtss_port_kr_coef_status_t sts2rawsts(vtss_port_kr_coef_type_t tap, vtss_port_kr_coef_status_t status)
+{
+    if ((tap == VTSS_COEF_PRESET) || (tap == VTSS_COEF_INIT)) {
+        return ((status << 4) | (status << 2) |  status);
+    } else if (tap == VTSS_COEF_CP1) {
+        return (status = status << 4);
+    } else if (tap == VTSS_COEF_C0) {
+        return (status = status << 2);
+    }
+    return status;
+}
+
+
+
+static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef_in,
+                                                           u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+{
+    u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
+    int _pcs2pma = *pcs2pma, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
+    vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
+    vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
+    vtss_port_kr_coef_type_t tap = coef2tap(coef_in);
+    vtss_port_kr_coef_update_t action = coef2act(coef_in);
+
+    switch (tap) {
+    case VTSS_COEF_PRESET:
+        _pcs2pma = 192;
+        _tap_adv = 0;
+        _tap_dly = 0;
+        break;
+    case VTSS_COEF_INIT:
+        _pcs2pma = 192;
+        _tap_adv = 4;
+        _tap_dly = 22;
+        break;
+    case VTSS_COEF_CP1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (30 <= _pcs2pma && _pcs2pma <= 75) {
+            if (0 <= _tap_dly && _tap_dly <= 11) {
+                dG  = 9;
+                dCd = 3;
+            } else if (12 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 6;
+                dCd = 2;
+            }
+        } else if (76 <= _pcs2pma && _pcs2pma <= 115) {
+            dG  = 7;
+            dCd = 2;
+        } else if (116 <= _pcs2pma && _pcs2pma <= 145) {
+            dG  = 9;
+            dCd = 2;
+        } else if (146 <= _pcs2pma && _pcs2pma <= 175) {
+            if (0 <= _tap_dly && _tap_dly <= 11) {
+                dG  = 10;
+                dCd = 2;
+            } else if (12 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 5;
+                dCd = 1;
+                tap_adv_max = 14;
+            }
+        } else if (176 <= _pcs2pma && _pcs2pma <= 199) {
+            if (0 <= _tap_dly && _tap_dly <= 11) {
+                dG  = 11;
+                dCd = 2;
+            } else if (12 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 5;
+                dCd = 1;
+                tap_adv_max = 14;
+            }
+        } else if (200 <= _pcs2pma && _pcs2pma <= 255) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 5;
+                dCd = 1;
+                tap_adv_max = 14;
+            }
+        } else {
+            VTSS_E("Should not occur (pcs2pma=%d)",_pcs2pma);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly - dCd : _tap_dly + dCd;
+            _pcs2pma = (action == VTSS_COEF_INCR) ? _pcs2pma - dG  : _pcs2pma + dG;
+        }
+
+        if (_pcs2pma < 30) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_BELOW_30;
+        } else if (_pcs2pma > 255) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_ABOVE_255;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if (_tap_adv > tap_adv_max) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_14;
+        }
+        break;
+    case VTSS_COEF_C0:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+
+        if (30 <= _pcs2pma && _pcs2pma <= 200) {
+            if (0 <= _tap_dly && _tap_dly <= 14) {
+                dG  = 12;
+                dCd = 0;
+            } else if (15 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 7;
+                dCd = 1;
+                tap_adv_max = 14;
+            }
+        } else if (201 <= _pcs2pma && _pcs2pma <= 255) {
+            if (0 <= _tap_dly && _tap_dly <= 14) {
+                dG  = 12;
+                dCd = 0;
+            } else if (15 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 5;
+                dCd = 1;
+                tap_adv_max = 14;
+            }
+        } else {
+            VTSS_E("Should not occur (pcs2pma=%d)",_pcs2pma);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly - dCd : _tap_dly + dCd;
+            _pcs2pma = (action == VTSS_COEF_INCR) ? _pcs2pma + dG  : _pcs2pma - dG;
+        }
+
+        if (_pcs2pma < 30) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_BELOW_30;
+        } else if (_pcs2pma > 255) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_ABOVE_255;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if (_tap_adv > tap_adv_max) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
+        }
+
+        break;
+    case VTSS_COEF_CM1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (30 <= _pcs2pma && _pcs2pma <= 75) {
+            if (0 <= _tap_dly && _tap_dly <= 11) {
+                dG  = 9;
+                dCa = 3;
+                dCd = 0;
+            } else if (12 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 6;
+                dCa = 3;
+                dCd = 1;
+            }
+        } else if (76 <= _pcs2pma && _pcs2pma <= 149) {
+            if (0 <= _tap_dly && _tap_dly <= 19) {
+                dG  = 7;
+                dCa = 2;
+                dCd = 0;
+            } else if (20 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 4;
+                dCa = 2;
+                dCd = 1;
+            }
+        } else if (150 <= _pcs2pma && _pcs2pma <= 187) {
+            if (0 <= _tap_dly && _tap_dly <= 13) {
+                dG  = 10;
+                dCa = 2;
+                dCd = 0;
+            } else if (14 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 6;
+                dCa = 2;
+                dCd = 1;
+            }
+        } else if (188 <= _pcs2pma && _pcs2pma <= 200) {
+            if (0 <= _tap_dly && _tap_dly <= 10) {
+                dG  = 10;
+                dCa = 2;
+                dCd = 0;
+            } else if (11 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 6;
+                dCa = 2;
+                dCd = 1;
+            }
+        } else if (201 <= _pcs2pma && _pcs2pma <= 220) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 12;
+                dCa = 2;
+                dCd = 0;
+                adv_dly_sum = 22;
+            }
+        } else if (221 <= _pcs2pma && _pcs2pma <= 255) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 12;
+                dCa = 2;
+                dCd = 0;
+                adv_dly_sum = 18;
+            }
+        } else {
+            VTSS_E("Should not occur (pcs2pma=%d)",_pcs2pma);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly + dCd : _tap_dly - dCd;
+            _pcs2pma = (action == VTSS_COEF_INCR) ? _pcs2pma - dG  : _pcs2pma + dG;
+            _tap_adv = (action == VTSS_COEF_INCR) ? _tap_adv - dCa : _tap_adv + dCa;
+        }
+        if (_pcs2pma < 30) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_BELOW_30;
+        } else if (_pcs2pma > 255) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_PCS2PMA_ABOVE_255;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if (_tap_adv < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_BELOW_0;
+        } else if ((_tap_adv + _tap_dly) >= adv_dly_sum) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
+        }
+
+        break;
+    default:{ VTSS_E("COEF tap not supported"); }
+    }
+
+    if (status == VTSS_COEF_UPDATED) {
+        // Common restrictions
+        if (250 <= _pcs2pma && _pcs2pma <= 214) {
+            if (_tap_adv + _tap_dly > 37) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (129 <= _pcs2pma && _pcs2pma <= 213) {
+            if (_tap_adv + _tap_dly > 36) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (77 <= _pcs2pma && _pcs2pma <= 128) {
+            if (_tap_adv + _tap_dly > 35) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (43 <= _pcs2pma && _pcs2pma <= 76) {
+            if (_tap_adv + _tap_dly > 34) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (30 <= _pcs2pma && _pcs2pma <= 42) {
+            if (_tap_adv + _tap_dly > 33) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        }
+        if (status != VTSS_COEF_UPDATED) {
+            sts_code = VTSS_KR_STS_ADV_DLY_OUT_OF_RANGE;
+        }
+    }
+
+    if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+        ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+               p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
+               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
+    }
+
+    *status_out = sts2rawsts(tap, status);
+    *tap_dly = _tap_dly;
+    *pcs2pma = _pcs2pma;
+    *tap_adv = _tap_adv;
+
+    return sts_code;
+}
+
+static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef_in,
+                                                          u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+{
+    int _amp_code = *amp_code, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
+    vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
+    vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
+    vtss_port_kr_coef_type_t tap = coef2tap(coef_in);
+    vtss_port_kr_coef_update_t action = coef2act(coef_in);
+
+    switch (tap) {
+    case VTSS_COEF_PRESET:
+        _amp_code = 80;
+        _tap_adv = 0;
+        _tap_dly = 0;
+        break;
+    case VTSS_COEF_INIT:
+        _amp_code = 80;
+        _tap_adv = 4;
+        _tap_dly = 22;
+        break;
+    case VTSS_COEF_CP1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (0 <= _tap_dly && _tap_dly <= 31) {
+            if (!verify_only) {
+                if (action == VTSS_COEF_INCR) {
+                    _tap_dly -= 2;
+                } else {
+                    _tap_dly += 2;
+                }
+            }
+        } else {
+            VTSS_E("Should not occur (_tap_dly=%d)",_tap_dly);
+        }
+        if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        }
+        break;
+    case VTSS_COEF_C0:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (48 <= _amp_code && _amp_code <= 94) {
+            if (!verify_only) {
+                if (action == VTSS_COEF_INCR) {
+                    _amp_code += 1;
+                } else {
+                    _amp_code -= 1;
+                }
+            }
+        } else {
+            VTSS_E("Should not occur (_amp_code=%d)",_amp_code);
+        }
+        if (_amp_code < 48) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_AMP_BELOW_48;
+        } else if (_amp_code > 94) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_ABOVE_94;
+        }
+        break;
+    case VTSS_COEF_CM1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (0 <= _tap_adv && _tap_adv <= 31) {
+            if (!verify_only) {
+                if (action == VTSS_COEF_INCR) {
+                    _tap_adv -= 2;
+                } else {
+                    _tap_adv += 2;
+                }
+            }
+        } else {
+            VTSS_E("Should not occur (_tap_adv=%d)",_tap_adv);
+        }
+        if (_tap_adv < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_BELOW_0;
+        } else if (_tap_adv > 15) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_15;
+        }
+        break;
+    default:{ VTSS_E("COEF tap not supported"); }
+    }
+
+    if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+        ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+               p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _amp_code,*amp_code,_tap_dly, *tap_dly, _tap_adv, *tap_adv,
+               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
+    }
+
+    *status_out = sts2rawsts(tap, status);
+    *tap_dly    = _tap_dly;
+    *amp_code   = _amp_code;
+    *tap_adv    = _tap_adv;
+
+    return sts_code;
+}
+
+static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 coef_in,
+                                                              u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+{
+    u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
+    int _amp_code = *amp_code, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
+    vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
+    vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
+    vtss_port_kr_coef_type_t tap = coef2tap(coef_in);
+    vtss_port_kr_coef_update_t action = coef2act(coef_in);
+
+    switch (tap) {
+    case VTSS_COEF_PRESET:
+        _amp_code = 80;
+        _tap_adv = 4;
+        _tap_dly = 22;
+        break;
+    case VTSS_COEF_INIT:
+        _amp_code = 80;
+        _tap_adv = 4;
+        _tap_dly = 22;
+        break;
+    case VTSS_COEF_CP1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (16 <= _amp_code && _amp_code <= 35) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 3;
+            }
+        } else if (36 <= _amp_code && _amp_code <= 48) {
+            if (0 <= _tap_dly && _tap_dly <= 9) {
+                dG  = 4;
+                dCd = 3;
+            } else if (10 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 2;
+            }
+        } else if (49 <= _amp_code && _amp_code <= 58) {
+            if (0 <= _tap_dly && _tap_dly <= 4) {
+                dG  = 4;
+                dCd = 3;
+            } else if (5 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 2;
+            }
+        } else if (59 <= _amp_code && _amp_code <= 66) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 2;
+            }
+        } else if (67 <= _amp_code && _amp_code <= 70) {
+            if (0 <= _tap_dly && _tap_dly <= 17) {
+                dG  = 3;
+                dCd = 2;
+            } else if (18 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 1;
+            }
+        } else if (71 <= _amp_code && _amp_code <= 76) {
+            if (0 <= _tap_dly && _tap_dly <= 18) {
+                dG  = 3;
+                dCd = 2;
+                adv_dly_sum = 28;
+            } else if (19 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 1;
+                adv_dly_sum = 28;
+            }
+        } else if (77 <= _amp_code && _amp_code <= 82) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 2;
+                adv_dly_sum = 28;
+            }
+        } else if (83 <= _amp_code && _amp_code <= 88) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 2;
+                adv_dly_sum = 17;
+            }
+        } else if (89 <= _amp_code && _amp_code <= 94) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 1;
+                dCd = 1;
+                tap_adv_max = 13;
+            }
+        } else {
+            VTSS_E("Should not occur (amp_code=%d)",_amp_code);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly - dCd : _tap_dly + dCd;
+            _amp_code = (action == VTSS_COEF_INCR) ? _amp_code - dG  : _amp_code + dG;
+        }
+        if (_amp_code < 16) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_BELOW_16;
+        } else if (_amp_code > 94) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_ABOVE_94;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if (_tap_adv > tap_adv_max) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
+        } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
+        }
+        break;
+    case VTSS_COEF_C0:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (16 <= _amp_code && _amp_code <= 28) {
+            if (0 <= _tap_dly && _tap_dly <= 12) {
+                dG  = 5;
+                dCd = 0;
+            } else if (13 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 5;
+                dCd = 1;
+            }
+        } else if (29 <= _amp_code && _amp_code <= 55) {
+            if (0 <= _tap_dly && _tap_dly <= 9) {
+                dG  = 4;
+                dCd = 0;
+            } else if (10 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCd = 1;
+            }
+        } else if (56 <= _amp_code && _amp_code <= 71) {
+            if (0 <= _tap_dly && _tap_dly <= 9) {
+                dG  = 3;
+                dCd = 0;
+            } else if (10 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 1;
+            }
+        } else if (72 <= _amp_code && _amp_code <= 78) {
+            if (0 <= _tap_dly && _tap_dly <= 12) {
+                dG  = 3;
+                dCd = 0;
+            } else if (13 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 1;
+            }
+        } else if (79 <= _amp_code && _amp_code <= 84) {
+            if (0 <= _tap_dly && _tap_dly <= 18) {
+                dG  = 3;
+                dCd = 0;
+                adv_dly_sum = 27;
+            } else if (19 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 1;
+            }
+        } else if (85 <= _amp_code && _amp_code <= 94) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCd = 0;
+                adv_dly_sum = 24;
+            }
+        } else {
+            VTSS_E("Should not occur (amp_code=%d)",_amp_code);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly - dCd : _tap_dly + dCd;
+            _amp_code = (action == VTSS_COEF_INCR) ? _amp_code + dG  : _amp_code - dG;
+        }
+        if (_amp_code < 16) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_BELOW_16;
+        } else if (_amp_code > 94) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_ABOVE_94;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
+        }
+        break;
+    case VTSS_COEF_CM1:
+        if (action == VTSS_COEF_HOLD) {
+            status = VTSS_COEF_NOT_UPDATED;
+            break;
+        }
+        if (16 <= _amp_code && _amp_code <= 47) {
+            if (0 <= _tap_dly && _tap_dly <= 8) {
+                dG  = 3;
+                dCa = 3;
+                dCd = 0;
+            } else if (9 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCa = 3;
+                dCd = 1;
+            }
+        } else if (48 <= _amp_code && _amp_code <= 53) {
+            if (0 <= _tap_dly && _tap_dly <= 8) {
+                dG  = 4;
+                dCa = 3;
+                dCd = 0;
+            } else if (9 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCa = 3;
+                dCd = 1;
+            }
+        } else if (54 <= _amp_code && _amp_code <= 69) {
+            if (0 <= _tap_dly && _tap_dly <= 20) {
+                dG  = 3;
+                dCa = 2;
+                dCd = 0;
+            } else if (31 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCa = 2;
+                dCd = 1;
+            }
+        } else if (70 <= _amp_code && _amp_code <= 74) {
+            if (0 <= _tap_dly && _tap_dly <= 17) {
+                dG  = 3;
+                dCa = 2;
+                dCd = 0;
+            } else if (18 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCa = 2;
+                dCd = 1;
+            }
+        } else if (75 <= _amp_code && _amp_code <= 82) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 3;
+                dCa = 2;
+                dCd = 0;
+                adv_dly_sum = 27;
+            }
+        } else if (83 <= _amp_code && _amp_code <= 90) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 2;
+                dCa = 2;
+                dCd = 0;
+                adv_dly_sum = 17;
+            }
+        } else if (91 <= _amp_code && _amp_code <= 94) {
+            if (0 <= _tap_dly && _tap_dly <= 31) {
+                dG  = 1;
+                dCa = 1;
+                dCd = 0;
+                tap_adv_max = 13;
+            }
+        } else {
+            VTSS_E("Should not occur (amp_code=%d)",_amp_code);
+        }
+        if (!verify_only) {
+            _tap_dly = (action == VTSS_COEF_INCR) ? _tap_dly + dCd : _tap_dly - dCd;
+            _amp_code = (action == VTSS_COEF_INCR) ? _amp_code - dG  : _amp_code + dG;
+            _tap_adv = (action == VTSS_COEF_INCR) ? _tap_adv - dCa : _tap_adv + dCa;
+        }
+        if (_amp_code < 16) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_BELOW_16;
+        } else if (_amp_code > 94) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_AMP_CODE_ABOVE_94;
+        } else if (_tap_dly < 0) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_BELOW_0;
+        } else if (_tap_dly > 31) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
+        } else if (_tap_adv < 0) {
+            status = VTSS_COEF_MAXIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_BELOW_0;
+        } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
+        } else if (_tap_adv > tap_adv_max) {
+            status = VTSS_COEF_MINIMUM;
+            sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
+        }
+
+        break;
+    default:{ VTSS_E("COEF tap not supported"); }
+    }
+
+    if (status == VTSS_COEF_UPDATED) {
+        // Common restrictions
+        if (94 <= _amp_code && _amp_code <= 86) {
+            if (_tap_adv + _tap_dly > 37) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (85 <= _amp_code && _amp_code <= 61) {
+            if (_tap_adv + _tap_dly > 36) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (60 <= _amp_code && _amp_code <= 44) {
+            if (_tap_adv + _tap_dly > 35) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (30 <= _amp_code && _amp_code <= 43) {
+            if (_tap_adv + _tap_dly > 34) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (18 <= _amp_code && _amp_code <= 29) {
+            if (_tap_adv + _tap_dly > 33) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        } else if (16 <= _amp_code && _amp_code <= 17) {
+            if (_tap_adv + _tap_dly > 32) {
+                status = VTSS_COEF_MINIMUM;
+            }
+        }
+        if (status != VTSS_COEF_UPDATED) {
+            sts_code = VTSS_KR_STS_ADV_DLY_OUT_OF_RANGE;
+        }
+    }
+
+    if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+        ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+        /* printf("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n", */
+        /*        p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv, */
+        /*        _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only); */
+    }
+
+    *status_out = sts2rawsts(tap, status);
+    *tap_dly    = _tap_dly;
+    *amp_code   = _amp_code;
+    *tap_adv    = _tap_adv;
+
+    return sts_code;;
+}
+
+
+static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 sd_indx, sd_type, sd_tgt;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0(st->tap_dly),
+            VTSS_M_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0(st->tap_adv),
+            VTSS_M_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(st->pcs2pma >> 6),
+            VTSS_M_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0);
+
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(st->pcs2pma & 0x3F),
+            VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
+
+    return VTSS_RC_OK;
+
+}
+
+static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
+{
+    if  (0 <= ampcode && ampcode < 16) {
+        *ipdriver = 6;
+        *vcdriver = ampcode;
+    } else if (16 <= ampcode && ampcode < 32) {
+        *ipdriver = 5;
+        *vcdriver = ampcode - 16;
+    } else if (32 <= ampcode && ampcode < 46) {
+        *ipdriver = 7;
+        *vcdriver = ampcode - 30;
+    } else if (46 <= ampcode && ampcode < 58) {
+        *ipdriver = 4;
+        *vcdriver = ampcode - 42;
+    } else if (58 <= ampcode && ampcode < 69) {
+        *ipdriver = 3;
+        *vcdriver = ampcode - 53;
+    } else if (69 <= ampcode && ampcode < 79) {
+        *ipdriver = 2;
+        *vcdriver = ampcode - 63;
+    } else if (79 <= ampcode && ampcode < 88) {
+        *ipdriver = 0;
+        *vcdriver = ampcode - 72;
+    } else if (88 <= ampcode && ampcode < 102) {
+        *ipdriver = 1;
+        *vcdriver = ampcode - 86;
+    }
+}
+
+static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
+
+    (void)kr_ampcode_2_drv(st->pcs2pma, &ipdriver, &vcdriver);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
+            VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
+            VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt),
+            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
+            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
+
+    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(st->tap_dly) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(st->tap_adv),
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV);
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (VTSS_PORT_IS_10G(port)) {
+        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, st));
+    } else {
+        VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, st));
+    }
+
+    return VTSS_RC_OK;
+
+}
+
+
+vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
+                          const vtss_port_no_t port_no,
+                          const u16 coef_in,
+                          u16 *const status_out)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+    vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
+    vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
+    vtss_port_kr_status_codes_t int_status;
+    u32 pcs2pma = st->pcs2pma, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
+
+    // 1. Calculate next settings based on coeficent request
+    // 2. Verify calculated settings
+    // 3. If status == UPDATED: Apply calculated settings to the Tx-EQ
+    // 4. Return Status report
+
+    if (VTSS_PORT_IS_10G(port)) {
+        int_status = fa_coef_status_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0); // 10G Calculate
+        if (int_status == VTSS_KR_STS_UPDATED) {
+            int_status = fa_coef_status_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1); // 10G Verify
+        }
+    } else {
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            int_status = fa_coef_status_25g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0); // 25G Calculate
+            if (int_status == VTSS_KR_STS_UPDATED) {
+                int_status = fa_coef_status_25g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1);// 25G Verify
+            }
+        } else  {
+            int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0);    // 25GSD@10G Calculate
+            if (int_status == VTSS_KR_STS_UPDATED) {
+                int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
+            }
+        }
+    }
+
+    if (coef2act(coef_in) != VTSS_COEF_HOLD) {
+        if (raw_sts2enum(sts_tmp) == VTSS_COEF_MINIMUM ||
+            raw_sts2enum(sts_tmp) == VTSS_COEF_MAXIMUM) {
+            printf("p:%d Tap:%s Action:%s. Amp_code:%d->%d, Tap_dly:%d->%d, Tap_adv:%d->%d, (tap_dly+tap_adv=%d) --> Status:%s (Reason:%s)\n",
+                   port_no, vtss_kr_coef2txt(coef2tap(coef_in)), vtss_kr_upd2txt(coef2act(coef_in)),
+                   st->pcs2pma, pcs2pma,
+                   st->tap_dly, tap_dly,
+                   st->tap_adv, tap_adv,
+                   tap_adv + tap_dly,
+                   raw_sts2txt(sts_tmp), vtss_kr_sts_code2txt(int_status));
+        }
+    }
+
+    if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED) {
+        st->pcs2pma = pcs2pma;
+        st->tap_dly = tap_dly;
+        st->tap_adv = tap_adv;
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, st)); // Apply the settings
+    }
+
+    *status_out = sts_tmp; // Return status report
+    return VTSS_RC_OK;
+}
+
+#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+
 static vtss_rc fa_serdes_dfe_set(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
 {
     u32 indx, type, sd_tgt, sd_lane_tgt = 0;

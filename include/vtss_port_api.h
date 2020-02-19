@@ -895,7 +895,7 @@ typedef enum {
     VTSS_COEF_INIT,
     VTSS_COEF_CP1,
     VTSS_COEF_C0,
-    VTSS_COEF_CM1
+    VTSS_COEF_CM1,
 } vtss_port_kr_coef_type_t;
 
 typedef enum {
