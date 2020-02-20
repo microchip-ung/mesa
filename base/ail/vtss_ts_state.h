@@ -16,7 +16,7 @@
 #define VTSS_VOE_ID_SIZE  VTSS_VOE_CNT
 #endif /* VTSS_ARCH_OCELOT */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)  /* TBD_HENRIKB */
 #define VTSS_TS_ID_SIZE  3 // tbd
 #define TS_IDS_RESERVED_FOR_SW 3
 #define TS_PORT_ID_PORT_NUMBER_DEFAULT 0x9ABC
@@ -29,7 +29,7 @@ typedef struct {
     vtss_ts_alt_clock_mode_t alt_clock_mode;
 #endif
     i32 adj[VTSS_TS_DOMAIN_ARRAY_SIZE];
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)    /* TBD_HENRIKB */
     vtss_timestamp_t sample_ts[VTSS_TS_DOMAIN_ARRAY_SIZE]; /* Sampled timestamp pr domain */
     u64              sample_tc[VTSS_TS_DOMAIN_ARRAY_SIZE]; /* Timecounter corresponding to sampled timestamp pr domain */
 #else
@@ -140,7 +140,7 @@ typedef struct {
     vtss_rc (* adjtimer_set)(struct vtss_state_s *vtss_state);
     vtss_rc (* domain_adjtimer_set)(struct vtss_state_s *vtss_state, u32 domain);
     vtss_rc (* freq_offset_get)(struct vtss_state_s *vtss_state, i32 *adj);
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_HENRIKB */
     vtss_rc (* alt_clock_saved_get)(struct vtss_state_s *vtss_state, u64 *saved);
     vtss_rc (* alt_clock_mode_set)(struct vtss_state_s *vtss_state);
     vtss_rc (* timeofday_next_pps_set)(struct vtss_state_s *vtss_state,
@@ -218,6 +218,14 @@ typedef struct {
 } vtss_ts_state_t;
 
 // internal function used in other part of the API
+vtss_rc vtss_timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add);
+vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub);
+vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano);
+vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
+vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts);
+vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts);
+BOOL    vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
+
 vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t              inst,
                                      const vtss_ts_id_t             *const ts_id);
 

@@ -40,57 +40,6 @@ SRVL_WRM(VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(pin),                     \
          VTSS_F_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG_PTP_PIN_SYNC |          \
          VTSS_F_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG_PTP_PIN_DOM);           \
 
-static vtss_rc timestampAddSec(vtss_timestamp_t *ts)
-{
-    if (ts->seconds == 0xffffffff) {
-        ts->sec_msb++;
-        ts->seconds = 0;
-    } else {
-        ts->seconds++;
-    }
-    return VTSS_RC_OK;
-}
-
-static vtss_rc timestampSubSec(vtss_timestamp_t *ts)
-{
-    if (ts->seconds == 0) {
-        ts->sec_msb--;
-        ts->seconds = 0xffffffff;
-    } else {
-        ts->seconds--;
-    }
-    return VTSS_RC_OK;
-}
-static vtss_rc timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add)
-{
-    ts->nanoseconds += ts_add->nanoseconds;
-    if (ts->nanoseconds >= HW_NS_PR_SEC) {
-        VTSS_RC(timestampAddSec(ts));
-        ts->nanoseconds -= HW_NS_PR_SEC;
-    }
-    ts->seconds += ts_add->seconds;
-    if (ts->seconds < ts_add->seconds) {
-        ts->sec_msb++;
-    }
-    ts->sec_msb += ts_add->sec_msb;
-    return VTSS_RC_OK;
-}
-
-static vtss_rc timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub)
-{
-    ts->sec_msb -= ts_sub->sec_msb;
-    if (ts->seconds < ts_sub->seconds) {
-        ts->sec_msb--;
-    }
-    ts->seconds -= ts_sub->seconds;
-    if (ts->nanoseconds < ts_sub->nanoseconds) {
-        VTSS_RC(timestampSubSec(ts));
-        ts->nanoseconds += HW_NS_PR_SEC;
-    }
-    ts->nanoseconds -= ts_sub->nanoseconds;
-    return VTSS_RC_OK;
-}
-
 /* No timestamper skew in Ocelot */
 #define TIMESTAMPER_SKEW 0
 
@@ -111,7 +60,7 @@ static vtss_rc ocelot_ts_io_pin_timeofday_get_no_action(vtss_state_t *vtss_state
     SRVL_RD(VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(io_pin), &value);
     ts->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC_PTP_TOD_NSEC(value);
     if (ts->nanoseconds >= 0x3ffffff0 && ts->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
-        VTSS_RC(timestampSubSec(ts));
+        VTSS_RC(vtss_timestampSubSec(ts));
         ts->nanoseconds = 999999984 + (ts->nanoseconds & 0xf);
     }
     return VTSS_RC_OK;
@@ -246,9 +195,9 @@ static vtss_rc srvl_ts_timeofday_set_delta(vtss_state_t *vtss_state,
 
         /* Calculate new time */
         if (negative){
-            VTSS_RC(timestampSub(&ts_prev, ts));
+            VTSS_RC(vtss_timestampSub(&ts_prev, ts));
         } else {
-            VTSS_RC(timestampAdd(&ts_prev, ts));
+            VTSS_RC(vtss_timestampAdd(&ts_prev, ts));
         }
         rc = srvl_ts_timeofday_set(vtss_state, &ts_prev);
 

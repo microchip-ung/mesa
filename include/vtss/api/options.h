@@ -46,7 +46,8 @@
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
-//#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
+#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
+#define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
@@ -77,7 +78,7 @@
 //#define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_PTP_RS422                    /**< Support for the RS422 serial/1PPS interface */
-//#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
+#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */

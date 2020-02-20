@@ -9,6 +9,163 @@
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
 
+#define HW_NS_PR_SEC 1000000000L
+
+vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts)
+{
+    if (ts->seconds == 0xffffffff) {
+        ts->sec_msb++;
+        ts->seconds = 0;
+    } else {
+        ts->seconds++;
+    }
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts)
+{
+    if (ts->seconds == 0) {
+        ts->sec_msb--;
+        ts->seconds = 0xffffffff;
+    } else {
+        ts->seconds--;
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc timestampSubNanosec(vtss_timestamp_t *ts)
+{
+    if (ts->nanoseconds == 0) {
+        VTSS_RC(vtss_timestampSubSec(ts));
+        ts->nanoseconds = HW_NS_PR_SEC-1;
+    } else {
+        ts->nanoseconds--;
+    }
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub)
+{
+    if (ts->nanosecondsfrac < ts_sub->nanosecondsfrac) {
+        VTSS_RC(timestampSubNanosec(ts));
+    }
+    ts->nanosecondsfrac -= ts_sub->nanosecondsfrac;
+
+    if (ts->nanoseconds < ts_sub->nanoseconds) {
+        VTSS_RC(vtss_timestampSubSec(ts));
+        ts->nanoseconds += HW_NS_PR_SEC;
+    }
+    ts->nanoseconds -= ts_sub->nanoseconds;
+
+    if (ts->seconds < ts_sub->seconds) {
+        ts->sec_msb--;
+    }
+    ts->seconds -= ts_sub->seconds;
+
+    ts->sec_msb -= ts_sub->sec_msb;
+
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add)
+{
+    ts->nanosecondsfrac += ts_add->nanosecondsfrac;
+    if (ts->nanosecondsfrac < ts_add->nanosecondsfrac) {
+        ts->nanoseconds++;
+    }
+
+    ts->nanoseconds += ts_add->nanoseconds;
+    if (ts->nanoseconds >= HW_NS_PR_SEC) {
+        VTSS_RC(vtss_timestampAddSec(ts));
+        ts->nanoseconds -= HW_NS_PR_SEC;
+    }
+
+    ts->seconds += ts_add->seconds;
+    if (ts->seconds < ts_add->seconds) {
+        ts->sec_msb++;
+    }
+
+    ts->sec_msb += ts_add->sec_msb;
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano)
+{
+    u64 seconds = nano / HW_NS_PR_SEC;
+    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 sec_32 = (u32)seconds;
+    u16 sec_msb = seconds >> 32;
+
+    ts->nanoseconds += nano_30;
+    if (ts->nanoseconds >= HW_NS_PR_SEC) {
+        VTSS_RC(vtss_timestampAddSec(ts));
+        ts->nanoseconds -= HW_NS_PR_SEC;
+    }
+
+    /* First 32 bits of seconds add to seconds */
+    ts->seconds += sec_32;
+    if (ts->seconds < seconds) {
+        ts->sec_msb++;
+    }
+
+    /* Above 32 bits of seconds add to MSB seconds */
+    ts->sec_msb += sec_msb;
+
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano)
+{
+    u64 seconds = nano / HW_NS_PR_SEC;
+    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 sec_32 = (u32)seconds;
+    u16 sec_msb = seconds >> 32;
+
+    if (ts->nanoseconds < nano_30) {
+        VTSS_RC(vtss_timestampSubSec(ts));
+        ts->nanoseconds += HW_NS_PR_SEC;
+    }
+    ts->nanoseconds -= nano_30;
+
+    if (ts->seconds < sec_32) {
+        ts->sec_msb--;
+    }
+    ts->seconds -= sec_32;
+
+    ts->sec_msb -= sec_msb;
+
+    return VTSS_RC_OK;
+}
+
+BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2)
+{
+    if (ts1->sec_msb > ts2->sec_msb) {
+        return TRUE;
+    }
+    if (ts1->sec_msb < ts2->sec_msb) {
+        return FALSE;
+    }
+    if (ts1->seconds > ts2->seconds) {
+        return TRUE;
+    }
+    if (ts1->seconds < ts2->seconds) {
+        return FALSE;
+    }
+    if (ts1->nanoseconds > ts2->nanoseconds) {
+        return TRUE;
+    }
+    if (ts1->nanoseconds < ts2->nanoseconds) {
+        return FALSE;
+    }
+    if (ts1->nanosecondsfrac > ts2->nanosecondsfrac) {
+        return TRUE;
+    }
+    if (ts1->nanosecondsfrac < ts2->nanosecondsfrac) {
+        return FALSE;
+    }
+    return FALSE;
+}
+
 /* Get the current time in a Timestamp format, and the corresponding time counter */
 vtss_rc vtss_ts_timeofday_get(const vtss_inst_t             inst,
                               vtss_timestamp_t              *const ts,

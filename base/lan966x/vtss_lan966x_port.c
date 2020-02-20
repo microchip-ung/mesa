@@ -484,6 +484,12 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         /* Notify QoS module about port configuration change */
         //TBD: VTSS_RC(vtss_srvl_qos_port_conf_change(vtss_state, port_no, port, link_speed));
     }
+
+#if defined(VTSS_FEATURE_QOS_TAS)
+    /* Time Aware Scheduling setup depends on link speed */
+    VTSS_RC(vtss_lan966x_qos_tas_port_conf_update(vtss_state, port_no));
+#endif
+
     return VTSS_RC_OK;
 }
 

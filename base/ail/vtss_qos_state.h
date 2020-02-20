@@ -374,6 +374,7 @@ typedef struct {
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x7F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           100
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0x3FFF+1)
@@ -381,14 +382,25 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW     (VTSS_QOS_TAS_GCL_LEN_MAX / VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK)    /* Number of blocks per row. A list must be able to fit into one row. So a row must have blocks to contain the maximum GCL */
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW    VTSS_QOS_TAS_GCL_LEN_MAX    /* Number of entries per row. This is also the maximum lengt of a list as a list mist be in one row */
 #define VTSS_TAS_NUMBER_OF_ROWS               (VTSS_TAS_NUMBER_OF_ENTRIES/VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW)   /* Number of rows */
+#endif
+
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_TAS_NUMBER_OF_LISTS              (0x1F+1)
+#define VTSS_TAS_NUMBER_OF_PROFILES           16
+#define VTSS_TAS_NUMBER_OF_ENTRIES            (0xFFF+1)
+#endif
 
 typedef struct {
     BOOL in_use;
     BOOL inherit_profile;
-    u32  entry_idx;
+    u32  entry_idx;         /* Point to the first list entry */
     u32  profile_idx;
     u32  hold_profile_idx;  /* Profile for FP hold MAC guard band */
 } vtss_tas_list_t;
+
+typedef struct {
+    BOOL in_use;
+} vtss_tas_list_entry;
 
 typedef struct {
     BOOL            in_use;
@@ -416,8 +428,12 @@ typedef struct {
 typedef struct {
     vtss_tas_list_t          tas_lists[VTSS_TAS_NUMBER_OF_LISTS];
     vtss_tas_profile_t       tas_profiles[VTSS_TAS_NUMBER_OF_PROFILES];
+#if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
+    vtss_tas_list_entry      tas_entries[VTSS_TAS_NUMBER_OF_ENTRIES];
+#else
     vtss_tas_entry_block_t   tas_entry_blocks[VTSS_TAS_NUMBER_OF_ROWS][VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW];
     vtss_tas_entry_row_t     tas_entry_rows[VTSS_TAS_NUMBER_OF_ROWS];
+#endif
     vtss_tas_gcl_state_t     tas_gcl_state[VTSS_PORT_ARRAY_SIZE];
 
     vtss_qos_tas_conf_t      global_conf;

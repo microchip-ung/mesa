@@ -51,61 +51,6 @@ JR2_WRM(VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(pin),                     \
          VTSS_M_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG_PTP_PIN_SYNC |          \
          VTSS_M_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG_PTP_PIN_DOM);           \
 
-
-
-
-static vtss_rc timestampAddSec(vtss_timestamp_t *ts)
-{
-    if (ts->seconds == 0xffffffff) {
-        ts->sec_msb++;
-        ts->seconds = 0;
-    } else {
-        ts->seconds++;
-    }
-    return VTSS_RC_OK;
-}
-
-static vtss_rc timestampSubSec(vtss_timestamp_t *ts)
-{
-    if (ts->seconds == 0) {
-        ts->sec_msb--;
-        ts->seconds = 0xffffffff;
-    } else {
-        ts->seconds--;
-    }
-    return VTSS_RC_OK;
-}
-
-static vtss_rc timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add)
-{
-    ts->nanoseconds += ts_add->nanoseconds;
-    if (ts->nanoseconds >= HW_NS_PR_SEC) {
-        VTSS_RC(timestampAddSec(ts));
-        ts->nanoseconds -= HW_NS_PR_SEC;
-    }
-    ts->seconds += ts_add->seconds;
-    if (ts->seconds < ts_add->seconds) {
-        ts->sec_msb++;
-    }
-    ts->sec_msb += ts_add->sec_msb;
-    return VTSS_RC_OK;
-}
-
-static vtss_rc timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub)
-{
-    ts->sec_msb -= ts_sub->sec_msb;
-    if (ts->seconds < ts_sub->seconds) {
-        ts->sec_msb--;
-    }
-    ts->seconds -= ts_sub->seconds;
-    if (ts->nanoseconds < ts_sub->nanoseconds) {
-        VTSS_RC(timestampSubSec(ts));
-        ts->nanoseconds += HW_NS_PR_SEC;
-    }
-    ts->nanoseconds -= ts_sub->nanoseconds;
-    return VTSS_RC_OK;
-}
-
 static vtss_rc jr2_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss_timestamp_t *ts, u64 *tc)
 {
     u32 value, tc_32;
@@ -115,7 +60,7 @@ static vtss_rc jr2_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vts
     JR2_RD(VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(io), &value);
     ts->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC_PTP_TOD_NSEC(value);
     if (ts->nanoseconds >= 0x3ffffff0 && ts->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
-        VTSS_RC(timestampSubSec(ts));
+        VTSS_RC(vtss_timestampSubSec(ts));
         ts->nanoseconds = 999999984 + (ts->nanoseconds & 0xf);
     }
     JR2_RD(VTSS_DEVCPU_PTP_PTP_PINS_PTP_NSF(io), &tc_32);
@@ -198,7 +143,7 @@ static vtss_rc jr2_ts_domain_timeofday_prev_pps_get(vtss_state_t *vtss_state, u3
 static vtss_rc jr2_ts_domain_timeofday_next_pps_get(vtss_state_t *vtss_state, u32 domain, vtss_timestamp_t *ts)
 {
     VTSS_RC(jr2_ts_domain_timeofday_prev_pps_get(vtss_state, domain, ts));
-    VTSS_RC(timestampAddSec(ts));
+    VTSS_RC(vtss_timestampAddSec(ts));
 
     VTSS_D("ts->sec_msb: %u, ts->seconds: %u, ts->nanoseconds: %u", ts->sec_msb, ts->seconds, ts->nanoseconds);
     return VTSS_RC_OK;
@@ -274,9 +219,9 @@ static vtss_rc jr2_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state, u32 d
 
         /* Calculate new time */
         if (negative){
-            VTSS_RC(timestampSub(&ts_prev, ts));
+            VTSS_RC(vtss_timestampSub(&ts_prev, ts));
         } else {
-            VTSS_RC(timestampAdd(&ts_prev, ts));
+            VTSS_RC(vtss_timestampAdd(&ts_prev, ts));
         }
 
         return jr2_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);

@@ -176,6 +176,19 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 
 #define LAN966X_PRIOS        8   /* Number of priorities */
 
+/* LAN966X has 4 PTP PIN connected to GPIO that can be used for different purposes, the defines below defines the
+ * default usage of the 4 pins.
+ */
+/* PIN configuration for external clock */
+#define EXT_CLK_PIN 1               /* external clock 1 pps output */
+
+/* PIN configuration for alternative clock */
+#define ALT_LDST_PIN 2              /* alternative clock 1 pps input (Load/Store) */
+#define ALT_PPS_PIN  3              /* alternative clock 1pps pulse */
+
+/* The last PTP pin is not connected to GPIO but can be used for TOD access */
+#define TOD_ACC_PIN 4               /* pin used for timeofday get/set */
+
 /* ================================================================= *
  *  Common functions
  * ================================================================= */
@@ -233,6 +246,8 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
+                                              const vtss_port_no_t  port_no);
 
 // TS API
 vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
