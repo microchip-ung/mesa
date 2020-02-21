@@ -916,10 +916,17 @@ typedef enum {
     VTSS_COEF_MAXIMUM = 3
 } vtss_port_kr_coef_status_t;
 
+typedef struct {
+    u16 cm1;
+    u16 c0;
+    u16 cp1;
+    u16 status;
+} vtss_port_kr_status_results_t;
+
 vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const u16 coef,
-                                  u16 *const sts);
+                                  vtss_port_kr_status_results_t *const sts);
 
 /** \brief 10G KR eye info */
 typedef struct {

@@ -105,12 +105,31 @@ typedef enum {
     LOCAL_RX_TRAINED
 } ber_stage_t;
 
+typedef enum {
+    HOLD = 0,
+    INCR = 1,
+    DECR = 2,
+    INIT = 0x1000,
+    PRESET = 0x2000
+} kr_coefficient_t;
+
+typedef enum {
+    NOT_UPDATED = 0,
+    UPDATED = 1,
+    MINIMUM = 2,
+    MAXIMUM = 3,
+} kr_status_report_t;
 
 typedef enum {
     CM1,
     C0,
     CP1,
 } kr_tap_t;
+
+typedef struct {
+    mesa_port_kr_status_results_t res;
+    kr_coefficient_t coef;
+} kr_coef_t;
 
 typedef struct {
     train_state_t current_state;
@@ -144,6 +163,8 @@ typedef struct {
     uint32_t  tr_time_rd;
     struct timeval time_start;
     mesa_port_kr_status_t status;
+    kr_coef_t coef_hist[100];
+    uint16_t hist_index;
 } kr_train_t;
 
 typedef struct {
@@ -155,22 +176,6 @@ typedef struct {
 typedef struct {
     
 } kr_aneg_t;
-
-
-typedef enum {
-    HOLD = 0,
-    INCR = 1,
-    DECR = 2,
-    INIT = 0x1000,
-    PRESET = 0x2000
-} kr_coefficient_t;
-
-typedef enum {
-    NOT_UPDATED = 0,
-    UPDATED = 1,
-    MINIMUM = 2,
-    MAXIMUM = 3,
-} kr_status_report_t;
 
 
 #endif /* _MSCC_APPL_PORT_H_ */

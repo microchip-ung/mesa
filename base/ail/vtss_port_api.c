@@ -1323,7 +1323,7 @@ vtss_rc vtss_port_kr_train_frm_set(const vtss_inst_t inst,
 vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const u16 coef,
-                                  u16 *const sts)
+                                  vtss_port_kr_status_results_t *const sts)
 {
    vtss_state_t *vtss_state;
    vtss_rc      rc;

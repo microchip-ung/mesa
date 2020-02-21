@@ -861,10 +861,18 @@ typedef enum {
     MESA_COEF_MAXIMUM = 3
 } mesa_port_kr_coef_status_t CAP(PORT_10GBASE_KR_V3);
 
+typedef struct {
+    uint16_t cm1;
+    uint16_t c0;
+    uint16_t cp1;
+    uint16_t status;
+} mesa_port_kr_status_results_t CAP(PORT_10GBASE_KR_V3);
+
+
 mesa_rc mesa_port_kr_coef_set(const mesa_inst_t inst,
-                                  const mesa_port_no_t port_no,
-                                  const uint16_t coef,
-                                  uint16_t *const sts)
+                              const mesa_port_no_t port_no,
+                              const uint16_t coef,
+                              mesa_port_kr_status_results_t *const sts)
     CAP(PORT_10GBASE_KR_V3);
 
 /** \brief 10G KR eye info */

@@ -374,7 +374,7 @@ typedef struct {
     vtss_rc (* kr_coef_set)(struct vtss_state_s *vtss_state,
                             const vtss_port_no_t port_no,
                             const u16 coef_in,
-                            u16 *const sts_out);
+                            vtss_port_kr_status_results_t *const sts);
 
     vtss_rc (* kr_eye_dim)(struct vtss_state_s *vtss_state,
                            const vtss_port_no_t port_no,

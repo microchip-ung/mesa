@@ -774,7 +774,8 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
                                        const u16 coef_in,
-                                       u16 *const sts_out)
+                                       vtss_port_kr_status_results_t *const sts_out
+                                       )
 {
 
     if (vtss_state->port.current_speed[port_no] != VTSS_SPEED_10G &&
@@ -862,6 +863,24 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->start_training){
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            u32 indx, type, sd_tgt;
+            VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
+            sd_tgt = VTSS_TO_SD25G_LANE(indx);
+            printf("fw_req->start_training");
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(5),
+                    VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+        }
+        
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
@@ -872,6 +891,23 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            u32 indx, type, sd_tgt;
+            VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
+            sd_tgt = VTSS_TO_SD25G_LANE(indx);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
+                    VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+        }
     }
 
     if (fw_req->training_failure) {
@@ -901,8 +937,9 @@ static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   vtss_port_kr_eye_dim_t *const eye)
 {
-    eye->height = 10;
+    eye->height = 3;
     u32 action = vtss_state->port.kr_conf[port_no].train.eye_diag ? 10 : 3;
+//    return VTSS_RC_OK;
     return fa_kr_eye_height(vtss_state,  port_no, action, &eye->height);
 }
 

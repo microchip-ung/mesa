@@ -172,6 +172,83 @@ char *sts2txt(kr_status_report_t vector)
     }
 }
 
+static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
+{
+    u32 action = 0;
+
+    if (BT(13) & frm_in) {
+        sprintf(tap_out, "PRESET ");
+        sprintf(action_out, "PRESET ");
+        return;
+    }
+    if (BT(12) & frm_in) {
+        tap_out += sprintf(tap_out, "INIT ");
+        action_out += sprintf(action_out, "INIT ");
+        return;
+    }
+    if ((frm_in & 0x3) > 0) {
+        tap_out += sprintf(tap_out, "CM1 ");
+        action = frm_in & 0x3;
+    }
+    if ((frm_in & 0xc) > 0) {
+        tap_out += sprintf(tap_out, "C0 ");
+        action = (frm_in >> 2) & 3;
+    }
+    if ((frm_in & 0x30) > 0 ) {
+        tap_out += sprintf(tap_out, "CP1 ");
+        action = (frm_in >> 4) & 3;
+    }
+    if ((frm_in & 0x3f) == 0 ) {
+        tap_out += sprintf(tap_out, "ANY ");
+        action = 0;
+    }
+
+    if (action == 1) {
+        sprintf(action_out, "INCR");
+    } else if (action == 2) {
+        sprintf(action_out, "DECR");
+    } else {
+        sprintf(action_out, "HOLD");
+    }
+}
+
+
+static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)
+{
+    u32 action = 0;
+
+    if (BT(15) & frm_in) {
+        sprintf(tap_out, "RX READY ");
+    }
+    if ((frm_in & 0x3) > 0) {
+        tap_out += sprintf(tap_out, "CM1 ");
+        action = frm_in & 0x3;
+    }
+    if ((frm_in & 0xc) > 0) {
+        tap_out += sprintf(tap_out, "C0 ");
+        action = (frm_in >> 2) & 3;
+    }
+    if ((frm_in & 0x30) > 0 ) {
+        tap_out += sprintf(tap_out, "CP1 ");
+        action = (frm_in >> 4) & 3;
+    }
+    if ((frm_in & 0x3f) == 0 ) {
+        tap_out += sprintf(tap_out, "ANY ");
+        action = 0;
+    }
+
+    if (action == 0) {
+        sprintf(action_out, "NOT_UPDATED");
+    } else if (action == 1) {
+        sprintf(action_out, "UPDATED");
+    } else if (action == 2) {
+        sprintf(action_out, "MIN");
+    } else if (action == 3) {
+        sprintf(action_out, "MAX");
+    }
+}
+
+
 /* ================================================================= *
  *  CLI
  * ================================================================= */
@@ -197,6 +274,7 @@ typedef struct {
     mesa_bool_t adv1g;
     uint32_t    value;
     mesa_bool_t dis;
+    mesa_bool_t hist;
 } port_cli_req_t;
 
 
@@ -228,6 +306,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->all = 1;
     } else if (!strncasecmp(found, "disable", 3)) {
         mreq->dis = 1;
+    } else if (!strncasecmp(found, "hist", 3)) {
+        mreq->hist = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -399,6 +479,50 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     return "other";
 }
 
+static void kr_dump_tr_history(cli_req_t *req)
+{
+    mesa_port_no_t          uport, iport;
+    mesa_port_kr_conf_t     kr;
+    kr_train_t              *krs;
+    uint16_t                cp1, cm1, c0;
+    mesa_bool_t             first = TRUE;
+    port_cli_req_t          *mreq = req->module_req;
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0) {
+            continue;
+        }
+        if (mesa_port_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
+            !kr.aneg.enable) {
+            continue;
+        }
+
+        krs = &kr_tr_state[uport];
+
+        cli_printf("Port %d: (%d)\n",uport,kr_tr_state[uport].hist_index);
+        for (uint16_t indx = 0; indx < kr_tr_state[uport].hist_index; indx++) {
+            char coef_tap[20] = {0};
+            char coef_act[20] = {0};
+            (void)raw_coef2txt(krs->coef_hist[indx].coef, coef_tap, coef_act);
+            char sts_res[20] = {0};
+            char sts_tap[20] = {0};
+            (void)raw_sts2txt(krs->coef_hist[indx].res.status, sts_tap, sts_res);
+            cp1 = krs->coef_hist[indx].res.cp1;
+            cm1 = krs->coef_hist[indx].res.cm1;
+            c0 = krs->coef_hist[indx].res.c0;
+            if (first) {
+                cli_printf("%-4s%-8s%-8s%-8s%-8s%-8s%-8s\n","","TAP","CMD","CM1","Ampl","CP1","Status");
+                first = FALSE;
+            }
+            if (!mreq->all && (krs->coef_hist[indx].coef == 0)) {
+                continue; // Skip the HOLD cmd
+            }
+            cli_printf("%-4d%-8s%-8s%-8d%-8d%-8d%-8s\n", indx, coef_tap, coef_act, cm1, c0, cp1, sts_res);
+        }
+    }    
+}
+
 static void cli_cmd_port_kr_status(cli_req_t *req)
 {
     mesa_port_no_t          uport, iport;
@@ -414,7 +538,13 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
 
     if (mreq->all) {
         printf("Txt buffer:\n%s\n",txt_buffer);
+    } 
+
+    if (mreq->hist) {
+        kr_dump_tr_history(req);
+        return;
     }
+
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
@@ -508,83 +638,6 @@ static char *coef2txt(uint32_t vector)
     return "INVALID";
 }
 
-static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
-{
-    u32 action = 0;
-
-    if (BT(13) & frm_in) {
-        sprintf(tap_out, "PRESET ");
-        sprintf(action_out, "PRESET ");
-        return;
-    }
-    if (BT(12) & frm_in) {
-        tap_out += sprintf(tap_out, "INIT ");
-        action_out += sprintf(action_out, "INIT ");
-        return;
-    }
-    if ((frm_in & 0x3) > 0) {
-        tap_out += sprintf(tap_out, "CM1 ");
-        action = frm_in & 0x3;
-    }
-    if ((frm_in & 0xc) > 0) {
-        tap_out += sprintf(tap_out, "C0 ");
-        action = (frm_in >> 2) & 3;
-    }
-    if ((frm_in & 0x30) > 0 ) {
-        tap_out += sprintf(tap_out, "CP1 ");
-        action = (frm_in >> 4) & 3;
-    }
-    if ((frm_in & 0x3f) == 0 ) {
-        tap_out += sprintf(tap_out, "ANY ");
-        action = 0;
-    }
-
-    if (action == 1) {
-        sprintf(action_out, "INCR");
-    } else if (action == 2) {
-        sprintf(action_out, "DECR");
-    } else {
-        sprintf(action_out, "HOLD");
-    }
-}
-
-
-static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)
-{
-    u32 action = 0;
-
-    if (BT(15) & frm_in) {
-        sprintf(tap_out, "RX READY ");
-    }
-    if ((frm_in & 0x3) > 0) {
-        tap_out += sprintf(tap_out, "CM1 ");
-        action = frm_in & 0x3;
-    }
-    if ((frm_in & 0xc) > 0) {
-        tap_out += sprintf(tap_out, "C0 ");
-        action = (frm_in >> 2) & 3;
-    }
-    if ((frm_in & 0x30) > 0 ) {
-        tap_out += sprintf(tap_out, "CP1 ");
-        action = (frm_in >> 4) & 3;
-    }
-    if ((frm_in & 0x3f) == 0 ) {
-        tap_out += sprintf(tap_out, "ANY ");
-        action = 0;
-    }
-
-    if (action == 0) {
-        sprintf(action_out, "not_updated");
-    } else if (action == 1) {
-        sprintf(action_out, "updated");
-    } else if (action == 2) {
-        sprintf(action_out, "MINIMUM");
-    } else if (action == 3) {
-        sprintf(action_out, "MAXIMUM");
-    }
-}
-
-
 static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
 {
     struct timeval tv;
@@ -673,7 +726,7 @@ static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf
 static u32 get_api_eye_height(mesa_port_no_t p)
 {
     mesa_port_kr_eye_dim_t eye;
-    return 10;
+
     if (mesa_port_kr_eye_dim_get(NULL, p, &eye) == MESA_RC_OK) {
         return eye.height;
     } else {
@@ -769,28 +822,39 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
 }
 
 
+void kr_add_to_history(mesa_port_no_t p, kr_coefficient_t coef, mesa_port_kr_status_results_t res)
+{
+    kr_train_t *krs = &kr_tr_state[p];
+    if (krs->hist_index < 100) {
+        krs->coef_hist[krs->hist_index].coef = coef;
+        krs->coef_hist[krs->hist_index].res = res;
+        krs->hist_index++;
+    }
+}
+
 static uint16_t coef2status_api(mesa_port_no_t p, uint16_t data)
 {
-    uint16_t status;
+    mesa_port_kr_status_results_t res;
     kr_train_t *krs = &kr_tr_state[p];
     kr_coefficient_t coef = data;
     kr_tap_t tap = 0;
     kr_status_report_t sts = 0;
 
-    mesa_port_kr_coef_set(NULL, p, data, &status);
+    mesa_port_kr_coef_set(NULL, p, data, &res);
+    kr_add_to_history(p, data, res);
 
     if (((data & INIT)) == 0 && ((data & PRESET) == 0)) {
         if (((data >> 4) & 0x3) > 0) {
             coef = (data >> 4) & 0x3;
-            sts = (status >> 4) & 0x3;
+            sts = (res.status >> 4) & 0x3;
             tap = CP1;
         } else if (((data >> 2) & 0x3) > 0) {
             coef = (data >> 2) & 0x3;
-            sts = (status >> 2) & 0x3;
+            sts = (res.status >> 2) & 0x3;
             tap = C0;
         } else {
             coef = data & 0x3;
-            sts = status & 0x3;
+            sts = res.status & 0x3;
             tap = CM1;
         }
     }
@@ -811,15 +875,15 @@ static uint16_t coef2status_api(mesa_port_no_t p, uint16_t data)
     (void)raw_coef2txt(data, coef_tap, coef_act);
     char sts_tap[20] = {0};
     char sts_act[20] = {0};
-    (void)raw_sts2txt(status, sts_tap, sts_act);
+    (void)raw_sts2txt(res.status, sts_tap, sts_act);
 
     if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
-        status += BT(15);
+        res.status += BT(15);
     }
 
     kr_printf("       (UPD)TAP:%s Action:%s -> Status:%s/ %s\n", coef_tap, coef_act, sts_tap, sts_act);
 
-    return status;
+    return res.status;
 }
 
 static uint16_t update_coef(kr_coefficient_t ld, kr_tap_t tap)
@@ -1204,7 +1268,6 @@ static void kr_poll(meba_inst_t inst)
                 kr_sts.irq.vector &= ~KR_REM_RDY_0;
                 kr_sts.irq.vector &= ~KR_FRLOCK_0;
             }
-
         }
 
         // KR_AN_XMIT_DISABLE. Aneg is restarted.
@@ -1437,7 +1500,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr
     },
     {
-        "Port KR status [<port_list>] [all]",
+        "Port KR status [<port_list>] [all] [hist]",
         "Show status",
         cli_cmd_port_kr_status
     },
@@ -1518,7 +1581,12 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
-
+    {
+        "hist",
+        "hist: dum the training history",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
     {
         "pr",
         "print out",

@@ -356,7 +356,7 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
 
 #define BT(x) (1 << (x))
 typedef struct {
-    u32  pcs2pma;
+    u32  amplitude;
     u32  tap_dly;
     u32  tap_adv;
 } vtss_port_kr_temp_storage_t;
@@ -1273,9 +1273,9 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 
 
     if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
         ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
-        /* printf("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n", */
-        /*        p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv, */
-        /*        _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only); */
+        printf("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n",
+               p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv,
+               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only);
     }
 
     *status_out = sts2rawsts(tap, status);
@@ -1302,11 +1302,11 @@ static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
             VTSS_M_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0);
 
     REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(st->pcs2pma >> 6),
+            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(st->amplitude >> 6),
             VTSS_M_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0);
 
     REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(st->pcs2pma & 0x3F),
+            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(st->amplitude & 0x3F),
             VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
 
     return VTSS_RC_OK;
@@ -1349,7 +1349,7 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
     sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
 
-    (void)kr_ampcode_2_drv(st->pcs2pma, &ipdriver, &vcdriver);
+    (void)kr_ampcode_2_drv(st->amplitude, &ipdriver, &vcdriver);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
             VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
@@ -1390,34 +1390,34 @@ static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
-                          u16 *const status_out)
+                          vtss_port_kr_status_results_t *const status_out)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
     vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
     vtss_port_kr_status_codes_t int_status;
-    u32 pcs2pma = st->pcs2pma, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
+    u32 amplitude = st->amplitude, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
-    // 1. Calculate next settings based on coeficent request
+    // 1. Calculate next settings based on coeficent request INIT/PRESET/INCR/DECR
     // 2. Verify calculated settings
     // 3. If status == UPDATED: Apply calculated settings to the Tx-EQ
     // 4. Return Status report
 
     if (VTSS_PORT_IS_10G(port)) {
-        int_status = fa_coef_status_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0); // 10G Calculate
+        int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 10G Calculate
         if (int_status == VTSS_KR_STS_UPDATED) {
-            int_status = fa_coef_status_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1); // 10G Verify
+            int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1); // 10G Verify
         }
     } else {
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            int_status = fa_coef_status_25g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0); // 25G Calculate
+            int_status = fa_coef_status_25g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 25G Calculate
             if (int_status == VTSS_KR_STS_UPDATED) {
-                int_status = fa_coef_status_25g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1);// 25G Verify
+                int_status = fa_coef_status_25g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25G Verify
             }
-        } else  {
-            int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 0);    // 25GSD@10G Calculate
+        } else { // 25GSD @ 10G
+            int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0);    // 25GSD@10G Calculate
             if (int_status == VTSS_KR_STS_UPDATED) {
-                int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &pcs2pma, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
+                int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
             }
         }
     }
@@ -1425,24 +1425,27 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     if (coef2act(coef_in) != VTSS_COEF_HOLD) {
         if (raw_sts2enum(sts_tmp) == VTSS_COEF_MINIMUM ||
             raw_sts2enum(sts_tmp) == VTSS_COEF_MAXIMUM) {
-            printf("p:%d Tap:%s Action:%s. Amp_code:%d->%d, Tap_dly:%d->%d, Tap_adv:%d->%d, (tap_dly+tap_adv=%d) --> Status:%s (Reason:%s)\n",
-                   port_no, vtss_kr_coef2txt(coef2tap(coef_in)), vtss_kr_upd2txt(coef2act(coef_in)),
-                   st->pcs2pma, pcs2pma,
-                   st->tap_dly, tap_dly,
-                   st->tap_adv, tap_adv,
-                   tap_adv + tap_dly,
-                   raw_sts2txt(sts_tmp), vtss_kr_sts_code2txt(int_status));
+            /* printf("p:%d Tap:%s Action:%s. Amp_code:%d->%d, Tap_dly:%d->%d, Tap_adv:%d->%d, (tap_dly+tap_adv=%d) --> Status:%s (Reason:%s)\n", */
+            /*        port_no, vtss_kr_coef2txt(coef2tap(coef_in)), vtss_kr_upd2txt(coef2act(coef_in)), */
+            /*        st->amplitude, amplitude, */
+            /*        st->tap_dly, tap_dly, */
+            /*        st->tap_adv, tap_adv, */
+            /*        tap_adv + tap_dly, */
+            /*        raw_sts2txt(sts_tmp), vtss_kr_sts_code2txt(int_status)); */
         }
     }
 
     if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED) {
-        st->pcs2pma = pcs2pma;
+        st->amplitude = amplitude;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
         VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, st)); // Apply the settings
     }
 
-    *status_out = sts_tmp; // Return status report
+    status_out->status = sts_tmp; // Return status report
+    status_out->cm1 = tap_adv;
+    status_out->cp1 = tap_dly;
+    status_out->c0 = amplitude; 
     return VTSS_RC_OK;
 }
 
@@ -1959,8 +1962,7 @@ static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
     return VTSS_RC_OK;
 }
 
-
-static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt, const vtss_debug_printf_t pr, u32 action)
+static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt, u32 *height, vtss_port_no_t port_no)
 {
     u32 val, cnt = 0;
 
@@ -1984,22 +1986,22 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
         return VTSS_RC_ERROR;
     }
     REG_RD(VTSS_SD25G_TARGET_LANE_D0(sd_tgt), &val);
-    if (action == 3) {
-        pr("Eye height = %d\n",val);
-    } else {
-        pr("Eye area = %d\n",val);
-    }
+    *height = val;
+
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
                                        const vtss_debug_printf_t pr,
                                        u32 action,
-                                       vtss_port_no_t port_no)
+                                       vtss_port_no_t port_no,
+                                       u32 *ret_val,
+                                       BOOL ignore_error)
 {
 
     u32 sd_type, indx, sd_tgt, val, dfe_pd, dfedmx_pd;
     u32 rstn_dfedig;
+    vtss_rc rc = VTSS_RC_OK;
 
     /* Map API port to Serdes instance */
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type));
@@ -2068,11 +2070,39 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
     }
 
 
+    u32 height = 0;
     if (action == 2) {
         VTSS_RC(fa_serdes_25g_normal_eye(vtss_state, sd_tgt, pr));
+    } else if (action == 10) {
+        /* VTSS_RC(fa_serdes_25g_kr_eye(vtss_state, sd_tgt, pr, &height)); */
+        /* if (ret_val != NULL) { */
+        /*     *ret_val = height; */
+        /* } */
+        /* if (pr != NULL) { */
+        /*     pr("Eye height = %d\n", height); */
+        /* } */
     } else {
-        VTSS_RC(fa_serdes_25g_eye_dimension(vtss_state, sd_tgt, pr, action));
+        rc = fa_serdes_25g_eye_dimension(vtss_state, sd_tgt, &height, port_no);
+        if (ret_val != NULL) {
+            *ret_val = height;
+        }
+        if (pr != NULL) {
+            if (rc == VTSS_RC_ERROR) {
+                if (!ignore_error) {
+                    VTSS_E("Eye scan fails to complete");
+                }
+            } else {
+                pr("Eye height = %d\n", height);
+            }
+        }
     }
+
+    
+    /* if (action == 2) { */
+    /*     VTSS_RC(fa_serdes_25g_normal_eye(vtss_state, sd_tgt, pr)); */
+    /* } else { */
+    /*     VTSS_RC(fa_serdes_25g_eye_dimension(vtss_state, sd_tgt, pr, action)); */
+    /* } */
 
     // Disable eye scan
     REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd_tgt),
@@ -2518,7 +2548,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
         if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
             VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
-            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action, port_no));
+            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         } else {
             pr("port %d  not supported",port_no);
             return VTSS_RC_OK;
@@ -2550,12 +2580,13 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
                          u32 action,
                          u32 *ret_val)
 {
-    u32 indx = 0, sd_type = 0;
-    vtss_rc rc;
+    vtss_rc rc = VTSS_RC_OK;
 
-    (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type);
-
-    rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+    if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
+        rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+    } else {
+        rc = fa_serdes_25g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+    }
 
     return rc;
 }

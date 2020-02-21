@@ -288,7 +288,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf);
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
-vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state, const vtss_port_no_t port_no, const u16 coef_in, u16 *const status_out);
+vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
+                          const vtss_port_no_t port_no,
+                          const u16 coef_in,
+                          vtss_port_kr_status_results_t *const status_out);
     
 
 /* Miscellaneous functions */
