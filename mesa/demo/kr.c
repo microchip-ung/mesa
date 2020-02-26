@@ -32,52 +32,52 @@
 typedef uint32_t u32;
 typedef uint16_t u16;
 
+#define PORTS 60
 meba_inst_t meba_global_inst;
-kr_train_t kr_tr_state[100] = {0};
-kr_conf_t kr_conf_state[100] = {0};
+kr_train_t kr_tr_state[PORTS] = {0};
+kr_conf_t kr_conf_state[PORTS] = {0};
 
 // For debug
 #define BUF_SIZE 1000000
 #define API_TEST 1
-uint32_t my_limit = 2000;
-uint32_t my_cnt = 0;
-uint32_t coef_now[100][3];
-uint32_t coef_max[100][3] = {0};
-uint32_t coef_min = 0;
-char txt_buffer[BUF_SIZE] = {0};
-mesa_bool_t skip_training[100] = {0};
-mesa_bool_t log_in_mem = 1;
+uint32_t deb_dump_irq = 0;
+uint32_t deb_my_limit = 2000;
+uint32_t deb_my_cnt = 0;
+uint32_t deb_coef_now[PORTS][3];
+uint32_t deb_coef_max[PORTS][3] = {0};
+uint32_t deb_coef_min = 0;
+char deb_txt_buffer[BUF_SIZE] = {0};
+mesa_bool_t deb_skip_training[PORTS] = {0};
+mesa_bool_t deb_log_in_mem = 1;
 struct timeval start;
 u32 first = 1;
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
-
-mesa_bool_t kr_mw_done = 0;
 
 void kr_printf(const char *fmt, ...)
 {
     va_list ap;
     char local_buf[1024];
 
-    if (my_cnt >= my_limit) {
+    if (deb_my_cnt >= deb_my_limit) {
         return;
     }
-    my_cnt++;
+    deb_my_cnt++;
     va_start(ap, fmt);
     vsnprintf(local_buf, 1024, fmt, ap);
     va_end(ap);
-    if (!log_in_mem) {
+    if (!deb_log_in_mem) {
         printf("%s",local_buf);
     } else {
-        if (strlen(txt_buffer) + strlen(local_buf) > BUF_SIZE) {
-            sprintf(txt_buffer + strlen(txt_buffer),"Buffer overflow");
+        if (strlen(deb_txt_buffer) + strlen(local_buf) > BUF_SIZE) {
+            sprintf(deb_txt_buffer + strlen(deb_txt_buffer),"Buffer overflow");
             printf("Buffer overflow\n");
         } else {
-            sprintf(txt_buffer + strlen(txt_buffer),"%s",local_buf);
+            sprintf(deb_txt_buffer + strlen(deb_txt_buffer),"%s",local_buf);
         }
 
-        if (my_limit > 0 && (my_cnt == (my_limit-1))) {
-            sprintf(txt_buffer + strlen(txt_buffer),"Text output disabled\n");
+        if (deb_my_limit > 0 && (deb_my_cnt == (deb_my_limit-1))) {
+            sprintf(deb_txt_buffer + strlen(deb_txt_buffer),"Text output disabled\n");
         }
 
     }
@@ -275,6 +275,7 @@ typedef struct {
     uint32_t    value;
     mesa_bool_t dis;
     mesa_bool_t hist;
+    mesa_bool_t irq;
 } port_cli_req_t;
 
 
@@ -308,6 +309,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->dis = 1;
     } else if (!strncasecmp(found, "hist", 3)) {
         mreq->hist = 1;
+    } else if (!strncasecmp(found, "irq", 3)) {
+        mreq->irq = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -324,11 +327,9 @@ static void cli_cmd_port_kr(cli_req_t *req)
     mesa_port_no_t        uport, iport;
     port_cli_req_t        *mreq = req->module_req;
 
-    kr_mw_done = 0;
-
     if (BASE_KR_V3) {
         mesa_port_kr_conf_t conf = {0};
-        memset(txt_buffer, 0, BUF_SIZE);
+        memset(deb_txt_buffer, 0, BUF_SIZE);
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
             uport = iport2uport(iport);
             if (req->port_list[uport] == 0) {
@@ -358,7 +359,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
-                my_cnt = 0;
+                deb_my_cnt = 0;
             } else {
                 cli_printf("Port: %d\n", uport);
                 cli_printf("  KR aneg: %s\n", conf.aneg.enable ? "Enabled" : "Disabled");
@@ -389,16 +390,23 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
 static void cli_cmd_port_kr_debug(cli_req_t *req)
 {
+    port_cli_req_t          *mreq = req->module_req;
 
-    if (my_limit == 0) {
-        printf("Debug enabled\n");
-        memset(txt_buffer, 0, BUF_SIZE);
-        my_limit = 10000;
-        my_cnt = 0;
+    if (mreq->irq) {
+        deb_dump_irq = !deb_dump_irq;
+        printf("IRQ debug %s\n",deb_dump_irq ? "enabled" : "disabled");
+        return;
+    }
+
+    if (deb_my_limit == 0) {
+        printf("Logging enabled\n");
+        memset(deb_txt_buffer, 0, BUF_SIZE);
+        deb_my_limit = 10000;
+        deb_my_cnt = 0;
     } else {
-        printf("Debug disabled\n");
-        my_limit = 0;
-        my_cnt = 0;
+        printf("Loggin disabled\n");
+        deb_my_limit = 0;
+        deb_my_cnt = 0;
     }
 }
 
@@ -485,6 +493,7 @@ static void kr_dump_tr_history(cli_req_t *req)
     mesa_port_kr_conf_t     kr;
     kr_train_t              *krs;
     uint16_t                cp1, cm1, c0;
+    uint32_t                dt;
     mesa_bool_t             first = TRUE;
     port_cli_req_t          *mreq = req->module_req;
 
@@ -498,10 +507,13 @@ static void kr_dump_tr_history(cli_req_t *req)
             continue;
         }
 
-        krs = &kr_tr_state[uport];
-
-        cli_printf("Port %d: (%d)\n",uport,kr_tr_state[uport].hist_index);
-        for (uint16_t indx = 0; indx < kr_tr_state[uport].hist_index; indx++) {
+        krs = &kr_tr_state[iport];
+        if (kr_tr_state[iport].hist_index == 0) {
+            continue;
+        }
+        first = TRUE;
+        cli_printf("\nPort %d:\n",iport,kr_tr_state[iport]);
+        for (uint16_t indx = 0; indx < kr_tr_state[iport].hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
             (void)raw_coef2txt(krs->coef_hist[indx].coef, coef_tap, coef_act);
@@ -511,14 +523,16 @@ static void kr_dump_tr_history(cli_req_t *req)
             cp1 = krs->coef_hist[indx].res.cp1;
             cm1 = krs->coef_hist[indx].res.cm1;
             c0 = krs->coef_hist[indx].res.c0;
+            dt = krs->coef_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-8s%-8s%-8s%-8s%-8s%-8s\n","","TAP","CMD","CM1","Ampl","CP1","Status");
+                cli_printf("%-4s%-8s%-8s%-8s%-8s%-8s%-10s%-8s\n","","TAP","CMD","CM1","Ampl","CP1","Status","Time (ms)");
+                cli_printf("    ---------------------------------------------------------\n");
                 first = FALSE;
             }
             if (!mreq->all && (krs->coef_hist[indx].coef == 0)) {
                 continue; // Skip the HOLD cmd
             }
-            cli_printf("%-4d%-8s%-8s%-8d%-8d%-8d%-8s\n", indx, coef_tap, coef_act, cm1, c0, cp1, sts_res);
+            cli_printf("%-4d%-8s%-8s%-8d%-8d%-8d%-10s%-8d\n", indx, coef_tap, coef_act, cm1, c0, cp1, sts_res, dt);
         }
     }    
 }
@@ -537,7 +551,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
     }
 
     if (mreq->all) {
-        printf("Txt buffer:\n%s\n",txt_buffer);
+        printf("Txt buffer:\n%s\n",deb_txt_buffer);
     } 
 
     if (mreq->hist) {
@@ -602,8 +616,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
             cli_printf("%d ",krs->eye_height[2][i]);
         }
-        cli_printf("\n  FINAL EYE HEIGHT  : %d\n",krs->final_eye_height);
-        cli_printf("  TRAINING FRMS SENT: %d\n",krs->frm_sent);
+        cli_printf("  \nTRAINING FRMS SENT: %d\n",krs->frm_sent);
         cli_printf("  TRAINING TIME     : %d ms. (Remote is tuning Tx Serdes).\n",krs->tr_time_ld);
         cli_printf("  TRAINING STATUS   : %s\n",krs->current_state == SEND_DATA ? "OK" : "Failed");
 
@@ -649,7 +662,7 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
     if (vector == 0) {
         return;
     }
-    if (my_cnt > my_limit) {
+    if (deb_my_cnt > deb_my_limit) {
         return;
     }
     (void)gettimeofday(&tv, NULL);
@@ -691,6 +704,10 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
     }
 
     kr_printf("%s\n",buf);
+
+    if (deb_dump_irq) {
+        printf("%s\n",buf);
+    }
 
 }
 
@@ -756,20 +773,20 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
     }
 
     if (coef == INIT) {
-        coef_now[p][CM1] = coef_max[p][CM1] / 2;
-        coef_now[p][CP1] = coef_max[p][CP1] / 2;
-        coef_now[p][C0]  = coef_max[p][C0] / 2;
+        deb_coef_now[p][CM1] = deb_coef_max[p][CM1] / 2;
+        deb_coef_now[p][CP1] = deb_coef_max[p][CP1] / 2;
+        deb_coef_now[p][C0]  = deb_coef_max[p][C0] / 2;
         status = UPDATED;
     } else if (coef == PRESET) {
-        coef_now[p][CM1] = coef_max[p][CM1] / 2;
-        coef_now[p][CP1] = coef_max[p][CP1] / 2;
-        coef_now[p][C0]  = coef_max[p][C0] / 2;
+        deb_coef_now[p][CM1] = deb_coef_max[p][CM1] / 2;
+        deb_coef_now[p][CP1] = deb_coef_max[p][CP1] / 2;
+        deb_coef_now[p][C0]  = deb_coef_max[p][C0] / 2;
         status = UPDATED;
     } else if (coef == HOLD) {
         status = NOT_UPDATED;
     } else if (coef == INCR) {
-        if (coef_now[p][tap] < coef_max[p][tap]) {
-            coef_now[p][tap]++;
+        if (deb_coef_now[p][tap] < deb_coef_max[p][tap]) {
+            deb_coef_now[p][tap]++;
             status = UPDATED;
         } else {
             status = MAXIMUM;
@@ -780,8 +797,8 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
         }
 
     } else if (coef == DECR) {
-        if (coef_now[p][tap] > coef_min) {
-            coef_now[p][tap]--;
+        if (deb_coef_now[p][tap] > deb_coef_min) {
+            deb_coef_now[p][tap]--;
             status = UPDATED;
         } else {
             status = MINIMUM;
@@ -825,10 +842,11 @@ static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
 void kr_add_to_history(mesa_port_no_t p, kr_coefficient_t coef, mesa_port_kr_status_results_t res)
 {
     kr_train_t *krs = &kr_tr_state[p];
-    if (krs->hist_index < 100) {
+    if (krs->hist_index < 200) {
         krs->coef_hist[krs->hist_index].coef = coef;
         krs->coef_hist[krs->hist_index].res = res;
         krs->hist_index++;
+        krs->coef_hist[krs->hist_index].time = get_time_ms(&krs->time_start);
     }
 }
 
@@ -994,15 +1012,15 @@ static u32 get_best_eye(u32 p, kr_tap_t tap)
 }
 
 
-static kr_tap_t next_tap(kr_tap_t tap)
+static kr_tap_t next_tap(kr_tap_t tap, mesa_bool_t first)
 {
+    if (first) {
+        return CM1;
+    }
     switch (tap) {
-    case CM1:
-        return C0;
-    case C0:
-        return CP1;
-    case CP1:
-        return 0;
+    case CM1: return CP1;
+    case CP1: return C0;
+    case C0:  return C0;
     }
     return 0;
 }
@@ -1039,7 +1057,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     kr_status_report_t lp_status = 0;
     mesa_port_kr_fw_req_t req_msg = {0};
 
-    if (skip_training[p]) {
+    if (deb_skip_training[p]) {
         krs->ber_training_stage = LOCAL_RX_TRAINED;
         return;
     }
@@ -1050,7 +1068,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
     if (irq == KR_TRAIN) {
         send_coef_update(p, INIT, krs->current_tap, "KR_TRAIN");
         krs->ber_training_stage = GO_TO_MIN;
-        krs->current_tap = CM1;
+        krs->current_tap = next_tap(0, 1);
         return;
     }
 
@@ -1106,7 +1124,7 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
             krs->ber_busy = FALSE;
             krs->ber_cnt[krs->current_tap][krs->tap_idx] = krs->status.train.frame_errors;
             kr_printf("       (LPT)GET_EYE 1 (%d ms)\n",get_time_ms(&krs->time_start));
-            krs->ignore_fail = TRUE;
+            krs->ignore_fail = TRUE; // The eye procedure causes KR failures
             krs->eye_height[krs->current_tap][krs->tap_idx] = get_api_eye_height(p);
             kr_printf("       (LPT)GET_EYE 2 (%d ms)\n",get_time_ms(&krs->time_start));
             if (krs->tap_max_reached) {
@@ -1161,21 +1179,19 @@ static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
         break;
     case MOVE_TO_MID_MARK:
         if (irq == KR_LPSVALID) {
-            if (lp_status == UPDATED) {
+            krs->ignore_fail = FALSE;
+            if (lp_status == UPDATED || lp_status == MINIMUM) {
                 send_coef_update(p, HOLD, krs->current_tap, "MOVE_TO_MID");
                 if (krs->decr_cnt > 0) {
                     krs->decr_cnt--;
                 }
-                if (krs->decr_cnt == 0) {
-                    if (krs->current_tap == CP1) {
+                if (krs->decr_cnt == 0 || lp_status == MINIMUM) {
+                    if (krs->current_tap == next_tap(krs->current_tap, 0)) {
                         krs->ber_training_stage = LOCAL_RX_TRAINED;
                         krs->frm_sent = krs->status.train.frame_sent;
                         kr_printf("       (LPT)LOCAL_RX_TRAINED\n");
-                        for (u32 i = 0; ((i < 3) && (krs->final_eye_height < 10)); i++) {
-                            krs->final_eye_height = get_api_eye_height(p);
-                        }
                     } else {
-                        krs->current_tap = next_tap(krs->current_tap);
+                        krs->current_tap = next_tap(krs->current_tap, 0);
                         kr_printf("       (LPT)Next tap:%s\n",tap2txt(krs->current_tap));
                         krs->ber_training_stage = GO_TO_MIN;
                     }
@@ -1218,23 +1234,23 @@ static void kr_poll(meba_inst_t inst)
 
             // For debug purposes
 
-            skip_training[0] = 0;
-            /* coef_max[0][CM1] = 3; */
-            /* coef_max[0][C0]  = 17; */
-            /* coef_max[0][CP1] = 22; */
+            deb_skip_training[0] = 0;
+            /* deb_coef_max[0][CM1] = 3; */
+            /* deb_coef_max[0][C0]  = 17; */
+            /* deb_coef_max[0][CP1] = 22; */
 
-            /* coef_max[1][CM1] = 3; */
-            /* coef_max[1][C0]  = 17; */
-            /* coef_max[1][CP1] = 22; */
+            /* deb_coef_max[1][CM1] = 3; */
+            /* deb_coef_max[1][C0]  = 17; */
+            /* deb_coef_max[1][CP1] = 22; */
 
             for (u32 x = 0; x < 20; x++) {
-                coef_max[x][CM1] = 2;
-                coef_max[x][C0]  = 2;
-                coef_max[x][CP1] = 2;
+                deb_coef_max[x][CM1] = 2;
+                deb_coef_max[x][C0]  = 2;
+                deb_coef_max[x][CP1] = 2;
 
-                coef_max[x][CM1] = 2;
-                coef_max[x][C0]  = 2;
-                coef_max[x][CP1] = 2;
+                deb_coef_max[x][CM1] = 2;
+                deb_coef_max[x][C0]  = 2;
+                deb_coef_max[x][CP1] = 2;
             }
 
             (void)gettimeofday(&start, NULL);
@@ -1250,10 +1266,6 @@ static void kr_poll(meba_inst_t inst)
         }
         krs = &kr_tr_state[iport];
         krs->status = kr_sts;
-
-        if (kr_mw_done) {
-            continue;
-        }
 
         (void)mesa_port_conf_get(NULL, iport, &pconf);
         (void)print_irq_vector(iport, kr_sts.irq.vector, get_time_ms(&krs->time_start));
@@ -1339,8 +1351,6 @@ static void kr_poll(meba_inst_t inst)
             mesa_port_kr_frame_t frm;
             frm.type = MESA_COEFFICIENT_UPDATE_FRM;
             (void)mesa_port_kr_train_frm_get(NULL, iport, &frm);
-            //  Update Serdes
-//            frm.data = coef2status(iport, frm.data);
             if (API_TEST) {
                 frm.data = coef2status_api(iport, frm.data);
             } else {
@@ -1353,9 +1363,6 @@ static void kr_poll(meba_inst_t inst)
 
         // KR_LPSVALID
         if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
-            if (krs->ignore_fail) {
-                krs->ignore_fail = FALSE;
-            }
             if (krs->ber_training_stage != LOCAL_RX_TRAINED) {
                 perform_lp_training(iport, KR_LPSVALID);
             } else {
@@ -1365,7 +1372,6 @@ static void kr_poll(meba_inst_t inst)
                 }
                 krs->current_state = TRAIN_REMOTE;
             }
-
         }
 
         // KR_WT_DONE
@@ -1393,15 +1399,12 @@ static void kr_poll(meba_inst_t inst)
         }
 
         // KR_DME_VIOL_1
-        if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != LINK_READY)) {
+        if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != LINK_READY)) {            
             perform_lp_training(iport, KR_DME_VIOL_1);
-            printf("p:%d KR_DME_VIOL_1 - stopping\n",iport);
-            kr_mw_done = TRUE;
         }
 
         // KR_DME_VIOL_0
         if (kr_sts.irq.vector & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != LINK_READY)) {
-            printf("p:%d KR_DME_VIOL_0 - stopping\n",iport);
             // Do nothing
         }
 
@@ -1421,8 +1424,6 @@ static void kr_poll(meba_inst_t inst)
             printf("       (MW_DONE)MAX Wait done - Failure\n");
             req_msg.training_failure = TRUE;
             (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-            printf("p:%d KR_MW_DONE - stopping\n",iport);
-            kr_mw_done = TRUE;
         }
 
         // WT_START
@@ -1505,7 +1506,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr_status
     },
     {
-        "Port KR debug",
+        "Port KR debug [irq]",
         "Toggle debug",
         cli_cmd_port_kr_debug
     },
@@ -1583,7 +1584,13 @@ static cli_parm_t cli_parm_table[] = {
     },
     {
         "hist",
-        "hist: dum the training history",
+        "hist: dump the training history",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+    {
+        "irq",
+        "irq: print out interrupts",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },

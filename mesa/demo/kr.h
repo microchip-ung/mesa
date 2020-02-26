@@ -129,6 +129,7 @@ typedef enum {
 typedef struct {
     mesa_port_kr_status_results_t res;
     kr_coefficient_t coef;
+    uint32_t time;
 } kr_coef_t;
 
 typedef struct {
@@ -152,7 +153,6 @@ typedef struct {
     uint16_t  ber_cnt[3][64];
     uint32_t  frm_sent;
     uint16_t  eye_height[3][64];
-    uint16_t  final_eye_height;
     uint16_t  decr_cnt;
     uint16_t  lp_tap_max_cnt[3];
     uint16_t  lp_tap_end_cnt[3];
@@ -163,13 +163,14 @@ typedef struct {
     uint32_t  tr_time_rd;
     struct timeval time_start;
     mesa_port_kr_status_t status;
-    kr_coef_t coef_hist[100];
+    kr_coef_t coef_hist[200];
     uint16_t hist_index;
 } kr_train_t;
 
 typedef struct {
     mesa_port_speed_t next_parallel_spd;
     mesa_bool_t cap_25g;
+    mesa_bool_t show_irq;
 } kr_conf_t;
 
 
