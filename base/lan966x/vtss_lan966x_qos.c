@@ -1552,6 +1552,25 @@ static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t              *vtss_s
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    (void)lan966x_qos_tas_frag_size_update(vtss_state, port_no);
+    return VTSS_RC_OK;
+}
+#endif
+
+vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    /* Setup depending on port speed */
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    VTSS_RC(lan966x_qos_fp_port_conf_set(vtss_state, port_no));
+#else
+    VTSS_RC(fa_qos_queue_cut_through_set(vtss_state, port_no));
+#endif
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static char *debug_tas_state_string(u32 value)
