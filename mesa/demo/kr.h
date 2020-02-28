@@ -127,44 +127,24 @@ typedef enum {
 } kr_tap_t;
 
 typedef struct {
-    mesa_port_kr_status_results_t res;
-    kr_coefficient_t coef;
+    mesa_kr_status_results_t res;
     uint32_t time;
 } kr_coef_t;
 
 typedef struct {
-    train_state_t current_state;
-    ber_stage_t ber_training_stage;
-    mesa_bool_t signal_detect;
-    mesa_bool_t training_started;
-    mesa_bool_t remote_rx_ready;
-    mesa_bool_t local_rx_ready;
-    mesa_bool_t dme_viol_handled;
-    mesa_bool_t dme_viol;
-    mesa_bool_t ber_busy;
-    mesa_bool_t ber_busy_sw;
-    mesa_bool_t tap_max_reached;
-    mesa_bool_t receiver_ready_sent;
-    mesa_bool_t kr_mw_done;
-    mesa_bool_t ignore_fail;
-    mesa_port_speed_t next_parallel_spd;
-    kr_tap_t current_tap;
-    uint32_t  tap_idx;
-    uint16_t  ber_cnt[3][64];
-    uint32_t  frm_sent;
-    uint16_t  eye_height[3][64];
-    uint16_t  decr_cnt;
-    uint16_t  lp_tap_max_cnt[3];
-    uint16_t  lp_tap_end_cnt[3];
-    uint16_t  ld_tap_max_cnt[3];
-    uint16_t  ld_tap_end_cnt[3];
-    uint16_t  ld_org_tap_val[3];
-    uint32_t  tr_time_ld;
-    uint32_t  tr_time_rd;
+    mesa_ber_stage_t ber_training_stage;
+    uint16_t ber_coef_frm;
+    uint32_t time;
+} kr_ber_t;
+
+typedef struct {
+    mesa_port_kr_state_t state;
     struct timeval time_start;
     mesa_port_kr_status_t status;
-    kr_coef_t coef_hist[200];
-    uint16_t hist_index;
+    kr_coef_t ld_hist[200];
+    uint16_t ld_hist_index;
+    kr_ber_t lp_hist[200];
+    uint16_t lp_hist_index;
 } kr_train_t;
 
 typedef struct {

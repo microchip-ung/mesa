@@ -1271,76 +1271,11 @@ vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
 
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#define BT(x) (1 << (x))
 /* - 10GBase KR --------------------------------------------------- */
-vtss_rc vtss_port_kr_fw_req(const vtss_inst_t inst,
+vtss_rc vtss_port_kr_status_get(vtss_inst_t inst,
                                 const vtss_port_no_t port_no,
-                                vtss_port_kr_fw_req_t *const fw_req)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_fw_req, port_no, fw_req);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_train_frm_get(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       vtss_port_kr_frame_t *const frm)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_frame_get, port_no, frm);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_train_frm_set(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       const vtss_port_kr_frame_t *const frm)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_frame_set, port_no, frm);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const u16 coef,
-                                  vtss_port_kr_status_results_t *const sts)
-{
-   vtss_state_t *vtss_state;
-   vtss_rc      rc;
-
-   VTSS_D("port_no: %u", port_no);
-   VTSS_ENTER();
-   if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-       rc = VTSS_FUNC_COLD(port.kr_coef_set, port_no, coef, sts);
-   }
-   VTSS_EXIT();
-   return rc;
-}
-
-
-vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_kr_status_t *const status)
+                                vtss_port_kr_status_t *const status)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -1382,22 +1317,6 @@ vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.kr_conf[port_no];
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_eye_dim_get(const vtss_inst_t inst,
-                                 const vtss_port_no_t port_no,
-                                 vtss_port_kr_eye_dim_t *const eye)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(port.kr_eye_dim, port_no, eye);
     }
     VTSS_EXIT();
     return rc;
@@ -1479,7 +1398,547 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
+static vtss_rc kr_fw_req(vtss_state_t *vtss_state,
+                         const vtss_port_no_t port_no,
+                         vtss_port_kr_fw_req_t *const fw_req)
+{
+    return vtss_state->port.kr_fw_req(vtss_state, port_no, fw_req);
+}
+
+static vtss_rc kr_train_frm_get(vtss_state_t *vtss_state,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_frame_t *const frm)
+{
+    return vtss_state->port.kr_frame_get(vtss_state, port_no, frm);
+}
+
+static vtss_rc kr_train_frm_set(vtss_state_t *vtss_state,
+                                const vtss_port_no_t port_no,
+                                const vtss_port_kr_frame_t *const frm)
+{
+    return vtss_state->port.kr_frame_set(vtss_state, port_no, frm);
+}
+
+static vtss_rc kr_coef_set(vtss_state_t *vtss_state,
+                           const vtss_port_no_t port_no,
+                           const u16 coef,
+                           vtss_kr_status_results_t *const sts)
+{
+    return vtss_state->port.kr_coef_set(vtss_state, port_no, coef, sts);
+}
+
+static vtss_rc kr_eye_dim_get(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no,
+                                 vtss_port_kr_eye_dim_t *const eye)
+{
+    return vtss_state->port.kr_eye_dim(vtss_state, port_no, eye);
+}
+
+static void kr_analyze_ber(vtss_port_kr_state_t *krs, u16 *ber, u16 *high_mark, u16 *low_mark)
+{
+    *high_mark = krs->tap_idx;
+    *low_mark = 0;
+}
+
+static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
+{
+    u32 max = krs->eye_height[tap][0];
+    u32 indx = 0;
+    for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
+        if (krs->eye_height[tap][i] >= max ) {
+            max = krs->eye_height[tap][i];
+            indx = i;
+        }
+    }
+    return indx + 1;
+}
+
+static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
+{
+    vtss_port_kr_eye_dim_t eye;
+
+    if (kr_eye_dim_get(state, p, &eye) == VTSS_RC_OK) {
+        return eye.height;
+    } else {
+        printf("Eye scan fails to complete\n");
+    }
+    return 0;
+}
+
+static u16 kr_coef2frm(kr_coefficient_update_t ld, vtss_kr_tap_t tap)
+{
+    u16 offset;
+
+    if (tap == VTSS_TAP_CP1) {
+        offset = 4;
+    } else if (tap == VTSS_TAP_C0) {
+        offset = 2;
+    } else {
+        offset = 0;
+    }
+
+    switch (ld) {
+    case COEF_PRESET: return (1 << 13);
+    case COEF_INIT:   return (1 << 12);
+    case COEF_DECR:   return (1 << (1 + offset));
+    case COEF_INCR:   return (1 << (0 + offset));
+    case COEF_HOLD:   return 0;
+    default:
+        printf("Illegal prm\n");
+        break;
+    }
+    return 0;
+}
+
+static kr_status_report_t kr_frm2status(uint16_t data, vtss_kr_tap_t tap)
+{
+    uint16_t sts = 0;
+
+    if (tap == VTSS_TAP_CP1) {
+        sts = (data >> 4) & 0x3;
+    } else if (tap == VTSS_TAP_C0) {
+        sts = (data >> 2) & 0x3;
+    } else {
+        sts = data & 0x3;
+    }
+
+    switch (sts) {
+    case 0:  return STATUS_NOT_UPDATED;
+    case 1:  return STATUS_UPDATED;
+    case 2:  return STATUS_MINIMUM;
+    case 3:  return STATUS_MAXIMUM;
+    default:
+        printf("Illegal prm\n");
+        break;
+    }
+    return 0;
+}
+
+static vtss_kr_tap_t kr_ber_next_tap(vtss_kr_tap_t tap, BOOL first)
+{
+    if (first) {
+        return VTSS_TAP_CM1;
+    }
+    switch (tap) {
+    case VTSS_TAP_CM1: return VTSS_TAP_CP1;
+    case VTSS_TAP_CP1: return VTSS_TAP_C0;
+    case VTSS_TAP_C0:  return VTSS_TAP_C0;
+    }
+    return 0;
+}
+
+static void kr_send_coef_update(vtss_state_t *state, vtss_port_kr_state_t *krs, vtss_port_no_t p, kr_coefficient_update_t coef, vtss_kr_tap_t tap)
+{
+    vtss_port_kr_frame_t frm;
+    frm.data = kr_coef2frm(coef, tap);
+    frm.type = VTSS_COEFFICIENT_UPDATE_FRM;
+    (void)kr_train_frm_set(state, p, &frm);
+    krs->ber_coef_frm = frm.data;
+}
+
+static void kr_send_sts_report(vtss_state_t *state, vtss_port_kr_state_t *krs, vtss_port_no_t p, u32 data)
+{
+    vtss_port_kr_frame_t frm;
+    frm.data = data;
+    frm.type = VTSS_STATUS_REPORT_FRM;
+    (void)kr_train_frm_set(state, p, &frm);
+}
+
+static void kr_ber_training(vtss_state_t *vtss_state,
+                            vtss_port_no_t p, u32 irq)
+{
+
+    vtss_port_kr_frame_t frm;
+    vtss_port_kr_state_t *krs = &vtss_state->port.train_state[p];
+    kr_status_report_t lp_status = 0;
+    vtss_port_kr_fw_req_t req_msg = {0};
+
+    if (irq == KR_TRAIN) {
+        kr_send_coef_update(vtss_state, krs, p, COEF_INIT, krs->current_tap);
+        krs->ber_training_stage = VTSS_BER_GO_TO_MIN;
+        krs->current_tap = kr_ber_next_tap(0, 1); // Give us the first tap
+        return;
+    }
+
+    if (irq == KR_LPSVALID) {
+       frm.type = VTSS_STATUS_REPORT_FRM;
+       (void)kr_train_frm_get(vtss_state, p, &frm);
+       lp_status = kr_frm2status(frm.data, krs->current_tap);
+    }
+
+    switch (krs->ber_training_stage) {
+    case VTSS_BER_GO_TO_MIN:
+        if (irq == KR_LPSVALID) {
+            if (lp_status == STATUS_UPDATED || lp_status == STATUS_MAXIMUM) {
+                kr_send_coef_update(vtss_state, krs, p, COEF_HOLD, krs->current_tap);
+                if (krs->dme_viol_handled) {
+                    req_msg.ber_enable = TRUE;
+                    (void)kr_fw_req(vtss_state, p, &req_msg);
+                    krs->ber_busy_sw = TRUE;
+                    krs->ber_training_stage = VTSS_BER_CALCULATE_BER;
+                    krs->tap_idx = 0;
+                    krs->dme_viol = 0;
+                    krs->dme_viol_handled = FALSE;
+                }
+
+            } else if (lp_status == STATUS_NOT_UPDATED) {
+                if (krs->dme_viol) {
+                    kr_send_coef_update(vtss_state, krs, p, COEF_INCR, krs->current_tap);
+                    krs->dme_viol_handled = TRUE;
+                } else {
+                    kr_send_coef_update(vtss_state, krs, p, COEF_DECR, krs->current_tap);
+                }
+            } else if (lp_status == STATUS_MINIMUM) {
+                kr_send_coef_update(vtss_state, krs, p, COEF_HOLD, krs->current_tap);
+                req_msg.ber_enable = TRUE;
+                (void)kr_fw_req(vtss_state, p, &req_msg);
+                krs->ber_busy_sw = TRUE;
+                krs->ber_training_stage = VTSS_BER_CALCULATE_BER;
+                krs->tap_idx = 0;
+                krs->tap_max_reached = FALSE;
+            } else {
+                printf("Error Got lp_status:%d\n",lp_status);
+            }
+
+        } else if (irq == KR_DME_VIOL_1) {
+//            krs->dme_viol = TRUE;
+        }
+        return;
+    case VTSS_BER_CALCULATE_BER:
+        if (irq == KR_BER_BUSY_1) {
+            krs->ber_busy = TRUE;
+        } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
+            krs->ber_busy_sw = FALSE;
+            krs->ber_busy = FALSE;
+            krs->ber_cnt[krs->current_tap][krs->tap_idx] = 0; // TBD Get frame_errors;
+            krs->ignore_fail = TRUE; // The eye procedure causes KR failures
+            krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
+            if (krs->tap_max_reached) {
+                krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
+                u16 high_mark = 0;
+                u16 low_mark = 0;
+                kr_analyze_ber(krs, krs->ber_cnt[krs->current_tap], &high_mark, &low_mark);
+                u16 mid_mark = kr_get_best_eye(krs, krs->current_tap);
+                krs->lp_tap_end_cnt[krs->current_tap] = mid_mark;
+                krs->decr_cnt = krs->tap_idx - mid_mark;
+                kr_send_coef_update(vtss_state, krs, p, COEF_DECR, krs->current_tap);
+                krs->ber_training_stage = VTSS_BER_MOVE_TO_MID_MARK;
+            } else {
+                kr_send_coef_update(vtss_state, krs, p, COEF_INCR, krs->current_tap);
+            }
+        } else if (irq == KR_LPSVALID) {
+            if (!krs->ber_busy && !krs->ber_busy_sw) {
+                if (lp_status == STATUS_NOT_UPDATED) {
+                    if (krs->dme_viol) {
+                        kr_send_coef_update(vtss_state, krs, p, COEF_DECR, krs->current_tap);
+                        krs->dme_viol_handled = TRUE;
+                    } else {
+                        kr_send_coef_update(vtss_state, krs, p, COEF_INCR, krs->current_tap);
+                    }
+                } else if (lp_status == STATUS_UPDATED || lp_status == STATUS_MAXIMUM) {
+                    kr_send_coef_update(vtss_state, krs, p, COEF_HOLD, krs->current_tap);
+                    req_msg.ber_enable = TRUE;
+                    (void)kr_fw_req(vtss_state, p, &req_msg);
+                    krs->ber_busy_sw = TRUE;
+                    krs->tap_idx++;
+                    if((lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
+                        krs->tap_max_reached = TRUE;
+                        if (krs->dme_viol_handled) {
+                            krs->tap_idx--;
+                            krs->dme_viol = FALSE;
+                            krs->dme_viol_handled = FALSE;
+                        }
+                    } else {
+                        krs->tap_max_reached = FALSE;
+                    }
+                } else if (lp_status != STATUS_NOT_UPDATED) {
+                    printf("Invalid status reveived when BER is busy\n");
+                } else {
+                    printf("LPSVALID Invalid state 1\n");
+                }
+            }
+        } else if (irq == KR_DME_VIOL_1) {
+            krs->dme_viol = TRUE;
+        } else {
+            printf("LPSVALID Invalid state 2\n");
+        }
+        break;
+
+    case VTSS_BER_MOVE_TO_MID_MARK:
+        if (irq == KR_LPSVALID) {
+            krs->ignore_fail = FALSE;
+            if (lp_status == STATUS_UPDATED || lp_status == STATUS_MINIMUM) {
+                kr_send_coef_update(vtss_state, krs, p, COEF_HOLD, krs->current_tap);
+                if (krs->decr_cnt > 0) {
+                    krs->decr_cnt--;
+                }
+                if (krs->decr_cnt == 0 || lp_status == STATUS_MINIMUM) {
+                    if (krs->current_tap == kr_ber_next_tap(krs->current_tap, 0)) {
+                        krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
+                    } else {
+                        krs->current_tap = kr_ber_next_tap(krs->current_tap, 0);
+                        krs->ber_training_stage = VTSS_BER_GO_TO_MIN;
+                    }
+                } else if (lp_status == STATUS_NOT_UPDATED) {
+                    kr_send_coef_update(vtss_state, krs, p, COEF_DECR, krs->current_tap);
+                }
+            } else if (lp_status == STATUS_NOT_UPDATED) {
+                kr_send_coef_update(vtss_state, krs, p, COEF_DECR, krs->current_tap);
+            }
+        } else {
+            printf("perform_lp_training called on invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
+        }
+        break;
+
+    default:
+        printf("Reach DEFAULT (irq:%d)\n",irq);
+        break;
+    }
+}
+
+static void kr_reset_state(vtss_port_kr_state_t *krs) {
+    memset(krs, 0, sizeof(vtss_port_kr_state_t));
+}
+
+static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no,
+                                 const u32 irq)
+{
+    vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
+    vtss_port_kr_status_t kr_sts;
+    vtss_port_kr_frame_t frm;
+    vtss_port_kr_fw_req_t req_msg = {0};
+    vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
+    vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
+
+    vtss_state->port.kr_status(vtss_state, port_no, &kr_sts);
+    kr_sts.irq.vector = irq;
+
+    // To avoid failures during eye height calculation
+    if (krs->ignore_fail) { 
+        kr_sts.irq.vector &= ~KR_DME_VIOL_0;
+        kr_sts.irq.vector &= ~KR_DME_VIOL_1;
+        kr_sts.irq.vector &= ~KR_REM_RDY_0;
+        kr_sts.irq.vector &= ~KR_FRLOCK_0;
+    }
+
+    // KR_AN_XMIT_DISABLE. Aneg is restarted.
+    if (kr_sts.irq.vector & KR_AN_XMIT_DISABLE) {
+        if (krs->training_started) {
+            krs->training_started = FALSE;
+            req_msg.stop_training = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+        }
+        kr_reset_state(krs);
+    }
+
+    // KR_TRAIN. Start Training
+    if (kr_sts.irq.vector & KR_TRAIN) {
+        if (kr->train.enable) {
+            krs->current_state = VTSS_TR_SEND_TRAINING;
+            krs->training_started = TRUE;
+            krs->remote_rx_ready = FALSE;
+            krs->local_rx_ready = FALSE;
+            req_msg.start_training = TRUE;
+            req_msg.mw_start = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
+        } else {
+            krs->current_state = VTSS_TR_SEND_DATA;
+            krs->training_started = FALSE;
+            req_msg.stop_training = TRUE;
+            req_msg.tr_done = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            krs->signal_detect = TRUE;
+        }
+    }
+
+    // KR_FRLOCK_1. Training frame lock attained. Change state to TRAIN_LOCAL
+    if ((kr_sts.irq.vector & KR_FRLOCK_1) && krs->training_started) {
+        if (krs->current_state == VTSS_TR_SEND_TRAINING) {
+            krs->current_state = VTSS_TR_TRAIN_LOCAL;
+        }
+    }
+
+    // KR_REM_RDY_1. Remote is ready
+    if (kr_sts.irq.vector & KR_REM_RDY_1) {
+        krs->remote_rx_ready = TRUE;
+        // Ignore failures after remote is ready
+        kr_sts.irq.vector &= ~KR_DME_VIOL_0;
+        kr_sts.irq.vector &= ~KR_DME_VIOL_1;
+        kr_sts.irq.vector &= ~KR_REM_RDY_0;
+        kr_sts.irq.vector &= ~KR_FRLOCK_0;
+
+    }
+
+    // KR_FRLOCK_0. Training frame lock is lost during training
+    if ((kr_sts.irq.vector & KR_FRLOCK_0) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+        if ((krs->current_state == VTSS_TR_TRAIN_LOCAL) || (krs->current_state == VTSS_TR_TRAIN_REMOTE)) {
+            krs->current_state = VTSS_TR_SEND_TRAINING;
+            krs->remote_rx_ready = FALSE;
+            krs->local_rx_ready = FALSE;
+        }
+    }
+
+    // KR_LPCVALID
+    if ((kr_sts.irq.vector & KR_LPCVALID) && krs->training_started) {
+//        vtss_kr_status_results_t res;
+
+        // Get coef request
+        frm.type = VTSS_COEFFICIENT_UPDATE_FRM;
+        (void)kr_train_frm_get(vtss_state, port_no, &frm);
+
+        // Apply it and return the results
+        kr_coef_set(vtss_state, port_no, frm.data, &krs->tr_res);
+        krs->tr_res.coef = frm.data;
+        if (krs->ber_training_stage == VTSS_BER_LOCAL_RX_TRAINED) {
+            krs->tr_res.status += BT(15); // Receiver Ready bit
+        }
+
+        // Send Status report
+        kr_send_sts_report(vtss_state, krs, port_no, krs->tr_res.status);
+    }
+
+    // KR_LPSVALID
+    if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
+        if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
+            kr_ber_training(vtss_state, port_no, KR_LPSVALID);
+        } else {
+            krs->current_state = VTSS_TR_TRAIN_REMOTE;
+        }
+    }
+
+    // KR_WT_DONE
+    if (kr_sts.irq.vector & KR_WT_DONE) {
+        if (krs->current_state ==  VTSS_TR_LINK_READY) {
+            krs->current_state = VTSS_TR_SEND_DATA;
+            krs->training_started = FALSE;
+            req_msg.stop_training = TRUE;
+            req_msg.tr_done = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            krs->signal_detect = TRUE;
+            printf("Port:%d - Training completed\n",port_no);
+        }
+    }
+
+    // KR_BER_BUSY_1
+    if (kr_sts.irq.vector & KR_BER_BUSY_1) {
+        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_1);
+    }
+
+    // KR_BER_BUSY_0
+    if (kr_sts.irq.vector & KR_BER_BUSY_0) {
+        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_0);
+    }
+
+    // KR_DME_VIOL_1
+    if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+        kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
+    }
+
+    // KR_DME_VIOL_0
+    if (kr_sts.irq.vector & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+        // Do nothing
+    }
+
+    // KR_REM_RDY_1
+    if (kr_sts.irq.vector & KR_REM_RDY_1) {
+        krs->remote_rx_ready = TRUE;
+    }
+
+    // KR_REM_RDY_0
+    if (kr_sts.irq.vector & KR_REM_RDY_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+        krs->remote_rx_ready = FALSE;
+        printf("p:%d KR_REM_RDY_0 - stopping\n",port_no);
+    }
+
+    // KR_MW_DONE
+    if ((kr_sts.irq.vector & KR_MW_DONE) && krs->training_started) {
+        printf("       (MW_DONE)MAX Wait done - Failure\n");
+        req_msg.training_failure = TRUE;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+    }
+
+    // WT_START
+    if (krs->current_state == VTSS_TR_TRAIN_REMOTE && krs->remote_rx_ready) {
+        // 'Receiver Ready' sent 3 times to LP as according to standard
+        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
+        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
+        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
+        kr_send_sts_report(vtss_state, krs, port_no, 0); // needed to avoid KR_REM_RDY_1 during next training restart
+        req_msg.wt_start = TRUE;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+        krs->current_state = VTSS_TR_LINK_READY;
+    }
+
+    // KR_AN_GOOD
+    if (kr_sts.irq.vector & KR_AN_GOOD) {
+        if (pconf->speed < VTSS_SPEED_5G) {
+            req_msg.aneg_disable = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            return VTSS_RC_OK;
+        }
+    }
+
+    // KR_RATE_DET
+    if (kr_sts.irq.vector & KR_RATE_DET) {
+        // Parallel detect speed change
+        /* pconf->speed = kr_parallel_spd(port_no); */
+        /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
+        req_msg.gen0_tmr_start = 1;
+        //        (void)vtss_port_conf_set(vtss_state, port_no, &pconf); TBD
+        req_msg.rate_done = 1;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+
+    }
+
+    // KR_AN_RATE
+    if ((kr_sts.irq.vector & KR_AN_RATE) > 0) {
+        // Aneg speed change request
+        /* pconf->speed = kr_irq2spd(kr_sts.irq.vector & 0xf); */
+        /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
+        //        (void)vtss_port_conf_set(vtss_vtss_state, port_no, &pconf);  TBD
+        req_msg.rate_done = 1;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+    }
+
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
+                               const vtss_port_no_t port_no,
+                               const u32 *const irq)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        VTSS_D("port_no: %u", port_no);
+        rc = kr_irq_apply(vtss_state, port_no, *irq);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_state_get(vtss_inst_t inst,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_state_t *const state)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        *state = vtss_state->port.train_state[port_no];
+    }
+    VTSS_EXIT();
+    return rc;
+}    
+
+#endif //defined(VTSS_FEATURE_10GBASE_KR_V3)
 vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t               inst,
                                    const vtss_port_no_t            port_no,
                                    const vtss_port_serdes_debug_t  *const conf)

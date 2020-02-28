@@ -296,6 +296,60 @@ typedef struct {
 } vtss_calendar_t;
 #endif /* defined(VTSS_ARCH_JAGUAR_2) && !defined(VTSS_ARCH_JAGUAR_2_B) */
 
+
+
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+
+typedef enum
+{
+    VTSS_COEFFICIENT_UPDATE_FRM,
+    VTSS_STATUS_REPORT_FRM
+} vtss_port_kr_frm_type_t;
+
+typedef struct {
+    vtss_port_kr_frm_type_t type;
+    u16 data;
+} vtss_port_kr_frame_t;
+
+typedef enum {
+    COEF_HOLD = 0,
+    COEF_INCR = 1,
+    COEF_DECR = 2,
+    COEF_INIT = 0x1000,
+    COEF_PRESET = 0x2000
+} kr_coefficient_update_t;
+
+typedef enum {
+    STATUS_NOT_UPDATED = 0,
+    STATUS_UPDATED = 1,
+    STATUS_MINIMUM = 2,
+    STATUS_MAXIMUM = 3,
+} kr_status_report_t;
+
+typedef struct {
+    BOOL ber_enable;
+    BOOL gen0_tmr_start;
+    BOOL gen1_tmr_start;
+    BOOL wt_start;
+    BOOL mw_start;
+    BOOL tr_done;
+    BOOL ldcoef_vld;
+    BOOL ldstat_vld;
+    BOOL np_loaded;
+    BOOL rate_done;
+    BOOL start_training;
+    BOOL stop_training;
+    BOOL training_failure;
+    BOOL aneg_disable;
+} vtss_port_kr_fw_req_t;
+
+/** \brief 10G KR eye info */
+typedef struct {
+    u32 height;
+} vtss_port_kr_eye_dim_t;
+
+
+#endif // defined(VTSS_FEATURE_10GBASE_KR_V3)
 typedef struct {
     /* CIL function pointers */
     vtss_rc (* miim_read)(struct vtss_state_s *vtss_state,
@@ -374,7 +428,7 @@ typedef struct {
     vtss_rc (* kr_coef_set)(struct vtss_state_s *vtss_state,
                             const vtss_port_no_t port_no,
                             const u16 coef_in,
-                            vtss_port_kr_status_results_t *const sts);
+                            vtss_kr_status_results_t *const sts);
 
     vtss_rc (* kr_eye_dim)(struct vtss_state_s *vtss_state,
                            const vtss_port_no_t port_no,
@@ -419,7 +473,8 @@ typedef struct {
     BOOL                          kr_fec_enable[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
-    vtss_port_kr_conf_t       kr_conf[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_kr_state_t          train_state[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
     vtss_port_chip_counters_t     counters[VTSS_PORT_ARRAY_SIZE];

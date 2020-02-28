@@ -731,17 +731,79 @@ vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 /**
  * ============================================================================
- * 802.3ap 10GBase KR Backplane Ethernet (version 3, Sparx5 and newer)
+ * 802.3ap 25G/10G Base KR Backplane Ethernet (version 3, Sparx5 and newer)
  * ============================================================================
  **/
+/** \brief States of the training state machine */
+typedef enum {
+    VTSS_TR_INITILIZE,
+    VTSS_TR_SEND_TRAINING,
+    VTSS_TR_TRAIN_LOCAL,
+    VTSS_TR_TRAIN_REMOTE,
+    VTSS_TR_SEND_DATA,
+    VTSS_TR_TRAINING_FAILURE,
+    VTSS_TR_LINK_READY
+} vtss_train_state_t;
+
+/** \brief States of BER algorithm */
+typedef enum {
+    VTSS_BER_GO_TO_MIN,
+    VTSS_BER_CALCULATE_BER,
+    VTSS_BER_MOVE_TO_MID_MARK,
+    VTSS_BER_LOCAL_RX_TRAINED
+} vtss_ber_stage_t;
+
+/** \brief KR TAPs involved */
+typedef enum {
+    VTSS_TAP_CM1,
+    VTSS_TAP_C0,
+    VTSS_TAP_CP1,
+} vtss_kr_tap_t;
+
+typedef struct {
+    u16 cm1;
+    u16 c0;
+    u16 cp1;
+    u16 coef;
+    u16 status;
+} vtss_kr_status_results_t;
+
+/** \brief 10G KR state machine structures */
+typedef struct {
+    vtss_train_state_t current_state;
+    vtss_ber_stage_t ber_training_stage;
+    BOOL signal_detect;
+    BOOL training_started;
+    BOOL remote_rx_ready;
+    BOOL local_rx_ready;
+    BOOL dme_viol_handled;
+    BOOL dme_viol;
+    BOOL ber_busy;
+    BOOL ber_busy_sw;
+    BOOL tap_max_reached;
+    BOOL receiver_ready_sent;
+    BOOL kr_mw_done;
+    BOOL ignore_fail;
+    vtss_port_speed_t next_parallel_spd;
+    vtss_kr_tap_t current_tap;
+    u16  lp_tap_max_cnt[3];
+    u16  lp_tap_end_cnt[3];
+    u32  tap_idx;
+    u16  ber_cnt[3][64];
+    u16  eye_height[3][64];
+    u16  decr_cnt;
+    u16  ber_coef_frm;
+    vtss_kr_status_results_t tr_res;
+} vtss_port_kr_state_t;
 
 /** \brief 10G KR Aneg status */
 typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
+    BOOL request_25g;         /**< 25G rate is negotiated (needs to be configured)  */
     BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
     BOOL request_5g;          /**< 5G rate is negotiated (needs to be configured)   */
-    BOOL request_2g5;         /**< 2G5 rate is negotiated (needs to be configured)   */
+    BOOL request_2g5;         /**< 2G5 rate is negotiated (needs to be configured)  */
     BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
     BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
@@ -805,6 +867,34 @@ typedef struct {
     vtss_port_kr_train_t  train;   /**< 10G-KR Training parameters, 802.3ap Clause 72 */
 } vtss_port_kr_conf_t;
 
+#define KR_ACTV            (1 << 29)
+#define KR_LPSVALID        (1 << 28)
+#define KR_LPCVALID        (1 << 27)
+#define KR_WT_DONE         (1 << 26)
+#define KR_MW_DONE         (1 << 25)
+#define KR_BER_BUSY_0      (1 << 24)
+#define KR_BER_BUSY_1      (1 << 23)
+#define KR_REM_RDY_0       (1 << 22)
+#define KR_REM_RDY_1       (1 << 21)
+#define KR_FRLOCK_0        (1 << 20)
+#define KR_FRLOCK_1        (1 << 19)
+#define KR_DME_VIOL_0      (1 << 18)
+#define KR_DME_VIOL_1      (1 << 17)
+#define KR_AN_XMIT_DISABLE (1 << 16)
+#define KR_TRAIN           (1 << 15)
+#define KR_RATE_DET        (1 << 14)
+#define KR_CMPL_ACK        (1 << 13)
+#define KR_AN_GOOD         (1 << 12)
+#define KR_LINK_FAIL       (1 << 11)
+#define KR_ABD_FAIL        (1 << 10)
+#define KR_ACK_FAIL        (1 << 9)
+#define KR_NP_FAIL         (1 << 8)
+#define KR_NP_RX           (1 << 7)
+#define KR_INCP_LINK       (1 << 6)
+#define KR_GEN0_DONE       (1 << 5)
+#define KR_GEN1_DONE       (1 << 4)
+#define KR_AN_RATE         (0xF)
+
 
 /**
  * \brief Set 10G KR configuration incl. aneg (802.3ap Clause 73) and training (802.3ap Clause 72).
@@ -819,8 +909,6 @@ typedef struct {
 vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const vtss_port_kr_conf_t *const conf);
-
-
 
 /**
  * \brief Get 10G KR configuration
@@ -848,103 +936,40 @@ vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
                                     const vtss_port_no_t port_no,
                                     vtss_port_kr_status_t *const status);
 
-typedef struct {
-    BOOL ber_enable;
-    BOOL gen0_tmr_start;
-    BOOL gen1_tmr_start;
-    BOOL wt_start;
-    BOOL mw_start;
-    BOOL tr_done;
-    BOOL ldcoef_vld;
-    BOOL ldstat_vld;
-    BOOL np_loaded;
-    BOOL rate_done;
-    BOOL start_training;
-    BOOL stop_training;
-    BOOL training_failure;
-    BOOL aneg_disable;
-} vtss_port_kr_fw_req_t;
-
-
-
-vtss_rc vtss_port_kr_fw_req(const vtss_inst_t inst,
-                                const vtss_port_no_t port_no,
-                                vtss_port_kr_fw_req_t *const fw_req);
-
-typedef enum
-{
-    VTSS_COEFFICIENT_UPDATE_FRM,
-    VTSS_STATUS_REPORT_FRM
-} vtss_port_kr_frm_type_t;
-
-typedef struct {
-    vtss_port_kr_frm_type_t type;
-    u16 data;
-} vtss_port_kr_frame_t;
-
-vtss_rc vtss_port_kr_train_frm_set(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       const vtss_port_kr_frame_t *const frm);
-
-vtss_rc vtss_port_kr_train_frm_get(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       vtss_port_kr_frame_t *const frm);
-
-typedef enum {
-    VTSS_COEF_PRESET,
-    VTSS_COEF_INIT,
-    VTSS_COEF_CP1,
-    VTSS_COEF_C0,
-    VTSS_COEF_CM1,
-} vtss_port_kr_coef_type_t;
-
-typedef enum {
-    VTSS_COEF_HOLD,
-    VTSS_COEF_INCR,
-    VTSS_COEF_DECR
-} vtss_port_kr_coef_update_t;
-
-typedef struct {
-    vtss_port_kr_coef_type_t type;
-    vtss_port_kr_coef_update_t update;
-} vtss_port_kr_coef_t;
-
-typedef enum {
-    VTSS_COEF_NOT_UPDATED = 0,
-    VTSS_COEF_UPDATED = 1,
-    VTSS_COEF_MINIMUM = 2,
-    VTSS_COEF_MAXIMUM = 3
-} vtss_port_kr_coef_status_t;
-
-typedef struct {
-    u16 cm1;
-    u16 c0;
-    u16 cp1;
-    u16 status;
-} vtss_port_kr_status_results_t;
-
-vtss_rc vtss_port_kr_coef_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const u16 coef,
-                                  vtss_port_kr_status_results_t *const sts);
-
-/** \brief 10G KR eye info */
-typedef struct {
-    u32 height;
-} vtss_port_kr_eye_dim_t;
-
 /**
- * \brief Get 10G KR eye dimension
+ * \brief Get 10G KR state machine status
  *
  * \param inst    [IN]  Target instance reference.
  * \param port_no [IN]  Port number.
- * \param eye     [OUT] KR eye dimension
+ * \param status  [OUT] KR Aneg and Training status
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_kr_eye_dim_get(const vtss_inst_t inst,
-                                 const vtss_port_no_t port_no,
-                                 vtss_port_kr_eye_dim_t *const eye);
+vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
+                               const vtss_port_no_t port_no,
+                               vtss_port_kr_state_t *const state);
+
+
+/**
+ * \brief Apply KR interrupt 
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param irq    [IN]  interrupt id.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
+                               const vtss_port_no_t port_no,
+                               const u32 *const irq);
+
+
+/**
+ * ============================================================================
+ * 802.3ap 25G/10G Base KR Backplane Ethernet - End
+ * ============================================================================
+ **/
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 

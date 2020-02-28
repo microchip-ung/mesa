@@ -354,6 +354,29 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
+/** \brief 10G KR coefficient types */
+typedef enum {
+    VTSS_COEF_PRESET,
+    VTSS_COEF_INIT,
+    VTSS_COEF_CP1,
+    VTSS_COEF_C0,
+    VTSS_COEF_CM1,
+} vtss_port_kr_coef_type_t;
+
+/** \brief 10G KR coefficient action types */
+typedef enum {
+    VTSS_COEF_HOLD,
+    VTSS_COEF_INCR,
+    VTSS_COEF_DECR
+} vtss_port_kr_coef_update_t;
+
+typedef enum {
+    VTSS_COEF_NOT_UPDATED = 0,
+    VTSS_COEF_UPDATED = 1,
+    VTSS_COEF_MINIMUM = 2,
+    VTSS_COEF_MAXIMUM = 3
+} vtss_port_kr_coef_status_t;
+
 #define BT(x) (1 << (x))
 typedef struct {
     u32  amplitude;
@@ -1399,7 +1422,7 @@ static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
-                          vtss_port_kr_status_results_t *const status_out)
+                          vtss_kr_status_results_t *const status_out)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
@@ -1715,7 +1738,7 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
         return VTSS_RC_ERROR;
     }
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D0(sd_tgt), &val);
-    printf("eye height\n");
+
     if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_FAST_EYE_SCAN_FAIL(val) > 0) {
         *height = 0;
         return VTSS_RC_ERROR;

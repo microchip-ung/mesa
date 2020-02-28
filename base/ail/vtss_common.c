@@ -20,7 +20,6 @@
 #endif
 /*lint -esym(459, vtss_trace_conf) */
 /*lint -esym(459, vtss_state)      */
-
 /* Default mapping of PCP to QoS Class */
 /* Can also be used for default mapping of QoS class to PCP */
 /* This is the IEEE802.1Q-2011 recommended priority to traffic class mappings */

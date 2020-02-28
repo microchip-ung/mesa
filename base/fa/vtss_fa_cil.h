@@ -291,7 +291,7 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
-                          vtss_port_kr_status_results_t *const status_out);
+                          vtss_kr_status_results_t *const status_out);
     
 
 /* Miscellaneous functions */

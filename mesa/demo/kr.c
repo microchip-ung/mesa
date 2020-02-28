@@ -91,38 +91,38 @@ static char *bit2txt(uint32_t  bt, char *name)
     return "";
 }
 
-char *ber2txt(ber_stage_t st)
+char *ber2txt(mesa_ber_stage_t st)
 {
     switch (st) {
-    case GO_TO_MIN:        return "GO_TO_MIN";
-    case CALCULATE_BER:    return "CALCULATE_BER";
-    case MOVE_TO_MID_MARK: return "MOVE_TO_MID_MARK";
-    case LOCAL_RX_TRAINED: return "LOCAL_RX_TRAINED";
-    default:               return "ILLEGAL";
+    case MESA_BER_GO_TO_MIN:        return "GO_TO_MIN";
+    case MESA_BER_CALCULATE_BER:    return "CALCULATE_BER";
+    case MESA_BER_MOVE_TO_MID_MARK: return "MOVE_TO_MID_MARK";
+    case MESA_BER_LOCAL_RX_TRAINED: return "LOCAL_RX_TRAINED";
+    default:                        return "ILLEGAL";
     }
 }
 
-char *state2txt(train_state_t st)
+char *state2txt(mesa_train_state_t st)
 {
     switch (st) {
-    case INITILIZE:        return "INITILIZE";
-    case SEND_TRAINING:    return "SEND_TRAINING";
-    case TRAIN_LOCAL:      return "TRAIN_LOCAL";
-    case TRAIN_REMOTE:     return "TRAIN_REMOTE";
-    case SEND_DATA:        return "SEND_DATA";
-    case TRAINING_FAILURE: return "TRAINING_FAILURE";
-    case LINK_READY:       return "LINK_READY";
-    default:               return "ILLEGAL";
+    case MESA_TR_INITILIZE:        return "INITILIZE";
+    case MESA_TR_SEND_TRAINING:    return "SEND_TRAINING";
+    case MESA_TR_TRAIN_LOCAL:      return "TRAIN_LOCAL";
+    case MESA_TR_TRAIN_REMOTE:     return "TRAIN_REMOTE";
+    case MESA_TR_SEND_DATA:        return "SEND_DATA";
+    case MESA_TR_TRAINING_FAILURE: return "TRAINING_FAILURE";
+    case MESA_TR_LINK_READY:       return "LINK_READY";
+    default:                       return "ILLEGAL";
     }
 }
 
-char *tap2txt(kr_tap_t st)
+char *tap2txt(mesa_kr_tap_t st)
 {
     switch (st) {
-    case CM1: return "CM1";
-    case CP1: return "CP1";
-    case C0:  return "C0";
-    default:  return "ILLEGAL";
+    case MESA_TAP_CM1: return "CM1";
+    case MESA_TAP_CP1: return "CP1";
+    case MESA_TAP_C0:  return "C0";
+    default:           return "ILLEGAL";
     }
 }
 
@@ -317,11 +317,6 @@ static int cli_parm_keyword(cli_req_t *req)
     return 0;
 }
 
-static void fa_kr_reset_state(u32 p) {
-    kr_train_t *krs = &kr_tr_state[p];
-    memset(krs, 0, sizeof(kr_tr_state[p]));
-}
-
 static void cli_cmd_port_kr(cli_req_t *req)
 {
     mesa_port_no_t        uport, iport;
@@ -338,8 +333,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
                 continue;
             }
-
-            (void)fa_kr_reset_state(iport);
 
             if (req->set) {
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -487,7 +480,7 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     return "other";
 }
 
-static void kr_dump_tr_history(cli_req_t *req)
+static void kr_dump_tr_ld_history(cli_req_t *req)
 {
     mesa_port_no_t          uport, iport;
     mesa_port_kr_conf_t     kr;
@@ -508,33 +501,79 @@ static void kr_dump_tr_history(cli_req_t *req)
         }
 
         krs = &kr_tr_state[iport];
-        if (kr_tr_state[iport].hist_index == 0) {
+        if (kr_tr_state[iport].ld_hist_index == 0) {
             continue;
         }
         first = TRUE;
         cli_printf("\nPort %d:\n",iport,kr_tr_state[iport]);
-        for (uint16_t indx = 0; indx < kr_tr_state[iport].hist_index; indx++) {
+        for (uint16_t indx = 0; indx < kr_tr_state[iport].ld_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
-            (void)raw_coef2txt(krs->coef_hist[indx].coef, coef_tap, coef_act);
+            (void)raw_coef2txt(krs->ld_hist[indx].res.coef, coef_tap, coef_act);
             char sts_res[20] = {0};
             char sts_tap[20] = {0};
-            (void)raw_sts2txt(krs->coef_hist[indx].res.status, sts_tap, sts_res);
-            cp1 = krs->coef_hist[indx].res.cp1;
-            cm1 = krs->coef_hist[indx].res.cm1;
-            c0 = krs->coef_hist[indx].res.c0;
-            dt = krs->coef_hist[indx].time;
+            (void)raw_sts2txt(krs->ld_hist[indx].res.status, sts_tap, sts_res);
+            cp1 = krs->ld_hist[indx].res.cp1;
+            cm1 = krs->ld_hist[indx].res.cm1;
+            c0 = krs->ld_hist[indx].res.c0;
+            dt = krs->ld_hist[indx].time;
             if (first) {
                 cli_printf("%-4s%-8s%-8s%-8s%-8s%-8s%-10s%-8s\n","","TAP","CMD","CM1","Ampl","CP1","Status","Time (ms)");
                 cli_printf("    ---------------------------------------------------------\n");
                 first = FALSE;
             }
-            if (!mreq->all && (krs->coef_hist[indx].coef == 0)) {
+            if (!mreq->all && (krs->ld_hist[indx].res.coef == 0)) {
                 continue; // Skip the HOLD cmd
             }
             cli_printf("%-4d%-8s%-8s%-8d%-8d%-8d%-10s%-8d\n", indx, coef_tap, coef_act, cm1, c0, cp1, sts_res, dt);
         }
-    }    
+    }
+}
+
+static void kr_dump_tr_lp_history(cli_req_t *req)
+{
+    mesa_port_no_t          uport, iport;
+    mesa_port_kr_conf_t     kr;
+    kr_train_t              *krs;
+    uint32_t                dt;
+    mesa_bool_t             first = TRUE;
+    port_cli_req_t          *mreq = req->module_req;
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0) {
+            continue;
+        }
+        if (mesa_port_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
+            !kr.aneg.enable) {
+            continue;
+        }
+        printf("p:%d index:%d\n",iport,kr_tr_state[iport].lp_hist_index);
+        krs = &kr_tr_state[iport];
+        if (kr_tr_state[iport].lp_hist_index == 0) {
+            continue;
+        }
+        first = TRUE;
+        cli_printf("\nPort %d:\n",iport,kr_tr_state[iport]);
+        for (uint16_t indx = 0; indx < kr_tr_state[iport].lp_hist_index; indx++) {
+            char coef_tap[20] = {0};
+            char coef_act[20] = {0};
+            (void)raw_coef2txt(krs->lp_hist[indx].ber_coef_frm, coef_tap, coef_act);
+            /* char sts_res[20] = {0}; */
+            /* char sts_tap[20] = {0}; */
+            /* (void)raw_sts2txt(krs->lp_hist[indx].res.status, sts_tap, sts_res); */
+            dt = krs->lp_hist[indx].time;
+            if (first) {
+                cli_printf("%-4s%-20s%-8s%-8s%-8s\n","","BER","TAP","CMD","Time (ms)");
+                cli_printf("    ---------------------------------------------------------\n");
+                first = FALSE;
+            }
+            if (!mreq->all && (krs->lp_hist[indx].ber_coef_frm == 0)) {
+                continue; // Skip the HOLD cmd
+            }
+            cli_printf("%-4d%-20s%-8s%-8s%-8d\n", indx, ber2txt(krs->lp_hist[indx].ber_training_stage), coef_tap, coef_act, dt);
+        }
+    }
 }
 
 static void cli_cmd_port_kr_status(cli_req_t *req)
@@ -542,7 +581,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
     mesa_port_no_t          uport, iport;
     mesa_port_kr_conf_t     kr;
     mesa_port_kr_status_t   sts;
-    kr_train_t              *krs;
+//    kr_train_t              *krs;
     port_cli_req_t          *mreq = req->module_req;
 
     if (BASE_KR_V2) {
@@ -555,7 +594,9 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
     } 
 
     if (mreq->hist) {
-        kr_dump_tr_history(req);
+        printf("hist\n");
+        kr_dump_tr_ld_history(req);
+        kr_dump_tr_lp_history(req);
         return;
     }
 
@@ -573,61 +614,61 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("Port:%d Could not read kr status\n",uport);
             continue;
         }
-        krs = &kr_tr_state[iport];
+//        krs = &kr_tr_state[iport];
         cli_printf("Port %d\n",uport);
         cli_printf("  ANEG completed    : %s\n",sts.aneg.complete ? "Yes" : "No");
         cli_printf("  Speed             : %s\n",fa_kr_aneg_rate(sts.aneg.sts1 & 0xF));
-        cli_printf("  This device training details:\n");
-        cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
-        cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap));
-        cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
-        cli_printf("  TRAINING_STARTED  : %s\n",krs->training_started ? "TRUE" :"FALSE");
-        cli_printf("  REMOTE_RX_READY   : %s\n",krs->remote_rx_ready ? "TRUE" :"FALSE");
-        cli_printf("  LOCAL_RX_READY    : %s\n",krs->local_rx_ready ? "TRUE" :"FALSE");
-        cli_printf("  DME_VIOL_HANDLED  : %s\n",krs->dme_viol_handled ? "TRUE" :"FALSE");
-        cli_printf("  BER_BUSY          : %s\n",krs->ber_busy ? "TRUE" :"FALSE");
-        cli_printf("  TAP_MAX_REACHED   : %s\n",krs->tap_max_reached ? "TRUE" :"FALSE");
-        cli_printf("  SIGNAL_DEECT      : %s\n",krs->signal_detect ? "TRUE" :"FALSE");
-        cli_printf("  DECR_CNT          : %d\n",krs->decr_cnt);
-        cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
-        cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
-        cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
-        cli_printf("  BER_COUNT CM1     : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-            cli_printf("%d ",krs->ber_cnt[0][i]);
-        }
-        cli_printf("\n  BER_COUNT C0      : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-            cli_printf("%d ",krs->ber_cnt[1][i]);
-        }
-        cli_printf("\n  BER_COUNT CP1     : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-            cli_printf("%d ",krs->ber_cnt[2][i]);
-        }
-        cli_printf("\n  EYE HEIGHT CM1    : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-            cli_printf("%d ",krs->eye_height[0][i]);
-        }
-        cli_printf("\n  EYE HEIGHT C0     : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-            cli_printf("%d ",krs->eye_height[1][i]);
-        }
-        cli_printf("\n  EYE HEIGHT CP1    : ");
-        for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-            cli_printf("%d ",krs->eye_height[2][i]);
-        }
-        cli_printf("  \nTRAINING FRMS SENT: %d\n",krs->frm_sent);
-        cli_printf("  TRAINING TIME     : %d ms. (Remote is tuning Tx Serdes).\n",krs->tr_time_ld);
-        cli_printf("  TRAINING STATUS   : %s\n",krs->current_state == SEND_DATA ? "OK" : "Failed");
+        /* cli_printf("  This device training details:\n"); */
+        /* cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage)); */
+        /* cli_printf("  CURRENT TAP       : %s (CM1->C0->CP1)\n",tap2txt(krs->current_tap)); */
+        /* cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state)); */
+        /* cli_printf("  TRAINING_STARTED  : %s\n",krs->training_started ? "TRUE" :"FALSE"); */
+        /* cli_printf("  REMOTE_RX_READY   : %s\n",krs->remote_rx_ready ? "TRUE" :"FALSE"); */
+        /* cli_printf("  LOCAL_RX_READY    : %s\n",krs->local_rx_ready ? "TRUE" :"FALSE"); */
+        /* cli_printf("  DME_VIOL_HANDLED  : %s\n",krs->dme_viol_handled ? "TRUE" :"FALSE"); */
+        /* cli_printf("  BER_BUSY          : %s\n",krs->ber_busy ? "TRUE" :"FALSE"); */
+        /* cli_printf("  TAP_MAX_REACHED   : %s\n",krs->tap_max_reached ? "TRUE" :"FALSE"); */
+        /* cli_printf("  SIGNAL_DEECT      : %s\n",krs->signal_detect ? "TRUE" :"FALSE"); */
+        /* cli_printf("  DECR_CNT          : %d\n",krs->decr_cnt); */
+        /* cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]); */
+        /* cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]); */
+        /* cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]); */
+        /* cli_printf("  BER_COUNT CM1     : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) { */
+        /*     cli_printf("%d ",krs->ber_cnt[0][i]); */
+        /* } */
+        /* cli_printf("\n  BER_COUNT C0      : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) { */
+        /*     cli_printf("%d ",krs->ber_cnt[1][i]); */
+        /* } */
+        /* cli_printf("\n  BER_COUNT CP1     : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) { */
+        /*     cli_printf("%d ",krs->ber_cnt[2][i]); */
+        /* } */
+        /* cli_printf("\n  EYE HEIGHT CM1    : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) { */
+        /*     cli_printf("%d ",krs->eye_height[0][i]); */
+        /* } */
+        /* cli_printf("\n  EYE HEIGHT C0     : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) { */
+        /*     cli_printf("%d ",krs->eye_height[1][i]); */
+        /* } */
+        /* cli_printf("\n  EYE HEIGHT CP1    : "); */
+        /* for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) { */
+        /*     cli_printf("%d ",krs->eye_height[2][i]); */
+        /* } */
+        /* cli_printf("  \nTRAINING FRMS SENT: %d\n",krs->frm_sent); */
+        /* cli_printf("  TRAINING TIME     : %d ms. (Remote is tuning Tx Serdes).\n",krs->tr_time_ld); */
+        /* cli_printf("  TRAINING STATUS   : %s\n",krs->current_state == SEND_DATA ? "OK" : "Failed"); */
 
-        cli_printf("  Remote device training details:\n");
-        cli_printf("  LD CM1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CM1],krs->ld_tap_end_cnt[CM1]);
-        cli_printf("  LD C0  MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[C0], krs->ld_tap_end_cnt[C0]);
-        cli_printf("  LD CP1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CP1],krs->ld_tap_end_cnt[CP1]);
-        cli_printf("  LD CM (tap_dly)   : %d (%d)\n",sts.train.cm_ob_tap_result, krs->ld_org_tap_val[CM1]);
-        cli_printf("  LD C0 (pc2pma)    : %d (%d)\n",sts.train.c0_ob_tap_result, krs->ld_org_tap_val[C0]);
-        cli_printf("  LD CP (tap_adv)   : %d (%d)\n",sts.train.cp_ob_tap_result, krs->ld_org_tap_val[CP1]);
-        cli_printf("  TRAINING TIME     : %d ms. (This device is tuning Tx Serdes).\n",krs->tr_time_rd);
+        /* cli_printf("  Remote device training details:\n"); */
+        /* cli_printf("  LD CM1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CM1],krs->ld_tap_end_cnt[CM1]); */
+        /* cli_printf("  LD C0  MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[C0], krs->ld_tap_end_cnt[C0]); */
+        /* cli_printf("  LD CP1 MAX/END    : %d/%d\n",krs->ld_tap_max_cnt[CP1],krs->ld_tap_end_cnt[CP1]); */
+        /* cli_printf("  LD CM (tap_dly)   : %d (%d)\n",sts.train.cm_ob_tap_result, krs->ld_org_tap_val[CM1]); */
+        /* cli_printf("  LD C0 (pc2pma)    : %d (%d)\n",sts.train.c0_ob_tap_result, krs->ld_org_tap_val[C0]); */
+        /* cli_printf("  LD CP (tap_adv)   : %d (%d)\n",sts.train.cp_ob_tap_result, krs->ld_org_tap_val[CP1]); */
+        /* cli_printf("  TRAINING TIME     : %d ms. (This device is tuning Tx Serdes).\n",krs->tr_time_rd); */
 
     }
 }
@@ -669,7 +710,7 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
     s = (tv.tv_sec % 60);
 
     b = &buf[0];
-    b += sprintf(b, "Port:%d (%02u:%03lu) %s (%d ms)\n",p+1,s,tv.tv_usec/1000, (krs->current_state == SEND_DATA) ? "TRAINING COMPLETED":"", time);
+    b += sprintf(b, "Port:%d (%02u:%03lu) %s (%d ms)\n",p+1,s,tv.tv_usec/1000, (krs->state.current_state == MESA_TR_SEND_DATA) ? "TRAINING COMPLETED":"", time);
     b += sprintf(b, "       IRQ Vector:");
     b += sprintf(b, "%s", bit2txt((KR_ACTV & vector),       "KR_ACTV "));
     b += sprintf(b, "%s", bit2txt((KR_LPSVALID & vector),   "KR_LPSVALID "));
@@ -706,7 +747,8 @@ static void print_irq_vector(uint32_t p, uint32_t vector, u32 time)
     kr_printf("%s\n",buf);
 
     if (deb_dump_irq) {
-        printf("%s\n",buf);
+        if (p == 0)
+            printf("%s\n",buf);
     }
 
 }
@@ -740,219 +782,27 @@ static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf
     }
 }
 
-static u32 get_api_eye_height(mesa_port_no_t p)
-{
-    mesa_port_kr_eye_dim_t eye;
-
-    if (mesa_port_kr_eye_dim_get(NULL, p, &eye) == MESA_RC_OK) {
-        return eye.height;
-    } else {
-        printf("Eye scan fails to complete\n");
-    }
-    return 0;
-}
-
-static kr_status_report_t coef2status(mesa_port_no_t p, kr_coefficient_t data)
-{
-    kr_coefficient_t coef = data;
-    kr_status_report_t status = 0;
-    kr_tap_t tap = 0;
-    kr_train_t *krs = &kr_tr_state[p];
-
-    if (((data & INIT)) == 0 && ((data & PRESET) == 0)) {
-        if (((data >> 4) & 0x3) > 0) {
-            coef = (data >> 4) & 0x3;
-            tap = CP1;
-        } else if (((data >> 2) & 0x3) > 0) {
-            coef = (data >> 2) & 0x3;
-            tap = C0;
-        } else {
-            coef = data & 0x3;
-            tap = CM1;
-        }
-    }
-
-    if (coef == INIT) {
-        deb_coef_now[p][CM1] = deb_coef_max[p][CM1] / 2;
-        deb_coef_now[p][CP1] = deb_coef_max[p][CP1] / 2;
-        deb_coef_now[p][C0]  = deb_coef_max[p][C0] / 2;
-        status = UPDATED;
-    } else if (coef == PRESET) {
-        deb_coef_now[p][CM1] = deb_coef_max[p][CM1] / 2;
-        deb_coef_now[p][CP1] = deb_coef_max[p][CP1] / 2;
-        deb_coef_now[p][C0]  = deb_coef_max[p][C0] / 2;
-        status = UPDATED;
-    } else if (coef == HOLD) {
-        status = NOT_UPDATED;
-    } else if (coef == INCR) {
-        if (deb_coef_now[p][tap] < deb_coef_max[p][tap]) {
-            deb_coef_now[p][tap]++;
-            status = UPDATED;
-        } else {
-            status = MAXIMUM;
-        }
-        krs->ld_tap_max_cnt[tap]++;
-        if (status == MAXIMUM) {
-            krs->ld_tap_end_cnt[tap] = krs->ld_tap_max_cnt[tap];
-        }
-
-    } else if (coef == DECR) {
-        if (deb_coef_now[p][tap] > deb_coef_min) {
-            deb_coef_now[p][tap]--;
-            status = UPDATED;
-        } else {
-            status = MINIMUM;
-        }
-        if ((krs->ld_tap_end_cnt[tap]) > 0) {
-            krs->ld_tap_end_cnt[tap]--;
-        }
-    } else  {
-        printf("Error in coef\n");
-    }
-
-    if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
-        krs->local_rx_ready = TRUE;
-    }
-
-    if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
-        status += BT(15);
-    }
-
-    if (tap == CP1) {
-        status = status << 4;
-    } else if (tap == C0) {
-        status = status << 2;
-    } else if ((coef == PRESET) || coef == PRESET) {
-        status = (status << 4) | (status << 2) |  status;
-    }
-
-    char coef_tap[20] = {0};
-    char coef_act[20] = {0};
-    (void)raw_coef2txt(data, coef_tap, coef_act);
-    char sts_tap[20] = {0};
-    char sts_act[20] = {0};
-    (void)raw_sts2txt(status, sts_tap, sts_act);
-
-    kr_printf("       (UPD)TAP:%s Action:%s -> Status:%s/ %s\n", coef_tap, coef_act, sts_tap, sts_act);
-
-    return status;
-}
-
-
-void kr_add_to_history(mesa_port_no_t p, kr_coefficient_t coef, mesa_port_kr_status_results_t res)
+void kr_add_to_ld_history(mesa_port_no_t p, mesa_kr_status_results_t res)
 {
     kr_train_t *krs = &kr_tr_state[p];
-    if (krs->hist_index < 200) {
-        krs->coef_hist[krs->hist_index].coef = coef;
-        krs->coef_hist[krs->hist_index].res = res;
-        krs->hist_index++;
-        krs->coef_hist[krs->hist_index].time = get_time_ms(&krs->time_start);
+    if (krs->ld_hist_index < 200) {
+        krs->ld_hist[krs->ld_hist_index].time = get_time_ms(&krs->time_start);
+        krs->ld_hist[krs->ld_hist_index].res = res;
+        krs->ld_hist_index++;
     }
 }
 
-static uint16_t coef2status_api(mesa_port_no_t p, uint16_t data)
+void kr_add_to_lp_history(mesa_port_no_t p)
 {
-    mesa_port_kr_status_results_t res;
-    kr_train_t *krs = &kr_tr_state[p];
-    kr_coefficient_t coef = data;
-    kr_tap_t tap = 0;
-    kr_status_report_t sts = 0;
-
-    mesa_port_kr_coef_set(NULL, p, data, &res);
-    kr_add_to_history(p, data, res);
-
-    if (((data & INIT)) == 0 && ((data & PRESET) == 0)) {
-        if (((data >> 4) & 0x3) > 0) {
-            coef = (data >> 4) & 0x3;
-            sts = (res.status >> 4) & 0x3;
-            tap = CP1;
-        } else if (((data >> 2) & 0x3) > 0) {
-            coef = (data >> 2) & 0x3;
-            sts = (res.status >> 2) & 0x3;
-            tap = C0;
-        } else {
-            coef = data & 0x3;
-            sts = res.status & 0x3;
-            tap = CM1;
-        }
+    kr_train_t *kr = &kr_tr_state[p];
+    mesa_port_kr_state_t *krs = &kr_tr_state[p].state;
+    if (kr->lp_hist_index < 200) {
+        kr->lp_hist[kr->lp_hist_index].time = get_time_ms(&kr->time_start);
+        kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
+        kr->lp_hist[kr->lp_hist_index].ber_training_stage = krs->ber_training_stage;
+        kr->lp_hist_index++;
     }
-
-    if (coef == INCR) {
-        krs->ld_tap_max_cnt[tap]++;
-        if (sts == MAXIMUM) {
-            krs->ld_tap_end_cnt[tap] = krs->ld_tap_max_cnt[tap];
-        }
-    } else if (coef == DECR) {
-        if ((krs->ld_tap_end_cnt[tap]) > 0) {
-            krs->ld_tap_end_cnt[tap]--;
-        }
-    }
-
-    char coef_tap[20] = {0};
-    char coef_act[20] = {0};
-    (void)raw_coef2txt(data, coef_tap, coef_act);
-    char sts_tap[20] = {0};
-    char sts_act[20] = {0};
-    (void)raw_sts2txt(res.status, sts_tap, sts_act);
-
-    if (krs->ber_training_stage == LOCAL_RX_TRAINED) {
-        res.status += BT(15);
-    }
-
-    kr_printf("       (UPD)TAP:%s Action:%s -> Status:%s/ %s\n", coef_tap, coef_act, sts_tap, sts_act);
-
-    return res.status;
 }
-
-static uint16_t update_coef(kr_coefficient_t ld, kr_tap_t tap)
-{
-    uint16_t offset;
-
-    if (tap == CP1) {
-        offset = 4;
-    } else if (tap == C0) {
-        offset = 2;
-    } else {
-        offset = 0;
-    }
-
-    switch (ld) {
-    case PRESET: return (1 << 13);
-    case INIT:   return (1 << 12);
-    case DECR:   return (1 << (1 + offset));
-    case INCR:   return (1 << (0 + offset));
-    case HOLD:   return 0;
-    default:
-        kr_printf("Illegal prm\n");
-        break;
-    }
-    return 0;
-}
-
-static kr_status_report_t kr_status_report(uint16_t data, kr_tap_t tap)
-{
-    uint16_t sts = 0;
-
-    if (tap == CP1) {
-        sts = (data >> 4) & 0x3;
-    } else if (tap == C0) {
-        sts = (data >> 2) & 0x3;
-    } else {
-        sts = data & 0x3;
-    }
-
-    switch (sts) {
-    case 0:  return NOT_UPDATED;
-    case 1:  return UPDATED;
-    case 2:  return MINIMUM;
-    case 3:  return MAXIMUM;
-    default:
-        kr_printf("Illegal prm\n");
-        break;
-    }
-    return 0;
-}
-
 
 #define KR_ANEG_RATE_25G 7
 #define KR_ANEG_RATE_10G 9
@@ -974,503 +824,79 @@ static mesa_port_speed_t kr_irq2spd(uint32_t irq)
     return MESA_SPEED_10G;
 }
 
-static void analyze_ber(u32 p, uint16_t *ber, uint16_t *high_mark, uint16_t *low_mark)
-{
-    kr_train_t *krs = &kr_tr_state[p];
-    /* for (uint16_t i = 0; i < 64; i++ ) { */
-    /*     if (ber[i] > BER_THRESHOLD) { */
-    /*         *low_mark = i; */
-    /*         break; */
-    /*     } */
-    /* } */
 
-    /* for (uint16_t i = 64; i != 0; i-- ) { */
-    /*     if (ber[i] > BER_THRESHOLD) { */
-    /*         *high_mark = i; */
-    /*         break; */
-    /*     } */
-    /* } */
-
-    *high_mark = krs->tap_idx;
-    *low_mark = 0;
-}
-
-static u32 get_best_eye(u32 p, kr_tap_t tap)
-{
-    kr_train_t *krs = &kr_tr_state[p];
-
-    u32 max = krs->eye_height[tap][0];
-    u32 indx = 0;
-    for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
-
-        if (krs->eye_height[tap][i] >= max ) {
-            max = krs->eye_height[tap][i];
-            indx = i;
-        }
-    }
-    return indx + 1;
-}
-
-
-static kr_tap_t next_tap(kr_tap_t tap, mesa_bool_t first)
-{
-    if (first) {
-        return CM1;
-    }
-    switch (tap) {
-    case CM1: return CP1;
-    case CP1: return C0;
-    case C0:  return C0;
-    }
-    return 0;
-}
-
-static void send_coef_update(mesa_port_no_t p, kr_coefficient_t coef, kr_tap_t tap, char *txt)
-{
-    mesa_port_kr_frame_t frm;
-//    kr_train_t *krs = &kr_tr_state[p];
-    kr_printf("       (LPT)TX COEF FRM: %s (%s)\n", coef2txt(coef), txt);
-    frm.data = update_coef(coef, tap);
-    frm.type = MESA_COEFFICIENT_UPDATE_FRM;
-    (void)mesa_port_kr_train_frm_set(NULL, p, &frm);
-}
-
-static void send_sts_report(mesa_port_no_t p, u32 data)
-{
-    mesa_port_kr_frame_t frm;
-    kr_train_t *krs = &kr_tr_state[p];
-
-    if (data & BT(15)) {
-        krs->receiver_ready_sent = TRUE;
-    }
-
-    frm.data = data;
-    frm.type = MESA_STATUS_REPORT_FRM;
-    // Send Status report
-    (void)mesa_port_kr_train_frm_set(NULL, p, &frm);
-}
-
-static void perform_lp_training(mesa_port_no_t p, uint32_t irq)
-{
-    mesa_port_kr_frame_t frm;
-    kr_train_t *krs = &kr_tr_state[p];
-    kr_status_report_t lp_status = 0;
-    mesa_port_kr_fw_req_t req_msg = {0};
-
-    if (deb_skip_training[p]) {
-        krs->ber_training_stage = LOCAL_RX_TRAINED;
-        return;
-    }
-
-    kr_printf("       (LPT)IRQ:%s TAP:%s BER:%s STATE:%s\n",irq2txt(irq), tap2txt(krs->current_tap),
-              ber2txt(krs->ber_training_stage), state2txt(krs->current_state));
-
-    if (irq == KR_TRAIN) {
-        send_coef_update(p, INIT, krs->current_tap, "KR_TRAIN");
-        krs->ber_training_stage = GO_TO_MIN;
-        krs->current_tap = next_tap(0, 1);
-        return;
-    }
-
-    if (irq == KR_LPSVALID) {
-       frm.type = MESA_STATUS_REPORT_FRM;
-       (void)mesa_port_kr_train_frm_get(NULL, p, &frm);
-       lp_status = kr_status_report(frm.data, krs->current_tap);
-       kr_printf("       (LPT)RX STS FRM: %s (%x)\n", sts2txt(lp_status),frm.data);
-    }
-
-    switch (krs->ber_training_stage) {
-    case GO_TO_MIN:
-        if (irq == KR_LPSVALID) {
-            if (lp_status == UPDATED || lp_status == MAXIMUM) {
-                send_coef_update(p, HOLD, krs->current_tap, "GO_TO_MIN");
-                if (krs->dme_viol_handled) {
-                    req_msg.ber_enable = TRUE;
-                    (void)mesa_port_kr_fw_req(NULL, p, &req_msg);
-                    krs->ber_busy_sw = TRUE;
-                    krs->ber_training_stage = CALCULATE_BER;
-                    krs->tap_idx = 0;
-                    krs->dme_viol = 0;
-                    krs->dme_viol_handled = FALSE;
-                }
-            } else if (lp_status == NOT_UPDATED) {
-                if (krs->dme_viol) {
-                    send_coef_update(p, INCR, krs->current_tap, "GO_TO_MIN");
-                    krs->dme_viol_handled = TRUE;
-                } else {
-                    send_coef_update(p, DECR, krs->current_tap, "GO_TO_MIN");
-                }
-            } else if (lp_status == MINIMUM) {
-                send_coef_update(p, HOLD, krs->current_tap, "GO_TO_MIN/BER_ENABLE");
-                req_msg.ber_enable = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, p, &req_msg);
-                krs->ber_busy_sw = TRUE;
-                krs->ber_training_stage = CALCULATE_BER;
-                krs->tap_idx = 0;
-                krs->tap_max_reached = FALSE;
-            } else {
-                printf("Error Got lp_status:%d\n",lp_status);
-            }
-
-        } else {
-            kr_printf("Perform_lp_traing valled with irq:%d when in stage GO_TO_MIN\n",irq);
-        }
-        return;
-    case CALCULATE_BER:
-        if (irq == KR_BER_BUSY_1) {
-            krs->ber_busy = TRUE;
-        } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
-            krs->ber_busy_sw = FALSE;
-            krs->ber_busy = FALSE;
-            krs->ber_cnt[krs->current_tap][krs->tap_idx] = krs->status.train.frame_errors;
-            kr_printf("       (LPT)GET_EYE 1 (%d ms)\n",get_time_ms(&krs->time_start));
-            krs->ignore_fail = TRUE; // The eye procedure causes KR failures
-            krs->eye_height[krs->current_tap][krs->tap_idx] = get_api_eye_height(p);
-            kr_printf("       (LPT)GET_EYE 2 (%d ms)\n",get_time_ms(&krs->time_start));
-            if (krs->tap_max_reached) {
-                krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
-                u16 high_mark = 0;
-                u16 low_mark = 0;
-                analyze_ber(p, krs->ber_cnt[krs->current_tap], &high_mark, &low_mark);
-                u16 mid_mark = get_best_eye(p, krs->current_tap);
-                krs->lp_tap_end_cnt[krs->current_tap] = mid_mark;
-                krs->decr_cnt = krs->tap_idx - mid_mark;
-                send_coef_update(p, DECR, krs->current_tap, "CALC_BER/BER_BUSY");
-                krs->ber_training_stage = MOVE_TO_MID_MARK;
-            } else {
-                send_coef_update(p, INCR, krs->current_tap, "CALC_BER/BER_BUSY");
-            }
-        } else if (irq == KR_LPSVALID) {
-            if (!krs->ber_busy && !krs->ber_busy_sw) {
-                if (lp_status == NOT_UPDATED) {
-                    if (krs->dme_viol) {
-                        send_coef_update(p, DECR, krs->current_tap, "CALC_BER/LPS_VALID");
-                        krs->dme_viol_handled = TRUE;
-                    } else {
-                        send_coef_update(p, INCR, krs->current_tap, "CALC_BER/LPS_VALID");
-                    }
-                } else if (lp_status == UPDATED || lp_status == MAXIMUM) {
-                    send_coef_update(p, HOLD, krs->current_tap, "CALC_BER/LPS_VALID/BER_ENABLE");
-                    req_msg.ber_enable = TRUE;
-                    (void)mesa_port_kr_fw_req(NULL, p, &req_msg);
-                    krs->ber_busy_sw = TRUE;
-                    krs->tap_idx++;
-                    if((lp_status == MAXIMUM) || krs->dme_viol_handled) {
-                        krs->tap_max_reached = TRUE;
-                        if (krs->dme_viol_handled) {
-                            krs->tap_idx--;
-                            krs->dme_viol = FALSE;
-                            krs->dme_viol_handled = FALSE;
-                        }
-                    } else {
-                        krs->tap_max_reached = FALSE;
-                    }
-                } else if (lp_status != NOT_UPDATED) {
-                    kr_printf("Invalid status reveived when BER is busy\n");
-                } else {
-                    kr_printf("LPSVALID Invalid state 1\n");
-                }
-            }
-        } else if (irq == KR_DME_VIOL_1) {
-            krs->dme_viol = TRUE;
-        } else {
-            kr_printf("LPSVALID Invalid state 2\n");
-        }
-        break;
-    case MOVE_TO_MID_MARK:
-        if (irq == KR_LPSVALID) {
-            krs->ignore_fail = FALSE;
-            if (lp_status == UPDATED || lp_status == MINIMUM) {
-                send_coef_update(p, HOLD, krs->current_tap, "MOVE_TO_MID");
-                if (krs->decr_cnt > 0) {
-                    krs->decr_cnt--;
-                }
-                if (krs->decr_cnt == 0 || lp_status == MINIMUM) {
-                    if (krs->current_tap == next_tap(krs->current_tap, 0)) {
-                        krs->ber_training_stage = LOCAL_RX_TRAINED;
-                        krs->frm_sent = krs->status.train.frame_sent;
-                        kr_printf("       (LPT)LOCAL_RX_TRAINED\n");
-                    } else {
-                        krs->current_tap = next_tap(krs->current_tap, 0);
-                        kr_printf("       (LPT)Next tap:%s\n",tap2txt(krs->current_tap));
-                        krs->ber_training_stage = GO_TO_MIN;
-                    }
-                } else if (lp_status == NOT_UPDATED) {
-                    send_coef_update(p, DECR, krs->current_tap, "MOVE_TO_MID");
-                }
-            } else if (lp_status == NOT_UPDATED) {
-                send_coef_update(p, DECR, krs->current_tap, "MOVE_TO_MID");
-            }
-        } else {
-            kr_printf("perform_lp_training called on invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
-        }
-        break;
-
-    default:
-        kr_printf("Reach DEFAULT (irq:%d)\n",irq);
-        break;
-    }
-
-}
 
 static void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t        iport;
     mesa_port_kr_status_t kr_sts;
-    mesa_port_kr_conf_t kr;
+    mesa_port_kr_conf_t kr_conf;
     mesa_port_conf_t        pconf;
+    mesa_port_kr_state_t   *krs;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
-    mesa_port_kr_fw_req_t req_msg = {0};
-    kr_train_t *krs;
+    /* mesa_port_kr_fw_req_t req_msg = {0}; */
+    kr_train_t *kr;
 
     for (iport = 0; iport < meba_cnt; iport++) {
 
-        if (mesa_port_kr_conf_get(NULL, iport, &kr) != MESA_RC_OK ||
-            !kr.aneg.enable) {
+        if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK ||
+            !kr_conf.aneg.enable) {
             continue;
-        }
-
-        if (first) {
-
-            // For debug purposes
-
-            deb_skip_training[0] = 0;
-            /* deb_coef_max[0][CM1] = 3; */
-            /* deb_coef_max[0][C0]  = 17; */
-            /* deb_coef_max[0][CP1] = 22; */
-
-            /* deb_coef_max[1][CM1] = 3; */
-            /* deb_coef_max[1][C0]  = 17; */
-            /* deb_coef_max[1][CP1] = 22; */
-
-            for (u32 x = 0; x < 20; x++) {
-                deb_coef_max[x][CM1] = 2;
-                deb_coef_max[x][C0]  = 2;
-                deb_coef_max[x][CP1] = 2;
-
-                deb_coef_max[x][CM1] = 2;
-                deb_coef_max[x][C0]  = 2;
-                deb_coef_max[x][CP1] = 2;
-            }
-
-            (void)gettimeofday(&start, NULL);
-            first = 0;
-            if (!API_TEST) {
-                printf("NOTE: API is disabled\n");
-            }
         }
 
         if ((mesa_port_kr_status_get(NULL, iport, &kr_sts) != MESA_RC_OK)
             || (kr_sts.irq.vector == 0)) {
             continue;
         }
-        krs = &kr_tr_state[iport];
-        krs->status = kr_sts;
+        kr = &kr_tr_state[iport];
+        kr->status = kr_sts;
+
+         if (kr_sts.irq.vector & KR_TRAIN) {
+             (void)time_start(&kr->time_start); // Start the timer
+         }
 
         (void)mesa_port_conf_get(NULL, iport, &pconf);
-        (void)print_irq_vector(iport, kr_sts.irq.vector, get_time_ms(&krs->time_start));
+        (void)print_irq_vector(iport, kr_sts.irq.vector, get_time_ms(&kr->time_start));
 
-        if (kr_sts.irq.vector & KR_DME_VIOL_0 || kr_sts.irq.vector & KR_DME_VIOL_1 ||
-            kr_sts.irq.vector & KR_REM_RDY_0 || kr_sts.irq.vector & KR_REM_RDY_0 ||
-            kr_sts.irq.vector & KR_FRLOCK_0) {
-            if (krs->ignore_fail) { // Needed due to failures during eye height calculation
-                kr_printf("       (FAIL)Rx IRQ Errors\n");
-                kr_sts.irq.vector &= ~KR_DME_VIOL_0;
-                kr_sts.irq.vector &= ~KR_DME_VIOL_1;
-                kr_sts.irq.vector &= ~KR_REM_RDY_0;
-                kr_sts.irq.vector &= ~KR_FRLOCK_0;
-            }
-        }
+        mesa_port_kr_irq_apply(NULL, iport, &kr_sts.irq.vector);
 
-        // KR_AN_XMIT_DISABLE. Aneg is restarted.
-        if (kr_sts.irq.vector & KR_AN_XMIT_DISABLE) {
-            if (krs->training_started) {
-                krs->training_started = FALSE;
-                req_msg.stop_training = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-            }
-            fa_kr_reset_state(iport);
-            krs->ld_org_tap_val[CM1] = kr_sts.train.cm_ob_tap_result;
-            krs->ld_org_tap_val[CP1] = kr_sts.train.cp_ob_tap_result;
-            krs->ld_org_tap_val[C0] = kr_sts.train.c0_ob_tap_result;
-        }
-        // KR_TRAIN. Start Training
-        if (kr_sts.irq.vector & KR_TRAIN) {
-            if (kr.train.enable) {
-                (void)time_start(&krs->time_start); // Start the timer
-                krs->current_state = SEND_TRAINING;
-                krs->training_started = TRUE;
-                krs->remote_rx_ready = FALSE;
-                krs->local_rx_ready = FALSE;
-                req_msg.start_training = TRUE;
-                req_msg.mw_start = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-                (void)perform_lp_training(iport, KR_TRAIN);
-            } else {
-                krs->current_state = SEND_DATA;
-                krs->training_started = FALSE;
-                req_msg.stop_training = TRUE;
-                req_msg.tr_done = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-                krs->signal_detect = TRUE;
-            }
-        }
+        (void)mesa_port_kr_state_get(NULL, iport, &kr->state);
+        krs = &kr->state;
 
-        // KR_FRLOCK_1. Training frame lock attained. Change state to TRAIN_LOCAL
-        if ((kr_sts.irq.vector & KR_FRLOCK_1) && krs->training_started) {
-            if (krs->current_state == SEND_TRAINING) {
-                krs->current_state = TRAIN_LOCAL;
-            }
-        }
+        kr_printf("       TAP:%s BER:%s STATE:%s\n",tap2txt(krs->current_tap),
+                  ber2txt(krs->ber_training_stage), state2txt(krs->current_state));
 
-        // KR_REM_RDY_1. Remote is ready
-        if (kr_sts.irq.vector & KR_REM_RDY_1) {
-            if (!krs->remote_rx_ready) {
-                krs->tr_time_rd = get_time_ms(&krs->time_start);
-            }
-            krs->remote_rx_ready = TRUE;
-            // Ignore failures after remote is ready
-            kr_sts.irq.vector &= ~KR_DME_VIOL_0;
-            kr_sts.irq.vector &= ~KR_DME_VIOL_1;
-            kr_sts.irq.vector &= ~KR_REM_RDY_0;
-            kr_sts.irq.vector &= ~KR_FRLOCK_0;
-
-        }
-
-        // KR_FRLOCK_0. Training frame lock is lost during training
-        if ((kr_sts.irq.vector & KR_FRLOCK_0) && krs->training_started && (krs->current_state != LINK_READY)) {
-            if ((krs->current_state == TRAIN_LOCAL) || (krs->current_state == TRAIN_REMOTE)) {
-                krs->current_state = SEND_TRAINING;
-                krs->remote_rx_ready = FALSE;
-                krs->local_rx_ready = FALSE;
-            }
-        }
-
-        // KR_LPCVALID
         if ((kr_sts.irq.vector & KR_LPCVALID) && krs->training_started) {
-            mesa_port_kr_frame_t frm;
-            frm.type = MESA_COEFFICIENT_UPDATE_FRM;
-            (void)mesa_port_kr_train_frm_get(NULL, iport, &frm);
-            if (API_TEST) {
-                frm.data = coef2status_api(iport, frm.data);
-            } else {
-                frm.data = coef2status(iport, frm.data);
-            }
-            // Send Status report
-            frm.type = MESA_STATUS_REPORT_FRM;
-            (void)mesa_port_kr_train_frm_set(NULL, iport, &frm);
+            kr_add_to_ld_history(iport, krs->tr_res);
         }
 
-        // KR_LPSVALID
-        if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
-            if (krs->ber_training_stage != LOCAL_RX_TRAINED) {
-                perform_lp_training(iport, KR_LPSVALID);
-            } else {
-                kr_printf("       (KR_LPSVALID)Current state = TRAIN_REMOTE\n");
-                if (krs->current_state != TRAIN_REMOTE) {
-                    krs->tr_time_ld = get_time_ms(&krs->time_start);
-                }
-                krs->current_state = TRAIN_REMOTE;
-            }
+        if (krs->training_started) {
+            kr_add_to_lp_history(iport);
         }
+        
 
-        // KR_WT_DONE
-        if (kr_sts.irq.vector & KR_WT_DONE) {
-            if (krs->current_state ==  LINK_READY) {
-                kr_printf("       (WT_DONE)STOP Training\n");
-                krs->current_state = SEND_DATA;
-                krs->training_started = FALSE;
-                req_msg.stop_training = TRUE;
-                req_msg.tr_done = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-                krs->signal_detect = TRUE;
-                printf("Port:%d - Training completed (in %d ms)\n",iport+1, get_time_ms(&krs->time_start));
-            }
-        }
 
-        // KR_BER_BUSY_1
-        if (kr_sts.irq.vector & KR_BER_BUSY_1) {
-            perform_lp_training(iport, KR_BER_BUSY_1);
-        }
+/*         // KR_RATE_DET */
+/*         if (kr_sts.irq.vector & KR_RATE_DET) { */
+/*             // Parallel detect speed change */
+/*             pconf.speed = kr_parallel_spd(iport, &kr); */
+/*             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES; */
+/* //            req_msg.gen0_tmr_start = 1; */
+/*             (void)mesa_port_conf_set(NULL, iport, &pconf); */
+/*             /\* req_msg.rate_done = 1; *\/ */
+/*             /\* (void)mesa_port_kr_fw_req(NULL, iport, &req_msg); *\/ */
 
-        // KR_BER_BUSY_0
-        if (kr_sts.irq.vector & KR_BER_BUSY_0) {
-            perform_lp_training(iport, KR_BER_BUSY_0);
-        }
+/*         } */
 
-        // KR_DME_VIOL_1
-        if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != LINK_READY)) {            
-            perform_lp_training(iport, KR_DME_VIOL_1);
-        }
-
-        // KR_DME_VIOL_0
-        if (kr_sts.irq.vector & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != LINK_READY)) {
-            // Do nothing
-        }
-
-        // KR_REM_RDY_1
-        if (kr_sts.irq.vector & KR_REM_RDY_1) {
-            krs->remote_rx_ready = TRUE;
-        }
-
-        // KR_REM_RDY_0
-        if (kr_sts.irq.vector & KR_REM_RDY_0 && krs->training_started && (krs->current_state != LINK_READY)) {
-            krs->remote_rx_ready = FALSE;
-            printf("p:%d KR_REM_RDY_0 - stopping\n",iport);
-        }
-
-        // KR_MW_DONE
-        if ((kr_sts.irq.vector & KR_MW_DONE) && krs->training_started) {
-            printf("       (MW_DONE)MAX Wait done - Failure\n");
-            req_msg.training_failure = TRUE;
-            (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-        }
-
-        // WT_START
-        if (krs->current_state == TRAIN_REMOTE && krs->remote_rx_ready) {
-
-            kr_printf("       (REMOTE_READY) Send 3 Rx_Ready status reports and WT_START\n");
-            send_sts_report(iport, BT(15));
-            send_sts_report(iport, BT(15));
-            send_sts_report(iport, BT(15));
-            send_sts_report(iport, 0); // needed to avoid KR_REM_RDY_1 during next training restart
-
-            req_msg.wt_start = TRUE;
-            (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-            krs->current_state = LINK_READY;
-        }
-
-        // KR_AN_GOOD
-        if (kr_sts.irq.vector & KR_AN_GOOD) {
-            if (pconf.speed < MESA_SPEED_5G) {
-                req_msg.aneg_disable = TRUE;
-                (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-                continue;
-
-            }
-        }
-
-        // KR_RATE_DET
-        if (kr_sts.irq.vector & KR_RATE_DET) {
-            // Parallel detect speed change
-            pconf.speed = kr_parallel_spd(iport, &kr);
-            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            req_msg.gen0_tmr_start = 1;
-            (void)mesa_port_conf_set(NULL, iport, &pconf);
-            req_msg.rate_done = 1;
-            (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-
-        }
-
-        // KR_AN_RATE
-        if ((kr_sts.irq.vector & KR_AN_RATE) > 0) {
-            // Aneg speed change request
-            pconf.speed = kr_irq2spd(kr_sts.irq.vector & 0xf);
-            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            (void)mesa_port_conf_set(NULL, iport, &pconf);
-            req_msg.rate_done = 1;
-            (void)mesa_port_kr_fw_req(NULL, iport, &req_msg);
-        }
+/*         // KR_AN_RATE */
+/*         if ((kr_sts.irq.vector & KR_AN_RATE) > 0) { */
+/*             // Aneg speed change request */
+/*             pconf.speed = kr_irq2spd(kr_sts.irq.vector & 0xf); */
+/*             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES; */
+/*             (void)mesa_port_conf_set(NULL, iport, &pconf); */
+/*             /\* req_msg.rate_done = 1; *\/ */
+/*             /\* (void)mesa_port_kr_fw_req(NULL, iport, &req_msg); *\/ */
+/*         } */
     }
 }
 

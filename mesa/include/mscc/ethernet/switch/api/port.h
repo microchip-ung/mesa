@@ -690,55 +690,77 @@ mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
 
 
 /******************************************************************************/
-/* 10G KR Backplane Ethernet (version 3, Sparx-5)                     */
+/* 25G/10G KR Backplane Ethernet (version 3, Sparx-5 and newer)               */
 /******************************************************************************/
-typedef struct {
-    mesa_bool_t ber_enable;
-    mesa_bool_t gen0_tmr_start;
-    mesa_bool_t gen1_tmr_start;
-    mesa_bool_t wt_start;
-    mesa_bool_t mw_start;
-    mesa_bool_t tr_done;
-    mesa_bool_t ldcoef_vld;
-    mesa_bool_t ldstat_vld;
-    mesa_bool_t np_loaded;
-    mesa_bool_t rate_done;
-    mesa_bool_t start_training;
-    mesa_bool_t stop_training;
-    mesa_bool_t training_failure;
-    mesa_bool_t aneg_disable;
-} mesa_port_kr_fw_req_t CAP(PORT_10GBASE_KR_V3);
+typedef enum {
+    MESA_TR_INITILIZE,
+    MESA_TR_SEND_TRAINING,
+    MESA_TR_TRAIN_LOCAL,
+    MESA_TR_TRAIN_REMOTE,
+    MESA_TR_SEND_DATA,
+    MESA_TR_TRAINING_FAILURE,
+    MESA_TR_LINK_READY
+} mesa_train_state_t CAP(PORT_10GBASE_KR_V3); 
 
-mesa_rc mesa_port_kr_fw_req(const mesa_inst_t inst,
-                                const mesa_port_no_t port_no,
-                                mesa_port_kr_fw_req_t *const fw_req)
-    CAP(PORT_10GBASE_KR_V3);
+typedef enum {
+    MESA_BER_GO_TO_MIN,
+    MESA_BER_CALCULATE_BER,
+    MESA_BER_MOVE_TO_MID_MARK,
+    MESA_BER_LOCAL_RX_TRAINED
+} mesa_ber_stage_t CAP(PORT_10GBASE_KR_V3);
 
-typedef enum
-{
-    MESA_COEFFICIENT_UPDATE_FRM,
-    MESA_STATUS_REPORT_FRM
-} mesa_port_kr_frm_type_t CAP(PORT_10GBASE_KR_V3);
+typedef enum {
+    MESA_TAP_CM1,
+    MESA_TAP_C0,
+    MESA_TAP_CP1,
+} mesa_kr_tap_t CAP(PORT_10GBASE_KR_V3);
 
 typedef struct {
-    mesa_port_kr_frm_type_t type;
-    uint16_t data;
-} mesa_port_kr_frame_t CAP(PORT_10GBASE_KR_V3);
+    uint16_t cm1;
+    uint16_t c0;
+    uint16_t cp1;
+    uint16_t coef;
+    uint16_t status;
+} mesa_kr_status_results_t CAP(PORT_10GBASE_KR_V3);
 
-mesa_rc mesa_port_kr_train_frm_set(const mesa_inst_t inst,
-                                       const mesa_port_no_t port_no,
-                                       const mesa_port_kr_frame_t *const frm)
-    CAP(PORT_10GBASE_KR_V3);
+/** \brief 10G KR state machine structures */
+typedef struct {
+    mesa_train_state_t current_state;
+    mesa_ber_stage_t ber_training_stage;
+    mesa_kr_tap_t current_tap;
+    mesa_bool_t signal_detect;
+    mesa_bool_t training_started;
+    mesa_bool_t remote_rx_ready;
+    mesa_bool_t local_rx_ready;
+    mesa_bool_t dme_viol_handled;
+    mesa_bool_t dme_viol;
+    mesa_bool_t ber_busy;
+    mesa_bool_t ber_busy_sw;
+    mesa_bool_t tap_max_reached;
+    mesa_bool_t receiver_ready_sent;
+    mesa_bool_t kr_mw_done;
+    mesa_bool_t ignore_fail;
+    mesa_port_speed_t next_parallel_spd;
+    uint16_t lp_tap_max_cnt[3];
+    uint16_t lp_tap_end_cnt[3];
+    uint32_t tap_idx;
+    uint16_t ber_cnt[3][64];
+    uint16_t eye_height[3][64];
+    uint16_t decr_cnt;
+    uint16_t ber_coef_frm;
+    mesa_kr_status_results_t tr_res;
+} mesa_port_kr_state_t CAP(PORT_10GBASE_KR_V3);
 
-mesa_rc mesa_port_kr_train_frm_get(const mesa_inst_t inst,
-                                       const mesa_port_no_t port_no,
-                                       mesa_port_kr_frame_t *const frm)
+mesa_rc mesa_port_kr_state_get(const mesa_inst_t inst,
+                               const mesa_port_no_t port_no,
+                               mesa_port_kr_state_t *const state)
     CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR Aneg status
 typedef struct {
     mesa_bool_t complete;           // Aneg completed successfully
     mesa_bool_t active;             // Aneg is running
+    mesa_bool_t request_25g;        // 25G rate is negotiated (needs to be configured) 
     mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured) 
     mesa_bool_t request_5g;         // 5G rate is negotiated (needs to be configured)
     mesa_bool_t request_2g5;        // 2G5 rate is negotiated (needs to be configured)
@@ -807,6 +829,14 @@ typedef struct {
     mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
 } mesa_port_kr_conf_t CAP(PORT_10GBASE_KR_V3);
 
+// Apply KR interrupt 
+// port_no [IN]  Port number.
+// irq    [IN]  interrupt id.
+mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,
+                               const mesa_port_no_t port_no,
+                               const uint32_t *const irq)
+    CAP(PORT_10GBASE_KR_V3);
+
 
 // Set 10G KR configuration incl. aneg and training.
 // Aneg is started which starts the training process.
@@ -834,66 +864,9 @@ mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
                                     mesa_port_kr_status_t *const status)
     CAP(PORT_10GBASE_KR_V3);
 
-
-typedef enum {
-    MESA_COEF_PRESET,
-    MESA_COEF_INIT,
-    MESA_COEF_CP1,
-    MESA_COEF_C0,
-    MESA_COEF_CM1
-} mesa_port_kr_coef_type_t CAP(PORT_10GBASE_KR_V3);
-
-typedef enum {
-    MESA_COEF_HOLD,
-    MESA_COEF_INCR,
-    MESA_COEF_DECR
-} mesa_port_kr_coef_update_t CAP(PORT_10GBASE_KR_V3);
-
-typedef struct {
-    mesa_port_kr_coef_type_t type;
-    mesa_port_kr_coef_update_t update;
-} mesa_port_kr_coef_t CAP(PORT_10GBASE_KR_V3);
-
-typedef enum {
-    MESA_COEF_NOT_UPDATED = 0,
-    MESA_COEF_UPDATED = 1,
-    MESA_COEF_MINIMUM = 2,
-    MESA_COEF_MAXIMUM = 3
-} mesa_port_kr_coef_status_t CAP(PORT_10GBASE_KR_V3);
-
-typedef struct {
-    uint16_t cm1;
-    uint16_t c0;
-    uint16_t cp1;
-    uint16_t status;
-} mesa_port_kr_status_results_t CAP(PORT_10GBASE_KR_V3);
-
-
-mesa_rc mesa_port_kr_coef_set(const mesa_inst_t inst,
-                              const mesa_port_no_t port_no,
-                              const uint16_t coef,
-                              mesa_port_kr_status_results_t *const sts)
-    CAP(PORT_10GBASE_KR_V3);
-
-/** \brief 10G KR eye info */
-typedef struct {
-    uint32_t height;
-} mesa_port_kr_eye_dim_t CAP(PORT_10GBASE_KR_V3);
-
-/**
- * \brief Get 10G KR eye dimension
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param eye     [OUT] KR eye dimension
- *
- * \return Return code.
- **/
-mesa_rc mesa_port_kr_eye_dim_get(const mesa_inst_t inst,
-                                 const mesa_port_no_t port_no,
-                                 mesa_port_kr_eye_dim_t *const eye)
-    CAP(PORT_10GBASE_KR_V3);
-
+/******************************************************************************/
+/* 25G/10G KR Backplane Ethernet - End                                            */
+/******************************************************************************/
 
 // Port loopback
 typedef enum
