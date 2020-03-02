@@ -1002,7 +1002,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     if (irq > 0) {
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), irq);
         if (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) > 0) {
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
+//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
         }
     }
 

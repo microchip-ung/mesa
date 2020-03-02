@@ -772,6 +772,7 @@ typedef struct {
 typedef struct {
     vtss_train_state_t current_state;
     vtss_ber_stage_t ber_training_stage;
+    vtss_kr_tap_t current_tap;
     BOOL signal_detect;
     BOOL training_started;
     BOOL remote_rx_ready;
@@ -785,7 +786,6 @@ typedef struct {
     BOOL kr_mw_done;
     BOOL ignore_fail;
     vtss_port_speed_t next_parallel_spd;
-    vtss_kr_tap_t current_tap;
     u16  lp_tap_max_cnt[3];
     u16  lp_tap_end_cnt[3];
     u32  tap_idx;

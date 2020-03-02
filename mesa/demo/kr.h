@@ -135,6 +135,7 @@ typedef struct {
     mesa_ber_stage_t ber_training_stage;
     uint16_t ber_coef_frm;
     uint32_t time;
+    uint32_t irq;
 } kr_ber_t;
 
 typedef struct {

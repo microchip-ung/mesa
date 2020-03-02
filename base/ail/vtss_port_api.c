@@ -1654,7 +1654,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                         krs->tap_max_reached = FALSE;
                     }
                 } else if (lp_status != STATUS_NOT_UPDATED) {
-                    printf("Invalid status reveived when BER is busy\n");
+                    printf("Invalid status reveived when BER is busy (0x%x)\n",lp_status);
                 } else {
                     printf("LPSVALID Invalid state 1\n");
                 }
@@ -1704,28 +1704,25 @@ static void kr_reset_state(vtss_port_kr_state_t *krs) {
 
 static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                                  const vtss_port_no_t port_no,
-                                 const u32 irq)
+                                 const u32 irq_vec)
 {
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
-    vtss_port_kr_status_t kr_sts;
     vtss_port_kr_frame_t frm;
     vtss_port_kr_fw_req_t req_msg = {0};
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
-
-    vtss_state->port.kr_status(vtss_state, port_no, &kr_sts);
-    kr_sts.irq.vector = irq;
-
+    u32 irq = irq_vec;
+   
     // To avoid failures during eye height calculation
     if (krs->ignore_fail) { 
-        kr_sts.irq.vector &= ~KR_DME_VIOL_0;
-        kr_sts.irq.vector &= ~KR_DME_VIOL_1;
-        kr_sts.irq.vector &= ~KR_REM_RDY_0;
-        kr_sts.irq.vector &= ~KR_FRLOCK_0;
+        irq &= ~KR_DME_VIOL_0;
+        irq &= ~KR_DME_VIOL_1;
+        irq &= ~KR_REM_RDY_0;
+        irq &= ~KR_FRLOCK_0;
     }
 
     // KR_AN_XMIT_DISABLE. Aneg is restarted.
-    if (kr_sts.irq.vector & KR_AN_XMIT_DISABLE) {
+    if (irq & KR_AN_XMIT_DISABLE) {
         if (krs->training_started) {
             krs->training_started = FALSE;
             req_msg.stop_training = TRUE;
@@ -1733,10 +1730,11 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
         kr_reset_state(krs);
     }
-
+       
     // KR_TRAIN. Start Training
-    if (kr_sts.irq.vector & KR_TRAIN) {
+    if (irq & KR_TRAIN) {
         if (kr->train.enable) {
+            printf("Start training\n");
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
@@ -1756,25 +1754,24 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_FRLOCK_1. Training frame lock attained. Change state to TRAIN_LOCAL
-    if ((kr_sts.irq.vector & KR_FRLOCK_1) && krs->training_started) {
+    if ((irq & KR_FRLOCK_1) && krs->training_started) {
         if (krs->current_state == VTSS_TR_SEND_TRAINING) {
             krs->current_state = VTSS_TR_TRAIN_LOCAL;
         }
     }
 
     // KR_REM_RDY_1. Remote is ready
-    if (kr_sts.irq.vector & KR_REM_RDY_1) {
+    if (irq & KR_REM_RDY_1) {
         krs->remote_rx_ready = TRUE;
         // Ignore failures after remote is ready
-        kr_sts.irq.vector &= ~KR_DME_VIOL_0;
-        kr_sts.irq.vector &= ~KR_DME_VIOL_1;
-        kr_sts.irq.vector &= ~KR_REM_RDY_0;
-        kr_sts.irq.vector &= ~KR_FRLOCK_0;
-
+        irq &= ~KR_DME_VIOL_0;
+        irq &= ~KR_DME_VIOL_1;
+        irq &= ~KR_REM_RDY_0;
+        irq &= ~KR_FRLOCK_0;
     }
 
     // KR_FRLOCK_0. Training frame lock is lost during training
-    if ((kr_sts.irq.vector & KR_FRLOCK_0) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+    if ((irq & KR_FRLOCK_0) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         if ((krs->current_state == VTSS_TR_TRAIN_LOCAL) || (krs->current_state == VTSS_TR_TRAIN_REMOTE)) {
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->remote_rx_ready = FALSE;
@@ -1783,7 +1780,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_LPCVALID
-    if ((kr_sts.irq.vector & KR_LPCVALID) && krs->training_started) {
+    if ((irq & KR_LPCVALID) && krs->training_started) {
 //        vtss_kr_status_results_t res;
 
         // Get coef request
@@ -1800,9 +1797,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         // Send Status report
         kr_send_sts_report(vtss_state, krs, port_no, krs->tr_res.status);
     }
-
     // KR_LPSVALID
-    if ((kr_sts.irq.vector & KR_LPSVALID) && krs->training_started) {
+    if ((irq & KR_LPSVALID) && krs->training_started) {
         if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
             kr_ber_training(vtss_state, port_no, KR_LPSVALID);
         } else {
@@ -1811,7 +1807,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_WT_DONE
-    if (kr_sts.irq.vector & KR_WT_DONE) {
+    if (irq & KR_WT_DONE) {
         if (krs->current_state ==  VTSS_TR_LINK_READY) {
             krs->current_state = VTSS_TR_SEND_DATA;
             krs->training_started = FALSE;
@@ -1824,38 +1820,38 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_BER_BUSY_1
-    if (kr_sts.irq.vector & KR_BER_BUSY_1) {
+    if (irq & KR_BER_BUSY_1) {
         kr_ber_training(vtss_state, port_no, KR_BER_BUSY_1);
     }
 
     // KR_BER_BUSY_0
-    if (kr_sts.irq.vector & KR_BER_BUSY_0) {
+    if (irq & KR_BER_BUSY_0) {
         kr_ber_training(vtss_state, port_no, KR_BER_BUSY_0);
     }
 
     // KR_DME_VIOL_1
-    if ((kr_sts.irq.vector & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+    if ((irq & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
     }
 
     // KR_DME_VIOL_0
-    if (kr_sts.irq.vector & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+    if (irq & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         // Do nothing
     }
 
     // KR_REM_RDY_1
-    if (kr_sts.irq.vector & KR_REM_RDY_1) {
+    if (irq & KR_REM_RDY_1) {
         krs->remote_rx_ready = TRUE;
     }
 
     // KR_REM_RDY_0
-    if (kr_sts.irq.vector & KR_REM_RDY_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+    if (irq & KR_REM_RDY_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         krs->remote_rx_ready = FALSE;
         printf("p:%d KR_REM_RDY_0 - stopping\n",port_no);
     }
 
     // KR_MW_DONE
-    if ((kr_sts.irq.vector & KR_MW_DONE) && krs->training_started) {
+    if ((irq & KR_MW_DONE) && krs->training_started) {
         printf("       (MW_DONE)MAX Wait done - Failure\n");
         req_msg.training_failure = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -1874,7 +1870,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_AN_GOOD
-    if (kr_sts.irq.vector & KR_AN_GOOD) {
+    if (irq & KR_AN_GOOD) {
         if (pconf->speed < VTSS_SPEED_5G) {
             req_msg.aneg_disable = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -1883,7 +1879,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_RATE_DET
-    if (kr_sts.irq.vector & KR_RATE_DET) {
+    if (irq & KR_RATE_DET) {
         // Parallel detect speed change
         /* pconf->speed = kr_parallel_spd(port_no); */
         /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
@@ -1895,9 +1891,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_AN_RATE
-    if ((kr_sts.irq.vector & KR_AN_RATE) > 0) {
+    if ((irq & KR_AN_RATE) > 0) {
         // Aneg speed change request
-        /* pconf->speed = kr_irq2spd(kr_sts.irq.vector & 0xf); */
+        /* pconf->speed = kr_irq2spd(irq & 0xf); */
         /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
         //        (void)vtss_port_conf_set(vtss_vtss_state, port_no, &pconf);  TBD
         req_msg.rate_done = 1;
