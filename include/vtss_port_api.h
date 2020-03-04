@@ -800,11 +800,7 @@ typedef struct {
 typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
-    BOOL request_25g;         /**< 25G rate is negotiated (needs to be configured)  */
-    BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
-    BOOL request_5g;          /**< 5G rate is negotiated (needs to be configured)   */
-    BOOL request_2g5;         /**< 2G5 rate is negotiated (needs to be configured)  */
-    BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
+    vtss_port_speed_t speed_req;   /**< Requested speed                                  */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
     BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
     u32  sts1;
@@ -964,6 +960,9 @@ vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
                                const vtss_port_no_t port_no,
                                const u32 *const irq);
 
+vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             u32 *const vector);
 
 /**
  * ============================================================================

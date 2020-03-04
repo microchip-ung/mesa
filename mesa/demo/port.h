@@ -8,6 +8,8 @@
 #include "mscc/ethernet/switch/api.h"
 // #include "sfp.h"
 
+char *mesa_port_spd2txt(mesa_port_speed_t speed);
+
 #ifndef TRUE
 #define TRUE 1
 #endif

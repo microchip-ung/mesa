@@ -1345,6 +1345,26 @@ static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
 
 }
 
+vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 *tap_dly, u16 *tap_adv, u16 *ampl)
+{
+    u32 sd_indx, sd_type, sd_tgt, val1, val2;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
+
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt), &val1);
+    *tap_dly = (u16)VTSS_X_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0(val1);
+
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt), &val1);
+    *tap_adv = (u16)VTSS_X_SD10G_LANE_TARGET_LANE_02_CFG_TAP_ADV_3_0(val1);
+
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt), &val1);
+    val1 = VTSS_X_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(val1) << 6;
+    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt), &val2);
+    *ampl = (u16)(val1 + val2);
+    
+    return VTSS_RC_OK;
+}
+
 static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
 {
     if  (0 <= ampcode && ampcode < 16) {

@@ -81,7 +81,7 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     return "?   ";
 }
 
-const char *mesa_port_spd2txt(mesa_port_speed_t speed)
+char *mesa_port_spd2txt(mesa_port_speed_t speed)
 {
     switch (speed) {
     case MESA_SPEED_UNDEFINED: return "Undefined";

@@ -26,6 +26,8 @@
 #include "mscc/ethernet/switch/api.h"
 #include "trace.h"
 
+char *mesa_port_spd2txt(mesa_port_speed_t speed);
+
 #define BER_THRESHOLD      (10)
 #define KR_AN_RATE         (0xF)
 
@@ -146,13 +148,13 @@ typedef struct {
     uint16_t ld_hist_index;
     kr_ber_t lp_hist[200];
     uint16_t lp_hist_index;
-} kr_train_t;
+} kr_appl_train_t;
 
 typedef struct {
     mesa_port_speed_t next_parallel_spd;
     mesa_bool_t cap_25g;
     mesa_bool_t show_irq;
-} kr_conf_t;
+} kr_appl_conf_t;
 
 
 typedef struct {

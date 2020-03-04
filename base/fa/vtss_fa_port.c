@@ -704,23 +704,11 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
-/* typedef struct { */
-/*     BOOL complete;            /\**< Aneg completed successfully                      *\/ */
-/*     BOOL active;              /\**< Aneg is running between LD and LP                *\/ */
-/*     BOOL request_10g;         /\**< 10G rate is negotiated (needs to be configured)  *\/ */
-/*     BOOL request_1g;          /\**< 1G rate is negotiated (needs to be configured)   *\/ */
-/*     BOOL request_fec_change;  /\**< FEC enable is negotiated (needs to be enabled)   *\/ */
-/*     BOOL fec_enable;          /\**< FEC disable is negotiated (needs to be disabled) *\/ */
-/*     u32  sm;                  /\**< (debug) Aneg state machine                       *\/ */
-/*     BOOL lp_aneg_able;        /\**< (debug) Link partner aneg ability                *\/ */
-/*     BOOL block_lock;          /\**< (debug) PCS block lock                           *\/ */
-/* } vtss_port_10g_kr_status_aneg_t; */
-
 #define KR_ANEG_RATE_25G 7
 #define KR_ANEG_RATE_10G 9
-#define KR_ANEG_RATE_5G 11
+#define KR_ANEG_RATE_5G  11
 #define KR_ANEG_RATE_2G5 12
-#define KR_ANEG_RATE_1G 13
+#define KR_ANEG_RATE_1G  13
 
 u32 vtss_to_sd_kr(u32 p)
 {
@@ -857,7 +845,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
 
         if (fw_req->rate_done) {
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer
+//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer
         }
     }
 
@@ -954,57 +942,64 @@ static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
     return fa_kr_eye_height(vtss_state,  port_no, action, &eye->height);
 }
 
+static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no,
+                                  u32 *const irq)
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 val;
+    REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
+    *irq = val;
+    if (val > 0) {
+        REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
+//        REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
+    }
+
+    return VTSS_RC_OK;
+}
+
+
 
 static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
-    u32 irq, sts0, sts1, tr, val1, val2;
+    u32 sts0, sts1, tr;
+    u16 val1, val2, val3;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
     REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts1);
-    status->aneg.complete = VTSS_X_IP_KRANEG_AN_STS0_AN_COMPLETE(sts0);
+    status->aneg.complete    = VTSS_X_IP_KRANEG_AN_STS0_AN_COMPLETE(sts0);
 
-    REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &irq);
-    status->aneg.request_10g = (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) == KR_ANEG_RATE_10G);
-    status->aneg.request_5g = (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) == KR_ANEG_RATE_5G);
-    status->aneg.request_2g5 = (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) == KR_ANEG_RATE_2G5);
-    status->aneg.request_1g = (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) == KR_ANEG_RATE_1G);
-    status->irq.vector = irq;
+    if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) > 0) {
+        if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_25G) {
+            status->aneg.speed_req = VTSS_SPEED_25G;
+        } else if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_10G) {
+            status->aneg.speed_req = VTSS_SPEED_10G;
+        } else if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_5G) {
+            status->aneg.speed_req = VTSS_SPEED_5G;
+        } else if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_2G5) {
+            status->aneg.speed_req = VTSS_SPEED_2500M;
+        } else if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_1G) {
+            status->aneg.speed_req = VTSS_SPEED_1G;
+        } else {
+            status->aneg.speed_req = VTSS_SPEED_UNDEFINED;
+        }
+    }
+
     status->aneg.sts1 = sts1;
 
-    /* REG_RD(VTSS_IP_KRANEG_KR_PMD_STS(tgt), &tr); */
-    /* status->train.complete = VTSS_X_IP_KRANEG_KR_PMD_STS_RCVR_RDY(tr) && */
-    /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_TR_FAIL(tr) && */
-    /*                         !VTSS_X_IP_KRANEG_KR_PMD_STS_STPROT(tr); */
-
-
-    u32 sd_indx, sd_type, sd_tgt;
-    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
-    sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
-
-    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt), &val1);
-    status->train.cm_ob_tap_result = (u16)val1;
-    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt), &val1);
-    status->train.cp_ob_tap_result = (u16)val1;
-    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt), &val1);
-    val1 = VTSS_X_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(val1) << 6;
-    REG_RD(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt), &val2);
-    status->train.c0_ob_tap_result = (u16)(val1 + val2);
+    VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, &val1, &val2, &val3));
+    status->train.cm_ob_tap_result = (u8)val1;
+    status->train.cp_ob_tap_result = (u8)val2;
+    status->train.c0_ob_tap_result = (u8)val3;
 
     REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
     status->train.frame_sent = tr;
 
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &tr);
     status->train.frame_errors = tr;
-
-    if (irq > 0) {
-        REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), irq);
-        if (VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(irq) > 0) {
-//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
-        }
-    }
 
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
@@ -3544,6 +3539,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
+        state->kr_irq = fa_port_kr_irq_get;
         state->kr_fw_req = fa_port_kr_fw_req;
 
 

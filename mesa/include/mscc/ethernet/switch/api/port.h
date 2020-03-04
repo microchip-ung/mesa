@@ -760,11 +760,7 @@ mesa_rc mesa_port_kr_state_get(const mesa_inst_t inst,
 typedef struct {
     mesa_bool_t complete;           // Aneg completed successfully
     mesa_bool_t active;             // Aneg is running
-    mesa_bool_t request_25g;        // 25G rate is negotiated (needs to be configured) 
-    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured) 
-    mesa_bool_t request_5g;         // 5G rate is negotiated (needs to be configured)
-    mesa_bool_t request_2g5;        // 2G5 rate is negotiated (needs to be configured)
-    mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
+    mesa_port_speed_t speed_req;    // Requested speed
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
     mesa_bool_t fec_enable;         // FEC must be enabled/disabled
     uint32_t    sts1;
@@ -836,6 +832,15 @@ mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,
                                const mesa_port_no_t port_no,
                                const uint32_t *const irq)
     CAP(PORT_10GBASE_KR_V3);
+
+// Get KR interrupts
+// port_no [IN]  Port number.
+// irq    [IN]  interrupt id.
+mesa_rc mesa_port_kr_irq_get(const mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             uint32_t *const irq)
+    CAP(PORT_10GBASE_KR_V3);
+
 
 
 // Set 10G KR configuration incl. aneg and training.

@@ -292,6 +292,8 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
                           vtss_kr_status_results_t *const status_out);
+vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state,
+                               const vtss_port_no_t port_no, u16 *tap_dly, u16 *tap_adv, u16 *ampl);
     
 
 /* Miscellaneous functions */

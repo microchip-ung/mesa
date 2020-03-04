@@ -1289,6 +1289,22 @@ vtss_rc vtss_port_kr_status_get(vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             u32 *const vector)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_irq, port_no, vector);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const vtss_port_kr_conf_t *const conf)
@@ -1712,9 +1728,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
     u32 irq = irq_vec;
-   
+
     // To avoid failures during eye height calculation
-    if (krs->ignore_fail) { 
+    if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
         irq &= ~KR_DME_VIOL_1;
         irq &= ~KR_REM_RDY_0;
@@ -1730,11 +1746,10 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
         kr_reset_state(krs);
     }
-       
+
     // KR_TRAIN. Start Training
     if (irq & KR_TRAIN) {
         if (kr->train.enable) {
-            printf("Start training\n");
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
@@ -1815,7 +1830,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             req_msg.tr_done = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
             krs->signal_detect = TRUE;
-            printf("Port:%d - Training completed\n",port_no);
         }
     }
 
@@ -1878,24 +1892,15 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
     }
 
-    // KR_RATE_DET
+    // KR_RATE_DET (parallel detect)
     if (irq & KR_RATE_DET) {
-        // Parallel detect speed change
-        /* pconf->speed = kr_parallel_spd(port_no); */
-        /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
         req_msg.gen0_tmr_start = 1;
-        //        (void)vtss_port_conf_set(vtss_state, port_no, &pconf); TBD
         req_msg.rate_done = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
-
     }
 
     // KR_AN_RATE
     if ((irq & KR_AN_RATE) > 0) {
-        // Aneg speed change request
-        /* pconf->speed = kr_irq2spd(irq & 0xf); */
-        /* pconf->if_type = pconf->speed > VTSS_SPEED_2500M ? VTSS_PORT_INTERFACE_SFI : VTSS_PORT_INTERFACE_SERDES; */
-        //        (void)vtss_port_conf_set(vtss_vtss_state, port_no, &pconf);  TBD
         req_msg.rate_done = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
@@ -1932,7 +1937,7 @@ vtss_rc vtss_port_kr_state_get(vtss_inst_t inst,
     }
     VTSS_EXIT();
     return rc;
-}    
+}
 
 #endif //defined(VTSS_FEATURE_10GBASE_KR_V3)
 vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t               inst,
