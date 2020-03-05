@@ -826,16 +826,11 @@ typedef struct {
     u32 uncorrected_block_cnt;  /**< Un-corrected block count  */
 } vtss_port_kr_status_fec_t;
 
-typedef struct {
-    u32 vector;
-} vtss_port_kr_status_irq_t;
-
 /** \brief 10G KR Aneg and Training structures */
 typedef struct {
     vtss_port_kr_status_aneg_t aneg;   /**< Aneg structure      */
     vtss_port_kr_status_train_t train; /**< Training structure  */
     vtss_port_kr_status_fec_t fec;     /**< FEC structure       */
-    vtss_port_kr_status_irq_t irq;     /**< IRQ Vector         */
 } vtss_port_kr_status_t;
 
 
@@ -854,7 +849,6 @@ typedef struct {
 /** \brief 10G KR Training config */
 typedef struct {
     BOOL enable;            /**< Enable 10G KR training, BER method used */
-    BOOL eye_diag;          /**< Use eye diagram for calculation if height instead of chip calculation */
 } vtss_port_kr_train_t;
 
 /** \brief 10G KR configuration structures */
@@ -952,17 +946,27 @@ vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
  *
  * \param inst    [IN]  Target instance reference.
  * \param port_no [IN]  Port number.
- * \param irq    [IN]  interrupt id.
+ * \param irq_vec [IN]  32 bit interrupt vector.
  *
  * \return Return code.
  **/
 vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
                                const vtss_port_no_t port_no,
-                               const u32 *const irq);
+                               const u32 *const irq_vec);
 
+/**
+ * \brief Get and clear KR interrupts 
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param irq_vec [OUT] 32 bit interrupt vector.
+ *
+ * \return Return code.
+ **/
 vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
-                             u32 *const vector);
+                             u32 *const irq_vec);
 
 /**
  * ============================================================================

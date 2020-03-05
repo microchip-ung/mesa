@@ -786,18 +786,11 @@ typedef struct {
     uint32_t    uncorrected_block_cnt; // Un-corrected block count
 } mesa_port_kr_status_fec_t CAP(PORT_10GBASE_KR_V3);
 
-// 10G KR IRQ status */
-typedef struct {
-    uint32_t vector;
-} mesa_port_kr_status_irq_t;
-
-
 // 10G KR Aneg and Training structures
 typedef struct {
     mesa_port_kr_status_aneg_t  aneg;  // Aneg structure
     mesa_port_kr_status_train_t train; // Training structure
     mesa_port_kr_status_fec_t   fec;   // FEC structure
-    mesa_port_kr_status_irq_t   irq;   // IRQ Vector
 } mesa_port_kr_status_t CAP(PORT_10GBASE_KR_V3);
 
 
@@ -816,7 +809,6 @@ typedef struct {
 // 10G KR Training config
 typedef struct {
     mesa_bool_t enable; // Enable 10G KR training, BER method used
-    mesa_bool_t eye_diag;// Use eye diagram for calculation if height instead of chip calculation 
 } mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR configuration structures
@@ -825,20 +817,20 @@ typedef struct {
     mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
 } mesa_port_kr_conf_t CAP(PORT_10GBASE_KR_V3);
 
-// Apply KR interrupt 
+// Apply KR interrupts 
 // port_no [IN]  Port number.
 // irq    [IN]  interrupt id.
 mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,
                                const mesa_port_no_t port_no,
-                               const uint32_t *const irq)
+                               const uint32_t *const irq_vec)
     CAP(PORT_10GBASE_KR_V3);
 
-// Get KR interrupts
+// Get and clear KR interrupts
 // port_no [IN]  Port number.
 // irq    [IN]  interrupt id.
 mesa_rc mesa_port_kr_irq_get(const mesa_inst_t inst,
                              const mesa_port_no_t port_no,
-                             uint32_t *const irq)
+                             uint32_t *const irq_vec)
     CAP(PORT_10GBASE_KR_V3);
 
 

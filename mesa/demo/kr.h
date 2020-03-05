@@ -30,9 +30,6 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 
 #define BER_THRESHOLD      (10)
 #define KR_AN_RATE         (0xF)
-
-
-
 #define KR_ACTV            (1 << 29)
 #define KR_LPSVALID        (1 << 28)
 #define KR_LPCVALID        (1 << 27)
@@ -59,6 +56,13 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 #define KR_INCP_LINK       (1 << 6)
 #define KR_GEN0_DONE       (1 << 5)
 #define KR_GEN1_DONE       (1 << 4)
+
+#define KR_ANEG_RATE_25G    7
+#define KR_ANEG_RATE_10G    9
+#define KR_ANEG_RATE_5G     11
+#define KR_ANEG_RATE_2G5    12
+#define KR_ANEG_RATE_1G     13
+
 
 #ifndef TRUE
 #define TRUE 1
@@ -141,18 +145,32 @@ typedef struct {
 } kr_ber_t;
 
 typedef struct {
+    uint32_t time;
+    uint32_t irq;
+    uint32_t port;
+} kr_irq_t;
+
+typedef struct {
     mesa_port_kr_state_t state;
-    struct timeval time_start;
+    struct timeval time_start_aneg;
+    struct timeval time_start_train;
+    uint32_t time_ld;
+    uint32_t time_lp;
     mesa_port_kr_status_t status;
     kr_coef_t ld_hist[200];
     uint16_t ld_hist_index;
     kr_ber_t lp_hist[200];
     uint16_t lp_hist_index;
+    kr_irq_t irq_hist[200];
+    uint16_t irq_hist_index;
+    kr_irq_t irq_glb_hist[200];
+    uint16_t irq_glb_hist_index;
 } kr_appl_train_t;
 
 typedef struct {
     mesa_port_speed_t next_parallel_spd;
     mesa_bool_t cap_25g;
+    mesa_bool_t cap_10g;
     mesa_bool_t show_irq;
 } kr_appl_conf_t;
 

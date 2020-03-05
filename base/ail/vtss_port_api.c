@@ -1768,7 +1768,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
     }
 
-    // KR_FRLOCK_1. Training frame lock attained. Change state to TRAIN_LOCAL
+    // KR_FRLOCK_1. (Training frame lock attained)
     if ((irq & KR_FRLOCK_1) && krs->training_started) {
         if (krs->current_state == VTSS_TR_SEND_TRAINING) {
             krs->current_state = VTSS_TR_TRAIN_LOCAL;
@@ -1785,7 +1785,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         irq &= ~KR_FRLOCK_0;
     }
 
-    // KR_FRLOCK_0. Training frame lock is lost during training
+    // KR_FRLOCK_0. (Training frame lock is lost during training)
     if ((irq & KR_FRLOCK_0) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         if ((krs->current_state == VTSS_TR_TRAIN_LOCAL) || (krs->current_state == VTSS_TR_TRAIN_REMOTE)) {
             krs->current_state = VTSS_TR_SEND_TRAINING;
@@ -1794,10 +1794,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
     }
 
-    // KR_LPCVALID
+    // KR_LPCVALID (Received Coefficent update)
     if ((irq & KR_LPCVALID) && krs->training_started) {
-//        vtss_kr_status_results_t res;
-
         // Get coef request
         frm.type = VTSS_COEFFICIENT_UPDATE_FRM;
         (void)kr_train_frm_get(vtss_state, port_no, &frm);
@@ -1812,7 +1810,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         // Send Status report
         kr_send_sts_report(vtss_state, krs, port_no, krs->tr_res.status);
     }
-    // KR_LPSVALID
+    // KR_LPSVALID (Received Status report)
     if ((irq & KR_LPSVALID) && krs->training_started) {
         if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
             kr_ber_training(vtss_state, port_no, KR_LPSVALID);
@@ -1821,7 +1819,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
     }
 
-    // KR_WT_DONE
+    // KR_WT_DONE (wait time expired, training is completed)
     if (irq & KR_WT_DONE) {
         if (krs->current_state ==  VTSS_TR_LINK_READY) {
             krs->current_state = VTSS_TR_SEND_DATA;
@@ -1833,17 +1831,17 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
     }
 
-    // KR_BER_BUSY_1
+    // KR_BER_BUSY_1 (LD is doing BER check on receiving train frames)
     if (irq & KR_BER_BUSY_1) {
         kr_ber_training(vtss_state, port_no, KR_BER_BUSY_1);
     }
 
-    // KR_BER_BUSY_0
+    // KR_BER_BUSY_0 (BER check is done)
     if (irq & KR_BER_BUSY_0) {
         kr_ber_training(vtss_state, port_no, KR_BER_BUSY_0);
     }
 
-    // KR_DME_VIOL_1
+    // KR_DME_VIOL_1 (Failure during frame transmission)
     if ((irq & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
     }
@@ -1853,25 +1851,23 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         // Do nothing
     }
 
-    // KR_REM_RDY_1
+    // KR_REM_RDY_1 (LP is ready)
     if (irq & KR_REM_RDY_1) {
         krs->remote_rx_ready = TRUE;
     }
 
-    // KR_REM_RDY_0
+    // KR_REM_RDY_0 (LP is not happy)
     if (irq & KR_REM_RDY_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         krs->remote_rx_ready = FALSE;
-        printf("p:%d KR_REM_RDY_0 - stopping\n",port_no);
     }
 
-    // KR_MW_DONE
+    // KR_MW_DONE (Max wait timer expired (72.6.10.3.2))
     if ((irq & KR_MW_DONE) && krs->training_started) {
-        printf("       (MW_DONE)MAX Wait done - Failure\n");
         req_msg.training_failure = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
-    // WT_START
+    // WT_START (Start wait timer to ensure that the LP detects our state (72.6.10.3.2))
     if (krs->current_state == VTSS_TR_TRAIN_REMOTE && krs->remote_rx_ready) {
         // 'Receiver Ready' sent 3 times to LP as according to standard
         kr_send_sts_report(vtss_state, krs, port_no, BT(15));
@@ -1883,7 +1879,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         krs->current_state = VTSS_TR_LINK_READY;
     }
 
-    // KR_AN_GOOD
+    // KR_AN_GOOD (Aneg is successful)
     if (irq & KR_AN_GOOD) {
         if (pconf->speed < VTSS_SPEED_5G) {
             req_msg.aneg_disable = TRUE;
@@ -1899,7 +1895,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
-    // KR_AN_RATE
+    // KR_AN_RATE (autoneg rate)
     if ((irq & KR_AN_RATE) > 0) {
         req_msg.rate_done = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -1910,14 +1906,14 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
 vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
                                const vtss_port_no_t port_no,
-                               const u32 *const irq)
+                               const u32 *const irq_vec)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         VTSS_D("port_no: %u", port_no);
-        rc = kr_irq_apply(vtss_state, port_no, *irq);
+        rc = kr_irq_apply(vtss_state, port_no, *irq_vec);
     }
     VTSS_EXIT();
     return rc;

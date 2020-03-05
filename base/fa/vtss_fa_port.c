@@ -710,6 +710,8 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 #define KR_ANEG_RATE_2G5 12
 #define KR_ANEG_RATE_1G  13
 
+#define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
+
 u32 vtss_to_sd_kr(u32 p)
 {
     if (p < 12 || p == 64) {
@@ -723,11 +725,12 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
 {
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), spd = 0;
-
+    u32 tgt, spd = 0;
+    
     if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
         return VTSS_RC_OK;
     }
+    tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
         spd = 9;
@@ -845,12 +848,17 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
 
         if (fw_req->rate_done) {
-//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer
+            /* REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer */
+            /* REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x80); // Releas an_wait timer */
         }
     }
 
     if (fw_req->start_training) {
         /* if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) { */
+        /*     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI)); */
+        /* } else  if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_10G) { */
+        /*     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI)); */
+        /* } */
         /*     u32 indx, type, sd_tgt; */
         /*     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type)); */
         /*     sd_tgt = VTSS_TO_SD25G_LANE(indx); */
@@ -938,8 +946,7 @@ static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   vtss_port_kr_eye_dim_t *const eye)
 {
-    u32 action = vtss_state->port.kr_conf[port_no].train.eye_diag ? 10 : 3;
-    return fa_kr_eye_height(vtss_state,  port_no, action, &eye->height);
+    return fa_kr_eye_height(vtss_state,  port_no, 3, &eye->height);
 }
 
 static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
@@ -952,7 +959,9 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     *irq = val;
     if (val > 0) {
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
-//        REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
+        if ((val & 0xf)  > 0) {
+//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
+        }
     }
 
     return VTSS_RC_OK;
@@ -966,7 +975,11 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
 {
     u32 sts0, sts1, tr;
     u16 val1, val2, val3;
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt;
+    if (!PORT_IS_KR_CAP(port_no)) {
+        return VTSS_RC_ERROR;
+    }
+    tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
     REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts1);
@@ -1021,9 +1034,14 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
+    u32 abil = 0;
+
+    if (!PORT_IS_KR_CAP(port_no)) {
+        return VTSS_RC_ERROR;
+    }
+
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
     u32 pcs = VTSS_TO_PCS_TGT(VTSS_CHIP_PORT(port_no));
-    u32 abil = 0;
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
@@ -1105,7 +1123,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
 
 
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
-
     return VTSS_RC_OK;
 }
 
@@ -2102,7 +2119,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_SFI:
-        serdes_mode = VTSS_SERDES_MODE_SFI;;
+        serdes_mode = VTSS_SERDES_MODE_SFI;
         break;
     case VTSS_PORT_INTERFACE_SXGMII:     // 1x10G device. 10M-10G.
         serdes_mode = VTSS_SERDES_MODE_SFI;
