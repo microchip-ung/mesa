@@ -4,6 +4,7 @@
 #ifndef _VTSS_LAN966X_VCAP_H_
 #define _VTSS_LAN966X_VCAP_H_
 
+#include "vtss_lan966x_cil.h"
 
 void vtss_lan966x_vcap_key_set(struct vtss_lan966x_vcap_data *data, u32 offset,
                                u32 width, u32 value, u32 mask);

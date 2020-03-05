@@ -9,6 +9,7 @@
 #include "vtss_lan966x_vcap_ag_api.h"
 #include "vtss_lan966x_vcap.h"
 
+#if defined(VTSS_ARCH_LAN966X)
 /*******************************************************************************
  * VCAP ES0
  ******************************************************************************/
@@ -2963,3 +2964,5 @@ const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_action_attrs_get(
 		return NULL;
 	}
 }
+
+#endif // VTSS_ARCH_LAN966X
