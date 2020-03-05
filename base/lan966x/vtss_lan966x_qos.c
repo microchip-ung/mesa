@@ -2274,8 +2274,9 @@ vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t               *vtss_state,
 /* - Initialization ------------------------------------------------ */
 vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    u32              i, clk_period;
-    vtss_qos_state_t *state = &vtss_state->qos;
+    u32                 i, clk_period;
+    vtss_qos_state_t    *state = &vtss_state->qos;
+    vtss_policer_conf_t pol_conf;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
@@ -2326,6 +2327,10 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
                 QSYS_TAS_STM_CFG_REVISIT_DLY((256 * 1000) / clk_period),
                 QSYS_TAS_STM_CFG_REVISIT_DLY_M);
 
+        /* Setup discard policer */
+        memset(&pol_conf, 0, sizeof(pol_conf));
+        pol_conf.frame_rate = 1;
+        VTSS_RC(vtss_lan966x_qos_policer_conf_set(vtss_state, LAN966X_POLICER_DISC, &pol_conf));
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:

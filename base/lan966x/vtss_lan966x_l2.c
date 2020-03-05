@@ -607,8 +607,56 @@ static vtss_rc lan966x_flood_conf_set(vtss_state_t *vtss_state)
 static vtss_rc lan966x_ip_mc_update(vtss_state_t *vtss_state,
                                     vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
-    // TBD
-    return VTSS_RC_OK;
+    vtss_vcap_obj_t       *obj = &vtss_state->vcap.is2.obj;
+    int                   i, user = (ipmc->src.ssm ? VTSS_IS2_USER_SSM : VTSS_IS2_USER_ASM);
+    vtss_vcap_key_size_t  key_size = (ipmc->ipv6 ? VTSS_VCAP_KEY_SIZE_FULL : VTSS_VCAP_KEY_SIZE_HALF);
+    vtss_res_chg_t        res;
+    vtss_vcap_data_t      data;
+    vtss_is2_entry_t      entry;
+    vtss_ace_t            *ace = &entry.ace;
+    vtss_ace_frame_ipv4_t *ipv4 = &ace->frame.ipv4;
+    vtss_ace_frame_ipv6_t *ipv6 = &ace->frame.ipv6;
+    vtss_port_no_t        port_no;
+
+    if (cmd == VTSS_IPMC_CMD_CHECK) {
+        memset(&res, 0, sizeof(res));
+        if (ipmc->dst_add) {
+            res.add_key[key_size] = 1;
+        }
+        return vtss_cmn_vcap_res_check(obj, &res);
+    }
+
+    if (cmd == VTSS_IPMC_CMD_DEL) {
+        return vtss_vcap_del(vtss_state, obj, user, ipmc->dst.id);
+    }
+
+    /* Add entry */
+    vtss_vcap_is2_init(&data, &entry);
+    data.key_size = key_size;
+    ace->vlan.vid.value = ipmc->src.vid;
+    ace->vlan.vid.mask = 0xfff;
+    if (ipmc->ipv6) {
+        ace->type = VTSS_ACE_TYPE_IPV6;
+        for (i = 0; i < 16; i++) {
+            ipv6->sip.value[i] = ipmc->src.sip.ipv6.addr[i];
+            ipv6->sip.mask[i] = (ipmc->src.ssm ? 0xff : 0);
+            ipv6->dip.value[i] = ipmc->dst.dip.ipv6.addr[i];
+            ipv6->dip.mask[i] = 0xff;
+        }
+    } else {
+        ace->type = VTSS_ACE_TYPE_IPV4;
+        ipv4->sip.value = ipmc->src.sip.ipv4;
+        ipv4->sip.mask = (ipmc->src.ssm ? 0xffffffff : 0);
+        ipv4->dip.value = ipmc->dst.dip.ipv4;
+        ipv4->dip.mask = 0xffffffff;
+    }
+    ace->action.learn = TRUE;
+    ace->action.port_action = VTSS_ACL_PORT_ACTION_FILTER;
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        ace->port_list[port_no] = 1;
+        ace->action.port_list[port_no] = VTSS_PORT_BF_GET(ipmc->dst.member, port_no);
+    }
+    return vtss_vcap_add(vtss_state, obj, user, ipmc->dst.id, ipmc->id_next, &data, 0);
 }
 
 /* ================================================================= *

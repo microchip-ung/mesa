@@ -1114,7 +1114,7 @@ struct vtss_lan966x_vcap_is1_action_fields {
 #define VTSS_LAN966X_VCAP_IS2_SW_COUNT                                    4
 #define VTSS_LAN966X_VCAP_IS2_SW_WIDTH                                   96
 #define VTSS_LAN966X_VCAP_IS2_STICKY_WIDTH                               32
-#define VTSS_LAN966X_VCAP_IS2_ACT_WIDTH                                  46
+#define VTSS_LAN966X_VCAP_IS2_ACT_WIDTH                                  24
 #define VTSS_LAN966X_VCAP_IS2_DEFAULT_CNT                                10
 #define VTSS_LAN966X_VCAP_IS2_REQUIRE_CNT_DIS                             1
 #define VTSS_LAN966X_VCAP_IS2_VERSION                                     1
