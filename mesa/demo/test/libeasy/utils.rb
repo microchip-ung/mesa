@@ -184,7 +184,7 @@ def cmd_rx_ifh_push(ifh={})
         vid_name = "vt-cl-vid"
     when 13
         # Maserati
-        cmd += " ifh-lan966x ign"
+        cmd += " ifh-mas ign"
     else
         # Luton26, no prefix
         cmd = "efh-crcl ign"
