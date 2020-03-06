@@ -93,9 +93,9 @@ static u32 lan966x_vcap_entry_addr(enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t 
     return (va->rows * va->sw_count - addr);
 }
 
-static u32 lan966x_vcap_key_type(vtss_vcap_key_size_t key_size)
+static u32 lan966x_vcap_key_type(enum vtss_lan966x_vcap vcap, vtss_vcap_key_size_t key_size)
 {
-    return (key_size == VTSS_VCAP_KEY_SIZE_QUARTER ? LAN966X_VCAP_TG_X1 :
+    return (key_size == VTSS_VCAP_KEY_SIZE_QUARTER || vcap == VTSS_LAN966X_VCAP_ES0 ? LAN966X_VCAP_TG_X1 :
             key_size == VTSS_VCAP_KEY_SIZE_HALF ? LAN966X_VCAP_TG_X2 : LAN966X_VCAP_TG_X4);
 }
 
@@ -239,7 +239,7 @@ static vtss_rc lan966x_vcap_entry_del(vtss_state_t *vtss_state, enum vtss_lan966
     info.cmd = LAN966X_VCAP_CMD_INIT;
     info.sel = LAN966X_VCAP_SEL_ALL;
     info.addr = lan966x_vcap_entry_addr(vcap, idx);
-    info.mv_size = (lan966x_vcap_tg_count(lan966x_vcap_key_type(idx->key_size)) - 1);
+    info.mv_size = (lan966x_vcap_tg_count(lan966x_vcap_key_type(vcap, idx->key_size)) - 1);
     VTSS_I("%s, row: %u, col: %u, addr: %u", va->name, idx->row, idx->col, info.addr);
     return lan966x_vcap_cmd(vtss_state, &info);
 }
@@ -927,8 +927,28 @@ static vtss_rc lan966x_is2_entry_move(vtss_state_t *vtss_state, vtss_vcap_idx_t 
 
 static vtss_rc lan966x_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
 {
-    // TBD
-    return VTSS_RC_OK;
+    lan966x_vcap_info_t info = {0};
+    vtss_port_no_t      port_no;
+    BOOL                member[VTSS_PORTS];
+
+    // Read-modify-write action port mask
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        member[port_no] = (VTSS_PORT_BF_GET(is2->action.member, port_no) &&
+                           vtss_state->l2.tx_forward_aggr[port_no]);
+    }
+    info.vcap = VTSS_LAN966X_VCAP_IS2;
+    info.cmd = LAN966X_VCAP_CMD_READ;
+    info.sel = LAN966X_VCAP_SEL_ACTION;
+    info.addr = lan966x_vcap_entry_addr(info.vcap, idx);
+    info.act_tg = LAN966X_VCAP_TG_X2;
+    VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, info.addr);
+    VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
+    vtss_lan966x_vcap_action_set(&info.data,
+                                 VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O,
+                                 VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L,
+                                 vtss_lan966x_port_mask(vtss_state, member));
+    info.cmd = LAN966X_VCAP_CMD_WRITE;
+    return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
 /* ================================================================= *
