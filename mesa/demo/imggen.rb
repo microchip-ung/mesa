@@ -9,18 +9,18 @@ require 'pp'
 
 $machines = {
     "ls1046a" => {
-        :bsp_base => "../../ls1046",
+        :bsp_base => "../../../",
         :arch => "arm64",
-        :kernel => "ls1046-kernel.img",
+        :kernel => "arm64-armv8_a-linux-gnu/ls1046/mscc-linux-ls1046.bin.xz",
         :kerneladdr => "<0x80080000>",
         :kernelentry => "<0x80080000>",
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-          { :name => "pcbxxx", :file => "mchp-ls1046a-lan966x_mesa.dtb"},
+          { :name => "pcbxxx", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
         ],
         :fdtaddr => "<0x90000000>",
-        :rootfs => "rootfs.tar",
+        :rootfs => "arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
     },
 
     "fireant" => {
@@ -285,7 +285,7 @@ def sys cmd, input = nil
     end
 end
 
-def dts path, machine, ramdisk
+def dts path, machine, ramdisk, kernel
     s  = "/dts-v1/\n;"
     s += "/ {\n"
     s += "        description = \"Image file for the MESA SDK Demo on target #{machine}\";\n"
@@ -293,7 +293,7 @@ def dts path, machine, ramdisk
     s += "        images {\n"
     s += "                kernel {\n"
     s += "                        description = \"Linux kernel\";\n"
-    s += "                        data = /incbin/(\"#{$bsp}/#{$m[:kernel]}\");\n"
+    s += "                        data = /incbin/(\"#{kernel}\");\n"
     s += "                        type = \"kernel\";\n"
     s += "                        arch = \"#{$m[:arch]}\";\n"
     s += "                        os = \"linux\";\n"
@@ -440,7 +440,15 @@ when "fit"
     sys "rm -rf #{$o[:name]}.squashfs"
     sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -comp xz -all-root"
 
-    dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs"
+    kernel = "#{$bsp}/#{$m[:kernel]}"
+
+    if File.extname(kernel) == ".xz"
+        o = "./#{File.basename(kernel)}.gz"
+        sys "xz -d -c #{kernel} | gzip -f -c > #{o}"
+        kernel = o
+    end
+
+    dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs", kernel
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
 
 when "ext4"
