@@ -333,13 +333,13 @@ void vtss_lan966x_vcap_bit_set(enum vtss_lan966x_vcap_bit *out, vtss_vcap_bit_t 
             in == VTSS_VCAP_BIT_1 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_ANY);
 }
 
-void vtss_lan966x_vcap_u8_set(struct vtss_lan966x_vcap_u8 *out, vtss_vcap_u8_t *in)
+static void lan966x_vcap_u8_set(struct vtss_lan966x_vcap_u8 *out, vtss_vcap_u8_t *in)
 {
     out->value = in->value;
     out->mask = in->mask;
 }
 
-void vtss_lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u16_t *in)
+static void lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u16_t *in)
 {
     int i;
 
@@ -350,7 +350,7 @@ void vtss_lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u16_
     }
 }
 
-void vtss_lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u32_t *in)
+static void lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u32_t *in)
 {
     int i;
 
@@ -361,7 +361,7 @@ void vtss_lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u32_
     }
 }
 
-void vtss_lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out, vtss_vcap_u48_t *in)
+static void lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out, vtss_vcap_u48_t *in)
 {
     int i, j;
 
@@ -372,7 +372,7 @@ void vtss_lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out, vtss_vcap_u48_
     }
 }
 
-void vtss_lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out, vtss_vcap_u128_t *in)
+static void lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out, vtss_vcap_u128_t *in)
 {
     int i, j;
 
@@ -383,7 +383,7 @@ void vtss_lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out, vtss_vcap_u1
     }
 }
 
-void vtss_lan966x_vcap_ipv4_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_ip_t *in)
+static void lan966x_vcap_ipv4_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_ip_t *in)
 {
     out->value = in->value;
     out->mask = in->mask;
@@ -595,7 +595,7 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
 
     // Common fields placed in default struct
     def.first = (entry->first ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
-    vtss_lan966x_vcap_u8_set(&def.pag, &ace->policy);
+    lan966x_vcap_u8_set(&def.pag, &ace->policy);
     def.igr_port_mask.mask = ~vtss_lan966x_port_mask(vtss_state, ace->port_list);
     def.host_match = (entry->host_match ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_ANY);
     vtss_lan966x_vcap_bit_set(&def.l2_mc, ace->dmac_mc);
@@ -604,7 +604,7 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
     def.vid.value = ace->vlan.vid.value;
     def.vid.mask = ace->vlan.vid.mask;
     vtss_lan966x_vcap_bit_set(&def.dei, ace->vlan.cfi);
-    vtss_lan966x_vcap_u8_set(&def.pcp, &ace->vlan.usr_prio);
+    lan966x_vcap_u8_set(&def.pcp, &ace->vlan.usr_prio);
 
     // IP fields placed in default struct
     if (ace->type == VTSS_ACE_TYPE_IPV4) {
@@ -651,9 +651,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
         ptp = &ipv6->ptp;
     }
     vtss_lan966x_vcap_bit_set(&def.l3_ttl_gt0, ttl);
-    vtss_lan966x_vcap_u8_set(&def.l3_tos, ds);
-    vtss_lan966x_vcap_u128_set(&def.l3_ip6_dip, &ipv6->dip);
-    vtss_lan966x_vcap_u128_set(&def.l3_ip6_sip, &ipv6->sip);
+    lan966x_vcap_u8_set(&def.l3_tos, ds);
+    lan966x_vcap_u128_set(&def.l3_ip6_dip, &ipv6->dip);
+    lan966x_vcap_u128_set(&def.l3_ip6_sip, &ipv6->sip);
     vtss_lan966x_vcap_bit_set(&def.dip_eq_sip, sip_eq_dip);
     def.tcp = (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
     def.l4_dport.value = dport->low;
@@ -664,7 +664,6 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                         (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
     def.l4_rng.mask = def.l4_rng.value;
     vtss_lan966x_vcap_bit_set(&def.sport_eq_dport, sport_eq_dport);
-    vtss_lan966x_vcap_bit_set(&def.sequence_eq0, seq_zero);
     if (ptp->enable) {
         seq_zero = lan966x_ptp_bit_get(ptp, 0, 0);
         tcp_fin = lan966x_ptp_bit_get(ptp, 0, 1);
@@ -678,6 +677,7 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
         f.u.ip6_tcp_udp.l4_1588_ver.value = ptp->header.value[1];
         f.u.ip6_tcp_udp.l4_1588_ver.mask = ptp->header.mask[1];
     }
+    vtss_lan966x_vcap_bit_set(&def.sequence_eq0, seq_zero);
     vtss_lan966x_vcap_bit_set(&def.l4_fin, tcp_fin);
     vtss_lan966x_vcap_bit_set(&def.l4_syn, tcp_syn);
     vtss_lan966x_vcap_bit_set(&def.l4_rst, tcp_rst);
@@ -686,9 +686,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
     vtss_lan966x_vcap_bit_set(&def.l4_urg, tcp_urg);
 
     // IP data, upper 24 bits
-    for (i = 0; i < 3; i++) {
-        l3_pl1.value[i + 1] = ip_data->value[i];
-        l3_pl1.mask[i +1] = ip_data->mask[i];
+    for (i = 0; i < 4; i++) {
+        l3_pl1.value[i] = (i ? ip_data->value[i - 1] : 0);
+        l3_pl1.mask[i] = (i ? ip_data->mask[i - 1] : 0);
     }
     // IP data, lower 24 bits
     for (i = 0; i < 4; i++) {
@@ -705,7 +705,7 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             smac.value[i] = ace->frame.ipv4.sip_smac.smac.addr[i];
             smac.mask[i] = 0xff;
         }
-        vtss_lan966x_vcap_u48_set(&f.u.smac_sip4.l2_smac, &smac);
+        lan966x_vcap_u48_set(&f.u.smac_sip4.l2_smac, &smac);
         f.u.smac_sip4.l3_ip4_sip.value = ace->frame.ipv4.sip_smac.sip;
         f.u.smac_sip4.l3_ip4_sip.mask = 0xffffffff;
     } else if (idx->key_size == VTSS_VCAP_KEY_SIZE_FULL) {
@@ -753,9 +753,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
         } else {
             // Non-UDP/TCP protocol
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER;
-            vtss_lan966x_vcap_u8_set(&f.u.ip6_other.l3_proto, proto);
-            vtss_lan966x_vcap_u32_set(&f.u.ip6_other.l3_payload_1, &l3_pl1);
-            vtss_lan966x_vcap_u32_set(&f.u.ip6_other.l3_payload_0, &l3_pl0);
+            lan966x_vcap_u8_set(&f.u.ip6_other.l3_proto, proto);
+            lan966x_vcap_u32_set(&f.u.ip6_other.l3_payload_1, &l3_pl1);
+            lan966x_vcap_u32_set(&f.u.ip6_other.l3_payload_0, &l3_pl0);
         }
     } else {
         // Half rule
@@ -779,8 +779,8 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE;
             f.u.mac_etype.type.value = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID;
             f.u.mac_etype.type.mask = 0x80; // Override default type
-            vtss_lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.any.dmac);
-            vtss_lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.any.smac);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.any.dmac);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.any.smac);
             for (i = 0; i < 6; i++) {
                 if (ace->frame.any.dmac.mask[i] != 0 || ace->frame.any.smac.mask[i] != 0) {
                     // Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering. ARP frames must be mapped to ETYPE
@@ -791,9 +791,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             break;
         case VTSS_ACE_TYPE_ETYPE:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE;
-            vtss_lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.etype.dmac);
-            vtss_lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.etype.smac);
-            vtss_lan966x_vcap_u16_set(&f.u.mac_etype.etype, &ace->frame.etype.etype);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.etype.dmac);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.etype.smac);
+            lan966x_vcap_u16_set(&f.u.mac_etype.etype, &ace->frame.etype.etype);
             ptp = &ace->frame.etype.ptp;
             if (ptp->enable) {
                 for (i = 0; i < 2; i++) {
@@ -802,44 +802,44 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                 }
                 l2_pl1.value = ptp->header.value[2];
                 l2_pl1.mask = ptp->header.mask[2];
-                vtss_lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload1, &l2_pl1);
+                lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload1, &l2_pl1);
                 val = ptp->header.value[3];
                 msk = ptp->header.mask[3];
                 l2_pl2.value = (((val & 0x80) >> 5) | (val & 0x6) >> 1); // Bit 7,2,1
                 l2_pl2.mask  = (((msk & 0x80) >> 5) | (msk & 0x6) >> 1); // Bit 7,2,1
-                vtss_lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload2, &l2_pl2);
+                lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload2, &l2_pl2);
             } else {
                 l2_pl0 = ace->frame.etype.data;
             }
-            vtss_lan966x_vcap_u16_set(&f.u.mac_etype.l2_payload0, &l2_pl0);
+            lan966x_vcap_u16_set(&f.u.mac_etype.l2_payload0, &l2_pl0);
             break;
         case VTSS_ACE_TYPE_LLC:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC;
-            vtss_lan966x_vcap_u48_set(&f.u.mac_llc.l2_dmac, &ace->frame.llc.dmac);
-            vtss_lan966x_vcap_u48_set(&f.u.mac_llc.l2_smac, &ace->frame.llc.smac);
+            lan966x_vcap_u48_set(&f.u.mac_llc.l2_dmac, &ace->frame.llc.dmac);
+            lan966x_vcap_u48_set(&f.u.mac_llc.l2_smac, &ace->frame.llc.smac);
             f.u.mac_llc.l2_llc_1.value = ace->frame.llc.llc.value[0];
             f.u.mac_llc.l2_llc_1.mask = ace->frame.llc.llc.mask[0];
             for (i = 0; i < 4; i++) {
                 data.value[i] = (i < 3 ? ace->frame.llc.llc.value[i + 1] : 0);
                 data.mask[i] = (i < 3 ? ace->frame.llc.llc.mask[i + 1] : 0);
             }
-            vtss_lan966x_vcap_u32_set(&f.u.mac_llc.l2_llc_0, &data);
+            lan966x_vcap_u32_set(&f.u.mac_llc.l2_llc_0, &data);
             break;
         case VTSS_ACE_TYPE_SNAP:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP;
-            vtss_lan966x_vcap_u48_set(&f.u.mac_snap.l2_dmac, &ace->frame.snap.dmac);
-            vtss_lan966x_vcap_u48_set(&f.u.mac_snap.l2_smac, &ace->frame.snap.smac);
+            lan966x_vcap_u48_set(&f.u.mac_snap.l2_dmac, &ace->frame.snap.dmac);
+            lan966x_vcap_u48_set(&f.u.mac_snap.l2_smac, &ace->frame.snap.smac);
             f.u.mac_snap.l2_snap_1.value = ace->frame.snap.snap.value[0];
             f.u.mac_snap.l2_snap_1.mask = ace->frame.snap.snap.mask[0];
             for (i = 0; i < 4; i++) {
                 data.value[i] = ace->frame.snap.snap.value[i + 1];
                 data.mask[i] = ace->frame.snap.snap.mask[i + 1];
             }
-            vtss_lan966x_vcap_u32_set(&f.u.mac_snap.l2_snap_0, &data);
+            lan966x_vcap_u32_set(&f.u.mac_snap.l2_snap_0, &data);
             break;
         case VTSS_ACE_TYPE_ARP:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_ARP;
-            vtss_lan966x_vcap_u48_set(&f.u.arp.l2_smac, &ace->frame.arp.smac);
+            lan966x_vcap_u48_set(&f.u.arp.l2_smac, &ace->frame.arp.smac);
             vtss_lan966x_vcap_bit_set(&f.u.arp.arp_addr_space_ok, ace->frame.arp.ethernet);
             vtss_lan966x_vcap_bit_set(&f.u.arp.arp_proto_space_ok, ace->frame.arp.ip);
             vtss_lan966x_vcap_bit_set(&f.u.arp.arp_len_ok, ace->frame.arp.length);
@@ -852,8 +852,8 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             // Opcode bit 0: Reply flag
             f.u.arp.arp_opcode.mask |= (ace->frame.arp.req == VTSS_ACE_BIT_ANY ? 0 : 0x1);
             f.u.arp.arp_opcode.value |= (ace->frame.arp.req == VTSS_ACE_BIT_0 ? 0x1 :0);
-            vtss_lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_dip, &ace->frame.arp.dip);
-            vtss_lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_sip, &ace->frame.arp.sip);
+            lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_dip, &ace->frame.arp.dip);
+            lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_sip, &ace->frame.arp.sip);
             break;
         case VTSS_ACE_TYPE_IPV4:
         case VTSS_ACE_TYPE_IPV6:
@@ -865,8 +865,8 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             f.u.ip4_tcp_udp.l3_tos = def.l3_tos;
             f.u.ip4_tcp_udp.dip_eq_sip = def.dip_eq_sip;
             if (ipv4) {
-                vtss_lan966x_vcap_ipv4_set(&f.u.ip4_tcp_udp.l3_ip4_dip, &ipv4->dip);
-                vtss_lan966x_vcap_ipv4_set(&f.u.ip4_tcp_udp.l3_ip4_sip, &ipv4->sip);
+                lan966x_vcap_ipv4_set(&f.u.ip4_tcp_udp.l3_ip4_dip, &ipv4->dip);
+                lan966x_vcap_ipv4_set(&f.u.ip4_tcp_udp.l3_ip4_sip, &ipv4->sip);
             } else {
                 for (i = 0; i < 4; i++) {
                     sip.value[i] = ipv6->sip.value[i + 12];
@@ -874,8 +874,8 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                     dip.value[i] = ipv6->sip.value[i + 8];
                     dip.mask[i] = ipv6->sip.mask[i + 8];
                 }
-                vtss_lan966x_vcap_u32_set(&f.u.ip4_tcp_udp.l3_ip4_dip, &dip);
-                vtss_lan966x_vcap_u32_set(&f.u.ip4_tcp_udp.l3_ip4_sip, &sip);
+                lan966x_vcap_u32_set(&f.u.ip4_tcp_udp.l3_ip4_dip, &dip);
+                lan966x_vcap_u32_set(&f.u.ip4_tcp_udp.l3_ip4_sip, &sip);
             }
 
             if (vtss_vcap_udp_tcp_rule(proto)) {
@@ -901,9 +901,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             } else {
                 // Non-UDP/TCP protocol
                 f.key = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER;
-                vtss_lan966x_vcap_u8_set(&f.u.ip4_other.l3_proto, proto);
-                vtss_lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_1, &l3_pl1);
-                vtss_lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_0, &l3_pl0);
+                lan966x_vcap_u8_set(&f.u.ip4_other.l3_proto, proto);
+                lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_1, &l3_pl1);
+                lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_0, &l3_pl0);
             }
             break;
         default:
