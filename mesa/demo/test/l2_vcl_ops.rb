@@ -13,7 +13,7 @@ $port_idx_ingress = 0 # Port index for ingress port
 $port_idx_egress  = 3 # Port index for egress port, tagging all frames
 
 $vid_list = [10, 20, 30]
-$vid_max = 128
+$vid_max = 32
 
 test "conf" do
     t_i("Set egress port to tag all frames")

@@ -441,13 +441,13 @@ static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_po
         VTSS_RC(lan966x_queue_policer_set(vtss_state, port, queue, conf->policer_queue[queue].rate != VTSS_BITRATE_DISABLED, &pol_cfg));
     }
 
-    /* Update QCL port configuration - TBD_HENRIKB */
-//    VTSS_RC(vtss_lan966x_vcap_port_key_addr_set(vtss_state,
-//                                                port_no,
-//                                                2, /* Third IS1 lookup */
-//                                                vtss_state->qos.port_conf[port_no].key_type,
-//                                                vtss_state->qos.port_conf_old.key_type,
-//                                                vtss_state->qos.port_conf[port_no].dmac_dip));
+    /* Update QCL port configuration */
+    VTSS_RC(vtss_lan966x_vcap_port_key_addr_set(vtss_state,
+                                                port_no,
+                                                2, /* Third IS1 lookup */
+                                                vtss_state->qos.port_conf[port_no].key_type,
+                                                vtss_state->qos.port_conf_old.key_type,
+                                                vtss_state->qos.port_conf[port_no].dmac_dip));
 
     return VTSS_RC_OK;
 }

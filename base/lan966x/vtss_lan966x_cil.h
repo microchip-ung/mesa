@@ -260,15 +260,25 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 
 // VCAP API
 vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            u8                   lookup,
+                                            vtss_vcap_key_type_t key_new,
+                                            vtss_vcap_key_type_t key_old,
+                                            BOOL                 dmac_dip_new);
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
 vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
                                           const vtss_debug_printf_t pr,
                                           const vtss_debug_info_t   *const info);
-vtss_rc vtss_lan966x_debug_is1_all(vtss_state_t *vtss_state,
-                                   const vtss_debug_printf_t pr,
-                                   const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_debug_is1(vtss_state_t *vtss_state,
+                               const vtss_debug_printf_t pr,
+                               const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_debug_es0(vtss_state_t *vtss_state,
+                               const vtss_debug_printf_t pr,
+                               const vtss_debug_info_t   *const info);
 
 // OAM API
 vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

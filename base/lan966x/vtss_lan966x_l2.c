@@ -707,12 +707,16 @@ static vtss_rc lan966x_mirror_egress_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if 0
 static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    return VTSS_RC_OK;
+    vtss_vcap_port_conf_t *conf = &vtss_state->vcap.port_conf[port_no];
+    BOOL                  dmac_dip_new = conf->dmac_dip_1;
+    vtss_vcap_key_type_t  key_old = vtss_state->vcap.port_conf_old.key_type_is1_1;
+    vtss_vcap_key_type_t  key_new = conf->key_type_is1_1;
+
+    /* Setup second IS1 lookup */
+    return vtss_lan966x_vcap_port_key_addr_set(vtss_state, port_no, 1, key_new, key_old, dmac_dip_new);
 }
-#endif
 
 static vtss_rc lan966x_sdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 {
@@ -1309,6 +1313,8 @@ static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    const vtss_debug_info_t   *const info)
 {
+    VTSS_RC(vtss_lan966x_debug_is1(vtss_state, pr, info));
+    VTSS_RC(vtss_lan966x_debug_es0(vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
@@ -1581,7 +1587,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->eps_port_set = vtss_cmn_eps_port_set;
         state->sflow_port_conf_set = lan966x_sflow_port_conf_set;
         state->sflow_sampling_rate_convert = lan966x_sflow_sampling_rate_convert;
-        // TBD: state->vcl_port_conf_set = vtss_lan966x_vcap_port_conf_set;
+        state->vcl_port_conf_set = vtss_lan966x_vcap_port_conf_set;
         state->vce_add = vtss_cmn_vce_add;
         state->vce_del = vtss_cmn_vce_del;
         state->vlan_trans_group_add = vtss_cmn_vlan_trans_group_add;
@@ -1589,7 +1595,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_group_get = vtss_cmn_vlan_trans_group_get;
         state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
         state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
-        // TBD: state->vcap_port_conf_set = lan966x_vcap_port_conf_set;
+        state->vcap_port_conf_set = lan966x_vcap_port_conf_set;
         state->iflow_conf_set = lan966x_iflow_conf_set;
         state->icnt_get = lan966x_icnt_get;
         state->ecnt_get = lan966x_ecnt_get;

@@ -1646,9 +1646,9 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
 
     is1->lookup = 1; /* Second lookup */
 
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     /* For Serval, the configured key of the first port is used */
-    if (vtss_state->arch == VTSS_ARCH_SRVL) {
+    {
         vtss_port_no_t port_no;
         is1->lookup = 2; /* Third lookup */
 
@@ -1662,7 +1662,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
         }
         key_size = vtss_vcap_key_type2size(key->key_type);
     }
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {

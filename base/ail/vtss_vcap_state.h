@@ -1142,7 +1142,7 @@ typedef struct {
 typedef struct {
     vtss_vcap_obj_t   obj;                 /* Object */
     vtss_vcap_entry_t table[VTSS_IS1_CNT]; /* Table */
-#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_is1_entry_t  copy[VTSS_IS1_CNT];  /* Copy of entries */
 #endif /* VTSS_OPT_WARM_START */
 } vtss_is1_info_t;
