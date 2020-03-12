@@ -1401,6 +1401,11 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
     sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
 
+
+    if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
+        return VTSS_RC_OK; // TB Removed
+    }
+
     (void)kr_ampcode_2_drv(st->amplitude, &ipdriver, &vcdriver);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
@@ -2770,8 +2775,8 @@ u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 
 static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
-    vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     vtss_sd25g28_setup_args_t sd_cfg = {0};
+    vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
 
     sd_cfg.chip_name = VTSS_SD25G28_CHIP_ANT;
     sd_cfg.txinvert = 0;
@@ -2790,6 +2795,9 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         case VTSS_SERDES_MODE_SFI_B2B:
         case VTSS_SERDES_MODE_SFI_PR_NONE:
         case VTSS_SERDES_MODE_SFI_KR:
+            sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
+            sd_cfg.mode = VTSS_SD25G28_MODE_25G_ETH; // KR 64bit mode for now
+            break;
         case VTSS_SERDES_MODE_SFI: {
             sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
             if (speed == VTSS_SPEED_25G) {

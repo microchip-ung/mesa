@@ -56,8 +56,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
     ret_val->ln_cfg_itx_ipcml_base =0;//Default;
     ret_val->com_pll_reserve =0;//Default;
     switch(f_mode) {
-      case VTSS_SD25G28_MODE_25G_ETH :
-      case VTSS_SD25G28_MODE_25G_LAN :   {
+      case VTSS_SD25G28_MODE_25G_LAN :   { // 25G/40b/normal serdes config
         //ret_val->datarate= 25.7813e9;
         //ret_val->bitwidth 40; //10G Devices
         ret_val->bitwidth = sd25g28_get_iw_setting(40); 
@@ -81,12 +80,41 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_cfg_ctle_rstn =1; 
         ret_val->ln_r_dfe_rstn =1;//Default; 
         ret_val->ln_cfg_pi_bw_3_0 = 0;
-
 		ret_val->tx_tap_dly=8; 
 		ret_val->tx_tap_adv=0xc;// this depends on actual Si
         VTSS_D ("Mode is 25G_LAN/ETH\n");
         break;
       }
+    case VTSS_SD25G28_MODE_25G_ETH : { // 25G/64b/KR serdes config
+        //ret_val->datarate= 25.7813e9;
+        //ret_val->bitwidth 40; //10G Devices
+        ret_val->bitwidth = sd25g28_get_iw_setting(64); // train setting
+        ret_val->fifo_ck_div = 2; // train setting
+        ret_val->ck_bitwidth = 0; // train setting        
+        ret_val->tx_pre_div = 0;
+        ret_val->pre_divsel= 1; 
+        ret_val->vco_div_mode = 0; 
+        ret_val->sel_div = 15; 
+        ret_val->subrate = 0; 
+        ret_val->com_txcal_en = 0; 
+        ret_val->com_tx_reserve_msb = (0x26<<1);//Default is 0x20<<1 
+        ret_val->com_tx_reserve_lsb = ((3<<6) + (3<<4)); 
+        ret_val->ln_tx_reserve_msb = ((3<<6)+(0<<5)+(0<<4)+(1<<3)+(2<<1)); 
+        ret_val->ln_tx_reserve_lsb = ((3<<6)+(3<<4)+(3<<2)+(2<<0)); 
+        ret_val->ln_bw= 3;
+        ret_val->ln_rxterm=0;
+        ret_val->dfe_enable= 1;
+        ret_val->dfe_tap= 0x1f;
+        ret_val->txmargin=0x1;
+        ret_val->ln_cfg_ctle_rstn =1; 
+        ret_val->ln_r_dfe_rstn =1;//Default; 
+        ret_val->ln_cfg_pi_bw_3_0 = 0;
+		ret_val->tx_tap_dly=8; 
+		ret_val->tx_tap_adv=0xc;// this depends on actual Si
+        VTSS_D ("Mode is 25G_LAN/ETH\n");
+        break;
+      }
+
       case VTSS_SD25G28_MODE_10G_QSXGMII : 
       case VTSS_SD25G28_MODE_10G_DSXGMII : {
         //ret_val->datarate = 10.3125e9;
@@ -117,8 +145,9 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         VTSS_D ("Mode is Q(D)SXGMII\n");
         break;
         }
-      case VTSS_SD25G28_MODE_10G_ETH :
-      case VTSS_SD25G28_MODE_10G_LAN :   {
+        case VTSS_SD25G28_MODE_10G_LAN :  { 
+        case VTSS_SD25G28_MODE_10G_ETH :
+            
         //ret_val->datarate= 10.3125e9;
         //ret_val->bitwidth 64; 
         ret_val->bitwidth = sd25g28_get_iw_setting(64); 
@@ -146,6 +175,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         VTSS_D ("Mode is 10G_LAN/ETH\n");
         break;
       }
+
       case VTSS_SD25G28_MODE_5G_LAN :  {
 // TODO: Need to handle DEV5G/DEV2G5 related serdes configuration
         //ret_val->datarate= 5.15625e9;

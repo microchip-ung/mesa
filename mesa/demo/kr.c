@@ -37,6 +37,8 @@ meba_inst_t meba_global_inst;
 kr_appl_train_t kr_tr_state[PORTS] = {0};
 kr_appl_conf_t kr_conf_state[PORTS] = {0};
 
+u32 stop_train[PORTS] = {0};
+
 // For debug
 uint32_t deb_dump_irq = 0;
 mesa_bool_t BASE_KR_V2 = 0;
@@ -292,6 +294,8 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
                 continue;
             }
+            stop_train[iport] = 0;
+
             (void)fa_kr_reset_state(iport);
             if (req->set) {
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -310,6 +314,14 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
+
+                if (mreq->dis) {
+                    mesa_port_conf_t pconf;
+                    (void)mesa_port_conf_get(NULL, iport, &pconf);
+                    pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G;
+                    (void)mesa_port_conf_set(NULL, iport, &pconf);
+                }
+                
             } else {
                 cli_printf("Port: %d\n", uport);
                 cli_printf("  KR aneg: %s\n", conf.aneg.enable ? "Enabled" : "Disabled");
@@ -825,7 +837,9 @@ static void kr_poll(meba_inst_t inst)
             || (irq == 0)) {
             continue;
         }
-
+        if (stop_train[iport]) {
+            continue;
+        }
         kr = &kr_tr_state[iport];
         krs = &kr->state;
        
@@ -878,6 +892,9 @@ static void kr_poll(meba_inst_t inst)
         // Add IRQs to history
         kr_add_to_irq_history(iport, irq);
 
+        if ((irq & 0xff) > 0)
+            dump_irq(iport, irq, get_time_ms(&kr->time_start_aneg));
+
         // Add training to LD history
         if ((irq & KR_LPCVALID) && krs->training_started) {
             kr_add_to_ld_history(iport, krs->tr_res);
@@ -891,6 +908,7 @@ static void kr_poll(meba_inst_t inst)
         if (irq & KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
             kr->time_ld = get_time_ms(&kr->time_start_train);
             printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+//            stop_train[iport] = 1;
         }
 
     }
