@@ -5142,12 +5142,10 @@ static void vtss_cmn_es0_data_set(vtss_state_t *vtss_state,
         es0->port_no = port_no;
         action->vid_b = new_vid;
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
-        if (vtss_state->arch == VTSS_ARCH_SRVL || vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
-            action->outer_tag.tag = VTSS_ES0_TAG_ES0;
-            action->outer_tag.vid.sel = 1;
-            action->outer_tag.vid.val = new_vid;
-        }
+#if !defined(VTSS_ARCH_LUTON26)
+        action->outer_tag.tag = VTSS_ES0_TAG_ES0;
+        action->outer_tag.vid.sel = 1;
+        action->outer_tag.vid.val = new_vid;
 #endif
     } else {
         action->tag = VTSS_ES0_TAG_NONE;
