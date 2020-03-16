@@ -878,13 +878,14 @@ end
 $easyframes_sha = "e922a34e1778e60be322ef7c3f54d3fac68e03c7"
 
 class Switchdev_Pc_b2b_4x
-    attr_accessor :dut, :pc, :links, :ts_external_clock_looped
+    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
 
     def initialize conf, mesa_args
         dut_url = conf["dut"]["terminal"]
         dut_args = conf["dut"]["mesa_demo_args"]
         dut_ports = conf["dut"]["ports"]
         dut_looped_ports = conf["dut"]["looped_ports"]
+        dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
         pc_ports = conf["pc"]["ports"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
