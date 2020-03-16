@@ -630,10 +630,10 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
 typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
-    BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
-    BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
+    vtss_port_speed_t speed_req;  /**< Speed negotiated (needs to be configured)    */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
-    BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
+    BOOL fec_enable;          /**< Base-R-FEC (Clause 74) is negotiated             */
+    BOOL rs_fec_enable;       /**< Base-RS-FEC (Clause 108) is negotiated           */
     u32  sm;                  /**< (debug) Aneg state machine                       */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
     BOOL block_lock;          /**< (debug) PCS block lock                           */
@@ -800,10 +800,10 @@ typedef struct {
 typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
-    vtss_port_speed_t speed_req;   /**< Requested speed                                  */
-    BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
-    BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
-    u32  sts1;
+    vtss_port_speed_t speed_req;   /**< Requested speed                             */
+    BOOL request_fec_change;  /**< FEC change is negotiated                         */
+    BOOL fec_enable;          /**< FEC enable/disable                               */
+    BOOL rs_fec_enable;       /**< RS-FEC enable/disable                            */
     u32  sm;                  /**< (debug) Aneg state machine                       */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
     BOOL block_lock;          /**< (debug) PCS block lock                           */
@@ -821,9 +821,10 @@ typedef struct {
 
 /** \brief 10G KR FEC status */
 typedef struct {
-    BOOL enable;                /**< FEC Enabled               */
-    u32 corrected_block_cnt;    /**< Corrected block count     */
-    u32 uncorrected_block_cnt;  /**< Un-corrected block count  */
+    BOOL enable;                /**< FEC Enabled (Clause 74)      */
+    BOOL rs_fec_enable;         /**< RS-FEC Enabled (Clause 108)  */
+    u32 corrected_block_cnt;    /**< Corrected block count        */
+    u32 uncorrected_block_cnt;  /**< Un-corrected block count     */
 } vtss_port_kr_status_fec_t;
 
 /** \brief 10G KR Aneg and Training structures */
@@ -843,7 +844,9 @@ typedef struct {
     BOOL adv_2g5;          /**< Advertise 2G5          */
     BOOL adv_1g;           /**< Advertise 1G           */
     BOOL fec_abil;         /**< Set FEC ability        */
-    BOOL fec_req;          /**< Set FEC request        */
+    BOOL fec_req;          /**< Request R-FEC          */
+    BOOL rs_fec_req;       /**< Request RS-FEC         */
+    BOOL next_page;        /**< Use next page when adv.*/
 } vtss_port_kr_aneg_t;
 
 /** \brief 10G KR Training config */
@@ -856,6 +859,13 @@ typedef struct {
     vtss_port_kr_aneg_t   aneg;    /**< 10G-KR Aneg apability, 802.3ap Clause 73      */
     vtss_port_kr_train_t  train;   /**< 10G-KR Training parameters, 802.3ap Clause 72 */
 } vtss_port_kr_conf_t;
+
+/** \brief 10G KR FEC structure */
+typedef struct {
+    BOOL fec;    /**< Enable/Disable Clause 74 R-FEC  */
+    BOOL rs_fec; /**< Enable/Disable Clause 108 RS-FEC  */
+} vtss_port_kr_fec_t;
+
 
 #define KR_ACTV            (1 << 29)
 #define KR_LPSVALID        (1 << 28)
@@ -899,6 +909,19 @@ typedef struct {
 vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const vtss_port_kr_conf_t *const conf);
+/**
+ * \brief Set 10G KR FEC
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param conf    [IN]  Configuration structure.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             const vtss_port_kr_fec_t *const conf);
 
 /**
  * \brief Get 10G KR configuration

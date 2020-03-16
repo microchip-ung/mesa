@@ -647,7 +647,7 @@ typedef struct {
     mesa_bool_t enable;   // 10G KR Autoneg enable
     mesa_bool_t adv_10g;  // Advertise 10G
     mesa_bool_t fec_abil; // Advertise FEC ability
-    mesa_bool_t fec_req;  // Advertise FEC request
+    mesa_bool_t fec_req;  // Request FEC 
 } mesa_port_10g_kr_aneg_t CAP(PORT_10GBASE_KR_V2);
 
 // 10G KR Training config
@@ -760,10 +760,10 @@ mesa_rc mesa_port_kr_state_get(const mesa_inst_t inst,
 typedef struct {
     mesa_bool_t complete;           // Aneg completed successfully
     mesa_bool_t active;             // Aneg is running
-    mesa_port_speed_t speed_req;    // Requested speed
+    mesa_port_speed_t speed_req;    // Speed negotiated (needs to be configured)
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
-    mesa_bool_t fec_enable;         // FEC must be enabled/disabled
-    uint32_t    sts1;
+    mesa_bool_t fec_enable;         // Base-R-FEC (Clause 74) is negotiated 
+    mesa_bool_t rs_fec_enable;      // Base-RS-FEC (Clause 108) is negotiated
     uint32_t    sm;                 // (debug) Aneg state machine
     mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
     mesa_bool_t block_lock;         // (debug) PCS block lock
@@ -781,7 +781,8 @@ typedef struct {
 
 // 10G KR FEC status
 typedef struct {
-    mesa_bool_t enable;                // FEC enabled
+    mesa_bool_t enable;                // FEC enabled (Clause 74)
+    mesa_bool_t rs_fec_enable;         // RS-FEC Enabled (Clause 108 / 25G)  */
     uint32_t    corrected_block_cnt;   // Corrected block count
     uint32_t    uncorrected_block_cnt; // Un-corrected block count
 } mesa_port_kr_status_fec_t CAP(PORT_10GBASE_KR_V3);
@@ -796,14 +797,16 @@ typedef struct {
 
 // 10G KR Link Advertisement capability config
 typedef struct {
-    mesa_bool_t enable;   // 10G KR Autoneg enable
-    mesa_bool_t adv_25g;  // Advertise 25G
-    mesa_bool_t adv_10g;  // Advertise 10G
-    mesa_bool_t adv_5g;   // Advertise 5G
-    mesa_bool_t adv_2g5;  // Advertise 2G5
-    mesa_bool_t adv_1g;   // Advertise 1G
-    mesa_bool_t fec_abil; // Advertise FEC ability
-    mesa_bool_t fec_req;  // Advertise FEC request
+    mesa_bool_t enable;     // 10G KR Autoneg enable
+    mesa_bool_t adv_25g;    // Advertise 25G
+    mesa_bool_t adv_10g;    // Advertise 10G
+    mesa_bool_t adv_5g;     // Advertise 5G
+    mesa_bool_t adv_2g5;    // Advertise 2G5
+    mesa_bool_t adv_1g;     // Advertise 1G
+    mesa_bool_t fec_abil;   // Advertise FEC ability
+    mesa_bool_t fec_req;    // Request R-FEC
+    mesa_bool_t rs_fec_req; // Request RS-FEC (25G)
+    mesa_bool_t next_page;  // Use next page when advertise
 } mesa_port_kr_aneg_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR Training config
@@ -816,6 +819,20 @@ typedef struct {
     mesa_port_kr_aneg_t  aneg;  // 10G-KR Aneg capability, 802.3ap Clause 73
     mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
 } mesa_port_kr_conf_t CAP(PORT_10GBASE_KR_V3);
+
+// 10G KR FEC structure */
+typedef struct {
+    mesa_bool_t fec;    /**< Enable/Disable Clause 74 R-FEC  */
+    mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
+} mesa_port_kr_fec_t;
+
+// Set 10G KR FEC
+// inst    [IN]  Target instance reference.
+// port_no [IN]  Port number.
+// conf    [IN]  Configuration structure.
+mesa_rc mesa_port_kr_fec_set(const mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             const mesa_port_kr_fec_t *const conf);
 
 // Apply KR interrupts 
 // port_no [IN]  Port number.

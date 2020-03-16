@@ -72,8 +72,8 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 #define FALSE 0
 #endif
 
-#define BT(x) (1 << (x))
-#define VTSS_BITMASK(x)               ((1 << (x)) - 1)
+#define BT(x)            (1 << (x))
+#define VTSS_BITMASK(x)  ((1 << (x)) - 1)
 #define BITFIELD(x,o,w)  (((x) >> (o)) & VTSS_BITMASK(w))
 
     static mscc_appl_trace_module_t trace_module = {
@@ -92,7 +92,6 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
         .level = MESA_TRACE_LEVEL_ERROR
     },
 };
-
 
 typedef enum {
     INITILIZE,
@@ -171,13 +170,6 @@ typedef struct {
     mesa_port_speed_t next_parallel_spd;
     mesa_bool_t cap_25g;
     mesa_bool_t cap_10g;
-    mesa_bool_t show_irq;
 } kr_appl_conf_t;
-
-
-typedef struct {
-    
-} kr_aneg_t;
-
 
 #endif /* _MSCC_APPL_PORT_H_ */

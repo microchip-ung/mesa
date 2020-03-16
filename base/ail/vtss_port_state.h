@@ -341,6 +341,7 @@ typedef struct {
     BOOL stop_training;
     BOOL training_failure;
     BOOL aneg_disable;
+    BOOL next_page;
 } vtss_port_kr_fw_req_t;
 
 /** \brief 10G KR eye info */
@@ -406,15 +407,15 @@ typedef struct {
                             const vtss_port_no_t port_no);
 
     vtss_rc (* kr_status)(struct vtss_state_s *vtss_state,
-                               const vtss_port_no_t port_no,
-                               vtss_port_kr_status_t *const status);
+                          const vtss_port_no_t port_no,
+                          vtss_port_kr_status_t *const status);
 
     vtss_rc (* kr_irq)(vtss_inst_t inst,
                        const vtss_port_no_t port_no,
                        u32 *const vector);
 
     vtss_rc (* kr_fw_msg)(struct vtss_state_s *vtss_state,
-                           const vtss_port_no_t port_no);
+                          const vtss_port_no_t port_no);
 
     vtss_rc (* kr_fw_req)(struct vtss_state_s *vtss_state,
                           const vtss_port_no_t port_no,
@@ -426,7 +427,7 @@ typedef struct {
 
     vtss_rc (* kr_frame_get)(struct vtss_state_s *vtss_state,
                              const vtss_port_no_t port_no,
-                              vtss_port_kr_frame_t *const frm);
+                             vtss_port_kr_frame_t *const frm);
 
 
     vtss_rc (* kr_coef_set)(struct vtss_state_s *vtss_state,
@@ -434,9 +435,13 @@ typedef struct {
                             const u16 coef_in,
                             vtss_kr_status_results_t *const sts);
 
+    vtss_rc (* kr_fec_set)(const vtss_inst_t inst,
+                           const vtss_port_no_t port_no);
+
+
     vtss_rc (* kr_eye_dim)(struct vtss_state_s *vtss_state,
                            const vtss_port_no_t port_no,
-                          vtss_port_kr_eye_dim_t *const eye);
+                           vtss_port_kr_eye_dim_t *const eye);
 
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
@@ -479,6 +484,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
     vtss_port_kr_state_t          train_state[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_kr_fec_t            kr_fec[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
     vtss_port_chip_counters_t     counters[VTSS_PORT_ARRAY_SIZE];
