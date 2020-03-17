@@ -42,16 +42,18 @@ typedef struct {
 
 typedef struct {
     BOOL                   allocated;
-    vtss_voe_type_t        type;
     vtss_port_no_t         port;
+    vtss_voe_type_t        type;
     vtss_oam_direction_t   direction;
 } vtss_voe_alloc_t;
 
+#if defined(VTSS_FEATURE_VOP_V2)
 typedef struct {
     BOOL                   allocated;
     vtss_port_no_t         port;
     vtss_oam_direction_t   direction;
 } vtss_voi_alloc_t;
+#endif
 
 typedef struct {
     /* CIL function pointers */

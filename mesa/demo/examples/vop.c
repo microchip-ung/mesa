@@ -41,6 +41,7 @@ static struct {
     mesa_tce_id_t            inj_tce_id;
     uint32_t                 v1, v2;
     uint32_t                 family;
+    uint32_t                 cfm;
 } state;
 
 static int init_port_configuration(mesa_port_no_t port,  mesa_prio_t prio,  uint32_t idx)
@@ -95,39 +96,41 @@ static int v1_port_voe_configuration(uint32_t level)
     voe_param.direction = MESA_OAM_DIRECTION_DOWN;
     RC(mesa_voe_alloc(NULL, &voe_param, &state.voe_idx));
 
-    // snippet_endbegin ex-iflow-alloc
-    RC(mesa_iflow_alloc(NULL, &state.iflow_id));
-    RC(mesa_iflow_conf_get(NULL, state.iflow_id, &iflow_conf));
-    iflow_conf.voe_idx = state.voe_idx;
-    iflow_conf.voi_idx = MESA_VOI_IDX_NONE;
-    RC(mesa_iflow_conf_set(NULL, state.iflow_id, &iflow_conf));
+    if (state.cfm) {
+        // snippet_endbegin ex-iflow-alloc
+        RC(mesa_iflow_alloc(NULL, &state.iflow_id));
+        RC(mesa_iflow_conf_get(NULL, state.iflow_id, &iflow_conf));
+        iflow_conf.voe_idx = state.voe_idx;
+        iflow_conf.voi_idx = MESA_VOI_IDX_NONE;
+        RC(mesa_iflow_conf_set(NULL, state.iflow_id, &iflow_conf));
 
-    // snippet_endbegin ex-add-vce
-    // Add the front port VCE
-    RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce_conf));
-    vce_conf.id = state.front_vce_id;
-    mesa_port_list_clear(&vce_conf.key.port_list);
-    mesa_port_list_set(&vce_conf.key.port_list, state.front_port, TRUE);
-    vce_conf.key.type = MESA_VCE_TYPE_ETYPE;
-    vce_conf.key.tag.tagged = MESA_VCAP_BIT_0;
-    vce_conf.key.frame.etype.etype.value[0] = 0x89;
-    vce_conf.key.frame.etype.etype.value[1] = 0x02;
-    vce_conf.key.frame.etype.etype.mask[0] = 0xFF;
-    vce_conf.key.frame.etype.etype.mask[1] = 0xFF;
-    vce_conf.key.frame.etype.mel.value = 0;
-    vce_conf.key.frame.etype.mel.mask = vce_level_mask(0, level);
-    vce_conf.action.flow_id = state.iflow_id;
-    vce_conf.action.oam_detect = MESA_OAM_DETECT_UNTAGGED;
-    RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce_conf));
+        // snippet_endbegin ex-add-vce
+        // Add the front port VCE
+        RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce_conf));
+        vce_conf.id = state.front_vce_id;
+        mesa_port_list_clear(&vce_conf.key.port_list);
+        mesa_port_list_set(&vce_conf.key.port_list, state.front_port, TRUE);
+        vce_conf.key.type = MESA_VCE_TYPE_ETYPE;
+        vce_conf.key.tag.tagged = MESA_VCAP_BIT_0;
+        vce_conf.key.frame.etype.etype.value[0] = 0x89;
+        vce_conf.key.frame.etype.etype.value[1] = 0x02;
+        vce_conf.key.frame.etype.etype.mask[0] = 0xFF;
+        vce_conf.key.frame.etype.etype.mask[1] = 0xFF;
+        vce_conf.key.frame.etype.mel.value = 0;
+        vce_conf.key.frame.etype.mel.mask = vce_level_mask(0, level);
+        vce_conf.action.flow_id = state.iflow_id;
+        vce_conf.action.oam_detect = MESA_OAM_DETECT_UNTAGGED;
+        RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce_conf));
 
-    // Add the back port VCE
-    vce_conf.id = state.back_vce_id;
-    mesa_port_list_clear(&vce_conf.key.port_list);
-    mesa_port_list_set(&vce_conf.key.port_list, state.back_port, TRUE);
-    vce_conf.key.frame.etype.mel.value = 0;
-    vce_conf.key.frame.etype.mel.mask = 0;
-    vce_conf.action.flow_id = MESA_IFLOW_ID_NONE;
-    RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce_conf));
+        // Add the back port VCE
+        vce_conf.id = state.back_vce_id;
+        mesa_port_list_clear(&vce_conf.key.port_list);
+        mesa_port_list_set(&vce_conf.key.port_list, state.back_port, TRUE);
+        vce_conf.key.frame.etype.mel.value = 0;
+        vce_conf.key.frame.etype.mel.mask = 0;
+        vce_conf.action.flow_id = MESA_IFLOW_ID_NONE;
+        RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce_conf));
+    }
 
     // snippet_endbegin ex-port-voe-config
     RC(mesa_voe_conf_get(NULL, state.voe_idx, &voe_conf));
@@ -458,6 +461,7 @@ static int vop_init(int argc, const char *argv[])
     memset(&state, 0, sizeof(state));
     state.v1 = mesa_capability(NULL, MESA_CAP_VOP_V1);
     state.v2 = mesa_capability(NULL, MESA_CAP_VOP_V2);
+    state.cfm = mesa_capability(NULL, MESA_CAP_VOP_CFM);
     if (!state.v1 && !state.v2) {
         cli_printf("VOP is not supported on this platform\n");
         return -1;
@@ -503,9 +507,9 @@ static int vop_init(int argc, const char *argv[])
     // Do basic VOP configuration depending on Port or VLAN VOE
     if (state.vid == 0) {   // When vid is zero then it is the port domain
         if (state.v1 != 0) {
-            v1_port_voe_configuration(level);
+            RC(v1_port_voe_configuration(level));
         } else if (state.v2 != 0) {
-            v2_port_voe_configuration(level);
+            RC(v2_port_voe_configuration(level));
         }
     } else {    // This is the VLAN domain
         // Only forward on relevant ports
@@ -515,9 +519,9 @@ static int vop_init(int argc, const char *argv[])
         RC(mesa_vlan_port_members_set(NULL, state.vid, &port_list));
 
         if (state.v1 != 0) {
-            v1_service_voe_configuration(level);
+            RC(v1_service_voe_configuration(level));
         } else if (state.v2 != 0) {
-            v2_service_voe_configuration(level);
+            RC(v2_service_voe_configuration(level));
         }
     }
 
@@ -536,29 +540,31 @@ static int vop_init(int argc, const char *argv[])
     // snippet_begin ex-voe-events-enable
     RC(mesa_voe_event_mask_set(NULL, state.voe_idx, MESA_VOE_EVENT_MASK_ALL, TRUE));
 
-    // snippet_begin ex-voe-lb-enable
-    RC(mesa_voe_lb_conf_get(NULL, state.voe_idx, &lb_conf));
-    lb_conf.enable = TRUE;
-    lb_conf.count_as_selected = FALSE;
-    lb_conf.lbm_cpu_copy = FALSE;
-    lb_conf.lbr_cpu_copy = MESA_OAM_CPU_COPY_NONE;
-    lb_conf.trans_id = 1;
-    RC(mesa_voe_lb_conf_set(NULL, state.voe_idx, &lb_conf));
+    if (state.cfm) {
+        // snippet_begin ex-voe-lb-enable
+        RC(mesa_voe_lb_conf_get(NULL, state.voe_idx, &lb_conf));
+        lb_conf.enable = TRUE;
+        lb_conf.count_as_selected = FALSE;
+        lb_conf.lbm_cpu_copy = FALSE;
+        lb_conf.lbr_cpu_copy = MESA_OAM_CPU_COPY_NONE;
+        lb_conf.trans_id = 1;
+        RC(mesa_voe_lb_conf_set(NULL, state.voe_idx, &lb_conf));
 
-    // snippet_begin ex-voe-lt-enable
-    RC(mesa_voe_lt_conf_get(NULL, state.voe_idx, &lt_conf));
-    lt_conf.enable = TRUE;
-    lt_conf.count_as_selected = FALSE;
-    lt_conf.ltm_cpu_copy = TRUE;
-    lt_conf.ltr_cpu_copy = TRUE;
-    RC(mesa_voe_lt_conf_set(NULL, state.voe_idx, &lt_conf));
+        // snippet_begin ex-voe-lt-enable
+        RC(mesa_voe_lt_conf_get(NULL, state.voe_idx, &lt_conf));
+        lt_conf.enable = TRUE;
+        lt_conf.count_as_selected = FALSE;
+        lt_conf.ltm_cpu_copy = TRUE;
+        lt_conf.ltr_cpu_copy = TRUE;
+        RC(mesa_voe_lt_conf_set(NULL, state.voe_idx, &lt_conf));
 
-    // snippet_begin ex-voe-laps-enable
-    RC(mesa_voe_laps_conf_get(NULL, state.voe_idx, &laps_conf));
-    laps_conf.enable = TRUE;
-    laps_conf.cpu_copy = TRUE;
-    laps_conf.count_as_selected = FALSE;
-    RC(mesa_voe_laps_conf_set(NULL, state.voe_idx, &laps_conf));
+        // snippet_begin ex-voe-laps-enable
+        RC(mesa_voe_laps_conf_get(NULL, state.voe_idx, &laps_conf));
+        laps_conf.enable = TRUE;
+        laps_conf.cpu_copy = TRUE;
+        laps_conf.count_as_selected = FALSE;
+        RC(mesa_voe_laps_conf_set(NULL, state.voe_idx, &laps_conf));
+    }
 
     return 0;
 }

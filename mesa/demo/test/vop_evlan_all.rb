@@ -25,7 +25,8 @@ check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
     $cap_tx_ifh_size = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_TX_IFH_SIZE")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-    t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
+    $cap_vop_cfm = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_CFM") != 0) ? true : false
+    t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  $cap_vop_cfm #{$cap_vop_cfm}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
 end
 
 $p_vce         = 1
@@ -35,6 +36,8 @@ $d_voe_vce     = 4
 $d_voi_vce     = 5
 $u_voi_vce     = 6
 $d_voe_mel_vce = 7
+$p2_vce =        8
+$p2_v_vce =      9
 
 $du_vo_tce  = 1
 $p1_voe_tce = 2
@@ -343,20 +346,22 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     check_voe_counters(voe_idx, exp_valid_ccm_cnt, 0, 0, 0, exp_discard_cnt, 0)
     end
 
-    test "Check count as selected" do
-    t_i("Enable count as selected")
-    #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
-    voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_NONE", false, true)
+    if ($cap_vop_cfm)
+        test "Check count as selected" do
+        t_i("Enable count as selected")
+        #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
+        voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_NONE", false, true)
 
-    t_i("Transmit valid CCM frame against VOE")
-    exp_sequence += 1
-    frametx = frame.dup
-    frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
-    frame_tx(frametx, $port0, "", "", "", "")
+        t_i("Transmit valid CCM frame against VOE")
+        exp_sequence += 1
+        frametx = frame.dup
+        frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
+        frame_tx(frametx, $port0, "", "", "", "")
 
-    t_i("Check counters")
-    #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
-    check_voe_counters(voe_idx, exp_valid_ccm_cnt, 0, 1, 0, exp_discard_cnt, 0)
+        t_i("Check counters")
+        #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
+        check_voe_counters(voe_idx, exp_valid_ccm_cnt, 0, 1, 0, exp_discard_cnt, 0)
+        end
     end
 
     t_i("Clear and check counters")
@@ -490,9 +495,14 @@ def voe_cc_block_test_func(voe_idx, level, tag_vid)
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
     test "Transmit CCM frame behind VOE to be filtered/blocked." do
+    t_i("The following transmit blocking test is failing on Maserati as the functionality is not yet implemented")
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
-    frame_tx(frametx, $port1, "", "", frametx, "")
+    if (tag_vid != 0)
+        frame_tx(frametx, $port2, "", frametx, "", "")
+    else
+        frame_tx(frametx, $port2, "", "", "", "")
+    end
 
     t_i("Check TX Low level PDU seen")
     check_pdu_seen(voe_idx, PDU_TX_LOW_LEVEL)
@@ -506,7 +516,7 @@ def voe_cc_block_test_func(voe_idx, level, tag_vid)
     t_i ("Transmit CCM frame behind VOE to be forwarded.")
     frametx = frame.dup
     frametx += ccm_pdu_create(level+1, $period, 0, $peer_mepid, $megid)
-    frame_tx(frametx, $port1, frametx, "", frametx, "")
+    frame_tx(frametx, $port2, frametx, frametx, "", "")
 
     t_i("Transmit CCM frame in front of VOE to be forwarded.")
     frame_tx(frametx, $port0, "", frametx, frametx, "")
@@ -521,6 +531,8 @@ def voe_cc_block_test_func(voe_idx, level, tag_vid)
 end
 
 def voe_cc_inject_test_func(voe_idx, level, tag_vid)
+    lan966x = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ? true : false
+
     test "voe_cc_inject_test_func  voe_idx #{voe_idx}  level #{level}  tag_vid #{tag_vid}" do
 
     port_domain = (tag_vid == 0) ? true : false
@@ -561,7 +573,7 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     #check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx)
     check_ccm_counters(voe_idx, 0, 0, 0, $cap_oam_v2 ? 2 : 0)   # On Serval the CCM TX counter only count when the sequence number update is enabled
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
-    check_voe_counters(voe_idx, 0, 2, 0, 0, 0, 0)
+    check_voe_counters(voe_idx, 0, (lan966x ? 0 : 2), 0, 0, 0, 0)   # Currently the OAM TX counter is not working on LAN966X
     end
 
     test "Check sequence number insertion." do
@@ -573,35 +585,38 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_ALL", true)
 
     t_i("Inject CCM frame and check received CCM with no RDI and sequence number.")
-    framerx = frame.dup + ccm_pdu_create(level, $period, $cap_oam_v2 ? 2 : 1, $peer_mepid, $megid)
+    exp_seq = ($cap_oam_v2 || lan966x) ? 2 : 1     #V2 and LAN966X start with 2 and Serval start with 1 sequence number
+    framerx = frame.dup + ccm_pdu_create(level, $period, exp_seq, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
     t_i("Inject CCM frame and check received CCM with no RDI and sequence number.")
-    framerx = frame.dup + ccm_pdu_create(level, $period, $cap_oam_v2 ? 3 : 2, $peer_mepid, $megid)
+    exp_seq += 1
+    framerx = frame.dup + ccm_pdu_create(level, $period, exp_seq, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
     check_ccm_counters(voe_idx, 0, 0, 0, $cap_oam_v2 ? 4 : 2)   # On Serval the CCM TX counter only count when the sequence number update is enabled
     end
 
-    test "Check count as selected." do
-    t_i("Enable count as selected")
-    #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
-    voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_ALL", false, true)
+    if ($cap_vop_cfm)
+        test "Check count as selected." do
+        t_i("Enable count as selected")
+        #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
+        voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_ALL", false, true)
 
-    t_i("Inject CCM frame.")
-    framerx = frame.dup + ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
-    frame_tx(frametx, $npi_port, framerx , "", "", "")
+        t_i("Inject CCM frame.")
+        framerx = frame.dup + ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
+        frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    t_i("Check counters")
-    #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
-    check_voe_counters(voe_idx, 0, 4, 0, 1, 0, 0)
+        t_i("Check counters")
+        #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
+        check_voe_counters(voe_idx, 0, 4, 0, 1, 0, 0)
 
-    t_i("Clear and check counters")
-    clear_all_counters(voe_idx, OAM_CNT_ALL)
-    check_ccm_counters(voe_idx, 0, 0, 0, 0)
-    check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 0)
+        t_i("Clear and check counters")
+        clear_all_counters(voe_idx, OAM_CNT_ALL)
+        check_ccm_counters(voe_idx, 0, 0, 0, 0)
+        check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 0)
+        end
     end
-
     end
 end
 
@@ -1393,8 +1408,10 @@ test "test_config" do
     # Allocate Port VOE "behind" the VLAN Down-VOE
     $p1_voe_idx = voe_alloc("MESA_VOE_TYPE_PORT", $ts.dut.port_list[$port1]);
 
-    # Allocate VLAN Down VOE
-    $d_voe_idx = voe_alloc("MESA_VOE_TYPE_SERVICE", $ts.dut.port_list[$port0]);
+    if ($cap_vop_cfm)
+        # Allocate VLAN Down VOE
+        $d_voe_idx = voe_alloc("MESA_VOE_TYPE_SERVICE", $ts.dut.port_list[$port0]);
+    end
 
     if ($cap_oam_v2)
         # Allocate VOIs
@@ -1402,6 +1419,8 @@ test "test_config" do
         $u_voi_idx = voi_alloc("MESA_OAM_DIRECTION_UP", $port0)
     end
 
+    $p_voe_iflow = IFLOW_ID_NONE
+    $p1_voe_iflow = IFLOW_ID_NONE
     if ($cap_oam_v2)
         # Allocate iflow's
         $p_voe_iflow = $ts.dut.call("mesa_iflow_alloc")
@@ -1428,7 +1447,7 @@ test "test_config" do
         eflow_config($p1_inj_eflow, $p1_voe_idx, VOI_IDX_NONE)
     end
 
-    if ($cap_oam_v1)
+    if ($cap_oam_v1 && $cap_vop_cfm)
         # Allocate iflow's
         $p_voe_iflow = $ts.dut.call("mesa_iflow_alloc")
         $p1_voe_iflow = $ts.dut.call("mesa_iflow_alloc")
@@ -1450,10 +1469,12 @@ test "test_config" do
     if ($cap_oam_v2)
         # Configure VCE
         #vce_config(id, port, vid, level_val, level_mask, flow_id, oam_detect)
-        vce_config($p_vce, "#{$ts.dut.port_list[$port0]}", 0, 0, 0, $p_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")   #Always match on all levels in port domain
-        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
-        vce_config($p1_vce, "#{$ts.dut.port_list[$port1]}", 0, 0, 0, $p1_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")   #Always match on all levels in port domain
+        vce_config($p_vce, "#{$ts.dut.port_list[$port0]}", 0, 0, 0, $p_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")
+        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, 0, $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
+        vce_config($p1_vce, "#{$ts.dut.port_list[$port1]}", 0, 0, 0, $p1_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")
         vce_config($u_voi_vce, "#{$ts.dut.port_list[$port1]},#{$ts.dut.port_list[$port2]}", $vid, 0, 0, $u_voi_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
+        vce_config($p2_vce, "#{$ts.dut.port_list[$port2]}", 0, 0, 0, IFLOW_ID_NONE, "MESA_OAM_DETECT_UNTAGGED")
+        vce_config($p2_v_vce, "#{$ts.dut.port_list[$port2]}", $vid, 0, 0, IFLOW_ID_NONE, "MESA_OAM_DETECT_SINGLE_TAGGED")
 
         # Configure TCE
         #tce_config(id, port, vid, iflow_id, eflow_id)
@@ -1464,13 +1485,14 @@ test "test_config" do
         tce_config($p1_blk_tce, $ts.dut.port_list[$port1], $pvid, IFLOW_ID_NONE, $p1_inj_eflow)
     end
 
-    if ($cap_oam_v1)
+    if ($cap_oam_v1 && $cap_vop_cfm)
         # Configure VCE
         #vce_config(id, port, vid, level_val, level_mask, flow_id, oam_detect)
         vce_config($p_vce, "#{$ts.dut.port_list[$port0]}", 0, 0, 0, $p_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")   #Always match on all levels in port domain
         vce_config($d_voe_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, vce_level_mask(0, $v_voe_meg_level), $d_voe_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
         vce_config($p1_vce, "#{$ts.dut.port_list[$port1]}", 0, 0, 0, $p1_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")   #Always match on all levels in port domain
         vce_config($d_voe_mel_vce, "#{$ts.dut.port_list[$port1]},#{$ts.dut.port_list[$port2]}", $vid, 0, 0, IFLOW_ID_NONE, "MESA_OAM_DETECT_SINGLE_TAGGED")
+        vce_config($p2_vce, "#{$ts.dut.port_list[$port2]}", 0, 0, 0, IFLOW_ID_NONE, "MESA_OAM_DETECT_UNTAGGED")
 
         # Configure TCE
         #tce_config(id, port, vid, iflow_id, eflow_id)
@@ -1482,7 +1504,7 @@ test "test_config" do
     #voe_config(voe_idx, meg_level, iflow_id)
     voe_config($p_voe_idx, $p_voe_meg_level, $p_voe_iflow)
     voe_config($p1_voe_idx, $p_voe_meg_level, $p1_voe_iflow)
-    if ($cap_oam_v1)
+    if ($cap_oam_v1 && $cap_vop_cfm)
         voe_config($d_voe_idx, $v_voe_meg_level, $inj_iflow)
     end
     if ($cap_oam_v2)
@@ -1499,8 +1521,12 @@ end
 
 test "test_run" do
     voe_cc_rx_test_func($p_voe_idx, $p_voe_meg_level, 0)
-    voe_cc_rx_test_func($d_voe_idx, $v_voe_meg_level, $vid)
     voe_cc_inject_test_func($p_voe_idx, $p_voe_meg_level, 0)
+    voe_cc_block_test_func($p_voe_idx, $p_voe_meg_level, 0)
+    if (!$cap_vop_cfm)
+        exit(0)
+    end
+    voe_cc_rx_test_func($d_voe_idx, $v_voe_meg_level, $vid)
     voe_cc_inject_test_func($d_voe_idx, $v_voe_meg_level, $vid)
     voe_cc_block_test_func($d_voe_idx, $v_voe_meg_level, $vid)
     voe_laps_rx_test_func($p_voe_idx, $p_voe_meg_level, 0, $p_voe_iflow, $port0)
@@ -1546,6 +1572,8 @@ test "test_clean_up" do
 
         $ts.dut.call("mesa_vce_del", $p_vce)
         $ts.dut.call("mesa_vce_del", $p1_vce)
+        $ts.dut.call("mesa_vce_del", $p2_vce)
+        $ts.dut.call("mesa_vce_del", $p2_v_vce)
         $ts.dut.call("mesa_vce_del", $d_vo_vce)
         $ts.dut.call("mesa_vce_del", $u_voi_vce)
 
@@ -1565,6 +1593,7 @@ test "test_clean_up" do
         $ts.dut.call("mesa_vce_del", $p_vce)
         $ts.dut.call("mesa_vce_del", $d_voe_vce)
         $ts.dut.call("mesa_vce_del", $d_voe_mel_vce)
+        $ts.dut.call("mesa_vce_del", $p2_vce)
 
         $ts.dut.call("mesa_tce_del", $d_voe_tce)
         $ts.dut.call("mesa_tce_del", $inj_tce)

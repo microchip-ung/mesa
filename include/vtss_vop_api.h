@@ -12,17 +12,29 @@
 extern "C" {
 #endif
 
-#if defined(VTSS_FEATURE_VOP_V1)     /* Begin Serval1 */
+#if defined(VTSS_FEATURE_VOP_V1)     /* VOP V1 */
 
-#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
 #define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.
+#if defined(VTSS_ARCH_OCELOT)   /* Ocelot */
+#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
 #define VTSS_PATH_SERVICE_VOE_CNT   (32)                        // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX      (32)                        // Index of first port VOE
+#elif defined(VTSS_ARCH_SERVAL) /* Serval1 */
+#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
+#define VTSS_PATH_SERVICE_VOE_CNT   (64)                        // Number of path/service VOEs in HW
+#define VTSS_PORT_VOE_BASE_IDX      (64)                        // Index of first port VOE
+#elif defined(VTSS_ARCH_LAN966X)   /* Maserati */
+#define VTSS_PORT_VOE_CNT           (8)                        // Number of port VOEs in HW
+#define VTSS_PATH_SERVICE_VOE_CNT   (0)                        // Number of path/service VOEs in HW
+#define VTSS_PORT_VOE_BASE_IDX      (0)                        // Index of first port VOE
+#else
+#error "not defined expected architure for VOP V1"
+#endif
 
-#elif defined(VTSS_FEATURE_VOP_V2)  /* End Serval1 */
-                                    /* Begin Jaguar2/ServalT/SparX-5 */
-#if defined(VTSS_ARCH_SERVAL_T)
+#elif defined(VTSS_FEATURE_VOP_V2)  /* End VOP V1 */
+                                    /* Begin VOP V2*/
+#if defined(VTSS_ARCH_SERVAL_T)     /* ServalT */
 
 #define VTSS_PATH_SERVICE_VOE_CNT   (192)                       // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX      (192)                       // Index of first port VOE
@@ -35,21 +47,23 @@ extern "C" {
 
 #define VTSS_PATH_SERVICE_VOE_CNT   (1024)                      // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX      (1024)                      // Index of first port VOE
-#if defined(VTSS_ARCH_JAGUAR_2)
+
+#if defined(VTSS_ARCH_JAGUAR_2)     /* Jaguar2 */
 #define VTSS_PORT_VOE_CNT           (53)                        // Number of port VOEs in HW
-#endif                              /* End Jaguar2 */
-#if defined(VTSS_ARCH_SPARX5)
+#elif defined(VTSS_ARCH_SPARX5)     /* SparX-5 */
 #define VTSS_PORT_VOE_CNT           (65)                        // Number of port VOEs in HW
-#endif                              /* End SparX-5 */
+#else
+#error "not defined expected architure for VOP V2"
+#endif
 
 #define VTSS_DOWN_VOI_CNT           (1024)                      // Number of down VOI (MIP) in HW
 #define VTSS_UP_VOI_CNT             (1023)                      // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
-
-#endif                              /* Jaguar2/SparX-5 */
-
-#else                               /* End Jaguar2/ServalT/SparX-5 */
-#error "Only VTSS_ARCH_OCELOT and VTSS_FEATURE_VOP_V2 is supported at this time."
 #endif
+
+#else                               /* End VOP V2 */
+#error "VOP V1 or V2 must be defined"
+#endif
+
 
 #define VTSS_VOE_CNT                ((VTSS_PATH_SERVICE_VOE_CNT) + (VTSS_PORT_VOE_CNT))   // Total count of port + path/service VOEs
 #define VTSS_VOI_CNT                ((VTSS_DOWN_VOI_CNT) + (VTSS_UP_VOI_CNT))             // Total count of down and up VOIs
@@ -77,10 +91,12 @@ typedef struct {
 
     // CPU extraction queues to use for the various packet types
     vtss_packet_rx_queue_t  voe_queue_ccm;
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_packet_rx_queue_t  voe_queue_lt;   // LTM, LTR common settings
     vtss_packet_rx_queue_t  voe_queue_lbm;
     vtss_packet_rx_queue_t  voe_queue_lbr;
     vtss_packet_rx_queue_t  voe_queue_aps;  // LAPS and RAPS
+#endif
     vtss_packet_rx_queue_t  voe_queue_err;
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_packet_rx_queue_t  voi_queue;
@@ -117,9 +133,13 @@ typedef enum {
 
 // VOE Allocation structure.
 typedef struct {
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_voe_type_t       type;
+#endif
     vtss_port_no_t        port;
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_oam_direction_t  direction;
+#endif
 } vtss_voe_allocation_t;
 
 // Allocate a VOE.
@@ -150,8 +170,9 @@ typedef struct {
     vtss_mac_t             unicast_mac;     // This VOE's unicast MAC
     u8                     meg_level;       // MEG Level (MEL)
     vtss_voe_dmac_check_t  dmac_check_type; // Kind of DMAC check to perform
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_iflow_id_t        loop_iflow_id;   // Loop ingress flow id
-
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     // Block OAM PDUs with MEG level higher than the VOE MEG level
     BOOL                   block_mel_high;
@@ -203,11 +224,12 @@ typedef struct {
     vtss_oam_cpu_copy_t    cpu_copy;       // Control copy of CCM PDUs to CPU
     BOOL                   seq_no_update;  // Update TX CCM sequence number
 
+#if defined(VTSS_FEATURE_VOP_CFM)
     // Count PDU as selected.
     // There is one counter in vtss_voe_counters_t that counts any
     // OAM PDU type that is configured to 'count_as_selected'.
     BOOL                   count_as_selected;
-
+#endif
     // Expected received CCM PDU period.
     vtss_voe_ccm_period_t  expected_period;
 
@@ -361,11 +383,12 @@ typedef struct {
     u64   rx_counter;
     u64   tx_counter;
 
+#if defined(VTSS_FEATURE_VOP_CFM)
     // Counters named '_selected_' is counting any OAM PDU type
     // that is configured to 'count_as_selected'.
     u64   rx_selected_counter;
     u64   tx_selected_counter;
-
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     // Rx/Tx PDUs that are discarded due to filtering
     u64   rx_discard_counter;  // Check of MEL or DMAC or Version or CCM

@@ -46,27 +46,36 @@ vtss_rc vtss_voe_alloc(const vtss_inst_t            inst,
                        vtss_voe_idx_t               *const voe_idx)
 {
     vtss_state_t *vtss_state;
+    vtss_oam_direction_t direction = VTSS_OAM_DIRECTION_DOWN;
+    vtss_voe_type_t type = VTSS_VOE_TYPE_PORT;
     vtss_rc      rc;
 
+    vtss_state = (inst == NULL ? vtss_default_inst : inst);     /* This is required as VTSS_CHIP_PORT is using vtss_state */
+    if (VTSS_CHIP_PORT(param->port) >= VTSS_PORT_VOE_CNT) {
+        VTSS_E("Invalid port %u", param->port);
+        return VTSS_RC_ERROR;
+    }
+
+#if !defined(VTSS_ARCH_LAN966X)
     VTSS_D("Enter  type %d  port %u  direction %u  voe_idx %p", param->type, param->port, param->direction, voe_idx);
 
     if ((param->type != VTSS_VOE_TYPE_SERVICE) && (param->type != VTSS_VOE_TYPE_PORT)) {
         VTSS_E("Invalid type %u", param->type);
         return VTSS_RC_ERROR;
     }
-    vtss_state = (inst == NULL ? vtss_default_inst : inst);     /* This is required as VTSS_CHIP_PORT is using vtss_state */
-    if (VTSS_CHIP_PORT(param->port) >= VTSS_PORT_VOE_CNT) {
-        VTSS_E("Invalid port %u", param->port);
-        return VTSS_RC_ERROR;
-    }
     if ((param->direction != VTSS_OAM_DIRECTION_DOWN) && (param->direction != VTSS_OAM_DIRECTION_UP)) {
         VTSS_E("Invalid direction %u", param->direction);
         return VTSS_RC_ERROR;
     }
+    direction = param->direction;
+    type = param->type;
+#else
+    VTSS_D("Enter  port %u  voe_idx %p", param->port, voe_idx);
+#endif
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(oam.voe_alloc, param->type, param->port, param->direction, voe_idx);
+        rc = VTSS_FUNC(oam.voe_alloc, type, param->port, direction, voe_idx);
     }
     VTSS_EXIT();
     return rc;
@@ -971,10 +980,12 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
 
         pr("PDU extract:\n");
         pr("VOE CCM    RX queue %u\n", vop_conf->voe_queue_ccm);
+#if !defined(VTSS_ARCH_LAN966X)
         pr("VOE LT     RX queue %u\n", vop_conf->voe_queue_lt);
         pr("VOE LBM    RX queue %u\n", vop_conf->voe_queue_lbm);
         pr("VOE LBR    RX queue %u\n", vop_conf->voe_queue_lbr);
         pr("VOE APS    RX queue %u\n", vop_conf->voe_queue_aps);
+#endif
         pr("VOE ERROR  RX queue %u\n", vop_conf->voe_queue_err);
 #if defined(VTSS_FEATURE_VOP_V2)
         pr("VOI        RX queue %u\n", vop_conf->voi_queue);
@@ -1016,17 +1027,26 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        voe_conf->loop_iflow_id,
                        YN(voe_conf->block_mel_high));
 #else
+#if !defined(VTSS_ARCH_LAN966X)
                        pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s  loop_iflow_id: %u\n",
                        YN(voe_conf->enable),
                        debug_mac_string(&voe_conf->unicast_mac),
                        voe_conf->meg_level,
                        debug_dmac_check_string(voe_conf->dmac_check_type),
                        voe_conf->loop_iflow_id);
+#else
+                       pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s\n",
+                       YN(voe_conf->enable),
+                       debug_mac_string(&voe_conf->unicast_mac),
+                       voe_conf->meg_level,
+                       debug_dmac_check_string(voe_conf->dmac_check_type));
+#endif
 #endif
                     pr("-----\n");
                 }
 
                 if (info->full  ||  voe_cc_conf->enable) {
+#if !defined(VTSS_ARCH_LAN966X)
                     pr("CC enable:%4s  cpu_copy:%s  seq_no_update:%s  count_as_selected:%s  period %s  prio:%u  peer_mepid %u  rdi_set %u\n",
                        YN(voe_cc_conf->enable),
                        debug_cpu_copy_string(voe_cc_conf->cpu_copy),
@@ -1036,6 +1056,16 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        voe_cc_conf->expected_priority,
                        voe_cc_conf->expected_peer_mepid,
                        vtss_state->oam.voe_rdi_conf[i]);
+#else
+                    pr("CC enable:%4s  cpu_copy:%s  seq_no_update:%s  period %s  prio:%u  peer_mepid %u  rdi_set %u\n",
+                       YN(voe_cc_conf->enable),
+                       debug_cpu_copy_string(voe_cc_conf->cpu_copy),
+                       YN(voe_cc_conf->seq_no_update),
+                       debug_period_string(voe_cc_conf->expected_period),
+                       voe_cc_conf->expected_priority,
+                       voe_cc_conf->expected_peer_mepid,
+                       vtss_state->oam.voe_rdi_conf[i]);
+#endif
                     pr("          %4s  megid:%s\n", " ", debug_megid_string(voe_cc_conf->expected_megid));
                     pr("-----\n");
                 }
@@ -1149,11 +1179,9 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        voe_counters.rx_discard_counter,
                        voe_counters.tx_discard_counter);
 #else
-                    pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "  rx_selected_counter %" PRIu64 "  tx_selected_counter %" PRIu64 "\n",
+                    pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "\n",
                        voe_counters.rx_counter,
-                       voe_counters.tx_counter,
-                       voe_counters.rx_selected_counter,
-                       voe_counters.tx_selected_counter);
+                       voe_counters.tx_counter);
 #endif
                     pr("-----\n");
                 }

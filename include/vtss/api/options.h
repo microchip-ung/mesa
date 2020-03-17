@@ -83,8 +83,7 @@
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
-//#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
-//#define VTSS_FEATURE_VOP_V1                       /**< Version 1 OAM implementation. Serval-1 platform */
+#define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #endif /* VTSS_ARCH_LAN966X */
@@ -597,6 +596,10 @@
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
+#endif
+
+#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#define VTSS_FEATURE_VOP_CFM                   /**< OAM/VOE supporting full 802.1 CFM implementation */
 #endif
 
 /* ================================================================= *

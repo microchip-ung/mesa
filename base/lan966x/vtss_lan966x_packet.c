@@ -203,7 +203,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      u32                   *const ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos;
+    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, seq_num_chip_port = 0;
     const vtss_vlan_tag_t *tag = &info->tag;
 
     if (ifh == NULL) {
@@ -243,6 +243,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         }
         for (port_no = 0; port_no < state->port_count; port_no++) {
             if (dst_mask & (1 << port_no)) {
+                seq_num_chip_port = VTSS_CHIP_PORT_FROM_STATE(state, port_no);
                 mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, port_no));
             }
         }
@@ -271,6 +272,11 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         }
         if (rew_cmd) {
             IFH_SET(ifh, REW_CMD, (info->ptp_domain << 6) | rew_cmd);
+        }
+        if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
+            IFH_SET(ifh, REW_OAM, 1);
+            IFH_SET(ifh, PDU_TYPE, 1);  /* Only CCM pdu type is supported */
+            IFH_SET(ifh, SEQ_NUM, seq_num_chip_port); /* Point to the sequence number update configuration */
         }
 
         // AFI

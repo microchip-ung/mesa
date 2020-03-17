@@ -84,6 +84,7 @@ FAMILY_SERVALT = 6
 FAMILY_JAGUAR2 = 7
 FAMILY_OCELOT  = 8
 FAMILY_SPARX5  = 9
+FAMILY_LAN966X = 10
 
 MC_ADDR = [0x01,0x80,0xC2,0x00,0x00,0x30]
 MC_ADDR_INV = [0x01,0x80,0xC3,0x00,0x00,0x30]
@@ -132,8 +133,8 @@ def voe_alloc(type, port)
     conf = {"type"=>0, "port"=>0, "direction"=>0}
 
     conf["type"] = type
-    conf["port"] = port
     conf["direction"] = "MESA_OAM_DIRECTION_DOWN"
+    conf["port"] = port
 
     $voe_idx = $ts.dut.call("mesa_voe_alloc", conf)
     end
@@ -150,7 +151,9 @@ def voe_config(voe_idx, meg_level, iflow_id)
     conf["unicast_mac"]["addr"] = UC_ADDR
     conf["meg_level"] = meg_level
     conf["dmac_check_type"] = "MESA_VOE_DMAC_CHECK_BOTH"
-    conf["loop_iflow_id"] = iflow_id
+    if ($cap_vop_cfm)
+        conf["loop_iflow_id"] = iflow_id
+    end
     conf["block_mel_high"] = false
 
     $ts.dut.call("mesa_voe_conf_set", voe_idx, conf)
@@ -608,7 +611,11 @@ def tx_ifh_create(vid, port = 0, oam_type = "MESA_PACKET_OAM_TYPE_NONE", voi = f
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 36)
     else
-        ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 32)
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+            ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 28)
+        else
+            ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 32)
+        end
     end
 
     $tx_ifh = "sp-jr2 dmac ff:ff:ff:ff:ff:ff smac fe:ff:ff:ff:ff:ff id #{$cap_epid} data hex #{ifh[0].take(ifh[1]).pack("c*").unpack("H*").first} "   #sp-jr2 is the same as lp-oc1
@@ -634,6 +641,12 @@ def rx_ifh_create(isdx=IGNORE, port=IGNORE)
     end
     if (($cap_family == FAMILY_SERVAL) || ($cap_family == FAMILY_OCELOT))
         $ifh += "efh-oc1 ign "
+    end
+    if ($cap_family == FAMILY_LAN966X)
+        $ifh += "ifh-mas ign "
+        if (port != IGNORE)
+            $ifh += "src-port #{$port_map[port]["chip_port"]} "
+        end
     end
     end
 
@@ -799,9 +812,11 @@ def check_pdu_seen(voe_idx, pdu_type)
 
     voe_status = $ts.dut.call("mesa_voe_status_get", voe_idx)
     cc_status = $ts.dut.call("mesa_voe_cc_status_get", voe_idx)
-    lt_status = $ts.dut.call("mesa_voe_lt_status_get", voe_idx)
-    lb_status = $ts.dut.call("mesa_voe_lb_status_get", voe_idx)
-    laps_status = $ts.dut.call("mesa_voe_laps_status_get", voe_idx)
+    if ($cap_vop_cfm)
+        lt_status = $ts.dut.call("mesa_voe_lt_status_get", voe_idx)
+        lb_status = $ts.dut.call("mesa_voe_lb_status_get", voe_idx)
+        laps_status = $ts.dut.call("mesa_voe_laps_status_get", voe_idx)
+    end
 
     if (pdu_type == PDU_CCM)
         if (cc_status["seen"] != true)
@@ -818,36 +833,36 @@ def check_pdu_seen(voe_idx, pdu_type)
         if ($cap_oam_v2 && (cc_status["tlv_seen"] != true))
             t_e("CCM-TLV pdu not found")
         end
-    elsif (pdu_type == PDU_LAPS)
+    elsif ((pdu_type == PDU_LAPS) && $cap_vop_cfm)
         if (laps_status["seen"] != true)
             t_e("LAPS pdu not found")
         end
-    elsif (pdu_type == PDU_LBM)
+    elsif ((pdu_type == PDU_LBM) && $cap_vop_cfm)
         if (lb_status["lbm_seen"] != true)
             t_e("LBM pdu not found")
         end
         if (lb_status["lbr_seen"] == true)
             t_e("LBR pdu unexpectedly found")
         end
-    elsif (pdu_type == PDU_LBR)
+    elsif ((pdu_type == PDU_LBR) && $cap_vop_cfm)
         if (lb_status["lbr_seen"] != true)
             t_e("LBR pdu not found")
         end
         if (lb_status["lbm_seen"] == true)
             t_e("LBM pdu unexpectedly found")
         end
-    elsif (pdu_type == PDU_LBR_TRANS)
+    elsif ((pdu_type == PDU_LBR_TRANS) && $cap_vop_cfm)
         if ($cap_oam_v2 && (lb_status["trans_unexp_seen"] != true))
             t_e("LBR-TRANSACTION pdu not found")
         end
-    elsif (pdu_type == PDU_LTM)
+    elsif ((pdu_type == PDU_LTM) && $cap_vop_cfm)
         if (lt_status["ltm_seen"] != true)
             t_e("LTM pdu not found")
         end
         if (lt_status["ltr_seen"] == true)
             t_e("LTR pdu unexpectedly found")
         end
-    elsif (pdu_type == PDU_LTR)
+    elsif ((pdu_type == PDU_LTR) && $cap_vop_cfm)
         if (lt_status["ltr_seen"] != true)
             t_e("LTR pdu not found")
         end
@@ -888,12 +903,12 @@ def check_pdu_seen(voe_idx, pdu_type)
             ($cap_oam_v2 && (voe_status["rx_level_low_seen"] == true)) ||
             ($cap_oam_v2 && (voe_status["rx_level_high_seen"] == true)) ||
             (voe_status["tx_level_low_seen"] == true) ||
-            (lt_status["ltm_seen"] == true) ||
-            (lt_status["ltr_seen"] == true) ||
-            (lb_status["lbm_seen"] == true) ||
-            (lb_status["lbr_seen"] == true) ||
+            ($cap_vop_cfm && (lt_status["ltm_seen"] == true)) ||
+            ($cap_vop_cfm && (lt_status["ltr_seen"] == true)) ||
+            ($cap_vop_cfm && (lb_status["lbm_seen"] == true)) ||
+            ($cap_vop_cfm && (lb_status["lbr_seen"] == true)) ||
             ($cap_oam_v2 && (lb_status["trans_unexp_seen"] == true)) ||
-            (laps_status["seen"] == true))
+            ($cap_vop_cfm && (laps_status["seen"] == true)))
             t_e("NONE pdu not found")
         end
     elsif pdu_type == PDU_CLEAR
@@ -915,10 +930,10 @@ def check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
         t_e("Unexpected tx. expected #{tx} counted #{status["tx_counter"]}")
     end
 
-    if ((rx_sel != COUNTER_NONE) && status["rx_selected_counter"] != rx_sel)
+    if ($cap_vop_cfm && (rx_sel != COUNTER_NONE) && status["rx_selected_counter"] != rx_sel)
         t_e("Unexpected Select rx. expected #{rx_sel} counted #{status["rx_selected_counter"]}")
     end
-    if ((tx_sel != COUNTER_NONE) && status["tx_selected_counter"] != tx_sel)
+    if ($cap_vop_cfm && (tx_sel != COUNTER_NONE) && status["tx_selected_counter"] != tx_sel)
         t_e("Unexpected Select tx. expected #{tx_sel} counted #{status["tx_selected_counter"]}")
     end
 
@@ -988,7 +1003,9 @@ def clear_all_counters(voe_idx, mask)
 
     $ts.dut.call("mesa_voe_counters_clear", voe_idx)
     $ts.dut.call("mesa_voe_cc_counters_clear", voe_idx)
-    $ts.dut.call("mesa_voe_lb_counters_clear", voe_idx)
+    if ($cap_vop_cfm)
+        $ts.dut.call("mesa_voe_lb_counters_clear", voe_idx)
+    end
     end
 end
 
