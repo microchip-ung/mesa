@@ -344,6 +344,13 @@ typedef struct {
     BOOL next_page;
 } vtss_port_kr_fw_req_t;
 
+typedef struct {
+    u32  amplitude;
+    u32  tap_dly;
+    u32  tap_adv;
+    BOOL c0_done;
+} vtss_port_kr_temp_storage_t;
+
 /** \brief 10G KR eye info */
 typedef struct {
     u32 height;
@@ -485,6 +492,7 @@ typedef struct {
     vtss_port_kr_state_t          train_state[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_fec_t            kr_fec[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_kr_temp_storage_t   kr_store[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
     vtss_port_chip_counters_t     counters[VTSS_PORT_ARRAY_SIZE];

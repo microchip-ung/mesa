@@ -305,8 +305,107 @@ static void buf_set(char *buf, u32 *u_ptr)
         }
     }
 }
+static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
+{
+    if  (0 <= ampcode && ampcode < 16) {
+        *ipdriver = 6;
+        *vcdriver = ampcode;
+    } else if (16 <= ampcode && ampcode < 32) {
+        *ipdriver = 5;
+        *vcdriver = ampcode - 16;
+    } else if (32 <= ampcode && ampcode < 46) {
+        *ipdriver = 7;
+        *vcdriver = ampcode - 30;
+    } else if (46 <= ampcode && ampcode < 58) {
+        *ipdriver = 4;
+        *vcdriver = ampcode - 42;
+    } else if (58 <= ampcode && ampcode < 69) {
+        *ipdriver = 3;
+        *vcdriver = ampcode - 53;
+    } else if (69 <= ampcode && ampcode < 79) {
+        *ipdriver = 2;
+        *vcdriver = ampcode - 63;
+    } else if (79 <= ampcode && ampcode < 88) {
+        *ipdriver = 0;
+        *vcdriver = ampcode - 72;
+    } else if (88 <= ampcode && ampcode < 102) {
+        *ipdriver = 1;
+        *vcdriver = ampcode - 86;
+    }
+}
 
-static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, u16 tap_dly, u16 tap_adv, u16 ampl)
+static u32 kr_drv_2_ampcode(u32 ipdriver, u32 vcdriver)
+{
+    if (ipdriver == 6) {
+        return vcdriver;
+    } else if (ipdriver == 5) {
+        return (vcdriver + 16);
+    } else if (ipdriver == 7) {
+        return (30 + vcdriver);
+    } else if (ipdriver == 4) {
+        return (vcdriver + 42);
+    } else if (ipdriver == 3) {
+        return (vcdriver + 53);
+    } else if (ipdriver == 2) {
+        return (vcdriver + 63);
+    } else if (ipdriver == 0) {
+        return (vcdriver + 72);
+    } else if (ipdriver == 1) {
+        return (vcdriver + 86);
+    } else {
+        VTSS_E("Should not happend");
+        return 0;
+    }
+}
+
+static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, u16 tap_dly, u16 tap_adv, u16 ampl)
+{
+    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
+
+    // For now don't change the TxEQ..
+    u32 val1;
+    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1);
+    REG_WR(VTSS_SD25G_TARGET_CMU_47(sd_tgt), val1);
+
+    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt),&val1);
+    REG_WR(VTSS_SD25G_TARGET_LANE_00(sd_tgt),val1);
+
+    REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1);
+    REG_WR(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), val1);
+    
+    // END
+    
+    (void)kr_ampcode_2_drv(ampl, &ipdriver, &vcdriver);
+
+    // Needs debugging
+    // To be enabled
+    /* REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt), */
+    /*         VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver), */
+    /*         VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0); */
+
+    /* REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt), */
+    /*         VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver), */
+    /*         VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0); */
+
+    /* REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), */
+    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) | */
+    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) | */
+    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(tap_dly) | */
+    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(tap_adv), */
+    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY | */
+    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV | */
+    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY | */
+    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV); */
+
+    return VTSS_RC_OK;
+}
+
+
+static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                                      u16 tap_dly, u16 tap_adv, u16 ampl)
 {
     u32 sd_indx, sd_type, sd_tgt;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
@@ -378,13 +477,8 @@ typedef enum {
 } vtss_port_kr_coef_status_t;
 
 #define BT(x) (1 << (x))
-typedef struct {
-    u32  amplitude;
-    u32  tap_dly;
-    u32  tap_adv;
-} vtss_port_kr_temp_storage_t;
 
-vtss_port_kr_temp_storage_t kr_coef_store[VTSS_PORTS] = {0};
+//vtss_port_kr_temp_storage_t kr_coef_store[VTSS_PORTS] = {0};
 
 const char *raw_sts2txt(u32 frm_in)
 {
@@ -586,7 +680,7 @@ static vtss_port_kr_coef_status_t sts2rawsts(vtss_port_kr_coef_type_t tap, vtss_
 }
 
 
-
+// GUC algorithm for 10G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef_in,
                                                            u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
 {
@@ -860,6 +954,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
     return sts_code;
 }
 
+// GUC algorithm for 25G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef_in,
                                                           u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
 {
@@ -970,8 +1065,9 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
     return sts_code;
 }
 
-BOOL c0_done[VTSS_PORTS] = {0};
-static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 coef_in,
+//BOOL c0_done[VTSS_PORTS] = {0};
+// GUC algorithm for 25G @ 10G TxEQ KR tuning
+static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vtss_state, u32 p, const u16 coef_in,
                                                               u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
 {
     u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
@@ -980,19 +1076,20 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 
     vtss_port_kr_status_codes_t sts_code = VTSS_KR_STS_UPDATED;
     vtss_port_kr_coef_type_t tap = coef2tap(coef_in);
     vtss_port_kr_coef_update_t action = coef2act(coef_in);
+    BOOL *c0_done = &vtss_state->port.kr_store[p].c0_done;
 
     switch (tap) {
     case VTSS_COEF_PRESET:
         _amp_code = 80;
         _tap_adv = 4;
         _tap_dly = 22;
-        c0_done[p] = FALSE;
+        *c0_done = FALSE;
         break;
     case VTSS_COEF_INIT:
         _amp_code = 80;
         _tap_adv = 4;
         _tap_dly = 22;
-        c0_done[p] = FALSE;
+        *c0_done = FALSE;
         break;
     case VTSS_COEF_CP1:
         if (action == VTSS_COEF_HOLD) {
@@ -1053,7 +1150,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 
             if (0 <= _tap_dly && _tap_dly <= 31) {
                 dG  = 2;
                 dCd = 2;
-                if (!c0_done[p]) {
+                if (!*c0_done) {
                     adv_dly_sum = 17;
                 } else {
                     adv_dly_sum = _tap_dly + _tap_dly;
@@ -1093,7 +1190,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(u32 p, const u16 
         }
         break;
     case VTSS_COEF_C0:
-        c0_done[p] = TRUE;
+        *c0_done = TRUE;
         if (action == VTSS_COEF_HOLD) {
             status = VTSS_COEF_NOT_UPDATED;
             break;
@@ -1365,82 +1462,55 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
     return VTSS_RC_OK;
 }
 
-static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
-{
-    if  (0 <= ampcode && ampcode < 16) {
-        *ipdriver = 6;
-        *vcdriver = ampcode;
-    } else if (16 <= ampcode && ampcode < 32) {
-        *ipdriver = 5;
-        *vcdriver = ampcode - 16;
-    } else if (32 <= ampcode && ampcode < 46) {
-        *ipdriver = 7;
-        *vcdriver = ampcode - 30;
-    } else if (46 <= ampcode && ampcode < 58) {
-        *ipdriver = 4;
-        *vcdriver = ampcode - 42;
-    } else if (58 <= ampcode && ampcode < 69) {
-        *ipdriver = 3;
-        *vcdriver = ampcode - 53;
-    } else if (69 <= ampcode && ampcode < 79) {
-        *ipdriver = 2;
-        *vcdriver = ampcode - 63;
-    } else if (79 <= ampcode && ampcode < 88) {
-        *ipdriver = 0;
-        *vcdriver = ampcode - 72;
-    } else if (88 <= ampcode && ampcode < 102) {
-        *ipdriver = 1;
-        *vcdriver = ampcode - 86;
-    }
-}
 
-static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
+                               u16 *tap_dly, u16 *tap_adv, u16 *ampl)
 {
-    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, val1, ipdriver, vcdriver;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
-    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
+    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
 
+    REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1);
+    *tap_dly = (u16)VTSS_X_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(val1);
+    *tap_adv = (u16)VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(val1);
+   
+    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1);
+    ipdriver = VTSS_X_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(val1);
 
-    if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
-        return VTSS_RC_OK; // TB Removed
-    }
-
-    (void)kr_ampcode_2_drv(st->amplitude, &ipdriver, &vcdriver);
-
-    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
-            VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
-            VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
-
-    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt),
-            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
-            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
-
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(st->tap_dly) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(st->tap_adv),
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV);
-
+    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt), &val1);
+    vcdriver = VTSS_X_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(val1);
+    *ampl = kr_drv_2_ampcode(ipdriver, vcdriver);
+        
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_port_kr_temp_storage_t *st)
+static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                                  u16 tap_dly, u16 tap_adv, u16 ampl)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 
     if (VTSS_PORT_IS_10G(port)) {
-        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, st));
+        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
     } else {
-        VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, st));
+        VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
     }
 
     return VTSS_RC_OK;
+}
 
+vtss_rc fa_port_kr_tap_get(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                           u16 *tap_dly, u16 *tap_adv, u16 *ampl)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (VTSS_PORT_IS_10G(port)) {
+        VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
+    } else {
+        VTSS_RC(fa_port_25g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
+    }
+
+    return VTSS_RC_OK;
 }
 
 
@@ -1451,7 +1521,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
-    vtss_port_kr_temp_storage_t *st = &kr_coef_store[port_no];
+    vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
     vtss_port_kr_status_codes_t int_status;
     u32 amplitude = st->amplitude, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
@@ -1460,21 +1530,21 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     // 3. If status == UPDATED: Apply calculated settings to the Tx-EQ
     // 4. Return Status report
 
-    if (VTSS_PORT_IS_10G(port)) {
+    if (VTSS_PORT_IS_10G(port)) { // 10GSD @ 10G
         int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 10G Calculate
         if (int_status == VTSS_KR_STS_UPDATED) {
             int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1); // 10G Verify
         }
-    } else {
+    } else {     // 25GSD @ 25GG
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
             int_status = fa_coef_status_25g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 25G Calculate
             if (int_status == VTSS_KR_STS_UPDATED) {
                 int_status = fa_coef_status_25g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25G Verify
             }
         } else { // 25GSD @ 10G
-            int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0);    // 25GSD@10G Calculate
+            int_status = fa_coef_status_25g_10g_calc(vtss_state, port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0);    // 25GSD@10G Calculate
             if (int_status == VTSS_KR_STS_UPDATED) {
-                int_status = fa_coef_status_25g_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
+                int_status = fa_coef_status_25g_10g_calc(vtss_state, port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
             }
         }
     }
@@ -1499,7 +1569,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
         st->amplitude = amplitude;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
-        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, st)); // Apply the settings
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, amplitude)); // Apply the settings
     }
 
     status_out->status = sts_tmp; // Return status report

@@ -63,6 +63,8 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 #define KR_ANEG_RATE_2G5    12
 #define KR_ANEG_RATE_1G     13
 
+#define KR_HIST_NUM 300
+
 
 #ifndef TRUE
 #define TRUE 1
@@ -156,13 +158,13 @@ typedef struct {
     uint32_t time_ld;
     uint32_t time_lp;
     mesa_port_kr_status_t status;
-    kr_coef_t ld_hist[200];
+    kr_coef_t ld_hist[KR_HIST_NUM];
     uint16_t ld_hist_index;
-    kr_ber_t lp_hist[200];
+    kr_ber_t lp_hist[KR_HIST_NUM];
     uint16_t lp_hist_index;
-    kr_irq_t irq_hist[200];
+    kr_irq_t irq_hist[KR_HIST_NUM];
     uint16_t irq_hist_index;
-    kr_irq_t irq_glb_hist[200];
+    kr_irq_t irq_glb_hist[KR_HIST_NUM];
     uint16_t irq_glb_hist_index;
 } kr_appl_train_t;
 

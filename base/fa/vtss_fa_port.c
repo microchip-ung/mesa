@@ -855,9 +855,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_REQ_WT_START |
                 VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START |
                 VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
-
     }
-
 
     if (fw_req->rate_done || fw_req->tr_done ) {
         REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
@@ -883,7 +881,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         }
     }
 
-    if (fw_req->start_training) {
+    if (fw_req->start_training) {        
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
             VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
         }
@@ -898,7 +896,47 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI)); // 64 bit normal mode
+            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
+            u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
+
+            // Change back to 25G 40 bit mode
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
+                    VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_30(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0(0) |
+                    VTSS_F_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0(0),
+                    VTSS_M_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0 |
+                    VTSS_M_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0(3),
+                    VTSS_M_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_0C(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0(3),
+                    VTSS_M_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(0),
+                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
+                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
         }
     }
 
@@ -995,7 +1033,8 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     /* REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), 0); */
     /* REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(tgt), */
     /*             VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA); */
-    // 10G/25G R-FEC
+
+    // R-FEC: 10G/25G in 10G-mode 
     REG_WRM(VTSS_PCS_10GBASE_R_KR_FEC_CFG(pcs),
             VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA(kr->fec) |
             VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_TX_DATA_FLIP(kr->fec) |
@@ -1005,7 +1044,14 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA);
 
     if (VTSS_PORT_IS_25G(port)) {
-        // 25G RS-FEC
+        // R-FEC: 25G in 25G mode 
+        REG_WRM(VTSS_DEV10G_PCS25G_FEC74_CFG(tgt),
+                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX(kr->fec) |
+                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX(kr->fec),
+                VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX |
+                VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX);
+        
+
         REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
                 VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(1) |
                 VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL(10) |
@@ -1018,15 +1064,17 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                 VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_FIFO_FLUSH |
                 VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS);
 
-        REG_WRM(VTSS_PCS25G_RSFEC_VENDOR_PCS_MODE(rs_fec),
-                VTSS_F_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25(1),
-                VTSS_M_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25);
-
+        // RS-FEC: 25G in 25G mode
         REG_WRM(VTSS_DEV10G_PCS25G_RSFEC_CFG(tgt),
-                VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA(1) |
+                VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA(kr->rs_fec) |
                 VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA(kr->rs_fec),
                 VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA |
                 VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA);
+
+        REG_WRM(VTSS_PCS25G_RSFEC_VENDOR_PCS_MODE(rs_fec),
+                VTSS_F_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25(kr->rs_fec),
+                VTSS_M_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25);
+
     }
 
     /* REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), */
@@ -1093,7 +1141,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
         }
     }
 
-    VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, &val1, &val2, &val3));
+    VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &val1, &val2, &val3));
     status->train.cm_ob_tap_result = (u8)val1;
     status->train.cp_ob_tap_result = (u8)val2;
     status->train.c0_ob_tap_result = (u8)val3;
@@ -1172,23 +1220,21 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
            LD_ADV2 bit 1 = 5G-KR */
         abil = kr->aneg.adv_2g5 ? VTSS_BIT(0) : 0;
         abil += kr->aneg.adv_5g ? VTSS_BIT(1) : 0;
-        REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(0) | VTSS_BIT(1));
 
-
+        /* AN FEC aneg field
+           LD_ADV2 bit 14/F0 = fec ability
+           LD_ADV2 bit 15/F1 = R-FEC requested */
+        abil += kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
+        abil += kr->aneg.fec_req ? VTSS_BIT(15) : 0;  // F1
+        REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
+            
         if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
             /* LD_ADV2 bit 12/F2 = RS-FEC requested      */
             /* LD_ADV2 bit 13/F3 = Base-R FEC requested, */
             abil += kr->aneg.rs_fec_req ? VTSS_BIT(12) : 0; // F2
             abil +=  kr->aneg.fec_req  ? VTSS_BIT(13) : 0; // F3
             REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13));
-        } else {
-            /* AN FEC aneg field
-               LD_ADV2 bit 14/F0 = fec ability
-               LD_ADV2 bit 15/F1 = fec requested */
-            abil += kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
-            abil += kr->aneg.fec_req ? VTSS_BIT(15) : 0;  // F1
-            REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
-        }
+        } 
     }
 
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
@@ -2601,6 +2647,14 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         } else {
             /* Combine status from PCS and Analog Macro */
             status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
+        }
+        if (port_no == 2 || port_no == 3) {
+
+            /* if (status->link_down) { */
+            /*     printf("p:%d idle_state:%d analog_sd:%d\n",port_no, value, analog_sd); */
+
+            /* } */
+
         }
         status->speed = conf->speed;
         break;

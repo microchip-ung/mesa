@@ -1723,7 +1723,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
             }
         } else {
-            VTSS_E("perform_lp_training called on invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
+            VTSS_E("Invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
         }
         break;
 
@@ -1862,7 +1862,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_DME_VIOL_1 (Failure during frame transmission)
     if ((irq & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
-        kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
+        if (pconf->speed != VTSS_SPEED_25G) { // For now we ignore this for 25G speed
+            kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
+        }
     }
 
     // KR_DME_VIOL_0
