@@ -3136,6 +3136,7 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr->clear = vtss_cmn_estat_clear;
 
 #if defined(VTSS_FEATURE_FRER)
+    cnt = 8;
     hdr = &state->ms_table.hdr;
     hdr->name = "mstream";
     hdr->max_count = VTSS_MSTREAM_CNT;
@@ -3526,6 +3527,12 @@ vtss_rc vtss_frer_cstream_cnt_clear(const vtss_inst_t            inst,
     return rc;
 }
 
+#if defined(VTSS_ARCH_LAN966X)
+#define VTSS_FRER_EGR_PORT_CNT 4
+#else
+#define VTSS_FRER_EGR_PORT_CNT 8
+#endif
+
 vtss_rc vtss_frer_mstream_alloc(const vtss_inst_t      inst,
                                 const BOOL             port_list[VTSS_PORTS],
                                 vtss_frer_mstream_id_t *const id)
@@ -3550,7 +3557,7 @@ vtss_rc vtss_frer_mstream_alloc(const vtss_inst_t      inst,
                         cnt++;
                     }
                 }
-                if (cnt == 0 || cnt > 8) {
+                if (cnt == 0 || cnt > VTSS_FRER_EGR_PORT_CNT) {
                     VTSS_E("illegal port count: %u", cnt)
                 } else if ((rc = vtss_xrow_alloc(vtss_state, &vtss_state->l2.ms_table.hdr, cnt, &ms->idx)) == VTSS_RC_OK) {
                     ms->cnt = cnt;

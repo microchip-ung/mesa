@@ -148,7 +148,7 @@ def frer_test(table)
                 cmd += cmd_name
                 cmd += " eth"
                 cmd += f
-                cmd += " data pattern cnt 128"
+                cmd += " et 0xabcd data pattern cnt 128"
                 cmd_end += cmd_name
             end
         end

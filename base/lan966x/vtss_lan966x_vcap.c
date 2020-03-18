@@ -892,7 +892,21 @@ static vtss_rc lan966x_is1_entry_move(vtss_state_t *vtss_state,
 static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
                                         vtss_vcap_idx_t *idx, vtss_is1_action_t *act)
 {
-    return VTSS_RC_OK;
+    lan966x_vcap_info_t info = {0};
+
+    info.vcap = VTSS_LAN966X_VCAP_IS1;
+    info.cmd = LAN966X_VCAP_CMD_READ;
+    info.sel = LAN966X_VCAP_SEL_ACTION;
+    info.addr = lan966x_vcap_entry_addr(info.vcap, idx);
+    info.act_tg = LAN966X_VCAP_TG_X1;
+    VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, info.addr);
+    VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SFID_ENA, act->sfid_enable);
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SFID_VAL, act->sfid);
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_ENA, act->sgid_enable);
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_VAL, act->sgid);
+    info.cmd = LAN966X_VCAP_CMD_WRITE;
+    return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
 /* ================================================================= *
