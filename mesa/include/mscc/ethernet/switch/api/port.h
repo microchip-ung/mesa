@@ -765,6 +765,7 @@ typedef struct {
     mesa_bool_t fec_enable;         // Base-R-FEC (Clause 74) is negotiated 
     mesa_bool_t rs_fec_enable;      // Base-RS-FEC (Clause 108) is negotiated
     uint32_t    sm;                 // (debug) Aneg state machine
+    uint32_t    hist;               // (debug) Aneg history
     mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
     mesa_bool_t block_lock;         // (debug) PCS block lock
 } mesa_port_kr_status_aneg_t CAP(PORT_10GBASE_KR_V3);

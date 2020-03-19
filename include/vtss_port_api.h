@@ -805,6 +805,7 @@ typedef struct {
     BOOL fec_enable;          /**< FEC enable/disable                               */
     BOOL rs_fec_enable;       /**< RS-FEC enable/disable                            */
     u32  sm;                  /**< (debug) Aneg state machine                       */
+    u32  hist;                /**< (debug) Aneg history                             */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
     BOOL block_lock;          /**< (debug) PCS block lock                           */
 } vtss_port_kr_status_aneg_t;

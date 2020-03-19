@@ -1755,6 +1755,16 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         irq &= ~KR_REM_RDY_0;
         irq &= ~KR_FRLOCK_0;
     }
+    // Ignore failures in sets (on/off)
+    if ((irq & KR_FRLOCK_0) && (irq & KR_FRLOCK_1)) {
+        irq &= ~KR_FRLOCK_1;
+        irq &= ~KR_FRLOCK_0;
+    }
+    // Ignore failures in sets (on/off)
+    if ((irq & KR_DME_VIOL_0) && (irq & KR_DME_VIOL_1)) {
+        irq &= ~KR_DME_VIOL_0;
+        irq &= ~KR_DME_VIOL_1;
+    }
 
     // KR_AN_XMIT_DISABLE. Aneg is restarted.
     if (irq & KR_AN_XMIT_DISABLE) {

@@ -37,11 +37,14 @@ meba_inst_t meba_global_inst;
 kr_appl_train_t kr_tr_state[PORTS] = {0};
 kr_appl_conf_t kr_conf_state[PORTS] = {0};
 
-u32 stop_train[PORTS] = {0} ;
-u32 chk_block_lock[PORTS] = {0} ;
-
 // For debug
 uint32_t deb_dump_irq = 0;
+u32 stop_train[PORTS] = {0} ;
+u32 chk_block_lock[PORTS] = {0} ;
+u32 aneg_sm_state[PORTS] = {0} ;
+u32 aneg_sm_deb[PORTS] = {0} ;
+mesa_bool_t global_stop = 0;
+
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
 
@@ -206,6 +209,28 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     return "other";
 }
 
+static char *kr_aneg_sm_2_txt(u32 reg)
+{
+    switch (reg) {
+    case 0:  return "AN_ENABLE";
+    case 1:  return "XMI_DISABLE";
+    case 2:  return "ABILITY_DET";
+    case 3:  return "ACK_DET";
+    case 4:  return "COMPLETE_ACK";
+    case 5:  return "TRAIN";
+    case 6:  return "AN_GOOD_CHK";
+    case 7:  return "AN_GOOD";
+    case 8:  return "RATE_DET";
+    case 11: return "LINK_STAT_CHK";
+    case 12: return "PARLL_DET_FAULT";
+    case 13: return "WAIT_RATE_DONE";
+    case 14: return "NXTPG_WAIT";
+    default: return "?";
+    }
+    return "?";
+}
+
+
 
 /* ================================================================= *
  *  CLI
@@ -235,6 +260,7 @@ typedef struct {
     mesa_bool_t dis;
     mesa_bool_t hist;
     mesa_bool_t irq;
+    mesa_bool_t ansm;
 } port_cli_req_t;
 
 
@@ -270,6 +296,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->hist = 1;
     } else if (!strncasecmp(found, "irq", 3)) {
         mreq->irq = 1;
+    } else if (!strncasecmp(found, "sm", 2)) {
+        mreq->ansm = 1;
     } else if (!strncasecmp(found, "np", 2)) {
         mreq->np = 1;
     } else
@@ -340,6 +368,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             }
             stop_train[iport] = 0;
             chk_block_lock[iport] = 0;
+            global_stop = 0;
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
@@ -400,22 +429,35 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
 static void cli_cmd_port_kr_debug(cli_req_t *req)
 {
-    port_cli_req_t          *mreq = req->module_req;
-
-    if (mreq->irq) {
-        if (mreq->all) {
-            deb_dump_irq = 30;
-            printf("all\n");
-        } else {
-            if (deb_dump_irq > 0) {
-                deb_dump_irq = 0;
+    port_cli_req_t        *mreq = req->module_req;
+    mesa_port_no_t        uport, iport;
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0 || !kr_conf_state[iport].cap_10g) {
+            continue;
+        }   
+        if (mreq->irq) {
+            if (mreq->all) {
+                deb_dump_irq = 30;
+                printf("all\n");
             } else {
-                printf("16\n");
-                deb_dump_irq = 16;
+                if (deb_dump_irq > 0) {
+                    deb_dump_irq = 0;
+                } else {
+                    printf("16\n");
+                    deb_dump_irq = 16;
+                }
             }
+            printf("Port %d: IRQ %s debug %s\n",uport, deb_dump_irq > 16 ? "all" : "aneg", deb_dump_irq > 0 ? "enabled" : "disabled");
         }
-        printf("IRQ %s debug %s\n",deb_dump_irq > 16 ? "all" : "aneg", deb_dump_irq > 0 ? "enabled" : "disabled");
-        return;
+        if (mreq->ansm) {
+            if (aneg_sm_deb[iport]) {
+                aneg_sm_deb[iport] = 0;
+            } else {
+                aneg_sm_deb[iport] = 1;
+            }
+            printf("Port %d: Aneg State machine debug %s\n",uport, aneg_sm_deb[iport] ? "enabled" : "disabled");
+        }
     }
 }
 
@@ -887,12 +929,28 @@ static void kr_poll(meba_inst_t inst)
             !kr_conf.aneg.enable) {
             continue;
         }
+        uport = iport2uport(iport);
+        kr = &kr_tr_state[iport];
+        krs = &kr->state;
+
+        if (global_stop) {
+            continue;
+        }
+
+        if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+            cli_printf("Failure during port_kr_status_get\n");
+        }
+
+        if (aneg_sm_deb[iport] && (status.aneg.sm != aneg_sm_state[iport])) {
+            printf("Port:%d - Aneg SM: %s Hist:%x (%d ms)\n",uport, kr_aneg_sm_2_txt(status.aneg.sm),
+                   status.aneg.hist, status.aneg.sm == 1 ? 0 : get_time_ms(&kr->time_start_aneg));
+            aneg_sm_state[iport] = status.aneg.sm;
+        }
+        
         if ((mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK)
             || (irq == 0)) {
             continue;
         }
-        kr = &kr_tr_state[iport];
-        krs = &kr->state;
 
         if ((irq & KR_AN_XMIT_DISABLE)) {
             (void)time_start(&kr->time_start_aneg); // Start the aneg timer
@@ -902,13 +960,13 @@ static void kr_poll(meba_inst_t inst)
             (void)time_start(&kr->time_start_train); // Start the train timer
         }
 
-        uport = iport2uport(iport);
+
         dump_irq(iport, irq, get_time_ms(&kr->time_start_aneg));
 
-        /* if (stop_train[iport]) { */
-        /*     kr_add_to_irq_history(iport, irq); */
-        /*     continue; */
-        /* } */
+        if (stop_train[iport]) {
+            kr_add_to_irq_history(iport, irq);
+            continue;
+        }
 
         if (mesa_port_conf_get(NULL, iport, &pconf) != MESA_RC_OK) {
             cli_printf("Failure during port_conf_get\n");
@@ -978,10 +1036,11 @@ static void kr_poll(meba_inst_t inst)
             kr->time_ld = get_time_ms(&kr->time_start_train);
             printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
 //            stop_train[iport] = 1;
+//            global_stop = 1;
         }
 
         if (irq & KR_AN_GOOD) {
-            printf("Port:%d - AN_GOOD (%d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
+            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
 
         if (pconf.speed == MESA_SPEED_25G) {
@@ -1023,7 +1082,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr_status
     },
     {
-        "Port KR debug [irq]",
+        "Port KR debug [<port_list>] [irq] [sm]",
         "Toggle debug",
         cli_cmd_port_kr_debug
     },
@@ -1122,6 +1181,13 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
+    {
+        "sm",
+        "sm: print out AN state machine",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
     {
         "pr",
         "print out",

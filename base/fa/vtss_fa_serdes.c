@@ -366,15 +366,15 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
 
     // For now don't change the TxEQ..
-    u32 val1;
-    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1);
-    REG_WR(VTSS_SD25G_TARGET_CMU_47(sd_tgt), val1);
+    /* u32 val1; */
+    /* REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1); */
+    /* REG_WR(VTSS_SD25G_TARGET_CMU_47(sd_tgt), val1); */
 
-    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt),&val1);
-    REG_WR(VTSS_SD25G_TARGET_LANE_00(sd_tgt),val1);
+    /* REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt),&val1); */
+    /* REG_WR(VTSS_SD25G_TARGET_LANE_00(sd_tgt),val1); */
 
-    REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1);
-    REG_WR(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), val1);
+    /* REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1); */
+    /* REG_WR(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), val1); */
     
     // END
     
@@ -382,23 +382,23 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
 
     // Needs debugging
     // To be enabled
-    /* REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt), */
-    /*         VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver), */
-    /*         VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0); */
+    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
+            VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
+            VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
 
-    /* REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt), */
-    /*         VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver), */
-    /*         VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0); */
+    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt),
+            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
+            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
 
-    /* REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), */
-    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) | */
-    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) | */
-    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(tap_dly) | */
-    /*         VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(tap_adv), */
-    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY | */
-    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV | */
-    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY | */
-    /*         VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV); */
+    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(tap_dly) |
+            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(tap_adv),
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY |
+            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV);
 
     return VTSS_RC_OK;
 }
