@@ -124,6 +124,7 @@ typedef enum {
     MESA_CAP_L2_PSFP_FILTER_CNT,            /**< Number of PSFP filters */
     MESA_CAP_L2_VCL_KEY_DMAC,               /**< VCL key DMAC support */
     MESA_CAP_L2_VCL_KEY_DIP,                /**< VCL key DIP support */
+    MESA_CAP_L2_FRER_IFLOW_POP,             /**< FRER R-tag popping per ingress flow */
 
     // Layer 3
     MESA_CAP_L3 = 500,                      /**< Layer 3 switching */

@@ -5955,6 +5955,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_FRER)
             pr("MSID  Generate  ");
 #endif
+#if defined(VTSS_FEATURE_FRER_IFLOW_POP)
+            pr("Pop       ");
+#endif
 #if defined(VTSS_FEATURE_PSFP)
             pr("Filter  ");
 #endif
@@ -5980,6 +5983,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_FRER)
         vtss_debug_print_w6(pr, conf->frer.mstream_enable, conf->frer.mstream_id);
         pr("%-10s", vtss_bool_txt(conf->frer.generation));
+#endif
+#if defined(VTSS_FEATURE_FRER_IFLOW_POP)
+        pr("%-10s", vtss_bool_txt(conf->frer.pop));
 #endif
 #if defined(VTSS_FEATURE_PSFP)
         vtss_debug_print_w6(pr, conf->psfp.filter_enable, conf->psfp.filter_id);

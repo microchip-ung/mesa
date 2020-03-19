@@ -2561,6 +2561,7 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
             break;
         }
     }
+    pr("\n");
     return VTSS_RC_OK;
 }
 

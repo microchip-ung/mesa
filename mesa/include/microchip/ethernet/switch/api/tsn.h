@@ -124,9 +124,10 @@ mesa_rc mesa_frer_mstream_cnt_clear(const mesa_inst_t            inst,
 
 // FRER ingress flow configuration
 typedef struct {
-    mesa_bool_t            mstream_enable; // Enable member stream
-    mesa_frer_mstream_id_t mstream_id;     // Member stream base ID
-    mesa_bool_t            generation;     // Enable/disable sequence generation
+    mesa_bool_t            mstream_enable;             // Enable member stream
+    mesa_frer_mstream_id_t mstream_id;                 // Member stream base ID
+    mesa_bool_t            generation;                 // Enable/disable sequence generation
+    mesa_bool_t            pop CAP(L2_FRER_IFLOW_POP); // R-tag popping
 } mesa_frer_iflow_conf_t;
 
 /* - PSFP ---------------------------------------------------------- */

@@ -30,6 +30,7 @@ cap_check_exit("L2_FRER")
 # +----+  +----+  +----+      +----+
 
 $vid = 100
+$cap_iflow_pop = cap_get("L2_FRER_IFLOW_POP")
 
 $conf_table = 
     [
@@ -100,17 +101,22 @@ test "conf" do
             $ts.dut.call("mesa_vce_add", 0, vce)
         else
             # Egress port
-            
-            # TCE
-            tce = $ts.dut.call("mesa_tce_init")
-            tce["id"] = (idx + 1);
-            key = tce["key"]
-            key["port_list"] = "#{port}"
-            key["vid"] = $vid
-            action = tce["action"]
-            action["tag"]["tpid"] = "MESA_TPID_SEL_PORT" 
-            action["rtag"]["sel"] = ("MESA_RTAG_SEL_" + (cfg[:inner] ? "INNER" : "OUTER"))
-            $ts.dut.call("mesa_tce_add", 0, tce)
+            if ($cap_iflow_pop)
+                conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
+                conf["untagged_vid"] = (cfg[:inner] ? 1 : $vid)
+                $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
+            else
+                # TCE
+                tce = $ts.dut.call("mesa_tce_init")
+                tce["id"] = (idx + 1);
+                key = tce["key"]
+                key["port_list"] = "#{port}"
+                key["vid"] = $vid
+                action = tce["action"]
+                action["tag"]["tpid"] = "MESA_TPID_SEL_PORT"
+                action["rtag"]["sel"] = ("MESA_RTAG_SEL_" + (cfg[:inner] ? "INNER" : "OUTER"))
+                $ts.dut.call("mesa_tce_add", 0, tce)
+            end
         end
     end
 end
@@ -139,8 +145,10 @@ def frer_test(table)
                     # C-tag
                     f += cmd_tag_push({tpid: 0x8100, vid: $vid})
                 end
-                # R-tag
-                f += " rtag seqn #{seq}"
+                if (t.key?:rtag or t.key?:gen or $cap_iflow_pop == false)
+                    # R-tag (existing or generated)
+                    f += " rtag seqn #{seq}"
+                end
             end
             cmd_end += " #{dir} #{$ts.pc.p[idx]}"
             unless (f.nil?)
@@ -164,9 +172,9 @@ test "frame-io-generation" do
     conf["frer"]["generation"] = true
     $ts.dut.call("mesa_iflow_conf_set", iflow, conf)
 
-    table = [{seq: 0, idx_tx: 0, idx_rx: [2,3]}, # Seq 0 generated on port index 0
+    table = [{gen: 1, seq: 0, idx_tx: 0, idx_rx: [2,3]}, # Seq 0 generated on port index 0
              {seq: 0, idx_tx: 1, idx_rx: [2,3]}, # No seq generated on port index 1
-             {seq: 1, idx_tx: 0, idx_rx: [2,3]}] # Seq 1 generated on port index 0
+             {gen: 1, seq: 1, idx_tx: 0, idx_rx: [2,3]}] # Seq 1 generated on port index 0
     frer_test(table)
 
     # Disable sequence generation again

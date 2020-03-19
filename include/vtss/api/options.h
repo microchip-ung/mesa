@@ -71,6 +71,7 @@
 #define VTSS_FEATURE_XSTAT                        /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                         /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_FRER_IFLOW_POP               /**< FRER R-tag popping per ingress flow */
 #define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */

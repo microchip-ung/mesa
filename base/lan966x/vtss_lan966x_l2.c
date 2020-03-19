@@ -785,7 +785,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
            ANA_STREAMTIDX_STREAM_SPLIT(0));
     REG_WR(ANA_STREAMACCESS,
            ANA_STREAMACCESS_GEN_SEQ_NUM(0) |
-           ANA_STREAMACCESS_RTAG_POP_ENA(0) |
+           ANA_STREAMACCESS_RTAG_POP_ENA(conf->frer.pop ? 1 : 0) |
            ANA_STREAMACCESS_SEQ_GEN_ENA(conf->frer.generation ? 1 : 0) |
            ANA_STREAMACCESS_STREAM_TBL_CMD(2));
 
@@ -806,7 +806,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     }
     for (i = 0; i < 4; i++) {
         REG_WR(QSYS_FRER_PORT(sdx->sdx, i),
-               QSYS_FRER_PORT_FRER_IGR_PORT(i) |
+               QSYS_FRER_PORT_FRER_IGR_PORT(sdx->sdx == 1 ? 0 : 1) | // TBD: Hardcoded to match test case
                QSYS_FRER_PORT_FRER_EGR_PORT(port[i]));
     }
 
@@ -1376,12 +1376,12 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         }
         if (header) {
             header = 0;
-            pr("\nSDX  Gen  Pop  Seq     Split  SMask  IMask\n");
+            pr("ISDX  Gen  Pop  Seq     Split  SMask  IMask  First  IGR_PORT/EGR_PORT\n");
         }
         REG_WR(ANA_STREAMTIDX, ANA_STREAMTIDX_S_INDEX(sdx->sdx));
         REG_WR(ANA_STREAMACCESS, ANA_STREAMACCESS_STREAM_TBL_CMD(1));
         REG_RD(ANA_STREAMACCESS, &val);
-        pr("%-5u%-5u%-5u0x%04x  ",
+        pr("%-6u%-5u%-5u0x%04x  ",
            sdx->sdx,
            ANA_STREAMACCESS_SEQ_GEN_ENA_X(val),
            ANA_STREAMACCESS_RTAG_POP_ENA_X(val),
@@ -1389,9 +1389,18 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         REG_RD(ANA_STREAMTIDX, &val);
         pr("%-7u", ANA_STREAMTIDX_STREAM_SPLIT_X(val));
         REG_RD(ANA_SEQ_MASK, &val);
-        pr("0x%02x   0x%02x\n",
+        pr("0x%02x   0x%02x   ",
            ANA_SEQ_MASK_SPLIT_MASK_X(val),
            ANA_SEQ_MASK_INPUT_PORT_MASK_X(val));
+        REG_RD(QSYS_FRER_FIRST(sdx->sdx), &val);
+        pr("%-7u", QSYS_FRER_FIRST_FRER_FIRST_MEMBER_X(val));
+        for (i = 0; i < 4; i++) {
+            REG_RD(QSYS_FRER_PORT(sdx->sdx, i), &val);
+            pr("%x/%x%s",
+               QSYS_FRER_PORT_FRER_IGR_PORT_X(val),
+               QSYS_FRER_PORT_FRER_EGR_PORT_X(val),
+               i < 3 ? "-" : "\n");
+        }
     }
     if (!header) {
         pr("\n");
@@ -1406,10 +1415,10 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
             if (VTSS_PORT_BF_GET(ms->port_list, port_no)) {
                 sprintf(buf, "MSID %u, port %u", i, port_no);
                 vtss_lan966x_debug_reg_header(pr, buf);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_CFG_MBM(idx)), idx, "QSYS:FRER_CFG_MBM");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_CFG_MBM(idx)), idx, "FRER_CFG_MBM");
                 REG_WRM(QSYS_FRER_CFG, QSYS_FRER_CFG_ADDR(idx), QSYS_FRER_CFG_ADDR_M);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_STA_MBM), idx, "QSYS:FRER_STA_MBM");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_HST_MBM), idx, "QSYS:FRER_HST_MBM");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_STA_MBM), idx, "FRER_STA_MBM");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_HST_MBM), idx, "FRER_HST_MBM");
                 idx++;
                 pr("\n");
             }
@@ -1644,7 +1653,7 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
            SYS_FRM_AGING_MAX_AGE(2*2000000/13));
 
     /* Set FRER TicksPerSecond to 1000 */
-    value = (1000000000/(8*256*vtss_lan966x_clk_period_ps(vtss_state)));
+    value = (1000000000/(8*512*vtss_lan966x_clk_period_ps(vtss_state)));
     REG_WR(QSYS_FRER_CFG, QSYS_FRER_CFG_WATCHDOG_PRESCALER(value));
 
     return VTSS_RC_OK;

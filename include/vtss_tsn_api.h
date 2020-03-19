@@ -135,6 +135,9 @@ typedef struct {
     BOOL                   mstream_enable;  // Enable/disable member stream
     vtss_frer_mstream_id_t mstream_id;      // Member stream base ID
     BOOL                   generation;      // Enable/disable sequence generation
+#if defined(VTSS_FEATURE_FRER_IFLOW_POP)
+    BOOL                   pop;             // R-tag popping
+#endif
 } vtss_frer_iflow_conf_t;
 #endif /* VTSS_FEATURE_FRER */
 
