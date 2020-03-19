@@ -964,29 +964,31 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
     if (fw_req->next_page) {
         u32 np;
-        
-        /* REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &np); */
-        /* if ((np & VTSS_BIT(11)) == 0) { */
-        /*     printf("np wr 1\n"); */
-        /*     np = NULL_NP; */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np); */
-        /* } else { */
-        /*     printf("np wr 2\n"); */
-        /*     np = NULL_NP | VTSS_BIT(11); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np); */
-        /* } */
         REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &np);
-        if (np == 0x4203 || np == 0) {
-            printf("wr 1\n");
-            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0xE805);
-            REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x0353);
-            REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0x04DF);
+        if (np & VTSS_BIT(11)) {
+            printf("np wr 1\n");
+            np = NULL_NP;
+            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np);
         } else {
-            printf("wr 2\n");
-            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0x4203);
-            REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x20);
-            REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0xa00);
+            printf("np wr 2\n");
+            np = NULL_NP | VTSS_BIT(11);
+            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np);
         }
+        /* REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &np); */
+        /* if (np == 0x4203 || np == 0) { */
+        /*     printf("wr 1\n"); */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0xE805); */
+        /*     /\* REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x0353); *\/ */
+        /*     /\* REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0x04DF); *\/ */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0); */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0); */
+
+        /* } else { */
+        /*     printf("wr 2\n"); */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0x4203); */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x10); */
+        /*     REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0x0); */
+        /* } */
 
         REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
                 VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),

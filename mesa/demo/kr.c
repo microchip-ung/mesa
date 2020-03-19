@@ -1044,7 +1044,7 @@ static void kr_poll(meba_inst_t inst)
         }
 
         if (pconf.speed == MESA_SPEED_25G) {
-            stop_train[iport] = 1;
+            // stop_train[iport] = 1;
         }
 
     }
