@@ -49,7 +49,7 @@ def tod_external_io_1pps_test
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
         pin_ts1 = pin[0]
 
-        sleep(2)
+        sleep(1.6)
 
         t_i("Get TOD on 1PPS input pin again to check not incremented")
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
@@ -62,13 +62,13 @@ def tod_external_io_1pps_test
         pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT"
         $ts.dut.call("mesa_ts_external_io_mode_set", $external_io_out, pin_conf)
 
-        sleep(1)
+        sleep(0.8)
 
         t_i("Get TOD on 1PPS input pin")
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
         pin_ts1 = pin[0]
 
-        sleep(2)
+        sleep(0.8)
 
         t_i("Get TOD on 1PPS input pin to check incremented")
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
@@ -109,41 +109,54 @@ def tod_external_io_1pps_tod_offset_test
     $ts.dut.call("mesa_ts_external_io_mode_set", $external_io_out, pin_conf)
 
     t_i("Set TOD to zero for both domains")
-    ts["seconds"] = 0
+    ts["seconds"] = 1
     ts["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_domain_timeofday_set", domain_in, ts)
     $ts.dut.call("mesa_ts_domain_timeofday_set", domain_out, ts)
 
-    sleep(1)
+    sleep(0.7)
+    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
 
-    # Get TOD on 1PPS input pin
+    sleep(0.7)
+    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+
+    t_i("Set TOD offset 0.1 seconds - positive. Its weird - offset parameter is signed but always subtracted in the API, so in order to add an offset it has to be negative")
+    $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain_out, -100000000)
+
+    # Get base line TOD on 1PPS input pin
     tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
     ts1 = tod[0]
 
-    t_i("Set TOD to zero for both domains")
-    ts["seconds"] = 0
-    ts["nanoseconds"] = 0
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain_in, ts)
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain_out, ts)
+    sleep(0.7)
 
-    t_i("Set TOD offset 0.5 seconds - positive. Its weired - offset parameter is signed but always subtracted in the API, so in order to add an offset it has to be negative :-)")
-    $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain_out, -500000000)
-
-    sleep(1)
+    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+    sleep(0.7)
 
     # Get TOD on 1PPS input pin
     tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
     ts2 = tod[0]
 
-    if (ts1["seconds"] == 1)
-        ts1["nanoseconds"] += 1000000000
-    end
-    if (ts2["seconds"] == 1)
-        ts2["nanoseconds"] += 1000000000
-    end
     diff = ts1["nanoseconds"] - ts2["nanoseconds"]
-    t_i("Difference #{diff} in TOD with and without TOD offset")
-    if ((diff > 600000000) || (diff < 400000000))
+    t_i("Difference #{diff} in TOD nanoseconds must be approx 100000000")
+    if ((ts2["seconds"] != (ts1["seconds"] + 2)) || (diff > 100000005) || (diff < 99999995))
+        t_e("Difference is not as expected")
+    end
+
+    t_i("Set TOD offset 0.1 seconds - negative. Its weird - offset parameter is signed but always subtracted in the API, so in order to subtract an offset it has to be positive")
+    $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain_out, 100000000)
+
+    sleep(0.5)
+
+    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+    sleep(0.7)
+
+    # Get TOD on 1PPS input pin
+    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+    ts2 = tod[0]
+
+    diff = ts2["nanoseconds"] - ts1["nanoseconds"]
+    t_i("Difference #{diff} in TOD nanoseconds must be approx 0")
+    if ((ts2["seconds"] != (ts1["seconds"] + 4)) || (diff > 1) || (diff < -1))
         t_e("Difference is not as expected")
     end
     end

@@ -54,7 +54,7 @@ def tod_external_clock_1pps_test
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
         pin_ts1 = pin[0]
 
-        sleep(2)
+        sleep(1.6)
 
         # Get TOD on 1PPS input pin again to check not incremented
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
@@ -66,48 +66,19 @@ def tod_external_clock_1pps_test
         # Configure external 1PPS output that is looped back to 1PPS input pin
         ext_conf["one_pps_mode"] = "MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT"
         $ts.dut.call("mesa_ts_external_clock_mode_set", ext_conf)
-        sleep(1)
+        sleep(0.8)
 
         # Get TOD on 1PPS input pin
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
         pin_ts1 = pin[0]
 
-        sleep(2)
+        sleep(1.6)
 
         # Get TOD on 1PPS input pin to check incremented
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
         pin_ts2 = pin[0]
         if ((pin_ts2["seconds"] > (pin_ts1["seconds"] + 2 + 1)) || (pin_ts2["seconds"] <= pin_ts1["seconds"]))
             t_e("Case 1PPS is enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
-        end
-
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-            # Get TOD to check TOD is only incremented with two seconds elapsed before external mode configuration. The one + two seconds after requires TOD sample
-            tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-            tod_ts2 = tod[0]
-            if (tod_ts2["seconds"] != ($tod_ts1["seconds"] + 2 + 1))     #Extra one second is added to expected TOD due to execution time
-                t_e("TOD before sample in domain #{domain} was not as expected.  tod_ts2[seconds] = #{tod_ts2["seconds"]}  expected_seconds = #{$tod_ts1["seconds"] + 2 + 1}")
-            end
-
-            # Do TOD sample
-            ongoinig = $ts.dut.call("mesa_ts_adjtimer_one_sec")
-            if (ongoinig)
-                t_e("TOD set ongoing must not be true")
-            end
-
-            # Get TOD to check increment of all five seconds
-            tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-            tod_ts2 = tod[0]
-            if (tod_ts2["seconds"] != ($tod_ts1["seconds"] + 5 + 2))     #Extra two seconds are added to expected TOD due to execution time
-                t_e("TOD after sample in domain #{domain} was not as expected.  tod_ts2[seconds] = #{tod_ts2["seconds"]}  expected_seconds = #{$tod_ts1["seconds"] + 5 + 2}")
-            end
-        else
-            # Get TOD to check TOD is incremented with two seconds elapsed before external mode configuration.
-            tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-            tod_ts2 = tod[0]
-            if (tod_ts2["seconds"] != ($tod_ts1["seconds"] + 5 + 1))     #Extra one second is added to expected TOD due to execution time
-                t_e("TOD before sample in domain #{domain} was not as expected.  tod_ts2[seconds] = #{tod_ts2["seconds"]}  expected_seconds = #{$tod_ts1["seconds"] + 5}")
-            end
         end
 
         # Configure external to no 1PPS output

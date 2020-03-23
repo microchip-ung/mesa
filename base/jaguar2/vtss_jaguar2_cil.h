@@ -69,20 +69,11 @@
                              (VTSS_TO_DEV(port)))
 #endif /* VTSS_ARCH_SERVAL_T */
 
-/* Jaguar 2 has 4 PTP PIN configurations that can be used for different purposes, the defines below defines the
- * default usage of the 4 pins.
- */
 /* PIN configuration for external clock */
 #define EXT_CLK_PIN 0           /* external clock 1 pps input */
 #define EXT_PPS_PIN 1           /* 1pps pulse output */
 
-#if defined(VTSS_ARCH_SERVAL_T)
 #define TOD_ACC_PIN 4           /* pin used for timeofday get/set */
-#else
-#define TOD_ACC_PIN 1           /* pin used for timeofday get/set */
-#define TOD_ACC_EXT_PPS_PIN_SHARED           /* pin used for timeofday get/set shared with 1pps pulse output */
-
-#endif /* VTSS_ARCH_SERVAL_T */
 
 /* PIN configuration for alternative clock */
 #define ALT_LDST_PIN 2          /* alternative clock 1 pps input (Load/Store) */
