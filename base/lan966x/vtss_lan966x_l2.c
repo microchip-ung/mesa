@@ -7,6 +7,11 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 
+#define LAN966X_TBL_CMD_IDLE  0
+#define LAN966X_TBL_CMD_READ  1
+#define LAN966X_TBL_CMD_WRITE 2
+#define LAN966X_TBL_CMD_INIT  3
+
 /* Convert to PGID in chip */
 static u32 lan966x_chip_pgid(vtss_state_t *vtss_state, u32 pgid)
 {
@@ -720,14 +725,7 @@ static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_p
 
 static vtss_rc lan966x_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 {
-    REG_WR(QSYS_FRER_FIRST(sdx->sdx), QSYS_FRER_FIRST_FRER_FIRST_MEMBER(sdx->ms_idx));
-    return VTSS_RC_OK;
-}
-
-static vtss_rc lan966x_sdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
-{
     vtss_iflow_conf_t       *conf;
-    vtss_frer_iflow_conf_t  *frer;
     vtss_psfp_iflow_conf_t  *psfp;
     vtss_psfp_filter_conf_t *filter;
     vtss_is1_action_t       act;
@@ -736,15 +734,14 @@ static vtss_rc lan966x_sdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sd
         return VTSS_RC_ERROR;
     }
 
+    REG_WR(QSYS_FRER_FIRST(sdx->sdx), QSYS_FRER_FIRST_FRER_FIRST_MEMBER(sdx->ms_idx));
+
     conf = &sdx->conf;
-    frer = &conf->frer;
     psfp = &conf->psfp;
     memset(&act, 0, sizeof(act));
     act.isdx = sdx->sdx;
     act.dlb_enable = conf->dlb_enable;
     act.dlb = conf->dlb_id;
-    act.mstream_enable = frer->mstream_enable;
-    act.mstream = frer->mstream_id;
     if (psfp->filter_enable) {
         filter = &vtss_state->l2.psfp.filter[psfp->filter_id];
         act.sfid_enable = psfp->filter_enable;
@@ -752,10 +749,8 @@ static vtss_rc lan966x_sdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sd
         act.sgid_enable = filter->gate_enable;
         act.sgid = filter->gate_id;
     }
-    act.ct_disable = conf->cut_through_disable;
-    VTSS_I("sdx: %u, dlb: %u/%u, mstream: %u/%u, filter: %u/%u, gate: %u/%u, ct_disable: %u",
-           act.isdx, act.dlb_enable, act.dlb, act.mstream_enable, act.mstream,
-           act.sfid_enable, act.sfid, act.sgid_enable, act.sgid, act.ct_disable);
+    VTSS_I("sdx: %u, dlb: %u/%u, filter: %u/%u, gate: %u/%u",
+           act.isdx, act.dlb_enable, act.dlb, act.sfid_enable, act.sfid, act.sgid_enable, act.sgid);
     return vtss_vcap_is1_update(vtss_state, &act);
 }
 
@@ -773,7 +768,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     }
     conf = &sdx->conf;
 
-    // Update IS1
+    // Update ISDX mappings
     VTSS_RC(lan966x_isdx_update(vtss_state, sdx));
 
     // Setup stream table
@@ -787,7 +782,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
            ANA_STREAMACCESS_GEN_SEQ_NUM(0) |
            ANA_STREAMACCESS_RTAG_POP_ENA(conf->frer.pop ? 1 : 0) |
            ANA_STREAMACCESS_SEQ_GEN_ENA(conf->frer.generation ? 1 : 0) |
-           ANA_STREAMACCESS_STREAM_TBL_CMD(2));
+           ANA_STREAMACCESS_STREAM_TBL_CMD(LAN966X_TBL_CMD_WRITE));
 
     // Build table of 4 FRER egress chip ports
     if (conf->frer.mstream_enable) {
@@ -810,7 +805,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
                QSYS_FRER_PORT_FRER_EGR_PORT(port[i]));
     }
 
-    return lan966x_sdx_update(vtss_state, vtss_iflow_lookup(vtss_state, id));
+    return VTSS_RC_OK;
 }
 
 vtss_rc lan966x_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, BOOL clr)
@@ -913,7 +908,30 @@ static vtss_rc lan966x_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_c
 
 static vtss_rc lan966x_policer_update(vtss_state_t *vtss_state, u16 idx)
 {
-    return VTSS_RC_OK;
+    vtss_dlb_policer_conf_t *conf = &vtss_state->l2.pol_conf[idx];
+    vtss_policer_conf_t      pol_conf = {0};
+
+    if (conf->enable) {
+        // Use configured values if policer enabled
+        pol_conf.data_rate = (conf->line_rate ? 0 : 1);
+        if (conf->type == VTSS_POLICER_TYPE_MEF) {
+            pol_conf.dual = 1;
+            pol_conf.cir = conf->cir;
+            pol_conf.cbs = conf->cbs;
+            pol_conf.eir = conf->eir;
+            pol_conf.ebs = conf->ebs;
+            pol_conf.cf = conf->cf;
+            pol_conf.drop_yellow = conf->drop_yellow;
+            pol_conf.mark_all_red = conf->mark_all_red;
+        } else {
+            pol_conf.eir = conf->cir;
+            pol_conf.ebs = conf->cbs;
+        }
+    } else {
+        /* Disable policer */
+        pol_conf.disable = 1;
+    }
+    return vtss_lan966x_qos_policer_conf_set(vtss_state, LAN966X_POLICER_DLB + idx, &pol_conf);
 }
 
 /* ================================================================= *
@@ -1088,6 +1106,9 @@ static vtss_rc lan966x_gate_status_get(vtss_state_t *vtss_state,
     status->prio.enable = (prio & 0x8 ? 1 : 0);
     status->prio.value = (prio & 0x7);
     status->config_pending = ANA_SG_STS_3_CONFIG_PENDING_X(value);
+    REG_RD(ANA_SG_CFG_3, &value);
+    status->close_invalid_rx = ANA_SG_CFG_3_INVALID_RX_X(value);
+    status->close_octets_exceeded = ANA_SG_CFG_3_OCTETS_EXCEEDED_X(value);
 #if defined(VTSS_FEATURE_TIMESTAMP)
     return VTSS_FUNC(ts.timeofday_get, &status->current_time, &tc);
 #else
@@ -1100,19 +1121,46 @@ static vtss_rc lan966x_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp
     vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[id];
     vtss_sdx_entry_t        *sdx;
 
-    REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(id));
+    REG_WR(ANA_SFIDTIDX,
+           ANA_SFIDTIDX_POL_ENA(1) |
+           ANA_SFIDTIDX_POL_IDX(LAN966X_POLICER_DLB + 0) |
+           ANA_SFIDTIDX_SFID_INDEX(id));
     REG_WR(ANA_SFIDACCESS,
            ANA_SFIDACCESS_B_O_FRM(conf->block_oversize.value ? 1 : 0) |
            ANA_SFIDACCESS_B_O_FRM_ENA(conf->block_oversize.enable ? 1 : 0) |
            ANA_SFIDACCESS_MAX_SDU_LEN(conf->max_sdu) |
-           ANA_SFIDACCESS_SFID_TBL_CMD(2)); // WRITE
+           ANA_SFIDACCESS_SFID_TBL_CMD(LAN966X_TBL_CMD_WRITE));
 
     // Update IS1 mappings to gate
     for (sdx = vtss_state->l2.sdx_info.iflow; sdx != NULL; sdx = sdx->next) {
         if (sdx->conf.psfp.filter_enable && sdx->conf.psfp.filter_id == id) {
-            VTSS_RC(lan966x_sdx_update(vtss_state, sdx));
+            VTSS_RC(lan966x_isdx_update(vtss_state, sdx));
         }
     }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_filter_status_get(vtss_state_t *vtss_state,
+                                         const vtss_psfp_filter_id_t id,
+                                         vtss_psfp_filter_status_t *const status)
+{
+    u32 value;
+
+    REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(id));
+    REG_WR(ANA_SFIDACCESS, ANA_SFIDACCESS_SFID_TBL_CMD(LAN966X_TBL_CMD_READ));
+    REG_RD(ANA_SFIDACCESS, &value);
+    status->block_oversize = ANA_SFIDACCESS_B_O_FRM_X(value);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_policer_status_get(vtss_state_t *vtss_state,
+                                          const u16 idx,
+                                          vtss_dlb_policer_status_t *status)
+{
+    u32 value;
+
+    REG_RD(ANA_POL_STATE(LAN966X_POLICER_DLB + idx), &value);
+    status->mark_all_red = ANA_POL_STATE_MARK_ALL_FRMS_RED_SET_X(value);
     return VTSS_RC_OK;
 }
 
@@ -1360,8 +1408,8 @@ static vtss_rc lan966x_debug_stp(vtss_state_t *vtss_state,
 }
 
 static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
 {
     vtss_sdx_entry_t *sdx;
     vtss_xms_entry_t *ms;
@@ -1379,7 +1427,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
             pr("ISDX  Gen  Pop  Seq     Split  SMask  IMask  First  IGR_PORT/EGR_PORT\n");
         }
         REG_WR(ANA_STREAMTIDX, ANA_STREAMTIDX_S_INDEX(sdx->sdx));
-        REG_WR(ANA_STREAMACCESS, ANA_STREAMACCESS_STREAM_TBL_CMD(1));
+        REG_WR(ANA_STREAMACCESS, ANA_STREAMACCESS_STREAM_TBL_CMD(LAN966X_TBL_CMD_READ));
         REG_RD(ANA_STREAMACCESS, &val);
         pr("%-6u%-5u%-5u0x%04x  ",
            sdx->sdx,
@@ -1439,6 +1487,55 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_debug_psfp(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    u16  i, j;
+    char buf[80];
+    BOOL first = TRUE;
+
+    for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
+        vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[i];
+        if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
+            if (first) {
+                first = FALSE;
+                vtss_lan966x_debug_reg_header(pr, "PSFP Filters");
+            }
+            REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(i));
+            REG_WR(ANA_SFIDACCESS, ANA_SFIDACCESS_SFID_TBL_CMD(LAN966X_TBL_CMD_READ));
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SFIDTIDX), i, "SFIDTIDX");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SFIDACCESS), i, "SFIDACCESS");
+        }
+    }
+    if (!first) {
+        pr("\n");
+    }
+
+    for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
+        if (info->full || vtss_state->l2.psfp.gate[i].enable) {
+            sprintf(buf, "PSFP Gate %u", i);
+            vtss_lan966x_debug_reg_header(pr, buf);
+            REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(i));
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_1), "SG_CFG_1");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_2), "SG_CFG_2");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_3), "SG_CFG_3");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_4), "SG_CFG_4");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_5), "SG_CFG_5");
+            for (j = 0; j < 4; j++) {
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SG_GCL_GS_CFG(j)), j, "GS_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SG_GCL_TI_CFG(j)), j, "TI_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SG_GCL_OCT_CFG(j)), j, "OCT_CFG");
+            }
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_1), "SG_STS_1");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_2), "SG_STS_2");
+            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_3), "SG_STS_3");
+            pr("\n");
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    const vtss_debug_info_t   *const info)
@@ -1446,6 +1543,7 @@ static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
     VTSS_RC(vtss_lan966x_debug_is1(vtss_state, pr, info));
     VTSS_RC(vtss_lan966x_debug_es0(vtss_state, pr, info));
     VTSS_RC(lan966x_debug_frer(vtss_state, pr, info));
+    VTSS_RC(lan966x_debug_psfp(vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
@@ -1746,6 +1844,8 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->psfp_gate_conf_set = lan966x_gate_conf_set;
         state->psfp_gate_status_get = lan966x_gate_status_get;
         state->psfp_filter_conf_set = lan966x_filter_conf_set;
+        state->psfp_filter_status_get = lan966x_filter_status_get;
+        state->policer_status_get = lan966x_policer_status_get;
         state->ac_count = LAN966X_ACS;
         state->sdx_info.max_count = VTSS_SDX_CNT;
         break;

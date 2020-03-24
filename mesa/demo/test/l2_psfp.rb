@@ -141,6 +141,8 @@ def dlb_status_test(id, name, exp)
     fld_check(status, name, exp)
 end
 
+$is_fireant = (cap_get("PACKET_IFH_EPID") == 11)
+
 test "frame-filter" do
     # MaxSDU
     conf = $ts.dut.call("mesa_psfp_filter_conf_get", $filter_id)
@@ -173,10 +175,19 @@ test "frame-filter" do
     # Counter check
     cnt = $ts.dut.call("mesa_ingress_cnt_get", $istat, 0)
     cnt_check(cnt, "rx_match", 8)
-    cnt_check(cnt, "rx_gate_pass", 7)
-    cnt_check(cnt, "rx_gate_discard", 1)
-    cnt_check(cnt, "rx_sdu_pass", 5)
-    cnt_check(cnt, "rx_sdu_discard", 2)
+    if ($is_fireant)
+        # Order: Gate->Filter->Policer
+        cnt_check(cnt, "rx_gate_discard", 1)
+        cnt_check(cnt, "rx_gate_pass", 7)
+        cnt_check(cnt, "rx_sdu_discard", 2)
+        cnt_check(cnt, "rx_sdu_pass", 5)
+    else
+        # Order: Filter->Gate->Policer
+        cnt_check(cnt, "rx_sdu_discard", 4)
+        cnt_check(cnt, "rx_sdu_pass", 4)
+        cnt_check(cnt, "rx_gate_discard", 1)
+        cnt_check(cnt, "rx_gate_pass", 3)
+    end
 end
 
 test "frame-gate" do
@@ -197,6 +208,7 @@ test "frame-gate" do
     len = ((10000/8) - 20)
     tx_cnt = 1000
     prio = 0
+    conf["prio"]["value"] = prio
     
     # Gate states
     time_interval = 100000 # 100 usec
@@ -282,33 +294,44 @@ test "frame-policer" do
     prio = 0
     len = 1024
     conf = $ts.dut.call("mesa_dlb_policer_conf_get", $pol, 0)
+    if ($is_fireant)
+        # FireAnt: Send 10 frames, expect 1-2 frames
+        tx_cnt = 10
+        rx_min = 1
+        rx_max = 2
+    else
+        # Maserati: Send 20 frames, expect 5-15 frames
+        tx_cnt = 20
+        rx_min = 5
+        rx_max = 15
+    end
 
-    # CIR policing: 1-2 green frames, then red frames
+    # CIR policing
     conf["enable"] = true
     conf["cir"] = 100 # Current minimum rate in DLB API
     conf["cbs"] = len # Room for one frame
-    policer_test("cir.red", conf, prio, len, 10, 1, 2)
-    policer_test("cir.red", nil, prio, len, 10, 1, 2)
+    policer_test("cir.red", conf, prio, len, tx_cnt, rx_min, rx_max)
+    policer_test("cir.red", nil, prio, len, tx_cnt, rx_min, rx_max)
 
     # Forced close: All frames red
     dlb_status_test($pol, "mark_all_red", false)
     conf["mark_all_red"]["enable"] = true
     conf["mark_all_red"]["value"] = true
-    policer_test("mark_red.enable", conf, prio, len, 10, 0)
+    policer_test("mark_red.enable", conf, prio, len, tx_cnt, 0)
 
-    # Mark all red: 1-2 green frames, then red frames
+    # Mark all red
     conf["mark_all_red"]["value"] = false
-    policer_test("mark_red.closing", conf, prio, len, 10, 1, 2)
-    policer_test("mark_red.closed", nil, prio, len, 10, 0)
+    policer_test("mark_red.closing", conf, prio, len, tx_cnt, rx_min, rx_max)
+    policer_test("mark_red.closed", nil, prio, len, tx_cnt, 0)
     dlb_status_test($pol, "mark_all_red", true)
 
-    # EIR policing: 1-2 green frames, then yellow frames
+    # EIR policing
     conf["mark_all_red"]["enable"] = false
     conf["eir"] = 100
-    conf["ebs"] = (10*len)
-    policer_test("eir.yellow.fwd", conf, prio, len, 10)
+    conf["ebs"] = (tx_cnt*len)
+    policer_test("eir.yellow.fwd", conf, prio, len, tx_cnt)
 
-    # Drop yellow: 1-2 green frames, then yellow frames
+    # Drop yellow
     conf["drop_yellow"] = true
-    policer_test("eir.yellow.drop", conf, prio, len, 10, 1, 2)
+    policer_test("eir.yellow.drop", conf, prio, len, tx_cnt, rx_min, rx_max)
 end

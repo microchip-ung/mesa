@@ -34,11 +34,13 @@ static u32 divide_by_33_1_3(u32 x)
 
 vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer, vtss_policer_conf_t *conf)
 {
-    u32  cir = 0, cbs = 0, pir, pbs, mode;
+    u32  cir = 0, cbs = 0, pir, pbs, mode, i;
     u32  cf = 0, pbs_max, cbs_max = 0;
     BOOL pir_discard = 0;
     u32  cir_ena = 0;
     BOOL cir_discard = 0;
+    BOOL drop_yellow = 0;
+    BOOL mark_all_red = 0;
 
     pir = conf->eir;
     pbs = conf->ebs;
@@ -68,8 +70,15 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer,
         mode = (conf->data_rate ? POL_MODE_DATARATE : POL_MODE_LINERATE);
         if (conf->dual) {
             /* Dual leaky bucket mode */
-            cir = conf->cir;
-            cbs = conf->cbs;
+            drop_yellow = conf->drop_yellow;
+            mark_all_red = conf->mark_all_red.enable;
+            if (mark_all_red && conf->mark_all_red.value) {
+                pir = 0;
+                pbs = 0;
+            } else {
+                cir = conf->cir;
+                cbs = conf->cbs;
+            }
             if (cir == 0 && cbs == 0) {
                 /* Discard CIR frames */
                 cir_discard = 1;
@@ -105,16 +114,21 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer,
         pir = VTSS_BITMASK(15);
     }
 
-    REG_WR(ANA_POL_MODE(policer), ANA_POL_MODE_IPG_SIZE(20)             |
+    REG_WR(ANA_POL_MODE(policer), ANA_POL_MODE_DROP_ON_YELLOW_ENA(drop_yellow) |
+                                  ANA_POL_MODE_MARK_ALL_FRMS_RED_ENA(mark_all_red) |
+                                  ANA_POL_MODE_IPG_SIZE(20)             |
                                   ANA_POL_MODE_DLB_COUPLED(cf ? 1 : 0)  |
                                   ANA_POL_MODE_CIR_ENA(cir_ena ? 1 : 0) |
                                   ANA_POL_MODE_FRM_MODE(mode)           |
                                   ANA_POL_MODE_OVERSHOOT_ENA(1));
     REG_WR(ANA_POL_PIR_CFG(policer), ANA_POL_PIR_CFG_PIR_RATE(pir) | ANA_POL_PIR_CFG_PIR_BURST(pbs));
-    REG_WR(ANA_POL_PIR_STATE(policer), ANA_POL_PIR_STATE_PIR_LVL(pir_discard ? 1 : 0));
+    REG_WR(ANA_POL_PIR_STATE(policer), ANA_POL_PIR_STATE_PIR_LVL(pir_discard ? ANA_POL_PIR_STATE_PIR_LVL_M : 0));
     REG_WR(ANA_POL_CIR_CFG(policer), ANA_POL_CIR_CFG_CIR_RATE(cir) | ANA_POL_CIR_CFG_CIR_BURST(cbs));
-    REG_WR(ANA_POL_CIR_STATE(policer), ANA_POL_CIR_STATE_CIR_LVL(cir_discard ? 1 : 0));
-
+    REG_WR(ANA_POL_CIR_STATE(policer), ANA_POL_CIR_STATE_CIR_LVL(cir_discard ? ANA_POL_CIR_STATE_CIR_LVL_M : 0));
+    // Clearing state multiple times seems neccessary
+    for (i = 0; i < 10; i++) {
+        REG_WR(ANA_POL_STATE(policer), ANA_POL_STATE_MARK_ALL_FRMS_RED_SET(0));
+    }
     return VTSS_RC_OK;
 }
 
@@ -2085,7 +2099,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
             }
 
             if (header) {
-                pr("Index  Mode  Dual  IFG  CF  OS  PIR    PBS  CIR    CBS\n");
+                pr("Index  Mode  Dual  IFG  CF  OS  DOY  MAR  PIR    PBS  CIR    CBS\n");
                 header = 0;
             }
 
@@ -2099,7 +2113,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
             REG_RD(ANA_POL_MODE(i), &value);
             REG_RD(ANA_POL_CIR_CFG(i), &cir);
             mode = ANA_POL_MODE_FRM_MODE_X(value);
-            pr("%-7u%-6s%-6u%-5u%-4u%-4u%-7u%-5u%-7u%-5u\n",
+            pr("%-7u%-6s%-6u%-5u%-4u%-4u%-5u%-5u%-7u%-5u%-7u%-5u\n",
             i,
             mode == POL_MODE_LINERATE ? "Line" : mode == POL_MODE_DATARATE ? "Data" :
             mode == POL_MODE_FRMRATE_33_1_3_FPS ? "F33_1_3" : "F1_3",
@@ -2107,6 +2121,8 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
             ANA_POL_MODE_IPG_SIZE_X(value),
             ANA_POL_MODE_DLB_COUPLED_X(value),
             ANA_POL_MODE_OVERSHOOT_ENA_X(value),
+            ANA_POL_MODE_DROP_ON_YELLOW_ENA_X(value),
+            ANA_POL_MODE_MARK_ALL_FRMS_RED_ENA_X(value),
             ANA_POL_PIR_CFG_PIR_RATE_X(pir),
             ANA_POL_PIR_CFG_PIR_BURST_X(pir),
             ANA_POL_CIR_CFG_CIR_RATE_X(cir),

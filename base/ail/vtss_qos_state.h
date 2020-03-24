@@ -54,6 +54,8 @@ typedef struct {
     u32  eir;        /* EIR (PIR) in kbps/fps */
     u32  ebs;        /* EBS (PBS) in bytes/frames */
     BOOL cf;         /* Coupling flag (ignored in single bucket mode) */
+    BOOL drop_yellow;
+    vtss_opt_bool_t mark_all_red;
 } vtss_policer_conf_t;
 
 typedef struct {

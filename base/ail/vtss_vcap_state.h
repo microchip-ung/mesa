@@ -479,13 +479,10 @@ typedef struct {
 #if defined(VTSS_ARCH_LAN966X)
     BOOL                   dlb_enable;
     u16                    dlb;
-    BOOL                   mstream_enable;
-    u16                    mstream;
     BOOL                   sfid_enable;
     u16                    sfid;
     BOOL                   sgid_enable;
     u16                    sgid;
-    BOOL                   ct_disable;
 #endif
 } vtss_is1_action_t;
 
