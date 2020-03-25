@@ -773,7 +773,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
-    u32                   sd_indx, sd_type, sd_lane_tgt, sd_delay_var, sd_rx_delay_var, sd_tx_delay_var;
+    u32                   sd_indx, sd_type, sd_lane_tgt, sd_tx_delay_var;
+    i32                   sd_rx_delay_var;
     io_delay_t            *dv_factor;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
@@ -808,21 +809,22 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
     /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
     if (sd_type == FA_SERDES_TYPE_25G) {
-        REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &sd_delay_var);
-        sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(sd_delay_var);
-        sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(sd_delay_var);
+        REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
+        sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
+        sd_rx_delay_var = (sd_rx_delay_var & 8000) ? (sd_rx_delay_var | 0xFFFF0000) : sd_rx_delay_var;    /* In the 25G SERDES the delay is a signed value accoding to Jira UNG_FIREANT-70 */
+        sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
         dv_factor = delay_var_factor_25G;
     } else {
-        REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &sd_delay_var);
-        sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(sd_delay_var);
-        sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(sd_delay_var);
+        REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
+        sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
+        sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
         if ((speed == VTSS_SPEED_5G) && (sd_indx > 12)) {   /* 5 Gbps and lane > 12. The delay factor must be corrected */
             delay_var_factor[2].rx = 37200;
             delay_var_factor[2].tx = 49600;
         }
         dv_factor = delay_var_factor;
     }
-    VTSS_D("sd_rx_delay_var %d  sd_tx_delay_var %d  rx_delay %u  tx_delay %u", sd_rx_delay_var, sd_tx_delay_var, (sd_rx_delay_var * dv_factor[0].rx) / 65536, (sd_tx_delay_var * dv_factor[0].tx) / 65536);
+    VTSS_D("sd_rx_delay_var %d  sd_tx_delay_var %u  rx_delay %u  tx_delay %u", sd_rx_delay_var, sd_tx_delay_var, (sd_rx_delay_var * dv_factor[0].rx) / 65536, (sd_tx_delay_var * dv_factor[0].tx) / 65536);
 
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
