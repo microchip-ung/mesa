@@ -133,29 +133,23 @@ def tod_latency_test(port0, port1)
     latency = 0
     $ts.dut.call("mesa_ts_ingress_latency_set", port1, latency)
 
-delays = []
-10.times {
+#delays = []
+#10.times {
     # Measure nanosecond delay
     nano_delay_0 = nano_delay_measure(port0, port1)
 
-delays << nano_delay_0
-$ts.dut.run ("mesa-cmd port state #{port0} disable")
-sleep 1
-$ts.dut.run ("mesa-cmd port state #{port0} enable")
-sleep 2
-$ts.dut.call("mesa_ts_status_change", port0)
-$ts.dut.call("mesa_ts_status_change", port1)
-}
-console("delays = #{delays}")
-return
+#delays << nano_delay_0
+#$ts.dut.run ("mesa-cmd port state #{port0} disable")
+#sleep 1
+#$ts.dut.run ("mesa-cmd port state #{port0} enable")
+#sleep 2
+#$ts.dut.call("mesa_ts_status_change", port0)
+#$ts.dut.call("mesa_ts_status_change", port1)
+#}
+#console("delays = #{delays}")
+#return
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        nano_delay = nano_delay_0
-    end
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        nano_delay = nano_delay_0 - ((nano_delay_0 > 60) ? 62 : 0)  # Currently on Fireant 25G SERDES the delay can be 62 ns off. Accept this for now
-    end
-    if ((nano_delay < -2) || (nano_delay > 8))
+    if ((nano_delay_0 < -2) || (nano_delay_0 > 8))
         t_e("Unexpected delay with egress latency 0 and ingress latency 0.  Delay = #{nano_delay_0}")
     end
 
@@ -254,7 +248,7 @@ test "test_run" do
         $ts.dut.run("mesa-cmd port mode #{port0+1} 25g")
         tod_latency_test(port0, port1)
     end
-exit(0)
+
     i = 0
     while (i < $ts.dut.looped_port_list.length) do
         if ((i % 2) != 0)
@@ -265,21 +259,19 @@ exit(0)
             i = i + 1
             next
         end
-if (i <= 2)
-    next
-end
+
         # Test egress and ingress latency
         # On Fireant - currently 1G - 2.5G can only pass on 625MHz
         if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || (misc_conf["core_clock_freq"] == "MESA_CORE_CLOCK_625MHZ"))
             t_i("------------ Measuring 1G mode -----------------")
-#            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
-#            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
-#            tod_latency_test(port0, port1)
-#
-#            t_i("------------ Measuring 2.5G mode -----------------")
-#            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
-#            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
-#            tod_latency_test(port0, port1)
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
+            tod_latency_test(port0, port1)
+
+            t_i("------------ Measuring 2.5G mode -----------------")
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
+            tod_latency_test(port0, port1)
         end
 
         # On Fireant - currently 5G can only pass on 625MHz or 250MHz
@@ -299,10 +291,10 @@ end
     end
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-#        t_i("------------ Measuring 10G mode -----------------")
-#        $ts.dut.run("mesa-cmd port mode #{$loop_port0_10g+1} 10g")
-#        $ts.dut.run("mesa-cmd port mode #{$loop_port1_10g+1} 10g")
-#        tod_latency_test($loop_port0_10g, $loop_port1_10g)
+        t_i("------------ Measuring 10G mode -----------------")
+        $ts.dut.run("mesa-cmd port mode #{$loop_port0_10g+1} 10g")
+        $ts.dut.run("mesa-cmd port mode #{$loop_port1_10g+1} 10g")
+        tod_latency_test($loop_port0_10g, $loop_port1_10g)
     end
 
 end

@@ -773,8 +773,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
-    u32                   sd_indx, sd_type, sd_lane_tgt, sd_tx_delay_var;
-    i32                   sd_rx_delay_var;
+    u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var, sd_tx_delay_var;
     io_delay_t            *dv_factor;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
@@ -811,7 +810,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     if (sd_type == FA_SERDES_TYPE_25G) {
         REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
-        sd_rx_delay_var = (sd_rx_delay_var & 8000) ? (sd_rx_delay_var | 0xFFFF0000) : sd_rx_delay_var;    /* In the 25G SERDES the delay is a signed value accoding to Jira UNG_FIREANT-70 */
         sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
         dv_factor = delay_var_factor_25G;
     } else {
@@ -824,7 +822,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         }
         dv_factor = delay_var_factor;
     }
-    VTSS_D("sd_rx_delay_var %d  sd_tx_delay_var %u  rx_delay %u  tx_delay %u", sd_rx_delay_var, sd_tx_delay_var, (sd_rx_delay_var * dv_factor[0].rx) / 65536, (sd_tx_delay_var * dv_factor[0].tx) / 65536);
+    VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
 
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
@@ -840,7 +838,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             tx_delay = seriel_1G_delay[port].tx;
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay += 800 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value);      /* Add the variable delay in the device */
-            rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
+            if (sd_type == FA_SERDES_TYPE_25G) {
+                rx_delay += ((i32)sd_rx_delay_var * (i32)dv_factor[0].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 1G speed sd_rx_delay_var is signed */
+            } else {
+                rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
+            }
             tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
@@ -848,7 +850,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             tx_delay = seriel_2dot5G_delay[port].tx;
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay += 320 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value);      /* Add the variable delay in the device */
-            rx_delay += (sd_rx_delay_var * dv_factor[1].rx) / 65536;      /* Add the variable RX delay in the SERDES */
+            if (sd_type == FA_SERDES_TYPE_25G) {
+                rx_delay += ((i32)sd_rx_delay_var * (i32)dv_factor[1].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 2.5G speed sd_rx_delay_var is signed */
+            } else {
+                rx_delay += (sd_rx_delay_var * dv_factor[1].rx) / 65536;      /* Add the variable RX delay in the SERDES */
+            }
             tx_delay += (sd_tx_delay_var * dv_factor[1].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         break;
@@ -900,8 +906,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             /* According to Morten this is not relevant */
         }
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 760) : (1000 * 49);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 760) : (1000 * 49);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1075) : (1000 * 49);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1075) : (1000 * 49);
         }
         if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
             rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
