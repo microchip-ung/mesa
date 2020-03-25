@@ -547,6 +547,7 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
     struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip4 def_ipv4 = {0};
     vtss_vcap_u128_t                               def_sip = {0}, def_dip = {0};
     lan966x_vcap_info_t                            info = {0};
+    vtss_sdx_entry_t                               *sdx;
     vtss_is1_data_t                                *is1 = &vcap_data->u.is1;
     vtss_is1_key_t                                 *key = &is1->entry->key;
     vtss_is1_action_t                              *action = &is1->entry->action;
@@ -862,10 +863,14 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
     a->dei_val = action->dei;
     a->vlan_pop_cnt_ena = action->pop_enable;
     a->vlan_pop_cnt = action->pop;
-    a->sfid_ena = action->sfid_enable;
-    a->sfid_val = action->sfid;
-    a->sgid_ena = action->sgid_enable;
-    a->sgid_val = action->sgid;
+    if (action->isdx_enable && (sdx = vtss_iflow_lookup(vtss_state, action->isdx)) != NULL) {
+        vtss_lan966x_is1_action_update(vtss_state, sdx, action);
+        a->sfid_ena = action->sfid_enable;
+        a->sfid_val = action->sfid;
+        a->sgid_ena = action->sgid_enable;
+        a->sgid_val = action->sgid;
+        // TBD: DLB update
+    }
 
     if (vtss_lan966x_vcap_is1_action_pack(&fa, &info.data) < 0 ||
         vtss_lan966x_vcap_is1_key_pack(&f, &info.data) < 0) {
@@ -905,6 +910,7 @@ static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SFID_VAL, act->sfid);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_ENA, act->sgid_enable);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_VAL, act->sgid);
+    // TBD: DLB update
     info.cmd = LAN966X_VCAP_CMD_WRITE;
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }

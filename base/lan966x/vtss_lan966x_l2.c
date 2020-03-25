@@ -723,32 +723,36 @@ static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_p
     return vtss_lan966x_vcap_port_key_addr_set(vtss_state, port_no, 1, key_new, key_old, dmac_dip_new);
 }
 
-static vtss_rc lan966x_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
+void vtss_lan966x_is1_action_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, vtss_is1_action_t *action)
 {
     vtss_iflow_conf_t       *conf;
     vtss_psfp_iflow_conf_t  *psfp;
     vtss_psfp_filter_conf_t *filter;
-    vtss_is1_action_t       act;
+
+    conf = &sdx->conf;
+    psfp = &conf->psfp;
+    action->dlb_enable = conf->dlb_enable;
+    action->dlb = conf->dlb_id;
+    if (psfp->filter_enable) {
+        filter = &vtss_state->l2.psfp.filter[psfp->filter_id];
+        action->sfid_enable = psfp->filter_enable;
+        action->sfid = psfp->filter_id;
+        action->sgid_enable = filter->gate_enable;
+        action->sgid = filter->gate_id;
+    }
+}
+
+static vtss_rc lan966x_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
+{
+    vtss_is1_action_t act = {0};
 
     if (sdx == NULL) {
         return VTSS_RC_ERROR;
     }
 
     REG_WR(QSYS_FRER_FIRST(sdx->sdx), QSYS_FRER_FIRST_FRER_FIRST_MEMBER(sdx->ms_idx));
-
-    conf = &sdx->conf;
-    psfp = &conf->psfp;
-    memset(&act, 0, sizeof(act));
     act.isdx = sdx->sdx;
-    act.dlb_enable = conf->dlb_enable;
-    act.dlb = conf->dlb_id;
-    if (psfp->filter_enable) {
-        filter = &vtss_state->l2.psfp.filter[psfp->filter_id];
-        act.sfid_enable = psfp->filter_enable;
-        act.sfid = psfp->filter_id;
-        act.sgid_enable = filter->gate_enable;
-        act.sgid = filter->gate_id;
-    }
+    vtss_lan966x_is1_action_update(vtss_state, sdx, &act);
     VTSS_I("sdx: %u, dlb: %u/%u, filter: %u/%u, gate: %u/%u",
            act.isdx, act.dlb_enable, act.dlb, act.sfid_enable, act.sfid, act.sgid_enable, act.sgid);
     return vtss_vcap_is1_update(vtss_state, &act);
@@ -801,7 +805,7 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     }
     for (i = 0; i < 4; i++) {
         REG_WR(QSYS_FRER_PORT(sdx->sdx, i),
-               QSYS_FRER_PORT_FRER_IGR_PORT(sdx->sdx == 1 ? 0 : 1) | // TBD: Hardcoded to match test case
+               QSYS_FRER_PORT_FRER_IGR_PORT(sdx->sdx - 1) | // TBD: Hardcoded to match test case
                QSYS_FRER_PORT_FRER_EGR_PORT(port[i]));
     }
 
@@ -820,8 +824,8 @@ vtss_rc lan966x_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_
     if (idx != 0) {
         /* ISDX counters */
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
-        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx + 640));
-        base = 0x280; // TBD
+        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx));
+        base = 640;
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green.bytes, clr));
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green.frames, clr));
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_yellow.bytes, clr));
@@ -835,8 +839,8 @@ vtss_rc lan966x_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_
 
         // PSFP counters
         if ((sdx = vtss_iflow_lookup(vtss_state, idx)) != NULL && sdx->conf.psfp.filter_enable) {
-            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(sdx->conf.psfp.filter_id + 512));
-            base = 0x200;
+            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(sdx->conf.psfp.filter_id));
+            base = 512;
             VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_match, clr));
             VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_gate_discard, clr));
             VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_sdu_discard, clr));
@@ -847,8 +851,8 @@ vtss_rc lan966x_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_
     idx = stat_idx->edx;
     if (idx != 0) {
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
-        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx + 768));
-        base = 0x300; // TBD
+        REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(idx));
+        base = 768;
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green.bytes, clr));
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green.frames, clr));
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow.bytes, clr));

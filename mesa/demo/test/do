@@ -59,7 +59,7 @@ case $chip in
      ;;
 
      mi)
-     ts=dk-t30
+     ts=dk-t34-1
      img=fit_ls1046_lan9668.itb
      dir=build-lan966x
      ;;

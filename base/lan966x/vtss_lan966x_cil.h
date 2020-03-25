@@ -238,6 +238,7 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
 
 // L2 API
 vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+void vtss_lan966x_is1_action_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, vtss_is1_action_t *action);
 vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info);

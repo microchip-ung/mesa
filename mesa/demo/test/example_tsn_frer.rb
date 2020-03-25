@@ -17,6 +17,8 @@ $idx_rp    = 1
 $idx_cp    = 2
 $idx_other = 3
 
+$cap_iflow_pop = cap_get("L2_FRER_IFLOW_POP")
+
 test "init" do
   cmd = "mesa-cmd example init frer"
   cmd += " uport #{$ts.dut.p[$idx_up]}"
@@ -39,7 +41,8 @@ def frer_frame(t, idx)
         if (t.key?:tag)
             cmd += cmd_tag_push(t[:tag])
         end
-        if (t.key?:seq)
+        if (t.key?:seq and (idx != $idx_up or $cap_iflow_pop))
+            # For U-port, sequence number is not popped if iflow popping supported
             cmd += " rtag seqn #{t[:seq]}"
         end
         cmd += " data pattern cnt 128"
@@ -64,7 +67,7 @@ $test_table =
         {
             txt: "Tx R-port, recovery pass, seq = 100",
             tx: {idx: $idx_rp, seq: 100},
-            rx: [{idx: $idx_up},
+            rx: [{idx: $idx_up, seq: 100},
                  {idx: $idx_cp, tag: {tpid: 0x8100, vid: 10}, seq: 100}]
         },
         {
@@ -76,7 +79,7 @@ $test_table =
         {
             txt: "Tx C-port, recovery pass, seq = 101",
             tx: {idx: $idx_cp, tag: {tpid: 0x8100, vid: 10}, seq: 101},
-            rx: [{idx: $idx_up},
+            rx: [{idx: $idx_up, seq: 101},
                  {idx: $idx_rp, seq: 101}]
         },
         {

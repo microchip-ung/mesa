@@ -234,7 +234,7 @@ test "frame-io" do
     cap_xstat = (cap_get("L2_XSTAT") != 0)
     cap_xdlb = (cap_get("L2_XDLB") != 0)
     cap_imap = (cap_get("QOS_INGRESS_MAP_CNT") != 0)
-    class_cnt = 4
+    class_cnt = (cap_imap ? 4 : 1)
     iflow = (cap_xflow ? $ts.dut.call("mesa_iflow_alloc") : 0)
     istat = (cap_xstat ? $ts.dut.call("mesa_ingress_cnt_alloc", class_cnt) : 0)
     pol = (cap_xdlb ? $ts.dut.call("mesa_dlb_policer_alloc", class_cnt) : 0)
@@ -255,7 +255,7 @@ test "frame-io" do
     end
 
     # Policer with COSID 1 discards all frames
-    if (cap_xdlb)
+    if (cap_xdlb && class_cnt > 1)
         cosid = 1
         conf = $ts.dut.call("mesa_dlb_policer_conf_get", pol, cosid)
         conf["enable"] = true
@@ -408,7 +408,7 @@ test "frame-io" do
             cmd += f_end
 
             rx_f = t[:rx_frm][i]
-            cosid = (cap_imap and (rx_f.key?:cosid) ? rx_f[:cosid] : 0)
+            cosid = ((cap_imap and (rx_f.key?:cosid)) ? rx_f[:cosid] : 0)
             discard = rx_f.key?:discard
             forward = (!discard and cosid != 1)
             pop = ((rx_f.key?:pop) ? rx_f[:pop] : 0)

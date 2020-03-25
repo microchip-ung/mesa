@@ -3214,7 +3214,8 @@ vtss_rc vtss_ingress_cnt_alloc(const vtss_inst_t      inst,
 }
 
 static vtss_xstat_entry_t *vtss_istat_lookup(vtss_state_t *vtss_state,
-                                             const vtss_ingress_cnt_id_t id)
+                                             const vtss_ingress_cnt_id_t id,
+                                             BOOL error)
 {
     vtss_xstat_entry_t *stat;
 
@@ -3224,7 +3225,9 @@ static vtss_xstat_entry_t *vtss_istat_lookup(vtss_state_t *vtss_state,
     }
     stat = &vtss_state->l2.istat.table[id];
     if (stat->cnt == 0) {
-        VTSS_E("free id: %u", id);
+        if (error) {
+            VTSS_E("free id: %u", id);
+        }
         return NULL;
     }
     return stat;
@@ -3239,7 +3242,7 @@ vtss_rc vtss_ingress_cnt_free(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((stat = vtss_istat_lookup(vtss_state, id)) == NULL) {
+        if ((stat = vtss_istat_lookup(vtss_state, id, 1)) == NULL) {
             rc = VTSS_RC_ERROR;
         } else {
             rc = vtss_cmn_istat_free(vtss_state, &stat->idx);
@@ -3271,7 +3274,7 @@ vtss_rc vtss_ingress_cnt_get(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((stat = vtss_istat_lookup(vtss_state, id)) != NULL && cosid < stat->cnt) {
+        if ((stat = vtss_istat_lookup(vtss_state, id, 1)) != NULL && cosid < stat->cnt) {
             rc = VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, cosid), counters);
         } else {
             rc = VTSS_RC_ERROR;
@@ -3291,7 +3294,7 @@ vtss_rc vtss_ingress_cnt_clear(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((stat = vtss_istat_lookup(vtss_state, id)) != NULL && cosid < stat->cnt) {
+        if ((stat = vtss_istat_lookup(vtss_state, id, 1)) != NULL && cosid < stat->cnt) {
             rc = VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, cosid), NULL);
         } else {
             rc = VTSS_RC_ERROR;
@@ -3782,7 +3785,7 @@ vtss_rc vtss_iflow_free(const vtss_inst_t     inst,
                 }
 #if defined(VTSS_ARCH_LAN966X)
                 if (cur->conf.cnt_enable) {
-                    vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, cur->conf.cnt_id);
+                    vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, cur->conf.cnt_id, 0);
 
                     if (stat != NULL) {
                         // Remove reference from ingress counters to flow
@@ -3872,7 +3875,7 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
             if (conf->cnt_enable && rc == VTSS_RC_OK) {
-                vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, conf->cnt_id);
+                vtss_xstat_entry_t *stat = vtss_istat_lookup(vtss_state, conf->cnt_id, 1);
 
                 if (stat == NULL) {
                     rc = VTSS_RC_ERROR;
