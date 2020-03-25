@@ -796,7 +796,6 @@ static mesa_rc fa_sensor_get(meba_inst_t inst,
     mesa_rc rc = MESA_RC_ERROR;
     int16_t temp = 0;
     meba_board_state_t *board = INST2BOARD(inst);
-    uint8_t data[20];
 
     T_N(inst, "Called %d:%d", type, six);
 
@@ -809,7 +808,11 @@ static mesa_rc fa_sensor_get(meba_inst_t inst,
         if (board->type == BOARD_TYPE_SPARX5_PCB134) {
             rc = mesa_temp_sensor_get(NULL, &temp);
         } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
-            rc = mesa_phy_chip_temp_get(PHY_INST, six, &temp);
+            if (board->port[six].map.mac_if == MESA_PORT_INTERFACE_QSGMII) {
+                rc = mesa_phy_chip_temp_get(PHY_INST, six, &temp);
+            } else {
+                rc = mesa_temp_sensor_get(NULL, &temp);
+            }
         }
     }
 
