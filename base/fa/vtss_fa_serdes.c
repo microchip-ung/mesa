@@ -2111,8 +2111,9 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
     REG_RD(VTSS_SD25G_TARGET_LANE_C3(sd_tgt), &val);
 
     if (VTSS_X_SD25G_TARGET_LANE_C3_LN_FAST_EYE_SCAN_FAIL(val) > 0) {
-        VTSS_E("Eye scan fails to completet");
-        return VTSS_RC_ERROR;
+//        VTSS_E("Eye scan fails to complete");
+        *height = 1;
+        return VTSS_RC_OK;
     }
     REG_RD(VTSS_SD25G_TARGET_LANE_D0(sd_tgt), &val);
     *height = val;
@@ -2906,6 +2907,11 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
 {
     vtss_sd25g28_setup_args_t sd_cfg = {0};
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
+    vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
+
+    if (kr->train.enable && (speed == VTSS_SPEED_25G)) {
+        mode = VTSS_SERDES_MODE_SFI_KR;
+    }
 
     sd_cfg.chip_name = VTSS_SD25G28_CHIP_ANT;
     sd_cfg.txinvert = 0;

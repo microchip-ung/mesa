@@ -63,7 +63,7 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 #define KR_ANEG_RATE_2G5    12
 #define KR_ANEG_RATE_1G     13
 
-#define KR_HIST_NUM 300
+#define KR_HIST_NUM 500
 
 
 #ifndef TRUE

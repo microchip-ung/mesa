@@ -6,7 +6,7 @@
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_common.h"
-
+//u32 lps_cnt = 0;
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 
 /* - Port mapping -------------------------------------------------- */
@@ -1315,6 +1315,9 @@ vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.kr_conf[port_no] = *conf;
+//        lps_cnt = 0;
+        memset(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
+        
         rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
     }
     VTSS_EXIT();
@@ -1493,7 +1496,7 @@ static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
 static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
 {
     vtss_port_kr_eye_dim_t eye;
-
+    
     if (kr_eye_dim_get(state, p, &eye) == VTSS_RC_OK) {
         return eye.height;
     } else {
@@ -1573,7 +1576,7 @@ static void kr_send_coef_update(vtss_state_t *state, vtss_port_kr_state_t *krs, 
     krs->ber_coef_frm = frm.data;
 }
 
-static void kr_send_sts_report(vtss_state_t *state, vtss_port_kr_state_t *krs, vtss_port_no_t p, u32 data)
+static void kr_send_sts_report(vtss_state_t *state, vtss_port_no_t p, u32 data)
 {
     vtss_port_kr_frame_t frm;
     frm.data = data;
@@ -1733,6 +1736,71 @@ static void kr_ber_training(vtss_state_t *vtss_state,
     }
 }
 
+/* static char *fa_kr_aneg_rate(uint32_t reg) */
+/* { */
+/*     switch (reg) { */
+/*     case 0:  return "No Change"; */
+/*     case 7:  return "25G-KR"; */
+/*     case 8:  return "25G-KR-S"; */
+/*     case 9:  return "10G-KR"; */
+/*     case 10: return "10G-KX4"; */
+/*     case 11: return "5G-KR"; */
+/*     case 12: return "2.5G-KX"; */
+/*     case 13: return "1G-KX"; */
+/*     default: return "other"; */
+/*     } */
+/*     return "other"; */
+/* } */
+/* static char *irq2txt(u32 irq) */
+/* { */
+/*     switch (irq) { */
+/*     case KR_ACTV:       return  "KR_ACTV"; */
+/*     case KR_LPSVALID:   return  "KR_LPS"; */
+/*     case KR_LPCVALID:   return  "KR_LPC"; */
+/*     case KR_WT_DONE:    return  "WT_DONE"; */
+/*     case KR_MW_DONE:    return  "MW_DONE"; */
+/*     case KR_BER_BUSY_0: return  "BER_BUSY0"; */
+/*     case KR_BER_BUSY_1: return  "BER_BUSY1"; */
+/*     case KR_REM_RDY_0:  return  "REM_RDY0"; */
+/*     case KR_REM_RDY_1:  return  "REM_RDY1"; */
+/*     case KR_FRLOCK_0:   return  "FRLOCK0"; */
+/*     case KR_FRLOCK_1:   return  "FRLOCK1"; */
+/*     case KR_DME_VIOL_0: return  "DME_VIOL0"; */
+/*     case KR_DME_VIOL_1: return  "DME_VIOL1"; */
+/*     case KR_AN_XMIT_DISABLE: return  "AN_XM_DIS"; */
+/*     case KR_TRAIN:      return  "TRAIN"; */
+/*     case KR_RATE_DET:   return  "RATE_DET"; */
+/*     case KR_CMPL_ACK:   return  "CMPL_ACK"; */
+/*     case KR_AN_GOOD:    return  "AN_GOOD"; */
+/*     case KR_LINK_FAIL:  return  "LINK_FAIL"; */
+/*     case KR_ABD_FAIL:   return  "ABD_FAIL"; */
+/*     case KR_ACK_FAIL:   return  "ACK_FAIL"; */
+/*     case KR_NP_FAIL:    return  "NP_FAIL"; */
+/*     case KR_NP_RX:      return  "NP_RX"; */
+/*     case KR_INCP_LINK:  return  "INCP_LINK"; */
+/*     case KR_GEN0_DONE:  return  "GEN0_DONE"; */
+/*     case KR_GEN1_DONE:  return  "GEN1_DONE"; */
+/*     case 0:  return ""; */
+/*     default:  return "ILLEGAL"; */
+/*     } */
+/* } */
+/* static void dump_irq(u32 p, u32 irq) */
+/* { */
+/*     char buf[200] = {0}, *b=&buf[0]; */
+
+/*     b += sprintf(b, "p:%d ",p); */
+/*     for (u32 i = 4; i < 31; i++) { */
+/*         if (((1 << i) & irq) > 0) { */
+/*             b += sprintf(b, "%s ",irq2txt((1 << i))); */
+/*         } */
+/*     } */
+/*     if ((irq & 0xf) > 0) { */
+/*         b += sprintf(b, "%s ",fa_kr_aneg_rate(irq & 0xf)); */
+/*     } */
+
+/*     printf("%s \n",buf); */
+/* } */
+
 static void kr_reset_state(vtss_port_kr_state_t *krs) {
     memset(krs, 0, sizeof(vtss_port_kr_state_t));
 }
@@ -1747,7 +1815,12 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
     u32 irq = irq_vec;
+    krs->ignore_fail = 1; // TBD
 
+
+
+//    dump_irq(port_no, irq);
+    
      // To avoid failures during eye height calculation
     if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
@@ -1778,7 +1851,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_TRAIN. Start Training
     if (irq & KR_TRAIN) {
-        if (kr->train.enable) {
+//        lps_cnt = 0;
+        if (kr->train.enable) {            
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
@@ -1806,7 +1880,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_REM_RDY_1. Remote is ready
     if (irq & KR_REM_RDY_1) {
-        krs->remote_rx_ready = TRUE;
         // Ignore failures after remote is ready
         irq &= ~KR_DME_VIOL_0;
         irq &= ~KR_DME_VIOL_1;
@@ -1837,7 +1910,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         }
 
         // Send Status report
-        kr_send_sts_report(vtss_state, krs, port_no, krs->tr_res.status);
+        kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
     }
     // KR_LPSVALID (Received Status report)
     if ((irq & KR_LPSVALID) && krs->training_started) {
@@ -1846,6 +1919,12 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         } else {
             krs->current_state = VTSS_TR_TRAIN_REMOTE;
         }
+
+
+        /* if (lps_cnt > 2) { */
+        /*     krs->current_state = VTSS_TR_TRAIN_REMOTE;  // To be removed */
+        /* } */
+        /* lps_cnt++; */
     }
 
     // KR_WT_DONE (wait time expired, training is completed)
@@ -1901,10 +1980,10 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     // WT_START (Start wait timer to ensure that the LP detects our state (72.6.10.3.2))
     if (krs->current_state == VTSS_TR_TRAIN_REMOTE && krs->remote_rx_ready) {
         // 'Receiver Ready' sent 3 times to LP as according to standard
-        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
-        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
-        kr_send_sts_report(vtss_state, krs, port_no, BT(15));
-        kr_send_sts_report(vtss_state, krs, port_no, 0); // needed to avoid KR_REM_RDY_1 during next training restart
+        kr_send_sts_report(vtss_state, port_no, BT(15));
+        kr_send_sts_report(vtss_state, port_no, BT(15));
+        kr_send_sts_report(vtss_state, port_no, BT(15));
+//        kr_send_sts_report(vtss_state, krs, port_no, 0); // needed to avoid KR_REM_RDY_1 during next training restart
         req_msg.wt_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
         krs->current_state = VTSS_TR_LINK_READY;
@@ -1934,7 +2013,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_NP_RX (next page request)
     if ((irq & KR_NP_RX) > 0) {
-        printf("-->IRQ:KR_NP_RX\n");
         req_msg.next_page = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }

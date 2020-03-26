@@ -727,7 +727,12 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 #define KR_ANEG_RATE_5G  11
 #define KR_ANEG_RATE_2G5 12
 #define KR_ANEG_RATE_1G  13
-#define NULL_NP (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
+#define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
+#define NP_TOGGLE (VTSS_BIT(11))
+#define NP_ACK2 (VTSS_BIT(12))
+#define NP_MP (VTSS_BIT(13))
+#define NP_ACK (VTSS_BIT(14))
+#define NP_NP (VTSS_BIT(15))
 
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
@@ -835,6 +840,30 @@ static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_np_set(vtss_state_t *vtss_state,
+                         const vtss_port_no_t port_no,
+                         u32 np0, u32 np1, u32 np2)
+{
+    u32 val;
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &val);
+
+    if ((val & NP_TOGGLE) == 0) {
+        np0 = np0 | NP_TOGGLE;
+    } else {
+        np0 &= ~NP_TOGGLE;
+    }
+    REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np0);
+    REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), np1);
+    REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), np2);
+
+    REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
+            VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),
+            VTSS_M_IP_KRANEG_FW_MSG_NP_LOADED);
+    return VTSS_RC_OK;
+}
+
+
 static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                                      const vtss_port_no_t port_no,
                                      vtss_port_kr_fw_req_t *const fw_req)
@@ -864,33 +893,19 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
                 VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
 
-        if (fw_req->rate_done) {
-//            VTSS_MSLEEP(10);
-            /* u32 val; */
-            /* REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &val); */
-            /* printf("(after-rate-done)AN-SM:%d\n",val&0xf); */
-
-            /* REG_RD(VTSS_IP_KRANEG_BP_ETH_STS(tgt), &val); */
-            /* printf("(after-rate-done)BP_ETH_STS:%x\n",val);; */
-
-            /* REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &val); */
-            /* printf("(after-rate-done)AN_STS11:%x\n",val);; */
-
-            /* REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer */
-            /* REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x80); // Releas an_wait timer */
-        }
     }
 
     if (fw_req->start_training) {
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
-        }
+        /* if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) { */
+        /*     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode */
+        /* } */
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
     }
 
     if (fw_req->stop_training) {
+        
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
@@ -899,12 +914,23 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
             u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
             u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
 
-
             // Change back to 25G 40 bit mode
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
+            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
+
+            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
+                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0),
+                    VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
+                 VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0),
+                 VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
+   
             REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
                     VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
                     VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
@@ -915,9 +941,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                     VTSS_M_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0 |
                     VTSS_M_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0);
 
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
 
             REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
                     VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0(3),
@@ -935,9 +959,17 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                     VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
                     VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
 
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
+
+            REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
+                    VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0xFF),
+                    VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
+
+            VTSS_MSLEEP(1);
 
         }
 
@@ -963,51 +995,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->next_page) {
-        u32 np;
-        REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &np);
-        if (np & VTSS_BIT(11)) {
-            printf("np wr 1\n");
-            np = NULL_NP;
-            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np);
-        } else {
-            printf("np wr 2\n");
-            np = NULL_NP | VTSS_BIT(11);
-            REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np);
-        }
-        /* REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &np); */
-        /* if (np == 0x4203 || np == 0) { */
-        /*     printf("wr 1\n"); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0xE805); */
-        /*     /\* REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x0353); *\/ */
-        /*     /\* REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0x04DF); *\/ */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0); */
-
-        /* } else { */
-        /*     printf("wr 2\n"); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0x4203); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), 0x10); */
-        /*     REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), 0x0); */
-        /* } */
-
-        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
-                VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),
-                VTSS_M_IP_KRANEG_FW_MSG_NP_LOADED);
-
-        VTSS_MSLEEP(5);
-
-        REG_RD(VTSS_IP_KRANEG_LP_NP0(tgt), &np);
-        printf("(after)NP0:0x%x\n",np);
-        REG_RD(VTSS_IP_KRANEG_LP_NP1(tgt), &np);
-        printf("(after)NP1:0x%x\n",np);
-        REG_RD(VTSS_IP_KRANEG_LP_NP2(tgt), &np);
-        printf("(after)NP2:0x%x\n",np);
-        REG_RD(VTSS_IP_KRANEG_AN_HIST(tgt), &np);
-        printf("(after)AN-HIST:0x%x\n",np);
-        REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &np);
-        printf("(after)AN-SM:%d\n",np & 0xf);
-
-
+        fa_np_set(vtss_state, port_no, NP_NULL, 0, 0); 
     }
 
     return VTSS_RC_OK;
@@ -1109,8 +1097,6 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-
-
 static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
@@ -1208,12 +1194,11 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
 {
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 abil = 0;
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     if (!PORT_IS_KR_CAP(port_no)) {
         return VTSS_RC_ERROR;
     }
-
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
@@ -1239,18 +1224,19 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
            LD_ADV2 bit 1 = 5G-KR */
         abil = kr->aneg.adv_2g5 ? VTSS_BIT(0) : 0;
         abil += kr->aneg.adv_5g ? VTSS_BIT(1) : 0;
+        REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(0) | VTSS_BIT(1));
 
         /* AN FEC aneg field
            LD_ADV2 bit 14/F0 = fec ability
            LD_ADV2 bit 15/F1 = R-FEC requested */
-        abil += kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
+        abil = kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
         abil += kr->aneg.fec_req ? VTSS_BIT(15) : 0;  // F1
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
 
         if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
             /* LD_ADV2 bit 12/F2 = RS-FEC requested      */
             /* LD_ADV2 bit 13/F3 = Base-R FEC requested, */
-            abil += kr->aneg.rs_fec_req ? VTSS_BIT(12) : 0; // F2
+            abil = kr->aneg.rs_fec_req ? VTSS_BIT(12) : 0; // F2
             abil +=  kr->aneg.fec_req  ? VTSS_BIT(13) : 0; // F3
             REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13));
         }
@@ -1299,8 +1285,12 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
 
     // Generic timer
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
+
     // Link pass inihibit timer (in AN_GOOD_CHECK)
     REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
+
+    // Disable Rate Detect time (in parallel detect)
+    REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
     return VTSS_RC_OK;
 }
 
@@ -2666,17 +2656,11 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             } else {
                 status->link = vtss_state->port.link[port_no];
             }
+
+            
         } else {
             /* Combine status from PCS and Analog Macro */
             status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
-        }
-        if (port_no == 2 || port_no == 3) {
-
-            /* if (status->link_down) { */
-            /*     printf("p:%d idle_state:%d analog_sd:%d\n",port_no, value, analog_sd); */
-
-            /* } */
-
         }
         status->speed = conf->speed;
         break;
