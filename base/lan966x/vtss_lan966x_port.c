@@ -466,6 +466,9 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
     VTSS_RC(vtss_lan966x_port_max_tags_set(vtss_state, port_no));
 
+    // Setup QoS
+    VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no));
+
     if (!disable) {
         /* Enable MAC module */
         REG_WR(DEV_MAC_ENA_CFG(port),
@@ -506,6 +509,22 @@ static vtss_rc lan966x_port_status_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t *vtss_state,
+                                            u32 *addr, vtss_dual_counter_t *counter, BOOL clear)
+{
+    u32 base = *addr;
+
+    // E-MAC counters
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[0], clear));
+    // P-MAC counters, offset depends on Rx/Tx
+    *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x21 : 0x1f));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[1], clear));
+    *addr = (base + 1); // Next E-MAC counter address
+    return VTSS_RC_OK;
+}
+
+#define CNT_SUM(cnt) (cnt.c[0].value + cnt.c[1].value)
+
 static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_state,
                                           vtss_port_no_t               port_no,
                                           u32                          port,
@@ -518,30 +537,31 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
     vtss_port_if_group_counters_t      *if_group;
     vtss_port_ethernet_like_counters_t *elike;
     vtss_port_proprietary_counters_t   *prop;
+    vtss_port_dot3br_counters_t        *dot3br;
 
     /* Setup counter view */
     REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(port));
 
     base = 0x00;
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_octets, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_unicast, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_multicast, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_broadcast, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_shorts, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_fragments, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_jabbers, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_crc_align_errors, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_symbol_errors, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_64, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_65_127, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_128_255, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_256_511, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_512_1023, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_1024_1526, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_1527_max, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_pause, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_control, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_longs, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_octets, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_unicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_multicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_broadcast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_shorts, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_fragments, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_jabbers, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_crc_align_errors, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_symbol_errors, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_64, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_65_127, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_128_255, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_256_511, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_512_1023, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1024_1526, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1527_max, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_pause, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_control, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_longs, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_classified_drops, clear));
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_red_class[i], clear));
@@ -549,27 +569,32 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green_class[i], clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_assembly_errors, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_smd_errors, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_assembly_ok, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_fragments, clear));
 
     base = 0x80;
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_octets, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_unicast, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_multicast, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_broadcast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_octets, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_unicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_multicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_broadcast, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_collision, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_drops, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_pause, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_64, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_65_127, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_128_255, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_256_511, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_512_1023, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_1024_1526, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_1527_max, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_pause, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_64, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_65_127, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_128_255, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_256_511, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_512_1023, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1024_1526, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1527_max, clear));
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green_class[i], clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_aging, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_hold, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_fragments, clear));
 
     /* 32-bit Drop chip counters */
     base = 0x100;
@@ -589,6 +614,7 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
     if_group = &counters->if_group;
     elike = &counters->ethernet_like;
     prop = &counters->prop;
+    dot3br = &counters->dot3br;
 
     /* Proprietary counters */
     for (i = 0; i < VTSS_PRIOS; i++) {
@@ -602,68 +628,77 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
         rmon->rx_etherStatsDropEvents += (c->dr_yellow_class[i].value + c->dr_green_class[i].value);
     }
 
-    rmon->rx_etherStatsOctets = c->rx_octets.value;
+    rmon->rx_etherStatsOctets = CNT_SUM(c->rx_octets);
     rmon->rx_etherStatsPkts =
-        (c->rx_shorts.value + c->rx_fragments.value + c->rx_jabbers.value + c->rx_longs.value +
-         c->rx_64.value + c->rx_65_127.value + c->rx_128_255.value + c->rx_256_511.value +
-         c->rx_512_1023.value + c->rx_1024_1526.value + c->rx_1527_max.value);
-    rmon->rx_etherStatsBroadcastPkts = c->rx_broadcast.value;
-    rmon->rx_etherStatsMulticastPkts = c->rx_multicast.value;
-    rmon->rx_etherStatsCRCAlignErrors = c->rx_crc_align_errors.value;
-    rmon->rx_etherStatsUndersizePkts = c->rx_shorts.value;
-    rmon->rx_etherStatsOversizePkts = c->rx_longs.value;
-    rmon->rx_etherStatsFragments = c->rx_fragments.value;
-    rmon->rx_etherStatsJabbers = c->rx_jabbers.value;
-    rmon->rx_etherStatsPkts64Octets = c->rx_64.value;
-    rmon->rx_etherStatsPkts65to127Octets = c->rx_65_127.value;
-    rmon->rx_etherStatsPkts128to255Octets = c->rx_128_255.value;
-    rmon->rx_etherStatsPkts256to511Octets = c->rx_256_511.value;
-    rmon->rx_etherStatsPkts512to1023Octets = c->rx_512_1023.value;
-    rmon->rx_etherStatsPkts1024to1518Octets = c->rx_1024_1526.value;
-    rmon->rx_etherStatsPkts1519toMaxOctets = c->rx_1527_max.value;
+        (CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) + CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs) +
+         CNT_SUM(c->rx_64) + CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) + CNT_SUM(c->rx_256_511) +
+         CNT_SUM(c->rx_512_1023) + CNT_SUM(c->rx_1024_1526) + CNT_SUM(c->rx_1527_max));
+    rmon->rx_etherStatsBroadcastPkts = CNT_SUM(c->rx_broadcast);
+    rmon->rx_etherStatsMulticastPkts = CNT_SUM(c->rx_multicast);
+    rmon->rx_etherStatsCRCAlignErrors = CNT_SUM(c->rx_crc_align_errors);
+    rmon->rx_etherStatsUndersizePkts = CNT_SUM(c->rx_shorts);
+    rmon->rx_etherStatsOversizePkts = CNT_SUM(c->rx_longs);
+    rmon->rx_etherStatsFragments = CNT_SUM(c->rx_fragments);
+    rmon->rx_etherStatsJabbers = CNT_SUM(c->rx_jabbers);
+    rmon->rx_etherStatsPkts64Octets = CNT_SUM(c->rx_64);
+    rmon->rx_etherStatsPkts65to127Octets = CNT_SUM(c->rx_65_127);
+    rmon->rx_etherStatsPkts128to255Octets = CNT_SUM(c->rx_128_255);
+    rmon->rx_etherStatsPkts256to511Octets = CNT_SUM(c->rx_256_511);
+    rmon->rx_etherStatsPkts512to1023Octets = CNT_SUM(c->rx_512_1023);
+    rmon->rx_etherStatsPkts1024to1518Octets = CNT_SUM(c->rx_1024_1526);
+    rmon->rx_etherStatsPkts1519toMaxOctets = CNT_SUM(c->rx_1527_max);
 
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = (c->tx_drops.value + c->tx_aging.value);
-    rmon->tx_etherStatsOctets = c->tx_octets.value;
+    rmon->tx_etherStatsOctets = CNT_SUM(c->tx_octets);
     rmon->tx_etherStatsPkts =
-        (c->tx_64.value + c->tx_65_127.value + c->tx_128_255.value + c->tx_256_511.value +
-         c->tx_512_1023.value + c->tx_1024_1526.value + c->tx_1527_max.value);
-    rmon->tx_etherStatsBroadcastPkts = c->tx_broadcast.value;
-    rmon->tx_etherStatsMulticastPkts = c->tx_multicast.value;
+        (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) + CNT_SUM(c->tx_256_511) +
+         CNT_SUM(c->tx_512_1023) + CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
+    rmon->tx_etherStatsBroadcastPkts = CNT_SUM(c->tx_broadcast);
+    rmon->tx_etherStatsMulticastPkts = CNT_SUM(c->tx_multicast);
     rmon->tx_etherStatsCollisions = c->tx_collision.value;
-    rmon->tx_etherStatsPkts64Octets = c->tx_64.value;
-    rmon->tx_etherStatsPkts65to127Octets = c->tx_65_127.value;
-    rmon->tx_etherStatsPkts128to255Octets = c->tx_128_255.value;
-    rmon->tx_etherStatsPkts256to511Octets = c->tx_256_511.value;
-    rmon->tx_etherStatsPkts512to1023Octets = c->tx_512_1023.value;
-    rmon->tx_etherStatsPkts1024to1518Octets = c->tx_1024_1526.value;
-    rmon->tx_etherStatsPkts1519toMaxOctets = c->tx_1527_max.value;
+    rmon->tx_etherStatsPkts64Octets = CNT_SUM(c->tx_64);
+    rmon->tx_etherStatsPkts65to127Octets = CNT_SUM(c->tx_65_127);
+    rmon->tx_etherStatsPkts128to255Octets = CNT_SUM(c->tx_128_255);
+    rmon->tx_etherStatsPkts256to511Octets = CNT_SUM(c->tx_256_511);
+    rmon->tx_etherStatsPkts512to1023Octets = CNT_SUM(c->tx_512_1023);
+    rmon->tx_etherStatsPkts1024to1518Octets = CNT_SUM(c->tx_1024_1526);
+    rmon->tx_etherStatsPkts1519toMaxOctets = CNT_SUM(c->tx_1527_max);
 
     /* Interfaces Group Rx counters */
-    if_group->ifInOctets = c->rx_octets.value;
-    if_group->ifInUcastPkts = c->rx_unicast.value;
-    if_group->ifInMulticastPkts = c->rx_multicast.value;
-    if_group->ifInBroadcastPkts = c->rx_broadcast.value;
-    if_group->ifInNUcastPkts = c->rx_multicast.value + c->rx_broadcast.value;
+    if_group->ifInOctets = CNT_SUM(c->rx_octets);
+    if_group->ifInUcastPkts = CNT_SUM(c->rx_unicast);
+    if_group->ifInMulticastPkts = CNT_SUM(c->rx_multicast);
+    if_group->ifInBroadcastPkts = CNT_SUM(c->rx_broadcast);
+    if_group->ifInNUcastPkts = CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast);
     if_group->ifInDiscards = rmon->rx_etherStatsDropEvents;
     if_group->ifInErrors =
-        (c->rx_crc_align_errors.value + c->rx_shorts.value + c->rx_fragments.value +
-         c->rx_jabbers.value + c->rx_longs.value);
+        (CNT_SUM(c->rx_crc_align_errors) + CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) +
+         CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs));
 
     /* Interfaces Group Tx counters */
-    if_group->ifOutOctets = c->tx_octets.value;
-    if_group->ifOutUcastPkts = c->tx_unicast.value;
-    if_group->ifOutMulticastPkts = c->tx_multicast.value;
-    if_group->ifOutBroadcastPkts = c->tx_broadcast.value;
-    if_group->ifOutNUcastPkts = (c->tx_multicast.value + c->tx_broadcast.value);
+    if_group->ifOutOctets = CNT_SUM(c->tx_octets);
+    if_group->ifOutUcastPkts = CNT_SUM(c->tx_unicast);
+    if_group->ifOutMulticastPkts = CNT_SUM(c->tx_multicast);
+    if_group->ifOutBroadcastPkts = CNT_SUM(c->tx_broadcast);
+    if_group->ifOutNUcastPkts = (CNT_SUM(c->tx_multicast) + CNT_SUM(c->tx_broadcast));
     if_group->ifOutErrors = (c->tx_drops.value + c->tx_aging.value);
 
     /* Ethernet-like counters */
-    elike->dot3InPauseFrames = c->rx_pause.value;
-    elike->dot3OutPauseFrames = c->tx_pause.value;
+    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause);
+    elike->dot3OutPauseFrames = CNT_SUM(c->tx_pause);
 
     /* Bridge counters */
     counters->bridge.dot1dTpPortInDiscards = (c->rx_classified_drops.value + c->dr_local.value);
+
+    /* 802.3br counters */
+    dot3br->aMACMergeFrameAssErrorCount = c->rx_mm_assembly_errors.value;
+    dot3br->aMACMergeFrameSmdErrorCount = c->rx_mm_smd_errors.value;
+    dot3br->aMACMergeFrameAssOkCount = c->rx_mm_assembly_ok.value;
+    dot3br->aMACMergeFragCountRx = c->rx_mm_fragments.value;
+    dot3br->aMACMergeFragCountTx = c->tx_mm_fragments.value;
+    dot3br->aMACMergeHoldCount = c->tx_mm_hold.value;
+
     return VTSS_RC_OK;
 }
 
@@ -679,33 +714,33 @@ static vtss_rc lan966x_port_basic_counters_get(vtss_state_t *vtss_state,
 
     /* Rx Counters */
     base = 0x09; /* rx_64 */
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_64, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_65_127, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_128_255, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_256_511, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_512_1023, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_1024_1526, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_1527_max, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_64, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_65_127, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_128_255, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_256_511, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_512_1023, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1024_1526, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1527_max, 0));
 
     /* Tx Counters */
     base = 0x87; /* tx_64 */
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_64, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_65_127, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_128_255, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_256_511, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_512_1023, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_1024_1526, 0));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_1527_max, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_64, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_65_127, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_128_255, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_256_511, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_512_1023, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1024_1526, 0));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1527_max, 0));
 
     /* Rx frames */
     counters->rx_frames =
-        (c->rx_64.value + c->rx_65_127.value + c->rx_128_255.value + c->rx_256_511.value +
-         c->rx_512_1023.value + c->rx_1024_1526.value + c->rx_1527_max.value);
+        (CNT_SUM(c->rx_64) + CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) + CNT_SUM(c->rx_256_511) +
+         CNT_SUM(c->rx_512_1023) + CNT_SUM(c->rx_1024_1526) + CNT_SUM(c->rx_1527_max));
 
     /* Tx frames */
     counters->tx_frames =
-        (c->tx_64.value + c->tx_65_127.value + c->tx_128_255.value + c->tx_256_511.value +
-         c->tx_512_1023.value + c->tx_1024_1526.value + c->tx_1527_max.value);
+        (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) + CNT_SUM(c->tx_256_511) +
+         CNT_SUM(c->tx_512_1023) + CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
 
     return VTSS_RC_OK;
 }
@@ -768,6 +803,29 @@ static void lan966x_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
     vtss_lan966x_debug_cnt(pr, buf, col2, c1, c2);
 }
 
+static void lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                              vtss_dual_counter_t *c1, vtss_dual_counter_t *c2)
+{
+    u32  i;
+    char buf1[32], buf2[32];
+    const char *name;
+
+    for (i = 0; i < 2; i++) {
+        name = (i ? "pmac" : "emac");
+        sprintf(buf1, "%s_%s", name, col1);
+        if (col2 == NULL) {
+            vtss_lan966x_debug_cnt(pr, buf1, NULL, &c1->c[i], NULL);
+        } else {
+            if (strlen(col2) != 0) {
+                sprintf(buf2, "%s_%s", name, col2);
+            } else {
+                strcpy(buf2, "");
+            }
+            vtss_lan966x_debug_cnt(pr, buf1, buf2, &c1->c[i], &c2->c[i]);
+        }
+    }
+}
+
 static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info)
@@ -775,67 +833,76 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
     vtss_port_no_t               port_no = 0;
     u32                          i, port;
     vtss_port_luton26_counters_t *cnt;
-    BOOL                         cpu_port;
+    BOOL                         cpu_port = (info->action == 1);
+
+    if (info->has_action && info->action == 0) {
+        pr("Port counter actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Show CPU counters only\n");
+        pr("2: Show MAC counters only\n");
+        pr("3: Show QS counters only\n");
+        return VTSS_RC_OK;
+    }
 
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        cpu_port = (port == VTSS_CHIP_PORT_CPU);
-
         if (info->clear) {
             REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) | SYS_STAT_CFG_STAT_VIEW(port));
         }
-
-        if (cpu_port) {
-            /* CPU port */
-            if (!info->full)
+        if (port < VTSS_CHIP_PORTS) {
+            // Normal port
+            if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE || cpu_port)
+                continue;
+            cnt = &vtss_state->port.counters[port_no].counter.luton26;
+            pr("Counters for chip port: %u (port_no %u):\n\n", port, port_no);
+        } else {
+            // CPU port
+            if (!cpu_port)
                 continue;
             cnt = &vtss_state->port.cpu_counters.counter.luton26;
             port_no = VTSS_PORT_NO_NONE;
-        } else {
-            /* Normal port */
-            if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
-                continue;
-            cnt = &vtss_state->port.counters[port_no].counter.luton26;
+            pr("Counters CPU port: %u\n\n", port);
         }
         VTSS_RC(lan966x_port_counters_read(vtss_state, port_no, port, cnt, NULL, 0));
         VTSS_EXIT_ENTER();
 
-        /* Basic counters */
-        if (cpu_port) {
-            pr("Counters CPU port: %u\n\n", port);
-        } else {
-            pr("Counters for phys. port: %u (iport %u):\n\n", port, port_no);
-            vtss_lan966x_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
-            vtss_lan966x_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
-            vtss_lan966x_debug_cnt(pr, "mc", "", &cnt->rx_multicast, &cnt->tx_multicast);
-            vtss_lan966x_debug_cnt(pr, "bc", "", &cnt->rx_broadcast, &cnt->tx_broadcast);
+        // Basic MAC counters
+        if (port < VTSS_CHIP_PORTS && (info->full || info->action != 3)) {
+            lan966x_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
+            lan966x_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
+            lan966x_debug_cnt(pr, "mc", "", &cnt->rx_multicast, &cnt->tx_multicast);
+            lan966x_debug_cnt(pr, "bc", "", &cnt->rx_broadcast, &cnt->tx_broadcast);
         }
 
-        /* Detailed counters */
-        if (info->full) {
-            if (!cpu_port) {
-                vtss_lan966x_debug_cnt(pr, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
-                vtss_lan966x_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
-                vtss_lan966x_debug_cnt(pr, "65_127", "", &cnt->rx_65_127, &cnt->tx_65_127);
-                vtss_lan966x_debug_cnt(pr, "128_255", "", &cnt->rx_128_255, &cnt->tx_128_255);
-                vtss_lan966x_debug_cnt(pr, "256_511", "", &cnt->rx_256_511, &cnt->tx_256_511);
-                vtss_lan966x_debug_cnt(pr, "512_1023", "", &cnt->rx_512_1023, &cnt->tx_512_1023);
-                vtss_lan966x_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526, &cnt->tx_1024_1526);
-                vtss_lan966x_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max, &cnt->tx_1527_max);
-            }
+        // Detailed MAC counters
+        if (port < VTSS_CHIP_PORTS && (info->full || info->action == 2)) {
+            lan966x_debug_cnt(pr, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
+            lan966x_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
+            lan966x_debug_cnt(pr, "65_127", "", &cnt->rx_65_127, &cnt->tx_65_127);
+            lan966x_debug_cnt(pr, "128_255", "", &cnt->rx_128_255, &cnt->tx_128_255);
+            lan966x_debug_cnt(pr, "256_511", "", &cnt->rx_256_511, &cnt->tx_256_511);
+            lan966x_debug_cnt(pr, "512_1023", "", &cnt->rx_512_1023, &cnt->tx_512_1023);
+            lan966x_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526, &cnt->tx_1024_1526);
+            lan966x_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max, &cnt->tx_1527_max);
+            lan966x_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
+            lan966x_debug_cnt(pr, "symbol", NULL, &cnt->rx_symbol_errors, NULL);
+            lan966x_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
+            lan966x_debug_cnt(pr, "long", NULL, &cnt->rx_longs, NULL);
+            lan966x_debug_cnt(pr, "frag", NULL, &cnt->rx_fragments, NULL);
+            lan966x_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
+            lan966x_debug_cnt(pr, "control", NULL, &cnt->rx_control, NULL);
+            vtss_lan966x_debug_cnt(pr, "mm_ass_err", NULL, &cnt->rx_mm_assembly_errors, NULL);
+            vtss_lan966x_debug_cnt(pr, "mm_smd_err", NULL, &cnt->rx_mm_smd_errors, NULL);
+            vtss_lan966x_debug_cnt(pr, "mm_ass_ok",  "mm_hold", &cnt->rx_mm_assembly_ok, &cnt->tx_mm_hold);
+            vtss_lan966x_debug_cnt(pr, "mm_frag", "", &cnt->rx_mm_fragments, &cnt->tx_mm_fragments);
+        }
+
+        // QS counters
+        if (info->full || cpu_port || info->action == 3) {
             vtss_lan966x_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
                                    &cnt->rx_classified_drops, &cnt->tx_drops);
             vtss_lan966x_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
                                    &cnt->dr_local, &cnt->tx_aging);
             vtss_lan966x_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
-            if (!cpu_port) {
-                vtss_lan966x_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
-                vtss_lan966x_debug_cnt(pr, "symbol", NULL, &cnt->rx_symbol_errors, NULL);
-                vtss_lan966x_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
-                vtss_lan966x_debug_cnt(pr, "long", NULL, &cnt->rx_longs, NULL);
-                vtss_lan966x_debug_cnt(pr, "frag", NULL, &cnt->rx_fragments, NULL);
-                vtss_lan966x_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
-                vtss_lan966x_debug_cnt(pr, "control", NULL, &cnt->rx_control, NULL);
-            }
             for (i = 0; i < VTSS_PRIOS; i++)
                 lan966x_debug_cnt_inst(pr, i, "green", "",
                                        &cnt->rx_green_class[i], &cnt->tx_green_class[i]);

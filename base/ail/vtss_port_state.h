@@ -18,6 +18,27 @@ typedef struct {
 
 typedef struct {
     /* Rx counters */
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    vtss_dual_counter_t rx_octets;
+    vtss_dual_counter_t rx_unicast;
+    vtss_dual_counter_t rx_multicast;
+    vtss_dual_counter_t rx_broadcast;
+    vtss_dual_counter_t rx_shorts;
+    vtss_dual_counter_t rx_fragments;
+    vtss_dual_counter_t rx_jabbers;
+    vtss_dual_counter_t rx_crc_align_errors;
+    vtss_dual_counter_t rx_symbol_errors;
+    vtss_dual_counter_t rx_64;
+    vtss_dual_counter_t rx_65_127;
+    vtss_dual_counter_t rx_128_255;
+    vtss_dual_counter_t rx_256_511;
+    vtss_dual_counter_t rx_512_1023;
+    vtss_dual_counter_t rx_1024_1526;
+    vtss_dual_counter_t rx_1527_max;
+    vtss_dual_counter_t rx_pause;
+    vtss_dual_counter_t rx_control;
+    vtss_dual_counter_t rx_longs;
+#else
     vtss_chip_counter_t rx_octets;
     vtss_chip_counter_t rx_unicast;
     vtss_chip_counter_t rx_multicast;
@@ -37,6 +58,7 @@ typedef struct {
     vtss_chip_counter_t rx_pause;
     vtss_chip_counter_t rx_control;
     vtss_chip_counter_t rx_longs;
+#endif
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t rx_classified_drops;
     vtss_chip_counter_t rx_red_class[VTSS_PRIOS];
@@ -49,12 +71,26 @@ typedef struct {
     vtss_chip_counter_t dr_green_class[VTSS_PRIOS];
 #endif
     /* Tx counters */
+    vtss_chip_counter_t tx_collision;
+    vtss_chip_counter_t tx_drops;
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    vtss_dual_counter_t tx_octets;
+    vtss_dual_counter_t tx_unicast;
+    vtss_dual_counter_t tx_multicast;
+    vtss_dual_counter_t tx_broadcast;
+    vtss_dual_counter_t tx_pause;
+    vtss_dual_counter_t tx_64;
+    vtss_dual_counter_t tx_65_127;
+    vtss_dual_counter_t tx_128_255;
+    vtss_dual_counter_t tx_256_511;
+    vtss_dual_counter_t tx_512_1023;
+    vtss_dual_counter_t tx_1024_1526;
+    vtss_dual_counter_t tx_1527_max;
+#else
     vtss_chip_counter_t tx_octets;
     vtss_chip_counter_t tx_unicast;
     vtss_chip_counter_t tx_multicast;
     vtss_chip_counter_t tx_broadcast;
-    vtss_chip_counter_t tx_collision;
-    vtss_chip_counter_t tx_drops;
     vtss_chip_counter_t tx_pause;
     vtss_chip_counter_t tx_64;
     vtss_chip_counter_t tx_65_127;
@@ -63,11 +99,21 @@ typedef struct {
     vtss_chip_counter_t tx_512_1023;
     vtss_chip_counter_t tx_1024_1526;
     vtss_chip_counter_t tx_1527_max;
+#endif
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t tx_yellow_class[VTSS_PRIOS];
     vtss_chip_counter_t tx_green_class[VTSS_PRIOS];
 #endif
     vtss_chip_counter_t tx_aging;
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    /* Rx counters */
+    vtss_chip_counter_t rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
+    vtss_chip_counter_t rx_mm_smd_errors;      /* 802.3br aMACMergeFrameSmdErrorCount */
+    vtss_chip_counter_t rx_mm_assembly_ok;     /* 802.3br aMACMergeFrameAssOkCount    */
+    vtss_chip_counter_t rx_mm_fragments;       /* 802.3br aMACMergeFragCountRx        */
+    vtss_chip_counter_t tx_mm_fragments;       /* 802.3br aMACMergeFragCountTx */
+    vtss_chip_counter_t tx_mm_hold;            /* 802.3br aMACMergeHoldCountTx */
+#endif
 } vtss_port_luton26_counters_t;
 
 typedef struct {
