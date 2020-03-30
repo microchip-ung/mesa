@@ -9,6 +9,7 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 
 # Check if cut-through supported
 cap_check_exit("QOS_EGRESS_QUEUE_CUT_THROUGH")
+$is_fireant = (cap_get("PACKET_IFH_EPID") == 11)
 
 #---------- Configuration -----------------------------------------------------
 
@@ -37,7 +38,11 @@ def check_diff(delta, min, max)
     end
 end
 
-test "frame-io" do
+# This test requires cut-through decision per egress port.
+test "ct-port" do
+    if ($is_fireant == false)
+        break
+    end
     idx_tx = 0
     idx_ct = 1
     idx_sf = 2
@@ -95,4 +100,52 @@ test "frame-io" do
 
     # In store-and-forward, the latency difference should be small
     check_diff(t4[idx_sf] + t1[idx_ct] - t1[idx_sf] - t4[idx_ct], -1, 1)
+end
+
+# This test can be used regardless if cut-through decision is common for all ports
+test "ct-common" do
+    if ($is_fireant)
+        break
+    end
+    idx_tx = 0
+    idx_rx = 1
+
+    # Ensure forwarding to Rx port only
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{$ts.dut.p[idx_rx]}");
+
+    # Enable cut-through on egress port for priority 7
+    port = $ts.dut.p[idx_rx]
+    conf = $ts.dut.call("mesa_qos_port_conf_get", port)
+    conf["queue"][7]["cut_through_enable"] = true
+    $ts.dut.call("mesa_qos_port_conf_set", port, conf)
+
+    # Enable PCP classification on ingress port
+    port = $ts.dut.p[idx_tx]
+    conf = $ts.dut.call("mesa_qos_port_conf_get", port)
+    conf["tag"]["class_enable"] = true
+    $ts.dut.call("mesa_qos_port_conf_set", port, conf)
+
+    # Send f1 (PCP = 7) and F2 (PCP = 0) and capture Rx/Tx timestamps
+    idx_list = [idx_tx, idx_rx]
+    cmd = "sudo ef "
+    for i in 1..2 do
+        pcp = (i == 1 ? 7 : 0)
+        cmd += ("name f#{i} eth" + cmd_tag_push({tpid: 0x8100, pcp: pcp}) + " data pattern cnt 1496 ")
+        cmd += "tx #{$ts.pc.p[idx_tx]} name f#{i} "
+    end
+    idx_list.each do |idx|
+        cmd += "-c #{$ts.pc.p[idx]},2,adapter_unsynced,,2 "
+    end
+    $ts.pc.run(cmd)
+
+    t = []
+    idx_list.each do |idx|
+        p = $ts.pc.get_pcap("#{$ts.pc.p[idx]}.pcap")
+        t[idx] = (p[1][:us] - p[0][:us])
+    end
+    t_i("t: #{t}")
+
+    # The latency difference is apprimately 10 usec, but the clocks of the ports
+    # of the test PC may have drifted a couple of microseconds between the frames
+    check_diff(t[idx_rx] - t[idx_tx], 6, 14)
 end
