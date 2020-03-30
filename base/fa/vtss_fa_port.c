@@ -896,9 +896,10 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->start_training) {
-        /* if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) { */
-        /*     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode */
-        /* } */
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+//          VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
+            
+        }
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
@@ -911,66 +912,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-            u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
-
-            // Change back to 25G 40 bit mode
-
-            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
-                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
-            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0),
-                    VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
-                 VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0),
-                 VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
-   
-            REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
-                    VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_30(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0(0) |
-                    VTSS_F_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0(0),
-                    VTSS_M_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0 |
-                    VTSS_M_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0);
-
-            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0(3),
-                    VTSS_M_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_0C(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0(3),
-                    VTSS_M_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(0),
-                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
-                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
-
-            REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
-
-            VTSS_MSLEEP(1);
-
+            
+            VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
         }
 
     }
@@ -1200,6 +1143,14 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
+    if (!kr->aneg.enable) {
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
+                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+        return VTSS_RC_OK;
+    }
+
+
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
            VTSS_F_IP_KRANEG_LD_ADV0_ADV0(kr->aneg.enable));
@@ -1241,7 +1192,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13));
         }
     }
-
+    // Enable/disable training
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(!kr->train.enable),
             VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
@@ -1255,7 +1206,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
            VTSS_F_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR(0),
            VTSS_M_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR);
 
-   // Disable / Enable Auto-neg
+   // Disable Auto-neg
     REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
             VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
             VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
@@ -1264,7 +1215,10 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
                 VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(1),
                 VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
-
+        // Restart Auto-neg
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG0_AN_RESTART(1),
+                VTSS_M_IP_KRANEG_AN_CFG0_AN_RESTART);
     }
     // Number of frames for BER calculation
     REG_WRM(VTSS_IP_KRANEG_FRCNT_BER(tgt),
@@ -1280,9 +1234,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(0),
             VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
 
-
-    REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), 0);
-
     // Generic timer
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
 
@@ -1291,10 +1242,11 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
 
     // Disable Rate Detect time (in parallel detect)
     REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
+
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_FEATURE_10G_BASE_KR */
+#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
 
 #define QLIM_WM(fraction) \

@@ -6,7 +6,6 @@
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_common.h"
-//u32 lps_cnt = 0;
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 
 /* - Port mapping -------------------------------------------------- */
@@ -204,13 +203,14 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
     VTSS_I("port_no: %u, power-down = %u", port_no, conf->power_down);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf_set_called[port_no] &&
-            memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) {
-            // Not first time and conf hasn't changed. Nothing to do.
-            VTSS_I("port_no: %u - conf unchanged, skipping set", port_no);
-        } else {
-            rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
-        }
+        /* if (vtss_state->port.conf_set_called[port_no] && */
+        /*     memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) { */
+        /*     // Not first time and conf hasn't changed. Nothing to do. */
+        /*     VTSS_I("port_no: %u - conf unchanged, skipping set", port_no); */
+        /* } else { */
+        /*     rc = vtss_port_conf_set_private(vtss_state, port_no, conf); */
+        /* } */
+        rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
     }
     VTSS_EXIT();
     VTSS_I("Exit(port_no = %u, rc = %d)", port_no, rc);
@@ -1315,8 +1315,9 @@ vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.kr_conf[port_no] = *conf;
-//        lps_cnt = 0;
-        memset(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
+
+        vtss_state->port.train_state[port_no].training_started = 0;
+        vtss_state->port.train_state[port_no].current_state= 0;
         
         rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
     }
@@ -1496,7 +1497,7 @@ static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
 static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
 {
     vtss_port_kr_eye_dim_t eye;
-    
+    return 9;
     if (kr_eye_dim_get(state, p, &eye) == VTSS_RC_OK) {
         return eye.height;
     } else {
@@ -1801,13 +1802,35 @@ static void kr_ber_training(vtss_state_t *vtss_state,
 /*     printf("%s \n",buf); */
 /* } */
 
+
+/* #define KR_ANEG_RATE_25G    7 */
+/* #define KR_ANEG_RATE_10G    9 */
+/* #define KR_ANEG_RATE_5G     11 */
+/* #define KR_ANEG_RATE_2G5    12 */
+/* #define KR_ANEG_RATE_1G     13 */
+
+
+/* static vtss_port_speed_t kr_irq2spd(u32 irq) */
+/* { */
+/*     switch (irq) { */
+/*     case KR_ANEG_RATE_25G: return VTSS_SPEED_25G; */
+/*     case KR_ANEG_RATE_10G: return VTSS_SPEED_10G; */
+/*     case KR_ANEG_RATE_5G:  return VTSS_SPEED_5G; */
+/*     case KR_ANEG_RATE_2G5: return VTSS_SPEED_2500M; */
+/*     case KR_ANEG_RATE_1G:  return VTSS_SPEED_1G; */
+/*     default: */
+/*         printf("KR speed not supported\n"); */
+/*     } */
+/*     return VTSS_SPEED_10G; */
+/* } */
+
 static void kr_reset_state(vtss_port_kr_state_t *krs) {
     memset(krs, 0, sizeof(vtss_port_kr_state_t));
 }
 
 static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
-                                 const vtss_port_no_t port_no,
-                                 const u32 irq_vec)
+                            const vtss_port_no_t port_no,
+                            const u32 irq_vec)
 {
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
     vtss_port_kr_frame_t frm;
@@ -1815,12 +1838,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
     u32 irq = irq_vec;
-    krs->ignore_fail = 1; // TBD
 
-
-
-//    dump_irq(port_no, irq);
-    
+//      dump_irq(port_no, irq);
+      
      // To avoid failures during eye height calculation
     if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
@@ -1851,7 +1871,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_TRAIN. Start Training
     if (irq & KR_TRAIN) {
-//        lps_cnt = 0;
         if (kr->train.enable) {            
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
@@ -1860,6 +1879,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
             (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
         } else {
             krs->current_state = VTSS_TR_SEND_DATA;
@@ -1919,19 +1939,13 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         } else {
             krs->current_state = VTSS_TR_TRAIN_REMOTE;
         }
-
-
-        /* if (lps_cnt > 2) { */
-        /*     krs->current_state = VTSS_TR_TRAIN_REMOTE;  // To be removed */
-        /* } */
-        /* lps_cnt++; */
     }
 
     // KR_WT_DONE (wait time expired, training is completed)
     if (irq & KR_WT_DONE) {
         if (krs->current_state ==  VTSS_TR_LINK_READY) {
             krs->current_state = VTSS_TR_SEND_DATA;
-            krs->training_started = FALSE;
+            krs->training_started = FALSE;            
             req_msg.stop_training = TRUE;
             req_msg.tr_done = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -1983,7 +1997,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
-//        kr_send_sts_report(vtss_state, krs, port_no, 0); // needed to avoid KR_REM_RDY_1 during next training restart
+
         req_msg.wt_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
         krs->current_state = VTSS_TR_LINK_READY;

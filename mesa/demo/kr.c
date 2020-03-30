@@ -396,10 +396,10 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 }
 
                 if (mreq->dis) {
-                    mesa_port_conf_t pconf;
-                    (void)mesa_port_conf_get(NULL, iport, &pconf);
-                    pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G;
-                    (void)mesa_port_conf_set(NULL, iport, &pconf);
+                    /* mesa_port_conf_t pconf; */
+                    /* (void)mesa_port_conf_get(NULL, iport, &pconf); */
+                    /* pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G; */
+                    /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
                 }
 
             } else {
@@ -753,7 +753,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("\n  BER_COUNT C0      : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
                 cli_printf("%d ",krs->ber_cnt[1][i]);
-            }
+            }            
             cli_printf("\n  BER_COUNT CP1     : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
                 cli_printf("%d ",krs->ber_cnt[2][i]);
@@ -762,13 +762,13 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
                 cli_printf("%d ",krs->eye_height[0][i]);
             }
-            cli_printf("\n  EYE HEIGHT CP1    : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-                cli_printf("%d ",krs->eye_height[2][i]);
-            }
             cli_printf("\n  EYE HEIGHT C0     : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
                 cli_printf("%d ",krs->eye_height[1][i]);
+            }
+            cli_printf("\n  EYE HEIGHT CP1    : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
+                cli_printf("%d ",krs->eye_height[2][i]);
             }
             cli_printf("\n  TRAINING STATUS   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
 
@@ -972,8 +972,8 @@ static void kr_poll(meba_inst_t inst)
         if (irq & KR_RATE_DET) {
             // Parallel detect speed change
             printf("Port:%d - Rate detect disabled (%d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
-            /* pconf.speed = kr_parallel_spd(iport, &kr_conf); */
-            /* pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES; */
+            pconf.speed = kr_parallel_spd(iport, &kr_conf);
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
             /* printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg)); */
             /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
         }
@@ -994,9 +994,6 @@ static void kr_poll(meba_inst_t inst)
         // Add IRQs to history
         kr_add_to_irq_history(iport, irq);
 
-        if ((irq & 0xff) > 0)
-            dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg));
-
         // Add training to LD history
         if ((irq & KR_LPCVALID) && krs->training_started) {
             kr_add_to_ld_history(iport, krs->tr_res);
@@ -1010,22 +1007,11 @@ static void kr_poll(meba_inst_t inst)
         if (irq & KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
             kr->time_ld = get_time_ms(&kr->time_start_train);
             printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
-//            stop_train[iport] = 1;
-//            global_stop = 1;
         }
 
         if (irq & KR_AN_GOOD) {
-            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));            
         }
-
-        if (pconf.speed == MESA_SPEED_25G) {
-//            stop_train[iport] = 1;
-        }
-
-        if (pconf.speed == MESA_SPEED_5G) {
-//            stop_train[iport] = 1;
-        }
-
     }
 }
 

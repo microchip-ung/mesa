@@ -294,6 +294,8 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           vtss_kr_status_results_t *const status_out);
 vtss_rc fa_port_kr_tap_get(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                            u16 *tap_dly, u16 *tap_adv, u16 *ampl);
+
+vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no);
     
 
 /* Miscellaneous functions */

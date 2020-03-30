@@ -603,8 +603,6 @@ const char *vtss_kr_sts_code2txt(vtss_port_kr_status_codes_t sts)
     return "?   ";
 }
 
-u32 cnt=0;
-
 static vtss_port_kr_coef_type_t coef2tap(u16 frm_in)
 {
     if (BT(13) & frm_in) {
@@ -1579,6 +1577,73 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
+{
+    u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
+    u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
+
+    // Change back to 25G 40 bit mode
+
+    REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
+            VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+    REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0),
+            VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0),
+            VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
+   
+    REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
+            VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_30(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0(0) |
+            VTSS_F_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0(0),
+            VTSS_M_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0 |
+            VTSS_M_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0);
+
+    REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0(3),
+            VTSS_M_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_0C(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0(3),
+            VTSS_M_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(0),
+            VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
+            VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
+
+    REG_WR(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt), 0xFF);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_01(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8(0xFF),
+            VTSS_M_SD25G_TARGET_CMU_01_CFG_TX_RSTB_15_8);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0xFF),
+            VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
+
+//    VTSS_MSLEEP(1);
+
+    return VTSS_RC_OK;
+}
+
+
+
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
 static vtss_rc fa_serdes_dfe_set(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
@@ -2112,6 +2177,7 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
 
     if (VTSS_X_SD25G_TARGET_LANE_C3_LN_FAST_EYE_SCAN_FAIL(val) > 0) {
 //        VTSS_E("Eye scan fails to complete");
+        printf("Eye scan fails to complete\n");
         *height = 1;
         return VTSS_RC_OK;
     }
@@ -2399,65 +2465,6 @@ vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_
         sd_tgt = VTSS_TO_SD25G_LANE(indx);
         sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
     }
-
-        if (conf->debug_type == VTSS_SERDES_DFE_PRM) {
-
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-            u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
-            printf("p:%d 40 bit normal  mode \n",port_no);
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
-                    VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_30(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0(0) |
-                    VTSS_F_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0(0),
-                    VTSS_M_SD25G_TARGET_CMU_30_R_TXFIFO_CK_DIV_PMAD_2_0 |
-                    VTSS_M_SD25G_TARGET_CMU_30_R_RXFIFO_CK_DIV_PMAD_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0(3),
-                    VTSS_M_SD25G_TARGET_LANE_18_LN_CFG_RXDIV_SEL_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_0C(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0(3),
-                    VTSS_M_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(0),
-                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
-
-            REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN(1),
-                    VTSS_M_SD25G_TARGET_LANE_40_LN_R_CDR_RSTN);
-
-            REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                    VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
-                    VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-
-            //  VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI)); // 40 bit normal mode
-        }
-
-
-    } else {
-        printf("p:%d 64 bit mode \n",port_no);
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
-        }
-
-    }
-
-    return VTSS_RC_OK;
-
 
     if (conf->debug_type == VTSS_SERDES_DFE_PRM) {
 
