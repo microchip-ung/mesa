@@ -13,32 +13,38 @@ cap_check_exit("QOS_EGRESS_QUEUE_CUT_THROUGH")
 #---------- Configuration -----------------------------------------------------
 
 $idx_tx = 0
-$idx_ct = 1
-$idx_sf = 2
+$idx_rx = 1
 
 test "init" do
-    $ts.dut.run("mesa-cmd example init ct iport #{$ts.dut.p[$idx_tx]} eport #{$ts.dut.p[$idx_ct]}")
+    $ts.dut.run("mesa-cmd example init ct iport #{$ts.dut.p[$idx_tx]} eport #{$ts.dut.p[$idx_rx]}")
 end
 
-def frame_test(idx_tx, idx_list, pcp)
-    cmd = "sudo ef name f1 eth"
-    cmd += cmd_tag_push({tpid: 0x8100, vid: 1, pcp: pcp})
-    cmd += " data pattern cnt 1496 tx #{$ts.pc.p[idx_tx]} name f1 "
+def frame_test(idx_tx, idx_rx, min, max)
+    # Send learn frame to ensure forwarding to a single port
+    mac = 10
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[idx_rx]} eth smac #{mac}")
+
+    # Send f1 (PCP = 7) and F2 (PCP = 0) and capture Rx/Tx timestamps
+    idx_list = [idx_tx, idx_rx]
+    cmd = "sudo ef "
+    for i in 1..2 do
+        pcp = (i == 1 ? 7 : 0)
+        cmd += ("name f#{i} eth dmac #{mac}" + cmd_tag_push({tpid: 0x8100, pcp: pcp}) + " data pattern cnt 1496 ")
+        cmd += "tx #{$ts.pc.p[idx_tx]} name f#{i} "
+    end
     idx_list.each do |idx|
-        cmd += "-c #{$ts.pc.p[idx]},1,adapter_unsynced,,1 "
-        cmd += "rx #{$ts.pc.p[idx]} name f1 "
+        cmd += "-c #{$ts.pc.p[idx]},2,adapter_unsynced,,2 "
     end
     $ts.pc.run(cmd)
 
     t = []
     idx_list.each do |idx|
-        pkts = $ts.pc.get_pcap("#{$ts.pc.p[idx]}.pcap")
-        t[idx] = pkts[0][:us]
+        p = $ts.pc.get_pcap("#{$ts.pc.p[idx]}.pcap")
+        t[idx] = (p[1][:us] - p[0][:us])
     end
-    t
-end
+    t_i("t: #{t}")
 
-def check_diff(delta, min, max)
+    delta = (t[idx_rx] - t[idx_tx])
     txt = "diff: #{delta} usec, min: #{min}, max: #{max}"
     if (delta >= min and delta <= max)
         t_i(txt)
@@ -48,25 +54,13 @@ def check_diff(delta, min, max)
 end
 
 test "ct" do
-    idx_list = [$idx_ct, $idx_sf]
-    t1 = frame_test($idx_tx, idx_list, 0) # Store-and-forward
-    t2 = frame_test($idx_tx, idx_list, 7) # Cut-through
-    t3 = frame_test($idx_tx, idx_list, 0) # Store-and-forward
-
-    # In cut-through, only the first cell is stored (about 200 bytes) 
-    # Latency difference between cut-through and store-and-forward
-    # at 1Gbps is approximately (1500 - 200)*8 nsec = 10 usec
-    check_diff(t2[$idx_sf] + t1[$idx_ct] - t1[$idx_sf] - t2[$idx_ct], 9, 11)
-
-    # In store-and-forward, the latency difference should be small
-    check_diff(t3[$idx_sf] + t1[$idx_ct] - t1[$idx_sf] - t3[$idx_ct], -1, 1)
+    # Cut-through, approximately 10 usec latency difference expected
+    frame_test($idx_tx, $idx_rx, 6, 14)
 end
 
 
 test "uninit" do
-    idx_list = [$idx_ct, $idx_sf]
     $ts.dut.run("mesa-cmd example uninit")
-    t1 = frame_test($idx_tx, idx_list, 0) # Store-and-forward
-    t2 = frame_test($idx_tx, idx_list, 7) # Store-and-forward
-    check_diff(t2[$idx_sf] + t1[$idx_ct] - t1[$idx_sf] - t2[$idx_ct], -1, 1)
+    # Store-and-forward, same latency expected
+    frame_test($idx_tx, $idx_rx, -5, 5)
 end
