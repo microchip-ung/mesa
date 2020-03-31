@@ -43,16 +43,18 @@ vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t 
     vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
     vtss_vlan_port_type_t vlan_type = vtss_state->l2.vlan_port_conf[port_no].port_type;
     u32                   port = VTSS_CHIP_PORT(port_no);
-    u32                   etype, aware;
+    u32                   etype, double_ena, single_ena;
 
     /* S-ports and VLAN unaware ports both suport 0x88a8 (in addition to 0x8100) */
     etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? vtss_state->l2.vlan_conf.s_etype :
              vlan_type == VTSS_VLAN_PORT_TYPE_C ? VTSS_ETYPE_TAG_C : VTSS_ETYPE_TAG_S);
-    aware = (max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1);
+    single_ena = (max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1);
+    double_ena = (max_tags == VTSS_PORT_MAX_TAGS_TWO ? 1 : 0);
     REG_WR(DEV_MAC_TAGS_CFG(port),
            DEV_MAC_TAGS_CFG_TAG_ID(etype) |
-           (aware? DEV_MAC_TAGS_CFG_VLAN_AWR_ENA_M : 0) |
-           DEV_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA_M);
+           DEV_MAC_TAGS_CFG_PB_ENA(double_ena) |
+           DEV_MAC_TAGS_CFG_VLAN_AWR_ENA(single_ena) |
+           DEV_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(1));
     return VTSS_RC_OK;
 }
 
