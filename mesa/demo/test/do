@@ -58,9 +58,9 @@ case $chip in
 
      fa)
      ts=dk-t31
-#     img=fit_vsc7546TSN.itb
-     img=fit_vsc7558TSN.itb
-#     img=fit_vsc7552TSN.itb
+     img=fit_vsc7558TSN.itb     # 650MHz
+#     img=fit_vsc7546TSN.itb     # 250MHZ
+#     img=fit_vsc7552TSN.itb     # 500MHz
      dir=build-arm64
      ;;
 

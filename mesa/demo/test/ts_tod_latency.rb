@@ -45,6 +45,10 @@ $cpu_queue = 7
 $npi_port = 3
 
 $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
+$misc_conf = $ts.dut.call("mesa_misc_get")
+t_i("Core Clock Frequency #{$misc_conf["core_clock_freq"]}")
+t_i("----------------------------------------------------")
+
 
 PTP_LATENCY_MAX = 300
 
@@ -209,6 +213,9 @@ test "test_conf" do
     $ingress_latency_restore = []
     $operation_mode_restore = []
     $ts.dut.looped_port_list.each do |port|
+        if (port >= $cap_port_cnt)
+            next
+        end
         $egress_latency_restore << $ts.dut.call("mesa_ts_egress_latency_get", port)
         $ingress_latency_restore << $ts.dut.call("mesa_ts_ingress_latency_get", port)
         $operation_mode_restore << $ts.dut.call("mesa_ts_operation_mode_get", port)
@@ -235,10 +242,6 @@ test "test_conf" do
 end
 
 test "test_run" do
-    misc_conf = $ts.dut.call("mesa_misc_get")
-    t_i("Core Clock Frequency #{misc_conf["core_clock_freq"]}")
-    t_i("----------------------------------------------------")
-
     conf = $ts.dut.call("mesa_port_conf_get", 0)
     if (chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && (conf["speed"] == "MESA_SPEED_25G"))
         t_i("------------ Measuring 25G mode -----------------")
@@ -260,29 +263,27 @@ test "test_run" do
             next
         end
 
-        # Test egress and ingress latency
-        # On Fireant - currently 1G - 2.5G can only pass on 625MHz
-        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || (misc_conf["core_clock_freq"] == "MESA_CORE_CLOCK_625MHZ"))
-            t_i("------------ Measuring 1G mode -----------------")
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
-            tod_latency_test(port0, port1)
-
-            t_i("------------ Measuring 2.5G mode -----------------")
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
-            tod_latency_test(port0, port1)
+        if ((port0 >= $cap_port_cnt) || (port1 >= $cap_port_cnt))
+            next
         end
 
-        # On Fireant - currently 5G can only pass on 625MHz or 250MHz
-        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) && ((misc_conf["core_clock_freq"] == "MESA_CORE_CLOCK_625MHZ") || (misc_conf["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ")))
+        # Test egress and ingress latency
+        t_i("------------ Measuring 1G mode -----------------")
+        $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
+        $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
+        tod_latency_test(port0, port1)
+
+        t_i("------------ Measuring 2.5G mode -----------------")
+        $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
+        $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
+        tod_latency_test(port0, port1)
+
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
             t_i("------------ Measuring 5G mode -----------------")
             $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
             $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
             tod_latency_test(port0, port1)
-        end
 
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
             t_i("------------ Measuring 10G mode -----------------")
             $ts.dut.run("mesa-cmd port mode #{port0+1} 10g")
             $ts.dut.run("mesa-cmd port mode #{port1+1} 10g")
@@ -315,6 +316,9 @@ test "test_clean_up" do
 
     # Egress and ingress latency and Operation mode restore
     $ts.dut.looped_port_list.each_with_index do |port, idx|
+        if (port >= $cap_port_cnt)
+            next
+        end
         $ts.dut.call("mesa_ts_egress_latency_set", port, $egress_latency_restore[idx])
         $ts.dut.call("mesa_ts_ingress_latency_set", port, $ingress_latency_restore[idx])
         $ts.dut.call("mesa_ts_operation_mode_set", port, $operation_mode_restore[idx])
