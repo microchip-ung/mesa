@@ -1584,8 +1584,9 @@ test "test_clean_up" do
         $ts.dut.call("mesa_tce_del", $p1_blk_tce)
     end
 
-    if ($cap_oam_v1)
+    if ($cap_oam_v1 && $cap_vop_cfm)
         $ts.dut.call("mesa_iflow_free", $p_voe_iflow)
+        $ts.dut.call("mesa_iflow_free", $p1_voe_iflow)
         $ts.dut.call("mesa_iflow_free", $d_voe_iflow)
 
         $ts.dut.call("mesa_eflow_free", $inj_eflow)
@@ -1601,7 +1602,9 @@ test "test_clean_up" do
 
     $ts.dut.call("mesa_voe_free", $p_voe_idx)
     $ts.dut.call("mesa_voe_free", $p1_voe_idx)
-    $ts.dut.call("mesa_voe_free", $d_voe_idx)
+    if ($cap_vop_cfm)
+        $ts.dut.call("mesa_voe_free", $d_voe_idx)
+    end
 
     if ($cap_oam_v2)
         $ts.dut.call("mesa_voi_free", $d_voi_idx)
