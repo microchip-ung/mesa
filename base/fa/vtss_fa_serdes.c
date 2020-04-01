@@ -360,33 +360,26 @@ static u32 kr_drv_2_ampcode(u32 ipdriver, u32 vcdriver)
 
 static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, u16 tap_dly, u16 tap_adv, u16 ampl)
 {
-    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    u32 sd_indx, sd_type, sd25g_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
-    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+    sd25g_tgt = VTSS_TO_SD25G_LANE(sd_indx);
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
-
-    // For now don't change the TxEQ..
-    /* u32 val1; */
-    /* REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1); */
-    /* REG_WR(VTSS_SD25G_TARGET_CMU_47(sd_tgt), val1); */
-
-    /* REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt),&val1); */
-    /* REG_WR(VTSS_SD25G_TARGET_LANE_00(sd_tgt),val1); */
-
-    /* REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1); */
-    /* REG_WR(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), val1); */
-    
-    // END
-    
+   
     (void)kr_ampcode_2_drv(ampl, &ipdriver, &vcdriver);
 
-    // Needs debugging
-    // To be enabled
-    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd_tgt),
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    
+    REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
             VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd_tgt),
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+   
+    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
             VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
             VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
 
@@ -1464,19 +1457,25 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
 vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
                                u16 *tap_dly, u16 *tap_adv, u16 *ampl)
 {
-    u32 sd_indx, sd_type, sd_tgt, sd_lane_tgt, val1, ipdriver, vcdriver;
+    u32 sd_indx, sd_type, sd25g_tgt, sd_lane_tgt, val1, ipdriver, vcdriver;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
     sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
-    sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+    sd25g_tgt = VTSS_TO_SD25G_LANE(sd_indx);
 
     REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1);
     *tap_dly = (u16)VTSS_X_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(val1);
     *tap_adv = (u16)VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(val1);
-   
-    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd_tgt), &val1);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt), &val1);    
     ipdriver = VTSS_X_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(val1);
 
-    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd_tgt), &val1);
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt), &val1);
     vcdriver = VTSS_X_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(val1);
     *ampl = kr_drv_2_ampcode(ipdriver, vcdriver);
         

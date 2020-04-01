@@ -970,9 +970,9 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 
     // R-FEC: 10G/25G in 10G-mode
     REG_WRM(VTSS_PCS_10GBASE_R_KR_FEC_CFG(pcs),
-            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA(kr->fec) |
-            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_TX_DATA_FLIP(kr->fec) |
-            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_RX_DATA_FLIP(kr->fec),
+            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA(kr->r_fec) |
+            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_TX_DATA_FLIP(kr->r_fec) |
+            VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_RX_DATA_FLIP(kr->r_fec),
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_TX_DATA_FLIP |
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_RX_DATA_FLIP |
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA);
@@ -980,8 +980,8 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     if (VTSS_PORT_IS_25G(port)) {
         // R-FEC: 25G in 25G mode
         REG_WRM(VTSS_DEV10G_PCS25G_FEC74_CFG(tgt),
-                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX(kr->fec) |
-                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX(kr->fec),
+                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX(kr->r_fec) |
+                VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX(kr->r_fec),
                 VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX |
                 VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX);
 
@@ -1083,10 +1083,10 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
 
     // FEC
     REG_RD(VTSS_IP_KRANEG_BP_ETH_STS(tgt), &tr);
-    status->aneg.fec_enable = VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_R_FEC(tr);
+    status->aneg.r_fec_enable = VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_R_FEC(tr);
     status->aneg.rs_fec_enable = VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_RS_FEC(tr);
 
-    if (vtss_state->port.kr_fec[port_no].fec != status->aneg.fec_enable) {
+    if (vtss_state->port.kr_fec[port_no].r_fec != status->aneg.r_fec_enable) {
         status->aneg.request_fec_change = TRUE;
     } else if (vtss_state->port.kr_fec[port_no].rs_fec != status->aneg.rs_fec_enable) {
         status->aneg.request_fec_change = TRUE;
@@ -1097,7 +1097,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     status->fec.corrected_block_cnt = tr;
     REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_UNCORRECTED(pcs), &tr);
     status->fec.uncorrected_block_cnt = tr;
-    status->fec.enable = vtss_state->port.kr_fec[port_no].fec;
+    status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
     status->fec.rs_fec_enable = vtss_state->port.kr_fec[port_no].rs_fec;
 
     // Debug
@@ -1181,14 +1181,14 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
            LD_ADV2 bit 14/F0 = fec ability
            LD_ADV2 bit 15/F1 = R-FEC requested */
         abil = kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
-        abil += kr->aneg.fec_req ? VTSS_BIT(15) : 0;  // F1
+        abil += kr->aneg.r_fec_req ? VTSS_BIT(15) : 0;  // F1
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
 
         if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
             /* LD_ADV2 bit 12/F2 = RS-FEC requested      */
             /* LD_ADV2 bit 13/F3 = Base-R FEC requested, */
             abil = kr->aneg.rs_fec_req ? VTSS_BIT(12) : 0; // F2
-            abil +=  kr->aneg.fec_req  ? VTSS_BIT(13) : 0; // F3
+            abil +=  kr->aneg.r_fec_req  ? VTSS_BIT(13) : 0; // F3
             REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13));
         }
     }

@@ -32,18 +32,11 @@
 typedef uint32_t u32;
 typedef uint16_t u16;
 
-#define PORTS 60
 meba_inst_t meba_global_inst;
-kr_appl_train_t kr_tr_state[PORTS] = {0};
-kr_appl_conf_t kr_conf_state[PORTS] = {0};
+kr_appl_conf_t *kr_conf_state;
 
 // For debug
 uint32_t deb_dump_irq = 0;
-u32 stop_train[PORTS] = {0} ;
-u32 chk_block_lock[PORTS] = {0} ;
-u32 aneg_sm_state[PORTS] = {0} ;
-u32 aneg_sm_deb[PORTS] = {0} ;
-mesa_bool_t global_stop = 0;
 
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
@@ -86,32 +79,32 @@ static char *tap2txt(mesa_kr_tap_t st)
 static char *irq2txt(u32 irq)
 {
     switch (irq) {
-    case KR_ACTV:       return  "KR_ACTV";
-    case KR_LPSVALID:   return  "KR_LPS";
-    case KR_LPCVALID:   return  "KR_LPC";
-    case KR_WT_DONE:    return  "WT_DONE";
-    case KR_MW_DONE:    return  "MW_DONE";
-    case KR_BER_BUSY_0: return  "BER_BUSY0";
-    case KR_BER_BUSY_1: return  "BER_BUSY1";
-    case KR_REM_RDY_0:  return  "REM_RDY0";
-    case KR_REM_RDY_1:  return  "REM_RDY1";
-    case KR_FRLOCK_0:   return  "FRLOCK0";
-    case KR_FRLOCK_1:   return  "FRLOCK1";
-    case KR_DME_VIOL_0: return  "DME_VIOL0";
-    case KR_DME_VIOL_1: return  "DME_VIOL1";
-    case KR_AN_XMIT_DISABLE: return  "AN_XM_DIS";
-    case KR_TRAIN:      return  "TRAIN";
-    case KR_RATE_DET:   return  "RATE_DET";
-    case KR_CMPL_ACK:   return  "CMPL_ACK";
-    case KR_AN_GOOD:    return  "AN_GOOD";
-    case KR_LINK_FAIL:  return  "LINK_FAIL";
-    case KR_ABD_FAIL:   return  "ABD_FAIL";
-    case KR_ACK_FAIL:   return  "ACK_FAIL";
-    case KR_NP_FAIL:    return  "NP_FAIL";
-    case KR_NP_RX:      return  "NP_RX";
-    case KR_INCP_LINK:  return  "INCP_LINK";
-    case KR_GEN0_DONE:  return  "GEN0_DONE";
-    case KR_GEN1_DONE:  return  "GEN1_DONE";
+    case MESA_KR_ACTV:       return  "KR_ACTV";
+    case MESA_KR_LPSVALID:   return  "KR_LPS";
+    case MESA_KR_LPCVALID:   return  "KR_LPC";
+    case MESA_KR_WT_DONE:    return  "WT_DONE";
+    case MESA_KR_MW_DONE:    return  "MW_DONE";
+    case MESA_KR_BER_BUSY_0: return  "BER_BUSY0";
+    case MESA_KR_BER_BUSY_1: return  "BER_BUSY1";
+    case MESA_KR_REM_RDY_0:  return  "REM_RDY0";
+    case MESA_KR_REM_RDY_1:  return  "REM_RDY1";
+    case MESA_KR_FRLOCK_0:   return  "FRLOCK0";
+    case MESA_KR_FRLOCK_1:   return  "FRLOCK1";
+    case MESA_KR_DME_VIOL_0: return  "DME_VIOL0";
+    case MESA_KR_DME_VIOL_1: return  "DME_VIOL1";
+    case MESA_KR_AN_XMIT_DISABLE: return  "AN_XM_DIS";
+    case MESA_KR_TRAIN:      return  "TRAIN";
+    case MESA_KR_RATE_DET:   return  "RATE_DET";
+    case MESA_KR_CMPL_ACK:   return  "CMPL_ACK";
+    case MESA_KR_AN_GOOD:    return  "AN_GOOD";
+    case MESA_KR_LINK_FAIL:  return  "LINK_FAIL";
+    case MESA_KR_ABD_FAIL:   return  "ABD_FAIL";
+    case MESA_KR_ACK_FAIL:   return  "ACK_FAIL";
+    case MESA_KR_NP_FAIL:    return  "NP_FAIL";
+    case MESA_KR_NP_RX:      return  "NP_RX";
+    case MESA_KR_INCP_LINK:  return  "INCP_LINK";
+    case MESA_KR_GEN0_DONE:  return  "GEN0_DONE";
+    case MESA_KR_GEN1_DONE:  return  "GEN1_DONE";
     case 0:  return "";
     default:  return "ILLEGAL";
     }
@@ -230,15 +223,12 @@ static char *kr_aneg_sm_2_txt(u32 reg)
     return "?";
 }
 
-
-
 /* ================================================================= *
  *  CLI
  * ================================================================= */
 typedef struct {
     mesa_port_speed_t speed;
     mesa_bool_t auto_keyword;
-
 } kr_cli_req_t;
 
 typedef enum {
@@ -248,6 +238,7 @@ typedef enum {
 typedef struct {
     mesa_bool_t all;
     mesa_bool_t train;
+    mesa_bool_t no_rem;
     mesa_bool_t fec;
     mesa_bool_t rsfec;
     mesa_bool_t adv25g;
@@ -289,6 +280,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->rsfec = 1;
     } else if (!strncasecmp(found, "train", 5)) {
         mreq->train = 1;
+    } else if (!strncasecmp(found, "no-remote", 4)) {
+        mreq->no_rem = 1;
     } else if (!strncasecmp(found, "all", 3)) {
         mreq->all = 1;
     } else if (!strncasecmp(found, "disable", 3)) {
@@ -310,8 +303,8 @@ static int cli_parm_keyword(cli_req_t *req)
 }
 
 static void fa_kr_reset_state(u32 p) {
-    kr_appl_train_t *krs = &kr_tr_state[p];
-    memset(krs, 0, sizeof(kr_tr_state[p]));
+    kr_appl_train_t *krs = &kr_conf_state[p].tr;
+    memset(krs, 0, sizeof(kr_appl_train_t));
 }
 
 static void cli_cmd_port_kr_fec(cli_req_t *req)
@@ -327,7 +320,7 @@ static void cli_cmd_port_kr_fec(cli_req_t *req)
             continue;
         }
 
-        conf.fec = mreq->fec;
+        conf.r_fec = mreq->fec;
         conf.rs_fec = mreq->rsfec;
 
         if (conf.rs_fec && !kr_conf_state[iport].cap_25g) {
@@ -339,13 +332,13 @@ static void cli_cmd_port_kr_fec(cli_req_t *req)
             cli_printf("Failure during port_kr_fec_set\n");
         }
 
-        if (conf.fec) {
+        if (conf.r_fec) {
             printf("Enabled R-FEC\n");
         }
         if (conf.rs_fec) {
             printf("Enabled RS-FEC\n");
         }
-        if (!conf.rs_fec && !conf.fec) {
+        if (!conf.rs_fec && !conf.r_fec) {
             printf("Disabled FEC\n");
         }
     }
@@ -369,8 +362,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
                 continue;
             }
-            chk_block_lock[iport] = 0;
-            global_stop = 0;
+            kr_conf_state[iport].chk_block_lock = 0;
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
@@ -378,15 +370,17 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
+                conf.train.no_remote = mreq->no_rem;
                 conf.aneg.adv_1g = mreq->adv1g || mreq->all;
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
+
                 if (kr_conf_state[iport].cap_25g) {
                     conf.aneg.adv_25g = mreq->adv25g || mreq->all;
                 }
                 conf.aneg.fec_abil = 1;
-                conf.aneg.fec_req = mreq->fec || mreq->all;
+                conf.aneg.r_fec_req = mreq->fec || mreq->all;
                 conf.aneg.rs_fec_req = mreq->rsfec || mreq->all;
                 conf.aneg.next_page = mreq->np;
 
@@ -451,16 +445,16 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             printf("Port %d: IRQ %s debug %s\n",uport, deb_dump_irq > 16 ? "all" : "aneg", deb_dump_irq > 0 ? "enabled" : "disabled");
         }
         if (mreq->ansm) {
-            if (aneg_sm_deb[iport]) {
-                aneg_sm_deb[iport] = 0;
+            if (kr_conf_state[iport].aneg_sm_deb) {
+                kr_conf_state[iport].aneg_sm_deb = 0;
             } else {
-                aneg_sm_deb[iport] = 1;
+                kr_conf_state[iport].aneg_sm_deb = 1;
             }
-            printf("Port %d: Aneg State machine debug %s\n",uport, aneg_sm_deb[iport] ? "enabled" : "disabled");
+            printf("Port %d: Aneg State machine debug %s\n",uport, kr_conf_state[iport].aneg_sm_deb ? "enabled" : "disabled");
         }
         if (mreq->stop) {            
-            stop_train[iport] = stop_train[iport] ? 0 : 1;
-            printf("Port %d: Stop aneg %s\n",uport, stop_train[iport] ? "enabled" : "disabled");
+            kr_conf_state[iport].stop_train = kr_conf_state[iport].stop_train ? 0 : 1;
+            printf("Port %d: Stop aneg %s\n",uport, kr_conf_state[iport].stop_train ? "enabled" : "disabled");
         }
     }
 }
@@ -546,13 +540,13 @@ static void kr_dump_tr_ld_history(cli_req_t *req)
             continue;
         }
 
-        krs = &kr_tr_state[iport];
-        if (kr_tr_state[iport].ld_hist_index == 0) {
+        krs = &kr_conf_state[iport].tr;
+        if (kr_conf_state[iport].tr.ld_hist_index == 0) {
             continue;
         }
         first = TRUE;
-        cli_printf("\nPort %d:\n",uport,kr_tr_state[iport]);
-        for (uint16_t indx = 0; indx < kr_tr_state[iport].ld_hist_index; indx++) {
+        cli_printf("\nPort %d:\n",uport,kr_conf_state[iport].tr);
+        for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.ld_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
             (void)raw_coef2txt(krs->ld_hist[indx].res.coef, coef_tap, coef_act);
@@ -596,13 +590,13 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             continue;
         }
 
-        krs = &kr_tr_state[iport];
-        if (kr_tr_state[iport].lp_hist_index == 0) {
+        krs = &kr_conf_state[iport].tr;
+        if (kr_conf_state[iport].tr.lp_hist_index == 0) {
             continue;
         }
         first = TRUE;
-        cli_printf("\nPort %d:\n",uport,kr_tr_state[iport]);
-        for (uint16_t indx = 0; indx < kr_tr_state[iport].lp_hist_index; indx++) {
+        cli_printf("\nPort %d:\n",uport,kr_conf_state[iport].tr);
+        for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.lp_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
             (void)raw_coef2txt(krs->lp_hist[indx].ber_coef_frm, coef_tap, coef_act);
@@ -648,14 +642,14 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
             continue;
         }
 
-        krs = &kr_tr_state[iport];
+        krs = &kr_conf_state[iport].tr;
 
-        if (kr_tr_state[iport].irq_hist_index == 0) {
+        if (kr_conf_state[iport].tr.irq_hist_index == 0) {
             continue;
         }
         first = TRUE;
-        cli_printf("\nPort %d:\n",uport,kr_tr_state[iport]);
-        for (uint16_t indx = 0; indx < kr_tr_state[iport].irq_hist_index; indx++) {
+        cli_printf("\nPort %d:\n",uport);
+        for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.irq_hist_index; indx++) {
             dt = krs->irq_hist[indx].time;
             if (first) {
                 cli_printf("%-4s%-8s%-20s\n","","ms","KR IRQs");
@@ -722,11 +716,11 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("Failure during port_kr_state_get\n");
         }
 
-        appl = &kr_tr_state[iport];
+        appl = &kr_conf_state[iport].tr;
         cli_printf("Port %d\n",uport);
         cli_printf("  ANEG completed    : %s\n",sts.aneg.complete ? "Yes" : "No");
         cli_printf("  Speed             : %s\n",mesa_port_spd2txt(sts.aneg.speed_req));
-        cli_printf("  R-FEC (CL-74)     : %s\n",sts.fec.enable ? "Enabled":"Disabled");
+        cli_printf("  R-FEC (CL-74)     : %s\n",sts.fec.r_fec_enable ? "Enabled":"Disabled");
         cli_printf("  RS-FEC (CL-108)   : %s\n",sts.fec.rs_fec_enable ? "Enabled":"Disabled");
         if (!kr.train.enable) {
             cli_printf("  Training          : Disabled\n");
@@ -812,13 +806,13 @@ static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf
 
 static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq)
 {
-    kr_appl_train_t *krs = &kr_tr_state[p];
+    kr_appl_train_t *krs = &kr_conf_state[p].tr;
     if (krs->irq_hist_index < KR_HIST_NUM) {
         krs->irq_hist[krs->irq_hist_index].time = get_time_ms(&krs->time_start_aneg);
         krs->irq_hist[krs->irq_hist_index].irq = irq;
         krs->irq_hist_index++;
     }
-    krs = &kr_tr_state[0];
+    krs = &kr_conf_state[0].tr;
     if (krs->irq_glb_hist_index < KR_HIST_NUM) {
         krs->irq_glb_hist[krs->irq_glb_hist_index].time = get_time_ms(&krs->time_start_aneg);
         krs->irq_glb_hist[krs->irq_glb_hist_index].irq = irq;
@@ -829,7 +823,7 @@ static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq)
 
 static void kr_add_to_ld_history(mesa_port_no_t p, mesa_kr_status_results_t res)
 {
-    kr_appl_train_t *krs = &kr_tr_state[p];
+    kr_appl_train_t *krs = &kr_conf_state[p].tr;
     if (krs->ld_hist_index < KR_HIST_NUM) {
         krs->ld_hist[krs->ld_hist_index].time = get_time_ms(&krs->time_start_train);
         krs->ld_hist[krs->ld_hist_index].res = res;
@@ -839,8 +833,8 @@ static void kr_add_to_ld_history(mesa_port_no_t p, mesa_kr_status_results_t res)
 
 static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
 {
-    kr_appl_train_t *kr = &kr_tr_state[p];
-    mesa_port_kr_state_t *krs = &kr_tr_state[p].state;
+    kr_appl_train_t *kr = &kr_conf_state[p].tr;
+    mesa_port_kr_state_t *krs = &kr_conf_state[p].tr.state;
     if (kr->lp_hist_index < KR_HIST_NUM) {
         kr->lp_hist[kr->lp_hist_index].time = get_time_ms(&kr->time_start_train);
         kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
@@ -853,11 +847,11 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
 static mesa_port_speed_t kr_irq2spd(uint32_t irq)
 {
     switch (irq) {
-    case KR_ANEG_RATE_25G: return MESA_SPEED_25G;
-    case KR_ANEG_RATE_10G: return MESA_SPEED_10G;
-    case KR_ANEG_RATE_5G:  return MESA_SPEED_5G;
-    case KR_ANEG_RATE_2G5: return MESA_SPEED_2500M;
-    case KR_ANEG_RATE_1G:  return MESA_SPEED_1G;
+    case MESA_KR_ANEG_RATE_25G: return MESA_SPEED_25G;
+    case MESA_KR_ANEG_RATE_10G: return MESA_SPEED_10G;
+    case MESA_KR_ANEG_RATE_5G:  return MESA_SPEED_5G;
+    case MESA_KR_ANEG_RATE_2G5: return MESA_SPEED_2500M;
+    case MESA_KR_ANEG_RATE_1G:  return MESA_SPEED_1G;
     default:
         cli_printf("KR speed not supported\n");
     }
@@ -903,21 +897,17 @@ static void kr_poll(meba_inst_t inst)
             continue;
         }
         uport = iport2uport(iport);
-        kr = &kr_tr_state[iport];
+        kr = &kr_conf_state[iport].tr;
         krs = &kr->state;
-
-        if (global_stop) {
-            continue;
-        }
 
         if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
             cli_printf("Failure during port_kr_status_get\n");
         }
-//        aneg_sm_deb[iport] = 1;
-        if (aneg_sm_deb[iport] && (status.aneg.sm != aneg_sm_state[iport])) {
+
+        if (kr_conf_state[iport].aneg_sm_deb && (status.aneg.sm != kr_conf_state[iport].aneg_sm_state)) {
             printf("Port:%d - Aneg SM: %s Hist:%x (%d ms)\n",uport, kr_aneg_sm_2_txt(status.aneg.sm),
                    status.aneg.hist, status.aneg.sm == 1 ? 0 : get_time_ms(&kr->time_start_aneg));
-            aneg_sm_state[iport] = status.aneg.sm;
+            kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
         }
         
         if ((mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK)
@@ -925,18 +915,18 @@ static void kr_poll(meba_inst_t inst)
             continue;
         }
 
-        if ((irq & KR_AN_XMIT_DISABLE)) {
+        if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
             (void)time_start(&kr->time_start_aneg); // Start the aneg timer
         }
 
-        if ((irq & KR_TRAIN)) {
+        if ((irq & MESA_KR_TRAIN)) {
             (void)time_start(&kr->time_start_train); // Start the train timer
         }
 
 
         dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg));
 
-        if (stop_train[iport]) {
+        if (kr_conf_state[iport].stop_train) {
             kr_add_to_irq_history(iport, irq);
             continue;
         }
@@ -946,16 +936,16 @@ static void kr_poll(meba_inst_t inst)
         }
 
         // KR_AN_RATE
-        if ((irq & KR_AN_RATE) > 0) {
-            chk_block_lock[iport] = 0;
+        if ((irq & MESA_KR_AN_RATE) > 0) {
+            kr_conf_state[iport].chk_block_lock = 0;
             if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
                 cli_printf("Failure during port_kr_status_get\n");
             }
             // Aneg FEC change request
             if (status.aneg.request_fec_change) {
-                fec.fec = status.aneg.fec_enable;
+                fec.r_fec = status.aneg.r_fec_enable;
                 fec.rs_fec = status.aneg.rs_fec_enable;
-                printf("Port:%d - R-FEC %d RS-FEC:%d\n",uport, fec.fec, fec.rs_fec);
+                printf("Port:%d - R-FEC %d RS-FEC:%d\n",uport, fec.r_fec, fec.rs_fec);
                 if (mesa_port_kr_fec_set(NULL, iport, &fec) != MESA_RC_OK) {
                     cli_printf("Failure during port_kr_fec_set\n");
                }
@@ -969,16 +959,16 @@ static void kr_poll(meba_inst_t inst)
         }
 
         // KR_RATE_DET
-        if (irq & KR_RATE_DET) {
+        if (irq & MESA_KR_RATE_DET) {
             // Parallel detect speed change
             printf("Port:%d - Rate detect disabled (%d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
             pconf.speed = kr_parallel_spd(iport, &kr_conf);
             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            /* printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg)); */
-            /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
+            printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
         }
 
-        if (irq & KR_MW_DONE) {
+        if (irq & MESA_KR_MW_DONE) {
             cli_printf("Max wait timer expired\n");
         }
 
@@ -995,7 +985,7 @@ static void kr_poll(meba_inst_t inst)
         kr_add_to_irq_history(iport, irq);
 
         // Add training to LD history
-        if ((irq & KR_LPCVALID) && krs->training_started) {
+        if ((irq & MESA_KR_LPCVALID) && krs->training_started) {
             kr_add_to_ld_history(iport, krs->tr_res);
         }
 
@@ -1004,12 +994,12 @@ static void kr_poll(meba_inst_t inst)
             kr_add_to_lp_history(iport, irq);
         }
 
-        if (irq & KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
+        if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
             kr->time_ld = get_time_ms(&kr->time_start_train);
             printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
         }
 
-        if (irq & KR_AN_GOOD) {
+        if (irq & MESA_KR_AN_GOOD) {
             printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));            
         }
     }
@@ -1037,12 +1027,12 @@ static void kr_poll_v2(meba_inst_t inst)
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [adv-25g] [np] [rfec] [rsfec] [train] [disable]",
+        "Port KR aneg [<port_list>] [all] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [adv-25g] [np] [rfec] [rsfec] [train] [no-remote] [disable]",
         "Set or show kr",
         cli_cmd_port_kr
     },
     {
-        "Port KR status [<port_list>] [hist] [irq]",
+        "Port KR status [<port_list>] [hist] [irq] [all]",
         "Show status",
         cli_cmd_port_kr_status
     },
@@ -1129,6 +1119,13 @@ static cli_parm_t cli_parm_table[] = {
         cli_parm_keyword
     },
     {
+        "no-remote",
+        "train: Do not train remote partner",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
+    {
         "disable",
         "disable: disable kr",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
@@ -1193,10 +1190,21 @@ static void kr_init(meba_inst_t inst)
     mesa_port_no_t        port_no;
     meba_port_entry_t     meba;
 
+    // Free old port table
+    if (kr_conf_state != NULL) {
+        free(kr_conf_state);
+    }
     /* Store the meba inst globally */
     meba_global_inst = inst;
 
+    // Initialize ports
+    if ((kr_conf_state = calloc(port_cnt, sizeof(*kr_conf_state))) == NULL) {
+        T_E("port_table calloc() failed");
+        return;
+    }
+  
     for (port_no = 0; port_no < port_cnt; port_no++) {
+
         kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;
 
         if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &meba) != MESA_RC_OK) {

@@ -1737,92 +1737,89 @@ static void kr_ber_training(vtss_state_t *vtss_state,
     }
 }
 
-/* static char *fa_kr_aneg_rate(uint32_t reg) */
-/* { */
-/*     switch (reg) { */
-/*     case 0:  return "No Change"; */
-/*     case 7:  return "25G-KR"; */
-/*     case 8:  return "25G-KR-S"; */
-/*     case 9:  return "10G-KR"; */
-/*     case 10: return "10G-KX4"; */
-/*     case 11: return "5G-KR"; */
-/*     case 12: return "2.5G-KX"; */
-/*     case 13: return "1G-KX"; */
-/*     default: return "other"; */
-/*     } */
-/*     return "other"; */
-/* } */
-/* static char *irq2txt(u32 irq) */
-/* { */
-/*     switch (irq) { */
-/*     case KR_ACTV:       return  "KR_ACTV"; */
-/*     case KR_LPSVALID:   return  "KR_LPS"; */
-/*     case KR_LPCVALID:   return  "KR_LPC"; */
-/*     case KR_WT_DONE:    return  "WT_DONE"; */
-/*     case KR_MW_DONE:    return  "MW_DONE"; */
-/*     case KR_BER_BUSY_0: return  "BER_BUSY0"; */
-/*     case KR_BER_BUSY_1: return  "BER_BUSY1"; */
-/*     case KR_REM_RDY_0:  return  "REM_RDY0"; */
-/*     case KR_REM_RDY_1:  return  "REM_RDY1"; */
-/*     case KR_FRLOCK_0:   return  "FRLOCK0"; */
-/*     case KR_FRLOCK_1:   return  "FRLOCK1"; */
-/*     case KR_DME_VIOL_0: return  "DME_VIOL0"; */
-/*     case KR_DME_VIOL_1: return  "DME_VIOL1"; */
-/*     case KR_AN_XMIT_DISABLE: return  "AN_XM_DIS"; */
-/*     case KR_TRAIN:      return  "TRAIN"; */
-/*     case KR_RATE_DET:   return  "RATE_DET"; */
-/*     case KR_CMPL_ACK:   return  "CMPL_ACK"; */
-/*     case KR_AN_GOOD:    return  "AN_GOOD"; */
-/*     case KR_LINK_FAIL:  return  "LINK_FAIL"; */
-/*     case KR_ABD_FAIL:   return  "ABD_FAIL"; */
-/*     case KR_ACK_FAIL:   return  "ACK_FAIL"; */
-/*     case KR_NP_FAIL:    return  "NP_FAIL"; */
-/*     case KR_NP_RX:      return  "NP_RX"; */
-/*     case KR_INCP_LINK:  return  "INCP_LINK"; */
-/*     case KR_GEN0_DONE:  return  "GEN0_DONE"; */
-/*     case KR_GEN1_DONE:  return  "GEN1_DONE"; */
-/*     case 0:  return ""; */
-/*     default:  return "ILLEGAL"; */
-/*     } */
-/* } */
-/* static void dump_irq(u32 p, u32 irq) */
-/* { */
-/*     char buf[200] = {0}, *b=&buf[0]; */
+#if 0
 
-/*     b += sprintf(b, "p:%d ",p); */
-/*     for (u32 i = 4; i < 31; i++) { */
-/*         if (((1 << i) & irq) > 0) { */
-/*             b += sprintf(b, "%s ",irq2txt((1 << i))); */
-/*         } */
-/*     } */
-/*     if ((irq & 0xf) > 0) { */
-/*         b += sprintf(b, "%s ",fa_kr_aneg_rate(irq & 0xf)); */
-/*     } */
+static char *fa_kr_aneg_rate(uint32_t reg)
+{
+    switch (reg) {
+    case 0:  return "No Change";
+    case 7:  return "25G-KR";
+    case 8:  return "25G-KR-S";
+    case 9:  return "10G-KR";
+    case 10: return "10G-KX4";
+    case 11: return "5G-KR";
+    case 12: return "2.5G-KX";
+    case 13: return "1G-KX";
+    default: return "other";
+    }
+    return "other";
+}
+static char *irq2txt(u32 irq)
+{
+    switch (irq) {
+    case KR_ACTV:       return  "KR_ACTV";
+    case KR_LPSVALID:   return  "KR_LPS";
+    case KR_LPCVALID:   return  "KR_LPC";
+    case KR_WT_DONE:    return  "WT_DONE";
+    case KR_MW_DONE:    return  "MW_DONE";
+    case KR_BER_BUSY_0: return  "BER_BUSY0";
+    case KR_BER_BUSY_1: return  "BER_BUSY1";
+    case KR_REM_RDY_0:  return  "REM_RDY0";
+    case KR_REM_RDY_1:  return  "REM_RDY1";
+    case KR_FRLOCK_0:   return  "FRLOCK0";
+    case KR_FRLOCK_1:   return  "FRLOCK1";
+    case KR_DME_VIOL_0: return  "DME_VIOL0";
+    case KR_DME_VIOL_1: return  "DME_VIOL1";
+    case KR_AN_XMIT_DISABLE: return  "AN_XM_DIS";
+    case KR_TRAIN:      return  "TRAIN";
+    case KR_RATE_DET:   return  "RATE_DET";
+    case KR_CMPL_ACK:   return  "CMPL_ACK";
+    case KR_AN_GOOD:    return  "AN_GOOD";
+    case KR_LINK_FAIL:  return  "LINK_FAIL";
+    case KR_ABD_FAIL:   return  "ABD_FAIL";
+    case KR_ACK_FAIL:   return  "ACK_FAIL";
+    case KR_NP_FAIL:    return  "NP_FAIL";
+    case KR_NP_RX:      return  "NP_RX";
+    case KR_INCP_LINK:  return  "INCP_LINK";
+    case KR_GEN0_DONE:  return  "GEN0_DONE";
+    case KR_GEN1_DONE:  return  "GEN1_DONE";
+    case 0:  return "";
+    default:  return "ILLEGAL";
+    }
+}
+static void dump_irq(u32 p, u32 irq)
+{
+    char buf[200] = {0}, *b=&buf[0];
 
-/*     printf("%s \n",buf); */
-/* } */
+    b += sprintf(b, "p:%d ",p);
+    for (u32 i = 4; i < 31; i++) {
+        if (((1 << i) & irq) > 0) {
+            b += sprintf(b, "%s ",irq2txt((1 << i)));
+        }
+    }
+    if ((irq & 0xf) > 0) {
+        b += sprintf(b, "%s ",fa_kr_aneg_rate(irq & 0xf));
+    }
 
-
-/* #define KR_ANEG_RATE_25G    7 */
-/* #define KR_ANEG_RATE_10G    9 */
-/* #define KR_ANEG_RATE_5G     11 */
-/* #define KR_ANEG_RATE_2G5    12 */
-/* #define KR_ANEG_RATE_1G     13 */
+    printf("%s \n",buf);
+}
 
 
-/* static vtss_port_speed_t kr_irq2spd(u32 irq) */
-/* { */
-/*     switch (irq) { */
-/*     case KR_ANEG_RATE_25G: return VTSS_SPEED_25G; */
-/*     case KR_ANEG_RATE_10G: return VTSS_SPEED_10G; */
-/*     case KR_ANEG_RATE_5G:  return VTSS_SPEED_5G; */
-/*     case KR_ANEG_RATE_2G5: return VTSS_SPEED_2500M; */
-/*     case KR_ANEG_RATE_1G:  return VTSS_SPEED_1G; */
-/*     default: */
-/*         printf("KR speed not supported\n"); */
-/*     } */
-/*     return VTSS_SPEED_10G; */
-/* } */
+static vtss_port_speed_t kr_irq2spd(u32 irq)
+{
+    switch (irq) {
+    case KR_ANEG_RATE_25G: return VTSS_SPEED_25G;
+    case KR_ANEG_RATE_10G: return VTSS_SPEED_10G;
+    case KR_ANEG_RATE_5G:  return VTSS_SPEED_5G;
+    case KR_ANEG_RATE_2G5: return VTSS_SPEED_2500M;
+    case KR_ANEG_RATE_1G:  return VTSS_SPEED_1G;
+    default:
+        printf("KR speed not supported\n");
+    }
+    return VTSS_SPEED_10G;
+}
+
+#endif
 
 static void kr_reset_state(vtss_port_kr_state_t *krs) {
     memset(krs, 0, sizeof(vtss_port_kr_state_t));
@@ -1878,9 +1875,19 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             krs->local_rx_ready = FALSE;
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
-            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);            
             kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
-            (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
+            if (kr->train.no_remote) {
+                // Do not train remote LP
+                krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
+                krs->current_state = VTSS_TR_TRAIN_REMOTE;
+                // 'Receiver Ready' sent 3 times to LP as according to standard
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+            } else {            
+                (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
+            }
         } else {
             krs->current_state = VTSS_TR_SEND_DATA;
             krs->training_started = FALSE;

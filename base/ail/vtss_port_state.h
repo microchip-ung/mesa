@@ -300,6 +300,40 @@ typedef struct {
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
+// Interrupt defines
+#define KR_ACTV            (1 << 29)
+#define KR_LPSVALID        (1 << 28)
+#define KR_LPCVALID        (1 << 27)
+#define KR_WT_DONE         (1 << 26)
+#define KR_MW_DONE         (1 << 25)
+#define KR_BER_BUSY_0      (1 << 24)
+#define KR_BER_BUSY_1      (1 << 23)
+#define KR_REM_RDY_0       (1 << 22)
+#define KR_REM_RDY_1       (1 << 21)
+#define KR_FRLOCK_0        (1 << 20)
+#define KR_FRLOCK_1        (1 << 19)
+#define KR_DME_VIOL_0      (1 << 18)
+#define KR_DME_VIOL_1      (1 << 17)
+#define KR_AN_XMIT_DISABLE (1 << 16)
+#define KR_TRAIN           (1 << 15)
+#define KR_RATE_DET        (1 << 14)
+#define KR_CMPL_ACK        (1 << 13)
+#define KR_AN_GOOD         (1 << 12)
+#define KR_LINK_FAIL       (1 << 11)
+#define KR_ABD_FAIL        (1 << 10)
+#define KR_ACK_FAIL        (1 << 9)
+#define KR_NP_FAIL         (1 << 8)
+#define KR_NP_RX           (1 << 7)
+#define KR_INCP_LINK       (1 << 6)
+#define KR_GEN0_DONE       (1 << 5)
+#define KR_GEN1_DONE       (1 << 4)
+#define KR_AN_RATE         (0xF)
+#define KR_ANEG_RATE_25G    7
+#define KR_ANEG_RATE_10G    9
+#define KR_ANEG_RATE_5G     11
+#define KR_ANEG_RATE_2G5    12
+#define KR_ANEG_RATE_1G     13
+
 typedef enum
 {
     VTSS_COEFFICIENT_UPDATE_FRM,

@@ -28,43 +28,7 @@
 
 char *mesa_port_spd2txt(mesa_port_speed_t speed);
 
-#define BER_THRESHOLD      (10)
-#define KR_AN_RATE         (0xF)
-#define KR_ACTV            (1 << 29)
-#define KR_LPSVALID        (1 << 28)
-#define KR_LPCVALID        (1 << 27)
-#define KR_WT_DONE         (1 << 26)
-#define KR_MW_DONE         (1 << 25)
-#define KR_BER_BUSY_0      (1 << 24)
-#define KR_BER_BUSY_1      (1 << 23)
-#define KR_REM_RDY_0       (1 << 22)
-#define KR_REM_RDY_1       (1 << 21)
-#define KR_FRLOCK_0        (1 << 20)
-#define KR_FRLOCK_1        (1 << 19)
-#define KR_DME_VIOL_0      (1 << 18)
-#define KR_DME_VIOL_1      (1 << 17)
-#define KR_AN_XMIT_DISABLE (1 << 16)
-#define KR_TRAIN           (1 << 15)
-#define KR_RATE_DET        (1 << 14)
-#define KR_CMPL_ACK        (1 << 13)
-#define KR_AN_GOOD         (1 << 12)
-#define KR_LINK_FAIL       (1 << 11)
-#define KR_ABD_FAIL        (1 << 10)
-#define KR_ACK_FAIL        (1 << 9)
-#define KR_NP_FAIL         (1 << 8)
-#define KR_NP_RX           (1 << 7)
-#define KR_INCP_LINK       (1 << 6)
-#define KR_GEN0_DONE       (1 << 5)
-#define KR_GEN1_DONE       (1 << 4)
-
-#define KR_ANEG_RATE_25G    7
-#define KR_ANEG_RATE_10G    9
-#define KR_ANEG_RATE_5G     11
-#define KR_ANEG_RATE_2G5    12
-#define KR_ANEG_RATE_1G     13
-
 #define KR_HIST_NUM 500
-
 
 #ifndef TRUE
 #define TRUE 1
@@ -94,38 +58,6 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
         .level = MESA_TRACE_LEVEL_ERROR
     },
 };
-
-typedef enum {
-    INITILIZE,
-    SEND_TRAINING,
-    TRAIN_LOCAL,
-    TRAIN_REMOTE,
-    SEND_DATA,
-    TRAINING_FAILURE,
-    LINK_READY
-} train_state_t;
-
-typedef enum {
-    GO_TO_MIN,
-    CALCULATE_BER,
-    MOVE_TO_MID_MARK,
-    LOCAL_RX_TRAINED
-} ber_stage_t;
-
-typedef enum {
-    HOLD = 0,
-    INCR = 1,
-    DECR = 2,
-    INIT = 0x1000,
-    PRESET = 0x2000
-} kr_coefficient_t;
-
-typedef enum {
-    NOT_UPDATED = 0,
-    UPDATED = 1,
-    MINIMUM = 2,
-    MAXIMUM = 3,
-} kr_status_report_t;
 
 typedef enum {
     CM1,
@@ -169,9 +101,16 @@ typedef struct {
 } kr_appl_train_t;
 
 typedef struct {
+    kr_appl_train_t tr;
     mesa_port_speed_t next_parallel_spd;
     mesa_bool_t cap_25g;
     mesa_bool_t cap_10g;
+
+    // Debug
+    uint32_t stop_train;
+    uint32_t chk_block_lock;
+    uint32_t aneg_sm_state;
+    uint32_t aneg_sm_deb;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

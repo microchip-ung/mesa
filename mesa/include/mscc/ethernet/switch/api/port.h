@@ -692,6 +692,40 @@ mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
 /******************************************************************************/
 /* 25G/10G KR Backplane Ethernet (version 3, Sparx-5 and newer)               */
 /******************************************************************************/
+
+#define MESA_KR_AN_RATE         (0xF)
+#define MESA_KR_ACTV            (1 << 29)
+#define MESA_KR_LPSVALID        (1 << 28)
+#define MESA_KR_LPCVALID        (1 << 27)
+#define MESA_KR_WT_DONE         (1 << 26)
+#define MESA_KR_MW_DONE         (1 << 25)
+#define MESA_KR_BER_BUSY_0      (1 << 24)
+#define MESA_KR_BER_BUSY_1      (1 << 23)
+#define MESA_KR_REM_RDY_0       (1 << 22)
+#define MESA_KR_REM_RDY_1       (1 << 21)
+#define MESA_KR_FRLOCK_0        (1 << 20)
+#define MESA_KR_FRLOCK_1        (1 << 19)
+#define MESA_KR_DME_VIOL_0      (1 << 18)
+#define MESA_KR_DME_VIOL_1      (1 << 17)
+#define MESA_KR_AN_XMIT_DISABLE (1 << 16)
+#define MESA_KR_TRAIN           (1 << 15)
+#define MESA_KR_RATE_DET        (1 << 14)
+#define MESA_KR_CMPL_ACK        (1 << 13)
+#define MESA_KR_AN_GOOD         (1 << 12)
+#define MESA_KR_LINK_FAIL       (1 << 11)
+#define MESA_KR_ABD_FAIL        (1 << 10)
+#define MESA_KR_ACK_FAIL        (1 << 9)
+#define MESA_KR_NP_FAIL         (1 << 8)
+#define MESA_KR_NP_RX           (1 << 7)
+#define MESA_KR_INCP_LINK       (1 << 6)
+#define MESA_KR_GEN0_DONE       (1 << 5)
+#define MESA_KR_GEN1_DONE       (1 << 4)
+#define MESA_KR_ANEG_RATE_25G    7
+#define MESA_KR_ANEG_RATE_10G    9
+#define MESA_KR_ANEG_RATE_5G     11
+#define MESA_KR_ANEG_RATE_2G5    12
+#define MESA_KR_ANEG_RATE_1G     13
+
 typedef enum {
     MESA_TR_INITILIZE,
     MESA_TR_SEND_TRAINING,
@@ -762,7 +796,7 @@ typedef struct {
     mesa_bool_t active;             // Aneg is running
     mesa_port_speed_t speed_req;    // Speed negotiated (needs to be configured)
     mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
-    mesa_bool_t fec_enable;         // Base-R-FEC (Clause 74) is negotiated 
+    mesa_bool_t r_fec_enable;       // Base-R-FEC (Clause 74) is negotiated 
     mesa_bool_t rs_fec_enable;      // Base-RS-FEC (Clause 108) is negotiated
     uint32_t    sm;                 // (debug) Aneg state machine
     uint32_t    hist;               // (debug) Aneg history
@@ -782,7 +816,7 @@ typedef struct {
 
 // 10G KR FEC status
 typedef struct {
-    mesa_bool_t enable;                // FEC enabled (Clause 74)
+    mesa_bool_t r_fec_enable;          // FEC enabled (Clause 74)
     mesa_bool_t rs_fec_enable;         // RS-FEC Enabled (Clause 108 / 25G)  */
     uint32_t    corrected_block_cnt;   // Corrected block count
     uint32_t    uncorrected_block_cnt; // Un-corrected block count
@@ -805,14 +839,15 @@ typedef struct {
     mesa_bool_t adv_2g5;    // Advertise 2G5
     mesa_bool_t adv_1g;     // Advertise 1G
     mesa_bool_t fec_abil;   // Advertise FEC ability
-    mesa_bool_t fec_req;    // Request R-FEC
+    mesa_bool_t r_fec_req;  // Request R-FEC
     mesa_bool_t rs_fec_req; // Request RS-FEC (25G)
     mesa_bool_t next_page;  // Use next page when advertise
 } mesa_port_kr_aneg_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR Training config
 typedef struct {
-    mesa_bool_t enable; // Enable 10G KR training, BER method used
+    mesa_bool_t enable;     // Enable 10G KR training, BER method used
+    mesa_bool_t no_remote;  // Do not train remote, only local 
 } mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR configuration structures
@@ -823,7 +858,7 @@ typedef struct {
 
 // 10G KR FEC structure */
 typedef struct {
-    mesa_bool_t fec;    /**< Enable/Disable Clause 74 R-FEC  */
+    mesa_bool_t r_fec;    /**< Enable/Disable Clause 74 R-FEC  */
     mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
 } mesa_port_kr_fec_t;
 
