@@ -2926,6 +2926,9 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
     sd_cfg.txswing = 240;
     sd_cfg.reg_ctrl = 1;
     sd_cfg.preset = VTSS_SD25G28_PRESET_NONE;
+    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
+        sd_cfg.reg_rst = 1; // Must start with RST
+    }
 
      /* Apply the serdes mode */
     switch (mode) {

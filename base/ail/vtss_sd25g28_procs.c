@@ -15,6 +15,7 @@
 
 /* function to map from SD25G28 interface width to configuration value */
 static u8   sd25g28_get_iw_setting(const u8     interface_width) {
+    VTSS_D(" sd25g28_get_iw_setting:  Interface width is %d bits \n", interface_width);
     switch (interface_width) {
         case 10: {
             return 0;
@@ -344,9 +345,9 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
 
     vtss_rc          rslt;
    //vtss_sd25g28_mode_args_t *mode_args = (vtss_sd25g28_mode_args_t*)malloc(sizeof(vtss_sd25g28_mode_args_t)); 
-   vtss_sd25g28_mode_args_t sd25g28_mode = {};
+   vtss_sd25g28_mode_args_t sd25g28_mode;
    vtss_sd25g28_mode_args_t *mode_args = &sd25g28_mode;
-    vtss_sd25g28_preset_struct_t preset = {};
+    vtss_sd25g28_preset_struct_t preset;
 
     rslt = VTSS_RC_OK;
 
@@ -386,6 +387,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
                                         preset.ln_cfg_vga_ctrl_byp_4_0     = 0xf;
                                         preset.ln_cfg_eqR_force_3_0        = 4;
                                         mode_args->dfe_enable              = 0;
+                                        preset.ln_cfg_alos_thr_2_0         = 7;
 
                                         break;
       case VTSS_SD25G28_10GDAC3M          : //ffe related signals
@@ -458,6 +460,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
                                         preset.ln_cfg_tap_adv_3_0          = 0x8;
                                         preset.ln_cfg_tap_main             = 1;
                                         preset.ln_cfg_tap_dly_4_0          = 0x12;
+                                        preset.ln_cfg_alos_thr_2_0         = 0;
                                         
                                         //ctle related signals
 
@@ -499,6 +502,8 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
                                         preset.ln_cfg_eqC_force_3_0        = 0xf; 
                                         preset.ln_cfg_vga_ctrl_byp_4_0     = 4;
                                         preset.ln_cfg_eqR_force_3_0        = 12;
+                                        preset.ln_cfg_alos_thr_2_0         = 7;
+
                                         break;
    }
   
@@ -598,6 +603,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->r_DwidthCtrl_from_hwt[0]   =                     (config.reg_ctrl==0)? 1:0;
     ret_val->r_reg_manual[0]   =                              config.reg_ctrl;
     ret_val->reg_ctrl[0]   =                                  config.reg_ctrl; 
+    ret_val->reg_rst[0]   =                                   config.reg_rst;
     ret_val->cfg_jc_byp[0]   =                                 0x1;//As per CTS: 0: Use INTCML CK/CKB; 1: for external clock
     ret_val->cfg_common_reserve_7_0[0]   =                     0x1;// Resistor termination disabled for all 25G Serdes in FA 
     ret_val->cfg_pll_lol_set[0]   =                            0x1;// loss of lock enable/disable control                                                                                                                                   

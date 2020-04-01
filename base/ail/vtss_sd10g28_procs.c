@@ -203,11 +203,11 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
 
     vtss_rc          rslt;
     //vtss_sd10g28_mode_args_t *mode_args = (vtss_sd10g28_mode_args_t*)malloc(sizeof(vtss_sd10g28_mode_args_t));
-    vtss_sd10g28_mode_args_t sd10g28_mode = {};
+    vtss_sd10g28_mode_args_t sd10g28_mode;
     vtss_sd10g28_mode_args_t *mode_args = &sd10g28_mode;
 
     u8 cmu;
-    vtss_sd10g28_preset_struct_t preset = {};
+    vtss_sd10g28_preset_struct_t preset;
 
     rslt = VTSS_RC_OK;
 
@@ -266,6 +266,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xF    ;
                                         mode_args->dfe_enable              = 0;
+                                        preset.cfg_alos_thr_3_0            = 0x3    ;
                                         break;
       case VTSS_SD10G28_DAC3M        : //r_txeq_reg related signals
                                         preset.cfg_en_adv                  = 1;  
@@ -361,6 +362,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0x8    ;
+                                        preset.cfg_alos_thr_3_0            = 0x3    ;
                                         break;
     }
 

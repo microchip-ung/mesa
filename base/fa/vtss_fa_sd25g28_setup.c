@@ -19,6 +19,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
     sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
 
 /* Note: SerDes SD_LANE_25 is configured in 25G_LAN mode */
+    if( res_struct->reg_rst[0] == 1) {
     REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(1),
                 VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
@@ -29,6 +30,8 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
                 VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
 
+    }
+
     REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST(1),
                 VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST);
@@ -37,15 +40,15 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_31(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0(res_struct->cfg_common_reserve_7_0[0]),
-                VTSS_M_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0);
-
     REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_FROM_HWT(res_struct->r_DwidthCtrl_from_hwt[0]) |
         VTSS_F_SD25G_TARGET_CMU_1A_R_REG_MANUAL(res_struct->r_reg_manual[0]),
                 VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_FROM_HWT |
         VTSS_M_SD25G_TARGET_CMU_1A_R_REG_MANUAL);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_31(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0(res_struct->cfg_common_reserve_7_0[0]),
+                VTSS_M_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_09(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_09_CFG_EN_DUMMY(res_struct->cfg_en_dummy[0]),
@@ -398,14 +401,6 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
     } else {
         VTSS_D("Note: The value of sd_lane_stat pma_rst_done was 0x%x\n", value);
     }
-
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0x00),
-                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
-                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_2A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_2A_R_DBG_LOL_STATUS(0x1),

@@ -126,6 +126,7 @@ typedef struct {
     //u32                  datarate;       /**< optional parameter; if this is specified if_width must also be specified >                                                 */
     //u8                   if_width;    /**< UDL interface width 10, 16, 20, 32 or 64 bit >                                           */
     u8                   reg_ctrl;    /*Register/Pin configuration control for r_DwidthCtrl_from_hwt and r_reg_manual >                                           */
+    u8                   reg_rst;    /*Reset CMU/Lane registers                                           */
     //vtss_sd25g28_cmu_t   cmu_sel;   /* This needs to handled based on the Device/Mode it used*/
     //BOOL                 no_pwrcycle; /**< Omit initial power-cycle >                                                              */
     vtss_sd25g28_ls_t    slave_loop;    /**< Enable input loop LS1/Ls2/LS3 >                                                       */
@@ -173,6 +174,7 @@ typedef struct {
 /** \brief return values of setup function */
 typedef struct {
     u8	reg_ctrl[1];
+    u8	reg_rst[1];
     u8	cfg_jc_byp[1];
     u8	cfg_common_reserve_7_0[1];
     u8	r_reg_manual[1];
