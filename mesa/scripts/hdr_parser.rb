@@ -28,10 +28,10 @@ class CParser < Parslet::Parser
     rule(:int_size?) { int_size.maybe }
 
     rule(:comment) {
-        #((spaces? >> str('/*') >> spaces? >> ((str('*/').absnt? >> any).repeat).as(:comment) >> str('*/') >> spaces? ) |
-        # (spaces? >> str('//') >> spaces? >> ((new_line.absnt? >> any).repeat).as(:comment) >> new_line))
-        ((spaces? >> str('/*') >> spaces? >> ((str('*/').absnt? >> any).repeat) >> str('*/') >> spaces? ) |
-         (spaces? >> str('//') >> spaces? >> ((new_line.absnt? >> any).repeat) >> new_line))
+        #((spaces? >> str('/*') >> spaces? >> ((str('*/').absent? >> any).repeat).as(:comment) >> str('*/') >> spaces? ) |
+        # (spaces? >> str('//') >> spaces? >> ((new_line.absent? >> any).repeat).as(:comment) >> new_line))
+        ((spaces? >> str('/*') >> spaces? >> ((str('*/').absent? >> any).repeat) >> str('*/') >> spaces? ) |
+         (spaces? >> str('//') >> spaces? >> ((new_line.absent? >> any).repeat) >> new_line))
     }
 
     rule(:comments) { comment.repeat(1)}
@@ -69,7 +69,7 @@ class CParser < Parslet::Parser
                 pattern = "[#{Regexp.escape(trailing.join)}]"
 
                 rule(name) {
-                    (str(symbol) >> match(pattern).absnt?).as(:operator) >> spaces?
+                    (str(symbol) >> match(pattern).absent?).as(:operator) >> spaces?
                 }
             end
         end
@@ -95,7 +95,7 @@ class CParser < Parslet::Parser
     rule(:preprocessor_line) {
         (str('#') >> (
             esc_newline |
-            (new_line.absnt? >> any)
+            (new_line.absent? >> any)
         ).repeat >> new_line).as(:pp) >> spaces?
     }
 
@@ -160,7 +160,7 @@ class CParser < Parslet::Parser
         identifier
     }
 
-    rule(:expr) { (str('/*').absnt? >> match('[a-zA-Z_0-9 \n\t\-<>()|/+]')).repeat.as(:expr) }
+    rule(:expr) { (str('/*').absent? >> match('[a-zA-Z_0-9 \n\t\-<>()|/+]')).repeat.as(:expr) }
 
     rule(:enum_type_declare) {
         (
