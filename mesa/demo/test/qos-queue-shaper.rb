@@ -122,7 +122,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            true,            [1000000000],     [1],         false,             [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            true,            [1000000000],     [1.1],       false,             [default_cos2pcp(cos)])
     end
 end
 
