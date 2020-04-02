@@ -761,3 +761,19 @@ def eval_statistics actual, expect, flags = []
     end
     return err
 end
+
+def dl_file uri, out
+    FileUtils.mkdir_p File.dirname(out)
+    puts "Downloading #{uri} to #{out}"
+    IO.write(out, Net::HTTP.get(URI(uri)))
+end
+
+def run_(cmd, verify=true)
+    puts "Executing #{cmd}"
+    res = system cmd
+    if verify
+        raise "Running '#{cmd}' failed" if $? != 0
+    end
+    res
+end
+

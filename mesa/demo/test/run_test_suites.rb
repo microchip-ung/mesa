@@ -6,6 +6,7 @@ require 'pp'
 require 'open3'
 require 'fileutils'
 require 'net/http'
+require_relative './libeasy/utils'
 
 $systems = [
             { name: "dk-t11",   image: "mipsel/mfi_vsc7514_pcb123.mfi",  branch:"master" },
@@ -14,13 +15,11 @@ $systems = [
             { name: "dk-t34-4", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
             { name: "dk-t34-3", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
             { name: "dk-t12",   image: "mipsel/mfi_vsc7418.mfi",         branch:"master" },
-            { name: "dk-t14",  image: "mipsel/mfi_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
+#            { name: "dk-t14",  image: "mipsel/mfi_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
             { name: "dk-t15",   image: "mipsel/mfi_vsc7437.mfi",         branch:"master" },
-            { name: "dk-t16",   image: "mipsel/mfi_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
+#            { name: "dk-t16",   image: "mipsel/mfi_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
             { name: "dk-t34-1",  image: "lan966x/fit_ls1046_lan9668.itb", branch:"master.mas" }
            ]
-
-$test_suites  = "suite_port.rb suite_l2_basic.rb suite_qos.rb suite_vop.rb suite_ts.rb suite_l3_rt.rb suite_examples.rb"
 
 if File.file?("../../../../easytest/test-setup-server/et")
     $et = "../../../../easytest/test-setup-server/et"
@@ -64,21 +63,36 @@ end
 puts "-----delete all .log files-----"
 system("rm *.log")
 
-puts "-----Start test on all systems in background-----"
-Thread.new {`echo hi`}
-
+puts "-----Start test on all systems in a thread-----"
 threads = []
 $systems.each { |system|
-     threads << Thread.new {system "./utils/run-on.rb --system #{system[:name]} --image #{system[:image]} --branch #{system[:branch]} #{$test_suites}"}
+
+    # Compose path to the image and test folder of the requested branch
+    jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
+
+    puts("Download latest test folder from jenkins")
+    dl_file "#{jenkins_images}/et.tar.gz", "et.tar.gz"
+
+    puts("Unpack Easy Test folder tar file")
+    run_("rm -rf #{system[:name]}-test")
+    run_("mkdir #{system[:name]}-test")
+    run_("tar xzf et.tar.gz -C #{system[:name]}-test")
+
+    puts("Run all test suites on system #{system[:name]} in a thread")
+    threads << Thread.new {system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"}
+
 }
 
 puts "-----Wait for all tests to complete-----"
-#threads.each(&:join)
 threads.each do |t|
   t.join
 end
 puts "-----All tests are completed-----"
 
-puts("-----Merge the test-suite logs to one-----")
-suite_log_merge("suite_log_merged.log")
+puts "-----Move all test-suite log files from created test folders to test folder-----"
+$systems.each { |system|
+    run_("mv ./#{system[:name]}-test/test/*.log .")
+}
 
+puts("-----Merge the test-suite log files to one-----")
+suite_log_merge("suite_log_merged.log")
