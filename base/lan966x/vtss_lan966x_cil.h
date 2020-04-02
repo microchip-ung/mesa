@@ -165,7 +165,14 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 #define PGID_AGGR   (VTSS_PGIDS)
 #define PGID_SRC    (PGID_AGGR + LAN966X_ACS)
 
-#define LAN966X_BUFFER_CELL_SZ        64
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define LAN966X_BUFFER_MEMORY    (32*1024)
+#define LAN966X_BUFFER_REFERENCE 255
+#else
+#define LAN966X_BUFFER_MEMORY    (160*1024)
+#define LAN966X_BUFFER_REFERENCE 1280
+#endif
+#define LAN966X_BUFFER_CELL_SZ   64
 
 // Policers
 #define LAN966X_POLICER_PORT  0   // 0-8   : Port policers (9)

@@ -7,19 +7,66 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 
-u32 wm_dec(u32 value)
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define MULTIPLIER_BIT VTSS_BIT(5)
+#else
+#define MULTIPLIER_BIT VTSS_BIT(8)
+#endif
+
+static u32 wm_enc(u32 value, BOOL bytes)
 {
-    if (value & 0x20) {     /* Bit 5 indicate that the Watermark value must be multiplied by 16 */
-        return (value & 0x1F) * 16; /* Watermark value is bit 0 to bit 4 */
+    if (bytes) {
+        value /= LAN966X_BUFFER_CELL_SZ;
+    }
+    if (value >= MULTIPLIER_BIT) {
+        value /= 16;
+        if (value >= MULTIPLIER_BIT) {
+            value = (MULTIPLIER_BIT - 1);
+        }
+        value |= MULTIPLIER_BIT;
     }
     return value;
+}
+
+static u32 wm_enc_bytes(u32 value)
+{
+    return wm_enc(value, 1);
+}
+
+#if 0
+static u32 wm_enc_frames(u32 value)
+{
+    return wm_enc(value, 0);
+}
+#endif
+
+static u32 wm_dec(u32 value, BOOL bytes)
+{
+    if (value & MULTIPLIER_BIT) {
+        value = ((value & (MULTIPLIER_BIT - 1)) * 16);
+    }
+    if (bytes) {
+        value *= LAN966X_BUFFER_CELL_SZ;
+    }
+    return value;
+}
+
+static u32 wm_dec_bytes(u32 value)
+{
+    return wm_dec(value, 1);
+}
+
+
+static u32 wm_dec_frames(u32 value)
+{
+    return wm_dec(value, 0);
 }
 
 u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue)
 {
     u32 wm_high;
     REG_RD(QSYS_RES_CFG((queue + 216)), &wm_high); /* Shared ingress high watermark for queue - common for all dpls */
-    return wm_dec(wm_high) * 64; /* Convert from 64 byte chunks to bytes */
+    return wm_dec_bytes(wm_high);
 }
 
 vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state)
@@ -310,6 +357,131 @@ static vtss_rc lan966x_mmd_read_inc(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static u32 lan966x_pfc_mask(vtss_port_conf_t *conf)
+{
+    u32 q, mask = 0;
+
+    for (q = 0; q < VTSS_PRIOS; q++) {
+        mask |= (conf->flow_control.pfc[q] ? VTSS_BIT(q) : 0);
+    }
+    return mask;
+}
+
+static vtss_rc lan966x_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
+{
+    u32 pfc_mask = lan966x_pfc_mask(conf);
+    u32 spd = (conf->speed == VTSS_SPEED_10M ? 3 :
+               conf->speed == VTSS_SPEED_100M ? 2 :
+               conf->speed == VTSS_SPEED_1G ? 1 : 0);
+
+    /* Rx enable/disable */
+    REG_WR(ANA_PFC_CFG(port),
+           ANA_PFC_CFG_RX_PFC_ENA(pfc_mask) |
+           ANA_PFC_CFG_FC_LINK_SPEED(spd));
+
+    /* Forward 802.1Qbb pause frames to analyzer */
+    REG_WRM(DEV_PORT_MISC(port),
+            DEV_PORT_MISC_FWD_CTRL_ENA(pfc_mask ? 1 : 0),
+            DEV_PORT_MISC_FWD_CTRL_ENA_M);
+
+    /* PFC Tx enable is done after the core is enabled */
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
+{
+    u8                *mac;
+    u32               pfc_mask = lan966x_pfc_mask(conf);
+    BOOL              fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
+    vtss_port_speed_t speed = conf->speed;
+    vtss_port_no_t    port_no;
+    u32               rsrv_raw, rsrv_total = 0, atop_wm;
+    u32               pause_stop  = 1;
+    u32               rsrv_raw_fc_jumbo = 40000;
+    u32               rsrv_raw_no_fc_jumbo = 12000;
+    u32               rsrv_raw_fc_no_jumbo = 13662; /* 9 x 1518 */
+    u32               link_speed = (speed == VTSS_SPEED_10M ? 3 :
+                                    speed == VTSS_SPEED_100M ? 2 :
+                                    speed == VTSS_SPEED_1G ? 1 : 0);
+
+    if (pfc_mask && (fc_gen || fc_obey)) {
+        VTSS_E("802.3X FC and 802.1Qbb PFC cannot both be enabled, chip port %u", port);
+        return VTSS_RC_ERROR;
+    }
+
+    /* Configure 802.1Qbb PFC */
+    VTSS_RC(lan966x_port_pfc(vtss_state, port, conf));
+
+    if (pfc_mask) {
+        // Each port can use this as max before tail dropping starts
+        rsrv_raw = rsrv_raw_fc_no_jumbo;
+    } else {
+        /* Standard Flowcontrol */
+        if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
+            if (fc_gen) { /* FC and jumbo enabled*/
+                pause_stop = 7;
+                rsrv_raw = rsrv_raw_fc_jumbo;
+            } else {      /* FC disabled, jumbo enabled */
+                rsrv_raw = rsrv_raw_no_fc_jumbo;
+            }
+        } else {
+            if (fc_gen) { /* FC enabled, jumbo disabled */
+                pause_stop = 4;
+                rsrv_raw = rsrv_raw_fc_no_jumbo;
+            } else {
+                rsrv_raw = 0;
+            }
+        }
+    }
+
+    /* Set Pause WM hysteresis, start/stop are in 1518 byte units */
+    REG_WR(SYS_PAUSE_CFG(port),
+           SYS_PAUSE_CFG_PAUSE_START(wm_enc_bytes((pause_stop + 2) * 1518)) |
+           SYS_PAUSE_CFG_PAUSE_STOP(wm_enc_bytes(pause_stop * 1518)) |
+           SYS_PAUSE_CFG_PAUSE_ENA(fc_gen ? 1 : 0));
+
+    /* Set SMAC of Pause frame */
+    mac = &conf->flow_control.smac.addr[0];
+    REG_WR(DEV_FC_MAC_HIGH_CFG(port), (mac[0]<<16) | (mac[1]<<8) | mac[2]);
+    REG_WR(DEV_FC_MAC_LOW_CFG(port), (mac[3]<<16) | (mac[4]<<8) | mac[5]);
+
+    /* Enable/disable FC incl. pause value and zero pause */
+    REG_WR(SYS_MAC_FC_CFG(port),
+           SYS_MAC_FC_CFG_FC_LINK_SPEED(link_speed) |
+           SYS_MAC_FC_CFG_FC_LATENCY_CFG(7) |
+           SYS_MAC_FC_CFG_ZERO_PAUSE_ENA(1) |
+           SYS_MAC_FC_CFG_RX_FC_ENA(fc_obey ? 1 : 0) |
+           SYS_MAC_FC_CFG_PAUSE_VAL_CFG(pfc_mask ? 0xff : 0xffff));
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_INGRESS_DROP_MODE(fc_gen ? 1 : 0),
+            QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_M);
+
+    /* Calculate the total reserved space for all ports */
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        conf = &vtss_state->port.conf[port_no];
+        fc_gen = conf->flow_control.generate;
+        if (lan966x_pfc_mask(conf)) {
+            rsrv_total += rsrv_raw_no_fc_jumbo;
+        } else if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
+            if (fc_gen) {
+                rsrv_total += rsrv_raw_fc_jumbo;
+            } else {
+                rsrv_total += rsrv_raw_no_fc_jumbo;
+            }
+        } else if (fc_gen) {
+            rsrv_total += rsrv_raw_fc_no_jumbo;
+        }
+    }
+    atop_wm = (LAN966X_BUFFER_MEMORY - rsrv_total);
+
+    /* When 'port ATOP' and 'common ATOP_TOT' are exceeded, tail dropping is activated on port */
+    REG_WR(SYS_ATOP_TOT_CFG, wm_enc_bytes(atop_wm));
+    REG_WR(SYS_ATOP(port), wm_enc_bytes(rsrv_raw));
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
                                      const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
 {
@@ -320,7 +492,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 {
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
-    u32                    value, link_speed, delay = 0;
+    u32                    value, link_speed, delay = 0, pfc_mask;
     BOOL                   disable = conf->power_down;
     vtss_port_speed_t      speed = conf->speed;
     vtss_port_frame_gaps_t gaps;
@@ -481,13 +653,22 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         REG_WR(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_LINK_SPEED(link_speed));
 
         /* Configure flow control */
-        // TBD: VTSS_RC(srvl_port_fc_setup(vtss_state, port, conf));
+        VTSS_RC(lan966x_port_fc_setup(vtss_state, port, conf));
 
         /* Core: Enable port for frame transfer */
         REG_WRM_SET(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
 
-        /* Notify QoS module about port configuration change */
-        //TBD: VTSS_RC(vtss_srvl_qos_port_conf_change(vtss_state, port_no, port, link_speed));
+        /* Enable flowcontrol - must be done after flushing */
+        if (conf->flow_control.generate) {
+            REG_WRM_SET(SYS_MAC_FC_CFG(port), SYS_MAC_FC_CFG_TX_FC_ENA_M);
+        }
+
+        if ((pfc_mask = lan966x_pfc_mask(conf)) != 0) {
+            /*  Enable PFC Tx enable */
+            REG_WRM(QSYS_SW_PORT_MODE(port),
+                    QSYS_SW_PORT_MODE_TX_PFC_ENA(pfc_mask),
+                    QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
+        }
     }
 
 #if defined(VTSS_FEATURE_QOS_TAS)
@@ -790,6 +971,40 @@ static vtss_rc lan966x_port_test_conf_set(vtss_state_t *vtss_state, const vtss_p
 
 static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
 {
+    int q;
+    u32 port, value;
+
+    // Default watermarks are used
+    for (q = 0; q < VTSS_PRIOS; q++) {
+        /* Save initial encoded value of shared area for later use by WRED */
+        REG_RD(QSYS_RES_CFG((q + 216 + 512)), &vtss_state->port.buf_prio_shr[q]);
+    }
+
+    // The CPU will only use its reserved buffer in the shared queue system and
+    // none of the shared buffer space, therefore we disable resource sharing in
+    // egress direction. We must not disable resource sharing in the ingress
+    // direction, because some traffic test scenarios require loads of buffer
+    // memory for frames initiated by the CPU.
+    port = VTSS_CHIP_PORT_CPU;
+
+    // Egress
+    REG_RD(QSYS_EGR_NO_SHARING, &value);
+    value = QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value);
+    value |= VTSS_BIT(port);
+    REG_WRM(QSYS_EGR_NO_SHARING,
+            QSYS_EGR_NO_SHARING_EGR_NO_SHARING(value),
+            QSYS_EGR_NO_SHARING_EGR_NO_SHARING_M);
+
+    // The CPU should also discard frames forwarded to it if it has run
+    // out of the reserved buffer space. Otherwise they will be held back
+    // in the ingress queues with potential head-of-line blocking effects.
+    REG_RD(QSYS_EGR_DROP_MODE, &value);
+    value = QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE_X(value);
+    value |= VTSS_BIT(port);
+    REG_WRM(QSYS_EGR_DROP_MODE,
+            QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE(value),
+            QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE_M);
+
     return VTSS_RC_OK;
 }
 
@@ -923,11 +1138,191 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static void lan966x_debug_wm_dump(const vtss_debug_printf_t pr,
+                                  const char *reg_name, u32 *value, u32 i, BOOL bytes)
+{
+    u32 q;
+    pr("%-26s", reg_name);
+    for (q = 0; q < i; q++) {
+        pr("%6u ", wm_dec(value[q], bytes));
+    }
+    pr("\n");
+}
+
+static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
+                                const vtss_debug_printf_t pr,
+                                const vtss_debug_info_t   *const info)
+
+{
+    u32 port_no, value, q, dp, cpu_port, port;
+    u32 id[8] = {0}, val1[8] = {0}, val2[8] = {0}, val3[8] = {0}, val4[8] = {0}, val5[8] = {0};
+    const char *txt;
+
+    pr("Global configuration:\n");
+    pr("---------------------\n");
+    pr("Total buffer memory     : %d bytes\n", LAN966X_BUFFER_MEMORY);
+    pr("Total frame references  : %d frames\n", LAN966X_BUFFER_REFERENCE);
+    pr("\n");
+    REG_RD(SYS_PAUSE_TOT_CFG, &value);
+    pr("FC Pause TOT_START WM   : %d bytes\n", wm_dec_bytes(SYS_PAUSE_TOT_CFG_PAUSE_TOT_START_X(value)));
+    pr("FC Pause TOT_STOP WM    : %d bytes\n", wm_dec_bytes(SYS_PAUSE_TOT_CFG_PAUSE_TOT_STOP_X(value)));
+    REG_RD(SYS_ATOP_TOT_CFG, &value);
+    pr("FC TailDrop ATOP_TOT WM : %d bytes\n", wm_dec_bytes(SYS_ATOP_TOT_CFG_ATOP_TOT_X(value)));
+    pr("\n");
+
+    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count; port_no++) {
+        cpu_port = (port_no == vtss_state->port_count);
+        if (cpu_port) {
+            /* CPU port */
+            if (!info->full) {
+                continue;
+            }
+            port = VTSS_CHIP_PORT_CPU;
+            pr("CPU Port : %2u\n", port_no);
+            pr("-------------\n");
+        } else {
+            if (!info->port_list[port_no]) {
+                continue;
+            }
+            port = VTSS_CHIP_PORT(port_no);
+            pr("Port : %2u\n", port_no);
+            pr("---------\n");
+        }
+        if (!cpu_port) {
+            REG_RD(SYS_MAC_FC_CFG(port), &value);
+            pr("FC Pause Tx ena     : %d\n", SYS_MAC_FC_CFG_TX_FC_ENA_X(value));
+            pr("FC Pause Rx ena     : %d\n", SYS_MAC_FC_CFG_RX_FC_ENA_X(value));
+            pr("FC Pause Time Value : 0x%x\n", SYS_MAC_FC_CFG_PAUSE_VAL_CFG_X(value));
+            pr("FC Zero pause       : %d\n", SYS_MAC_FC_CFG_ZERO_PAUSE_ENA_X(value));
+            REG_RD(SYS_PAUSE_CFG(port), &value);
+            pr("FC Pause Ena        : %d\n", SYS_PAUSE_CFG_PAUSE_ENA_X(value));
+            pr("FC Pause Start WM   : %d bytes\n", wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_START_X(value)));
+            pr("FC Pause Stop WM    : %d bytes\n", wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_STOP_X(value)));
+            pr("\n");
+        }
+
+        REG_RD(SYS_ATOP(port), &value);
+        pr("FC TailDrop ATOP WM : %d bytes\n", wm_dec_bytes(SYS_ATOP_ATOP_X(value)));
+        REG_RD(QSYS_SW_PORT_MODE(port), &value);
+        pr("Ingress Drop Mode   : %d\n", QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_X(value));
+        REG_RD(QSYS_EGR_DROP_MODE, &value);
+        pr("Egress Drop Mode    : %d\n", QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE_X(value) & VTSS_BIT(port) ? 1 : 0);
+        REG_RD(QSYS_IGR_NO_SHARING, &value);
+        pr("Ingress No Sharing  : %d\n", QSYS_IGR_NO_SHARING_IGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
+        REG_RD(QSYS_EGR_NO_SHARING, &value);
+        pr("Ingress No Sharing  : %d\n", QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
+        REG_RD(QSYS_PORT_MODE(port), &value);
+        pr("Dequeuing disabled  : %d\n", QSYS_PORT_MODE_DEQUEUE_DIS_X(value));
+        pr("\n");
+
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            id[q] = q;
+            REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 0),   &val1[q]);
+            REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 256), &val2[q]);
+            REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 512), &val3[q]);
+            REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 768), &val4[q]);
+        }
+        lan966x_debug_wm_dump(pr, "Queue level rsrv WMs:", id, 8, FALSE);
+        lan966x_debug_wm_dump(pr, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8, TRUE);
+        lan966x_debug_wm_dump(pr, "Qu Ingr Ref Rsrv (Frames):", val2, 8, FALSE);
+        lan966x_debug_wm_dump(pr, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8, TRUE);
+        lan966x_debug_wm_dump(pr, "Qu Egr Ref Rsrv  (Frames):", val4, 8, FALSE);
+        pr("\n");
+
+        /* Configure reserved space for port */
+        REG_RD(QSYS_RES_CFG(port + 224 +   0), &val1[0]);
+        REG_RD(QSYS_RES_CFG(port + 224 + 256), &val2[0]);
+        REG_RD(QSYS_RES_CFG(port + 224 + 512), &val3[0]);
+        REG_RD(QSYS_RES_CFG(port + 224 + 768), &val4[0]);
+        pr("Port level rsrv WMs:\n");
+        pr("Port Ingress Buf Rsrv: %u Bytes\n",  wm_dec_bytes(val1[0]));
+        pr("Port Ingress Ref Rsrv: %u Frames\n", wm_dec_frames(val2[0]));
+        pr("Port Egress  Buf Rsrv: %u Bytes\n",  wm_dec_bytes(val3[0]));
+        pr("Port Egress  Ref Rsrv: %u Frames\n", wm_dec_frames
+           (val4[0]));
+        pr("\n");
+    }
+
+    pr("Shared :\n");
+    pr("--------\n");
+    /* Shared space for all QoS classes */
+    REG_RD(QSYS_RES_QOS_MODE, &value);
+    value = QSYS_RES_QOS_MODE_RES_QOS_RSRVD_X(value);
+    for (q = 0; q < VTSS_PRIOS; q++) {
+        REG_RD(QSYS_RES_CFG(q + 216 + 0),   &val1[q]);
+        REG_RD(QSYS_RES_CFG(q + 216 + 256), &val2[q]);
+        REG_RD(QSYS_RES_CFG(q + 216 + 512), &val3[q]);
+        REG_RD(QSYS_RES_CFG(q + 216 + 768), &val4[q]);
+        val5[q] = (value & VTSS_BIT(q) ? 1 : 0);
+    }
+    lan966x_debug_wm_dump(pr, "QoS level:", id, 8, FALSE);
+    lan966x_debug_wm_dump(pr, "QoS Ingr Buf (Bytes) :", val1, 8, TRUE);
+    lan966x_debug_wm_dump(pr, "QoS Ingr Ref (Frames):", val2, 8, FALSE);
+    lan966x_debug_wm_dump(pr, "QoS Egr Buf  (Bytes) :", val3, 8, TRUE);
+    lan966x_debug_wm_dump(pr, "QoS Egr Ref  (Frames):", val4, 8, FALSE);
+    lan966x_debug_wm_dump(pr, "QoS Reservation Mode :", val5, 8, FALSE);
+    pr("\n");
+
+    pr("Color level:\n");
+    /* Configure shared space for both DP levels         */
+    /* In this context dp:0 is yellow and dp:1 is green */
+    for (dp = 0; dp < 2; dp++) {
+        REG_RD(QSYS_RES_CFG(dp + 254 +   0), &val1[0]);
+        REG_RD(QSYS_RES_CFG(dp + 254 + 256), &val2[0]);
+        REG_RD(QSYS_RES_CFG(dp + 254 + 512), &val3[0]);
+        REG_RD(QSYS_RES_CFG(dp + 254 + 768), &val4[0]);
+        txt = (dp ? "Green " : "Yellow");
+        pr("Port DP:%s Ingress Buf : %u Bytes\n", txt, wm_dec_bytes(val1[0]));
+        pr("Port DP:%s Ingress Ref : %u Frames\n",txt, wm_dec_frames(val2[0]));
+        pr("Port DP:%s Egress  Buf : %u Bytes\n", txt, wm_dec_bytes(val3[0]));
+        pr("Port DP:%s Egress  Ref : %u Frames\n",txt, wm_dec_frames(val4[0]));
+    }
+    pr("\n");
+
+    pr("WRED config:\n");
+    pr("Queue Dpl WM_HIGH  bytes RED_LOW  bytes RED_HIGH  bytes\n");
+    //  xxxxx xxx 0xxxxx xxxxxxx 0xxxxx xxxxxxx 0xxxxx  xxxxxxx
+    for (q = VTSS_QUEUE_START; q < VTSS_QUEUE_END; q++) {
+        u32 wm_high, red_profile, wm_red_low, wm_red_high;
+        REG_RD(QSYS_RES_CFG(q + 216), &wm_high); /* Shared ingress high watermark for queue */
+        for (dp = 0; dp < 2; dp++) {
+            REG_RD(QSYS_RED_PROFILE(q + (8 * dp)), &red_profile); /* Red profile for queue, dpl */
+            wm_red_low  = QSYS_RED_PROFILE_WM_RED_LOW_X(red_profile);
+            wm_red_high = QSYS_RED_PROFILE_WM_RED_HIGH_X(red_profile);
+            pr("%5u %3u  0x%04x %6u  0x%04x %6u   0x%04x %6u\n",
+               q,
+               dp,
+               wm_high,
+               wm_dec_bytes(wm_high),
+               wm_red_low,
+               wm_red_low * 1024,
+               wm_red_high,
+               wm_red_high * 1024);
+        }
+    }
+    pr("\n");
+
+    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count; port_no++) {
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            port = (port_no == vtss_state->port_count) ? VTSS_CHIP_PORT_CPU : VTSS_CHIP_PORT(port_no);
+            REG_RD(QSYS_RES_STAT(port * VTSS_PRIOS + q + 0), &value);
+            if (value > 0) {
+                pr("API port %u (%u), ingress qu %u: Inuse:%u bytes, Maxuse:%u bytes\n",
+                   port_no, port, q,
+                   wm_dec_bytes(QSYS_RES_STAT_INUSE_X(value)),
+                   wm_dec_bytes(QSYS_RES_STAT_MAXUSE_X(value)));
+            }
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_lan966x_port_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, lan966x_debug_port_cnt, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
