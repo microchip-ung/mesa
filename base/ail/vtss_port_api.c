@@ -203,13 +203,13 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
     VTSS_I("port_no: %u, power-down = %u", port_no, conf->power_down);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        /* if (vtss_state->port.conf_set_called[port_no] && */
-        /*     memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) { */
-        /*     // Not first time and conf hasn't changed. Nothing to do. */
-        /*     VTSS_I("port_no: %u - conf unchanged, skipping set", port_no); */
-        /* } else { */
-        /*     rc = vtss_port_conf_set_private(vtss_state, port_no, conf); */
-        /* } */
+        if (vtss_state->port.conf_set_called[port_no] &&
+            memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) {
+            // Not first time and conf hasn't changed. Nothing to do.
+            VTSS_I("port_no: %u - conf unchanged, skipping set", port_no);
+        } else {
+            rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
+        }
         rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
     }
     VTSS_EXIT();

@@ -950,10 +950,12 @@ static void kr_poll(meba_inst_t inst)
                     cli_printf("Failure during port_kr_fec_set\n");
                }
             }
-            // Aneg speed change request
-            pconf.speed = kr_irq2spd(irq & 0xf);
-            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            (void)mesa_port_conf_set(NULL, iport, &pconf);
+            if (pconf.speed != kr_irq2spd(irq & 0xf)) {
+                // Aneg speed change request
+                pconf.speed = kr_irq2spd(irq & 0xf);
+                pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+                (void)mesa_port_conf_set(NULL, iport, &pconf);
+            }
             printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
 
         }
