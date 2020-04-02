@@ -906,8 +906,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             /* According to Morten this is not relevant */
         }
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1075) : (1000 * 49);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1075) : (1000 * 49);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1080) : (1000 * 49);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1080) : (1000 * 49);
         }
         if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
             rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
