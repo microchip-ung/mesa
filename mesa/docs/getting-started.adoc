@@ -245,7 +245,8 @@ To do this, we will grep for 7514 in the available options:
 ----
 $ ./cmake .. -LAH | grep 7514
 app_vsc7514:BOOL=OFF
-mfi_vsc7514:BOOL=OFF
+mfi_vsc7514_pcb120:BOOL=on
+mfi_vsc7514_pcb123:BOOL=OFF
 // Build the API for 7514 (vsc7514)
 vsc7514:BOOL=OFF
 // Build the static API for 7514 (vsc7514)
@@ -253,18 +254,17 @@ vsc7514_static:BOOL=OFF
 ----
 
 As we are interested in a bootable firmware we need either a `fit`/`itb` or
-`mfi` image. In this case we want the `mfi_vsc7514` target. To enable this use
+`mfi` image. In this case we want the `mfi_vsc7514_pcb120` target. To enable this use
 the following command:
 
 ----
-$ ./cmake .. -Dmfi_vsc7514=on
+$ ./cmake .. -Dmfi_vsc7514_pcb120=on
 -- Project name          = vtss_api
 --   Type                = Release
 --   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
 -- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-2019.02.1-220/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
--- Adding: mfi_vsc7514 [machine: ocelot socfam: ocelot chipno: 8 kernel: ocelot kmod ocelot]
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /tmp/mesa-v2019.06-217-g9c57e1c@master/build-mipsel
