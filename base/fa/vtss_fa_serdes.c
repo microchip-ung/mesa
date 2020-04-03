@@ -358,19 +358,48 @@ static u32 kr_drv_2_ampcode(u32 ipdriver, u32 vcdriver)
     }
 }
 
-static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, u16 tap_dly, u16 tap_adv, u16 ampl)
+vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
+                               u16 *tap_dly, u16 *tap_adv, u16 *ampl)
 {
-    u32 sd_indx, sd_type, sd25g_tgt, sd_lane_tgt, ipdriver = 0, vcdriver = 0;
+    u32 sd_indx, sd_type, sd25g_tgt, val1, ipdriver, vcdriver;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
     sd25g_tgt = VTSS_TO_SD25G_LANE(sd_indx);
-    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
-   
+
+    REG_RD(VTSS_SD25G_TARGET_LANE_03(sd25g_tgt), &val1);
+    *tap_dly = VTSS_X_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0(val1);
+
+    REG_RD(VTSS_SD25G_TARGET_LANE_06(sd25g_tgt), &val1);
+    *tap_adv = VTSS_X_SD25G_TARGET_LANE_06_LN_CFG_TAP_ADV_3_0(val1);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt), &val1);
+    ipdriver = VTSS_X_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(val1);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt), &val1);
+    vcdriver = VTSS_X_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(val1);
+
+    *ampl = kr_drv_2_ampcode(ipdriver, vcdriver);
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, u16 tap_dly, u16 tap_adv, u16 ampl)
+{
+    u32 sd_indx, sd_type, sd25g_tgt, ipdriver = 0, vcdriver = 0;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    sd25g_tgt = VTSS_TO_SD25G_LANE(sd_indx);
+
     (void)kr_ampcode_2_drv(ampl, &ipdriver, &vcdriver);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
             VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-    
+
     REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(ipdriver),
             VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
@@ -378,20 +407,26 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
             VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-   
+
     REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
             VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(vcdriver),
             VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY(1) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV(1) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(tap_dly) |
-            VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(tap_adv),
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_DLY |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_EN_ADV |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY |
-            VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV);
+    REG_WRM(VTSS_SD25G_TARGET_LANE_03(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0(tap_dly),
+            VTSS_M_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_06(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_06_LN_CFG_TAP_ADV_3_0(tap_adv),
+            VTSS_M_SD25G_TARGET_LANE_06_LN_CFG_TAP_ADV_3_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_07(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_07_LN_CFG_EN_DLY(1),
+            VTSS_M_SD25G_TARGET_LANE_07_LN_CFG_EN_DLY);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_07(sd25g_tgt),
+            VTSS_F_SD25G_TARGET_LANE_07_LN_CFG_EN_ADV(1),
+            VTSS_M_SD25G_TARGET_LANE_07_LN_CFG_EN_ADV);
 
     return VTSS_RC_OK;
 }
@@ -932,7 +967,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
 
     if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
         ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
-        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+        VTSS_E("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
                p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _pcs2pma,*pcs2pma,_tap_dly,*tap_dly,_tap_adv,*tap_adv,
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
@@ -1043,7 +1078,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
 
     if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
         ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
-        printf("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
+        VTSS_E("FAILURE! p:%d Tap:%s Action:%s  _pcs2pma=%d (in:%d) _tap_dly=%d (in:%d)  _tap_adv=%d (in:%d) (dly+adv=%d) -> Status:%s (Reason:%s)\n",
                p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), _amp_code,*amp_code,_tap_dly, *tap_dly, _tap_adv, *tap_adv,
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
@@ -1393,7 +1428,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
 
     if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
         ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
-        printf("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n",
+        VTSS_E("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n",
                p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv,
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only);
     }
@@ -1449,38 +1484,10 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
     val1 = VTSS_X_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(val1) << 6;
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt), &val2);
     *ampl = (u16)(val1 + val2);
-    
+
     return VTSS_RC_OK;
 }
 
-
-vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
-                               u16 *tap_dly, u16 *tap_adv, u16 *ampl)
-{
-    u32 sd_indx, sd_type, sd25g_tgt, sd_lane_tgt, val1, ipdriver, vcdriver;
-    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
-    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
-    sd25g_tgt = VTSS_TO_SD25G_LANE(sd_indx);
-
-    REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt), &val1);
-    *tap_dly = (u16)VTSS_X_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_DLY(val1);
-    *tap_adv = (u16)VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_PCS_TAP_ADV(val1);
-
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
-            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-    REG_RD(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt), &val1);    
-    ipdriver = VTSS_X_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(val1);
-
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
-            VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
-            VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-    REG_RD(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt), &val1);
-    vcdriver = VTSS_X_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(val1);
-    *ampl = kr_drv_2_ampcode(ipdriver, vcdriver);
-        
-    return VTSS_RC_OK;
-}
 
 static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                                   u16 tap_dly, u16 tap_adv, u16 ampl)
@@ -1572,7 +1579,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     status_out->status = sts_tmp; // Return status report
     status_out->cm1 = tap_adv;
     status_out->cp1 = tap_dly;
-    status_out->c0 = amplitude; 
+    status_out->c0 = amplitude;
     return VTSS_RC_OK;
 }
 
@@ -1597,7 +1604,7 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
     REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0),
             VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
-   
+
     REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0(4),
             VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_2_0);
@@ -1912,7 +1919,6 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
     u32 eye_res[140][10] = {0};
     u32 vref_cnt = 0;
     char buf[100];
-    u32 top = 0;
     u32 bottom = 0;
     BOOL top_found = 0;
     BOOL bottom_found = 0;
@@ -1959,7 +1965,6 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
 
             if (!top_found && bottom_found && (sum == 2040)) {
                 if (vref_cnt - bottom > 5) {
-                    top = vref_cnt;
                     top_found = 1;
                 }
             }
@@ -1978,7 +1983,6 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
         vref_cnt++;
     }
     if (pr != NULL) {
-        printf("Eye height:%d\n",top-bottom);
         for (int i = vref_cnt; i >= 0; i--) {
             if ((i % 4 == 0) || i == 127) {
                 (void)buf_set(buf, eye_res[i]);
@@ -2175,8 +2179,7 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
     REG_RD(VTSS_SD25G_TARGET_LANE_C3(sd_tgt), &val);
 
     if (VTSS_X_SD25G_TARGET_LANE_C3_LN_FAST_EYE_SCAN_FAIL(val) > 0) {
-//        VTSS_E("Eye scan fails to complete");
-        printf("Eye scan fails to complete\n");
+        VTSS_E("Eye scan fails to complete");
         *height = 1;
         return VTSS_RC_OK;
     }
@@ -2291,7 +2294,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
         }
     }
 
-    
+
     /* if (action == 2) { */
     /*     VTSS_RC(fa_serdes_25g_normal_eye(vtss_state, sd_tgt, pr)); */
     /* } else { */
@@ -2569,7 +2572,7 @@ vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_
 //            VTSS_RC(fa_serdes_oscal_set(vtss_state, sd_tgt, port_no));
         }
     } else if (conf->debug_type == VTSS_SERDES_TXEQ_PRM) {
-        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, conf->serdes_prm[0], conf->serdes_prm[1], conf->serdes_prm[2])); // TxEQ set
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, conf->serdes_prm[0], conf->serdes_prm[1], conf->serdes_prm[2])); // TxEQ set
     }
 
     return VTSS_RC_OK;
@@ -2738,7 +2741,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
 
     if (info->action == 1) {
         VTSS_RC(fa_serdes_dump(vtss_state, pr, port_no));
-    } else if ((info->action >= 2 && info->action <= 4) || info->action == 10)  {
+    } else if (info->action >= 2 && info->action <= 4)  {
         if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
             VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
@@ -2760,10 +2763,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
         VTSS_RC(fa_serdes_dfe_set(vtss_state, pr, port_no, TRUE)); // DFE Enable
     } else if (info->action == 10) {
         u16 tap_dly=0, tap_adv=0, ampl=0;
-        VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv, &ampl)); // TxEQ read
-        pr("Tap_dly:%d\n",tap_dly);
-        pr("Tap_adv:%d\n",tap_adv);
-        pr("Amplitude:%d\n",ampl);
+        VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv, &ampl)); // TxEQ read
+        pr("Tap_dly   (CP):%d\n",tap_dly);
+        pr("Tap_adv   (CM):%d\n",tap_adv);
+        pr("Amplitude:(C0):%d\n",ampl);
     }
     return VTSS_RC_OK;
 }

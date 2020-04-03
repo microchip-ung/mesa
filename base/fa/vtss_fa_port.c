@@ -3683,23 +3683,6 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->clause_37_status_get = fa_port_clause_37_status_get;
         state->clause_37_control_get = fa_port_clause_37_control_get;
         state->clause_37_control_set = fa_port_clause_37_control_set;
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
-        state->kr_conf_set = fa_port_kr_conf_set;
-        state->kr_status = fa_port_kr_status;
-        state->kr_irq = fa_port_kr_irq_get;
-        state->kr_fw_req = fa_port_kr_fw_req;
-
-
-        state->kr_frame_set = fa_port_kr_frame_set;
-        state->kr_frame_get = fa_port_kr_frame_get;
-
-        state->kr_coef_set = fa_port_kr_coef_set;
-
-        state->kr_eye_dim = fa_port_kr_eye_dim;
-
-        state->kr_fec_set = fa_port_kr_fec_set;
-
-#endif /* VTSS_FEATURE_10G_BASE_KR */
         state->status_get = fa_port_status_get;
         state->counters_update = fa_port_counters_update;
         state->counters_clear = fa_port_counters_clear;
@@ -3708,7 +3691,17 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->forward_set = fa_port_forward_set;
         state->test_conf_set = fa_port_test_conf_set;
         state->serdes_debug_set = fa_port_serdes_debug;
-
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+        state->kr_conf_set = fa_port_kr_conf_set;
+        state->kr_status = fa_port_kr_status;
+        state->kr_irq = fa_port_kr_irq_get;
+        state->kr_fw_req = fa_port_kr_fw_req;
+        state->kr_frame_set = fa_port_kr_frame_set;
+        state->kr_frame_get = fa_port_kr_frame_get;
+        state->kr_coef_set = fa_port_kr_coef_set;
+        state->kr_eye_dim = fa_port_kr_eye_dim;
+        state->kr_fec_set = fa_port_kr_fec_set;
+#endif /* VTSS_FEATURE_10G_BASE_KR */
 
         /* SYNCE features */
 #if defined(VTSS_FEATURE_SYNCE)

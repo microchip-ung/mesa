@@ -309,6 +309,7 @@ static void cli_cmd_debug_serdes(cli_req_t *req)
             sprintf(numbuf + strlen(numbuf), "%d ",mreq->value_list[i]);
         }
         (void)mesa_port_serdes_debug_set(NULL, iport, &conf);
+
     }
 }
 
@@ -408,7 +409,9 @@ static cli_cmd_t cli_cmd_table[] = {
     },
     {
         "Debug serdes <port_list> [dfe] [ctle] [txeq] <value_list>",
-        "Set RX (dfe or ctle) or TX (txeq) EQ",
+        "deb serdes <port> dfe h1,h2,h3,h4,h5,0 (10g) or h1,h2,h3,h4,h5,dlev (25g)\n "
+        "deb serdes <port> ctle r,c,vga,0 (10g)  or vga_r,vga_c,c,gain (25g)\n "
+        "deb serdes <port> txeq dly,adv,ampl\n ",
         cli_cmd_debug_serdes,
         CLI_CMD_FLAG_ALL_PORTS
     },
@@ -640,7 +643,6 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NONE,
         cli_parm_value_array,
     },
-
     {
         "<page>",
         "Register page (0-0xffff), default: page 0",
@@ -695,19 +697,19 @@ static cli_parm_t cli_parm_table[] = {
     },
     {
         "dfe",
-        "Rx equalization",
+        "Rx equalization: deb serdes <port> dfe h1,h2,h3,h4,h5,0 (10g) or h1,h2,h3,h4,h5,dlev (25g)",
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
     },
     {
         "ctle",
-        "Rx equalization",
+        "Rx equalization: deb serdes <port> ctle r,c,vga,0 (10g) or vga_r,vga_c,c,gain (25g)",
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
     },
     {
         "txeq",
-        "Tx equalization",
+        "Tx equalization: deb serdes <port> txeq dly,adv,ampl",
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
     },
