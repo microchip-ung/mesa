@@ -40,14 +40,14 @@ OptionParser.new do |opts|
 
 end.parse!
 
-if File.file?("../../../../easytest/test-setup-server/et")
-    $et = "../../../../easytest/test-setup-server/et"
+# Change directory to the test folder
+Dir.chdir $options[:dir]
+
+if File.file?("../../../../../../easytest/test-setup-server/et")
+    $et = "../../../../../../easytest/test-setup-server/et"
 else
     $et = "/easytest/easytest/test-setup-server/et"
 end
-
-# Change directory to the test folder
-Dir.chdir $options[:dir]
 
 #$test_suites  = ["suite_port.rb"]
 $test_suites = Dir.glob("suite_*.rb")
