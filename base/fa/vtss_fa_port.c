@@ -2175,8 +2175,8 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM((speed == VTSS_SPEED_10M || speed == VTSS_SPEED_100M) ? 1 : 0),
             VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
-    /* Setup QoS */
-    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no));
+    /* Setup QoS - in reset */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
 
     if (!disable) {
         /* Configure flow control */
@@ -2221,7 +2221,12 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
         }
     }
+
+    /* Setup QoS - out of reset */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
+
     VTSS_D("Chip port: %u (1G) is configured", port);
+
     return VTSS_RC_OK;
 }
 
@@ -2358,8 +2363,8 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
             VTSS_F_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA(conf->frame_length_chk),
             VTSS_M_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
-    /* Setup QoS */
-    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no));
+    /* Setup QoS - in reset */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
 
     if (!conf->power_down) {
         /* Configure flow control */
@@ -2405,6 +2410,9 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     } else {
         /* Disable the  serdes (not supported) */
     }
+
+    /* Setup QoS - out of reset */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
 
     VTSS_D("chip port: %u (10G),is configured", port);
 

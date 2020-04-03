@@ -3161,12 +3161,24 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_reset)
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     u32                     enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, unit, tgt, port = VTSS_CHIP_PORT(port_no);
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
+
+    if (is_reset) {
+        if (enable_tx) {
+            // In reset, only setup if Tx disabled
+            return VTSS_RC_OK;
+        }
+    } else {
+        if (!enable_tx) {
+            // Out of reset, only setup if Tx enabled
+            return VTSS_RC_OK;
+        }
+    }
 
     /* Check if frame preemption is supported for port speed */
     if (enable_tx) {
@@ -3272,15 +3284,14 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
 }
 #endif
 
-vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset)
 {
     /* Setup depending on port speed */
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    VTSS_RC(fa_qos_fp_port_conf_set(vtss_state, port_no));
+    return fa_qos_fp_port_conf_set(vtss_state, port_no, is_reset);
 #else
-    VTSS_RC(fa_qos_queue_cut_through_set(vtss_state, port_no));
+    return (is_reset ? fa_qos_queue_cut_through_set(vtss_state, port_no) : VTSS_RC_OK);
 #endif
-    return VTSS_RC_OK;
 }
 
 /* - Debug print --------------------------------------------------- */

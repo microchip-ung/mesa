@@ -324,7 +324,7 @@ u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
-vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset);
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
                                          const vtss_port_no_t  port_no);
 #endif /* VTSS_FEATURE_QOS */
