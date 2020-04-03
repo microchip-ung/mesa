@@ -31,6 +31,9 @@ smac = ["00:00:00:00:00:06","00:00:00:00:00:07"]
 counters = []
 
 test "test_run" do
+    console("Clear port statistics")
+    $ts.dut.run("mesa-cmd port statis clear")
+
     console("Transmit two frames with different SMAC")
     cmd = "sudo ef tx #{$ts.pc.p[ig]} eth smac #{smac[0]}"
     $ts.pc.run(cmd)
