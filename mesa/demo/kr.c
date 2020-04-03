@@ -37,9 +37,12 @@ kr_appl_conf_t *kr_conf_state;
 
 // For debug
 uint32_t deb_dump_irq = 0;
+mesa_bool_t global_stop = 0;
 
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
+
+
 
 static char *ber2txt(mesa_ber_stage_t st)
 {
@@ -352,6 +355,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
     if (BASE_KR_V3) {
         mesa_port_kr_conf_t conf = {0};
+        global_stop = 0;
 
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
 
@@ -915,6 +919,14 @@ static void kr_poll(meba_inst_t inst)
             continue;
         }
 
+        if (irq & MESA_KR_AN_GOOD) {
+            kr_conf_state[iport].gen1_wait = TRUE;
+        }
+
+        if ((irq & MESA_KR_GEN1_DONE)) {
+            kr_conf_state[iport].gen1_wait = FALSE;
+        }
+
         if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
             (void)time_start(&kr->time_start_aneg); // Start the aneg timer
         }
@@ -922,7 +934,6 @@ static void kr_poll(meba_inst_t inst)
         if ((irq & MESA_KR_TRAIN)) {
             (void)time_start(&kr->time_start_train); // Start the train timer
         }
-
 
         dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg));
 
@@ -936,7 +947,7 @@ static void kr_poll(meba_inst_t inst)
         }
 
         // KR_AN_RATE
-        if ((irq & MESA_KR_AN_RATE) > 0) {
+        if ((irq & MESA_KR_AN_RATE) > 0 && !kr_conf_state[iport].gen1_wait) {
             kr_conf_state[iport].chk_block_lock = 0;
             if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
                 cli_printf("Failure during port_kr_status_get\n");
@@ -951,8 +962,8 @@ static void kr_poll(meba_inst_t inst)
                }
             }
             if (pconf.speed != kr_irq2spd(irq & 0xf)) {
-                // Aneg speed change request
                 pconf.speed = kr_irq2spd(irq & 0xf);
+                // Aneg speed change request
                 pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
                 (void)mesa_port_conf_set(NULL, iport, &pconf);
             }
@@ -963,11 +974,11 @@ static void kr_poll(meba_inst_t inst)
         // KR_RATE_DET
         if (irq & MESA_KR_RATE_DET) {
             // Parallel detect speed change
-            printf("Port:%d - Rate detect disabled (%d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
+            printf("Port:%d - Rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
             pconf.speed = kr_parallel_spd(iport, &kr_conf);
             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-            (void)mesa_port_conf_set(NULL, iport, &pconf);
+            /* printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg)); */
+            /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
         }
 
         if (irq & MESA_KR_MW_DONE) {

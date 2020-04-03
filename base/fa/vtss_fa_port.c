@@ -721,12 +721,6 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
-
-#define KR_ANEG_RATE_25G 7
-#define KR_ANEG_RATE_10G 9
-#define KR_ANEG_RATE_5G  11
-#define KR_ANEG_RATE_2G5 12
-#define KR_ANEG_RATE_1G  13
 #define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
 #define NP_TOGGLE (VTSS_BIT(11))
 #define NP_ACK2 (VTSS_BIT(12))
@@ -757,15 +751,15 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
     tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
-        spd = 9;
+        spd = KR_ANEG_RATE_10G;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
-        spd = 7;
+        spd = KR_ANEG_RATE_25G;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_5G) {
-        spd = 11;
+        spd = KR_ANEG_RATE_5G;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_2500M) {
-        spd = 12;
+        spd = KR_ANEG_RATE_2G5;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_1G) {
-        spd = 13;
+        spd = KR_ANEG_RATE_1G;
     } else {
         VTSS_E("Could not set KR speed %d\n",vtss_state->port.conf[port_no].speed);
         return VTSS_RC_ERROR;
@@ -775,14 +769,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
             VTSS_F_IP_KRANEG_AN_CFG1_RATE(spd),
             VTSS_M_IP_KRANEG_AN_CFG1_RATE);
 
-    /* if (spd == 12 || spd == 13) { */
-    /*     REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt), */
-    /*             VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0), */
-    /*             VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE); */
-
-    /* } */
     return VTSS_RC_OK;
-
 }
 
 
@@ -1234,14 +1221,17 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(0),
             VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
 
-    // Generic timer
+    // Generic timer 0
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
+
+    // Generic timer 1
+    REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500); // 10 ms
 
     // Link pass inihibit timer (in AN_GOOD_CHECK)
     REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
-
+   
     // Disable Rate Detect time (in parallel detect)
-    REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
+//    REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
 
     return VTSS_RC_OK;
 }

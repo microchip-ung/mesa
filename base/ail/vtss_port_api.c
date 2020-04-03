@@ -2038,6 +2038,12 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
+//    if ((irq & KR_LINK_FAIL)) {
+    if (irq & KR_AN_GOOD) {
+        req_msg.gen1_tmr_start = TRUE;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+    }
+
     return VTSS_RC_OK;
 }
 
