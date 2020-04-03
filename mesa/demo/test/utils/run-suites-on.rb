@@ -76,6 +76,7 @@ if ($options[:system] != nil) && ($options[:image] != nil)
         end
 
         if ((Time.now - t1) > seconds)
+            puts("Timeout on reserve system #{system}. Waited  #{seconds} seconds");
             exit 7  # timeout - return with error
         end
 
