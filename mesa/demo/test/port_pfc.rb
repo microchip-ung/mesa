@@ -64,14 +64,6 @@ test("Setup learning, vlan and PCP classification") do
     }
     $ts.dut.call "mesa_mac_table_add", entry
 
-    # Set VLAN port configuration
-    [$port_tx1, $port_tx2].each do |port|
-        conf = $ts.dut.call "mesa_port_conf_get", $ts.dut.p[port]
-        conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
-        conf["untagged_vid"] = 0
-        $ts.dut.call "mesa_port_conf_set", $ts.dut.p[port], conf
-    end
-
     # Enable PCP classification
     [$port_tx1, $port_tx2].each do |port|
         conf = $ts.dut.call "mesa_qos_port_conf_get", $ts.dut.p[port]

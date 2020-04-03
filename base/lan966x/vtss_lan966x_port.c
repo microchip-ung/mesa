@@ -490,6 +490,7 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+    vtss_rc                rc = VTSS_RC_OK;
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    value, link_speed, delay = 0, pfc_mask;
@@ -565,10 +566,12 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         VTSS_MSLEEP(1);
         delay++;
         if (delay == 2000) {
-            VTSS_E("Flush timeout chip port %u",port);
+            VTSS_E("Flush timeout chip port %u", port);
+            rc = VTSS_RC_ERROR;
             break;
         }
     } while (value & QSYS_SW_STATUS_EQ_AVAIL_M);
+
     /* 11: Reset the Port and MAC clock domains */
     REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
     REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PORT_RST_M);
@@ -640,8 +643,8 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
     VTSS_RC(vtss_lan966x_port_max_tags_set(vtss_state, port_no));
 
-    // Setup QoS
-    VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no));
+    // Setup QoS - in reset
+    VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, TRUE));
 
     if (!disable) {
         /* Enable MAC module */
@@ -671,12 +674,15 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         }
     }
 
+    // Setup QoS - out of reset
+    VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, FALSE));
+
 #if defined(VTSS_FEATURE_QOS_TAS)
     /* Time Aware Scheduling setup depends on link speed */
     VTSS_RC(vtss_lan966x_qos_tas_port_conf_update(vtss_state, port_no));
 #endif
 
-    return VTSS_RC_OK;
+    return rc;
 }
 
 

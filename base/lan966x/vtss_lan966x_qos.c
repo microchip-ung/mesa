@@ -1585,10 +1585,16 @@ static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t              *vtss_s
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_reset)
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
+    BOOL                    enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, mask = 0, port = VTSS_CHIP_PORT(port_no);
+
+    // Setup before/after reset depending on Tx enable
+    if (enable_tx == is_reset) {
+        return VTSS_RC_OK;
+    }
 
     // Disable preemptable queues
     REG_WR(QSYS_PREEMPT_CFG(port),
@@ -1598,7 +1604,7 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
     // Setup preemption
     REG_WR(DEV_ENABLE_CONFIG(port),
            DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
-           DEV_ENABLE_CONFIG_MM_TX_ENA(conf->enable_tx ? 1 : 0) |
+           DEV_ENABLE_CONFIG_MM_TX_ENA(enable_tx) |
            DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
     REG_WR(DEV_VERIF_CONFIG(port),
            DEV_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
@@ -1637,10 +1643,10 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL in_reset)
 {
     /* Setup depending on port speed */
-    return lan966x_qos_fp_port_conf_set(vtss_state, port_no);
+    return lan966x_qos_fp_port_conf_set(vtss_state, port_no, in_reset);
 }
 
 /* - Debug print --------------------------------------------------- */

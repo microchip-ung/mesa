@@ -257,7 +257,7 @@ vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_info_t   *const info);
 vtss_rc vtss_lan966x_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
                                               const vtss_port_no_t  port_no);
-vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset);
 vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer, vtss_policer_conf_t *conf);
 
 // TS API

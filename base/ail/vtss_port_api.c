@@ -148,12 +148,10 @@ vtss_rc vtss_port_conf_set_private(vtss_state_t           *vtss_state,
                                    const vtss_port_conf_t *const conf)
 {
     vtss_rc          rc;
-    vtss_port_conf_t old_conf;
 #if defined(VTSS_FEATURE_AFI_SWC)
     BOOL             afi_link;
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
-    old_conf = vtss_state->port.conf[port_no];
     vtss_state->port.conf[port_no] = *conf;
 
     if (!vtss_state->port.conf_set_called[port_no]) {
@@ -174,11 +172,7 @@ vtss_rc vtss_port_conf_set_private(vtss_state_t           *vtss_state,
     (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
-    if ((rc = VTSS_FUNC_COLD(port.conf_set, port_no)) != VTSS_RC_OK) {
-        // Operation failed. Restore old configuration.
-        vtss_state->port.conf[port_no] = old_conf;
-        (void)VTSS_FUNC_COLD(port.conf_set, port_no);
-    } else {
+    if ((rc = VTSS_FUNC_COLD(port.conf_set, port_no)) == VTSS_RC_OK) {
         vtss_state->port.conf_set_called[port_no] = TRUE;
     }
 
@@ -2255,7 +2249,11 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
         if (header) {
             header = 0;
             vtss_debug_print_header(pr, "Configuration");
-            pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  Max Length\n");
+            pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  ");
+#if defined(VTSS_FEATURE_PFC)
+            pr("0--FC--7  ");
+#endif
+            pr("Max Length\n");
         }
         conf = &vtss_state->port.conf[port_no];
         switch (conf->speed) {
@@ -2289,14 +2287,25 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
         if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
             sprintf(buf + strlen(buf), "(%s)",vtss_media_type_if_txt(conf->serdes.media_type));
         }
-        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s%u+%s\n",
+        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s",
            port_no,
            vtss_port_if_txt(conf->if_type),
            buf,
            mode,
            aneg,
            vtss_bool_txt(conf->flow_control.obey),
-           vtss_bool_txt(conf->flow_control.generate),
+           vtss_bool_txt(conf->flow_control.generate));
+#if defined(VTSS_FEATURE_PFC)
+        {
+            u8 i;
+
+            for (i = 0; i < VTSS_PRIOS; i++) {
+                pr("%u", conf->flow_control.pfc[i] ? 1 : 0);
+            }
+            pr("  ");
+        }
+#endif
+        pr("%u+%s\n",
            conf->max_frame_length,
            conf->max_tags == VTSS_PORT_MAX_TAGS_NONE ? "0" :
            conf->max_tags == VTSS_PORT_MAX_TAGS_ONE ? "4" :
