@@ -285,7 +285,7 @@ def sys cmd, input = nil
     end
 end
 
-def dts path, machine, ramdisk, kernel
+def dts path, machine, ramdisk
     s  = "/dts-v1/\n;"
     s += "/ {\n"
     s += "        description = \"Image file for the MESA SDK Demo on target #{machine}\";\n"
@@ -293,7 +293,7 @@ def dts path, machine, ramdisk, kernel
     s += "        images {\n"
     s += "                kernel {\n"
     s += "                        description = \"Linux kernel\";\n"
-    s += "                        data = /incbin/(\"#{kernel}\");\n"
+    s += "                        data = /incbin/(\"#{$bsp}/#{$m[:kernel]}\");\n"
     s += "                        type = \"kernel\";\n"
     s += "                        arch = \"#{$m[:arch]}\";\n"
     s += "                        os = \"linux\";\n"
@@ -448,7 +448,7 @@ when "fit"
         kernel = o
     end
 
-    dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs", kernel
+    dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs"
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
 
 when "ext4"
