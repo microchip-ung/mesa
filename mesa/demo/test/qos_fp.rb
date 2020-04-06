@@ -10,7 +10,8 @@ $ts = get_test_setup("mesa_pc_b2b_2x")
 # Check if Frame Preemption supported
 cap_check_exit("QOS_FRAME_PREEMPTION")
 
-assert($ts.dut.looped_port_list != nil && $ts.dut.looped_port_list.length > 1, "Two front ports must be looped")
+# Check that two loop ports exist
+loop_pair_check
 
 #---------- Configuration -----------------------------------------------------
 

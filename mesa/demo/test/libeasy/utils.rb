@@ -144,6 +144,49 @@ def check_val_str(name, val, exp)
     check_val(name, val, exp, "%s")
 end
 
+def loop_pair_check
+    port_list = $ts.dut.looped_port_list
+
+    check_capabilities do
+        assert(port_list != nil && port_list.length > 1, "Two front ports must be looped")
+    end
+
+    if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
+        t_e ("Loop ports must be up")
+    end
+end
+
+def check_val(name, val, exp, fmt)
+    v = (fmt % val);
+    e = (fmt % exp);
+    msg = "#{name}: #{v}, expected: #{e}"
+    if (val == exp)
+        t_i(msg)
+    else
+        t_e(msg)
+    end
+end
+
+def check_counter(name, val, exp)
+    check_val(name, val, exp, "%u")
+end
+
+def check_val_hex_u8(name, val, exp)
+    check_val(name, val, exp, "0x%02x")
+end
+
+def check_val_hex_u16(name, val, exp)
+    check_val(name, val, exp, "0x%04x")
+end
+
+def check_val_hex_u32(name, val, exp)
+    check_val(name, val, exp, "0x%08x")
+end
+
+def check_val_str(name, val, exp)
+    check_val(name, val, exp, "%s")
+end
+
 def cmd_tag_push(tag)
     cmd = ""
     if (tag.key?:tpid and tag[:tpid] != 0)

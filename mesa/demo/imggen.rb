@@ -286,6 +286,13 @@ def sys cmd, input = nil
 end
 
 def dts path, machine, ramdisk
+    kernel = "#{$bsp}/#{$m[:kernel]}"
+    if File.extname(kernel) == ".xz"
+        o = "./#{File.basename(kernel)}.gz"
+        sys "xz -d -c #{kernel} | gzip -f -c > #{o}"
+        kernel = o
+    end
+
     s  = "/dts-v1/\n;"
     s += "/ {\n"
     s += "        description = \"Image file for the MESA SDK Demo on target #{machine}\";\n"
@@ -293,7 +300,7 @@ def dts path, machine, ramdisk
     s += "        images {\n"
     s += "                kernel {\n"
     s += "                        description = \"Linux kernel\";\n"
-    s += "                        data = /incbin/(\"#{$bsp}/#{$m[:kernel]}\");\n"
+    s += "                        data = /incbin/(\"#{kernel}\");\n"
     s += "                        type = \"kernel\";\n"
     s += "                        arch = \"#{$m[:arch]}\";\n"
     s += "                        os = \"linux\";\n"
@@ -439,14 +446,6 @@ when "fit"
     basic_rootfs install_dir
     sys "rm -rf #{$o[:name]}.squashfs"
     sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -comp xz -all-root"
-
-    kernel = "#{$bsp}/#{$m[:kernel]}"
-
-    if File.extname(kernel) == ".xz"
-        o = "./#{File.basename(kernel)}.gz"
-        sys "xz -d -c #{kernel} | gzip -f -c > #{o}"
-        kernel = o
-    end
 
     dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs"
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
