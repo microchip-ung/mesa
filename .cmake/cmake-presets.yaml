@@ -25,7 +25,7 @@ presets:
 
     lan966x:
         :arch:             "arm64"
-        :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
+        :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DLAN966X_ONLY=on"
         :brsdk:            "2019.02.7-114"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk.lan966x-2"
