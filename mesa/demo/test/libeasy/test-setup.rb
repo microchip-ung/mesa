@@ -936,10 +936,10 @@ class Switchdev_Pc_b2b_4x
     end
 end
 
-class Mesa_Pc_b2b_4x
+class Mesa_Pc_b2b
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
 
-    def initialize conf, mesa_args
+    def initialize conf, mesa_args, port_cnt
         dut_url = conf["dut"]["terminal"]
         dut_args = conf["dut"]["mesa_demo_args"]
         dut_ports = conf["dut"]["ports"]
@@ -948,6 +948,12 @@ class Mesa_Pc_b2b_4x
         pc_ports = conf["pc"]["ports"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
+        check_capabilities do
+            cnt = dut_ports.length
+            if (cnt < port_cnt)
+                assert(false, "setup has #{cnt} ports, test requires #{port_cnt}")
+            end
+        end
         @dut = MesaDut.new :mesa, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
@@ -1057,7 +1063,9 @@ end
 def get_test_setup_inner(setup, conf, mesa_args)
     case setup
     when "mesa_pc_b2b_4x"
-        return Mesa_Pc_b2b_4x.new(conf, mesa_args)
+        return Mesa_Pc_b2b.new(conf, mesa_args, 4)
+    when "mesa_pc_b2b_2x"
+        return Mesa_Pc_b2b.new(conf, mesa_args, 2)
     when "switchdev_pc_b2b_4x"
         return Switchdev_Pc_b2b_4x.new(conf, mesa_args)
     else
