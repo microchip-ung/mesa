@@ -782,6 +782,7 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green_class[i], clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_aging, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_hold, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_fragments, clear));
 

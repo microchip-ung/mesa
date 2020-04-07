@@ -107,9 +107,7 @@ end
 
 def cap_check_exit(cap)
     check_capabilities do
-        if (cap_get(cap) == 0)
-            assert(false, "Capability '#{cap}' not present, skipping test")
-        end
+        assert(cap_get(cap) > 0, "Capability '#{cap}' not present, skipping test")
     end
 end
 
@@ -149,6 +147,7 @@ def loop_pair_check
 
     check_capabilities do
         assert(port_list != nil && port_list.length > 1, "Two front ports must be looped")
+        assert($ts.dut.call("mesa_port_state_get", port_list[0]), "Loop ports must be up")
     end
 
     if (!$ts.dut.call("mesa_port_state_get", port_list[0]))

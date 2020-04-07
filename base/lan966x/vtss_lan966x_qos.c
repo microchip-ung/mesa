@@ -1599,7 +1599,7 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
     // Disable preemptable queues
     REG_WR(QSYS_PREEMPT_CFG(port),
            QSYS_PREEMPT_CFG_P_QUEUES(0) |
-           QSYS_PREEMPT_CFG_STRICT_IPG(0));
+           QSYS_PREEMPT_CFG_STRICT_IPG(2));
 
     // Setup preemption
     REG_WR(DEV_ENABLE_CONFIG(port),
@@ -1616,14 +1616,12 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
 
     // Enable/disable preemptable queues
     for (i = 0; i < 8; i++) {
-        mask |= (conf->enable_tx && conf->admin_status[i] ? VTSS_BIT(i) : 0);
+        mask |= (enable_tx && conf->admin_status[i] ? VTSS_BIT(i) : 0);
     }
     REG_WR(QSYS_PREEMPT_CFG(port),
            QSYS_PREEMPT_CFG_P_QUEUES(mask) |
            QSYS_PREEMPT_CFG_STRICT_IPG(mask ? 0 : 2));
-
-    VTSS_RC(lan966x_qos_queue_cut_through_set(vtss_state, port_no));
-    return lan966x_qos_tas_frag_size_update(vtss_state, port_no);
+    return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_state,
@@ -1646,7 +1644,9 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
 vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL in_reset)
 {
     /* Setup depending on port speed */
-    return lan966x_qos_fp_port_conf_set(vtss_state, port_no, in_reset);
+    VTSS_RC(lan966x_qos_fp_port_conf_set(vtss_state, port_no, in_reset));
+    VTSS_RC(lan966x_qos_queue_cut_through_set(vtss_state, port_no));
+    return lan966x_qos_tas_frag_size_update(vtss_state, port_no);
 }
 
 /* - Debug print --------------------------------------------------- */
