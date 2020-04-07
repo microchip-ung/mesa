@@ -9,7 +9,7 @@ require 'net/http'
 require_relative './libeasy/utils'
 
 $systems = [
-            { name: "dk-t11",   image: "mipsel/mfi_vsc7514_pcb123.mfi",  branch:"master" },
+#            { name: "dk-t11",   image: "mipsel/mfi_vsc7514_pcb123.mfi",  branch:"master" },
             { name: "dk-t13",   image: "mipsel/mfi_vsc7468_pcb110.mfi",  branch:"master" },
             { name: "dk-t31",   image: "arm64/fit_vsc7546TSN.itb",       branch:"master" },
             { name: "dk-t34-4", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
