@@ -5225,16 +5225,16 @@ static vtss_rc vtss_macsec_tx_sa_activate_priv(vtss_state_t                  *vt
 
     /* Activate chip SA Flow */
     if (an_in_use && (old_an < VTSS_MACSEC_SA_PER_SC_MAX) && (old_an != an)) {
-        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != VTSS_RC_OK)) {
+        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
             VTSS_E("Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
             return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
         }
-        if (VTSS_RC_COLD(macsec_sa_toggle(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, secy->tx_sc.sa[old_an]->record, EGRESS) != VTSS_RC_OK)) {
+        if (VTSS_RC_COLD(macsec_sa_toggle(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, secy->tx_sc.sa[old_an]->record, EGRESS)) != VTSS_RC_OK) {
             VTSS_E("Could not toggle SA:%u -> %u", an, old_an);
             return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA);
         }
     } else {
-        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != VTSS_RC_OK)) {
+        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
             VTSS_E("Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
             return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
         }
@@ -5308,7 +5308,7 @@ static vtss_rc vtss_macsec_rx_sa_activate_priv(vtss_state_t                  *vt
     VTSS_MACSEC_ASSERT(secy->rx_sc[sc]->sa[an] == NULL, "AN does not exist");
 
     /* Activate chip SA Flow */
-    if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->rx_sc[sc]->sa[an]->record, INGRESS, MACSEC_ENABLE) != VTSS_RC_OK)) {
+    if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->rx_sc[sc]->sa[an]->record, INGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
         VTSS_E("Could not set SA:%u to 'in_use'", secy->rx_sc[sc]->sa[an]->record);
         return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
     }
@@ -7413,7 +7413,7 @@ vtss_rc vtss_macsec_init_set(const vtss_inst_t                inst,
         }
     }
 
-    if ((rc = MACSEC_RC_COLD(vtss_macsec_speed_conf_priv(vtss_state, port_no, MACSEC_ENABLE, FALSE)) != VTSS_RC_OK)) {
+    if ((rc = MACSEC_RC_COLD(vtss_macsec_speed_conf_priv(vtss_state, port_no, MACSEC_ENABLE, FALSE))) != VTSS_RC_OK) {
         VTSS_E("Could not set speed on port:%u", port_no);
     }
     if (init->enable) {
@@ -8858,7 +8858,7 @@ vtss_rc vtss_macsec_pattern_set(const vtss_inst_t                  inst,
         }
         secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
         if (action == VTSS_MACSEC_MATCH_ACTION_DROP || action == VTSS_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT) {
-            if ((rc = VTSS_RC_COLD(vtss_macsec_pattern_set_priv(vtss_state, port.port_no, secy_id, direction, action, pattern, 0)) != VTSS_RC_OK)) {
+            if ((rc = VTSS_RC_COLD(vtss_macsec_pattern_set_priv(vtss_state, port.port_no, secy_id, direction, action, pattern, 0))) != VTSS_RC_OK) {
                 break;
             }
         }
