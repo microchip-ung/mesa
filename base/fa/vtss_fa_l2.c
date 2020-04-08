@@ -507,7 +507,8 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(vlan_entry->msti) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(conf->fid == 0 ? vid : conf->fid) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(vlan_entry->evc_learning && conf->learning ? 0 : 1) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(conf->learning ? 0 : 1) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(vlan_entry->rl_enable) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(vlan_entry->isolated) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(conf->mirror));
@@ -1450,31 +1451,24 @@ static void fa_debug_pmask(const vtss_debug_printf_t pr, const char *name, vtss_
 static vtss_rc fa_debug_vlan_entry(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    vtss_vid_t vid,
-                                   vtss_vid_t vlan_idx,
                                    BOOL header)
 {
     u32              value;
     vtss_port_mask_t pmask;
-    char             buf[64], buf1[32], *p = buf1;
+    char             buf[64];
 
-    REG_RDX_PMASK(VTSS_ANA_L3_VLAN_MASK_CFG, vlan_idx, &pmask);
-    REG_RD(VTSS_ANA_L3_VLAN_CFG(vlan_idx), &value);
+    REG_RDX_PMASK(VTSS_ANA_L3_VLAN_MASK_CFG, vid, &pmask);
+    REG_RD(VTSS_ANA_L3_VLAN_CFG(vid), &value);
 
     if (header) {
-        fa_debug_pmask_header(vtss_state, pr, "VID  IDX/VSI   FID  MSTI  L/M/P");
+        fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/P");
     }
-    p += sprintf(p, "%u/", vlan_idx);
-    if (vlan_idx < VTSS_VIDS) {
-        p += sprintf(p, "%s", "-");
-    } else {
-        p += sprintf(p, "%u", vlan_idx - VTSS_VIDS);
-    }
-    sprintf(buf, "%-5u%-10s%-5u%-6u%u/%u/%u",
+    sprintf(buf, "%-6u%-6u%-6u%u/%u/%u/%u",
             vid,
-            buf1,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FID(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(value) ? 0 : 1,
+            VTSS_X_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(value));
     fa_debug_pmask(pr, buf, &pmask);
@@ -1528,7 +1522,7 @@ static vtss_rc fa_debug_vlan(vtss_state_t *vtss_state,
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
         if (info->full || vlan_entry->enabled) {
-            VTSS_RC(fa_debug_vlan_entry(vtss_state, pr, vid, vid, header));
+            VTSS_RC(fa_debug_vlan_entry(vtss_state, pr, vid, header));
             header = 0;
             /* Leave critical region briefly */
             VTSS_EXIT_ENTER();

@@ -4816,7 +4816,7 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
         vlan_entry->msti = VTSS_MSTI_START;
         if (vid != VTSS_VID_NULL) {
             vlan_entry->conf.learning = 1;
-            vlan_entry->evc_learning = 1;
+            vlan_entry->conf.flooding = 1;
         }
 #if defined(VTSS_FEATURE_VLAN_SVL)
         vlan_entry->conf.fid = vid;
@@ -7421,7 +7421,7 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VLAN_SVL)
             pr("FID   ");
 #endif /* VTSS_FEATURE_VLAN_SVL */
-            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Mir  Iso  ", 0, 1);
+            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Iso  ", 0, 1);
             header = 0;
         }
         pr("%-6u", vid);
@@ -7433,10 +7433,10 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
         } else {
             pr("%-6s", "-");
         }
-        pr("%-6u%-6u%-5u%-5u%-5u", entry->mgmt, entry->msti, entry->conf.learning, entry->conf.mirror, entry->isolated);
+        pr("%-6u%-6u%-5u%-5u%-5u%-5u", entry->mgmt, entry->msti, entry->conf.learning, entry->conf.flooding, entry->conf.mirror, entry->isolated);
         vtss_debug_print_ports(vtss_state, pr, entry->member, 0);
         pr(" <- VLAN Members\n");
-        pr("%-39s", "");
+        pr("%-44s", "");
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6s", "");
 #endif /* VTSS_FEATURE_VLAN_SVL */

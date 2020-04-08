@@ -530,7 +530,7 @@ vtss_rc vtss_jr2_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 
     value = (VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR(vlan_entry->msti) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_FID(conf->fid == 0 ? vid : conf->fid) |
-             VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(vlan_entry->evc_learning && conf->learning ? 0 : 1) |
+             VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(conf->learning ? 0 : 1) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_RLEG_ENA(vlan_entry->rl_enable) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(vlan_entry->isolated) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(conf->mirror));

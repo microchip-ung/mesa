@@ -131,7 +131,6 @@ typedef struct {
     vtss_erps_counter_t erps_discard_cnt[VTSS_PORT_ARRAY_SIZE]; /* ERPS discard counter */
     vtss_msti_t msti;                      /* MSTP instance */
     BOOL        isolated;                  /* Port isolation */
-    BOOL        evc_learning;              /* Learning for EVC */
     BOOL        ipmc_used;                 /* In use for SSM */
     BOOL        vsi_enable;                /* VSI enable */
     BOOL        vsi_vlan_forward_disable;  /* If VSI is enabled this decides if VLAN forwarding is disabled */

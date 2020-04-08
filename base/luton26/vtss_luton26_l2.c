@@ -1091,14 +1091,13 @@ static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
                                     vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_vlan_entry_t *vlan_entry = &vtss_state->l2.vlan_table[vid];
-    BOOL              learning = (vlan_entry->evc_learning && vlan_entry->conf.learning ? 1 : 0);
     u32               value;
 
     /* Index and properties */
     value = VTSS_F_ANA_ANA_TABLES_VLANTIDX_V_INDEX(vid);
     if(vlan_entry->isolated)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN;
-    if (!learning)
+    if (!vlan_entry->conf.learning)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED;
     if (vlan_entry->conf.mirror)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR;

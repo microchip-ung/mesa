@@ -549,13 +549,12 @@ static vtss_rc srvl_vlan_mask_update(vtss_state_t *vtss_state,
 {
     vtss_vlan_entry_t    *vlan_entry = &vtss_state->l2.vlan_table[vid];
     vtss_vlan_vid_conf_t *conf = &vlan_entry->conf;
-    BOOL                 learning = (vlan_entry->evc_learning && conf->learning ? 1 : 0);
 
     /* Index and properties */
     SRVL_WR(VTSS_ANA_ANA_TABLES_VLANTIDX, 
             VTSS_F_ANA_ANA_TABLES_VLANTIDX_V_INDEX(vid) |
             (vlan_entry->isolated ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN : 0) |
-            (learning ? 0 : VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED) |
+            (conf->learning ? 0 : VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED) |
             (conf->mirror ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR : 0));
 
     /* VLAN mask */
