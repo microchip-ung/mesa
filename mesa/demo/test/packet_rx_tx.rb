@@ -49,21 +49,19 @@ test "frame-cpu-queue-shaper" do
     cmd += "tx #{$ts.pc.p[$idx_tx]} rep #{tx_cnt} name f1"
     $ts.pc.run(cmd)
     pkts = $ts.pc.get_pcap("#{$ts.pc.p[$idx_rx]}.pcap")
-    if (pkts.size == 0)
-        t_e("No packets logged");
-    else
-        pkts.each do |p|
-            t = p[:us_rel]
-            t_i("t: #{t}")
-            if (p == pkts.last)
-                min = 700000
-                max = 1300000
-                msg = "last frame at #{t}, expected range: #{min} - #{max}"
-                if (t > min and t < max)
-                    t_i(msg)
+    cnt = pkts.size
+    assert(cnt == tx_cnt, "Logged #{cnt} packets, expected #{tx_cnt}")
+    pkts.each do |p|
+        t = p[:us_rel]
+        t_i("t: #{t}")
+        if (p == pkts.last)
+            min = 700000
+            max = 1300000
+            msg = "last frame at #{t}, expected range: #{min} - #{max}"
+            if (t > min and t < max)
+                t_i(msg)
                 else
                     t_e(msg)
-                end
             end
         end
     end
