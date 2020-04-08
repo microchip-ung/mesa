@@ -547,14 +547,14 @@ static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
 {
     vtss_vlan_entry_t    *vlan_entry = &vtss_state->l2.vlan_table[vid];
     vtss_vlan_vid_conf_t *conf = &vlan_entry->conf;
-    BOOL                 learning = (vlan_entry->evc_learning && conf->learning ? 1 : 0);
 
     /* Index and properties */
     REG_WR(ANA_VLANTIDX,
            ANA_VLANTIDX_V_INDEX(vid) |
-           (vlan_entry->isolated ? ANA_VLANTIDX_VLAN_PRIV_VLAN_M : 0) |
-           (learning ? 0 : ANA_VLANTIDX_VLAN_LEARN_DISABLED_M) |
-           (conf->mirror ? ANA_VLANTIDX_VLAN_MIRROR_M : 0));
+           ANA_VLANTIDX_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
+           ANA_VLANTIDX_VLAN_PRIV_VLAN(vlan_entry->isolated) |
+           ANA_VLANTIDX_VLAN_LEARN_DISABLED(conf->learning ? 0 : 1) |
+           ANA_VLANTIDX_VLAN_MIRROR(conf->mirror ? 1 : 0));
 
     /* VLAN mask */
     REG_WR(ANA_VLANACCESS,
@@ -1604,13 +1604,14 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
         REG_RD(ANA_FID_MAP(vid), &fid);
         fid = ANA_FID_MAP_FID_VAL_X(fid);
         if (header)
-            vtss_lan966x_debug_print_port_header(vtss_state, pr, "VID   FID  Lrn  Mir  Prv  ");
+            vtss_lan966x_debug_print_port_header(vtss_state, pr, "VID   FID  Lrn  Fld  Mir  Prv  ");
         header = 0;
 
-        pr("%-6u%-5u%-5u%-5u%-5u", vid, fid,
-           value & ANA_VLANTIDX_VLAN_LEARN_DISABLED_M ? 0 : 1,
-           value & ANA_VLANTIDX_VLAN_MIRROR_M ? 1 : 0,
-           value & ANA_VLANTIDX_VLAN_PRIV_VLAN_M ? 1 : 0);
+        pr("%-6u%-5u%-5u%-5u%-5u%-5u", vid, fid,
+           ANA_VLANTIDX_VLAN_LEARN_DISABLED_X(value) ? 0 : 1,
+           ANA_VLANTIDX_VLAN_FLOOD_DIS_X(value) ? 0 : 1,
+           ANA_VLANTIDX_VLAN_MIRROR_X(value) ? 1 : 0,
+           ANA_VLANTIDX_VLAN_PRIV_VLAN_X(value) ? 1 : 0);
         vtss_lan966x_debug_print_mask(pr, mask);
 
         /* Leave critical region briefly */
