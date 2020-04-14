@@ -26,6 +26,7 @@ typedef enum {
 typedef enum {
         VTSS_SD25G28_MODE_25G_LAN,
         VTSS_SD25G28_MODE_25G_ETH,
+        VTSS_SD25G28_MODE_25G_KR,
         VTSS_SD25G28_MODE_10G_LAN,
         VTSS_SD25G28_MODE_10G_ETH,
         VTSS_SD25G28_MODE_10G_QSXGMII,//R;only 1G/2G5 devices are used
@@ -152,7 +153,7 @@ typedef struct {
     u8 ck_bitwidth; 
     u8 subrate; 
     u8 com_txcal_en; 
-    u8 com_pll_reserve;
+    u8 com_pll_reserve; 
     u8 com_tx_reserve_msb;
     u8 com_tx_reserve_lsb;
     u8 ln_tx_reserve_lsb ;
@@ -225,6 +226,7 @@ typedef struct {
     u8  l1_pcs_en_fast_iscan[1];
     u8  l0_cfg_bw_1_0[1];
     u8  l0_cfg_txcal_en[1];
+    u8  cfg_en_dummy[1];
     u8  cfg_pll_reserve_3_0[1];
     u8  l0_cfg_tx_reserve_15_8[1];
     u8  l0_cfg_tx_reserve_7_0[1];

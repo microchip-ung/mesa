@@ -2941,10 +2941,6 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         case VTSS_SERDES_MODE_SFI_BP:
         case VTSS_SERDES_MODE_SFI_B2B:
         case VTSS_SERDES_MODE_SFI_PR_NONE:
-        case VTSS_SERDES_MODE_SFI_KR:
-            sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
-            sd_cfg.mode = VTSS_SD25G28_MODE_25G_ETH; // KR 64bit mode for now
-            break;
         case VTSS_SERDES_MODE_SFI: {
             sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
             if (speed == VTSS_SPEED_25G) {
@@ -2958,6 +2954,10 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
             }
             break;
         }
+        case VTSS_SERDES_MODE_SFI_KR:
+            sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
+            sd_cfg.mode = VTSS_SD25G28_MODE_25G_KR; // KR 64bit mode for now
+            break;
         case VTSS_SERDES_MODE_DXGMII_10G: { // 2x5G, mode 'U'
             sd_cfg.mode = VTSS_SD25G28_MODE_10G_DSXGMII;
             break;
