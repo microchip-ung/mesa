@@ -501,6 +501,12 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
                         conf->excess_enable[queue] ? VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA : 0,
                                 VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA);
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+                /* Credit configuration */
+                SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se),
+                        conf->credit_enable[queue] ? VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA : 0,
+                                VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA);
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
             }
         }
     }

@@ -116,6 +116,23 @@ mesa_rc mesa_ts_domain_timeofday_offset_set(const mesa_inst_t inst,
 
 /**
  * \brief Do the one sec administration in the Timestamp function.
+ * On Serval1:
+ * Must be called after every one-second timer synchronization pulse interrupt (MEBA_EVENT_SYNC)
+ *
+ * This function is driving register update with parameters given by calling
+ * mesa_ts_timeofday_set_delta() + mesa_ts_domain_timeofday_set_delta()
+ * in order to make the TOD delta adjustment happen.
+ *
+ * This function is driving register update with parameters given by calling
+ * mesa_ts_timeofday_offset_set()
+ * in order to make the TOD offset configuration happen.
+ *
+ * After calling 
+ * mesa_ts_timeofday_offset_set() + mesa_ts_timeofday_next_pps_set()
+ * until this function is called, the functions
+ * srvl_ts_timeofday_offset_set() + srvl_ts_timeofday_set() + srvl_ts_timeofday_set_delta()
+ * will return error code
+ *
  * \param inst [IN]     handle to an API instance.
  * \param ongoing_adjustment [OUT]  True if clock adjustment is ongoing
  *
@@ -126,7 +143,7 @@ mesa_rc mesa_ts_domain_timeofday_offset_set(const mesa_inst_t inst,
  *  Caracal: Maintains the clock setting process
  *  Serval1: Maintains the clock setting process
  *  JR2,
- *  JR3    : it must only be called when the PPS output pin is low, therefore it shall be called at least 200 microseconds after the 1PPS interrupt
+ *  S5     : it must only be called when the PPS output pin is low, therefore it shall be called at least 200 microseconds after the 1PPS interrupt
  *
  * \return Return code.
  */
@@ -143,7 +160,7 @@ mesa_rc mesa_ts_adjtimer_one_sec(const mesa_inst_t inst,
  *  Caracal,
  *  Serval1: Checks if the clock setting process is ongoing.
  *  JR2,
- *  JR3    : Always returns False, as the time can be set immediately.
+ *  S5     : Always returns False, as the time can be set immediately.
  *
  * \return Return code.
  */
@@ -162,7 +179,7 @@ mesa_rc mesa_ts_ongoing_adjustment(const mesa_inst_t inst,
  *  Ocelot:
  *  Serval:  tc = (seconds + nanoseconds).  In 16 bit fraction of nano seconds.
  *  Jaguar2: tc = free running nanoseconds counter.  In 16 bit fraction of nano seconds.
- *  Jaguar3: tc = (seconds + nanoseconds + fractional nanoseconds). In 16 bit fraction of nano seconds.
+ *  SparX-5: tc = (seconds + nanoseconds + fractional nanoseconds). In 16 bit fraction of nano seconds.
  *
  * \return Return code.
  */
@@ -323,17 +340,6 @@ mesa_rc mesa_ts_freq_offset_get(const mesa_inst_t inst,
     CAP(TS);
 
 /**
- * \brief parameter for setting the alternative  clock mode.
- */
-/** \brief external clock output configuration. */
-typedef struct mesa_ts_alt_clock_mode_t {
-    mesa_bool_t one_pps_out; /**< Enable 1pps output */
-    mesa_bool_t one_pps_in;  /**< Enable 1pps input */
-    mesa_bool_t save;        /**< Save actual time counter at next 1 PPS input */
-    mesa_bool_t load;        /**< Load actual time counter with at next 1 PPS input */
-} mesa_ts_alt_clock_mode_t CAP(TS_ALT_CLOCK);
-
-/**
  * \brief Get the latest saved nanosec counter from the alternative clock.
  *
  * \param inst [IN]             handle to an API instance
@@ -358,16 +364,15 @@ mesa_rc mesa_ts_alt_clock_saved_timeofday_get(const mesa_inst_t inst,
     CAP(TS_ALT_CLOCK);
 
 /**
- * \brief Get the alternative external clock mode.
- *
- * \param inst [IN]             handle to an API instance
- * \param alt_clock_mode [OUT]  alternative clock mode.
- *
- * \return Return code.
+ * \brief parameter for setting the alternative  clock mode.
  */
-mesa_rc mesa_ts_alt_clock_mode_get(const mesa_inst_t        inst,
-                                   mesa_ts_alt_clock_mode_t *const alt_clock_mode)
-    CAP(TS_ALT_CLOCK);
+/** \brief external clock output configuration. */
+typedef struct mesa_ts_alt_clock_mode_t {
+    mesa_bool_t one_pps_out; /**< Enable 1pps output */
+    mesa_bool_t one_pps_in;  /**< Enable 1pps input */
+    mesa_bool_t save;        /**< Save actual time counter at next 1 PPS input. This is the TOD to get using mesa_ts_alt_clock_saved_timeofday_get() function */
+    mesa_bool_t load;        /**< Load actual time counter at next 1 PPS input. The TOD loaded is given by the TOD _set() functions  */
+} mesa_ts_alt_clock_mode_t CAP(TS_ALT_CLOCK);
 
 /**
  * \brief Set the alternative external clock mode.
@@ -383,7 +388,22 @@ mesa_rc mesa_ts_alt_clock_mode_set(const mesa_inst_t              inst,
     CAP(TS_ALT_CLOCK);
 
 /**
+ * \brief Get the alternative external clock mode.
+ *
+ * \param inst [IN]             handle to an API instance
+ * \param alt_clock_mode [OUT]  alternative clock mode.
+ *
+ * \return Return code.
+ */
+mesa_rc mesa_ts_alt_clock_mode_get(const mesa_inst_t        inst,
+                                   mesa_ts_alt_clock_mode_t *const alt_clock_mode)
+    CAP(TS_ALT_CLOCK);
+
+/**
  * \brief Set the time at the next 1PPS pulse edge in a Timestamp format.
+ * On Serval:
+ * It is assumed that this function is called at the beginning of a sec.
+ * Right after one-second timer synchronization pulse interrupt (MEBA_EVENT_SYNC)
  * \param inst [IN]     handle to an API instance
  * \param ts [OUT]      pointer to a TimeStamp structure
  *
@@ -399,7 +419,7 @@ mesa_rc mesa_ts_timeofday_next_pps_set(const mesa_inst_t      inst,
 typedef enum  {
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE,       /**< Disable 1PPS input/output */
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT,        /**< 1PPS clock output is generated based on TOD in domain 0 */
-    MESA_TS_EXT_CLOCK_MODE_ONE_PPS_INPUT,         /**< TOD in domain 0 is stored on 1PPS clock input */
+    MESA_TS_EXT_CLOCK_MODE_ONE_PPS_INPUT,         /**< TOD in domain 0 is saved on 1PPS clock input. This is the TOD to get using _get() functions */
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT,
     MESA_TS_EXT_CLOCK_MODE_MAX
 } mesa_ts_ext_clock_one_pps_mode_t CAP(TS);
@@ -454,8 +474,8 @@ typedef enum  {
     MESA_TS_EXT_IO_MODE_ONE_PPS_DISABLE,     /**< Disable IO pin */
     MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT,      /**< enable external sync pulse output */
     MESA_TS_EXT_IO_MODE_WAVEFORM_OUTPUT,     /**< enable external clock output frequency */
-    MESA_TS_EXT_IO_MODE_ONE_PPS_LOAD,        /**< enable input and load time at positive edge of input signal */
-    MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE,        /**< enable input and save time at positive edge of input signal */
+    MESA_TS_EXT_IO_MODE_ONE_PPS_LOAD,        /**< enable input and load time at positive edge of input signal. The TOD loaded is given by the TOD _set() functions */
+    MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE,        /**< enable input and save time at positive edge of input signal. This is the TOD to get using mesa_ts_saved_timeofday_get() function */
     MESA_TS_EXT_IO_MODE_MAX
 } mesa_ts_ext_io_pin_cfg_t CAP(TS);
 
@@ -536,6 +556,7 @@ mesa_rc mesa_ts_output_clock_edge_offset_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
+/* TBD henrikb. This is not called by application and the cil pointer is not loaded on any platform */
 mesa_rc mesa_ts_external_clock_saved_get(const mesa_inst_t inst,
                                          uint32_t          *const saved)
     CAP(TS);
@@ -672,7 +693,7 @@ typedef struct mesa_ts_operation_mode_t {
  *
  * Serval:  Used to set backplane (INTERNAL) mode/normal(EXTERNAL) mode
  * Jaguar2: Used to set backplane (INTERNAL) mode/front(EXTERNAL) mode
- *          In backplane mode the internal format is determined by the internal mode (see below)
+ * In backplane mode the internal format is determined by the internal mode (see below)
  * Other : Not used
  */
 mesa_rc mesa_ts_operation_mode_set(const mesa_inst_t              inst,
@@ -883,17 +904,23 @@ mesa_rc mesa_ts_status_change(const mesa_inst_t    inst,
 
 
 /**
- * \brief parameter for setting auto response behaviour pr domain
+ * \brief parameter for setting auto response behavior pr domain
+ * Jaguar2: bitMask = 0x3F
+ * Fireant: bitMask = 0x7F
+ * ptp_port_individual TRUE:
+ *     DelayResponce portIdentity.portNumber = (ptp_port_msb & ~bitMask) | ((API Port number) & bitMask)
+ * ptp_port_individual FALSE:
+ *     DelayResponce portIdentity.portNumber = ptp_port_msb
  */
 typedef struct mesa_ts_autoresp_dom_cfg_s {
-    mesa_bool_t         ptp_port_individual; /**< TRUE => PortIdentity = ptp_port_msb || ptp_port_lsb, FALSE => PortIdentity = ptp_port_msb */
-    uint16_t            ptp_port_msb;        /**< ptp port number most significant bits 15:6 */
-    mesa_clock_identity clock_identity;      /**< ptp clock identity */
-    mesa_ace_u8_t       flag_field_update;   /**< flag field [0] update value and mask */
+    mesa_bool_t         ptp_port_individual; /**< Influencing on DelayResponce portIdentity.portNumber calculation as described above */
+    uint16_t            ptp_port_msb;        /**< Contributing to DelayResponce portIdentity.portNumber as described above */
+    mesa_clock_identity clock_identity;      /**< DelayResponce portIdentity.clockIdentity. */
+    mesa_ace_u8_t       flag_field_update;   /**< DelayResponce flagField byte 0. Bits in .value with .mask bit set, is written to DelayResponce */
 } mesa_ts_autoresp_dom_cfg_t CAP(TS_DELAY_REQ_AUTO_RESP);
 
 /**
- * \brief Set auto response behaviour pr. domain.
+ * \brief Set auto response behavior pr. domain.
  * \param inst    [IN]          handle to an API instance
  * \param domain  [IN]          ptp domain number [0..MESA_CAP_TS_DOMAIN_CNT-1]
  * \param cfg     [IN]          domain configuration for auto response feature
@@ -906,7 +933,7 @@ mesa_rc mesa_ts_autoresp_dom_cfg_set(const mesa_inst_t                inst,
     CAP(TS_DELAY_REQ_AUTO_RESP);
 
 /**
- * \brief Get auto response behaviour pr. domain.
+ * \brief Get auto response behavior pr. domain.
  * \param inst    [IN]          handle to an API instance
  * \param domain  [IN]          ptp domain number [0..MESA_CAP_TS_DOMAIN_CNT-1]
  * \param cfg     [OUT]         domain configuration for auto response feature
@@ -917,42 +944,6 @@ mesa_rc mesa_ts_autoresp_dom_cfg_get(const mesa_inst_t          inst,
                                      const uint8_t              domain,
                                      mesa_ts_autoresp_dom_cfg_t *const cfg)
     CAP(TS_DELAY_REQ_AUTO_RESP);
-
-/**
- * \brief parameter for setting auto response behaviour pr auto response controller
- */
-typedef struct mesa_ts_autoresp_ctrl_cfg_s {
-    mesa_bool_t         ptp_port_individual; /**< TRUE => PortIdentity = ptp_port_msb || ptp_port_lsb, FALSE => PortIdentity = ptp_port_msb */
-    uint16_t            ptp_port_msb;        /**< ptp port number most significant bits 15:6 */
-    mesa_clock_identity clock_identity;      /**< ptp clock identity */
-    mesa_ace_u8_t       flag_field_update;   /**< flag field [0] update value and mask */
-} mesa_ts_autoresp_ctrl_cfg_t CAP(TS_DELAY_REQ_AUTO_RESP_CTRL);
-
-/**
- * \brief Set auto response controller behaviour.
- * \param inst    [IN]          handle to an API instance
- * \param ctrl    [IN]          Response controller number [0..MESA_CAP_TS_RESP_CTRL_CNT-1]
- * \param cfg     [IN]          Configuration for auto response controller
- *
- * \return Return code.
- */
-mesa_rc mesa_ts_autoresp_ctrl_cfg_set(const mesa_inst_t                   inst,
-                                      const uint8_t                       ctrl,
-                                      const mesa_ts_autoresp_ctrl_cfg_t   *const cfg)
-    CAP(TS_DELAY_REQ_AUTO_RESP_CTRL);
-
-/**
- * \brief Get auto response controller behaviour.
- * \param inst    [IN]          handle to an API instance
- * \param ctrl    [IN]          Response controller number [0..MESA_CAP_TS_RESP_CTRL_CNT-1]
- * \param cfg     [OUT]         Configuration for auto response controller
- *
- * \return Return code.
- */
-mesa_rc mesa_ts_autoresp_ctrl_cfg_get(const mesa_inst_t             inst,
-                                      const uint8_t                 ctrl,
-                                      mesa_ts_autoresp_ctrl_cfg_t   *const cfg)
-    CAP(TS_DELAY_REQ_AUTO_RESP_CTRL);
 
 /**
  * \brief Set the source mac address used in auto Delay_Req/Resp
@@ -981,7 +972,7 @@ mesa_rc mesa_ts_smac_get(const mesa_inst_t    inst,
     CAP(TS_DELAY_REQ_AUTO_RESP);
 
 /**
- * \brief Set auto response behaviour pr. domain.
+ * \brief Set auto response behavior pr. domain.
  * \param inst    [IN]          handle to an API instance
  * \param sec_cntr[IN]          sequence counter number [0..255]
  * \param cnt_val [OUT]         actual value of the sequence counter
@@ -994,7 +985,7 @@ mesa_rc mesa_ts_seq_cnt_get(const mesa_inst_t                inst,
     CAP(TS);
 
 /**
- * \brief Parameter for internal timestamping capabilty.
+ * \brief Parameter for internal timestamping capability.
  */
 typedef enum  {
     MESA_TS_TOD_INTERNAL_TC_MODE_30BIT = 0x1,

@@ -1,0 +1,75 @@
+
+= API 5.7
+
+== API 5.7
+
+|===
+|Version:          |API-5.7.0
+|Previous Version: |API-5.6.0
+|Date:             |2018-12-18
+|Code Revision:    |6db15b0
+|Description:      |Roadmap release
+|===
+
+=== Features/Changes
+
+==== Mini application and PHY-only build scripts
+
+The mini-application and the PHY-only build scripts have been moved to
+phy_demo_appl/. The mini-application (in a switch context) has been replaced by
+the mesa/demo application, but is still used with the PHYs in some cases.
+
+==== L3-ECMP support added
+
+The L3 API (l3.h/vtss_l3_api.h) has been extended with ECMP support. ECMP is
+supported for IPv4 and IPv6. Max number of equal cost paths for a route is 8,
+and the number of ECMP routes is limited by the ARP table. ECMP does not add any
+new APIs, but relies on calling `mesa_l3_route_add` multiple times.
+
+==== Note for MDIO external CPU users
+
+A new flag named packet_init_disable has been added in
+`mesa_init_conf_t`. It is used to disable configuration of the
+DEVCPU_QS target on Luton-26.
+
+This flag must be set if the API is used to manage a Luton-26 over MDIO.
+
+=== Bugfixes
+
+* Fixed:
+** 10G PHYs:
+*** PHYAPI-789: Malibu/Venice has slightly high offset in 1pps when tested with Calnex (paragon-x)
+*** PHYAPI-790: Venice RevC/D: Loopback H2 does not work @ 1G data rate
+*** PHYAPI-791: Venice/Malibu: Modifications needed in the Packet BIST configuration function
+*** PHYAPI-792: 10G PHY API: Top Level Public API using VTSS_RC()
+*** PHYAPI-798: Venice VSC8489: Chip reports link down on Ch0 after API load
+*** PHYAPI-833: Venice-A:warm start errors are seen by performing warm start post 10G interface shutdown.
+
+** 1588 Time-stamping:
+*** PHYAPI-787: Venice/Malibu 1588  Timestamp SRC/FREQ selection issue
+
+** 1G PHYs:
+*** PHYAPI-788: 1G PHY: I2C functions do not address the entire 256-byte range
+*** PHYAPI-796: Logs indicate MAC i/f Not Configured with QSGMII MAC i/f
+*** PHYAPI-797: COMA Mode Control
+*** PHYAPI-800: Debug function vtss_debug_info_print() does not output 1G Registers from Chip I/F Layer
+*** PHYAPI-801: Viper B link not coming up after upgrading API
+*** PHYAPI-840: Add 100TX Parellel Detect workaround when Pre-Emphasis is enabled
+
+** Interrupts/events, EEE, fan control, temperature sensors, symreg.:
+*** MESA-354: MIIM slave I/F deadlock on Luton26 when writing fast register
+
+** Queue system, status, counters (includes port macro setup).:
+*** MESA-404: L26 OOS fix API+APPL in 4-dev
+
+** Y.1564:
+*** AA-11452: Y.1564 issue with frame sizes higher than 1518 bytes
+
+* Fixed but not verified:
+** 10G-PHY:
+*** Bugzilla#22850: Venice & Malibu I2C MAster interface: workaround for I2C Reset sequence
+
+* Known issues:
+** VSC7414/VSC7416/VSC7418:
+*** Bugzilla#23680: LC-PLL re-lock process performed by the MSCC API can render the switch's register space inaccessible to an eCPU application accessing the switch via PCIe
+

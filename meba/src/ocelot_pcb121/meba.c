@@ -163,6 +163,8 @@ static uint32_t ocelot_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_POE_BT:
             return false;
+        case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
+            return false;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);

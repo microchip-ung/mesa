@@ -397,7 +397,7 @@ vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type)
     vtss_vcap_key_size_t key_size;
 #if defined(VTSS_ARCH_SERVAL)
     key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
-#elif defined(VTSS_ARCH_FA)
+#elif defined(VTSS_ARCH_SPARX5)
     key_size = VTSS_VCAP_KEY_SIZE_SIXTH;
 #else
     key_size = VTSS_VCAP_KEY_SIZE_EIGHTH;
@@ -1237,6 +1237,43 @@ vtss_rc vtss_vcap_es0_update(vtss_state_t *vtss_state,
 
 /* - ACL ----------------------------------------------------------- */
 
+/* Update ACL port redirect */
+vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
+{
+    vtss_vcap_state_t    *vcap = &vtss_state->vcap;
+    vtss_vcap_obj_t      *obj = &vcap->is2.obj;
+    vtss_port_no_t       port_no;
+    vtss_acl_port_conf_t *conf;
+    vtss_vcap_entry_t    *cur;
+    vtss_is2_data_t      *is2;
+    vtss_vcap_idx_t      idx;
+    u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
+
+    /* Update port actions */
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        conf = &vcap->acl_port_conf[port_no];
+        if (conf->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
+            VTSS_I("update port_no: %u", port_no);
+            vcap->acl_old_port_conf = *conf;
+            VTSS_FUNC_RC(vcap.acl_port_set, port_no);
+        }
+    }
+
+    /* Update IS2 rules */
+    memset(ndx, 0, sizeof(ndx));
+    for (cur = obj->used; cur != NULL; cur = cur->next) {
+        idx.key_size = cur->data.key_size;
+        is2 = &cur->data.u.is2;
+        if (is2->action.redir) {
+            vtss_vcap_pos_get(obj, &idx, ndx[idx.key_size]);
+            VTSS_I("update row: %u, col: %u", idx.row, idx.col);
+            VTSS_FUNC_RC(vcap.is2_entry_update, &idx, is2);
+        }
+        ndx[idx.key_size]++;
+    }
+    return VTSS_RC_OK;
+}
+
 /* Add ACE check */
 vtss_rc vtss_cmn_ace_add(vtss_state_t *vtss_state,
                          const vtss_ace_id_t ace_id, const vtss_ace_t *const ace)
@@ -1362,7 +1399,7 @@ vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t              inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t          inst,
                               const vtss_acl_sip_idx_t   idx,
                               const vtss_acl_sip_conf_t  *const conf)
@@ -1384,7 +1421,7 @@ vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t          inst,
     VTSS_EXIT();
     return rc;
 }
-#endif /* VTSS_ARCH_JAGUAR_2/JAG3S5 */
+#endif
 
 vtss_rc vtss_acl_port_conf_get(const vtss_inst_t     inst,
                                const vtss_port_no_t  port_no,
@@ -2066,14 +2103,14 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
         name = "?";
         user = cur->user;
         name = (user == VTSS_IS0_USER_EVC ? "EVC" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
                 user == VTSS_IS1_USER_MCE_0 ? "MCE_0" :
 #else
                 user == VTSS_IS1_USER_TT_LOOP_0 ? "TT_LOOP0" :
 #endif
                 user == VTSS_IS1_USER_VCL ? "VCL" :
                 user == VTSS_IS1_USER_VLAN ? "VLAN" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
                 user == VTSS_IS1_USER_MCE_1 ? "MCE_1" :
                 user == VTSS_IS1_USER_MCE_2 ? "MCE_2" :
 #else
@@ -2099,13 +2136,13 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
                 user == VTSS_IS2_USER_IRACL ? "I-RACL" :
                 user == VTSS_IS2_USER_ERACL ? "E-RACL" :
                 user == VTSS_ES0_USER_TCL ? "TCL" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
                 user == VTSS_ES0_USER_MCE_0 ? "MCE_0" :
 #else
                 user == VTSS_ES0_USER_TT_LOOP ? "TT_LOOP" :
 #endif
                 user == VTSS_ES0_USER_VLAN ? "VLAN" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
                 user == VTSS_ES0_USER_MCE_1 ? "MCE_1" :
                 user == VTSS_ES0_USER_MCE_2 ? "MCE_2" :
 #else

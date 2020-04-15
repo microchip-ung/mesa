@@ -98,7 +98,7 @@ i2c_config_t jr2_i2c_config[] =
 };
 
 mesa_rc meba_poe_jr2_system_get(
-        const meba_inst_t             inst,
+        meba_inst_t                     inst,
         meba_poe_system_t             **const system)
 {
     *system = &jr2_pd69200_system;
@@ -106,7 +106,7 @@ mesa_rc meba_poe_jr2_system_get(
 }
 
 mesa_rc meba_poe_jr2_system_initialize(
-        const meba_inst_t             inst)
+        meba_inst_t                     inst)
 {
     // Do poe chip detection and fill
     /* jr2_ctrl.api = ....; */
@@ -139,7 +139,7 @@ mesa_rc meba_poe_jr2_system_initialize(
     return MESA_RC_OK;
 };
 
-mesa_rc meba_poe_jr2_get_controller_handle(const meba_inst_t inst,
+mesa_rc meba_poe_jr2_get_controller_handle(meba_inst_t inst,
                                        mesa_port_no_t port_no,
                                        meba_poe_ctrl_inst_t **controller,
                                        meba_poe_port_handle_t *handle)
@@ -156,7 +156,7 @@ mesa_rc meba_poe_jr2_get_controller_handle(const meba_inst_t inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_jr2_do_detection(const meba_inst_t inst)
+mesa_rc meba_poe_jr2_do_detection(meba_inst_t inst)
 {
     int i;
     mesa_rc rc = MESA_RC_ERROR;

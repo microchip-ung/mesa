@@ -1296,11 +1296,13 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BO
         return VTSS_RC_OK;
     }
 
-    // Only start the flow if there's link on the port.
-    // For down-flows, there must be link on the egress port. For up-flows,
-    // there must be link on the ingress (masqueraded) port.
+    // Always start down-flows, because a per-port AFI mechanism ensures that
+    // flows are not really started until the port gets link.
+    // Only start up-flows if there's link on the port. Calls to
+    // jr2_afi_link_state_change() ensure that these up-flows are started and
+    // stopped by link state changes.
     port_no = dti->port_no != VTSS_PORT_NO_NONE ? dti->port_no : dti->masquerade_port_no;
-    link = jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
+    link    = dti->port_no != VTSS_PORT_NO_NONE ? TRUE         : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
 
     VTSS_I("port_no = %d: link = %d", port_no, link);
     VTSS_RC(jr2_afi_dti_pause_resume(vtss_state, dti_idx, !link));
@@ -1530,15 +1532,19 @@ static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BO
             VTSS_F_AFI_TTI_TBL_TTI_TICKS_TICK_CNT(rand_tick_cnt),
             VTSS_M_AFI_TTI_TBL_TTI_TICKS_TICK_CNT);
 
-    // Only start the flow if there's link on the port.
-    // For down-flows, there must be link on the egress port. For up-flows,
-    // there must be link on the ingress (masqueraded) port.
+    // Always start down-flows, because a per-port AFI mechanism ensures that
+    // flows are not really started until the port gets link.
+    // Only start up-flows if there's link on the port. Calls to
+    // jr2_afi_link_state_change() ensure that these up-flows are started and
+    // stopped by link state changes.
     port_no = tti->port_no != VTSS_PORT_NO_NONE ? tti->port_no : tti->masquerade_port_no;
-    link = jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
+    link    = tti->port_no != VTSS_PORT_NO_NONE ? TRUE         : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
 
     VTSS_I("port_no = %d: link = %d", port_no, link);
     VTSS_RC(jr2_afi_tti_pause_resume(vtss_state, tti_idx, !link));
 
+    // User has started this flow now, even though it may not be started in
+    // reality.
     tti->state = VTSS_AFI_ENTRY_STATE_STARTED;
 
     VTSS_I("Exit. tti_idx = %u, paused = %d", tti_idx, tti->paused);

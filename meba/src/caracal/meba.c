@@ -288,6 +288,8 @@ static uint32_t caracal_capability(meba_inst_t inst, int cap)
             return false;
         case MEBA_CAP_POE_BT:
             return board->type == BOARD_LUTON10_PDS408G;
+        case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
+            return false;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -1313,6 +1315,25 @@ meba_inst_t meba_initialize(size_t callouts_size,
         return NULL;
     }
 
+    // Figure out the mux_mode (see also vtss_port_inst_create() in
+    // .../base/ail/vtss_port_api.c).
+    switch (inst->props.target) {
+    case MESA_TARGET_SPARX_III_10:
+    // case MESA_TARGET_SPARX_III_10_01: /* Only exists as VTSS_TARGET_xxx, not MESA_TARGET_xxx */
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
+        break;
+
+
+    case MESA_TARGET_CARACAL_LITE:
+    case MESA_TARGET_CARACAL_1:
+    // case MESA_TARGET_SPARX_III_10_UM: /* Only exists as VTSS_TARGET_xxx, not MESA_TARGET_xxx */
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
+        break;
+
+    default:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
+    }
+
     // Initialize our state
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
@@ -1357,7 +1378,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
     board->led_tower_mode = LED_TOWER_MODE_LINK_SPEED;
     board->tmp_timer = 0;
-    T_I(inst, "Board: %s, type %d, target %4x, %d ports", inst->props.name, board->type, inst->props.target, board->port_cnt);
+    T_I(inst, "Board: %s, type %d, target %4x, %d ports, mux_mode = %d", inst->props.name, board->type, inst->props.target, board->port_cnt, inst->props.mux_mode);
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");

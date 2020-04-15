@@ -518,70 +518,57 @@ mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t              inst,
     return vtss_qos_port_conf_set((const vtss_inst_t)inst, port_no, &vtss_conf);
 }
 
-mesa_rc mesa_qos_qbv_port_gce_conf_get(const mesa_inst_t        inst,
-                                       const mesa_port_no_t     port_no,
-                                       const uint32_t           cnt,
-                                       mesa_qos_port_gce_conf_t *const conf)
+mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t     inst,
+                                       const mesa_port_no_t  port_no,
+                                       const uint32_t        cnt,
+                                       mesa_qos_tas_gce_t    *const gcl,
+                                       uint32_t              *const gce_cnt)
 {
-#if defined(VTSS_FEATURE_QOS_QBV)
-    vtss_qos_qbv_port_conf_t vtss_conf;
+#if defined(VTSS_FEATURE_QOS_TAS)
+    vtss_qos_tas_port_conf_t vtss_conf;
     u32                      idx;
 
-    if (cnt != VTSS_QOS_QBV_GCL_LEN_MAX) {
+    if ((gce_cnt == NULL) || (gcl == NULL)) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_qbv_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; idx < VTSS_QOS_QBV_GCL_LEN_MAX; idx++) {
-        mesa_conv_vtss_qos_qbv_gcl_t_to_mesa_qos_qbv_gcl_t(&vtss_conf.admin_gcl[idx], &conf[idx].gce);
+    if (cnt != VTSS_QOS_TAS_GCL_LEN_MAX) {
+        return VTSS_RC_ERROR;
     }
+    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    for (idx = 0; (idx < VTSS_QOS_TAS_GCL_LEN_MAX) && (idx < vtss_conf.gcl_length); idx++) {
+        mesa_conv_vtss_qos_tas_gce_t_to_mesa_qos_tas_gce_t(&vtss_conf.gcl[idx], &gcl[idx]);
+    }
+    *gce_cnt = vtss_conf.gcl_length;
     return VTSS_RC_OK;
 #else
     return VTSS_RC_ERROR;
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 }
 
-mesa_rc mesa_qos_qbv_port_gce_conf_set(const mesa_inst_t              inst,
-                                       const mesa_port_no_t           port_no,
-                                       const uint32_t                 cnt,
-                                       const mesa_qos_port_gce_conf_t *const conf)
+mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
+                                       const mesa_port_no_t       port_no,
+                                       const uint32_t             gce_cnt,
+                                       const mesa_qos_tas_gce_t   *const gcl)
 {
-#if defined(VTSS_FEATURE_QOS_QBV)
-    vtss_qos_qbv_port_conf_t vtss_conf;
+#if defined(VTSS_FEATURE_QOS_TAS)
+    vtss_qos_tas_port_conf_t vtss_conf;
     u32                      idx;
 
-    if (cnt != VTSS_QOS_QBV_GCL_LEN_MAX) {
+    if (gcl == NULL) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_qbv_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; idx < VTSS_QOS_QBV_GCL_LEN_MAX; idx++) {
-        mesa_conv_mesa_qos_qbv_gcl_t_to_vtss_qos_qbv_gcl_t(&conf[idx].gce, &vtss_conf.admin_gcl[idx]);
-    }
-    return vtss_qos_qbv_port_conf_set((const vtss_inst_t)inst, port_no, &vtss_conf);
-#else
-    return VTSS_RC_ERROR;
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
-}
-
-mesa_rc mesa_qos_qbv_port_gce_status_get(const mesa_inst_t              inst,
-                                         const mesa_port_no_t           port_no,
-                                         const uint32_t                 cnt,
-                                         mesa_qos_qbv_port_gce_status_t *const status)
-{
-#if defined(VTSS_FEATURE_QOS_QBV)
-    vtss_qos_qbv_port_status_t vtss_status;
-    u32                        idx;
-
-    if (cnt != VTSS_QOS_QBV_GCL_LEN_MAX) {
+    if (gce_cnt >= VTSS_QOS_TAS_GCL_LEN_MAX) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_qbv_port_status_get((const vtss_inst_t)inst, port_no, &vtss_status));
-    for (idx = 0; idx < VTSS_QOS_QBV_GCL_LEN_MAX; idx++) {
-        mesa_conv_vtss_qos_qbv_gcl_t_to_mesa_qos_qbv_gcl_t(&vtss_status.oper_gcl[idx], &status[idx].gce);
+    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    for (idx = 0; idx < gce_cnt; idx++) {
+        mesa_conv_mesa_qos_tas_gce_t_to_vtss_qos_tas_gce_t(&gcl[idx], &vtss_conf.gcl[idx]);
     }
-    return VTSS_RC_OK;
+    vtss_conf.gcl_length = gce_cnt;
+    return vtss_qos_tas_port_conf_set((const vtss_inst_t)inst, port_no, &vtss_conf);
 #else
     return VTSS_RC_ERROR;
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 }
 
 mesa_rc mesa_qce_add(const mesa_inst_t   inst,

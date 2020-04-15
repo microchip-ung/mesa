@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -41,10 +41,10 @@ typedef enum
     VTSS_MIIM_CONTROLLER_0    = 0,  /**< MIIM controller 0 */
     VTSS_MIIM_CONTROLLER_1    = 1,  /**< MIIM controller 1 */
 #endif
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     VTSS_MIIM_CONTROLLER_2    = 2,  /**< MIIM controller 2 */
 #endif
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
     VTSS_MIIM_CONTROLLER_3    = 3,  /**< MIIM controller 3 */
 #endif
     VTSS_MIIM_CONTROLLERS,          /**< Number of MIIM controllers */
@@ -72,9 +72,9 @@ typedef struct
 {
     i32                    chip_port;        /**< Set to -1 if not used */
     vtss_chip_no_t         chip_no;          /**< Chip number, multi-chip targets */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_internal_bw_t     max_bw;           /**< Max internal bandwidth reserved for the port */
-#endif /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_SPARX5 */
     vtss_miim_controller_t miim_controller;  /**< MII management controller */
     u8                     miim_addr;        /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
     vtss_chip_no_t         miim_chip_no;     /**< MII management chip number, multi-chip targets */
@@ -241,7 +241,8 @@ typedef enum
 typedef enum {
     VTSS_SD10G_MEDIA_SR,         /**< Short Range > */
     VTSS_SD10G_MEDIA_ZR,         /**< ZR with APC hardware algorithm > */
-    VTSS_SD10G_MEDIA_DAC,        /**< DAC (Direct attached copper) with APC hardware algorithm > */
+    VTSS_SD10G_MEDIA_DAC,        /**< Short DAC (Direct attached copper) with APC hardware algorithm > */
+    VTSS_SD10G_MEDIA_DAC_5M,     /**< Long DAC (Direct attached copper) with APC hardware algorithm > */
     VTSS_SD10G_MEDIA_BP,         /**< Backplane > */
     VTSS_SD10G_MEDIA_B2B,        /**< Bord to Board > */
     VTSS_SD10G_MEDIA_10G_KR,     /**< 10G Base KR > */

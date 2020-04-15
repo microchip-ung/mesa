@@ -91,7 +91,7 @@ i2c_config_t caracal_i2c_config = { "/dev/i2c-203", 0x14 };
 i2c_config_t pds408g_i2c_config = { "/dev/i2c-203", 0x20 };
 
 mesa_rc meba_poe_caracal_system_get(
-        const meba_inst_t             inst,
+        meba_inst_t                     inst,
         meba_poe_system_t             **const system)
 {
     *system = &caracal_pd69200_system;
@@ -99,7 +99,7 @@ mesa_rc meba_poe_caracal_system_get(
 }
 
 mesa_rc meba_poe_caracal_system_initialize(
-        const meba_inst_t             inst)
+        meba_inst_t                     inst)
 {
     // Do poe chip detection and fill
     /* caracal_ctrl.api = ....; */
@@ -141,7 +141,7 @@ mesa_rc meba_poe_caracal_system_initialize(
     return MESA_RC_OK;
 };
 
-mesa_rc meba_poe_caracal_get_controller_handle(const meba_inst_t inst,
+mesa_rc meba_poe_caracal_get_controller_handle(meba_inst_t inst,
                                        mesa_port_no_t port_no,
                                        meba_poe_ctrl_inst_t **controller,
                                        meba_poe_port_handle_t *handle)
@@ -158,7 +158,7 @@ mesa_rc meba_poe_caracal_get_controller_handle(const meba_inst_t inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_caracal_do_detection(const meba_inst_t inst)
+mesa_rc meba_poe_caracal_do_detection(meba_inst_t inst)
 {
     int i;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");

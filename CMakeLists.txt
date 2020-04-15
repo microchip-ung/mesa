@@ -21,13 +21,17 @@
 project(vtss_api)
 
 cmake_minimum_required(VERSION 2.8.12)
+
 include(CMakeParseArguments)
 include(.cmake/common.cmake)
 
-option(BUILD_ALL      "Enable all" OFF)
-option(BUILD_MESA_ALL "Build the MESA libraries" OFF)
-option(BUILD_DOXYGEN  "Build doxygen" OFF)
-option(MESA_PRE_AG    "Use pre-generated mesa-ag layer if exist" ON)
+option(BUILD_ALL         "Enable all" OFF)
+option(BUILD_STATIC_LIBS "Build static versions of the libraries" OFF)
+option(BUILD_SHARED_LIBS "Build shared versions of the libraries" ON)
+option(BUILD_MESA_ALL    "Build the MESA libraries" OFF)
+option(BUILD_DOXYGEN     "Build doxygen" OFF)
+option(MESA_PRE_AG       "Use pre-generated mesa-ag layer if exist" ON)
+option(BUILD_MESA_DEMO   "Build the MESA demo" ON)
 
 include(.cmake/doxygen.cmake)
 
@@ -63,6 +67,8 @@ file(GLOB_RECURSE API_UNI_HDR_ABS "include/**.h")
 file(GLOB_RECURSE API_MESA_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "mesa/src/**.c")
 file(GLOB_RECURSE API_MESA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mesa/include" "mesa/include/**.h")
 file(GLOB_RECURSE API_MEBA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/meba/include" "meba/include/**.h")
+
+list(REMOVE_ITEM API_MESA_SRC mesa/src/capability_dumper.c)
 
 ### MESA-PROCESSING START #####################################################################################################################################
 if (EXISTS mesa/ag/mesa.c AND EXISTS mesa/ag/mesa.h AND ${MESA_PRE_AG})
@@ -127,7 +133,7 @@ add_custom_target(mesa_cache DEPENDS ${API_MESA_CACHE_OUT})
 # Create the auto generated mesa header/src (using the earlier created cache).
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.c
                    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mesa/scripts/ag.rb -b ${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN}
-                   DEPENDS mesa_cache
+                   DEPENDS mesa_cache ${CMAKE_CURRENT_SOURCE_DIR}/mesa/scripts/ag.rb
                    COMMENT "Generate mesa.h/mesa.c")
 add_custom_target(mesa_src DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.c)
 list(APPEND API_MESA_SRC ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.c)
@@ -152,8 +158,13 @@ macro(API_TARGET)
   option(${A_LIB}        "Build the API for ${A_CHIP} (${A_LIB})" OFF)
   option(${A_LIB}_static "Build the static API for ${A_CHIP} (${A_LIB})" OFF)
   if (${BUILD_MESA_ALL} OR ${BUILD_ALL})
-      set(${A_LIB} ON CACHE BOOL "" FORCE)
-      set(${A_LIB}_static ON CACHE BOOL "" FORCE)
+      if (${BUILD_SHARED_LIBS})
+          set(${A_LIB} ON CACHE BOOL "" FORCE)
+      endif()
+
+      if (${BUILD_STATIC_LIBS})
+          set(${A_LIB}_static ON CACHE BOOL "" FORCE)
+      endif()
   endif()
 
   set(DEFS ${GLOBAL_DEFS} -DVTSS_CHIP_${A_CHIP} ${A_DEFS})
@@ -233,19 +244,30 @@ API_TARGET(LIB vsc7513_afiot_ts      CHIP 7513          DEFS -DVTSS_OPT_AFI_OPTI
 API_TARGET(LIB vsc7514               CHIP 7514)
 API_TARGET(LIB vsc7514_afiot_ts      CHIP 7514          DEFS -DVTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS=1 -DVTSS_OPT_PHY_TIMESTAMP=1)
 API_TARGET(LIB vsc7514_pcnt10        CHIP 7514          DEFS -DVTSS_OPT_PORT_COUNT=10)
-API_TARGET(LIB vsc7546_pcnt7         CHIP 7546          DEFS -DVTSS_OPT_PORT_COUNT=7)
-API_TARGET(LIB vsc7549_pcnt10        CHIP 7549          DEFS -DVTSS_OPT_PORT_COUNT=10)
-API_TARGET(LIB vsc7552_pcnt13        CHIP 7552          DEFS -DVTSS_OPT_PORT_COUNT=13)
-API_TARGET(LIB vsc7556_pcnt57        CHIP 7556          DEFS -DVTSS_OPT_PORT_COUNT=57)
+#API_TARGET(LIB vsc7546_pcnt7         CHIP 7546          DEFS -DVTSS_OPT_PORT_COUNT=7)
+#API_TARGET(LIB vsc7549_pcnt10        CHIP 7549          DEFS -DVTSS_OPT_PORT_COUNT=10)
+#API_TARGET(LIB vsc7552_pcnt13        CHIP 7552          DEFS -DVTSS_OPT_PORT_COUNT=13)
+#API_TARGET(LIB vsc7556_pcnt57        CHIP 7556          DEFS -DVTSS_OPT_PORT_COUNT=57)
 API_TARGET(LIB vsc7558_pcnt21        CHIP 7558          DEFS -DVTSS_OPT_PORT_COUNT=21)
-API_TARGET(LIB vsc7546_04_pcnt7      CHIP 7546_04       DEFS -DVTSS_OPT_PORT_COUNT=7)
-API_TARGET(LIB vsc7549_04_pcnt10     CHIP 7549_04       DEFS -DVTSS_OPT_PORT_COUNT=10)
-API_TARGET(LIB vsc7552_04_pcnt13     CHIP 7552_04       DEFS -DVTSS_OPT_PORT_COUNT=13)
-API_TARGET(LIB vsc7556_04_pcnt57     CHIP 7556_04       DEFS -DVTSS_OPT_PORT_COUNT=57)
+API_TARGET(LIB vsc7558_pcnt57        CHIP 7558          DEFS -DVTSS_OPT_PORT_COUNT=57)
+#API_TARGET(LIB vsc7546_04_pcnt7      CHIP 7546_04       DEFS -DVTSS_OPT_PORT_COUNT=7)
+#API_TARGET(LIB vsc7549_04_pcnt10     CHIP 7549_04       DEFS -DVTSS_OPT_PORT_COUNT=10)
+#API_TARGET(LIB vsc7552_04_pcnt13     CHIP 7552_04       DEFS -DVTSS_OPT_PORT_COUNT=13)
+#API_TARGET(LIB vsc7556_04_pcnt57     CHIP 7556_04       DEFS -DVTSS_OPT_PORT_COUNT=57)
 API_TARGET(LIB vsc7558_04_pcnt21     CHIP 7558_04       DEFS -DVTSS_OPT_PORT_COUNT=21)
+API_TARGET(LIB vsc7558_04_pcnt57     CHIP 7558_04       DEFS -DVTSS_OPT_PORT_COUNT=57)
 
-find_library(JSON_LIB json-c)
-if (JSON_LIB)
-    add_subdirectory(mesa/demo)
+option(BUILD_MESA_CAPABILITY_DUMPER "Build all the mesa capability dumper function" OFF)
+if (${BUILD_MESA_CAPABILITY_DUMPER})
+    add_executable(capability_dumper mesa/src/capability_dumper.c)
+    target_link_libraries(capability_dumper dl)
+endif()
+
+
+if (${BUILD_MESA_DEMO})
+    find_library(JSON_LIB json-c)
+    if (JSON_LIB)
+        add_subdirectory(mesa/demo)
+    endif()
 endif()
 

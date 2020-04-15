@@ -609,8 +609,8 @@ static vtss_rc jr2_voe_conf_set(vtss_state_t           *vtss_state,
            VTSS_M_VOP_VOE_CONF_VOE_CTRL_RX_DMAC_CHK_SEL;
     JR2_WRM(VTSS_VOP_VOE_CONF_VOE_CTRL(voe_idx), value, mask);
 
-    /* Configure VOE looped frames to hit ES0 using ISDX */
-    value = VTSS_F_VOP_VOE_CONF_LOOPBACK_CFG_LB_ES0_ISDX_ENA(1) |
+    /* Configure VOE looped frames to hit ES0 using ISDX in case IFLOW is not none */
+    value = VTSS_F_VOP_VOE_CONF_LOOPBACK_CFG_LB_ES0_ISDX_ENA((conf->loop_iflow_id == VTSS_IFLOW_ID_NONE) ? 0 : 1) |
             VTSS_F_VOP_VOE_CONF_LOOPBACK_CFG_LB_ISDX(conf->loop_iflow_id);
     JR2_WR(VTSS_VOP_VOE_CONF_LOOPBACK_CFG(voe_idx), value);
 
@@ -817,7 +817,7 @@ static vtss_rc jr2_voe_lb_conf_set(vtss_state_t               *vtss_state,
                                    const vtss_voe_lb_conf_t   *const conf)
 {
     u32  value, mask, transaction_id;
-    BOOL doing_lb, doing_tst;
+    BOOL doing_lb = 0, doing_tst;
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 

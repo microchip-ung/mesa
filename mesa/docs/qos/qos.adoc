@@ -1,0 +1,213 @@
+:sectnums:
+
+== QOS Functional Description.
+
+QOS is short for Quality Of Service and covers a range of functionality that
+determines the handling of a frame at ingress and at egress direction.
+
+.The handling has impact on the frame on ingress:
+
+* Give frame classified Priority.
+* Give frame classified DPL (Drop Precedence Level).
+* Give frame classified PCP and DEI.
+* Give frame classified COSID.
+* Give frame a classified DSCP (IP header) value to be used on egress.
+* Policing the frame
+
+.The handling has impact on the frame on egress:
+
+* Discard (WRED) the frame
+* Scheduling the frame
+* Shaping the frame
+* Give the DSCP value in the frame
+* Give the PCP and DEI value in the frame
+
+=== QOS Ingress Detailed.
+
+The ingress frame process includes a number of classification, mapping and
+policing steps. This flow is illustrated below and further explain in the
+following sub-sections.
+
+image:./qos-flow-ingress.svg[]
+
+==== [#bookmark-pdc]#Port Default Configuration#.
+
+Default classified Priority, DPL can be configured (`mesa_qos_port_conf_t`) per port.
+Default classified PCP and DEI can be configured (`mesa_qos_port_tag_conf_t`) per port. The PCP and DEI are only relevant for frames that are
+classified as untagged (`mesa_vlan_port_type_t`). Ingress frames get these
+default classified values. +
+ +
+If MESA capability `MESA_CAP_QOS_INGRESS_MAP_CNT` is not zero it can be
+configured (`mesa_qos_port_conf_t`) that all frames on this port will hit
+an <<bookmark-im,Ingress map>>. This can be overruled if the frame hits a
+<<bookmark-qce, QCE entry>> with action that make the frame hit an <<bookmark-im,Ingress map>>.
+
+==== DSCP translation.
+
+A global table translating the DSCP value of an IP frame to a classified DSCP value can
+be configured (`mesa_qos_dscp_conf_t`). Per port it can be configured (`mesa_qos_port_dscp_conf_t`) if translation should happen or not.
+
+==== [#bookmark-dpd]#DSCP to Prio/DPL mapping#.
+
+A global table mapping the DSCP value of an IP frame to the classified Priority and DPL
+can be configured (`mesa_qos_dscp_conf_t`). Per port it can be configured (`mesa_qos_port_dscp_conf_t`) if mapping should happen or not.
+
+==== PCP/DEI to Prio/DPL mapping.
+
+A table per port mapping the PCP and DEI in a tagged frame to classified Priority and DPL
+can be configured (`mesa_qos_port_tag_conf_t`).
+
+This mapping is not used for
+an IP frame if <<bookmark-dpd,DSCP to Prio/DPL mapping>> has been configured for
+this DSCP.
+
+==== [#bookmark-qce]#QCE#.
+
+A QCE is an entry (`mesa_qce_t`) that is added (`mesa_qce_add()`) to a list.
+The QCE entry has a key (`mesa_qos_egress_map_key_t`) and an action (`mesa_qce_action_t`).
+The list of QCEs is traversed from the top until an entry is found where the frame is matching the
+key. The found QCE entry action offers options to change the classified priority, DPL, DSCP,
+PCP, DEI etc. +
+ +
+If MESA capability
+`MESA_CAP_QOS_INGRESS_MAP_CNT` is not zero the QCE action can make the frame hit an
+<<bookmark-im,Ingress map>>.
+
+==== [#bookmark-im]#Ingress mapping#.
+
+If MESA capability `MESA_CAP_QOS_INGRESS_MAP_CNT` is not zero an ingress mapper (`mesa_qos_ingress_map_t`)
+can be created (`mesa_qos_ingress_map_init`, `mesa_qos_ingress_map_add`).
+
+.The QOS API offers two ways that an ingress frame can hit an ingress mapper:
+* All frames on the port can hit the ingress <<bookmark-pdc,mapper>>.
+* All frames hitting a QCE can hit the ingress <<bookmark-qce,mapper>>.
+
+The ingress mapper can give frame new classified Priority, DPL, DSCP, PCP, DEI and COSID.
+
+==== Prio/DPL to DSCP mapping.
+
+A global table mapping classified Priority and DPL to classified DSCP can be configured
+(`mesa_qos_dpl_conf_t`).
+
+What frames are mapped in this table depends on ingress port configuration (`mesa_dscp_mode_t`) and DSCP configuration (`mesa_qos_dscp_conf_t`).
+
+==== Priority policing.
+
+All frames are going through a priority policer that polices frames with a specific classified priority (queue).
+The policer is configured (`mesa_qos_port_queue_conf_t`) per port per priority (queue). A priority policer is reducing
+the ingress information rate (either frame rate or bit rate) of a specific priority (queue).
+
+==== Port policing.
+
+All frames on a port are going through a Port policer configured
+(`mesa_qos_port_policer_conf_t`) for that port. A port policer is
+reducing the ingress information rate (either frame rate or bit rate) on the port. +
+ +
+If MESA capability `MESA_CAP_QOS_PORT_POLICER_EXT_TTM` is not zero then it is possible to select
+between different frame attributes that should be policed.
+
+==== Storm policing.
+
+It is possible to configure global storm policers (`mesa_qos_conf_t`).
+A storm polices can police frames depending on their destination port that can be front and/or CPU destination port.
+There is a specific storm policer for Unicast, Multicast and broadcast frames that all frames
+(depending on their destination port) in the switch are going through.
+A policer can be configured to reduce the ingress information rate (either frame rate or bit rate).
+
+=== QOS Egress Detailed.
+
+.Egress frame flow
+image:./qos-flow-egress.svg[]
+
+==== Weighted Random Early Discard - WRED.
+
+If MESA capability `MESA_CAP_QOS_WRED` is not zero Weighted Random Early
+Detection can be configured (`mesa_wred_conf_t`). All frames goes through the
+WRED that can discard frames depending on the queue filling of the classified
+Priority and the classified DPL.
+
+==== Scheduler.
+
+The scheduler that controls the transmission of all frames from the priority
+queues can be configured (`mesa_qos_port_conf_t`).
+
+.The scheduling can be configured in two different modes:
+* Strict scheduling where all queues are equally prioritized (default).
+* Weighted (DWRR) scheduling where queues are prioritized after a percentual weight.
+
+==== Priority shaper.
+
+All frames are going through a priority shaper that shapes frames with a specific classified priority (queue).
+The shaper is configured (`mesa_qos_port_queue_conf_t`) per port per priority (queue). A priority shaper is reducing
+the egress bit rate of a specific priority (queue).
+
+==== Port shaper.
+
+All frames on a port are going through a Port shaper configured
+(`mesa_qos_port_conf_t`) for that port. A shaper is reducing the
+egress bit rate on the port.
+
+==== [#bookmark-ddm]#DSCP/DPL to DSCP mapping#.
+
+A global table mapping the classified DSCP and DPL to a mapped version of classified DSCP value can be
+configured (`mesa_qos_dscp_dpl_conf_t`).
+
+==== [#bookmark-pdm]#Prio/DPL to PCP/DEI mapping#.
+
+Per port a table mapping the classified Priority and DPL to a mapped version of classified PCP and DEI can be
+configured (`mesa_qos_port_dpl_conf_t`).
+
+==== Port configuration.
+
+Default PCP and DEI can be configured (`mesa_qos_port_tag_conf_t`) per port. The TAG PCP
+and DEI generation mode can be configured (`mesa_tag_remark_mode_t`) per port.
+
+.There are three ways that TAG PCP and DEI can be generated:
+* Port Default PCP and DEI is used as TAG PCP and DEI.
+* Classified PCP and DEI is used as TAG PCP and DEI.
+* <<bookmark-pdm,Mapped>> version of classified PCP and DEI is used as TAG PCP and DEI.
+
+The IP frame DSCP value update can be configured (`mesa_dscp_emode_t`) per port.
+
+.There are three ways that IP frame DSCP value can be updated:
+* No update of IP frame DSCP value.
+* Classified DSCP used to update IP frame DSCP value.
+* <<bookmark-ddm,Mapped>> version of classified DSCP used to update IP frame DSCP value.
+
+==== Egress mapping.
+
+If MESA capability `MESA_CAP_QOS_EGRESS_MAP_CNT` is not zero an egress mapper (`mesa_qos_egress_map_t`)
+can be created (`mesa_qos_egress_map_init`, `mesa_qos_egress_map_add`).
+
+.The QOS API offers one way that an egress frame can hit a egress mapper:
+* All frames on the port can hit the egress mapper.
+
+The egress mapper can change the TAG generation PCP and DEI values and change
+the DSCP value in the frame.
+
+==== Cut-through
+If MESA capability `MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH` is not zero, cut-through forwarding can be
+enabled per egress port and priority/queue (`mesa_qos_port_queue_conf_t`). Cut-through forwarding
+requires the following:
+
+* Cut-through is enabled for the egress port and priority.
+* Frame preemption is disabled for the egress port and priority.
+* The ingress port speed is not smaller than the egress port speed.
+* The frame size is bigger than a device specific minimum size (148 bytes for SparX-5).
+
+=== MESA functions.
+
+- `mesa_qos_port_conf_set(port)`
+- `mesa_qos_conf_set()`
+- `mesa_qos_port_policer_conf_set()`
+- `mesa_qos_dpl_group_conf_set()`
+- `mesa_qos_port_dpl_conf_set()`
+- `mesa_qos_dpl_conf_set()`
+- `mesa_qos_dscp_dpl_conf_set()`
+- `mesa_qos_ingress_map_init()`
+- `mesa_qos_ingress_map_add()`
+- `mesa_qos_egress_map_init()`
+- `mesa_qos_egress_map_add()`
+- `mesa_qce_init()`
+- `mesa_qce_add()`
+

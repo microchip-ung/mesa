@@ -693,6 +693,8 @@ static uint32_t ocelot_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_POE_BT:
             return false;
+        case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
+            return false;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -1193,6 +1195,9 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
     T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
 
     switch (event_id) {
+        case MEBA_EVENT_VOE:
+            return rc; // Nothing high-level enable stuff for this event.
+
         case MEBA_EVENT_SYNC:
         case MEBA_EVENT_EXT_SYNC:
         case MEBA_EVENT_EXT_1_SYNC:

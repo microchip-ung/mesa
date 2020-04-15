@@ -337,6 +337,7 @@ static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
 #if defined(VTSS_FEATURE_MACSEC)
     [VTSS_DEBUG_GROUP_MACSEC]    = "MacSec",
 #endif /* VTSS_FEATURE_MACSEC */
+    [VTSS_DEBUG_GROUP_SERDES]    = "Serdes",
 };
 
 BOOL vtss_debug_group_enabled(const vtss_debug_printf_t pr,

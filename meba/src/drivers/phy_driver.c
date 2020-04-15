@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 typedef struct {
     mesa_inst_t inst;
     mesa_port_no_t port_no;
+    mesa_port_interface_t mac_if;
 } phy_data_t;
 
 static mesa_rc mscc_1g_delete(meba_phy_device_t *dev) {
@@ -52,7 +53,7 @@ static mesa_rc mscc_1g_reset(meba_phy_device_t *dev,
 
     mesa_phy_reset_get(data->inst, data->port_no, &conf);
     conf.force = MESA_PHY_FORCE_RESET;
-    conf.mac_if = MESA_PORT_INTERFACE_SGMII;
+    conf.mac_if = data->mac_if;
     conf.media_if = media_if;
     conf.i_cpu_en = false;
 
@@ -66,7 +67,7 @@ static mesa_rc mscc_1g_atom_reset(meba_phy_device_t *dev,
 
     mesa_phy_reset_get(data->inst, data->port_no, &conf);
     conf.force = MESA_PHY_FORCE_RESET;
-    conf.mac_if = MESA_PORT_INTERFACE_QSGMII;
+    conf.mac_if = data->mac_if;
     conf.media_if = media_if;
     conf.i_cpu_en = false;
 
@@ -160,14 +161,9 @@ static mesa_rc mscc_1g_conf_set(meba_phy_device_t *dev, meba_port_cap_t cap,
 
 static mesa_rc mscc_1g_if_get(meba_phy_device_t *dev, mesa_port_speed_t speed,
                               mesa_port_interface_t *mac_if) {
-    *mac_if = MESA_PORT_INTERFACE_SGMII;
-    return MESA_RC_OK;
-}
+    phy_data_t *data = (phy_data_t *)dev->data;
 
-static mesa_rc mscc_1g_if_atom_get(meba_phy_device_t *dev,
-                                   mesa_port_speed_t speed,
-                                   mesa_port_interface_t *mac_if) {
-    *mac_if = MESA_PORT_INTERFACE_QSGMII;
+    *mac_if = data->mac_if;
     return MESA_RC_OK;
 }
 
@@ -196,19 +192,7 @@ static mesa_rc mscc_1g_media_set(meba_phy_device_t *dev,
     mesa_phy_reset_conf_t conf = {};
     mesa_phy_reset_get(data->inst, data->port_no, &conf);
 
-    conf.mac_if = MESA_PORT_INTERFACE_SGMII;
-    conf.media_if = phy_media_if;
-
-    return mesa_phy_reset(data->inst, data->port_no, &conf);
-}
-
-static mesa_rc mscc_1g_atom_media_set(meba_phy_device_t *dev,
-                                 mesa_phy_media_interface_t phy_media_if) {
-    phy_data_t *data = (phy_data_t *)(dev->data);
-    mesa_phy_reset_conf_t conf = {};
-    mesa_phy_reset_get(data->inst, data->port_no, &conf);
-
-    conf.mac_if = MESA_PORT_INTERFACE_QSGMII;
+    conf.mac_if = data->mac_if;
     conf.media_if = phy_media_if;
 
     return mesa_phy_reset(data->inst, data->port_no, &conf);
@@ -230,6 +214,7 @@ static meba_phy_device_t *mscc_1g_probe(meba_phy_driver_t *drv,
     device->drv = drv;
     data->inst = mode->val.mscc_address.inst;
     data->port_no = mode->val.mscc_address.port_no;
+    data->mac_if = mode->val.mscc_address.mac_if;
     device->data = data;
 
     return device;
@@ -249,6 +234,7 @@ static mesa_rc mscc_1g_status_1g_get(meba_phy_device_t    *dev,
 typedef struct malibu_10g_phy_data {
     mesa_inst_t inst;
     mesa_port_no_t port_no;
+    mesa_port_interface_t mac_if;
 } malibu_10g_phy_data_t;
 
 static mesa_rc phy_10g_delete(meba_phy_device_t *dev) {
@@ -406,7 +392,7 @@ static mesa_rc venice_10g_if_get(meba_phy_device_t *dev,
 
 }
 static mesa_rc phy_10g_mt_get(meba_phy_device_t *dev,
-                                 mesa_sd10g_media_type_t *mt) {
+                              mesa_sd10g_media_type_t *mt) {
     *mt = MESA_SD10G_MEDIA_SR;
     return MESA_RC_OK;
 }
@@ -428,6 +414,7 @@ static meba_phy_device_t *phy_10g_probe(
     device->drv = drv;
     data->inst = mode->val.mscc_address.inst;
     data->port_no = mode->val.mscc_address.port_no;
+    data->mac_if = mode->val.mscc_address.mac_if;
     device->data = data;
 
     return device;
@@ -465,12 +452,12 @@ meba_phy_drivers_t meba_mscc_driver_init() {
             .meba_phy_driver_reset = mscc_1g_atom_reset,
             .meba_phy_driver_poll = mscc_1g_poll,
             .meba_phy_driver_conf_set = mscc_1g_conf_set,
-            .meba_phy_driver_if_get = mscc_1g_if_atom_get,
+            .meba_phy_driver_if_get = mscc_1g_if_get,
             .meba_phy_driver_mt_get = NULL,
             .meba_phy_driver_power_set = mscc_1g_power_set,
             .meba_phy_driver_veriphy_start = mscc_1g_veriphy_start,
             .meba_phy_driver_veriphy_get = mscc_1g_veriphy_get,
-            .meba_phy_driver_media_set = mscc_1g_atom_media_set,
+            .meba_phy_driver_media_set = mscc_1g_media_set,
             .meba_phy_driver_probe = mscc_1g_probe,
             .meba_phy_driver_status_1g_get = mscc_1g_status_1g_get,
         },

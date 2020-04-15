@@ -1523,7 +1523,7 @@ static vtss_rc jr2_packet_init(vtss_state_t *vtss_state)
     // Setup CPU port 0 and 1. Only do this if not using VRAP
     for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1 && !vtss_state->sys_config.using_vrap; i++) {
         // This register is not replicated for CPU ports on JR2, but it will be
-        // on JR3, which is why it's just commented out here. If commmented in,
+        // on future chips, which is why it's just commented out here. If commmented in,
         // the actual registers that are written is REW:COMMON:TPID_CFG[0-1],
         // where the first replication will be overwritten later by the
         // application.

@@ -1,0 +1,763 @@
+= MEBA - Programmers guide
+
+== Introduction
+
+The MEBA (Microsemi Ethernet Board API), is a `c` library to organize and
+simplify the configuration and status of the various components on the switch
+reference boards.
+
+MEBA is aiming for providing a unified set of abstractions to all the board
+components except for the switch it self.
+
+WebStaX, SMBStaX, IStaX and MESA-Demo applications uses MEBA to abstract access
+to the various board components. Third-party application may or may not be used
+MEBA, it is a non-mandatory option.
+
+While the MEBA headers are common for all implementations, each implementation
+is board specific (but a single implementation may support multiple boards by
+doing probing).
+
+The MESA packet provides a MEBA implementation matching the references boards,
+but customers creating their own boards may need to do their own MEBA
+implementation to make WebStaX/MESA-Demo run.
+
+=== Terminology
+
+Throughout the document the following terms are used.
+
+MEBA API:: The "C" language application programming interface defined
+by the header `<mscc/ethernet/board/api.h>`, being part of the
+Microsemi Switch API. This is located in the `meba/include` directory
+of the Microsemi Switch API source tree.
+
+MEBA user:: An application using the MEBA API. This will typically be
+the WebStaX switch application or the MESA-Demo application.
+
+MEBA implementation:: An implementation of the MEBA API for one or
+more specific hardware targets. The MEBA implementations for the
+Microsemi reference boards are located in the `meba/src` directory of
+the Microsemi Switch API source tree.
+
+MESA:: Microsemi Ethernet Switch API.
+
+Application:: Another term for MEBA user.
+
+== Overview
+
+The MEBA layer is typically implemented as a library, with one single
+exposed symbol `meba_initialize`.
+
+All other MEBA functions are accessed _indirectly_ through the `meba_inst::api`
+function pointers. All MEBA entry points have the MEBA instance pointer as the
+first parameter.
+
+The MEBA library can either be linked statically with the application,
+or it can be loaded dynamically. The WebStaX application currently
+load MEBA dynamically, and has knowledge of which MEBA library to use
+for a specific board.
+
+The MEBA layer will be executing in Linux user-space with the same
+privileges as the MEBA user. It will have access to the normal Linux
+usermode API's, as well as to MESA. In addition, the caller export a
+number of function pointers via the `meba_board_interface_t`
+structure.
+
+The `meba_board_interface_t` structure (provided by the application
+instantiating the API) defines all the needed callbacks including:
+
+* Low-level switch register access
+* I2C access (for a specific port)
+* Trace output
+* Configuration data access
+
+The image below illustrates the overall system architecture. The _MEBA
+Callouts_ are the function pointers offered by the application during
+MEBA initialization.
+
+.Overall system architecture
+image::meba-overview.png[align="center"]
+
+== Using MEBA
+
+To use MEBA, the application is expected to include the
+`mscc/ethernet/board/api.h` header, which provides access to all the defined
+MEBA symbols and types.
+
+The initialization sequence for an application using MEBA must perform
+the following steps.
+
+. Allocate and initialize the `meba_board_interface_t` structure.
+
+. Call `meba_initialize` with the initialized instance of
+  `meba_board_interface_t`.
+
+.. MEBA will now initialize the board, and if it succeeded it will return an
+   instance of `meba_inst` for further use.
+
+.. In case of error, it will return a `NULL` pointer.
+
+. The handle will contain information to instantiate the MESA API. After MESA
+  instantiation, both layers are operational. Specifically, the
+  `meba_api_t::meba_port_entry_get()` API can be used to establish a port map
+  for MESA.
+
+. Should the application wish to perform graceful shutdown, the
+ `meba_api_t::meba_deinitialize()` can be used before exiting.
+
+After this MEBA is fully initialized. Next step is to initialize MESA, and then
+the two layers are ready to be used.
+
+
+== MEBA in details
+
+This section provides mode detailed information on what the various MEBA
+functions are expected to do. This is useful to know if using MEBA, but is
+essential to know if updating a MEBA implementation for a new board.
+
+=== Initialization
+
+The function must allocate and initialize the instance structure, the callouts
+are copied to the allocated instance.
+
+The return value should convey whether the expected hardware is
+present. During execution of this function the MESA layer is not (yet)
+initialized and must *not* be used.
+
+If local state is required by the board implementation, the instance
+member pointer `inst.private_data` may be used to store this.
+
+At the time of returning from this function, the `meba_inst::props`
+structure must be initialized in order for the MESA API to be
+instantiated. This implies initializing:
+
+* Board name - textual representation of the target system
+* Target chip (the MSCC switch 4-digit hexadecimal chip number)
+* mux_mode (depending on target)
+
+It is allowed that a specific board does not support all the features
+that the MEBA API defines. As such, a MEBA API function pointer may be
+set as `NULL`. This implies that the corresponding functionality is
+not available on the board in question. I.e. if a board does not
+support SFP's, the function pointers for SFP functions can simply be
+left `NULL`. Other non-NULL MEBA API's should be hooked up in the
+`meba_inst::api` in this function.
+
+IMPORTANT: If a MEBA implementation support more than one board type,
+the appropriate board must be determined before returning from this
+function. This may involve direct access to chip registers via the
+`meba_board_interface_t` register access functions.
+
+=== De-initialization
+
+The `meba_api_t::meba_deinitialize()` function must de-allocate the board
+instance and any other resources. Where required, the board hardware may also be
+brought to a given state.
+
+=== Board capabilities
+
+The `meba_api_t::meba_capability()` function is used by the application to query
+board capabilities. The list of capabilities can be seen in `meba_cap_t`
+
+IMPORTANT: This API is mandatory to implement, as it disclose required
+information about the target board.
+
+=== Board reset
+
+The board reset function (`meba_api_t::meba_reset()`) will bring certain board
+components to a well-defined state at command.
+
+The reset points are defined in `meba_reset_point_t`.
+
+The MEBA implementation may at its discretion perform the reset operations all
+under `MEBA_BOARD_INITIALIZE`, or under the individual reset points. Its the
+responsibility of the MEBA user to issue the corresponding MEBA reset before
+calling MEBA functions for the associated functionality.
+
+=== Port table
+
+The port table entries `meba_port_entry_t` returned by
+`meba_api_t::meba_port_entry_get` describe capabilities of the switch ports, as
+well of how to control and access these and associated PHY's.
+
+After the switch API has been instantiated, the switch application
+will call this function to retrieve information of how to construct
+the switch API port map, and to know what the physical characteristics
+of the port is.
+
+In the `meba_port_entry_t::map` structure you define how a given port is
+physically connected:
+
+`mesa_port_map_t::chip_port`:: The physical chip port for the port. -1 if not used.
+`mesa_port_map_t::miim_controller`:: MII management controller
+                                     (`MESA_MIIM_CONTROLLER_NONE` for SFP).
+`mesa_port_map_t::miim_addr`:: If MIIM is used (see above).
+
+==== MAC Interface
+
+The `meba_port_entry_t::mac_if` specifies how the board expect the MAC to be
+configured. See `mesa_port_interface_t` for valid values.
+
+==== Port Capabilities
+
+The `meba_port_entry_t::cap` value reflect the port capabilities, which is
+a bitmask. See the defines followed by `MEBA_PORT_CAP_NONE`.
+
+IMPORTANT: This API is mandatory to implement, as it disclose required
+information about the target board.
+
+=== Sensor support
+
+The `meba_sensor_t` type enumerate the supported sensor types. Multiple
+instances of a given sensor may exist. Sensor values can be read using
+`meba_api_t::meba_sensor_get`.
+
+=== SFP Support
+
+NOTE: If the board does not support SFP's, all API's in this section can be
+omitted.
+
+The support for SFP's span the following areas.
+
+ * Generic I2C access to a SFP on a given port
+ * SFP insertion state
+ * Detailed SFP status
+ * Port administrative control
+
+==== SFP I2C access
+
+The generic I2C is implemented by the `meba_api_t::meba_sfp_i2c_xfer`.
+
+The I2C transfer can either be handled by MESA or by calling the
+`meba_board_interface_t::i2c_read` / `meba_board_interface_t::i2c_write`
+functions, depending on which I2C controller the SFP is attached to.
+
+==== SFP insertion state
+
+SFP insertion state is returned by `meba_api_t::meba_sfp_insertion_status_get`.
+
+The output `meba_api_t::mesa_port_list_t` parameter will contain all (SFP) ports where a SFP
+has been detected.
+
+==== SFP detailed state
+
+SFP detailed state for a specific port is returned by the
+`meba_api_t::meba_sfp_status_get()` function.
+
+If a port does not support SFP the API should return an error code. Generally,
+the API can only be expected to succeed if the port has previously signaled a
+SFP being inserted. (See the previous section).
+
+==== Port administrative control
+
+In order to control any additional operations necessary when
+enabling/disabling a port, such as controlling transmit on an SFP, or
+port specific operations, the `meba_api_t::meba_port_admin_state_set` is used.
+
+The API should should be called by the application when a port changes
+administrative state (being enabled or disabled), and the MEBA
+implementation should perform any operations needed to enable/disable
+the physical interface beyond what is controlled by normal MESA port
+control.
+
+=== LED support
+
+NOTE: Each of the API's in this section can be omitted on an individual basis.
+
+MEBA supports multiple types of LEDs, these are documented in the following
+sub-sections:
+
+==== Board status LED
+
+The `meba_api_t::meba_status_led_set` is used to control the board status LEDs.
+
+Currently the only board LED supported is `MEBA_LED_TYPE_FRONT`. Blinking and
+alternating different colors should be done by the MEBA user by calling the API
+at regular intervals.
+
+If a color is unsupported by the board, the MEBA implementation may
+choose to return an error or select an alternate color.
+
+==== Port status LED
+
+The `meba_api_t::meba_port_led_update()` function should be called by the
+application to update the port LED state. The application should either update
+at regular intervals, or when it detects at change in port state.
+
+The MEBA implementation should update the port LED according to
+current state. If it supports visualizing collision counters or other
+activity data, it can use the counters provided, as well as other
+state data provided.
+
+The port LED displayed may also depend on the current _port LED mode_,
+if the board supports this (The `MEBA_CAP_LED_MODES` capability). The
+port LED mode is controlled by the `meba_api_t::meba_led_mode_set` function.
+
+This MEBA API should be called when management operations change the LED
+mode, and the MEBA implementation should update the port LED's to
+reflect current state.
+
+WARNING: If `MEBA_CAP_LED_MODES` is zero or 1, this API should neither
+be implemented nor called.
+
+==== LED intensity control
+
+If the board support LED intensity control (LED dimming), the
+`meba_api_t::meba_led_intensity_set` function can be used to control it. The API
+should only be called if the `MEBA_CAP_LED_DIM_SUPPORT` is non-zero.
+
+The API is supposed to control all LED's capable of dimming (as a
+whole). The `intensity` parameter is a percentage, ranging from 0 to
+100.
+
+=== Fan support
+
+NOTE: If the board does not support FAN control, all API's in this
+section can be omitted, and they should be assumed to be available
+only is the `MEBA_CAP_FAN_SUPPORT` capability is non-zero.
+
+==== FAN parameter retrieval
+
+To expose the characteristics of the board FAN, the
+`meba_api_t::meba_fan_param_get` function is used.
+
+The application can use the information in `meba_fan_param_t` to spin up, and
+drive the board fan according to the fan operational requirements.
+
+==== Fan configuration retrieval
+
+The fan is assumed to be controlled by MESA. In order to initialize the fan
+controller, the MESA fan configuration must be obtained. The
+`meba_api_t::meba_fan_conf_get()` function is designed to provide the MESA fan
+configuration structure.
+
+NOTE: The application can use MESA to configure and control the fan
+speed. The `meba_fan_param_t` data provide guides on how the fan
+should be operated. Fan speed control normally is coupled with
+temperature sensor support.
+
+=== Interrupt support
+
+NOTE: If the board does not support interrupts, all API's in this section can be
+omitted.
+
+Interrupt support use three API's:
+
+ * Interrupt event enable
+ * Interrupt handler
+ * Interrupt requester
+
+The interrupt events are defined by the `meba_event_t`
+enumeration. These values denote the *decoded* interrupts.
+
+The interrupt events are signalled to the application by the
+interrupt handler. The interrupt handler is invoked by the application
+when a specific interrupt signal - `mesa_irq_t` is detected.
+
+The interrupt requester convey to the application which interrupt
+signals MEBA wants to handle (decode). It is the responsibility of the
+application to configure interrupts and call the MEBA interrupt when
+the OS signal the interrupt.
+
+==== Interrupt event enable
+
+The `meba_api_t::meba_event_enable()` function is use to enable or disable one
+specific interrupt event, for example the `MEBA_EVENT_PUSH_BUTTON` event. The
+event is enabled or disabled at the hardware level. If a specific event is not
+supported by the particular MEBA implementation `MESA_RC_NOT_IMPLEMENTED` should
+be returned.
+
+==== Interrupt handler
+
+The `meba_api_t::meba_irq_handler` function must decode all the supported events
+for a given interrupt signal as per the following steps.
+
+. Identify all interrupt events for a given interrupt signal.
+. Disable the interrupt event (source).
+. Determine a possible instance number(s) (port, etc.)
+. Call the event sink `signal_notifier`, signalling the interrupt
+ event type and (all possible) instance numbers.
+. If no interrupt sources were seen an error must be returned.
+
+==== Interrupt requester
+
+The `meba_api_t::meba_irq_requested` function must return `MESA_RC_OK` if the
+interrupt specified by the `chip_irq` parameter is handled by the MEBA layer,
+otherwise `MESA_RC_NOT_IMPLEMENTED`.
+
+The application can use the API (at startup) to determine which interrupt
+signals should be claimed from the OS.
+
+=== SyncE support
+
+The support for SyncE in MEBA is at this time limited to the following functions:
+
+* Detecting if a DPLL is present in the system and in case a DPLL is present
+  also detecting the type of the DPLL.
+* In the case that a DPLL is present and it is controlled via SPI, MEBA supplies
+  a function for accessing the DPLL via SPI.
+* Supplying the application with a graph describing the topology of the SyncE
+  hardware. The SyncE board graph is read from MEBA by the application which
+  then uses it for deriving how to set up muxes, dividers, DPLL references etc.
+
+==== DPLL Detection
+
+For the detection of the DPLL present in the system, MEBA provides the
+`meba_api_t::api_synce::meba_synce_spi_if_get_dpll_type`
+function:
+
+This function is called from the synce_dpll module in the application as part of
+its initialization. In some cases, the function is also used by MEBA itself to
+determine which version of a board graph to return when differences exist for
+different DPLLs.
+
+If no DPLL is present, the function will return MESA_RC_ERROR.
+
+==== DPLL SPI Interface
+
+At present, the actual setup and control of the DPLL is done by the application.
+To facilitate this MEBA provides the
+`meba_api_t::api_synce::meba_synce_spi_if_spi_transfer` function for accessing
+the DPLL via SPI.
+
+NOTE: In the case of the ServalT built-in DPLL, the DPLL is controlled directly
+via the Omega API as in this case the DPLL is not connected via SPI.
+
+
+==== SyncE Board Graph
+
+A board graph consists of nodes of various types (e.g. ports, muxes, dplls)
+connected to each other by means of edges. See the figure below for an example
+of a graph for a Serval2 Lite board:
+
+.Serval2 lite SyncE Board Graph
+[[Serval2_lite_board_graph]]
+image::SyncE_board_graph_Serval2_lite.svg[align="center"]
+
+The data types used for specifying the board graph are defined in
+`mscc/ethernet/board/api/synce.h`.
+
+The graph itself (the array synce_graph_elements_serval2_lite_board) is defined
+in `meba/src/servalt/synce.c`
+
+Basically, an edge is just a connection from an output of a source node to an
+input of a destination node. All edges connecting nodes generally have the same
+type (defined by the structure `meba_synce_graph_element_t` with the type member
+set to `MEBA_SYNCE_GRAPH_ELEMENT_TYPE_CONNECTION`). The
+`meba_synce_graph_element_t::src` and `meba_synce_graph_element_t::dst` members
+specify the start and end points of the edge.
+
+A node is characterized by the following features:
+
+* It's type (represented by the type member of `meba_synce_terminal_t`)
+* It's device ID (represented by the dev_id member of `meba_synce_terminal_t`)
+* A number of input ports
+* A number of output ports
+
+All nodes irrespective of their type are represented by one or more structures
+of the type `meba_synce_terminal_t` (one per input/output terminal of the node).
+
+For each input/output port a separate `meba_synce_terminal_t` must be defined with
+the idx value representing the port number. For output ports, idx is generally
+the port number. For input ports, idx must have the constant
+`MESA_SYNCE_DEV_INPUT` added/OR'ed to the port number to signify that it is an
+input port.
+
+Some nodes (generally Ethernet ports or station clocks) only have a single
+output port. Examples of such nodes are the nodes labeled 1 to 9 and ST in the
+figure above. In the `synce.c` source file those nodes are:
+
+[source,c++,linenums]
+----
+#define eth_port_0           MESA_SYNCE_DEV_PORT(    0, 0)
+#define eth_port_1           MESA_SYNCE_DEV_PORT(    1, 0)
+#define eth_port_2           MESA_SYNCE_DEV_PORT(    2, 0)
+#define eth_port_3           MESA_SYNCE_DEV_PORT(    3, 0)
+#define eth_port_4           MESA_SYNCE_DEV_PORT(    4, 0)
+#define eth_port_5           MESA_SYNCE_DEV_PORT(    5, 0)
+#define eth_port_6           MESA_SYNCE_DEV_PORT(    6, 0)
+#define eth_port_7           MESA_SYNCE_DEV_PORT(    7, 0)
+#define station_clock_port_0 MESA_SYNCE_DEV_CLOCK_IN(9, 0)
+----
+
+Other nodes (generally DPLLs) only have inputs. An example of such a node is the
+node labeled DPLL in the figure above. In the synce.c source file this
+corresponds to:
+
+[source,c++,linenums]
+----
+#define dpll_port_0 MESA_SYNCE_DEV_DPLL(500, MESA_SYNCE_DEV_INPUT | 0)
+#define dpll_port_1 MESA_SYNCE_DEV_DPLL(500, MESA_SYNCE_DEV_INPUT | 1)
+#define dpll_port_7 MESA_SYNCE_DEV_DPLL(500, MESA_SYNCE_DEV_INPUT | 7)
+----
+
+The remaining nodes that have both inputs and outputs are either buffers or
+muxes. When more inputs and outputs exist, any input can connect to any output
+of the same node. That is, the node can be considered a mux with full
+connectivity. A buffer can be considered a special case of mux with only one
+input and one output.
+
+In cases where a mux has less than full connectivity, this can be modelled using
+edges with the type member of `meba_synce_graph_element_t` set to
+`MESA_SYNCE_GRAPH_INVALID_CONNECTION`. If such an invalid connection is defined
+from an input of a node to an output of the same node, the connection will be
+considered invalid.
+
+In the synce.c source two muxes are defined. The Phy mux is restricted so the
+only connectivity allowed is from input 0 to output 0 and from input 1 to output
+1. This is not expressed in the definition of the Phy mux itself. Rather this is
+expressed in the declaration of edges (see further below). In the synce.c source
+file the Phy Mux is defined as in the following:
+
+[source,c++,linenums]
+----
+#define phy_mux_port_in_0  MESA_SYNCE_DEV_MUX_PHY(300, MESA_SYNCE_DEV_INPUT | 0)
+#define phy_mux_port_in_1  MESA_SYNCE_DEV_MUX_PHY(300, MESA_SYNCE_DEV_INPUT | 1)
+#define phy_mux_port_out_0 MESA_SYNCE_DEV_MUX_PHY(300, 0)
+#define phy_mux_port_out_1 MESA_SYNCE_DEV_MUX_PHY(300, 1)
+----
+
+The switch mux that has full connectivity is defined in the synce.c source file
+as follows:
+
+[source,c++,linenums]
+----
+#define switch_mux_port_in_0  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 0)
+#define switch_mux_port_in_1  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 1)
+#define switch_mux_port_in_2  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 2)
+#define switch_mux_port_in_3  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 3)
+#define switch_mux_port_in_4  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 4)
+#define switch_mux_port_in_5  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 5)
+#define switch_mux_port_in_6  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 6)
+#define switch_mux_port_in_7  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 7)
+#define switch_mux_port_in_8  \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, MESA_SYNCE_DEV_INPUT | 8)
+#define switch_mux_port_out_0 \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, 0)
+#define switch_mux_port_out_1 \
+    MESA_SYNCE_DEV_MUX_SWITCH(400, 1)
+----
+
+The two elements labeled */2* in the board graph figure are "virtual"
+buffers that do not actually exist in reality. They have been inserted
+to make it possible to specify that the recovered frequency of 161.13
+MHz from ports 7 and 8 should be divided by 2 to make 80.565 MHz
+before reaching the input of the DPLL.
+
+These virtual buffers are declared as follows in the synce.c file:
+
+[source,c++,linenums]
+----
+#define divider_eth_port_6_in  \
+    MESA_SYNCE_DEV_DIVIDER(100, MESA_SYNCE_DEV_INPUT | 0)
+#define divider_eth_port_6_out \
+    MESA_SYNCE_DEV_DIVIDER(100, 0)
+#define divider_eth_port_7_in  \
+    MESA_SYNCE_DEV_DIVIDER(200, MESA_SYNCE_DEV_INPUT | 0)
+#define divider_eth_port_7_out \
+    MESA_SYNCE_DEV_DIVIDER(200, 0)
+----
+
+This then leads to the board graph array:
+
+[source,c++,linenums]
+----
+static const meba_synce_graph_element_t
+synce_graph_elements_serval2_lite_board[] = {
+    // type                     source                  destination
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_0,             phy_mux_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_1,             phy_mux_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(phy_mux_port_out_0,     switch_mux_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(phy_mux_port_out_1,     switch_mux_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_2,             switch_mux_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_3,             switch_mux_port_in_3),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_4,             switch_mux_port_in_4),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_5,             switch_mux_port_in_5),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_6,             divider_eth_port_6_in),
+    MESA_SYNCE_GRAPH_CONNECTION(eth_port_7,             divider_eth_port_7_in),
+    MESA_SYNCE_GRAPH_CONNECTION(divider_eth_port_6_out, switch_mux_port_in_6),
+    MESA_SYNCE_GRAPH_CONNECTION(divider_eth_port_7_out, switch_mux_port_in_7),
+    MESA_SYNCE_GRAPH_CONNECTION(switch_mux_port_out_0,  dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(switch_mux_port_out_1,  dpll_port_1),
+    MESA_SYNCE_GRAPH_CONNECTION(station_clock_port_0,   dpll_port_2),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(phy_mux_port_in_0, phy_mux_port_out_1),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(phy_mux_port_in_1, phy_mux_port_out_0)
+};
+----
+
+The board graph array lists all the edges making up the board graph. The
+information that still needs to be specified is the assignment of clocks to the
+input references of the DPLL and the frequencies as specified in the graph. This
+is done by means of a separate array of attributes in synce.c as follows:
+
+[source,c++,linenums]
+----
+static const meba_synce_terminal_attr_t attr_serval2_lite_board[] = {
+    //              device                attr-type           attr-value
+    MESA_SYNCE_ATTR(dpll_port_0,          MEBA_ATTR_CLOCK_ID, 1),
+    MESA_SYNCE_ATTR(dpll_port_1,          MEBA_ATTR_CLOCK_ID, 2),
+    MESA_SYNCE_ATTR(dpll_port_7,          MEBA_ATTR_CLOCK_ID, 3),
+    MESA_SYNCE_ATTR(switch_mux_port_in_6, MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_7, MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(eth_port_0,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_1,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_2,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_3,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_4,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_5,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_6,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_161_13MHZ),
+    MESA_SYNCE_ATTR(eth_port_7,           MEBA_ATTR_FREQ, \
+                    MEBA_SYNCE_CLOCK_FREQ_161_13MHZ),
+};
+----
+
+
+The board graph array and the attributes array are wrapped together in
+`meba_synce_graph_t`.
+
+The application can fetch a pointer to this structure by using the
+`mesa_api_t::api_synce::meba_synce_graph_get()` function.
+
+
+==== Advanced Example of a Board Graph
+
+The figure below shows a more advanced example of a graph for a Jaguar2 (24
+ports) board:
+
+.Jr2 (24 ports + 4*10GB) SyncE Board Graph
+[[Jaguar2_24_board_graph]]
+image::SyncE_board_graph_jr2_24.svg[align="center"]
+
+The graph (the array `synce_graph_elements_jr2_24_board`) and the associated
+attributes (the array `attr_jr2_24_board` together with either `attr_defaults_dpll`
+or `attr_zarlink_dpll`) are defined in `meba/src/jr2/synce.c`.
+
+Although this graph is larger, has more muxes and more connections, it is
+actually quite straight forward to understand. What does need a little bit of
+explanation though are the two elements sitting between the ports 2 and 3 of the
+switch mux and ports 12 and 13 of the board mux.
+
+These two elements are frequency converters that exist on the Jr2 (24 ports)
+board in order to convert the recovered clock frequencies from Ethernet ports
+25-28 to 125 MHz. These frequency converters are not modelled in the board
+graph. Rather a 125 MHz frequency attribute has been set on ports 25-28 although
+these ports are actually delivering a 161.13 MHz recovered clock.
+
+== Implementing MEBA
+
+When adding MEBA support for a new board type, there are generally two
+different approaches:
+
+ * Change an existing MEBA implementation for a board resembling your
+   own.
+
+ * Add a new MEBA implementation.
+
+It is a matter of style personal preferences whether you choose one or
+the other. Normally it makes sense to modify an existing MEBA
+implementation if your board only is a _little_ different. If there is
+a bigger difference in features and how the board works, you will
+probably be better off by having separate implementations.
+
+If you decide to extend an existing MEBA implementation, you should
+also consider whether you:
+
+ * Abandon the original board support, i.e. just change the code to
+   only support your board.
+
+ * _Add_ support for your board by extending the code to perform different
+   operations where needed. This will require the code to keep track of which
+   board it is operating on. This will require the code to either be able to
+   tell the boards apart by probing the hardware, or by means of configuration
+   data. Examples of both can be seen in the MEBA support for the Microsemi
+   reference boards.
+
+It should be noted that if you are aiming to support more than one of
+your own (similar) boards, you should use the latter approach. And if
+you design your boards so they are easy to tell apart, the board
+probing will be simple to implement. (Notice the constraint that MESA
+is _not_ available during the probing - `meba_initialize()`).
+
+=== Adding MEBA a library
+
+If you deciding to add a separate, new MEBA implementation file then follow the
+steps below.
+
+. Add a folder and file called `meba/src/<name>/meba.c`
+
+. Add `<name>` to _MEBA_LIB_ in `meba/CMakeLists.txt`.
+
+. Enable the newly added MEBA library in the CMake project. This can be done via
+dependencies, by enabling the configuration options.
+
+. Verify you can build your MEBA library.
+
+. Extend the empty MEBA file to include the following (use one of the MEBA
+  libraries for the Microsemi boards as a reference):
+
+.. A `meba_initialize_t` function, setting up target switch and the
+    MEBA API function pointers below:
+
+.. A `meba_capability_t` function. Be sure the
+    `MEBA_CAP_BOARD_PORT_COUNT` value is accurate.
+
+.. A `meba_reset_t` function, handling only the most basic
+    `MEBA_BOARD_INITIALIZE` code your board needs.
+
+.. A `meba_port_entry_get_t` function, capable of setting up at
+    least some valid port entries. If your board support different
+    port types, setup only the basic ones to start with.
+
+. Ensure the _barebone_ MEBA library compiles.
+
+. Try getting the MEBA library running on your target system. You can make use
+  of the debug output function and the `T_D()` / `T_I()` etc. macros in your
+  code. With WebStaX, the MEBA output is controlled by the `main.board` trace
+  module level.
+
+Once you have the basic port functions running, you can continue
+adding support for the complete port map, LED's, temperature sensors,
+etc. according to the capabilities of your board.
+
+If you are implementing synce support, add a separate file for this
+functional group, and setup the API group pointer.
+
+=== Using board configuration
+
+In some cases, it case be useful to be able to retrieve configuration
+from the embodying software application to control features in
+MEBA. For example your board could have a feature to use an alternate
+port table layout, which are not possible to detect by probing the
+board hardware.
+
+To support this or similar feature, the `meba_board_interface_t::conf_get`
+function can be used to querying configuration data. The application can then
+implement access to configuration values for a specific name. The MEBA library
+is free to define the naming, for example `"myname.port_cfg"`.
+
+The Microsemi MEBA implementations use `"target"` to define the target
+API switch type, and `"type"` in some cases where a MEBA library
+support more than one board type, but probing to distinguish them is
+not feasible.
+
+When using board configuration, it is recommended to have some sane
+default values where possible, since the configuration retrieval can
+fail (return failure).
+
+

@@ -1,0 +1,50 @@
+:vt: VLAN Translation
+:howto1: <<vt_howto1.adoc#,How to configure ports as members of a {vt} group>>
+:howto2: <<vt_howto2.adoc#,How to add an entry in a {vt} group>>
+:toc:
+
+== {vt};
+
+=== Overview
+The `{vt}` feature offers the option to "translate" the VLAN ID of a frame either on ingress
+or egress direction (relative to the switch). The API provides three "translation" options:
+
+* Ingress `{vt}` - A frame tagged with VLAN A will be classified to VLAN B upon entering the switch.
+* Egress `{vt}` - A frame classified to VLAN A will be tagged with VLAN B upon exiting the switch.
+* Bi-directional `{vt}` - Both Ingress and Egress `{vt}` will take place on a given switch port.
+
+=== Configuration entities
+The '{vt}' API is facilitating the control of "translation" entries over a switch port. In an attempt
+to provide flexibility, the configuration of multiple ports can be grouped together; Switch ports are
+assigned into a '{vt}' group and then "translation" entries are added/deleted to/from the relevant groups.
+The API interfaces can thus be split into two sets; one set is responsible for controlling '{vt}' entries
+to groups and the other is handling the group to port mappings.
+
+==== {vt} entries
+The following interfaces allow the configuration of "translation" entries for a specific group.
+
+* `mscc-sym:mesa_vlan_trans_group_add`
+* `mscc-sym:mesa_vlan_trans_group_del`
+* `mscc-sym:mesa_vlan_trans_group_get`
+* `mscc-sym:mesa_vlan_trans_group_get_next`
+
+By default, no '{vt}' entries are present in the switch, so they need to be added using the interfaces above,
+see the cookbook {howto2} for an example of entry manipulation.
+
+==== {vt} group to port mappings
+The following interfaces allow the mapping of chip ports to a specific '{vt}' group.
+
+* `mscc-sym:mesa_vlan_trans_group_to_port_set`
+* `mscc-sym:mesa_vlan_trans_group_to_port_get`
+* `mscc-sym:mesa_vlan_trans_group_to_port_get_next`
+
+The number of groups is always equal to the number of ports the switch has.
+BY default, each port is assigned to its own translation group, i.e. Port 1 is a member of Group 1,
+Port 2 a member of Group 2 and so on. Multiple ports can use the same group, but a port can be
+a member of only one group at any give time. The default mapping can be changed, see the cookbook
+{howto1} for an example of that.
+
+=== List of Cookbooks
+
+* {howto1}
+* {howto2}

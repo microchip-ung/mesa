@@ -1,0 +1,317 @@
+:sectnumlevels: 5
+:toclevels: 5
+
+= Introduction to MESA
+
+== Introduction
+
+The Microchip Ethernet Switch API (MESA) provides a production quality
+comprehensive C library supporting all the VSCxxxx Ethernet switches and PHYs.
+The MESA library is OS agnostic, it supports 32/64 bit, little/big-endian,
+internal/external CPUs. The MESA product is designed as a library, meaning that
+it needs to be integrated with an application which will be owing the API
+instance. The MESA packet includes a demo application to show how the API can be
+instantiated and used, this demo application is combined with the BSP and can
+run on the reference systems. More on this in the
+link:#mesa/docs/getting-started[Getting Started] section.
+
+Following is a listing of important properties of MESA:
+
+Thread safe:: All API access will be serialized (assuming the
+`mesa_callout_lock/unlock` is properly implemented).
+
+Non-allocating:: Once the API is instantiated, it will never need to allocate
+more memory.
+
+Multi-instance:: Multiple API instances can be created to support a multi chip
+design.
+
+OS and CPU agnostic:: Supports multiple operating systems and CPU.
+
+
+=== Application support
+
+The MESA product is targeting customers who either a) have an existing
+application or b) is developing a new application, and wants to integrate
+support for one or more of the VSCxxxx switches and/or PHYs. The effort of such
+an integration depends heavily on the desired feature set in the end product,
+and on how well existing application align with the APIs offered by MESA.
+
+The WebStaX, SMBSTaX and IStaX product families are all based on the MESA
+product, and provide a turnkey solution where the MESA product is already
+integrated. In some cases this is an attractive alternative as it offers a
+pre-integrated solution which only requires little to no customization before
+the product can go to production.
+
+// TODO, illustration
+
+== Switch/PHY driver functionality
+
+MESA provides a unified driver to the VSCxxxx ethernet switch and PHY chips.
+MESA does not provide any protocol implementation, but it provides a set of APIs
+to facilitate and greatly simplify static configuration and/or protocol
+implementation on these devices.
+
+MESA only focus on the facilities offered by the switch fabric in silicon. This
+means that stuff like management interfaces (http, snmp, ssh, etc.) is not
+covered here, and if required then this will be a matter of the application.
+
+Many of the supported VSCxxxx chips are SoC's including an internal CPU,
+and CPU peripherals (including UARTs, SPI master, Frame-DMA etc). These
+components are not supported by the MESA product, but is instead supported by
+the BSP which may be used together with MESA. If and external CPU is used, then
+the BSP is expected to be provided by the vendor of the external CPU (or by the
+customer choosing the external CPU).
+
+// TODO, figure
+
+== Architecture
+
+MESA is a C library, offering a unified driver interface to configure and query
+status in the HW. When the application instantiate the API, it must provide a
+set of callback function, to perform register access, synchronization (just a
+mutex), traces etc. Once instantiated, the application need to call the API
+functions to configure or query status.
+
+Internally MESA contains the following layers of abstraction:
+
+MESA Wrapper:: Provides the public `mesa` header files which should be included
+and used by the application. All symbols can be included using `#include
+"mscc/ethernet/switch/api.h"`. The MESA wrapper implementation is converting
+between the ABI stable memory layout and the `ifdef`'ed interface offered by the
+UnifiedAPI. In many cases this is just a type-cast, and this poses an
+insignificant overhead.
+
+Application Interface Layer (AIL):: Provide the public `vtss` header files. The
+AIL implementation contains the common part of the implementation. The AIL layer
+calls into the CIL functions to interact with the HW.
+
+Chip Interface Layer (CIL):: This contains separated implementations for each
+chip family, and this is where all the registers accesses are done.
+
+IO, Trace, and OS Layer:: These are function pointers or function linkages,
+which the MESA, AIL and CIL layers are using to implement the needed
+functionality in a OS and CPU agnostic way. The API will use these layers to
+call out when it needs to do register read/write, acquire/release mutexes, do
+traces, sleeps etc. These components needs to be provided by the OS/application
+who is instantiating the API.
+
+These layers are illustrated at the figure below.
+
+=== Directory layout
+
+The MESA packet includes both binary builds and sources. The binary files can be
+used by customers who does not wish to build the library them self or as a fast
+way to get started with the demo application on a reference board.
+
+[none]
+* `./base` Implementation.
+* `./bin` Binaries, libraries and demo images.
+* `./bin/<arch>` MESA shared libraries.
+* `./bin/<arch>/licenses.txt` Licenses of the various components included in the
+  binary firmware images.
+* `./bin/<arch>/mesa/demo` Demo images for reference systems.
+* `./.cmake` build and scripts.
+* `./CMakeLists.txt` CMake project file. Use this to build the sources.
+* `./COPYING` License terms.
+* `./include` Include files for the original UnifiedAPI.
+* `./meba` Home of MEBA (source and headers).
+* `./meba/include/` The MEBA include path.
+* `./meba/include/mscc/ethernet/board/api.h` MEBA top header file. Application
+  accessing MEBA should include this file. The include statement should be
+`#include "mscc/ethernet/board/api.h"`.
+* `./mesa` Home of MESA (mostly headers, sources call into `./base`
+* `./mesa/include` The MESA include path.
+* `./mesa/include/mscc/ethernet/switch/api.h` MESA top header file. Application
+  accessing MESA should include this file. The include statement should be
+`#include "mscc/ethernet/switch/api.h"`.
+* `./.module_info` License/module information used by WebStaX.
+* `./third_party` Sources for which Microchip does not own the copyright. All
+  sources included in the MESA packet uses the MIT or MIT compatible license.
+
+
+=== Synchronous design
+
+MESA is a synchronous library, meaning that it is not capable of generating events
+or do anything on its own. MESA (or the lower layer) does not include any
+threads and will not spawn any processes (it can be used in a multi threaded
+environment, but all requests will be done one at a time). This means that the
+MESA library can not take the initiative to do anything, and depends on the
+application to poll counters, check port status, extract frames etc.
+
+// TODO, does this differ with external CPU?
+
+Typically the application will be using a mix of interrupts, timer events, and
+frame reception to drive its state-machine, and will then call the `mesa`
+functions when needed.
+
+Examples of events driven by interrupts includes: PHY link up/down, packet
+injection/extraction, and readiness of PTP timestamps in the FIFO.
+
+Example of timer driven events include polling of counters to avoid wraparound,
+and polling port state.
+
+Example of frame event includes setting the forwarding state which is a status
+attribute extracted from an implementation of the spanning-tree-protocol.
+
+The actually configuration of the interrupt vectors is CPU dependent, and is
+considered out of scope for MESA. Instead of that, MESA expect that the BSP
+takes care of this part. The same applies to the FDMA (Frame-DMA).
+
+// TODO - figure
+
+== MESA vs Unified API
+
+The MESA product is an encapsulation of the existing Unified-API. This
+encapsulation offers single a set of public header files without any `#ifdef`'s or
+chip specific constants. This has been replaced with capabilities. The result
+of this is a set of ABI stable libraries within a given release. The motivation
+for doing this encapsulation was a) to solve scaling problems when building
+applications for many different chips, b) to solve scaling problems when testing
+the APIs across many different chips, and c) to provide an API which is easier
+to document.
+
+The Unified-API still exists, it is still being used by customer and it is still
+supported. Customers who has started using the Unified-API and are happy with it
+can stay there. New customers are encouraged to use the MESA layer as it is
+better documented, has better test coverage, and new initiatives (such as the
+MEBA - Microchip Ethernet Board API) will only be targeting the MESA layer.
+
+Customers using the Unified-API can still benefit from reading and using the MESA
+documentation, as the vast majority of types and functions are the same (only
+the prefix differs, `vtss_` is replaced with `mesa_`).
+
+=== MESA Capabilities
+
+Instead of using `ifdef` and `define` the MESA library uses capabilities to
+specify its capabilities. The capabilities are used both as booleans (feature is
+there or not), and to signal the amount of a given resource. Once the API is
+instantiated, capabilities are guaranteed not to change.
+
+The capabilities are accessible through the `mesa_capability` function, and the
+list of valid symbols is defined in the `mesa_cap_t` enum.
+
+=== API and ABI stability
+
+Both MESA and the Unified-API tries to be API compatible with the previous
+release. There are no guarantees, and if nothing is stated in the release note,
+then a new version of MESA/Unified-API should work with existing/older
+applications. A simple re-compile is all that is needed.
+
+Within a given release, all MESA targets (the different libraries supporting
+the different chips/SKUs) are guaranteed to be ABI compatible. This means that
+different MESA libraries can be linked to the same application without
+re-compiling.
+
+== Related products
+
+MESA is just a single component in a much larger system, which is typically
+required when building a complete product. This section will provide a walk
+through of the various components needed, explain their responsibility and
+when relevant provide pointers to what MCHP has to offer in each case.
+
+
+=== Toolchain and utilities
+
+To integrate MESA, a cross-toolchain supporting the target CPU is needed. MCHP
+provides toolchains supporting the integrated CPUs which can be downloaded from
+here http://mscc-ent-open-source.s3-website-eu-west-1.amazonaws.com. The getting
+started section will explain how to download and install the correct section.
+
+The provided toolchain is a standard `gcc` based toolchain, build using
+`buildroot`. Other toolchains are also expected to work.
+
+
+=== "The Application"
+
+The binary executable in the system which is linking with the MESA library is
+referred to as the application or sometimes just as APPL. An application is
+required to instantiate the API, and once instantiated the application
+exclusively owns the API and the underlying HW.  The application may
+expose a number of machine- and/or human-targeted interfaces that
+can use to apply configuration or query status.
+
+The following applications may be considered to drive the API:
+
+WebStaX/SMBStaX/IStaX:: Microchip has a family of turnkey products using MESA,
+MEBA and the MCHP-BSP to provides a complete application. This combination
+provides a complete enterprise or Industrial ethernet switch. For more
+information on this, contact sales/support.
+
+MESA-Demo:: Beside from the MESA libraries, the MESA packet also contains a
+simple demo application demonstrating how to instantiate the API and do the
+basic polling. This is provided as example code to help getting started.
+But it is not trying to offer/use the comprehensive list of features included in
+the library.
+
+Third-party Application:: Customers can also integrate MESA into their existing
+application, or a new application from scratch.
+
+
+=== MEBA
+
+The Microchip Ethernet Board API (MEBA) provides an abstract interface to the
+facilities on the evaluation boards (such as port-map, reset mechanism, PoE
+controllers, muxes, etc). Customers doing a custom board, may need to update or
+change the MEBA implementation. More details on that can be found in the
+link:#mesa/docs/meba/meba[MEBA] section
+
+=== BSP/Operating System
+
+All the CPU and CPU-peripherals are expected to be covered by the OS/BSP. To
+instantiate the MESA library call-outs for register access, i2c buses, tracing
+on the UART etc. Access to such HW is typically provided by the CPU.
+
+The Linux kernel, which can be found in the BSP, offers kernel drivers for a
+number of the CPU peripherals (assuming the integrated CPU is used). The
+following subsections elaborate a bit more on these facilities.
+
+==== I2C/SPI/UIO
+
+When the MEBA/MESA libraries are instantiated, then function pointers to access
+registers in the various devices must be provided. This is how these libraries
+can be OS agnostic.
+
+To reach the registers in the various peripherals, the switch-core is offering
+I2C and SPI controllers that the board connects to the peripherals. To
+reach the registers in the switch-core itself a UIO driver is exposed.
+
+These buses/devices are typically exposed by the kernel as character devices in
+the `/dev/` file system. They can either be memory mapped, or the application
+can issue read/write commands to control the bus.
+
+The main application can then use these devices and provide function pointers
+for reading/writing the needed registers.
+
+==== NIC(s)
+
+The switch-core has the concept of a CPU port (sometime called NPI - node
+processor interface), which allows frames to be moved between the CPU and the
+switch-core. Frames going in/out of the CPU port (typically) have an
+inter-frame-header (IFH) which carry information on why the packet is being
+copied/moved to the CPU, or how they should be injected in the switch-core.
+
+The MSCC BSP will expose the CPU port as a normal NIC interface. The NIC driver
+will expose the frames as-is without doing any processing. This means that they
+will include the IFH (internal frame header).
+The application running in user-space can then open a raw socket and receive the
+frames, process them, and inject response frames.
+
+==== NAND/NOR Drivers
+
+The kernel provides NAND/NOR flash drivers, exposed as block devices.
+A file system is typically created on top of the block devices, which can
+be used from user-space applications. The flash devices are not used by MESA
+itself, but applications typically uses this for storing persistent configuration.
+
+=== Third-party Application
+
+A system typically contains many applications running
+on the same CPU (either the integrated CPU or an external CPU); this is well
+supported. But there is only a single application which can instantiate the API,
+the main application. All other applications are referred to as third-party
+applications. Third-party applications can communicate with the Linux kernel and
+with other applications, but if they need resources from MESA/MEBA, then they must
+go through the main application.
+
+// # TODO:  Relation to PHY APIs

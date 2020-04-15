@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -1023,7 +1023,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
 {
     vtss_rc rc = VTSS_RC_OK;
     vtss_phy_ts_overflow_info_t overflow_conf;
-    vtss_phy_ts_pop_fifo_t pop_fifo;
+    vtss_phy_ts_pop_fifo_t pop_fifo = {};
     u16 reg0, reg9, extreg29, reg23;
     VTSS_I("Enter vtss_phy_1588_oos_mitigation_steps_execute port_no %u mode of operation %s\n", port_no, copper? "Copper": "Fiber");
 
@@ -1067,7 +1067,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
     VTSS_I("Value of register 0x4D EGR_INT_STATUS is 0x%x\n", overflow_conf.egr_intr_status);
 
     if(rc == VTSS_RC_OK)
-    rc = vtss_phy_sw_pop_fifo_get(vtss_state, port_no, &pop_fifo);
+        rc = vtss_phy_sw_pop_fifo_get(vtss_state, port_no, &pop_fifo);
 
     VTSS_I("Value of register 0x9F INGR_SW_POP_FIFO is 0x%x\n", pop_fifo.egr_pop_fifo);
     VTSS_I("Value of register 0xC0 EGR_SW_POP_FIFO is 0x%x\n", pop_fifo.ingr_pop_fifo);

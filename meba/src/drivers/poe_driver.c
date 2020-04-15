@@ -191,10 +191,21 @@ typedef struct poe_driver_private_t {
 **********************/
 static char *print_as_hex_string(uint8_t *in, int in_size, char *out, int out_size)
 {
+    int i, s, size_old = out_size;
     char *tmp = out;
-    for (int i=0; i<in_size; ++i) {
-        tmp += sprintf(tmp, "%02X ", in[i]);
+
+    for (i = 0; i < in_size; ++i) {
+        s = snprintf(tmp, out_size, "%02hhX ", in[i]);
+        tmp += s;
+        out_size -= s;
+
+        if (out_size <= 0)
+            goto OUT;
     }
+
+OUT:
+    out[size_old - 1] = 0;
+
     return out;
 }
 
@@ -219,7 +230,7 @@ mesa_rc pd69200_rd(const meba_poe_ctrl_inst_t *const inst,
                    uint8_t *data,
                    char size)
 {
-    char buf[size*3];
+    char buf[size * 3 + 1];
     VTSS_MSLEEP(50); // Wait 50ms
     int cnt = read(inst->adapter_fd, data, size);
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Read  %s ",
@@ -236,7 +247,7 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t *const inst,
                    uint8_t *data,
                    char size)
 {
-    char buf[size*3];
+    char buf[size * 3 + 1];
     int cnt = write(inst->adapter_fd, data, size);
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Wrote %s ",
           inst->adapter_name,

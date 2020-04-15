@@ -434,6 +434,7 @@ static vtss_rc srvl_ts_timeofday_set_delta(vtss_state_t *vtss_state,
     if (conf->awaiting_adjustment) {
         return VTSS_RC_ERROR;
     }
+    /* Calculate and save the delta nanoseconds */
     if (ts->nanoseconds != 0) {
         if (negative) {
             corr = ts->nanoseconds;
@@ -442,6 +443,7 @@ static vtss_rc srvl_ts_timeofday_set_delta(vtss_state_t *vtss_state,
         }        
         VTSS_RC(srvl_ts_timeofday_offset_set(vtss_state, corr));
     }
+    /* Save the delta seconds */
     conf->delta_sec = ts->seconds;
     conf->delta_sec_msb = ts->sec_msb;
     conf->delta_sign = negative ? 1 : 2;
@@ -513,18 +515,18 @@ static vtss_rc srvl_ts_timeofday_one_sec(vtss_state_t *vtss_state)
     i32 delta_msb = 0;
     u32 reg;
 
-    /* update Delta Sec counter */
+    /* Adjust the TOD second counter with delta values */
     if (conf->delta_sign != 0) {
         SRVL_RD(VTSS_SYS_PTP_TOD_PTP_TOD_LSB, &value);
         SRVL_RD(VTSS_SYS_PTP_TOD_PTP_TOD_MSB, &value_msb);
         
-        if (conf->delta_sign == 1) {
+        if (conf->delta_sign == 1) {    /* Negative adjustment */
             if (value < conf->delta_sec) {
                 value_msb--;
             }
             result = value - conf->delta_sec;
             value_msb -= conf->delta_sec_msb;
-        } else {
+        } else {                        /* Positive adjustment */
             result = value + conf->delta_sec;
             if (result < value) {
                 value_msb++;
@@ -539,25 +541,26 @@ static vtss_rc srvl_ts_timeofday_one_sec(vtss_state_t *vtss_state)
         conf->delta_sec_msb = 0;
         conf->delta_sign = 0;
     }
+
+    /* Do the one shut configuration to adjust the time until next one-second timer synchronization pulse - the clear of nanosecond counter */
     if (conf->awaiting_adjustment) {
         /* For debug: read the internal NS counter */
         SRVL_RD(VTSS_SYS_PTP_TOD_PTP_TOD_NSEC, &value);
         VTSS_D("TOD_NANOSECS %u", value);
 
         if (conf->outstanding_adjustment != 0) {
-            if (value > conf->outstanding_adjustment) {
+            if (value > conf->outstanding_adjustment) { /* This function must be called after the interrupt where the TOD nano second counter is cleared. Too long time has passed */
                 VTSS_D("Too large interrupt latency to adjust %u (ns)", value);
             } else {
-                /* update Sec counter */
-                if (conf->sec_offset != 0) {
+                if (conf->sec_offset != 0) {    /* Check if TOD seconds must be incremented or decremented in order to achieve the requested adjustment */
                     SRVL_RD(VTSS_SYS_PTP_TOD_PTP_TOD_LSB, &value);
-                    if (conf->sec_offset == 2) {
+                    if (conf->sec_offset == 2) {    /* Decrement requested */
                         if (value == 0) {
                             delta_msb = -1;
                         }
                         --value;
                     }
-                    if (conf->sec_offset == 1) {
+                    if (conf->sec_offset == 1) {    /* Increment requested */
                         ++value;
                         if (value == 0) {
                             delta_msb = 1;
@@ -571,22 +574,24 @@ static vtss_rc srvl_ts_timeofday_one_sec(vtss_state_t *vtss_state)
                     }
                     conf->sec_offset = 0;
                 }
-                /*PTP_UPPER_LIMIT_1_TIME_ADJ = x */
+                /* Do the one shot nanosecond adjustment */
                 SRVL_WR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG, 
                         conf->outstanding_adjustment |
                         VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_SHOT);
+
                 VTSS_D("onetime adjustment done %u", conf->outstanding_adjustment);
                 SRVL_RD(VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG,&reg);
                 VTSS_D("1_TIME_ADJ_CFG reg %x", reg);
+
                 if (conf->outstanding_adjustment < 0x20000000) {
-                    /* sec counter in serval does not increment if ns counter wraps before bit 29 is set */
-                    conf->delta_sec = 1;
+                    /* Sec counter in serval1 does not increment if ns counter wraps before bit 29 is set */
+                    conf->delta_sec = 1;    /* Request a positive adjustment of one second */
                     conf->delta_sign = 2;
                 }
                 conf->outstanding_adjustment = 0;
             }
         } else {
-            conf->awaiting_adjustment = FALSE;
+            conf->awaiting_adjustment = FALSE;  /* The call to this function was just to clear this flag */
             VTSS_D("awaiting_adjustment cleared");
         }
     }
@@ -1052,7 +1057,7 @@ static vtss_rc srvl_ts_timeofday_next_pps_set(vtss_state_t *vtss_state,
     }
 
 #else
-    /* warn that the time is being set, awaiting_adjustment is cleared at the next 1PPS */
+    /* Warn that the time is being set, awaiting_adjustment is cleared at the next 1PPS (call to vtss_ts_adjtimer_one_sec()) */
     vtss_state->ts.conf.awaiting_adjustment = TRUE;
     vtss_state->ts.conf.outstanding_adjustment = 0;
     SRVL_WR(VTSS_SYS_PTP_TOD_PTP_TOD_MSB, VTSS_F_SYS_PTP_TOD_PTP_TOD_MSB_PTP_TOD_MSB(ts->sec_msb));

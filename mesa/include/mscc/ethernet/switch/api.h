@@ -35,6 +35,7 @@
 #include <mscc/ethernet/switch/api/phy_ts.h>
 #include <mscc/ethernet/switch/api/macsec.h>
 #include <mscc/ethernet/switch/api/wis.h>
+#include <mscc/ethernet/switch/api/tsn.h>
 #include <mscc/ethernet/switch/api/qos.h>
 #include <mscc/ethernet/switch/api/vop.h>
 #include <mscc/ethernet/switch/api/l2.h>

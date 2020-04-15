@@ -476,7 +476,6 @@ static vtss_rc jr2_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_SERVAL_T)
 static vtss_rc jr2_synce_station_clk_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
 {
     u32 div_mask = 0;
@@ -487,13 +486,16 @@ static vtss_rc jr2_synce_station_clk_out_set(vtss_state_t *vtss_state, const vts
         case VTSS_SYNCE_DIVIDER_1:  div_mask = 6; break;
         case VTSS_SYNCE_DIVIDER_4:  div_mask = 1; break;
         case VTSS_SYNCE_DIVIDER_5:  div_mask = 4; break;
+#if defined(VTSS_ARCH_SERVAL_T)
         case VTSS_SYNCE_DIVIDER_2:  div_mask = 0; break;
         case VTSS_SYNCE_DIVIDER_8:  div_mask = 2; break;
         case VTSS_SYNCE_DIVIDER_16: div_mask = 3; break;
         case VTSS_SYNCE_DIVIDER_25: div_mask = 5; break;
+#endif
     }
     VTSS_D("divider %d, div_mask %d\n", vtss_state->synce.station_clk_out_conf[clk_port].divider, div_mask);
     // the station clock output is connected to output no 0 from the OMEGA HW.
+#if defined(VTSS_ARCH_SERVAL_T)
     JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(clk_port),
             VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_SRC(17 + vtss_state->synce.station_clk_out_conf[clk_port].dpll_out_no) | // Select SD10G[dpll_out_no] TX clock
             VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_DIV(div_mask) |
@@ -501,10 +503,18 @@ static vtss_rc jr2_synce_station_clk_out_set(vtss_state_t *vtss_state, const vts
             VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_SRC |
             VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_DIV |
             VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA);
+#else
+    JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(clk_port),
+            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_SRC(17 + vtss_state->synce.station_clk_out_conf[clk_port].dpll_out_no) |
+            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_DIV(div_mask) |
+            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA(vtss_state->synce.station_clk_out_conf[clk_port].enable),
+            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_SRC |
+            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_DIV |
+            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA);
+#endif
 
     return VTSS_RC_OK;
 }
-#endif // VTSS_ARCH_SERVAL_T
 
 #endif /* VTSS_FEATURE_SYNCE */
 
@@ -3844,9 +3854,7 @@ vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_SYNCE)
         vtss_state->synce.clock_out_set = jr2_synce_clock_out_set;
         vtss_state->synce.clock_in_set = jr2_synce_clock_in_set;
-#if defined(VTSS_ARCH_SERVAL_T)
         vtss_state->synce.station_clk_out_set = jr2_synce_station_clk_out_set;
-#endif
 #endif /* VTSS_FEATURE_SYNCE */
         break;
 

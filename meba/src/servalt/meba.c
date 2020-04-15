@@ -33,6 +33,9 @@
 #define SYNCE_CLOCK_DPLL             0  // DPLL number for the DPLL used for SYNCE
 #define SYNCE_CLOCK_OUTPUT_CNT       4  // Number of clock output references, including 10G ports, which must be connected to the controller outputs
 #define SYNCE_CLOCK_EEC_OPTION_CNT   2  // Number of EEC options that can be selected
+#define SYNCE_RECVRD_CLK_SRC         5  // 22: Select GPIO reference 0(5+17) is added to this value to select REF_CLK0 from clock MUX
+#define SYNCE_RECVRD_CLK_ID          3  // RCVRD_CLK3, configured by overlaid function SYNC_ETH_CFG[3]
+#define SYNCE_RECVRD_CLK_3_PIN      36  // GPIO used as RCVRD_CLK3
 
 /*
  *  The status LED is attached through the SGPIO interface, bits p6.2
@@ -150,6 +153,8 @@ static uint32_t servalt_capability(meba_inst_t inst,
         case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:        // ServalT and Serval2 Lite both support single DPLL mode
             return true;
         case MEBA_CAP_POE_BT:
+            return false;
+        case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
             return false;
         default:
             T_E(inst, "Unknown capability %d", cap);
@@ -314,6 +319,28 @@ static mesa_rc servalt_reset(meba_inst_t inst,
                     conf.port_conf[4].int_pol_high[1] = true; // SFP10 TX_FAULT
 
                     rc =mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+                }
+            }
+            // Initialize GPIO, clock divider etc. used by the station clock input/output
+            {
+                mesa_synce_station_clock_out_t station_clk_conf;
+                void *const CLOCK_API_INST = 0;
+
+                // GPIO used for Station clock input
+                if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_STATION_CLOCK_IN_PIN, MESA_GPIO_ALT_0)) != MESA_RC_OK) {
+                    T_W(inst, "Could not configure GPIO for station clock input. Error code was: %x", rc);
+                }
+
+                // GPIO used for Station clock output
+                if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_RECVRD_CLK_3_PIN, MESA_GPIO_ALT_0)) != MESA_RC_OK) {
+                    T_W(inst, "Could not configure GPIO for station clock output. Error code was: %x", rc);
+                }
+
+                station_clk_conf.divider = MESA_SYNCE_DIVIDER_1;
+                station_clk_conf.enable = true;
+                station_clk_conf.dpll_out_no = SYNCE_RECVRD_CLK_SRC;
+                if ((rc = mesa_synce_synce_station_clk_out_set(CLOCK_API_INST, SYNCE_RECVRD_CLK_ID, &station_clk_conf)) != MESA_RC_OK) {
+                    T_W(inst, "Could not configure station clock output (divider, enable, etc.). Error code was: %x", rc);
                 }
             }
             break;

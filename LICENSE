@@ -1,3 +1,43 @@
+This document is best viewed in a non-line-wrapping editor.
+
+Current Version:   MESA-2019.09
+Previous Version:  MESA-2019.06
+
+License information
+===================
+
+This file provides a summary of the licenses included in or used by the MESA
+sources, along with the raw licenses for each package.
+
+Notice: The MESA package includes pre-built binary firmware images. These
+        images consist of the binary MESA artifacts appended to a BSP.
+        The combined set of licenses for these images can be found in
+        ./bin/<preset>/licenses.txt
+
+- Component:    Identifies the MSCC component in which the given software
+                package is embedded.
+- Path/File:    Identifies the software package's location inside the MESA
+                component.
+- Name:         Name of the software package.
+- Version:      Version of the software package.
+- License Type: Type of license. This field is provided as a "hint" and should
+                not be used in a license audit.
+
+To obtain the source, please contact sales/marketing
+
+
+License summary
+===============
+
+Component Path/File           Name         Version License Type
+--------- ------------------- ------------ ------- ------------
+MESA      .                   MESA-API             MIT
+MESA      third_party/phy/aqr Aquantia PHY         MIT
+
+Raw licenses
+============
+
+MESA - MESA-API:
 Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -17,4 +57,29 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+********************************************************************************
+
+MESA - Aquantia PHY:
+Copyright (c) 2017 Aquantia Corp.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+********************************************************************************
 

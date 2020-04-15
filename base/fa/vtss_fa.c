@@ -211,6 +211,7 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *s
     row = &vtss_state->l2.estat_table.row[idx / 8];
     if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used) {
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
+        REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(idx));
         VTSS_RC(fa_evc_qsys_counter_update(vtss_state, 768, &c->tx_green, cnt == NULL ? NULL : &cnt->tx_green, clr));
         VTSS_RC(fa_evc_qsys_counter_update(vtss_state, 769, &c->tx_yellow, cnt == NULL ? NULL : &cnt->tx_yellow, clr));
     }
@@ -229,8 +230,22 @@ vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
         REG_WR(VTSS_ANA_L2_DLB_COS_CFG(isdx, cosid), VTSS_F_ANA_L2_DLB_COS_CFG_DLB_COS_OFFSET(cosid <= pol_max ? cosid : pol_max));
         REG_WR(VTSS_ANA_L2_ISDX_COS_CFG(isdx, cosid), VTSS_F_ANA_L2_ISDX_COS_CFG_ISDX_COS_OFFSET(cosid <= stat_max ? cosid : stat_max));
     }
+    REG_WR(VTSS_EACL_FRER_FIRST_MEMBER(isdx), sdx->ms_idx);
     return VTSS_RC_OK;
 }
+
+/* Clock period in picoseconds */
+u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
+{
+    switch (clock) {
+    case VTSS_CORE_CLOCK_250MHZ: return 4000;
+    case VTSS_CORE_CLOCK_500MHZ: return 2000;
+    case VTSS_CORE_CLOCK_625MHZ:
+    default: {};
+    }
+    return 1600; // Default
+}
+
 
 #endif /* VTSS_SDX_CNT */
 
@@ -324,9 +339,49 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     return VTSS_RC_OK;
 }
 
+static BOOL fa_verify_port_bw(vtss_state_t *vtss_state, u32 bw)
+{
+    switch (vtss_state->create.target) {
+    case VTSS_TARGET_7546:
+    case VTSS_TARGET_7546_04:
+        if (bw > 65000) {
+            return FALSE;
+        }
+        break;
+    case VTSS_TARGET_7549:
+    case VTSS_TARGET_7549_04:
+        if (bw > 91000) {
+            return FALSE;
+        }
+        break;
+    case VTSS_TARGET_7552:
+    case VTSS_TARGET_7552_04:
+        if (bw > 129000) {
+            return FALSE;
+        }
+        break;
+    case VTSS_TARGET_7556:
+    case VTSS_TARGET_7556_04:
+        if (bw > 161000) {
+            return FALSE;
+        }
+        break;
+    case VTSS_TARGET_7558:
+    case VTSS_TARGET_7558_04:
+        if (bw > 201000) {
+            return FALSE;
+        }
+        break;
+    default:
+        VTSS_E("Target (%x) not supported",vtss_state->create.target);
+        return FALSE;
+    }
+    return TRUE;
+}
+
 static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 {
-    u32 clk_div;
+    u32 clk_div, clk_period;
     vtss_core_clock_freq_t freq, f = vtss_state->init_conf.core_clock.freq;
     freq = f;
 
@@ -395,11 +450,36 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_SEL(0) |
             VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA(0) |
             VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA(1),
+            VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_DIV |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_PRE_DIV |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_DIR |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_SEL |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
+
+    clk_period = vtss_fa_clk_period(freq);
+    REG_WRM(VTSS_HSCH_SYS_CLK_PER,
+            VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_period/100),
+            VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS);
+
+    REG_WRM(VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL,
+            VTSS_F_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_M_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS);
+
+    REG_WRM(VTSS_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL,
+            VTSS_F_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_M_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS);
+
+    REG_WRM(VTSS_LRN_AUTOAGE_CFG_1,
+            VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
+
+    for(u8 i = 0; i < 3; i++) {
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(i),
+                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
+                VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
+    }
+
 
 #if 0 // TBD need info from frontend, below is copied from JR2 - TBD-BJO
     // Adapt other blocks to the new core speed
@@ -456,47 +536,17 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
         {TRUE,  VTSS_ASM_RAM_INIT, 0},
         {TRUE,  VTSS_EACL_RAM_INIT, 0},
         {TRUE,  VTSS_VCAP_SUPER_RAM_INIT, 0},
-        {TRUE,  VTSS_VOP_RAM_INIT, 0},
         {TRUE,  VTSS_DSM_RAM_INIT, 0}};
 
     u32 init_cnt = (sizeof(ram_init_list)/sizeof(ram_init_list[0]));
 
-    u32 gpio_oe, gpio_oe1, gpio_out, gpio_out1;
-    /* Save GPIO state */
-    REG_RD(VTSS_DEVCPU_GCB_GPIO_OE, &gpio_oe);
-    REG_RD(VTSS_DEVCPU_GCB_GPIO_OE1, &gpio_oe1);
-    REG_RD(VTSS_DEVCPU_GCB_GPIO_OUT, &gpio_out);
-    REG_RD(VTSS_DEVCPU_GCB_GPIO_OUT1, &gpio_out1);
-    /* Reset switch core only, protect the Serdes and Vcore */
-#if !defined(VTSS_OPT_EMUL)
-    VTSS_I("Resetting switch core..");
-    REG_WRM(VTSS_CPU_RESET_PROT_STAT,
-            VTSS_F_CPU_RESET_PROT_STAT_SYS_RST_PROT_VCORE(1),
-            VTSS_M_CPU_RESET_PROT_STAT_SYS_RST_PROT_VCORE);
-#endif
-    REG_WRM(VTSS_DEVCPU_GCB_SOFT_RST,
-            VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1),
-            VTSS_M_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST);
-    for (i=0; ; i++) {
-        REG_RD(VTSS_DEVCPU_GCB_SOFT_RST, &value);
-        if (value & VTSS_M_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST) {
-            VTSS_MSLEEP(1);
-        } else {
-            break;
-        }
-        if (i == 100) {
-            VTSS_E("Switch core reset failed");
-            return VTSS_RC_ERROR;
-        }
-    }
+    REG_WRM(VTSS_EACL_POL_EACL_CFG,
+            VTSS_F_EACL_POL_EACL_CFG_EACL_FORCE_INIT(1),
+            VTSS_M_EACL_POL_EACL_CFG_EACL_FORCE_INIT);
 
-    /* Restore GPIO state */
-#define NZ_RESTORE(r, v) do { if (v) { REG_WR(r, v); } } while(0)
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_OUT, gpio_out);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_OUT1, gpio_out1);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_OE, gpio_oe);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_OE1, gpio_oe1);
-#undef NZ_RESTORE
+    REG_WRM(VTSS_EACL_POL_EACL_CFG,
+            VTSS_F_EACL_POL_EACL_CFG_EACL_FORCE_INIT(0),
+            VTSS_M_EACL_POL_EACL_CFG_EACL_FORCE_INIT);
 
     /* Initialize memories, if not done already */
     REG_RD(VTSS_HSCH_RESET_CFG, &value);
@@ -559,7 +609,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 
     /* Set ASM/DSM watermarks for cpu traffic (see JR2) - needed here or handled by wm function ? TBD-BJO */
 #if !defined(VTSS_OPT_EMUL)
-    u32 value, i;
+    u32 value;
     REG_RD(VTSS_CPU_GENERAL_STAT, &value);
     vtss_state->sys_config.vcore_cfg = VTSS_X_CPU_GENERAL_STAT_VCORE_CFG(value);
 
@@ -614,8 +664,8 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
     vtss_internal_bw_t max_port_bw;
 
     if (port_no >= VTSS_PORTS) {
-        // Internal ports
-        *port = (VTSS_CHIP_PORT_CPU + port_no - VTSS_PORTS);
+        // Internal ports (and ports outside of port map)
+        *port = (VTSS_CHIP_PORT_CPU + port_no - VTSS_CHIP_PORTS);
         if (port_no == VTSS_CHIP_PORT_CPU_0 || port_no == VTSS_CHIP_PORT_CPU_1) {
             return FA_CAL_SPEED_2G5; // Equals 1.25G
         } else if (port_no == VTSS_CHIP_PORT_VD0) {
@@ -626,10 +676,14 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
             } else if (max_bw - used_bw >= 10000) {
                 return FA_CAL_SPEED_10G; // OAM equals 5G
             } else {
-                return FA_CAL_SPEED_5G;  // OAM equals 2G5
+//                return FA_CAL_SPEED_5G;  // OAM equals 2G5
+                return FA_CAL_SPEED_1G;  // (For now othewise NPI does not work)
             }
-        } else {
+        } else if (port_no == VTSS_CHIP_PORT_VD2) {
             // IPinIP gets only idle BW
+            return FA_CAL_SPEED_NONE;
+        } else {
+            // not in port map
             return FA_CAL_SPEED_NONE;
         }
     }
@@ -668,7 +722,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     fa_cal_speed_t     spd;
     u32                i;
     vtss_port_no_t     port_no;
-    i32                port, this_bw, max_bw, bw = 0;
+    i32                port, this_bw, max_bw, bw = 0, port_bw = 0;
 
     VTSS_I("Using Auto calendar");
 
@@ -693,6 +747,11 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
 
         this_bw = (spd == FA_CAL_SPEED_1G ? 1000 : spd == FA_CAL_SPEED_2G5 ? 2500 :
                    spd == FA_CAL_SPEED_5G ? 5000 : spd == FA_CAL_SPEED_10G ? 10000 : 25000);
+
+        if (port_no < VTSS_PORTS) {
+            port_bw += this_bw;
+        }
+
         if (port_no >= VTSS_PORTS) {
             this_bw = this_bw/2; // Internal ports are granted half the value
         }
@@ -701,7 +760,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
         cal[port/10] += (spd << ((port % 10) * 3));
     }
 
-    if (bw > max_bw) {
+    if (bw > max_bw || !fa_verify_port_bw(vtss_state, port_bw)) {
         VTSS_E("The configured BW (%d) is above limit (%d)",bw,max_bw);
         return VTSS_RC_ERROR;
     }

@@ -84,6 +84,7 @@ if not $options[:cache_only]
 
     $c_src.puts "#include \"mesa.h\""
     $c_src.puts ""
+    $c_src.puts "#define __RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }"
     $c_src.puts "#pragma GCC diagnostic push"
     $c_src.puts "#pragma GCC diagnostic ignored \"-Wstrict-aliasing\""
     $c_src.puts "#pragma GCC diagnostic ignored \"-Wformat-security\""
@@ -1300,6 +1301,12 @@ def impl_conv_function_body_struct from, to
     sym_used_to = []
     sym_skipped = []
 
+    # Only memset result in _get() functions, that is, when to[:type_name]
+    # contains "mesa_", because sizeof(mesa-struct) >= sizeof(vtss-struct).
+    # This also overcomes the problem with get-before-set, which is used in
+    # _set() functions.
+    code << "memset(out, 0, sizeof(*out)); /* ag.rb:#{__LINE__} */" if /mesa_/ =~ to[:type_name]
+
     def build_hash struct
         h = {} # key => [ vals ]
         struct[:members].each do |e|
@@ -1445,7 +1452,7 @@ def impl_conv_function_body_struct from, to
         when :COMPATIBILITY_UNKNOWN
             raise "COMPAT-UNKNOWN: Compatibility unknown. member: #{e[:f][:member_name]} member-type: #{e[:t][:member_type]}/#{e[:f][:member_type]} in structure: #{to[:type_name]}/#{from[:type_name]}"
         when :COMPATIBILITY_CONV_NEEDED
-            code << "#{pre_space}#{conv_function_name("conv", e[:f][:member_type], e[:t][:member_type])}(#{from_accessor}in->#{e[:f][:member_name]}#{array_accessor}, #{to_accessor}out->#{e[:t][:member_name]}#{array_accessor}); /* ag.rb:#{__LINE__} */"
+            code << "#{pre_space}__RC(#{conv_function_name("conv", e[:f][:member_type], e[:t][:member_type])}(#{from_accessor}in->#{e[:f][:member_name]}#{array_accessor}, #{to_accessor}out->#{e[:t][:member_name]}#{array_accessor})); /* ag.rb:#{__LINE__} */"
 
 
             #m = conv_function_name("conv", e[:f][:member_type], e[:t][:member_type])
@@ -1826,6 +1833,13 @@ $methods.each do |k, v|
         end
 
         return_type = "#{v[:normal][:type].to_s.strip}"
+        rc_end = ")"
+        rc_start = "__RC("
+        if return_type == "void"
+            rc_end = ""
+            rc_start = ""
+        end
+
         proto = "#{return_type} #{k}(#{a.collect{|x| x[:arg_str]}.join(", ")})"
         c_src +=  "#{proto}\n"
         c_src +=  "{ /* ag.rb:#{__LINE__} */\n"
@@ -1897,9 +1911,9 @@ $methods.each do |k, v|
                 conv_code = ""
                 if e[:ast_mesa][:array].size > 0
                     conv_code += "for (int i = 0; i < #{e[:ast_mesa][:array][0]}; ++i)"
-                    conv_code += " #{conv_function_name("conv", conv_in_t, conv_out_t)}(#{conv_in}[i], #{conv_out}[i]) /* ag.rb:#{__LINE__} */"
+                    conv_code += "#{rc_start}#{conv_function_name("conv", conv_in_t, conv_out_t)}(#{conv_in}[i], #{conv_out}[i])#{rc_end} /* ag.rb:#{__LINE__} */"
                 else
-                    conv_code += "#{conv_function_name("conv", conv_in_t, conv_out_t)}(#{conv_in}, #{conv_out}) /* ag.rb:#{__LINE__} */"
+                    conv_code += "#{rc_start}#{conv_function_name("conv", conv_in_t, conv_out_t)}(#{conv_in}, #{conv_out})#{rc_end} /* ag.rb:#{__LINE__} */"
                 end
 
                 case e[:ast_mesa][:direction]

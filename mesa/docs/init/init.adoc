@@ -1,0 +1,85 @@
+:sectnums:
+= Initialization
+
+The following is selected for the API at compile-time:
+
+* Target device, for example VTSS_CHIP_7514.
+* Optionally, the number of used ports may be reduced using VTSS_OPT_PORT_COUNT.
+
+The API must be initialized in this order at run-time:
+
+* Create API lock (if the application has multiple threads).
+* Take API lock (if the application has multiple threads).
+* Create API instance according to the compiled target (`mesa_inst_create()`).
+* Get initial configuration (`mesa_init_conf_get()`)
+* Fill out register access functions (`mesa_init_conf_t`).
+* Optionally (`MESA_CAP_PORT_MUX`), fill out port multiplexer mode (`mesa_port_mux_mode_t`).
+* Set initial configuration (`mesa_init_conf_set()`)
+* Set port map (`mesa_port_map_set()`).
+* Release API lock (if application has multiple threads).
+
+The steps above are described in more details in the following sections.
+After the initialization sequence, the application can initialize the ports.
+The application must then call `mesa_poll_1sec()` every second to allow the API to do
+periodic tasks.
+
+// AWN: Does this relate to MEBA?
+
+== API Lock
+
+The application software must implement callout functions for locking/unlocking
+the API (`mesa_callout_lock()` and `mesa_callout_unlock()`):
+
+* If the application is single-threaded, the functions can be empty.
+* If the application is multi-threaded, the functions must take/release a
+semaphore/mutex to protect API access. This must initiallly be taken until the
+initialization sequence is done.
+ 
+== Instance Creation
+
+The API supports a number of switch and PHY target devices
+(`mesa_target_type_t`). The application software must create an instance of the
+API for the selected target using `mesa_inst_create()`. This function returns an
+API instance reference, which must be used in subsequent API function calls. If
+the application software only creates a single API instance, a NULL reference
+may be used in subsequent API function calls.
+
+== Instance Initialization
+
+The created target must then be initialized (`mesa_init_conf_t`). The
+initialization structure includes a number of callback functions, which must be
+implemented:
+
+* Switch register read function (`mesa_reg_read_t`).
+* Switch register write function (`mesa_reg_write_t`).
+
+The structure also includes callback functions for PHY register access. When
+calling `mesa_init_conf_get()` for switch targets, these callbacks are filled
+out with internal functions accessing PHYs through MII the management interfaces
+of the switch.
+
+== Port Mapping
+
+For switch targets, the port map must be setup as part of the initialization
+(`mesa_port_map_set()`). The API uses a logical 0-based port number for each
+port (`mesa_port_no_t`). The port map describes how the API port numbers map to
+internal switch port numbers, MII management busses and MII management
+addresses.
+
+// AWN: We need to explain how this (optional?) relates to MEBA.
+
+=== API Functions
+
+// AWN: Any reason why this is not bullet points?
+`mesa_inst_get()` +
+`mesa_inst_create()` +
+`mesa_inst_destroy()` +
+`mesa_init_conf_get()` +
+`mesa_init_conf_set()` +
+`mesa_register_access_mode_set()` +
+`mesa_register_access_mode_get()` +
+`mesa_spi_slave_init()` +
+`mesa_restart_conf_end()` +
+`mesa_restart_status_get()` +
+`mesa_restart_conf_get()` +
+`mesa_restart_conf_set()`

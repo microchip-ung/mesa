@@ -1,0 +1,136 @@
+---
+conf:
+    rel_name: "MESA-99.99"
+
+pages:
+    - name: "README"
+      src:  "mesa/docs/readme.adoc"
+
+    - name: "Release notes"
+      pages:
+        - name: "MESA-2019.09"
+          src:  "mesa/docs/release-notes/mesa-2019.09.adoc"
+
+        - name: "MESA-2019.06"
+          src:  "mesa/docs/release-notes/mesa-2019.06.adoc"
+
+        - name: "API-5.8"
+          src:  "mesa/docs/release-notes/api-5.8.adoc"
+
+        - name: "API-5.7"
+          src:  "mesa/docs/release-notes/api-5.7.adoc"
+
+    - name: "Introduction"
+      src:  "mesa/docs/introduction.adoc"
+
+    - name: "Getting started"
+      src:  "mesa/docs/getting-started.adoc"
+
+    - name: "Functional descriptions"
+      pages:
+        - src: "mesa/docs/init/init.adoc"
+        - src: "mesa/docs/misc/misc.adoc"
+        - src: "mesa/docs/port/port.adoc"
+        - src: "mesa/docs/packet/packet.adoc"
+        - src: "mesa/docs/l2/l2.adoc"
+        - src: "mesa/docs/tsn/tsn.adoc"
+        - src: "mesa/docs/l3/l3.adoc"
+        - src: "mesa/docs/qos/qos.adoc"
+        - src: "mesa/docs/acl/acl.adoc"
+        - src: "mesa/docs/vop/vop.adoc"
+
+    - name: "MEBA (Board API)"
+      src: "mesa/docs/meba/meba.adoc"
+
+    - name: "MESA API Reference"
+      pages:
+        - src:  "mesa/include/mscc/ethernet/switch/api/afi.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/capability.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/clock.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/init.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/l2.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/l3.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/macsec.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/misc.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/packet.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/phy_10g.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/phy_1g.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/phy_ts.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/port.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/port_list.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/qos.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/security.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/synce.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/ts.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/tsn.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/types.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/vop.h"
+        - src:  "mesa/include/mscc/ethernet/switch/api/wis.h"
+
+    - name: "MEBA API Reference"
+      pages:
+          - src:  "meba/include/mscc/ethernet/board/api.h"
+          - src:  "meba/include/mscc/ethernet/board/api/base.h"
+          - src:  "meba/include/mscc/ethernet/board/api/phy_driver.h"
+          - src:  "meba/include/mscc/ethernet/board/api/poe.h"
+          - src:  "meba/include/mscc/ethernet/board/api/poe_ctrl.h"
+          - src:  "meba/include/mscc/ethernet/board/api/sfp_driver.h"
+          - src:  "meba/include/mscc/ethernet/board/api/synce.h"
+          - src:  "meba/include/mscc/ethernet/board/api/tod.h"
+          - src:  "meba/include/mscc/ethernet/board/api/types.h"
+
+    - name: "Licenses"
+      src:  "mesa/docs/licenses.adoc"
+
+...
+
+# README
+#
+# Release Notes
+#
+# Introduction
+#   Product overview
+#     Unified-API / MESA
+#     MEBA
+#     Toolchain
+#     Board Support packets
+#     WebStaX/SMBStaX/IStaX
+#   Architecture
+#   Unified-API vs MESA
+#   Relation to PHY APIs
+#   Directory layout
+#   MESA Capabilities
+#
+#   MEBA??
+#
+# Getting started
+#   Reference boards
+#   Supported HW
+#   Building system
+#   Demo application
+#     Basic port status
+#     Symreg read/write
+#     API Call syntax
+#   Integration guide
+#     MESA
+#     MEBA
+#
+# Functional descriptions
+#   PHY and basic L2
+#     - PHY
+#     - Port/device mapping
+#     - VLAN
+#   Classification and re-writing
+#     - ACLs
+#     - VCL / enhanced VLAN
+#     - Others?
+#   QoS
+#   L3
+#   VOP (802.1ag)
+#   Time stamping
+#
+# Cookbook examples
+#
+# API Reference
+#
+

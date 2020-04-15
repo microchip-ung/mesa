@@ -49,7 +49,7 @@ void mscc_appl_opt_reg(mscc_appl_opt_t *opt);
 
 typedef struct {
     mscc_appl_init_cmd_t cmd;
-    meba_inst_t          board_inst;
+    struct meba_inst    *board_inst;
 } mscc_appl_init_t;
 
 // Module init functions
@@ -64,6 +64,13 @@ void mscc_appl_symreg_init(mscc_appl_init_t *init);
 void mscc_appl_trace_init(mscc_appl_init_t *init);
 void mscc_appl_test_init(mscc_appl_init_t *init);
 
+typedef enum {
+    SPI_USER_REG,  // Switch register access
+    SPI_USER_FPGA, // FPGA register access
+
+    SPI_USER_CNT   // Number of users
+} spi_user_t;
+
 // Register access functions
 mesa_rc spi_reg_read(const mesa_chip_no_t chip_no,
                      const uint32_t       addr,
@@ -71,8 +78,13 @@ mesa_rc spi_reg_read(const mesa_chip_no_t chip_no,
 mesa_rc spi_reg_write(const mesa_chip_no_t chip_no,
                       const uint32_t       addr,
                       const uint32_t       value);
-mesa_rc spi_reg_io_init(const char *device, int freq, int padding);
-
+mesa_rc spi_io_init(spi_user_t user, const char *device, int freq, int padding);
+mesa_rc spi_read(spi_user_t     user,
+                 const uint32_t addr,
+                 uint32_t       *const value);
+mesa_rc spi_write(spi_user_t     user,
+                  const uint32_t addr,
+                  const uint32_t value);
 mesa_rc uio_reg_read(const mesa_chip_no_t chip_no,
                      const uint32_t       addr,
                      uint32_t             *const value);

@@ -588,7 +588,7 @@ typedef enum {
 #define VTSS_L26_PACKET_HDR_SIZE_BYTES 16 /**< Max header size. Worst case: INJ (8 bytes for IFH + 4 for timestamp + 4 for VLAN tag)              */
 
 // Find the largest required header size.
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_JR2_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
@@ -1160,7 +1160,7 @@ typedef struct {
      *   Jaguar2: Y
      *   Serval2: Y
      *   ServalT: Y
-     *   Jaguar3: Y
+     *   SparX-5: Y
      * </pre>
      */
     u64 hw_tstamp;
@@ -1391,7 +1391,7 @@ typedef struct {
      *   Jaguar2:   Y Y
      *   Serval2:   Y Y
      *   ServalT:   Y Y
-     *   Jaguar3S5: N N
+     *   SparX-5:   N N
      * </pre>
      */
     u64 dst_port_mask;
@@ -1408,7 +1408,7 @@ typedef struct {
      *   Jaguar2:   N N
      *   Serval2:   N N
      *   ServalT:   N N
-     *   Jaguar3S5: Y Y
+     *   SparX-5:   Y Y
      * </pre>
      */
     vtss_port_no_t dst_port;
@@ -1656,6 +1656,16 @@ typedef struct {
     vtss_packet_ptp_action_t ptp_action;
 
     /**
+     * The frame's Precision Time Protocol TOD domain.
+     * Ignored when #switch_frm is TRUE.
+     *
+     * Validity:
+     * ------------
+     * SparX-5: Y
+     */
+    u8                       ptp_domain;
+
+    /**
      * The PTP identifier used for two-step PTP actions.
      * The CPU can only use from IDs 0 through 3.
      * Ignored when #switch_frm is TRUE.
@@ -1691,7 +1701,7 @@ typedef struct {
      *   Jaguar2: Y Y
      *   Serval2: Y Y
      *   ServalT: Y Y
-     *   Jaguar3: Y Y
+     *   SparX-5: Y Y
      * </pre>
      */
     u64 ptp_timestamp;
@@ -2022,7 +2032,7 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
                                         u32                   *const bin_hdr_len);
 
 /* Maximum Rx/Tx IFH length */
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_PACKET_TX_IFH_MAX     36  /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX     36  /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_JAGUAR_2)

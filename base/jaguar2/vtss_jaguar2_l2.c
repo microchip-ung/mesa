@@ -1793,7 +1793,6 @@ static vtss_rc jr2_l2_init(vtss_state_t *vtss_state)
     vtss_l2_state_t *state = &vtss_state->l2;
     u32             port, msti;
     u64             port_mask_all = 0xffffffffffffffff;
-    u16             dummy;
 
     /* VLAN: Clear VID 4095 mask, enable VLAN and use default port config */
     JR2_WR(VTSS_ANA_L3_COMMON_VLAN_CTRL, 
@@ -1848,17 +1847,6 @@ static vtss_rc jr2_l2_init(vtss_state_t *vtss_state)
     JR2_WRM(VTSS_ANA_L2_COMMON_LRN_CFG,
             VTSS_F_ANA_L2_COMMON_LRN_CFG_VSTAX_BASIC_LRN_MODE_ENA(1),
             VTSS_M_ANA_L2_COMMON_LRN_CFG_VSTAX_BASIC_LRN_MODE_ENA);
-
-    /* Reserve policer and statistics for non-service traffic.
-       Reserving 8 instances ensures that the allocations are never moved.
-       Non-service frames will hit policer 0, which is disabled.
-       Non-service frames will hit ISDX statistics 0-7, which is not used by EVCs */
-    dummy = VTSS_POL_STAT_NONE;
-    vtss_cmn_policer_alloc(vtss_state, 8, &dummy);
-    dummy = VTSS_POL_STAT_NONE;
-    vtss_cmn_istat_alloc(vtss_state, 8, &dummy);
-    dummy = VTSS_POL_STAT_NONE;
-    vtss_cmn_estat_alloc(vtss_state, 8, &dummy);
 
     return VTSS_RC_OK;
 }
@@ -1970,12 +1958,6 @@ vtss_rc vtss_jr2_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->counters_update = jr2_evc_counters_update;
         state->isdx_update = vtss_jr2_isdx_update;
         state->sdx_info.max_count = VTSS_SDX_CNT;
-        state->pol_table.hdr.max_count = VTSS_EVC_POL_CNT;
-        state->pol_table.hdr.row = state->pol_table.row;
-        state->istat_table.hdr.max_count = VTSS_EVC_STAT_CNT;
-        state->istat_table.hdr.row = state->istat_table.row;
-        state->estat_table.hdr.max_count = VTSS_EVC_STAT_CNT;
-        state->estat_table.hdr.row = state->estat_table.row;
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(jr2_l2_init(vtss_state));

@@ -1016,9 +1016,9 @@ vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t             inst,
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
 /* - 802.1Qbv (Enhancements for Scheduled Traffic) ----------------- */
-#if defined(VTSS_FEATURE_QOS_QBV)
-vtss_rc vtss_qos_qbv_conf_get(const vtss_inst_t    inst,
-                              vtss_qos_qbv_conf_t  *const conf)
+#if defined(VTSS_FEATURE_QOS_TAS)
+vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t    inst,
+                              vtss_qos_tas_conf_t  *const conf)
 {
     vtss_state_t *vtss_state;
 
@@ -1026,36 +1026,36 @@ vtss_rc vtss_qos_qbv_conf_get(const vtss_inst_t    inst,
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
     VTSS_ENTER();
-    *conf = vtss_state->qos.qbv.global_conf;
+    *conf = vtss_state->qos.tas.global_conf;
     VTSS_EXIT();
 
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_qbv_conf_set(const vtss_inst_t         inst,
-                              const vtss_qos_qbv_conf_t *const conf)
+vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t         inst,
+                              const vtss_qos_tas_conf_t *const conf)
 {
     vtss_state_t        *vtss_state;
     vtss_rc             rc;
-    vtss_qos_qbv_conf_t *qbv_conf;
+    vtss_qos_tas_conf_t *tas_conf;
 
     VTSS_D("Enter");
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
     VTSS_ENTER();
-    qbv_conf = &vtss_state->qos.qbv.global_conf;
-    *qbv_conf = *conf;
-    rc = VTSS_FUNC_COLD(qos.qbv_conf_set);
+    tas_conf = &vtss_state->qos.tas.global_conf;
+    *tas_conf = *conf;
+    rc = VTSS_FUNC_COLD(qos.tas_conf_set);
     VTSS_EXIT();
 
     VTSS_D("Exit");
     return rc;
 }
 
-vtss_rc vtss_qos_qbv_port_conf_get(const vtss_inst_t       inst,
-                                   const vtss_port_no_t    port_no,
-                                   vtss_qos_qbv_port_conf_t *const conf)
+vtss_rc vtss_qos_tas_port_conf_get(const vtss_inst_t        inst,
+                                   const vtss_port_no_t     port_no,
+                                   vtss_qos_tas_port_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
 
@@ -1063,37 +1063,37 @@ vtss_rc vtss_qos_qbv_port_conf_get(const vtss_inst_t       inst,
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    *conf = vtss_state->qos.qbv.port_conf[port_no];
+    *conf = vtss_state->qos.tas.port_conf[port_no];
     VTSS_EXIT();
 
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_qbv_port_conf_set(const vtss_inst_t             inst,
-                                   const vtss_port_no_t          port_no,
-                                   const vtss_qos_qbv_port_conf_t *const conf)
+vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t              inst,
+                                   const vtss_port_no_t           port_no,
+                                   const vtss_qos_tas_port_conf_t *const conf)
 {
     vtss_state_t             *vtss_state;
     vtss_rc                  rc;
-    vtss_qos_qbv_port_conf_t *qbv_port_conf;
+    vtss_qos_tas_port_conf_t *tas_port_conf;
 
     VTSS_D("Enter - port_no: %u", port_no);
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    qbv_port_conf = &vtss_state->qos.qbv.port_conf[port_no];
-    *qbv_port_conf = *conf;
-    rc = VTSS_FUNC_COLD(qos.qbv_port_conf_set, port_no);
+    tas_port_conf = &vtss_state->qos.tas.port_conf[port_no];
+    *tas_port_conf = *conf;
+    rc = VTSS_FUNC_COLD(qos.tas_port_conf_set, port_no);
     VTSS_EXIT();
 
     VTSS_D("Exit");
     return rc;
 }
 
-vtss_rc vtss_qos_qbv_port_status_get(const vtss_inst_t          inst,
+vtss_rc vtss_qos_tas_port_status_get(const vtss_inst_t          inst,
                                      const vtss_port_no_t       port_no,
-                                     vtss_qos_qbv_port_status_t *const status)
+                                     vtss_qos_tas_port_status_t *const status)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -1102,13 +1102,13 @@ vtss_rc vtss_qos_qbv_port_status_get(const vtss_inst_t          inst,
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    rc = VTSS_FUNC(qos.qbv_port_status_get, port_no, status);
+    rc = VTSS_FUNC(qos.tas_port_status_get, port_no, status);
     VTSS_EXIT();
 
     VTSS_D("Exit");
     return rc;
 }
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 
 /* - 802.1Qbu and 802.3br (Frame Preemption) ----------------------- */
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
@@ -1133,16 +1133,14 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
                                   const vtss_port_no_t          port_no,
                                   const vtss_qos_fp_port_conf_t *const conf)
 {
-    vtss_state_t            *vtss_state;
-    vtss_rc                 rc;
-    vtss_qos_fp_port_conf_t *fp_port_conf;
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
 
     VTSS_D("Enter - port_no: %u", port_no);
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    fp_port_conf = &vtss_state->qos.fp.port_conf[port_no];
-    *fp_port_conf = *conf;
+    vtss_state->qos.fp.port_conf[port_no] = *conf;
     rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no);
     VTSS_EXIT();
 
@@ -1333,6 +1331,9 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
             qos->excess_enable[i] = FALSE;
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+            qos->credit_enable[i] = FALSE;
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
             qos->cut_through_enable[i] = FALSE;
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
@@ -1378,10 +1379,10 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
     }
     /* Port configuration initialization end */
 
-#if defined(VTSS_FEATURE_QOS_QBV)
+#if defined(VTSS_FEATURE_QOS_TAS)
     /* Scheduled traffic global configuration initialization begin */
     {
-        vtss_qos_qbv_conf_t *conf = &vtss_state->qos.qbv.global_conf;
+        vtss_qos_tas_conf_t *conf = &vtss_state->qos.tas.global_conf;
 
         // By default, all queues (unprotected and protected) will
         // be implementing guard band. See also 'sch_traffic_queues'
@@ -1392,34 +1393,21 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
     /* Scheduled traffic port configuration initialization begin */
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
-        vtss_qos_qbv_port_conf_t *conf = &vtss_state->qos.qbv.port_conf[port_no];
+        vtss_qos_tas_port_conf_t *conf = &vtss_state->qos.tas.port_conf[port_no];
 
-        // By default, all queues are allocated for scheduled traffic,
-        // for the purposes of guard band implementation. That, together
-        // with 'always_guard_band' set to TRUE configures the queues
-        // to implement guard band equal to maxSDU bytes.
-        // The above is the intended behaviour of guard band as described in
-        // 802.1Qbv.
-        // The API can then be used to optimize the bandwidth usage of the port
-        // by changing the bitmask of protected/unprotected queues and thus
-        // control the presence of guard band for each queue.
-        conf->sch_traffic_queues = 0xFF;
         // All queues are open by default.
-        conf->admin_gate_states = 0xff;
+        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; i++) {
+            conf->gate_open[i] = TRUE;
+        }
     }
     /* Scheduled traffic port configuration initialization end */
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     /* Frame Preemption port configuration initialization begin */
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
 
-        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; i++) {
-            conf->admin_status[i] = 0;
-        }
-        conf->enable_rx = FALSE;
-        conf->enable_tx = FALSE;
         conf->verify_disable_tx = TRUE;
         conf->verify_time = 10;
     }
@@ -1647,7 +1635,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
     }
 #endif /* VTSS_ARCH_SERVAL */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_FA) {
         /* Jaguar-2 consumes full row */
         key->key_type = VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR;
@@ -1975,6 +1963,30 @@ static void vtss_debug_print_map(const vtss_debug_printf_t pr,
 }
 #endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
+#if defined(VTSS_FEATURE_QOS_TAS)
+static char *debug_gate_operation_string(const vtss_qos_tas_gco_t  gate_operation)
+{
+    switch (gate_operation) {
+        case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     return("SET");
+        case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return("SET_HOLD");
+        case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: return("SET_RELEASE");
+    }
+    return("INVALID");
+}
+
+static u8 bool8_to_u8(BOOL *array)
+{
+    u8 i, value = 0, mask = 1;
+
+    for (i = 0; i < 8; i++, mask<<=1) {
+        if (array[i]) {
+            value |= mask;
+        }
+    }
+    return value;
+}
+#endif
+
 void vtss_qos_debug_print(vtss_state_t *vtss_state,
                           const vtss_debug_printf_t pr,
                           const vtss_debug_info_t   *const info)
@@ -2239,6 +2251,9 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
     pr("Excess ");
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+    pr("Credit ");
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
     pr("CutThrough ");
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
@@ -2263,6 +2278,9 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
             pr("%6d ", VTSS_BOOL(port_conf->excess_enable[queue]));
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+            pr("%6d ", VTSS_BOOL(port_conf->credit_enable[queue]));
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
             pr("%10d ", VTSS_BOOL(port_conf->cut_through_enable[queue]));
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
@@ -2373,34 +2391,30 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
     vtss_vcap_debug_print_is1(vtss_state, pr, info);
 #endif /* VTSS_FEATURE_IS1/CLM */
 
-#if defined(VTSS_FEATURE_QOS_QBV)
+#if defined(VTSS_FEATURE_QOS_TAS)
     pr("QoS Time Aware Shaper Config:\n\n");
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        vtss_qos_qbv_port_conf_t *qbv_port_conf = &vtss_state->qos.qbv.port_conf[port_no];
+        vtss_qos_tas_port_conf_t *tas_port_conf = &vtss_state->qos.tas.port_conf[port_no];
         int i;
         if (info->port_list[port_no] == 0) {
             continue;
         }
         pr("Port %u:\n", port_no);
-        pr("  SchTrafficQueues : %d\n",   qbv_port_conf->sch_traffic_queues);
-        pr("  GateEnabled      : %d\n",   qbv_port_conf->gate_enabled);
-        pr("  GateStates       : 0x%x\n", qbv_port_conf->admin_gate_states);
-        pr("  ListLength       : %u\n",   qbv_port_conf->admin_control_list_length);
-        pr("  Numerator        : %u\n",   qbv_port_conf->admin_cycle_time_numerator);
-        pr("  Denominator      : %u\n",   qbv_port_conf->admin_cycle_time_denominator);
-        pr("  Extension        : %u\n",   qbv_port_conf->admin_cycle_time_extension);
-        pr("  BaseTime         : %" PRIu64 " sec, %u nanosec\n", ((u64)qbv_port_conf->admin_base_time.sec_msb << 32) + qbv_port_conf->admin_base_time.seconds,
-           qbv_port_conf->admin_base_time.nanoseconds);
-        pr("  ConfigChange     : %d\n",   qbv_port_conf->config_change);
+        pr("  GateEnabled      : %d\n",   tas_port_conf->gate_enabled);
+        pr("  GateOpen         : 0x%x\n", bool8_to_u8(tas_port_conf->gate_open));
+        pr("  CycleTime        : %u\n",   tas_port_conf->cycle_time);
+        pr("  cycle_time_ext   : %u\n",   tas_port_conf->cycle_time_ext);
+        pr("  BaseTime         : %" PRIu64 " sec, %u nanosec\n", ((u64)tas_port_conf->base_time.sec_msb << 32) + tas_port_conf->base_time.seconds, tas_port_conf->base_time.nanoseconds);
+        pr("  ConfigChange     : %d\n",   tas_port_conf->config_change);
         pr("  MaxSDU Q7..0     : ");
         for (i = 0; i < 8; i++) {
-            pr("%u ", qbv_port_conf->max_sdu[7 - i]);
+            pr("%u ", tas_port_conf->max_sdu[7 - i]);
         }
         pr("\n");
         pr("  GCL              : ");
-        for (i = 0; i < MIN(qbv_port_conf->admin_control_list_length, VTSS_QOS_QBV_GCL_LEN_MAX); i++) {
-            pr("0x%x,%u ", qbv_port_conf->admin_gcl[i].gate_state, qbv_port_conf->admin_gcl[i].time_interval);
+        for (i = 0; i < MIN(tas_port_conf->gcl_length, VTSS_QOS_TAS_GCL_LEN_MAX); i++) {
+            pr("%s, 0x%x, %u ", debug_gate_operation_string(tas_port_conf->gcl[i].gate_operation), bool8_to_u8(tas_port_conf->gcl[i].gate_open), tas_port_conf->gcl[i].time_interval);
         }
         if (!i) {
             pr("(empty)");
@@ -2408,33 +2422,37 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
         pr("\n");
     }
     pr("\n");
-#endif /* VTSS_FEATURE_QOS_QBV */
+#endif /* VTSS_FEATURE_QOS_TAS */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    pr("QoS Frame Preemption Config:\n\n");
-    pr("Port EnaRx EnaTx VDisTx VTime AdminStatus\n");
+    pr("QoS Frame Preemption Config/Status:\n\n");
+    pr("Port  EnaTx  EnaQ[0-7]  VDisTx  VTime  AddFragSize  StatusVer  PreemptActive\n");
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
+        vtss_qos_fp_port_conf_t   *conf = &vtss_state->qos.fp.port_conf[port_no];
+        vtss_qos_fp_port_status_t status;
+        vtss_mm_status_verify_t   v;
         int queue;
-        BOOL any = FALSE;
+
         if (info->port_list[port_no] == 0) {
             continue;
         }
-        pr("%4u %5d %5d %6d %5u ",
-           port_no,
-           VTSS_BOOL(conf->enable_rx),
-           VTSS_BOOL(conf->enable_tx),
-           VTSS_BOOL(conf->verify_disable_tx),
-           conf->verify_time);
+        pr("%-6u%-7u", port_no, VTSS_BOOL(conf->enable_tx));
         for (queue = 0; queue < VTSS_QUEUE_ARRAY_SIZE; queue++) {
-            if (conf->admin_status[queue]) {
-                any = TRUE;
-                pr("%d ", queue);
-            }
+            pr("%u", conf->admin_status[queue]);
         }
-        if (!any) {
-            pr("--");
+        pr("   %-8u%-7u%-13u", VTSS_BOOL(conf->verify_disable_tx), conf->verify_time, conf->add_frag_size);
+        if (VTSS_FUNC(qos.fp_port_status_get, port_no, &status) == VTSS_RC_OK) {
+            v = status.status_verify;
+            pr("%-11s%u",
+               v == VTSS_MM_STATUS_VERIFY_INITIAL ? "INITIAL" :
+               v == VTSS_MM_STATUS_VERIFY_IDLE ? "IDLE" :
+               v == VTSS_MM_STATUS_VERIFY_SEND ? "SEND" :
+               v == VTSS_MM_STATUS_VERIFY_WAIT ? "WAIT" :
+               v == VTSS_MM_STATUS_VERIFY_SUCCEEDED ? "SUCCEEDED" :
+               v == VTSS_MM_STATUS_VERIFY_FAILED ? "FAILED" :
+               v == VTSS_MM_STATUS_VERIFY_DISABLED ? "DISABLED" : "?",
+               VTSS_BOOL(status.preemption_active));
         }
         pr("\n");
     }

@@ -53,6 +53,10 @@
 #include <vtss_phy_10g_api.h>
 #endif
 
+#ifdef VTSS_FEATURE_LAYER2
+#include <vtss_tsn_api.h>
+#endif
+
 #ifdef VTSS_FEATURE_QOS
 #include <vtss_qos_api.h>
 #endif

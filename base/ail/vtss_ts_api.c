@@ -404,7 +404,7 @@ vtss_rc vtss_ts_external_clock_saved_get(
 }
 
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 vtss_rc vtss_ts_alt_clock_saved_get(
     const vtss_inst_t           inst,
     u64    *const               saved)
@@ -484,9 +484,9 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t       inst,
     return rc;
 }
 
-#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /*
  * Get the external io mode.
  */
@@ -572,7 +572,7 @@ vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
     VTSS_EXIT();
     return rc;
 }
-#endif // defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#endif // defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 
 /* Set the ingress latency */
 vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t              inst,
@@ -716,7 +716,7 @@ vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t              inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         if ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
                 (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode)) {
             vtss_state->ts.port_conf[port_no].mode = *mode;
@@ -1137,8 +1137,7 @@ vtss_rc vtss_ts_status_change(const vtss_inst_t    inst,
 }
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-#if defined(VTSS_ARCH_JAGUAR_2)
-/* Set auto response behaviour pr. domain. */
+/* Set auto response behavior pr. domain. */
 vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t                  inst,
                                      const u8                           domain,
                                      const vtss_ts_autoresp_dom_cfg_t   *const cfg)
@@ -1179,49 +1178,6 @@ vtss_rc vtss_ts_autoresp_dom_cfg_get(const vtss_inst_t                  inst,
     VTSS_EXIT();
     return rc;
 }
-#endif
-
-#if defined(VTSS_ARCH_JAG3S5)
-vtss_rc vtss_ts_autoresp_ctrl_cfg_set(const vtss_inst_t                   inst,
-                                      const u8                            ctrl,
-                                      const vtss_ts_autoresp_ctrl_cfg_t   *const cfg)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (ctrl < VTSS_TS_RESP_CTRL_ARRAY_SIZE) {
-            vtss_state->ts.auto_resp_cfg[ctrl] = *cfg;
-            VTSS_D("ctrl %d, ptp_port_individual %d, ptp_port_msb %d, ", ctrl, cfg->ptp_port_individual, cfg->ptp_port_msb);
-            rc = VTSS_FUNC(ts.autoresp_cfg_set, ctrl);
-        } else {
-            rc = VTSS_RC_ERROR;
-        }
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_ts_autoresp_ctrl_cfg_get(const vtss_inst_t             inst,
-                                      const u8                      ctrl,
-                                      vtss_ts_autoresp_ctrl_cfg_t   *const cfg)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (ctrl < VTSS_TS_RESP_CTRL_ARRAY_SIZE) {
-            *cfg = vtss_state->ts.auto_resp_cfg[ctrl];
-            VTSS_D("ctrl %d, ptp_port_individual %d, ptp_port_msb %d, ", ctrl, cfg->ptp_port_individual, cfg->ptp_port_msb);
-        }
-    }
-    VTSS_EXIT();
-    return rc;
-}
-#endif
 
 /* Set the source mac address used in autp Delay_Req/Resp */
 vtss_rc vtss_ts_smac_set(const vtss_inst_t    inst,

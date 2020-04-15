@@ -1,0 +1,39 @@
+:vt: VLAN Translation
+
+== Requisite
+
+Create some {vt} entries for a translation group, e.g. a bi-directional
+translation from VLAN 10 to VLAN 20 and an egress translation from VLAN 30
+to VLAN 40.
+
+== Solution
+
+The necessary API for adding new entries to a translation group is
+`mscc-sym:mesa_vlan_trans_group_add` and the container used to pass all the
+relevant information down to the API is `mscc-sym:mesa_vlan_trans_grp2vlan_conf_t`.
+The necessary info to be filled out is the translation group where the entry will be
+added and all the translation parameters, i.e. direction, "external" VLAN and "internal"
+VLAN.
+
+NOTE: A VLAN is marked as either "internal" or "external" in regards to the switch, so
+"external" is the VLAN the frame is tagged with and "internal" is the VLAN it gets
+classified to while inside the switch.
+
+Let's take the case of a bi-directional translation from VLAN 10 to VLAN 20. The following
+code example is using the API to add such an entry; the direction parameter is
+`MESA_VLAN_TRANS_DIR_BOTH`, the "external" VLAN `vid` is 10 and the "internal" VLAN `tvid`
+is 20:
+
+[source,snippet]
+----
+vt.c:translation1
+----
+
+And now for a case of an egress-only translation; the direction parameter will be
+`MESA_VLAN_TRANS_DIR_EGRESS`, the "external" `vid` is 40 and the "internal" VLAN `tvid`
+is 30:
+
+[source,snippet]
+----
+vt.c:translation2
+----

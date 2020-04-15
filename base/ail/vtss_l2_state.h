@@ -57,11 +57,11 @@ typedef struct {
 #define VTSS_PGIDS VTSS_PGID_JAGUAR_2
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_PGID_FA (2048 + 65)
 #undef VTSS_PGIDS
 #define VTSS_PGIDS VTSS_PGID_FA
-#endif /* VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_SPARX5 */
 
 /* Pseudo PGID for IPv4/IPv6 MC */
 #define VTSS_PGID_NONE VTSS_PGIDS
@@ -233,6 +233,37 @@ typedef struct {
 } vtss_vlan_counter_info_t;
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
+#if defined(VTSS_FEATURE_FRER)
+typedef struct {
+    vtss_chip_counter_t out_of_order_packets;
+    vtss_chip_counter_t rogue_packets;
+    vtss_chip_counter_t passed_packets;
+    vtss_chip_counter_t discarded_packets;
+    vtss_chip_counter_t lost_packets;
+    vtss_chip_counter_t tagless_packets;
+    vtss_chip_counter_t resets;
+} vtss_frer_chip_counters_t;
+#endif
+
+#if defined(VTSS_FEATURE_PSFP)
+
+// PSFP Gate Control List maximum length
+#define VTSS_PSFP_GCL_CNT 4
+
+typedef struct {
+    u32             gcl_length;
+    vtss_psfp_gce_t gce[VTSS_PSFP_GCL_CNT];
+} vtss_psfp_gcl_t;
+
+typedef struct {
+    vtss_psfp_gate_conf_t   gate[VTSS_PSFP_GATE_CNT];
+    vtss_psfp_gcl_t         admin_gcl[VTSS_PSFP_GATE_CNT];
+    vtss_psfp_gcl_t         oper_gcl[VTSS_PSFP_GATE_CNT];
+    vtss_psfp_gcl_conf_t    oper_conf[VTSS_PSFP_GATE_CNT];
+    vtss_psfp_filter_conf_t filter[VTSS_PSFP_FILTER_CNT];
+} vtss_psfp_state_t;
+#endif
+
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
 /* Number of sources and destinations */
 #if defined(VTSS_ARCH_LUTON26)
@@ -336,6 +367,7 @@ typedef struct vtss_sdx_entry_t {
     u16                     stat_idx; /* Statistics index */
     u8                      pol_cnt;  /* Policer count */
     u8                      stat_cnt; /* Statistics count */
+    u16                     ms_idx;   /* Member stream index */
     vtss_iflow_conf_t       conf;     /* Ingress flow configuration */
 } vtss_sdx_entry_t;
 
@@ -376,6 +408,9 @@ typedef struct {
     u32               max_count;         /* Maximum number of entries */
     u32               count;             /* Actual number of allocated entries */
     u32               count_size[8 + 1]; /* Actual number per size (0-8) */
+    const             char *name;        /* Name for debugging */
+    vtss_rc (* move)(struct vtss_state_s *vtss_state, u16 idx_old, u16 idx_new, u16 count);
+    vtss_rc (* clear)(struct vtss_state_s *vtss_state, u16 idx);
     vtss_xrow_entry_t *row;              /* Pointer to first row */
 } vtss_xrow_header_t;
 
@@ -408,6 +443,23 @@ typedef struct {
 } vtss_xpol_table_t;
 #endif
 
+#if defined(VTSS_FEATURE_FRER)
+typedef struct {
+    vtss_xrow_header_t hdr;
+    vtss_xrow_entry_t  row[VTSS_MSTREAM_CNT/8];
+} vtss_ms_table_t;
+
+typedef struct {
+    u16 idx; /* Allocated idx */
+    u8  cnt; /* Number of classes, zero means unused */
+    u8  port_list[VTSS_PORT_BF_SIZE];
+} vtss_xms_entry_t;
+
+typedef struct {
+    vtss_xms_entry_t table[VTSS_MSTREAM_CNT];
+} vtss_xms_table_t;
+#endif
+
 #define VTSS_EVC_VOE_IDX_NONE 0xFFFF
 #define VTSS_EVC_MIP_IDX_NONE 0xFFFF
 
@@ -416,7 +468,7 @@ typedef struct {
     u32                 max_count; /* Maximum number of rules */
     u32                 poll_idx;  /* Counter polling index */
 #if defined(VTSS_FEATURE_VOP)
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_sdx_counters_t sdx_table[VTSS_EVC_STAT_CNT];
 #else
     vtss_sdx_counters_t sdx_table[VTSS_SDX_CNT + 1]; /* Allow 1-based indexing (index zero is unused) */
@@ -563,6 +615,27 @@ typedef struct {
     vtss_rc (* isdx_update)(struct vtss_state_s *vtss_state,
                             vtss_sdx_entry_t *sdx);
 #endif
+#if defined(VTSS_FEATURE_FRER)
+    vtss_rc (* cstream_conf_set)(struct vtss_state_s *vtss_state,
+                                 const vtss_frer_cstream_id_t id);
+    vtss_rc (* mstream_conf_set)(struct vtss_state_s *vtss_state,
+                                 const u16 idx);
+    vtss_rc (* cstream_cnt_get)(struct vtss_state_s *vtss_state,
+                                const vtss_frer_cstream_id_t id,
+                                vtss_frer_counters_t *counters);
+    vtss_rc (* mstream_cnt_get)(struct vtss_state_s *vtss_state,
+                                const u16 idx,
+                                vtss_frer_counters_t *counters);
+#endif
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_rc (* psfp_gate_conf_set)(struct vtss_state_s *vtss_state,
+                                   const vtss_psfp_gate_id_t id);
+    vtss_rc (* psfp_gate_status_get)(struct vtss_state_s *vtss_state,
+                                     const vtss_psfp_gate_id_t id,
+                                     vtss_psfp_gate_status_t *const status);
+    vtss_rc (* psfp_filter_conf_set)(struct vtss_state_s *vtss_state,
+                                     const vtss_psfp_filter_id_t id);
+#endif
 
     /* Configuration/state */
     /* Aggregated forwarding information */
@@ -628,7 +701,7 @@ typedef struct {
 
     vtss_sflow_port_conf_t        sflow_conf[VTSS_PORT_ARRAY_SIZE];
     u32                           sflow_max_power_of_two;
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     u32                           sflow_ena_cnt; /* Count - the number of ports on which sFlow is enabled */
 #endif
 
@@ -660,6 +733,18 @@ typedef struct {
 #endif /* VTSS_SDX_CNT */
 #if defined(VTSS_EVC_POL_CNT)
     vtss_dlb_policer_conf_t pol_conf[VTSS_EVC_POL_CNT]; /* Policer configuration */
+#endif
+#if defined(VTSS_FEATURE_FRER)
+    vtss_ms_table_t           ms_table;
+    vtss_xms_table_t          ms;
+    vtss_frer_stream_conf_t   mstream_conf[VTSS_MSTREAM_CNT];
+    vtss_frer_stream_conf_t   cstream_conf[VTSS_CSTREAM_CNT];
+    vtss_frer_chip_counters_t ms_counters[VTSS_MSTREAM_CNT];
+    vtss_frer_chip_counters_t cs_counters[VTSS_CSTREAM_CNT];
+    u32                       poll_idx; /* Counter polling index */
+#endif
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_psfp_state_t psfp;
 #endif
 } vtss_l2_state_t;
 

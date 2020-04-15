@@ -1,0 +1,23 @@
+:vt: VLAN Translation
+
+== Requisite
+
+To change the default port to {vt} group assignment for a given switch port,
+e.g. port 3 to be assigned to translation group 1.
+
+== Solution
+
+The necessary API for assigning a port to a translation group is
+`mscc-sym:mesa_vlan_trans_group_to_port_set` and the container used to pass down all the
+relevant information to the API is the 'struct' `mscc-sym:mesa_vlan_trans_port2grp_conf_t`.
+That info is the translation group that needs to be configured and then a port list
+which is used to specify which ports are to be members of the group.
+
+NOTE: The port list is indexed zero-based.
+
+The following code example will set switch port 3 to translation group 1.
+
+[source,snippet]
+----
+vt.c:port
+----

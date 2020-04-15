@@ -431,7 +431,7 @@ typedef enum {
 #endif /* VTSS_PORT_COUNT < 9 */
 #endif /* VTSS_CHIP_SERVAL_TE10 */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #if (VTSS_PORT_COUNT < 65)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 65 /**< Number of ports */
@@ -484,6 +484,7 @@ typedef enum
     VTSS_PORT_INTERFACE_QXGMII,        /**< 4x2G5 devices. Mode 'R'. Uses 2G5 device.     */
     VTSS_PORT_INTERFACE_DXGMII_5G,     /**< 2x2G5 devices. Mode 'F'. Uses 2G5 device.     */
     VTSS_PORT_INTERFACE_DXGMII_10G,    /**< 2x5G devices.  Mode 'U'. Uses primary device. */
+    VTSS_PORT_INTERFACE_CPU,           /**< Exposed CPU port. Not connected to switch */
 } vtss_port_interface_t;
 
 
@@ -579,10 +580,10 @@ typedef u8 vtss_dp_level_t;
 typedef vtss_dp_level_t vtss_dpl_t;
 #define VTSS_DPLS 2 /**< Default number of drop precedence levels */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #undef VTSS_DPLS
 #define VTSS_DPLS 4 /**< Number of drop precedence levels */
-#endif /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
 #define VTSS_DPL_START      0                            /**< DPL start number */
 #define VTSS_DPL_END        (VTSS_DPL_START + VTSS_DPLS) /**< DPL end number */
@@ -643,7 +644,7 @@ typedef u32 vtss_wred_group_t;
 /** \brief Ingress map ID */
 typedef u16 vtss_qos_ingress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_INGRESS_MAP_IDS      256                                                        /**< Number of IDs */
 #else
 #define VTSS_QOS_INGRESS_MAP_IDS      128                                                        /**< Number of IDs */
@@ -656,7 +657,7 @@ typedef u16 vtss_qos_ingress_map_id_t;
 /** \brief Egress map ID */
 typedef u16 vtss_qos_egress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_EGRESS_MAP_IDS       512                                                        /**< Number of IDs */
 #else
 #define VTSS_QOS_EGRESS_MAP_IDS       256                                                        /**< Number of IDs */
@@ -667,12 +668,30 @@ typedef u16 vtss_qos_egress_map_id_t;
 #define VTSS_QOS_EGRESS_MAP_ID_NONE   VTSS_QOS_MAP_ID_NONE                                       /**< ID for unallocated/unused */
 
 // TBD_VK: Check the defined values when the FA datasheet is available
-#if defined(VTSS_ARCH_JAG3S5)
-#define VTSS_QOS_QBV_GCL_LEN_MAX      64 /**< Maximum supported length of Qbv gate control list */
-#define VTSS_QOS_QBV_CT_MIN          100 /**< Minimum supported Gate CycleTime in nS */
-#define VTSS_QOS_QBV_CT_MAX   1000000000 /**< Maximum supported Gate CycleTime in nS */
-#define VTSS_QOS_QBV_CTE_MAX   999999999 /**< Maximum supported Gate CycleTimeExtension in nS */
-#endif /* defined(VTSS_ARCH_JAG3S5) */
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_QOS_TAS_GCL_LEN_MAX      64 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_CT_MIN          100 /**< Minimum supported Gate CycleTime in nS */
+#define VTSS_QOS_TAS_CT_MAX   1000000000 /**< Maximum supported Gate CycleTime in nS */
+#define VTSS_QOS_TAS_CTE_MAX   999999999 /**< Maximum supported Gate CycleTimeExtension in nS */
+#endif /* defined(VTSS_ARCH_SPARX5) */
+
+// Enable and boolean value
+typedef struct {
+    BOOL enable; // Enable/disable value
+    BOOL value;  // Value
+} vtss_opt_bool_t;
+
+// Enable and priority value
+typedef struct {
+    BOOL        enable; // Enable/disable value
+    vtss_prio_t value;  // Value
+} vtss_opt_prio_t;
+
+// Cycle time
+typedef struct {
+    u32 nsec;     // Nanoseconds
+    u32 nsec_ext; // Nanoseconds extension
+} vtss_cycle_time_t;
 
 /****************************************************************************
  * VLAN types
@@ -808,17 +827,14 @@ typedef u32 vtss_packet_tx_grp_t;
 #define VTSS_PACKET_TX_GRP_CNT      2  /**< Number of Tx packet groups */
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_JAG3S5)
-
-// FA-FIXME
-
+#if defined(VTSS_ARCH_SPARX5)
 #undef  VTSS_PACKET_RX_QUEUE_CNT
-#define VTSS_PACKET_RX_QUEUE_CNT    0  /**< Number of Rx packet queues */
+#define VTSS_PACKET_RX_QUEUE_CNT    8  /**< Number of Rx packet queues */
 #undef  VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT      0  /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT      2  /**< Number of Rx packet groups to which any queue can map */
 #undef  VTSS_PACKET_TX_GRP_CNT
-#define VTSS_PACKET_TX_GRP_CNT      0  /**< Number of Tx packet groups */
-#endif /* VTSS_ARCH_JAG3S5 */
+#define VTSS_PACKET_TX_GRP_CNT      2  /**< Number of Tx packet groups */
+#endif /* VTSS_ARCH_SPARX5 */
 
 #define VTSS_PACKET_RX_QUEUE_NONE  (0xffffffff) /**< Rx queue not selected for a particular type of frames */
 #define VTSS_PACKET_RX_QUEUE_START (0)          /**< Rx queue start number */
@@ -1176,7 +1192,7 @@ typedef u32 vtss_acl_policer_no_t;
 typedef u32 vtss_acl_policy_no_t;
 #define VTSS_ACL_POLICY_NO_NONE  0xffffffff                                     /**< ACLs disabled on port */
 #define VTSS_ACL_POLICY_NO_MIN   0                                              /**< ACLs policy minimum number */
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_ACL_POLICY_NO_MAX   255                                            /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_ACL_POLICY_NO_MAX   127                                            /**< ACLs policy maximum number */

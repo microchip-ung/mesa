@@ -1,0 +1,42 @@
+= README
+
+== README
+
+MESA (Microchip Ethernet Switch API), is a C library supporting the Ethernet
+switches and PHYs in the `vscXXXX` family.
+
+For a gentle introduction introduction MESA (and associated components), then
+read the link:#mesa/docs/introduction[Introduction] section.
+
+If you are in a hurry, then read the link:#mesa/docs/getting-started[Getting
+Started] section.
+
+=== Audience
+
+This material is targeting engineers integrating `vsc` switches and the
+associated SW. The library is written in `C` and it is expected that the
+audience is fluent in `C`.
+
+Even though the MESA library is OS agnostic, a Linux based development
+environment is assumed. The user should also be familiar with normal application
+development under Linux before reading this.
+
+== Readers guide
+
+This is the main MESA documentation. The intension is to over time to collect all
+the relevant documentation into the document.
+
+The documentation material is a combination of release-notes, high-level
+introduction documents, detailed technical documents, C-header files, code
+examples and auto-generated capability information.
+
+The header files should be considered as reference material. This is the real
+header files from the source archives, only processed with color coding, and a
+cross reference DB.
+
+When reading this material, you will find extensive use of cross-references.
+This is to help the reader finding the relevant C-symbols, documents and/or
+examples. Every C symbol is cross-referenced, and it is easy to jump between
+definitions, use of symbol and documents mention a symbol.
+
+

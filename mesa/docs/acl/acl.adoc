@@ -1,0 +1,55 @@
+:sectnums:
+== Access Control List
+
+Advanced frame processing can be setup using the Access Control List (ACL) of the switch.
+Each rule in the list is called an Access Control Entry (ACE). For each frame received on an ingress port,
+the ACL is searched until an ACE matching the ingress port and frame properties is found.
+The action of the first matching ACE determines the forwarding of the frame. If no matching ACE is found,
+the default action of the ingress port is used.
+
+=== ACL Rules
+Each ACE (`mesa_ace_t`) consists of the following fields:
+
+* ACE ID (`mesa_ace_id_t`) identifying the entry
+* ACE action (`mesa_acl_action_t`) describing actions to be applied for frames matching the ACE, for example:
+** Egress port filtering or redirect
+** CPU copy options
+** ACL policer mapping
+** PTP timestamping
+* ACE key fields used for matching received frames, such as:
+** Ingress port list.
+** Classified VLAN fields (`mesa_ace_vlan_t`).
+** Frame type (`mesa_ace_type_t`).
+** Frame type specific fields, for example IPv4 SIP. 
+
+Before adding an ACE (`mesa_ace_add()`), it should be initialized to default values (`mesa_ace_init()`). 
+For each ACE, a hit counter is available (`mesa_ace_counter_t`).
+
+=== ACL Port Configuration
+For each ingress port, the default ACL action and ACL policy can be setup (`mesa_acl_port_conf_t`).
+The ACL policy (`mesa_acl_policy_no_t`) can be used to indicate special processing for frames based on previous classifications:
+
+* Default ACL policy for each ingress port is setup (`mesa_acl_port_conf_t`).
+* VCL rules can override the default ACL policy (`mesa_vce_action_t`).
+* QCL rules can again override the ACL policy (`mesa_qce_action_t`).
+* ACL rules can match on the assigned ACL policy (`mesa_ace_t`).
+
+For each ingress port, a default ACL hit counter is available (`mesa_acl_port_counter_t`).
+
+=== ACL Policers
+The ACL action for an ACE or a port can map to an ACL policer. Each ACL policer can be setup to do bit rate or packet rate policing (`mesa_acl_policer_conf_t`).
+
+=== API Functions
+`mesa_ace_init()` +
+`mesa_ace_add()` +
+`mesa_ace_del()` +
+`mesa_ace_counter_get()` +
+`mesa_ace_counter_clear()` +
+`mesa_ace_status_get()` +
+`mesa_acl_sip_conf_set()` +
+`mesa_acl_port_conf_get()` +
+`mesa_acl_port_conf_set()` +
+`mesa_acl_port_counter_get()` +
+`mesa_acl_port_counter_clear()` +
+`mesa_acl_policer_conf_get()` +
+`mesa_acl_policer_conf_set()`

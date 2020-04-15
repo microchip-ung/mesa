@@ -176,9 +176,6 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
                                     u64                             *ts_cnt,
                                     BOOL                            *timestamp_ok)
 {
-    vtss_timestamp_t ts;
-    u64              tc, tod_cnt, frame_cnt, diff;
-
     if (ts_props.ts_feature_is_PTS) {
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
         u32 packet_ns = fa_packet_unpack32(frm);
@@ -205,29 +202,16 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
         VTSS_I("PHY timestamp feature not supported");
 #endif
     } else {
-        /* The hw_tstamp is 48 bit wrapping */
-        frame_cnt = rx_info->hw_tstamp;
-
-        /* The time of day is sampled 2 or more times pr sec, assumed frame stamping belong to domain 0 */
-        _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
-        tod_cnt = tc & 0xFFFFFFFFFFFF;  /* As frame_cnt is 48 bit wrapping the tod_cnt will also be. */
-
-        if (tod_cnt < frame_cnt) {
-            tod_cnt = tod_cnt + 0x1000000000000; /* tod_cnt is smaller than the frame_ns from the frame. tod_cnt has wrapped */
-        }
-
-        diff = tod_cnt - frame_cnt;  /* Calculate the difference between FRAME and TOD 48 bit wrapping counter */
-        *ts_cnt = tc - diff;
-        VTSS_I("frame_cnt %" PRIu64 "  tod_cnt %" PRIu64 "  ts_cnt %" PRIu64 "  diff %" PRIu64 "  ts.sec %u  ts.ns %u  ts.ns_frac %u  tc %" PRIu64 "", frame_cnt, tod_cnt, *ts_cnt, diff, ts.seconds, ts.nanoseconds, ts.nanosecondsfrac, tc);
-
+        /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits nsec + 16 bits sub nsec) wrapping) */
+        *ts_cnt = rx_info->hw_tstamp;
         *timestamp_ok = rx_info->hw_tstamp_decoded;
         /* if Sync message then subtract the p2p delay from rx time  */
         if (message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC) {
-            ts_cnt = ts_cnt - ts_props.delay_comp.delay_cnt;
+            *ts_cnt = *ts_cnt - ts_props.delay_comp.delay_cnt;
         }
         /* link asymmetry compensation for Sync and PdelayResp events are not done in Jaguar2 on packets forwarded to the CPU */
         if ((message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC || message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_P_DELAY_RESP) && ts_props.delay_comp.asymmetry_cnt != 0) {
-            ts_cnt = ts_cnt - ts_props.delay_comp.asymmetry_cnt;
+            *ts_cnt = *ts_cnt - ts_props.delay_comp.asymmetry_cnt;
         }
     }
     return VTSS_RC_OK;
@@ -791,7 +775,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 /*****************************************************************************/
 // fa_ptp_action_to_ifh()
 /*****************************************************************************/
-static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, BOOL afi, u32 *result)  /* TBD_henrikb */
+static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, uint8_t ptp_domain, BOOL afi, u32 *result)  /* TBD_henrikb */
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -800,30 +784,26 @@ static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, BOOL af
         *result = 1;
         break;
 
-    case VTSS_PACKET_PTP_ACTION_AFI_NONE:
-        if (afi) {
-            *result = 0x018;  // AFI does not work unless REW_CMD[3..0] != 0, so when we want to run AFI but no PTP action, we set bit 3 (add ingress delay) which makes no harm as we don't configure any ingress delay on the CPU port
-        } else {
-            *result = 0;
-        }
-        break;
-
     case VTSS_PACKET_PTP_ACTION_TWO_STEP:
-        *result = 2;
+        *result = 4;
         break;
 
     case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP:
         *result = 3;
-        if (afi) {
-            *result |= 0x10;
-        }
+        break;
+
+    case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ:
+        *result = 7;
         break;
 
     default:
         VTSS_E("Invalid PTP action (%d)", ptp_action);
+        *result = 0;
         rc = VTSS_RC_ERROR;
         break;
     }
+
+    *result = *result | (ptp_domain << 6);
 
     return rc;
 }
@@ -922,10 +902,9 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
 
             rewrite = TRUE;
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting with PTP action: %d, pdu_offset %u", info->ptp_action, info->pdu_offset);
-            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->afi_id != VTSS_AFI_ID_NONE, &rew_cmd)); /* TBD_henrikb */
+            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain, info->afi_id != VTSS_AFI_ID_NONE, &rew_cmd));
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "", rew_cmd, info->ptp_timestamp);
-
-            IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX+32, 8); // VSTAX.REW_CMD = PTP rewrite command. (when FWD_MODE == FWD_LLOOKUP).
+            IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX+32, 10); // VSTAX.REW_CMD = PTP rewrite command. (when FWD_MODE == FWD_LLOOKUP).
             pdu_type = 5; // DST.PDU_TYPE = PTP
             pl_pt = VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE;
         } else if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
@@ -1190,7 +1169,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // Setup CPU port 0 and 1. Only do this if not using VRAP
     for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1 && !vtss_state->sys_config.using_vrap; i++) {
         // Enable IFH insertion upon extraction
-        REG_WRM(VTSS_REW_IFH_CTRL(i), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(1), VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);
+        //        REG_WRM(VTSS_REW_IFH_CTRL(i), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(1), VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);  // TODO: Claus: out of range addressing
 
         // Enable IFH parsing upon injection (no prefix)
         REG_WRM(VTSS_ASM_PORT_CFG(i), VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1), VTSS_M_ASM_PORT_CFG_INJ_FORMAT_CFG);

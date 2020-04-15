@@ -34,13 +34,22 @@ typedef enum {
     MESA_CHIP_FAMILY_SERVALT = 6, /**< Serval-T */
     MESA_CHIP_FAMILY_JAGUAR2 = 7, /**< Jaguar-2 */
     MESA_CHIP_FAMILY_OCELOT  = 8, /**< Ocelot/Ferret */
-    MESA_CHIP_FAMILY_JAGUAR3 = 9, /**< JR3/SparX-5 */
+    MESA_CHIP_FAMILY_SPARX5  = 9, /**< SparX-5 */
 } mesa_chip_family_t;
 
 typedef enum {
     MESA_CPU_TYPE_EXTERNAL,  /**< External CPU */
     MESA_CPU_TYPE_VCORE_III, /**< Internal VCore-III CPU */
 } mesa_cpu_type_t;
+
+typedef enum {
+    MESA_SWITCH_BW_UNKNOWN,  /**< Unknown */
+    MESA_SWITCH_BW_64,       /**< 64Gb  + NPI */
+    MESA_SWITCH_BW_90,       /**< 90Gb  + NPI */
+    MESA_SWITCH_BW_128,      /**< 128Gb + NPI */
+    MESA_SWITCH_BW_160,      /**< 160Gb + NPI */
+    MESA_SWITCH_BW_200,      /**< 200Gb + NPI */
+} mesa_switch_bw_t;
 
 typedef enum {
     // Miscellaneous
@@ -53,6 +62,7 @@ typedef enum {
     MESA_CAP_MISC_CHIP_FAMILY,              /**< Chip family */
     MESA_CAP_MISC_CPU_TYPE,                 /**< CPU type */
     MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC,   /**< Local oscillator is controlled by DAC */
+    MESA_CAP_MISC_SWITCH_BW,                /**< Max switching Bandwidth in Gbps */
 
     // Port
     MESA_CAP_PORT_CNT = 100,                /**< Maximum number of ports */
@@ -119,6 +129,15 @@ typedef enum {
     MESA_CAP_L2_XFLOW,                      /**< Ingress and egress flows */
     MESA_CAP_L2_XSTAT,                      /**< Ingress and egress statistics */
     MESA_CAP_L2_XDLB,                       /**< DLB policers allocated dynamically */
+    MESA_CAP_L2_TPID_AWARE,                 /**< Full VLAN awareness */
+    MESA_CAP_L2_FRER,                       /**< FRER */
+    MESA_CAP_L2_FRER_MSTREAM_CNT,           /**< Number of FRER Member Streams */
+    MESA_CAP_L2_FRER_CSTREAM_CNT,           /**< Number of FRER Compound Streams */
+    MESA_CAP_L2_PSFP,                       /**< PSFP */
+    MESA_CAP_L2_PSFP_GATE_CNT,              /**< Number of PSFP gates */
+    MESA_CAP_L2_PSFP_FILTER_CNT,            /**< Number of PSFP filters */
+    MESA_CAP_L2_VCL_KEY_DMAC,               /**< VCL key DMAC support */
+    MESA_CAP_L2_VCL_KEY_DIP,                /**< VCL key DIP support */
 
     // Layer 3
     MESA_CAP_L3 = 500,                      /**< Layer 3 switching */
@@ -149,6 +168,7 @@ typedef enum {
     MESA_CAP_QOS_PORT_POLICER_EXT_TTM,      /**< Traffic type mask */
     MESA_CAP_QOS_QBV,                       /**< 802.1Qbv (Enhancements for Scheduled Traffic) */
     MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_EB,   /**< Queue shaper excess bandwidth */
+    MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB,  /**< Queue shaper credit based */
     MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH,  /**< Queue shaper cut through */
     MESA_CAP_QOS_DSCP_REMARK_DP_AWARE,      /**< DSCP remarking DP aware */
     MESA_CAP_QOS_QCL_KEY_TYPE,              /**< QCL key type */
@@ -279,7 +299,7 @@ typedef enum {
     // OAM
     MESA_CAP_VOP = 1200,                    /**< OAM/VOE support */
     MESA_CAP_VOP_V1,                        /**< OAM generation 1 (Serval-1) */
-    MESA_CAP_VOP_V2,                        /**< OAM generation 2 (Jaguar-2/Serval-T/Jaguar3-S5) */
+    MESA_CAP_VOP_V2,                        /**< OAM generation 2 (Jaguar-2/Serval-T/SparX-5) */
     MESA_CAP_VOP_PATH_SERVICE_VOE_CNT,      /**< Number of possible path/service VOEs */
     MESA_CAP_VOP_PORT_VOE_CNT,              /**< Number of possible port VOEs */
     MESA_CAP_VOP_VOE_CNT,                   /**< Total count of VOEs */
@@ -323,7 +343,6 @@ typedef enum {
     MESA_CAP_TS_ALT_CLOCK,                  /**< Alternative clock mode */
     MESA_CAP_TS_OAM,                        /**< OAM timestamp */
     MESA_CAP_TS_DELAY_REQ_AUTO_RESP,        /**< Delay request/response processing per MESA_CAP_TS_DOMAIN_CNT number of domains. */
-    MESA_CAP_TS_DELAY_REQ_AUTO_RESP_CTRL,   /**< Delay request/response processing per MESA_CAP_TS_RESP_CTRL_CNT number of controllers. */
     MESA_CAP_TS_PTP_RS422,                  /**< RS422 Timestamp based interface supported  */
     MESA_CAP_TS_MISSING_PTP_ON_INTERNAL_PORTS,    /**< Indicates that support for PTP on internal ports is missing */
     MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS,     /**< Indicates that PPS can be configured to use an I/O pin */

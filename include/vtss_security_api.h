@@ -218,18 +218,18 @@ typedef enum
 {
     VTSS_ACL_PTP_ACTION_NONE,                 /**< No PTP action */
     VTSS_ACL_PTP_ACTION_ONE_STEP,             /**< PTP one-step time-stamping */
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY,   /**< PTP one-step time-stamping, Serval: add delay, Jr2: Add EDLY */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1, /**< PTP one-step time-stamping, Serval: subtract delay 1, Jr2: Add IDLY1 */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2, /**< PTP one-step time-stamping, Serval: subtract delay 2, Jr2: Add IDLY2 */
-#endif /* VTSS_ARCH_SERVAL/JAGUAR_2/JAG3S5 */
+#endif
 #if defined(VTSS_ARCH_LUTON26)
     VTSS_ACL_PTP_ACTION_ONE_AND_TWO_STEP,     /**< PTP one-step and two-step time-stamping */
 #endif /* VTSS_ARCH_LUTON26 */
     VTSS_ACL_PTP_ACTION_TWO_STEP              /**< PTP two-step time-stamping */
 } vtss_acl_ptp_action_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief ACL Source IP index. For IPv6 entries, it must be divisible by 4 and consumes 4 rules **/
 typedef u8 vtss_acl_sip_idx_t;
 
@@ -287,7 +287,7 @@ typedef struct {
     vtss_mac_t             mac;     /**< MAC address used for replace operations */
     vtss_acl_sip_idx_t     sip_idx; /**< Source IP index */
 } vtss_acl_addr_action_t;
-#endif /* VTSS_ARCH_JAGUAR_2/JAG3S5 */
+#endif
 
 /** \brief ACL Action */
 typedef struct
@@ -306,17 +306,17 @@ typedef struct
     BOOL                       port_list[VTSS_PORT_ARRAY_SIZE]; /**< Egress port list */
     BOOL                       mirror;         /**< Enable mirroring */
     vtss_acl_ptp_action_t      ptp_action;     /**< PTP action */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_acl_ptp_action_conf_t ptp;            /**< PTP configuration */
     vtss_acl_addr_action_t     addr;           /**< Address update configuration */
-#endif /* VTSS_ARCH_JAGUAR_2/JAG3S5 */
+#endif
 #if defined(VTSS_ARCH_SERVAL)
     BOOL                       lm_cnt_disable; /**< Disable OAM LM Tx counting */
 #endif /* VTSS_ARCH_SERVAL */
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     BOOL                       mac_swap;       /**< Swap SMAC and DMAC */
     BOOL                       ifh_flag;       /**< Control one target specific bit in IFH */
-#endif /* VTSS_ARCH_SERVAL/JAGUAR_2/JAG3S5 */
+#endif
 } vtss_acl_action_t;
 
 /** \brief ACL port configuration */

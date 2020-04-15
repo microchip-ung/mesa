@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,8 @@
 */
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
 #include "vtss_fa_cil.h"
+#include "vtss_fa_sd10g28_setup.h"
+#include "vtss_fa_sd25g28_setup.h"
 
 #if defined(VTSS_ARCH_FA)
 
@@ -173,6 +175,182 @@ u32 vtss_to_sd_lane(u32 indx)
     }
 }
 
+u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
+
+    u32 serdes_no;
+    u32 sd_type;
+
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &serdes_no, &sd_type));
+
+    if (cmu_type == 0) {
+        // Main CMU of FA
+        if (serdes_no < 8 ) {
+            return 2;
+        } else if (serdes_no < 16 ) {
+            return 5;
+        } else if (serdes_no == 16) {
+            return 8;
+        } else {
+            return 11;
+        }
+    } else if ( cmu_type == 1) {
+        // AUX1 CMU of FA
+        if (serdes_no < 2 ) {
+            return 0;
+        } else if (serdes_no < 10 ) {
+            return 3;
+        } else if (serdes_no < 16) {
+            return 6;
+        } else if (serdes_no < 19) {
+            return 9;
+        } else {
+            return 12;
+        }
+    } else {
+        // AUX2 CMU of FA
+        if (serdes_no < 4 ) {
+            return 1;
+        } else if (serdes_no < 12 ) {
+            return 4;
+        } else if (serdes_no < 17) {
+            return 7;
+        } else if (serdes_no < 21) {
+            return 10;
+        } else {
+            return 13;
+        }
+    }
+}
+
+#define FA_DEBUG_LANE(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_SD10G_LANE_TARGET_LANE_##addr, i,\
+(sd_type == FA_SERDES_TYPE_10G) ? "VTSS_SD10G_LANE_TARGET_LANE_"name : "VTSS_SD6G_LANE_TARGET_LANE_"name)
+#define FA_DEBUG_25G_LANE(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_SD25G_TARGET_CMU_##addr, i, "VTSS_SD25G_TARGET_CMU_"name)
+
+vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
+                             const vtss_debug_printf_t pr,
+                             const vtss_debug_info_t   *const info,
+                             vtss_port_no_t port_no)
+{
+
+    u32  sd_type, indx, sd_tgt;
+
+    /* Map API port to Serdes instance */
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type));
+
+    if (sd_type == FA_SERDES_TYPE_6G) {
+        sd_tgt = VTSS_TO_SD6G_LANE(indx);
+    } else if (sd_type == FA_SERDES_TYPE_10G) {
+        sd_tgt = VTSS_TO_SD10G_LANE(indx);
+    } else {
+        sd_tgt = VTSS_TO_SD25G_LANE(indx);
+    }
+
+    if (sd_type == FA_SERDES_TYPE_25G) {
+        FA_DEBUG_25G_LANE(pr, FF(sd_tgt), indx, "FF");
+        FA_DEBUG_25G_LANE(pr, 31(sd_tgt), indx, "31");
+        FA_DEBUG_25G_LANE(pr, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_25G_LANE(pr, 40(sd_tgt), indx, "40");
+        FA_DEBUG_25G_LANE(pr, 46(sd_tgt), indx, "46");
+        FA_DEBUG_25G_LANE(pr, 45(sd_tgt), indx, "45");
+        FA_DEBUG_25G_LANE(pr, 0B(sd_tgt), indx, "0B");
+        FA_DEBUG_25G_LANE(pr, 19(sd_tgt), indx, "19");
+        FA_DEBUG_25G_LANE(pr, 18(sd_tgt), indx, "18");
+        FA_DEBUG_25G_LANE(pr, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_25G_LANE(pr, 30(sd_tgt), indx, "30");
+        FA_DEBUG_25G_LANE(pr, 0C(sd_tgt), indx, "0C");
+        FA_DEBUG_25G_LANE(pr, 0D(sd_tgt), indx, "0D");
+        FA_DEBUG_25G_LANE(pr, 0E(sd_tgt), indx, "0E");
+        FA_DEBUG_25G_LANE(pr, 01(sd_tgt), indx, "01");
+        FA_DEBUG_25G_LANE(pr, 18(sd_tgt), indx, "18");
+        FA_DEBUG_25G_LANE(pr, 2C(sd_tgt), indx, "2C");
+        FA_DEBUG_25G_LANE(pr, 28(sd_tgt), indx, "28");
+        FA_DEBUG_25G_LANE(pr, 01(sd_tgt), indx, "01");
+        FA_DEBUG_25G_LANE(pr, 0F(sd_tgt), indx, "0F");
+        FA_DEBUG_25G_LANE(pr, 1D(sd_tgt), indx, "1D");
+        FA_DEBUG_25G_LANE(pr, 19(sd_tgt), indx, "19");
+        FA_DEBUG_25G_LANE(pr, 01(sd_tgt), indx, "01");
+        FA_DEBUG_25G_LANE(pr, 03(sd_tgt), indx, "03");
+        FA_DEBUG_25G_LANE(pr, 06(sd_tgt), indx, "06");
+        FA_DEBUG_25G_LANE(pr, 07(sd_tgt), indx, "07");
+        FA_DEBUG_25G_LANE(pr, 43(sd_tgt), indx, "43");
+        FA_DEBUG_25G_LANE(pr, 43(sd_tgt), indx, "42");
+        FA_DEBUG_25G_LANE(pr, 05(sd_tgt), indx, "05");
+        FA_DEBUG_25G_LANE(pr, 0A(sd_tgt), indx, "0A");
+        FA_DEBUG_25G_LANE(pr, 09(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(pr, 1B(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(pr, 2E(sd_tgt), indx, "2E");
+        FA_DEBUG_25G_LANE(pr, 44(sd_tgt), indx, "44");
+        FA_DEBUG_25G_LANE(pr, 22(sd_tgt), indx, "22");
+        FA_DEBUG_25G_LANE(pr, 1C(sd_tgt), indx, "1C");
+        FA_DEBUG_25G_LANE(pr, 1E(sd_tgt), indx, "1E");
+        FA_DEBUG_25G_LANE(pr, 25(sd_tgt), indx, "25");
+        FA_DEBUG_25G_LANE(pr, 26(sd_tgt), indx, "26");
+        FA_DEBUG_25G_LANE(pr, 18(sd_tgt), indx, "18");
+        FA_DEBUG_25G_LANE(pr, 40(sd_tgt), indx, "40");
+        FA_DEBUG_25G_LANE(pr, 04(sd_tgt), indx, "04");
+        FA_DEBUG_25G_LANE(pr, 1E(sd_tgt), indx, "1E");
+        FA_DEBUG_25G_LANE(pr, 2E(sd_tgt), indx, "2E");
+        FA_DEBUG_25G_LANE(pr, 1C(sd_tgt), indx, "1C");
+        FA_DEBUG_25G_LANE(pr, C0(sd_tgt), indx, "C0");
+
+    } else {
+
+        FA_DEBUG_LANE(pr, 93(sd_tgt), indx, "93");
+        FA_DEBUG_LANE(pr, 94(sd_tgt), indx, "94");
+        FA_DEBUG_LANE(pr, 9E(sd_tgt), indx, "9E");
+        FA_DEBUG_LANE(pr, A1(sd_tgt), indx, "A1");
+        FA_DEBUG_LANE(pr, 50(sd_tgt), indx, "50");
+        FA_DEBUG_LANE(pr, 35(sd_tgt), indx, "35");
+        FA_DEBUG_LANE(pr, 01(sd_tgt), indx, "01");
+        FA_DEBUG_LANE(pr, 30(sd_tgt), indx, "30");
+        FA_DEBUG_LANE(pr, A2(sd_tgt), indx, "A2");
+        FA_DEBUG_LANE(pr, 13(sd_tgt), indx, "13");
+        FA_DEBUG_LANE(pr, 23(sd_tgt), indx, "23");
+        FA_DEBUG_LANE(pr, 22(sd_tgt), indx, "22");
+        FA_DEBUG_LANE(pr, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_LANE(pr, 02(sd_tgt), indx, "02");
+        FA_DEBUG_LANE(pr, 03(sd_tgt), indx, "03");
+        FA_DEBUG_LANE(pr, 04(sd_tgt), indx, "04");
+        FA_DEBUG_LANE(pr, 2F(sd_tgt), indx, "2F");
+        FA_DEBUG_LANE(pr, 0B(sd_tgt), indx, "0B");
+        FA_DEBUG_LANE(pr, 0D(sd_tgt), indx, "0D");
+        FA_DEBUG_LANE(pr, 0E(sd_tgt), indx, "0E");
+        FA_DEBUG_LANE(pr, 23(sd_tgt), indx, "23");
+        FA_DEBUG_LANE(pr, 06(sd_tgt), indx, "06");
+        FA_DEBUG_LANE(pr, 33(sd_tgt), indx, "33");
+        FA_DEBUG_LANE(pr, 52(sd_tgt), indx, "52");
+        FA_DEBUG_LANE(pr, 37(sd_tgt), indx, "37");
+        FA_DEBUG_LANE(pr, 3C(sd_tgt), indx, "3C");
+        FA_DEBUG_LANE(pr, 39(sd_tgt), indx, "39");
+        FA_DEBUG_LANE(pr, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_LANE(pr, 16(sd_tgt), indx, "16");
+        FA_DEBUG_LANE(pr, 15(sd_tgt), indx, "15");
+        FA_DEBUG_LANE(pr, 26(sd_tgt), indx, "26");
+        FA_DEBUG_LANE(pr, 42(sd_tgt), indx, "42");
+        FA_DEBUG_LANE(pr, 0F(sd_tgt), indx, "0F");
+        FA_DEBUG_LANE(pr, 24(sd_tgt), indx, "24");
+        FA_DEBUG_LANE(pr, 14(sd_tgt), indx, "14");
+        FA_DEBUG_LANE(pr, 3A(sd_tgt), indx, "3A");
+        FA_DEBUG_LANE(pr, 31(sd_tgt), indx, "31");
+        FA_DEBUG_LANE(pr, 48(sd_tgt), indx, "48");
+        FA_DEBUG_LANE(pr, 36(sd_tgt), indx, "36");
+        FA_DEBUG_LANE(pr, 32(sd_tgt), indx, "32");
+        FA_DEBUG_LANE(pr, 37(sd_tgt), indx, "37");
+        FA_DEBUG_LANE(pr, 41(sd_tgt), indx, "41");
+        FA_DEBUG_LANE(pr, 9E(sd_tgt), indx, "9E");
+        FA_DEBUG_LANE(pr, 0C(sd_tgt), indx, "0C");
+        FA_DEBUG_LANE(pr, 0B(sd_tgt), indx, "0B");
+        FA_DEBUG_LANE(pr, 83(sd_tgt), indx, "83");
+        FA_DEBUG_LANE(pr, 06(sd_tgt), indx, "06");
+        FA_DEBUG_LANE(pr, 9E(sd_tgt), indx, "9E");
+        FA_DEBUG_LANE(pr, 83(sd_tgt), indx, "83");
+        FA_DEBUG_LANE(pr, 50(sd_tgt), indx, "50");
+        FA_DEBUG_LANE(pr, 34(sd_tgt), indx, "34");
+    }
+    return VTSS_RC_OK;
+}
+
+
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
 {
     u32 p = VTSS_CHIP_PORT(port_no);
@@ -270,185 +448,44 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 idx)
+/* Returns index 0-12 for 6G ports  */
+/* Returns index 0-11 for 10G ports */
+/* Returns index 0-7  for 25G ports  */
+u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-
-  /* erf_wr -u sd_lane_$idx2 sd_lane_cfg ext_cfg_rst 0 */
-  /* exb_run $rst_dly_ps ps */
-
-  /* # According to communication from GUC, this enables the L1_lol */
-  /* # signal on dbg_obs[0]. */
-  /* # Select CMU part of SD25G */
-  /* erf_wr -u sd25g_lane_$idx cmu_ff register_table_index 0xff */
-  /* erf_wr -u sd25g_lane_$idx cmu_2a r_dbg_lol_status 1 */
-  /* # Select LANE part of SD25G */
-  /* erf_wr -u sd25g_lane_$idx cmu_ff register_table_index 0x00 */
-  /* erf_wr -u sd25g_lane_$idx lane_39 Ln_r_dlol_en 1 */
-
-  /* erf_wr -u  sd_lane_$idx2 sd_lane_cfg macro_rst 0 */
-  /* # ToDo: Anything more to do here? Pending GUC supplying needed info. */
-
-return VTSS_RC_OK;
-
-}
-
-vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id)
-{
-    u32 cmu_tgt = VTSS_TO_SD_CMU(cmu_id);
-    u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_id);
-
- //  erf_wr -u  sd_cmu_cfg_$idx     sd_cmu_cfg  cmu_rst                   1
-    REG_WRM(VTSS_SD_CMU_NONTERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
-            VTSS_F_SD_CMU_NONTERM_TARGET_SD_CMU_CFG_CMU_RST(1),
-            VTSS_M_SD_CMU_NONTERM_TARGET_SD_CMU_CFG_CMU_RST);
-
-//  erf_wr -u  sd_cmu_$idx          cmu_00      r_hwt_simulation_mode     1
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_00(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_00_R_HWT_SIMULATION_MODE(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_00_R_HWT_SIMULATION_MODE);
-
-//   erf_wr -u  sd_cmu_cfg_$idx     sd_cmu_cfg  cmu_rst                   0
-    REG_WRM(VTSS_SD_CMU_NONTERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
-            VTSS_F_SD_CMU_NONTERM_TARGET_SD_CMU_CFG_CMU_RST(0),
-            VTSS_M_SD_CMU_NONTERM_TARGET_SD_CMU_CFG_CMU_RST);
-
-//  erf_wr -s  sd_cmu_$idx    cmu_45             r_en_ratechg_ctrl         0    ;#  bit 0 -- NON PCIE!!!
-//  #@Tr: 1) => erf_wr -s  sd_cmu_$idx    cmu_45             r_DwidthCtrl_from_hwt     0    ;#  bit 1
-//  erf_wr -s  sd_cmu_$idx    cmu_45             r_refck_ssc_en_from_hwt   0    ;#  bit 3
-//  #@Tr: 3) => erf_wr -s  sd_cmu_$idx    cmu_45             r_link_buf_en_from_hwt    0    ;#  bit 5
-//  #@Tr: 2) => erf_wr -s  sd_cmu_$idx    cmu_45             r_bias_en_from_hwt        0    ;#  bit 6
-//  erf_wr -u  sd_cmu_$idx    cmu_45             r_auto_rst_tree_pd_man    1    ;#  bit 7
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_45(cmu_tgt),
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_REFCK_SSC_EN_FROM_HWT(0) |
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_LINK_BUF_EN_FROM_HWT(0) |
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_DWIDTHCTRL_FROM_HWT(0) |
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_AUTO_RST_TREE_PD_MAN(1) |
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_BIAS_EN_FROM_HWT(0) |
-        VTSS_F_SD10G_CMU_TARGET_CMU_45_R_EN_RATECHG_CTRL(0),
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_REFCK_SSC_EN_FROM_HWT |
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_LINK_BUF_EN_FROM_HWT |
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_DWIDTHCTRL_FROM_HWT |
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_AUTO_RST_TREE_PD_MAN |
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_BIAS_EN_FROM_HWT |
-        VTSS_M_SD10G_CMU_TARGET_CMU_45_R_EN_RATECHG_CTRL);
-
-//  erf_wr -u  sd_cmu_$idx    cmu_1C             cfg_reserve_15_8           0    ;#  bit 0 = 0
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_1C(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_1C_CFG_RESERVE_15_8(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_1C_CFG_RESERVE_15_8);
-
-//  #@Tr: 1) => erf_wr -u  sd_cmu_$idx    cmu_47             r_pcs2pma_phymode         0    ;#  r_pcs2pma_phymode[4:0] (others)
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_47(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_47_R_PCS2PMA_PHYMODE_4_0(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_47_R_PCS2PMA_PHYMODE_4_0);
-
-//  #@Tr: 1) => erf_wr -u  sd_cmu_$idx    cmu_1A             cfg_refck_r_en            1    ;#
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_1A(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_1A_CFG_REFCK_R_EN(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_1A_CFG_REFCK_R_EN);
-
-
-  /* #erf_wr -u  sd_cmu_$idx    cmu_15             cfg_sel_div               0    ;# 5'b00000 : 64 */
-  /* #                                                                                ;# 5'b00001 : 66 */
-  /* #                                                                                ;# 5'b00010 : 80 */
-  /* #                                                                                ;# 5'b00011 : 100 */
-  /* #                                                                                ;# 5'b00100 : 120 */
-  /* #                                                                                ;# 5'b01100 : 480 */
-  /* #                                                                                ;# 5'b10100 : 240 */
-  /* #                                                                                ;# Others :  not used */
-  /* #@Tr: 1) => switch $idx { */
-  /* #@Tr: 1) =>     0 - 3 - 6 { */
-  /* #@Tr: 1) =>         # AUXCK1 CMU  10.00GHz   = 156.25MHz * 64 */
-  /* #@Tr: 1) =>         erf_wr -u  sd_cmu_$idx    cmu_15     cfg_sel_div               0    ;# */
-  /* #@Tr: 1) =>     } */
-  /* #@Tr: 1) =>     1 - 4 - 7 { */
-  /* #@Tr: 1) =>         # AUXCK2 CMU  12.50GHz   = 156.25MHz * 80 */
-  /* #@Tr: 1) =>         erf_wr -u  sd_cmu_$idx    cmu_15     cfg_sel_div               2    ;# */
-  /* #@Tr: 1) =>     } */
-  /* #@Tr: 1) =>     default { */
-  /* #@Tr: 1) =>         # MAIN CMU    10.3125GHz = 156.25MHz * 66 */
-  /* #@Tr: 1) =>         erf_wr -u  sd_cmu_$idx    cmu_15     cfg_sel_div               1    ;# */
-  /* #@Tr: 1) =>     } */
-  /* #@Tr: 1) => } */
-
-
-//  #@Tr: 1) => erf_wr -u  sd_cmu_$idx    cmu_0A             cfg_vco_div_mode          0    ;#  bit 2:0 1/1
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0A(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_0A_CFG_VCO_DIV_MODE_2_0(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_0A_CFG_VCO_DIV_MODE_2_0);
-
-//  erf_wr -u  sd_cmu_$idx    cmu_22             cfg_refck_ssc_en          0    ;#  bit 0
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_22(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_22_CFG_REFCK_SSC_EN(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_22_CFG_REFCK_SSC_EN);
-
-  /* #@Tr: 3) => erf_wr -u  sd_cmu_$idx    cmu_20             cfg_link_buf_en           0    ;#  bit 0 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_20(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_20_CFG_LINK_BUF_EN(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_20_CFG_LINK_BUF_EN);
-
-    /* #@Tr: 2) => erf_wr -s  sd_cmu_$idx    cmu_1F             cfg_bias_dn_en            1    ;#  bit 0 */
-    /* #@Tr: 2) => erf_wr -u  sd_cmu_$idx    cmu_1F             cfg_bias_up_en            1    ;#  bit 1 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_1F(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_1F_CFG_BIAS_UP_EN(1) |
-            VTSS_F_SD10G_CMU_TARGET_CMU_1F_CFG_BIAS_DN_EN(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_1F_CFG_BIAS_UP_EN |
-            VTSS_M_SD10G_CMU_TARGET_CMU_1F_CFG_BIAS_DN_EN);
-
-/* erf_wr -s  sd_cmu_$idx    cmu_09             cfg_en_tx_ck_up           1    ;#  bit 0 */
-/* erf_wr -u  sd_cmu_$idx    cmu_09             cfg_en_tx_ck_dn           1    ;#  bit 1 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_09(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_DN(1) |
-            VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_UP(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_DN |
-            VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_UP);
-
-  /* erf_wr -u  sd_cmu_$idx    cmu_1F             cfg_vtune_sel             1    ;# */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_1F(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_1F_CFG_VTUNE_SEL(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_1F_CFG_VTUNE_SEL);
-
-  /* erf_wr -u  sd_cmu_$idx    cmu_05             cfg_bias_tp_sel_1_0       3    ;#  bit 5:4 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_05(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_05_CFG_BIAS_TP_SEL_1_0(3),
-            VTSS_M_SD10G_CMU_TARGET_CMU_05_CFG_BIAS_TP_SEL_1_0);
-
-  /* erf_wr -u  sd_cmu_$idx    cmu_30             r_pll_dlol_en             1    ;#  bit 0 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_30(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_30_R_PLL_DLOL_EN(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_30_R_PLL_DLOL_EN);
-
-  /* #@Tr: 4) => erf_wr -u  sd_cmu_$idx    cmu_44             r_pll_rstn                0    ;#  bit 0 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_44(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_44_R_PLL_RSTN(0),
-            VTSS_M_SD10G_CMU_TARGET_CMU_44_R_PLL_RSTN);
-
-  /* #@Tr: 4) => erf_wr -u  sd_cmu_$idx    cmu_44             r_pll_rstn                1    ;#  bit 0 */
-    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_44(cmu_tgt),
-            VTSS_F_SD10G_CMU_TARGET_CMU_44_R_PLL_RSTN(1),
-            VTSS_M_SD10G_CMU_TARGET_CMU_44_R_PLL_RSTN);
-
-    return VTSS_RC_OK;
+    u32 sd_indx = 0, sd_type;
+    (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
+    return sd_indx;
 }
 
 
-static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode, u32 sd_indx)
+static vtss_sd10g28_preset_t serdes2preset(vtss_serdes_mode_t m)
+{
+    switch (m) {
+    case VTSS_SD10G_MEDIA_SR:     return(VTSS_SD10G28_SR);
+    case VTSS_SD10G_MEDIA_ZR:     return(VTSS_SD10G28_ZR);
+    case VTSS_SD10G_MEDIA_DAC:    return(VTSS_SD10G28_DAC3M);
+    case VTSS_SD10G_MEDIA_DAC_5M: return(VTSS_SD10G28_DAC5M);
+    case VTSS_SD10G_MEDIA_BP:     return(VTSS_SD10G28_KR);
+    case VTSS_SD10G_MEDIA_B2B:    return(VTSS_SD10G28_KR);
+    case VTSS_SD10G_MEDIA_10G_KR: return(VTSS_SD10G28_KR);
+    default:
+    return(VTSS_SD10G28_PRESET_NONE);
+    }
+}
+
+static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
-    u32 sd_lane_tgt = 0;
-    u32 pcs2pma_tx_speed = 0;
-    u32 txfifo_ck_div = 0;
-    u32 rxfifo_ck_div = 0;
-    u32 hwt_cfg_sel_div = 0;
-    u32 hwt_vco_div_sel = 0;
-    u32 hwt_pre_divsel = 0;
-    u32 pma_rxdiv_sel = 0;
-    u32 data_width_sel = 0;
-    u32 pma_txck_sel = 0;
-    u32 txrate_sel = 0;
-    u32 rxrate_sel = 0;
+    vtss_sd25g28_setup_args_t sd_cfg = {0};
 
-    /* Apply the serdes mode */
+    sd_cfg.chip_name = VTSS_SD25G28_CHIP_ANT;
+    sd_cfg.txinvert = 0;
+    sd_cfg.rxinvert = 1;
+    sd_cfg.txswing = 240;
+    sd_cfg.reg_ctrl = 1;
+
+     /* Apply the serdes mode */
     switch (mode) {
         case VTSS_SERDES_MODE_IDLE:
         case VTSS_SERDES_MODE_SFI_DAC:
@@ -460,448 +497,67 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         case VTSS_SERDES_MODE_SFI_KR:
         case VTSS_SERDES_MODE_SFI: {
             if (speed == VTSS_SPEED_25G) {
-                /* 25.78125G 40-bit */
-                pcs2pma_tx_speed = 2;
-                txfifo_ck_div    = 0;
-                rxfifo_ck_div    = 0;
-                hwt_cfg_sel_div  = 0xf;
-                hwt_vco_div_sel  = 0;
-                hwt_pre_divsel   = 1;
-                pma_rxdiv_sel    = 3;
-                data_width_sel   = 4;
-                pma_txck_sel     = 3;
-                txrate_sel       = 0;
-                rxrate_sel       = 0;
+                sd_cfg.mode = VTSS_SD25G28_MODE_25G_LAN;
             } else if (speed == VTSS_SPEED_10G) {
-                /* 10.3125G 64-bit */
-                pcs2pma_tx_speed = 0;
-                txfifo_ck_div    = 2;
-                rxfifo_ck_div    = 2;
-                hwt_cfg_sel_div  = 0x9;
-                hwt_vco_div_sel  = 1;
-                hwt_pre_divsel   = 0;
-                pma_rxdiv_sel    = 0;
-                data_width_sel   = 5;
-                pma_txck_sel     = 0;
-                txrate_sel       = 0;
-                rxrate_sel       = 0;
+                sd_cfg.mode = VTSS_SD25G28_MODE_10G_LAN;
             } else if (speed == VTSS_SPEED_5G) {
-
+                sd_cfg.mode = VTSS_SD25G28_MODE_5G_LAN;
+            } else {
+                VTSS_E("Illegal speed");
+            }
+            break;
+        }
+        case VTSS_SERDES_MODE_USXGMII: {
+            if (speed == VTSS_SPEED_10G) {
+                sd_cfg.mode = VTSS_SD25G28_MODE_10G_DSXGMII;
+            } else if (speed == VTSS_SPEED_5G) {
+                sd_cfg.mode = VTSS_SD25G28_MODE_5G_USXGMII;
             }
             break;
         }
         case VTSS_SERDES_MODE_2G5: {
-            /* 3.125G 10-bit */
-            pcs2pma_tx_speed = 1;
-            txfifo_ck_div    = 0;
-            rxfifo_ck_div    = 0;
-            hwt_cfg_sel_div  = 0x6;
-            hwt_vco_div_sel  = 1;
-            hwt_pre_divsel   = 0;
-            pma_rxdiv_sel    = 11;
-            data_width_sel   = 0;
-            pma_txck_sel     = 11;
-            txrate_sel       = 2;
-            rxrate_sel       = 2;
+            sd_cfg.mode = VTSS_SD25G28_MODE_SGMII2G5;
             break;
         }
         case VTSS_SERDES_MODE_SGMII:
-        case VTSS_SERDES_MODE_1000BaseX:
-        case VTSS_SERDES_MODE_USXGMII:
-        case VTSS_SERDES_MODE_USGMII:
-        case VTSS_SERDES_MODE_QSGMII:
-        case VTSS_SERDES_MODE_100FX:
+        case VTSS_SERDES_MODE_1000BaseX: {
+            sd_cfg.mode = VTSS_SD25G28_MODE_SGMII;
+            break;
+        }
+
+        case VTSS_SERDES_MODE_QSGMII: {
+            sd_cfg.mode = VTSS_SD25G28_MODE_10G_QSXGMII;
+            break;
+        }
+        case VTSS_SERDES_MODE_100FX: {
+            sd_cfg.mode = VTSS_SD25G28_MODE_FX100;
+            break;
+        }
         default: {
-            VTSS_E("Serdes mode (%s) not supported",vtss_serdes_mode_txt(mode));
+            VTSS_E("Serdes mode (%d) not supported",mode);
             return VTSS_RC_ERROR;
         }
     }
-    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
 
-// Need a new VML drop to support the 25G serdes.
-// To silence the compiler
-    REG_WR(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
-            pcs2pma_tx_speed+txfifo_ck_div+rxfifo_ck_div+hwt_cfg_sel_div+hwt_vco_div_sel+
-           hwt_pre_divsel+pma_rxdiv_sel+data_width_sel+ pma_txck_sel+txrate_sel+rxrate_sel);
-
-
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 pcs2pma_tx_speed [lindex $sd_params 0] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 txfifo_ck_div    [lindex $sd_params 1] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 rxfifo_ck_div    [lindex $sd_params 2] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 hwt_cfg_sel_div  [lindex $sd_params 3] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 hwt_vco_div_sel  [lindex $sd_params 4] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 hwt_pre_divsel   [lindex $sd_params 5] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 pma_rxdiv_sel    [lindex $sd_params 6] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 data_width_sel   [lindex $sd_params 7] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 pma_txck_sel     [lindex $sd_params 8] */
-  /* erf_wr -s sd_lane_$glb_idx sd_lane_cfg2 txrate_sel       [lindex $sd_params 9] */
-  /* erf_wr -u sd_lane_$glb_idx sd_lane_cfg2 rxrate_sel       [lindex $sd_params 10] */
+    if (vtss_ant_sd25g28_setup_lane(vtss_state, sd_cfg, port_no) != VTSS_RC_OK) {
+        VTSS_E("Could not configure Serdes mode (%d) at port:%d",mode,port_no);
+        return VTSS_RC_ERROR;
+    }
 
     return VTSS_RC_OK;
 }
 
-// body fflSerDesSD10G28::config_lane { type CMU  RATE  BITWIDTH } {
-static vtss_rc fa_config_lane_10g(vtss_state_t *vtss_state, u32 sd_indx, u32 sd_type, u32 cmu, u32 rate, u32 width)
+static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode, u32 sd_type)
 {
-    u32 sd_tgt, sd_lane_tgt;
-    u32 cmu_src, rate_src, rd_width_ctrl, bit_width;
-
-
-    if (sd_type == FA_SERDES_TYPE_6G) {
-        sd_tgt = VTSS_TO_SD6G_LANE(sd_indx);
-        sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx);
-    } else if (sd_type == FA_SERDES_TYPE_10G) {
-        sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
-        sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_10G_START);
-    } else {
-        sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
-        sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_25G_START);
-    }
-
-    switch (cmu) {
-    case 103125: { cmu_src = 0; break; }
-    case 10000:  { cmu_src = 1; break; }
-    default:     { cmu_src = 3; }
-    }
-
-    switch (rate) {
-    case 100: { rate_src = 0; break; } // 1/1
-    case 50:  { rate_src = 1; break; } // 1/2
-    case 25:  { rate_src = 2; break; } // 1/4
-    case 12:  { rate_src = 3; break; } // 1/8
-    default:  { rate_src = 1; }
-    }
-
-    switch (width) {
-    case 10 : { rd_width_ctrl = 0; bit_width = 0; break; }
-    case 16 : { rd_width_ctrl = 1; bit_width = 1; break; }
-    case 20 : { rd_width_ctrl = 2; bit_width = 2; break; }
-    case 32 : { rd_width_ctrl = 3; bit_width = 3; break; }
-    case 40 : { rd_width_ctrl = 4; bit_width = 6; break; }
-    case 64 : { rd_width_ctrl = 7; bit_width = 7; break; }
-    default:  { rd_width_ctrl = 7; bit_width = 7;}
-    }
-
-   /* #erf_wr -u sd_lane_$glb_idx  sd_lane_cfg   macro_rst               1 */
-   /* erf_wr -u $blk_name  lane_00              r_simulation_mode       1 */
-   /* #erf_wr -u sd_lane_$glb_idx  sd_lane_cfg   macro_rst               0 */
-
-   /* #@Tr: 1) => erf_wr -u $blk_name  lane_93              r_auxcksel_from_hwt      0  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_93(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_93_R_DWIDTHCTRL_FROM_HWT(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_93_R_DWIDTHCTRL_FROM_HWT);
-
-   /* erf_wr -u $blk_name  lane_A1              r_ssc_from_hwt           0  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_A1(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_A1_R_SSC_FROM_HWT(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_A1_R_SSC_FROM_HWT);
-
-   /* erf_wr -s sd_lane_$glb_idx  sd_lane_cfg  rx_ref_sel               $CMU_SRC */
-   /* erf_wr -u sd_lane_$glb_idx  sd_lane_cfg  tx_ref_sel               $CMU_SRC */
-    REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt) ,
-            VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_RX_REF_SEL(cmu_src) |
-            VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_TX_REF_SEL(cmu_src),
-            VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_RX_REF_SEL |
-            VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_TX_REF_SEL);
-
-   /* #@Tr: 1) => erf_wr -s $blk_name  lane_48              cfg_aux_rxck_sel         [expr int($CMU_SRC/2)]     ;# MSB: rx clock selection */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_48(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_48_CFG_AUX_RXCK_SEL(cmu_src/2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_48_CFG_AUX_RXCK_SEL);
-
-   /* erf_wr -u $blk_name  lane_40              cfg_lane_reserve_7_0     [expr int($CMU_SRC%2)<<6]  ;# LSB: */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_40(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_40_CFG_LANE_RESERVE_7_0(cmu_src % 2 << 6),
-            VTSS_M_SD10G_LANE_TARGET_LANE_40_CFG_LANE_RESERVE_7_0);
-
-   /* erf_wr -s $blk_name  lane_50              cfg_ssc_rtl_clk_sel      [expr int($CMU_SRC/2)]     ;# MSB: */
-   /* #@Tr: 1) => erf_wr -u $blk_name  lane_50              cfg_aux_txck_sel         [expr int($CMU_SRC%2)]     ;# LSB: tx resetb and tx clock */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_50(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RTL_CLK_SEL(cmu_src / 2) |
-            VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_AUX_TXCK_SEL(cmu_src % 2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RTL_CLK_SEL |
-            VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_AUX_TXCK_SEL);
-
-   /* #@Tr: 1) => #                                                                                             ;# selection */
-   /* erf_wr -u sd_lane_$glb_idx  sd_lane_cfg   macro_rst               0 */
-    REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
-        VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_MACRO_RST(0),
-        VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_MACRO_RST);
-
-   /* erf_wr -u $blk_name  lane_93              r_reg_manual             1  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_93(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_93_R_REG_MANUAL(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_93_R_REG_MANUAL);
-
-
-   /* erf_wr -s $blk_name  lane_94              r_iscan_reg              1  ;# */
-   /* erf_wr -s $blk_name  lane_94              r_txeq_reg               1  ;# */
-   /* erf_wr -s $blk_name  lane_94              r_misc_reg               1  ;# */
-   /* erf_wr -u $blk_name  lane_94              r_swing_reg              1  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_94(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_94_R_ISCAN_REG(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_94_R_TXEQ_REG(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_94_R_MISC_REG(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_94_R_SWING_REG(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_94_R_ISCAN_REG |
-        VTSS_M_SD10G_LANE_TARGET_LANE_94_R_TXEQ_REG |
-        VTSS_M_SD10G_LANE_TARGET_LANE_94_R_MISC_REG |
-        VTSS_M_SD10G_LANE_TARGET_LANE_94_R_SWING_REG);
-
-
-   /* erf_wr -s $blk_name  lane_93              r_DwidthCtrl_from_hwt    0  ;# */
-   /* erf_wr -s $blk_name  lane_93              r_lane_id_from_hwt       0  ;# */
-   /* erf_wr -s $blk_name  lane_93              r_rx_pcie_gen12_from_hwt 0  ;# */
-   /* erf_wr -u $blk_name  lane_93              r_en_ratechg_ctrl        0  ;#  bit 0 -- NON PCIE!!! */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_93(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_93_R_DWIDTHCTRL_FROM_HWT(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_93_R_LANE_ID_FROM_HWT(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_93_R_RX_PCIE_GEN12_FROM_HWT(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_93_R_EN_RATECHG_CTRL(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_93_R_DWIDTHCTRL_FROM_HWT |
-        VTSS_M_SD10G_LANE_TARGET_LANE_93_R_LANE_ID_FROM_HWT |
-        VTSS_M_SD10G_LANE_TARGET_LANE_93_R_RX_PCIE_GEN12_FROM_HWT |
-        VTSS_M_SD10G_LANE_TARGET_LANE_93_R_EN_RATECHG_CTRL);
-
-   /* erf_wr -s $blk_name  lane_A1              r_cdr_from_hwt           0  ;# */
-   /* erf_wr -u $blk_name  lane_A1              r_pclk_gating_from_hwt   1  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_A1(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_A1_R_CDR_FROM_HWT(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_A1_R_PCLK_GATING_FROM_HWT(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_A1_R_CDR_FROM_HWT |
-        VTSS_M_SD10G_LANE_TARGET_LANE_A1_R_PCLK_GATING_FROM_HWT);
-
-   /* erf_wr -s $blk_name  lane_9E              r_auto_rst_tree_pd_man   1  ;# */
-   /* erf_wr -u $blk_name  lane_9E              r_rxeq_reg               1  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_9E(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_9E_R_AUTO_RST_TREE_PD_MAN(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_9E_R_RXEQ_REG(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_9E_R_AUTO_RST_TREE_PD_MAN |
-        VTSS_M_SD10G_LANE_TARGET_LANE_9E_R_RXEQ_REG);
-
-
-   /* # --- RX CDR Basix Setting			         		   */
-   /* erf_wr -u $blk_name  lane_0F              r_cdr_m_gen1_7_0         2    ;#  CDR 1st order LP filter select GEN1 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_0F(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_0F_R_CDR_M_GEN1_7_0(2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_0F_R_CDR_M_GEN1_7_0);
-
-   /* erf_wr -u $blk_name  lane_10              r_cdr_m_gen2_7_0         2    ;#  CDR 1st order LP filter select GEN2 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_10(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_11_R_CDR_M_GEN3_7_0(2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_11_R_CDR_M_GEN3_7_0);
-
-   /* erf_wr -u $blk_name  lane_11              r_cdr_m_gen3_7_0         2    ;#  CDR 1st order LP filter select GEN3 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_11(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_11_R_CDR_M_GEN3_7_0(2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_11_R_CDR_M_GEN3_7_0);
-
-    /* erf_wr -u $blk_name  lane_12              r_cdr_m_gen4_7_0         2    ;#  CDR 1st order LP filter select GEN4 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_12(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_12_R_CDR_M_GEN4_7_0(2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_12_R_CDR_M_GEN4_7_0);
-
-   /* #@Tr: 2) => erf_wr -s $blk_name  lane_42              cfg_cdr_kf_gen1          1    ;#  CDR 1st order Gain Adjust GEN1 */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_42              cfg_cdr_kf_gen2          1    ;#  CDR 1st order Gain Adjust GEN2 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_42(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_42_CFG_CDR_KF_GEN1_2_0(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_42_CFG_CDR_KF_GEN2_2_0(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_42_CFG_CDR_KF_GEN1_2_0 |
-        VTSS_M_SD10G_LANE_TARGET_LANE_42_CFG_CDR_KF_GEN2_2_0);
-
-   /* #@Tr: 2) => erf_wr -s $blk_name  lane_43              cfg_cdr_kf_gen3          1    ;#  CDR 1st order Gain Adjust GEN3 */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_43              cfg_cdr_kf_gen4          1    ;#  CDR 1st order Gain Adjust GEN4 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_43(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_43_CFG_CDR_KF_GEN3_2_0(1) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_43_CFG_CDR_KF_GEN4_2_0(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_43_CFG_CDR_KF_GEN3_2_0 |
-        VTSS_M_SD10G_LANE_TARGET_LANE_43_CFG_CDR_KF_GEN4_2_0);
-
-   /* #@Tr: 2) => erf_wr -s $blk_name  lane_24              cfg_pi_bw_gen1           0    ;#  CDR PI BW Adj. GEN1 */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_24              cfg_pi_bw_gen2           0    ;#  CDR PI BW Adj. GEN2 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_24(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_24_CFG_PI_BW_GEN1_3_0(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_24_CFG_PI_BW_GEN2_3_0(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_24_CFG_PI_BW_GEN1_3_0 |
-        VTSS_M_SD10G_LANE_TARGET_LANE_24_CFG_PI_BW_GEN2_3_0);
-
-   /* #@Tr: 2) => erf_wr -s $blk_name  lane_25              cfg_pi_bw_gen3           0    ;#  CDR PI BW Adj. GEN3 */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_25              cfg_pi_bw_gen4           0    ;#  CDR PI BW Adj. GEN4 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_25(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_25_CFG_PI_BW_GEN3_3_0(0) |
-        VTSS_F_SD10G_LANE_TARGET_LANE_25_CFG_PI_BW_GEN4_3_0(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_25_CFG_PI_BW_GEN3_3_0 |
-        VTSS_M_SD10G_LANE_TARGET_LANE_25_CFG_PI_BW_GEN4_3_0);
-
-   /* erf_wr -s $blk_name  lane_26              cfg_iscan_ext_dac_7_0    9    ;#  CDR clock phase tuning parameter */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_26(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_26_CFG_ISCAN_EXT_DAC_7_0(9),
-            VTSS_M_SD10G_LANE_TARGET_LANE_26_CFG_ISCAN_EXT_DAC_7_0);
-
-   /* # --- Lane Rate Setting 			    */
-   /* erf_wr -u $blk_name  lane_14              cfg_pi_ext_dac_7_0       3    ;#  DFE clock phase tuning parameter */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_14(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_14_CFG_PI_EXT_DAC_7_0(3),
-        VTSS_M_SD10G_LANE_TARGET_LANE_14_CFG_PI_EXT_DAC_7_0);
-
-   /* erf_wr -u $blk_name  lane_a2              r_pcs2pma_phymode_4_0    0    ;#  Selection of application mode (SAS=4, KR=0) */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_A2(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_A2_R_PCS2PMA_PHYMODE_4_0(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_A2_R_PCS2PMA_PHYMODE_4_0);
-
-   /* erf_wr -u $blk_name  lane_0a              cfg_lane_id_2_0          0    ;#  Bias Trace Selection */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_0A(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_0A_CFG_LANE_ID_2_0(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_0A_CFG_LANE_ID_2_0);
-
-   /* erf_wr -s $blk_name  lane_35              cfg_txrate_1_0          $RATE_SRC */
-   /* erf_wr -u $blk_name  lane_35              cfg_rxrate_1_0          $RATE_SRC */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_35(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_35_CFG_TXRATE_1_0(rate_src) |
-            VTSS_F_SD10G_LANE_TARGET_LANE_35_CFG_RXRATE_1_0(rate_src),
-            VTSS_M_SD10G_LANE_TARGET_LANE_35_CFG_TXRATE_1_0 |
-            VTSS_M_SD10G_LANE_TARGET_LANE_35_CFG_RXRATE_1_0);
-
-   /* erf_wr -u $blk_name  lane_94              r_DwidthCtrl_2_0         $RDWIDTHCTRL  ;#  UDL TX / RX data width selection: */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_94(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_94_R_DWIDTHCTRL_2_0(rd_width_ctrl),
-            VTSS_M_SD10G_LANE_TARGET_LANE_94_R_DWIDTHCTRL_2_0);
-
-
-   /* erf_wr -u $blk_name  lane_01              cfg_pma_tx_ck_bitwidth_2_0 $BIT_WIDTH    ;#  PMA Transmit clock pma_tx_ck_leaf frequency selection for different data width */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_01(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_01_CFG_PMA_TX_CK_BITWIDTH_2_0(bit_width),
-            VTSS_M_SD10G_LANE_TARGET_LANE_01_CFG_PMA_TX_CK_BITWIDTH_2_0);
-
-   /* erf_wr -u $blk_name  lane_30              cfg_rxdiv_sel_2_0        $BIT_WIDTH    ;#  PMA Receiver clock pma_rx_ ck_leaf frequency selection for different datawidth */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_30(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_30_CFG_RXDIV_SEL_2_0(bit_width),
-            VTSS_M_SD10G_LANE_TARGET_LANE_30_CFG_RXDIV_SEL_2_0);
-
-   /* # ---  Lane Basic Function Setting					    */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_2B              cfg_fom_sel              0    ;#  Figure of Merit(FOM) select */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_91              r_multi_lane_mode        0    ;#  Figure of Merit(FOM) select */
-   /* #@Tr: 2) => erf_wr -u $blk_name  lane_2b              cfg_iscan_en             0    ;#  ISCAN_Enable */
-   /* #@Tr: 2) => eerf_wr -s $blk_name  lane_01              cfg_rxdet_en             0    ;#  RXDet_Enable */
-   /* #@Tr: 2) => eerf_wr -u $blk_name  lane_01              cfg_rxdet_str            0    ;#  Strobe the RXDET result */
-
-   /* erf_wr -u $blk_name  lane_9E              r_en_auto_cdr_rstn       0    ;#  Lane CDR auto reset function enable */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_9E(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_9E_R_EN_AUTO_CDR_RSTN(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_9E_R_EN_AUTO_CDR_RSTN);
-
-   /* #  ---  RX CDR Performance Parameters Setting				    */
-   /* erf_wr -u $blk_name  lane_3c              cfg_dis_2ndOrder         0    ;#  2nd order CDR disable signal. */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_3C(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_3C_CFG_DIS_2NDORDER(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_3C_CFG_DIS_2NDORDER);
-
-   /* erf_wr -u $blk_name  lane_39              cfg_rx_ssc_lh            1    ;#  CDR operation rate selection */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_39(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_39_CFG_RX_SSC_LH(1),
-            VTSS_M_SD10G_LANE_TARGET_LANE_39_CFG_RX_SSC_LH);
-
-   /* erf_wr -u $blk_name  lane_1A              cfg_pi_floop_steps_1_0   0    ;#  Frequency loop PI step selection */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_1A(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_1A_CFG_PI_FLOOP_STEPS_1_0(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_1A_CFG_PI_FLOOP_STEPS_1_0);
-
-   /* erf_wr -u $blk_name  lane_15              cfg_pi_ext_dac_15_8      2    ;#  2nd order CDR digital lowpass filter select */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_15(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_15_CFG_PI_EXT_DAC_15_8(2),
-            VTSS_M_SD10G_LANE_TARGET_LANE_15_CFG_PI_EXT_DAC_15_8);
-
-   /* erf_wr -u $blk_name  lane_16              cfg_pi_ext_dac_23_16     1    ;#  2nd order CDR digital lowpass filter select */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_15(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_16_CFG_PI_EXT_DAC_23_16(1),
-            VTSS_M_SD10G_LANE_TARGET_LANE_16_CFG_PI_EXT_DAC_23_16);
-
-   /* erf_wr -u $blk_name  lane_26              cfg_iscan_ext_dac_7_0    0    ;#  {cfg_iscan_ext_dac[14],cfg_iscan_ext_dac[7]} */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_26(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_26_CFG_ISCAN_EXT_DAC_7_0(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_26_CFG_ISCAN_EXT_DAC_7_0);
-   /* #                                                                       ;#  CDR operation mode selection */
-   /* erf_wr -u $blk_name  lane_27              cfg_iscan_ext_dac_15_8   0 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_27(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_27_CFG_ISCAN_EXT_DAC_15_8(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_27_CFG_ISCAN_EXT_DAC_15_8);
-
-   /* # --- TX SSC  */
-   /* erf_wr -u $blk_name  lane_4B              cfg_center_spreading     0  ;#  Lane SSC type selection */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_4B(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_4B_CFG_CENTER_SPREADING(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_4B_CFG_CENTER_SPREADING);
-
-   /* erf_wr -u $blk_name  lane_4C              cfg_McntMaxVal_4_0      15  ;#  Lane SSC spreading range contrl */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_4C(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_4C_CFG_MCNTMAXVAL_4_0(15),
-            VTSS_M_SD10G_LANE_TARGET_LANE_4C_CFG_MCNTMAXVAL_4_0);
-
-    /* erf_wr -u $blk_name  lane_4D              cfg_ncntMaxVal_7_0      32 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_4D(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_4D_CFG_NCNTMAXVAL_7_0(32),
-            VTSS_M_SD10G_LANE_TARGET_LANE_4D_CFG_NCNTMAXVAL_7_0);
-
-    /* erf_wr -u $blk_name  lane_4E              cfg_ncntMaxVal_10_8      6 */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_4E(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_4E_CFG_NCNTMAXVAL_10_8(6),
-            VTSS_M_SD10G_LANE_TARGET_LANE_4E_CFG_NCNTMAXVAL_10_8);
-
-    /* erf_wr -s $blk_name  lane_4F              cfg_ssc_en               1  ;#  Lane SSC Enable */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_4F(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_4F_CFG_SSC_EN(1),
-            VTSS_M_SD10G_LANE_TARGET_LANE_4F_CFG_SSC_EN);
-
-    /* #@Tr: 2) => erf_wr -u $blk_name  lane_4F              cfg_ssc_pi_bw            0  ;#  SSC PI BW adjusting */
-    /* #@Tr: 2) => erf_wr -s $blk_name  lane_50              cfg_ssc_pi_step          0  ;# */
-    /* #@Tr: 2) => erf_wr -u $blk_name  lane_50              cfg_ssc_resetb           0  ;# */
-
-    /* # --- TX Amplitude  */
-    /* erf_wr -u $blk_name  lane_33              cfg_itx_ipdriver_base_2_0 3  ;#  8-bit for TX amplitude adjustment */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(3),
-        VTSS_M_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0);
-
-    /* erf_wr -u $blk_name  lane_52              cfg_ibias_tune_reserve_5_0 8  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(8),
-        VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
-
-    /* erf_wr -u $blk_name  lane_02              cfg_en_dly               1  ;#  Enable 1st stage post-equalization control of TX. */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_02(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_02_CFG_EN_DLY(1),
-        VTSS_M_SD10G_LANE_TARGET_LANE_02_CFG_EN_DLY);
-
-    /* erf_wr -u $blk_name  lane_32              cfg_itx_ipcml_base_1_0   0  ;#  TX predriver curent setting. */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_32(sd_tgt),
-        VTSS_F_SD10G_LANE_TARGET_LANE_32_CFG_ITX_IPCML_BASE_1_0(0),
-        VTSS_M_SD10G_LANE_TARGET_LANE_32_CFG_ITX_IPCML_BASE_1_0);
-
-    /* # ---  Rset Lane                   */
-    /* erf_wr -u $blk_name  lane_83              r_cdr_rstn               0  ;#  Reset signal for CDR, low active. */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_83(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_83_R_CDR_RSTN(0),
-            VTSS_M_SD10G_LANE_TARGET_LANE_83_R_CDR_RSTN);
-
-    /* erf_wr -u $blk_name  lane_83              r_cdr_rstn               1  ;#  Reset signal for CDR, low active. */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_83(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_83_R_CDR_RSTN(1),
-            VTSS_M_SD10G_LANE_TARGET_LANE_83_R_CDR_RSTN);
-
-    /* erf_wr -u $blk_name  lane_50              cfg_ssc_resetb           1  ;# */
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_50(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB(1),
-            VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB);
-
-    return VTSS_RC_OK;
-}
-
-
-
-static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode, u32 sd_indx, u32 sd_type)
-{
-    u32 cmu_rate = 0, rate = 0, width = 0;
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
+    vtss_sd10g28_setup_args_t sd_cfg = {0};
+
+    sd_cfg.chip_name = VTSS_SD10G28_CHIP_ANT;
+    sd_cfg.is_6g =  sd_type == FA_SERDES_TYPE_6G ? TRUE : FALSE;
+    sd_cfg.txinvert = 0;
+    sd_cfg.rxinvert = 1;
+    sd_cfg.txswing = 240;
+    sd_cfg.preset = VTSS_SD10G28_PRESET_NONE;
 
     /* Apply the serdes mode */
     switch (mode) {
@@ -914,55 +570,43 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
         case VTSS_SERDES_MODE_SFI_PR_NONE:
         case VTSS_SERDES_MODE_SFI_KR:
         case VTSS_SERDES_MODE_SFI: {
+            sd_cfg.preset = serdes2preset(vtss_state->port.conf[port_no].serdes.media_type);
             if (speed == VTSS_SPEED_10G) {
-                cmu_rate = 103125;
-                rate = 100;
-                width = 64;
+                sd_cfg.mode = VTSS_SD10G28_MODE_10G_LAN;
+                 } else if (speed == VTSS_SPEED_5G) {
+                sd_cfg.mode = VTSS_SD10G28_MODE_5G_LAN;
             } else {
-                cmu_rate = 103125;
-                rate = 50;
-                width = 16;
+                VTSS_E("Illegal speed");
             }
             break;
         }
         case VTSS_SERDES_MODE_2G5: {
-            cmu_rate = 125000;
-            rate = 25;
-            width = 10;
+            sd_cfg.mode = VTSS_SD10G28_MODE_SGMII2G5;
             break;
         }
         case VTSS_SERDES_MODE_SGMII:
         case VTSS_SERDES_MODE_1000BaseX: {
-            cmu_rate = 100000;
-            rate = 12;
-            width = 10;
+            sd_cfg.mode = VTSS_SD10G28_MODE_SGMII;
             break;
         }
         case VTSS_SERDES_MODE_USXGMII: {
             if (speed == VTSS_SPEED_10G) {
-                cmu_rate = 103125;
-                rate = 100;
-                width = 32;
-            } else {
-                cmu_rate = 103125;
-                rate = 50;
-                width = 16;
+                sd_cfg.mode = VTSS_SD10G28_MODE_10G_DSXGMII;
+            } else if (speed == VTSS_SPEED_5G) {
+                sd_cfg.mode = VTSS_SD10G28_MODE_5G_USXGMII;
             }
             break;
         }
         case VTSS_SERDES_MODE_USGMII: {
-            cmu_rate = 100000;
-            rate = 100;
-            width = 20;
+            sd_cfg.mode = VTSS_SD10G28_MODE_10G_USGMII;
             break;
         }
         case VTSS_SERDES_MODE_QSGMII: {
-            cmu_rate = 100000;
-            rate = 50;
-            width = 20;
+            sd_cfg.mode = VTSS_SD10G28_MODE_QSGMII;
             break;
         }
         case VTSS_SERDES_MODE_100FX: {
+            sd_cfg.mode = VTSS_SD10G28_MODE_FX100;
             break;
         }
         default: {
@@ -970,8 +614,10 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
             return VTSS_RC_ERROR;
         }
     }
-
-    VTSS_RC(fa_config_lane_10g(vtss_state, sd_indx, sd_type, cmu_rate, rate, width));
+    if (vtss_ant_sd10g28_setup_lane(vtss_state, sd_cfg, port_no) != VTSS_RC_OK) {
+        VTSS_E("Could not configure Serdes mode (%d) at port:%d",mode,port_no);
+        return VTSS_RC_ERROR;
+    }
 
     return VTSS_RC_OK;
 }
@@ -980,13 +626,23 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
 {
     u32 sd_indx, sd_type;
 
+
     /* Map API port to Serdes instance */
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
 
     if (sd_type == FA_SERDES_TYPE_25G) {
-        VTSS_RC(fa_sd25g_cfg(vtss_state, port_no,  mode, sd_indx));
+        VTSS_RC(fa_sd25g_cfg(vtss_state, port_no,  mode));
     } else {
-        VTSS_RC(fa_sd10g_cfg(vtss_state, port_no,  mode, sd_indx, sd_type));
+        VTSS_RC(fa_sd10g_cfg(vtss_state, port_no,  mode, sd_type));
+    }
+
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state)
+{
+    for (u32 cmu = 0; cmu < 14; cmu++) {
+        vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu);
     }
 
     return VTSS_RC_OK;

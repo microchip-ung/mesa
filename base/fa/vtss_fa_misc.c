@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -303,10 +303,10 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, &mask);
     sticky &= mask;      /* Only handle enabled sources */
 
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<EXT_CLK_PIN)) ?  VTSS_PTP_PIN_0_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<EXT_PPS_PIN)) ?  VTSS_PTP_PIN_1_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<ALT_LDST_PIN)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<ALT_PPS_PIN)) ?  VTSS_PTP_PIN_3_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<0)) ?  VTSS_PTP_PIN_0_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<1)) ?  VTSS_PTP_PIN_1_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<2)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<3)) ?  VTSS_PTP_PIN_3_SYNC_EV : 0;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
@@ -320,23 +320,23 @@ static vtss_rc fa_ptp_event_enable(vtss_state_t *vtss_state,
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
     if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<EXT_CLK_PIN : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<EXT_CLK_PIN));
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<0 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<0));
     }
     if (ev_mask & VTSS_PTP_PIN_1_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<EXT_PPS_PIN : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<EXT_PPS_PIN));
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<1 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<1));
     }
     if (ev_mask & VTSS_PTP_PIN_2_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<ALT_LDST_PIN : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<ALT_LDST_PIN));
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<2 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<2));
     }
     if (ev_mask & VTSS_PTP_PIN_3_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<ALT_PPS_PIN : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<ALT_PPS_PIN));
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<3 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<3));
     }
     return VTSS_RC_OK;
 }
@@ -923,23 +923,25 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
         }
     }
 
-    value = (VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
-             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
-             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
-             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
-             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1));
-    mask = (VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 |
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG(group),
+            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
+            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
+            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
+            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
+            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1),
+            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1 |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT);
 
-    REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG(group), value, mask);
-    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(group), /* 12.5MHz (0x14) */
-            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(0x14) |
-            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(0x40),
-            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ |
-            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(group),
+            // Configuring the denominator of the system clock frequency:
+            // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
+            // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
+            // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50),
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
 
     /*
      * Configuration of output data values
@@ -974,12 +976,13 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
             VTSS_N("group:%d, port:%d, bit_idx:%d, int_pol_high:%d", group, port, bit_idx, pol_high);
         }
 
-        value = VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE(val);
-        mask = VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE;
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_PORT_CFG(group, port), value, mask);
         REG_WRM(VTSS_DEVCPU_GCB_SIO_PORT_CFG(group, port),
-                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY(pol),
-                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY);
+                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE(0) | // While PCB-134 is unstable
+                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY(pol) |
+                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE(val),
+                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE |
+                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY |
+                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE);
     }
 
     return VTSS_RC_OK;

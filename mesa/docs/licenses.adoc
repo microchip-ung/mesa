@@ -1,0 +1,12 @@
+= License
+
+== License
+
+The MESA packet is licensed under the MIT license. See the `COPYING` file for
+details.
+
+Releases of the MESA packet, include pre-built binary firmware images. These
+images, includes components of other licenses. See the combined set of licenses
+in `./bin/<preset>/licenses.txt` (where `<preset>` represent one of the
+available folders, which also includes the images).
+

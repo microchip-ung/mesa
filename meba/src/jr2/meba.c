@@ -3028,15 +3028,17 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
 
             // Check for SFP/SFP+ LOS (SGMII ports: 1G:8-23 (p0b0-p15b0) + 10G:25-28 (p25b0-p28b0))
             for (sgpio_port = 0; sgpio_port <= 28; sgpio_port++) {
+                mesa_bool_t port_handled = false;
                 if (sgpio_events_bit[0][sgpio_port]) {
                     if (jr2_24_sgpio_maps_to_sfp_port(board, sgpio_port, &port_no)) {
                         signal_notifier(MEBA_EVENT_LOS, port_no);
+                        port_handled = true;
                         handled++;
                     }
                 }
                 // Check MODDET
                 if (sgpio_events_bit[2][sgpio_port]) {
-                    if (!handled &&
+                    if (!port_handled &&
                         jr2_24_sgpio_maps_to_sfp_port(board, sgpio_port, &port_no)) {
                         // LOS, MODDET and TX_FAULT all share the same interrupt,
                         // so some signal notifier needs to be called to ensure
@@ -3045,6 +3047,7 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                         // signal handler and let that reenable interrupts.
                         handled++;
                         signal_notifier(MEBA_EVENT_LOS, port_no);
+                        port_handled = true;
                     }
                     for (port_no = 0; port_no < board->port_cnt; port_no++) {
                         if (is_10g_port(board->port[port_no].map.cap)) {
@@ -3063,7 +3066,7 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                     if (jr2_24_sgpio_maps_to_sfp_port(board, sgpio_port, &port_no)) {
                         T_D(inst, "TXFAULT seen on port %d, ignored", port_no);
                     }
-                    if (!handled &&
+                    if (!port_handled &&
                         jr2_24_sgpio_maps_to_sfp_port(board, sgpio_port, &port_no)) {
                         // LOS, MODDET and TX_FAULT all share the same interrupt,
                         // so some signal notifier needs to be called to ensure
@@ -3072,6 +3075,7 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                         // signal handler and let that reenable interrupts.
                         handled++;
                         signal_notifier(MEBA_EVENT_LOS, port_no);
+                        port_handled = true;
                     }
                 }
             }

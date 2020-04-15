@@ -36,11 +36,8 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_ARCH_FA
-#endif
-#if defined(VTSS_ARCH_JAG3S5_CE)
-#define VTSS_ARCH_FA_CE
 #endif
 
 #if defined(VTSS_ARCH_FA)
@@ -49,9 +46,9 @@
 #include "../ail/vtss_state.h"
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
-#include "../ail/vtss_sd10g65_procs.h"
-#include "../ail/vtss_sd10g65_apc_procs.h"
-#include "../ail/vtss_pll5g_procs.h"
+#include "../ail/vtss_sd10g28_procs.h"
+#include "../ail/vtss_sd25g28_procs.h"
+
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
 #include "vtss_fa_fdma.h"
 #endif
@@ -106,20 +103,18 @@
 #define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(indx)
 
 
-/* Fireant has 4 PTP PIN configurations that can be used for different purposes, the defines below defines the
+/* Fireant has 4 PTP PIN connected to GPIO that can be used for different purposes, the defines below defines the
  * default usage of the 4 pins.
  */
 /* PIN configuration for external clock */
-#define EXT_CLK_PIN 0               /* external clock 1 pps input */
-#define EXT_PPS_PIN 1               /* 1pps pulse output */
-
-#define TOD_ACC_PIN 1               /* pin used for timeofday get/set */
-#define TOD_ACC_EXT_PPS_PIN_SHARED  /* pin used for timeofday get/set shared with 1pps pulse output */
+#define EXT_CLK_PIN 1               /* external clock 1 pps output */
 
 /* PIN configuration for alternative clock */
 #define ALT_LDST_PIN 2              /* alternative clock 1 pps input (Load/Store) */
 #define ALT_PPS_PIN  3              /* alternative clock 1pps pulse */
 
+/* The last PTP pin is not connected to GPIO but can be used for TOD access */
+#define TOD_ACC_PIN 4               /* pin used for timeofday get/set */
 
 #define FA_BUFFER_MEMORY    4194280 /* 22795 words * 184 bytes */
 #define FA_BUFFER_REFERENCE 22795   /* Frame references */
@@ -130,7 +125,7 @@
 /* ================================================================= *
  *  Register access
  * ================================================================= */
-#define VTSS_OPT_EMUL // Emulation included for now.
+// #define VTSS_OPT_EMUL // Emulation included for now.
 extern vtss_rc vtss_fa_emul_rd(u32 addr, u32 *value);
 extern vtss_rc vtss_fa_emul_wr(u32 addr, u32 value);
 extern vtss_rc vtss_fa_emul_init(vtss_state_t *vtss_state);
@@ -140,6 +135,7 @@ extern vtss_rc (*vtss_fa_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
 vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask);
 vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, vtss_evc_counters_t *const cnt, BOOL clr);
+BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 
 #define REG_RD(p, value)                 \
     {                                     \
@@ -165,6 +161,31 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *s
 #define REG_WRM_SET(p, mask) REG_WRM(p, mask, mask)
 #define REG_WRM_CLR(p, mask) REG_WRM(p, 0,    mask)
 #define REG_WRM_CTL(p, _cond_, mask) REG_WRM(p, (_cond_) ? mask : 0, mask)
+
+#define DEV_RD(name, port, value)                                      \
+    {                                                                  \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {            \
+            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value); \
+        } else {                                                       \
+            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);    \
+        }                                                              \
+    }
+
+#define DEV_WR(name, port, value)                                      \
+    {                                                                  \
+        REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);        \
+        if (!VTSS_PORT_IS_2G5(port)) {                                 \
+            REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value); \
+        }                                                              \
+    }
+
+#define DEV_WRM(name, port, value, mask)                                      \
+    {                                                                         \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);        \
+        if (!VTSS_PORT_IS_2G5(port)) {                                        \
+            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask); \
+        }                                                                     \
+    }
 
 /* Decode register bit field */
 #define REG_BF(name, value) ((VTSS_M_##name & value) ? 1 : 0)
@@ -265,6 +286,7 @@ u32 vtss_to_sd_cmu_cfg(u32 indx);
 u32 vtss_to_sd_lane(u32 indx);
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 
+
 /* Serdes functions */
 #define FA_SERDES_TYPE_6G  6
 #define FA_SERDES_TYPE_10G 10
@@ -273,59 +295,12 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);
 vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id);
 vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
-
-#define EXT_CLK_PIN 0           /* external clock 1 pps input */
-#define EXT_PPS_PIN 1           /* 1pps pulse output */
-/* PIN configuration for alternative clock */
-#define ALT_LDST_PIN 2          /* alternative clock 1 pps input (Load/Store) */
-#define ALT_PPS_PIN  3          /* alternative clock 1pps pulse */
-
-
-/* ================================================================= *
- *  Shared Queue System
- * ================================================================= */
-#define FA_SQS_DEFAULT_THRESHOLD  0xfffffff1  // Set to default settings
-#define FA_SQS_PRIO_SHARED        0xfffffff2  // Set shared prio WM
-
-typedef enum {
-    FA_SQS_STRICT_PRIO_SHARING, // Strict priority mode
-    FA_SQS_PER_PRIO_SHARING,    // Per priority shared mode
-    FA_SQS_WRED_SHARING,        // WRED shared mode
-    FA_SQS_QLIM_MODE,           // Queue Limit mode
-} fa_sqs_mode_t;
-
-typedef struct {
-    u32 iqs;            	// Ingress threshold in bytes
-    u32 oqs;            	// Egress threshold in bytes
-} fa_sqs_threshold_t;
-
-typedef struct {
-    fa_sqs_threshold_t res;     // Reserved space per queue
-    BOOL pfc;           	// Priority flow control per queue
-} fa_sqs_qu_t;
-
-typedef struct {
-    fa_sqs_qu_t qu[VTSS_PRIOS]; // Queue config for this port
-    fa_sqs_threshold_t res;     // Reserved space per port
-    BOOL fc;             	// Standard flow control per port
-    BOOL igr_no_sharing;        // Do not use ingress shared space
-    BOOL egr_no_sharing;        // Do not use egress shared space
-    BOOL igr_drop_mode;         // Ingress drop mode
-    BOOL egr_drop_mode;         // Egress drop mode
-} fa_sqs_port_t;
-
-typedef struct {
-    fa_sqs_port_t port;         // Port/prio related settings
-} fa_sqs_conf_t;
-
- // Configure the defaults of the SQS mode.
-vtss_rc vtss_fa_sqs_mode_set(vtss_state_t *vtss_state, fa_sqs_mode_t const *mode);
-
-// Get the configs for a port/class
-vtss_rc vtss_fa_sqs_conf_get(vtss_state_t *vtss_state, u32 id, const fa_sqs_conf_t *sqs);
-
-// Set the configs for a port/class
-vtss_rc vtss_fa_sqs_conf_set(vtss_state_t *vtss_state, u32 id, fa_sqs_conf_t const *sqs);
+u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no);
+u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
+vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
+vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,
+                             const vtss_debug_info_t   *const info, vtss_port_no_t port_no);
 
 
 /* Miscellaneous functions */
@@ -341,7 +316,7 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
-
+u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock);
 
 
 /* QoS functions */
@@ -349,17 +324,17 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf);
+u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
+vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #endif /* VTSS_FEATURE_QOS */
 
 /* L2 functions */
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32 vtss_fa_vtss_pgid(const vtss_state_t *const state, u32 pgid);
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid);
-vtss_rc vtss_fa_isdx_set(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, vtss_port_mask_t *pmask,
-                         u32 l2cp_idx, u32 voe_idx, u32 mip_idx);
 vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);

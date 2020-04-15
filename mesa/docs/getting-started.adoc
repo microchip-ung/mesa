@@ -1,0 +1,846 @@
+= Getting started
+
+== Getting started
+
+The easiest and best way to get started with the MESA library, is to start using
+it. MESA as such is a C library, but the MESA packet includes a demo application,
+and scripts to build a complete bootable firmware image including a
+Linux root file system, demo application and the MESA library.
+
+The MESA packet includes both sources and binaries. Binaries make it easy to
+load the pre-build code on a reference system and explore the demo application.
+But most users of the MESA library will eventually need to build their own
+application, or integrate MESA into an existing application. Doing this requires
+compiling the sources.
+
+This document will cover how to prepare a development system, build the sources,
+load the binaries, and start the MESA demo application.
+
+Users that are in a hurry, and already has a reference system can skip the steps
+to compile the sources, and instead using one of the binary images.
+
+== Pre-requests and preparations
+
+In order to follow this getting started guide, a version of the MESA packet and a
+reference board is needed.
+
+Further more, to build and load the MESA library and demo application a Linux
+development machine with root access is needed. This guide is using a Ubuntu
+Server version 18.04 with 8G of memory. Other distributions does also work, but
+they are expected to need other dependencies not documented here.
+
+When loading the firmware, this guide assumes that the Linux development machine
+is located at the same network as the reference board.
+
+=== Installing basic SW dependencies
+
+The first step is to install a couple of host tools needed by MESA. The packet
+manager and the name of the specific packets differs from distributions to
+distribution. Here are the instructions on how to do this on Ubuntu 18:
+
+----
+sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet
+----
+
+Next we need a folder called `mscc` in `/opt` where the toolchains
+and BSP will be installed as explained later in the guide.
+
+----
+sudo mkdir -p /opt/mscc
+----
+
+==== Install and setup tftp server
+
+In order to load the SW to the reference board, we need a tftp server. If a tftp
+server is already available on your network, then you may skip this step. If
+not, then it can be installed using the instructions below:
+
+----
+sudo apt-get install tftpd-hpa
+sudo chmod 777 /var/lib/tftpboot/
+----
+
+== Extracting the sources
+
+The first step is to extract the MESA packet:
+
+----
+$ tar xf mesa-<version>.tar.gz
+$ cd mesa-<version>
+----
+
+== Copy a binary image to the tftp folder
+
+To confirm that the boards are working and compatible with a given firmware
+image, it is a good idea to start loading one of the binary images as a first
+step.
+
+To do this copy one of the image files from `./bin/<arch>/mesa/demo/` to the
+tftp server. Example:
+
+----
+$ cp bin/mipsel/mesa/demo/mfi_vsc7514.mfi /var/lib/tftpboot/
+----
+
+To try out the binary image, skip the instructions to build, and go directly to
+the section on firmware loading.
+
+== Create a CMake project (and download BSP and toolchain)
+
+To build the sources a CMake project is needed. The easiest way to create a
+CMake project is to use the `./.cmake/create_cmake_project.rb` script:
+
+----
+$ ./.cmake/create_cmake_project.rb
+Usage: create_cmake_project <preset name> [output-folder]
+
+Valid presets:
+    mipsel
+    mipsel-debug
+    arm64
+    arm64-debug
+    arm64-asan
+    arm
+    arm-debug
+    x86
+----
+
+Lets prepare a project for MIPS little endian based targets:
+
+----
+$ ./.cmake/create_cmake_project.rb mipsel
+----
+
+If the needed BSP and/or toolchain is missing, then the script will complain
+about this and provide instructions on how to install these components. This is
+expected to be the case the first time running this command on a new release.
+
+Here the scripts complains about the BSP is missing:
+
+----
+$ ./.cmake/create_cmake_project.rb mipsel
+Please install the BSP: /opt/mscc/mscc-brsdk-mipsel-2019.02.1-220
+
+This may be done by using the following command:
+sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
+----
+
+Paste in the command printed at the screen (with the expanded URL), and complete
+the BSP installation.
+
+Run the script again, this time it detects that the toolchain is missing:
+
+----
+$ ./.cmake/create_cmake_project.rb mipsel
+Please install the toolchain: mscc-toolchain-bin-2019.02.1-079 into /opt/mscc/
+
+This may be done by using the following command:
+sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
+----
+
+Paste in the command printed at the screen (with the expanded URL), and complete
+the toolchain installation.
+
+Run the command again:
+
+----
+$ ./.cmake/create_cmake_project.rb mipsel
+mkdir -p build-mipsel
+ln -s /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/bin/cmake cmake
+./cmake -DCMAKE_TOOLCHAIN_FILE=/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release ..
+-- The C compiler identification is GNU 8.3.0
+-- The CXX compiler identification is GNU 8.3.0
+-- Check for working C compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-gcc
+-- Check for working C compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-gcc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-g++
+-- Check for working CXX compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-g++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Project name          = vtss_api
+--   Type                = Release
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
+--   EXE_LINKER_FLAGS    =
+--   shared_linker_flags =
+-- Looking for include file endian.h
+-- Looking for include file endian.h - found
+-- Looking for include file asm/byteorder.h
+-- Looking for include file asm/byteorder.h - found
+-- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
+-- Configuring done
+-- Generating done
+-- Build files have been written to: ./build-mipsel
+----
+
+This time all the dependencies was found, and the CMake project has not been
+created in the `./build-mipsel` folder. Enter the folder and continue from here:
+
+----
+cd ./build-mipsel
+----
+
+NOTE: The BSP also provides UBoot for the various targets. UBoot for the MIPS
+based boards can be found in
+`/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-uclibc/<board>/`.
+
+
+== Select the image(s) to build
+
+We now have CMake project configured to use the BSP and cross-tool chain to
+build binaries for the MIPS, but no targets has been enabled.
+
+Make sure to `cd` to the newly created build folder.
+
+The CMake project allow you to select what targets to build. By default nothing
+is selected. The various projects includes many targets, and some naming
+conventions are used to make it easier to navigate.
+
+Generally the `vscXXXX` number is included in all targets to indicate what
+device a given target supports.
+
+In the various CMake projects, the following categories of targets can be
+found:
+
+. Library targets. These are not bootable, it is just libraries supporting a
+  given chip, and must be combined with an actual application, root file system
+  and kernel to provide a functional system.
+.. `vscXXXX<flags>` These are shared libraries for a given `vsc` chip ID.
+.. `vscXXXX<flags>_static` These are static libraries for a given `vsc` chip ID.
+
+. Bootable demo images. These targets will generate a complete firmware image
+  including kernel, root file system, and the MESA Demo application. These are
+  the images used in this getting started article.
+.. `mfi_vscXXXX<flags>` This is a MFI image which is the default image type on
+   MIPS based targets.
+.. `fit_vscXXXX<flags>` This is the standard UBoot FIT (extension name is
+   `.itb`) image which is used on the ARM/ARM64 based targets.
+
+. Pure application
+.. `app_vscXXXX<flags>` This is the MESA application build along with the needed
+   library. This does not include the kernel and the root file system, which
+   needs to come from elsewhere.
+
+The `<flags>` part is optional, and indicate certain compile time options which
+will be set. Following are the most important ones:
+
+. `_pcntXX` This is a port count number. The API can be built to a lower port
+  count than the chip supports. This will reduce the memory footprint if not all
+  ports are being used. Notice, this must include front ports, internal ports,
+  loop-ports etc.
+
+. `_ts` This target enables the PHY time-stamping facilities in the PHYs. This
+  is only needed if PTP capable PHYs are used.
+
+. `_afiot` For devices with non-zero capability `MESA_CAP_AFI_V1`, the AFI API
+   is optimized for timers rather than frame-slots. This is the recommended mode
+   for such devices.
+
+To see all the targets defined in the project use the `./cmake .. -LAH` command,
+or the GUI tool `ccmake ..`.
+
+HINT: Use the `./cmake .. -LAH` command in combination with `grep` to only see
+targets matching the decides you are interested in.
+
+NOTE: We are generally using the `./cmake` symlink instead of the system
+installation of CMake. This is a symlink to cmake provided by the BSP. The
+advantage of this, is that we can then ensure that same version of CMake is
+always used.
+
+In this example we will build the complete demo project for the Ocelot vsc7514.
+To do this, we will grep for 7514 in the available options:
+
+----
+$ ./cmake .. -LAH | grep 7514
+app_vsc7514:BOOL=OFF
+app_vsc7514_afiot_ts:BOOL=OFF
+mfi_vsc7514:BOOL=OFF
+mfi_vsc7514_afiot_ts:BOOL=OFF
+// Build the API for 7514 (vsc7514)
+vsc7514:BOOL=OFF
+// Build the API for 7514 (vsc7514_afiot_ts)
+vsc7514_afiot_ts:BOOL=OFF
+// Build the static API for 7514 (vsc7514_afiot_ts)
+vsc7514_afiot_ts_static:BOOL=OFF
+// Build the API for 7514 (vsc7514_pcnt10)
+vsc7514_pcnt10:BOOL=OFF
+// Build the static API for 7514 (vsc7514_pcnt10)
+vsc7514_pcnt10_static:BOOL=OFF
+// Build the static API for 7514 (vsc7514)
+vsc7514_static:BOOL=OFF
+----
+
+As we are interested in a bootable firmware we need either a `fit`/`itb` or
+`mfi` image. In this case we want the `mfi_vsc7514` target. To enable this use
+the following command:
+
+----
+$ ./cmake .. -Dmfi_vsc7514=on
+-- Project name          = vtss_api
+--   Type                = Release
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
+--   EXE_LINKER_FLAGS    =
+--   shared_linker_flags =
+-- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-2019.02.1-220/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
+-- Adding: mfi_vsc7514 [machine: ocelot socfam: ocelot chipno: 8 kernel: ocelot kmod ocelot]
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /tmp/mesa-v2019.06-217-g9c57e1c@master/build-mipsel
+----
+
+== Building the SW
+
+Now that the project is configured, we just need to build it. This is the only
+step which needs to be repeated when the sources are changed.
+
+Use the normal make command to build (the `-jN` options specify how many cores
+to use).
+
+----
+$ make -j12
+....
+Scanning dependencies of target app_vsc7514
+[100%] Building C object mesa/demo/CMakeFiles/app_vsc7514.dir/main.c.o
+[100%] Linking C executable mesa-demo-vsc7514
+[100%] Built target app_vsc7514
+Scanning dependencies of target mfi_vsc7514_mfi
+[100%] Generating app_vsc7514.tar
+[100%] Generating mfi_vsc7514.mfi
+[100%] Built target mfi_vsc7514_mfi
+----
+
+After a while, the build will be done, and the resulting image can be found in
+`./mesa/demo`. Lets copy this to the tftp server folder.
+
+----
+$ cp mesa/demo/mfi_vsc7514.mfi /var/lib/tftpboot/.
+----
+
+
+== Loading firmware image from UBoot
+
+UBoot is being used to load the SW over the network via TFTP and into memory.
+The system can then boot from memory.
+
+Connect a terminal to the reference board, open your serial terminal client
+(`minicom`, `picocom`, `teraterm`, `putty`), power up the board, and break the
+boot process in the UBoot console. This is an example of booting an Ocelot
+board, and breaking it into UBoot.
+
+----
+U-Boot 2019.07-rc2 (Jul 09 2019 - 14:30:28 +0200)
+
+MSCC VCore-III MIPS 24Kec
+Model: Ocelot PCB123 Reference Board
+DRAM:  512 MiB
+Loading Environment from SPI Flash... SF: Detected mx25l25635e with page size
+256 Bytes, erase size 64 KiB, total 32 MiB
+OK
+In:    serial@100000
+Out:   serial@100000
+Err:   serial@100000
+Net:
+Warning: switch@1010000 (eth0) using random MAC address - 0a:01:c5:af:05:e1
+eth0: switch@1010000
+Hit any key to stop autoboot:  0
+ocelot #
+----
+
+=== Configure network and load SW to memory
+
+If a DHCP server is being used at the network, then this is simply a matter of
+issuing the `dhcp` command:
+
+----
+ocelot # dhcp
+BOOTP broadcast 1
+BOOTP broadcast 2
+BOOTP broadcast 3
+DHCP client bound to address 10.99.10.10 (1003 ms)
+Using switch@1010000 device
+TFTP from server 10.99.10.1; our IP address is 10.99.10.10
+ocelot #
+----
+
+If static IP configuration is desirable, then set the `ipaddr`, `netmask` and
+`gatewayip` accordingly:
+
+----
+setenv ipaddr 10.99.10.10
+setenv gatewayip 10.99.10.1
+setenv netmask 255.255.255.0
+----
+
+NOTE: To make the environment settings persistent, use the `saveenv` command.
+
+After network configuration is completed, check that we have the needed
+connectivity:
+
+----
+ocelot # ping 10.99.10.1
+Using switch@1010000 device
+host 10.99.10.1 is alive
+ocelot #
+----
+
+Final step is to load the SW into memory. To do this the `tftp` command is used.
+Remember to copy the firmware image into the tftp folder, and use the correct IP
+address of the tftp server and firmware filename (this example uses `10.99.10.1`
+as tftp server, and `firmware.ext` firmware file, replace with IP of your TFTP
+server, and actual file name of the firmware).
+
+----
+ocelot # tftp ${loadaddr} 10.99.10.1:firmware.ext
+Using switch@1010000 device
+TFTP from server 10.99.10.1; our IP address is 10.99.10.10
+Filename 'mfi_vsc7415.mfi'.
+Load address: 0x81000000
+Loading: #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         ###################
+         11.1 MiB/s
+done
+Bytes transferred = 6953696 (6a1ae0 hex)
+ocelot #
+----
+
+=== Booting the firmware image
+
+Depending on image type and board, the steps to actually boot the image are
+slightly different.
+
+Two different image types are being used, either the `mfi` images which is the
+default image type used in WebStaX on the MIPS based targets, and then we have
+`fit` images (with extension `itb`) which is a standard UBoot image type.
+
+New ARM based designs only uses `fit`/`itb` images. MIPS targets can do both,
+but the default is still `mfi`.
+
+
+==== Booting `mfi` images
+
+To boot a `mfi` image, use the `bootmfi` command like this:
+
+----
+ocelot # bootmfi ${loadaddr}
+MD5 signature validated   Uncompressing Kernel Image ... OK
+   Loading Ramdisk to 9f8db000, end 9fdb9000 ... OK
+linux_env_set setting memsize=512
+linux_env_set setting flash_start=0x00000000
+linux_env_set setting flash_size=0x0
+Starting syslogd: OK
+Starting klogd: OK
+read-only file system detected...done
+Starting network: OK
+Starting ntpd: OK
+No persistent location to store SSH host keys. New keys will be
+generated at each boot. Are you sure this is what you want to do?
+Starting dropbear sshd: OK
+
+Welcome to SMBStaX
+vcoreiii login:
+----
+
+==== Booting `fit`/`itb` images
+
+`fit` images may optional include multiple device tree configurations. The
+current loaded image can be inspected using the `iminfo` like this:
+
+----
+=> iminfo ${loadaddr}
+
+## Checking Image at 40000000 ...
+   FIT image found
+   FIT description: Image file for the MESA SDK Demo on target fireant
+    Image 0 (kernel)
+     Description:  aarch64 Linux kernel
+     Type:         Kernel Image
+     Compression:  gzip compressed
+     Data Start:   0x400000d8
+     Data Size:    2575726 Bytes = 2.5 MiB
+     Architecture: AArch64
+     OS:           Linux
+     Load Address: 0x00080000
+     Entry Point:  0x00080000
+    Image 1 (ramdisk)
+     Description:  ramdisk
+     Type:         RAMDisk Image
+     Compression:  uncompressed
+     Data Start:   0x40274ee8
+     Data Size:    5152768 Bytes = 4.9 MiB
+     Architecture: AArch64
+     OS:           Linux
+     Load Address: 0x02000000
+     Entry Point:  unavailable
+    Image 2 (fdt)
+     Description:  Flattened Device Tree blob
+     Type:         Flat Device Tree
+     Compression:  uncompressed
+     Data Start:   0x4075ef88
+     Data Size:    10443 Bytes = 10.2 KiB
+     Architecture: AArch64
+     Load Address: 0x20000000
+    Default Configuration: 'fireant'
+    Configuration 0 (fireant)
+     Description:  Boot Linux kernel
+     Kernel:       kernel
+     Init Ramdisk: ramdisk
+     FDT:          fdt
+## Checking hash(es) for FIT Image at 40000000 ...
+   Hash(es) for Image 0 (kernel):
+   Hash(es) for Image 1 (ramdisk):
+   Hash(es) for Image 2 (fdt):
+----
+
+In the output above we see an image containing a `kernel`, `ramdisk`, `ftd`
+(device tree). These 3 component is grouped in a configuration called `fireant`.
+
+To boot the `fit` image with a given configuration use the `bootm <addr>:<conf>`
+command like this:
+
+----
+# bootm ${loadaddr}#fireant
+----
+
+
+==== Additional instructions for BeagleBone
+
+If the `arm` architecture is selected when creating the CMake project, then it
+is possible to build images for a beaglebone. Beaglebone uses a fit image,
+requires altering the `bootargs` before booting. Example:
+
+Lets start by building a fit image for the beagle bone, with the MESA demo
+application for VSC7514.
+
+----
+$ ./.cmake/create_cmake_project.rb arm
+$ cd build-arm
+$ ./cmake -Dfit_bbb_vsc7514=on ..
+$ make -j12
+----
+
+Next step is booting it. Got to a UBoot prompt on the BeagleBone, download the
+image over network and boot it like this:
+
+----
+# tftp ${loadaddr} 10.99.10.1:fit_bbb_vsc7514.itb
+# setenv bootargs 'console=ttyO0,115200n8 root=/dev/ram0 ip=dhcp rw loglevel=0'
+# bootm
+----
+
+Make sure that the BeagleBone is correctly connected to the Ocelot board. A
+connector board exist to do this.
+
+== Starting MESA Demo
+
+When the system boots, you will need to login to the Linux terminal. Login as
+the `root` user with no password:
+
+----
+Welcome to SMBStaX
+vcoreiii login: root
+----
+
+We now have a normal Linux command line interface. Where we can start the MESA
+demo application using the command `mesa-demo`:
+
+----
+$ mesa-demo
+----
+
+This will run in the background as a daemon in the background, and allow the
+`mesa-cmd` to issue commands.
+
+To see the list of valid commands use the `mesa-cmd` with no argument.
+
+----
+$ mesa-cmd
+# mesa-demo
+# mesa-cmd
+Available Commands:
+
+Help
+Exit
+IP Status
+MAC Add <mac_addr> <port_list> [<vid>]
+MAC Agetime [<age_time>]
+MAC Delete <mac_addr> [<vid>]
+MAC Dump
+MAC Flush
+MAC Lookup <mac_addr> [<vid>]
+Port Flow Control [<port_list>] [enable|disable]
+Port MaxFrame [<port_list>] [<max_frame>]
+Port Mode [<port_list>] [10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto]
+Port NPI [<port_no>] [enable|disable]
+Port State [<port_list>] [enable|disable]
+Port Statistics [<port_list>] [clear|packets|bytes|errors|discards]
+Test [<test_no>]
+VLAN Add <vid> <port_list>
+VLAN Delete <vid>
+VLAN Filter [<port_list>] [enable|disable]
+VLAN Frame [<port_list>] [all|tagged|untagged]
+VLAN PVID [<port_list>] [<vid>]
+VLAN Type [<port_list>] [unaware|c-port|s-port]
+VLAN UVID [<port_list>] [all|none|pvid]
+Warm Start
+call <method> <params>
+Debug API [<layer>] [<group>] [<port_list>] [full] [clear] [action]
+[<act_value>]
+Debug Chip ID
+Debug I2C Read <port_list> <i2c_addr> <addr> [<count>]
+Debug I2C Write <port_list> <i2c_addr> <addr> <value>
+Debug MMD Read <port_list> <mmd_list> <mmd_addr>
+Debug MMD Write <port_list> <mmd_list> <mmd_addr> <value>
+Debug Management [include|exclude]
+Debug PHY Read <port_list> <addr_list> [<page>]
+Debug PHY Write <port_list> <addr_list> <value> [<page>]
+Debug Port Polling [enable|disable]
+Debug Sym Query <word128>
+Debug Sym Read <word128>
+Debug Sym Write <word128> <value32>
+Debug Trace [<module>] [<group>] [off|error|info|debug|noise]
+Debug board dump
+Debug phy scan
+Debug sfp dump
+----
+
+== MESA Command Examples
+
+Get help on the port state command:
+
+----
+# mesa-cmd port state help
+Description:
+------------
+Set or show the port administrative state.
+
+Syntax:
+-------
+Port State [<port_list>] [enable|disable]
+
+Parameters:
+-----------
+<port_list>: Port list, default: All ports
+enable     : Enable
+disable    : Disable
+(default: Show mode)
+----
+
+Lets check the port status:
+
+----
+# mesa-cmd port state
+Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link
+----  --------  ------  ------------  --------  --------  --------  --------
+1     Enabled   Auto    Enabled       Enabled   Enabled   1518      1Gfdx
+2     Enabled   Auto    Enabled       Enabled   Enabled   1518      1Gfdx
+3     Enabled   1Gfdx   Disabled      Disabled  Disabled  1518      Down
+4     Enabled   1Gfdx   Disabled      Disabled  Disabled  1518      Down
+5     Enabled   1Gfdx   Disabled      Disabled  Disabled  1518      Down
+6     Enabled   1Gfdx   Disabled      Disabled  Disabled  1518      1Gfdx
+7     Enabled   10Gfdx  Disabled      Disabled  Disabled  1518      Down
+8     Enabled   10Gfdx  Disabled      Disabled  Disabled  1518      Down
+9     Enabled   Auto    Enabled       Enabled   Enabled   1518      1Gfdx
+#
+----
+
+Get help on the port statistics command:
+
+----
+# mesa-cmd port stati help
+Description:
+------------
+Show port statistics.
+
+Syntax:
+-------
+Port Statistics [<port_list>] [clear|packets|bytes|errors|discards]
+
+Parameters:
+-----------
+<port_list>: Port list, default: All ports
+clear      : Clear port statistics
+packets    : Show packet statistics
+bytes      : Show byte statistics
+errors     : Show error statistics
+discards   : Show discard statistics
+(default: Show all port statistics)
+----
+
+Show packet counters for port 1-8:
+
+----
+# mesa-cmd port stati 1-8 pac
+Port  Rx Packets          Tx Packets
+----  ------------------  ------------------
+1     50                  0
+2     0                   50
+3     0                   0
+4     0                   0
+5     0                   0
+6     0                   0
+7     0                   0
+8     76                  0
+----
+
+Dump API/AIL state for port 1-4:
+
+----
+# mesa-cmd deb api ail port 1-4
+Application Interface Layer
+===========================
+
+Port
+-----
+
+Mapping:
+
+Port  Chip Port  Chip  Max BW  MIIM Bus  MIIM Addr  MIIM Chip
+0     0          0     1G      0         0          0
+1     1          0     1G      0         1          0
+2     2          0     1G      -1        0          0
+3     3          0     1G      -1        0          0
+
+Configuration:
+
+Port  Interface    Serdes     Speed     Aneg  Obey      Generate  Max Length
+0     SGMII        SGMII      1Gfdx     No    Enabled   Enabled   1518+0
+1     SGMII        SGMII      1Gfdx     No    Enabled   Enabled   1518+0
+2     SERDES       1000BaseX  1Gfdx     No    Disabled  Disabled  1518+0
+3     SERDES       1000BaseX  1Gfdx     No    Disabled  Disabled  1518+0
+
+Forwarding:
+
+Port  State  Forwarding  STP State   Auth State  Rx Fwd    Tx Fwd    Aggr Fwd
+0     Up     Enabled     Forwarding  Both        Enabled   Enabled   Enabled
+1     Up     Enabled     Forwarding  Both        Enabled   Enabled   Enabled
+2     Down   Enabled     Forwarding  Both        Disabled  Disabled  Disabled
+3     Down   Enabled     Forwarding  Both        Disabled  Disabled  Disabled
+----
+
+Show all trace levels:
+
+----
+# mesa-cmd deb tr
+Module   Group       Level
+-------  ----------  -----
+api_ail  afi         error
+api_ail  clock       error
+api_ail  default     error
+api_ail  emul        error
+api_ail  evc         error
+api_ail  fdma        error
+api_ail  fdma_irq    error
+api_ail  hqos        error
+api_ail  hwprot      error
+api_ail  l2          error
+api_ail  l3          error
+api_ail  macsec      error
+api_ail  mpls        error
+api_ail  oam         error
+api_ail  packet      error
+api_ail  phy         error
+api_ail  port        error
+api_ail  qos         error
+api_ail  reg_check   error
+api_ail  security    error
+api_ail  ts          error
+api_ail  vcap        error
+api_cil  afi         error
+api_cil  clock       error
+api_cil  default     error
+api_cil  emul        error
+api_cil  evc         error
+api_cil  fdma        error
+api_cil  fdma_irq    error
+api_cil  hqos        error
+api_cil  hwprot      error
+api_cil  l2          error
+api_cil  l3          error
+api_cil  macsec      error
+api_cil  mpls        error
+api_cil  oam         error
+api_cil  packet      error
+api_cil  phy         error
+api_cil  port        error
+api_cil  qos         error
+api_cil  reg_check   error
+api_cil  security    error
+api_cil  ts          error
+api_cil  vcap        error
+cli      default     error
+debug    default     error
+ip       default     error
+json_rpc default     error
+mac      default     error
+main     default     error
+main     meba        error
+port     default     error
+regio    default     error
+symreg   default     error
+test     default     error
+vlan     default     error
+
+----
+
+Enable debug trace for port API at AIL and show the trace level:
+
+----
+# mesa-cmd deb tr api_ail port debug
+# mesa-cmd deb tr api_ail port
+Module   Group       Level
+-------  ----------  -----
+api_ail  port        debug
+----
+
+Read chip ID in different ways using symbolic register access:
+
+----
+# mesa-cmd debug sym read help
+Description:
+------------
+Read one/many switch register(s).
+
+Syntax:
+-------
+Debug Sym Read <word128>
+
+Parameters:
+-----------
+<word128>: Register pattern on the form 'target[t]:reggrp[g]:reg[r]', where
+        'target' is the name of the target (e.g. dev).
+        'reggrp' is the name of the register group.
+        'reg'    is the name of the register.
+        t        is a list of target replications if applicable.
+        g        is a list of register group replications if applicable.
+        r        is a list of register replications if applicable.
+        If a given replication (t, g, r) is omitted, all applicable replications will be accessed.
+        Both 'target', 'reggrp' and 'reg' may be omitted, which corresponds to wildcarding that part
+        of the name. Matches are exact, but wildcards ('*', '?') are allowed.
+# mesa-cmd debug sym read devcpu_gcb:chip_regs:chip_id
+Register                     Value      Decimal    31     24 23     16 15      8 7       0
+DEVCPU_GCB:CHIP_REGS:CHIP_ID 0x174150e9  390156521 0001.0111.0100.0001.0101.0000.1110.1001
+1 match found
+# mesa-cmd debug sym read devcpu_gcb::chip_id
+Register                     Value      Decimal    31     24 23     16 15      8 7       0
+DEVCPU_GCB:CHIP_REGS:CHIP_ID 0x174150e9  390156521 0001.0111.0100.0001.0101.0000.1110.1001
+1 match found
+# mesa-cmd debug sym read ::chip_id
+Register                     Value      Decimal    31     24 23     16 15      8 7       0
+DEVCPU_GCB:CHIP_REGS:CHIP_ID 0x174150e9  390156521 0001.0111.0100.0001.0101.0000.1110.1001
+1 match found
+# mesa-cmd debug sym read ::chip*
+Register                     Value      Decimal    31     24 23     16 15      8 7       0
+DEVCPU_GCB:CHIP_REGS:CHIP_ID 0x174150e9  390156521 0001.0111.0100.0001.0101.0000.1110.1001
+1 match found
+
+----

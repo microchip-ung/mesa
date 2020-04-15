@@ -47,7 +47,8 @@ int stdin_pipe = 1;
 int run_in_background = 0;
 
 int lockfile = 0;
-char lockfile_path[1024];
+#define LOCKFILE_PATH_SIZE 1024
+char lockfile_path[LOCKFILE_PATH_SIZE];
 struct timespec start_time;
 
 #define PREFIX_SIZE     40
@@ -617,7 +618,8 @@ int main(int argc, char *const argv[], char *const envp[]) {
                 break;
 
             case 'l':
-                strncpy(lockfile_path, optarg, 1024);
+                strncpy(lockfile_path, optarg, LOCKFILE_PATH_SIZE);
+                lockfile_path[LOCKFILE_PATH_SIZE - 1] = 0;
                 lockfile = 1;
                 break;
 

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -208,7 +208,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 #if defined(VTSS_AFI_V2)
 
 // Chip specific properties
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
 #define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
 #define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
@@ -288,7 +288,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
  */
 #define VTSS_AFI_FAST_INJ_FRM_CNT_MAX 8
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_FAST_INJ_CNT 32 /**< Maximum number of simultaneous fast injections */
 #elif defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_AFI_FAST_INJ_CNT 16 /**< Maximum number of simultaneous fast injections */

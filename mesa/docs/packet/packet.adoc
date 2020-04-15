@@ -1,0 +1,105 @@
+:sectnums:
+Frames can be transferred to/from the CPU in one of the following ways:
+
+* Frame DMA: The FDMA engine of the device is used to transfer frames via the DDR/PCIe interface.
+* NPI Port: One of the Ethernet ports of the device is used for CPU frame transfers.
+* Manual: Frame transfers are done using device register accesses.
+
+Transferred frames include an Internal Frame Header (IFH):
+
+* CPU Rx: The IFH is called an extraction header (size `MESA_CAP_PACKET_RX_IFH_SIZE`).
+* CPU Tx: The IFH is called an injection header (size `MESA_CAP_PACKET_TX_IFH_SIZE`).
+
+The IFH includes additional information such as ingress/egress port and classified VID.
+
+// AWN: What are the pros/cons? How to choose?
+// CPJ: This is a system archictecture decision, not sure it belongs here.
+
+== Frame DMA
+Frame DMA is provided via a Linux driver, which always places the IFH at offset 16.
+Each CPU Rx queue can be enabled for FDMA (`mesa_packet_dma_conf_t`).
+
+== NPI Port
+One of the Ethernet ports can be enabled as NPI port (`mesa_npi_conf_t`).
+The placement of the IFH depends on the device:
+
+* The IFH is at offset 0 if the capability `MESA_CAP_PACKET_RX_IFH_SIZE` is 8.
+* The IFH if at offset 16 if the capability `MESA_CAP_PACKET_RX_IFH_SIZE` is not 8.
+
+When setting up the CPU Rx queue system of the device, each queue can be enabled
+for NPI port redirection (`mesa_packet_rx_queue_npi_conf_t`).
+
+== Manual Transfers
+The API provides functions for manual tranfers:
+
+* Rx frame with IFH at offset 0 (`mesa_packet_rx_frame_get_raw()`).
+* Rx frame with simple header (`mesa_packet_rx_frame_get()`)
+* Tx frame with IFH (`mesa_packet_tx_frame()`).
+* Tx frame to port (`mesa_packet_tx_frame_port()`).
+* Tx frame to VLAN (`mesa_packet_tx_frame_vlan()`).
+* Tx frame to port and VLAN (`mesa_packet_tx_frame_port_vlan()`).
+
+== CPU Rx Registration
+Received frames can be sent to the CPU in multiple ways:
+
+* Via MAC address table entries (`mesa_mac_table_entry_t`).
+* Via learn mode (`mesa_learn_mode_t`).
+* Via sFlow sampling (`mesa_sflow_port_conf_t`).
+* Via ACL actions (`mesa_acl_action_t`).
+* Via router legs (`mesa_l3_rleg_conf_t`) and routing setup.
+* Via the Versatile OAM Processor (`mesa_vop_conf_t`).
+* Via packet registrations (`mesa_packet_rx_reg_t` and `mesa_packet_rx_port_conf_t`).
+
+Mapping to CPU Rx queue is done via the functions above or the CPU Rx queue mapping (`mesa_packet_rx_queue_map_t`).
+The CPU Rx queue system is setup with strict priority using queue 0 as lowest priority and queue 7 as highest priority.
+This can be used to prioritize between frames to the CPU.
+
+== CPU Rx/Tx Processing
+API functions are available for Rx/Tx frame processing:
+
+* Decode extraction header (`mesa_packet_rx_hdr_decode()`).
+* Encode injection header (`mesa_packet_tx_hdr_encode()`).
+* Ingress and/or egress filtering information for one egress port (`mesa_packet_frame_filter()`).
+* Ingress and/or egress filtering information for all egress ports (`mesa_packet_port_filter_get()`).
+
+The ingress/egress filtering functions can for example be used for IGMP snooping.
+IGMP frames may be redirected to the CPU by the device even though the ingress
+port is in STP discarding state. In that case, `mesa_packet_frame_filter()` can
+be used to determine if the frame must be discarded by the CPU.
+When forwarding IGMP frames to other ports, (`mesa_packet_port_filter_get()`)
+can be used to avoid forwarding back to ports in the same aggregation.
+It is also possible to determine whether to add a VLAN tag for each egress port.
+
+== API Functions
+`mesa_npi_conf_get()` +
+`mesa_npi_conf_set()` +
+`mesa_packet_rx_conf_get()` +
+`mesa_packet_rx_conf_set()` +
+`mesa_packet_rx_port_conf_get()` +
+`mesa_packet_rx_port_conf_set()` +
+`mesa_packet_rx_frame_get()` +
+`mesa_packet_rx_frame_get_raw()` +
+`mesa_packet_rx_frame_discard()` +
+`mesa_packet_tx_frame_port()` +
+`mesa_packet_tx_frame_port_vlan()` +
+`mesa_packet_tx_frame_vlan()` +
+`mesa_packet_frame_filter()` +
+`mesa_packet_port_info_init()` +
+`mesa_packet_port_filter_get()` +
+`mesa_packet_vlan_filter_get()` +
+`mesa_packet_vlan_status_get()` +
+`mesa_packet_vlan_vsi_map_get()` +
+`mesa_packet_tx_frame_vstax()` +
+`mesa_packet_vstax_header2frame()` +
+`mesa_packet_vstax_frame2header()` +
+`mesa_packet_rx_hdr_decode()` +
+`mesa_packet_tx_hdr_encode()` +
+`mesa_packet_tx_hdr_compile()` +
+`mesa_packet_tx_frame()` +
+`mesa_packet_tx_info_init()` +
+`mesa_packet_dma_conf_get()` +
+`mesa_packet_dma_conf_set()` +
+`mesa_packet_dma_offset()` +
+`mesa_packet_phy_cnt_to_ts_cnt()` +
+`mesa_packet_ns_to_ts_cnt()` +
+`mesa_ptp_get_timestamp()`

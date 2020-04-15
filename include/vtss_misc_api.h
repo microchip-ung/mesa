@@ -215,6 +215,7 @@ typedef enum {
     VTSS_DEBUG_GROUP_L3,        /**< L3 services */
     VTSS_DEBUG_GROUP_AFI,       /**< Automatic Frame Injector */
     VTSS_DEBUG_GROUP_MACSEC,    /**< 802.1AE MacSec */
+    VTSS_DEBUG_GROUP_SERDES,    /**< Serdes Macroes */
 
     /* New groups are added above this line */
     VTSS_DEBUG_GROUP_COUNT      /**< Number of groups */
@@ -527,11 +528,11 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #define VTSS_GPIOS         64
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         64
-#endif /* VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_SPARX5 */
 
 /** \brief GPIO number */
 typedef u32 vtss_gpio_no_t;
@@ -665,10 +666,10 @@ vtss_rc vtss_gpio_event_enable(const vtss_inst_t       inst,
 #define VTSS_SGPIO_GROUPS 3
 #endif /* VTSS_ARCH_JAGUAR_2_B/C */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS  3
-#endif /* VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_SPARX5 */
 
 /** \brief Serial GPIO group */
 typedef u32 vtss_sgpio_group_t;

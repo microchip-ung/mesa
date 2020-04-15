@@ -1,0 +1,139 @@
+= MESA-2019.09
+
+== MESA-2019.09
+
+|===
+|Version:          |MESA-2019.09
+|Previous Version: |MESA-2019.06
+|Date:             |2019-09-27
+|Description:      |Roadmap release
+|===
+
+
+=== Disclaimers
+
+The support of SparX-5/5i (all SKUs) in this release is considered to be in BETA
+quality. It can be used for early access, to evaluate the features and/or start
+SW integration. It is not suitable for production use, and may change
+significantly in future releases.
+
+=== SparX-5/5i limited to VSC7558 / VSC7558TSN (temporary)
+
+The support of SparX-5/5i has been limited to the VSC7558 and VSC7558TSN
+(industrial version) SKUs. This is a temporary limitation which is expected to
+be removed again at the next release.
+
+Customers targeting other SKUs, should continue their work using VSC7558 and
+VSC7558TSN (all samples send out can operate as VSC7558TSN). The API will be the
+same for all SKUs in the SparX-5/5i family.
+
+
+=== Per Stream Filtering and Policing (PSFP) APIs added
+
+PSFP API and implementation supporting SparX-5i has been added. Please consult
+the errata sheet regarding limitations in the A0 chip revision.
+
+The PSFP function operates on the ingress direction on flows of traffic,
+classified by the Enhanced VLAN API. The PSFP function provides a gate, a filter
+and a metering function. The gate is driven by a time aware calendar which
+controls when the gate is open or closed. If a frame is received when the gate
+is closed, it is dropped. The filter looks at the packet size, and can be
+configured to drop packets larger than a given size. The meter is a dual leaky
+bucket performing the policing.
+
+PSFP was originally developed in 802.1Qci, and is now merged into 802.1Q-2018.
+
+The new APIs are defined in the tsn.h header file and prefixed with
+'mesa_psfp_'. The classification of packets is done using the Enhanced VLAN API,
+found in l2.h.
+
+
+=== Frame Replication and Elimination for Reliability (FRER) APIs added
+
+FRER API and implementation supporting SparX-5i has been added.
+
+FRER is a flow based function. FRER operating on a flow, can a) replicate the
+frames in the flow, and emit them on 2 or more egress flows, b) merge replicated
+flows and eliminate duplicates or c) do recovery on replicated streams (both a
+and b). FRER uses a R-TAG, which carry the sequence number which is used when
+eliminating replicated traffic.
+
+The FRER specification can be found in 802.1CB-2017.
+
+The new APIs are defined in the tsn.h header file and prefixed with
+'mesa_frer_'. The classification of packets is done using the Enhanced VLAN API
+found in l2.h.
+
+
+=== Cut Through API added
+
+Cut Through API and implementation supporting SparX-5i has been added.
+
+When Cut Through is enabled the switch will (if possible) start transmitting the
+frame on the egress port before it is completely received. This can provide a
+better latency through the switch, but it also means that the switch will not be
+able to filter out packets with CRC errors (which is why it should not be used
+along with FRER). Cut Through is only possible if the egress port is running at
+the same or lower speed than the ingress port.
+
+Cut Through was specified in the 802.1Qcc drafts, but was since removed, and
+never made it into 802.1Q-2018.
+
+The API controlling this is a new attribute in `mesa_qos_port_queue_conf_t`
+found in the `qos.h` header.
+
+
+=== Frame Preemption API added
+
+Frame Preemption API and implementation supporting SparX-5i has been added.
+Please consult the errata sheet regarding limitations in the A0 chip revision.
+
+The Frame Preemption functions provides an Express MAC (EMAC) and a Preemptable
+MAC (PMAC). When a large frame is being transmitted on the PMAC, it can be
+preempted (put on pause) by a frame in the EMAC, which can go out before exiting
+frames is completely transmitted. Once the EMAC is empty, the PMAC will continue
+transmitting the remaining fragment.
+
+By using this, a lower latency through the network can be achieved for traffic
+associated to the express queue.
+
+Frame Preemption was originally developed in 802.1Qbu, which is now merged into
+802.1Q-2018. The Ethernet part is described in 802.3br.
+
+The Frame Preemption APIs are prefixed with 'mesa_qos_fp_' found in the qos.h
+header file.
+
+
+=== Support in MEBA for PCB134 and PCB135 added
+
+Microchip Ethernet Board API (MEBA) how has support for PCB134 and PCB135 which
+are both based on SparX-5i.
+
+Customer building their own boards are encouraged to use these MEBA
+implementations as a starting point when adding support for new boards.
+
+The supported features include: port maps, SFP mapping and LEDs.
+
+Fan, PoE, ToD and SyncE support is not implemented for PCB134 and PCB135 in this
+release.
+
+
+=== MESA-DOC added (BETA)
+
+This release introduces mesa-doc, which will collect all the API documentation in
+one place. MESA-Doc is a html file located in the root of the source archive; to
+read it, simply open it using Chrome/Firefox browser.
+
+In this release, MESA-DOC has replaced the AN1007, ug1069, ug1070 and Doxygen.
+Beside this content, it also offers a lot of new content.
+
+
+=== Time Aware Scheduler (TAS / TS) headers added
+
+TAS preliminary headers are included, but no implementation is available at this
+point. These headers may change when the implementation is added.
+
+TAS was renamed to Enhancements for Scheduled Traffic (ST) before merged into
+the 802.1Q-2018 standard. It goes under both names. TAS/ST was originally
+developed in 802.1Qbv, which is now merged into 802.1Q-2018.
+

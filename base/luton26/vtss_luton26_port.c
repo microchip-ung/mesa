@@ -2348,7 +2348,7 @@ static vtss_rc l26_debug_port(vtss_state_t *vtss_state,
 static void l26_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
                           vtss_chip_counter_t *c1, vtss_chip_counter_t *c2)
 {
-    char buf[80];
+    char buf[400];
 
     sprintf(buf, "rx_%s:", col1);
     pr("%-19s%19" PRIu64, buf, c1->prev);
@@ -2363,7 +2363,7 @@ static void l26_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
                                const char *col1, const char *col2,
                                vtss_chip_counter_t *c1, vtss_chip_counter_t *c2)
 {
-    char buf[80];
+    char buf[200];
 
     sprintf(buf, "%s_%u", col1, i);
     l26_debug_cnt(pr, buf, col2, c1, c2);

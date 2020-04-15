@@ -455,6 +455,9 @@ static vtss_rc jr2_vcap_entry_del(vtss_state_t *vtss_state, vtss_vcap_type_t typ
     u32                    size = (vcap->version_new ? jr2_vcap_key_type(idx->key_size) : JR2_VCAP_TG_X1);
 
     VTSS_I("%s, row: %u, col: %u, addr: %u", vcap->name, idx->row, idx->col, addr);
+    if (!vcap->version_new) {
+        JR2_WR(VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_RULE_ENA(vcap->target), 0);
+    }
     JR2_WR(VTSS_VCAP_CORE_VCAP_CORE_CFG_VCAP_MV_CFG(vcap->target),
            VTSS_F_VCAP_CORE_VCAP_CORE_CFG_VCAP_MV_CFG_MV_SIZE(size - 1));
     return jr2_vcap_cmd(vtss_state, vcap, addr, JR2_VCAP_CMD_INITIALIZE, JR2_VCAP_SEL_ALL);
@@ -1100,7 +1103,7 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
     vtss_vcap_bit_t        g_idx_isdx = (g_idx.mask ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_ANY);
     vtss_port_no_t         port_no;
     jr2_clm_key_info_t     info;
-    BOOL                   sipv6_copy = 0, y1731 = FALSE;
+    BOOL                   sipv6_copy = 0, y1731 = FALSE, ip = 0;
 
     memset(data, 0, sizeof(*data));
     data->vcap_type = type;
@@ -1180,6 +1183,7 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_IS1_TYPE_IPV4:
     case VTSS_IS1_TYPE_IPV6:
+        ip = 1;
         if (key->key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR) {
             x8_type = CLM_X8_TYPE_5TUPLE_IP4;
         }
@@ -1382,7 +1386,7 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
             jr2_vcap_key_bit_set(data, CLM_KO_NORMAL_FRAGMENT, info.fragment);
             jr2_vcap_key_bit_set(data, CLM_KO_NORMAL_OPTIONS, info.options);
             jr2_vcap_key_set(data, CLM_KO_NORMAL_DSCP, CLM_KL_NORMAL_DSCP, info.dscp.value, info.dscp.mask);
-            jr2_vcap_key_ipv4_set(data, CLM_KO_NORMAL_SIP, key->dmac_dip ? &info.dip : &info.sip);
+            jr2_vcap_key_ipv4_set(data, CLM_KO_NORMAL_SIP, key->dmac_dip && ip ? &info.dip : &info.sip);
             jr2_vcap_key_bit_set(data, CLM_KO_NORMAL_TCP_UDP, info.tcp_udp);
             jr2_vcap_key_bit_set(data, CLM_KO_NORMAL_TCP, info.tcp);
             jr2_vcap_key_u16_set(data, CLM_KO_NORMAL_SPORT, &info.sport);
@@ -2472,7 +2476,9 @@ static vtss_rc jr2_is2_action_set(vtss_state_t *vtss_state, jr2_vcap_data_t *dat
             if (action->port_list[port_no]) {
                 discard = 0;
                 port = VTSS_CHIP_PORT(port_no);
-                jr2_act_set(data, IS2_AO_PORT_MASK + port, 1, 1);
+                if (act != VTSS_ACL_PORT_ACTION_REDIR || vtss_state->l2.tx_forward_aggr[port_no]) {
+                    jr2_act_set(data, IS2_AO_PORT_MASK + port, 1, 1);
+                }
             }
         }
     }
@@ -2828,6 +2834,32 @@ static vtss_rc jr2_is2_entry_get(vtss_state_t *vtss_state,
     cnt_id = jr2_act_get(&data, IS2_AO_CNT_ID, IS2_AL_CNT_ID);
     VTSS_RC(jr2_is2_cnt_get(vtss_state, cnt_id, counter));
     return (clear ? jr2_is2_cnt_set(vtss_state, cnt_id, 0) : VTSS_RC_OK);
+}
+
+static vtss_rc jr2_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
+{
+    const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
+    jr2_vcap_data_t        jr2_data, *data = &jr2_data;
+    vtss_port_no_t         port_no;
+    u32                    addr, port, member;
+
+    data->vcap_type = VTSS_VCAP_TYPE_IS2;
+    data->tg = JR2_VCAP_TG_X1;
+    addr = jr2_vcap_entry_addr(vtss_state, data->vcap_type, idx);
+    VTSS_I("%s, row: %u, col: %u, addr: %u", vcap->name, idx->row, idx->col, addr);
+
+    /* Read action */
+    VTSS_RC(jr2_vcap_entry_cmd(vtss_state, data, addr, data->tg, JR2_VCAP_CMD_READ, JR2_VCAP_SEL_ACTION));
+
+    /* Update action fields */
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        port = VTSS_CHIP_PORT(port_no);
+        member = (VTSS_PORT_BF_GET(is2->action.member, port_no) && vtss_state->l2.tx_forward_aggr[port_no]);
+        jr2_act_set(data, IS2_AO_PORT_MASK + port, 1, member);
+    }
+
+    /* Write action */
+    return jr2_vcap_entry_cmd(vtss_state, data, addr, data->tg, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ACTION);
 }
 
 static vtss_rc jr2_debug_is2(vtss_state_t *vtss_state, jr2_vcap_data_t *data)
@@ -3673,6 +3705,7 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
     u32                         i, cnt_id = 0;
     vtss_vcap_key_size_t        key_size, key_lpm;
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
+    vtss_port_no_t              port_no;
 
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
@@ -3727,6 +3760,14 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
     is2->cnt_id = cnt_id;
     entry.ace = *ace;
     data.key_size = key_size;
+    if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
+        is2->action.redir = 1;
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (ace->action.port_list[port_no]) {
+                VTSS_PORT_BF_SET(is2->action.member, port_no, 1);
+            }
+        }
+    }
     if (sip_smac_new) {
         entry.host_match = 1;
         entry.ace.frame.ipv4.sip.value = ipv4->sip_smac.sip;
@@ -3946,6 +3987,7 @@ vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t *vtss_state, vtss_port_no_t po
     JR2_ACT_SET(ES0, MAP_2_KEY, map.key);
     JR2_ACT_SET(ES0, DSCP_SEL,  dscp_sel);
     JR2_ACT_SET(ES0, ESDX_BASE, 1);
+    JR2_ACT_SET(ES0, INDEP_MEL_ENA, 1); // By default, get Port VOE to see frames as data frames
     return jr2_vcap_entry_cmd(vtss_state, data, addr, data->type, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ACTION);
 }
 
@@ -4020,7 +4062,7 @@ static vtss_rc jr2_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_i
     u32                    cosid, mep_ena = 0, mep_idx = 0, mip_idx = 0, esdx = 0, cosid_offset = 0;
 
     if (eflow != NULL) {
-        if (eflow->conf.voe_idx != VTSS_VOE_IDX_NONE) {
+        if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
             mep_ena = 1;
             mep_idx = eflow->conf.voe_idx;
         }
@@ -4336,6 +4378,7 @@ vtss_rc vtss_jr2_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_move = jr2_is2_entry_move;
         is2->entry_get = jr2_is2_entry_get;
         is2->vcap_super = vcap_super;
+        state->is2_entry_update = jr2_is2_entry_update;
 
         /* ES0 */
         es0->max_count = VTSS_JR2_ES0_CNT;

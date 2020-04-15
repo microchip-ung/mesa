@@ -203,7 +203,7 @@ static mesa_rc test_fa_time_stamp(void)
 {
     uint32_t                     ctrl_cnt, offset;
     mesa_mac_t                   smac;
-    mesa_ts_autoresp_ctrl_cfg_t  auto_cfg;
+    mesa_ts_autoresp_dom_cfg_t   auto_cfg;
     mesa_timestamp_t             ts;
     uint64_t                     tc;
     mesa_synce_clock_out_t       synce_out_cfg;
@@ -222,8 +222,8 @@ static mesa_rc test_fa_time_stamp(void)
         return MESA_RC_ERROR;
     }
 
-    MESA_RC(mesa_ts_autoresp_ctrl_cfg_set(0, 1, &auto_cfg));
-    MESA_RC(mesa_ts_autoresp_ctrl_cfg_get(0, 1, &auto_cfg));
+    MESA_RC(mesa_ts_autoresp_dom_cfg_set(0, 1, &auto_cfg));
+    MESA_RC(mesa_ts_autoresp_dom_cfg_get(0, 1, &auto_cfg));
     MESA_RC(mesa_ts_smac_set(0, 1, &smac));
     MESA_RC(mesa_ts_smac_get(0, 1, &smac));
 

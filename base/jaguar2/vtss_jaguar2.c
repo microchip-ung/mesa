@@ -342,7 +342,7 @@ void vtss_jr2_debug_reg(vtss_state_t *vtss_state,
                         const vtss_debug_printf_t pr, u32 addr, const char *name)
 {
     u32 value;
-    char buf[64];
+    char buf[100];
 
     if (vtss_jr2_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
         sprintf(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f, addr & 0x3fff);

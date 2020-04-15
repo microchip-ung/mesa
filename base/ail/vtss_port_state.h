@@ -30,6 +30,10 @@ typedef struct {
 } vtss_chip_counter_t;
 
 typedef struct {
+    vtss_chip_counter_t c[2];
+} vtss_dual_counter_t;
+
+typedef struct {
     /* Rx counters */
     vtss_chip_counter_t rx_octets;
     vtss_chip_counter_t rx_unicast;
@@ -211,28 +215,28 @@ typedef struct {
 typedef struct {
     /* Rx counters */
     vtss_chip_counter_t rx_in_bytes;
-    vtss_chip_counter_t rx_symbol_err;
-    vtss_chip_counter_t rx_pause;
-    vtss_chip_counter_t rx_unsup_opcode;
-    vtss_chip_counter_t rx_ok_bytes;
-    vtss_chip_counter_t rx_bad_bytes;
-    vtss_chip_counter_t rx_unicast;
-    vtss_chip_counter_t rx_multicast;
-    vtss_chip_counter_t rx_broadcast;
-    vtss_chip_counter_t rx_crc_err;
-    vtss_chip_counter_t rx_undersize;
-    vtss_chip_counter_t rx_fragments;
-    vtss_chip_counter_t rx_in_range_len_err;
-    vtss_chip_counter_t rx_out_of_range_len_err;
-    vtss_chip_counter_t rx_oversize;
-    vtss_chip_counter_t rx_jabbers;
-    vtss_chip_counter_t rx_size64;
-    vtss_chip_counter_t rx_size65_127;
-    vtss_chip_counter_t rx_size128_255;
-    vtss_chip_counter_t rx_size256_511;
-    vtss_chip_counter_t rx_size512_1023;
-    vtss_chip_counter_t rx_size1024_1518;
-    vtss_chip_counter_t rx_size1519_max;
+    vtss_dual_counter_t rx_symbol_err;
+    vtss_dual_counter_t rx_pause;
+    vtss_dual_counter_t rx_unsup_opcode;
+    vtss_dual_counter_t rx_ok_bytes;
+    vtss_dual_counter_t rx_bad_bytes;
+    vtss_dual_counter_t rx_unicast;
+    vtss_dual_counter_t rx_multicast;
+    vtss_dual_counter_t rx_broadcast;
+    vtss_dual_counter_t rx_crc_err;
+    vtss_dual_counter_t rx_undersize;
+    vtss_dual_counter_t rx_fragments;
+    vtss_dual_counter_t rx_in_range_len_err;
+    vtss_dual_counter_t rx_out_of_range_len_err;
+    vtss_dual_counter_t rx_oversize;
+    vtss_dual_counter_t rx_jabbers;
+    vtss_dual_counter_t rx_size64;
+    vtss_dual_counter_t rx_size65_127;
+    vtss_dual_counter_t rx_size128_255;
+    vtss_dual_counter_t rx_size256_511;
+    vtss_dual_counter_t rx_size512_1023;
+    vtss_dual_counter_t rx_size1024_1518;
+    vtss_dual_counter_t rx_size1519_max;
     vtss_chip_counter_t rx_local_drops;
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t rx_green_drops[VTSS_PRIOS];
@@ -243,18 +247,18 @@ typedef struct {
 
     /* Tx counters */
     vtss_chip_counter_t tx_out_bytes;
-    vtss_chip_counter_t tx_pause;
-    vtss_chip_counter_t tx_ok_bytes;
-    vtss_chip_counter_t tx_unicast;
-    vtss_chip_counter_t tx_multicast;
-    vtss_chip_counter_t tx_broadcast;
-    vtss_chip_counter_t tx_size64;
-    vtss_chip_counter_t tx_size65_127;
-    vtss_chip_counter_t tx_size128_255;
-    vtss_chip_counter_t tx_size256_511;
-    vtss_chip_counter_t tx_size512_1023;
-    vtss_chip_counter_t tx_size1024_1518;
-    vtss_chip_counter_t tx_size1519_max;
+    vtss_dual_counter_t tx_pause;
+    vtss_dual_counter_t tx_ok_bytes;
+    vtss_dual_counter_t tx_unicast;
+    vtss_dual_counter_t tx_multicast;
+    vtss_dual_counter_t tx_broadcast;
+    vtss_dual_counter_t tx_size64;
+    vtss_dual_counter_t tx_size65_127;
+    vtss_dual_counter_t tx_size128_255;
+    vtss_dual_counter_t tx_size256_511;
+    vtss_dual_counter_t tx_size512_1023;
+    vtss_dual_counter_t tx_size1024_1518;
+    vtss_dual_counter_t tx_size1519_max;
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t tx_yellow_class[VTSS_PRIOS];
     vtss_chip_counter_t tx_green_class[VTSS_PRIOS];
@@ -267,6 +271,14 @@ typedef struct {
     vtss_chip_counter_t tx_xdefer;
     vtss_chip_counter_t tx_csense;
     vtss_chip_counter_t tx_backoff1;
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    /* Rx counters */
+    vtss_chip_counter_t rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
+    vtss_chip_counter_t rx_mm_smd_errors;      /* 802.3br aMACMergeFrameSmdErrorCount */
+    vtss_chip_counter_t rx_mm_assembly_ok;     /* 802.3br aMACMergeFrameAssOkCount    */
+    vtss_chip_counter_t rx_mm_fragments;       /* 802.3br aMACMergeFragCountRx        */
+    vtss_chip_counter_t tx_mm_fragments;       /* 802.3br aMACMergeFragCountTx */
+#endif
 } vtss_port_fa_counters_t;
 
 typedef struct {

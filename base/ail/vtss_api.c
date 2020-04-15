@@ -44,7 +44,7 @@
 #include "../jaguar2/vtss_jaguar2.h"
 #endif
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #include "../fa/vtss_fa.h"
 #endif
 
@@ -360,7 +360,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         VTSS_RC(vtss_jaguar2_inst_create(vtss_state));
         break;
 #endif /* VTSS_ARCH_JAGUAR_2 */
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7549:
     case VTSS_TARGET_7552:
@@ -374,7 +374,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         arch = VTSS_ARCH_FA;
         VTSS_RC(vtss_fa_inst_create(vtss_state));
         break;
-#endif /* VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_SPARX5 */
     default:
         VTSS_E("unknown target: 0x%05x", create->target);
         return VTSS_RC_ERROR;
@@ -546,10 +546,21 @@ vtss_rc vtss_register_access_mode_set(const vtss_inst_t inst, BOOL spi_bus)
 /* SPI slave initialization configuration */
 vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 {
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     u32 if_ctrl = 0, if_cfgstat = 0, value;
+#ifdef VTSS_ARCH_SPARX5
+    u32 base_addr = 0x40406A;
+    u32 chip_id;
+#else
+    u32 base_addr = 0;
+#endif
 
     VTSS_D("enter");
+
+#ifdef VTSS_ARCH_SPARX5
+    conf->reg_read(0, 0x404000, &chip_id);
+    VTSS_D("chipid: 0x%08x", chip_id);
+#endif
 
     if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
         if_ctrl |= 0x01;
@@ -561,16 +572,16 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 
     if_cfgstat = conf->padding & 0xf;
 
-    VTSS_RC(conf->reg_write(0, 0, if_ctrl));
-    VTSS_RC(conf->reg_write(0, 1, if_cfgstat));
+    VTSS_RC(conf->reg_write(0, base_addr + 0, if_ctrl));
+    VTSS_RC(conf->reg_write(0, base_addr + 1, if_cfgstat));
 
-    VTSS_RC(conf->reg_read(0, 0, &value));
+    VTSS_RC(conf->reg_read(0, base_addr + 0, &value));
     if (if_ctrl != value) {
         VTSS_E("Wrong if_ctrl 0x%08x |= 0x%08x", if_ctrl, value);
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(conf->reg_read(0, 1, &value));
+    VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
     if (if_cfgstat != (value & 0x0000000f)) {
         VTSS_E("Wrong if_cfgstat 0x%08x |= 0x%08x", if_cfgstat, value);
         return VTSS_RC_ERROR;
@@ -643,6 +654,7 @@ const char *vtss_port_if_txt(vtss_port_interface_t if_type)
     case VTSS_PORT_INTERFACE_QXGMII:        return "QXGMII";
     case VTSS_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     case VTSS_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
+    case VTSS_PORT_INTERFACE_CPU:           return "CPU";
     }
     return "?   ";
 }
@@ -691,6 +703,21 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
     case VTSS_SERDES_MODE_TEST_MODE: return "TEST";
     case VTSS_SERDES_MODE_USXGMII:   return "USXGMII";
     case VTSS_SERDES_MODE_USGMII:    return "USGMII";        
+    }
+    return "?   ";
+}
+
+const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
+{
+    switch (mt) {
+    case VTSS_SD10G_MEDIA_SR:        return "SR";
+    case VTSS_SD10G_MEDIA_ZR:        return "ZR";
+    case VTSS_SD10G_MEDIA_DAC:       return "DAC3m";
+    case VTSS_SD10G_MEDIA_DAC_5M:    return "DAC5m";
+    case VTSS_SD10G_MEDIA_BP:        return "BP";
+    case VTSS_SD10G_MEDIA_B2B:       return "B2B";
+    case VTSS_SD10G_MEDIA_10G_KR:    return "KR";
+    case VTSS_SD10G_MEDIA_PR_NONE:   return "None";
     }
     return "?   ";
 }
@@ -817,7 +844,6 @@ vtss_rc vtss_synce_clock_in_get(const vtss_inst_t            inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_SERVAL_T)
 /* Set the configuration of a station clock output */
 vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t              inst,
                                  const vtss_synce_clk_port_t    clk_port,
@@ -838,6 +864,7 @@ vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t              inst
     return rc;
 }
 
+#if defined(VTSS_ARCH_SERVAL_T)
 /* Get the configuration of a station clock output */
 vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t            inst,
                                  const vtss_synce_clk_port_t  clk_port,

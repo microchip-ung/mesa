@@ -34,16 +34,16 @@
  * ================================================================= */
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \
     defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7558)
-#define VTSS_ARCH_JAG3S5                         /**< Jaguar-3/SparX-5 architecture */
+#define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-5 architecture */
 #endif
 
 #if defined(VTSS_CHIP_7546_04) || defined(VTSS_CHIP_7549_04) || defined(VTSS_CHIP_7552_04) || \
     defined(VTSS_CHIP_7556_04) || defined(VTSS_CHIP_7558_04)
-#define VTSS_ARCH_JAG3S5                         /**< Jaguar-3/SparX-V architecture */
+#define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-V architecture */
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
 #endif
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
 // #define VTSS_FEATURE_10GBASE_KR_V2               /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). JR2-C version.  */
@@ -79,7 +79,8 @@
 #define VTSS_FEATURE_QOS_POLICER_DLB             /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
-#define VTSS_FEATURE_QOS_QBV                      /**< QoS: Scheduled Traffic support (802.1Qbv) */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
+#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 // Unused VTSS_FEATURE_QOS_ defines (they exist for backwards compatibility):
 #define VTSS_FEATURE_QCL_V2                       /**< QoS: QoS Control Lists, V2 features */
@@ -114,6 +115,8 @@
 #define VTSS_FEATURE_VLAN_PORT_V2                 /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG                  /**< VLAN tagging per (VID, port) */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
+#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                 /**< Automatic MAC address ageing */
@@ -156,7 +159,7 @@
 //     #define VTSS_OPT_FDMA_VER 3                  /**< Use of VTSS_OPT_FDMA_VER is the preferred way to indicate which version of the FDMA API is required */
 //   #endif
 //   #if VTSS_OPT_FDMA_VER != 3
-//     #error "JAG3S5 only supports FDMA API v3"
+//     #error "SPARX4 only supports FDMA API v3"
 //   #endif
 // #endif /* VTSS_OPT_VCORE_IV != 0 */
 // #if !defined(VTSS_OPT_PCIE_ACCESS) && !defined(VTSS_OPT_VRAP_ACCESS)
@@ -167,13 +170,16 @@
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
-#endif /* VTSS_ARCH_JAG3S5 */
+#endif /* VTSS_ARCH_SPARX5 */
 
 #if defined(VTSS_ARCH_S5I)
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
-#elif defined(VTSS_ARCH_JAG3S5)
+#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
-#endif /* VTSS_ARCH_JAG3S5_CE */
+#endif /* VTSS_ARCH_SPARX5_CE */
 
 #if defined(VTSS_CHIP_SPARX_IV_44) || defined(VTSS_CHIP_SPARX_IV_52) || defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)
 #define VTSS_ARCH_JAGUAR_2                     /**< Jaguar-2 architecture */
@@ -274,6 +280,8 @@
 #define VTSS_FEATURE_VLAN_PORT_V2                /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG                 /**< VLAN tagging per (VID, port) */
 #define VTSS_FEATURE_VLAN_SVL                    /**< Shared VLAN Learning */
+#define VTSS_FEATURE_VCL_KEY_DMAC                /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP                 /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP                 /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                 /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                /**< Automatic MAC address ageing */
@@ -499,6 +507,8 @@
 #define VTSS_FEATURE_PVLAN                     /**< Private VLANs */
 #define VTSS_FEATURE_VLAN_PORT_V2              /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG               /**< VLAN tagging per (VID, port) */
+#define VTSS_FEATURE_VCL_KEY_DMAC              /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP               /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP               /**< Source specific IPv4 multicast */
 //#define VTSS_FEATURE_IPV6_MC_SIP               /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO              /**< Automatic MAC address ageing */
@@ -560,7 +570,7 @@
 #define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
 #endif
 

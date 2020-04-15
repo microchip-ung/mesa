@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -753,7 +753,8 @@ static mesa_rc symreg_query_init(void **handle, char *pattern,
         }
 
         if (cnt > 0) {
-            strncpy(inst->state[i].pattern, str1, cnt + 1);
+            strncpy(inst->state[i].pattern, str1,
+                    SYMREG_NAME_LEN_MAX + SYMREG_REPL_LEN_MAX + 1);
             // Terminate in case a colon was found in str1.
             inst->state[i].pattern[cnt] = '\0';
             at_least_one_component_found = TRUE;

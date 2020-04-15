@@ -1,0 +1,76 @@
+= L3
+
+The L3 API provides facilities to configure IP-routing between two or more L2
+broadcast domains. The API supports unicast routing of both IPv4 and IPv6
+traffic, and it support routing between VLANs.
+
+See link:../../../include/mscc/ethernet/switch/api/l3.h.html[l3.h] for more details.
+
+*NOTE:* All L3 functionality depends on the `mscc-sym:CAP(L3)` capability.
+
+== Configuration entities
+
+The Layer 3 functionality is build around some global configuration and three
+tables: router-legs (`rleg`), longest-prefix-match (`LPM`) and neighbour-table
+(ARP). Following is the purpose of these configurations entities.
+
+=== Global configuration
+
+Global configuration is required to enable routing and to configure the MAC
+addressing schema to use for the router legs.
+
+See `mscc-sym:mesa_l3_common_set` for more details.
+
+=== Router legs
+
+The purpose of L3 routing is to forward IP frames from one L3 interface to
+another. The router legs represents these L3 interfaces. A router leg is
+connected L2 broadcast domain, typically a VLAN. A router leg has a MAC-address
+and a set of other attributes to enable/disable IPv4/IPv6 routing and VRRP
+settings. If an IP frame is received on a VLAN which has an associated router
+leg, and the destination MAC of the frame matches the MAC address of the router
+leg, then the frame is candidate for being routed.
+
+See `mscc-sym:mesa_l3_rleg_add` for more details.
+
+//NOTE: The router leg table should be synchronized with the interface table in
+*NOTE:* The router leg table should be synchronized with the interface table in
+the operating systems IP stack. When a L3 interface is added in the operating
+system, a corresponding router leg should be created. When an IP address is
+assigned to a given L3 interface in the IP stack, then the corresponding
+interface route should be installed in the `LPM` table.
+
+=== Routing table
+
+The routing table (also called the longest prefix match table, as this is what
+it does) is where the actual routing takes place. If an IP frame qualifies for
+routing (see the section on router legs) then the destination IP address is
+matched against the `LPM` table. The best match (the longest prefix match) in
+the `LPM` table is used to route the frame. If no match is found in the `LPM`
+table, then the frame is forwarded to the CPU. The `LPM` table should include
+network routes, host routes and interface routes. An interface route is a route
+representing the configured IP range of the interface, and with the destination
+configured should zero - which will cause the frame to be send to the CPU.
+
+See `mscc-sym:mesa_l3_route_add` for more details.
+
+*NOTE:* A `LPM` entry can only be routed in HW if the destination of the route is
+installed in the neighbour table. If this is not the case, then the frame will
+be forwarded to the CPU, which should perform the ARP/NDP resolution, route the
+packet in SW and install the neighbour in HW for future use.
+
+=== Neighbour table
+
+This table is used to map IP address to `(mac, rleg)` tuples, the `mac` address
+is the L2 address of the next-hop, and the `rleg` is a pointer to the L2 domain
+of the next-hop (VLAN).  When a packet is being routed in the `LPM` table, the
+output is a "next-hop" IP address, this "next-hop" IP address must be translated
+to a MAC-address and a VLAN before it can be L2 forwarded. If a `LPM` entry does
+not have a corresponding neighbour entry, then the packet will be forwarded to
+the CPU.
+
+See `mscc-sym:mesa_l3_neighbour_add` for more details.
+
+*NOTE:* The neighbour table should be synchronized with the ARP/NDP table of the
+operating systems IP stack.
+

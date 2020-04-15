@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2017 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -691,6 +691,7 @@ static vtss_sd10g65_preset_t serdes2preset(vtss_serdes_mode_t m)
     case VTSS_SD10G_MEDIA_SR: return(VTSS_SD10G65_SR_HW);
     case VTSS_SD10G_MEDIA_ZR: return(VTSS_SD10G65_ZR_HW);
     case VTSS_SD10G_MEDIA_DAC: return(VTSS_SD10G65_DAC_HW);
+    case VTSS_SD10G_MEDIA_DAC_5M: return(VTSS_SD10G65_DAC_HW);
     case VTSS_SD10G_MEDIA_BP: return(VTSS_SD10G65_BACKPLANE);
     case VTSS_SD10G_MEDIA_B2B: return(VTSS_SD10G65_B2B);
     case VTSS_SD10G_MEDIA_10G_KR: return(VTSS_SD10G65_KR_HW);

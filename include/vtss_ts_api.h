@@ -56,7 +56,7 @@ extern "C" {
 #define VTSS_HW_TIME_NSEC_PR_CNT 4
 #endif
 
-#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
@@ -78,12 +78,12 @@ extern "C" {
 #define VTSS_HW_TIME_MIN_ADJ_RATE  10       /* 1 ppb */
 #endif
 
-#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief Jaguar 2 minimum adjustment rate in units of 0,1 ppb. */
 #define VTSS_HW_TIME_MIN_ADJ_RATE  10       /* 1 ppb */
 #endif
 
-#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock output/input. */
 #define VTSS_TS_IO_ARRAY_SIZE       4
 /** \brief Number of separate clock domains in Jaguar2 */
@@ -95,8 +95,8 @@ extern "C" {
 #define VTSS_TS_DOMAIN_ARRAY_SIZE   1
 #endif
 
-#if defined(VTSS_ARCH_JAG3S5)
-/** \brief Number of Automatic Delay Response controllers in Jaguar3 */
+#if defined(VTSS_ARCH_SPARX5)
+/** \brief Number of Automatic Delay Response controllers in SparX-5 */
 #define VTSS_TS_RESP_CTRL_ARRAY_SIZE 4
 #endif
 
@@ -193,7 +193,7 @@ vtss_rc vtss_ts_domain_timeofday_offset_set(const vtss_inst_t          inst,
  *  Caracal: Maintains the clock setting process
  *  Serval1: Maintains the clock setting process
  *  JR2,
- *  JR3    : it must only be called when the PPS output pin is low, therefore it shall be called at least 200 microseconds after the 1PPS interrupt
+ *  S5     : it must only be called when the PPS output pin is low, therefore it shall be called at least 200 microseconds after the 1PPS interrupt
  *
  * \return Return code.
  */
@@ -209,7 +209,7 @@ vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t             inst,
  *  Caracal,
  *  Serval1: Checks if the clock setting process is ongoing.
  *  JR2,
- *  JR3    : Always returns False, as the time can be set immediately.
+ *  S5     : Always returns False, as the time can be set immediately.
  *
  * \return Return code.
  */
@@ -227,7 +227,7 @@ vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t           inst,
  *  Ocelot:
  *  Serval:  tc = (seconds + nanoseconds). In 16 bit fraction of nano seconds.
  *  Jaguar2: tc = free running nanoseconds counter.  In 16 bit fraction of nano seconds.
- *  Jaguar3: tc = (seconds + nanoseconds + fractional nanoseconds). In 16 bit fraction of nano seconds.
+ *  SparX-5: tc = (seconds + nanoseconds + fractional nanoseconds). In 16 bit fraction of nano seconds.
  *
  * \return Return code.
  */
@@ -398,7 +398,7 @@ vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t              inst,
 vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t           inst,
                                 i32                         *const adj);
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5) /* TBD_henrikb */
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) /* TBD_henrikb */
 /**
  * \brief parameter for setting the alternative  clock mode.
  */
@@ -526,7 +526,7 @@ vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t           inst,
 vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t              inst,
                                         const vtss_ts_ext_clock_mode_t *const ext_clock_mode);
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /**
  * \brief parameter for setting the external io mode.
  * Architecture:
@@ -740,7 +740,7 @@ typedef enum  {
 /** \brief Timestamp operation */
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode;                /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     u32            domain;              /**< Hardware timestamping domain for a port */
 #endif
 } vtss_ts_operation_mode_t;
@@ -834,7 +834,7 @@ typedef struct vtss_ts_id_t {
 
 /** \brief Timestamp structure */
 typedef struct vtss_ts_timestamp_t {
-    u64 ts;                     /**< Timestamp value */
+    u64 ts;                     /**< Timestamp value (tc in 16 bit fraction of nano seconds) */
     u32 id;                     /**< Timestamp identifier */
     void * context;             /**< Application specific context */
     BOOL ts_valid;              /**< Timestamp is valid (can be not valid if timestamp is not received */
@@ -985,7 +985,6 @@ vtss_rc vtss_ts_status_change(const vtss_inst_t      inst,
                               const vtss_port_no_t   port_no);
 
 #if defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-#if defined(VTSS_ARCH_JAGUAR_2)
 /**
  * \brief parameter for setting auto response behaviour pr domain
  */
@@ -1020,45 +1019,6 @@ vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t                  inst,
 vtss_rc vtss_ts_autoresp_dom_cfg_get(const vtss_inst_t                  inst,
                                      const u8                           domain,
                                      vtss_ts_autoresp_dom_cfg_t         *const cfg);
-#endif /* VTSS_ARCH_JAGUAR_2 */
-
-#if defined(VTSS_ARCH_JAG3S5)
-/**
- * \brief parameter for setting auto response behaviour pr auto response controller
- */
-typedef struct vtss_ts_autoresp_ctrl_cfg_s {
-    BOOL                        ptp_port_individual;/**< TRUE => PortIdentity = ptp_port_msb || ptp_port_lsb, FALSE => PortIdentity = ptp_port_msb */
-    u16                         ptp_port_msb;       /**< ptp port number most significant bits 15:6 */
-    vtss_clock_identity         clock_identity;     /**< ptp clock identity */
-    vtss_ace_u8_t               flag_field_update;  /**< flag field [0] update value and mask */
-
-} vtss_ts_autoresp_ctrl_cfg_t;
-
-/**
- * \brief Set auto response controller behaviour.
- * \param inst    [IN]          handle to an API instance
- * \param ctrl    [IN]          Response controller number [0..VTSS_TS_RESP_CTRL_ARRAY_SIZE-1]
- * \param cfg     [IN]          Configuration for auto response controller
- *
- * \return Return code.
- */
-vtss_rc vtss_ts_autoresp_ctrl_cfg_set(const vtss_inst_t                   inst,
-                                      const u8                            ctrl,
-                                      const vtss_ts_autoresp_ctrl_cfg_t   *const cfg);
-
-/**
- * \brief Get auto response controller behaviour.
- * \param inst    [IN]          handle to an API instance
- * \param ctrl    [IN]          Response controller number [0..VTSS_TS_RESP_CTRL_ARRAY_SIZE-1]
- * \param cfg     [OUT]         Configuration for auto response controller
- *
- * \return Return code.
- */
-vtss_rc vtss_ts_autoresp_ctrl_cfg_get(const vtss_inst_t             inst,
-                                      const u8                      ctrl,
-                                      vtss_ts_autoresp_ctrl_cfg_t   *const cfg);
-
-#endif /* VTSS_ARCH_JAG3S5 */
 
 /**
  * \brief Set the source mac address used in autp Delay_Req/Resp

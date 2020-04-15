@@ -626,6 +626,7 @@ vtss_rc vtss_vlan_port_members_set(const vtss_inst_t  inst,
 typedef struct
 {
     BOOL       learning; /**< Enable/disable learning */
+    BOOL       flooding; /**< Enable/disable flooding */
     BOOL       mirror;   /**< Enable/disable mirroring */
 #if defined(VTSS_FEATURE_VLAN_SVL)
     vtss_vid_t fid;      /**< Forwarding ID for SVL/IVL control */
@@ -815,6 +816,9 @@ typedef struct
 {
     vtss_vcap_bit_t dmac_mc; /**< Multicast DMAC */
     vtss_vcap_bit_t dmac_bc; /**< Broadcast DMAC */
+#if defined(VTSS_FEATURE_VCL_KEY_DMAC)
+    vtss_vcap_u48_t dmac;    /**< DMAC */
+#endif
     vtss_vcap_u48_t smac;    /**< SMAC */
 } vtss_vce_mac_t;
 
@@ -856,15 +860,21 @@ typedef struct
     vtss_vcap_vr_t  dscp;     /**< DSCP field (6 bit) */
     vtss_vcap_u8_t  proto;    /**< Protocol */
     vtss_vcap_ip_t  sip;      /**< Source IP address */
+#if defined(VTSS_FEATURE_VCL_KEY_DIP)
+    vtss_vcap_ip_t  dip;      /**< Destination IP address */
+#endif
     vtss_vcap_vr_t  dport;    /**< UDP/TCP: Destination port */
 } vtss_vce_frame_ipv4_t;
 
 /** \brief Frame data for VTSS_VCE_TYPE_IPV6 */
 typedef struct 
 {
-    vtss_vcap_vr_t  dscp;  /**< DSCP field (6 bit) */
-    vtss_vcap_u8_t  proto; /**< Protocol */
-    vtss_vcap_u32_t sip;   /**< Source IP address (32 LSB) */
+    vtss_vcap_vr_t   dscp;  /**< DSCP field (6 bit) */
+    vtss_vcap_u8_t   proto; /**< Protocol */
+    vtss_vcap_u128_t sip;   /**< Source IP address */
+#if defined(VTSS_FEATURE_VCL_KEY_DIP)
+    vtss_vcap_u128_t dip;   /**< Destination IP address */
+#endif
     vtss_vcap_vr_t  dport; /**< UDP/TCP: Destination port */
 } vtss_vce_frame_ipv6_t;
 
@@ -1007,11 +1017,23 @@ vtss_rc vtss_ingress_cnt_free(const vtss_inst_t           inst,
 
 /** \brief Ingress counters */
 typedef struct {
-    vtss_counter_pair_t rx_green;   /**< Rx green frames/bytes */
-    vtss_counter_pair_t rx_yellow;  /**< Rx yellow frames/bytes */
-    vtss_counter_pair_t rx_red;     /**< Rx red frames/bytes */
-    vtss_counter_pair_t rx_discard; /**< Rx discarded frames/bytes */
-    vtss_counter_pair_t tx_discard; /**< Tx discarded frames/bytes */
+    // For the following counter pairs, only the frame counters are valid in PSFP mode
+    vtss_counter_pair_t rx_green;        // Rx green frames/bytes
+    vtss_counter_pair_t rx_yellow;       // Rx yellow frames/bytes
+    vtss_counter_pair_t rx_red;          // Rx red frames/bytes
+
+    // The following counters are only valid in PSFP mode
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_counter_t      rx_match;        // MatchingFramesCount: Rx matching frames
+    vtss_counter_t      rx_gate_pass;    // PassingFramesCount: Rx passed gate
+    vtss_counter_t      rx_gate_discard; // NotPassingFramesCount: Rx discarded by gate
+    vtss_counter_t      rx_sdu_pass;     // PassingSDUCount: Rx passed maximum SDU size filter
+    vtss_counter_t      rx_sdu_discard;  // NotPassingSDUCount: Rx discarded by maximum SDU size filter
+#endif
+
+    // The following counters are valid in any mode
+    vtss_counter_pair_t rx_discard;      // Rx discarded frames/bytes
+    vtss_counter_pair_t tx_discard;      // Tx discarded frames/bytes
 } vtss_ingress_counters_t;
 
 /**
@@ -1144,9 +1166,17 @@ typedef struct
     BOOL                  dlb_enable; /**< Enable DLB policer */
     vtss_dlb_policer_id_t dlb_id;     /**< DLB policer ID */
 #endif
+#if defined(VTSS_FEATURE_VOP)
     vtss_voe_idx_t        voe_idx;    /**< VOE index or VTSS_VOE_IDX_NONE */
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_voi_idx_t        voi_idx;    /**< VOI (MIP) index or VTSS_VOI_IDX_NONE */
+#endif
+#if defined(VTSS_FEATURE_FRER)
+    vtss_frer_iflow_conf_t frer;      // FRER ingress flow configuration
+#endif
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_psfp_iflow_conf_t psfp;      // PSFP ingress flow configuration
 #endif
 } vtss_iflow_conf_t;
 
@@ -1240,6 +1270,21 @@ typedef struct
 #endif
 } vtss_tce_tag_t;
 
+#if defined(VTSS_FEATURE_FRER)
+// R-tag selection
+typedef enum {
+    VTSS_RTAG_SEL_NONE,  // No R-tag pushed
+    VTSS_RTAG_SEL_OUTER, // Outer R-tag pushed
+    VTSS_RTAG_SEL_INNER, // Inner R-tag pushed
+} vtss_rtag_sel_t;
+
+// TCE R-tag information
+typedef struct {
+    vtss_rtag_sel_t sel; // R-tag push selection
+    BOOL            pop; // R-tag popping
+} vtss_tce_rtag_t;
+#endif
+
 /** \brief TCE Action */
 typedef struct
 {
@@ -1248,6 +1293,9 @@ typedef struct
     u8              pop_cnt;   /**< Tag pop count */
 #if defined(VTSS_FEATURE_XFLOW)
     vtss_eflow_id_t flow_id;   /**< Egress flow ID */
+#endif
+#if defined(VTSS_FEATURE_FRER)
+    vtss_tce_rtag_t rtag;      // R-tag
 #endif
 } vtss_tce_action_t;
 
@@ -1395,7 +1443,9 @@ typedef struct
     BOOL                 cnt_enable; /**< Enable ingress counter mapping */
     vtss_egress_cnt_id_t cnt_id;     /**< Ingress counter ID */
 #endif
+#if defined(VTSS_FEATURE_VOP)
     vtss_voe_idx_t   voe_idx;        /**< VOE index or VTSS_VOE_IDX_NONE */
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_voi_idx_t   voi_idx;        /**< VOI (MIP) index or VTSS_VOI_IDX_NONE */
 #endif
@@ -1991,7 +2041,7 @@ vtss_rc vtss_aggr_mode_set(const vtss_inst_t       inst,
     By default, mirroring is disabled for all ports.
 */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief Mirror port configuration */
 typedef enum
 {
@@ -2007,7 +2057,7 @@ typedef struct
 {
     vtss_port_no_t    port_no;    /**< Mirror port or VTSS_PORT_NO_NONE */
     BOOL              fwd_enable; /**< Enable normal traffic forwarding to mirror port */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_mirror_tag_t tag;        /**< Mirror tag type */
     vtss_vid_t        vid;        /**< Mirror tag VID */
     vtss_tagprio_t    pcp;        /**< Mirror tag PCP */

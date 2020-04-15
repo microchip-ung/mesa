@@ -1,0 +1,61 @@
+
+= Simple IPv4 routing example
+
+== Simple IPv4 routing example
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:caps
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:l3_global
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:add_rleg
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:if_route
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:host_rt1
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:host_rt2
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:next_hop_rt
+----
+
+asdfasd fasdf asdf asdf
+
+[source,snippet]
+----
+simple.c:def_gw
+----
+

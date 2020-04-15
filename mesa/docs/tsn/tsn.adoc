@@ -1,0 +1,53 @@
+:sectnums:
+== Frame Replication and Elimination for Reliability
+If the capability `MESA_CAP_L2_FRER` is non-zero, IEEE 802.1CB Frame Replication and Elimination for Reliability (FRER) is supported.
+Enhanced VLAN functions are used in combination with FRER functions when setting up streams:
+
+* Stream Identification is done using VCL rules mapping to ingress flows.
+* Sequence Generation and mapping to Member Streams is done using ingress flows.
+* Stream Split and Merge is done using VLAN port memberships and static MAC address entries.
+* R-tag pop and push operations are controlled using TCL rules (`mesa_tce_rtag_t`).
+
+For Recovery, Member Streams must be allocated for an egress port list (`mesa_frer_mstream_alloc()`).
+For an ingress flow, it is possible to enable Sequence Generation or map to a Member Stream (`mesa_frer_iflow_conf_t`).
+For each Member Stream and egress port, Individual Recovery and mapping to a Compound Stream can be setup (`mesa_frer_mstream_conf_set()`).
+For each Compound Stream, Sequence Recovery can be setup (`mesa_frer_cstream_conf_set()`).
+FRER Counters are available for Member Streams and Compound Streams (`mesa_frer_counters_t`).
+
+== Per-Stream Filtering and Policing
+If the capability `MESA_CAP_L2_PSFP` is non-zero, IEEE 802.1Q Per-Stream Filtering and Policing (PSFP) is supported.
+Enhanced VLAN functions are used in combination with PSFP functions when setting up streams:
+
+* During initialization, ingress counters can be setup in PSFP mode (`mesa_init_conf_t`).
+* Stream Identification is done using VCL rules mapping to ingress flows.
+* Mapping to Streams Filters is done using ingress flows (`mesa_psfp_iflow_conf_t`).
+* Stream Filters can be setup and mapped to Stream Gates (`mesa_psfp_filter_conf_t`).
+* Stream Gates can be setup (`mesa_psfp_gate_conf_t`) and status can be retrieved (`mesa_psfp_gate_status_t`).
+* Mapping to allocated Dual Leaky Bucket policers is done using ingress flows (`mesa_iflow_conf_t`).
+* Mapping to allocated ingress counters is done using ingress flows (`mesa_iflow_conf_t`).
+
+== Frame Preemption
+If the capability `MESA_CAP_QOS_FRAME_PREEMPTION` is non-zero, IEEE 802.1Q Frame Preemption and IEEE 802.3br Interspersing Express Traffic are supported.
+For each port, Frame Preemption can be enabled in the egress direction, and each queue can be enabled for Frame Preemption (`mesa_qos_fp_port_conf_t`).
+The port status can be retrieved (`mesa_qos_fp_port_status_t`), including the verfication state (`mesa_mm_status_verify_t`).
+Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`).
+
+== API Functions
+`mesa_frer_cstream_conf_get()` +
+`mesa_frer_cstream_conf_set()` +
+`mesa_frer_cstream_cnt_get()` +
+`mesa_frer_cstream_cnt_clear()` +
+`mesa_frer_mstream_alloc()` +
+`mesa_frer_mstream_free()` +
+`mesa_frer_mstream_conf_get()` +
+`mesa_frer_mstream_conf_set()` +
+`mesa_frer_mstream_cnt_get()` +
+`mesa_frer_mstream_cnt_clear()` +
+`mesa_psfp_gate_conf_get()` +
+`mesa_psfp_gate_conf_set()` +
+`mesa_psfp_gate_status_get()` +
+`mesa_psfp_filter_conf_get()` +
+`mesa_psfp_filter_conf_set()` +
+`mesa_qos_fp_port_conf_get()` +
+`mesa_qos_fp_port_conf_set()` +
+`mesa_qos_fp_port_status_get()`

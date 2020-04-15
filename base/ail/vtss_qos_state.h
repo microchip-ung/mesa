@@ -25,11 +25,11 @@
 
 #if defined(VTSS_FEATURE_QOS)
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 
 #define VTSS_QOS_DWRR_COST_BIT_WIDTH 5
 
-#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
 #if defined(VTSS_ARCH_LUTON26)
 #define VTSS_L26_POLICER_CNT 256
@@ -82,7 +82,7 @@ typedef struct {
 
 #define VTSS_POL_STAT_NONE 0  /* The NO Policer/SDX statistics value */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_JR_SDX_CNT  511
 #define VTSS_EVC_POL_CNT  512  /* EVC policers */
@@ -91,7 +91,7 @@ typedef struct {
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_EVC_POL_CNT  4096 /* EVC policers */
 #define VTSS_EVC_STAT_CNT 8192 /* EVC statistics */
-#endif /* End VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_JAG3S5 */
+#endif /* End VTSS_ARCH_JAGUAR_2 */
 #if defined(VTSS_FEATURE_VOP)
 #define VTSS_SDX_CNT VTSS_JR_SDX_CNT
 #endif
@@ -99,22 +99,22 @@ typedef struct {
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_INGRESS_MAP_ROWS 512                                     /**< Number of rows in hardware */
 #else
 #define VTSS_QOS_INGRESS_MAP_ROWS 256                                     /**< Number of rows in hardware */
-#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) */
 
 #define VTSS_QOS_INGRESS_MAP_IX_RESERVED (VTSS_QOS_INGRESS_MAP_ROWS - 10) /**< Start of area reserved at the end. Used in move operations */
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_EGRESS_MAP_ROWS  512                                     /**< Number of rows in hardware */
 #else
 #define VTSS_QOS_EGRESS_MAP_ROWS  256                                     /**< Number of rows in hardware */
-#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) */
 
 #define VTSS_QOS_EGRESS_MAP_IX_RESERVED (VTSS_QOS_EGRESS_MAP_ROWS - 32)   /**< Start of area reserved at the end. Used in move operations */
 
@@ -297,7 +297,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       57 /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#elif defined(VTSS_ARCH_JAG3S5)
+#elif defined(VTSS_ARCH_SPARX5)
 // TBD_VK: Check the numbers below when the datasheet is ready.
 #define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
 #define VTSS_HSCH_L0_SES                     5040 /**< Number of scheduler elements in layer 0 */
@@ -314,7 +314,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #define VTSS_HSCH_MAX_RATE_GROUP_1        1024000 /**< Maximum bit rate for group 1 in kbps ( 1.024 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_2        2560000 /**< Maximum bit rate for group 2 in kbps ( 2.56  Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_3       12800000 /**< Maximum bit rate for group 3 in kbps (12.8   Gbps) */
-#elif defined(VTSS_ARCH_JAG3S5_CE)
+#elif defined(VTSS_ARCH_SPARX5_CE)
 // TBD_VK: Verify the target names and rate values for CE SKUs.
 #   if defined(VTSS_CHIP_7538)
 #   define VTSS_HSCH_MAX_RATE_GROUP_0      655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
@@ -327,7 +327,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #   define VTSS_HSCH_MAX_RATE_GROUP_2     6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
 #   define VTSS_HSCH_MAX_RATE_GROUP_3    26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
 #   endif /* defined(VTSS_CHIP_7538) */
-#elif defined(VTSS_ARCH_JAG3S5)
+#elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_HSCH_MAX_RATE_GROUP_0        1048568 /**< Maximum bit rate for group 0 in kbps ( 1.049 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_1        2621420 /**< Maximum bit rate for group 1 in kbps ( 2.621 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_2       10485680 /**< Maximum bit rate for group 2 in kbps (10.486 Gbps) */
@@ -366,19 +366,19 @@ typedef struct {
     vtss_qos_leak_entry_t l0_alloc[VTSS_HSCH_L0_SES];   /**< Allocation of layer 0 entries. Only accessed through layer[0].entry above */
 //  vtss_qos_leak_entry_t l1_alloc[VTSS_HSCH_L1_SES];   /**< Allocation of layer 1 entries. Currently not used */
     vtss_qos_leak_entry_t l2_alloc[VTSS_HSCH_L2_SES];   /**< Allocation of layer 2 entries. Only accessed through layer[2].entry above */
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
     vtss_qos_leak_entry_t l3_alloc[VTSS_HSCH_L3_QSHPS]; /**< Allocation of layer 3 (queue shaper) entries. Only accessed through layer[3].entry above */
-#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_JAG3S5) */
+#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) */
 } vtss_qos_leak_conf_t;
 
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
-#if defined(VTSS_FEATURE_QOS_QBV)
+#if defined(VTSS_FEATURE_QOS_TAS)
 typedef struct {
-    vtss_qos_qbv_conf_t      global_conf;
-    vtss_qos_qbv_port_conf_t port_conf[VTSS_PORT_ARRAY_SIZE];
-} vtss_qos_qbv_state_t;
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+    vtss_qos_tas_conf_t      global_conf;
+    vtss_qos_tas_port_conf_t port_conf[VTSS_PORT_ARRAY_SIZE];
+} vtss_qos_tas_state_t;
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
 typedef struct {
@@ -386,7 +386,7 @@ typedef struct {
 } vtss_qos_fp_state_t;
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 typedef struct {
     u32 min_burst;          /* Minimum burst size and granularity in bytes */
     u32 pup_interval;       /* Configures ANA_AC_SDLB:LBGRP_TBL[0-9]:PUP_INTERVAL.PUP_INTERVAL */
@@ -448,14 +448,14 @@ typedef struct {
     vtss_rc (* cpu_port_shaper_set)(struct vtss_state_s *vtss_state, const vtss_bitrate_t rate);
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
 
-#if defined(VTSS_FEATURE_QOS_QBV)
-    vtss_rc (* qbv_conf_set)(struct vtss_state_s  *vtss_state);
-    vtss_rc (* qbv_port_conf_set)(struct vtss_state_s  *vtss_state,
+#if defined(VTSS_FEATURE_QOS_TAS)
+    vtss_rc (* tas_conf_set)(struct vtss_state_s  *vtss_state);
+    vtss_rc (* tas_port_conf_set)(struct vtss_state_s  *vtss_state,
                                   const vtss_port_no_t port_no);
-    vtss_rc (* qbv_port_status_get)(struct vtss_state_s        *vtss_state,
+    vtss_rc (* tas_port_status_get)(struct vtss_state_s        *vtss_state,
                                     const vtss_port_no_t       port_no,
-                                    vtss_qos_qbv_port_status_t *const status);
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+                                    vtss_qos_tas_port_status_t *const status);
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     vtss_rc (* fp_port_conf_set)(struct vtss_state_s  *vtss_state,
@@ -483,7 +483,7 @@ typedef struct {
 #endif /* VTSS_ARCH_LUTON26 */
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
     vtss_qos_lb_group_t lb_groups[LB_GROUP_CNT];
     u16                 lb_set_grp_idx[LB_SET_CNT];     /* The LB group index for this LB set */
 #endif
@@ -510,9 +510,9 @@ typedef struct {
     vtss_qos_leak_conf_t    leak_conf;
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
-#if defined(VTSS_FEATURE_QOS_QBV)
-    vtss_qos_qbv_state_t qbv;
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
+#if defined(VTSS_FEATURE_QOS_TAS)
+    vtss_qos_tas_state_t tas;
+#endif /* defined(VTSS_FEATURE_QOS_TAS) */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     vtss_qos_fp_state_t fp;

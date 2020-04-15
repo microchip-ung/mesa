@@ -50,6 +50,7 @@ static vtss_rc fa_l3_common_set(vtss_state_t *vtss_state,
     /* Enable/disable routing */
     vtss_port_mask_get(vtss_state, vtss_state->l2.port_all, &pmask);
     REG_WR_PMASK(VTSS_ANA_L3_L3_UC_ENA, pmask);
+    REG_WR_PMASK(VTSS_ANA_L3_L3_MC_ENA, pmask);
 
     return VTSS_RC_OK;
 }
@@ -159,6 +160,8 @@ static vtss_rc fa_l3_rleg_set(vtss_state_t *vtss_state,
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_EVID(conf->vlan) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_UC_ENA(conf->ipv6_unicast_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_UC_ENA(conf->ipv4_unicast_enable) |
+           VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_MC_ENA(conf->ipv6_multicast_enable) |
+           VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_MC_ENA(conf->ipv4_multicast_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(conf->ipv6_icmp_redirect_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_ICMP_REDIR_ENA(conf->ipv4_icmp_redirect_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_VRID_ENA(vrid_enable) |
@@ -290,7 +293,7 @@ static vtss_rc fa_l3_rt_add(vtss_state_t *vtss_state,
     data.u.lpm.entry = &entry;
 
     if (addr->type == VTSS_IP_TYPE_IPV4) {
-        data.key_size = VTSS_VCAP_KEY_SIZE_SIXTEENTH;
+        data.key_size = VTSS_VCAP_KEY_SIZE_TWELFTH;
         key->type = VTSS_LPM_KEY_SGL_IP4;
         key->data.sgl_ip4.dst_ena = 1;
         key->data.sgl_ip4.xip.value = addr->addr.ipv4;

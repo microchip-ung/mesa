@@ -1,4 +1,4 @@
-build
+build*
 bin
 release_ws
 *~
@@ -8,4 +8,5 @@ images
 TAGS
 ID
 logcmd.rb.lock
-
+mesa/docs/html/
+mesa-doc.html

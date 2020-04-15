@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    asciidoctor (2.0.8)
+    mini_portile2 (2.4.0)
+    nokogiri (1.10.3)
+      mini_portile2 (~> 2.4.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  asciidoctor
+  nokogiri
+
+RUBY VERSION
+   ruby 2.6.2p47
+
+BUNDLED WITH
+   1.17.2

@@ -195,7 +195,6 @@ mesa_rc meba_synce_spi_if_get_dpll_type(meba_inst_t inst, meba_synce_clock_hw_id
                     }
                     if (rc != MESA_RC_ERROR) {
                         T_I(inst, "Zarlink 30377X detected with partnum 0X%x%x", partnum[1], partnum[2]);
-                        printf("Zarlink 30377X detected with partnum 0X%x%x\n", partnum[1], partnum[2]);
                     }
                 } else {
                     T_I(inst, "No SyncE DPLL detected. partnum 0X%x%x", partnum[0], partnum[1]);

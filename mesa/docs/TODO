@@ -1,0 +1,22 @@
+- asciidoctor
+  - css (needed for INFO:, NOTE: and others)
+    - asciidoctor code highlight and cross-referencing of inline examples
+    - document title is missing
+    - need an example with a picture
+
+- parser.rb / snipptes
+    - preserve line numbers in snippets
+    - delete trailing empty lines in snipets
+
+- cross-referencing
+  - between asciidoctor documents
+
+- incremental build
+
+- use asciidoctor macros instead of messing around with the xml/html - we looses
+  line numbers, and ahve no way of producing good error messages
+
+- verification example!
+
+- Licenses
+

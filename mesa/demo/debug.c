@@ -162,6 +162,7 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_L3]        = "l3",
     [MESA_DEBUG_GROUP_AFI]       = "afi",
     [MESA_DEBUG_GROUP_MACSEC]    = "macsec",
+    [MESA_DEBUG_GROUP_SERDES]    = "serdes",
 };
 
 static void cli_cmd_debug_api(cli_req_t *req)
@@ -502,7 +503,7 @@ static int cli_parm_reg_pattern(cli_req_t *req)
     }
 
     if (cnt > 0) {
-        strncpy(mreq->pattern, req->cmd, cnt + 1);
+        strncpy(mreq->pattern, req->cmd, CLI_PATTERN_MAX + 1);
         mreq->pattern[cnt] = '\0';
     }
 

@@ -178,6 +178,11 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
         return MESA_RC_OK;
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_XAUI:
+        if (((cap & MEBA_PORT_CAP_5G_FDX) && (speed_in == MESA_SPEED_5G)) ||
+            ((cap & MEBA_PORT_CAP_10G_FDX) && (speed_in == MESA_SPEED_10G))) {
+            *speed_out = speed_in;
+            return MESA_RC_OK;
+        }
         if (cap & MEBA_PORT_CAP_25G_FDX) {
             *speed_out = MESA_SPEED_25G;
             return MESA_RC_OK;
@@ -208,6 +213,21 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
 
     if (device != NULL) {
         device->drv->meba_sfp_driver_if_get(device, p_conf->speed, &mac_if);
+    } else {
+        // No I2C access
+        if ((p_conf->speed == MESA_SPEED_1G && cap & MEBA_PORT_CAP_1G_FDX) ||
+            (p_conf->speed == MESA_SPEED_2500M && cap & MEBA_PORT_CAP_2_5G_FDX)) {
+            if (entry->meba.mac_if == MESA_PORT_INTERFACE_SGMII_CISCO) {
+                mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
+            } else {
+                mac_if = MESA_PORT_INTERFACE_SERDES;
+            }
+        } else if ((p_conf->speed == MESA_SPEED_5G && (cap & MEBA_PORT_CAP_5G_FDX)) ||
+                   (p_conf->speed == MESA_SPEED_10G && (cap & MEBA_PORT_CAP_10G_FDX))) {
+            mac_if = MESA_PORT_INTERFACE_SFI;
+        } else if ((p_conf->speed == MESA_SPEED_100M && (cap & MEBA_PORT_CAP_100M_FDX))) {
+            mac_if = MESA_PORT_INTERFACE_100FX;
+        }
     }
     conf->if_type = mac_if;
 
@@ -287,7 +307,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg)
     if (entry->sfp_device != NULL && entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
         (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
     }
-
+    conf.serdes.media_type = MESA_SD10G_MEDIA_DAC;
     if (aneg) {
         /* Setup port based on auto negotiation status */
         conf.speed = ps->speed;
@@ -401,6 +421,8 @@ static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
         return (fdx ? "5Gfdx" : "5Ghdx");
     case MESA_SPEED_10G:
         return (fdx ? "10Gfdx" : "10Ghdx");
+    case MESA_SPEED_25G:
+        return (fdx ? "25Gfdx" : "25Ghdx");
     default:
         return "?";
     }
@@ -585,14 +607,42 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
                 }
                 (void)mesa_port_status_get(NULL, port_no, &ps);
                 (void)mesa_port_conf_get(NULL, port_no, &conf);
-                cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",port_no + 1, mesa_sfp_if2txt(entry->sfp_type), entry->sfp_device->info.vendor_name,
-                           entry->sfp_device->info.vendor_rev, entry->sfp_device->info.vendor_sn, buf,
-                           mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), ps.link ? "yes" : "no");
+                if (entry->sfp_device != NULL) {
+                    cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",port_no + 1,
+                               mesa_sfp_if2txt(entry->sfp_type), entry->sfp_device->info.vendor_name,
+                               entry->sfp_device->info.vendor_rev, entry->sfp_device->info.vendor_sn, buf,
+                               mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), ps.link ? "yes" : "no");
+                } else {
+                    cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",port_no + 1, mesa_sfp_if2txt(entry->sfp_type),
+                               "N/A", "N/A", "N/A", buf,
+                               mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), ps.link ? "yes" : "no");
+                }
             }
         }
     }
     if (!found) {
         cli_printf("No SFPs found\n");
+    }
+}
+
+static void cli_cmd_phy_scan(cli_req_t *req)
+{
+    uint16_t value, reg2, reg3, oui, model;
+    mesa_bool_t found = FALSE;
+    for (mesa_miim_controller_t miim_ctrl = MESA_MIIM_CONTROLLER_0; miim_ctrl < MESA_MIIM_CONTROLLERS; miim_ctrl++) {
+        for (uint32_t adr = 0; adr < 32; adr++) {
+            if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 0, &value) == MESA_RC_OK) {
+                mesa_miim_read(NULL, 0, miim_ctrl, adr, 2, &reg2);
+                mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &reg3);
+                oui = ((reg2 << 6) | ((reg3 >> 10) & 0x3F));
+                model = ((reg3 >> 4) & 0x3F);
+                printf("MIIM Ctrl:%d MIIM addr:%d - Found Phy (OUI:0x%x Model:0x%x)\n",miim_ctrl, adr, oui, model);
+                found = TRUE;
+            }
+        }
+    }
+    if (!found) {
+        printf("No phys found\n");
     }
 }
 
@@ -750,7 +800,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_state
     },
     {
-        "Port Mode [<port_list>] [10hdx|10fdx|100hdx|100fdx|1000fdx|2500|10g|auto]",
+        "Port Mode [<port_list>] [10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto]",
         "Set or show the port speed and duplex mode",
         cli_cmd_port_mode
     },
@@ -783,6 +833,11 @@ static cli_cmd_t cli_cmd_table[] = {
         "Debug sfp dump",
         "Shows all detected SFPs",
         cli_cmd_sfp_dump
+    },
+    {
+        "Debug phy scan",
+        "Shows all detected phys (over all controlers)",
+        cli_cmd_phy_scan
     },
 };
 
@@ -828,8 +883,14 @@ static int cli_parm_keyword(cli_req_t *req)
     } else if (!strncasecmp(found, "2500", 4)) {
         mreq->speed = MESA_SPEED_2500M;
         mreq->fdx = 1;
+    } else if (!strncasecmp(found, "5g", 2)) {
+        mreq->speed = MESA_SPEED_5G;
+        mreq->fdx = 1;
     } else if (!strncasecmp(found, "10g", 3)) {
         mreq->speed = MESA_SPEED_10G;
+        mreq->fdx = 1;
+    } else if (!strncasecmp(found, "25g", 3)) {
+        mreq->speed = MESA_SPEED_25G;
         mreq->fdx = 1;
     } else
         cli_printf("no match: %s\n", found);
@@ -839,14 +900,16 @@ static int cli_parm_keyword(cli_req_t *req)
 
 static cli_parm_t cli_parm_table[] = {
     {
-        "10hdx|10fdx|100hdx|100fdx|1000fdx|2500|10g|auto",
+        "10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto",
         "10hdx      : 10 Mbps, half duplex\n"
         "10fdx      : 10 Mbps, full duplex\n"
         "100hdx     : 100 Mbps, half duplex\n"
         "100fdx     : 100 Mbps, full duplex\n"
         "1000fdx    : 1 Gbps, full duplex\n"
         "2500       : 2.5 Gbps, full duplex\n"
+        "5g         : 5 Gbps, full duplex\n"
         "10g        : 10 Gbps, full duplex\n"
+        "25g        : 25 Gbps, full duplex\n"
         "auto       : Auto negotiation of speed and duplex\n"
         "(default: Show configured and current mode)",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
@@ -1119,7 +1182,7 @@ void port_poll(meba_inst_t inst)
         link_old = ps->link;
         memset(&counters, 0, sizeof(counters));
 
-        if (entry->media_type == MSCC_PORT_TYPE_SFP) {
+        if (entry->media_type == MSCC_PORT_TYPE_SFP && (entry->meba.cap & MEBA_PORT_CAP_SFP_DETECT)) {
             meba_sfp_status_t old_sfp_status = entry->sfp_status;
             /* Fetch SFP port status (presence, Tx fault and LoS) using MEBA */
             if (MEBA_WRAP(meba_sfp_status_get, inst, port_no, &entry->sfp_status) != MESA_RC_OK) {
@@ -1135,7 +1198,6 @@ void port_poll(meba_inst_t inst)
                 }
             }
         }
-
 
         /* Poll port status and update the status data structure */
         if (port_status_poll(port_no) != MESA_RC_OK) {

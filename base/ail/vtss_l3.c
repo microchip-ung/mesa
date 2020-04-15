@@ -1106,8 +1106,9 @@ static inline vtss_rc mc_rt_rleg_modify(vtss_state_t                  *vtss_stat
         return VTSS_RC_ERROR;
     }
 
-    if (rleg_id > 128) {
+    if (rleg_id >= 128) {
         E("Router leg id above 128 not supported");
+        return VTSS_RC_ERROR;
     }
 
     for (i = 0; i < 4; i++) {

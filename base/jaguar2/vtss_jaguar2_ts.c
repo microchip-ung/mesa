@@ -675,6 +675,7 @@ static vtss_rc jr2_ts_internal_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
     switch (fmt) {
+    case TS_INTERNAL_FMT_NONE:
     case TS_INTERNAL_FMT_RESERVED_LEN_30BIT:
     case TS_INTERNAL_FMT_RESERVED_LEN_32BIT:
     case TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62:

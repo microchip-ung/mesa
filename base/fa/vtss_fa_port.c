@@ -216,6 +216,7 @@ static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+
 static vtss_rc fa_port_clause_37_control_set(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no)
 {
@@ -314,6 +315,25 @@ static BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t por
        return TRUE;
     }
     return vtss_state->port.conf[port_no].speed > VTSS_SPEED_2500M ? TRUE : FALSE;
+}
+
+BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port)
+{
+    u32 value, mask;
+
+    if (VTSS_PORT_IS_2G5(port)) {
+        return FALSE;
+    }
+
+    if (VTSS_PORT_IS_5G(port)) {
+        REG_RD(VTSS_PORT_CONF_DEV5G_MODES, &value);
+    } else if (VTSS_PORT_IS_10G(port)) {
+        REG_RD(VTSS_PORT_CONF_DEV10G_MODES, &value);
+    } else if (VTSS_PORT_IS_25G(port)) {
+        REG_RD(VTSS_PORT_CONF_DEV25G_MODES, &value);
+    }
+    mask = VTSS_BIT(VTSS_PORT_DEV_INDX(port));
+    return (value & mask ? FALSE : TRUE);
 }
 
 #define MULTIPLIER_BIT 2048
@@ -617,17 +637,108 @@ static vtss_rc fa_port_10g_kr_conf_set(vtss_state_t *vtss_state,
 }
 #endif /* VTSS_FEATURE_10G_BASE_KR */
 
+
+#define QLIM_WM(fraction) \
+    ((FA_BUFFER_MEMORY/FA_BUFFER_CELL_SZ-100) * fraction / 100)
+
+static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
+{
+    u32 res, dp, prio;
+
+    // QLIM WM setup from MOT 15/8/2019:
+    // Set legacy share levels to max for src_mem and src_ref
+    for (res = 0; res < 2; res++) {
+        for (prio=0; prio<8; prio++) {
+            REG_WR(VTSS_QRES_RES_CFG(prio + 630 + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
+        }
+        for (dp = 0; dp < 4; dp++) {
+            REG_WR(VTSS_QRES_RES_CFG(dp + 638 + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
+        }
+    }
+
+    // Set 80,90,95,100 % of memory size for qlim,qdiv,ctop,atop,top watermarks
+    REG_WR(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), QLIM_WM(80));
+    REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), QLIM_WM(90));
+    REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), QLIM_WM(95));
+    REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0),  QLIM_WM(100));
+
+    return VTSS_RC_OK;
+}
+
+
+static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
+                                 const vtss_debug_printf_t pr,
+                                 const vtss_debug_info_t  *const info)
+{
+    u32 value, q, shr_id, qinf, srcport, dstport, prio, port_no, ports[100] = {0}, killed, qsz;
+    const u32 FA_CORE_QUEUE_CNT = 40460; // 70 ports * 8 prio * 72 scheduling elements + 2 * 70 (superprio)
+
+
+    pr ("\nQueue limitation check/status\n");
+    pr ("----------------------------\n");
+
+    for (shr_id=0; shr_id<1; shr_id++) {
+        pr ("\nCurrent consumption tracked (share %d):\n",shr_id);
+        REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(shr_id), &value);
+        pr ("Current fill level...................: %5u (%d bytes) \n", value, value * FA_BUFFER_CELL_SZ);
+        REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(shr_id), &value);
+        pr ("Current congested SE count...........: %5u\n\n", value);
+        pr ("\nMaximum consumption tracked (share %d):\n",shr_id);
+        REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(shr_id), &value);
+        pr ("Highest fill level...................: %5u (%d bytes)\n", value, value * FA_BUFFER_CELL_SZ);
+        REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), &value);
+        pr ("Highest congested SE count...........: %5u\n\n", value);
+
+        REG_WR(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(shr_id), 0);
+        REG_WR(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), 0);
+    }
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        ports[VTSS_CHIP_PORT(port_no)] = 1;
+    }
+    for (port_no = VTSS_CHIP_PORT_CPU; port_no < VTSS_CHIP_PORTS_ALL; port_no++) {
+        ports[port_no] = 1;
+    }
+
+    pr ("\nQueues hit by queue limitation:\n");
+    for (q = 0; q < FA_CORE_QUEUE_CNT; q++) {
+        if (q < 0x8c00) { // 70 * 512
+            // Src < 64
+            srcport = q & 0x3F;
+            prio = (q >> 6) & 0x7;
+            dstport = q >> 9;
+        } else {
+            // Src > 63
+            srcport = (q & 0x7) + 64;
+            prio = (q >> 3) & 0x7;
+            dstport = (q - 0x8c00) >> 6;
+        }
+        if (!ports[srcport] || !ports[dstport]) {
+            continue;
+        }
+        REG_WR(VTSS_XQS_MAP_CFG_CFG, q);
+        REG_RD(VTSS_XQS_QUEUE_SIZE(0), &qinf);
+        killed = VTSS_X_XQS_QUEUE_SIZE_QUEUE_KILLED(qinf);
+        qsz = VTSS_X_XQS_QUEUE_SIZE_QUEUE_SIZE(qinf);
+
+        if (killed || qsz) {
+            pr ("Qu indx:%d Src-chip-port:%d Dst-chip-port:%d prio:%d. Killed:%1u CurSize:%u (%d bytes)\n",
+                q, srcport, dstport, prio, killed, qsz, qsz * FA_BUFFER_CELL_SZ);
+            REG_WR(VTSS_XQS_QUEUE_SIZE(0), 0);
+        }
+    }
+
+    return VTSS_RC_OK;
+}
+
+
+
+
 /* Source: ffl_sqs.tcl in verification */
 static u32 port_fwd_urg(vtss_state_t *vtss_state, vtss_port_speed_t speed)
 {
-    u32 clk_period_ps = 2000, urg = 672000;
-
-    switch (vtss_state->init_conf.core_clock.freq) {
-    case VTSS_CORE_CLOCK_250MHZ: clk_period_ps = 4000; break;
-    case VTSS_CORE_CLOCK_500MHZ: clk_period_ps = 2000; break;
-    case VTSS_CORE_CLOCK_625MHZ: clk_period_ps = 1600; break;
-    default:{ VTSS_E("Clock freq not supported"); }
-    }
+    u32 clk_period_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
+    u32 urg = 672000;
 
     switch (speed) {
     case VTSS_SPEED_10M:
@@ -639,7 +750,7 @@ static u32 port_fwd_urg(vtss_state_t *vtss_state, vtss_port_speed_t speed)
     case VTSS_SPEED_25G:   urg = 27000;  break;
     default:{ VTSS_E("Speed not supported"); }
     }
-    return urg/(clk_period_ps-1);
+    return urg/clk_period_ps - 1;
 }
 
 static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_port_interface_t if_type, vtss_port_speed_t speed, BOOL fdx)
@@ -764,6 +875,17 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     case VTSS_PORT_INTERFACE_QSGMII: /* QSGMII: 4x2G5 devices. Mode Q'  */
         Q = (p - p % 4) / 4;
         REG_WRM(VTSS_PORT_CONF_QSGMII_ENA, VTSS_BIT(Q), VTSS_BIT(Q));
+
+        if ((p / 4 % 2) == 0) {
+            /* Affects d0-d3,d8-d11..d40-d43 */
+            REG_WRM(VTSS_PORT_CONF_USGMII_CFG((p/8)),
+                    VTSS_F_PORT_CONF_USGMII_CFG_BYPASS_SCRAM(1) |
+                    VTSS_F_PORT_CONF_USGMII_CFG_BYPASS_DESCRAM(1) |
+                    VTSS_F_PORT_CONF_USGMII_CFG_QUAD_MODE(1),
+                    VTSS_M_PORT_CONF_USGMII_CFG_BYPASS_SCRAM |
+                    VTSS_M_PORT_CONF_USGMII_CFG_BYPASS_DESCRAM |
+                    VTSS_M_PORT_CONF_USGMII_CFG_QUAD_MODE);
+        }
         break;
     case VTSS_PORT_INTERFACE_USGMII: /* USGMII: 8x2G5 devices. Mode 'X'  Use 2G5 device. */
         X = (p - p % 8) / 8;
@@ -800,8 +922,48 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode)
 {
-//    VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode)); TBD-BJO
+    u32 port = VTSS_CHIP_PORT(port_no);
+    if (serdes_mode == VTSS_SERDES_MODE_QSGMII && ((port % 4) != 0)) {
+        return VTSS_RC_OK;
+    }
+    VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
     vtss_state->port.serdes_mode[port_no] = serdes_mode;
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_fa_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
+    vtss_vlan_port_type_t vlan_type = vtss_state->l2.vlan_port_conf[port_no].port_type;
+    u32                   etype, port = VTSS_CHIP_PORT(port_no);
+
+    /* S-ports and VLAN unaware ports both support 0x88a8 (in addition to 0x8100) */
+    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? vtss_state->l2.vlan_conf.s_etype :
+             vlan_type == VTSS_VLAN_PORT_TYPE_C ? VTSS_ETYPE_TAG_C : VTSS_ETYPE_TAG_S);
+
+    if (VTSS_PORT_IS_10G(port)) {
+        /* As 10G and 1G devices come in pairs, we must update both devices with max tags */
+        /* Currently only supporting one user defined TAG (besides 0x8100 and 0x88A8) */
+        REG_WRM(VTSS_DEV10G_MAC_TAGS_CFG(VTSS_TO_HIGH_DEV(port), 0),
+                VTSS_F_DEV10G_MAC_TAGS_CFG_TAG_ID(etype) |
+                VTSS_F_DEV10G_MAC_TAGS_CFG_TAG_ENA(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1),
+                VTSS_M_DEV10G_MAC_TAGS_CFG_TAG_ID |
+                VTSS_M_DEV10G_MAC_TAGS_CFG_TAG_ENA);
+
+        REG_WRM(VTSS_DEV10G_MAC_NUM_TAGS_CFG(VTSS_TO_HIGH_DEV(port)), // Triple tags not currently supported
+                VTSS_F_DEV10G_MAC_NUM_TAGS_CFG_NUM_TAGS(max_tags == VTSS_PORT_MAX_TAGS_ONE?1 : max_tags == VTSS_PORT_MAX_TAGS_TWO?2 : 0),
+                VTSS_M_DEV10G_MAC_NUM_TAGS_CFG_NUM_TAGS);
+
+        REG_WRM(VTSS_DEV10G_MAC_MAXLEN_CFG(VTSS_TO_HIGH_DEV(port)),
+                VTSS_F_DEV10G_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1),
+                VTSS_M_DEV10G_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK);
+    }
+    REG_WR(VTSS_DEV1G_MAC_TAGS_CFG(VTSS_TO_DEV2G5(port)),
+           VTSS_F_DEV1G_MAC_TAGS_CFG_TAG_ID(etype) |
+           VTSS_F_DEV1G_MAC_TAGS_CFG_PB_ENA(max_tags == VTSS_PORT_MAX_TAGS_TWO ? 1 : 0) | // Triple tags not currently supported
+           VTSS_F_DEV1G_MAC_TAGS_CFG_VLAN_AWR_ENA(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1) |
+           VTSS_F_DEV1G_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1));
+
     return VTSS_RC_OK;
 }
 
@@ -848,64 +1010,57 @@ static vtss_rc fa_port_afi_flush(vtss_state_t *vtss_state, vtss_port_no_t port_n
 /* Configure 802.1Qbb Priority Flow Control */
 static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
-    u32 q, pfc_mask = 0;
-    u32 spd = (conf->speed == VTSS_SPEED_10G) ? 1 :
-              (conf->speed == VTSS_SPEED_2500M) ? 2 :
-              (conf->speed == VTSS_SPEED_1G) ? 3 :
-              (conf->speed == VTSS_SPEED_100M) ? 4 : 5;
 
-    /* ASM / Rx enable */
+    u32 q, pfc_mask = 0;
+    u32 spd = (conf->speed == VTSS_SPEED_25G)   ? 0 :
+              (conf->speed == VTSS_SPEED_10G)   ? 1 :
+              (conf->speed == VTSS_SPEED_2500M) ? 2 :
+              (conf->speed == VTSS_SPEED_1G)    ? 3 :
+              (conf->speed == VTSS_SPEED_100M)  ? 4 :
+              (conf->speed == VTSS_SPEED_10M)   ? 5 : 6;
+
     for (q = 0; q < VTSS_PRIOS; q++) {
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
     }
+
+    /* QSYS / Tx enable */
+    REG_WRM(VTSS_QSYS_PFC_CFG(port),
+            VTSS_F_QSYS_PFC_CFG_TX_PFC_ENA(pfc_mask),
+            VTSS_M_QSYS_PFC_CFG_TX_PFC_ENA);
+
+    /* DSM / Tx enable */
+    REG_WRM(VTSS_DSM_ETH_PFC_CFG(port),
+            VTSS_F_DSM_ETH_PFC_CFG_PFC_XOFF_MIN_UPDATE_ENA(1) |
+            VTSS_F_DSM_ETH_PFC_CFG_PFC_ENA(VTSS_BOOL(pfc_mask)),
+            VTSS_M_DSM_ETH_PFC_CFG_PFC_XOFF_MIN_UPDATE_ENA |
+            VTSS_M_DSM_ETH_PFC_CFG_PFC_ENA);
+
+    /* No ingress drops in FC */
+    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
+            VTSS_F_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!VTSS_BOOL(pfc_mask)),
+            VTSS_M_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
+
+    /* ASM / Rx enable */
     REG_WRM(VTSS_ASM_PFC_CFG(port),
             VTSS_F_ASM_PFC_CFG_RX_PFC_ENA(pfc_mask) |
             VTSS_F_ASM_PFC_CFG_FC_LINK_SPEED(spd),
             VTSS_M_ASM_PFC_CFG_RX_PFC_ENA |
             VTSS_M_ASM_PFC_CFG_FC_LINK_SPEED);
 
-    /* HQOS Scheduling must be in 'normal' mode otherwise PFC will not work */
-    /* Use pfc status for the port on layer 1 */
+    /* ASM must not drop PFC frames as the PFC detection is done on the cellbus interface */
+    REG_WRM(VTSS_ASM_PAUSE_CFG(port),
+            VTSS_F_ASM_PAUSE_CFG_ABORT_CTRL_ENA(!VTSS_BOOL(pfc_mask)),
+            VTSS_M_ASM_PAUSE_CFG_ABORT_CTRL_ENA);
+
+    /* Enable PFC Rx in Scheduler, layer 2 */
     REG_WRM(VTSS_HSCH_PFC_CFG(port),
-            VTSS_F_HSCH_PFC_CFG_PFC_LAYER(VTSS_BOOL(pfc_mask)),
+            VTSS_F_HSCH_PFC_CFG_PFC_LAYER(VTSS_BOOL(pfc_mask) ? 2 : 0),
             VTSS_M_HSCH_PFC_CFG_PFC_LAYER);
 
     /* Scheduler element = port in normal mode */
     REG_WRM(VTSS_HSCH_PFC_CFG(port),
             VTSS_F_HSCH_PFC_CFG_PFC_SE(port),
             VTSS_M_HSCH_PFC_CFG_PFC_SE);
-
-    /* ASM must not dropASM_CFG PFC frames as the PFC detection is done on the cellbus interface */
-    REG_WRM(VTSS_ASM_PAUSE_CFG(port),
-            VTSS_F_ASM_PAUSE_CFG_ABORT_CTRL_ENA(!VTSS_BOOL(pfc_mask)),
-            VTSS_M_ASM_PAUSE_CFG_ABORT_CTRL_ENA);
-
-    /* DSM / Tx enable */
-    REG_WRM(VTSS_QSYS_PFC_CFG(port),
-            VTSS_F_QSYS_PFC_CFG_TX_PFC_ENA(pfc_mask),
-            VTSS_M_QSYS_PFC_CFG_TX_PFC_ENA);
-
-    REG_WRM(VTSS_DSM_ETH_PFC_CFG(port),
-            VTSS_F_DSM_ETH_PFC_CFG_PFC_ENA(VTSS_BOOL(pfc_mask)),
-            VTSS_M_DSM_ETH_PFC_CFG_PFC_ENA);
-
-    /* When enabled let the queue system generate Pause frames to avoid HOL */
-    REG_WRM(VTSS_DSM_RX_PAUSE_CFG(port),
-            VTSS_F_DSM_RX_PAUSE_CFG_FC_OBEY_LOCAL(VTSS_BOOL(pfc_mask)),
-            VTSS_M_DSM_RX_PAUSE_CFG_FC_OBEY_LOCAL);
-
-    /* Disable Port memory */
-    REG_WR(VTSS_QRES_RES_CFG((4096 + port + 512)), 0);
-
-    /* Disable Shared Prio memory */
-    for (q = 0; q < VTSS_PRIOS; q++) {
-        REG_WR(VTSS_QRES_RES_CFG((4096 + q + 496)), 0);
-    }
-
-    /* Disable Shared DP memory */
-    for (q = 0; q < 4; q++) {
-        REG_WR(VTSS_QRES_RES_CFG((4096 + q + 508)), 0);
-    }
 
     return VTSS_RC_OK;
 }
@@ -914,11 +1069,9 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
 {
     u8                *smac = &conf->flow_control.smac.addr[0], q;
     BOOL              pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
-    vtss_port_no_t    port_no;
     u32               pause_start = 20;   // Number of cells (chip default)
     u32               pause_stop  = 20;   // Number of cells (chip default)
-    u32               atop        = 20;   // Number of cells (chip default)
-    u32               atop_tot    = 0x7FF;// Number of cells (chip default)
+    u32               atop        = VTSS_M_QSYS_ATOP_ATOP;   // Default disabled
 
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
@@ -929,42 +1082,28 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
             }
         }
     }
-
     /* Configure 802.1Qbb PFC */
     VTSS_RC(fa_port_pfc(vtss_state, port, conf));
 
     /* If FC is enabled then set the FC WMs */
     if (pfc || fc_gen || fc_obey) {
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            if (vtss_state->port.conf[port_no].flow_control.generate || pfc) {
-                atop_tot = 0; //  Generate FC early if any port is in FC mode
-            }
-        }
-        if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
-            atop = (20 * VTSS_MAX_FRAME_LENGTH_STANDARD) / FA_BUFFER_CELL_SZ;
-        } else {
-            atop = 40000 / FA_BUFFER_CELL_SZ;
-        }
-        /* Apply encoding */
-        pause_start = wm_enc(8 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
-        pause_stop  = wm_enc(4 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
-        atop        = wm_enc(atop);
-        atop_tot    = wm_enc(atop_tot);
+        atop        = wm_enc(20 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+        pause_start = wm_enc(6  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+        pause_stop  = wm_enc(4  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
     }
 
     /* Set Pause WM hysteresis */
-    REG_WR(VTSS_QSYS_PAUSE_CFG(port),
-           VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(pause_start) |
-           VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(pause_stop) |
-           VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(0)); // enabled after reset
+    REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(pause_start) |
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(pause_stop) |
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(0),
+            VTSS_M_QSYS_PAUSE_CFG_PAUSE_START |
+            VTSS_M_QSYS_PAUSE_CFG_PAUSE_STOP |
+            VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA); // enabled after reset
 
-    /* Port ATOP */
+    /* Port ATOP. Frames are tail dropped when this WM is hit */
     REG_WR(VTSS_QSYS_ATOP(port),
            VTSS_F_QSYS_ATOP_ATOP(atop));
-
-    /* Total ATOP */
-    REG_WR(VTSS_QSYS_ATOP_TOT_CFG,
-           VTSS_F_QSYS_ATOP_TOT_CFG_ATOP_TOT(atop_tot));
 
     /* Set SMAC of Pause frame */
     REG_WR(VTSS_DSM_MAC_ADDR_BASE_HIGH_CFG(port), (smac[0]<<16) | (smac[1]<<8) | smac[2]);
@@ -980,10 +1119,10 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
             VTSS_F_DSM_RX_PAUSE_CFG_RX_PAUSE_EN(fc_obey),
             VTSS_M_DSM_RX_PAUSE_CFG_RX_PAUSE_EN);
 
-    /* No ingress dropping in flowontrol  */
-    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
-           VTSS_F_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!fc_gen),
-           VTSS_M_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
+    /* Disable forward pressure when in fc (JIRA-UNG_FIREANT-17) */
+    REG_WRM(VTSS_QSYS_FWD_PRESSURE(port),
+            VTSS_F_QSYS_FWD_PRESSURE_FWD_PRESSURE_DIS(fc_obey),
+            VTSS_M_QSYS_FWD_PRESSURE_FWD_PRESSURE_DIS);
 
     return VTSS_RC_OK;
 }
@@ -1156,6 +1295,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         break;
     case VTSS_PORT_INTERFACE_QSGMII:    // Normal QSGMII
         serdes_mode = VTSS_SERDES_MODE_QSGMII;
+        sgmii = TRUE;
         break;
     case VTSS_PORT_INTERFACE_USGMII:    // 8x1G, X-mode (ala 2 x QSGMII) 10G Serdes
         serdes_mode = VTSS_SERDES_MODE_USGMII;
@@ -1211,6 +1351,16 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
+
+    /* Enable ASM/DSM 1G/2Gg5 counters */
+    REG_WRM(VTSS_ASM_PORT_CFG(port),
+            VTSS_F_ASM_PORT_CFG_CSC_STAT_DIS(0),
+            VTSS_M_ASM_PORT_CFG_CSC_STAT_DIS);
+
+    REG_WRM(VTSS_DSM_BUF_CFG(port),
+            VTSS_F_DSM_BUF_CFG_CSC_STAT_DIS(0),
+            VTSS_M_DSM_BUF_CFG_CSC_STAT_DIS);
+
 
     /* Bugzilla 4388: disabling frame aging when in HDX */
     REG_WRM_CTL(VTSS_HSCH_PORT_MODE(port), !fdx, VTSS_M_HSCH_PORT_MODE_AGE_DIS);
@@ -1299,8 +1449,9 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                      VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA);
 
         /* Choose SGMII or Serdes PCS mode */
-        REG_WR(VTSS_DEV1G_PCS1G_MODE_CFG(tgt),
-               VTSS_F_DEV1G_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii));
+        REG_WRM(VTSS_DEV1G_PCS1G_MODE_CFG(tgt),
+                VTSS_F_DEV1G_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii),
+                VTSS_M_DEV1G_PCS1G_MODE_CFG_SGMII_MODE_ENA);
 
         if (sgmii) {
             /* Set whole register */
@@ -1463,9 +1614,20 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
 
    /* Re-configure Serdes if needed */
-    if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
+    if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
+        vtss_state->port.current_speed[port_no] != conf->speed) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
+
+    /* Disable ASM/DSM 1G/2Gg5 counters */
+    REG_WRM(VTSS_ASM_PORT_CFG(port),
+            VTSS_F_ASM_PORT_CFG_CSC_STAT_DIS(1),
+            VTSS_M_ASM_PORT_CFG_CSC_STAT_DIS);
+
+    REG_WRM(VTSS_DSM_BUF_CFG(port),
+            VTSS_F_DSM_BUF_CFG_CSC_STAT_DIS(1),
+            VTSS_M_DSM_BUF_CFG_CSC_STAT_DIS);
+
 
     if (conf->speed == VTSS_SPEED_25G) {
         /* Disable 10G PCS */
@@ -1563,8 +1725,10 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
         REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
                 VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
+                VTSS_F_QFWD_SWITCH_PORT_MODE_YEL_RSRVD(0xf) |
                 VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
                 VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
+                VTSS_M_QFWD_SWITCH_PORT_MODE_YEL_RSRVD | // An AFI bug makes this required. See bz.24445
                 VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
 
         /* Enable flowcontrol - must be done after the port is enabled */
@@ -1634,6 +1798,9 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
     VTSS_RC(fa_port_mux_set(vtss_state, port_no));
 
+    /* Configure MAC vlan awareness */
+    VTSS_RC(vtss_fa_port_max_tags_set(vtss_state, port_no));
+
     if (use_primary_dev) {
         VTSS_RC(fa_port_conf_high_set(vtss_state, port_no));
     } else {
@@ -1643,7 +1810,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
     vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
 
-    return VTSS_RC_OK;
+    return vtss_fa_qos_port_change(vtss_state, port_no);
 }
 
 
@@ -1708,9 +1875,9 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     case VTSS_PORT_INTERFACE_SFI:
         /* MAC10G Tx Monitor Sticky bit Register */
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
-        status->link_down = REG_BF(DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY, value);
-        if (status->link_down) {
+        if (value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) {
             /* The link is or has been down. Clear the sticky bit */
+            status->link_down = 1;
             REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
             REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
         }
@@ -1730,14 +1897,14 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 }
 
 
-#define REG_CNT_1G(name, i, cnt, clr)            \
+#define REG_CNT_1G_ONE(name, i, cnt, clr)        \
 {                                                \
     u32 value;                                   \
     REG_RD(VTSS_ASM_##name##_CNT(i), &value);    \
     vtss_cmn_counter_32_update(value, cnt, clr); \
 }
 
-#define REG_CNT_10G(name, i, cnt, clr)           \
+#define REG_CNT_10G_ONE(name, i, cnt, clr)       \
 {                                                \
     u32 value;                                   \
     REG_RD(VTSS_DEV10G_##name##_CNT(i), &value); \
@@ -1750,6 +1917,20 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_##name, &value); \
     vtss_cmn_counter_32_update(value, cnt, clr);     \
 }
+
+#define REG_CNT_1G(name, i, cnt, clr)                \
+{                                                    \
+    REG_CNT_1G_ONE(name, i, cnt.c[0], clr);          \
+    REG_CNT_1G_ONE(PMAC_##name, i, cnt.c[1], clr);   \
+}
+
+#define REG_CNT_10G(name, i, cnt, clr)               \
+{                                                    \
+    REG_CNT_10G_ONE(name, i, cnt.c[0], clr);         \
+    REG_CNT_10G_ONE(PMAC_##name, i, cnt.c[1], clr);  \
+}
+
+#define CNT_SUM(cnt) (cnt.c[0].value + cnt.c[1].value)
 
 static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
                                             u32 *addr, vtss_chip_counter_t *counter, BOOL clear)
@@ -1790,7 +1971,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         /* ASM counters */
         port = VTSS_CHIP_PORT(port_no);
         i = port;
-        REG_CNT_1G(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
+        REG_CNT_1G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
         REG_CNT_1G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, clr);
         REG_CNT_1G(RX_PAUSE, i, &c->rx_pause, clr);
         REG_CNT_1G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, clr);
@@ -1814,7 +1995,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         REG_CNT_1G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, clr);
         REG_CNT_1G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, clr);
 
-        REG_CNT_1G(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
+        REG_CNT_1G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
         REG_CNT_1G(TX_PAUSE, i, &c->tx_pause, clr);
         REG_CNT_1G(TX_OK_BYTES, i, &c->tx_ok_bytes, clr);
         REG_CNT_1G(TX_UC, i, &c->tx_unicast, clr);
@@ -1827,17 +2008,24 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         REG_CNT_1G(TX_SIZE512TO1023, i, &c->tx_size512_1023, clr);
         REG_CNT_1G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, clr);
         REG_CNT_1G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, clr);
-        REG_CNT_1G(TX_MULTI_COLL, i, &c->tx_multi_coll, clr);
-        REG_CNT_1G(TX_LATE_COLL, i, &c->tx_late_coll, clr);
-        REG_CNT_1G(TX_XCOLL, i, &c->tx_xcoll, clr);
-        REG_CNT_1G(TX_DEFER, i, &c->tx_defer, clr);
-        REG_CNT_1G(TX_XDEFER, i, &c->tx_xdefer, clr);
-        REG_CNT_1G(TX_BACKOFF1, i, &c->tx_backoff1, clr);
+        REG_CNT_1G_ONE(TX_MULTI_COLL, i, &c->tx_multi_coll, clr);
+        REG_CNT_1G_ONE(TX_LATE_COLL, i, &c->tx_late_coll, clr);
+        REG_CNT_1G_ONE(TX_XCOLL, i, &c->tx_xcoll, clr);
+        REG_CNT_1G_ONE(TX_DEFER, i, &c->tx_defer, clr);
+        REG_CNT_1G_ONE(TX_XDEFER, i, &c->tx_xdefer, clr);
+        REG_CNT_1G_ONE(TX_BACKOFF1, i, &c->tx_backoff1, clr);
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, clr);
+        REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, clr);
+        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, clr);
+        REG_CNT_1G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, clr);
+        REG_CNT_1G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, clr);
+#endif
     } else {
         /* DEV5G/DEV10G/DEV25G counters */
         port = VTSS_CHIP_PORT(port_no);
         i = VTSS_TO_HIGH_DEV(port);
-        REG_CNT_10G(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
+        REG_CNT_10G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
         REG_CNT_10G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, clr);
         REG_CNT_10G(RX_PAUSE, i, &c->rx_pause, clr);
         REG_CNT_10G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, clr);
@@ -1861,7 +2049,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         REG_CNT_10G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, clr);
         REG_CNT_10G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, clr);
 
-        REG_CNT_10G(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
+        REG_CNT_10G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
         REG_CNT_10G(TX_PAUSE, i, &c->tx_pause, clr);
         REG_CNT_10G(TX_OK_BYTES, i, &c->tx_ok_bytes, clr);
         REG_CNT_10G(TX_UC, i, &c->tx_unicast, clr);
@@ -1874,6 +2062,13 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         REG_CNT_10G(TX_SIZE512TO1023, i, &c->tx_size512_1023, clr);
         REG_CNT_10G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, clr);
         REG_CNT_10G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, clr);
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, clr);
+        REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, clr);
+        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, clr);
+        REG_CNT_10G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, clr);
+        REG_CNT_10G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, clr);
+#endif
     }
 
     /* QSYS counters */
@@ -1918,60 +2113,60 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
     for (i = 0; i < VTSS_PRIOS; i++) {
         rmon->rx_etherStatsDropEvents += (c->rx_green_drops[i].value + c->rx_yellow_drops[i].value);
     }
-    rmon->rx_etherStatsOctets = (c->rx_ok_bytes.value + c->rx_bad_bytes.value);
-    rx_errors = (c->rx_crc_err.value +  c->rx_undersize.value + c->rx_oversize.value +
-                 c->rx_out_of_range_len_err.value + c->rx_symbol_err.value +
-                 c->rx_jabbers.value + c->rx_fragments.value);
-    rmon->rx_etherStatsPkts = (c->rx_unicast.value + c->rx_multicast.value +
-                               c->rx_broadcast.value + rx_errors);
-    rmon->rx_etherStatsBroadcastPkts = c->rx_broadcast.value;
-    rmon->rx_etherStatsMulticastPkts = c->rx_multicast.value;
-    rmon->rx_etherStatsCRCAlignErrors = c->rx_crc_err.value;
-    rmon->rx_etherStatsUndersizePkts = c->rx_undersize.value;
-    rmon->rx_etherStatsOversizePkts = c->rx_oversize.value;
-    rmon->rx_etherStatsFragments = c->rx_fragments.value;
-    rmon->rx_etherStatsJabbers = c->rx_jabbers.value;
-    rmon->rx_etherStatsPkts64Octets = c->rx_size64.value;
-    rmon->rx_etherStatsPkts65to127Octets = c->rx_size65_127.value;
-    rmon->rx_etherStatsPkts128to255Octets = c->rx_size128_255.value;
-    rmon->rx_etherStatsPkts256to511Octets = c->rx_size256_511.value;
-    rmon->rx_etherStatsPkts512to1023Octets = c->rx_size512_1023.value;
-    rmon->rx_etherStatsPkts1024to1518Octets = c->rx_size1024_1518.value;
-    rmon->rx_etherStatsPkts1519toMaxOctets = c->rx_size1519_max.value;
+    rmon->rx_etherStatsOctets = (CNT_SUM(c->rx_ok_bytes) + CNT_SUM(c->rx_bad_bytes));
+    rx_errors = (CNT_SUM(c->rx_crc_err) +  CNT_SUM(c->rx_undersize) + CNT_SUM(c->rx_oversize) +
+                 CNT_SUM(c->rx_out_of_range_len_err) + CNT_SUM(c->rx_symbol_err) +
+                 CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_fragments));
+    rmon->rx_etherStatsPkts = (CNT_SUM(c->rx_unicast) + CNT_SUM(c->rx_multicast) +
+                               CNT_SUM(c->rx_broadcast) + rx_errors);
+    rmon->rx_etherStatsBroadcastPkts = CNT_SUM(c->rx_broadcast);
+    rmon->rx_etherStatsMulticastPkts = CNT_SUM(c->rx_multicast);
+    rmon->rx_etherStatsCRCAlignErrors = CNT_SUM(c->rx_crc_err);
+    rmon->rx_etherStatsUndersizePkts = CNT_SUM(c->rx_undersize);
+    rmon->rx_etherStatsOversizePkts = CNT_SUM(c->rx_oversize);
+    rmon->rx_etherStatsFragments = CNT_SUM(c->rx_fragments);
+    rmon->rx_etherStatsJabbers = CNT_SUM(c->rx_jabbers);
+    rmon->rx_etherStatsPkts64Octets = CNT_SUM(c->rx_size64);
+    rmon->rx_etherStatsPkts65to127Octets = CNT_SUM(c->rx_size65_127);
+    rmon->rx_etherStatsPkts128to255Octets = CNT_SUM(c->rx_size128_255);
+    rmon->rx_etherStatsPkts256to511Octets = CNT_SUM(c->rx_size256_511);
+    rmon->rx_etherStatsPkts512to1023Octets = CNT_SUM(c->rx_size512_1023);
+    rmon->rx_etherStatsPkts1024to1518Octets = CNT_SUM(c->rx_size1024_1518);
+    rmon->rx_etherStatsPkts1519toMaxOctets = CNT_SUM(c->rx_size1519_max);
 
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = c->tx_queue_drops.value;
-    rmon->tx_etherStatsPkts = (c->tx_unicast.value + c->tx_multicast.value +
-                               c->tx_broadcast.value + c->tx_late_coll.value);
-    rmon->tx_etherStatsOctets = c->tx_ok_bytes.value;
-    rmon->tx_etherStatsBroadcastPkts = c->tx_broadcast.value;
-    rmon->tx_etherStatsMulticastPkts = c->tx_multicast.value;
+    rmon->tx_etherStatsPkts = (CNT_SUM(c->tx_unicast) + CNT_SUM(c->tx_multicast) +
+                               CNT_SUM(c->tx_broadcast) + c->tx_late_coll.value);
+    rmon->tx_etherStatsOctets = CNT_SUM(c->tx_ok_bytes);
+    rmon->tx_etherStatsBroadcastPkts = CNT_SUM(c->tx_broadcast);
+    rmon->tx_etherStatsMulticastPkts = CNT_SUM(c->tx_multicast);
     rmon->tx_etherStatsCollisions = (c->tx_multi_coll.value + c->tx_backoff1.value +
                                      c->tx_late_coll.value + c->tx_xcoll.value);
-    rmon->tx_etherStatsPkts64Octets = c->tx_size64.value;
-    rmon->tx_etherStatsPkts65to127Octets = c->tx_size65_127.value;
-    rmon->tx_etherStatsPkts128to255Octets = c->tx_size128_255.value;
-    rmon->tx_etherStatsPkts256to511Octets = c->tx_size256_511.value;
-    rmon->tx_etherStatsPkts512to1023Octets = c->tx_size512_1023.value;
-    rmon->tx_etherStatsPkts1024to1518Octets = c->tx_size1024_1518.value;
-    rmon->tx_etherStatsPkts1519toMaxOctets = c->tx_size1519_max.value;
+    rmon->tx_etherStatsPkts64Octets = CNT_SUM(c->tx_size64);
+    rmon->tx_etherStatsPkts65to127Octets = CNT_SUM(c->tx_size65_127);
+    rmon->tx_etherStatsPkts128to255Octets = CNT_SUM(c->tx_size128_255);
+    rmon->tx_etherStatsPkts256to511Octets = CNT_SUM(c->tx_size256_511);
+    rmon->tx_etherStatsPkts512to1023Octets = CNT_SUM(c->tx_size512_1023);
+    rmon->tx_etherStatsPkts1024to1518Octets = CNT_SUM(c->tx_size1024_1518);
+    rmon->tx_etherStatsPkts1519toMaxOctets = CNT_SUM(c->tx_size1519_max);
 
     /* Interfaces Group Rx counters */
     if_group = &counters->if_group;
     if_group->ifInOctets = rmon->rx_etherStatsOctets;
-    if_group->ifInUcastPkts = c->rx_unicast.value;
-    if_group->ifInMulticastPkts = c->rx_multicast.value;
-    if_group->ifInBroadcastPkts = c->rx_broadcast.value;
-    if_group->ifInNUcastPkts = (c->rx_multicast.value + c->rx_broadcast.value);
+    if_group->ifInUcastPkts = CNT_SUM(c->rx_unicast);
+    if_group->ifInMulticastPkts = CNT_SUM(c->rx_multicast);
+    if_group->ifInBroadcastPkts = CNT_SUM(c->rx_broadcast);
+    if_group->ifInNUcastPkts = (CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast));
     if_group->ifInDiscards = rmon->rx_etherStatsDropEvents;
     if_group->ifInErrors = rx_errors;
 
     /* Interfaces Group Tx counters */
     if_group->ifOutOctets = rmon->tx_etherStatsOctets;
-    if_group->ifOutUcastPkts = c->tx_unicast.value;
-    if_group->ifOutMulticastPkts = c->tx_multicast.value;
-    if_group->ifOutBroadcastPkts = c->tx_broadcast.value;
-    if_group->ifOutNUcastPkts = (c->tx_multicast.value + c->tx_broadcast.value);
+    if_group->ifOutUcastPkts = CNT_SUM(c->tx_unicast);
+    if_group->ifOutMulticastPkts = CNT_SUM(c->tx_multicast);
+    if_group->ifOutBroadcastPkts = CNT_SUM(c->tx_broadcast);
+    if_group->ifOutNUcastPkts = (CNT_SUM(c->tx_multicast) + CNT_SUM(c->tx_broadcast));
     if_group->ifOutDiscards = rmon->tx_etherStatsDropEvents;
     if_group->ifOutErrors = (c->tx_late_coll.value + c->tx_csense.value + c->tx_xcoll.value);
 
@@ -1979,11 +2174,11 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
     /* Ethernet-like Rx counters */
     elike = &counters->ethernet_like;
     elike->dot3StatsAlignmentErrors = 0; /* Not supported */
-    elike->dot3StatsFCSErrors = c->rx_crc_err.value;
-    elike->dot3StatsFrameTooLongs = c->rx_oversize.value;
-    elike->dot3StatsSymbolErrors = c->rx_symbol_err.value;
-    elike->dot3ControlInUnknownOpcodes = c->rx_unsup_opcode.value;
-    elike->dot3InPauseFrames = c->rx_pause.value;
+    elike->dot3StatsFCSErrors = CNT_SUM(c->rx_crc_err);
+    elike->dot3StatsFrameTooLongs = CNT_SUM(c->rx_oversize);
+    elike->dot3StatsSymbolErrors = CNT_SUM(c->rx_symbol_err);
+    elike->dot3ControlInUnknownOpcodes = CNT_SUM(c->rx_unsup_opcode);
+    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause);
 
     /* Ethernet-like Tx counters */
     elike->dot3StatsSingleCollisionFrames = c->tx_backoff1.value;
@@ -1992,13 +2187,26 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
     elike->dot3StatsLateCollisions = c->tx_late_coll.value;
     elike->dot3StatsExcessiveCollisions = c->tx_xcoll.value;
     elike->dot3StatsCarrierSenseErrors = c->tx_csense.value;
-    elike->dot3OutPauseFrames = c->tx_pause.value;
+    elike->dot3OutPauseFrames = CNT_SUM(c->tx_pause);
 #endif /* VTSS_FEATURE_PORT_CNT_ETHER_LIKE */
 
 #if defined(VTSS_FEATURE_PORT_CNT_BRIDGE)
     /* Bridge counters, including filtered frames with and without CRC error */
     counters->bridge.dot1dTpPortInDiscards = c->rx_local_drops.value;
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    {
+        vtss_port_dot3br_counters_t *dot3br = &counters->dot3br;
+
+        /* 802.3br counters */
+        dot3br->aMACMergeFrameAssErrorCount = c->rx_mm_assembly_errors.value;
+        dot3br->aMACMergeFrameSmdErrorCount = c->rx_mm_smd_errors.value;
+        dot3br->aMACMergeFrameAssOkCount = c->rx_mm_assembly_ok.value;
+        dot3br->aMACMergeFragCountRx = c->rx_mm_fragments.value;
+        dot3br->aMACMergeFragCountTx = c->tx_mm_fragments.value;
+        dot3br->aMACMergeHoldCount = 0;
+    }
+#endif /* VTSS_FEATURE_QOS_FRAME_PREEMPTION */
     return VTSS_RC_OK;
 }
 
@@ -2031,9 +2239,9 @@ static vtss_rc fa_port_basic_counters_get(vtss_state_t *vtss_state,
 {
     vtss_port_fa_counters_t *c = &vtss_state->port.counters[port_no].counter.fa;
     VTSS_RC(fa_port_counters_update(vtss_state, port_no));
-    counters->rx_frames = (c->rx_unicast.value + c->rx_multicast.value + c->rx_broadcast.value);
-    counters->tx_frames = (c->tx_unicast.value + c->tx_multicast.value +
-                               c->tx_broadcast.value + c->tx_late_coll.value);
+    counters->rx_frames = (CNT_SUM(c->rx_unicast) + CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast));
+    counters->tx_frames = (CNT_SUM(c->tx_unicast) + CNT_SUM(c->tx_multicast) +
+                           CNT_SUM(c->tx_broadcast) + c->tx_late_coll.value);
 
     return VTSS_RC_ERROR;
 }
@@ -2058,39 +2266,13 @@ static vtss_rc fa_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     return VTSS_RC_OK;
 }
 
-
- // Configure the defaults of the SQS mode.
-vtss_rc vtss_fa_sqs_mode_set(vtss_state_t *vtss_state, fa_sqs_mode_t const *mode)
-{
-    return VTSS_RC_OK;
-}
-
-// Get the configs for a port/class
-vtss_rc vtss_fa_sqs_conf_get(vtss_state_t *vtss_state, u32 id, const fa_sqs_conf_t *sqs)
-{
-    return VTSS_RC_OK;
-}
-
-// Set the configs for a port/class
-vtss_rc vtss_fa_sqs_conf_set(vtss_state_t *vtss_state, u32 id, fa_sqs_conf_t const *sqs)
-{
-    return VTSS_RC_OK;
-}
-
-vtss_rc vtss_fa_wm_update(vtss_state_t *vtss_state)
-{
-    return VTSS_RC_OK;
-}
-
-
-
-
 /* - Debug print --------------------------------------------------- */
 
 #define FA_DEBUG_MAC(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_MAC_##addr, i, "MAC_"name)
 #define FA_DEBUG_PCS(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_PCS1G_##addr, i, "PCS1G_"name)
 #define FA_DEBUG_10G_MAC(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV10G_MAC_##addr, i, "MAC_"name)
 #define FA_DEBUG_FX100(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_##addr, i, name)
+
 
 static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
@@ -2156,6 +2338,37 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
+                                    const vtss_debug_printf_t pr,
+                                    const vtss_debug_info_t   *const info)
+
+{
+    vtss_port_no_t port_no;
+    u32            port;
+    char           buf[32];
+
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+
+        if (info->port_list[port_no] == 0)
+            continue;
+        port = VTSS_CHIP_PORT(port_no);
+
+        if (fa_is_high_speed_device(vtss_state, port_no)) {
+            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
+                    ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
+        } else {
+            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
+        }
+
+        vtss_fa_debug_reg_header(pr, buf);
+
+        VTSS_RC(fa_debug_chip_serdes(vtss_state, pr, info, port_no));
+
+    } /* Port loop */
+    return VTSS_RC_OK;
+}
+
+
 static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr,
                               const vtss_debug_info_t   *const info)
@@ -2166,70 +2379,110 @@ static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
     char           buf[32];
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
 
-        sprintf(buf, "Port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" : \
-                VTSS_PORT_IS_10G(port) ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
+        if (fa_is_high_speed_device(vtss_state, port_no)) {
+            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
+                    ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
+        } else {
+            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
+        }
 
         vtss_fa_debug_reg_header(pr, buf);
+
         VTSS_RC(fa_debug_chip_port(vtss_state, pr, info, port_no));
     } /* Port loop */
+
+
     return VTSS_RC_OK;
 }
 
+static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                         vtss_dual_counter_t *c1, vtss_dual_counter_t *c2)
+{
+    u32  i;
+    char buf1[32], buf2[32];
+    const char *name;
+
+    for (i = 0; i < 2; i++) {
+        name = (i ? "pmac" : "emac");
+        sprintf(buf1, "%s_%s", name, col1);
+        if (col2 == NULL) {
+            vtss_fa_debug_cnt(pr, buf1, NULL, &c1->c[i], NULL);
+        } else {
+            if (strlen(col2) != 0) {
+                sprintf(buf2, "%s_%s", name, col2);
+            } else {
+                strcpy(buf2, "");
+            }
+            vtss_fa_debug_cnt(pr, buf1, buf2, &c1->c[i], &c2->c[i]);
+        }
+    }
+}
 
 static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
                                        const vtss_debug_printf_t pr,
                                        const vtss_debug_info_t   *const info, vtss_port_no_t port_no)
 {
-    u32                      i;
-    char                     rx_buf[32], tx_buf[32];
+    u32                     i;
+    char                    rx_buf[32], tx_buf[32];
     vtss_port_fa_counters_t cnt;
 
     memset(&cnt, 0, sizeof(vtss_port_fa_counters_t));
     VTSS_RC(fa_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
-    if (port_no < vtss_state->port_count) {
-        vtss_fa_debug_cnt(pr, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes, &cnt.tx_out_bytes);
-        vtss_fa_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
-        vtss_fa_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
-        vtss_fa_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
+    if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
+        vtss_fa_debug_cnt(pr, "emac_ok_bytes", "out_bytes", &cnt.rx_ok_bytes.c[0], &cnt.tx_out_bytes);
+        vtss_fa_debug_cnt(pr, "pmac_ok_bytes", NULL, &cnt.rx_ok_bytes.c[1], NULL);
+        fa_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
+        fa_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
+        fa_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
     }
 
-    if (!info->full) {
-        pr("\n");
-        return VTSS_RC_OK;
+    if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
+        fa_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
+        fa_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
+        fa_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
+        fa_debug_cnt(pr, "128_255", "", &cnt.rx_size128_255, &cnt.tx_size128_255);
+        fa_debug_cnt(pr, "256_511", "", &cnt.rx_size256_511, &cnt.tx_size256_511);
+        fa_debug_cnt(pr, "512_1023", "", &cnt.rx_size512_1023, &cnt.tx_size512_1023);
+        fa_debug_cnt(pr, "1024_1526", "", &cnt.rx_size1024_1518, &cnt.tx_size1024_1518);
+        fa_debug_cnt(pr, "jumbo", "", &cnt.rx_size1519_max, &cnt.tx_size1519_max);
+        fa_debug_cnt(pr, "crc", NULL, &cnt.rx_crc_err, NULL);
+        fa_debug_cnt(pr, "undersize", NULL, &cnt.rx_undersize, NULL);
+        fa_debug_cnt(pr, "oversize", NULL, &cnt.rx_oversize, NULL);
+        fa_debug_cnt(pr, "fragments", NULL, &cnt.rx_fragments, NULL);
+        fa_debug_cnt(pr, "jabbers", NULL, &cnt.rx_jabbers, NULL);
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        /* 802.3br counters */
+        vtss_fa_debug_cnt(pr, "mm_ass_err", NULL, &cnt.rx_mm_assembly_errors, NULL);
+        vtss_fa_debug_cnt(pr, "mm_smd_err", NULL, &cnt.rx_mm_smd_errors, NULL);
+        vtss_fa_debug_cnt(pr, "mm_ass_ok",  NULL, &cnt.rx_mm_assembly_ok, NULL);
+        vtss_fa_debug_cnt(pr, "mm_frag", "", &cnt.rx_mm_fragments, &cnt.tx_mm_fragments);
+#endif
     }
 
-    if (port_no < vtss_state->port_count) {
-        vtss_fa_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
-        vtss_fa_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
-        vtss_fa_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
-        vtss_fa_debug_cnt(pr, "128_255", "", &cnt.rx_size128_255, &cnt.tx_size128_255);
-        vtss_fa_debug_cnt(pr, "256_511", "", &cnt.rx_size256_511, &cnt.tx_size256_511);
-        vtss_fa_debug_cnt(pr, "512_1023", "", &cnt.rx_size512_1023, &cnt.tx_size512_1023);
-        vtss_fa_debug_cnt(pr, "1024_1526", "", &cnt.rx_size1024_1518, &cnt.tx_size1024_1518);
-        vtss_fa_debug_cnt(pr, "jumbo", "", &cnt.rx_size1519_max, &cnt.tx_size1519_max);
-        vtss_fa_debug_cnt(pr, "crc", NULL, &cnt.rx_crc_err, NULL);
-    }
-    vtss_fa_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
-    vtss_fa_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
+    if (info->full || info->action == 1 || info->action == 3) {
+        vtss_fa_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
+        vtss_fa_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
 
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "class_%u", i);
-        vtss_fa_debug_cnt(pr, rx_buf, NULL, &cnt.rx_class[i], NULL);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "green_drops_%u", i);
-        sprintf(tx_buf, "green_%u", i);
-        vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_green_drops[i], &cnt.tx_green_class[i]);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "yellow_drops_%u", i);
-        sprintf(tx_buf, "yellow_%u", i);
-        vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_yellow_drops[i], &cnt.tx_yellow_class[i]);
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(rx_buf, "class_%u", i);
+            vtss_fa_debug_cnt(pr, rx_buf, NULL, &cnt.rx_class[i], NULL);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(rx_buf, "green_drops_%u", i);
+            sprintf(tx_buf, "green_%u", i);
+            vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_green_drops[i], &cnt.tx_green_class[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(rx_buf, "yellow_drops_%u", i);
+            sprintf(tx_buf, "yellow_%u", i);
+            vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_yellow_drops[i], &cnt.tx_yellow_class[i]);
+        }
     }
     pr("\n");
 
@@ -2242,14 +2495,24 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t *vtss_state,
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
     vtss_port_no_t port_no;
+    BOOL           cpu_port = (info->action == 1);
+
+    if (info->has_action && info->action == 0) {
+        pr("Port counter actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Show CPU and VD counters\n");
+        pr("2: Show MAC counters only\n");
+        pr("3: Show QS counters only\n");
+        return VTSS_RC_OK;
+    }
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count + 4; port_no++) {
         if (port_no < vtss_state->port_count) {
-            if (info->port_list[port_no] == 0)
+            if (info->port_list[port_no] == 0 || cpu_port)
                 continue;
             pr("Counters for port: %u (chip_port: %u):\n\n", port_no, VTSS_CHIP_PORT(port_no));
         } else {
-            if (!info->full)
+            if (!cpu_port)
                 continue;
             pr("Counters for chip_port: %u:\n\n", VTSS_CHIP_PORT_CPU + port_no - vtss_state->port_count);
         }
@@ -2265,8 +2528,17 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t *vtss_state,
 static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t  *const info)
-
 {
+    pr("General info:\n");
+    pr("-------------\n");
+    pr("Total Buffer           : %d bytes\n",FA_BUFFER_MEMORY);
+    pr("Total Frame References : %d\n",FA_BUFFER_REFERENCE);
+    pr("Cell size              : %d bytes\n",FA_BUFFER_CELL_SZ);
+    pr("Num of external ports (vtss_state->port_count)  : %d\n",vtss_state->port_count);
+    pr("Num of internal ports  : 5\n");
+    pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n");
+
+    fa_debug_wm_qlim(vtss_state, pr, info);
     return VTSS_RC_OK;
 }
 
@@ -2277,6 +2549,7 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, fa_debug_port, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, fa_debug_port_cnt, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, fa_debug_wm, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_SERDES, fa_debug_serdes, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
@@ -2284,16 +2557,37 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc fa_port_init(vtss_state_t *vtss_state)
 {
+    u32 port;
 
-    // 13 x CMUs
-    for (u32 i = 0; i <= 13; i++) {
-        VTSS_RC(vtss_fa_cmu_cfg(vtss_state, i));
+    VTSS_RC(vtss_fa_cmu_init(vtss_state));
+
+    /* Setup ANA_AC to count local drops and policer drops per port */
+    REG_WR(VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(0),
+           VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ZERO_DST_STICKY_MASK);
+    REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(REG_CNT_ANA_AC_PORT_FILTER),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(1<<0));
+    REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(REG_CNT_ANA_AC_PORT_POLICER_DROPS),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(0xf0f0)); /* count policer drops*/
+    for (port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
+        REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port, REG_CNT_ANA_AC_PORT_FILTER),
+               VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_PRIO_MASK(0xff) |
+               VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_CNT_FRM_TYPE(1));
+        REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port, REG_CNT_ANA_AC_PORT_POLICER_DROPS),
+               VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_PRIO_MASK(0xff) |
+               VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_CNT_FRM_TYPE(1));
     }
 
-    // 8 x 25G Macroes
-    for (u32 i = 0; i <= 7; i++) {
-        VTSS_RC(vtss_fa_sd25g_init(vtss_state, i));
-    }
+    /* Setup ANA_AC to count non-FCS errors per queue */
+    REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(REG_CNT_ANA_AC_QUEUE_PRIO),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(0));
+
+    /* Reset the Port Mux (not done through chip-soft-reset) */
+    REG_WR(VTSS_PORT_CONF_DEV5G_MODES,  0);
+    REG_WR(VTSS_PORT_CONF_DEV10G_MODES, 0);
+    REG_WR(VTSS_PORT_CONF_DEV25G_MODES, 0);
+    REG_WR(VTSS_PORT_CONF_QSGMII_ENA,   0);
+    REG_WR(VTSS_PORT_CONF_USGMII_ENA,   0);
+    REG_WR(VTSS_PORT_CONF_USXGMII_ENA,  0);
 
     return VTSS_RC_OK;
 }
@@ -2338,13 +2632,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
-// FA-FIXME        if (!vtss_state->warm_start_cur) {
-// FA-FIXME            if (vtss_state->init_conf.qs_conf.mode == VTSS_QS_MODE_DEFAULT) {
-// FA-FIXME                VTSS_RC(fa_port_buf_conf_set(vtss_state));
-// FA-FIXME            } else {
-// FA-FIXME                VTSS_RC(fa_port_buf_qlim_set(vtss_state));
-// FA-FIXME            }
-// FA-FIXME        }
+        if (!vtss_state->warm_start_cur) {
+            VTSS_RC(fa_port_buf_qlim_set(vtss_state));
+        }
         break;
 
     default:

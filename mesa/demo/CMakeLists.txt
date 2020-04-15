@@ -38,6 +38,10 @@ add_library(btsig SHARED btsig.c)
 
 add_executable(er easy_run.c)
 
+# TODO, delete these once we do not need them any more
+add_executable(fa_board_fpga_init fa_board_fpga_init.c)
+add_executable(fa_spi_chip_id     fa_spi_chip_id.c)
+
 if (EXISTS ag/mesa-rpc.c AND EXISTS ag/mesa-rpc.h AND ${MESA_PRE_AG})
 set(MESA_RPC ag/mesa-rpc.c)
 include_directories(ag)
@@ -142,7 +146,9 @@ macro(APP_TARGET)
     target_link_libraries(${A_NAME} mesa_demo_lib ${A_MESA} ${A_MEBA} json-c)
     set_target_properties(${A_NAME} PROPERTIES OUTPUT_NAME "mesa-demo-${A_MESA}")
 
-    TAR_TARGET(NAME ${A_NAME}.tar EXECUTABLES ${A_NAME} cli er base64decode MESA_DEMO_SYMLINK "mesa-demo-${A_MESA}")
+    TAR_TARGET(NAME ${A_NAME}.tar EXECUTABLES ${A_NAME} cli er
+        fa_board_fpga_init fa_spi_chip_id base64decode MESA_DEMO_SYMLINK
+        "mesa-demo-${A_MESA}")
 
     if (${A_NAME})
         set_target_properties(${A_NAME} PROPERTIES EXCLUDE_FROM_ALL FALSE)
@@ -202,14 +208,21 @@ endmacro()
 
 add_custom_command(
     OUTPUT ls1046-kernel.img
-    DEPENDS ${RELOCATED_HOST_DIR}/../mscc-linux-ls1046.bin.xz
-    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../mscc-linux-ls1046.bin.xz | gzip -f -c > ls1046-kernel.img
+    DEPENDS ${RELOCATED_HOST_DIR}/../../ls1046/mscc-linux-ls1046.bin.xz
+    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../../ls1046/mscc-linux-ls1046.bin.xz | gzip -f -c > ls1046-kernel.img
 )
 
 add_custom_command(
     OUTPUT bbb-kernel.img
     DEPENDS ${RELOCATED_HOST_DIR}/../mscc-linux-beaglebone.bin.xz
     COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../mscc-linux-beaglebone.bin.xz | gzip -f -c > bbb-kernel.img
+)
+
+add_custom_command(
+    OUTPUT fireant-kernel.img
+    DEPENDS ${RELOCATED_HOST_DIR}/../mscc-linux-fireant.bin.xz
+    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../mscc-linux-fireant.bin.xz | gzip -f -c > fireant-kernel.img
+
 )
 
 macro(FIT_TARGET)
@@ -222,16 +235,38 @@ macro(FIT_TARGET)
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND A_MACHINE STREQUAL "ls1046a")
         set(ARCH "arm64")
         set(KERNEL "ls1046-kernel.img")
+        set(KERNELADDR "<0x80080000>")
+        set(KERNELENTRY "<0x80080000>")
+        set(RAMDISCADDR "<0x88080000>")
         set(KCOMP "gzip")
-        set(FDT "mscc-ls1046a-jaguar2-pcb110.dtb")
-        set(FDTADDR "0x90000000")
-
+        set(FDT "${RELOCATED_HOST_DIR}/../../ls1046/mscc-ls1046a-jaguar2-pcb110.dtb")
+        set(FDTADDR "<0x90000000>")
+        set(FW_ENV1 "")
+        set(FW_ENV2 "")
+    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND (A_MACHINE STREQUAL "fireant-pcb134" OR A_MACHINE STREQUAL "fireant-pcb135") )
+        set(ARCH "arm64")
+        set(KERNEL "fireant-kernel.img")
+        set(KERNELADDR "/bits/ 64 <0x700080000>")
+        set(KERNELENTRY "/bits/ 64 <0x700080000>")
+        set(RAMDISCADDR "")
+        set(KCOMP "gzip")
+        if (A_MACHINE STREQUAL "fireant-pcb134")
+          set(FDT "${RELOCATED_HOST_DIR}/../fireant_pcb134.dtb")
+        else()
+          set(FDT "${RELOCATED_HOST_DIR}/../fireant_pcb135.dtb")
+        endif()
+        set(FW_ENV1 "/dev/mtd1 0x0000 0x2000 0x40000")
+        set(FW_ENV2 "/dev/mtd2 0x0000 0x2000 0x40000")
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l" AND A_MACHINE STREQUAL "BeagleBoneBlack")
         set(ARCH "arm")
         set(KERNEL "bbb-kernel.img")
+        set(KERNELADDR "<0x80080000>")
+        set(KERNELENTRY "<0x80080000>")
+        set(RAMDISCADDR "<0x88080000>")
         set(KCOMP "gzip")
-        set(FDT "am335x-boneblack-mscc.dtb")
-        set(FDTLOAD "#")
+        set(FDT "${RELOCATED_HOST_DIR}/../am335x-boneblack-mscc.dtb")
+        set(FW_ENV1 "/dev/mmcblk1 0x260000 0x20000")
+        set(FW_ENV2 "/dev/mmcblk1 0x280000 0x20000")
     endif()
 
     option(${A_NAME} "Build the MESA-FIT DEMO for ${A_MESA}/${A_MEBA}" OFF)
@@ -257,8 +292,8 @@ macro(FIT_TARGET)
     set(its_src "${its_src}                        arch = \"${ARCH}\";\n")
     set(its_src "${its_src}                        os = \"linux\";\n")
     set(its_src "${its_src}                        compression = \"${KCOMP}\";\n")
-    set(its_src "${its_src}                        load = <0x80080000>;\n")
-    set(its_src "${its_src}                        entry = <0x80080000>;\n")
+    set(its_src "${its_src}                        load = ${KERNELADDR};\n")
+    set(its_src "${its_src}                        entry = ${KERNELENTRY};\n")
     set(its_src "${its_src}                };\n")
     set(its_src "${its_src}                ramdisk {\n")
     set(its_src "${its_src}                        description = \"ramdisk\";\n")
@@ -266,15 +301,19 @@ macro(FIT_TARGET)
     set(its_src "${its_src}                        type = \"ramdisk\";\n")
     set(its_src "${its_src}                        arch = \"${ARCH}\";\n")
     set(its_src "${its_src}                        os = \"linux\";\n")
-    set(its_src "${its_src}                        load = <0x88080000>;\n")
+    if (A_MACHINE STREQUAL "ls1046a" OR A_MACHINE STREQUAL "BeagleBoneBlack")
+      set(its_src "${its_src}                        load = ${RAMDISCADDR};\n")
+    endif()
     set(its_src "${its_src}                        compression = \"none\";\n")
     set(its_src "${its_src}                };\n")
     set(its_src "${its_src}                fdt {\n")
     set(its_src "${its_src}                        description = \"Flattened Device Tree blob\";\n")
-    set(its_src "${its_src}                        data = /incbin/(\"${RELOCATED_HOST_DIR}/../${FDT}\");\n")
+    set(its_src "${its_src}                        data = /incbin/(\"${FDT}\");\n")
     set(its_src "${its_src}                        type = \"flat_dt\";\n")
     set(its_src "${its_src}                        arch = \"${ARCH}\";\n")
-    set(its_src "${its_src}                        ${FDTLOAD}load = <${FDTADDR}>;\n")
+    if (A_MACHINE STREQUAL "ls1046a")
+      set(its_src "${its_src}                        load = ${FDTADDR};\n")
+    endif()
     set(its_src "${its_src}                        compression = \"none\";\n")
     set(its_src "${its_src}                };\n")
     set(its_src "${its_src}        };\n")
@@ -290,7 +329,8 @@ macro(FIT_TARGET)
     set(its_src "${its_src}        };\n")
     set(its_src "${its_src}};\n")
 
-    file(GENERATE OUTPUT "mesa/demo/${A_NAME}.its" CONTENT "${its_src}")
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/mesa/demo/${A_NAME}.its" CONTENT "${its_src}")
+
     set(install_dir "install_${A_NAME}")
     add_custom_command(
         OUTPUT ${A_NAME}.itb
@@ -299,10 +339,11 @@ macro(FIT_TARGET)
         COMMAND mkdir -p ${install_dir}
         COMMAND tar -C ${install_dir} -xf ${RELOCATED_HOST_DIR}/../rootfs.tar
         COMMAND tar -C ${install_dir} -xf ${A_APP}.tar
+        COMMAND echo ${FW_ENV1} >> ${install_dir}/etc/fw_env.config
+        COMMAND echo ${FW_ENV2} >> ${install_dir}/etc/fw_env.config
         COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" mksquashfs ${install_dir}/* ${A_NAME}.rootfs -comp xz -all-root
         COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" mkimage -f ${A_NAME}.its ${A_NAME}.itb
     )
-
     if (${A_NAME})
         add_custom_target(${A_NAME} ALL DEPENDS ${A_NAME}.itb)
     endif()
@@ -335,7 +376,6 @@ APP_TARGET(NAME app_vsc7448_pcnt51     MESA vsc7448_pcnt51     MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7449            MESA vsc7449            MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7464            MESA vsc7464            MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7468_pcnt26     MESA vsc7468_pcnt26     MEBA meba_jr2)
-APP_TARGET(NAME app_vsc7468_pcnt29_st  MESA vsc7468_pcnt29_static     MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7468_pcnt29     MESA vsc7468_pcnt29     MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7468_pcnt29_ts  MESA vsc7468_pcnt29_ts  MEBA meba_jr2)
 APP_TARGET(NAME app_vsc7468_pcnt51     MESA vsc7468_pcnt51     MEBA meba_jr2)
@@ -344,16 +384,18 @@ APP_TARGET(NAME app_vsc7513            MESA vsc7513            MEBA meba_ocelot)
 APP_TARGET(NAME app_vsc7513_afiot_ts   MESA vsc7513_afiot_ts   MEBA meba_ocelot)
 APP_TARGET(NAME app_vsc7514            MESA vsc7514            MEBA meba_ocelot)
 APP_TARGET(NAME app_vsc7514_afiot_ts   MESA vsc7514_afiot_ts   MEBA meba_ocelot)
-APP_TARGET(NAME app_vsc7546_pcnt7      MESA vsc7546_pcnt7      MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7549_pcnt10     MESA vsc7549_pcnt10     MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7552_pcnt13     MESA vsc7552_pcnt13     MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7556_pcnt57     MESA vsc7556_pcnt57     MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7558_pcnt21     MESA vsc7558_pcnt21     MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7546_04_pcnt7   MESA vsc7546_04_pcnt7   MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7549_04_pcnt10  MESA vsc7549_04_pcnt10  MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7552_04_pcnt13  MESA vsc7552_04_pcnt13  MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7556_04_pcnt57  MESA vsc7556_04_pcnt57  MEBA meba_jag3s5)
-APP_TARGET(NAME app_vsc7558_04_pcnt21  MESA vsc7558_04_pcnt21  MEBA meba_jag3s5)
+#APP_TARGET(NAME app_vsc7546_pcnt7      MESA vsc7546_pcnt7      MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7549_pcnt10     MESA vsc7549_pcnt10     MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7552_pcnt13     MESA vsc7552_pcnt13     MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7556_pcnt57     MESA vsc7556_pcnt57     MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7558_pcnt21     MESA vsc7558_pcnt21     MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7558_pcnt57     MESA vsc7558_pcnt57     MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7546_04_pcnt7   MESA vsc7546_04_pcnt7   MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7549_04_pcnt10  MESA vsc7549_04_pcnt10  MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7552_04_pcnt13  MESA vsc7552_04_pcnt13  MEBA meba_sparx5)
+#APP_TARGET(NAME app_vsc7556_04_pcnt57  MESA vsc7556_04_pcnt57  MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7558_04_pcnt21  MESA vsc7558_04_pcnt21  MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7558_04_pcnt57  MESA vsc7558_04_pcnt57  MEBA meba_sparx5)
 
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
@@ -361,7 +403,6 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
     MFI_TARGET(NAME mfi_vsc7429           APP  app_vsc7429           KMOD  luton26       MACHINE luton26  )
     MFI_TARGET(NAME mfi_vsc7423           APP  app_vsc7423           KMOD  luton26       MACHINE luton10  )
     MFI_TARGET(NAME mfi_vsc7468_pcnt29    APP  app_vsc7468_pcnt29    KMOD  jaguar2       MACHINE jaguar2c )
-    MFI_TARGET(NAME mfi_vsc7468_pcnt29_st APP  app_vsc7468_pcnt29_st KMOD  jaguar2       MACHINE jaguar2c )
     MFI_TARGET(NAME mfi_vsc7468_pcnt29_ts APP  app_vsc7468_pcnt29_ts KMOD  jaguar2       MACHINE jaguar2c )
     #MFI_TARGET(NAME mfi_vsc7468_pcnt26    APP  app_vsc7468_pcnt26    KMOD  jaguar2-aqr   MACHINE jaguar2c )
     MFI_TARGET(NAME mfi_vsc7468_pcnt51    APP  app_vsc7468_pcnt51    KMOD  jaguar2-cu48  MACHINE jaguar2c )
@@ -395,7 +436,8 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
 
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     FIT_TARGET(NAME fit_ls1046_vsc7468_pcnt29  APP app_vsc7468_pcnt29  MACHINE ls1046a)
-    # FIT_TARGET(NAME fit_ls1046_vsc7468_pcnt29_st  APP app_vsc7468_pcnt29_st  MACHINE ls1046a)
+    FIT_TARGET(NAME fit_pcb134_vsc7558_pcnt21  APP app_vsc7558_04_pcnt21  MACHINE fireant-pcb134)
+    FIT_TARGET(NAME fit_pcb135_vsc7558_pcnt57  APP app_vsc7558_04_pcnt57  MACHINE fireant-pcb135)
     # FIT_TARGET(NAME fit_ls1046_vsc7449         APP app_vsc7449         MACHINE ls1046a)
     # FIT_TARGET(NAME fit_ls1046_vsc7437         APP app_vsc7437         MACHINE ls1046a)
     # FIT_TARGET(NAME fit_ls1046_vsc7438         APP app_vsc7438         MACHINE ls1046a)
@@ -414,5 +456,6 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     FIT_TARGET(NAME fit_bbb_vsc7514         APP app_vsc7514         MACHINE BeagleBoneBlack)
     FIT_TARGET(NAME fit_bbb_vsc7512         APP app_vsc7512         MACHINE BeagleBoneBlack)
     FIT_TARGET(NAME fit_bbb_vsc7558_04_pcnt21 APP app_vsc7558_04_pcnt21 MACHINE BeagleBoneBlack)
+    FIT_TARGET(NAME fit_bbb_vsc7558_04_pcnt57 APP app_vsc7558_04_pcnt57 MACHINE BeagleBoneBlack)
 
 endif()

@@ -1358,7 +1358,9 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
     vtss_port_map_t  *map;
     vtss_port_conf_t *conf;
     const char       *mode;
+    const char       *aneg;
     BOOL             header = 1;
+    char             buf[20];
 
     if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT))
         return;
@@ -1370,15 +1372,19 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             header = 0;
             vtss_debug_print_header(pr, "Mapping");
             pr("Port  Chip Port  Chip  ");
-#if defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
             pr("Max BW  ");
 #endif
             pr("MIIM Bus  MIIM Addr  MIIM Chip\n");
         }
         map = &vtss_state->port.map[port_no];
         pr("%-6u%-11d%-6u", port_no, map->chip_port, map->chip_no);
-#if defined(VTSS_ARCH_JAGUAR_2)
-        pr("%-8u", map->max_bw);
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+        pr("%-8s", map->max_bw == VTSS_BW_1G ? "1G" :
+           map->max_bw == VTSS_BW_2G5 ? "2G5" :
+           map->max_bw == VTSS_BW_5G  ? "5G" :
+           map->max_bw == VTSS_BW_10G ? "10G" :
+           map->max_bw == VTSS_BW_25G ? "25G" : "N/A");
 #endif
         pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr, map->miim_chip_no);
     }
@@ -1392,7 +1398,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
         if (header) {
             header = 0;
             vtss_debug_print_header(pr, "Configuration");
-            pr("Port  Interface    Serdes     Speed     Obey      Generate  Max Length\n");
+            pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  Max Length\n");
         }
         conf = &vtss_state->port.conf[port_no];
         switch (conf->speed) {
@@ -1421,11 +1427,17 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             mode = "?";
             break;
         }
-        pr("%-6u%-13s%-11s%-10s%-10s%-10s%u+%s\n",
+        aneg = vtss_state->port.clause_37[port_no].enable ? "Yes" : "No";
+        sprintf(buf, "%s", vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
+        if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
+            sprintf(buf + strlen(buf), "(%s)",vtss_media_type_if_txt(conf->serdes.media_type));
+        }
+        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s%u+%s\n",
            port_no,
            vtss_port_if_txt(conf->if_type),
-           vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]),
+           buf,
            mode,
+           aneg,
            vtss_bool_txt(conf->flow_control.obey),
            vtss_bool_txt(conf->flow_control.generate),
            conf->max_frame_length,
@@ -1476,7 +1488,7 @@ static void vtss_debug_port_cnt(const vtss_debug_printf_t pr,
                                 const char *col1, const char *col2,
                                 vtss_port_counter_t c1, vtss_port_counter_t c2)
 {
-    char buf[80];
+    char buf[200];
 
     sprintf(buf, "Rx %s:", col1);
     pr("%-19s%19" PRIu64 "   ", buf, c1);
@@ -1567,6 +1579,18 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_PORT_CNT_BRIDGE)
         vtss_debug_port_cnt(pr, "Filtered", NULL, counters.bridge.dot1dTpPortInDiscards, 0);
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
+
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        {
+            vtss_port_dot3br_counters_t *dot3br = &counters.dot3br;
+
+            pr("\n");
+            vtss_debug_port_cnt(pr, "AssError", NULL, dot3br->aMACMergeFrameAssErrorCount, 0);
+            vtss_debug_port_cnt(pr, "SmdError", NULL, dot3br->aMACMergeFrameSmdErrorCount, 0);
+            vtss_debug_port_cnt(pr, "AssOk", "HoldCount", dot3br->aMACMergeFrameAssOkCount, dot3br->aMACMergeHoldCount);
+            vtss_debug_port_cnt(pr, "FragCount", "", dot3br->aMACMergeFragCountRx, dot3br->aMACMergeFragCountTx);
+        }
+#endif
 
 #if defined(VTSS_ARCH_CARACAL)
         {

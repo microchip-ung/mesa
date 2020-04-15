@@ -1044,7 +1044,9 @@ $c_hdr.puts "#include <json_rpc.h>"
 $c_hdr.puts ""
 
 $c_src.puts "#include <mesa-rpc.h>"
+$c_src.puts "#pragma GCC diagnostic ignored \"-Wmaybe-uninitialized\""
 $c_src.puts ""
+
 
 $el.uniq!
 $el.each do |e|

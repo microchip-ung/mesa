@@ -1,0 +1,95 @@
+= API 5.8
+
+== API 5.8
+
+|===
+|Version:          |API-5.8.0
+|Previous Version: |API-5.7.0
+|Date:             |2019-04-08
+|Code Revision:    |7e01131
+|Description:      |Roadmap release
+|===
+
+=== Features/Changes
+
+==== New feature: Enhanced VLAN capabilities
+
+The API now allows to do ingress and egress processing of zero, one or two VLAN
+tags. This processing includes forwarding decisions, policing, QoS mappings and
+statistics.
+
+The actual capabilities of a given chip is advertised in the following
+capabilities: `MESA_CAP_L2_XFLOW`, `MESA_CAP_L2_XSTAT` and `MESA_CAP_L2_XDLB`.
+
+To facilitate this, the following API functions has been added:
+
+* `mesa_ingress_cnt_alloc`/`free`/`get`/`clear`
+* `mesa_dlb_policer_alloc`/`free`/`conf_get`/`conf_set`
+* `mesa_iflow_alloc`/`free`/`conf_get`/`conf_set`
+* `mesa_tce_init`/`add`/`del`
+* `mesa_egress_cnt_alloc`/`free`/`get`/`clear`
+* `mesa_eflow_alloc`/`free`/`conf_get`/`conf_set`
+
+The ingress processing is used in conjunction with the existing vce-APIs, which
+can now match on an inner tag, and optionally point to a `mesa_iflow_id_t`.
+
+==== New features: Configurable VCE key sizes
+
+To allow optimizing the TCAM-resources usages, it is now possible to configure
+the key sizes used when installing VCE entries in the TCAM.
+
+This configuration must be applied before any rules are installed. This is done
+by specifying the `key_type` field in the `mesa_vcl_port_conf_t` structure.
+
+Default value (structure memset to zero), is `MESA_VCAP_KEY_TYPE_NORMAL`, which
+is also the rule size used in previous APIs.
+
+==== New feature: MAC table: CPU-Copy for SMAC
+
+This change only affects applications that require a copy of frames with a
+particular SMAC to the CPU (typically for S/W-based learning):
+Setting of the `mesa_mac_table_entry_t` structure's copy_to_cpu member no longer
+directs frames to the CPU if they arrive on a port as source MAC. Use the
+`copy_to_cpu_smac` member instead.
+
+==== New feature: L3 Multicast Routing
+
+To addition to the existing L3 Unicast Routing, the API now supports L3 Multicast Routing
+for versions IPv4 and IPv6.
+To support this, the following API functions have been added:
+
+* `mesa_l3_mc_route_add`
+* `mesa_l3_mc_route_del`
+* `mesa_l3_mc_route_rleg_add`
+* `mesa_l3_mc_route_rleg_del`
+* `mesa_l3_mc_route_active_get`
+
+The functionality is integrated into the same files and structures
+as Unicast Routing and can be viewed in l3.h.
+
+=== Bugfixes
+
+* Fixed:
+** Queue system, status, counters (includes port macro setup).:
+*** MESA-417: Flush timeouts may occur during boot
+*** MESA-421: JR2: CPU should be excluded from contributing to ingress port's back presssure
+*** MESA-424: Wrong XAUI mapping when disabling/enabling lane alignment
+
+** Scheduler mode, shaper/queue setup, mappings.:
+*** MESA-426: AFI & HQoS: AFI flows can be affected while reconfiguring HQoS
+
+** Targets, general initialization (memories, PLLs etc):
+*** MESA-415: VSC7436 API init fail due to external CPU T1040 SPI read issue
+
+** Time-of-day, latency, timestamp.:
+*** MESA-414: Frequency output settings in function mesa_ts_external_io_mode_set is wrong
+
+** VSC7513/VSC7514:
+*** Bugzilla#22644: [WM]Ocelot: Frame loss observed when broadcasting is done from 4 ports without congestion
+
+* Fixed but not verified:
+** None.
+
+* Known issues:
+** VSC7414/VSC7416/VSC7418:
+*** Bugzilla#23680: LC-PLL re-lock process performed by the MSCC API can render the switch's register space inaccessible to an eCPU application accessing the switch via PCIe                                                               

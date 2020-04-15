@@ -58,6 +58,7 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 static mesa_bool_t cli_exit;
 static mesa_bool_t cli_mgmt_port_include;
+static uint32_t cli_port_cnt;
 
 /****************************************************************************/
 /*  Command parsing                                                         */
@@ -105,7 +106,7 @@ static void cli_cmd_debug_mgmt(cli_req_t *req)
 
 mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list, mesa_port_no_t iport)
 {
-    return (port_list->_private[iport / 8] & (1 << (iport % 8)));
+    return (iport < cli_port_cnt && (port_list->_private[iport / 8] & (1 << (iport % 8))) != 0);
 }
 
 char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
@@ -116,10 +117,10 @@ char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
     mesa_bool_t    member;
 
     *p = '\0';
-    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+    for (iport = 0; iport < cli_port_cnt; iport++) {
         member = cli_port_list_member(port_list, iport);
         if ((member && 
-             (count == 0 || iport == (mesa_port_cnt(NULL) - 1))) || (!member && count > 1)) {
+             (count == 0 || iport == (cli_port_cnt - 1))) || (!member && count > 1)) {
             port = iport2uport(iport);
             p += sprintf(p, "%s%u",
                          first ? "" : count > (member ? 1 : 2) ? "-" : ",",
@@ -299,27 +300,17 @@ int cli_parse_list(const char *buf, mesa_bool_t *list, uint32_t min, uint32_t ma
 /* Remove unused ports from the list */
 static void cli_remove_unused_ports(cli_req_t *req) 
 {
-    mesa_port_no_t  iport;
-    mesa_port_map_t *port_map;
-    uint32_t        port_cnt = mesa_port_cnt(NULL);
+    mesa_port_no_t iport;
+    uint32_t       port_cnt = mesa_port_cnt(NULL);
     
-    if ((port_map = calloc(port_cnt, sizeof(*port_map))) == NULL) {
-        return;
-    }
-    
-    if (mesa_port_map_get(NULL, port_cnt, port_map) == MESA_RC_OK) {
-        for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
-            if (port_map[iport].chip_port < 0) {
-                req->port_list[iport2uport(iport)] = 0;
-            }
-        }
+    for (iport = cli_port_cnt; iport < port_cnt; iport++) {
+        req->port_list[iport2uport(iport)] = 0;
     }
 
     // Exclude IP management port, if valid
     if (!cli_mgmt_port_include && (req->cmd_flags & CLI_CMD_FLAG_ALL_PORTS) == 0 && ip_port < port_cnt) {
         req->port_list[iport2uport(ip_port)] = 0;
     }
-    free(port_map);
 }
 
 static int cli_parm_port_list(cli_req_t *req)
@@ -834,7 +825,23 @@ static int cli_parse_command(int argc, const char **argv)
 
 static void cli_init(void)
 {
-    int i;
+    int             i;
+    mesa_port_no_t  iport;
+    mesa_port_map_t *port_map;
+    uint32_t        port_cnt = mesa_port_cnt(NULL);
+
+    /* Determine board port count */
+    if ((port_map = calloc(port_cnt, sizeof(*port_map))) != NULL) {
+        if (mesa_port_map_get(NULL, port_cnt, port_map) == MESA_RC_OK) {
+            for (iport = 0; iport < port_cnt; iport++) {
+                if (port_map[iport].chip_port < 0) {
+                    break;
+                }
+            }
+            cli_port_cnt = iport;
+        }
+        free(port_map);
+    }
 
     /* Register general commands */
     for (i = 0; i < sizeof(cli_cmd_table)/sizeof(cli_cmd_t); i++) {

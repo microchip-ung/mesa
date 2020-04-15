@@ -1,0 +1,10 @@
+= MESA README
+
+See the link:mesa-doc.html[mesa-doc.html] file for read-me, getting started
+documentation and more information.
+
+License information, see COPYING.
+
+To generate mesa-doc.html (only relevant in non-released version) go to
+`./mesa/doc/scripts` and run `dg.rb`.
+

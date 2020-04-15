@@ -1565,7 +1565,7 @@ static vtss_rc srvl_is1_entry_add(vtss_state_t *vtss_state,
     vtss_vcap_key_size_t   key_size;
     u32                    oam = 0, i, n, type = IS1_TYPE_NORMAL;
     srvl_is1_key_info_t    info;
-    BOOL                   l4_used = 0;
+    BOOL                   l4_used = 0, ip = 0;
 
     VTSS_I("enter");
     
@@ -1660,6 +1660,7 @@ static vtss_rc srvl_is1_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_IS1_TYPE_IPV4:
     case VTSS_IS1_TYPE_IPV6:
+        ip = 1;
         if (key->key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR)
             type = IS1_TYPE_5TUPLE_IP4;
         info.etype_len = VTSS_VCAP_BIT_1;
@@ -1752,8 +1753,8 @@ static vtss_rc srvl_is1_entry_add(vtss_state_t *vtss_state,
             if (first_port != VTSS_PORT_NO_NONE) {
                 dmac_dip = vtss_state->vcap.dmac_dip_conf[first_port].dmac_dip[is1->lookup];
             }
-            srvl_vcap_key_u48_set(data, IS1_HKO_NORMAL_L2_SMAC, (dmac_dip) ? &key->mac.dmac : &key->mac.smac);
-            srvl_vcap_key_ipv4_set(data, IS1_HKO_NORMAL_L3_IP4_SIP, (dmac_dip) ? &info.l3_ip4_dip : &info.l3_ip4_sip);
+            srvl_vcap_key_u48_set(data, IS1_HKO_NORMAL_L2_SMAC, dmac_dip ? &key->mac.dmac : &key->mac.smac);
+            srvl_vcap_key_ipv4_set(data, IS1_HKO_NORMAL_L3_IP4_SIP, dmac_dip && ip ? &info.l3_ip4_dip : &info.l3_ip4_sip);
             srvl_is1_misc_key_set(data, &info, IS1_HKO_NORMAL_ETYPE_LEN);
             srvl_is1_l4_key_set(data, &info, IS1_HKO_NORMAL_TCP_UDP);
         } else {
@@ -2086,7 +2087,7 @@ static vtss_rc srvl_is2_action_set(vtss_state_t *vtss_state,
     vtss_acl_ptp_action_t  ptp = action->ptp_action;
     u32                    pol_idx, mask, discard;
     u32                    action_add_sub = 0;
-    
+
     if (data->type == IS2_ACTION_TYPE_SMAC_SIP) {
         srvl_vcap_action_bit_set(data, IS2_AO_SMAC_SIP_CPU_COPY_ENA, 0);
         srvl_vcap_action_set(data, IS2_AO_SMAC_SIP_CPU_QU_NUM, IS2_AL_SMAC_SIP_CPU_QU_NUM, 0);
@@ -2121,6 +2122,9 @@ static vtss_rc srvl_is2_action_set(vtss_state_t *vtss_state,
     srvl_vcap_action_bit_set(data, IS2_AO_POLICE_ENA, pol_idx ? 1 : 0);
     srvl_vcap_action_set(data, IS2_AO_POLICE_IDX, IS2_AL_POLICE_IDX, pol_idx);
     srvl_vcap_action_bit_set(data, IS2_AO_POLICE_VCAP_ONLY, 0);
+    if (act == VTSS_ACL_PORT_ACTION_REDIR) {
+        mask &= vtss_srvl_port_mask(vtss_state, vtss_state->l2.tx_forward_aggr);
+    }
     srvl_vcap_action_set(data, IS2_AO_PORT_MASK, IS2_AL_PORT_MASK, mask);
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
@@ -2449,6 +2453,27 @@ static vtss_rc srvl_is2_entry_move(vtss_state_t *vtss_state,
     VTSS_IG(VTSS_TRACE_GROUP_SECURITY, "enter");
 
     return srvl_vcap_entry_move(vtss_state, VTSS_TCAM_IS2, idx, count, up);
+}
+
+static vtss_rc srvl_is2_entry_update(vtss_state_t *vtss_state,
+                                     vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
+{
+    const tcam_props_t *tcam = &tcam_info[VTSS_TCAM_IS2];
+    srvl_tcam_data_t   tcam_data, *data = &tcam_data;
+    vtss_port_no_t     port_no;
+    BOOL               member[VTSS_PORTS];
+    u32                mask;
+
+    VTSS_I("row: %u, col: %u", idx->row, idx->col);
+    VTSS_RC(srvl_vcap_entry_data_get(vtss_state, tcam, idx, data));
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        member[port_no] = (VTSS_PORT_BF_GET(is2->action.member, port_no) &&
+                           vtss_state->l2.tx_forward_aggr[port_no]);
+    }
+    mask = vtss_srvl_port_mask(vtss_state, member);
+    srvl_vcap_action_set(data, IS2_AO_PORT_MASK, IS2_AL_PORT_MASK, mask);
+    VTSS_RC(srvl_vcap_entry_set(vtss_state, tcam, idx, data));
+    return VTSS_RC_OK;
 }
 
 static void srvl_debug_is2_base(srvl_debug_info_t *info, u32 offset)
@@ -3188,6 +3213,7 @@ static vtss_rc srvl_ace_add(vtss_state_t *vtss_state,
     const vtss_ace_udp_tcp_t    *sport = NULL, *dport = NULL;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range; 
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
+    vtss_port_no_t              port_no;
 
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
@@ -3246,7 +3272,16 @@ static vtss_rc srvl_ace_add(vtss_state_t *vtss_state,
         entry.ace.frame.ipv4.sip.mask = 0xffffffff;
     }
     data.key_size = VTSS_VCAP_KEY_SIZE_HALF;
+    if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
+        is2->action.redir = 1;
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (ace->action.port_list[port_no]) {
+                VTSS_PORT_BF_SET(is2->action.member, port_no, 1);
+            }
+        }
+    }
     VTSS_RC(vtss_vcap_add(vtss_state, obj, user, ace->id, ace_id, &data, 0));
+    is2->action.redir = 0;
 
     /* Add/delete SIP/SMAC entry */
     user = VTSS_IS2_USER_ACL_SIP;
@@ -3624,6 +3659,7 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_add = srvl_is2_entry_add;
         is2->entry_del = srvl_is2_entry_del;
         is2->entry_move = srvl_is2_entry_move;
+        state->is2_entry_update = srvl_is2_entry_update;
         
         /* ES0 */
         es0->max_count = SRVL_ES0_CNT;

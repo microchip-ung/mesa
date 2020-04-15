@@ -1,0 +1,76 @@
+= MESA-2019.06
+
+== MESA-2019.06
+
+|===
+|Version:          |MESA-2019.06
+|Previous Version: |API-5.8.0
+|Date:             |2019-06-07
+|Code Revision:    |cc4d0915e
+|Description:      |Roadmap release
+|===
+
+=== Change in feature-set
+
+The following public header files (and implementation) have been removed in this
+release:
+
+* MESA-headers (in `./mesa/include/mscc/ethernet/switch/api`):
+** `evc.h`
+** `hqos.h`
+** `hw_prot.h`
+** `mpls.h`
+** `oam.h`
+
+* Unified-API headers (in `./include`):
+** `vtss_evc_api.h`
+** `vtss_hqos_api.h`
+** `vtss_hw_prot_api.h`
+** `vtss_mpls_api.h`
+** `vtss_oam_api.h`
+
+The functionality offered in `oam.h`/`vtss_oam_api.h`, has partly been replaced
+by `vop.h`/`vtss_vop_api.h`. This is a new header file to facilitate
+implementation of IEEE 802.1ag using the HW offload features offered by silicon.
+
+=== IGMPv3 and MLDv2 APIs are supported on more targets
+
+The `MESA_CAP_L2_IPV4_MC_SIP` and `MESA_CAP_L2_IPV6_MC_SIP` capabilities have been
+implemented on additional target families:
+
+`MESA_CAP_L2_IPV4_MC_SIP`:
+* `MESA_CHIP_FAMILY_CARACAL`
+* `MESA_CHIP_FAMILY_SERVAL` (new)
+* `MESA_CHIP_FAMILY_SERVALT` (new)
+* `MESA_CHIP_FAMILY_JAGUAR2` (new)
+* `MESA_CHIP_FAMILY_OCELOT` (new)
+
+`MESA_CAP_L2_IPV6_MC_SIP`:
+* `MESA_CHIP_FAMILY_CARACAL`
+* `MESA_CHIP_FAMILY_SERVALT` (new)
+* `MESA_CHIP_FAMILY_JAGUAR2` (new)
+
+This allows the application to control the destination mask based on a (vid,
+sip, dip) tuple, which is required to implement IGMPv3/MLDv2 snooping.
+
+
+=== C++ code in MESA wrappers has been eliminated
+
+The C++ code which has been used to implement the MESA wrappers has now been
+converted to C. This means that MESA, MEBA and Unified-API only requires a C
+compiler.
+
+Auto-generated header files are bundled into the released API, such that users
+who are not adding new API definitions do not need to re-generate such files.
+This means that the dependency to the Ruby Parslet library has been eliminated
+as well.
+
+=== SparX-5/5i (VSC754*/VSC755*) SKUs added
+
+Preliminary SparX-5/5i API targets have been defined in API, and can now be
+build using the CMake building system.
+
+These targets are completely un-tested, and are only intended as an early
+preview.
+
+The first release to support these targets is expected to be MESA-2019.09.

@@ -50,15 +50,14 @@ static
 i2c_config_t ocelot_i2c_config = { "/dev/i2c-201", 0x20 };
 
 mesa_rc meba_poe_system_get(
-        const meba_inst_t             inst,
+        meba_inst_t                     inst,
         meba_poe_system_t             **const system)
 {
     *system = &ocelot_pd69200_system;
     return MESA_RC_OK;
 }
 
-mesa_rc meba_poe_system_initialize(
-        const meba_inst_t             inst)
+mesa_rc meba_poe_system_initialize(meba_inst_t inst)
 {
     // Do poe chip detection and fill
     /* ocelot_ctrl.api = ....; */
@@ -80,7 +79,7 @@ mesa_rc meba_poe_system_initialize(
     return MESA_RC_OK;
 };
 
-mesa_rc meba_poe_get_controller_handle(const meba_inst_t inst,
+mesa_rc meba_poe_get_controller_handle(meba_inst_t inst,
                                        mesa_port_no_t port_no,
                                        meba_poe_ctrl_inst_t **controller,
                                        meba_poe_port_handle_t *handle)
@@ -97,7 +96,7 @@ mesa_rc meba_poe_get_controller_handle(const meba_inst_t inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_do_detection(const meba_inst_t inst)
+mesa_rc meba_poe_do_detection(meba_inst_t inst)
 {
     int i;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");

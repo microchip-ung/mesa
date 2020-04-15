@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 #elif defined(VTSS_FEATURE_VOP_V2)  /* End Serval1 */
-                                    /* Begin Jaguar2/ServalT/Jaguar3 */
+                                    /* Begin Jaguar2/ServalT/SparX-5 */
 #if defined(VTSS_ARCH_SERVAL_T)
 
 #define VTSS_PATH_SERVICE_VOE_CNT   (192)                       // Number of path/service VOEs in HW
@@ -61,16 +61,16 @@ extern "C" {
 #if defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PORT_VOE_CNT           (53)                        // Number of port VOEs in HW
 #endif                              /* End Jaguar2 */
-#if defined(VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_PORT_VOE_CNT           (65)                        // Number of port VOEs in HW
-#endif                              /* End Jaguar3 */
+#endif                              /* End SparX-5 */
 
 #define VTSS_DOWN_VOI_CNT           (1024)                      // Number of down VOI (MIP) in HW
 #define VTSS_UP_VOI_CNT             (1023)                      // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
 
-#endif                              /* Jaguar2/Jaguar3 */
+#endif                              /* Jaguar2/SparX-5 */
 
-#else                               /* End Jaguar2/ServalT/Jaguar3 */
+#else                               /* End Jaguar2/ServalT/SparX-5 */
 #error "Only VTSS_ARCH_SERVAL and VTSS_FEATURE_VOP_V2 is supported at this time."
 #endif
 
@@ -422,7 +422,7 @@ typedef struct {
     // dLOC as described in G.8021 6.1.2
     BOOL  loc;
 
-    // If VTSS_ARCH_JAG3S5 is TRUE then the following status
+    // If VTSS_ARCH_SPARX5 is TRUE then the following status
     // is a defect as described in G.8021 6.1.2.
 
     // (period != expected) for last received CCM PDU or

@@ -214,17 +214,13 @@ typedef struct {
     /* CIL function pointers */
     vtss_rc (* clock_out_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
     vtss_rc (* clock_in_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
-#if defined(VTSS_ARCH_SERVAL_T)
     vtss_rc (* station_clk_out_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
-#endif
 
     /* Configuration/state */
     u32                    old_port_no[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
     vtss_synce_clock_in_t  in_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
     vtss_synce_clock_out_t out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
-#if defined(VTSS_ARCH_SERVAL_T)
     vtss_synce_station_clock_out_t station_clk_out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
-#endif
 } vtss_synce_state_t;
 #endif /* VTSS_FEATURE_SYNCE */
 
@@ -790,6 +786,7 @@ extern const char *vtss_port_spd_txt(vtss_port_speed_t speed);
 
 #if defined(VTSS_FEATURE_PORT_CONTROL) || defined(VTSS_CHIP_10G_PHY)
 extern const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes);
+extern const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt);
 #endif
 
 extern vtss_inst_t vtss_default_inst;

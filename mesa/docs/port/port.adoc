@@ -1,0 +1,213 @@
+:sectnums:
+
+== Basic Port and PHY Control
+The basic port control procedure for a port depends on whether the port is connected to a 1G PHY or an SFP module:
+
+* Initial configuration:
+** If the port is connected to a 1G PHY, it must be reset (`mesa_phy_reset()`) and setup (`mesa_phy_conf_set()`).
+** If the port is connected to an SFP module, the port may be setup with IEEE 802.3 clause 37 auto-negotiation (`mesa_port_clause_37_control_set()`).
+** The port must be setup (`mesa_port_conf_set()`).
+* Port polling must be done to detect link state changes (`mesa_port_status_get()`).
+** If the link state changes, the operational state must be setup accordingly (`mesa_port_state_set()`).
+** If the link comes up and auto-negotiation is used, the port must be setup in the negotiated mode (`mesa_port_conf_set()`).
+
+== Advanced Port and PHY Control
+TBD
+
+// Items to cover:
+// - How this relates to the port-to-device muxing
+// - How this relates to the 'VTSS_OPT_PORT_COUNT option
+//   - How does this option work when having a mix of port types
+// - We need to improve the polling description
+//   - What settings needs to be applied the first time mesa_port_conf_set is
+//     called?
+//   - In the demo application mesa_port_conf_set is also called in the poll
+//     loop - I believe this is required...
+//   - Is it always enough to poll mesa_port_status_get for state changes? or do
+//     we need to ask the PHY for state changes?
+//   - 'If the link state changes, the operational state must be setup accordingly' is this only link up/down?
+// - Anything the user need to know to
+//   - Add dual media support
+// - How is this suppose to relate to MEBA?
+// - We need to introduce more features:
+//   - Different host interfaces
+//   - SD??
+//   - flow control
+//   - aneg, and control of what speeds to advertise, duplex
+//   - MTU?
+//   - LED settings
+//   - Link up/down interrupts
+//   - MDI/MDIX
+// - Does the 10G ports needs to use other functions?
+//
+//
+// Horatiu: I believe there are lot to add here - can you try to do a brain dump
+// of the important items/findings you did when writing the port module.
+
+//- Initialize the drivers:
+//To be able to use the phy_driver, you need first to initialize it. To
+//initialize, the function 'driver_init' should be called. The purpose of this
+//function is to set all the function pointers of the meba_phy_driver_t structure
+//to all specific functions of the phy. Meba library has already integrated some
+//drivers, to initialize those call the following functions on 'meba_board.so':
+//    - meba_default_phy_driver_init
+//    - meba_mscc_driver_init
+//    - meba_maliby_driver_init
+//    - meba_venice_driver_init
+//All these functions can be found in:
+//meba/include/mscc/ethernet/board/api/phy_driver.h
+//
+//The initialization of the sfp_drivers is the same as the phy_driver. The only
+//difference is that there are other init functions that need to be called. Ex:
+//meba/include/mscc/ethernet/board/api/sfp_driver.h
+//
+//It is developer responsibility to keep track of all existing drivers.
+//
+//- Attach phy to driver:
+//Before attaching the driver to the phy, the phys need to be detected. To detect
+//the phy use the function 'mesa_miim_read' to read the register 2 and 3 of the
+//phy. This gives the phy id. Based on these registers you get they phy id which
+//is (reg2 << 16) | reg3.
+//
+//Then this value needs to be match with the driver id and anded with the driver
+//mask. If the results match then it means that the driver supports the phy.
+//Meaning that all the changes to the HW phy needs to go through the driver.
+//
+//- Attach sfp to driver
+//Because it needs to support pluging and removal of the sfp, then you need to
+//have a thread that justs iterates all over the ports that have SFP support and
+//read over i2c the content of the SFP. If reads some valid data it means that
+//there is a SFP inserted. The match between the SFP module and SFP driver is made
+//based on the SFP name.
+//
+//Because there are many names for the SFP. In case there is no exising driver for
+//an SFP module, then the function 'meba_fill_driver' will read the content of the
+//ROM of SFP module and try to create a SFP driver on the fly. So next time when
+//the SFP is inserted it would detect the SFP.
+//
+//When an SFP is removed, it is possible to see in the status of the sfp port. The
+//member 'los' of the struct 'meba_sf_driver_status_t' is true when SFP is
+//removed. To improve the response time, the developer subscribe to meba events
+//using the function 'vtss_interrupt_source_hook_set'. Then when the SFP is
+//removed then a interrupt is generated.
+//
+//- Template structeres:
+//For easy usage you can have a structure that contains 2 drivers(phy and sfp)
+//which are by default nullptr, and when a driver can match a phy or sfp, the you
+//just assing the driver to the member of the structure.
+//
+//Eg:
+//struct port_instance {
+//    ........
+//    meba_phy_device_t *_phy;
+//    meba_sfp_device_t *_sfp;
+//};
+//
+//After the driver is attached to the device, then it is recommended to reset the
+//device, using the function 'meba_XXX_driver_reset'. Which accepts as a parameter
+//an interface mode. After this device can be configured using the function
+//'meba_XXX_driver_conf_set'.
+//
+//- Port issues
+//Based on the capabilities of the port(which are filled in the meba), it can
+//detect if a port is RJ45, SFP or dual media.
+//
+//The basic flow of the port module is to read the current status of the device
+//using the function 'meba_XXX_driver_poll' and then set the desired configuration
+//using 'meba_XXX_driver_conf_set'.
+//
+//The more difficult cases is when the port has dual media support. In this case
+//the port_instance should have both pointers(_phy, _sfp) set to some drivers. The
+//tricky part is to know from where to read the existing status. For example:
+//
+//If the port is dual media but is set to use RJ45, then it needs to read the
+//status from phy but if it is set to use SFP then it needs to read from SFP. Then
+//if both cables are inserted at the same time it needs to know which one to use.
+//To do that the port has a capability saing which one to
+//prefer(VTSS_APPL_AMS_COPPER_PREFFERED, VTSS_APPL_AMS_FIBER_PREFFERED). Based on
+//all this information the port_instance should figure out from where to pull the
+//status. To set the configuration for this kind of ports it is similar with ports
+//that are not dual media.
+//And then based on all this, there is one more case where the phy  is internal
+//then it needs to have a variable to store the current state of the
+//port(use RJ45/SFP). And if the phy is external then it is possible to get this
+//information directly from meba.
+//
+//Another special case of the ports DM ports that have inserted Cu-SFP modules.
+//In this case the developr needs to use the interface SGMII_CISCO.
+//
+//In case of dual media ports, in case it is changing the media type. It needs to
+//turn on or off manually the phy/fiber. For example if the port it is using RJ45
+//and then the media type is change to fiber, then the following actions should be
+//taken: turn off the phy, configure the mac for SFP, turn on sfp.
+//
+//When both ports(current port and the other end) are in auto-negatioation mode
+//and if one of the ports are changing to force speed, then the other port can't
+//detect that. The solution is do a shutdown/no shutdown on the port on which the
+//speed was changed.
+//
+//The current implementation in port module is that the main threads polls the
+//status of each port in each second. That can introduce some problems for
+//example: a port goes down and up fast, before the thread has the possibility to
+//detect that. The solution is to register again for events and when the port goes
+//down. Then when the event happens to call all the listeners of the interface.
+//
+//- Port shutdown
+//In case a port is shutdown. Then it needs first to shutdown the port and then
+//the phy. Then when the port is enabled, then it needs to enable the phy and then
+//the port. Otherwise it MAC will get flush timeouts.
+
+== Port Counters
+The API provides functions to read and clear counters for each port (`mesa_port_counters_t`).
+
+== API Functions
+=== Port API
+`mesa_port_map_set()` +
+`mesa_port_map_get()` +
+`mesa_port_clause_37_control_get()` +
+`mesa_port_clause_37_control_set()` +
+`mesa_port_conf_set()` +
+`mesa_port_conf_get()` +
+`mesa_port_status_get()` +
+`mesa_port_counters_update()` +
+`mesa_port_counters_clear()` +
+`mesa_port_counters_get()` +
+`mesa_port_basic_counters_get()` +
+`mesa_port_forward_state_get()` +
+`mesa_port_forward_state_set()` +
+`mesa_port_ifh_conf_set()` +
+`mesa_port_ifh_conf_get()` +
+`mesa_miim_read()` +
+`mesa_miim_write()` +
+`mesa_port_mmd_read()` +
+`mesa_port_mmd_read_inc()` +
+`mesa_port_mmd_write()` +
+`mesa_port_mmd_masked_write()` +
+`mesa_mmd_read()` +
+`mesa_mmd_write()` +
+`mesa_port_10g_kr_conf_set()` +
+`mesa_port_10g_kr_conf_get()` +
+`mesa_port_10g_kr_status_get()` +
+`mesa_port_test_conf_get()` +
+`mesa_port_test_conf_set()` +
+
+=== Basic 1G PHY API
+`mesa_phy_pre_reset()` +
+`mesa_phy_post_reset()` +
+`mesa_phy_pre_system_reset()` +
+`mesa_phy_reset()` +
+`mesa_phy_reset_get()` +
+`mesa_phy_conf_get()` +
+`mesa_phy_conf_set()` +
+`mesa_phy_status_get()` +
+
+=== Basic 10G PHY API
+`mesa_phy_10g_init()` +
+`mesa_phy_10g_mode_get()` +
+`mesa_phy_10g_mode_set()` +
+`mesa_phy_10g_status_get()` +
+`mesa_phy_10g_serdes_status_get()` +
+`mesa_phy_10g_reset()` +
+`mesa_phy_10g_clause_37_status_get()` +
+`mesa_phy_10g_clause_37_control_get()` +
+`mesa_phy_10g_clause_37_control_set()`

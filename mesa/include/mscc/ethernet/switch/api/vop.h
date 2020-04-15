@@ -375,7 +375,7 @@ typedef struct {
     // Rx/Tx PDUs that are discarded due to filtering
     uint64_t     rx_discard_counter CAP(VOP_V2);  // Check of MEL or DMAC or Version or CCM
     uint64_t     tx_discard_counter CAP(VOP_V2);  // Check of MEL
-} mesa_voe_counters_t;
+} mesa_voe_counters_t  CAP(VOP);
 
 // Get VOE counters.
 // inst     [IN]  Target instance reference.
@@ -383,7 +383,7 @@ typedef struct {
 // counters [OUT] VOE counters.
 mesa_rc mesa_voe_counters_get(const mesa_inst_t    inst,
                               const mesa_voe_idx_t voe_idx,
-                              mesa_voe_counters_t  *counters);
+                              mesa_voe_counters_t  *counters)  CAP(VOP);
 
 // VOE counter clear.
 // Clear counters in mesa_voe_counters_t
@@ -476,7 +476,7 @@ typedef struct {
     uint64_t  rx_invalid_counter;
     uint64_t  rx_oo_counter;  // Out of Order sequence numbers counter
     uint64_t  tx_counter;
-} mesa_voe_cc_counters_t;
+} mesa_voe_cc_counters_t  CAP(VOP);
 
 // Get VOE Continuity Check counters.
 // inst     [IN] Target instance reference.
@@ -484,7 +484,7 @@ typedef struct {
 // counters [OUT] CC counters.
 mesa_rc mesa_voe_cc_counters_get(const mesa_inst_t      inst,
                                  const mesa_voe_idx_t   voe_idx,
-                                 mesa_voe_cc_counters_t *counters);
+                                 mesa_voe_cc_counters_t *counters)  CAP(VOP);
 
 // VOE Continuity Check counters clear.
 // Clear CC counters in mesa_voe_cc_counters_t
@@ -538,7 +538,7 @@ typedef struct {
     uint64_t   rx_lbr_oo_counter;               // Out of Order sequence numbers counter
     uint64_t   rx_lbr_crc_counter  CAP(VOP_V2); // Test TLV that has CRC error counter
     uint64_t   tx_lbr_counter      CAP(VOP_V2);
-} mesa_voe_lb_counters_t;
+} mesa_voe_lb_counters_t  CAP(VOP);
 
 // Get VOE Loop Back counters.
 // inst     [IN]  Target instance reference.
@@ -546,7 +546,7 @@ typedef struct {
 // counters [OUT] LB counters.
 mesa_rc mesa_voe_lb_counters_get(const mesa_inst_t      inst,
                                  const mesa_voe_idx_t   voe_idx,
-                                 mesa_voe_lb_counters_t *counters);
+                                 mesa_voe_lb_counters_t *counters)  CAP(VOP);
 
 // VOE Loop Back counters clear.
 // Clear LB counters in mesa_voe_lb_status_t

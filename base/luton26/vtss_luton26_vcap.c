@@ -701,9 +701,12 @@ static vtss_rc l26_is2_prepare_action(vtss_state_t *vtss_state,
         entry[0] |= (VTSS_BIT(9) | /* POLICE_ENA */
                      VTSS_ENCODE_BITFIELD(policer, 10, 8)); /* POLICE_IDX */
     /* PORT_MASK */
-    if (mode)
+    if (mode) {
+        if (action->port_action == VTSS_ACL_PORT_ACTION_REDIR) {
+            mask &= vtss_l26_port_mask(vtss_state, vtss_state->l2.tx_forward_aggr);
+        }
         vtss_bs_set(entry, 18, 26, mask);
-
+    }
     /* PTP_ENA */
     switch (action->ptp_action) {
     case VTSS_ACL_PTP_ACTION_NONE:
@@ -1034,6 +1037,29 @@ static vtss_rc l26_is2_entry_move(vtss_state_t *vtss_state,
     VTSS_I("row: %u, count: %u, up: %u", idx->row, count, up);
     
     return l26_vcap_entry_move(vtss_state, VTSS_TCAM_S2, idx->row, count, up);
+}
+
+static vtss_rc l26_is2_entry_update(vtss_state_t *vtss_state,
+                                    vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
+{
+    const tcam_props_t *tcam = &tcam_info[VTSS_TCAM_S2];
+    u32                entry[VTSS_TCAM_ENTRY_WIDTH];
+    vtss_port_no_t     port_no;
+    BOOL               member[VTSS_PORTS];
+    u32                mask;
+
+    VTSS_I("row: %u", idx->row);
+    VTSS_RC(l26_vcap_index_command(vtss_state, tcam, idx->row, VTSS_TCAM_CMD_READ, VTSS_TCAM_SEL_ACTION));
+    VTSS_RC(l26_vcap_cache2action(vtss_state, tcam, entry));
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        member[port_no] = (VTSS_PORT_BF_GET(is2->action.member, port_no) &&
+                           vtss_state->l2.tx_forward_aggr[port_no]);
+    }
+    mask = vtss_l26_port_mask(vtss_state, member);
+    vtss_bs_set(entry, 18, 26, mask);
+    VTSS_RC(l26_vcap_action2cache(vtss_state, tcam, entry, 0));
+    VTSS_RC(l26_vcap_index_command(vtss_state, tcam, idx->row, VTSS_TCAM_CMD_WRITE, VTSS_TCAM_SEL_ACTION));
+    return VTSS_RC_OK;
 }
 
 static vtss_rc l26_is2_port_get(vtss_state_t *vtss_state, u32 port, u32 *counter, BOOL clear)
@@ -1414,6 +1440,7 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
     u32                         old = 0, old_ptp = 0, old_ip = 0, new_ptp = 0, new_ip = 0;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range; 
     u8                          policer_type;
+    vtss_port_no_t              port_no;
     
     /*** Step 1: Check the simple things */
     VTSS_RC(l26_action_check(&ace->action));
@@ -1516,8 +1543,18 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
     *ace_copy = *ace;
     is2->entry = &entry;
     entry.first = 1;
+    memset(&is2->action, 0, sizeof(is2->action));
+    if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
+        is2->action.redir = 1;
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (ace->action.port_list[port_no]) {
+                VTSS_PORT_BF_SET(is2->action.member, port_no, 1);
+            }
+        }
+    }
     if (new_ptp) {
         /* Neutral actions for first PTP lookup */
+        is2->action.redir = 0;
         is2->policer_type = VTSS_L26_POLICER_NONE;
         memset(&ace_copy->action, 0, sizeof(vtss_acl_action_t));
         ace_copy->action.learn = 1;
@@ -1532,6 +1569,7 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
         /* Restore actions and add PTP entry */
         *ace_copy = *ace;
         entry.first = 0;
+        is2->action.redir = (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR);
         is2->policer_type = policer_type;
         VTSS_RC(vtss_vcap_add(vtss_state, is2_obj, VTSS_IS2_USER_ACL_PTP, ace->id, id, &data, 0));
     } else if (old_ptp) {
@@ -2251,6 +2289,7 @@ vtss_rc vtss_l26_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_add = l26_is2_entry_add;
         is2->entry_del = l26_is2_entry_del;
         is2->entry_move = l26_is2_entry_move;
+        state->is2_entry_update = l26_is2_entry_update;
         
         /* ES0 */
         es0->max_count = VTSS_L26_ES0_CNT;

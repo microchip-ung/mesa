@@ -537,12 +537,12 @@ mesa_rc json_rpc_add_int32_t(json_rpc_req_t *req, json_object *obj, int32_t *val
 
 mesa_rc json_rpc_add_uint64_t(json_rpc_req_t *req, json_object *obj, uint64_t *value)
 {
-    return json_rpc_add_json_array(req, obj, json_object_new_int(*value));
+    return json_rpc_add_json_array(req, obj, json_object_new_int64(*value));
 }
 
 mesa_rc json_rpc_add_int64_t(json_rpc_req_t *req, json_object *obj, int64_t *value)
 {
-    return json_rpc_add_json_array(req, obj, json_object_new_int(*value));
+    return json_rpc_add_json_array(req, obj, json_object_new_int64(*value));
 }
 
 // Add to object
@@ -578,12 +578,12 @@ mesa_rc json_rpc_add_name_int32_t(json_rpc_req_t *req, json_object *obj, const c
 
 mesa_rc json_rpc_add_name_uint64_t(json_rpc_req_t *req, json_object *obj, const char *name, uint64_t *value)
 {
-    return json_rpc_add_name_json_object(req, obj, name, json_object_new_int(*value));
+    return json_rpc_add_name_json_object(req, obj, name, json_object_new_int64(*value));
 }
 
 mesa_rc json_rpc_add_name_int64_t(json_rpc_req_t *req, json_object *obj, const char *name, int64_t *value)
 {
-    return json_rpc_add_name_json_object(req, obj, name, json_object_new_int(*value));
+    return json_rpc_add_name_json_object(req, obj, name, json_object_new_int64(*value));
 }
 
 
@@ -1338,12 +1338,32 @@ static json_rpc_method_t json_rpc_static_table[] = {
 };
 /* - JSON-RPC parser ----------------------------------------------- */
 
+static int find_and_call_method(const char *method_name, json_rpc_req_t *req)
+{
+    int                 found = 0;
+    json_rpc_method_t   *method;
+
+    for (method = json_rpc_table; method->cb != NULL && !found; method++) {
+        if (!strcmp(method->name, method_name)) {
+            found = 1;
+            method->cb(req);
+        }
+    }
+    for (method = json_rpc_static_table; method->cb != NULL && !found; method++) {
+        if (!strcmp(method->name, method_name)) {
+            found = 1;
+            method->cb(req);
+        }
+    }
+
+    return (found);
+}
+
 static int json_cli(int argc, const char **argv)
 {
     int found = 0;
     json_rpc_req_t req = {};
     const char *m_str = 0, *p_str = 0;
-    json_rpc_method_t *method = 0;
     json_object       *obj_result = 0;
     const char *reply;
 
@@ -1379,13 +1399,7 @@ static int json_cli(int argc, const char **argv)
         goto OUT;
     }
 
-    for (method = json_rpc_table; method->cb != NULL && !found; method++) {
-        if (strcmp(method->name, m_str) == 0) {
-            found = 1;
-            method->cb(&req);
-            // TODO - get return values
-        }
-    }
+    found = find_and_call_method(m_str, &req);
 
     if (!found) {
         snprintf(req.buf, 1024, "Method not found");
@@ -1430,9 +1444,8 @@ static cli_cmd_t cli_cmd_table[] = {
 static int json_rpc_parse(int fd, char *msg)
 {
     json_object       *obj_req, *obj_rep, *obj_result, *obj_error, *obj_method, *obj_id;
-    json_rpc_method_t *method;
     const char        *method_name, *reply;
-    json_rpc_req_t    req;
+    json_rpc_req_t    req = {};
     int               send_reply = 0, found = 0;
     uint32_t          len, *p;
     char              hdr[JSON_RPC_HDR_LEN];
@@ -1442,7 +1455,6 @@ static int json_rpc_parse(int fd, char *msg)
     req.idx = 0;
     req.result = NULL;
     sprintf(req.buf, "internal error");
-    req.error = 1;
     if ((obj_req = json_tokener_parse(msg)) == NULL) {
         T_I("json_tokener_parse failed");
     } else if (!json_object_object_get_ex(obj_req, "method", &obj_method)) {
@@ -1463,22 +1475,12 @@ static int json_rpc_parse(int fd, char *msg)
         method_name = json_object_get_string(obj_method);
         req.ptr = req.buf;
         req.ptr += sprintf(req.ptr, "method '%s': ", method_name);
-        for (method = json_rpc_table; method->cb != NULL && !found; method++) {
-            if (!strcmp(method->name, method_name)) {
-                found = 1;
-                req.error = 0;
-                method->cb(&req);
-            }
-        }
-        for (method = json_rpc_static_table; method->cb != NULL && !found; method++) {
-            if (!strcmp(method->name, method_name)) {
-                found = 1;
-                req.error = 0;
-                method->cb(&req);
-            }
-        }
+
+        found = find_and_call_method(method_name, &req);
+
         if (!found) {
             sprintf(req.ptr, "not found");
+            req.error = 1;
         }
     }
     

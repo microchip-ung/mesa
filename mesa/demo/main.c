@@ -46,6 +46,8 @@
 
 // Local data
 static int LOOP_PORT = -1;
+static int REF_BOARD_PCB = -1;
+static int REF_BOARD_PORT_COUNT = -1;
 
 static mscc_appl_trace_module_t trace_module = {
     .name = "main"
@@ -243,15 +245,146 @@ EXIT_CLOSE:
     return rc;
 }
 
+// Read the uboot env var and return the results as integer
+// FA PCB 134 (12x10G + 8x25G + NPI)
+// FA PCB 135 (48x1G + 4x10G + 4x25G + NPI)
+// Linux usage e.g.:
+// fw_setenv ref_board_pcb 135
+// fw_setenv ref_board_port_cnt 21
+// fw_printenv ref_board_pcb
+// fw_printenv ref_board_port_cnt
+
+static mesa_bool_t get_uboot_env(const char *env, int *res)
+{
+    FILE *fp;
+    char cmd[100];
+
+    *res = 0;
+    strcpy(cmd, "/usr/sbin/fw_printenv ");
+    strcat(cmd, env);
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        return 0;
+    }
+    if (fgets(cmd, sizeof(cmd)-1, fp) == NULL) {
+        return 0;
+    }
+    char *ptr = strstr(cmd, "=pcb");
+    if (ptr == NULL) {
+        return 0;
+    }
+    ptr = ptr + 4;
+    *res = atoi(ptr);
+
+    pclose(fp);
+    return 1;
+}
+
+// Assign defaults in case if the port count is not given
+static uint32_t get_fa_port_cnt_default(uint32_t target, uint32_t pcb)
+{
+    if (pcb == 125) {
+        return 8; // Current support for modular board
+    }
+    switch (target) {
+    case MESA_TARGET_7546_04:
+    case MESA_TARGET_7546:
+        return  (pcb == 135) ? 29 : 7;
+    case MESA_TARGET_7549_04:
+    case MESA_TARGET_7549:
+        return  (pcb == 135) ? 53 : 10;
+    case MESA_TARGET_7552_04:
+    case MESA_TARGET_7552:
+        return  (pcb == 135) ? 57 : 13;
+    case MESA_TARGET_7556_04:
+    case MESA_TARGET_7556:
+        if (pcb == 135) {
+            T_E("Port config does not exist");
+            return 0;
+        } else {
+            return 17;
+        }
+        break;
+    case MESA_TARGET_7558_04:
+    case MESA_TARGET_7558:
+        return  (pcb == 135) ? 57 : 21;
+    default:
+        T_E("Unknown target '%x'",target);
+    }
+    return 0;
+}
+
+static void get_fa_board_name(uint32_t cnt, mesa_bool_t sparx5i, uint32_t pcb, char *buf)
+{
+    char str[10];
+    if (buf != NULL) {
+        strcpy(buf, sparx5i ? "SparX-5i-" : "SparX-5-");
+        if (pcb == 125) {
+            strcat(buf, "Modular-");
+        } else {
+            strcat(buf, pcb == 135 ? "CuSFP-" : "SFP-");
+        }
+        sprintf(str, "%d", cnt);
+        strcat(buf, str);
+    }
+}
+
+
+static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t sparxi)
+{
+    switch (bw) {
+    case MESA_SWITCH_BW_64:
+        if (sparxi) {
+            return MESA_TARGET_7546_04;
+        } else {
+            return MESA_TARGET_7546;
+        }
+        break;
+    case MESA_SWITCH_BW_90:
+        if (sparxi) {
+            return MESA_TARGET_7549_04;
+        } else {
+            return MESA_TARGET_7549;
+        }
+        break;
+    case MESA_SWITCH_BW_128:
+        if (sparxi) {
+            return MESA_TARGET_7552_04;
+        } else {
+            return MESA_TARGET_7552;
+        }
+        break;
+    case MESA_SWITCH_BW_160:
+        if (sparxi) {
+            return MESA_TARGET_7556_04;
+        } else {
+            return MESA_TARGET_7556;
+        }
+        break;
+    case MESA_SWITCH_BW_200:
+        if (sparxi) {
+            return MESA_TARGET_7558_04;
+        } else {
+            return MESA_TARGET_7558;
+        }
+        break;
+    default:
+        T_E("Illegal Switch BW");
+        break;
+    }
+    return 0;
+}
+
 static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
-    uint32_t   port_cnt = mesa_port_cnt(NULL);
+    uint32_t   port_cnt = mesa_port_cnt(NULL); // Compiled
     const char *board = NULL;
     uint32_t   target = 0;
     uint32_t   type = 1000;
-    uint32_t   port_cfg = 1000;
+    uint32_t   board_port_cnt = 1000;
     size_t     len = 0;
     uint32_t   mux_mode = 0xffffffff;
+    char       name[20];
 
     /* Board detection is currently done based on MESA capabilities */
     switch (mesa_capability(NULL, MESA_CAP_MISC_CHIP_FAMILY)) {
@@ -287,70 +420,29 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         }
         break;
 
-    case MESA_CHIP_FAMILY_JAGUAR3:   // JR3 SparX/SparXi Family
-        if (mesa_capability(NULL, MESA_CAP_SYNCE)) {  // SparXi Family
-            if (port_cnt == 7) {
-                board = "SparX-5i-SFP6";  // Board-name for info
-                target = 0x47546;         // maps to vtss_target_type_t
-                type = 0;                 // maps to board_type_t in MEBA;
-                port_cfg = 2;             // maps to port configuration in MEBA;
-            } else if (port_cnt == 9) {
-                board = "SparX-5i-SFP8";
-                target = 0x47558;
-                type = 0;
-                port_cfg = 2;
-            } else if (port_cnt == 10) {
-                board = "Sparx-5i-SFP9";
-                target = 0x47549;
-                type = 0;
-                port_cfg = 3;
-            } else if (port_cnt == 13) {
-                board = "Sparx-5i-SFP12";
-                target = 0x47552;
-                type = 0;
-                port_cfg = 4;
-            } else if (port_cnt == 21) {
-                board = "Sparx-5i-SFP20";
-                target = 0x47558;
-                type = 0;
-                port_cfg = 0;
-            } else if (port_cnt == 57) {
-                board = "Sparx-5i-Cu48";
-                target = 0x47556;
-                type = 1;
-            }
-        } else {   // SparX Family
-            if (port_cnt == 7) {
-                board = "SparX-5-SFP6";  // Board-name for info
-                target = 0x7546;         // maps to vtss_target_type_t
-                type = 0;                // maps to board_type_t in MEBA;
-                port_cfg = 2;            // maps to port configuration in MEBA;
-            } else if (port_cnt == 9) {
-                board = "SparX-5-SFP8";
-                target = 0x7558;
-                type = 0;
-                port_cfg = 2;
-            } else if (port_cnt == 10) {
-                board = "Sparx-5-SFP9";
-                target = 0x7549;
-                type = 0;
-                port_cfg = 3;
-            } else if (port_cnt == 13) {
-                board = "Sparx-5-SFP12";
-                target = 0x7552;
-                type = 0;
-                port_cfg = 4;
-            } else if (port_cnt == 21) {
-                board = "Sparx-5-SFP20";
-                target = 0x7558;
-                type = 0;
-                port_cfg = 0;
-            } else if (port_cnt == 57) {
-                board = "Sparx-5-Cu48";
-                target = 0x7556;
-                type = 1;
+    case MESA_CHIP_FAMILY_SPARX5:   // SparX-5/SparX-5i Family
+        // Read the uboot env variables to find out PCB nr. and port count
+        if (REF_BOARD_PCB == -1) {
+            if (!get_uboot_env("pcb", &REF_BOARD_PCB)) {
+                printf("uboot 'pcb' env variable does not exist, use fw_setenv to set (defaulting to pcb125).\n");
+                REF_BOARD_PCB = 125;
             }
         }
+        if (REF_BOARD_PORT_COUNT == -1) {
+            if (!get_uboot_env("pcb_port_cnt", &REF_BOARD_PORT_COUNT)) {
+                printf("Using default port count\n");
+            }
+        }
+        mesa_bool_t sparxi  = mesa_capability(NULL, MESA_CAP_SYNCE);
+        mesa_switch_bw_t bw = mesa_capability(NULL, MESA_CAP_MISC_SWITCH_BW);
+        target = get_fa_target(bw, sparxi);
+        type = REF_BOARD_PCB;
+        if (REF_BOARD_PORT_COUNT <= 0) {
+            REF_BOARD_PORT_COUNT = get_fa_port_cnt_default(target, type);
+        }
+        board_port_cnt = REF_BOARD_PORT_COUNT;
+        get_fa_board_name(board_port_cnt, sparxi, type, name);
+        board = name;
         break;
     default:
         break;
@@ -361,13 +453,14 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     } else if (strcmp(tag, "target") == 0 && target) {
         len = snprintf(buf, bufsize, "0x%x", target);
     } else if (strcmp(tag, "type") == 0 && type < 1000) {
+
         len = snprintf(buf, bufsize, "%u", type);
     } else if (mux_mode != 0xffffffff && strcmp(tag, "mux_mode") == 0) {
         len = snprintf(buf, bufsize, "%u", mux_mode);
     } else if (LOOP_PORT >= 0 && strcmp(tag, "mep_loop_port") == 0) {
         len = snprintf(buf, bufsize, "%u", LOOP_PORT); // The loop port is internal port LOOP_PORT
-    } else if (strcmp(tag, "port_cfg") == 0 && port_cfg < 1000) {
-        len = snprintf(buf, bufsize, "%u", port_cfg);
+    } else if (strcmp(tag, "board_port_cnt") == 0 && board_port_cnt < 1000) {
+        len = snprintf(buf, bufsize, "%u", board_port_cnt);
     }
 
     if (len) {
@@ -597,11 +690,24 @@ static void cli_cmd_warm_start(cli_req_t *req)
     }
 }
 
+static void cli_cmd_board_dump(cli_req_t *req)
+{
+    printf("Ref board PCB: %d\n",appl_init.board_inst->props.board_type);
+    printf("Ref board port count: %d, (compiled port count:%d)\n",REF_BOARD_PORT_COUNT,mesa_port_cnt(NULL));
+    printf("API Target: 0x%x\n",appl_init.board_inst->props.target);
+    printf("Board name: %s\n",appl_init.board_inst->props.name);
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {
         "Warm Start",
         "Restart system using warm start",
         cli_cmd_warm_start
+    },
+    {
+        "Debug board dump",
+        "Shows boad config",
+        cli_cmd_board_dump
     },
 };
 
@@ -614,6 +720,50 @@ static void main_cli_init(void)
         mscc_appl_cli_cmd_reg(&cli_cmd_table[i]);
     }
 }
+
+static int  RESET_FPGA = 0;
+static char RESET_DEVICE[512];
+
+static mesa_rc reset_fpga(const char *device)
+{
+    spi_user_t user = SPI_USER_FPGA;
+    uint32_t   val;
+
+    if (spi_io_init(user, RESET_DEVICE, 400000, 1) != MESA_RC_OK) {
+        return MESA_RC_ERROR;
+    }
+    if (spi_read(user, 0x200, &val) != MESA_RC_OK) {
+        return MESA_RC_ERROR;
+    }
+    printf("FPGA chip ID: 0x%08x\n", val);
+    if ((val & 0xffffff00) != 0x01252200 || (val & 0xff) < 2) {
+        printf("Invalid FPGA type or revision\n");
+        return MESA_RC_ERROR;
+    }
+    if (spi_write(user, 0x208, 0x2000215) != MESA_RC_OK ||
+        spi_write(user, 0x204, 0x0f0) != MESA_RC_OK ||
+        spi_write(user, 0x208, 0x2000214) != MESA_RC_OK) {
+        return MESA_RC_ERROR;
+    }
+    sleep(1);
+    return MESA_RC_OK;
+}
+
+static mesa_rc reset_opt(char *parm)
+{
+    strncpy(RESET_DEVICE, parm, sizeof(RESET_DEVICE));
+    RESET_DEVICE[sizeof(RESET_DEVICE) - 1] = 0;
+    RESET_FPGA = 1;
+    printf("Using SPI device: %s for FPGA reset\n", RESET_DEVICE);
+    return MESA_RC_OK;
+}
+
+static mscc_appl_opt_t main_opt_reset = {
+    "r:",
+    "<spidev>",
+    "SPI device used for FPGA access",
+    reset_opt
+};
 
 static int  SPI_REG_IO = 0;
 static char SPI_DEVICE[512];
@@ -658,17 +808,21 @@ static mscc_appl_opt_t main_opt_spidev = {
 
 
 static mesa_bool_t vlan_counters_disable;
+static mesa_bool_t psfp_counters_enable;
 
 static mesa_rc vlan_counters_disable_option(char *parm)
 {
     vlan_counters_disable = 1;
+    if (parm != NULL && *parm == 'p') {
+        psfp_counters_enable = 1;
+    }
     return MESA_RC_OK;
 }
 
 static mscc_appl_opt_t main_opt_vlan_counters_disable = {
-    "v",
-    NULL,
-    "Disable VLAN counters",
+    "v::",
+    "[p]",
+    "Disable VLAN counters, optionally enable PSFP counters with -vp",
     vlan_counters_disable_option
 };
 
@@ -682,6 +836,7 @@ static void main_init(mscc_appl_init_t *init)
         mscc_appl_opt_reg(&main_opt_foreground);
         mscc_appl_opt_reg(&main_opt_warm);
         mscc_appl_opt_reg(&main_opt_loop_port);
+        mscc_appl_opt_reg(&main_opt_reset);
         mscc_appl_opt_reg(&main_opt_spidev);
         mscc_appl_opt_reg(&main_opt_vlan_counters_disable);
         break;
@@ -785,13 +940,17 @@ int main(int argc, char **argv)
         }
     }
 
+    if (RESET_FPGA && reset_fpga(RESET_DEVICE) != MESA_RC_OK) {
+        return 1;
+    }
+
     // Initialize IO layer
     if (emulation) {
         rc = MESA_RC_OK;
         reg_read = NULL;
         reg_write = NULL;
     } else if (SPI_REG_IO) {
-        rc = spi_reg_io_init(SPI_DEVICE, SPI_FREQ, SPI_PAD);
+        rc = spi_io_init(SPI_USER_REG, SPI_DEVICE, SPI_FREQ, SPI_PAD);
         reg_read = spi_reg_read;
         reg_write = spi_reg_write;
     } else {
@@ -851,6 +1010,7 @@ int main(int argc, char **argv)
     conf.using_ufdma = 1;
     conf.warm_start_enable = warm_start_enable;
     conf.vlan_counters_disable = vlan_counters_disable;
+    conf.psfp_counters_enable = psfp_counters_enable;
     conf.spi_bus = !!SPI_REG_IO;
     if (mesa_init_conf_set(NULL, &conf) != MESA_RC_OK) {
         T_E("mesa_init_conf_set() failed");

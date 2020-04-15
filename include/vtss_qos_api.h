@@ -158,7 +158,7 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t      inst,
 /* Number of Port policers (per port) available in HW */
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_PORT_POLICERS 2 /**< Number of Port policers (per port) available in HW */
-#elif defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_JAG3S5)
+#elif defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
 #define VTSS_PORT_POLICERS 4 /**< Number of Port policers (per port) available in HW */
 #else
 #define VTSS_PORT_POLICERS 1 /**< Number of Port policers (per port) available in HW */
@@ -203,7 +203,7 @@ typedef struct {
 typedef struct {
     vtss_policer_type_t type;      /**< Policer type */
     BOOL                enable;    /**< Enable/disable policer */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_JAG3S5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
     BOOL                cm;        /**< Colour Mode (TRUE means colour aware) */
 #endif /* VTSS_ARCH_JAGUAR_2 */
     BOOL                cf;        /**< Coupling Flag */
@@ -212,6 +212,10 @@ typedef struct {
     vtss_burst_level_t  cbs;       /**< Committed Burst Size */
     vtss_bitrate_t      eir;       /**< Excess Information Rate */
     vtss_burst_level_t  ebs;       /**< Excess Burst Size */
+#if defined(VTSS_FEATURE_PSFP)
+    BOOL                drop_yellow;  // DropOnYellow: Discard yellow frames
+    vtss_opt_bool_t     mark_all_red; // MarkAllFramesRedEnable/MarkAllFramesRed: Discard all frames if red frame seen
+#endif
 } vtss_dlb_policer_conf_t;
 #endif /* VTSS_FEATURE_QOS_POLICER_DLB */
 
@@ -335,6 +339,10 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
     BOOL          excess_enable[VTSS_QUEUE_ARRAY_SIZE];          /**< Allow this queue to use excess bandwidth */
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+    BOOL          credit_enable[VTSS_QUEUE_ARRAY_SIZE];          /**< Allow this queue to use excess bandwidth */
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
     BOOL          cut_through_enable[VTSS_QUEUE_ARRAY_SIZE];     /**< Allow this queue to use cut through feature */
@@ -873,381 +881,6 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst);
  **/
 vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst);
 #endif /* defined(VTSS_ARCH_SERVAL) */
-
-#if defined(VTSS_FEATURE_QOS_QBV)
-/**
- * \brief 802.1Qbv (Enhancements for Scheduled Traffic) global configuration
- **/
-typedef struct {
-    BOOL always_guard_band;  /**< When set a quard band is implemented even for scheduled queues
-                                * to scheduled queue transition.
-                                * 0: Guard band is implemented for non-scheduled queues to scheduled
-                                * queues transition.
-                                * 1: Guard band is implemented for any queue to scheduled
-                                * queues transition.
-                                * The value of this object MUST be retained across
-                                * reinitializations of the management system.
-                                */
-} vtss_qos_qbv_conf_t;
-
-/**
- * \brief Get 802.1Qbv (Enhancements for Scheduled Traffic) global configuration.
- *
- * \param inst    [IN]  Target instance reference.
- * \param conf    [OUT] Scheduled Traffic configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_qbv_conf_get(const vtss_inst_t    inst,
-                              vtss_qos_qbv_conf_t  *const conf);
-
-/**
- * \brief Set 802.1Qbv (Enhancements for Scheduled Traffic) global configuration.
- *
- * \param inst    [IN] Target instance reference.
- * \param conf    [IN] Scheduled Traffic configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_qbv_conf_set(const vtss_inst_t         inst,
-                              const vtss_qos_qbv_conf_t *const conf);
-
-/**
- * \brief 802.1Qbv (Enhancements for Scheduled Traffic) Gate Control Operations
- **/
-typedef enum {
-    VTSS_QOS_QBV_GCO_SET_GATE_STATES,     /**< Set GateState */
-    VTSS_QOS_QBV_GCO_SET_AND_HOLD_MAC,    /**< Set GateState and stop preemption */
-    VTSS_QOS_QBV_GCO_SET_AND_RELEASE_MAC  /**< Set GateState and resume preemption */
-} vtss_qos_qbv_gco_t;
-
-/**
- * \brief 802.1Qbv (Enhancements for Scheduled Traffic) gate control list entry
- **/
-typedef struct {
-    vtss_qos_qbv_gco_t gate_operation; /**< Gate Control Operation. */
-    u8                 gate_state;     /**< Octet represent the gate states for the
-                                          * corresponding traffic classes;
-                                          * The MS bit corresponds to traffic class 7.
-                                          * The LS bit to traffic class 0.
-                                          * A bit value of 0 indicates closed;
-                                          * A bit value of 1 indicates open.
-                                          */
-    u32                time_interval;  /**< A TimeInterval is encoded in 4 octets as a 32-bit
-                                          * unsigned integer, representing a number of clock ticks.
-                                          */
-} vtss_qos_qbv_gcl_t;
-
-/**
- * \brief 802.1Qbv (Enhancements for Scheduled Traffic) port configuration
- **/
-typedef struct {
-    u16                max_sdu[VTSS_QUEUE_ARRAY_SIZE]; /**< Maximum SDU size supported by each queue. */
-    u8                 sch_traffic_queues;             /**< A 8-bit vector that determines port queues which
-                                                          * will allow scheduled traffic among the 8 queues.
-                                                          * The bits of the octet represent the configuration
-                                                          * for the corresponding traffic classes; the MS bit
-                                                          * corresponds to traffic class 7, the LS bit to traffic class 0.
-                                                          * A bit value of 0 indicates guard band enabled (non scheduled traffic queue);
-                                                          * a bit value of 1 indicates guard band disabled (scheduled traffic queue).
-                                                          * The latter can be overridden by the 'always_guard_band' global
-                                                          * object, that enables guard band also for scheduled traffic queues.
-                                                          * The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-
-    BOOL               gate_enabled;                   /**< The GateEnabled parameter determines
-                                                          * whether traffic scheduling
-                                                          * is active (true) or inactive (false).
-                                                          * The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-    u8                 admin_gate_states;              /**< The administrative value of the GateStates parameter
-                                                        * for the Port. The bits of the octet represent the gate
-                                                          * states for the corresponding traffic classes; the MS bit
-                                                          * corresponds to traffic class 7, the LS bit to traffic
-                                                          * class 0. A bit value of 0 indicates closed; a bit value
-                                                          * of 1 indicates open. The value of this object MUST be
-                                                          * retained across reinitializations of the management system.
-                                                          */
-    u32                admin_control_list_length;      /**< The administrative value of the ControlListLength parameter for the
-                                                          * port. The integer value indicates the number of entries (TLVs)
-                                                          * in the AdminControlList. The value of this object MUST be
-                                                          * retained across reinitializations of the management system.
-                                                          */
-    vtss_qos_qbv_gcl_t admin_gcl[VTSS_QOS_QBV_GCL_LEN_MAX]; /**< Admin Gate Control List. */
-    u32                admin_cycle_time_numerator;     /**< The administrative value of the numerator of the CycleTime
-                                                          * parameter for the Port. The numerator and denominator together
-                                                          * represent the cycle time as a rational number of seconds.
-                                                          * The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-    u32                admin_cycle_time_denominator;   /**< The administrative value of the denominator of the
-                                                          * CycleTime parameter for the Port. The numerator and denominator
-                                                          * together represent the cycle time as a rational number of seconds.
-                                                          * The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-    u32                admin_cycle_time_extension;     /**< The administrative value of the CycleTimeExtension
-                                                          * parameter for the Port. The value is an unsigned integer number
-                                                          * of nanoseconds. The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-    vtss_timestamp_t   admin_base_time;                /**< The administrative value of the BaseTime parameter for the Port.
-                                                          * The value is a representation of a PTPtime value, consisting of a
-                                                          * 48-bit integer number of seconds and a 32-bit integer number of
-                                                          * nanoseconds. The value of this object MUST be retained across
-                                                          * reinitializations of the management system.
-                                                          */
-    BOOL               config_change;                  /**< The ConfigChange parameter signals the start of a configuration
-                                                          * change when it is set to TRUE. This should only be done when the
-                                                          * various administrative parameters are all set to appropriate
-                                                          * values.
-                                                          */
-} vtss_qos_qbv_port_conf_t;
-
-/**
- * \brief Get 802.1Qbv (Enhancements for Scheduled Traffic) port configuration.
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param conf    [OUT] Scheduled Traffic configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_qbv_port_conf_get(const vtss_inst_t       inst,
-                                   const vtss_port_no_t    port_no,
-                                   vtss_qos_qbv_port_conf_t *const conf);
-
-/**
- * \brief Set 802.1Qbv (Enhancements for Scheduled Traffic) port configuration.
- *
- * \param inst    [IN] Target instance reference.
- * \param port_no [IN] Port number.
- * \param conf    [IN] Scheduled Traffic configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_qbv_port_conf_set(const vtss_inst_t             inst,
-                                   const vtss_port_no_t          port_no,
-                                   const vtss_qos_qbv_port_conf_t *const conf);
-
-/**
- * \brief 802.1Qbv (Enhancements for Scheduled Traffic) port status.
- **/
-typedef struct {
-    u64                transmission_overrun[VTSS_QUEUE_ARRAY_SIZE]; /**< Counter of transmission overrun events per queue. */
-    u8                 oper_gate_states;                            /**< The operational value of the GateStates parameter for
-                                                                       * the Port. The bits of the octet represent the gate states
-                                                                       * for the corresponding traffic classes;the MS bit corresponds
-                                                                       * to traffic class 7, the LS bit to traffic class 0. A bit
-                                                                       * value of 0 indicates closed; a bit value of 1 indicates open.
-                                                                       */
-    u32                oper_control_list_length;                    /**< The operational value of the ControlListLength parameter for the
-                                                                       * Port. The integer value indicates the number of entries
-                                                                       * (TLVs) in the OperControlList.
-                                                                       */
-    vtss_qos_qbv_gcl_t oper_gcl[VTSS_QOS_QBV_GCL_LEN_MAX];          /**< Oper Gate Control List. */
-    u32                oper_cycle_time_numerator;                   /**< The operational value of the numerator of the
-                                                                       * CycleTime parameter for the Port. The numerator
-                                                                       * and denominator together represent the cycle
-                                                                       * time as a rational number of seconds.
-                                                                       */
-    u32                oper_cycle_time_denominator;                 /**< The operational value of the denominator of the
-                                                                       * CycleTime parameter for the Port. The numerator and
-                                                                       * denominator together represent the cycle time as a rational
-                                                                       * number of seconds.
-                                                                       */
-    u32                oper_cycle_time_extension;                   /**< The operational value of the CycleTimeExtension parameter
-                                                                       * for the Port. The value is an unsigned integer number of
-                                                                       * nanoseconds.
-                                                                       */
-    vtss_timestamp_t   oper_base_time;                              /**< The operational value of the BaseTime parameter for the Port.
-                                                                       * The value is a representation of a PTPtime value,
-                                                                       * consisting of a 48-bit integer number of seconds and a 32-bit
-                                                                       * integer number of nanoseconds.
-                                                                       */
-    vtss_timestamp_t   config_change_time;                          /**< The PTPtime at which the next config change is scheduled to occur.
-                                                                       * The value is a representation of a PTPtime value,
-                                                                       * consisting of a 48-bit integer
-                                                                       * number of seconds and a 32-bit integer number of nanoseconds.
-                                                                       * The value of this object MUST be retained across
-                                                                       * reinitializations of the management system.
-                                                                       */
-    u32                tick_granularity;                            /**< The granularity of the cycle time clock, represented as an
-                                                                       * unsigned number of tenths of nanoseconds.
-                                                                       * The value of this object MUST be retained across
-                                                                       * reinitializations of the management system.
-                                                                       */
-    vtss_timestamp_t   current_time;                                /**< The current time, in PTPtime, as maintained by the local system.
-                                                                       * The value is a representation of a PTPtime value,
-                                                                       * consisting of a 48-bit integer
-                                                                       * number of seconds and a 32-bit integer number of nanoseconds.
-                                                                       */
-    BOOL               config_pending;                              /**< The value of the ConfigPending state machine variable.
-                                                                       * The value is TRUE if a configuration change is in progress
-                                                                       * but has not yet completed.
-                                                                       */
-    u64                config_change_error;                         /**< A counter of the number of times that a re-configuration
-                                                                       * of the traffic schedule has been requested with the old
-                                                                       * schedule still running and the requested base time was
-                                                                       * in the past.
-                                                                       */
-    u32                supported_list_max;                          /**< The maximum value supported by this Port of the
-                                                                       * AdminControlListLength and OperControlListLength
-                                                                       * parameters.
-                                                                       */
-} vtss_qos_qbv_port_status_t;
-
-/**
- * \brief Get 802.1Qbv (Enhancements for Scheduled Traffic) status for port.
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param status  [OUT] Scheduled Traffic status structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_qbv_port_status_get(const vtss_inst_t          inst,
-                                     const vtss_port_no_t       port_no,
-                                     vtss_qos_qbv_port_status_t *const status);
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
-
-#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-/**
- * \brief 802.1Qbu and 802.3br (Frame Preemption) port configuration
- **/
-typedef struct {
-    BOOL admin_status[VTSS_QUEUE_ARRAY_SIZE]; /**< This parameter is the administrative value of the preemption
-                                                 * status for the priority. It takes the value express (0) or
-                                                 * preemptable (1). This parameter corresponds to the
-                                                 * framePreemptionStatusTable managed object in 802.1Qbu.
-                                                 **/
-    BOOL enable_rx;                           /**< The enable_rx parameter determines whether the
-                                                 * MAC Merge layer is enabled (true) or disabled (false)
-                                                 * in the receive direction.
-                                                 **/
-    BOOL enable_tx;                           /**< The enable_tx parameter determines whether the
-                                                 * MAC Merge layer is enabled (true) or disabled (false)
-                                                 * in the transmit direction.
-                                                 * This parameter corresponds to the aMACMergeEnableTx
-                                                 * attribute in 802.3br.
-                                                 **/
-    BOOL verify_disable_tx;                   /**< The verify_disable_tx parameter determines whether the
-                                                 * verification of preemption capabilities is disabled (true)
-                                                 * or enabled (false).
-                                                 * This parameter corresponds to the aMACMergeVerifyDisableTx
-                                                 * attribute in 802.3br.
-                                                 **/
-    u8   verify_time;                         /**< The verify_time parameter defines the nominal wait time
-                                                 * between verification attempts in milliseconds.
-                                                 * Valid range is 1 to 128 inclusive. The default value is 10.
-                                                 * This parameter corresponds to the aMACMergeVerifyTime
-                                                 * attribute in 802.3br.
-                                                 **/
-} vtss_qos_fp_port_conf_t;
-
-/**
- * \brief Get 802.1Qbu and 802.3br (Frame Preemption) port configuration.
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param conf    [OUT] Frame Preemption configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_fp_port_conf_get(const vtss_inst_t       inst,
-                                  const vtss_port_no_t    port_no,
-                                  vtss_qos_fp_port_conf_t *const conf);
-
-/**
- * \brief Set 802.1Qbu and 802.3br (Frame Preemption) port configuration.
- *
- * \param inst    [IN] Target instance reference.
- * \param port_no [IN] Port number.
- * \param conf    [IN] Frame Preemption configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
-                                  const vtss_port_no_t          port_no,
-                                  const vtss_qos_fp_port_conf_t *const conf);
-
-/**
- * \brief MAC Merge Status Verify (aMACMergeStatusVerify in 802.3br)
- **/
-typedef enum {
-    VTSS_MM_STATUS_VERIFY_INITIAL,             /**< Verify state diagram in state INIT_VERIFICATION */
-    VTSS_MM_STATUS_VERIFY_VERIFYING,           /**< Verify state diagram in state VERIFICATION_IDLE,
-                                                * SEND_VERIFY or WAIT_FOR_RESPONSE */
-    VTSS_MM_STATUS_VERIFY_SUCCEEDED,           /**< Verify state diagram in state VERIFIED */
-    VTSS_MM_STATUS_VERIFY_FAILED,              /**< Verify state diagram in state VERIFY_FAIL */
-    VTSS_MM_STATUS_VERIFY_DISABLED             /**< Verification process is disabled */
-} vtss_mm_status_verify_t;
-
-/**
- * \brief 802.1Qbu and 802.3br (Frame Preemption) port status
- **/
-typedef struct {
-    u32                     hold_advance;      /**< The value of the holdAdvance parameter
-                                                *   for the port in nanoseconds.
-                                                *   There is no default value; the holdAdvance is
-                                                *   a property of the underlying MAC.
-                                                *   This parameter corresponds to the holdAdvance
-                                                *   parameter in 802.1Qbu.
-                                                */
-    u32                     release_advance;   /**< The value of the releaseAdvance parameter
-                                                *   for the port in nanoseconds.
-                                                *   There is no default value; the releaseAdvance is
-                                                *   a property of the underlying MAC.
-                                                *   This parameter corresponds to the releaseAdvance
-                                                *   parameter in 802.1Qbu.
-                                                */
-    BOOL                    preemption_active; /**< The value is active (TRUE) when preemption is operationally
-                                                *   active for the port, and idle (FALSE) otherwise.
-                                                *   This parameter corresponds to the preemptionActive
-                                                *   parameter in 802.1Qbu.
-                                                */
-    u8                      hold_request;      /**< The value is hold (1) when the sequence of gate operations
-                                                *   for the port has executed a Set-And-Hold-MAC operation,
-                                                *   and release (2) when the sequence of gate operations has
-                                                *   executed a Set-And-Release-MAC operation. The
-                                                *   value of this object is release (2) on system
-                                                *   initialization.
-                                                *   This parameter corresponds to the holdRequest
-                                                *   parameter in 802.1Qbu.
-                                                */
-    vtss_mm_status_verify_t status_verify;     /**< Status of MAC Merge sublayer verification.
-                                                *   This parameter corresponds to the aMACMergeStatusVerify
-                                                *   attribute in 802.3br.
-                                                */
-    BOOL                    status_tx;         /**< Status of the MAC Merge sublayer in the transmit direction.
-                                                *   This parameter corresponds to the aMACMergeStatusTx
-                                                *   attribute in IEEE 802.3br-2016.
-                                                */
-    u8                      add_frag_size;     /**< The value of the 802.3br LocAddFragSize
-                                                *   parameter for the port.
-                                                *   The minimum size of non-final fragments supported by the
-                                                *   receiver on the local port. This value is expressed in units
-                                                *   of 64 octets of additional fragment length.
-                                                *   The minimum non-final fragment size is:
-                                                *   (LocAddFragSize + 1) * 64 octets.
-                                                */
-} vtss_qos_fp_port_status_t;
-
-/**
- * \brief Get 802.1Qbu and 802.3br (Frame Preemption) port status.
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param status  [OUT] Frame Preemption status structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_qos_fp_port_status_get(const vtss_inst_t         inst,
-                                    const vtss_port_no_t      port_no,
-                                    vtss_qos_fp_port_status_t *const status);
-#endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 /** \brief EVC policer configuration */

@@ -493,10 +493,11 @@ typedef struct {
     vtss_qs_conf_t      qs_conf; /**< Queue system configuration*/
 #endif /* VTSS_ARCH_JAGUAR_2_CE */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_JAG3S5)
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     BOOL vlan_counters_disable; /**< Disable VLAN counters (OAM uses the counter resources) */
 #endif
+#if defined(VTSS_FEATURE_PSFP)
+    BOOL psfp_counters_enable;  /**< Enable PSFP counter mode for ingress counters */
 #endif
 #if defined(VTSS_FEATURE_CORE_CLOCK)
     vtss_core_clock_conf_t core_clock; /**< Core clock (LCPLL) configuration */
