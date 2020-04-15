@@ -1,0 +1,981 @@
+/*
+ Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+*/
+
+#ifndef _SERVAL_REG_H_
+#define _SERVAL_REG_H_
+
+#if defined(VTSS_ARCH_OCELOT)
+#include "vtss_ocelot_regs.h"
+#else
+#include "vtss_serval_regs.h"
+#endif
+
+/* Port -> DEV_RGMII, DEV Target Offset */
+#define VTSS_TO_DEV(port)   (VTSS_TO_DEV_0 + (port * (VTSS_TO_DEV_1 - VTSS_TO_DEV_0)))
+
+/* Commands for Mac Table Command register */
+#define MAC_CMD_IDLE        0  /* Idle */
+#define MAC_CMD_LEARN       1  /* Insert (Learn) 1 entry */
+#define MAC_CMD_FORGET      2  /* Delete (Forget) 1 entry */
+#define MAC_CMD_TABLE_AGE   3  /* Age entire table */
+#define MAC_CMD_GET_NEXT    4  /* Get next entry */
+#define MAC_CMD_TABLE_CLEAR 5  /* Delete all entries in table */
+#define MAC_CMD_READ        6  /* Read entry at Mac Table Index */
+#define MAC_CMD_WRITE       7  /* Write entry at Mac Table Index */
+
+#define MAC_TYPE_NORMAL  0 /* Normal entry */
+#define MAC_TYPE_LOCKED  1 /* Locked entry */
+#define MAC_TYPE_IPV4_MC 2 /* IPv4 MC entry */
+#define MAC_TYPE_IPV6_MC 3 /* IPv6 MC entry */
+
+/* Commands for VLAN Table Command register */
+#define VLAN_CMD_IDLE        0  /* Idle */
+#define VLAN_CMD_READ        1  /* Read entry at VLAN Table Index */
+#define VLAN_CMD_WRITE       2  /* Write entry at VLAN Table Index */
+#define VLAN_CMD_TABLE_CLEAR 3  /* Reset all entries in table */
+
+/* Commands for ISDX Table Command register */
+#define ISDX_CMD_IDLE        0  /* Idle */
+#define ISDX_CMD_READ        1  /* Read entry at VLAN Table Index */
+#define ISDX_CMD_WRITE       2  /* Write entry at VLAN Table Index */
+#define ISDX_CMD_TABLE_CLEAR 3  /* Reset all entries in table */
+
+/* Types for REW_PORT::TAG_CFG */
+#define TAG_CFG_DISABLE       0 /* Port tagging disabled */
+#define TAG_CFG_ALL_NPV_NNUL  1 /* Tag all frames, except when VID=PORT_VLAN_CFG.PORT_VID or VID=0 */
+#define TAG_CFG_ALL_NNUL      2 /* Tag all frames, except when VID=0 */
+#define TAG_CFG_ALL           3 /* Tag all frames */
+
+/* Types for REW_PORT::TAG_TPID_CFG */
+#define TAG_TPID_CFG_0x8100   0  /* Use 0x8100 */
+#define TAG_TPID_CFG_0x88A8   1  /* Use 0x88A8 */
+#define TAG_TPID_CFG_PTPID    2  /* Use custom from PORT_VLAN_CFG.PORT_TPID */
+#define TAG_TPID_CFG_PTPID_NC 3  /* As above, but unless ingress tag was a C-tag */
+
+/* Types for SYS_POL::POL_MODE_CFG */
+#define POL_MODE_LINERATE       0 /* Line rate. Police bytes including IPG_SIZE */
+#define POL_MODE_DATARATE       1 /* Data rate. Police bytes excluding IPG. */
+#define POL_MODE_FRMRATE_100FPS 2 /* Frame rate. Rate unit = 100 fps  (100/3 fps for Rev. B and later) */
+#define POL_MODE_FRMRATE_1FPS   3 /* Frame rate. Rate unit = 1 fps (1/3 fps for Rev. B and later)*/
+
+/* ACL Mask bits (inverse of chip polarity) */
+#define ACL_MASK_ONES         0xFFFFFFFF
+#define ACL_MASK_ZERO         0
+
+/* Commands for Stream Table Command register */
+#define STREAM_CMD_IDLE  0  /* Idle */
+#define STREAM_CMD_READ  1  /* Read entry at STREAM Table Index */
+#define STREAM_CMD_WRITE 2  /* Write entry at STREAM Table Index */
+#define STREAM_CMD_INIT  3  /* Initialize all entries in table to default values */
+
+/* Commands for Stream Filter Table Command register */
+#define SFID_CMD_IDLE  0  /* Idle */
+#define SFID_CMD_READ  1  /* Read entry at SFID Table Index */
+#define SFID_CMD_WRITE 2  /* Write entry at SFID Table Index */
+#define SFID_CMD_INIT  3  /* Initialize all entries in table to default values */
+
+/* ================================================================= *
+ *  VCAP Common
+ * ================================================================= */
+
+/* VCAP Type-Group values */
+#define VCAP_TG_NONE    0 /* Entry is invalid */
+#define VCAP_TG_FULL    1 /* Full entry */
+#define VCAP_TG_HALF    2 /* Half entry */
+#define VCAP_TG_QUARTER 3 /* Quarter entry */
+
+/* Offset for port mask length adjustment */
+#define VCAP_PORT_OFFSET 0
+
+/* ================================================================= *
+ *  VCAP IS0
+ * ================================================================= */
+
+/* IS0 full key - MLL */
+#define IS0_FKO_MLL_IGR_PORT 0
+#define IS0_FKL_MLL_IGR_PORT 4
+#define IS0_FKO_MLL_TTYPE    4
+#define IS0_FKL_MLL_TTYPE    2
+#define IS0_FKO_MLL_BVID     6
+#define IS0_FKL_MLL_BVID     12
+#define IS0_FKO_MLL_M_DMAC   18
+#define IS0_FKL_MLL_M_DMAC   48
+#define IS0_FKO_MLL_M_SMAC   66
+#define IS0_FKL_MLL_M_SMAC   48
+#define IS0_FKO_MLL_E_TYPE   114
+#define IS0_FKL_MLL_E_TYPE   2
+
+/* IS0 half key - MLBS */
+#define IS0_HKO_MLBS_LL_IDX    0
+#define IS0_HKL_MLBS_LL_IDX    7
+#define IS0_HKO_MLBS_LBL_0_VAL 7
+#define IS0_HKL_MLBS_LBL_0_VAL 20
+#define IS0_HKO_MLBS_LBL_0_TC  27
+#define IS0_HKL_MLBS_LBL_0_TC  3
+#define IS0_HKO_MLBS_LBL_1_VAL 30
+#define IS0_HKL_MLBS_LBL_1_VAL 20
+#define IS0_HKO_MLBS_LBL_1_TC  50
+#define IS0_HKL_MLBS_LBL_1_TC  3
+#define IS0_HKO_MLBS_LBL_2_VAL 53
+#define IS0_HKL_MLBS_LBL_2_VAL 20
+#define IS0_HKO_MLBS_LBL_2_TC  73
+#define IS0_HKL_MLBS_LBL_2_TC  3
+
+/* IS0 MLL action */
+#define IS0_AO_MLL_LL_IDX          0
+#define IS0_AL_MLL_LL_IDX          7
+#define IS0_AO_MLL_MPLS_FWD        7
+#define IS0_AL_MLL_MPLS_FWD        1
+#define IS0_AO_MLL_B_PM            8
+#define IS0_AL_MLL_B_PM            12
+#define IS0_AO_MLL_CPU_Q           20
+#define IS0_AL_MLL_CPU_Q           3
+#define IS0_AO_MLL_ISDX            23
+#define IS0_AL_MLL_ISDX            10
+#define IS0_AO_MLL_VPROFILE_IDX    33
+#define IS0_AL_MLL_VPROFILE_IDX    6
+#define IS0_AO_MLL_SCONFIG_ENA     39
+#define IS0_AL_MLL_SCONFIG_ENA     1
+#define IS0_AO_MLL_CL_VID          40
+#define IS0_AL_MLL_CL_VID          12
+#define IS0_AO_MLL_QOS_DEFAULT_VAL 52
+#define IS0_AL_MLL_QOS_DEFAULT_VAL 3
+#define IS0_AO_MLL_DP_DEFAULT_VAL  55
+#define IS0_AL_MLL_DP_DEFAULT_VAL  1
+#define IS0_AO_MLL_OAM_ISDX        56
+#define IS0_AL_MLL_OAM_ISDX        10
+#define IS0_AO_MLL_ISDX_ADD_REPL   66
+#define IS0_AL_MLL_ISDX_ADD_REPL   1
+
+/* IS0 MLBS action */
+#define IS0_AO_MLBS_ISDX          0
+#define IS0_AL_MLBS_ISDX          10
+#define IS0_AO_MLBS_B_PM          10
+#define IS0_AL_MLBS_B_PM          12
+#define IS0_AO_MLBS_CPU_Q         22
+#define IS0_AL_MLBS_CPU_Q         3
+#define IS0_AO_MLBS_OAM_ENA       25
+#define IS0_AL_MLBS_OAM_ENA       3
+#define IS0_AO_MLBS_BURIED_MIP    28
+#define IS0_AL_MLBS_BURIED_MIP    1
+#define IS0_AO_MLBS_RSVD_LBL_VAL  29
+#define IS0_AL_MLBS_RSVD_LBL_VAL  4
+#define IS0_AO_MLBS_RSVD_LBL_BOS  33
+#define IS0_AL_MLBS_RSVD_LBL_BOS  1
+#define IS0_AO_MLBS_CW_ENA        34
+#define IS0_AL_MLBS_CW_ENA        1
+#define IS0_AO_MLBS_TC_LABEL      35
+#define IS0_AL_MLBS_TC_LABEL      2
+#define IS0_AO_MLBS_TTL_LABEL     37
+#define IS0_AL_MLBS_TTL_LABEL     2
+#define IS0_AO_MLBS_SWAP_LABEL    39
+#define IS0_AL_MLBS_SWAP_LABEL    2
+#define IS0_AO_MLBS_TERMINATE_PW  41
+#define IS0_AL_MLBS_TERMINATE_PW  1
+#define IS0_AO_MLBS_POP_CNT       42
+#define IS0_AL_MLBS_POP_CNT       3
+#define IS0_AO_MLBS_E_LSP         45
+#define IS0_AL_MLBS_E_LSP         1
+#define IS0_AO_MLBS_TC_MAP        46
+#define IS0_AL_MLBS_TC_MAP        3
+#define IS0_AO_MLBS_L_LSP_COS     49
+#define IS0_AL_MLBS_L_LSP_COS     3
+#define IS0_AO_MLBS_INC_ISDX      52
+#define IS0_AL_MLBS_INC_ISDX      1
+#define IS0_AO_MLBS_OAM_ISDX      53
+#define IS0_AL_MLBS_OAM_ISDX      10
+#define IS0_AO_MLBS_ISDX_ADD_REPL 63
+#define IS0_AL_MLBS_ISDX_ADD_REPL 1
+#define IS0_AO_MLBS_SWAP_IS_BOS   64
+#define IS0_AL_MLBS_SWAP_IS_BOS   1
+#define IS0_AO_MLBS_VPROFILE_IDX  65
+#define IS0_AL_MLBS_VPROFILE_IDX  6
+#define IS0_AO_MLBS_SCONFIG_ENA   71
+#define IS0_AL_MLBS_SCONFIG_ENA   1
+#define IS0_AO_MLBS_CL_VID        72
+#define IS0_AL_MLBS_CL_VID        12
+#define IS0_AO_MLBS_VLAN_STAGD    84
+#define IS0_AL_MLBS_VLAN_STAGD    1
+#define IS0_AO_MLBS_VLAN_DEI      85
+#define IS0_AL_MLBS_VLAN_DEI      1
+#define IS0_AO_MLBS_VLAN_PCP      86
+#define IS0_AL_MLBS_VLAN_PCP      3
+
+/* ================================================================= *
+ *  VCAP IS1
+ * ================================================================= */
+
+/* IS1 half key types */
+#define IS1_TYPE_NORMAL     0
+#define IS1_TYPE_5TUPLE_IP4 1
+
+/* IS1 full key types */
+#define IS1_TYPE_NORMAL_IP6 0
+#define IS1_TYPE_7TUPLE     1
+#define IS1_TYPE_5TUPLE_IP6 2
+
+/* IS1 quarter key - DBL_VID */
+#define IS1_QKO_LOOKUP          0
+#define IS1_QKL_LOOKUP          2
+#define IS1_QKO_IGR_PORT_MASK   (IS1_QKO_LOOKUP + IS1_QKL_LOOKUP)
+#define IS1_QKL_IGR_PORT_MASK   (VTSS_CHIP_PORTS + 1)
+#define IS1_QKO_ISDX            (IS1_QKO_IGR_PORT_MASK + IS1_QKL_IGR_PORT_MASK)
+#define IS1_QKL_ISDX            10
+#define IS1_QKO_L2_MC           (IS1_QKO_ISDX + IS1_QKL_ISDX)
+#define IS1_QKL_L2_MC           1
+#define IS1_QKO_L2_BC           (IS1_QKO_L2_MC + IS1_QKL_L2_MC)
+#define IS1_QKL_L2_BC           1
+#define IS1_QKO_IP_MC           (IS1_QKO_L2_BC + IS1_QKL_L2_BC)
+#define IS1_QKL_IP_MC           1
+#define IS1_QKO_VLAN_TAGGED     (IS1_QKO_IP_MC + IS1_QKL_IP_MC)
+#define IS1_QKL_VLAN_TAGGED     1
+#define IS1_QKO_VLAN_DBL_TAGGED (IS1_QKO_VLAN_TAGGED + IS1_QKL_VLAN_TAGGED)
+#define IS1_QKL_VLAN_DBL_TAGGED 1
+#define IS1_QKO_TPID            (IS1_QKO_VLAN_DBL_TAGGED + IS1_QKL_VLAN_DBL_TAGGED)
+#define IS1_QKL_TPID            1
+#define IS1_QKO_VID             (IS1_QKO_TPID + IS1_QKL_TPID)
+#define IS1_QKL_VID             12
+#define IS1_QKO_DEI             (IS1_QKO_VID + IS1_QKL_VID)
+#define IS1_QKL_DEI             1
+#define IS1_QKO_PCP             (IS1_QKO_DEI + IS1_QKL_DEI)
+#define IS1_QKL_PCP             3
+#define IS1_QKO_INNER_TPID      (IS1_QKO_PCP + IS1_QKL_PCP)
+#define IS1_QKL_INNER_TPID      1
+#define IS1_QKO_INNER_VID       (IS1_QKO_INNER_TPID + IS1_QKL_INNER_TPID)
+#define IS1_QKL_INNER_VID       12
+#define IS1_QKO_INNER_DEI       (IS1_QKO_INNER_VID + IS1_QKL_INNER_VID)
+#define IS1_QKL_INNER_DEI       1
+#define IS1_QKO_INNER_PCP       (IS1_QKO_INNER_DEI + IS1_QKL_INNER_DEI)
+#define IS1_QKL_INNER_PCP       3
+#define IS1_QKO_ETYPE_LEN       (IS1_QKO_INNER_PCP + IS1_QKL_INNER_PCP)
+#define IS1_QKL_ETYPE_LEN       1
+#define IS1_QKO_ETYPE           (IS1_QKO_ETYPE_LEN + IS1_QKL_ETYPE_LEN)
+#define IS1_QKL_ETYPE           16
+#define IS1_QKO_IP_SNAP         (IS1_QKO_ETYPE + IS1_QKL_ETYPE)
+#define IS1_QKL_IP_SNAP         1
+#define IS1_QKO_IP4             (IS1_QKO_IP_SNAP + IS1_QKL_IP_SNAP)
+#define IS1_QKL_IP4             1
+#define IS1_QKO_L3_FRAGMENT     (IS1_QKO_IP4 + IS1_QKL_IP4)
+#define IS1_QKL_L3_FRAGMENT     1
+#define IS1_QKO_L3_FRAG_OFS_GT0 (IS1_QKO_L3_FRAGMENT + IS1_QKL_L3_FRAGMENT)
+#define IS1_QKL_L3_FRAG_OFS_GT0 1
+#define IS1_QKO_L3_OPTIONS      (IS1_QKO_L3_FRAG_OFS_GT0 + IS1_QKL_L3_FRAG_OFS_GT0)
+#define IS1_QKL_L3_OPTIONS      1
+#define IS1_QKO_L3_DSCP         (IS1_QKO_L3_OPTIONS + IS1_QKL_L3_OPTIONS)
+#define IS1_QKL_L3_DSCP         6
+#define IS1_QKO_TCP_UDP         (IS1_QKO_L3_DSCP + IS1_QKL_L3_DSCP)
+#define IS1_QKL_TCP_UDP         1
+#define IS1_QKO_TCP             (IS1_QKO_TCP_UDP + IS1_QKL_TCP_UDP)
+#define IS1_QKL_TCP             1
+
+/* IS1 half key - common */
+#define IS1_HKO_TYPE            0
+#define IS1_HKL_TYPE            1
+#define IS1_HKO_LOOKUP          (IS1_HKO_TYPE + IS1_HKL_TYPE)
+#define IS1_HKL_LOOKUP          2
+#define IS1_HKO_IGR_PORT_MASK   (IS1_HKO_LOOKUP + IS1_HKL_LOOKUP)
+#define IS1_HKL_IGR_PORT_MASK   (VTSS_CHIP_PORTS + 1)
+#define IS1_HKO_ISDX            (IS1_HKO_IGR_PORT_MASK + IS1_HKL_IGR_PORT_MASK)
+#define IS1_HKL_ISDX            10
+#define IS1_HKO_L2_MC           (IS1_HKO_ISDX + IS1_HKL_ISDX)
+#define IS1_HKL_L2_MC           1
+#define IS1_HKO_L2_BC           (IS1_HKO_L2_MC + IS1_HKL_L2_MC)
+#define IS1_HKL_L2_BC           1
+#define IS1_HKO_IP_MC           (IS1_HKO_L2_BC + IS1_HKL_L2_BC)
+#define IS1_HKL_IP_MC           1
+#define IS1_HKO_VLAN_TAGGED     (IS1_HKO_IP_MC + IS1_HKL_IP_MC)
+#define IS1_HKL_VLAN_TAGGED     1
+#define IS1_HKO_VLAN_DBL_TAGGED (IS1_HKO_VLAN_TAGGED + IS1_HKL_VLAN_TAGGED)
+#define IS1_HKL_VLAN_DBL_TAGGED 1
+#define IS1_HKO_TPID            (IS1_HKO_VLAN_DBL_TAGGED + IS1_HKL_VLAN_DBL_TAGGED)
+#define IS1_HKL_TPID            1
+#define IS1_HKO_VID             (IS1_HKO_TPID + IS1_HKL_TPID)
+#define IS1_HKL_VID             12
+#define IS1_HKO_DEI             (IS1_HKO_VID + IS1_HKL_VID)
+#define IS1_HKL_DEI             1
+#define IS1_HKO_PCP             (IS1_HKO_DEI + IS1_HKL_DEI)
+#define IS1_HKL_PCP             3
+
+/* IS1 half key - S1_NORMAL */
+#define IS1_HKO_NORMAL_L2_SMAC         (IS1_HKO_PCP + IS1_HKL_PCP)
+#define IS1_HKL_NORMAL_L2_SMAC         48
+#define IS1_HKO_NORMAL_ETYPE_LEN       (IS1_HKO_NORMAL_L2_SMAC + IS1_HKL_NORMAL_L2_SMAC)
+#define IS1_HKL_NORMAL_ETYPE_LEN       1
+#define IS1_HKO_NORMAL_ETYPE           (IS1_HKO_NORMAL_ETYPE_LEN + IS1_HKL_NORMAL_ETYPE_LEN)
+#define IS1_HKL_NORMAL_ETYPE           16
+#define IS1_HKO_NORMAL_IP_SNAP         (IS1_HKO_NORMAL_ETYPE + IS1_HKL_NORMAL_ETYPE)
+#define IS1_HKL_NORMAL_IP_SNAP         1
+#define IS1_HKO_NORMAL_IP4             (IS1_HKO_NORMAL_IP_SNAP + IS1_HKL_NORMAL_IP_SNAP)
+#define IS1_HKL_NORMAL_IP4             1
+#define IS1_HKO_NORMAL_L3_FRAGMENT     (IS1_HKO_NORMAL_IP4 + IS1_HKL_NORMAL_IP4)
+#define IS1_HKL_NORMAL_L3_FRAGMENT     1
+#define IS1_HKO_NORMAL_L3_FRAG_OFS_GT0 (IS1_HKO_NORMAL_L3_FRAGMENT + IS1_HKL_NORMAL_L3_FRAGMENT)
+#define IS1_HKL_NORMAL_L3_FRAG_OFS_GT0 1
+#define IS1_HKO_NORMAL_L3_OPTIONS      (IS1_HKO_NORMAL_L3_FRAG_OFS_GT0 + IS1_HKL_NORMAL_L3_FRAG_OFS_GT0)
+#define IS1_HKL_NORMAL_L3_OPTIONS      1
+#define IS1_HKO_NORMAL_L3_DSCP         (IS1_HKO_NORMAL_L3_OPTIONS + IS1_HKL_NORMAL_L3_OPTIONS)
+#define IS1_HKL_NORMAL_L3_DSCP         6
+#define IS1_HKO_NORMAL_L3_IP4_SIP      (IS1_HKO_NORMAL_L3_DSCP + IS1_HKL_NORMAL_L3_DSCP)
+#define IS1_HKL_NORMAL_L3_IP4_SIP      32
+#define IS1_HKO_NORMAL_TCP_UDP         (IS1_HKO_NORMAL_L3_IP4_SIP + IS1_HKL_NORMAL_L3_IP4_SIP)
+#define IS1_HKL_NORMAL_TCP_UDP         1
+#define IS1_HKO_NORMAL_TCP             (IS1_HKO_NORMAL_TCP_UDP + IS1_HKL_NORMAL_TCP_UDP)
+#define IS1_HKL_NORMAL_TCP             1
+#define IS1_HKO_NORMAL_L4_SPORT        (IS1_HKO_NORMAL_TCP + IS1_HKL_NORMAL_TCP)
+#define IS1_HKL_NORMAL_L4_SPORT        16
+#define IS1_HKO_NORMAL_L4_RNG          (IS1_HKO_NORMAL_L4_SPORT + IS1_HKL_NORMAL_L4_SPORT)
+#define IS1_HKL_NORMAL_L4_RNG          8
+
+/* IS1 half key - S1_5TUPLE_IP4 */
+#define IS1_HKO_5TUPLE_IP4_INNER_TPID      IS1_HKO_NORMAL_L2_SMAC
+#define IS1_HKL_5TUPLE_IP4_INNER_TPID      1
+#define IS1_HKO_5TUPLE_IP4_INNER_VID       (IS1_HKO_5TUPLE_IP4_INNER_TPID + IS1_HKL_5TUPLE_IP4_INNER_TPID)
+#define IS1_HKL_5TUPLE_IP4_INNER_VID       12
+#define IS1_HKO_5TUPLE_IP4_INNER_DEI       (IS1_HKO_5TUPLE_IP4_INNER_VID + IS1_HKL_5TUPLE_IP4_INNER_VID)
+#define IS1_HKL_5TUPLE_IP4_INNER_DEI       1
+#define IS1_HKO_5TUPLE_IP4_INNER_PCP       (IS1_HKO_5TUPLE_IP4_INNER_DEI + IS1_HKL_5TUPLE_IP4_INNER_DEI)
+#define IS1_HKL_5TUPLE_IP4_INNER_PCP       3
+#define IS1_HKO_5TUPLE_IP4_IP4             (IS1_HKO_5TUPLE_IP4_INNER_PCP + IS1_HKL_5TUPLE_IP4_INNER_PCP)
+#define IS1_HKL_5TUPLE_IP4_IP4             1 
+#define IS1_HKO_5TUPLE_IP4_L3_FRAGMENT     (IS1_HKO_5TUPLE_IP4_IP4 + IS1_HKL_5TUPLE_IP4_IP4)
+#define IS1_HKL_5TUPLE_IP4_L3_FRAGMENT     1
+#define IS1_HKO_5TUPLE_IP4_L3_FRAG_OFS_GT0 (IS1_HKO_5TUPLE_IP4_L3_FRAGMENT + IS1_HKL_5TUPLE_IP4_L3_FRAGMENT)
+#define IS1_HKL_5TUPLE_IP4_L3_FRAG_OFS_GT0 1
+#define IS1_HKO_5TUPLE_IP4_L3_OPTIONS      (IS1_HKO_5TUPLE_IP4_L3_FRAG_OFS_GT0 + IS1_HKL_5TUPLE_IP4_L3_FRAG_OFS_GT0)
+#define IS1_HKL_5TUPLE_IP4_L3_OPTIONS      1
+#define IS1_HKO_5TUPLE_IP4_L3_DSCP         (IS1_HKO_5TUPLE_IP4_L3_OPTIONS + IS1_HKL_5TUPLE_IP4_L3_OPTIONS)
+#define IS1_HKL_5TUPLE_IP4_L3_DSCP         6
+#define IS1_HKO_5TUPLE_IP4_L3_IP4_DIP      (IS1_HKO_5TUPLE_IP4_L3_DSCP + IS1_HKL_5TUPLE_IP4_L3_DSCP)
+#define IS1_HKL_5TUPLE_IP4_L3_IP4_DIP      32
+#define IS1_HKO_5TUPLE_IP4_L3_IP4_SIP      (IS1_HKO_5TUPLE_IP4_L3_IP4_DIP + IS1_HKL_5TUPLE_IP4_L3_IP4_DIP)
+#define IS1_HKL_5TUPLE_IP4_L3_IP4_SIP      32
+#define IS1_HKO_5TUPLE_IP4_L3_IP_PROTO     (IS1_HKO_5TUPLE_IP4_L3_IP4_SIP + IS1_HKL_5TUPLE_IP4_L3_IP4_SIP)
+#define IS1_HKL_5TUPLE_IP4_L3_IP_PROTO     8
+#define IS1_HKO_5TUPLE_IP4_TCP_UDP         (IS1_HKO_5TUPLE_IP4_L3_IP_PROTO + IS1_HKL_5TUPLE_IP4_L3_IP_PROTO)
+#define IS1_HKL_5TUPLE_IP4_TCP_UDP         1
+#define IS1_HKO_5TUPLE_IP4_TCP             (IS1_HKO_5TUPLE_IP4_TCP_UDP + IS1_HKL_5TUPLE_IP4_TCP_UDP)
+#define IS1_HKL_5TUPLE_IP4_TCP             1
+#define IS1_HKO_5TUPLE_IP4_L4_RNG          (IS1_HKO_5TUPLE_IP4_TCP + IS1_HKL_5TUPLE_IP4_TCP)
+#define IS1_HKL_5TUPLE_IP4_L4_RNG          8
+#define IS1_HKO_5TUPLE_IP4_IP_PAYLOAD      (IS1_HKO_5TUPLE_IP4_L4_RNG + IS1_HKL_5TUPLE_IP4_L4_RNG)
+#define IS1_HKL_5TUPLE_IP4_IP_PAYLOAD      32
+
+/* IS1 full key - common */
+#define IS1_FKO_TYPE            0
+#define IS1_FKL_TYPE            2
+#define IS1_FKO_LOOKUP          (IS1_FKO_TYPE + IS1_FKL_TYPE)
+#define IS1_FKL_LOOKUP          2
+#define IS1_FKO_IGR_PORT_MASK   (IS1_FKO_LOOKUP + IS1_FKL_LOOKUP)
+#define IS1_FKL_IGR_PORT_MASK   (VTSS_CHIP_PORTS + 1)
+#define IS1_FKO_ISDX            (IS1_FKO_IGR_PORT_MASK + IS1_FKL_IGR_PORT_MASK)
+#define IS1_FKL_ISDX            10
+#define IS1_FKO_L2_MC           (IS1_FKO_ISDX + IS1_FKL_ISDX)
+#define IS1_FKL_L2_MC           1
+#define IS1_FKO_L2_BC           (IS1_FKO_L2_MC + IS1_FKL_L2_MC)
+#define IS1_FKL_L2_BC           1
+#define IS1_FKO_IP_MC           (IS1_FKO_L2_BC + IS1_FKL_L2_BC)
+#define IS1_FKL_IP_MC           1
+#define IS1_FKO_VLAN_TAGGED     (IS1_FKO_IP_MC + IS1_FKL_IP_MC)
+#define IS1_FKL_VLAN_TAGGED     1
+#define IS1_FKO_VLAN_DBL_TAGGED (IS1_FKO_VLAN_TAGGED + IS1_FKL_VLAN_TAGGED)
+#define IS1_FKL_VLAN_DBL_TAGGED 1
+#define IS1_FKO_TPID            (IS1_FKO_VLAN_DBL_TAGGED + IS1_FKL_VLAN_DBL_TAGGED)
+#define IS1_FKL_TPID            1
+#define IS1_FKO_VID             (IS1_FKO_TPID + IS1_FKL_TPID)
+#define IS1_FKL_VID             12
+#define IS1_FKO_DEI             (IS1_FKO_VID + IS1_FKL_VID)
+#define IS1_FKL_DEI             1
+#define IS1_FKO_PCP             (IS1_FKO_DEI + IS1_FKL_DEI)
+#define IS1_FKL_PCP             3
+#define IS1_FKO_INNER_TPID      (IS1_FKO_PCP + IS1_FKL_PCP)
+#define IS1_FKL_INNER_TPID      1
+#define IS1_FKO_INNER_VID       (IS1_FKO_INNER_TPID + IS1_FKL_INNER_TPID)
+#define IS1_FKL_INNER_VID       12
+#define IS1_FKO_INNER_DEI       (IS1_FKO_INNER_VID + IS1_FKL_INNER_VID)
+#define IS1_FKL_INNER_DEI       1
+#define IS1_FKO_INNER_PCP       (IS1_FKO_INNER_DEI + IS1_FKL_INNER_DEI)
+#define IS1_FKL_INNER_PCP       3
+
+/* IS1 full key - S1_NORMAL_IP6 */
+#define IS1_FKO_NORMAL_IP6_L2_SMAC     (IS1_FKO_INNER_PCP + IS1_FKL_INNER_PCP)
+#define IS1_FKL_NORMAL_IP6_L2_SMAC     48
+#define IS1_FKO_NORMAL_IP6_L3_DSCP     (IS1_FKO_NORMAL_IP6_L2_SMAC + IS1_FKL_NORMAL_IP6_L2_SMAC)
+#define IS1_FKL_NORMAL_IP6_L3_DSCP     6
+#define IS1_FKO_NORMAL_IP6_L3_IP6_SIP  (IS1_FKO_NORMAL_IP6_L3_DSCP + IS1_FKL_NORMAL_IP6_L3_DSCP)
+#define IS1_FKL_NORMAL_IP6_L3_IP6_SIP  128
+#define IS1_FKO_NORMAL_IP6_L3_IP_PROTO (IS1_FKO_NORMAL_IP6_L3_IP6_SIP + IS1_FKL_NORMAL_IP6_L3_IP6_SIP)
+#define IS1_FKL_NORMAL_IP6_L3_IP_PROTO 8
+#define IS1_FKO_NORMAL_IP6_TCP_UDP     (IS1_FKO_NORMAL_IP6_L3_IP_PROTO + IS1_FKL_NORMAL_IP6_L3_IP_PROTO)
+#define IS1_FKL_NORMAL_IP6_TCP_UDP     1
+#define IS1_FKO_NORMAL_IP6_L4_RNG      (IS1_FKO_NORMAL_IP6_TCP_UDP + IS1_FKL_NORMAL_IP6_TCP_UDP)
+#define IS1_FKL_NORMAL_IP6_L4_RNG      8
+#define IS1_FKO_NORMAL_IP6_IP_PAYLOAD  (IS1_FKO_NORMAL_IP6_L4_RNG + IS1_FKL_NORMAL_IP6_L4_RNG)
+#define IS1_FKL_NORMAL_IP6_IP_PAYLOAD  112
+
+/* IS1 full key - S1_7TUPLE */
+#define IS1_FKO_7TUPLE_L2_DMAC         IS1_FKO_NORMAL_IP6_L2_SMAC
+#define IS1_FKL_7TUPLE_L2_DMAC         48
+#define IS1_FKO_7TUPLE_L2_SMAC         (IS1_FKO_7TUPLE_L2_DMAC + IS1_FKL_7TUPLE_L2_DMAC)
+#define IS1_FKL_7TUPLE_L2_SMAC         48
+#define IS1_FKO_7TUPLE_ETYPE_LEN       (IS1_FKO_7TUPLE_L2_SMAC + IS1_FKL_7TUPLE_L2_SMAC)
+#define IS1_FKL_7TUPLE_ETYPE_LEN       1
+#define IS1_FKO_7TUPLE_ETYPE           (IS1_FKO_7TUPLE_ETYPE_LEN + IS1_FKL_7TUPLE_ETYPE_LEN)
+#define IS1_FKL_7TUPLE_ETYPE           16
+#define IS1_FKO_7TUPLE_IP_SNAP         (IS1_FKO_7TUPLE_ETYPE + IS1_FKL_7TUPLE_ETYPE)
+#define IS1_FKL_7TUPLE_IP_SNAP         1
+#define IS1_FKO_7TUPLE_IP4             (IS1_FKO_7TUPLE_IP_SNAP + IS1_FKL_7TUPLE_IP_SNAP)
+#define IS1_FKL_7TUPLE_IP4             1
+#define IS1_FKO_7TUPLE_L3_FRAGMENT     (IS1_FKO_7TUPLE_IP4 + IS1_FKL_7TUPLE_IP4)
+#define IS1_FKL_7TUPLE_L3_FRAGMENT     1
+#define IS1_FKO_7TUPLE_L3_FRAG_OFS_GT0 (IS1_FKO_7TUPLE_L3_FRAGMENT + IS1_FKL_7TUPLE_L3_FRAGMENT)
+#define IS1_FKL_7TUPLE_L3_FRAG_OFS_GT0 1
+#define IS1_FKO_7TUPLE_L3_OPTIONS      (IS1_FKO_7TUPLE_L3_FRAG_OFS_GT0 + IS1_FKL_7TUPLE_L3_FRAG_OFS_GT0)
+#define IS1_FKL_7TUPLE_L3_OPTIONS      1
+#define IS1_FKO_7TUPLE_L3_DSCP         (IS1_FKO_7TUPLE_L3_OPTIONS + IS1_FKL_7TUPLE_L3_OPTIONS)
+#define IS1_FKL_7TUPLE_L3_DSCP         6
+#define IS1_FKO_7TUPLE_L3_IP6_DIP_MSB  (IS1_FKO_7TUPLE_L3_DSCP + IS1_FKL_7TUPLE_L3_DSCP)
+#define IS1_FKL_7TUPLE_L3_IP6_DIP_MSB  16
+#define IS1_FKO_7TUPLE_L3_IP6_DIP      (IS1_FKO_7TUPLE_L3_IP6_DIP_MSB + IS1_FKL_7TUPLE_L3_IP6_DIP_MSB)
+#define IS1_FKL_7TUPLE_L3_IP6_DIP      64
+#define IS1_FKO_7TUPLE_L3_IP6_SIP_MSB  (IS1_FKO_7TUPLE_L3_IP6_DIP + IS1_FKL_7TUPLE_L3_IP6_DIP)
+#define IS1_FKL_7TUPLE_L3_IP6_SIP_MSB  16
+#define IS1_FKO_7TUPLE_L3_IP6_SIP      (IS1_FKO_7TUPLE_L3_IP6_SIP_MSB + IS1_FKL_7TUPLE_L3_IP6_SIP_MSB)
+#define IS1_FKL_7TUPLE_L3_IP6_SIP      64
+#define IS1_FKO_7TUPLE_TCP_UDP         (IS1_FKO_7TUPLE_L3_IP6_SIP + IS1_FKL_7TUPLE_L3_IP6_SIP)
+#define IS1_FKL_7TUPLE_TCP_UDP         1
+#define IS1_FKO_7TUPLE_TCP             (IS1_FKO_7TUPLE_TCP_UDP + IS1_FKL_7TUPLE_TCP_UDP)
+#define IS1_FKL_7TUPLE_TCP             1
+#define IS1_FKO_7TUPLE_L4_SPORT        (IS1_FKO_7TUPLE_TCP + IS1_FKL_7TUPLE_TCP)
+#define IS1_FKL_7TUPLE_L4_SPORT        16
+#define IS1_FKO_7TUPLE_L4_RNG          (IS1_FKO_7TUPLE_L4_SPORT + IS1_FKL_7TUPLE_L4_SPORT)
+#define IS1_FKL_7TUPLE_L4_RNG          8
+
+/* IS1 full key - S1_5TUPLE_IP6 */
+#define IS1_FKO_5TUPLE_IP6_L3_DSCP     IS1_FKO_NORMAL_IP6_L2_SMAC
+#define IS1_FKL_5TUPLE_IP6_L3_DSCP     6
+#define IS1_FKO_5TUPLE_IP6_L3_IP6_DIP  (IS1_FKO_5TUPLE_IP6_L3_DSCP + IS1_FKL_5TUPLE_IP6_L3_DSCP)
+#define IS1_FKL_5TUPLE_IP6_L3_IP6_DIP  128
+#define IS1_FKO_5TUPLE_IP6_L3_IP6_SIP  (IS1_FKO_5TUPLE_IP6_L3_IP6_DIP + IS1_FKL_5TUPLE_IP6_L3_IP6_DIP)
+#define IS1_FKL_5TUPLE_IP6_L3_IP6_SIP  128
+#define IS1_FKO_5TUPLE_IP6_L3_IP_PROTO (IS1_FKO_5TUPLE_IP6_L3_IP6_SIP + IS1_FKL_5TUPLE_IP6_L3_IP6_SIP)
+#define IS1_FKL_5TUPLE_IP6_L3_IP_PROTO 8
+#define IS1_FKO_5TUPLE_IP6_TCP_UDP     (IS1_FKO_5TUPLE_IP6_L3_IP_PROTO + IS1_FKL_5TUPLE_IP6_L3_IP_PROTO)
+#define IS1_FKL_5TUPLE_IP6_TCP_UDP     1
+#define IS1_FKO_5TUPLE_IP6_L4_RNG      (IS1_FKO_5TUPLE_IP6_TCP_UDP + IS1_FKL_5TUPLE_IP6_TCP_UDP)
+#define IS1_FKL_5TUPLE_IP6_L4_RNG      8
+#define IS1_FKO_5TUPLE_IP6_IP_PAYLOAD  (IS1_FKO_5TUPLE_IP6_L4_RNG + IS1_FKL_5TUPLE_IP6_L4_RNG)
+#define IS1_FKL_5TUPLE_IP6_IP_PAYLOAD  32
+
+/* IS1 action */
+#define IS1_AO_DSCP_ENA            0
+#define IS1_AL_DSCP_ENA            1
+#define IS1_AO_DSCP_VAL            (IS1_AO_DSCP_ENA + IS1_AL_DSCP_ENA)
+#define IS1_AL_DSCP_VAL            6
+#define IS1_AO_QOS_ENA             (IS1_AO_DSCP_VAL + IS1_AL_DSCP_VAL)
+#define IS1_AL_QOS_ENA             1
+#define IS1_AO_QOS_VAL             (IS1_AO_QOS_ENA + IS1_AL_QOS_ENA)
+#define IS1_AL_QOS_VAL             3
+#define IS1_AO_DP_ENA              (IS1_AO_QOS_VAL + IS1_AL_QOS_VAL)
+#define IS1_AL_DP_ENA              1
+#define IS1_AO_DP_VAL              (IS1_AO_DP_ENA + IS1_AL_DP_ENA)
+#define IS1_AL_DP_VAL              1
+#define IS1_AO_PAG_OVERRIDE_MASK   (IS1_AO_DP_VAL + IS1_AL_DP_VAL)
+#define IS1_AL_PAG_OVERRIDE_MASK   8
+#define IS1_AO_PAG_VAL             (IS1_AO_PAG_OVERRIDE_MASK + IS1_AL_PAG_OVERRIDE_MASK)
+#define IS1_AL_PAG_VAL             8
+#define IS1_AO_ISDX_REPLACE_ENA    (IS1_AO_PAG_VAL + IS1_AL_PAG_VAL)
+#define IS1_AL_ISDX_REPLACE_ENA    1
+#define IS1_AO_ISDX_ADD_VAL        (IS1_AO_ISDX_REPLACE_ENA + IS1_AL_ISDX_REPLACE_ENA)
+#if defined(VTSS_ARCH_OCELOT)
+#define IS1_AL_ISDX_ADD_VAL        8
+#else
+#define IS1_AL_ISDX_ADD_VAL        10
+#endif /* VTSS_ARCH_OCELOT */
+#define IS1_AO_VID_REPLACE_ENA     (IS1_AO_ISDX_ADD_VAL + IS1_AL_ISDX_ADD_VAL)
+#define IS1_AL_VID_REPLACE_ENA     1
+#define IS1_AO_VID_ADD_VAL         (IS1_AO_VID_REPLACE_ENA + IS1_AL_VID_REPLACE_ENA)
+#define IS1_AL_VID_ADD_VAL         12
+#define IS1_AO_FID_SEL             (IS1_AO_VID_ADD_VAL + IS1_AL_VID_ADD_VAL)
+#define IS1_AL_FID_SEL             2
+#define IS1_AO_FID_VAL             (IS1_AO_FID_SEL + IS1_AL_FID_SEL)
+#define IS1_AL_FID_VAL             13
+#define IS1_AO_PCP_DEI_ENA         (IS1_AO_FID_VAL + IS1_AL_FID_VAL)
+#define IS1_AL_PCP_DEI_ENA         1
+#define IS1_AO_PCP_VAL             (IS1_AO_PCP_DEI_ENA + IS1_AL_PCP_DEI_ENA)
+#define IS1_AL_PCP_VAL             3
+#define IS1_AO_DEI_VAL             (IS1_AO_PCP_VAL + IS1_AL_PCP_VAL)
+#define IS1_AL_DEI_VAL             1
+#define IS1_AO_VLAN_POP_CNT_ENA    (IS1_AO_DEI_VAL + IS1_AL_DEI_VAL)
+#define IS1_AL_VLAN_POP_CNT_ENA    1
+#define IS1_AO_VLAN_POP_CNT        (IS1_AO_VLAN_POP_CNT_ENA + IS1_AL_VLAN_POP_CNT_ENA)
+#define IS1_AL_VLAN_POP_CNT        2
+#define IS1_AO_CUSTOM_ACE_TYPE_ENA (IS1_AO_VLAN_POP_CNT + IS1_AL_VLAN_POP_CNT)
+#define IS1_AL_CUSTOM_ACE_TYPE_ENA 4
+
+/* ================================================================= *
+ *  VCAP IS2
+ * ================================================================= */
+
+/* IS2 half key types */
+#define IS2_TYPE_ETYPE      0
+#define IS2_TYPE_LLC        1
+#define IS2_TYPE_SNAP       2
+#define IS2_TYPE_ARP        3
+#define IS2_TYPE_IP_UDP_TCP 4
+#define IS2_TYPE_IP_OTHER   5
+#define IS2_TYPE_IPV6       6
+#define IS2_TYPE_OAM        7
+#define IS2_TYPE_SMAC_SIP6  8
+#define IS2_TYPE_ANY        100 /* Pseudo type */
+
+/* IS2 half key type mask for matching any IP */
+#define IS2_TYPE_MASK_IP_ANY 0xe
+
+/* IS2 full key types */
+#define IS2_TYPE_IP6_TCP_UDP 0
+#define IS2_TYPE_IP6_OTHER   1
+#define IS2_TYPE_CUSTOM      2
+
+/* IS2 action types */
+#define IS2_ACTION_TYPE_NORMAL   0
+#define IS2_ACTION_TYPE_SMAC_SIP 1
+
+/* IS2 MASK_MODE values */
+#define IS2_ACT_MASK_MODE_NONE   0
+#define IS2_ACT_MASK_MODE_FILTER 1
+#define IS2_ACT_MASK_MODE_POLICY 2
+#define IS2_ACT_MASK_MODE_REDIR  3
+
+/* IS2 REW_OP values */
+#define IS2_ACT_REW_OP_NONE                0 
+#define IS2_ACT_REW_OP_PTP_ONE             2
+#define IS2_ACT_REW_OP_PTP_TWO             3
+#define IS2_ACT_REW_OP_SPECIAL             8
+#define IS2_ACT_REW_OP_PTP_ORG             9
+#define IS2_ACT_REW_OP_PTP_ONE_SUB_DELAY_1 (IS2_ACT_REW_OP_PTP_ONE | (1 << 3))
+#define IS2_ACT_REW_OP_PTP_ONE_SUB_DELAY_2 (IS2_ACT_REW_OP_PTP_ONE | (2 << 3))
+#define IS2_ACT_REW_OP_PTP_ONE_ADD_DELAY   (IS2_ACT_REW_OP_PTP_ONE | (1 << 5))
+#define IS2_ACT_REW_OP_PTP_ONE_ADD_SUB     (1 << 7)
+
+#define VCAP_PORT_WIDTH 4
+
+/* IS2 quarter key - SMAC_SIP4 */
+#define IS2_QKO_IGR_PORT   0
+#define IS2_QKL_IGR_PORT   VCAP_PORT_WIDTH
+#define IS2_QKO_L2_SMAC    (IS2_QKO_IGR_PORT + IS2_QKL_IGR_PORT)
+#define IS2_QKL_L2_SMAC    48
+#define IS2_QKO_L3_IP4_SIP (IS2_QKO_L2_SMAC + IS2_QKL_L2_SMAC)
+#define IS2_QKL_L3_IP4_SIP 32
+
+/* IS2 half key - common */
+#define IS2_HKO_TYPE          0
+#define IS2_HKL_TYPE          4
+#define IS2_HKO_FIRST         (IS2_HKO_TYPE + IS2_HKL_TYPE)
+#define IS2_HKL_FIRST         1
+#define IS2_HKO_PAG           (IS2_HKO_FIRST + IS2_HKL_FIRST)
+#define IS2_HKL_PAG           8
+#define IS2_HKO_IGR_PORT_MASK (IS2_HKO_PAG + IS2_HKL_PAG)
+#define IS2_HKL_IGR_PORT_MASK (VTSS_CHIP_PORTS + 1)
+#define IS2_HKO_SERVICE_FRM   (IS2_HKO_IGR_PORT_MASK + IS2_HKL_IGR_PORT_MASK)
+#define IS2_HKL_SERVICE_FRM   1
+#define IS2_HKO_HOST_MATCH    (IS2_HKO_SERVICE_FRM + IS2_HKL_SERVICE_FRM)
+#define IS2_HKL_HOST_MATCH    1
+#define IS2_HKO_L2_MC         (IS2_HKO_HOST_MATCH + IS2_HKL_HOST_MATCH)
+#define IS2_HKL_L2_MC         1
+#define IS2_HKO_L2_BC         (IS2_HKO_L2_MC + IS2_HKL_L2_MC)
+#define IS2_HKL_L2_BC         1
+#define IS2_HKO_VLAN_TAGGED   (IS2_HKO_L2_BC + IS2_HKL_L2_BC)
+#define IS2_HKL_VLAN_TAGGED   1
+#define IS2_HKO_VID           (IS2_HKO_VLAN_TAGGED + IS2_HKL_VLAN_TAGGED)
+#define IS2_HKL_VID           12
+#define IS2_HKO_DEI           (IS2_HKO_VID + IS2_HKL_VID)
+#define IS2_HKL_DEI           1
+#define IS2_HKO_PCP           (IS2_HKO_DEI + IS2_HKL_DEI)
+#define IS2_HKL_PCP           3
+
+/* IS2 half key - MAC_ETYPE/MAC_LLC/MAC_SNAP/OAM common */
+#define IS2_HKO_L2_DMAC (IS2_HKO_PCP + IS2_HKL_PCP)
+#define IS2_HKL_L2_DMAC 48
+#define IS2_HKO_L2_SMAC (IS2_HKO_L2_DMAC + IS2_HKL_L2_DMAC)
+#define IS2_HKL_L2_SMAC 48
+
+/* IS2 half key - MAC_ETYPE */
+#define IS2_HKO_MAC_ETYPE_ETYPE      (IS2_HKO_L2_SMAC + IS2_HKL_L2_SMAC)
+#define IS2_HKL_MAC_ETYPE_ETYPE      16
+#define IS2_HKO_MAC_ETYPE_L2_PAYLOAD (IS2_HKO_MAC_ETYPE_ETYPE + IS2_HKL_MAC_ETYPE_ETYPE)
+#define IS2_HKL_MAC_ETYPE_L2_PAYLOAD 27
+
+/* IS2 half key - MAC_LLC */
+#define IS2_HKO_MAC_LLC_L2_LLC IS2_HKO_MAC_ETYPE_ETYPE
+#define IS2_HKL_MAC_LLC_L2_LLC 40
+
+/* IS2 half key - MAC_SNAP */
+#define IS2_HKO_MAC_SNAP_L2_SNAP IS2_HKO_MAC_ETYPE_ETYPE
+#define IS2_HKL_MAC_SNAP_L2_SNAP 40
+
+/* IS2 half key - ARP */
+#define IS2_HKO_MAC_ARP_L2_SMAC            IS2_HKO_L2_DMAC
+#define IS2_HKL_MAC_ARP_L2_SMAC            48
+#define IS2_HKO_MAC_ARP_ARP_ADDR_SPACE_OK  (IS2_HKO_MAC_ARP_L2_SMAC + IS2_HKL_MAC_ARP_L2_SMAC)
+#define IS2_HKL_MAC_ARP_ARP_ADDR_SPACE_OK  1
+#define IS2_HKO_MAC_ARP_ARP_PROTO_SPACE_OK (IS2_HKO_MAC_ARP_ARP_ADDR_SPACE_OK + IS2_HKL_MAC_ARP_ARP_ADDR_SPACE_OK)
+#define IS2_HKL_MAC_ARP_ARP_PROTO_SPACE_OK 1
+#define IS2_HKO_MAC_ARP_ARP_LEN_OK         (IS2_HKO_MAC_ARP_ARP_PROTO_SPACE_OK + IS2_HKL_MAC_ARP_ARP_PROTO_SPACE_OK)
+#define IS2_HKL_MAC_ARP_ARP_LEN_OK         1
+#define IS2_HKO_MAC_ARP_ARP_TGT_MATCH      (IS2_HKO_MAC_ARP_ARP_LEN_OK + IS2_HKL_MAC_ARP_ARP_LEN_OK)
+#define IS2_HKL_MAC_ARP_ARP_TGT_MATCH      1
+#define IS2_HKO_MAC_ARP_ARP_SENDER_MATCH   (IS2_HKO_MAC_ARP_ARP_TGT_MATCH + IS2_HKL_MAC_ARP_ARP_TGT_MATCH)
+#define IS2_HKL_MAC_ARP_ARP_SENDER_MATCH   1
+#define IS2_HKO_MAC_ARP_ARP_OPCODE_UNKNOWN (IS2_HKO_MAC_ARP_ARP_SENDER_MATCH + IS2_HKL_MAC_ARP_ARP_SENDER_MATCH)
+#define IS2_HKL_MAC_ARP_ARP_OPCODE_UNKNOWN 1
+#define IS2_HKO_MAC_ARP_ARP_OPCODE         (IS2_HKO_MAC_ARP_ARP_OPCODE_UNKNOWN + IS2_HKL_MAC_ARP_ARP_OPCODE_UNKNOWN)
+#define IS2_HKL_MAC_ARP_ARP_OPCODE         2
+#define IS2_HKO_MAC_ARP_L3_IP4_DIP         (IS2_HKO_MAC_ARP_ARP_OPCODE + IS2_HKL_MAC_ARP_ARP_OPCODE)
+#define IS2_HKL_MAC_ARP_L3_IP4_DIP         32
+#define IS2_HKO_MAC_ARP_L3_IP4_SIP         (IS2_HKO_MAC_ARP_L3_IP4_DIP + IS2_HKL_MAC_ARP_L3_IP4_DIP)
+#define IS2_HKL_MAC_ARP_L3_IP4_SIP         32
+#define IS2_HKO_MAC_ARP_DIP_EQ_SIP         (IS2_HKO_MAC_ARP_L3_IP4_SIP + IS2_HKL_MAC_ARP_L3_IP4_SIP)
+#define IS2_HKL_MAC_ARP_DIP_EQ_SIP         1
+
+/* IS2 half key - IP4_TCP_UDP/IP4_OTHER common */
+#define IS2_HKO_IP4             IS2_HKO_L2_DMAC
+#define IS2_HKL_IP4             1
+#define IS2_HKO_L3_FRAGMENT     (IS2_HKO_IP4 + IS2_HKL_IP4)
+#define IS2_HKL_L3_FRAGMENT     1
+#define IS2_HKO_L3_FRAG_OFS_GT0 (IS2_HKO_L3_FRAGMENT + IS2_HKL_L3_FRAGMENT)
+#define IS2_HKL_L3_FRAG_OFS_GT0 1
+#define IS2_HKO_L3_OPTIONS      (IS2_HKO_L3_FRAG_OFS_GT0 + IS2_HKL_L3_FRAG_OFS_GT0)
+#define IS2_HKL_L3_OPTIONS      1
+#define IS2_HKO_L3_TTL_GT0      (IS2_HKO_L3_OPTIONS + IS2_HKL_L3_OPTIONS)
+#define IS2_HKL_L3_TTL_GT0      1
+#define IS2_HKO_L3_TOS          (IS2_HKO_L3_TTL_GT0 + IS2_HKL_L3_TTL_GT0)
+#define IS2_HKL_L3_TOS          8
+#define IS2_HKO_L3_IP4_DIP      (IS2_HKO_L3_TOS + IS2_HKL_L3_TOS)
+#define IS2_HKL_L3_IP4_DIP      32
+#define IS2_HKO_L3_IP4_SIP      (IS2_HKO_L3_IP4_DIP + IS2_HKL_L3_IP4_DIP)
+#define IS2_HKL_L3_IP4_SIP      32
+#define IS2_HKO_DIP_EQ_SIP      (IS2_HKO_L3_IP4_SIP + IS2_HKL_L3_IP4_SIP)
+#define IS2_HKL_DIP_EQ_SIP      1
+
+/* IS2 half key - IP4_TCP_UDP */
+#define IS2_HKO_IP4_TCP_UDP_TCP             (IS2_HKO_DIP_EQ_SIP + IS2_HKL_DIP_EQ_SIP)
+#define IS2_HKL_IP4_TCP_UDP_TCP             1
+#define IS2_HKO_IP4_TCP_UDP_L4_DPORT        (IS2_HKO_IP4_TCP_UDP_TCP + IS2_HKL_IP4_TCP_UDP_TCP)
+#define IS2_HKL_IP4_TCP_UDP_L4_DPORT        16
+#define IS2_HKO_IP4_TCP_UDP_L4_SPORT        (IS2_HKO_IP4_TCP_UDP_L4_DPORT + IS2_HKL_IP4_TCP_UDP_L4_DPORT)
+#define IS2_HKL_IP4_TCP_UDP_L4_SPORT        16
+#define IS2_HKO_IP4_TCP_UDP_L4_RNG          (IS2_HKO_IP4_TCP_UDP_L4_SPORT + IS2_HKL_IP4_TCP_UDP_L4_SPORT)
+#define IS2_HKL_IP4_TCP_UDP_L4_RNG          8
+#define IS2_HKO_IP4_TCP_UDP_SPORT_EQ_DPORT  (IS2_HKO_IP4_TCP_UDP_L4_RNG + IS2_HKL_IP4_TCP_UDP_L4_RNG)
+#define IS2_HKL_IP4_TCP_UDP_SPORT_EQ_DPORT  1
+#define IS2_HKO_IP4_TCP_UDP_SEQUENCE_EQ0    (IS2_HKO_IP4_TCP_UDP_SPORT_EQ_DPORT + IS2_HKL_IP4_TCP_UDP_SPORT_EQ_DPORT)
+#define IS2_HKL_IP4_TCP_UDP_SEQUENCE_EQ0    1
+#define IS2_HKO_IP4_TCP_UDP_L4_FIN          (IS2_HKO_IP4_TCP_UDP_SEQUENCE_EQ0 + IS2_HKL_IP4_TCP_UDP_SEQUENCE_EQ0)
+#define IS2_HKL_IP4_TCP_UDP_L4_FIN          1
+#define IS2_HKO_IP4_TCP_UDP_L4_SYN          (IS2_HKO_IP4_TCP_UDP_L4_FIN + IS2_HKL_IP4_TCP_UDP_L4_FIN)
+#define IS2_HKL_IP4_TCP_UDP_L4_SYN          1
+#define IS2_HKO_IP4_TCP_UDP_L4_RST          (IS2_HKO_IP4_TCP_UDP_L4_SYN + IS2_HKL_IP4_TCP_UDP_L4_SYN)
+#define IS2_HKL_IP4_TCP_UDP_L4_RST          1
+#define IS2_HKO_IP4_TCP_UDP_L4_PSH          (IS2_HKO_IP4_TCP_UDP_L4_RST + IS2_HKL_IP4_TCP_UDP_L4_RST)
+#define IS2_HKL_IP4_TCP_UDP_L4_PSH          1
+#define IS2_HKO_IP4_TCP_UDP_L4_ACK          (IS2_HKO_IP4_TCP_UDP_L4_PSH + IS2_HKL_IP4_TCP_UDP_L4_PSH)
+#define IS2_HKL_IP4_TCP_UDP_L4_ACK          1
+#define IS2_HKO_IP4_TCP_UDP_L4_URG          (IS2_HKO_IP4_TCP_UDP_L4_ACK + IS2_HKL_IP4_TCP_UDP_L4_ACK)
+#define IS2_HKL_IP4_TCP_UDP_L4_URG          1
+#define IS2_HKO_IP4_TCP_UDP_L4_1588_DOM     (IS2_HKO_IP4_TCP_UDP_L4_URG + IS2_HKL_IP4_TCP_UDP_L4_URG)
+#define IS2_HKL_IP4_TCP_UDP_L4_1588_DOM     8
+#define IS2_HKO_IP4_TCP_UDP_L4_1588_VER     (IS2_HKO_IP4_TCP_UDP_L4_1588_DOM + IS2_HKL_IP4_TCP_UDP_L4_1588_DOM)
+#define IS2_HKL_IP4_TCP_UDP_L4_1588_VER     4
+
+/* IS2 half key - IP4_OTHER */
+#define IS2_HKO_IP4_OTHER_L3_PROTO   IS2_HKO_IP4_TCP_UDP_TCP
+#define IS2_HKL_IP4_OTHER_L3_PROTO   8
+#define IS2_HKO_IP4_OTHER_L3_PAYLOAD (IS2_HKO_IP4_OTHER_L3_PROTO + IS2_HKL_IP4_OTHER_L3_PROTO)
+#define IS2_HKL_IP4_OTHER_L3_PAYLOAD 56
+
+/* IS2 half key - IP6_STD */
+#define IS2_HKO_IP6_STD_L3_TTL_GT0 IS2_HKO_L2_DMAC
+#define IS2_HKL_IP6_STD_L3_TTL_GT0 1
+#define IS2_HKO_IP6_STD_L3_IP6_SIP (IS2_HKO_IP6_STD_L3_TTL_GT0 + IS2_HKL_IP6_STD_L3_TTL_GT0)
+#define IS2_HKL_IP6_STD_L3_IP6_SIP 128
+#define IS2_HKO_IP6_STD_L3_PROTO   (IS2_HKO_IP6_STD_L3_IP6_SIP + IS2_HKL_IP6_STD_L3_IP6_SIP)
+#define IS2_HKL_IP6_STD_L3_PROTO   8
+
+/* IS2 half key - OAM */
+#define IS2_HKO_OAM_OAM_MEL_FLAGS    IS2_HKO_MAC_ETYPE_ETYPE
+#define IS2_HKL_OAM_OAM_MEL_FLAGS    7
+#define IS2_HKO_OAM_OAM_VER          (IS2_HKO_OAM_OAM_MEL_FLAGS + IS2_HKL_OAM_OAM_MEL_FLAGS)
+#define IS2_HKL_OAM_OAM_VER          5
+#define IS2_HKO_OAM_OAM_OPCODE       (IS2_HKO_OAM_OAM_VER + IS2_HKL_OAM_OAM_VER)
+#define IS2_HKL_OAM_OAM_OPCODE       8
+#define IS2_HKO_OAM_OAM_FLAGS        (IS2_HKO_OAM_OAM_OPCODE + IS2_HKL_OAM_OAM_OPCODE)
+#define IS2_HKL_OAM_OAM_FLAGS        8
+#define IS2_HKO_OAM_OAM_MEPID        (IS2_HKO_OAM_OAM_FLAGS + IS2_HKL_OAM_OAM_FLAGS)
+#define IS2_HKL_OAM_OAM_MEPID        16
+#define IS2_HKO_OAM_OAM_CCM_CNTS_EQ0 (IS2_HKO_OAM_OAM_MEPID + IS2_HKL_OAM_OAM_MEPID)
+#define IS2_HKL_OAM_OAM_CCM_CNTS_EQ0 1
+
+/* IS2 half key - SMAC_SIP6 */
+#define IS2_HKO_SMAC_SIP6_IGR_PORT   IS2_HKL_TYPE
+#define IS2_HKL_SMAC_SIP6_IGR_PORT   VCAP_PORT_WIDTH
+#define IS2_HKO_SMAC_SIP6_L2_SMAC    (IS2_HKO_SMAC_SIP6_IGR_PORT + IS2_HKL_SMAC_SIP6_IGR_PORT)
+#define IS2_HKL_SMAC_SIP6_L2_SMAC    48
+#define IS2_HKO_SMAC_SIP6_L3_IP6_SIP (IS2_HKO_SMAC_SIP6_L2_SMAC + IS2_HKL_SMAC_SIP6_L2_SMAC)
+#define IS2_HKL_SMAC_SIP6_L3_IP6_SIP 128
+
+/* IS2 full key - common */
+#define IS2_FKO_TYPE          0
+#define IS2_FKL_TYPE          2
+#define IS2_FKO_FIRST         (IS2_FKO_TYPE + IS2_FKL_TYPE)
+#define IS2_FKL_FIRST         1
+#define IS2_FKO_PAG           (IS2_FKO_FIRST + IS2_FKL_FIRST)
+#define IS2_FKL_PAG           8
+#define IS2_FKO_IGR_PORT_MASK (IS2_FKO_PAG + IS2_FKL_PAG)
+#define IS2_FKL_IGR_PORT_MASK (VTSS_CHIP_PORTS + 1)
+#define IS2_FKO_SERVICE_FRM   (IS2_FKO_IGR_PORT_MASK + IS2_FKL_IGR_PORT_MASK)
+#define IS2_FKL_SERVICE_FRM   1
+#define IS2_FKO_HOST_MATCH    (IS2_FKO_SERVICE_FRM + IS2_FKL_SERVICE_FRM)
+#define IS2_FKL_HOST_MATCH    1
+#define IS2_FKO_L2_MC         (IS2_FKO_HOST_MATCH + IS2_FKL_HOST_MATCH)
+#define IS2_FKL_L2_MC         1
+#define IS2_FKO_L2_BC         (IS2_FKO_L2_MC + IS2_FKL_L2_MC)
+#define IS2_FKL_L2_BC         1
+#define IS2_FKO_VLAN_TAGGED   (IS2_FKO_L2_BC + IS2_FKL_L2_BC)
+#define IS2_FKL_VLAN_TAGGED   1
+#define IS2_FKO_VID           (IS2_FKO_VLAN_TAGGED + IS2_FKL_VLAN_TAGGED)
+#define IS2_FKL_VID           12
+#define IS2_FKO_DEI           (IS2_FKO_VID + IS2_FKL_VID)
+#define IS2_FKL_DEI           1
+#define IS2_FKO_PCP           (IS2_FKO_DEI + IS2_FKL_DEI)
+#define IS2_FKL_PCP           3
+
+/* IS2 full key - IP6_TCP_UDP/IP6_OTHER common */
+#define IS2_FKO_L3_TTL_GT0 (IS2_FKO_PCP + IS2_FKL_PCP)
+#define IS2_FKL_L3_TTL_GT0 1
+#define IS2_FKO_L3_TOS     (IS2_FKO_L3_TTL_GT0 + IS2_FKL_L3_TTL_GT0)
+#define IS2_FKL_L3_TOS     8
+#define IS2_FKO_L3_IP6_DIP (IS2_FKO_L3_TOS + IS2_FKL_L3_TOS)
+#define IS2_FKL_L3_IP6_DIP 128
+#define IS2_FKO_L3_IP6_SIP (IS2_FKO_L3_IP6_DIP + IS2_FKL_L3_IP6_DIP)
+#define IS2_FKL_L3_IP6_SIP 128
+#define IS2_FKO_DIP_EQ_SIP (IS2_FKO_L3_IP6_SIP + IS2_FKL_L3_IP6_SIP)
+#define IS2_FKL_DIP_EQ_SIP 1
+
+/* IS2 full key - IP6_TCP_UDP */
+#define IS2_FKO_IP6_TCP_UDP_TCP            (IS2_FKO_DIP_EQ_SIP + IS2_FKL_DIP_EQ_SIP)
+#define IS2_FKL_IP6_TCP_UDP_TCP            1
+#define IS2_FKO_IP6_TCP_UDP_L4_DPORT       (IS2_FKO_IP6_TCP_UDP_TCP + IS2_FKL_IP6_TCP_UDP_TCP)
+#define IS2_FKL_IP6_TCP_UDP_L4_DPORT       16
+#define IS2_FKO_IP6_TCP_UDP_L4_SPORT       (IS2_FKO_IP6_TCP_UDP_L4_DPORT + IS2_FKL_IP6_TCP_UDP_L4_DPORT)
+#define IS2_FKL_IP6_TCP_UDP_L4_SPORT       16
+#define IS2_FKO_IP6_TCP_UDP_L4_RNG         (IS2_FKO_IP6_TCP_UDP_L4_SPORT + IS2_FKL_IP6_TCP_UDP_L4_SPORT)
+#define IS2_FKL_IP6_TCP_UDP_L4_RNG         8
+#define IS2_FKO_IP6_TCP_UDP_SPORT_EQ_DPORT (IS2_FKO_IP6_TCP_UDP_L4_RNG + IS2_FKL_IP6_TCP_UDP_L4_RNG)
+#define IS2_FKL_IP6_TCP_UDP_SPORT_EQ_DPORT 1
+#define IS2_FKO_IP6_TCP_UDP_SEQUENCE_EQ0   (IS2_FKO_IP6_TCP_UDP_SPORT_EQ_DPORT + IS2_FKL_IP6_TCP_UDP_SPORT_EQ_DPORT)
+#define IS2_FKL_IP6_TCP_UDP_SEQUENCE_EQ0   1
+#define IS2_FKO_IP6_TCP_UDP_L4_FIN         (IS2_FKO_IP6_TCP_UDP_SEQUENCE_EQ0 + IS2_FKL_IP6_TCP_UDP_SEQUENCE_EQ0)
+#define IS2_FKL_IP6_TCP_UDP_L4_FIN         1
+#define IS2_FKO_IP6_TCP_UDP_L4_SYN         (IS2_FKO_IP6_TCP_UDP_L4_FIN + IS2_FKL_IP6_TCP_UDP_L4_FIN)
+#define IS2_FKL_IP6_TCP_UDP_L4_SYN         1
+#define IS2_FKO_IP6_TCP_UDP_L4_RST         (IS2_FKO_IP6_TCP_UDP_L4_SYN + IS2_FKL_IP6_TCP_UDP_L4_SYN)
+#define IS2_FKL_IP6_TCP_UDP_L4_RST         1
+#define IS2_FKO_IP6_TCP_UDP_L4_PSH         (IS2_FKO_IP6_TCP_UDP_L4_RST + IS2_FKL_IP6_TCP_UDP_L4_RST)
+#define IS2_FKL_IP6_TCP_UDP_L4_PSH         1
+#define IS2_FKO_IP6_TCP_UDP_L4_ACK         (IS2_FKO_IP6_TCP_UDP_L4_PSH + IS2_FKL_IP6_TCP_UDP_L4_PSH)
+#define IS2_FKL_IP6_TCP_UDP_L4_ACK         1
+#define IS2_FKO_IP6_TCP_UDP_L4_URG         (IS2_FKO_IP6_TCP_UDP_L4_ACK + IS2_FKL_IP6_TCP_UDP_L4_ACK)
+#define IS2_FKL_IP6_TCP_UDP_L4_URG         1
+#define IS2_FKO_IP6_TCP_UDP_L4_1588_DOM    (IS2_FKO_IP6_TCP_UDP_L4_URG + IS2_FKL_IP6_TCP_UDP_L4_URG)
+#define IS2_FKL_IP6_TCP_UDP_L4_1588_DOM    8
+#define IS2_FKO_IP6_TCP_UDP_L4_1588_VER    (IS2_FKO_IP6_TCP_UDP_L4_1588_DOM + IS2_FKL_IP6_TCP_UDP_L4_1588_DOM)
+#define IS2_FKL_IP6_TCP_UDP_L4_1588_VER    4
+
+/* IS2 full key - IP6_OTHER */
+#define IS2_FKO_IP6_OTHER_L3_PROTO   IS2_FKO_IP6_TCP_UDP_TCP
+#define IS2_FKL_IP6_OTHER_L3_PROTO   8
+#define IS2_FKO_IP6_OTHER_L3_PAYLOAD (IS2_FKO_IP6_OTHER_L3_PROTO + IS2_FKL_IP6_OTHER_L3_PROTO)
+#define IS2_FKL_IP6_OTHER_L3_PAYLOAD 56
+
+/* IS2 full key - CUSTOM */
+#define IS2_FKO_CUSTOM_CUSTOM_TYPE IS2_FKO_L3_TTL_GT0
+#define IS2_FKL_CUSTOM_CUSTOM_TYPE 1
+#define IS2_FKO_CUSTOM_CUSTOM      (IS2_FKO_CUSTOM_CUSTOM_TYPE + IS2_FKL_CUSTOM_CUSTOM_TYPE)
+#define IS2_FKL_CUSTOM_CUSTOM      320
+
+/* IS2 action - BASE_TYPE */
+#define IS2_AO_HIT_ME_ONCE      0
+#define IS2_AL_HIT_ME_ONCE      1
+#define IS2_AO_CPU_COPY_ENA     (IS2_AO_HIT_ME_ONCE + IS2_AL_HIT_ME_ONCE)
+#define IS2_AL_CPU_COPY_ENA     1
+#define IS2_AO_CPU_QU_NUM       (IS2_AO_CPU_COPY_ENA + IS2_AL_CPU_COPY_ENA)
+#define IS2_AL_CPU_QU_NUM       3
+#define IS2_AO_MASK_MODE        (IS2_AO_CPU_QU_NUM + IS2_AL_CPU_QU_NUM)
+#define IS2_AL_MASK_MODE        2
+#define IS2_AO_MIRROR_ENA       (IS2_AO_MASK_MODE + IS2_AL_MASK_MODE)
+#define IS2_AL_MIRROR_ENA       1
+#define IS2_AO_LRN_DIS          (IS2_AO_MIRROR_ENA + IS2_AL_MIRROR_ENA)
+#define IS2_AL_LRN_DIS          1
+#define IS2_AO_POLICE_ENA       (IS2_AO_LRN_DIS + IS2_AL_LRN_DIS)
+#define IS2_AL_POLICE_ENA       1
+#define IS2_AO_POLICE_IDX       (IS2_AO_POLICE_ENA + IS2_AL_POLICE_ENA)
+#if defined(VTSS_ARCH_OCELOT)
+#define IS2_AL_POLICE_IDX       9
+#else
+#define IS2_AL_POLICE_IDX       11
+#endif
+#define IS2_AO_POLICE_VCAP_ONLY (IS2_AO_POLICE_IDX + IS2_AL_POLICE_IDX)
+#define IS2_AL_POLICE_VCAP_ONLY 1
+#define IS2_AO_PORT_MASK        (IS2_AO_POLICE_VCAP_ONLY + IS2_AL_POLICE_VCAP_ONLY)
+#define IS2_AL_PORT_MASK        VTSS_CHIP_PORTS
+#define IS2_AO_REW_OP           (IS2_AO_PORT_MASK + IS2_AL_PORT_MASK)
+#define IS2_AL_REW_OP           9
+#define IS2_AO_LM_CNT_DIS       (IS2_AO_REW_OP + IS2_AL_REW_OP)
+#define IS2_AL_LM_CNT_DIS       1
+#define IS2_AO_ISDX_ENA         (IS2_AO_LM_CNT_DIS + IS2_AL_LM_CNT_DIS + 1) /* Reserved bit */
+#define IS2_AL_ISDX_ENA         1
+#define IS2_AO_ACL_ID           (IS2_AO_ISDX_ENA + IS2_AL_ISDX_ENA)
+#define IS2_AL_ACL_ID           6
+
+/* IS2 action - SMAC_SIP */
+#define IS2_AO_SMAC_SIP_CPU_COPY_ENA 0
+#define IS2_AL_SMAC_SIP_CPU_COPY_ENA 1
+#define IS2_AO_SMAC_SIP_CPU_QU_NUM   1
+#define IS2_AL_SMAC_SIP_CPU_QU_NUM   3
+#define IS2_AO_SMAC_SIP_FWD_KILL_ENA 4   
+#define IS2_AL_SMAC_SIP_FWD_KILL_ENA 1
+#define IS2_AO_SMAC_SIP_HOST_MATCH   5
+#define IS2_AL_SMAC_SIP_HOST_MATCH   1
+
+/* ================================================================= *
+ *  VCAP ES0
+ * ================================================================= */
+
+/* ES0 PUSH_OUTER_TAG values */
+#define ES0_ACT_PUSH_OT_PORT_ENA 0
+#define ES0_ACT_PUSH_OT_ES0      1
+#define ES0_ACT_PUSH_OT_PORT     2
+#define ES0_ACT_PUSH_OT_NONE     3
+
+/* ES0 PCP_SEL values */
+#define ES0_ACT_PCP_SEL_CL_PCP  0
+#define ES0_ACT_PCP_SEL_PCP_ES0 1
+#define ES0_ACT_PCP_SEL_MAPPED  2
+#define ES0_ACT_PCP_SEL_QOS     3
+
+/* ES0 DEI_SEL values */
+#define ES0_ACT_DEI_SEL_CL_DEI  0
+#define ES0_ACT_DEI_SEL_DEI_ES0 1
+#define ES0_ACT_DEI_SEL_MAPPED  2
+#define ES0_ACT_DEI_SEL_DP      3
+
+/* ES0 IPT_CFG values */
+#define ES0_ACT_IPT_CFG_NONE       0
+#define ES0_ACT_IPT_CFG_WORKING    1
+#define ES0_ACT_IPT_CFG_PROTECTION 2
+#define ES0_ACT_IPT_CFG_RESV       3
+
+/* ES0 full key */
+#define ES0_FKO_EGR_PORT    0
+#define ES0_FKL_EGR_PORT    VCAP_PORT_WIDTH
+#define ES0_FKO_IGR_PORT    (ES0_FKO_EGR_PORT + ES0_FKL_EGR_PORT)
+#define ES0_FKL_IGR_PORT    VCAP_PORT_WIDTH
+#define ES0_FKO_SERVICE_FRM (ES0_FKO_IGR_PORT + ES0_FKL_IGR_PORT)
+#define ES0_FKL_SERVICE_FRM 1
+#define ES0_FKO_KEY_ISDX    (ES0_FKO_SERVICE_FRM + ES0_FKL_SERVICE_FRM)
+#define ES0_FKL_KEY_ISDX    1
+#define ES0_FKO_L2_MC       (ES0_FKO_KEY_ISDX + ES0_FKL_KEY_ISDX)
+#define ES0_FKL_L2_MC       1
+#define ES0_FKO_L2_BC       (ES0_FKO_L2_MC + ES0_FKL_L2_MC)
+#define ES0_FKL_L2_BC       1
+#define ES0_FKO_VID         (ES0_FKO_L2_BC + ES0_FKL_L2_BC)
+#define ES0_FKL_VID         12
+#define ES0_FKO_DEI         (ES0_FKO_VID + ES0_FKL_VID)
+#define ES0_FKL_DEI         1
+#define ES0_FKO_PCP         (ES0_FKO_DEI + ES0_FKL_DEI)
+#define ES0_FKL_PCP         3
+
+/* ES0 action */
+#define ES0_AO_PUSH_OUTER_TAG  0
+#define ES0_AL_PUSH_OUTER_TAG  2
+#define ES0_AO_PUSH_INNER_TAG  2
+#define ES0_AL_PUSH_INNER_TAG  1
+#define ES0_AO_TAG_A_TPID_SEL  3
+#define ES0_AL_TAG_A_TPID_SEL  2
+#define ES0_AO_TAG_A_VID_SEL   5
+#define ES0_AL_TAG_A_VID_SEL   1
+#define ES0_AO_TAG_A_PCP_SEL   6
+#define ES0_AL_TAG_A_PCP_SEL   2
+#define ES0_AO_TAG_A_DEI_SEL   8
+#define ES0_AL_TAG_A_DEI_SEL   2
+#define ES0_AO_TAG_B_TPID_SEL  10
+#define ES0_AL_TAG_B_TPID_SEL  2
+#define ES0_AO_TAG_B_VID_SEL   12
+#define ES0_AL_TAG_B_VID_SEL   1
+#define ES0_AO_TAG_B_PCP_SEL   13
+#define ES0_AL_TAG_B_PCP_SEL   2
+#define ES0_AO_TAG_B_DEI_SEL   15
+#define ES0_AL_TAG_B_DEI_SEL   2
+#define ES0_AO_VID_A_VAL       17
+#define ES0_AL_VID_A_VAL       12
+#define ES0_AO_PCP_A_VAL       29
+#define ES0_AL_PCP_A_VAL       3
+#define ES0_AO_DEI_A_VAL       32
+#define ES0_AL_DEI_A_VAL       1
+#define ES0_AO_VID_B_VAL       33
+#define ES0_AL_VID_B_VAL       12
+#define ES0_AO_PCP_B_VAL       45
+#define ES0_AL_PCP_B_VAL       3
+#define ES0_AO_DEI_B_VAL       48
+#define ES0_AL_DEI_B_VAL       1
+#if defined(VTSS_ARCH_OCELOT)
+#define ES0_AO_ESDX            49
+#define ES0_AL_ESDX            8
+#define ES0_AO_OAM_MEP_IDX_VLD 57
+#define ES0_AL_OAM_MEP_IDX_VLD 1
+#define ES0_AO_OAM_MEP_IDX     58
+#define ES0_AL_OAM_MEP_IDX     5
+#define ES0_AO_IPT_CFG         63
+#define ES0_AL_IPT_CFG         2
+#define ES0_AO_PPT_IDX         65
+#define ES0_AL_PPT_IDX         7
+#else
+#define ES0_AO_ENCAP_ID        49
+#define ES0_AL_ENCAP_ID        10
+#define ES0_AO_ENCAP_LEN       59
+#define ES0_AL_ENCAP_LEN       3
+#define ES0_AO_MPOP_CNT        62
+#define ES0_AL_MPOP_CNT        3
+#define ES0_AO_ESDX            65
+#define ES0_AL_ESDX            10
+#define ES0_AO_OAM_MEP_IDX_VLD 75
+#define ES0_AL_OAM_MEP_IDX_VLD 1
+#define ES0_AO_OAM_MEP_IDX     76
+#define ES0_AL_OAM_MEP_IDX     6
+#define ES0_AO_IPT_CFG         82
+#define ES0_AL_IPT_CFG         2
+#define ES0_AO_PPT_IDX         84
+#define ES0_AL_PPT_IDX         7
+#endif
+
+#endif /* _SERVAL_REG_H */
+

@@ -1,0 +1,11 @@
+build
+bin
+release_ws
+*~
+images
+.version
+.vscode
+TAGS
+ID
+logcmd.rb.lock
+

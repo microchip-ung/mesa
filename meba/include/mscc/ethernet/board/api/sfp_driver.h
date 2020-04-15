@@ -1,0 +1,326 @@
+/*
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+*/
+
+#ifndef _MSCC_ETHERNET_BOARD_SFP_DRIVER_H_
+#define _MSCC_ETHERNET_BOARD_SFP_DRIVER_H_
+
+#include <mscc/ethernet/board/api/base.h>
+#include <mscc/ethernet/switch/api.h>
+
+/**
+ * \file
+ * \brief SFP_DRIVER
+ *
+ * \details This API defines the interface used by the switch application
+ * to interact wit the SFP. Using this interface the switch application
+ * should not know which SFP it is using.
+ *
+ * Each SFP driver needs to implement the following methods for a
+ * minimum configuration:
+ *  meba_sfp_driver_delete_t
+ *  meba_sfp_driver_probe_t
+ *  meba_sfp_driver_poll_t
+ *  meba_sfp_driver_conf_set_t
+ **/
+
+/** \brief Contains methods that are specific to each sfp module. */
+struct meba_sfp_driver;
+
+/** \brief Represents an instance of the meba_sfp_driver. */
+struct meba_sfp_device;
+
+/** \brief  Address mode that is specific for all sfp modules.
+ * Contains the values that are specific to an address mode. */
+typedef struct {
+    mesa_inst_t inst;       /**< Mesa instance */
+    mesa_port_no_t port_no; /**< Port number */
+    meba_inst_t meba_inst;  /**< Meba instance */
+} mscc_sfp_driver_address_t;
+
+/** \brief  Enumeration of all possible address modes */
+typedef enum {
+    mscc_sfp_driver_address_mode, /**< Mscc address mode */
+} meba_sfp_driver_address_mode_t;
+
+/** \brief  Union that contains all the values for address modes.
+ * Enumeration meba_sfp_driver_address_mode_t decides which
+ * address type to be used. */
+typedef union {
+    mscc_sfp_driver_address_t mscc_address; /**< Mscc address value. */
+} meba_sfp_driver_address_val_t;
+
+/** \brief  Main structure that contains the address mode and the addres value.
+ */
+typedef struct meba_sfp_driver_address {
+    meba_sfp_driver_address_mode_t mode; /**< Mode to access sfp */
+    meba_sfp_driver_address_val_t val;   /**< Address values */
+} meba_sfp_driver_address_t;
+
+/** \brief  Represents the status of the SFP, that is read from SFP module. */
+typedef struct sfp_driver_status {
+    mesa_bool_t link;        /**< Link is up */
+    mesa_port_speed_t speed; /**< Speed */
+    mesa_bool_t fdx;         /**< Full duplex */
+    mesa_bool_t los;         /**< Loss of signal */
+} meba_sfp_driver_status_t;
+
+/** \brief Represents the configuration that is applied to SFP module. */
+typedef struct sfp_driver_conf {
+    mesa_port_speed_t speed;       /**< Speed */
+    meba_port_admin_state_t admin; /**< Admin state */
+    mesa_bool_t flow_control;      /**< Flow control (Standard 802.3x) */
+} meba_sfp_driver_conf_t;
+
+/** \brief Information about the SFP module */
+typedef struct sfp_device_info {
+    char vendor_name[20]; /**< Vendor name */
+    char vendor_pn[20];   /**< Product name */
+    char vendor_rev[6];   /**< Revision number */
+    char vendor_sn[20];   /**< Serial number */
+} meba_sfp_device_info_t;
+
+/** \brief SFP transreceivers types. */
+typedef enum {
+    MEBA_SFP_TRANSRECEIVER_NONE,          /**< No SFP */
+    MEBA_SFP_TRANSRECEIVER_NOT_SUPPORTED, /**< SFP not supported for this
+                                             interface */
+    MEBA_SFP_TRANSRECEIVER_100FX,         /**< 100M Fiber SFP  */
+    MEBA_SFP_TRANSRECEIVER_100BASE_LX,    /**< 100M CU SFP */
+    MEBA_SFP_TRANSRECEIVER_100BASE_ZX,    /**< 100M CU SFP */
+    MEBA_SFP_TRANSRECEIVER_100BASE_SX,    /**< 100M CU SFP */
+    MEBA_SFP_TRANSRECEIVER_100BASE_BX10,  /**< Not supported */
+    MEBA_SFP_TRANSRECEIVER_100BASE_T,     /**< Not supported */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_BX10, /**< Not supported */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_T,    /**< CU SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_CX,   /**< 1G Fiber CX SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_SX,   /**< 1G Fiber SX SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_LX,   /**< 1G Fiber LX SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_ZX,   /**< 1G Fiber ZX SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_LR,   /**< 1G Fiber LR SFP  */
+    MEBA_SFP_TRANSRECEIVER_1000BASE_X,    /**< 1G Fiber X SFP  */
+    MEBA_SFP_TRANSRECEIVER_2G5,           /**< 2.5G Fiber SFP  */
+    MEBA_SFP_TRANSRECEIVER_5G,            /**< 5G Fiber SFP  */
+    MEBA_SFP_TRANSRECEIVER_10G,           /**< 10G Fiber SFP+  */
+    MEBA_SFP_TRANSRECEIVER_10G_SR,  /**< 10G Fiber SFP+ short range (400m) */
+    MEBA_SFP_TRANSRECEIVER_10G_LR,  /**< 10G Fiber SFP+ long range (10km) */
+    MEBA_SFP_TRANSRECEIVER_10G_LRM, /**< 10G Fiber SFP+ long range multimode (220m) */
+    MEBA_SFP_TRANSRECEIVER_10G_ER,  /**< 10G Fiber SFP+ extended range (40km) */
+    MEBA_SFP_TRANSRECEIVER_10G_DAC, /**< 10G DAC SFP+ Cu  */
+    MEBA_SFP_TRANSRECEIVER_25G,     /**< 25G Fiber SFP+  */
+    MEBA_SFP_TRANSRECEIVER_25G_SR,  /**< 25G Fiber SFP+ short range (400m) */
+    MEBA_SFP_TRANSRECEIVER_25G_LR,  /**< 25G Fiber SFP+ long range (10km) */
+    MEBA_SFP_TRANSRECEIVER_25G_LRM, /**< 25G Fiber SFP+ long range multimode (220m) */
+    MEBA_SFP_TRANSRECEIVER_25G_ER,  /**< 25G Fiber SFP+ extended range (40km) */
+    MEBA_SFP_TRANSRECEIVER_25G_DAC, /**< 25G DAC SFP+ Cu  */
+} meba_sfp_transreceiver_t;
+
+/**
+ * \brief Clears up the data allocated in the probe function.
+ *
+ * \param dev           [IN] Device.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_delete_t)(struct meba_sfp_device *dev);
+
+/**
+ * \brief Resets SFP.
+ *
+ * \param dev           [IN] Device.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_reset_t)(struct meba_sfp_device *dev);
+
+/**
+ * \brief Get the current status of the SFP.
+ *
+ * \param dev           [IN] Device.
+ * \param status        [OUT] SFP status.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_poll_t)(struct meba_sfp_device *dev,
+                                          meba_sfp_driver_status_t *status);
+
+/**
+ * \brief Set the configuration to the SFP.
+ *
+ * \param dev           [IN] Device.
+ * \param conf          [IN] Apply this configuration.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_conf_set_t)(
+    struct meba_sfp_device *dev, const meba_sfp_driver_conf_t *conf);
+
+/**
+ * \brief Get the SFP interface based on speed.
+ *
+ * \param dev           [IN] Device.
+ * \param speed         [IN] Speed.
+ * \param intf          [OUT] Interface that is needed to be used by the port.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_if_get_t)(struct meba_sfp_device *dev,
+                                            mesa_port_speed_t speed,
+                                            mesa_port_interface_t *intf);
+
+/** \brief Get the media type used by SFP that support 10G speed.
+ *
+ * \param dev           [IN] Device.
+ * \param mt            [OUT] Media type.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_mt_get_t)(struct meba_sfp_device *dev,
+                                            mesa_sd10g_media_type_t *mt);
+
+/** \brief Get the transreceiver.
+ *
+ * \param dev           [IN] Device.
+ * \param tr            [OUT] Transreceiver type.
+ *
+ * \return Return code.
+ **/
+typedef mesa_rc (*meba_sfp_driver_tr_get_t)(struct meba_sfp_device *dev,
+                                            meba_sfp_transreceiver_t *tr);
+
+/** \brief Create an instance of the driver, and initialize the SFP module.
+ *
+ * \param dev           [IN] Device.
+ * \param addr          [IN] Address mode.
+ * \param info          [IN] Information about the SFP module
+ *
+ * \return Return code.
+ **/
+typedef struct meba_sfp_device *(*meba_sfp_driver_probe_t)(
+    struct meba_sfp_driver *dev, const meba_sfp_driver_address_t *addr,
+    const meba_sfp_device_info_t *info);
+
+/**
+ * \brief Full list of the SFP driver interface
+ **/
+#define MEBA_LIST_OF_API_SFP_DRIVER_CALLS \
+    X(meba_sfp_driver_delete)             \
+    X(meba_sfp_driver_reset)              \
+    X(meba_sfp_driver_poll)               \
+    X(meba_sfp_driver_conf_set)           \
+    X(meba_sfp_driver_if_get)             \
+    X(meba_sfp_driver_mt_get)             \
+    X(meba_sfp_driver_tr_get)             \
+    X(meba_sfp_driver_probe)
+
+/**
+ * \brief Driver functions struct
+ **/
+typedef struct meba_sfp_driver {
+/**
+ * \brief Fill up the struct with function pointers
+ **/
+#define X(name) name##_t name;
+    MEBA_LIST_OF_API_SFP_DRIVER_CALLS
+#undef X
+
+    char *product_name;     /**< Each driver has different product name */
+    struct meba_sfp_driver *next; /**< Pointer to the next driver */
+} meba_sfp_driver_t;
+
+/**
+ * \brief Represents the instance of the driver
+ **/
+typedef struct meba_sfp_device {
+    meba_sfp_driver_t
+        *drv;   /**< Pointer to the driver that creates the device */
+    void *data; /**< Private data, that can be different for each device */
+    meba_sfp_status_t sfp;       /**< SFP status */
+    meba_sfp_device_info_t info; /**< SFP info */
+} meba_sfp_device_t;
+
+/**
+ * \brief Wrapper over an array and counter. It is used
+ * by init functions to return the array of drivers
+ **/
+typedef struct meba_sfp_drivers {
+    meba_sfp_driver_t *sfp_drv; /**< Pointer to an array of drivers */
+    unsigned int count;         /**< Number of entries in sfp_drv */
+} meba_sfp_drivers_t;
+
+/**
+ * \brief Returns drivers for cisco SFP
+ */
+meba_sfp_drivers_t meba_cisco_driver_init();
+
+/**
+ * \brief Returns drivers for axcen SFP
+ */
+meba_sfp_drivers_t meba_axcen_driver_init();
+
+/**
+ * \brief Returns drivers for finisar SFP
+ */
+meba_sfp_drivers_t meba_finisar_driver_init();
+
+/**
+ * \brief Returns drivers for hp SFP
+ */
+meba_sfp_drivers_t meba_hp_driver_init();
+
+/**
+ * \brief Returns drivers for d_link SFP
+ */
+meba_sfp_drivers_t meba_d_link_driver_init();
+
+/**
+ * \brief Returns drivers for oem SFP
+ */
+meba_sfp_drivers_t meba_oem_driver_init();
+
+/**
+ * \brief Returns drivers for wavesplitter SFP
+ */
+meba_sfp_drivers_t meba_wavesplitter_driver_init();
+
+/**
+ * \brief Returns drivers for avago SFP
+ */
+meba_sfp_drivers_t meba_avago_driver_init();
+
+/**
+ * \brief Returns drivers for excom SFP
+ */
+meba_sfp_drivers_t meba_excom_driver_init();
+
+/**
+ * \brief Returns drivers for MAC-to-MAC connection.
+ */
+meba_sfp_drivers_t meba_mac_to_mac_driver_init();
+
+/**
+ * \brief Let's the driver to detect which functions
+ * need to set based on the rom memory
+ */
+mesa_bool_t meba_fill_driver(meba_inst_t meba_inst, mesa_port_no_t port_no,
+                             meba_sfp_driver_t *driver, meba_sfp_device_info_t *info);
+
+#endif

@@ -1,0 +1,86 @@
+= Linux Flash Utility
+
+The `rawflash` application can be used to access SPI flash on development boards.
+
+The application takes the following parameters:
+
+----
+Usage: ./rawflash [-d|-q] [-l length] [-o offset] (erase|read <file>|write <file>|verify <file>|update <file>)
+
+Options: (all are optional)
+
+-d  Enable debug (more options increase level)
+-q  Quiet mode
+-l  Explicitly set (limit) flash length
+-o  Explicitly set offset (default 0)
+
+Commands:
+
+erase  - Erase flash
+read   - Read flash data to <file>
+write  - Write flash with data from <file>
+verify - Verify flash with data from <file>
+update - Update backup image with data from <file> and make it primary image (8051 only)
+
+----
+
+The application use the UIO to access the hardware registers.
+
+The UIO driver must be loaded before application can be used, and the
+`/dev/uioX` device must be accessible by the current user.
+
+Device type is automatically detected. The supported targets are:
+
+* Serval1 (Unstable PCIe may be seen)
+* Ocelot
+* Jaguar2
+* Serval2
+* ServalT
+
+== `erase` command
+
+The `erase` command can be used to erase the flash device. If no
+length or offset options are given, the entire flash is
+erased. Otherwise, the area defined by length and offset is erased.
+
+== `read` command
+
+The `read` command can be used to read the flash data into a file. If
+no length or offset options are given, the entire flash is
+read. Otherwise, the area defined by length and offset is read.
+
+== `write` command
+
+The `write` command can be used to program file data into the flash.
+
+The offset option may be used to define the offset where the
+programming start. The length option may be used to limit extent of
+the programming.
+
+The area programmed is erased first (and need not be erased first).
+
+== `verify` command
+
+The `verify` command will verify the contents of a file with the
+contents of the flash.
+
+The offset options may be used to define the start offset to
+verify. The length option may be used to limit the extent of the
+verification.
+
+The program exit code will reflect the status of the verification, as
+will the printed messages.
+
+== `update` command
+
+IMPORTANT: The `update` command is used for 8051 boot monitor with
+dual images and should *not* be confused with WebStaX dual image
+support.
+
+The `update` command will update the current backup image (or any
+vacant image slot), and make that the current active image.
+
+The `update` command ignores any `length` or `offset`
+options.
+
+The maximum image size is the size of the flash erase block size, 64Kb.

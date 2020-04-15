@@ -1,0 +1,51 @@
+# -*- mode: Makefile -*-
+# Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+XCC     = gcc
+
+DIR_vtss_api := ./base
+DIR_vtss_inc := ./include
+compile_c = $(XCC) -c -o $*.o -MD -DVTSS_OPSYS_LINUX=1 -DVTSS_OPT_PORT_COUNT=4 -DVTSS_CHIP_10G_PHY -DVTSS_FEATURE_PHY_TIMESTAMP -DVTSS_FEATURE_MACSEC -I$(DIR_vtss_inc) $<
+
+OBJECTS_vtss_api_core := vtss_api.o vtss_wis_api.o vtss_phy_10g_api.o
+OBJECTS_vtss_api_core += vtss_util.o vtss_common.o 
+OBJECTS_vtss_api_phy_ms := vtss_macsec_api.o 
+OBJECTS_vtss_api_phy_ts := vtss_phy_ts_api.o vtss_phy_ewis.o 
+OBJECTS_vtss_api_10g := vtss_phy_10g.o vtss_phy_10g_venice.o 
+
+OBJECTS_vtss_api: $(OBJECTS_vtss_api_core) $(OBJECTS_vtss_api_phy_ms) $(OBJECTS_vtss_api_10g) $(OBJECTS_vtss_api_phy_ts)
+	ar -cvq libvtss10g.a $(OBJECTS_vtss_api_core) $(OBJECTS_vtss_api_10g) $(OBJECTS_vtss_api_phy_ms) $(OBJECTS_vtss_api_phy_ts)
+	rm *.o *.d
+
+$(OBJECTS_vtss_api_core): %.o: $(DIR_vtss_api)/ail/%.c
+	$(call compile_c, $@, $<)
+
+$(OBJECTS_vtss_api_10g) : %.o: $(DIR_vtss_api)/phy/phy_10g/%.c
+	$(call compile_c, $@, $<)
+
+$(OBJECTS_vtss_api_phy_ms) : %.o: $(DIR_vtss_api)/phy/macsec/%.c
+	$(call compile_c, $@, $<)
+
+$(OBJECTS_vtss_api_phy_ts) : %.o: $(DIR_vtss_api)/phy/ts/%.c
+	$(call compile_c, $@, $<)
+
+all: $(OBJECTS_vtss_api)
+
