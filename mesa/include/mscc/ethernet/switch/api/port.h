@@ -230,14 +230,17 @@ typedef enum
 
 // Different media/cable types attached to the 10G Serdes
 typedef enum {
-    MESA_SD10G_MEDIA_SR,     // Short Range
-    MESA_SD10G_MEDIA_ZR,     // ZR with APC hardware algorithm
-    MESA_SD10G_MEDIA_DAC,    // Short DAC (Direct attached copper) with APC hardware algorithm
-    MESA_SD10G_MEDIA_DAC_5M, // Long DAC (Direct attached copper) with APC hardware algorithm
-    MESA_SD10G_MEDIA_BP,     // Backplane
-    MESA_SD10G_MEDIA_B2B,    // Bord to Board
-    MESA_SD10G_MEDIA_10G_KR, // 10G Base KR
-    MESA_SD10G_MEDIA_PR_NONE // No preset
+    MESA_SD10G_MEDIA_PR_NONE, // No preset
+    MESA_SD10G_MEDIA_SR,      // Short Range
+    MESA_SD10G_MEDIA_ZR,      // Long Range
+    MESA_SD10G_MEDIA_DAC,     // DAC (Direct attached copper) cable, unspecified lenght >
+    MESA_SD10G_MEDIA_DAC_1M,  // 1m DAC
+    MESA_SD10G_MEDIA_DAC_2M,  // 2m DAC
+    MESA_SD10G_MEDIA_DAC_3M,  // 3m DAC
+    MESA_SD10G_MEDIA_DAC_5M,  // 5m DAC
+    MESA_SD10G_MEDIA_BP,      // Backplane
+    MESA_SD10G_MEDIA_B2B,     // Bord to Board
+    MESA_SD10G_MEDIA_10G_KR   // 10G Base KR
 } mesa_sd10g_media_type_t;
 
 // SFI Serdes configuration
@@ -732,6 +735,33 @@ mesa_rc mesa_port_test_conf_get(const mesa_inst_t      inst,
 mesa_rc mesa_port_test_conf_set(const mesa_inst_t            inst,
                                 const mesa_port_no_t         port_no,
                                 const mesa_port_test_conf_t  *const conf);
+
+/** \brief Serdes debug parameters */
+typedef enum
+{
+    MESA_SERDES_DFE_PRM, /**< DFE prms. in this order : h1,h2,h3,h4,h5,dlev */
+    MESA_SERDES_CTLE_PRM,/**< CTLE prms. in this order: r,c,vga */
+} mesa_serdes_debug_type_t;
+
+/** \brief Serdes debug configuration structure */
+typedef struct
+{
+    mesa_serdes_debug_type_t debug_type;
+    uint32_t                 serdes_prm[10]; /**< Depends on debug_type */
+} mesa_port_serdes_debug_t;
+
+/**
+ * \brief Used for Serdes debugging.
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param conf [IN]     Serdes test configuration.
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_serdes_debug_set(const mesa_inst_t              inst,
+                                   const mesa_port_no_t           port_no,
+                                   const mesa_port_serdes_debug_t *const conf);
 
 #include <mscc/ethernet/switch/api/hdr_end.h>
 #endif // _MSCC_ETHERNET_SWITCH_API_PORT_

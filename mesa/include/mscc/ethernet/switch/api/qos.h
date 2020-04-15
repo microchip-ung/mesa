@@ -278,6 +278,7 @@ typedef struct {
     mesa_burst_level_t ebs CAP(QOS_EGRESS_SHAPERS_DLB); // EBS (Excess Burst Size).  Unit: bytes
     mesa_bitrate_t     eir CAP(QOS_EGRESS_SHAPERS_DLB); // EIR (Excess Information Rate). Unit: kbps. Use MESA_BITRATE_DISABLED to disable DLB
     mesa_shaper_mode_t mode CAP(QOS_EGRESS_SHAPERS_RT); // RT (Rate type)
+    mesa_bool_t        credit_enable CAP(QOS_EGRESS_QUEUE_SHAPERS_CRB); // Queue shaper only: Credit-based shaping
 } mesa_shaper_t;
 
 // QoS configuration per (port, queue)
@@ -286,7 +287,6 @@ typedef struct {
     mesa_shaper_t  shaper;  // Egress queue shapers
     mesa_pct_t     pct;     // The DWRR Queue percentage if DWRR is enabled ('dwrr_enable')
     mesa_bool_t    excess_enable       CAP(QOS_EGRESS_QUEUE_SHAPERS_EB);  // Allow this queue to use excess bandwidth
-    mesa_bool_t    credit_enable       CAP(QOS_EGRESS_QUEUE_SHAPERS_CRB); // Allow this queue to use excess bandwidth
     mesa_bool_t    cut_through_enable  CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Allow this queue to use cut through feature
 } mesa_qos_port_queue_conf_t;
 

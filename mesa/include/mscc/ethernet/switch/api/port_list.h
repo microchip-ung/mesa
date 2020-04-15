@@ -57,7 +57,7 @@ extern uint32_t mesa_port_cnt(mesa_inst_t inst);
 
 /** \brief Port list */
 struct mesa_port_list_t {
-    size_t array_size() const { return 8; }
+    size_t array_size() const { return MESA_PORT_LIST_ARRAY_SIZE; }
     size_t max_size() const { return MESA_PORT_LIST_ARRAY_SIZE * 8; }
     size_t size() const { return mesa_port_cnt(NULL); }
 

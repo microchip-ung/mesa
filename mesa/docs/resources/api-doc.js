@@ -92,7 +92,6 @@ get_symbol_landing_page = function(sym, obj) {
     return html
 }
 
-
 hashChange = function(e) {
     var anc = null;
     var page = null;
@@ -159,14 +158,11 @@ hashChange = function(e) {
         console.log("ANC: " + anc);
         if (anc) {
             var scrollto = $(anc)
-            if (scrollto) {
+            if (scrollto && window.innerDocClick) {
                 scrollto.css("background-color", "DarkGray");
                 scrollto.css("font-weight", "bold");
-        console.log("aaa");
                 var el_offset = scrollto.offset().top;
-        console.log("bbb");
                 var el_height = scrollto.height();
-        console.log("ccc");
                 var window_height = $(window).height();
                 var off;
 
@@ -179,7 +175,9 @@ hashChange = function(e) {
                 $('html, body').animate({scrollTop: off}, 500);
             }
         } else {
-            window.scrollTo(0, 0);
+            if (window.innerDocClick) {
+                window.scrollTo(0, 0);
+            }
         }
 
     } else {
@@ -188,4 +186,6 @@ hashChange = function(e) {
 }
 
 $(window).bind('hashchange', hashChange);
+$(window).bind('mouseover',  function() { window.innerDocClick = true; });
+$(window).bind('mouseleave', function() { window.innerDocClick = false; });
 

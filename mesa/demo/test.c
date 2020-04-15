@@ -483,10 +483,10 @@ static mesa_rc test_fa_ifh_encode_decode(void)
     memset(&tx_info, 0, sizeof(tx_info));
     tx_info.switch_frm = 1;
     tx_info.masquerade_port = 2;
-    tx_info.isdx = 7;
+    tx_info.iflow_id = 7;
 
     cli_printf("\n");
-    cli_printf("tx_info:  switch_frm %u  masquerade_port %u  isdx %u\n", tx_info.switch_frm, tx_info.masquerade_port, tx_info.isdx);
+    cli_printf("tx_info:  switch_frm %u  masquerade_port %u  iflow_id %u\n", tx_info.switch_frm, tx_info.masquerade_port, tx_info.iflow_id);
     MESA_RC(mesa_packet_tx_hdr_encode(NULL, &tx_info, ifh_len, (uint8_t *)ifh, &ifh_len));
     print_ifh(ifh);
 
@@ -569,540 +569,267 @@ static mesa_rc test_qos(void)
     return MESA_RC_OK;
 }
 
-
-
-
-
-static mesa_vid_t       cl_vid = 100;
-static mesa_port_no_t   network_port_0 = 0;
-static mesa_port_no_t   network_port_1 = 0;
-static mesa_port_no_t   network_port_2 = 0;
-static mesa_mac_t       unicast_addr = {{0x01,0x02,0x03,0x04,0x05,0x6}};
-
-static uint32_t         meg_level = 3;
-static uint16_t         mep_id = 10;
-static uint16_t         peer_mep_id = 20;
-static uint8_t          meg_id[10] = {'A','B','C','D','E','F','G','H','I','J'};
-static uint8_t          priority = 3;
-
-
-static mesa_iflow_id_t     port_voe_iflow_id;
-static mesa_iflow_id_t     voe_iflow_id;
-static mesa_eflow_id_t     voe_eflow_id;
-static mesa_iflow_id_t     down_voi_iflow_id;
-static mesa_iflow_id_t     up_voi_iflow_id;
-static mesa_eflow_id_t     up_voi_eflow_id;
-static mesa_voe_idx_t      vlan_voe_idx;
-static mesa_voe_idx_t      port_voe_idx;
-static mesa_voi_idx_t      down_voi_idx;
-static mesa_voi_idx_t      up_voi_idx;
-static uint32_t            longest_ccm_period = 0;
-static mesa_bool_t         dUNM, dLOC;
-
-void initialize_voe()
+static mesa_rc test_fa_tsn(void)
 {
-    mesa_vop_conf_t  vop;
-    mesa_mac_t       multicast_addr = {{0x01,0x80,0xC2,0x00,0x00,0x30}};
+    mesa_vid_t               vid_def = 1;   // Default VLAN
+    mesa_vid_t               vid_fwd = 2;   // Forwarding VLAN
+    mesa_vid_t               vid_fp = 10;   // Frame preemption VLAN (QCE only)
+    mesa_vid_t               vid_psfp = 20; // PSFP VLAN (VCE only)
+    mesa_vid_t               vid_frer = 30; // FRER VLAN
+    mesa_vid_t               vid_tas = 40;  // TAS VLAN
+    mesa_port_no_t           port_no, port_rx = 0, port_tx = 1;
+    mesa_port_list_t         port_list, rx_list, tx_list;
+    mesa_vlan_port_conf_t    vlan_conf;
+    mesa_prio_t              prio;
+    mesa_qce_t               qce;
+    mesa_qos_fp_port_conf_t  fp_conf;
+    mesa_ace_t               ace;
+    mesa_ace_ptp_t           *ptp = &ace.frame.etype.ptp;
+    mesa_psfp_gce_t          psfp_gcl[2];
+    int                      i, q, max_cnt = 2;
+    mesa_psfp_gate_id_t      gate_id = 0;
+    mesa_psfp_gate_conf_t    gate_conf;
+    mesa_psfp_filter_id_t    filter_id = 0;
+    mesa_psfp_filter_conf_t  filter_conf;
+    mesa_iflow_id_t          iflow_id;
+    mesa_iflow_conf_t        iflow_conf;
+    mesa_vce_t               vce;
+    mesa_tce_t               tce;
+    mesa_frer_mstream_id_t   mstream_id;
+    mesa_frer_cstream_id_t   cstream_id = 0;
+    mesa_frer_stream_conf_t  frer_conf;
+    mesa_qos_tas_port_conf_t tas_conf;
+    mesa_qos_tas_gce_t       tas_gcl[2];
+    uint64_t                 tc;
 
-    memset(&vop, 0, sizeof(vop));
-    memcpy(vop.multicast_dmac.addr, multicast_addr.addr, sizeof(vop.multicast_dmac.addr));
-    vop.auto_copy_period[0] = 3*1000*1000;  /* Slow - Normal - 3s */
-    vop.auto_copy_period[1] = 1*1000*1000;  /* Fast - 1s */
-    vop.voe_queue_ccm = 3;
-    vop.voe_queue_lt = 3;
-    vop.voe_queue_lbr = 3;
-    vop.voi_queue = 3;
-    (void)mesa_vop_conf_set(NULL, &vop);
-}
+    /*** VLAN and PVLAN *********************************************************************/
 
-void standard_vlan_configuration()
-{
-    mesa_vlan_conf_t        vlan_conf;
-    mesa_vlan_port_conf_t   vlan_port_conf;
-    mesa_port_list_t        port_list;
+    // Use PVLANs to avoid loops between port Tx ports
+    MESA_RC(mesa_pvlan_port_members_get(NULL, 0, &port_list));
+    mesa_port_list_set(&port_list, port_tx, 0);
+    MESA_RC(mesa_pvlan_port_members_set(NULL, 0, &port_list));
+    mesa_port_list_set(&port_list, port_tx, 1);
+    mesa_port_list_set(&port_list, port_tx + 1, 0);
+    MESA_RC(mesa_pvlan_port_members_set(NULL, 1, &port_list));
 
-    vlan_conf.s_etype = 0x8902;
-    (void)mesa_vlan_conf_set(NULL, &vlan_conf);
-
-    vlan_port_conf.port_type = MESA_VLAN_PORT_TYPE_S;
-    vlan_port_conf.pvid = 1;
-    vlan_port_conf.untagged_vid = MESA_VID_NULL;
-    vlan_port_conf.frame_type = MESA_VLAN_FRAME_TAGGED;
-    vlan_port_conf.ingress_filter = FALSE;
-
-    (void)mesa_vlan_port_conf_set(NULL, network_port_0, &vlan_port_conf);
-    (void)mesa_vlan_port_conf_set(NULL, network_port_1, &vlan_port_conf);
-    (void)mesa_vlan_port_conf_set(NULL, network_port_2, &vlan_port_conf);
-
-    mesa_port_list_set(&port_list, network_port_0, 1);
-    mesa_port_list_set(&port_list, network_port_1, 1);
-    mesa_port_list_set(&port_list, network_port_2, 1);
-
-    (void)mesa_vlan_port_members_set(NULL, cl_vid, &port_list);
-}
-
-void port_down_mep_configuration()
-{
-    uint32_t               i;
-    mesa_vce_t             vce;
-    mesa_iflow_conf_t      iflow;
-    mesa_voe_conf_t        voe_cfg;
-    mesa_voe_allocation_t  alloc_data;
-
-    /* Allocate the Port VOE */
-    alloc_data.type = MESA_VOE_TYPE_PORT;
-    alloc_data.port = network_port_0;
-    alloc_data.direction = MESA_OAM_DIRECTION_DOWN;
-    (void)mesa_voe_alloc(NULL, &alloc_data, &port_voe_idx);
-
-    /* Allocate and configure the ingress flow ID */
-    (void)mesa_iflow_alloc(NULL, &port_voe_iflow_id);
-    (void)mesa_iflow_conf_get(NULL, port_voe_iflow_id, &iflow);
-    iflow.voe_idx = port_voe_idx;
-    (void)mesa_iflow_conf_set(NULL, port_voe_iflow_id, &iflow);
-
-    /* Initialize and add an OAM ingress VOE pointing VCE rule */
-    (void)mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce);
-    mesa_port_list_set(&vce.key.port_list, network_port_0, 1);  /* Match on ingress port as the Down MEP residence network port */
-    vce.key.type = MESA_VCE_TYPE_ETYPE;                         /* Match on Ether type frames */
-    vce.key.frame.etype.etype.value[0] = 0x89;                  /* Match on Ethernet OAM frames - 0x8902 */
-    vce.key.frame.etype.etype.value[1] = 0x02;                  /* Match on Ethernet OAM frames - 0x8902 */
-    vce.key.frame.etype.etype.mask[0] = 0xFF;
-    vce.key.frame.etype.etype.mask[1] = 0xFF;
-    vce.key.frame.etype.mel.value = 0;                          /* Matching MEG level mask is calculated. This will cover all levels <= 7 */
-    vce.key.frame.etype.mel.mask = ~((0x01 << 7) - 1);
-    vce.action.oam_detect = MESA_OAM_DETECT_UNTAGGED;           /* Mark frames as OAM */
-    vce.action.flow_id = port_voe_iflow_id;                     /* Generate the ingress flow */
-    (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
-
-    /* Configure the down Port VOE */
-    memset(&voe_cfg, 0, sizeof(voe_cfg));
-    voe_cfg.enable = TRUE;
-    voe_cfg.unicast_mac = unicast_addr;
-    voe_cfg.meg_level = meg_level;
-    voe_cfg.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
-    voe_cfg.loop_iflow_id = MESA_IFLOW_ID_NONE;
-    voe_cfg.block_mel_high = TRUE;
-    (void)mesa_voe_conf_set(NULL, port_voe_idx, &voe_cfg);
-
-    /* Add an OAM ingress VOE marking VCE rule on VLAN ports "behind" the Port Down VOE. This will enable the Port down VOE to do MEG level filtering on egress */
-    /* We inherits most VCE configuration from previous VCE add */
-    vce.key.frame.etype.mel.mask = 0;            /* Match on all MEG levels */
-    vce.action.flow_id = MESA_IFLOW_ID_NONE;     /* Do not generate ingress flow */
-    for (i = network_port_1; i <= network_port_2; ++i)
-    {
-        mesa_port_list_clear(&vce.key.port_list);
-        mesa_port_list_set(&vce.key.port_list, i, 1);
-        (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
+    // Exclude port 0-3 from default VLAN
+    MESA_RC(mesa_vlan_port_members_get(NULL, vid_def, &port_list));
+    for (port_no = 0; port_no < 4; port_no++) {
+        mesa_port_list_set(&port_list, port_no, 0);
     }
-}
+    MESA_RC(mesa_vlan_port_members_set(NULL, vid_def, &port_list));
 
-void vlan_down_mep_configuration()
-{
-    uint32_t               i;
-    mesa_vce_t             vce;
-    mesa_tce_t             tce;
-    mesa_iflow_conf_t      iflow;
-    mesa_eflow_conf_t      eflow;
-    mesa_voe_conf_t        voe_cfg;
-    mesa_voe_allocation_t  alloc_data;
-
-    /* Allocate the Service VOE */
-    alloc_data.type = MESA_VOE_TYPE_SERVICE;
-    alloc_data.port = network_port_0;
-    alloc_data.direction = MESA_OAM_DIRECTION_DOWN;
-    (void)mesa_voe_alloc(NULL, &alloc_data, &port_voe_idx);
-
-    /* Allocate and configure the ingress flow ID */
-    (void)mesa_iflow_alloc(NULL, &voe_iflow_id);
-    (void)mesa_iflow_conf_get(NULL, voe_iflow_id, &iflow);
-    iflow.voe_idx = vlan_voe_idx;
-    (void)mesa_iflow_conf_set(NULL, voe_iflow_id, &iflow);
-
-    /* Allocate and configure the egress flow ID */
-    (void)mesa_eflow_alloc(NULL, &voe_eflow_id);
-    (void)mesa_eflow_conf_get(NULL, voe_eflow_id, &eflow);
-    eflow.voe_idx = vlan_voe_idx;
-    (void)mesa_eflow_conf_set(NULL, voe_eflow_id, &eflow);
-
-    /* Initialize and add an OAM ingress VOE pointing VCE rule */
-    (void)mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce);
-    mesa_port_list_set(&vce.key.port_list, network_port_0, 1);  /* Match on ingress port as the Down MEP residence network port */
-    vce.key.tag.vid.value = cl_vid;                             /* Match on the VID for this VLAN */
-    vce.key.tag.vid.mask = 0xFFFF;                              
-    vce.key.tag.tagged = MESA_VCAP_BIT_1;                       /* Match on tagged frames */
-    vce.key.tag.s_tag = MESA_VCAP_BIT_0;                        /* Match on C-tagged frames */
-    vce.key.type = MESA_VCE_TYPE_ETYPE;                         /* Match on Ether type frames */
-    vce.key.frame.etype.etype.value[0] = 0x89;                  /* Match on Ethernet OAM frames - 0x8902 */
-    vce.key.frame.etype.etype.value[1] = 0x02;
-    vce.key.frame.etype.etype.mask[0] = 0xFF;
-    vce.key.frame.etype.etype.mask[1] = 0xFF;
-    vce.key.frame.etype.mel.value = 0;                          /* Matching MEG level mask is calculated. This will cover all levels <= 'meg_level' */
-    vce.key.frame.etype.mel.mask = ~((0x01 << meg_level) - 1);  
-    vce.action.oam_detect = MESA_OAM_DETECT_SINGLE_TAGGED;      /* Mark frames as OAM */
-    vce.action.flow_id = voe_iflow_id;                          /* Generate the ingress flow */
-    (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
-
-    /* Configure the VLAN down Service VOE */
-    memset(&voe_cfg, 0, sizeof(voe_cfg));
-    voe_cfg.enable = TRUE;
-    voe_cfg.unicast_mac = unicast_addr;
-    voe_cfg.meg_level = meg_level;
-    voe_cfg.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
-    voe_cfg.loop_iflow_id = MESA_IFLOW_ID_NONE;
-    voe_cfg.block_mel_high = FALSE;
-    (void)mesa_voe_conf_set(NULL, vlan_voe_idx, &voe_cfg);
-
-    /* Add an OAM ingress VOE marking VCE rule on VLAN ports "behind" the VLAN Down VOE. This will enable the VLAN down VOE to do MEG level filtering on egress */
-    /* We inherits most VCE configuration from previous VCE add */
-    vce.key.frame.etype.mel.mask = 0;            /* Match on all MEG levels */
-    vce.action.flow_id = MESA_IFLOW_ID_NONE;     /* Do not generate ingress flow */
-    for (i = network_port_1; i <= network_port_2; ++i)
-    {
-        mesa_port_list_clear(&vce.key.port_list);
-        mesa_port_list_set(&vce.key.port_list, i, 1);
-        (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
+    // Include port 0, 1 and 3 in forwarding VLAN
+    mesa_port_list_clear(&port_list);
+    for (port_no = 0; port_no < 4; port_no++) {
+        mesa_port_list_set(&port_list, port_no, port_no == (port_tx + 1) ? 0 : 1);
+        MESA_RC(mesa_vlan_port_conf_get(NULL, port_no, &vlan_conf));
+        vlan_conf.pvid = 2;
+        vlan_conf.untagged_vid = 2;
+        MESA_RC(mesa_vlan_port_conf_set(NULL, port_no, &vlan_conf));
     }
+    MESA_RC(mesa_vlan_port_members_set(NULL, vid_fwd, &port_list));
 
-    /* Initialize and add an classified VID egress VOE pointing TCE rule. */
-    /* This will point any OAM coming from the switch to VOE for MEG level filtering. Also hit by injection */
-    (void)mesa_tce_init(NULL, &tce);
-    mesa_port_list_set(&tce.key.port_list, network_port_0, 1);   /* Match on egress port as the Down MEP residence network port */
-    tce.key.vid = cl_vid;                                        /* Match on egress flow id */
-    tce.action.flow_id = voe_eflow_id;
-    (void)mesa_tce_add(NULL, MESA_TCE_ID_LAST, &tce);
-}
-
-void vlan_voi_configuration()
-{
-    uint32_t              i;
-    mesa_vce_t            vce;
-    mesa_tce_t            tce;
-    mesa_iflow_conf_t     iflow;
-    mesa_eflow_conf_t     eflow;
-    mesa_voi_conf_t       voi_cfg;
-
-    down_voi_idx = 0;   /* Using the first Down-VOI */
-    up_voi_idx = 0;     /* Using the first Up-VOI */
-
-    /* Allocate and configure the Down VOI ingress flow ID */
-    (void)mesa_iflow_alloc(NULL, &down_voi_iflow_id);
-    (void)mesa_iflow_conf_get(NULL, down_voi_iflow_id, &iflow);
-    iflow.voi_idx = down_voi_idx;
-    (void)mesa_iflow_conf_set(NULL, down_voi_iflow_id, &iflow);
-
-    /* Allocate the Up VOI ingress flow ID */
-    (void)mesa_iflow_alloc(NULL, &up_voi_iflow_id);
-
-    /* Allocate and configure the Up VOI egress flow ID */
-    (void)mesa_eflow_alloc(NULL, &up_voi_eflow_id);
-    (void)mesa_eflow_conf_get(NULL, up_voi_eflow_id, &eflow);
-    eflow.voi_idx = up_voi_idx;
-    (void)mesa_eflow_conf_set(NULL, up_voi_eflow_id, &eflow);
-
-    /* Initialize and add an OAM ingress Down VOI pointing VCE rule */
-    (void)mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce);
-    mesa_port_list_set(&vce.key.port_list, network_port_0, 1);  /* Match on ingress port as the Down MEP residence network port */
-    vce.key.tag.vid.value = cl_vid;                             /* Match on the VID for this VLAN */
-    vce.key.tag.vid.mask = 0xFFFF;
-    vce.key.tag.tagged = MESA_VCAP_BIT_1;                       /* Match on tagged frames */
-    vce.key.tag.s_tag = MESA_VCAP_BIT_0;                        /* Match on C-tagged frames */
-    vce.key.type = MESA_VCE_TYPE_ETYPE;                         /* Match on Ether type frames */
-    vce.key.frame.etype.etype.value[0] = 0x89;                  /* Match on Ethernet OAM frames - 0x8902 */
-    vce.key.frame.etype.etype.value[1] = 0x02;                  /* Match on Ethernet OAM frames - 0x8902 */
-    vce.key.frame.etype.etype.mask[0] = 0xFF;
-    vce.key.frame.etype.etype.mask[1] = 0xFF;
-    vce.key.frame.etype.mel.value = (0x01 << meg_level) - 1;    /* Matching MEG level mask is calculated. This will match on level == 'meg_level' */
-    vce.key.frame.etype.mel.mask = (0x01 << meg_level) - 1;
-    vce.action.oam_detect = MESA_OAM_DETECT_SINGLE_TAGGED;      /* Mark frames as OAM */
-    vce.action.flow_id = down_voi_iflow_id;                     /* Generate the Down VOI ingress flow */
-    (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
-
-    /* Add an OAM ingress Up VOI OAM marking VCE rule on VLAN ports "in front of" the VLAN Up VOI. */
-    /* We inherits most VCE configuration from previous VCE add */
-    vce.key.frame.etype.mel.mask = 0;         /* Match on all MEG levels */
-    vce.action.flow_id = up_voi_iflow_id;     /* Generate the Down VOI ingress flow */
-    for (i = network_port_1; i <= network_port_2; ++i)
-    {
-        mesa_port_list_clear(&vce.key.port_list);
-        mesa_port_list_set(&vce.key.port_list, i, 1);
-        (void)mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce);
+    // Include Rx and Tx ports FRER VLAN
+    mesa_port_list_clear(&rx_list);
+    mesa_port_list_clear(&tx_list);
+    mesa_port_list_clear(&port_list);
+    for (port_no = 0; port_no < 3; port_no++) {
+        mesa_port_list_set(&port_list, port_no, 1);
+        mesa_port_list_set(port_no == port_rx ? &rx_list : &tx_list, port_no, 1);
     }
+    MESA_RC(mesa_vlan_port_members_set(NULL, vid_frer, &port_list));
 
-    /* Initialize and add an OAM egress VOI pointing TCE rule */
-    (void)mesa_tce_init(NULL, &tce);
-    mesa_port_list_set(&tce.key.port_list, network_port_0, 1);             /* Match on egress port as the Down VOI residence network port */
-    tce.key.vid = cl_vid;                              /* Match on classified VID */
-    tce.action.flow_id = up_voi_eflow_id;                 /* Generate egress flow id */
-    (void)mesa_tce_add(NULL, MESA_TCE_ID_LAST, &tce);
+    /*** Frame Preemption *******************************************************************/
 
-    /* Configure the VLAN Down and Up VOI */
-    memset(&voi_cfg, 0, sizeof(voi_cfg));
-    voi_cfg.enable = TRUE;
-    voi_cfg.unicast_mac = unicast_addr;
-    voi_cfg.meg_level = meg_level;
-    voi_cfg.lbm_cpu_redir = TRUE;
-    voi_cfg.ltm_cpu_redir = TRUE;
-    voi_cfg.raps_handling = MESA_OAM_RAPS_HANDLING_NONE;
-    (void)mesa_voi_conf_set(NULL, down_voi_idx, &voi_cfg);
-    (void)mesa_voi_conf_set(NULL, up_voi_idx, &voi_cfg);
-}
+    // On Rx port, map Frame Preemption VLAN to priority 4
+    prio = 4;
+    MESA_RC(mesa_qce_init(NULL, MESA_QCE_TYPE_ANY, &qce));
+    qce.id = 1;
+    qce.key.port_list = rx_list;
+    qce.key.tag.tagged = MESA_VCAP_BIT_1;
+    qce.key.tag.s_tag = MESA_VCAP_BIT_0;
+    qce.key.tag.vid.vr.v.value = vid_fp;
+    qce.key.tag.vid.vr.v.mask = 0xfff;
+    qce.action.prio_enable = 1;
+    qce.action.prio = prio;
+    MESA_RC(mesa_qce_add(NULL, MESA_QCE_ID_LAST, &qce));
 
-void vlan_mep_ccm_config(mesa_bool_t enable)
-{
-    mesa_voe_cc_conf_t voe_cc_cfg;
+    // On Tx port, enable frame preemption for priority 4
+    MESA_RC(mesa_qos_fp_port_conf_get(NULL, port_tx, &fp_conf));
+    fp_conf.admin_status[prio] = 1;
+    fp_conf.enable_tx = 1;
+    MESA_RC(mesa_qos_fp_port_conf_set(NULL, port_tx, &fp_conf));
 
-    /* Configure the VOE CC feature */
-    memset(&voe_cc_cfg, 0, sizeof(voe_cc_cfg));
-    voe_cc_cfg.enable   = TRUE;
-    voe_cc_cfg.cpu_copy = MESA_OAM_CPU_COPY_AUTO;
-    voe_cc_cfg.seq_no_update = TRUE;
-    voe_cc_cfg.expected_period = MESA_VOE_CCM_PERIOD_1_SEC;
-    voe_cc_cfg.expected_priority = priority;
-    memcpy(voe_cc_cfg.expected_megid, meg_id, sizeof(voe_cc_cfg.expected_megid));
-    voe_cc_cfg.expected_peer_mepid = peer_mep_id;
+    /*** PTP Transparent Clock **************************************************************/
 
-    (void)mesa_voe_cc_conf_set(NULL, vlan_voe_idx, &voe_cc_cfg);
-
-    /* Enable CCM events */
-    (void)mesa_voe_event_mask_set(NULL, vlan_voe_idx, MESA_VOE_EVENT_MASK_CCM_LOC |
-                                                      MESA_VOE_EVENT_MASK_CCM_MEG_ID |
-                                                      MESA_VOE_EVENT_MASK_CCM_MEP_ID |
-                                                      MESA_VOE_EVENT_MASK_CCM_PERIOD |
-                                                      MESA_VOE_EVENT_MASK_CCM_PRIORITY |
-                                                      MESA_VOE_EVENT_MASK_CCM_RX_RDI |
-                                                      MESA_VOE_EVENT_MASK_CCM_ZERO_PERIOD |
-                                                      MESA_VOE_EVENT_MASK_CCM_MEG_LEVEL, TRUE);
-}
-
-void vlan_mep_ccm_transmit(mesa_bool_t single)
-{
-    uint8_t                        mc_mac[6] = {0x01,0x80,0xC2,0x00,0x00,0x30};
-    uint8_t                        frame[6+6+2+80];    // Room for max size PDU (CCM)
-    mesa_packet_tx_info_t          tx_info;
-    mesa_packet_tx_ifh_t           ifh;
-    mesa_afi_slow_inj_alloc_cfg_t  afi_cfg;
-    mesa_afi_slowid_t              afi_id;
-    mesa_afi_slow_inj_start_cfg_t  afi_start_cfg;
-
-    // Create CCM frame
-    memset(frame, 0, sizeof(frame));
-    memcpy(&frame[0], mc_mac, 6);
-    memcpy(&frame[6], unicast_addr.addr, 6);
-    frame[12] = 0x89;
-    frame[13] = 0x02;
-    frame[14] = meg_level << 5;
-    frame[15] = 1;           // CCM opcode
-    frame[16] = 4;           // flags = one frame per sec
-    frame[17] = 70;
-    frame[22] = mep_id >> 8;  // MEP-ID
-    frame[23] = mep_id;
-    memcpy(&frame[24], meg_id, sizeof(meg_id));
-
-    /* initialize 'tx_info' */
-    tx_info.tag.vid         = cl_vid;
-    tx_info.tag.pcp         = priority;
-    tx_info.tag.dei         = 0;
-    tx_info.cos             = priority;
-    tx_info.cosid           = priority;
-    tx_info.dp              = 0;
-    tx_info.pdu_offset      = 14;
-    tx_info.oam_type        = MESA_PACKET_OAM_TYPE_CCM;
-    tx_info.iflow_id        = MESA_IFLOW_ID_NONE;
-    tx_info.pipeline_pt     = MESA_PACKET_PIPELINE_PT_REW_IN_VOE;
-    tx_info.dst_port_mask   = (1ULL << network_port_0);
-    tx_info.switch_frm      = FALSE;
-    tx_info.masquerade_port = MESA_PORT_NO_NONE;
-
-    if (single) {   // Transmit the frame as a single - not AFI
-        (void)mesa_packet_tx_hdr_compile(NULL, &tx_info, &ifh);        // Compile the IFH
-        (void)mesa_packet_tx_frame(NULL, &ifh, frame, (6+6+2+75));     // Transmit the frame as a single - not AFI
-    } else {        // Transmit the frame using AFI
-        // Allocate the AFI
-        memset(&afi_cfg, 0, sizeof(afi_cfg));
-        afi_cfg.port_no            = network_port_0;
-        afi_cfg.masquerade_port_no = MESA_PORT_NO_NONE;
-        afi_cfg.prio               = tx_info.cos;
-        (void)mesa_afi_slow_inj_alloc(NULL, &afi_cfg, &afi_id);
-
-        // Send the packet to the AFI
-        tx_info.afi_id = afi_id;    // Indicate that this frame is going to AFI
-        (void)mesa_packet_tx_hdr_compile(NULL, &tx_info, &ifh);        // Compile the IFH
-        (void)mesa_packet_tx_frame(NULL, &ifh, frame, (6+6+2+75));     // Transmit the frame to AFI
-
-        // Assure that the frame is reaching the AFI
-        if (mesa_afi_slow_inj_frm_hijack(NULL, afi_id) == MESA_RC_OK) {
-            // Start the AFI
-            memset(&afi_start_cfg, 0, sizeof(afi_start_cfg));
-            afi_start_cfg.fph                = 1 * 60 * 60;     // One CCM frame per second in frames per hour
-            afi_start_cfg.jitter_mode        = 0;               // No injection jitter required
-            afi_start_cfg.first_frame_urgent = FALSE;           // First frame is not urgent
-            (void)mesa_afi_slow_inj_start(NULL, afi_id, &afi_start_cfg);
-        }
-    }
-}
-
-void vlan_voi_lbr_transmit(uint8_t *lbm,  uint32_t length,  uint8_t rx_prio,  mesa_voi_idx_t rx_voi_idx)
-{
-    uint8_t                        frame[6+6+2+80];    // Room for max size PDU (CCM)
-    mesa_packet_tx_info_t          tx_info;
-    mesa_packet_tx_ifh_t           ifh;
-    mesa_bool_t                    down;
-
-    down = (rx_voi_idx == down_voi_idx) ? TRUE : FALSE;
-
-    // Convert LBM into LBR frame
-    memcpy(&frame[0], &frame[6], 6);    /* DMAC = SMAC */
-    memcpy(&frame[6], unicast_addr.addr, 6);  /* SMAC = Unicast MAC of this instance */
-    frame[15] = 2;           // LBR opcode
-
-    /* initialize 'tx_info' */
-    tx_info.tag.vid         = cl_vid;
-    tx_info.tag.pcp         = rx_prio;
-    tx_info.tag.dei         = 0;
-    tx_info.cos             = rx_prio;
-    tx_info.cosid           = rx_prio;
-    tx_info.dp              = 0;
-    tx_info.pdu_offset      = 14;
-    tx_info.oam_type        = MESA_PACKET_OAM_TYPE_LBR;
-    tx_info.pipeline_pt     = down ? MESA_PACKET_PIPELINE_PT_REW_IN_VOI : MESA_PACKET_PIPELINE_PT_ANA_IN_VOI;
-    tx_info.dst_port_mask   = down ? (1ULL << network_port_0) : 0;
-    tx_info.switch_frm      = down ? FALSE : TRUE;
-    tx_info.masquerade_port = down ? MESA_PORT_NO_NONE : network_port_0;
-
-    (void)mesa_packet_tx_hdr_compile(NULL, &tx_info, &ifh);        // Compile the IFH
-    (void)mesa_packet_tx_frame(NULL, &ifh, frame, (6+6+2+75));     // Transmit the frame as a single - not AFI
-}
-
-void vlan_mep_ccm_receive(uint8_t *packet,  uint32_t length)
-{
-    mesa_packet_rx_meta_t meta;
-    mesa_packet_rx_info_t rx_info;
-    uint8_t               *ifh, *frame, *fcs, *etype, *pdu;
-    uint32_t              ifh_offset, frame_offset, fcs_length, period;
-
-    fcs_length = 4;    // FSC length. Assuming the packet is received with FSC
-    ifh_offset = 0;    // IFH offset. Assuming there is no prefix before IFH in packet. IFH starting position depends on internal or external CPU and NPI port configuration
-    frame_offset = ifh_offset + MESA_CAP(MESA_CAP_PACKET_RX_IFH_SIZE);  // Frame offset
-
-    ifh = &packet[ifh_offset];          // Pointer to IFH
-    frame = &packet[frame_offset];      // Pointer to frame
-    fcs = &packet[length - fcs_length]; // Pointer to FSC
-    etype = &frame[16];                 // Pointer to ETYPE
-    pdu = &frame[6+6+2];                // Pointer to PDU
-
-    // Build 'meta' structure.
-    memset(&meta, 0, sizeof(meta));
-    meta.length = length - frame_offset - fcs_length;   // Calculate the length of the actual frame
-    meta.fcs = (fcs[0] << 24) | (fcs[1] << 16) | (fcs[2] << 8) | (fcs[3] << 0);
-    meta.etype = (etype[0] << 8) | (etype[1] << 0);
-
-    (void)mesa_packet_rx_hdr_decode(NULL, &meta, ifh, &rx_info);  // Decode the rx_info
-
-    if ((rx_info.iflow_id == voe_iflow_id) && (pdu[1] == 1)) {  // This is a CCM frame for this VLAN Down MEP instance
-        period = pdu[2] & 0x07;
-        if (longest_ccm_period < period) {   // Calculate to longest received CCM period
-            longest_ccm_period = period;
-        }
-    }
-}
-
-void vlan_voi_lbm_receive(uint8_t *packet,  uint32_t length)
-{
-    mesa_packet_rx_meta_t meta;
-    mesa_packet_rx_info_t rx_info;
-    uint8_t               *ifh, *frame, *fcs, *etype, *pdu;
-    uint32_t              ifh_offset, frame_offset, fcs_length;
-    mesa_voi_idx_t        rx_voi_idx = MESA_VOI_IDX_NONE;
-
-    fcs_length = 4;    // FSC length. Assuming the packet is received with FSC
-    ifh_offset = 0;    // IFH offset. Assuming there is no prefix before IFH in packet. IFH starting position depends on internal or external CPU and NPI port configuration
-    frame_offset = ifh_offset + MESA_CAP(MESA_CAP_PACKET_RX_IFH_SIZE);  // Frame offset
-
-    ifh = &packet[ifh_offset];          // Pointer to IFH
-    frame = &packet[frame_offset];      // Pointer to frame
-    fcs = &packet[length - fcs_length]; // Pointer to FSC
-    etype = &frame[16];                 // Pointer to ETYPE
-    pdu = &frame[6+6+2];                // Pointer to PDU
-
-    // Build 'meta' structure.
-    memset(&meta, 0, sizeof(meta));
-    meta.length = length - frame_offset - fcs_length;   // Calculate the length of the actual frame
-    meta.fcs = (fcs[0] << 24) | (fcs[1] << 16) | (fcs[2] << 8) | (fcs[3] << 0);
-    meta.etype = (etype[0] << 8) | (etype[1] << 0);
-
-    (void)mesa_packet_rx_hdr_decode(NULL, &meta, ifh, &rx_info);              // Decode the rx_info
-
-    if ((rx_info.port_no == network_port_0) && (rx_info.iflow_id == down_voi_iflow_id)) { // Frame received on Down VOI port and ingress flow id
-        rx_voi_idx = down_voi_idx;
-    } else if ((rx_info.port_no == network_port_0) && (rx_info.iflow_id == up_voi_iflow_id)) {  // Frame received on Up VOI port and vid and no ingress flow id
-        rx_voi_idx = up_voi_idx;
-    }
-
-    if ((rx_voi_idx != MESA_IFLOW_ID_NONE) && (pdu[1] == 3)) {  // This is a LBM frame for 'rx_voi_idx' instance
-        vlan_voi_lbr_transmit(frame, meta.length, rx_info.tag.pcp, rx_voi_idx);
-    }
-}
-
-void expired_unm_timer()
-{
-    dUNM = FALSE;     // Clear the UNM defect as no Unexpected MEP-ID is received
-}
-
-void start_unm_timer(uint32_t period)
-{
-    // Start the UNM defect timer with 3,5 period
-}
-
-void stop_unm_timer()
-{
-    // Stop the UNM defect timer
-}
-
-void vlan_mep_event_handle()
-{
-    uint32_t               voe_cnt = MESA_CAP(MESA_CAP_VOP_VOE_CNT), voe_event_array_size, *voe_active;
-    uint32_t               event_mask;
-    mesa_voe_idx_t         voe_idx;
-    mesa_voe_cc_status_t   cc_status;
-
-    // Allocate 'voe_active' array
-    voe_event_array_size = MESA_CAP(MESA_CAP_VOP_EVENT_ARRAY_SIZE);
-    voe_active = (uint32_t *)malloc(voe_event_array_size);
-    if (voe_active == NULL) {
-        return;
-    }
-
-    (void)mesa_voe_event_active_get(NULL, voe_event_array_size, voe_active);
-
-    for (voe_idx = 0; voe_idx < voe_cnt; ) {
-        if (!(voe_active[voe_idx / 32])) {    // Check for new event for this 32 MEP instances
-            voe_idx += 32;
-            continue;
-        }
-        if (!(voe_active[voe_idx / 32] & (1 << (voe_idx % 32)))) {  // Check for new event on this MEP instance
-            voe_idx++;
-            continue;
-        }
-        (void)mesa_voe_event_get(NULL, voe_idx, &event_mask);
-        (void)mesa_voe_cc_status_get(NULL, voe_idx, &cc_status);
-
-        dLOC = cc_status.loc;    // 'loc' is dLOC according to G.8021. Take as is.
-        if (MESA_CAP(MESA_CAP_VOP_CCM_DEFECT)) {                  // Check if this platform supports CCM defects according to G.8021.
-            dUNM = cc_status.mep_id_unexp;   // 'mep_id_unexp' is dUNM according to G.8021. Take as is.
+    for (i = 1; i < 5; i++) {
+        MESA_RC(mesa_ace_init(NULL, MESA_ACE_TYPE_ETYPE, &ace));
+        ace.id = i;
+        ace.port_list = port_list;
+        ace.frame.etype.etype.value[0] = 0x88;
+        ace.frame.etype.etype.value[1] = 0xf7;
+        ace.frame.etype.etype.mask[0] = 0xff;
+        ace.frame.etype.etype.mask[1] = 0xff;
+        ptp->enable = 1;
+        ptp->header.mask[1] = 0x0f;
+        ptp->header.value[1] = 0x02; /* versionPTP = 2 */
+        if (i == 1) {
+            ptp->header.mask[0] = 0x0f;
+            ptp->header.value[0] = 0x00; /* messageType = 0 */
+            ace.action.ptp_action = MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2;
+        } else if (i == 2) {
+            ptp->header.mask[0] = 0x0f;
+            ptp->header.value[0] = 0x03; /* messageType = 3 */
+            ace.action.ptp_action = MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1;
+        } else if (i == 3) {
+            ptp->header.mask[0] = 0x0c;
+            ptp->header.value[0] = 0x00; /* messageType = 1/2 */
+            ace.action.ptp_action = MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY;
         } else {
-            if (event_mask & MESA_VOE_EVENT_MASK_CCM_MEP_ID) {     // Check for 'mep_id_unexp' event. This is not dUNM according to G.8021. Must be calculated.
-                dUNM = TRUE;                              // dUNM must be unconditionally active now as event indicate status raising or falling edge. 
-                if (!cc_status.mep_id_unexp) {
-                    start_unm_timer(longest_ccm_period);  // Expected MEP-ID is received - so start the defect clear timer
-                } else {
-                    stop_unm_timer();                     // Unexpected MEP-ID is received - so stop the defect clear timer
-                }
-            }
+            ptp->header.mask[0] = 0x08;
+            ptp->header.value[0] = 0x08; /* messageType = 8-15 */
         }
+        ace.action.port_action = MESA_ACL_PORT_ACTION_FILTER;
+        ace.action.port_list = port_list;
+        MESA_RC(mesa_ace_add(NULL, MESA_ACE_ID_LAST, &ace));
     }
 
-    free(voe_active);
+    /*** PSFP *******************************************************************************/
+
+    // Setup PSFP gate control list
+    MESA_RC(mesa_psfp_gate_conf_get(NULL, gate_id, &gate_conf));
+    for (i = 0; i < max_cnt; i++) {
+        mesa_psfp_gce_t *gce = &psfp_gcl[i];
+        memset(gce, 0, sizeof(*gce));
+        /* Open for 1 msec, closed for 9 msec */
+        gce->gate_open = (i == 0 ? 1 : 0);
+        gce->time_interval = ((i == 0 ? 1 : 9) * 1000000);
+        gate_conf.config.cycle_time += gce->time_interval;
+    }
+    MESA_RC(mesa_psfp_gcl_conf_set(NULL, gate_id, max_cnt, psfp_gcl));
+    gate_conf.enable = 1;
+    gate_conf.config_change = 1;
+    MESA_RC(mesa_psfp_gate_conf_set(NULL, gate_id, &gate_conf));
+
+    // Map filter to gate
+    MESA_RC(mesa_psfp_filter_conf_get(NULL, filter_id, &filter_conf));
+    filter_conf.gate_enable = 1;
+    filter_conf.gate_id = gate_id;
+    MESA_RC(mesa_psfp_filter_conf_set(NULL, filter_id, &filter_conf));
+
+    // Allocate iflow for PSFP and map to filter
+    MESA_RC(mesa_iflow_alloc(NULL, &iflow_id));
+    MESA_RC(mesa_iflow_conf_get(NULL, iflow_id, &iflow_conf));
+    iflow_conf.psfp.filter_enable = 1;
+    iflow_conf.psfp.filter_id = filter_id;
+    iflow_conf.cut_through_disable = 1;
+    MESA_RC(mesa_iflow_conf_set(NULL, iflow_id, &iflow_conf));
+
+    // On Rx port, map PSFP VLAN to iflow
+    MESA_RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ANY, &vce));
+    vce.id = 1;
+    vce.key.port_list = rx_list;
+    vce.key.tag.tagged = MESA_VCAP_BIT_1;
+    vce.key.tag.s_tag = MESA_VCAP_BIT_0;
+    vce.key.tag.vid.value = vid_psfp;
+    vce.key.tag.vid.mask = 0xfff;
+    vce.action.flow_id = iflow_id;
+    MESA_RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce));
+
+    /*** FRER (sequence generation) *********************************************************/
+
+    // On Rx port, map FRER VLAN to iflow with sequence generation
+    MESA_RC(mesa_iflow_alloc(NULL, &iflow_id));
+    MESA_RC(mesa_iflow_conf_get(NULL, iflow_id, &iflow_conf));
+    iflow_conf.frer.generation = 1;
+    iflow_conf.cut_through_disable = 1;
+    MESA_RC(mesa_iflow_conf_set(NULL, iflow_id, &iflow_conf));
+    vce.id = 2;
+    vce.key.tag.vid.value = vid_frer;
+    vce.action.vid = vid_frer;
+    vce.action.pop_enable = 1;
+    vce.action.pop_cnt = 1;
+    vce.action.flow_id = iflow_id;
+    MESA_RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce));
+
+    // On Tx ports, R-tag push enabled for FRER VLAN
+    MESA_RC(mesa_tce_init(NULL, &tce));
+    tce.id = 1;
+    tce.key.port_list = tx_list;
+    tce.key.vid = vid_frer;
+    tce.action.tag.tpid = MESA_TPID_SEL_C;
+    tce.action.tag.vid = vid_frer;
+    tce.action.rtag.sel = MESA_RTAG_SEL_INNER;
+    MESA_RC(mesa_tce_add(NULL, MESA_TCE_ID_LAST, &tce));
+
+    /*** FRER (sequence recovery) ***********************************************************/
+
+    // Enable sequence recovery for compound stream
+    MESA_RC(mesa_frer_cstream_conf_get(NULL, cstream_id, &frer_conf));
+    frer_conf.recovery = 1;
+    frer_conf.alg = MESA_FRER_RECOVERY_ALG_VECTOR;
+    frer_conf.hlen = 8;
+    frer_conf.reset_time = 1000;
+    MESA_RC(mesa_frer_cstream_conf_set(NULL, cstream_id, &frer_conf));
+
+    // Allocate member stream on Rx port and map to compound stream
+    MESA_RC(mesa_frer_mstream_alloc(NULL, &rx_list, &mstream_id));
+    MESA_RC(mesa_frer_mstream_conf_get(NULL, mstream_id, port_rx, &frer_conf));
+    frer_conf.cstream_id = cstream_id;
+    MESA_RC(mesa_frer_mstream_conf_set(NULL, mstream_id, port_rx, &frer_conf));
+
+    // On Tx ports, map FRER VLAN to iflow mapping to member stream
+    MESA_RC(mesa_iflow_alloc(NULL, &iflow_id));
+    MESA_RC(mesa_iflow_conf_get(NULL, iflow_id, &iflow_conf));
+    iflow_conf.frer.mstream_enable = 1;
+    iflow_conf.frer.mstream_id = mstream_id;
+    iflow_conf.cut_through_disable = 1;
+    MESA_RC(mesa_iflow_conf_set(NULL, iflow_id, &iflow_conf));
+    vce.id = 3;
+    vce.key.port_list = tx_list;
+    vce.action.flow_id = iflow_id;
+    MESA_RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce));
+
+    // On Rx port, R-tag pop enabled for FRER VLAN
+    tce.id = 2;
+    tce.key.port_list = rx_list;
+    tce.action.rtag.sel = MESA_RTAG_SEL_NONE;
+    tce.action.rtag.pop = 1;
+    MESA_RC(mesa_tce_add(NULL, MESA_TCE_ID_LAST, &tce));
+
+    /*** TAS ********************************************************************************/
+
+    // On Rx port, map TAS VLAN to priority 5
+    prio = 5;
+    qce.id++;
+    qce.key.tag.vid.vr.v.value = vid_tas;
+    qce.action.prio = prio;
+    MESA_RC(mesa_qce_add(NULL, MESA_QCE_ID_LAST, &qce));
+
+    // Setup TAS gate control list
+    MESA_RC(mesa_qos_tas_port_conf_get(NULL, port_tx, &tas_conf));
+    for (i = 0; i < max_cnt; i++) {
+        mesa_qos_tas_gce_t *gce = &tas_gcl[i];
+        memset(gce, 0, sizeof(*gce));
+        for (q = 0; q < MESA_QUEUE_ARRAY_SIZE; q++) {
+            /* Open for 1 msec, closed for 9 msec */
+            gce->gate_open[q] = (i == 1 && q == prio ? 0 : 1);
+        }
+        gce->time_interval = ((i == 0 ? 1 : 9) * 1000000);
+        tas_conf.cycle_time += gce->time_interval;
+    }
+    MESA_RC(mesa_qos_tas_port_gcl_conf_set(NULL, port_tx, max_cnt, tas_gcl));
+    tas_conf.gate_enabled = 1;
+    for (q = 0; q < MESA_QUEUE_ARRAY_SIZE; q++) {
+        tas_conf.gate_open[q] = 1;
+    }
+    tas_conf.config_change = 1;
+    MESA_RC(mesa_ts_timeofday_get(NULL, &tas_conf.base_time, &tc));
+    tas_conf.base_time.seconds++;
+    MESA_RC(mesa_qos_tas_port_conf_set(NULL, port_tx, &tas_conf));
+
+    return MESA_RC_OK;
 }
 
 static test_entry_t test_table[] = {
@@ -1142,6 +869,10 @@ static test_entry_t test_table[] = {
         "Fireant TS test",
         test_fa_ts
     },
+    {
+        "SparX-5i TSN demo",
+        test_fa_tsn
+    }
 };
 
 

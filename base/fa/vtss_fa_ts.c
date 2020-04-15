@@ -37,6 +37,8 @@ static const u8 ptp_gpio[4] = {
     25  /* PTP_3 */
 };
 
+static u64 nominal_tod_increment;
+
 #define HW_NS_PR_SEC 1000000000L
 #define HW_PS_PR_SEC 1000000000000LL
 #define HW_PS_PR_NS  1000
@@ -61,7 +63,6 @@ REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(pin),                     \
          VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION |        \
          VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SYNC |          \
          VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_DOM);           \
-
 
 static vtss_rc timestampAddSec(vtss_timestamp_t *ts)
 {
@@ -118,7 +119,7 @@ static vtss_rc timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add
     return VTSS_RC_OK;
 }
 
-static vtss_rc timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub)
+vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub)
 {
     if (ts->nanosecondsfrac < ts_sub->nanosecondsfrac) {
         VTSS_RC(timestampSubNanosec(ts));
@@ -141,6 +142,83 @@ static vtss_rc timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub
     return VTSS_RC_OK;
 }
 
+BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2)
+{
+    if (ts1->sec_msb > ts2->sec_msb) {
+        return TRUE;
+    }
+    if (ts1->sec_msb < ts2->sec_msb) {
+        return FALSE;
+    }
+    if (ts1->seconds > ts2->seconds) {
+        return TRUE;
+    }
+    if (ts1->seconds < ts2->seconds) {
+        return FALSE;
+    }
+    if (ts1->nanoseconds > ts2->nanoseconds) {
+        return TRUE;
+    }
+    if (ts1->nanoseconds < ts2->nanoseconds) {
+        return FALSE;
+    }
+    if (ts1->nanosecondsfrac > ts2->nanosecondsfrac) {
+        return TRUE;
+    }
+    if (ts1->nanosecondsfrac < ts2->nanosecondsfrac) {
+        return FALSE;
+    }
+    return FALSE;
+}
+
+vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano)
+{
+    u64 seconds = nano / HW_NS_PR_SEC;
+    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 sec_32 = (u32)seconds;
+    u16 sec_msb = seconds >> 32;
+
+    ts->nanoseconds += nano_30;
+    if (ts->nanoseconds >= HW_NS_PR_SEC) {
+        VTSS_RC(timestampAddSec(ts));
+        ts->nanoseconds -= HW_NS_PR_SEC;
+    }
+
+    /* First 32 bits of seconds add to seconds */
+    ts->seconds += sec_32;
+    if (ts->seconds < seconds) {
+        ts->sec_msb++;
+    }
+
+    /* Above 32 bits of seconds add to MSB seconds */
+    ts->sec_msb += sec_msb;
+
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano)
+{
+    u64 seconds = nano / HW_NS_PR_SEC;
+    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 sec_32 = (u32)seconds;
+    u16 sec_msb = seconds >> 32;
+
+    if (ts->nanoseconds < nano_30) {
+        VTSS_RC(timestampSubSec(ts));
+        ts->nanoseconds += HW_NS_PR_SEC;
+    }
+    ts->nanoseconds -= nano_30;
+
+    if (ts->seconds < sec_32) {
+        ts->sec_msb--;
+    }
+    ts->seconds -= sec_32;
+
+    ts->sec_msb -= sec_msb;
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss_timestamp_t *ts, u64 *tc)
 {
     u32 value;
@@ -155,7 +233,7 @@ static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss
     }
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(io), &value);
     ts->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(value) << 8;    /* In register it is 8 bit nano second fragments. Must return in 16 bit nano second fragments */
-    *tc = ((u64)((u64)((u64)ts->seconds*VTSS_ONE_MIA) + (u64)ts->nanoseconds) << 16) + (u64)ts->nanosecondsfrac;  /* Must return tc in 16 bit nano second fragments */
+    *tc = ((u64)ts->nanoseconds << 16) + (u64)ts->nanosecondsfrac;  /* Must return tc in 16 bit nano second fragments */
     return VTSS_RC_OK;
 }
 
@@ -266,7 +344,7 @@ static vtss_rc fa_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state, u32 do
 
         /* Calculate new time */
         if (negative){
-            VTSS_RC(timestampSub(&ts_prev, ts));
+            VTSS_RC(vtss_timestampSub(&ts_prev, ts));
         } else {
             VTSS_RC(timestampAdd(&ts_prev, ts));
         }
@@ -282,38 +360,36 @@ static vtss_rc fa_ts_timeofday_set_delta(vtss_state_t *vtss_state, const vtss_ti
     return fa_ts_domain_timeofday_set_delta(vtss_state, 0, ts, negative);
 }
 
-static u64 nominal_tod_increment(vtss_state_t *vtss_state)
-{
-    u32 clk_in_100ps, clk_cfg;
-
-    /* Read the nominal system clock period length in 100 ps */
-    REG_RD(VTSS_HSCH_SYS_CLK_PER, &clk_cfg);
-    clk_in_100ps = VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_cfg);
-
-    /* Calculate the nominal TOD increment per clock cycle */
-    /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
-    return ((clk_in_100ps/10) * 0x0800000000000000) + (((clk_in_100ps%10) * 0x0800000000000000)/10);
-}
-
 static vtss_rc fa_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 {
     i32 adj;
-    u32 adj_abs, val, dom_mask=0x01<<domain;
-    u64 tod_inc, tod_inc_old, tod_inc_diff, one_pico, tod_delta, tod_trunk;
+    u32 adj_abs, dom_mask=0x01<<domain;
+    u64 tod_inc, one_pico, tod_delta, tod_trunk;
+
+    VTSS_D("enter domain %u  nominal_tod_increment %" PRIu64 "", domain, nominal_tod_increment);
 
     if (domain >= VTSS_TS_DOMAIN_ARRAY_SIZE) {
+        VTSS_D("domain %d is larger than VTSS_TS_DOMAIN_ARRAY_SIZE %u", domain, VTSS_TS_DOMAIN_ARRAY_SIZE);
         return VTSS_RC_ERROR;
     }
     adj = vtss_state->ts.conf.adj[domain];
     adj_abs = VTSS_LABS(adj);
 
-    tod_inc = nominal_tod_increment(vtss_state);  /* Fetch the nominal TOD increment as a baseline */
+    tod_inc = nominal_tod_increment;  /* Fetch the nominal TOD increment as a baseline */
 
     /* Calculate the TOD increment delta value, that is a fraction of the nominal TOD increment. */
     /* The fraction is given by 'adj' in 1E-10. The calculation is: tod_delta = tod_inc * (adj / 1E10) */
     tod_trunk = tod_inc % 10000000000LL;   /* We will divide before multiplying to avoid overrun. The TOD truncated part is saved in 'tod_trunk' */ 
     tod_delta = (tod_inc / 10000000000LL) * adj_abs;    /* Divide and then multiply */
     tod_delta += (tod_trunk * adj_abs) / 10000000000LL; /* Now the truncated part is multiplied and then divided. Result is added to 'tod_delta' */
+
+    /* Check if the delta value is too large */
+    one_pico = 0x0800000000000000/1000;  /* One pico is one nano divided by 1000. One nano in 5.59 notation is 0x0800000000000000 */
+    VTSS_D("adj %d  tod_delta %" PRIu64 "  1.9pico %" PRIu64 "", adj, tod_delta, ((one_pico*19)/10));
+    if (tod_delta > (one_pico*19)/10) {    /* In case the numeric change is more than 1.9 pico seconds, PTP must be restarted so this is rejected */
+        VTSS_I("Rejected restarting of PTP due to more than 1.9 pico second change in TOD increment");
+        return VTSS_RC_ERROR;
+    }
 
     /* Adjust the TOD increment with the delta value */
     if (adj > 0) {
@@ -322,27 +398,11 @@ static vtss_rc fa_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
         tod_inc -= tod_delta;
     }
 
-    /* Read the old TOD increment value */
-    REG_RD(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), &val);
-    tod_inc_old = val;
-    REG_RD(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), &val);
-    tod_inc_old += (u64)((u64)val << 32);
-
     /* Configure the new adjusted TOD increment value */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(dom_mask), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
     REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(tod_inc & 0xFFFFFFFF));
     REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(tod_inc >> 32));
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(0), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
-
-    /* Calculate the numeric change in TOD increment */
-    tod_inc_diff = (tod_inc_old > tod_inc) ? (tod_inc_old - tod_inc) : (tod_inc - tod_inc_old);
-    one_pico = 0x0800000000000000/1000;  /* One pico is one nano divided by 1000. One nano in 5.59 notation is 0x0800000000000000 */
-    if (tod_inc_diff > 3*one_pico) {    /* In case the numeric change is more than 3 pico seconds, PTP must be restarted for this domain */
-        /* Restart PTP */
-        VTSS_I("Restarting PTP due to more than 3 pico second change in TOD increment");
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, 0, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(dom_mask));
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(dom_mask), VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(dom_mask));
-    }
 
     return VTSS_RC_OK;
 }
@@ -489,7 +549,7 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     /* The default_igr_latency is in picoseconds */
     /* The ingress_latency is in nanoseconds<<16  */
     /* Register is in nanoseconds<<8 */
-    rx_delay = VTSS_MOD64((conf->ingress_latency >> 8), (VTSS_ONE_MIA >> 8)) + ((conf->default_igr_latency << 8) / (1000 << 8));
+    rx_delay = VTSS_MOD64((conf->ingress_latency >> 8), ((u64)VTSS_ONE_MIA << 8)) + ((conf->default_igr_latency << 8) / (1000 << 8));
 
     if (rx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         rx_delay = 0xFFFFFF;
@@ -790,7 +850,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         return VTSS_RC_ERROR;
     }
 
-    /* Add additional delays found in testing */
+    /* Add additional delays found in testing. Note that rx_delay and tx_delay values are in pico seconds */
 // The below is from Jaguar2. Something similar must be done on Fireant as the above based on numbers from Morten is not sufficiently accurate
 //    switch (interface) {
 //    case VTSS_PORT_INTERFACE_SGMII:
@@ -1085,7 +1145,7 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf
 static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 {
     u32 i, domain;
-    u64 tod_inc;
+    u32 clk_in_100ps, clk_cfg;
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0));
@@ -1096,11 +1156,18 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
             VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA | VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52);
 
     /* Configure the nominal TOD increment per clock cycle */
-    tod_inc = nominal_tod_increment(vtss_state);  /* Fetch the nominal TOD increment */
+    /* Read the nominal system clock period length in 100 ps */
+    REG_RD(VTSS_HSCH_SYS_CLK_PER, &clk_cfg);
+    clk_in_100ps = VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_cfg);
+
+    /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
+    nominal_tod_increment = ((clk_in_100ps/10) * 0x0800000000000000) + (((clk_in_100ps%10) * 0x0800000000000000)/10);
+
+    /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
     for (domain = 0; domain < VTSS_TS_DOMAIN_ARRAY_SIZE; domain++) {
-        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(tod_inc | 0xFFFFFFFF));
-        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(tod_inc >> 32));
+        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(nominal_tod_increment & 0xFFFFFFFF));
+        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(nominal_tod_increment >> 32));
     }
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(0), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
 
@@ -1306,6 +1373,14 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#define DEV_REPLI_WR(name, repli, port, value)                                \
+    {                                                                         \
+        REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), repli), value);        \
+        if (!VTSS_PORT_IS_2G5(port)) {                                        \
+            REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), repli), value); \
+        }                                                                     \
+    }
+
 vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
     vtss_ts_state_t *state = &vtss_state->ts;
@@ -1353,10 +1428,22 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(fa_ts_init(vtss_state));
         break;
     case VTSS_INIT_CMD_PORT_MAP:
-        /* Initialize the PTP Port ID port number. This is done anyway in the jr2_ts_operation_mode_set() function but this is only called from AIL in case of changes in mode or domain. */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             port = VTSS_CHIP_PORT(port_no);
+
+            /* Initialize the PTP Port ID port number. This is done anyway in the jr2_ts_operation_mode_set() function but this is only called from AIL in case of changes in mode or domain. */
             REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no+1), VTSS_M_ANA_ACL_PTP_CFG_PTP_PORT_NUM);
+
+            /* Initialize the Phase Detector Control */
+            DEV_REPLI_WR(PHAD_CTRL, 0, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1) | VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(1) | VTSS_F_DEV1G_PHAD_CTRL_REDUCED_RES(0) | VTSS_F_DEV1G_PHAD_CTRL_LOCK_ACC(0));
+            DEV_REPLI_WR(PHAD_CTRL, 1, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1) | VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(1) | VTSS_F_DEV1G_PHAD_CTRL_REDUCED_RES(0) | VTSS_F_DEV1G_PHAD_CTRL_LOCK_ACC(0));
+            /* To clear failed bit it is needed to write a 1 */
+            DEV_REPLI_WR(PHAD_CTRL, 0, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1) | VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(1) | VTSS_F_DEV1G_PHAD_CTRL_REDUCED_RES(0) | VTSS_F_DEV1G_PHAD_CTRL_LOCK_ACC(0));
+            DEV_REPLI_WR(PHAD_CTRL, 1, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1) | VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(1) | VTSS_F_DEV1G_PHAD_CTRL_REDUCED_RES(0) | VTSS_F_DEV1G_PHAD_CTRL_LOCK_ACC(0));
         }
         break;
     default:

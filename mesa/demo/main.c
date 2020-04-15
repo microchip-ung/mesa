@@ -245,39 +245,79 @@ EXIT_CLOSE:
     return rc;
 }
 
+static mesa_bool_t int_from_str(const char *s, int *res)
+{
+    long int tmp;
+
+    // Get the number only
+    while (*s) {
+        if(*s >= '0' && *s <= '9') {
+            break;
+        } else {
+            s++;
+        }
+    }
+
+    if (strlen(s) == 0) {
+        return 0;
+    }
+
+    tmp = strtol(s, 0, 10);
+
+    if (tmp < 1 || tmp > 9999) {
+        return 0;
+    }
+
+    *res = tmp;
+    return 1;
+}
+
 // Read the uboot env var and return the results as integer
 // FA PCB 134 (12x10G + 8x25G + NPI)
 // FA PCB 135 (48x1G + 4x10G + 4x25G + NPI)
 // Linux usage e.g.:
-// fw_setenv ref_board_pcb 135
-// fw_setenv ref_board_port_cnt 21
-// fw_printenv ref_board_pcb
-// fw_printenv ref_board_port_cnt
-
+// fw_setenv pcb pcb134
+// fw_setenv pcb_var 21
 static mesa_bool_t get_uboot_env(const char *env, int *res)
 {
     FILE *fp;
     char cmd[100];
-
+    int ret = 0;
     *res = 0;
-    strcpy(cmd, "/usr/sbin/fw_printenv ");
+    strcpy(cmd, "/usr/sbin/fw_printenv -n ");
     strcat(cmd, env);
+    strcat(cmd, " 2> /dev/null");
     fp = popen(cmd, "r");
+
     if (fp == NULL) {
+        pclose(fp);
         return 0;
     }
-    if (fgets(cmd, sizeof(cmd)-1, fp) == NULL) {
+
+    if (fgets(cmd, sizeof(cmd) - 1, fp) == NULL) {
+        pclose(fp);
         return 0;
     }
-    char *ptr = strstr(cmd, "=pcb");
-    if (ptr == NULL) {
-        return 0;
-    }
-    ptr = ptr + 4;
-    *res = atoi(ptr);
+
+    ret = int_from_str(cmd, res);
 
     pclose(fp);
-    return 1;
+    return ret;
+}
+
+static mesa_bool_t get_env(const char *env, int *res)
+{
+    const char *e = getenv(env);
+
+    // Try read value from environment first. If success sue the environment.
+    // This shall be the first priority as it is ~1000 times faster than the
+    // UBoot path.
+    if (e && int_from_str(e, res)) {
+        return 1;
+    }
+
+    // Try UBoot!!!
+    return get_uboot_env(env, res);
 }
 
 // Assign defaults in case if the port count is not given
@@ -287,16 +327,16 @@ static uint32_t get_fa_port_cnt_default(uint32_t target, uint32_t pcb)
         return 8; // Current support for modular board
     }
     switch (target) {
-    case MESA_TARGET_7546_04:
+    case MESA_TARGET_7546TSN:
     case MESA_TARGET_7546:
         return  (pcb == 135) ? 29 : 7;
-    case MESA_TARGET_7549_04:
+    case MESA_TARGET_7549TSN:
     case MESA_TARGET_7549:
         return  (pcb == 135) ? 53 : 10;
-    case MESA_TARGET_7552_04:
+    case MESA_TARGET_7552TSN:
     case MESA_TARGET_7552:
         return  (pcb == 135) ? 57 : 13;
-    case MESA_TARGET_7556_04:
+    case MESA_TARGET_7556TSN:
     case MESA_TARGET_7556:
         if (pcb == 135) {
             T_E("Port config does not exist");
@@ -305,7 +345,7 @@ static uint32_t get_fa_port_cnt_default(uint32_t target, uint32_t pcb)
             return 17;
         }
         break;
-    case MESA_TARGET_7558_04:
+    case MESA_TARGET_7558TSN:
     case MESA_TARGET_7558:
         return  (pcb == 135) ? 57 : 21;
     default:
@@ -335,35 +375,35 @@ static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t s
     switch (bw) {
     case MESA_SWITCH_BW_64:
         if (sparxi) {
-            return MESA_TARGET_7546_04;
+            return MESA_TARGET_7546TSN;
         } else {
             return MESA_TARGET_7546;
         }
         break;
     case MESA_SWITCH_BW_90:
         if (sparxi) {
-            return MESA_TARGET_7549_04;
+            return MESA_TARGET_7549TSN;
         } else {
             return MESA_TARGET_7549;
         }
         break;
     case MESA_SWITCH_BW_128:
         if (sparxi) {
-            return MESA_TARGET_7552_04;
+            return MESA_TARGET_7552TSN;
         } else {
             return MESA_TARGET_7552;
         }
         break;
     case MESA_SWITCH_BW_160:
         if (sparxi) {
-            return MESA_TARGET_7556_04;
+            return MESA_TARGET_7556TSN;
         } else {
             return MESA_TARGET_7556;
         }
         break;
     case MESA_SWITCH_BW_200:
         if (sparxi) {
-            return MESA_TARGET_7558_04;
+            return MESA_TARGET_7558TSN;
         } else {
             return MESA_TARGET_7558;
         }
@@ -405,32 +445,40 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         break;
 
     case MESA_CHIP_FAMILY_JAGUAR2:
-        if (port_cnt > 48) {
+        if (REF_BOARD_PCB == -1) {
+            if (!get_env("pcb", &REF_BOARD_PCB)) {
+                printf("uboot 'pcb' env variable does not exist, use fw_setenv to set (defaulting to pcb111).\n");
+                REF_BOARD_PCB = 111;
+            }
+        }
+        if (REF_BOARD_PCB == 111) {
             board = "Jaguar2-cu48";
             target = 0x7449;
             type = 1;
-        } else if (port_cnt < 20) {
+        } else if (REF_BOARD_PCB == 116) {
             board = "Serval2 NID";
             target = 0x7438;
             type = 0;
-        } else {
+        } else if (REF_BOARD_PCB == 110) {
             board = "Jaguar2-cu8sfp16";
             target = 0x7468;
             type = 2;
+        } else {
+            printf("unknown JR2 PCB: %d.\n", REF_BOARD_PCB);
         }
         break;
 
     case MESA_CHIP_FAMILY_SPARX5:   // SparX-5/SparX-5i Family
         // Read the uboot env variables to find out PCB nr. and port count
         if (REF_BOARD_PCB == -1) {
-            if (!get_uboot_env("pcb", &REF_BOARD_PCB)) {
+            if (!get_env("pcb", &REF_BOARD_PCB)) {
                 printf("uboot 'pcb' env variable does not exist, use fw_setenv to set (defaulting to pcb125).\n");
                 REF_BOARD_PCB = 125;
             }
         }
         if (REF_BOARD_PORT_COUNT == -1) {
-            if (!get_uboot_env("pcb_port_cnt", &REF_BOARD_PORT_COUNT)) {
-                printf("Using default port count\n");
+            if (!get_env("pcb_var", &REF_BOARD_PORT_COUNT)) {
+                T_D("Using default port count\n");
             }
         }
         mesa_bool_t sparxi  = mesa_capability(NULL, MESA_CAP_SYNCE);
@@ -459,7 +507,9 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         len = snprintf(buf, bufsize, "%u", mux_mode);
     } else if (LOOP_PORT >= 0 && strcmp(tag, "mep_loop_port") == 0) {
         len = snprintf(buf, bufsize, "%u", LOOP_PORT); // The loop port is internal port LOOP_PORT
-    } else if (strcmp(tag, "board_port_cnt") == 0 && board_port_cnt < 1000) {
+    } else if (strcmp(tag, "pcb") == 0 && type < 1000) {
+        len = snprintf(buf, bufsize, "pcb%u", type);
+    } else if (strcmp(tag, "pcb_var") == 0 && board_port_cnt < 1000) {
         len = snprintf(buf, bufsize, "%u", board_port_cnt);
     }
 
@@ -586,21 +636,6 @@ static mscc_appl_opt_t main_opt = {
     help_option
 };
 
-static mesa_bool_t emulation;
-
-static mesa_rc emul_option(char *parm)
-{
-    emulation = 1;
-    return MESA_RC_OK;
-}
-
-static mscc_appl_opt_t main_emul = {
-    "e",
-    NULL,
-    "Run application with emulation" ,
-    emul_option
-};
-
 static int run_in_foreground = 0;
 static mesa_rc option_foreground(char *parm)
 {
@@ -692,10 +727,18 @@ static void cli_cmd_warm_start(cli_req_t *req)
 
 static void cli_cmd_board_dump(cli_req_t *req)
 {
-    printf("Ref board PCB: %d\n",appl_init.board_inst->props.board_type);
-    printf("Ref board port count: %d, (compiled port count:%d)\n",REF_BOARD_PORT_COUNT,mesa_port_cnt(NULL));
-    printf("API Target: 0x%x\n",appl_init.board_inst->props.target);
+    int16_t  temp_celsius;
+    uint16_t meba_cnt = MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_BOARD_PORT_COUNT);
+    mesa_bool_t cap_sensor = MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS);
+
     printf("Board name: %s\n",appl_init.board_inst->props.name);
+    printf("Ref board PCB: %d\n",appl_init.board_inst->props.board_type);
+    printf("API Target: 0x%x\n",appl_init.board_inst->props.target);
+    printf("Compiled port count  (mesa): %d\n", mesa_port_cnt(NULL));
+    printf("Ref board port count (meba): %d\n", meba_cnt);
+    if (cap_sensor && mesa_temp_sensor_get(NULL, &temp_celsius) == MESA_RC_OK) {
+        printf("Chip temperature: %d (C)\n",temp_celsius);
+    }
 }
 
 static cli_cmd_t cli_cmd_table[] = {
@@ -723,6 +766,16 @@ static void main_cli_init(void)
 
 static int  RESET_FPGA = 0;
 static char RESET_DEVICE[512];
+
+static uint32_t assign_core_clock(uint32_t target)
+{
+    if (target == MESA_TARGET_7552TSN ||
+        target == MESA_TARGET_7552) {
+        return MESA_CORE_CLOCK_500MHZ; // Typically enough for the target application
+    }
+    // Defaults to the highest supported frequency
+    return MESA_CORE_CLOCK_DEFAULT;
+}
 
 static mesa_rc reset_fpga(const char *device)
 {
@@ -832,7 +885,6 @@ static void main_init(mscc_appl_init_t *init)
     case MSCC_INIT_CMD_REG:
         mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
         mscc_appl_opt_reg(&main_opt);
-        mscc_appl_opt_reg(&main_emul);
         mscc_appl_opt_reg(&main_opt_foreground);
         mscc_appl_opt_reg(&main_opt_warm);
         mscc_appl_opt_reg(&main_opt_loop_port);
@@ -858,12 +910,14 @@ static void init_modules(mscc_appl_init_t *init)
     mscc_appl_port_init(init);
     mscc_appl_mac_init(init);
     mscc_appl_vlan_init(init);
+    mscc_appl_packet_init(init);
     mscc_appl_ip_init(init);
     mscc_appl_json_rpc_init(init);
     mscc_appl_debug_init(init);
     mscc_appl_symreg_init(init);
     mscc_appl_trace_init(init);
     mscc_appl_test_init(init);
+    mscc_appl_example_init(init);
 }
 
 typedef struct {
@@ -920,7 +974,7 @@ int main(int argc, char **argv)
     mesa_port_no_t     port_no;
     mesa_chip_id_t     chip_id;
     struct timeval     tv;
-    int                i, fd, fd_max;
+    int                i, fd, fd_max, poll_cnt = 0;
     fd_set             rfds;
     fd_read_reg_t      *reg;
     reg_read_t         reg_read;
@@ -945,11 +999,7 @@ int main(int argc, char **argv)
     }
 
     // Initialize IO layer
-    if (emulation) {
-        rc = MESA_RC_OK;
-        reg_read = NULL;
-        reg_write = NULL;
-    } else if (SPI_REG_IO) {
+    if (SPI_REG_IO) {
         rc = spi_io_init(SPI_USER_REG, SPI_DEVICE, SPI_FREQ, SPI_PAD);
         reg_read = spi_reg_read;
         reg_write = spi_reg_write;
@@ -1012,6 +1062,9 @@ int main(int argc, char **argv)
     conf.vlan_counters_disable = vlan_counters_disable;
     conf.psfp_counters_enable = psfp_counters_enable;
     conf.spi_bus = !!SPI_REG_IO;
+    if (mesa_capability(NULL, MESA_CAP_INIT_CORE_CLOCK)) {
+        conf.core_clock.freq = assign_core_clock(meba_inst->props.target);
+    }
     if (mesa_init_conf_set(NULL, &conf) != MESA_RC_OK) {
         T_E("mesa_init_conf_set() failed");
         return 1;
@@ -1048,15 +1101,20 @@ int main(int argc, char **argv)
     }
     T_D("Chip ID: 0x%04x, revision: %u", chip_id.part_number, chip_id.revision);
 
-    if (!emulation) {
-        /* Load any board specific drivers to the kernel */
-        load_board_driver("/lib/modules/board/mscc_board.ko", meba_inst->props.board_type);
-    }
+    /* Load any board specific drivers to the kernel */
+    load_board_driver("/lib/modules/board/mscc_board.ko", meba_inst->props.board_type);
 
     // Initialize modules
     init->cmd = MSCC_INIT_CMD_INIT;
     init_modules(init);
 
+    // Initialize fan and chip/board temperature sensors
+    if  (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS)) {
+        MEBA_WRAP(meba_reset, init->board_inst, MEBA_SENSOR_INITIALIZE);
+    }
+    if  (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_FAN_SUPPORT)) {
+        MEBA_WRAP(meba_reset, init->board_inst, MEBA_FAN_INITIALIZE);
+    }
     // Poll modules
     while (1) {
         FD_ZERO(&rfds);
@@ -1070,8 +1128,8 @@ int main(int argc, char **argv)
                 }
             }
         }
-        tv.tv_sec = 1;
-        tv.tv_usec = 0;
+        tv.tv_sec = 0;
+        tv.tv_usec = 10000;
         if (select(fd_max + 1, &rfds, NULL, NULL, &tv) < 0) {
             T_E("select() failed");
         } else {
@@ -1082,11 +1140,17 @@ int main(int argc, char **argv)
                 }
             }
         }
-        T_N("Call init_modules() and mesa_poll_1sec()");
-        init->cmd = MSCC_INIT_CMD_POLL;
+        init->cmd = MSCC_INIT_CMD_POLL_FAST;
         init_modules(init);
-        if (MESA_RC_OK != mesa_poll_1sec(NULL)) {  // One sec poll of the MESA API
-            T_E("mesa_poll_1sec() failed");
+        poll_cnt++;
+        if (poll_cnt >= 100) {
+            poll_cnt = 0;
+            T_N("Call init_modules() and mesa_poll_1sec()");
+            init->cmd = MSCC_INIT_CMD_POLL;
+            init_modules(init);
+            if (MESA_RC_OK != mesa_poll_1sec(NULL)) {  // One sec poll of the MESA API
+                T_E("mesa_poll_1sec() failed");
+            }
         }
     }
 

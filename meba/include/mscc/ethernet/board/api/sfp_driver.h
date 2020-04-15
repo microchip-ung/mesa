@@ -96,8 +96,7 @@ typedef struct sfp_device_info {
 // SFP transreceivers types.
 typedef enum {
     MEBA_SFP_TRANSRECEIVER_NONE,          // No SFP
-    MEBA_SFP_TRANSRECEIVER_NOT_SUPPORTED, // SFP not supported for this
-                                          // interface
+    MEBA_SFP_TRANSRECEIVER_NOT_SUPPORTED, // SFP not supported for this interface
     MEBA_SFP_TRANSRECEIVER_100FX,         // 100M Fiber SFP
     MEBA_SFP_TRANSRECEIVER_100BASE_LX,    // 100M CU SFP
     MEBA_SFP_TRANSRECEIVER_100BASE_ZX,    // 100M CU SFP
@@ -115,19 +114,17 @@ typedef enum {
     MEBA_SFP_TRANSRECEIVER_2G5,           // 2.5G Fiber SFP
     MEBA_SFP_TRANSRECEIVER_5G,            // 5G Fiber SFP
     MEBA_SFP_TRANSRECEIVER_10G,           // 10G Fiber SFP+
-    MEBA_SFP_TRANSRECEIVER_10G_SR,  // 10G Fiber SFP+ short range (400m)
-    MEBA_SFP_TRANSRECEIVER_10G_LR,  // 10G Fiber SFP+ long range (10km)
-    MEBA_SFP_TRANSRECEIVER_10G_LRM, // 10G Fiber SFP+ long range multimode
-                                    // (220m)
-    MEBA_SFP_TRANSRECEIVER_10G_ER,  // 10G Fiber SFP+ extended range (40km)
-    MEBA_SFP_TRANSRECEIVER_10G_DAC, // 10G DAC SFP+ Cu
-    MEBA_SFP_TRANSRECEIVER_25G,     // 25G Fiber SFP+
-    MEBA_SFP_TRANSRECEIVER_25G_SR,  // 25G Fiber SFP+ short range (400m)
-    MEBA_SFP_TRANSRECEIVER_25G_LR,  // 25G Fiber SFP+ long range (10km)
-    MEBA_SFP_TRANSRECEIVER_25G_LRM, // 25G Fiber SFP+ long range multimode
-                                    // (220m)
-    MEBA_SFP_TRANSRECEIVER_25G_ER,  // 25G Fiber SFP+ extended range (40km)
-    MEBA_SFP_TRANSRECEIVER_25G_DAC, // 25G DAC SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_10G_SR,        // 10G Fiber SFP+ short range (400m)
+    MEBA_SFP_TRANSRECEIVER_10G_LR,        // 10G Fiber SFP+ long range (10km)
+    MEBA_SFP_TRANSRECEIVER_10G_LRM,       // 10G Fiber SFP+ long range multimode (220m)
+    MEBA_SFP_TRANSRECEIVER_10G_ER,        // 10G Fiber SFP+ extended range (40km)
+    MEBA_SFP_TRANSRECEIVER_10G_DAC,       // 10G DAC SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_25G,           // 25G Fiber SFP+
+    MEBA_SFP_TRANSRECEIVER_25G_SR,        // 25G Fiber SFP+ short range (400m)
+    MEBA_SFP_TRANSRECEIVER_25G_LR,        // 25G Fiber SFP+ long range (10km)
+    MEBA_SFP_TRANSRECEIVER_25G_LRM,       // 25G Fiber SFP+ long range multimode (220m)
+    MEBA_SFP_TRANSRECEIVER_25G_ER,        // 25G Fiber SFP+ extended range (40km)
+    MEBA_SFP_TRANSRECEIVER_25G_DAC,       // 25G DAC SFP+ Cu
 } meba_sfp_transreceiver_t;
 
 // Clears up the data allocated in the probe function.

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,8 @@ typedef struct {
     meba_sfp_transreceiver_t sfp_type;
     meba_sfp_device_t     *sfp_device;
     meba_sfp_driver_t     sfp_driver;
+    meba_phy_device_t     *phy_device;
+    meba_phy_driver_t     phy_driver;
 } port_entry_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

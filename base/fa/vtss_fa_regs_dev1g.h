@@ -3321,7 +3321,7 @@
  * @param target A \a ::vtss_target_DEV1G_e target
  * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-1
  */
-#define VTSS_DEV1G_PHAD_CTRL(gi)             VTSS_IOREG_IX(target,0x32,gi,2,0,0)
+#define VTSS_DEV1G_PHAD_CTRL(target,gi)      VTSS_IOREG_IX(target,0x32,gi,2,0,0)
 
 /** 
  * \brief
@@ -3384,7 +3384,7 @@
  * @param target A \a ::vtss_target_DEV1G_e target
  * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-1
  */
-#define VTSS_DEV1G_PHAD_CYC_STAT(gi)         VTSS_IOREG_IX(target,0x32,gi,2,0,1)
+#define VTSS_DEV1G_PHAD_CYC_STAT(target,gi)  VTSS_IOREG_IX(target,0x32,gi,2,0,1)
 
 /** 
  * \brief

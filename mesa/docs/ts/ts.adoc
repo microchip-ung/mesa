@@ -76,7 +76,7 @@ in order to make the register configuration happen with parameters given by
 `mesa_ts_domain_timeofday_set_delta()` +
 `mesa_ts_timeofday_offset_set()`
 
-==== External IO pin (`MESA_CHIP_FAMILY_JAGUAR2` or `MESA_CHIP_FAMILY_SERVALT`)
+==== External IO pin (`MESA_CHIP_FAMILY_JAGUAR2` or `MESA_CHIP_FAMILY_SERVALT` or `MESA_CHIP_FAMILY_SPARX5`)
 There are 4 External IO pins that can be configured to be related to a TOD Domain.
 The External IO pins can be used for generation clock output on a physical GPIO pin or to access/update the TOD related to the pin. +
  +
@@ -94,8 +94,14 @@ External IO pin 1 connected to GPIO pin  9 +
 External IO pin 2 connected to GPIO pin 26 +
 External IO pin 3 connected to GPIO pin 27 +
  +
+`MESA_CHIP_FAMILY_SPARX5` +
+External IO pin 0 connected to GPIO pin  8 +
+External IO pin 1 connected to GPIO pin  9 +
+External IO pin 2 connected to GPIO pin 24 +
+External IO pin 3 connected to GPIO pin 25 +
+ +
 The TOD get and set function described in <<bookmark-tod,Time Of Day>> is using an External IO pin for accessing TOD. The used pin is depending on the platform: +
-`MESA_CHIP_FAMILY_SERVALT` +
+`MESA_CHIP_FAMILY_SERVALT` or `MESA_CHIP_FAMILY_SPARX5` +
 External IO pin 4 is used for TOD get/set. This is an extra pin not connected to GPIO pin +
  +
 `MESA_CHIP_FAMILY_JAGUAR2` +
@@ -111,15 +117,15 @@ An external IO pin can be configured (`mesa_ts_external_io_mode_set()`) to relat
 * 'Disabled': IO pin is disabled.
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD.
 * 'Waveform Output': enable generation of a clock output of a specified frequency based on TOD.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal.
-* 'One PPS Input Load': enable load of _set() TOD, at positive edge of input signal.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal.
+* 'One PPS Input Load': enable load of set() TOD, at positive edge of input signal.
 
 It is possible to get (`mesa_ts_saved_timeofday_get()`) TOD for the related domain using this External IO pin. +
 In case the mode is 'One PPS Input Save' the TOD is what was saved at the last positive edge at input.
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 It is possible to set TOD as described in <<bookmark-tod,Time Of Day>> +
  +
-Is is not supported to _set() TOD to an external IO pin to achive TOD load at a positive edge of input signal.
+There is no external IO pin TOD set() function. This means that the 'One PPS Input Load' mode cannot be utilized.
 
 ===== [#bookmark-eca]#External Clock API#
 This API do not carry a parameter that select the External IO pin. +
@@ -130,8 +136,8 @@ The external clock can be configured in the following modes.
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used External IO pin is 0.
 * 'Waveform Output': enable generation of a clock output of a specified frequency based on TOD. In this case the used External IO pin is 0.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal.
-In this case the used External IO pin is 1 (`MESA_CHIP_FAMILY_JAGUAR2`) or 4 (`MESA_CHIP_FAMILY_SERVALT`).
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal.
+In this case the used External IO pin is 1 (`MESA_CHIP_FAMILY_JAGUAR2` or `MESA_CHIP_FAMILY_SPARX5`) or 4 (`MESA_CHIP_FAMILY_SERVALT`).
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' the TOD is what was saved at the last positive edge at input.
@@ -149,8 +155,8 @@ The External IO pin is always related to domain 0. +
 The alternative external clock can be configured in the following modes.
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used External IO pin is 3.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal. In this case the used External IO pin is 2.
-* 'One PPS Input Load': enable load of _set() TOD, at positive edge of input signal. In this case the used External IO pin is 2.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal. In this case the used External IO pin is 2.
+* 'One PPS Input Load': enable load of set() TOD, at positive edge of input signal. In this case the used External IO pin is 2.
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' it is possible to get (`mesa_ts_alt_clock_saved_get()`)
@@ -178,7 +184,7 @@ The external clock can be configured (`mesa_ts_external_clock_mode_set()`) in th
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used GPIO pin is 16.
 * 'Waveform Output': enable generation of a clock output of a specified frequency based on TOD. In this case the used GPIO pin is 16.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal. In this case the used GPIO pin is 15.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal. In this case the used GPIO pin is 15.
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' the TOD is what was saved at the last positive edge at input.
@@ -190,8 +196,8 @@ The External IO pin used is pin 0 +
 The alternative external clock can be configured (`mesa_ts_alt_clock_mode_set()`) in the following modes.
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used GPIO pin is 31.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal. In this case the used GPIO pin is 30.
-* 'One PPS Input Load': enable load of _set() TOD, at positive edge of input signal. In this case the used GPIO pin is 30.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal. In this case the used GPIO pin is 30.
+* 'One PPS Input Load': enable load of set() TOD, at positive edge of input signal. In this case the used GPIO pin is 30.
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' it is possible to get (`mesa_ts_alt_clock_saved_get()`)
@@ -223,7 +229,7 @@ The external clock can be configured in the following modes.
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used External IO pin is 0.
 * 'Waveform Output': enable generation of a clock output of a specified frequency based on TOD. In this case the used External IO pin is 0 and 2.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal. In this case the used External IO pin is 2.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal. In this case the used External IO pin is 2.
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' the TOD is what was saved at the last positive edge at input.
@@ -235,8 +241,8 @@ The External IO pins used are depending on the configured (`mesa_ts_alt_clock_mo
 The alternative external clock can be configured in the following modes.
 
 * 'One PPS Output': enable generation of a one PPS pulse based on TOD. In this case the used External IO pin is 0.
-* 'One PPS Input Save': enable save of TOD to _get(), at positive edge of input signal. In this case the used External IO pin is 3.
-* 'One PPS Input Load': enable load of _set() TOD, at positive edge of input signal. In this case the used External IO pin is 3.
+* 'One PPS Input Save': enable save of TOD to get(), at positive edge of input signal. In this case the used External IO pin is 3.
+* 'One PPS Input Load': enable load of set() TOD, at positive edge of input signal. In this case the used External IO pin is 3.
 
 It is possible to get TOD as described in <<bookmark-tod,Time Of Day>> +
 In case the mode is 'One PPS Input Save' it is possible to get (`mesa_ts_alt_clock_saved_get()`)
@@ -319,7 +325,7 @@ This happens if 'Two step' is signalled in the IFH +
 When injecting PTP message from CPU it is possible (`mesa_packet_ptp_action_t`) to signal 'Two Step' in the injected IFH to save TX time stamp in the TX FIFO.
 It is also required to allocate (`mesa_tx_timestamp_idx_alloc()`) a 'time stamp index' to go into the IFH.
 
-if `MESA_CHIP_FAMILY_JAGUAR2` or `MESA_CHIP_FAMILY_SERVALT`::
+if `MESA_CHIP_FAMILY_JAGUAR2` or `MESA_CHIP_FAMILY_SERVALT` or `MESA_CHIP_FAMILY_SPARX5`::
 In the IFH the RX time stamp is the 'time stamp index'. +
 Configuring the IFH RX time stamp is done by setting `mesa_packet_tx_info_t`.ptp_timestamp.
 
@@ -367,3 +373,87 @@ So when SYNC message is injected by CPU the IFH time stamp LSB must be configure
 `mesa_ts_alt_clock_saved_get()` +
 `mesa_ts_alt_clock_mode_set()` +
 `mesa_ts_timeofday_next_pps_set()` +
+
+== SyncE Functional description
+SyncE is short for Synchronous Ethernet. +
+If the capability `MESA_CAP_SYNCE` is non-zero, Synchronous Ethernet (ITU-T Rec. G.8262 and related) is supported by enabling recovered clock from a front port to be transmitted on a clock interface:
+
+* After initialization, No recovered clock is transmitted on any clock interface.
+* There are`MESA_CAP_SYNCE_CLK_CNT`number of possible clock interfaces.
+* Per clock interface the input can be configured (`mesa_synce_clock_in_set()`)
+* Per clock interface the output can be configured (`mesa_synce_clock_out_set()`)
+
+=== Possible frequencies
+The frequency transmitted on the clock interface depends on a configurable divider parameter (`mesa_synce_divider_t`) and the selected interface speed. This is depending on the chip family.
+
+if `MESA_CHIP_FAMILY_SPARX5`::
+Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
++
+[width="50%"]
+[cols="1,1"]
+|===
+
+| Interface speed     | Frequency
+| 25G                 | 312.5 MHz
+| 10G                 | 78.125 MHz
+|  5G (10/25G SERDES) | 39.0625 MHz
+|  5G (6G SERDES)     | 156.25 MHz
+|2.5G                 | 312.5 MHZ
+|  1G                 | 125 MHz
+|===
++
+These frequencies can be divided by output configuration (`mesa_synce_divider_t`).
+
+if `MESA_CHIP_FAMILY_JAGUAR2`::
+Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
++
+[width="50%"]
+[cols="1,1"]
+|===
+
+| Interface speed     | Frequency
+| 10G                 | 161.1328125 MHz
+|2.5G (10G SERDES)    | 125 MHZ
+|2.5G (6G SERDES)     | 156.25 MHZ
+|  1G                 | 125 MHz
+|===
++
+These frequencies can be divided by output configuration (`mesa_synce_divider_t`).
+
+if `MESA_CHIP_FAMILY_SERVALT`::
+Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
++
+[width="50%"]
+[cols="1,1"]
+|===
+
+| Interface speed     | Frequency
+| 10G                 | 161.1328125 MHz
+|2.5G (10G SERDES)    | 125 MHZ
+|2.5G (6G SERDES)     | 125 MHZ
+|  1G                 | 125 MHz
+|===
++
+These frequencies can be divided by output configuration (`mesa_synce_divider_t`).
+
+if `MESA_CHIP_FAMILY_SERVAL`::
+Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
++
+[width="50%"]
+[cols="1,1"]
+|===
+
+| Interface speed     | Frequency
+|2.5G                 | 125 MHZ
+|  1G                 | 125 MHz
+|===
++
+These frequencies can be divided by output configuration (`mesa_synce_divider_t`).
+
+WARNING: Note that the physical clock interface is not designed for frequencies higher that 125 MHZ so a suitable divider must be configured to get below that.
+
+=== MESA Functions
+`mesa_synce_clock_in_set()` +
+`mesa_synce_clock_in_get()` +
+`mesa_synce_clock_out_set()` +
+`mesa_synce_clock_out_get()`

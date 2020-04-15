@@ -517,14 +517,24 @@ typedef enum {
 // VCE Action
 typedef struct
 {
-    mesa_vid_t                vid;        // Classified VLAN ID
-    mesa_acl_policy_no_t      policy_no;  // ACL policy number
-    mesa_bool_t               pop_enable; // Tag pop enable
-    uint8_t                   pop_cnt;    // Tag pop count
-    mesa_imap_sel_t           map_sel;    // Ingress map selection
-    mesa_qos_ingress_map_id_t map_id;     // Ingress map to use for classification
-    mesa_iflow_id_t           flow_id;    // Ingress flow ID. If flow_id points to a VOE, OAM will be handled by the VOE. If not NONE and doesn't point to a VOE, a possibly enabled port-VOE will see OAM as data.
-    mesa_oam_detect_t         oam_detect; // OAM detection
+    mesa_vid_t                vid;         // Classified VLAN ID
+    mesa_acl_policy_no_t      policy_no;   // ACL policy number
+    mesa_bool_t               pop_enable;  // Tag pop enable
+    uint8_t                   pop_cnt;     // Tag pop count
+    mesa_imap_sel_t           map_sel;     // Ingress map selection
+    mesa_qos_ingress_map_id_t map_id;      // Ingress map to use for classification
+    mesa_iflow_id_t           flow_id;     // Ingress flow ID. If flow_id points to a VOE, OAM will be handled by the VOE. If not NONE and doesn't point to a VOE, a possibly enabled port-VOE will see OAM as data.
+    mesa_oam_detect_t         oam_detect;  // OAM detection
+    mesa_bool_t               prio_enable; // Enable priority classification
+    mesa_prio_t               prio;        // Priority value
+    mesa_bool_t               dp_enable;   // Enable DP classification
+    mesa_dp_level_t           dp;          // DP value
+    mesa_bool_t               dscp_enable; // Enable DSCP classification
+    mesa_dscp_t               dscp;        // DSCP value
+    mesa_bool_t               pcp_enable;  // Enable PCP classification
+    mesa_pcp_t                pcp;         // PCP value
+    mesa_bool_t               dei_enable;  // Enable DEI classification
+    mesa_dei_t                dei;         // DEI value
 } mesa_vce_action_t;
 
 // VLAN Control Entry
@@ -669,6 +679,7 @@ typedef struct
     mesa_voi_idx_t         voi_idx CAP(VOP_V2); // VOI index or MESA_VOI_IDX_NONE
     mesa_frer_iflow_conf_t frer CAP(L2_FRER);   // FRER ingress flow configuration
     mesa_psfp_iflow_conf_t psfp CAP(L2_PSFP);   // PSFP ingress flow configuration
+    mesa_bool_t            cut_through_disable CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Force store-and-forward
 } mesa_iflow_conf_t;
 
 // Get ingress flow configuration.
@@ -731,11 +742,14 @@ typedef enum {
     MESA_DEI_SEL_MAPPED      // Mapped DEI value
 } mesa_dei_sel_t;
 
+#define MESA_TCE_VID_CLASSIFIED 0    // Use classified VID
+#define MESA_TCE_VID_PRIORITY   4096 // Use priority-tag (VID zero)
+
 // TCE tag information
 typedef struct
 {
     mesa_tpid_sel_t          tpid;    // TPID selection
-    mesa_vid_t               vid;     // VLAN ID, value zero means classified
+    mesa_vid_t               vid;     // VLAN ID or special values MESA_TCE_VID_* above
     mesa_pcp_sel_t           pcp_sel; // PCP selection
     mesa_pcp_t               pcp;     // PCP value
     mesa_dei_sel_t           dei_sel; // DEI selection

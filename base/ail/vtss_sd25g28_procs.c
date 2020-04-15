@@ -71,7 +71,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
 
     ret_val->txmargin=0x0; //as per AN_0003
     ret_val->ln_cfg_ctle_rstn =0;//Default; What does this setting do?
-    ret_val->ln_r_dfe_rstn =1;//Default; 
+    ret_val->ln_r_dfe_rstn =0;//Default; 
     switch(f_mode) {
       case VTSS_SD25G28_MODE_25G_ETH :
       case VTSS_SD25G28_MODE_25G_LAN :   {
@@ -95,6 +95,9 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
         ret_val->txmargin=0x1;
+        ret_val->ln_cfg_ctle_rstn =1; 
+        ret_val->ln_r_dfe_rstn =1;//Default; 
+        ret_val->ln_cfg_pi_bw_3_0 = 0;
 
 		ret_val->tx_tap_dly=8; 
 		ret_val->tx_tap_adv=0xc;// this depends on actual Si
@@ -118,12 +121,14 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->com_tx_reserve_lsb = ((1<<6) + (0<<4)); 
         ret_val->ln_tx_reserve_msb = ((1<<6)+(0<<5)+(0<<4)+(1<<3)+(2<<1)); 
         ret_val->ln_tx_reserve_lsb = ((1<<6)+(0<<4)+(1<<2)+(0<<0)); 
+        ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_bw= 1;
         ret_val->ln_rxterm=0;
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
-        ret_val->ln_cfg_ctle_rstn =1;//This clears most of the CRC errors 
-        ret_val->ln_r_dfe_rstn =0;//This clears most CRC errors 
+        ret_val->txmargin=0x1;
+        ret_val->ln_cfg_ctle_rstn =1; 
+        ret_val->ln_r_dfe_rstn =1;//This clears most CRC errors 
 		ret_val->tx_tap_dly=0; 
 		ret_val->tx_tap_adv=0x0;// this depends on actual Si
         VTSS_D ("Mode is Q(D)SXGMII\n");
@@ -147,11 +152,12 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_tx_reserve_msb = ((1<<6)+(0<<5)+(0<<4)+(1<<3)+(2<<1)); 
         ret_val->ln_tx_reserve_lsb = ((1<<6)+(0<<4)+(1<<2)+(0<<0)); 
         ret_val->ln_bw= 3;
+        ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_rxterm=3;//Changed to 2 CTS 07/06/2019
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
-        ret_val->ln_cfg_ctle_rstn =1;//This clears most of the CRC errors 
-        ret_val->ln_r_dfe_rstn =0;//This clears most CRC errors 
+        ret_val->ln_cfg_ctle_rstn =1; 
+        ret_val->ln_r_dfe_rstn =1;//This clears most CRC errors 
 		ret_val->tx_tap_dly=0; 
 		ret_val->tx_tap_adv=0x0;// this depends on actual Si
         VTSS_D ("Mode is 10G_LAN/ETH\n");
@@ -176,6 +182,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_tx_reserve_lsb = ((2<<6)+(0<<4)+(0<<2)+(0<<0)); 
         ret_val->ln_bw= 0;
         ret_val->ln_rxterm=0;
+        ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0x0;
 
@@ -201,6 +208,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_tx_reserve_msb = ((0<<6)+(0<<5)+(0<<4)+(1<<3)+(3<<1)); 
         ret_val->ln_tx_reserve_lsb = ((2<<6)+(0<<4)+(0<<2)+(0<<0)); 
         ret_val->ln_bw= 0;
+        ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->ln_rxterm=0;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0x0;
@@ -227,6 +235,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_tx_reserve_msb = ((0<<6)+(0<<5)+(0<<4)+(1<<3)+(3<<1)); 
         ret_val->ln_tx_reserve_lsb = ((2<<6)+(0<<4)+(0<<2)+(0<<0)); 
         ret_val->ln_bw= 0;
+        ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->ln_rxterm=1;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0;
@@ -255,6 +264,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_tx_reserve_lsb = ((3<<6)+(0<<4)+(3<<2)+(2<<0)); 
         ret_val->ln_bw= 0;
         ret_val->ln_rxterm=0;
+        ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0;
 
@@ -290,6 +300,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
         ret_val->txmargin=0x1;
+        ret_val->ln_cfg_pi_bw_3_0 = 0;
 
 		ret_val->tx_tap_dly=8; 
 		ret_val->tx_tap_adv=0xc;// this depends on actual Si and channel
@@ -317,8 +328,10 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
                                    vtss_sd25g28_setup_struct_t     *const ret_val) {
 
     vtss_rc          rslt;
-    vtss_sd25g28_mode_args_t sd25g28_mode;
-    vtss_sd25g28_mode_args_t *mode_args = &sd25g28_mode;
+   //vtss_sd25g28_mode_args_t *mode_args = (vtss_sd25g28_mode_args_t*)malloc(sizeof(vtss_sd25g28_mode_args_t)); 
+   vtss_sd25g28_mode_args_t sd25g28_mode;
+   vtss_sd25g28_mode_args_t *mode_args = &sd25g28_mode;
+    vtss_sd25g28_preset_struct_t preset;
 
     rslt = VTSS_RC_OK;
 
@@ -334,6 +347,143 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_pma_tx_ck_bitwidth_2_0[0]   =              mode_args->ck_bitwidth;//L1_pma_txck_sel; pma_tx_ck_leaf frequency selection                                                                                                                  
     ret_val->ln_cfg_tx_prediv_1_0[0]   =                       mode_args->tx_pre_div;  // L1_pcs2pma_tx_speed; TX subrate control                                                                                                                                   
     ret_val->ln_cfg_rxdiv_sel_2_0[0]   =                       mode_args->ck_bitwidth;  // L1_pma_rxdiv_sel; pma_rx_ck_leaf frequency selection                                                                                                           
+     if ((config.chip_name != VTSS_SD25G28_CHIP_ANT)) {
+      if ((config.preset == VTSS_SD25G28_ZR) ||
+          (config.preset == VTSS_SD25G28_10GDAC5M) ||
+          (config.preset == VTSS_SD25G28_KR_HW) ) {
+        VTSS_E("vtss_calc_sd25g28_setup_lane: Smart Control presets are not supported for the current Device");
+      }
+    }
+
+    
+    switch(config.preset) {
+      case VTSS_SD25G28_10GSR           : //ffe related signals
+                                        preset.ln_cfg_en_adv               = 1;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly                = 1;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0x10;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 0xf; 
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 8;
+                                        preset.ln_cfg_eqR_force_3_0        = 4;
+                                        mode_args->dfe_enable              = 0;
+
+                                        break;
+      case VTSS_SD25G28_10GDAC3M          : //ffe related signals
+                                        preset.ln_cfg_en_adv               = 0;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly                = 0;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0;
+                                        
+                                        //ctle related signals
+                                        preset.ln_cfg_eqC_force_3_0        = 7; 
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 10;  
+                                        preset.ln_cfg_eqR_force_3_0        = 7;  
+                                        
+                                        break;
+      case VTSS_SD25G28_10GDAC5M          : //ffe related signals,NOT Tested
+                                        preset.ln_cfg_en_adv               = 0;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly                = 0;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 7;
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 10;
+                                        preset.ln_cfg_eqR_force_3_0        = 7;
+                                        break;
+
+      case VTSS_SD25G28_10GDAC1M          : //ffe related signals,NOT Tested
+                                        preset.ln_cfg_en_adv               = 0;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly               = 0;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 0xf;
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 8;
+                                        preset.ln_cfg_eqR_force_3_0        = 0xc;
+                                        mode_args->dfe_enable              = 0;
+
+                                        break;
+      case VTSS_SD25G28_10GDAC3M_PVT      : //ffe related signals
+                                        preset.ln_cfg_en_adv               = 0;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly                = 0;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0;
+                                        
+                                        //ctle related signals
+                                        preset.ln_cfg_eqC_force_3_0        = 15; //pvt setup value 15, values work fine for stc 10 10 10 7
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 4;  //pvt setup value 4,  values work fine for stc 4  4  8  10
+                                        preset.ln_cfg_eqR_force_3_0        = 12;  //pvt setup value 12, values work fine for stc 2  3  6  7
+                                        break; 
+
+
+       case VTSS_SD25G28_25GDAC2M          : //ffe related signals,NOT Tested
+                                        preset.ln_cfg_en_adv               = 1;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly               = 1;
+                                        preset.ln_cfg_tap_adv_3_0          = 0x8;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0x12;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 0x0;
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 0xf;
+                                        preset.ln_cfg_eqR_force_3_0        = 0xf;
+                                        mode_args->dfe_enable              = 1;
+
+                                        break;
+
+       case VTSS_SD25G28_25GSR             : //ffe related signals,NOT Tested
+                                        preset.ln_cfg_en_adv               = 1;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly               = 1;
+                                        preset.ln_cfg_tap_adv_3_0          = 0x8;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0x12;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 0x0;
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 0xf;
+                                        preset.ln_cfg_eqR_force_3_0        = 0xf;
+                                        mode_args->dfe_enable              = 1;
+
+                                        break;
+
+
+                  default                  : //ffe related signals
+                                        preset.ln_cfg_en_adv               = 0;
+                                        preset.ln_cfg_en_main              = 1;
+                                        preset.ln_cfg_en_dly                = 0;
+                                        preset.ln_cfg_tap_adv_3_0          = 0;
+                                        preset.ln_cfg_tap_main             = 1;
+                                        preset.ln_cfg_tap_dly_4_0          = 0;
+                                        
+                                        //ctle related signals
+
+                                        preset.ln_cfg_eqC_force_3_0        = 0xf; 
+                                        preset.ln_cfg_vga_ctrl_byp_4_0     = 4;
+                                        preset.ln_cfg_eqR_force_3_0        = 12;
+                                        break;
+   }
+  
     ret_val->ln_cfg_tx_subrate_2_0[0]   =                      mode_args->subrate;	   // L1_tx_rate_sel; pma_tx_ck_src full/subrate frequency selection; 00:full;01:1/2; 10:1/4; 11:1/8                                                                    
     ret_val->ln_cfg_rx_subrate_2_0[0]   =                      mode_args->subrate;    // L1_rx_rate_sel; ln_pma_rx_ck full/subrate frequency selection;
     ret_val->r_multi_lane_mode[0]   =                          0;
@@ -362,12 +512,18 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     //TODO txswing related reg values this could depend on media, board and Si
     //ret_val->ln_cfg_itx_ipdriver_base_2_0[0]   =               ((config.txswing)>>6); //L1_pcs2pma_txmargin; used in KR/CR: Transmitter voltage level control
     ret_val->ln_cfg_itx_ipdriver_base_2_0[0]   =               mode_args->txmargin;//SBCHG 20/06/2019 //L1_pcs2pma_txmargin; used in KR/CR: Transmitter voltage level control
-    ret_val->ln_cfg_tap_dly_4_0[0]   =                         mode_args->tx_tap_dly; // L1_pcs_tap_dly; pcs link train control
-    ret_val->ln_cfg_tap_main[0]   =                            1; //similar; PCS link train control 
-    ret_val->ln_cfg_en_main[0]   =                             1; //similar;PCS link train control
-    ret_val->ln_cfg_tap_adv_3_0[0]   =                         mode_args->tx_tap_adv ; //similar;PCS link train control 
-    ret_val->ln_cfg_en_adv[0]   =                              0 ; //similar;PCS link train control
-    ret_val->ln_cfg_en_dly[0]   =                              0 ; //similar;PCS link train control
+    //ret_val->ln_cfg_tap_dly_4_0[0]   =                         mode_args->tx_tap_dly; // L1_pcs_tap_dly; pcs link train control
+    ret_val->ln_cfg_tap_dly_4_0[0]   =                         preset.ln_cfg_tap_dly_4_0;     
+    //ret_val->ln_cfg_tap_main[0]   =                            1; //similar; PCS link train control 
+    ret_val->ln_cfg_tap_main[0]   =                            preset.ln_cfg_tap_main;  
+    //ret_val->ln_cfg_en_main[0]   =                             1; //similar;PCS link train control
+    ret_val->ln_cfg_en_main[0]   =                             preset.ln_cfg_en_main;   
+    //ret_val->ln_cfg_tap_adv_3_0[0]   =                         mode_args->tx_tap_adv ; //similar;PCS link train control 
+    ret_val->ln_cfg_tap_adv_3_0[0]   =                         preset.ln_cfg_tap_adv_3_0;   
+    //ret_val->ln_cfg_en_adv[0]   =                              (mode_args->tx_tap_adv > 0) ? 1: 0 ; //similar;PCS link train control
+    ret_val->ln_cfg_en_adv[0]   =                               preset.ln_cfg_en_adv;
+    //ret_val->ln_cfg_en_dly[0]   =                              (mode_args->tx_tap_dly > 0) ? 1: 0 ; //similar;PCS link train control
+    ret_val->ln_cfg_en_dly[0]   =                              preset.ln_cfg_en_dly;    
     ret_val->ln_cfg_iscan_en[0]   =                            0; 
     ret_val->l1_pcs_en_fast_iscan[0]   =                       0;  
     ret_val->l0_cfg_bw_1_0[0]   =                              0;
@@ -384,8 +540,9 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_txcal_valid_sel_3_0[0]   =                 4;
     ret_val->ln_cfg_txcal_en[0]   =                            0;
     ret_val->ln_cfg_cdr_kf_2_0[0]   =                          1;
-    ret_val->ln_cfg_cdr_m_7_0[0]   =                           3;//6->3; back to As per AN_0003 20/06/2019;
-    ret_val->ln_cfg_pi_bw_3_0[0]   =                           6;//Changed from 0 to 6 CTS 07/06/2019
+    ret_val->ln_cfg_cdr_m_7_0[0]   =                           6;//6->3; back to As per AN_0003 20/06/2019;
+    ret_val->ln_cfg_pi_bw_3_0[0]   =                         mode_args->ln_cfg_pi_bw_3_0;
+    //ret_val->ln_cfg_pi_bw_3_0[0]   =                           0;//Changed from 0 to 6 CTS 07/06/2019
     ret_val->ln_cfg_pi_steps_1_0[0]   =                        0;
     ret_val->ln_cfg_dis_2ndorder[0]   =                        1;
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
@@ -398,14 +555,17 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->cfg_fom_selm[0]   =                               0;
     ret_val->ln_cfg_rx_sp_ctle_1_0[0]   =                      0;
     ret_val->ln_cfg_isel_ctle_1_0[0]   =                       0;
-    ret_val->ln_cfg_vga_ctrl_byp_4_0[0]   =                    4;
+    //ret_val->ln_cfg_vga_ctrl_byp_4_0[0]   =                    4;
+    ret_val->ln_cfg_vga_ctrl_byp_4_0[0]   =                    preset.ln_cfg_vga_ctrl_byp_4_0;   
     ret_val->ln_cfg_vga_byp[0]   =                             1;
     //ret_val->ln_cfg_rx_reserve_7_0[0]   =                    (1<<7);// [7] 1; this is configured in CDR as well
     ret_val->ln_cfg_rx_reserve_15_8[0]   =                     0x61;
     ret_val->ln_cfg_agc_adpt_byp[0]   =                        1;
     ret_val->ln_cfg_eqr_byp[0]   =                             1;
-    ret_val->ln_cfg_eqr_force_3_0[0]   =                       12;
-    ret_val->ln_cfg_eqc_force_3_0[0]   =                       0xf;
+    //ret_val->ln_cfg_eqr_force_3_0[0]   =                       12;
+    ret_val->ln_cfg_eqr_force_3_0[0]   =                       preset.ln_cfg_eqR_force_3_0;    
+    //ret_val->ln_cfg_eqc_force_3_0[0]   =                       0xf;
+    ret_val->ln_cfg_eqc_force_3_0[0]   =                       preset.ln_cfg_eqC_force_3_0;
     ret_val->ln_cfg_sum_setcm_en[0]   =                        1;
     ret_val->ln_cfg_pi_dfe_en[0]   =                           1;
     ret_val->ln_cfg_pi_en[0]   =                               1;
@@ -414,6 +574,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_dfedig_m_2_0[0]   =                        6;  
     ret_val->ln_cfg_en_dfedig[0]               =              mode_args->dfe_enable;
     ret_val->ln_cfg_rstn_dfedig[0]   =                         0;  
+    ret_val->ln_cfg_rstn_dfedig[1]   =                         1;  
     // cfg control table2.1-3
     ret_val->r_DwidthCtrl_from_hwt[0]   =                     (config.reg_ctrl==0)? 1:0;
     ret_val->r_reg_manual[0]   =                              config.reg_ctrl;

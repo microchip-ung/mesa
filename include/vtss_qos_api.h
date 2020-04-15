@@ -284,6 +284,10 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
     vtss_shaper_mode_t mode;           /**< RT (Rate type). Shaper rate type configuration: 0 = Line-rate, 1 = Data-rate */
 #endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
+    BOOL               credit_enable;  /**< Queue shaper only: Credit-based shaping */
+#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
+
 } vtss_shaper_t;
 
 /** \brief Tag Remark Mode */
@@ -339,10 +343,6 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
     BOOL          excess_enable[VTSS_QUEUE_ARRAY_SIZE];          /**< Allow this queue to use excess bandwidth */
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
-
-#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
-    BOOL          credit_enable[VTSS_QUEUE_ARRAY_SIZE];          /**< Allow this queue to use excess bandwidth */
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
     BOOL          cut_through_enable[VTSS_QUEUE_ARRAY_SIZE];     /**< Allow this queue to use cut through feature */

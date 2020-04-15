@@ -129,11 +129,11 @@ mesa_rc mesa_vlan_tx_tag_get(const mesa_inst_t  inst,
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
 
-    if (cnt != VTSS_PORTS) {
+    if (cnt > VTSS_PORTS) {
         return VTSS_RC_ERROR;
     }
     if ((rc = vtss_vlan_tx_tag_get((const vtss_inst_t)inst, vid, tag)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+        for (port_no = 0; port_no < cnt; port_no++) {
             mesa_conv_vtss_vlan_tx_tag_t_to_mesa_vlan_tx_tag_t(&tag[port_no], &tx_tag[port_no]);
         }
     }
@@ -148,10 +148,10 @@ mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
 
-    if (cnt != VTSS_PORTS) {
+    if (cnt > VTSS_PORTS) {
         return VTSS_RC_ERROR;
     }
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+    for (port_no = 0; port_no < cnt; port_no++) {
         mesa_conv_mesa_vlan_tx_tag_t_to_vtss_vlan_tx_tag_t(&tx_tag[port_no], &tag[port_no]);
     }
     return vtss_vlan_tx_tag_set((const vtss_inst_t)inst, vid, tag);

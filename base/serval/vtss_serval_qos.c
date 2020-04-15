@@ -41,6 +41,8 @@
 #define CPU_PORT_1_SE_INDEX 230
 #endif
 
+#define SRVL_HSCH_L2_SE(port, queue) (8 * (port) + queue)
+
 /* - CIL functions ------------------------------------------------- */
 
 /* ================================================================= *
@@ -106,7 +108,6 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
         pbs_max = 61;                       /* See Bugzilla#4944, comment#2  */
     }
 
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
     /* Policer rate unit is 100 kbps for SERVAL rev. A. */
     /* Policer rate unit is 33 kbps for SERVAL rev. > A and OCELOT. See Bugzilla#8648 */
 
@@ -117,7 +118,6 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
         pir *= 3;
         cir *= 3;
     }
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
 
     /* Limit to maximum values */
     pir = MIN(VTSS_BITMASK(15), pir);
@@ -135,9 +135,7 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
              (cf ? VTSS_F_ANA_POL_POL_MODE_CFG_DLB_COUPLED : 0) |
              (cir_ena ? VTSS_F_ANA_POL_POL_MODE_CFG_CIR_ENA : 0) |
              VTSS_F_ANA_POL_POL_MODE_CFG_FRM_MODE(mode));
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
     value |= VTSS_F_ANA_POL_POL_MODE_CFG_OVERSHOOT_ENA;
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
     SRVL_WR(VTSS_ANA_POL_POL_MODE_CFG(policer), value);
     SRVL_WR(VTSS_ANA_POL_POL_PIR_CFG(policer), 
             VTSS_F_ANA_POL_POL_PIR_CFG_PIR_RATE(pir) |
@@ -250,11 +248,9 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
     /* First set the shaper mode, i.e. line-rate or data-rate */
     /* Shaper mode is not configurable for queue shapers of elements 0 - 217 (i.e. SE 256 - 691),
        meaning no queue-shaping inside a service. Serval 1 limitation */
-#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
     SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(se),
              VTSS_F_QSYS_HSCH_SE_CFG_SE_FRM_MODE(shaper->mode),
              VTSS_M_QSYS_HSCH_SE_CFG_SE_FRM_MODE);
-#endif /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT */
 
     if (shaper->rate != VTSS_BITRATE_DISABLED) {
         u32 cir = MIN(VTSS_BITMASK(15), VTSS_DIV_ROUND_UP(shaper->rate,   100));
@@ -286,7 +282,6 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
 
         /* DLB configuration */
         if (dlb_ena) {
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             if (shaper->eir != VTSS_BITRATE_DISABLED) {
                 u32 eir = MIN(VTSS_BITMASK(15), VTSS_DIV_ROUND_UP(shaper->eir,  100));
                 u32 ebs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->ebs, 4096));
@@ -323,7 +318,6 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
                 SRVL_WR(VTSS_QSYS_HSCH_EIR_CFG(se), 0);      /* Disable EIR */
                 SRVL_WR(VTSS_QSYS_HSCH_SE_DLB_SENSE(se), 0); /* Disable DLB */
             }
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
         }
     } else {
         if (calibrate) {
@@ -331,13 +325,11 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
         }
         SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se), 0); /* Disable shaper */
         if (dlb_ena) {
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             if (calibrate) {
                 calibrate->eir_pwm = 0;
             }
             SRVL_WR(VTSS_QSYS_HSCH_EIR_CFG(se), 0);      /* Disable EIR */
             SRVL_WR(VTSS_QSYS_HSCH_SE_DLB_SENSE(se), 0); /* Disable DLB */
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
         }
     }
 
@@ -490,23 +482,19 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
             u32  queue_shaper_se;
             BOOL dlb_ena = TRUE;
 
-            queue_shaper_se = queue + (port * 8);
+            queue_shaper_se = SRVL_HSCH_L2_SE(port, queue);
 
             VTSS_RC(vtss_srvl_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue], queue_shaper_se, dlb_ena, port, queue, NULL));
 
             if (dlb_ena) {
-#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
                 /* Excess configuration */
                 SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se),
                         conf->excess_enable[queue] ? VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA : 0,
                                 VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA);
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
-#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
                 /* Credit configuration */
                 SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se),
-                        conf->credit_enable[queue] ? VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA : 0,
+                        conf->shaper_queue[queue].credit_enable ? VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA : 0,
                                 VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA);
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
             }
         }
     }
@@ -819,13 +807,28 @@ static vtss_rc srvl_qos_shaper_calibrate(vtss_state_t *vtss_state)
 
 static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
-    vtss_shaper_t cpu_shaper;
+    u32           i, se, queue, packet_rate;
+    vtss_shaper_t shaper;
 
-    memset(&cpu_shaper, 0, sizeof(cpu_shaper));
-    cpu_shaper.rate  = rate;       // kbps
-    cpu_shaper.level = (4096 * 4); // 16 kbytes burst size
-    VTSS_RC(vtss_srvl_qos_shaper_conf_set(vtss_state, &cpu_shaper, CPU_PORT_0_SE_INDEX, FALSE, 0, 0, NULL));
-    return  vtss_srvl_qos_shaper_conf_set(vtss_state, &cpu_shaper, CPU_PORT_1_SE_INDEX, FALSE, 0, 0, NULL);
+    for (i = 0; i < 2; i++) {
+        /* CPU port shaper at level 1 (kbps) */
+        se = (CPU_PORT_0_SE_INDEX + i);
+        memset(&shaper, 0, sizeof(shaper));
+        shaper.rate  = rate;       // kbps
+        shaper.level = (4096 * 4); // 16 kbytes burst size
+        VTSS_RC(vtss_srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0, NULL));
+
+        for (queue = 0; queue < 8; queue++) {
+            /* CPU queue shapers at level 2, 1 FPS corresponds to 100 kbps */
+            se = SRVL_HSCH_L2_SE(VTSS_CHIP_PORT_CPU_0 + i, queue);
+            packet_rate = vtss_state->packet.rx_conf.queue[queue].rate;
+            shaper.rate  = (packet_rate == VTSS_PACKET_RATE_DISABLED ? VTSS_BITRATE_DISABLED : packet_rate * 100);
+            shaper.level = 4096;
+            shaper.mode = 3;
+            VTSS_RC(vtss_srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0, NULL));
+        }
+    }
+    return VTSS_RC_OK;
 }
 
 static vtss_rc srvl_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
@@ -850,10 +853,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
                               const vtss_debug_info_t   *const info)
 {
     u32            i, port, pir, value, mode, terminal_se, dwrr_se;
-    u32            cir;
+    u32            cir, qmap;
     int            queue;
     BOOL           header = 1;
     vtss_port_no_t port_no;
+    char           buf[16];
 
     /* Global configuration starts here */
 
@@ -960,56 +964,54 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
     vtss_debug_print_header(pr, "QoS Scheduler Config");
 
     pr("LP CP   SE Base IdxSel InpSel RR_ENA DWRR C0 C1 C2 C3 C4 C5 C6 C7\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if (!info->port_list[port_no]) {
-            continue;
-        }
-        port = VTSS_CHIP_PORT(port_no);
-
-        dwrr_se = TERMINAL_SE_INDEX_OFFSET + port;
-
-        {
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
-            u32 qmap;
-
-            SRVL_RD(VTSS_QSYS_QMAP_QMAP(port), &qmap);
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
-            SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(dwrr_se), &value);
-            pr("%2u %2u %4u %4u %6u %6u %6u %4u",
-               port_no, // Logical port
-               port,    // Chip port
-               dwrr_se,
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
-               VTSS_X_QSYS_QMAP_QMAP_SE_BASE(qmap),
-               VTSS_X_QSYS_QMAP_QMAP_SE_IDX_SEL(qmap),
-               VTSS_X_QSYS_QMAP_QMAP_SE_INP_SEL(qmap),
-#else
-               0, 0, 0,
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
-               (value & 32) >> 5,
-               VTSS_X_QSYS_HSCH_SE_CFG_SE_DWRR_CNT(value));
-            for (queue = 0; queue < 8; queue++) {
-                SRVL_RD(VTSS_QSYS_HSCH_SE_DWRR_CFG(dwrr_se, queue), &value);
-                pr(" %2u", value);
+    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2); port_no++) {
+        if (port_no < vtss_state->port_count) {
+            if (!info->port_list[port_no]) {
+                continue;
             }
-            pr("\n");
+            port = VTSS_CHIP_PORT(port_no);
+            sprintf(buf, "%2u", port_no);
+        } else {
+            i = (port_no - vtss_state->port_count);
+            port = (VTSS_CHIP_PORT_CPU_0 + i);
+            sprintf(buf, "C%u", i);
         }
+        dwrr_se = TERMINAL_SE_INDEX_OFFSET + port;
+        SRVL_RD(VTSS_QSYS_QMAP_QMAP(port), &qmap);
+        SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(dwrr_se), &value);
+        pr("%s %2u %4u %4u %6u %6u %6u %4u",
+           buf,     // Logical port
+           port,    // Chip port
+           dwrr_se,
+           VTSS_X_QSYS_QMAP_QMAP_SE_BASE(qmap),
+           VTSS_X_QSYS_QMAP_QMAP_SE_IDX_SEL(qmap),
+           VTSS_X_QSYS_QMAP_QMAP_SE_INP_SEL(qmap),
+           (value & 32) >> 5,
+           VTSS_X_QSYS_HSCH_SE_CFG_SE_DWRR_CNT(value));
+        for (queue = 0; queue < 8; queue++) {
+            SRVL_RD(VTSS_QSYS_HSCH_SE_DWRR_CFG(dwrr_se, queue), &value);
+            pr(" %2u", value);
+        }
+        pr("\n");
     }
     pr("\n");
 
     vtss_debug_print_header(pr, "QoS Port and Queue Shaper Config");
 
     pr("LP CP Queue SE  CBS  CIR    EBS  EIR    SE_PRIO SE_SPORT SE_DPORT Excess Credit SE_FRM_MODE\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
-        u32 eir, sense;
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
-        u32 excess;
-        if (!info->port_list[port_no]) {
-            continue;
+    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2); port_no++) {
+        u32 eir, sense, excess;
+        if (port_no < vtss_state->port_count) {
+            if (!info->port_list[port_no]) {
+                continue;
+            }
+            port = VTSS_CHIP_PORT(port_no);
+            sprintf(buf, "%2u", port_no);
+        } else {
+            i = (port_no - vtss_state->port_count);
+            port = (VTSS_CHIP_PORT_CPU_0 + i);
+            sprintf(buf, "C%u", i);
         }
-        port = VTSS_CHIP_PORT(port_no);
-
 #if defined(VTSS_ARCH_OCELOT)
         terminal_se = TERMINAL_SE_INDEX_OFFSET + port;
 #else
@@ -1017,46 +1019,32 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
 #endif
 
         SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(terminal_se), &value);
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
         SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(terminal_se), &eir);
         SRVL_RD(VTSS_QSYS_HSCH_SE_DLB_SENSE(terminal_se), &sense);
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
-        pr("%2u %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ",
-           port_no,
+        pr("%s %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ",
+           buf,
            port,
            terminal_se,
            VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
            VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
            VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir),
-           VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir)
-#else
-           0,0
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
-            );
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
+           VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir));
         if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO_ENA) {
             pr("%7u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO(sense));
         } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             pr("      - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
         }
         if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_SPORT_ENA) {
             pr("%8u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_SPORT(sense));
         } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             pr("       - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
         }
         if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT_ENA) {
             pr("%8u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT(sense));
         } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             pr("       - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
         }
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
+        pr("     - ");
         pr("     - ");
         SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(terminal_se), &value);
         pr("%11u\n", VTSS_X_QSYS_HSCH_SE_CFG_SE_FRM_MODE(value));
@@ -1064,57 +1052,41 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
             BOOL cir_only = FALSE;
             u32  queue_shaper_se;
 
-            queue_shaper_se = queue + (port * 8);
+            queue_shaper_se = SRVL_HSCH_L2_SE(port, queue);
 
             SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(queue_shaper_se), &value);
             if (cir_only) {
                 excess = 0;
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
                 eir = 0;
                 sense = 0;
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             } else {
                 SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se), &excess);
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
                 SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(queue_shaper_se), &eir);
                 SRVL_RD(VTSS_QSYS_HSCH_SE_DLB_SENSE(queue_shaper_se), &sense);
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             }
             pr("      %5d %3u 0x%02x 0x%04x 0x%02x 0x%04x ",
                queue,
                queue_shaper_se,
                VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
                VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
                VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir),
                VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir)
-#else
-            0,0
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
                 );
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO_ENA) {
                 pr("%7u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO(sense));
             } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
                 pr("      - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             }
             if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_SPORT_ENA) {
                 pr("%8u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_SPORT(sense));
             } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
                 pr("       - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             }
             if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT_ENA) {
                 pr("%8u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT(sense));
             } else {
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
                 pr("       - ");
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
             }
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
             pr("%6d ", VTSS_BOOL(excess & VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA));
             pr("%6d ", VTSS_BOOL(excess & VTSS_F_QSYS_HSCH_SE_CFG_SE_AVB_ENA));
             SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se), &value);
@@ -1252,11 +1224,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
            SRVL_BF(ANA_POL_POL_MODE_CFG_CIR_ENA, value),
            VTSS_X_ANA_POL_POL_MODE_CFG_IPG_SIZE(value),
            SRVL_BF(ANA_POL_POL_MODE_CFG_DLB_COUPLED, value),
-#if defined(VTSS_ARCH_SERVAL_ORG) || defined(VTSS_ARCH_OCELOT)
            SRVL_BF(ANA_POL_POL_MODE_CFG_OVERSHOOT_ENA, value),
-#else
-           0,
-#endif /* VTSS_ARCH_SERVAL_ORG/OCELOT */
            VTSS_X_ANA_POL_POL_PIR_CFG_PIR_RATE(pir),
            VTSS_X_ANA_POL_POL_PIR_CFG_PIR_BURST(pir),
            VTSS_X_ANA_POL_POL_CIR_CFG_CIR_RATE(cir),

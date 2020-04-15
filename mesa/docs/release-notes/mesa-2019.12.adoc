@@ -1,0 +1,196 @@
+= MESA-2019.12
+
+== MESA-2019.12
+
+|===
+|Version:          |MESA-2019.12
+|Previous Version: |MESA-2019.09
+|Date:             |2019-12-20
+|Description:      |Roadmap release
+|===
+
+
+=== Disclaimers
+
+The support of SparX-5/5i (all SKUs) in this release is considered to be in BETA
+quality. It can be used for early access, to evaluate the features and/or start
+SW integration. It is not suitable for production use.
+
+
+==== SparX-5/5i board support
+
+Two reference boards exists: PCB134 and PCB135. These boards has different
+capabilities, and also different issues. The features and the known issues with
+the two boards are described below. As this is considered a BETA release, we
+encourage customers to use the boards, but avoid the known issues described
+below.
+
+
+===== PCB134: SFP board
+
+This board has 12x SFP+, 8x SFP28 and 1x 1G-CU PHY.
+
+In this release, 25G support is not supported, and all the SFPs (both SFP+ and
+SFP28) has a max speed of 10G.
+
+This means that the boards can demonstrate the full 200G (actually it is 201G)
+switching capabilities of VSC7558. If a lower grade SKU is used, only a subset
+of the ports will be activated.
+
+To get the best test results, optical SFPs shall be used, or DAC cables with a
+length of 3 meters. Only the 10G and 1G modes are considered stable, all other
+modes are still in development.
+
+
+===== PCB135: CU-PHY board
+
+This board has 4x SFP28, 4x 10G-CU, 48x 1G-CU and 1x 1G-CU.
+
+The support of PCB135 is still in an early state, and only the 48+1 1G CU phys
+are considered stable. The remaining ports has know issues, and use of these
+should be avoided in this release.
+
+If the VSC7546 SKU is used, only 24x 1G ports will be available.
+
+
+=== Time Aware Scheduler (TAS / TS) APIs added
+
+TAS API and implementation supporting SparX-5i has been added.
+
+A TAS configuration (mainly) consists of a cycle time and a list of gate control
+elements (`gce`). A given gate control element has a duration time specifying
+how long it is active, and a mask specifying which queues are open. The gate
+control list is repeated at every cycle time. Typically PTP is needed to
+synchronize the time of all the switches in the network, to ensure that the
+gates are managed synchronously in the network.
+
+The TAS API can be found in the `tsn.h` header file, where the relevant
+functions are prefixed with `mesa_qos_tas_`.
+
+TAS was renamed to Enhancements for Scheduled Traffic (ST) before merged into
+the 802.1Q-2018 standard. It goes under both names. TAS/ST was originally
+developed in 802.1Qbv, which is now merged into 802.1Q-2018.
+
+
+=== ACL Extended Filtering
+
+The ACL API now supports configurable key generation for ARP, IPv4 and IPv6 frames.
+This gives improved flexibility for MAC address matching for different frame types.
+It also provides extended IPv4/IPv6 ACL rules. This can be used for matching
+128-bit IPv6 addresses for devices supporting this.
+
+
+=== ACL CPU Disable Action
+
+An ACL action option to actively disable copying frames to CPU has been added.
+
+
+=== VCL QoS Actions
+
+The VCL action has been extended with QoS related actions. It is now possible to
+assign both VLAN and QoS related actions to frames matching VCL rules.
+
+
+=== TCL Priority Tagging
+
+The TCL action now supports setting up an egress port to send priority-tagged
+frames for a given classified VLAN.
+
+
+=== Enhanced VLAN API implemented for SparX-5 and SparX-5i
+
+The enhanced VLAN API is now implemented for SparX-5 and SparX-5i targets. The
+API is backwards compatible with earlier chips. In SparX-5i this API is also
+used to support many of the TSN features.
+
+More information can be found in the link:#mesa/docs/l2/l2[l2] section.
+
+
+=== MESA-DOC: Examples added
+
+In this release a section with examples has been added in MESA-DOC. Read the
+link:#mesa/docs/examples/introduction[introduction] section to learn more about
+this.
+
+
+=== None backwards compatible changes in packet.h API
+
+The packet.h APP has been updated with potential non-backwards compatible
+changes in this release. A single feature has been added, some functionality has
+been moved out of MESA and into the BSP, and some functions/types has been
+deleted because they was not relevant any more and/or because the functionality
+was better covered by other functions. See the detailed description in the
+following sub-sections.
+
+NOTE: The changes described here also applies to the vtss_packet_api.h header.
+
+
+==== Feature added
+
+It is now possible to configure CPU shaping at a per queue granularity. A field
+called `rate` has been added to the `mesa_packet_rx_queue_conf_t` which can be
+used to configure a max packet rate send to the CPU on a given queue.
+
+==== Feature moved to BSP
+
+MESA used to have the following 3 functions which was required to be used,
+to make the packet DMA work. This design has been problematic as the actual DMA
+implementation is not part of MESA, it is kept in the Linux kernel (part of the
+BSP). In this release, these functions has been deleted from MESA, and instead
+added to the Linux kernel which also implements the DMA function.
+
+- `mesa_packet_dma_conf_get`
+- `mesa_packet_dma_conf_set`
+- `mesa_packet_dma_offset`
+
+Application which used to call these functions shall be updated to not call
+them. No further workaround is needed, as BSP takes care of the configuration.
+
+==== Cleaning up of functionality covered by multiple functions
+
+A number of functions has been deleted, because the functionality they provide
+is better covered by other functions.
+
+`mesa_packet_rx_frame_get`, `mesa_packet_rx_frame_get_raw` and
+`mesa_packet_rx_frame_discard` has been deleted. Instead of these functions a
+new functions `mesa_packet_rx_frame` has been added, which provides the same
+functionality.
+
+`mesa_packet_tx_frame_port`, `mesa_packet_tx_frame_port_vlan`, and
+`mesa_packet_tx_frame_vlan` functions has been deleted, and the signature of
+`mesa_packet_tx_frame` has been slightly changed.
+
+The result is 2 clean function to do register based frame RX/TX (none-DMA frame
+IO):
+
+----
+    mesa_rc mesa_packet_tx_frame(
+        const mesa_inst_t           inst,
+        const mesa_packet_tx_info_t *const tx_info,
+        const uint8_t               *const frame,
+        const uint32_t              length);
+
+    mesa_rc mesa_packet_rx_frame(
+        const mesa_inst_t     inst,
+        uint8_t               *const data,
+        const uint32_t        buflen,
+        mesa_packet_rx_info_t *const rx_info);
+----
+
+Both functions does the IFH encoding/decoding and frame injection/extraction in
+one go.
+
+
+==== Cleaning up of non-implemented functionality
+
+The stacking related functions has been deleted as stacking is not supported for
+any of the chips supported by the API.
+
+Following is the stacking related functions which has been deleted.
+
+- `mesa_packet_tx_frame_vstax`
+- `mesa_packet_vstax_frame2header`
+- `mesa_packet_vstax_header2frame`
+
+The associated types are also deleted.
+

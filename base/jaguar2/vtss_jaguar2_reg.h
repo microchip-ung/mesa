@@ -1117,6 +1117,88 @@
 #define IS2_KO_IP6_VID_SIP       (IS2_KO_IP6_VID_DIP + IS2_KL_IP6_VID_DIP)
 #define IS2_KL_IP6_VID_SIP       128
 
+/* IS2 X16 key types */
+#define IS2_X16_TYPE_IP7_TUPLE   1
+#define IS2_X16_TYPE_CUSTOM_1    2
+
+/* IS2 X16 key fields */
+#define IS2_KO_X16_TYPE          0
+#define IS2_KL_X16_TYPE          2
+#define IS2_KO_X16_FIRST         (IS2_KO_X16_TYPE + IS2_KL_X16_TYPE)
+#define IS2_KL_X16_FIRST         1
+#define IS2_KO_X16_PAG           (IS2_KO_X16_FIRST + IS2_KL_X16_FIRST)
+#define IS2_KL_X16_PAG           8
+#define IS2_KO_X16_PORT_SEL      (IS2_KO_X16_PAG + IS2_KL_X16_PAG)
+#define IS2_KL_X16_PORT_SEL      2
+#define IS2_KO_X16_PORT_MASK     (IS2_KO_X16_PORT_SEL + IS2_KL_X16_PORT_SEL)
+#define IS2_KL_X16_PORT_MASK     53
+#define IS2_KO_X16_L2_MC         (IS2_KO_X16_PORT_MASK + IS2_KL_X16_PORT_MASK)
+#define IS2_KL_X16_L2_MC         1
+#define IS2_KO_X16_L2_BC         (IS2_KO_X16_L2_MC + IS2_KL_X16_L2_MC)
+#define IS2_KL_X16_L2_BC         1
+#define IS2_KO_X16_SERVICE_FRM   (IS2_KO_X16_L2_BC + IS2_KL_X16_L2_BC)
+#define IS2_KL_X16_SERVICE_FRM   1
+#define IS2_KO_X16_L2_FWD        (IS2_KO_X16_SERVICE_FRM + IS2_KL_X16_SERVICE_FRM)
+#define IS2_KL_X16_L2_FWD        1
+#define IS2_KO_X16_VLAN_TAGGED   (IS2_KO_X16_L2_FWD + IS2_KL_X16_L2_FWD)
+#define IS2_KL_X16_VLAN_TAGGED   1
+#define IS2_KO_X16_VID           (IS2_KO_X16_VLAN_TAGGED + IS2_KL_X16_VLAN_TAGGED)
+#define IS2_KL_X16_VID           12
+#define IS2_KO_X16_DEI           (IS2_KO_X16_VID + IS2_KL_X16_VID)
+#define IS2_KL_X16_DEI           1
+#define IS2_KO_X16_PCP           (IS2_KO_X16_DEI + IS2_KL_X16_DEI)
+#define IS2_KL_X16_PCP           3
+#define IS2_KO_X16_SMAC_SIP      (IS2_KO_X16_PCP + IS2_KL_X16_PCP)
+#define IS2_KL_X16_SMAC_SIP      1
+#define IS2_KO_X16_DMAC_DIP      (IS2_KO_X16_SMAC_SIP + IS2_KL_X16_SMAC_SIP)
+#define IS2_KL_X16_DMAC_DIP      1
+#define IS2_KO_X16_L3_RT         (IS2_KO_X16_DMAC_DIP + IS2_KL_X16_DMAC_DIP)
+#define IS2_KL_X16_L3_RT         1
+#define IS2_KO_X16_DMAC          (IS2_KO_X16_L3_RT + IS2_KL_X16_L3_RT)
+#define IS2_KL_X16_DMAC          48
+#define IS2_KO_X16_SMAC          (IS2_KO_X16_DMAC + IS2_KL_X16_DMAC)
+#define IS2_KL_X16_SMAC          48
+#define IS2_KO_X16_IP4           (IS2_KO_X16_SMAC + IS2_KL_X16_SMAC)
+#define IS2_KL_X16_IP4           1
+#define IS2_KO_X16_TTL           (IS2_KO_X16_IP4 + IS2_KL_X16_IP4)
+#define IS2_KL_X16_TTL           1
+#define IS2_KO_X16_TOS           (IS2_KO_X16_TTL + IS2_KL_X16_TTL)
+#define IS2_KL_X16_TOS           8
+#define IS2_KO_X16_DIP           (IS2_KO_X16_TOS + IS2_KL_X16_TOS)
+#define IS2_KL_X16_DIP           128
+#define IS2_KO_X16_SIP           (IS2_KO_X16_DIP + IS2_KL_X16_DIP)
+#define IS2_KL_X16_SIP           128
+#define IS2_KO_X16_DIP_EQ_SIP    (IS2_KO_X16_SIP + IS2_KL_X16_SIP)
+#define IS2_KL_X16_DIP_EQ_SIP    1
+#define IS2_KO_X16_TCP_UDP       (IS2_KO_X16_DIP_EQ_SIP + IS2_KL_X16_DIP_EQ_SIP)
+#define IS2_KL_X16_TCP_UDP       1
+#define IS2_KO_X16_TCP           (IS2_KO_X16_TCP_UDP + IS2_KL_X16_TCP_UDP)
+#define IS2_KL_X16_TCP           1
+#define IS2_KO_X16_DPORT         (IS2_KO_X16_TCP + IS2_KL_X16_TCP)
+#define IS2_KL_X16_DPORT         16
+#define IS2_KO_X16_SPORT         (IS2_KO_X16_DPORT + IS2_KL_X16_DPORT)
+#define IS2_KL_X16_SPORT         16
+#define IS2_KO_X16_RANGE         (IS2_KO_X16_SPORT + IS2_KL_X16_SPORT)
+#define IS2_KL_X16_RANGE         8
+#define IS2_KO_X16_SP_EQ_DP      (IS2_KO_X16_RANGE + IS2_KL_X16_RANGE)
+#define IS2_KL_X16_SP_EQ_DP      1
+#define IS2_KO_X16_SEQ_EQ0       (IS2_KO_X16_SP_EQ_DP + IS2_KL_X16_SP_EQ_DP)
+#define IS2_KL_X16_SEQ_EQ0       1
+#define IS2_KO_X16_FIN           (IS2_KO_X16_SEQ_EQ0 + IS2_KL_X16_SEQ_EQ0)
+#define IS2_KL_X16_FIN           1
+#define IS2_KO_X16_SYN           (IS2_KO_X16_FIN + IS2_KL_X16_FIN)
+#define IS2_KL_X16_SYN           1
+#define IS2_KO_X16_RST           (IS2_KO_X16_SYN + IS2_KL_X16_SYN)
+#define IS2_KL_X16_RST           1
+#define IS2_KO_X16_PSH           (IS2_KO_X16_RST + IS2_KL_X16_RST)
+#define IS2_KL_X16_PSH           1
+#define IS2_KO_X16_ACK           (IS2_KO_X16_PSH + IS2_KL_X16_PSH)
+#define IS2_KL_X16_ACK           1
+#define IS2_KO_X16_URG           (IS2_KO_X16_ACK + IS2_KL_X16_ACK)
+#define IS2_KL_X16_URG           1
+#define IS2_KO_X16_PAYLOAD       (IS2_KO_X16_URG + IS2_KL_X16_URG)
+#define IS2_KL_X16_PAYLOAD       64
+
 /* IS2 action fields */
 #define IS2_AO_IS_INNER_ACL    0
 #define IS2_AL_IS_INNER_ACL    1

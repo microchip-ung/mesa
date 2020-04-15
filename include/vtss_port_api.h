@@ -239,14 +239,17 @@ typedef enum
 
 /** \brief Different media/cable types attached to the 10G Serdes */
 typedef enum {
-    VTSS_SD10G_MEDIA_SR,         /**< Short Range > */
-    VTSS_SD10G_MEDIA_ZR,         /**< ZR with APC hardware algorithm > */
-    VTSS_SD10G_MEDIA_DAC,        /**< Short DAC (Direct attached copper) with APC hardware algorithm > */
-    VTSS_SD10G_MEDIA_DAC_5M,     /**< Long DAC (Direct attached copper) with APC hardware algorithm > */
+    VTSS_SD10G_MEDIA_PR_NONE,    /**< No preset > */
+    VTSS_SD10G_MEDIA_SR,         /**< SR, Short Range > */
+    VTSS_SD10G_MEDIA_ZR,         /**< ZR, Long Range > */
+    VTSS_SD10G_MEDIA_DAC,        /**< DAC (Direct attached copper) cable, unspecified lenght > */
+    VTSS_SD10G_MEDIA_DAC_1M,     /**< 1m DAC > */
+    VTSS_SD10G_MEDIA_DAC_2M,     /**< 2m DAC > */
+    VTSS_SD10G_MEDIA_DAC_3M,     /**< 3m DAC > */
+    VTSS_SD10G_MEDIA_DAC_5M,     /**< 5m DAC > */
     VTSS_SD10G_MEDIA_BP,         /**< Backplane > */
     VTSS_SD10G_MEDIA_B2B,        /**< Bord to Board > */
     VTSS_SD10G_MEDIA_10G_KR,     /**< 10G Base KR > */
-    VTSS_SD10G_MEDIA_PR_NONE     /**< No preset > */
 } vtss_sd10g_media_type_t;
 
 /** \brief SFI Serdes configuration */
@@ -782,6 +785,34 @@ vtss_rc vtss_port_test_conf_get(const vtss_inst_t      inst,
 vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
                                 const vtss_port_no_t         port_no,
                                 const vtss_port_test_conf_t  *const conf);
+
+
+/** \brief Serdes debug parameters */
+typedef enum
+{
+    VTSS_SERDES_DFE_PRM, /**< DFE prms. in this order : h1,h2,h3,h4,h5,dlev */
+    VTSS_SERDES_CTLE_PRM,/**< CTLE prms. in this order: r,c,vga */
+} vtss_serdes_debug_type_t;
+
+/** \brief Serdes debug configuration structure */
+typedef struct
+{
+    vtss_serdes_debug_type_t debug_type;
+    u32                      serdes_prm[10]; /**< Depends on debug_type */
+} vtss_port_serdes_debug_t;
+
+/**
+ * \brief Used for Serdes debugging.
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param conf [IN]     Serdes test configuration.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t              inst,
+                                   const vtss_port_no_t           port_no,
+                                   const vtss_port_serdes_debug_t *const conf);
 
 #ifdef __cplusplus
 }

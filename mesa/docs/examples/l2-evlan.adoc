@@ -1,0 +1,15 @@
+:sectnums:
+
+== L2 Enhanced VLAN Example
+
+The Enhanced VLAN example shows how to setup a flow from an ingress port to an egress port.
+The setup includes the following:
+
+* DLB policer.
+* Ingress counters.
+* Ingress flow.
+* VCE rule for ingress port matching C-VID 10 and mapping to classified VLAN 10.
+* Egress counters.
+* Egress flow.
+* TCE rule for egress port mapping to S-VID 20.
+* VLAN 10 membership for ingress and egress port.

@@ -141,6 +141,26 @@ typedef struct {
 } vtss_sd25g28_lane_pwr_down_t;
 */
 
+/**
+ * \brief Receiver preset for different cable types
+ * \note _SC presets are only available for deviced that have the respective APC HW support
+ **/
+
+typedef enum {
+    VTSS_SD25G28_ATE,          /**< Setup be used for ATE testing, Not yet added > */
+    VTSS_SD25G28_ZR,        /**< ZR with APC software algorithm, Not yet added > */
+    VTSS_SD25G28_10GDAC3M,       /**< Variable used for 3M DAC running at 10G speed >**/
+    VTSS_SD25G28_10GDAC5M,    /**< Variable used for 5M DAC running at 10G speed >**/
+    VTSS_SD25G28_10GDAC1M,    /**<Variable used for 1M DAC running at 10G speed>**/
+    VTSS_SD25G28_10GSR,        /**<Variable used for SFP-SR running at 10G speed>**/
+    VTSS_SD25G28_KR_HW,        /**< KR Backplane> */
+    VTSS_SD25G28_PRESET_NONE,   /**<Variable used for SFP or RJ45 running at speed lesser than 10G>**/
+    VTSS_SD25G28_25GSR,         /**<Variable used for 25-SFP-SR running at 25G speed>**/
+    VTSS_SD25G28_25GDAC2M,         /**<Variable used for 25G-DAC-2M- running at 25G speed>**/
+    VTSS_SD25G28_10GDAC3M_PVT,         /**<Variable used for 10G-DAC-3M- running at 10G speed for PVT setup>**/
+
+} vtss_sd25g28_preset_t;
+
 /** \brief Parameters needed for setup function */
 typedef struct {
     vtss_sd25g28_chip_name_t     chip_name;   /**< Name of the vitesse chip >                                                              */
@@ -152,6 +172,7 @@ typedef struct {
     //BOOL                 no_pwrcycle; /**< Omit initial power-cycle >                                                              */
     vtss_sd25g28_ls_t    slave_loop;    /**< Enable input loop LS1/Ls2/LS3 >                                                       */
     vtss_sd25g28_lm_t    master_loop;    /**< Enable pad loop LM1  >                                                               */
+    vtss_sd25g28_preset_t    preset;   
     BOOL                 txinvert;      /**< Enable inversion of output data >                                                       */
     BOOL                 rxinvert;      /**< Enable inversion of input data >                                                       */
     BOOL                 txmargin;     /**< Set output level to  half/full                                                  */
@@ -185,6 +206,7 @@ typedef struct {
     u8 txmargin;
     u8 ln_cfg_ctle_rstn;
     u8 ln_r_dfe_rstn;
+    u8  ln_cfg_pi_bw_3_0;
 
 } vtss_sd25g28_mode_args_t;
 
@@ -278,7 +300,7 @@ typedef struct {
     u8  ln_cfg_init_pos_ipi_6_0[1];
     u8  ln_cfg_dfedig_m_2_0[1];
     u8  ln_cfg_en_dfedig  [1];
-    u8  ln_cfg_rstn_dfedig[1];
+    u8  ln_cfg_rstn_dfedig[2];
     u8 ln_cfg_pi_DFE_en[1];
 
     u8 ln_cfg_tx2rx_lp_en[1];
@@ -290,22 +312,19 @@ typedef struct {
 } vtss_sd25g28_setup_struct_t;
 
 
-/**
- * \brief Receiver preset for different cable types
- * \note _SC presets are only available for deviced that have the respective APC HW support
- **/
-
-typedef enum {
-    VTSS_SD25G28_ATE,          /**< Setup be used for ATE testing > */
-    VTSS_SD25G28_ZR,        /**< ZR with APC software algorithm > */
-    VTSS_SD25G28_DAC,       /**< DAC (Direct attached copper) with APC software algorithm > */
-    VTSS_SD25G28_SR,        /**< Short Range. Use SR presets also for limiting active DAC links and DAC presets also for linear optical SR links> */
-    VTSS_SD25G28_KR_HW,        /**< KR Backplane> */
-    VTSS_SD25G28_PRESET_NONE   /**< No preset > */ 
-} vtss_sd25g28_preset_t;
 
 /** \brief Receiver preset values based on selected preset mode */
 typedef struct {
+ u8 ln_cfg_eqC_force_3_0;
+ u8 ln_cfg_vga_ctrl_byp_4_0;
+ u8 ln_cfg_eqR_force_3_0;
+ u8 ln_cfg_en_adv;
+ u8 ln_cfg_en_main;
+ u8 ln_cfg_en_dly;
+ u8 ln_cfg_tap_adv_3_0;
+ u8 ln_cfg_tap_main;
+ u8 ln_cfg_tap_dly_4_0;
+
 } vtss_sd25g28_preset_struct_t;
 
 /** \brief Input Buffer loop settings based on loop config */

@@ -201,12 +201,12 @@ static vtss_rc srvl_ts_timeofday_read(vtss_state_t *vtss_state, vtss_timestamp_t
     vtss_rc rc;
     VTSS_D("Read timeofday via io-pin %d", TOD_ACC_PIN);
     rc = ocelot_ts_io_pin_timeofday_get(vtss_state, ts, TOD_ACC_PIN);
-    *tc = ts->nanoseconds + ts->seconds*VTSS_ONE_MIA;
+    *tc = ts->nanoseconds + (u64)ts->seconds*VTSS_ONE_MIA;
     /* tc is returned as 16 bit fraction of nanoseconds */
     *tc = *tc << 16;
     return rc;
 #else
-    vtss_timestamp_t r1, r2;
+    vtss_timestamp_t r1 = {}, r2 = {};
     u32 value;
     /* read timestamp registers twice, and verify that no wrapping occurred between two register reads.
        return the value that did not wrap */
@@ -233,7 +233,7 @@ static vtss_rc srvl_ts_timeofday_read(vtss_state_t *vtss_state, vtss_timestamp_t
     }
     /* tc is returned as 16 bit fraction of nanoseconds */
     /* Any value in sec_msb will not change this value, therefore it is omitted */
-    *tc = ts->nanoseconds + ts->seconds*VTSS_ONE_MIA;
+    *tc = ts->nanoseconds + (u64)ts->seconds*VTSS_ONE_MIA;
     *tc = *tc << 16;
 
 #endif /* VTSS_ARCH_OCELOT */
@@ -473,7 +473,7 @@ static u32 srvl_ts_ns_cnt_get(vtss_inst_t inst)
     return tmp;
 #else
     /* this code is a copy of the srvl_ts_timeofday_read(ts) function , but without using the MACROS */
-    vtss_timestamp_t r1, r2, ts;
+    vtss_timestamp_t r1 = {}, r2 = {}, ts = {};
     u32 value;
     /* read timestamp registers twice, and verify that no wrapping occurred between two register reads.
        return the value that did not wrap */

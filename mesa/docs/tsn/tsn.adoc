@@ -32,6 +32,15 @@ For each port, Frame Preemption can be enabled in the egress direction, and each
 The port status can be retrieved (`mesa_qos_fp_port_status_t`), including the verfication state (`mesa_mm_status_verify_t`).
 Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`).
 
+== Time Aware Scheduler
+If the capability `MESA_CAP_QOS_TAS` is non-zero, IEEE 802.1Q Enhancements for scheduled traffic is supported.
+Time Aware Scheduling can be enabled on a port and is executing a Gate Control List (GCL) that controls the transmission gate state per queue on that port:
+
+* After initialization, TAS is not active on any port.
+* A GCL list can be configured per port (`mesa_qos_tas_port_gcl_conf_set()`).
+* TAS executing the GCL can be enabled and disabled per port (`mesa_qos_tas_port_conf_set()`)
+* TAS status can be retrieved per port  (`mesa_qos_tas_port_status_get()`)
+
 == API Functions
 `mesa_frer_cstream_conf_get()` +
 `mesa_frer_cstream_conf_set()` +
@@ -43,6 +52,8 @@ Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`
 `mesa_frer_mstream_conf_set()` +
 `mesa_frer_mstream_cnt_get()` +
 `mesa_frer_mstream_cnt_clear()` +
+`mesa_psfp_gcl_conf_get()` +
+`mesa_psfp_gcl_conf_set()` +
 `mesa_psfp_gate_conf_get()` +
 `mesa_psfp_gate_conf_set()` +
 `mesa_psfp_gate_status_get()` +
@@ -50,4 +61,8 @@ Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`
 `mesa_psfp_filter_conf_set()` +
 `mesa_qos_fp_port_conf_get()` +
 `mesa_qos_fp_port_conf_set()` +
-`mesa_qos_fp_port_status_get()`
+`mesa_qos_fp_port_status_get()` +
+`mesa_qos_tas_port_gcl_conf_set()` +
+`mesa_qos_tas_port_conf_set()` +
+`mesa_qos_tas_port_status_get()`
+

@@ -124,6 +124,11 @@ way to get started with the demo application on a reference board.
 * `./mesa/include` The MESA include path.
 * `./mesa/include/mscc/ethernet/switch/api.h` MESA top header file. Application
   accessing MESA should include this file. The include statement should be
+* `./mesa/demo` A demo application showing how the MESA API can be instantiated,
+  and how to do basic stuff like port polling etc.
+* `./mesa/demo/examples` A collection of examples showing how the APIs can be
+  used. These examples are part of the documentation and can be seen in the
+link:#mesa/docs/examples/introduction[Cookbook example] section.
 `#include "mscc/ethernet/switch/api.h"`.
 * `./.module_info` License/module information used by WebStaX.
 * `./third_party` Sources for which Microchip does not own the copyright. All

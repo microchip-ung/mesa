@@ -167,8 +167,8 @@
 // SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits each).
 // This means that a single block will give us 256*12 = 3072 entries.
 #define VTSS_RLEG_CNT    511  /**< Length of RLEG table */
-#define VTSS_LPM_CNT     4096 /**< TBD Length of LPM table */
-#define VTSS_ARP_CNT     2048 /**< TBD Length of ARP table */
+#define VTSS_LPM_CNT     3072 /**< Length of LPM table */
+#define VTSS_ARP_CNT     2048 /**< Length of ARP table */
 #define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
 #define VTSS_MC_TBL_CNT  2048 /**< Length of MC RLEG bit-mask table */
 
@@ -176,7 +176,7 @@
 // IPv6 unicast address occupies 2 entries.
 // I.e. the max number of IP UC entries:
 // IPv4 UC = VTSS_LPM_CNT
-// IPv6 UC = VTSS_LPM_CNT/4 (TBD - SparX-5 is capable of ipv6 prefix match)
+// IPv6 UC = VTSS_LPM_CNT/4
 
 // A IPv4 multicast address occupies 2 entries in the LPM VCAP while
 // IPv6 multicast address occupies 5 entries. As each row consists of 12 entries

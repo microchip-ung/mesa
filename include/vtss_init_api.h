@@ -75,11 +75,11 @@ typedef enum {
     VTSS_TARGET_7552               = 0x7552,  /**< SparX-5-128 Enterprise Switch */
     VTSS_TARGET_7556               = 0x7556,  /**< SparX-5-160 Enterprise Switch */
     VTSS_TARGET_7558               = 0x7558,  /**< SparX-5-200 Enterprise Switch */
-    VTSS_TARGET_7546_04            = 0x47546, /**< SparX-5-64i Industrial Switch */
-    VTSS_TARGET_7549_04            = 0x47549, /**< SparX-5-90i Industrial Switch */
-    VTSS_TARGET_7552_04            = 0x47552, /**< SparX-5-128i Industrial Switch */
-    VTSS_TARGET_7556_04            = 0x47556, /**< SparX-5-160i Industrial Switch */
-    VTSS_TARGET_7558_04            = 0x47558, /**< SparX-5-200i Industrial Switch */
+    VTSS_TARGET_7546TSN            = 0x47546, /**< SparX-5-64i Industrial Switch */
+    VTSS_TARGET_7549TSN            = 0x47549, /**< SparX-5-90i Industrial Switch */
+    VTSS_TARGET_7552TSN            = 0x47552, /**< SparX-5-128i Industrial Switch */
+    VTSS_TARGET_7556TSN            = 0x47556, /**< SparX-5-160i Industrial Switch */
+    VTSS_TARGET_7558TSN            = 0x47558, /**< SparX-5-200i Industrial Switch */
 } vtss_target_type_t;
 
 /** \brief Create structure */
@@ -462,6 +462,13 @@ typedef struct {
 
     vtss_spi_32bit_read_write_t   spi_32bit_read_write;/**< Board specific SPI read/write callout function for 32 bit data */
     vtss_spi_64bit_read_write_t   spi_64bit_read_write;/**< Board specific SPI read/write callout function for 64 bit data*/
+
+    /** Do not reset the switch core when calling vtss_init_conf_set. This
+     * assumes someone else is doing the reset.
+     *
+     * NOTE: Only the JR2 family supports resetting. This setting has no effect
+     * on non-JR2 designs. */
+    BOOL                    skip_switch_reset;
 
     BOOL                    spi_bus;           /**< Using SPI bus interface for reg_read/reg_write */
 #if defined(VTSS_FEATURE_WARM_START)

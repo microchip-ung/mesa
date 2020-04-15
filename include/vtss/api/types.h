@@ -48,7 +48,7 @@
 #include <inttypes.h>
 
 /** \brief C99 Integer types */
-typedef char               i8;   /**<  8-bit signed */
+typedef signed char        i8;   /**<  8-bit signed */
 typedef int16_t            i16;  /**< 16-bit signed */
 typedef int32_t            i32;  /**< 32-bit signed */
 typedef int64_t            i64;  /**< 64-bit signed */
@@ -64,7 +64,7 @@ typedef uint8_t            BOOL; /**< Boolean implemented as 8-bit unsigned */
 
 #include <sys/bsdtypes.h>
 /** \brief Fallback Integer types */
-typedef        char        i8;   /**<  8-bit signed */
+typedef signed char        i8;   /**<  8-bit signed */
 typedef signed short       i16;  /**< 16-bit signed */
 typedef signed int         i32;  /**< 32-bit signed */
 typedef signed long long   i64;  /**< 64-bit signed */
@@ -669,10 +669,11 @@ typedef u16 vtss_qos_egress_map_id_t;
 
 // TBD_VK: Check the defined values when the FA datasheet is available
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_TAS_GCL_LEN_MAX      64 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_GCL_LEN_MAX     256 /**< Maximum supported length of TAS gate control list */
 #define VTSS_QOS_TAS_CT_MIN          100 /**< Minimum supported Gate CycleTime in nS */
 #define VTSS_QOS_TAS_CT_MAX   1000000000 /**< Maximum supported Gate CycleTime in nS */
-#define VTSS_QOS_TAS_CTE_MAX   999999999 /**< Maximum supported Gate CycleTimeExtension in nS */
+#define VTSS_QOS_TAS_MAX_SDU_MAX  (255*64) /**< Maximum supported MAX SDU size */
+#define VTSS_QOS_TAS_MAX_SDU_MIN  64       /**< Minimum supported MAX SDU size */
 #endif /* defined(VTSS_ARCH_SPARX5) */
 
 // Enable and boolean value
@@ -1304,7 +1305,7 @@ typedef u8 vtss_clock_identity[VTSS_CLOCK_IDENTITY_LENGTH];
  * SYNCE types
  ****************************************************************************/
 
-#if defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE  4    /**< SYNCE clock out port numberarray size */
 #else
 #define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE  2    /**< SYNCE clock out port numberarray size */

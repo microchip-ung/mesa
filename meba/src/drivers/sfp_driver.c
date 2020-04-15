@@ -466,7 +466,7 @@ meba_sfp_drivers_t meba_cisco_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = serdes_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_get,
             .meba_sfp_driver_tr_get = tr_1000_sx_get,
             .meba_sfp_driver_probe = dev_probe,
         },
@@ -477,7 +477,7 @@ meba_sfp_drivers_t meba_cisco_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = serdes_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_get,
             .meba_sfp_driver_tr_get = tr_1000_sx_get,
             .meba_sfp_driver_probe = dev_probe,
         },
@@ -531,7 +531,7 @@ meba_sfp_drivers_t meba_axcen_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = serdes_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_get,
             .meba_sfp_driver_tr_get = tr_1000_sx_get,
             .meba_sfp_driver_probe = dev_probe,
         },
@@ -596,7 +596,7 @@ meba_sfp_drivers_t meba_finisar_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = sfi_if_get,
-            .meba_sfp_driver_mt_get = sfi_mt_get,
+            .meba_sfp_driver_mt_get = sfi_mt_dac_get,
             .meba_sfp_driver_tr_get = tr_10g_dac_get,
             .meba_sfp_driver_probe = dev_probe,
         }};
@@ -650,7 +650,7 @@ meba_sfp_drivers_t meba_hp_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = serdes_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_zr_get,
             .meba_sfp_driver_tr_get = tr_1000_lx_get,
             .meba_sfp_driver_probe = dev_probe,
         }};
@@ -690,7 +690,7 @@ meba_sfp_drivers_t meba_wavesplitter_driver_init() {
         .meba_sfp_driver_poll = dev_poll,
         .meba_sfp_driver_conf_set = serdes_conf_set,
         .meba_sfp_driver_if_get = serdes_if_get,
-        .meba_sfp_driver_mt_get = NULL,
+        .meba_sfp_driver_mt_get = sfi_mt_zr_get,
         .meba_sfp_driver_tr_get = tr_1000_lx_get,
         .meba_sfp_driver_probe = dev_probe,
     }};
@@ -710,7 +710,7 @@ meba_sfp_drivers_t meba_d_link_driver_init() {
         .meba_sfp_driver_poll = dev_poll,
         .meba_sfp_driver_conf_set = serdes_conf_set,
         .meba_sfp_driver_if_get = serdes_if_get,
-        .meba_sfp_driver_mt_get = NULL,
+        .meba_sfp_driver_mt_get = sfi_mt_get,
         .meba_sfp_driver_tr_get = tr_1000_sx_get,
         .meba_sfp_driver_probe = dev_probe,
     }};
@@ -730,7 +730,7 @@ meba_sfp_drivers_t meba_avago_driver_init() {
         .meba_sfp_driver_poll = dev_poll,
         .meba_sfp_driver_conf_set = serdes_conf_set,
         .meba_sfp_driver_if_get = serdes_if_get,
-        .meba_sfp_driver_mt_get = NULL,
+        .meba_sfp_driver_mt_get = sfi_mt_get,
         .meba_sfp_driver_tr_get = tr_1000_sx_get,
         .meba_sfp_driver_probe = dev_probe,
     }};
@@ -773,7 +773,7 @@ meba_sfp_drivers_t meba_excom_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = sfi_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_zr_get,
             .meba_sfp_driver_tr_get = tr_10g_lr_get,
             .meba_sfp_driver_probe = dev_probe,
         }};
@@ -794,7 +794,7 @@ meba_sfp_drivers_t meba_mac_to_mac_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = serdes_if_get,
-            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_mt_get = sfi_mt_get,
             .meba_sfp_driver_tr_get = tr_1000_sx_get,
             .meba_sfp_driver_probe = dev_probe,
         },
@@ -969,18 +969,25 @@ static mt_func_t get_mt(uint8_t *rom, uint32_t rom_size) {
     switch (tr) {
         case MEBA_SFP_TRANSRECEIVER_10G:
         case MEBA_SFP_TRANSRECEIVER_25G: return sfi_mt_none_get;
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_BX10:
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_CX:
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_SX:
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_X:
         case MEBA_SFP_TRANSRECEIVER_10G_SR:
         case MEBA_SFP_TRANSRECEIVER_25G_SR:
         case MEBA_SFP_TRANSRECEIVER_10G_LRM:
         case MEBA_SFP_TRANSRECEIVER_25G_LRM: return sfi_mt_get;
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_LX:
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_ZX:
         case MEBA_SFP_TRANSRECEIVER_10G_ER:
         case MEBA_SFP_TRANSRECEIVER_25G_ER:
         case MEBA_SFP_TRANSRECEIVER_10G_LR:
         case MEBA_SFP_TRANSRECEIVER_25G_LR: return sfi_mt_zr_get;
+        case MEBA_SFP_TRANSRECEIVER_1000BASE_T:
         case MEBA_SFP_TRANSRECEIVER_10G_DAC:
         case MEBA_SFP_TRANSRECEIVER_25G_DAC: return sfi_mt_dac_get;
      default:
-         return sfi_mt_get;
+         return sfi_mt_none_get;
     }
     return NULL;
 }

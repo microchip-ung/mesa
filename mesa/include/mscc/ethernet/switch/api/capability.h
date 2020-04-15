@@ -151,10 +151,12 @@ typedef enum {
     MESA_CAP_QOS_DPL_CNT,                   /**< Number of drop precedence levels */
     MESA_CAP_QOS_PORT_POLICER_CNT,          /**< Number of port policers */
     MESA_CAP_QOS_WRED_GROUP_CNT,            /**< Number of WRED groups */
-    MESA_CAP_QOS_QBV_GCE_CNT,               /**< Maximum supported number of 802.1Qbv gate control entries */
-    MESA_CAP_QOS_QBV_CT_MIN,                /**< Minimum supported Gate CycleTime in nS */
-    MESA_CAP_QOS_QBV_CT_MAX,                /**< Maximum supported Gate CycleTime in nS */
-    MESA_CAP_QOS_QBV_CTE_MAX,               /**< Maximum supported Gate CycleTimeExtension in nS */
+    MESA_CAP_QOS_TAS,                       /**< Time Aware Scheduling (802.1Qbv) supported */
+    MESA_CAP_QOS_TAS_GCE_CNT,               /**< Maximum supported number of Time Aware Scheduling (802.1Qbv) gate control entries */
+    MESA_CAP_QOS_TAS_CT_MIN,                /**< Minimum supported Gate CycleTime in nS */
+    MESA_CAP_QOS_TAS_CT_MAX,                /**< Maximum supported Gate CycleTime in nS */
+    MESA_CAP_QOS_TAS_MAX_SDU_MIN,           /**< Minimum supported MAX SDU size */
+    MESA_CAP_QOS_TAS_MAX_SDU_MAX,           /**< Maximum supported MAX SDU size */
     MESA_CAP_QOS_INGRESS_MAP_CNT,           /**< Number of QoS ingress map entries */
     MESA_CAP_QOS_EGRESS_MAP_CNT,            /**< Number of QoS egress map entries */
     MESA_CAP_QOS_COSID_CLASSIFICATION,      /**< COSID classification */
@@ -166,7 +168,6 @@ typedef enum {
     MESA_CAP_QOS_EGRESS_SHAPERS_DLB,        /**< Egress shaper DLB support */
     MESA_CAP_QOS_PORT_POLICER_EXT_DPBL,     /**< Drop Precedence Bypass Level */
     MESA_CAP_QOS_PORT_POLICER_EXT_TTM,      /**< Traffic type mask */
-    MESA_CAP_QOS_QBV,                       /**< 802.1Qbv (Enhancements for Scheduled Traffic) */
     MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_EB,   /**< Queue shaper excess bandwidth */
     MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB,  /**< Queue shaper credit based */
     MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH,  /**< Queue shaper cut through */
@@ -227,6 +228,7 @@ typedef enum {
     MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MIN,
     MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MAX,
     MESA_CAP_DSCP_CNT,
+    MESA_CAP_QOS_CPU_QUEUE_SHAPER,
 
     // Security/ACL
     MESA_CAP_ACL_POLICER_CNT = 800,         /**< Number of ACL policers */
@@ -247,6 +249,8 @@ typedef enum {
     MESA_CAP_ACL_POLICER_BIT_RATE_MAX,      /**< ACL policer bit rate maximum (kbps) */
     MESA_CAP_ACL_POLICER_BIT_RATE_GRAN,     /**< ACL policer bit rate granularity (kbps) */
     MESA_CAP_ACL_HACL,                      /**< Hierarchical ACLs */
+    MESA_CAP_ACL_EXT_DIP,                   /**< ACL extended IPv6 rule with DIP matching */
+    MESA_CAP_ACL_EXT_MAC,                   /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 
     // EVC
     MESA_CAP_EVC_EVC_CNT = 900,             /**< Number of EVCs */

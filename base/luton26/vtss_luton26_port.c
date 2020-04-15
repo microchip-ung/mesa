@@ -258,7 +258,7 @@ static vtss_rc l26_sd1g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
     L26_WRM(VTSS_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
             (if_100fx ? VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_FX100_ENA : 0) |
             (ib_ena_dc_coupling ? VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_DC_COUPLING : 0) |
-            cmv_term ? VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_CMV_TERM : 0 |
+            (cmv_term ? VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_CMV_TERM : 0) |
             VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_DETLEV |
             VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_DET_LEV(3) |
             VTSS_F_MACRO_CTRL_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_OFFSET_COMP |
@@ -1195,6 +1195,7 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
             for (u32 p = port + 1; p <= port + 3; ++p)
                 L26_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(p)), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
         }
+        vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QSGMII; // The serdes mode is already configured
         break;
     case VTSS_PORT_INTERFACE_100FX:
         if (speed != VTSS_SPEED_100M) {
@@ -1209,7 +1210,9 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
             VTSS_E("SFP_CU, illegal speed, port %u", port);
             return VTSS_RC_ERROR;
         }
-        mode = VTSS_SERDES_MODE_1000BaseX;
+        if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_QSGMII) {
+            mode = VTSS_SERDES_MODE_1000BaseX;
+        }
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_VAUI:
@@ -1233,6 +1236,7 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
     }
     /* (re-)configure the Serdes macros to 100FX / 1000BaseX / 2500 */
     if (mode != vtss_state->port.serdes_mode[port_no] && mode != VTSS_SERDES_MODE_SGMII) {
+
         VTSS_RC(serdes_instance_get(vtss_state, port, &instance, &serdes6g));
         if (mode == VTSS_SERDES_MODE_2G5 && !serdes6g) {
             VTSS_E("illegal serdes settings, port %u", port);
@@ -1857,6 +1861,10 @@ static vtss_rc l26_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
     u32                addr, instance, port = VTSS_CHIP_PORT(port_no);
     BOOL               serdes6g;
+    vtss_port_lb_t     lb = vtss_state->port.test_conf[port_no].loopback;
+    vtss_port_conf_t   *conf = &vtss_state->port.conf[port_no];
+    u32                tgt = VTSS_TO_DEV(port);
+
 
     VTSS_RC(serdes_instance_get(vtss_state, port, &instance, &serdes6g));
     addr = (1 << instance);
@@ -1871,6 +1879,23 @@ static vtss_rc l26_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
         VTSS_RC(l26_sd1g_cfg(vtss_state, port_no, mode, addr));
         VTSS_RC(l26_sd1g_write(vtss_state, addr, L26_SERDES_WAIT));
     }
+    // Disable signal detect during loopback
+    if (lb == VTSS_PORT_LB_DISABLED) {
+        L26_WRM(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                (conf->sd_enable ? VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA : 0),
+                (VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA));
+        L26_WRM(VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+               (conf->sd_enable ? VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA : 0),
+                VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
+    } else {
+        L26_WRM(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                0,
+                (VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA));
+        L26_WRM(VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                0,
+                VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
+    }
+
     return VTSS_RC_OK;
 }
 

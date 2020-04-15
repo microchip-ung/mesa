@@ -119,6 +119,7 @@ $methods_blacklist = [
     "mesa_macsec_dbg_reg_dump",
     "mesa_macsec_dbg_fcb_block_reg_dump",
     "mesa_macsec_dbg_frm_match_handling_ctrl_reg_dump",
+    "mesa_packet_tx_frame",
     "mesa_init_conf_get",
     "mesa_init_conf_set",
     "mesa_spi_slave_init",
@@ -128,6 +129,8 @@ $methods_blacklist = [
 ]
 
 $methods_greylist = [
+    "mesa_qos_dscp_dpl_conf_get",
+    "mesa_qos_dscp_dpl_conf_set",
     "mesa_qos_dpl_group_conf_get",
     "mesa_qos_dpl_group_conf_set",
     "mesa_tx_timestamp_idx_alloc",
@@ -1143,37 +1146,34 @@ def add_member_get_func m
         str_obj = "obj_value"
         str_ind = "    "
         j = 0
+        $c_src.puts "#{str_ind}{"
+        str_ind += "    "
+        $c_src.puts "#{str_ind}json_object *obj_value;"
+        $c_src.puts "#{str_ind}MESA_RC(json_rpc_get_name_json_object(req, obj, #{n}, &obj_value)); /* #{__LINE__} */"
         type_array.each do |i|
             $c_src.puts "#{str_ind}for (int i#{j} = 0; i#{j} < #{i}; ) {"
+            str_ind += "    "
             if i == type_array.last
                 str_parm = str_arr + "[i#{j}]"
             else
                 str_parm = "obj#{j}"
-                $c_src.puts "#{str_ind}    json_object *obj#{j};"
+                $c_src.puts "#{str_ind}json_object *obj#{j};"
             end
             str_arr += "[i#{j} - 1]"
-            if j == 0
-                $c_src.puts "#{str_ind}    json_object *obj_value;"
-                $c_src.puts ""
-                $c_src.puts "#{str_ind}    if (i#{j} == 0) {"
-                $c_src.puts "#{str_ind}        MESA_RC(json_rpc_get_name_json_object(req, obj, #{n}, &obj_value)); /* #{__LINE__} */"
-                $c_src.puts "#{str_ind}    }"
-            end
             if i == type_array.last
-                $c_src.puts "#{str_ind}    MESA_RC(json_rpc_get_idx_#{t}(req, #{str_obj}, &i#{j}, #{str_parm})); /* #{__LINE__} */"
+                $c_src.puts "#{str_ind}MESA_RC(json_rpc_get_idx_#{t}(req, #{str_obj}, &i#{j}, #{str_parm})); /* #{__LINE__} */"
             else
-                $c_src.puts "#{str_ind}    MESA_RC(json_rpc_get_idx_json_object(req, #{str_obj}, &i#{j}, &#{str_parm})); /* #{__LINE__} */"
+                $c_src.puts "#{str_ind}MESA_RC(json_rpc_get_idx_json_object(req, #{str_obj}, &i#{j}, &#{str_parm})); /* #{__LINE__} */"
             end
-
             str_obj = "obj#{j}"
-            str_ind += "    "
             j += 1
         end
         type_array.each do |i|
-            (1..j).each {$c_src.print "    "}
+            (1..(j + 1)).each {$c_src.print "    "}
             $c_src.puts "}"
             j -= 1
         end
+        $c_src.puts "    }"
     end
 end
 
@@ -1193,23 +1193,26 @@ def add_member_add_func m
         nt = "name_json_object"
         type_array.each do |i|
             $c_src.puts "#{str_ind}{"
-            $c_src.puts "#{str_ind}    json_object *obj#{j};"
-            $c_src.puts "#{str_ind}    MESA_RC(json_rpc_array_new(req, &obj#{j})); /* #{__LINE__} */"
-            $c_src.puts "#{str_ind}    MESA_RC(json_rpc_add_#{nt}(req, #{n}, obj#{j})); /* #{__LINE__} */"
-            $c_src.puts "#{str_ind}    for (int i#{j} = 0; i#{j} < #{i}; i#{j}++) {"
+            str_ind += "    "
+            $c_src.puts "#{str_ind}json_object *obj#{j};"
+            $c_src.puts "#{str_ind}MESA_RC(json_rpc_array_new(req, &obj#{j})); /* #{__LINE__} */"
+            $c_src.puts "#{str_ind}MESA_RC(json_rpc_add_#{nt}(req, #{n}, obj#{j})); /* #{__LINE__} */"
+            $c_src.puts "#{str_ind}for (int i#{j} = 0; i#{j} < #{i}; i#{j}++) {"
+            str_ind += "    "
             n = "obj#{j}"
             nt = "json_array"
             str_arr += "[i#{j}]"
             if i == type_array.last
-                $c_src.puts "#{str_ind}        MESA_RC(json_rpc_add_#{t}(req, obj#{j}, #{str_arr})); /* #{__LINE__} */"
+                $c_src.puts "#{str_ind}MESA_RC(json_rpc_add_#{t}(req, obj#{j}, #{str_arr})); /* #{__LINE__} */"
             end
-            str_ind += "    "
             j += 1
         end
         type_array.each do |i|
-            (1..j).each {$c_src.print "    "}
-            $c_src.puts "        }"
+            n = (2 * j - 1)
+            (1..n).each {$c_src.print "    "}
             $c_src.puts "    }"
+            (1..n).each {$c_src.print "    "}
+            $c_src.puts "}"
             j -= 1
         end
     end
@@ -1339,13 +1342,12 @@ $methods.each do |m, o|
 
             t = (a[:type_base] == "mesa_bool_t" ? "mesa_bool_t" : type_resolve(a[:type_base])[:type])
             if (end_str.length > 0)
-                $c_src.puts "    for (int i = 0; i < #{end_str}; ) {"
+                $c_src.puts "    {"
                 $c_src.puts "        json_object *obj;"
-                $c_src.puts ""
-                $c_src.puts "        if (i == 0) {"
-                $c_src.puts "            MESA_RC(json_rpc_get_idx_json_object(req, req->params, &req->idx, &obj)); /* #{__LINE__} */"
+                $c_src.puts "        MESA_RC(json_rpc_get_idx_json_object(req, req->params, &req->idx, &obj)); /* #{__LINE__} */"
+                $c_src.puts "        for (int i = 0; i < #{end_str}; ) {"
+                $c_src.puts "            MESA_RC(json_rpc_get_idx_#{t}(req, obj, &i, &#{a[:arg_name]}[i])); /* #{__LINE__} */"
                 $c_src.puts "        }"
-                $c_src.puts "        MESA_RC(json_rpc_get_idx_#{t}(req, obj, &i, &#{a[:arg_name]}[i])); /* #{__LINE__} */"
                 $c_src.puts "    }"
             else
                 $c_src.puts "    MESA_RC(json_rpc_get_idx_#{t}(req, req->params, &req->idx, &#{a[:arg_name]})); /* #{__LINE__} */"
@@ -1391,16 +1393,14 @@ $methods.each do |m, o|
                 $c_src.puts "    json_object_array_add(req->result, NULL);  /* #{a[:arg_name]} #{__LINE__} */"
 
             elsif arg_is_count(m, prev_arg)
-                $c_src.puts "    for (int i = 0; i < #{prev_arg}; i++) {"
+                $c_src.puts "    {"
                 $c_src.puts "        json_object *obj;"
-                $c_src.puts ""
-                $c_src.puts "        if (i == 0) {"
-                $c_src.puts "            MESA_RC(json_rpc_array_new(req, &obj)); /* #{__LINE__} */"
-                $c_src.puts "            MESA_RC(json_rpc_add_json_array(req, req->result, obj)); /* #{__LINE__} */"
+                $c_src.puts "        MESA_RC(json_rpc_array_new(req, &obj)); /* #{__LINE__} */"
+                $c_src.puts "        MESA_RC(json_rpc_add_json_array(req, req->result, obj)); /* #{__LINE__} */"
+                $c_src.puts "        for (int i = 0; i < #{prev_arg}; i++) {"
+                $c_src.puts "            MESA_RC(json_rpc_add_#{t}(req, obj, &#{a[:arg_name]}[i])); /* #{__LINE__} */"
                 $c_src.puts "        }"
-                $c_src.puts "        MESA_RC(json_rpc_add_#{t}(req, obj, &#{a[:arg_name]}[i])); /* #{__LINE__} */"
                 $c_src.puts "    }"
-
             else
                 $c_src.puts "    MESA_RC(json_rpc_add_#{t}(req, req->result, &#{a[:arg_name]})); /* #{__LINE__} */"
 

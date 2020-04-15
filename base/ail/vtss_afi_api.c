@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -1141,7 +1141,8 @@ static vtss_rc afi_dti_inj_start(vtss_state_t *vtss_state, vtss_afi_fastid_t fas
         do_frm_delay_config = TRUE;
     }
 
-    dti->mode = (cfg->seq_cnt == 0);
+    dti->mode = (cfg->seq_cnt == 0 ? 1 : 0);
+    dti->frm_inj_cnt = cfg->seq_cnt;
 
     rc = vtss_state->afi.dti_start(vtss_state, fastid, do_frm_delay_config, TRUE /* do_dti_config */, start_flow);
     VTSS_I("Exit, ID = %u", fastid);

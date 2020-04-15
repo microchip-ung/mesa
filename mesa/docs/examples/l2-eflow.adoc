@@ -1,0 +1,13 @@
+:sectnums:
+
+== L2 Enhanced VLAN Flow Example
+
+The Enhanced VLAN Flow example shows how to setup multiple flows between access ports and trunk ports.
+For each flow, the following setup is done:
+
+* DLB policer.
+* Ingress flow mapping to policer.
+* VCE for access port matching untagged/C-tagged frames and mapping to ingress flow, classified VID, PCP and priority.
+* VCE for trunk port matching C-tagged frames with classified VID and mapping to ingress flow.
+* TCE for access port mapping back to untagged/C-tagged frames.
+* Classified VLAN membership for access and trunk port.

@@ -63,11 +63,11 @@ typedef enum {
     MESA_TARGET_7552          = 0x7552,  // SparX-5-128 Enterprise Switch
     MESA_TARGET_7556          = 0x7556,  // SparX-5-160 Enterprise Switch
     MESA_TARGET_7558          = 0x7558,  // SparX-5-200 Enterprise Switch
-    MESA_TARGET_7546_04       = 0x47546, // SparX-5-64i Industrial Switch
-    MESA_TARGET_7549_04       = 0x47549, // SparX-5-90i Industrial Switch
-    MESA_TARGET_7552_04       = 0x47552, // SparX-5-128i Industrial Switch
-    MESA_TARGET_7556_04       = 0x47556, // SparX-5-160i Industrial Switch
-    MESA_TARGET_7558_04       = 0x47558, // SparX-5-200i Industrial Switch
+    MESA_TARGET_7546TSN       = 0x47546, // SparX-5-64i Industrial Switch
+    MESA_TARGET_7549TSN       = 0x47549, // SparX-5-90i Industrial Switch
+    MESA_TARGET_7552TSN       = 0x47552, // SparX-5-128i Industrial Switch
+    MESA_TARGET_7556TSN       = 0x47556, // SparX-5-160i Industrial Switch
+    MESA_TARGET_7558TSN       = 0x47558, // SparX-5-200i Industrial Switch
 } mesa_target_type_t;
 
 // Create structure
@@ -326,6 +326,13 @@ typedef struct {
     mesa_spi_read_write_t   spi_read_write;
     mesa_spi_32bit_read_write_t   spi_32bit_read_write;
     mesa_spi_64bit_read_write_t   spi_64bit_read_write;
+
+    // Do not reset the switch core when calling vtss_init_conf_set. This
+    // assumes someone else is doing the reset.
+    //
+    // NOTE: Only the JR2 family supports resetting. This setting has no effect
+    // on non-JR2 designs.
+    mesa_bool_t             skip_switch_reset;
 
     mesa_bool_t             spi_bus;           // Using SPI bus interface for reg_read/reg_write
     mesa_bool_t             warm_start_enable; // Allow warm start

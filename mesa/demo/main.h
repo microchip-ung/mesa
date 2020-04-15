@@ -27,11 +27,14 @@
 extern "C" {
 #endif
 
+#include "mscc/ethernet/switch/api.h"
+
 typedef enum {
     MSCC_INIT_CMD_REG,       // Register trace and startup options
     MSCC_INIT_CMD_INIT,      // Initialize module
     MSCC_INIT_CMD_INIT_WARM, // Initialize module after warm start
-    MSCC_INIT_CMD_POLL       // Poll module
+    MSCC_INIT_CMD_POLL,      // Poll module every second
+    MSCC_INIT_CMD_POLL_FAST  // Poll module fast
 } mscc_appl_init_cmd_t;
 
 // Startup option
@@ -57,12 +60,14 @@ void mscc_appl_port_init(mscc_appl_init_t *init);
 void mscc_appl_sfp_init(mscc_appl_init_t *init);
 void mscc_appl_mac_init(mscc_appl_init_t *init);
 void mscc_appl_vlan_init(mscc_appl_init_t *init);
+void mscc_appl_packet_init(mscc_appl_init_t *init);
 void mscc_appl_ip_init(mscc_appl_init_t *init);
 void mscc_appl_json_rpc_init(mscc_appl_init_t *init);
 void mscc_appl_debug_init(mscc_appl_init_t *init);
 void mscc_appl_symreg_init(mscc_appl_init_t *init);
 void mscc_appl_trace_init(mscc_appl_init_t *init);
 void mscc_appl_test_init(mscc_appl_init_t *init);
+void mscc_appl_example_init(mscc_appl_init_t *init);
 
 typedef enum {
     SPI_USER_REG,  // Switch register access

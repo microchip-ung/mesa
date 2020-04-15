@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -197,6 +197,17 @@ static vtss_rc l26_ptp_get_timestamp(vtss_state_t                    *vtss_state
  *  Packet control
  * ================================================================= */
 
+static vtss_rc l26_packet_mode_update(vtss_state_t *vtss_state)
+{
+    if (!vtss_state->packet.manual_mode) {
+        /* Change mode to manual extraction and injection */
+        vtss_state->packet.manual_mode = 1;
+        /* Status word before last data */
+        L26_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(0), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
+    }
+    return VTSS_RC_OK;
+}
+
 #define XTR_EOF_0     0x80000000U
 #define XTR_EOF_1     0x80000001U
 #define XTR_EOF_2     0x80000002U
@@ -243,7 +254,6 @@ static vtss_rc l26_rx_frame_discard(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-
 static vtss_rc l26_rx_frame_rd(vtss_state_t *vtss_state,
                                const vtss_packet_rx_queue_t queue_no,
                                u8 *frame,
@@ -261,7 +271,7 @@ static vtss_rc l26_rx_frame_rd(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
 
-    while(!done && buflen > 4) {
+    while(!done && buflen > 3) {
         u32 val;
 
         L26_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val);
@@ -313,14 +323,15 @@ static vtss_rc l26_rx_frame_rd(vtss_state_t *vtss_state,
         }
     }
 
-    if(!done) {                 /* Buffer overrun */
-        (void) l26_rx_frame_discard(vtss_state, queue_no);
-        rc = VTSS_RC_INCOMPLETE; /* ??? */
+    if (bytes_read != NULL) {
+        if(!done) {                 /* Buffer overrun */
+            (void) l26_rx_frame_discard(vtss_state, queue_no);
+            rc = VTSS_RC_INCOMPLETE; /* ??? */
+        }
+
+        if (rc != VTSS_RC_ERROR)
+            *bytes_read = read;
     }
-
-    if(rc != VTSS_RC_ERROR)
-        *bytes_read = read;
-
     return rc;
 }
 
@@ -329,69 +340,6 @@ static inline u32 BYTE_SWAP(u32 v)
     register u32 v1 = v;
     v1 = ((v1 >> 24) & 0x000000FF) | ((v1 >> 8) & 0x0000FF00) | ((v1 << 8) & 0x00FF0000) | ((v1 << 24) & 0xFF000000);
     return v1;
-}
-
-static vtss_rc l26_rx_frame_get(vtss_state_t *vtss_state,
-                                const vtss_packet_rx_queue_t  queue_no,
-                                vtss_packet_rx_header_t       *const header,
-                                u8                            *const frame,
-                                const u32                     length)
-{
-    u32                  val, port, found = 0;
-    vtss_port_no_t       port_no;
-    vtss_packet_rx_grp_t xtr_grp = vtss_state->packet.rx_conf.grp_map[queue_no];
-
-    if (vtss_state->init_conf.packet_init_disable) {
-        VTSS_I("Packet interface not supported");
-        return VTSS_RC_OK;
-    }
-    
-    L26_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
-    /* CPUQ0 Got data ? */
-    if(val & VTSS_F_DEVCPU_QS_XTR_XTR_DATA_PRESENT_DATA_PRESENT_GRP(VTSS_BIT(xtr_grp))) { 
-        u32 ifh[2], i;
-        u16 ethtype;
- 
-        /* Read IFH */
-        for (i = 0; i < 2; i++) {
-            L26_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &ifh[i]);
-            ifh[i] = BYTE_SWAP(ifh[i]);
-        }
-
-        if (VTSS_EXTRACT_BITFIELD(ifh[0], 56 - 32, 8) != 0xFF) {
-            VTSS_E("Invalid signature");
-            return VTSS_RC_ERROR;
-        }
-
-        /* Note - VLAN tags are *not* stripped on ingress */
-        header->tag.vid     = VTSS_EXTRACT_BITFIELD(ifh[1],  0, 12);
-        header->tag.cfi     = VTSS_EXTRACT_BITFIELD(ifh[1], 12,  1);
-        header->tag.tagprio = VTSS_EXTRACT_BITFIELD(ifh[1], 13,  3);
-        header->queue_mask  = VTSS_EXTRACT_BITFIELD(ifh[1], 20,  8);
-        header->learn      = (VTSS_EXTRACT_BITFIELD(ifh[1], 28,  2) ? 1 : 0);
-
-        /* Map from chip port to API port */
-        port = VTSS_EXTRACT_BITFIELD(ifh[0], 51 - 32, 5);
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            if (VTSS_CHIP_PORT(port_no) == port) {
-                header->port_no = port_no;
-                found = 1;
-                break;
-            }
-        }
-        if (!found) {
-            VTSS_E("unknown chip port: %u", port);
-            return VTSS_RC_ERROR;
-        }
-            
-        VTSS_RC(l26_rx_frame_rd(vtss_state, queue_no, frame, length, &header->length));
-
-        ethtype = (frame[12] << 8) + frame[13];
-        header->arrived_tagged = (ethtype == VTSS_ETYPE_TAG_C || ethtype == VTSS_ETYPE_TAG_S); /* Emulated */
-
-        return VTSS_RC_OK;
-    }
-    return VTSS_RC_ERROR;       /* No data available */
 }
 
 static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t *vtss_state,
@@ -409,6 +357,8 @@ static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     }
 
     VTSS_N("length: %u, vid: %u, ifhlen: %d", length, vid, ifh->length);
+
+    VTSS_RC(l26_packet_mode_update(vtss_state));
 
     L26_RD(VTSS_DEVCPU_QS_INJ_INJ_STATUS, &status);
     if (!(VTSS_X_DEVCPU_QS_INJ_INJ_STATUS_FIFO_RDY(status) & VTSS_BIT(CPU_INJ_REG))) {
@@ -498,9 +448,7 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t          *const state,
 
     memset(info, 0, sizeof(*info));
 
-    info->sw_tstamp = meta->sw_tstamp;
     info->length    = meta->length;
-    info->glag_no   = VTSS_GLAG_NO_NONE;
 
     // Map from chip port to API port
     chip_port = VTSS_EXTRACT_BITFIELD64(ifh, 51, 5);
@@ -525,8 +473,6 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t          *const state,
         // comes to the CPU due to an IS2 rule.
         info->tstamp_id = VTSS_EXTRACT_BITFIELD64(ifh, 45, 6);
         info->tstamp_id_decoded = TRUE;
-
-        info->acl_idx = VTSS_EXTRACT_BITFIELD64(ifh, 37, 8);
     }
 
     // sflow_id:
@@ -543,6 +489,35 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t          *const state,
         info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
     }
     return VTSS_RC_OK;
+}
+
+static vtss_rc l26_rx_frame(struct vtss_state_s   *vtss_state,
+                            u8                    *const data,
+                            const u32             buflen,
+                            vtss_packet_rx_info_t *const rx_info)
+{
+    vtss_rc               rc = VTSS_RC_INCOMPLETE;
+    u32                   val, len;
+    vtss_packet_rx_meta_t meta;
+    u8                    ifh[VTSS_L26_RX_IFH_SIZE];
+
+    if (vtss_state->init_conf.packet_init_disable) {
+        VTSS_I("Packet interface not supported");
+        return VTSS_RC_OK;
+    }
+
+    VTSS_RC(l26_packet_mode_update(vtss_state));
+
+    /* Check if data is ready for grp */
+    L26_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
+    if (val) {
+        VTSS_RC(l26_rx_frame_rd(vtss_state, 0, ifh, VTSS_L26_RX_IFH_SIZE, NULL));
+        VTSS_RC(l26_rx_frame_rd(vtss_state, 0, data, buflen, &len));
+        memset(&meta, 0, sizeof(meta));
+        meta.length = (len - 4);
+        rc = l26_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
+    }
+    return rc;
 }
 
 /*****************************************************************************/
@@ -661,26 +636,6 @@ static vtss_rc l26_tx_hdr_encode(      vtss_state_t          *const state,
     VTSS_IG_HEX(VTSS_TRACE_GROUP_PACKET, &bin_hdr[0], *bin_hdr_len);
 
     return VTSS_RC_OK;
-}
-
-static vtss_rc l26_tx_frame_port(vtss_state_t *vtss_state,
-                                 const vtss_port_no_t  port_no,
-                                 const u8              *const frame,
-                                 const u32             length,
-                                 const vtss_vid_t      vid)
-{
-    vtss_packet_tx_ifh_t ifh;
-    vtss_packet_tx_info_t tx_info;
-    vtss_rc rc;
-
-    (void) vtss_packet_tx_info_init(vtss_state, &tx_info);
-    tx_info.dst_port_mask = VTSS_BIT64(port_no);
-
-    ifh.length = sizeof(ifh.ifh);
-    if ((rc = l26_tx_hdr_encode(vtss_state, &tx_info, (u8*) ifh.ifh, &ifh.length) != VTSS_RC_OK)) {
-        return rc;
-    }
-    return l26_tx_frame_ifh_vid(vtss_state, &ifh, frame, length, vid);
 }
 
 static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
@@ -921,9 +876,7 @@ vtss_rc vtss_l26_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         state->rx_conf_set              = l26_rx_conf_set;
-        state->rx_frame_get             = l26_rx_frame_get;
-        state->rx_frame_discard         = l26_rx_frame_discard;
-        state->tx_frame_port            = l26_tx_frame_port;
+        state->rx_frame                 = l26_rx_frame;
         state->tx_frame_ifh             = l26_tx_frame_ifh;
         state->rx_hdr_decode            = l26_rx_hdr_decode;
         state->rx_ifh_size              = VTSS_L26_RX_IFH_SIZE;

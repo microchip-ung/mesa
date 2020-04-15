@@ -301,6 +301,8 @@ vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info, vtss_port_no_t port_no);
+vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                            const vtss_port_serdes_debug_t *const conf);
 
 
 /* Miscellaneous functions */
@@ -317,6 +319,8 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock);
+vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
+                              const vtss_debug_printf_t pr);
 
 
 /* QoS functions */
@@ -329,6 +333,8 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
 vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
+                                         const vtss_port_no_t  port_no);
 #endif /* VTSS_FEATURE_QOS */
 
 /* L2 functions */
@@ -369,8 +375,9 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t c
 
 #if defined(VTSS_FEATURE_VOP)
 /* OAM functions */
-vtss_rc vtss_fa_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_fa_oam_debug_print(vtss_state_t *vtss_state,
+u32 vtss_fa_voi_idx_to_mip_idx(vtss_voi_idx_t  voi_idx);
+vtss_rc vtss_fa_vop_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
 #endif /* VTSS_FEATURE_VOP */
@@ -408,6 +415,11 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state,
                                 const vtss_debug_printf_t pr,
                                 const vtss_debug_info_t   *const info);
+vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub);
+vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano);
+vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
+BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
+
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 

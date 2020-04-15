@@ -25,7 +25,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <libgen.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "mscc/ethernet/switch/api.h"
 #include "mscc/ethernet/board/api.h"
@@ -146,9 +146,9 @@ static void printf_trace_head(const char *mname,
                               const char *function,
                               const char *lcont)
 {
-    time_t     t;
-    int        h, m, s;
-    const char *p, *base_name = file;
+    struct timeval tv;
+    int            h, m, s;
+    const char     *p, *base_name = file;
 
     for (p = file; *p != 0; p++) {
         if (*p == '/' || *p == '\\') {
@@ -156,12 +156,12 @@ static void printf_trace_head(const char *mname,
         }
     }
 
-    t = time(NULL);
-    h = (t / 3600 % 24);
-    m = (t / 60 % 60);
-    s = (t % 60);
-    printf("%u:%02u:%02u %s/%s/%s %s(%u) %s%s",
-           h, m, s,
+    (void)gettimeofday(&tv, NULL);
+    h = (tv.tv_sec / 3600 % 24);
+    m = (tv.tv_sec / 60 % 60);
+    s = (tv.tv_sec % 60);
+    printf("%u:%02u:%02u:%05lu %s/%s/%s %s(%u) %s%s",
+           h, m, s, tv.tv_usec,
            mname,
            gname,
            level == MESA_TRACE_LEVEL_ERROR ? "error" :
@@ -234,6 +234,38 @@ void mscc_appl_trace_vprintf(const char *mname,
     fflush(stdout);
 }
 
+static void trace_hex(const unsigned char *byte_p, int byte_cnt)
+{
+    int i, j;
+
+    for (i = 0; i < byte_cnt; i++) {
+        j = (i == (byte_cnt - 1) ? 15 : (i % 16));
+        if (j == 0) {
+            printf("%04x: ", i);
+        }
+        printf("%02x%s", byte_p[i], j == 15 ? "\n" : (j & 3) == 3 ? "-" : " ");
+        if (j == 15) {
+            fflush(stdout);
+        }
+    }
+}
+
+void mscc_appl_trace_hex(const char *mname,
+                         const char *gname,
+                         const mesa_trace_level_t level,
+                         const char *file,
+                         const int line,
+                         const char *function,
+                         const unsigned char *byte_p,
+                         const int byte_cnt)
+{
+    char buf[32];
+
+    sprintf(buf, ": hex dump, %u bytes\n", byte_cnt);
+    printf_trace_head(mname, gname, level, file, line, function, buf);
+    trace_hex(byte_p, byte_cnt);
+}
+
 void mesa_callout_trace_hex_dump(const mesa_trace_layer_t layer,
                                  const mesa_trace_group_t group,
                                  const mesa_trace_level_t level,
@@ -243,20 +275,8 @@ void mesa_callout_trace_hex_dump(const mesa_trace_layer_t layer,
                                  const unsigned char      *byte_p,
                                  const int                byte_cnt)
 {
-    int i;
-
     mesa_printf_trace_head(layer, group, level, file, line, function, "\n");
-
-    for (i = 0; i < byte_cnt; i += 16) {
-        int j = 0;
-        printf("%04x:", i);
-        while (j+i < byte_cnt && j < 16) {
-            printf(" %02x", byte_p[i+j]);
-            j++;
-        }
-        putchar('\n');
-        fflush(stdout);
-    }
+    trace_hex(byte_p, byte_cnt);
 }
 
 /* ================================================================= *

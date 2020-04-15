@@ -235,7 +235,7 @@ static vtss_rc fa_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *
 /* Return the result from MAC table get operations */
 static vtss_rc fa_mac_table_result(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
-    u32 cfg0, cfg1, cfg2, addr, type, upsid;
+    u32 cfg0, cfg1, cfg2, addr, type;
 
     REG_RD(VTSS_LRN_MAC_ACCESS_CFG_2, &cfg2);
     /* Check if entry is valid */
@@ -266,8 +266,7 @@ static vtss_rc fa_mac_table_result(vtss_state_t *vtss_state, vtss_mac_table_entr
 
     switch (type) {
     case MAC_ENTRY_ADDR_TYPE_UPSID_PN:
-        upsid = ((addr >> 5) & 0x1f);
-        *pgid = vtss_fa_vtss_pgid(vtss_state, (addr & 0x1f) + (upsid ? 32 : 0));
+        *pgid = vtss_fa_vtss_pgid(vtss_state, addr & 0x7f);
         break;
     case MAC_ENTRY_ADDR_TYPE_MC_IDX:
         /* Multicast PGID */
@@ -705,6 +704,7 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
     vtss_port_mask_t  pmask;
     u32               isdx, voe_valid;
     vtss_iflow_conf_t *conf;
+    BOOL              independent_mel;
 
     if (sdx == NULL) {
         return VTSS_RC_ERROR;
@@ -715,7 +715,9 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
     conf = &sdx->conf;
     REG_WRX_PMASK(VTSS_ANA_L2_PORT_MASK_CFG, isdx, pmask);
 
-    REG_WR(VTSS_ANA_L2_MISC_CFG(isdx), VTSS_F_ANA_L2_MISC_CFG_PIPELINE_PT(15));
+    REG_WR(VTSS_ANA_L2_MISC_CFG(isdx),
+           VTSS_F_ANA_L2_MISC_CFG_CT_DIS(conf->cut_through_disable ? 1 : 0) |
+           VTSS_F_ANA_L2_MISC_CFG_PIPELINE_PT(15));
 
     /* Use ISDX key in ES0 */
     REG_WR(VTSS_ANA_L2_SERVICE_CTRL(isdx), VTSS_F_ANA_L2_SERVICE_CTRL_ES0_ISDX_KEY_ENA(0));
@@ -725,14 +727,15 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
 
     /* VOE reference, do not point at Port VOE */
     voe_valid = (conf->voe_idx != VTSS_EVC_VOE_IDX_NONE && conf->voe_idx < VTSS_PORT_VOE_BASE_IDX ? 1 : 0);
+    independent_mel = (conf->voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;    /* Independent MEL when no pointer to active VOE */
     REG_WR(VTSS_ANA_CL_OAM_MEP_CFG(isdx),
            VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX_ENA(voe_valid) |
            VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX(voe_valid ? conf->voe_idx : 0) |
-           VTSS_F_ANA_CL_OAM_MEP_CFG_INDEPENDENT_MEL_ENA(1));
+           VTSS_F_ANA_CL_OAM_MEP_CFG_INDEPENDENT_MEL_ENA(independent_mel));
 
     /* MIP reference */
     REG_WR(VTSS_ANA_CL_ISDX_CFG(isdx),
-           VTSS_F_ANA_CL_ISDX_CFG_MIP_IDX(conf->voi_idx == VTSS_EVC_MIP_IDX_NONE ? 0 : conf->voi_idx));
+           VTSS_F_ANA_CL_ISDX_CFG_MIP_IDX(conf->voi_idx == VTSS_EVC_MIP_IDX_NONE ? 0 : vtss_fa_voi_idx_to_mip_idx(conf->voi_idx)));
 
 #if defined(VTSS_FEATURE_FRER)
     REG_WR(VTSS_ANA_AC_FRER_GEN_FRER_GEN(isdx),

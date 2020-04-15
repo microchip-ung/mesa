@@ -50,10 +50,11 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
 	u32 cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 	u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
     u32 spd10g = 1;
-
+ 
     if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
         spd10g = 0;
     }
+
 
     REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST(1),
@@ -447,6 +448,20 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
                 VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB(1),
                 VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB);
 
+    REG_RD(VTSS_CLKGEN_LCPLL1_CORE_CLK_CFG, &value);
+    value = VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_DIV(value) == 4 ? 0 :
+        VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_DIV(value) == 5 ? 1 : 2;
+
+    REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd_lane_tgt),
+            VTSS_F_SD_LANE_TARGET_MISC_SD_125_RST_DIS(res_struct->fx_100[0]) |
+            VTSS_F_SD_LANE_TARGET_MISC_RX_ENA(res_struct->fx_100[0]) |
+            VTSS_F_SD_LANE_TARGET_MISC_MUX_ENA(res_struct->fx_100[0]) |
+            VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(value),
+            VTSS_M_SD_LANE_TARGET_MISC_SD_125_RST_DIS |
+            VTSS_M_SD_LANE_TARGET_MISC_RX_ENA |
+            VTSS_M_SD_LANE_TARGET_MISC_MUX_ENA |
+            VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);
+
     VTSS_MSLEEP(3);
 
     REG_RD(VTSS_SD_LANE_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
@@ -459,20 +474,20 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
         VTSS_D("Note: The value of sd_lane_stat pma_rst_done was 0x%x\n", value);
     }
 
-    // Local fix until this is integrated into UTE
     REG_WRM(VTSS_SD_LANE_TARGET_SD_SER_RST(sd_lane_tgt),
-            VTSS_F_SD_LANE_TARGET_SD_SER_RST_SER_RST(0),
-            VTSS_M_SD_LANE_TARGET_SD_SER_RST_SER_RST);
+                VTSS_F_SD_LANE_TARGET_SD_SER_RST_SER_RST(0x0),
+                VTSS_M_SD_LANE_TARGET_SD_SER_RST_SER_RST);
 
     REG_WRM(VTSS_SD_LANE_TARGET_SD_DES_RST(sd_lane_tgt),
-            VTSS_F_SD_LANE_TARGET_SD_DES_RST_DES_RST(0),
-            VTSS_M_SD_LANE_TARGET_SD_DES_RST_DES_RST);
+                VTSS_F_SD_LANE_TARGET_SD_DES_RST_DES_RST(0x0),
+                VTSS_M_SD_LANE_TARGET_SD_DES_RST_DES_RST);
+
 
   return rc;
 }
 
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
-    vtss_sd10g28_setup_struct_t calc_results;
+    vtss_sd10g28_setup_struct_t calc_results = {};
     vtss_rc rc;
     VTSS_D("This function is generated with UTE based on TAG: temp");
 

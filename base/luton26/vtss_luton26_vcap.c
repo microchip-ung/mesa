@@ -736,10 +736,10 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
     u32                entry[VTSS_TCAM_ENTRY_WIDTH];
     u32                mask[VTSS_TCAM_ENTRY_WIDTH], port_mask;
     BOOL               ipv4 = FALSE;
-    int                type = ACL_TYPE_ETYPE;
+    u32                type, type_mask = 0x7;
     vtss_ace_t         *ace = &is2->entry->ace;
     vtss_ace_udp_tcp_t *sport, *dport;
-    u8                 range = 0;
+    u8                 range = 0, i, mac_valid = 0;
     vtss_ace_u48_t     smac, dmac;
     vtss_ace_u16_t     mac_data;
     vtss_ace_u8_t      *proto;
@@ -791,8 +791,6 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
     }
 
     /* Common Fields */
-    if (type != ACL_TYPE_ANY)
-        L26_ACL_FIELD(0, 3, type, ACL_MASK_ONES, entry, mask); /* IS2_TYPE */
     L26_ACL_BITSET(3, is2->entry->first, entry, mask); /* FIRST */
     
     L26_ACL_FIELD(4, 8, ace->policy.value, ace->policy.mask, entry, mask); /* PAG */
@@ -811,57 +809,64 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
     /* PCP (formerly UPRIO) */
     L26_ACL_CFIELD(54, 3, ace->vlan.usr_prio.value, ace->vlan.usr_prio.mask, entry, mask);
     switch (type) {
-    case ACL_TYPE_ETYPE:
-    case ACL_TYPE_LLC:
-    case ACL_TYPE_SNAP:
-        /* Common format */
-        L26_ACL_CBITSET(153, ace->dmac_mc, entry, mask); /* L2_MC */
-        L26_ACL_CBITSET(154, ace->dmac_bc, entry, mask); /* L2_BC */
-        /* Specific format */
-        switch (type) {
-        case ACL_TYPE_ETYPE:
-            dmac = ace->frame.etype.dmac;
-            smac = ace->frame.etype.smac;
-            mac_data = ace->frame.etype.data;
-            ptp = &ace->frame.etype.ptp;
-            if (ptp->enable) {
-                /* PTP header filtering, byte 0, 1, 4 and 6 */
-                mac_data.value[0] = ptp->header.value[0]; /* PTP byte 0 */
-                mac_data.mask[0] = ptp->header.mask[0];   /* PTP byte 0 */
-                mac_data.value[1] = ptp->header.value[1]; /* PTP byte 1 */
-                mac_data.mask[1] = ptp->header.mask[1];   /* PTP byte 1 */
-                if (!is2->entry->first) {
-                    /* Override SMAC byte 2 and 4 in second lookup */
-                    memset(&smac, 0, sizeof(smac));
-                    smac.value[2] = ptp->header.value[2]; /* PTP byte 4 */
-                    smac.mask[2] = ptp->header.mask[2];   /* PTP byte 4 */
-                    smac.value[4] = ptp->header.value[3]; /* PTP byte 6 */
-                    smac.mask[4] = ptp->header.mask[3];   /* PTP byte 6 */
-                }
+    case ACL_TYPE_ANY:
+        type = ACL_TYPE_ETYPE;
+        type_mask = 0;
+        mac_valid = (ace->dmac_mc != VTSS_ACE_BIT_ANY || ace->dmac_bc != VTSS_ACE_BIT_ANY ? 1 : 0);
+        for (i = 0; i < 6; i++) {
+            if (ace->frame.any.dmac.mask[i] != 0 || ace->frame.any.smac.mask[i] != 0) {
+                mac_valid = 1;
+                break;
             }
-            
-            /* ETYPE */
-            l26_acl_bytes(155, 2, ace->frame.etype.etype.value, ace->frame.etype.etype.mask, entry, mask);
-            /* L2_PAYLOAD */
-            l26_acl_bytes(171, 2, mac_data.value, mac_data.mask, entry, mask);
-            break;
-        case ACL_TYPE_LLC:
-            dmac = ace->frame.llc.dmac;
-            smac = ace->frame.llc.smac;
-            /* L2_LLC */
-            l26_acl_bytes(155, 4, ace->frame.llc.llc.value, ace->frame.llc.llc.mask, entry, mask);
-            break;
-        case ACL_TYPE_SNAP:
-            dmac = ace->frame.snap.dmac;
-            smac = ace->frame.snap.smac;
-            /* L2_SNAP byte 0 */
-            l26_acl_bytes(155, 1, ace->frame.snap.snap.value, ace->frame.snap.snap.mask, entry, mask);
-            /* L2_SNAP bytes 1-4 */
-            l26_acl_bytes(163, 4, ace->frame.snap.snap.value + 1, ace->frame.snap.snap.mask + 1, entry, mask);
-            break;
         }
-        L26_ACE_MAC(57, dmac, entry, mask); /* L2_DMAC */
-        L26_ACE_MAC(105, smac, entry, mask); /* L2_SMAC */
+        if (mac_valid) {
+            /* Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering. ARP frames must be mapped to ETYPE */
+            type_mask = 0x4;
+            dmac = ace->frame.any.dmac;
+            smac = ace->frame.any.smac;
+        }
+        break;
+    case ACL_TYPE_ETYPE:
+        mac_valid = 1;
+        dmac = ace->frame.etype.dmac;
+        smac = ace->frame.etype.smac;
+        mac_data = ace->frame.etype.data;
+        ptp = &ace->frame.etype.ptp;
+        if (ptp->enable) {
+            /* PTP header filtering, byte 0, 1, 4 and 6 */
+            mac_data.value[0] = ptp->header.value[0]; /* PTP byte 0 */
+            mac_data.mask[0] = ptp->header.mask[0];   /* PTP byte 0 */
+            mac_data.value[1] = ptp->header.value[1]; /* PTP byte 1 */
+            mac_data.mask[1] = ptp->header.mask[1];   /* PTP byte 1 */
+            if (!is2->entry->first) {
+                /* Override SMAC byte 2 and 4 in second lookup */
+                memset(&smac, 0, sizeof(smac));
+                smac.value[2] = ptp->header.value[2]; /* PTP byte 4 */
+                smac.mask[2] = ptp->header.mask[2];   /* PTP byte 4 */
+                smac.value[4] = ptp->header.value[3]; /* PTP byte 6 */
+                smac.mask[4] = ptp->header.mask[3];   /* PTP byte 6 */
+            }
+        }
+        /* ETYPE */
+        l26_acl_bytes(155, 2, ace->frame.etype.etype.value, ace->frame.etype.etype.mask, entry, mask);
+        /* L2_PAYLOAD */
+        l26_acl_bytes(171, 2, mac_data.value, mac_data.mask, entry, mask);
+        break;
+    case ACL_TYPE_LLC:
+        mac_valid = 1;
+        dmac = ace->frame.llc.dmac;
+        smac = ace->frame.llc.smac;
+        /* L2_LLC */
+        l26_acl_bytes(155, 4, ace->frame.llc.llc.value, ace->frame.llc.llc.mask, entry, mask);
+        break;
+    case ACL_TYPE_SNAP:
+        mac_valid = 1;
+        dmac = ace->frame.snap.dmac;
+        smac = ace->frame.snap.smac;
+        /* L2_SNAP byte 0 */
+        l26_acl_bytes(155, 1, ace->frame.snap.snap.value, ace->frame.snap.snap.mask, entry, mask);
+        /* L2_SNAP bytes 1-4 */
+        l26_acl_bytes(163, 4, ace->frame.snap.snap.value + 1, ace->frame.snap.snap.mask + 1, entry, mask);
         break;
     case ACL_TYPE_ARP:
         L26_ACE_MAC(57, ace->frame.arp.smac, entry, mask); /* L2_SMAC */
@@ -933,6 +938,18 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
         /* Common format */
         L26_ACL_CBITSET(57, ace->dmac_mc, entry, mask); /* L2_MC */
         L26_ACL_CBITSET(58, ace->dmac_bc, entry, mask); /* L2_BC */
+        if (is2->entry->first && !ipv4 && ace->type_ext) {
+            /* Encode as IP6_STD rule */
+            type = ACL_TYPE_IPV6;
+            L26_ACL_CFIELD(59, 8, proto->value, proto->mask, entry, mask);
+            for (i = 0; i < 4; i++) {
+                sip.value = l26_u8_to_u32(&sipv6->value[i * 4]);
+                sip.mask = l26_u8_to_u32(&sipv6->mask[i * 4]);
+                L26_ACL_CFIELD(67 + i * 32, 32, sip.value, sip.mask, entry, mask);
+            }
+            break;
+        }
+
         L26_ACL_BITSET(59, ipv4, entry, mask); /* IP4 */
         if (ipv4) {
             L26_ACL_CBITSET(60, ace->frame.ipv4.fragment, entry, mask); /* L3_FRAGMENT */
@@ -993,13 +1010,17 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
             L26_ACE_MAC(145, ip_data, entry, mask);
         }
         break;
-    case ACL_TYPE_ANY:
-        break;
     default:
         VTSS_E("illegal type: %d", type);
         return VTSS_RC_ERROR;
     }
-
+    L26_ACL_FIELD(0, 3, type, type_mask, entry, mask); /* IS2_TYPE */
+    if (mac_valid) {
+        L26_ACE_MAC(57, dmac, entry, mask); /* L2_DMAC */
+        L26_ACE_MAC(105, smac, entry, mask); /* L2_SMAC */
+        L26_ACL_CBITSET(153, ace->dmac_mc, entry, mask); /* L2_MC */
+        L26_ACL_CBITSET(154, ace->dmac_bc, entry, mask); /* L2_BC */
+    }
     return l26_vcap_entry2cache(vtss_state, tcam, VCAP_TG_VAL_IS2, entry, mask);
 }
 
@@ -1363,8 +1384,9 @@ vtss_rc vtss_l26_acl_evc_policer_move(vtss_state_t *vtss_state,
 static vtss_rc l26_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
-    u32                  port = VTSS_CHIP_PORT(port_no);
-    
+    u32                  port = VTSS_CHIP_PORT(port_no), lookup = 0x1; // First lookup
+    u32                  enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
+
     /* Check if action is valid */
     VTSS_RC(l26_action_check(&conf->action));
 
@@ -1372,16 +1394,22 @@ static vtss_rc l26_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_RC(l26_acl_policer_free(vtss_state, &vtss_state->vcap.acl_old_port_conf.action));
     VTSS_RC(l26_acl_policer_alloc(vtss_state, &conf->action));
 
-    if (conf->policy_no == VTSS_ACL_POLICY_NO_NONE) {
-        /* Disable S2 */
-        L26_WRM_CLR(VTSS_ANA_PORT_VCAP_CFG(port), VTSS_F_ANA_PORT_VCAP_CFG_S2_ENA);
-    } else {
-        /* Enable S2, set policy # */
-        L26_WRM(VTSS_ANA_PORT_VCAP_CFG(port), 
-                VTSS_F_ANA_PORT_VCAP_CFG_S2_ENA | 
-                VTSS_F_ANA_PORT_VCAP_CFG_PAG_VAL(conf->policy_no - VTSS_ACL_POLICY_NO_START),
-                VTSS_F_ANA_PORT_VCAP_CFG_S2_ENA | VTSS_M_ANA_PORT_VCAP_CFG_PAG_VAL);
-    }
+    /* Enable/disable S2, set policy # */
+    L26_WRM(VTSS_ANA_PORT_VCAP_CFG(port),
+            (enable ? VTSS_F_ANA_PORT_VCAP_CFG_S2_ENA : 0) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_ARP_DIS(conf->key.arp == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP_TCPUDP_DIS(conf->key.ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP_OTHER_DIS(conf->key.ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP6_STD_DIS(conf->key.ipv6 == VTSS_ACL_KEY_EXT ? 0 : lookup) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP6_TCPUDP_OTHER_DIS(conf->key.ipv6 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+            VTSS_F_ANA_PORT_VCAP_CFG_PAG_VAL(enable ? conf->policy_no : 0),
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_ENA |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_ARP_DIS(lookup) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP_TCPUDP_DIS(lookup) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP_OTHER_DIS(lookup) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP6_STD_DIS(lookup) |
+            VTSS_F_ANA_PORT_VCAP_CFG_S2_IP6_TCPUDP_OTHER_DIS(lookup) |
+            VTSS_M_ANA_PORT_VCAP_CFG_PAG_VAL);
     return l26_is2_port_action_update(vtss_state, port_no);
 }
 

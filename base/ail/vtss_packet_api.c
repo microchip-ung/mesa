@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -99,63 +99,17 @@ vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t                inst,
 
 /* - Rx frame ------------------------------------------------------ */
 
-static vtss_rc vtss_packet_queue_check(vtss_state_t *vtss_state,
-                                       const vtss_packet_rx_queue_t queue_no)
-{
-    if (queue_no >= vtss_state->packet.rx_queue_count) {
-        VTSS_E("illegal queue_no: %u", queue_no);
-        return VTSS_RC_ERROR;
-    }
-    return VTSS_RC_OK;
-}
-
-vtss_rc vtss_packet_rx_frame_get(const vtss_inst_t             inst,
-                                 const vtss_packet_rx_queue_t  queue_no,
-                                 vtss_packet_rx_header_t       *const header,
-                                 u8                            *const frame,
-                                 const u32                     length)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_N("queue_no: %u", queue_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_packet_queue_check(vtss_state, queue_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(packet.rx_frame_get, queue_no, header, frame, length);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_rx_frame_get_raw(const vtss_inst_t inst,
-                                     u8                *const data,
-                                     const u32         buflen,
-                                     u32               *const ifhlen,
-                                     u32               *const frmlen)
+vtss_rc vtss_packet_rx_frame(const vtss_inst_t     inst,
+                             u8                    *const data,
+                             const u32             buflen,
+                             vtss_packet_rx_info_t *const rx_info)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(packet.rx_frame_get_raw, data, buflen, ifhlen, frmlen);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_rx_frame_discard(const vtss_inst_t             inst,
-                                     const vtss_packet_rx_queue_t  queue_no)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("queue_no: %u", queue_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_packet_queue_check(vtss_state, queue_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(packet.rx_frame_discard, queue_no);
+        rc = VTSS_FUNC(packet.rx_frame, data, buflen, rx_info);
     }
     VTSS_EXIT();
     return rc;
@@ -163,71 +117,21 @@ vtss_rc vtss_packet_rx_frame_discard(const vtss_inst_t             inst,
 
 /* - Tx frame ------------------------------------------------------ */
 
-static vtss_rc vtss_packet_tx_port(vtss_state_t         *vtss_state,
-                                   const vtss_port_no_t port_no,
-                                   const u8             *const frame,
-                                   const u32            length)
-{
-    vtss_rc                rc;
-    vtss_port_no_t         mirror_port = vtss_state->l2.mirror_conf.port_no;
-#if defined(VTSS_FEATURE_VSTAX)
-    vtss_vstax_tx_header_t vstax;
-
-    vstax.fwd_mode = VTSS_VSTAX_FWD_MODE_CPU_ALL;
-    vstax.ttl = 1;
-    vstax.prio = VTSS_PRIO_SUPER;
-    vstax.tci.vid = VTSS_VID_NULL;
-    vstax.tci.cfi = 0;
-    vstax.tci.tagprio = 0;
-    vstax.port_no = VTSS_PORT_NO_NONE;
-    vstax.queue_no = VTSS_PACKET_RX_QUEUE_START;
-
-    vtss_state->l2.vstax_tx_header = &vstax;
-#endif /* VTSS_FEATURE_VSTAX */
-
-    VTSS_N("port_no: %u, length: %u", port_no, length);
-
-    /* If egress mirroring is enabled, send on mirror port */
-    if (vtss_state->l2.mirror_egress[port_no] &&
-        mirror_port != VTSS_PORT_NO_NONE && port_no != mirror_port &&
-        vtss_state->l2.port_state[mirror_port]) {
-        if ((rc = VTSS_FUNC(packet.tx_frame_port, mirror_port,
-                            frame, length, VTSS_VID_NULL)) != VTSS_RC_OK)
-            return rc;
-    }
-    return VTSS_FUNC(packet.tx_frame_port, port_no, frame, length, VTSS_VID_NULL);
-}
-
 vtss_rc vtss_packet_tx_frame(const vtss_inst_t           inst,
-                             const vtss_packet_tx_ifh_t *const ifh,
-                             const u8                   *const frame,
+                             const vtss_packet_tx_info_t *const tx_info,
+                             const u8                    *const frame,
                              const u32                   length)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc = VTSS_RC_ERROR;
-
-    if (ifh != NULL && frame != NULL && length > 0 && ifh->length <= VTSS_PACKET_TX_IFH_MAX) {
-        if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-            VTSS_N("ifh: %u, length: %u", ifh->length, length);
-            VTSS_ENTER();
-            rc = VTSS_FUNC(packet.tx_frame_ifh, ifh, frame, length);
-            VTSS_EXIT();
-        }
-    }
-    return rc;
-}
-
-vtss_rc vtss_packet_tx_frame_port(const vtss_inst_t     inst,
-                                  const vtss_port_no_t  port_no,
-                                  const u8              *const frame,
-                                  const u32             length)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_packet_tx_ifh_t ifh;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK)
-        rc = vtss_packet_tx_port(vtss_state, port_no, frame, length);
+    ifh.length = sizeof(ifh.ifh);
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh, &ifh.length)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(packet.tx_frame_ifh, &ifh, frame, length);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -360,130 +264,6 @@ static vtss_rc vtss_packet_filter(vtss_state_t                    *state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_packet_tx_port_vlan(vtss_state_t          *vtss_state,
-                                        const vtss_port_no_t  port_no,
-                                        const vtss_vid_t      vid,
-                                        const u8              *const frame,
-                                        const u32             length)
-{
-    vtss_rc                  rc;
-    vtss_port_no_t           port;
-    vtss_mac_table_entry_t   mac_entry;
-    u32                      i;
-    BOOL                     mac_found = 0, mirror = 0, mirror_done = 0;
-    vtss_packet_frame_info_t info;
-    vtss_packet_filter_t     filter;
-    vtss_vid_t               uvid, tx_vid;
-#if defined(VTSS_FEATURE_VSTAX)
-    vtss_vstax_tx_header_t   vstax;
-
-    vstax.fwd_mode = VTSS_VSTAX_FWD_MODE_LOOKUP;
-    vstax.ttl = VTSS_VSTAX_TTL_PORT;
-    vstax.prio = VTSS_PRIO_START;
-    vstax.tci.vid = vid;
-    vstax.tci.cfi = 0;
-    vstax.tci.tagprio = 0;
-    vtss_state->l2.vstax_tx_header = &vstax;
-#endif /* VTSS_FEATURE_VSTAX */
-
-    VTSS_N("port_no: %u, vid: %u, length: %u", port_no, vid, length);
-
-    VTSS_RC(vtss_vid_check(vid));
-
-    memset(&mac_entry, 0, sizeof(mac_entry)); /* Please Lint */
-    if (port_no == VTSS_PORT_NO_NONE) {
-        /* Lookup (VID, DMAC) */
-        mac_entry.vid_mac.vid = vid;
-        for (i = 0; i < 6; i++)
-            mac_entry.vid_mac.mac.addr[i] = frame[i];
-        mac_found = (vtss_mac_get(vtss_state, &mac_entry.vid_mac, &mac_entry) == VTSS_RC_OK);
-    }
-
-    /* Filter on VLAN, no ingress filtering */
-    vtss_packet_frame_info_init(&info);
-    info.vid = vid;
-
-    /* Transmit on ports */
-    for (port = VTSS_PORT_NO_START; port < vtss_state->port_count; port++) {
-
-        /* Port check */
-        if (port_no != VTSS_PORT_NO_NONE && port != port_no) {
-            VTSS_N("skip port: %u", port);
-            continue;
-        }
-
-        /* Destination port check */
-        if (mac_found && mac_entry.destination[port] == 0) {
-            VTSS_N("port: %u not a destination member", port);
-            continue;
-        }
-
-        /* Egress filtering */
-        info.port_tx = port;
-        if (vtss_packet_filter(vtss_state, &info, &filter) != VTSS_RC_OK ||
-            filter == VTSS_PACKET_FILTER_DISCARD) {
-            VTSS_N("port: %u filtered", port);
-            continue;
-        }
-
-        /* All checks successful, transmit on port */
-        VTSS_N("tx on port: %u", port);
-        tx_vid = (filter == VTSS_PACKET_FILTER_TAGGED ? vid : VTSS_VID_NULL);
-        if ((rc = VTSS_FUNC(packet.tx_frame_port, port, frame, length, tx_vid)) != VTSS_RC_OK)
-            return rc;
-
-        /* Check if egress mirroring must be done */
-        if (vtss_state->l2.mirror_egress[port])
-            mirror = 1;
-
-        /* Check if egress mirroring has been done */
-        if (port == vtss_state->l2.mirror_conf.port_no)
-            mirror_done = 1;
-    }
-
-    port = vtss_state->l2.mirror_conf.port_no;
-    if (port_no != VTSS_PORT_NO_NONE &&
-        mirror && !mirror_done && port != VTSS_PORT_NO_NONE &&
-        vtss_state->l2.stp_state[port] == VTSS_STP_STATE_FORWARDING) {
-        uvid = vtss_state->l2.vlan_port_conf[port_no].untagged_vid;
-        tx_vid = (uvid != VTSS_VID_ALL && uvid != vid ? vid : VTSS_VID_NULL);
-        if ((rc = VTSS_FUNC(packet.tx_frame_port, port, frame, length, tx_vid)) != VTSS_RC_OK)
-            return rc;
-    }
-    return VTSS_RC_OK;
-}
-
-vtss_rc vtss_packet_tx_frame_port_vlan(const vtss_inst_t     inst,
-                                       const vtss_port_no_t  port_no,
-                                       const vtss_vid_t      vid,
-                                       const u8              *const frame,
-                                       const u32             length)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK)
-        rc = vtss_packet_tx_port_vlan(vtss_state, port_no, vid, frame, length);
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_tx_frame_vlan(const vtss_inst_t  inst,
-                                  const vtss_vid_t   vid,
-                                  const u8           *const frame,
-                                  const u32          length)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = vtss_packet_tx_port_vlan(vtss_state, VTSS_PORT_NO_NONE, vid, frame, length);
-    VTSS_EXIT();
-    return rc;
-}
-
 vtss_rc vtss_packet_frame_filter(const vtss_inst_t               inst,
                                  const vtss_packet_frame_info_t  *const info,
                                  vtss_packet_filter_t            *const filter)
@@ -565,66 +345,6 @@ vtss_rc vtss_packet_vlan_status_get(const vtss_inst_t         inst,
     return rc;
 }
 
-vtss_rc vtss_packet_vlan_vsi_map_get(const vtss_inst_t          inst,
-                                     vtss_packet_vlan_vsi_map_t *const map)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
-        *map = vtss_state->packet.vid2vsi;
-    }
-    return rc;
-}
-
-#if defined(VTSS_FEATURE_VSTAX)
-vtss_rc vtss_packet_tx_frame_vstax(const vtss_inst_t             inst,
-                                   const vtss_port_no_t          port_no,
-                                   const vtss_vstax_tx_header_t  *const header,
-                                   const u8                      *const frame,
-                                   const u32                     length)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_N("port_no: %u, length: %u", port_no, length);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_state->l2.vstax_tx_header = header;
-        rc = VTSS_FUNC(packet.tx_frame_port, port_no, frame, length, VTSS_VID_NULL);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_vstax_header2frame(const vtss_inst_t             inst,
-                                       const vtss_port_no_t          port_no,
-                                       const vtss_vstax_tx_header_t  *const header,
-                                       u8                            *const frame)
-{
-    // This function doesn't require vtss_state be set up correctly,
-    // and if running stackable and doing a lengthy API function
-    // (e.g. a debug print function), the stack will fall apart unless
-    // this function executes without waiting for the API semaphore.
-    vtss_state_t *vtss_state = vtss_inst_check_no_persist(inst);
-
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.vstax_header2frame, port_no, header, frame);
-}
-
-vtss_rc vtss_packet_vstax_frame2header(const vtss_inst_t       inst,
-                                       const u8                *const frame,
-                                       vtss_vstax_rx_header_t  *const header)
-{
-    // This function doesn't require vtss_state be set up correctly,
-    // and if running stackable and doing a lengthy API function
-    // (e.g. a debug print function), the stack will fall apart unless
-    // this function executes without waiting for the API semaphore.
-    vtss_state_t *vtss_state = vtss_inst_check_no_persist(inst);
-
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.vstax_frame2header, frame, header);
-}
-#endif /* VTSS_FEATURE_VSTAX */
-
 /*
  * Decode an extraction header.
  */
@@ -661,17 +381,6 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
     // The only parameter it uses from the state variable (#inst) is
     // the port map, which is assumed to be constant once booted.
     return VTSS_FUNC_FROM_STATE(vtss_state, packet.tx_hdr_encode, info, bin_hdr, bin_hdr_len);
-}
-
-vtss_rc vtss_packet_tx_hdr_compile(const vtss_inst_t                  inst,
-                                   const vtss_packet_tx_info_t *const info,
-                                          vtss_packet_tx_ifh_t *const ifh)
-{
-    if (ifh != NULL) {
-        ifh->length = sizeof(ifh->ifh);
-        return vtss_packet_tx_hdr_encode(inst, info, (u8*) ifh->ifh, &ifh->length);
-    }
-    return VTSS_RC_ERROR;
 }
 
 /*
@@ -798,76 +507,34 @@ vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                   inst,
     return rc;
 }
 
-/* - Packet mode --------------------------------------------------- */
-
-vtss_rc vtss_packet_dma_conf_get(const vtss_inst_t             inst,
-                                 vtss_packet_dma_conf_t        *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        *conf = vtss_state->packet.dma_conf;
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_dma_conf_set(const vtss_inst_t             inst,
-                                 const vtss_packet_dma_conf_t  *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(packet.dma_conf_set, conf);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_packet_dma_offset(const vtss_inst_t             inst,
-                               BOOL extraction,
-                               u32 *offset)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(packet.dma_offset, extraction, offset);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
 /* - Instance create and initialization ---------------------------- */
 
 vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t *rx_conf = &vtss_state->packet.rx_conf;
+    u32                   queue;
 
     rx_conf->reg.bpdu_cpu_only = 1;
     /* Enabling SFlow queue has side-effects on some platforms (JR-48), so by default we don't. */
     rx_conf->map.sflow_queue = VTSS_PACKET_RX_QUEUE_NONE;
     /* Learn-all frames should only be enabled on JR-stacking and JR-48 platforms. */
     rx_conf->map.lrn_all_queue = VTSS_PACKET_RX_QUEUE_NONE;
-    /* Stack-queue frames should only be enabled on JR-stacking platforms. */
-    rx_conf->map.stack_queue    = VTSS_PACKET_RX_QUEUE_NONE;
 #if defined(VTSS_FEATURE_LAYER3)
     rx_conf->map.l3_uc_queue    = VTSS_PACKET_RX_QUEUE_NONE;
     rx_conf->map.l3_other_queue = VTSS_PACKET_RX_QUEUE_NONE;
 #endif /* VTSS_FEATURE_LAYER3 */
-    /* Enabling Queue 0 at default */
-    rx_conf->queue[0].size =  8 * 1024;
-
     vtss_state->packet.npi_conf.port_no = VTSS_PORT_NO_NONE;
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
     rx_conf->shaper_rate = VTSS_BITRATE_DISABLED;
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
+
+    for (queue = 0; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
+        rx_conf->queue[queue].size = 8 * 1024;
+#if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
+        rx_conf->queue[queue].rate = VTSS_PACKET_RATE_DISABLED;
+#endif
+    }
 
     return VTSS_RC_OK;
 }
@@ -1101,7 +768,6 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     vtss_debug_print_value(pr, "IGMP",     conf->map.igmp_queue);
     vtss_debug_print_value(pr, "IPMC",     conf->map.ipmc_ctrl_queue);
     vtss_debug_print_value(pr, "MAC_VID",  conf->map.mac_vid_queue);
-    vtss_debug_print_value(pr, "STACK",    conf->map.stack_queue);
     vtss_debug_print_value(pr, "SFLOW",    conf->map.sflow_queue);
     vtss_debug_print_value(pr, "LRN_ALL",  conf->map.lrn_all_queue);
 #if defined(VTSS_FEATURE_LAYER3)
@@ -1114,12 +780,10 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     vtss_debug_print_header(pr, "NPI");
     vtss_debug_print_value(pr, "Enabled", vtss_state->packet.npi_conf.enable);
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
-        vtss_packet_rx_conf_t *rx_conf = &vtss_state->packet.rx_conf;
-
         vtss_debug_print_value(pr, "NPI_PORT", vtss_state->packet.npi_conf.port_no);
         for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
             sprintf(buf, "REDIR:CPUQ_%u", i);
-            vtss_debug_print_value(pr, buf, rx_conf->queue[i].npi.enable);
+            vtss_debug_print_value(pr, buf, conf->queue[i].npi.enable);
         }
     }
     pr("\n");
@@ -1132,6 +796,14 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     }
     pr("\n");
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
+
+#if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
+    vtss_debug_print_header(pr, "CPU Queue Shaper");
+    for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
+        sprintf(buf, "CPU_Queue_%u", i);
+        vtss_debug_print_value(pr, buf, conf->queue[i].rate);
+    }
+#endif
 }
 
 #endif /* VTSS_FEATURE_PACKET */

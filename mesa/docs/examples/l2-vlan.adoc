@@ -1,0 +1,27 @@
+:sectnums:
+
+== L2 VLAN Example
+
+The VLAN example shows how to setup different port types and membership:
+
+* Unaware port:
+** Accepts all frame types.
+** Ingress frames are classified to port VLAN ID.
+** Egress frames will not have a tag pushed.
+** Member of one VLAN.
+* Access port:
+** Discards VLAN-tagged frames.
+** Ingress frames are classified to port VLAN ID.
+** Egress frames will not have a tag pushed.
+** Member of one VLAN.
+* Trunk port:
+** Accepts VLAN-tagged frames only.
+** Ingress frames are classified to the VLAN ID in the tag.
+** Egress frames will have a tag pushed.
+** Member of multiple VLANs.
+* Hybrid port:
+** Accepts all frame types.
+** Ingress untagged and priority-tagged frames are classified to the port VLAN ID.
+** Ingress VLAN-tagged frames are classified to the VLAN ID in the tag.
+** Egress frames will have a tag pushed if the classified VLAN ID is different from the port VLAN ID.
+** Member of multiple VLANs.

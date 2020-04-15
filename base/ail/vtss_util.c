@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2017 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -120,3 +120,28 @@ vtss_bs_get(const void *vptr,
     return value;
 }
 
+
+u8 vtss_bool8_to_u8(BOOL *array)
+{
+    u8 i, value = 0, mask = 1;
+
+    for (i = 0; i < 8; i++, mask<<=1) {
+        if (array[i]) {
+            value |= mask;
+        }
+    }
+    return value;
+}
+
+void vtss_u8_to_bool8(u8 value, BOOL *array)
+{
+    u8 i, mask = 1;
+
+    for (i = 0; i < 8; i++, mask<<=1) {
+        if (value & mask) {
+            array[i] = TRUE;
+        } else {
+            array[i] = FALSE;
+        }
+    }
+}

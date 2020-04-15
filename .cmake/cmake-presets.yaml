@@ -23,7 +23,7 @@ presets:
     mipsel:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2019.02.4-222"
+        :brsdk:            "2019.02.7-229"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake"
@@ -34,7 +34,7 @@ presets:
     mipsel-debug:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2019.02.4-222"
+        :brsdk:            "2019.02.7-229"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake"
@@ -44,7 +44,7 @@ presets:
     arm64:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2019.02.4-160"
+        :brsdk:            "2019.02.7-192"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk.fa-bsp"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/fireant/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -55,7 +55,7 @@ presets:
     arm64-debug:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2019.02.4-160"
+        :brsdk:            "2019.02.7-192"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk.fa-bsp"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/ls1046/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -65,7 +65,7 @@ presets:
     arm64-asan:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug -DBUILD_ASAN=true"
-        :brsdk:            "2019.02.4-160"
+        :brsdk:            "2019.02.7-178"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/ls1046/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -95,7 +95,7 @@ presets:
 
     x86:
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DBUILD_MESA_CAPABILITY_DUMPER=true -DBUILD_MESA_DEMO=false"
-        :toolchain:        "2019.02.4-080"
+        :toolchain:        "2019.02.7-082"
         :toolchain_branch: "toolchain"
         :toolchainfile:    "x86_64-nocona-linux-gnu/share/buildroot/toolchainfile.cmake"
         :cmake:            "x86_64-nocona-linux-gnu/bin/cmake"

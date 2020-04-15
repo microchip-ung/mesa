@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,242 @@
  * 
  *
  ***********************************************************************/
+
+/**
+ * Register Group: \a IP_KRANEG:KR_PMD_CTRL
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR PMD control
+ *
+ * \details
+ * Register: \a IP_KRANEG:KR_PMD_CTRL:KR_PMD_CTRL
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_KR_PMD_CTRL(target)   VTSS_IOREG(target,0x196)
+
+/** 
+ * \brief
+ * Training enable
+ *
+ * \details 
+ * 1: Enable KR start-up protocol
+ * 0: Disable KR start-up protocol
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_CTRL . TR_ENABLE
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE  VTSS_BIT(1)
+#define  VTSS_X_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/** 
+ * \brief
+ * Restart training (SC)
+ *
+ * \details 
+ * 1: Reset KR start-up protocol
+ * 0: Normal operation
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_CTRL . TR_RESTART
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_CTRL_TR_RESTART(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_CTRL_TR_RESTART  VTSS_BIT(0)
+#define  VTSS_X_IP_KRANEG_KR_PMD_CTRL_TR_RESTART(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a IP_KRANEG:KR_PMD_STS
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR PMD status
+ *
+ * \details
+ * Register: \a IP_KRANEG:KR_PMD_STS:KR_PMD_STS
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_KR_PMD_STS(target)    VTSS_IOREG(target,0x197)
+
+/** 
+ * \brief
+ * Training failure
+ *
+ * \details 
+ * 1: Training failure has been detected
+ * 0: Training failure has not been detected
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_STS . TR_FAIL
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL  VTSS_BIT(3)
+#define  VTSS_X_IP_KRANEG_KR_PMD_STS_TR_FAIL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/** 
+ * \brief
+ * Startup protocol status
+ *
+ * \details 
+ * 1: Start-up protocol in progress
+ * 0: Start-up protocol complete
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_STS . STPROT
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT   VTSS_BIT(2)
+#define  VTSS_X_IP_KRANEG_KR_PMD_STS_STPROT(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/** 
+ * \brief
+ * Frame lock
+ *
+ * \details 
+ * 1: Training frame delineation detected
+ * 0: Training frame delineation not detected
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_STS . FRLOCK
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_STS_FRLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_STS_FRLOCK   VTSS_BIT(1)
+#define  VTSS_X_IP_KRANEG_KR_PMD_STS_FRLOCK(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/** 
+ * \brief
+ * Receiver status
+ *
+ * \details 
+ * 1: Receiver trained and ready to receive data
+ * 0: Receiver training
+
+ *
+ * Field: ::VTSS_IP_KRANEG_KR_PMD_STS . RCVR_RDY
+ */
+#define  VTSS_F_IP_KRANEG_KR_PMD_STS_RCVR_RDY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_IP_KRANEG_KR_PMD_STS_RCVR_RDY  VTSS_BIT(0)
+#define  VTSS_X_IP_KRANEG_KR_PMD_STS_RCVR_RDY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a IP_KRANEG:LP_COEF_UPD
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR LP coefficient update
+ *
+ * \details
+ * Register: \a IP_KRANEG:LP_COEF_UPD:LP_COEF_UPD
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_LP_COEF_UPD(target)   VTSS_IOREG(target,0x198)
+
+/** 
+ * \brief
+ * Received coefficient update field
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_LP_COEF_UPD . LPCOEF
+ */
+#define  VTSS_F_IP_KRANEG_LP_COEF_UPD_LPCOEF(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_LP_COEF_UPD_LPCOEF     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_LP_COEF_UPD_LPCOEF(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a IP_KRANEG:LP_STS_RPT
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR LP status report
+ *
+ * \details
+ * Register: \a IP_KRANEG:LP_STS_RPT:LP_STS_RPT
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_LP_STS_RPT(target)    VTSS_IOREG(target,0x199)
+
+/** 
+ * \brief
+ * Received status report field
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_LP_STS_RPT . LPSTAT
+ */
+#define  VTSS_F_IP_KRANEG_LP_STS_RPT_LPSTAT(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_LP_STS_RPT_LPSTAT     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_LP_STS_RPT_LPSTAT(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a IP_KRANEG:LD_COEF_UPD
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR LD coefficient update
+ *
+ * \details
+ * Register: \a IP_KRANEG:LD_COEF_UPD:LD_COEF_UPD
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_LD_COEF_UPD(target)   VTSS_IOREG(target,0x19a)
+
+/** 
+ * \brief
+ * Transmitted coefficient update field
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_LD_COEF_UPD . LDCOEF
+ */
+#define  VTSS_F_IP_KRANEG_LD_COEF_UPD_LDCOEF(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_LD_COEF_UPD_LDCOEF     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_LD_COEF_UPD_LDCOEF(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a IP_KRANEG:LD_STS_RPT
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief KR LD status report
+ *
+ * \details
+ * Register: \a IP_KRANEG:LD_STS_RPT:LD_STS_RPT
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_LD_STS_RPT(target)    VTSS_IOREG(target,0x19b)
+
+/** 
+ * \brief
+ * Transmitted status report field
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_LD_STS_RPT . LDSTAT
+ */
+#define  VTSS_F_IP_KRANEG_LD_STS_RPT_LDSTAT(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_LD_STS_RPT_LDSTAT     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_LD_STS_RPT_LDSTAT(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
 
 /**
  * Register Group: \a IP_KRANEG:CLK_EN
@@ -158,6 +394,189 @@
 #define  VTSS_F_IP_KRANEG_TMR_HOLD_TMR_HOLD(x)  VTSS_ENCODE_BITFIELD(x,0,11)
 #define  VTSS_M_IP_KRANEG_TMR_HOLD_TMR_HOLD     VTSS_ENCODE_BITMASK(0,11)
 #define  VTSS_X_IP_KRANEG_TMR_HOLD_TMR_HOLD(x)  VTSS_EXTRACT_BITFIELD(x,0,11)
+
+/**
+ * Register Group: \a IP_KRANEG:TR_CFG0
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief training config 0
+ *
+ * \details
+ * Register: \a IP_KRANEG:TR_CFG0:TR_CFG0
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_TR_CFG0(target)       VTSS_IOREG(target,0x1102)
+
+/** 
+ * \brief
+ * Configuration for the number of Link Training frames with receiver ready
+ * bit (of control channel status report) is set to assert remote receiver
+ * ready interrupt.(IRQ_VEC.REM_RDY_1)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . REM_RDY_THRESH
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_REM_RDY_THRESH(x)  VTSS_ENCODE_BITFIELD(x,24,4)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_REM_RDY_THRESH     VTSS_ENCODE_BITMASK(24,4)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_REM_RDY_THRESH(x)  VTSS_EXTRACT_BITFIELD(x,24,4)
+
+/** 
+ * \brief
+ * Configuration to select the condition to cause IRQ_VEC.LPSVALID
+ * Interrupt
+ *
+ * \details 
+ * 1 : Generate Interrupt when a change in any of the 16 bits of the
+ * received status report is observed.
+ * 0 : Generate Interrupt when a change in any of the 6 LSB bits i.e. [5:0]
+ * of the status report is observed. Change in other bits does not cause an
+ * interrupt.
+ *
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . LPSVLD_INT_CFG
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_LPSVLD_INT_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_LPSVLD_INT_CFG  VTSS_BIT(20)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_LPSVLD_INT_CFG(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/** 
+ * \brief
+ * Training pattern polynomial selection
+ *
+ * \details 
+ * 0: x^11 + x^10 + x^6 + x^5 + 1 (100G - lane 0)
+ * 1: x^11 + x^9  + x^6 + x^5 + 1 (100G - lane 1)
+ * 2: x^11 + x^8  + x^6 + x^4 + 1 (100G - lane 2)
+ * 3: x^11 + x^7  + x^6 + x^4 + 1 (100G - lane 3)
+ * 4: x^11 + x^9 + 1 (10G)
+
+ *
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . PRBS_SEL
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(x)  VTSS_ENCODE_BITFIELD(x,17,3)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL     VTSS_ENCODE_BITMASK(17,3)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_PRBS_SEL(x)  VTSS_EXTRACT_BITFIELD(x,17,3)
+
+/** 
+ * \brief
+ * Training pattern seed
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . PRBS_SEED
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(x)  VTSS_ENCODE_BITFIELD(x,6,11)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED     VTSS_ENCODE_BITMASK(6,11)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_PRBS_SEED(x)  VTSS_EXTRACT_BITFIELD(x,6,11)
+
+/** 
+ * \brief
+ * Invert Rx prbs11 in training frame
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . RX_INV
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_RX_INV(x)   VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_RX_INV      VTSS_BIT(1)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_RX_INV(x)   VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/** 
+ * \brief
+ * Invert Tx prbs11 in training frame
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_CFG0 . TX_INV
+ */
+#define  VTSS_F_IP_KRANEG_TR_CFG0_TX_INV(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_IP_KRANEG_TR_CFG0_TX_INV      VTSS_BIT(0)
+#define  VTSS_X_IP_KRANEG_TR_CFG0_TX_INV(x)   VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a IP_KRANEG:FRCNT_BER
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief Frame count for BER
+ *
+ * \details
+ * Register: \a IP_KRANEG:FRCNT_BER:FRCNT_BER
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_FRCNT_BER(target)     VTSS_IOREG(target,0x1103)
+
+/** 
+ * \brief
+ * Number of training frames used for BER calc.
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FRCNT_BER . FRCNT_BER
+ */
+#define  VTSS_F_IP_KRANEG_FRCNT_BER_FRCNT_BER(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_FRCNT_BER_FRCNT_BER     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_FRCNT_BER_FRCNT_BER(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a IP_KRANEG:TR_FRSENT
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief training frames sent
+ *
+ * \details
+ * Register: \a IP_KRANEG:TR_FRSENT:TR_FRSENT
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_TR_FRSENT(target)     VTSS_IOREG(target,0x1104)
+
+/** 
+ * \brief
+ * Number of training frames sent during link training.
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_FRSENT . FRSENT
+ */
+#define  VTSS_F_IP_KRANEG_TR_FRSENT_FRSENT(x)  (x)
+#define  VTSS_M_IP_KRANEG_TR_FRSENT_FRSENT     0xffffffff
+#define  VTSS_X_IP_KRANEG_TR_FRSENT_FRSENT(x)  (x)
+
+/**
+ * Register Group: \a IP_KRANEG:TR_ERRCNT
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief training prbs11 error_count
+ *
+ * \details
+ * Register: \a IP_KRANEG:TR_ERRCNT:TR_ERRCNT
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_TR_ERRCNT(target)     VTSS_IOREG(target,0x1105)
+
+/** 
+ * \brief
+ * bit error count of prbs11 checker
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_ERRCNT . ERRCNT
+ */
+#define  VTSS_F_IP_KRANEG_TR_ERRCNT_ERRCNT(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_TR_ERRCNT_ERRCNT     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_TR_ERRCNT_ERRCNT(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
 
 /**
  * Register Group: \a IP_KRANEG:AN_CFG0
@@ -967,7 +1386,7 @@
 
 /** 
  * \brief
- * break_link_timer settingDefault value corresponds to 70ms for a System
+ * break_link_timer setting. Default value corresponds to 70ms for a System
  * clock of 1.6ns and Timer Divider of 4.
  *
  * \details 
@@ -996,7 +1415,7 @@
 
 /** 
  * \brief
- * an_wait_timer settingDefault value corresponds to 38ms for system clock
+ * an_wait_timer setting.Default value corresponds to 38ms for system clock
  * period of 1.6ns and timer divider of 4.
  *
  * \details 
@@ -1025,11 +1444,10 @@
 
 /** 
  * \brief
- * 10g link_fail_inhibit_timer setting10g link_fail_inhibit_timer setting.
- * Default value is set to 50ms for a system clock period of 1.6ns and a
- * timer divider value of 4. Long timer and short timer are set to same
- * values as there is a training timer in TRAIN state which takes care of
- * the training time of 500ms.
+ * 10g link_fail_inhibit_timer setting. Default value is set to 50ms for a
+ * system clock period of 1.6ns and a timer divider value of 4. Long timer
+ * and short timer are set to same values as there is a training timer in
+ * TRAIN state which takes care of the training time of 500ms.
  *
  * \details 
  * Field: ::VTSS_IP_KRANEG_LFLONG_TMR . TMR
@@ -1096,6 +1514,35 @@
 #define  VTSS_X_IP_KRANEG_LP_TMR_TMR(x)       (x)
 
 /**
+ * Register Group: \a IP_KRANEG:TR_TMR
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief AN training state timer
+ *
+ * \details
+ * Register: \a IP_KRANEG:TR_TMR:TR_TMR
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_TR_TMR(target)        VTSS_IOREG(target,0x101a)
+
+/** 
+ * \brief
+ * training_state_timer settingDefault value corresponds to 500ms for a
+ * system clock period of 1.6ns and a timer divider value of 4.
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_TR_TMR . TMR
+ */
+#define  VTSS_F_IP_KRANEG_TR_TMR_TMR(x)       (x)
+#define  VTSS_M_IP_KRANEG_TR_TMR_TMR          0xffffffff
+#define  VTSS_X_IP_KRANEG_TR_TMR_TMR(x)       (x)
+
+/**
  * Register Group: \a IP_KRANEG:PD_TMR
  *
  * Not documented
@@ -1125,6 +1572,67 @@
 #define  VTSS_F_IP_KRANEG_PD_TMR_TMR(x)       (x)
 #define  VTSS_M_IP_KRANEG_PD_TMR_TMR          0xffffffff
 #define  VTSS_X_IP_KRANEG_PD_TMR_TMR(x)       (x)
+
+/**
+ * Register Group: \a IP_KRANEG:WT_TMR
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief training wait_timer
+ *
+ * \details
+ * Register: \a IP_KRANEG:WT_TMR:WT_TMR
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_WT_TMR(target)        VTSS_IOREG(target,0x1024)
+
+/** 
+ * \brief
+ * wait_timer for training.The default value corresponds to a period of
+ * around 200 10GBaseKR Training frames for a system clock period of 1.6ns
+ * and a timer divider value of 4.This value needs to be reconfigured to an
+ * appropriate value by Firmware for HCD (using KR Link Training) other
+ * than 10GBaseKR
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_WT_TMR . TMR
+ */
+#define  VTSS_F_IP_KRANEG_WT_TMR_TMR(x)       VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_IP_KRANEG_WT_TMR_TMR          VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_IP_KRANEG_WT_TMR_TMR(x)       VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a IP_KRANEG:MW_TMR
+ *
+ * Not documented
+ */
+
+
+/** 
+ * \brief training maxwait_timer
+ *
+ * \details
+ * Register: \a IP_KRANEG:MW_TMR:MW_TMR
+ *
+ * @param target A \a ::vtss_target_IP_KRANEG_e target
+ */
+#define VTSS_IP_KRANEG_MW_TMR(target)        VTSS_IOREG(target,0x1026)
+
+/** 
+ * \brief
+ * maxwait_timer for trainingDefault value corresponds to 500ms for a
+ * system clock period of 1.6ns and a Timer Divider value of 4.
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_MW_TMR . TMR
+ */
+#define  VTSS_F_IP_KRANEG_MW_TMR_TMR(x)       (x)
+#define  VTSS_M_IP_KRANEG_MW_TMR_TMR          0xffffffff
+#define  VTSS_X_IP_KRANEG_MW_TMR_TMR(x)       (x)
 
 /**
  * Register Group: \a IP_KRANEG:GEN0_TMR
@@ -1201,7 +1709,7 @@
 
 /** 
  * \brief
- * AN state machine history
+ * AN state machine history. Bits are set for each of the states entered.
  *
  * \details 
  * Bit 0   :   AN_ENABLE      
@@ -1254,7 +1762,7 @@
 
 /** 
  * \brief
- * AN state machine
+ * AN state machine State.
  *
  * \details 
  * 4'd0   :   AN_ENABLE      
@@ -1398,6 +1906,39 @@
 
 /** 
  * \brief
+ * Indicates that training has completed (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_MSG . TR_DONE
+ */
+#define  VTSS_F_IP_KRANEG_FW_MSG_TR_DONE(x)   VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_IP_KRANEG_FW_MSG_TR_DONE      VTSS_BIT(4)
+#define  VTSS_X_IP_KRANEG_FW_MSG_TR_DONE(x)   VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/** 
+ * \brief
+ * Indicates that LDCOEF is stable (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_MSG . LDCOEF_VLD
+ */
+#define  VTSS_F_IP_KRANEG_FW_MSG_LDCOEF_VLD(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_IP_KRANEG_FW_MSG_LDCOEF_VLD   VTSS_BIT(3)
+#define  VTSS_X_IP_KRANEG_FW_MSG_LDCOEF_VLD(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/** 
+ * \brief
+ * Indicates that LDSTAT is stable (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_MSG . LDSTAT_VLD
+ */
+#define  VTSS_F_IP_KRANEG_FW_MSG_LDSTAT_VLD(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_IP_KRANEG_FW_MSG_LDSTAT_VLD   VTSS_BIT(2)
+#define  VTSS_X_IP_KRANEG_FW_MSG_LDSTAT_VLD(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/** 
+ * \brief
  * Indicates that next_page is loaded (SC)
  *
  * \details 
@@ -1437,6 +1978,17 @@
 
 /** 
  * \brief
+ * Start BER checker (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_REQ . BER_EN
+ */
+#define  VTSS_F_IP_KRANEG_FW_REQ_BER_EN(x)    VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_IP_KRANEG_FW_REQ_BER_EN       VTSS_BIT(12)
+#define  VTSS_X_IP_KRANEG_FW_REQ_BER_EN(x)    VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/** 
+ * \brief
  * start generic timer 1 (SC)
  *
  * \details 
@@ -1456,6 +2008,28 @@
 #define  VTSS_F_IP_KRANEG_FW_REQ_GEN0_TMR_START(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
 #define  VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START  VTSS_BIT(10)
 #define  VTSS_X_IP_KRANEG_FW_REQ_GEN0_TMR_START(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/** 
+ * \brief
+ * start wait timer (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_REQ . WT_START
+ */
+#define  VTSS_F_IP_KRANEG_FW_REQ_WT_START(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_IP_KRANEG_FW_REQ_WT_START     VTSS_BIT(9)
+#define  VTSS_X_IP_KRANEG_FW_REQ_WT_START(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/** 
+ * \brief
+ * start maxwait timer (SC)
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_FW_REQ . MW_START
+ */
+#define  VTSS_F_IP_KRANEG_FW_REQ_MW_START(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_IP_KRANEG_FW_REQ_MW_START     VTSS_BIT(8)
+#define  VTSS_X_IP_KRANEG_FW_REQ_MW_START(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * Register Group: \a IP_KRANEG:IRQ_VEC
@@ -1487,6 +2061,138 @@
 
 /** 
  * \brief
+ * interrupt for new LP status report
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . LPSVALID
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_LPSVALID(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_LPSVALID    VTSS_BIT(28)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_LPSVALID(x)  VTSS_EXTRACT_BITFIELD(x,28,1)
+
+/** 
+ * \brief
+ * interrupt for new LP coeff update
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . LPCVALID
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_LPCVALID(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_LPCVALID    VTSS_BIT(27)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_LPCVALID(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
+
+/** 
+ * \brief
+ * interrupt for wait timer done
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . WT_DONE
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_WT_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),26,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_WT_DONE     VTSS_BIT(26)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_WT_DONE(x)  VTSS_EXTRACT_BITFIELD(x,26,1)
+
+/** 
+ * \brief
+ * interrupt for maxwait timer done
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . MW_DONE
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_MW_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),25,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_MW_DONE     VTSS_BIT(25)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_MW_DONE(x)  VTSS_EXTRACT_BITFIELD(x,25,1)
+
+/** 
+ * \brief
+ * interrupt for ber_busy = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . BER_BUSY_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_BER_BUSY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_BER_BUSY_0  VTSS_BIT(24)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_BER_BUSY_0(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+/** 
+ * \brief
+ * interrupt for ber_busy = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . BER_BUSY_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_BER_BUSY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_BER_BUSY_1  VTSS_BIT(23)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_BER_BUSY_1(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/** 
+ * \brief
+ * interrupt for rem_ready = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . REM_RDY_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_REM_RDY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_REM_RDY_0   VTSS_BIT(22)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_REM_RDY_0(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+
+/** 
+ * \brief
+ * interrupt for rem_ready = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . REM_RDY_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_REM_RDY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_REM_RDY_1   VTSS_BIT(21)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_REM_RDY_1(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/** 
+ * \brief
+ * interrupt for frlock = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . FRLOCK_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_FRLOCK_0(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_FRLOCK_0    VTSS_BIT(20)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_FRLOCK_0(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/** 
+ * \brief
+ * interrupt for frlock = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . FRLOCK_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_FRLOCK_1(x)  VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_FRLOCK_1    VTSS_BIT(19)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_FRLOCK_1(x)  VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/** 
+ * \brief
+ * interrupt for dme_viol = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . DME_VIOL_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_DME_VIOL_0(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_DME_VIOL_0  VTSS_BIT(18)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_DME_VIOL_0(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
+
+/** 
+ * \brief
+ * interrupt for dme_viol = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . DME_VIOL_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_DME_VIOL_1(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_DME_VIOL_1  VTSS_BIT(17)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_DME_VIOL_1(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+
+/** 
+ * \brief
  * interrupt for AN_SM = XMIT_DISABLE
  *
  * \details 
@@ -1495,6 +2201,17 @@
 #define  VTSS_F_IP_KRANEG_IRQ_VEC_AN_XMIT_DISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
 #define  VTSS_M_IP_KRANEG_IRQ_VEC_AN_XMIT_DISABLE  VTSS_BIT(16)
 #define  VTSS_X_IP_KRANEG_IRQ_VEC_AN_XMIT_DISABLE(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+/** 
+ * \brief
+ * interrupt for AN_SM = TRAIN
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . AN_TRAIN
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_AN_TRAIN(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_AN_TRAIN    VTSS_BIT(15)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_AN_TRAIN(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /** 
  * \brief
@@ -1658,6 +2375,138 @@
 
 /** 
  * \brief
+ * interrupt mask for new LP status report
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . LPSVALID
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_LPSVALID(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_LPSVALID   VTSS_BIT(28)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_LPSVALID(x)  VTSS_EXTRACT_BITFIELD(x,28,1)
+
+/** 
+ * \brief
+ * interrupt mask for new LP coeff update
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . LPCVALID
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_LPCVALID(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_LPCVALID   VTSS_BIT(27)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_LPCVALID(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
+
+/** 
+ * \brief
+ * interrupt mask for wait timer done
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . WT_DONE
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_WT_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),26,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_WT_DONE    VTSS_BIT(26)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_WT_DONE(x)  VTSS_EXTRACT_BITFIELD(x,26,1)
+
+/** 
+ * \brief
+ * interrupt mask for maxwait timer done
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . MW_DONE
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_MW_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),25,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_MW_DONE    VTSS_BIT(25)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_MW_DONE(x)  VTSS_EXTRACT_BITFIELD(x,25,1)
+
+/** 
+ * \brief
+ * interrupt mask for ber_busy = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . BER_BUSY_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_BER_BUSY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_BER_BUSY_0  VTSS_BIT(24)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_BER_BUSY_0(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+/** 
+ * \brief
+ * interrupt mask for ber_busy = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . BER_BUSY_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_BER_BUSY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_BER_BUSY_1  VTSS_BIT(23)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_BER_BUSY_1(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/** 
+ * \brief
+ * interrupt mask for rem_ready = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . REM_RDY_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_REM_RDY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_REM_RDY_0  VTSS_BIT(22)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_REM_RDY_0(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+
+/** 
+ * \brief
+ * interrupt mask for rem_ready = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . REM_RDY_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_REM_RDY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_REM_RDY_1  VTSS_BIT(21)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_REM_RDY_1(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/** 
+ * \brief
+ * interrupt mask for frlock = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . FRLOCK_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_FRLOCK_0(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_FRLOCK_0   VTSS_BIT(20)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_FRLOCK_0(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/** 
+ * \brief
+ * interrupt mask for frlock = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . FRLOCK_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_FRLOCK_1(x)  VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_FRLOCK_1   VTSS_BIT(19)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_FRLOCK_1(x)  VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/** 
+ * \brief
+ * interrupt mask for dme_viol = 0
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . DME_VIOL_0
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_DME_VIOL_0(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_DME_VIOL_0  VTSS_BIT(18)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_DME_VIOL_0(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
+
+/** 
+ * \brief
+ * interrupt mask for dme_viol = 1
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . DME_VIOL_1
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_DME_VIOL_1(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_DME_VIOL_1  VTSS_BIT(17)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_DME_VIOL_1(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+
+/** 
+ * \brief
  * interrupt mask for AN_SM = XMIT_DISABLE
  *
  * \details 
@@ -1666,6 +2515,17 @@
 #define  VTSS_F_IP_KRANEG_IRQ_MASK_AN_XMIT_DISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
 #define  VTSS_M_IP_KRANEG_IRQ_MASK_AN_XMIT_DISABLE  VTSS_BIT(16)
 #define  VTSS_X_IP_KRANEG_IRQ_MASK_AN_XMIT_DISABLE(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+/** 
+ * \brief
+ * interrupt mask for AN_SM = TRAIN
+ *
+ * \details 
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . AN_TRAIN
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_AN_TRAIN(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_AN_TRAIN   VTSS_BIT(15)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_AN_TRAIN(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /** 
  * \brief

@@ -117,13 +117,16 @@ typedef enum {
  **/
 
 typedef enum {
-    VTSS_SD10G28_ATE,          /**< Setup be used for ATE testing > */
-    VTSS_SD10G28_ZR,        /**< ZR  > */
-    VTSS_SD10G28_DAC3M,       /**< DAC (Direct attached copper) 3M > */
-    VTSS_SD10G28_DAC5M,       /**< DAC (Direct attached copper) 5M > */
-    VTSS_SD10G28_SR,        /**< Short Range. */
-    VTSS_SD10G28_KR,        /**< KR Backplane> */
-    VTSS_SD10G28_PRESET_NONE   /**< No preset > */
+    VTSS_SD10G28_ATE,          /**< Setup be used for ATE testing,Not yet configured > */
+    VTSS_SD10G28_ZR,           /**< ZR,Not yet configured  > */
+    VTSS_SD10G28_DAC3M,       /**< Variable used for running DAC 3m at 10G speed > */
+    VTSS_SD10G28_DAC5M,       /**< Variable used for running DAC 5m at 10G speed > */
+    VTSS_SD10G28_DAC2M,       /**< Variable used for running DAC 2m at 10G speed > */
+    VTSS_SD10G28_DAC1M,       /**< Variable used for running DAC 1m at 10G speed > */
+    VTSS_SD10G28_SR,          /**< Variable used for running SFP_SR at 10G speed > */
+    VTSS_SD10G28_DAC3M_PVT,    /**<Variable used for running PVT using DAC3M at 10G speed>*/
+    VTSS_SD10G28_KR,          /**< KR Backplane, not yet configured> */
+    VTSS_SD10G28_PRESET_NONE   /**< Variable used for running using SFp, RJ45 at speed lesser than 10G> */ 
 } vtss_sd10g28_preset_t;
 
 
@@ -351,6 +354,8 @@ typedef struct {
     u8 cfg_rxlb_en[1]    ; 
     u8 r_tx_pol_inv[1];
     u8 r_rx_pol_inv[1];
+
+    u8 fx_100[1];
 } vtss_sd10g28_setup_struct_t;
 
 //Definition to handle cmu num
@@ -371,7 +376,7 @@ typedef struct {
     //r_rxeq_reg related signals there are for SR and DFE needs to be enabled for LR/MR
     u8 cfg_vga_ctrl_3_0;//vga R
     u8 cfg_vga_cp_2_0;//vga C
-    u8 cfg_eq_res_3_0;//CTLE gain control.
+    u8 cfg_eq_res_3_0;//CTLE gain control. 
     u8 cfg_eqR_byp;
     u8 cfg_eqC_force_3_0;
 } vtss_sd10g28_preset_struct_t;

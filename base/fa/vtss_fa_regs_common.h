@@ -394,6 +394,25 @@
  */
 
 /**
+  * \brief Target IP_KRANEG_NOTR target offset(s)
+  */
+enum vtss_target_IP_KRANEG_NOTR_e {
+    VTSS_TOE_SD6G_KR_0       = VTSS_TO_SD6G_KR_0,
+    VTSS_TOE_SD6G_KR_1       = VTSS_TO_SD6G_KR_1,
+    VTSS_TOE_SD6G_KR_2       = VTSS_TO_SD6G_KR_2,
+    VTSS_TOE_SD6G_KR_3       = VTSS_TO_SD6G_KR_3,
+    VTSS_TOE_SD6G_KR_4       = VTSS_TO_SD6G_KR_4,
+    VTSS_TOE_SD6G_KR_5       = VTSS_TO_SD6G_KR_5,
+    VTSS_TOE_SD6G_KR_6       = VTSS_TO_SD6G_KR_6,
+    VTSS_TOE_SD6G_KR_7       = VTSS_TO_SD6G_KR_7,
+    VTSS_TOE_SD6G_KR_8       = VTSS_TO_SD6G_KR_8,
+    VTSS_TOE_SD6G_KR_9       = VTSS_TO_SD6G_KR_9,
+    VTSS_TOE_SD6G_KR_10      = VTSS_TO_SD6G_KR_10,
+    VTSS_TOE_SD6G_KR_11      = VTSS_TO_SD6G_KR_11,
+    VTSS_TOE_SD6G_KR_12      = VTSS_TO_SD6G_KR_12,
+};
+
+/**
   * \brief Target SD10G_CMU_TARGET target offset(s)
   */
 enum vtss_target_SD10G_CMU_TARGET_e {
@@ -417,19 +436,6 @@ enum vtss_target_SD10G_CMU_TARGET_e {
   * \brief Target IP_KRANEG target offset(s)
   */
 enum vtss_target_IP_KRANEG_e {
-    VTSS_TOE_SD6G_KR_0       = VTSS_TO_SD6G_KR_0,
-    VTSS_TOE_SD6G_KR_1       = VTSS_TO_SD6G_KR_1,
-    VTSS_TOE_SD6G_KR_2       = VTSS_TO_SD6G_KR_2,
-    VTSS_TOE_SD6G_KR_3       = VTSS_TO_SD6G_KR_3,
-    VTSS_TOE_SD6G_KR_4       = VTSS_TO_SD6G_KR_4,
-    VTSS_TOE_SD6G_KR_5       = VTSS_TO_SD6G_KR_5,
-    VTSS_TOE_SD6G_KR_6       = VTSS_TO_SD6G_KR_6,
-    VTSS_TOE_SD6G_KR_7       = VTSS_TO_SD6G_KR_7,
-    VTSS_TOE_SD6G_KR_8       = VTSS_TO_SD6G_KR_8,
-    VTSS_TOE_SD6G_KR_9       = VTSS_TO_SD6G_KR_9,
-    VTSS_TOE_SD6G_KR_10      = VTSS_TO_SD6G_KR_10,
-    VTSS_TOE_SD6G_KR_11      = VTSS_TO_SD6G_KR_11,
-    VTSS_TOE_SD6G_KR_12      = VTSS_TO_SD6G_KR_12,
     VTSS_TOE_SD10G_KR_0      = VTSS_TO_SD10G_KR_0,
     VTSS_TOE_SD10G_KR_1      = VTSS_TO_SD10G_KR_1,
     VTSS_TOE_SD10G_KR_2      = VTSS_TO_SD10G_KR_2,

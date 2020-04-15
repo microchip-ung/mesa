@@ -728,6 +728,8 @@ mesa_rc json_rpc_get2_mesa_ace_t(json_rpc_req_t *req, json_object *obj, mesa_ace
     MESA_RC(json_rpc_get_name_json_object(req, obj, "frame", &obj_value));
     switch (parm->type) {
     case MESA_ACE_TYPE_ANY:
+        MESA_RC(json_rpc_get_name_mesa_ace_frame_any_t(req, obj_value, "any", &parm->frame.any));
+        break;
     case MESA_ACE_TYPE_ETYPE:
         MESA_RC(json_rpc_get_name_mesa_ace_frame_etype_t(req, obj_value, "etype", &parm->frame.etype));
         break;
@@ -758,6 +760,8 @@ mesa_rc json_rpc_add2_mesa_ace_t(json_rpc_req_t *req, json_object *obj, mesa_ace
     MESA_RC(json_rpc_add_name_json_object(req, obj, "frame", obj_value));
     switch (parm->type) {
     case MESA_ACE_TYPE_ANY:
+        MESA_RC(json_rpc_add_name_mesa_ace_frame_any_t(req, obj_value, "any", &parm->frame.any));
+        break;
     case MESA_ACE_TYPE_ETYPE:
         MESA_RC(json_rpc_add_name_mesa_ace_frame_etype_t(req, obj_value, "etype", &parm->frame.etype));
         break;
@@ -1236,6 +1240,50 @@ mesa_rc json_rpc_add2_mesa_qos_egress_map_t(json_rpc_req_t *req, json_object *ob
 
 /* - Static method table ------------------------------------------- */
 
+// Maximum 64 DSCPs and 4 DPLs
+#define DSCP_DPL_MAX (64 * 4)
+
+static mesa_rc mesa_rpc_mesa_qos_dscp_dpl_conf_get(json_rpc_req_t *req)
+{
+    uint32_t                 dpl_cnt, dpl, dscp;
+    mesa_qos_dscp_dpl_conf_t conf[DSCP_DPL_MAX];
+    json_object              *obj_dscp, *obj_dpl;
+
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &dpl_cnt));
+    MESA_RC(json_rpc_call(req, mesa_qos_dscp_dpl_conf_get(NULL, dpl_cnt, conf)));
+    MESA_RC(json_rpc_add_json_null(req, req->result));
+    MESA_RC(json_rpc_array_new(req, &obj_dscp));
+    MESA_RC(json_rpc_add_json_array(req, req->result, obj_dscp));
+    for (dscp = 0; dscp < 64; dscp++) {
+        MESA_RC(json_rpc_array_new(req, &obj_dpl));
+        MESA_RC(json_rpc_add_json_array(req, obj_dscp, obj_dpl));
+        for (dpl = 0; dpl < dpl_cnt; dpl++) {
+            MESA_RC(json_rpc_add_mesa_qos_dscp_dpl_conf_t(req, obj_dpl, &conf[dscp * dpl_cnt + dpl]));
+        }
+    }
+    return MESA_RC_OK;
+}
+
+static mesa_rc mesa_rpc_mesa_qos_dscp_dpl_conf_set(json_rpc_req_t *req)
+{
+    uint32_t                 dpl_cnt;
+    int                      dpl, dscp;
+    mesa_qos_dscp_dpl_conf_t conf[DSCP_DPL_MAX];
+    json_object              *obj_dscp, *obj_dpl;
+
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &dpl_cnt));
+    MESA_RC(json_rpc_get_idx_json_object(req, req->params, &req->idx, &obj_dscp));
+    for (dscp = 0; dscp < 64; ) {
+        MESA_RC(json_rpc_get_idx_json_object(req, obj_dscp, &dscp, &obj_dpl));
+        for (dpl = 0; dpl < dpl_cnt; ) {
+            MESA_RC(json_rpc_get_idx_mesa_qos_dscp_dpl_conf_t(req, obj_dpl, &dpl, &conf[(dscp - 1) * dpl_cnt + dpl]));
+        }
+    }
+    MESA_RC(json_rpc_call(req, mesa_qos_dscp_dpl_conf_set(NULL, dpl_cnt, conf)));
+    MESA_RC(json_rpc_add_json_null(req, req->result));
+    return MESA_RC_OK;
+}
+
 // Maximum is 4 DPLs and 3 groups
 #define WRED_MAX 12
 
@@ -1305,6 +1353,33 @@ static mesa_rc tx_timestamp_get(json_rpc_req_t *req)
     return MESA_RC_OK;
 }
 
+static const char *string_mesa_core_clock_freq_t(mesa_core_clock_freq_t *parm)
+{
+    return (
+            *parm == MESA_CORE_CLOCK_DEFAULT ? "MESA_CORE_CLOCK_DEFAULT" :
+            *parm == MESA_CORE_CLOCK_250MHZ ? "MESA_CORE_CLOCK_250MHZ" :
+            *parm == MESA_CORE_CLOCK_500MHZ ? "MESA_CORE_CLOCK_500MHZ" :
+            *parm == MESA_CORE_CLOCK_625MHZ ? "MESA_CORE_CLOCK_625MHZ" :
+            "MESA_CORE_CLOCK_DEFAULT");
+}
+
+static mesa_rc misc_get(json_rpc_req_t *req)
+{
+    mesa_init_conf_t  conf;
+    json_object       *obj_value;
+
+    MESA_RC(json_rpc_add_json_null(req, req->result));
+
+    MESA_RC(json_rpc_call(req, mesa_init_conf_get(NULL, &conf)));
+
+    MESA_RC(json_rpc_new(req, &obj_value));
+    MESA_RC(json_rpc_add_name_json_string(req, obj_value, "core_clock_freq", string_mesa_core_clock_freq_t(&conf.core_clock.freq)));
+
+    MESA_RC(json_rpc_add_json_array(req, req->result, obj_value));
+
+    return MESA_RC_OK;
+}
+
 // Get struct
 static mesa_rc json_rpc_get_mesa_ts_timestamp_alloc_t(json_rpc_req_t *req, json_object *obj, mesa_ts_timestamp_alloc_t *parm)
 {
@@ -1329,11 +1404,41 @@ static mesa_rc mesa_rpc_mesa_tx_timestamp_idx_alloc(json_rpc_req_t *req)
     return MESA_RC_OK;
 }
 
+static mesa_rc mesa_rpc_packet_tx_frame(json_rpc_req_t *req)
+{
+    mesa_packet_tx_info_t tx_info;
+    uint8_t frame[1600];
+    uint32_t length;
+    json_object *obj;
+    int i, len, max = sizeof(frame);
+
+    MESA_RC(json_rpc_get_idx_mesa_packet_tx_info_t(req, req->params, &req->idx, &tx_info));
+    MESA_RC(json_rpc_array_type_get(req, req->params, &req->idx, json_type_array, &obj));
+    len = json_object_array_length(obj);
+    if (len > max) {
+        sprintf(req->ptr, "frame array length: %u, max: %u", len, max);
+        MESA_RC(MESA_RC_ERROR);
+    }
+    for (i = 0; i < len; ) {
+        MESA_RC(json_rpc_get_idx_uint8_t(req, obj, &i, &frame[i]));
+    }
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &length));
+    MESA_RC(json_rpc_call(req, mesa_packet_tx_frame(NULL, &tx_info, frame, length)));
+    json_object_array_add(req->result, NULL);
+    json_object_array_add(req->result, NULL);
+    json_object_array_add(req->result, NULL);
+    return MESA_RC_OK;
+}
+
 static json_rpc_method_t json_rpc_static_table[] = {
+    { "mesa_qos_dscp_dpl_conf_get", mesa_rpc_mesa_qos_dscp_dpl_conf_get },
+    { "mesa_qos_dscp_dpl_conf_set", mesa_rpc_mesa_qos_dscp_dpl_conf_set },
     { "mesa_qos_dpl_group_conf_get", mesa_rpc_mesa_qos_dpl_group_conf_get },
     { "mesa_qos_dpl_group_conf_set", mesa_rpc_mesa_qos_dpl_group_conf_set },
     { "mesa_tx_timestamp_idx_alloc", mesa_rpc_mesa_tx_timestamp_idx_alloc },
     { "mesa_tx_timestamp_get", tx_timestamp_get },
+    { "mesa_misc_get", misc_get },
+    { "mesa_packet_tx_frame", mesa_rpc_packet_tx_frame },
     { NULL, NULL}
 };
 /* - JSON-RPC parser ----------------------------------------------- */
@@ -1524,6 +1629,7 @@ typedef struct {
     char               *msg;
 } json_rpc_con_t;
 
+#define FD_FREE (-1)
 #define JSON_RPC_CON_MAX 4
 static json_rpc_con_t json_rpc_con_table[JSON_RPC_CON_MAX];
 
@@ -1592,6 +1698,7 @@ static void json_rpc_connection(int fd)
         T_I("closing connection");
         close(fd);
         fd_read_register(fd, NULL);
+        con->fd = FD_FREE;
     } else {
         // Preserve file descriptor
         con->fd = fd;
@@ -1604,9 +1711,9 @@ static void json_rpc_accept(int fd)
     socklen_t      len = sizeof(con->addr);
     
     // Lookup free connection
-    if ((con = json_rpc_connection_lookup(0)) == NULL) {
+    if ((con = json_rpc_connection_lookup(FD_FREE)) == NULL) {
         T_E("no free connection");
-    } else if ((fd = accept(fd, (struct sockaddr *)&con->addr, &len)) <= 0) {
+    } else if ((fd = accept(fd, (struct sockaddr *)&con->addr, &len)) < 0) {
         T_E("accept() failed: %s", strerror(errno));
     } else {
         T_N("new connection accepted");
@@ -1617,20 +1724,25 @@ static void json_rpc_accept(int fd)
 
 static void json_rpc_init(void)
 {
-    int                fd;
+    int                i, fd;
     struct sockaddr_in addr;
 
     T_D("enter");
+    for (i = 0; i < JSON_RPC_CON_MAX; i++) {
+        json_rpc_con_table[i].fd = FD_FREE;
+    }
     bzero(&addr, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(1234);
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         T_E("socket failed: %s", strerror(errno));
     } else if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         T_E("bind failed: %s", strerror(errno));
+        close(fd);
     } else if (listen(fd, 1) < 0) {
         T_E("listen failed: %s", strerror(errno));
+        close(fd);
     } else {
         fd_read_register(fd, json_rpc_accept);
     }

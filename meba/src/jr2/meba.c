@@ -1642,6 +1642,8 @@ static uint32_t jr2_capability(meba_inst_t inst,
              }
         case MEBA_CAP_POE_BT:
             return false;
+        case MEBA_CAP_CPU_PORTS_COUNT:
+            return 0;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -3237,7 +3239,10 @@ static void i2c_add_sym_link(meba_inst_t inst, uint32_t port, uint32_t cap,
     if (cap & MEBA_PORT_CAP_SFP_DETECT) {
         char str1[20], str2[20];
         sprintf(str2, "%s%d", "/dev/i2c-", port + 100);
-        sprintf(str1, "%s%d", "/dev/i2c-", vport + 3); // First SFP i2c adapter assigned by device tree
+        // First 3 i2c adapter are created by default by linux kernel
+        // First 8 ports are not SFP ports, therefore
+        // the next generated i2c adapter is at port + 3 - 8.
+        sprintf(str1, "%s%d", "/dev/i2c-", vport + 3 - 8); // First SFP i2c adapter assigned by device tree
         if (symlink(str1, str2) != 0) {
             T_E(inst, "Could not create symlink %s to %s\n", str1, str2);
         }
@@ -3314,7 +3319,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     board->port_cnt = 27;
                     break;
                 case VTSS_BOARD_CONF_16x2G5_4xSFI_NPI:
-                    board->port_cnt = 29 - 8;    // ???
+                    if (inst->props.target == MESA_TARGET_SPARX_IV_44) {
+                        board->port_cnt = 19;
+                    } else {
+                        board->port_cnt = 21;
+                    }
                     inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
                     break;
                 case VTSS_BOARD_CONF_DEFAULT_VENICE_1G_MODE:
@@ -3323,10 +3332,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     board->port_cnt = 29;
                     // Detect AQR side board exist
                     jr2_aqr_side_board_detect(inst);
-            }
-            // Limit port count for low-end variants
-            if (inst->props.target == MESA_TARGET_SPARX_IV_44 || inst->props.target == MESA_TARGET_LYNX_2) {
-                board->port_cnt = 27;
             }
             break;
         case BOARD_TYPE_JAGUAR2_AQR:
@@ -3382,7 +3387,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_irq_requested              = jr2_irq_requested;
     inst->api.meba_event_enable               = jr2_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
-    inst->api.meba_ptp_rs422_conf_get             = jr2_ptp_rs422_conf_get;
+    inst->api.meba_ptp_rs422_conf_get         = jr2_ptp_rs422_conf_get;
 
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();

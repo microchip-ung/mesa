@@ -75,7 +75,7 @@ l26_ts_hw_timeofday_read(vtss_state_t   *vtss_state,
 
     L26_RD(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY, &tc_32);
     /* tc is returned as 16 bit fraction of nanoseconds */
-    *tc = tc_32 << 16;
+    *tc = (u64)((u64)tc_32 << 16);
     L26_RD(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_SECS, tod_secs);
     L26_RD(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS, tod_nanosecs);
     if (*tod_nanosecs == 0) {

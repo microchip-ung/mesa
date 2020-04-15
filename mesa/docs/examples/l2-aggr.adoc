@@ -1,0 +1,11 @@
+:sectnums:
+
+== L2 Aggregation Example
+
+Command example init aggr will configure two ports that are aggregated. Any other port can be used as ingress port.
+
+The optional parameter aggr-mode is the aggregation mode. +
+The optional parameter aggr-no is the aggregation number. +
+
+Inject frames on any other port. +
+Observe that frames are not flooded on the aggregated ports and that frames are transmitted on both ports.

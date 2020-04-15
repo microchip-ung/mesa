@@ -229,62 +229,6 @@ static vtss_rc jr2_ptp_get_timestamp(vtss_state_t                    *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_dma_conf_set(vtss_state_t *vtss_state, const vtss_packet_dma_conf_t *const new)
-{
-    u32                    qmask;
-    int                    i, mode;
-    vtss_packet_rx_queue_t qu;
-
-    for (qmask = 0, i = 0; i < VTSS_QUEUE_END; i++) {
-        if (new->dma_enable[i]) {
-            qmask |= VTSS_BIT(i);
-        }
-    }
-
-    VTSS_I("%sabling DMA, mask %08x", qmask ? "En" : "Dis", qmask);
-
-    if (qmask == 0) {
-        JR2_WRM_CLR(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG,
-                    VTSS_F_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG_INJ_ENA(0) | VTSS_F_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG_XTR_ENA(0));
-        JR2_WRM(VTSS_ICPU_CFG_FDMA_FDMA_CH_CFG(VTSS_FDMA_CH_INJ_MANUAL_MODE), VTSS_F_ICPU_CFG_FDMA_FDMA_CH_CFG_CH_INJ_GRP(0), VTSS_M_ICPU_CFG_FDMA_FDMA_CH_CFG_CH_INJ_GRP);
-        for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-            JR2_WRM(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(qu)), VTSS_F_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL(VTSS_CHIP_PORT_CPU_0), VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL);
-            vtss_state->packet.default_qu_redirect[qu] = VTSS_CHIP_PORT_CPU_0;
-        }
-    }
-
-    mode = (qmask ? 2 : 1);       /* DMA / Register */
-    i = VTSS_PACKET_TX_GRP_CNT - 1; /* Only setup higest group */
-    JR2_WRM(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i), VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE(mode), VTSS_M_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE);
-    i = VTSS_PACKET_RX_GRP_CNT - 1; /* Only setup higest group */
-    JR2_WRM(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE(mode), VTSS_M_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE);
-
-    if (qmask) {
-        JR2_WRM_SET(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG,
-                    VTSS_F_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG_INJ_ENA(1) | VTSS_F_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG_XTR_ENA(1));
-        JR2_WRM(VTSS_ICPU_CFG_FDMA_FDMA_CH_CFG(VTSS_FDMA_CH_INJ_MANUAL_MODE), VTSS_F_ICPU_CFG_FDMA_FDMA_CH_CFG_CH_INJ_GRP(1), VTSS_M_ICPU_CFG_FDMA_FDMA_CH_CFG_CH_INJ_GRP);
-        for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-            JR2_WRM(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(qu)), VTSS_F_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL(VTSS_CHIP_PORT_CPU_1), VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL);
-            vtss_state->packet.default_qu_redirect[qu] = VTSS_CHIP_PORT_CPU_1;
-        }
-    }
-
-    /* Update config */
-    vtss_state->packet.dma_conf = *new;
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc jr2_dma_offset(vtss_state_t *vtss_state, BOOL extract, u32 *const offset)
-{
-    if (extract) {
-        *offset = VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_XTR(4096 - 1); /* Last word is status/control */
-    } else {
-        *offset = VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INJ(0);      /* First word is status/control */
-    }
-    return VTSS_RC_OK;
-}
-
 /* Setup L2CP Profile */
 vtss_rc vtss_jr2_l2cp_conf_set(vtss_state_t *vtss_state, u32 profile, u32 l2cp, vtss_jr2_l2cp_conf_t *conf)
 {
@@ -420,6 +364,35 @@ static vtss_rc jr2_rx_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc jr2_packet_mode_update(vtss_state_t *vtss_state)
+{
+    u32 queue, byte_swap;
+#ifdef VTSS_OS_BIG_ENDIAN
+    byte_swap = 0;
+#else
+    byte_swap = 1;
+#endif
+
+    if (!vtss_state->packet.manual_mode) {
+        /* Change mode to manual extraction and injection */
+        vtss_state->packet.manual_mode = 1;
+        JR2_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(0),
+               VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE(1) |
+               VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_STATUS_WORD_POS(0) |
+               VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP(byte_swap));
+        JR2_WR(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(0),
+               VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE(1) |
+               VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
+        for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+            JR2_WRM(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(queue)),
+                    VTSS_F_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL(VTSS_CHIP_PORT_CPU_0),
+                    VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL);
+            vtss_state->packet.default_qu_redirect[queue] = VTSS_CHIP_PORT_CPU_0;
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 #ifdef VTSS_OS_BIG_ENDIAN
 #define XTR_EOF_0          0x80000000U
 #define XTR_EOF_1          0x80000001U
@@ -469,12 +442,6 @@ static vtss_rc jr2_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss_pac
         }
     }
     return VTSS_RC_OK;
-}
-
-static vtss_rc jr2_rx_frame_discard(vtss_state_t *vtss_state, const vtss_packet_rx_queue_t queue_no)
-{
-    vtss_packet_rx_grp_t xtr_grp = vtss_state->packet.rx_conf.grp_map[queue_no];
-    return jr2_rx_frame_discard_grp(vtss_state, xtr_grp);
 }
 
 /**
@@ -597,264 +564,6 @@ static vtss_rc jr2_rx_frame_get_internal(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-
-static vtss_rc jr2_rx_frame_get(vtss_state_t                 *vtss_state,
-                                const vtss_packet_rx_queue_t queue_no,
-                                vtss_packet_rx_header_t      *const header,
-                                u8                           *const frame,
-                                const u32                    length)
-{
-    vtss_rc              rc;
-    vtss_packet_rx_grp_t grp = vtss_state->packet.rx_conf.grp_map[queue_no];
-    u32                  val, port, port_1, port_2;
-    u32                  ifh[JR2_IFH_WORDS]; /* The internal frame header of Jaguar2 is 28 bytes long. */
-    vtss_port_no_t       port_no;
-    BOOL                 found = FALSE;
-    u16                  ethtype;
-    int                  i;
-
-    /* Check if data is ready for grp */
-    JR2_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
-    if (!(val & VTSS_F_DEVCPU_QS_XTR_XTR_DATA_PRESENT_DATA_PRESENT(VTSS_BIT(grp)))) {
-        return VTSS_RC_INCOMPLETE;
-    }
-
-    if ((rc = jr2_rx_frame_get_internal(vtss_state, grp, ifh, frame, length, &header->length)) != VTSS_RC_OK) {
-        return rc;
-    }
-    header->length -= 4; // According to specification, vtss_packet_rx_header_t::length excludes the FCS, but jr2_rx_frame_get_internal() includes it.
-
-    /* Decoding assumes host order IFH */
-    for (i = 0; i < JR2_IFH_WORDS; i++) {
-        ifh[i] = VTSS_OS_NTOHL(ifh[i]);
-    }
-
-    /* Note: there is no length reported in the IFH in Jaguar2 */
-
-    /* Note - VLAN tags are *not* stripped on ingress */
-    /* Internal Frame Header field (0~223) bits which includes VStaX header field */
-
-    /* VStaX header field (48~127) bits -> (0~79) relatively */
-    /* --> TAG field (79~60) -> (31~12) relatively */
-    header->tag.vid     = VTSS_EXTRACT_BITFIELD(ifh[4], (16 + 48 - 64), 12);
-    header->tag.cfi     = VTSS_EXTRACT_BITFIELD(ifh[4], (28 + 48 - 64),  1);
-    header->tag.tagprio = VTSS_EXTRACT_BITFIELD(ifh[4], (29 + 48 - 64),  3);
-    /* --> General field (101~92) -> (53~44) relatively */
-    header->learn      = (VTSS_EXTRACT_BITFIELD(ifh[4], (47 + 48 - 64),  1) ? 1 : 0);
-
-    /* MISC field (25~10) */
-    /* queue_mask (17~10) */
-    header->queue_mask  = VTSS_EXTRACT_BITFIELD(ifh[6], 10,  8);
-
-    /* Map from chip port to API port */
-    /* Physical source port number (SRC_PORT) 32~27, 6 bits in FWD field in Jaguar2 */
-    port_1 = VTSS_EXTRACT_BITFIELD(ifh[5], 32 - 32, 1);
-    port_2 = VTSS_EXTRACT_BITFIELD(ifh[6], 27, 5);
-
-    port = (port_1 << 5) | port_2;
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if (VTSS_CHIP_PORT(port_no) == port) {
-            header->port_no = port_no;
-            found = TRUE;
-            break;
-        }
-    }
-    if (!found) {
-        VTSS_E("Unknown chip port: %u", port);
-        return VTSS_RC_ERROR;
-    } else {
-        VTSS_D("chip port: %u", port);
-    }
-
-    ethtype = (frame[12] << 8) + frame[13];
-    header->arrived_tagged = (ethtype == VTSS_ETYPE_TAG_C || ethtype == VTSS_ETYPE_TAG_S); /* Emulated */
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc jr2_rx_frame_get_raw(vtss_state_t         *vtss_state,
-                                    u8                  *const data,
-                                    const u32           buflen,
-                                    u32                 *const ifhlen,
-                                    u32                 *const frmlen)
-{
-    vtss_rc rc = VTSS_RC_INCOMPLETE;
-    u32     val;
-
-    /* Check if data is ready for grp */
-    JR2_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
-    if (val) {
-        u32 ifh[JR2_IFH_WORDS];
-        u32 length;
-        vtss_packet_rx_grp_t grp = VTSS_OS_CTZ(val);
-
-        /* Get frame, separate IFH and frame data */
-        if ((rc = jr2_rx_frame_get_internal(vtss_state, grp, ifh, data + sizeof(ifh), buflen - sizeof(ifh), &length)) != VTSS_RC_OK) {
-            return rc;
-        }
-
-        /* IFH is done separately because of alignment needs */
-        memcpy(data, ifh, sizeof(ifh));
-        *ifhlen = sizeof(ifh);
-        *frmlen = length;
-        rc = VTSS_RC_OK;
-    }
-    return rc;
-}
-
-
-static vtss_rc jr2_vstax_header2frame(const vtss_state_t            *const state,
-                                      const vtss_port_no_t          port_no,
-                                      const vtss_vstax_tx_header_t  *const vstax,
-                                      u8                            *const frame)
-{
-    u32 chip_port = (vstax->port_no == VTSS_PORT_NO_NONE ? vstax->chip_port : VTSS_CHIP_PORT_FROM_STATE(state, vstax->port_no));
-    u32 val;
-    u32 vstax_hi = 0;
-    u64 vstax_lo = 0;
-
-    /* EtherType */
-    vstax_hi |= VTSS_ENCODE_BITFIELD(VTSS_ETYPE_VTSS, 16, 16);
-
-    /* Valid */
-    vstax_hi |= VTSS_ENCODE_BITFIELD(1,               15,  1);
-
-    /* Ingress Drop Mode == 1 => No head-of-line blocking. Not used on super-prio injection */
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(1, 55, 1);
-
-    /* DP */
-    if (vstax->dp) {
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->dp, 60, 2);
-    }
-
-    /* QoS */
-    if (vstax->prio == VTSS_PRIO_SUPER) {
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(TRUE, 59, 1);
-    } else {
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->prio, 56, 3);
-    }
-
-    /* TTL */
-    if (vstax->ttl == VTSS_VSTAX_TTL_PORT) {
-        /* TBD_STACK */
-        val = 0;
-    } else {
-        val = vstax->ttl;
-    }
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(val, 48, 5);
-
-    /* LRN skip */
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(TRUE, 47, 1);
-
-    /* Fwd mode and associated fields*/
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->fwd_mode, 44, 3);
-    switch (vstax->fwd_mode) {
-    case VTSS_VSTAX_FWD_MODE_LOOKUP:
-        break;
-    case VTSS_VSTAX_FWD_MODE_UPSID_PORT:
-        /* dst_port_type=0 */
-        vstax_lo |= VTSS_ENCODE_BITFIELD64((u32)vstax->upsid - VTSS_VSTAX_UPSID_START, 37, 5);
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(chip_port, 32, 5);
-        break;
-    case VTSS_VSTAX_FWD_MODE_CPU_UPSID:
-        vstax_lo |= VTSS_ENCODE_BITFIELD64((u32)vstax->upsid - VTSS_VSTAX_UPSID_START, 37, 5);
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->queue_no - VTSS_PACKET_RX_QUEUE_START, 32, 4);
-        break;
-    case VTSS_VSTAX_FWD_MODE_CPU_ALL:
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->keep_ttl, 41, 1);
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->queue_no - VTSS_PACKET_RX_QUEUE_START, 32, 4);
-        break;
-    default:
-        VTSS_E("Illegal fwd mode: %d", vstax->fwd_mode);
-    }
-
-    /* uprio */
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->tci.tagprio, 29, 3);
-
-    /* cfi */
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->tci.cfi, 28, 1);
-
-    /* VID */
-    vstax_lo |= VTSS_ENCODE_BITFIELD64(vstax->tci.vid, 16, 12);
-
-    /* Source */
-    {
-        /* src_addr_mode (bit #10) == 0, a.k.a. src_ind_port */
-        /* Pick the src_port_type (bit #11) == 1, a.k.a. port_type_intpn. */
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(TRUE, 11, 1);
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(0, 5, 5); /* Source chip_no == 0, i.e. ourselves. */
-        vstax_lo |= VTSS_ENCODE_BITFIELD64(0xf, 0, 5); /* intpn_dlookup */
-    }
-
-    frame[ 0] = vstax_hi >> 24;
-    frame[ 1] = vstax_hi >> 16;
-    frame[ 2] = vstax_hi >>  8;
-    frame[ 3] = vstax_hi >>  0;
-    frame[ 4] = vstax_lo >> 56;
-    frame[ 5] = vstax_lo >> 48;
-    frame[ 6] = vstax_lo >> 40;
-    frame[ 7] = vstax_lo >> 32;
-    frame[ 8] = vstax_lo >> 24;
-    frame[ 9] = vstax_lo >> 16;
-    frame[10] = vstax_lo >>  8;
-    frame[11] = vstax_lo >>  0;
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc jr2_vstax_frame2header(const vtss_state_t      *const state,
-                                      const u8                *const frame,
-                                      vtss_vstax_rx_header_t  *const vstax)
-{
-    u32 vstax_hi = 0;
-    const u8 *ifh = frame;
-
-    /* 4 bytes to vstax_hi */
-    vstax_hi <<= 8, vstax_hi += *ifh++;
-    vstax_hi <<= 8, vstax_hi += *ifh++;
-    vstax_hi <<= 8, vstax_hi += *ifh++;
-    vstax_hi <<= 8, vstax_hi += *ifh++;
-
-    memset(vstax, 0, sizeof(*vstax));
-
-    /* Valid IFH */
-    vstax->valid =
-        (VTSS_EXTRACT_BITFIELD(vstax_hi, 16, 16) == VTSS_ETYPE_VTSS) &&
-        VTSS_EXTRACT_BITFIELD(vstax_hi, 15, 1);
-
-    /* Decode rest if OK */
-    if (vstax->valid) {
-        u64 vstax_lo = 0;
-
-        vstax->isdx = VTSS_EXTRACT_BITFIELD(vstax_hi, 0, 12);
-
-        /* 8 bytes to vstax_lo */
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-        vstax_lo <<= 8, vstax_lo += *ifh++;
-
-        vstax->sp = VTSS_EXTRACT_BITFIELD64(vstax_lo, 59, 1);
-
-        if (VTSS_EXTRACT_BITFIELD64(vstax_lo, 10, 1)) {
-            /* GLAG */
-            vstax->port_no = VTSS_PORT_NO_NONE;
-            vstax->glag_no = VTSS_EXTRACT_BITFIELD64(vstax_lo, 0, 5);
-        } else {
-            /* Port */
-            vstax->port_no = vtss_jr2_vtss_pgid(state, VTSS_EXTRACT_BITFIELD64(vstax_lo, 0,  5));
-            vstax->upsid   = VTSS_EXTRACT_BITFIELD64(vstax_lo, 5,  5);
-            vstax->glag_no = VTSS_GLAG_NO_NONE;
-        }
-    }
-
-    return VTSS_RC_OK;
-}
-
 static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
                                  const vtss_packet_rx_meta_t *const meta,
                                  const u8                           xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
@@ -864,7 +573,6 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
     u32                 tstamp;
     u64                 dst, vstax_lo, fwd;
     BOOL                sflow_marked;
-    vtss_vid_t          vid;
     vtss_phys_port_no_t chip_port;
 
     VTSS_DG(VTSS_TRACE_GROUP_PACKET, "IFH (28 bytes) + bit of packet:");
@@ -886,32 +594,18 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
 
     memset(info, 0, sizeof(*info));
 
-    info->sw_tstamp         = meta->sw_tstamp;
     info->hw_tstamp         = (u64)tstamp<<16;
     info->length            = meta->length;
     info->hw_tstamp_decoded = TRUE;
 
     chip_port = VTSS_EXTRACT_BITFIELD64(fwd, 27, 6);
-    info->port_no = vtss_cmn_chip_to_logical_port(state, meta->chip_no, chip_port);
+    info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
 
     if (chip_port == VTSS_CHIP_PORT_CPU_0 || chip_port == VTSS_CHIP_PORT_CPU_1) {
         VTSS_IG(VTSS_TRACE_GROUP_PACKET, "This frame is transmitted by the CPU itself and should be discarded.");
     }
 
 //     VTSS_IG(VTSS_TRACE_GROUP_PACKET, "Received on xtr_qu = %u, chip_no = %d, chip_port = %u, port_no = %u", meta->xtr_qu, meta->chip_no, chip_port, info->port_no);
-
-    info->glag_no = VTSS_GLAG_NO_NONE;
-
-    if (VTSS_EXTRACT_BITFIELD64(fwd, 43, 1)) {
-        // Received with VStaX header. Decode it.
-        u8 vstax_hdr_bin[VTSS_VSTAX_HDR_SIZE];
-
-        vstax_hdr_bin[0] = (VTSS_ETYPE_VTSS >> 8) & 0xFF;
-        vstax_hdr_bin[1] = (VTSS_ETYPE_VTSS >> 0) & 0xFF;
-        memcpy(&vstax_hdr_bin[2], &xtr_hdr[8], VTSS_VSTAX_HDR_SIZE - 2);
-        (void)jr2_vstax_frame2header(state, vstax_hdr_bin, &info->vstax);
-        info->glag_no = info->vstax.glag_no;
-    }
 
     sflow_marked = VTSS_EXTRACT_BITFIELD64(fwd, 37, 1);
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD64(fwd, 10, 8);
@@ -926,7 +620,7 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
         // This is only reliable if ANA_AC:PS_COMMON:PS_COMMON_CFG.SFLOW_SMPL_ID_IN_STAMP_ENA is set to 1.
         u32 sflow_id        = (meta->fcs >> 26) & 0x3F; // Indicates physical port number.
         info->sflow_type    = chip_port == sflow_id ? VTSS_SFLOW_TYPE_RX : VTSS_SFLOW_TYPE_TX;
-        info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, meta->chip_no, sflow_id);
+        info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
     }
 
     // FIXME: Super-prio
@@ -936,28 +630,52 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
         info->acl_hit = 1;
     }
 
-    info->cosid      = VTSS_EXTRACT_BITFIELD(  vstax_hi, 12,  3);
-    info->vstax.isdx = VTSS_EXTRACT_BITFIELD(  vstax_hi,  0, 12);
-    info->dp         = VTSS_EXTRACT_BITFIELD64(vstax_lo, 60,  2);
-    info->cos        = VTSS_EXTRACT_BITFIELD64(vstax_lo, 56,  3);
-    info->tag.pcp    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29,  3);
-    info->tag.dei    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
-    info->tag.vid    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
-
-    if (VTSS_EXTRACT_BITFIELD64(dst, 45, 1)) {
-        info->vsi = VTSS_EXTRACT_BITFIELD64(dst, 46, 12);
-        if ((vid = state->packet.vsi2vid[info->vsi]) != VTSS_VID_NULL) {
-            // Map VSI to classified VID
-            info->tag.vid = vid;
-        }
-    } else {
-        info->vsi = VTSS_VSI_NONE;
-    }
+    info->cosid    = VTSS_EXTRACT_BITFIELD(  vstax_hi, 12,  3);
+    info->iflow_id = VTSS_EXTRACT_BITFIELD(  vstax_hi,  0, 12);
+    info->dp       = VTSS_EXTRACT_BITFIELD64(vstax_lo, 60,  2);
+    info->cos      = VTSS_EXTRACT_BITFIELD64(vstax_lo, 56,  3);
+    info->tag.pcp  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29,  3);
+    info->tag.dei  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
+    info->tag.vid  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET, meta->etype, info));
 
     return VTSS_RC_OK;
 }
+
+static vtss_rc jr2_rx_frame(vtss_state_t         *vtss_state,
+                            u8                  *const data,
+                            const u32           buflen,
+                            vtss_packet_rx_info_t *const rx_info)
+{
+    vtss_rc rc = VTSS_RC_INCOMPLETE;
+    u32     val;
+
+    VTSS_RC(jr2_packet_mode_update(vtss_state));
+
+    /* Check if data is ready for grp */
+    JR2_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
+    if (val) {
+        u32 ifh[JR2_IFH_WORDS];
+        u32 length;
+        vtss_packet_rx_grp_t grp = VTSS_OS_CTZ(val);
+        u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES], *p;
+        vtss_packet_rx_meta_t meta;
+
+        /* Get frame, separate IFH and frame data */
+        VTSS_RC(jr2_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
+
+        /* IFH is done separately because of alignment needs */
+        memcpy(xtr_hdr, ifh, sizeof(ifh));
+        memset(&meta, 0, sizeof(meta));
+        meta.length = (length - 4);
+        p = &data[length - 4];
+        meta.fcs = ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
+        rc = jr2_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+    }
+    return rc;
+}
+
 
 /*****************************************************************************/
 // jr2_ptp_action_to_ifh()
@@ -1009,8 +727,8 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
                                  u32                         *const bin_hdr_len)
 {
     u64                 dst, vstax_lo, fwd, ts;
+    u32                 isdx = info->iflow_id;
     u16                 vstax_hi;
-    BOOL                contains_stack_hdr;
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
     vtss_vlan_entry_t   *vlan = NULL;
@@ -1025,12 +743,6 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
     }
 
     *bin_hdr_len = JR2_IFH_BYTES;
-
-#if defined(VTSS_FEATURE_VSTAX)
-    contains_stack_hdr = info->tx_vstax_hdr != VTSS_PACKET_TX_VSTAX_NONE;
-#else
-    contains_stack_hdr = FALSE;
-#endif
 
     dst      = 0;
     vstax_hi = VTSS_ENCODE_BITFIELD  (1,                     15, 1); // MSBit must be 1
@@ -1071,8 +783,7 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
 #endif
 
         if (info->ptp_action == VTSS_PACKET_PTP_ACTION_NONE &&
-            info->oam_type   == VTSS_PACKET_OAM_TYPE_NONE   &&
-            info->vsi        == VTSS_VSI_NONE) {
+            info->oam_type   == VTSS_PACKET_OAM_TYPE_NONE) {
             // Normal multi-port-injection without rewriting, unless asked to rewrite.
 
             dst |= VTSS_ENCODE_BITFIELD64(chip_port_mask,  0, 53); // Dst ports when DST_MODE == INJECT
@@ -1080,14 +791,9 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
             fwd |= VTSS_ENCODE_BITFIELD64(1,              23,  3); // MISC.PIPELINE_ACT = INJ
             fwd |= VTSS_ENCODE_BITFIELD64(3,              38,  3); // DST_MODE = INJECT
         } else {
-            // Either injecting with a PTP action, OAM, or to a VSI (Virtual Switching Instance).
+            // Either injecting with a PTP action or OAM.
             // This means that we can't inject with a user-specified stack header and only
             // on one port at a time.
-            if (contains_stack_hdr) {
-                VTSS_E("Cannot inject with a stack header when DST_MODE == ENCAP");
-                return VTSS_RC_ERROR;
-            }
-
             if (port_cnt != 1) {
                 VTSS_E("Can only inject to a single port when DST_MODE == ENCAP");
                 return VTSS_RC_ERROR;
@@ -1122,30 +828,7 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
                 VTSS_DG(VTSS_TRACE_GROUP_PACKET, "OAM Injecting");
                 vstax_lo |= VTSS_ENCODE_BITFIELD64(1, 59, 1);                    // Super Priority
                 dst      |= VTSS_ENCODE_BITFIELD64(info->pdu_offset / 2, 38, 6); // PDU_W16_OFFSET = 7 when DST_MODE == ENCAP
-                if (info->oam_type == VTSS_PACKET_OAM_TYPE_MPLS_TP_1) {
-                    VTSS_DG(VTSS_TRACE_GROUP_PACKET, "OAM Injecting MPLS1: TC,S,TTL %u,%u,%u", cos, info->oam_mpls_sbit, info->oam_mpls_ttl);
-                    dst  |= VTSS_ENCODE_BITFIELD64(1,                    35, 3); // PDU_TYPE = OAM_Y1731
-                    dst  |= VTSS_ENCODE_BITFIELD64(info->oam_mpls_ttl,   11, 8); // MPLS_TTL
-                    dst  |= VTSS_ENCODE_BITFIELD64(info->oam_mpls_sbit,  10, 1); // MPLS_SBIT
-                    dst  |= VTSS_ENCODE_BITFIELD64(cos,                   7, 3); // MPLS_TC
-                    dst  |= VTSS_ENCODE_BITFIELD64(1,                     5, 2); // TYPE_AFTER_POP=CW
-                } else if (info->oam_type == VTSS_PACKET_OAM_TYPE_MPLS_TP_2) {
-                    VTSS_DG(VTSS_TRACE_GROUP_PACKET, "OAM Injecting MPLS2: TC,S,TTL %u,%u,%u", cos, info->oam_mpls_sbit, info->oam_mpls_ttl);
-                    dst  |= VTSS_ENCODE_BITFIELD64(2,                    35, 3); // PDU_TYPE = OAM_MPLS_TP
-                    dst  |= VTSS_ENCODE_BITFIELD64(info->oam_mpls_ttl,   11, 8); // MPLS_TTL
-                    dst  |= VTSS_ENCODE_BITFIELD64(info->oam_mpls_sbit,  10, 1); // MPLS_SBIT
-                    dst  |= VTSS_ENCODE_BITFIELD64(cos,                   7, 3); // MPLS_TC
-                    dst  |= VTSS_ENCODE_BITFIELD64(1,                     5, 2); // TYPE_AFTER_POP=CW
-                } else {
-                    dst  |= VTSS_ENCODE_BITFIELD64(1,                    35, 3); // PDU_TYPE = OAM_Y1731
-                    if (info->tag.vid < VTSS_VIDS) {
-                        vlan = &state->l2.vlan_table[info->tag.vid];
-                        if (vlan->vsi_enable) { /* VSI is enabled for this VLAN */
-                            dst |= VTSS_ENCODE_BITFIELD64(1,         45,  1);              // GEN_IDX_MODE = 1
-                            dst |= VTSS_ENCODE_BITFIELD64(vlan->vsi->vsi, 46, 12);         // GEN_IDX = VSI
-                        }
-                    }
-                }
+                dst  |= VTSS_ENCODE_BITFIELD64(1,                    35, 3); // PDU_TYPE = OAM_Y1731
                 fwd      |= VTSS_ENCODE_BITFIELD64(info->pipeline_pt,    18, 5); // MISC.PIPELINE_PT = pipeline_pt_val
                 if (((info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_IN_VOE) || (info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_OU_VOE)) &&
                     ((info->oam_type == VTSS_PACKET_OAM_TYPE_DMM) || (info->oam_type == VTSS_PACKET_OAM_TYPE_1DM))) {    // DM injection into a service has an added dummy tag that must be popped
@@ -1157,73 +840,45 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
                 } else {
                     rewrite = FALSE;
                 }
-            } else {
-                // VSI injection.
-                dst |= VTSS_ENCODE_BITFIELD64(1,         45,  1); // GEN_IDX_MODE = 1
-                dst |= VTSS_ENCODE_BITFIELD64(info->vsi, 46, 12); // GEN_IDX = VSI
-                if (!info->isdx_dont_use) {
-                    fwd |= VTSS_ENCODE_BITFIELD64(1,         45,  1); // ESO_ISDX_KEY_ENA = 1
-                }
-                fwd |= VTSS_ENCODE_BITFIELD64(17,        18,  5); // MISC.PIPELINE_PT = REW_IN_MIP
             }
         }
 
         fwd |= VTSS_ENCODE_BITFIELD64(!rewrite, 26, 1); // FWD.DO_NOT_REW = 0 => do rewrite, 1 => do not rewrite
 
-        if (contains_stack_hdr) {
-#if defined(VTSS_FEATURE_VSTAX)
-            // Stack header is already filled in by the user. Make sure the selected port is a stack port.
-            if (stack_port_no == VTSS_PORT_NO_NONE) {
-                VTSS_E("Injecting with stack header to non-stack port");
-                return VTSS_RC_ERROR;
+        // A stack header is not already prefilled by the user, so we compose one
+        // in order to control egress queue (CoS) and in order to convey tag info
+        // and other info to the rewriter (if the frame needs rewriting).
+        if (stack_port_no != VTSS_PORT_NO_NONE) {
+            // When injecting to a stack port, the user must already have filled in the VStaX header.
+            VTSS_E("Injecting without a stack header to a stack port");
+            return VTSS_RC_ERROR;
+        }
+
+        vstax_lo |= VTSS_ENCODE_BITFIELD64(cos, 56, 3); // qos_class/iprio (internal priority)
+
+        if (rewrite) {
+            vstax_lo |= VTSS_ENCODE_BITFIELD64(info->dp,      60,  2);
+            vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.pcp, 29,  3);
+            vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.dei, 28,  1);
+            vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.vid, 16, 12);
+            vstax_hi |= VTSS_ENCODE_BITFIELD64(info->cosid,   12,  3);
+            if (isdx != VTSS_ISDX_NONE) {
+                fwd |= VTSS_ENCODE_BITFIELD64(1, 45, 1); // ESO_ISDX_KEY_ENA = 1
+                vstax_hi |= VTSS_ENCODE_BITFIELD64(isdx, 0, 12);
             }
-
-            if (info->tx_vstax_hdr == VTSS_PACKET_TX_VSTAX_SYM) {
-                // The following function also inserts the EtherType, hence the "-2" from the correct VStaX header position within the IFH.
-                VTSS_RC(jr2_vstax_header2frame(state, stack_port_no, &info->vstax.sym, &bin_hdr[12 - 2]));
-            } else {
-                // Copy the user-defined stack header to the binary header. Skip EtherType.
-                memcpy(bin_hdr + 12, info->vstax.bin + 2, VTSS_VSTAX_HDR_SIZE - 2);
+            if (info->tag.tpid != 0 && info->tag.tpid != 0x8100) {
+                // S-tagged
+                vstax_lo |= VTSS_ENCODE_BITFIELD64(1, 14, 1);
             }
-#endif
-        } else {
-            // A stack header is not already prefilled by the user, so we compose one
-            // in order to control egress queue (CoS) and in order to convey tag info
-            // and other info to the rewriter (if the frame needs rewriting).
-            if (stack_port_no != VTSS_PORT_NO_NONE) {
-                // When injecting to a stack port, the user must already have filled in the VStaX header.
-                VTSS_E("Injecting without a stack header to a stack port");
-                return VTSS_RC_ERROR;
-            }
+        } else if ((info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE) &&
+                   (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE)) {
+            /*
+             * A Port MEP needs the COS-ID in the IFH for the sake of SLM-type OAM
+             */
+            vstax_hi |= VTSS_ENCODE_BITFIELD64(info->cosid,   12,  3);
 
-            vstax_lo |= VTSS_ENCODE_BITFIELD64(cos, 56, 3); // qos_class/iprio (internal priority)
-
-            if (rewrite) {
-                vstax_lo |= VTSS_ENCODE_BITFIELD64(info->dp,      60,  2);
-                vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.pcp, 29,  3);
-                vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.dei, 28,  1);
-                vstax_lo |= VTSS_ENCODE_BITFIELD64(info->tag.vid, 16, 12);
-                vstax_hi |= VTSS_ENCODE_BITFIELD64(info->cosid,   12,  3);
-                if (info->isdx != VTSS_ISDX_NONE) {
-                    if (!info->isdx_dont_use) {
-                        fwd |= VTSS_ENCODE_BITFIELD64(1, 45, 1); // ESO_ISDX_KEY_ENA = 1
-                    }
-                    vstax_hi |= VTSS_ENCODE_BITFIELD64(info->isdx, 0, 12);
-                }
-                if (info->tag.tpid != 0 && info->tag.tpid != 0x8100) {
-                    // S-tagged
-                    vstax_lo |= VTSS_ENCODE_BITFIELD64(1, 14, 1);
-                }
-            } else if ((info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE) &&
-                       (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE)) {
-                /*
-                 * A Port MEP needs the COS-ID in the IFH for the sake of SLM-type OAM
-                 */
-                vstax_hi |= VTSS_ENCODE_BITFIELD64(info->cosid,   12,  3);
-
-                if (info->isdx == VTSS_ISDX_NONE) {  // ESO_ISDX_KEY_ENA is configured to the opposite of the requested. Try not to hit ES0 when no rewriting is calculated
-                    fwd |= VTSS_ENCODE_BITFIELD64(1, 45, 1);    // ESO_ISDX_KEY_ENA = 1
-                }
+            if (isdx == VTSS_ISDX_NONE) {  // ESO_ISDX_KEY_ENA is configured to the opposite of the requested. Try not to hit ES0 when no rewriting is calculated
+                fwd |= VTSS_ENCODE_BITFIELD64(1, 45, 1);    // ESO_ISDX_KEY_ENA = 1
             }
         }
     } else {    /* This is a switched frame - the frame is injected into the switch */
@@ -1254,9 +909,9 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
 
             VTSS_IG(VTSS_TRACE_GROUP_PACKET, "Masqueraded OAM/Y.1564 Injection. Masq port = %u => chip port = %u. Pipeline PT = %d", info->masquerade_port, chip_port, pipeline_pt);
 
-            if (info->isdx != VTSS_ISDX_NONE) {
+            if (isdx != VTSS_ISDX_NONE) {
                 fwd      |= VTSS_ENCODE_BITFIELD64(1, 45, 1);                  // ESO_ISDX_KEY_ENA = 1
-                vstax_hi |= VTSS_ENCODE_BITFIELD64(info->isdx, 0, 12);         // Isdx
+                vstax_hi |= VTSS_ENCODE_BITFIELD64(isdx, 0, 12);         // Isdx
             }
 
             if (info->tag.vid < VTSS_VIDS) {
@@ -1286,7 +941,6 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
             fwd      |= VTSS_ENCODE_BITFIELD64(0, 38,  3);                     // DST_MODE = ENCAP
             fwd      &= ~VTSS_ENCODE_BITFIELD64(0x3F, 27, 6);                  // SRC_PORT = 0
             fwd      |= VTSS_ENCODE_BITFIELD64(chip_port, 27, 6);              // SRC_PORT = masquerade port
-            fwd      |= VTSS_ENCODE_BITFIELD64(info->dscp, 0, 6);              // DSCP
 
             if ((info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) && (pipeline_pt != VTSS_PACKET_PIPELINE_PT_NONE) && (pipeline_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM)) {
                 dst      |= VTSS_ENCODE_BITFIELD64(1, 35, 3);                      // PDU_TYPE = OAM_Y1731
@@ -1310,19 +964,16 @@ static vtss_rc jr2_tx_hdr_encode(vtss_state_t                *const state,
     bin_hdr[ 9] = dst >> 16;
     bin_hdr[10] = dst >>  8;
     bin_hdr[11] = dst >>  0;
-    if (!contains_stack_hdr) {
-        bin_hdr[12] = vstax_hi >>  8;
-        bin_hdr[13] = vstax_hi >>  0;
-        bin_hdr[14] = vstax_lo >> 56;
-        bin_hdr[15] = vstax_lo >> 48;
-        bin_hdr[16] = vstax_lo >> 40;
-        bin_hdr[17] = vstax_lo >> 32;
-        bin_hdr[18] = vstax_lo >> 24;
-        bin_hdr[19] = vstax_lo >> 16;
-        bin_hdr[20] = vstax_lo >>  8;
-        bin_hdr[21] = vstax_lo >>  0;
-    }
-
+    bin_hdr[12] = vstax_hi >>  8;
+    bin_hdr[13] = vstax_hi >>  0;
+    bin_hdr[14] = vstax_lo >> 56;
+    bin_hdr[15] = vstax_lo >> 48;
+    bin_hdr[16] = vstax_lo >> 40;
+    bin_hdr[17] = vstax_lo >> 32;
+    bin_hdr[18] = vstax_lo >> 24;
+    bin_hdr[19] = vstax_lo >> 16;
+    bin_hdr[20] = vstax_lo >>  8;
+    bin_hdr[21] = vstax_lo >>  0;
     bin_hdr[22] = fwd >> 40;
     bin_hdr[23] = fwd >> 32;
     bin_hdr[24] = fwd >> 24;
@@ -1347,6 +998,8 @@ static vtss_rc jr2_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     vtss_packet_tx_grp_t grp = 0;
 
     VTSS_N("length: %u, vid: %u, ifhlen: %d", length, vid, ifh->length);
+
+    VTSS_RC(jr2_packet_mode_update(vtss_state));
 
     if (ifh->length != JR2_IFH_BYTES) {
         return VTSS_RC_ERROR;
@@ -1416,26 +1069,6 @@ static vtss_rc jr2_tx_frame_ifh(vtss_state_t *vtss_state,
     return jr2_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
 
-static vtss_rc jr2_tx_frame_port(vtss_state_t *vtss_state,
-                                 const vtss_port_no_t  port_no,
-                                 const u8              *const frame,
-                                 const u32             length,
-                                 const vtss_vid_t      vid)
-{
-    vtss_packet_tx_ifh_t ifh;
-    vtss_packet_tx_info_t tx_info;
-    vtss_rc rc;
-
-    (void) vtss_packet_tx_info_init(vtss_state, &tx_info);
-    tx_info.dst_port_mask = VTSS_BIT64(port_no);
-
-    ifh.length = sizeof(ifh.ifh);
-    if ((rc = jr2_tx_hdr_encode(vtss_state, &tx_info, (u8 *) ifh.ifh, &ifh.length) != VTSS_RC_OK)) {
-        return rc;
-    }
-    return jr2_tx_frame_ifh_vid(vtss_state, &ifh, frame, length, vid);
-}
-
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc jr2_debug_pkt(vtss_state_t              *vtss_state,
@@ -1467,8 +1100,14 @@ static vtss_rc jr2_packet_init(vtss_state_t *vtss_state)
     // The NPI settings take precedence over the uFDMA, but we need to keep track of
     // what the uFDMA wants to set it to in case the application enables and disables NPI redirection.
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-        JR2_RD(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(qu)), &val);
+        i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
+        JR2_RD(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(i), &val);
         vtss_state->packet.default_qu_redirect[qu] = VTSS_X_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_PORT_VAL(val);
+        JR2_WRM(VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(i),
+                VTSS_F_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_QOS_VAL(qu) |
+                VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_QOS_ENA,
+                VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_QOS_VAL |
+                VTSS_M_QFWD_SYSTEM_FRAME_COPY_CFG_FRMC_QOS_ENA);
     }
 
     // Set-up default packet Rx endianness, position of status word, and who will be extracting.
@@ -1587,6 +1226,9 @@ static vtss_rc jr2_packet_init(vtss_state_t *vtss_state)
                 VTSS_M_ANA_CL_PORT_VLAN_CTRL_PORT_VID          |
                 VTSS_M_ANA_CL_PORT_VLAN_CTRL_VLAN_AWARE_ENA    |
                 VTSS_M_ANA_CL_PORT_VLAN_CTRL_VLAN_POP_CNT);
+
+        // Disable IGMP redirect for CPU ports
+        JR2_WR(VTSS_ANA_CL_PORT_CAPTURE_CFG(i), 0);
     }
 
     return VTSS_RC_OK;
@@ -1599,24 +1241,16 @@ vtss_rc vtss_jr2_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         state->rx_conf_set              = jr2_rx_conf_set;
-        state->rx_frame_get             = jr2_rx_frame_get;
-        state->rx_frame_get_raw         = jr2_rx_frame_get_raw;
-        state->rx_frame_discard         = jr2_rx_frame_discard;
-        state->tx_frame_port            = jr2_tx_frame_port;
+        state->rx_frame                 = jr2_rx_frame;
         state->tx_frame_ifh             = jr2_tx_frame_ifh;
         state->rx_hdr_decode            = jr2_rx_hdr_decode;
         state->rx_ifh_size              = VTSS_JR2_RX_IFH_SIZE;
         state->tx_hdr_encode            = jr2_tx_hdr_encode;
-        state->vstax_header2frame       = jr2_vstax_header2frame;
-        state->vstax_frame2header       = jr2_vstax_frame2header;
         state->npi_conf_set             = jr2_npi_conf_set;
         state->packet_phy_cnt_to_ts_cnt = jr2_packet_phy_cnt_to_ts_cnt;
         state->packet_ns_to_ts_cnt      = jr2_packet_ns_to_ts_cnt;
         state->ptp_get_timestamp        = jr2_ptp_get_timestamp;
-        state->dma_conf_set             = jr2_dma_conf_set;
-        state->dma_offset               = jr2_dma_offset;
         state->rx_queue_count           = VTSS_PACKET_RX_QUEUE_CNT;
-
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(jr2_packet_init(vtss_state));

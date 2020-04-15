@@ -565,6 +565,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
         mesa_conv_mesa_qos_tas_gce_t_to_vtss_qos_tas_gce_t(&gcl[idx], &vtss_conf.gcl[idx]);
     }
     vtss_conf.gcl_length = gce_cnt;
+    vtss_conf.config_change = FALSE;
     return vtss_qos_tas_port_conf_set((const vtss_inst_t)inst, port_no, &vtss_conf);
 #else
     return VTSS_RC_ERROR;

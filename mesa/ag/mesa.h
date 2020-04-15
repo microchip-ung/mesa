@@ -3317,56 +3317,6 @@ mesa_rc mesa_conv_vtss_packet_rx_conf_t_to_mesa_packet_rx_conf_t(const vtss_pack
 mesa_rc mesa_conv_mesa_packet_rx_conf_t_to_vtss_packet_rx_conf_t(const mesa_packet_rx_conf_t *in, vtss_packet_rx_conf_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-inline static mesa_rc mesa_conv_vtss_vstax_rx_header_t_to_mesa_vstax_rx_header_t(const vtss_vstax_rx_header_t *in, mesa_vstax_rx_header_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_vstax_rx_header_t *tmp = (const mesa_vstax_rx_header_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-inline static mesa_rc mesa_conv_mesa_vstax_rx_header_t_to_vtss_vstax_rx_header_t(const mesa_vstax_rx_header_t *in, vtss_vstax_rx_header_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_vstax_rx_header_t *tmp = (const vtss_vstax_rx_header_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_vtss_tci_t_to_mesa_tci_t(const vtss_tci_t *in, mesa_tci_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_tci_t *tmp = (const mesa_tci_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_mesa_tci_t_to_vtss_tci_t(const mesa_tci_t *in, vtss_tci_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_tci_t *tmp = (const vtss_tci_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv_vtss_packet_rx_header_t_to_mesa_packet_rx_header_t(const vtss_packet_rx_header_t *in, mesa_packet_rx_header_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv_mesa_packet_rx_header_t_to_vtss_packet_rx_header_t(const mesa_packet_rx_header_t *in, vtss_packet_rx_header_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
 inline static mesa_rc mesa_conv_vtss_packet_frame_info_t_to_mesa_packet_frame_info_t(const vtss_packet_frame_info_t *in, mesa_packet_frame_info_t *out) { /* ag.rb:1608 */
 #ifdef __cplusplus
     static_assert(sizeof(out) == sizeof(in), "size check");
@@ -3487,46 +3437,6 @@ inline static mesa_rc mesa_conv_mesa_packet_vlan_status_t_to_vtss_packet_vlan_st
 }
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_vtss_packet_vlan_vsi_map_t_to_mesa_packet_vlan_vsi_map_t(const vtss_packet_vlan_vsi_map_t *in, mesa_packet_vlan_vsi_map_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_packet_vlan_vsi_map_t *tmp = (const mesa_packet_vlan_vsi_map_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_mesa_packet_vlan_vsi_map_t_to_vtss_packet_vlan_vsi_map_t(const mesa_packet_vlan_vsi_map_t *in, vtss_packet_vlan_vsi_map_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_packet_vlan_vsi_map_t *tmp = (const vtss_packet_vlan_vsi_map_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-mesa_rc mesa_conv_vtss_vstax_fwd_mode_t_to_mesa_vstax_fwd_mode_t(const vtss_vstax_fwd_mode_t *in, mesa_vstax_fwd_mode_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-mesa_rc mesa_conv_mesa_vstax_fwd_mode_t_to_vtss_vstax_fwd_mode_t(const mesa_vstax_fwd_mode_t *in, vtss_vstax_fwd_mode_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-mesa_rc mesa_conv_vtss_vstax_tx_header_t_to_mesa_vstax_tx_header_t(const vtss_vstax_tx_header_t *in, mesa_vstax_tx_header_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_VSTAX)
-mesa_rc mesa_conv_mesa_vstax_tx_header_t_to_vtss_vstax_tx_header_t(const mesa_vstax_tx_header_t *in, vtss_vstax_tx_header_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_VSTAX)
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
 inline static mesa_rc mesa_conv_vtss_packet_oam_type_t_to_mesa_packet_oam_type_t(const vtss_packet_oam_type_t *in, mesa_packet_oam_type_t *out) { /* ag.rb:1608 */
 #ifdef __cplusplus
     static_assert(sizeof(out) == sizeof(in), "size check");
@@ -3627,27 +3537,21 @@ inline static mesa_rc mesa_conv_mesa_packet_rx_hints_t_to_vtss_packet_rx_hints_t
 }
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv_vtss_packet_rx_info_t_to_mesa_packet_rx_info_t(const vtss_packet_rx_info_t *in, mesa_packet_rx_info_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv_mesa_packet_rx_info_t_to_vtss_packet_rx_info_t(const mesa_packet_rx_info_t *in, vtss_packet_rx_info_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_vtss_packet_tx_vstax_t_to_mesa_packet_tx_vstax_t(const vtss_packet_tx_vstax_t *in, mesa_packet_tx_vstax_t *out) { /* ag.rb:1608 */
+inline static mesa_rc mesa_conv_vtss_packet_rx_info_t_to_mesa_packet_rx_info_t(const vtss_packet_rx_info_t *in, mesa_packet_rx_info_t *out) { /* ag.rb:1608 */
 #ifdef __cplusplus
     static_assert(sizeof(out) == sizeof(in), "size check");
 #endif // __cplusplus
-    const mesa_packet_tx_vstax_t *tmp = (const mesa_packet_tx_vstax_t *)in;
+    const mesa_packet_rx_info_t *tmp = (const mesa_packet_rx_info_t *)in;
     *out = *tmp;
     return VTSS_RC_OK;
 }
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_mesa_packet_tx_vstax_t_to_vtss_packet_tx_vstax_t(const mesa_packet_tx_vstax_t *in, vtss_packet_tx_vstax_t *out) { /* ag.rb:1608 */
+inline static mesa_rc mesa_conv_mesa_packet_rx_info_t_to_vtss_packet_rx_info_t(const mesa_packet_rx_info_t *in, vtss_packet_rx_info_t *out) { /* ag.rb:1608 */
 #ifdef __cplusplus
     static_assert(sizeof(out) == sizeof(in), "size check");
 #endif // __cplusplus
-    const vtss_packet_tx_vstax_t *tmp = (const vtss_packet_tx_vstax_t *)in;
+    const vtss_packet_rx_info_t *tmp = (const vtss_packet_rx_info_t *)in;
     *out = *tmp;
     return VTSS_RC_OK;
 }
@@ -3667,46 +3571,6 @@ mesa_rc mesa_conv_vtss_packet_tx_info_t_to_mesa_packet_tx_info_t(const vtss_pack
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
 mesa_rc mesa_conv_mesa_packet_tx_info_t_to_vtss_packet_tx_info_t(const mesa_packet_tx_info_t *in, vtss_packet_tx_info_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_vtss_packet_tx_ifh_t_to_mesa_packet_tx_ifh_t(const vtss_packet_tx_ifh_t *in, mesa_packet_tx_ifh_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_packet_tx_ifh_t *tmp = (const mesa_packet_tx_ifh_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_mesa_packet_tx_ifh_t_to_vtss_packet_tx_ifh_t(const mesa_packet_tx_ifh_t *in, vtss_packet_tx_ifh_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_packet_tx_ifh_t *tmp = (const vtss_packet_tx_ifh_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_vtss_packet_dma_conf_t_to_mesa_packet_dma_conf_t(const vtss_packet_dma_conf_t *in, mesa_packet_dma_conf_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_packet_dma_conf_t *tmp = (const mesa_packet_dma_conf_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-inline static mesa_rc mesa_conv_mesa_packet_dma_conf_t_to_vtss_packet_dma_conf_t(const mesa_packet_dma_conf_t *in, vtss_packet_dma_conf_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_packet_dma_conf_t *tmp = (const vtss_packet_dma_conf_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
 inline static mesa_rc mesa_conv_vtss_packet_ptp_message_type_t_to_mesa_packet_ptp_message_type_t(const vtss_packet_ptp_message_type_t *in, mesa_packet_ptp_message_type_t *out) { /* ag.rb:1608 */
@@ -8282,6 +8146,38 @@ inline static mesa_rc mesa_conv_mesa_port_test_conf_t_to_vtss_port_test_conf_t(c
     *out = *tmp;
     return VTSS_RC_OK;
 }
+inline static mesa_rc mesa_conv_vtss_serdes_debug_type_t_to_mesa_serdes_debug_type_t(const vtss_serdes_debug_type_t *in, mesa_serdes_debug_type_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const mesa_serdes_debug_type_t *tmp = (const mesa_serdes_debug_type_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+inline static mesa_rc mesa_conv_mesa_serdes_debug_type_t_to_vtss_serdes_debug_type_t(const mesa_serdes_debug_type_t *in, vtss_serdes_debug_type_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const vtss_serdes_debug_type_t *tmp = (const vtss_serdes_debug_type_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+inline static mesa_rc mesa_conv_vtss_port_serdes_debug_t_to_mesa_port_serdes_debug_t(const vtss_port_serdes_debug_t *in, mesa_port_serdes_debug_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const mesa_port_serdes_debug_t *tmp = (const mesa_port_serdes_debug_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+inline static mesa_rc mesa_conv_mesa_port_serdes_debug_t_to_vtss_port_serdes_debug_t(const mesa_port_serdes_debug_t *in, vtss_port_serdes_debug_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const vtss_port_serdes_debug_t *tmp = (const vtss_port_serdes_debug_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
 #if defined(VTSS_FEATURE_QOS)
 #if defined(VTSS_FEATURE_QOS_WRED_V2) || defined(VTSS_FEATURE_QOS_WRED_V3)
 inline static mesa_rc mesa_conv_vtss_wred_max_t_to_mesa_wred_max_t(const vtss_wred_max_t *in, mesa_wred_max_t *out) { /* ag.rb:1608 */
@@ -9047,6 +8943,46 @@ mesa_rc mesa_conv_vtss_acl_action_t_to_mesa_acl_action_t(const vtss_acl_action_t
 mesa_rc mesa_conv_mesa_acl_action_t_to_vtss_acl_action_t(const mesa_acl_action_t *in, vtss_acl_action_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_vtss_acl_key_t_to_mesa_acl_key_t(const vtss_acl_key_t *in, mesa_acl_key_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const mesa_acl_key_t *tmp = (const mesa_acl_key_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_mesa_acl_key_t_to_vtss_acl_key_t(const mesa_acl_key_t *in, vtss_acl_key_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const vtss_acl_key_t *tmp = (const vtss_acl_key_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_vtss_acl_frame_key_t_to_mesa_acl_frame_key_t(const vtss_acl_frame_key_t *in, mesa_acl_frame_key_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const mesa_acl_frame_key_t *tmp = (const mesa_acl_frame_key_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_mesa_acl_frame_key_t_to_vtss_acl_frame_key_t(const mesa_acl_frame_key_t *in, vtss_acl_frame_key_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const vtss_acl_frame_key_t *tmp = (const vtss_acl_frame_key_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
 mesa_rc mesa_conv_vtss_acl_port_conf_t_to_mesa_acl_port_conf_t(const vtss_acl_port_conf_t *in, mesa_acl_port_conf_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
@@ -9297,6 +9233,26 @@ inline static mesa_rc mesa_conv_mesa_ace_vlan_t_to_vtss_ace_vlan_t(const mesa_ac
 }
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_vtss_ace_frame_any_t_to_mesa_ace_frame_any_t(const vtss_ace_frame_any_t *in, mesa_ace_frame_any_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const mesa_ace_frame_any_t *tmp = (const mesa_ace_frame_any_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
+inline static mesa_rc mesa_conv_mesa_ace_frame_any_t_to_vtss_ace_frame_any_t(const mesa_ace_frame_any_t *in, vtss_ace_frame_any_t *out) { /* ag.rb:1608 */
+#ifdef __cplusplus
+    static_assert(sizeof(out) == sizeof(in), "size check");
+#endif // __cplusplus
+    const vtss_ace_frame_any_t *tmp = (const vtss_ace_frame_any_t *)in;
+    *out = *tmp;
+    return VTSS_RC_OK;
+}
+#endif  // defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_ACL)
 inline static mesa_rc mesa_conv_vtss_ace_frame_etype_t_to_mesa_ace_frame_etype_t(const vtss_ace_frame_etype_t *in, mesa_ace_frame_etype_t *out) { /* ag.rb:1608 */
 #ifdef __cplusplus
     static_assert(sizeof(out) == sizeof(in), "size check");
@@ -9377,44 +9333,16 @@ inline static mesa_rc mesa_conv_mesa_ace_frame_arp_t_to_vtss_ace_frame_arp_t(con
 }
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
-inline static mesa_rc mesa_conv_vtss_ace_frame_ipv4_t_to_mesa_ace_frame_ipv4_t(const vtss_ace_frame_ipv4_t *in, mesa_ace_frame_ipv4_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_ace_frame_ipv4_t *tmp = (const mesa_ace_frame_ipv4_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
+mesa_rc mesa_conv_vtss_ace_frame_ipv4_t_to_mesa_ace_frame_ipv4_t(const vtss_ace_frame_ipv4_t *in, mesa_ace_frame_ipv4_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
-inline static mesa_rc mesa_conv_mesa_ace_frame_ipv4_t_to_vtss_ace_frame_ipv4_t(const mesa_ace_frame_ipv4_t *in, vtss_ace_frame_ipv4_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_ace_frame_ipv4_t *tmp = (const vtss_ace_frame_ipv4_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
+mesa_rc mesa_conv_mesa_ace_frame_ipv4_t_to_vtss_ace_frame_ipv4_t(const mesa_ace_frame_ipv4_t *in, vtss_ace_frame_ipv4_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
-inline static mesa_rc mesa_conv_vtss_ace_frame_ipv6_t_to_mesa_ace_frame_ipv6_t(const vtss_ace_frame_ipv6_t *in, mesa_ace_frame_ipv6_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const mesa_ace_frame_ipv6_t *tmp = (const mesa_ace_frame_ipv6_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
+mesa_rc mesa_conv_vtss_ace_frame_ipv6_t_to_mesa_ace_frame_ipv6_t(const vtss_ace_frame_ipv6_t *in, mesa_ace_frame_ipv6_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
-inline static mesa_rc mesa_conv_mesa_ace_frame_ipv6_t_to_vtss_ace_frame_ipv6_t(const mesa_ace_frame_ipv6_t *in, vtss_ace_frame_ipv6_t *out) { /* ag.rb:1608 */
-#ifdef __cplusplus
-    static_assert(sizeof(out) == sizeof(in), "size check");
-#endif // __cplusplus
-    const vtss_ace_frame_ipv6_t *tmp = (const vtss_ace_frame_ipv6_t *)in;
-    *out = *tmp;
-    return VTSS_RC_OK;
-}
+mesa_rc mesa_conv_mesa_ace_frame_ipv6_t_to_vtss_ace_frame_ipv6_t(const mesa_ace_frame_ipv6_t *in, vtss_ace_frame_ipv6_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_ACL)
 #if defined(VTSS_FEATURE_ACL)
 mesa_rc mesa_conv_vtss_ace_t_to_mesa_ace_t(const vtss_ace_t *in, mesa_ace_t *out); /* ag.rb:1618 */
@@ -11723,12 +11651,6 @@ mesa_rc mesa_conv2_vtss_packet_rx_queue_conf_t_to_mesa_packet_rx_queue_conf_t(co
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_FEATURE_PACKET)
 mesa_rc mesa_conv2_mesa_packet_rx_queue_conf_t_to_vtss_packet_rx_queue_conf_t(const mesa_packet_rx_queue_conf_t *in, vtss_packet_rx_queue_conf_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv2_vtss_packet_tx_info_t_to_mesa_packet_tx_info_t(const vtss_packet_tx_info_t *in, mesa_packet_tx_info_t *out); /* ag.rb:1618 */
-#endif  // defined(VTSS_FEATURE_PACKET)
-#if defined(VTSS_FEATURE_PACKET)
-mesa_rc mesa_conv2_mesa_packet_tx_info_t_to_vtss_packet_tx_info_t(const mesa_packet_tx_info_t *in, vtss_packet_tx_info_t *out); /* ag.rb:1618 */
 #endif  // defined(VTSS_FEATURE_PACKET)
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
 mesa_rc mesa_conv2_vtss_phy_ts_eth_flow_conf_t_to_mesa_phy_ts_eth_flow_conf_t(const vtss_phy_ts_eth_flow_conf_t *in, mesa_phy_ts_eth_flow_conf_t *out); /* ag.rb:1618 */

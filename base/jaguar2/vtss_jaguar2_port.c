@@ -1717,7 +1717,11 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         if_100fx = 1;
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
-        serdes_mode = VTSS_SERDES_MODE_1000BaseX;
+        if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
+            serdes_mode = VTSS_SERDES_MODE_QSGMII; // Do not change the Serdes mode
+        } else {
+            serdes_mode = VTSS_SERDES_MODE_1000BaseX;
+        }
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_SERDES:
@@ -2060,7 +2064,8 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_RC(jr2_port_flush(vtss_state, port_no, TRUE));
 
    /* Re-configure Serdes if needed */
-    if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
+    if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
+        vtss_state->port.current_mt[port_no] != conf->serdes.media_type) {
         VTSS_RC(jr2_serdes_cfg(vtss_state, port_no, serdes_mode));
     }
 
@@ -2178,7 +2183,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
         /* Disable the power hungry serdes */
         VTSS_RC(jr2_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_DISABLE));
     }
-
+    vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
     VTSS_D("chip port: %u (10G),is configured", port);
 
     return VTSS_RC_OK;
@@ -2196,7 +2201,7 @@ static vtss_rc jr2_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
     u32              bt_fld = (port == 49) ? 12 : (port == 50) ? 14 : (port == 51) ? 16 : 18;
 #endif
 
-    VTSS_D("port_no:%d (port:%d), shutdown:%d", port_no, port, conf->power_down);
+    VTSS_I("port_no:%d (port:%d), shutdown:%d", port_no, port, conf->power_down);
 
     if (!vrfy_spd_iface(port_no, conf->if_type, conf->speed, &port_10g)) {
         return VTSS_RC_ERROR;
@@ -2676,6 +2681,8 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
 {
     u32                tgt, serdes_inst, serdes_type, port = VTSS_CHIP_PORT(port_no);
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
+    vtss_port_lb_t lb = vtss_state->port.test_conf[port_no].loopback;
+    vtss_port_conf_t   *conf = &vtss_state->port.conf[port_no];
 
     VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst, &serdes_type));
 
@@ -2693,6 +2700,24 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
     default:
         break;
     }
+
+    // Disable signal detect during loopback
+    if (lb == VTSS_PORT_LB_DISABLED) {
+        JR2_WRM(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(conf->sd_enable),
+                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
+        JR2_WRM(VTSS_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(conf->sd_enable),
+                VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
+    } else {
+        JR2_WRM(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(0),
+                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
+        JR2_WRM(VTSS_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(0),
+                VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
+    }
+
     return VTSS_RC_OK;
 }
 

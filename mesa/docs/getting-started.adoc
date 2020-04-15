@@ -209,36 +209,21 @@ found:
 . Library targets. These are not bootable, it is just libraries supporting a
   given chip, and must be combined with an actual application, root file system
   and kernel to provide a functional system.
-.. `vscXXXX<flags>` These are shared libraries for a given `vsc` chip ID.
-.. `vscXXXX<flags>_static` These are static libraries for a given `vsc` chip ID.
+.. `vscXXXX` These are shared libraries for a given `vsc` chip ID.
+.. `vscXXXX_static` These are static libraries for a given `vsc` chip ID.
 
 . Bootable demo images. These targets will generate a complete firmware image
   including kernel, root file system, and the MESA Demo application. These are
   the images used in this getting started article.
-.. `mfi_vscXXXX<flags>` This is a MFI image which is the default image type on
+.. `mfi_vscXXXX` This is a MFI image which is the default image type on
    MIPS based targets.
-.. `fit_vscXXXX<flags>` This is the standard UBoot FIT (extension name is
+.. `fit_vscXXXX` This is the standard UBoot FIT (extension name is
    `.itb`) image which is used on the ARM/ARM64 based targets.
 
 . Pure application
-.. `app_vscXXXX<flags>` This is the MESA application build along with the needed
+.. `app_vscXXXX` This is the MESA application build along with the needed
    library. This does not include the kernel and the root file system, which
    needs to come from elsewhere.
-
-The `<flags>` part is optional, and indicate certain compile time options which
-will be set. Following are the most important ones:
-
-. `_pcntXX` This is a port count number. The API can be built to a lower port
-  count than the chip supports. This will reduce the memory footprint if not all
-  ports are being used. Notice, this must include front ports, internal ports,
-  loop-ports etc.
-
-. `_ts` This target enables the PHY time-stamping facilities in the PHYs. This
-  is only needed if PTP capable PHYs are used.
-
-. `_afiot` For devices with non-zero capability `MESA_CAP_AFI_V1`, the AFI API
-   is optimized for timers rather than frame-slots. This is the recommended mode
-   for such devices.
 
 To see all the targets defined in the project use the `./cmake .. -LAH` command,
 or the GUI tool `ccmake ..`.
@@ -257,19 +242,9 @@ To do this, we will grep for 7514 in the available options:
 ----
 $ ./cmake .. -LAH | grep 7514
 app_vsc7514:BOOL=OFF
-app_vsc7514_afiot_ts:BOOL=OFF
 mfi_vsc7514:BOOL=OFF
-mfi_vsc7514_afiot_ts:BOOL=OFF
 // Build the API for 7514 (vsc7514)
 vsc7514:BOOL=OFF
-// Build the API for 7514 (vsc7514_afiot_ts)
-vsc7514_afiot_ts:BOOL=OFF
-// Build the static API for 7514 (vsc7514_afiot_ts)
-vsc7514_afiot_ts_static:BOOL=OFF
-// Build the API for 7514 (vsc7514_pcnt10)
-vsc7514_pcnt10:BOOL=OFF
-// Build the static API for 7514 (vsc7514_pcnt10)
-vsc7514_pcnt10_static:BOOL=OFF
 // Build the static API for 7514 (vsc7514)
 vsc7514_static:BOOL=OFF
 ----

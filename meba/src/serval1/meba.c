@@ -164,6 +164,8 @@ static uint32_t serval_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
             return false;
+        case MEBA_CAP_CPU_PORTS_COUNT:
+            return 0;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -1167,8 +1169,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         }
     }
 
-    loop_port_update(inst, board, "mep_loop_port");
-    loop_port_update(inst, board, "mirror_loop_port");
+    loop_port_update(inst, board, "loop_port_up_inj");
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");

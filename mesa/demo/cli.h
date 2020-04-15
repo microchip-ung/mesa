@@ -27,6 +27,9 @@
 extern "C" {
 #endif
 
+#include "main.h"
+#include "mscc/ethernet/board/api.h"
+
 /* Initialize CLI */
 void mscc_appl_cli_init(mscc_appl_init_t *init);
 
@@ -105,6 +108,7 @@ int cli_parm_u16(cli_req_t *req, uint16_t *val, uint32_t min, uint32_t max);
 int cli_parm_u32(cli_req_t *req, uint32_t *val, uint32_t min, uint32_t max);
 const char *cli_parse_find(const char *cmd, const char *stx);
 int cli_parse_list(const char *buf, mesa_bool_t *list, uint32_t min, uint32_t max, mesa_bool_t def);
+int cli_parse_values(const char *buf, uint32_t *arr, uint32_t *val_cnt, uint32_t min, uint32_t max, uint32_t max_num);
 char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf);
 mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list, mesa_port_no_t iport);
 int cli_printf(const char *fmt, ...);

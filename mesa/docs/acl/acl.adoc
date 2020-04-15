@@ -19,7 +19,7 @@ Each ACE (`mesa_ace_t`) consists of the following fields:
 * ACE key fields used for matching received frames, such as:
 ** Ingress port list.
 ** Classified VLAN fields (`mesa_ace_vlan_t`).
-** Frame type (`mesa_ace_type_t`).
+** Frame type (`mesa_ace_type_t`) and extended ACE flag (`mesa_ace_t::type_ext`).
 ** Frame type specific fields, for example IPv4 SIP. 
 
 Before adding an ACE (`mesa_ace_add()`), it should be initialized to default values (`mesa_ace_init()`). 
@@ -33,6 +33,23 @@ The ACL policy (`mesa_acl_policy_no_t`) can be used to indicate special processi
 * VCL rules can override the default ACL policy (`mesa_vce_action_t`).
 * QCL rules can again override the ACL policy (`mesa_qce_action_t`).
 * ACL rules can match on the assigned ACL policy (`mesa_ace_t`).
+
+For each ingress port, the generated key for ARP, IPv4 and IPv6 frames can also be setup (`mesa_acl_key_t`).
+The default value `MESA_ACL_KEY_DEFAULT` indicates that a frame type matches an ACE of the same type.
+If the key is set to `MESA_ACL_KEY_ETYPE` for a frame type, such frames will match ACEs of type `MESA_ACE_TYPE_ETYPE`.
+This can be used to support matching DMAC/SMAC for a frame type.
+
+Extended IPv4/IPv6 ACEs are added by setting the `mesa_ace_t::type_ext` flag.
+
+If the key for IPv4 frames is set to `MESA_ACL_KEY_EXT` and the capability `MESA_CAP_ACL_EXT_MAC` is non-zero,
+extended IPv4 ACEs with DMAC/SMAC address matching are supported.
+
+If the key for IPv6 frames is set to `MESA_ACL_KEY_EXT`, extended IPv6 ACEs support the following:
+
+* If the capability `MESA_CAP_ACL_EXT_MAC` is non-zero, DMAC/SMAC matching.
+* SIP matching with all 128 bits.
+* If the capability `MESA_CAP_ACL_EXT_DIP` is non-zero, DIP matching.
+* If the capability `MESA_CAP_ACL_EXT_DIP` is zero, only the protocol and SIP fields are matched. All other IPv6 fields are ignored.
 
 For each ingress port, a default ACL hit counter is available (`mesa_acl_port_counter_t`).
 

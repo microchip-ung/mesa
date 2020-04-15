@@ -37,8 +37,8 @@
 #define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-5 architecture */
 #endif
 
-#if defined(VTSS_CHIP_7546_04) || defined(VTSS_CHIP_7549_04) || defined(VTSS_CHIP_7552_04) || \
-    defined(VTSS_CHIP_7556_04) || defined(VTSS_CHIP_7558_04)
+#if defined(VTSS_CHIP_7546TSN) || defined(VTSS_CHIP_7549TSN) || defined(VTSS_CHIP_7552TSN) || \
+    defined(VTSS_CHIP_7556TSN) || defined(VTSS_CHIP_7558TSN)
 #define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-V architecture */
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
 #endif
@@ -78,6 +78,7 @@
 #define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS          /**< QoS: Has leak lists for scheduler elements */
 #define VTSS_FEATURE_QOS_POLICER_DLB             /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER         /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
@@ -129,6 +130,8 @@
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */
 #define VTSS_FEATURE_HACL                         /**< Hierarchical Access Control Lists */
 #define VTSS_FEATURE_ACL_V2                      /**< Access Control Lists, V2 features */
+#define VTSS_FEATURE_ACL_EXT_DIP                 /**< ACL extended IPv6 rule with DIP matching */
+#define VTSS_FEATURE_ACL_EXT_MAC                 /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 #define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
 #define VTSS_FEATURE_TIMESTAMP                   /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_ONE_STEP          /**< ONESTEP timestamp hardware support */
@@ -196,6 +199,7 @@
 #define VTSS_ARCH_JAGUAR_2                       /**< Jaguar-2 architecture */
 #define VTSS_FEATURE_10G                         /**< 10G ports */
 #define VTSS_FEATURE_10GBASE_KR_V2               /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). JR2-C version.  */
+#define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER        /**< QoS: Has CPU queue shaper */
 #endif /* VTSS_ARCH_JAGUAR_2_C */
 
 #if defined(VTSS_CHIP_SERVAL_T) || defined(VTSS_CHIP_SERVAL_TP) || defined(VTSS_CHIP_SPARX_IV_34)
@@ -267,6 +271,7 @@
 #define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS         /**< QoS: Has leak lists for scheduler elements */
 #define VTSS_FEATURE_QOS_POLICER_DLB             /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER         /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
 #define VTSS_FEATURE_PACKET                      /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_TX                   /**< CPU Tx frame */
 #define VTSS_FEATURE_PACKET_RX                   /**< CPU Rx frame */
@@ -293,6 +298,8 @@
 #define VTSS_FEATURE_VCAP                        /**< VCAP */
 #define VTSS_FEATURE_ACL                         /**< Access Control Lists */
 #define VTSS_FEATURE_ACL_V2                      /**< Access Control Lists, V2 features */
+#define VTSS_FEATURE_ACL_EXT_DIP                 /**< ACL extended IPv6 rule with DIP matching */
+#define VTSS_FEATURE_ACL_EXT_MAC                 /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 #define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
 #define VTSS_FEATURE_TIMESTAMP                   /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_ONE_STEP          /**< ONESTEP timestamp hardware support */
@@ -381,6 +388,7 @@
 #define VTSS_FEATURE_QOS_DSCP_REMARK           /**< QoS: Has DSCP remarking */
 #define VTSS_FEATURE_QOS_DSCP_REMARK_V2        /**< QoS: 2. version of DSCP remarking */
 #define VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE  /**< QoS: DSCP remarking is DP aware */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
 #define VTSS_FEATURE_PACKET                    /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_TX                 /**< CPU Tx frame */
 #define VTSS_FEATURE_PACKET_RX                 /**< CPU Rx frame */
@@ -495,7 +503,9 @@
 #define VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE  /**< QoS: DSCP remarking is DP aware */
 #define VTSS_FEATURE_QOS_WRED_V2               /**< QoS: WRED global - per queue (0..7), per dpl (0..1) */
 #define VTSS_FEATURE_QOS_POLICER_DLB           /**< DLB policers */
+#define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER      /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER       /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
 #define VTSS_FEATURE_PACKET                    /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_TX                 /**< CPU Tx frame */
 #define VTSS_FEATURE_PACKET_RX                 /**< CPU Rx frame */
@@ -510,13 +520,14 @@
 #define VTSS_FEATURE_VCL_KEY_DMAC              /**< VCL entry has destination MAC address */
 #define VTSS_FEATURE_VCL_KEY_DIP               /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP               /**< Source specific IPv4 multicast */
-//#define VTSS_FEATURE_IPV6_MC_SIP               /**< Source specific IPv6 multicast */
+#define VTSS_FEATURE_IPV6_MC_SIP               /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO              /**< Automatic MAC address ageing */
 #define VTSS_FEATURE_MAC_CPU_QUEUE             /**< CPU queue per MAC address */
 #define VTSS_FEATURE_EEE                       /**< Energy Efficient Ethernet */
 #define VTSS_FEATURE_VCAP                      /**< VCAP */
 #define VTSS_FEATURE_ACL                       /**< Access Control Lists */
 #define VTSS_FEATURE_ACL_V2                    /**< Access Control Lists, V2 features */
+#define VTSS_FEATURE_ACL_EXT_DIP               /**< ACL extended IPv6 rule with DIP matching */
 #define VTSS_FEATURE_VCL                       /**< VLAN Control Lists */
 #define VTSS_FEATURE_NPI                       /**< NPI port */
 #define VTSS_FEATURE_LED_POW_REDUC             /**< LED power reduction */

@@ -1,0 +1,5 @@
+:sectnums:
+
+== TSN PSFP Example
+
+The PSFP example shows how to map frames from an ingress port to a MaxSDU filer and a Gate Control List.

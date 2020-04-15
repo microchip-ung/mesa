@@ -930,6 +930,16 @@ typedef struct
     vtss_iflow_id_t           flow_id;    /**< Ingress flow ID */
     vtss_oam_detect_t         oam_detect; /**< OAM detection. Mark this frame as containing OAM behind a number of tags. */
 #endif
+    BOOL                      prio_enable; // Enable priority classification
+    vtss_prio_t               prio;        // Priority value
+    BOOL                      dp_enable;   // Enable DP classification
+    vtss_dp_level_t           dp;          // DP value
+    BOOL                      dscp_enable; // Enable DSCP classification
+    vtss_dscp_t               dscp;        // DSCP value
+    BOOL                      pcp_enable;  // Enable PCP classification
+    vtss_pcp_t                pcp;         // PCP value
+    BOOL                      dei_enable;  // Enable DEI classification
+    vtss_dei_t                dei;         // DEI value
 } vtss_vce_action_t;
 
 /** \brief VLAN Control Entry */
@@ -1177,6 +1187,9 @@ typedef struct
 #endif
 #if defined(VTSS_FEATURE_PSFP)
     vtss_psfp_iflow_conf_t psfp;      // PSFP ingress flow configuration
+#endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
+    BOOL                   cut_through_disable; // Force store-and-forward
 #endif
 } vtss_iflow_conf_t;
 

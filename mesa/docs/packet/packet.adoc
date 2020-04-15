@@ -17,7 +17,6 @@ The IFH includes additional information such as ingress/egress port and classifi
 
 == Frame DMA
 Frame DMA is provided via a Linux driver, which always places the IFH at offset 16.
-Each CPU Rx queue can be enabled for FDMA (`mesa_packet_dma_conf_t`).
 
 == NPI Port
 One of the Ethernet ports can be enabled as NPI port (`mesa_npi_conf_t`).
@@ -30,14 +29,10 @@ When setting up the CPU Rx queue system of the device, each queue can be enabled
 for NPI port redirection (`mesa_packet_rx_queue_npi_conf_t`).
 
 == Manual Transfers
-The API provides functions for manual tranfers:
+The API provides functions for manual transfers:
 
-* Rx frame with IFH at offset 0 (`mesa_packet_rx_frame_get_raw()`).
-* Rx frame with simple header (`mesa_packet_rx_frame_get()`)
-* Tx frame with IFH (`mesa_packet_tx_frame()`).
-* Tx frame to port (`mesa_packet_tx_frame_port()`).
-* Tx frame to VLAN (`mesa_packet_tx_frame_vlan()`).
-* Tx frame to port and VLAN (`mesa_packet_tx_frame_port_vlan()`).
+* Rx frame (`mesa_packet_rx_frame()`)
+* Tx frame (`mesa_packet_tx_frame()`).
 
 == CPU Rx Registration
 Received frames can be sent to the CPU in multiple ways:
@@ -70,6 +65,50 @@ When forwarding IGMP frames to other ports, (`mesa_packet_port_filter_get()`)
 can be used to avoid forwarding back to ports in the same aggregation.
 It is also possible to determine whether to add a VLAN tag for each egress port.
 
+== Automatic Frame Injection
+The Automatic Frame Injection (AFI) feature allows for periodic transmission of frames from within the switch core.
+
+=== AFIv1
+This section describes the AFI functionality for devices with a non-zero `MESA_CAP_AFI_V1` capability.
+The flow for setting up a frame to be periodically transmitted is as follows:
+
+* Allocate resources for AFI frame using `mesa_afi_alloc()`, which returns an AFI ID.
+* From the CPU, transmit the frame with the AFI ID encoded in the IFH (`mesa_packet_tx_info_t::afi_id`).
+* Optionally, call `mesa_afi_hijack()` to check whether the frame was actually captured by the AFI in the device.
+* To cancel the frame transmission, call `mesa_afi_free()`.
+* If the egress port for the frame transmissions goes down, transmissions will be stopped.
+When the port comes up again, the CPU must transmit the frame again to restart transmissions.
+
+=== AFIv2
+This section describes the AFI functionality for devices with a non-zero `MESA_CAP_AFI_V2` capability.
+Two types of AFI injections are supported:
+
+* Fast injections: Injection of a sequence of frames consisting of one or more frames with rates of up
+to several Gbps.
+* Slow injections: Typically used for injecting single frames with an interval of approximately 3.3ms or slower.
+
+Fast injections are used as follows:
+
+* Allocate resources for AFI using `mesa_afi_fast_inj_alloc()`, which returns an AFI ID.
+* For each frame in the sequence do the following:
+** From the CPU, transmit the frame with the AFI ID encoded in the IFH (`mesa_packet_tx_info_t::afi_id`).
+** Call `mesa_afi_fast_inj_frm_hijack()` to configure the frame for injection.
+* Call `mesa_afi_fast_inj_start()` to select bandwidth and start injection.
+* Call `mesa_afi_fast_inj_stop()` to stop injection.
+* Call `mesa_afi_fast_inj_free()` to free allocated resources.
+
+Slow injections are used as follows:
+
+* Allocate resources for AFI using `mesa_afi_slow_inj_alloc()`, which returns an AFI ID.
+* From the CPU, transmit the frame with the AFI ID encoded in the IFH (`mesa_packet_tx_info_t::afi_id`).
+* Call `mesa_afi_slow_inj_frm_hijack()` to configure the frame for injection.
+* Call `mesa_afi_slow_inj_start()` to start injection.
+* Call `mesa_afi_slow_inj_stop()` to stop injection.
+* Call `mesa_afi_slow_inj_free()` to free allocated resources.
+
+If the egress port goes down, all injections (slow as well as fast) are automatically stopped.
+When the port comes up again, injections are restarted.
+
 == API Functions
 `mesa_npi_conf_get()` +
 `mesa_npi_conf_set()` +
@@ -77,29 +116,32 @@ It is also possible to determine whether to add a VLAN tag for each egress port.
 `mesa_packet_rx_conf_set()` +
 `mesa_packet_rx_port_conf_get()` +
 `mesa_packet_rx_port_conf_set()` +
-`mesa_packet_rx_frame_get()` +
-`mesa_packet_rx_frame_get_raw()` +
-`mesa_packet_rx_frame_discard()` +
-`mesa_packet_tx_frame_port()` +
-`mesa_packet_tx_frame_port_vlan()` +
-`mesa_packet_tx_frame_vlan()` +
 `mesa_packet_frame_filter()` +
 `mesa_packet_port_info_init()` +
 `mesa_packet_port_filter_get()` +
 `mesa_packet_vlan_filter_get()` +
 `mesa_packet_vlan_status_get()` +
-`mesa_packet_vlan_vsi_map_get()` +
-`mesa_packet_tx_frame_vstax()` +
-`mesa_packet_vstax_header2frame()` +
-`mesa_packet_vstax_frame2header()` +
 `mesa_packet_rx_hdr_decode()` +
 `mesa_packet_tx_hdr_encode()` +
-`mesa_packet_tx_hdr_compile()` +
-`mesa_packet_tx_frame()` +
 `mesa_packet_tx_info_init()` +
-`mesa_packet_dma_conf_get()` +
-`mesa_packet_dma_conf_set()` +
-`mesa_packet_dma_offset()` +
+`mesa_packet_tx_frame()` +
+`mesa_packet_rx_frame()` +
 `mesa_packet_phy_cnt_to_ts_cnt()` +
 `mesa_packet_ns_to_ts_cnt()` +
-`mesa_ptp_get_timestamp()`
+`mesa_ptp_get_timestamp()` +
+`mesa_afi_alloc()` +
+`mesa_afi_free()` +
+`mesa_afi_hijack()` +
+`mesa_afi_fast_inj_alloc()` +
+`mesa_afi_fast_inj_free()` +
+`mesa_afi_fast_inj_frm_hijack()` +
+`mesa_afi_fast_inj_start()` +
+`mesa_afi_fast_inj_stop()` +
+`mesa_afi_fast_inj_seq_cnt_get()` +
+`mesa_afi_slow_inj_alloc()` +
+`mesa_afi_slow_inj_free()` +
+`mesa_afi_slow_inj_frm_hijack()` +
+`mesa_afi_slow_inj_start()` +
+`mesa_afi_slow_inj_stop()` +
+`mesa_afi_port_start()` +
+`mesa_afi_port_stop()`

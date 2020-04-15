@@ -52,7 +52,7 @@ extern "C" {
 typedef u32 vtss_synce_clk_port_t;
 #define VTSS_SYNCE_CLK_A 0   /**< Clock A output port */
 #define VTSS_SYNCE_CLK_B 1   /**< Clock B output port */
-#if defined (VTSS_ARCH_JAGUAR_2)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
 //#if defined (VTSS_ARCH_SERVAL_T)
 //#define VTSS_SYNCE_CLK_MAX 2   /**< Number of recovered clock outputs is 2 in ServalT*/
 //#else

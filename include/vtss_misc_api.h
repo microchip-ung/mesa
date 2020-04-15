@@ -236,6 +236,7 @@ typedef struct {
     BOOL                         vml_format;                      /**< VML format register dump */
     BOOL                         has_action;                      /**< Action parameter is present */
     u32                          action;                          /**< Debug group depending action value */
+    u32                          prm[10];                         /**< Parameters from user */
 } vtss_debug_info_t;
 
 /** \brief Debug printf function

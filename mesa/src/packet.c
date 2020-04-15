@@ -55,39 +55,11 @@ mesa_rc mesa_conv2_mesa_packet_rx_conf_t_to_vtss_packet_rx_conf_t(const mesa_pac
 
 mesa_rc mesa_conv2_vtss_packet_tx_info_t_to_mesa_packet_tx_info_t(const vtss_packet_tx_info_t *in, mesa_packet_tx_info_t *out)
 {
-#ifdef VTSS_FEATURE_VSTAX
-    switch (in->tx_vstax_hdr) {
-    case VTSS_PACKET_TX_VSTAX_NONE:
-        break;
-    case VTSS_PACKET_TX_VSTAX_BIN:
-        for (int i = 0; i < VTSS_VSTAX_HDR_SIZE; i++) {
-            out->vstax.bin[i] = in->vstax.bin[i];
-        }
-        break;
-    case VTSS_PACKET_TX_VSTAX_SYM:
-        mesa_conv_vtss_vstax_tx_header_t_to_mesa_vstax_tx_header_t(&in->vstax.sym, &out->vstax.sym);
-        break;
-    }
-#endif
     return VTSS_RC_OK;
 }
 
 mesa_rc mesa_conv2_mesa_packet_tx_info_t_to_vtss_packet_tx_info_t(const mesa_packet_tx_info_t *in, vtss_packet_tx_info_t *out)
 {
-#ifdef VTSS_FEATURE_VSTAX
-    switch (in->tx_vstax_hdr) {
-    case MESA_PACKET_TX_VSTAX_NONE:
-        break;
-    case MESA_PACKET_TX_VSTAX_BIN:
-        for (int i = 0; i < MESA_VSTAX_HDR_SIZE; i++) {
-            out->vstax.bin[i] = in->vstax.bin[i];
-        }
-        break;
-    case MESA_PACKET_TX_VSTAX_SYM:
-        mesa_conv_mesa_vstax_tx_header_t_to_vtss_vstax_tx_header_t(&in->vstax.sym, &out->vstax.sym);
-        break;
-    }
-#endif
     return VTSS_RC_OK;
 }
 
@@ -101,12 +73,12 @@ mesa_rc mesa_packet_port_filter_get(const mesa_inst_t             inst,
     vtss_packet_port_info_t   vtss_info;
     vtss_packet_port_filter_t vtss_filter[VTSS_PORT_ARRAY_SIZE];
 
-    if (cnt != VTSS_PORTS) {
+    if (cnt > VTSS_PORTS) {
         return VTSS_RC_ERROR;
     }
     mesa_conv_mesa_packet_port_info_t_to_vtss_packet_port_info_t(info, &vtss_info);
     if ((rc = vtss_packet_port_filter_get((const vtss_inst_t)inst, &vtss_info, vtss_filter)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+        for (port_no = 0; port_no < cnt; port_no++) {
             mesa_conv_vtss_packet_port_filter_t_to_mesa_packet_port_filter_t(&vtss_filter[port_no], &filter[port_no]);
         }
     }
@@ -121,11 +93,11 @@ mesa_rc mesa_packet_vlan_filter_get(const mesa_inst_t         inst,
     vtss_port_no_t            port_no;
     vtss_packet_vlan_filter_t vtss_filter[VTSS_PORTS];
 
-    if (cnt != VTSS_PORTS) {
+    if (cnt > VTSS_PORTS) {
         return VTSS_RC_ERROR;
     }
     if ((rc = vtss_packet_vlan_filter_get((const vtss_inst_t)inst, vtss_filter)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+        for (port_no = 0; port_no < cnt; port_no++) {
             mesa_conv_vtss_packet_vlan_filter_t_to_mesa_packet_vlan_filter_t(&vtss_filter[port_no], &filter[port_no]);
         }
     }

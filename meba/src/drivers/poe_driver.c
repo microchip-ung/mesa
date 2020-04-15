@@ -1287,6 +1287,8 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t  *co
     char *swNum_ptr, *param_ptr;
     uint16_t new_sw_ver = 0;
     uint8_t  new_param = 0;
+    size_t   mapped_memory_size = 0;
+    char    *mapped_memory = NULL;
 
     int fd=-1;
 
@@ -1312,6 +1314,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t  *co
 
         if((fd = open(private_data->builtin_firmware,O_RDONLY)) < 0) {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Could not open %s for reading.\n", private_data->builtin_firmware );
+            return MESA_RC_ERROR;
         }
 
         if(fstat(fd,&st) < 0) {
@@ -1320,18 +1323,25 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t  *co
             close(fd);
             return MESA_RC_ERROR;
         }
-        if((microsemi_firmware = mmap(NULL,st.st_size,PROT_READ,MAP_PRIVATE,fd,0)) == MAP_FAILED) {
+        mapped_memory_size = (((st.st_size-1)/getpagesize())+1) * getpagesize(); // Round up
+
+        if((mapped_memory = mmap(NULL,mapped_memory_size,PROT_READ,MAP_PRIVATE,fd,0)) == MAP_FAILED) {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Could not map %s.\n", private_data->builtin_firmware );
         }
+        microsemi_firmware = mapped_memory;
 
     }
 
     swNum_ptr = strstr(microsemi_firmware, swNum);
     if (swNum_ptr && (swNum_ptr - microsemi_firmware) < MAX_FIRMWARE_HEADER_LEN) {
         swNum_ptr += strlen(swNum) + 1;
+        new_sw_ver = atoi(swNum_ptr);
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO,"Not able to read %s from upgrade image.\n", swNum );
         if (fd >= 0) {
+            if (mapped_memory) {
+                munmap(mapped_memory, mapped_memory_size);
+            }
             close(fd);
         }
         return false;
@@ -1340,20 +1350,24 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t  *co
     param_ptr = strstr(microsemi_firmware, param);
     if (param_ptr && (param_ptr - microsemi_firmware) < MAX_FIRMWARE_HEADER_LEN) {
         param_ptr += strlen(param) + 1;
+        new_param  = atoi(param_ptr);
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO,"Not able to read %s from upgrade image.\n", param );
         if (fd >= 0) {
+            if (mapped_memory) {
+                munmap(mapped_memory, mapped_memory_size);
+            }
             close(fd);
         }
         return false;
     }
 
     if (fd >= 0) {
+        if (mapped_memory) {
+            munmap(mapped_memory, mapped_memory_size);
+        }
         close(fd);
     }
-
-    new_sw_ver   = atoi(swNum_ptr);
-    new_param    = atoi(param_ptr);
 
     if (new_sw_ver == sw_version && new_param == param_number) {
         return true;
@@ -1442,6 +1456,8 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     uint8_t      line[LINE_SIZE_MAX];
     uint8_t      line_index;
     int          fd = -1;
+    size_t       mapped_memory_size = 0;
+    char         *mapped_memory = NULL;
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Enter %d",  __FUNCTION__, meba_poe_pd69200_get_chipset(inst));
 
@@ -1529,12 +1545,15 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
         }
         firmware_size = st.st_size;
 
-        if((microsemi_firmware = mmap(NULL,st.st_size,PROT_READ,MAP_PRIVATE,fd,0)) == MAP_FAILED) {
+        mapped_memory_size = (((st.st_size-1)/getpagesize())+1) * getpagesize(); // Round up
+
+        if((mapped_memory = mmap(NULL,mapped_memory_size,PROT_READ,MAP_PRIVATE,fd,0)) == MAP_FAILED) {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Could not map %s.\n",
                   private_data->builtin_firmware );
             close(fd);
             return MESA_RC_ERROR;
         }
+        microsemi_firmware = mapped_memory;
     }
 
     printf("\n\rUpdating PoE firmware...\n\r");
@@ -1628,6 +1647,9 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     meba_poe_pd69200_set_chipset(inst, MEBA_POE_CHIPSET_FOUND);
 
     if (fd >= 0) {
+        if (mapped_memory) {
+            munmap(mapped_memory, mapped_memory_size);
+         }
         close(fd);
     }
 
@@ -1890,7 +1912,6 @@ mesa_rc meba_poe_pd69200_ctrl_status_get(
 }
 
 
-
 // If we end up mapping two channels to the same port the "pd69200_program_global_matrix"
 // will not be executed (no errors will indicate this). To avoid this we start be mapping all channels
 // to a non-existing port (Ports above  48)
@@ -1914,7 +1935,7 @@ static mesa_rc pd69200_temp_matrix_set(
     for (uint8_t i = 0; i < inst->port_map_length; i++) {
         if (inst->port_map[i].capabilities & MEBA_POE_PORT_CAP_POE) {
             MESA_RC(meba_poe_pd69200_ctrl_set_temporary_matrix(
-                inst, inst->port_map[i].phys_port, i, 255));
+                inst, i, inst->port_map[i].phys_port_a, inst->port_map[i].phys_port_b));
         }
     }
     return MESA_RC_OK;
@@ -3139,6 +3160,9 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
     MESA_RC(meba_poe_pd69200_individual_mask_set(inst, SUPPORT_HIGH_RES_DETECTION, 1));
     // Enable port poe led.
     MESA_RC(meba_poe_pd69200_individual_mask_set(inst, LED_STREAM_TYPE, 2));
+    MESA_RC(pd69200_temp_matrix_init(inst));
+    MESA_RC(pd69200_temp_matrix_set(inst));
+    MESA_RC(pd69200_program_global_matrix(inst));
 
     return MESA_RC_OK;
 }

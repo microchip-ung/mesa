@@ -447,7 +447,9 @@ typedef struct {
     vtss_vid_t      vid;            /**< VLAN ID or VTSS_VID_NULL */
     vtss_fid_sel_t  fid_sel;        /**< FID Select */
     vtss_vid_t      fid_val;        /**< FID value */
-    BOOL            pcp_dei_enable; /**< Enable PCP and DEI classification */
+    BOOL            pcp_dei_enable; /**< Enable PCP and DEI classification (only for Luton26/Serval) */
+    BOOL            pcp_enable;     /**< Enable PCP classification (not supported for Luton26/Serval) */
+    BOOL            dei_enable;     /**< Enable DEI classification (not supported for Luton26/Serval) */
     vtss_tagprio_t  pcp;            /**< PCP value */
     vtss_dei_t      dei;            /**< DEI value */
     BOOL            host_match;     /**< Host match */
@@ -719,12 +721,11 @@ typedef struct {
     vtss_hacl_type_t type;
     vtss_hace_t      ace;
     u8               rng;     /* Range index */
-    u32              mask[2]; /* Port or router leg mask */
+    u32              mask[3]; /* Port or router leg mask */
 #else
     vtss_ace_t ace;          /* ACE structure */
 #endif
     BOOL       ipmc;         /* IPMC flag */
-    vtss_vcap_u128_t dip;    /* IPv6 DIP (all other fields encoded in ACE struct */
 } vtss_is2_entry_t;
 
 typedef struct {
@@ -1346,6 +1347,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_LPM)
     vtss_clm_info_t               lpm;
 #endif /* VTSS_FEATURE_LPM */
+    vtss_vcap_user_t              acl_user;
     vtss_acl_policer_conf_t       acl_policer_conf[VTSS_ACL_POLICERS];
 #if defined(VTSS_ARCH_LUTON26)
     vtss_policer_alloc_t          acl_policer_alloc[VTSS_ACL_POLICERS];

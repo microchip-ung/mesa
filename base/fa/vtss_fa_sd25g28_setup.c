@@ -372,11 +372,11 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_M_SD25G_TARGET_LANE_19_LN_CFG_TXLB_EN);
 
     REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(0),
+                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(res_struct->ln_cfg_rstn_dfedig[0]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG);
 
     REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(1),
+                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(res_struct->ln_cfg_rstn_dfedig[1]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG);
 
     REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
@@ -423,13 +423,21 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0x00),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_LANE_40_LN_R_DFE_RSTN(res_struct->ln_r_dfe_rstn[0]),
-                VTSS_M_SD25G_TARGET_LANE_40_LN_R_DFE_RSTN);
-
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_2A(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_2A_R_DBG_LOL_STATUS(0x1),
+                VTSS_M_SD25G_TARGET_CMU_2A_R_DBG_LOL_STATUS);
+
+    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_SER_RST(sd_lane_tgt),
+                VTSS_F_SD25G_CFG_TARGET_SD_SER_RST_SER_RST(0x0),
+                VTSS_M_SD25G_CFG_TARGET_SD_SER_RST_SER_RST);
+
+    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_DES_RST(sd_lane_tgt),
+                VTSS_F_SD25G_CFG_TARGET_SD_DES_RST_DES_RST(0x0),
+                VTSS_M_SD25G_CFG_TARGET_SD_DES_RST_DES_RST);
 
 
   return rc;

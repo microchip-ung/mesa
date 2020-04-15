@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21077,7 +21077,7 @@ static vtss_rc vtss_phy_ts_engine_generic_action_flow_conf_extract_from_hwpriv(
     BOOL *hw_update_reqd)
 {
     vtss_phy_ts_generic_action_t *sw_action;
-    vtss_phy_ts_generic_action_t flow_conf[6];
+    vtss_phy_ts_generic_action_t flow_conf[6] = {};
     u32 flow_id = 0, value, temp1, temp2, act_id;
 
     for (flow_id = 0; flow_id < 6; flow_id++) {
@@ -21920,9 +21920,9 @@ static void vtss_phy_ts_dis_ip_flow(vtss_phy_ts_ip_conf_t *ipconf, const vtss_de
 
             if (ipconf->comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_4) {
                 u8 *ptr = (u8 *) & (ipconf->flow_opt[tloop].ip_addr.ipv4.addr);
-                pr("IP :: %u.%u.%u.%u\n", *(ptr + BYTE_OFFSET(24)), *(ptr + BYTE_OFFSET(16)), *(ptr + BYTE_OFFSET(8)), *ptr);
+                pr("IP :: %u.%u.%u.%u\n", *(ptr + BYTE_OFFSET(24)), *(ptr + BYTE_OFFSET(16)), *(ptr + BYTE_OFFSET(8)), *(ptr + BYTE_OFFSET(0)));
                 ptr = (u8 *) & (ipconf->flow_opt[tloop].ip_addr.ipv4.mask);
-                pr("IP Mask :: %u.%u.%u.%u\n", *(ptr + BYTE_OFFSET(24)), *(ptr + BYTE_OFFSET(16)), *(ptr + BYTE_OFFSET(8)), *ptr);
+                pr("IP Mask :: %u.%u.%u.%u\n", *(ptr + BYTE_OFFSET(24)), *(ptr + BYTE_OFFSET(16)), *(ptr + BYTE_OFFSET(8)), *(ptr + BYTE_OFFSET(0)));
 
             } else if (ipconf->comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_6) {
                 u8 *ptr = (u8 *) ipconf->flow_opt[tloop].ip_addr.ipv6.addr;
@@ -21930,13 +21930,13 @@ static void vtss_phy_ts_dis_ip_flow(vtss_phy_ts_ip_conf_t *ipconf, const vtss_de
                    *(ptr + BYTE_OFFSET((15 * 8))), *(ptr + BYTE_OFFSET((14 * 8))), *(ptr + BYTE_OFFSET((13 * 8))), *(ptr + BYTE_OFFSET((12 * 8))),
                    *(ptr + BYTE_OFFSET((11 * 8))), *(ptr + BYTE_OFFSET((10 * 8))), *(ptr + BYTE_OFFSET((9 * 8))), *(ptr + BYTE_OFFSET((8 * 8))),
                    *(ptr + BYTE_OFFSET((7 * 8))), *(ptr + BYTE_OFFSET((6 * 8))), *(ptr + BYTE_OFFSET((5 * 8))), *(ptr + BYTE_OFFSET((4 * 8))),
-                   *(ptr + BYTE_OFFSET((3 * 8))), *(ptr + BYTE_OFFSET((2 * 8))), *(ptr + BYTE_OFFSET(8)), *ptr);
+                   *(ptr + BYTE_OFFSET((3 * 8))), *(ptr + BYTE_OFFSET((2 * 8))), *(ptr + BYTE_OFFSET(8)), *(ptr + BYTE_OFFSET(0)));
                 ptr = (u8 *) ipconf->flow_opt[tloop].ip_addr.ipv6.mask;
                 pr("IP6 mask :: %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n",
                    *(ptr + BYTE_OFFSET((15 * 8))), *(ptr + BYTE_OFFSET((14 * 8))), *(ptr + BYTE_OFFSET((13 * 8))), *(ptr + BYTE_OFFSET((12 * 8))),
                    *(ptr + BYTE_OFFSET((11 * 8))), *(ptr + BYTE_OFFSET((10 * 8))), *(ptr + BYTE_OFFSET((9 * 8))), *(ptr + BYTE_OFFSET((8 * 8))),
                    *(ptr + BYTE_OFFSET((7 * 8))), *(ptr + BYTE_OFFSET((6 * 8))), *(ptr + BYTE_OFFSET((5 * 8))), *(ptr + BYTE_OFFSET((4 * 8))),
-                   *(ptr + BYTE_OFFSET((3 * 8))), *(ptr + BYTE_OFFSET((2 * 8))), *(ptr + BYTE_OFFSET(8)), *ptr);
+                   *(ptr + BYTE_OFFSET((3 * 8))), *(ptr + BYTE_OFFSET((2 * 8))), *(ptr + BYTE_OFFSET(8)), *(ptr + BYTE_OFFSET(0)));
 
             }
 

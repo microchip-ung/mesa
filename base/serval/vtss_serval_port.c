@@ -258,7 +258,7 @@ static vtss_rc srvl_sd1g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_DET_LEV(3) |
              (ena_dc_coupling ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_DC_COUPLING : 0) |
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_EQ_GAIN(2) |
-             cmv_term ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_CMV_TERM : 0,
+             (cmv_term ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_CMV_TERM : 0),
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_FX100_ENA |
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_ENA_DETLEV |
              VTSS_M_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG_IB_DET_LEV |
@@ -2681,6 +2681,9 @@ static vtss_rc srvl_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
     u32                   inst, addr, port = VTSS_CHIP_PORT(port_no);
     BOOL                  serdes6g;
+    vtss_port_lb_t        lb = vtss_state->port.test_conf[port_no].loopback;
+    vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
+    u32                   tgt = VTSS_TO_DEV(port);
 
     if (srvl_serdes_inst_get(vtss_state, port, &inst, &serdes6g) != VTSS_RC_OK || inst == SRVL_SERDES_INST_NONE) {
         return VTSS_RC_OK;
@@ -2691,6 +2694,24 @@ static vtss_rc srvl_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port
         VTSS_RC(srvl_sd6g_cfg(vtss_state, port_no, addr));
     } else {
         VTSS_RC(srvl_sd1g_cfg(vtss_state, port_no, addr));
+    }
+
+        // Disable signal detect during loopback
+    if (lb == VTSS_PORT_LB_DISABLED) {
+        SRVL_WRM(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                 0,
+                 VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
+        SRVL_WRM(VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                 0,
+                 VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
+
+    } else {
+        SRVL_WRM(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                 (conf->sd_enable ? VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA : 0),
+                 VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
+        SRVL_WRM(VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                 (conf->sd_enable ? VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA : 0),
+                 VTSS_F_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
     }
 #endif
     return VTSS_RC_OK;

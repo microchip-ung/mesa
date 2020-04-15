@@ -134,7 +134,14 @@ static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state,
                                         const vtss_fan_conf_t *const spec)
 {
     u32 pwm_freq;
-    u32 system_clock_freq = 200000000; // TBD-BJO
+    u32 system_clock_freq = 625000000;
+    vtss_core_clock_freq_t freq = vtss_state->init_conf.core_clock.freq;
+
+    if (freq == VTSS_CORE_CLOCK_250MHZ) {
+        system_clock_freq = 250000000;
+    } else if (freq == VTSS_CORE_CLOCK_500MHZ) {
+        system_clock_freq = 500000000;
+    }
 
     switch (spec->fan_pwm_freq) {
     case VTSS_FAN_PWM_FREQ_25KHZ: pwm_freq = 25000; break;
@@ -157,8 +164,10 @@ static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state,
 
     // Set PWM frequency (System clock frequency)/(PWM frequency)/256)
     REG_WRM(VTSS_DEVCPU_GCB_PWM_FREQ,
-            VTSS_F_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(system_clock_freq/pwm_freq/256),
-            VTSS_M_DEVCPU_GCB_PWM_FREQ_PWM_FREQ);
+            VTSS_F_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(system_clock_freq/pwm_freq/256) |
+            VTSS_F_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US(system_clock_freq/100000),
+            VTSS_M_DEVCPU_GCB_PWM_FREQ_PWM_FREQ |
+            VTSS_M_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US);
 
     // Set PWM polarity
     REG_WRM(VTSS_DEVCPU_GCB_FAN_CFG,
@@ -187,6 +196,7 @@ static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state,
                 0,
                 VTSS_M_DEVCPU_GCB_FAN_CFG_GATE_ENA);
     }
+
     return VTSS_RC_OK;
 }
 
@@ -228,8 +238,14 @@ static vtss_rc fa_fan_rotation_get(vtss_state_t *vtss_state, vtss_fan_conf_t *fa
 static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state,
                                     const BOOL enable)
 {
-    u32 system_clock_freq_in_1us = 250; // TBD-BJO
+    u32 system_clock_freq_in_1us = 625;
+    vtss_core_clock_freq_t freq = vtss_state->init_conf.core_clock.freq;
 
+    if (freq == VTSS_CORE_CLOCK_250MHZ) {
+        system_clock_freq_in_1us = 250;
+    } else if (freq == VTSS_CORE_CLOCK_500MHZ) {
+        system_clock_freq_in_1us = 500;
+    }
     // Clock cycles per us
     REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
             VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
@@ -246,18 +262,18 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state,
 static vtss_rc fa_temp_sensor_get(vtss_state_t *vtss_state,
                                    i16  *temp_celsius)
 {
-    u32 status = 0;
-    REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &status);
+    u32 val;
+    REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &val);
 
     // Check if the data is valid.
-    if (status & VTSS_M_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID) {
-        return VTSS_RC_OK;
+    if (!VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+        return VTSS_RC_ERROR;
     }
 
-    // See data-sheet section 'Temperature Sensor'
-    *temp_celsius = (197400 - 953 * (status & VTSS_M_HSIOWRAP_TEMP_SENSOR_STAT_TEMP))/1000;
+    // See VML:'
+    *temp_celsius = ((VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
 
-    return VTSS_RC_ERROR;
+    return VTSS_RC_OK;
 }
 
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
@@ -374,51 +390,39 @@ static vtss_rc fa_intr_pol_negation(vtss_state_t *vtss_state)
 
 #ifdef VTSS_FEATURE_IRQ_CONTROL
 
-// #define FA_IRQ_DEV_ALL    (0) Not supported pt.
-#define FA_IRQ_EXT0          (1)
-#define FA_IRQ_EXT1          (2)
-#define FA_IRQ_TIMER0        (3)
-#define FA_IRQ_TIMER1        (4)
-#define FA_IRQ_TIMER2        (5)
-#define FA_IRQ_UART          (6)
-#define FA_IRQ_UART2         (7)
-#define FA_IRQ_TWI           (8)
-#define FA_IRQ_TWI2          (9)
-#define FA_IRQ_SIMC          (10)
-#define FA_IRQ_SW0           (11)
-#define FA_IRQ_SW1           (12)
-#define FA_IRQ_SGPIO         (13)
-#define FA_IRQ_SGPIO1        (14)
-#define FA_IRQ_SGPIO2        (15)
-#define FA_IRQ_GPIO          (16)
-#define FA_IRQ_MIIM0_INTR    (17)
-#define FA_IRQ_MIIM1_INTR    (18)
-#define FA_IRQ_MIIM2_INTR    (19)
-// #define FA_IRQ_FDMA       (20) Not supported pt.
-#define FA_IRQ_ANA           (21)
-#define FA_IRQ_PTP_RDY       (22)
-#define FA_IRQ_PTP_SYNC      (23)
-#define FA_IRQ_IGTR          (24)
-#define FA_IRQ_XTR_RDY       (25)
-#define FA_IRQ_INJ_RDY       (26)
-#define FA_IRQ_PCIE          (27)
-#define FA_IRQ_OAM_VOP       (28)
+#define FA_IRQ_DEV_ALL       (0)
+#define FA_IRQ_EXT0          (3)
+#define FA_IRQ_EXT1          (4)
+#define FA_IRQ_TIMER0        (9)
+#define FA_IRQ_TIMER1        (10)
+#define FA_IRQ_TIMER2        (11)
+#define FA_IRQ_UART          (12)
+#define FA_IRQ_UART2         (13)
+#define FA_IRQ_TWI           (14)
+#define FA_IRQ_TWI2          (15)
+#define FA_IRQ_SIMC          (16)
+#define FA_IRQ_SW0           (18)
+#define FA_IRQ_SW1           (19)
+#define FA_IRQ_SGPIO         (20)
+#define FA_IRQ_SGPIO1        (21)
+#define FA_IRQ_SGPIO2        (22)
+#define FA_IRQ_GPIO          (23)
+#define FA_IRQ_MIIM0_INTR    (24)
+#define FA_IRQ_MIIM1_INTR    (25)
+#define FA_IRQ_MIIM2_INTR    (26)
+#define FA_IRQ_ANA           (29)
+#define FA_IRQ_PTP_RDY       (30)
+#define FA_IRQ_PTP_SYNC      (31)
 
+#define FA_IRQ_DEST_EXT0      0 /* IRQ destination EXT0 */
+#define FA_IRQ_DEST_EXT1      1 /* IRQ destination EXT1 */
 
-#define FA_IRQ_DEST_CPU0      0 /* IRQ destination CPU0 */
-#define FA_IRQ_DEST_CPU1      1 /* IRQ destination CPU1 */
-#define FA_IRQ_DEST_EXT0      2 /* IRQ destination EXT0 */
-#define FA_IRQ_DEST_EXT1      3 /* IRQ destination EXT1 */
-
-#define IRQ_DEST(conf) ((u32) ((conf->external ? FA_IRQ_DEST_EXT0 : FA_IRQ_DEST_CPU0) + conf->destination))
+#define IRQ_DEST(conf) ((u32) (FA_IRQ_DEST_EXT0 + conf->destination))
 
 static vtss_rc fa_misc_irq_destination(vtss_state_t *vtss_state,
                                         u32 mask,
                                         u32 destination)
 {
-
-    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_CPU0), mask);
-    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_CPU1), mask);
     REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT0), mask);
     REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT1), mask);
     REG_WRM_SET(VTSS_CPU_DST_INTR_MAP(destination), mask);
@@ -474,9 +478,6 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t *vtss_state,
         rc = VTSS_RC_ERROR;
     } else {
         switch (irq) {
-            case VTSS_IRQ_XTR:
-                rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_XTR_RDY), conf);
-                break;
             case VTSS_IRQ_SOFTWARE:
                 rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_SW0)|VTSS_BIT(FA_IRQ_SW1), conf);
                 break;
@@ -497,9 +498,6 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t *vtss_state,
                 break;
             case VTSS_IRQ_EXT1:
                 rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_EXT1), conf);
-                break;
-            case VTSS_IRQ_OAM:
-                rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_OAM_VOP), conf);
                 break;
             case VTSS_IRQ_GPIO:
                 rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_GPIO), conf);
@@ -526,9 +524,8 @@ static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *s
         REG_RD(VTSS_CPU_PCIE_INTR_COMMON_CFG(0), &val);
         dest = VTSS_X_CPU_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL(val) == 0 ? FA_IRQ_DEST_EXT0 : FA_IRQ_DEST_EXT1;
     } else {
-        // When running on the internal CPU, FA_IRQ_DEST_CPU1 is - by convention and in
-        // agreement with the kernel - used in user-space.
-        dest = FA_IRQ_DEST_CPU1;
+        // Internal CPU interrupts are handled directly in the kernel through device tree
+        return VTSS_RC_OK;
     }
 
     REG_RD(VTSS_CPU_DST_INTR_MAP(dest), &uio_irqs);
@@ -559,12 +556,7 @@ static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *s
     }
 
     if (val & (VTSS_BIT(FA_IRQ_EXT1))) {
-        VTSS_I("val:0x%X", val);
         status->active |= VTSS_BIT(VTSS_IRQ_EXT1);
-    }
-
-    if (val & (VTSS_BIT(FA_IRQ_XTR_RDY))) {
-        status->active |= VTSS_BIT(VTSS_IRQ_XTR);
     }
 
     if(val & (VTSS_BIT(FA_IRQ_SW0)|VTSS_BIT(FA_IRQ_SW1))) {
@@ -577,10 +569,6 @@ static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *s
 
     if (val & (VTSS_BIT(FA_IRQ_PTP_SYNC))) {
         status->active |= VTSS_BIT(VTSS_IRQ_PTP_SYNC);
-    }
-
-    if (val & (VTSS_BIT(FA_IRQ_OAM_VOP))) {
-        status->active |= VTSS_BIT(VTSS_IRQ_OAM);
     }
 
     if (val & (VTSS_BIT(FA_IRQ_GPIO))) {
@@ -596,9 +584,6 @@ static vtss_rc fa_misc_irq_enable(vtss_state_t *vtss_state,
 {
     u32 mask = 0;
     switch (irq) {
-        case VTSS_IRQ_XTR:
-            mask = VTSS_BIT(FA_IRQ_XTR_RDY);
-            break;
         case VTSS_IRQ_SOFTWARE:
             mask = VTSS_BIT(FA_IRQ_SW0)|VTSS_BIT(FA_IRQ_SW1);
             break;
@@ -622,9 +607,6 @@ static vtss_rc fa_misc_irq_enable(vtss_state_t *vtss_state,
         case VTSS_IRQ_SGPIO2:
             mask = VTSS_BIT(FA_IRQ_SGPIO2);
             VTSS_D("enable:%d, mask:0x%X", enable, mask);
-            break;
-        case VTSS_IRQ_OAM:
-            mask = VTSS_BIT(FA_IRQ_OAM_VOP);
             break;
         case VTSS_IRQ_GPIO:
             mask = VTSS_BIT(FA_IRQ_GPIO);
@@ -1114,6 +1096,8 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->intr_cfg = fa_intr_cfg;
         state->intr_pol_negation = fa_intr_pol_negation;
 #ifdef VTSS_FEATURE_IRQ_CONTROL
+        /* Only external destinations (overlaid GPIOs) are configured here */
+        /* Interrupt to the internal CPU is configured in the linux kernel */
         state->irq_cfg = fa_misc_irq_cfg;
         state->irq_status = fa_misc_irq_status;
         state->irq_enable = fa_misc_irq_enable;

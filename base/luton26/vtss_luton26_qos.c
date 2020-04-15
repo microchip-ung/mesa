@@ -433,7 +433,7 @@ vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
     int pcp, dei, queue, class, dpl;
     u8 cost[6];
     vtss_l26_policer_conf_t pol_cfg;
-    u32  tag_remark_mode;
+    u32  tag_remark_mode, shaping_ena = 0, exs_ena = 0, avb_ena = 0, m;
     BOOL tag_default_dei;
 
     /* Port default PCP and DEI configuration */
@@ -506,29 +506,18 @@ vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
 
         L26_WR(VTSS_SYS_SCH_LB_LB_RATE(((9 * port) + queue)),
                VTSS_F_SYS_SCH_LB_LB_RATE_LB_RATE(MIN(0x7fff, VTSS_DIV64(((u64)conf->shaper_queue[queue].rate * 1000) + 100159, 100160))));
+        m = VTSS_BIT(queue);
+        shaping_ena |= (conf->shaper_queue[queue].rate == VTSS_BITRATE_DISABLED ? 0 : m);
+        exs_ena |= (conf->excess_enable[queue] ? m : 0);
+        avb_ena |= (conf->shaper_queue[queue].credit_enable ? m : 0);
     }
 
     /* Egress port and queue shaper enable/disable configuration */
     L26_WR(VTSS_SYS_SCH_SCH_SHAPING_CTRL(port),
-           VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PRIO_SHAPING_ENA(
-               (conf->shaper_queue[0].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(0) : 0) |
-               (conf->shaper_queue[1].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(1) : 0) |
-               (conf->shaper_queue[2].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(2) : 0) |
-               (conf->shaper_queue[3].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(3) : 0) |
-               (conf->shaper_queue[4].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(4) : 0) |
-               (conf->shaper_queue[5].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(5) : 0) |
-               (conf->shaper_queue[6].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(6) : 0) |
-               (conf->shaper_queue[7].rate != VTSS_BITRATE_DISABLED ? VTSS_BIT(7) : 0)) |
+           VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PRIO_SHAPING_ENA(shaping_ena) |
            (conf->shaper_port.rate != VTSS_BITRATE_DISABLED ? VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PORT_SHAPING_ENA : 0) |
-           VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PRIO_LB_EXS_ENA(
-               (conf->excess_enable[0] ? VTSS_BIT(0) : 0) |
-               (conf->excess_enable[1] ? VTSS_BIT(1) : 0) |
-               (conf->excess_enable[2] ? VTSS_BIT(2) : 0) |
-               (conf->excess_enable[3] ? VTSS_BIT(3) : 0) |
-               (conf->excess_enable[4] ? VTSS_BIT(4) : 0) |
-               (conf->excess_enable[5] ? VTSS_BIT(5) : 0) |
-               (conf->excess_enable[6] ? VTSS_BIT(6) : 0) |
-               (conf->excess_enable[7] ? VTSS_BIT(7) : 0)));
+           VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PRIO_LB_EXS_ENA(exs_ena) |
+           VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PRIO_LB_AVB_ENA(avb_ena));
 
     tag_remark_mode = conf->tag_remark_mode;
     tag_default_dei = (tag_remark_mode == VTSS_TAG_REMARK_MODE_DEFAULT ? 

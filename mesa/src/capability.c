@@ -59,14 +59,14 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN          3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX        207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
 #elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN     /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX     /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN    /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX    /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN   /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX   /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN  /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX  /* FA-FIXME */ 0
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN     /* FA-FIXME */       25 /* kbps.         1 *     25.040 =         25.040 bps.       */
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX     /* FA-FIXME */ 13128147 /* kbps.   0x7ffff *     25.040 = 13.128.146.480 bps.       */
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN    /* FA-FIXME */     8192 /* bytes.        1 *      8.192 =          8.192 bytes.     */
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX    /* FA-FIXME */   516096 /* bytes.     0x3f *      8.192 =        516.096 bytes.     */
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN   /* FA-FIXME */       10 /* fps.          1 *         10 =             10 fps.       */
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX   /* FA-FIXME */  5242870 /* fps.    0x7ffff *         10 =      5.242.870 fps.       */
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN  /* FA-FIXME */        3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX  /* FA-FIXME */      207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
 #else
 #error "Add architecture here!"
 #endif
@@ -99,10 +99,10 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN          4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX        258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN      /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX      /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN     /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX     /* FA-FIXME */ 0
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN      /* FA-FIXME */      100 /* kbps.         1 *    100.000 =        100.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX      /* FA-FIXME */ 13107100 /* kbps.   0x1ffff *    100.000 = 13.107.100.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN     /* FA-FIXME */     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX     /* FA-FIXME */   258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #else
 #error "Add architecture here!"
 #endif
@@ -145,14 +145,14 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
 #define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
 #elif defined(VTSS_ARCH_SPARX5) /* Same as port policer */
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN    /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX    /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN   /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX   /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN  /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX  /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN /* FA-FIXME */ 0
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX /* FA-FIXME */ 0
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
 #else
 #error "Add architecture here!"
 #endif
@@ -176,14 +176,14 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     0 /* undefined */
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     0 /* undefined */
 #elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN        /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX        /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN       /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX       /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN      /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX      /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     /* FA-FIXME */ 0
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     /* FA-FIXME */ 0
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN        /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX        /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN       /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX       /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN      /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX      /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
 #else
 #error "Add architecture here!"
 #endif
@@ -374,19 +374,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_MISC_SWITCH_BW:
         c = MESA_SWITCH_BW_UNKNOWN;
-#if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7546_04)
+#if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7546TSN)
         c = MESA_SWITCH_BW_64;
 #endif
-#if defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7549_04)
+#if defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7549TSN)
         c = MESA_SWITCH_BW_90;
 #endif
-#if defined(VTSS_CHIP_7552) || defined(VTSS_CHIP_7552_04)
+#if defined(VTSS_CHIP_7552) || defined(VTSS_CHIP_7552TSN)
         c = MESA_SWITCH_BW_128;
 #endif
-#if defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7556_04)
+#if defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7556TSN)
         c = MESA_SWITCH_BW_160;
 #endif
-#if defined(VTSS_CHIP_7558) || defined(VTSS_CHIP_7558_04)
+#if defined(VTSS_CHIP_7558) || defined(VTSS_CHIP_7558TSN)
         c = MESA_SWITCH_BW_200;
 #endif
         break;
@@ -610,7 +610,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_SFLOW_TESTED:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         // SFLOW has been tested on architecture
         c = 1;
 #endif
@@ -623,7 +623,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
-#if defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 32767;
 #elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
         c = 4096;
@@ -752,27 +752,33 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_QOS_QBV_GCE_CNT:
-#if defined(VTSS_FEATURE_QOS_QBV)
-        c = VTSS_QOS_QBV_GCL_LEN_MAX;
+    case MESA_CAP_QOS_TAS_GCE_CNT:
+#if defined(VTSS_FEATURE_QOS_TAS)
+        c = VTSS_QOS_TAS_GCL_LEN_MAX;
 #endif
         break;
 
-    case MESA_CAP_QOS_QBV_CT_MIN:
-#if defined(VTSS_FEATURE_QOS_QBV)
-        c = VTSS_QOS_QBV_CT_MIN;
+    case MESA_CAP_QOS_TAS_CT_MIN:
+#if defined(VTSS_FEATURE_QOS_TAS)
+        c = VTSS_QOS_TAS_CT_MIN;
 #endif
         break;
 
-    case MESA_CAP_QOS_QBV_CT_MAX:
-#if defined(VTSS_FEATURE_QOS_QBV)
-        c = VTSS_QOS_QBV_CT_MAX;
+    case MESA_CAP_QOS_TAS_CT_MAX:
+#if defined(VTSS_FEATURE_QOS_TAS)
+        c = VTSS_QOS_TAS_CT_MAX;
 #endif
         break;
 
-    case MESA_CAP_QOS_QBV_CTE_MAX:
-#if defined(VTSS_FEATURE_QOS_QBV)
-        c = VTSS_QOS_QBV_CTE_MAX;
+    case MESA_CAP_QOS_TAS_MAX_SDU_MAX:
+#if defined(VTSS_FEATURE_QOS_TAS)
+        c = VTSS_QOS_TAS_MAX_SDU_MAX;
+#endif
+        break;
+
+    case MESA_CAP_QOS_TAS_MAX_SDU_MIN:
+#if defined(VTSS_FEATURE_QOS_TAS)
+        c = VTSS_QOS_TAS_MAX_SDU_MIN;
 #endif
         break;
 
@@ -842,8 +848,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_QOS_QBV:
-#if defined(VTSS_FEATURE_QOS_QBV)
+    case MESA_CAP_QOS_TAS:
+#if defined(VTSS_FEATURE_QOS_TAS)
         c = 1;
 #endif
         break;
@@ -1068,6 +1074,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_DSCP_CNT;
         break;
 
+    case MESA_CAP_QOS_CPU_QUEUE_SHAPER:
+#if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
+        c = 1;
+#endif
+        break;
+
     // Security/ACL
     case MESA_CAP_ACL_POLICER_CNT:
         c = VTSS_ACL_POLICERS;
@@ -1166,6 +1178,18 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_ACL_HACL:
 #if defined(VTSS_FEATURE_HACL)
+        c = 1;
+#endif
+        break;
+
+    case MESA_CAP_ACL_EXT_DIP:
+#if defined(VTSS_FEATURE_ACL_EXT_DIP)
+        c = 1;
+#endif
+        break;
+
+    case MESA_CAP_ACL_EXT_MAC:
+#if defined(VTSS_FEATURE_ACL_EXT_MAC)
         c = 1;
 #endif
         break;

@@ -421,7 +421,8 @@ typedef struct {
     meba_poe_port_handle_t      handle;
 
     // Physical port (on the PoE chip).
-    uint32_t                    phys_port;
+    uint32_t                    phys_port_a;
+    uint32_t                    phys_port_b; // For 4-pair operation
 } meba_poe_port_properties_t;
 
 struct meba_poe_ctrl_api;

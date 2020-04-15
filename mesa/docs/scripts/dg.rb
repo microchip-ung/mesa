@@ -677,6 +677,7 @@ html += "  <title>MESA Doc</title>\n".b
 html += inline_css "./mesa/docs/resources/bootstrap.min.css"
 html += inline_css "./mesa/docs/resources/jquery-simpleTreeMenu.css"
 html += inline_css "./mesa/docs/resources/asciidoctor-default.css"
+html += inline_css "./mesa/docs/resources/mesa.css"
 
 html += "  <script type=\"text/javascript\">\n"
 html += "      FontAwesomeConfig = {\n"

@@ -1022,7 +1022,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
                                                          BOOL cu_sfp)
 {
     vtss_rc rc = VTSS_RC_OK;
-    vtss_phy_ts_overflow_info_t overflow_conf;
+    vtss_phy_ts_overflow_info_t overflow_conf = {};
     vtss_phy_ts_pop_fifo_t pop_fifo = {};
     u16 reg0, reg9, extreg29, reg23;
     VTSS_I("Enter vtss_phy_1588_oos_mitigation_steps_execute port_no %u mode of operation %s\n", port_no, copper? "Copper": "Fiber");

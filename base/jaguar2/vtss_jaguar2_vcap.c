@@ -1508,8 +1508,8 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
         JR2_ACT_ENA_SET(CLM, X2_COSID, 0, 0);
         JR2_ACT_ENA_SET(CLM, X2_QOS, action->prio_enable, action->prio);
         JR2_ACT_ENA_SET(CLM, X2_DP, action->dp_enable, action->dp);
-        JR2_ACT_ENA_SET(CLM, CLAS_DEI, action->pcp_dei_enable, action->dei);
-        JR2_ACT_ENA_SET(CLM, CLAS_PCP, action->pcp_dei_enable, action->pcp);
+        JR2_ACT_ENA_SET(CLM, CLAS_DEI, action->dei_enable, action->dei);
+        JR2_ACT_ENA_SET(CLM, CLAS_PCP, action->pcp_enable, action->pcp);
 #if defined(VTSS_ARCH_JAGUAR_2_B)
         JR2_ACT_ENA_SET(CLM, CLAS_VID, action->vid, action->vid);
 #else
@@ -1580,8 +1580,8 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
                 JR2_ACT_SET(CLM, X4_VID_VAL, ((action->vid == VTSS_VID_SECOND) || (action->vid == VTSS_VID_THIRD)) ? 0 : action->vid);
              }
 #endif /* VTSS_ARCH_JAGUAR_2_B */
-            JR2_ACT_ENA_SET(CLM, X4_PCP, action->pcp_dei_enable, action->pcp);
-            JR2_ACT_ENA_SET(CLM, X4_DEI, action->pcp_dei_enable, action->dei);
+            JR2_ACT_ENA_SET(CLM, X4_PCP, action->pcp_enable, action->pcp);
+            JR2_ACT_ENA_SET(CLM, X4_DEI, action->dei_enable, action->dei);
             JR2_ACT_ENA_SET(CLM, X4_POP, action->pop_enable, action->pop);
             JR2_ACT_SET(CLM, X4_RT_SEL, action->rt_sel);
             oam = (action->oam_detect == VTSS_OAM_DETECT_UNTAGGED ? 2 :
@@ -2483,7 +2483,7 @@ static vtss_rc jr2_is2_action_set(vtss_state_t *vtss_state, jr2_vcap_data_t *dat
         }
     }
     /* If forwarding disabled, avoid CPU copy and signal ACL drop */
-    JR2_ACT_SET(IS2, CPU_DIS, discard);
+    JR2_ACT_SET(IS2, CPU_DIS, discard || action->cpu_disable ? 1 : 0);
     match_id = (JR2_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0));
     match_mask = match_id;
     JR2_ACT_SET(IS2, LRN_DIS, action->learn ? 0 : 1);
@@ -2603,7 +2603,8 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     vtss_is2_entry_t       *entry = is2->entry;
     vtss_ace_t             *ace = &entry->ace;
     vtss_port_no_t         port_no;
-    u32                    addr, port, i, value, type = IS2_X8_TYPE_ETYPE, mask = VTSS_BITMASK(IS2_KL_X8_TYPE);
+    u32                    addr, port, i, n, range, type = IS2_X8_TYPE_ETYPE, mask = VTSS_BITMASK(IS2_KL_X8_TYPE);
+    vtss_ace_frame_any_t   *any = &ace->frame.any;
     vtss_ace_frame_etype_t *etype = &ace->frame.etype;
     vtss_ace_frame_llc_t   *llc = &ace->frame.llc;
     vtss_ace_frame_snap_t  *snap = &ace->frame.snap;
@@ -2612,12 +2613,16 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     vtss_ace_frame_ipv6_t  *ipv6 = &ace->frame.ipv6;
     vtss_vcap_u8_t         *proto = NULL, policy = ace->policy;
     vtss_vcap_udp_tcp_t    *sport, *dport;
+    vtss_vcap_vid_t        sp, dp;
+    vtss_vcap_u128_t       sip, dip;
+    u8                     m;
     vtss_ace_u32_t         *ptp;
     BOOL                   tcp, found = 0;
     vtss_vcap_bit_t        oam;
 
     memset(&data, 0, sizeof(data));
-    data.tg = (vcap_data->key_size == VTSS_VCAP_KEY_SIZE_HALF ? JR2_VCAP_TG_X8 : JR2_VCAP_TG_X4);
+    data.tg = (vcap_data->key_size == VTSS_VCAP_KEY_SIZE_FULL ? JR2_VCAP_TG_X16 :
+               vcap_data->key_size == VTSS_VCAP_KEY_SIZE_HALF ? JR2_VCAP_TG_X8 : JR2_VCAP_TG_X4);
     addr = jr2_vcap_entry_addr(vtss_state, VTSS_VCAP_TYPE_IS2, idx);
     VTSS_I("row: %u, col: %u, addr: %u, type: %u", idx->row, idx->col, addr, ace->type);
 
@@ -2632,7 +2637,7 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
             jr2_vcap_key_set(&data, IS2_KO_X8_TYPE, IS2_KL_X8_TYPE, IS2_X8_TYPE_IP6_VID, mask);
             jr2_vcap_key_bit_set(&data, IS2_KO_X8_FIRST, VTSS_VCAP_BIT_0);
             jr2_vcap_key_vid_set(&data, IS2_KO_IP6_VID_VID, &ace->vlan.vid);
-            jr2_vcap_key_u128_set(&data, IS2_KO_IP6_VID_DIP, &entry->dip);
+            jr2_vcap_key_u128_set(&data, IS2_KO_IP6_VID_DIP, &ipv6->dip);
             jr2_vcap_key_u128_set(&data, IS2_KO_IP6_VID_SIP, &ipv6->sip);
         }
         is2->cnt_id = (JR2_ACE_CNT_ID_BASE - 1); /* Common counter for all IPMC rules */
@@ -2640,19 +2645,131 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
         return jr2_vcap_entry_cmd(vtss_state, &data, addr, data.tg, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ALL);
     }
 
-    /* Determine type and mask */
+    policy.mask &= VTSS_ACL_POLICY_NO_MAX;
+    if (ace->type == VTSS_ACE_TYPE_IPV4) {
+        /* IPv4 */
+        proto = &ipv4->proto;
+        sport = &ipv4->sport;
+        dport = &ipv4->dport;
+        ptp = (ipv4->ptp.enable ? &ipv4->ptp.header : NULL);
+    } else {
+        /* IPv6 */
+        ipv4 = NULL;
+        proto = &ipv6->proto;
+        sport = &ipv6->sport;
+        dport = &ipv6->dport;
+        ptp = (ipv6->ptp.enable ? &ipv6->ptp.header : NULL);
+    }
+    sp.value = sport->low;
+    sp.mask = (sport->in_range && sport->low == sport->high ? 0xffff : 0);
+    dp.value = dport->low;
+    dp.mask = (dport->in_range && dport->low == dport->high ? 0xffff : 0);
+    range = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
+             (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
+
+    if (data.tg == JR2_VCAP_TG_X16) {
+        jr2_vcap_key_set(&data, IS2_KO_X16_TYPE, IS2_KL_X16_TYPE, IS2_X16_TYPE_IP7_TUPLE, 0x3);
+        jr2_vcap_key_bit_set(&data, IS2_KO_X16_FIRST, VTSS_VCAP_BIT_1);
+        jr2_vcap_key_u8_set(&data, IS2_KO_X16_PAG, &policy);
+        jr2_vcap_key_set(&data, IS2_KO_X16_PORT_SEL, IS2_KL_X16_PORT_SEL, 0, 0x3);
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (ace->port_list[port_no] == 0) {
+                port = VTSS_CHIP_PORT(port_no);
+                jr2_vcap_key_bit_set(&data, IS2_KO_X16_PORT_MASK + port, VTSS_VCAP_BIT_0);
+            }
+        }
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_L2_MC, ace->dmac_mc);
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_L2_BC, ace->dmac_bc);
+        jr2_vcap_key_bit_set(&data, IS2_KO_X16_SERVICE_FRM, VTSS_VCAP_BIT_ANY);
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_VLAN_TAGGED, ace->vlan.tagged);
+        jr2_vcap_key_vid_set(&data, IS2_KO_X16_VID, &ace->vlan.vid);
+        jr2_vcap_key_u3_set(&data, IS2_KO_X16_PCP, &ace->vlan.usr_prio);
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_DEI, ace->vlan.cfi);
+        if (is2->entry->host_match) {
+            /* Host match for IPv4 */
+            jr2_vcap_key_bit_set(&data, IS2_KO_X16_SMAC_SIP, VTSS_VCAP_BIT_1);
+        }
+        jr2_vcap_key_u48_set(&data, IS2_KO_X16_DMAC, ipv4 ? &ipv4->dmac : &ipv6->dmac);
+        jr2_vcap_key_u48_set(&data, IS2_KO_X16_SMAC, ipv4 ? &ipv4->smac : &ipv6->smac);
+        jr2_vcap_key_bit_set(&data, IS2_KO_X16_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_TTL, ipv4 ? ipv4->ttl : ipv6->ttl);
+        if (ipv4) {
+            /* IPv4 */
+            memset(&sip, 0, sizeof(sip));
+            memset(&dip, 0, sizeof(dip));
+            if (ipv4->fragment != VTSS_ACE_BIT_ANY) {
+                // DIP bit 127 is L3_FRAGMENT
+                m = (1 << 7);
+                dip.value[0] |= (ipv4->fragment == VTSS_ACE_BIT_1 ? m : 0);
+                dip.mask[0] |= m;
+            }
+            if (ipv4->options != VTSS_ACE_BIT_ANY) {
+                // DIP bit 125 is L3_OPTIONS
+                m = (1 << 5);
+                dip.value[0] |= (ipv4->options == VTSS_ACE_BIT_1 ? m : 0);
+                dip.mask[0] |= m;
+            }
+            for (i = 12; i < 16; i++) {
+                n = (15 - i)*8;
+                sip.value[i] = ((ipv4->sip.value >> n) & 0xff);
+                sip.mask[i] = ((ipv4->sip.mask >> n) & 0xff);
+                dip.value[i] = ((ipv4->dip.value >> n) & 0xff);
+                dip.mask[i] = ((ipv4->dip.mask >> n) & 0xff);
+            }
+        } else {
+            /* IPv6 */
+            sip = ipv6->sip;
+            dip = ipv6->dip;
+        }
+        jr2_vcap_key_u8_set(&data, IS2_KO_X16_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
+        jr2_vcap_key_u128_set(&data, IS2_KO_X16_DIP, &dip);
+        jr2_vcap_key_u128_set(&data, IS2_KO_X16_SIP, &sip);
+        jr2_ace_key_bit_set(&data, IS2_KO_X16_DIP_EQ_SIP, ipv4 ? ipv4->sip_eq_dip : ipv6->sip_eq_dip);
+
+        if (vtss_vcap_udp_tcp_rule(proto)) {
+            /* UDP/TCP protocol match */
+            tcp = (proto->value == 6 ? 1 : 0);
+            jr2_vcap_key_bit_set(&data, IS2_KO_X16_TCP_UDP, VTSS_VCAP_BIT_1);
+            jr2_vcap_key_bit_set(&data, IS2_KO_X16_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+            jr2_vcap_key_set(&data, IS2_KO_X16_DPORT, IS2_KL_X16_DPORT, dp.value, dp.mask);
+            jr2_vcap_key_set(&data, IS2_KO_X16_SPORT, IS2_KL_X16_SPORT, sp.value, sp.mask);
+            jr2_vcap_key_set(&data, IS2_KO_X16_RANGE, IS2_KL_X16_RANGE, range, range);
+            jr2_ace_key_bit_set(&data, IS2_KO_X16_SP_EQ_DP, ipv4 ? ipv4->sport_eq_dport : ipv6->sport_eq_dport);
+            if (tcp) {
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_SEQ_EQ0, ipv4 ? ipv4->seq_zero : ipv6->seq_zero);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_FIN, ipv4 ? ipv4->tcp_fin : ipv6->tcp_fin);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_SYN, ipv4 ? ipv4->tcp_syn : ipv6->tcp_syn);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_RST, ipv4 ? ipv4->tcp_rst : ipv6->tcp_rst);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_PSH, ipv4 ? ipv4->tcp_psh : ipv6->tcp_psh);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_ACK, ipv4 ? ipv4->tcp_ack : ipv6->tcp_ack);
+                jr2_ace_key_bit_set(&data, IS2_KO_X16_URG, ipv4 ? ipv4->tcp_urg : ipv6->tcp_urg);
+            }
+            if (ptp != NULL) {
+                jr2_is2_ptp_key_set(&data, IS2_KO_X16_PAYLOAD, ptp);
+            }
+        } else if (proto->mask) {
+            /* Non-UDP/TCP protocol match */
+            jr2_vcap_key_bit_set(&data, IS2_KO_X16_TCP_UDP, VTSS_VCAP_BIT_0);
+            jr2_vcap_key_set(&data, IS2_KO_X16_DPORT, IS2_KL_X16_DPORT, proto->value, proto->mask);
+            jr2_vcap_key_u48_set(&data, IS2_KO_X16_PAYLOAD + 16, ipv4 ? &ipv4->data : &ipv6->data);
+        }
+        VTSS_RC(jr2_is2_action_set(vtss_state, &data, &ace->action, is2->cnt_id, counter));
+        return jr2_vcap_entry_cmd(vtss_state, &data, addr, data.tg, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ALL);
+    }
+
+    /* Half rule, determine type and mask */
     switch (ace->type) {
     case VTSS_ACE_TYPE_ANY:
         for (i = 0; i < 6; i++) {
-            if (etype->dmac.mask[i] != 0 || etype->smac.mask[i] != 0) {
+            if (any->dmac.mask[i] != 0 || any->smac.mask[i] != 0) {
                 found = 1;
                 break;
             }
         }
         if (found) {
             /* Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering */
-            jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_DMAC, &etype->dmac);
-            jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_SMAC, &etype->smac);
+            jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_DMAC, &any->dmac);
+            jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_SMAC, &any->smac);
         } else {
             /* Match all frames */
             mask = 0;
@@ -2707,23 +2824,14 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
         break;
     case VTSS_ACE_TYPE_IPV4:
     case VTSS_ACE_TYPE_IPV6:
-        if (ace->type == VTSS_ACE_TYPE_IPV4) {
+        if (ipv4) {
             /* IPv4 */
-            proto = &ipv4->proto;
-            sport = &ipv4->sport;
-            dport = &ipv4->dport;
-            ptp = (ipv4->ptp.enable ? &ipv4->ptp.header : NULL);
             jr2_vcap_key_bit_set(&data, IS2_KO_IP4_IP4, VTSS_VCAP_BIT_1);
             jr2_ace_key_bit_set(&data, IS2_KO_IP4_FRAGMENT, ipv4->fragment);
             jr2_ace_key_bit_set(&data, IS2_KO_IP4_OPTIONS, ipv4->options);
             jr2_ace_key_bit_set(&data, IS2_KO_IP4_TTL, ipv4->ttl);
         } else {
             /* IPv6 */
-            ipv4 = NULL;
-            proto = &ipv6->proto;
-            sport = &ipv6->sport;
-            dport = &ipv6->dport;
-            ptp = (ipv6->ptp.enable ? &ipv6->ptp.header : NULL);
             jr2_vcap_key_bit_set(&data, IS2_KO_IP4_IP4, VTSS_VCAP_BIT_0);
             jr2_ace_key_bit_set(&data, IS2_KO_IP4_TTL, ipv6->ttl);
         }
@@ -2742,13 +2850,9 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
             type = IS2_X8_TYPE_IP_UDP_TCP;
             tcp = (proto->value == 6 ? 1 : 0);
             jr2_vcap_key_bit_set(&data, IS2_KO_IP4_TU_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
-            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_DPORT, IS2_KL_IP4_TU_DPORT,
-                             dport->low, dport->in_range && dport->low == dport->high ? 0xffff : 0);
-            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_SPORT, IS2_KL_IP4_TU_SPORT,
-                             sport->low, sport->in_range && sport->low == sport->high ? 0xffff : 0);
-            value = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
-                     (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
-            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_RANGE, IS2_KL_IP4_TU_RANGE, value, value);
+            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_DPORT, IS2_KL_IP4_TU_DPORT, dp.value, dp.mask);
+            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_SPORT, IS2_KL_IP4_TU_SPORT, sp.value, sp.mask);
+            jr2_vcap_key_set(&data, IS2_KO_IP4_TU_RANGE, IS2_KL_IP4_TU_RANGE, range, range);
             jr2_ace_key_bit_set(&data, IS2_KO_IP4_TU_SP_EQ_DP, ipv4 ? ipv4->sport_eq_dport : ipv6->sport_eq_dport);
             if (tcp) {
                 jr2_ace_key_bit_set(&data, IS2_KO_IP4_TU_SEQ_EQ0, ipv4 ? ipv4->seq_zero : ipv6->seq_zero);
@@ -2781,7 +2885,6 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     /* Common key fields */
     jr2_vcap_key_set(&data, IS2_KO_X8_TYPE, IS2_KL_X8_TYPE, type, mask);
     jr2_vcap_key_bit_set(&data, IS2_KO_X8_FIRST, VTSS_VCAP_BIT_1);
-    policy.mask &= VTSS_ACL_POLICY_NO_MAX;
     jr2_vcap_key_u8_set(&data, IS2_KO_X8_PAG, &policy);
     jr2_vcap_key_set(&data, IS2_KO_X8_PORT_SEL, IS2_KL_X8_PORT_SEL, 0, 0x3);
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
@@ -2927,6 +3030,63 @@ static vtss_rc jr2_debug_is2(vtss_state_t *vtss_state, jr2_vcap_data_t *data)
         JR2_DEBUG_BITS(IS2, "sip", X4_SIP);
         return VTSS_RC_OK;
     }
+
+    if (data->tg == JR2_VCAP_TG_X16) {
+        JR2_DEBUG_BITS(IS2, "type", X16_TYPE);
+        type = jr2_entry_bs_get(data, IS2_KO_X16_TYPE, IS2_KL_X16_TYPE);
+        pr("(%s) ",
+           type == IS2_X16_TYPE_IP7_TUPLE ? "ip7_tuple" :
+           type == IS2_X16_TYPE_CUSTOM_1 ? "custom_2" : "?");
+        JR2_DEBUG_BITS(IS2, "first", X16_FIRST);
+        JR2_DEBUG_BITS(IS2, "pag", X16_PAG);
+        JR2_DEBUG_BITS(IS2, "igr_sel", X16_PORT_SEL);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "igr_mask", X16_PORT_MASK);
+        JR2_DEBUG_BITS(IS2, "l2_mc", X16_L2_MC);
+        JR2_DEBUG_BITS(IS2, "l2_bc", X16_L2_BC);
+        JR2_DEBUG_BITS(IS2, "service_frm", X16_SERVICE_FRM);
+        JR2_DEBUG_BITS(IS2, "l2_fwd", X16_L2_FWD);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "tagged", X16_VLAN_TAGGED);
+        JR2_DEBUG_BITS(IS2, "vid", X16_VID);
+        JR2_DEBUG_BITS(IS2, "pcp", X16_PCP);
+        JR2_DEBUG_BITS(IS2, "dei", X16_DEI);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "smac_sip", X16_SMAC_SIP);
+        JR2_DEBUG_BITS(IS2, "dmac_dip", X16_DMAC_DIP);
+        if (type != IS2_X16_TYPE_IP7_TUPLE) {
+            return VTSS_RC_OK;
+        }
+        JR2_DEBUG_BITS(IS2, "l3_rt", X16_L3_RT);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "dmac", X16_DMAC);
+        JR2_DEBUG_BITS(IS2, "smac", X16_SMAC);
+        JR2_DEBUG_BITS(IS2, "ip4", X16_IP4);
+        JR2_DEBUG_BITS(IS2, "ttl", X16_TTL);
+        JR2_DEBUG_BITS(IS2, "tos", X16_TOS);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "dip", X16_DIP);
+        JR2_DEBUG_BITS(IS2, "sip", X16_SIP);
+        JR2_DEBUG_BITS(IS2, "dip_eq_sip", X16_DIP_EQ_SIP);
+        JR2_DEBUG_BITS(IS2, "tcp_udp", X16_TCP_UDP);
+        JR2_DEBUG_BITS(IS2, "tcp", X16_TCP);
+        JR2_DEBUG_BITS(IS2, "dport", X16_DPORT);
+        JR2_DEBUG_BITS(IS2, "sport", X16_SPORT);
+        JR2_DEBUG_BITS(IS2, "range", X16_RANGE);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "sp_eq_dp", X16_SP_EQ_DP);
+        JR2_DEBUG_BITS(IS2, "seq_eq0", X16_SEQ_EQ0);
+        JR2_DEBUG_BITS(IS2, "fin", X16_FIN);
+        JR2_DEBUG_BITS(IS2, "syn", X16_SYN);
+        JR2_DEBUG_BITS(IS2, "rst", X16_RST);
+        JR2_DEBUG_BITS(IS2, "psh", X16_PSH);
+        JR2_DEBUG_BITS(IS2, "ack", X16_ACK);
+        JR2_DEBUG_BITS(IS2, "urg", X16_URG);
+        pr("\n");
+        JR2_DEBUG_BITS(IS2, "payload", X16_PAYLOAD);
+        return VTSS_RC_OK;
+    }
+
     if (data->tg != JR2_VCAP_TG_X8) {
         VTSS_E("not TG_X8: %u", data->tg);
         return VTSS_RC_ERROR;
@@ -3643,7 +3803,7 @@ static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
     jr2_vcap_data_t      vcap_data, *data = &vcap_data;
     u32                  addr, lookup = 0x01, port = VTSS_CHIP_PORT(port_no);
-    u32                  mask, enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
+    u32                  ipv4, ipv6, value, mask, enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
 
     /* PAG setup in CLM_A */
     memset(data, 0, sizeof(*data));
@@ -3657,13 +3817,22 @@ static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     JR2_ACT_SET(CLM, X4_PAG, 0x80 | (enable ? conf->policy_no : 0)); /* PAG(7) indicates IS2 VID filtering */
     VTSS_RC(jr2_vcap_entry_cmd(vtss_state, data, addr, data->type, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ACTION));
 
-    /* Enable/disable IS2 lookup */
-    mask = (VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP6_TCPUDP_OTHER_ENA(lookup) |
-            VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP4_TCPUDP_ENA(lookup) |
-            VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP4_OTHER_ENA(lookup) |
-            VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_ARP_ENA(lookup) |
-            VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_ENA(lookup));
-    JR2_WRM(VTSS_ANA_ACL_VCAP_S2_VCAP_S2_CFG(port), enable ? mask : 0, mask);
+    // IPv4 and IPv6 keys can not be controlled completely independently, but 8 of 9 combinations will be correct.
+    // The combination not working is (ipv4, ipv6) = (ETYPE, DEF), which will be (ipv4, ipv6) = (ETYPE, ETYPE).
+    ipv4 = (conf->key.ipv4 == VTSS_ACL_KEY_EXT ? 2 : conf->key.ipv4 == VTSS_ACL_KEY_DEFAULT ? 1 : 0);
+    ipv6 = (conf->key.ipv6 == VTSS_ACL_KEY_EXT ? 1 : 0);
+    JR2_WR(VTSS_ANA_ACL_PORT_VCAP_S2_KEY_SEL(port, lookup - 1),
+           VTSS_F_ANA_ACL_PORT_VCAP_S2_KEY_SEL_IP4_MC_KEY_SEL(ipv4) |
+           VTSS_F_ANA_ACL_PORT_VCAP_S2_KEY_SEL_IP4_UC_KEY_SEL(ipv4) |
+           VTSS_F_ANA_ACL_PORT_VCAP_S2_KEY_SEL_IP6_MC_KEY_SEL(ipv6) |
+           VTSS_F_ANA_ACL_PORT_VCAP_S2_KEY_SEL_IP6_UC_KEY_SEL(ipv6) |
+           VTSS_F_ANA_ACL_PORT_VCAP_S2_KEY_SEL_ARP_KEY_SEL(conf->key.arp == VTSS_ACL_KEY_ETYPE ? 0 : 1));
+    ipv4 = (conf->key.ipv4 == VTSS_ACL_KEY_ETYPE || conf->key.ipv6 == VTSS_ACL_KEY_ETYPE ? 0 : 1);
+    value = (VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP6_TCPUDP_OTHER_ENA(lookup) |
+             VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP4_TCPUDP_ENA(lookup) |
+             VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP4_OTHER_ENA(lookup));
+    mask = VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_ENA(lookup);
+    JR2_WRM(VTSS_ANA_ACL_VCAP_S2_VCAP_S2_CFG(port), (ipv4 ? value : 0) | (enable ? mask : 0), value | mask);
 
     /* Setup action */
     memset(data, 0, sizeof(*data));
@@ -3710,13 +3879,11 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
 
-    if (vtss_state->misc.jr2_a) {
-        /* Revision A, use full entries encoded as X8 entries */
+    key_size = VTSS_VCAP_KEY_SIZE_HALF;
+    key_lpm = VTSS_VCAP_KEY_SIZE_SIXTEENTH;
+    if (ace->type_ext && (ace->type == VTSS_ACE_TYPE_IPV4 || ace->type == VTSS_ACE_TYPE_IPV6)) {
+        /* Encode as IPv4/IPv6 full rule */
         key_size = VTSS_VCAP_KEY_SIZE_FULL;
-        key_lpm = VTSS_VCAP_KEY_SIZE_FULL;
-    } else {
-        key_size = VTSS_VCAP_KEY_SIZE_HALF;
-        key_lpm = VTSS_VCAP_KEY_SIZE_SIXTEENTH;
     }
 
     /* Check that entry can be added */

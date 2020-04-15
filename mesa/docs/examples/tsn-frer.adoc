@@ -1,0 +1,19 @@
+:sectnums:
+
+== TSN FRER Example
+
+The FRER example shows how to setup sequence generation and recovery using three different ports.
+Stream Identification is done based on DMAC matching. All streams are classified to VLAN 10,
+which includes the three ports:
+
+* Untagged port:
+** Ingress frames to DMAC 00:00:00:00:00:02 are mapped to an ingress flow with sequence generation.
+** Egress frames for VLAN 10 are untagged.
+* R-tagged port:
+** Ingress frames to DMAC 00:00:00:00:00:01 are mapped to a Member Stream towards the untagged port.
+** Egress frames for VLAN 10 are R-tagged.
+* C-tagged port:
+** Ingress frames to DMAC 00:00:00:00:00:01 are mapped to a Member Stream towards the untagged port.
+** Egress frames for VLAN 10 are C-tagged and R-tagged.
+
+The Member Streams from the R-tagged and C-tagged ports map to a Compound Stream with Sequence Recovery.

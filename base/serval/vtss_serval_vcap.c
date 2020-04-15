@@ -2157,16 +2157,18 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
 {
     const tcam_props_t    *tcam = &tcam_info[VTSS_TCAM_IS2];
     srvl_tcam_data_t      tcam_data, *data = &tcam_data;
-    u32                   type, i, x, value = 0, mask, count, type_mask = VTSS_BITMASK(IS2_HKL_TYPE);
+    u32                   type, i, x, mask, count, type_mask = VTSS_BITMASK(IS2_HKL_TYPE);
+    u32                   range, ptp_vm[2];
     vtss_is2_data_t       *is2 = &vcap_data->u.is2;
     vtss_ace_t            *ace = &is2->entry->ace;
-    vtss_ace_frame_ipv4_t *ipv4 = NULL;
-    vtss_ace_frame_ipv6_t *ipv6 = NULL;
+    vtss_ace_frame_ipv4_t *ipv4 = &ace->frame.ipv4;
+    vtss_ace_frame_ipv6_t *ipv6 = &ace->frame.ipv6;
     vtss_vcap_bit_t       ttl, tcp_fin, tcp_syn, tcp_rst, tcp_psh, tcp_ack, tcp_urg;
-    vtss_vcap_bit_t       fragment, options, sip_eq_dip, sport_eq_dport, seq_zero;
+    vtss_vcap_bit_t       fragment, options, sip_eq_dip, sport_eq_dport, seq_zero, service_frm;
     vtss_vcap_u8_t        *proto = NULL, *ds;
-    vtss_vcap_u48_t       *ip_data, smac;
+    vtss_vcap_u48_t       *ip_data, *smac = NULL, *dmac = NULL, smac_data;
     vtss_vcap_udp_tcp_t   *sport, *dport;
+    vtss_vcap_vid_t       sp, dp;
     vtss_ace_ptp_t        *ptp;
     u8                    *p, val[7], msk[7];
     vtss_vcap_ip_t        sip;
@@ -2180,10 +2182,6 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
     if (idx->key_size == VTSS_VCAP_KEY_SIZE_QUARTER) {
         /* SMAC_SIP4 rule */
         data->type = IS2_ACTION_TYPE_SMAC_SIP;
-    } else if (idx->key_size != VTSS_VCAP_KEY_SIZE_HALF) {
-        VTSS_EG(VTSS_TRACE_GROUP_SECURITY, "unsupported key_size: %s",
-                vtss_vcap_key_size2txt(idx->key_size));
-        return VTSS_RC_OK;
     } else if (smac_sip6) {
         /* SMAC_SIP6 rule */
         data->type = IS2_ACTION_TYPE_SMAC_SIP;
@@ -2200,10 +2198,10 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         } else if (host_match) {
             srvl_vcap_key_set(data, IS2_QKO_IGR_PORT, IS2_QKL_IGR_PORT, 0, 0);
             for (i = 0; i < 6; i++) {
-                smac.value[i] = ace->frame.ipv4.sip_smac.smac.addr[i];
-                smac.mask[i] = 0xff;
+                smac_data.value[i] = ace->frame.ipv4.sip_smac.smac.addr[i];
+                smac_data.mask[i] = 0xff;
             }
-            srvl_vcap_key_u48_set(data, IS2_QKO_L2_SMAC, &smac);
+            srvl_vcap_key_u48_set(data, IS2_QKO_L2_SMAC, &smac_data);
             sip.value = ace->frame.ipv4.sip_smac.sip;
             sip.mask = 0xffffffff;
             srvl_vcap_key_ipv4_set(data, IS2_QKO_L3_IP4_SIP, &sip);
@@ -2216,14 +2214,138 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         return srvl_vcap_entry_set(vtss_state, tcam, idx, data);
     }
 
+    mask = vtss_srvl_port_mask(vtss_state, ace->port_list);
+    service_frm = (ace->isdx_enable ? VTSS_VCAP_BIT_1 :
+                   (ace->isdx_disable || ace->vlan.vid.mask) ? VTSS_VCAP_BIT_0 : VTSS_VCAP_BIT_ANY);
+    if (ace->type == VTSS_ACE_TYPE_IPV4) {
+        /* IPv4 */
+        ipv4 = &ace->frame.ipv4;
+        proto = &ipv4->proto;
+        ttl = ipv4->ttl;
+        fragment = ipv4->fragment;
+        options = ipv4->options;
+        ds = &ipv4->ds;
+        ip_data = &ipv4->data;
+        sport = &ipv4->sport;
+        dport = &ipv4->dport;
+        tcp_fin = ipv4->tcp_fin;
+        tcp_syn = ipv4->tcp_syn;
+        tcp_rst = ipv4->tcp_rst;
+        tcp_psh = ipv4->tcp_psh;
+        tcp_ack = ipv4->tcp_ack;
+        tcp_urg = ipv4->tcp_urg;
+        sip_eq_dip = ipv4->sip_eq_dip;
+        sport_eq_dport = ipv4->sport_eq_dport;
+        seq_zero = ipv4->seq_zero;
+        ptp = &ipv4->ptp;
+    } else {
+        /* IPv6 */
+        ipv4 = NULL;
+        proto = &ipv6->proto;
+        ttl = ipv6->ttl;
+        fragment = VTSS_VCAP_BIT_ANY;
+        options = VTSS_VCAP_BIT_ANY;
+        ds = &ipv6->ds;
+        ip_data = &ipv6->data;
+        sport = &ipv6->sport;
+        dport = &ipv6->dport;
+        tcp_fin = ipv6->tcp_fin;
+        tcp_syn = ipv6->tcp_syn;
+        tcp_rst = ipv6->tcp_rst;
+        tcp_psh = ipv6->tcp_psh;
+        tcp_ack = ipv6->tcp_ack;
+        tcp_urg = ipv6->tcp_urg;
+        sip_eq_dip = ipv6->sip_eq_dip;
+        sport_eq_dport = ipv6->sport_eq_dport;
+        seq_zero = ipv6->seq_zero;
+        ptp = &ipv6->ptp;
+    }
+
+    /* IPv4/IPv6: Encode PTP byte 0,1,4 and 6 in value/mask */
+    for (i = 0; i < 2; i++) {
+        p = (i ? &ptp->header.mask[0] : &ptp->header.value[0]);
+        x = (((p[3] & 0x80) >> 5) | ((p[3] & 0x6) >> 1)); /* Bit 7,2,1 */
+        ptp_vm[i] = ((p[0] & 0xf) +         /* messageType */
+                     (x << 4) +             /* flagField, bit 7,2,1 */
+                     (p[2] << 7) +          /* domainNumber */
+                     ((p[1] & 0xf) << 15)); /* versionPTP */
+    }
+
+    sp.value = sport->low;
+    sp.mask = (sport->in_range && sport->low == sport->high ? 0xffff : 0);
+    dp.value = dport->low;
+    dp.mask = (dport->in_range && dport->low == dport->high ? 0xffff : 0);
+    range = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
+             (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
+
+    if (idx->key_size == VTSS_VCAP_KEY_SIZE_FULL) {
+        /* IPv6 full rule */
+        srvl_vcap_key_bit_set(data, IS2_FKO_FIRST, ace->lookup ? VTSS_VCAP_BIT_0 : VTSS_VCAP_BIT_1);
+        srvl_vcap_key_u8_set(data, IS2_FKO_PAG, &ace->policy);
+        srvl_vcap_key_set(data, IS2_FKO_IGR_PORT_MASK, IS2_FKL_IGR_PORT_MASK, 0, ~mask);
+        srvl_vcap_key_bit_set(data, IS2_FKO_SERVICE_FRM, service_frm);
+        srvl_vcap_key_bit_set(data, IS2_FKO_HOST_MATCH, host_match ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_ANY);
+        srvl_vcap_key_bit_set(data, IS2_FKO_L2_MC, ace->dmac_mc);
+        srvl_vcap_key_bit_set(data, IS2_FKO_L2_BC, ace->dmac_bc);
+        srvl_vcap_key_bit_set(data, IS2_FKO_VLAN_TAGGED, ace->vlan.tagged);
+        srvl_vcap_key_set(data, IS2_FKO_VID, IS2_FKL_VID, ace->vlan.vid.value, ace->vlan.vid.mask);
+        srvl_vcap_key_bit_set(data, IS2_FKO_DEI, ace->vlan.cfi);
+        srvl_vcap_key_u3_set(data, IS2_FKO_PCP, &ace->vlan.usr_prio);
+        type = IS2_TYPE_IP6_TCP_UDP;
+        srvl_vcap_key_bit_set(data, IS2_FKO_L3_TTL_GT0, ttl);
+        srvl_vcap_key_u8_set(data, IS2_FKO_L3_TOS, ds);
+        srvl_vcap_key_bytes_set(data, IS2_FKO_L3_IP6_DIP, ipv6->dip.value, ipv6->dip.mask, 16);
+        srvl_vcap_key_bytes_set(data, IS2_FKO_L3_IP6_SIP, ipv6->sip.value, ipv6->sip.mask, 16);
+        srvl_vcap_key_bit_set(data, IS2_FKO_DIP_EQ_SIP, sip_eq_dip);
+
+        type = IS2_TYPE_IP6_TCP_UDP;
+        if (vtss_vcap_udp_tcp_rule(proto)) {
+            /* UDP/TCP protocol match */
+            srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_TCP,
+                                  proto->value == 6 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+            srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_L4_DPORT, IS2_FKL_IP6_TCP_UDP_L4_DPORT, dp.value, dp.mask);
+            srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_L4_SPORT, IS2_FKL_IP6_TCP_UDP_L4_SPORT, sp.value, sp.mask);
+            srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_L4_RNG, IS2_FKL_IP6_TCP_UDP_L4_RNG, range, range);
+            srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_SPORT_EQ_DPORT, sport_eq_dport);
+
+            if (ptp->enable) {
+                srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_SEQUENCE_EQ0, 19, ptp_vm[0], ptp_vm[1]);
+            } else {
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_SEQUENCE_EQ0, seq_zero);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_FIN, tcp_fin);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_SYN, tcp_syn);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_RST, tcp_rst);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_PSH, tcp_psh);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_ACK, tcp_ack);
+                srvl_vcap_key_bit_set(data, IS2_FKO_IP6_TCP_UDP_L4_URG, tcp_urg);
+                srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_L4_1588_DOM, IS2_FKL_IP6_TCP_UDP_L4_1588_DOM, 0, 0);
+                srvl_vcap_key_set(data, IS2_FKO_IP6_TCP_UDP_L4_1588_VER, IS2_FKL_IP6_TCP_UDP_L4_1588_VER, 0, 0);
+            }
+        } else if (proto->mask == 0) {
+            /* Any IP protocol match */
+            type_mask = IS2_TYPE_MASK_IP_ANY;
+            srvl_vcap_key_set(data, IS2_FKO_IP6_OTHER_L3_PROTO, 32, 0, 0);
+            srvl_vcap_key_set(data, IS2_FKO_IP6_OTHER_L3_PROTO + 32, 32, 0, 0);
+        } else {
+            /* Non-UDP/TCP protocol match */
+            type = IS2_TYPE_IP6_OTHER;
+            srvl_vcap_key_u8_set(data, IS2_FKO_IP6_OTHER_L3_PROTO, proto);
+            for (i = 0; i < 7; i++) {
+                val[i] = (i < 6 ? ip_data->value[i] : 0);
+                msk[i] = (i < 6 ? ip_data->mask[i] : 0);
+            }
+            srvl_vcap_key_bytes_set(data, IS2_FKO_IP6_OTHER_L3_PAYLOAD, val, msk, 7);
+        }
+        srvl_vcap_key_set(data, IS2_FKO_TYPE, IS2_FKL_TYPE, type, type_mask);
+        VTSS_RC(srvl_is2_action_set(vtss_state, data, &ace->action, 0, counter));
+        return srvl_vcap_entry_set(vtss_state, tcam, idx, data);
+    }
+
     /* Common half key fields */
     srvl_vcap_key_bit_set(data, IS2_HKO_FIRST, ace->lookup ? VTSS_VCAP_BIT_0 : VTSS_VCAP_BIT_1);
     srvl_vcap_key_u8_set(data, IS2_HKO_PAG, &ace->policy);
-    mask = vtss_srvl_port_mask(vtss_state, ace->port_list);
     srvl_vcap_key_set(data, IS2_HKO_IGR_PORT_MASK, IS2_HKL_IGR_PORT_MASK, 0, ~mask);
-    srvl_vcap_key_bit_set(data, IS2_HKO_SERVICE_FRM, 
-                          ace->isdx_enable ? VTSS_VCAP_BIT_1 :
-                          (ace->isdx_disable || ace->vlan.vid.mask) ? VTSS_VCAP_BIT_0 : VTSS_VCAP_BIT_ANY);
+    srvl_vcap_key_bit_set(data, IS2_HKO_SERVICE_FRM, service_frm);
     srvl_vcap_key_bit_set(data, IS2_HKO_HOST_MATCH, host_match ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_ANY);
     srvl_vcap_key_bit_set(data, IS2_HKO_L2_MC, ace->dmac_mc);
     srvl_vcap_key_bit_set(data, IS2_HKO_L2_BC, ace->dmac_bc);
@@ -2235,18 +2357,27 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
     /* Type specific fields */
     switch (ace->type) {
     case VTSS_ACE_TYPE_ANY:
-        type = IS2_TYPE_ANY;
+        type = IS2_TYPE_ETYPE;
         type_mask = 0;
         count = (tcam->entry_width / 2);
         for (i = (IS2_HKO_PCP + IS2_HKL_PCP); i < count; i += 32) {
             /* Clear entry data */
             srvl_vcap_key_set(data, i, MIN(32, count - i), 0, 0);
         }
+        for (i = 0; i < 6; i++) {
+            if (ace->frame.any.dmac.mask[i] != 0 || ace->frame.any.smac.mask[i] != 0) {
+                /* Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering. ARP frames must be mapped to ETYPE */
+                type_mask = 0xc;
+                dmac = &ace->frame.any.dmac;
+                smac = &ace->frame.any.smac;
+                break;
+            }
+        }
         break;
     case VTSS_ACE_TYPE_ETYPE:
         type = IS2_TYPE_ETYPE;
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_DMAC, &ace->frame.etype.dmac);
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_SMAC, &ace->frame.etype.smac);
+        dmac = &ace->frame.etype.dmac;
+        smac = &ace->frame.etype.smac;
         srvl_vcap_key_u16_set(data, IS2_HKO_MAC_ETYPE_ETYPE, &ace->frame.etype.etype);
         ptp = &ace->frame.etype.ptp;
         if (ptp->enable) {
@@ -2254,17 +2385,12 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
             for (i = 0; i < 2; i++) {
                 p = (i ? &ptp->header.mask[0] : &ptp->header.value[0]);
                 x = (((p[3] & 0x80) >> 5) | ((p[3] & 0x6) >> 1)); /* Bit 7,2,1 */
-                x = (p[1] +         /* Byte 1 (versionPTP) */
-                     (p[0] << 8) +  /* Byte 0 (messageType) */
-                     (p[2] << 16) + /* Byte 4 (domainNumber) */
-                     (x << 24));    /* Byte 6 (flagField, bit 7,2,1) */
-                if (i)
-                    mask = x;
-                else
-                    value = x;
+                ptp_vm[i] = (p[1] +         /* Byte 1 (versionPTP) */
+                             (p[0] << 8) +  /* Byte 0 (messageType) */
+                             (p[2] << 16) + /* Byte 4 (domainNumber) */
+                             (x << 24));    /* Byte 6 (flagField, bit 7,2,1) */
             }
-            srvl_vcap_key_set(data, IS2_HKO_MAC_ETYPE_L2_PAYLOAD, IS2_HKL_MAC_ETYPE_L2_PAYLOAD, 
-                              value, mask);
+            srvl_vcap_key_set(data, IS2_HKO_MAC_ETYPE_L2_PAYLOAD, IS2_HKL_MAC_ETYPE_L2_PAYLOAD, ptp_vm[0], ptp_vm[1]);
         } else {
             srvl_vcap_key_u16_set(data, IS2_HKO_MAC_ETYPE_L2_PAYLOAD, &ace->frame.etype.data);
             srvl_vcap_key_set(data, IS2_HKO_MAC_ETYPE_L2_PAYLOAD + 16, 
@@ -2273,8 +2399,8 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_ACE_TYPE_LLC:
         type = IS2_TYPE_LLC;
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_DMAC, &ace->frame.llc.dmac);
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_SMAC, &ace->frame.llc.smac);
+        dmac = &ace->frame.llc.dmac;
+        smac = &ace->frame.llc.smac;
         for (i = 0; i < 4; i++) {
             llc.value[i] = ace->frame.llc.llc.value[i];
             llc.mask[i] = ace->frame.llc.llc.mask[i];
@@ -2285,8 +2411,8 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_ACE_TYPE_SNAP:
         type = IS2_TYPE_SNAP;
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_DMAC, &ace->frame.snap.dmac);
-        srvl_vcap_key_u48_set(data, IS2_HKO_L2_SMAC, &ace->frame.snap.smac);
+        dmac = &ace->frame.snap.dmac;
+        smac = &ace->frame.snap.smac;
         srvl_vcap_key_u40_set(data, IS2_HKO_MAC_SNAP_L2_SNAP, &ace->frame.snap.snap);
         break;
     case VTSS_ACE_TYPE_ARP:
@@ -2306,49 +2432,6 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_ACE_TYPE_IPV4:
     case VTSS_ACE_TYPE_IPV6:
-        if (ace->type == VTSS_ACE_TYPE_IPV4) {
-            /* IPv4 */
-            ipv4 = &ace->frame.ipv4;
-            proto = &ipv4->proto;
-            ttl = ipv4->ttl;
-            fragment = ipv4->fragment;
-            options = ipv4->options;
-            ds = &ipv4->ds;
-            ip_data = &ipv4->data;
-            sport = &ipv4->sport;
-            dport = &ipv4->dport;
-            tcp_fin = ipv4->tcp_fin;
-            tcp_syn = ipv4->tcp_syn;
-            tcp_rst = ipv4->tcp_rst;
-            tcp_psh = ipv4->tcp_psh;
-            tcp_ack = ipv4->tcp_ack;
-            tcp_urg = ipv4->tcp_urg;
-            sip_eq_dip = ipv4->sip_eq_dip;
-            sport_eq_dport = ipv4->sport_eq_dport;
-            seq_zero = ipv4->seq_zero;
-            ptp = &ipv4->ptp;
-        } else {
-            /* IPv6 */
-            ipv6 = &ace->frame.ipv6;
-            proto = &ipv6->proto;
-            ttl = ipv6->ttl;
-            fragment = VTSS_VCAP_BIT_ANY;
-            options = VTSS_VCAP_BIT_ANY;
-            ds = &ipv6->ds;
-            ip_data = &ipv6->data;
-            sport = &ipv6->sport;
-            dport = &ipv6->dport;
-            tcp_fin = ipv6->tcp_fin;
-            tcp_syn = ipv6->tcp_syn;
-            tcp_rst = ipv6->tcp_rst;
-            tcp_psh = ipv6->tcp_psh;
-            tcp_ack = ipv6->tcp_ack;
-            tcp_urg = ipv6->tcp_urg;
-            sip_eq_dip = ipv6->sip_eq_dip;
-            sport_eq_dport = ipv6->sport_eq_dport;
-            seq_zero = ipv6->seq_zero;
-            ptp = &ipv6->ptp;
-        }
         srvl_vcap_key_bit_set(data, IS2_HKO_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
         srvl_vcap_key_bit_set(data, IS2_HKO_L3_FRAGMENT, fragment);
         srvl_vcap_key_bit_set(data, IS2_HKO_L3_FRAG_OFS_GT0, VTSS_VCAP_BIT_ANY);
@@ -2369,34 +2452,13 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
             type = IS2_TYPE_IP_UDP_TCP;
             srvl_vcap_key_bit_set(data, IS2_HKO_IP4_TCP_UDP_TCP, 
                                   proto->value == 6 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
-            mask = (dport->in_range && dport->low == dport->high ? 0xffff : 0);
-            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_DPORT, IS2_HKL_IP4_TCP_UDP_L4_DPORT, 
-                              dport->low, mask);
-            mask = (sport->in_range && sport->low == sport->high ? 0xffff : 0);
-            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_SPORT, IS2_HKL_IP4_TCP_UDP_L4_SPORT, 
-                              sport->low, mask);
-            value = (is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange));
-            if (is2->drange != VTSS_VCAP_RANGE_CHK_NONE)
-                value |= (1<<is2->drange);
-            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_RNG, IS2_HKL_IP4_TCP_UDP_L4_RNG, 
-                              value, value);
+            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_DPORT, IS2_HKL_IP4_TCP_UDP_L4_DPORT, dp.value, dp.mask);
+            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_SPORT, IS2_HKL_IP4_TCP_UDP_L4_SPORT, sp.value, sp.mask);
+            srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_L4_RNG, IS2_HKL_IP4_TCP_UDP_L4_RNG, range, range);
             srvl_vcap_key_bit_set(data, IS2_HKO_IP4_TCP_UDP_SPORT_EQ_DPORT, sport_eq_dport);
             
             if (ptp->enable) {
-                /* Encode PTP byte 0,1,4 and 6 in value/mask */
-                for (i = 0; i < 2; i++) {
-                    p = (i ? &ptp->header.mask[0] : &ptp->header.value[0]);
-                    x = (((p[3] & 0x80) >> 5) | ((p[3] & 0x6) >> 1)); /* Bit 7,2,1 */
-                    x = ((p[0] & 0xf) +         /* messageType */
-                         (x << 4) +             /* flagField, bit 7,2,1 */
-                         (p[2] << 7) +          /* domainNumber */
-                         ((p[1] & 0xf) << 15)); /* versionPTP */
-                    if (i)
-                        mask = x;
-                    else
-                        value = x;
-                }
-                srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_SEQUENCE_EQ0, 19, value, mask);
+                srvl_vcap_key_set(data, IS2_HKO_IP4_TCP_UDP_SEQUENCE_EQ0, 19, ptp_vm[0], ptp_vm[1]);
             } else {
                 srvl_vcap_key_bit_set(data, IS2_HKO_IP4_TCP_UDP_SEQUENCE_EQ0, seq_zero);
                 srvl_vcap_key_bit_set(data, IS2_HKO_IP4_TCP_UDP_L4_FIN, tcp_fin);
@@ -2430,6 +2492,11 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
     
+    if (smac != NULL && dmac != NULL) {
+        srvl_vcap_key_u48_set(data, IS2_HKO_L2_DMAC, dmac);
+        srvl_vcap_key_u48_set(data, IS2_HKO_L2_SMAC, smac);
+    }
+
     /* Setup entry type */
     srvl_vcap_key_set(data, IS2_HKO_TYPE, IS2_HKL_TYPE, type, type_mask);
 
@@ -3158,14 +3225,26 @@ static vtss_rc srvl_acl_port_conf_set(vtss_state_t *vtss_state,
     const tcam_props_t   *tcam = &tcam_info[VTSS_TCAM_IS2];
     srvl_tcam_data_t     data;
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
-    u32                  port = VTSS_CHIP_PORT(port_no);
+    u32                  ipv6, lookup = 0x1, port = VTSS_CHIP_PORT(port_no);
     u32                  enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
     vtss_rc              rc;
 
     VTSS_I("port_no: %u, port: %u", port_no, port);
 
     /* Enable/disable S2 and set default PAG */
-    SRVL_WRM_CTL(VTSS_ANA_PORT_VCAP_S2_CFG(port), enable, VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA);
+    ipv6 = (conf->key.ipv6 == VTSS_ACL_KEY_ETYPE ? 3 : conf->key.ipv6 == VTSS_ACL_KEY_EXT ? 0 : 2);
+    SRVL_WRM(VTSS_ANA_PORT_VCAP_S2_CFG(port),
+             (enable ? VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA : 0) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS(conf->key.arp == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS(conf->key.ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS(conf->key.ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP6_CFG(ipv6),
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS(lookup) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS(lookup) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS(lookup) |
+             VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP6_CFG(3));
+
     SRVL_WRM(VTSS_ANA_PORT_VCAP_CFG(port), 
              VTSS_F_ANA_PORT_VCAP_CFG_PAG_VAL(enable ? (conf->policy_no & 0x3f) : 0),
              VTSS_M_ANA_PORT_VCAP_CFG_PAG_VAL);
@@ -3214,13 +3293,19 @@ static vtss_rc srvl_ace_add(vtss_state_t *vtss_state,
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range; 
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
     vtss_port_no_t              port_no;
+    vtss_vcap_key_size_t        key_size = VTSS_VCAP_KEY_SIZE_HALF;
 
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
-    
+
+    if (ace->type == VTSS_ACE_TYPE_IPV6 && ace->type_ext) {
+        /* Encode as IPv6 is full rule */
+        key_size = VTSS_VCAP_KEY_SIZE_FULL;
+    }
+
     /* Check that half entry can be added */
     memset(&chg, 0, sizeof(chg));
-    chg.add_key[VTSS_VCAP_KEY_SIZE_HALF] = 1;
+    chg.add_key[key_size] = 1;
     if (vtss_vcap_lookup(vtss_state, obj, user, ace->id, &data, NULL) == VTSS_RC_OK) {
         chg.del_key[data.key_size] = 1;
         
@@ -3271,7 +3356,7 @@ static vtss_rc srvl_ace_add(vtss_state_t *vtss_state,
         entry.ace.frame.ipv4.sip.value = ace->frame.ipv4.sip_smac.sip;
         entry.ace.frame.ipv4.sip.mask = 0xffffffff;
     }
-    data.key_size = VTSS_VCAP_KEY_SIZE_HALF;
+    data.key_size = key_size;
     if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
         is2->action.redir = 1;
         for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
@@ -3564,7 +3649,8 @@ static vtss_rc srvl_vcap_init(vtss_state_t *vtss_state)
         VTSS_RC(srvl_vcap_initialize(vtss_state, VTSS_TCAM_ES0));
     }
 
-    value = (VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA | VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP6_CFG(0xa));
+    // IPv6: IP4_TCP_UDP/IP4_OTHER(2) in first lookup, IP6_TCP_UDP/IP6_OTHER(0) in second lookup
+    value = (VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA | VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP6_CFG(2));
 #if defined(VTSS_ARCH_SERVAL_CPU)
     value |= VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS(0x3);
 #endif /* VTSS_ARCH_SERVAL_CPU */

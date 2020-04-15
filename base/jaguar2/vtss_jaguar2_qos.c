@@ -28,8 +28,10 @@
 /* Calculate Layer 0 Scheduler Element when using default hierarchy */
 #if defined(VTSS_ARCH_SERVAL_T)
 #define JR2_HSCH_L0_SE(port, queue) ((16 * port) + (2 * queue))
+#define JR2_L0_SE_CPU_0 412
 #elif defined(VTSS_ARCH_JAGUAR_2_C)
 #define JR2_HSCH_L0_SE(port, queue) ((64 * port) + (8 * queue))
+#define JR2_L0_SE_CPU_0 3396
 #else
 #error "Unsupported architecture."
 #endif
@@ -664,6 +666,9 @@ static vtss_rc jr2_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vts
     for (queue = 0; queue < 8; queue++) {
         u32 se = JR2_HSCH_L0_SE(chip_port, queue);
         VTSS_RC(vtss_jr2_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue], layer, se, chip_port, queue));
+        JR2_WRM(VTSS_HSCH_HSCH_CFG_SE_CFG(se),
+                VTSS_F_HSCH_HSCH_CFG_SE_CFG_SE_AVB_ENA(conf->shaper_queue[queue].credit_enable),
+                VTSS_M_HSCH_HSCH_CFG_SE_CFG_SE_AVB_ENA);
     }
     return VTSS_RC_OK;
 }
@@ -1313,14 +1318,45 @@ static vtss_rc jr2_qos_egress_map_del(vtss_state_t *vtss_state, const vtss_qos_e
 
 static vtss_rc jr2_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
-    vtss_shaper_t cpu_shaper;
+    vtss_shaper_t shaper;
+    u32           se, i;
 
-    memset(&cpu_shaper, 0, sizeof(cpu_shaper));
-    cpu_shaper.rate  = rate;       // kbps
-    cpu_shaper.level = (4096 * 4); // 16 kbytes burst size
-    cpu_shaper.eir   = VTSS_BITRATE_DISABLED;
-    VTSS_RC(vtss_jr2_qos_shaper_conf_set(vtss_state, &cpu_shaper, 2, VTSS_CHIP_PORT_CPU_0, 0, 0));
-    return  vtss_jr2_qos_shaper_conf_set(vtss_state, &cpu_shaper, 2, VTSS_CHIP_PORT_CPU_1, 0, 0);
+    for (i = 0; i < 2; i++) {
+#if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
+        u32            queue, packet_rate, cir;
+        vtss_bitrate_t res;
+
+        /* Allocate queue shapers for CPU port layer 0 element */
+        se = (JR2_L0_SE_CPU_0 + i);
+        JR2_WR(VTSS_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG(se),
+               VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG_QSHP_MIN(0) |
+               VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG_QSHP_MAX(7)|
+               VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG_QSHP_BASE(i * 8));
+
+        /* Link to first group in layer 3 leak list */
+        VTSS_RC(jr2_qos_leak_list_link(vtss_state, 3, se, VTSS_HSCH_MAX_RATE_GROUP_0, &res));
+        JR2_WR(VTSS_HSCH_HSCH_MISC_HSCH_CFG_CFG,
+               VTSS_F_HSCH_HSCH_MISC_HSCH_CFG_CFG_CFG_SE_IDX(se));
+        for (queue = 0; queue < 8; queue++) {
+            /* Resolution is in 1 kbps units, and 1 FPS corresponds to 100 kbps */
+            packet_rate = vtss_state->packet.rx_conf.queue[queue].rate;
+            cir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(packet_rate * 100,  res));
+            JR2_WR(VTSS_HSCH_QSHP_CFG_QSHP_CIR_CFG(queue),
+                   VTSS_F_HSCH_QSHP_CFG_QSHP_CIR_CFG_CIR_RATE(cir) |
+                   VTSS_F_HSCH_QSHP_CFG_QSHP_CIR_CFG_CIR_BURST(packet_rate == VTSS_PACKET_RATE_DISABLED ? 0 : 1));
+            JR2_WR(VTSS_HSCH_QSHP_CFG_QSHP_CFG(queue),
+                   VTSS_F_HSCH_QSHP_CFG_QSHP_CFG_SE_FRM_MODE(3));
+        }
+#endif
+        /* CPU port shaper (kbps) */
+        memset(&shaper, 0, sizeof(shaper));
+        shaper.rate  = rate;       // kbps
+        shaper.level = (4096 * 4); // 16 kbytes burst size
+        shaper.eir   = VTSS_BITRATE_DISABLED;
+        se = (VTSS_CHIP_PORT_CPU_0 + i);
+        VTSS_RC(vtss_jr2_qos_shaper_conf_set(vtss_state, &shaper, 2, se, 0, 0));
+    }
+    return VTSS_RC_OK;
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -1895,11 +1931,20 @@ static vtss_rc jr2_debug_qos(vtss_state_t *vtss_state,
     pr("\n");
 
     vtss_debug_print_header(pr, "QoS CPU Shapers (Uses elements from layer 2 indexed by chip port)");
-    sprintf(buf, "CPU 0, CP %u", VTSS_CHIP_PORT_CPU_0);
-    jr2_debug_qos_scheduler_element(vtss_state, pr, buf, 2, VTSS_CHIP_PORT_CPU_0);
-    sprintf(buf, "CPU 1, CP %u", VTSS_CHIP_PORT_CPU_1);
-    jr2_debug_qos_scheduler_element(vtss_state, pr, buf, 2, VTSS_CHIP_PORT_CPU_1);
-    pr("\n");
+    for (i = 0; i < 2; i++) {
+        port = (VTSS_CHIP_PORT_CPU_0 + i);
+        sprintf(buf, "CPU %u, CP %u", i, port);
+        jr2_debug_qos_scheduler_element(vtss_state, pr, buf, 2, port);
+        se = (JR2_L0_SE_CPU_0 + i);
+        vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG(se), se, "HSCH_QSHP_ALLOC_CFG");
+        JR2_WR(VTSS_HSCH_HSCH_MISC_HSCH_CFG_CFG,
+               VTSS_F_HSCH_HSCH_MISC_HSCH_CFG_CFG_CFG_SE_IDX(se));
+        for (queue = 0; queue < 8; queue++) {
+            vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_QSHP_CFG_QSHP_CIR_CFG(queue), queue, "HSCH_QSHP_CIR_CFG");
+            vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_QSHP_CFG_QSHP_CFG(queue), queue, "HSCH_QSHP_CFG");
+        }
+        pr("\n");
+    }
 
     /* Only show the hierarchy if HQoS is not present, otherwise use the HQoS debug cmd */
     vtss_debug_print_header(pr, "QoS Layer 0 + Layer 1 SEs");

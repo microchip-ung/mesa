@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -57,5 +57,9 @@ u8   vtss_bs_bit_get(const void *vptr, u32 offset);
 void vtss_bs_bit_set(void *vptr, u32 offset, u8 value);
 void vtss_bs_set(void *vptr, u32 offset, u32 len, u32 value);
 u32  vtss_bs_get(const void *vptr, u32 offset, u32 len);
+
+u8 vtss_bool8_to_u8(BOOL *array);
+void vtss_u8_to_bool8(u8 value, BOOL *array);
+
 
 #endif /* _VTSS_UTIL_H_ */

@@ -367,7 +367,8 @@ typedef struct {
 #endif /* VTSS_FEATURE_10GBASE_KR_V2 */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 
-
+    vtss_rc (* serdes_debug_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no,
+                                 const vtss_port_serdes_debug_t *const conf);
 
     vtss_rc (* status_get)(struct vtss_state_s *vtss_state,
                            const vtss_port_no_t  port_no,
@@ -394,6 +395,7 @@ typedef struct {
     vtss_port_test_conf_t         test_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_port_speed_t             current_speed[VTSS_PORT_ARRAY_SIZE];
     vtss_port_interface_t         current_if_type[VTSS_PORT_ARRAY_SIZE];
+    vtss_sd10g_media_type_t       current_mt[VTSS_PORT_ARRAY_SIZE];
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
     vtss_port_10g_kr_conf_t       kr_conf[VTSS_PORT_ARRAY_SIZE];
     BOOL                          kr_fec_enable[VTSS_PORT_ARRAY_SIZE];

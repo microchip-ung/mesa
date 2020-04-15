@@ -710,9 +710,6 @@ typedef struct {
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     vtss_vlan_counter_info_t      vlan_counters_info;
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
-#if defined(VTSS_FEATURE_VSTAX)
-    const vtss_vstax_tx_header_t  *vstax_tx_header;
-#endif /* VTSS_FEATURE_VSTAX */
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
     vtss_ipmc_info_t              ipmc;
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
@@ -771,8 +768,6 @@ vtss_rc vtss_cmn_vlan_members_get(struct vtss_state_s *state,
                                   BOOL member[VTSS_PORT_ARRAY_SIZE]);
 vtss_rc vtss_cmn_vlan_members_set(struct vtss_state_s *vtss_state, const vtss_vid_t vid);
 vtss_rc vtss_cmn_vlan_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-vtss_rc vtss_cmn_evc_vlan_update(struct vtss_state_s *vtss_state,
-                                 vtss_vid_t vid, BOOL learning, BOOL vsi_enable, BOOL forward_dis);
 
 vtss_rc vtss_cmn_vlan_tx_tag_set(struct vtss_state_s *vtss_state,
                                  const vtss_vid_t         vid,
@@ -789,9 +784,6 @@ vtss_rc vtss_cmn_erps_port_state_set(struct vtss_state_s *vtss_state,
                                      const vtss_port_no_t port_no);
 vtss_rc vtss_cmn_eps_port_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_w);
 #if defined(VTSS_FEATURE_HW_PROT)
-/* Update HW protection portmask, but don't update VLAN/VSI table yet.
- * vtss_cmn_evc_vlan_update() must be called at some time afterwards to do that.
- */
 vtss_rc vtss_cmn_hw_prot_port_disable_set(struct vtss_state_s *vtss_state,
                                           const vtss_vid_t    vid,
                                           const BOOL          member[VTSS_PORT_ARRAY_SIZE]);
@@ -853,11 +845,6 @@ void vtss_port_mask_get(struct vtss_state_s *vtss_state,
 void vtss_port_mask_port(struct vtss_state_s *vtss_state,
                          vtss_port_no_t port_no,
                          vtss_port_mask_t *pmask);
-
-#if defined(VTSS_ARCH_JAGUAR_2)
-vtss_vsi_entry_t *vtss_cmn_vsi_alloc(struct vtss_state_s *vtss_state);
-void vtss_cmn_vsi_free(struct vtss_state_s *vtss_state, vtss_vsi_entry_t *vsi);
-#endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_SDX_CNT)
 vtss_sdx_entry_t *vtss_cmn_sdx_alloc(struct vtss_state_s *vtss_state, vtss_port_no_t port_no, u16 id, BOOL isdx);

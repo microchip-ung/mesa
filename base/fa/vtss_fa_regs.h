@@ -59,6 +59,7 @@
 #include "vtss_fa_regs_sd_cmu_nonterm_target.h"
 #include "vtss_fa_regs_sd_cmu_term_target.h"
 #include "vtss_fa_regs_sd10g_lane_target.h"
+#include "vtss_fa_regs_ip_kraneg_notr.h"
 #include "vtss_fa_regs_ip_kraneg.h"
 #include "vtss_fa_regs_sd_lane_target.h"
 #include "vtss_fa_regs_sd25g_target.h"

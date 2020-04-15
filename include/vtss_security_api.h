@@ -294,6 +294,7 @@ typedef struct
 {
     BOOL                       cpu;            /**< Forward to CPU */
     BOOL                       cpu_once;       /**< Only first frame forwarded to CPU */
+    BOOL                       cpu_disable;    /**< Disable CPU copy from previous forwarding decisions */
     vtss_packet_rx_queue_t     cpu_queue;      /**< CPU queue */
     BOOL                       police;         /**< Enable policer */
     vtss_acl_policer_no_t      policer_no;     /**< Policer number */
@@ -319,11 +320,26 @@ typedef struct
 #endif
 } vtss_acl_action_t;
 
+// ACL key generation for ARP/IPv4/IPv6 frames
+typedef enum {
+    VTSS_ACL_KEY_DEFAULT, // Match VTSS_ACE_TYPE_ARP/IPV4/IPV6 (default)
+    VTSS_ACL_KEY_ETYPE,   // Match VTSS_ACE_TYPE_ETYPE
+    VTSS_ACL_KEY_EXT      // Match VTSS_ACE_TYPE_IPV4/IPV6 extended rule
+} vtss_acl_key_t;
+
+// ACL key generation for ARP/IPv4/IPv6 frames
+typedef struct {
+    vtss_acl_key_t arp;  // ARP frame key
+    vtss_acl_key_t ipv4; // IPv4 frame key
+    vtss_acl_key_t ipv6; // IPv6 frame key
+} vtss_acl_frame_key_t;
+
 /** \brief ACL port configuration */
 typedef struct
 {
     vtss_acl_policy_no_t policy_no; /**< Policy number */
     vtss_acl_action_t    action;    /**< Action */
+    vtss_acl_frame_key_t key;       // ACL key generation
 } vtss_acl_port_conf_t;
 
 /**
@@ -457,6 +473,13 @@ typedef struct
     vtss_ace_bit_t   tagged;   /**< Tagged/untagged frame */
 } vtss_ace_vlan_t;
 
+/** \brief Frame data for VTSS_ACE_TYPE_ANY */
+typedef struct
+{
+    vtss_ace_u48_t dmac; /**< DMAC */
+    vtss_ace_u48_t smac; /**< SMAC */
+} vtss_ace_frame_any_t;
+
 /** \brief Frame data for VTSS_ACE_TYPE_ETYPE */
 typedef struct
 {
@@ -502,6 +525,10 @@ typedef struct
 /** \brief Frame data for VTSS_ACE_TYPE_IPV4 */
 typedef struct
 {
+#if defined(VTSS_FEATURE_ACL_EXT_MAC)
+    vtss_ace_u48_t      dmac;           // DMAC, VTSS_ACL_KEY_EXT
+    vtss_ace_u48_t      smac;           // SMAC, VTSS_ACL_KEY_EXT
+#endif
     vtss_ace_bit_t      ttl;            /**< TTL zero */
     vtss_ace_bit_t      fragment;       /**< Fragment */
     vtss_ace_bit_t      options;        /**< Header options */
@@ -528,8 +555,15 @@ typedef struct
 /** \brief Frame data for VTSS_ACE_TYPE_IPV6 */
 typedef struct
 {
+#if defined(VTSS_FEATURE_ACL_EXT_MAC)
+    vtss_ace_u48_t     dmac;           // DMAC, VTSS_ACL_KEY_EXT
+    vtss_ace_u48_t     smac;           // SMAC, VTSS_ACL_KEY_EXT
+#endif
     vtss_ace_u8_t      proto;          /**< IPv6 protocol */
-    vtss_ace_u128_t    sip;            /**< IPv6 source address (byte 0-7 ignored) */
+    vtss_ace_u128_t    sip;            // IPv6 source address (byte 0-7 only used for VTSS_ACL_KEY_EXT)
+#if defined(VTSS_FEATURE_ACL_EXT_DIP)
+    vtss_ace_u128_t    dip;            // IPv6 destinaton address, VTSS_ACL_KEY_EXT
+#endif
     vtss_ace_bit_t     ttl;            /**< TTL zero */
     vtss_ace_u8_t      ds;             /**< DS field */
     vtss_ace_u48_t     data;           /**< Not UDP/TCP: IP data */
@@ -559,6 +593,7 @@ typedef struct
     BOOL                 port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */ 
     vtss_ace_u8_t        policy;       /**< Policy number */
     vtss_ace_type_t      type;         /**< ACE frame type */
+    BOOL                 type_ext;     // Use extended type for IPv4/IPv6
     vtss_acl_action_t    action;       /**< ACE action */
                                    
     vtss_ace_bit_t       dmac_mc;      /**< Multicast DMAC */
@@ -568,7 +603,7 @@ typedef struct
 
     union
     {
-        /* VTSS_ACE_TYPE_ANY: No specific fields */
+        vtss_ace_frame_any_t   any;    /**< VTSS_ACE_TYPE_ANY */
         vtss_ace_frame_etype_t etype;  /**< VTSS_ACE_TYPE_ETYPE */
         vtss_ace_frame_llc_t   llc;    /**< VTSS_ACE_TYPE_LLC */
         vtss_ace_frame_snap_t  snap;   /**< VTSS_ACE_TYPE_SNAP */
@@ -789,6 +824,7 @@ typedef struct {
     BOOL                    port_list[VTSS_PORTS]; /**< Ingress/egress port list (unused for RACLs) */
     vtss_rleg_list_t        rleg_list;             /**< Ingress/egress router leg list (RACLs only) */
     vtss_ace_u8_t           policy;                /**< Policy number */
+    BOOL                    type_ext;              // Use extended type for IPv4/IPv6 (I-PACL)
     vtss_ace_type_t         type;                  /**< ACE frame type */
     vtss_ace_vlan_t         vlan;                  /**< Classified VLAN tag values (unused for RACLs) */
     vtss_ace_ptp_t          ptp;                   /**< PTP header filtering for EType/IPv4/IPv6 (unused for RACLs) */
@@ -810,6 +846,7 @@ typedef struct {
     BOOL                       port_list[VTSS_PORTS]; /**< Egress port list (I-PACL/I-VACL only) */
     BOOL                       cpu;            /**< Forward to CPU (I-PACL/I-VACL only) */
     BOOL                       cpu_once;       /**< Only first frame forwarded to CPU (I-PACL/I-VACL only) */
+    BOOL                       cpu_disable;    /**< Disable CPU copy from previous forwarding decisions (I-PACL/I-VACL only) */
     vtss_packet_rx_queue_t     cpu_queue;      /**< CPU queue (I-PACL/I-VACL only) */
     BOOL                       police;         /**< Enable policer (I-PACL/I-VACL only) */
     vtss_acl_policer_no_t      policer_no;     /**< Policer number (I-PACL/I-VACL only) */

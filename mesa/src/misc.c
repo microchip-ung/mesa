@@ -89,6 +89,7 @@ void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
     mesa_trace_group_t m_group = 0;
     mesa_trace_level_t m_level = 0;
 
+    mesa_conv_vtss_trace_layer_t_to_mesa_trace_layer_t(&layer, &m_layer);
     mesa_conv_vtss_trace_group_t_to_mesa_trace_group_t(&group, &m_group);
     mesa_conv_vtss_trace_level_t_to_mesa_trace_level_t(&level, &m_level);
     va_start(args, format);

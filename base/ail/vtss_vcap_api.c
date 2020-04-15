@@ -1299,7 +1299,7 @@ vtss_rc vtss_cmn_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
     vtss_vcap_obj_t  *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_data_t data;
 
-    if (vtss_vcap_lookup(vtss_state, obj, VTSS_IS2_USER_ACL, ace_id, &data, NULL) != VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id, &data, NULL) != VTSS_RC_OK) {
         VTSS_E("ace_id: %u not found", ace_id);
         return VTSS_RC_ERROR;
     }
@@ -1307,7 +1307,7 @@ vtss_rc vtss_cmn_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
     /* Delete range checkers and main entry */
     VTSS_RC(vtss_vcap_range_free(&vtss_state->vcap.range, data.u.is2.srange));
     VTSS_RC(vtss_vcap_range_free(&vtss_state->vcap.range, data.u.is2.drange));
-    VTSS_RC(vtss_vcap_del(vtss_state, obj, VTSS_IS2_USER_ACL, ace_id));
+    VTSS_RC(vtss_vcap_del(vtss_state, obj, vtss_state->vcap.acl_user, ace_id));
 
     return VTSS_RC_OK;
 }
@@ -1321,7 +1321,7 @@ static vtss_rc vtss_cmn_ace_get(vtss_state_t *vtss_state,
     vtss_vcap_idx_t idx;
     vtss_vcap_obj_t *obj = &vtss_state->vcap.is2.obj;
 
-    if (vtss_vcap_lookup(vtss_state, obj, VTSS_IS2_USER_ACL, ace_id, NULL, &idx) != VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id, NULL, &idx) != VTSS_RC_OK) {
         VTSS_E("ace_id: %u not found", ace_id);
         return VTSS_RC_ERROR;
     }
@@ -1906,6 +1906,7 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
     }
 #endif /* VTSS_FEATURE_IS1 */
 
+    vtss_state->vcap.acl_user = VTSS_IS2_USER_ACL;
 #if defined(VTSS_FEATURE_IS2)
     {
         vtss_is2_info_t *is2 = &vtss_state->vcap.is2;
@@ -2222,6 +2223,13 @@ void vtss_vcap_debug_print_es0(vtss_state_t *vtss_state,
 }
 #endif /* VTSS_FEATURE_ES0 */
 
+static const char *vtss_acl_key_txt(vtss_acl_key_t key)
+{
+    return (key == VTSS_ACL_KEY_DEFAULT ? "DEF" :
+            key == VTSS_ACL_KEY_EXT ? "EXT" :
+            key == VTSS_ACL_KEY_ETYPE ? "ETYPE" : "?");
+}
+
 void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info)
@@ -2243,7 +2251,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         act = &conf->action;
         if (header) {
             header = 0;
-            pr("Port  Policy  CPU  Once  Queue  Policer  Learn  ");
+            pr("Port  Policy  CPU  Once  Queue  Policer  Learn  IPV4/IPV6/ARP      ");
             vtss_debug_print_port_header(vtss_state, pr, "Mirror  PTP  Port  ", 0, 0);
             pr("\n");
         }
@@ -2259,6 +2267,11 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         else
             strcpy(buf, "Disabled");
         pr("%-9s%-7u", buf, act->learn);
+        sprintf(buf, "%s/%s/%s",
+                vtss_acl_key_txt(conf->key.ipv4),
+                vtss_acl_key_txt(conf->key.ipv6),
+                vtss_acl_key_txt(conf->key.arp));
+        pr("%-19s", buf);
         pr("%-8u%-5s%-6s",
            act->mirror,
            act->ptp_action == VTSS_ACL_PTP_ACTION_NONE ? "None" :

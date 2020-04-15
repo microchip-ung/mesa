@@ -3686,7 +3686,7 @@ vtss_rc vtss_iflow_alloc(const vtss_inst_t inst,
             memset(conf, 0, sizeof(*conf));
             conf->voe_idx = VTSS_VOE_IDX_NONE;
 #if defined(VTSS_FEATURE_VOP_V2)
-            conf->voi_idx = VTSS_VOE_IDX_NONE;
+            conf->voi_idx = VTSS_VOI_IDX_NONE;
 #endif
             *id = sdx->sdx;
         }
@@ -3936,6 +3936,8 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_XFLOW)
     vtss_eflow_entry_t *eflow = NULL;
 
+    VTSS_D("Enter");
+
     /* Check if egress flow ID is valid */
     if (tce->action.flow_id != VTSS_EFLOW_ID_NONE &&
         (eflow = vtss_eflow_lookup(vtss_state, tce->action.flow_id)) == NULL) {
@@ -4017,7 +4019,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
             entry.action.mep_idx = eflow->conf.voe_idx;
         }
 #if defined(VTSS_FEATURE_VOP_V2)
-        if (eflow->conf.voi_idx != VTSS_VOE_IDX_NONE) {
+        if (eflow->conf.voi_idx != VTSS_VOI_IDX_NONE) {
             entry.action.voi_idx = eflow->conf.voi_idx;
         }
 #endif
@@ -4099,6 +4101,8 @@ vtss_rc vtss_tce_add(const vtss_inst_t   inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+
+    VTSS_D("Enter");
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -4276,7 +4280,7 @@ vtss_rc vtss_eflow_alloc(const vtss_inst_t inst,
                 memset(conf, 0, sizeof(*conf));
                 conf->voe_idx = VTSS_VOE_IDX_NONE;
 #if defined(VTSS_FEATURE_VOP_V2)
-                conf->voi_idx = VTSS_VOE_IDX_NONE;
+                conf->voi_idx = VTSS_VOI_IDX_NONE;
 #endif
                 *id = (i + 1);
                 rc = VTSS_RC_OK;
@@ -5031,75 +5035,6 @@ vtss_rc vtss_cmn_vlan_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     return rc;
 }
 
-#if defined(VTSS_ARCH_JAGUAR_2)
-vtss_vsi_entry_t *vtss_cmn_vsi_alloc(vtss_state_t *vtss_state)
-{
-    vtss_vsi_entry_t *vsi;
-    vtss_vsi_info_t *info = &vtss_state->l2.vsi_info;
-
-    if ((vsi = info->free) == NULL) {
-        VTSS_E("VSI alloc failed");
-        return NULL;
-    }
-
-    /* Take out of free list */
-    info->free = vsi->next;
-    info->count++;
-    vsi->next = NULL;
-
-    return vsi;
-}
-
-void vtss_cmn_vsi_free(vtss_state_t *vtss_state, vtss_vsi_entry_t *vsi)
-{
-    vtss_vsi_info_t *info = &vtss_state->l2.vsi_info;
-
-    if (vsi != NULL) {
-        vsi->next = info->free;
-        info->free = vsi;
-        info->count--;
-    }
-}
-#endif /* VTSS_ARCH_JAGUAR_2 */
-
-vtss_rc vtss_cmn_evc_vlan_update(vtss_state_t *vtss_state,
-                                 vtss_vid_t vid, BOOL learning, BOOL vsi_enable, BOOL forward_dis)
-{
-    vtss_rc           rc = VTSS_RC_OK, rc_vsi = VTSS_RC_OK;
-    vtss_vlan_entry_t *vlan = &vtss_state->l2.vlan_table[vid];
-
-    if (vid != VTSS_VID_NULL) {
-#if defined(VTSS_ARCH_JAGUAR_2)
-        u16 vsi;
-
-        if (vsi_enable) {
-            /* Allocate VSI if not already allocated */
-            if (vlan->vsi == NULL && (vlan->vsi = vtss_cmn_vsi_alloc(vtss_state)) == NULL) {
-                VTSS_D("VSI alloc failed");
-                rc_vsi = VTSS_RC_ERROR;
-                vsi_enable = 0;
-            } else {
-                vsi = vlan->vsi->vsi;
-                vtss_state->packet.vid2vsi.vsi[vid] = vsi;
-                vtss_state->packet.vsi2vid[vsi] = vid;
-            }
-        } else {
-            /* Free VSI */
-            vsi = (vlan->vsi ? vlan->vsi->vsi : 0);
-            vtss_state->packet.vid2vsi.vsi[vid] = 0;
-            vtss_state->packet.vsi2vid[vsi] = VTSS_VID_NULL;
-            vtss_cmn_vsi_free(vtss_state, vlan->vsi);
-            vlan->vsi = NULL;
-        }
-        vlan->vsi_enable = vsi_enable;
-        vlan->vsi_vlan_forward_disable = forward_dis;
-#endif /* VTSS_ARCH_JAGUAR_2 */
-        vlan->evc_learning = learning;
-        rc = VTSS_RC_COLD(vtss_cmn_vlan_members_set(vtss_state, vid));
-    }
-    return ((rc != VTSS_RC_OK) ? rc : rc_vsi);
-}
-
 static void vtss_cmn_es0_data_set(vtss_state_t *vtss_state,
                                   vtss_port_no_t port_no, vtss_vid_t vid, vtss_vid_t new_vid,
                                   BOOL tag_enable,
@@ -5780,6 +5715,17 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     action->oam_enable = (vce->action.oam_detect != VTSS_OAM_DETECT_NONE) ? 1 : 0;
 #endif
 #endif
+    action->prio_enable    = vce->action.prio_enable;
+    action->prio           = vce->action.prio;
+    action->dp_enable      = vce->action.dp_enable;
+    action->dp             = vce->action.dp;
+    action->dscp_enable    = vce->action.dscp_enable;
+    action->dscp           = vce->action.dscp;
+    action->pcp_dei_enable = (vce->action.pcp_enable || vce->action.dei_enable);
+    action->pcp_enable     = vce->action.pcp_enable;
+    action->dei_enable     = vce->action.dei_enable;
+    action->pcp            = vce->action.pcp;
+    action->dei            = vce->action.dei;
 
     /* Copy key data */
     memcpy(key->port_list, vce->key.port_list, sizeof(key->port_list));
@@ -5918,6 +5864,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_PSFP)
             pr("Filter  ");
 #endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
+            pr("CT_DIS");
+#endif
             pr("\n");
         }
         conf = &sdx->conf;
@@ -5930,7 +5879,7 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #endif
         vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE, conf->voe_idx);
 #if defined(VTSS_FEATURE_VOP_V2)
-        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOE_IDX_NONE, conf->voi_idx);
+        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE, conf->voi_idx);
 #endif
 #if defined(VTSS_FEATURE_FRER)
         vtss_debug_print_w6(pr, conf->frer.mstream_enable, conf->frer.mstream_id);
@@ -5938,6 +5887,9 @@ static void vtss_debug_print_iflow(vtss_state_t *vtss_state,
 #endif
 #if defined(VTSS_FEATURE_PSFP)
         vtss_debug_print_w6(pr, conf->psfp.filter_enable, conf->psfp.filter_id);
+#endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
+        pr("  %u", conf->cut_through_disable);
 #endif
         pr("\n");
     }
@@ -5980,7 +5932,7 @@ static void vtss_debug_print_eflow(vtss_state_t *vtss_state,
 #endif
         vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE, conf->voe_idx);
 #if defined(VTSS_FEATURE_VOP_V2)
-        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOE_IDX_NONE, conf->voi_idx);
+        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE, conf->voi_idx);
 #endif
         pr("\n");
     }
@@ -6099,7 +6051,8 @@ static void vtss_debug_print_estat(vtss_state_t *vtss_state,
     vtss_egress_counters_t cnt;
     u16                    i, j;
     BOOL                   first = TRUE;
-
+    char                   buf[80];
+    
     vtss_debug_print_xrow(vtss_state, pr, info, &vtss_state->l2.estat_table.hdr);
     for (i = 0; i < VTSS_EVC_STAT_CNT; i++) {
         stat = &vtss_state->l2.estat.table[i];
@@ -6109,7 +6062,7 @@ static void vtss_debug_print_estat(vtss_state_t *vtss_state,
         if (first) {
             first = FALSE;
             pr("Egress Counters:\n\n");
-            pr("ID    IDX   CNT  COSID  Green/Yellow Frames\n");
+            pr("ID    IDX   CNT  COSID  Green/Yellow Frames  Green/Yellow Bytes\n");
         }
         for (j = 0; j < stat->cnt; j++) {
             if (j == 0) {
@@ -6119,7 +6072,9 @@ static void vtss_debug_print_estat(vtss_state_t *vtss_state,
             }
             pr("%-7u", j);
             if (VTSS_FUNC(l2.ecnt_get, stat->idx + j, &cnt) == VTSS_RC_OK) {
-                pr("%"PRIu64"/%"PRIu64, cnt.tx_green.frames, cnt.tx_yellow.frames);
+                sprintf(buf, "%"PRIu64"/%"PRIu64, cnt.tx_green.frames, cnt.tx_yellow.frames);
+                pr("%-21s", buf);
+                pr("%"PRIu64"/%"PRIu64, cnt.tx_green.bytes, cnt.tx_yellow.bytes);
             }
             pr("\n");
         }

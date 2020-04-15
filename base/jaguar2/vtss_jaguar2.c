@@ -2059,7 +2059,7 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
 {
     /*lint -esym(459, vtss_jr2_rd, vtss_jr2_wr) */
     u32 value, pending, j, i;
-    u32 gpio_oe, gpio_oe1, gpio_out, gpio_out1, if_ctrl, if_cfgstat;
+    u32 gpio_oe, gpio_oe1, gpio_out, gpio_out1, if_ctrl = 0, if_cfgstat = 0;
     u16 revision;
 
     // Note; by design - all gazwrap init registers have the same field layout
@@ -2085,42 +2085,44 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
         vtss_jr2_wr = jr2_wr_direct;
     }
 
-    /* Save GPIO state */
-    JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, &gpio_oe);
-    JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OE1, &gpio_oe1);
-    JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT, &gpio_out);
-    JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT1, &gpio_out1);
+    if (!vtss_state->init_conf.skip_switch_reset) {
+        /* Save GPIO state */
+        JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, &gpio_oe);
+        JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OE1, &gpio_oe1);
+        JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT, &gpio_out);
+        JR2_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT1, &gpio_out1);
 
-    /* Save SPI configuration */
-    JR2_RD(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CTRL, &if_ctrl);
-    JR2_RD(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT, &if_cfgstat);
-    VTSS_D("if_ctrl 0x%08x, if_cfgstat ox%08x", if_ctrl, if_cfgstat);
+        /* Save SPI configuration */
+        JR2_RD(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CTRL, &if_ctrl);
+        JR2_RD(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT, &if_cfgstat);
+        VTSS_D("if_ctrl 0x%08x, if_cfgstat ox%08x", if_ctrl, if_cfgstat);
 
-    /* Reset switch core only */
-    VTSS_I("resetting switch core");
-    JR2_WR(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_RESET, VTSS_M_ICPU_CFG_CPU_SYSTEM_CTRL_RESET_CORE_RST_PROTECT);
-    JR2_WR(VTSS_DEVCPU_GCB_CHIP_REGS_SOFT_RST, VTSS_M_DEVCPU_GCB_CHIP_REGS_SOFT_RST_SOFT_SWC_RST);
-    for (i=0; ; i++) {
-        if (VTSS_X_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT_IF_NUM(if_cfgstat) == 2) {
-            /* Restore SPI configuration */
-            JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CTRL, if_ctrl);
-            JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT, if_cfgstat);
-        }
+        /* Reset switch core only */
+        VTSS_I("resetting switch core");
+        JR2_WR(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_RESET, VTSS_M_ICPU_CFG_CPU_SYSTEM_CTRL_RESET_CORE_RST_PROTECT);
+        JR2_WR(VTSS_DEVCPU_GCB_CHIP_REGS_SOFT_RST, VTSS_M_DEVCPU_GCB_CHIP_REGS_SOFT_RST_SOFT_SWC_RST);
+        for (i=0; ; i++) {
+            if (VTSS_X_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT_IF_NUM(if_cfgstat) == 2) {
+                /* Restore SPI configuration */
+                JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CTRL, if_ctrl);
+                JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT, if_cfgstat);
+            }
 
-        /* Poll for switch core reset done */
-        JR2_RD(VTSS_DEVCPU_GCB_CHIP_REGS_SOFT_RST, &value);
-        if (value & VTSS_M_DEVCPU_GCB_CHIP_REGS_SOFT_RST_SOFT_SWC_RST) {
-            VTSS_MSLEEP(1);
+            /* Poll for switch core reset done */
+            JR2_RD(VTSS_DEVCPU_GCB_CHIP_REGS_SOFT_RST, &value);
+            if (value & VTSS_M_DEVCPU_GCB_CHIP_REGS_SOFT_RST_SOFT_SWC_RST) {
+                VTSS_MSLEEP(1);
+            }
+            else {
+                break;
+            }
+            if (i == 100) {
+                VTSS_E("switch core reset failed");
+                return VTSS_RC_ERROR;
+            }
         }
-        else {
-            break;
-        }
-        if (i == 100) {
-            VTSS_E("switch core reset failed");
-            return VTSS_RC_ERROR;
-        }
+        VTSS_I("reset switch core done");
     }
-    VTSS_I("reset switch core done");
 
     if (VTSS_X_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT_IF_NUM(if_cfgstat) == 2) {
         /* Restore SPI configuration */
@@ -2161,13 +2163,15 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
     }
 #endif /* VTSS_ARCH_JAGUAR_2_B */
 
-    /* Restore GPIO state */
+    if (!vtss_state->init_conf.skip_switch_reset) {
+        /* Restore GPIO state */
 #define NZ_RESTORE(r, v) do { if (v) { JR2_WR(r, v); } } while(0)
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT, gpio_out);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT1, gpio_out1);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, gpio_oe);
-    NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OE1, gpio_oe1);
+        NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT, gpio_out);
+        NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT1, gpio_out1);
+        NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, gpio_oe);
+        NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OE1, gpio_oe1);
 #undef NZ_RESTORE
+    }
 
     /* Initialize memories, if not done already */
     JR2_RD(VTSS_QSYS_SYSTEM_RESET_CFG, &value);

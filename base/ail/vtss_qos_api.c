@@ -1119,12 +1119,10 @@ vtss_rc vtss_qos_fp_port_conf_get(const vtss_inst_t       inst,
     vtss_state_t *vtss_state;
 
     VTSS_D("Enter - port_no: %u", port_no);
-
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
     *conf = vtss_state->qos.fp.port_conf[port_no];
     VTSS_EXIT();
-
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
@@ -1133,17 +1131,20 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
                                   const vtss_port_no_t          port_no,
                                   const vtss_qos_fp_port_conf_t *const conf)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t            *vtss_state;
+    vtss_rc                 rc;
+    vtss_qos_fp_port_conf_t *port_conf, conf_old;
 
     VTSS_D("Enter - port_no: %u", port_no);
-
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    vtss_state->qos.fp.port_conf[port_no] = *conf;
-    rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no);
+    port_conf = &vtss_state->qos.fp.port_conf[port_no];
+    conf_old = *port_conf;
+    *port_conf = *conf;
+    if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) != VTSS_RC_OK) {
+        *port_conf = conf_old;
+    }
     VTSS_EXIT();
-
     VTSS_D("Exit");
     return rc;
 }
@@ -1331,9 +1332,6 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
             qos->excess_enable[i] = FALSE;
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
-#if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
-            qos->credit_enable[i] = FALSE;
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
             qos->cut_through_enable[i] = FALSE;
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
@@ -1671,6 +1669,8 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
     action->prio_enable    = qce->action.prio_enable;
     action->prio           = qce->action.prio;
     action->pcp_dei_enable = qce->action.pcp_dei_enable;
+    action->pcp_enable     = qce->action.pcp_dei_enable;
+    action->dei_enable     = qce->action.pcp_dei_enable;
     action->pcp            = qce->action.pcp;
     action->dei            = qce->action.dei;
     action->pag_enable     = qce->action.policy_no_enable;
@@ -2279,7 +2279,7 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
             pr("%6d ", VTSS_BOOL(port_conf->excess_enable[queue]));
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
-            pr("%6d ", VTSS_BOOL(port_conf->credit_enable[queue]));
+            pr("%6d ", VTSS_BOOL(port_conf->shaper_queue[queue].credit_enable));
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
             pr("%10d ", VTSS_BOOL(port_conf->cut_through_enable[queue]));

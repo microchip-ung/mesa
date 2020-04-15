@@ -1,0 +1,9 @@
+:sectnums:
+
+== Packet Extraction/Injection Example
+
+In this example, the switch is setup to redirect IGMP frames to the CPU queue 7 for manual extraction/injection.
+An ingress port and an egress port must be selected, and forwarding is done by the CPU like this:
+
+* Port Tx: If the frame is received on the ingress port, it is forwarded to the egress port.
+* VLAN Tx: If the frame is received on another port, it is forwarded to all ports in VLAN 1.

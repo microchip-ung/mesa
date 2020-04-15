@@ -296,6 +296,51 @@ int cli_parse_list(const char *buf, mesa_bool_t *list, uint32_t min, uint32_t ma
 
     return error;
 }
+/* Convert text to array of u32 */
+int cli_parse_values(const char *buf, uint32_t *arr, uint32_t *val_cnt, uint32_t min, uint32_t max, uint32_t max_num)
+{
+    uint32_t n, cnt = 0;
+    const char *p, *end;
+    mesa_bool_t  error, range = 0, comma = 0;
+
+    p = buf;
+    error = (p == NULL);
+    while (p != NULL && *p != '\0') {
+
+        /* Read integer */
+        n = strtoul(p, (char **)&end, 0);
+        if (end == p) {
+            error = 1;
+            break;
+        }
+        p = end;
+
+        /* Check legal range */
+        if (n < min || n > max) {
+            error = 1;
+            break;
+        }
+        /* Single value has been read */
+        arr[cnt] = n;
+        comma = 0;
+        if (!range && *p == ',') {
+            comma = 1;
+            p++;
+        }
+        cnt++;
+        if (cnt > max_num) {
+            break;
+        }
+    }
+
+    /* Check for trailing comma/dash */
+    if (comma || range)
+        error = 1;
+
+    if (!error)
+        *val_cnt = cnt;
+    return error;
+}
 
 /* Remove unused ports from the list */
 static void cli_remove_unused_ports(cli_req_t *req) 
@@ -351,7 +396,7 @@ static int cli_parm_vid(cli_req_t *req)
 static cli_parm_t cli_parm_table[] = {
     {
         "<port_no>",
-        "port number",
+        "Port number or zero",
         CLI_PARM_FLAG_SET,
         cli_parm_port_no
     },
@@ -912,7 +957,7 @@ int cli_printf(const char *fmt, ...)
     m->type = IPC_STDOUT;
     m->len = size;
 
-    T_N("Write: ", size + sizeof(*m));
+    T_N("Write: %d", size + sizeof(*m));
     write_block(cli_con, buf, size + sizeof(*m));
 
     if (p)
@@ -1077,22 +1122,17 @@ static void cli_socket_init(void)
     strcpy(local.sun_path, IPC_FILE);
     unlink(local.sun_path);
 
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) <= 0) {
+    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
         T_E("socket failed");
-        return;
-    }
-
-    if (bind(fd, (struct sockaddr *)&local, sizeof(local.sun_family) + strlen(local.sun_path)) < 0) {
+    } else if (bind(fd, (struct sockaddr *)&local, sizeof(local.sun_family) + strlen(local.sun_path)) < 0) {
         T_E("bind failed");
-        return;
-    }
-
-    if (listen(fd, 1) < 0) {
+        close(fd);
+    } else if (listen(fd, 1) < 0) {
         T_E("listen failed");
-        return;
+        close(fd);
+    } else {
+        fd_read_register(fd, cli_accept);
     }
-
-    fd_read_register(fd, cli_accept);
 }
 
 void mscc_appl_cli_init(mscc_appl_init_t *init)

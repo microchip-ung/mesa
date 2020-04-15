@@ -50,11 +50,14 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 #define CLI_ADDR_MAX (1<<8)  /* 8-bit address space */
 #define CLI_PHY_MAX 32
 #define CLI_PATTERN_MAX 128
+#define CLI_VALUES_MAX 10
 
 typedef struct {
     mesa_bool_t tgt_list[CLI_TGT_MAX];
     mesa_bool_t addr_list[CLI_ADDR_MAX];
     mesa_bool_t mmd_list[CLI_ADDR_MAX];
+    uint32_t    value_list[CLI_VALUES_MAX];
+    uint32_t    value_cnt;
     uint32_t    value;
     uint32_t    page;
     uint16_t    mmd_addr;
@@ -275,6 +278,45 @@ static void cli_cmd_debug_i2c(cli_req_t *req)
     }
 }
 
+static void cli_cmd_debug_serdes(cli_req_t *req)
+{
+    mesa_port_no_t  iport, port;
+    debug_cli_req_t *mreq = req->module_req;
+    mesa_port_serdes_debug_t conf = {0};
+    char numbuf[100] = {0};
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        port = iport2uport(iport);
+        if (req->port_list[port] == 0)
+            continue;
+
+        if (mreq->value > 2) {
+            cli_printf("Usage:\n");
+            cli_printf("type = 0 (=DFE).  For 10G: h1,h2,h3,h4,h5,0. For 25G: h1,h2,h3,h4,h5,dlev\n");
+            cli_printf("type = 1 (=CTLE). For 10G: r,c,vga,0         For 25G: vga_r,vga_c,c,gain\n");
+            cli_printf("Syntax:\n");
+            cli_printf("mesa-cmd deb serdes <port> <type> <h1,h2,h3,h4,h5,dlev> || <vga_r,vga_c,c,gain>\n");
+            return;
+        }
+
+        if (mreq->value == 0 && (mreq->value_cnt != 6)) {
+            cli_printf("Error. Expecting 6 values for DFE (<h1,h2,h3,h4,h5,dlev> or <h1,h2,h3,h4,h5,0>\n");
+            return;
+        } else if (mreq->value == 1 && (mreq->value_cnt != 4)) {
+            cli_printf("Error. Expecting 4 values for CTLE (<vga_r,vga_c,c,gain> or <r,c,vga,0>)\n");
+            return;
+        }
+
+        conf.debug_type = mreq->value;
+        for (uint8_t i = 0; i < mreq->value_cnt; i++) {
+            conf.serdes_prm[i] = mreq->value_list[i];
+            sprintf(numbuf + strlen(numbuf), "%d ",mreq->value_list[i]);
+        }
+        (void)mesa_port_serdes_debug_set(NULL, iport, &conf);
+        cli_printf("Wrote %s with parameters: %s\n",mreq->value == 0 ? "DFE":"CTLE",numbuf);
+    }
+}
+
 static void cli_cmd_debug_chip_id(cli_req_t *req)
 {
     mesa_chip_id_t id;
@@ -369,6 +411,13 @@ static cli_cmd_t cli_cmd_table[] = {
         "Display the matched register(s)",
         cli_cmd_debug_symreg_query
     },
+    {
+        "Debug serdes <port_list> <value> <value_list>",
+        "DFE: value = 0. CTL: value = 1",
+        cli_cmd_debug_serdes,
+        CLI_CMD_FLAG_ALL_PORTS
+    },
+
 };
 
 static int cli_parm_api_layer(cli_req_t *req)
@@ -459,6 +508,13 @@ static int cli_parm_mmd_list(cli_req_t *req)
     debug_cli_req_t *mreq = req->module_req;
     return cli_parse_list(req->cmd, mreq->mmd_list, 0, 31, 0);
 }
+
+static int cli_parm_value_array(cli_req_t *req)
+{
+    debug_cli_req_t *mreq = req->module_req;
+    return cli_parse_values(req->cmd, mreq->value_list ,&mreq->value_cnt, 0, 0xffffffff, CLI_VALUES_MAX);
+}
+
 
 static int cli_parm_mmd_addr(cli_req_t *req)
 {
@@ -577,6 +633,13 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NONE,
         cli_parm_addr_list
     },
+    {
+        "<value_list>",
+        "u32 list (0-0xffffffff)",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_value_array,
+    },
+
     {
         "<page>",
         "Register page (0-0xffff), default: page 0",

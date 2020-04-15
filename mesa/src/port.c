@@ -71,17 +71,21 @@ mesa_rc mesa_port_map_get(const mesa_inst_t  inst,
                           uint32_t           cnt,
                           mesa_port_map_t    *port_map)
 {
-    mesa_rc         rc;
+    mesa_rc         rc = MESA_RC_ERROR;
     vtss_port_map_t vtss_map[VTSS_PORTS];
     vtss_port_no_t  port_no;
 
-    if (cnt != VTSS_PORTS) {
-        return VTSS_RC_ERROR;
+    if (cnt > VTSS_PORTS) {
+        return MESA_RC_ERROR;
     }
-    if ((rc = vtss_port_map_get((const vtss_inst_t)inst, vtss_map)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
-            mesa_conv_vtss_port_map_t_to_mesa_port_map_t(&vtss_map[port_no], &port_map[port_no]);
-        }
+
+    rc = vtss_port_map_get((const vtss_inst_t)inst, vtss_map);
+    if (rc != VTSS_RC_OK) {
+        return rc;
+    }
+
+    for (port_no = 0; port_no < cnt; port_no++) {
+        mesa_conv_vtss_port_map_t_to_mesa_port_map_t(&vtss_map[port_no], &port_map[port_no]);
     }
     return rc;
 }
@@ -90,13 +94,20 @@ mesa_rc mesa_port_map_set(const mesa_inst_t     inst,
                           uint32_t              cnt,
                           const mesa_port_map_t *port_map)
 {
+    mesa_rc         rc = MESA_RC_ERROR;
     vtss_port_map_t vtss_map[VTSS_PORTS];
     vtss_port_no_t  port_no;
 
-    if (cnt != VTSS_PORTS) {
-        return VTSS_RC_ERROR;
+    if (cnt > VTSS_PORTS) {
+        return MESA_RC_ERROR;
     }
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+
+    rc = vtss_port_map_get((const vtss_inst_t)inst, vtss_map);
+    if (rc != VTSS_RC_OK) {
+        return rc;
+    }
+
+    for (port_no = 0; port_no < cnt; port_no++) {
         mesa_conv_mesa_port_map_t_to_vtss_port_map_t(&port_map[port_no], &vtss_map[port_no]);
     }
     return vtss_port_map_set((const vtss_inst_t)inst, vtss_map);

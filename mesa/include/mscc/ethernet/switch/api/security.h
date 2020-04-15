@@ -150,6 +150,7 @@ typedef struct
 {
     mesa_bool_t                cpu;            // Forward to CPU
     mesa_bool_t                cpu_once;       // Only first frame forwarded to CPU
+    mesa_bool_t                cpu_disable;    // Disable CPU copy from previous forwarding decisions
     mesa_packet_rx_queue_t     cpu_queue;      // CPU queue
     mesa_bool_t                police;         // Enable policer
     mesa_acl_policer_no_t      policer_no;     // Policer number
@@ -167,11 +168,26 @@ typedef struct
     mesa_bool_t                ifh_flag CAP(ACL_IFH_FLAG); // Control one target specific bit in IFH
 } mesa_acl_action_t;
 
+// ACL key generation for ARP/IPv4/IPv6 frames
+typedef enum {
+    MESA_ACL_KEY_DEFAULT, // Match MESA_ACE_TYPE_ARP/IPV4/IPV6 (default)
+    MESA_ACL_KEY_ETYPE,   // Match MESA_ACE_TYPE_ETYPE
+    MESA_ACL_KEY_EXT      // Match MESA_ACE_TYPE_IPV4/IPV6 extended rule
+} mesa_acl_key_t;
+
+// ACL key generation for ARP/IPv4/IPv6 frames
+typedef struct {
+    mesa_acl_key_t arp;  // ARP frame key
+    mesa_acl_key_t ipv4; // IPv4 frame key
+    mesa_acl_key_t ipv6; // IPv6 frame key
+} mesa_acl_frame_key_t;
+
 // ACL port configuration
 typedef struct
 {
     mesa_acl_policy_no_t policy_no; // Policy number
     mesa_acl_action_t    action;    // Action
+    mesa_acl_frame_key_t key;       // ACL key generation
 } mesa_acl_port_conf_t;
 
 // Get ACL configuration for port.
@@ -279,6 +295,13 @@ typedef struct
     mesa_ace_bit_t   tagged;   // Tagged/untagged frame
 } mesa_ace_vlan_t;
 
+// Frame data for MESA_ACE_TYPE_ANY
+typedef struct
+{
+    mesa_ace_u48_t dmac; // DMAC
+    mesa_ace_u48_t smac; // SMAC
+} mesa_ace_frame_any_t;
+
 // Frame data for MESA_ACE_TYPE_ETYPE
 typedef struct
 {
@@ -324,49 +347,54 @@ typedef struct
 // Frame data for MESA_ACE_TYPE_IPV4
 typedef struct
 {
-    mesa_ace_bit_t      ttl;            // TTL zero
-    mesa_ace_bit_t      fragment;       // Fragment
-    mesa_ace_bit_t      options;        // Header options
-    mesa_ace_u8_t       ds;             // DS field
-    mesa_ace_u8_t       proto;          // Protocol
-    mesa_ace_ip_t       sip;            // Source IP address
-    mesa_ace_ip_t       dip;            // Destination IP address
-    mesa_ace_u48_t      data;           // Not UDP/TCP: IP data
-    mesa_ace_udp_tcp_t  sport;          // UDP/TCP: Source port
-    mesa_ace_udp_tcp_t  dport;          // UDP/TCP: Destination port
-    mesa_ace_bit_t      tcp_fin;        // TCP FIN
-    mesa_ace_bit_t      tcp_syn;        // TCP SYN
-    mesa_ace_bit_t      tcp_rst;        // TCP RST
-    mesa_ace_bit_t      tcp_psh;        // TCP PSH
-    mesa_ace_bit_t      tcp_ack;        // TCP ACK
-    mesa_ace_bit_t      tcp_urg;        // TCP URG
-    mesa_ace_bit_t      sip_eq_dip;     // SIP equals DIP
-    mesa_ace_bit_t      sport_eq_dport; // SPORT equals DPORT
-    mesa_ace_bit_t      seq_zero;       // TCP sequence number is zero
-    mesa_ace_ptp_t      ptp;            // PTP filtering (overrides sip field)
-    mesa_ace_sip_smac_t sip_smac;       // SIP/SMAC matching (overrides sip field)
+    mesa_ace_u48_t      dmac CAP(ACL_EXT_MAC); // DMAC, MESA_ACL_KEY_EXT
+    mesa_ace_u48_t      smac CAP(ACL_EXT_MAC); // SMAC, MESA_ACL_KEY_EXT
+    mesa_ace_bit_t      ttl;                   // TTL zero
+    mesa_ace_bit_t      fragment;              // Fragment
+    mesa_ace_bit_t      options;               // Header options
+    mesa_ace_u8_t       ds;                    // DS field
+    mesa_ace_u8_t       proto;                 // Protocol
+    mesa_ace_ip_t       sip;                   // Source IP address
+    mesa_ace_ip_t       dip;                   // Destination IP address
+    mesa_ace_u48_t      data;                  // Not UDP/TCP: IP data
+    mesa_ace_udp_tcp_t  sport;                 // UDP/TCP: Source port
+    mesa_ace_udp_tcp_t  dport;                 // UDP/TCP: Destination port
+    mesa_ace_bit_t      tcp_fin;               // TCP FIN
+    mesa_ace_bit_t      tcp_syn;               // TCP SYN
+    mesa_ace_bit_t      tcp_rst;               // TCP RST
+    mesa_ace_bit_t      tcp_psh;               // TCP PSH
+    mesa_ace_bit_t      tcp_ack;               // TCP ACK
+    mesa_ace_bit_t      tcp_urg;               // TCP URG
+    mesa_ace_bit_t      sip_eq_dip;            // SIP equals DIP
+    mesa_ace_bit_t      sport_eq_dport;        // SPORT equals DPORT
+    mesa_ace_bit_t      seq_zero;              // TCP sequence number is zero
+    mesa_ace_ptp_t      ptp;                   // PTP filtering (overrides sip field)
+    mesa_ace_sip_smac_t sip_smac;              // SIP/SMAC matching (overrides sip field)
 } mesa_ace_frame_ipv4_t;
 
 // Frame data for MESA_ACE_TYPE_IPV6
 typedef struct
 {
-    mesa_ace_u8_t      proto;          // IPv6 protocol
-    mesa_ace_u128_t    sip;            // IPv6 source address (byte 0-7 ignored)
-    mesa_ace_bit_t     ttl;            // TTL zero
-    mesa_ace_u8_t      ds;             // DS field
-    mesa_ace_u48_t     data;           // Not UDP/TCP: IP data
-    mesa_ace_udp_tcp_t sport;          // UDP/TCP: Source port
-    mesa_ace_udp_tcp_t dport;          // UDP/TCP: Destination port
-    mesa_ace_bit_t     tcp_fin;        // TCP FIN
-    mesa_ace_bit_t     tcp_syn;        // TCP SYN
-    mesa_ace_bit_t     tcp_rst;        // TCP RST
-    mesa_ace_bit_t     tcp_psh;        // TCP PSH
-    mesa_ace_bit_t     tcp_ack;        // TCP ACK
-    mesa_ace_bit_t     tcp_urg;        // TCP URG
-    mesa_ace_bit_t     sip_eq_dip;     // SIP equals DIP
-    mesa_ace_bit_t     sport_eq_dport; // SPORT equals DPORT
-    mesa_ace_bit_t     seq_zero;       // TCP sequence number is zero
-    mesa_ace_ptp_t     ptp;            // PTP filtering (overrides sip byte 0-3)
+    mesa_ace_u48_t     dmac CAP(ACL_EXT_MAC); // DMAC, MESA_ACL_KEY_EXT
+    mesa_ace_u48_t     smac CAP(ACL_EXT_MAC); // SMAC, MESA_ACL_KEY_EXT
+    mesa_ace_u8_t      proto;                 // IPv6 protocol
+    mesa_ace_u128_t    sip;                   // IPv6 source address (byte 0-7 only used for MESA_ACL_KEY_EXT)
+    mesa_ace_u128_t    dip CAP(ACL_EXT_DIP);  // IPv6 destination address, MESA_ACL_KEY_EXT
+    mesa_ace_bit_t     ttl;                   // TTL zero
+    mesa_ace_u8_t      ds;                    // DS field
+    mesa_ace_u48_t     data;                  // Not UDP/TCP: IP data
+    mesa_ace_udp_tcp_t sport;                 // UDP/TCP: Source port
+    mesa_ace_udp_tcp_t dport;                 // UDP/TCP: Destination port
+    mesa_ace_bit_t     tcp_fin;               // TCP FIN
+    mesa_ace_bit_t     tcp_syn;               // TCP SYN
+    mesa_ace_bit_t     tcp_rst;               // TCP RST
+    mesa_ace_bit_t     tcp_psh;               // TCP PSH
+    mesa_ace_bit_t     tcp_ack;               // TCP ACK
+    mesa_ace_bit_t     tcp_urg;               // TCP URG
+    mesa_ace_bit_t     sip_eq_dip;            // SIP equals DIP
+    mesa_ace_bit_t     sport_eq_dport;        // SPORT equals DPORT
+    mesa_ace_bit_t     seq_zero;              // TCP sequence number is zero
+    mesa_ace_ptp_t     ptp;                   // PTP filtering (overrides sip byte 0-3)
 } mesa_ace_frame_ipv6_t;
 
 // Access Control Entry
@@ -379,6 +407,7 @@ typedef struct
     mesa_port_list_t     port_list;    // Port list
     mesa_ace_u8_t        policy;       // Policy number
     mesa_ace_type_t      type;         // ACE frame type
+    mesa_bool_t          type_ext;     // Use extended type for IPv4/IPv6
     mesa_acl_action_t    action;       // ACE action
 
     mesa_ace_bit_t       dmac_mc;      // Multicast DMAC
@@ -388,7 +417,7 @@ typedef struct
 
     union
     {
-        // MESA_ACE_TYPE_ANY: No specific fields
+        mesa_ace_frame_any_t   any;    // MESA_ACE_TYPE_ANY
         mesa_ace_frame_etype_t etype;  // MESA_ACE_TYPE_ETYPE
         mesa_ace_frame_llc_t   llc;    // MESA_ACE_TYPE_LLC
         mesa_ace_frame_snap_t  snap;   // MESA_ACE_TYPE_SNAP
@@ -554,6 +583,7 @@ typedef struct {
     mesa_rleg_list_t        rleg_list; // Ingress/egress router leg list (RACLs only)
     mesa_ace_u8_t           policy;    // Policy number
     mesa_ace_type_t         type;      // ACE frame type
+    mesa_bool_t             type_ext;  // Use extended type for IPv4/IPv6 (I-PACL)
     mesa_ace_vlan_t         vlan;      // Classified VLAN tag values (unused for RACLs)
     mesa_ace_ptp_t          ptp;       // PTP header filtering for EType/IPv4/IPv6 (unused for RACLs)
     mesa_ace_bit_t          dmac_mc;   // Multicast DMAC (unused for RACLs)
@@ -574,6 +604,7 @@ typedef struct {
     mesa_port_list_t           port_list;   // Egress port list (I-PACL/I-VACL only)
     mesa_bool_t                cpu;         // Forward to CPU (I-PACL/I-VACL only)
     mesa_bool_t                cpu_once;    // Only first frame forwarded to CPU (I-PACL/I-VACL only)
+    mesa_bool_t                cpu_disable; // Disable CPU copy from previous forwarding decisions (I-PACL/I-VACL only)
     mesa_packet_rx_queue_t     cpu_queue;   // CPU queue (I-PACL/I-VACL only)
     mesa_bool_t                police;      // Enable policer (I-PACL/I-VACL only)
     mesa_acl_policer_no_t      policer_no;  // Policer number (I-PACL/I-VACL only)

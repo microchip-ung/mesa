@@ -129,7 +129,7 @@ void meba_i2c_del(struct vcoreiii_mux_dd *mux)
 
 int  meba_i2c_add_devices(const struct vcoreiii_i2c_device *devices, struct i2c_client **clients, size_t n_devices)
 {
-    int i, added;
+    int i, added = 0;
     struct i2c_board_info i2c_info = { };
 
     for (i = 0; i < n_devices; i++) {

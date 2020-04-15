@@ -5195,6 +5195,210 @@ static const vtss_symreg_reggrp_t reggrps_within_SD10G_LANE_TARGET[] = {
     {"LANE_GRP_8"                           , 0x000000d0, 0x00000001, 0x00000015, regs_within_SD10G_LANE_TARGET_LANE_GRP_8},
     {NULL, 0, 0, 0, NULL}
 };
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_CLK_EN[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"CLK_EN"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_TMR_HOLD[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TMR_HOLD"                             , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_CFG0[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_CFG0"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_STS0[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_STS0"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LD_ADV[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LD_ADV0"                              , 0x00000000, 0x00000001, 0x00000001},
+    {"LD_ADV1"                              , 0x00000001, 0x00000001, 0x00000001},
+    {"LD_ADV2"                              , 0x00000002, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LP_BP0[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_BP0"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LP_BP1[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_BP1"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LP_BP2[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_BP2"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LD_NP[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LD_NP0"                               , 0x00000000, 0x00000001, 0x00000001},
+    {"LD_NP1"                               , 0x00000001, 0x00000001, 0x00000001},
+    {"LD_NP2"                               , 0x00000002, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LP_NP[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_NP0"                               , 0x00000000, 0x00000001, 0x00000001},
+    {"LP_NP1"                               , 0x00000001, 0x00000001, 0x00000001},
+    {"LP_NP2"                               , 0x00000002, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_BP_ETH_STS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"BP_ETH_STS"                           , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_CFG1[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_CFG1"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_BL_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"BL_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AW_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AW_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LFLONG_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LFLONG_TMR"                           , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LFSHORT_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LFSHORT_TMR"                          , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_LP_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_PD_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"PD_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_GEN0_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"GEN0_TMR"                             , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_GEN1_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"GEN1_TMR"                             , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_HIST[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_HIST"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_SM[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_SM"                                , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_AN_STS1[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"AN_STS1"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_FW_MSG[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"FW_MSG"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_FW_REQ[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"FW_REQ"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_IRQ_VEC[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"IRQ_VEC"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_NOTR_IRQ_MASK[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"IRQ_MASK"                             , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reggrp_t reggrps_within_IP_KRANEG_NOTR[] = {
+    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
+    {"CLK_EN"                               , 0x00001100, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_CLK_EN},
+    {"TMR_HOLD"                             , 0x00001101, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_TMR_HOLD},
+    {"AN_CFG0"                              , 0x00000000, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_CFG0},
+    {"AN_STS0"                              , 0x00000001, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_STS0},
+    {"LD_ADV"                               , 0x00000010, 0x00000001, 0x00000003, regs_within_IP_KRANEG_NOTR_LD_ADV},
+    {"LP_BP0"                               , 0x00000013, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LP_BP0},
+    {"LP_BP1"                               , 0x00000014, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LP_BP1},
+    {"LP_BP2"                               , 0x00000015, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LP_BP2},
+    {"LD_NP"                                , 0x00000016, 0x00000001, 0x00000003, regs_within_IP_KRANEG_NOTR_LD_NP},
+    {"LP_NP"                                , 0x00000019, 0x00000001, 0x00000004, regs_within_IP_KRANEG_NOTR_LP_NP},
+    {"BP_ETH_STS"                           , 0x00000030, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_BP_ETH_STS},
+    {"AN_CFG1"                              , 0x00001000, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_CFG1},
+    {"BL_TMR"                               , 0x00001010, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_BL_TMR},
+    {"AW_TMR"                               , 0x00001012, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AW_TMR},
+    {"LFLONG_TMR"                           , 0x00001014, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LFLONG_TMR},
+    {"LFSHORT_TMR"                          , 0x00001016, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LFSHORT_TMR},
+    {"LP_TMR"                               , 0x00001018, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_LP_TMR},
+    {"PD_TMR"                               , 0x0000101c, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_PD_TMR},
+    {"GEN0_TMR"                             , 0x00001028, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_GEN0_TMR},
+    {"GEN1_TMR"                             , 0x0000102a, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_GEN1_TMR},
+#ifndef VTSS_RELEASE
+    {"AN_HIST"                              , 0x00001030, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_HIST},
+#endif
+    {"AN_SM"                                , 0x00001031, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_SM},
+    {"AN_STS1"                              , 0x00001032, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_AN_STS1},
+    {"FW_MSG"                               , 0x00001040, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_FW_MSG},
+    {"FW_REQ"                               , 0x00001041, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_FW_REQ},
+    {"IRQ_VEC"                              , 0x00001042, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_IRQ_VEC},
+    {"IRQ_MASK"                             , 0x00001043, 0x00000001, 0x00000001, regs_within_IP_KRANEG_NOTR_IRQ_MASK},
+    {NULL, 0, 0, 0, NULL}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_KR_PMD_CTRL[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"KR_PMD_CTRL"                          , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_KR_PMD_STS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"KR_PMD_STS"                           , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_LP_COEF_UPD[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_COEF_UPD"                          , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_LP_STS_RPT[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LP_STS_RPT"                           , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_LD_COEF_UPD[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LD_COEF_UPD"                          , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_LD_STS_RPT[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"LD_STS_RPT"                           , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
 static const vtss_symreg_reg_t regs_within_IP_KRANEG_CLK_EN[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"CLK_EN"                               , 0x00000000, 0x00000001, 0x00000001},
@@ -5203,6 +5407,26 @@ static const vtss_symreg_reg_t regs_within_IP_KRANEG_CLK_EN[] = {
 static const vtss_symreg_reg_t regs_within_IP_KRANEG_TMR_HOLD[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"TMR_HOLD"                             , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_TR_CFG0[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TR_CFG0"                              , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_FRCNT_BER[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"FRCNT_BER"                            , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_TR_FRSENT[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TR_FRSENT"                            , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_TR_ERRCNT[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TR_ERRCNT"                            , 0x00000000, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_IP_KRANEG_AN_CFG0[] = {
@@ -5286,9 +5510,24 @@ static const vtss_symreg_reg_t regs_within_IP_KRANEG_LP_TMR[] = {
     {"LP_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_TR_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TR_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
 static const vtss_symreg_reg_t regs_within_IP_KRANEG_PD_TMR[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"PD_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_WT_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"WT_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_IP_KRANEG_MW_TMR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"MW_TMR"                               , 0x00000000, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_IP_KRANEG_GEN0_TMR[] = {
@@ -5338,8 +5577,18 @@ static const vtss_symreg_reg_t regs_within_IP_KRANEG_IRQ_MASK[] = {
 };
 static const vtss_symreg_reggrp_t reggrps_within_IP_KRANEG[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
+    {"KR_PMD_CTRL"                          , 0x00000196, 0x00000001, 0x00000001, regs_within_IP_KRANEG_KR_PMD_CTRL},
+    {"KR_PMD_STS"                           , 0x00000197, 0x00000001, 0x00000001, regs_within_IP_KRANEG_KR_PMD_STS},
+    {"LP_COEF_UPD"                          , 0x00000198, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LP_COEF_UPD},
+    {"LP_STS_RPT"                           , 0x00000199, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LP_STS_RPT},
+    {"LD_COEF_UPD"                          , 0x0000019a, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LD_COEF_UPD},
+    {"LD_STS_RPT"                           , 0x0000019b, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LD_STS_RPT},
     {"CLK_EN"                               , 0x00001100, 0x00000001, 0x00000001, regs_within_IP_KRANEG_CLK_EN},
     {"TMR_HOLD"                             , 0x00001101, 0x00000001, 0x00000001, regs_within_IP_KRANEG_TMR_HOLD},
+    {"TR_CFG0"                              , 0x00001102, 0x00000001, 0x00000001, regs_within_IP_KRANEG_TR_CFG0},
+    {"FRCNT_BER"                            , 0x00001103, 0x00000001, 0x00000001, regs_within_IP_KRANEG_FRCNT_BER},
+    {"TR_FRSENT"                            , 0x00001104, 0x00000001, 0x00000001, regs_within_IP_KRANEG_TR_FRSENT},
+    {"TR_ERRCNT"                            , 0x00001105, 0x00000001, 0x00000001, regs_within_IP_KRANEG_TR_ERRCNT},
     {"AN_CFG0"                              , 0x00000000, 0x00000001, 0x00000001, regs_within_IP_KRANEG_AN_CFG0},
     {"AN_STS0"                              , 0x00000001, 0x00000001, 0x00000001, regs_within_IP_KRANEG_AN_STS0},
     {"LD_ADV"                               , 0x00000010, 0x00000001, 0x00000003, regs_within_IP_KRANEG_LD_ADV},
@@ -5355,7 +5604,10 @@ static const vtss_symreg_reggrp_t reggrps_within_IP_KRANEG[] = {
     {"LFLONG_TMR"                           , 0x00001014, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LFLONG_TMR},
     {"LFSHORT_TMR"                          , 0x00001016, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LFSHORT_TMR},
     {"LP_TMR"                               , 0x00001018, 0x00000001, 0x00000001, regs_within_IP_KRANEG_LP_TMR},
+    {"TR_TMR"                               , 0x0000101a, 0x00000001, 0x00000001, regs_within_IP_KRANEG_TR_TMR},
     {"PD_TMR"                               , 0x0000101c, 0x00000001, 0x00000001, regs_within_IP_KRANEG_PD_TMR},
+    {"WT_TMR"                               , 0x00001024, 0x00000001, 0x00000001, regs_within_IP_KRANEG_WT_TMR},
+    {"MW_TMR"                               , 0x00001026, 0x00000001, 0x00000001, regs_within_IP_KRANEG_MW_TMR},
     {"GEN0_TMR"                             , 0x00001028, 0x00000001, 0x00000001, regs_within_IP_KRANEG_GEN0_TMR},
     {"GEN1_TMR"                             , 0x0000102a, 0x00000001, 0x00000001, regs_within_IP_KRANEG_GEN1_TMR},
 #ifndef VTSS_RELEASE
@@ -7653,19 +7905,19 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"SD10G_LANE"         ,    1, 0x00000242, VTSS_IO_OFFSET1(0x00908000), reggrps_within_SD10G_LANE_TARGET},
     {"SD10G_LANE"         ,    2, 0x00000244, VTSS_IO_OFFSET1(0x00910000), reggrps_within_SD10G_LANE_TARGET},
     {"SD10G_LANE"         ,    3, 0x00000246, VTSS_IO_OFFSET1(0x00918000), reggrps_within_SD10G_LANE_TARGET},
-    {"SD6G_KR"            ,    0, 0x00000248, VTSS_IO_OFFSET1(0x00920000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    1, 0x0000024a, VTSS_IO_OFFSET1(0x00928000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    2, 0x0000024c, VTSS_IO_OFFSET1(0x00930000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    3, 0x0000024e, VTSS_IO_OFFSET1(0x00938000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    4, 0x00000250, VTSS_IO_OFFSET1(0x00940000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    5, 0x00000252, VTSS_IO_OFFSET1(0x00948000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    6, 0x00000254, VTSS_IO_OFFSET1(0x00950000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    7, 0x00000256, VTSS_IO_OFFSET1(0x00958000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    8, 0x00000258, VTSS_IO_OFFSET1(0x00960000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,    9, 0x0000025a, VTSS_IO_OFFSET1(0x00968000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,   10, 0x0000025c, VTSS_IO_OFFSET1(0x00970000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,   11, 0x0000025e, VTSS_IO_OFFSET1(0x00978000), reggrps_within_IP_KRANEG},
-    {"SD6G_KR"            ,   12, 0x00000260, VTSS_IO_OFFSET1(0x00980000), reggrps_within_IP_KRANEG},
+    {"SD6G_KR"            ,    0, 0x00000248, VTSS_IO_OFFSET1(0x00920000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    1, 0x0000024a, VTSS_IO_OFFSET1(0x00928000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    2, 0x0000024c, VTSS_IO_OFFSET1(0x00930000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    3, 0x0000024e, VTSS_IO_OFFSET1(0x00938000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    4, 0x00000250, VTSS_IO_OFFSET1(0x00940000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    5, 0x00000252, VTSS_IO_OFFSET1(0x00948000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    6, 0x00000254, VTSS_IO_OFFSET1(0x00950000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    7, 0x00000256, VTSS_IO_OFFSET1(0x00958000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    8, 0x00000258, VTSS_IO_OFFSET1(0x00960000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,    9, 0x0000025a, VTSS_IO_OFFSET1(0x00968000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,   10, 0x0000025c, VTSS_IO_OFFSET1(0x00970000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,   11, 0x0000025e, VTSS_IO_OFFSET1(0x00978000), reggrps_within_IP_KRANEG_NOTR},
+    {"SD6G_KR"            ,   12, 0x00000260, VTSS_IO_OFFSET1(0x00980000), reggrps_within_IP_KRANEG_NOTR},
     {"SD10G_KR"           ,    0, 0x00000262, VTSS_IO_OFFSET1(0x00988000), reggrps_within_IP_KRANEG},
     {"SD10G_KR"           ,    1, 0x00000264, VTSS_IO_OFFSET1(0x00990000), reggrps_within_IP_KRANEG},
     {"SD10G_KR"           ,    2, 0x00000266, VTSS_IO_OFFSET1(0x00998000), reggrps_within_IP_KRANEG},

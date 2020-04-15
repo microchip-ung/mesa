@@ -170,6 +170,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL is_6g, vtss_sd10g28_mode_t        f
         VTSS_D ("Mode is SGMII2G5\n");
         break;
       }
+      case VTSS_SD10G28_MODE_FX100 :
       case VTSS_SD10G28_MODE_SGMII : 
       case VTSS_SD10G28_MODE_1G_LAN :   {
         //ret_val->datarate= 1.25e9;
@@ -179,13 +180,9 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL is_6g, vtss_sd10g28_mode_t        f
         ret_val->rate= 0x3; 
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0;
-        ret_val->pi_bw_gen1= 0x9; //SBCHG 7->9
+        ret_val->pi_bw_gen1= 0x7; //SBCHG 7->9
         ret_val->duty_cycle= 0x0 ;
         VTSS_D ("Mode is SGMII/1G LAN\n");
-        break;
-      }
-      case VTSS_SD10G28_MODE_FX100 :   {
-        //TODO
         break;
       }
       default :   {
@@ -224,8 +221,10 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                    vtss_sd10g28_setup_struct_t     *const ret_val) {
 
     vtss_rc          rslt;
+    //vtss_sd10g28_mode_args_t *mode_args = (vtss_sd10g28_mode_args_t*)malloc(sizeof(vtss_sd10g28_mode_args_t));
     vtss_sd10g28_mode_args_t sd10g28_mode;
     vtss_sd10g28_mode_args_t *mode_args = &sd10g28_mode;
+
     u8 cmu;
     vtss_sd10g28_preset_struct_t preset;
 
@@ -252,6 +251,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
     //TX and RX rate selection towards network interface									   
     ret_val->cfg_txrate_1_0[0]              =   mode_args->rate;
     ret_val->cfg_rxrate_1_0[0]              =   mode_args->rate;
+
+    ret_val->fx_100[0]                      =   config.mode == VTSS_SD10G28_MODE_FX100;
       
     //UDL interface configuration bitwidth, tx and rx clock selection, phymode selection 
     ret_val->r_DwidthCtrl_2_0[0]            = mode_args->bitwidth;
@@ -271,48 +272,99 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
 
     switch(config.preset) {
       case VTSS_SD10G28_SR           : //r_txeq_reg related signals
-                                        preset.cfg_en_adv                  = 0;
+                                        preset.cfg_en_adv                  = 1;
                                         preset.cfg_en_main                 = 1;
-                                        preset.cfg_en_dly                  = 0;
+                                        preset.cfg_en_dly                  = 1;
                                         preset.cfg_tap_adv_3_0             = 0;
                                         preset.cfg_tap_main                = 1;
-                                        preset.cfg_tap_dly_4_0             = 0;
-                                        //r_rxeq_reg related signals
-                                        preset.cfg_vga_ctrl_3_0            = 5      ;
-                                        preset.cfg_vga_cp_2_0              = 0      ;
-                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control.
+                                        preset.cfg_tap_dly_4_0             = 0xc;
+                                        //r_rxeq_reg related signals 
+                                        preset.cfg_vga_ctrl_3_0            = 0xa      ;
+                                        preset.cfg_vga_cp_2_0              = 0x4      ;
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
-                                        preset.cfg_eqC_force_3_0           = 0x8    ;
+                                        preset.cfg_eqC_force_3_0           = 0xF    ;
                                         mode_args->dfe_enable              = 0;
                                         break;
       case VTSS_SD10G28_DAC3M        : //r_txeq_reg related signals
-                                        preset.cfg_en_adv                  = 0;
-                                        preset.cfg_en_main                 = 1;
-                                        preset.cfg_en_dly                  = 0;
-                                        preset.cfg_tap_adv_3_0             = 0;
-                                        preset.cfg_tap_main                = 1;
-                                        preset.cfg_tap_dly_4_0             = 0;
-                                        //r_rxeq_reg related signals
+                                        preset.cfg_en_adv                  = 1;  
+                                        preset.cfg_en_main                 = 1;  
+                                        preset.cfg_en_dly                  = 1;  
+                                        preset.cfg_tap_adv_3_0             = 12;  
+                                        preset.cfg_tap_main                = 1;  
+                                        preset.cfg_tap_dly_4_0             = 8;  
+                                        //r_rxeq_reg related signals 
                                         preset.cfg_vga_ctrl_3_0            = 0xa    ;
                                         preset.cfg_vga_cp_2_0              = 4      ;
-                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control.
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
                                         break;
-      case VTSS_SD10G28_DAC5M        : //r_txeq_reg related signals
-                                        preset.cfg_en_adv                  = 0;
+      case VTSS_SD10G28_DAC1M        : //r_txeq_reg related signals :Not Tested
+                                        preset.cfg_en_adv                  = 1;
                                         preset.cfg_en_main                 = 1;
-                                        preset.cfg_en_dly                  = 0;
+                                        preset.cfg_en_dly                  = 1;
                                         preset.cfg_tap_adv_3_0             = 0;
                                         preset.cfg_tap_main                = 1;
-                                        preset.cfg_tap_dly_4_0             = 0;
+                                        preset.cfg_tap_dly_4_0             = 0xC;
                                         //r_rxeq_reg related signals
-                                        preset.cfg_vga_ctrl_3_0            = 5      ;
-                                        preset.cfg_vga_cp_2_0              = 0      ;
-                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control.
+                                        preset.cfg_vga_ctrl_3_0            = 0xa      ;
+                                        preset.cfg_vga_cp_2_0              = 0x4      ;
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
-                                        preset.cfg_eqC_force_3_0           = 0x8    ;
+                                        preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        mode_args->dfe_enable              = 0;
                                         break;
+      case VTSS_SD10G28_DAC2M        : //r_txeq_reg related signals :Not Tested
+                                        preset.cfg_en_adv                  = 1;
+                                        preset.cfg_en_main                 = 1;
+                                        preset.cfg_en_dly                  = 1;
+                                        preset.cfg_tap_adv_3_0             = 0;
+                                        preset.cfg_tap_main                = 1;
+                                        preset.cfg_tap_dly_4_0             = 0xC;
+                                        //r_rxeq_reg related signals
+                                        preset.cfg_vga_ctrl_3_0            = 0xa      ;
+                                        preset.cfg_vga_cp_2_0              = 0x4      ;
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
+                                        preset.cfg_eqR_byp                 = 1      ;
+                                        preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        mode_args->dfe_enable              = 0;
+
+                                        break;
+
+      case VTSS_SD10G28_DAC5M        : //r_txeq_reg related signals :Not Tested
+                                        preset.cfg_en_adv                  = 1;
+                                        preset.cfg_en_main                 = 1;
+                                        preset.cfg_en_dly                  = 1;
+                                        preset.cfg_tap_adv_3_0             = 0;
+                                        preset.cfg_tap_main                = 1;
+                                        preset.cfg_tap_dly_4_0             = 0xC;
+                                        //r_rxeq_reg related signals
+                                        preset.cfg_vga_ctrl_3_0            = 0xa      ;
+                                        preset.cfg_vga_cp_2_0              = 0x4    ;
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
+                                        preset.cfg_eqR_byp                 = 1      ;
+                                        preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        mode_args->dfe_enable              = 0;
+
+                                        break;
+      case VTSS_SD10G28_DAC3M_PVT     : //r_txeq_reg related signals
+                                        preset.cfg_en_adv                  = 1;  
+                                        preset.cfg_en_main                 = 1;  
+                                        preset.cfg_en_dly                  = 1;  
+                                        preset.cfg_tap_adv_3_0             = 12;  
+                                        preset.cfg_tap_main                = 1;  
+                                        preset.cfg_tap_dly_4_0             = 8;  
+                                        //r_rxeq_reg related signals 
+                                        preset.cfg_vga_ctrl_3_0            = 0xa    ;
+                                        preset.cfg_vga_cp_2_0              = 4      ;
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
+                                        preset.cfg_eqR_byp                 = 1      ;
+                                        preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        break;
+
+
+                                        
       default                        : //r_txeq_reg related signals
                                         preset.cfg_en_adv                  = 0;
                                         preset.cfg_en_main                 = 1;
@@ -323,7 +375,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         //r_rxeq_reg related signals
                                         preset.cfg_vga_ctrl_3_0            = 5      ;
                                         preset.cfg_vga_cp_2_0              = 0      ;
-                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control.
+                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0x8    ;
                                         break;
@@ -362,7 +414,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
     //DFE is enabled for 10G 
     ret_val->cfg_vga_ctrl_3_0[0]            = preset.cfg_vga_ctrl_3_0;
     ret_val->cfg_vga_cp_2_0[0]              = preset.cfg_vga_cp_2_0;
-    ret_val->cfg_eq_res_3_0[0]              = preset.cfg_eq_res_3_0;    //CTLE gain control.
+    ret_val->cfg_eq_res_3_0[0]              = preset.cfg_eq_res_3_0;    //CTLE gain control. 
     ret_val->cfg_eqR_byp[0]                 = preset.cfg_eqR_byp;
     ret_val->cfg_eqC_force_3_0[0]           = preset.cfg_eqC_force_3_0;
     ret_val->cfg_en_dfedig[0]               = mode_args->dfe_enable;

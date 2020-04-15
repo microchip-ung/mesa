@@ -31,6 +31,7 @@
 
 #define STATUSLED_G_GPIO 12
 #define STATUSLED_R_GPIO 13
+#define AQR_RESET 19
 
 /* LED colors */
 typedef enum {
@@ -85,6 +86,7 @@ typedef struct {
 typedef struct meba_board_state {
     board_type_t          type;
     board_port_cfg_t      port_cfg;
+    const mesa_fan_conf_t *fan_spec;
     mesa_bool_t           beaglebone;
     mesa_bool_t           ls1046;
     uint32_t              port_cnt;
@@ -94,25 +96,35 @@ typedef struct meba_board_state {
 } meba_board_state_t;
 
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
-/* static const meba_aux_rawio_t rawio = { */
-/*     .gcb = 0x01, */
-/*     .miim = { */
-/*         .status = 0x32+0, */
-/*         .cmd    = 0x32+2, */
-/*         .data   = 0x32+3, */
-/*         .cfg    = 0x32+4, */
-/*     }, */
-/*     .gpio = { */
-/*         .alt_0  = 0x1e, */
-/*         .alt1_0 = 0x20, */
-/*     } */
-/* }; */
 
+static const mesa_fan_conf_t fan_spec = {
+    .fan_pwm_freq = MESA_FAN_PWM_FREQ_20HZ,    // 20MHz
+    .fan_low_pol = 0,                          // active low
+    .fan_open_col = true,                      // Open collector
+    .type = MESA_FAN_3_WIRE_TYPE,              // 3-wire
+};
+
+static const meba_ptp_rs422_conf_t pcb134_rs422_conf = {
+    .gpio_rs422_1588_mstoen = 49,
+    .gpio_rs422_1588_slvoen = 48,
+    .ptp_pin_ldst           = 2,
+    .ptp_pin_ppso           = 3,
+    .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
+};
+
+static const meba_ptp_rs422_conf_t other_rs422_conf = {
+    .gpio_rs422_1588_mstoen = -1,
+    .gpio_rs422_1588_slvoen = -1,
+    .ptp_pin_ldst           = 2,
+    .ptp_pin_ppso           = 3,
+    .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
+};
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
 #define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
 
 /* --------------------------- Board specific ------------------------------- */
-
 static void fa_emul_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
 {
     entry->map.chip_port       = port_no;
@@ -173,6 +185,7 @@ static void fa_pcb125_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
 
 static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_interface_t if_type, mesa_internal_bw_t bw, uint32_t port_no)
 {
+    meba_board_state_t *board = INST2BOARD(inst);
     if (if_type == MESA_PORT_INTERFACE_QSGMII) {
         entry->map.chip_port       = port_no;
         entry->map.miim_addr       = port_no % 24;
@@ -182,13 +195,21 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
     } else if  (if_type == MESA_PORT_INTERFACE_SFI || if_type == MESA_PORT_INTERFACE_SGMII_CISCO) {
         entry->map.chip_port       = port_no;
-        entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
+        if ((board->type == BOARD_TYPE_SPARX5_PCB135) && (entry->map.chip_port >= 56 && entry->map.chip_port < 60)) {
+            // Aquantia Phy
+            entry->map.miim_addr       = port_no - 56;
+            entry->map.miim_controller = MESA_MIIM_CONTROLLER_3;
+            entry->cap  = (MEBA_PORT_CAP_COPPER_10G | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
+            entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to AQR phys
+        } else {
+            entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
+            entry->cap                 = (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
+            if (bw == MESA_BW_25G) {
+                entry->cap             |= MEBA_PORT_CAP_25G_FDX;
+            }
+        }
         entry->map.max_bw          = bw;
         entry->mac_if              = if_type;
-        entry->cap                 = (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
-        if (bw == MESA_BW_25G) {
-            entry->cap             |= MEBA_PORT_CAP_25G_FDX;
-        }
     } else if (if_type == MESA_PORT_INTERFACE_SGMII) {
         // NPI port
         entry->map.chip_port       = 64;
@@ -199,6 +220,9 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
     }
     entry->cap &= ~MEBA_PORT_CAP_SD_INTERNAL; // Signal detect (LOS) comes from SFP module (and not from Serdes)
+    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+        entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed (only needed due to a PCB134 board bug)
+    }
 }
 
 static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
@@ -307,6 +331,9 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     default:
         T_E(inst, "Board type (%d) not supported!", board->type);
     }
+    if (entry->map.chip_port >= 56 && entry->map.chip_port <= 59) {
+        entry->cap &= ~MEBA_PORT_CAP_SFP_DETECT; // No SFP detection on Aquantia connected ports
+    }
 }
 
 static void fa_pcb125_board_init(meba_inst_t inst)
@@ -340,11 +367,13 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     (void)mesa_gpio_mode_set(NULL, 0, 33, MESA_GPIO_ALT_0); // SGPIO Grp 2 / DI
 
     /* SGPIO group 1 controls Port LEDs for D60-D63  */
+    /* and Port LED function indicator (p24-p27)  */
     if (mesa_sgpio_conf_get(NULL, 0, 1, &conf) == MESA_RC_OK) {
         /* The blink mode 0 is 5 HZ for link activity and collision in half duplex. */
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 2;
-        for (port = 28; port < 32; port++) {
+
+        for (port = 24; port < 32; port++) {
             conf.port_conf[port].enabled = 1;
             conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_ON;  // Turn on LEDs while booting
             conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
@@ -372,6 +401,15 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     mesa_gpio_direction_set(NULL, 0, STATUSLED_G_GPIO, true);
     mesa_gpio_direction_set(NULL, 0, STATUSLED_R_GPIO, true);
     inst->api.meba_status_led_set(inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_RED);
+
+    /* Aquantia Reset GPIO */
+    mesa_gpio_direction_set(NULL, 0, AQR_RESET, true);
+
+    /* We must increase the drive strength for MIIM/MDIO bus 3  */
+    /* with HSIOWRAP:GPIO_CFG:G_DS[52-53] = 2.                  */
+    /* Currently unsupported in the API therefore direct write  */
+    mesa_reg_write(NULL, 0, 0x4142038, 0xE);
+    mesa_reg_write(NULL, 0, 0x4142039, 0xE);
 }
 
 static void fa_pcb134_board_init(meba_inst_t inst)
@@ -400,12 +438,12 @@ static void fa_pcb134_board_init(meba_inst_t inst)
     (void)mesa_gpio_mode_set(NULL, 0, 33, MESA_GPIO_ALT_0); // SGPIO Grp 2 / DI
 
     /* SGPIO group 0 controls Port LEDs for DEV64, D12-D15  */
-    /* p0 -> D64, p12-15 -> D12-D15 */
+    /* p0 -> D64, 8-11 -> Led-tower, p12-15 -> D12-D15  */
     if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
         /* The blink mode 0 is 5 HZ for link activity and collision in half duplex. */
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 2;
-        for (port = 12; port < 16; port++) {
+        for (port = 8; port < 16; port++) {
             conf.port_conf[port].enabled = 1;
             conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_ON;  // Turn on LEDs while booting
             conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
@@ -437,6 +475,8 @@ static void fa_pcb134_board_init(meba_inst_t inst)
         // to the front ports (SFP1-20), but it is not used for
         // anything else, so no additional conf is applied.
         conf.port_conf[0].enabled = 1;
+        /* conf.port_conf[0].mode[0] = MESA_SGPIO_MODE_OFF; */
+        /* conf.port_conf[31].mode[1] = MESA_SGPIO_MODE_OFF; */
         // SW_WA_PCB134
         // Due to a hardware bug in PCB134, all SGPIOs in group 2
         // are shifted to the left by 1 bit, so p31b0 is p31b1,
@@ -475,7 +515,7 @@ static void fa_pcb134_board_init(meba_inst_t inst)
     for (uint32_t port = 0; port < 20; port++) {
         // ctrl [1-3], port [1-32], bit [1-4]
         // Mapping: DEV12->p11b1 : sgpio(ctrl,port,bit) = sgpio(2,11,2) = (ctrl-1)*32*4 + (port-1)*4 + bit
-        uint32_t val = 2 * 32 * 4 + (11 + port) * 4 + 2;
+        uint32_t val = 2 * 32 * 4 + (11 + port) * 4 + 1;
         if (port < 4) {
             addr = port + 0x404012 + 0x4000000;
         } else {
@@ -541,6 +581,10 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
     meba_board_state_t *board = INST2BOARD(inst);
     uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
 
+    if (sgpio_port >= MESA_SGPIO_PORTS) {
+        T_E(inst, "Invalid port %d, sgpio_port %d", port_no, sgpio_port);
+        return false;
+    }
     // SW_WA_PCB134
     // Due to a hardware bug in PCB134, all SGPIOs in group 2
     // are shifted to the left by 1 bit, so p31b0 is p31b1,
@@ -829,6 +873,10 @@ static mesa_rc fa_port_admin_state_set(meba_inst_t inst,
         mesa_sgpio_mode_t  sgpio_mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
         uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
 
+        if (sgpio_port >= MESA_SGPIO_PORTS) {
+            T_E(inst, "Invalid port %d, sgpio_port %d", port_no, sgpio_port);
+            return MESA_RC_ERROR;
+        }
         if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
             // SW_WA_PCB134
             // Due to a hardware bug in PCB134, all SGPIOs in group 2
@@ -880,16 +928,83 @@ static mesa_rc fa_status_led_set(meba_inst_t inst,
     return rc;
 }
 
+static void fa_aqr_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
+{
+#define AQR_LED_OFF             0x0000
+#define AQR_LED_5G_LINK_ON      0x8000
+#define AQR_LED_2G5_LINK_ON     0x4000
+#define AQR_LED_ON              0x0100
+#define AQR_LED_10G_LINK_ON     0x0080
+#define AQR_LED_1G_LINK_ON      0x0040
+#define AQR_LED_100M_LINK_ON    0x0020
+#define AQR_LED_CONNECTING      0x0010
+#define AQR_LED_RX_ACT          0x0008
+#define AQR_LED_TX_ACT          0x0004
+#define AQR_LED_ACT_STRETCH_100 0x0003
+#define AQR_LED_ACT_STRETCH_60  0x0002
+#define AQR_LED_ACT_STRETCH_28  0x0001
+#define AQR_LED_ACT_STRETCH_0   AQR_LED_OFF
+
+    meba_board_state_t *board = INST2BOARD(inst);
+    meba_port_entry_t  *entry = &board->port[port_no].map;
+    uint16_t           led0_value = AQR_LED_OFF, led1_value = AQR_LED_OFF, led2_value = AQR_LED_OFF;
+
+    if (entry->map.chip_port >= 56 && entry->map.chip_port < 60) {
+        if (status->link) {
+            /* LED0/LED2: Right
+               LED1: Left
+
+               If LED1 is HIGH, then left LED will lit GREEN.
+               If LED0 is LOW & LED2 is HIGH, then right LED will lit GREEN.
+               If LED0 is HIGH & LED2 is LOW, then right LED will lit YELLOW.
+
+               L_LED   R_RED(Active)
+               100M   GREEN   OFF
+               1G     OFF     GREEN
+               2.5G   GREEN   GREEN
+               5G     OFF     YELLOW
+               10G    GREEN   YELLOW
+            */
+
+            switch (status->speed) {
+            case MESA_SPEED_100M:
+                led0_value = AQR_LED_OFF;
+                led1_value = AQR_LED_ON | AQR_LED_RX_ACT | AQR_LED_TX_ACT | AQR_LED_ACT_STRETCH_60;
+                led2_value = AQR_LED_OFF;
+                break;
+            case MESA_SPEED_1G:
+            case MESA_SPEED_2500M:
+            case MESA_SPEED_5G:
+            case MESA_SPEED_10G:
+                led0_value = AQR_LED_ON | AQR_LED_RX_ACT | AQR_LED_TX_ACT | AQR_LED_ACT_STRETCH_60;
+                led1_value = AQR_LED_OFF;
+                led2_value = AQR_LED_OFF;
+                break;
+            default:
+                led0_value = AQR_LED_OFF;
+                led1_value = AQR_LED_OFF;
+                led2_value = AQR_LED_OFF;
+                break;
+            }
+        }
+        mesa_mmd_write(NULL, 0, entry->map.miim_controller, entry->map.miim_addr, 0x1e, 0xc430, led0_value);
+        mesa_mmd_write(NULL, 0, entry->map.miim_controller, entry->map.miim_addr, 0x1e, 0xc431, led1_value);
+        mesa_mmd_write(NULL, 0, entry->map.miim_controller, entry->map.miim_addr, 0x1e, 0xc432, led2_value);
+    }
+}
+
 static mesa_rc fa_port_led_update(meba_inst_t inst,
-                                   mesa_port_no_t port_no,
-                                   const mesa_port_status_t *status,
-                                   const mesa_port_counters_t *counters,
-                                   const meba_port_admin_state_t *state)
+                                  mesa_port_no_t port_no,
+                                  const mesa_port_status_t *status,
+                                  const mesa_port_counters_t *counters,
+                                  const meba_port_admin_state_t *state)
 {
     mesa_rc            rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
     uint32_t           sgpio_group = 0;
     uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+    uint32_t           board_port = PORT_2_BOARD_PORT(board, port_no);
+    uint32_t           led_tower = 0;
     mesa_sgpio_conf_t  conf;
     mesa_sgpio_mode_t  mode_green = MESA_SGPIO_MODE_OFF, mode_yellow = MESA_SGPIO_MODE_OFF;
 
@@ -902,27 +1017,34 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
         } else if (sgpio_port >= 16 && sgpio_port <= 31) {
             sgpio_group = 1;
         } else {
-            return rc;  // NPI LED is controlled through the PHY
+            // NPI LED is controlled through the PHY
+            return MESA_RC_OK;
         }
         break;
     case BOARD_TYPE_SPARX5_PCB135:
+        if ((board_port >= 48) && (board_port <= 51)) {
+            // 4x10G Cu ports
+            // If AQR then update LED
+            (void)fa_aqr_led_update(inst, port_no, status);
+            return MESA_RC_OK;
+        }
         mode_green = MESA_SGPIO_MODE_ON;
         mode_yellow = MESA_SGPIO_MODE_ON; // mode_green=ON and mode_yellow=ON = Turn OFF
         if (sgpio_port >= 28 && sgpio_port <= 31) {
             // Only LED update for the 4x25G ports
             sgpio_group = 1;
-            /* Align actual chip_ports to sgpios */
-            if (board->port[port_no].map.map.chip_port == 60) {
-                sgpio_port = 30;
-            } else if (board->port[port_no].map.map.chip_port == 61) {
-                sgpio_port = 31;
-            } else if (board->port[port_no].map.map.chip_port == 62) {
-                sgpio_port = 29;
+            if (sgpio_port == 28) {
+                led_tower = 27;  // The Front end LED tower
+            } else if (sgpio_port == 29) {
+                led_tower = 26;  // The Front end LED tower
+            } else if (sgpio_port == 30) {
+                led_tower = 24;  // The Front end LED tower
             } else {
-                sgpio_port = 28; // chip_port == 63
+                led_tower = 25;  // The Front end LED tower
             }
         } else {
-            return rc;
+            // PHY LEDs are controlled through the PHYs
+            return MESA_RC_OK;
         }
         break;
     default:
@@ -947,6 +1069,11 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
     if ((rc = mesa_sgpio_conf_get(NULL, 0, sgpio_group, &conf)) == MESA_RC_OK) {
         conf.port_conf[sgpio_port].mode[LED_GREEN] = mode_green;
         conf.port_conf[sgpio_port].mode[LED_YELLOW] = mode_yellow;
+        if (led_tower > 0) {
+            // Copy the port LED to front end LED tower
+            conf.port_conf[led_tower].mode[LED_GREEN] = mode_green;
+            conf.port_conf[led_tower].mode[LED_YELLOW] = mode_yellow;
+        }
         rc = mesa_sgpio_conf_set(NULL, 0, sgpio_group, &conf);
     }
 
@@ -972,22 +1099,30 @@ static mesa_rc fa_fan_conf_get(meba_inst_t inst,
                                 mesa_fan_conf_t *conf)
 {
     T_N(inst, "Called");
-    T_I(inst, "TBD");
-    return MESA_RC_NOT_IMPLEMENTED;
+    meba_board_state_t *board = INST2BOARD(inst);
+    *conf = *board->fan_spec;
+    return MESA_RC_OK;
 }
 
 static mesa_rc fa_ptp_rs422_conf_get(meba_inst_t inst,
                                       meba_ptp_rs422_conf_t *conf)
 {
+    mesa_rc rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
     T_N(inst, "Called");
-    T_I(inst, "TBD");
-    return MESA_RC_NOT_IMPLEMENTED;
+    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+        *conf = pcb134_rs422_conf;
+    } else {
+        *conf = other_rs422_conf;
+    }
+    return rc;
 }
 
 static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
+    mesa_sgpio_conf_t  conf;
 
     T_D(inst, "Called - %d", reset);
     switch (reset) {
@@ -1003,24 +1138,68 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         }
                     }
                 }
+                // Take Aquantia Phy out of reset
+                (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
             }
             break;
         case MEBA_PORT_RESET_POST:
             if (board->type == BOARD_TYPE_SPARX5_PCB135) {
                 // Release COMA mode (activate Elise phys)
                 (void)mesa_phy_post_reset(PHY_INST, 0);
+
+                // PCB135 does not use reversed MDI pair for AQR as the driver defaults to.
+                for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
+                    if (board->port[port_no].map.map.chip_port >= 56 && board->port[port_no].map.map.chip_port < 60) {
+                        mesa_mmd_write(NULL, 0, board->port[port_no].map.map.miim_controller, board->port[port_no].map.map.miim_addr, 0x1, 0xe400, 6);
+                    }
+                }
             }
             break;
         case MEBA_STATUS_LED_INITIALIZE:
             (void)fa_status_led_set(inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_YELLOW);
             break;
         case MEBA_PORT_LED_INITIALIZE:
+            if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+                // Turn off the Port LEDs
+                if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
+                    for (uint32_t port = 8; port < 16; port++) {
+                        conf.port_conf[port].enabled = 1;
+                        conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF;
+                        conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
+                    }
+                    (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+                }
+                if (mesa_sgpio_conf_get(NULL, 0, 1, &conf) == MESA_RC_OK) {
+                    for (uint32_t port = 16; port < 32; port++) {
+                        conf.port_conf[port].enabled = 1;
+                        conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF;
+                        conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
+                    }
+                    (void)mesa_sgpio_conf_set(NULL, 0, 1, &conf);
+                }
+            }
             break;
         case MEBA_FAN_INITIALIZE:
-            // TBD-BJO
+            rc = mesa_fan_controller_init(NULL, board->fan_spec);
+            if (rc == MESA_RC_OK) {
+                mesa_sgpio_conf_t  conf;
+                if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
+                    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+                        conf.port_conf[0].enabled = true;
+                        conf.port_conf[0].mode[1] =  MESA_SGPIO_MODE_OFF; // Note - FAN1_ENA is active low - See schematic.
+                        conf.port_conf[0].mode[2] =  MESA_SGPIO_MODE_OFF; // Note - FAN2_ENA is active low - See schematic.
+                    } else {
+                        conf.port_conf[18].enabled = true;
+                        conf.port_conf[18].mode[0] =  MESA_SGPIO_MODE_OFF; // Note - FAN1_ENA is active low - See schematic.
+                        conf.port_conf[18].mode[1] =  MESA_SGPIO_MODE_OFF; // Note - FAN2_ENA is active low - See schematic.
+                    }
+                    rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
+                }
+            }
+            mesa_fan_cool_lvl_set(NULL, 0xFF); // Set default level to maximum
             break;
         case MEBA_SENSOR_INITIALIZE:
-//            (void)vtss_temp_sensor_init(NULL, true);
+            (void)mesa_temp_sensor_init(NULL, true);
             break;
         case MEBA_INTERRUPT_INITIALIZE:
             break;
@@ -1040,6 +1219,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
     meba_board_state_t    *board = INST2BOARD(inst);
     int                   gpio;
     mesa_port_no_t        port_no;
+    mesa_ptp_event_type_t ptp_event;
 
     T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
 
@@ -1073,7 +1253,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
                     sgpio_port--;
                     hack_bit = 1;
                 }
-                if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, hack_bit, enable)) != MESA_RC_OK) {
+                if ((rc = mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, hack_bit, enable)) != MESA_RC_OK) {
                     T_E(inst, "Could not enable event for sgpio #%d", sgpio_port);
                 }
             }
@@ -1100,6 +1280,17 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
             //if (mesa_gpio_event_enable(NULL, 0, gpio, enable) != MESA_RC_OK) {
                 //T_E(inst, "Could not control event for gpio #%d", gpio);
             //}
+        }
+        break;
+    case MEBA_EVENT_PTP_PIN_0:
+    case MEBA_EVENT_PTP_PIN_1:
+    case MEBA_EVENT_PTP_PIN_2:
+    case MEBA_EVENT_PTP_PIN_3:
+    case MEBA_EVENT_CLK_TSTAMP:
+        ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
+
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
+            T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
         break;
 
@@ -1253,11 +1444,13 @@ static meba_api_cpu_port_t fa_ls1046_cpu_ports[] =
 meba_inst_t meba_initialize(size_t callouts_size,
                             const meba_board_interface_t *callouts)
 {
-    meba_inst_t         inst;
+    meba_inst_t        inst;
     meba_board_state_t *board;
-    mesa_port_no_t      port_no;
-    uint32_t            u;
-    FILE                *fp;
+    mesa_port_no_t     port_no;
+    char               buf[64];
+    uint32_t           u;
+    int                i;
+    FILE               *fp;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -1269,7 +1462,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     // The name and target are fetched from the application (through MESA capabilities)
     if ((inst = meba_state_alloc(callouts,
                                  "SparX-5",          // Default name
-                                 MESA_TARGET_7558_04,// Default target
+                                 MESA_TARGET_7558TSN,// Default target
                                  sizeof(*board))) == NULL) {
         return NULL;
     }
@@ -1278,16 +1471,59 @@ meba_inst_t meba_initialize(size_t callouts_size,
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
 
-    // Get the type of pcb-board from the application
-    if (meba_conf_get_u32(inst, "type", &u) == MESA_RC_OK) {
-        board->type = (board_type_t)u;
+    // Get the chip ID
+    if (meba_conf_get_hex(inst, "chip_id", &i) == MESA_RC_OK) {
+        inst->props.target = (mesa_target_type_t) i;
+    }
+
+    // Get the board type from the application
+    if (inst->iface.conf_get("pcb", buf, sizeof(buf), NULL) == MESA_RC_OK) {
+        mesa_switch_bw_t bw = mesa_capability(NULL, MESA_CAP_MISC_SWITCH_BW);
+        T_D(inst, "Board Type is %s", buf);
+
+        if (strstr(buf, "pcb134")) {
+            board->type = BOARD_TYPE_SPARX5_PCB134;
+            // Default port count, in case it cannot be read out
+            // in the next step
+            switch (bw) {
+                case MESA_SWITCH_BW_64:
+                    board->port_cnt = 7;
+                    break;
+                case MESA_SWITCH_BW_90:
+                    board->port_cnt = 10;
+                    break;
+                case MESA_SWITCH_BW_128:
+                    board->port_cnt = 13;
+                    break;
+                case MESA_SWITCH_BW_160:
+                    board->port_cnt = 17;
+                    break;
+                default:
+                    board->port_cnt = 21;
+            }
+
+        } else if (strstr(buf, "pcb135")) {
+            board->type = BOARD_TYPE_SPARX5_PCB135;
+            // Default port count, in case it cannot be read out
+            // in the next step
+            switch (bw) {
+                case MESA_SWITCH_BW_64:
+                    board->port_cnt = 29;
+                    break;
+                case MESA_SWITCH_BW_90:
+                    board->port_cnt = 53;
+                    break;
+                default:
+                    board->port_cnt = 57;
+                    break;
+            }
+        }
     }
 
     // Get the board port count
-    if (meba_conf_get_u32(inst, "board_port_cnt", &u) == MESA_RC_OK) {
+    if (meba_conf_get_u32(inst, "pcb_var", &u) == MESA_RC_OK) {
+        T_D(inst, "Board port count is %d", u);
         board->port_cnt = u;
-    } else {
-        board->port_cnt = 21;
     }
 
     // Check for Beaglbone platform
@@ -1330,7 +1566,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else if (board->port_cnt == 53) {
             board->port_cfg = VTSS_BOARD_CONF_48x1G_4x10G_NPI;
         } else if (board->port_cnt == 57) {
-            if (inst->props.target == MESA_TARGET_7552_04 ||
+            if (inst->props.target == MESA_TARGET_7552TSN ||
                 inst->props.target == MESA_TARGET_7552) {
                 board->port_cfg = VTSS_BOARD_CONF_48x1G_8x10G_NPI;
             } else {
@@ -1374,21 +1610,69 @@ meba_inst_t meba_initialize(size_t callouts_size,
                 (board->port_cfg == VTSS_BOARD_CONF_12x10G_NPI) ||
                 (board->port_cfg == VTSS_BOARD_CONF_16x10G_NPI) ||
                 (board->port_cfg == VTSS_BOARD_CONF_20x10G_NPI)) {
-                board->port[port_no].board_port = port_no;
-                board->port[port_no].sgpio_port = port_no + 12;
+                if (port_no < board->port_cnt - 1) {
+                    board->port[port_no].board_port = port_no;
+                    board->port[port_no].sgpio_port = port_no + 12;
+                } else {
+                    // NPI port is always board port 20,
+                    // the last port in the physical board map.
+                    board->port[port_no].board_port = 20;
+                    // NPI port has no SPGIO, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                }
             } else if (board->port_cfg == VTSS_BOARD_CONF_8x25G_NPI) {
-                board->port[port_no].board_port = port_no + 12;
-                board->port[port_no].sgpio_port = port_no + 24;
+                if (port_no < board->port_cnt - 1) {
+                    board->port[port_no].board_port = port_no + 12;
+                    board->port[port_no].sgpio_port = port_no + 24;
+                } else {
+                    // NPI port is always board port 20,
+                    // the last port in the physical board map.
+                    board->port[port_no].board_port = 20;
+                    // NPI port has no SPGIO, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                }
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type, board->port_cfg);
                 goto error_out;
             }
             break;
         case BOARD_TYPE_SPARX5_PCB135:
-            if (board->port_cfg == VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI) {
+            if ((board->port_cfg == VTSS_BOARD_CONF_24x1G_4x10G_NPI) ||
+                (board->port_cfg == VTSS_BOARD_CONF_48x1G_4x10G_NPI)) {
+                if (port_no < board->port_cnt - 5) {
+                    // 1G Cu ports, either 24x or 48x
+                    board->port[port_no].board_port = port_no;
+                    // No SGPIO port available, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                } else if (port_no < board->port_cnt - 1) {
+                    // 4x10G Cu ports
+                    // These are physical ports 48-51
+                    board->port[port_no].board_port = 48 + port_no - (board->port_cnt - 5);
+                    // No SGPIO port available, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                } else {
+                    // NPI port is always board port 56,
+                    // the last port in the physical board map.
+                    board->port[port_no].board_port = 56;
+                    // NPI port has no SPGIO, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                }
+            } else if ((board->port_cfg == VTSS_BOARD_CONF_48x1G_8x10G_NPI) ||
+                       (board->port_cfg == VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI)) {
                 board->port[port_no].board_port = port_no;
-                if (board->port[port_no].map.map.chip_port >= 60) {
-                    board->port[port_no].sgpio_port = board->port[port_no].map.map.chip_port - 32;
+                if ((port_no >= board->port_cnt - 5) && (port_no < board->port_cnt - 3)) {
+                    // 2x25G SFP ports, physical ports 52, 53
+                    board->port[port_no].sgpio_port = port_no - 22;
+                } else if (port_no == board->port_cnt - 3) {
+                    // 1x25G SFP port, physical port 54
+                    board->port[port_no].sgpio_port = 29;
+                } else if (port_no == board->port_cnt - 2) {
+                    // 1x25G SFP port, physical port 55
+                    board->port[port_no].sgpio_port = 28;
+                } else {
+                    // NPI port, physical port 56
+                    // No SGPIO port available, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
                 }
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type, board->port_cfg);
@@ -1401,6 +1685,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         }
         board->port[port_no].activity = true; // Force an LED update
     }
+    board->fan_spec = &fan_spec;
     T_I(inst, "Board: %s, type %d, target %4x, mux %d, %d ports", inst->props.name, board->type, inst->props.target,
         inst->props.mux_mode, board->port_cnt);
 

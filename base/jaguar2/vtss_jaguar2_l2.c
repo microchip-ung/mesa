@@ -1073,8 +1073,8 @@ static vtss_rc jr2_ip_mc_update(vtss_state_t *vtss_state,
         for (i = 0; i < 16; i++) {
             ipv6->sip.value[i] = ipmc->src.sip.ipv6.addr[i];
             ipv6->sip.mask[i] = (ipmc->src.ssm ? 0xff : 0);
-            entry.dip.value[i] = ipmc->dst.dip.ipv6.addr[i];
-            entry.dip.mask[i] = 0xff;
+            ipv6->dip.value[i] = ipmc->dst.dip.ipv6.addr[i];
+            ipv6->dip.mask[i] = 0xff;
         }
     } else {
         ipv4->sip.value = ipmc->src.sip.ipv4;

@@ -263,7 +263,7 @@ typedef struct {
 
 // Time Aware Scheduling (802.1Qbv) global configuration
 typedef struct {
-    // When set a quard band is implemented even for scheduled queues
+    // When set a guard band is implemented even for scheduled queues
     // to scheduled queue transition.
     // 0: Guard band is implemented for non-scheduled queues to scheduled
     // queues transition.
@@ -337,7 +337,7 @@ typedef struct {
     mesa_bool_t      gate_enabled;
 
     // The initial value of the port open states that is used when no GCL is active on the port.
-    mesa_bool_t       gate_open[MESA_QUEUE_ARRAY_SIZE];
+    mesa_bool_t      gate_open[MESA_QUEUE_ARRAY_SIZE];
 
     // The administrative cycle time in nanoseconds.
     // The cycle time must be at least as long as the sum of all time_interval

@@ -3248,7 +3248,7 @@
 
 /** 
  * \brief
- * CTLE "C" setting
+ * CTLE “C” setting
  *
  * \details 
  * Field: ::VTSS_SD25G_TARGET_LANE_1C . LN_CFG_EQC_FORCE_3_0

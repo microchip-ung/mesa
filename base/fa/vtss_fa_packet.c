@@ -217,57 +217,6 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
     return VTSS_RC_OK;
 }
 
-/* TBD_FDMA: Check if this function is needed, the corresponding JR2 function has bugs */
-static vtss_rc fa_dma_conf_set(vtss_state_t *vtss_state, const vtss_packet_dma_conf_t *const new)
-{
-    u32                    qmask, port, mode, i;
-    vtss_packet_rx_queue_t qu;
-
-    for (qmask = 0, i = 0; i < VTSS_QUEUE_END; i++) {
-        if (new->dma_enable[i]) {
-            qmask |= VTSS_BIT(i);
-        }
-    }
-
-    VTSS_I("%sabling DMA, mask %08x", qmask ? "En" : "Dis", qmask);
-
-    if (qmask == 0) {
-        /* Register access */
-        mode = 1;
-        port = VTSS_CHIP_PORT_CPU_0;
-    } else {
-        /* FDMA access */
-        mode = 2;
-        port = VTSS_CHIP_PORT_CPU_1;
-    }
-
-    /* Only setup highest groups */
-    REG_WRM(VTSS_DEVCPU_QS_INJ_GRP_CFG(VTSS_PACKET_TX_GRP_CNT - 1),
-            VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(mode),
-            VTSS_M_DEVCPU_QS_INJ_GRP_CFG_MODE);
-    REG_WRM(VTSS_DEVCPU_QS_XTR_GRP_CFG(VTSS_PACKET_RX_GRP_CNT - 1),
-            VTSS_F_DEVCPU_QS_XTR_GRP_CFG_MODE(mode),
-            VTSS_M_DEVCPU_QS_XTR_GRP_CFG_MODE);
-
-    for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-        REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(qu)),
-                VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(port),
-                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL);
-        vtss_state->packet.default_qu_redirect[qu] = port;
-    }
-
-    /* Update config */
-    vtss_state->packet.dma_conf = *new;
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc fa_dma_offset(vtss_state_t *vtss_state, BOOL extract, u32 *const offset)
-{
-    // TBD_FDMA
-    return VTSS_RC_OK;
-}
-
 /* Setup L2CP Profile */
 vtss_rc vtss_fa_l2cp_conf_set(vtss_state_t *vtss_state, u32 profile, u32 l2cp, vtss_fa_l2cp_conf_t *conf)
 {
@@ -398,6 +347,38 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
+{
+    u32 queue, byte_swap;
+#ifdef VTSS_OS_BIG_ENDIAN
+    byte_swap = 0;
+#else
+    byte_swap = 1;
+#endif
+
+    if (!vtss_state->packet.manual_mode) {
+        /* Change mode to manual extraction and injection */
+        vtss_state->packet.manual_mode = 1;
+        REG_WR(VTSS_DEVCPU_QS_XTR_GRP_CFG(0),
+               VTSS_F_DEVCPU_QS_XTR_GRP_CFG_MODE(1) |
+               VTSS_F_DEVCPU_QS_XTR_GRP_CFG_STATUS_WORD_POS(0) |
+               VTSS_F_DEVCPU_QS_XTR_GRP_CFG_BYTE_SWAP(byte_swap));
+        REG_WR(VTSS_DEVCPU_QS_INJ_GRP_CFG(0),
+               VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(1) |
+               VTSS_F_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
+        REG_WR(VTSS_ASM_PORT_CFG(VTSS_CHIP_PORT_CPU_0),
+               VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) |
+               VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
+        for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+            REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(queue)),
+                    VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(VTSS_CHIP_PORT_CPU_0),
+                    VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL);
+            vtss_state->packet.default_qu_redirect[queue] = VTSS_CHIP_PORT_CPU_0;
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 #ifdef VTSS_OS_BIG_ENDIAN
 #define XTR_EOF_0          0x80000000U
 #define XTR_EOF_1          0x80000001U
@@ -446,11 +427,6 @@ static vtss_rc fa_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss_pack
         }
     }
     return VTSS_RC_OK;
-}
-
-static vtss_rc fa_rx_frame_discard(vtss_state_t *vtss_state, const vtss_packet_rx_queue_t queue_no)
-{
-    return fa_rx_frame_discard_grp(vtss_state, vtss_state->packet.rx_conf.grp_map[queue_no]);
 }
 
 /**
@@ -521,7 +497,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 
     *frm_length = bytes_got = 0;
 
-    /* Read IFH. It consists of 7 words */
+    /* Read IFH words */
     for (i = 0; i < FA_IFH_WORDS; i++) {
         if (fa_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) != 0) {
             /* We accept neither EOF nor ERROR when reading the IFH */
@@ -575,112 +551,6 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 
 #define VSTAX 73 /* The IFH bit position of the first VSTAX bit. This is because the VSTAX bit positions in Data sheet is starting from zero. */
 
-static vtss_rc fa_rx_frame_get(vtss_state_t                 *vtss_state,
-                               const vtss_packet_rx_queue_t queue_no,
-                               vtss_packet_rx_header_t      *const header,
-                               u8                           *const frame,
-                               const u32                    length)
-{
-    vtss_rc              rc;
-    vtss_packet_rx_grp_t grp = vtss_state->packet.rx_conf.grp_map[queue_no];
-    u32                  val, port, val1, val2;
-    u32                  ifh[FA_IFH_WORDS];
-    vtss_port_no_t       port_no;
-    BOOL                 found = FALSE;
-    u16                  ethtype;
-    int                  i;
-
-    /* Check if data is ready for grp */
-    REG_RD(VTSS_DEVCPU_QS_XTR_DATA_PRESENT, &val);
-    if (!(val & VTSS_F_DEVCPU_QS_XTR_DATA_PRESENT_DATA_PRESENT(VTSS_BIT(grp)))) {
-        return VTSS_RC_INCOMPLETE;
-    }
-
-    if ((rc = fa_rx_frame_get_internal(vtss_state, grp, ifh, frame, length, &header->length)) != VTSS_RC_OK) {
-        return rc;
-    }
-    header->length -= 4; // According to specification, vtss_packet_rx_header_t::length excludes the FCS, but fa_rx_frame_get_internal() includes it.
-
-    /* Decoding assumes host order IFH */
-    for (i = 0; i < FA_IFH_WORDS; i++) {
-        ifh[i] = VTSS_OS_NTOHL(ifh[i]);
-    }
-
-    /* Note: there is no length reported in the IFH */
-    /* Note - VLAN tags are *not* stripped on ingress */
-
-    /* Internal Frame Header field (0-287) bits which includes VStaX header at bit 73-152.
-       Bit   0-31  are in ifh[8]
-       Bit  32-63  are in ifh[7]
-       Bit  64-95  are in ifh[6]
-       Bit  96-127 are in ifh[5]
-       Bit 128-159 are in ifh[4]
-       Bit 160-191 are in ifh[3]
-       Bit 192-223 are in ifh[2]
-       Bit 224-255 are in ifh[1]
-       Bit 256-287 are in ifh[0] */
-    val1                = VTSS_EXTRACT_BITFIELD(ifh[6], 16 + VSTAX - 64, 7); // CL_VID: 7 LSB at offset 89
-    val2                = VTSS_EXTRACT_BITFIELD(ifh[5], 23 + VSTAX - 96, 5); // CL_VID: 5 MSB at offset 96
-    header->tag.vid     = ((val2 << 7) + val1);
-    header->tag.cfi     = VTSS_EXTRACT_BITFIELD(ifh[5], 28 + VSTAX - 96, 1);
-    header->tag.tagprio = VTSS_EXTRACT_BITFIELD(ifh[5], 29 + VSTAX - 96, 3);
-    header->learn       = VTSS_EXTRACT_BITFIELD(ifh[5], 47 + VSTAX - 96, 1);
-
-    val1                = VTSS_EXTRACT_BITFIELD(ifh[8], 29, 3); // CPU_MASK: 3 LSB at offset 29
-    val2                = VTSS_EXTRACT_BITFIELD(ifh[7],  0, 5); // CPU_MASK: 5 MSB at offset 32
-    header->queue_mask  = ((val2 << 3) + val1);
-
-    /* Map from chip port to API port */
-    port                = VTSS_EXTRACT_BITFIELD(ifh[7], 46 - 32, 7); // SRC_PORT at offset 46
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if (VTSS_CHIP_PORT(port_no) == port) {
-            header->port_no = port_no;
-            found = TRUE;
-            break;
-        }
-    }
-    if (!found) {
-        VTSS_E("Unknown chip port: %u", port);
-        return VTSS_RC_ERROR;
-    } else {
-        VTSS_D("chip port: %u", port);
-    }
-
-    ethtype = (frame[12] << 8) + frame[13];
-    header->arrived_tagged = (ethtype == VTSS_ETYPE_TAG_C || ethtype == VTSS_ETYPE_TAG_S); /* Emulated */
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc fa_rx_frame_get_raw(vtss_state_t         *vtss_state,
-                                   u8                  *const data,
-                                   const u32           buflen,
-                                   u32                 *const ifhlen,
-                                   u32                 *const frmlen)
-{
-    vtss_rc rc = VTSS_RC_INCOMPLETE;
-    u32     val;
-
-    /* Check if data is ready for grp */
-    REG_RD(VTSS_DEVCPU_QS_XTR_DATA_PRESENT, &val);
-    if (val) {
-        u32 ifh[FA_IFH_WORDS];
-        u32 length;
-        vtss_packet_rx_grp_t grp = VTSS_OS_CTZ(val);
-
-        /* Get frame, separate IFH and frame data */
-        if ((rc = fa_rx_frame_get_internal(vtss_state, grp, ifh, data + sizeof(ifh), buflen - sizeof(ifh), &length)) != VTSS_RC_OK) {
-            return rc;
-        }
-
-        /* IFH is done separately because of alignment needs */
-        memcpy(data, ifh, sizeof(ifh));
-        *ifhlen = sizeof(ifh);
-        *frmlen = length;
-    }
-    return rc;
-}
-
 static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
                                 const vtss_packet_rx_meta_t *const meta,
                                 const u8                           xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
@@ -689,15 +559,17 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     u16                 vstax_hi, vstax_one;
     u32                 fwd, misc, sflow_id;
     u64                 tstamp, dst, vstax_lo;
+    u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
-    vtss_trace_group_t  trc_grp = meta->no_wait ? VTSS_TRACE_GROUP_FDMA_IRQ : VTSS_TRACE_GROUP_PACKET;
+    vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
 
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
     // Bit 287-272 (16 bits) are unused
 
     // TS is bit 232-271
-    tstamp    = ((u64)xtr_hdr[ 2] << 32);
+    xtr_hdr_2 = xtr_hdr[ 2] & 0x3F;  /* For some reason bit6-7 is occasionally unexpectedly set. Must be cleared */
+    tstamp    = ((u64)xtr_hdr_2 << 32);
     tstamp   |= ((u64)xtr_hdr[ 3] << 24) | ((u64)xtr_hdr[ 4] << 16) | ((u64)xtr_hdr[ 5] <<  8) | ((u64)xtr_hdr[ 6] <<  0);
 
     // DST is bit 153-231 (79 bits), but we only read the 63 LSB for now
@@ -729,25 +601,27 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 
     memset(info, 0, sizeof(*info));
 
-    info->sw_tstamp         = meta->sw_tstamp;
     info->hw_tstamp         = tstamp<<8;
     info->length            = meta->length;
     info->hw_tstamp_decoded = TRUE;
 
     chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, 7); // FWD:SRC_PORT
-    info->port_no = vtss_cmn_chip_to_logical_port(state, meta->chip_no, chip_port);
+    info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
     if (chip_port == VTSS_CHIP_PORT_CPU_0 || chip_port == VTSS_CHIP_PORT_CPU_1) {
         VTSS_IG(trc_grp, "This frame is transmitted by the CPU itself and should be discarded.");
     }
 
 //     VTSS_IG(trc_grp, "Received on xtr_qu = %u, chip_no = %d, chip_port = %u, port_no = %u", meta->xtr_qu, meta->chip_no, chip_port, info->port_no);
 
-    info->glag_no = VTSS_GLAG_NO_NONE;
-
     // TBD_PACKET: Check if bugzilla#17780 is valid for this architecture
     sflow_id = VTSS_EXTRACT_BITFIELD(fwd, 12, 7); // FWD:SFLOW_ID
-    info->sflow_type    = (chip_port == sflow_id ? VTSS_SFLOW_TYPE_RX : VTSS_SFLOW_TYPE_TX);
-    info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, meta->chip_no, sflow_id);
+    if (sflow_id < VTSS_CHIP_PORTS) {
+        info->sflow_type = VTSS_SFLOW_TYPE_TX;
+        info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
+    } else if (sflow_id == 125 || sflow_id == 126) {
+        info->sflow_type = VTSS_SFLOW_TYPE_RX;
+        info->sflow_port_no = info->port_no;
+    }
 
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD(misc, 0, 8); // MISC:CPU_MASK
 
@@ -756,20 +630,48 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
         info->acl_hit = 1;
     }
 
-    info->cosid      = VTSS_EXTRACT_BITFIELD(  vstax_hi, 12,  3);
-    //info->vstax.isdx = VTSS_EXTRACT_BITFIELD(  vstax_hi,  0, 12);
-    info->dp         = VTSS_EXTRACT_BITFIELD64(vstax_lo, 60,  2);
-    info->cos        = VTSS_EXTRACT_BITFIELD64(vstax_lo, 56,  3);
-    info->tag.pcp    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29,  3);
-    info->tag.dei    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
-    info->tag.vid    = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
-
-    // TBD_PACKET: XVID extraction
-    info->vsi = VTSS_VSI_NONE;
+    info->cosid    = VTSS_EXTRACT_BITFIELD(  vstax_hi, 12,  3);
+    info->iflow_id = VTSS_EXTRACT_BITFIELD(  vstax_hi,  0, 12);
+    info->dp       = VTSS_EXTRACT_BITFIELD64(vstax_lo, 60,  2);
+    info->cos      = VTSS_EXTRACT_BITFIELD64(vstax_lo, 56,  3);
+    info->tag.pcp  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29,  3);
+    info->tag.dei  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
+    info->tag.vid  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, trc_grp, meta->etype, info));
 
     return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
+                           u8                    *const data,
+                           const u32             buflen,
+                           vtss_packet_rx_info_t *const rx_info)
+{
+    vtss_rc rc = VTSS_RC_INCOMPLETE;
+    u32     val;
+
+    VTSS_RC(fa_packet_mode_update(vtss_state));
+
+    /* Check if data is ready for grp */
+    REG_RD(VTSS_DEVCPU_QS_XTR_DATA_PRESENT, &val);
+    if (val) {
+        u32 ifh[FA_IFH_WORDS];
+        u32 length;
+        vtss_packet_rx_grp_t grp = VTSS_OS_CTZ(val);
+        u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES];
+        vtss_packet_rx_meta_t meta;
+
+        /* Get frame, separate IFH and frame data */
+        VTSS_RC(fa_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
+
+        /* IFH is done separately because of alignment needs */
+        memcpy(xtr_hdr, ifh, sizeof(ifh));
+        memset(&meta, 0, sizeof(meta));
+        meta.length = (length - 4);
+        rc = fa_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+    }
+    return rc;
 }
 
 /*****************************************************************************/
@@ -835,7 +737,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
     BOOL                rewrite = TRUE, setup_cl = FALSE;
-    u32                 pl_pt = 0, pl_act = 0, vid, pdu_type = 0;
+    u32                 pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
 
     if (bin_hdr == NULL) {
         // Caller wants us to return the number of bytes required to fill
@@ -880,15 +782,11 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
                 pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
             }
+        } else {
+            IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, 7); // FWD.SRC_PORT = CPU
         }
     } else {
         // Not a switched frame.
-        // First figure out which ports the caller wants to inject to.
-        if (info->dst_port_mask) {
-            VTSS_E("dst_port_mask is not supported the dst_port must be used. Can only inject to a single port");
-            return VTSS_RC_ERROR;
-        }
-
         IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, 7); // FWD.SRC_PORT = CPU
 
         // Add mirror port if enabled.
@@ -930,6 +828,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
         IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 29, 8);   // MISC.CPU_MASK = Destination port. For injected frames this field is Destination port.
         pl_act = 1; // MISC.PIPELINE_ACT = INJ
         IFH_ENCODE_BITFIELD(bin_hdr, !rewrite,  45, 1);   // FWD.DO_NOT_REW = 0 => do rewrite, 1 => do not rewrite
+        IFH_ENCODE_BITFIELD(bin_hdr, cos, VSTAX+56, 3);  // VSTAX.CL_COS = cos. qos_class/iprio (internal priority)
 
         if (rewrite) {
             setup_cl = TRUE; // Setup classified fields later
@@ -939,14 +838,14 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             }
         } else if (info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE &&
                    info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
-                   info->isdx == VTSS_ISDX_NONE) {
+                   isdx == VTSS_ISDX_NONE) {
             // ESO_ISDX_KEY_ENA is configured to the opposite of the requested. Try not to hit ES0 when no rewriting is calculated
             IFH_ENCODE_BITFIELD(bin_hdr, 1, 70, 1); // FWD.ESO_ISDX_KEY_ENA = 1
             IFH_ENCODE_BITFIELD(bin_hdr, info->cosid, VSTAX+76, 3); // VSTAX.COSID = cosid.
-            IFH_ENCODE_BITFIELD(bin_hdr, cos,         VSTAX+56, 3); // VSTAX.CL_COS = cos. qos_class/iprio (internal priority)
         }
     } /* switched frame */
 
+    IFH_ENCODE_BITFIELD(bin_hdr, 124,    57, 7); // FWD.SFLOW_ID (disable SFlow sampling)
     IFH_ENCODE_BITFIELD(bin_hdr, pl_pt,  37, 5); // MISC.PIPELINE_PT
     IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42, 3); // MISC.PIPELINE_ACT
 
@@ -971,9 +870,9 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             vid = (VTSS_VIDS - vid);
         }
         IFH_ENCODE_BITFIELD(bin_hdr, vid, VSTAX+16, 12); // VSTAX.TAG.CL_VID = vid.
-        if (info->isdx != VTSS_ISDX_NONE) {
+        if (isdx != VTSS_ISDX_NONE) {
             IFH_ENCODE_BITFIELD(bin_hdr, 1,          70,        1); // FWD.ESO_ISDX_KEY_ENA = 1
-            IFH_ENCODE_BITFIELD(bin_hdr, info->isdx, VSTAX+64, 12); // VSTAX.MISH.ISDX = isdx
+            IFH_ENCODE_BITFIELD(bin_hdr, isdx, VSTAX+64, 12); // VSTAX.MISH.ISDX = isdx
         }
     }
     IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp>>8) & 0xFFFFFFFFFF), 232, 40); // TS = 40 bits PTP time stamp
@@ -995,6 +894,8 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     vtss_packet_tx_grp_t grp = 0;
 
     VTSS_N("length: %u, vid: %u, ifhlen: %d", length, vid, ifh->length);
+
+    VTSS_RC(fa_packet_mode_update(vtss_state));
 
     if (ifh->length != FA_IFH_BYTES) {
         return VTSS_RC_ERROR;
@@ -1064,26 +965,6 @@ static vtss_rc fa_tx_frame_ifh(vtss_state_t *vtss_state,
     return fa_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
 
-static vtss_rc fa_tx_frame_port(vtss_state_t *vtss_state,
-                                const vtss_port_no_t  port_no,
-                                const u8              *const frame,
-                                const u32             length,
-                                const vtss_vid_t      vid)
-{
-    vtss_packet_tx_ifh_t  ifh;
-    vtss_packet_tx_info_t tx_info;
-    vtss_rc               rc;
-
-    (void)vtss_packet_tx_info_init(vtss_state, &tx_info);
-    tx_info.dst_port_mask = VTSS_BIT64(port_no);
-
-    ifh.length = sizeof(ifh.ifh);
-    if ((rc = fa_tx_hdr_encode(vtss_state, &tx_info, (u8 *) ifh.ifh, &ifh.length) != VTSS_RC_OK)) {
-        return rc;
-    }
-    return fa_tx_frame_ifh_vid(vtss_state, &ifh, frame, length, vid);
-}
-
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
@@ -1114,68 +995,14 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // The NPI settings take precedence over the FDMA, but we need to keep track of
     // what the FDMA wants to set it to in case the application enables and disables NPI redirection.
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-        REG_RD(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(qu)), &val);
+        i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
+        REG_RD(VTSS_QFWD_FRAME_COPY_CFG(i), &val);
         vtss_state->packet.default_qu_redirect[qu] = VTSS_X_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(val);
-    }
-
-    // Set-up default packet Rx endianness, position of status word, and who will be extracting.
-    for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++) {
-#ifdef VTSS_OS_BIG_ENDIAN
-        // Big-endian
-        REG_WRM_CLR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i), VTSS_M_DEVCPU_QS_XTR_GRP_CFG_BYTE_SWAP);
-#else
-        // Little-endian
-        REG_WRM_SET(VTSS_DEVCPU_QS_XTR_GRP_CFG(i), VTSS_M_DEVCPU_QS_XTR_GRP_CFG_BYTE_SWAP);
-#endif
-
-        if (!vtss_state->sys_config.using_vrap) {
-            if (!vtss_state->init_conf.using_ufdma || i != 0) {
-                // Only write instance 0 of this register if not using the uFDMA, which may be loaded before
-                // the switch application, because it may be part of a Linux kernel.
-                // If not using VRAP, default to do register-based extraction. An FDMA driver may change this field to "2" later.
-                REG_WRM(VTSS_DEVCPU_QS_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_GRP_CFG_MODE(1), VTSS_M_DEVCPU_QS_XTR_GRP_CFG_MODE);
-            }
-        }
-
-        // Status word (only used when manually extracting) must come just before last data
-        REG_WRM_CLR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i), VTSS_M_DEVCPU_QS_XTR_GRP_CFG_STATUS_WORD_POS);
-    }
-
-    // Set-up default packet Tx endianness and who will be injecting.
-    for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++) {
-#ifdef VTSS_OS_BIG_ENDIAN
-        // Big-endian
-        REG_WRM_CLR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i), VTSS_M_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP);
-#else
-        // Little-endian
-        REG_WRM_SET(VTSS_DEVCPU_QS_INJ_GRP_CFG(i), VTSS_M_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP);
-#endif
-
-        if (!vtss_state->init_conf.using_ufdma || i != 0) {
-            // According to the datasheet, we must insert a small delay after every end-of-frame when injecting to QS.
-            REG_WRM(VTSS_DEVCPU_QS_INJ_CTRL(i), VTSS_F_DEVCPU_QS_INJ_CTRL_GAP_SIZE(0), VTSS_M_DEVCPU_QS_INJ_CTRL_GAP_SIZE);
-        }
-
-        if (!vtss_state->sys_config.using_vrap) {
-            // If not using VRAP, default to do register-based injection. An FDMA driver may change this field to "2" later.
-            if (!vtss_state->init_conf.using_ufdma || i != 0) {
-                // Only write instance 0 of this register if not using the uFDMA, which may be loaded before
-                // the switch application, because it may be part of a Linux kernel.
-                REG_WRM(VTSS_DEVCPU_QS_INJ_GRP_CFG(i), VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(1), VTSS_M_DEVCPU_QS_INJ_GRP_CFG_MODE);
-            }
-        }
-    }
-
-    // Setup CPU port 0 and 1. Only do this if not using VRAP
-    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1 && !vtss_state->sys_config.using_vrap; i++) {
-        // Enable IFH insertion upon extraction
-        //        REG_WRM(VTSS_REW_IFH_CTRL(i), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(1), VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);  // TODO: Claus: out of range addressing
-
-        // Enable IFH parsing upon injection (no prefix)
-        REG_WRM(VTSS_ASM_PORT_CFG(i), VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1), VTSS_M_ASM_PORT_CFG_INJ_FORMAT_CFG);
-
-        // We don't have a preamble when injecting into the CPU ports (when not using VRAP).
-        REG_WRM(VTSS_ASM_PORT_CFG(i), VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1), VTSS_M_ASM_PORT_CFG_NO_PREAMBLE_ENA);
+        REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(i),
+                VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_QOS_VAL(qu) |
+                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_ENA,
+                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_VAL |
+                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_ENA);
     }
 
     // Setup CPU port 0 and 1 to allow for classification of transmission of
@@ -1222,6 +1049,9 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
                 VTSS_M_ANA_CL_VLAN_CTRL_PORT_VID          |
                 VTSS_M_ANA_CL_VLAN_CTRL_VLAN_AWARE_ENA    |
                 VTSS_M_ANA_CL_VLAN_CTRL_VLAN_POP_CNT);
+
+        // Disable IGMP redirect for CPU ports
+        REG_WR(VTSS_ANA_CL_CAPTURE_CFG(i), 0);
     }
 
     // Make sure the ports are not VStaX aware, because that will cause the
@@ -1243,10 +1073,7 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         state->rx_conf_set              = fa_rx_conf_set;
-        state->rx_frame_get             = fa_rx_frame_get;
-        state->rx_frame_get_raw         = fa_rx_frame_get_raw;
-        state->rx_frame_discard         = fa_rx_frame_discard;
-        state->tx_frame_port            = fa_tx_frame_port;
+        state->rx_frame                 = fa_rx_frame;
         state->tx_frame_ifh             = fa_tx_frame_ifh;
         state->rx_hdr_decode            = fa_rx_hdr_decode;
         state->rx_ifh_size              = VTSS_FA_RX_IFH_SIZE;
@@ -1255,8 +1082,6 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->packet_phy_cnt_to_ts_cnt = fa_packet_phy_cnt_to_ts_cnt;
         state->packet_ns_to_ts_cnt      = fa_packet_ns_to_ts_cnt;
         state->ptp_get_timestamp        = fa_ptp_get_timestamp;
-        state->dma_conf_set             = fa_dma_conf_set;
-        state->dma_offset               = fa_dma_offset;
         state->rx_queue_count           = VTSS_PACKET_RX_QUEUE_CNT;
 
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA

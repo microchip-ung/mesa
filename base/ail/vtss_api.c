@@ -366,11 +366,11 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     case VTSS_TARGET_7552:
     case VTSS_TARGET_7556:
     case VTSS_TARGET_7558:
-    case VTSS_TARGET_7546_04:
-    case VTSS_TARGET_7549_04:
-    case VTSS_TARGET_7552_04:
-    case VTSS_TARGET_7556_04:
-    case VTSS_TARGET_7558_04:
+    case VTSS_TARGET_7546TSN:
+    case VTSS_TARGET_7549TSN:
+    case VTSS_TARGET_7552TSN:
+    case VTSS_TARGET_7556TSN:
+    case VTSS_TARGET_7558TSN:
         arch = VTSS_ARCH_FA;
         VTSS_RC(vtss_fa_inst_create(vtss_state));
         break;
@@ -712,7 +712,10 @@ const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
     switch (mt) {
     case VTSS_SD10G_MEDIA_SR:        return "SR";
     case VTSS_SD10G_MEDIA_ZR:        return "ZR";
-    case VTSS_SD10G_MEDIA_DAC:       return "DAC3m";
+    case VTSS_SD10G_MEDIA_DAC:       return "DAC";
+    case VTSS_SD10G_MEDIA_DAC_1M:    return "DAC1m";
+    case VTSS_SD10G_MEDIA_DAC_2M:    return "DAC2m";
+    case VTSS_SD10G_MEDIA_DAC_3M:    return "DAC3m";
     case VTSS_SD10G_MEDIA_DAC_5M:    return "DAC5m";
     case VTSS_SD10G_MEDIA_BP:        return "BP";
     case VTSS_SD10G_MEDIA_B2B:       return "B2B";
@@ -835,7 +838,7 @@ vtss_rc vtss_synce_clock_in_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
-            *conf = vtss_state->synce.in_conf[clk_port_inx];
+            *conf = vtss_state->synce.in_conf[clk_port];
         } else {
             rc = VTSS_RC_ERROR;
         }

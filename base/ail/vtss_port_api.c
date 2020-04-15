@@ -1078,6 +1078,11 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
 
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         vtss_state->port.forward[port_no] = VTSS_PORT_FORWARD_ENABLED;
+        // Initialize all ports in the table as unused.
+        // vtss_port_map_set will be called later on
+        // and set 'cnt' number of ports in this port
+        // table, where 'cnt' <= VTSS_PORT_NO_END.
+        vtss_state->port.map[port_no].chip_port = -1;
     }
 
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
@@ -1348,6 +1353,22 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
     return rc;
 }
 
+
+vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t               inst,
+                                   const vtss_port_no_t            port_no,
+                                   const vtss_port_serdes_debug_t  *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        VTSS_D("port_no: %u", port_no);
+        rc = VTSS_FUNC_COLD(port.serdes_debug_set, port_no, conf);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
@@ -1360,7 +1381,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
     const char       *mode;
     const char       *aneg;
     BOOL             header = 1;
-    char             buf[20];
+    char             buf[32];
 
     if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT))
         return;
@@ -1370,7 +1391,8 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             continue;
         if (header) {
             header = 0;
-            vtss_debug_print_header(pr, "Mapping");
+            sprintf(buf, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
+            vtss_debug_print_header(pr, buf);
             pr("Port  Chip Port  Chip  ");
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
             pr("Max BW  ");

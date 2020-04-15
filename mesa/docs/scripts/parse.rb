@@ -44,6 +44,7 @@ $lang = {
     :s_string => [
         [/^(?:[^"\\]|\\.)+/,  :sym_string_data,   :s_string],
         [/"/,                 :sym_string_end,    :s_root],
+        [/\\$/,               :sym_string_multi,  :s_string]
     ],
 
     :s_comment => [
@@ -97,6 +98,7 @@ $pp_lang = {
     :s_pp_string => [
         [/^(?:[^"\\]|\\.)+/,  :pp_sym_string_data,    :s_pp_string],
         [/"/,                 :pp_sym_string_end,     :s_pp_root],
+        [/\\$/,               :pp_sym_string_multi,   :s_pp_string]
     ],
 
     :s_pp_comment => [
@@ -145,8 +147,7 @@ class CLexer
             end
         end
 
-        #puts "#{__LINE__}> NO MATCH: line: #{line}: #{l}"
-        raise "no match"
+        raise "#{__LINE__}> NO MATCH: line: #{line}: #{l}"
     end
 
     def process_elements l, file, line
@@ -181,8 +182,7 @@ class CLexer
             end
         end
 
-        #puts "#{__LINE__}> NO PP MATCH: #{l}"
-        raise "no PP match"
+        raise "#{__LINE__}> NO PP MATCH: #{l}"
     end
 
     def pp_process_elements l, file, line
@@ -204,12 +204,13 @@ class CLexer
             when /^(\s*#)(.*)/
                 if l[-1] == '\\'
                     @line_state = :LINE_STATE_PP
-            end
-            obj = {:sym => :sym_pp, :match_txt => $1, :line => line, :file => file, :kids => []}
-            @stack[-1] << obj
-            @stack << obj[:kids];
-            pp_process_elements $2, file, line
-            @stack.pop if @line_state != :LINE_STATE_PP
+                end
+
+                obj = {:sym => :sym_pp, :match_txt => $1, :line => line, :file => file, :kids => []}
+                @stack[-1] << obj
+                @stack << obj[:kids];
+                pp_process_elements $2, file, line
+                @stack.pop if @line_state != :LINE_STATE_PP
             else
                 process_elements l, file, line
             end
@@ -540,6 +541,15 @@ def print_html obj, symbols
             s = "<span style=\"color:green;font-style:italic;\">#{ss}</span>"
             obj[:html] += s
 
+        elsif [:sym_string_data].include?(x[:sym])
+            s = "<span style=\"color:Maroon;\">#{ss}</span>"
+            obj[:html] += s
+
+        elsif [:sym_string_start, :sym_string_end].include?(x[:sym])
+            s = "<span style=\"color:Maroon;font-weight:bold;\">#{ss}</span>"
+            obj[:html] += s
+
+
         elsif x[:sym] == :sym_word and sym_idx
             # When browsing the code, we should jump directly the definition,
             # unless we are at the definition already, in that case we should go
@@ -586,7 +596,11 @@ def print_html obj, symbols
             symbol_obj_push x[:match_txt], :use, { :type => "use", :file => x[:file], :line => x[:line] }
             obj[:html] += s
 
-        elsif x[:sym] == :pp_sym_word
+        elsif [:pp_sym_string_multi, :sym_string_multi].include?(x[:sym])
+            s = "<span style=\"color:Purple;font-weight:bold;\">#{ss}</span>"
+            obj[:html] += s
+
+        elsif [:pp_sym_word].include?(x[:sym])
             s = "<span style=\"color:Purple;\">#{ss}</span>"
             obj[:html] += s
 
@@ -605,7 +619,8 @@ def seq_to_html s, link
     print_html(obj, s)
 
     if true
-        html += "<table style=\"white-space: nowrap; font-family: Menlo,Monaco,Consolas,\"Courier New\",monospace;\"><tr><td><pre>"
+        #html += "<table style=\"white-space: nowrap; padding: 0px; font-family: Menlo,Monaco,Consolas,\"Courier New\",monospace;\"><tr><td><pre>"
+        html += "<table class=\"code\"><tr><td><pre class=\"lineno\">"
         obj[:html].lines.count.times do |l|
             html += "<a name=\"l#{l + 1}\" href=\"##{link}@l#{l + 1}\">#{l + 1}</a>\n"
         end

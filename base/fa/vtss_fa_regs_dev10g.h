@@ -4762,7 +4762,7 @@ Tx OK Bytes Counter - MSB
  * \brief
  * High Bit Error Rate indication for all lanes. If asserted sync header
  * errors exceeding the allowed maximum during the measurement time
- * (125 1.25ms) have occurred indicating a high bit error rate from the
+ * (125쳯1.25ms) have occurred indicating a high bit error rate from the
  * line.As long as hi_ber stays asserted, local fault is signaled on
  * XGMII.hi_ber deasserts again when the bit error rate falls below the
  * limit again.
@@ -5801,7 +5801,7 @@ Tx OK Bytes Counter - MSB
  * @param target A \a ::vtss_target_DEV10G_e target
  * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-1
  */
-#define VTSS_DEV10G_PHAD_CTRL(gi)            VTSS_IOREG_IX(target,0x90,gi,2,0,0)
+#define VTSS_DEV10G_PHAD_CTRL(target,gi)     VTSS_IOREG_IX(target,0x90,gi,2,0,0)
 
 /** 
  * \brief
@@ -5864,7 +5864,7 @@ Tx OK Bytes Counter - MSB
  * @param target A \a ::vtss_target_DEV10G_e target
  * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-1
  */
-#define VTSS_DEV10G_PHAD_CYC_STAT(gi)        VTSS_IOREG_IX(target,0x90,gi,2,0,1)
+#define VTSS_DEV10G_PHAD_CYC_STAT(target,gi)  VTSS_IOREG_IX(target,0x90,gi,2,0,1)
 
 /** 
  * \brief

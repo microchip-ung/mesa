@@ -8,6 +8,9 @@ pages:
 
     - name: "Release notes"
       pages:
+        - name: "MESA-2019.12"
+          src:  "mesa/docs/release-notes/mesa-2019.12.adoc"
+
         - name: "MESA-2019.09"
           src:  "mesa/docs/release-notes/mesa-2019.09.adoc"
 
@@ -38,6 +41,83 @@ pages:
         - src: "mesa/docs/qos/qos.adoc"
         - src: "mesa/docs/acl/acl.adoc"
         - src: "mesa/docs/vop/vop.adoc"
+        - src: "mesa/docs/ts/ts.adoc"
+
+    - name: "Cookbook examples"
+      pages:
+        - src: "mesa/docs/examples/introduction.adoc"
+
+        - name: "L2 aggregation"
+          pages:
+          - src: "mesa/docs/examples/l2-aggr.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l2-aggr.c"
+
+        - name: "L2 VLAN"
+          pages:
+          - src: "mesa/docs/examples/l2-vlan.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l2-vlan.c"
+
+        - name: "L2 Enhanced VLAN"
+          pages:
+          - src: "mesa/docs/examples/l2-evlan.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l2-evlan.c"
+
+        - name: "L2 Eflow"
+          pages:
+          - src: "mesa/docs/examples/l2-eflow.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l2-eflow.c"
+
+        - name: "L2 STP"
+          pages:
+          - src: "mesa/docs/examples/l2-stp.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l2-stp.c"
+
+        - name: "L3 IPv4 Unicast"
+          pages:
+          - src: "mesa/docs/examples/l3-ipv4-uc.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/l3-ipv4-uc.c"
+
+        - name: "Packet Extraction/Injection"
+          pages:
+          - src: "mesa/docs/examples/packet-rx-tx.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/packet-rx-tx.c"
+
+        - name: "QoS Cut-through"
+          pages:
+          - src: "mesa/docs/examples/qos-ct.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/qos-ct.c"
+
+        - name: "QoS TAS"
+          pages:
+          - src: "mesa/docs/examples/qos-tas.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/qos-tas.c"
+
+        - name: "TSN FRER"
+          pages:
+          - src: "mesa/docs/examples/tsn-frer.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/tsn-frer.c"
+
+        - name: "TSN PSFP"
+          pages:
+          - src: "mesa/docs/examples/tsn-psfp.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/tsn-psfp.c"
+
+        - name: "TSN Frame Preemption"
+          pages:
+          - src: "mesa/docs/examples/tsn-fp.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/tsn-fp.c"
 
     - name: "MEBA (Board API)"
       src: "mesa/docs/meba/meba.adoc"

@@ -179,13 +179,10 @@ On Port 1 one TCE entry is configured (`mesa_tce_t`) with key matching on classi
 The EFLOW is configured (`mesa_eflow_conf_t`) to point to an allocated Service VOE that will be the OAM handling VOE. +
 
 If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
-IMPORTANT: Note that on all ports by default all frames are marked as Independent MEL on egress. This means that any frame marked as OAM on ingress will be
-handled as data (not OAM) by any Port VOE on egress. +
-+
 On Port 1 one TCE entry is configured (`mesa_tce_t`) with key matching on classified VID of the VLAN flow.
 Action is to give TAG as the E/VLAN that the VLAN MEP resides and to give EFLOW. +
 The EFLOW is configured (`mesa_eflow_conf_t`) to point to an allocated Service VOE ans Service MIP that will be the OAM handling VOE/MIP. +
-The TCE key VID is used when OAM frames are injected and is also matched by forwading frames for level filtering +
+The TCE key VID is used when OAM frames are injected and is also matched by forwarding frames for level filtering +
 +
 On Port 1+3 one TCE entry is configured (`mesa_tce_t`) with key matching on specific IFLOW. Action is to control tagging of the Port MEP and to give EFLOW. +
 The EFLOW is configured (`mesa_eflow_conf_t`) to point to the Port VOE in order to mark injected OAM frames as NOT Independent MEL.
@@ -196,6 +193,10 @@ On Port 1+3 one TCE entry is configured (`mesa_tce_t`) with key matching on clas
 Action is to control tagging of the Port MEP and to give EFLOW. +
 The EFLOW is configured (`mesa_eflow_conf_t`) to point to the Port VOE in order to mark forwarded OAM frames as NOT Independent MEL.
 This means forwarded frames are handled as OAM by the Port VOE for level filtering. +
+This TCE and EFLOW can be omitted if the VLAN CL-VID and the Port CL-VID is the same. +
++
+IMPORTANT: Note that on all ports a frame not hitting a TCE and EFLOW will by default be marked as Independent MEL on egress. This means that any frame marked as OAM on ingress will be
+handled as data (not OAM) by any Port VOE on egress. +
 
 ==== [#bookmark-ace]#ACE#.
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
