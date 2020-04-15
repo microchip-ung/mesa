@@ -85,14 +85,23 @@ fi
 #echo $ts $dir $img $file
 cd ../../../$dir
 make -j 10
+echo "----Make completed-----"
 rel=1
+
 if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
+    echo "----topo exist release----"
     et release
     rel=0
 fi
+
+echo "----Reserve test system----"
 et reserve $ts
+
+echo "----Upload image----"
 et upload mesa/demo/$img
 cd -
+
+echo "----Run test----"
 ./$file | libeasy/xml2console.rb
 if [ $rel == 1 ]; then
    et release
