@@ -2501,7 +2501,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 #endif
 
     return VTSS_RC_OK;
-    return VTSS_RC_OK;
 }
 
 
