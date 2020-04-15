@@ -906,6 +906,60 @@ static vtss_rc fa_dsm_chk_calender(vtss_state_t *vtss_state, u32 *calender, i32 
     return VTSS_RC_OK;
 }
 
+/* MESA-641. Function ported from verification/TCL to manually calculate fifo size for DSM calender */
+u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
+    vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
+    u32 sys_clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
+    u32 mac_width = 8;
+    u32 fifo_width = 16;
+    u32 addition = 0;
+    u32 mac_per = 6400, tmp1, tmp2, tmp3;
+    u32 port   = VTSS_CHIP_PORT(port_no);
+    u32 taxi_dist[VTSS_CHIP_PORTS_ALL] = {6,8,10,6,8,10,6,8,10,6,8,10,\
+                                          4,4,4,4,\
+                                          11,12,13,14,15,16,17,18, \
+                                          11,12,13,14,15,16,17,18,\
+                                          11,12,13,14,15,16,17,18,\
+                                          11,12,13,14,15,16,17,18,\
+                                          4,6,8,4,6,8,6,8,\
+                                          2,2,2,2,2,2,2,4,2};
+    switch (conf->speed) {
+    case VTSS_SPEED_25G:
+        return 0;
+        break;
+    case VTSS_SPEED_10G:
+        mac_per = 6400;
+        mac_width = 8;
+        addition = 1;
+        break;
+    case VTSS_SPEED_5G:
+        mac_per = 12800;
+        mac_width = 8;
+        addition = 0;
+        break;
+    case VTSS_SPEED_2500M:
+        mac_per = 3200;
+        mac_width = 1;
+        addition = 0;
+        break;
+    case VTSS_SPEED_1G:
+        mac_per =  8000;
+        mac_width = 1;
+        addition = 0;
+        break;
+    case VTSS_SPEED_100M:
+    case VTSS_SPEED_10M:
+        return 1;
+    default:{}
+    }
+
+    tmp1 = 1000 * mac_width / fifo_width;
+    tmp2 = 3000 + ((12000 + 2 * taxi_dist[port] * 1000) * sys_clk / mac_per);
+    tmp3 = tmp1 * tmp2 / 1000;
+    return  (tmp3 + 2000 + 999) / 1000 + addition;
+}
+
+
 static char *cal2txt(u32 port, fa_cal_speed_t spd) {
     switch (spd) {
     case FA_CAL_SPEED_1G:

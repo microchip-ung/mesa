@@ -313,6 +313,7 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr);
 vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr);
+u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 
 
 /* QoS functions */

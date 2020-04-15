@@ -2220,6 +2220,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     return VTSS_RC_OK;
 }
 
+
 /* Configuration of the 5G, 10G and 25G devices (dev10G architecture) */
 static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -2413,7 +2414,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
-    u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
+    u32                   port = VTSS_CHIP_PORT(port_no), bt_indx, stop_wm = 0;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
 
     VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
@@ -2447,20 +2448,16 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
             bt_indx = VTSS_BIT(port - 56);
             REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         }
-
-        if (use_primary_dev) {
-            REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
-                    VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(0) |
-                    VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(0),
-                    VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM |
-                    VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
-        } else {
-            REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
-                    VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(1),
-                    VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
-        }
+        REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
+                VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(!use_primary_dev),
+                VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
 
     }
+    /* MESA-641 - Setting the tx_stop_wm manually to avoid preemtion issues */
+    stop_wm = vtss_get_fifo_size(vtss_state, port_no);
+    REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
+            VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(stop_wm),
+            VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
    VTSS_RC(fa_port_mux_set(vtss_state, port_no));
