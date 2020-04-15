@@ -154,8 +154,6 @@ static vtss_rc fa_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 d
            VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(-offset));
     FA_PTP_PIN_ACTION (TOD_ACC_PIN, PTP_PIN_ACTION_DELTA, PTP_PIN_ACTION_NOSYNC, domain);
 
-    VTSS_D("Time after offset_set: %d, %d, %d",vtss_state->ts.conf.sample_ts[domain].sec_msb,vtss_state->ts.conf.sample_ts[domain].seconds,vtss_state->ts.conf.sample_ts[domain].nanoseconds);
-    VTSS_D("offset: %d", offset);
     return VTSS_RC_OK;
 }
 

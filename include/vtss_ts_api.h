@@ -380,7 +380,7 @@ vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t              inst,
 vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t           inst,
                                 i32                         *const adj);
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
 /**
  * \brief parameter for setting the alternative  clock mode.
  */
@@ -722,7 +722,7 @@ typedef enum  {
 /** \brief Timestamp operation */
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode;                /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     u32            domain;              /**< Hardware timestamping domain for a port */
 #endif
 } vtss_ts_operation_mode_t;

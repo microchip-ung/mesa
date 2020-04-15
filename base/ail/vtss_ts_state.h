@@ -24,7 +24,7 @@
 
 typedef struct {
     vtss_ts_ext_clock_mode_t ext_clock_mode;
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     vtss_ts_ext_clock_mode_t ext_clock_mode_alt;
     vtss_ts_alt_clock_mode_t alt_clock_mode;
 #endif

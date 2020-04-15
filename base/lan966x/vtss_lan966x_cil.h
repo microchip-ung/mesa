@@ -242,6 +242,10 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
+vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
+                               const vtss_chip_no_t   chip_no,
+                               const vtss_gpio_no_t   gpio_no,
+                               const vtss_gpio_mode_t mode);
 
 // L2 API
 vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
