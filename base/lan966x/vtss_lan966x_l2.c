@@ -805,7 +805,6 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     }
     for (i = 0; i < 4; i++) {
         REG_WR(QSYS_FRER_PORT(sdx->sdx, i),
-               QSYS_FRER_PORT_FRER_IGR_PORT(sdx->sdx - 1) | // TBD: Hardcoded to match test case
                QSYS_FRER_PORT_FRER_EGR_PORT(port[i]));
     }
 
@@ -1125,10 +1124,7 @@ static vtss_rc lan966x_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp
     vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[id];
     vtss_sdx_entry_t        *sdx;
 
-    REG_WR(ANA_SFIDTIDX,
-           ANA_SFIDTIDX_POL_ENA(1) |
-           ANA_SFIDTIDX_POL_IDX(LAN966X_POLICER_DLB + 0) |
-           ANA_SFIDTIDX_SFID_INDEX(id));
+    REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(id));
     REG_WR(ANA_SFIDACCESS,
            ANA_SFIDACCESS_B_O_FRM(conf->block_oversize.value ? 1 : 0) |
            ANA_SFIDACCESS_B_O_FRM_ENA(conf->block_oversize.enable ? 1 : 0) |
@@ -1428,7 +1424,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         }
         if (header) {
             header = 0;
-            pr("ISDX  Gen  Pop  Seq     Split  SMask  IMask  First  IGR_PORT/EGR_PORT\n");
+            pr("ISDX  Gen  Pop  Seq     Split  SMask  IMask  First  EGR_PORT\n");
         }
         REG_WR(ANA_STREAMTIDX, ANA_STREAMTIDX_S_INDEX(sdx->sdx));
         REG_WR(ANA_STREAMACCESS, ANA_STREAMACCESS_STREAM_TBL_CMD(LAN966X_TBL_CMD_READ));
@@ -1448,8 +1444,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         pr("%-7u", QSYS_FRER_FIRST_FRER_FIRST_MEMBER_X(val));
         for (i = 0; i < 4; i++) {
             REG_RD(QSYS_FRER_PORT(sdx->sdx, i), &val);
-            pr("%x/%x%s",
-               QSYS_FRER_PORT_FRER_IGR_PORT_X(val),
+            pr("%x%s",
                QSYS_FRER_PORT_FRER_EGR_PORT_X(val),
                i < 3 ? "-" : "\n");
         }

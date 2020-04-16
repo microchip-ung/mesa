@@ -869,7 +869,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         a->sfid_val = action->sfid;
         a->sgid_ena = action->sgid_enable;
         a->sgid_val = action->sgid;
-        // TBD: DLB update
+        a->police_ena = action->dlb_enable;
+        a->police_idx = action->dlb;
     }
 
     if (vtss_lan966x_vcap_is1_action_pack(&fa, &info.data) < 0 ||
@@ -1501,6 +1502,7 @@ static vtss_rc lan966x_es0_entry_add(vtss_state_t *vtss_state,
     a.u.vid.vid_b_val = tag.vid.val;
     a.u.vid.pcp_b_val = tag.pcp.val;
     a.u.vid.dei_b_val = tag.dei.val;
+    a.u.vid.esdx = es0->esdx;
 
     return (vtss_lan966x_vcap_es0_action_pack(&a, &info.data) < 0 ? VTSS_RC_ERROR :
             vtss_lan966x_vcap_es0_key_pack(&f, &info.data) < 0 ? VTSS_RC_ERROR :
@@ -1569,6 +1571,38 @@ static vtss_rc lan966x_es0_entry_update(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
+    lan966x_vcap_info_t info = {0};
+    vtss_vcap_obj_t     *obj = &vtss_state->vcap.es0.obj;
+    vtss_es0_data_t     *es0;
+    vtss_vcap_idx_t     idx;
+    vtss_vcap_entry_t   *cur;
+    vtss_eflow_entry_t  *eflow = vtss_eflow_lookup(vtss_state, flow_id);
+    vtss_xstat_entry_t  *stat;
+    u32                 esdx = 0;
+
+    if (eflow != NULL &&
+        eflow->conf.cnt_enable &&
+        (stat = vtss_estat_lookup(vtss_state, eflow->conf.cnt_id)) != NULL) {
+        esdx = stat->idx;
+    }
+
+    memset(&idx, 0, sizeof(idx));
+    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+        es0 = &cur->data.u.es0;
+        if (es0->flow_id == flow_id) {
+            es0->esdx = esdx;
+            info.vcap = VTSS_LAN966X_VCAP_ES0;
+            info.cmd = LAN966X_VCAP_CMD_READ;
+            info.sel = LAN966X_VCAP_SEL_ACTION;
+            info.addr = lan966x_vcap_entry_addr(info.vcap, &idx);
+            info.act_tg = LAN966X_VCAP_TG_X1;
+            VTSS_I("row: %u, col: %u, addr: %u, esdx: %u", idx.row, idx.col, info.addr, esdx);
+            VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
+            LAN966X_VCAP_ACT_SET(ES0, VID_FLD_ESDX, esdx);
+            info.cmd = LAN966X_VCAP_CMD_WRITE;
+            VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
+        }
+    }
     return VTSS_RC_OK;
 }
 
@@ -2005,6 +2039,7 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             pr("\n");
             LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_FLD_SFID_ENA, S1_FLD_SFID_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_FLD_SGID_ENA, S1_FLD_SGID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_FLD_POLICE_ENA, S1_FLD_POLICE_IDX);
             LAN966X_DEBUG_ACT(IS1, "oam_sel", S1_FLD_OAM_SEL);
             LAN966X_DEBUG_ACT(IS1, "mrp_sel", S1_FLD_MRP_SEL);
             LAN966X_DEBUG_ACT(IS1, "dlr_sel", S1_FLD_DLR_SEL);
@@ -2439,6 +2474,7 @@ static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *
                dei_sel == ES0_ACT_DEI_SEL_MAPPED ? "mapped" : "dp");
             pr("dei:%u\n", dei);
         }
+        LAN966X_DEBUG_ACT(ES0, "esdx", VID_FLD_ESDX);
         pr("\ncnt: %u", info->cnt);
         return VTSS_RC_OK;
     }

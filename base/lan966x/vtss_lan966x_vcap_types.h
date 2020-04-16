@@ -44,6 +44,11 @@ struct vtss_lan966x_vcap_u48 {
     u8 mask[6];
 };
 
+struct vtss_lan966x_vcap_u56 {
+    u8 value[7];
+    u8 mask[7];
+};
+
 struct vtss_lan966x_vcap_u64 {
     u8 value[8];
     u8 mask[8];

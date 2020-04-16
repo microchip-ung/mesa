@@ -3126,6 +3126,9 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr->move = vtss_cmn_istat_move;
     hdr->clear = vtss_cmn_istat_clear;
 
+#if defined(VTSS_ARCH_LAN966X)
+    cnt = 1;
+#endif
     hdr = &state->estat_table.hdr;
     hdr->name = "estat";
     hdr->max_count = VTSS_EVC_STAT_CNT;
@@ -4122,7 +4125,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     if (stat != NULL) {
         u32 cosid;
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
         es0->esdx = stat->idx;
 #endif
         for (cosid = 0; cosid < 8; cosid++) {

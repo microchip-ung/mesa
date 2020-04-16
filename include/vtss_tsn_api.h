@@ -11,8 +11,8 @@
 
 // Number of member streams and compound streams */
 #if defined(VTSS_ARCH_LAN966X)
-#define VTSS_MSTREAM_CNT 256
-#define VTSS_CSTREAM_CNT 128
+#define VTSS_MSTREAM_CNT 512
+#define VTSS_CSTREAM_CNT 256
 #else
 #define VTSS_MSTREAM_CNT 1024
 #define VTSS_CSTREAM_CNT 512

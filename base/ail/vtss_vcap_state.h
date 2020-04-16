@@ -971,7 +971,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_MPLS) && defined(VTSS_ARCH_JAGUAR_2)
     u16              mpls_encap_idx; /* MPLS encapsulation index. 0 if unused */
 #endif /* VTSS_FEATURE_MPLS */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     u16              esdx;      /* Egress statistics */
 #endif
 #if defined(VTSS_FEATURE_XFLOW)
