@@ -123,7 +123,7 @@ bugs:
   # should have put, in which case, that ID can be added to the 'add:' section.
   #
   # For Bugzillas, use "Bugzilla#XXXX".
-  # For Jira issues, use "AA-XXXX"
+  # For Jira issues, use "APPL-XXXX" eller "MESA-XXXX"
   #
   # Please provide a comment when removing/adding bugs to these lists.
   #
@@ -135,6 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
+     - AA-641 # Committed as JIRA-641, which is interpreted as AA-641. Should have been MESA-641.
 
   # See the 'del' section above for a description
   #
@@ -144,4 +145,5 @@ bugs:
   #
   # OPTIONAL. No bugs will be added if not specified.
   add:
+    - MESA-641 # See AA-641 above.
 
