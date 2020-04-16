@@ -543,7 +543,7 @@ vtss_rc vtss_ts_external_clock_saved_get(
 }
 
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 vtss_rc vtss_ts_alt_clock_saved_get(
     const vtss_inst_t           inst,
     u64    *const               saved)

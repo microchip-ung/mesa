@@ -83,9 +83,9 @@ static vtss_rc voe_counter_update(vtss_state_t         *vtss_state,
 
     /* VOE counter update */
     CHIPREAD(MEP_RX_SEL_CNT(voe_idx), &chipcnt->voe.rx_selected_counter,  VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(MEP_TX_SEL_CNT(voe_idx), &chipcnt->voe.tx_selected_counter,  VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
+//is removed from .cml file    CHIPREAD(MEP_TX_SEL_CNT(voe_idx), &chipcnt->voe.tx_selected_counter,  VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
     CHIPREAD(MEP_RX_FRM_CNT(voe_idx), &chipcnt->voe.rx_counter,           VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(MEP_TX_FRM_CNT(voe_idx), &chipcnt->voe.tx_counter,           VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
+//is removed from .cml file    CHIPREAD(MEP_TX_FRM_CNT(voe_idx), &chipcnt->voe.tx_counter,           VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
 
     return rc;
 #undef CHIPREAD
@@ -152,12 +152,12 @@ static vtss_rc lan966x_voe_alloc(vtss_state_t                *vtss_state,
     /* Clear assorted counters: */
     REG_WR(MEP_CCM_RX_VL_FC_CNT(*voe_idx), 0);       /* Clear assorted counters */
     REG_WR(MEP_CCM_RX_IV_FC_CNT(*voe_idx), 0);
-    REG_WR(MEP_CCM_TX_SEQ_CFG(*voe_idx), 0);
+    REG_WR(REW_PTP_SEQ_NO(i), 0);
     REG_WR(MEP_CCM_RX_SEQ_CFG(*voe_idx), 0);
     REG_WR(MEP_RX_SEL_CNT(*voe_idx), 0);
-    REG_WR(MEP_TX_SEL_CNT(*voe_idx), 0);
+//is removed from .cml file    REG_WR(MEP_TX_SEL_CNT(*voe_idx), 0);
     REG_WR(MEP_RX_FRM_CNT(*voe_idx), 0);
-    REG_WR(MEP_TX_FRM_CNT(*voe_idx), 0);
+//is removed from .cml file    REG_WR(MEP_TX_FRM_CNT(*voe_idx), 0);
 
     REG_WR(MEP_RX_STICKY(*voe_idx), 0xffffff);   /* sticky bits cleared by writing 1 to them */
     REG_WR(MEP_STICKY(*voe_idx), 0xff);          /* sticky bits cleared by writing 1 to them */
@@ -323,9 +323,9 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t           *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure CCM sequence number to increment always as we use this for CCM TX counting */
-    value = MEP_CCM_CFG_CCM_SEQ_INCR_ENA(1);
-    mask = MEP_CCM_CFG_CCM_SEQ_INCR_ENA_M;
-    REG_WRM(MEP_CCM_CFG(voe_idx), value, mask);
+//is removed from .cml file    value = MEP_CCM_CFG_CCM_SEQ_INCR_ENA(1);
+//is removed from .cml file    mask = MEP_CCM_CFG_CCM_SEQ_INCR_ENA_M;
+//is removed from .cml file    REG_WRM(MEP_CCM_CFG(voe_idx), value, mask);
 
     /* Configure the unicast MAC */
     value = MEP_UC_MAC_MSB_MEP_UC_MAC_MSB((conf->unicast_mac.addr[0] << 8) | conf->unicast_mac.addr[1]);
@@ -391,8 +391,7 @@ static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t              *vtss_state,
             MEP_CCM_CFG_CCM_PERIOD(loc_period_value(conf->expected_period)) |
             MEP_CCM_CFG_CCM_MEGID_CHK_ENA(1)                                |
             MEP_CCM_CFG_CCM_MEPID_CHK_ENA(1);
-    mask = MEP_CCM_CFG_CCM_SEQ_UPD_ENA_M    |
-           MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA_M |
+    mask = MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA_M |
            MEP_CCM_CFG_CCM_PRIO_M           |
            MEP_CCM_CFG_CCM_PERIOD_M         |
            MEP_CCM_CFG_CCM_MEGID_CHK_ENA_M  |
@@ -665,7 +664,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_UC_MAC_MSB(i)), i, "MEP_UC_MAC_MSB");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_HW_CTRL(i)), i, "MEP_HW_CTRL");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_CFG(i)), i, "MEP_CCM_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_TX_SEQ_CFG(i)), i, "MEP_CCM_TX_SEQ_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_PTP_SEQ_NO(i)), i, "REW_PTP_SEQ_NO");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i, "MEP_CCM_RX_SEQ_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_MEPID_CFG(i)), i, "MEP_CCM_MEPID_CFG");
                 for (k=0; k<12; ++k)
@@ -692,14 +691,14 @@ static vtss_rc lan966x_debug_oam(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_CFG(i)), i, "MEP_CCM_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_RX_VL_FC_CNT(i)), i, "MEP_CCM_RX_VL_FC_CNT");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_RX_IV_FC_CNT(i)), i, "MEP_CCM_RX_IV_FC_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_TX_SEQ_CFG(i)), i, "MEP_CCM_TX_SEQ_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_PTP_SEQ_NO(i)), i, "REW_PTP_SEQ_NO");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i, "MEP_CCM_RX_SEQ_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_RX_STICKY(i)), i, "MEP_RX_STICKY");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_STICKY(i)), i, "MEP_STICKY");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_RX_SEL_CNT(i)), i, "MEP_RX_SEL_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TX_SEL_CNT(i)), i, "MEP_TX_SEL_CNT");
+//is removed from .cml file                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TX_SEL_CNT(i)), i, "MEP_TX_SEL_CNT");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_RX_FRM_CNT(i)), i, "MEP_RX_FRM_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TX_FRM_CNT(i)), i, "MEP_TX_FRM_CNT");
+//is removed from .cml file                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TX_FRM_CNT(i)), i, "MEP_TX_FRM_CNT");
             }
         }
     }
