@@ -923,10 +923,10 @@ def check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
 
     status = $ts.dut.call("mesa_voe_counters_get", voe_idx)
 
-    if ((rx != COUNTER_NONE) && status["rx_counter"] != rx)
+    if ((rx != COUNTER_NONE) && (status["rx_counter"] != rx))
         t_e("Unexpected rx. expected #{rx} counted #{status["rx_counter"]}")
     end
-    if ((tx != COUNTER_NONE) && status["tx_counter"] != tx)
+    if ((tx != COUNTER_NONE) && (status["tx_counter"] != tx) && $cap_vop_cfm)
         t_e("Unexpected tx. expected #{tx} counted #{status["tx_counter"]}")
     end
 
@@ -960,7 +960,7 @@ def check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx
     if (status["rx_oo_counter"] != ccm_rx_seq)
         t_e("Unexpected CCM rx sequence error.  Expected = #{ccm_rx_seq}  counted = #{status["rx_oo_counter"]} ")
     end
-    if (status["tx_counter"] != ccm_tx)
+    if ((status["tx_counter"] != ccm_tx) && $cap_vop_cfm)
         t_e("Unexpected CCM tx.  Expected = #{ccm_tx}  counted = #{status["tx_counter"]}")
     end
     end

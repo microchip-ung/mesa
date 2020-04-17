@@ -193,7 +193,7 @@ typedef struct {
     // Count PDU as selected.
     // When false, counts in mesa_voe_counters_t::rx/tx_counter
     // When true,  counts in mesa_voe_counters_t::rx/tx_selected_counter
-    mesa_bool_t            count_as_selected CAP(VOP_CFM);
+    mesa_bool_t            count_as_selected;
 
     // Expected received CCM PDU period.
     mesa_voe_ccm_period_t  expected_period;
@@ -346,11 +346,11 @@ typedef struct {
 
     // OAM PDU Rx and Tx counters.
     uint64_t     rx_counter;
-    uint64_t     tx_counter;
+    uint64_t     tx_counter CAP(VOP_CFM);
 
     // Counters named '_selected_' are counting any OAM PDU type that is
     // configured to 'count_as_selected'.
-    uint64_t     rx_selected_counter CAP(VOP_CFM);
+    uint64_t     rx_selected_counter;
     uint64_t     tx_selected_counter CAP(VOP_CFM);
 
     // Rx/Tx PDUs that are discarded due to filtering

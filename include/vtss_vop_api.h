@@ -224,12 +224,11 @@ typedef struct {
     vtss_oam_cpu_copy_t    cpu_copy;       // Control copy of CCM PDUs to CPU
     BOOL                   seq_no_update;  // Update TX CCM sequence number
 
-#if defined(VTSS_FEATURE_VOP_CFM)
     // Count PDU as selected.
     // There is one counter in vtss_voe_counters_t that counts any
     // OAM PDU type that is configured to 'count_as_selected'.
     BOOL                   count_as_selected;
-#endif
+
     // Expected received CCM PDU period.
     vtss_voe_ccm_period_t  expected_period;
 
@@ -273,6 +272,7 @@ vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t     inst,
 // voe_idx  [IN] Index of the VOE instance.
 vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t     inst,
                                       const vtss_voe_idx_t  voe_idx);
+#if defined(VTSS_FEATURE_VOP_CFM)
 // VOE LT configuration.
 typedef struct {
     BOOL   enable;   // Enable LT PDU handling in HW
@@ -351,6 +351,7 @@ vtss_rc vtss_voe_laps_conf_set(const vtss_inst_t            inst,
 vtss_rc vtss_voe_laps_conf_get(const vtss_inst_t      inst,
                                const vtss_voe_idx_t   voe_idx,
                                vtss_voe_laps_conf_t   *const conf);
+#endif
 
 // VOE status.
 typedef struct {
@@ -381,12 +382,13 @@ typedef struct {
 
     // OAM PDU RX and TX counters.
     u64   rx_counter;
-    u64   tx_counter;
-
 #if defined(VTSS_FEATURE_VOP_CFM)
+    u64   tx_counter;
+#endif
     // Counters named '_selected_' is counting any OAM PDU type
     // that is configured to 'count_as_selected'.
     u64   rx_selected_counter;
+#if defined(VTSS_FEATURE_VOP_CFM)
     u64   tx_selected_counter;
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
@@ -493,6 +495,7 @@ vtss_rc vtss_voe_cc_counters_get(const vtss_inst_t      inst,
 vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t     inst,
                                    const vtss_voe_idx_t  voe_idx);
 
+#if defined(VTSS_FEATURE_VOP_CFM)
 // VOE LT status
 typedef struct {
     // Indications that a LT PDU has been seen.
@@ -572,6 +575,7 @@ typedef struct {
 vtss_rc vtss_voe_laps_status_get(const vtss_inst_t        inst,
                                  const vtss_voe_idx_t     voe_idx,
                                  vtss_voe_laps_status_t   *status);
+#endif
 
 // VOE event active state get
 // Get bit mask array indicating VOEs with active events.

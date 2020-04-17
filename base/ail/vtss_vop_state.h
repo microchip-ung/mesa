@@ -70,24 +70,28 @@ typedef struct {
     vtss_rc (* voe_cc_conf_set)(struct vtss_state_s *, const vtss_voe_idx_t, const vtss_voe_cc_conf_t  *const);
     vtss_rc (* voe_cc_rdi_set)(struct vtss_state_s *, const vtss_voe_idx_t, const BOOL);
     vtss_rc (* voe_cc_cpu_copy_next_set)(struct vtss_state_s *, const vtss_voe_idx_t);
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_rc (* voe_lt_conf_set)(struct vtss_state_s *, const vtss_voe_idx_t, const vtss_voe_lt_conf_t  *const);
     vtss_rc (* voe_lb_conf_set)(struct vtss_state_s *, const vtss_voe_idx_t, const vtss_voe_lb_conf_t  *const);
     vtss_rc (* voe_laps_conf_set)(struct vtss_state_s *, const vtss_voe_idx_t, const vtss_voe_laps_conf_t  *const);
-
+#endif
     vtss_rc (* voe_status_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_status_t *const);
     vtss_rc (* voe_cc_status_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_cc_status_t *const);
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_rc (* voe_lt_status_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_lt_status_t *const);
     vtss_rc (* voe_lb_status_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_lb_status_t *const);
     vtss_rc (* voe_laps_status_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_laps_status_t *const);
-
+#endif
     vtss_rc (* voe_counters_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_counters_t *const);
     vtss_rc (* voe_cc_counters_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_cc_counters_t *const);
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_rc (* voe_lb_counters_get)(struct vtss_state_s *, const vtss_voe_idx_t, vtss_voe_lb_counters_t *const);
-
+#endif
     vtss_rc (* voe_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
     vtss_rc (* voe_cc_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_rc (* voe_lb_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
-
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_rc (* voi_alloc)(struct vtss_state_s *, const vtss_port_no_t, const vtss_oam_direction_t, vtss_voi_idx_t *);
     vtss_rc (* voi_free)(struct vtss_state_s *vtss_state, const vtss_voi_idx_t);
@@ -100,9 +104,11 @@ typedef struct {
     vtss_voe_conf_t       voe_conf[VTSS_VOE_CNT];
     vtss_voe_cc_conf_t    voe_cc_conf[VTSS_VOE_CNT];
     BOOL                  voe_rdi_conf[VTSS_VOE_CNT];
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_voe_lt_conf_t    voe_lt_conf[VTSS_VOE_CNT];
     vtss_voe_lb_conf_t    voe_lb_conf[VTSS_VOE_CNT];
     vtss_voe_laps_conf_t  voe_laps_conf[VTSS_VOE_CNT];
+#endif
     u32                   voe_event_mask[VTSS_VOE_CNT];
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_voi_alloc_t      voi_alloc_data[VTSS_VOI_CNT];

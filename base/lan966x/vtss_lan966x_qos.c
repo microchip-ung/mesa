@@ -1155,8 +1155,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     REG_WR(QSYS_TAS_CT_CFG, cycle_time);
     REG_WR(QSYS_TAS_STARTUP_CFG, QSYS_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE) ? obsolete_list_idx : list_idx) |
                                  QSYS_TAS_STARTUP_CFG_STARTUP_TIME(startup_time/256));
-    REG_WR(QSYS_TAS_LIST_CFG, //is removed from .cml file   QSYS_TAS_LIST_CFG_LIST_TOD_DOM(0) |
-                              QSYS_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
+    REG_WR(QSYS_TAS_LIST_CFG, QSYS_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 
     /* Configure the profile */
     for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
@@ -1687,7 +1686,6 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "OBSOLETE_IDX", QSYS_TAS_STARTUP_CFG_OBSOLETE_IDX_X(value));
         pr("    %s: %u\n", "STARTUP_TIME", QSYS_TAS_STARTUP_CFG_STARTUP_TIME_X(value));
         REG_RD(QSYS_TAS_LIST_CFG, &value);
-//is removed from .cml file        pr("    %s: %u\n", "LIST_TOD_DOM", QSYS_TAS_LIST_CFG_LIST_TOD_DOM_X(value));
         entry_idx = QSYS_TAS_LIST_CFG_LIST_BASE_ADDR_X(value);
         pr("    %s: %u\n", "LIST_BASE_ADDR", entry_idx);
         pr("    %s: %s\n", "LIST_STATE", debug_tas_state_string(QSYS_TAS_LST_LIST_STATE_X(state)));

@@ -251,6 +251,7 @@ vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t     inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_VOP_CFM)
 vtss_rc vtss_voe_lt_conf_set(const vtss_inst_t          inst,
                              const vtss_voe_idx_t       voe_idx,
                              const vtss_voe_lt_conf_t   *const conf)
@@ -379,6 +380,7 @@ vtss_rc vtss_voe_laps_conf_get(const vtss_inst_t      inst,
     VTSS_EXIT();
     return rc;
 }
+#endif
 
 vtss_rc vtss_voe_status_get(const vtss_inst_t     inst,
                             const vtss_voe_idx_t  voe_idx,
@@ -504,6 +506,7 @@ vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t     inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_VOP_CFM)
 vtss_rc vtss_voe_lt_status_get(const vtss_inst_t     inst,
                                const vtss_voe_idx_t  voe_idx,
                                vtss_voe_lt_status_t  *status)
@@ -607,6 +610,7 @@ vtss_rc vtss_voe_laps_status_get(const vtss_inst_t       inst,
     VTSS_EXIT();
     return rc;
 }
+#endif
 
 vtss_rc vtss_voe_event_active_get(const vtss_inst_t   inst,
                                   const u32           active_size,
@@ -910,18 +914,24 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
     vtss_voe_alloc_t        *voe_alloc;
     vtss_voe_conf_t         *voe_conf;
     vtss_voe_cc_conf_t      *voe_cc_conf;
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_voe_lt_conf_t      *voe_lt_conf;
     vtss_voe_lb_conf_t      *voe_lb_conf;
     vtss_voe_laps_conf_t    *voe_laps_conf;
+#endif
     u32                     voe_event_mask;
     vtss_voe_status_t       voe_status;
     vtss_voe_cc_status_t    cc_status;
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_voe_lt_status_t    lt_status;
     vtss_voe_lb_status_t    lb_status;
     vtss_voe_laps_status_t  laps_status;
+#endif
     vtss_voe_counters_t     voe_counters;
     vtss_voe_cc_counters_t  cc_counters;
+#if defined(VTSS_FEATURE_VOP_CFM)
     vtss_voe_lb_counters_t  lb_counters;
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_voi_alloc_t        *voi_alloc;
     vtss_voi_conf_t         *voi_conf;
@@ -1004,9 +1014,11 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                 voe_alloc = &vtss_state->oam.voe_alloc_data[i];
                 voe_conf = &vtss_state->oam.voe_conf[i];
                 voe_cc_conf = &vtss_state->oam.voe_cc_conf[i];
+#if defined(VTSS_FEATURE_VOP_CFM)
                 voe_lt_conf = &vtss_state->oam.voe_lt_conf[i];
                 voe_lb_conf = &vtss_state->oam.voe_lb_conf[i];
                 voe_laps_conf = &vtss_state->oam.voe_laps_conf[i];
+#endif
                 voe_event_mask = vtss_state->oam.voe_event_mask[i];
 
                 pr("VOE:%4u  allocated:%s  type:%s  port:%u  direction:%s\n",
@@ -1070,6 +1082,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                     pr("-----\n");
                 }
 
+#if defined(VTSS_FEATURE_VOP_CFM)
                 if (info->full  ||  voe_lt_conf->enable) {
                     pr("LT enable:%4s  ltm_cpu_copy:%s  ltr_cpu_copy:%s  count_as_selected:%s\n",
                        YN(voe_lt_conf->enable),
@@ -1097,7 +1110,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        YN(voe_laps_conf->count_as_selected));
                     pr("-----\n");
                 }
-
+#endif
                 if (info->full  ||  voe_conf->enable) {
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("EVENT enable:%4s  scr_port:%s  tlv_port:%s  tlv_if:%s  period:%s  zero_period:%s  priority:%s  loc:%s  mep_id:%s  meg_id:%s  level:%s  rdi:%s\n",
@@ -1179,9 +1192,14 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        voe_counters.rx_discard_counter,
                        voe_counters.tx_discard_counter);
 #else
+#if defined(VTSS_FEATURE_VOP_CFM)
                     pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "\n",
                        voe_counters.rx_counter,
                        voe_counters.tx_counter);
+#else
+                    pr("rx_counter %" PRIu64 "\n",
+                       voe_counters.rx_counter);
+#endif
 #endif
                     pr("-----\n");
                 }
@@ -1232,6 +1250,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                     pr("-----\n");
                 }
 
+#if defined(VTSS_FEATURE_VOP_CFM)
                 if (VTSS_FUNC(oam.voe_lt_status_get, i, &lt_status) == VTSS_RC_OK) {
                     pr("LT status:\n");
                     pr("ltm_seen %s  ltr_seen %s\n",
@@ -1279,6 +1298,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        YN(laps_status.seen));
                     pr("-----\n");
                 }
+#endif
                 pr("\n");
             }
         }
