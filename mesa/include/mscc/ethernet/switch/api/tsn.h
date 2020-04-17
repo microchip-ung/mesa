@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_TSN_
 #define _MSCC_ETHERNET_SWITCH_API_TSN_
@@ -214,11 +196,13 @@ mesa_rc mesa_psfp_gate_conf_set(const mesa_inst_t           inst,
 
 // PSFP gate status
 typedef struct {
-    mesa_bool_t          gate_open;          // PSFPOperGateStates: Current gate state
-    mesa_opt_prio_t      prio;               // PSFPOperIPV: Priority
-    mesa_timestamp_t     config_change_time; // PSFPConfigChangeTime
-    mesa_timestamp_t     current_time;       // PSFPCurrentTime
-    mesa_bool_t          config_pending;     // PSFPConfigPending: Configuration active indication
+    mesa_bool_t          gate_open;             // PSFPOperGateStates: Current gate state
+    mesa_opt_prio_t      prio;                  // PSFPOperIPV: Priority
+    mesa_timestamp_t     config_change_time;    // PSFPConfigChangeTime
+    mesa_timestamp_t     current_time;          // PSFPCurrentTime
+    mesa_bool_t          config_pending;        // PSFPConfigPending: Configuration active indication
+    mesa_bool_t          close_invalid_rx;      // PSFPGateClosedDueToInvalidRx
+    mesa_bool_t          close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
 } mesa_psfp_gate_status_t;
 
 // Get PSFP gate status.
@@ -253,6 +237,18 @@ mesa_rc mesa_psfp_filter_conf_set(const mesa_inst_t             inst,
                                   const mesa_psfp_filter_id_t   id,
                                   const mesa_psfp_filter_conf_t *const conf);
 
+// PSFP filter status
+typedef struct {
+    mesa_bool_t block_oversize; // StreamBlockedDueToOversizeFrame
+} mesa_psfp_filter_status_t;
+
+// Get PSFP filter status.
+// id [IN]       Filter ID.
+// status [OUT]  Filter status.
+mesa_rc mesa_psfp_filter_status_get(const mesa_inst_t           inst,
+                                    const mesa_psfp_filter_id_t id,
+                                    mesa_psfp_filter_status_t   *const status);
+
 // PSFP ingress flow configuration
 typedef struct {
     mesa_bool_t           filter_enable; // Enable filter mapping
@@ -263,13 +259,12 @@ typedef struct {
 
 // Time Aware Scheduling (802.1Qbv) global configuration
 typedef struct {
-    // When set a guard band is implemented even for scheduled queues
-    // to scheduled queue transition.
-    // 0: Guard band is implemented for non-scheduled queues to scheduled
-    // queues transition.
-    // 1: Guard band is implemented for any queue to scheduled
-    // queues transition.
-    mesa_bool_t always_guard_band;
+    // If a GCL contains HOLD_MAC and RELEASE_MAC operation:
+    //     When TRUE a guard band is implemented on all queues, both Express and Preemptible queues.
+    //     When FALSE a guard band is only implemented on Preemptible queues.
+    // If a GCL do not contains HOLD_MAC and RELEASE_MAC operation:
+    //     Has no effect.
+    mesa_bool_t always_guard_band CAP(MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT);
 } mesa_qos_tas_conf_t CAP(QOS_TAS);
 
 // Get Time Aware Scheduling (802.1Qbv) global configuration.
@@ -292,6 +287,10 @@ typedef enum {
 } mesa_qos_tas_gco_t CAP(QOS_TAS);
 
 // Time Aware Scheduling (802.1Qbv) gate control list entry
+// CAP(MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT):
+//      A GCE with HOLD_MAC all queues opened must be Express queues.
+//      A GCE with RELEASE_MAC all queues opened must be Preemptable queues.
+//      The same queue cannot be open in both a HOLD_MAC and a RELEASE_MAC entry.
 typedef struct {
     mesa_qos_tas_gco_t gate_operation; // Gate Control Operation.
 
@@ -329,7 +328,10 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
 // Time Aware Scheduling (802.1Qbv) port configuration
 typedef struct {
     // Maximum SDU size supported by each queue in bytes. Minimum 64 bytes.
-    // This parameter contribute to calculating the guard band time max_sdu[]*8 / LINK_SPEED
+    // This parameter is also used to calculate the guard band time: gbt = max_sdu[]*8 / LINK_SPEED
+    // In case of HOLD_MAC gate operaton, the guard band time in preemptable queues is automatically selected as the min fragment size plus 64 bytes.
+    // CAP(MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT):
+    //      A queue is determined preemptible if it is not opened in a MAC_HOD gate operation.
     uint16_t         max_sdu[MESA_QUEUE_ARRAY_SIZE];
 
     // The GateEnabled parameter determines whether traffic scheduling

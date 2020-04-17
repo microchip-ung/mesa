@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 == Frame Replication and Elimination for Reliability
 If the capability `MESA_CAP_L2_FRER` is non-zero, IEEE 802.1CB Frame Replication and Elimination for Reliability (FRER) is supported.
@@ -59,6 +62,7 @@ Time Aware Scheduling can be enabled on a port and is executing a Gate Control L
 `mesa_psfp_gate_status_get()` +
 `mesa_psfp_filter_conf_get()` +
 `mesa_psfp_filter_conf_set()` +
+`mesa_psfp_filter_status_get()` +
 `mesa_qos_fp_port_conf_get()` +
 `mesa_qos_fp_port_conf_set()` +
 `mesa_qos_fp_port_status_get()` +

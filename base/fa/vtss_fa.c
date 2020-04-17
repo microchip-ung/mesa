@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 //#include <cyg/infra/diag.h>
 #include "vtss_fa_cil.h"
 
@@ -415,7 +397,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     }
 
     switch (freq) {
-    case VTSS_CORE_CLOCK_250MHZ: 
+    case VTSS_CORE_CLOCK_250MHZ:
         clk_div = 10;
         pol_upd_int = 312;
         break;
@@ -924,6 +906,43 @@ static vtss_rc fa_dsm_chk_calender(vtss_state_t *vtss_state, u32 *calender, i32 
     return VTSS_RC_OK;
 }
 
+static char *cal2txt(u32 port, fa_cal_speed_t spd) {
+    switch (spd) {
+    case FA_CAL_SPEED_1G:
+        if (port < 65) {
+            return "1G";
+        } else {
+            return "500M";
+        }
+    case FA_CAL_SPEED_2G5:
+        if (port < 65) {
+            return "2G5";
+        } else {
+            return "1.25G";
+        }
+    case FA_CAL_SPEED_5G:
+        if (port < 65) {
+            return "5G";
+        } else {
+            return "2G5";
+        }
+    case FA_CAL_SPEED_10G:
+        if (port < 65) {
+            return "10G";
+        } else {
+            return "5G";
+        }
+    case FA_CAL_SPEED_25G:
+        if (port < 65) {
+            return "25G";
+        } else {
+            return "12.5G";
+        }
+    default:
+        break;
+    }
+    return "?";
+}
 
 static u32 calspd2int(fa_cal_speed_t spd) {
     switch (spd) {
@@ -1171,6 +1190,54 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+
+// Dump the auto calender
+vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
+                              const vtss_debug_printf_t pr)
+{
+    u32 cal, bw = 0, this_bw = 0, val;
+    fa_cal_speed_t spd;
+
+    for (u32 port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
+        REG_RD(VTSS_QSYS_CAL_AUTO(port/10), &cal);
+        spd = (cal >> ((port % 10) * 3)) & 0x7;
+        if (spd == 0) {
+            continue;
+        }
+        pr("port:%d gets reserved spd:%s %s\n",port, cal2txt(port, spd), port == 65 ? "(CPU1)" : port == 66 ? "(CPU2)" :
+           port == 67 ? "(IPMC)" : port == 68 ? "(AFI/OAM)" : port == 69 ? "(ipinip" : "");
+        this_bw = (spd == FA_CAL_SPEED_1G ? 1000 : spd == FA_CAL_SPEED_2G5 ? 2500 :
+                   spd == FA_CAL_SPEED_5G ? 5000 : spd == FA_CAL_SPEED_10G ? 10000 : 25000);
+        if (port >= VTSS_CHIP_PORTS) {
+            this_bw = this_bw/2; // Internal ports are granted half the value
+        }
+        bw += this_bw;
+    }
+
+    for (u32 i = 0; i < 5; i++) {
+        REG_RD(VTSS_HSCH_OUTB_SHARE_ENA(i), &val);
+        if (VTSS_X_HSCH_OUTB_SHARE_ENA_OUTB_SHARE_ENA(val) > 0) {
+            pr("Internal port:%d gets idle traffic ",VTSS_CHIP_PORTS+i);
+            if (i == 0) {
+                pr("(CPU1)\n");
+            } else if (i == 1) {
+                pr("(CPU2)\n");
+            } else if (i == 2) {
+                pr("(IPMC)\n");
+            } else if (i == 3) {
+                pr("(AFI/OAM)\n");
+            } else {
+                pr("(IpinIP)\n");
+            }
+        }
+    }
+
+    pr("Total assigned BW:%d Mb\n",bw);
+    pr("Max core BW:%d Mb\n",clock2bw(vtss_state->init_conf.core_clock.freq));
+
+    return VTSS_RC_OK;
+}
+
 
 // Configure the DSM calendar based on port-map
 static vtss_rc fa_dsm_calc_and_apply_calender(vtss_state_t *vtss_state)

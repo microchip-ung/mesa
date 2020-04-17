@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_L2
 #include "vtss_api.h"
@@ -2695,6 +2677,22 @@ vtss_rc vtss_psfp_filter_conf_set(const vtss_inst_t             inst,
     VTSS_EXIT();
     return rc;
 }
+
+vtss_rc vtss_psfp_filter_status_get(const vtss_inst_t           inst,
+                                    const vtss_psfp_filter_id_t id,
+                                    vtss_psfp_filter_status_t   *const status)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_psfp_filter_id_check(id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.psfp_filter_status_get, id, status);
+    }
+    VTSS_EXIT();
+    return rc;
+}
 #endif
 
 #if defined(VTSS_EVC_STAT_CNT)
@@ -3336,12 +3334,22 @@ vtss_rc vtss_dlb_policer_free(const vtss_inst_t           inst,
     vtss_state_t      *vtss_state;
     vtss_xpol_entry_t *pol;
     vtss_rc           rc;
+    vtss_dlb_policer_conf_t  *conf;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((pol = vtss_pol_lookup(vtss_state, id)) == NULL) {
             rc = VTSS_RC_ERROR;
         } else {
+            /* Disable policers in CIL */
+            for(u32 i = 0; i < pol->cnt; ++i) {
+                conf = &vtss_state->l2.pol_conf[pol->idx + i];
+                if (conf->enable == TRUE) {
+                    conf->enable = FALSE;
+                    vtss_state->l2.pol_conf[pol->idx + i] = *conf;
+                    rc = VTSS_FUNC(l2.policer_update, pol->idx + i);
+                }
+            }
             rc = vtss_cmn_policer_free(vtss_state, &pol->idx);
             pol->cnt = 0;
         }
@@ -3392,6 +3400,30 @@ vtss_rc vtss_dlb_policer_conf_set(const vtss_inst_t             inst,
     VTSS_EXIT();
     return rc;
 }
+
+#if defined(VTSS_FEATURE_PSFP)
+vtss_rc vtss_dlb_policer_status_get(const vtss_inst_t           inst,
+                                    const vtss_dlb_policer_id_t id,
+                                    const vtss_cosid_t          cosid,
+                                    vtss_dlb_policer_status_t   *const status)
+{
+    vtss_state_t      *vtss_state;
+    vtss_xpol_entry_t *pol;
+    vtss_rc           rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((pol = vtss_pol_lookup(vtss_state, id)) != NULL && cosid < pol->cnt) {
+            rc = VTSS_FUNC(l2.policer_status_get, pol->idx + cosid, status);
+        } else {
+            rc = VTSS_RC_ERROR;
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+#endif /* VTSS_FEATURE_PSFP */
+
 #endif /* VTSS_FEATURE_XDLB */
 
 #if defined(VTSS_FEATURE_FRER)
@@ -6137,8 +6169,12 @@ static void vtss_debug_print_dlb(vtss_state_t *vtss_state,
                conf->cm, conf->cf, conf->line_rate ? "Line" : "Data", conf->cir, conf->cbs, conf->eir, conf->ebs);
 #if defined(VTSS_FEATURE_PSFP)
             {
-                char buf[16];
-                pr("%-9s%u", vtss_opt_bool_str(&conf->mark_all_red, buf), conf->drop_yellow);
+                vtss_dlb_policer_status_t status;
+                char                      buf[16];
+                pr("%s/%-7u%u",
+                   vtss_opt_bool_str(&conf->mark_all_red, buf),
+                   VTSS_FUNC(l2.policer_status_get, pol->idx + j, &status) == VTSS_RC_OK ? status.mark_all_red : 0,
+                   conf->drop_yellow);
             }
 #endif
             pr("\n");
@@ -6312,7 +6348,8 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
     vtss_psfp_state_t *psfp = &vtss_state->l2.psfp;
 
     for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
-        vtss_psfp_filter_conf_t *conf = &psfp->filter[i];
+        vtss_psfp_filter_conf_t   *conf = &psfp->filter[i];
+        vtss_psfp_filter_status_t status;
         if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
             if (first) {
                 first = FALSE;
@@ -6321,7 +6358,8 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
             }
             pr("%-6u", i);
             vtss_debug_print_w6(pr, conf->gate_enable, conf->gate_id);
-            pr("%-8u%s\n", conf->max_sdu, vtss_opt_bool_str(&conf->block_oversize, buf));
+            pr("%-8u%s/%u\n", conf->max_sdu, vtss_opt_bool_str(&conf->block_oversize, buf),
+               VTSS_FUNC(l2.psfp_filter_status_get, i, &status) == VTSS_RC_OK ? status.block_oversize : 0);
         }
     }
     if (!first) {
@@ -6353,6 +6391,8 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
                 pr("ChgTime  : %s\n", vtss_ts_str(&status.config_change_time, buf, sizeof(buf)));
                 pr("CurTime  : %s\n", vtss_ts_str(&status.current_time, buf, sizeof(buf)));
                 pr("Pending  : %u\n", status.config_pending ? 1 : 0);
+                pr("InvRx    : %u\n", status.close_invalid_rx);
+                pr("OctExc   : %u\n", status.close_octets_exceeded);
                 vtss_debug_print_gcl(pr, &psfp->oper_conf[i], &psfp->oper_gcl[i]);
                 pr("\n");
             }

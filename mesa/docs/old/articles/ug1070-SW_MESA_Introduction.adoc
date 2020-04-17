@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 = Introduction to Microsemi Ethernet Switch API
 
 == Introduction
@@ -1238,7 +1241,7 @@ Following is the CapArray sources.
 .vtss_appl/main/caparray.hxx
 ----
 /*
-Copyright (c) 2004-2017 Microsemi Corporation "Microsemi".
+Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

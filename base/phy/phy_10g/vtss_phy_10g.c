@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
 
@@ -2269,7 +2251,7 @@ static vtss_rc vtss_phy_10g_mode_set_init (vtss_state_t *vtss_state,
     /* Register the channel id       */
     VTSS_RC(vtss_phy_10g_set_channel(vtss_state, port_no));
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
-    VTSS_RC_COLD(vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, FALSE));
+    VTSS_RC(VTSS_RC_COLD(vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, FALSE)));
 #endif
     VTSS_I("Venice work around: %d",mode->venice_rev_a_los_detection_workaround);
 #if defined(VTSS_FEATURE_SYNCE_10G)

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_TS
 #include "vtss_jaguar2_cil.h"
@@ -752,7 +734,7 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     u32                   port = VTSS_CHIP_PORT(port_no);
     u32                   value;
 #endif /* VTSS_ARCH_JAGUAR_2_B/SERVAL_T */
-    VTSS_D("port status change %d", port_no);
+    VTSS_D("port status change. port %d  interface %u", port_no, interface);
 
     if (!vtss_state->port.conf_set_called[port_no]) {
         VTSS_I("port %d status change called before port is configured", port_no);
@@ -920,6 +902,11 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     case VTSS_PORT_INTERFACE_VAUI:
         rx_delay += 70;
         tx_delay += 70;
+        break;
+    case VTSS_PORT_INTERFACE_SFI:
+        /* 10G */
+        rx_delay += 60;
+        tx_delay += 60;
         break;
     default:
         /* No additional delays */

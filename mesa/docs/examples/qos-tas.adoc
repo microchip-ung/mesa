@@ -1,16 +1,19 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
-== QOS Time Aware Shaper (TAS) Example
+== TSN Time Aware Shaper (TAS) example
 
 Currently only able to run on 1G link speed.
 
-Command example init tas will configure one port as ingress and one port as egress. +
+Command 'example init tas' will configure one port as ingress and one port as egress. +
 On egress port a GCL will be created with three entries where only one priority is open in each entry. +
 The interval time for the three entries are 10% - 30% - 60% of the cycle time. +
 The priorities open in each of the three entries are 0 - 4 - 7.
 
-The parameter size is the frame size used as MAX PDU size for calculation of guard band time and for cycle time calculation. +
-The parameter cycle is the cycle time in number of frames and is multiplied with frame size to give the actual cycle time in nano seconds. +
-The optional parameter start is the GCL start time offset in seconds. The GCL will start this seconds from now.
+The parameter 'size' is the frame size used as MAX PDU size for calculation of guard band time and for cycle time calculation. +
+The parameter 'cycle' is the cycle time in number of frames and is multiplied with frame size to give the actual cycle time in nano seconds. +
+The optional parameter 'start' is the GCL start time offset in seconds. The GCL will start this seconds from now.
 
 Inject on ingress port priority tagged frames with PCP 0 or 4 or 7 of frame size at line rate. +
 On egress port it is observed that the three priorities are transmitted with the percentage given by the interval percentage. +

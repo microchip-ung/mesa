@@ -1,29 +1,13 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_INIT_
 #define _MSCC_ETHERNET_SWITCH_API_INIT_
 
+#include <mscc/ethernet/switch/api/misc.h>
 #include <mscc/ethernet/switch/api/types.h>
+#include <mscc/ethernet/switch/api/port.h>
 #include <mscc/ethernet/switch/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // Target chip type
@@ -303,7 +287,6 @@ typedef struct {
     mesa_core_clock_freq_t freq;   // The frequency of the core clock (LC-PLL)
 } mesa_core_clock_conf_t CAP(INIT_CORE_CLOCK);
 
-
 // Initialization configuration.
 typedef struct {
     // Register access function are not used for MESA_TARGET_CU_PHY
@@ -326,6 +309,12 @@ typedef struct {
     mesa_spi_read_write_t   spi_read_write;
     mesa_spi_32bit_read_write_t   spi_32bit_read_write;
     mesa_spi_64bit_read_write_t   spi_64bit_read_write;
+
+    // GPIO functionallity information get callout function
+    mesa_gpio_func_info_get_t gpio_func_info_get;
+
+    // Serdes tap value get callout function
+    mesa_port_serdes_tap_get_t serdes_tap_get;
 
     // Do not reset the switch core when calling vtss_init_conf_set. This
     // assumes someone else is doing the reset.

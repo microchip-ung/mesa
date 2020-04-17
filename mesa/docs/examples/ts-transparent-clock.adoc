@@ -1,0 +1,21 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+This is a Time Stamping Transparent Clock example\n\
+\n\
+One port will be ingress. One port will be egress.\n\
+When a SYNC frame is injected into the ingress port it will be forwarded to the egress port with updated correction field.\n\
+";
+
+
+:sectnums:
+== Time Stamping Transparent Clock example
+
+Command 'example init transparent_clock' will configure a Transparent clock. +
+One port will be ingress. One port will be egress. +
+A VLAN will be created to enable forwarding from ingress port to egress port.
+
+The parameter 'delay_mode' is the asymmetry delay mode. Either no delay, add delay or subtract delay. +
+The parameter 'asymmetry' is the asymmetry delay value in nano seconds.
+
+The SYNC frame correction field will be compensated with asymmetry delay, if selected. Good asymmetry value can be found by first do a test without asymmetry.

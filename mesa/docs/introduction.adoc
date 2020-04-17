@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnumlevels: 5
 :toclevels: 5
 
@@ -113,7 +116,7 @@ way to get started with the demo application on a reference board.
 * `./bin/<arch>/mesa/demo` Demo images for reference systems.
 * `./.cmake` build and scripts.
 * `./CMakeLists.txt` CMake project file. Use this to build the sources.
-* `./COPYING` License terms.
+* `./LICENSE` License terms.
 * `./include` Include files for the original UnifiedAPI.
 * `./meba` Home of MEBA (source and headers).
 * `./meba/include/` The MEBA include path.

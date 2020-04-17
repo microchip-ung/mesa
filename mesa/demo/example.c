@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdio.h>
 #include "mscc/ethernet/switch/api.h"
@@ -244,7 +226,7 @@ static int cli_cmd_example(int argc, const char **argv)
     memset(EXAMPLE_RUN_HELP, 0, sizeof(EXAMPLE_RUN_HELP));
     if (example_ptr) {
         PR_APPEND(EXAMPLE_SYNTAX, "example init %s ", example_ptr->name);
-        PR_APPEND(EXAMPLE_RUN_SYNTAX, "example %s ", example_ptr->name);
+        PR_APPEND(EXAMPLE_RUN_SYNTAX, "example run %s ", example_ptr->name);
     }
 
     T_D("Evaluating cmds");
@@ -385,7 +367,13 @@ void mscc_appl_example_init(mscc_appl_init_t *init)
 
     case MSCC_INIT_CMD_POLL:
         if (example_active && example_active->poll) {
-            (void)example_active->poll();
+            (void)example_active->poll(0);
+        }
+        break;
+
+    case MSCC_INIT_CMD_POLL_FAST:
+        if (example_active && example_active->poll) {
+            (void)example_active->poll(1);
         }
         break;
 

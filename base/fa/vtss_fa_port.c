@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 // #include <cyg/infra/diag.h>
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
@@ -461,7 +443,7 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
             if ((port_conf->speed == VTSS_SPEED_25G) ||
                 (port_conf->speed == VTSS_SPEED_10G) ||
                 (port_conf->speed == VTSS_SPEED_5G)) {
-                clk_div = 2; /* Divide by 66/32 */
+                clk_div = 1; /* Divide by 2 */
             }
 
             if (port_conf->serdes.media_type == VTSS_SD10G_MEDIA_SR) { /* Optical SFP with LOS signal connected to serial GPIO */
@@ -1326,28 +1308,38 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL power_down)
 {
     u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
+    BOOL pd_serdes = 1;
 
-    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
-    if (type == FA_SERDES_TYPE_6G) {
-        sd_tgt = VTSS_TO_SD6G_LANE(indx);
-    } else if (type == FA_SERDES_TYPE_10G) {
-        sd_tgt = VTSS_TO_SD10G_LANE(indx);
-    } else {
-        sd_tgt = VTSS_TO_SD25G_LANE(indx);
+    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
+        pd_serdes = 0; // Do not power down multi-port serdes
     }
 
-    if (type == FA_SERDES_TYPE_25G) {
-        REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
-                VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
-                VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
-    } else {
-        // 6G and 10G
-        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
-                VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
-                VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+    if (pd_serdes) {
+        VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
+        if (type == FA_SERDES_TYPE_6G) {
+            sd_tgt = VTSS_TO_SD6G_LANE(indx);
+        } else if (type == FA_SERDES_TYPE_10G) {
+            sd_tgt = VTSS_TO_SD10G_LANE(indx);
+        } else {
+            sd_tgt = VTSS_TO_SD25G_LANE(indx);
+        }
+
+        if (type == FA_SERDES_TYPE_25G) {
+            REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
+                    VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
+        } else {
+            // 6G and 10G
+            REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
+                    VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
+                    VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+        }
     }
 
-    if (power_down) {
+    if (power_down) { // Covers shadow and primary ports
         DEV_WRM(DEV_RST_CTRL, port, VTSS_F_DEV10G_DEV_RST_CTRL_PCS_RX_RST(1), VTSS_M_DEV10G_DEV_RST_CTRL_PCS_RX_RST);
     }
     return VTSS_RC_OK;
@@ -1396,16 +1388,15 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         sgmii = TRUE;
         break;
     case VTSS_PORT_INTERFACE_QXGMII:    // 4x2G5 R-mode, 10G Serdes
-        serdes_mode = VTSS_SERDES_MODE_USXGMII; // TBD-BJO
+        serdes_mode = VTSS_SERDES_MODE_QXGMII;
         pcs_usx = TRUE;
         break;
     case VTSS_PORT_INTERFACE_DXGMII_5G: // 2x2G5 F-mode, 5G Serdes
-        serdes_mode = VTSS_SERDES_MODE_USXGMII; // TBD-BJO
+        serdes_mode = VTSS_SERDES_MODE_DXGMII_5G;
         pcs_usx = TRUE;
         break;
     default:{ VTSS_E("Interface type not supported"); }
     }
-
     switch (speed) {
     case VTSS_SPEED_10M:  clk_spd = 0; break;
     case VTSS_SPEED_100M: clk_spd = 1; break;
@@ -1493,6 +1484,16 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_SEL |
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_POL |
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_ENA);
+
+        // Set the Serdes to correct clock freq (not handled by UTE)
+        u32 sd_indx, sd_type, sd;
+        u32 freq = vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ ? 2
+            : vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_500MHZ ? 1 : 0;
+        (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
+        sd = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_10G_START);
+        REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd),
+                VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(freq),
+                VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);
     } else if (pcs_usx) {
         /* Disable 100FX */
         REG_WRM_CLR(VTSS_DEV1G_PCS_FX100_CFG(tgt),
@@ -1589,6 +1590,9 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM((speed == VTSS_SPEED_10M || speed == VTSS_SPEED_100M) ? 1 : 0),
             VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
+    /* Setup QoS */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no));
+
     if (!disable) {
         /* Configure flow control */
         if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
@@ -1653,11 +1657,11 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         serdes_mode = VTSS_SERDES_MODE_SFI;;
         break;
     case VTSS_PORT_INTERFACE_SXGMII:     // 1x10G device. 10M-10G.
-        serdes_mode = VTSS_SERDES_MODE_USXGMII;
+        serdes_mode = VTSS_SERDES_MODE_SFI;
         pcs_usx = TRUE;
         break;
     case VTSS_PORT_INTERFACE_DXGMII_10G: // 2x5G devices. Mode 'U', 10M-5G.
-        serdes_mode = VTSS_SERDES_MODE_USXGMII;
+        serdes_mode = VTSS_SERDES_MODE_DXGMII_10G;
         muxed_ports = 1; // Dual
         pcs_usx = TRUE;
         break;
@@ -1769,6 +1773,9 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
             VTSS_F_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA(conf->frame_length_chk),
             VTSS_M_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
+    /* Setup QoS */
+    VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no));
+
     if (!conf->power_down) {
         /* Configure flow control */
         if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
@@ -1826,7 +1833,10 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
 
-    VTSS_I("port_no:%d (port:%d), shutdown:%d", port_no, port, conf->power_down);
+    VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
+           port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
+           VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
+           vtss_port_spd_txt(conf->speed), conf->fdx ? "FDX" : "HDX", conf->power_down, conf->serdes.media_type);
 
     if (!fa_vrfy_spd_iface(vtss_state, port_no, conf->if_type, conf->speed, conf->fdx)) {
         return VTSS_RC_ERROR;
@@ -1868,11 +1878,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 
     }
 
-    VTSS_D("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d",
-           port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
-           VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
-           vtss_port_spd_txt(conf->speed), conf->fdx ? "FDX" : "HDX", conf->power_down);
-
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
     VTSS_RC(fa_port_mux_set(vtss_state, port_no));
 
@@ -1910,7 +1915,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     VTSS_RC(vtss_fa_qos_tas_port_conf_update(vtss_state, port_no));
 #endif
 
-    return vtss_fa_qos_port_change(vtss_state, port_no);
+    return VTSS_RC_OK;
 }
 
 
@@ -1925,7 +1930,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     u32              sd_indx = 0, sd_type, sd_tgt;
-    BOOL             no_sd = 0;
+    BOOL             analog_sd = 0;
 
     if (conf->power_down) {
         /* Disabled port is considered down */
@@ -1984,9 +1989,13 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
         }
         if (sd_type != FA_SERDES_TYPE_25G) {
-            /* Check the analog loss of signal detect. */
+            /* Check the analog loss of signal detect of the 10G-Serdes */
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DF(sd_tgt), &val2);
-            no_sd = VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
+            analog_sd = !VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
+        } else {
+            /* Check the analog loss of signal detect of the 25G-Serdes */
+            REG_RD(VTSS_SD25G_TARGET_LANE_DE(sd_tgt), &val2);
+            analog_sd = !VTSS_X_SD25G_TARGET_LANE_DE_LN_PMA_RXEI(val2); // 0 = link
         }
         /* MAC10G Tx Monitor Sticky bit Register */
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
@@ -1996,8 +2005,22 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
             REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
         }
-        /* Both the PCS and Analoge Macro must */
-        status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && !no_sd;
+
+        if ((sd_type == FA_SERDES_TYPE_25G) && (conf->speed == VTSS_SPEED_25G)) {
+            /* PCS and Analog Macro SD must agree on link status */
+            if (VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd) {
+                status->link = TRUE;
+                vtss_state->port.link[port_no] = TRUE;
+            } else if (VTSS_BOOL(value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && !analog_sd) {
+                status->link = FALSE;
+                vtss_state->port.link[port_no] = FALSE;
+            } else {
+                status->link = vtss_state->port.link[port_no];
+            }
+        } else {
+            /* Combine status from PCS and Analog Macro */
+            status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
+        }
         status->speed = conf->speed;
         break;
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
@@ -2467,6 +2490,9 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     if (info->full) {
         pr("DSM Taxi calender mappings:\n");
         (void)vtss_fa_dsm_cal_debug(vtss_state, pr);
+        pr("\n");
+        pr("Cell bus auto calender mappings:\n");
+        (void)vtss_fa_cell_cal_debug(vtss_state, pr);
     }
 
 
@@ -2492,6 +2518,7 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
         pr("7: Enable Oscal (25G)\n");
         pr("8: Disable DFE\n");
         pr("9: Enable  DFE (auto mode)\n");
+        pr("10: Read TxEQ settings\n");
 
         return VTSS_RC_OK;
     }
@@ -2662,6 +2689,117 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static char *fa_chip_port_to_str(vtss_state_t *vtss_state, vtss_phys_port_no_t chip_port, char *buf)
+{
+    vtss_port_no_t port_no;
+
+    switch (chip_port) {
+    case -1:
+       // Special case just to get the print function print something special
+       strcpy(buf, "SHARED");
+       break;
+
+    case VTSS_CHIP_PORT_CPU_0:
+       strcpy(buf, "CPU0");
+       break;
+
+    case VTSS_CHIP_PORT_CPU_1:
+       strcpy(buf, "CPU1");
+       break;
+
+    case VTSS_CHIP_PORT_VD0:
+       strcpy(buf, "VD0");
+       break;
+
+    case VTSS_CHIP_PORT_VD1:
+        strcpy(buf, "VD1");
+        break;
+
+    case VTSS_CHIP_PORT_VD2:
+        strcpy(buf, "VD2");
+        break;
+
+    default:
+        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
+        if (port_no != VTSS_PORT_NO_NONE) {
+            sprintf(buf, "%u", port_no);
+        } else {
+            // Port is not in port map. Odd.
+            VTSS_E("chip_port = %u not in port map", chip_port);
+            strcpy(buf, "N/A");
+        }
+
+        break;
+    }
+
+    return buf;
+}
+
+static const char *fa_qsys_resource_to_str(u32 resource)
+{
+    switch (resource) {
+    case 0:
+        return "SRC-MEM";
+
+    case 1:
+        return "SRC-REF";
+
+    case 2:
+        return "DST-MEM";
+
+    case 3:
+        return "DST-REF";
+
+    default:
+        VTSS_E("Invalid resource (%u)", resource);
+        break;
+    }
+
+    return "INVALID";
+}
+
+static void fa_debug_qres_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 idx, vtss_phys_port_no_t chip_port, u32 resource, u32 prio, u32 val)
+{
+    char buf[20];
+
+    pr("%4u %-8s %7s %9d %4u %10u\n", idx, fa_qsys_resource_to_str(resource), fa_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
+}
+
+vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, BOOL res_stat_cur)
+{
+    vtss_phys_port_no_t chip_port;
+    u32                 resource, resource_base, port_base, idx, prio, val, addr;
+
+    pr("\nQSYS Resource table (QRES:RES_CTRL[idx]:RES_STAT%s)\n", res_stat_cur ? "_CUR" : "");
+    pr("Idx  Resource Port No Chip Port Prio Value\n");
+    pr("---- -------- ------- --------- ---- ----------\n");
+
+    // Print shared SRC-MEM, because up-flows with CL_DP == 1 are counted here
+    // and not in the masquerade port counters.
+    addr = res_stat_cur ? VTSS_QRES_RES_STAT_CUR(511) : VTSS_QRES_RES_STAT(511);
+    REG_RD(addr, &val);
+    fa_debug_qres_print(vtss_state, pr, 511, -1, 0, 7, val);
+
+    for (resource = 0; resource < 4; resource++) {
+        resource_base = resource * 1024;
+        for (chip_port = 0; chip_port < VTSS_CHIP_PORTS_ALL; chip_port++) {
+            port_base = resource_base + chip_port * VTSS_PRIOS;
+            for (prio = 0; prio < VTSS_PRIOS; prio++) {
+                idx = port_base + prio;
+                addr = res_stat_cur ? VTSS_QRES_RES_STAT_CUR(idx) : VTSS_QRES_RES_STAT(idx);
+                REG_RD(addr, &val);
+                if (val) {
+                    // Only print non-zero values or we will be flooded.
+                    fa_debug_qres_print(vtss_state, pr, idx, chip_port, resource, prio, val);
+                }
+            }
+        }
+    }
+
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
 
 static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
@@ -2676,7 +2814,11 @@ static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
     pr("Num of internal ports  : 5\n");
     pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n");
 
-    fa_debug_wm_qlim(vtss_state, pr, info);
+    VTSS_RC(fa_debug_wm_qlim(vtss_state, pr, info));
+
+    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, pr, FALSE));
+    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, pr, TRUE));
+
     return VTSS_RC_OK;
 }
 

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdio.h>
 #include <dirent.h>
@@ -33,6 +15,7 @@
 #include <sys/select.h>
 #include <sys/syscall.h>
 
+#include "mscc/ethernet/switch/api.h"
 #include "mscc/ethernet/switch/api.h"
 #include "mscc/ethernet/board/api.h"
 #include "main.h"
@@ -272,13 +255,51 @@ static mesa_bool_t int_from_str(const char *s, int *res)
     return 1;
 }
 
+static mesa_bool_t get_uboot_env(const char *env, char *buf, int len)
+{
+    FILE *fp;
+    char cmd[100];
+
+    sprintf(cmd, "/usr/sbin/fw_printenv -n %s 2> /dev/null", env);
+    fp = popen(cmd, "r");
+    if (fp == NULL) {
+        return 0;
+    }
+    if (fgets(buf, len - 1, fp) == NULL) {
+        pclose(fp);
+        return 0;
+    }
+    pclose(fp);
+    return 1;
+}
+
+void get_mac_addr(uint8_t *mac)
+{
+    char buf[128];
+    uint32_t i, m[6];
+
+    if (get_uboot_env("ethaddr", buf, sizeof(buf)) &&
+        sscanf(buf, "%2x:%2x:%2x:%2x:%2x:%2x", &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) == 6) {
+        for (i = 0; i < 6; i++) {
+            mac[i] = m[i];
+        }
+    } else {
+        mac[0] = 0x00;
+        mac[1] = 0x01;
+        mac[2] = 0xc1;
+        mac[3] = 0x00;
+        mac[4] = 0x00;
+        mac[5] = 0x00;
+    }
+}
+
 // Read the uboot env var and return the results as integer
 // FA PCB 134 (12x10G + 8x25G + NPI)
 // FA PCB 135 (48x1G + 4x10G + 4x25G + NPI)
 // Linux usage e.g.:
 // fw_setenv pcb pcb134
 // fw_setenv pcb_var 21
-static mesa_bool_t get_uboot_env(const char *env, int *res)
+static mesa_bool_t get_uboot_env_int(const char *env, int *res)
 {
     FILE *fp;
     char cmd[100];
@@ -317,7 +338,7 @@ static mesa_bool_t get_env(const char *env, int *res)
     }
 
     // Try UBoot!!!
-    return get_uboot_env(env, res);
+    return get_uboot_env_int(env, res);
 }
 
 // Assign defaults in case if the port count is not given
@@ -368,7 +389,6 @@ static void get_fa_board_name(uint32_t cnt, mesa_bool_t sparx5i, uint32_t pcb, c
         strcat(buf, str);
     }
 }
-
 
 static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t sparxi)
 {
@@ -772,6 +792,8 @@ static uint32_t assign_core_clock(uint32_t target)
     if (target == MESA_TARGET_7552TSN ||
         target == MESA_TARGET_7552) {
         return MESA_CORE_CLOCK_500MHZ; // Typically enough for the target application
+    } else if (target == MESA_TARGET_7546TSN) {
+        return MESA_CORE_CLOCK_250MHZ; // For testing
     }
     // Defaults to the highest supported frequency
     return MESA_CORE_CLOCK_DEFAULT;
@@ -923,18 +945,20 @@ static void init_modules(mscc_appl_init_t *init)
 typedef struct {
     int                fd;
     fd_read_callback_t cb;
+    void               *ref;
 } fd_read_reg_t;
 
-#define FD_REG_MAX 8
+#define FD_REG_MAX 32
 fd_read_reg_t fd_reg_table[FD_REG_MAX];
 
-void fd_read_register(int fd, fd_read_callback_t cb)
+int fd_read_register(int fd, fd_read_callback_t cb, void *ref)
 {
     int           i, free = -1;
     fd_read_reg_t *reg;
 
     if (fd <= 0) {
         T_E("illegal fd: %d", fd);
+        return -1;
     }
 
     for (i = 0; i < FD_REG_MAX; i++) {
@@ -946,18 +970,41 @@ void fd_read_register(int fd, fd_read_callback_t cb)
             } else {
                 // Re-registration
                 reg->cb = cb;
+                reg->ref = ref;
             }
-            return;
+            return 0;
         } else if (cb != NULL && reg->fd == 0 && free < 0) {
             // First free entry found
             free = i;
         }
     }
-    if (free >= 0) {
-        // New registration
-        reg = &fd_reg_table[free];
-        reg->fd = fd;
-        reg->cb = cb;
+    if (free < 0) {
+        return -1;
+    }
+    // New registration
+    reg = &fd_reg_table[free];
+    reg->fd = fd;
+    reg->cb = cb;
+    reg->ref = ref;
+    return 0;
+}
+
+static mesa_rc gpio_func_info_get(const mesa_inst_t inst, mesa_gpio_func_t gpio_func,  mesa_gpio_func_info_t *info)
+{
+    if (appl_init.board_inst->api.meba_gpio_func_info_get != NULL) {
+        return appl_init.board_inst->api.meba_gpio_func_info_get(appl_init.board_inst, gpio_func, info);
+    } else {
+        return MESA_RC_ERROR;
+    }
+}
+
+static mesa_rc serdes_tap_get(const mesa_inst_t inst, mesa_port_no_t port_no,
+                              mesa_port_speed_t speed, mesa_port_serdes_tap_enum_t tap, uint32_t *const value)
+{
+    if (appl_init.board_inst->api.meba_serdes_tap_get != NULL) {
+        return appl_init.board_inst->api.meba_serdes_tap_get(appl_init.board_inst, port_no, speed, tap, value);
+    } else {
+        return MESA_RC_NOT_IMPLEMENTED;
     }
 }
 
@@ -1062,6 +1109,8 @@ int main(int argc, char **argv)
     conf.vlan_counters_disable = vlan_counters_disable;
     conf.psfp_counters_enable = psfp_counters_enable;
     conf.spi_bus = !!SPI_REG_IO;
+    conf.gpio_func_info_get = gpio_func_info_get;
+    conf.serdes_tap_get = serdes_tap_get;
     if (mesa_capability(NULL, MESA_CAP_INIT_CORE_CLOCK)) {
         conf.core_clock.freq = assign_core_clock(meba_inst->props.target);
     }
@@ -1136,7 +1185,7 @@ int main(int argc, char **argv)
             for (i = 0; i < FD_REG_MAX; i++) {
                 reg = &fd_reg_table[i];
                 if (reg->fd > 0 && FD_ISSET(reg->fd, &rfds)) {
-                    reg->cb(reg->fd);
+                    reg->cb(reg->fd, reg->ref);
                 }
             }
         }

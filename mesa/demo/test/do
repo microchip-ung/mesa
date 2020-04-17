@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+set -e
+
+if (( $# < 2 )); then
+   echo "Usage: $0 oc/os/s1/j2/j48/st/ca/fa [<test_server>] <test_script>"
+   exit
+fi
+
+chip=$1
+
+dir=build-mipsel
+case $chip in
+     oc)
+     ts=dk-t11
+     img=mfi_vsc7514_pcb123.mfi
+     ;;
+
+     os)
+     ts=dk-t32
+     img=fit_bbb_vsc7514.itb
+     dir=build-arm
+     ;;
+
+     s1)
+     ts=dk-t12
+     img=mfi_vsc7418.mfi
+     ;;
+
+     j2)
+     ts=dk-t13
+     img=mfi_vsc7468_pcb110.mfi
+     ;;
+
+     j48)
+     ts=dk-t14
+     img=mfi_vsc7468_pcb111.mfi
+     ;;
+
+     st)
+     ts=dk-t15
+     img=mfi_vsc7437.mfi
+     ;;
+
+     ca)
+     ts=dk-t16
+     img=mfi_vsc7429.mfi
+     ;;
+
+     ca-bbb)
+     ts=dk-t34-2
+     img=fit_bbb_vsc7429.itb
+     dir=build-arm
+     ;;
+
+     fa)
+     ts=dk-t31
+#     img=fit_vsc7546TSN.itb
+     img=fit_vsc7558TSN.itb
+#     img=fit_vsc7552TSN.itb
+     dir=build-arm64
+     ;;
+
+     *)
+     echo "Illegal chip: $chip"
+     exit
+     ;;
+esac
+
+if [ $# == 2 ]; then
+  file=$2
+else
+  ts=$2
+  file=$3
+fi
+
+if [ ! -f $file ]; then
+   echo "Test script not found: $file"
+   exit
+fi
+
+#echo $ts $dir $img $file
+cd ../../../$dir
+make -j 10
+rel=1
+if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
+    et release
+    rel=0
+fi
+et reserve $ts
+et upload mesa/demo/$img
+cd -
+./$file | libeasy/xml2console.rb
+if [ $rel == 1 ]; then
+   et release
+fi

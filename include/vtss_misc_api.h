@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 /**
  * \file
@@ -651,6 +633,41 @@ vtss_rc vtss_gpio_event_enable(const vtss_inst_t       inst,
                                const vtss_chip_no_t    chip_no,
                                const vtss_gpio_no_t    gpio_no,
                                BOOL                    enable);
+
+// The GPIO functionality identifier
+typedef enum {
+    VTSS_GPIO_FUNC_PTP_0,   // PTP 0 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_1,   // PTP 1 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_2,   // PTP 2 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_3    // PTP 3 GPIO functionality
+} vtss_gpio_func_t;
+
+// GPIO functionality ALT mode
+typedef enum
+{
+    VTSS_GPIO_FUNC_ALT_0,  // Alternate function 0
+    VTSS_GPIO_FUNC_ALT_1,  // Alternate function 1
+    VTSS_GPIO_FUNC_ALT_2   // Alternate function 2
+} vtss_gpio_func_alt_t;
+
+// GPIO functionality information
+typedef struct {
+    vtss_gpio_no_t       gpio_no;    // GPIO pin number.
+    vtss_gpio_func_alt_t alt;        // GPIO ALT function.
+} vtss_gpio_func_info_t;
+
+/**
+ * \brief Get the GPIO information that is board specific for this GPIO functionality
+ *
+ * \param gpio_func [IN]    GPIO functionality identifier.
+ * \param info [OUT]        GPIO pin functionality information.
+ *
+ * \return Return code.
+ **/
+typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
+                                             const vtss_gpio_func_t  gpio_func,
+                                             vtss_gpio_func_info_t   *const info);
+
 #endif /* GPIOS */
 
 /* - Serial GPIO control ---------------------------------------------------- */

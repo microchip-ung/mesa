@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <ctype.h>
 #include <errno.h>
@@ -53,10 +35,10 @@
 #define LOG_NOISE 8
 
 
-int warn(const char *fmt, ...);
-int info(const char *fmt, ...);
-int debug(const char *fmt, ...);
-int noise(const char *fmt, ...);
+int warn(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int info(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int debug(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int noise(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
 unsigned int g_log_level = LOG_INFO;
 
@@ -208,6 +190,10 @@ char *cmd_arg(const char *key, int size, char *val) {
     res = read(fd, buf, sizeof(buf) - 1);
     close(fd);
 
+    if (res <= 0) {
+        return 0;
+    }
+
     buf[res] = '\0';
 
     p = strrstr0(buf, key);
@@ -249,18 +235,12 @@ static void basic_linux_system_init() {
         line = __LINE__; \
         goto ERROR;      \
     }
-#define CHECK(X)         \
-    if (X) {             \
-        line = __LINE__; \
-        goto ERROR;      \
-    }
 
     // Mount proc and sysfs as we need this to find the NAND flash.
     DO(mount("proc", "/proc", "proc", 0, 0));
     DO(mount("sysfs", "/sys", "sysfs", 0, 0));
 
     // Enable sys-requests - ignore errors as this is a nice-to-have
-    if (fd == -1) close(fd);
     fd = open("/proc/sys/kernel/sysrq", O_WRONLY);
     static const char *one = "1\n";
     if (fd != -1) {
@@ -270,8 +250,6 @@ static void basic_linux_system_init() {
     }
 
 #undef DO
-#undef CHECK
-    if (fd != -1) close(fd);
     return;
 
 ERROR:
@@ -299,8 +277,8 @@ void change_root(const char *dev) {
 
         if (cnt > 100000) {
             warn("Timeout. Device %s not found\n", dev);
-            warn("\n", dev);
-            warn("Devices found:\n", dev);
+            warn("\n");
+            warn("Devices found:\n");
             d = opendir("/dev");
             if (d) {
                 while ((de = readdir(d)) != NULL) {

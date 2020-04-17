@@ -1,12 +1,15 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 
 == L2 Spanning Tree Example
 
-Command example init stp will configure one port in blocked state and one port in forwarding state.
+Command 'example init stp' will configure one port in blocked state and one port in forwarding state.
 
-The optional parameter vid is used to select if STP or MSTP is configured. Value 0 means MSTP is NOT selected. Value not 0 is the MSTP VLAN. Value 0 is default.
+The optional parameter 'vid' is used to select if STP or MSTP is configured. Value 0 means MSTP is NOT selected. Value not 0 is the MSTP VLAN. Value 0 is default.
 If MSTP is selected then MSTP instance 2 is used. +
-The optional parameter ing-port is required if MSTP is selected. This port will be member of the MSTP VLAN and configured as a C-Port with vid as PVID .
+The optional parameter 'ing-port' is required if MSTP is selected. This port will be member of the MSTP VLAN and configured as a C-Port with vid as PVID .
 
 If STP Inject frames on any port. +
 If MSTP inject frames to be classified to vid on ingress port. +

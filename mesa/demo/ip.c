@@ -1,33 +1,17 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
+#include <arpa/inet.h>
 
 #include <linux/if_link.h>
 #include <linux/if_addr.h>
@@ -59,6 +43,104 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 mesa_port_no_t ip_port = MESA_PORT_NO_NONE;
 
+#define SYS_CMD(cmd) { if (system(cmd) != 0) return MESA_RC_ERROR; }
+
+static mesa_rc ip_interface_setup(char *create_name, char *name, int add)
+{
+    char buf[1024];
+    uint8_t mac[6];
+
+    if (add) {
+        // Get system MAC address
+        get_mac_addr(mac);
+
+        // Create interface
+        snprintf(buf, sizeof(buf), "ip link add %s address %02x:%02x:%02x:%02x:%02x:%02x type vtss_if_mux",
+                 create_name, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        SYS_CMD(buf);
+
+        // Rename interface and set it up
+        snprintf(buf, sizeof(buf), "ip link set %s name %s up", create_name, name);
+        SYS_CMD(buf);
+
+        // Set carrier up
+        snprintf(buf, sizeof(buf), "echo 1 > /sys/class/net/%s/carrier", create_name);
+        SYS_CMD(buf);
+
+        // Set IFH interface up
+        SYS_CMD("ip link set vtss.ifh up");
+    } else {
+        snprintf(buf, sizeof(buf), "ip link del %s", name);
+        SYS_CMD(buf);
+    }
+    return MESA_RC_OK;
+}
+
+static mesa_bool_t ip_vid_enabled[MESA_VIDS];
+
+void ip_mac_setup(mesa_vid_t vid, mesa_bool_t add)
+{
+    uint8_t                i, mac[6];
+    mesa_mac_table_entry_t uc, bc;
+    mesa_port_no_t         iport;
+
+    // Setup unicast/broadcast MAC address entries
+    get_mac_addr(mac);
+    memset(&uc, 0, sizeof(uc));
+    uc.locked = 1;
+    uc.copy_to_cpu = 1;
+    uc.vid_mac.vid = vid;
+    bc = uc;
+    for (i = 0; i < 6; i++) {
+        uc.vid_mac.mac.addr[i] = mac[i];
+        bc.vid_mac.mac.addr[i] = 0xff;
+    }
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        mesa_port_list_set(&bc.destination, iport, 1);
+    }
+
+    if (add) {
+        if (mesa_mac_table_add(NULL, &uc) != MESA_RC_OK ||
+            mesa_mac_table_add(NULL, &bc) != MESA_RC_OK) {
+            cli_printf("MAC address add failed\n");
+        }
+    } else {
+        if (mesa_mac_table_del(NULL, &uc.vid_mac) != MESA_RC_OK ||
+            mesa_mac_table_del(NULL, &bc.vid_mac) != MESA_RC_OK) {
+            cli_printf("MAC address delete failed\n");
+        }
+    }
+}
+
+static void cli_cmd_ip_setup(cli_req_t *req, mesa_bool_t add)
+{
+    char                   name[16];
+
+    if (ip_vid_enabled[req->vid] == add) {
+        cli_printf("IP is already %s on VID %u\n", add ? "enabled" : "disabled", req->vid);
+        return;
+    }
+
+    // Setup IP interface
+    sprintf(name, "vtss.vlan.%u", req->vid);
+    if (ip_interface_setup(name, name, add) != MESA_RC_OK) {
+        return;
+    }
+    ip_vid_enabled[req->vid] = add;
+
+    ip_mac_setup(req->vid, add);
+}
+
+static void cli_cmd_ip_add(cli_req_t *req)
+{
+    cli_cmd_ip_setup(req, 1);
+}
+
+static void cli_cmd_ip_del(cli_req_t *req)
+{
+    cli_cmd_ip_setup(req, 0);
+}
+
 static void cli_cmd_ip_status(cli_req_t *req)
 {
     cli_printf("IP port: ");
@@ -71,6 +153,16 @@ static void cli_cmd_ip_status(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
+    {
+        "Interface IP Add <vid>",
+        "Add IP interface",
+        cli_cmd_ip_add
+    },
+    {
+        "Interface IP Delete <vid>",
+        "Delete IP interface",
+        cli_cmd_ip_del
+    },
     {
         "IP Status",
         "Show IP management status",
@@ -137,77 +229,20 @@ OUT:
 
 static mesa_rc ip_create_interface(void)
 {
-    char buf[1024];
+    char create_name[32], name[32];
     int chip_port = chip_port_get(ip_port);
-    uint8_t mac_addr[] = { 0x02, 0x01, 0xc1, 0x00, 0x00, 0x00 };
-    uint seed;
-    int  fd, x, if_logical_num, res;
-    const char *dev = "/dev/urandom";
 
     if (chip_port < 0) {
         return MESA_RC_ERROR;
     }
 
-    // Generate random value for the 24 LSB of MAC address
-    if ((fd = open(dev, O_RDONLY)) < 0) {
-        T_E("open(%s) failed: %s", dev, strerror(errno));
-        return MESA_RC_ERROR;
-    }
-    // Read and set new seed
-    res = (read(fd, (void *)&seed, sizeof(seed)) == sizeof(seed));
-    close(fd);
-    if (res == 0) {
-        T_E("read(%s) failed: %s", dev, strerror(errno));
-        return MESA_RC_ERROR;
-    }
-    srand(seed);
-    x = rand();
-    mac_addr[3] = (x >> 16);
-    mac_addr[4] = (x >> 8);
-    mac_addr[5] = (x >> 0);
+    // Port interface is created using chip port number as this is used by the mux driver
+    sprintf(create_name, "vtss.port.%d", chip_port);
 
-    // Create the interface using chip number as this is used by the mux river
-    snprintf(buf, 1024, "ip link add vtss.port.%d address %02x:%02x:%02x:%02x:%02x:%02x type vtss_if_mux",
-             chip_port, mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3],
-             mac_addr[4], mac_addr[5]);
-    if_logical_num = chip_port;
-    res = system(buf);
-    if (res != 0) {
-        fprintf(stderr, "Failed (%d): %s\n", res, buf);
-        return MESA_RC_ERROR;
-    }
+    // Port interface is then renamed based on CLI port number
+    sprintf(name, "vtss.port.%d", ip_port + 1);
 
-    // Now, rename it, as the user expect to see front ports
-    snprintf(buf, 1024, "ip link set vtss.port.%d name vtss.port.%d",
-             chip_port, ip_port + 1);
-    res = system(buf);
-    if (res != 0) {
-        goto ERR;
-    }
-    if_logical_num = ip_port + 1;
-
-    snprintf(buf, 1024, "ip link set vtss.ifh up");
-    res = system(buf);
-    if (res != 0) {
-        goto ERR;
-    }
-
-    snprintf(buf, 1024, "ip link set vtss.port.%d up", if_logical_num);
-    res = system(buf);
-    if (res != 0) {
-        goto ERR;
-    }
-
-    return MESA_RC_OK;
-
-ERR:
-    fprintf(stderr, "Failed (%d): %s\n", res, buf);
-    snprintf(buf, 1024, "ip link del vtss.port.%d", if_logical_num);
-    res = system(buf);
-    if (res != 0) {
-        fprintf(stderr, "Failed (%d): %s\n", res, buf);
-    }
-    return MESA_RC_ERROR;
+    return ip_interface_setup(create_name, name, 1);
 }
 
 #define MESA_RC(expr) { mesa_rc _rc = (expr); if (_rc != MESA_RC_OK) { fprintf(stderr, "%s failed\n", #expr); return _rc; } }

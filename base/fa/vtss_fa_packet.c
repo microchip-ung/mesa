@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PACKET
 #include "vtss_fa_cil.h"
@@ -349,7 +331,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 {
-    u32 queue, byte_swap;
+    u32 queue, byte_swap, port = VTSS_CHIP_PORT_CPU_1, grp = 1;
 #ifdef VTSS_OS_BIG_ENDIAN
     byte_swap = 0;
 #else
@@ -359,21 +341,21 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
     if (!vtss_state->packet.manual_mode) {
         /* Change mode to manual extraction and injection */
         vtss_state->packet.manual_mode = 1;
-        REG_WR(VTSS_DEVCPU_QS_XTR_GRP_CFG(0),
+        REG_WR(VTSS_DEVCPU_QS_XTR_GRP_CFG(grp),
                VTSS_F_DEVCPU_QS_XTR_GRP_CFG_MODE(1) |
                VTSS_F_DEVCPU_QS_XTR_GRP_CFG_STATUS_WORD_POS(0) |
                VTSS_F_DEVCPU_QS_XTR_GRP_CFG_BYTE_SWAP(byte_swap));
-        REG_WR(VTSS_DEVCPU_QS_INJ_GRP_CFG(0),
+        REG_WR(VTSS_DEVCPU_QS_INJ_GRP_CFG(grp),
                VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(1) |
                VTSS_F_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
-        REG_WR(VTSS_ASM_PORT_CFG(VTSS_CHIP_PORT_CPU_0),
+        REG_WR(VTSS_ASM_PORT_CFG(port),
                VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) |
                VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
         for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
             REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(queue)),
-                    VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(VTSS_CHIP_PORT_CPU_0),
+                    VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(port),
                     VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL);
-            vtss_state->packet.default_qu_redirect[queue] = VTSS_CHIP_PORT_CPU_0;
+            vtss_state->packet.default_qu_redirect[queue] = port;
         }
     }
     return VTSS_RC_OK;
@@ -825,7 +807,13 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
         }
 
         chip_port = VTSS_CHIP_PORT_FROM_STATE(state, info->dst_port);
-        IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 29, 8);   // MISC.CPU_MASK = Destination port. For injected frames this field is Destination port.
+        if (info->afi_id == VTSS_AFI_ID_NONE) {
+            // Must be 0 for AFI-injected frames, or the REW will see this as a
+            // CPU queue mask and not work as expected. The destination port is
+            // chosen during mesa_afi_slow_inj_alloc()/mesa_afi_fast_inj_alloc()
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 29, 8);   // MISC.CPU_MASK = Destination port. For injected frames this field is Destination port.
+        }
+
         pl_act = 1; // MISC.PIPELINE_ACT = INJ
         IFH_ENCODE_BITFIELD(bin_hdr, !rewrite,  45, 1);   // FWD.DO_NOT_REW = 0 => do rewrite, 1 => do not rewrite
         IFH_ENCODE_BITFIELD(bin_hdr, cos, VSTAX+56, 3);  // VSTAX.CL_COS = cos. qos_class/iprio (internal priority)
@@ -891,7 +879,7 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t *vtss_state,
 {
     u32 val, w, count, last;
     const u8 *buf = frame;
-    vtss_packet_tx_grp_t grp = 0;
+    vtss_packet_tx_grp_t grp = 1;
 
     VTSS_N("length: %u, vid: %u, ifhlen: %d", length, vid, ifh->length);
 

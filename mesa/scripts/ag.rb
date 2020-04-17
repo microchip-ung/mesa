@@ -1,23 +1,6 @@
 #!/usr/bin/env ruby
-# Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
 
 require 'pp'
 require 'optparse'
@@ -1301,12 +1284,6 @@ def impl_conv_function_body_struct from, to
     sym_used_to = []
     sym_skipped = []
 
-    # Only memset result in _get() functions, that is, when to[:type_name]
-    # contains "mesa_", because sizeof(mesa-struct) >= sizeof(vtss-struct).
-    # This also overcomes the problem with get-before-set, which is used in
-    # _set() functions.
-    code << "memset(out, 0, sizeof(*out)); /* ag.rb:#{__LINE__} */" if /mesa_/ =~ to[:type_name]
-
     def build_hash struct
         h = {} # key => [ vals ]
         struct[:members].each do |e|
@@ -1884,7 +1861,7 @@ $methods.each do |k, v|
                     trace "No skip data for #{e[:ast_vtss][:type_base]}"
                 end
 
-                #code_vars_memset << "memset(&#{tmp_name}, 0, sizeof(#{tmp_name}))"
+                code_vars_memset << "memset(&#{tmp_name}, 0, sizeof(#{tmp_name}))"
 
                 mesa_conv_arg_access = "&"
                 mesa_conv_arg_access = "" if e[:ast_mesa][:ptr]
@@ -1922,8 +1899,7 @@ $methods.each do |k, v|
                         if /mesa_(.+?)_set/ =~ k and $methods["vtss_#{$1}_get"]
                             get_before_set = true
                             get_before_set_func = "vtss_#{$1}_get"
-                        else
-                            code_conv_in << "memset(&#{tmp_name}, 0, sizeof(#{tmp_name})); /* ag.rb:#{__LINE__} */"
+                            code_vars_memset = [] # No need to memset()
                         end
                     end
                     code_conv_in << conv_code
@@ -1948,8 +1924,8 @@ $methods.each do |k, v|
         code_vars.each {|e| c_src += "    #{e};\n"}
         c_src += "\n" if code_vars.size > 0 and not all_one_or_zero
 
-        #code_vars_memset.each {|e| c_src += "    #{e};\n"}
-        #c_src += "\n" if code_vars_memset.size > 0 and not all_one_or_zero
+        code_vars_memset.each {|e| c_src += "    #{e};\n"}
+        c_src += "\n" if code_vars_memset.size > 0 and not all_one_or_zero
 
         c_src += "#ifdef __cplusplus\n" if code_static_cast.size > 0
         code_static_cast.each do |e|

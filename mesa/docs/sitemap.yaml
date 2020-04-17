@@ -1,3 +1,6 @@
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
 ---
 conf:
     rel_name: "MESA-99.99"
@@ -8,6 +11,9 @@ pages:
 
     - name: "Release notes"
       pages:
+        - name: "MESA-2020.03"
+          src:  "mesa/docs/release-notes/mesa-2020.03.adoc"
+
         - name: "MESA-2019.12"
           src:  "mesa/docs/release-notes/mesa-2019.12.adoc"
 
@@ -95,7 +101,7 @@ pages:
             name: "Description"
           - src: "mesa/demo/examples/qos-ct.c"
 
-        - name: "QoS TAS"
+        - name: "TSN TAS"
           pages:
           - src: "mesa/docs/examples/qos-tas.adoc"
             name: "Description"
@@ -118,6 +124,18 @@ pages:
           - src: "mesa/docs/examples/tsn-fp.adoc"
             name: "Description"
           - src: "mesa/demo/examples/tsn-fp.c"
+
+        - name: "OAM VOP"
+          pages:
+          - src: "mesa/docs/examples/vop.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/vop.c"
+
+        - name: "TS Transparent clock"
+          pages:
+          - src: "mesa/docs/examples/ts-transparent-clock.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/ts-transparent-clock.c"
 
     - name: "MEBA (Board API)"
       src: "mesa/docs/meba/meba.adoc"

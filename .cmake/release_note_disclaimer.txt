@@ -1,0 +1,87 @@
+Switch architecture name conversion table
+=========================================
+
+* Caracal   <=> VSC7423, VSC7428, VSC7429
+* SparX-III <=> VSC7424, VSC7425, VSC7426, VSC7427
+* Serval-1  <=> VSC7414, VSC7416, VSC7418
+* Jaguar-2  <=> VSC7438, VSC7442, VSC7444, VSC7448, VSC7449, VSC7464, VSC7468,
+* Serval-T  <=> VSC7410, VSC7415, VSC7430, VSC7435, VSC7436, VSC7437, VSC7440
+* Ocelot    <=> VSC7511, VSC7512, VSC7513, VSC7514
+* SparX-5   <=> VSC7546, VSC7549, VSC7552, VSC7556, VSC7558
+* SparX-5i  <=> VSC7546TSN, VSC7549TSN, VSC7552TSN, VSC7556TSN, VSC7558TSN
+
+PHY architecture name conversion table:
+=======================================
+
+* Cobra     <=> VSC8211, VSC8221
+* Quatro    <=> VSC8224, VSC8244
+* Nano      <=> VSC8501, VSC8502
+* Tesla     <=> VSC8504, VSC8552, VSC8572, VSC8574
+* Atom12    <=> VSC8512, VSC8522
+* Elise     <=> VSC8514
+* Malibu    <=> VSC8256, VSC8257, VSC8258
+* Venice    <=> VSC8489, VSC8490, VSC8491
+* Viper     <=> VSC8562, VSC8564, VSC8575, VSC8582, VSC8584
+* 8488      <=> VSC8487, VSC8488, VSC8487-15, VSC8488-15
+* Others    <=> VSC8484, VSC8486
+
+Third party software
+====================
+
+Aquantia Firmware and API:
+    API version:    2.6.1
+    Firmware version:
+        GEN2:
+            AQR407:     3.3.9
+            AQR409:     3.3.9
+        GEN3:
+            AQR411_A0:  4.0.4
+            AQR411C_A0: 4.0.4
+            AQR411_B0:  4.2.3
+            AQR412_A0:  4.0.4
+            AQR412C_A0: 4.0.4
+            AQR412_B0:  4.2.3
+    Aquantia documentation will be delivered by Aquantia.
+
+
+Disclaimers
+===========
+
+Serval-T is unstable
+--------------------
+
+This release has some open issues affecting the Serval-T SKUs. The issues impact
+traffic integrity and SPI access to NOR/NAND devices. Due to this we encourage
+Serval-T customer to stay on the 2019.12 release until this has been fixed.
+
+SparX-5/5i (all SKUs)
+---------------------
+
+The support of SparX-5/5i (all SKUs) in this release is considered to be in BETA
+quality. It can be used for early access, to evaluate the features and/or start
+SW integration. It is not suitable for production use.
+
+General
+=======
+
+This release does contain a significant amount of bug and stability fixes.
+Especially the SerDes settings have been improved and are much more reliable than
+in the MESA-2019.12 version.
+
+Hierarchical ACLs
+=================
+
+Support for Hierarchical ACLs has been added for SparX-5/5i products.
+This feature provides 6 ACLs for frame processing:
+
+* Ingress Port ACL (`MESA_HACL_TYPE_IPACL`)
+* Ingress VLAN ACL (`MESA_HACL_TYPE_IVACL`)
+* Ingress Router ACL (`MESA_HACL_TYPE_IRACL`)
+* Egress Router ACL (`MESA_HACL_TYPE_ERACL`)
+* Egress VLAN ACL (`MESA_HACL_TYPE_EVACL`)
+* Egress Port ACL (`MESA_HACL_TYPE_EPACL`)
+
+The following new functions have been added in the `security.h` header
+to support this feature: `mesa_hace_init`, `mesa_hace_add`, `mesa_hace_del`,
+`mesa_hace_counter_get`, and `mesa_hace_counter_clear`.
+

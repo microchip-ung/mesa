@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_TYPES_
 #define _MSCC_ETHERNET_SWITCH_API_TYPES_
@@ -180,6 +162,11 @@ typedef enum
     MESA_PORT_INTERFACE_SPI4,          // SPI4
     MESA_PORT_INTERFACE_QSGMII,        // QSGMII
     MESA_PORT_INTERFACE_SFI,           // SFI/LAN
+    MESA_PORT_INTERFACE_SXGMII,        // 1x10G or 1x5G device.    Uses primary device. 64B/66B PCS */
+    MESA_PORT_INTERFACE_USGMII,        // 8x2G5 devices. Mode 'X'. Uses 2G5 device.     */
+    MESA_PORT_INTERFACE_QXGMII,        // 4x2G5 devices. Mode 'R'. Uses 2G5 device.     */
+    MESA_PORT_INTERFACE_DXGMII_5G,     // 2x2G5 devices. Mode 'F'. Uses 2G5 device.     */
+    MESA_PORT_INTERFACE_DXGMII_10G,    // 2x5G devices.  Mode 'U'. Uses primary device. */
 } mesa_port_interface_t;
 
 // Auto negotiation struct

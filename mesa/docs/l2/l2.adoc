@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 == MAC Address Table
 The MAC address table is the Layer 2 forwarding database of the switch.
@@ -366,6 +369,7 @@ instance. VLAN ingress filtering must be enabled on ports running ERPS.
 `mesa_dlb_policer_free()` +
 `mesa_dlb_policer_conf_get()` +
 `mesa_dlb_policer_conf_set()` +
+`mesa_dlb_policer_status_get()` +
 `mesa_iflow_alloc()` +
 `mesa_iflow_free()` +
 `mesa_iflow_conf_get()` +

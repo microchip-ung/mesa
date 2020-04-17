@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -989,7 +971,7 @@ static int read_block(int fd, char *b, size_t s)
     return c;
 }
 
-static void cli_connection(int fd)
+static void cli_connection(int fd, void *ref)
 {
     int res, i, return_val;
     struct ipc_msg m;
@@ -1092,7 +1074,7 @@ OUT:
     }
 
     close(fd);
-    fd_read_register(fd, NULL);
+    (void)fd_read_register(fd, NULL, NULL);
     cli_con = -1;
 
     // Exit after closing
@@ -1101,15 +1083,18 @@ OUT:
     }
 }
 
-static void cli_accept(int fd)
+static void cli_accept(int fd, void *ref)
 {
     if (cli_con > 0) {
         T_E("already connected");
     } else if ((cli_con = accept(fd, NULL, NULL)) <= 0) {
         T_E("accept() failed");
+    } else if (fd_read_register(cli_con, cli_connection, NULL) < 0) {
+        T_E("fd_read_register() failed");
+        close(cli_con);
+        cli_con = -1;
     } else {
         T_N("new connection accepted");
-        fd_read_register(cli_con, cli_connection);
     }
 }
 
@@ -1130,8 +1115,9 @@ static void cli_socket_init(void)
     } else if (listen(fd, 1) < 0) {
         T_E("listen failed");
         close(fd);
-    } else {
-        fd_read_register(fd, cli_accept);
+    } else if (fd_read_register(fd, cli_accept, NULL) < 0) {
+        T_E("fd_read_register() failed");
+        close(fd);
     }
 }
 

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdio.h>
 #include <ctype.h>
@@ -1647,7 +1629,7 @@ static json_rpc_con_t *json_rpc_connection_lookup(int fd)
     return NULL;
 }
 
-static void json_rpc_connection(int fd)
+static void json_rpc_connection(int fd, void *ref)
 {
     int            n, error = 1;
     uint32_t       len;
@@ -1693,11 +1675,13 @@ static void json_rpc_connection(int fd)
         free(con->msg);
     }
     memset(con, 0, sizeof(*con));
-    
+
     if (error) {
         T_I("closing connection");
         close(fd);
-        fd_read_register(fd, NULL);
+        if (fd_read_register(fd, NULL, NULL)) {
+            T_E("Failed to un-rgister fd");
+        }
         con->fd = FD_FREE;
     } else {
         // Preserve file descriptor
@@ -1705,7 +1689,7 @@ static void json_rpc_connection(int fd)
     }
 }
 
-static void json_rpc_accept(int fd)
+static void json_rpc_accept(int fd, void *ref)
 {
     json_rpc_con_t *con;
     socklen_t      len = sizeof(con->addr);
@@ -1715,10 +1699,11 @@ static void json_rpc_accept(int fd)
         T_E("no free connection");
     } else if ((fd = accept(fd, (struct sockaddr *)&con->addr, &len)) < 0) {
         T_E("accept() failed: %s", strerror(errno));
+    } else if (fd_read_register(fd, json_rpc_connection, NULL) < 0) {
+        T_E("fd_read_register() failed");
     } else {
         T_N("new connection accepted");
         con->fd = fd;
-        fd_read_register(fd, json_rpc_connection);
     }
 }
 
@@ -1743,8 +1728,9 @@ static void json_rpc_init(void)
     } else if (listen(fd, 1) < 0) {
         T_E("listen failed: %s", strerror(errno));
         close(fd);
-    } else {
-        fd_read_register(fd, json_rpc_accept);
+    } else if (fd_read_register(fd, json_rpc_accept, NULL) < 0) {
+        T_E("fd_read_register() failed");
+        close(fd);
     }
     T_D("exit");
 }

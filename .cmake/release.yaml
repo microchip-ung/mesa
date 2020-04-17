@@ -1,0 +1,147 @@
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+---
+# Configuration.
+# MANDATORY.
+conf:
+  # Folder in which to store the release note. It is relative to the top-path
+  # used to invoke the release_note.rb script with. The folder will be created
+  # if it doesn't already exist.
+  #
+  # MANDATORY.
+  output_dir: images
+
+  # Name of release note JSON status file.
+  # If specified, a JSON status file containing the result of running the
+  # release note script will be generated. It will be placed in #output_dir and
+  # have the name given here.
+  #
+  # OPTIONAL.
+  json_status_release_note: release_note_status.json
+
+  # git_tag_prv points to a GIT changeset corresponding to the previous release.
+  # MANDATORY.
+  git_tag_prv: origin/2019.12-soak
+
+  # git_tag_cur points to a GIT changeset corresponding to the upcoming release.
+  # In general, this can be set to HEAD, but for release note generation based
+  # on a specific tag or changeset (SHA), it is beneficial to be able to set
+  # it to a specific one.
+  #
+  # MANDATORY.
+  git_tag_cur: HEAD
+
+  # Whenever the previous or current releases are referenced in clear text,
+  # these names are used.
+  #
+  # MANDATORY.
+  friendly_name_prv: MESA-2019.12
+  friendly_name_cur: MESA-2020.03
+
+  # Disclaimer input file. Will be added as is between a small header and the
+  # new-features section of the release note.
+  # The path to the file must be relative to the top of the GIT repo.
+  #
+  # OPTIONAL.
+  disclaimer: .cmake/release_note_disclaimer.txt
+
+  # If set to true, the script will attempt to map the bugs into "modules" and
+  # sort them by these modules along with the name of the module. This only
+  # works for Bugzilla bugs, because these are the only ones mapped into a
+  # component. Management has decided not to use the component field in Jira,
+  # so Jira bugs will be mapped in a category called "Other".
+  # If set to false, the script will list all bugs in numerical order, and won't
+  # take into account the component (in fact, the script won't check that it
+  # maps into a correct component).
+  #
+  # In projects that use both Jira and Bugzilla, you would probably want to set
+  # this to false.
+  # In projects that only use Bugzilla, you would probably want to set this to
+  # true.
+  #
+  # OPTIONAL. Defaults to false.
+  list_by_component: true
+
+  # If set to true, the script will write a section to the release note with
+  # "New features" based on Bugzilla's "Type" field (set to 'SW Feature') and
+  # Jira's "Issue Type" field (set to 'Story').
+  #
+  # OPTIONAL. Defaults to false.
+  # list_new_features: true
+
+  # This goes into the top of the release note as a one-liner description
+  # Normally, you want to leave this at its default value.
+  #
+  # OPTIONAL. Default is derived as follows:
+  #    If the branch name does not end with "-soak" or "-rel", the description
+  #    becomes "Pre-release".
+  #    Otherwise, if the branch name starts with "x.y.z-" and z is non-zero,
+  #    it's a minor release, and the description becomes "Maintenance release".
+  #    Otherwise, the descripton becomes "Roadmap release".
+  # description: Your choice.
+
+  # When generating a list of blocker and critical BZs in the application
+  # release note, we need to know which BZ database target milestones to look
+  # for yet-unresolved bugs.
+  # The future_milestones is a space-separated list of such milestones.
+  # Use '%' as a wildcard.
+  #
+  # Example:
+  # future_milestones: API-5.1% API-5.2%
+  #
+  # OPTIONAL. If not specified, release note will not contain list of unresolved
+  # BZs.
+  # future_milestones: API-5% **API-5.5%
+
+  # When generating a list of blocker and critical Jira bugs in the application
+  # release note, we need to know which Jira project to look for yet-unresolved
+  # bugs.
+  # The future_jira_bugs is a JQL query string that can be suited for the
+  # project's needs. Typically, you will search only for bugs in a particular
+  # project, so on WebStaX2's 4-dev branch, where the bugs are prefixed with
+  # "APPL-" you would write:
+  #    future_jira_bugs: project="APPL"
+  #
+  # The release note script will only look for bugs not resolved or closed and
+  # with a priority of Blocker or Critical.
+  #
+  # OPTIONAL. If not specified, the release note will not contain a list of
+  # unresolved Jira bugs.
+  future_jira_bugs: project="MESA"
+
+# Control the bugs added or not added to the release note.
+# OPTIONAL.
+bugs:
+  # This section allows for adding and removing bugs from the release notes.
+  #
+  # The reason that you may want to remove a bug is that the Jira and Bugzilla
+  # numbers used for the release notes are coming from GIT commit strings, and
+  # it is not unusual that a changeset author happens to write a wrong bug ID.
+  #
+  # At times, it is possible to identify the correct bug ID that the author
+  # should have put, in which case, that ID can be added to the 'add:' section.
+  #
+  # For Bugzillas, use "Bugzilla#XXXX".
+  # For Jira issues, use "AA-XXXX"
+  #
+  # Please provide a comment when removing/adding bugs to these lists.
+  #
+  # Example of a list:
+  # del:
+  #   - Bugzilla#12345 # Remove from release note, because someone committed with wrong BZ ID. Use 12344 instead
+  #   - Bugzilla#23456 # Remove from release note, because someone committed with wrong BZ ID. Can't find correct BZ ID.
+  #   - AA-1234        # Remove from release note, because...
+  #
+  # OPTIONAL. No bugs will be removed if not specified.
+  del:
+
+  # See the 'del' section above for a description
+  #
+  # Example of a list:
+  # add:
+  #   - Bugzilla#12344 # Add Bugzilla#12344 from release note in place of Bugzilla#12345
+  #
+  # OPTIONAL. No bugs will be added if not specified.
+  add:
+

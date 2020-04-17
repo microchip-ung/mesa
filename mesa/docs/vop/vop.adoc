@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 
 == VOP Functional Description.
@@ -126,7 +129,12 @@ If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
 If an IFLOW/EFLOW is configured to point to a VOE an OAM marked frame will hit the VOE as NOT Independent MEL, meaning the VOE will be active VOE and do OAM processing. +
 +
 If an IFLOW/EFLOW is not configured to point to a VOE an OAM marked frame will (indirectly) hit any possible Port VOE as Independent MEL,
-meaning the Port VOE will handle the frame as data.
+meaning the Port VOE will handle the frame as data. +
++
+If no IFLOW is configured an OAM marked frame on ingress will hit the VOE as NOT Independent MEL, meaning the VOE will be active VOE and do OAM processing. +
++
+If no EFLOW is configured an OAM marked frame on egress will (indirectly) hit any possible Port VOE as Independent MEL,
+meaning the Port VOE will handle the frame as data. +
 
 ==== Ingress Port VCE and IFLOW.
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
@@ -137,9 +145,9 @@ On Port 1 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM wi
 The IFLOW is configured (`mesa_iflow_conf_t`) to point to an allocated Service VOE on level B that will be the OAM handling VOE. +
  +
 On Port 1-2-3 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM with TAG and MEG level C.
-Action is to mark as not OAM (to avoid Port VOE OAM handling) and give IFLOW and <<bookmark-ace,MIP-PAG>> value. +
+Action is to mark as not OAM (to avoid Port VOE OAM handling) and give IFLOW and <<bookmark-ace,VOI-PAG>> value. +
 The IFLOW is not configured (`mesa_iflow_conf_t`) to point to an allocated Service VOE. +
-If this frame is copied to CPU by the MIP ACE entries the ISDX can be used to identify that it is related to the MIP. +
+If this frame is copied to CPU by the VOI ACE entries the ISDX can be used to identify that it is related to the VOI. +
  +
 On Port 2-3 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM with one TAG and MEG level 0-7. Action is to mark as OAM behind one TAG and give IFLOW. +
 The IFLOW is not configured (`mesa_iflow_conf_t`) to point to any Service VOE. +
@@ -167,7 +175,7 @@ The Service VOE might be on level lower than 7 meaning that unhandled OAM frames
 On Port 2-3 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM with one TAG and MEG level 0-7. Action is to mark as OAM behind one TAG and give IFLOW. +
 The IFLOW is not configured (`mesa_iflow_conf_t`) to point to any VOE. This assure marking the frame is as Independent MEL on ingress to avoid Port VOE as a OAM handling VOE. +
 On egress this frame can be handled by Up-VOI or level filtered by Service VOEs in the flow. +
-If this frame is copied to CPU by the Up-MIP the ISDX can be used to identify that it is related to that Up-MIP. +
+If this frame is copied to CPU by the Up-VOI the ISDX can be used to identify that it is related to that Up-VOI. +
 
 ==== Egress Port TCE and EFLOW.
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
@@ -181,7 +189,7 @@ The EFLOW is configured (`mesa_eflow_conf_t`) to point to an allocated Service V
 If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
 On Port 1 one TCE entry is configured (`mesa_tce_t`) with key matching on classified VID of the VLAN flow.
 Action is to give TAG as the E/VLAN that the VLAN MEP resides and to give EFLOW. +
-The EFLOW is configured (`mesa_eflow_conf_t`) to point to an allocated Service VOE ans Service MIP that will be the OAM handling VOE/MIP. +
+The EFLOW is configured (`mesa_eflow_conf_t`) to point to an allocated Service VOE and Service VOI that will be the OAM handling VOE/VOI. +
 The TCE key VID is used when OAM frames are injected and is also matched by forwarding frames for level filtering +
 +
 On Port 1+3 one TCE entry is configured (`mesa_tce_t`) with key matching on specific IFLOW. Action is to control tagging of the Port MEP and to give EFLOW. +
@@ -200,11 +208,13 @@ handled as data (not OAM) by any Port VOE on egress. +
 
 ==== [#bookmark-ace]#ACE#.
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on MIP-PAG value and opcode RAPS (and RAPS MC-MAC). Action is to control copy to CPU and forwarding. +
+On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode RAPS (and RAPS MC-MAC). Action is to control copy to CPU and forwarding. +
  +
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on MIP-PAG value and opcode LTM (and Class-2 MC-MAC). Action is to control copy to CPU and forwarding. +
+On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LTM (and Class-2 MC-MAC). Action is to control copy to CPU and forwarding. +
  +
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on MIP-PAG value and opcode LBM (and Class-2 MC-MAC). Action is to control copy to CPU and forwarding. +
+On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LBM (and UC-MAC). Action is to control copy to CPU and forwarding. +
++
+IMPORTANT: Note that the VOI-PAG value can be used by multiple/all VOIs. The RAPS and LTM ACE rules can be used by multiple/all VOIs. The LBM ACE must be per VOI due to different UC-MAC.
 
 ==== VOP.
 The VOP common attributes are configured (`mesa_vop_conf_t`)

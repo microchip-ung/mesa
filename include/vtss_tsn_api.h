@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _VTSS_TSN_API_H_
 #define _VTSS_TSN_API_H_
@@ -222,11 +204,13 @@ vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t           inst,
 
 // PSFP gate status
 typedef struct {
-    BOOL                 gate_open;          // PSFPOperGateStates: Current gate state
-    vtss_opt_prio_t      prio;               // PSFPOperIPV: Priority
-    vtss_timestamp_t     config_change_time; // PSFPConfigChangeTime
-    vtss_timestamp_t     current_time;       // PSFPCurrentTime
-    BOOL                 config_pending;     // PSFPConfigPending: Configuration active indication
+    BOOL                 gate_open;             // PSFPOperGateStates: Current gate state
+    vtss_opt_prio_t      prio;                  // PSFPOperIPV: Priority
+    vtss_timestamp_t     config_change_time;    // PSFPConfigChangeTime
+    vtss_timestamp_t     current_time;          // PSFPCurrentTime
+    BOOL                 config_pending;        // PSFPConfigPending: Configuration active indication
+    BOOL                 close_invalid_rx;      // PSFPGateClosedDueToInvalidRx
+    BOOL                 close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
 } vtss_psfp_gate_status_t;
 
 // Get PSFP gate status.
@@ -263,6 +247,18 @@ vtss_rc vtss_psfp_filter_conf_get(const vtss_inst_t           inst,
 vtss_rc vtss_psfp_filter_conf_set(const vtss_inst_t             inst,
                                   const vtss_psfp_filter_id_t   id,
                                   const vtss_psfp_filter_conf_t *const conf);
+
+// PSFP filter status
+typedef struct {
+    BOOL block_oversize; // StreamBlockedDueToOversizeFrame
+} vtss_psfp_filter_status_t;
+
+// Get PSFP filter configuration.
+// id [IN]       Filter ID.
+// status [OUT]  Filter status.
+vtss_rc vtss_psfp_filter_status_get(const vtss_inst_t           inst,
+                                    const vtss_psfp_filter_id_t id,
+                                    vtss_psfp_filter_status_t   *const status);
 
 // PSFP ingress flow configuration
 typedef struct {

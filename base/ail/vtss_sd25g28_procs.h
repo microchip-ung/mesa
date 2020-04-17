@@ -1,47 +1,5 @@
-/*
-Copyright (c) 2004-2019 Microsemi Corporation "Microsemi"
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
-/*---------------------------------------------------------------------------
- * $HeadURL: svn://svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/trunk/api_c/vtss_sd25g28_procs.h $
- *---------------------------------------------------------------------------*/
-
-/* ================================================================= *
- *               Note: This code is provided as part of the
- *                     Universal Tcl Environment (UTE) to provide 
- *                     consistent setup functions for 
- *       ^             - Verification
- *      / \            - Validation
- *     /   \           - Test Pattern Generation and
- *    /  |  \          - Software
- *   /   !   \         It should not be modified without further inquiry
- *  /_________\        by the respective team.
- *                     Please contact
- *                       Patrick Urban <patrick.urban@microsemi.com> or
- *                       Alexander Koch <alexander.koch@microsemi.com> or
- *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements: 
- *                     Bugzilla: Tools->Victoria
- *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
- * ================================================================= */
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_SD25G28_PROCS_H_
 #define _VTSS_SD25G28_PROCS_H_
@@ -193,6 +151,7 @@ typedef struct {
     u8 ck_bitwidth; 
     u8 subrate; 
     u8 com_txcal_en; 
+    u8 com_pll_reserve; 
     u8 com_tx_reserve_msb;
     u8 com_tx_reserve_lsb;
     u8 ln_tx_reserve_lsb ;
@@ -207,6 +166,7 @@ typedef struct {
     u8 ln_cfg_ctle_rstn;
     u8 ln_r_dfe_rstn;
     u8  ln_cfg_pi_bw_3_0;
+    u8  ln_cfg_itx_ipcml_base;
 
 } vtss_sd25g28_mode_args_t;
 
@@ -263,6 +223,8 @@ typedef struct {
     u8  l1_pcs_en_fast_iscan[1];
     u8  l0_cfg_bw_1_0[1];
     u8  l0_cfg_txcal_en[1];
+    u8  cfg_en_dummy[1];
+    u8  cfg_pll_reserve_3_0[1];
     u8  l0_cfg_tx_reserve_15_8[1];
     u8  l0_cfg_tx_reserve_7_0[1];
     u8  ln_cfg_tx_reserve_15_8[1];
@@ -324,7 +286,7 @@ typedef struct {
  u8 ln_cfg_tap_adv_3_0;
  u8 ln_cfg_tap_main;
  u8 ln_cfg_tap_dly_4_0;
-
+ u8 ln_cfg_alos_thr_2_0;
 } vtss_sd25g28_preset_struct_t;
 
 /** \brief Input Buffer loop settings based on loop config */

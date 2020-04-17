@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 = Getting started
 
 == Getting started
@@ -296,7 +299,7 @@ $ cp mesa/demo/mfi_vsc7514.mfi /var/lib/tftpboot/.
 ----
 
 
-== Loading firmware image from UBoot
+== Loading firmware image over network from UBoot
 
 UBoot is being used to load the SW over the network via TFTP and into memory.
 The system can then boot from memory.
@@ -514,6 +517,367 @@ image over network and boot it like this:
 
 Make sure that the BeagleBone is correctly connected to the Ocelot board. A
 connector board exist to do this.
+
+== Persisting firmware image in flash from UBoot
+
+Depending on the board, there might be several storage options,
+depending on image size and performance requirements.
+
+* `NOR` flash
+* `NAND` flash
+* `eMMC` flash
+
+`NOR` flash is available on all platforms. Depending on board type,
+the size may be more or less restricted. On some boards it is as low
+as 16 Mb, which requires additional software storage on `NAND`. The
+`NOR` flash also holds the boot-loader.
+
+`NAND` typically has larger capacity than `NOR`, starting at 128 Mb
+and up. The system cannot boot from `NAND`, which is why it is used in
+conjunction with `NOR`.
+
+`eMMC` is available on SparX5(i) boards. It is currently the default for
+PCB135 boards, but can be enabled for other boards (PCB134) as
+well. `eMMC` provides superior performance compared to `NAND`, and
+also has higher capacity.
+
+Depending on the `NOR` capacity and the image size, it may be possible
+to configure a board to solely use `NOR`. This option is referred to
+as _NOR only_.
+
+Depending on how you want to boot the firmware, you will need to use
+one of several image types:
+
+* `MFI`: This is a proprietary image format, which is used for `NOR`
+  in conjunction with `NAND`. It is typically used on the MIPS-based boards.
+
+* `FIT`: This is a standard U-Boot image format, which is used for
+  _NOR only_ or network boot. It can be used on all boards running
+  U-Boot. (It uses the `.itb` suffix, which is why it sometimes also
+  is called `ITB`).
+
+* `ubifs`: This image type is used for SparX5(i)-based boards using
+  `NAND` for storage. It is a standard Linux filesystem image format,
+  suitable for this storage type.
+
+* `ext4.gz`: This image type is used for SparX5(i)-based boards using
+  `eMMC` for storage. It is a standard Linux filesystem image format,
+  suitable for this storage type.
+
+=== Flashing boards using U-Boot
+
+When preparing a board for flashing, make sure that:
+
+1. You have the latest U-Boot installed. (And have booted it!).
+2. You have reset the U-Boot environment. Do so by the following steps:
+   * `env default -a`
+   * `env save`
+
+U-boot typically contain pre-coded command sequences in the
+environment, which is why it is crucial to reset this to default
+_after_ upgrading.
+
+==== Flashing MIPS boards
+
+The MIPS-based boards all use `NOR` for storing software images, and
+has a general-purpose filesystem in `NAND`. The `NAND` filesystem is
+not accessibly by the boot loader.
+
+The partitions are defined by default to match each board, and do
+typically not need to be changed:
+
+----------------------
+ocelot # sf probe
+SF: Detected mx25l25635e with page size 256 Bytes, erase size 64 KiB, total 32 MiB
+ocelot # mtd li
+List of MTD devices:
+* nor0
+  - type: NOR flash
+  - block size: 0x10000 bytes
+  - min I/O: 0x1 bytes
+  - 0x000000000000-0x000002000000 : "nor0"
+          - 0x000000000000-0x000000100000 : "UBoot"
+          - 0x000000100000-0x000000140000 : "Env"
+          - 0x000000140000-0x000000180000 : "Env.bk"
+          - 0x000000180000-0x000001080000 : "linux.bk"
+          - 0x000001080000-0x000001f80000 : "linux"
+----------------------
+
+The boards can be flashed in a straightforward method. Note if you are running
+WebStaX, then you will need to use the "bringup" configuration images on boards
+with small capacity.
+
+* `env set nor_image somepath/image.itb`
+* `run nor_dlup`
+
+As seen below:
+
+----------------------
+ocelot # env set nor_image somepath/istax_ocelot_10.itb
+ocelot # run nor_dlup
+BOOTP broadcast 1
+BOOTP broadcast 2
+DHCP client bound to address 10.10.137.57 (254 ms)
+Using switch@1010000 device
+TFTP from server 10.10.137.100; our IP address is 10.10.137.57
+Filename 'somepath/istax_ocelot_10.itb'.
+Load address: 0x81000000
+Loading: #################################################################
+         #################################################################
+         ...
+         #################################################################
+         ##################################
+done
+Bytes transferred = 14481784 (dcf978 hex)
+SF: Detected mx25l25635e with page size 256 Bytes, erase size 64 KiB, total 32 MiB
+device 0 offset 0x180000, size 0xdcf978
+14481784 bytes written, 0 bytes skipped in 116.21s, speed 128157 B/s
+ocelot #
+----------------------
+
+After this, the default `bootcmd` being `run nor_boot` should start
+the firmware installed.
+
+==== Flashing SparX5(i) boards
+
+In the default state, SparX5(i) boards are configured as follows:
+
+* PCB134: `NAND` boot.
+* PCB135: `eMMC` boot.
+
+Due to the large `NOR` device mounted by default (mx66, 128 Mb), it is
+also possible to configure this device for _NOR only_ boot.
+
+===== Flashing SparX5(i) for `NAND` boot
+
+If you have installed the non-`eMMC` version of U-Boot, the board is
+configured for booting the application from `NAND` by default. You
+only have to download the `ubifs` image and write the image to `NAND`.
+
+The default flash layout used is:
+
+----------------------
+=> mtd li
+List of MTD devices:
+* nor0
+ - type: NOR flash
+ - block size: 0x1000 bytes
+ - min I/O: 0x1 bytes
+ - 0x000000000000-0x000008000000 : "nor0"
+         - 0x000000000000-0x000000100000 : "UBoot"
+         - 0x000000100000-0x000000140000 : "Env"
+         - 0x000000140000-0x000000180000 : "Env.bk"
+* spi-nand0
+ - device: spi-nand@e
+ - parent: spi-master@600104000
+ - driver: spi_nand
+ - type: NAND flash
+ - block size: 0x20000 bytes
+ - min I/O: 0x800 bytes
+ - OOB size: 64 bytes
+ - OOB available: 62 bytes
+ - 0x000000000000-0x000010000000 : "spi-nand0"
+         - 0x000000000000-0x000004000000 : "Boot0"
+         - 0x000004000000-0x000008000000 : "Boot1"
+         - 0x000008000000-0x000010000000 : "rootfs_data"
+----------------------
+ 
+Use the commands below to download and flash the `NAND`
+partition. (The `nand_cur` environment variable control whether
+`Boot0` or `Boot1` partitions is used.)
+
+* `env set nand_image somepath/image.ubifs`
+* `run nand_dlup`
+
+The flash process can look like this:
+
+----------------------
+=> env set nand_image somepath/new.ubifs
+=> run nand_dlup
+...
+TFTP from server 10.10.137.100; our IP address is 10.10.137.22
+Filename 'somepath/new.ubifs'.
+Load address: 0x740000000
+Loading: #################################################################
+         #################################################################
+         #################################################################
+         ...
+         #################################################################
+         #################################################################
+         #################################################################
+         ###########################################
+         2.6 MiB/s
+done
+Bytes transferred = 27172864 (19ea000 hex)
+SF: Detected mx66l1g45g with page size 256 Bytes, erase size 4 KiB, total 128 MiB
+Erasing 0x00000000 ... 0x03ffffff (512 eraseblock(s))
+ubi0: default fastmap pool size: 25
+ubi0: default fastmap WL pool size: 12
+ubi0: attaching mtd5
+ubi0: scanning is finished
+ubi0: empty MTD device detected
+ubi0: attached mtd5 (name "Boot0", size 64 MiB)
+ubi0: PEB size: 131072 bytes (128 KiB), LEB size: 126976 bytes
+ubi0: min./max. I/O unit sizes: 2048/2048, sub-page size 2048
+ubi0: VID header offset: 2048 (aligned 2048), data offset: 4096
+ubi0: good PEBs: 512, bad PEBs: 0, corrupted PEBs: 0
+ubi0: user volume: 0, internal volumes: 1, max. volumes count: 128
+ubi0: max/mean erase counter: 0/0, WL threshold: 4096, image sequence number: 0
+ubi0: available PEBs: 466, total reserved PEBs: 46, PEBs reserved for bad PEB handling: 40
+No size specified -> Using max size (59170816)
+Creating dynamic volume rootfs of size 59170816
+27172864 bytes written to volume rootfs
+----------------------
+
+After this, the default `bootcmd` being `run nand_boot` should start
+the firmware installed.
+
+===== Flashing SparX5(i) for `eMMC` boot
+
+If you have installed the `eMMC` version of U-Boot, the board is
+configured for booting the application from `eMMC` by default.
+
+But before flashing you have to partion the `eMMC` memory device
+itself, and save the generated GUID to the environment.
+
+ * `run mmc_format`
+
+As shown below. `mmc part` will show the layout.
+
+----------------------
+=> run mmc_format
+GUID Partition Table Header signature is wrong: 0x0 != 0x5452415020494645
+...
+success!
+Writing GPT: success!
+Saving Environment to SPI Flash... SF: Detected mx66l1g45g with page size 256 Bytes, erase size 4 KiB, total 128 MiB
+Erasing SPI flash...Writing to SPI flash...done
+Valid environment: 1
+OK
+=> mmc part
+
+Partition Map for MMC device 0  --   Partition Type: EFI
+
+Part    Start LBA       End LBA         Name
+        Attributes
+        Type GUID
+        Partition GUID
+  1     0x00000022      0x00200021      "Boot0"
+        attrs:  0x0000000000000000
+        type:   0fc63daf-8483-4772-8e79-3d69d8477de4
+        type:   linux
+        guid:   fb861d82-da0c-4d6a-b902-c3ab5fb004ba
+  2     0x00200022      0x00400021      "Boot1"
+        attrs:  0x0000000000000000
+        type:   0fc63daf-8483-4772-8e79-3d69d8477de4
+        type:   linux
+        guid:   4d15ad76-af36-4f54-8a7e-1bfbcbe18c0c
+  3     0x00400022      0x00700021      "Data"
+        attrs:  0x0000000000000000
+        type:   0fc63daf-8483-4772-8e79-3d69d8477de4
+        type:   linux
+        guid:   28dcfed4-35a9-40e0-a607-e85164139971
+----------------------
+
+With the eMMC formatted, you can now download `ext4.gz` image and
+write it to the `eMMC` device. The `mmc_image` environment parameter
+controls the image filename to download.
+
+* `env set mmc_image somepath/image.ext4.gz`
+* `run mmc_dlup`
+
+This could look like this:
+
+----------------------
+=> env set mmc_image somepath/new.ext4.gz
+=> run mmc_dlup
+...
+Using switch@0 device
+TFTP from server 10.10.137.100; our IP address is 10.10.137.62
+Filename 'somepath/new.ext4.gz'.
+Load address: 0x740000000
+Loading: #################################################################
+         #################################################################
+         #################################################################
+         #################################################################
+         ...
+         #################################################################
+         #####################
+         6.6 MiB/s
+done
+Bytes transferred = 19072717 (12306cd hex)
+Uncompressed size: 53059584 = 0x329A000
+MMC write: dev # 0, block # 34, count 103632 ... 103632 blocks written: OK
+----------------------
+
+After this, the default `bootcmd` being `run mmc_boot` should start
+the firmware installed.
+
+===== Flashing SparX5(i) for `NOR` boot
+
+Before flashing the board, the `NOR` flash must first be partitioned.
+
+Do so by executing `run nor_only` at the U-Boot prompt.
+
+------------------------------
+=> run nor_only
+Saving Environment to SPI Flash... Erasing SPI flash...Writing to SPI flash...done
+Valid environment: 1
+OK
+=> mtd list
+List of MTD devices:
+* nor0
+ - type: NOR flash
+ - block size: 0x1000 bytes
+ - min I/O: 0x1 bytes
+ - 0x000000000000-0x000008000000 : "nor0"
+         - 0x000000000000-0x000000100000 : "UBoot"
+         - 0x000000100000-0x000000140000 : "Env"
+         - 0x000000140000-0x000000180000 : "Env.bk"
+         - 0x000000180000-0x000001580000 : "linux"
+         - 0x000001580000-0x000002980000 : "linux.bk"
+         - 0x000002980000-0x000004980000 : "rootfs_data"
+...
+------------------------------
+
+The `nor_parts` environment variable is used to subdivide the `NOR`
+flash. If you have other capacity requirements, you can edit/change
+the `nor_parts` variable _before_ running `nor_only`.
+
+Once you have partitioned the `NOR`, download the `FIT` image for your
+build and use the following commands to flash the device:
+
+* `env set nor_image somepath/image.itb`
+* `run nor_dlup`
+
+For example:
+
+-------------------------------
+=> env set nor_image somepath/image.itb
+=> run nor_dlup
+...
+Using switch@0 device
+TFTP from server 10.10.137.100; our IP address is 10.10.137.12
+Filename 'somepath/image.itb'.
+Load address: 0x740000000
+Loading: #################################################################
+         #################################################################
+         ...
+         #################################################################
+         #################################################################
+         #################################################################
+         #########################################################
+         1.5 MiB/s
+done
+Bytes transferred = 15786816 (f0e340 hex)
+SF: Detected mx66l1g45g with page size 256 Bytes, erase size 4 KiB, total 128 MiB
+device 0 offset 0x180000, size 0xf0e340
+11989824 bytes written, 3796992 bytes skipped in 142.438s, speed 113574 B/s
+-------------------------------
+
+After this, the default `bootcmd` being `run nor_boot` should start
+the firmware installed.
+
 
 == Starting MESA Demo
 

@@ -1,0 +1,14 @@
+API test suite open items:
+--------------------------
+
+- Requirement references
+- Test report generation (HTML, hierarchical)
+- Logging of success/skipped/failed tests per test/group
+- Frame test library improvements
+  - IP routing (frame modifications of DMAC, SMAC, egress VID, TTL, cksum)
+  - IP MC routing (multiple copies on each port for L2 and L3 routing)
+  - Frame counter checking
+  - Bandwidth checking for QoS ?
+- Topology: Link specification (currently port_list[x] and hp_list[x] are linked)
+- Example code generation ?
+- Code coverage

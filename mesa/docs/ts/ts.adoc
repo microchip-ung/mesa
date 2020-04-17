@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 
 == TS Functional Description.
@@ -394,10 +397,10 @@ Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
 |===
 
 | Interface speed     | Frequency
-| 25G                 | 312.5 MHz
-| 10G                 | 78.125 MHz
-|  5G (10/25G SERDES) | 39.0625 MHz
-|  5G (6G SERDES)     | 156.25 MHz
+| 25G                 | 322.265625 MHz
+| 10G                 | 80.56640625 MHz
+|  5G (10/25G SERDES) | 40.28320313 MHz
+|  5G (6G SERDES)     | 161,1328125 MHz
 |2.5G                 | 312.5 MHZ
 |  1G                 | 125 MHz
 |===

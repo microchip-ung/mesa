@@ -1,24 +1,5 @@
-/*
-Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -222,11 +203,11 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
 
     vtss_rc          rslt;
     //vtss_sd10g28_mode_args_t *mode_args = (vtss_sd10g28_mode_args_t*)malloc(sizeof(vtss_sd10g28_mode_args_t));
-    vtss_sd10g28_mode_args_t sd10g28_mode;
+    vtss_sd10g28_mode_args_t sd10g28_mode = {};
     vtss_sd10g28_mode_args_t *mode_args = &sd10g28_mode;
 
     u8 cmu;
-    vtss_sd10g28_preset_struct_t preset;
+    vtss_sd10g28_preset_struct_t preset = {};
 
     rslt = VTSS_RC_OK;
 
@@ -299,6 +280,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        preset.cfg_alos_thr_3_0            = 0x0    ;
                                         break;
       case VTSS_SD10G28_DAC1M        : //r_txeq_reg related signals :Not Tested
                                         preset.cfg_en_adv                  = 1;
@@ -313,7 +295,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
-                                        mode_args->dfe_enable              = 0;
+                                        preset.cfg_alos_thr_3_0            = 0x0    ;
                                         break;
       case VTSS_SD10G28_DAC2M        : //r_txeq_reg related signals :Not Tested
                                         preset.cfg_en_adv                  = 1;
@@ -328,7 +310,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
-                                        mode_args->dfe_enable              = 0;
+                                        preset.cfg_alos_thr_3_0            = 0x0    ;
 
                                         break;
 
@@ -345,7 +327,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
-                                        mode_args->dfe_enable              = 0;
+                                        preset.cfg_alos_thr_3_0            = 0x0    ;
 
                                         break;
       case VTSS_SD10G28_DAC3M_PVT     : //r_txeq_reg related signals
@@ -361,6 +343,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control. 
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0xf    ;
+                                        preset.cfg_alos_thr_3_0            = 0x0    ;
                                         break;
 
 
@@ -454,7 +437,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
     ret_val->cfg_mp_max_3_0[0]              = 1   ;
     ret_val->cfg_rstn_dfedig[0]             = mode_args->dfe_enable;    // DFE Reset; it is reset automatically after assert and release of pclk_gating 
       
-    ret_val->cfg_alos_thr_3_0[0]            = 3;             //Voltage threshold for squelch detection
+    ret_val->cfg_alos_thr_3_0[0]            = preset.cfg_alos_thr_3_0;             //Voltage threshold for squelch detection
       
     ret_val->cfg_predrv_slewrate_1_0[0]     = 3;          // ??
     ret_val->cfg_itx_ipcml_base_1_0[0]      = 0;          // predriver current setting in TX

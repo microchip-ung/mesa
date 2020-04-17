@@ -1,0 +1,57 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2020.03
+
+== MESA-2020.03
+
+|===
+|Version:          |MESA-2020.03
+|Previous Version: |MESA-2019.12
+|Date:             |2020-04-17
+|Description:      |Roadmap release
+|===
+
+
+=== Disclaimers
+
+==== Serval-T is unstable
+
+Affected SKUs: VSC7410, VSC7415, VSC7430, VSC7435, VSC7436, VSC7437 and VSC7440
+
+This release has some open issues affecting the Serval-T SKUs. The issues impact
+traffic integrity and SPI access to NOR/NAND devices. Due to this we encourage
+Serval-T customer to stay on the 2019.12 release until this has been fixed.
+
+==== SparX-5/5i (all SKUs)
+
+Affected SKUs: VSC7546, VSC7549, VSC7552, VSC7556, VSC7558, VSC7546TSN,
+VSC7549TSN, VSC7552TSN, VSC7556TSN and VSC7558TSN.
+
+The support of SparX-5/5i (all SKUs) in this release is considered to be in BETA
+quality. It can be used for early access, to evaluate the features and/or start
+SW integration. It is not suitable for production use.
+
+=== Genreal
+
+This release does contain a significant amount of bug and stability fixes.
+Especially the serdes settings has been improved and is much more reliable than
+in the MESA-2019.12 version.
+
+=== Hierarchical ACLs
+
+Support for Hierarchical ACLs has been added for SparX-5/5i products.
+This feature provides 6 ACLs for frame processing:
+
+* Ingress Port ACL (`MESA_HACL_TYPE_IPACL`)
+* Ingress VLAN ACL (`MESA_HACL_TYPE_IVACL`)
+* Ingress Router ACL (`MESA_HACL_TYPE_IRACL`)
+* Egress Router ACL (`MESA_HACL_TYPE_ERACL`)
+* Egress VLAN ACL (`MESA_HACL_TYPE_EVACL`)
+* Egress Port ACL (`MESA_HACL_TYPE_EPACL`)
+
+The following new functions has been added in the `security.h` header to support
+this: `mesa_hace_init`, `mesa_hace_add`, `mesa_hace_del`,
+`mesa_hace_counter_get`, and `mesa_hace_counter_clear`.
+
+

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_VCAP
 
@@ -127,7 +109,7 @@ static const fa_vcap_props_t fa_vcap_info[] = {
         .entry_count = FA_ES2_CNT,
         .entry_width = 52,
         .action_count = (FA_ES2_CNT + 74),
-        .action_width = 62,
+        .action_width = 21,
     },
     [FA_VCAP_IP6PFX] = {
         .name = "VCAP_IP6PFX",
@@ -414,9 +396,9 @@ static fa_vcap_type_t fa_vcap_type(vtss_vcap_type_t type)
             type == VTSS_VCAP_TYPE_ES0 ? FA_VCAP_TYPE_ES0 : FA_VCAP_TYPE_NONE);
 }
 
-static u32 fa_vcap_key_type(vtss_vcap_key_size_t key_size)
+static u32 fa_vcap_key_type(vtss_vcap_type_t type, vtss_vcap_key_size_t key_size)
 {
-    return (key_size == VTSS_VCAP_KEY_SIZE_TWELFTH ? FA_VCAP_TG_X1 :
+    return (key_size == VTSS_VCAP_KEY_SIZE_TWELFTH || type == VTSS_VCAP_TYPE_ES0 ? FA_VCAP_TG_X1 :
             key_size == VTSS_VCAP_KEY_SIZE_SIXTH ? FA_VCAP_TG_X2 :
             key_size == VTSS_VCAP_KEY_SIZE_QUARTER ? FA_VCAP_TG_X3 :
             key_size == VTSS_VCAP_KEY_SIZE_HALF ? FA_VCAP_TG_X6 : FA_VCAP_TG_X12);
@@ -455,11 +437,9 @@ static u32 fa_vcap_entry_addr(vtss_state_t *vtss_state, vtss_vcap_type_t type, v
             VTSS_E("%s not found", vtss_vcap_type_txt(type));
             return 0;
         }
-        addr *= props->sw_count;
-        addr += ((idx->col + 1) * props->sw_count/vtss_vcap_key_rule_count(idx->key_size));
-    } else {
-        addr++;
     }
+    addr *= props->sw_count;
+    addr += ((idx->col + 1) * props->sw_count/vtss_vcap_key_rule_count(idx->key_size));
     return (props->entry_count * props->sw_count - addr);
 }
 
@@ -647,7 +627,7 @@ static vtss_rc fa_vcap_entry_del(vtss_state_t *vtss_state, vtss_vcap_type_t type
     fa_vcap_type_t             bank = fa_vcap_type(type);
     const fa_vcap_type_props_t *props = &fa_vcap_type_info[bank];
     u32                        addr = fa_vcap_entry_addr(vtss_state, type, idx);
-    u32                        size = fa_vcap_tg_count(fa_vcap_key_type(idx->key_size));
+    u32                        size = fa_vcap_tg_count(fa_vcap_key_type(type, idx->key_size));
     vtss_fa_vcap_reg_info_t    info;
 
     VTSS_I("%s, row: %u, col: %u, addr: %u", props->name, idx->row, idx->col, addr);
@@ -1797,7 +1777,7 @@ static vtss_rc fa_clm_entry_update(vtss_state_t *vtss_state,
     u32            addr;
 
     data->vcap_type = type;
-    data->tg = fa_vcap_key_type(idx->key_size);
+    data->tg = fa_vcap_key_type(type, idx->key_size);
     addr = fa_vcap_entry_addr(vtss_state, data->vcap_type, idx);
     VTSS_I("row: %u, col: %u, addr: %u, map_id: %u, flags: 0x%x",
            idx->row, idx->col, addr, is1->map_id, is1->flags);
@@ -2444,20 +2424,32 @@ vtss_rc vtss_fa_debug_lpm(vtss_state_t *vtss_state,
 
 /* - IS2 ----------------------------------------------------------- */
 
+/* Indices reserved for controlling RLEG statistics */
+#define FA_RLEG_STAT_IRACL 0
+#define FA_RLEG_STAT_ERACL 1
+
 /* The first counters are used for port default actions. For convenience, ACE counters start from 100 */
 #define FA_ACE_CNT_ID_BASE 100
 #define FA_ACE_CNT_ID_IPMC (FA_ACE_CNT_ID_BASE - 1)
 #define FA_ACE_CNT_ID_DEF  (FA_ACE_CNT_ID_BASE - 4)
 
-static vtss_rc fa_is2_cnt_get(vtss_state_t *vtss_state, u32 cnt_id, u32 *counter)
+static vtss_rc fa_is2_cnt_get(vtss_state_t *vtss_state, vtss_vcap_type_t type, u32 cnt_id, u32 *counter)
 {
-    REG_RD(VTSS_ANA_ACL_CNT_A(cnt_id), counter);
+    if (type == VTSS_VCAP_TYPE_IS2) {
+        REG_RD(VTSS_ANA_ACL_CNT_A(cnt_id), counter);
+    } else {
+        REG_RD(VTSS_ANA_ACL_CNT_B(cnt_id), counter);
+    }
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_is2_cnt_set(vtss_state_t *vtss_state, u32 cnt_id, u32 counter)
+static vtss_rc fa_is2_cnt_set(vtss_state_t *vtss_state, vtss_vcap_type_t type, u32 cnt_id, u32 counter)
 {
-    REG_WR(VTSS_ANA_ACL_CNT_A(cnt_id), counter);
+    if (type == VTSS_VCAP_TYPE_IS2) {
+        REG_WR(VTSS_ANA_ACL_CNT_A(cnt_id), counter);
+    } else {
+        REG_WR(VTSS_ANA_ACL_CNT_B(cnt_id), counter);
+    }
     return VTSS_RC_OK;
 }
 
@@ -2471,7 +2463,6 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     vtss_vid_mac_t             vid_mac;
 
     data->type = FA_VCAP_TG_X3;
-    data->vcap_type = VTSS_VCAP_TYPE_IS2;
     FA_ACT_SET(IS2, BASE_TYPE_IS_INNER_ACL, action->cpu && act == VTSS_ACL_PORT_ACTION_REDIR); /* CPU copy/redirect (e.g. service policing/stats still applied) */
     /* Unused: BASE_TYPE_PIPELINE_FORCE_ENA */
     /* Unused: BASE_TYPE_PIPELINE_PT */
@@ -2597,7 +2588,7 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     /* Unused:  BASE_TYPE_EGR_ACL_ENA */
 
     /* Write ACE counter only */
-    return (cnt_id < FA_ACE_CNT_ID_BASE ? VTSS_RC_OK : fa_is2_cnt_set(vtss_state, cnt_id, counter));
+    return (cnt_id < FA_ACE_CNT_ID_BASE ? VTSS_RC_OK : fa_is2_cnt_set(vtss_state, data->vcap_type, cnt_id, counter));
 }
 
 static void fa_action_old2new(const vtss_acl_action_t *old, vtss_hacl_action_t *new)
@@ -2737,10 +2728,8 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
             /* Host match for IPv4 */
             fa_vcap_key_bit_set(data, IS2_KO_X12_L3_SMAC_SIP_MATCH, VTSS_VCAP_BIT_1);
         }
-        if (entry->type == VTSS_HACL_TYPE_IRACL) {
-            fa_vcap_key_bit_set(data, IS2_KO_X12_L3_RT, VTSS_VCAP_BIT_1);
-        }
-        fa_vcap_key_bit_set(data, IS2_KO_X12_L3_DST, entry->type == VTSS_HACL_TYPE_ERACL ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+        /* Unused: IS2_KO_X12_L3_RT */
+        /* Unused: IS2_KO_X12_L3_DST */
         fa_vcap_key_u48_set(data, IS2_KO_X12_L2_DMAC_0, &key->dmac);
         fa_vcap_key_u48_set(data, IS2_KO_X12_L2_SMAC_0, &key->smac);
         fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
@@ -2954,7 +2943,16 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
 
 apply:
     /* Setup action */
+    data->vcap_type = vcap_type;
     VTSS_RC(fa_is2_action_set(vtss_state, data, &ace->action, is2->cnt_id, counter));
+    if (vcap_type == VTSS_VCAP_TYPE_IS2_B && !entry->ipmc) {
+        FA_ACT_SET(IS2, BASE_TYPE_RLEG_STAT_IDX, (entry->first ? FA_RLEG_STAT_IRACL : FA_RLEG_STAT_ERACL) + 1);
+        if (entry->first) {
+            FA_ACT_SET(IS2, BASE_TYPE_IGR_ACL_ENA, 1);
+        } else {
+            FA_ACT_SET(IS2, BASE_TYPE_EGR_ACL_ENA, 1);
+        }
+    }
 
     return fa_vcap_entry_cmd(vtss_state, data, addr, data->tg, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ALL);
 }
@@ -2972,8 +2970,8 @@ static vtss_rc fa_is2_entry_get(vtss_state_t *vtss_state, vtss_vcap_type_t type,
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, addr);
     VTSS_RC(fa_vcap_entry_cmd(vtss_state, &data, addr, data.tg, FA_VCAP_CMD_READ, FA_VCAP_SEL_ACTION));
     cnt_id = fa_act_get(&data, IS2_AO_BASE_TYPE_CNT_ID, IS2_AL_BASE_TYPE_CNT_ID);
-    VTSS_RC(fa_is2_cnt_get(vtss_state, cnt_id, counter));
-    return (clear ? fa_is2_cnt_set(vtss_state, cnt_id, 0) : VTSS_RC_OK);
+    VTSS_RC(fa_is2_cnt_get(vtss_state, type, cnt_id, counter));
+    return (clear ? fa_is2_cnt_set(vtss_state, type, cnt_id, 0) : VTSS_RC_OK);
 }
 
 static vtss_rc fa_is2_a_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, u32 counter)
@@ -3094,7 +3092,7 @@ static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_ACT(IS2, "igr_acl_ena", BASE_TYPE_IGR_ACL_ENA);
         FA_DEBUG_ACT(IS2, "egr_acl_ena", BASE_TYPE_EGR_ACL_ENA);
         cnt_id = fa_act_get(data, IS2_AO_BASE_TYPE_CNT_ID, IS2_AL_BASE_TYPE_CNT_ID);
-        VTSS_RC(fa_is2_cnt_get(vtss_state, cnt_id, &cnt));
+        VTSS_RC(fa_is2_cnt_get(vtss_state, data->vcap_type, cnt_id, &cnt));
         pr("\ncnt[%u]: %u, cnt: %u", cnt_id, cnt, data->counter);
         return VTSS_RC_OK;
     }
@@ -3340,7 +3338,7 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     u32                     type = ES2_X6_TYPE_MAC_ETYPE;
     u32                     mask = VTSS_BITMASK(ES2_KL_X6_TYPE);
     vtss_vcap_bit_t         oam;
-    BOOL                    tcp, found = 0;
+    BOOL                    tcp, found = 0, smac_dmac = 0;
 
     addr = fa_vcap_entry_addr(vtss_state, VTSS_VCAP_TYPE_ES2, idx);
     VTSS_I("row: %u, col: %u, addr: %u, type: %u", idx->row, idx->col, addr, key->type);
@@ -3359,16 +3357,14 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
         }
         if (found) {
             /* Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering */
-            fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_DMAC_0, &key->dmac);
-            fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_SMAC_0, &key->smac);
+            smac_dmac = 1;
         } else {
             /* Match all frames */
             mask = 0;
         }
         break;
     case VTSS_ACE_TYPE_ETYPE:
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_DMAC_0, &key->dmac);
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_SMAC_0, &key->smac);
+        smac_dmac = 1;
         fa_vcap_key_bit_set(data, ES2_KO_MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_1);
         oam = (etype->etype.mask[0] == 0xff && etype->etype.mask[1] == 0xff ?
                (etype->etype.value[0] == 0x89 && etype->etype.value[1] == 0x02 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0) :
@@ -3377,23 +3373,21 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
         if (oam != VTSS_VCAP_BIT_1) {
             fa_vcap_key_u16_set(data, ES2_KO_MAC_ETYPE_ETYPE, &etype->etype);
         }
-        fa_vcap_key_u16_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0, &etype->data);
+        fa_vcap_key_u16_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 48, &etype->data);
         break;
     case VTSS_ACE_TYPE_LLC:
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_DMAC_0, &key->dmac);
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_SMAC_0, &key->smac);
+        smac_dmac = 1;
         fa_vcap_key_bit_set(data, ES2_KO_MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_0);
-        fa_vcap_key_u32_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0, &llc->llc);
+        fa_vcap_key_u32_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 32, &llc->llc);
         break;
     case VTSS_ACE_TYPE_SNAP:
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_DMAC_0, &key->dmac);
-        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_SMAC_0, &key->smac);
+        smac_dmac = 1;
         fa_vcap_key_bit_set(data, ES2_KO_MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_0);
         for (i = 0; i < 3; i++) {
             /* SNAP header */
-            fa_vcap_key_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + i*8, 8, i == 2 ? 0x03 : 0xaa, 0xff);
+            fa_vcap_key_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 40 + i*8, 8, i == 0 ? 0x03 : 0xaa, 0xff);
         }
-        fa_vcap_key_u40_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 24, &snap->snap);
+        fa_vcap_key_u40_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0, &snap->snap);
         break;
     case VTSS_ACE_TYPE_ARP:
         type = ES2_X6_TYPE_ARP;
@@ -3401,7 +3395,7 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
         fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_ADDR_SPACE_OK, arp->ethernet);
         fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_PROTO_SPACE_OK, arp->ip);
         fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_LEN_OK, arp->length);
-        fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_TGT_MATCH, arp->dmac_match);
+        /* Unused: ES2_KO_ARP_ARP_TGT_MATCH, differs from IS2 functionality */
         fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_SENDER_MATCH, arp->smac_match);
         fa_ace_key_bit_set(data, ES2_KO_ARP_ARP_OPCODE_UNKNOWN, arp->unknown);
         fa_ace_key_bit_inv_set(data, ES2_KO_ARP_ARP_OPCODE, arp->req);
@@ -3419,22 +3413,19 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
             dport = &ipv4->dport;
             fa_ace_key_bit_set(data, ES2_KO_X6_L3_FRAGMENT_TYPE, ipv4->fragment);
             fa_ace_key_bit_set(data, ES2_KO_X6_L3_OPTIONS, ipv4->options);
-            fa_ace_key_bit_set(data, ES2_KO_X6_L3_TTL_GT0, ipv4->ttl);
+            fa_vcap_key_ipv4_set(data, ES2_KO_X6_L3_IP4_DIP, &ipv4->dip);
+            fa_vcap_key_ipv4_set(data, ES2_KO_X6_L3_IP4_SIP, &ipv4->sip);
         } else {
             /* IPv6 */
             proto = &ipv6->proto;
             sport = &ipv6->sport;
             dport = &ipv6->dport;
-        }
-        fa_vcap_key_bit_set(data, ES2_KO_X6_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
-        fa_vcap_key_u8_set(data, ES2_KO_X6_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
-        if (ipv4) {
-            fa_vcap_key_ipv4_set(data, ES2_KO_X6_L3_IP4_DIP, &ipv4->dip);
-            fa_vcap_key_ipv4_set(data, ES2_KO_X6_L3_IP4_SIP, &ipv4->sip);
-        } else {
-            fa_vcap_key_bytes_set(data, ES2_KO_X6_L3_IP4_DIP, &ipv6->sip.value[8], &ipv6->sip.mask[8], 4);
+            /* Unused: ES2_KO_X6_L3_IP4_DIP, matches DIP[31:0] */
             fa_vcap_key_bytes_set(data, ES2_KO_X6_L3_IP4_SIP, &ipv6->sip.value[12], &ipv6->sip.mask[12], 4);
         }
+        fa_ace_key_bit_set(data, ES2_KO_X6_L3_TTL_GT0, ipv4 ? ipv4->ttl : ipv6->ttl);
+        fa_vcap_key_bit_set(data, ES2_KO_X6_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+        fa_vcap_key_u8_set(data, ES2_KO_X6_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
 
         if (vtss_vcap_udp_tcp_rule(proto)) {
             /* UDP/TCP protocol match */
@@ -3464,7 +3455,7 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
             /* Non-UDP/TCP protocol match */
             type = ES2_X6_TYPE_IP4_OTHER;
             fa_vcap_key_u8_set(data, ES2_KO_IP4_OTHER_L3_IP_PROTO, proto);
-            fa_vcap_key_u48_set(data, ES2_KO_IP4_OTHER_L3_PAYLOAD_0, ipv4 ? &ipv4->data : &ipv6->data);
+            fa_vcap_key_u48_set(data, ES2_KO_IP4_OTHER_L3_PAYLOAD_0 + 48, ipv4 ? &ipv4->data : &ipv6->data);
         }
         break;
     default:
@@ -3494,8 +3485,15 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     /* Unused: ES2_KO_X6_ES0_ISDX_KEY_ENA */
     /* Unused: ES2_KO_X6_MIRROR_PROBE */
 
+    if (smac_dmac) {
+        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_DMAC_0, &key->dmac);
+        fa_vcap_key_u48_set(data, ES2_KO_MAC_ETYPE_L2_SMAC_0, &key->smac);
+    }
+
     /* Setup action */
+    data->type = FA_VCAP_TG_X3;
     FA_ACT_SET(ES2, BASE_TYPE_FWD_MODE, ace->action.port_action == VTSS_ACL_PORT_ACTION_NONE ? 0 : 1);
+    FA_ACT_SET(ES2, BASE_TYPE_CNT_ID, is2->cnt_id);
     VTSS_RC(fa_es2_cnt_set(vtss_state, is2->cnt_id, counter));
 
     return fa_vcap_entry_cmd(vtss_state, data, addr, data->tg, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ALL);
@@ -4259,8 +4257,9 @@ static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     /* Setup action */
     memset(data, 0, sizeof(*data));
     fa_action_old2new(&conf->action, &action);
+    data->vcap_type = VTSS_VCAP_TYPE_IS2;
     VTSS_RC(fa_is2_action_set(vtss_state, data, &action, fa_acl_port_cnt_id(port), 0));
-    addr = fa_vcap_action_addr(VTSS_VCAP_TYPE_IS2, port, 0);
+    addr = fa_vcap_action_addr(data->vcap_type, port, 0);
     return fa_vcap_entry_cmd(vtss_state, data, addr, data->type, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ACTION);
 }
 
@@ -4268,14 +4267,14 @@ static vtss_rc fa_acl_port_counter_get(vtss_state_t *vtss_state, const vtss_port
 {
     u32 cnt_id = fa_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
-    return fa_is2_cnt_get(vtss_state, cnt_id, counter);
+    return fa_is2_cnt_get(vtss_state, VTSS_VCAP_TYPE_IS2, cnt_id, counter);
 }
 
 static vtss_rc fa_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 cnt_id = fa_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
-    return fa_is2_cnt_set(vtss_state, cnt_id, 0);
+    return fa_is2_cnt_set(vtss_state, VTSS_VCAP_TYPE_IS2, cnt_id, 0);
 }
 
 static vtss_rc fa_ace_add(vtss_state_t *vtss_state,
@@ -5161,9 +5160,9 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
         VTSS_RC(fa_vcap_entry_cmd(vtss_state, data, addr, data->type, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ACTION));
     }
 
-    /* IPMC: Enable IS2-2 lookup for VD0 */
+    /* IPMC: Enable IS2-2 and IS2-3 lookup for VD0 */
     port = VTSS_CHIP_PORT_VD0;
-    REG_WRM_CTL(VTSS_ANA_ACL_VCAP_S2_CFG(port), 1, VTSS_F_ANA_ACL_VCAP_S2_CFG_SEC_ENA(1 << 2));
+    REG_WRM_CTL(VTSS_ANA_ACL_VCAP_S2_CFG(port), 1, VTSS_F_ANA_ACL_VCAP_S2_CFG_SEC_ENA(3 << 2));
 
     /* IPMC: Enable CLM-A0 lookup for VD0 */
     REG_WR(VTSS_ANA_CL_ADV_CL_CFG(port, 0),
@@ -5189,6 +5188,12 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
     REG_WR(VTSS_VCAP_ES0_VCAP_CORE_MAP,
            VTSS_F_VCAP_ES0_VCAP_CORE_MAP_CORE_MAP(1));
 
+    /* Enable ES2 */
+    for (i = 0; i < 4; i++) {
+        REG_WR(VTSS_VCAP_ES2_VCAP_CORE_IDX, VTSS_F_VCAP_ES2_VCAP_CORE_IDX_CORE_IDX(i));
+        REG_WR(VTSS_VCAP_ES2_VCAP_CORE_MAP, VTSS_F_VCAP_ES2_VCAP_CORE_MAP_CORE_MAP(1));
+    }
+
     /* Use Jaguar-2 style IPv4 fragment filtering in CLM/IS2/ES2 */
     REG_WRM_SET(VTSS_ANA_ACL_VCAP_S2_FRAGMENT_CFG, VTSS_M_ANA_ACL_VCAP_S2_FRAGMENT_CFG_FRAGMENT_OFFSET_THRES_DIS);
     REG_WRM_SET(VTSS_ANA_CL_CLM_FRAGMENT_CFG, VTSS_M_ANA_CL_CLM_FRAGMENT_CFG_FRAGMENT_OFFSET_THRES_DIS);
@@ -5198,6 +5203,16 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
     REG_WRM(VTSS_ANA_ACL_SWAP_IP_CTRL,
             VTSS_F_ANA_ACL_SWAP_IP_CTRL_DMAC_REPL_OFFSET_VAL(8),
             VTSS_M_ANA_ACL_SWAP_IP_CTRL_DMAC_REPL_OFFSET_VAL);
+
+    /* I-RACL discard: Disable IRLEG and ERLEG statistics */
+    REG_WR(VTSS_ANA_ACL_VCAP_S2_RLEG_STAT(FA_RLEG_STAT_IRACL),
+           VTSS_F_ANA_ACL_VCAP_S2_RLEG_STAT_IRLEG_STAT_MASK(0x3f) |
+           VTSS_F_ANA_ACL_VCAP_S2_RLEG_STAT_ERLEG_STAT_MASK(0x3f));
+
+    /* E-RACL discard: Disable ERLEG statistics */
+    REG_WR(VTSS_ANA_ACL_VCAP_S2_RLEG_STAT(FA_RLEG_STAT_ERACL),
+           VTSS_F_ANA_ACL_VCAP_S2_RLEG_STAT_IRLEG_STAT_MASK(0) |
+           VTSS_F_ANA_ACL_VCAP_S2_RLEG_STAT_ERLEG_STAT_MASK(0x3f));
 
     return VTSS_RC_OK;
 }

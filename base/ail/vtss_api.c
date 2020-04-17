@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include "vtss_api.h"
 
@@ -590,6 +572,34 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
     VTSS_D("exit");
 
     return VTSS_RC_OK;
+
+#elif defined(VTSS_ARCH_LUTON26)
+    u32 si = 0, value;
+    u32 base_addr = 0x70000>>2;
+
+    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian, conf->bit_order, conf->padding);
+
+    if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
+        si |= 0x10;
+    }
+
+    if (conf->bit_order == VTSS_SPI_BIT_ORDER_LSB_FIRST) {
+        si |= 0x20;
+    }
+
+    si |= (conf->padding & 0xf);
+
+    VTSS_RC(conf->reg_write(0, base_addr + 1, si));
+    VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
+
+    if (si != value) {
+        VTSS_E("Read back of SI register failed 0x%08x != 0x%08x", si, value);
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_D("exit");
+
+    return VTSS_RC_OK;
 #else
     VTSS_E("SPI slave initialization is not implemented for this platform");
     return VTSS_RC_ERROR;
@@ -702,7 +712,10 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
     case VTSS_SERDES_MODE_IDLE:      return "IDLE";
     case VTSS_SERDES_MODE_TEST_MODE: return "TEST";
     case VTSS_SERDES_MODE_USXGMII:   return "USXGMII";
-    case VTSS_SERDES_MODE_USGMII:    return "USGMII";        
+    case VTSS_SERDES_MODE_USGMII:    return "USGMII";
+    case VTSS_SERDES_MODE_QXGMII:    return "QXGMII";
+    case VTSS_SERDES_MODE_DXGMII_10G:return "DXGMII_10G";
+    case VTSS_SERDES_MODE_DXGMII_5G: return "DXGMII_5G";
     }
     return "?   ";
 }

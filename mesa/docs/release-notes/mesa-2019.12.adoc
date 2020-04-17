@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 = MESA-2019.12
 
 == MESA-2019.12
@@ -111,6 +114,21 @@ More information can be found in the link:#mesa/docs/l2/l2[l2] section.
 In this release a section with examples has been added in MESA-DOC. Read the
 link:#mesa/docs/examples/introduction[introduction] section to learn more about
 this.
+
+=== MLDv2 APIs are supported on more targets
+
+The `MESA_CAP_L2_IPV6_MC_SIP` capability has been implemented on additional
+target families:
+
+`MESA_CAP_L2_IPV6_MC_SIP`:
+* `MESA_CHIP_FAMILY_CARACAL`
+* `MESA_CHIP_FAMILY_SERVAL` (new)
+* `MESA_CHIP_FAMILY_SERVALT`
+* `MESA_CHIP_FAMILY_JAGUAR2`
+* `MESA_CHIP_FAMILY_OCELOT` (new)
+
+This allows the application to control the destination mask based on a (vid,
+sip, dip) tuple, which is required to implement MLDv2 snooping.
 
 
 === None backwards compatible changes in packet.h API

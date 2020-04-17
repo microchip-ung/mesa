@@ -1,0 +1,43 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Versatile OAM Processor (VOP) example
+
+Command 'example init vop' will create either a port Down-VOP or a VLAN Down-VOP. +
+One port will be in front of the VOP. One port will be behind the VOP. +
+Besides creating the VOP, all necessary enhanced VLAN configuration will be done in order to make this work.
+
+The parameter 'level' is the MEG level the the VOP will be configured on. +
+The parameter 'vid' is the VLAN VOP classified VID and the expected VID in the TAG.
+
+When the VOP is created Continuity Check, Loop Back, Link Trace and Linear APS are enabled.
+When a VLAN VOP is created the transmitted OAM frames against the VOP must be tagged.
+
+Command 'example help vop' will show: +
+CC MEG-ID +
+CC Peer MEP-ID +
+CC MEP-ID +
+CC Priority +
+CC Period +
+Expected source Unicast MAC +
+Transmitted source Unicast MAC +
+
+Command 'example run command' can be used to the following: +
+CC status show. +
+VOE event status show. +
+LT status show. +
+LAPS status show. +
+CPU RX frame print. +
+CPU TX CCM frame.
+
+Assorted CC related status can be tested by sending CCM frame against the VOP.
+Note the difference in interpretation of the '_unexp' status depending on the MESA_CAP_VOP_CCM_DEFECT capability. See vop.h.
+
+When VOP is receiving LBM a responding LBR will be transmitted.
+
+The VOP received LTM and LAPS frames will be copied to CPU. 
+
+The CPU transmitted CCM frames will be updated with incrementing sequence number.
+
+The VOP MEG level filtering can be tested by transmitting OAM frames on port in front of and behind the VOP.

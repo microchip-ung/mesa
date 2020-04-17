@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 :sectnums:
 == Access Control List
 
@@ -56,6 +59,31 @@ For each ingress port, a default ACL hit counter is available (`mesa_acl_port_co
 === ACL Policers
 The ACL action for an ACE or a port can map to an ACL policer. Each ACL policer can be setup to do bit rate or packet rate policing (`mesa_acl_policer_conf_t`).
 
+=== Hierarchical ACLs
+Hierarchical ACLs are available for devices with a non-zero `MESA_CAP_ACL_HACL` capability.
+For such devices, six different ACLs are supported (`mesa_hace_add()`):
+
+* I-PACL: Ingress Port ACL: This is equivalent to the ACL decribed in the previous sections.
+** Filtering is based on ingress port list.
+** Filtered frame types are ETYPE, LLC, SNAP, ARP, IPv4 and IPv6.
+* I-VACL: Ingress VLAN ACL
+** Filtering is based on ingress port list.
+** Filtered frame types are ETYPE, LLC and SNAP (ARP/IPv4/IPv6 frames are seen as ETYPE).
+* I-RACL: Ingress Router ACL
+** Filtering is based on ingress router leg list.
+** Filtered frame types are IPv4 and IPv6.
+* E-RACL: Egress Router ACL
+** Filtering is based on egress router leg list.
+** Filtered frame types are IPv4 and IPv6.
+* E-VACL: Egress VLAN ACL
+** Filtering is based on egress port list.
+** Filtered frame types are ETYPE, LLC and SNAP (ARP/IPv4/IPv6 frames are seen as ETYPE).
+** Action is limited to pass/discard frame.
+* E-PACL: Egress Port ACL
+** Filtering is based on egress port list.
+** Filtered frame types are ETYPE, LLC, SNAP, ARP, IPv4 and IPv6.
+** Action is limited to pass/discard frame.
+
 === API Functions
 `mesa_ace_init()` +
 `mesa_ace_add()` +
@@ -69,4 +97,9 @@ The ACL action for an ACE or a port can map to an ACL policer. Each ACL policer 
 `mesa_acl_port_counter_get()` +
 `mesa_acl_port_counter_clear()` +
 `mesa_acl_policer_conf_get()` +
-`mesa_acl_policer_conf_set()`
+`mesa_acl_policer_conf_set()` +
+`mesa_hace_init()` +
+`mesa_hace_add()` +
+`mesa_hace_del()` +
+`mesa_hace_counter_get()` +
+`mesa_hace_counter_clear()`

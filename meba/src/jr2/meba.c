@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdint.h>
 #include <stdio.h>
@@ -78,7 +60,7 @@ typedef struct
     mesa_gpio_10g_no_t gpio_i2c_clk;  /* GPIO Pin selection as I2C_CLK for I2C communication with SFP  */
     mesa_gpio_10g_no_t gpio_i2c_dat;  /* GPIO Pin selection as I2C_DATA for I2C communication with SFP */
     mesa_gpio_10g_no_t gpio_virtual;  /* Per port Virtual GPIO number,for internal GPIO usage          */
-    mesa_gpio_10g_no_t gpio_sfp_mod_det;  /* GPIO Pin selection as SFP module detect              */   
+    mesa_gpio_10g_no_t gpio_sfp_mod_det;  /* GPIO Pin selection as SFP module detect              */
     uint32_t           aggr_intrpt;   /* Channel interrupt bitmask */
 } jr2_malibu_gpio_port_map_t;
 
@@ -1619,7 +1601,8 @@ static uint32_t jr2_capability(meba_inst_t inst,
             if (board->type == BOARD_TYPE_JAGUAR2 || board->type == BOARD_TYPE_SERVAL2_NID) {
                 meba_synce_clock_hw_id_t dpll_type;
 
-                if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) && (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30363)) {
+                if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) &&
+                    ((dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30363) || (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772))) {
                     return true;
                 } else {
                     return false;
@@ -3354,7 +3337,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->props.board_type = (vtss_board_type_t) (VTSS_BOARD_SERVAL2_NID_REF + board->type);    // Exposed temporarily
     board->fan_spec = &fan_conf;
 
-    mesa_bool_t ls1046_board = (access("/sys/bus/platform/drivers/i2c_designware/bind", F_OK) == 0) ? true : false;
+    mesa_bool_t ls1046_board = (access("/proc/vc3fdma", F_OK) == 0) ? false : true;
 
     /* Fill out port mapping table */
     for (port_no = 0; port_no < board->port_cnt; port_no++) {

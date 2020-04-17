@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    hexdump (0.2.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  hexdump
+
+BUNDLED WITH
+   1.17.2

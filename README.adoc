@@ -1,10 +1,12 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 = MESA README
 
-See the link:mesa-doc.html[mesa-doc.html] file for read-me, getting started
-documentation and more information.
+See the mesa-doc.html (this can be found in the released artifacts) file for
+read-me, getting started documentation and more information.
 
-License information, see COPYING.
+License information, see LICENSE.
 
 To generate mesa-doc.html (only relevant in non-released version) go to
 `./mesa/doc/scripts` and run `dg.rb`.
-

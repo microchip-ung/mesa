@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_fa_cil.h"
@@ -39,25 +21,26 @@
 #define LB_THRES_HYS_NONE             0                 /* No hysteresis */
 #define LB_2CYCLES_TYPE2_THRES_OFFSET 13                /* FA specific value */
 
+static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
 {
     u32  clk_cfg, clk_period_in_100ps;
-    u64  lb_clk_in_hz;
+    u64  clk_in_hz;
 
     /* Read the nominal system clock period length in 100 ps */
     REG_RD(VTSS_HSCH_SYS_CLK_PER, &clk_cfg);
     clk_period_in_100ps = VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_cfg);
-    lb_clk_in_hz = 10*1000*1000 / clk_period_in_100ps;
-    lb_clk_in_hz *= 1000;
-    return (lb_clk_in_hz);
+    clk_in_hz = 10*1000*1000 / clk_period_in_100ps;
+    clk_in_hz *= 1000;
+    return(clk_in_hz);
 }
 
-static u64 lb_group_lb_min_rate_calc(u64 lb_clk_in_hz, u32 pup_interval)
+static u64 lb_group_lb_min_rate_calc(u32 pup_interval)
 {
     return VTSS_DIV64((u64)(1 * lb_clk_in_hz * 8), (u64)pup_interval);
 }
 
-static u64 lb_group_lb_max_rate_calc(u32 bs, u64 lb_clk_in_hz, u32 pup_interval)
+static u64 lb_group_lb_max_rate_calc(u32 bs, u32 pup_interval)
 {
     u32 max_tokens;
 
@@ -76,7 +59,7 @@ static u64 lb_group_lb_max_rate_calc(u32 bs, u64 lb_clk_in_hz, u32 pup_interval)
     return VTSS_DIV64(((u64)max_tokens * lb_clk_in_hz * 8), (u64)pup_interval);
 }
 
-static u64 lb_group_lb_pup_token_calc(u64 ir_in_bps, u64 lb_clk_in_hz, u32 pup_interval)
+static u64 lb_group_lb_pup_token_calc(u64 ir_in_bps, u32 pup_interval)
 {
     /* Calculate the number of tokens required for this IR in this group (PUP_INTERVAL) */
     /* PUP_TOKEN = (RATE * PUP_INTERVAL) / (clk_frequence * 8) */
@@ -96,15 +79,15 @@ static i32 lb_prev_lb_set_get(vtss_state_t *vtss_state, u32 grp_idx, u32 lb_set_
 }
 
 /* ir and max_ir in 1000 bit/s or f/s */
-static vtss_rc lb_config(vtss_state_t *vtss_state, u32 grp_idx, u32 set_idx, u32 lb_idx, u32 ir, u32 max_ir, u32 bs, u32 bs_hyst, BOOL cf, BOOL frame_rate)
+static vtss_rc lb_config(vtss_state_t *vtss_state, u32 grp_idx, u32 set_idx, u32 lb_idx, u32 *ir, u32 max_ir, u32 *bs, u32 bs_hyst, BOOL cf, BOOL frame_rate)
 {
     vtss_qos_lb_group_t *group;
-    u32                 i, pup_tokens, max_pup_tokens, bs_in_bytes, bs_hyst_in_bytes, thres, hyst, inh_mode;
-    u64                 ir_in_bps, max_ir_in_bps, lb_clk_in_hz;
+    u32                 i, pup_tokens, max_pup_tokens, bs_in_bytes, bs_hyst_in_bytes, thres, hyst, inh_mode, max_burst;
+    u64                 ir_in_bps, max_ir_in_bps, max_rate, min_rate;
 
-    VTSS_I("Enter grp_idx %u, set_idx %u lb_idx %u ir %u", grp_idx, set_idx, lb_idx, ir);
+    VTSS_I("Enter grp_idx %u, set_idx %u lb_idx %u ir %u", grp_idx, set_idx, lb_idx, *ir);
 
-    if (ir == 0) {
+    if (*ir == 0) {
         VTSS_D("No IR was requested");
         REG_WR(VTSS_ANA_AC_SDLB_PUP_TOKENS(set_idx, lb_idx), VTSS_F_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(0));
         REG_WRM(VTSS_ANA_AC_SDLB_INH_CTRL(set_idx, lb_idx), VTSS_F_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(0), VTSS_M_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX);
@@ -128,25 +111,47 @@ static vtss_rc lb_config(vtss_state_t *vtss_state, u32 grp_idx, u32 set_idx, u32
     }
     group = &vtss_state->qos.lb_groups[grp_idx];
 
-    ir_in_bps = (u64)ir * 1000;
+    ir_in_bps = (u64)*ir * 1000;
     max_ir_in_bps = (u64)max_ir * 1000;
-    bs_in_bytes = bs;
+    bs_in_bytes = *bs;
     bs_hyst_in_bytes = bs_hyst;
     if (frame_rate) {
-       ir_in_bps = (u64)ir * (u64)group->frame_size * 8;
+       ir_in_bps = (u64)*ir * (u64)group->frame_size * 8;
        max_ir_in_bps = (u64)max_ir * (u64)group->frame_size * 8;
-       bs_in_bytes = bs * group->frame_size;
+       bs_in_bytes = *bs * group->frame_size;
        bs_hyst_in_bytes = bs_hyst * group->frame_size;
     }
 
-    /* Get the system clock in Hz */
-    lb_clk_in_hz = lb_clk_in_hz_get(vtss_state);
+    max_burst = group->min_burst * 0x3FF;
+    min_rate = lb_group_lb_min_rate_calc(group->pup_interval);
+
+    /* Adjust bust size to fit into the group */
+    if (bs_in_bytes < group->min_burst) {
+        VTSS_D("Group %u.  Burst size %u is too low for this group - Burst size set to min of this group", grp_idx, bs_in_bytes);
+        bs_in_bytes = group->min_burst;
+    }
+    if (bs_in_bytes > max_burst) {
+        VTSS_D("Group %u.  Burst size %u is too high for this group", grp_idx, bs_in_bytes);
+        bs_in_bytes = max_burst;
+    }
+    /* Now the maximun rate can be calculated based on the burst size */
+    max_rate = lb_group_lb_max_rate_calc(bs_in_bytes, group->pup_interval);
+
+    /* Adjust the information rate to fit into the group */
+    if (ir_in_bps < min_rate) {
+        VTSS_D("Group %u.  Information rate %" PRIu64 " is too low for this group (min_rate %" PRIu64 ")", grp_idx, ir_in_bps, min_rate);
+        ir_in_bps = min_rate;
+    }
+    if (ir_in_bps > max_rate) {
+        VTSS_D("Group %u.  Information rate %" PRIu64 " is too high for this group (max_rate %" PRIu64 ")", grp_idx, ir_in_bps, max_rate);
+        ir_in_bps = max_rate;
+    }
 
     /* Calculate the number of tokens required for this IR in this group (PUP_INTERVAL) */
-    pup_tokens = lb_group_lb_pup_token_calc(ir_in_bps, lb_clk_in_hz, group->pup_interval);
+    pup_tokens = lb_group_lb_pup_token_calc(ir_in_bps, group->pup_interval);
 
     // The following should NEVER trigger! The checking was done when selecting group.
-    if ((pup_tokens == 0) && (ir != 0)) {
+    if ((pup_tokens == 0) && (ir_in_bps != 0)) {
         VTSS_D("Bucket %u cannot be added to group %u. Check flow parameters.", set_idx, grp_idx);
         return(VTSS_RC_ERROR);
     }
@@ -156,7 +161,7 @@ static vtss_rc lb_config(vtss_state_t *vtss_state, u32 grp_idx, u32 set_idx, u32
     }
 
     /* Calculate the number of tokens required for this MAX IR in this group (PUP_INTERVAL) */
-    max_pup_tokens = lb_group_lb_pup_token_calc(max_ir_in_bps, lb_clk_in_hz, group->pup_interval);
+    max_pup_tokens = lb_group_lb_pup_token_calc(max_ir_in_bps, group->pup_interval);
 
     // The following should NEVER trigger! The checking was done when selecting group.
     if ((max_pup_tokens == 0) && (max_ir != 0)) {
@@ -194,20 +199,52 @@ static vtss_rc lb_config(vtss_state_t *vtss_state, u32 grp_idx, u32 set_idx, u32
     REG_WRM(VTSS_ANA_AC_SDLB_THRES(set_idx, lb_idx), VTSS_F_ANA_AC_SDLB_THRES_THRES_HYS(hyst), VTSS_M_ANA_AC_SDLB_THRES_THRES_HYS);
     REG_WRM(VTSS_ANA_AC_SDLB_INH_CTRL(set_idx, lb_idx), VTSS_F_ANA_AC_SDLB_INH_CTRL_INH_MODE(inh_mode), VTSS_M_ANA_AC_SDLB_INH_CTRL_INH_MODE);
 
+    /* Revert the return values to interface */
+    if (frame_rate) {
+       ir_in_bps = ir_in_bps / (u64)group->frame_size * 8;
+       bs_in_bytes = bs_in_bytes / group->frame_size;
+    }
+    *ir = (u32)(ir_in_bps / (u64)1000);
+    *bs = bs_in_bytes;
+
     VTSS_D("Exit");
 
     return VTSS_RC_OK;
 }
 
+static BOOL bs_higher_in_next(vtss_state_t *vtss_state, u32 idx, u64 ir_in_bps, u32 cur_max_burst)
+{
+    i32                  i;
+    vtss_qos_lb_group_t  *group;
+    u32                  max_burst;
+    u64                  min_rate;
+
+    if (idx == 0) {
+        return TRUE;
+    }
+
+    /* Find a group with higher max burst size where the requested information rate fit */
+    for (i = (idx - 1); (i >= 0) && (i < LB_GROUP_CNT); i--) {
+        group = &vtss_state->qos.lb_groups[i];
+        min_rate = lb_group_lb_min_rate_calc(group->pup_interval);
+        max_burst = group->min_burst * 0x3FF;
+        if ((cur_max_burst < max_burst) && (ir_in_bps > min_rate)) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+
 /* Find best group for leaky bucket                              */
-/* Choose the LB Group with the longest PUP_INTERVAL, that can   */
-/* support lb_rate while adding at most lb_thres tokens per PUP. */
+/* Choose the LB Group with the longest PUP_INTERVAL, that can support lb_rate while adding at most lb_thres tokens per PUP. */
 /* ir in 1000 bit/s or f/s */
 static vtss_rc lb_group_find(vtss_state_t *vtss_state, u32 ir, u32 bs, u32 bs_hyst, BOOL frame_rate, u32 *idx)
 {
     i32                 i;
-    u32                 pup_tokens, thres, bs_in_bytes, bs_hyst_in_bytes;
-    u64                 ir_in_bps, min_rate, max_rate, lb_clk_in_hz;
+    u32                 pup_tokens, thres, bs_in_bytes, bs_hyst_in_bytes, max_burst;
+    u64                 ir_in_bps, min_rate, max_rate;
     vtss_qos_lb_group_t *group;
 
     VTSS_D("Enter  ir %u  bs %u  frame_rate %u", ir, bs, frame_rate);
@@ -215,9 +252,6 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state, u32 ir, u32 bs, u32 bs_hy
     ir_in_bps = (u64)ir * 1000;
     bs_in_bytes = bs;
     bs_hyst_in_bytes = bs_hyst;
-
-    /* Get the system clock in Hz */
-    lb_clk_in_hz = lb_clk_in_hz_get(vtss_state);
 
     for (i = *idx; (i >= 0) && (i < LB_GROUP_CNT); i--) {
         group = &vtss_state->qos.lb_groups[i];
@@ -239,24 +273,43 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state, u32 ir, u32 bs, u32 bs_hy
             continue;
         }
 
-        // Check if the burst size and hyst size is in a valid range
-        if ((bs_in_bytes < group->min_burst) || ((bs_hyst_in_bytes > 0) && (bs_hyst_in_bytes < group->min_burst))) {
-            VTSS_D("Group %u.  Burst size %u or non-zero hysteresis %u is smaller than group minimum burst %u", i, bs, bs_hyst, group->min_burst);
-            continue;
+        /* Calculate the maximum burt size and minimum information rate for this group */
+        max_burst = group->min_burst * 0x3FF;
+        min_rate = lb_group_lb_min_rate_calc(group->pup_interval);
+
+        if (ir_in_bps < min_rate) {     /* Requested rate must be at least the minimum rate. Does not help to move on to next group */
+            VTSS_D("Group %u.  Information rate %" PRIu64 " is too low for this group (min_rate %" PRIu64 ")", i, ir_in_bps, min_rate);
+            ir_in_bps = min_rate;
+        }
+        if (bs_in_bytes < group->min_burst) {     /* Requested burst size must be at least the minimum burst size. Does not help to move on to next group */
+            VTSS_D("Group %u.  Burst size %u is too low for this group - Burst size set to min of this group", i, bs_in_bytes);
+            bs_in_bytes = group->min_burst;
+        }
+        if (bs_in_bytes > max_burst) {      /* Requested burst size is too big. It might be possible to go to next group */
+            VTSS_D("Group %u.  Burst size %u is too high for this group", i, bs_in_bytes);
+            /* Check if a group can be found with higher maximum burst size where the requested information rate fit */
+            if (bs_higher_in_next(vtss_state, *idx, ir_in_bps, max_burst)) {
+                continue;   /* Makes sense to go to next group */
+            } else {
+                VTSS_D("Have to stay in this group - Burst size set to max %u of this group", max_burst);
+                bs_in_bytes = max_burst;    /* Have to stay in this group, so requested burst size must be max of this group */
+            }
         }
 
-        // Calculate maximum feasible rate (bps) and minimum rate (bps) in this group for this LB.
-        max_rate = lb_group_lb_max_rate_calc(bs, lb_clk_in_hz, group->pup_interval);
-        min_rate = lb_group_lb_min_rate_calc(lb_clk_in_hz, group->pup_interval);
-
-        // Check ir_in_bps against maximum and minimum feasible rate
-        if ((ir_in_bps != 0) && (ir_in_bps > max_rate || ir_in_bps < min_rate)) {
-            VTSS_D("Group %u.  Information rate %" PRIu64 " is outside the group limits (min_rate %" PRIu64 " - max_rate %" PRIu64 ")", i, ir_in_bps, min_rate, max_rate);
-            continue;
+        /* Now the maximum information rate of this group can be calculated based on burst size */
+        max_rate = lb_group_lb_max_rate_calc(bs_in_bytes, group->pup_interval);
+        if (ir_in_bps > max_rate) {     /* Check if the reqursted information rate is too high for this group */
+            VTSS_D("Group %u.  Information rate %" PRIu64 " is too high for this group (max_rate %" PRIu64 ")", i, ir_in_bps, max_rate);
+            if (i == 0) {   /* Have to stay in this group as it is the last */
+                VTSS_D("Have to stay in this group - Information rate set to max %" PRIu64 " of this group", max_rate);
+                ir_in_bps = max_rate;
+            } else {
+                continue;    /* Next group support higher rates. If burst size is too small in next group, it will be changed to min_bs */
+            }
         }
 
         /* Check if PUP_TOKEN value fit into register */
-        if ((pup_tokens = lb_group_lb_pup_token_calc(ir_in_bps, lb_clk_in_hz, group->pup_interval)) > LB_PUP_TOKEN_MAX) {
+        if ((pup_tokens = lb_group_lb_pup_token_calc(ir_in_bps, group->pup_interval)) > LB_PUP_TOKEN_MAX) {
             VTSS_D("Group %u.  Calculated pup tokens %u value exceeds max value for rate %" PRIu64 "", i, pup_tokens, ir_in_bps);
             continue;
         }
@@ -275,7 +328,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state, u32 ir, u32 bs, u32 bs_hy
 
         *idx = i;
 
-        VTSS_D("Exit. Group %u was found for Information rate %" PRIu64 " and burst size %u.   Group min_burst %u  min_rate %" PRIu64 "  max_rate %" PRIu64 "  pup_interval %u", i, ir_in_bps, bs, group->min_burst, min_rate, max_rate, group->pup_interval);
+        VTSS_D("Exit. Group %u was found for Information rate %" PRIu64 " and burst size %u.   Group min_burst %u  min_rate %" PRIu64 "  max_rate %" PRIu64 "  pup_interval %u", i, ir_in_bps, bs_in_bytes, group->min_burst, min_rate, max_rate, group->pup_interval);
         return VTSS_RC_OK;
     }
 
@@ -293,7 +346,7 @@ static vtss_rc lb_group_add(vtss_state_t *vtss_state, u64 max_rate, u32 min_burs
 {
     vtss_qos_lb_group_t *group;
     u32                 power = 0, mask = 0x01, thres_shift;
-    u64                 pup_interval, max_token, lb_clk_in_hz;
+    u64                 pup_interval, max_token;
 
     VTSS_D("Enter  idx %u", idx);
 
@@ -333,9 +386,6 @@ static vtss_rc lb_group_add(vtss_state_t *vtss_state, u64 max_rate, u32 min_burs
         VTSS_E("Parameter min_burst %u calculate invalid THRES_SHIFT %u", min_burst, thres_shift);
         return(VTSS_RC_ERROR);
     }
-
-    /* Get the system clock in Hz */
-    lb_clk_in_hz = lb_clk_in_hz_get(vtss_state);
 
     /* Calculate the highest possible PUP_INTERVAL for the max_rate rate with the min_burst burst size. */
     /* The highest possible PUP_TOKENS value is equal to the bust size - in this case the min_burst we promised to support at the max_rate */
@@ -466,10 +516,15 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t *vtss_state, u32 grp_idx, u32 lb
 #if defined(VTSS_FEATURE_PSFP)
     mark_all_red = (conf->mark_all_red.enable ? 1 : 0);
     drop_yellow = (conf->drop_yellow ? 1 : 0);
+    sum = 0;
     if (mark_all_red && conf->mark_all_red.value) {
         /* Force policer closed */
         conf->cir = 0;
         conf->eir = 0;
+        sum = 1;
+    }
+    if (lb_set_idx < VTSS_EVC_POL_CNT) {
+        vtss_state->l2.pol_status[lb_set_idx].mark_all_red = sum;
     }
     REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR,
            VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_MARK_ALL_FRMS_RED_CLR_LBSET(lb_set_idx) |
@@ -477,8 +532,8 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t *vtss_state, u32 grp_idx, u32 lb
 #endif
     /* Configure the LB */
     /* Configure the per CIR and EIR related */
-    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 0, conf->cir, 0, conf->cbs, LB_THRES_HYS_NONE, conf->cf, FALSE));  /* CIR */
-    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 1, conf->eir, 0, conf->ebs, LB_THRES_HYS_NONE, conf->cf, FALSE));  /* EIR */
+    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 0, &conf->cir, 0, &conf->cbs, LB_THRES_HYS_NONE, conf->cf, FALSE));  /* CIR */
+    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 1, &conf->eir, 0, &conf->ebs, LB_THRES_HYS_NONE, conf->cf, FALSE));  /* EIR */
 
     /* Configure the CIR and EIR common */
     REG_WR(VTSS_ANA_AC_SDLB_DLB_MISC(lb_set_idx),
@@ -744,29 +799,28 @@ static vtss_rc fa_port_policer_set(vtss_state_t       *vtss_state,
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf)
 {
     u32 grp_idx1 = (LB_GROUP_CNT - 1), grp_idx2 = grp_idx1;
-    vtss_dlb_policer_conf_t cfg = *conf;
 
-    VTSS_D("Enter  lb_set_idx %u, enable %u", lb_set_idx, cfg.enable);
+    VTSS_D("Enter  lb_set_idx %u, enable %u", lb_set_idx, conf->enable);
 
-    if (cfg.type == VTSS_POLICER_TYPE_SINGLE) {
+    if (conf->type == VTSS_POLICER_TYPE_SINGLE) {
         /* Single bucket, disable EIR */
-        cfg.eir = 0;
-        cfg.ebs = 0;
-        cfg.cm = 0;
-        cfg.cf = 0;
+        conf->eir = 0;
+        conf->ebs = 0;
+        conf->cm = 0;
+        conf->cf = 0;
     }
 
     /* Start removing the LB from any possible group */
     VTSS_RC(lb_group_lb_set_remove(vtss_state, lb_set_idx));
 
-    if (cfg.enable) { /* The LB is enabled. Find the suitable group */
-        VTSS_RC(lb_group_find(vtss_state, cfg.cir, cfg.cbs, LB_THRES_HYS_NONE, FALSE, &grp_idx1));
-        if (cfg.eir != 0) {
+    if (conf->enable) { /* The LB is enabled. Find the suitable group */
+        VTSS_RC(lb_group_find(vtss_state, conf->cir, conf->cbs, LB_THRES_HYS_NONE, FALSE, &grp_idx1));
+        if (conf->eir != 0) {
             /* EIR present, create LB 2. In case of coupling, the max rate is the sum of CIR and EIR */
-            VTSS_RC(lb_group_find(vtss_state, (cfg.cf ? cfg.cir : 0) + cfg.eir, cfg.ebs, LB_THRES_HYS_NONE, FALSE, &grp_idx2));
+            VTSS_RC(lb_group_find(vtss_state, (conf->cf ? conf->cir : 0) + conf->eir, conf->ebs, LB_THRES_HYS_NONE, FALSE, &grp_idx2));
             grp_idx1 = MIN(grp_idx1, grp_idx2); // Smallest group (fastest update) is selected
         }
-        VTSS_RC(lb_group_lb_set_add(vtss_state, grp_idx1, lb_set_idx, &cfg));
+        VTSS_RC(lb_group_lb_set_add(vtss_state, grp_idx1, lb_set_idx, conf));
     }
 
     VTSS_D("Exit");
@@ -787,7 +841,12 @@ static vtss_rc fa_queue_policer_set(vtss_state_t *vtss_state,
         dlb_conf.line_rate = 1;
         dlb_conf.cir = conf->rate;
         dlb_conf.cbs = conf->level;
-        return vtss_fa_policer_conf_set(vtss_state, pol_idx, &dlb_conf);
+        if (VTSS_RC_OK != vtss_fa_policer_conf_set(vtss_state, pol_idx, &dlb_conf)) {
+            return VTSS_RC_ERROR;
+        }
+        /* The CIR and CBS value might have been changed in order to fit the Fireant LB group regime */
+        conf->rate = dlb_conf.cir;
+        conf->level = dlb_conf.cbs;
     }
     return VTSS_RC_OK;
 }
@@ -2260,6 +2319,8 @@ static u8 tas_scheduled_calc(vtss_qos_tas_gce_t *gcl, u32 gcl_length)
         if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC) { /* The MAC hold operation requires at least one open priority configured as 'scheduled' */
             vector |= vtss_bool8_to_u8(gcl[i].gate_open); 
         }
+    }
+    for (i = 0; i < gcl_length; ++i) {
         if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC) { /* The MAC release operation requires all open priorities configured as not 'scheduled'*/
             vector &= ~vtss_bool8_to_u8(gcl[i].gate_open); 
         }
@@ -2406,7 +2467,7 @@ static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no
             current_port_conf->gcl[i].gate_operation = VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC;
         }
         if ((scheduled & gate_state) == 0) {   /* If all open priority are configured as not 'scheduled' it requires MAC release operation */
-            current_port_conf->gcl[i].gate_operation = VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC;
+            current_port_conf->gcl[i].gate_operation = VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC;
         }
     }
 
@@ -2524,7 +2585,7 @@ static void tas_gate_state_write(vtss_state_t *vtss_state,  vtss_port_no_t port_
     u32  rc = 0;
     vtss_port_no_t  chip_port = VTSS_CHIP_PORT(port_no);
 
-    rc = (vtss_fa_wr(vtss_state, VTSS_HSCH_TAS_GATE_STATE_CTRL, chip_port) != VTSS_RC_OK) ? (rc + 1) : rc;
+    rc = (vtss_fa_wr(vtss_state, VTSS_HSCH_TAS_GATE_STATE_CTRL, 5040 + 64 + chip_port) != VTSS_RC_OK) ? (rc + 1) : rc;
     rc = (vtss_fa_wr(vtss_state, VTSS_HSCH_TAS_GATE_STATE, vtss_bool8_to_u8(gate_open)) != VTSS_RC_OK) ? (rc + 1) : rc;
 
     if (rc != 0) {
@@ -2626,7 +2687,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
-    u32                 i, value, time_interval_sum = 0;
+    u32                 i, value, time_interval_sum = 0, scheduled, maxsdu, mask;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32                 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
     vtss_port_no_t      chip_port = VTSS_CHIP_PORT(port_no);
@@ -2661,11 +2722,18 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 
     /* Configure the profile */
-    for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), ((max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0)));
+    scheduled = tas_scheduled_calc(gcl, gcl_length);
+    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
+        if (scheduled && !(scheduled & mask)) { /* At least one queue is scheduled meaning hold/release MAC commands in the list. All preemptible queues must have preempt min size as MAXSDU */
+            REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
+            maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
+        } else {
+            maxsdu = (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
+        }
+        REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
     }
     REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
-                                                      VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(tas_scheduled_calc(gcl, gcl_length)) |
+                                                      VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(scheduled) |
                                                       VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
 
     /* Configure the list elements */
@@ -2684,7 +2752,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     }
 
     /* Check if the sum of intervals are larger that the requeste cycle time */
-    if ((time_interval_sum > cycle_time) || (cycle_time >= 1000000000) || (cycle_time == 0)) {
+    if ((time_interval_sum > cycle_time) || (cycle_time > VTSS_QOS_TAS_CT_MAX) || (cycle_time == 0)) {
         VTSS_D("The TAS list cycle time is invalid. time_interval_sum %u  cycle_time %u", time_interval_sum, cycle_time);
         return VTSS_RC_ERROR;
     }
@@ -2715,7 +2783,41 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
     return VTSS_RC_OK;
 }
 
-static BOOL tas_base_time_in_future(vtss_state_t *vtss_state,  vtss_timestamp_t  *base_time,  u32 min_distance_time)
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+static vtss_rc fa_qos_tas_frag_size_update(struct vtss_state_s   *vtss_state,
+                                           const vtss_port_no_t  port_no)
+{
+    vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
+    vtss_tas_list_t       *tas_lists = vtss_state->qos.tas.tas_lists;
+    vtss_port_no_t        chip_port = VTSS_CHIP_PORT(port_no);
+    u32                   i, profile_idx, mask, value, maxsdu;
+    u8                    scheduled;
+
+    if (gcl_state->curr_list_idx == TAS_LIST_IDX_NONE) {
+        return VTSS_RC_OK;
+    }
+    profile_idx = tas_lists[gcl_state->curr_list_idx].profile_idx;
+
+    REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
+    scheduled = VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value);
+    if (scheduled == 0) {   /* No scheduled queues means no hold/release MAC meaning no preemptable queues */
+        return VTSS_RC_OK;
+    }
+
+    /* This must be done when the frame preemption RemAddFragSize is changing */
+    REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
+    maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
+    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
+        if ((scheduled & mask) == 0) { /* All preemptible queues must have preempt min size as MAXSDU */
+            REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
+        }
+    }
+
+    return VTSS_RC_OK;
+}
+#endif
+
+static int tas_base_time_in_future(vtss_state_t *vtss_state,  vtss_timestamp_t  *base_time,  u32 min_distance_time)
 {
     u64               tc;
     vtss_timestamp_t  tod_time, distance_time;
@@ -2726,22 +2828,22 @@ static BOOL tas_base_time_in_future(vtss_state_t *vtss_state,  vtss_timestamp_t 
     /* Check if base time is in the past */
     if (vtss_timestampLarger(&tod_time, base_time)) {
         VTSS_D("base time is in the past");
-        return FALSE;
+        return -1;
     }
 
     /* Check if base time is in the future. Check if it is too close  */
     distance_time = *base_time;
     if (vtss_timestampSub(&distance_time, &tod_time) != VTSS_RC_OK) {
         VTSS_D("Base time subtraction failed");
-        return FALSE;
+        return 0;
     }
     /* Must be more that min_distance_time in the future */
     if ((distance_time.sec_msb == 0) && (distance_time.seconds == 0) && (distance_time.nanoseconds < min_distance_time)) {
         VTSS_D("Scheduled list start is too close");
-        return FALSE;
+        return 0;
     }
 
-    return TRUE;
+    return 1;   /* Correctly in the future */
 }
 
 static BOOL tas_scheduled_cancel_ok(vtss_state_t *vtss_state,  vtss_tas_gcl_state_t  *gcl_state)
@@ -2755,7 +2857,7 @@ static BOOL tas_scheduled_cancel_ok(vtss_state_t *vtss_state,  vtss_tas_gcl_stat
         scheduled_list_idx = (gcl_state->trunk_list_idx != TAS_LIST_IDX_NONE) ? gcl_state->trunk_list_idx : gcl_state->next_list_idx;
         tas_list_base_time_read(vtss_state, scheduled_list_idx, &scheduled_base_time);
 
-        return tas_base_time_in_future(vtss_state, &scheduled_base_time, 500000000); /* Check if scheduled base time is ok. It must be in the future and not too close (500 ms) */
+        return (tas_base_time_in_future(vtss_state, &scheduled_base_time, 500000000) == 1) ? TRUE : FALSE; /* Check if scheduled base time is ok. It must be in the future and not too close (500 ms) */
     }
     return TRUE;
 }
@@ -2799,6 +2901,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     vtss_tas_list_t          *tas_lists = vtss_state->qos.tas.tas_lists;
     vtss_timestamp_t         current_end_time, old_cycle_start_time, stop_base_time;
     u64                      tc;
+    int                      rc;
 
     list_idx = trunk_list_idx = obsolete_list_idx = stop_list_idx = TAS_LIST_IDX_NONE;
     profile_idx = trunk_profile_idx = TAS_PROFILE_IDX_NONE;
@@ -2840,8 +2943,11 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             }
 
             /* Check if requested base time is ok - in the future and not too close (two cycle times) */
-            if (!tas_base_time_in_future(vtss_state, &new_port_conf->base_time, (2 * new_port_conf->cycle_time))) {
+            if ((rc = tas_base_time_in_future(vtss_state, &new_port_conf->base_time, (2 * new_port_conf->cycle_time))) != 1) {
                 VTSS_D("The requested GCL base time is not OK");
+                if ((rc == -1) && (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE)) {    /* Base time in the future and current list active */
+                    gcl_state->config_change_error++;
+                }
                 return VTSS_RC_ERROR;
             }
 
@@ -3012,6 +3118,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             gcl_state->trunk_list_idx = TAS_LIST_IDX_NONE;
             gcl_state->next_list_idx = stop_list_idx;
             gcl_state->stop_ongoing = TRUE;  /* Stop of new list is ongoing */
+            gcl_state->config_change_error = 0;
         }
 
         return VTSS_RC_OK;
@@ -3034,6 +3141,8 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
 
     /* Configuration is pending if next list is active. This is true if new start list is pending or stop list is pending */
     status->config_pending = (gcl_state->next_list_idx != TAS_LIST_IDX_NONE) ? TRUE : FALSE;
+
+    status->config_change_error = gcl_state->config_change_error;
 
     /* Read the base time that a pending configuration is going to be changed or the current configuration has been changed */
     if (gcl_state->next_list_idx != TAS_LIST_IDX_NONE) {
@@ -3075,6 +3184,13 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
         }
     }
 
+    /* Disable preemptable queues */
+    for (i = 0; i < 8; i++) {
+        REG_WRM(VTSS_HSCH_HSCH_L0_CFG(FA_HSCH_L0_SE(port, i)),
+                VTSS_F_HSCH_HSCH_L0_CFG_P_QUEUES(0),
+                VTSS_M_HSCH_HSCH_L0_CFG_P_QUEUES);
+    }
+
     DEV_WR(ENABLE_CONFIG, port,
            VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
            VTSS_F_DEV1G_ENABLE_CONFIG_MM_TX_ENA(enable_tx) |
@@ -3097,13 +3213,6 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
            VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_TIME(conf->verify_time) |
            VTSS_F_DEV1G_VERIF_CONFIG_VERIF_TIMER_UNITS(unit));
 
-    /* Preemptable queues */
-    for (i = 0; i < 8; i++) {
-        REG_WRM(VTSS_HSCH_HSCH_L0_CFG(FA_HSCH_L0_SE(port, i)),
-                VTSS_F_HSCH_HSCH_L0_CFG_P_QUEUES(enable_tx && conf->admin_status[i] ? 0xff : 0),
-                VTSS_M_HSCH_HSCH_L0_CFG_P_QUEUES);
-    }
-
     REG_WR(VTSS_DSM_PREEMPT_CFG(port),
            VTSS_F_DSM_PREEMPT_CFG_P_MIN_SIZE(conf->add_frag_size));
     REG_WR(VTSS_DSM_IPG_SHRINK_CFG(port),
@@ -3118,6 +3227,14 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
         REG_WR(VTSS_DEV10G_DEV_PFRAME_CFG(tgt),
                VTSS_F_DEV10G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(enable_tx ? 0 : 16));
     }
+
+    /* Enable/disable preemptable queues */
+    for (i = 0; i < 8; i++) {
+        REG_WRM(VTSS_HSCH_HSCH_L0_CFG(FA_HSCH_L0_SE(port, i)),
+                VTSS_F_HSCH_HSCH_L0_CFG_P_QUEUES(enable_tx && conf->admin_status[i] ? 0xff : 0),
+                VTSS_M_HSCH_HSCH_L0_CFG_P_QUEUES);
+    }
+
     if (vtss_state->misc.chip_id.revision == 0) {
         /* Avoid forced FCS update for revision 0 if preemption is enabled */
         enable_tx = 0;
@@ -3130,6 +3247,8 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
                 VTSS_F_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL(enable_tx ? 0 : 1),
                 VTSS_M_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL);
     }
+    (void)fa_qos_tas_frag_size_update(vtss_state, port_no);
+
     return fa_qos_queue_cut_through_set(vtss_state, port_no);
 }
 
@@ -3545,7 +3664,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 {
     vtss_port_no_t      port_no, chip_port, tas_port=0;
     u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, tas_list_idx = 0, div = 0, addr, len;
-    u64                 lb_clk_in_hz, min_rate, lowest_max_nxt;
+    u64                 min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
     BOOL                show_act, basics_act, ingr_mapping_act, gen_pol_act, service_pol_grp_act, service_pol_set_act, port_pol_act,
                         storm_pol_act, schedul_act, band_act, shape_act, leak_act, wred_act, tag_remark_act, egr_mapping_act, tas_act,
@@ -3818,22 +3937,20 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("lb_max is the maximum number of LBs in the group.\n");
         pr("\n");
         pr("idx  min_burst  max_burst  min_rate  max_rate(min)  max_rate(max)  min_token  pup_int  frame_size  lb_count  lb_max\n");
-        /* Get the system clock in Hz */
-        lb_clk_in_hz = lb_clk_in_hz_get(vtss_state);
         for (i = 0; i < LB_GROUP_CNT; ++i) {
             group = &vtss_state->qos.lb_groups[i];
             max_burst = group->min_burst * 0x3FF;
-            min_rate = lb_group_lb_min_rate_calc(lb_clk_in_hz, group->pup_interval);
+            min_rate = lb_group_lb_min_rate_calc(group->pup_interval);
             min_token = 1;
             if (i < (LB_GROUP_CNT - 1)) {   /* This is not the last group */
                 group_nxt = &vtss_state->qos.lb_groups[i + 1];
-                lowest_max_nxt = lb_group_lb_max_rate_calc(group_nxt->min_burst, lb_clk_in_hz, group_nxt->pup_interval);
-                min_token = lb_group_lb_pup_token_calc(lowest_max_nxt + 1, lb_clk_in_hz, group->pup_interval); /* The lowest max rate (+1) of next group is possible lowest rate in this group */
+                lowest_max_nxt = lb_group_lb_max_rate_calc(group_nxt->min_burst, group_nxt->pup_interval);
+                min_token = lb_group_lb_pup_token_calc(lowest_max_nxt + 1, group->pup_interval); /* The lowest max rate (+1) of next group is possible lowest rate in this group */
             }
             pr("%-3u  %-9u  %-9u  %-8" PRIu64 "  %-13" PRIu64 "  %-13" PRIu64 "  %-9u  %-7u  %-10u  %-9u  %-6u\n",
                i, group->min_burst, max_burst, min_rate,
-               lb_group_lb_max_rate_calc(group->min_burst, lb_clk_in_hz, group->pup_interval),
-               lb_group_lb_max_rate_calc(max_burst, lb_clk_in_hz, group->pup_interval),
+               lb_group_lb_max_rate_calc(group->min_burst, group->pup_interval),
+               lb_group_lb_max_rate_calc(max_burst, group->pup_interval),
                min_token, group->pup_interval, group->frame_size, group->lb_set_count, ((group->pup_interval / 4) - 1));
         }
         pr("\n");
@@ -4419,6 +4536,9 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
 
     VTSS_D("Enter");
 
+    /* Get the system clock in Hz */
+    lb_clk_in_hz = lb_clk_in_hz_get(vtss_state);
+
     // Initialize policers
     VTSS_RC(fa_qos_policer_init(vtss_state));
 
@@ -4439,12 +4559,16 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_state->qos.tas.tas_gcl_state[port_no].stop_ongoing = FALSE;
         vtss_state->qos.tas.tas_gcl_state[port_no].new_list_scheduled = FALSE;
+        vtss_state->qos.tas.tas_gcl_state[port_no].config_change_error = 0;
         vtss_state->qos.tas.tas_gcl_state[port_no].curr_list_idx = TAS_LIST_IDX_NONE;
         vtss_state->qos.tas.tas_gcl_state[port_no].trunk_list_idx = TAS_LIST_IDX_NONE;
         vtss_state->qos.tas.tas_gcl_state[port_no].next_list_idx = TAS_LIST_IDX_NONE;
         for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
             vtss_state->qos.tas.port_conf[port_no].max_sdu[i] = 24 * 64;   /* Default register value is 24. Resolution is 64 bytes */
         }
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        vtss_state->qos.fp.port_conf[port_no].add_frag_size = 1;    // P_MIN_SIZE default value is 1
+#endif
     }
     memset(&vtss_state->qos.tas.tas_lists, 0, sizeof(vtss_state->qos.tas.tas_lists));
     memset(&vtss_state->qos.tas.tas_profiles, 0, sizeof(vtss_state->qos.tas.tas_profiles));
@@ -4529,7 +4653,6 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        state->fp_port_conf_set   = fa_qos_fp_port_conf_set;
         state->fp_port_status_get = fa_qos_fp_port_status_get;
 #endif
         break;

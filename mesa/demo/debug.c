@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #include <stdio.h>
 #include <ctype.h>
@@ -74,6 +56,9 @@ typedef struct {
     mesa_bool_t clear;
     mesa_bool_t full;
     mesa_bool_t has_action;
+    mesa_bool_t has_dfe;
+    mesa_bool_t has_ctle;
+    mesa_bool_t has_txeq;
 
     char pattern[CLI_PATTERN_MAX + 1];
 } debug_cli_req_t;
@@ -290,30 +275,39 @@ static void cli_cmd_debug_serdes(cli_req_t *req)
         if (req->port_list[port] == 0)
             continue;
 
-        if (mreq->value > 2) {
+        if (!mreq->has_dfe && !mreq->has_ctle && !mreq->has_txeq) {
             cli_printf("Usage:\n");
-            cli_printf("type = 0 (=DFE).  For 10G: h1,h2,h3,h4,h5,0. For 25G: h1,h2,h3,h4,h5,dlev\n");
-            cli_printf("type = 1 (=CTLE). For 10G: r,c,vga,0         For 25G: vga_r,vga_c,c,gain\n");
+            cli_printf("dfe:  For 10G: h1,h2,h3,h4,h5,0. For 25G: h1,h2,h3,h4,h5,dlev\n");
+            cli_printf("ctle: For 10G: r,c,vga,0         For 25G: vga_r,vga_c,c,gain\n");
+            cli_printf("txeq: tap_dly, tap_adv, amplitude\n");
             cli_printf("Syntax:\n");
-            cli_printf("mesa-cmd deb serdes <port> <type> <h1,h2,h3,h4,h5,dlev> || <vga_r,vga_c,c,gain>\n");
+            cli_printf("mesa-cmd deb serdes <port> dfe|ctle|txeq <h1,h2,h3,h4,h5,dlev> || <vga_r,vga_c,c,gain> || <tap_dly,tap_adv,amplitude>\n");
             return;
         }
 
-        if (mreq->value == 0 && (mreq->value_cnt != 6)) {
-            cli_printf("Error. Expecting 6 values for DFE (<h1,h2,h3,h4,h5,dlev> or <h1,h2,h3,h4,h5,0>\n");
+        if (mreq->has_dfe && (mreq->value_cnt != 6)) {
+            cli_printf("Error. Expecting 6 values for dfe (<h1,h2,h3,h4,h5,dlev> or <h1,h2,h3,h4,h5,0>\n");
             return;
-        } else if (mreq->value == 1 && (mreq->value_cnt != 4)) {
-            cli_printf("Error. Expecting 4 values for CTLE (<vga_r,vga_c,c,gain> or <r,c,vga,0>)\n");
+        } else if (mreq->has_ctle && (mreq->value_cnt != 4)) {
+            cli_printf("Error. Expecting 4 values for ctle (<vga_r,vga_c,c,gain> or <r,c,vga,0>)\n");
+            return;
+        } else if (mreq->has_txeq && (mreq->value_cnt != 3)) {
+            cli_printf("Error. Expecting 3 values for txeq (<tap_dly,tap_adv,amplitude>)\n");
             return;
         }
 
-        conf.debug_type = mreq->value;
+        if (mreq->has_dfe) {
+            conf.debug_type = MESA_SERDES_DFE_PRM;
+        } else if (mreq->has_ctle) {
+            conf.debug_type = MESA_SERDES_CTLE_PRM;
+        } else if (mreq->has_txeq) {
+            conf.debug_type = MESA_SERDES_TXEQ_PRM;
+        }
         for (uint8_t i = 0; i < mreq->value_cnt; i++) {
             conf.serdes_prm[i] = mreq->value_list[i];
             sprintf(numbuf + strlen(numbuf), "%d ",mreq->value_list[i]);
         }
         (void)mesa_port_serdes_debug_set(NULL, iport, &conf);
-        cli_printf("Wrote %s with parameters: %s\n",mreq->value == 0 ? "DFE":"CTLE",numbuf);
     }
 }
 
@@ -412,8 +406,8 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_debug_symreg_query
     },
     {
-        "Debug serdes <port_list> <value> <value_list>",
-        "DFE: value = 0. CTL: value = 1",
+        "Debug serdes <port_list> [dfe] [ctle] [txeq] <value_list>",
+        "Set RX (dfe or ctle) or TX (txeq) EQ",
         cli_cmd_debug_serdes,
         CLI_CMD_FLAG_ALL_PORTS
     },
@@ -473,6 +467,12 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->full = 1;
     else if (!strncmp(found, "action", 6))
         mreq->has_action = 1;
+    else if (!strncmp(found, "dfe", 3))
+        mreq->has_dfe = 1;
+    else if (!strncmp(found, "ctle", 4))
+        mreq->has_ctle = 1;
+    else if (!strncmp(found, "txeq", 4))
+        mreq->has_txeq = 1;
     else
         cli_printf("no match: %s\n", found);
 
@@ -692,6 +692,25 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_SET,
         cli_parm_reg_value
     },
+    {
+        "dfe",
+        "Rx equalization",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
+    {
+        "ctle",
+        "Rx equalization",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
+    {
+        "txeq",
+        "Tx equalization",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
+
 };
 
 static void debug_cli_init(void)

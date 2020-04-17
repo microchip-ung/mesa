@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _VTSS_PORT_STATE_H_
 #define _VTSS_PORT_STATE_H_
@@ -396,6 +378,7 @@ typedef struct {
     vtss_port_speed_t             current_speed[VTSS_PORT_ARRAY_SIZE];
     vtss_port_interface_t         current_if_type[VTSS_PORT_ARRAY_SIZE];
     vtss_sd10g_media_type_t       current_mt[VTSS_PORT_ARRAY_SIZE];
+    BOOL                          link[VTSS_PORT_ARRAY_SIZE];
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
     vtss_port_10g_kr_conf_t       kr_conf[VTSS_PORT_ARRAY_SIZE];
     BOOL                          kr_fec_enable[VTSS_PORT_ARRAY_SIZE];
@@ -427,6 +410,9 @@ vtss_port_no_t vtss_cmn_first_port_no_get(struct vtss_state_s *vtss_state,
 vtss_port_no_t vtss_cmn_port2port_no(struct vtss_state_s *vtss_state,
                                      const vtss_debug_info_t *const info, u32 port);
 vtss_port_no_t vtss_api_port(struct vtss_state_s *vtss_state, u32 chip_port);
+vtss_rc vtss_port_conf_set_private(struct vtss_state_s    *vtss_state,
+                                   const vtss_port_no_t   port_no,
+                                   const vtss_port_conf_t *const conf);
 vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *adv);
 vtss_rc vtss_cmn_port_clause_37_adv_set(u32 *value, vtss_port_clause_37_adv_t *adv, BOOL aneg_enable);
 vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv);

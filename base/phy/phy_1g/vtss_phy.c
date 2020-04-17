@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 // Avoid "options.h not used in module vtss_phy.c"
 /*lint --e{766} */
 
@@ -8444,7 +8426,7 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                 VTSS_RC(vtss_phy_veriphy_running(vtss_state, port_no, TRUE, FALSE));
             }
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
-            vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, FALSE);
+            VTSS_RC(vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, FALSE));
 #endif
             /* Setup register 0 */
             VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MODE_CONTROL, VTSS_F_PHY_MODE_CONTROL_POWER_DOWN, VTSS_F_PHY_MODE_CONTROL_POWER_DOWN));

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_L2_
 #define _MSCC_ETHERNET_SWITCH_API_L2_
@@ -523,7 +505,8 @@ typedef struct
     uint8_t                   pop_cnt;     // Tag pop count
     mesa_imap_sel_t           map_sel;     // Ingress map selection
     mesa_qos_ingress_map_id_t map_id;      // Ingress map to use for classification
-    mesa_iflow_id_t           flow_id;     // Ingress flow ID. If flow_id points to a VOE, OAM will be handled by the VOE. If not NONE and doesn't point to a VOE, a possibly enabled port-VOE will see OAM as data.
+    mesa_iflow_id_t           flow_id;     // Ingress flow ID.
+                                           // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be handled by the possibly enabled port-VOE.
     mesa_oam_detect_t         oam_detect;  // OAM detection
     mesa_bool_t               prio_enable; // Enable priority classification
     mesa_prio_t               prio;        // Priority value
@@ -651,10 +634,36 @@ mesa_rc mesa_dlb_policer_conf_get(const mesa_inst_t           inst,
 // cosid [IN]  COSID.
 // conf [IN]   Policer configuration.
 //             By default, all DLB policers are disabled.
+// On Sparx-5 architecture this function has the following behavior:
+// Policers are in HW divided into groups with these attributes:
+//      minimum burst size
+//      maximum burst size
+//      minimum information rate
+//      maximum information rate that is based on actual burst size. Higher burst size give higher max rate.
+// A policer must fit into a group. Unsupported combinations of burst size and information rate exists.
+// When requested burst size and information rate is not supported, the parameters are changed for best fit.
+// Requested information rate too low is changed to the all group lowest minimum
+// Requested information rate too high is changed to the all group highest maximum
+// Requested burst size too low is changed to the group minimum for the selected rate
+// Requested burst size too high is changed to the group maximum for the selected rate
 mesa_rc mesa_dlb_policer_conf_set(const mesa_inst_t             inst,
                                   const mesa_dlb_policer_id_t   id,
                                   const mesa_cosid_t            cosid,
                                   const mesa_dlb_policer_conf_t *const conf);
+
+// DLB policer status
+typedef struct {
+    mesa_bool_t mark_all_red; // MarkAllFramesRed: Discard all frames if red frame seen
+} mesa_dlb_policer_status_t;
+
+// Get DLB policer status.
+// id [IN]       DLB policer ID.
+// cosid [IN]    COSID.
+// status [OUT]  DLB policer status.
+mesa_rc mesa_dlb_policer_status_get(const mesa_inst_t           inst,
+                                    const mesa_dlb_policer_id_t id,
+                                    const mesa_cosid_t          cosid,
+                                    mesa_dlb_policer_status_t   *const status);
 
 /* - Ingress flow -------------------------------------------------- */
 
@@ -675,7 +684,8 @@ typedef struct
     mesa_ingress_cnt_id_t  cnt_id;              // Ingress counter ID
     mesa_bool_t            dlb_enable;          // Enable DLB policer
     mesa_dlb_policer_id_t  dlb_id;              // DLB policer ID
-    mesa_voe_idx_t         voe_idx CAP(VOP);    // VOE index or MESA_VOE_IDX_NONE
+    mesa_voe_idx_t         voe_idx CAP(VOP);    // VOE index or MESA_VOE_IDX_NONE.
+                                                // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE will see OAM as data - else OAM will be handled by the VOE.
     mesa_voi_idx_t         voi_idx CAP(VOP_V2); // VOI index or MESA_VOI_IDX_NONE
     mesa_frer_iflow_conf_t frer CAP(L2_FRER);   // FRER ingress flow configuration
     mesa_psfp_iflow_conf_t psfp CAP(L2_PSFP);   // PSFP ingress flow configuration
@@ -776,7 +786,8 @@ typedef struct
     mesa_tce_tag_t  tag;       // Outer tag
     mesa_tce_tag_t  inner_tag; // Inner tag
     uint8_t         pop_cnt;   // Tag pop count
-    mesa_eflow_id_t flow_id;   // Egress flow ID. If flow_id points to a VOE, frames marked as OAM will be level filtered
+    mesa_eflow_id_t flow_id;   // Egress flow ID.
+                               // (VOP_V2) If MESA_EFLOW_ID_NONE possibly enabled port-VOE will see OAM as data.
     mesa_tce_rtag_t rtag;      // R-tag
 } mesa_tce_action_t;
 
@@ -862,7 +873,8 @@ typedef struct
 {
     mesa_bool_t          cnt_enable;          // Enable ingress counter mapping
     mesa_egress_cnt_id_t cnt_id;              // Ingress counter ID
-    mesa_voe_idx_t       voe_idx CAP(VOP);    // VOE index or MESA_VOE_IDX_NONE
+    mesa_voe_idx_t       voe_idx CAP(VOP);    // VOE index or MESA_VOE_IDX_NONE. 
+                                              // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE will see OAM as data - else OAM will be handled by the VOE.
     mesa_voi_idx_t       voi_idx CAP(VOP_V2); // VOI index or MESA_VOI_IDX_NONE
 } mesa_eflow_conf_t;
 

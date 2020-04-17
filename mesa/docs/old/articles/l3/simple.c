@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 #include <mscc/ethernet/switch/api/l3.h>
 
 mscc_rc l3_check_capabilities(const mesa_inst_t inst) {

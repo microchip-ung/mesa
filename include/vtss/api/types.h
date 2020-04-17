@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 /**
  * \file
@@ -519,7 +501,11 @@ typedef enum
     VTSS_SERDES_MODE_IDLE,      /**< Send idles (port appears as down for LP) */
     VTSS_SERDES_MODE_TEST_MODE, /**< Send fixed test pattern (port appears as up for LP, but no frame rx/tx) */
     VTSS_SERDES_MODE_USXGMII,   /**< 1 x USXGMII in 5G/10G mode */
-    VTSS_SERDES_MODE_USGMII     /**< 8 x USGMII in 1G mode */
+    VTSS_SERDES_MODE_USGMII,    /**< 8 x USGMII in 1G mode */
+    VTSS_SERDES_MODE_QXGMII,    /**< 4 x QXGMII in 2G5 mode.     Mode 'R'  */
+    VTSS_SERDES_MODE_DXGMII_10G,/**< 2 x DXGMII_10G in 5G mode.  Mode 'U'  */
+    VTSS_SERDES_MODE_DXGMII_5G  /**< 2 x DXGMII_5G in 2G5 mode.  Mode 'F'  */
+
 } vtss_serdes_mode_t;
 
 /** \brief VOE index */
@@ -671,7 +657,7 @@ typedef u16 vtss_qos_egress_map_id_t;
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_TAS_GCL_LEN_MAX     256 /**< Maximum supported length of TAS gate control list */
 #define VTSS_QOS_TAS_CT_MIN          100 /**< Minimum supported Gate CycleTime in nS */
-#define VTSS_QOS_TAS_CT_MAX   1000000000 /**< Maximum supported Gate CycleTime in nS */
+#define VTSS_QOS_TAS_CT_MAX   (1000000000-1) /**< Maximum supported Gate CycleTime in nS. Must be less than one second */
 #define VTSS_QOS_TAS_MAX_SDU_MAX  (255*64) /**< Maximum supported MAX SDU size */
 #define VTSS_QOS_TAS_MAX_SDU_MIN  64       /**< Minimum supported MAX SDU size */
 #endif /* defined(VTSS_ARCH_SPARX5) */

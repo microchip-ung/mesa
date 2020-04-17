@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_BOARD_SYNCE_H_
 #define _MSCC_ETHERNET_BOARD_SYNCE_H_
@@ -103,15 +85,22 @@ typedef enum {
     MEBA_SYNCE_CLOCK_FREQ_INVALID = -1,
     MEBA_SYNCE_CLOCK_FREQ_UNKNOWN = 0,
     MEBA_SYNCE_CLOCK_FREQ_25MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_31_25MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_32_226MHZ,   // 32.2265625 Mhz
+    MEBA_SYNCE_CLOCK_FREQ_40_283MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_60_606MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_62_5MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_78_125MHZ,
     MEBA_SYNCE_CLOCK_FREQ_80_565MHZ,
     MEBA_SYNCE_CLOCK_FREQ_125MHZ,
     MEBA_SYNCE_CLOCK_FREQ_156_25MHZ,
     MEBA_SYNCE_CLOCK_FREQ_161_13MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_312_5MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_322_265MHZ,
+    MEBA_SYNCE_CLOCK_FREQ_644_53MHZ,
     MEBA_SYNCE_CLOCK_FREQ_10MHZ,
     MEBA_SYNCE_CLOCK_FREQ_1544_KHZ,    // 1544 KHz
-    MEBA_SYNCE_CLOCK_FREQ_2048_KHZ,    // 2048 KHz
-    MEBA_SYNCE_CLOCK_FREQ_32_226MHZ,   // 32.2265625 Mhz
-    MEBA_SYNCE_CLOCK_FREQ_31_25MHZ
+    MEBA_SYNCE_CLOCK_FREQ_2048_KHZ     // 2048 KHz
 } meba_synce_clock_frequency_t;
 
 // Enumeration of the different devices used to connect the clock sources to
@@ -182,8 +171,16 @@ typedef enum {
     MEBA_ATTR_FREQ_2_5G = 5,
 
     // This attribute shall be used when the recovered clock for a line speed of
+    // 5G is different from the general case.
+    MEBA_ATTR_FREQ_5G = 6,
+
+    // This attribute shall be used when the recovered clock for a line speed of
     // 10G is different from the general case.
-    MEBA_ATTR_FREQ_10G = 6,
+    MEBA_ATTR_FREQ_10G = 7,
+
+    // This attribute shall be used when the recovered clock for a line speed of
+    // 25G is different from the general case.
+    MEBA_ATTR_FREQ_25G = 8,
 } meba_attr_t;
 
 // Structure representing an attribute attached to a terminal in the SyncE graph

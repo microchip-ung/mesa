@@ -1,22 +1,5 @@
-# Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
 
 message(STATUS "CMAKE_TOOLCHAIN_FILE='${CMAKE_TOOLCHAIN_FILE}'")
 
@@ -96,37 +79,16 @@ macro(APP_TARGET)
     endif()
 endmacro()
 
-add_custom_command(
-    OUTPUT ls1046-kernel.img
-    DEPENDS ${RELOCATED_HOST_DIR}/../../ls1046/mscc-linux-ls1046.bin.xz
-    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../../ls1046/mscc-linux-ls1046.bin.xz | gzip -f -c > ls1046-kernel.img
-)
-
-add_custom_command(
-    OUTPUT bbb-kernel.img
-    DEPENDS ${RELOCATED_HOST_DIR}/../mscc-linux-beaglebone.bin.xz
-    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../mscc-linux-beaglebone.bin.xz | gzip -f -c > bbb-kernel.img
-)
-
-add_custom_command(
-    OUTPUT fireant-kernel.img
-    DEPENDS ${RELOCATED_HOST_DIR}/../mscc-linux-fireant.bin.xz
-    COMMAND xz -d -c ${RELOCATED_HOST_DIR}/../mscc-linux-fireant.bin.xz | gzip -f -c > fireant-kernel.img
-
-)
-
 macro(IMG_TARGET)
     set(options )
-    set(oneValueArgs NAME APP MACHINE TYPE KMOD)
+    set(oneValueArgs NAME APP MACHINE TYPE)
     set(multiValueArgs )
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND A_MACHINE STREQUAL "ls1046a")
-        set(KERNEL "ls1046-kernel.img")
-    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND (A_MACHINE STREQUAL "fireant"))
-        set(KERNEL "fireant-kernel.img")
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../fireant/mscc-linux-kernel.bin.gz")
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l" AND A_MACHINE STREQUAL "BeagleBoneBlack")
-        set(KERNEL "bbb-kernel.img")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../bbb/mscc-linux-kernel.bin.gz")
     endif()
 
     option(${A_NAME} "Build the MESA-FIT DEMO for ${A_MESA}/${A_MEBA}" OFF)
@@ -164,12 +126,6 @@ macro(IMG_TARGET)
             endif()
         endforeach()
     endforeach()
-
-    # If a kernel module is specified, then add it
-    if (DEFINED A_KMOD)
-        list(APPEND SOLIBS kernel_module_${A_KMOD})
-        set(cmd ${cmd} -i ../../meba/linux_kernel_modules/${A_KMOD}/mscc_board.ko@/lib/modules/board/)
-    endif()
 
     set(cmd ${cmd} -l $<TARGET_FILE_NAME:${A_APP}>@/usr/bin/mesa-demo)
 
@@ -260,44 +216,50 @@ APP_TARGET(NAME app_vsc7558            MESA vsc7558            MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7552TSN         MESA vsc7552TSN         MEBA meba_sparx5)
 #APP_TARGET(NAME app_vsc7556TSN         MESA vsc7556TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7549TSN         MESA vsc7549TSN         MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7546TSN         MESA vsc7546TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7558TSN         MESA vsc7558TSN         MEBA meba_sparx5)
+APP_TARGET(NAME app_vsc7556            MESA vsc7556            MEBA meba_sparx5)
 
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
-    IMG_TARGET(NAME mfi_vsc7428     TYPE mfi      APP  app_vsc7428           KMOD  luton26       MACHINE luton10  )
-    IMG_TARGET(NAME mfi_vsc7429     TYPE mfi      APP  app_vsc7429           KMOD  luton26       MACHINE luton26  )
-    IMG_TARGET(NAME mfi_vsc7423     TYPE mfi      APP  app_vsc7423           KMOD  luton26       MACHINE luton10  )
-    IMG_TARGET(NAME mfi_vsc7468     TYPE mfi      APP  app_vsc7468           KMOD  jaguar2       MACHINE jaguar2c )
-    IMG_TARGET(NAME mfi_vsc7468_48  TYPE mfi      APP  app_vsc7468           KMOD  jaguar2-cu48  MACHINE jaguar2c )
-    IMG_TARGET(NAME mfi_vsc7464     TYPE mfi      APP  app_vsc7464           KMOD  jaguar2       MACHINE jaguar2c )
-    IMG_TARGET(NAME mfi_vsc7514     TYPE mfi      APP  app_vsc7514           KMOD  ocelot        MACHINE ocelot   )
-    IMG_TARGET(NAME mfi_vsc7513     TYPE mfi      APP  app_vsc7513           KMOD  ocelot        MACHINE ocelot   )
-    IMG_TARGET(NAME mfi_vsc7418     TYPE mfi      APP  app_vsc7418           KMOD  serval1       MACHINE serval1  )
-    IMG_TARGET(NAME mfi_vsc7438     TYPE mfi      APP  app_vsc7438           KMOD  serval2       MACHINE serval2  )
-    IMG_TARGET(NAME mfi_vsc7436     TYPE mfi      APP  app_vsc7436           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7416     TYPE mfi      APP  app_vsc7416           KMOD  serval1       MACHINE serval1  )
-    IMG_TARGET(NAME mfi_vsc7410     TYPE mfi      APP  app_vsc7410           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7430     TYPE mfi      APP  app_vsc7430           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7437     TYPE mfi      APP  app_vsc7437           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7435     TYPE mfi      APP  app_vsc7435           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7415     TYPE mfi      APP  app_vsc7415           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7424     TYPE mfi      APP  app_vsc7424           KMOD  luton26       MACHINE luton10  )
-    IMG_TARGET(NAME mfi_vsc7414     TYPE mfi      APP  app_vsc7414           KMOD  serval1       MACHINE serval1  )
-    IMG_TARGET(NAME mfi_vsc7425     TYPE mfi      APP  app_vsc7425           KMOD  luton26       MACHINE luton26  )
-    IMG_TARGET(NAME mfi_vsc7426     TYPE mfi      APP  app_vsc7426           KMOD  luton26       MACHINE luton26  )
-    IMG_TARGET(NAME mfi_vsc7427     TYPE mfi      APP  app_vsc7427           KMOD  luton26       MACHINE luton26  )
-    IMG_TARGET(NAME mfi_vsc7440     TYPE mfi      APP  app_vsc7440           KMOD  servalt       MACHINE servalt  )
-    IMG_TARGET(NAME mfi_vsc7444     TYPE mfi      APP  app_vsc7444           KMOD  jaguar2       MACHINE jaguar2c )
-    #IMG_TARGET(NAME mfi_vsc7442     TYPE mfi      APP  app_vsc7442           KMOD  jaguar2-cu48  MACHINE jaguar2c )
-    IMG_TARGET(NAME mfi_vsc7448     TYPE mfi      APP  app_vsc7448           KMOD  jaguar2       MACHINE jaguar2c )
-    IMG_TARGET(NAME mfi_vsc7448_48  TYPE mfi      APP  app_vsc7448           KMOD  jaguar2-cu48  MACHINE jaguar2c )
-    #IMG_TARGET(NAME mfi_vsc7449     TYPE mfi      APP  app_vsc7449           KMOD  jaguar2-cu48  MACHINE jaguar2c )
+    IMG_TARGET(NAME mfi_vsc7428         TYPE mfi  APP app_vsc7428  MACHINE luton_pcb091   )
+    IMG_TARGET(NAME mfi_vsc7429         TYPE mfi  APP app_vsc7429  MACHINE luton_pcb090   )
+    IMG_TARGET(NAME mfi_vsc7423         TYPE mfi  APP app_vsc7423  MACHINE luton_pcb091   )
+    IMG_TARGET(NAME mfi_vsc7468_pcb110  TYPE mfi  APP app_vsc7468  MACHINE jaguar2_pcb110 )
+    IMG_TARGET(NAME mfi_vsc7468_pcb111  TYPE mfi  APP app_vsc7468  MACHINE jaguar2_pcb111 )
+    IMG_TARGET(NAME mfi_vsc7464         TYPE mfi  APP app_vsc7464  MACHINE jaguar2_pcb110 )
+    IMG_TARGET(NAME mfi_vsc7514_pcb120  TYPE mfi  APP app_vsc7514  MACHINE ocelot_pcb120  )
+    IMG_TARGET(NAME mfi_vsc7514_pcb123  TYPE mfi  APP app_vsc7514  MACHINE ocelot_pcb123  )
+    IMG_TARGET(NAME mfi_vsc7513_pcb120  TYPE mfi  APP app_vsc7513  MACHINE ocelot_pcb120  )
+    IMG_TARGET(NAME mfi_vsc7513_pcb123  TYPE mfi  APP app_vsc7513  MACHINE ocelot_pcb123  )
+    IMG_TARGET(NAME mfi_vsc7418         TYPE mfi  APP app_vsc7418  MACHINE serval_pcb106  )
+    IMG_TARGET(NAME mfi_vsc7438         TYPE mfi  APP app_vsc7438  MACHINE serval2_pcb112 )
+    IMG_TARGET(NAME mfi_vsc7436         TYPE mfi  APP app_vsc7436  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7416         TYPE mfi  APP app_vsc7416  MACHINE serval_pcb106  )
+    IMG_TARGET(NAME mfi_vsc7410         TYPE mfi  APP app_vsc7410  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7430         TYPE mfi  APP app_vsc7430  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7437         TYPE mfi  APP app_vsc7437  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7435         TYPE mfi  APP app_vsc7435  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7415         TYPE mfi  APP app_vsc7415  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7424         TYPE mfi  APP app_vsc7424  MACHINE luton_pcb091   )
+    IMG_TARGET(NAME mfi_vsc7414         TYPE mfi  APP app_vsc7414  MACHINE serval_pcb106  )
+    IMG_TARGET(NAME mfi_vsc7425_pcb091  TYPE mfi  APP app_vsc7425  MACHINE luton_pcb091   )
+    IMG_TARGET(NAME mfi_vsc7425_pcb090  TYPE mfi  APP app_vsc7425  MACHINE luton_pcb090   )
+    IMG_TARGET(NAME mfi_vsc7426         TYPE mfi  APP app_vsc7426  MACHINE luton_pcb090   )
+    IMG_TARGET(NAME mfi_vsc7427         TYPE mfi  APP app_vsc7427  MACHINE luton_pcb090   )
+    IMG_TARGET(NAME mfi_vsc7440         TYPE mfi  APP app_vsc7440  MACHINE servalt_pcb116 )
+    IMG_TARGET(NAME mfi_vsc7444         TYPE mfi  APP app_vsc7444  MACHINE jaguar2_pcb110 )
+    #IMG_TARGET(NAME mfi_vsc7442        TYPE mfi  APP app_vsc7442  MACHINE jaguar2_pcb111 )
+    IMG_TARGET(NAME mfi_vsc7448_pcb110  TYPE mfi  APP app_vsc7448  MACHINE jaguar2_pcb110 )
+    IMG_TARGET(NAME mfi_vsc7448_pcb111  TYPE mfi  APP app_vsc7448  MACHINE jaguar2_pcb111 )
+    #IMG_TARGET(NAME mfi_vsc7449        TYPE mfi  APP app_vsc7449  MACHINE jaguar2_pcb111 )
 
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    IMG_TARGET(NAME fit_ls1046_vsc7468  TYPE fit      APP app_vsc7468         MACHINE ls1046a)
     IMG_TARGET(NAME fit_vsc7558TSN      TYPE ext4     APP app_vsc7558TSN      MACHINE fireant)
     IMG_TARGET(NAME fit_vsc7552TSN      TYPE ext4     APP app_vsc7552TSN      MACHINE fireant)
     IMG_TARGET(NAME fit_vsc7549TSN      TYPE ext4     APP app_vsc7549TSN      MACHINE fireant)
+    IMG_TARGET(NAME fit_vsc7546TSN      TYPE ext4     APP app_vsc7546TSN      MACHINE fireant)
+    IMG_TARGET(NAME fit_vsc7556         TYPE ext4     APP app_vsc7556         MACHINE fireant)
     # IMG_TARGET(NAME fit_ls1046_vsc7449  TYPE fit       APP app_vsc7449         MACHINE ls1046a)
     # IMG_TARGET(NAME fit_ls1046_vsc7437  TYPE fit       APP app_vsc7437         MACHINE ls1046a)
     # IMG_TARGET(NAME fit_ls1046_vsc7438  TYPE fit       APP app_vsc7438         MACHINE ls1046a)

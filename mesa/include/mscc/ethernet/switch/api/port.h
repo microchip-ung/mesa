@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_PORT_
 #define _MSCC_ETHERNET_SWITCH_API_PORT_
@@ -736,11 +718,33 @@ mesa_rc mesa_port_test_conf_set(const mesa_inst_t            inst,
                                 const mesa_port_no_t         port_no,
                                 const mesa_port_test_conf_t  *const conf);
 
+// Serdes Tx Equalizer taps
+typedef enum
+{
+    MESA_SERDES_PRE_CURSOR,
+    MESA_SERDES_MAIN_CURSOR,
+    MESA_SERDES_POST_CURSOR,
+} mesa_port_serdes_tap_enum_t;
+
+//  Function pointer for API callout.
+//  This function will typically be implemented in MEBA were the board specifics are known.
+//  The purpose is to get the tap value for a specific port/speed/tap.
+//  port_no [IN]    Port number.
+//  speed   [IN]    Port speed.
+//  tap     [IN]    Pre/main/post tap.
+//  value   [OUT]   The register value to be written.
+typedef mesa_rc (*mesa_port_serdes_tap_get_t)(const mesa_inst_t                 inst,
+                                              const mesa_port_no_t              port_no,
+                                              const mesa_port_speed_t           speed,
+                                              const mesa_port_serdes_tap_enum_t tap,
+                                              uint32_t                          *const value);
+
 /** \brief Serdes debug parameters */
 typedef enum
 {
-    MESA_SERDES_DFE_PRM, /**< DFE prms. in this order : h1,h2,h3,h4,h5,dlev */
-    MESA_SERDES_CTLE_PRM,/**< CTLE prms. in this order: r,c,vga */
+    MESA_SERDES_DFE_PRM,  /**< DFE prms. in this order : h1,h2,h3,h4,h5,dlev */
+    MESA_SERDES_CTLE_PRM, /**< CTLE prms. in this order: r,c,vga */
+    MESA_SERDES_TXEQ_PRM, /**< TxEQ prms. in this order: tap_dly, tap_adv, amplitude */
 } mesa_serdes_debug_type_t;
 
 /** \brief Serdes debug configuration structure */

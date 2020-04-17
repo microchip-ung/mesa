@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 // Avoid "options.h not used in module vtss_l3.c"
 /*lint --e{766} */
@@ -165,7 +147,7 @@ vtss_rc rleg_id_get_new(vtss_l3_rleg_conf_t       *rleg_conf,
             return VTSS_RC_ERROR;
         }
 
-        if (rleg_conf[i].vlan == 0 && found_free == FALSE) {
+        if (rleg_conf[i].vlan == 0 && found_free == FALSE && (new_rleg->rleg_enable == 0 || new_rleg->rleg_id == i)) {
             found_free = TRUE;
             free_id = i;
         }
@@ -1459,7 +1441,7 @@ static inline vtss_rc rt_del(vtss_state_t               *vtss_state,
 
     if (cnt < 3) {
         /* Route has two next-hops and returns to single next-hop */
-        cur->nh = (prev_nh == NULL ? nh->nh : list->nh);
+        cur->nh = (nh->next == NULL ? list->nh : nh->next->nh);
         I("single next-hop, free idx: %u", cur->grp->idx);
         nh_grp_free(vtss_state, cur->grp);
         cur->grp = NULL;
@@ -2243,8 +2225,8 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
 
     pr("Router Legs:\n");
     pr("============\n");
-    pr("ID   IPv4UC IPv6UC IPv4MC IPv6MC IPv4ICMP IPv6ICMP vlan vrid0 vrid1 mc_limit ttl_limit\n");
-    pr("---- ------ ------ ------ ------ -------- -------- ---- ----- ----- -------- ---------\n");
+    pr("ID   RLEG IPv4UC IPv6UC IPv4MC IPv6MC IPv4ICMP IPv6ICMP vlan vrid0 vrid1 mc_limit ttl_limit\n");
+    pr("---- ---- ------ ------ ------ ------ -------- -------- ---- ----- ----- -------- ---------\n");
     for (i = 0; i < VTSS_RLEG_CNT; i++) {
         const vtss_l3_rleg_conf_t *r = &l3->rleg_conf[i];
 
@@ -2256,8 +2238,9 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
              (!r->ipv6_icmp_redirect_enable) )
             continue;
 
-        pr("%-5u%-7s%-7s%-7s%-7s%-9s%-9s%-5u",
+        pr("%-5u%-5s%-7s%-7s%-7s%-7s%-9s%-9s%-5u",
            i,
+           r->rleg_enable ? "ENA" : "DIS",
            r->ipv4_unicast_enable ? "ENA" : "DIS",
            r->ipv6_unicast_enable ? "ENA" : "DIS",
            r->ipv4_multicast_enable ? "ENA" : "DIS",

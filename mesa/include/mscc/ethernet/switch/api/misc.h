@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_MISC_
 #define _MSCC_ETHERNET_SWITCH_API_MISC_
@@ -450,6 +432,33 @@ mesa_rc mesa_gpio_event_enable(const mesa_inst_t     inst,
                                const mesa_chip_no_t  chip_no,
                                const mesa_gpio_no_t  gpio_no,
                                mesa_bool_t           enable);
+
+// The GPIO functionality identifier
+typedef enum {
+    MESA_GPIO_FUNC_PTP_0,   // PTP 0 GPIO functionality
+    MESA_GPIO_FUNC_PTP_1,   // PTP 1 GPIO functionality
+    MESA_GPIO_FUNC_PTP_2,   // PTP 2 GPIO functionality
+    MESA_GPIO_FUNC_PTP_3    // PTP 3 GPIO functionality
+} mesa_gpio_func_t;
+
+// GPIO functionality ALT mode
+typedef enum
+{
+    MESA_GPIO_FUNC_ALT_0,  // Alternate function 0
+    MESA_GPIO_FUNC_ALT_1,  // Alternate function 1
+    MESA_GPIO_FUNC_ALT_2  // Alternate function 2
+} mesa_gpio_func_alt_t;
+
+// GPIO functionality information
+typedef struct {
+    mesa_gpio_no_t       gpio_no;    // GPIO pin number.
+    mesa_gpio_func_alt_t alt;        // GPIO ALT function.
+} mesa_gpio_func_info_t;
+
+// Get the GPIO information that is board specific for this GPIO functionality
+typedef mesa_rc (*mesa_gpio_func_info_get_t)(const mesa_inst_t       inst,
+                                             const mesa_gpio_func_t  gpio_func,
+                                             mesa_gpio_func_info_t   *const info);
 
 /* - Serial GPIO control ---------------------------------------------------- */
 

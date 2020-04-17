@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_L2
 #include "vtss_fa_cil.h"
@@ -466,13 +448,37 @@ static vtss_rc fa_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_
 {
     vtss_learn_mode_t *mode = &vtss_state->l2.learn_mode[port_no];
     vtss_port_mask_t  pmask, pmask_zero;
+    vtss_port_no_t    port_iter;
+    u32               cnt = 0;
 
     vtss_port_mask_port(vtss_state, port_no, &pmask);
     vtss_port_mask_clear(&pmask_zero);
-    REG_WRM_PMASK(VTSS_ANA_L2_LRN_SECUR_CFG,        mode->discard   ? pmask : pmask_zero, pmask);
-    REG_WRM_PMASK(VTSS_ANA_L2_LRN_SECUR_LOCKED_CFG, mode->discard   ? pmask : pmask_zero, pmask);
-    REG_WRM_PMASK(VTSS_ANA_L2_AUTO_LRN_CFG,         mode->automatic ? pmask : pmask_zero, pmask);
-    REG_WRM_PMASK(VTSS_ANA_L2_LRN_COPY_CFG,         mode->cpu       ? pmask : pmask_zero, pmask);
+
+    REG_WRM_PMASK(VTSS_ANA_L2_LRN_SECUR_CFG,        mode->discard   ? pmask : pmask_zero, pmask); // Drop unknown smac
+    REG_WRM_PMASK(VTSS_ANA_L2_LRN_SECUR_LOCKED_CFG,                   pmask,              pmask); // Always drop move of locked entries
+    REG_WRM_PMASK(VTSS_ANA_L2_AUTO_LRN_CFG,         mode->automatic ? pmask : pmask_zero, pmask); // Enable H/W-based learning
+    REG_WRM_PMASK(VTSS_ANA_L2_LRN_COPY_CFG,         mode->cpu       ? pmask : pmask_zero, pmask); // Copyy incoming learn frames to CPU
+
+    // Unfortunately, it's not possible to control per port, whether we want
+    // copies of frames whose MAC address is statically learned on another port
+    // to the CPU. This is a global configuration. Instead, we need to check
+    // whether at least two ports are enabled for secure learning, and if so
+    // enable that configuration. If at most one port is enabled, we don't care
+    // about such frames. The reason is that it must be possible for the
+    // application to move MAC addresses learned on one secure port to another
+    // secure port, but not from one secure port to a non-sercure port.
+    for (port_iter = 0; port_iter < vtss_state->port_count; port_iter++) {
+        if (!vtss_state->l2.learn_mode[port_iter].automatic) {
+            // Secure learning is enabled
+            if (++cnt == 2) {
+                break;
+            }
+        }
+    }
+
+    REG_WRM(VTSS_ANA_L2_LRN_CFG,
+            VTSS_F_ANA_L2_LRN_CFG_LOCKED_PORTMOVE_COPY_ENA(cnt < 2 ? 0 : 1),
+            VTSS_M_ANA_L2_LRN_CFG_LOCKED_PORTMOVE_COPY_ENA);
 
     /* If automatic ageing is disabled, flush entries previously learned on port */
     return (mode->automatic ? VTSS_RC_OK : fa_mac_table_age_cmd(vtss_state, 1, port_no, 0, 0, 0));
@@ -1385,6 +1391,9 @@ static vtss_rc fa_gate_status_get(vtss_state_t *vtss_state,
     status->prio.enable = (prio & 0x8 ? 1 : 0);
     status->prio.value = (prio & 0x7);
     status->config_pending = VTSS_X_ANA_AC_SG_STATUS_SG_STATUS_REG_3_CONFIG_PENDING(value);
+    REG_RD(VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3, &value);
+    status->close_invalid_rx = VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_INVALID_RX(value);
+    status->close_octets_exceeded = VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_OCTETS_EXCEEDED(value);
     return VTSS_FUNC(ts.timeofday_get, &status->current_time, &tc);
 }
 
@@ -1399,6 +1408,25 @@ static vtss_rc fa_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp_filt
            VTSS_F_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_STREAM_BLOCK_OVERSIZE_ENA(conf->block_oversize.enable ? 1 : 0) |
            VTSS_F_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_STREAM_BLOCK_OVERSIZE_STATE(conf->block_oversize.value ? 1 : 0));
 
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_filter_status_get(vtss_state_t *vtss_state,
+                                    const vtss_psfp_filter_id_t id,
+                                    vtss_psfp_filter_status_t *const status)
+{
+    u32 value;
+
+    REG_RD(VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG(fa_psfp_sfid(id)), &value);
+    status->block_oversize = VTSS_X_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_STREAM_BLOCK_OVERSIZE_STATE(value);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_policer_status_get(vtss_state_t *vtss_state,
+                                     const u16 idx,
+                                     vtss_dlb_policer_status_t *status)
+{
+    *status = vtss_state->l2.pol_status[idx];
     return VTSS_RC_OK;
 }
 #endif
@@ -2070,6 +2098,24 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
         state->poll_idx = (idx < (VTSS_MSTREAM_CNT + VTSS_CSTREAM_CNT) ? idx : 0);
     }
 #endif
+#if defined(VTSS_FEATURE_PSFP)
+    // Detect up to 10 DLB state changes
+    for (i = 0; i < 10; i++) {
+        u32 value;
+
+        REG_RD(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET, &value);
+        if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(value)) {
+            idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(value);
+            if (idx < VTSS_EVC_POL_CNT) {
+                vtss_state->l2.pol_status[idx].mark_all_red = 1;
+            }
+            VTSS_I("policer %u mark_all_red", idx);
+            REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET,
+                   VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(idx) |
+                   VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(0));
+        }
+    }
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2142,6 +2188,8 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->psfp_gate_conf_set = fa_gate_conf_set;
         state->psfp_gate_status_get = fa_gate_status_get;
         state->psfp_filter_conf_set = fa_filter_conf_set;
+        state->psfp_filter_status_get = fa_filter_status_get;
+        state->policer_status_get = fa_policer_status_get;
 #endif
         state->icnt_get = fa_icnt_get;
         state->ecnt_get = fa_ecnt_get;

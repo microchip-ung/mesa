@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_api.h"
@@ -1133,16 +1115,19 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
 {
     vtss_state_t            *vtss_state;
     vtss_rc                 rc;
-    vtss_qos_fp_port_conf_t *port_conf, conf_old;
+    vtss_qos_fp_port_conf_t *fp_conf, fp_conf_old;
+    vtss_port_conf_t        port_conf;
 
     VTSS_D("Enter - port_no: %u", port_no);
-    VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    port_conf = &vtss_state->qos.fp.port_conf[port_no];
-    conf_old = *port_conf;
-    *port_conf = *conf;
-    if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) != VTSS_RC_OK) {
-        *port_conf = conf_old;
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        fp_conf = &vtss_state->qos.fp.port_conf[port_no];
+        fp_conf_old = *fp_conf;
+        *fp_conf = *conf;
+        port_conf = vtss_state->port.conf[port_no];
+        if ((rc = vtss_port_conf_set_private(vtss_state, port_no, &port_conf)) != VTSS_RC_OK) {
+            *fp_conf = fp_conf_old;
+        }
     }
     VTSS_EXIT();
     VTSS_D("Exit");

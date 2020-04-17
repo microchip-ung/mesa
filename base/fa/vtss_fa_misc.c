@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 #include "vtss_fa_cil.h"
 
 #if defined(VTSS_ARCH_FA)
@@ -156,11 +138,18 @@ static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    // Set GPIO alternate functions. PWM is bit 23.
+    // TBD_FA_FAN
+    // TBD_FA_POE
+    // GPIO initialization is currently done in the API, but it does not really
+    // belong here as it is board specific. Furthermore, once we have also PoE
+    // support for FA, there will be an overlap between FAN and PoE for GPIO_23
+    // Therefore the GPIO configuration should be moved over to the kernel through
+    // device trees.
+    // Set GPIO alternate functions.
+    // PWM is GPIO_23, ALT_0.
+    // TACHO is GPIO_21, ALT_1.
     VTSS_RC(vtss_fa_gpio_mode(vtss_state, 0, 23, VTSS_GPIO_ALT_0));
-
-    // Set GPIO alternate functions. ROTA is bit 22.
-    VTSS_RC(vtss_fa_gpio_mode(vtss_state, 0, 22, VTSS_GPIO_ALT_0));
+    VTSS_RC(vtss_fa_gpio_mode(vtss_state, 0, 21, VTSS_GPIO_ALT_1));
 
     // Set PWM frequency (System clock frequency)/(PWM frequency)/256)
     REG_WRM(VTSS_DEVCPU_GCB_PWM_FREQ,
@@ -176,7 +165,7 @@ static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state,
 
     // Set PWM open collector
     REG_WRM(VTSS_DEVCPU_GCB_FAN_CFG,
-            spec->fan_open_col ? VTSS_M_DEVCPU_GCB_FAN_CFG_INV_POL : 0,
+            spec->fan_open_col ? VTSS_M_DEVCPU_GCB_FAN_CFG_PWM_OPEN_COL_ENA : 0,
             VTSS_M_DEVCPU_GCB_FAN_CFG_PWM_OPEN_COL_ENA);
 
     // We always use the one sec update for rotation count.

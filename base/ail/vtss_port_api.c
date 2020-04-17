@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
 #include "vtss_api.h"
@@ -161,31 +143,18 @@ vtss_rc vtss_port_conf_get(const vtss_inst_t     inst,
     return rc;
 }
 
-vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
-                           const vtss_port_no_t    port_no,
-                           const vtss_port_conf_t  *const conf)
+// Internal port configuration set function
+vtss_rc vtss_port_conf_set_private(vtss_state_t           *vtss_state,
+                                   const vtss_port_no_t   port_no,
+                                   const vtss_port_conf_t *const conf)
 {
-    vtss_state_t     *vtss_state;
     vtss_rc          rc;
-    vtss_port_conf_t oldconf;
+    vtss_port_conf_t old_conf;
 #if defined(VTSS_FEATURE_AFI_SWC)
     BOOL             afi_link;
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
-    VTSS_ENTER();
-    VTSS_I("port_no: %u, power-down = %u", port_no, conf->power_down);
-
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) != VTSS_RC_OK) {
-        goto do_exit;
-    }
-
-    if (vtss_state->port.conf_set_called[port_no] && memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) {
-        // Not first time and conf hasn't changed. Nothing to do.
-        goto do_exit;
-    }
-
-    // First time or conf has changed
-    oldconf = vtss_state->port.conf[port_no];
+    old_conf = vtss_state->port.conf[port_no];
     vtss_state->port.conf[port_no] = *conf;
 
     if (!vtss_state->port.conf_set_called[port_no]) {
@@ -208,7 +177,7 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
 
     if ((rc = VTSS_FUNC_COLD(port.conf_set, port_no)) != VTSS_RC_OK) {
         // Operation failed. Restore old configuration.
-        vtss_state->port.conf[port_no] = oldconf;
+        vtss_state->port.conf[port_no] = old_conf;
         (void)VTSS_FUNC_COLD(port.conf_set, port_no);
     } else {
         vtss_state->port.conf_set_called[port_no] = TRUE;
@@ -222,8 +191,27 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
         (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
     }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
+    return rc;
+}
 
-do_exit:
+vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
+                           const vtss_port_no_t    port_no,
+                           const vtss_port_conf_t  *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_I("port_no: %u, power-down = %u", port_no, conf->power_down);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        if (vtss_state->port.conf_set_called[port_no] &&
+            memcmp(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) {
+            // Not first time and conf hasn't changed. Nothing to do.
+            VTSS_I("port_no: %u - conf unchanged, skipping set", port_no);
+        } else {
+            rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
+        }
+    }
     VTSS_EXIT();
     VTSS_I("Exit(port_no = %u, rc = %d)", port_no, rc);
     return rc;

@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _MSCC_ETHERNET_BOARD_BASE_H_
 #define _MSCC_ETHERNET_BOARD_BASE_H_
@@ -216,7 +198,16 @@ typedef mesa_rc (*meba_event_enable_t)(struct meba_inst *inst,
 // Get RS422 HW configuration configuration
 // conf [OUT] The RS422 config
 typedef mesa_rc (*meba_ptp_rs422_conf_get_t)(struct meba_inst *inst,
-                                       meba_ptp_rs422_conf_t *conf);
+                                             meba_ptp_rs422_conf_t *conf);
+
+// Get the GPIO information that is board specific for this GPIO functionality
+typedef mesa_rc (*meba_gpio_func_info_get_t)(struct meba_inst *inst,
+                                             mesa_gpio_func_t gpio_func,  mesa_gpio_func_info_t *info);
+
+// Get the Serdes tap value for this port on this board
+typedef mesa_rc (*meba_serdes_tap_get_t)(struct meba_inst *inst,
+                                         mesa_port_no_t port_no, mesa_port_speed_t speed, mesa_port_serdes_tap_enum_t tap, uint32_t *value);
+
 
 typedef struct {
     meba_deinitialize_t             meba_deinitialize;
@@ -240,6 +231,8 @@ typedef struct {
     meba_irq_requested_t            meba_irq_requested;
     meba_event_enable_t             meba_event_enable;
     meba_ptp_rs422_conf_get_t       meba_ptp_rs422_conf_get;
+    meba_gpio_func_info_get_t       meba_gpio_func_info_get;
+    meba_serdes_tap_get_t           meba_serdes_tap_get;
 } meba_api_t;
 
 

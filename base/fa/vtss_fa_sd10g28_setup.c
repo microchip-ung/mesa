@@ -1,27 +1,5 @@
-#ifndef _VTSS_ANT__API_SD10G28_UTE
-#define _VTSS_ANT__API_SD10G28_UTE
-
-/*
-Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 /* Generation Tag is temp */
 
@@ -34,10 +12,11 @@ SOFTWARE.
  *     /   \           - Test Pattern Generation and
  *    /  |  \          - Software
  *   /   !   \         It should not be modified manually.
- *  /_________\        In case there is a need for modifications,
- *                     please contact
- *                       Srinivas Bandari <srinivas.bandari@microchip.com> 
+ *  /_________\
  * ================================================================= */
+
+#ifndef _VTSS_ANT__API_SD10G28_UTE
+#define _VTSS_ANT__API_SD10G28_UTE
 
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5)
@@ -54,7 +33,6 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
     if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
         spd10g = 0;
     }
-
 
     REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST(1),
@@ -132,7 +110,7 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
     value = VTSS_X_SD10G_CMU_TARGET_CMU_E0_PLL_LOL_UDL(value);
     value = (value > 0) ? 1 : 0;
     if(value != 0x0) {
-        VTSS_E("CMU:%d The expected value for CMU_E0 pll_lol_udl was 0x0 but is 0x%x\n",cmu_num, value);
+        VTSS_E("The expected value for CMU_E0 pll_lol_udl was 0x0 but is 0x%x\n", value);
         rc = VTSS_RC_ERROR;
     } else {
         VTSS_D("Note: The value of CMU_E0 pll_lol_udl was 0x%x\n", value);
@@ -448,19 +426,21 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
                 VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB(1),
                 VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB);
 
-    REG_RD(VTSS_CLKGEN_LCPLL1_CORE_CLK_CFG, &value);
-    value = VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_DIV(value) == 4 ? 0 :
-        VTSS_F_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_DIV(value) == 5 ? 1 : 2;
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_50(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB(1),
+                VTSS_M_SD10G_LANE_TARGET_LANE_50_CFG_SSC_RESETB);
 
     REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd_lane_tgt),
-            VTSS_F_SD_LANE_TARGET_MISC_SD_125_RST_DIS(res_struct->fx_100[0]) |
-            VTSS_F_SD_LANE_TARGET_MISC_RX_ENA(res_struct->fx_100[0]) |
-            VTSS_F_SD_LANE_TARGET_MISC_MUX_ENA(res_struct->fx_100[0]) |
-            VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(value),
-            VTSS_M_SD_LANE_TARGET_MISC_SD_125_RST_DIS |
-            VTSS_M_SD_LANE_TARGET_MISC_RX_ENA |
-            VTSS_M_SD_LANE_TARGET_MISC_MUX_ENA |
-            VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);
+                VTSS_F_SD_LANE_TARGET_MISC_SD_125_RST_DIS(res_struct->fx_100[0]),
+                VTSS_M_SD_LANE_TARGET_MISC_SD_125_RST_DIS);
+
+    REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd_lane_tgt),
+                VTSS_F_SD_LANE_TARGET_MISC_RX_ENA(res_struct->fx_100[0]),
+                VTSS_M_SD_LANE_TARGET_MISC_RX_ENA);
+
+    REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd_lane_tgt),
+                VTSS_F_SD_LANE_TARGET_MISC_MUX_ENA(res_struct->fx_100[0]),
+                VTSS_M_SD_LANE_TARGET_MISC_MUX_ENA);
 
     VTSS_MSLEEP(3);
 
@@ -488,7 +468,7 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
 
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
     vtss_sd10g28_setup_struct_t calc_results = {};
-    vtss_rc rc;
+    vtss_rc rc = 0;
     VTSS_D("This function is generated with UTE based on TAG: temp");
 
     rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);

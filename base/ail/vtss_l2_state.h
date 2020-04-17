@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #ifndef _VTSS_L2_STATE_H_
 #define _VTSS_L2_STATE_H_
@@ -614,6 +596,11 @@ typedef struct {
                                 BOOL clear);
     vtss_rc (* isdx_update)(struct vtss_state_s *vtss_state,
                             vtss_sdx_entry_t *sdx);
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_rc (* policer_status_get)(struct vtss_state_s *vtss_state,
+                                   const u16 idx,
+                                   vtss_dlb_policer_status_t *const status);
+#endif /* VTSS_FEATURE_PSFP */
 #endif
 #if defined(VTSS_FEATURE_FRER)
     vtss_rc (* cstream_conf_set)(struct vtss_state_s *vtss_state,
@@ -635,6 +622,9 @@ typedef struct {
                                      vtss_psfp_gate_status_t *const status);
     vtss_rc (* psfp_filter_conf_set)(struct vtss_state_s *vtss_state,
                                      const vtss_psfp_filter_id_t id);
+    vtss_rc (* psfp_filter_status_get)(struct vtss_state_s *vtss_state,
+                                       const vtss_psfp_filter_id_t id,
+                                       vtss_psfp_filter_status_t *const status);
 #endif
 
     /* Configuration/state */
@@ -730,6 +720,9 @@ typedef struct {
 #endif /* VTSS_SDX_CNT */
 #if defined(VTSS_EVC_POL_CNT)
     vtss_dlb_policer_conf_t pol_conf[VTSS_EVC_POL_CNT]; /* Policer configuration */
+#if defined(VTSS_FEATURE_PSFP)
+    vtss_dlb_policer_status_t pol_status[VTSS_EVC_POL_CNT];
+#endif
 #endif
 #if defined(VTSS_FEATURE_FRER)
     vtss_ms_table_t           ms_table;

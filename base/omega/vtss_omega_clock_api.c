@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_CLOCK
@@ -1551,7 +1533,15 @@ static vtss_rc es6514_clock_adj_phase_set(vtss_state_t                  *vtss_st
         }
     }
     f_offset_ppb = (u32)(VTSS_DIV64(((u64)1 << cfg_val) * 1000000000, 7) >> (32 + 10));
-    VTSS_I("current_limit_ppb %u, f_offset_ppb %u\n", current_limit_ppb, f_offset_ppb);
+    VTSS_I("current_limit_ppb %u, f_offset_ppb %u, cfg_val %u\n", current_limit_ppb, f_offset_ppb, cfg_val);
+
+    if (f_offset_ppb == 0) {
+        /* Coverity finding. In case cfg_val is 14 which is theoretically possible, then f_offset_ppb is evaluated to zero */
+        /* In the following f_offset_ppb is used as denominator - dividing by zero */
+        VTSS_D("f_offset_ppb == 0");
+        return VTSS_RC_ERROR;
+    }
+
     /* rc = es6514_clock_output_frequency_get(vtss_state, clock_output, &output_freq_khz, &par_output_freq_khz); */
     /* if ((output_freq_khz < 1000) || (output_freq_khz > 250000)) {                                    */
     /*     VTSS_E("Invalid output frequncy %u detected\n", output_freq_khz);                            */
@@ -1572,7 +1562,7 @@ static vtss_rc es6514_clock_adj_phase_set(vtss_state_t                  *vtss_st
         heart_beat_sel++;
     }
     timer_cfg = (u16)((num_core_clock_cycles >> heart_beat_sel) +
-                      ((num_core_clock_cycles >> (heart_beat_sel-1)) & 0x1)); /* rounding */
+                      ((num_core_clock_cycles >> (heart_beat_sel ? (heart_beat_sel-1):0)) & 0x1)); /* rounding */
     /*                                                                                             <-  num core clock cycles   -> <-core_clock_peri-> <- freq_offset -> */
     VTSS_I("Resulting phase shift after scaling to HW capabilities will be %" PRIi64 " as\n", VTSS_DIV64((((u64)timer_cfg << heart_beat_sel) *      3200         * f_offset_ppb) , 1000));
     

@@ -1,27 +1,5 @@
-#ifndef _VTSS_ANT__API_SD25G28_UTE
-#define _VTSS_ANT__API_SD25G28_UTE
-
-/*
-Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 /* Generation Tag is temp */
 
@@ -34,10 +12,11 @@ SOFTWARE.
  *     /   \           - Test Pattern Generation and
  *    /  |  \          - Software
  *   /   !   \         It should not be modified manually.
- *  /_________\        In case there is a need for modifications,
- *                     please contact
- *                       Srinivas Bandari <srinivas.bandari@microchip.com> 
+ *  /_________\
  * ================================================================= */
+
+#ifndef _VTSS_ANT__API_SD25G28_UTE
+#define _VTSS_ANT__API_SD25G28_UTE
 
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5)
@@ -82,6 +61,14 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
         VTSS_F_SD25G_TARGET_CMU_1A_R_REG_MANUAL(res_struct->r_reg_manual[0]),
                 VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_FROM_HWT |
         VTSS_M_SD25G_TARGET_CMU_1A_R_REG_MANUAL);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_09(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_09_CFG_EN_DUMMY(res_struct->cfg_en_dummy[0]),
+                VTSS_M_SD25G_TARGET_CMU_09_CFG_EN_DUMMY);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_13(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_13_CFG_PLL_RESERVE_3_0(res_struct->cfg_pll_reserve_3_0[0]),
+                VTSS_M_SD25G_TARGET_CMU_13_CFG_PLL_RESERVE_3_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_40(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_40_L0_CFG_TXCAL_EN(res_struct->l0_cfg_txcal_en[0]),
@@ -299,6 +286,10 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_CTLE_RSTN(res_struct->ln_cfg_ctle_rstn[0]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_CTLE_RSTN);
 
+    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0(res_struct->ln_cfg_itx_ipcml_base_1_0[0]),
+                VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0);
+
     REG_WRM(VTSS_SD25G_TARGET_LANE_44(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_44_LN_CFG_RX_RESERVE_7_0(res_struct->ln_cfg_rx_reserve_7_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_44_LN_CFG_RX_RESERVE_7_0);
@@ -438,6 +429,22 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
     REG_WRM(VTSS_SD25G_CFG_TARGET_SD_DES_RST(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_DES_RST_DES_RST(0x0),
                 VTSS_M_SD25G_CFG_TARGET_SD_DES_RST_DES_RST);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_2D(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_2D_LN_CFG_ALOS_THR_2_0(res_struct->ln_cfg_alos_thr_2_0[0]),
+                VTSS_M_SD25G_TARGET_LANE_2D_LN_CFG_ALOS_THR_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_DIS_SQ(0),
+                VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_DIS_SQ);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ(0),
+                VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ);
 
 
   return rc;

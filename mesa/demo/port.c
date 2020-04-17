@@ -1,24 +1,6 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
 
 
 #include <stdio.h>
@@ -90,6 +72,11 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_SGMII_CISCO:   return "SGMII_CISCO";
     case MESA_PORT_INTERFACE_QSGMII:        return "QSGMII";
     case MESA_PORT_INTERFACE_SFI:           return "SFI";
+    case MESA_PORT_INTERFACE_SXGMII:        return "SXGMII";
+    case MESA_PORT_INTERFACE_USGMII:        return "USGMII";
+    case MESA_PORT_INTERFACE_QXGMII:        return "QXGMII";
+    case MESA_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
+    case MESA_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     }
     return "?   ";
 }
@@ -179,6 +166,13 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
         return MESA_RC_OK;
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_XAUI:
+        if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
+            entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_SR) {
+            if ((speed_in == MESA_SPEED_25G) && (cap & MEBA_PORT_CAP_10G_FDX)) {
+                *speed_out = MESA_SPEED_10G;
+                return MESA_RC_OK;
+            }
+        }
         if (((cap & MEBA_PORT_CAP_5G_FDX) && (speed_in == MESA_SPEED_5G)) ||
             ((cap & MEBA_PORT_CAP_10G_FDX) && (speed_in == MESA_SPEED_10G))) {
             *speed_out = speed_in;
@@ -1241,6 +1235,7 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_SGMII:
         case MESA_PORT_INTERFACE_RGMII:
         case MESA_PORT_INTERFACE_QSGMII:
+        case MESA_PORT_INTERFACE_QXGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
             pc->speed = MESA_SPEED_1G;
             pc->autoneg = 1;
