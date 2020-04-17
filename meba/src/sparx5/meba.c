@@ -32,6 +32,7 @@ typedef struct {
     meba_port_entry_t  map;
     uint32_t           board_port;
     uint32_t           sgpio_port;
+    uint32_t           sgpio_bit;
     mesa_port_status_t status;
     mesa_bool_t        activity;
 } fa_port_info_t;
@@ -131,6 +132,7 @@ static const mesa_gpio_func_info_t pcb135_gpio_func_info[PCB135_GPIO_FUNC_INFO_S
 
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
 #define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
+#define PORT_2_SGPIO_BIT(board, p) (board->port[p].sgpio_bit)
 
 /* --------------------------- Board specific ------------------------------- */
 static void fa_emul_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
@@ -1508,6 +1510,25 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                 signal_notifier(MEBA_EVENT_LOS, port_no);
                 handled++;
             }
+        } else if (is_phy_port(board->port[port_no].map.cap)) {
+            uint32_t sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+            uint32_t sgpio_bit  = PORT_2_SGPIO_BIT(board, port_no);
+            if (sgpio_port >= MESA_SGPIO_PORTS) {
+                continue;
+            }
+
+            if (sgpio_events_bit[sgpio_bit][sgpio_port]) {
+                // Disable the interrupt while handling the event
+                if ((rc = mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, sgpio_bit, false)) != MESA_RC_OK) {
+                    T_E(inst, "mesa_sgpio_event_enable = %d", rc);
+                    // Go on anyway
+                }
+            }
+
+            // Check for Cu Phy events
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                handled++;
+            }
         }
     }
 
@@ -1786,8 +1807,28 @@ meba_inst_t meba_initialize(size_t callouts_size,
                 if (port_no < board->port_cnt - 5) {
                     // 1G Cu ports, either 24x or 48x
                     board->port[port_no].board_port = port_no;
-                    // No SGPIO port available, so assigning an out-of-range value.
-                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                    // 1 SGPIO interrupt is assigned to 2 phys (8 ports)
+                    if (port_no < 8) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 0;
+                    } else if (port_no < 16) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 1;
+                    } else if (port_no < 24) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 2;
+                    } else if (port_no < 32) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 0;
+                    } else if (port_no < 40) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 1;
+                    } else if (port_no < 48) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 2;
+                    } else {
+                        board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                    }
                 } else if (port_no < board->port_cnt - 1) {
                     // 4x10G Cu ports
                     // These are physical ports 48-51
@@ -1809,8 +1850,28 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     // These are physical ports 52-55
                     board->port[port_no].sgpio_port = board->port[port_no].map.map.chip_port - 32;
                 } else {
-                    // No SGPIO port available, so assigning an out-of-range value.
-                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                    // 1 SGPIO interrupt is assigned to 2 phys (8 ports)
+                    if (port_no < 8) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 0;
+                    } else if (port_no < 16) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 1;
+                    } else if (port_no < 24) {
+                        board->port[port_no].sgpio_port = 17;
+                        board->port[port_no].sgpio_bit = 2;
+                    } else if (port_no < 32) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 0;
+                    } else if (port_no < 40) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 1;
+                    } else if (port_no < 48) {
+                        board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 2;
+                    } else {
+                        board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                    }
                 }
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type, board->port_cfg);
