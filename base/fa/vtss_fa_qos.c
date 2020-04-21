@@ -2683,11 +2683,34 @@ static vtss_rc tas_list_cancel(vtss_state_t *vtss_state, u32 list_index)
     return VTSS_RC_OK;
 }
 
+static vtss_rc tas_qmaxsdu_configure(vtss_state_t *vtss_state, u32 profile_idx,  const vtss_port_no_t port_no)
+{
+    u32             i, mask, scheduled, value, maxsdu;
+    vtss_port_no_t  chip_port = VTSS_CHIP_PORT(port_no);
+    u32             fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+    u16             *max_sdu  = vtss_state->qos.tas.port_conf[port_no].max_sdu;
+
+    REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
+    scheduled = VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value);
+
+    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
+        if (scheduled && !(scheduled & mask) && fp_enable_tx) { /* At least one queue is scheduled meaning hold/release MAC commands in the list. All preemptible queues must have preempt min size as MAXSDU */
+            REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
+            maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
+        } else {
+            maxsdu = (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
+        }
+        VTSS_D("profile_idx:%d  i:%d  maxsdu:%d\n", profile_idx, i, maxsdu);
+        REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
+    }
+    return VTSS_RC_OK;
+}
+
 static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
-    u32                 i, value, time_interval_sum = 0, scheduled, maxsdu, mask;
+    u32                 i, value, time_interval_sum = 0, scheduled;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32                 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
     vtss_port_no_t      chip_port = VTSS_CHIP_PORT(port_no);
@@ -2696,7 +2719,6 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     u32                 cycle_time = port_conf->cycle_time;
     u32                 gcl_length = port_conf->gcl_length;
     vtss_qos_tas_gce_t  *gcl = port_conf->gcl;;
-    u16                 *max_sdu  = port_conf->max_sdu;
 
     VTSS_D("Enter list_idx %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, obsolete_list_idx, entry_idx, profile_idx, chip_port);
 
@@ -2723,18 +2745,13 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     /* Configure the profile */
     scheduled = tas_scheduled_calc(gcl, gcl_length);
-    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
-        if (scheduled && !(scheduled & mask)) { /* At least one queue is scheduled meaning hold/release MAC commands in the list. All preemptible queues must have preempt min size as MAXSDU */
-            REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
-            maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
-        } else {
-            maxsdu = (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
-        }
-        REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
-    }
     REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
                                                       VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(scheduled) |
                                                       VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
+    if (tas_qmaxsdu_configure(vtss_state, profile_idx, port_no) != VTSS_RC_OK) {
+        VTSS_D("tas_qmaxsdu_configure failed");
+        return VTSS_RC_ERROR;
+    }
 
     /* Configure the list elements */
     for (i = 0; i < gcl_length; ++i) {
@@ -2789,28 +2806,16 @@ static vtss_rc fa_qos_tas_frag_size_update(struct vtss_state_s   *vtss_state,
 {
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     vtss_tas_list_t       *tas_lists = vtss_state->qos.tas.tas_lists;
-    vtss_port_no_t        chip_port = VTSS_CHIP_PORT(port_no);
-    u32                   i, profile_idx, mask, value, maxsdu;
-    u8                    scheduled;
+    u32                   profile_idx;
 
     if (gcl_state->curr_list_idx == TAS_LIST_IDX_NONE) {
         return VTSS_RC_OK;
     }
     profile_idx = tas_lists[gcl_state->curr_list_idx].profile_idx;
 
-    REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
-    scheduled = VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value);
-    if (scheduled == 0) {   /* No scheduled queues means no hold/release MAC meaning no preemptable queues */
-        return VTSS_RC_OK;
-    }
-
-    /* This must be done when the frame preemption RemAddFragSize is changing */
-    REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
-    maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
-    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
-        if ((scheduled & mask) == 0) { /* All preemptible queues must have preempt min size as MAXSDU */
-            REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
-        }
+    if (tas_qmaxsdu_configure(vtss_state, profile_idx, port_no) != VTSS_RC_OK) {
+        VTSS_D("tas_qmaxsdu_configure failed");
+        return VTSS_RC_ERROR;
     }
 
     return VTSS_RC_OK;
