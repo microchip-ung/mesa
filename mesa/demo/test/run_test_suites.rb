@@ -30,11 +30,12 @@ end
 $suites_log = []
 
 def suite_log_merge name
+    suites_log = Dir.glob("*.log")
+
     l = File.open(name,"w")
     found_start = false
     test_end = ""
 
-    suites_log = Dir.glob("*.log")
     suites_log.each { |log|
         puts "Merge '#{log}'..."
         File.open(log).each do |line|
