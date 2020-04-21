@@ -2687,7 +2687,11 @@ static vtss_rc tas_qmaxsdu_configure(vtss_state_t *vtss_state, u32 profile_idx, 
 {
     u32             i, mask, scheduled, value, maxsdu;
     vtss_port_no_t  chip_port = VTSS_CHIP_PORT(port_no);
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     u32             fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+#else
+    u32             fp_enable_tx = FALSE;
+#endif
     u16             *max_sdu  = vtss_state->qos.tas.port_conf[port_no].max_sdu;
 
     REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
