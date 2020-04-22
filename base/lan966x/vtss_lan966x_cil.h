@@ -195,7 +195,7 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 #define ALT_PPS_PIN  3              /* alternative clock 1pps pulse */
 
 /* The last PTP pin is not connected to GPIO but can be used for TOD access */
-#define TOD_ACC_PIN 4               /* pin used for timeofday get/set */
+#define TOD_ACC_PIN 7               /* pin used for timeofday get/set */
 
 /* ================================================================= *
  *  Common functions

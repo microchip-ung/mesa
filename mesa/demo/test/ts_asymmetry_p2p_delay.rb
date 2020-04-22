@@ -7,21 +7,19 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 require 'pry'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_core_clock = $ts.dut.call("mesa_capability", "MESA_CAP_INIT_CORE_CLOCK")
 end
 
-$cpu_queue = 7
-$npi_port = 3
 $port0 = 0
 $port1 = 1
-$port2 = 2
+$npi_port = 2
 $vlan = 100
 $acl_id = 1
 $pcb = $ts.dut.pcb
@@ -50,9 +48,15 @@ def tod_asymmetry_p2p_delay_test
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         end
     else
+    if ($pcb == "Adaro")    #Test on Copper PHY
+        if ((lowest_corr_none > 3000) || (lowest_corr_none < 2600))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        end
+    else
         if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) != exp_corr))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         end
+    end
     end
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
@@ -131,19 +135,6 @@ test "test_config" do
     # Flush MAC table
     $ts.dut.call("mesa_mac_table_flush")
 
-    # CPU queue configuration
-    $packet_rx_conf_restore = $ts.dut.call("mesa_packet_rx_conf_get")
-    conf = $packet_rx_conf_restore.dup
-    conf["queue"][$cpu_queue]["npi"]["enable"] = true
-    $ts.dut.call("mesa_packet_rx_conf_set", conf)
-
-    # NPI port configuration save
-    $npi_conf_restore = $ts.dut.call("mesa_npi_conf_get")
-    conf = $npi_conf_restore.dup
-    conf["enable"] = true
-    conf["port_no"] = $ts.dut.port_list[$npi_port]
-    $ts.dut.call("mesa_npi_conf_set", conf)
-
     # Set VLAN port configuration
     $vlan_port_conf_restore0 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.port_list[$port0])
     conf = $vlan_port_conf_restore0.dup
@@ -186,12 +177,6 @@ test "test_clean_up" do
 
     # Clear VLAN memberships
     $ts.dut.call("mesa_vlan_port_members_set", $vlan, "")
-
-    # CPU queue configuration restore
-    $ts.dut.call("mesa_packet_rx_conf_set", $packet_rx_conf_restore)
-
-    # NPI port configuration restore
-    $ts.dut.call("mesa_npi_conf_set", $npi_conf_restore)
 
     # Asymmetry delay restore
     $ts.dut.call("mesa_ts_delay_asymmetry_set", $ts.dut.port_list[$port0], $asymmetry_conf_restore0)

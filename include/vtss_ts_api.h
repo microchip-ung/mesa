@@ -70,6 +70,11 @@ extern "C" {
 #define VTSS_TS_IO_ARRAY_SIZE       4
 /** \brief Number of separate clock domains in Jaguar2 */
 #define VTSS_TS_DOMAIN_ARRAY_SIZE   3
+#elif defined (VTSS_ARCH_LAN966X)
+/** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       7
+/** \brief Number of separate clock domains in Jaguar2 */
+#define VTSS_TS_DOMAIN_ARRAY_SIZE   3
 #else
 /** \brief Number of L26 or Serval PTP pins, that can be used as 1PPS or clock output/input. */
 #define VTSS_TS_IO_ARRAY_SIZE       1

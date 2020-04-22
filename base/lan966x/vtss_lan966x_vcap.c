@@ -925,7 +925,7 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
     struct vtss_lan966x_vcap_is2_action_fields    f = {0};
     struct vtss_lan966x_vcap_is2_action_base_type *a = &f.u.base_type;
     vtss_acl_port_action_t                        act = action->port_action;
-    u32                                           mask, pol_idx;
+    u32                                           mask, pol_idx, ptp_cmd, ptp_add, ptp_opt;
 
     if (info->act_tg == LAN966X_VCAP_TG_X1) {
         f.action = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP;
@@ -957,7 +957,48 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
             mask &= vtss_lan966x_port_mask(vtss_state, vtss_state->l2.tx_forward_aggr);
         }
         a->port_mask = mask;
-        a->rew_op = 0; // TBD: PTP actions
+
+        /* PTP actions */
+        ptp_cmd = 1;   /* ONE-STEP by default */
+        ptp_add = 0;   /* No add to CF field by default */
+        ptp_opt = 0;   /* No option bit by default */
+        switch (action->ptp_action) {
+        case VTSS_ACL_PTP_ACTION_ONE_STEP:
+            break;
+        case VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY:
+            ptp_add = 1; /* Egress delay */
+            break;
+        case VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1:
+            ptp_add = 2; /* Ingress delay 1 */
+            break;
+        case VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2:
+            ptp_add = 3; /* Ingress delay 2 */
+            break;
+        case VTSS_ACL_PTP_ACTION_TWO_STEP:
+            ptp_cmd = 0; /* TWO-STEP */
+            ptp_opt = 1;
+            break;
+        default:
+            ptp_cmd = 0;
+            break;
+        }
+
+        switch (action->ptp.response) {
+        case VTSS_ACL_PTP_RSP_DLY_REQ_RSP_TS_UPD:
+        case VTSS_ACL_PTP_RSP_DLY_REQ_RSP_NO_TS:
+            ptp_cmd = 2; /* Delay request responce */
+            ptp_opt = 1;
+            break;
+        default:
+            break;
+        }
+
+        a->rew_op = ((ptp_cmd << 0) +
+                     (ptp_opt << 2) +
+                     (ptp_add << 3) +
+                     ((action->ptp.set_smac_to_port_mac ? 1 : 0) << 5) +
+                     (action->ptp.dom_sel << 6));
+
         a->acl_id = (action->ifh_flag ? 1 : 0);
     }
     return (vtss_lan966x_vcap_is2_action_pack(&f, &info->data) ? VTSS_RC_ERROR : VTSS_RC_OK);
@@ -2231,6 +2272,7 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             LAN966X_DEBUG_ACT(IS2, "police_vcap_only", BASE_TYPE_FLD_POLICE_VCAP_ONLY);
             LAN966X_DEBUG_ACT(IS2, "mask_mode", BASE_TYPE_FLD_MASK_MODE);
             LAN966X_DEBUG_ACT_BITS(IS2, "port_mask", BASE_TYPE_FLD_PORT_MASK);
+            LAN966X_DEBUG_ACT_BITS(IS2, "rew_op", BASE_TYPE_FLD_REW_OP);
         } else if (info->act_tg == LAN966X_VCAP_TG_X1) {
             LAN966X_DEBUG_ACT_ENA(IS2, "cpu_copy", SMAC_SIP_FLD_CPU_COPY_ENA, SMAC_SIP_FLD_CPU_QU_NUM);
             LAN966X_DEBUG_ACT(IS2, "fwd_kill", SMAC_SIP_FLD_FWD_KILL_ENA);

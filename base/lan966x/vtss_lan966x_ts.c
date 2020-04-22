@@ -373,8 +373,8 @@ static vtss_rc lan966x_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_por
 static vtss_rc lan966x_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
-    i32                 p2p_delay = VTSS_INTERVAL_NS(conf->p2p_delay);
-    REG_WR(REW_PTP_IDLY2_CFG(VTSS_CHIP_PORT(port_no)), p2p_delay + VTSS_INTERVAL_NS(conf->delay_asymmetry));
+    i32                 p2p_delay = VTSS_INTERVAL_NS(conf->p2p_delay) * 4;  /* Registers are in 0.25 ns resolution */
+    REG_WR(REW_PTP_IDLY2_CFG(VTSS_CHIP_PORT(port_no)), p2p_delay + (VTSS_INTERVAL_NS(conf->delay_asymmetry) * 4));
     return VTSS_RC_OK;
 }
 
@@ -414,7 +414,7 @@ static vtss_rc lan966x_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port
 static vtss_rc lan966x_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
-    i32 delay = VTSS_INTERVAL_NS(conf->delay_asymmetry);
+    i32 delay = VTSS_INTERVAL_NS(conf->delay_asymmetry) * 4;    /* Registers are in 0.25 ns resolution */
     /* Used for Ingress asymmetry compensation (Pdelay_Resp) */
     REG_WR(REW_PTP_IDLY1_CFG(VTSS_CHIP_PORT(port_no)), delay);
     /* Used for Egress asymmetry compensation (on Delay_Req and Pdelay_Req) */

@@ -200,7 +200,7 @@ typedef enum
 {
     VTSS_ACL_PTP_ACTION_NONE,                 /**< No PTP action */
     VTSS_ACL_PTP_ACTION_ONE_STEP,             /**< PTP one-step time-stamping */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY,   /**< PTP one-step time-stamping, Serval: add delay, Jr2: Add EDLY */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1, /**< PTP one-step time-stamping, Serval: subtract delay 1, Jr2: Add IDLY1 */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2, /**< PTP one-step time-stamping, Serval: subtract delay 2, Jr2: Add IDLY2 */
@@ -235,6 +235,24 @@ vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t          inst,
                               const vtss_acl_sip_idx_t   idx,
                               const vtss_acl_sip_conf_t  *const conf);
 
+/** \brief ACL address update */
+typedef enum {
+    VTSS_ACL_ADDR_UPDATE_NONE,             /**< No SMAC/DMAC change */
+    VTSS_ACL_ADDR_UPDATE_MAC_SWAP,         /**< Swap SMAC and DMAC */
+    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE,     /**< Replace DMAC */
+    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB, /**< Replace 40 MSB of DMAC */
+    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC    /**< Swap MAC addresses if DMAC is unicast. Replace SMAC if DMAC is multicast. Same for SIP/DIP */
+} vtss_acl_addr_update_t;
+
+/** \brief ACL address action configuration */
+typedef struct {
+    vtss_acl_addr_update_t update;  /**< Address update */
+    vtss_mac_t             mac;     /**< MAC address used for replace operations */
+    vtss_acl_sip_idx_t     sip_idx; /**< Source IP index */
+} vtss_acl_addr_action_t;
+#endif
+
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 /** \brief ACL PTP response action */
 typedef enum
 {
@@ -253,22 +271,6 @@ typedef struct {
     vtss_udp_tcp_t     sport;                /**< UDP source port */
     vtss_udp_tcp_t     dport;                /**< UDP destination port */
 } vtss_acl_ptp_action_conf_t;
-
-/** \brief ACL address update */
-typedef enum {
-    VTSS_ACL_ADDR_UPDATE_NONE,             /**< No SMAC/DMAC change */
-    VTSS_ACL_ADDR_UPDATE_MAC_SWAP,         /**< Swap SMAC and DMAC */
-    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE,     /**< Replace DMAC */
-    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB, /**< Replace 40 MSB of DMAC */
-    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC    /**< Swap MAC addresses if DMAC is unicast. Replace SMAC if DMAC is multicast. Same for SIP/DIP */
-} vtss_acl_addr_update_t;
-
-/** \brief ACL address action configuration */
-typedef struct {
-    vtss_acl_addr_update_t update;  /**< Address update */
-    vtss_mac_t             mac;     /**< MAC address used for replace operations */
-    vtss_acl_sip_idx_t     sip_idx; /**< Source IP index */
-} vtss_acl_addr_action_t;
 #endif
 
 /** \brief ACL Action */
@@ -289,8 +291,10 @@ typedef struct
     BOOL                       port_list[VTSS_PORT_ARRAY_SIZE]; /**< Egress port list */
     BOOL                       mirror;         /**< Enable mirroring */
     vtss_acl_ptp_action_t      ptp_action;     /**< PTP action */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     vtss_acl_ptp_action_conf_t ptp;            /**< PTP configuration */
+#endif
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_acl_addr_action_t     addr;           /**< Address update configuration */
 #endif
 #if defined(VTSS_ARCH_OCELOT)
