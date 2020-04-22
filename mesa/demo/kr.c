@@ -367,9 +367,11 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 continue;
             }
             kr_conf_state[iport].chk_block_lock = 0;
+            kr_conf_state[iport].gen1_wait = FALSE;
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
+                kr_conf_state[iport].stop_train = 0;
                 mesa_port_kr_fec_t fec = {0};
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -436,7 +438,7 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
         uport = iport2uport(iport);
         if (req->port_list[uport] == 0 || !kr_conf_state[iport].cap_10g) {
             continue;
-        }   
+        }
         if (mreq->irq) {
             if (mreq->all) {
                 deb_dump_irq = 30;
@@ -444,7 +446,7 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             } else if (mreq->dis) {
                 deb_dump_irq = 0;
             } else {
-                deb_dump_irq = 16;
+                deb_dump_irq = 20;
             }
             printf("Port %d: IRQ %s debug %s\n",uport, deb_dump_irq > 16 ? "all" : "aneg", deb_dump_irq > 0 ? "enabled" : "disabled");
         }
@@ -456,7 +458,8 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             }
             printf("Port %d: Aneg State machine debug %s\n",uport, kr_conf_state[iport].aneg_sm_deb ? "enabled" : "disabled");
         }
-        if (mreq->stop) {            
+        if (mreq->stop) {
+            global_stop = 1;
             kr_conf_state[iport].stop_train = kr_conf_state[iport].stop_train ? 0 : 1;
             printf("Port %d: Stop aneg %s\n",uport, kr_conf_state[iport].stop_train ? "enabled" : "disabled");
         }
@@ -751,7 +754,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("\n  BER_COUNT C0      : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
                 cli_printf("%d ",krs->ber_cnt[1][i]);
-            }            
+            }
             cli_printf("\n  BER_COUNT CP1     : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
                 cli_printf("%d ",krs->ber_cnt[2][i]);
@@ -879,8 +882,9 @@ static void dump_irq(u32 p, u32 irq, u32 time)
             b += sprintf(b, "%s ",fa_kr_aneg_rate(irq & 0xf));
         }
     }
-    if (dump)
+    if (dump) {
         printf("%s (%d ms)\n",buf,time);
+    }
 }
 
 static void kr_poll(meba_inst_t inst)
@@ -897,7 +901,7 @@ static void kr_poll(meba_inst_t inst)
 
     for (iport = 0; iport < meba_cnt; iport++) {
         if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK ||
-            !kr_conf.aneg.enable) {
+            !kr_conf.aneg.enable || global_stop) {
             continue;
         }
         uport = iport2uport(iport);
@@ -910,10 +914,10 @@ static void kr_poll(meba_inst_t inst)
 
         if (kr_conf_state[iport].aneg_sm_deb && (status.aneg.sm != kr_conf_state[iport].aneg_sm_state)) {
             printf("Port:%d - Aneg SM: %s Hist:%x (%d ms)\n",uport, kr_aneg_sm_2_txt(status.aneg.sm),
-                   status.aneg.hist, status.aneg.sm == 1 ? 0 : get_time_ms(&kr->time_start_aneg));
+                   status.aneg.hist, get_time_ms(&kr->time_start_aneg));
             kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
         }
-        
+
         if ((mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK)
             || (irq == 0)) {
             continue;
@@ -965,6 +969,7 @@ static void kr_poll(meba_inst_t inst)
                 pconf.speed = kr_irq2spd(irq & 0xf);
                 // Aneg speed change request
                 pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+                printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
                 (void)mesa_port_conf_set(NULL, iport, &pconf);
             }
             printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
@@ -975,10 +980,12 @@ static void kr_poll(meba_inst_t inst)
         if (irq & MESA_KR_RATE_DET) {
             // Parallel detect speed change
             printf("Port:%d - Rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
-            pconf.speed = kr_parallel_spd(iport, &kr_conf);
-            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            /* printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg)); */
-            /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
+            if (pconf.speed != kr_parallel_spd(iport, &kr_conf)) {
+                pconf.speed = kr_parallel_spd(iport, &kr_conf);
+                pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+                printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+                (void)mesa_port_conf_set(NULL, iport, &pconf);
+            }
         }
 
         if (irq & MESA_KR_MW_DONE) {
@@ -1013,7 +1020,7 @@ static void kr_poll(meba_inst_t inst)
         }
 
         if (irq & MESA_KR_AN_GOOD) {
-            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));            
+            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
     }
 }
@@ -1215,7 +1222,7 @@ static void kr_init(meba_inst_t inst)
         T_E("port_table calloc() failed");
         return;
     }
-  
+
     for (port_no = 0; port_no < port_cnt; port_no++) {
 
         kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;

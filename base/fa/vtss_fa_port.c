@@ -884,6 +884,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
     if (fw_req->start_training) {
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+//          This is done by the application through Rate Sel IRQ
 //          VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
             
         }
@@ -912,9 +913,9 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
                 VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
 
-        REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
-                VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(1),
-                VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE);
+        /* REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt), */
+        /*         VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(1), */
+        /*         VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE); */
 
     }
 
@@ -1137,7 +1138,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
 
-
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
            VTSS_F_IP_KRANEG_LD_ADV0_ADV0(kr->aneg.enable));
@@ -1228,7 +1228,10 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500); // 10 ms
 
     // Link pass inihibit timer (in AN_GOOD_CHECK)
-    REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
+    REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 10 ms
+
+
+//    REG_WR(VTSS_IP_KRANEG_TR_TMR(tgt), 78125000 * 20); // DBG
    
     // Disable Rate Detect time (in parallel detect)
 //    REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
@@ -1987,8 +1990,10 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-   /* Port disable and flush procedure: */
-    VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
+    if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
+        /* Port disable and flush procedure: */
+        VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
+    }
 
     /* Configure the Serdes Macro to 'serdes_mode' */
     if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
@@ -2265,8 +2270,10 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-    /* Port disable and flush procedure: */
-    VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
+    if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
+        /* Port disable and flush procedure: */
+        VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
+    }
 
    /* Re-configure Serdes if needed */
     if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||

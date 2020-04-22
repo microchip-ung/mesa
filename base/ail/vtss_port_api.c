@@ -1318,7 +1318,7 @@ vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
 
         vtss_state->port.train_state[port_no].training_started = 0;
         vtss_state->port.train_state[port_no].current_state= 0;
-        
+
         rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
     }
     VTSS_EXIT();
@@ -1643,7 +1643,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             }
 
         } else if (irq == KR_DME_VIOL_1) {
-//            krs->dme_viol = TRUE;
+            krs->dme_viol = TRUE;
         }
         return;
     case VTSS_BER_CALCULATE_BER:
@@ -1837,7 +1837,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     u32 irq = irq_vec;
 
 //      dump_irq(port_no, irq);
-      
+
      // To avoid failures during eye height calculation
     if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
@@ -1868,14 +1868,14 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_TRAIN. Start Training
     if (irq & KR_TRAIN) {
-        if (kr->train.enable) {            
+        if (kr->train.enable) {
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
             krs->local_rx_ready = FALSE;
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
-            (void)kr_fw_req(vtss_state, port_no, &req_msg);            
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
             kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
             if (kr->train.no_remote) {
                 // Do not train remote LP
@@ -1885,7 +1885,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                 kr_send_sts_report(vtss_state, port_no, BT(15));
                 kr_send_sts_report(vtss_state, port_no, BT(15));
                 kr_send_sts_report(vtss_state, port_no, BT(15));
-            } else {            
+            } else {
                 (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
             }
         } else {
@@ -1952,7 +1952,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     if (irq & KR_WT_DONE) {
         if (krs->current_state ==  VTSS_TR_LINK_READY) {
             krs->current_state = VTSS_TR_SEND_DATA;
-            krs->training_started = FALSE;            
+            krs->training_started = FALSE;
             req_msg.stop_training = TRUE;
             req_msg.tr_done = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -2012,11 +2012,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_AN_GOOD (Aneg is successful)
     if (irq & KR_AN_GOOD) {
-        if (pconf->speed < VTSS_SPEED_5G) {
-            req_msg.aneg_disable = TRUE;
-            (void)kr_fw_req(vtss_state, port_no, &req_msg);
-            return VTSS_RC_OK;
-        }
+        // Start a generic timer
+        req_msg.gen1_tmr_start = TRUE;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
     // KR_RATE_DET (parallel detect)
@@ -2035,12 +2033,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     // KR_NP_RX (next page request)
     if ((irq & KR_NP_RX) > 0) {
         req_msg.next_page = 1;
-        (void)kr_fw_req(vtss_state, port_no, &req_msg);
-    }
-
-//    if ((irq & KR_LINK_FAIL)) {
-    if (irq & KR_AN_GOOD) {
-        req_msg.gen1_tmr_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
