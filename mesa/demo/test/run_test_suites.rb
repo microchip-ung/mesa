@@ -92,7 +92,7 @@ puts "-----All tests are completed-----"
 
 puts "-----Move all test-suite log files from created test folders to test folder-----"
 $systems.each { |system|
-    run_("mv ./#{system[:name]}-test/test/*.log .")
+    system("mv ./#{system[:name]}-test/test/*.log .")
 }
 
 puts("-----Merge the test-suite log files to one-----")
