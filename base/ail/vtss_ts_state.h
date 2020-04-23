@@ -177,7 +177,7 @@ typedef struct {
     vtss_rc (* smac_set)(struct vtss_state_s *vtss_state,
                               vtss_port_no_t      port_no);
 #endif //defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     vtss_rc (* external_io_mode_set)(struct vtss_state_s *vtss_state, u32 io);
     vtss_rc (* saved_timeofday_get) (struct vtss_state_s *vtss_state, u32 io,
                                      vtss_timestamp_t    *ts,
@@ -204,7 +204,7 @@ typedef struct {
 #if defined (VTSS_ARCH_OCELOT)
     BOOL                        add_sub_option;
 #endif /* VTSS_ARCH_OCELOT */
-#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     vtss_ts_ext_io_mode_t       io_cfg[VTSS_TS_IO_ARRAY_SIZE];
 #endif /* VTSS_ARCH_JAGUAR2 */
 #if defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)

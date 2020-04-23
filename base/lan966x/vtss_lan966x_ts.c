@@ -673,6 +673,85 @@ static vtss_rc lan966x_ts_seq_cnt_get(vtss_state_t *vtss_state,  uint32_t sec_cn
     return rc;
 }
 
+static vtss_rc lan966x_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
+{
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+
+    VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+    LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, ext_io_mode->domain);
+    /* Set gpio mode */
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        (void) vtss_lan966x_gpio_mode(vtss_state, 0, ptp_gpio[io].gpio_no, VTSS_GPIO_IN);
+    } else {
+        (void) vtss_lan966x_gpio_mode(vtss_state, 0, ptp_gpio[io].gpio_no, ptp_gpio[io].alt);
+    }
+    /* Set pin configuration */
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+        u32 dividers = HW_NS_PR_SEC/ext_io_mode->freq;
+        u32 high_div = dividers/2 - 1;
+        u32 low_div  = (dividers+1)/2 - 1;
+        REG_WR(PTP_WF_HIGH_PERIOD(io),
+               PTP_WF_HIGH_PERIOD_PIN_WFH(high_div));
+        REG_WR(PTP_WF_LOW_PERIOD(io),
+               PTP_WF_LOW_PERIOD_PIN_WFL(low_div));
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, ext_io_mode->domain);
+    } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
+        REG_WR(PTP_WF_HIGH_PERIOD(io),
+               PTP_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
+        REG_WR(PTP_WF_LOW_PERIOD(io), 0);
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, ext_io_mode->domain);
+    } else {
+        VTSS_E("invalid pin cfg: %u", ext_io_mode->pin);
+        return VTSS_RC_ERROR;
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss_timestamp_t *ts, u64 *tc)
+{
+    vtss_rc rc ;
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+    VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+    rc = lan966x_ts_io_pin_timeofday_get(vtss_state, io, ts, tc);
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+        LAN966X_PTP_PIN_ACTION (io, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
+    }
+    return rc;
+}
+
+static vtss_rc lan966x_ts_output_clock_edge_offset_get(vtss_state_t *vtss_state, u32 io, u32 *offset)
+{
+    u32  value;
+
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+
+    REG_RD(PTP_PIN_CFG(io), &value);
+    *offset = PTP_PIN_CFG_PIN_OUTP_OFS_X(value);
+
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
@@ -828,6 +907,11 @@ vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->domain_timeofday_next_pps_get = lan966x_ts_domain_timeofday_next_pps_get;
         state->domain_timeofday_offset_set = lan966x_ts_domain_timeofday_offset_set;
         state->domain_adjtimer_set = lan966x_ts_domain_adjtimer_set;
+
+        state->external_io_mode_set = lan966x_ts_external_io_mode_set;
+        state->saved_timeofday_get = lan966x_ts_saved_timeofday_get;
+        state->output_clock_edge_offset_get = lan966x_ts_output_clock_edge_offset_get;
+
         state->seq_cnt_get = lan966x_ts_seq_cnt_get;
         break;
 

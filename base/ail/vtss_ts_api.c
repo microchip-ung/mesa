@@ -625,7 +625,7 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t       inst,
 
 #endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 /*
  * Get the external io mode.
  */
