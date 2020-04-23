@@ -7,12 +7,12 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 require 'pry'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     assert(($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1),
            "Two front ports must be looped")
@@ -20,9 +20,9 @@ check_capabilities do
     $loop_port1 = $ts.dut.looped_port_list[1]
 end
 
-$npi_port = 3
 $port0 = 0
-$port1 = 1
+$npi_port = 1
+$port1 = 2
 $cpu_queue = 7
 $vlan = 100
 $acl_id = 1
@@ -59,7 +59,7 @@ def tod_internal_mode_ingress_node_test
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create()
-    frame_tx(frametx, $npi_port, framerx , "", "", "", 60)
+    frame_tx(frametx, $npi_port, framerx , " ", " ", " ", 60)
 
     t_i "Calculate the 30 bit nano sec TS contained in the SYNC PDU reserved field "
     pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
@@ -99,7 +99,7 @@ end
 def tod_internal_mode_egress_node_test
     test "tod_internal_mode_egress_node_test" do
 
-    # This is the RX TOD nanosecond on the ingress node the is inserted in the PTP header reserved field against the egress node
+    # This is the RX TOD nanosecond on the ingress node that is inserted in the PTP header reserved field against the egress node
     ingress_node_tod_nanoseconds = 70000000
 
     # Configure output port as mode NONE
@@ -139,7 +139,7 @@ def tod_internal_mode_egress_node_test
     $ts.dut.call("mesa_ts_timeofday_set", tod_ts[0])
 
     t_i("Transmit the Two-Step SYNC frame into NPI port")
-    frame_tx(frametx, $npi_port, framerx , "", "", "", 60)
+    frame_tx(frametx, $npi_port, framerx , " ", " ", " ", 60)
 
     t_i "Calculate the Correction field contained in the SYNC PDU "
     pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
@@ -170,7 +170,7 @@ def tod_internal_mode_egress_node_test
 
     # check that the transmitted frame is containing expected correction field
     if ((diff < 0) || (diff > 4000))
-        t_e("SYNC PDU correction field not as expected.  nano_correction #{nano_correction}   tod_nano_tx #{tod_nano_tx}   smallest_corr_value #{smallest_corr_value}   diff #{diff}")
+        t_e("SYNC PDU correction field not as expected.  nano_correction #{nano_correction >> 16}   tod_nano_tx #{tod_nano_tx >> 16}   smallest_corr_value #{smallest_corr_value}   diff #{diff}")
     end
 
     # age out the allocated timestamps id's
@@ -246,7 +246,7 @@ test "test_run" do
     # Test egress internal mode
     tod_internal_mode_egress_node_test
 end
-exit 0
+
 test "test_clean_up" do
     # CPU queue configuration restore
     $ts.dut.call("mesa_packet_rx_conf_set", $packet_rx_conf_restore)
