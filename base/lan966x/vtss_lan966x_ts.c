@@ -843,7 +843,7 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 {
-    u32 domain, clk_in_100ps;
+    u32 domain, clk_in_100ps, i;
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(0));
@@ -865,6 +865,11 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 
     /* Enable PTP (all 3 domains)*/
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(7));
+
+    /* Configure the PTP pin to GPIO selection */
+    for (i = 0; i < 4; ++i) {
+        REG_WRM(PTP_PIN_CFG(i), PTP_PIN_CFG_PIN_SELECT(i), PTP_PIN_CFG_PIN_SELECT_M);
+    }
 
     memset(seriel_1G_delay, 0, sizeof(seriel_1G_delay));
 
