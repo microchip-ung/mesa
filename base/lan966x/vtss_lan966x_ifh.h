@@ -1,3 +1,6 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
 // 2020-03-18 15:55:27+01:00: Auto generated header file from gaz_ifh.con
 // Please use unmodified and feed needs for changes to this file format
 // back to the source of this file (the contra script).
