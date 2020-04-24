@@ -115,7 +115,7 @@ def tod_adj_timer_test(domain_out, domain_in)
     t_i("Set frequency adjustment to maximum positive")
     domain_def ? $ts.dut.call("mesa_ts_adjtimer_set", adj_max) : $ts.dut.call("mesa_ts_domain_adjtimer_set", domain_out, adj_max)
 
-    sleep(0.7)
+    sleep(0.8)
 
     tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
     ts0 = tod[0]
