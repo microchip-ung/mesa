@@ -178,7 +178,7 @@ static vtss_rc jr2_port_inst_get(vtss_state_t *vtss_state, vtss_port_no_t port_n
     }
 #else
 
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII || (port >= 32 && port < 48)) {
         st = JR2_SERDES_TYPE_6G;
         if (port < 8) {
             // DEV1G, QSGMII on hw pin S13-S14. 6G macro 4-5
@@ -1166,7 +1166,7 @@ static vtss_rc jr2_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     VTSS_I("Flush chip port: %u (10g:%d)", port, is_10g);
 
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
+    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
         VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, NULL, NULL));
     }
 
@@ -1713,6 +1713,10 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
     default:
         VTSS_E("illegal interface, port %u", port_no);
         return VTSS_RC_ERROR;
+    }
+    // ports 32-48 can only be connected to QSGMII Serdes
+    if (port >= 32 && port < 48) {
+        serdes_mode = VTSS_SERDES_MODE_QSGMII;
     }
 
     if (conf->loop == VTSS_PORT_LOOP_PCS_HOST) {
