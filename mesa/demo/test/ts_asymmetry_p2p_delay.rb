@@ -67,6 +67,9 @@ def tod_asymmetry_p2p_delay_test
     if ($pcb == 135)    #Test on Copper PHY
         diff_max = 500
     end
+    if ($pcb == "Adaro")    #Test on Copper PHY
+        diff_max = 200
+    end
 
     # Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction
     asymmetry = lowest_corr_none-100
@@ -80,7 +83,7 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_eg = nano_corr_lowest_measure
     diff0 = (lowest_corr_eg - (lowest_corr_none - asymmetry))
 
-    # The asymmetry delay is subtracted from correction on egress 
+    t_i("The asymmetry delay is subtracted from correction on egress")
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}")
     if ((lowest_corr_none < lowest_corr_eg) || (diff0 < -diff_max) || (diff0 > diff_max))
         t_e("Unexpected correction field including egress delay.")
@@ -93,7 +96,7 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in1 = nano_corr_lowest_measure
     diff1 = (lowest_corr_in1 - (lowest_corr_none + asymmetry))
 
-    # The asymmetry delay is added to correction on ingress 
+    t_i("The asymmetry delay is added to correction on ingress")
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in1 = #{lowest_corr_in1}  diff #{diff1}")
     if ((lowest_corr_in1 < lowest_corr_none) || (diff1 < -diff_max) || (diff1 > diff_max))
         t_e("Unexpected correction field including egress delay.")
@@ -106,7 +109,7 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in2 = nano_corr_lowest_measure
     diff2 = (lowest_corr_in2 - (lowest_corr_none + asymmetry))
 
-    # The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.
+    t_i("The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.")
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff2}")
     if ((lowest_corr_in2 < lowest_corr_none) || (diff2 < -diff_max) || (diff2 > diff_max))
         t_e("Unexpected correction field including egress delay.")
@@ -118,13 +121,13 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in2 = nano_corr_lowest_measure
     diff3 = (lowest_corr_in2 - (lowest_corr_none + 2*asymmetry))
 
-    # The asymmetry + p2p delay is added to correction on ingress 
+    t_i("The asymmetry + p2p delay is added to correction on ingress")
     t_i("lowest_corr_in1 = #{lowest_corr_in1}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff3}")
     if ((lowest_corr_in2 < lowest_corr_in1) || (diff3 < -diff_max) || (diff3 > diff_max))
         t_e("Unexpected correction field including egress delay.")
     end
 
-    t_i ("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
+    t_i("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
     end
 end
 
