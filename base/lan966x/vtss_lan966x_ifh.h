@@ -1,14 +1,11 @@
-// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
-// SPDX-License-Identifier: MIT
-
-// 2020-02-04 17:05:41+01:00: Auto generated header file from gaz_ifh.con
+// 2020-03-18 15:55:27+01:00: Auto generated header file from gaz_ifh.con
 // Please use unmodified and feed needs for changes to this file format
 // back to the source of this file (the contra script).
 // Fields with description (*) should just be cleared upon injection
 // IFH is transmitted MSByte first (Highest bit pos sent as MSB of first byte)
 //
-#ifndef LAN766X_IFH_H
-#define LAN766X_IFH_H
+#ifndef LAN966X_IFH_H
+#define LAN966X_IFH_H
 #define IFH_LEN 28
 
 // Timestamp for frame
@@ -41,10 +38,10 @@
 // Rewriter command
 #define IFH_POS_REW_CMD              163
 
-// Enable OAM-related rewriting. OAM_TYPE encodes OAM type.
+// Enable OAM-related rewriting. PDU_TYPE encodes OAM type.
 #define IFH_POS_REW_OAM              162
 
-// Pdu type of frame defined in basic_types.pck
+// PDU type. Encoding: (0-NONE, 1-Y1731_CCM, 2-MRP_TST, 3-MRP_ITST, 4-DLR_BCN, 5-DLR_ADV, 6-RTE_NULL_INJ, 7-IPV4, 8-IPV6, 9-Y1731_NON_CCM). Defined in basic_types.pck (
 #define IFH_POS_PDU_TYPE             158
 
 // Update FCS before transmission
@@ -56,14 +53,17 @@
 // Yellow indication
 #define IFH_POS_DP                   150
 
+// Process in RTE/inbound
+#define IFH_POS_RTE_INB_UPDATE       149
+
 // Number of tags to pop from frame
-#define IFH_POS_POP_CNT              148
+#define IFH_POS_POP_CNT              147
 
 // Number of tags in front of the ethertype
-#define IFH_POS_ETYPE_OFS            146
+#define IFH_POS_ETYPE_OFS            145
 
 // Logical source port of frame (*)
-#define IFH_POS_SRCPORT              142
+#define IFH_POS_SRCPORT              141
 
 // Sequence number in redundancy tag
 #define IFH_POS_SEQ_NUM              120
@@ -80,10 +80,10 @@
 // Relearn + learn flags (*)
 #define IFH_POS_LEARN_FLAGS          90
 
-// SFLOW Identifier for frame
+// SFLOW identifier for frame (0-8: Tx port, 9: Rx sampling, 15: No sampling)
 #define IFH_POS_SFLOW_ID             86
 
-// Set if an ACL/S2 rule was hit (*)
+// Set if an ACL/S2 rule was hit (*). Super priority: acl_hit=0 and acl_hit(4)=1.
 #define IFH_POS_ACL_HIT              85
 
 // S2 rule index hit (*)
@@ -110,20 +110,17 @@
 // Internal aging value (*)
 #define IFH_POS_AGED                 52
 
-// RTP Identier
-#define IFH_POS_RTP_ID               43
+// RTP Identifier
+#define IFH_POS_RTP_ID               42
 
 // RTP MRPD flow
-#define IFH_POS_RTP_SUBID            42
-
-// Process in RTE/inbound
-#define IFH_POS_RTE_INB_UPDATE       41
+#define IFH_POS_RTP_SUBID            41
 
 // Profinet DataStatus or opcua GroupVersion MSB
 #define IFH_POS_PN_DATA_STATUS       33
 
-// Profinet transfer status
-#define IFH_POS_PN_TRANSF_STATUS     32
+// Profinet transfer status (1 iff the status is 0)
+#define IFH_POS_PN_TRANSF_STATUS_ZERO 32
 
 // Profinet cycle counter or opcua NetworkMessageNumber
 #define IFH_POS_PN_CC                16
@@ -143,6 +140,7 @@
 #define IFH_WID_FCS_UPD              1
 #define IFH_WID_DSCP                 6
 #define IFH_WID_DP                   1
+#define IFH_WID_RTE_INB_UPDATE       1
 #define IFH_WID_POP_CNT              2
 #define IFH_WID_ETYPE_OFS            2
 #define IFH_WID_SRCPORT              4
@@ -161,11 +159,10 @@
 #define IFH_WID_IPV                  3
 #define IFH_WID_AFI                  1
 #define IFH_WID_AGED                 2
-#define IFH_WID_RTP_ID               9
+#define IFH_WID_RTP_ID               10
 #define IFH_WID_RTP_SUBID            1
-#define IFH_WID_RTE_INB_UPDATE       1
 #define IFH_WID_PN_DATA_STATUS       8
-#define IFH_WID_PN_TRANSF_STATUS     1
+#define IFH_WID_PN_TRANSF_STATUS_ZERO 1
 #define IFH_WID_PN_CC                16
 
 #endif
