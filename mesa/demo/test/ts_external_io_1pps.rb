@@ -6,12 +6,12 @@
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     assert(($ts.ts_external_clock_looped == true),
            "External clock must be looped")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
@@ -20,16 +20,24 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
+if ($pcb == "Adaro")
+    $external_io_in = 0
+end
 if ($pcb == 111)
     $external_io_out = 0
     $diff_high = 16
     $diff_low = -25
 else
+if ($pcb == "Adaro")
+    $external_io_out = 1
+    $diff_high = 10
+    $diff_low = -10
+else
     $external_io_out = 1
     $diff_high = 1
     $diff_low = -1
 end
-
+end
 def tod_external_io_1pps_test
     test "tod_external_io_1pps_test" do
 
