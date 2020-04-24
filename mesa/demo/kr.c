@@ -371,6 +371,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
+                mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].stop_train = 0;
                 mesa_port_kr_fec_t fec = {0};
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
@@ -392,14 +393,17 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
-
                 }
 
-                if (mreq->dis) {
-                    /* mesa_port_conf_t pconf; */
-                    /* (void)mesa_port_conf_get(NULL, iport, &pconf); */
-                    /* pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G; */
-                    /* (void)mesa_port_conf_set(NULL, iport, &pconf); */
+                if (mreq->dis && aneg_ena) {
+                    mesa_port_conf_t pconf;
+                    (void)mesa_port_conf_get(NULL, iport, &pconf);
+                    pconf.speed = MESA_SPEED_5G;
+                    // Force a port/serdes update
+                    (void)mesa_port_conf_set(NULL, iport, &pconf);
+                    // Apply the correct speed
+                    pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G;
+                    (void)mesa_port_conf_set(NULL, iport, &pconf);
                 }
 
             } else {

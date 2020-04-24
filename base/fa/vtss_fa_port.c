@@ -949,7 +949,6 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_kr_fec_t *kr = &vtss_state->port.kr_fec[port_no];
     u32 pcs = VTSS_TO_PCS_TGT(port);
-    u32 rs_fec = vtss_to_rsfec(port);
     u32 tgt = VTSS_TO_HIGH_DEV(port);
 
     /* REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), 0); */
@@ -966,6 +965,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA);
 
     if (VTSS_PORT_IS_25G(port)) {
+        u32 rs_fec = vtss_to_rsfec(port);
         // R-FEC: 25G in 25G mode
         REG_WRM(VTSS_DEV10G_PCS25G_FEC74_CFG(tgt),
                 VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX(kr->r_fec) |
