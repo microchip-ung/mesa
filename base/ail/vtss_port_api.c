@@ -1497,7 +1497,7 @@ static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
 static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
 {
     vtss_port_kr_eye_dim_t eye;
-    return 9;
+//    return 9;
     if (kr_eye_dim_get(state, p, &eye) == VTSS_RC_OK) {
         return eye.height;
     } else {
@@ -1686,13 +1686,10 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                     } else {
                         kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
                     }
-                } else if (lp_status == STATUS_UPDATED || lp_status == STATUS_MAXIMUM) {
+                } else if (lp_status == STATUS_UPDATED || (lp_status == STATUS_MAXIMUM)) {
                     kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
-                    req_msg.ber_enable = TRUE;
-                    (void)kr_fw_req(vtss_state, p, &req_msg);
                     krs->ber_busy_sw = TRUE;
-                    krs->tap_idx++;
-                    if((lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
+                    if(( lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
                         krs->tap_max_reached = TRUE;
                         if (krs->dme_viol_handled) {
                             krs->tap_idx--;
@@ -1707,7 +1704,12 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 } else {
                     VTSS_E("LPSVALID Invalid state 1\n");
                 }
-            }
+            } else if (lp_status == STATUS_NOT_UPDATED) {
+                req_msg.ber_enable = TRUE;
+                (void)kr_fw_req(vtss_state, p, &req_msg);
+                krs->ber_busy_sw = TRUE;
+                krs->tap_idx++;
+            } 
         } else if (irq == KR_DME_VIOL_1) {
 //            krs->dme_viol = TRUE; // Ignoring due to eye measurement disturbance
         } else {
@@ -1951,6 +1953,17 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         // Send Status report
         kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
     }
+
+    // KR_BER_BUSY_1 (LD is doing BER check on receiving train frames)
+    if (irq & KR_BER_BUSY_1) {
+        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_1);
+    }
+
+    // KR_BER_BUSY_0 (BER check is done)
+    if (irq & KR_BER_BUSY_0) {
+        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_0);
+    }
+    
     // KR_LPSVALID (Received Status report)
     if ((irq & KR_LPSVALID) && krs->training_started) {
         if (krs->test_mode) {
@@ -1983,16 +1996,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
             krs->signal_detect = TRUE;
         }
-    }
-
-    // KR_BER_BUSY_1 (LD is doing BER check on receiving train frames)
-    if (irq & KR_BER_BUSY_1) {
-        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_1);
-    }
-
-    // KR_BER_BUSY_0 (BER check is done)
-    if (irq & KR_BER_BUSY_0) {
-        kr_ber_training(vtss_state, port_no, KR_BER_BUSY_0);
     }
 
     // KR_DME_VIOL_1 (Failure during frame transmission)

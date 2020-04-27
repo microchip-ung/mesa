@@ -36,7 +36,7 @@ meba_inst_t meba_global_inst;
 kr_appl_conf_t *kr_conf_state;
 
 // For debug
-uint32_t deb_dump_irq = 16;
+uint32_t deb_dump_irq = 0;
 mesa_bool_t global_stop = 0;
 
 mesa_bool_t BASE_KR_V2 = 0;
@@ -116,6 +116,12 @@ static char *irq2txt(u32 irq)
 static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
 {
     u32 action = 0;
+
+    if (frm_in == 0x1234) {
+        sprintf(tap_out, "-       ");
+        sprintf(action_out, "-  ");
+        return;
+    }
 
     if (BT(13) & frm_in) {
         sprintf(tap_out, "PRESET ");
@@ -853,7 +859,11 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
     mesa_port_kr_state_t *krs = &kr_conf_state[p].tr.state;
     if (kr->lp_hist_index < KR_HIST_NUM) {
         kr->lp_hist[kr->lp_hist_index].time = get_time_ms(&kr->time_start_train);
-        kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
+        if (irq & MESA_KR_LPCVALID || irq & MESA_KR_LPSVALID) {
+            kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
+        } else {
+            kr->lp_hist[kr->lp_hist_index].ber_coef_frm = 0x1234;
+        }
         kr->lp_hist[kr->lp_hist_index].ber_training_stage = krs->ber_training_stage;
         kr->lp_hist[kr->lp_hist_index].irq = irq;
         kr->lp_hist_index++;
