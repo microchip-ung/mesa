@@ -77,16 +77,6 @@ $machines = {
         :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
     },
 
-    "serval_pcb106" => {
-        :socfam => "serval1",
-        :chipno => "4",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/serval_pcb106.dtb",
-        :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
-    },
-
     "serval2_pcb112" => {
         :socfam => "jaguar2",
         :chipno => "7",

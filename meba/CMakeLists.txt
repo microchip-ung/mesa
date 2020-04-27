@@ -50,7 +50,7 @@ macro(MEBA_LIB)
     endforeach()
 endmacro()
 
-MEBA_LIB(serval1 caracal jr2 servalt ocelot ocelot_pcb121 sparx5)
+MEBA_LIB(caracal jr2 servalt ocelot ocelot_pcb121 sparx5)
 
 file(GLOB_RECURSE MEBA_HDRS "include/**.h")
 doxygen_target(TARGET meba NAME "MEBA" FILES ${MEBA_HDRS} INCLUDES -I${CMAKE_CURRENT_SOURCE_DIR}/include)
