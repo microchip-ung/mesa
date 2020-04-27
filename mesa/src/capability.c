@@ -1572,9 +1572,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_OAM:
-#if defined (VTSS_ARCH_SERVAL_CE)
-        c = 1;
-#endif
         break;
 
     case MESA_CAP_TS_DELAY_REQ_AUTO_RESP:

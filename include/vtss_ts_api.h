@@ -890,37 +890,6 @@ vtss_rc vtss_rx_master_timestamp_get(const vtss_inst_t              inst,
                                      const vtss_port_no_t           port_no,
                                      vtss_ts_timestamp_t            *const ts);
 
-#if defined (VTSS_ARCH_SERVAL_CE)
-/**
- * \brief parameter for requesting an oam timestamp
- */
-typedef struct vtss_oam_ts_id_s {
-    u32                voe_id;  /**< VOE instance (Timestamp) identifier */
-    u32                voe_sq;  /**< VOE (Timestamp) sequence no */
-} vtss_oam_ts_id_t;
-
-/**
- * \brief parameter for returning an oam timestamp
- */
-typedef struct vtss_oam_ts_timestamp_s {
-    u32             ts;         /**< Timestamp value (ns + sec*10^9) mod 2^32 */
-    vtss_port_no_t  port_no;    /**< port number */
-    BOOL            ts_valid;   /**< Timestamp is valid (can be not valid if no timestamp is received for the requested {voe_id, voe_sq} */
-} vtss_oam_ts_timestamp_t;
-
-/**
- * \brief Get oam timestamp
- * \param inst    [IN]          handle to an API instance
- * \param id      [IN]          identifies the requested timestamp id
- * \param ts      [OUT]         pointer to a struct holding the timestamp
- *
- * \return Return code.
- */
-vtss_rc vtss_oam_timestamp_get(const vtss_inst_t             inst,
-                               const vtss_oam_ts_id_t        *const id,
-                               vtss_oam_ts_timestamp_t       *const ts);
-#endif /* VTSS_ARCH_SERVAL_CE */
-
 /** \brief Timestamp allocation callback */
 typedef void (*vtss_ts_timestamp_alloc_cb_t)(void *context, u32 port_no,
                                              vtss_ts_timestamp_t *ts);

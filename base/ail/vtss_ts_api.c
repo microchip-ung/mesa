@@ -875,50 +875,6 @@ vtss_rc vtss_rx_timestamp_get(const vtss_inst_t              inst,
     return rc;
 }
 
-#if defined (VTSS_ARCH_SERVAL_CE)
-/* brief Get oam timestamp */
-vtss_rc vtss_oam_timestamp_get(const vtss_inst_t             inst,
-                               const vtss_oam_ts_id_t        *const id,
-                               vtss_oam_ts_timestamp_t       *const ts)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-    i32          idx;
-    u32          i;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (id->voe_id >= VTSS_VOE_ID_SIZE) {
-            /* invalid timestamp id indicates FIFO overflow */
-            rc = VTSS_RC_ERROR;
-        } else {
-            idx = vtss_state->ts.oam_ts_status [id->voe_id].last;
-            for (i = 0; i < VTSS_SERVAL_MAX_OAM_ENTRIES; i++) {
-                if (vtss_state->ts.oam_ts_status [id->voe_id].entry[idx].sq == id->voe_sq) {
-                    /* an entry is found */
-                    ts->ts = vtss_state->ts.oam_ts_status [id->voe_id].entry[idx].tc;
-                    ts->port_no = vtss_state->ts.oam_ts_status [id->voe_id].entry[idx].port;
-                    ts->ts_valid = vtss_state->ts.oam_ts_status [id->voe_id].entry[idx].valid;
-                    vtss_state->ts.oam_ts_status[id->voe_id].entry[idx].valid = FALSE;
-                    break;
-                }
-                if (--idx < 0) idx = VTSS_SERVAL_MAX_OAM_ENTRIES-1;
-            }
-            if (i == VTSS_SERVAL_MAX_OAM_ENTRIES) {
-                /* no entries found */
-                ts->ts = 0;
-                ts->port_no = 0;
-                ts->ts_valid = FALSE;
-            }
-        }
-    }
-    VTSS_EXIT();
-    return rc;
-}
-#endif /* VTSS_ARCH_SERVAL_CE */
-
-
-
 /* Release the FIFO rx timestamp id  */
 vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t              inst,
                               const vtss_ts_id_t             *const ts_id)
@@ -1312,26 +1268,6 @@ void vtss_ts_debug_print(vtss_state_t *vtss_state,
         }
     }
     pr("\n");
-#if defined(VTSS_ARCH_SERVAL_CE)
-    pr("OAM Timestamp fifo data:\n");
-    
-    for (i = 0; i < VTSS_VOE_ID_SIZE; i++) {
-        first = TRUE;
-        for (j = 0; j < VTSS_SERVAL_MAX_OAM_ENTRIES; j++) {
-            vtss_oam_timestamp_entry_t *entry = &vtss_state->ts.oam_ts_status[i].entry[j];
-            if (entry->valid) {
-                if (first) {
-                    pr("VOE ID : %d  last: %u  entry: %u\n", i, vtss_state->ts.oam_ts_status[i].last, j);
-                    pr("Port  time counter  time id  sequence\n");
-                    first = FALSE;
-                }
-                pr("%-4u  %-12u  %-7u  %-8u\n", entry->port, entry->tc, entry->id, entry->sq);
-            }
-        }
-    }
-    pr("\n");
-#endif /*VTSS_ARCH_SERVAL */
-
 }
 
 #endif /* VTSS_FEATURE_TIMESTAMP */

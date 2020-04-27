@@ -14,7 +14,6 @@ $systems = [
             { name: "dk-t31",   image: "arm64/fit_vsc7546TSN.itb",       branch:"master" },
             { name: "dk-t34-4", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
             { name: "dk-t34-3", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
-            { name: "dk-t12",   image: "mipsel/mfi_vsc7418.mfi",         branch:"master" },
 #            { name: "dk-t14",  image: "mipsel/mfi_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
             { name: "dk-t15",   image: "mipsel/mfi_vsc7437.mfi",         branch:"master" },
 #            { name: "dk-t16",   image: "mipsel/mfi_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)

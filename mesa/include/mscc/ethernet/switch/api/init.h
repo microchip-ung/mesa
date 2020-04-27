@@ -14,9 +14,6 @@
 typedef enum {
     MESA_TARGET_CU_PHY,                  // Cu PHY family
     MESA_TARGET_10G_PHY,                 // 10G PHY family
-    MESA_TARGET_SPARX_III_11  = 0x7414,  // SparX-III-11 SME switch
-    MESA_TARGET_SERVAL_LITE   = 0x7416,  // Serval Lite CE switch
-    MESA_TARGET_SERVAL        = 0x7418,  // Serval CE switch
     MESA_TARGET_CARACAL_LITE  = 0x7423,  // Caracal-Lite CE switch
     MESA_TARGET_SPARX_III_10  = 0x7424,  // SparxIII-10 switch
     MESA_TARGET_SPARX_III_18  = 0x7425,  // SparxIII-18 switch

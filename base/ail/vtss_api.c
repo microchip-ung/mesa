@@ -296,9 +296,6 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
 #endif
         break;
 #if defined(VTSS_ARCH_SERVAL)
-    case VTSS_TARGET_SERVAL:
-    case VTSS_TARGET_SERVAL_LITE:
-    case VTSS_TARGET_SPARX_III_11:
     case VTSS_TARGET_7511:
     case VTSS_TARGET_7512:
     case VTSS_TARGET_7513:

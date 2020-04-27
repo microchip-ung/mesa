@@ -368,7 +368,7 @@ typedef struct {
     vtss_is0_entry_t *entry;
 } vtss_is0_data_t;
 
-#endif /* VTSS_ARCH_SERVAL_CE */
+#endif
 #endif /* VTSS_FEATURE_IS0 */
 
 typedef enum {

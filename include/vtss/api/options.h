@@ -410,22 +410,6 @@
 #define VTSS_FEATURE_PORT_PCS_CONF             /**< Special 1G PCS control */
 #endif /* SPARX_III/CARACAL */
 
-#if defined(VTSS_CHIP_SPARX_III_11)
-#define VTSS_ARCH_SERVAL                       /**< Serval architecture */
-#define VTSS_ARCH_SERVAL_SME                   /**< Serval SME architecture */
-#define VTSS_ARCH_SERVAL_CPU                   /**< Serval CPU system architecture */
-#define VTSS_FEATURE_VOP                       /**< Y.1731/IEEE802.1ag OAM */
-#define VTSS_FEATURE_MCE_ACT_PRIO              /**< MCE action priority class */
-#define VTSS_FEATURE_AFI_SWC                   /**< Switch-core-based Automatic Frame Injection */
-#define VTSS_AFI_V1                            /**< AFI API version 1 */
-#endif /* VTSS_CHIP_SPARX_III_11 */
-
-#if defined(VTSS_CHIP_SERVAL) || defined(VTSS_CHIP_SERVAL_LITE)
-#define VTSS_ARCH_SERVAL                       /**< Serval architecture */
-#define VTSS_ARCH_SERVAL_CE                    /**< Serval CE architecture */
-#define VTSS_ARCH_SERVAL_CPU                   /**< Serval CPU system architecture */
-#endif /* VTSS_CHIP_SERVAL/SERVAL_SC */
-
 #if defined(VTSS_CHIP_7511) || defined(VTSS_CHIP_7512) || \
     defined(VTSS_CHIP_7513) || defined(VTSS_CHIP_7514)
 #define VTSS_ARCH_SERVAL                       /**< Serval architecture */
@@ -539,15 +523,6 @@
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP  /**< Path delay asymmetry compensation hardware support */
 #endif /* VTSS_ARCH_SERVAL_CPU */
 
-#if defined(VTSS_ARCH_SERVAL_CE)
-#define VTSS_FEATURE_VOP                       /**< Y.1731/IEEE802.1ag OAM */
-#define VTSS_FEATURE_AFI_SWC                   /**< Switch-core-based Automatic Frame Injection */
-#define VTSS_AFI_V1                            /**< AFI API version 1 */
-#ifndef VTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS
-#define VTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS 0     /**< Default to legacy SWC AFI mode, which is optimization for frame-slots. Set to 1 from app to optimize for timers */
-#endif /* VTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS */
-#endif /* VTSS_ARCH_SERVAL_CE */
-
 /* Cu PHY API always included for switch/OTN targets */
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 #define VTSS_CHIP_CU_PHY                       /**< Cobber PHY chip */
@@ -558,7 +533,7 @@
 #define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT)
 #define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
 #endif
 
