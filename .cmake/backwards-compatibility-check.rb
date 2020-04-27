@@ -189,10 +189,15 @@ $default_configs = "istax_multi.mk"
 # Backwards compatibility with previous build was broken when moving to new
 # unifed BSP, as this did nothave the kernel modules (which the application
 # insisted on building)
-check("backwards-check",              # Name of check
-      "8c88dda92b@master",            # Appl release to use
-      $default_configs)               # Configs to build
+#check("backwards-check",              # Name of check
+#      "8c88dda92b@master",            # Appl release to use
+#      $default_configs)               # Configs to build
 
+# Backwards compatibility with previous build was broken because Serval1 has
+# been removed.
+check("backwards-check",              # Name of check
+      "85b60baa43@master",            # Appl release to use
+      $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
