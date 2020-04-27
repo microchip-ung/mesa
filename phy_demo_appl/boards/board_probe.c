@@ -10,12 +10,8 @@ static vtss_board_probe_t probes[] = {
     vtss_board_probe_lu26,
 #endif /* VTSS_ARCH_LUTON26 */
 
-/* Serval architectures */
-#if defined(VTSS_ARCH_OCELOT)
-        vtss_board_probe_ocelot,
-#elif defined(VTSS_ARCH_SERVAL)
-    vtss_board_probe_serval,
-#endif
+    /* Serval architectures */
+    vtss_board_probe_ocelot,
 
 #if defined(VTSS_ARCH_JAGUAR_2)
     vtss_board_probe_jr2,

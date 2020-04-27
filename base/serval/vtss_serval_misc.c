@@ -110,7 +110,6 @@ static vtss_rc srvl_eee_port_conf_set(vtss_state_t *vtss_state,
 static vtss_rc srvl_fan_controller_init(vtss_state_t *vtss_state,
                                         const vtss_fan_conf_t *const spec)
 {
-#if defined(VTSS_ARCH_OCELOT)
     // Calculated from 156.25MHz/fan_pwm_freq/256
     u32 pwm_freq[] = {
            24, // 25kHz
@@ -157,56 +156,16 @@ static vtss_rc srvl_fan_controller_init(vtss_state_t *vtss_state,
                  0,
                  VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_GATE_ENA);
     }
-#else
-    // Set GPIO alternate functions. ROTA is bit 4.
-    (void) vtss_srvl_gpio_mode(vtss_state, 0, 4, VTSS_GPIO_ALT_0);
-    // Set GPIO alternate functions. PWM is bit 5.
-    (void) vtss_srvl_gpio_mode(vtss_state, 0, 5, VTSS_GPIO_ALT_0);
 
-    // Set PWM frequency 
-    SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-             VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_PWM_FREQ(spec->fan_pwm_freq),
-             VTSS_M_DEVCPU_GCB_FAN_CFG_FAN_CFG_PWM_FREQ);
-
-    // Set PWM polarity 
-    SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-             spec->fan_low_pol ? VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_INV_POL : 0,
-             VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_INV_POL);
-    
-    // Set PWM open collector 
-    SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-             spec->fan_open_col ? VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_PWM_OPEN_COL_ENA : 0,
-             VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_PWM_OPEN_COL_ENA);
-    
-    // Set fan speed measurement
-    if (spec->type == VTSS_FAN_3_WIRE_TYPE) {
-        // Enable gating for 3-wire fan types.
-        SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-                 VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA,
-                 VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
-    } else {
-        //  For 4-wire fan types we need to disable gating (2-wire types doesn't matter)
-        SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-                 0,
-                 VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
-    }
-#endif /* VTSS_ARCH_OCELOT */
- 
     return VTSS_RC_OK;
 }
 
 static vtss_rc srvl_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
     // Set PWM duty cycle (fan speed)
-#if defined(VTSS_ARCH_OCELOT)
     SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
              VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(lvl),
              VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE);
-#else
-    SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-             VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE(lvl),
-             VTSS_M_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE);
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -215,19 +174,11 @@ static vtss_rc srvl_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     u32 fan_cfg_reg;
 
-#if defined(VTSS_ARCH_OCELOT)
     // Read the register
     SRVL_RD(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG, &fan_cfg_reg);
 
     // Get PWM duty cycle
     *duty_cycle = VTSS_X_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(fan_cfg_reg);
-#else
-    // Read the register 
-    SRVL_RD(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, &fan_cfg_reg);
-
-    // Get PWM duty cycle
-    *duty_cycle = VTSS_X_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE(fan_cfg_reg);
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -247,11 +198,7 @@ static vtss_rc srvl_fan_rotation(vtss_state_t *vtss_state, BOOL update, u32 *val
     u32  cnt = 0;
     
     if (update) { 
-#if defined(VTSS_ARCH_OCELOT)
         SRVL_RD(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CNT, &cnt);
-#else
-        SRVL_RD(VTSS_DEVCPU_GCB_FAN_STAT_FAN_CNT, &cnt);
-#endif /* VTSS_ARCH_OCELOT */
         one_sec_cnt = cnt - last_cnt;
         VTSS_N("one_sec_cnt:%d, last_cnt:%d, cnt:%d", one_sec_cnt, last_cnt, cnt);
         last_cnt = cnt;
@@ -379,7 +326,6 @@ vtss_rc vtss_srvl_isdx_update_es0(vtss_state_t *vtss_state,
 
 static vtss_rc srvl_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
-#if defined(VTSS_ARCH_OCELOT)
     u32 sticky, mask;
 
     /* PTP events */
@@ -395,33 +341,12 @@ static vtss_rc srvl_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type
     *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_INTR_PTP(1<<3)) ?  VTSS_PTP_PIN_3_SYNC_EV : 0;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
     return VTSS_RC_OK;
-#elif defined(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT)
-    u32 sticky, mask;
-
-    /* PTP events */
-    *ev_mask = 0;
-    SRVL_RD(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, &sticky);
-    SRVL_WR(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, sticky);
-    SRVL_RD(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG, &mask);
-    mask |= VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY; /* CLK ADJ event has no enable bit - do not generate interrupt */
-    sticky &= mask;      /* Only handle enabled sources */
-
-    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_SYNC_STAT) ? VTSS_PTP_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY(1)) ? VTSS_PTP_EXT_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY(2)) ? VTSS_PTP_EXT_1_SYNC_EV : 0;
-    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY) ? VTSS_PTP_CLK_ADJ_EV : 0;
-    VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
-    return VTSS_RC_OK;
-#else
-    return VTSS_RC_ERROR;
-#endif
 }
 
 static vtss_rc srvl_ptp_event_enable(vtss_state_t *vtss_state,
                                      vtss_ptp_event_type_t ev_mask, BOOL enable)
 {
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
-#if defined(VTSS_ARCH_OCELOT)
     if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
         SRVL_WRM(VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA,
                 VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<0 : 0),
@@ -443,27 +368,6 @@ static vtss_rc srvl_ptp_event_enable(vtss_state_t *vtss_state,
                 VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<3));
     }
     return VTSS_RC_OK;
-#elif defined(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG)
-    /* PTP masks */
-    if (ev_mask & VTSS_PTP_SYNC_EV) {
-        SRVL_WRM(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
-                enable ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_SYNC_STAT_ENA : 0,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_SYNC_STAT_ENA);
-    }
-    if (ev_mask & VTSS_PTP_EXT_SYNC_EV) {
-        SRVL_WRM(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
-                enable ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA(1) : 0,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA(1));
-    }
-    if (ev_mask & VTSS_PTP_EXT_1_SYNC_EV) {
-        SRVL_WRM(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
-                 enable ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA(2) : 0,
-                 VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA(2));
-    }
-    return VTSS_RC_OK;
-#else
-    return VTSS_RC_ERROR;
-#endif
 }
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
@@ -487,7 +391,6 @@ static vtss_rc srvl_dev_all_event_poll(vtss_state_t *vtss_state,
     /* Clear the icpu_dev sticky */
     SRVL_WR(VTSS_ICPU_CFG_INTR_DEV_INTR_STICKY, ident);
 
-#if defined(VTSS_ARCH_OCELOT)
     /* The (4) internal phy interrupt is mapped to ICPU_DEV_INTR index 11-15 */
     /* Here they are mapped back to ev_mask with the corresponding API index */
     for (api_port = VTSS_PORT_NO_START; api_port < vtss_state->port_count; api_port++) {
@@ -498,7 +401,6 @@ static vtss_rc srvl_dev_all_event_poll(vtss_state_t *vtss_state,
             }
         }
     }
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -514,7 +416,6 @@ static vtss_rc srvl_dev_all_event_enable(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-#if defined(VTSS_ARCH_OCELOT)
     /* The (4) internal phy interrupt is mapped to ICPU_DEV_INTR index 11-15 */
     if (chip_port < 4) {
         if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII) {
@@ -522,7 +423,6 @@ static vtss_rc srvl_dev_all_event_enable(vtss_state_t *vtss_state,
         }
         mask |= VTSS_BIT(chip_port + 11);
     }
-#endif /* VTSS_ARCH_OCELOT */
 
     /* Enable/disable ICPU device interrupt */
     SRVL_WRM(VTSS_ICPU_CFG_INTR_DEV_INTR_ENA, VTSS_ENCODE_BITFIELD(enable,dev_intr,1), mask);
@@ -549,7 +449,6 @@ static vtss_rc srvl_intr_pol_negation(vtss_state_t *vtss_state)
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
 
-#if defined(VTSS_ARCH_OCELOT)
 #define SRVL1_IRQ_DEV_ALL       (0)
 #define SRVL1_IRQ_EXT0          (1)
 #define SRVL1_IRQ_EXT1          (2)
@@ -574,33 +473,6 @@ static vtss_rc srvl_intr_pol_negation(vtss_state_t *vtss_state)
 #define SRVL1_IRQ_XTR_RDY       (21)
 #define SRVL1_IRQ_INJ_RDY       (22)
 #define SRVL1_IRQ_PCIE          (23)
-#else
-#define SRVL1_IRQ_DEV_ALL       (0)
-#define SRVL1_IRQ_EXT0          (1)
-#define SRVL1_IRQ_EXT1          (2)
-#define SRVL1_IRQ_TIMER0        (3)
-#define SRVL1_IRQ_TIMER1        (4)
-#define SRVL1_IRQ_TIMER2        (5)
-#define SRVL1_IRQ_UART          (6)
-#define SRVL1_IRQ_UART2         (7)
-#define SRVL1_IRQ_TWI           (8)
-#define SRVL1_IRQ_SW0           (9)
-#define SRVL1_IRQ_SW1           (10)
-#define SRVL1_IRQ_SGPIO         (11)
-#define SRVL1_IRQ_GPIO          (12)
-#define SRVL1_IRQ_MIIM0_INTR    (13)
-#define SRVL1_IRQ_MIIM1_INTR    (14)
-#define SRVL1_IRQ_FDMA          (15)
-#define SRVL1_IRQ_OAM_MEP       (16)
-#define SRVL1_IRQ_PTP_RDY       (17)
-#define SRVL1_IRQ_PTP_SYNC      (18)
-#define SRVL1_IRQ_INTEGRITY     (19)
-#define SRVL1_IRQ_XTR_RDY0      (20)
-#define SRVL1_IRQ_XTR_RDY1      (21)
-#define SRVL1_IRQ_INJ_RDY0      (22)
-#define SRVL1_IRQ_INJ_RDY1      (23)
-#define SRVL1_IRQ_PCIE          (24)
-#endif /* VTSS_ARCH_OCELOT */
 
 #define SRVL_IRQ_DEST_CPU0      0 /* IRQ destination CPU0 */
 #define SRVL_IRQ_DEST_CPU1      1 /* IRQ destination CPU1 */
@@ -637,7 +509,6 @@ static vtss_rc srvl_misc_irq_remap(vtss_state_t *vtss_state,
     /* Set up derived registers - PCIe */
     if (vtss_state->sys_config.using_pcie) {
         u32 external0, external1;
-#if defined(VTSS_ARCH_OCELOT)
         // Enable PCIe IRQ
         SRVL_WRM_CLR(VTSS_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG,
                      VTSS_F_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG_PCIE_INTR_ENA);
@@ -657,42 +528,14 @@ static vtss_rc srvl_misc_irq_remap(vtss_state_t *vtss_state,
         // Enable PCIe if
         SRVL_WRM_CTL(VTSS_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG, (external0|external1),
                      VTSS_F_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG_PCIE_INTR_ENA);
-#else
-        // Enable PCIe IRQ
-        SRVL_WRM_CLR(VTSS_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG,
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG_PCIE_INTR_ENA);
-        // Read current ext0 / ext1 mapping
-        SRVL_RD(VTSS_ICPU_CFG_INTR_DST_INTR_MAP(SRVL_IRQ_DEST_EXT0), &external0);
-        SRVL_RD(VTSS_ICPU_CFG_INTR_DST_INTR_MAP(SRVL_IRQ_DEST_EXT1), &external1);
-        // Configure IRQ if external has a dest
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_PCIe_PCIE_INTR_CFG(0), (external0 != 0),
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_CFG_INTR_FALLING_ENA|
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_CFG_INTR_RISING_ENA);
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_PCIe_PCIE_INTR_CFG(1), (external1 != 0),
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_CFG_INTR_FALLING_ENA|
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_CFG_INTR_RISING_ENA);
-        // Select EXT_DST1 if SRVL_IRQ_DEST_EXT1 non-zero
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG, (external1 != 0),
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL);
-        // Enable PCIe if
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG, (external0|external1),
-                     VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG_PCIE_INTR_ENA);
-#endif /* VTSS_ARCH_OCELOT */
     }
 
     /* Set up derived registers - EXT drive & dir */
     for (ix = 0; ix < 2; ix++) {
         u32 external;
         SRVL_RD(VTSS_ICPU_CFG_INTR_DST_INTR_MAP(SRVL_IRQ_DEST_EXT0 + ix), &external);
-#if defined(VTSS_ARCH_OCELOT)
         SRVL_WRM_CTL(VTSS_ICPU_CFG_INTR_EXT_DST_INTR_DRV, external != 0,
                      VTSS_F_ICPU_CFG_INTR_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV(VTSS_BIT(ix)));
-#else
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_INTR_EXT_INTR_DRV, external != 0,
-                     VTSS_F_ICPU_CFG_INTR_EXT_INTR_DRV_EXT_INTR_DRV(VTSS_BIT(ix)));
-        SRVL_WRM_CTL(VTSS_ICPU_CFG_INTR_EXT_INTR_DIR, external != 0,
-                     VTSS_F_ICPU_CFG_INTR_EXT_INTR_DIR_EXT_INTR_DIR(VTSS_BIT(ix)));
-#endif /* VTSS_ARCH_OCELOT */
     }
 
     return VTSS_RC_OK;
@@ -708,11 +551,7 @@ static vtss_rc srvl_misc_irq_cfg(vtss_state_t *vtss_state,
     } else {
         switch (irq) {
             case VTSS_IRQ_XTR:
-#if defined(VTSS_ARCH_OCELOT)
                 rc = srvl_misc_irq_remap(vtss_state, VTSS_BIT(SRVL1_IRQ_XTR_RDY), conf);
-#else
-                rc = srvl_misc_irq_remap(vtss_state, VTSS_BIT(SRVL1_IRQ_XTR_RDY0)|VTSS_BIT(SRVL1_IRQ_XTR_RDY1), conf);
-#endif /* VTSS_ARCH_OCELOT */
                 break;
             case VTSS_IRQ_FDMA_XTR:     /* NB: XTR and INJ are lumped together*/
                 rc = srvl_misc_irq_remap(vtss_state, VTSS_BIT(SRVL1_IRQ_FDMA), conf);
@@ -764,13 +603,8 @@ static vtss_rc srvl_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
         // If running on an external CPU connected via PCIe, either external IRQ0 or
         // external IRQ1 may be routed through the PCIe interrupt. Which one
         // can be read from ICPU_CFG:PCIE:PCIE_INTR_COMMON_CFG.LEGACY_MODE_INTR_SEL.
-#if defined(VTSS_ARCH_OCELOT)
         SRVL_RD(VTSS_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG, &val);
         dest = (val & VTSS_F_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL) == 0 ? SRVL_IRQ_DEST_EXT0 : SRVL_IRQ_DEST_EXT1;
-#else
-        SRVL_RD(VTSS_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG, &val);
-        dest = (val & VTSS_F_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL) == 0 ? SRVL_IRQ_DEST_EXT0 : SRVL_IRQ_DEST_EXT1;
-#endif /* VTSS_ARCH_OCELOT */
     } else {
         // When running on the internal CPU, SRVL_IRQ_DEST_CPU1 is - by convention and in
         // agreement with the kernel - used in user-space.
@@ -800,15 +634,9 @@ static vtss_rc srvl_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
         }
     }
 
-#if defined(VTSS_ARCH_OCELOT)
     if (val & (VTSS_BIT(SRVL1_IRQ_XTR_RDY))) {
         status->active |= VTSS_BIT(VTSS_IRQ_XTR);
     }
-#else
-    if (val & (VTSS_BIT(SRVL1_IRQ_XTR_RDY0)|VTSS_BIT(SRVL1_IRQ_XTR_RDY1))) {
-        status->active |= VTSS_BIT(VTSS_IRQ_XTR);
-    }
-#endif /* VTSS_ARCH_OCELOT */
 
     if (val & (VTSS_BIT(SRVL1_IRQ_SW0)|VTSS_BIT(SRVL1_IRQ_SW1))) {
         status->active |= VTSS_BIT(VTSS_IRQ_SOFTWARE);
@@ -856,11 +684,7 @@ static vtss_rc srvl_misc_irq_enable(vtss_state_t *vtss_state,
     u32 mask = 0;
     switch (irq) {
     case VTSS_IRQ_XTR:
-#if defined(VTSS_ARCH_OCELOT)
         mask = VTSS_BIT(SRVL1_IRQ_XTR_RDY);
-#else
-        mask = VTSS_BIT(SRVL1_IRQ_XTR_RDY0) | VTSS_BIT(SRVL1_IRQ_XTR_RDY1);
-#endif /* VTSS_ARCH_OCELOT */
         break;
     case VTSS_IRQ_FDMA_XTR:
         SRVL_WRM_CTL(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_ENA, enable,
@@ -994,13 +818,8 @@ static vtss_rc srvl_sgpio_event_poll(vtss_state_t *vtss_state,
 {
     u32 i, val;
 
-#if defined(VTSS_ARCH_OCELOT)
     SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR(bit), &val);
     SRVL_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR(bit), val);  /* Clear pending */
-#else
-    SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INT_REG(bit), &val);
-    SRVL_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INT_REG(bit), val);  /* Clear pending */
-#endif /* VTSS_ARCH_OCELOT */
 
     /* Setup serial IO port enable register */
     for (i = 0; i < 32; i++) {
@@ -1019,7 +838,6 @@ static vtss_rc srvl_sgpio_event_enable(vtss_state_t *vtss_state,
                                        const u32                bit,
                                        const BOOL               enable)
 {
-#if defined(VTSS_ARCH_OCELOT)
     u32 i, mask = (1 << port);
 
     if (enable) {
@@ -1052,32 +870,6 @@ static vtss_rc srvl_sgpio_event_enable(vtss_state_t *vtss_state,
                     VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CFG_SIO_GPIO_INTR_ENA(1 << bit)); // Clear only the bit in question.
         }
     }
-#else
-    u32 data, pol, i;
-
-    if (enable) {
-        SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INPUT_DATA(bit), &data);
-        SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INT_POL(bit), &pol);
-        pol = ~pol;     /* '0' means interrupt when input is one */
-        data &= pol;    /* Now data '1' means active interrupt */
-        if (!(data & 1<<port)) {   /* Only enable if not active interrupt - as interrupt pending cannot be cleared */
-            SRVL_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_INT_ENA, 1<<port, 1<<port);
-        }
-        SRVL_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG,
-                 VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1<<bit),
-                 VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1<<bit));
-    }
-    else {
-        SRVL_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_INT_ENA, 0, 1<<port);
-        for (i = 0; i < 32; ++i) {
-            if (vtss_state->misc.sgpio_event_enabled[0][group].enable[i][bit])
-                break;
-        }
-        if (i == 32)
-            SRVL_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG, 0,
-                     VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1<<bit));
-    }
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -1087,7 +879,6 @@ static vtss_rc srvl_sgpio_conf_set(vtss_state_t *vtss_state,
                                    const vtss_sgpio_group_t group,
                                    const vtss_sgpio_conf_t  *const conf)
 {
-#if defined(VTSS_ARCH_OCELOT)
     u32  i, port, val = 0, pol = 0, bmode[2], bit_idx, value, mask;
 
     /* Setup serial IO port enable register */
@@ -1206,78 +997,6 @@ static vtss_rc srvl_sgpio_conf_set(vtss_state_t *vtss_state,
             VTSS_D("group:%d, port:%d, bit_idx:%d, int_pol_high:%d", group, port, bit_idx, pol_high);
         }
     }
-#else
-    u32 i, port, val = 0, bmode[2], bit_idx;
-
-    /* Setup serial IO port enable register */
-    for (port = 0; port < 32; port++) {
-        if (conf->port_conf[port].enabled)
-            val |= VTSS_BIT(port);
-    }
-    SRVL_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_ENABLE, val);
-
-    /* Setup general configuration register
-     *
-     * The burst gap is 0x1f(33.55ms)
-     * The load signal is active low
-     * The auto burst repeat function is on
-     * The SIO reverse output is off */
-    for (i = 0; i < 2; i++) {
-        switch (conf->bmode[i]) {
-        case VTSS_SGPIO_BMODE_TOGGLE:
-            if (i == 0) {
-                VTSS_E("blink mode 0 does not support TOGGLE");
-                return VTSS_RC_ERROR;
-            }
-            bmode[i] = 3;
-            break;
-        case VTSS_SGPIO_BMODE_0_625:
-            if (i == 1) {
-                VTSS_E("blink mode 1 does not support 0.625 Hz");
-                return VTSS_RC_ERROR;
-            }
-            bmode[i] = 3;
-            break;
-        case VTSS_SGPIO_BMODE_1_25:
-            bmode[i] = 2;
-            break;
-        case VTSS_SGPIO_BMODE_2_5:
-            bmode[i] = 1;
-            break;
-        case VTSS_SGPIO_BMODE_5:
-            bmode[i] = 0;
-            break;
-        default:
-            return VTSS_RC_ERROR;
-        }
-    }
-
-    /* Configure "LD" polarity signal to 0 (active low) for input SGPIO */
-    SRVL_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG,
-             VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_0(bmode[0]) |
-             VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_1(bmode[1]) |
-             VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BURST_GAP(0x00) |
-             VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_PORT_WIDTH(conf->bit_count - 1) |
-             VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_AUTO_REPEAT,
-             ~VTSS_M_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA);
-
-    /* Setup the serial IO clock frequency - 12.5MHz (0x14) */
-    SRVL_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CLOCK, 0x14);
-
-    /* Configuration of output data values
-     * The placement of the source select bits for each output bit in the register:
-     * Output bit0 : (2 downto 0)
-     * Output bit1 : (5 downto 3)
-     * Output bit2 : (8 downto 6)
-     * Output bit3 : (11 downto 9) */
-    for (port = 0; port < 32; port++) {
-        for (val = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
-            /* Set output bit n */
-            val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx], bit_idx * 3, 3);
-        }
-        SRVL_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CONFIG(port), val);
-    }
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -1359,7 +1078,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
     pr("\n");
 
     vtss_srvl_debug_reg_header(pr, "SGPIO");
-#if defined(VTSS_ARCH_OCELOT)
     for (i = 0; i < 4; i++)
         SRVL_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
     SRVL_DEBUG_SIO(pr, CFG, "CFG");
@@ -1382,20 +1100,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
     SRVL_DEBUG_SIO(pr, INTR_ENA, "INTR_ENA");
     for (i = 0; i < 4; i++)
         SRVL_DEBUG_SIO_INST(pr, INTR_IDENT(i), i, "INTR_IDENT");
-#else
-    for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-    for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INT_POL(i), i, "INT_POL");
-    SRVL_DEBUG_SIO(pr, PORT_INT_ENA, "PORT_INT_ENA");
-    for (i = 0; i < 32; i++)
-        SRVL_DEBUG_SIO_INST(pr, PORT_CONFIG(i), i, "PORT_CONFIG");
-    SRVL_DEBUG_SIO(pr, PORT_ENABLE, "PORT_ENABLE");
-    SRVL_DEBUG_SIO(pr, CONFIG, "CONFIG");
-    SRVL_DEBUG_SIO(pr, CLOCK, "CLOCK");
-    for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INT_REG(i), i, "INT_REG");
-#endif /* VTSS_ARCH_OCELOT */
     pr("\n");
     
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GENERAL_STAT, "GENERAL_STAT");
@@ -1415,7 +1119,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_ENA, "DEV_INTR_ENA");
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_IDENT, "DEV_INTR_IDENT");
     if (vtss_state->sys_config.using_pcie) {
-#if defined(VTSS_ARCH_OCELOT)
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_CFG, "PCIE_CFG");
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_STAT, "PCIE_STAT");
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_AUX_CFG, "PCIE_AUX_CFG");
@@ -1425,17 +1128,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG, "PCIE_INTR_COMMON_CFG");
         for (i = 0; i < 2; i++)
             vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR_CFG(i), i, "PCIE_INTR_CFG");
-#else
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_CFG, "PCIE_CFG");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_STAT, "PCIE_STAT");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_AUX_CFG, "PCIE_AUX_CFG");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_INTR, "PCIE_INTR");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_INTR_ENA, "PCIE_INTR_ENA");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_INTR_IDENT, "PCIE_INTR_IDENT");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_INTR_COMMON_CFG, "PCIE_INTR_COMMON_CFG");
-        for (i = 0; i < 2; i++)
-            vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ICPU_CFG_PCIe_PCIE_INTR_CFG(i), i, "PCIE_INTR_CFG");
-#endif /* VTSS_ARCH_OCELOT */
     }
 #endif /* VTSS_ARCH_SERVAL_CPU */
 
@@ -1457,11 +1149,7 @@ static vtss_rc srvl_misc_poll_1sec(vtss_state_t *vtss_state)
 #if defined(VTSS_ARCH_SERVAL_CPU)
     u32     port, bit, enable;
 
-#if defined(VTSS_ARCH_OCELOT)
     SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR_ENA, &enable);
-#else
-    SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_INT_ENA, &enable);
-#endif /* VTSS_ARCH_OCELOT */
     for (port=0; port<32; ++port)
         if (!(enable & 1<<port))
             for (bit=0; bit<4; ++bit)    /* port is not enabled - check if it is configured to be */

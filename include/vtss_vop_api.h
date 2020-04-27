@@ -17,13 +17,8 @@ extern "C" {
 #define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
 #define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.
-#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_PATH_SERVICE_VOE_CNT   (32)                        // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX      (32)                        // Index of first port VOE
-#else
-#define VTSS_PATH_SERVICE_VOE_CNT   (64)                        // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (64)                        // Index of first port VOE
-#endif
 
 #elif defined(VTSS_FEATURE_VOP_V2)  /* End Serval1 */
                                     /* Begin Jaguar2/ServalT/SparX-5 */

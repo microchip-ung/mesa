@@ -62,15 +62,9 @@ typedef struct {
 #define IS1_ENTRY_WIDTH   376
 #define IS2_ENTRY_WIDTH   376
 #define ES0_ENTRY_WIDTH   29
-#if defined(VTSS_ARCH_OCELOT)
 #define IS1_ACTION_WIDTH  312
 #define IS2_ACTION_WIDTH  99
 #define ES0_ACTION_WIDTH  72
-#else
-#define IS1_ACTION_WIDTH  320
-#define IS2_ACTION_WIDTH  103
-#define ES0_ACTION_WIDTH  91
-#endif /* VTSS_ARCH_OCELOT */
 
 static const tcam_props_t tcam_info[] = {
 #if defined(VTSS_FEATURE_IS0)
@@ -1515,16 +1509,8 @@ BOOL vtss_srvl_is1_oam_adv(vtss_state_t *vtss_state)
 {
     BOOL oam_adv;
 
-#if defined(VTSS_ARCH_SERVAL_ORG)
-    /* Serval-1 revision B or later supports advanced OAM classification */
-    oam_adv = (vtss_state->misc.chip_id.revision > 0);
-#elif defined(VTSS_ARCH_OCELOT)
     /* Ocelot supports advanced OAM classification */
     oam_adv = TRUE;
-#else
-    /* No advanced OAM classification */
-    oam_adv = FALSE;
-#endif
 
     return oam_adv;
 }
@@ -2959,15 +2945,6 @@ static vtss_rc srvl_es0_entry_add(vtss_state_t *vtss_state,
     
     srvl_vcap_action_bit_set(data, ES0_AO_OAM_MEP_IDX_VLD, action->mep_idx_enable);
     srvl_vcap_action_set(data, ES0_AO_OAM_MEP_IDX, ES0_AL_OAM_MEP_IDX, action->mep_idx);
-#if !defined(VTSS_ARCH_OCELOT)
-    /* Setup remaining action fields */
-    srvl_vcap_action_set(data, ES0_AO_ENCAP_ID, ES0_AL_ENCAP_ID, action->mpls_encap_idx);
-    srvl_vcap_action_set(data, ES0_AO_ENCAP_LEN, ES0_AL_ENCAP_LEN, action->mpls_encap_len);
-    srvl_vcap_action_set(data, ES0_AO_MPOP_CNT, ES0_AL_MPOP_CNT, action->mpls_pop_len);
-    srvl_vcap_action_set(data, ES0_AO_ESDX, ES0_AL_ESDX, action->esdx);
-    srvl_vcap_action_set(data, ES0_AO_IPT_CFG, ES0_AL_IPT_CFG, 0);
-    srvl_vcap_action_set(data, ES0_AO_PPT_IDX, ES0_AL_PPT_IDX, 0);
-#endif /* VTSS_ARCH_OCELOT */
 
     /* Set TCAM data */
     return srvl_vcap_entry_set(vtss_state, tcam, idx, data);
@@ -3125,20 +3102,6 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
             srvl_debug_fld(info, buf, ES0_AO_DEI_A_VAL + offs, ES0_AL_DEI_A_VAL);
             pr("\n");
         }
-#if !defined(VTSS_ARCH_OCELOT)
-        srvl_debug_fld(info, "encap_id", ES0_AO_ENCAP_ID, ES0_AL_ENCAP_ID);
-        srvl_debug_fld(info, "encap_len", ES0_AO_ENCAP_LEN, ES0_AL_ENCAP_LEN);
-        srvl_debug_fld(info, "mpop_cnt", ES0_AO_MPOP_CNT, ES0_AL_MPOP_CNT);
-        srvl_debug_fld(info, "esdx", ES0_AO_ESDX, ES0_AL_ESDX);
-        srvl_debug_action(info, "oam_mep_idx", ES0_AO_OAM_MEP_IDX_VLD,
-                          ES0_AO_OAM_MEP_IDX, ES0_AL_OAM_MEP_IDX);
-        x = srvl_act_bs_get(info, ES0_AO_IPT_CFG, ES0_AL_IPT_CFG);
-        pr("\n");
-        pr("ipt_cfg:%u (%s) ", x, 
-           x == ES0_ACT_IPT_CFG_NONE ? "none" :
-           x == ES0_ACT_IPT_CFG_WORKING ? "working" :
-           x == ES0_ACT_IPT_CFG_PROTECTION ? "protection" : "?");
-#endif /* VTSS_ARCH_OCELOT */
         pr("hit:%u ", info->data.cnt);
         return VTSS_RC_OK;
     }

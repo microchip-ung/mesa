@@ -115,12 +115,8 @@ extern BOOL vtss_board_probe_lu26(vtss_board_t *board, vtss_board_info_t *board_
 #endif /* VTSS_ARCH_LUTON26 */
 
 /* Serval architectures */
-#if defined(VTSS_ARCH_OCELOT)
 extern BOOL vtss_board_probe_ocelot(vtss_board_t *board, vtss_board_info_t *board_info);
 extern BOOL vtss_board_probe_ocelot_pcb120(vtss_board_t *board, vtss_board_info_t *board_info);
-#elif defined(VTSS_ARCH_SERVAL)
-extern BOOL vtss_board_probe_serval(vtss_board_t *board, vtss_board_info_t *board_info);
-#endif
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 extern BOOL vtss_board_probe_jr2(vtss_board_t *board, vtss_board_info_t *board_info);

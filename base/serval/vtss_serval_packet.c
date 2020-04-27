@@ -24,11 +24,7 @@
 
 // Unfortunately, the AFI timers aren't defined as a replication (due to distinct defaults),
 // so we have to define our own address.
-#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(x) VTSS_IOREG(VTSS_TO_QSYS, 0x44c6 + (x))
-#else
-#define VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(x) VTSS_IOREG(VTSS_TO_QSYS, 0x56c6 + (x))
-#endif
 
 /**
  * srvl_afi_chip_port_to_str()
@@ -708,7 +704,7 @@ static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_OPT_PHY_TIMESTAMP) && defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
 static u32 srvl_packet_unpack32(const u8 *buf)
 {
     return (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
@@ -729,12 +725,7 @@ static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                    *vtss_stat
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
     if (ts_props.ts_feature_is_PTS || ts_props.backplane_port) {
         u32 packet_ns;
-#if defined(VTSS_ARCH_OCELOT)
         packet_ns = srvl_packet_unpack32(frm);
-#else
-        VTSS_I("The interface is a time stamping PHY but the Timestamp is not unpacked from frame. This is only done on Ocelot architecture. Is that correct behaviour???");
-        packet_ns = *rxTime>>16;   /* It makes no sense to use IFH time stamp as 'ns' parameter to srvl_packet_ns_to_ts_cnt(), but make sure this is in nanoseconds. */
-#endif
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
             /* convert to 32 bit timestamp */
             VTSS_D("rxTime before %u", packet_ns);
@@ -1132,15 +1123,9 @@ static vtss_rc srvl_tx_frame_ifh(vtss_state_t *vtss_state,
     return srvl_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
 
-#if defined(VTSS_ARCH_OCELOT)
 #define IFH_OFF_REW_OP  117
 #define IFH_LEN_REW_OP  9
 #define IFH_OFF_REW_VAL 85
-#else
-#define IFH_OFF_REW_OP  118
-#define IFH_LEN_REW_OP  9
-#define IFH_OFF_REW_VAL 86
-#endif /* VTSS_ARCH_OCELOT */
 
 static vtss_rc srvl_rx_hdr_decode(const vtss_state_t          *const state,
                                   const vtss_packet_rx_meta_t *const meta,
@@ -1441,19 +1426,11 @@ static vtss_rc srvl_tx_hdr_encode(      vtss_state_t          *const state,
 
         inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(rew_op,  IFH_OFF_REW_OP - 64, IFH_LEN_REW_OP); // REW_OP
         inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(rew_val, IFH_OFF_REW_VAL- 64, 32); // REW_VAL
-#if defined(VTSS_ARCH_OCELOT)
         inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(chip_port_mask >> 8, 64 - 64,  3); // Don't send to the CPU port (hence length == 3 and not 4)
         inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(chip_port_mask,      56 -  0,  8);
         if (isdx != VTSS_ISDX_NONE) {
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(isdx,      47 -  0, 9); // ISDX
         }
-#else
-        inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(chip_port_mask >> 7, 64 - 64,  4); // Don't send to the CPU port (hence length == 4 and not 5)
-        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(chip_port_mask,      57 -  0,  7);
-        if (isdx != VTSS_ISDX_NONE) {
-            inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(isdx,      47 -  0, 10); // ISDX
-        }
-#endif /* VTSS_ARCH_OCELOT */
         if (isdx != VTSS_ISDX_NONE) {
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1,           32 -  0,  1); // Use ISDX for ES0 lookups
         }

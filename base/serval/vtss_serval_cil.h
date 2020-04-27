@@ -22,15 +22,8 @@
 #include "vtss_serval.h"
 #include "vtss_serval_reg.h"
 
-#if defined(VTSS_ARCH_OCELOT)
 #include "../ail/vtss_pll5g_procs.h"
 #include "vtss_ocelot_pll5g_setup.h"
-#endif
-
-#if defined(VTSS_ARCH_OCELOT)
-#else
-#define VTSS_ARCH_SERVAL_ORG
-#endif
 
 #define VTSS_CHIP_PORTS      11    /* Port 0-10 */
 #define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS /* Next port is CPU port */
@@ -42,25 +35,10 @@
 #define SRVL_POLICER_PORT    0    /* 0-11    : Port policers (11 unused) */
 #define SRVL_POLICER_ACL     12   /* 12-31   : ACL policers (28-31 unused) */
 #define SRVL_POLICER_QUEUE   32   /* 32-127  : Queue policers (120-127 unused) */
-#if defined(VTSS_CHIP_SERVAL)
-#define SRVL_POLICER_EVC     129  /* 129-1150: EVC policers (128 unused) */
-#define SRVL_POLICER_DISCARD 1151 /* 1151    : Discard policer */
-#define SRVL_POLICER_CNT     1152 /* Total number of policers */
-#elif defined(VTSS_CHIP_SERVAL_LITE)
-#define SRVL_POLICER_EVC     129  /* 129-384 : EVC policers (128 unused) */
-#define SRVL_POLICER_DISCARD 385  /* 385     : Discard policer */
-#define SRVL_POLICER_CNT     386  /* Total number of policers */
-#elif defined(VTSS_ARCH_OCELOT)
 #define SRVL_POLICER_EVC     129  /* 129-382 : EVC policers (128 unused) */
 #define SRVL_POLICER_DISCARD 383  /* 383     : Discard policer */
 #define SRVL_POLICER_CNT     384  /* Total number of policers */
-#else
-#define SRVL_POLICER_EVC     129  /* 129-192 : EVC policers (128 unused) */
-#define SRVL_POLICER_DISCARD 193  /* 193     : Discard policer */
-#define SRVL_POLICER_CNT     194  /* Total number of policers */
-#endif /* VTSS_CHIP_SERVAL */
 
-#if defined(VTSS_ARCH_OCELOT)
 /* Ocelot has 4 PTP PIN configurations that can be used for different purposes, the defines below defines the
  * default usage of the 4 pins.
  */
@@ -72,16 +50,10 @@
 /* PIN configuration for alternative (RS422) clock. Note that 1pps pulse is the same pin as EXT_PPS_PIN, i.e. the application must ensure that only one of the features are enabled at the same time. */
 #define ALT_LDST_PIN 3          /* alternative clock 1 pps input (Load/Store) */
 #define ALT_PPS_PIN  0          /* alternative clock 1pps pulse */
-#endif /* VTSS_ARCH_OCELOT */
 
 /* Buffer constants */
-#if defined(VTSS_ARCH_OCELOT)
 #define SRVL_BUFFER_MEMORY     229380
 #define SRVL_BUFFER_REFERENCE    1911
-#else /* SERVAL1 */
-#define SRVL_BUFFER_MEMORY     (1024*1024)
-#define SRVL_BUFFER_REFERENCE  (SRVL_BUFFER_MEMORY/120)
-#endif
 #define SRVL_BUFFER_CELL_SZ        60
 
 /* Number of full entries */

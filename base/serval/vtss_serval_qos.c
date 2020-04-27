@@ -5,23 +5,13 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_OCELOT)
-#define TERMINAL_SE_INDEX_OFFSET 146
-#else
-#define TERMINAL_SE_INDEX_OFFSET 218
-#define TERMINAL_SE_INDEX_LIMIT  255
-#endif
-
 #if defined(VTSS_ARCH_SERVAL)
 
-#if defined(VTSS_ARCH_OCELOT)
+#define TERMINAL_SE_INDEX_OFFSET 146
+
+
 #define CPU_PORT_0_SE_INDEX 157
 #define CPU_PORT_1_SE_INDEX 158
-#else
-/* Use default indexes */
-#define CPU_PORT_0_SE_INDEX 229
-#define CPU_PORT_1_SE_INDEX 230
-#endif
 
 #define SRVL_HSCH_L2_SE(port, queue) (8 * (port) + queue)
 
@@ -93,13 +83,8 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
     /* Policer rate unit is 100 kbps for SERVAL rev. A. */
     /* Policer rate unit is 33 kbps for SERVAL rev. > A and OCELOT. See Bugzilla#8648 */
 
-#if defined(VTSS_ARCH_SERVAL_ORG)
-    if (vtss_state->misc.chip_id.revision > 0) /* Only for Serval rev. > A. */
-#endif /* VTSS_ARCH_SERVAL_ORG */
-    {
-        pir *= 3;
-        cir *= 3;
-    }
+    pir *= 3;
+    cir *= 3;
 
     /* Limit to maximum values */
     pir = MIN(VTSS_BITMASK(15), pir);
@@ -239,9 +224,6 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
         u32 cbs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->level, 4096));
 
         if (!calibrate || cir % 4 == 0) {
-#if defined(VTSS_ARCH_SERVAL_ORG)
-            cir = (cir + 3) & ~3; /* Round up to the nearest factor of 400 kbps */
-#endif
             if (calibrate) {
                 calibrate->rate_pwm = 0;
             }
@@ -269,9 +251,6 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *s
                 u32 ebs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->ebs, 4096));
 
                 if (!calibrate || eir % 4 == 0) {
-#if defined(VTSS_ARCH_SERVAL_ORG)
-                    eir = (eir + 3) & ~3; /* Round up to the nearest factor of 400 kbps */
-#endif
                     if (calibrate) {
                         calibrate->eir_pwm = 0;
                     }
@@ -421,14 +400,8 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     } else {
         u32 terminal_se, dwrr_se;
 
-#if defined(VTSS_ARCH_OCELOT)
         terminal_se = TERMINAL_SE_INDEX_OFFSET + port;
         dwrr_se = terminal_se;
-#else
-        precise_rate = TRUE;
-        terminal_se = TERMINAL_SE_INDEX_LIMIT - port;
-        dwrr_se = TERMINAL_SE_INDEX_OFFSET + port;
-#endif
 
         /* DWRR configuration */
         if (conf->dwrr_enable) {
@@ -729,60 +702,11 @@ static vtss_rc srvl_evc_policer_conf_set(vtss_state_t *vtss_state,
 }
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
-#if defined(VTSS_ARCH_SERVAL_ORG)
-static vtss_rc srvl_qos_shaper_pwm(vtss_state_t *vtss_state, vtss_shaper_calibrate_t *calibrate, u32 se)
-{
-    if (calibrate->rate_pwm != 0) {
-        if (ABS(calibrate->rate_pwm_error + ((i32)75 - (i32)calibrate->rate_pwm)) > ABS(calibrate->rate_pwm_error + ((i32)400 - (i32)calibrate->rate_pwm))) {
-            SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se),
-                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(calibrate->rate_pwm_high) |
-                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(calibrate->level_pwm));
-            calibrate->rate_pwm_error += 400 - calibrate->rate_pwm;
-        } else {
-            SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se),
-                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(calibrate->rate_pwm_high - 1) |
-                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(calibrate->level_pwm));
-            calibrate->rate_pwm_error += 75 - calibrate->rate_pwm;
-        }
-    }
-
-    if (calibrate->eir_pwm != 0) {
-        if (ABS(calibrate->eir_pwm_error + ((i32)75 - (i32)calibrate->eir_pwm)) > ABS(calibrate->eir_pwm_error + ((i32)400 - (i32)calibrate->eir_pwm))) {
-            SRVL_WR(VTSS_QSYS_HSCH_EIR_CFG(se),
-                    VTSS_F_QSYS_HSCH_EIR_CFG_EIR_RATE(calibrate->eir_pwm_high) |
-                    VTSS_F_QSYS_HSCH_EIR_CFG_EIR_BURST(calibrate->ebs_pwm));
-            calibrate->eir_pwm_error += 400 - calibrate->eir_pwm;
-        } else {
-            SRVL_WR(VTSS_QSYS_HSCH_EIR_CFG(se),
-                    VTSS_F_QSYS_HSCH_EIR_CFG_EIR_RATE(calibrate->eir_pwm_high - 1) |
-                    VTSS_F_QSYS_HSCH_EIR_CFG_EIR_BURST(calibrate->ebs_pwm));
-            calibrate->eir_pwm_error += 75 - calibrate->eir_pwm;
-        }
-    }
-
-    // Return a value that indicates whether this instance needs calibration.
-    return calibrate->rate_pwm != 0 || calibrate->eir_pwm != 0 ? VTSS_RC_INCOMPLETE: VTSS_RC_OK;
-}
-#endif /* VTSS_ARCH_SERVAL_ORG */
 
 /*lint -sem(srvl_qos_shaper_calibrate, thread_protected) ... function only called from one thread */
 static vtss_rc srvl_qos_shaper_calibrate(vtss_state_t *vtss_state)
 {
     vtss_rc worst_case_rc = VTSS_RC_OK;
-
-#if defined(VTSS_ARCH_SERVAL_ORG)
-    vtss_port_no_t port_no;
-    vtss_rc        rc;
-
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        vtss_shaper_calibrate_t *calibrate = &vtss_state->qos.port_shaper[port_no];
-        if ((rc = srvl_qos_shaper_pwm(vtss_state, calibrate, TERMINAL_SE_INDEX_LIMIT - VTSS_CHIP_PORT(port_no))) != VTSS_RC_OK) {
-            if (worst_case_rc == VTSS_RC_OK) {
-                worst_case_rc = rc;
-            }
-        }
-    }
-#endif /* VTSS_ARCH_SERVAL_ORG */
 
     return worst_case_rc;
 }
@@ -994,11 +918,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
             port = (VTSS_CHIP_PORT_CPU_0 + i);
             sprintf(buf, "C%u", i);
         }
-#if defined(VTSS_ARCH_OCELOT)
         terminal_se = TERMINAL_SE_INDEX_OFFSET + port;
-#else
-        terminal_se = TERMINAL_SE_INDEX_LIMIT - port;
-#endif
 
         SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(terminal_se), &value);
         SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(terminal_se), &eir);
@@ -1270,28 +1190,6 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         }
 
         /* Connect an extra SE when HQoS is not used */
-#if defined(VTSS_ARCH_SERVAL_ORG)
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            u32 port = VTSS_CHIP_PORT(port_no);
-            u32 lvl1_se = TERMINAL_SE_INDEX_OFFSET + port;
-            u32 lvl2_se = TERMINAL_SE_INDEX_LIMIT - port;
-
-            /* Configure level 1 SE (the previous level 2 SE) */
-            SRVL_WRM(VTSS_QSYS_HSCH_SE_CONNECT(lvl1_se),
-                     VTSS_F_QSYS_HSCH_SE_CONNECT_SE_OUTP_IDX(lvl2_se) |
-                     VTSS_F_QSYS_HSCH_SE_CONNECT_SE_OUTP_CON(0),
-                     VTSS_M_QSYS_HSCH_SE_CONNECT_SE_OUTP_IDX |
-                     VTSS_M_QSYS_HSCH_SE_CONNECT_SE_OUTP_CON |
-                     VTSS_F_QSYS_HSCH_SE_CONNECT_SE_TERMINAL);
-
-            /* Configure level 2 SE (new) */
-            SRVL_WR(VTSS_QSYS_HSCH_SE_CONNECT(lvl2_se),
-                    VTSS_F_QSYS_HSCH_SE_CONNECT_SE_OUTP_IDX(port) |
-                    VTSS_F_QSYS_HSCH_SE_CONNECT_SE_INP_IDX(lvl1_se) |
-                    VTSS_F_QSYS_HSCH_SE_CONNECT_SE_INP_CNT(1) |
-                    VTSS_F_QSYS_HSCH_SE_CONNECT_SE_TERMINAL);
-        }
-#endif
         break;
     }
     case VTSS_INIT_CMD_POLL:

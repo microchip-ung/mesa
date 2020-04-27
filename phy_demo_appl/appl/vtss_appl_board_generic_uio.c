@@ -31,11 +31,7 @@ static void (*chain_board_init_post)(vtss_appl_board_t *board);
 #define MMAP_SIZE   0x10200000
 #define CHIPID_OFF (0x00070008 >> 2)
 #elif defined(VTSS_ARCH_SERVAL)
-#if defined(VTSS_ARCH_OCELOT)
 #define TARGET_NAME "Ocelot"
-#else
-#define TARGET_NAME "Serval1"
-#endif
 #define MMAP_SIZE   0x02000000
 #define CHIPID_OFF (0x01070000 >> 2)
 #define ENDIAN_OFF (0x01000000 >> 2)

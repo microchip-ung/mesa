@@ -12,9 +12,7 @@
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
 
-#if defined(VTSS_ARCH_OCELOT)
 static BOOL srvl_port_is_internal_phy(u32 chip_port);
-#endif
 
 static vtss_rc srvl_port_clause_37_control_get(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no,
@@ -274,12 +272,10 @@ static vtss_rc srvl_sd1g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_ENA_FLOOP |
              VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_ENA_ELOOP);
 
-#if defined(VTSS_ARCH_OCELOT)
     SRVL_WRM_CLR(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                  VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_PWD_RX);
     SRVL_WRM_CLR(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                  VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_PWD_TX);
-#endif /* VTSS_ARCH_OCELOT */
 
     /* PLL_CFG */
     SRVL_WRM(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_PLL_CFG,
@@ -349,7 +345,6 @@ static vtss_rc srvl_sd6g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
 {
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
     vtss_port_lb_t     lb = vtss_state->port.test_conf[port_no].loopback;
-#if defined(VTSS_ARCH_OCELOT)
     /* The following code is based on the Jaguar-2/Serval-T implementation */
     /* Therefore it is open to Ocelot specific tweaks */
     u32 ob_ena1v_mode = 0;
@@ -776,200 +771,10 @@ static vtss_rc srvl_sd6g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
                VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_TSDET);
 
       VTSS_RC(srvl_sd6g_write(vtss_state, addr));
-#else
-    // Serval-1
-    u32  ib_rf = 15, ctrl_data = 60, if_mode = 1, ob_ena_cas = 0, ob_lev = 48;
-    u32  ib_vbac = 0, ib_vbcom = 0, ib_ic_ac=0, ib_c=15, ser_alisel=0, ob_post0 = 0, test_mode = 0, test_pattern = 0;
-    BOOL ena_lane = 1, rot_frq = 1, ena_rot = 0, qrate = 1, hrate = 0;
-    BOOL ob_ena1v, if_100fx = 0, ser_enali = 0, ser_4tap_ena = 0, rot_dir = 0, ob_pol = 1, ib_chf = 0, idle = 0;
-    u32 des_phs_ctrl = 6;
-
-    VTSS_D("addr: 0x%x, mode: %s", addr, srvl_serdes_mode_txt(mode));
-    ob_ena1v = (vtss_state->init_conf.serdes.serdes6g_vdd == VTSS_VDD_1V0) ? 1 : 0;
-
-    switch (mode) {
-    case VTSS_SERDES_MODE_2G5:
-        ib_rf = ob_ena1v ? 2 : 10;   /* IB_CFG */
-        ib_vbac = ob_ena1v ? 4 : 5;  /* IB_CFG */
-        ib_ic_ac = ob_ena1v ? 2 : 0; /* IB_CFG */
-        ib_vbcom = ob_ena1v ? 5 : 0; /* IB_CFG */
-        ib_chf = ob_ena1v ? 1 : 0;   /* IB_CFG */
-        ib_c = 10;                   /* IB_CFG */
-        ena_rot = 1;                 /* PLL_CFG */
-        ctrl_data = 48;              /* PLL_CFG */
-        qrate = 0;                   /* COMMON_CFG */ 
-        hrate = 1;                   /* COMMON_CFG */
-        ob_lev = ob_ena1v ? 48 : 63; /* OB_CFG1 */
-        ser_4tap_ena = ob_ena1v ? 1 : 0; /* SER_CFG */
-        ser_enali = 1;                /* SER_CFG */
-        ser_alisel = 1;               /* SER_CFG */
-        break;
-    case VTSS_SERDES_MODE_SGMII:
-        ob_ena_cas = 2;
-        break;
-    case VTSS_SERDES_MODE_100FX:
-        if_100fx = 1;
-        des_phs_ctrl = 14; // BZ21121
-        break;
-    case VTSS_SERDES_MODE_1000BaseX:
-        ob_ena_cas = 2;
-        break;
-    case VTSS_SERDES_MODE_DISABLE:
-        ena_lane = 0;
-        break;
-    case VTSS_SERDES_MODE_IDLE:
-        idle = 1;
-        break;
-    case VTSS_SERDES_MODE_TEST_MODE:
-        test_mode = 2; // Fixed pattern
-        test_pattern = 0x5f289;
-        break;
-    default:
-        VTSS_E("Serdes6g mode %s not supported", srvl_serdes_mode_txt(mode));
-        return VTSS_RC_ERROR;
-    }
-
-    VTSS_RC(srvl_sd6g_read(vtss_state, addr));
-
-    if (idle) {
-        /* Apply the idle mode (port down) and return */
-        SRVL_WRM_CTL(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG, idle,
-                     VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_IDLE);
-        VTSS_RC(srvl_sd6g_write(vtss_state, addr));
-        return VTSS_RC_OK;
-    }
-
-    /* 1. Configure macro, apply reset */
-
-   /* Test mode / pattern */
-    SRVL_WR(VTSS_HSIO_SERDES6G_DIG_CFG_SERDES6G_TP_CFG0, test_pattern);
-    SRVL_WRM(VTSS_HSIO_SERDES6G_DIG_CFG_SERDES6G_DFT_CFG0,
-            VTSS_ENCODE_BITFIELD(test_mode,16,3),
-            VTSS_ENCODE_BITMASK(16,3));
-
-    /* OB_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG,
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_POST0(ob_post0) |
-             (ob_pol ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_POL : 0) |
-             (ob_ena1v ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_ENA1V_MODE : 0) |
-             (idle ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_IDLE : 0),
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_POST0 |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_POL |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_ENA1V_MODE |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_IDLE);
-
-    /* OB_CFG1 */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1,
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1_OB_ENA_CAS(ob_ena_cas) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1_OB_LEV(ob_lev),
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1_OB_ENA_CAS |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1_OB_LEV);
-
-    /* IB_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG,
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_RT(15) | 
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_IC_AC(ib_ic_ac) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_VBAC(ib_vbac) | 
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_VBCOM(ib_vbcom) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_RF(ib_rf),
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_RT |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_IC_AC |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_VBAC |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_VBCOM |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_RF);
-
-    /* IB_CFG1 */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1,
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_C(ib_c) |
-             (ib_chf ? VTSS_BIT(7) : 0 ) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_DIS_EQ |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_ENA_OFFSAC |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_ENA_OFFSDC |
-             (if_100fx ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_FX100_ENA : 0) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_RST,
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_C |
-             VTSS_BIT(7) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_DIS_EQ |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_ENA_OFFSAC |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_ENA_OFFSDC |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_FX100_ENA |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_RST);
-    
-    /* DES_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG,
-             (if_100fx ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_CPMD_SEL(2) : 0) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_BW_ANA(5) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_PHS_CTRL(des_phs_ctrl),
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_CPMD_SEL |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_BW_ANA |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_PHS_CTRL);
-    
-    /* SER_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_SER_CFG,
-             (ser_4tap_ena ? VTSS_BIT(8) : 0) |
-             VTSS_ENCODE_BITFIELD(ser_alisel,4,2) |
-             ((ser_enali || lb == VTSS_PORT_LB_FACILITY) ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_SER_CFG_SER_ENALI : 0),
-             VTSS_BIT(8) |
-             VTSS_ENCODE_BITMASK(4,2) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_SER_CFG_SER_ENALI);
-    
-    /* PLL_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG,
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_FSM_CTRL_DATA(ctrl_data) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_FSM_ENA |
-             (rot_dir ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ROT_DIR : 0) |
-             (rot_frq ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ROT_FRQ : 0) |
-             (ena_rot ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ENA_ROT : 0),
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_FSM_CTRL_DATA |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ROT_DIR |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_FSM_ENA |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ROT_FRQ |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG_PLL_ENA_ROT);
-
-    /* Write masked to avoid changing RECO_SEL_* fields used by SyncE */
-    /* COMMON_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
-             (ena_lane ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_LANE : 0) |
-             (lb == VTSS_PORT_LB_FACILITY ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_FLOOP : 0) |
-             (lb == VTSS_PORT_LB_EQUIPMENT ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_ELOOP : 0) |
-             (hrate ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_HRATE : 0) |
-             (qrate ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_QRATE : 0) |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_IF_MODE(if_mode),
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SYS_RST |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_LANE |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_FLOOP |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_ENA_ELOOP |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_HRATE |
-             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_QRATE |
-             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_IF_MODE);
-
-    /* MISC_CFG */      
-    SRVL_WRM(VTSS_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG,
-             (if_100fx ? VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_DES_100FX_CPMD_ENA : 0) |
-             VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_LANE_RST,
-             VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_DES_100FX_CPMD_ENA |
-             VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_LANE_RST);
-
-    VTSS_RC(srvl_sd6g_write(vtss_state, addr));
-
-    /* 2. Release PLL reset */
-    SRVL_WRM_SET(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, 
-                 VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SYS_RST);
-    VTSS_RC(srvl_sd6g_write(vtss_state, addr));
-    
-    /* 3. Release digital reset */
-    SRVL_WRM_CLR(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1,
-                 VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_RST);
-
-    SRVL_WRM(VTSS_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG, 0,
-             VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_LANE_RST);
-    VTSS_RC(srvl_sd6g_write(vtss_state, addr));
-#endif /* VTSS_ARCH_OCELOT */
     return VTSS_RC_OK;
 }
 #endif
 
-#if defined(VTSS_ARCH_OCELOT)
 /* Configure the Serdes1G/Serdes6G blocks based on mux mode and target */
 static vtss_rc ocelot_serdes_macro_config(vtss_state_t *vtss_state)
 {
@@ -1069,48 +874,6 @@ static vtss_rc ocelot_serdes_macro_config(vtss_state_t *vtss_state)
 
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_OCELOT */
-
-#if !defined(VTSS_ARCH_OCELOT)
-/* =================================================================
- *  PLL5G_RCOMP configuration 
- *  (Note that the HSIO:SYNC_ETH_CFG registers seems to be a part of this PLL)
- * =================================================================*/
-/* PLL5G_RCOMP: Read/write data */
-static vtss_rc srvl_pll5g_read_write(vtss_state_t *vtss_state, u32 lcpll_mask, BOOL write, u32 nsec)
-{
-    u32 data, mask;
-
-    if (write)
-        mask = VTSS_F_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG_PLL5G_RCOMP_WR_ONE_SHOT;
-    else
-        mask = VTSS_F_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG_PLL5G_RCOMP_RD_ONE_SHOT;
-
-    SRVL_WRM(VTSS_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG, 
-             mask | VTSS_F_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG_PLL5G_RCOMP_ADDR(lcpll_mask),
-             mask | VTSS_M_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG_PLL5G_RCOMP_ADDR);
-    do { /* Wait until operation is completed  */
-        SRVL_RD(VTSS_HSIO_MCB_PLL5G_RCOMP_CFG_MCB_PLL5G_RCOMP_ADDR_CFG, &data);
-    } while (data & mask);
-    
-    if (nsec)
-        VTSS_NSLEEP(nsec);
-    
-    return VTSS_RC_OK;
-}
-
-/* PLL5G_RCOMP: Read data */
-vtss_rc srvl_pll5g_read(vtss_state_t *vtss_state, u32 lcpll_mask)
-{
-    return srvl_pll5g_read_write(vtss_state, lcpll_mask, 0, 0);
-}
-
-/* PLL5G_RCOMP: Write data */
-vtss_rc srvl_pll5g_write(vtss_state_t *vtss_state, u32 lcpll_mask, u32 nsec)
-{
-    return srvl_pll5g_read_write(vtss_state, lcpll_mask, 1, nsec);
-}
-#endif /* VTSS_ARCH_OCELOT */
 
 /* ================================================================= *
  *  SYNCE (Level 1 syncronization)
@@ -1126,7 +889,6 @@ static vtss_rc srvl_serdes_inst_get(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-#if defined(VTSS_ARCH_OCELOT)
     uint8_t mode0_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1};
     uint8_t mode0_inst_no[] = {0, 1, 2, 3, 4, 5, SRVL_SERDES_INST_NONE, 0, 1, SRVL_SERDES_INST_NONE, 2};
 
@@ -1185,17 +947,6 @@ static vtss_rc srvl_serdes_inst_get(vtss_state_t *vtss_state,
     default:
         return VTSS_RC_ERROR;
     }
-#else
-    if (port == 8 || port == 9) {
-        /* SERDES6G, instance 0-1 */
-        *serdes6g = 1;
-        *inst = (port - 8);
-    } else {
-        /* SERDES1G, instance 0-8 */
-        *serdes6g = 0;
-        *inst = (port == 10 ? 8 : port);
-    }
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -1214,7 +965,6 @@ static vtss_rc srvl_serdes_inst_get(vtss_state_t *vtss_state,
 
 static vtss_rc srvl_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
-#if defined(VTSS_ARCH_OCELOT)
     vtss_synce_clock_out_t *conf = &vtss_state->synce.out_conf[clk_port];
     u32 div_mask;
 
@@ -1240,52 +990,6 @@ static vtss_rc srvl_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_
         VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n", clk_port);
         return VTSS_RC_ERROR;
     }
-#else
-    vtss_synce_clock_out_t *conf = &vtss_state->synce.out_conf[clk_port];
-    u32 div_mask;
-    BOOL        serdes6g;
-    u32         serdes_instance;
-    i32         chip_port;
-
-    switch (conf->divider) {
-        case VTSS_SYNCE_DIVIDER_1: div_mask = 0; break;
-        case VTSS_SYNCE_DIVIDER_4: div_mask = 2; break;
-        case VTSS_SYNCE_DIVIDER_5: div_mask = 1; break;
-        default: div_mask = 0; break;
-    }
-
-    VTSS_I("clk_port %d divider %u  enable %u", clk_port, conf->divider, conf->enable);
-    if (clk_port == 0) {    // clkport A
-        // set individual dividers for 1G and 6G serdes's
-        for (chip_port = 0; chip_port < VTSS_CHIP_PORTS ; chip_port++) {
-            if (VTSS_RC_OK == srvl_serdes_inst_get(vtss_state, chip_port, &serdes_instance, &serdes6g)) {
-                VTSS_I("serdes_instance %d", serdes_instance);
-                
-                if (serdes6g) {
-                    VTSS_RC(srvl_sd6g_read(vtss_state, 1<<serdes_instance));
-                    SRVL_WRM(VTSS_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG,
-                             VTSS_F_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_SEL_RECO_CLK(div_mask),
-                             VTSS_M_HSIO_SERDES6G_DIG_CFG_SERDES6G_MISC_CFG_SEL_RECO_CLK);
-                    VTSS_RC(srvl_sd6g_write(vtss_state, 1<<serdes_instance));
-                } else {
-                    VTSS_RC(srvl_sd1g_read(vtss_state, 1<<serdes_instance)); /* Readback the 1G common config register */
-                    SRVL_WRM(VTSS_HSIO_SERDES1G_DIG_CFG_SERDES1G_MISC_CFG,
-                             VTSS_F_HSIO_SERDES1G_DIG_CFG_SERDES1G_MISC_CFG_SEL_RECO_CLK(div_mask),
-                             VTSS_M_HSIO_SERDES1G_DIG_CFG_SERDES1G_MISC_CFG_SEL_RECO_CLK);
-                    VTSS_RC(srvl_sd1g_write(vtss_state, 1<<serdes_instance));
-                }
-            } else {
-                VTSS_E("chip_port %d has no serdes", chip_port);
-            }
-        }
-    } else {                // clkport B
-        // set bus divider
-        VTSS_RC(srvl_pll5g_read(vtss_state, 0x1));
-        SRVL_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG2, VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG2_SEL_RECO_CLK_B(div_mask),
-                 VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG2_SEL_RECO_CLK_B);
-        VTSS_RC(srvl_pll5g_write(vtss_state, 0x1, 0));
-    }
-#endif /* VTSS_ARCH_OCELOT */
     return VTSS_RC_OK;
 }
 
@@ -1304,7 +1008,6 @@ static vtss_rc srvl_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_
 // The function srvl_serdes_inst_get returns correct serdes type and instance depending on the actual port muxing.
 static vtss_rc srvl_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
-#if defined(VTSS_ARCH_OCELOT)
     vtss_synce_clock_in_t *conf = &vtss_state->synce.in_conf[clk_port];
     vtss_serdes_mode_t    serdes_mode = vtss_state->port.serdes_mode[conf->port_no];
     BOOL                  serdes6g;
@@ -1362,107 +1065,6 @@ static vtss_rc srvl_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_p
                 (conf->enable ? VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA : 0),
              VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_SRC |
                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA);
-    // end Ocelot
-#else
-    vtss_synce_clock_in_t *conf = &vtss_state->synce.in_conf[clk_port];
-    BOOL                  serdes6g;
-    u32                   serdes_instance, common_cfg = 0, common_mask, mask, en_mask, sq_mask;
-    i32                   new_chip_port = VTSS_CHIP_PORT(conf->port_no);
-    u32                   old_chip_port = vtss_state->synce.old_port_no[clk_port];
-
-    VTSS_I("clk_port %d new_chip_port %u  old_chip_port %d enable %d squelch %d",
-           clk_port, new_chip_port, old_chip_port, conf->enable, conf->squelsh);
-    /* conflict between CLK_A and the the pin reserved for CLK_B */
-        if (clk_port == 0 && new_chip_port == rcvrd_clk_b_output_pin) {
-            VTSS_E("RECOVERED CLOCK CONFLICT chip_port %d", new_chip_port);
-            return VTSS_RC_ERROR;
-        }
-    
-    if ((!conf->enable || (new_chip_port != old_chip_port)) && old_chip_port != 0xFFFFFFFF) {
-        /* Disable of this clock port or input port has changed for this clock output port - disable old input */
-        if (VTSS_RC_OK == srvl_serdes_inst_get(vtss_state, old_chip_port, &serdes_instance, &serdes6g)) {
-            VTSS_I("serdes_instance %d", serdes_instance);
-            
-            mask = (1<<serdes_instance);
-            if (serdes6g) {
-                VTSS_RC(srvl_sd6g_read(vtss_state, mask));
-                common_mask = (clk_port ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_RECO_SEL_B :
-                               VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_RECO_SEL_A);
-                VTSS_I("disable 6G   instance %u  common_mask %X", serdes_instance, common_mask);
-                SRVL_WRM(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, common_cfg, common_mask);
-                VTSS_RC(srvl_sd6g_write(vtss_state, mask));
-            } else {
-                VTSS_RC(srvl_sd1g_read(vtss_state, mask)); /* Readback the 1G common config register */
-                common_mask = (clk_port ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_RECO_SEL_B :
-                               VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_RECO_SEL_A);
-                VTSS_I("disable 1G   instance %u  common_mask %X", serdes_instance, common_mask);
-                SRVL_WRM(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, common_cfg, common_mask);
-                VTSS_RC(srvl_sd1g_write(vtss_state, mask));
-            }
-        } else {
-            VTSS_E("could not get serdes instance for port %d", old_chip_port);
-        }
-    }
-    
-    if (conf->enable) {
-        /* Enable input clock configuration - now configuring the new (or maybe the same) input port */
-        if (VTSS_RC_OK == srvl_serdes_inst_get(vtss_state, new_chip_port, &serdes_instance, &serdes6g)) {
-            mask = (1<<serdes_instance);
-            if (serdes6g) {
-                en_mask = (clk_port ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_RECO_SEL_B :
-                           VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_RECO_SEL_A);
-                sq_mask = (clk_port ? VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_B_ENA :
-                           VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_A_ENA);
-                common_mask = (en_mask | sq_mask);
-                common_cfg = (en_mask | (conf->squelsh ? sq_mask : 0));
-                VTSS_RC(srvl_sd6g_read(vtss_state, mask)); /* Readback the 6G common config register */
-                VTSS_I("enable 6G   instance %u  common_cfg %X", serdes_instance, common_cfg);
-                SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, common_cfg, common_mask);
-                VTSS_RC(srvl_sd6g_write(vtss_state, mask)); /* transfer 6G common config register */
-            } else {
-                en_mask = (clk_port ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_RECO_SEL_B :
-                           VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_RECO_SEL_A);
-                sq_mask = (clk_port ? VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_B_ENA :
-                           VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_A_ENA);
-                common_mask = (en_mask | sq_mask);
-                common_cfg = (en_mask | (conf->squelsh ? sq_mask : 0));
-                VTSS_RC(srvl_sd1g_read(vtss_state, mask)); /* Readback the 1G common config register */
-                VTSS_I("enable 1G   instance %u  common_cfg %X", serdes_instance, common_cfg);
-                SRVL_WRM(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, common_cfg, common_mask);
-                VTSS_RC(srvl_sd1g_write(vtss_state, mask));     /* transfer 1G common config register */
-            }
-            vtss_state->synce.old_port_no[clk_port] = new_chip_port;
-        } else {
-            VTSS_E("could not get serdes instance for port %d", new_chip_port);
-        }
-    } else {  // port disabled
-        vtss_state->synce.old_port_no[clk_port] = 0xFFFFFFFF;
-    }
-    /* Need to write to this register to copy SYNC_ETH_CFG registers to shaddow reg */
-    VTSS_RC(srvl_pll5g_read(vtss_state, 0x1));
-
-    if (clk_port == 0) {    // clkport A
-        // set Selector (SEL0) for A output
-        SRVL_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1,
-                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1_RECO_CLK_SEL0(new_chip_port),
-                 VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1_RECO_CLK_SEL0);
-        // clear Selector (SELx) for selected port A output
-        SRVL_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1, 0,
-                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1_RECO_CLK_SEL(1<<new_chip_port));
-        
-    } else {                // clkport B
-        // set Selector (SELx) for port B output
-        SRVL_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1, 
-                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1_RECO_CLK_SEL(1<<rcvrd_clk_b_output_pin),
-                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG1_RECO_CLK_SEL(1<<rcvrd_clk_b_output_pin));
-    }
-    // enable output
-    mask = VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG0_RECO_CLK_ENA(1<<clk_port);
-    SRVL_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG0, conf->enable ? mask : 0, mask);
-
-    /* Need to write to this register to transfer SYNC_ETH_CFG registers to HW */
-    VTSS_RC(srvl_pll5g_write(vtss_state, 0x1, 0));
-#endif /* VTSS_ARCH_OCELOT */
     return VTSS_RC_OK;
 }
 #endif /* VTSS_ARCH_SERVAL_CPU */
@@ -1648,21 +1250,12 @@ static vtss_rc srvl_mmd_read_inc(vtss_state_t *vtss_state,
 }
 
 
-#if defined(VTSS_ARCH_OCELOT)
 /*
  * Watermark encode/decode for QSYS:RES_CTRL:RES_CFG.WM_HIGH
  * Bit 8:   Unit; 0:1, 1:16
  * Bit 7-0: Value to be multiplied with unit
  */
 #define MULTIPLIER_BIT 256
-#else
-/*
- * Watermark encode/decode for QSYS:RES_CTRL:RES_CFG.WM_HIGH
- * Bit 11:   Unit; 0:1, 1:16
- * Bit 10-0: Value to be multiplied with unit
- */
-#define MULTIPLIER_BIT 2048
-#endif
 static u16 wm_enc(u16 value)
 {
     if (value >= MULTIPLIER_BIT) {
@@ -1692,17 +1285,6 @@ static vtss_rc srvl_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_
     u32 spd = (conf->speed == VTSS_SPEED_10M ? 3 :
                conf->speed == VTSS_SPEED_100M ? 2 :
                conf->speed == VTSS_SPEED_1G ? 1 : 0);
-
-// Use default WM for Ocelot
-#if defined(VTSS_ARCH_SERVAL_ORG)
-    u32 buf_q_rsrv_i = 40000; // 10KB
-    u32 buf_q_rsrv_i_def = 512; // Default
-
-    for (q = 0; q < VTSS_PRIOS; q++) {
-        SRVL_WR(VTSS_QSYS_RES_CTRL_RES_CFG(port * VTSS_PRIOS + q + 0),
-                wm_enc((conf->flow_control.pfc[q] ? buf_q_rsrv_i : buf_q_rsrv_i_def) / SRVL_BUFFER_CELL_SZ));
-    }
-#endif /* VTSS_ARCH_SERVAL_ORG */
 
     for (q = 0; q < VTSS_PRIOS; q++) {
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
@@ -1755,11 +1337,7 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
 
     if (pfc) {
         // Each port can use this as max before tail dropping starts
-#if defined(VTSS_ARCH_OCELOT)
         rsrv_raw = rsrv_raw_fc_no_jumbo;
-#else
-        rsrv_raw = 80000;
-#endif /* VTSS_ARCH_OCELOT */
     } else {
         /* Standard Flowcontrol */
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
@@ -1858,12 +1436,10 @@ static vtss_rc srvl_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_OCELOT)
 static BOOL srvl_port_is_internal_phy(u32 chip_port)
 {
     return (chip_port < 4); // cport 0-3 is internal phy ports
 }
-#endif
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_serdes_cfg(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t mode)
@@ -1901,15 +1477,13 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
 #endif /* VTSS_ARCH_SERVAL_CPU */
     u32                    cnt[2];
 
-#if defined(VTSS_ARCH_OCELOT)
     // Enable/disable the internal PHY
     if (srvl_port_is_internal_phy(port)) {
         SRVL_WRM_CTL(VTSS_DEVCPU_GCB_PHY_PHY_CFG,
                      conf->if_type == VTSS_PORT_INTERFACE_SGMII,
                      VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA(VTSS_BIT(port)));
     }
-#endif /* VTSS_ARCH_OCELOT */
-   
+
     /* Verify speed and interface type */
     switch (speed) {
     case VTSS_SPEED_10M:
@@ -1939,7 +1513,6 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
 #endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
-#if defined(VTSS_ARCH_OCELOT)
         mode = VTSS_SERDES_MODE_QSGMII;
         if ((port % 4) == 0) {
             // BZ23738
@@ -1956,9 +1529,6 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
                 SRVL_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((port + 3))), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
             }
         }
-#elif defined(VTSS_ARCH_SERVAL_CPU)
-        sgmii = 1;
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_SERDES:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_2500M) {
@@ -2148,14 +1718,12 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     gaps.fdx_gap = 15; // Serval SGMII IF 
     if (speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) {
         gaps.fdx_gap = 5;
-#if defined(VTSS_ARCH_OCELOT)
     } else if (srvl_port_is_internal_phy(port) &&
-    (speed == VTSS_SPEED_100M || speed == VTSS_SPEED_10M) &&
-    (conf->if_type != VTSS_PORT_INTERFACE_SGMII_CISCO)     /* cport 0-3 can be the Cu SFP in combo mode */) {
-    // BZ#21738 - MINI PHY ports receive more broadcast traffic rate when speed is 10MHDX/100MHDX
-    // BZ#22645 - Ocelot: Ferret Ports (5-8) receive more broadcast traffic rate than speed of the port with 64 frames
-    gaps.fdx_gap = 16;
-#endif
+               (speed == VTSS_SPEED_100M || speed == VTSS_SPEED_10M) &&
+               (conf->if_type != VTSS_PORT_INTERFACE_SGMII_CISCO)     /* cport 0-3 can be the Cu SFP in combo mode */) {
+        // BZ#21738 - MINI PHY ports receive more broadcast traffic rate when speed is 10MHDX/100MHDX
+        // BZ#22645 - Ocelot: Ferret Ports (5-8) receive more broadcast traffic rate than speed of the port with 64 frames
+        gaps.fdx_gap = 16;
     }
 
     gaps.hdx_gap_1 = 0;
@@ -2188,10 +1756,8 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     VTSS_NSLEEP(1000);
     SRVL_WR(VTSS_DEV_MAC_CFG_STATUS_MAC_HDX_CFG(tgt), value);
 
-#if defined(VTSS_ARCH_OCELOT)
     /* Disable HDX fast control */
     SRVL_WRM_SET(VTSS_DEV_PORT_MODE_PORT_MISC(tgt), VTSS_F_DEV_PORT_MODE_PORT_MISC_HDX_FAST_DIS);
-#endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
     /* PCS settings for 100fx/SGMII/SERDES */
@@ -3019,14 +2585,7 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
 
     pr("\n%s:IB_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG, &x);
-#if defined(VTSS_ARCH_OCELOT)
-#else
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, IB_IC_AC, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, IB_RF, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, IB_RT, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, IB_VBAC, x);
-#endif /* VTSS_ARCH_OCELOT */
-            
+
     pr("\n%s:SER_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_SER_CFG, &x);
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, SER_ENALI, x);
@@ -3046,14 +2605,7 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, HRATE, x);
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, QRATE, x);
     SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, IF_MODE, x);
-#if defined(VTSS_ARCH_OCELOT)
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, SE_AUTO_SQUELCH_ENA, x);
-#else
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, RECO_SEL_A, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, RECO_SEL_B, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, SE_AUTO_SQUELCH_A_ENA, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, SE_AUTO_SQUELCH_B_ENA, x);
-#endif /* VTSS_ARCH_OCELOT */
 
     return VTSS_RC_OK;
 }
@@ -3147,15 +2699,8 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, &x);
             SRVL_DEBUG_RAW(pr, 7, 1, x, "HRATE");
             SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, ENA_LANE, x);
-#if defined(VTSS_ARCH_OCELOT)
             SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, SE_AUTO_SQUELCH_ENA, x);
-#else
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, RECO_SEL_A, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, RECO_SEL_B, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, SE_AUTO_SQUELCH_A_ENA, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, SE_AUTO_SQUELCH_B_ENA, x);
-#endif /* VTSS_ARCH_OCELOT */
-             
+
             pr("\n%s:PLL_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, &x);
             SRVL_DEBUG_RAW(pr, 21, 1, x, "PLL_FSM_RC_DIV2");
@@ -3504,33 +3049,12 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif /* VTSS_FEATURE_SYNCE */
         break;
     case VTSS_INIT_CMD_INIT:
-#if defined(VTSS_ARCH_OCELOT)
     /* Set up the Serdes1g/Serdes6g macro muxing based on the selected mux mode.
        This will setup all the needed serdes connectivity for a given port configuration,
        including QSGMII and PCIe connections. */
     VTSS_RC(ocelot_serdes_macro_config(vtss_state));
-#endif /* VTSS_ARCH_OCELOT */
-
-#if defined(VTSS_ARCH_SERVAL_CPU) && !defined(VTSS_ARCH_OCELOT)
-        /* Tweak the default PCIe settings */
-        if (vtss_state->sys_config.using_pcie) {
-            VTSS_I("PCIe serdes setup");
-            u32 serdes_instance = 2;
-            VTSS_RC(srvl_sd6g_read(vtss_state, 1 << serdes_instance));
-            SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG,
-                     VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_PHS_CTRL(3) |
-                     VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_BW_ANA(3)   |
-                     VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_MBTR_CTRL(0),
-                     VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_PHS_CTRL    |
-                     VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_BW_ANA      |
-                     VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG_DES_MBTR_CTRL
-                );
-            VTSS_RC(srvl_sd6g_write(vtss_state, 1 << serdes_instance));
-        }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
         if (!vtss_state->warm_start_cur) {
-#if defined(VTSS_ARCH_OCELOT)
             /* Initialize the internal PHYs */
             SRVL_WR(VTSS_DEVCPU_GCB_PHY_PHY_CFG, 0);
             SRVL_WRM(VTSS_DEVCPU_GCB_PHY_PHY_CFG,
@@ -3541,7 +3065,6 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
                      VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA |
                      VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_COMMON_RESET);
             VTSS_MSLEEP(200);
-#endif /* VTSS_ARCH_OCELOT */
 
             /* Clear port counters */
             for (port = 0; port <= VTSS_CHIP_PORTS; port++) {

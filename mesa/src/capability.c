@@ -329,8 +329,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_CHIP_FAMILY_CARACAL;
 #elif defined(VTSS_ARCH_OCELOT)
         c = MESA_CHIP_FAMILY_OCELOT;
-#elif defined(VTSS_ARCH_SERVAL)
-        c = MESA_CHIP_FAMILY_SERVAL;
 #elif defined(VTSS_ARCH_SERVAL_T)
         c = MESA_CHIP_FAMILY_SERVALT;
 #elif defined(VTSS_ARCH_JAGUAR_2)
@@ -431,8 +429,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = 0x07;
 #elif defined(VTSS_ARCH_OCELOT)
         c = 0x0a;
-#elif defined(VTSS_ARCH_SERVAL)
-        c = 0x05;
 #endif
         break;
 
@@ -903,9 +899,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_QOS_SHAPER_CALIBRATE:
-#if defined(VTSS_ARCH_SERVAL) && !defined(VTSS_ARCH_OCELOT)
-        c = 1;
-#endif
+        c = 0;
         break;
 
     case MESA_CAP_QOS_FRAME_PREEMPTION:
@@ -1639,7 +1633,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_HAS_ALT_PIN:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1735,8 +1729,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         /* Serval architectures */
 #elif defined(VTSS_ARCH_OCELOT)
         c = 8;
-#elif defined(VTSS_ARCH_SERVAL)
-        c = 4;
 
         /* Jaguar 2 architectures */
 #elif defined(VTSS_ARCH_JAGUAR_2_B)

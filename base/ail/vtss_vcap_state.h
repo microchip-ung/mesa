@@ -16,9 +16,6 @@
 
 #if defined(VTSS_ARCH_SERVAL)
 #define VTSS_OPT_WARM_START
-#if defined(VTSS_ARCH_SERVAL_CPU) && !defined(VTSS_ARCH_OCELOT)
-#define VTSS_FEATURE_IS0  /* VCAP IS0 */
-#endif /* VTSS_ARCH_SERVAL_CPU */
 #define VTSS_FEATURE_IS1  /* VCAP IS1 */
 #define VTSS_FEATURE_IS2  /* VCAP IS2 */
 #define VTSS_FEATURE_ES0  /* VCAP ES0 */
@@ -1103,11 +1100,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_IS1)
 /* Number of IS1 rules */
 #define VTSS_L26_IS1_CNT  256
-#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_SRVL_IS1_CNT 256  /* Quarter entries */
-#else
-#define VTSS_SRVL_IS1_CNT 1024 /* Quarter entries */
-#endif
 
 #if defined(VTSS_ARCH_SERVAL)
 #define VTSS_IS1_CNT      VTSS_SRVL_IS1_CNT
@@ -1142,11 +1135,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_IS2)
 /* Number of IS2 rules */
 #define VTSS_L26_IS2_CNT  256
-#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_SRVL_IS2_CNT 256  /* Quarter entries */
-#else
-#define VTSS_SRVL_IS2_CNT 1024 /* Quarter entries */
-#endif
 #define VTSS_JR1_IS2_CNT  512
 
 #if defined(VTSS_ARCH_SERVAL)
@@ -1175,11 +1164,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_ES0)
 #define VTSS_L26_ES0_CNT  256
 
-#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_SRVL_ES0_CNT 256
-#else
-#define VTSS_SRVL_ES0_CNT 1024
-#endif
 
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_JR2_ES0_CNT  512

@@ -253,8 +253,6 @@ typedef struct {
 #else
 #if defined(VTSS_ARCH_OCELOT)
 #define VTSS_IPMC_DST_MAX (2*64)  /* Half IS2 rules */
-#elif defined(VTSS_ARCH_SERVAL)
-#define VTSS_IPMC_DST_MAX (2*256) /* Half IS2 rules */
 #elif defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_IPMC_DST_MAX (4*6*64) /* Quarter IS2 rules in VCAP_SUPER */
 #elif defined(VTSS_ARCH_JAGUAR_2)

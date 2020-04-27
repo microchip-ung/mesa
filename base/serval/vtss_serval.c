@@ -372,7 +372,6 @@ static vtss_rc srvl_fdma_flush(vtss_state_t *vtss_state)
     }
     return i < max_qframes ? VTSS_RC_OK : VTSS_RC_ERROR;
 }
-#if defined(VTSS_ARCH_OCELOT)
 static vtss_rc vtss_lc_pll5g_setup(vtss_state_t *vtss_state)
 {
     /* Setup the 5G LC-PLLs incl restart */
@@ -385,7 +384,6 @@ static vtss_rc vtss_lc_pll5g_setup(vtss_state_t *vtss_state)
     rc |= vtss_ocelot_pll5g_setup(vtss_state, pll5g_args);
     return rc;
 }
-#endif /* VTSS_ARCH_OCELOT */
 #endif /* VTSS_ARCH_SERVAL_CPU */
 
 static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
@@ -451,7 +449,6 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
 #endif /* defined(VTSS_ARCH_SERVAL_CPU) */
 
 #if defined(VTSS_ARCH_SERVAL_CPU)
-#if defined(VTSS_ARCH_OCELOT)
     /* Initialize the LC-PLL */
     if (!vtss_state->warm_start_cur && vtss_lc_pll5g_setup(vtss_state) != VTSS_RC_OK) {
          VTSS_E("LC-PLL5G initialization error");
@@ -459,25 +456,6 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
 
     /* Enable i2c glitch filter */
     SRVL_WR(VTSS_ICPU_CFG_TWI_SPIKE_FILTER_TWI_SPIKE_FILTER_CFG, 5);
-#else
-    /* BZ17883 - Restart the LC-PLL */
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2, VTSS_BIT(1), VTSS_BIT(1));
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2, 0,           VTSS_BIT(1));
-    /* Because of a request to be able to run PTP on the Serval1 boards without SyncE, set up CLKOUT2 to generate 156,25 MHz */
-    VTSS_RC(srvl_pll5g_read(vtss_state, 0x2));
-    /* Bit field is not defined in the header file. HSIO:PLL5G_CFG:PLL5G_CFG3.CLK_SEL = bit 21:19 */
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG3, VTSS_ENCODE_BITFIELD(3,19,3), VTSS_ENCODE_BITMASK(19,3));
-    /* Need to write to this register to transfer SYNC_ETH_CFG registers to HW */
-    VTSS_RC(srvl_pll5g_write(vtss_state, 0x2, 0));
-    /* Need to write to this register to copy SYNC_ETH_CFG registers to shaddow reg */
-    VTSS_RC(srvl_pll5g_read(vtss_state, 0x2));
-    /* Enable 250 MHz on CLKOUT2 for PHY 1588 ref clock. */
-    /* Bit field is not defined in the header file. HSIO:PLL5G_CFG:PLL5G_CFG0.CLK_DIV = bit 11:6 */
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0, VTSS_ENCODE_BITFIELD(5,6,6), VTSS_ENCODE_BITMASK(6,6));
-    /* Need to write to this register to transfer SYNC_ETH_CFG registers to HW */
-    VTSS_RC(srvl_pll5g_write(vtss_state, 0x2, 0));
-
-#endif
 
     if ((!vtss_state->sys_config.using_vcoreiii) && (!vtss_state->sys_config.using_vrap)) {
         if (vtss_state->sys_config.using_pcie) {

@@ -533,7 +533,7 @@
 #define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
 #endif
 

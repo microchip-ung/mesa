@@ -806,36 +806,6 @@ mesa_rc mesa_rx_master_timestamp_get(const mesa_inst_t    inst,
                                      mesa_ts_timestamp_t  *const ts)
     CAP(TS);
 
-/**
- * \brief parameter for requesting an oam timestamp
- */
-typedef struct mesa_oam_ts_id_s {
-    uint32_t voe_id; /**< VOE instance (Timestamp) identifier */
-    uint32_t voe_sq; /**< VOE (Timestamp) sequence no */
-} mesa_oam_ts_id_t CAP(TS_OAM);
-
-/**
- * \brief parameter for returning an oam timestamp
- */
-typedef struct mesa_oam_ts_timestamp_s {
-    uint32_t       ts;       /**< Timestamp value (ns + sec*10^9) mod 2^32 */
-    mesa_port_no_t port_no;  /**< port number */
-    mesa_bool_t    ts_valid; /**< Timestamp is valid (can be not valid if no timestamp is received for the requested {voe_id, voe_sq} */
-} mesa_oam_ts_timestamp_t CAP(TS_OAM);
-
-/**
- * \brief Get oam timestamp
- * \param inst    [IN]          handle to an API instance
- * \param id      [IN]          identifies the requested timestamp id
- * \param ts      [OUT]         pointer to a struct holding the timestamp
- *
- * \return Return code.
- */
-mesa_rc mesa_oam_timestamp_get(const mesa_inst_t             inst,
-                               const mesa_oam_ts_id_t        *const id,
-                               mesa_oam_ts_timestamp_t       *const ts)
-    CAP(TS_OAM);
-
 typedef void (*mesa_ts_timestamp_alloc_cb_t)(void *context, uint32_t port_no,
                                              mesa_ts_timestamp_t *ts);
 

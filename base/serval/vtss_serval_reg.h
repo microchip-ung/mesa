@@ -5,11 +5,7 @@
 #ifndef _SERVAL_REG_H_
 #define _SERVAL_REG_H_
 
-#if defined(VTSS_ARCH_OCELOT)
 #include "vtss_ocelot_regs.h"
-#else
-#include "vtss_serval_regs.h"
-#endif
 
 /* Port -> DEV_RGMII, DEV Target Offset */
 #define VTSS_TO_DEV(port)   (VTSS_TO_DEV_0 + (port * (VTSS_TO_DEV_1 - VTSS_TO_DEV_0)))
@@ -487,11 +483,7 @@
 #define IS1_AO_ISDX_REPLACE_ENA    (IS1_AO_PAG_VAL + IS1_AL_PAG_VAL)
 #define IS1_AL_ISDX_REPLACE_ENA    1
 #define IS1_AO_ISDX_ADD_VAL        (IS1_AO_ISDX_REPLACE_ENA + IS1_AL_ISDX_REPLACE_ENA)
-#if defined(VTSS_ARCH_OCELOT)
 #define IS1_AL_ISDX_ADD_VAL        8
-#else
-#define IS1_AL_ISDX_ADD_VAL        10
-#endif /* VTSS_ARCH_OCELOT */
 #define IS1_AO_VID_REPLACE_ENA     (IS1_AO_ISDX_ADD_VAL + IS1_AL_ISDX_ADD_VAL)
 #define IS1_AL_VID_REPLACE_ENA     1
 #define IS1_AO_VID_ADD_VAL         (IS1_AO_VID_REPLACE_ENA + IS1_AL_VID_REPLACE_ENA)
@@ -820,11 +812,7 @@
 #define IS2_AO_POLICE_ENA       (IS2_AO_LRN_DIS + IS2_AL_LRN_DIS)
 #define IS2_AL_POLICE_ENA       1
 #define IS2_AO_POLICE_IDX       (IS2_AO_POLICE_ENA + IS2_AL_POLICE_ENA)
-#if defined(VTSS_ARCH_OCELOT)
 #define IS2_AL_POLICE_IDX       9
-#else
-#define IS2_AL_POLICE_IDX       11
-#endif
 #define IS2_AO_POLICE_VCAP_ONLY (IS2_AO_POLICE_IDX + IS2_AL_POLICE_IDX)
 #define IS2_AL_POLICE_VCAP_ONLY 1
 #define IS2_AO_PORT_MASK        (IS2_AO_POLICE_VCAP_ONLY + IS2_AL_POLICE_VCAP_ONLY)
@@ -929,7 +917,6 @@
 #define ES0_AL_PCP_B_VAL       3
 #define ES0_AO_DEI_B_VAL       48
 #define ES0_AL_DEI_B_VAL       1
-#if defined(VTSS_ARCH_OCELOT)
 #define ES0_AO_ESDX            49
 #define ES0_AL_ESDX            8
 #define ES0_AO_OAM_MEP_IDX_VLD 57
@@ -940,24 +927,6 @@
 #define ES0_AL_IPT_CFG         2
 #define ES0_AO_PPT_IDX         65
 #define ES0_AL_PPT_IDX         7
-#else
-#define ES0_AO_ENCAP_ID        49
-#define ES0_AL_ENCAP_ID        10
-#define ES0_AO_ENCAP_LEN       59
-#define ES0_AL_ENCAP_LEN       3
-#define ES0_AO_MPOP_CNT        62
-#define ES0_AL_MPOP_CNT        3
-#define ES0_AO_ESDX            65
-#define ES0_AL_ESDX            10
-#define ES0_AO_OAM_MEP_IDX_VLD 75
-#define ES0_AL_OAM_MEP_IDX_VLD 1
-#define ES0_AO_OAM_MEP_IDX     76
-#define ES0_AL_OAM_MEP_IDX     6
-#define ES0_AO_IPT_CFG         82
-#define ES0_AL_IPT_CFG         2
-#define ES0_AO_PPT_IDX         84
-#define ES0_AL_PPT_IDX         7
-#endif
 
 #endif /* _SERVAL_REG_H */
 
