@@ -794,6 +794,8 @@ typedef struct {
     u16  eye_height[3][64];
     u16  decr_cnt;
     u16  ber_coef_frm;
+    BOOL test_mode;
+    BOOL test_repeat;
     vtss_kr_status_results_t tr_res;
 } vtss_port_kr_state_t;
 
@@ -855,6 +857,8 @@ typedef struct {
 typedef struct {
     BOOL enable;            /**< Enable 10G KR training, BER method used */
     BOOL no_remote;         /**< Do not train remote, only local */
+    BOOL test_mode;         /**< Debug only */
+    u32 test_repeat;        /**< Debug only */
 } vtss_port_kr_train_t;
 
 /** \brief 10G KR configuration structures */

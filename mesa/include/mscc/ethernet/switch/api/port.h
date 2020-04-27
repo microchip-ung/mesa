@@ -847,7 +847,9 @@ typedef struct {
 // 10G KR Training config
 typedef struct {
     mesa_bool_t enable;     // Enable 10G KR training, BER method used
-    mesa_bool_t no_remote;  // Do not train remote, only local 
+    mesa_bool_t no_remote;  // Do not train remote, only local
+    mesa_bool_t test_mode;      // Debug only
+    uint32_t test_repeat;       // Debug only 
 } mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR configuration structures

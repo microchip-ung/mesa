@@ -484,6 +484,9 @@ typedef struct {
                            const vtss_port_no_t port_no,
                            vtss_port_kr_eye_dim_t *const eye);
 
+    vtss_rc (* kr_ber_cnt)(struct vtss_state_s *vtss_state,
+                          const vtss_port_no_t port_no,
+                          u16 *const ber);
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);

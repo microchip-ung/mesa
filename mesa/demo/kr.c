@@ -36,7 +36,7 @@ meba_inst_t meba_global_inst;
 kr_appl_conf_t *kr_conf_state;
 
 // For debug
-uint32_t deb_dump_irq = 0;
+uint32_t deb_dump_irq = 16;
 mesa_bool_t global_stop = 0;
 
 mesa_bool_t BASE_KR_V2 = 0;
@@ -256,6 +256,7 @@ typedef struct {
     mesa_bool_t irq;
     mesa_bool_t ansm;
     mesa_bool_t stop;
+    mesa_bool_t test;
 } port_cli_req_t;
 
 
@@ -299,6 +300,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->np = 1;
     } else if (!strncasecmp(found, "stop", 4)) {
         mreq->stop = 1;
+    } else if (!strncasecmp(found, "test", 4)) {
+        mreq->test = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -378,6 +381,8 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.train.no_remote = mreq->no_rem;
+                conf.train.test_mode = mreq->test;
+                conf.train.test_repeat = 500;
                 conf.aneg.adv_1g = mreq->adv1g || mreq->all;
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
@@ -975,6 +980,8 @@ static void kr_poll(meba_inst_t inst)
                 pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
                 printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
                 (void)mesa_port_conf_set(NULL, iport, &pconf);
+            } else {
+                usleep(30000);
             }
             printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
 
@@ -1051,7 +1058,7 @@ static void kr_poll_v2(meba_inst_t inst)
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "Port KR aneg [<port_list>] [all] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [adv-25g] [np] [rfec] [rsfec] [train] [no-remote] [disable]",
+        "Port KR aneg [<port_list>] [all] [adv-1g] [adv-2g5] [adv-5g] [adv-10g] [adv-25g] [np] [rfec] [rsfec] [train] [no-remote] [test] [disable]",
         "Set or show kr",
         cli_cmd_port_kr
     },
@@ -1145,6 +1152,12 @@ static cli_parm_t cli_parm_table[] = {
     {
         "no-remote",
         "train: Do not train remote partner",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+    {
+        "test",
+        "train: train in test mode",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },

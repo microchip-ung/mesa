@@ -1506,6 +1506,16 @@ static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
     return 0;
 }
 
+static u16 fa_port_kr_ber_cnt(vtss_state_t *vtss_state, vtss_port_no_t p)
+{
+    u16 ber;
+    if (vtss_state->port.kr_ber_cnt(vtss_state, p, &ber) == VTSS_RC_OK) {
+        return ber;
+    } else {
+        VTSS_E("Could not read BER");
+    }
+    return 0;
+}
 static u16 kr_coef2frm(kr_coefficient_update_t ld, vtss_kr_tap_t tap)
 {
     u16 offset;
@@ -1652,7 +1662,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
         } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
             krs->ber_busy_sw = FALSE;
             krs->ber_busy = FALSE;
-            krs->ber_cnt[krs->current_tap][krs->tap_idx] = 0; // TBD Get frame_errors;
+            krs->ber_cnt[krs->current_tap][krs->tap_idx] = fa_port_kr_ber_cnt(vtss_state, p);
             krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
@@ -1869,6 +1879,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     // KR_TRAIN. Start Training
     if (irq & KR_TRAIN) {
         if (kr->train.enable) {
+            krs->test_mode = kr->train.test_mode;
+            krs->test_repeat = kr->train.test_repeat;
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
@@ -1941,10 +1953,23 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
     // KR_LPSVALID (Received Status report)
     if ((irq & KR_LPSVALID) && krs->training_started) {
-        if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
-            kr_ber_training(vtss_state, port_no, KR_LPSVALID);
+        if (krs->test_mode) {
+            if (krs->test_repeat > 0) {
+                kr_send_coef_update(vtss_state, krs, port_no, (krs->test_repeat % 2 == 0) ? COEF_HOLD : COEF_INCR);
+                krs->test_repeat--;
+            } else {
+                krs->current_state = VTSS_TR_TRAIN_REMOTE;
+                krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+                kr_send_sts_report(vtss_state, port_no, BT(15));
+            }
         } else {
-            krs->current_state = VTSS_TR_TRAIN_REMOTE;
+            if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
+                kr_ber_training(vtss_state, port_no, KR_LPSVALID);
+            } else {
+                krs->current_state = VTSS_TR_TRAIN_REMOTE;
+            }
         }
     }
 

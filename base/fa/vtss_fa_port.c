@@ -940,6 +940,17 @@ static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
     return fa_kr_eye_height(vtss_state,  port_no, 3, &eye->height);
 }
 
+static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no,
+                                  u16 *const ber)
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 val;
+    REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &val);
+    *ber = (u16)val;
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no)
 {
@@ -3694,6 +3705,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_coef_set = fa_port_kr_coef_set;
         state->kr_eye_dim = fa_port_kr_eye_dim;
         state->kr_fec_set = fa_port_kr_fec_set;
+        state->kr_ber_cnt = fa_port_kr_ber_cnt;
 #endif /* VTSS_FEATURE_10G_BASE_KR */
 
         /* SYNCE features */
