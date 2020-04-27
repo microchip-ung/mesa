@@ -21,7 +21,7 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
-if ($pcb == "Adora")
+if ($pcb == "Adaro")
     $external_io_in = 0
 end
 if ($pcb == 111)
