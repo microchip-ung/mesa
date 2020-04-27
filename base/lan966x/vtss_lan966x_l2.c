@@ -1761,7 +1761,7 @@ static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
 {
     vtss_l2_state_t *state = &vtss_state->l2;
     vtss_stat_idx_t sidx;
-    u32             idx;
+    u32             idx, i;
 
     /* Poll counters for one SDX entry, giving 256 seconds between each poll.
        This ensures that any counter can wrap only once between each poll.
@@ -1773,6 +1773,23 @@ static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
     VTSS_RC(lan966x_counters_update(vtss_state, &sidx, FALSE));
     idx++;
     state->sdx_info.poll_idx = (idx < VTSS_EVC_STAT_CNT ? idx : 0);
+
+    // Poll one FRER counter set
+    idx = state->poll_idx;
+    if (idx < VTSS_MSTREAM_CNT) {
+        i = idx;
+        if (state->mstream_conf[i].recovery) {
+            VTSS_RC(lan966x_mstream_cnt_update(vtss_state, i, NULL, FALSE));
+        }
+    } else {
+        i = (idx - VTSS_MSTREAM_CNT);
+        if (state->cstream_conf[i].recovery) {
+            VTSS_RC(lan966x_cstream_cnt_update(vtss_state, i, NULL, FALSE));
+        }
+    }
+    idx++;
+    state->poll_idx = (idx < (VTSS_MSTREAM_CNT + VTSS_CSTREAM_CNT) ? idx : 0);
+
     return VTSS_RC_OK;
 }
 
