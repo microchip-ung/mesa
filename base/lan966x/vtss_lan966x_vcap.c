@@ -870,7 +870,7 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         a->sgid_ena = action->sgid_enable;
         a->sgid_val = action->sgid;
         a->police_ena = action->dlb_enable;
-        a->police_idx = action->dlb;
+        a->police_idx = (action->dlb + LAN966X_POLICER_DLB);
     }
 
     if (vtss_lan966x_vcap_is1_action_pack(&fa, &info.data) < 0 ||
