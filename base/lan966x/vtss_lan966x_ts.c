@@ -153,6 +153,8 @@ static vtss_rc lan966x_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_tim
 
 static vtss_rc lan966x_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state, u32 domain, const vtss_timestamp_t *ts, BOOL negative)
 {
+    VTSS_D("domain: %u, negative: %u", domain, negative);
+
     if (ts->seconds > 0 || ts->sec_msb > 0 || ts->nanoseconds > HW_NS_PR_SEC/2 || ts->nanosecondsfrac > 0) {
         vtss_timestamp_t ts_prev;
         u64              tc;
@@ -169,7 +171,7 @@ static vtss_rc lan966x_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state, u
 
         return lan966x_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);
     } else {
-        return lan966x_ts_domain_timeofday_offset_set(vtss_state, domain, negative ? -(i32)ts->nanoseconds : ts->nanoseconds);
+        return lan966x_ts_domain_timeofday_offset_set(vtss_state, domain, negative ? (i32)ts->nanoseconds : -ts->nanoseconds);  /* Function lan966x_ts_domain_timeofday_offset_set is subtracting nanoseconds from TOD, so 'negative' must be positive and visa versa */
     }
 }
 
