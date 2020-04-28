@@ -19,6 +19,7 @@ $systems = [
             { name: "dk-t15",   image: "mipsel/mfi_vsc7437.mfi",         branch:"master" },
 #            { name: "dk-t16",   image: "mipsel/mfi_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
             { name: "dk-t34-1",  image: "lan966x/fit_ls1046_lan9668.itb", branch:"master.mas" }
+            { name: "dk-t06",  image: "lan966x/fit_ls1046_lan9668.itb", branch:"master.mas" }
            ]
 
 if File.file?("../../../../easytest/test-setup-server/et")
