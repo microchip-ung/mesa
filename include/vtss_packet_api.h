@@ -518,7 +518,8 @@ typedef struct {
     vtss_packet_ptp_action_t ptp_action;
     u8                       ptp_domain;
     u8 ptp_id;
-    u64 ptp_timestamp;
+    u64 ptp_timestamp;  // Time stamp in 16 bit fraction of nano seconds.
+                        // Allocate timestamp id for a two step transmission must be in the nano second part (id << 16)
     vtss_packet_oam_type_t oam_type;
     vtss_iflow_id_t iflow_id;
     vtss_port_no_t masquerade_port;

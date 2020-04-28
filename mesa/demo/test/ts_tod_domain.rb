@@ -110,12 +110,13 @@ def tod_domain_test(domain, seconds)
 
     # Allocate a timestamp id
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
+    idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
-    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"], domain) + frameHdrTx.dup + sync_pdu_create()
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16, domain) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create($loop_port1) + frameHdrTx.dup + sync_pdu_rx_create()
     $tod_ts  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)

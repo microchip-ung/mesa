@@ -36,11 +36,12 @@ def tod_tx_fifo_test
 
     console ("Allocate a timestamp id")
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
+    idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
-    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", 1) + frameHdrTx.dup + sync_pdu_create()
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create($loop_port1) + frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
 
@@ -65,16 +66,17 @@ def tod_tx_fifo_test
         t_e("Not the expected difference between RX and TX timestamp. ts_tx[ts] = #{ts_tx["ts"]}  $frame_info[hw_tstamp] = #{$frame_info["hw_tstamp"]}  diff = #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
     end
 
+    # age out any allocated timestamps id's
+    4.times {$ts.dut.call("mesa_timestamp_age")}
+
     # Allocate first timestamp id
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
     idx1 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     # Allocate second timestamp id
-    conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
     idx2 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     # Allocate third timestamp id
-    conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
     idx3 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     if ((idx2["ts_id"] != (idx1["ts_id"] + 1)) || (idx3["ts_id"] != (idx2["ts_id"] + 1)))

@@ -67,11 +67,12 @@ def nano_delay_measure(port0, port1)
 
     # Allocate a timestamp id
     conf = {port_mask: 1<<port0, context: 0, cb: 0}
+    idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     console ("transmit SYNC frame on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
-    frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]) + frameHdrTx.dup + sync_pdu_create()
+    frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create(port1) + frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"

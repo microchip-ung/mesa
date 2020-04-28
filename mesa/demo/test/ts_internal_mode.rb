@@ -52,11 +52,12 @@ def tod_internal_mode_ingress_node_test
 
     # Allocate a timestamp id
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
+    idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
-    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]) + frameHdrTx.dup + sync_pdu_create()
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, framerx , "", "", "", 60)
 
@@ -123,11 +124,12 @@ def tod_internal_mode_egress_node_test
 
     # Allocate a timestamp id
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
+    idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     # Create Two-Step SYNC frame with the allocated time stamp id and Header RSV to ingress_node_tod_nanoseconds.
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
-    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]) + frameHdrTx.dup + sync_pdu_create(ingress_node_tod_nanoseconds)
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create(ingress_node_tod_nanoseconds)
     framerx = frameHdrTx.dup + sync_pdu_rx_create()
 
     # Set TOD to zero
