@@ -67,7 +67,9 @@ def tod_domain_offset_test(domain, seconds)
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
 
-    if ((tod_new[0]["seconds"] > 1) || ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 200000000)))  #Accepting approx 700 ms in execution time
+    if ((tod_new[0]["seconds"] > 1) ||
+        ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 200000000)) ||
+        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 700000000)))  #Accepting approx 700 ms in execution time
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 
@@ -78,7 +80,9 @@ def tod_domain_offset_test(domain, seconds)
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
 
-    if ((tod_new[0]["seconds"] > 1) || ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 400000000)))  #Accepting approx 2*700 ms in execution time
+    if ((tod_new[0]["seconds"] > 1) ||
+        ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 400000000)) ||
+        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 300000000)))  #Accepting approx 2*700 ms in execution time
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 

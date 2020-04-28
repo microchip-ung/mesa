@@ -337,7 +337,7 @@ static vtss_rc fa_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state, u32 do
 
         return fa_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);
     } else {
-        return fa_ts_domain_timeofday_offset_set(vtss_state, domain, negative ? -(i32)ts->nanoseconds : ts->nanoseconds);
+        return fa_ts_domain_timeofday_offset_set(vtss_state, domain, negative ? (i32)ts->nanoseconds : -ts->nanoseconds);
     }
 }
 
