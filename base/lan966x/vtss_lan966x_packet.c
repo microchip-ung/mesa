@@ -634,7 +634,7 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
     vtss_packet_rx_queue_map_t *map = &conf->map;
-    u32                        queue, i, port, bpdu, garp;
+    u32                        queue, i, port, bpdu, garp, wm;
     vtss_port_no_t             port_no;
     vtss_packet_rx_port_conf_t *pc;
 
@@ -642,7 +642,10 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
         // Ressource 2 (memory per destination) starts at index 512
         i = (512 + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue);
-        REG_WR(QSYS_RES_CFG(i), conf->queue[queue].size / LAN966X_BUFFER_CELL_SZ);
+        wm = (conf->queue[queue].size / LAN966X_BUFFER_CELL_SZ);
+        // Limit to maximum value with unit 1
+        wm = MIN(wm, QSYS_RES_CFG_WM_HIGH_M / 2);
+        REG_WR(QSYS_RES_CFG(i), wm);
     }
     // Nothing reserved at port level
     REG_WR(QSYS_RES_CFG(512 + 224  + VTSS_CHIP_PORT_CPU), 0);

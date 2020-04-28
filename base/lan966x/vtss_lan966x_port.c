@@ -1189,14 +1189,14 @@ static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
                 continue;
             }
             port = VTSS_CHIP_PORT_CPU;
-            pr("CPU Port : %2u\n", port_no);
+            pr("CPU Port : %u\n", port);
             pr("-------------\n");
         } else {
             if (!info->port_list[port_no]) {
                 continue;
             }
             port = VTSS_CHIP_PORT(port_no);
-            pr("Port : %2u\n", port_no);
+            pr("Port : %u (%u)\n", port, port_no);
             pr("---------\n");
         }
         if (!cpu_port) {
@@ -1221,7 +1221,7 @@ static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
         REG_RD(QSYS_IGR_NO_SHARING, &value);
         pr("Ingress No Sharing  : %d\n", QSYS_IGR_NO_SHARING_IGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
         REG_RD(QSYS_EGR_NO_SHARING, &value);
-        pr("Ingress No Sharing  : %d\n", QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
+        pr("Egress No Sharing   : %d\n", QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
         REG_RD(QSYS_PORT_MODE(port), &value);
         pr("Dequeuing disabled  : %d\n", QSYS_PORT_MODE_DEQUEUE_DIS_X(value));
         pr("\n");
@@ -1249,8 +1249,7 @@ static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
         pr("Port Ingress Buf Rsrv: %u Bytes\n",  wm_dec_bytes(val1[0]));
         pr("Port Ingress Ref Rsrv: %u Frames\n", wm_dec_frames(val2[0]));
         pr("Port Egress  Buf Rsrv: %u Bytes\n",  wm_dec_bytes(val3[0]));
-        pr("Port Egress  Ref Rsrv: %u Frames\n", wm_dec_frames
-           (val4[0]));
+        pr("Port Egress  Ref Rsrv: %u Frames\n", wm_dec_frames(val4[0]));
         pr("\n");
     }
 
