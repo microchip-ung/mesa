@@ -7,12 +7,12 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 require 'pry'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_phy_ts = $ts.dut.call("mesa_capability", "MESA_CAP_PHY_TS")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
@@ -22,13 +22,16 @@ check_capabilities do
     $loop_port1 = $ts.dut.looped_port_list[1]
 end
 
-$npi_port = 3
+loop_pair_check
+
+$pcb = $ts.dut.pcb
+
 $port0 = 0
-$port1 = 1
-$port2 = 2
+$npi_port = 1
 $cpu_queue = 7
 
 $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
+
 
 def tod_domain_test(domain, seconds)
     $data = ""
@@ -107,10 +110,14 @@ def tod_domain_test(domain, seconds)
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 3))  # Experiment show that two seconds has passed since mesa_ts_timeofday_set()
     else
-        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 3))  # Experiment show that one seconds has passed since mesa_ts_timeofday_set()
+    if ($pcb == "Adaro")
+        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 1))  # Experiment show that one seconds has passed since mesa_ts_timeofday_set()
+    else
+        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 2))  # Experiment show that one seconds has passed since mesa_ts_timeofday_set()
+    end
     end
 
-    frame_tx(frametx, $npi_port, framerx , "", "", "")
+    frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
     test " Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port" do
@@ -128,13 +135,14 @@ def tod_domain_test(domain, seconds)
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16, domain) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create($loop_port1) + frameHdrTx.dup + sync_pdu_rx_create()
     $tod_ts  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-    frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
+    frame_tx(frametx, $npi_port, " ", " ", " ", framerx, 60)
 
     t_i "Calculate the IFH and decode it"
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
     ifh = rx_ifh_extract(pkts[1])   # both transmitted and received frame is in 'pkts'
     meta = { no_wait: false, chip_no: 0, xtr_qu: 0, etype: 0, fcs: 0, sw_tstamp: { hw_cnt: 0 }, length: 0}
     $frame_info = $ts.dut.call("mesa_packet_rx_hdr_decode", meta, ifh)
+    $hw_tstamp = $frame_info["hw_tstamp"] >> 16
 
     if ((domain == 0) && ($cap_phy_ts != 0))    #Port with timestamping PHY is assumed by API to be in domain 0 always
         t_i ("Get the frame RX tc based on a 32 bit ns counter from frame content inserted by timestamping PHY")
@@ -157,23 +165,23 @@ def tod_domain_test(domain, seconds)
     if ((ts_tx["id"] != idx["ts_id"]) || (ts_tx["ts_valid"] != true))
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
     end
-    $tx_tc = ts_tx["ts"]
+    $tx_tc = ts_tx["ts"] >> 16
     end
 
     test "Check the calculated received frame tc value" do
     t_i "Get the delay and asymmetry compensated frame RX tc from frame_info"
     tx_props = { ts_feature_is_PTS: false, phy_ts_mode: "MESA_PACKET_INTERNAL_TC_MODE_32BIT", backplane_port: false, delay_comp: {delay_cnt: 100<<16, asymmetry_cnt: 100<<16} }
     rx_ts = $ts.dut.call("mesa_ptp_get_timestamp", [0,1,2,3], $frame_info, "MESA_PACKET_PTP_MESSAGE_TYPE_SYNC", tx_props)
-    rx_tc = rx_ts[0]
-    t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$frame_info["hw_tstamp"]}  rx_tc: #{rx_tc}  rx_tc-tx_tc: #{(rx_tc-$tx_tc)>>16}")
+    rx_tc = rx_ts[0] >> 16
+    t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$hw_tstamp}  rx_tc: #{rx_tc}  difference: #{rx_tc-$tx_tc}")
 
-    if (((rx_tc - $tx_tc) > (310<<16)) ||
-        (($tx_tc - rx_tc) > (100<<16)))
-        t_e("Difference between TX TC and RX TC is unexpected high. tx_tc: #{$tx_tc}  rx_tc: #{rx_tc}  difference: #{(rx_tc - $tx_tc)>>16}")
+    if (((rx_tc - $tx_tc) > 310) ||
+        (($tx_tc - rx_tc) > 100))
+        t_e("Difference between TX TC and RX TC is unexpected high.  max: #{310}")
     end
 
-    if (($frame_info["hw_tstamp"] - tx_props[:delay_comp][:delay_cnt] - tx_props[:delay_comp][:asymmetry_cnt]) != rx_tc)  # Check that the calculated frame tc is correctly compensated
-        t_e("Frame TC is not as expected. rx_tc: #{rx_tc}  hw_tstamp: #{$frame_info["hw_tstamp"]}  expected rx_tc #{$frame_info["hw_tstamp"] - tx_props[:delay_comp][:delay_cnt] - tx_props[:delay_comp][:asymmetry_cnt]}")
+    if (($hw_tstamp - (tx_props[:delay_comp][:delay_cnt]>>16) - (tx_props[:delay_comp][:asymmetry_cnt]>>16)) != rx_tc)  # Check that the calculated frame tc is correctly compensated
+        t_e("Frame TC is not as expected. rx_tc: #{rx_tc}  hw_tstamp: #{$hw_tstamp}  expected rx_tc #{$hw_tstamp - (tx_props[:delay_comp][:delay_cnt]>>16) - (tx_props[:delay_comp][:asymmetry_cnt]>>16)}")
     end
     end
     end

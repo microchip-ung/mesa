@@ -674,6 +674,10 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         }
     }
 
+    vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
+    vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
+    vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
+
     // Setup QoS - out of reset
     VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, FALSE));
 

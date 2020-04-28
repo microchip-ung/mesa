@@ -588,7 +588,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
 {
     vtss_port_interface_t interface;
     vtss_port_speed_t     speed;
-    u32                   port, value;
+//    u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
 
@@ -601,31 +601,22 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     interface = vtss_state->port.current_if_type[port_no];
     speed = vtss_state->port.current_speed[port_no];
 
-    port = VTSS_CHIP_PORT(port_no);
+//    port = VTSS_CHIP_PORT(port_no);
 
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
-        /* Single-Lane SerDes at 1 or 2.5 Gbps */
-        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
-            /* According to Morten this is not relevant */
-        }
-        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay = seriel_1G_delay[port].rx;
-            tx_delay = seriel_1G_delay[port].tx;
-            REG_RD(DEV_PCS1G_LINK_STATUS(port), &value);
-            rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
-        }
         break;
     case VTSS_PORT_INTERFACE_100FX:
         /* Single-Lane SerDes at 100 Mbps */
         /* According to Morten this is not relevant */
         break;
     default:
-        VTSS_E("unsupported interface: %u", interface);
-        return VTSS_RC_ERROR;
+//        VTSS_E("unsupported interface: %u", interface);
+//        return VTSS_RC_ERROR;
+        return VTSS_RC_OK;
     }
 
     /* Add additional delays found in testing. Note that rx_delay and tx_delay values are in pico seconds */
@@ -634,14 +625,6 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
-        /* Single-Lane SerDes at 1 or 2.5 Gbps */
-        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
-            /* According to Morten this is not relevant */
-        }
-        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (100 * 760);
-            tx_delay += (100 * 760);
-        }
         break;
     case VTSS_PORT_INTERFACE_100FX:
         /* Single-Lane SerDes at 100 Mbps */

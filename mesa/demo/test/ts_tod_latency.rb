@@ -6,12 +6,12 @@
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     assert((($ts.dut.looped_port_list != nil) && (($ts.dut.looped_port_list.length % 2) == 0)),
@@ -38,11 +38,8 @@ if (chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && conf["speed"] == "MESA_SPEED
     $ts.dut.looped_port_list << 7
 end
 
-$port0 = 0
-$port1 = 1
-$port2 = 2
+$npi_port = 1
 $cpu_queue = 7
-$npi_port = 3
 
 $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
 $misc_conf = $ts.dut.call("mesa_misc_get")
@@ -74,7 +71,7 @@ def nano_delay_measure(port0, port1)
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create(port1) + frameHdrTx.dup + sync_pdu_rx_create()
-    frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
+    frame_tx(frametx, $npi_port, " ", " ", " ", framerx, 60)
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
 
     t_i ("Calculate the IFH and decode it")
@@ -98,7 +95,6 @@ def nano_delay_measure(port0, port1)
     # Calculate the delay as the difference between RX and TX TOD nanoseconds
     $nano_delay = tod_nano_rx - tod_nano_tx
     t_i("nano_delay = #{$nano_delay}  tod_nano_tx = #{tod_nano_tx}  tod_nano_rx = #{tod_nano_rx}")
-#$ts.dut.run ("mesa-cmd deb sym read SD_LANE[31-32]:SD_FIFO_DELAY:SD_DELAY_VAR")
     end
 
     $nano_delay

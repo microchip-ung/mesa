@@ -77,6 +77,44 @@ static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_s
                                          u64                             *rxTime,
                                          BOOL                            *timestamp_ok)
 {
+    if (ts_props.ts_feature_is_PTS) {
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
+        u32 packet_ns = fa_packet_unpack32(frm);
+        if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
+            /* convert to jaguar 32 bit NSF */
+            VTSS_D("rxTime before %u", packet_ns);
+            (void)lan966x_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            VTSS_D("rxTime after %u", *rxTime);
+            *timestamp_ok = rx_info->hw_tstamp_decoded;
+        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
+            /* convert to jaguar 32 bit NSF */
+            VTSS_D("rxTime before %u", packet_ns);
+            (void)fa_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            VTSS_D("rxTime after %u", *rxTime);
+            *timestamp_ok = rx_info->hw_tstamp_decoded;
+        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
+            VTSS_I("rxTime can not be retrieved from the packet suppress warning for mode %d ", ts_props.phy_ts_mode);
+        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
+            VTSS_I("rxTime can not be retrieved from the packet suppress warning for mode %d ", ts_props.phy_ts_mode);
+        } else {
+            VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
+        }
+#else
+        VTSS_I("PHY timestamp feature not supported");
+#endif
+    } else {
+        /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits nsec + 16 bits sub nsec) wrapping) */
+        *rxTime = rx_info->hw_tstamp;
+        *timestamp_ok = rx_info->hw_tstamp_decoded;
+        /* if Sync message then subtract the p2p delay from rx time  */
+        if (message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC) {
+            *rxTime = *rxTime - ts_props.delay_comp.delay_cnt;
+        }
+        /* link asymmetry compensation for Sync and PdelayResp events are not done in Jaguar2 on packets forwarded to the CPU */
+        if ((message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC || message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_P_DELAY_RESP) && ts_props.delay_comp.asymmetry_cnt != 0) {
+            *rxTime = *rxTime - ts_props.delay_comp.asymmetry_cnt;
+        }
+    }
     return VTSS_RC_OK;
 }
 
@@ -178,7 +216,7 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     info->acl_hit = IFH_GET(ifh, ACL_HIT);
 
     // Timestamp
-    info->hw_tstamp = IFH_GET(ifh, TIMESTAMP);
+    info->hw_tstamp = (u64)(IFH_GET(ifh, TIMESTAMP)) << 14;
     info->hw_tstamp_decoded = TRUE;
 
     // sFlow ID
@@ -295,6 +333,8 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         tci = ((tci << 16) | (tag->pcp << 13) | (tag->dei << 12) | tag->vid);
         IFH_SET(ifh, TCI, tci);
     }
+    IFH_SET(ifh, TIMESTAMP, ((info->ptp_timestamp>>14) & 0xFFFFFFFFFF)); // TS = 32 bits PTP time stamp. Two bits sub nano
+
     IFH_SET(ifh, POP_CNT, pop_cnt);
     return VTSS_RC_OK;
 }

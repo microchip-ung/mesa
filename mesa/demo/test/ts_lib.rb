@@ -171,11 +171,14 @@ def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ",
     tx_info["ptp_domain"] = domain
     tx_info["ptp_timestamp"] = ptp_ts
 
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 32)
-    end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 36)
+    else
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+            ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 28)
+        else
+            ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 32)
+        end
     end
 
     $tx_ifh = "sp-jr2 dmac ff:ff:ff:ff:ff:ff smac fe:ff:ff:ff:ff:ff id #{$cap_epid} data hex #{ifh[0].take(ifh[1]).pack("c*").unpack("H*").first} "   #sp-jr2 is the same as lp-oc1 and SparX-5
@@ -204,6 +207,12 @@ def rx_ifh_create(port=IGNORE)
     end
     if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SERVAL")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT")))
         $ifh += "efh-oc1 ign "
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        $ifh += "ifh-mas ign "
+        if (port != IGNORE)
+            $ifh += "src-port #{$port_map[port]["chip_port"]} "
+        end
     end
     end
 
