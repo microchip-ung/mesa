@@ -209,7 +209,7 @@ def sys cmd, input = nil
     raise "IMGGEN: #{$o[:name]}> Input file: #{input} does not exists!!!" if input and (not File.exists? input)
 
     begin
-      stdout, stderr, status = Open3.capture3(cmd)
+        stdout, stderr, status = Open3.capture3(cmd)
     rescue => e
         exception = e.backtrace.join("\n\t").sub("\n\t", ": #{e}#{e.class ? " (#{e.class})" : ''}\n\t")
     end
@@ -456,13 +456,22 @@ when "ext4"
 
     sys "mksquashfs #{stage1_dir}/* #{$o[:name]}_initrd.squashfs -no-progress -quiet -comp xz -all-root"
     dts "#{$o[:name]}_ext4.its", $o[:machine], "#{$o[:name]}_initrd.squashfs"
-    sys "mkimage -q -f #{$o[:name]}_ext4.its #{install_dir}/boot/img.itb"
+    sys "mkimage -q -f #{$o[:name]}_ext4.its #{install_dir}/Image.itb"
 
-    sys "touch #{$o[:name]}.ext4"
-    sys "truncate -s 1G #{$o[:name]}.ext4"
-    sys "mkfs.ext4 -q -E root_owner -d #{install_dir} #{$o[:name]}.ext4"
-    sys "resize2fs -M #{$o[:name]}.ext4"
-    sys "gzip #{$o[:name]}.ext4"
+    t1 = Thread.new {
+        sys "touch #{$o[:name]}.ext4"
+        sys "truncate -s 1G #{$o[:name]}.ext4"
+        sys "mkfs.ext4 -q -E root_owner -d #{install_dir} #{$o[:name]}.ext4"
+        sys "resize2fs -M #{$o[:name]}.ext4"
+        sys "gzip #{$o[:name]}.ext4"
+    }
+
+    t2 = Thread.new {
+        sys "mkfs.ubifs -r #{install_dir} -m 2048 -e 124KiB -c 512 -o #{$o[:name]}.ubifs"
+    }
+
+    t1.join
+    t2.join
 
 when "mfi"
     install_dir = "install_#{$o[:name]}"

@@ -144,7 +144,7 @@ macro(IMG_TARGET)
             add_custom_command(
                 OUTPUT ${A_NAME}.itb
                 DEPENDS ${KERNEL} ${EXECUTABLES} ${SOLIBS} ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
-                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" ${cmd} -t fit
+                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}" ${cmd} -t fit
                 COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
             )
             add_custom_target(${A_NAME}_itb ALL DEPENDS ${A_NAME}.itb)
@@ -154,24 +154,24 @@ macro(IMG_TARGET)
             add_custom_command(
                 OUTPUT ${A_NAME}.itb
                 DEPENDS ${KERNEL} ${EXECUTABLES} ${SOLIBS} ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
-                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" ${cmd} -t fit
+                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}" ${cmd} -t fit
                 COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
             )
             add_custom_target(${A_NAME}_itb ALL DEPENDS ${A_NAME}.itb)
 
             add_custom_command(
-                OUTPUT ${A_NAME}.ext4.gz
+                OUTPUT ${A_NAME}.ext4.gz ${A_NAME}.ubifs
                 DEPENDS ${KERNEL} ${EXECUTABLES} ${SOLIBS} ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
-                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" ${cmd} -t ext4
+                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}" ${cmd} -t ext4
                 COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
             )
-            add_custom_target(${A_NAME}_ext4 ALL DEPENDS ${A_NAME}.ext4.gz)
+            add_custom_target(${A_NAME}_ext4 ALL DEPENDS ${A_NAME}.ext4.gz ${A_NAME}.ubifs)
 
         elseif (${A_TYPE} STREQUAL "mfi")
             add_custom_command(
                 OUTPUT ${A_NAME}.mfi
                 DEPENDS ${KERNEL} ${EXECUTABLES} ${SOLIBS} ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
-                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:$ENV{PATH}" ${cmd} -t mfi
+                COMMAND ${CMAKE_COMMAND} -E env "PATH=${RELOCATED_HOST_DIR}/bin:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}" ${cmd} -t mfi
                 COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
             )
             add_custom_target(${A_NAME}_mfi ALL DEPENDS ${A_NAME}.mfi)
