@@ -24,6 +24,10 @@ t_i("ig: #{ig}  eg: #{eg}")
 
 class_cnt = 3
 cosid = 1
+if (cap_get("QOS_COSID_CLASSIFICATION") == 0)
+    class_cnt = 1
+    cosid = 0
+end
 
 t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
 port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
