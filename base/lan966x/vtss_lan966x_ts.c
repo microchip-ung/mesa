@@ -652,10 +652,12 @@ static vtss_rc lan966x_ts_seq_cnt_get(vtss_state_t *vtss_state,  uint32_t sec_cn
 {
     vtss_rc rc = VTSS_RC_OK;
     u32 value;
-    if (sec_cntr <= 255) {
+
+    sec_cntr += (VTSS_VOE_CNT*2);    /* Point to the sequence number update configuration. VOP got the first VTSS_VOE_CNT counter sets */
+    if (sec_cntr <= 255*2) {
         // read sec counter REW:PTP_SEQ_NO:PTP_SEQ_NO[0-255]
-        REG_RD(REW_PTP_SEQ_NO(sec_cntr), &value);
-        *cnt_val = REW_PTP_SEQ_NO_PTP_SEQ_NO_0_X(value);
+        REG_RD(REW_PTP_SEQ_NO(sec_cntr/2), &value);
+        *cnt_val = (sec_cntr%2) ? REW_PTP_SEQ_NO_PTP_SEQ_NO_1_X(value) : REW_PTP_SEQ_NO_PTP_SEQ_NO_0_X(value);
     } else {
         VTSS_E("Invalid sequence counter number %d", sec_cntr);
         rc = VTSS_RC_ERROR;

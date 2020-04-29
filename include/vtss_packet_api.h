@@ -523,10 +523,12 @@ typedef struct {
     u8 ptp_id;
     u64 ptp_timestamp;  // Time stamp in 16 bit fraction of nano seconds.
                         // Allocate timestamp id for a two step transmission must be in the nano second part (id << 16)
+                        // Sequence counter index for a PTP transmission must be in the nano second part (id << 16)
     vtss_packet_oam_type_t oam_type;
     vtss_iflow_id_t iflow_id;
     vtss_port_no_t masquerade_port;
     u32 pdu_offset;
+    u32                       sequence_idx;
 #if defined(VTSS_FEATURE_AFI_SWC)
     vtss_afi_id_t afi_id;
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */

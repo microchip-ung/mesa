@@ -6,41 +6,35 @@
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
 
-$npi_port = 3
 $port0 = 0
-$port1 = 1
+$npi_port = 1
+#$port1 = 2
 $cpu_queue = 7
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
 end
 
-def tod_sequence_id_test
+def tod_sequence_id_test(sec_cntr)
     test "tod_sequence_id_test" do
-
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        sec_cntr = 0xFE   # Sequence counter number is indicated by the lowest 8 bits of the IFH timestamp
-    end
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        sec_cntr = 0x55   # Sequence counter number is indicated by the sequence id in the PDU
-    end
 
     sequence = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp
 
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
 
     t_i "Transmit a SYNC frame into NPI port with no frame check"
-    frametx = tx_ifh_create($ts.dut.port_list[$port0]) + frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
-    frame_tx(frametx, $npi_port, " ", "", "", "")
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", sec_cntr<<16, 0, sec_cntr) +
+              frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
+    frame_tx(frametx, $npi_port, " ", " ", " ", " ")
 
     test "Inject SYNC frame into NPI port with MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ and check the sequence id" do
     framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, IGNORE, (sequence + 1))
-    frame_tx(frametx, $npi_port, framerx, "", "", "")
+    frame_tx(frametx, $npi_port, framerx, " ", " ", " ")
 
     conf = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp
     if (conf != (sequence + 2))
@@ -82,7 +76,19 @@ end
 
 test "test_run" do
     # Test TOD sequence ID increment
-    tod_sequence_id_test
+    sec_cntr = 0x55
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        sec_cntr = 3
+    end
+
+    tod_sequence_id_test(sec_cntr)
+
+    sec_cntr = 0x77
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        sec_cntr = 6
+    end
+
+    tod_sequence_id_test(sec_cntr)
 end
 
 test "test_clean_up" do

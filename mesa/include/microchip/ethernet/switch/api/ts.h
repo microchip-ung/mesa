@@ -933,7 +933,8 @@ mesa_rc mesa_ts_smac_get(const mesa_inst_t    inst,
 /**
  * \brief Set auto response behavior pr. domain.
  * \param inst    [IN]          handle to an API instance
- * \param sec_cntr[IN]          sequence counter number [0..255]
+ * \param sec_cntr[IN]          sequence counter number [0..255]. See mesa_packet_tx_info_t.sequence_idx and
+ *                              mesa_packet_tx_info_t.ptp_timestamp.
  * \param cnt_val [OUT]         actual value of the sequence counter
  *
  * \return Return code.

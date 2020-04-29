@@ -450,6 +450,9 @@ typedef struct {
     // PTP timestamp indicating when the injection started, used when #ptp_action is != MESA_PACKET_PTP_ACTION_NONE.
     // The rewriter can then calculate a residence time based on this and the frame's transmission timestamp.
     // This is in 16 bit fraction of nano seconds.
+    // On Jaguar2 and Fireant:
+    // Allocated timestamp id (TX FIFO) for a two step transmission must be in the nano second part (id << 16)
+    // Sequence counter index for a PTP  transmission must be in the nano second part (index << 16)
     uint64_t ptp_timestamp;
 
     // OAM type, used if #ptp_action is MESA_PACKET_PTP_ACTION_NONE (not used for Luton26).
@@ -466,6 +469,14 @@ typedef struct {
     // PDU offset in 8 bit word counts (not used for Luton26 and Serval)
     // Used in ptp-action's to indicate the start of the PTP PDU.
     uint32_t pdu_offset;
+
+    // On LAN966X:
+    // PTP, MRP, DLR frames are able to get automatically updated sequence numbers.
+    // There are a number of sequence number update counters. The 'sequence_idx' is a pointer to a counter.
+    // PTP and MRP requires 16 bits sequence number. CCM and DLR requires 32 bits sequence number.
+    // The 16 bits sequence number frames (PTP and MRP) are using one counter (16 bits). The valid index is 0-1-2-...
+    // The 32 bits sequence number frame (DLR) is using two counters (32 bits). The valid index is 0-2-4-...
+    uint32_t sequence_idx;
 
     // Automatic Frame Injector ID (not used for Luton26).
     // Set to MESA_AFI_ID_NONE if you don't want a frame injected periodically.

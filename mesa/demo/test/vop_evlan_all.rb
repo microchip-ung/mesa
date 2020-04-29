@@ -571,7 +571,7 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
 
     t_i("Check counters")
     #check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx)
-    check_ccm_counters(voe_idx, 0, 0, 0, $cap_oam_v2 ? 2 : 0)   # On Serval the CCM TX counter only count when the sequence number update is enabled
+    check_ccm_counters(voe_idx, 0, 0, 0, ($cap_oam_v2 || lan966x) ? 2 : 0)   # On Serval the CCM TX counter only count when the sequence number update is enabled
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 0, (lan966x ? 0 : 2), 0, 0, 0, 0)   # Currently the OAM TX counter is not working on LAN966X
     end
@@ -594,7 +594,8 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     framerx = frame.dup + ccm_pdu_create(level, $period, exp_seq, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    check_ccm_counters(voe_idx, 0, 0, 0, $cap_oam_v2 ? 4 : 2)   # On Serval the CCM TX counter only count when the sequence number update is enabled
+   #check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx)
+    check_ccm_counters(voe_idx, 0, 0, 0, ($cap_oam_v2 || lan966x) ? 4 : 2)   # On Serval the CCM TX counter only count when the sequence number update is enabled
     end
 
     if ($cap_vop_cfm)

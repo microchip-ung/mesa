@@ -152,7 +152,7 @@ def rx_ifh_extract(frame)
     ifh
 end
 
-def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
+def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0)
     $tx_ifh = ""
 
     test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}" do
@@ -167,6 +167,7 @@ def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ",
     tx_info["masquerade_port"] = PORT_NO_NONE
     tx_info["frm_len"] = 12+2+PTP_SYNC_MESSAGE_LENGTH
     tx_info["pdu_offset"] = 14
+    tx_info["sequence_idx"] = seq_idx
     tx_info["ptp_action"] = ptp_act
     tx_info["ptp_domain"] = domain
     tx_info["ptp_timestamp"] = ptp_ts

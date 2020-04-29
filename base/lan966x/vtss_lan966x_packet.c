@@ -300,6 +300,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
             break;
         case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ:
             rew_cmd = 7;
+            IFH_SET(ifh, SEQ_NUM, (VTSS_VOE_CNT*2) + info->sequence_idx); /* Point to the sequence number update configuration. VOP got the first VTSS_VOE_CNT counter sets */
             break;
         default:
             if (tag->tpid != 0 || tag->vid == VTSS_VID_NULL) {

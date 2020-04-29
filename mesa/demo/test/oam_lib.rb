@@ -603,6 +603,7 @@ def tx_ifh_create(vid, port = 0, oam_type = "MESA_PACKET_OAM_TYPE_NONE", voi = f
     tx_info["switch_frm"] = up ? true : false
     tx_info["masquerade_port"] = up ? port : PORT_NO_NONE
     tx_info["pdu_offset"] = 14
+    tx_info["sequence_idx"] = 0
     tx_info["oam_type"] = oam_type
     tx_info["pipeline_pt"] = voi ? (up ? "MESA_PACKET_PIPELINE_PT_ANA_IN_VOI" : "MESA_PACKET_PIPELINE_PT_REW_IN_VOI") : "MESA_PACKET_PIPELINE_PT_REW_IN_VOE"
     tx_info["tag"]["vid"] = vid
@@ -960,7 +961,7 @@ def check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx
     if (status["rx_oo_counter"] != ccm_rx_seq)
         t_e("Unexpected CCM rx sequence error.  Expected = #{ccm_rx_seq}  counted = #{status["rx_oo_counter"]} ")
     end
-    if ((status["tx_counter"] != ccm_tx) && $cap_vop_cfm)
+    if ((status["tx_counter"] != ccm_tx))
         t_e("Unexpected CCM tx.  Expected = #{ccm_tx}  counted = #{status["tx_counter"]}")
     end
     end
