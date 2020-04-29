@@ -1164,6 +1164,23 @@ static vtss_rc lan966x_policer_status_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_rcl_vid_conf_set(vtss_state_t *vtss_state, const u8 idx)
+{
+    vtss_rcl_vid_entry_t *entry = &vtss_state->l2.rcl_vid[idx];
+    u32                  i, mask = 0;
+
+    for (i = 0; i < VTSS_PCPS; i++) {
+        if (entry->conf.pcp[i]) {
+            mask |= VTSS_BIT(i);
+        }
+    }
+    REG_WR(ANA_RT_VLAN_PCP(idx),
+           ANA_RT_VLAN_PCP_PCP_MASK(mask) |
+           ANA_RT_VLAN_PCP_VLAN_ID(entry->vid) |
+           ANA_RT_VLAN_PCP_VLAN_PCP_ENA(entry->enable ? 1 : 0));
+    return VTSS_RC_OK;
+}
+
 /* ================================================================= *
  *  SFLOW
  * ================================================================= */
@@ -1863,6 +1880,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->psfp_filter_conf_set = lan966x_filter_conf_set;
         state->psfp_filter_status_get = lan966x_filter_status_get;
         state->policer_status_get = lan966x_policer_status_get;
+        state->rcl_vid_conf_set = lan966x_rcl_vid_conf_set;
         state->ac_count = LAN966X_ACS;
         state->sdx_info.max_count = VTSS_SDX_CNT;
         break;

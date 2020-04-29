@@ -411,6 +411,15 @@ static u32 lan966x_u8_to_u32(u8 *p)
     return ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
 }
 
+static void lan966x_port_no_set(vtss_state_t *vtss_state,
+                                struct vtss_lan966x_vcap_u8 *out, vtss_port_no_t port_no)
+{
+    if (port_no < vtss_state->port_count) {
+        out->value = VTSS_CHIP_PORT(port_no);
+        out->mask = 0xff;
+    }
+}
+
 /* ================================================================= *
  *  Debug print utilities
  * ================================================================= */
@@ -457,7 +466,7 @@ static void lan966x_debug_bits(lan966x_vcap_info_t *info, const char *name, u32 
     pr(name == NULL ? (len > 32 ? "" : ".") : (len > 24 ? "\n" : " "));
 }
 
-static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name, u32 offs, u32 offs_val, u32 len)
+static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name, u32 offs, u32 offs_val, u32 len, BOOL debug_bits)
 {
     vtss_debug_printf_t pr = info->pr;
     int                 i, length = strlen(name);
@@ -466,7 +475,11 @@ static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name
     for (i = 0; i < length; i++) {
         pr("%c", enable ? toupper(name[i]) : tolower(name[i]));
     }
-    pr(":%u ", lan966x_act_get(info, offs_val, len));
+    if (debug_bits) {
+        lan966x_debug_bits(info, "", offs_val, len);
+    } else {
+        pr(":%u ", lan966x_act_get(info, offs_val, len));
+    }
 }
 
 #define LAN966X_DEBUG_ACT(vcap, name, fld)        lan966x_debug_action(info, name, \
@@ -475,7 +488,11 @@ static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name
 #define LAN966X_DEBUG_ACT_ENA(vcap, name, f1, f2) lan966x_debug_action_ena(info, name, \
                                                                            VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O, \
                                                                            VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L)
+                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 0)
+#define LAN966X_DEBUG_ENA_BITS(vcap, name, f1, f2) lan966x_debug_action_ena(info, name, \
+                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O, \
+                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O, \
+                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 1)
 #define LAN966X_DEBUG_ACT_BITS(vcap, name, fld)   lan966x_debug_bits(info, name, \
                                                                      VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O, \
                                                                      VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
@@ -557,10 +574,14 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
     vtss_is1_frame_snap_t                          *snap = &key->frame.snap;
     vtss_is1_frame_ipv4_t                          *ipv4 = &key->frame.ipv4;
     vtss_is1_frame_ipv6_t                          *ipv6 = &key->frame.ipv6;
+    vtss_rce_key_t                                 *rk = &key->frame.rce_key;
+    vtss_rce_action_t                              *ra = &action->rce_action;
     vtss_vcap_u8_t                                 *proto = NULL;
+    struct vtss_lan966x_vcap_u8                    *vid_idx;
     vtss_vcap_vr_t                                 *dscp, *sport, *dport;
     vtss_vcap_key_size_t                           key_size;
     vtss_vcap_u16_t                                et, sip_msb, dip_msb;
+    vtss_vcap_u32_t                                frm_id = {0};
     vtss_port_no_t                                 port_no;
     u32                                            i, n;
     BOOL                                           ip = 0, l4_used = 0, dmac_dip = 0, half_any = 0;
@@ -736,12 +757,46 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
             def.etype.mask = proto->mask;
         }
         break;
+    case VTSS_IS1_TYPE_RCE:
+        break;
     default:
         VTSS_E("illegal frame type");
         return VTSS_RC_ERROR;
     }
 
-    if (idx->key_size == VTSS_VCAP_KEY_SIZE_QUARTER) {
+    if (key->type == VTSS_IS1_TYPE_RCE) {
+        // Quarter key
+        info.key_tg = LAN966X_VCAP_TG_X1;
+        f.key = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT;
+        f.u.s1_rt.first = (rk->smac ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
+        lan966x_port_no_set(vtss_state, &f.u.s1_rt.igr_port, rk->port_no);
+        vtss_lan966x_vcap_bit_set(&f.u.s1_rt.vlan_tagged, rk->tagged);
+        lan966x_vcap_u48_set(&f.u.s1_rt.l2_mac, &rk->mac);
+        vid_idx = &f.u.s1_rt.rt_vlan_idx;
+        if (vtss_rcl_vid_lookup(vtss_state, rk->vid, &vid_idx->value, FALSE) == VTSS_RC_OK) {
+            vid_idx->mask = 0xff;
+        }
+        if (rk->etype != VTSS_RCL_ETYPE_ANY) {
+            f.u.s1_rt.rt_type.mask = 0xff;
+            if (rk->etype == VTSS_RCL_ETYPE_PROFINET) {
+                f.u.s1_rt.rt_type.value = 1;
+                for (i = 0; i < 2; i++) {
+                    frm_id.value[i + 2] = rk->frame_id.value[i];
+                    frm_id.mask[i + 2] = rk->frame_id.mask[i];
+                }
+            } else {
+                // OPC-UA
+                f.u.s1_rt.rt_type.value = 2;
+                for (i = 0; i < 2; i++) {
+                    frm_id.value[i + 2] = rk->publisher_id.value[i];
+                    frm_id.mask[i + 2] = rk->publisher_id.mask[i];
+                    frm_id.value[i] = rk->writer_group_id.value[i];
+                    frm_id.mask[i] = rk->writer_group_id.mask[i];
+                }
+            }
+            lan966x_vcap_u32_set(&f.u.s1_rt.rt_frmid, &frm_id);
+        }
+    } else if (idx->key_size == VTSS_VCAP_KEY_SIZE_QUARTER) {
         // Quarter key
         info.key_tg = LAN966X_VCAP_TG_X1;
         f.key = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID;
@@ -842,35 +897,50 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
     }
 
     // Action
-    fa.action = VTSS_LAN966X_VCAP_IS1_ACTION_S1;
-    a->dscp_ena = action->dscp_enable;
-    a->dscp_val = action->dscp;
-    a->qos_ena = action->prio_enable;
-    a->qos_val = action->prio;
-    a->dp_ena = action->dp_enable;
-    a->dp_val = action->dp;
-    a->pag_override_mask = (action->pag_enable ? 0xff : 0);
-    a->pag_val = action->pag;
-    a->isdx_replace_ena = action->isdx_enable;
-    a->isdx_add_val = action->isdx;
-    a->vid_replace_ena = (action->vid_enable || action->vid != VTSS_VID_NULL ? 1 : 0);
-    a->vid_add_val = action->vid;
-    a->fid_sel = action->fid_sel;
-    a->fid_val = action->fid_val;
-    a->pcp_ena = action->pcp_enable;
-    a->pcp_val = action->pcp;
-    a->dei_ena = action->dei_enable;
-    a->dei_val = action->dei;
-    a->vlan_pop_cnt_ena = action->pop_enable;
-    a->vlan_pop_cnt = action->pop;
-    if (action->isdx_enable && (sdx = vtss_iflow_lookup(vtss_state, action->isdx)) != NULL) {
-        vtss_lan966x_is1_action_update(vtss_state, sdx, action);
-        a->sfid_ena = action->sfid_enable;
-        a->sfid_val = action->sfid;
-        a->sgid_ena = action->sgid_enable;
-        a->sgid_val = action->sgid;
-        a->police_ena = action->dlb_enable;
-        a->police_idx = (action->dlb + LAN966X_POLICER_DLB);
+    if (key->type == VTSS_IS1_TYPE_RCE) {
+        fa.action = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT;
+        fa.u.s1_rt.rtp_id = ra->rtp_id;
+        fa.u.s1_rt.rtp_subid = (ra->rtp_sub_id ? 1 : 0);
+        fa.u.s1_rt.rte_inb_upd = (ra->rtp_inbound ? 1 : 0);
+        if (ra->port_enable) {
+            fa.u.s1_rt.fwd_ena = 1;
+            fa.u.s1_rt.fwd_mask = vtss_lan966x_port_mask(vtss_state, ra->port_list);
+        }
+        if (ra->llct_enable) {
+            fa.u.s1_rt.llct_ena = 1;
+            fa.u.s1_rt.llct_port = VTSS_CHIP_PORT(ra->llct_port_no);
+        }
+    } else {
+        fa.action = VTSS_LAN966X_VCAP_IS1_ACTION_S1;
+        a->dscp_ena = action->dscp_enable;
+        a->dscp_val = action->dscp;
+        a->qos_ena = action->prio_enable;
+        a->qos_val = action->prio;
+        a->dp_ena = action->dp_enable;
+        a->dp_val = action->dp;
+        a->pag_override_mask = (action->pag_enable ? 0xff : 0);
+        a->pag_val = action->pag;
+        a->isdx_replace_ena = action->isdx_enable;
+        a->isdx_add_val = action->isdx;
+        a->vid_replace_ena = (action->vid_enable || action->vid != VTSS_VID_NULL ? 1 : 0);
+        a->vid_add_val = action->vid;
+        a->fid_sel = action->fid_sel;
+        a->fid_val = action->fid_val;
+        a->pcp_ena = action->pcp_enable;
+        a->pcp_val = action->pcp;
+        a->dei_ena = action->dei_enable;
+        a->dei_val = action->dei;
+        a->vlan_pop_cnt_ena = action->pop_enable;
+        a->vlan_pop_cnt = action->pop;
+        if (action->isdx_enable && (sdx = vtss_iflow_lookup(vtss_state, action->isdx)) != NULL) {
+            vtss_lan966x_is1_action_update(vtss_state, sdx, action);
+            a->sfid_ena = action->sfid_enable;
+            a->sfid_val = action->sfid;
+            a->sgid_ena = action->sgid_enable;
+            a->sgid_val = action->sgid;
+            a->police_ena = action->dlb_enable;
+            a->police_idx = (action->dlb + LAN966X_POLICER_DLB);
+        }
     }
 
     if (vtss_lan966x_vcap_is1_action_pack(&fa, &info.data) < 0 ||
@@ -1509,14 +1579,8 @@ static vtss_rc lan966x_es0_entry_add(vtss_state_t *vtss_state,
     // Key fields
     info.key_tg = LAN966X_VCAP_TG_X1;
     f.key = VTSS_LAN966X_VCAP_ES0_KEY_VID;
-    if (key->port_no != VTSS_PORT_NO_NONE) {
-        f.u.vid.egr_port.value = VTSS_CHIP_PORT(key->port_no);
-        f.u.vid.egr_port.mask = 0xff;
-    }
-    if (key->rx_port_no != VTSS_PORT_NO_NONE) {
-        f.u.vid.igr_port.value = VTSS_CHIP_PORT(key->rx_port_no);
-        f.u.vid.igr_port.mask = 0xff;
-    }
+    lan966x_port_no_set(vtss_state, &f.u.vid.egr_port, key->port_no);
+    lan966x_port_no_set(vtss_state, &f.u.vid.igr_port, key->rx_port_no);
     vtss_lan966x_vcap_bit_set(&f.u.vid.isdx_gt0, key->isdx_neq0);
     f.u.vid.vid.value = key->data.vid.vid;
     f.u.vid.vid.mask = (key->vid_any ? 0 : 0xfff);
@@ -2058,11 +2122,13 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     u32                 type;
 
     if (info->is_action) {
+        if (info->act_tg != LAN966X_VCAP_TG_X1) {
+            return VTSS_RC_OK;
+        }
         LAN966X_DEBUG_ACT(IS1, "type", S1_FLD_TYPE);
         type = LAN966X_VCAP_ACT_GET(IS1, S1_FLD_TYPE);
         pr("(%s) ", type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID ? "s1" : "s1_rt");
-        if (info->act_tg == LAN966X_VCAP_TG_X1 &&
-            type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID) {
+        if (type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID) {
             LAN966X_DEBUG_ACT_ENA(IS1, "dscp", S1_FLD_DSCP_ENA, S1_FLD_DSCP_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "qos", S1_FLD_QOS_ENA, S1_FLD_QOS_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "dp", S1_FLD_DP_ENA, S1_FLD_DP_VAL);
@@ -2084,6 +2150,23 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             LAN966X_DEBUG_ACT(IS1, "oam_sel", S1_FLD_OAM_SEL);
             LAN966X_DEBUG_ACT(IS1, "mrp_sel", S1_FLD_MRP_SEL);
             LAN966X_DEBUG_ACT(IS1, "dlr_sel", S1_FLD_DLR_SEL);
+        } else {
+            LAN966X_DEBUG_ACT(IS1, "isdx", S1_RT_FLD_ISDX_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_RT_FLD_SFID_ENA, S1_RT_FLD_SFID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_RT_FLD_SGID_ENA, S1_RT_FLD_SGID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_RT_FLD_POLICE_ENA, S1_RT_FLD_POLICE_IDX);
+            LAN966X_DEBUG_ACT(IS1, "rtp_id", S1_RT_FLD_RTP_ID);
+            LAN966X_DEBUG_ACT(IS1, "rtp_subid", S1_RT_FLD_RTP_SUBID);
+            LAN966X_DEBUG_ACT(IS1, "rtp_inb_upd", S1_RT_FLD_RTE_INB_UPD);
+            pr("\n");
+            LAN966X_DEBUG_ACT_ENA(IS1, "llct", S1_RT_FLD_LLCT_ENA, S1_RT_FLD_LLCT_PORT);
+            LAN966X_DEBUG_ENA_BITS(IS1, "fwd", S1_RT_FLD_FWD_ENA, S1_RT_FLD_FWD_MASK);
+            LAN966X_DEBUG_ACT(IS1, "src_filter", S1_RT_FLD_SRC_FILTER_ENA);
+            LAN966X_DEBUG_ACT(IS1, "own_mac", S1_RT_FLD_OWN_MAC);
+            LAN966X_DEBUG_ACT_ENA(IS1, "cpu_copy", S1_RT_FLD_CPU_COPY_ENA, S1_RT_FLD_CPU_QU_NUM);
+            LAN966X_DEBUG_ACT(IS1, "tsn_dis", S1_RT_FLD_ANA2_TSN_DIS);
+            LAN966X_DEBUG_ACT(IS1, "fwd_sel", S1_RT_FLD_FWD_SEL);
+            LAN966X_DEBUG_ACT(IS1, "ct_sel", S1_RT_FLD_CT_SEL);
         }
         pr("\ncnt: %u", info->cnt);
         return VTSS_RC_OK;
@@ -2130,6 +2213,17 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             LAN966X_DEBUG_BITS(IS1, "tcp_udp", S1_DBL_VID_FLD_TCP_UDP);
             LAN966X_DEBUG_BITS(IS1, "tcp", S1_DBL_VID_FLD_TCP);
             pr("\n");
+        } else if (type == VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID) {
+            LAN966X_DEBUG_BITS(IS1, "first", S1_RT_FLD_FIRST);
+            LAN966X_DEBUG_BITS(IS1, "igr_port", S1_RT_FLD_IGR_PORT);
+            LAN966X_DEBUG_BITS(IS1, "r_tagged", S1_RT_FLD_R_TAGGED);
+            LAN966X_DEBUG_BITS(IS1, "vlan_tagged", S1_RT_FLD_VLAN_TAGGED);
+            LAN966X_DEBUG_BITS(IS1, "dbl_tagged", S1_RT_FLD_VLAN_DBL_TAGGED);
+            pr("\n");
+            LAN966X_DEBUG_BITS(IS1, "l2_mac", S1_RT_FLD_L2_MAC);
+            LAN966X_DEBUG_BITS(IS1, "rt_vlan_idx", S1_RT_FLD_RT_VLAN_IDX);
+            LAN966X_DEBUG_BITS(IS1, "rt_type", S1_RT_FLD_RT_TYPE);
+            LAN966X_DEBUG_BITS(IS1, "rt_frmid", S1_RT_FLD_RT_FRMID);
         }
         return VTSS_RC_OK;
     }

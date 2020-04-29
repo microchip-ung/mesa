@@ -453,7 +453,7 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t          inst,
 /** \brief Port Internal Frame Header structure */
 typedef struct
 {
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     BOOL ena_inj_header; /**< At ingress expect long prefix followed by an internal frame header */
     BOOL ena_xtr_header; /**< At egress prepend long prefix followed by the internal frame header */
 #endif /* VTSS_ARCH_OCELOT */

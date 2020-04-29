@@ -87,6 +87,7 @@
 #define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
+#define VTSS_FEATURE_RCL                          /**< Real-time Control List */
 #endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \

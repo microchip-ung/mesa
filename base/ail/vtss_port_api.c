@@ -2251,7 +2251,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             vtss_debug_print_header(pr, "Configuration");
             pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  ");
 #if defined(VTSS_FEATURE_PFC)
-            pr("0--FC--7  ");
+            pr("PFC[0-7]  ");
 #endif
             pr("Max Length\n");
         }

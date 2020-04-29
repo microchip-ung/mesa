@@ -304,6 +304,23 @@ be controlled per ring and port. If a port is discarding for a ring instance,
 ingress and egress forwarding will be disabled for all VLANs mapping to the ring
 instance. VLAN ingress filtering must be enabled on ports running ERPS.
 
+== Real-time Control List (RCL)
+
+If the capability `MESA_CAP_L2_RCL` is non-zero, the RCL feature is available.
+This can be used for special processing of Profinet and OPC-UA frames.
+RCL classification can be enabled for a number of VID/PCP values (`mesa_rcl_vid_add()`).
+VID zero is used to enable RCL classification for untagged and priority-tagged frames.
+
+Each Real-time Control Entry (RCE) is identified by a RCE ID (`mesa_rce_id_t`).
+The RCEs are ordered in a list of rules based on the RCE IDs.
+The first matching rule in the RCL determines the action for a received frame.
+When adding a rule, the RCE ID of the rule and the RCE ID of the next rule in
+the list must be specified. A special value `MESA_RCE_ID_LAST` is used to
+specify that the rule must be added at the end of the list.
+Each RCE includes a key structure (`mesa_rce_key_t`) with fields used for
+matching received frames and an action structure (`mesa_rce_action_t`) with the
+resulting forwarding properties.
+
 == API Functions
 `mesa_mac_table_add()` +
 `mesa_mac_table_del()` +
@@ -313,7 +330,7 @@ instance. VLAN ingress filtering must be enabled on ports running ERPS.
 `mesa_mac_table_age_time_set()` +
 `mesa_mac_table_age()` +
 `mesa_mac_table_vlan_age()` +
-`mesa_mac_table_flush()` + )
+`mesa_mac_table_flush()` +
 `mesa_mac_table_port_flush()` +
 `mesa_mac_table_vlan_flush()` +
 `mesa_mac_table_vlan_port_flush()` +
@@ -431,3 +448,8 @@ instance. VLAN ingress filtering must be enabled on ports running ERPS.
 `mesa_erps_vlan_member_set()` +
 `mesa_erps_port_state_get()` +
 `mesa_erps_port_state_set()` +
+`mesa_rcl_vid_add()` +
+`mesa_rcl_vid_del()` +
+`mesa_rce_init()` +
+`mesa_rce_add()` +
+`mesa_rce_del()`

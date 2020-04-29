@@ -711,6 +711,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_L2_RCL:
+#if defined(VTSS_FEATURE_RCL)
+        c = 1;
+#endif
+        break;
+
     // Layer 3
     case MESA_CAP_L3:
 #if defined(VTSS_FEATURE_LAYER3)

@@ -2688,6 +2688,85 @@ vtss_rc vtss_erps_port_state_set(const vtss_inst_t       inst,
 
 #endif /* VTSS_FEATURE_LAYER2 */
 
+#if defined(VTSS_FEATURE_RCL)
+
+/* - Real-time Control List ---------------------------------------- */
+
+// RCL VID configuration
+typedef struct {
+    BOOL pcp[VTSS_PCPS]; // PCP values
+} vtss_rcl_vid_conf_t;
+
+// Add/enable RCL VID classification
+vtss_rc vtss_rcl_vid_add(const vtss_inst_t         inst,
+                         const vtss_vid_t          vid,
+                         const vtss_rcl_vid_conf_t *const conf);
+
+// Delete/disable RCL VID classification
+vtss_rc vtss_rcl_vid_del(const vtss_inst_t inst,
+                         const vtss_vid_t  vid);
+
+// RCL Ethernet Type
+typedef enum {
+    VTSS_RCL_ETYPE_ANY,      // Any Ethernet Type
+    VTSS_RCL_ETYPE_PROFINET, // Ethernet Type 0x8892
+    VTSS_RCL_ETYPE_OPC_UA,   // Ethernet Type 0xB62C
+} vtss_rcl_etype_t;
+
+// RCE key
+typedef struct
+{
+    vtss_port_no_t   port_no;         // Ingress port
+    vtss_vid_t       vid;             // VID or zero for untagged/priority-tagged
+    vtss_vcap_bit_t  tagged;          // Outer tag
+    BOOL             smac;            // SMAC/DMAC lookup selection
+    vtss_vcap_u48_t  mac;             // SMAC/DMAC value
+    vtss_rcl_etype_t etype;           // Ethernet type
+    vtss_vcap_u16_t  frame_id;        // FrameId
+    vtss_vcap_u16_t  publisher_id;    // PublisherId
+    vtss_vcap_u16_t  writer_group_id; // WriterGroupId
+} vtss_rce_key_t;
+
+// RCE action
+typedef struct
+{
+    u16            rtp_id;                // RTP identifier
+    BOOL           rtp_sub_id;            // RTP sub-identifier
+    BOOL           rtp_inbound;           // RTP inbound processing
+    BOOL           port_enable;           // Enable port forwarding to egress port list
+    BOOL           port_list[VTSS_PORTS]; // Egress port list
+    BOOL           llct_enable;           // Enable Low-Latency Cut-Through
+    vtss_port_no_t llct_port_no;          // LLCT egress port
+} vtss_rce_action_t;
+
+// RCE ID
+typedef u32 vtss_rce_id_t;
+
+#define VTSS_RCE_ID_LAST 0 // Special value used to add last in list
+
+// Real-time Control Entry
+typedef struct
+{
+    vtss_rce_id_t     id;     // RCE ID
+    vtss_rce_key_t    key;    // RCE Key
+    vtss_rce_action_t action; // RCE Action
+} vtss_rce_t;
+
+// Initialize RCE to default values
+vtss_rc vtss_rce_init(const vtss_inst_t inst,
+                      vtss_rce_t        *const rce);
+
+// Add/modify RCE
+vtss_rc vtss_rce_add(const vtss_inst_t   inst,
+                     const vtss_rce_id_t rce_id,
+                     const vtss_rce_t    *const rce);
+
+// Delete RCE
+vtss_rc vtss_rce_del(const vtss_inst_t   inst,
+                     const vtss_rce_id_t rce_id);
+
+#endif /* VTSS_FEATURE_RCL */
+
 #ifdef __cplusplus
 }
 #endif

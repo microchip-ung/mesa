@@ -6483,6 +6483,33 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
 }
 #endif
 
+#if defined(VTSS_FEATURE_RCL)
+static void vtss_debug_print_rcl(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    vtss_rcl_vid_entry_t *entry;
+    u8                   i, j;
+    BOOL                 first = TRUE;
+
+    for (i = 0; i < VTSS_RCL_VID_CNT; i++) {
+        entry = &vtss_state->l2.rcl_vid[i];
+        if (entry->enable) {
+            if (first) {
+                first = FALSE;
+                pr("RCL VID  Entries:\n\n");
+                pr("IDX  VID   PCP[0-7]\n");
+            }
+            pr("%-5u%-6u", i, entry->vid);
+            for (j = 0; j < VTSS_PCPS; j++) {
+                pr("%u", entry->conf.pcp[j] ? 1 : 0);
+            }
+            pr("\n");
+        }
+    }
+}
+#endif
+
 static void vtss_debug_print_vcl(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info)
@@ -6569,6 +6596,9 @@ static void vtss_debug_print_vlan_trans(vtss_state_t *vtss_state,
 #endif
 #if defined(VTSS_FEATURE_PSFP)
     vtss_debug_print_psfp(vtss_state, pr, info);
+#endif
+#if defined(VTSS_FEATURE_RCL)
+    vtss_debug_print_rcl(vtss_state, pr, info);
 #endif
 }
 
@@ -7428,6 +7458,165 @@ void vtss_cmn_sdx_free(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, BOOL isd
 }
 
 #endif /* VTSS_SDX_CNT */
+
+#if defined(VTSS_FEATURE_RCL)
+vtss_rc vtss_rcl_vid_lookup(vtss_state_t *vtss_state, vtss_vid_t vid, u8 *idx, BOOL lookup_free)
+{
+    u8                   i, j = VTSS_RCL_VID_CNT;
+    vtss_rcl_vid_entry_t *entry;
+
+    for (i = 0; i < VTSS_RCL_VID_CNT; i++) {
+        entry = &vtss_state->l2.rcl_vid[i];
+        if (entry->enable) {
+            if (entry->vid == vid) {
+                // Existing entry found
+                j = i;
+                break;
+            }
+        } else if (lookup_free && i < j) {
+            j = i;
+        }
+    }
+    if (j < VTSS_RCL_VID_CNT) {
+        *idx = j;
+        return VTSS_RC_OK;
+    }
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_rcl_vid_add(const vtss_inst_t         inst,
+                         const vtss_vid_t          vid,
+                         const vtss_rcl_vid_conf_t *const conf)
+{
+    vtss_state_t         *vtss_state;
+    vtss_rc              rc;
+    u8                   idx;
+    vtss_rcl_vid_entry_t *entry;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = vtss_rcl_vid_lookup(vtss_state, vid, &idx, TRUE)) == VTSS_RC_OK) {
+            entry = &vtss_state->l2.rcl_vid[idx];
+            entry->enable = TRUE;
+            entry->vid = vid;
+            entry->conf = *conf;
+            rc = VTSS_FUNC(l2.rcl_vid_conf_set, idx);
+        } else {
+            VTSS_I("RCL VID table full");
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rcl_vid_del(const vtss_inst_t inst,
+                         const vtss_vid_t  vid)
+{
+    vtss_state_t         *vtss_state;
+    vtss_rc              rc;
+    u8                   idx;
+    vtss_rcl_vid_entry_t *entry;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = vtss_rcl_vid_lookup(vtss_state, vid, &idx, FALSE)) == VTSS_RC_OK) {
+            entry = &vtss_state->l2.rcl_vid[idx];
+            memset(entry, 0, sizeof(*entry));
+            rc = VTSS_FUNC(l2.rcl_vid_conf_set, idx);
+        } else {
+            VTSS_E("VID %u not found", vid);
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rce_init(const vtss_inst_t inst,
+                      vtss_rce_t        *const rce)
+{
+    memset(rce, 0, sizeof(*rce));
+    return VTSS_RC_OK;
+}
+
+static vtss_rc vtss_cmn_rce_add(vtss_state_t *vtss_state,
+                                const vtss_rce_id_t rce_id,
+                                const vtss_rce_t    *const rce)
+{
+    vtss_vcap_obj_t             *obj = vtss_vcap_is1_obj_get(vtss_state);
+    vtss_vcap_user_t            user = VTSS_IS1_USER_RCL;
+    vtss_vcap_data_t            data;
+    vtss_is1_entry_t            entry;
+    vtss_is1_action_t           *action = &entry.action;
+    vtss_is1_key_t              *key = &entry.key;
+    vtss_res_chg_t              res;
+
+    // Check RCE ID
+    if (rce->id == VTSS_RCE_ID_LAST || rce->id == rce_id) {
+        VTSS_E("illegal rce id: %u", rce->id);
+        return VTSS_RC_ERROR;
+    }
+
+    // Check that entry can be added
+    memset(&res, 0, sizeof(res));
+    if (vtss_vcap_lookup(vtss_state, obj, user, rce->id, &data, NULL) == VTSS_RC_OK) {
+        res.del_key[data.key_size] = 1;
+    }
+    vtss_vcap_is1_init(&data, &entry);
+    data.key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
+    res.add_key[data.key_size] = 1;
+    VTSS_RC(vtss_cmn_vcap_res_check(obj, &res));
+
+    // Add entry
+    key->key_type = VTSS_VCAP_KEY_TYPE_DOUBLE_TAG;
+    key->type = VTSS_IS1_TYPE_RCE;
+    key->frame.rce_key = rce->key;
+    action->rce_action = rce->action;
+    return vtss_vcap_add(vtss_state, obj, user, rce->id, rce_id, &data, 0);
+}
+
+vtss_rc vtss_rce_add(const vtss_inst_t   inst,
+                     const vtss_rce_id_t rce_id,
+                     const vtss_rce_t    *const rce)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = vtss_cmn_rce_add(vtss_state, rce_id, rce);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+static vtss_rc vtss_cmn_rce_del(vtss_state_t *vtss_state,
+                                const vtss_rce_id_t rce_id)
+{
+    vtss_vcap_obj_t  *obj = vtss_vcap_is1_obj_get(vtss_state);
+    vtss_vcap_user_t user = VTSS_IS1_USER_RCL;
+    vtss_vcap_data_t data;
+
+    if (vtss_vcap_lookup(vtss_state, obj, user, rce_id, &data, NULL) != VTSS_RC_OK) {
+        VTSS_E("rce_id: %u not found", rce_id);
+        return VTSS_RC_ERROR;
+    }
+    return vtss_vcap_del(vtss_state, obj, user, rce_id);
+}
+
+vtss_rc vtss_rce_del(const vtss_inst_t   inst,
+                     const vtss_rce_id_t rce_id)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = vtss_cmn_rce_del(vtss_state, rce_id);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+#endif /* VTSS_FEATURE_RCL */
 
 /* - Debug print --------------------------------------------------- */
 

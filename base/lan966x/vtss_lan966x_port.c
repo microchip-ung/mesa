@@ -692,6 +692,14 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 
 static vtss_rc lan966x_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+    vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
+    u32             port = VTSS_CHIP_PORT(port_no);
+
+    REG_WRM(SYS_PORT_MODE(port),
+            SYS_PORT_MODE_INCL_INJ_HDR(ifh->ena_inj_header ? 1 : 0) |
+            SYS_PORT_MODE_INCL_XTR_HDR(ifh->ena_xtr_header ? 3 : 0),
+            SYS_PORT_MODE_INCL_INJ_HDR_M |
+            SYS_PORT_MODE_INCL_XTR_HDR_M);
     return VTSS_RC_OK;
 }
 

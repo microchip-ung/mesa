@@ -464,6 +464,16 @@ typedef struct {
 } vtss_sdx_info_t;
 #endif /* VTSS_SDX_CNT */
 
+#if defined(VTSS_FEATURE_RCL)
+#define VTSS_RCL_VID_CNT 8
+
+typedef struct {
+    BOOL                enable;
+    vtss_vid_t          vid;
+    vtss_rcl_vid_conf_t conf;
+} vtss_rcl_vid_entry_t;
+#endif
+
 typedef struct {
     /* CIL function pointers */
     vtss_rc (* mac_table_add)(struct vtss_state_s *vtss_state,
@@ -628,6 +638,9 @@ typedef struct {
                                        const vtss_psfp_filter_id_t id,
                                        vtss_psfp_filter_status_t *const status);
 #endif
+#if defined(VTSS_FEATURE_RCL)
+    vtss_rc (* rcl_vid_conf_set)(struct vtss_state_s *vtss_state, const u8 idx);
+#endif
 
     /* Configuration/state */
     /* Aggregated forwarding information */
@@ -738,6 +751,9 @@ typedef struct {
 #if defined(VTSS_FEATURE_PSFP)
     vtss_psfp_state_t psfp;
 #endif
+#if defined(VTSS_FEATURE_RCL)
+    vtss_rcl_vid_entry_t rcl_vid[VTSS_RCL_VID_CNT];
+#endif
 } vtss_l2_state_t;
 
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
@@ -827,6 +843,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(struct vtss_state_s *vtss_state,
                                           const vtss_vlan_trans_port2grp_conf_t *conf);
 vtss_rc vtss_cmn_vlan_trans_port_conf_get(struct vtss_state_s *vtss_state,
                                           vtss_vlan_trans_port2grp_conf_t *conf, BOOL next);
+vtss_rc vtss_rcl_vid_lookup(struct vtss_state_s *vtss_state, vtss_vid_t vid, u8 *idx, BOOL lookup_free);
 
 /* Generic port mask */
 typedef struct {

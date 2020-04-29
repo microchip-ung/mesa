@@ -1473,6 +1473,88 @@ mesa_rc mesa_erps_port_state_set(const mesa_inst_t       inst,
                                  const mesa_port_no_t    port_no,
                                  const mesa_erps_state_t state);
 
+/* - Real-time Control List ---------------------------------------- */
+
+// RCL VID configuration
+typedef struct {
+    mesa_bool_t pcp[MESA_PCP_CNT]; // PCP values
+} mesa_rcl_vid_conf_t;
+
+// Add/enable RCL VID classification.
+// vid  [IN]  VLAN ID in outer tag or zero for untagged/priority-tagged frames
+// conf [IN]  VLAN configuration structure.
+mesa_rc mesa_rcl_vid_add(const mesa_inst_t         inst,
+                         const mesa_vid_t          vid,
+                         const mesa_rcl_vid_conf_t *const conf);
+
+// Delete/disable RCL VID classification.
+// vid  [IN]  VLAN ID in outer tag or zero for untagged/priority-tagged frames
+mesa_rc mesa_rcl_vid_del(const mesa_inst_t inst,
+                         const mesa_vid_t  vid);
+
+// RCL Ethernet Type
+typedef enum {
+    MESA_RCL_ETYPE_ANY,      // Any Ethernet Type
+    MESA_RCL_ETYPE_PROFINET, // Ethernet Type 0x8892
+    MESA_RCL_ETYPE_OPC_UA,   // Ethernet Type 0xB62C
+} mesa_rcl_etype_t;
+
+// RCE key
+typedef struct
+{
+    mesa_port_no_t   port_no;         // Ingress port
+    mesa_vid_t       vid;             // VID or zero for untagged/priority-tagged
+    mesa_vcap_bit_t  tagged;          // Outer tag
+    mesa_bool_t      smac;            // SMAC/DMAC lookup selection
+    mesa_vcap_u48_t  mac;             // SMAC/DMAC value
+    mesa_rcl_etype_t etype;           // Ethernet type
+    mesa_vcap_u16_t  frame_id;        // Profinet: FrameId
+    mesa_vcap_u16_t  publisher_id;    // OPC-UA: PublisherId
+    mesa_vcap_u16_t  writer_group_id; // OPC-UA: WriterGroupId
+} mesa_rce_key_t;
+
+// RCE action
+typedef struct
+{
+    uint16_t         rtp_id;       // RTP identifier
+    mesa_bool_t      rtp_sub_id;   // RTP sub-identifier
+    mesa_bool_t      rtp_inbound;  // RTP inbound processing
+    mesa_bool_t      port_enable;  // Enable port forwarding to egress port list
+    mesa_port_list_t port_list;    // Egress port list (e.g. RTE port)
+    mesa_bool_t      llct_enable;  // Enable Low-Latency Cut-Through
+    mesa_port_no_t   llct_port_no; // LLCT egress port
+} mesa_rce_action_t;
+
+// RCE ID
+typedef uint32_t mesa_rce_id_t;
+
+#define MESA_RCE_ID_LAST 0 // Special value used to add last in list
+
+// Real-time Control Entry
+typedef struct
+{
+    mesa_rce_id_t     id;     // RCE ID
+    mesa_rce_key_t    key;    // RCE Key
+    mesa_rce_action_t action; // RCE Action
+} mesa_rce_t;
+
+// Initialize RCE to default values.
+mesa_rc mesa_rce_init(const mesa_inst_t inst,
+                      mesa_rce_t        *const rce);
+
+// Add/modify RCE.
+// rce_id [IN]  RCE ID. The RCE will be added before the entry with this ID.
+//              MESA_RCE_ID_LAST is reserved for inserting last.
+// rce [IN]     RCE structure.
+mesa_rc mesa_rce_add(const mesa_inst_t   inst,
+                     const mesa_rce_id_t rce_id,
+                     const mesa_rce_t    *const rce);
+
+// Delete RCE.
+// rce_id [IN]  RCE ID.
+mesa_rc mesa_rce_del(const mesa_inst_t   inst,
+                     const mesa_rce_id_t rce_id);
+
 // Legacy stacking types ------------------------------------------------------
 
 // VStaX Unit Port Set ID (UPSID; 0-31).

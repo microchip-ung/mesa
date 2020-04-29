@@ -2131,6 +2131,7 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
                 user == VTSS_IS1_USER_QOS ? "QoS" :
                 user == VTSS_IS1_USER_SSM ? "SSM" :
                 user == VTSS_IS1_USER_ACL ? "ACL" :
+                user == VTSS_IS1_USER_RCL ? "RCL" :
                 user == VTSS_IS2_USER_IGMP ? "IGMP" :
                 user == VTSS_IS2_USER_SSM ? "SSM" :
                 user == VTSS_IS2_USER_ASM ? "ASM" :

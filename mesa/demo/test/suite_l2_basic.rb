@@ -36,6 +36,7 @@ run %w{./sec_acl.rb}
 run %w{./sec_auth.rb}
 run %w{./sec_hacl.rb}
 run %w{./sec_racl.rb}
+run %w{./rcl.rb}
 run %w{./packet_afi.rb}
 run %w{./packet_npi_tx.rb}
 run %w{./packet_rx_tx.rb}

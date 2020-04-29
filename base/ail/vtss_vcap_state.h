@@ -169,6 +169,7 @@ typedef enum {
     VTSS_IS1_USER_QOS,           /* QoS QCL (second lookup for L26/JR1, third lookup for SRVL) */
     VTSS_IS1_USER_ACL,           /* ACL SIP/SMAC (third lookup, L26) */
     VTSS_IS1_USER_SSM,           /* SSM (first lookup, L26) */
+    VTSS_IS1_USER_RCL,           /* RCL */
 
     /* IS2 users */
     VTSS_IS2_USER_IGMP,          /* IGMP rules (first lookup, JR1) */
@@ -483,6 +484,7 @@ typedef struct {
     u16                    sfid;
     BOOL                   sgid_enable;
     u16                    sgid;
+    vtss_rce_action_t      rce_action;
 #endif
 } vtss_is1_action_t;
 
@@ -495,6 +497,7 @@ typedef enum
     VTSS_IS1_TYPE_IPV4,     /**< IPv4 */
     VTSS_IS1_TYPE_IPV6,     /**< IPv6 */
     VTSS_IS1_TYPE_SMAC_SIP, /**< SMAC/SIP */
+    VTSS_IS1_TYPE_RCE,      /**< RCE */
     VTSS_IS1_TYPE_MPLS_MLL, /**< MPLS Link Layer */
     VTSS_IS1_TYPE_MPLS_MLBS /**< MPLS LaBel Stack */
 } vtss_is1_type_t;
@@ -608,6 +611,9 @@ typedef struct {
         vtss_is1_frame_smac_sip_t  smac_sip; /**< VTSS_IS1_TYPE_SMAC_SIP */
         vtss_is1_frame_mpls_mll_t  mll;      /**< VTSS_IS1_TYPE_MPLS_MLL */
         vtss_is1_frame_mpls_mlbs_t mlbs;     /**< VTSS_IS1_TYPE_MPLS_MLBS */
+#if defined(VTSS_FEATURE_RCL)
+        vtss_rce_key_t             rce_key;
+#endif
     } frame; /**< Frame type specific data */
 } vtss_is1_key_t;
 
