@@ -400,7 +400,7 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
     u32               pause_stop  = 1;
     u32               rsrv_raw_fc_jumbo = 40000;
     u32               rsrv_raw_no_fc_jumbo = 12000;
-    u32               rsrv_raw_fc_no_jumbo = 13662; /* 9 x 1518 */
+    u32               rsrv_raw_fc_no_jumbo = (9 * 1518);
     u32               link_speed = (speed == VTSS_SPEED_10M ? 3 :
                                     speed == VTSS_SPEED_100M ? 2 :
                                     speed == VTSS_SPEED_1G ? 1 : 0);
@@ -1217,7 +1217,13 @@ static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
             pr("FC Pause Ena        : %d\n", SYS_PAUSE_CFG_PAUSE_ENA_X(value));
             pr("FC Pause Start WM   : %d bytes\n", wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_START_X(value)));
             pr("FC Pause Stop WM    : %d bytes\n", wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_STOP_X(value)));
-            pr("\n");
+            REG_RD(ANA_PFC_CFG(port), &value);
+            value = ANA_PFC_CFG_RX_PFC_ENA_X(value);
+            pr("PFC Enable [0-7]    : ");
+            for (q = 0; q < VTSS_PRIOS; q++) {
+                pr("%u", value & VTSS_BIT(q) ? 1 : 0);
+            }
+            pr("\n\n");
         }
 
         REG_RD(SYS_ATOP(port), &value);
