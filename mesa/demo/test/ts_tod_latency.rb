@@ -26,7 +26,7 @@ end
 
 # To change PCB to run 25G Do the following linux commands:
 # ps
-#               ps-id root     er -b -l /tmp/console-er -- mesa-demo -f
+#               ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f
 # kill ps-id
 # fw_setenv pcb_var 9
 # mesa-demo
@@ -136,7 +136,7 @@ def tod_latency_test(port0, port1)
 
 #delays = []
 #10.times {
-    # Measure nanosecond delay
+    t_i "Measure nanosecond delay with egress latency 0 and ingress latency 0"
     nano_delay_0 = nano_delay_measure(port0, port1)
 
 #delays << nano_delay_0
@@ -158,7 +158,7 @@ def tod_latency_test(port0, port1)
     latency = PTP_LATENCY_MAX << 16
     $ts.dut.call("mesa_ts_egress_latency_set", port0, latency)
 
-    # Measure nanosecond delay
+    t_i "Measure nanosecond delay with egress latency #{PTP_LATENCY_MAX} and ingress latency 0"
     nano_delay_1 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_1
     t_i ("delay difference #{diff}")
@@ -170,7 +170,7 @@ def tod_latency_test(port0, port1)
     latency = PTP_LATENCY_MAX << 16
     $ts.dut.call("mesa_ts_ingress_latency_set", port1, latency)
 
-    # Measure nanosecond delay
+    t_i "Measure nanosecond delay with egress latency #{PTP_LATENCY_MAX} and ingress latency #{PTP_LATENCY_MAX}"
     nano_delay_2 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_2
     t_i ("delay difference #{diff}")
@@ -225,6 +225,11 @@ test "test_conf" do
         $operation_mode_l1_10g_restore = $ts.dut.call("mesa_ts_operation_mode_get", $loop_port1_10g)
     end
 
+    $npi_learn_restore = $ts.dut.call("mesa_learn_port_mode_get", $ts.dut.port_list[$npi_port])
+    conf = $npi_learn_restore.dup
+    conf["automatic"] = false
+    $ts.dut.call("mesa_learn_port_mode_set", $ts.dut.port_list[$npi_port], conf)
+
     # CreateMAC address entry to copy frame to CPU
     entry = {
         vid_mac: { vid: 1, mac: { addr: [0x00,0x02,0x03,0x04,0x05,0x06] } },
@@ -269,6 +274,10 @@ test "test_run" do
         $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
         $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
         tod_latency_test(port0, port1)
+
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))   # Only 1G on LAN966X
+            next
+        end
 
         t_i("------------ Measuring 2.5G mode -----------------")
         $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")

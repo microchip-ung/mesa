@@ -121,6 +121,12 @@ def tod_domain_test(domain, seconds)
     end
 
     test " Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port" do
+    # Update default ingress and egress latency in the API. This is based on register values potentially different after link up
+    # Delay after call to mesa_ts_status_change should be smaller as the default delay (that is added) is calculated internally in the API
+    # This is only the case the first run of the test after boot as this default delay is remembered in the API
+    $ts.dut.call("mesa_ts_status_change", $loop_port0)
+    $ts.dut.call("mesa_ts_status_change", $loop_port1)
+
     # age out any allocated timestamps id's
     4.times {$ts.dut.call("mesa_timestamp_age")}
 
@@ -175,8 +181,8 @@ def tod_domain_test(domain, seconds)
     rx_tc = rx_ts[0] >> 16
     t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$hw_tstamp}  rx_tc: #{rx_tc}  difference: #{rx_tc-$tx_tc}")
 
-    if (((rx_tc - $tx_tc) > 310) ||
-        (($tx_tc - rx_tc) > 100))
+    if (((rx_tc - $tx_tc) > 0) ||
+        (($tx_tc - rx_tc) > 210))
         t_e("Difference between TX TC and RX TC is unexpected high.  max: #{310}")
     end
 
