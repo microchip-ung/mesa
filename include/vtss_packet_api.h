@@ -323,7 +323,7 @@ typedef enum {
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_JR2_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_SVL_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
 #elif defined(VTSS_ARCH_LUTON26)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_L26_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
@@ -607,7 +607,7 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PACKET_TX_IFH_MAX     28  /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX     28  /**< Rx IFH byte length (Constant) */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_PACKET_TX_IFH_MAX     16  /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX     16  /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_LUTON26)

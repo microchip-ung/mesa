@@ -48,7 +48,7 @@ extern "C" {
 #endif                              /* Jaguar2/SparX-5 */
 
 #else                               /* End Jaguar2/ServalT/SparX-5 */
-#error "Only VTSS_ARCH_SERVAL and VTSS_FEATURE_VOP_V2 is supported at this time."
+#error "Only VTSS_ARCH_OCELOT and VTSS_FEATURE_VOP_V2 is supported at this time."
 #endif
 
 #define VTSS_VOE_CNT                ((VTSS_PATH_SERVICE_VOE_CNT) + (VTSS_PORT_VOE_CNT))   // Total count of port + path/service VOEs

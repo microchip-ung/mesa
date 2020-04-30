@@ -709,9 +709,9 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
             if (header) {
                 header = 0;
                 pr("Port  BPDU              GARP              ");
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
                 pr("IPMC  IGMP  MLD");
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
                 pr("\n");
             }
             pr("%-6u", port_no);
@@ -721,12 +721,12 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
                    vtss_packet_reg_txt(i < 16 ? port_conf->bpdu_reg[i] : port_conf->garp_reg[i - 16]),
                    i % 16 == 15 ? "  " : "");
             }
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
             pr("%-6s%-6s%s",
                vtss_packet_reg_txt(port_conf->ipmc_ctrl_reg),
                vtss_packet_reg_txt(port_conf->igmp_reg),
                vtss_packet_reg_txt(port_conf->mld_reg));
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
             pr("\n");
         }
         if (!header)

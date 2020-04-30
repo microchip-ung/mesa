@@ -200,7 +200,7 @@ typedef enum
 {
     VTSS_ACL_PTP_ACTION_NONE,                 /**< No PTP action */
     VTSS_ACL_PTP_ACTION_ONE_STEP,             /**< PTP one-step time-stamping */
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY,   /**< PTP one-step time-stamping, Serval: add delay, Jr2: Add EDLY */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1, /**< PTP one-step time-stamping, Serval: subtract delay 1, Jr2: Add IDLY1 */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2, /**< PTP one-step time-stamping, Serval: subtract delay 2, Jr2: Add IDLY2 */
@@ -293,10 +293,10 @@ typedef struct
     vtss_acl_ptp_action_conf_t ptp;            /**< PTP configuration */
     vtss_acl_addr_action_t     addr;           /**< Address update configuration */
 #endif
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     BOOL                       lm_cnt_disable; /**< Disable OAM LM Tx counting */
-#endif /* VTSS_ARCH_SERVAL */
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#endif /* VTSS_ARCH_OCELOT */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     BOOL                       mac_swap;       /**< Swap SMAC and DMAC */
     BOOL                       ifh_flag;       /**< Control one target specific bit in IFH */
 #endif
@@ -567,11 +567,11 @@ typedef struct
 typedef struct
 {
     vtss_ace_id_t        id;           /**< ACE ID, must be different from VTSS_ACE_ID_LAST */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     u8                   lookup;       /**< Lookup, any non-zero value means second lookup */
     BOOL                 isdx_enable;  /**< Use VID value for ISDX value */
     BOOL                 isdx_disable; /**< Match only frames with ISDX zero */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
     BOOL                 port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */ 
     vtss_ace_u8_t        policy;       /**< Policy number */
     vtss_ace_type_t      type;         /**< ACE frame type */

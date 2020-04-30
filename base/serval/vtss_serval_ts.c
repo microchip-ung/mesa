@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_TS
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
 
@@ -1142,4 +1142,4 @@ vtss_rc vtss_srvl_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

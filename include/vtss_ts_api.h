@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /** \brief Number of clock cycle counts pr sec. */
-#if defined (VTSS_ARCH_SERVAL)
+#if defined (VTSS_ARCH_OCELOT)
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000 /* Serval counts ns instead of clock cycles */
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
@@ -46,7 +46,7 @@ extern "C" {
 #define VTSS_HW_TIME_WRAP_LIMIT  0       /* time counter wrap around limit+1 */
 #endif
 
-#if defined (VTSS_ARCH_LUTON26) || defined (VTSS_ARCH_SERVAL)
+#if defined (VTSS_ARCH_LUTON26) || defined (VTSS_ARCH_OCELOT)
 /** \brief Caracal nanosecond time counter wrap around value (Caracal time counter wraps when 0xffffffff is reached). */
 #define VTSS_HW_TIME_WRAP_LIMIT  0       /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
 #endif
@@ -55,7 +55,7 @@ extern "C" {
 /** \brief Luton26 minimum adjustment rate in units of 0,1 ppb. */
 #define VTSS_HW_TIME_MIN_ADJ_RATE  40       /* 4 ppb */
 #endif
-#if defined (VTSS_ARCH_SERVAL)
+#if defined (VTSS_ARCH_OCELOT)
 /** \brief Serval minimum adjustment rate in units of 0,1 ppb. */
 #define VTSS_HW_TIME_MIN_ADJ_RATE  10       /* 1 ppb */
 #endif
@@ -380,7 +380,7 @@ vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t              inst,
 vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t           inst,
                                 i32                         *const adj);
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) /* TBD_henrikb */
 /**
  * \brief parameter for setting the alternative  clock mode.
  */
@@ -403,7 +403,7 @@ typedef struct vtss_ts_alt_clock_mode_t {
 vtss_rc vtss_ts_alt_clock_saved_get(const vtss_inst_t           inst,
                                     u64    *const               saved);
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 /**
  * \brief Get the latest saved timeofday from the alternative clock.
  *

@@ -18,7 +18,7 @@
 #include "../luton26/vtss_luton26.h"
 #endif
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #include "../serval/vtss_serval.h"
 #endif
 
@@ -295,7 +295,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         }
 #endif
         break;
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     case VTSS_TARGET_7511:
     case VTSS_TARGET_7512:
     case VTSS_TARGET_7513:
@@ -303,7 +303,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         arch = VTSS_ARCH_SRVL;
         VTSS_RC(vtss_serval_inst_create(vtss_state));
         break;
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #if defined(VTSS_ARCH_LUTON26)
     case VTSS_TARGET_SPARX_III_10_UM:
     case VTSS_TARGET_SPARX_III_17_UM:
@@ -525,7 +525,7 @@ vtss_rc vtss_register_access_mode_set(const vtss_inst_t inst, BOOL spi_bus)
 /* SPI slave initialization configuration */
 vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 {
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     u32 if_ctrl = 0, if_cfgstat = 0, value;
 #ifdef VTSS_ARCH_SPARX5
     u32 base_addr = 0x40406A;

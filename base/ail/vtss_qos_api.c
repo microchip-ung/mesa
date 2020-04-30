@@ -128,7 +128,7 @@ vtss_rc vtss_qos_status_get(const vtss_inst_t      inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
@@ -141,7 +141,7 @@ vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst)
     VTSS_EXIT();
     return rc;
 }
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 /* - QCL configuration --------------------------------------------- */
 
@@ -949,13 +949,13 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst)
 vtss_rc vtss_evc_policer_id_check(vtss_state_t *vtss_state,
                                   const vtss_evc_policer_id_t policer_id, BOOL resv)
 {
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     /* Allow reserved policers */
     if (resv &&
         (policer_id == VTSS_EVC_POLICER_ID_DISCARD || policer_id == VTSS_EVC_POLICER_ID_NONE)) {
         return VTSS_RC_OK;
     }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
     if (policer_id >= vtss_state->qos.evc_policer_max) {
         VTSS_E("illegal policer_id: %u", policer_id);
@@ -1600,7 +1600,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
 
     is1->lookup = 1; /* Second lookup */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     /* For Serval, the configured key of the first port is used */
     if (vtss_state->arch == VTSS_ARCH_SRVL) {
         vtss_port_no_t port_no;
@@ -1616,7 +1616,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
         }
         key_size = vtss_vcap_key_type2size(key->key_type);
     }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_FA) {

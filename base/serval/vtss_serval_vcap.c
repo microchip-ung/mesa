@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_VCAP
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 /* ================================================================= *
  *  TCAM properties
@@ -3596,9 +3596,7 @@ static vtss_rc srvl_vcap_init(vtss_state_t *vtss_state)
 
     // IPv6: IP4_TCP_UDP/IP4_OTHER(2) in first lookup, IP6_TCP_UDP/IP6_OTHER(0) in second lookup
     value = (VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_ENA | VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_IP6_CFG(2));
-#if defined(VTSS_ARCH_SERVAL_CPU)
     value |= VTSS_F_ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS(0x3);
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /* Initialize VCAP port setup */
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
@@ -3721,4 +3719,4 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     }
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

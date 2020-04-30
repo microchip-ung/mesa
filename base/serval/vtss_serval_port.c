@@ -5,12 +5,11 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 /* - CIL functions ------------------------------------------------- */
 
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 
 static BOOL srvl_port_is_internal_phy(u32 chip_port);
 
@@ -1067,7 +1066,6 @@ static vtss_rc srvl_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_p
                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA);
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 /* ================================================================= *
  *  Port control
@@ -1441,7 +1439,6 @@ static BOOL srvl_port_is_internal_phy(u32 chip_port)
     return (chip_port < 4); // cport 0-3 is internal phy ports
 }
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_serdes_cfg(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
     u32  inst, addr, port = VTSS_CHIP_PORT(port_no);
@@ -1460,7 +1457,6 @@ static vtss_rc srvl_serdes_cfg(vtss_state_t *vtss_state, const vtss_port_no_t po
     }
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -1471,10 +1467,8 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     vtss_port_frame_gaps_t gaps;
     vtss_port_speed_t      speed = conf->speed;
     BOOL                   fdx = conf->fdx, disable = conf->power_down;
-#if defined(VTSS_ARCH_SERVAL_CPU)
     BOOL                   sgmii = 0, if_100fx = 0;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;   
-#endif /* VTSS_ARCH_SERVAL_CPU */
     u32                    cnt[2];
 
     // Enable/disable the internal PHY
@@ -1508,9 +1502,7 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     case VTSS_PORT_INTERFACE_INTERNAL:
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_SGMII:
-#if defined(VTSS_ARCH_SERVAL_CPU)
         sgmii = 1;
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         mode = VTSS_SERDES_MODE_QSGMII;
@@ -1535,44 +1527,35 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
             VTSS_E("illegal speed, port %u", port);
             return VTSS_RC_ERROR;
         }
-#if defined(VTSS_ARCH_SERVAL_CPU)
         mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_1000BaseX);
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_100FX:
         if (speed != VTSS_SPEED_100M) {
             VTSS_E("illegal speed, port %u", port);
             return VTSS_RC_ERROR;
         }
-#if defined(VTSS_ARCH_SERVAL_CPU)
         mode = VTSS_SERDES_MODE_100FX;
         if_100fx = 1;      
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (speed != VTSS_SPEED_10M && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_1G) {
             VTSS_E("SFP_CU, illegal speed, port %u", port);
             return VTSS_RC_ERROR;
         }
-#if defined(VTSS_ARCH_SERVAL_CPU)
         mode = VTSS_SERDES_MODE_1000BaseX;
         sgmii = 1;        
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_VAUI:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_2500M) {
             VTSS_E("illegal speed, port %u", port);
             return VTSS_RC_ERROR;
         }
-#if defined(VTSS_ARCH_SERVAL_CPU)
         mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_1000BaseX);
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     default:
         VTSS_E("illegal interface, port %u", port);
         return VTSS_RC_ERROR;
     }
-#if defined(VTSS_ARCH_SERVAL_CPU)
     if (conf->loop == VTSS_PORT_LOOP_PCS_HOST) {
         mode = VTSS_SERDES_MODE_TEST_MODE;
     }
@@ -1601,7 +1584,6 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
         VTSS_RC(srvl_serdes_cfg(vtss_state, port_no, mode));
     }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /* Store counters (Workaround for BZ17386) */
     SRVL_WR(VTSS_SYS_SYSTEM_STAT_CFG, VTSS_F_SYS_SYSTEM_STAT_CFG_STAT_VIEW(port));
@@ -1612,10 +1594,8 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     /* Port disable and flush procedure: */
     /* ********************************* */
     /* 1: Reset the PCS Rx clock domain  */
-#if defined(VTSS_ARCH_SERVAL_CPU)
     SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
                  VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_RX_RST);
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /* 2: Disable MAC frame reception */
     SRVL_WRM_CLR(VTSS_DEV_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
@@ -1679,12 +1659,10 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
 
     /* The port is disabled and flushed, now set up the port in the new operating mode */
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     /* Re-Configure the Serdes macros */
     if (mode != vtss_state->port.serdes_mode[port_no]) {
         VTSS_RC(srvl_serdes_cfg(vtss_state, port_no, mode));
     }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /*  Restore counters (Workaround for BZ17386) */
     SRVL_WR(VTSS_SYS_STAT_CNT(0x40), cnt[0]);
@@ -1759,7 +1737,6 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     /* Disable HDX fast control */
     SRVL_WRM_SET(VTSS_DEV_PORT_MODE_PORT_MISC(tgt), VTSS_F_DEV_PORT_MODE_PORT_MISC_HDX_FAST_DIS);
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     /* PCS settings for 100fx/SGMII/SERDES */
     if (if_100fx) {
         /* 100FX PCS */                    
@@ -1820,7 +1797,6 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     SRVL_WRM_CTL(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_LB_CFG(tgt), 
                  conf->loop == VTSS_PORT_LOOP_PCS_HOST, 
                  VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /* Set Max Length and maximum tags allowed */
     SRVL_WR(VTSS_DEV_MAC_CFG_STATUS_MAC_MAXLEN_CFG(tgt), conf->max_frame_length);
@@ -1885,7 +1861,6 @@ static vtss_rc srvl_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t 
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_port_status_get(vtss_state_t *vtss_state,
                                     const vtss_port_no_t  port_no, 
                                     vtss_port_status_t    *const status)
@@ -1964,11 +1939,9 @@ static vtss_rc srvl_port_status_get(vtss_state_t *vtss_state,
                          VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY);
         }
         status->speed = VTSS_SPEED_2500M; 
-#if defined(VTSS_ARCH_SERVAL_CPU)
         if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_2G5) {
             status->speed = VTSS_SPEED_1G;
         }
-#endif /* VTSS_ARCH_SERVAL_CPU */
         break;
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
         status->link = 0;
@@ -1980,7 +1953,6 @@ static vtss_rc srvl_port_status_get(vtss_state_t *vtss_state,
     status->fdx = 1;    
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 static vtss_rc srvl_port_counters_read(vtss_state_t                 *vtss_state,
                                        vtss_port_no_t               port_no,
@@ -2516,12 +2488,10 @@ static vtss_rc srvl_port_buf_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static void srvl_debug_fld_nl(const vtss_debug_printf_t pr, const char *name, u32 value)
 {
     pr("%-20s: %u\n", name, value);
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 #define SRVL_GET_FLD(tgt, addr, fld, value)  VTSS_X_##tgt##_##addr##_##fld(value)
 #define SRVL_GET_BIT(tgt, addr, fld, value)  (VTSS_F_##tgt##_##addr##_##fld & (value) ? 1 : 0)
@@ -2534,7 +2504,6 @@ static void srvl_debug_fld_nl(const vtss_debug_printf_t pr, const char *name, u3
 #define SRVL_DEBUG_HSIO_FLD(pr, addr, fld, value) srvl_debug_fld_nl(pr, #fld, SRVL_GET_FLD(HSIO, addr, fld, x))
 #define SRVL_DEBUG_RAW(pr, offset, length, value, name) srvl_debug_fld_nl(pr, name, VTSS_EXTRACT_BITFIELD(value, offset, length))
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    u32 inst,
@@ -2609,7 +2578,6 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
@@ -2618,10 +2586,8 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
     u32            port, tgt;
     vtss_port_no_t port_no;
     char           buf[32];
-#if defined(VTSS_ARCH_SERVAL_CPU)
     u32            inst, x;
     BOOL           serdes6g;
-#endif /* VTSS_ARCH_SERVAL_CPU */
     
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
@@ -2636,7 +2602,6 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
         SRVL_DEBUG_MAC(pr, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
         SRVL_DEBUG_MAC(pr, TAGS_CFG(tgt), port, "TAGS_CFG");
         vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_SYS_PAUSE_CFG_MAC_FC_CFG(port), port, "FC_CFG");
-#if defined(VTSS_ARCH_SERVAL_CPU)
         SRVL_DEBUG_PCS(pr, CFG(tgt), port, "CFG");
         SRVL_DEBUG_PCS(pr, MODE_CFG(tgt), port, "MODE_CFG");
         SRVL_DEBUG_PCS(pr, SD_CFG(tgt), port, "SD_CFG");
@@ -2706,18 +2671,15 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
             SRVL_DEBUG_RAW(pr, 21, 1, x, "PLL_FSM_RC_DIV2");
             SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, PLL_FSM_CTRL_DATA, x);
         }
-#endif /* VTSS_ARCH_SERVAL_CPU */
         pr("\n");
     }
     pr("\n");
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     if (vtss_state->sys_config.using_pcie) {
         inst = 2; /* Serdes2 == PCIe */
         sprintf(buf, "SerDes6G_%u (PCIe)", inst);
         (void)srvl_debug_serdes6g(vtss_state, pr, inst, buf);
     }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     return VTSS_RC_OK;
 }
@@ -3029,12 +2991,10 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mmd_write = srvl_mmd_write;
         state->conf_get = srvl_port_conf_get;
         state->conf_set = srvl_port_conf_set;
-#if defined(VTSS_ARCH_SERVAL_CPU)
         state->clause_37_status_get = srvl_port_clause_37_status_get;
         state->clause_37_control_get = srvl_port_clause_37_control_get;
         state->clause_37_control_set = srvl_port_clause_37_control_set;
         state->status_get = srvl_port_status_get;
-#endif /* VTSS_ARCH_SERVAL_CPU */
         state->counters_update = srvl_port_counters_update;
         state->counters_clear = srvl_port_counters_clear;
         state->counters_get = srvl_port_counters_get;
@@ -3083,4 +3043,4 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

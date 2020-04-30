@@ -7,14 +7,14 @@
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #define VTSS_TS_ID_SIZE  63
 #define TS_IDS_RESERVED_FOR_SW 4
-#endif /* VTSS_ARCH_LUTON26 || VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_LUTON26 || VTSS_ARCH_OCELOT */
 
-#if defined (VTSS_ARCH_SERVAL)
+#if defined (VTSS_ARCH_OCELOT)
 #define VTSS_VOE_ID_SIZE  VTSS_VOE_CNT
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_TS_ID_SIZE  3 // tbd
@@ -24,7 +24,7 @@
 
 typedef struct {
     vtss_ts_ext_clock_mode_t ext_clock_mode;
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_ts_ext_clock_mode_t ext_clock_mode_alt;
     vtss_ts_alt_clock_mode_t alt_clock_mode;
 #endif
@@ -74,7 +74,7 @@ typedef struct {
     void (*cb  [VTSS_PORT_ARRAY_SIZE]) (void *context, u32 port_no, vtss_ts_timestamp_t *ts); /* timestamp callback functions */
 } vtss_ts_timestamp_status_t;
 
-#if defined (VTSS_ARCH_SERVAL)
+#if defined (VTSS_ARCH_OCELOT)
 /* Serval OAM timestamp table structure
  * When an OAM timestamp is registered in HW, it is saved in this table
  * For each VOE instance there is place for up to VTSS_SERVAL_MAX_OAM_ENTRIES timestamps, the sequence number is used
@@ -97,7 +97,7 @@ typedef struct {
     vtss_oam_timestamp_entry_t entry [VTSS_SERVAL_MAX_OAM_ENTRIES];
     i32 last;
 } vtss_oam_timestamp_status_t;
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 typedef struct {
     /* CIL function pointers */
@@ -140,13 +140,13 @@ typedef struct {
     vtss_rc (* adjtimer_set)(struct vtss_state_s *vtss_state);
     vtss_rc (* domain_adjtimer_set)(struct vtss_state_s *vtss_state, u32 domain);
     vtss_rc (* freq_offset_get)(struct vtss_state_s *vtss_state, i32 *adj);
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_rc (* alt_clock_saved_get)(struct vtss_state_s *vtss_state, u64 *saved);
     vtss_rc (* alt_clock_mode_set)(struct vtss_state_s *vtss_state);
     vtss_rc (* timeofday_next_pps_set)(struct vtss_state_s *vtss_state,
                                        const vtss_timestamp_t *ts);
 #endif
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_rc (* external_clock_mode_set)(struct vtss_state_s *vtss_state, int idx);
 #else
     vtss_rc (* external_clock_mode_set)(struct vtss_state_s *vtss_state);
@@ -188,7 +188,7 @@ typedef struct {
     vtss_rc (* seq_cnt_get) (struct vtss_state_s *vtss_state,
                              uint32_t                   sec_cntr,
                              uint16_t *const            cnt_val);
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_rc (* alt_clock_saved_timeofday_get) (struct vtss_state_s *vtss_state,
                                      vtss_timestamp_t               *ts);
 #endif
@@ -198,12 +198,12 @@ typedef struct {
     vtss_ts_internal_mode_t     int_mode;
     vtss_ts_port_conf_t         port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_ts_timestamp_status_t  status[VTSS_TS_ID_SIZE];
-#if defined (VTSS_ARCH_SERVAL) && defined (VTSS_FEATURE_VOP)
+#if defined (VTSS_ARCH_OCELOT) && defined (VTSS_FEATURE_VOP)
     vtss_oam_timestamp_status_t oam_ts_status[VTSS_VOE_ID_SIZE];
-#endif /* VTSS_ARCH_SERVAL && VTSS_FEATURE_VOP */
-#if defined (VTSS_ARCH_SERVAL)
+#endif /* VTSS_ARCH_OCELOT && VTSS_FEATURE_VOP */
+#if defined (VTSS_ARCH_OCELOT)
     BOOL                        add_sub_option;
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_ts_ext_io_mode_t       io_cfg[VTSS_TS_IO_ARRAY_SIZE];
 #endif /* VTSS_ARCH_JAGUAR2 */

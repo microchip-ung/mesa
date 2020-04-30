@@ -124,7 +124,7 @@ u32 vtss_cmn_restart_value_get(vtss_state_t *vtss_state)
                                  VTSS_RESTART_VERSION_WIDTH));
 }
 
-#if defined(VTSS_FEATURE_PORT_CONTROL)  ||  defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_FEATURE_PORT_CONTROL)  ||  defined(VTSS_ARCH_OCELOT)
 /* Rebase 64-bit counter, i.e. discard changes since last update, based on 8-bit chip counter */
 void vtss_cmn_counter_8_rebase(u8 new_base_value, vtss_chip_counter_t *counter)
 {

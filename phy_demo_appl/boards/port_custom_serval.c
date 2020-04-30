@@ -11,7 +11,7 @@
 #define PHY_INST NULL
 //#endif
 //#include "../base/phy/phy_1g/vtss_phy.h" // For PHY registers defines
-#if defined(VTSS_ARCH_SERVAL_CPU)
+#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }
 
 #if 0
@@ -833,7 +833,7 @@ BOOL vtss_board_probe_serval(vtss_board_t *board, vtss_board_info_t *board_info)
     return TRUE;
 }
 
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 /****************************************************************************/
 /*                                                                          */

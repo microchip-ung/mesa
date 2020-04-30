@@ -7,7 +7,7 @@
 // Avoid Lint Warning 572: Excessive shift value (precision 1 shifted right by 2), which occurs
 // in this file because (t) - VTSS_IO_ORIGIN1_OFFSET == 0 for t = VTSS_TO_CFG (i.e. ICPU_CFG), and 0 >> 2 gives a lint warning.
 /*lint --e{572} */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 static vtss_rc srvl_wr_indirect(vtss_state_t *vtss_state, u32 addr, u32 value);
 static vtss_rc srvl_rd_indirect(vtss_state_t *vtss_state, u32 addr, u32 *value);
@@ -330,7 +330,6 @@ static vtss_rc srvl_restart_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_stop_prepare(vtss_state_t *vtss_state)
 
 {
@@ -384,7 +383,6 @@ static vtss_rc vtss_lc_pll5g_setup(vtss_state_t *vtss_state)
     rc |= vtss_ocelot_pll5g_setup(vtss_state, pll5g_args);
     return rc;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
 {
@@ -398,7 +396,6 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x", 
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     /* Use SEMA0_OWNER to determine if using VCOREIII or PCIe */
     SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA0, 0xFFFFFFFF); /* Release sema */
     SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA0, &value);     /* Get sema */
@@ -424,13 +421,11 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->sys_config.using_vcoreiii,
            vtss_state->sys_config.using_vrap,
            vtss_state->sys_config.using_pcie);
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     /* Read restart type */
     SRVL_RD(VTSS_DEVCPU_GCB_CHIP_REGS_GPR, &value);
     VTSS_RC(vtss_cmn_restart_update(vtss_state, value));
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     /* iCPU-to-eCPU startup sequence */
     SRVL_RD(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GPR(0), &value);
     if (value == 1) {
@@ -446,9 +441,7 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
         vtss_state->warm_start_cur = vtss_state->init_conf.warm_start_enable;
         VTSS_I("warm start%s", vtss_state->warm_start_cur ? "ing" : " disabled");
     }
-#endif /* defined(VTSS_ARCH_SERVAL_CPU) */
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     /* Initialize the LC-PLL */
     if (!vtss_state->warm_start_cur && vtss_lc_pll5g_setup(vtss_state) != VTSS_RC_OK) {
          VTSS_E("LC-PLL5G initialization error");
@@ -490,12 +483,6 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
         }
 #endif
     }
-#else
-    /* In lack of better, reset extraction queue */
-    SRVL_WRM_SET(VTSS_DEVCPU_QS_XTR_XTR_FLUSH, VTSS_M_DEVCPU_QS_XTR_XTR_FLUSH_FLUSH); /* All Queues */
-    VTSS_MSLEEP(1);         /* Allow to drain */
-    SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_FLUSH, VTSS_M_DEVCPU_QS_XTR_XTR_FLUSH_FLUSH);
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 
     /* Initialize memories */
@@ -503,7 +490,7 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     if (!(value & VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_ENA)) {
         /* Avoid initialization if already done by VRAP strapping */
         value = 0;
-#if (VTSS_MPLS_OUT_ENCAP_CNT > 0) && defined(VTSS_ARCH_SERVAL_CPU)
+#if (VTSS_MPLS_OUT_ENCAP_CNT > 0)
         // We must reserve MPLS egress encapsulation memory. The chip field
         // semantics are:
         //  N == 0 => don't reserve;
@@ -570,4 +557,4 @@ vtss_rc vtss_serval_inst_create(vtss_state_t *vtss_state)
     return vtss_srvl_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

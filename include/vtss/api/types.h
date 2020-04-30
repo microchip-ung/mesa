@@ -796,7 +796,7 @@ typedef u32 vtss_packet_rx_grp_t;
 typedef u32 vtss_packet_tx_grp_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #undef  VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT    8  /**< Number of Rx packet queues */
 #undef  VTSS_PACKET_RX_GRP_CNT
@@ -855,11 +855,11 @@ typedef struct {
 
 /** \brief Packet registration per port */
 typedef struct {
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_packet_reg_type_t          ipmc_ctrl_reg; /**< IP MC Control, NORMAL/FORWARD/CPU_COPY supported */
     vtss_packet_reg_type_t          igmp_reg;      /**< IGMP, NORMAL/FORWARD/CPU_ONLY supported */
     vtss_packet_reg_type_t          mld_reg;       /**< MLD, NORMAL/FORWARD/CPU_ONLY supported */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
     vtss_packet_reg_type_t          bpdu_reg[16];  /**< BPDU range: 01-80-C2-00-00-0X */
     vtss_packet_reg_type_t          garp_reg[16];  /**< GARP range: 01-80-C2-00-00-2X */
 #if defined(VTSS_FEATURE_PACKET_PORT_L2CP_REG)
@@ -1183,7 +1183,7 @@ typedef u32 vtss_acl_policy_no_t;
 #define VTSS_ACL_POLICY_NO_MAX   255                                            /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_ACL_POLICY_NO_MAX   127                                            /**< ACLs policy maximum number */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_ACL_POLICY_NO_MAX   63                                             /**< ACLs policy maximum number */
 #else
 #define VTSS_ACL_POLICY_NO_MAX   7                                              /**< ACLs policy maximum number */

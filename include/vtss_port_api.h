@@ -194,10 +194,10 @@ typedef struct
 #define VTSS_MAX_FRAME_LENGTH_MAX      9600  /**< Maximum frame length supported */
 #endif /* VTSS_ARCH_LUTON26 */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #undef VTSS_MAX_FRAME_LENGTH_MAX
 #define VTSS_MAX_FRAME_LENGTH_MAX      10240 /**< Maximum frame length supported */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 #undef VTSS_MAX_FRAME_LENGTH_MAX
@@ -424,10 +424,10 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t          inst,
 /** \brief Port Internal Frame Header structure */
 typedef struct
 {
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     BOOL ena_inj_header; /**< At ingress expect long prefix followed by an internal frame header */
     BOOL ena_xtr_header; /**< At egress prepend long prefix followed by the internal frame header */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
     BOOL ena_inj_header; /**< At ingress expect short prefix: DMAC:SMAC:0x8880:0007

@@ -844,11 +844,11 @@ vtss_rc vtss_qos_egress_map_del(const vtss_inst_t              inst,
 vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst);
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 /**
  * \brief Calibrate egress shaper rates.
  *
- * This function calibrates the egress port and queue shapers on VTSS_ARCH_SERVAL.
+ * This function calibrates the egress port and queue shapers on VTSS_ARCH_OCELOT.
  *
  * Calling this function periodically will enhance the accuracy of the egress
  * port and queue shapers.
@@ -862,7 +862,7 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst);
  * NOTICE: Everytime a shaper is changed, this function must be invoked again.
  **/
 vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst);
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 /** \brief EVC policer configuration */
@@ -875,15 +875,15 @@ typedef vtss_dlb_policer_conf_t vtss_evc_policer_conf_t;
 #define VTSS_EVC_POLICERS           1022 /**< Maximum number of EVC policers */
 #elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_CHIP_SERVAL_LITE)
 #define VTSS_EVC_POLICERS           256  /**< Maximum number of EVC policers */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_EVC_POLICERS           64   /**< Maximum number of EVC policers */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_EVC_POLICER_ID_DISCARD 4094 /**< EVC/ECE: Policer discards all frames */
 #define VTSS_EVC_POLICER_ID_NONE    4095 /**< EVC/ECE: Policer forwards all frames */
 #define VTSS_EVC_POLICER_ID_EVC     4096 /**< ECE only: Use EVC policer */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 /**
  * \brief Get EVC policer configuration.

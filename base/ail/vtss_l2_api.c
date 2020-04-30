@@ -4502,7 +4502,7 @@ vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 vtss_rc vtss_vcap_port_conf_get(const vtss_inst_t     inst,
                                 const vtss_port_no_t  port_no,
                                 vtss_vcap_port_conf_t *const conf)
@@ -4541,7 +4541,7 @@ vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t           inst,
     VTSS_EXIT();
     return rc;
 }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 /* VLAN counters */
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -4747,10 +4747,10 @@ vtss_rc vtss_l2_restart_sync(vtss_state_t *vtss_state)
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_FUNC_RC(l2.learn_port_mode_set, port_no);
         VTSS_FUNC_RC(l2.vlan_port_conf_set, port_no);
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         vtss_state->vcap.port_conf_old = vtss_state->vcap.port_conf[port_no];
         VTSS_FUNC_RC(l2.vcap_port_conf_set, port_no);
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
         vtss_state->l2.vcl_port_conf_old = vtss_state->l2.vcl_port_conf[port_no];
         VTSS_FUNC_RC(l2.vcl_port_conf_set, port_no);
     }
@@ -5089,7 +5089,7 @@ static void vtss_cmn_es0_data_set(vtss_state_t *vtss_state,
         es0->port_no = port_no;
         action->vid_b = new_vid;
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         if (vtss_state->arch == VTSS_ARCH_SRVL || vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_FA) {
             action->outer_tag.tag = VTSS_ES0_TAG_ES0;
             action->outer_tag.vid.sel = 1;
@@ -5596,7 +5596,7 @@ vtss_rc vtss_cmn_ipv6_mc_del(vtss_state_t      *vtss_state,
 }
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 vtss_vcap_key_type_t vtss_vcl_key_type_get(vtss_vcap_key_type_t key_type_a, vtss_vcap_key_type_t key_type_b)
 {
     /* For Serval-1, EVC and VCL port configuration must be aggregated to determine the first IS1 lookup key.
@@ -5616,7 +5616,7 @@ static void vtss_cmn_key_type_get(vtss_state_t *vtss_state, vtss_port_no_t port_
         /* The first port in the list determines the key type */
         conf = &vtss_state->l2.vcl_port_conf[port_no];
         key->key_type = conf->key_type;
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         if (lookup == 1) {
             key->key_type = vtss_state->vcap.port_conf[port_no].key_type_is1_1;
         }
@@ -5695,11 +5695,11 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     is1->port_no = vtss_cmn_first_port_no_get(vtss_state, vce->key.port_list);
     is1->flags = VTSS_IS1_FLAG_TRI_VID;
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     if (vtss_state->arch == VTSS_ARCH_SRVL) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
     }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_FA) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
@@ -5743,7 +5743,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
 #endif
     }
     action->oam_detect = vce->action.oam_detect;
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     action->oam_enable = (vce->action.oam_detect != VTSS_OAM_DETECT_NONE) ? 1 : 0;
 #endif
 #endif
@@ -6525,12 +6525,12 @@ static vtss_rc vtss_vt_is1_entry_add(vtss_state_t *vtss_state,
     }
     is1->port_no = vtss_cmn_first_port_no_get(vtss_state, key->port_list);
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     if (vtss_state->arch == VTSS_ARCH_SRVL) {
         is1->lookup = 1; /* Second lookup */
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &key_size);
     }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_FA) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &key_size);
@@ -7387,9 +7387,9 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
         if (header) {
             header = 0;
             pr("Port  Type  ");
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
             pr("EType   ");
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
             pr("PVID  UVID  Frame  Filter\n");
         }
         conf = &vtss_state->l2.vlan_port_conf[port_no];
@@ -7399,9 +7399,9 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
            conf->port_type == VTSS_VLAN_PORT_TYPE_C ? "C" :
            conf->port_type == VTSS_VLAN_PORT_TYPE_S ? "S" :
            conf->port_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? "S_CU" : "?");
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         pr("0x%04x  ", conf->s_etype);
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
         pr("%-4u  %-4u  %-5s  %u\n",
            conf->pvid, conf->untagged_vid,
            conf->frame_type == VTSS_VLAN_FRAME_ALL ? "all" :

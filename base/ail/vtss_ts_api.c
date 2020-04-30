@@ -360,7 +360,7 @@ vtss_rc vtss_ts_external_clock_mode_set(
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.conf.ext_clock_mode = *ext_clock_mode;
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         rc = VTSS_FUNC_COLD(ts.external_clock_mode_set,1);
 #else
         rc = VTSS_FUNC_COLD_0(ts.external_clock_mode_set);
@@ -386,7 +386,7 @@ vtss_rc vtss_ts_external_clock_saved_get(
 }
 
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 vtss_rc vtss_ts_alt_clock_saved_get(
     const vtss_inst_t           inst,
     u64    *const               saved)
@@ -402,7 +402,7 @@ vtss_rc vtss_ts_alt_clock_saved_get(
     return rc;
 }
                                        
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t     inst,
                                     vtss_timestamp_t  *const        ts)
 {
@@ -416,7 +416,7 @@ vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t     inst,
     VTSS_EXIT();
     return rc;
 }
-#endif //defined(VTSS_ARCH_SERVAL)
+#endif //defined(VTSS_ARCH_OCELOT)
 
 /* Get the alternative external clock mode. */
 vtss_rc vtss_ts_alt_clock_mode_get(
@@ -466,7 +466,7 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t       inst,
     return rc;
 }
 
-#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
+#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /*

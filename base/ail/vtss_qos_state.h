@@ -7,11 +7,11 @@
 
 #if defined(VTSS_FEATURE_QOS)
 
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 
 #define VTSS_QOS_DWRR_COST_BIT_WIDTH 5
 
-#endif /* defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
+#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
 #if defined(VTSS_ARCH_LUTON26)
 #define VTSS_L26_POLICER_CNT 256
@@ -43,7 +43,7 @@ typedef struct {
 
 #endif /* VTSS_ARCH_LUTON26 */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 typedef struct {
     u32 rate_pwm;       /**< Target relative rate of CIR PWM Serval fix. Unit: kbps. Valid values are 0, 100, 200, and 300. Use 0 to disable the CIR PWM Serval fix */
     u32 rate_pwm_high;  /**< High rate of CIR PWM Serval fix.            Unit: 100 kbps */
@@ -54,13 +54,13 @@ typedef struct {
     i32 eir_pwm_error;  /**< Current rate error of EIR PWM Serval fix. */
     u32 ebs_pwm;        /**< EBS used by EIR PWM Serval fix.             Unit: 4096 bytes */
 } vtss_shaper_calibrate_t;
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 /* SDX zero is reserved for non-service forwarding */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_SRVL_SDX_CNT 1022 /* SDX 1023 is reserved for CPU Tx operations */
 #define VTSS_SDX_CNT VTSS_SRVL_SDX_CNT
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 #define VTSS_POL_STAT_NONE 0  /* The NO Policer/SDX statistics value */
 
@@ -446,9 +446,9 @@ typedef struct {
     vtss_rc (* evc_policer_conf_set)(struct vtss_state_s *vtss_state,
                                      const vtss_evc_policer_id_t policer_id);
 #endif /* VTSS_FEATURE_QOS_POLICER_DLB */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_rc (* shaper_calibrate)(struct vtss_state_s *vtss_state);
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     vtss_rc (* ingress_map_add)(struct vtss_state_s *vtss_state,
@@ -512,10 +512,10 @@ typedef struct {
     u16                 lb_set_grp_idx[LB_SET_CNT];     /* The LB group index for this LB set */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_shaper_calibrate_t port_shaper[VTSS_PORT_ARRAY_SIZE];
     vtss_shaper_calibrate_t queue_shaper[VTSS_PORT_ARRAY_SIZE][VTSS_QUEUE_ARRAY_SIZE];
-#endif /* defined(VTSS_ARCH_SERVAL) */
+#endif /* defined(VTSS_ARCH_OCELOT) */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     vtss_qos_map_id_entry_t imap_id[VTSS_QOS_INGRESS_MAP_IDS];    /* Allocation of id table. Only accessed through imap below */

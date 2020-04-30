@@ -22,7 +22,7 @@
 #if defined(VTSS_FEATURE_MPLS)
 #include "vtss_mpls_common.h"
 #endif
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #include "../serval/vtss_serval.h"
 #endif
 

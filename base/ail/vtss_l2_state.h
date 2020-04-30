@@ -27,7 +27,7 @@ typedef struct {
 
 /* Number of destination masks */
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #define VTSS_PGID_LUTON26 64
 #undef VTSS_PGIDS
 #define VTSS_PGIDS        VTSS_PGID_LUTON26
@@ -563,10 +563,10 @@ typedef struct {
                                           const vtss_vlan_trans_port2grp_conf_t *conf);
     vtss_rc (* vlan_trans_port_conf_get) (struct vtss_state_s *vtss_state,
                                           vtss_vlan_trans_port2grp_conf_t *conf, BOOL next);
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_rc (* vcap_port_conf_set)(struct vtss_state_s *vtss_state,
                                    const vtss_port_no_t port_no);
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     vtss_rc (* vlan_counters_get)(struct vtss_state_s *vtss_state,
                                   const vtss_vid_t          vid,
@@ -805,7 +805,7 @@ vtss_rc vtss_cmn_ipv6_mc_del(struct vtss_state_s      *vtss_state,
                              const vtss_ipv6_t dip);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 vtss_vcap_key_type_t vtss_vcl_key_type_get(vtss_vcap_key_type_t key_type_a, vtss_vcap_key_type_t key_type_b);
 #endif
 vtss_rc vtss_cmn_vcl_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);

@@ -4,7 +4,7 @@
 
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 // Avoid Lint Warning 572: Excessive shift value (precision 1 shifted right by 2), which occurs
 // in this file because (t) - VTSS_IO_ORIGIN1_OFFSET == 0 for t = VTSS_TO_CFG (i.e. ICPU_CFG), and 0 >> 2 gives a lint warning.
@@ -370,7 +370,6 @@ static vtss_rc srvl_ptp_event_enable(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 static vtss_rc srvl_dev_all_event_poll(vtss_state_t *vtss_state,
                                        vtss_dev_all_event_poll_t poll_type,
                                        vtss_dev_all_event_type_t  *ev_mask)
@@ -443,11 +442,9 @@ static vtss_rc srvl_intr_pol_negation(vtss_state_t *vtss_state)
 {
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
 #ifdef VTSS_FEATURE_IRQ_CONTROL
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
 
 #define SRVL1_IRQ_DEV_ALL       (0)
 #define SRVL1_IRQ_EXT0          (1)
@@ -739,7 +736,6 @@ static vtss_rc srvl_misc_irq_enable(vtss_state_t *vtss_state,
     SRVL_RD(VTSS_ICPU_CFG_INTR_INTR_ENA, &mc);
     return VTSS_RC_OK;
 }
-#endif
 
 #endif  /* VTSS_FEATURE_IRQ_CONTROL */
 
@@ -1065,7 +1061,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
     SRVL_DEBUG_TGT(pr, QSYS);
     SRVL_DEBUG_TGT(pr, ANA);
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
     vtss_srvl_debug_reg_header(pr, "GPIOs");
     SRVL_DEBUG_GPIO(pr, OUT, "OUT");
     SRVL_DEBUG_GPIO(pr, IN, "IN");
@@ -1129,7 +1124,6 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
         for (i = 0; i < 2; i++)
             vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR_CFG(i), i, "PCIE_INTR_CFG");
     }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
     return VTSS_RC_OK;
 }
@@ -1146,7 +1140,6 @@ vtss_rc vtss_srvl_misc_debug_print(vtss_state_t *vtss_state,
 static vtss_rc srvl_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     vtss_rc rc = VTSS_RC_OK;
-#if defined(VTSS_ARCH_SERVAL_CPU)
     u32     port, bit, enable;
 
     SRVL_RD(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR_ENA, &enable);
@@ -1156,7 +1149,6 @@ static vtss_rc srvl_misc_poll_1sec(vtss_state_t *vtss_state)
                 if (vtss_state->misc.sgpio_event_enabled[0][0].enable[port][bit]) {
                     rc = srvl_sgpio_event_enable(vtss_state, 0, 0, port, bit, TRUE);  /* this port,bit is configured to be enabled - try and enable */
                 }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 #if defined(VTSS_FEATURE_FAN)
     VTSS_RC(srvl_fan_rotation_update(vtss_state));
 #endif /* VTSS_FEATURE_FAN */
@@ -1179,7 +1171,6 @@ vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->reg_write = srvl_reg_write;
         state->chip_id_get = vtss_srvl_chip_id_get;
         state->poll_1sec = srvl_poll_1sec;
-#if defined(VTSS_ARCH_SERVAL_CPU)
         state->gpio_mode = vtss_srvl_gpio_mode;
         state->gpio_read = srvl_gpio_read;
         state->gpio_write = srvl_gpio_write;
@@ -1193,7 +1184,6 @@ vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->dev_all_event_enable = srvl_dev_all_event_enable;
         state->intr_cfg = srvl_intr_cfg;
         state->intr_pol_negation = srvl_intr_pol_negation;
-#endif /* VTSS_ARCH_SERVAL_CPU */
         state->ptp_event_poll = srvl_ptp_event_poll;
         state->ptp_event_enable = srvl_ptp_event_enable;
 #ifdef VTSS_FEATURE_IRQ_CONTROL
@@ -1219,4 +1209,4 @@ vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

@@ -22,7 +22,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX     3276700 /* fps .    0x7fff *    100.000 =      3.276.700 fps.       */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN         32 /* frames.       1 *       32,8 =             32,8 frames.  */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX       2067 /* frames.    0x3f *       32,8 =          2.066,4 frames.  */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN           100 /* kbps.         1 *    100.000 =        100.000 bps.       */
 #define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX       3276700 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.       */
 #define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN         4096 /* bytes.        1 *      4.096 =          4.096 bytes.     */
@@ -70,7 +70,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX        3281943 /* kbps.    0x7fff *    100.160 =  3.281.942.720 bps.   */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN          4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX        258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN            100 /* kbps.         1 *    100.000 =        100.000 bps.   */
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX        3281943 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.   */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN          4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
@@ -108,7 +108,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MAX   0
 
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN               0 /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX               0 /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN              0 /* undefined */
@@ -148,7 +148,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX      VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_SERVAL_T)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MIN        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MAX        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_BURST_MIN       0 /* undefined */
@@ -227,7 +227,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_INJ_HDR:
     case MESA_CAP_PORT_XTR_HDR:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
 #endif
         break;
@@ -275,7 +275,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 1526;
 #else
         c = 1518;
@@ -409,7 +409,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_PORT_IPMC:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -439,13 +439,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_MASQ_PORT:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_PACKET_INS_TAG:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_LUTON26)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LUTON26)
         c = 1;
 #endif
         break;
@@ -456,7 +456,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
              MESA_BIT(MESA_PACKET_PTP_ACTION_TWO_STEP));
 #if defined(VTSS_ARCH_LUTON26)
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ONE_AND_TWO_STEP);
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP);
 #else
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP);
@@ -465,7 +465,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_AUTO_TAGGING:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
 #endif
         break;
@@ -555,7 +555,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_SVL_FID_CNT:
 #if defined(VTSS_FEATURE_VLAN_SVL)
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 63;
 #else
         c = 4095;
@@ -570,7 +570,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_VCAP_PORT_CONF:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -594,7 +594,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_SFLOW_TESTED:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         // SFLOW has been tested on architecture
         c = 1;
 #endif
@@ -609,7 +609,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 32767;
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 4096;
 #endif
         break;
@@ -633,7 +633,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_TPID_AWARE:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         /* Older devices are not fully VLAN aware */
 #else
         c = 1;
@@ -1084,7 +1084,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_ACL_PTP_DELAY:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
 #endif
         break;
@@ -1096,7 +1096,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_ACL_EVC_POLICER:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1104,14 +1104,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_ACL_CNT_LM:
     case MESA_CAP_ACL_KEY_LOOKUP:
     case MESA_CAP_ACL_KEY_ISDX:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_ACL_MAC_SWAP:
     case MESA_CAP_ACL_IFH_FLAG:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
 #endif
         break;
@@ -1125,7 +1125,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_ACL_POLICER_PACKET_RATE_MAX:
 #if defined(VTSS_ARCH_LUTON26)
         c = 3276700;
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
         c = 1092000;
 #else
         c = 5000000;
@@ -1135,7 +1135,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_ACL_POLICER_PACKET_RATE_GRAN:
 #if defined(VTSS_ARCH_LUTON26)
         c = 1;
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
         c = 100;
 #else
         c = 10;
@@ -1143,13 +1143,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_ACL_POLICER_PACKET_RATE_SMALL:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_ACL_POLICER_BIT_RATE_MAX:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 1000000;
 #else
         c = 10000000;
@@ -1157,7 +1157,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_ACL_POLICER_BIT_RATE_GRAN:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 100;
 #else
         c = 25;
@@ -1214,13 +1214,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_EVC_POLICER_BLIND:
-#if !(defined(VTSS_ARCH_CARACAL) || defined(VTSS_ARCH_SERVAL))
+#if !(defined(VTSS_ARCH_CARACAL) || defined(VTSS_ARCH_OCELOT))
         c = 1;
 #endif
         break;
 
     case MESA_CAP_EVC_SERVAL:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1396,7 +1396,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
     case MESA_CAP_VOP_USED_AS_PTP_PROTOCOL:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         {
             mesa_chip_id_t chip_id;
             mesa_rc rc;
@@ -1560,7 +1560,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_ALT_CLOCK:
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1581,7 +1581,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_MISSING_PTP_ON_INTERNAL_PORTS:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1621,7 +1621,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_PPS_OUT_OVERRULES_CLK_OUT:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1651,7 +1651,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
     case MESA_CAP_TS_TOD_INTERNAL_TC_MODE:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = (MESA_TS_TOD_INTERNAL_TC_MODE_30BIT) |
             (MESA_TS_TOD_INTERNAL_TC_MODE_32BIT) |
             (MESA_TS_TOD_INTERNAL_TC_MODE_44BIT);
@@ -1667,13 +1667,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_HW_FWD_P2P_1STEP:
-#if defined (VTSS_ARCH_SERVAL) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
         c = 1;
 #endif
         break;
 
     case MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL:
-#if defined (VTSS_ARCH_SERVAL) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1685,7 +1685,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_INTERNAL_MODE_SUPPORTED:
-#if defined(VTSS_ARCH_SERVAL) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1784,7 +1784,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_MEP_SERVAL:
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
@@ -1823,7 +1823,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_MEP_TST_BITRATE_MBPS:
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2)
             c = 10000;
-#elif defined(VTSS_ARCH_SERVAL)
+#elif defined(VTSS_ARCH_OCELOT)
             c = 2500;
 #else
             c = 400;
@@ -1831,7 +1831,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_MEP_PROP_DELAY_MEASUREMENT:
-#if !defined(VTSS_ARCH_JAGUAR_2_CE) && !defined(VTSS_ARCH_SERVAL)
+#if !defined(VTSS_ARCH_JAGUAR_2_CE) && !defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;

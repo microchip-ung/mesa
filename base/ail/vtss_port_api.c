@@ -1012,9 +1012,9 @@ vtss_rc vtss_port_restart_sync(vtss_state_t *vtss_state)
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_RC(vtss_port_conf_sync(vtss_state, port_no));
         VTSS_RC(vtss_port_clause_37_sync(vtss_state, port_no));
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
         VTSS_FUNC_RC(port.ifh_set, port_no);
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
     }
     return VTSS_RC_OK;

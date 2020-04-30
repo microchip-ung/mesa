@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_L2
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 /* - CIL functions ------------------------------------------------- */
 
@@ -1319,4 +1319,4 @@ vtss_rc vtss_srvl_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

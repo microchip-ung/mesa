@@ -8,7 +8,7 @@
 // Avoid Lint Warning 572: Excessive shift value (precision 1 shifted right by 2), which occurs
 // in this file because (t) - VTSS_IO_ORIGIN1_OFFSET == 0 for t = VTSS_TO_CFG (i.e. ICPU_CFG), and 0 >> 2 gives a lint warning.
 /*lint --e{572} */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 /* - CIL functions ------------------------------------------------- */
 
@@ -1531,12 +1531,10 @@ static vtss_rc srvl_debug_pkt(vtss_state_t *vtss_state,
     pr("\n");
 
     vtss_srvl_debug_reg_header(pr, "DMA xtr/inj");
-#if defined(VTSS_ARCH_SERVAL_CPU)
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG, "XTRINJ_MANUAL_CFG");
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_ENA, "XTRINJ_MANUAL_INTR_ENA");
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR, "XTRINJ_MANUAL_INTR");
     vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_FDMA_FDMA_EVT_ERR, "FDMA_EVT_ERR");
-#endif /* VTSS_ARCH_SERVAL_CPU */
     vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_0), VTSS_CHIP_PORT_CPU_0, "SYSTEM_PORT_MODE");
     vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_1), VTSS_CHIP_PORT_CPU_1, "SYSTEM_PORT_MODE");
     pr("\n");
@@ -1649,7 +1647,6 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
         SRVL_WRM_SET(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
 #endif
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
         if (!vtss_state->sys_config.using_vrap) {
             /* If not using VRAP, default to do register-based extraction. The uFDMA driver may change this field to "2" later. */
             if (!vtss_state->init_conf.using_ufdma || i != 0) {
@@ -1658,7 +1655,6 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
                 SRVL_WRM(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE(1), VTSS_M_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE);
             }
         }
-#endif /* VTSS_ARCH_SERVAL_CPU */
 
         /* Status word (only used when manually extracting) must come just before last data */
         SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_STATUS_WORD_POS);
@@ -1676,7 +1672,6 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
         /* According to datasheet, we must insert a small delay after every end-of-frame when injecting to qs. */
         SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(i), VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1));
 
-#if defined(VTSS_ARCH_SERVAL_CPU)
         if (!vtss_state->sys_config.using_vrap) {
             /* If not using VRAP, default to do register-based injection. The uFDMA driver may change this field to "2" later. */
             if (!vtss_state->init_conf.using_ufdma || i != 0) {
@@ -1685,7 +1680,6 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
                 SRVL_WRM(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i), VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE(1), VTSS_M_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE);
             }
         }
-#endif /* VTSS_ARCH_SERVAL_CPU */
     }
 
     /* Setup CPU port 0 and 1. Only do this if not using VRAP */
@@ -1769,4 +1763,4 @@ vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     }
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */

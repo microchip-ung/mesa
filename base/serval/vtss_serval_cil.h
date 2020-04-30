@@ -14,7 +14,7 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #include "../ail/vtss_state.h"
 #include "../ail/vtss_common.h"
@@ -291,5 +291,5 @@ vtss_rc vtss_srvl_ts_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_info_t   *const info);
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 #endif /* _VTSS_SERVAL_CIL_H_ */

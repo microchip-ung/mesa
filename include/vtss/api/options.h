@@ -412,10 +412,7 @@
 
 #if defined(VTSS_CHIP_7511) || defined(VTSS_CHIP_7512) || \
     defined(VTSS_CHIP_7513) || defined(VTSS_CHIP_7514)
-#define VTSS_ARCH_SERVAL                       /**< Serval architecture */
-#define VTSS_ARCH_OCELOT                       /**< Ocelot architecture */
-#define VTSS_ARCH_SERVAL_SME                   /**< Serval SME architecture */
-#define VTSS_ARCH_SERVAL_CPU                   /**< Serval CPU system architecture */
+#define VTSS_ARCH_OCELOT                       /**< Serval architecture */
 #endif /* VTSS_CHIP_7511/7512/7513/7514 */
 
 #if defined(VTSS_ARCH_OCELOT)
@@ -424,9 +421,6 @@
 #define VTSS_FEATURE_MCE_ACT_PRIO              /**< MCE action priority class */
 #define VTSS_FEATURE_AFI_SWC                   /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V1                            /**< AFI API version 1 */
-#endif /* VTSS_ARCH_OCELOT */
-
-#if defined(VTSS_ARCH_SERVAL)
 #define VTSS_FEATURE_WARM_START                /**< Warm start */
 #define VTSS_FEATURE_MISC                      /**< Miscellaneous */
 #define VTSS_FEATURE_PORT_CONTROL              /**< Port control */
@@ -502,9 +496,6 @@
 #define VTSS_FEATURE_EVC_POLICERS              /**< EVC/ECE policers */
 #define VTSS_FEATURE_IRQ_CONTROL               /**< General IRQ support */
 #define VTSS_FEATURE_XFLOW                     /**< Ingress and egress flows */
-#endif /* VTSS_ARCH_SERVAL */
-
-#if defined(VTSS_ARCH_SERVAL_CPU)
 #define VTSS_FEATURE_INTERRUPTS                /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS     /**< Hooks for Serdes Macro configuration */
 #define VTSS_FEATURE_SYNCE                     /**< SYNCE - L1 syncronization feature */
@@ -512,16 +503,14 @@
 #define VTSS_FEATURE_VLAN_SVL                  /**< Shared VLAN Learning */
 #define VTSS_FEATURE_FAN                       /**< Fan control */
 #define VTSS_FEATURE_PTP_RS422                 /**< Support for the RS422 serial/1PPS interface */
-#endif /* VTSS_ARCH_SERVAL_CPU */
-
-#if defined(VTSS_ARCH_SERVAL_CPU)
 #define VTSS_FEATURE_TIMESTAMP                 /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_ONE_STEP        /**< ONESTEP timestamp hardware support */
 #define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP    /**< Ingress and egress latency compensation hardwarce support */
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME        /**< OriginTimestamp update hardware support */
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP  /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP  /**< Path delay asymmetry compensation hardware support */
-#endif /* VTSS_ARCH_SERVAL_CPU */
+#define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
+#endif /* VTSS_ARCH_OCELOT */
 
 /* Cu PHY API always included for switch/OTN targets */
 #if defined(VTSS_FEATURE_PORT_CONTROL)
@@ -531,10 +520,6 @@
 /* 10G PHY API included if switch has 10G ports */
 #if defined(VTSS_FEATURE_10G)
 #define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
-#endif
-
-#if defined(VTSS_ARCH_OCELOT)
-#define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)

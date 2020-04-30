@@ -542,9 +542,9 @@ typedef struct
     vtss_vid_t            untagged_vid;   /**< Port untagged VLAN ID (UVID, egress) */
     vtss_vlan_frame_t     frame_type;     /**< Acceptable frame type (ingress) */
     BOOL                  ingress_filter; /**< Ingress filtering */
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     vtss_etype_t          s_etype;        /**< Alternative S-tag Ethernet Type, if non-zero */
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 } vtss_vlan_port_conf_t;
 
 /**
@@ -1630,7 +1630,7 @@ vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                     
                                           vtss_vlan_trans_port2grp_conf_t       *conf,
                                           BOOL                                  next);
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 /** \brief VCAP port configuration */
 typedef struct {
     vtss_vcap_key_type_t key_type_is1_1; /**< Key type for second IS1 lookup */
@@ -1662,7 +1662,7 @@ vtss_rc vtss_vcap_port_conf_get(const vtss_inst_t     inst,
 vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t           inst,
                                 const vtss_port_no_t        port_no,
                                 const vtss_vcap_port_conf_t *const conf);
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
 
 /* - Port Isolation------------------------------------------------- */
 

@@ -377,7 +377,7 @@ const char *vtss_vcap_key_type2txt(vtss_vcap_key_type_t key_type)
 vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type)
 {
     vtss_vcap_key_size_t key_size;
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
     key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
 #elif defined(VTSS_ARCH_SPARX5)
     key_size = VTSS_VCAP_KEY_SIZE_SIXTH;
@@ -1881,7 +1881,7 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
             entry = &is1->table[i];
             entry->next = obj->free;
             obj->free = entry;
-#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT)
             entry->copy = &is1->copy[i];
 #endif
         }

@@ -500,7 +500,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 
 /* - GPIOs --------------------------------------------------------- */
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL_CPU)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         32
@@ -675,7 +675,7 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_SERVAL_T)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS 1
 #endif /* VTSS_ARCH_LUTON26/SERVAL/SERVAL_T */

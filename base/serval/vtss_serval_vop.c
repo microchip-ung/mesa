@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_OAM
 #include "vtss_serval_cil.h"
 
-#if defined(VTSS_ARCH_SERVAL)
+#if defined(VTSS_ARCH_OCELOT)
 
 #if defined(VTSS_FEATURE_VOP)
 
@@ -1298,4 +1298,4 @@ vtss_rc vtss_srvl_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 #endif /* VTSS_FEATURE_VOP */
 
-#endif /* VTSS_ARCH_SERVAL */
+#endif /* VTSS_ARCH_OCELOT */
