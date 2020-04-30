@@ -19,7 +19,7 @@
 #endif
 
 #if defined(VTSS_ARCH_OCELOT)
-#include "../serval/vtss_serval.h"
+#include "../ocelot/vtss_ocelot.h"
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2)

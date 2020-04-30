@@ -23,7 +23,7 @@
 #include "vtss_mpls_common.h"
 #endif
 #if defined(VTSS_ARCH_OCELOT)
-#include "../serval/vtss_serval.h"
+#include "../ocelot/vtss_ocelot.h"
 #endif
 
 /* Bit field macros */

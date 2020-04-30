@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
-#include "vtss_serval_cil.h"
+#include "vtss_ocelot_cil.h"
 
 #if defined(VTSS_ARCH_OCELOT)
 

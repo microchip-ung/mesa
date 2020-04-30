@@ -19,8 +19,8 @@
 #include "../ail/vtss_state.h"
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
-#include "vtss_serval.h"
-#include "vtss_serval_reg.h"
+#include "vtss_ocelot.h"
+#include "vtss_ocelot_reg.h"
 
 #include "../ail/vtss_pll5g_procs.h"
 #include "vtss_ocelot_pll5g_setup.h"

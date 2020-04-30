@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
-#include "vtss_serval_cil.h"
+#include "vtss_ocelot_cil.h"
 
 // Avoid Lint Warning 572: Excessive shift value (precision 1 shifted right by 2), which occurs
 // in this file because (t) - VTSS_IO_ORIGIN1_OFFSET == 0 for t = VTSS_TO_CFG (i.e. ICPU_CFG), and 0 >> 2 gives a lint warning.
