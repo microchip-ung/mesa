@@ -4106,7 +4106,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     }
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
-#if defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;

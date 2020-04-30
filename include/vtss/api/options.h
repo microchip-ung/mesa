@@ -600,7 +600,7 @@
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_SERVAL) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VOP_CFM                   /**< OAM/VOE supporting full 802.1 CFM implementation */
 #endif
 
