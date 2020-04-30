@@ -82,7 +82,7 @@ To do this copy one of the image files from `./bin/<arch>/mesa/demo/` to the
 tftp server. Example:
 
 ----
-$ cp bin/mipsel/mesa/demo/mfi_vsc7514.mfi /var/lib/tftpboot/
+$ cp bin/mipsel/mesa/demo/mipsel_vsc7514.mfi /var/lib/tftpboot/
 ----
 
 To try out the binary image, skip the instructions to build, and go directly to
@@ -218,7 +218,7 @@ found:
 . Bootable demo images. These targets will generate a complete firmware image
   including kernel, root file system, and the MESA Demo application. These are
   the images used in this getting started article.
-.. `mfi_vscXXXX` This is a MFI image which is the default image type on
+.. `mipsel_vscXXXX` This is a MFI image which is the default image type on
    MIPS based targets.
 .. `fit_vscXXXX` This is the standard UBoot FIT (extension name is
    `.itb`) image which is used on the ARM/ARM64 based targets.
@@ -285,17 +285,17 @@ Scanning dependencies of target app_vsc7514
 [100%] Building C object mesa/demo/CMakeFiles/app_vsc7514.dir/main.c.o
 [100%] Linking C executable mesa-demo-vsc7514
 [100%] Built target app_vsc7514
-Scanning dependencies of target mfi_vsc7514_mfi
+Scanning dependencies of target mipsel_vsc7514_mfi
 [100%] Generating app_vsc7514.tar
-[100%] Generating mfi_vsc7514.mfi
-[100%] Built target mfi_vsc7514_mfi
+[100%] Generating mipsel_vsc7514.mfi
+[100%] Built target mipsel_vsc7514_mfi
 ----
 
 After a while, the build will be done, and the resulting image can be found in
 `./mesa/demo`. Lets copy this to the tftp server folder.
 
 ----
-$ cp mesa/demo/mfi_vsc7514.mfi /var/lib/tftpboot/.
+$ cp mesa/demo/mipsel_vsc7514.mfi /var/lib/tftpboot/.
 ----
 
 
@@ -375,7 +375,7 @@ server, and actual file name of the firmware).
 ocelot # tftp ${loadaddr} 10.99.10.1:firmware.ext
 Using switch@1010000 device
 TFTP from server 10.99.10.1; our IP address is 10.99.10.10
-Filename 'mfi_vsc7415.mfi'.
+Filename 'mipsel_vsc7415.mfi'.
 Load address: 0x81000000
 Loading: #################################################################
          #################################################################
@@ -510,7 +510,7 @@ Next step is booting it. Got to a UBoot prompt on the BeagleBone, download the
 image over network and boot it like this:
 
 ----
-# tftp ${loadaddr} 10.99.10.1:fit_bbb_vsc7514.itb
+# tftp ${loadaddr} 10.99.10.1:armv7_vsc7514.itb
 # setenv bootargs 'console=ttyO0,115200n8 root=/dev/ram0 ip=dhcp rw loglevel=0'
 # bootm
 ----

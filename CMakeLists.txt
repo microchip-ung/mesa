@@ -16,6 +16,8 @@ option(BUILD_DOXYGEN     "Build doxygen" OFF)
 option(MESA_PRE_AG       "Use pre-generated mesa-ag layer if exist" ON)
 option(BUILD_MESA_DEMO   "Build the MESA demo" ON)
 
+mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
+
 include(.cmake/doxygen.cmake)
 
 include_directories(mesa/include)
@@ -227,6 +229,7 @@ API_TARGET(LIB vsc7556TSN            CHIP 7556TSN       DEFS -DVTSS_OPT_PORT_COU
 API_TARGET(LIB vsc7558TSN            CHIP 7558TSN       DEFS -DVTSS_OPT_PORT_COUNT=57)
 
 option(BUILD_MESA_CAPABILITY_DUMPER "Build all the mesa capability dumper function" OFF)
+mark_as_advanced(BUILD_MESA_CAPABILITY_DUMPER)
 if (${BUILD_MESA_CAPABILITY_DUMPER})
     add_executable(capability_dumper mesa/src/capability_dumper.c)
     target_link_libraries(capability_dumper dl)
@@ -235,6 +238,7 @@ endif()
 
 if (${BUILD_MESA_DEMO})
     find_library(JSON_LIB json-c)
+    mark_as_advanced(JSON_LIB)
     if (JSON_LIB)
         add_subdirectory(mesa/demo)
     endif()

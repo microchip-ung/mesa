@@ -393,7 +393,10 @@ Dir["#{$ws}/bin/**/*"].reverse_each do |e|
     %x{rm -f #{e}} if n == "Makefile"
 
     if e.include? "mesa\/demo"
-        if not (File.executable? e or ext == ".mfi" or ext == ".itb" or ext == ".a" or ext == ".gz")
+        case e
+        when /\.mfi$/, /\.itb$/, /\.ubifs/, /\.ext4.gz$/
+            # Keep it
+        else
             %x{rm #{e}}
         end
     end
@@ -422,14 +425,14 @@ puts "combined status: #{$res.status}"
 # Make MFI and FIT images easier to access for SQA
 $presets.each do |arch, c|
     next if not c[:release_artifact]
-    run("mkdir -p images/#{arch}")
+    run("mkdir -p images")
     Dir["#{$ws}/bin/#{arch}/mesa/demo/*"].each do |e|
         next if File.directory?(e)
         ext = File.extname(e)
 
-        case ext
-        when ".itb", ".mfi", ".gz"
-            run("cp #{e} images/#{arch}/.")
+        case e
+        when /\.mfi$/, /\.itb$/, /\.ext4.gz$/, /\.ubifs$/
+            run("cp #{e} images/.")
         end
     end
 end

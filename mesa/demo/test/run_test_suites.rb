@@ -9,16 +9,16 @@ require 'net/http'
 require_relative './libeasy/utils'
 
 $systems = [
-#            { name: "dk-t11",   image: "mipsel/mfi_vsc7514_pcb123.mfi",  branch:"master" },
-            { name: "dk-t13",   image: "mipsel/mfi_vsc7468_pcb110.mfi",  branch:"master" },
-            { name: "dk-t31",   image: "arm64/fit_vsc7546TSN.itb",       branch:"master" },
-            { name: "dk-t34-4", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
-            { name: "dk-t34-3", image: "arm64/fit_vsc7558TSN.itb",       branch:"master" },
-#            { name: "dk-t14",  image: "mipsel/mfi_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
-            { name: "dk-t15",   image: "mipsel/mfi_vsc7437.mfi",         branch:"master" },
-#            { name: "dk-t16",   image: "mipsel/mfi_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
-            { name: "dk-t34-1",  image: "lan966x/fit_ls1046_lan9668.itb", branch:"master.mas" },
-            { name: "dk-t06",  image: "lan966x/fit_ls1046_lan9668.itb", branch:"master.mas" }
+#            { name: "dk-t11",   image: "mipsel/mipsel_vsc7514_pcb123.mfi",  branch:"master" },
+            { name: "dk-t13",   image: "mipsel/mipsel_vsc7468_pcb110.mfi",  branch:"master" },
+            { name: "dk-t31",   image: "arm64/arm64_vsc7546TSN.itb",       branch:"master" },
+            { name: "dk-t34-4", image: "arm64/arm64_vsc7558TSN.itb",       branch:"master" },
+            { name: "dk-t34-3", image: "arm64/arm64_vsc7558TSN.itb",       branch:"master" },
+#            { name: "dk-t14",  image: "mipsel/mipsel_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
+            { name: "dk-t15",   image: "mipsel/mipsel_vsc7437.mfi",         branch:"master" },
+#            { name: "dk-t16",   image: "mipsel/mipsel_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
+            { name: "dk-t34-1",  image: "lan966x/arm64_ls1046_lan9668.itb", branch:"master.mas" },
+            { name: "dk-t06",  image: "lan966x/arm64_ls1046_lan9668.itb", branch:"master.mas" }
            ]
 
 if File.file?("../../../../easytest/test-setup-server/et")

@@ -16,51 +16,51 @@ dir=build-mipsel
 case $chip in
      oc)
      ts=dk-t11
-     img=mfi_vsc7514_pcb123.mfi
+     img=mipsel_vsc7514_pcb123.mfi
      ;;
 
      os)
      ts=dk-t32
-     img=fit_bbb_vsc7514.itb
+     img=armv7_vsc7514.itb
      dir=build-arm
      ;;
 
      s1)
      ts=dk-t12
-     img=mfi_vsc7418.mfi
+     img=mipsel_vsc7418.mfi
      ;;
 
      j2)
      ts=dk-t13
-     img=mfi_vsc7468_pcb110.mfi
+     img=mipsel_vsc7468_pcb110.mfi
      ;;
 
      j48)
      ts=dk-t14
-     img=mfi_vsc7468_pcb111.mfi
+     img=mipsel_vsc7468_pcb111.mfi
      ;;
 
      st)
      ts=dk-t15
-     img=mfi_vsc7437.mfi
+     img=mipsel_vsc7437.mfi
      ;;
 
      ca)
      ts=dk-t16
-     img=mfi_vsc7429.mfi
+     img=mipsel_vsc7429.mfi
      ;;
 
      ca-bbb)
      ts=dk-t34-2
-     img=fit_bbb_vsc7429.itb
+     img=armv7_vsc7429.itb
      dir=build-arm
      ;;
 
      fa)
      ts=dk-t31
-     img=fit_vsc7558TSN.itb     # 625MHz
-#     img=fit_vsc7546TSN.itb     # 250MHZ
-#     img=fit_vsc7552TSN.itb     # 500MHz
+     img=arm64_vsc7558TSN.itb     # 625MHz
+#     img=arm64_vsc7546TSN.itb     # 250MHZ
+#     img=arm64_vsc7552TSN.itb     # 500MHz
      dir=build-arm64
      ;;
 

@@ -12,6 +12,7 @@ include_directories(./src)
 include_directories(./src/drivers)
 
 option(BUILD_MEBA_ALL "Build all MEBA layers" OFF)
+mark_as_advanced(BUILD_MEBA_ALL)
 
 macro(MEBA_LIB)
     set(LIST_OF_MEBA_TARGETS ${ARGN})
@@ -19,6 +20,7 @@ macro(MEBA_LIB)
     foreach(arg ${ARGN})
         option(BUILD_MEBA_${arg}        "Build the MEBA layer for ${arg}" OFF)
         option(BUILD_MEBA_${arg}_static "Build the STATIC MEBA layer for ${arg}" OFF)
+        mark_as_advanced(BUILD_MEBA_${arg} BUILD_MEBA_${arg}_static)
         FILE(GLOB c_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/${arg}/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/*.c")
 
         add_library(meba_${arg} SHARED ${c_files})
