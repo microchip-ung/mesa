@@ -82,7 +82,7 @@ def tod_domain_offset_test(domain, seconds)
 
     if ((tod_new[0]["seconds"] > 1) ||
         ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 400000000)) ||
-        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 300000000)))  #Accepting approx 2*700 ms in execution time
+        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 250000000)))  #Accepting approx 2*700 ms in execution time
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 
