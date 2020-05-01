@@ -74,22 +74,22 @@ $test_table =
         f_1: {etype: 0x8891}
     },
     {
-        txt: "key/profinet-data",
+        txt: "key/profinet-frame-id",
         rcl: [{etype: "PROFINET", frame_id: {v: [5,6], m: [0xff,0xff]}}],
         f_0: {etype: 0x8892, cmd: "data hex 0506"},
         f_1: {etype: 0x8892, cmd: "data hex 0507"}
     },
     {
         txt: "key/opc_ua-pub-id", # Little-endian PublisherId in frame
-        rcl: [{etype: "OPC_UA", publisher_id: {v: [0x08,0x07], m: [0xff,0xff]}}],
-        f_0: {etype: 0xb62c, cmd: "data hex 05060708"},
-        f_1: {etype: 0xb62c, cmd: "data hex 05060709"}
+        rcl: [{etype: "OPC_UA", publisher_id: {v: [0x07,0x08], m: [0xff,0xff]}}],
+        f_0: {cmd: "opc-ua pub-id 0x0708"},
+        f_1: {cmd: "opc-ua pub-id 0x0709"}
     },
-   {
-        txt: "key/opc_ua-wr-grp-id", # Little-endian WriterGroupId in frame
-        rcl: [{etype: "OPC_UA", writer_group_id: {v: [0x0b,0x0a], m: [0xff,0xff]}}],
-        f_0: {etype: 0xb62c, cmd: "data hex 05060708090a0b0c"},
-        f_1: {etype: 0xb62c, cmd: "data hex 05060708090a0d0c"}
+    {
+        txt: "key/opc_ua-wg-id", # Little-endian WriterGroupId in frame
+        rcl: [{etype: "OPC_UA", writer_group_id: {v: [0x0a,0x0b], m: [0xff,0xff]}}],
+        f_0: {cmd: "opc-ua wg-id 0x0a0b"},
+        f_1: {cmd: "opc-ua wg-id 0x0a0c"}
     },
     {
         txt: "act/rtp_id",
