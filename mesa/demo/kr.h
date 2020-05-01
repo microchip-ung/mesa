@@ -73,6 +73,7 @@ typedef struct {
 typedef struct {
     mesa_ber_stage_t ber_training_stage;
     uint16_t ber_coef_frm;
+    uint16_t ber_status_frm;
     uint32_t time;
     uint32_t irq;
 } kr_ber_t;
@@ -89,6 +90,7 @@ typedef struct {
     struct timeval time_start_train;
     uint32_t time_ld;
     uint32_t time_lp;
+    uint32_t time_since_restart;
     mesa_port_kr_status_t status;
     kr_coef_t ld_hist[KR_HIST_NUM];
     uint16_t ld_hist_index;
@@ -112,6 +114,7 @@ typedef struct {
     uint32_t chk_block_lock;
     uint32_t aneg_sm_state;
     uint32_t aneg_sm_deb;
+    mesa_bool_t debug_ena;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

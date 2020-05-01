@@ -451,9 +451,13 @@ typedef struct {
                           const vtss_port_no_t port_no,
                           vtss_port_kr_status_t *const status);
 
-    vtss_rc (* kr_irq)(vtss_inst_t inst,
-                       const vtss_port_no_t port_no,
-                       u32 *const vector);
+    vtss_rc (* kr_irq_get)(vtss_inst_t inst,
+                           const vtss_port_no_t port_no,
+                           u32 *const vector);
+
+    vtss_rc (* kr_irq_mask_set)(vtss_inst_t inst,
+                                const vtss_port_no_t port_no,
+                                const u32 mask);
 
     vtss_rc (* kr_fw_msg)(struct vtss_state_s *vtss_state,
                           const vtss_port_no_t port_no);

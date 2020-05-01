@@ -782,6 +782,7 @@ typedef struct {
     uint16_t eye_height[3][64];
     uint16_t decr_cnt;
     uint16_t ber_coef_frm;
+    uint16_t ber_status_frm;
     mesa_bool_t test_mode;
     mesa_bool_t test_repeat;
     mesa_kr_status_results_t tr_res;

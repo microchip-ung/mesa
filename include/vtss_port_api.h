@@ -794,6 +794,7 @@ typedef struct {
     u16  eye_height[3][64];
     u16  decr_cnt;
     u16  ber_coef_frm;
+    u16  ber_status_frm;
     BOOL test_mode;
     BOOL test_repeat;
     vtss_kr_status_results_t tr_res;

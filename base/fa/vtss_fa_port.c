@@ -1039,6 +1039,17 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+
+static vtss_rc fa_port_kr_irq_mask_set(vtss_state_t *vtss_state,
+                                       const vtss_port_no_t port_no,
+                                       const u32 mask)
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), mask);
+    return VTSS_RC_OK;
+}
+
+
 static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
@@ -1238,14 +1249,13 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     // Generic timer 1
     REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500); // 10 ms
 
-    // Link pass inihibit timer (in AN_GOOD_CHECK)
-    REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 10 ms
-
-
-//    REG_WR(VTSS_IP_KRANEG_TR_TMR(tgt), 78125000 * 20); // DBG
-   
-    // Disable Rate Detect time (in parallel detect)
-//    REG_WR(VTSS_IP_KRANEG_PD_TMR(tgt), 0xFFFFFFFF); // 10 ms
+    if (kr->train.enable) {
+        // Link pass inihibit timer (in AN_GOOD_CHECK)
+        REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
+    } else {
+        // Link pass inihibit timer (in AN_GOOD_CHECK)
+        REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 30 ms
+    }
 
     return VTSS_RC_OK;
 }
@@ -3698,7 +3708,8 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
-        state->kr_irq = fa_port_kr_irq_get;
+        state->kr_irq_get = fa_port_kr_irq_get;
+        state->kr_irq_mask_set = fa_port_kr_irq_mask_set;
         state->kr_fw_req = fa_port_kr_fw_req;
         state->kr_frame_set = fa_port_kr_frame_set;
         state->kr_frame_get = fa_port_kr_frame_get;
