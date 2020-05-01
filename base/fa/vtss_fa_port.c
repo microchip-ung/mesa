@@ -3300,7 +3300,8 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
         pr("8: Disable DFE\n");
         pr("9: Enable  DFE (auto mode)\n");
         pr("10: Read TxEQ settings\n");
-
+        pr("11: Enable Tx square wave\n");
+        pr("12: Disable Tx square wave\n");
         return VTSS_RC_OK;
     }
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {

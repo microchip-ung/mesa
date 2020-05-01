@@ -1652,6 +1652,125 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
 
 #endif /* VTSS_FEATURE_10GBASE_KR_V3 */
 
+static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
+{
+    u32 indx, type, sd_tgt;
+    /* Map API port to Serdes instance */
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
+
+    if (type == FA_SERDES_TYPE_6G) {
+        return VTSS_RC_ERROR;
+    } else if (type == FA_SERDES_TYPE_10G) {
+        sd_tgt = VTSS_TO_SD10G_LANE(indx);
+    } else {
+        sd_tgt = VTSS_TO_SD25G_LANE(indx);
+    }
+
+    if (type == FA_SERDES_TYPE_10G) {
+        // User define square wave
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_96(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_97(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_98(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_99(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_9A(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_9B(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_9C(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD10G_LANE_TARGET_LANE_9D(sd_tgt), 0xAA);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_76(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_76_R_BIST_EN(ena),
+                VTSS_M_SD10G_LANE_TARGET_LANE_76_R_BIST_EN);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_77(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_77_R_BIST_CHK(ena),
+                VTSS_M_SD10G_LANE_TARGET_LANE_77_R_BIST_CHK);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_74(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_74_R_BIST_TIMER_7_0(0),
+                VTSS_M_SD10G_LANE_TARGET_LANE_74_R_BIST_TIMER_7_0);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_75(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_75_R_BIST_TIMER_15_8(0),
+                VTSS_M_SD10G_LANE_TARGET_LANE_75_R_BIST_TIMER_15_8);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_76(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_76_R_BIST_MODE_2_0(7) | // User defined pattern
+                VTSS_F_SD10G_LANE_TARGET_LANE_76_R_FREE_RUN_MODE(1) |
+                VTSS_F_SD10G_LANE_TARGET_LANE_76_R_BIST_ERRINJEC(0),
+                VTSS_M_SD10G_LANE_TARGET_LANE_76_R_BIST_MODE_2_0 |
+                VTSS_M_SD10G_LANE_TARGET_LANE_76_R_FREE_RUN_MODE |
+                VTSS_M_SD10G_LANE_TARGET_LANE_76_R_BIST_ERRINJEC);
+
+        REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_77(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_77_R_BIST_ERRSTOP(0) |
+                VTSS_F_SD10G_LANE_TARGET_LANE_77_R_BIST_CHK_ZERO(1),
+                VTSS_M_SD10G_LANE_TARGET_LANE_77_R_BIST_ERRSTOP |
+                VTSS_M_SD10G_LANE_TARGET_LANE_77_R_BIST_CHK_ZERO);
+
+    } else {
+        // FA_SERDES_TYPE_25G
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+        // User define square wave
+        REG_WR(VTSS_SD25G_TARGET_CMU_21(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_22(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_23(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_24(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_25(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_26(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_27(sd_tgt), 0xAA);
+        REG_WR(VTSS_SD25G_TARGET_CMU_28(sd_tgt), 0xAA);
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_33(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_33_LN_R_BIST_EN(ena),
+                VTSS_M_SD25G_TARGET_LANE_33_LN_R_BIST_EN);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_34(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_34_LN_R_BIST_CHK(ena),
+                VTSS_M_SD25G_TARGET_LANE_34_LN_R_BIST_CHK);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_46(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_46_LN_R_BIST_TIMER_7_0(0),
+                VTSS_M_SD25G_TARGET_LANE_46_LN_R_BIST_TIMER_7_0);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_47(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_47_LN_R_BIST_TIMER_15_8(0),
+                VTSS_M_SD25G_TARGET_LANE_47_LN_R_BIST_TIMER_15_8);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_33(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_33_LN_R_BIST_MODE_2_0(7),
+                VTSS_M_SD25G_TARGET_LANE_33_LN_R_BIST_MODE_2_0);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_34(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_34_LN_R_FREE_RUN_MODE(1),
+                VTSS_M_SD25G_TARGET_LANE_34_LN_R_FREE_RUN_MODE);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_33(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_33_LN_R_BIST_ERRINJEC(0),
+                VTSS_M_SD25G_TARGET_LANE_33_LN_R_BIST_ERRINJEC);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_34(sd_tgt),
+                VTSS_F_SD25G_TARGET_LANE_34_LN_R_BIST_ERRSTOP(0) |
+                VTSS_F_SD25G_TARGET_LANE_34_LN_R_BIST_CHK_ZERO(1),
+                VTSS_M_SD25G_TARGET_LANE_34_LN_R_BIST_ERRSTOP |
+                VTSS_M_SD25G_TARGET_LANE_34_LN_R_BIST_CHK_ZERO);
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    }
+    pr("Square wave %s\n", ena ? "started" : "stopped");
+    return VTSS_RC_OK;
+}
+
+
 static vtss_rc fa_serdes_dfe_set(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
 {
     u32 indx, type, sd_tgt, sd_lane_tgt = 0;
@@ -1910,6 +2029,7 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
         return VTSS_RC_ERROR;
     }
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D1(sd_tgt), height);
+
     return VTSS_RC_OK;
 }
 
@@ -2650,6 +2770,9 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
                 VTSS_M_SD10G_LANE_TARGET_LANE_23_CFG_ERRAMP_PD);
         REG_WRM_SET(VTSS_SD10G_LANE_TARGET_LANE_1A(sd_tgt),
                     VTSS_M_SD10G_LANE_TARGET_LANE_1A_CFG_PI_DFE_EN);
+
+
+
     }
     VTSS_NSLEEP(1000); // 1 us
     REG_WRM_SET(VTSS_SD10G_LANE_TARGET_LANE_2B(sd_tgt),
@@ -2735,8 +2858,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
     if (info->action == 1) {
         vtss_fa_debug_reg_header(pr, buf);
     } else {
-        pr("%s",buf);
-        pr("  %s\n",buf2);
+        if (info->action < 3) {
+            pr("%s",buf);
+            pr("  %s\n",buf2);
+        }
     }
 
     if (info->action == 1) {
@@ -2767,6 +2892,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
         pr("Tap_dly   (CP):%d\n",tap_dly);
         pr("Tap_adv   (CM):%d\n",tap_adv);
         pr("Amplitude:(C0):%d\n",ampl);
+    } else if (info->action == 11) {
+        VTSS_RC(fa_port_kr_square_wave(vtss_state, pr, port_no, TRUE));
+    } else if (info->action == 12) {
+        VTSS_RC(fa_port_kr_square_wave(vtss_state, pr, port_no, FALSE));
     }
     return VTSS_RC_OK;
 }
