@@ -44,7 +44,7 @@ def nano_corr_lowest_measure
 
     for i in 0..2
         # Transmit SYNC frame into $port0
-        frame_tx(frametx, $port0, "", framerx, "", "", 40)
+        frame_tx(frametx, $port0, "", framerx, " ", " ", 40)
         pkts = $ts.pc.get_pcap "#{$ts.links[$port1][:pc]}.pcap"
         data = pkts[0][:data].each_byte.map{|c| c.to_i}
 
