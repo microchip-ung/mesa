@@ -163,13 +163,7 @@ class TestRun
 
     def cap_start ts_start
         e = TestNode.new "capability", ts_start
-
-        if @stack.size == 0 # Add to one of the root nodes
-            @cap_checks << e
-        else
-            @stack[-1].kids << e
-        end
-
+        @cap_checks << e
         stack_push e
         return e
     end
