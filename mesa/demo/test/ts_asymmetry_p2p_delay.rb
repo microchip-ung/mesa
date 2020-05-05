@@ -27,7 +27,7 @@ $pcb = $ts.dut.pcb
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
 
-    # Create IS2 to ONE-STEP SYNC frame
+    t_i("Create IS2 to ONE-STEP SYNC frame")
     conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
     conf["id"] = $acl_id
     conf["port_list"] = "#{$ts.dut.port_list[$port0]}"
@@ -49,7 +49,7 @@ def tod_asymmetry_p2p_delay_test
         end
     else
     if ($pcb == "Adaro")    #Test on Copper PHY
-        if ((lowest_corr_none > 3000) || (lowest_corr_none < 2600))
+        if ((lowest_corr_none > 3050) || (lowest_corr_none < 2600))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         end
     else
@@ -71,12 +71,12 @@ def tod_asymmetry_p2p_delay_test
         diff_max = 200
     end
 
-    # Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction
+    t_i("Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction")
     asymmetry = lowest_corr_none-100
     $ts.dut.call("mesa_ts_delay_asymmetry_set", $ts.dut.port_list[$port0], asymmetry<<16)
     $ts.dut.call("mesa_ts_delay_asymmetry_set", $ts.dut.port_list[$port1], asymmetry<<16)
 
-    # Change IS2 to ONE-STEP add egress delay SYNC frame
+    t_i("Change IS2 to ONE-STEP add egress delay SYNC frame")
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
