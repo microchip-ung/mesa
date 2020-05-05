@@ -282,41 +282,11 @@ static mesa_rc ksz_conf_set(meba_phy_device_t             *dev,
                             meba_port_cap_t               cap,
                             const meba_phy_driver_conf_t  *config)
 {
-    int         result;
     phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
 
     T_D("Enter");
 
-    /* Silicon Errata Sheet (DS80000691D or DS80000692D):
-     * When the device links in the 1000BASE-T slave mode only,
-     * the optional 125MHz reference output clock (CLK125_NDO)
-     * has wide duty cycle variation.
-     *
-     * The optional CLK125_NDO clock does not meet the RGMII
-     * 45/55 percent (min/max) duty cycle requirement and therefore
-     * cannot be used directly by the MAC side for clocking
-     * applications that have setup/hold time requirements on
-     * rising and falling clock edges.
-     *
-     * Workaround:
-     * Force the phy to be the master to receive a stable clock
-     * which meets the duty cycle requirement.
-     */
-    result = phy_read(phydev, MII_CTRL1000);
-    if (result < 0)
-        goto err_force_master;
-
-    /* enable master mode, config & prefer master */
-    result |= CTL1000_ENABLE_MASTER | CTL1000_AS_MASTER;
-    result = phy_write(phydev, MII_CTRL1000, result);
-    if (result < 0)
-        goto err_force_master;
-
     return center_flp_timing(phydev);
-
-err_force_master:
-    T_D("failed to force the phy to master mode\n");
-    return result;
 }
 
 static meba_phy_device_t *ksz_probe(meba_phy_driver_t                *drv,
