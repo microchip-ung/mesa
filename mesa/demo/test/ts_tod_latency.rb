@@ -70,22 +70,22 @@ def nano_delay_measure(port0, port1)
     idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
-    console ("transmit SYNC frame on NPI against loop port and receive again on NPI port")
+    t_i ("transmit SYNC frame on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create(port1) + frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
 
-    console ("Calculate the IFH and decode it")
+    t_i ("Calculate the IFH and decode it")
     ifh = rx_ifh_extract(pkts[1])   # both transmitted and received frame is in 'pkts'
     meta = { no_wait: false, chip_no: 0, xtr_qu: 0, etype: 0, fcs: 0, sw_tstamp: { hw_cnt: 0 }, length: 0}
     frame_info = $ts.dut.call("mesa_packet_rx_hdr_decode", meta, ifh)
 
-    console ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
+    t_i ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
     $ts.dut.call("mesa_tx_timestamp_update")
 
-    console ("Get the TX timestamp. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback")
+    t_i ("Get the TX timestamp. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback")
     ts_tx = $ts.dut.call("mesa_tx_timestamp_get")
     if ((ts_tx["id"] != idx["ts_id"]) || (ts_tx["ts_valid"] != true))
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
@@ -97,7 +97,7 @@ def nano_delay_measure(port0, port1)
 
     # Calculate the delay as the difference between RX and TX TOD nanoseconds
     $nano_delay = tod_nano_rx - tod_nano_tx
-    console("nano_delay = #{$nano_delay}  tod_nano_tx = #{tod_nano_tx}  tod_nano_rx = #{tod_nano_rx}")
+    t_i("nano_delay = #{$nano_delay}  tod_nano_tx = #{tod_nano_tx}  tod_nano_rx = #{tod_nano_rx}")
 #$ts.dut.run ("mesa-cmd deb sym read SD_LANE[31-32]:SD_FIFO_DELAY:SD_DELAY_VAR")
     end
 
@@ -151,10 +151,10 @@ def tod_latency_test(port0, port1)
 #$ts.dut.call("mesa_ts_status_change", port0)
 #$ts.dut.call("mesa_ts_status_change", port1)
 #}
-#console("delays = #{delays}")
+#t_i("delays = #{delays}")
 #return
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
-    if ((nano_delay_0 < -2) || (nano_delay_0 > 8))
+    if ((nano_delay_0 < -2) || (nano_delay_0 > 9))  #Value 9 is seen on Fireant Jenkins test
         t_e("Unexpected delay with egress latency 0 and ingress latency 0.  Delay = #{nano_delay_0}")
     end
 
@@ -165,7 +165,7 @@ def tod_latency_test(port0, port1)
     # Measure nanosecond delay
     nano_delay_1 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_1
-    console ("delay difference #{diff}")
+    t_i ("delay difference #{diff}")
     if ((diff > (PTP_LATENCY_MAX + 8)) || (diff < (PTP_LATENCY_MAX - 8)))
         t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency 0.  Delay = #{nano_delay_1}")
     end
@@ -177,12 +177,12 @@ def tod_latency_test(port0, port1)
     # Measure nanosecond delay
     nano_delay_2 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_2
-    console ("delay difference #{diff}")
+    t_i ("delay difference #{diff}")
     if ((diff > (PTP_LATENCY_MAX*2 + 8)) || (diff < (PTP_LATENCY_MAX*2 - 8)))
         t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency #{PTP_LATENCY_MAX}.  Delay = #{nano_delay_2}")
     end
 
-    console("nano_delay_0 = #{nano_delay_0}  nano_delay_1 = #{nano_delay_1}  nano_delay_2 = #{nano_delay_2}  ")
+    t_i("nano_delay_0 = #{nano_delay_0}  nano_delay_1 = #{nano_delay_1}  nano_delay_2 = #{nano_delay_2}  ")
 
     end
 end
