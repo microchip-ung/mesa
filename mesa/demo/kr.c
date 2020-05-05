@@ -280,6 +280,7 @@ typedef struct {
     mesa_bool_t clr;
     mesa_bool_t irq;
     mesa_bool_t ansm;
+    mesa_bool_t use_ber;
     mesa_bool_t stop;
     mesa_bool_t test;
 } port_cli_req_t;
@@ -323,6 +324,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->irq = 1;
     } else if (!strncasecmp(found, "sm", 2)) {
         mreq->ansm = 1;
+    } else if (!strncasecmp(found, "use_ber", 4)) {
+        mreq->use_ber = 1;
     } else if (!strncasecmp(found, "np", 2)) {
         mreq->np = 1;
     } else if (!strncasecmp(found, "stop", 4)) {
@@ -410,6 +413,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.train.no_remote = mreq->no_rem;
                 conf.train.test_mode = mreq->test;
                 conf.train.test_repeat = 500;
+                conf.train.use_ber_cnt = kr_conf_state[iport].use_ber;                
                 conf.aneg.adv_1g = mreq->adv1g || mreq->all;
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
@@ -507,6 +511,13 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             global_stop = 1;
             kr_conf_state[iport].stop_train = kr_conf_state[iport].stop_train ? 0 : 1;
             printf("Port %d: Stop aneg %s\n",uport, kr_conf_state[iport].stop_train ? "enabled" : "disabled");
+        }
+        if (mreq->use_ber) {
+            if (kr_conf_state[iport].use_ber) {
+                kr_conf_state[iport].use_ber = 0;
+            } else {
+                kr_conf_state[iport].use_ber = 1;
+            }
         }
     }
 
@@ -1106,11 +1117,11 @@ static void kr_poll(meba_inst_t inst)
             }
         }
 
-        if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) {
-            if (kr_debug) {
-                dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31);
-            }
-        }
+        /* if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) { */
+        /*     if (kr_debug) { */
+        /*         dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31); */
+        /*     } */
+        /* } */
 
         // Add IRQs to history
         kr_add_to_irq_history(iport, irq);

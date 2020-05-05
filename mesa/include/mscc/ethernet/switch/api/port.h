@@ -774,7 +774,6 @@ typedef struct {
     mesa_bool_t receiver_ready_sent;
     mesa_bool_t kr_mw_done;
     mesa_bool_t ignore_fail;
-    mesa_bool_t use_ber_measurement;
     mesa_port_speed_t next_parallel_spd;
     uint16_t lp_tap_max_cnt[3];
     uint16_t lp_tap_end_cnt[3];
@@ -852,6 +851,7 @@ typedef struct {
 typedef struct {
     mesa_bool_t enable;     // Enable 10G KR training, BER method used
     mesa_bool_t no_remote;  // Do not train remote, only local
+    mesa_bool_t use_ber_cnt;// Use BER count instead of eye height 
     mesa_bool_t test_mode;      // Debug only
     uint32_t test_repeat;       // Debug only 
 } mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);

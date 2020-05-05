@@ -1570,8 +1570,7 @@ static u16 kr_analyze_ber(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
                     high_best = high_mark;
                     low_best = low_mark;
                 }
-
-            }            
+            }
         } else {
             if (zero_cnt == 0) {
                 continue;
@@ -1771,7 +1770,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             krs->ber_busy_sw = FALSE;
             krs->ber_busy = FALSE;
             krs->ber_cnt[krs->current_tap][krs->tap_idx] = fa_port_kr_ber_cnt(vtss_state, p);
-            if ((!krs->use_ber_measurement && krs->tap_idx > 1) &&
+            if ((!vtss_state->port.kr_conf[p].train.use_ber_cnt && krs->tap_idx > 1) &&
                 (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) &&
                 (krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] == 0)) {
                 // Don't perform eye measurement on a noisy channel
@@ -1779,7 +1778,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             }
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
-                if (krs->use_ber_measurement) {
+                if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {
                     mid_mark = kr_analyze_ber(krs, krs->current_tap);
                 } else {
                     mid_mark = kr_get_best_eye(krs, krs->current_tap);

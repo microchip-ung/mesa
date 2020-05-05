@@ -109,6 +109,7 @@ typedef struct {
     mesa_bool_t cap_10g;
 
     // Debug
+    mesa_bool_t use_ber;
     uint32_t stop_train;
     mesa_bool_t gen1_wait;
     uint32_t chk_block_lock;

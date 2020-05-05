@@ -786,7 +786,6 @@ typedef struct {
     BOOL receiver_ready_sent;
     BOOL kr_mw_done;
     BOOL ignore_fail;
-    BOOL use_ber_measurement;
     vtss_port_speed_t next_parallel_spd;
     u16  lp_tap_max_cnt[3];
     u16  lp_tap_end_cnt[3];
@@ -859,6 +858,7 @@ typedef struct {
 typedef struct {
     BOOL enable;            /**< Enable 10G KR training, BER method used */
     BOOL no_remote;         /**< Do not train remote, only local */
+    BOOL use_ber_cnt;       /**< Use BER count instead of eye height */
     BOOL test_mode;         /**< Debug only */
     u32 test_repeat;        /**< Debug only */
 } vtss_port_kr_train_t;
@@ -944,7 +944,7 @@ vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
 
 
 /**
- * \brief Apply KR interrupt 
+ * \brief Apply KR interrupt
  *
  *
  * \param inst    [IN]  Target instance reference.
@@ -958,7 +958,7 @@ vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t inst,
                                const u32 *const irq_vec);
 
 /**
- * \brief Get and clear KR interrupts 
+ * \brief Get and clear KR interrupts
  *
  *
  * \param inst    [IN]  Target instance reference.
