@@ -1315,10 +1315,7 @@ vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.kr_conf[port_no] = *conf;
-
-        vtss_state->port.train_state[port_no].training_started = 0;
-        vtss_state->port.train_state[port_no].current_state= 0;
-
+        memset(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
         rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
     }
     VTSS_EXIT();
@@ -1577,12 +1574,12 @@ static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
     return indx + 1;
 }
 
-static u32 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
+static u16 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
 {
     vtss_port_kr_eye_dim_t eye;
-//    return 9;
+
     if (kr_eye_dim_get(state, p, &eye) == VTSS_RC_OK) {
-        return eye.height;
+        return (u16)eye.height;
     } else {
         VTSS_E("Eye scan fails to complete\n");
     }
@@ -1715,6 +1712,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                     krs->tap_idx = 0;
                     krs->dme_viol = 0;
                     krs->dme_viol_handled = FALSE;
+                    krs->tap_max_reached = FALSE;
                 }
             } else if (lp_status == STATUS_NOT_UPDATED) {
                 if (krs->dme_viol) {
@@ -1734,20 +1732,24 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             } else {
                 VTSS_E("Error Got lp_status:%d\n",lp_status);
             }
-
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
         }
         return;
     case VTSS_BER_CALCULATE_BER:
+        krs->ignore_fail = TRUE; // Basically its to late to deal with errors in the CALC_BER stage
         if (irq == KR_BER_BUSY_1) {
             krs->ber_busy = TRUE;
         } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
             krs->ber_busy_sw = FALSE;
             krs->ber_busy = FALSE;
             krs->ber_cnt[krs->current_tap][krs->tap_idx] = fa_port_kr_ber_cnt(vtss_state, p);
-            krs->ignore_fail = TRUE; // The eye procedure causes KR IRQ failures
-            krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
+            if ((krs->tap_idx > 1) &&
+                (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) &&
+                (krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] == 0)) {
+                // Don't perform eye measurement on a noisy channel
+                krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
+            }
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
                 u16 high_mark = 0;
@@ -1767,23 +1769,27 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                     if (krs->dme_viol) {
                         kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
                         krs->dme_viol_handled = TRUE;
+                        krs->dme_viol = FALSE;
                     } else {
                         kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
                     }
                 } else if (lp_status == STATUS_UPDATED || (lp_status == STATUS_MAXIMUM)) {
                     kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
-                    krs->ber_busy_sw = TRUE;
-                    if(( lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
-                        krs->tap_max_reached = TRUE;
-                        if (krs->dme_viol_handled) {
-                            krs->tap_idx--;
-                            krs->dme_viol = FALSE;
-                            krs->dme_viol_handled = FALSE;
+                    if (!krs->dme_viol) {
+                        krs->ber_busy_sw = TRUE;
+                        if(( lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
+                            krs->tap_max_reached = TRUE;
+                            if (krs->dme_viol_handled) {
+                                krs->tap_idx--;
+                                krs->dme_viol = FALSE;
+                                krs->dme_viol_handled = FALSE;
+                            }
+                        } else {
+                            krs->tap_max_reached = FALSE;
                         }
-                    } else {
-                        krs->tap_max_reached = FALSE;
                     }
-                } else if (lp_status != STATUS_NOT_UPDATED) {
+                } else if (lp_status == STATUS_MINIMUM) {
+                    kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
                     VTSS_E("Invalid status reveived when BER is busy (0x%x)\n",lp_status);
                 } else {
                     VTSS_E("LPSVALID Invalid state 1\n");
@@ -1795,7 +1801,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 krs->tap_idx++;
             }
         } else if (irq == KR_DME_VIOL_1) {
-            krs->dme_viol = TRUE; // Ignoring due to eye measurement disturbance
+            krs->dme_viol = TRUE;
         } else {
             VTSS_E("LPSVALID Invalid state 2\n");
         }
@@ -1803,7 +1809,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
 
     case VTSS_BER_MOVE_TO_MID_MARK:
         if (irq == KR_LPSVALID) {
-//            krs->ignore_fail = FALSE;
+            krs->ignore_fail = TRUE;
             if (lp_status == STATUS_UPDATED || lp_status == STATUS_MINIMUM) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
                 if (krs->decr_cnt > 0) {
@@ -1815,6 +1821,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                     } else {
                         krs->current_tap = kr_ber_next_tap(krs->current_tap, 0);
                         krs->ber_training_stage = VTSS_BER_GO_TO_MIN;
+                        krs->ignore_fail = FALSE;
                     }
                 } else if (lp_status == STATUS_NOT_UPDATED) {
                     kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
@@ -1848,7 +1855,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_frame_t frm;
     vtss_port_kr_fw_req_t req_msg = {0};
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
-    vtss_port_conf_t *pconf = &vtss_state->port.conf[port_no];
     u32 irq = irq_vec;
 
 //      dump_irq(port_no, irq);
@@ -1865,11 +1871,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         irq &= ~KR_FRLOCK_1;
         irq &= ~KR_FRLOCK_0;
     }
-    // Ignore failures in sets (on/off)
-    /* if ((irq & KR_DME_VIOL_0) && (irq & KR_DME_VIOL_1)) { */
-    /*     irq &= ~KR_DME_VIOL_0; */
-    /*     irq &= ~KR_DME_VIOL_1; */
-    /* } */
 
     // KR_AN_XMIT_DISABLE. Aneg is restarted.
     if (irq & KR_AN_XMIT_DISABLE) {
@@ -1889,6 +1890,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             krs->current_state = VTSS_TR_SEND_TRAINING;
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
+            krs->ignore_fail = FALSE;
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -2000,10 +2002,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_DME_VIOL_1 (Failure during frame transmission)
-    if ((irq & KR_DME_VIOL_1) && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
-        if (pconf->speed != VTSS_SPEED_25G) { // For now we ignore this for 25G speed
-            kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
-        }
+    if (irq & KR_DME_VIOL_1 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
+        kr_ber_training(vtss_state, port_no, KR_DME_VIOL_1);
     }
 
     // KR_DME_VIOL_0

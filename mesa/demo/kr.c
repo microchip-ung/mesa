@@ -38,7 +38,7 @@ kr_appl_conf_t *kr_conf_state;
 // For debug
 uint32_t deb_dump_irq = 0;
 mesa_bool_t global_stop = 0;
-mesa_bool_t kr_debug = 0;
+mesa_bool_t kr_debug = 1; 
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
 
@@ -670,10 +670,14 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
         for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.lp_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
-            (void)raw_coef2txt(krs->lp_hist[indx].ber_coef_frm, coef_tap, coef_act);
+            if (indx > 2) {
+                (void)raw_coef2txt(krs->lp_hist[indx-2].ber_coef_frm, coef_tap, coef_act);
+            }
             char sts_tap[20] = {0};
             char sts_res[20] = {0};
-            (void)raw_sts2txt(krs->lp_hist[indx].ber_status_frm, sts_tap, sts_res);
+            if (indx > 1) {
+                (void)raw_sts2txt(krs->lp_hist[indx-1].ber_status_frm, sts_tap, sts_res);
+            }
 
             dt = krs->lp_hist[indx].time;
             if (first) {
@@ -881,11 +885,19 @@ static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf
 static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq)
 {
     kr_appl_train_t *krs = &kr_conf_state[p].tr;
+
+    if (krs->irq_hist_index == KR_HIST_NUM) {
+        krs->irq_hist_index = 0;
+    }
+    if (krs->irq_glb_hist_index == KR_HIST_NUM) {
+        krs->irq_glb_hist_index = 0;
+    }
+    
     if (krs->irq_hist_index < KR_HIST_NUM) {
         krs->irq_hist[krs->irq_hist_index].time = get_time_ms(&krs->time_start_aneg);
         krs->irq_hist[krs->irq_hist_index].irq = irq;
         krs->irq_hist_index++;
-    }
+    } 
     krs = &kr_conf_state[0].tr;
     if (krs->irq_glb_hist_index < KR_HIST_NUM) {
         krs->irq_glb_hist[krs->irq_glb_hist_index].time = get_time_ms(&krs->time_start_aneg);
@@ -898,6 +910,11 @@ static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq)
 static void kr_add_to_ld_history(mesa_port_no_t p, mesa_kr_status_results_t res)
 {
     kr_appl_train_t *krs = &kr_conf_state[p].tr;
+
+    if (krs->ld_hist_index == KR_HIST_NUM) {
+        krs->ld_hist_index = 0;
+    }
+    
     if (krs->ld_hist_index < KR_HIST_NUM) {
         krs->ld_hist[krs->ld_hist_index].time = get_time_ms(&krs->time_start_train);
         krs->ld_hist[krs->ld_hist_index].res = res;
@@ -909,9 +926,14 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
 {
     kr_appl_train_t *kr = &kr_conf_state[p].tr;
     mesa_port_kr_state_t *krs = &kr_conf_state[p].tr.state;
+
+    if (kr->lp_hist_index == KR_HIST_NUM) {
+        kr->lp_hist_index = 0;
+    }
+    
     if (kr->lp_hist_index < KR_HIST_NUM) {
         kr->lp_hist[kr->lp_hist_index].time = get_time_ms(&kr->time_start_train);
-        if (irq & MESA_KR_LPCVALID || irq & MESA_KR_LPSVALID || irq & MESA_KR_BER_BUSY_0 || irq & MESA_KR_BER_BUSY_1) {
+        if (irq & MESA_KR_LPCVALID || irq & MESA_KR_LPSVALID) {
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = krs->ber_status_frm;
         } else {
@@ -1079,11 +1101,11 @@ static void kr_poll(meba_inst_t inst)
             }
         }
 
-        /* if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_1) { */
-        /*     if (kr_debug) { */
-        /*         dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31); */
-        /*     } */
-        /* } */
+        if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) {
+            if (kr_debug) {
+                dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31);
+            }
+        }
 
         // Add IRQs to history
         kr_add_to_irq_history(iport, irq);
