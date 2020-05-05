@@ -20,6 +20,8 @@ check_capabilities do
     $loop_port1 = $ts.dut.looped_port_list[1]
 end
 
+loop_pair_check
+
 $port0 = 0
 $npi_port = 1
 $port1 = 2

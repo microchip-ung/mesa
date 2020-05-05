@@ -24,6 +24,8 @@ check_capabilities do
     end
 end
 
+loop_pair_check
+
 # To change PCB to run 25G Do the following linux commands:
 # ps
 #               ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f
