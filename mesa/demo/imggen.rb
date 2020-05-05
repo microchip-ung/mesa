@@ -27,8 +27,8 @@ $machines = {
         :bsp_base => "../../",
         :arch => "arm64",
         :kernel => "arm64-armv8_a-linux-gnu/fireant/mscc-linux-kernel.bin.gz",
-        :kerneladdr => "/bits/ 64 <0x700080000>",
-        :kernelentry => "/bits/ 64 <0x700080000>",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
         :kcomp => "gzip",
         :dt => [
             { :name => "pcb125",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb125.dtb"},
@@ -36,6 +36,7 @@ $machines = {
             { :name => "pcb134_emmc",   :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb134_emmc.dtb"},
             { :name => "pcb135",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb135.dtb"},
             { :name => "pcb135_emmc",   :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb135_emmc.dtb"},
+            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb121.dtb"},
             { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb134.dtb"},
         ],
         :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",
