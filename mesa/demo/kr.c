@@ -129,7 +129,7 @@ static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
 {
     u32 action = 0;
 
-    if (frm_in == 0x1234) {
+    if (frm_in == 0xdead) {
         sprintf(tap_out, "-       ");
         sprintf(action_out, "-  ");
         return;
@@ -175,6 +175,12 @@ static void raw_coef2txt(u32 frm_in, char *tap_out, char *action_out)
 static void raw_sts2txt(u32 frm_in, char *tap_out, char *action_out)
 {
     u32 action = 0;
+
+    if (frm_in == 0xdead) {
+        sprintf(tap_out, "-  ");
+        sprintf(action_out, "-  ");
+        return;
+    }
 
     if (BT(15) & frm_in) {
         sprintf(tap_out, "RX READY ");
@@ -670,15 +676,10 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
         for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.lp_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
-            if (indx > 2) {
-                (void)raw_coef2txt(krs->lp_hist[indx-2].ber_coef_frm, coef_tap, coef_act);
-            }
+            (void)raw_coef2txt(krs->lp_hist[indx].ber_coef_frm, coef_tap, coef_act);
             char sts_tap[20] = {0};
             char sts_res[20] = {0};
-            if (indx > 1) {
-                (void)raw_sts2txt(krs->lp_hist[indx-1].ber_status_frm, sts_tap, sts_res);
-            }
-
+            (void)raw_sts2txt(krs->lp_hist[indx+1].ber_status_frm, sts_tap, sts_res);
             dt = krs->lp_hist[indx].time;
             if (first) {
                 cli_printf("%-4s%-8s%-8s%-20s%-20s%-8s%-20s\n","","TAP","CMD","STS","BER state","ms","IRQs");
@@ -933,11 +934,16 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
     
     if (kr->lp_hist_index < KR_HIST_NUM) {
         kr->lp_hist[kr->lp_hist_index].time = get_time_ms(&kr->time_start_train);
-        if (irq & MESA_KR_LPCVALID || irq & MESA_KR_LPSVALID) {
+        if (irq & MESA_KR_LPSVALID) {
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = krs->ber_status_frm;
+        } else if (irq & MESA_KR_TRAIN) {
+            printf("train:%x\n",kr->lp_hist[kr->lp_hist_index].ber_coef_frm);
+            kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
+            kr->lp_hist[kr->lp_hist_index].ber_status_frm = 0xdead;
         } else {
-            kr->lp_hist[kr->lp_hist_index].ber_coef_frm = 0x1234;
+            kr->lp_hist[kr->lp_hist_index].ber_coef_frm = 0xdead;
+            kr->lp_hist[kr->lp_hist_index].ber_status_frm = 0xdead;
         }
         kr->lp_hist[kr->lp_hist_index].ber_training_stage = krs->ber_training_stage;
         kr->lp_hist[kr->lp_hist_index].irq = irq;
