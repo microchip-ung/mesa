@@ -938,7 +938,6 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = krs->ber_status_frm;
         } else if (irq & MESA_KR_TRAIN) {
-            printf("train:%x\n",kr->lp_hist[kr->lp_hist_index].ber_coef_frm);
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = 0xdead;
         } else {

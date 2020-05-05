@@ -786,6 +786,7 @@ typedef struct {
     BOOL receiver_ready_sent;
     BOOL kr_mw_done;
     BOOL ignore_fail;
+    BOOL use_ber_measurement;
     vtss_port_speed_t next_parallel_spd;
     u16  lp_tap_max_cnt[3];
     u16  lp_tap_end_cnt[3];

@@ -774,6 +774,7 @@ typedef struct {
     mesa_bool_t receiver_ready_sent;
     mesa_bool_t kr_mw_done;
     mesa_bool_t ignore_fail;
+    mesa_bool_t use_ber_measurement;
     mesa_port_speed_t next_parallel_spd;
     uint16_t lp_tap_max_cnt[3];
     uint16_t lp_tap_end_cnt[3];
