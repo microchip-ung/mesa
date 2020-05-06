@@ -678,22 +678,20 @@ end
 # All incomplete pairs, e.g "NIC statistics:" which has no value, are left out by default.
 # Add :keep_nil in flags in order to keep keys without values.
 #
-# It is possible to return all keys to symbols ("rx_octets" -> :rx_octets).
+# It is possible to return all keys as symbols ("rx_octets" -> :rx_octets).
 # Add :to_sym in flags in order convert all keys.
 #
-# All values than can be translated to an integer is done so by default.
+# All values that can be translated to an integer is done so by default.
 # Add :no_int in flags in order to keep all values as strings.
 #
 # The string above generates a hash like this:
 # {"rx_octets"=>20682, "rx_unicast"=>200, "rx_multicast"=>85, "rx_broadcast"=>0, ..}
 #
-# hash["eth8"]["rx_unicast"] -> 200
-#
 def string_pairs_to_hash str, arr_sep = "\n", key_sep = ": ", flags = []
     hash = {}
     array = str.split(arr_sep)
     array.each do |a|
-        kv = a.split(key_sep)
+        kv = a.split(key_sep).map { |s| s.strip } # Split and remove whitespace
         if flags.include? :to_sym
             k = kv[0].to_sym # Convert to symbol
         else
