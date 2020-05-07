@@ -454,7 +454,7 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
            SYS_MAC_FC_CFG_RX_FC_ENA(fc_obey ? 1 : 0) |
            SYS_MAC_FC_CFG_PAUSE_VAL_CFG(pfc_mask ? 0xff : 0xffff));
     REG_WRM(QSYS_SW_PORT_MODE(port),
-            QSYS_SW_PORT_MODE_INGRESS_DROP_MODE(fc_gen ? 1 : 0),
+            QSYS_SW_PORT_MODE_INGRESS_DROP_MODE(fc_gen ? 0 : 1),
             QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_M);
 
     /* Calculate the total reserved space for all ports */
