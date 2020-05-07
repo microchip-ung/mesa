@@ -127,6 +127,8 @@ static uint32_t ocelot_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_PCB107_CPLD_CS_VIA_MUX:
             return false;
+        case MEBA_CAP_BOARD_HAS_PCB135_CPLD:
+            return false;
         case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:      // NOTE: Capability currently not used on Ocelot. Therefore, it has been set to -1
             return -1;
         case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:  // NOTE: Capability currently not used on Ocelot. Therefore, it has been set to 0

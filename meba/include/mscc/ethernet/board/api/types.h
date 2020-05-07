@@ -90,6 +90,9 @@ typedef enum {
     // Some boards drive CS to PCB107 CPLD via a mux
     MEBA_CAP_PCB107_CPLD_CS_VIA_MUX,
 
+    // PCB-135 cpld
+    MEBA_CAP_BOARD_HAS_PCB135_CPLD,
+
     // DPLL number for the DPLL used for SYNCE
     MEBA_CAP_SYNCE_CLOCK_DPLL,
 
@@ -297,6 +300,8 @@ typedef enum {
     VTSS_BOARD_OCELOT_REF = 28, // PCB120
     VTSS_BOARD_OCELOT_PCB123_REF,
     VTSS_BOARD_LUTON10_PDS408G, // PoE design from PoE business unit
+    VTSS_BOARD_FIREANT_PCB134_REF = 134,
+    VTSS_BOARD_FIREANT_PCB135_REF = 135,
 } vtss_board_type_t;
 
 typedef struct {
