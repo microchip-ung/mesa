@@ -34,7 +34,7 @@ static u32 divide_by_33_1_3(u32 x)
 
 vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer, vtss_policer_conf_t *conf)
 {
-    u32  cir = 0, cbs = 0, pir, pbs, mode, i;
+    u32  cir = 0, cbs = 0, pir, pbs, mode;
     u32  cf = 0, pbs_max, cbs_max = 0;
     BOOL pir_discard = 0;
     u32  cir_ena = 0;
@@ -114,21 +114,26 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer,
         pir = VTSS_BITMASK(15);
     }
 
-    REG_WR(ANA_POL_MODE(policer), ANA_POL_MODE_DROP_ON_YELLOW_ENA(drop_yellow) |
-                                  ANA_POL_MODE_MARK_ALL_FRMS_RED_ENA(mark_all_red) |
-                                  ANA_POL_MODE_IPG_SIZE(20)             |
-                                  ANA_POL_MODE_DLB_COUPLED(cf ? 1 : 0)  |
-                                  ANA_POL_MODE_CIR_ENA(cir_ena ? 1 : 0) |
-                                  ANA_POL_MODE_FRM_MODE(mode)           |
-                                  ANA_POL_MODE_OVERSHOOT_ENA(1));
+    // Setup with RED_ENA = 0 and LVL = 0 to be able to clear POL_STATE
+    mode = (ANA_POL_MODE_DROP_ON_YELLOW_ENA(drop_yellow) |
+            ANA_POL_MODE_MARK_ALL_FRMS_RED_ENA(0) |
+            ANA_POL_MODE_IPG_SIZE(20)             |
+            ANA_POL_MODE_DLB_COUPLED(cf ? 1 : 0)  |
+            ANA_POL_MODE_CIR_ENA(cir_ena ? 1 : 0) |
+            ANA_POL_MODE_FRM_MODE(mode)           |
+            ANA_POL_MODE_OVERSHOOT_ENA(1));
+    REG_WR(ANA_POL_MODE(policer), mode);
+    REG_WR(ANA_POL_PIR_STATE(policer), ANA_POL_PIR_STATE_PIR_LVL(0));
+    REG_WR(ANA_POL_CIR_STATE(policer), ANA_POL_CIR_STATE_CIR_LVL(0));
+    REG_WR(ANA_POL_STATE(policer), ANA_POL_STATE_MARK_ALL_FRMS_RED_SET(0));
+
+    // Setup with new RED_ENA mode
     REG_WR(ANA_POL_PIR_CFG(policer), ANA_POL_PIR_CFG_PIR_RATE(pir) | ANA_POL_PIR_CFG_PIR_BURST(pbs));
     REG_WR(ANA_POL_PIR_STATE(policer), ANA_POL_PIR_STATE_PIR_LVL(pir_discard ? ANA_POL_PIR_STATE_PIR_LVL_M : 0));
     REG_WR(ANA_POL_CIR_CFG(policer), ANA_POL_CIR_CFG_CIR_RATE(cir) | ANA_POL_CIR_CFG_CIR_BURST(cbs));
     REG_WR(ANA_POL_CIR_STATE(policer), ANA_POL_CIR_STATE_CIR_LVL(cir_discard ? ANA_POL_CIR_STATE_CIR_LVL_M : 0));
-    // Clearing state multiple times seems neccessary
-    for (i = 0; i < 10; i++) {
-        REG_WR(ANA_POL_STATE(policer), ANA_POL_STATE_MARK_ALL_FRMS_RED_SET(0));
-    }
+    REG_WR(ANA_POL_MODE(policer), mode | ANA_POL_MODE_MARK_ALL_FRMS_RED_ENA(mark_all_red));
+
     return VTSS_RC_OK;
 }
 
