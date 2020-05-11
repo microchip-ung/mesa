@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'ipaddr'
+require_relative 'et'
 
 def hexstr s
     ss = ""
@@ -147,7 +148,10 @@ def loop_pair_check
 
     check_capabilities do
         assert(port_list != nil && port_list.length > 1, "Two front ports must be looped")
-        assert($ts.dut.call("mesa_port_state_get", port_list[0]), "Loop ports must be up")
+    end
+
+    if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
+        t_e ("Loop ports must be up")
     end
 
     if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
