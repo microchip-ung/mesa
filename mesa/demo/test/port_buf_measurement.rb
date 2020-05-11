@@ -23,7 +23,7 @@ $frame_smac    = "00:00:00:00:00:01"
 $frame_dmac    = "00:00:00:00:00:02"
 $frame_size    = 1518
 $num_of_frames = 2000  # Start burst size
-$min_buf_cap   = 30000 # Error if the buffer capacity in bytes is below this number
+$min_buf_cap   = 20000 # Error if the buffer capacity in bytes is below this number
 
 #---------- Configuration -----------------------------------------------------
 console("Adding static entry on the last port, i.e. no need for frame learning")
