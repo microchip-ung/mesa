@@ -12,6 +12,7 @@ check_capabilities do
     assert(($tas_support == 1),
            "TAS not supported on this platform")
     $pol_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_PORT_POLICER_CNT")
+    $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
 end
 
 MESA_VID_NULL = 0
@@ -39,12 +40,15 @@ test "test_run" do
     t_i("Priority 0 test")
     erate = (1000000000 * 10) / 100  #Priority 0 is 10%
 
-    t_i("Setup ingress port policer to avoid queue aging")
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
-    pconf[0]["frame_rate"] = false
-    pconf[0]["policer"]["level"] = 1
-    pconf[0]["policer"]["rate"] = erate/999
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))   # For some reason the current FPGA cannot parse this test with any policing.
+                                                                        # Strange thing is that it does not result in aging
+        t_i("Setup ingress port policer to avoid queue aging")
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
+        pconf[0]["frame_rate"] = false
+        pconf[0]["policer"]["level"] = 1
+        pconf[0]["policer"]["rate"] = erate/999
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    end
 
    #measure(ig, eg, size,          sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, $frame_size,   2,     false,            false,           [erate],             [2],            true,              [0],     [$cycle_time])
@@ -52,12 +56,14 @@ test "test_run" do
     t_i("Priority 4 test")
     erate = (1000000000 * 30) / 100  #Priority 4 is 30%
 
-    t_i("Setup ingress port policer to avoid queue aging")
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
-    pconf[0]["frame_rate"] = false
-    pconf[0]["policer"]["level"] = 1
-    pconf[0]["policer"]["rate"] = erate/999
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        t_i("Setup ingress port policer to avoid queue aging")
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
+        pconf[0]["frame_rate"] = false
+        pconf[0]["policer"]["level"] = 1
+        pconf[0]["policer"]["rate"] = erate/999
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    end
 
    #measure(ig, eg, size,          sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, $frame_size,   2,     false,            false,           [erate],             [1],            true,              [4],     [$cycle_time])
@@ -65,12 +71,14 @@ test "test_run" do
     t_i("Priority 7 test")
     erate = (1000000000 * 60) / 100  #Priority 7 is 60%
 
-    t_i("Setup ingress port policer to avoid queue aging")
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
-    pconf[0]["frame_rate"] = false
-    pconf[0]["policer"]["level"] = 1
-    pconf[0]["policer"]["rate"] = erate/999
-    pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        t_i("Setup ingress port policer to avoid queue aging")
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
+        pconf[0]["frame_rate"] = false
+        pconf[0]["policer"]["level"] = 1
+        pconf[0]["policer"]["rate"] = erate/999
+        pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig[0]], $pol_cnt, pconf)
+    end
 
    #measure(ig, eg, size,          sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, $frame_size,   2,     false,            false,           [erate],             [1],            true,              [7],     [$cycle_time])
