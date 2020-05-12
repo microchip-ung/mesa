@@ -91,7 +91,7 @@ static int frer_init(int argc, const char *argv[])
     stream_conf.reset_time = 1000;
     RC(mesa_frer_cstream_conf_set(NULL, state.cid, &stream_conf));    
 
-    // Allocate and setup member stream for R-tagged port
+    // Allocate and setup member stream from R-tagged port to untagged port
     mesa_port_list_clear(&port_list);
     mesa_port_list_set(&port_list, uport, 1);
     mid = &state.mid[state.mid_cnt];
@@ -112,9 +112,9 @@ static int frer_init(int argc, const char *argv[])
     RC(mesa_iflow_conf_set(NULL, *iflow_id, &iflow_conf));
 
     // Enable DMAC classification for R-tagged port
-    RC(mesa_vcl_port_conf_get(NULL, uport, &vcl_conf));
+    RC(mesa_vcl_port_conf_get(NULL, rport, &vcl_conf));
     vcl_conf.dmac_dip = 1;
-    RC(mesa_vcl_port_conf_set(NULL, uport, &vcl_conf));
+    RC(mesa_vcl_port_conf_set(NULL, rport, &vcl_conf));
 
     // Add R-tagged port VCE matching DMAC 00:00:00:00:00:01
     RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ANY, &vce));
@@ -129,7 +129,7 @@ static int frer_init(int argc, const char *argv[])
     RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce));
     state.vce_cnt++;
 
-    // Allocate and setup member stream for C-tagged port
+    // Allocate and setup member stream from C-tagged port to untagged port
     mesa_port_list_clear(&port_list);
     mesa_port_list_set(&port_list, uport, 1);
     mid = &state.mid[state.mid_cnt];
@@ -149,10 +149,10 @@ static int frer_init(int argc, const char *argv[])
     iflow_conf.cut_through_disable = 1;
     RC(mesa_iflow_conf_set(NULL, *iflow_id, &iflow_conf));
     
-    // Enable DMAC classification for R-tagged port
-    RC(mesa_vcl_port_conf_get(NULL, uport, &vcl_conf));
+    // Enable DMAC classification for C-tagged port
+    RC(mesa_vcl_port_conf_get(NULL, cport, &vcl_conf));
     vcl_conf.dmac_dip = 1;
-    RC(mesa_vcl_port_conf_set(NULL, uport, &vcl_conf));
+    RC(mesa_vcl_port_conf_set(NULL, cport, &vcl_conf));
 
     // Add C-tagged port VCE matching DMAC 00:00:00:00:00:01 and popping tag
     RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ANY, &vce));
