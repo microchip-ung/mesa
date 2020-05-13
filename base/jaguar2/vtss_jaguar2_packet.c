@@ -1188,6 +1188,7 @@ static vtss_rc jr2_packet_init(vtss_state_t *vtss_state)
         // on normal front ports.
         JR2_WRM(VTSS_HSCH_HSCH_MISC_PORT_MODE(i), VTSS_F_HSCH_HSCH_MISC_PORT_MODE_AGE_DIS(1), VTSS_M_HSCH_HSCH_MISC_PORT_MODE_AGE_DIS);
         JR2_WRM(VTSS_DSM_CFG_BUF_CFG(i),          VTSS_F_DSM_CFG_BUF_CFG_AGING_ENA(0),        VTSS_M_DSM_CFG_BUF_CFG_AGING_ENA);
+        JR2_WRM(VTSS_ASM_CFG_PORT_CFG(i), VTSS_F_ASM_CFG_PORT_CFG_FRM_AGING_DIS(1), VTSS_M_ASM_CFG_PORT_CFG_FRM_AGING_DIS);
 
         // Enable stacking on CPU ports for VLAN classification purposes
         JR2_WRM(VTSS_ANA_CL_PORT_STACKING_CTRL(i),

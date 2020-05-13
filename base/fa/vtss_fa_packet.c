@@ -1017,6 +1017,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
         // on normal front ports.
         REG_WRM(VTSS_HSCH_PORT_MODE(i), VTSS_F_HSCH_PORT_MODE_AGE_DIS(1), VTSS_M_HSCH_PORT_MODE_AGE_DIS);
         REG_WRM(VTSS_DSM_BUF_CFG(i), VTSS_F_DSM_BUF_CFG_AGING_ENA(0), VTSS_M_DSM_BUF_CFG_AGING_ENA);
+        REG_WRM(VTSS_ASM_PORT_CFG(i), VTSS_F_ASM_PORT_CFG_FRM_AGING_DIS(1), VTSS_M_ASM_PORT_CFG_FRM_AGING_DIS);
 
         // Enable stacking on CPU ports for VLAN classification purposes
         REG_WRM(VTSS_ANA_CL_STACKING_CTRL(i),
