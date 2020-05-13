@@ -1304,6 +1304,23 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_port_kr_eye_dim_t *const eye)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_eye_dim, port_no, eye);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+
 vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
                                   const vtss_port_kr_conf_t *const conf)
@@ -1596,7 +1613,12 @@ static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
             indx = i;
         }
     }
-    return indx + 1;
+    if (indx > 0) {
+        return indx + 1;
+    } else {
+        return 0;
+    }
+
 }
 
 static u16 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
@@ -1830,7 +1852,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
         } else {
-            VTSS_E("LPSVALID Invalid state 2\n");
+            VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, Last COEF send:%d\n",irq,lp_status,krs->ber_coef_frm);
         }
         break;
 
@@ -1930,6 +1952,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                 kr_send_sts_report(vtss_state, port_no, BT(15));
                 kr_send_sts_report(vtss_state, port_no, BT(15));
                 kr_send_sts_report(vtss_state, port_no, BT(15));
+                krs->ignore_fail = TRUE;
             } else {
                 (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
             }

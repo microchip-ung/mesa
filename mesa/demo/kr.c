@@ -38,7 +38,7 @@ kr_appl_conf_t *kr_conf_state;
 // For debug
 uint32_t deb_dump_irq = 0;
 mesa_bool_t global_stop = 0;
-mesa_bool_t kr_debug = 1; 
+mesa_bool_t kr_debug = 0; 
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
 
@@ -324,7 +324,7 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->irq = 1;
     } else if (!strncasecmp(found, "sm", 2)) {
         mreq->ansm = 1;
-    } else if (!strncasecmp(found, "use_ber", 4)) {
+    } else if (!strncasecmp(found, "use-ber", 4)) {
         mreq->use_ber = 1;
     } else if (!strncasecmp(found, "np", 2)) {
         mreq->np = 1;
@@ -406,6 +406,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (req->set) {
                 mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].stop_train = 0;
+                kr_conf_state[iport].aneg_start = 1;
                 mesa_port_kr_fec_t fec = {0};
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -665,7 +666,6 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
     kr_appl_train_t              *krs;
     uint32_t                dt;
     mesa_bool_t             first = TRUE;
-    port_cli_req_t          *mreq = req->module_req;
     char                    buf[200] = {0}, *b;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
@@ -690,16 +690,16 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             (void)raw_coef2txt(krs->lp_hist[indx].ber_coef_frm, coef_tap, coef_act);
             char sts_tap[20] = {0};
             char sts_res[20] = {0};
-            (void)raw_sts2txt(krs->lp_hist[indx+1].ber_status_frm, sts_tap, sts_res);
+            (void)raw_sts2txt(krs->lp_hist[indx].ber_status_frm, sts_tap, sts_res);
             dt = krs->lp_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-8s%-8s%-20s%-20s%-8s%-20s\n","","TAP","CMD","STS","BER state","ms","IRQs");
+                cli_printf("%-4s%-8s%-20s%-20s%-8s%-20s\n","","TAP","STS","BER state","ms","IRQs");
                 cli_printf("    ------------------------------------------------------------------------\n");
                 first = FALSE;
             }
-            if (!mreq->all && (krs->lp_hist[indx].ber_coef_frm == 0)) {
-                continue; // Skip the HOLD cmd
-            }
+            /* if (!mreq->all && (krs->lp_hist[indx].ber_coef_frm == 0)) { */
+            /*     continue; // Skip the HOLD cmd */
+            /* } */
             b = &buf[0];
             for (uint32_t i = 4; i < 31; i++) {
                 if ((1 << i) & krs->lp_hist[indx].irq) {
@@ -709,7 +709,7 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             if ((krs->irq_hist[indx].irq & 0xf) > 0) {
                 b += sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
             }
-            cli_printf("%-4d%-8s%-8s%-20s%-20s%-8d%-20s\n", indx, coef_tap, coef_act, sts_res, ber2txt(krs->lp_hist[indx].ber_training_stage), dt, buf);
+            cli_printf("%-4d%-8s%-20s%-20s%-8d%-20s\n", indx, sts_tap, sts_res, ber2txt(krs->lp_hist[indx].ber_training_stage), dt, buf);
         }
     }
 }
@@ -772,6 +772,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
     port_cli_req_t          *mreq = req->module_req;
     mesa_port_kr_state_t    kr_state, *krs = &kr_state;
     kr_appl_train_t         *appl;
+    mesa_port_kr_eye_dim_t  eye;
 
     if (BASE_KR_V2) {
         cli_cmd_port_kr_v2_status(req);
@@ -827,45 +828,51 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         if (!kr.train.enable) {
             cli_printf("  Training          : Disabled\n");
         } else {
-            cli_printf("\n  Training state machine:\n");
-            cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
-            cli_printf("  CURRENT TAP       : %s (CM1->CP1->C0)\n",tap2txt(krs->current_tap));
-            cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
-            cli_printf("  TRAINING_STARTED  : %s\n",krs->training_started ? "TRUE" :"FALSE");
-            cli_printf("  REMOTE_RX_READY   : %s\n",krs->remote_rx_ready ? "TRUE" :"FALSE");
-            cli_printf("  DME_VIOL_HANDLED  : %s\n",krs->dme_viol_handled ? "TRUE" :"FALSE");
-            cli_printf("  BER_BUSY          : %s\n",krs->ber_busy ? "TRUE" :"FALSE");
-            cli_printf("  TAP_MAX_REACHED   : %s\n",krs->tap_max_reached ? "TRUE" :"FALSE");
-            cli_printf("  SIGNAL_DEECT      : %s\n",krs->signal_detect ? "TRUE" :"FALSE");
-            cli_printf("  DECR_CNT          : %d\n",krs->decr_cnt);
-            cli_printf("\n  Training Results:\n");
-            cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
-            cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
-            cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
-            cli_printf("  BER_COUNT CM1     : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-                cli_printf("%d ",krs->ber_cnt[0][i]);
+            if (!kr.train.no_remote) {
+                cli_printf("\n  Training state machine:\n");
+                cli_printf("  BER STAGE         : %s (GO_TO_MIN->CAL_CBER->MOVE_TO_MID->LOCAL_RX_TRAINED)\n",ber2txt(krs->ber_training_stage));
+                cli_printf("  CURRENT TAP       : %s (CM1->CP1->C0)\n",tap2txt(krs->current_tap));
+                cli_printf("  TRAINING_STATE    : %s (INIT->SEND_TRAIN->TRAIN_LOC->TRAIN_REM->LINK_READY->SEND_DATA)\n",state2txt(krs->current_state));
+                cli_printf("  TRAINING_STARTED  : %s\n",krs->training_started ? "TRUE" :"FALSE");
+                cli_printf("  REMOTE_RX_READY   : %s\n",krs->remote_rx_ready ? "TRUE" :"FALSE");
+                cli_printf("  DME_VIOL_HANDLED  : %s\n",krs->dme_viol_handled ? "TRUE" :"FALSE");
+                cli_printf("  BER_BUSY          : %s\n",krs->ber_busy ? "TRUE" :"FALSE");
+                cli_printf("  TAP_MAX_REACHED   : %s\n",krs->tap_max_reached ? "TRUE" :"FALSE");
+                cli_printf("  SIGNAL_DEECT      : %s\n",krs->signal_detect ? "TRUE" :"FALSE");
+                cli_printf("  DECR_CNT          : %d\n",krs->decr_cnt);
+                cli_printf("\n  Training Results:\n");
+                cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
+                cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
+                cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
+                cli_printf("  BER_COUNT CM1     : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
+                    cli_printf("%d ",krs->ber_cnt[0][i]);
+                }
+                cli_printf("\n  BER_COUNT C0      : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
+                    cli_printf("%d ",krs->ber_cnt[1][i]);
+                }
+                cli_printf("\n  BER_COUNT CP1     : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
+                    cli_printf("%d ",krs->ber_cnt[2][i]);
+                }
+                cli_printf("\n  EYE HEIGHT CM1    : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
+                    cli_printf("%d ",krs->eye_height[0][i]);
+                }
+                cli_printf("\n  EYE HEIGHT C0     : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
+                    cli_printf("%d ",krs->eye_height[1][i]);
+                }
+                cli_printf("\n  EYE HEIGHT CP1    : ");
+                for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
+                    cli_printf("%d ",krs->eye_height[2][i]);
+                }
+            } else {
+                cli_printf("\n  Link partner not trained\n");
             }
-            cli_printf("\n  BER_COUNT C0      : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-                cli_printf("%d ",krs->ber_cnt[1][i]);
-            }
-            cli_printf("\n  BER_COUNT CP1     : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-                cli_printf("%d ",krs->ber_cnt[2][i]);
-            }
-            cli_printf("\n  EYE HEIGHT CM1    : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-                cli_printf("%d ",krs->eye_height[0][i]);
-            }
-            cli_printf("\n  EYE HEIGHT C0     : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-                cli_printf("%d ",krs->eye_height[1][i]);
-            }
-            cli_printf("\n  EYE HEIGHT CP1    : ");
-            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-                cli_printf("%d ",krs->eye_height[2][i]);
-            }
+            (void)mesa_port_kr_eye_get(NULL, iport, &eye);
+            cli_printf("\n  CURRENT EYE HEIGHT: %d\n",eye.height);
             cli_printf("\n  TRAINING STATUS   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
 
             cli_printf("\n  Remote device training details:\n");
@@ -909,7 +916,7 @@ static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq)
         krs->irq_hist[krs->irq_hist_index].time = get_time_ms(&krs->time_start_aneg);
         krs->irq_hist[krs->irq_hist_index].irq = irq;
         krs->irq_hist_index++;
-    } 
+    }
     krs = &kr_conf_state[0].tr;
     if (krs->irq_glb_hist_index < KR_HIST_NUM) {
         krs->irq_glb_hist[krs->irq_glb_hist_index].time = get_time_ms(&krs->time_start_aneg);
@@ -1117,11 +1124,11 @@ static void kr_poll(meba_inst_t inst)
             }
         }
 
-        /* if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) { */
-        /*     if (kr_debug) { */
-        /*         dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31); */
-        /*     } */
-        /* } */
+        if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) {
+            if (kr_debug) {
+                dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31);
+            }
+        }
 
         // Add IRQs to history
         kr_add_to_irq_history(iport, irq);
@@ -1139,6 +1146,7 @@ static void kr_poll(meba_inst_t inst)
         if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
             kr->time_ld = get_time_ms(&kr->time_start_train);
             kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+            printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
         }
 
         if (irq & MESA_KR_AN_GOOD) {
@@ -1179,7 +1187,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr_status
     },
     {
-        "Port KR debug [<port_list>] [stop] [irq] [sm] [all] [disable]",
+        "Port KR debug [<port_list>] [stop] [irq] [sm] [use-ber] [all] [disable]",
         "Toggle debug",
         cli_cmd_port_kr_debug
     },
@@ -1310,7 +1318,12 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
-
+    {
+        "use-ber",
+        "use-ber: Use BER measurement instead of eye-height",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
     {
         "pr",
         "print out",

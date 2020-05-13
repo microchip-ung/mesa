@@ -868,6 +868,12 @@ typedef struct {
     mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
 } mesa_port_kr_fec_t;
 
+// 10G KR eye info 
+typedef struct {
+    uint32_t height;
+} mesa_port_kr_eye_dim_t;
+
+
 // Set 10G KR FEC
 // inst    [IN]  Target instance reference.
 // port_no [IN]  Port number.
@@ -919,6 +925,22 @@ mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
                                     const mesa_port_no_t port_no,
                                     mesa_port_kr_status_t *const status)
     CAP(PORT_10GBASE_KR_V3);
+
+/**
+ * \brief Get and clear KR interrupts
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param eye     [OUT] The height of the eye.
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_kr_eye_get(mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             mesa_port_kr_eye_dim_t *const eye)
+    CAP(PORT_10GBASE_KR_V3);
+
 
 /******************************************************************************/
 /* 25G/10G KR Backplane Ethernet - End                                            */

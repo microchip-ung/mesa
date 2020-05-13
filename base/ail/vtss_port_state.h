@@ -385,11 +385,6 @@ typedef struct {
     BOOL c0_done;
 } vtss_port_kr_temp_storage_t;
 
-/** \brief 10G KR eye info */
-typedef struct {
-    u32 height;
-} vtss_port_kr_eye_dim_t;
-
 
 #endif // defined(VTSS_FEATURE_10GBASE_KR_V3)
 typedef struct {

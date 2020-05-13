@@ -971,6 +971,25 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              u32 *const irq_vec);
 
+/** \brief 10G KR eye info */
+typedef struct {
+    u32 height;
+} vtss_port_kr_eye_dim_t;
+
+/**
+ * \brief Get and clear KR interrupts
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param eye     [OUT] The height of the eye.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_port_kr_eye_dim_t *const eye);
+
 /**
  * ============================================================================
  * 802.3ap 25G/10G Base KR Backplane Ethernet - End
