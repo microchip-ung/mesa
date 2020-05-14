@@ -68,7 +68,7 @@ def tod_asymmetry_p2p_delay_test
         diff_max = 500
     end
     if ($pcb == "Adaro")    #Test on Copper PHY
-        diff_max = 200
+        diff_max = 250
     end
 
     t_i("Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction")

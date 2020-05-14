@@ -30,6 +30,24 @@ else
     $external_io_out = 1
 end
 
+def get_next_saved_ts
+    test "get_next_saved_ts" do
+    tod0 = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+    i = 0
+    (0..4).each do |i|
+        sleep(0.3)
+        $tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+        if ($tod[0]["seconds"] != tod0[0]["seconds"])
+            break;
+        end
+        if (i == 4)
+            t_e("TOD seconds not incrementing")
+        end
+    end
+    end
+    $tod[0]
+end
+
 def tod_adj_timer_test(domain_out, domain_in)
     test "tod_adj_timer_test  domain = #{domain_out}" do
     if ($cap_core_clock != 0)
@@ -92,19 +110,8 @@ def tod_adj_timer_test(domain_out, domain_in)
     pin_conf["freq"] = 0
     $ts.dut.call("mesa_ts_external_io_mode_set", $external_io_out, pin_conf)
 
-    sleep(0.5)
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-
-    sleep(0.7)
-
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-    ts0 = tod[0]
-
-    sleep(0.7)
-
-    # Get base line TOD on 1PPS input pin
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-    ts1 = tod[0]
+    ts0 = get_next_saved_ts
+    ts1 = get_next_saved_ts
 
     diff = ts0["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff}")
@@ -115,16 +122,8 @@ def tod_adj_timer_test(domain_out, domain_in)
     t_i("Set frequency adjustment to maximum positive")
     domain_def ? $ts.dut.call("mesa_ts_adjtimer_set", adj_max) : $ts.dut.call("mesa_ts_domain_adjtimer_set", domain_out, adj_max)
 
-    sleep(0.8)
-
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-    ts0 = tod[0]
-
-    sleep(0.8)
-
-    # Get TOD on 1PPS input pin
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-    ts1 = tod[0]
+    ts0 = get_next_saved_ts
+    ts1 = get_next_saved_ts
 
     diff = ts0["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff}")
@@ -135,15 +134,8 @@ def tod_adj_timer_test(domain_out, domain_in)
     t_i("Set frequency adjustment to maximum negative")
     domain_def ? $ts.dut.call("mesa_ts_adjtimer_set", -adj_max) : $ts.dut.call("mesa_ts_domain_adjtimer_set", domain_out, -adj_max)
 
-    sleep(0.5)
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-
-    sleep(0.7)
-
-    tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-    ts0 = tod[0]
-
-    sleep(0.7)
+    ts0 = get_next_saved_ts
+    ts1 = get_next_saved_ts
 
     # Get TOD on 1PPS input pin
     tod = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
