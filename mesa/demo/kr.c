@@ -455,7 +455,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
                     }
                 }
                 conf.aneg.next_page = mreq->np;
-
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
@@ -669,6 +668,8 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
     uint32_t                dt;
     mesa_bool_t             first = TRUE;
     char                    buf[200] = {0}, *b;
+    char                    sts_tmp[20] = {0};
+    port_cli_req_t          *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
@@ -693,15 +694,20 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             char sts_tap[20] = {0};
             char sts_res[20] = {0};
             (void)raw_sts2txt(krs->lp_hist[indx].ber_status_frm, sts_tap, sts_res);
+            
+            if (krs->lp_hist[indx].ber_status_frm == 0 || krs->lp_hist[indx].ber_status_frm == 0xdead) {
+            } else 
+                memcpy(sts_tmp, sts_tap, sizeof(sts_tap));
+
             dt = krs->lp_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-8s%-20s%-20s%-8s%-20s\n","","TAP","STS","BER state","ms","IRQs");
-                cli_printf("    ------------------------------------------------------------------------\n");
+                cli_printf("%-8s%-12s%-12s%-12s%-20s%-8s%-20s\n","","TAP","RxLPS","TxLPC","BER state","ms","IRQs");
+                cli_printf("  --------------------------------------------------------------------------\n");
                 first = FALSE;
             }
-            /* if (!mreq->all && (krs->lp_hist[indx].ber_coef_frm == 0)) { */
-            /*     continue; // Skip the HOLD cmd */
-            /* } */
+            if (!mreq->all && (krs->lp_hist[indx].ber_coef_frm == 0)) {
+                continue; // Skip the HOLD cmd
+            }
             b = &buf[0];
             for (uint32_t i = 4; i < 31; i++) {
                 if ((1 << i) & krs->lp_hist[indx].irq) {
@@ -711,7 +717,8 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             if ((krs->irq_hist[indx].irq & 0xf) > 0) {
                 b += sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
             }
-            cli_printf("%-4d%-8s%-20s%-20s%-8d%-20s\n", indx, sts_tap, sts_res, ber2txt(krs->lp_hist[indx].ber_training_stage), dt, buf);
+
+            cli_printf("%-8d%-12s%-12s%-12s%-20s%-8d%-20s\n", indx, sts_tmp, sts_res, coef_act, ber2txt(krs->lp_hist[indx].ber_training_stage), dt, buf);
         }
     }
 }
@@ -877,7 +884,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("\n  CURRENT EYE HEIGHT: %d\n",eye.height);
             cli_printf("\n  TRAINING STATUS   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
 
-            cli_printf("\n  Remote device training details:\n");
+            cli_printf("\n  This port Tx Equalizer settings:\n");
             cli_printf("  LD CM (tap_dly)   : %d\n",sts.train.cm_ob_tap_result);
             cli_printf("  LD C0 (amplitude) : %d\n",sts.train.c0_ob_tap_result);
             cli_printf("  LD CP (tap_adv)   : %d\n",sts.train.cp_ob_tap_result);
@@ -957,7 +964,7 @@ static void kr_add_to_lp_history(mesa_port_no_t p, uint32_t irq)
         if (irq & MESA_KR_LPSVALID) {
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = krs->ber_status_frm;
-        } else if (irq & MESA_KR_TRAIN) {
+        } else if ((irq & MESA_KR_TRAIN) || (irq & MESA_KR_BER_BUSY_0)) {
             kr->lp_hist[kr->lp_hist_index].ber_coef_frm = krs->ber_coef_frm;
             kr->lp_hist[kr->lp_hist_index].ber_status_frm = 0xdead;
         } else {
@@ -1150,7 +1157,9 @@ static void kr_poll(meba_inst_t inst)
         if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
             kr->time_ld = get_time_ms(&kr->time_start_train);
             kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
-            printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+            if (!kr_debug) {
+                printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+            }
         }
 
         if (irq & MESA_KR_AN_GOOD) {

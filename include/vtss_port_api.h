@@ -781,7 +781,6 @@ typedef struct {
     BOOL dme_viol_handled;
     BOOL dme_viol;
     BOOL ber_busy;
-    BOOL ber_busy_sw;
     BOOL tap_max_reached;
     BOOL receiver_ready_sent;
     BOOL kr_mw_done;

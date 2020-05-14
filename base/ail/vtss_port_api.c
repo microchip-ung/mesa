@@ -1454,7 +1454,7 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 
 // For debugging
-
+# if 0
 static char *fa_kr_aneg_rate(uint32_t reg)
 {
     switch (reg) {
@@ -1470,6 +1470,8 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     }
     return "other";
 }
+
+
 static char *irq2txt(u32 irq)
 {
     switch (irq) {
@@ -1503,6 +1505,7 @@ static char *irq2txt(u32 irq)
     default:  return "ILLEGAL";
     }
 }
+
 static void dump_irq(u32 p, u32 irq)
 {
     char buf[200] = {0}, *b=&buf[0];
@@ -1520,7 +1523,7 @@ static void dump_irq(u32 p, u32 irq)
     printf("%s \n",buf);
 }
 
-# if 0
+
 static vtss_port_speed_t kr_irq2spd(u32 irq)
 {
     switch (irq) {
@@ -1753,9 +1756,6 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             if (lp_status == STATUS_UPDATED || lp_status == STATUS_MAXIMUM) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
                 if (krs->dme_viol_handled) {
-                    req_msg.ber_enable = TRUE;
-                    (void)kr_fw_req(vtss_state, p, &req_msg);
-                    krs->ber_busy_sw = TRUE;
                     krs->ber_training_stage = VTSS_BER_CALCULATE_BER;
                     krs->tap_idx = 0;
                     krs->dme_viol = 0;
@@ -1771,14 +1771,11 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 }
             } else if (lp_status == STATUS_MINIMUM) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
-                req_msg.ber_enable = TRUE;
-                (void)kr_fw_req(vtss_state, p, &req_msg);
-                krs->ber_busy_sw = TRUE;
                 krs->ber_training_stage = VTSS_BER_CALCULATE_BER;
                 krs->tap_idx = 0;
                 krs->tap_max_reached = FALSE;
             } else {
-                VTSS_E("Error Got lp_status:%d\n",lp_status);
+                VTSS_E("IRQ:0x%x, State:VTSS_BER_GO_TO_MIN, LP Status:%d\n",irq, lp_status);
             }
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
@@ -1789,21 +1786,12 @@ static void kr_ber_training(vtss_state_t *vtss_state,
         if (irq == KR_BER_BUSY_1) {
             krs->ber_busy = TRUE;
         } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
-            krs->ber_busy_sw = FALSE;
             krs->ber_busy = FALSE;
             krs->ber_cnt[krs->current_tap][krs->tap_idx] = fa_port_kr_ber_cnt(vtss_state, p);
-            if ((!vtss_state->port.kr_conf[p].train.use_ber_cnt && krs->tap_idx > 1) &&
-                (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) &&
-                (krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] == 0)) {
-                // Don't perform eye measurement on a noisy channel
+            // Don't perform eye measurement on a noisy channel
+            if (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) {
                 krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
             }
-
-            /* if (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) { */
-            /*     // Don't perform eye measurement on a noisy channel */
-            /*     krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p); */
-            /* } */
-           
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
                 if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {
@@ -1819,46 +1807,20 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
             }
         } else if (irq == KR_LPSVALID) {
-            if (!krs->ber_busy && !krs->ber_busy_sw) {
-                if (lp_status == STATUS_NOT_UPDATED) {
-                    if (krs->dme_viol) {
-                        kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
-                        krs->dme_viol_handled = TRUE;
-                        krs->dme_viol = FALSE;
-                    } else {
-                        kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
-                    }
-                } else if (lp_status == STATUS_UPDATED || (lp_status == STATUS_MAXIMUM)) {
-                    kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
-                    if (!krs->dme_viol) {
-                        krs->ber_busy_sw = TRUE;
-                        if(( lp_status == STATUS_MAXIMUM) || krs->dme_viol_handled) {
-                            krs->tap_max_reached = TRUE;
-                            if (krs->dme_viol_handled) {
-                                krs->tap_idx--;
-                                krs->dme_viol = FALSE;
-                                krs->dme_viol_handled = FALSE;
-                            }
-                        } else {
-                            krs->tap_max_reached = FALSE;
-                        }
-                    }
-                } else if (lp_status == STATUS_MINIMUM) {
-                    kr_send_coef_update(vtss_state, krs, p, COEF_INCR);
-                    VTSS_E("Invalid status reveived when BER is busy (0x%x)\n",lp_status);
-                } else {
-                    VTSS_E("LPSVALID Invalid state 1\n");
-                }
-            } else if (lp_status == STATUS_NOT_UPDATED) {
+            if (lp_status == STATUS_NOT_UPDATED) {
                 req_msg.ber_enable = TRUE;
                 (void)kr_fw_req(vtss_state, p, &req_msg);
-                krs->ber_busy_sw = TRUE;
                 krs->tap_idx++;
+            } else if (lp_status == STATUS_UPDATED || (lp_status == STATUS_MAXIMUM)) {
+                kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
+                if(lp_status == STATUS_MAXIMUM) {
+                    krs->tap_max_reached = TRUE;
+                }
             } else {
-                VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, ber_busy:%d  ber_busy_sw:%d\n",irq, lp_status, krs->ber_busy, krs->ber_busy_sw);
+                VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, LP Status:%d\n",irq, lp_status);
             }
         } else if (irq == KR_DME_VIOL_1) {
-            krs->dme_viol = TRUE;
+            // Ignore DME_VIOL in this state
         } else {
             VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, Last COEF send:%d\n",irq,lp_status,krs->ber_coef_frm);
         }
@@ -1886,17 +1848,15 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             } else if (lp_status == STATUS_NOT_UPDATED) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
             } else {
-                VTSS_E("Invalid irq (%x)/state in state MOVE_TO_MID_MARK\n",irq);
+                VTSS_E("IRQ:0x%x, State:MOVE_TO_MID_MARK(1), Status:%d, Last COEF send:%d\n",irq,lp_status,krs->ber_coef_frm);
             }
         } else {
-            VTSS_E("Invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
-            dump_irq(p, irq);
+            VTSS_E("IRQ:0x%x, State:MOVE_TO_MID_MARK(2), Status:%d, Last COEF send:%d\n",irq,lp_status,krs->ber_coef_frm);
         }
         break;
 
     default:
-        VTSS_E("Reach DEFAULT (irq:%d)\n",irq);
-        dump_irq(p, irq);
+        VTSS_E("IRQ:0x%x, State:DEFAILT, Status:%d, Last COEF send:%d\n",irq,lp_status,krs->ber_coef_frm);
         break;
     }
 }
@@ -1906,6 +1866,7 @@ static void kr_reset_state(vtss_port_kr_state_t *krs) {
     memset(krs, 0, sizeof(vtss_port_kr_state_t));
 }
 
+// Handle the incoming KR IRQs
 static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                             const vtss_port_no_t port_no,
                             const u32 irq_vec)
@@ -1918,17 +1879,14 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
 //    dump_irq(port_no, irq);
 
-    /* irq &= ~KR_DME_VIOL_0; */
-    /* irq &= ~KR_DME_VIOL_1; */
-
-     // To avoid failures during eye height calculation
+     // To ignore IRQ failures
     if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
         irq &= ~KR_DME_VIOL_1;
         irq &= ~KR_REM_RDY_0;
         irq &= ~KR_FRLOCK_0;
     }
-    // Ignore failures in sets (on/off)
+    // Ignore FRLOCK in sets (Frame lock off/on)
     if ((irq & KR_FRLOCK_0) && (irq & KR_FRLOCK_1)) {
         irq &= ~KR_FRLOCK_1;
         irq &= ~KR_FRLOCK_0;
@@ -2119,9 +2077,10 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // AN_XMIT_DISABLE
     if (irq & KR_AN_XMIT_DISABLE) {
+        // Start a generic timer to avoid hanging in this state
         req_msg.gen0_tmr_start = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
-    }  
+    }
 
     // KR_AN_RATE (autoneg rate)
     if ((irq & KR_AN_RATE) > 0) {
