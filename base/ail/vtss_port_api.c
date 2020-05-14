@@ -1798,6 +1798,12 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 // Don't perform eye measurement on a noisy channel
                 krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
             }
+
+            /* if (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) { */
+            /*     // Don't perform eye measurement on a noisy channel */
+            /*     krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p); */
+            /* } */
+           
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
                 if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {
@@ -1848,6 +1854,8 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 (void)kr_fw_req(vtss_state, p, &req_msg);
                 krs->ber_busy_sw = TRUE;
                 krs->tap_idx++;
+            } else {
+                VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, ber_busy:%d  ber_busy_sw:%d\n",irq, lp_status, krs->ber_busy, krs->ber_busy_sw);
             }
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
@@ -1877,6 +1885,8 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 }
             } else if (lp_status == STATUS_NOT_UPDATED) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
+            } else {
+                VTSS_E("Invalid irq (%x)/state in state MOVE_TO_MID_MARK\n",irq);
             }
         } else {
             VTSS_E("Invalid irq (%x) in state MOVE_TO_MID_MARK\n",irq);
@@ -1906,7 +1916,10 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 irq = irq_vec;
 
-//      dump_irq(port_no, irq);
+//    dump_irq(port_no, irq);
+
+    /* irq &= ~KR_DME_VIOL_0; */
+    /* irq &= ~KR_DME_VIOL_1; */
 
      // To avoid failures during eye height calculation
     if (krs->ignore_fail) {
@@ -1943,7 +1956,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
-            kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
             if (kr->train.no_remote) {
                 // Do not train remote LP
                 krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
@@ -2072,9 +2084,12 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_MW_DONE (Max wait timer expired (72.6.10.3.2))
-    if ((irq & KR_MW_DONE) && krs->training_started) {
-        req_msg.training_failure = TRUE;
-        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+    if (irq & KR_MW_DONE) {
+        kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
+        if (krs->training_started) {
+            req_msg.training_failure = TRUE;
+            (void)kr_fw_req(vtss_state, port_no, &req_msg);
+        }
     }
 
     // WT_START (Start wait timer to ensure that the LP detects our state (72.6.10.3.2))
@@ -2083,14 +2098,13 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
-
         req_msg.wt_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
         krs->current_state = VTSS_TR_LINK_READY;
     }
 
     // KR_AN_GOOD (Aneg is successful)
-    if (irq & KR_AN_GOOD) {
+    if (irq & KR_AN_GOOD ) {
         // Start a generic timer
         req_msg.gen1_tmr_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -2102,6 +2116,12 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         req_msg.rate_done = 1;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
+
+    // AN_XMIT_DISABLE
+    if (irq & KR_AN_XMIT_DISABLE) {
+        req_msg.gen0_tmr_start = 1;
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
+    }  
 
     // KR_AN_RATE (autoneg rate)
     if ((irq & KR_AN_RATE) > 0) {
