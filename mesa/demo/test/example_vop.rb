@@ -151,7 +151,7 @@ def voe_test(tag_vid = 0)
     $ts.pc.run("ef rx #{$ts.pc.p[$port0]}") # This is required in order to make the previously started back ground print result. Dont know why !!
 
     t_i("Increment sequence number")
-    ccm_pdu = ccm_pdu_create($level, $period, $cap_oam_v2 ? 1 : 2, 2, $megid)
+    ccm_pdu = ccm_pdu_create($level, $period, exp_seq + 1, 2, $megid)
 
     t_i("Inject and expect valid CCM frame from the VOE")
     framerx = frame.dup + ccm_pdu
