@@ -305,6 +305,21 @@ static vtss_rc srvl_sd1g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
     return VTSS_RC_OK;
 }
 
+static vtss_rc srvl_sd6g_lock(vtss_state_t *vtss_state)
+{
+    u32 value;
+
+    do {
+        SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA0, &value);
+    } while (value == 0);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc srvl_sd6g_unlock(vtss_state_t *vtss_state)
+{
+    SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA0, 1);
+    return VTSS_RC_OK;
+}
 
 /* Serdes6G: Read/write data */
 static vtss_rc srvl_sd6g_read_write(vtss_state_t *vtss_state, u32 addr, BOOL write)
@@ -527,6 +542,7 @@ static vtss_rc srvl_sd6g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
         return VTSS_RC_ERROR;
     }
 
+    VTSS_RC(srvl_sd6g_lock(vtss_state));
     VTSS_RC(srvl_sd6g_read(vtss_state, addr));
 
     if (idle) {
@@ -534,6 +550,7 @@ static vtss_rc srvl_sd6g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
         SRVL_WRM_CTL(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG, idle,
                      VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG_OB_IDLE);
         VTSS_RC(srvl_sd6g_write(vtss_state, addr));
+        VTSS_RC(srvl_sd6g_unlock(vtss_state));
         return VTSS_RC_OK;
     }
 
@@ -770,6 +787,7 @@ static vtss_rc srvl_sd6g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, u
                VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG1_IB_TSDET);
 
       VTSS_RC(srvl_sd6g_write(vtss_state, addr));
+      VTSS_RC(srvl_sd6g_unlock(vtss_state));
     return VTSS_RC_OK;
 }
 #endif
@@ -1029,10 +1047,12 @@ static vtss_rc srvl_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_p
                 } else {
                     clk_src = clk_port;
                 }
+                VTSS_RC(srvl_sd6g_lock(vtss_state));
                 VTSS_RC(srvl_sd6g_read(vtss_state, mask)); /* Readback the 6G common config register */
                 VTSS_I("enable 6G   instance %u  common_cfg %X", serdes_instance, common_cfg);
                 SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, common_cfg, common_mask);
                 VTSS_RC(srvl_sd6g_write(vtss_state, mask)); /* transfer 6G common config register */
+                VTSS_RC(srvl_sd6g_unlock(vtss_state));
             } else {
                 sq_mask = VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_ENA;
                 common_mask = sq_mask;
@@ -2512,6 +2532,7 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
     u32            x;
 
     vtss_srvl_debug_reg_header(pr, buf);
+    VTSS_RC(srvl_sd6g_lock(vtss_state));
     VTSS_RC(srvl_sd6g_read(vtss_state, 1 << inst));
     SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
     SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
@@ -2575,6 +2596,7 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, QRATE, x);
     SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, IF_MODE, x);
     SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, SE_AUTO_SQUELCH_ENA, x);
+    VTSS_RC(srvl_sd6g_unlock(vtss_state));
 
     return VTSS_RC_OK;
 }

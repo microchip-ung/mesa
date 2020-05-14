@@ -416,6 +416,15 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
         (vtss_state->sys_config.vcore_cfg == 12 || vtss_state->sys_config.vcore_cfg == 13);
     vtss_state->sys_config.using_vrap = (vtss_state->sys_config.vcore_cfg < 9); 
     vtss_state->sys_config.using_pcie = (vtss_state->sys_config.vcore_cfg == 9);
+    switch (vtss_state->init_conf.mux_mode) {
+    case VTSS_PORT_MUX_MODE_1:
+    case VTSS_PORT_MUX_MODE_3:
+    case VTSS_PORT_MUX_MODE_5:
+        vtss_state->sys_config.using_pcie = TRUE;
+        break;
+    default:
+        break;
+    }
     VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d", 
            vtss_state->sys_config.vcore_cfg, 
            vtss_state->sys_config.using_vcoreiii,
@@ -443,8 +452,10 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     }
 
     /* Initialize the LC-PLL */
-    if (!vtss_state->warm_start_cur && vtss_lc_pll5g_setup(vtss_state) != VTSS_RC_OK) {
-         VTSS_E("LC-PLL5G initialization error");
+    if (!vtss_state->warm_start_cur &&
+        !vtss_state->sys_config.using_pcie &&
+        vtss_lc_pll5g_setup(vtss_state) != VTSS_RC_OK) {
+        VTSS_E("LC-PLL5G initialization error");
     }
 
     /* Enable i2c glitch filter */

@@ -260,7 +260,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     # IMG_TARGET(NAME ls1046_vsc7437  TYPE fit       APP app_vsc7437         MACHINE ls1046a)
     # IMG_TARGET(NAME ls1046_vsc7438  TYPE fit       APP app_vsc7438         MACHINE ls1046a)
     # IMG_TARGET(NAME ls1046_vsc7514  TYPE fit       APP app_vsc7514         MACHINE ls1046a)
-    IMG_TARGET(NAME ls1046_vsc7512        TYPE fit      APP app_vsc7512         MACHINE fireant)
+    IMG_TARGET(NAME ls1046_vsc7512        TYPE fit      APP app_vsc7512         MACHINE ocelot_pcb121)
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     IMG_TARGET(NAME armv7_vsc7428     TYPE fit    APP app_vsc7428         MACHINE BeagleBoneBlack)

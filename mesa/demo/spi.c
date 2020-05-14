@@ -149,14 +149,8 @@ mesa_rc spi_reg_write(const mesa_chip_no_t chip_no,
 
 mesa_rc spi_io_init(spi_user_t user, const char *device, int freq, int padding)
 {
-    static int trace_reg = 1;
     spi_conf_t *conf;
     int fd, ret, mode = 0;
-
-    if (trace_reg) {
-        mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
-        trace_reg = 0;
-    }
 
     if (user >= SPI_USER_CNT) {
         T_E("Invalid spi user %d", user);
@@ -199,3 +193,9 @@ mesa_rc spi_io_init(spi_user_t user, const char *device, int freq, int padding)
     return MESA_RC_OK;
 }
 
+void mscc_appl_spi_init(mscc_appl_init_t *init)
+{
+    if (init->cmd == MSCC_INIT_CMD_REG) {
+        mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
+    }
+}

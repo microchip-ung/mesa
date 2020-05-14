@@ -27,8 +27,8 @@ $machines = {
         :bsp_base => "../../",
         :arch => "arm64",
         :kernel => "arm64-armv8_a-linux-gnu/fireant/mscc-linux-kernel.bin.gz",
-        :kerneladdr => "<0x80080000>",
-        :kernelentry => "<0x80080000>",
+        :kerneladdr => "/bits/ 64 <0x700080000>",
+        :kernelentry => "/bits/ 64 <0x700080000>",
         :kcomp => "gzip",
         :dt => [
             { :name => "pcb125",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb125.dtb"},
@@ -40,6 +40,22 @@ $machines = {
             { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb134.dtb"},
         ],
         :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",
+        :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
+    },
+
+    "ocelot_pcb121" => {
+        :bsp_base => "../../",
+        :arch => "arm64",
+        :kernel => "arm64-armv8_a-linux-gnu/fireant/mscc-linux-kernel.bin.gz",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
+        :kcomp => "gzip",
+        :dt => [
+            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb121.dtb"},
+        ],
+        :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",
+        :fdtaddr => "<0x90000000>",
         :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
     },
 

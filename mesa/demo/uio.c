@@ -75,8 +75,6 @@ mesa_rc uio_reg_io_init(void)
     mesa_rc rc = MESA_RC_ERROR;
     int dev_fd;
 
-    mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
-
     if (!(dir = opendir(top))) {
         T_E("operdir(%s) failed", top);
         return rc;
@@ -126,3 +124,9 @@ mesa_rc uio_reg_io_init(void)
     return rc;
 }
 
+void mscc_appl_uio_init(mscc_appl_init_t *init)
+{
+    if (init->cmd == MSCC_INIT_CMD_REG) {
+        mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
+    }
+}
