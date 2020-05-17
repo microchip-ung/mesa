@@ -250,6 +250,12 @@ if (${BUILD_MESA_CAPABILITY_DUMPER})
     target_link_libraries(capability_dumper dl)
 endif()
 
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/sw-lan9662-rte/CMakeLists.txt)
+    set(HAS_RTE ON)
+    add_subdirectory(sw-lan9662-rte)
+else()
+    set(HAS_RTE OFF)
+endif()
 
 if (${BUILD_MESA_DEMO})
     find_library(JSON_LIB json-c)
