@@ -647,7 +647,7 @@ typedef struct {
     mesa_bool_t enable;   // 10G KR Autoneg enable
     mesa_bool_t adv_10g;  // Advertise 10G
     mesa_bool_t fec_abil; // Advertise FEC ability
-    mesa_bool_t fec_req;  // Request FEC 
+    mesa_bool_t fec_req;  // Advertise FEC request
 } mesa_port_10g_kr_aneg_t CAP(PORT_10GBASE_KR_V2);
 
 // 10G KR Training config
@@ -687,7 +687,6 @@ mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
                                     const mesa_port_no_t port_no,
                                     mesa_port_10g_kr_status_t *const status)
     CAP(PORT_10GBASE_KR_V2);
-
 
 /******************************************************************************/
 /* 25G/10G KR Backplane Ethernet (version 3, Sparx-5 and newer)               */
@@ -769,7 +768,6 @@ typedef struct {
     mesa_bool_t dme_viol_handled;
     mesa_bool_t dme_viol;
     mesa_bool_t ber_busy;
-    mesa_bool_t ber_busy_sw;
     mesa_bool_t tap_max_reached;
     mesa_bool_t receiver_ready_sent;
     mesa_bool_t kr_mw_done;

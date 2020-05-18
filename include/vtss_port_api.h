@@ -622,7 +622,7 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
 #if defined(VTSS_FEATURE_10GBASE_KR_V2)
 /**
  * ============================================================================
- * 802.3ap 10GBase KR Backplane Ethernet (version 2, JR2-RevC)
+ * 802.3ap 10GBase KR Backplane Ethernet (version 2, JR2-RevC and newer)
  * ============================================================================
  **/
 
@@ -630,10 +630,10 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
 typedef struct {
     BOOL complete;            /**< Aneg completed successfully                      */
     BOOL active;              /**< Aneg is running between LD and LP                */
-    vtss_port_speed_t speed_req;  /**< Speed negotiated (needs to be configured)    */
+    BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
+    BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
     BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
-    BOOL fec_enable;          /**< Base-R-FEC (Clause 74) is negotiated             */
-    BOOL rs_fec_enable;       /**< Base-RS-FEC (Clause 108) is negotiated           */
+    BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
     u32  sm;                  /**< (debug) Aneg state machine                       */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
     BOOL block_lock;          /**< (debug) PCS block lock                           */

@@ -2066,14 +2066,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         krs->current_state = VTSS_TR_LINK_READY;
     }
 
-    // KR_AN_GOOD (Aneg is successful)
-    if (irq & KR_AN_GOOD ) {
-        // Start a generic timer
-        vtss_port_kr_fw_req_t req_msg = {0};
-        req_msg.gen1_tmr_start = TRUE;
-        (void)kr_fw_req(vtss_state, port_no, &req_msg);
-    }
-
     // KR_RATE_DET (parallel detect)
     if (irq & KR_RATE_DET) {
         vtss_port_kr_fw_req_t req_msg = {0};

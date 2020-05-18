@@ -1235,9 +1235,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     // Generic timer 0
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
 
-    // Generic timer 1
-    REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500*50); // 10 ms
-
     if (kr->train.enable) {
         // Link pass inihibit timer (in AN_GOOD_CHECK)
         REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
