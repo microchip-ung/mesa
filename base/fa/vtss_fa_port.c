@@ -720,6 +720,14 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static BOOL fa_port_kr_aneg_ena(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+    return vtss_state->port.kr_conf[port_no].aneg.enable;
+#endif
+    return FALSE;
+}
+
 #if defined(VTSS_FEATURE_10GBASE_KR_V3)
 #define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
 #define NP_TOGGLE (VTSS_BIT(11))
@@ -880,30 +888,27 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
                 VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
 
+        if (fw_req->rate_done) {
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer after speed config
+        }
     }
 
     if (fw_req->start_training) {
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-//          This is done by the application through Rate Sel IRQ
-//          VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SFI_KR)); // 64 bit KR mode
-            
-        }
+        // Change to 64 bit KR mode while training is done by the application through Rate Sel IRQ
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
     }
 
-    if (fw_req->stop_training) {
-        
+    if (fw_req->stop_training) {        
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            
+            // Change back to 40bit mode
             VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
         }
-
     }
 
     if (fw_req->training_failure) {
@@ -912,11 +917,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
                 VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
-
-        /* REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt), */
-        /*         VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(1), */
-        /*         VTSS_M_IP_KRANEG_AN_CFG1_TR_DISABLE); */
-
     }
 
     if (fw_req->aneg_disable) {
@@ -962,10 +962,6 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     u32 pcs = VTSS_TO_PCS_TGT(port);
     u32 tgt = VTSS_TO_HIGH_DEV(port);
 
-    /* REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), 0); */
-    /* REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(tgt), */
-    /*             VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA); */
-
     // R-FEC: 10G/25G in 10G-mode
     REG_WRM(VTSS_PCS_10GBASE_R_KR_FEC_CFG(pcs),
             VTSS_F_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA(kr->r_fec) |
@@ -1010,13 +1006,6 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 
     }
 
-    /* REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), */
-    /*        VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA | */
-    /*        VTSS_M_DEV10G_MAC_ENA_CFG_TX_ENA); */
-
-    /* REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(tgt), */
-    /*             VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA); */
-
     return VTSS_RC_OK;
 }
 
@@ -1032,7 +1021,7 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     if (val > 0) {
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
         if ((val & 0xf)  > 0) {
-//            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer while speed config
         }
     }
 
@@ -1247,7 +1236,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
 
     // Generic timer 1
-    REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500); // 10 ms
+    REG_WR(VTSS_IP_KRANEG_GEN1_TMR(tgt), 1562500*50); // 10 ms
 
     if (kr->train.enable) {
         // Link pass inihibit timer (in AN_GOOD_CHECK)
@@ -2291,7 +2280,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-    if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
+    if (!fa_port_kr_aneg_ena(vtss_state, port_no)) {
         /* Port disable and flush procedure: */
         VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
     }
@@ -2453,7 +2442,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     if (!fa_vrfy_spd_iface(vtss_state, port_no, conf->if_type, conf->speed, conf->fdx)) {
         return VTSS_RC_ERROR;
     }
-
 
     /* All high speed (>2G5) ports have a shadow 2G5 device. */
     /* Only one of them can be active and attached to the switch core at a time. */

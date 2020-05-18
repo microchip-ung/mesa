@@ -419,7 +419,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
                 continue;
             }
-            kr_conf_state[iport].chk_block_lock = 0;
             kr_conf_state[iport].gen1_wait = FALSE;
 
             (void)fa_kr_reset_state(iport);
@@ -882,13 +881,14 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             }
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             cli_printf("\n  CURRENT EYE HEIGHT: %d\n",eye.height);
-            cli_printf("\n  TRAINING STATUS   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
 
             cli_printf("\n  This port Tx Equalizer settings:\n");
             cli_printf("  LD CM (tap_dly)   : %d\n",sts.train.cm_ob_tap_result);
             cli_printf("  LD C0 (amplitude) : %d\n",sts.train.c0_ob_tap_result);
             cli_printf("  LD CP (tap_adv)   : %d\n",sts.train.cp_ob_tap_result);
-            cli_printf("  TRAINING TIME     : %d ms\n",appl->time_ld);
+
+            cli_printf("\n  Training time     : %d ms\n",appl->time_ld);
+            cli_printf("  Training status   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
         }
     }
 }
@@ -1059,13 +1059,6 @@ static void kr_poll(meba_inst_t inst)
             kr_conf_state[iport].gen1_wait = FALSE;
         }
 
-        if ((irq & MESA_KR_GEN0_DONE)) {
-            if (status.aneg.sm == 1) {
-                printf("State machine stuck in TRANSMIT_DISABLE (%d) - Restart Aneg\n", get_time_ms(&kr->time_start_aneg));
-                (void)mesa_port_kr_conf_set(NULL, iport, &kr_conf);
-            }
-        }
-
         if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
             (void)time_start(&kr->time_start_aneg); // Start the aneg timer
         }
@@ -1087,7 +1080,6 @@ static void kr_poll(meba_inst_t inst)
 
         // KR_AN_RATE
         if ((irq & MESA_KR_AN_RATE) > 0 && !kr_conf_state[iport].gen1_wait) {
-            kr_conf_state[iport].chk_block_lock = 0;
             if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
                 printf("Failure during port_kr_status_get\n");
             }

@@ -1873,7 +1873,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 {
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
     vtss_port_kr_frame_t frm;
-    vtss_port_kr_fw_req_t req_msg = {0};
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 irq = irq_vec;
 
@@ -1896,6 +1895,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     if (irq & KR_AN_XMIT_DISABLE) {
         if (krs->training_started) {
             krs->training_started = FALSE;
+            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.stop_training = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
         }
@@ -1911,6 +1911,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             krs->training_started = TRUE;
             krs->remote_rx_ready = FALSE;
             krs->ignore_fail = FALSE;
+            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.start_training = TRUE;
             req_msg.mw_start = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -1929,6 +1930,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         } else {
             krs->current_state = VTSS_TR_SEND_DATA;
             krs->training_started = FALSE;
+            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.stop_training = TRUE;
             req_msg.tr_done = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -2014,6 +2016,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         if (krs->current_state ==  VTSS_TR_LINK_READY) {
             krs->current_state = VTSS_TR_SEND_DATA;
             krs->training_started = FALSE;
+            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.stop_training = TRUE;
             req_msg.tr_done = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
@@ -2045,6 +2048,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     if (irq & KR_MW_DONE) {
         kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
         if (krs->training_started) {
+            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.training_failure = TRUE;
             (void)kr_fw_req(vtss_state, port_no, &req_msg);
         }
@@ -2056,6 +2060,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
         kr_send_sts_report(vtss_state, port_no, BT(15));
+        vtss_port_kr_fw_req_t req_msg = {0};
         req_msg.wt_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
         krs->current_state = VTSS_TR_LINK_READY;
@@ -2064,33 +2069,30 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     // KR_AN_GOOD (Aneg is successful)
     if (irq & KR_AN_GOOD ) {
         // Start a generic timer
+        vtss_port_kr_fw_req_t req_msg = {0};
         req_msg.gen1_tmr_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
     // KR_RATE_DET (parallel detect)
     if (irq & KR_RATE_DET) {
-        req_msg.gen0_tmr_start = 1;
-        req_msg.rate_done = 1;
-        (void)kr_fw_req(vtss_state, port_no, &req_msg);
-    }
-
-    // AN_XMIT_DISABLE
-    if (irq & KR_AN_XMIT_DISABLE) {
-        // Start a generic timer to avoid hanging in this state
-        req_msg.gen0_tmr_start = 1;
+        vtss_port_kr_fw_req_t req_msg = {0};
+        req_msg.gen0_tmr_start = TRUE;
+        req_msg.rate_done = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
     // KR_AN_RATE (autoneg rate)
     if ((irq & KR_AN_RATE) > 0) {
-        req_msg.rate_done = 1;
+        vtss_port_kr_fw_req_t req_msg = {0};
+        req_msg.rate_done = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
     // KR_NP_RX (next page request)
     if ((irq & KR_NP_RX) > 0) {
-        req_msg.next_page = 1;
+        vtss_port_kr_fw_req_t req_msg = {0};
+        req_msg.next_page = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
