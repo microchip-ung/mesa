@@ -486,9 +486,8 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.enable = 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
-                /* conf.aneg.fec_abil = mreq->fec || mreq->all; */
-                /* conf.aneg.fec_req = mreq->fec || mreq->all; */
-
+                conf.aneg.fec_abil = mreq->fec || mreq->all;
+                conf.aneg.fec_req = mreq->fec || mreq->all;
                 if (mesa_port_10g_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
@@ -1093,12 +1092,8 @@ static void kr_poll(meba_inst_t inst)
                 pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
                 kr_printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
                 (void)mesa_port_conf_set(NULL, iport, &pconf);
-            } else {
-                // This is needed for a stable Aneg
-                usleep(30000);
             }
             kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-
         }
 
         // KR_RATE_DET (Link partner does not have Aneg support)
@@ -1109,7 +1104,8 @@ static void kr_poll(meba_inst_t inst)
                 pconf.speed = kr_parallel_spd(iport, &kr_conf);
                 pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
                 kr_printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-                (void)mesa_port_conf_set(NULL, iport, &pconf);
+                kr_printf("Port:%d - Parallel detect disabled\n",uport);
+//                (void)mesa_port_conf_set(NULL, iport, &pconf);
             }
         }
 

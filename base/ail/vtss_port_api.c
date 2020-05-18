@@ -1993,7 +1993,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     if ((irq & KR_LPSVALID) && krs->training_started) {
         if (krs->test_mode) {
             if (krs->test_repeat > 0) {
-                kr_send_coef_update(vtss_state, krs, port_no, (krs->test_repeat % 2 == 0) ? COEF_HOLD : COEF_INCR);
+                krs->current_tap = VTSS_TAP_CM1;
+                kr_send_coef_update(vtss_state, krs, port_no, (krs->test_repeat % 2 == 0) ? COEF_HOLD : COEF_DECR);
                 krs->test_repeat--;
             } else {
                 krs->current_state = VTSS_TR_TRAIN_REMOTE;
