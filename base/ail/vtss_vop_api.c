@@ -934,11 +934,11 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                 voe = (info->action / div == 4) ? TRUE : FALSE;
                 status = (info->action / div == 5) ? TRUE : FALSE;
                 voi = (info->action / div == 10) ? TRUE : FALSE;
-                if (voe || status | voi) {
+                if (voe || status || voi) {
                     break;
                 }
             }
-            if (voe || status | voi) {    /* Calculate the possible VOE/VOI index */
+            if (voe || status || voi) {    /* Calculate the possible VOE/VOI index */
                 vo_idx = info->action % div;
             }
         }
