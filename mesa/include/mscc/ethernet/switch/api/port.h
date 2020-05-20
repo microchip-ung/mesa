@@ -603,21 +603,22 @@ mesa_rc mesa_mmd_write(const mesa_inst_t            inst,
     CAP(PORT_10G);
 
 /******************************************************************************/
-/* 10G KR Backplane Ethernet (version 2, JR2-C)                               */
+/* 25G/10G KR Backplane Ethernet
 /******************************************************************************/
 
 // 10G KR Aneg status
 typedef struct {
-    mesa_bool_t complete;           // Aneg completed successfully
-    mesa_bool_t active;             // Aneg is running
-    mesa_bool_t request_10g;        // 10G rate is negotiated (needs to be configured)
-    mesa_bool_t request_1g;         // 1G rate is negotiated (needs to be configured)
-    mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
-    mesa_bool_t fec_enable;         // FEC must be enabled/disabled
-    uint32_t    sm;                 // (debug) Aneg state machine
-    mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
-    mesa_bool_t block_lock;         // (debug) PCS block lock
-} mesa_port_10g_kr_status_aneg_t CAP(PORT_10GBASE_KR_V2);
+    mesa_bool_t complete;                       // Aneg completed successfully
+    mesa_bool_t active;                         // Aneg is running
+    mesa_port_speed_t speed_req;                // Speed negotiated (needs to be configured)
+    mesa_bool_t request_fec_change;             // FEC state change is negotiated (needs to be configured)
+    mesa_bool_t r_fec_enable;                   // Base-R-FEC (Clause 74) is negotiated 
+    mesa_bool_t rs_fec_enable CAP(PORT_KR_IRQ); // Base-RS-FEC (Clause 108) is negotiated
+    uint32_t    sm;                             // (debug) Aneg state machine
+    uint32_t    hist CAP(PORT_KR_IRQ);          // (debug) Aneg history
+    mesa_bool_t lp_aneg_able;                   // (debug) LP aneg ability
+    mesa_bool_t block_lock;                     // (debug) PCS block lock
+} mesa_port_kr_status_aneg_t CAP(PORT_KR);
 
 // 10G KR Training status
 typedef struct {
@@ -625,72 +626,80 @@ typedef struct {
     uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed, range: -32..31
     uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed, range: -32..31
     uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed, range: -32..31
-} mesa_port_10g_kr_status_train_t CAP(PORT_10GBASE_KR_V2);
+    uint32_t frame_sent CAP(PORT_KR_IRQ);
+    uint16_t frame_errors CAP(PORT_KR_IRQ);
+} mesa_port_kr_status_train_t CAP(PORT_KR);
 
 // 10G KR FEC status
 typedef struct {
-    mesa_bool_t enable;                // FEC enabled
-    uint32_t    corrected_block_cnt;   // Corrected block count
-    uint32_t    uncorrected_block_cnt; // Un-corrected block count
-} mesa_port_10g_kr_status_fec_t CAP(PORT_10GBASE_KR_V2);
+    mesa_bool_t r_fec_enable;                   // FEC enabled (Clause 74)
+    mesa_bool_t rs_fec_enable CAP(PORT_KR_IRQ); // RS-FEC Enabled (Clause 108 / 25G)  */
+    uint32_t    corrected_block_cnt;            // Corrected block count
+    uint32_t    uncorrected_block_cnt;          // Un-corrected block count
+} mesa_port_kr_status_fec_t CAP(PORT_KR);
 
 // 10G KR Aneg and Training structures
 typedef struct {
-    mesa_port_10g_kr_status_aneg_t  aneg;  // Aneg structure
-    mesa_port_10g_kr_status_train_t train; // Training structure
-    mesa_port_10g_kr_status_fec_t   fec;   // FEC structure
-} mesa_port_10g_kr_status_t CAP(PORT_10GBASE_KR_V2);
+    mesa_port_kr_status_aneg_t  aneg;  // Aneg structure
+    mesa_port_kr_status_train_t train; // Training structure
+    mesa_port_kr_status_fec_t   fec;   // FEC structure
+} mesa_port_kr_status_t CAP(PORT_KR);
 
 
 // 10G KR Link Advertisement capability config
 typedef struct {
-    mesa_bool_t enable;   // 10G KR Autoneg enable
-    mesa_bool_t adv_10g;  // Advertise 10G
-    mesa_bool_t fec_abil; // Advertise FEC ability
-    mesa_bool_t fec_req;  // Advertise FEC request
-} mesa_port_10g_kr_aneg_t CAP(PORT_10GBASE_KR_V2);
+    mesa_bool_t enable;                      // 10G KR Autoneg enable
+    mesa_bool_t adv_25g CAP(PORT_KR_IRQ);    // Advertise 25G
+    mesa_bool_t adv_10g;                     // Advertise 10G
+    mesa_bool_t adv_5g CAP(PORT_KR_IRQ);     // Advertise 5G
+    mesa_bool_t adv_2g5 CAP(PORT_KR_IRQ);    // Advertise 2G5
+    mesa_bool_t adv_1g CAP(PORT_KR_IRQ);     // Advertise 1G
+    mesa_bool_t fec_abil;                    // Advertise FEC ability
+    mesa_bool_t r_fec_req;                   // Request R-FEC
+    mesa_bool_t rs_fec_req CAP(PORT_KR_IRQ); // Request RS-FEC (25G)
+    mesa_bool_t next_page CAP(PORT_KR_IRQ);  // Use next page when advertise
+} mesa_port_kr_aneg_t CAP(PORT_KR);
 
 // 10G KR Training config
 typedef struct {
-    mesa_bool_t enable; // Enable 10G KR training, BER method used
-} mesa_port_10g_kr_train_t CAP(PORT_10GBASE_KR_V2);
+    mesa_bool_t enable;                        // Enable 10G KR training, BER method used
+    mesa_bool_t no_remote   CAP(PORT_KR_IRQ);  // Do not train remote, only local
+    mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ);  // Use BER count instead of eye height 
+    mesa_bool_t test_mode   CAP(PORT_KR_IRQ);  // Debug only
+    uint32_t test_repeat    CAP(PORT_KR_IRQ);  // Debug only 
+} mesa_port_kr_train_t CAP(PORT_KR);
 
 // 10G KR configuration structures
 typedef struct {
-    mesa_port_10g_kr_aneg_t  aneg;  // 10G-KR Aneg capability, 802.3ap Clause 73
-    mesa_port_10g_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
-} mesa_port_10g_kr_conf_t CAP(PORT_10GBASE_KR_V2);
-
+    mesa_port_kr_aneg_t  aneg;  // 10G-KR Aneg capability, 802.3ap Clause 73
+    mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
+} mesa_port_kr_conf_t CAP(PORT_KR);
 
 // Set 10G KR configuration incl. aneg and training.
 // Aneg is started which starts the training process.
-// The results can be read through mesa_port_10g_kr_status_get().
+// The results can be read through mesa_port_kr_status_get().
 // port_no [IN]  Port number.
 // conf [IN]  Configuration structure.
-mesa_rc mesa_port_10g_kr_conf_set(const mesa_inst_t inst,
+mesa_rc mesa_port_kr_conf_set(const mesa_inst_t inst,
                                   const mesa_port_no_t port_no,
-                                  const mesa_port_10g_kr_conf_t *const conf)
-    CAP(PORT_10GBASE_KR_V2);
+                                  const mesa_port_kr_conf_t *const conf)
+    CAP(PORT_KR);
 
 // Get 10G KR configuration
 // port_no [IN]   Port number.
 // conf [OUT]  Configuration structure.
-mesa_rc mesa_port_10g_kr_conf_get(const mesa_inst_t inst,
+mesa_rc mesa_port_kr_conf_get(const mesa_inst_t inst,
                                   const mesa_port_no_t port_no,
-                                  mesa_port_10g_kr_conf_t *const conf)
-    CAP(PORT_10GBASE_KR_V2);
+                                  mesa_port_kr_conf_t *const conf)
+    CAP(PORT_KR);
 
 // Get 10G KR Aneg and training status
 // port_no [IN]  Port number.
 // status [OUT]  KR Aneg and Training status
-mesa_rc mesa_port_10g_kr_status_get(const mesa_inst_t inst,
+mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
                                     const mesa_port_no_t port_no,
-                                    mesa_port_10g_kr_status_t *const status)
-    CAP(PORT_10GBASE_KR_V2);
-
-/******************************************************************************/
-/* 25G/10G KR Backplane Ethernet (version 3, Sparx-5 and newer)               */
-/******************************************************************************/
+                                    mesa_port_kr_status_t *const status)
+    CAP(PORT_KR);
 
 #define MESA_KR_AN_RATE         (0xF)
 #define MESA_KR_ACTV            (1 << 29)
@@ -733,20 +742,20 @@ typedef enum {
     MESA_TR_SEND_DATA,
     MESA_TR_TRAINING_FAILURE,
     MESA_TR_LINK_READY
-} mesa_train_state_t CAP(PORT_10GBASE_KR_V3); 
+} mesa_train_state_t CAP(PORT_KR_IRQ); 
 
 typedef enum {
     MESA_BER_GO_TO_MIN,
     MESA_BER_CALCULATE_BER,
     MESA_BER_MOVE_TO_MID_MARK,
     MESA_BER_LOCAL_RX_TRAINED
-} mesa_ber_stage_t CAP(PORT_10GBASE_KR_V3);
+} mesa_ber_stage_t CAP(PORT_KR_IRQ);
 
 typedef enum {
     MESA_TAP_CM1,
     MESA_TAP_C0,
     MESA_TAP_CP1,
-} mesa_kr_tap_t CAP(PORT_10GBASE_KR_V3);
+} mesa_kr_tap_t CAP(PORT_KR_IRQ);
 
 typedef struct {
     uint16_t cm1;
@@ -754,7 +763,7 @@ typedef struct {
     uint16_t cp1;
     uint16_t coef;
     uint16_t status;
-} mesa_kr_status_results_t CAP(PORT_10GBASE_KR_V3);
+} mesa_kr_status_results_t CAP(PORT_KR_IRQ);
 
 /** \brief 10G KR state machine structures */
 typedef struct {
@@ -784,92 +793,24 @@ typedef struct {
     mesa_bool_t test_mode;
     mesa_bool_t test_repeat;
     mesa_kr_status_results_t tr_res;
-} mesa_port_kr_state_t CAP(PORT_10GBASE_KR_V3);
+} mesa_port_kr_state_t CAP(PORT_KR_IRQ);
 
 mesa_rc mesa_port_kr_state_get(const mesa_inst_t inst,
                                const mesa_port_no_t port_no,
                                mesa_port_kr_state_t *const state)
-    CAP(PORT_10GBASE_KR_V3);
+    CAP(PORT_KR_IRQ);
 
-// 10G KR Aneg status
-typedef struct {
-    mesa_bool_t complete;           // Aneg completed successfully
-    mesa_bool_t active;             // Aneg is running
-    mesa_port_speed_t speed_req;    // Speed negotiated (needs to be configured)
-    mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to be configured)
-    mesa_bool_t r_fec_enable;       // Base-R-FEC (Clause 74) is negotiated 
-    mesa_bool_t rs_fec_enable;      // Base-RS-FEC (Clause 108) is negotiated
-    uint32_t    sm;                 // (debug) Aneg state machine
-    uint32_t    hist;               // (debug) Aneg history
-    mesa_bool_t lp_aneg_able;       // (debug) LP aneg ability
-    mesa_bool_t block_lock;         // (debug) PCS block lock
-} mesa_port_kr_status_aneg_t CAP(PORT_10GBASE_KR_V3);
-
-// 10G KR Training status
-typedef struct {
-    mesa_bool_t complete;     // Training completed successfully, tap settings applied.
-    uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed, range: -32..31
-    uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed, range: -32..31
-    uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed, range: -32..31
-    uint32_t frame_sent;
-    uint16_t frame_errors;
-} mesa_port_kr_status_train_t CAP(PORT_10GBASE_KR_V3);
-
-// 10G KR FEC status
-typedef struct {
-    mesa_bool_t r_fec_enable;          // FEC enabled (Clause 74)
-    mesa_bool_t rs_fec_enable;         // RS-FEC Enabled (Clause 108 / 25G)  */
-    uint32_t    corrected_block_cnt;   // Corrected block count
-    uint32_t    uncorrected_block_cnt; // Un-corrected block count
-} mesa_port_kr_status_fec_t CAP(PORT_10GBASE_KR_V3);
-
-// 10G KR Aneg and Training structures
-typedef struct {
-    mesa_port_kr_status_aneg_t  aneg;  // Aneg structure
-    mesa_port_kr_status_train_t train; // Training structure
-    mesa_port_kr_status_fec_t   fec;   // FEC structure
-} mesa_port_kr_status_t CAP(PORT_10GBASE_KR_V3);
-
-
-// 10G KR Link Advertisement capability config
-typedef struct {
-    mesa_bool_t enable;     // 10G KR Autoneg enable
-    mesa_bool_t adv_25g;    // Advertise 25G
-    mesa_bool_t adv_10g;    // Advertise 10G
-    mesa_bool_t adv_5g;     // Advertise 5G
-    mesa_bool_t adv_2g5;    // Advertise 2G5
-    mesa_bool_t adv_1g;     // Advertise 1G
-    mesa_bool_t fec_abil;   // Advertise FEC ability
-    mesa_bool_t r_fec_req;  // Request R-FEC
-    mesa_bool_t rs_fec_req; // Request RS-FEC (25G)
-    mesa_bool_t next_page;  // Use next page when advertise
-} mesa_port_kr_aneg_t CAP(PORT_10GBASE_KR_V3);
-
-// 10G KR Training config
-typedef struct {
-    mesa_bool_t enable;     // Enable 10G KR training, BER method used
-    mesa_bool_t no_remote;  // Do not train remote, only local
-    mesa_bool_t use_ber_cnt;// Use BER count instead of eye height 
-    mesa_bool_t test_mode;      // Debug only
-    uint32_t test_repeat;       // Debug only 
-} mesa_port_kr_train_t CAP(PORT_10GBASE_KR_V3);
-
-// 10G KR configuration structures
-typedef struct {
-    mesa_port_kr_aneg_t  aneg;  // 10G-KR Aneg capability, 802.3ap Clause 73
-    mesa_port_kr_train_t train; // 10G-KR Training parameters, 802.3ap Clause 72
-} mesa_port_kr_conf_t CAP(PORT_10GBASE_KR_V3);
 
 // 10G KR FEC structure */
 typedef struct {
     mesa_bool_t r_fec;    /**< Enable/Disable Clause 74 R-FEC  */
     mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
-} mesa_port_kr_fec_t;
+} mesa_port_kr_fec_t CAP(PORT_KR_IRQ);
 
 // 10G KR eye info 
 typedef struct {
     uint32_t height;
-} mesa_port_kr_eye_dim_t;
+} mesa_port_kr_eye_dim_t CAP(PORT_KR_IRQ);
 
 
 // Set 10G KR FEC
@@ -886,7 +827,7 @@ mesa_rc mesa_port_kr_fec_set(const mesa_inst_t inst,
 mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,
                                const mesa_port_no_t port_no,
                                const uint32_t *const irq_vec)
-    CAP(PORT_10GBASE_KR_V3);
+    CAP(PORT_KR_IRQ);
 
 // Get and clear KR interrupts
 // port_no [IN]  Port number.
@@ -894,35 +835,7 @@ mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,
 mesa_rc mesa_port_kr_irq_get(const mesa_inst_t inst,
                              const mesa_port_no_t port_no,
                              uint32_t *const irq_vec)
-    CAP(PORT_10GBASE_KR_V3);
-
-
-
-// Set 10G KR configuration incl. aneg and training.
-// Aneg is started which starts the training process.
-// The results can be read through mesa_port_kr_status_get().
-// port_no [IN]  Port number.
-// conf [IN]  Configuration structure.
-mesa_rc mesa_port_kr_conf_set(const mesa_inst_t inst,
-                                  const mesa_port_no_t port_no,
-                                  const mesa_port_kr_conf_t *const conf)
-    CAP(PORT_10GBASE_KR_V3);
-
-// Get 10G KR configuration
-// port_no [IN]   Port number.
-// conf [OUT]  Configuration structure.
-mesa_rc mesa_port_kr_conf_get(const mesa_inst_t inst,
-                                  const mesa_port_no_t port_no,
-                                  mesa_port_kr_conf_t *const conf)
-    CAP(PORT_10GBASE_KR_V3);
-
-// Get 10G KR Aneg and training status
-// port_no [IN]  Port number.
-// status [OUT]  KR Aneg and Training status
-mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
-                                    const mesa_port_no_t port_no,
-                                    mesa_port_kr_status_t *const status)
-    CAP(PORT_10GBASE_KR_V3);
+    CAP(PORT_KR_IRQ);
 
 /**
  * \brief Get and clear KR interrupts
@@ -937,8 +850,7 @@ mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
 mesa_rc mesa_port_kr_eye_get(mesa_inst_t inst,
                              const mesa_port_no_t port_no,
                              mesa_port_kr_eye_dim_t *const eye)
-    CAP(PORT_10GBASE_KR_V3);
-
+    CAP(PORT_KR_IRQ);
 
 /******************************************************************************/
 /* 25G/10G KR Backplane Ethernet - End                                            */
