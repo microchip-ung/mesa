@@ -256,14 +256,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_PORT_10GBASE_KR_V2:
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
+    case MESA_CAP_PORT_KR:
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
         c = 1;
 #endif
         break;
 
-    case MESA_CAP_PORT_10GBASE_KR_V3:
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+    case MESA_CAP_PORT_KR_IRQ:
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
         c = 1;
 #endif
         break;

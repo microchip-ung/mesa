@@ -298,7 +298,7 @@ typedef struct {
 
 
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 // Interrupt defines
 #define KR_ACTV            (1 << 29)
@@ -386,7 +386,7 @@ typedef struct {
 } vtss_port_kr_temp_storage_t;
 
 
-#endif // defined(VTSS_FEATURE_10GBASE_KR_V3)
+#endif // defined(VTSS_FEATURE_PORT_KR_IRQ)
 typedef struct {
     /* CIL function pointers */
     vtss_rc (* miim_read)(struct vtss_state_s *vtss_state,
@@ -426,19 +426,7 @@ typedef struct {
     vtss_rc (* clause_37_control_set)(struct vtss_state_s *vtss_state,
                                       const vtss_port_no_t port_no);
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-    vtss_rc (* kr_conf_set)(struct vtss_state_s *vtss_state,
-                            const vtss_port_no_t port_no);
-
-    vtss_rc (* kr_status)(struct vtss_state_s *vtss_state,
-                               const vtss_port_no_t port_no,
-                               vtss_port_10g_kr_status_t *const status);
-
-    vtss_rc (* kr_fec_set)(struct vtss_state_s *vtss_state,
-                           const vtss_port_no_t port_no);
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
-
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_rc (* kr_conf_set)(struct vtss_state_s *vtss_state,
                             const vtss_port_no_t port_no);
 
@@ -446,6 +434,11 @@ typedef struct {
                           const vtss_port_no_t port_no,
                           vtss_port_kr_status_t *const status);
 
+    vtss_rc (* kr_fec_set)(struct vtss_state_s *vtss_state,
+                           const vtss_port_no_t port_no);
+#endif /* VTSS_FEATURE_PORT_KR) || VTSS_FEATURE_PORT_KR_IRQ */
+
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_rc (* kr_irq_get)(vtss_inst_t inst,
                            const vtss_port_no_t port_no,
                            u32 *const vector);
@@ -475,10 +468,6 @@ typedef struct {
                             const u16 coef_in,
                             vtss_kr_status_results_t *const sts);
 
-    vtss_rc (* kr_fec_set)(const vtss_inst_t inst,
-                           const vtss_port_no_t port_no);
-
-
     vtss_rc (* kr_eye_dim)(struct vtss_state_s *vtss_state,
                            const vtss_port_no_t port_no,
                            vtss_port_kr_eye_dim_t *const eye);
@@ -487,7 +476,7 @@ typedef struct {
                           const vtss_port_no_t port_no,
                           u16 *const ber);
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif /* VTSS_FEATURE_PORT_KR_IRQ */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 
     vtss_rc (* serdes_debug_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no,
@@ -520,16 +509,14 @@ typedef struct {
     vtss_port_interface_t         current_if_type[VTSS_PORT_ARRAY_SIZE];
     vtss_sd10g_media_type_t       current_mt[VTSS_PORT_ARRAY_SIZE];
     BOOL                          link[VTSS_PORT_ARRAY_SIZE];
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-    vtss_port_10g_kr_conf_t       kr_conf[VTSS_PORT_ARRAY_SIZE];
-    BOOL                          kr_fec_enable[VTSS_PORT_ARRAY_SIZE];
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
-    vtss_port_kr_state_t          train_state[VTSS_PORT_ARRAY_SIZE];
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_fec_t            kr_fec[VTSS_PORT_ARRAY_SIZE];
+#endif /* VTSS_FEATURE_PORT_KR */
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
+    vtss_port_kr_state_t          train_state[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_temp_storage_t   kr_store[VTSS_PORT_ARRAY_SIZE];
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
     vtss_port_chip_counters_t     counters[VTSS_PORT_ARRAY_SIZE];
     vtss_port_chip_counters_t     cpu_counters;

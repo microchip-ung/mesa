@@ -618,72 +618,91 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
                        const u16                    addr,
                        const u16                    value);
 
-
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
 /**
  * ============================================================================
- * 802.3ap 10GBase KR Backplane Ethernet (version 2, JR2-RevC and newer)
+ * 802.3ap 25G/10G Base KR Backplane Ethernet
+ * VTSS_FEATURE_PORT_KR     : JR2 Rev-C (10G polled)
+ * VTSS_FEATURE_PORT_KR_IRQ : Sparx-5 (10G/25G IRQ)
  * ============================================================================
  **/
 
-/** \brief 10G KR Aneg status */
+/** \brief KR Aneg status */
 typedef struct {
-    BOOL complete;            /**< Aneg completed successfully                      */
-    BOOL active;              /**< Aneg is running between LD and LP                */
-    BOOL request_10g;         /**< 10G rate is negotiated (needs to be configured)  */
-    BOOL request_1g;          /**< 1G rate is negotiated (needs to be configured)   */
-    BOOL request_fec_change;  /**< FEC enable is negotiated (needs to be enabled)   */
-    BOOL fec_enable;          /**< FEC disable is negotiated (needs to be disabled) */
-    u32  sm;                  /**< (debug) Aneg state machine                       */
-    BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability                */
-    BOOL block_lock;          /**< (debug) PCS block lock                           */
-} vtss_port_10g_kr_status_aneg_t;
+    BOOL complete;            /**< Aneg completed successfully         */
+    BOOL active;              /**< Aneg is running between LD and LP   */
+    vtss_port_speed_t speed_req;   /**< Requested speed                */
+    BOOL request_fec_change;  /**< FEC change is negotiated            */
+    BOOL r_fec_enable;        /**< R-FEC enable/disable                */
+    BOOL rs_fec_enable;       /**< RS-FEC enable/disable               */
+    u32  sm;                  /**< (debug) Aneg state machine          */
+    u32  hist;                /**< (debug) Aneg history                */
+    BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability   */
+    BOOL block_lock;          /**< (debug) PCS block lock              */
+} vtss_port_kr_status_aneg_t;
 
-/** \brief 10G KR Training status */
+/** \brief  KR Training status */
 typedef struct {
-    BOOL complete;        /**< Training completed successfully               */
-    u8 cm_ob_tap_result;  /**< The minus 1 coefficient c(-1). 7-bit signed, range: -32..31 */
-    u8 cp_ob_tap_result;  /**< The 0 coefficient c(0).        7-bit signed, range: -32..31 */
-    u8 c0_ob_tap_result;  /**< The plus 1 coefficient c(1).   7-bit signed, range: -32..31 */
-} vtss_port_10g_kr_status_train_t;
+    BOOL complete;        /**< Training completed successfully */
+    u8 cm_ob_tap_result;  /**< The minus 1 coefficient c(-1).  */
+    u8 cp_ob_tap_result;  /**< The 0 coefficient c(0).         */
+    u8 c0_ob_tap_result;  /**< The plus 1 coefficient c(1).    */
+    u32 frame_sent;
+    u16 frame_errors;
+} vtss_port_kr_status_train_t;
 
-/** \brief 10G KR FEC status */
+/** \brief  KR FEC status */
 typedef struct {
-    BOOL enable;                /**< FEC Enabled               */
-    u32 corrected_block_cnt;    /**< Corrected block count     */
-    u32 uncorrected_block_cnt;  /**< Un-corrected block count  */
-} vtss_port_10g_kr_status_fec_t;
+    BOOL r_fec_enable;          /**< FEC Enabled (Clause 74)      */
+    BOOL rs_fec_enable;         /**< RS-FEC Enabled (Clause 108)  */
+    u32 corrected_block_cnt;    /**< Corrected block count        */
+    u32 uncorrected_block_cnt;  /**< Un-corrected block count     */
+} vtss_port_kr_status_fec_t;
 
-/** \brief 10G KR Aneg and Training structures */
+/** \brief  KR Aneg and Training structures */
 typedef struct {
-    vtss_port_10g_kr_status_aneg_t aneg;   /**< Aneg structure      */
-    vtss_port_10g_kr_status_train_t train; /**< Training structure  */
-    vtss_port_10g_kr_status_fec_t fec;     /**< FEC structure       */
-} vtss_port_10g_kr_status_t;
+    vtss_port_kr_status_aneg_t aneg;   /**< Aneg structure      */
+    vtss_port_kr_status_train_t train; /**< Training structure  */
+    vtss_port_kr_status_fec_t fec;     /**< FEC structure       */
+} vtss_port_kr_status_t;
 
 
-/** \brief 10G KR Link Advertisement capability config */
+/** \brief  KR Link Advertisement capability config */
 typedef struct {
-    BOOL enable;           /**< 10G KR Autoneg enable  */
+    BOOL enable;           /**< KR Autoneg enable  */
+    BOOL adv_25g;          /**< Advertise 25G          */
     BOOL adv_10g;          /**< Advertise 10G          */
-    BOOL fec_abil;         /**< Set FEC ability        */
-    BOOL fec_req;          /**< Set FEC request        */
-} vtss_port_10g_kr_aneg_t;
+    BOOL adv_5g;           /**< Advertise 5G           */
+    BOOL adv_2g5;          /**< Advertise 2G5          */
+    BOOL adv_1g;           /**< Advertise 1G           */
+    BOOL r_fec_req;        /**< Request R-FEC          */
+    BOOL rs_fec_req;       /**< Request RS-FEC         */
+    BOOL next_page;        /**< Use next page when adv.*/
+} vtss_port_kr_aneg_t;
 
-/** \brief 10G KR Training config */
+/** \brief  KR Training config */
 typedef struct {
-    BOOL enable;            /**< Enable 10G KR training, BER method used */
-} vtss_port_10g_kr_train_t;
+    BOOL enable;            /**< Enable KR training, BER method used */
+    BOOL no_remote;         /**< Do not train remote, only local */
+    BOOL use_ber_cnt;       /**< Use BER count instead of eye height */
+    BOOL test_mode;         /**< Debug only */
+    u32  test_repeat;       /**< Debug only */
+} vtss_port_kr_train_t;
 
-/** \brief 10G KR configuration structures */
+/** \brief  KR configuration structures */
 typedef struct {
-    vtss_port_10g_kr_aneg_t  aneg;    /**< 10G-KR Aneg apability, 802.3ap Clause 73      */
-    vtss_port_10g_kr_train_t train;   /**< 10G-KR Training parameters, 802.3ap Clause 72 */
-} vtss_port_10g_kr_conf_t;
+    vtss_port_kr_aneg_t   aneg;    /**< KR Aneg apability, 802.3ap Clause 73      */
+    vtss_port_kr_train_t  train;   /**< KR Training parameters, 802.3ap Clause 72 */
+} vtss_port_kr_conf_t;
 
+/** \brief  KR FEC structure */
+typedef struct {
+    BOOL r_fec;  /**< Enable/Disable Clause 74 R-FEC  */
+    BOOL rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G)  */
+} vtss_port_kr_fec_t;
 
 /**
- * \brief Set 10G KR configuration incl. aneg (802.3ap Clause 73) and training (802.3ap Clause 72).
+ * \brief Set  KR configuration incl. aneg (802.3ap Clause 73) and training (802.3ap Clause 72).
  *
  *
  * \param inst    [IN]  Target instance reference.
@@ -692,14 +711,12 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_10g_kr_conf_set(const vtss_inst_t inst,
+vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
-                                  const vtss_port_10g_kr_conf_t *const conf);
-
-
+                                  const vtss_port_kr_conf_t *const conf);
 
 /**
- * \brief Get 10G KR configuration
+ * \brief Get  KR configuration
  *
  * \param inst    [IN]   Target instance reference.
  * \param port_no [IN]   Port number.
@@ -707,12 +724,12 @@ vtss_rc vtss_port_10g_kr_conf_set(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
+vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
                                   const vtss_port_no_t port_no,
-                                  vtss_port_10g_kr_conf_t *const conf);
+                                  vtss_port_kr_conf_t *const conf);
 
 /**
- * \brief Get 10G KR aneg and training status
+ * \brief Get  KR aneg and training status
  *
  * \param inst    [IN]  Target instance reference.
  * \param port_no [IN]  Port number.
@@ -720,20 +737,13 @@ vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
+vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
                                     const vtss_port_no_t port_no,
-                                    vtss_port_10g_kr_status_t *const status);
+                                    vtss_port_kr_status_t *const status);
 
+#endif // #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
-
-
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
-/**
- * ============================================================================
- * 802.3ap 25G/10G Base KR Backplane Ethernet (version 3, Sparx5 and newer)
- * ============================================================================
- **/
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 /** \brief States of the training state machine */
 typedef enum {
@@ -769,7 +779,7 @@ typedef struct {
     u16 status;
 } vtss_kr_status_results_t;
 
-/** \brief 10G KR state machine structures */
+/** \brief  KR state machine structures (for status/debug) */
 typedef struct {
     vtss_train_state_t current_state;
     vtss_ber_stage_t ber_training_stage;
@@ -799,141 +809,19 @@ typedef struct {
     vtss_kr_status_results_t tr_res;
 } vtss_port_kr_state_t;
 
-/** \brief 10G KR Aneg status */
-typedef struct {
-    BOOL complete;            /**< Aneg completed successfully         */
-    BOOL active;              /**< Aneg is running between LD and LP   */
-    vtss_port_speed_t speed_req;   /**< Requested speed                */
-    BOOL request_fec_change;  /**< FEC change is negotiated            */
-    BOOL r_fec_enable;        /**< R-FEC enable/disable                */
-    BOOL rs_fec_enable;       /**< RS-FEC enable/disable               */
-    u32  sm;                  /**< (debug) Aneg state machine          */
-    u32  hist;                /**< (debug) Aneg history                */
-    BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability   */
-    BOOL block_lock;          /**< (debug) PCS block lock              */
-} vtss_port_kr_status_aneg_t;
 
-/** \brief 10G KR Training status */
+/** \brief  KR eye info */
 typedef struct {
-    BOOL complete;        /**< Training completed successfully */
-    u8 cm_ob_tap_result;  /**< The minus 1 coefficient c(-1).  */
-    u8 cp_ob_tap_result;  /**< The 0 coefficient c(0).         */
-    u8 c0_ob_tap_result;  /**< The plus 1 coefficient c(1).    */
-    u32 frame_sent;
-    u16 frame_errors;
-} vtss_port_kr_status_train_t;
-
-/** \brief 10G KR FEC status */
-typedef struct {
-    BOOL r_fec_enable;          /**< FEC Enabled (Clause 74)      */
-    BOOL rs_fec_enable;         /**< RS-FEC Enabled (Clause 108)  */
-    u32 corrected_block_cnt;    /**< Corrected block count        */
-    u32 uncorrected_block_cnt;  /**< Un-corrected block count     */
-} vtss_port_kr_status_fec_t;
-
-/** \brief 10G KR Aneg and Training structures */
-typedef struct {
-    vtss_port_kr_status_aneg_t aneg;   /**< Aneg structure      */
-    vtss_port_kr_status_train_t train; /**< Training structure  */
-    vtss_port_kr_status_fec_t fec;     /**< FEC structure       */
-} vtss_port_kr_status_t;
-
-
-/** \brief 10G KR Link Advertisement capability config */
-typedef struct {
-    BOOL enable;           /**< 10G KR Autoneg enable  */
-    BOOL adv_25g;          /**< Advertise 25G          */
-    BOOL adv_10g;          /**< Advertise 10G          */
-    BOOL adv_5g;           /**< Advertise 5G           */
-    BOOL adv_2g5;          /**< Advertise 2G5          */
-    BOOL adv_1g;           /**< Advertise 1G           */
-    BOOL fec_abil;         /**< Set FEC ability        */
-    BOOL r_fec_req;        /**< Request R-FEC          */
-    BOOL rs_fec_req;       /**< Request RS-FEC         */
-    BOOL next_page;        /**< Use next page when adv.*/
-} vtss_port_kr_aneg_t;
-
-/** \brief 10G KR Training config */
-typedef struct {
-    BOOL enable;            /**< Enable 10G KR training, BER method used */
-    BOOL no_remote;         /**< Do not train remote, only local */
-    BOOL use_ber_cnt;       /**< Use BER count instead of eye height */
-    BOOL test_mode;         /**< Debug only */
-    u32 test_repeat;        /**< Debug only */
-} vtss_port_kr_train_t;
-
-/** \brief 10G KR configuration structures */
-typedef struct {
-    vtss_port_kr_aneg_t   aneg;    /**< KR Aneg apability, 802.3ap Clause 73      */
-    vtss_port_kr_train_t  train;   /**< KR Training parameters, 802.3ap Clause 72 */
-} vtss_port_kr_conf_t;
-
-/** \brief 10G KR FEC structure */
-typedef struct {
-    BOOL r_fec;  /**< Enable/Disable Clause 74 R-FEC  */
-    BOOL rs_fec; /**< Enable/Disable Clause 108 RS-FEC  */
-} vtss_port_kr_fec_t;
+    u32 height;
+} vtss_port_kr_eye_dim_t;
 
 
 /**
- * \brief Set 10G KR configuration incl. aneg (802.3ap Clause 73) and training (802.3ap Clause 72).
- *
+ * \brief Get KR state machine status
  *
  * \param inst    [IN]  Target instance reference.
  * \param port_no [IN]  Port number.
- * \param conf    [IN]  Configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const vtss_port_kr_conf_t *const conf);
-/**
- * \brief Set 10G KR FEC
- *
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param conf    [IN]  Configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
-                             const vtss_port_no_t port_no,
-                             const vtss_port_kr_fec_t *const conf);
-
-/**
- * \brief Get 10G KR configuration
- *
- * \param inst    [IN]   Target instance reference.
- * \param port_no [IN]   Port number.
- * \param conf    [OUT]  Configuration structure.
- *
- * \return Return code.
- **/
-vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  vtss_port_kr_conf_t *const conf);
-
-/**
- * \brief Get 10G KR aneg and training status
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param status  [OUT] KR Aneg and Training status
- *
- * \return Return code.
- **/
-vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_kr_status_t *const status);
-
-/**
- * \brief Get 10G KR state machine status
- *
- * \param inst    [IN]  Target instance reference.
- * \param port_no [IN]  Port number.
- * \param status  [OUT] KR Aneg and Training status
+ * \param state   [OUT] Status of the state machine and results of training
  *
  * \return Return code.
  **/
@@ -941,7 +829,19 @@ vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
                                const vtss_port_no_t port_no,
                                vtss_port_kr_state_t *const state);
 
-
+/**
+ * \brief Set KR FEC
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param conf    [IN]  FEC Enable/disable
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             const vtss_port_kr_fec_t *const conf);
 /**
  * \brief Apply KR interrupt
  *
@@ -970,11 +870,6 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              u32 *const irq_vec);
 
-/** \brief 10G KR eye info */
-typedef struct {
-    u32 height;
-} vtss_port_kr_eye_dim_t;
-
 /**
  * \brief Get and clear KR interrupts
  *
@@ -995,7 +890,7 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
  * ============================================================================
  **/
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif // defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 /** \brief Port loopback */
 typedef enum

@@ -1308,12 +1308,12 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
 }
 #endif /* VTSS_ARCH_SERVAL_T */
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
+#if defined(VTSS_FEATURE_PORT_KR)
 
-static vtss_rc jr2_port_10g_kr_fec_set(vtss_state_t *vtss_state,
+static vtss_rc jr2_port_kr_fec_set(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no)
 {
-    BOOL fec = vtss_state->port.kr_fec_enable[port_no];
+    BOOL fec = vtss_state->port.kr_fec[port_no].r_fec;
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 br   = VTSS_TO_10G_PCS10G_BR(port);
     u32 xfi  = VTSS_TO_10G_XFI_TGT(port);      // KR-Control/Stickies
@@ -1339,9 +1339,9 @@ static vtss_rc jr2_port_10g_kr_fec_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc jr2_port_10g_kr_status(vtss_state_t *vtss_state,
+static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
-                                      vtss_port_10g_kr_status_t *const status)
+                                      vtss_port_kr_status_t *const status)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 dev7 = VTSS_TO_10G_KR_DEV7_TGT(port);  // ANEG
@@ -1387,18 +1387,17 @@ static vtss_rc jr2_port_10g_kr_status(vtss_state_t *vtss_state,
                                VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
 
     // FEC status
-    status->fec.enable = vtss_state->port.kr_fec_enable[port_no];
+    status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
 
     if (status->aneg.active) {
         // Aneg is still running, return now.
-        status->aneg.request_1g = FALSE;
-        status->aneg.request_10g = FALSE;
+        status->aneg.speed_req = VTSS_SPEED_UNDEFINED;
         status->aneg.request_fec_change = FALSE;
-        status->aneg.fec_enable = FALSE;
+        status->aneg.r_fec_enable = FALSE;
         return VTSS_RC_OK;
     }
 
-    if (status->fec.enable) {
+    if (status->fec.r_fec_enable) {
         JR2_RD(VTSS_PCS_10GBASE_R_KR_FEC_HA_STATUS_KR_FEC_CORRECTED(br), &fec);
         status->fec.corrected_block_cnt = fec;
         JR2_RD(VTSS_PCS_10GBASE_R_KR_FEC_HA_STATUS_KR_FEC_UNCORRECTED(br), &fec);
@@ -1409,21 +1408,19 @@ static vtss_rc jr2_port_10g_kr_status(vtss_state_t *vtss_state,
     JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), &val);
     val = sticky | val;
 
-    status->aneg.request_10g = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_RATE(val) == 0 &&
+    if (VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_RATE(val) == 0 &&
         (VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_10G_STICKY(val) ||
          VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX10G_STICKY(val) ||
-         VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX10G_STICKY(val)) ;
-
-    status->aneg.request_1g = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_RATE(val) == 1 &&
-        (VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_1G_STICKY(val) ||
-         VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(val) ||
-         VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX1G_STICKY(val));
+         VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX10G_STICKY(val))) {
+        status->aneg.speed_req = VTSS_SPEED_10G;
+    }
 
     // FEC request
     status->aneg.request_fec_change = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_FEC_STICKY(val);
-    status->aneg.fec_enable = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_FEC_ENABLE(val);
+    status->aneg.r_fec_enable = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_FEC_ENABLE(val);
 
-    if (!status->aneg.request_1g) {
+    if (status->aneg.speed_req == VTSS_SPEED_UNDEFINED ||
+        status->aneg.speed_req == VTSS_SPEED_10G) {
         // Workaround for 1G TX/RX sticky request
         if (VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(val) ||
             VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX1G_STICKY(val)) {
@@ -1455,7 +1452,7 @@ static vtss_rc jr2_port_10g_kr_status(vtss_state_t *vtss_state,
         }
     }
     if (!aneg_is_restarted &&
-        vtss_state->port.kr_fec_enable[port_no] &&
+        vtss_state->port.kr_fec[port_no].r_fec &&
         vtss_state->port.kr_conf[port_no].aneg.enable &&
         !VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs) &&
         status->aneg.lp_aneg_able) {
@@ -1469,17 +1466,17 @@ static vtss_rc jr2_port_10g_kr_status(vtss_state_t *vtss_state,
     }
 
     if (status->aneg.request_fec_change) {
-        vtss_state->port.kr_fec_enable[port_no] = status->aneg.fec_enable;
-        (void)jr2_port_10g_kr_fec_set(vtss_state, port_no);
+        vtss_state->port.kr_fec[port_no].r_fec = status->aneg.r_fec_enable;
+        (void)jr2_port_kr_fec_set(vtss_state, port_no);
     }
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_10g_kr_conf_set(vtss_state_t *vtss_state,
+static vtss_rc jr2_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
-    vtss_port_10g_kr_conf_t *aneg = &vtss_state->port.kr_conf[port_no];
+    vtss_port_kr_conf_t *aneg = &vtss_state->port.kr_conf[port_no];
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 dev7 = VTSS_TO_10G_KR_DEV7_TGT(port);  // ANEG
     u32 dev1 = VTSS_TO_10G_KR_DEV1_TGT(port);  // Training
@@ -1517,8 +1514,7 @@ static vtss_rc jr2_port_10g_kr_conf_set(vtss_state_t *vtss_state,
 
         /* AN FEC aneg field bit 14 = fec aneg,
            15 = fec requested */
-        abil = (aneg->aneg.fec_abil ? VTSS_BIT(14) : 0) |
-               (aneg->aneg.fec_req  ? VTSS_BIT(15) : 0);
+        abil = VTSS_BIT(14) | (aneg->aneg.r_fec_req  ? VTSS_BIT(15) : 0);
         JR2_WRM(VTSS_KR_DEV7_LD_ADV_KR_7X0012(dev7),
                 VTSS_F_KR_DEV7_LD_ADV_KR_7X0012_ADV2(abil),
                 VTSS_BIT(14) | VTSS_BIT(15));
@@ -1527,12 +1523,6 @@ static vtss_rc jr2_port_10g_kr_conf_set(vtss_state_t *vtss_state,
         JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1),
                 VTSS_BIT(10),
                 VTSS_BIT(10));
-    }
-
-    if (!aneg->aneg.fec_abil && vtss_state->port.kr_fec_enable[port_no]) {
-        // Disable FEC as requested
-        vtss_state->port.kr_fec_enable[port_no] = FALSE;
-        (void)jr2_port_10g_kr_fec_set(vtss_state, port_no);
     }
 
     // Disable Training if requested
@@ -1646,7 +1636,7 @@ static vtss_rc jr2_port_10g_kr_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
+#endif /* VTSS_FEATURE_PORT_KR */
 
 static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -3848,10 +3838,10 @@ vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->clause_37_status_get = jr2_port_clause_37_status_get;
         state->clause_37_control_get = jr2_port_clause_37_control_get;
         state->clause_37_control_set = jr2_port_clause_37_control_set;
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-        state->kr_conf_set = jr2_port_10g_kr_conf_set;
-        state->kr_status = jr2_port_10g_kr_status;
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
+#if defined( VTSS_FEATURE_PORT_KR)
+        state->kr_conf_set = jr2_port_kr_conf_set;
+        state->kr_status = jr2_port_kr_status;
+#endif /*  VTSS_FEATURE_PORT_KR */
         state->status_get = jr2_port_status_get;
         state->counters_update = jr2_port_counters_update;
         state->counters_clear = jr2_port_counters_clear;

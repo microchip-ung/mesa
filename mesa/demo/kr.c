@@ -423,7 +423,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
                     conf.aneg.adv_25g = mreq->adv25g || mreq->all;
                     conf.aneg.rs_fec_req = mreq->rsfec || mreq->all;
                 }
-                conf.aneg.fec_abil = 1;
                 conf.aneg.r_fec_req = mreq->fec || mreq->all;
                 if (!kr_conf_state[iport].cap_25g) {
                     if (mreq->adv25g) {
@@ -457,7 +456,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             }
         }
     } else if (BASE_KR_V2) {
-        mesa_port_10g_kr_conf_t conf = {0};
+        mesa_port_kr_conf_t conf = {0};
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
             uport = iport2uport(iport);
             if (req->port_list[uport] == 0) {
@@ -467,9 +466,8 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.enable = 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
-                conf.aneg.fec_abil = mreq->fec || mreq->all;
-                conf.aneg.fec_req = mreq->fec || mreq->all;
-                if (mesa_port_10g_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
+                conf.aneg.r_fec_req = mreq->fec || mreq->all;
+                if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
             }
@@ -540,8 +538,8 @@ static void cli_cmd_port_kr_v2_status(cli_req_t *req)
 
 {
     mesa_port_no_t uport, iport;
-    mesa_port_10g_kr_status_t status;
-    mesa_port_10g_kr_conf_t conf;
+    mesa_port_kr_status_t status;
+    mesa_port_kr_conf_t conf;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
@@ -549,12 +547,12 @@ static void cli_cmd_port_kr_v2_status(cli_req_t *req)
             continue;
         }
 
-        if (mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
+        if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK ||
             !conf.aneg.enable) {
             continue;
         }
 
-        if (mesa_port_10g_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+        if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
             cli_printf("Port:%d Could not read status\n",iport);
             continue;
         }
@@ -564,9 +562,8 @@ static void cli_cmd_port_kr_v2_status(cli_req_t *req)
         cli_printf("Aneg active (running)           :%s\n", status.aneg.active ? "Yes" : "No");
         cli_printf("PCS block lock                  :%s\n", status.aneg.block_lock ? "Yes" : "No");
         cli_printf("Aneg complete                   :%s\n", status.aneg.complete ? "Yes" : "No");
-        cli_printf("  Enable 10G request            :%s\n", status.aneg.request_10g ? "Yes" : "No");
-        cli_printf("  Enable 1G request             :%s\n", status.aneg.request_1g ? "Yes" : "No");
-        cli_printf("  FEC change request            :%s\n", status.aneg.request_fec_change ? "Yes" : "No");
+        cli_printf("  Speed change req.             :%s\n", status.aneg.speed_req > 0 ? mesa_port_spd2txt(status.aneg.speed_req) : "No");
+        cli_printf("  R-FEC (CL-74)                 :%s\n", status.fec.r_fec_enable ? "Yes" : "No");
 
         mesa_bool_t cm = (status.train.cm_ob_tap_result >> 6) > 0 ? 1 : 0;
         mesa_bool_t cp = (status.train.cp_ob_tap_result >> 6) > 0 ? 1 : 0;
@@ -580,8 +577,8 @@ static void cli_cmd_port_kr_v2_status(cli_req_t *req)
             cli_printf("Training                        :Disabled\n");
         }
 
-        cli_printf("FEC                             :%s\n", status.fec.enable ? "Enabled" : "Disabled");
-        if (status.fec.enable) {
+        cli_printf("FEC                             :%s\n", status.fec.r_fec_enable ? "Enabled" : "Disabled");
+        if (status.fec.r_fec_enable) {
             cli_printf("  Corrected block count         :%d\n", status.fec.corrected_block_cnt);
             cli_printf("  Un-corrected block count      :%d\n", status.fec.uncorrected_block_cnt);
         }
@@ -1015,7 +1012,7 @@ static void kr_poll(meba_inst_t inst)
         krs = &kr->state;
 
         if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
-            printf("Failure during port_kr_status_get\n");
+            printf("-->Failure during port_kr_status_get\n");
         }
 
         if (kr_conf_state[iport].aneg_sm_deb && (status.aneg.sm != kr_conf_state[iport].aneg_sm_state)) {
@@ -1137,19 +1134,19 @@ static void kr_poll(meba_inst_t inst)
 static void kr_poll_v2(meba_inst_t inst)
 {
     mesa_port_no_t iport;
-    mesa_port_10g_kr_status_t status;
-    mesa_port_10g_kr_conf_t conf;
+    mesa_port_kr_status_t status;
+    mesa_port_kr_conf_t conf;
     uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
 
     for (iport = 0; iport < meba_cnt; iport++) {
 
-        if ((mesa_port_10g_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) ||
+        if ((mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) ||
             !conf.aneg.enable) {
             continue;
         }
 
         // 10G KR surveilance
-        (void)(mesa_port_10g_kr_status_get(NULL, iport, &status));
+        (void)(mesa_port_kr_status_get(NULL, iport, &status));
     }
 
 }
@@ -1372,11 +1369,12 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         break;
 
     case MSCC_INIT_CMD_INIT:
-        if (mesa_capability(NULL, MESA_CAP_PORT_10GBASE_KR_V3)) {
+        if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
             BASE_KR_V3 = 1;
-        } else if (mesa_capability(NULL, MESA_CAP_PORT_10GBASE_KR_V2)) {
+        } else if (mesa_capability(NULL, MESA_CAP_PORT_KR)) {
             BASE_KR_V2 = 1;
         }
+
         kr_init(init->board_inst);
         kr_cli_init();
         break;

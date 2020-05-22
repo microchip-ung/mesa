@@ -479,7 +479,7 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 /** \brief 10G KR coefficient types */
 typedef enum {
@@ -1650,7 +1650,7 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
 
 
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif /* VTSS_FEATURE_PORT_IRQ */
 
 static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
 {

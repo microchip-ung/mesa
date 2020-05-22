@@ -722,13 +722,13 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 
 static BOOL fa_port_kr_aneg_ena(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     return vtss_state->port.kr_conf[port_no].aneg.enable;
 #endif
     return FALSE;
 }
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 #define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
 #define NP_TOGGLE (VTSS_BIT(11))
 #define NP_ACK2 (VTSS_BIT(12))
@@ -1046,9 +1046,11 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     u32 sts0, sts1, tr;
     u16 val1, val2, val3;
     u32 tgt, pcs;
+
     if (!PORT_IS_KR_CAP(port_no)) {
         return VTSS_RC_ERROR;
     }
+
     pcs = VTSS_TO_PCS_TGT(VTSS_CHIP_PORT(port_no));
     tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
@@ -1178,7 +1180,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         /* AN FEC aneg field
            LD_ADV2 bit 14/F0 = fec ability
            LD_ADV2 bit 15/F1 = R-FEC requested */
-        abil = kr->aneg.fec_abil ? VTSS_BIT(14) : 0;  // F0
+        abil = VTSS_BIT(14); // Yes we support FEC
         abil += kr->aneg.r_fec_req ? VTSS_BIT(15) : 0;  // F1
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(14) | VTSS_BIT(15));
 
@@ -1246,7 +1248,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
 
 #define QLIM_WM(fraction) \
@@ -2509,7 +2511,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     VTSS_RC(vtss_fa_qos_tas_port_conf_update(vtss_state, port_no));
 #endif
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     VTSS_RC(fa_port_kr_speed_set(vtss_state, port_no));
 #endif
 
@@ -3691,7 +3693,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->forward_set = fa_port_forward_set;
         state->test_conf_set = fa_port_test_conf_set;
         state->serdes_debug_set = fa_port_serdes_debug;
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
         state->kr_irq_get = fa_port_kr_irq_get;

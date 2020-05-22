@@ -1203,75 +1203,8 @@ vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
     return VTSS_PORT_NO_NONE;
 }
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V2)
-/* - 10GBase KR --------------------------------------------------- */
-vtss_rc vtss_port_10g_kr_status_get(const vtss_inst_t inst,
-                                    const vtss_port_no_t port_no,
-                                    vtss_port_10g_kr_status_t *const status)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
 
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
-            rc = VTSS_RC_ERROR;
-        } else {
-            rc = VTSS_FUNC_COLD(port.kr_status, port_no, status);
-        }
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_conf_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const vtss_port_10g_kr_conf_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
-            rc = VTSS_RC_ERROR;
-        } else {
-            vtss_state->port.kr_conf[port_no] = *conf;
-            rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
-        }
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_10g_kr_conf_get(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  vtss_port_10g_kr_conf_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
-            rc = VTSS_RC_ERROR;
-        } else {
-            *conf = vtss_state->port.kr_conf[port_no];
-        }
-
-    }
-    VTSS_EXIT();
-    return rc;
-}
-#endif /* VTSS_FEATURE_10GBASE_KR_V2 */
-
-
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
-#define BT(x) (1 << (x))
-/* - 10GBase KR --------------------------------------------------- */
 vtss_rc vtss_port_kr_status_get(vtss_inst_t inst,
                                 const vtss_port_no_t port_no,
                                 vtss_port_kr_status_t *const status)
@@ -1287,6 +1220,48 @@ vtss_rc vtss_port_kr_status_get(vtss_inst_t inst,
     VTSS_EXIT();
     return rc;
 }
+
+
+vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  const vtss_port_kr_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        vtss_state->port.kr_conf[port_no] = *conf;
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
+        memset(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
+#endif
+        rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
+                                  const vtss_port_no_t port_no,
+                                  vtss_port_kr_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        *conf = vtss_state->port.kr_conf[port_no];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+#endif /* VTSS_FEATURE_PORT_KR */
+
+
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
@@ -1320,41 +1295,6 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
     return rc;
 }
 
-
-vtss_rc vtss_port_kr_conf_set(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  const vtss_port_kr_conf_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->port.kr_conf[port_no] = *conf;
-        memset(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
-        rc = VTSS_FUNC_COLD(port.kr_conf_set, port_no);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
-                                  const vtss_port_no_t port_no,
-                                  vtss_port_kr_conf_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        *conf = vtss_state->port.kr_conf[port_no];
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
 vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              const vtss_port_kr_fec_t *const conf)
@@ -1377,7 +1317,7 @@ vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
 }
 
 
-#endif /* VTSS_FEATURE_10GBASE_KR_V3 */
+#endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
 vtss_rc vtss_port_test_conf_get(const vtss_inst_t      inst,
                                 const vtss_port_no_t   port_no,
@@ -1451,7 +1391,7 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
     return rc;
 }
 
-#if defined(VTSS_FEATURE_10GBASE_KR_V3)
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 // For debugging
 # if 0
@@ -1865,7 +1805,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
 static void kr_reset_state(vtss_port_kr_state_t *krs) {
     memset(krs, 0, sizeof(vtss_port_kr_state_t));
 }
-
+#define BT(x) (1 << (x))
 // Handle the incoming KR IRQs
 static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                             const vtss_port_no_t port_no,
@@ -2123,7 +2063,7 @@ vtss_rc vtss_port_kr_state_get(vtss_inst_t inst,
     return rc;
 }
 
-#endif //defined(VTSS_FEATURE_10GBASE_KR_V3)
+#endif //defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t               inst,
                                    const vtss_port_no_t            port_no,
                                    const vtss_port_serdes_debug_t  *const conf)
