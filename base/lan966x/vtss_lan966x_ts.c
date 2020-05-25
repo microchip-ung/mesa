@@ -431,14 +431,13 @@ static vtss_rc lan966x_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port
     vtss_ts_mode_t         mode = vtss_state->ts.port_conf[port_no].mode.mode;
     u32                    domain = vtss_state->ts.port_conf[port_no].mode.domain;
     vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
-    u32                    mode_val = 0, backplane_mode = 0;
+    u32                    mode_val = 0;
     u32                    port = VTSS_CHIP_PORT(port_no);
 
     if (mode == TS_MODE_INTERNAL) {
         switch (fmt) {
         case TS_INTERNAL_FMT_RESERVED_LEN_30BIT:
             mode_val = 1;
-            backplane_mode = 1;
             break;
         case TS_INTERNAL_FMT_RESERVED_LEN_32BIT:
             VTSS_E("unsupported internal timestamp format: %u", fmt);
@@ -455,10 +454,7 @@ static vtss_rc lan966x_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port
         }
     }
 
-    VTSS_I("port %d, mode %d, domain %u,mode_val %u  backplane_mode %u", port_no, mode, domain, mode_val, backplane_mode);
-    REG_WRM(ANA_PTP_CFG(port),
-            ANA_PTP_CFG_PTP_BACKPLANE_MODE(backplane_mode),
-            ANA_PTP_CFG_PTP_BACKPLANE_MODE_M);
+    VTSS_I("port %d, mode %d, domain %u,mode_val %u", port_no, mode, domain, mode_val);
     REG_WRM(SYS_PTP_MODE_CFG(port, 0),
             SYS_PTP_MODE_CFG_PTP_MODE_VAL(mode_val),
             SYS_PTP_MODE_CFG_PTP_MODE_VAL_M);
