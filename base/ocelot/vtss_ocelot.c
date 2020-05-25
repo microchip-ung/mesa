@@ -397,10 +397,10 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 
     /* Use SEMA0_OWNER to determine if using VCOREIII or PCIe */
-    SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA0, 0xFFFFFFFF); /* Release sema */
-    SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA0, &value);     /* Get sema */
-    SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA0_OWNER, &value);
-    SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA0, 0xFFFFFFFF); /* Release again */
+    SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA1, 0xFFFFFFFF); /* Release sema */
+    SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA1, &value);     /* Get sema */
+    SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA1_OWNER, &value);
+    SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA1, 0xFFFFFFFF); /* Release again */
     if (value == 0x01) {        /* VCoreIII/PCIe */
         VTSS_I("Has VCoreIII/PCIe, Acessing registers directly");
         vtss_srvl_rd = srvl_rd_direct;
@@ -434,22 +434,6 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     /* Read restart type */
     SRVL_RD(VTSS_DEVCPU_GCB_CHIP_REGS_GPR, &value);
     VTSS_RC(vtss_cmn_restart_update(vtss_state, value));
-
-    /* iCPU-to-eCPU startup sequence */
-    SRVL_RD(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GPR(0), &value);
-    if (value == 1) {
-        /* Initialization has been done by iCPU, give stop command */
-        SRVL_WR(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GPR(0), 2);
-
-        /* Wait for iCPU to confirm that it stopped */
-        do {
-            SRVL_RD(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GPR(0), &value);
-        } while (value != 3);
-
-        /* Do warm start, if enabled */
-        vtss_state->warm_start_cur = vtss_state->init_conf.warm_start_enable;
-        VTSS_I("warm start%s", vtss_state->warm_start_cur ? "ing" : " disabled");
-    }
 
     /* Initialize the LC-PLL */
     if (!vtss_state->warm_start_cur &&
