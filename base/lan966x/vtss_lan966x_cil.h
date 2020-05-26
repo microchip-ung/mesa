@@ -13,7 +13,11 @@
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
 #include "vtss_lan966x.h"
+#if defined(VTSS_OPT_LAN966X_SR)
+#include "vtss_lan966x_regs_sr.h"
+#else
 #include "vtss_lan966x_regs.h"
+#endif
 #include "vtss_lan966x_ifh.h"
 
 /* ================================================================= *
@@ -24,42 +28,10 @@ extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *val);
 vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 val, u32 mask);
 void vtss_lan966x_reg_error(const char *file, int line);
 
-// TODO This should come from the CML file and go into the auto-generated header
-#define VTSS_LAN966X_TARGET_MAX 22
-inline u32 vtss_lan966x_target_id_to_addr(int target_id)
-{
-    switch (target_id) {
-        case  0: return 0x00300000;
-        case  1: return 0x00280000;
-        case  2: return 0x00100000;
-        case  3: return 0x00110000;
-        case  4: return 0x00120000;
-        case  5: return 0x00130000;
-        case  6: return 0x00140000;
-        case  7: return 0x00150000;
-        case  8: return 0x00160000;
-        case  9: return 0x00170000;
-        case 10: return 0x00070000;
-        case 11: return 0x00ff0000;
-        case 12: return 0x000a0000;
-        case 13: return 0x00000000;
-        case 14: return 0x00090000;
-        case 15: return 0x00080000;
-        case 16: return 0x00200000;
-        case 17: return 0x00030000;
-        case 18: return 0x00380000;
-        case 19: return 0x00010000;
-        case 20: return 0x00040000;
-        case 21: return 0x00050000;
-        case 22: return 0x00060000;
-        default: return 0xffffffff;
-    }
-}
-// End of hard-coded Adaro constants. //////////////////////////////////////////
-
-inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
-                   int gbase, int ginst, int gcnt, int gwidth,
-                   int raddr, int rinst, int rcnt, int rwidth)
+#define VTSS_LAN966X_TARGET_MAX (NUM_TARGET - 1)
+static inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
+                          int gbase, int ginst, int gcnt, int gwidth,
+                          int raddr, int rinst, int rcnt, int rwidth)
 {
     if (tbaseid + tinst > VTSS_LAN966X_TARGET_MAX || tinst >= tcnt ||
         ginst >= gcnt || rinst >= rcnt) {
@@ -67,7 +39,7 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
         return 0xffffffff;
     }
 
-    return (vtss_lan966x_target_id_to_addr(tbaseid + tinst) +
+    return (lan966x_tgt_offsets[tbaseid + tinst].offset +
             gbase + ((ginst) * gwidth) +
             raddr + ((rinst) * rwidth)) / 4;
 }
