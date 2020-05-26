@@ -195,8 +195,14 @@ $default_configs = "istax_multi.mk"
 
 # Backwards compatibility with previous build was broken because Serval1 has
 # been removed.
+# check("backwards-check",              # Name of check
+#       "85b60baa43@master",            # Appl release to use
+#       $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because the JR2
+# KR API has been updated to be compatible with FA
 check("backwards-check",              # Name of check
-      "85b60baa43@master",            # Appl release to use
+      "3eecd47882@master",            # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
