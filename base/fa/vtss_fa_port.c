@@ -1999,7 +1999,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-    if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
+    if (!fa_port_kr_aneg_ena(vtss_state, port_no)) {
         /* Port disable and flush procedure: */
         VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
     }

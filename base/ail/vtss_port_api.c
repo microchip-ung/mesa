@@ -210,7 +210,6 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
         } else {
             rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
         }
-        rc = vtss_port_conf_set_private(vtss_state, port_no, conf);
     }
     VTSS_EXIT();
     VTSS_I("Exit(port_no = %u, rc = %d)", port_no, rc);
