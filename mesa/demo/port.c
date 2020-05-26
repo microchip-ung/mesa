@@ -1324,21 +1324,6 @@ static void port_init(meba_inst_t inst)
 
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET_POST);
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_LED_INITIALIZE);
-
-    uint16_t cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
-
-    mesa_port_list_t member;
-    mesa_pvlan_port_members_get(NULL, 0,  &member);
-    for (port_no = 0; port_no < (cnt-1); port_no++)
-        mesa_port_list_set(&member, port_no, 0);
-    mesa_pvlan_port_members_set(NULL, 0,  &member);
-
-    mesa_pvlan_port_members_get(NULL, 1,  &member);
-    for (port_no = 0; port_no < (cnt-1); port_no++)
-        mesa_port_list_set(&member, port_no, 1);
-    mesa_pvlan_port_members_set(NULL, 1,  &member);
-
-//    printf("(TBR)Ports 1-8 added PVLAN 1\n");
 }
 
 static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *driver,
