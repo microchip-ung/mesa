@@ -9,5 +9,4 @@ $suite_name = "vop"
 
 run %w{./check_wireing.rb}, {:name => "check_wireing@vop", :abort_on_err => true}
 run %w{./vop_evlan_all.rb}
-run %w{./example_vop.rb}
 
