@@ -45,8 +45,21 @@ $default_configs = "istax_multi.mk"
 # can not pass any more, write a comment explaining why and mention last
 # commit where a given test did pass AND add a new check that do pass!
 #
-# To create new APPL src releases to check against, use the script
-# "./build/tools/internal-src-rel" in the webstax2 repository.
+# Here are the steps to create a new backwards compatibility check point:
+# - Notice, this can (should) be done with MESA changes on a branch - the final
+#   step is to merge the branch.
+# - Make WebStaX compile with the new API build in-tree.
+# - Commit changes locally, but do not push (yet).
+# - In WebStaX, run the ./build/tools/internal-src-rel script.
+# - In MESA, open '.cmake/backwards-compatibility-check.rb' comment out the old
+#   reference, and add a new one.
+# - Push MESA, and wait for Jenkins to give you green light. Go to Jenkins,
+#   select the API-Promote project, and promote your new build.
+# - In WebStaX, edit 'build/make/paths-api.mk' and point to your new API. Commit
+#   and push.
+# - If your MESA changes was on a branch, then now is time to merge your branch
+#   to master - but do use the '--no-ff' flag ensure that the SHAs are not
+#   changed.
 
 # Backwards compatibility with 6bf6a82@4-dev was broken in commit
 # e86bb9328c0eaadd6d2e7d83b4bb8b3c2bd3dbd8 where the CapArries was moved out of
