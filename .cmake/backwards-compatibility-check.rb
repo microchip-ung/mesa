@@ -215,7 +215,7 @@ $default_configs = "istax_multi.mk"
 # Backwards compatibility with previous build was broken because the JR2
 # KR API has been updated to be compatible with FA
 check("backwards-check",              # Name of check
-      "3eecd47882@master",            # Appl release to use
+      "4245df640b@master",            # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
