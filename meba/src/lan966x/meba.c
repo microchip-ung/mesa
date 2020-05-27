@@ -28,11 +28,18 @@ typedef struct meba_board_state {
 /* --------------------------- Board specific ------------------------------- */
 
 // NB: No SFP support!
-static port_map_t port_table[] = {
+static port_map_t port_table_adaro[] = {
     {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+};
+
+static port_map_t port_table_sunrise[] = {
+    {0, MESA_MIIM_CONTROLLER_0, 4, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {3, MESA_MIIM_CONTROLLER_0, 7, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
 };
 
 static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
@@ -48,18 +55,34 @@ static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
     return MESA_RC_OK;
 }
 
+static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
+{
+    entry->map.chip_port = map->chip_port;
+    entry->map.miim_controller = map->miim_controller;
+    entry->map.miim_addr = map->miim_addr;
+    entry->mac_if = map->mac_if;
+    entry->cap = map->cap;
+}
+
 static void lan9668_adaro_init_porttable(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_no_t      port_no;
+
     /* Fill out port mapping table */
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
-        meba_port_entry_t *entry = &board->entry[port_no];
-        entry->map.chip_port = port_table[port_no].chip_port;
-        entry->map.miim_controller = port_table[port_no].miim_controller;
-        entry->map.miim_addr = port_table[port_no].miim_addr;
-        entry->mac_if = port_table[port_no].mac_if;
-        entry->cap = port_table[port_no].cap;
+        port_entry_map(&board->entry[port_no], &port_table_adaro[port_no]);
+    }
+}
+
+static void lan9668_sunrise_init_porttable(meba_inst_t inst)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t      port_no;
+
+    /* Fill out port mapping table */
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        port_entry_map(&board->entry[port_no], &port_table_sunrise[port_no]);
     }
 }
 
@@ -190,7 +213,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
 
-    board->port_cnt= 4;
+    board->port_cnt = 4;
 
     board->entry = (lan9668_port_info_t*) calloc(board->port_cnt, sizeof(lan9668_port_info_t));
     if (board->entry == NULL) {
@@ -199,7 +222,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     /* Fill out port mapping table */
-    lan9668_adaro_init_porttable(inst);
+    if (inst->props.target == 0x9662) {
+        lan9668_sunrise_init_porttable(inst);
+    } else {
+        lan9668_adaro_init_porttable(inst);
+    }
 
     T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d",
         inst->props.name, inst->props.target, board->port_cnt, inst->props.mux_mode);

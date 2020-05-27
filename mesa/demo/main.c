@@ -512,6 +512,17 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         get_fa_board_name(board_port_cnt, sparxi, type, name);
         board = name;
         break;
+
+    case MESA_CHIP_FAMILY_LAN966X:
+        if (port_cnt > 4) {
+            board = "Adaro";
+            target = 0x9668;
+        } else {
+            board = "Sunrise";
+            target = 0x9662;
+        }
+        break;
+
     default:
         break;
     }

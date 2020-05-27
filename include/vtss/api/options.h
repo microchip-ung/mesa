@@ -14,7 +14,7 @@
 /* ================================================================= *
  *  Features
  * ================================================================= */
-#if defined(VTSS_CHIP_9668)
+#if defined(VTSS_CHIP_9662) || defined(VTSS_CHIP_9668)
 #define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
 #define VTSS_ARCH_LAN966X_FPGA                    /**< LAN966X FPGA */
 #endif

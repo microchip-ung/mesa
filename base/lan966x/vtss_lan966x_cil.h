@@ -13,7 +13,7 @@
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
 #include "vtss_lan966x.h"
-#if defined(VTSS_OPT_LAN966X_SR)
+#if defined(VTSS_CHIP_9662)
 #include "vtss_lan966x_regs_sr.h"
 #else
 #include "vtss_lan966x_regs.h"
