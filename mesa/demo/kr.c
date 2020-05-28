@@ -207,7 +207,6 @@ static char *fa_kr_aneg_rate(uint32_t reg)
     case 13: return "1G-KX";
     default: return "other";
     }
-    return "other";
 }
 
 static char *kr_aneg_sm_2_txt(u32 reg)
@@ -228,7 +227,6 @@ static char *kr_aneg_sm_2_txt(u32 reg)
     case 14: return "NXTPG_WAIT";
     default: return "?";
     }
-    return "?";
 }
 
 static void time_start(struct timeval *store)
@@ -610,7 +608,7 @@ static void kr_dump_tr_ld_history(cli_req_t *req)
             continue;
         }
         first = TRUE;
-        cli_printf("\nPort %d:\n",uport,kr_conf_state[iport].tr);
+        cli_printf("\nPort %d:\n",uport);
         for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.ld_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
@@ -661,7 +659,7 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
             continue;
         }
         first = TRUE;
-        cli_printf("\nPort %d:\n",uport,kr_conf_state[iport].tr);
+        cli_printf("\nPort %d:\n",uport);
         for (uint16_t indx = 0; indx < kr_conf_state[iport].tr.lp_hist_index; indx++) {
             char coef_tap[20] = {0};
             char coef_act[20] = {0};
@@ -690,7 +688,7 @@ static void kr_dump_tr_lp_history(cli_req_t *req)
                 }
             }
             if ((krs->irq_hist[indx].irq & 0xf) > 0) {
-                b += sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
+                sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
             }
 
             cli_printf("%-8d%-12s%-12s%-12s%-20s%-8d%-20s\n", indx, sts_tmp, sts_res, coef_act, ber2txt(krs->lp_hist[indx].ber_training_stage), dt, buf);
@@ -739,7 +737,7 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
                 }
             }
             if ((krs->irq_hist[indx].irq & 0xf) > 0) {
-                b += sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
+                sprintf(b, "%s ",fa_kr_aneg_rate(krs->irq_hist[indx].irq & 0xf));
             }
 
             cli_printf("%-4d%-8d%-20s\n", indx, dt, buf);
@@ -997,7 +995,7 @@ static void kr_poll(meba_inst_t inst)
     mesa_port_conf_t      pconf;
     mesa_port_kr_state_t  *krs;
     uint32_t              irq;
-    uint16_t              meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
+    uint16_t              meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
     kr_appl_train_t       *kr;
     mesa_port_kr_status_t status;
     mesa_port_kr_fec_t fec = {0};
@@ -1136,7 +1134,7 @@ static void kr_poll_v2(meba_inst_t inst)
     mesa_port_no_t iport;
     mesa_port_kr_status_t status;
     mesa_port_kr_conf_t conf;
-    uint16_t meba_cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
+    uint16_t meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
 
     for (iport = 0; iport < meba_cnt; iport++) {
 
@@ -1332,7 +1330,7 @@ static void kr_init(meba_inst_t inst)
 {
     uint32_t              port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
     mesa_port_no_t        port_no;
-    meba_port_entry_t     meba;
+    meba_port_entry_t     meba = {0};
 
     // Free old port table
     if (kr_conf_state != NULL) {

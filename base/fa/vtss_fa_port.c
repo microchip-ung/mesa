@@ -3126,7 +3126,6 @@ static char *fa_kr_aneg_sm(u32 reg)
     case 14: return "NXTPG_WAIT(14)";
     default: return "?";
     }
-    return "?";
 }
 
 static char *fa_kr_aneg_rate(u32 reg)
@@ -3142,7 +3141,6 @@ static char *fa_kr_aneg_rate(u32 reg)
     case 13: return "1G-KX";
     default: return "other";
     }
-    return "other";
 }
 vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
                          const vtss_debug_printf_t pr,

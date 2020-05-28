@@ -1627,9 +1627,6 @@ static kr_status_report_t kr_frm2status(uint16_t data, vtss_kr_tap_t tap)
     case 1:  return STATUS_UPDATED;
     case 2:  return STATUS_MINIMUM;
     case 3:  return STATUS_MAXIMUM;
-    default:
-        VTSS_E("Illegal prm\n");
-        break;
     }
     return 0;
 }
@@ -1781,8 +1778,6 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                         krs->ber_training_stage = VTSS_BER_GO_TO_MIN;
                         krs->ignore_fail = FALSE;
                     }
-                } else if (lp_status == STATUS_NOT_UPDATED) {
-                    kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
                 }
             } else if (lp_status == STATUS_NOT_UPDATED) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);

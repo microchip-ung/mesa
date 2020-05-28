@@ -308,7 +308,7 @@ static void buf_set(char *buf, u32 *u_ptr)
 
 static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
 {
-    if  (0 <= ampcode && ampcode < 16) {
+    if  (ampcode < 16) {
         *ipdriver = 6;
         *vcdriver = ampcode;
     } else if (16 <= ampcode && ampcode < 32) {
@@ -559,10 +559,9 @@ const char *raw_sts2txt(u32 frm_in)
         return "UPDATED";
     } else if (action == 2) {
         return "MINUMUN";
-    } else if (action == 3) {
+    } else {
         return "MAXIMUM";
     }
-    return "?";
 }
 
 const vtss_port_kr_coef_status_t raw_sts2enum(u32 frm_in)
@@ -584,10 +583,9 @@ const vtss_port_kr_coef_status_t raw_sts2enum(u32 frm_in)
         return VTSS_COEF_UPDATED;
     } else if (action == 2) {
         return VTSS_COEF_MINIMUM;
-    } else if (action == 3) {
-        return VTSS_COEF_MAXIMUM;
+    } else  {
+        return VTSS_COEF_MAXIMUM; // must be 3
     }
-    return VTSS_COEF_NOT_UPDATED;
 }
 
 
@@ -971,7 +969,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
 
     if (status == VTSS_COEF_UPDATED) {
         // Common restrictions
-        if (250 <= _pcs2pma && _pcs2pma <= 214) {
+        if (214 <= _pcs2pma && _pcs2pma <= 250) {
             if (_tap_adv + _tap_dly > 37) {
                 status = VTSS_COEF_MINIMUM;
             }
@@ -1428,15 +1426,15 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
 
     if (status == VTSS_COEF_UPDATED) {
         // Common restrictions
-        if (94 <= _amp_code && _amp_code <= 86) {
+        if (86 <= _amp_code && _amp_code <= 94) {
             if (_tap_adv + _tap_dly > 37) {
                 status = VTSS_COEF_MINIMUM;
             }
-        } else if (85 <= _amp_code && _amp_code <= 61) {
+        } else if (61 <= _amp_code && _amp_code <= 85) {
             if (_tap_adv + _tap_dly > 36) {
                 status = VTSS_COEF_MINIMUM;
             }
-        } else if (60 <= _amp_code && _amp_code <= 44) {
+        } else if (44 <= _amp_code && _amp_code <= 60) {
             if (_tap_adv + _tap_dly > 35) {
                 status = VTSS_COEF_MINIMUM;
             }
