@@ -73,7 +73,9 @@ def tod_adj_timer_test(domain_out, domain_in)
         diff_high = 1190000
         diff_low = 1185000
     end
+    diff_no_adj = 2
     if ($pcb == "Adaro")
+        diff_no_adj = 8
         adj_max = 1200000
         diff_high = 120114
         diff_low = 119885
@@ -115,7 +117,7 @@ def tod_adj_timer_test(domain_out, domain_in)
 
     diff = ts0["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff}")
-    if ((diff > 2) || (diff < -2))
+    if ((diff > diff_no_adj) || (diff < -diff_no_adj))
         t_e("Difference is not as expected")
     end
 
