@@ -46,12 +46,11 @@ static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
 {
     uint32_t gpio_no;
 
-    // Configure GPIOs for MIIM/MDIO
-    for (gpio_no = 14; gpio_no < 16; gpio_no++) {
-        // TODO, must be updated
-        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
+    if (inst->props.target == 0x9662) {
+        for (gpio_no = 28; gpio_no < 30; gpio_no++) {
+            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
+        }
     }
-
     return MESA_RC_OK;
 }
 

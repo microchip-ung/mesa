@@ -202,9 +202,11 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
     u32 val;
 
     REG_RD(GCB_BUILDID, &val);
-    if (val != LAN966x_BUILD_ID) {
-        VTSS_E("Unexpected build id. Got: %08x Expected %08x", val, LAN966x_BUILD_ID);
+    if (val != LAN966X_BUILD_ID) {
+        VTSS_E("Unexpected build id. Got: %08x Expected %08x", val, LAN966X_BUILD_ID);
+#if defined(VTSS_CHIP_9668)
         return VTSS_RC_ERROR;
+#endif
     }
 
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);

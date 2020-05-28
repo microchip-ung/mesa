@@ -28,18 +28,45 @@ extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *val);
 vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 val, u32 mask);
 void vtss_lan966x_reg_error(const char *file, int line);
 
-#define VTSS_LAN966X_TARGET_MAX (NUM_TARGET - 1)
-static inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
-                          int gbase, int ginst, int gcnt, int gwidth,
-                          int raddr, int rinst, int rcnt, int rwidth)
+inline u32 vtss_lan966x_target_id_to_addr(int target_id)
 {
-    if (tbaseid + tinst > VTSS_LAN966X_TARGET_MAX || tinst >= tcnt ||
+    switch (target_id) {
+    case TARGET_AFI:        return LAN966X_TARGET_AFI_OFFSET;
+    case TARGET_ANA:        return LAN966X_TARGET_ANA_OFFSET;
+    case (TARGET_DEV + 0):  return LAN966X_TARGET_DEV_0_OFFSET;
+    case (TARGET_DEV + 1):  return LAN966X_TARGET_DEV_1_OFFSET;
+    case (TARGET_DEV + 2):  return LAN966X_TARGET_DEV_2_OFFSET;
+    case (TARGET_DEV + 3):  return LAN966X_TARGET_DEV_3_OFFSET;
+    case (TARGET_DEV + 4):  return LAN966X_TARGET_DEV_4_OFFSET;
+    case (TARGET_DEV + 5):  return LAN966X_TARGET_DEV_5_OFFSET;
+    case (TARGET_DEV + 6):  return LAN966X_TARGET_DEV_6_OFFSET;
+    case (TARGET_DEV + 7):  return LAN966X_TARGET_DEV_7_OFFSET;
+    case TARGET_GCB:        return LAN966X_TARGET_GCB_OFFSET;
+    case TARGET_MEP:        return LAN966X_TARGET_MEP_OFFSET;
+    //case TARGET_ORG:        return LAN966X_TARGET_ORG_OFFSET;
+    case TARGET_PTP:        return LAN966X_TARGET_PTP_OFFSET;
+    case TARGET_QS:         return LAN966X_TARGET_QS_OFFSET;
+    case TARGET_QSYS:       return LAN966X_TARGET_QSYS_OFFSET;
+    case TARGET_REW:        return LAN966X_TARGET_REW_OFFSET;
+    case TARGET_SYS:        return LAN966X_TARGET_SYS_OFFSET;
+    case (TARGET_VCAP + 0): return LAN966X_TARGET_VCAP_0_OFFSET;
+    case (TARGET_VCAP + 1): return LAN966X_TARGET_VCAP_1_OFFSET;
+    case (TARGET_VCAP + 2): return LAN966X_TARGET_VCAP_2_OFFSET;
+    default: return 0xffffffff;
+    }
+}
+inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
+                   int gbase, int ginst, int gcnt, int gwidth,
+                   int raddr, int rinst, int rcnt, int rwidth)
+{
+    u32 addr = vtss_lan966x_target_id_to_addr(tbaseid + tinst);
+    if (addr == 0xffffffff || tinst >= tcnt ||
         ginst >= gcnt || rinst >= rcnt) {
         vtss_lan966x_reg_error(file, line);
         return 0xffffffff;
     }
 
-    return (lan966x_tgt_offsets[tbaseid + tinst].offset +
+    return (addr +
             gbase + ((ginst) * gwidth) +
             raddr + ((rinst) * rwidth)) / 4;
 }
