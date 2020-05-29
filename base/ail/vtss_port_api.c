@@ -1626,9 +1626,8 @@ static kr_status_report_t kr_frm2status(uint16_t data, vtss_kr_tap_t tap)
     case 0:  return STATUS_NOT_UPDATED;
     case 1:  return STATUS_UPDATED;
     case 2:  return STATUS_MINIMUM;
-    case 3:  return STATUS_MAXIMUM;
+    default: return STATUS_MAXIMUM;
     }
-    return 0;
 }
 
 static vtss_kr_tap_t kr_ber_next_tap(vtss_kr_tap_t tap, BOOL first)
