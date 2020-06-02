@@ -396,7 +396,7 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x", 
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 
-    /* Use SEMA0_OWNER to determine if using VCOREIII or PCIe */
+    /* Use SEMA1_OWNER to determine if using VCOREIII or PCIe */
     SRVL_WR(VTSS_DEVCPU_ORG_ORG_SEMA1, 0xFFFFFFFF); /* Release sema */
     SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA1, &value);     /* Get sema */
     SRVL_RD(VTSS_DEVCPU_ORG_ORG_SEMA1_OWNER, &value);

@@ -319,7 +319,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     board = INST2BOARD(inst);
 
     inst->props.mux_mode = MESA_PORT_MUX_MODE_3;
-    board->port_cnt= 8;    // 4+4+1
+    board->port_cnt = 8;
 
     board->entry = (ocelot_port_info_t*) calloc(board->port_cnt, sizeof(ocelot_port_info_t));
     if (board->entry == NULL) {

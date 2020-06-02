@@ -6,7 +6,7 @@ presets:
     mipsel:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake"
@@ -17,7 +17,7 @@ presets:
     mipsel-debug:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake"
@@ -38,7 +38,7 @@ presets:
     arm64-debug:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -48,7 +48,7 @@ presets:
     arm64-asan:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug -DBUILD_ASAN=true"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/fireant/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -58,7 +58,7 @@ presets:
     arm:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -69,7 +69,7 @@ presets:
     arm-debug:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2019.02.7-286"
+        :brsdk:            "2019.02.7-289"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/bbb/x86_64-linux/share/buildroot/toolchainfile.cmake"
