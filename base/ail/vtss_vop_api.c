@@ -1177,10 +1177,9 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                        YN(voe_status.rx_level_low_seen),
                        YN(voe_status.rx_level_high_seen));
 #else
-                    pr("opcode_unexp_seen %s  dmac_unexp_seen %s  tx_level_low_seen %s\n",
+                    pr("opcode_unexp_seen %s  dmac_unexp_seen %s\n",
                        YN(voe_status.opcode_unexp_seen),
-                       YN(voe_status.dmac_unexp_seen),
-                       YN(voe_status.tx_level_low_seen));
+                       YN(voe_status.dmac_unexp_seen));
 #endif
 
 #if defined(VTSS_FEATURE_VOP_V2)

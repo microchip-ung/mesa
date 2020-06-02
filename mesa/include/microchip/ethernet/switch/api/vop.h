@@ -325,9 +325,9 @@ typedef struct {
     // Are cleared during call to mesa_voe_status_get().
     mesa_bool_t  opcode_unexp_seen;
     mesa_bool_t  dmac_unexp_seen;
-    mesa_bool_t  tx_level_low_seen;               // Tx with level low
+    mesa_bool_t  tx_level_low_seen  CAP(VOP_CFM); // Tx with level low
     mesa_bool_t  version_unexp_seen CAP(VOP_V2);
-    mesa_bool_t  rx_level_low_seen CAP(VOP_V2);   // Rx with level low
+    mesa_bool_t  rx_level_low_seen  CAP(VOP_V2);  // Rx with level low
     mesa_bool_t  rx_level_high_seen CAP(VOP_V2);  // Only if 'block_mel_high' is configured
 } mesa_voe_status_t CAP(VOP);
 

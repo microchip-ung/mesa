@@ -53,6 +53,23 @@ static u32 cc_loc_period_index(vtss_voe_ccm_period_t p)
     return 0;
 }
 
+static vtss_rc level_filtering_conf(vtss_state_t           *vtss_state,
+                                    const vtss_voe_idx_t   voe_idx,
+                                    const vtss_voe_conf_t  *const conf)
+{
+    u32 value, mask, i;
+
+    VTSS_D("Enter  enable %u", conf->enable);
+
+    value = (conf->enable) ? 0 : (1 << voe_idx);  /* OAM frames on this level or lower, must not be forwarded to this port */
+    mask = (1 << voe_idx);
+    for (i = 0; i <= conf->meg_level; ++i) {    /* Configure filtering on this level an lower */
+        REG_WRM(MEP_MEL_FILTERING_CFG(i), value, mask);
+    }
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc voe_counter_update(vtss_state_t         *vtss_state,
                                   const vtss_voe_idx_t  voe_idx,
                                   const u32             clear_mask)
@@ -184,6 +201,10 @@ static vtss_rc lan966x_voe_free(vtss_state_t          *vtss_state,
     }
     alloc_data->allocated = FALSE;
 
+    /* Update the level filtering mask */
+    vtss_state->oam.voe_conf[voe_idx].enable = FALSE;
+    VTSS_RC(level_filtering_conf(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx]));
+
     if ((rc = voe_default_set(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -314,7 +335,7 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t           *vtss_state,
                                     const vtss_voe_idx_t   voe_idx,
                                     const vtss_voe_conf_t  *const conf)
 {
-    u32               value, mask;
+    u32  value, mask;
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -347,6 +368,9 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t           *vtss_state,
     }
     mask = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL_M;
     REG_WRM(MEP_BASIC_CTRL(voe_idx), value, mask);
+
+    /* Update the level filtering mask */
+    VTSS_RC(level_filtering_conf(vtss_state, voe_idx, conf));
 
     /* Enable/Disable VOE */
     REG_WRM(MEP_BASIC_CTRL(voe_idx), MEP_BASIC_CTRL_VOE_ENA(conf->enable ? 1 : 0), MEP_BASIC_CTRL_VOE_ENA_M);
@@ -452,7 +476,6 @@ static vtss_rc lan966x_voe_status_get(vtss_state_t          *vtss_state,
     REG_RD(MEP_RX_STICKY(voe_idx), &value);
     status->opcode_unexp_seen  = MEP_RX_STICKY_UNK_OPCODE_RX_STICKY_X(value);
     status->dmac_unexp_seen    = MEP_RX_STICKY_MAC_ADDR_ERR_STICKY_X(value);
-    status->tx_level_low_seen  = MEP_RX_STICKY_MEP_EGR_BLOCK_STICKY_X(value);
 
     /* Clear the RX sticky bits that has been detected */
     value = value &

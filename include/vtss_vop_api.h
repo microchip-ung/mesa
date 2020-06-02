@@ -359,7 +359,9 @@ typedef struct {
     // Are cleared during call to vtss_voe_status_get().
     BOOL  opcode_unexp_seen;
     BOOL  dmac_unexp_seen;
+#if defined(VTSS_FEATURE_VOP_CFM)
     BOOL  tx_level_low_seen;   // TX with level low
+#endif
 #if defined(VTSS_FEATURE_VOP_V2)
     BOOL  version_unexp_seen;
     BOOL  rx_level_low_seen;   // RX with level low

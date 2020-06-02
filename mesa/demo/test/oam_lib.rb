@@ -879,7 +879,7 @@ def check_pdu_seen(voe_idx, pdu_type)
             t_e("Opcode unexpected pdu not found")
         end
     elsif (pdu_type == PDU_TX_LOW_LEVEL)
-        if (voe_status["tx_level_low_seen"] != true)
+        if ($cap_vop_cfm && (voe_status["tx_level_low_seen"] != true))
             t_e("TX LOW-LEVEL pdu not found")
         end
     elsif (pdu_type == PDU_VERSION)
@@ -903,7 +903,7 @@ def check_pdu_seen(voe_idx, pdu_type)
             ($cap_oam_v2 && (voe_status["version_unexp_seen"] == true)) ||
             ($cap_oam_v2 && (voe_status["rx_level_low_seen"] == true)) ||
             ($cap_oam_v2 && (voe_status["rx_level_high_seen"] == true)) ||
-            (voe_status["tx_level_low_seen"] == true) ||
+            ($cap_vop_cfm && voe_status["tx_level_low_seen"] == true) ||
             ($cap_vop_cfm && (lt_status["ltm_seen"] == true)) ||
             ($cap_vop_cfm && (lt_status["ltr_seen"] == true)) ||
             ($cap_vop_cfm && (lb_status["lbm_seen"] == true)) ||
