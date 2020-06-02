@@ -89,7 +89,7 @@ def tod_asymmetry_p2p_delay_test
         t_e("Unexpected correction field including egress delay.")
     end
 
-    # Change IS2 to ONE-STEP add ingress delay 1 SYNC frame
+    t_i("Change IS2 to ONE-STEP add ingress delay 1 SYNC frame")
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
