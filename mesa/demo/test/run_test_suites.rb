@@ -17,8 +17,9 @@ $systems = [
 #            { name: "dk-t14",  image: "mipsel_vsc7468_48.mfi", branch:"master" }, MESA-428 / Atom issue
             { name: "dk-t15",   image: "mipsel_vsc7437.mfi",         branch:"master" },
 #            { name: "dk-t16",   image: "mipsel_vsc7429.mfi",   branch:"master" } Removed due to Ref-board instability (hangs)
-            { name: "dk-t34-1",  image: "arm64_ls1046_lan9668.itb", branch:"master.mas" },
-            { name: "dk-t06",  image: "arm64_ls1046_lan9668.itb", branch:"master.mas" }
+            { name: "dk-t34-1", image: "arm64_ls1046_lan9668.itb", branch:"master.mas" },
+            { name: "dk-t06",   image: "arm64_ls1046_lan9668.itb", branch:"master.mas" },
+            { name: "dk-t35-0", image: "arm64_ls1046_lan9662.itb", branch:"master.mas" }
            ]
 
 if File.file?("../../../../easytest/test-setup-server/et")
