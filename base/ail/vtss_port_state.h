@@ -106,6 +106,9 @@ typedef struct {
 #endif
     vtss_chip_counter_t tx_aging;
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    vtss_chip_counter_t tx_llct;
+    vtss_chip_counter_t tx_ct;
+
     /* Rx counters */
     vtss_chip_counter_t rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
     vtss_chip_counter_t rx_mm_smd_errors;      /* 802.3br aMACMergeFrameSmdErrorCount */

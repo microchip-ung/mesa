@@ -718,7 +718,7 @@ static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t *vtss_state,
     // E-MAC counters
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[0], clear));
     // P-MAC counters, offset depends on Rx/Tx
-    *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x21 : 0x1f));
+    *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x23 : 0x1f));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[1], clear));
     *addr = (base + 1); // Next E-MAC counter address
     return VTSS_RC_OK;
@@ -795,6 +795,8 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
     for (i = 0; i < VTSS_PRIOS; i++)
         VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green_class[i], clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_aging, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_llct, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_ct, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_hold, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_fragments, clear));
 
@@ -1138,7 +1140,11 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
                                    &cnt->rx_classified_drops, &cnt->tx_drops);
             vtss_lan966x_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
                                    &cnt->dr_local, &cnt->tx_aging);
-            vtss_lan966x_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
+            vtss_lan966x_debug_cnt(pr, "dr_tail", cpu_port ? NULL : "ct",
+                                   &cnt->dr_tail, &cnt->tx_ct);
+            if (!cpu_port) {
+                vtss_lan966x_debug_cnt(pr, NULL, "llct", NULL, &cnt->tx_llct);
+            }
             for (i = 0; i < VTSS_PRIOS; i++)
                 lan966x_debug_cnt_inst(pr, i, "green", "",
                                        &cnt->rx_green_class[i], &cnt->tx_green_class[i]);
