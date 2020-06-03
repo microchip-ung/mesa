@@ -853,6 +853,15 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB:
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
         c = 1;
+#if defined(VTSS_ARCH_SPARX5)
+        mesa_chip_id_t chip_id;
+        mesa_rc rc;
+        rc = mesa_chip_id_get(inst, &chip_id);
+        if (rc == MESA_RC_OK && chip_id.revision <= 1) {
+            // Rev C (if coming) is assumed to have CRB fixed. UNG_FIREANT-93.
+            c = 0;
+        }
+#endif
 #endif
         break;
 
