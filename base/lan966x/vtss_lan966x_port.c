@@ -716,15 +716,15 @@ static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t *vtss_state,
     u32 base = *addr;
 
     // E-MAC counters
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[0], clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->emac, clear));
     // P-MAC counters, offset depends on Rx/Tx
-    *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x23 : 0x1f));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->c[1], clear));
+    *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x23 : 0x21));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->pmac, clear));
     *addr = (base + 1); // Next E-MAC counter address
     return VTSS_RC_OK;
 }
 
-#define CNT_SUM(cnt) (cnt.c[0].value + cnt.c[1].value)
+#define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
 
 static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_state,
                                           vtss_port_no_t               port_no,
@@ -1047,19 +1047,26 @@ static void lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, co
     u32  i;
     char buf1[32], buf2[32];
     const char *name;
+    vtss_chip_counter_t *c;
 
     for (i = 0; i < 2; i++) {
-        name = (i ? "pmac" : "emac");
+        if (i) {
+            name = "pmac";
+            c = &c1->pmac;
+        } else {
+            name = "emac";
+            c = &c1->emac;
+        }
         sprintf(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_lan966x_debug_cnt(pr, buf1, NULL, &c1->c[i], NULL);
+            vtss_lan966x_debug_cnt(pr, buf1, NULL, c, NULL);
         } else {
             if (strlen(col2) != 0) {
                 sprintf(buf2, "%s_%s", name, col2);
             } else {
                 strcpy(buf2, "");
             }
-            vtss_lan966x_debug_cnt(pr, buf1, buf2, &c1->c[i], &c2->c[i]);
+            vtss_lan966x_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
         }
     }
 }
