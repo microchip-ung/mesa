@@ -360,6 +360,12 @@ static void fa_pcb135_board_init(meba_inst_t inst)
                 conf.port_conf[port].mode[2] = MESA_SGPIO_MODE_ON;  // Ratesel1 always eanbled (output)
             }
         }
+        conf.port_conf[17].int_pol_high[0] = false; // INTR for QSGMII Elise Phy 0-1 (8 instances)
+        conf.port_conf[17].int_pol_high[1] = false; // INTR for QSGMII Elise Phy 2-3 (8 instances)
+        conf.port_conf[17].int_pol_high[2] = false; // INTR for QSGMII Elise Phy 4-5 (8 instances)
+        conf.port_conf[18].int_pol_high[0] = false; // INTR for QSGMII Elise Phy 6-7 (8 instances)
+        conf.port_conf[18].int_pol_high[1] = false; // INTR for QSGMII Elise Phy 8-9 (8 instances)
+        conf.port_conf[18].int_pol_high[2] = false; // INTR for QSGMII Elise Phy 10-11 (8 instances)
         (void)mesa_sgpio_conf_set(NULL, 0, 2, &conf);
     }
     /* Turn on the Status LED to Red */
@@ -1358,6 +1364,28 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
 
     case MEBA_EVENT_FLNK: // Phy link down event
         rc = fa_phy_event_enable(inst, board, MESA_PHY_LINK_FFAIL_EV, enable);
+        if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+            uint32_t sgpio_port_old = 0xff;
+            uint32_t sgpio_bit_old  = 0xff;
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (is_phy_port(board->port[port_no].map.cap)) {
+                    uint32_t sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+                    uint32_t sgpio_bit  = PORT_2_SGPIO_BIT(board, port_no);
+                    if (sgpio_port >= MESA_SGPIO_PORTS) {
+                        continue;
+                    }
+                    if (sgpio_port == sgpio_port_old &&
+                        sgpio_bit  == sgpio_bit_old) {
+                        continue;
+                    }
+                    if ((rc += mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, sgpio_bit, enable)) != MESA_RC_OK) {
+                        T_E(inst, "Could not enable event for sgpio #%d", sgpio_port);
+                    }
+                    sgpio_port_old = sgpio_port;
+                    sgpio_bit_old = sgpio_bit;
+                }
+            }
+        }
         break;
 
     case MEBA_EVENT_PUSH_BUTTON:
@@ -1384,7 +1412,6 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
     case MEBA_EVENT_PTP_PIN_3:
     case MEBA_EVENT_CLK_TSTAMP:
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
-
         if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
@@ -1415,7 +1442,6 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
             return rc; // Don't even re-enable SGPIO2 interrupt
         }
     }
-
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_sfp_port(board->port[port_no].map.cap)) {
             mesa_bool_t event_detected = false;
@@ -1469,22 +1495,15 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
             if (sgpio_port >= MESA_SGPIO_PORTS) {
                 continue;
             }
-
             if (sgpio_events_bit[sgpio_bit][sgpio_port]) {
-                // Disable the interrupt while handling the event
-                if ((rc = mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, sgpio_bit, false)) != MESA_RC_OK) {
-                    T_E(inst, "mesa_sgpio_event_enable = %d", rc);
-                    // Go on anyway
+                // Check for Cu Phy events
+                if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                    handled++;
                 }
             }
 
-            // Check for Cu Phy events
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
-                handled++;
-            }
         }
     }
-
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
@@ -1782,6 +1801,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     } else {
                         board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
                     }
+
                 } else if (port_no < board->port_cnt - 1) {
                     // 4x10G Cu ports
                     // These are physical ports 48-51
