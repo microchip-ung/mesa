@@ -111,6 +111,7 @@ if ($options[:system] != nil) && ($options[:image] != nil)
                 exit 7  # timeout - return with error
             end
 
+            puts("#{$system}: Reserve failed, will try again (#{Time.now - t1} < #{seconds})");
             sleep(30)   # sleep and try again
             next
         end
