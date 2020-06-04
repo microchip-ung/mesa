@@ -12,6 +12,37 @@ require 'fileutils'
 require 'net/http'
 require_relative '../libeasy/utils'
 
+def  uri, out
+    FileUtils.mkdir_p File.dirname(out)
+    puts "Downloading #{uri} to #{out}"
+    IO.write(out, Net::HTTP.get(URI(uri)))
+end
+
+$system = ""
+def run(cmd, verify = true)
+    puts "#{$system}: run #{cmd}"
+
+    res = system cmd
+
+    if verify
+        raise "#{$system}: '#{cmd}' failed" if $? != 0
+    end
+
+    res
+end
+
+def print_err e
+    msg = ""
+    msg += "#{$system}: Traceback (most recent call last):\n"
+    e.backtrace.to_enum.with_index.reverse_each do |t, i|
+        if i != 0
+            msg += "#{$system}:\t #{i}: #{t}\n"
+        else
+            msg += "#{$system}: #{t}: #{e}#{e.class ? " (#{e.class})" : ''}"
+        end
+    end
+    puts msg
+end
 
 $options = {}
 OptionParser.new do |opts|
@@ -24,6 +55,7 @@ OptionParser.new do |opts|
 
     opts.on("-s", "--system system", "System to reserve") do |s|
         $options[:system] = s
+        $system = s
     end
 
     opts.on("-d", "--dir dir", "Change directory to dir before doing anything.") do |d|
@@ -55,7 +87,7 @@ $test_suites = Dir.glob("suite_*.rb")
 def run_suites(system)
     $test_suites.each { |suite|
         puts("run suite #{suite} on system #{system}")
-        res = run_("./#{suite} > #{system}.#{suite}.log", false)
+        res = run("./#{suite} > #{system}.#{suite}.log", false)
         if !res
             puts "Failed running suite #{suite} on system #{system}"
         end
@@ -63,48 +95,58 @@ def run_suites(system)
 end
 
 if ($options[:system] != nil) && ($options[:image] != nil)
-    system = $options[:system]
-
     # Reserve system
     t1 = Time.now
     seconds = ($options[:timeout] != nil) ? $options[:timeout] : 0
-    puts("Try reserve system #{system}");
-    loop do
-        res = run_("#{$et} -l reserve #{system}", false)
-        if res
-            break   # break on sucess
-        end
-
-        if ((Time.now - t1) > seconds)
-            puts("Timeout on reserve system #{system}. Waited  #{seconds} seconds");
-            exit 7  # timeout - return with error
-        end
-
-        sleep(30)   # sleep and try again
-        next
-    end
-    puts("Reservation of #{system} successful");
-
-    puts("Download latest image from jenkins");
-    dl_file "#{$options[:image]}", "img"
-
-    puts("Upload image to DUT")
-    run_("#{$et} -l upload img")
-
-    failed = false
+    puts("#{$system}: Try reserve");
     begin
-        puts("Run test suites on system #{system}.")
-        run_("date")
-        run_suites system
+        loop do
+            res = run("#{$et} -l reserve #{$system}", false)
+            if res
+                break   # break on sucess
+            end
 
-    rescue
-        puts("Test on system #{system} failed")
+            if ((Time.now - t1) > seconds)
+                puts("#{$system}: Reserve time-out after #{seconds} seconds");
+                exit 7  # timeout - return with error
+            end
+
+            sleep(30)   # sleep and try again
+            next
+        end
+        puts("#{$system}: Reservation successful");
+
+        10.times do
+            begin
+                puts("#{$system}: Download latest image from jenkins");
+                dl "#{$options[:image]}", "img"
+
+                puts("#{$system}: Upload image to DUT")
+                run("#{$et} -l upload img")
+                break
+            rescue => e
+                print_err e
+            end
+        end
+
+        failed = false
+        puts("#{$system}: Run test suites")
+        run("date")
+        run_suites $system
+
+    rescue => e
+        puts("#{$system}: Test failed")
         failed = true
+        print_err e
 
     ensure
-        # Release system
-        run_("#{$et} -l release")
-        run_("date")
+        # Release $system
+        begin
+            puts("#{$system}: Release");
+            run("#{$et} -l release", false)
+        rescue
+        end
+        run("date")
 
         if (failed)
             exit 1
