@@ -875,7 +875,7 @@ def upload_utils conf
 
 end
 
-$easyframes_sha = "c206d3c9ca57e823ef51534b54e0ee53214bcf0c"
+$easyframes_sha = "6d6aa8857d2ac0526e1b20eaff2adab71a36d93c"
 
 class Switchdev_Pc_b2b_4x
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped
@@ -887,7 +887,9 @@ class Switchdev_Pc_b2b_4x
         dut_looped_ports = conf["dut"]["looped_ports"]
         pc_ports = conf["pc"]["ports"]
         port_admin = conf["dut"]["port_admin"]
-        @dut = MesaDut.new :switchdev, dut_url, dut_ports, dut_looped_ports, port_admin
+        pcb = conf["dut"]["pcb"]
+        dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
+        @dut = MesaDut.new :switchdev, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
