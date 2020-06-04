@@ -954,7 +954,7 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t          inst,
                 }
                 vtss_state->ts.status[id].age = 0;
                 ts_id->ts_id = id;
-                VTSS_D("portmask = %" PRIx64 ", reserved_mask = %" PRIx64 " id = %u", alloc_parm->port_mask, vtss_state->ts.status[id].reserved_mask, ts_id->ts_id);
+                VTSS_I("portmask = %" PRIx64 ", reserved_mask = %" PRIx64 " id = %u", alloc_parm->port_mask, vtss_state->ts.status[id].reserved_mask, ts_id->ts_id);
                 rc = VTSS_RC_OK;
                 break;
             }

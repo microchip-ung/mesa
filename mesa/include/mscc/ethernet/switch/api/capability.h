@@ -349,6 +349,7 @@ typedef enum {
     MESA_CAP_TS_TWOSTEP_ALWAYS_REQUIRED,    /**< Indicates that two-step mode is always required */
     MESA_CAP_TS_INTERNAL_PORTS_REQ_TWOSTEP, /**< Transparent clock via internal ports require two-step operation */
     MESA_CAP_TS_BC_TS_COMBO_IS_SPECIAL,     /**< The combination of a BC and a TS needs to be handled as a special case */
+    MESA_CAP_TS_TWOSTEP_USE_PTP_ID,         /**< Indicates if ptp_id field of packet is used for timestamp id in two-step transmission. */
 
     // TOD
     MESA_CAP_TOD_SAMPLES_PR_SEC,            /**< The number of times per second that the timeofday is sampled */

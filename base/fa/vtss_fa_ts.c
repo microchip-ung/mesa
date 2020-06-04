@@ -742,7 +742,7 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
             VTSS_E("invalid port (%u)", tx_port);
         }
 
-        VTSS_D("value %x, delay %u, tx_port %u, mess_id %u", value, delay, tx_port, mess_id);
+        VTSS_I("value %x, delay %u, tx_port %u, mess_id %u", value, delay, tx_port, mess_id);
         REG_WR(VTSS_REW_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_TWOSTEP_CTRL_PTP_NXT(1));
         REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
     }

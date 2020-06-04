@@ -1714,6 +1714,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_TS_TWOSTEP_USE_PTP_ID:
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+        c = 1;
+#endif
+        break;
+
     case MESA_CAP_PHY_10GBASE_KR:
 #if defined(VTSS_FEATURE_10GBASE_KR)
         c = 1;
