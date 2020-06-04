@@ -12,7 +12,7 @@ require 'fileutils'
 require 'net/http'
 require_relative '../libeasy/utils'
 
-def  uri, out
+def dl uri, out
     FileUtils.mkdir_p File.dirname(out)
     puts "Downloading #{uri} to #{out}"
     IO.write(out, Net::HTTP.get(URI(uri)))
