@@ -838,6 +838,22 @@ mesa_rc mesa_port_kr_irq_get(const mesa_inst_t inst,
     CAP(PORT_KR_IRQ);
 
 /**
+ * \brief Enable / Disable KR IRQs
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param enable  [OUT] enable/disable
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_kr_event_enable(const mesa_inst_t inst,
+                                  const mesa_port_no_t port_no,
+                                  mesa_bool_t enable)
+    CAP(PORT_KR_IRQ);
+
+
+/**
  * \brief Get and clear KR interrupts
  *
  *

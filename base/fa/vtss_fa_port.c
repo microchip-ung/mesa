@@ -900,7 +900,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
     }
 
-    if (fw_req->stop_training) {        
+    if (fw_req->stop_training) {
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
@@ -926,7 +926,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->next_page) {
-        fa_np_set(vtss_state, port_no, NP_NULL, 0, 0); 
+        fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
     }
 
     return VTSS_RC_OK;
@@ -955,6 +955,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no)
 {
     if (!PORT_IS_KR_CAP(port_no)) {
+        VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
     }
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -1014,6 +1015,10 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   u32 *const irq)
 {
+    if (!PORT_IS_KR_CAP(port_no)) {
+        VTSS_E("Not KR capable")
+        return VTSS_RC_ERROR;
+    }
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
     u32 val;
     REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
@@ -1029,10 +1034,15 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_kr_irq_mask_set(vtss_state_t *vtss_state,
+static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
-                                       const u32 mask)
+                                       BOOL enable)
 {
+    if (!PORT_IS_KR_CAP(port_no)) {
+        VTSS_E("Not KR capable")
+        return VTSS_RC_ERROR;
+    }
+    u32 mask = enable ? 0xFFFFFFFF : 0;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
     REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), mask);
     return VTSS_RC_OK;
@@ -1048,6 +1058,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     u32 tgt, pcs;
 
     if (!PORT_IS_KR_CAP(port_no)) {
+        VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
     }
 
@@ -1136,20 +1147,23 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
+    if (!PORT_IS_KR_CAP(port_no)) {
+        VTSS_E("Not KR capable")
+        return VTSS_RC_ERROR;
+    }
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 abil = 0;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-
-    if (!PORT_IS_KR_CAP(port_no)) {
-        return VTSS_RC_ERROR;
-    }
 
     if (!kr->aneg.enable) {
         REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
                 VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
                 VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+        REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0);
         return VTSS_RC_OK;
     }
+    // Enable IRQ propagation
+    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0xFFFFFFFF);
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
@@ -1192,6 +1206,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13));
         }
     }
+
     // Enable/disable training
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_TR_DISABLE(!kr->train.enable),
@@ -2618,7 +2633,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                 status->link = vtss_state->port.link[port_no];
             }
 
-            
+
         } else {
             /* Combine status from PCS and Analog Macro */
             status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
@@ -3188,6 +3203,7 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
             pr("AN_RATE:%s ",fa_kr_aneg_rate(VTSS_X_IP_KRANEG_IRQ_VEC_AN_RATE(val)));
         }
     }
+
     REG_RD(VTSS_IP_KRANEG_FW_MSG(tgt), &val);
     if (val > 0) {
         pr("\n  FW_MSG:    ");
@@ -3703,7 +3719,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
         state->kr_irq_get = fa_port_kr_irq_get;
-        state->kr_irq_mask_set = fa_port_kr_irq_mask_set;
+        state->kr_event_enable = fa_port_kr_event_enable;
         state->kr_fw_req = fa_port_kr_fw_req;
         state->kr_frame_set = fa_port_kr_frame_set;
         state->kr_frame_get = fa_port_kr_frame_get;

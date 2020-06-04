@@ -871,6 +871,20 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
                              u32 *const irq_vec);
 
 /**
+ * \brief Enable / Disable KR IRQs
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param enable  [OUT] enable/disable
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_event_enable(const vtss_inst_t     inst,
+                                  const vtss_port_no_t port_no,
+                                  BOOL enable);
+
+/**
  * \brief Get and clear KR interrupts
  *
  *

@@ -658,6 +658,50 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
+static mesa_rc kr_irq2port(meba_inst_t inst, mesa_irq_t chip_irq, mesa_port_no_t *port_no)
+{
+    meba_board_state_t    *board = INST2BOARD(inst);
+    mesa_rc               rc = MESA_RC_OK;
+
+    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+        switch (chip_irq) {
+        case MESA_IRQ_KR_SD10G_0: *port_no = 0;  break;
+        case MESA_IRQ_KR_SD10G_1: *port_no = 1;  break;
+        case MESA_IRQ_KR_SD10G_2: *port_no = 2;  break;
+        case MESA_IRQ_KR_SD10G_3: *port_no = 3;  break;
+        case MESA_IRQ_KR_SD10G_4: *port_no = 4;  break;
+        case MESA_IRQ_KR_SD10G_5: *port_no = 5;  break;
+        case MESA_IRQ_KR_SD10G_6: *port_no = 6;  break;
+        case MESA_IRQ_KR_SD10G_7: *port_no = 7;  break;
+        case MESA_IRQ_KR_SD10G_8: *port_no = 8;  break;
+        case MESA_IRQ_KR_SD10G_9: *port_no = 9;  break;
+        case MESA_IRQ_KR_SD10G_10: *port_no = 10;  break;
+        case MESA_IRQ_KR_SD10G_11: *port_no = 11;  break;
+        case MESA_IRQ_KR_SD10G_12: *port_no = 12;  break;
+        case MESA_IRQ_KR_SD10G_13: *port_no = 13;  break;
+        case MESA_IRQ_KR_SD10G_14: *port_no = 14;  break;
+        case MESA_IRQ_KR_SD10G_15: *port_no = 15;  break;
+        case MESA_IRQ_KR_SD10G_16: *port_no = 16;  break;
+        case MESA_IRQ_KR_SD10G_17: *port_no = 17;  break;
+        case MESA_IRQ_KR_SD10G_18: *port_no = 18;  break;
+        case MESA_IRQ_KR_SD10G_19: *port_no = 19;  break;
+        default: rc = MESA_RC_ERROR;
+        }
+    } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+        switch (chip_irq) {
+        case MESA_IRQ_KR_SD10G_12: *port_no = 48;  break;
+        case MESA_IRQ_KR_SD10G_13: *port_no = 49;  break;
+        case MESA_IRQ_KR_SD10G_14: *port_no = 50;  break;
+        case MESA_IRQ_KR_SD10G_15: *port_no = 51;  break;
+        case MESA_IRQ_KR_SD10G_16: *port_no = 52;  break;
+        case MESA_IRQ_KR_SD10G_17: *port_no = 53;  break;
+        case MESA_IRQ_KR_SD10G_18: *port_no = 54;  break;
+        case MESA_IRQ_KR_SD10G_19: *port_no = 55;  break;
+        default: rc = MESA_RC_ERROR;
+        }
+    }
+    return rc;
+}
 
 /* ---------------------------   Exposed API  ------------------------------- */
 
@@ -1417,6 +1461,15 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
         }
         break;
 
+    case MEBA_EVENT_KR:
+        for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            if (!is_phy_port(board->port[port_no].map.cap)) {
+                if ((rc = mesa_port_kr_event_enable(NULL, port_no, enable)) != MESA_RC_OK) {
+                    T_E(inst, "mesa_port_kr_enable = %d", rc);
+                }
+            }
+        }
+        break;
     default:
         return MESA_RC_NOT_IMPLEMENTED;    // Will occur as part of probing
     }
@@ -1525,6 +1578,26 @@ static mesa_rc ext0_handler(meba_inst_t inst,
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
+static mesa_rc kr_handler(meba_inst_t inst,
+                          meba_board_state_t *board,
+                          mesa_irq_t chip_irq,
+                          meba_event_signal_t signal_notifier)
+{
+    mesa_rc rc;
+    mesa_port_no_t port_no = 0;
+    if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
+        T_E(inst, "Mapping of IRQ (%d) to port failed",chip_irq);
+        return MESA_RC_ERROR;
+    }
+
+    if ((rc = mesa_port_kr_event_enable(NULL, port_no, false)) != MESA_RC_OK) {
+        T_E(inst, "mesa_port_kr_enable = %d", rc);
+    }
+    signal_notifier(MEBA_EVENT_KR, port_no);
+    return MESA_RC_OK;
+}
+
+
 static mesa_rc fa_irq_handler(meba_inst_t inst,
                                mesa_irq_t chip_irq,
                                meba_event_signal_t signal_notifier)
@@ -1547,6 +1620,27 @@ static mesa_rc fa_irq_handler(meba_inst_t inst,
             return sgpio2_handler(inst, board, signal_notifier);
        case MESA_IRQ_EXT0:
            return ext0_handler(inst, board, signal_notifier);
+       case MESA_IRQ_KR_SD10G_0:
+       case MESA_IRQ_KR_SD10G_1:
+       case MESA_IRQ_KR_SD10G_2:
+       case MESA_IRQ_KR_SD10G_3:
+       case MESA_IRQ_KR_SD10G_4:
+       case MESA_IRQ_KR_SD10G_5:
+       case MESA_IRQ_KR_SD10G_6:
+       case MESA_IRQ_KR_SD10G_7:
+       case MESA_IRQ_KR_SD10G_8:
+       case MESA_IRQ_KR_SD10G_9:
+       case MESA_IRQ_KR_SD10G_10:
+       case MESA_IRQ_KR_SD10G_11:
+       case MESA_IRQ_KR_SD10G_12:
+       case MESA_IRQ_KR_SD10G_13:
+       case MESA_IRQ_KR_SD10G_14:
+       case MESA_IRQ_KR_SD10G_15:
+       case MESA_IRQ_KR_SD10G_16:
+       case MESA_IRQ_KR_SD10G_17:
+       case MESA_IRQ_KR_SD10G_18:
+       case MESA_IRQ_KR_SD10G_19:
+           return kr_handler(inst, board, chip_irq, signal_notifier);
     default:;
     }
 
@@ -1563,6 +1657,26 @@ static mesa_rc fa_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
         case MESA_IRQ_GPIO:
         case MESA_IRQ_SGPIO2:
         case MESA_IRQ_EXT0:
+        case MESA_IRQ_KR_SD10G_0:
+        case MESA_IRQ_KR_SD10G_1:
+        case MESA_IRQ_KR_SD10G_2:
+        case MESA_IRQ_KR_SD10G_3:
+        case MESA_IRQ_KR_SD10G_4:
+        case MESA_IRQ_KR_SD10G_5:
+        case MESA_IRQ_KR_SD10G_6:
+        case MESA_IRQ_KR_SD10G_7:
+        case MESA_IRQ_KR_SD10G_8:
+        case MESA_IRQ_KR_SD10G_9:
+        case MESA_IRQ_KR_SD10G_10:
+        case MESA_IRQ_KR_SD10G_11:
+        case MESA_IRQ_KR_SD10G_12:
+        case MESA_IRQ_KR_SD10G_13:
+        case MESA_IRQ_KR_SD10G_14:
+        case MESA_IRQ_KR_SD10G_15:
+        case MESA_IRQ_KR_SD10G_16:
+        case MESA_IRQ_KR_SD10G_17:
+        case MESA_IRQ_KR_SD10G_18:
+        case MESA_IRQ_KR_SD10G_19:
             rc = MESA_RC_OK;
         default:;
     }

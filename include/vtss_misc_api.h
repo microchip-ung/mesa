@@ -904,6 +904,27 @@ typedef enum
     VTSS_IRQ_DPLL,              /**< DPLL */
     VTSS_IRQ_GPIO,              /**< GPIO */
     VTSS_IRQ_DEV_ALL,           /**< Device (port) IRQ */
+    VTSS_IRQ_KR_SD10G_0,        /**< KR IRQ 0 */
+    VTSS_IRQ_KR_SD10G_1,        /**< KR IRQ 1 */
+    VTSS_IRQ_KR_SD10G_2,        /**< KR IRQ 2 */
+    VTSS_IRQ_KR_SD10G_3,        /**< KR IRQ 3 */
+    VTSS_IRQ_KR_SD10G_4,        /**< KR IRQ 4 */
+    VTSS_IRQ_KR_SD10G_5,        /**< KR IRQ 5 */
+    VTSS_IRQ_KR_SD10G_6,        /**< KR IRQ 6 */
+    VTSS_IRQ_KR_SD10G_7,        /**< KR IRQ 7 */
+    VTSS_IRQ_KR_SD10G_8,        /**< KR IRQ 8 */
+    VTSS_IRQ_KR_SD10G_9,        /**< KR IRQ 9 */
+    VTSS_IRQ_KR_SD10G_10,       /**< KR IRQ 10 */
+    VTSS_IRQ_KR_SD10G_11,       /**< KR IRQ 11 */
+    VTSS_IRQ_KR_SD10G_12,       /**< KR IRQ 12 */
+    VTSS_IRQ_KR_SD10G_13,       /**< KR IRQ 13 */
+    VTSS_IRQ_KR_SD10G_14,       /**< KR IRQ 14 */
+    VTSS_IRQ_KR_SD10G_15,       /**< KR IRQ 15 */
+    VTSS_IRQ_KR_SD10G_16,       /**< KR IRQ 16 */
+    VTSS_IRQ_KR_SD10G_17,       /**< KR IRQ 17 */
+    VTSS_IRQ_KR_SD10G_18,       /**< KR IRQ 18 */
+    VTSS_IRQ_KR_SD10G_19,       /**< KR IRQ 19 */
+
     VTSS_IRQ_MAX,               /**< Maximum IRQ Source - MUST be the last in this enum*/
 } vtss_irq_t;
 

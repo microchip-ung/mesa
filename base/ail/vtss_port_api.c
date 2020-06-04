@@ -1278,6 +1278,23 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_event_enable(const vtss_inst_t     inst,
+                                  const vtss_port_no_t port_no,
+                                  BOOL enable)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_event_enable, port_no, enable);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+
 vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              vtss_port_kr_eye_dim_t *const eye)

@@ -222,6 +222,9 @@ typedef enum {
     // SFP Module Detect
     MEBA_EVENT_MOD_DET,
 
+    // KR activity
+    MEBA_EVENT_KR,
+
     MEBA_EVENT_LAST
 } meba_event_t;
 
