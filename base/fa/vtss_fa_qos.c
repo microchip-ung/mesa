@@ -1261,7 +1261,10 @@ static vtss_rc fa_qos_leak_list_link(vtss_state_t         *vtss_state,
 
 vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *shaper, u32 layer, u32 se, u32 dlb_sense_port, u32 dlb_sense_qos)
 {
-    u32            cir, cbs, eir, ebs;
+    u32            cir, cbs;
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
+    u32            eir, ebs;
+#endif
     vtss_bitrate_t resolution;
 
     VTSS_D("Enter - layer %u, se %u, dlb_sense_port %u, dlb_sense_qos %u!", layer, se, dlb_sense_port, dlb_sense_qos);
@@ -1298,6 +1301,7 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *sha
                VTSS_F_HSCH_CIR_CFG_CIR_RATE(cir) |
                VTSS_F_HSCH_CIR_CFG_CIR_BURST(cbs));
 
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
         if (shaper->eir != VTSS_BITRATE_DISABLED) {
             eir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(shaper->eir, resolution));
             ebs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->ebs, 4096));
@@ -1319,6 +1323,7 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *sha
             REG_WR(VTSS_HSCH_EIR_CFG(se),      0); /* Disable EIR */
             REG_WR(VTSS_HSCH_SE_DLB_SENSE(se), 0); /* Disable DLB */
         }
+#endif //VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB
         REG_WRM(VTSS_HSCH_SE_CFG(se),
                 VTSS_F_HSCH_SE_CFG_SE_FRM_MODE(shaper->mode),
                 VTSS_M_HSCH_SE_CFG_SE_FRM_MODE);
@@ -1348,9 +1353,11 @@ static vtss_rc fa_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vtss
     for (queue = 0; queue < 8; queue++) {
         u32 se = FA_HSCH_L0_SE(chip_port, queue);
         VTSS_RC(vtss_fa_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue], layer, se, chip_port, queue));
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
         REG_WRM(VTSS_HSCH_SE_CFG(se),
                 VTSS_F_HSCH_SE_CFG_SE_AVB_ENA(conf->shaper_queue[queue].credit_enable),
                 VTSS_M_HSCH_SE_CFG_SE_AVB_ENA);
+#endif
     }
 
     VTSS_D("Exit");
@@ -2117,7 +2124,9 @@ static vtss_rc fa_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_b
     memset(&shaper, 0, sizeof(shaper));
     shaper.rate  = rate;       // kbps
     shaper.level = (4096 * 4); // 16 kbytes burst size
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
     shaper.eir   = VTSS_BITRATE_DISABLED;
+#endif
     for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
         /* CPU port shaper at layer 2 (kbps) */
         shaper.rate  = rate;       // kbps

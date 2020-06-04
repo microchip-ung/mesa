@@ -9,6 +9,11 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 
 #---------- Frame test --------------------------------------------------------
 
+check_capabilities do
+    $cap_dlb_shaper = ($ts.dut.call("mesa_capability", "MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB") != 0)
+    assert(($cap_dlb_shaper == true), "Credit based shaping it not supported")
+end
+
 def shaper_test(idx_tx, idx_rx, prio, rate, level, credit_enable)
     # Setup shaper
     port = $ts.dut.p[idx_rx]
