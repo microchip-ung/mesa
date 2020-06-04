@@ -46,13 +46,6 @@ Aquantia Firmware and API:
 Disclaimers
 ===========
 
-Serval-T is unstable
---------------------
-
-This release has some open issues affecting the Serval-T SKUs. The issues impact
-traffic integrity and SPI access to NOR/NAND devices. Due to this we encourage
-Serval-T customer to stay on the 2019.12 release until this has been fixed.
-
 SparX-5/5i (all SKUs)
 ---------------------
 
@@ -60,27 +53,34 @@ The support of SparX-5/5i (all SKUs) in this release is considered to be in BETA
 quality. It can be used for early access, to evaluate the features and/or start
 SW integration. It is not suitable for production use.
 
+
 General
 =======
 
-This release does contain a significant amount of bug and stability fixes.
-Especially the SerDes settings have been improved and are much more reliable than
-in the MESA-2019.12 version.
+10G/25G 802.3ap Backplane Ethernet (KR) has been added for SparX-5/5i (all SKUs)
+--------------------------------------------------------------------------------
 
-Hierarchical ACLs
-=================
+This release updates the existing KR API, and with this it introduce support for
+the SparX-5/5i family. The existing APIs prefixed with `mesa_port_10g_kr_*` has
+been renamed to `mesa_port_kr_*`. Beside from this change, a number of
+additional APIs has been added to fully support SparX-5/5i.
 
-Support for Hierarchical ACLs has been added for SparX-5/5i products.
-This feature provides 6 ACLs for frame processing:
 
-* Ingress Port ACL (`MESA_HACL_TYPE_IPACL`)
-* Ingress VLAN ACL (`MESA_HACL_TYPE_IVACL`)
-* Ingress Router ACL (`MESA_HACL_TYPE_IRACL`)
-* Egress Router ACL (`MESA_HACL_TYPE_ERACL`)
-* Egress VLAN ACL (`MESA_HACL_TYPE_EVACL`)
-* Egress Port ACL (`MESA_HACL_TYPE_EPACL`)
+Serval-T is regressions solved
+------------------------------
 
-The following new functions have been added in the `security.h` header
-to support this feature: `mesa_hace_init`, `mesa_hace_add`, `mesa_hace_del`,
-`mesa_hace_counter_get`, and `mesa_hace_counter_clear`.
+Affected SKUs: VSC7410, VSC7415, VSC7430, VSC7435, VSC7436, VSC7437 and VSC7440
+
+The MESA-2020.03 release had some NOR/NAND issues. These issues are now solved
+in this release, and Serval-T is considered stable again.
+
+
+VSC7414, VSC7416 and VSC7418 (Serval1 family) removed
+-----------------------------------------------------
+
+The SW support of VSC7414, VSC7416 and VSC7418 has been removed in this release.
+
+Customer who needs support for these parts needs to stay at the MESA-2020.03
+release.
+
 
