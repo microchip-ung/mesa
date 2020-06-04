@@ -12,7 +12,8 @@ typedef struct {
 } vtss_chip_counter_t;
 
 typedef struct {
-    vtss_chip_counter_t c[2];
+    vtss_chip_counter_t emac;
+    vtss_chip_counter_t pmac;
 } vtss_dual_counter_t;
 
 typedef struct {

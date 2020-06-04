@@ -2661,17 +2661,17 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 
 #define REG_CNT_1G(name, i, cnt, clr)                \
 {                                                    \
-    REG_CNT_1G_ONE(name, i, cnt.c[0], clr);          \
-    REG_CNT_1G_ONE(PMAC_##name, i, cnt.c[1], clr);   \
+    REG_CNT_1G_ONE(name, i, cnt.emac, clr);          \
+    REG_CNT_1G_ONE(PMAC_##name, i, cnt.pmac, clr);   \
 }
 
 #define REG_CNT_10G(name, i, cnt, clr)               \
 {                                                    \
-    REG_CNT_10G_ONE(name, i, cnt.c[0], clr);         \
-    REG_CNT_10G_ONE(PMAC_##name, i, cnt.c[1], clr);  \
+    REG_CNT_10G_ONE(name, i, cnt.emac, clr);         \
+    REG_CNT_10G_ONE(PMAC_##name, i, cnt.pmac, clr);  \
 }
 
-#define CNT_SUM(cnt) (cnt.c[0].value + cnt.c[1].value)
+#define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
 
 static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
                                             u32 *addr, vtss_chip_counter_t *counter, BOOL clear)
@@ -3362,19 +3362,26 @@ static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
     u32  i;
     char buf1[32], buf2[32];
     const char *name;
+    vtss_chip_counter_t *c;
 
     for (i = 0; i < 2; i++) {
-        name = (i ? "pmac" : "emac");
+        if (i) {
+            name = "pmac";
+            c = &c1->pmac;
+        } else {
+            name = "emac";
+            c = &c1->emac;
+        }
         sprintf(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_fa_debug_cnt(pr, buf1, NULL, &c1->c[i], NULL);
+            vtss_fa_debug_cnt(pr, buf1, NULL, c, NULL);
         } else {
             if (strlen(col2) != 0) {
                 sprintf(buf2, "%s_%s", name, col2);
             } else {
                 strcpy(buf2, "");
             }
-            vtss_fa_debug_cnt(pr, buf1, buf2, &c1->c[i], &c2->c[i]);
+            vtss_fa_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
         }
     }
 }
@@ -3391,8 +3398,8 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
     VTSS_RC(fa_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
     if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
-        vtss_fa_debug_cnt(pr, "emac_ok_bytes", "out_bytes", &cnt.rx_ok_bytes.c[0], &cnt.tx_out_bytes);
-        vtss_fa_debug_cnt(pr, "pmac_ok_bytes", NULL, &cnt.rx_ok_bytes.c[1], NULL);
+        vtss_fa_debug_cnt(pr, "emac_ok_bytes", "out_bytes", &cnt.rx_ok_bytes.emac, &cnt.tx_out_bytes);
+        vtss_fa_debug_cnt(pr, "pmac_ok_bytes", NULL, &cnt.rx_ok_bytes.pmac, NULL);
         fa_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
         fa_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
         fa_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
@@ -3479,6 +3486,7 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+
 
 static char *fa_chip_port_to_str(vtss_state_t *vtss_state, vtss_phys_port_no_t chip_port, char *buf)
 {
