@@ -51,7 +51,7 @@ test "Port policer bit rate 100 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" 
     pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig], $pol_cnt, pconf)
 
    #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure([ig], eg, 1000, 5,     false,            false,           [100000],         [4],         true)
+    measure([ig], eg, 1000, 5,     false,            false,           [100000],         [6],         true)
 end
 
 test "Port policer bit rate 1000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
@@ -106,7 +106,7 @@ test "Port policer frame rate 100 fps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}"
     pconf = $ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[ig], $pol_cnt, pconf)
 
    #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure([ig], eg, 1000, 3,     true,            false,           [100],             [1],         true)
+    measure([ig], eg, 1000, 3,     true,            false,           [100],             [2],         true)
 end
 
 test "Port policer frame rate 1000 fps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
