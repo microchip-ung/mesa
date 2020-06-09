@@ -428,9 +428,9 @@ typedef enum {
 #endif
 
 #if defined(VTSS_CHIP_9662)
-#if (VTSS_PORT_COUNT < 4)
+#if (VTSS_PORT_COUNT < 5)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 4 /**< Number of ports */
+#define VTSS_PORT_COUNT 5 /**< Number of ports */
 #endif
 #endif
 

@@ -40,6 +40,7 @@ static port_map_t port_table_sunrise[] = {
     {1, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {2, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {3, MESA_MIIM_CONTROLLER_0, 7, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
 };
 
 static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
@@ -212,7 +213,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
 
-    board->port_cnt = 4;
+    board->port_cnt = (inst->props.target == 0x9662 ? 5 : 4);
 
     board->entry = (lan9668_port_info_t*) calloc(board->port_cnt, sizeof(lan9668_port_info_t));
     if (board->entry == NULL) {

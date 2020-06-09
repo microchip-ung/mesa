@@ -21,6 +21,7 @@ char *mesa_port_spd2txt(mesa_port_speed_t speed);
 #endif
 
 typedef enum {
+    MSCC_PORT_TYPE_NONE,  /** None */
     MSCC_PORT_TYPE_CU,    /** Copper port */
     MSCC_PORT_TYPE_DUAL,  /** Dual media port */
     MSCC_PORT_TYPE_SFP    /** SFP port */

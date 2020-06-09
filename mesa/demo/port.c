@@ -384,6 +384,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                     T_E("Could not configure SFP port(%u)", port_no);
                 }
             }
+        } else {
+            conf.speed = pc->speed;
         }
     }
 
@@ -1219,6 +1221,10 @@ static void port_init(meba_inst_t inst)
             break;
         case MESA_PORT_INTERFACE_SERDES:
             entry->media_type = MSCC_PORT_TYPE_SFP;
+            pc->speed = MESA_SPEED_1G;
+            break;
+        case MESA_PORT_INTERFACE_NO_CONNECTION:
+            entry->media_type = MSCC_PORT_TYPE_NONE;
             pc->speed = MESA_SPEED_1G;
             break;
         case MESA_PORT_INTERFACE_QXGMII:
