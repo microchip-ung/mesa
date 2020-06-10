@@ -4149,12 +4149,11 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         }
     }
 
-    if (tas_state_act && (div > 1)) { /* SAT state analyze must be printed */
 #define PRIO_MASK 0x01
 #define CYCLE_TIME 12480000
+    if (tas_state_act && (div > 1)) { /* SAT state analyze must be printed */
         vtss_port_no_t   chip_port = VTSS_CHIP_PORT(tas_port-1);
         u32              gate_state, index = 0, rc = 0;
-        i32              off;
         u64              tc;
         vtss_timestamp_t ts0, ts1, distance;
         struct {
@@ -4167,7 +4166,6 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         while (1) {
             _vtss_ts_domain_timeofday_get(NULL, 0, &ts1, &tc);
             rc = (vtss_fa_rd(vtss_state, VTSS_HSCH_TAS_GATE_STATE, &gate_state) != VTSS_RC_OK) ? (rc + 1) : rc;
-            gate_state &= PRIO_MASK;
             if ((index == 0) || (gate_state != buffer[index-1].gate_state)) {
                 buffer[index].gate_state = (u8)(gate_state);
                 buffer[index].ts = ts1;
@@ -4177,11 +4175,10 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         }
 
         for (i=0; i<index; ++i) {
-            if ((i > 1) && (buffer[i].gate_state != 0)) {
+            if (i > 1) {
                 distance = buffer[i].ts;
-                (void)vtss_timestampSub(&distance, &buffer[i-2].ts);
-                off = distance.nanoseconds - CYCLE_TIME;
-                pr("state %X  sec %u  nsec %u  distance %u  off %i\n", buffer[i].gate_state, buffer[i].ts.seconds, buffer[i].ts.nanoseconds, distance.nanoseconds, off);
+                (void)vtss_timestampSub(&distance, &buffer[i-1].ts);
+                pr("state %X  sec %u  nsec %u  distance %u\n", buffer[i].gate_state, buffer[i].ts.seconds, buffer[i].ts.nanoseconds, distance.nanoseconds);
             }
         }
         pr("index %u  ts1.seconds %u  ts0.seconds %u  rc %u\n", index, ts1.seconds, ts0.seconds, rc);
