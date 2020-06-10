@@ -168,7 +168,7 @@ Open3.popen2e("tcpdump -ttttt -en -r #{$pcap_file}") do |stdin, stdout, wait_thr
                                     cycle_time = last_time - rx_time[pcp_idx]  # Calculate cycle time
                                     if (cycle_time < (exp_cycle_f - max_diff)) # Count cycles too short
                                         $short_cycle[pcp_idx] += 1
-                                        puts("short  pcp_idx #{pcp_idx}  last_time #{last_time}  cycle_time #{cycle_time}  diff #{cycle_time - exp_cycle_f}  max_diff #{max_diff}  percent #{((cycle_time - exp_cycle_f) / exp_cycle_f) * 100}")
+                                        puts("short  pcp_idx #{pcp_idx}  last_time #{last_time}  cycle_time #{cycle_time}  diff #{exp_cycle_f - cycle_time}  max_diff #{max_diff}  percent #{((exp_cycle_f - cycle_time) / exp_cycle_f) * 100}")
                                     end
                                     if (cycle_time > (exp_cycle_f + max_diff)) # Count cycles too long
                                         $long_cycle[pcp_idx] += 1
@@ -193,18 +193,39 @@ Open3.popen2e("tcpdump -ttttt -en -r #{$pcap_file}") do |stdin, stdout, wait_thr
 #    exit_status = wait_thr.value # Process::Status object returned.
 end
 
-zero_expected = true
+$pcap_saved = false
+def save_pcap_file
+    if (!$pcap_saved)
+        copy_file_name = "#{$pcap_file}.#{Time.now.nsec}"
+        puts"Saved #{$pcap_file} to #{copy_file_name}"
+        system("date")
+        system("cp #{$pcap_file} #{copy_file_name}")
+    end
+    $pcap_saved = true
+end
+
+if (last_time < (pre_tx_time + count_sec))
+    if ($options[:frame_count] == :all)
+        puts "Did not find expected number of frames in pcap. counted #{count}. pre_tx_time #{pre_tx_time} duration #{last_time - pre_tx_time} count_sec #{count_sec}"
+    end
+    if ($options[:frame_count] == :pcp)
+        puts "Did not find expected number of frames in pcap. counted #{pcp_count}. pre_tx_time #{pre_tx_time} duration #{last_time - pre_tx_time} count_sec #{count_sec}"
+    end
+    save_pcap_file
+end
 
 if ($options[:frame_count] == :all)
     exp = $options[:exp_count][0].to_i
-    zero_expected = (exp == 0)
     tolerance = exp_tolerance[0].to_i
     if ((count > (exp + tolerance)) || (count < (exp - tolerance)))
         $stderr.puts "Analyze failed. Not expected number of frames counted.  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
+        if ((exp != 0) && (count == 0))
+            save_pcap_file
+        end
         exit 7
     end
 
-    puts "Analyze succeeded."
+    puts "------Analyze succeeded.------"
     exit 0
 end
 
@@ -212,12 +233,15 @@ if ($options[:frame_count] == :pcp)
     $options[:pcp_values].each_with_index do |pcp_value, pcp_idx|
         count = pcp_count[pcp_idx]
         exp = $options[:exp_count][pcp_idx].to_i
-        zero_expected = zero_expected && (exp == 0)
         tolerance = exp_tolerance[pcp_idx].to_i
         if ((count > (exp + tolerance)) || (count < (exp - tolerance)))
-            $stderr.puts "Analyze failed. Not expected number of frames counted.  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
+            $stderr.puts "Analyze failed. Not expected number of frames counted. pcp #{pcp_value}  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
+            if ((exp != 0) && (count == 0))
+                save_pcap_file
+            end
             exit 7
         end
+        puts "------Expected number of frames counted. pcp #{pcp_value}------"
     end
 
     if ($options[:exp_cycle] != nil)
@@ -226,22 +250,18 @@ if ($options[:frame_count] == :pcp)
             max = max_cycle[pcp_idx]
             short = $short_cycle[pcp_idx]
             long = $long_cycle[pcp_idx]
-            if ((short > 4) || (long > 2))
+            if ((short > 4) || (long > 8))
                 $stderr.puts "Analyze failed.  Cycle time is not as expected. pcp #{pcp_value}  exp_cycle_f #{exp_cycle_f}"
-                $stderr.puts "min #{min}  max #{max}  min_lim #{exp_cycle_f - max_diff}  max_lim #{exp_cycle_f + max_diff}\n\
-                              min_percent #{((exp_cycle_f - min) / exp_cycle_f) * 100}  max_percent #{((max - exp_cycle_f) / exp_cycle_f) * 100}"
-                $stderr.puts "short #{short}  long #{long}  distance_count #{distance_count}"
+                puts "min #{min}  max #{max}  min_lim #{exp_cycle_f - max_diff}  max_lim #{exp_cycle_f + max_diff}\n\
+                      min_percent #{((exp_cycle_f - min) / exp_cycle_f) * 100}  max_percent #{((max - exp_cycle_f) / exp_cycle_f) * 100}"
+                puts "short #{short}  long #{long}  distance_count #{distance_count}  frame_time #{frame_time}"
+                puts "short_cycle #{$short_cycle}  long_cycle #{$long_cycle}"
                 exit 7
             end
         end
-        puts "short_cycle #{$short_cycle}  long_cycle #{$long_cycle}"
+        puts "------Expected cycle length measured. short_cycle #{$short_cycle}  long_cycle #{$long_cycle}------"
     end
 
-    puts "Analyze succeeded."
+    puts "------Analyze succeeded.------"
     exit 0
-end
-
-if (!zero_expected && ((last_time - pre_tx_time) < count_sec))  # Only check if frames are expected to be received
-    $stderr.puts "Did not find expected number of frames in pcap. counted #{count}. pre_tx_time #{pre_tx_time} duration #{last_time - pre_tx_time} count_sec #{count_sec}"
-    exit 6
 end
