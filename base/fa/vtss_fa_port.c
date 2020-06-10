@@ -1163,7 +1163,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
     // Enable IRQ propagation
-    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0xFFFFFFFF);
+//    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0xFFFFFFFF);
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
