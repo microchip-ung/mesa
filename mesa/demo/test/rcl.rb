@@ -164,7 +164,8 @@ def rte_test(t)
         rce = $ts.dut.call("mesa_rce_init")
         rce["id"] = (idx + 1)
         k = rce["key"]
-        k["port_no"] = $ts.dut.p[$idx_tx]
+        port = $ts.dut.p[$idx_tx]
+        k["port_no"] = port
         rce_set(k , "smac", v, :smac)
         vcap_vm_set(k, "mac", v, :mac)
         vcap_bit_set(k, "tagged", v, :tagged)
@@ -178,7 +179,8 @@ def rte_test(t)
         rce_set(a, "rtp_sub_id", v, :rtp_sub_id)
         rce_set(a, "rtp_inbound", v, :rtp_inbound)
         a["port_enable"] = true
-        if (v.key?:llct)
+        if (v.key?:llct and port < 2)
+            # Only ingress port 0 and 1 support LLCT
             a["llct_enable"] = true
             a["llct_port_no"] = $ts.dut.p[v[:llct]]
         else
