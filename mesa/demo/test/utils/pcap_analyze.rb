@@ -206,10 +206,10 @@ end
 
 if (last_time < (pre_tx_time + count_sec))
     if ($options[:frame_count] == :all)
-        puts "Did not find expected number of frames in pcap. counted #{count}. pre_tx_time #{pre_tx_time} duration #{last_time - pre_tx_time} count_sec #{count_sec}"
+        puts "count_sec time has NOT elapsed. counted #{count}. pre_tx_time #{pre_tx_time} last_time #{last_time} count_sec #{count_sec}"
     end
     if ($options[:frame_count] == :pcp)
-        puts "Did not find expected number of frames in pcap. counted #{pcp_count}. pre_tx_time #{pre_tx_time} duration #{last_time - pre_tx_time} count_sec #{count_sec}"
+        puts "count_sec time has NOT elapsed. counted #{pcp_count}. pre_tx_time #{pre_tx_time} last_time #{last_time} count_sec #{count_sec}"
     end
     save_pcap_file
 end
