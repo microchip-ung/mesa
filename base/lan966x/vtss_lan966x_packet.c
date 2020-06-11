@@ -566,6 +566,22 @@ static vtss_rc lan966x_rx_frame(struct vtss_state_s  *vtss_state,
     return rc;
 }
 
+static vtss_rc lan966x_inj_wr(vtss_state_t *vtss_state, u32 data)
+{
+    u32 cnt = 0, val;
+
+    do {
+        REG_RD(QS_INJ_STATUS, &val);
+        cnt++;
+        if (cnt == 10) {
+            VTSS_E("FIFO not ready");
+            return VTSS_RC_OK;
+        }
+    } while ((QS_INJ_STATUS_FIFO_RDY_X(val) & 0x1) == 0);
+    REG_WR(QS_INJ_WR(0), data);
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
                                     const vtss_packet_tx_ifh_t *const ifh,
                                     const u8 *const frame,
@@ -597,7 +613,7 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
 
     // Write the IFH to the chip.
     for (w = 0; w < LAN966X_IFH_WORDS; w++) {
-        REG_WR(QS_INJ_WR(grp), ifh->ifh[w]);
+        VTSS_RC(lan966x_inj_wr(vtss_state, ifh->ifh[w]));
     }
 
     /* Write words, round up */
@@ -609,12 +625,12 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
 #else
         val = ((buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0]);
 #endif
-        REG_WR(QS_INJ_WR(grp), val);
+        VTSS_RC(lan966x_inj_wr(vtss_state, val));
     }
 
     /* Add padding */
     while (w < (60 / 4)) {
-        REG_WR(QS_INJ_WR(grp), 0);
+        VTSS_RC(lan966x_inj_wr(vtss_state, 0));
         w++;
     }
 
@@ -625,7 +641,7 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
            QS_INJ_CTRL_EOF_M);
 
     /* Add dummy CRC */
-    REG_WR(QS_INJ_WR(grp), 0);
+    VTSS_RC(lan966x_inj_wr(vtss_state, 0));
 
     return VTSS_RC_OK;
 }
