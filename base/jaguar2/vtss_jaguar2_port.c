@@ -3648,7 +3648,7 @@ vtss_rc vtss_jr2_port_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
 {
-    u32 port, i, value;
+    u32 port, i, j, value;
     BOOL vlan_counters = FALSE;
 
     /* Initialize policers */
@@ -3703,16 +3703,19 @@ static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
     }
 
     /* Setup ANA_AC SDX/VLAN statistics:
-       - Even counters (0,2,4) are byte counters
-       - Odd counters (1,3,5) are frame counters */
+       - Counters (0,1,2) are byte counters (40-bit)
+       - Counters (3,4,5) are frame counters (32-bit) */
     for (i = 0; i < 6; i++) {
+        j = (i % 3);
         if (vlan_counters) {
-            value = (i < 2 ? 0x08 : i < 4 ? 0x10 : 0x40); /* UC/MC/BC */
+            // 0/3: UC, 1/4: MC, 2/5: BC
+            j = (j == 0 ? 3 : j == 1 ? 4 : 6);
         } else {
-            value = (1<<(i/2));
+            // 0/3: Green, 1/4: Yellow, 2/5: Red
         }
+        value = (1 << j);
         JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(i),
-               VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(i & 1 ? 0 : 1));
+               VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(i < 3 ? 1 : 0));
         JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(i),
                VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(value));
     }

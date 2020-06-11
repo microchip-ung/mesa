@@ -733,12 +733,12 @@ static vtss_rc jr2_vlan_counters_update(vtss_state_t         *vtss_state,
         chip_counter = (i == 0 ? &cnt->rx_unicast : i == 1 ? &cnt->rx_multicast : &cnt->rx_broadcast);
 
         /* Update byte counter */
-        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i * 2), &lsb);
+        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i), &lsb);
         JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_MSB_CNT(vid, i), &msb);
         vtss_cmn_counter_40_update(lsb, msb, &chip_counter->bytes, clear);
 
         /* Update frame counter */
-        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i * 2 + 1), &lsb);
+        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i + 3), &lsb);
         vtss_cmn_counter_32_update(lsb, &chip_counter->frames, clear);
 
         /* Update VLAN countes */

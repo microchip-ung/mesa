@@ -658,12 +658,12 @@ static vtss_rc fa_vlan_counters_update(vtss_state_t         *vtss_state,
         chip_counter = (i == 0 ? &cnt->rx_unicast : i == 1 ? &cnt->rx_multicast : &cnt->rx_broadcast);
 
         /* Update byte counter */
-        REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i * 2), &lsb);
+        REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i), &lsb);
         REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_MSB_CNT(vid, i), &msb);
         vtss_cmn_counter_40_update(lsb, msb, &chip_counter->bytes, clear);
 
         /* Update frame counter */
-        REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i * 2 + 1), &lsb);
+        REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(vid, i + 3), &lsb);
         vtss_cmn_counter_32_update(lsb, &chip_counter->frames, clear);
 
         /* Update VLAN countes */
@@ -1904,7 +1904,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     vtss_l2_state_t       *state = &vtss_state->l2;
     vtss_vlan_port_conf_t *conf = &state->vlan_port_conf[0];
     vtss_port_no_t        port_no;
-    u32                   port, msti, i, value, frames;
+    u32                   port, msti, i, j, value, frames;
     BOOL                  vlan_counters = FALSE;
     BOOL                  psfp_counters = FALSE;
 
@@ -2009,20 +2009,23 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     }
 
     /* Setup ANA_AC SDX/VLAN statistics:
-       - Even counters (0,2,4) are byte counters
-       - Odd counters (1,3,5) are frame counters */
+       - Counters (0,1,2) are byte counters (40-bit)
+       - Counters (3,4,5) are frame counters (32-bit) */
     for (i = 0; i < 6; i++) {
+        j = (i % 3);
         if (vlan_counters) {
-            value = (i < 2 ? 0x08 : i < 4 ? 0x10 : 0x40); /* UC/MC/BC */
+            // 0/3: UC, 1/4: MC, 2/5: BC
+            j = (j == 0 ? 3 : j == 1 ? 4 : 6);
         } else {
-            value = (1<<(i/2)); /* Green/yellow/red */
+            // 0/3: Green, 1/4: Yellow, 2/5: Red
         }
-        frames = (i & 1);
+        frames = (i > 2);
         if (psfp_counters && !frames) {
             /* Enable PSFP counters */
             frames = TRUE;
-            value = (1<<(7 + i/2)); /* Match/GateDiscard/FilterDiscard */
+            j += 7; /* Match/GateDiscard/FilterDiscard */
         }
+        value = (1 << j);
         REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(i),
                VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(frames ? 0 : 1));
         REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(i),

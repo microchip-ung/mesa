@@ -140,8 +140,8 @@ static vtss_rc fa_evc_isdx_counter_update(vtss_state_t *vtss_state,
     u32 frames, lsb, msb;
 
     /* Read frame and byte counters */
-    REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(idx, i * 2 + 1), &frames);
-    REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(idx, i * 2), &lsb);
+    REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(idx, i + 3), &frames);
+    REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(idx, i), &lsb);
     REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_MSB_CNT(idx, i), &msb);
 
     /* Update counters */
