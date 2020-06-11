@@ -12,9 +12,11 @@ meta = {
 $ts = get_test_setup("switchdev_pc_b2b_4x")
 
 test "bridge_init" do
+  # Must disable IPv6 before enabling the RTE, as the RTE snoops on everything
+  # running on a given port.
+  $ts.dut.run "sh -c 'echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6'"
   basic_br_init
   sleep 5
-
 end
 
 test "rte_config" do
