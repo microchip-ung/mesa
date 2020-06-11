@@ -13,8 +13,6 @@ require 'net/http'
 require "packetfu"
 require 'yaml'
 
-require_relative './et.rb'
-
 class CliIO
     attr_accessor :timeout
 

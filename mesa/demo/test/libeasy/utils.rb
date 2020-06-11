@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 require 'ipaddr'
-require_relative 'et'
 
 def hexstr s
     ss = ""

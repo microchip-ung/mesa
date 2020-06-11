@@ -5,7 +5,7 @@
 
 require 'open3'
 require 'optparse'
-require_relative './test-setup.rb'
+require_relative './test-setup'
 require_relative './utils'
 
 $options = {}
