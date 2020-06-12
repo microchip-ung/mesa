@@ -32,7 +32,7 @@ def ef_clone_
     if File.exists?($git_cache)
         sys "cd #{$git_cache} && git fetch"
     else
-        sys "cd /easytest/local/git-cache/ && git clone --quiet --bare --mirror https://bitbucket.microchip.com/scm/unge/sw-tools-easyframes.git ef"
+        sys "cd /easytest/local/git-cache/ && git clone --quiet --bare --mirror https://https://github.com/microchip-ung/easyframes.git ef"
     end
 
     sys "git clone --quiet #{$git_cache} #{$src_dir}" if not File.exists?($src_dir)
