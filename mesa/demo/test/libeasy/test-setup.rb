@@ -289,6 +289,9 @@ class MesaDut
             when /b: not found/ #in case sysrq("b") fails
                 sw_reboot
                 return
+            when /b: command not found/ #in case sysrq("b") fails
+                @io.send "\necho 'b' > /proc/sysrq-trigger\n" # in case we are in qemu
+                return
             end
         end
 
