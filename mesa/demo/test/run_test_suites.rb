@@ -82,16 +82,16 @@ $systems.each { |system|
     run_("tar xzf et.tar.gz -C #{system[:name]}-test")
 
     puts("Run all test suites on system #{system[:name]} in a thread")
-#    threads << Thread.new do
+    threads << Thread.new do
         system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"
-#    end
+    end
 
 }
 
-#puts "-----Wait for all tests to complete-----"
-#threads.each do |t|
-#  t.join
-#end
+puts "-----Wait for all tests to complete-----"
+threads.each do |t|
+  t.join
+end
 puts "-----All tests are completed-----"
 
 puts "-----Move all test-suite log files from created test folders to test folder-----"
