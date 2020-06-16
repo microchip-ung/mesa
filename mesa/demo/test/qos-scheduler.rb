@@ -93,7 +93,7 @@ test "Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
     else
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-        measure(ig, eg, 600,  1,     false,            false,           [0,0,990000000],  [120,250,2], true,              [0,3,7]) # On LAN966X FPGA the frame size must be "small"
+        measure(ig, eg, 600,  1,     false,            false,           [0,0,990000000],  [150,250,2], true,              [0,3,7]) # On LAN966X FPGA the frame size must be "small"
     else
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [0,50,2],    true,              [0,3,7]) # On ServalT some lower priority frames are slipping through
     end
