@@ -88,6 +88,7 @@ def run_suites(system)
     $test_suites.each { |suite|
         puts("run suite #{suite} on system #{system}")
         res = run("./#{suite} > #{system}.#{suite}.log", false)
+#res = 1
         if !res
             puts "Failed running suite #{suite} on system #{system}"
         end
