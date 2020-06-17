@@ -680,6 +680,10 @@ static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, uint8_t
         *result = 7;
         break;
 
+    case VTSS_PACKET_PTP_ACTION_AFI_NONE:
+        *result = 0;
+        break;
+
     default:
         VTSS_E("Invalid PTP action (%d)", ptp_action);
         *result = 0;
