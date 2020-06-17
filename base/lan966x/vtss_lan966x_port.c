@@ -495,7 +495,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    value, link_speed, delay = 0, pfc_mask;
     BOOL                   disable = conf->power_down;
-    vtss_port_speed_t      speed = conf->speed;
+    vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
 
     /* Verify speed and interface type */
@@ -507,7 +507,6 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         link_speed = 2;
         break;
     case VTSS_SPEED_1G:
-    case VTSS_SPEED_2500M:
         link_speed = 1;
         break;
     default:
@@ -520,6 +519,15 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         disable = 1;
         break;
     case VTSS_PORT_INTERFACE_GMII:
+    case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SGMII_CISCO:
+        sgmii = 1;
+        break;
+    case VTSS_PORT_INTERFACE_SERDES:
+        if (speed != VTSS_SPEED_1G) {
+            VTSS_E("illegal speed, port %u", port);
+            return VTSS_RC_ERROR;
+        }
         break;
     default:
         VTSS_E("illegal interface, port %u", port);
@@ -637,7 +645,37 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_NSLEEP(1000);
     REG_WR(DEV_MAC_HDX_CFG(port), value);
 
-    // TBD: PCS setup
+    // PCS setup
+    if (sgmii) {
+        // Set whole register
+        REG_WR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
+    } else {
+        // Clear specific bit only
+        REG_WRM_CLR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA_M);
+    }
+
+    REG_WR(DEV_PCS1G_SD_CFG(port),
+           DEV_PCS1G_SD_CFG_SD_SEL(conf->sd_internal ? 0 : 1) |
+           DEV_PCS1G_SD_CFG_SD_POL(conf->sd_active_high) |
+           DEV_PCS1G_SD_CFG_SD_ENA(conf->sd_enable));
+
+    // Enable/disable PCS
+    REG_WR(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA(disable ? 0 : 1));
+
+    if (conf->if_type == VTSS_PORT_INTERFACE_SGMII) {
+        REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
+    } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
+        // Complete SGMII aneg
+        REG_WR(DEV_PCS1G_ANEG_CFG(port),
+               DEV_PCS1G_ANEG_CFG_ADV_ABILITY(0x0001) |
+               DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
+               DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) |
+               DEV_PCS1G_ANEG_CFG_ENA(1));
+        REG_WR(DEV_PCS1G_STICKY(port), 0xffffffff);
+    }
+
+    // Update vtss_state database accordingly
+    lan966x_port_clause_37_control_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
 
     /* Set Max Length and maximum tags allowed */
     REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
