@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2018 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -140,15 +140,6 @@ static mesa_rc aqr_conf_set_private(meba_phy_device_t *dev,
         AQR_TEST_RC(AQ_API_SetLowPower(&aq_port));
         mesa_port_list_set(&priv->phy_shutdown, data->port_no, TRUE);
         return AQR_2_MESA_RC(aq_rc);
-    }
-
-    if (!(data->port_no % 2)) {
-        T_D("aqr_conf_set_private mmd_read, port no. not double");
-        AQ_API_MDIO_Write(aq_port.PHY_ID, 1, 0xe400, 7);
-        uint32_t mdix_reg_val = 0;
-        if ((mdix_reg_val = AQ_API_MDIO_Read(aq_port.PHY_ID, 1, 0xe400)) != 7) {
-            T_E("failed to set mdiSwap on port_no:%d. Currently, addr:0xe400 has value:%d\n", data->port_no, mdix_reg_val);
-        }
     }
 
     if ((aq_rc = AQ_API_GetAutonegotiationControl(&aq_port, &aq_autoneg_config)) != AQ_RET_OK) {
