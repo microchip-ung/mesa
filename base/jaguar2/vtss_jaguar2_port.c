@@ -2659,6 +2659,7 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
     vtss_port_lb_t lb = vtss_state->port.test_conf[port_no].loopback;
     vtss_port_conf_t   *conf = &vtss_state->port.conf[port_no];
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(port);
 
     VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst, &serdes_type));
 
@@ -2671,8 +2672,28 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
         if (mode != VTSS_SERDES_MODE_QSGMII || (port % 4) == 0) {
             VTSS_RC(jr2_sd6g_cfg(vtss_state, port_no, mode, 1 << serdes_inst));
         }
-        break;
+    case JR2_SERDES_TYPE_10G:
+        if (lb == VTSS_PORT_LB_EQUIPMENT || lb == VTSS_PORT_LB_DISABLED) {
+            JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP);
 
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(lb == VTSS_PORT_LB_DISABLED ? 0 : 2),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
+
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
+
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
+        } else {
+            VTSS_E("Loopback not supported for port: %u", port_no);
+            return VTSS_RC_ERROR;
+        }
+        return VTSS_RC_OK;
     default:
         break;
     }
