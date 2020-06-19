@@ -1278,6 +1278,20 @@ vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_irq_activity(vtss_inst_t inst,
+                                  u32 *const mask)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, 0)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_irq_activity, mask);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_port_kr_event_enable(const vtss_inst_t     inst,
                                   const vtss_port_no_t port_no,
                                   BOOL enable)

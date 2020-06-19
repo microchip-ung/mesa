@@ -1033,6 +1033,13 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_port_kr_irq_activity(vtss_state_t *vtss_state,
+                                       u32 *const irq_mask)
+{
+    REG_RD(VTSS_CPU_KR10G_INTR_RAW, irq_mask);
+    return VTSS_RC_OK;
+}
+
 
 static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
@@ -3719,6 +3726,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
         state->kr_irq_get = fa_port_kr_irq_get;
+        state->kr_irq_activity = fa_port_kr_irq_activity;
         state->kr_event_enable = fa_port_kr_event_enable;
         state->kr_fw_req = fa_port_kr_fw_req;
         state->kr_frame_set = fa_port_kr_frame_set;

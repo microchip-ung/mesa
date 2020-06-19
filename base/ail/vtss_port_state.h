@@ -444,6 +444,9 @@ typedef struct {
                            const vtss_port_no_t port_no,
                            u32 *const vector);
 
+    vtss_rc (* kr_irq_activity)(vtss_inst_t inst,
+                                u32 *const irq_mask);
+
     vtss_rc (* kr_event_enable)(vtss_inst_t inst,
                                 const vtss_port_no_t port_no,
                                 BOOL enable);

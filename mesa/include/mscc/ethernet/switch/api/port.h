@@ -852,6 +852,12 @@ mesa_rc mesa_port_kr_event_enable(const mesa_inst_t inst,
                                   mesa_bool_t enable)
     CAP(PORT_KR_IRQ);
 
+// Get current KR interrupt status across all ports
+// mask    [OUT]  A mask with one bit for each port.
+
+mesa_rc mesa_port_kr_irq_activity(mesa_inst_t inst,
+                                  uint32_t *const mask)
+    CAP(PORT_KR_IRQ);
 
 /**
  * \brief Get and clear KR interrupts

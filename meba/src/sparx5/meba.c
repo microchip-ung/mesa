@@ -661,45 +661,42 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 static mesa_rc kr_irq2port(meba_inst_t inst, mesa_irq_t chip_irq, mesa_port_no_t *port_no)
 {
     meba_board_state_t    *board = INST2BOARD(inst);
-    mesa_rc               rc = MESA_RC_OK;
+    mesa_rc               rc = MESA_RC_ERROR;
+    uint32_t              chip_port;
 
-    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
-        switch (chip_irq) {
-        case MESA_IRQ_KR_SD10G_0: *port_no = 0;  break;
-        case MESA_IRQ_KR_SD10G_1: *port_no = 1;  break;
-        case MESA_IRQ_KR_SD10G_2: *port_no = 2;  break;
-        case MESA_IRQ_KR_SD10G_3: *port_no = 3;  break;
-        case MESA_IRQ_KR_SD10G_4: *port_no = 4;  break;
-        case MESA_IRQ_KR_SD10G_5: *port_no = 5;  break;
-        case MESA_IRQ_KR_SD10G_6: *port_no = 6;  break;
-        case MESA_IRQ_KR_SD10G_7: *port_no = 7;  break;
-        case MESA_IRQ_KR_SD10G_8: *port_no = 8;  break;
-        case MESA_IRQ_KR_SD10G_9: *port_no = 9;  break;
-        case MESA_IRQ_KR_SD10G_10: *port_no = 10;  break;
-        case MESA_IRQ_KR_SD10G_11: *port_no = 11;  break;
-        case MESA_IRQ_KR_SD10G_12: *port_no = 12;  break;
-        case MESA_IRQ_KR_SD10G_13: *port_no = 13;  break;
-        case MESA_IRQ_KR_SD10G_14: *port_no = 14;  break;
-        case MESA_IRQ_KR_SD10G_15: *port_no = 15;  break;
-        case MESA_IRQ_KR_SD10G_16: *port_no = 16;  break;
-        case MESA_IRQ_KR_SD10G_17: *port_no = 17;  break;
-        case MESA_IRQ_KR_SD10G_18: *port_no = 18;  break;
-        case MESA_IRQ_KR_SD10G_19: *port_no = 19;  break;
-        default: rc = MESA_RC_ERROR;
-        }
-    } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
-        switch (chip_irq) {
-        case MESA_IRQ_KR_SD10G_12: *port_no = 48;  break;
-        case MESA_IRQ_KR_SD10G_13: *port_no = 49;  break;
-        case MESA_IRQ_KR_SD10G_14: *port_no = 50;  break;
-        case MESA_IRQ_KR_SD10G_15: *port_no = 51;  break;
-        case MESA_IRQ_KR_SD10G_16: *port_no = 52;  break;
-        case MESA_IRQ_KR_SD10G_17: *port_no = 53;  break;
-        case MESA_IRQ_KR_SD10G_18: *port_no = 54;  break;
-        case MESA_IRQ_KR_SD10G_19: *port_no = 55;  break;
-        default: rc = MESA_RC_ERROR;
+    // Convert chip IRQs to to chip ports
+    // and check if the chip port exists in the port map.
+    switch (chip_irq) {
+    case MESA_IRQ_KR_SD10G_0: chip_port = 12;  break;
+    case MESA_IRQ_KR_SD10G_1: chip_port = 13;  break;
+    case MESA_IRQ_KR_SD10G_2: chip_port = 14;  break;
+    case MESA_IRQ_KR_SD10G_3: chip_port = 15;  break;
+    case MESA_IRQ_KR_SD10G_4: chip_port = 48;  break;
+    case MESA_IRQ_KR_SD10G_5: chip_port = 49;  break;
+    case MESA_IRQ_KR_SD10G_6: chip_port = 50;  break;
+    case MESA_IRQ_KR_SD10G_7: chip_port = 51;  break;
+    case MESA_IRQ_KR_SD10G_8: chip_port = 52;  break;
+    case MESA_IRQ_KR_SD10G_9: chip_port = 53;  break;
+    case MESA_IRQ_KR_SD10G_10: chip_port = 54; break;
+    case MESA_IRQ_KR_SD10G_11: chip_port = 55; break;
+    case MESA_IRQ_KR_SD10G_12: chip_port = 56; break;
+    case MESA_IRQ_KR_SD10G_13: chip_port = 57; break;
+    case MESA_IRQ_KR_SD10G_14: chip_port = 58; break;
+    case MESA_IRQ_KR_SD10G_15: chip_port = 59; break;
+    case MESA_IRQ_KR_SD10G_16: chip_port = 60; break;
+    case MESA_IRQ_KR_SD10G_17: chip_port = 61; break;
+    case MESA_IRQ_KR_SD10G_18: chip_port = 62; break;
+    case MESA_IRQ_KR_SD10G_19: chip_port = 63; break;
+    default: rc = MESA_RC_ERROR;
+    }
+
+    for (mesa_port_no_t p = 0; p < board->port_cnt; p++) {
+        if (board->port[p].map.map.chip_port == chip_port) {
+            *port_no = p;
+            return MESA_RC_OK;
         }
     }
+
     return rc;
 }
 
@@ -1387,7 +1384,10 @@ static mesa_rc fa_meba_irq_enable(meba_inst_t inst,
     case MESA_IRQ_KR_SD10G_18:
     case MESA_IRQ_KR_SD10G_19:
         if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
-            return MESA_RC_ERROR;
+            // All KR IRQ instances are attempted to be enabled
+            // but not all are supported by the current board.
+            // kr_irq2port() checks for that.
+            return MESA_RC_OK; // Not used in the current board config
         }
         return mesa_port_kr_event_enable(NULL, port_no, enable);
 
@@ -1503,13 +1503,6 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
 
     case MEBA_EVENT_KR:
         // Handled in fa_meba_irq_enable
-        /* for (port_no = 0; port_no < board->port_cnt; port_no++) { */
-        /*     if (!is_phy_port(board->port[port_no].map.cap)) { */
-        /*         if ((rc = mesa_port_kr_event_enable(NULL, port_no, enable)) != MESA_RC_OK) { */
-        /*             T_E(inst, "mesa_port_kr_enable = %d", rc); */
-        /*         } */
-        /*     } */
-        /* } */
         break;
     default:
         return MESA_RC_NOT_IMPLEMENTED;    // Will occur as part of probing
@@ -1627,8 +1620,7 @@ static mesa_rc kr_handler(meba_inst_t inst,
     mesa_rc rc;
     mesa_port_no_t port_no = 0;
     if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
-        T_E(inst, "Mapping of IRQ (%d) to port failed",chip_irq);
-        return MESA_RC_ERROR;
+        return MESA_RC_OK; // Not used in the current board config
     }
 
     if ((rc = mesa_port_kr_event_enable(NULL, port_no, false)) != MESA_RC_OK) {
