@@ -684,7 +684,10 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     // Setup QoS - in reset
     VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, TRUE));
 
-    if (!disable) {
+    if (conf->if_type == VTSS_PORT_INTERFACE_NO_CONNECTION) {
+        /* Core: Enable port for frame transfer */
+        REG_WRM_SET(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
+    } else if (!disable) {
         /* Enable MAC module */
         REG_WR(DEV_MAC_ENA_CFG(port),
                DEV_MAC_ENA_CFG_RX_ENA_M |
