@@ -16,7 +16,8 @@ typedef enum {
     MSCC_INIT_CMD_INIT,      // Initialize module
     MSCC_INIT_CMD_INIT_WARM, // Initialize module after warm start
     MSCC_INIT_CMD_POLL,      // Poll module every second
-    MSCC_INIT_CMD_POLL_FAST  // Poll module fast
+    MSCC_INIT_CMD_POLL_FAST,  // Poll module fast
+    MSCC_INIT_CMD_POLL_FASTEST // Poll module even faster
 } mscc_appl_init_cmd_t;
 
 // Startup option

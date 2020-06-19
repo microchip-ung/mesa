@@ -403,7 +403,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (req->set) {
                 mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].stop_train = 0;
-                kr_conf_state[iport].aneg_start = 1;
+                kr_conf_state[iport].aneg_enable = 1;
                 mesa_port_kr_fec_t fec = {0};
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -988,165 +988,183 @@ static void dump_irq(u32 p, u32 irq, u32 time, u32 irqs)
     }
 }
 
-static void kr_poll(meba_inst_t inst)
+static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
 {
-    mesa_port_no_t        uport, iport;
+    mesa_port_no_t        uport;
     mesa_port_kr_conf_t   kr_conf;
     mesa_port_conf_t      pconf;
     mesa_port_kr_state_t  *krs;
     uint32_t              irq;
-    uint16_t              meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
     kr_appl_train_t       *kr;
     mesa_port_kr_status_t status;
     mesa_port_kr_fec_t fec = {0};
 
-    for (iport = 0; iport < meba_cnt; iport++) {
-        if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK ||
-            !kr_conf.aneg.enable || global_stop) {
-            continue;
-        }
-        uport = iport2uport(iport);
-        kr = &kr_conf_state[iport].tr;
-        krs = &kr->state;
 
-        if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
-            printf("-->Failure during port_kr_status_get\n");
-        }
+    if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK ||
+        !kr_conf.aneg.enable || global_stop) {
+        return;
+    }
+    uport = iport2uport(iport);
+    kr = &kr_conf_state[iport].tr;
+    krs = &kr->state;
 
-        if (kr_conf_state[iport].aneg_sm_deb && (status.aneg.sm != kr_conf_state[iport].aneg_sm_state)) {
-            printf("Port:%d - Aneg SM: %s Hist:%x (%d ms)\n",uport, kr_aneg_sm_2_txt(status.aneg.sm),
-                   status.aneg.hist, get_time_ms(&kr->time_start_aneg));
-            kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
-        }
+    if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+        printf("-->Failure during port_kr_status_get\n");
+    }
 
-        // Poll the IRQs
-        if ((mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK)
-            || (irq == 0)) {
-            continue;
-        }
+    if (kr_conf_state[iport].aneg_sm_deb && (status.aneg.sm != kr_conf_state[iport].aneg_sm_state)) {
+        printf("Port:%d - Aneg SM: %s Hist:%x (%d ms)\n",uport, kr_aneg_sm_2_txt(status.aneg.sm),
+               status.aneg.hist, get_time_ms(&kr->time_start_aneg));
+        kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
+    }
 
-        // Start the aneg timer if AN_XMIT_DISABLE IRQ
-        if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
-            (void)time_start(&kr->time_start_aneg);
-        }
+    // Poll the IRQs
+    if ((mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK)
+        || (irq == 0)) {
+        return;
+    }
 
-        // Start the train timer if KR_TRAIN IRQ
-        if ((irq & MESA_KR_TRAIN)) {
-            (void)time_start(&kr->time_start_train);
-        }
+    // Start the aneg timer if AN_XMIT_DISABLE IRQ
+    if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
+        (void)time_start(&kr->time_start_aneg);
+    }
 
-        // Dump IRQs if debug is enabled
-        dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 0);
+    // Start the train timer if KR_TRAIN IRQ
+    if ((irq & MESA_KR_TRAIN)) {
+        (void)time_start(&kr->time_start_train);
+    }
 
-        // For debug purpose
-        if (kr_conf_state[iport].stop_train) {
-            kr_add_to_irq_history(iport, irq);
-            continue;
-        }
+    // Dump IRQs if debug is enabled
+    dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 0);
 
-        if (mesa_port_conf_get(NULL, iport, &pconf) != MESA_RC_OK) {
-            printf("Failure during port_conf_get\n");
-        }
-
-        // KR_AN_RATE (Change to the speed/FEC requested)
-        if ((irq & MESA_KR_AN_RATE) > 0) {
-            if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
-                printf("Failure during port_kr_status_get\n");
-            }
-            // Aneg FEC change request
-            if (status.aneg.request_fec_change) {
-                fec.r_fec = status.aneg.r_fec_enable;
-                fec.rs_fec = status.aneg.rs_fec_enable;
-                kr_printf("Port:%d - R-FEC %d RS-FEC:%d\n",uport, fec.r_fec, fec.rs_fec);
-                if (mesa_port_kr_fec_set(NULL, iport, &fec) != MESA_RC_OK) {
-                    cli_printf("Failure during port_kr_fec_set\n");
-               }
-            }
-            if (pconf.speed != kr_irq2spd(irq & 0xf)) {
-                pconf.speed = kr_irq2spd(irq & 0xf);
-                // Aneg speed change request
-                pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-                kr_printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-                (void)mesa_port_conf_set(NULL, iport, &pconf);
-            }
-            kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-        }
-
-        // KR_RATE_DET (Link partner does not have Aneg support)
-        if (irq & MESA_KR_RATE_DET) {
-            // Parallel detect speed change
-            kr_printf("Port:%d - Rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
-            if (pconf.speed != kr_parallel_spd(iport, &kr_conf)) {
-                pconf.speed = kr_parallel_spd(iport, &kr_conf);
-                pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-                kr_printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-                kr_printf("Port:%d - Parallel detect disabled\n",uport);
-//                (void)mesa_port_conf_set(NULL, iport, &pconf);
-            }
-        }
-
-        // Apply the IRQs
-        if (mesa_port_kr_irq_apply(NULL, iport, &irq) != MESA_RC_OK) {
-            printf("Failure during port_kr_irq_apply\n");
-        }
-
-        // Get the internal training state for debug purposes
-        if (mesa_port_kr_state_get(NULL, iport, krs) != MESA_RC_OK) {
-            printf("Failure during port_kr_state_get\n");
-        }
-
-        // Dump failure IRQs for debug purposes
-        if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) {
-            if (kr_debug) {
-                dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31);
-            }
-        }
-
-        // Add IRQs to history
+    // For debug purpose
+    if (kr_conf_state[iport].stop_train) {
         kr_add_to_irq_history(iport, irq);
+        return;
+    }
 
-        // Add training state to Link Partner history
-        kr_add_to_lp_history(iport, irq);
+    if (mesa_port_conf_get(NULL, iport, &pconf) != MESA_RC_OK) {
+        printf("Failure during port_conf_get\n");
+    }
 
-        // Add training state to Local Device history
-        if ((irq & MESA_KR_LPCVALID) && krs->training_started) {
-            kr_add_to_ld_history(iport, krs->tr_res);
+    // KR_AN_RATE (Change to the speed/FEC requested)
+    if ((irq & MESA_KR_AN_RATE) > 0) {
+        if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
+            printf("Failure during port_kr_status_get\n");
         }
-
-        // Training completed
-        if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
-            kr->time_ld = get_time_ms(&kr->time_start_train);
-            kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
-            if (!kr_debug) {
-                printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+        // Aneg FEC change request
+        if (status.aneg.request_fec_change) {
+            fec.r_fec = status.aneg.r_fec_enable;
+            fec.rs_fec = status.aneg.rs_fec_enable;
+            kr_printf("Port:%d - R-FEC %d RS-FEC:%d\n",uport, fec.r_fec, fec.rs_fec);
+            if (mesa_port_kr_fec_set(NULL, iport, &fec) != MESA_RC_OK) {
+                cli_printf("Failure during port_kr_fec_set\n");
             }
         }
-
-        // Aneg completed
-        if (irq & MESA_KR_AN_GOOD) {
-            kr_printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+        if (pconf.speed != kr_irq2spd(irq & 0xf)) {
+            pconf.speed = kr_irq2spd(irq & 0xf);
+            // Aneg speed change request
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            kr_printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
         }
+        kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+    }
+
+    // KR_RATE_DET (Link partner does not have Aneg support)
+    if (irq & MESA_KR_RATE_DET) {
+        // Parallel detect speed change
+        kr_printf("Port:%d - Rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
+        if (pconf.speed != kr_parallel_spd(iport, &kr_conf)) {
+            pconf.speed = kr_parallel_spd(iport, &kr_conf);
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            kr_printf("Port:%d - Rate detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            kr_printf("Port:%d - Parallel detect disabled\n",uport);
+//                (void)mesa_port_conf_set(NULL, iport, &pconf);
+        }
+    }
+
+    // Apply the IRQs
+    if (mesa_port_kr_irq_apply(NULL, iport, &irq) != MESA_RC_OK) {
+        printf("Failure during port_kr_irq_apply\n");
+    }
+
+    // Get the internal training state for debug purposes
+    if (mesa_port_kr_state_get(NULL, iport, krs) != MESA_RC_OK) {
+        printf("Failure during port_kr_state_get\n");
+    }
+
+    // Dump failure IRQs for debug purposes
+    if (irq & MESA_KR_DME_VIOL_1 || irq & MESA_KR_FRLOCK_0) {
+        if (kr_debug) {
+            dump_irq(uport, irq, get_time_ms(&kr->time_start_aneg), 31);
+        }
+    }
+
+    // Add IRQs to history
+    kr_add_to_irq_history(iport, irq);
+
+    // Add training state to Link Partner history
+    kr_add_to_lp_history(iport, irq);
+
+    // Add training state to Local Device history
+    if ((irq & MESA_KR_LPCVALID) && krs->training_started) {
+        kr_add_to_ld_history(iport, krs->tr_res);
+    }
+
+    // Training completed
+    if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
+        kr->time_ld = get_time_ms(&kr->time_start_train);
+        kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+        if (!kr_debug) {
+            printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
+        }
+    }
+
+    // Aneg completed
+    if (irq & MESA_KR_AN_GOOD) {
+        kr_printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
     }
 }
 
-static void kr_poll_v2(meba_inst_t inst)
+static void kr_poll_v2(meba_inst_t inst, mesa_port_no_t iport)
 {
-    mesa_port_no_t iport;
     mesa_port_kr_status_t status;
     mesa_port_kr_conf_t conf;
-    uint16_t meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
 
-    for (iport = 0; iport < meba_cnt; iport++) {
-
-        if ((mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) ||
-            !conf.aneg.enable) {
-            continue;
-        }
-
-        // 10G KR surveilance
-        (void)(mesa_port_kr_status_get(NULL, iport, &status));
+    if ((mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) ||
+        !conf.aneg.enable) {
+        return;
     }
 
+    // 10G KR surveilance
+    (void)(mesa_port_kr_status_get(NULL, iport, &status));
+
+}
+
+
+static void kr_poll(meba_inst_t inst)
+{
+    mesa_port_no_t iport;
+    uint16_t meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
+
+    if (BASE_KR_V3) {
+        for (u32 i = 0; i < 3; i++) { // When the training starts then the IRQs comes fast
+            for (iport = 0; iport < meba_cnt; iport++) {
+                if (!kr_conf_state[iport].aneg_enable) {
+                    continue;
+                }
+                kr_poll_v3(inst, iport);
+            }
+        }
+    } else if (BASE_KR_V2) {
+        for (iport = 0; iport < meba_cnt; iport++) {
+            if (!kr_conf_state[iport].aneg_enable) {
+                continue;
+            }
+            kr_poll_v2(inst, iport);
+        }
+    }
 }
 
 static cli_cmd_t cli_cmd_table[] = {
@@ -1381,12 +1399,8 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         kr_init(init->board_inst);
         break;
 
-    case MSCC_INIT_CMD_POLL_FAST:
-        if (BASE_KR_V3) {
-            kr_poll(init->board_inst);
-        } else if (BASE_KR_V2) {
-            kr_poll_v2(init->board_inst);
-        }
+    case MSCC_INIT_CMD_POLL_FASTEST:
+        kr_poll(init->board_inst);
         break;
 
     default:

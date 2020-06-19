@@ -96,7 +96,8 @@ typedef struct {
     uint32_t aneg_sm_state;
     uint32_t aneg_sm_deb;
     mesa_bool_t debug_ena;
-    mesa_bool_t aneg_start;
+    mesa_bool_t aneg_enable;
+    mesa_bool_t tr_done;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */
