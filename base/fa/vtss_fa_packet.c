@@ -681,7 +681,7 @@ static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, uint8_t
         break;
 
     case VTSS_PACKET_PTP_ACTION_AFI_NONE:
-        *result = 0;
+        *result = 12;
         break;
 
     default:

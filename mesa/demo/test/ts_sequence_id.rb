@@ -32,15 +32,13 @@ def tod_sequence_id_test
 
     sequence = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp
 
-    console"Inject SYNC frame into NPI port and receive SYNC frame from front port and check the sequence id"
-
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
-    frametx = tx_ifh_create($ts.dut.port_list[$port0]) + frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
 
-    # Transmit a SYNC frame into NPI port with no frame check
+    t_i "Transmit a SYNC frame into NPI port with no frame check"
+    frametx = tx_ifh_create($ts.dut.port_list[$port0]) + frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
     frame_tx(frametx, $npi_port, " ", "", "", "")
 
-    # Transmit a second SYNC frame into NPI port and check received frame and check the sequence id
+    test "Inject SYNC frame into NPI port with MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ and check the sequence id" do
     framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, IGNORE, (sequence + 1))
     frame_tx(frametx, $npi_port, framerx, "", "", "")
 
@@ -48,7 +46,18 @@ def tod_sequence_id_test
     if (conf != (sequence + 2))
         t_e("Sequence number is not as expected.  sequence number = #{conf}  expected = #{sequence+2}")
     end
+    end
 
+    test "Inject SYNC frame into NPI port with MESA_PACKET_PTP_ACTION_AFI_NONE and check the sequence id" do
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_AFI_NONE") + frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
+    framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, IGNORE, (sequence + 2))
+    frame_tx(frametx, $npi_port, framerx, "", "", "")
+
+    conf = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp
+    if (conf != (sequence + 3))
+        t_e("Sequence number is not as expected.  sequence number = #{conf}  expected = #{sequence+2}")
+    end
+    end
     end
 end
 
