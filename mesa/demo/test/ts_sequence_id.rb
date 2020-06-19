@@ -50,7 +50,7 @@ def tod_sequence_id_test
 
     test "Inject SYNC frame into NPI port with MESA_PACKET_PTP_ACTION_AFI_NONE and check the sequence id" do
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_AFI_NONE") + frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
-    framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, IGNORE, (sequence + 2))
+    framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, IGNORE, (sequence + 2), 0)
     frame_tx(frametx, $npi_port, framerx, "", "", "")
 
     conf = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp

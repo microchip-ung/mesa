@@ -234,7 +234,7 @@ def sync_pdu_create(header_rsv=0, hdr_sequenceId=0)
     return $sync_pdu
 end
 
-def sync_pdu_rx_create(header_rsv=IGNORE, secondsField=IGNORE, sequenceId=IGNORE)
+def sync_pdu_rx_create(header_rsv=IGNORE, secondsField=IGNORE, sequenceId=IGNORE, cf_org=IGNORE)
     $sync_pdu = ""
 
     test "sync_pdu_rx_create  header_rsv #{header_rsv} secondsField #{secondsField}" do
@@ -248,6 +248,9 @@ def sync_pdu_rx_create(header_rsv=IGNORE, secondsField=IGNORE, sequenceId=IGNORE
     end
     if (secondsField != IGNORE)
         $sync_pdu += "ots-secondsField #{secondsField} "
+    end
+    if (cf_org != IGNORE)
+        $sync_pdu += "hdr-correctionField 0 ots-secondsField 0 ots-nanosecondsField 0 "
     end
 
     end
