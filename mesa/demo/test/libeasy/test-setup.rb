@@ -904,6 +904,9 @@ class Switchdev_Pc_b2b_4x
 
         @links = dut_ports.zip(pc_ports).map{|e| {:dut => e[0], :pc => e[1]}}
         @ts_external_clock_looped = (conf["ts_external_clock_looped"] == true) ? true : false
+        if conf["pc"].key?("et_idx")
+           @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
+        end
 
         if $options[:no_init]
             @pc.run "/easytest/local/if-setup-l2-test.sh"
