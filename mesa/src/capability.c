@@ -460,6 +460,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP);
 #else
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP);
+        c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ);
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_AFI_NONE);
 #endif
         break;

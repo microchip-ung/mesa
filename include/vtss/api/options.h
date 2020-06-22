@@ -120,7 +120,7 @@
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP    /**< Path delay asymmetry compensation hardware support */
 #define VTSS_FEATURE_PTP_RS422                   /**< Support for the RS422 serial/1PPS interface */
 #define VTSS_FEATURE_DELAY_REQ_AUTO_RESP         /**< Delay_Req/Resp processing supported in hardware */
-// #define VTSS_FEATURE_SYNC_ANN_AUTO_TRANSMIT      /**< Sync and Announce packet auto generation in hardware */
+#define VTSS_FEATURE_SYNC_ANN_AUTO_TRANSMIT      /**< Sync and Announce packet auto generation in hardware */
 #define VTSS_FEATURE_NPI                         /**< NPI port */
 #define VTSS_FEATURE_LED_POW_REDUC               /**< LED power reduction */
 #define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
