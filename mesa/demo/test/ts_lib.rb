@@ -155,7 +155,7 @@ end
 def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0)
     $tx_ifh = ""
 
-    test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}" do
+    test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}  domain #{domain}  seq_idx #{seq_idx}" do
 
     tx_info = $ts.dut.call("mesa_packet_tx_info_init")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))

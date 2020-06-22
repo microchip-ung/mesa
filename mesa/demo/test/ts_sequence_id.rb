@@ -21,7 +21,7 @@ check_capabilities do
 end
 
 def tod_sequence_id_test(sec_cntr)
-    test "tod_sequence_id_test" do
+    test "tod_sequence_id_test  #{sec_cntr}" do
 
     sequence = $ts.dut.call("mesa_ts_seq_cnt_get", sec_cntr)    # Get the sequence number indicated by the lowest byte of the timestamp
 

@@ -94,28 +94,25 @@ def tod_domain_test(domain, seconds)
         t_e("TOD in domain #{domain} is not incrementing as expected.  expected seconds = #{seconds+1}  tod_ts[seconds] = #{$tod_ts[0]["seconds"]}")
     end
 
+    $tod_ts[0]["seconds"] = seconds
+    $tod_ts[0]["nanoseconds"] = 0
+
     test "Inject SYNC frame with PTP action NONE AFI into NPI port and receive SYNC frame from front port and check the origin timestamp" do
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_AFI_NONE", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, 0)  # Frame should not be updated
 
-    frame_tx(frametx, $npi_port, framerx , "", "", "")
+    frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
     test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the origin timestamp" do
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 3))  # Experiment show that two seconds has passed since mesa_ts_timeofday_set()
-    else
-    if ($pcb == "Adaro")
-        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 1))  # Experiment show that one seconds has passed since mesa_ts_timeofday_set()
-    else
-        framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, (seconds + 2))  # Experiment show that one seconds has passed since mesa_ts_timeofday_set()
-    end
-    end
+    framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, seconds)
 
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
