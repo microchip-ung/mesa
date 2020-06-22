@@ -672,11 +672,7 @@ static vtss_rc jr2_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, BOOL a
         break;
 
     case VTSS_PACKET_PTP_ACTION_AFI_NONE:
-        if (afi) {
-            *result = 0x018;  // AFI does not work unless REW_CMD[3..0] != 0, so when we want to run AFI but no PTP action, we set bit 3 (add ingress delay) which makes no harm as we don't configure any ingress delay on the CPU port
-        } else {
-            *result = 0;
-        }
+        *result = 0x018;  // AFI does not work unless REW_CMD[3..0] != 0, so when we want to run AFI but no PTP action, we set bit 3 (add ingress delay) which makes no harm as we don't configure any ingress delay on the CPU port
         break;
 
     case VTSS_PACKET_PTP_ACTION_TWO_STEP:
