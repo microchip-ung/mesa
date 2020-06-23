@@ -728,6 +728,8 @@ static BOOL fa_port_kr_aneg_ena(vtss_state_t *vtss_state, const vtss_port_no_t p
     return FALSE;
 }
 
+#define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
+
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 #define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
 #define NP_TOGGLE (VTSS_BIT(11))
@@ -735,8 +737,6 @@ static BOOL fa_port_kr_aneg_ena(vtss_state_t *vtss_state, const vtss_port_no_t p
 #define NP_MP (VTSS_BIT(13))
 #define NP_ACK (VTSS_BIT(14))
 #define NP_NP (VTSS_BIT(15))
-
-#define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
 u32 vtss_to_sd_kr(u32 p)
 {
@@ -3171,6 +3171,11 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
 {
     u32 val;
     u32 tgt; u32 p = VTSS_CHIP_PORT(port_no);
+
+    if (!PORT_IS_KR_CAP(port_no)) {
+        return VTSS_RC_OK;
+    }
+
     if (p < 12 || p == 64) {
         tgt = vtss_to_sd6g_kr(p);
     } else {
