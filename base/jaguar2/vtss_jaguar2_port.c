@@ -2672,6 +2672,8 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
         if (mode != VTSS_SERDES_MODE_QSGMII || (port % 4) == 0) {
             VTSS_RC(jr2_sd6g_cfg(vtss_state, port_no, mode, 1 << serdes_inst));
         }
+        break;
+
     case JR2_SERDES_TYPE_10G:
         if (lb == VTSS_PORT_LB_EQUIPMENT || lb == VTSS_PORT_LB_DISABLED) {
             JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
