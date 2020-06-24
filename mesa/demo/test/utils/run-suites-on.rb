@@ -100,10 +100,13 @@ if ($options[:system] != nil) && ($options[:image] != nil)
     t1 = Time.now
     seconds = ($options[:timeout] != nil) ? $options[:timeout] : 0
     puts("#{$system}: Try reserve");
+    reserved = false
+    failed = false
     begin
         loop do
             res = run("#{$et} -l reserve #{$system}", false)
             if res
+                reserved = true
                 break   # break on sucess
             end
 
@@ -131,7 +134,6 @@ if ($options[:system] != nil) && ($options[:image] != nil)
             end
         end
 
-        failed = false
         puts("#{$system}: Run test suites")
         run("date")
         run_suites $system
@@ -144,8 +146,10 @@ if ($options[:system] != nil) && ($options[:image] != nil)
     ensure
         # Release $system
         begin
-            puts("#{$system}: Release");
-            run("#{$et} -l release", false)
+            if (reserve)
+                puts("#{$system}: Release");
+                run("#{$et} -l release", false)
+            end
         rescue
         end
         run("date")
