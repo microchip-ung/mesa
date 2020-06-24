@@ -198,7 +198,7 @@ static vtss_rc srvl_vop_conf_set(vtss_state_t            *vtss_state,
                                  const vtss_vop_conf_t   *const conf)
 {
     BOOL  npi = vtss_state->packet.npi_conf.enable ? TRUE : FALSE;
-    u32   value, npi_port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
+    u32   value, npi_port = 0;
 
     VTSS_D("Enter");
 
@@ -212,6 +212,9 @@ static vtss_rc srvl_vop_conf_set(vtss_state_t            *vtss_state,
     SRVL_WR(VTSS_OAM_MEP_COMMON_COMMON_MEP_MC_MAC_LSB, VTSS_F_OAM_MEP_COMMON_COMMON_MEP_MC_MAC_LSB_MEP_MC_MAC_LSB(value));
 
     /* CPU extraction queue configuration */
+    if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
+        npi_port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
+    }
     value = (npi ? VTSS_F_OAM_MEP_COMMON_CPU_CFG_DEF_EXT_PORT_ENA : 0) | VTSS_F_OAM_MEP_COMMON_CPU_CFG_DEF_COPY_QU(npi ? npi_port : conf->voe_queue_ccm)    |
             (npi ? VTSS_F_OAM_MEP_COMMON_CPU_CFG_CPU_ERR_EXT_PORT_ENA : 0) | VTSS_F_OAM_MEP_COMMON_CPU_CFG_CPU_ERR_QU(npi ? npi_port : conf->voe_queue_err) |
             (npi ? VTSS_F_OAM_MEP_COMMON_CPU_CFG_LBR_EXT_PORT_ENA : 0) | VTSS_F_OAM_MEP_COMMON_CPU_CFG_LBR_CPU_QU(npi ? npi_port : conf->voe_queue_lbr)     |
