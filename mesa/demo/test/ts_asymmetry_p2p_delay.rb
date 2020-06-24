@@ -27,38 +27,6 @@ $pcb = $ts.dut.pcb
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
 
-    t_i("Create IS2 to ONE-STEP SYNC frame")
-    conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
-    conf["id"] = $acl_id
-    conf["port_list"] = "#{$ts.dut.port_list[$port0]}"
-    action = conf["action"]
-    action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
-    $ts.dut.call("mesa_ace_add", 0, conf)
-
-    lowest_corr_none = nano_corr_lowest_measure
-
-    if ($cap_core_clock != 0)
-        misc = $ts.dut.call("mesa_misc_get")
-        exp_corr = (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") ? 2 : 1
-    else
-        exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
-    end
-    if ($pcb == 135)    #Test on Copper PHY
-        if ((lowest_corr_none > 2300) || (lowest_corr_none < 1900))
-            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
-        end
-    else
-    if ($pcb == "Adaro")    #Test on Copper PHY
-        if ((lowest_corr_none > 3050) || (lowest_corr_none < 2600))
-            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
-        end
-    else
-        if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) != exp_corr))
-            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
-        end
-    end
-    end
-
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         diff_max = 520
     else
@@ -69,6 +37,46 @@ def tod_asymmetry_p2p_delay_test
     end
     if ($pcb == "Adaro")    #Test on Copper PHY
         diff_max = 250
+    end
+
+    if ($cap_core_clock != 0)
+        misc = $ts.dut.call("mesa_misc_get")
+        exp_corr = (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") ? 2 : 1
+    else
+        exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
+    end
+
+    t_i("Create IS2 to ONE-STEP SYNC frame")
+    conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
+    conf["id"] = $acl_id
+    conf["port_list"] = "#{$ts.dut.port_list[$port0]}"
+    action = conf["action"]
+    action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
+    $ts.dut.call("mesa_ace_add", 0, conf)
+    lowest_corr_none = nano_corr_lowest_measure
+
+    test ("No asymmetry delay check of correction field") do
+    if ($pcb == 135)    #Test on Copper PHY
+        if ((lowest_corr_none > 2300) || (lowest_corr_none < 1900))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        else
+            t_i("CF ok")
+        end
+    else
+    if ($pcb == "Adaro")    #Test on Copper PHY
+        if ((lowest_corr_none > 3050) || (lowest_corr_none < 2600))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        else
+            t_i("CF ok")
+        end
+    else
+        if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) != exp_corr))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        else
+            t_i("CF ok")
+        end
+    end
+    end
     end
 
     t_i("Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction")
@@ -83,10 +91,13 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_eg = nano_corr_lowest_measure
     diff0 = (lowest_corr_eg - (lowest_corr_none - asymmetry))
 
-    t_i("The asymmetry delay is subtracted from correction on egress")
+    test ("The asymmetry delay is subtracted from correction on egress") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}")
     if ((lowest_corr_none < lowest_corr_eg) || (diff0 < -diff_max) || (diff0 > diff_max))
         t_e("Unexpected correction field including egress delay.")
+    else
+        t_i("CF ok")
+    end
     end
 
     t_i("Change IS2 to ONE-STEP add ingress delay 1 SYNC frame")
@@ -96,10 +107,13 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in1 = nano_corr_lowest_measure
     diff1 = (lowest_corr_in1 - (lowest_corr_none + asymmetry))
 
-    t_i("The asymmetry delay is added to correction on ingress")
+    test ("The asymmetry delay is added to correction on ingress") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in1 = #{lowest_corr_in1}  diff #{diff1}")
     if ((lowest_corr_in1 < lowest_corr_none) || (diff1 < -diff_max) || (diff1 > diff_max))
         t_e("Unexpected correction field including egress delay.")
+    else
+        t_i("CF ok")
+    end
     end
 
     # Change IS2 to ONE-STEP add ingress delay 2 SYNC frame
@@ -109,10 +123,13 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in2 = nano_corr_lowest_measure
     diff2 = (lowest_corr_in2 - (lowest_corr_none + asymmetry))
 
-    t_i("The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.")
+    test ("The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff2}")
     if ((lowest_corr_in2 < lowest_corr_none) || (diff2 < -diff_max) || (diff2 > diff_max))
         t_e("Unexpected correction field including egress delay.")
+    else
+        t_i("CF ok")
+    end
     end
 
     # Configure p2p delay. It is selected to be as large as possible but smaller than the lowest measured correction
@@ -121,10 +138,13 @@ def tod_asymmetry_p2p_delay_test
     lowest_corr_in2 = nano_corr_lowest_measure
     diff3 = (lowest_corr_in2 - (lowest_corr_none + 2*asymmetry))
 
-    t_i("The asymmetry + p2p delay is added to correction on ingress")
+    test ("The asymmetry + p2p delay is added to correction on ingress") do
     t_i("lowest_corr_in1 = #{lowest_corr_in1}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff3}")
     if ((lowest_corr_in2 < lowest_corr_in1) || (diff3 < -diff_max) || (diff3 > diff_max))
         t_e("Unexpected correction field including egress delay.")
+    else
+        t_i("CF ok")
+    end
     end
 
     t_i("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
