@@ -146,7 +146,7 @@ if ($options[:system] != nil) && ($options[:image] != nil)
     ensure
         # Release $system
         begin
-            if (reserve)
+            if (reserved)
                 puts("#{$system}: Release");
                 run("#{$et} -l release", false)
             end
