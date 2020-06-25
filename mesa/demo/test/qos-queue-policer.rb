@@ -28,25 +28,25 @@ eg = rand(3)    # Get a random egress port between 0 and 3
 begin   # Get a random ingress port between 0 and 3 different from egress port
     ig = rand(3)
 end while eg == ig
-console("ig: #{ig}  eg: #{eg}")
+t_i("ig: #{ig}  eg: #{eg}")
 
-console ("Only forward on relevant ports #{$ts.dut.port_list}")
+t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
 port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
-console ("Configure ingress port to C tag aware")
+t_i ("Configure ingress port to C tag aware")
 conf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[ig])
 conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
 $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[ig], conf)
 
-console("Enable ingress tag pcp mapping")
+t_i("Enable ingress tag pcp mapping")
 conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[ig])
 conf["tag"]["class_enable"] = true
 conf["default_prio"] = 0
 conf["default_dpl"] = 0
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
-console ("Configure egress port to C tag all")
+t_i ("Configure egress port to C tag all")
 vconf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[eg])
 vconf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
 vconf["untagged_vid"] = MESA_VID_NULL

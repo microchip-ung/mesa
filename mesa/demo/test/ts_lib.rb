@@ -55,7 +55,7 @@ def nano_corr_lowest_measure
         end
     end
 
-    console("nano_corr_loewst = #{$nano_corr_loewst}")
+    t_i("nano_corr_loewst = #{$nano_corr_loewst}")
     end
 
     $nano_corr_loewst
@@ -71,17 +71,17 @@ def tc_to_tod_nano(tc)
         tod_ret  = $ts.dut.call("mesa_ts_timeofday_get")
         tod_tc = (tod_ret[1] >> 16)
         if (tod_tc < tc)
-            console("TOD tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tod_tc - tc}")
+            t_i("TOD tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tod_tc - tc}")
             tod_tc += 0xFFFFFFFF    # Add 0xFFFFFFFF to TOD tc
         end
         diff_tc = tod_tc - tc
         if (diff_tc > tod_ret[0]["nanoseconds"])
-            console("TOD nanoseconds has wrapped")
+            t_i("TOD nanoseconds has wrapped")
             tod_ret[0]["nanoseconds"] += (1000000000*(diff_tc/1000000000))    # Add seconds to TOD nanoseconds
         end
         $tod_nano_ret = ((tod_ret[0]["nanoseconds"] - diff_tc) & 0x3FFFFFFF) << 16
     
-        console("tc = #{tc}  tod_tc = #{tod_tc}  tod[nanoseconds] = #{tod_ret[0]["nanoseconds"]}  diff_tc = #{diff_tc}  tod_nano_ret = #{$tod_nano_ret}")
+        t_i("tc = #{tc}  tod_tc = #{tod_tc}  tod[nanoseconds] = #{tod_ret[0]["nanoseconds"]}  diff_tc = #{diff_tc}  tod_nano_ret = #{$tod_nano_ret}")
     
         end
     end

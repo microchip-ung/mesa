@@ -55,13 +55,13 @@ def tod_internal_mode_ingress_node_test
     idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
-    console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id")
+    t_i ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, framerx , "", "", "", 60)
 
-    console "Calculate the 30 bit nano sec TS contained in the SYNC PDU reserved field "
+    t_i "Calculate the 30 bit nano sec TS contained in the SYNC PDU reserved field "
     pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
     $data = pkts[0][:data].each_byte.map{|c| c.to_i}
     reserved2 = $data[14+16..14+16+3]
@@ -138,16 +138,16 @@ def tod_internal_mode_egress_node_test
     tod_ts[0]["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_timeofday_set", tod_ts[0])
 
-    console("Transmit the Two-Step SYNC frame into NPI port")
+    t_i("Transmit the Two-Step SYNC frame into NPI port")
     frame_tx(frametx, $npi_port, framerx , "", "", "", 60)
 
-    console "Calculate the Correction field contained in the SYNC PDU "
+    t_i "Calculate the Correction field contained in the SYNC PDU "
     pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
     $data = pkts[0][:data].each_byte.map{|c| c.to_i}
     corr = $data[14+8..14+8+7]
     nano_correction = (corr[0]<<56) + (corr[1]<<48) + (corr[2]<<40) + (corr[3]<<32) + (corr[4]<<24) + (corr[5]<<16) + (corr[6]<<8) + corr[7]
 
-    console ("Update the TX FIFO in AIL. This will cause callback to Json with the TX timestamp")
+    t_i ("Update the TX FIFO in AIL. This will cause callback to Json with the TX timestamp")
     $ts.dut.call("mesa_tx_timestamp_update")
 
     # Get the TX time stamp. This is not a MESA API function, only a Json implementation to get the TX timestamp delivered through callback
@@ -157,7 +157,7 @@ def tod_internal_mode_egress_node_test
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
     end
 
-    console ("Calculate the TX TOD nanoseconds based on TX time stamp")
+    t_i ("Calculate the TX TOD nanoseconds based on TX time stamp")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         tod_nano_tx = tc_to_tod_nano(ts_tx["ts"])
     else

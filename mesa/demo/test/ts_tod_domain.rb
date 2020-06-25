@@ -82,7 +82,7 @@ def tod_domain_test(domain, seconds)
         t_e("next TOD in domain #{domain} was not configured as expected.  seconds = #{seconds+1}  next_ts[seconds] = #{next_ts["seconds"]}")
     end
 
-    console ("Sleep one second and check that TOD seconds is incremented - do a new TOD set first")
+    t_i ("Sleep one second and check that TOD seconds is incremented - do a new TOD set first")
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     sleep(1)
 
@@ -122,7 +122,7 @@ def tod_domain_test(domain, seconds)
     idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
-    console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
+    t_i ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16, domain) + frameHdrTx.dup + sync_pdu_create()
@@ -130,14 +130,14 @@ def tod_domain_test(domain, seconds)
     $tod_ts  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
 
-    console "Calculate the IFH and decode it"
+    t_i "Calculate the IFH and decode it"
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
     ifh = rx_ifh_extract(pkts[1])   # both transmitted and received frame is in 'pkts'
     meta = { no_wait: false, chip_no: 0, xtr_qu: 0, etype: 0, fcs: 0, sw_tstamp: { hw_cnt: 0 }, length: 0}
     $frame_info = $ts.dut.call("mesa_packet_rx_hdr_decode", meta, ifh)
 
     if ((domain == 0) && ($cap_phy_ts != 0))    #Port with timestamping PHY is assumed by API to be in domain 0 always
-        console ("Get the frame RX tc based on a 32 bit ns counter from frame content inserted by timestamping PHY")
+        t_i ("Get the frame RX tc based on a 32 bit ns counter from frame content inserted by timestamping PHY")
         tx_props = { ts_feature_is_PTS: true, phy_ts_mode: "MESA_PACKET_INTERNAL_TC_MODE_32BIT", backplane_port: false, delay_comp: {delay_cnt: 100<<16, asymmetry_cnt: 100<<16} }
         phy_ts = ($tod_ts[0]["seconds"] * 1000000000) + $tod_ts[0]["nanoseconds"] # The TS inserted in frame by PHY is a 32 bit wrapping TOD nanoseconds. Current TOD TS is used as PHY TS
         timestamp = [((phy_ts & 0xFF000000) >> 24), ((phy_ts & 0xFF0000) >> 16), ((phy_ts & 0xFF00) >> 8), (phy_ts & 0xFF)]
@@ -149,10 +149,10 @@ def tod_domain_test(domain, seconds)
         end
     end
 
-    console ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
+    t_i ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
     $ts.dut.call("mesa_tx_timestamp_update")
 
-    console ("Get the TX timestamp. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback")
+    t_i ("Get the TX timestamp. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback")
     ts_tx = $ts.dut.call("mesa_tx_timestamp_get")
     if ((ts_tx["id"] != idx["ts_id"]) || (ts_tx["ts_valid"] != true))
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
@@ -161,11 +161,11 @@ def tod_domain_test(domain, seconds)
     end
 
     test "Check the calculated received frame tc value" do
-    console "Get the delay and asymmetry compensated frame RX tc from frame_info"
+    t_i "Get the delay and asymmetry compensated frame RX tc from frame_info"
     tx_props = { ts_feature_is_PTS: false, phy_ts_mode: "MESA_PACKET_INTERNAL_TC_MODE_32BIT", backplane_port: false, delay_comp: {delay_cnt: 100<<16, asymmetry_cnt: 100<<16} }
     rx_ts = $ts.dut.call("mesa_ptp_get_timestamp", [0,1,2,3], $frame_info, "MESA_PACKET_PTP_MESSAGE_TYPE_SYNC", tx_props)
     rx_tc = rx_ts[0]
-    console ("tx_tc: #{$tx_tc}  hw_tstamp: #{$frame_info["hw_tstamp"]}  rx_tc: #{rx_tc}  rx_tc-tx_tc: #{(rx_tc-$tx_tc)>>16}")
+    t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$frame_info["hw_tstamp"]}  rx_tc: #{rx_tc}  rx_tc-tx_tc: #{(rx_tc-$tx_tc)>>16}")
 
     if (((rx_tc - $tx_tc) > (310<<16)) ||
         (($tx_tc - rx_tc) > (100<<16)))

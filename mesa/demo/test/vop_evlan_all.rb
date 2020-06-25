@@ -25,7 +25,7 @@ check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
     $cap_tx_ifh_size = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_TX_IFH_SIZE")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-    console("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
+    t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
 end
 
 $p_vce         = 1
@@ -91,48 +91,48 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
 
     sleep(4)
 
-    console("Before transmitting CCM. Check for LOC status")
+    t_i("Before transmitting CCM. Check for LOC status")
     check_cc_status(voe_idx, [EVENT_LOC])
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
     test "Check LOC clear and set" do
-    console("Transmit valid CCM frame against VOE to clear LOC")
+    t_i("Transmit valid CCM frame against VOE to clear LOC")
     exp_sequence += 1
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
 
-    console("After transmitting CCM. Check LOC event and status")
+    t_i("After transmitting CCM. Check LOC event and status")
     check_pdu_seen(voe_idx, PDU_CCM)
     check_voe_event(voe_idx, [EVENT_LOC])
     check_cc_status(voe_idx, [EVENT_NONE])
 
     sleep(4)
 
-    console("After sleep. Check LOC event and status")
+    t_i("After sleep. Check LOC event and status")
     check_voe_event(voe_idx, [EVENT_LOC])
     check_cc_status(voe_idx, [EVENT_LOC])
     end
 
     test "Check Zero Period" do
-    console("Transmit invalid CCM frame against VOE with Period zero")
+    t_i("Transmit invalid CCM frame against VOE with Period zero")
     frametx = frame.dup
     frametx += ccm_pdu_create(level, 0, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_invalid_ccm_cnt += 1
     exp_discard_cnt += 1
 
-    console("After transmitting CCM. Check Period zero event and status")
+    t_i("After transmitting CCM. Check Period zero event and status")
     check_pdu_seen(voe_idx, PDU_NONE)
     check_voe_event(voe_idx, [EVENT_ZERO_PERIO])
     check_cc_status(voe_idx, [EVENT_ZERO_PERIO,EVENT_LOC])
     end
 
     test "check invalid level" do
-    console("Transmit invalid CCM frame against VOE with invalid level")
+    t_i("Transmit invalid CCM frame against VOE with invalid level")
     frametx = frame.dup
     frametx += ccm_pdu_create(level-1, $period, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
@@ -141,7 +141,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
     exp_discard_cnt += 1
 
-    console("After transmitting CCM. Check Level event and status")
+    t_i("After transmitting CCM. Check Level event and status")
     check_pdu_seen(voe_idx, PDU_LOW_LEVEL)
     if ($cap_oam_v2)    # Low level CCM is not accepted as a CCM PDU on Serval1 - meaning it cannot clear the zero period state
         check_voe_event(voe_idx, [EVENT_LEVEL,EVENT_ZERO_PERIO])
@@ -151,7 +151,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     check_cc_status(voe_idx, [EVENT_LEVEL,EVENT_LOC])
 
     if ($cap_ccm_defects != 0)
-        console("Check clear of level defect after 3.5 CCM period")
+        t_i("Check clear of level defect after 3.5 CCM period")
         sleep (4)
         check_voe_event(voe_idx, [EVENT_LEVEL])
         check_cc_status(voe_idx, [EVENT_LOC_ALONE])
@@ -159,16 +159,16 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check invalid MEP id" do
-    console("Transmit invalid CCM frame against VOE with invalid peer MEP ID")
+    t_i("Transmit invalid CCM frame against VOE with invalid peer MEP ID")
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid+1, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_invalid_ccm_cnt += 1
     exp_discard_cnt += 1
 
-    console("After transmitting CCM. Check Peer MEP ID event and status")
+    t_i("After transmitting CCM. Check Peer MEP ID event and status")
     if ($cap_ccm_defects == 0)
-        console("Check clear of level defect after receiving CCM with expected level")
+        t_i("Check clear of level defect after receiving CCM with expected level")
         check_voe_event(voe_idx, [EVENT_MEP,EVENT_LEVEL])
     else
         check_voe_event(voe_idx, [EVENT_MEP])
@@ -176,7 +176,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     check_cc_status(voe_idx, [EVENT_MEP,EVENT_LOC])
 
     if ($cap_ccm_defects != 0)
-        console("Check clear of MEP id defect after 3.5 CCM period")
+        t_i("Check clear of MEP id defect after 3.5 CCM period")
         sleep (4)
         check_voe_event(voe_idx, [EVENT_MEP])
         check_cc_status(voe_idx, [EVENT_LOC_ALONE])
@@ -184,7 +184,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "check invalid MEG id" do
-    console("Transmit invalid CCM frame against VOE with invalid MEG ID")
+    t_i("Transmit invalid CCM frame against VOE with invalid MEG ID")
     save = $megid[0]
     $megid[0] = 1
     frametx = frame.dup
@@ -194,9 +194,9 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     exp_invalid_ccm_cnt += 1
     exp_discard_cnt += 1
 
-    console("After transmitting CCM. Check MEG ID event and status")
+    t_i("After transmitting CCM. Check MEG ID event and status")
     if ($cap_ccm_defects == 0)
-        console("Check clear of MEP id defect after receiving CCM with expected MEP id")
+        t_i("Check clear of MEP id defect after receiving CCM with expected MEP id")
         check_voe_event(voe_idx, [EVENT_MEP,EVENT_MEG])
     else
         check_voe_event(voe_idx, [EVENT_MEG])
@@ -204,7 +204,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     check_cc_status(voe_idx, [EVENT_MEG,EVENT_LOC])
 
     if ($cap_ccm_defects != 0)
-        console("Check clear of MEG id defect after 3.5 CCM period")
+        t_i("Check clear of MEG id defect after 3.5 CCM period")
         sleep (4)
         check_voe_event(voe_idx, [EVENT_MEG])
         check_cc_status(voe_idx, [EVENT_LOC_ALONE])
@@ -212,7 +212,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check invalid period" do
-    console("Transmit invalid CCM frame against VOE with invalid period")
+    t_i("Transmit invalid CCM frame against VOE with invalid period")
     exp_sequence = ($cap_ccm_defects == 0) ? exp_sequence+1 : exp_sequence    # According to G.8021 invalid period should still give LOC but this is not implemented whenno CCM defecta.
     frametx = frame.dup
     if ($cap_ccm_defects != 0)  # When defects are supported we want the clear time to be based on one sec period. Therefore the expected period must be different than one sec */
@@ -223,9 +223,9 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
     frame_tx(frametx, $port0, "", "", "", "")
 
-    console("After transmitting CCM. Check Period event and status")
+    t_i("After transmitting CCM. Check Period event and status")
     if ($cap_ccm_defects == 0)
-        console("Check clear of MEG id defect after receiving CCM with expected MEG id")
+        t_i("Check clear of MEG id defect after receiving CCM with expected MEG id")
         check_voe_event(voe_idx, [EVENT_MEG,EVENT_PERIOD,EVENT_LOC])   # According to G.8021 invalid period should still give LOC but this is not implemented whenno CCM defecta.
         check_cc_status(voe_idx, [EVENT_PERIOD,EVENT_NONE_LOC])
         exp_valid_ccm_cnt += 1
@@ -237,7 +237,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     if ($cap_ccm_defects != 0)
-        console("Check clear of Period defect after 3.5 CCM period")
+        t_i("Check clear of Period defect after 3.5 CCM period")
         sleep (4)
         check_voe_event(voe_idx, [EVENT_PERIOD])
         check_cc_status(voe_idx, [EVENT_LOC_ALONE])
@@ -246,11 +246,11 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check invalid Priority" do
-    console("Change default COS ID on port")
+    t_i("Change default COS ID on port")
     #qos_port_config(port, def_qosid)
     qos_port_config($ts.dut.port_list[$port0], $prio+1)    # This is for V2 and untagged frames on Serval
     
-    console("Transmit valid CCM frame against VOE with unexpected Priority")
+    t_i("Transmit valid CCM frame against VOE with unexpected Priority")
     exp_sequence += 1
     frame = frame_create(MC_STRING, SC_STRING, tag_vid, $prio+1)  # On Serval the PC value in the tag is the priority
     frametx = frame.dup
@@ -258,10 +258,10 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
 
-    console("After transmitting CCM. Check Priority event and status")
+    t_i("After transmitting CCM. Check Priority event and status")
     check_pdu_seen(voe_idx, PDU_CCM)
     if ($cap_ccm_defects == 0)
-        console("Check clear of Period defect after receiving CCM with expected Period")
+        t_i("Check clear of Period defect after receiving CCM with expected Period")
         check_voe_event(voe_idx, [EVENT_PERIOD,EVENT_PRIORITY])
     else
         check_voe_event(voe_idx, [EVENT_PRIORITY,EVENT_LOC])
@@ -269,17 +269,17 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     check_cc_status(voe_idx, [EVENT_PRIORITY,EVENT_NONE_LOC])
 
     if ($cap_ccm_defects != 0)
-        console("Check clear of Priority defect after 3.5 CCM period")
+        t_i("Check clear of Priority defect after 3.5 CCM period")
         sleep (4)
         check_voe_event(voe_idx, [EVENT_PRIORITY])
         check_cc_status(voe_idx, [EVENT_LOC_ALONE])
     end
 
-    console("Restore default COS ID on port")
+    t_i("Restore default COS ID on port")
     #qos_port_config(port, def_qosid)
     qos_port_config($ts.dut.port_list[$port0], $prio)
     
-    console("Transmit valid CCM frame against VOE.")
+    t_i("Transmit valid CCM frame against VOE.")
     exp_sequence += 1
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     frametx = frame.dup
@@ -287,10 +287,10 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
     
-    console("After transmitting CCM. Check Priority event and status")
+    t_i("After transmitting CCM. Check Priority event and status")
     check_pdu_seen(voe_idx, PDU_CCM)
     if ($cap_ccm_defects == 0)
-        console("Check clear of Priority defect after receiving CCM with expected Priority")
+        t_i("Check clear of Priority defect after receiving CCM with expected Priority")
         check_voe_event(voe_idx, [EVENT_PRIORITY])
     else
         check_voe_event(voe_idx, [EVENT_LOC])
@@ -299,40 +299,40 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check RDI" do
-    console("Transmit valid CCM frame against VOE with RDI set")
+    t_i("Transmit valid CCM frame against VOE with RDI set")
     exp_sequence += 1
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid, 1)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
 
-    console("After transmitting CCM. Check RDI event and status")
+    t_i("After transmitting CCM. Check RDI event and status")
     check_pdu_seen(voe_idx, PDU_CCM)
     check_voe_event(voe_idx, [EVENT_RDI])
     check_cc_status(voe_idx, [EVENT_RDI])
 
-    console("Transmit valid CCM frame against VOE.")
+    t_i("Transmit valid CCM frame against VOE.")
     exp_sequence += 1
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
 
-    console("After transmitting CCM. Check RDI event and status")
+    t_i("After transmitting CCM. Check RDI event and status")
     check_pdu_seen(voe_idx, PDU_CCM)
     check_voe_event(voe_idx, [EVENT_RDI])
     check_cc_status(voe_idx, [EVENT_NONE])
     end
 
     test "Check invalid sequence number" do
-    console("Transmit valid CCM frame against VOE with unexpected sequence number")
+    t_i("Transmit valid CCM frame against VOE with unexpected sequence number")
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
     exp_valid_ccm_cnt += 1
     exp_invalid_seq_cnt += 1
 
-    console("After transmitting CCM. Check received CCM sequence error")
+    t_i("After transmitting CCM. Check received CCM sequence error")
     check_pdu_seen(voe_idx, PDU_CCM_SEQ)
     end
 
@@ -344,46 +344,46 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check count as selected" do
-    console("Enable count as selected")
+    t_i("Enable count as selected")
     #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_NONE", false, true)
 
-    console("Transmit valid CCM frame against VOE")
+    t_i("Transmit valid CCM frame against VOE")
     exp_sequence += 1
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
     frame_tx(frametx, $port0, "", "", "", "")
 
-    console("Check counters")
+    t_i("Check counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, exp_valid_ccm_cnt, 0, 1, 0, exp_discard_cnt, 0)
     end
 
-    console("Clear and check counters")
+    t_i("Clear and check counters")
     clear_all_counters(voe_idx, OAM_CNT_ALL)
     check_ccm_counters(voe_idx, 0, 0, 0, 0)
     check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 0)
 
     test "Check TLV" do
-    console("Transmit valid CCM frame with Port TLV against VOE")
+    t_i("Transmit valid CCM frame with Port TLV against VOE")
     #ccm_pdu_create(level, period, sequence, mepid, megid, rdi=0, version=0, tlv=TLV_NONE)
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid, 0, 0, TLV_PORT)
     frame_tx(frametx, $port0, "", "", "", "")
 
-    console("Check PDU seen, events and received TLV")
+    t_i("Check PDU seen, events and received TLV")
     check_pdu_seen(voe_idx, PDU_CCM_TLV)
     check_voe_event(voe_idx, [EVENT_TLV_PORT])
     #check_cc_status_values(voe_idx, rx_port, port_tlv, if_tlv)
     check_cc_status_values(voe_idx, $ts.dut.port_list[$port0], 2, 0)
 
-    console("Transmit valid CCM frame with Interface TLV against VOE")
+    t_i("Transmit valid CCM frame with Interface TLV against VOE")
     #ccm_pdu_create(level, period, sequence, mepid, megid, rdi=0, version=0, tlv=TLV_NONE)
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid, 0, 0, TLV_IF)
     frame_tx(frametx, $port0, "", "", "", "")
 
-    console("Check PDU seen, events and received TLV")
+    t_i("Check PDU seen, events and received TLV")
     check_pdu_seen(voe_idx, PDU_CCM_TLV)
     check_voe_event(voe_idx, [EVENT_TLV_IF])
     #check_cc_status_values(voe_idx, rx_port, port_tlv, if_tlv)
@@ -392,35 +392,35 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
 
     if $cap_oam_v2 && (tag_vid != 0)    # CCM Rx Port and Port move event is not supported on Serval1
         test "Check RX port move" do
-        console("Configure Down VOE/VOI to have two ports")
+        t_i("Configure Down VOE/VOI to have two ports")
         vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]},#{$ts.dut.port_list[$port2]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
         vce_config($u_voi_vce, "#{$ts.dut.port_list[$port1]}", $vid, 0, 0, $u_voi_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
 
-        console("Transmit four valid CCM frame against VOE on the extra port")
+        t_i("Transmit four valid CCM frame against VOE on the extra port")
         frametx = frame.dup
         frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid, $megid)
         for i in 0..3
             frame_tx(frametx, $port2, "", "", "", "")
         end
     
-        console("Check PDU seen, events and RX port")
+        t_i("Check PDU seen, events and RX port")
         check_pdu_seen(voe_idx, PDU_CCM)
         check_voe_event(voe_idx, [EVENT_PORT_MOVE])
         #check_cc_status_values(voe_idx, rx_port, port_tlv, if_tlv)
         check_cc_status_values(voe_idx, $ts.dut.port_list[$port2], 2, 2)
 
-        console("Configure Down VOE/VOI to have one port ")
+        t_i("Configure Down VOE/VOI to have one port ")
         vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
         vce_config($u_voi_vce, "#{$ts.dut.port_list[$port1]},#{$ts.dut.port_list[$port2]}", $vid, 0, 0, $u_voi_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
         end
     end
 
     test "Check CCM copy to CPU" do
-    console("Configure CCM copy to ALL")
+    t_i("Configure CCM copy to ALL")
     #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period)
 
-    console("transmit three CCM frames and check that all are copied to CPU")
+    t_i("transmit three CCM frames and check that all are copied to CPU")
     ccm_count = 0
     rx_ifh = rx_ifh_create()
     frametx = frame.dup
@@ -430,11 +430,11 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     end
 
     if ($cap_oam_v2)    # Auto copy CCM is only supported on V2
-        console("Configure CCM copy to AUTO")
+        t_i("Configure CCM copy to AUTO")
         #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
         voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_AUTO")
 
-        console("transmit four valid CCM frames fast and check that only a sample is copied to CPU")
+        t_i("transmit four valid CCM frames fast and check that only a sample is copied to CPU")
         ccm_count = 0
         $ts.dut.call("mesa_port_counters_clear", $ts.dut.port_list[$npi_port])
         for i in 0..3
@@ -445,14 +445,14 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
             t_e("Received CCM frame count unexpected. Expected <= 2 counted #{pcounters["rmon"]["tx_etherStatsPkts"]}")
         end
 
-        console("transmit three valid CCM frames slow and check that all frames are copied to CPU")
+        t_i("transmit three valid CCM frames slow and check that all frames are copied to CPU")
         ccm_count = 0
         for i in 0..2
             sleep(4)
             frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
         end
 
-        console("transmit three invalid CCM frames slow and check that all frames are copied to CPU")
+        t_i("transmit three invalid CCM frames slow and check that all frames are copied to CPU")
         frametx = frame.dup
         frametx += ccm_pdu_create(level, $period, exp_sequence, $peer_mepid+1, $megid)
         ccm_count = 0
@@ -481,12 +481,12 @@ end
 def voe_cc_block_test_func(voe_idx, level, tag_vid)
     test "voe_cc_block_test_func  voe_idx #{voe_idx}  level #{level}  tag_vid #{tag_vid}" do
 
-    console("Before transmitting CCM. Clear events and counters")
+    t_i("Before transmitting CCM. Clear events and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
     test "Transmit CCM frame behind VOE to be filtered/blocked." do
@@ -494,24 +494,24 @@ def voe_cc_block_test_func(voe_idx, level, tag_vid)
     frametx += ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
     frame_tx(frametx, $port1, "", "", frametx, "")
 
-    console("Check TX Low level PDU seen")
+    t_i("Check TX Low level PDU seen")
     check_pdu_seen(voe_idx, PDU_TX_LOW_LEVEL)
 
-    console("Check Discard counters")
+    t_i("Check Discard counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 1)
     end
 
     test "Transmit CCM frame to be forwarded." do
-    console ("Transmit CCM frame behind VOE to be forwarded.")
+    t_i ("Transmit CCM frame behind VOE to be forwarded.")
     frametx = frame.dup
     frametx += ccm_pdu_create(level+1, $period, 0, $peer_mepid, $megid)
     frame_tx(frametx, $port1, frametx, "", frametx, "")
 
-    console("Transmit CCM frame in front of VOE to be forwarded.")
+    t_i("Transmit CCM frame in front of VOE to be forwarded.")
     frame_tx(frametx, $port0, "", frametx, frametx, "")
 
-    console("Check Tx and Discard counters")
+    t_i("Check Tx and Discard counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 1)
     check_ccm_counters(voe_idx, 0, 0, 0, 0)
@@ -525,12 +525,12 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
 
     port_domain = (tag_vid == 0) ? true : false
 
-    console("Before injecting CCM. Clear events and and counters")
+    t_i("Before injecting CCM. Clear events and and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame.")
+    t_i("Create frame.")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     ccm_pdu = ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
 
@@ -539,25 +539,25 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     frametx = tx_ifh_create(vid, $ts.dut.port_list[$port0], "MESA_PACKET_OAM_TYPE_CCM", false, false, iflow) + frame_create(MC_STRING, SC_STRING) + ccm_pdu.dup
 
     test "Check no RDI insertion." do
-    console("Enable CCM in VOE.")
+    t_i("Enable CCM in VOE.")
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period)
 
-    console("Create tx and rx frames")
+    t_i("Create tx and rx frames")
     framerx = frame.dup + ccm_pdu.dup
 
-    console("Inject CCM frame and check received CCM with no RDI.")
+    t_i("Inject CCM frame and check received CCM with no RDI.")
     frame_tx(frametx, $npi_port, framerx , "", "", "")
     end
 
     test "Check RDI insertion." do
-    console("Set RDI active in VOE")
+    t_i("Set RDI active in VOE")
     $ts.dut.call("mesa_voe_cc_rdi_set", voe_idx, true)
 
-    console("Inject CCM frame and check received CCM with RDI.")
+    t_i("Inject CCM frame and check received CCM with RDI.")
     framerx = frame.dup + ccm_pdu_create(level, $period, $cap_oam_v2 ? 1 : 0, $peer_mepid, $megid, 1)     # On Jaguar2 the sequence number is inserted when RDI insertion is enabled
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    console("Check counters")
+    t_i("Check counters")
     #check_ccm_counters(voe_idx, ccm_rx_valid, ccm_rx_invalid, ccm_rx_seq, ccm_tx)
     check_ccm_counters(voe_idx, 0, 0, 0, $cap_oam_v2 ? 2 : 0)   # On Serval the CCM TX counter only count when the sequence number update is enabled
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
@@ -565,18 +565,18 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check sequence number insertion." do
-    console("Clear RDI active in VOE")
+    t_i("Clear RDI active in VOE")
     $ts.dut.call("mesa_voe_cc_rdi_set", voe_idx, false)
 
-    console("Enable sequence number update")
+    t_i("Enable sequence number update")
     #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_ALL", true)
 
-    console("Inject CCM frame and check received CCM with no RDI and sequence number.")
+    t_i("Inject CCM frame and check received CCM with no RDI and sequence number.")
     framerx = frame.dup + ccm_pdu_create(level, $period, $cap_oam_v2 ? 2 : 1, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    console("Inject CCM frame and check received CCM with no RDI and sequence number.")
+    t_i("Inject CCM frame and check received CCM with no RDI and sequence number.")
     framerx = frame.dup + ccm_pdu_create(level, $period, $cap_oam_v2 ? 3 : 2, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
@@ -584,19 +584,19 @@ def voe_cc_inject_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check count as selected." do
-    console("Enable count as selected")
+    t_i("Enable count as selected")
     #voe_cc_config(voe_idx, enable, peer_mepid, megid, prio, period, cpu_copy="MESA_OAM_CPU_COPY_ALL", seq_no=false, selected=false)
     voe_cc_config(voe_idx, true, $peer_mepid, $megid, $prio, $period, "MESA_OAM_CPU_COPY_ALL", false, true)
 
-    console("Inject CCM frame.")
+    t_i("Inject CCM frame.")
     framerx = frame.dup + ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    console("Check counters")
+    t_i("Check counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 0, 4, 0, 1, 0, 0)
 
-    console("Clear and check counters")
+    t_i("Clear and check counters")
     clear_all_counters(voe_idx, OAM_CNT_ALL)
     check_ccm_counters(voe_idx, 0, 0, 0, 0)
     check_voe_counters(voe_idx, 0, 0, 0, 0, 0, 0)
@@ -608,49 +608,49 @@ end
 def voe_laps_rx_test_func(voe_idx, level, tag_vid, isdx, res_port)
     test "voe_laps_rx_test_func  voe_idx #{voe_idx}  level #{level}  tag_vid #{tag_vid}  isdx #{isdx}, res_port #{res_port}" do
 
-    console("Before transmitting LAPS. Clear events and status")
+    t_i("Before transmitting LAPS. Clear events and status")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame")
+    t_i("Create frame")
     frametx = frame_create(MC_STRING, SC_STRING, tag_vid) + laps_pdu_create(level, REQUEST_MANUEL_SWITCH)   # Manuel request
     rx_ifh = rx_ifh_create(isdx, $ts.dut.port_list[res_port])
 
     test "Check no LAPS handling." do
-    console("Disable LAPS")
+    t_i("Disable LAPS")
     #voe_laps_config(voe_idx, enable, count_as_selected)
     voe_laps_config(voe_idx, false, false)
 
-    console("Transmit valid LAPS frame against VOE - copy to CPU is not expected")
+    t_i("Transmit valid LAPS frame against VOE - copy to CPU is not expected")
     frame_tx(frametx, $port0, "", "", "", "")
     end
 
     test "Check LAPS handling." do
-    console("Enable LAPS - no count as selected")
+    t_i("Enable LAPS - no count as selected")
     #voe_laps_config(voe_idx, enable, count_as_selected)
     voe_laps_config(voe_idx, true, false)
 
-    console("Transmit valid LAPS frame against VOE - copy to CPU is expected")
+    t_i("Transmit valid LAPS frame against VOE - copy to CPU is expected")
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
 
-    console("After transmitting LAPS. Check PDU seen")
+    t_i("After transmitting LAPS. Check PDU seen")
     check_pdu_seen(voe_idx, PDU_LAPS)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 2, 0, 0, 0, 0, 0)
     end
 
     test "Check count as selected." do
-    console("Enable count as selected")
+    t_i("Enable count as selected")
     #voe_laps_config(voe_idx, enable, count_as_selected)
     voe_laps_config(voe_idx, true, true)
 
-    console("Transmit valid LAPS frame against VOE")
+    t_i("Transmit valid LAPS frame against VOE")
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, 2, 0, 1, 0, 0, 0)
     end
@@ -664,12 +664,12 @@ def voe_lb_rx_test_func(voe_idx, level, tag_vid)
     lbr_tx_exp = 0
     lbr_rx_exp = 0
 
-    console("Before transmitting LBM. Clear events, status and counters")
+    t_i("Before transmitting LBM. Clear events, status and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame")
+    t_i("Create frame")
     framemc = frame_create(MC_STRING, SC_STRING, tag_vid)
     frameuctx = frame_create(UC_STRING, SC_STRING, tag_vid)
     frameucrx = frame_create(SC_STRING, UC_STRING, tag_vid)
@@ -677,24 +677,24 @@ def voe_lb_rx_test_func(voe_idx, level, tag_vid)
     rx_ifh = rx_ifh_create()
 
     test "Check no LB handling." do
-    console("LB disable test")
+    t_i("LB disable test")
     #voe_lb_config(voe_idx, enable, count_as_selected, trans_id)
     voe_lb_config(voe_idx, false, false, 0)
 
-    console("Transmit valid LBM frame against VOE")
+    t_i("Transmit valid LBM frame against VOE")
     frametx = framemc.dup + lb_pdu_create(level, 3, 5)
     frame_tx(frametx, $port0, "", "", "", "")
     oam_rx_exp += 1
 
-    console("Check LBM PDU seen")
+    t_i("Check LBM PDU seen")
     check_pdu_seen(voe_idx, PDU_LBM)
 
-    console("Transmit valid LBR frame against VOE")
+    t_i("Transmit valid LBR frame against VOE")
     frametx = frameuctx.dup + lb_pdu_create(level, 2, 5)
     frame_tx(frametx, $port0, "", "", "", "")
     oam_rx_exp += 1
 
-    console("Check LBR PDU seen and Selected counters")
+    t_i("Check LBR PDU seen and Selected counters")
     check_pdu_seen(voe_idx, PDU_LBR)
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, 0, 0, 0, 0, 0)
@@ -703,127 +703,127 @@ def voe_lb_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check LB handling." do
-    console("LB enable test - no count as selected - no LBM to CPU")
+    t_i("LB enable test - no count as selected - no LBM to CPU")
     #voe_lb_config(voe_idx, enable, count_as_selected, trans_id, lbm_copy = false)
     voe_lb_config(voe_idx, true, false, 5)
 
-    console("Transmit valid LBM frame against VOE")
+    t_i("Transmit valid LBM frame against VOE")
     frametx = framemc.dup + lb_pdu_create(level, 3, 5)
     frame_tx(frametx, $port0, framerx, "", "", "")
     oam_rx_exp += 1
     lbr_tx_exp += 1
 
-    console("Check LBM PDU seen")
+    t_i("Check LBM PDU seen")
     check_pdu_seen(voe_idx, PDU_LBM)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp, 0, 0, 0, 0)
 
-    console("Check LB counters in VOE")
+    t_i("Check LB counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 0, lbr_tx_exp, 0)
     end
 
     test "Check count as selected." do
-    console("LB enable test - count as selected")
+    t_i("LB enable test - count as selected")
     voe_lb_config(voe_idx, true, true, LBM_TRANSACTION_ID_NONE)
 
-    console("Transmit valid LBM frame against VOE")
+    t_i("Transmit valid LBM frame against VOE")
     frametx = framemc.dup + lb_pdu_create(level, 3, 5)
     frame_tx(frametx, $port0, framerx, "", "", "")
     lbr_tx_exp += 1
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp-1, 1, 1, 0, 0)     # 
 
-    console("Check LB counters in VOE")
+    t_i("Check LB counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 0, lbr_tx_exp, 0)
 
-    console("Transmit valid LBR frame against VOE - No OOO")
+    t_i("Transmit valid LBR frame against VOE - No OOO")
     frametx = frameuctx.dup + lb_pdu_create(level, 2, 5)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     lbr_rx_exp += 1
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp-1, 2, 1, 0, 0)
 
-    console("Check LBR counters in VOE")
+    t_i("Check LBR counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 0, lbr_tx_exp, 0)
     end
 
     test "Check OOO." do
-    console("LB enable test - no count as selected")
+    t_i("LB enable test - no count as selected")
     voe_lb_config(voe_idx, true, false, LBM_TRANSACTION_ID_NONE)
 
-    console("Transmit valid LBR frame against VOE - With OOO")
+    t_i("Transmit valid LBR frame against VOE - With OOO")
     frametx = frameuctx.dup + lb_pdu_create(level, 2, 7)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     lbr_rx_exp += 1
     oam_rx_exp += 1
 
-    console("Check Unexpected Transaction PDU seen")
+    t_i("Check Unexpected Transaction PDU seen")
     check_pdu_seen(voe_idx, PDU_LBR_TRANS)
 
-     console("Check Rx and Selected counters")
+     t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp-1, 2, 1, 0, 0)
 
-    console("Check OOO counters in VOE")
+    t_i("Check OOO counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm, tx_trans=LBM_TRANSACTION_ID_NONE, rx_trans=LBM_TRANSACTION_ID_NONE)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 1, lbr_tx_exp, 0, 5, 7)
     end
 
     test "Check TLV without CRC32 error." do
-    console("Transmit valid LBR frame against VOE - With Test TLV with no CRC32 error")
+    t_i("Transmit valid LBR frame against VOE - With Test TLV with no CRC32 error")
     #lbr_test_tlv_pdu_create(level, trans_id, error)
     frametx = frameuctx.dup + lbr_test_tlv_pdu_create(level, 8, false)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     lbr_rx_exp += 1
     oam_rx_exp += 1
 
-    console("Check LBR PDU seen")
+    t_i("Check LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_LBR)
 
-     console("Check Rx and Selected counters")
+     t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp-1, 2, 1, 0, 0)
 
-    console("Check CRC counters in VOE")
+    t_i("Check CRC counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm, tx_trans=LBM_TRANSACTION_ID_NONE, rx_trans=LBM_TRANSACTION_ID_NONE, rx_crc=0)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 1, lbr_tx_exp, 0, 5, 8, 0)
     end
 
     test "Check TLV with CRC32 error." do
-    console("Transmit valid LBR frame against VOE - With Test TLV with CRC32 error")
+    t_i("Transmit valid LBR frame against VOE - With Test TLV with CRC32 error")
     #lbr_test_tlv_pdu_create(level, trans_id, error)
     frametx = frameuctx.dup + lbr_test_tlv_pdu_create(level, 9, true)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     lbr_rx_exp += 1
     oam_rx_exp += 1
 
-    console("Check LBR PDU seen")
+    t_i("Check LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_LBR)
 
-     console("Check Rx and Selected counters")
+     t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, lbr_tx_exp-1, 2, 1, 0, 0)
 
-    console("Check CRC counters in VOE")
+    t_i("Check CRC counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm, tx_trans=LBM_TRANSACTION_ID_NONE, rx_trans=LBM_TRANSACTION_ID_NONE, rx_crc=0)
     check_voe_lb_counters(voe_idx, lbr_rx_exp, 1, lbr_tx_exp, 0, 5, 9, 1)
     end
 
     test "Check LBM copy to CPU." do
-    console("LB enable test - no count as selected - LBM to CPU")
+    t_i("LB enable test - no count as selected - LBM to CPU")
     #voe_lb_config(voe_idx, enable, count_as_selected, trans_id, lbm_copy = false)
     voe_lb_config(voe_idx, true, false, 0, true)
 
-    console("Transmit valid LBM frame against VOE")
+    t_i("Transmit valid LBM frame against VOE")
     frametx = framemc.dup + lb_pdu_create(level, 3, 5)
     frame_tx(frametx, $port0, framerx, "", "", rx_ifh + frametx)
     end
@@ -836,12 +836,12 @@ def voe_lb_inject_test_func(voe_idx, level, tag_vid)
 
     port_domain = (tag_vid == 0) ? true : false
 
-    console("Before injecting LBM. Clear events and counters")
+    t_i("Before injecting LBM. Clear events and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     lb_pdu = lb_pdu_create(level, 3, 0)
 
@@ -850,28 +850,28 @@ def voe_lb_inject_test_func(voe_idx, level, tag_vid)
     frametx = tx_ifh_create(vid, $ts.dut.port_list[$port0], "MESA_PACKET_OAM_TYPE_LBM", false, false, iflow) + frame_create(MC_STRING, SC_STRING) + lb_pdu.dup
 
     test "Check no LB handling." do
-    console("LB disable test")
+    t_i("LB disable test")
     #voe_lb_config(voe_idx, enable, count_as_selected, trans_id, lbm_copy = false)
     voe_lb_config(voe_idx, false, false, 0)
 
-    console("Inject two LBM frame.")
+    t_i("Inject two LBM frame.")
     framerx = frame.dup + lb_pdu.dup
     frame_tx(frametx, $npi_port, framerx , "", "", "")
     frame_tx(frametx, $npi_port, framerx , "", "", "")
     end
 
     test "Check LB handling." do
-    console("LB enable test")
+    t_i("LB enable test")
     #voe_lb_config(voe_idx, enable, count_as_selected, trans_id, lbm_copy = false)
     voe_lb_config(voe_idx, true, false, 5)
 
-    console("Inject two LBM frame.")
+    t_i("Inject two LBM frame.")
     framerx = frame.dup + lb_pdu_create(level, 3, 5)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
     framerx = frame.dup + lb_pdu_create(level, 3, 6)
     frame_tx(frametx, $npi_port, framerx , "", "", "")
 
-    console("Check LB counters in VOE")
+    t_i("Check LB counters in VOE")
     #check_voe_lb_counters(voe_idx, rx_lbr, rx_oo, tx_lbr, tx_lbm, tx_trans=LBM_TRANSACTION_ID_NONE, rx_trans=LBM_TRANSACTION_ID_NONE)
     check_voe_lb_counters(voe_idx, 0, 0, 0, 2, 7, 5-1)  #Expected Rx transaction id is configured one lower than Tx 
     end
@@ -883,79 +883,79 @@ def voe_lt_rx_test_func(voe_idx, level, tag_vid)
 
     oam_rx_exp = 0
 
-    console("Before transmitting LTM. Clear events, status and counters")
+    t_i("Before transmitting LTM. Clear events, status and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     rx_ifh = rx_ifh_create()
 
     test "Check no LT handling." do
-    console("LT disable test")
+    t_i("LT disable test")
     #voe_lt_config(voe_idx, enable, count_as_selected)
     voe_lt_config(voe_idx, false, false)
 
-    console("Transmit valid LTM frame against VOE")
+    t_i("Transmit valid LTM frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 5, 0)
     frame_tx(frametx, $port0, "", "", "", "")
     oam_rx_exp += 1
 
-    console("Check LTM PDU seen")
+    t_i("Check LTM PDU seen")
     check_pdu_seen(voe_idx, PDU_LTM)
 
-    console("Transmit valid LTR frame against VOE")
+    t_i("Transmit valid LTR frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 4, 0)
     frame_tx(frametx, $port0, "", "", "", "")
     oam_rx_exp += 1
 
-    console("Check LTR PDU seen")
+    t_i("Check LTR PDU seen")
     check_pdu_seen(voe_idx, PDU_LTR)
     end
 
     test "Check LT handling." do
-    console("LT enable test - no count as selected")
+    t_i("LT enable test - no count as selected")
     voe_lt_config(voe_idx, true, false)
 
-    console("Transmit valid LTM frame against VOE")
+    t_i("Transmit valid LTM frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 5, 0)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     oam_rx_exp += 1
 
-    console("Check LTM PDU seen")
+    t_i("Check LTM PDU seen")
     check_pdu_seen(voe_idx, PDU_LTM)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, 0, 0, 0, 0, 0)
 
-    console("Transmit valid LTR frame against VOE")
+    t_i("Transmit valid LTR frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 4, 0)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
     oam_rx_exp += 1
 
-    console("Check LTR PDU seen")
+    t_i("Check LTR PDU seen")
     check_pdu_seen(voe_idx, PDU_LTR)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, oam_rx_exp, 0, 0, 0, 0, 0)
     end
 
     test "Check count as selected." do
-    console("LT enable test - count as selected")
+    t_i("LT enable test - count as selected")
     voe_lt_config(voe_idx, true, true)
 
-    console("Transmit valid LTR frame against VOE")
+    t_i("Transmit valid LTR frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 4, 0)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
 
-    console("Transmit valid LTM frame against VOE")
+    t_i("Transmit valid LTM frame against VOE")
     frametx = frame.dup + lt_pdu_create(level, 5, 0)
     frame_tx(frametx, $port0, "", "", "", rx_ifh + frametx)
 
-    console("Check Rx and Selected counters")
+    t_i("Check Rx and Selected counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
 
     check_voe_counters(voe_idx, oam_rx_exp, 0, 2, 0, 0, 0)
@@ -969,7 +969,7 @@ def voi_raps_rx_test_func(voi_idx, level, tag_vid, isdx, res_port, in_port, out_
 
     up = (res_port != in_port) ? true : false
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     frametx = frame.dup + raps_pdu_create(level, 0x07)   # Manuel request
     rx_ifh = rx_ifh_create(isdx, $ts.dut.port_list[res_port])
@@ -977,28 +977,28 @@ def voi_raps_rx_test_func(voi_idx, level, tag_vid, isdx, res_port, in_port, out_
     test "Check RAPS discard." do
     voi_raps_config(voi_idx, "MESA_OAM_RAPS_HANDLING_DISCARD")
 
-    console("Transmit valid RAPS frame against VOI")
+    t_i("Transmit valid RAPS frame against VOI")
     frame_tx(frametx, in_port, "", "", up ? frametx : "", "")
     end
 
     test "Check RAPS copy to CPU." do
     voi_raps_config(voi_idx, "MESA_OAM_RAPS_HANDLING_COPY_CPU")
 
-    console("Transmit valid RAPS frame against VOI. Receive copied RAPS frame from NPI port")
+    t_i("Transmit valid RAPS frame against VOI. Receive copied RAPS frame from NPI port")
     frame_tx(frametx, in_port, (out_port == $port0) ? frametx : "", (out_port == $port1) ? frametx : "", (out_port == $port2) ? frametx : frametx, rx_ifh + frametx)
     end
 
     test "RAPS redirect to CPU" do
     voi_raps_config(voi_idx, "MESA_OAM_RAPS_HANDLING_REDIR_CPU")
 
-    console("Transmit valid RAPS frame against VOI")
+    t_i("Transmit valid RAPS frame against VOI")
     frame_tx(frametx, in_port, "", "", up ? frametx : "", rx_ifh + frametx)
     end
 
     test "RAPS no handling" do
     voi_raps_config(voi_idx, "MESA_OAM_RAPS_HANDLING_NONE")
 
-    console("Transmit valid RAPS frame against VOI")
+    t_i("Transmit valid RAPS frame against VOI")
     frame_tx(frametx, in_port, (out_port == $port0) ? frametx : "", (out_port == $port1) ? frametx : "", (out_port == $port2) ? frametx : frametx, "")
     end
 
@@ -1008,13 +1008,13 @@ end
 def voi_raps_inject_test_func(voi_idx, level, tag_vid, up)
     test "voi_raps_inject_test_func  voi_idx #{voi_idx}  level #{level}  tag_vid #{tag_vid}  up #{up}" do
 
-    console("Create tx and rx frames")
+    t_i("Create tx and rx frames")
     raps_pdu = raps_pdu_create(level, 0x07)
     iflow = 0   # Never port domain
     frametx = tx_ifh_create(tag_vid, $ts.dut.port_list[$port0], "MESA_PACKET_OAM_TYPE_CCM", true, up, iflow) + frame_create(MC_STRING, SC_STRING) + raps_pdu.dup
     framerx = frame_create(MC_STRING, SC_STRING, tag_vid) + raps_pdu.dup
 
-    console("Inject RAPS frame. Receive RAPS frame from front ports")
+    t_i("Inject RAPS frame. Receive RAPS frame from front ports")
     frame_tx(frametx, $npi_port, !up ? framerx : "", up ? framerx : "", up ? framerx : "", "")
 
     end
@@ -1025,34 +1025,34 @@ def voi_lbm_ltm_rx_test_func(voi_idx, level, tag_vid, opcode, up)
 
     lbm = (opcode == 3) ? true : false
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(lbm ? UC_STRING : MC_STRING, SC_STRING, tag_vid)
     frametx = frame.dup + (lbm ? lb_pdu_create(level, opcode, 0) : lt_pdu_create(level, opcode, 0))
     rx_ifh = rx_ifh_create()
 
     test "Check no LBM/LTM handling." do
     if (lbm)
-        console("LBM copy CPU disable test")
+        t_i("LBM copy CPU disable test")
         voi_lbm_config(voi_idx, false)
     else
-        console("LTM copy CPU disable test")
+        t_i("LTM copy CPU disable test")
         voi_ltm_config(voi_idx, false)
     end
 
-    console("Transmit valid " + (lbm ? "LBM " : "LTM ") + "frame against VOI")
+    t_i("Transmit valid " + (lbm ? "LBM " : "LTM ") + "frame against VOI")
     frame_tx(frametx, up ? $port1 : $port0,  up ? frametx : "", !up ? frametx : "", frametx, "")
     end
 
     test "Check LBM/LTM handling." do
     if (lbm)
-        console("LBM copy CPU enable test")
+        t_i("LBM copy CPU enable test")
         voi_lbm_config(voi_idx, true)
     else
-        console("LTM copy CPU enable test")
+        t_i("LTM copy CPU enable test")
         voi_ltm_config(voi_idx, true)
     end
 
-    console("Transmit valid " + (lbm ? "LBM " : "LTM ") + "frame against VOI")
+    t_i("Transmit valid " + (lbm ? "LBM " : "LTM ") + "frame against VOI")
     frame_tx(frametx, up ? $port1 : $port0,  "", "", up ? frametx : "", rx_ifh + frametx)
     end
     end
@@ -1064,7 +1064,7 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     rx_discard_cnt = 0
     rx_oam_cnt = 0
 
-    console("Before transmitting Frames. Clear events, status and counters")
+    t_i("Before transmitting Frames. Clear events, status and counters")
     check_voe_event(voe_idx, [EVENT_CLEAR])
     check_pdu_seen(voe_idx, PDU_CLEAR)
     clear_all_counters(voe_idx, OAM_CNT_ALL)
@@ -1072,7 +1072,7 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     #voe_config_change(voe_idx, dmac_check, mel_high)
     voe_config_change(voe_idx, "MESA_VOE_DMAC_CHECK_BOTH", false)
 
-    console("Create frame")
+    t_i("Create frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     frameuctx = frame_create(UC_STRING, SC_STRING, tag_vid)
     frameucrx = frame_create(SC_STRING, UC_STRING, tag_vid)
@@ -1080,23 +1080,23 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
 
     if ($cap_oam_v2 && (tag_vid == 0))
         test "Check Block high MEL." do
-        console("Transmit high level CCM frame against VOE without block of high MEL")
+        t_i("Transmit high level CCM frame against VOE without block of high MEL")
         frametx = frame.dup + ccm_pdu_create(level+1, $period, 0, $peer_mepid, $megid)
         frame_tx(frametx, $port0, "", frametx, frametx, "")
 
-        console("Check no PDU seen")
+        t_i("Check no PDU seen")
         check_pdu_seen(voe_idx, PDU_NONE)
 
         #voe_config_change(voe_idx, dmac_check, mel_high)
         voe_config_change(voe_idx, "MESA_VOE_DMAC_CHECK_BOTH", true)
 
-        console("Transmit high level CCM frame against VOE block of high MEL. Receive forwarded CCM frame from front port is not expected")
+        t_i("Transmit high level CCM frame against VOE block of high MEL. Receive forwarded CCM frame from front port is not expected")
         frame_tx(frametx, $port0, "", "", "", "")
 
-        console("Check High level PDU seen")
+        t_i("Check High level PDU seen")
         check_pdu_seen(voe_idx, PDU_HIGH_LEVEL)
     
-        console("Check Rx discard and OAM counters")
+        t_i("Check Rx discard and OAM counters")
         #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
         check_voe_counters(voe_idx, 0, 0, 0, 0, 1, 0)
 
@@ -1108,38 +1108,38 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     end
 
     test "Check Unexpected opcode." do
-    console("Transmit unexpected Opcode frame against VOE")
+    t_i("Transmit unexpected Opcode frame against VOE")
     frametx = frame.dup + unexpected_pdu_create(level, 60)
     frame_tx(frametx, $port0, "", "", "", "")
     rx_oam_cnt += 1
 
-    console("Check unexpected Opcode PDU seen")
+    t_i("Check unexpected Opcode PDU seen")
     check_pdu_seen(voe_idx, PDU_OPCODE)
 
-    console("Check Rx discard and OAM counters")
+    t_i("Check Rx discard and OAM counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, rx_oam_cnt, 0, 0, 0, 0, 0)
     end
 
     if ($cap_oam_v2)
         test "Check Unexpected version." do
-        console("Transmit unexpected Version LBM frame against VOE")
+        t_i("Transmit unexpected Version LBM frame against VOE")
         frametx = frame.dup + unexpected_pdu_create(level, 3, 2)
         frame_tx(frametx, $port0, "", "", "", "")
         rx_discard_cnt += 1
 
-        console("Check unexpected Version PDU seen")
+        t_i("Check unexpected Version PDU seen")
         check_pdu_seen(voe_idx, PDU_VERSION)
 
-        console("Transmit unexpected Version CCM frame against VOE")
+        t_i("Transmit unexpected Version CCM frame against VOE")
         frametx = frame.dup + ccm_pdu_create(level, $period, 0, $peer_mepid, $megid, 0, 2)
         frame_tx(frametx, $port0, "", "", "", "")
         rx_discard_cnt += 1
 
-        console("Check unexpected Version PDU seen")
+        t_i("Check unexpected Version PDU seen")
         check_pdu_seen(voe_idx, PDU_VERSION)
 
-        console("Check Rx discard and OAM counters")
+        t_i("Check Rx discard and OAM counters")
         #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
         check_voe_counters(voe_idx, rx_oam_cnt, 0, 0, 0, rx_discard_cnt, 0)
         end
@@ -1149,30 +1149,30 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     rx_oam_cnt = 0
     clear_all_counters(voe_idx, OAM_CNT_ALL)
 
-    console("LB enable")
+    t_i("LB enable")
     voe_lb_config(voe_idx, true, false, 5)
 
     test "Check check and allow both Unicast and Multicast MAC test." do
-    console("Create frame with invalid Multicast MAC")
+    t_i("Create frame with invalid Multicast MAC")
     frame = frame_create(MC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid MC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid MC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check Invalid DMAC PDU seen")
+    t_i("Check Invalid DMAC PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Create frame with invalid Unicast MAC")
+    t_i("Create frame with invalid Unicast MAC")
     frame = frame_create(UC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid UC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid UC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check Invalid DMAC PDU seen")
+    t_i("Check Invalid DMAC PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
     end
 
@@ -1180,50 +1180,50 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     #voe_config_change(voe_idx, dmac_check, mel_high)
     voe_config_change(voe_idx, "MESA_VOE_DMAC_CHECK_UNICAST", false)
 
-    console("Create frame with valid Multicast MAC")
+    t_i("Create frame with valid Multicast MAC")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with valid MC MAC")
+    t_i("Transmit valid LBM frame against VOE with valid MC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check valid LBR PDU seen")
+    t_i("Check valid LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Create frame with invalid Multicast MAC")
+    t_i("Create frame with invalid Multicast MAC")
     frame = frame_create(MC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid MC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid MC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check valid LBR PDU seen")
+    t_i("Check valid LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Check Rx discard and OAM counters")
+    t_i("Check Rx discard and OAM counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, rx_oam_cnt, 0, 0, 0, rx_discard_cnt, 0)
 
-    console("Create frame with invalid Unicast MAC")
+    t_i("Create frame with invalid Unicast MAC")
     frame = frame_create(UC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid UC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid UC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check Invalid DMAC PDU seen")
+    t_i("Check Invalid DMAC PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Transmit valid LBM frame against VOE with valid UC MAC")
+    t_i("Transmit valid LBM frame against VOE with valid UC MAC")
     frametx = frameuctx.dup + lbm_pdu.dup
     framerx = frameucrx.dup + lb_pdu_create(level, 2, 5)
     frame_tx(frametx, $port0, framerx, "", "", "")
     rx_oam_cnt += 1
 
-    console("Check LBM PDU seen")
+    t_i("Check LBM PDU seen")
     check_pdu_seen(voe_idx, PDU_LBM)
     end
 
@@ -1231,56 +1231,56 @@ def voe_rx_test_func(voe_idx, level, tag_vid)
     #voe_config_change(voe_idx, dmac_check, mel_high)
     voe_config_change(voe_idx, "MESA_VOE_DMAC_CHECK_MULTICAST", false)
 
-    console("Create frame with valid Unicast MAC")
+    t_i("Create frame with valid Unicast MAC")
     frame = frame_create(UC_STRING, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with valid UC MAC")
+    t_i("Transmit valid LBM frame against VOE with valid UC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check valid LBR PDU seen")
+    t_i("Check valid LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Create frame with invalid Unicast MAC")
+    t_i("Create frame with invalid Unicast MAC")
     frame = frame_create(UC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid UC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid UC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check valid LBR PDU seen")
+    t_i("Check valid LBR PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Check Rx discard counters")
+    t_i("Check Rx discard counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, rx_oam_cnt, rx_oam_cnt, 0, 0, rx_discard_cnt, 0)
 
-    console("Create frame with invalid Multicast MAC")
+    t_i("Create frame with invalid Multicast MAC")
     frame = frame_create(MC_STRING_INV, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with invalid MC MAC")
+    t_i("Transmit valid LBM frame against VOE with invalid MC MAC")
     frametx = frame.dup + lbm_pdu.dup
     frame_tx(frametx, $port0, "", "", "", "")
     rx_discard_cnt += 1
 
-    console("Check Invalid DMAC PDU seen")
+    t_i("Check Invalid DMAC PDU seen")
     check_pdu_seen(voe_idx, PDU_DMAC)
 
-    console("Create frame with valid Multicast MAC")
+    t_i("Create frame with valid Multicast MAC")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
-    console("Transmit valid LBM frame against VOE with valid MC MAC")
+    t_i("Transmit valid LBM frame against VOE with valid MC MAC")
     frametx = frame.dup + lbm_pdu.dup
     framerx = frameucrx.dup + lb_pdu_create(level, 2, 5)
     frame_tx(frametx, $port0, framerx, "", "", "")
     rx_oam_cnt += 1
 
-    console("Check LBM PDU seen")
+    t_i("Check LBM PDU seen")
     check_pdu_seen(voe_idx, PDU_LBM)
 
-    console("Check Rx discard and OAM counters")
+    t_i("Check Rx discard and OAM counters")
     #check_voe_counters(voe_idx, rx, tx, rx_sel, tx_sel, rx_discard, tx_discard)
     check_voe_counters(voe_idx, rx_oam_cnt, rx_oam_cnt, 0, 0, rx_discard_cnt, 0)
 
@@ -1294,8 +1294,8 @@ end
 def voi_handled_opcode_test_func(voi_idx, level, frame, opcode, up)
     test "voi_handled_opcode_test_func  voi_idx #{voi_idx}  level #{level}  opcode #{opcode}  up #{up}" do
 
-    console("Check Opcode is not handled")
-    console("Transmit OAM frame against VOI")
+    t_i("Check Opcode is not handled")
+    t_i("Transmit OAM frame against VOI")
     frametx = frame.dup + lb_pdu_create(level, opcode, 0)
     frame_tx(frametx, up ? $port1 : $port0,  up ? frametx : "", !up ? frametx : "", frametx, "")
 
@@ -1305,19 +1305,19 @@ end
 def voi_handled_test_func(voi_idx, level, tag_vid, up)
     test "voi_handled_test_func  voe_idx #{voi_idx}  level #{level}  tag_vid #{tag_vid}  up #{up}" do
 
-    console("Configure VOI to handle LBM - LTM - RAPS")
+    t_i("Configure VOI to handle LBM - LTM - RAPS")
     voi_lbm_config(voi_idx, true)
     voi_ltm_config(voi_idx, true)
     voi_raps_config(voi_idx, "MESA_OAM_RAPS_HANDLING_DISCARD")
 
-    console("Create Unicast frame")
+    t_i("Create Unicast frame")
     frame = frame_create(UC_STRING_INV, SC_STRING, tag_vid)
 
     voi_handled_opcode_test_func(voi_idx, level, frame, 3, up)  # LBM
     voi_handled_opcode_test_func(voi_idx, level, frame, 46, up) # DMR
     voi_handled_opcode_test_func(voi_idx, level, frame, 37, up) # TST
 
-    console("Create Multicast frame")
+    t_i("Create Multicast frame")
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
     voi_handled_opcode_test_func(voi_idx, level, frame, 55, up) # SLM
     voi_handled_opcode_test_func(voi_idx, level, frame, 1, up)  # CCM

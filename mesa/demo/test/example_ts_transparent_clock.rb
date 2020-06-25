@@ -23,7 +23,7 @@ begin   # Get a random egress port between 0 and 3 different from egress port
     eg = rand(3)
 end while eg == ig
 
-console("---------eg: #{eg}  ig: #{ig}---------")
+t_i("---------eg: #{eg}  ig: #{ig}---------")
 
 $port0 = ig
 $port1 = eg
@@ -33,14 +33,14 @@ $pcb = $ts.dut.pcb
 
 
 test "test_conf" do
-    console("Configure the test by calling the example code command. No asymmetry delay")
+    t_i("Configure the test by calling the example code command. No asymmetry delay")
     $ts.dut.run("mesa-cmd example init transparent_clock ing-port #{$ts.dut.p[ig]+1} eg-port #{$ts.dut.p[eg]+1} delay_mode 0")
 end
 
 test "test_run" do
-    console("Time Stamp transparent clock test")
+    t_i("Time Stamp transparent clock test")
 
-    console("Measure the lowest correction value")
+    t_i("Measure the lowest correction value")
     lowest_corr_none = nano_corr_lowest_measure
 
     if ($cap_core_clock != 0)
@@ -68,17 +68,17 @@ test "test_run" do
         diff_max = 500
     end
 
-    console("Clean up the test by calling the example code command")
+    t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 
-    console("Configure the test by calling the example code command. Add asymmetry delay")
+    t_i("Configure the test by calling the example code command. Add asymmetry delay")
     asymmetry = lowest_corr_none-100
     $ts.dut.run("mesa-cmd example init transparent_clock ing-port #{$ts.dut.p[ig]+1} eg-port #{$ts.dut.p[eg]+1} delay_mode 1 asymmetry #{asymmetry}")
 
-    console("Measure the lowest correction value with added asymmetry delay")
+    t_i("Measure the lowest correction value with added asymmetry delay")
     lowest_corr_add = nano_corr_lowest_measure
 
-    console("Check that the correction value has the added asymmetry delay")
+    t_i("Check that the correction value has the added asymmetry delay")
     diff = (lowest_corr_add - (lowest_corr_none - asymmetry))
     if ((lowest_corr_none < lowest_corr_add) || (diff < -diff_max) || (diff > diff_max))
         t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}  lowest_corr_add = #{lowest_corr_add}  diff #{diff}")
@@ -86,6 +86,6 @@ test "test_run" do
 end
 
 test "test_clean_up" do
-    console("Clean up the test by calling the example code command")
+    t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 end

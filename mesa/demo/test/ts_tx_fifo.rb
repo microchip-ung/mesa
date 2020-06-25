@@ -34,24 +34,24 @@ def tod_tx_fifo_test
     # age out any allocated timestamps id's
     4.times {$ts.dut.call("mesa_timestamp_age")}
 
-    console ("Allocate a timestamp id")
+    t_i ("Allocate a timestamp id")
     conf = {port_mask: 1<<$loop_port0, context: 0, cb: 0}
     idx0 = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)    # Just to make sure that the test is working with idx ather than 0
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
-    console ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
+    t_i ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id on NPI against loop port and receive again on NPI port")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create($loop_port1) + frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, "", "", "", framerx, 60)
 
-    console "Calculate the IFH and decode it"
+    t_i "Calculate the IFH and decode it"
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
     ifh = rx_ifh_extract(pkts[1])   # both transmitted and received frame is in 'pkts'
     meta = { no_wait: false, chip_no: 0, xtr_qu: 0, etype: 0, fcs: 0, sw_tstamp: { hw_cnt: 0 }, length: 0}
     $frame_info = $ts.dut.call("mesa_packet_rx_hdr_decode", meta, ifh)
 
-    console ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
+    t_i ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
     $ts.dut.call("mesa_tx_timestamp_update")
 
     # Get the TX timestamp. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback
@@ -61,7 +61,7 @@ def tod_tx_fifo_test
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
     end
 
-    console ("difference between RX and TX timestamp  #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
+    t_i ("difference between RX and TX timestamp  #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
     if (($frame_info["hw_tstamp"] - ts_tx["ts"]) > (1000<<16))    #Experimental value of max 1000 ns difference between transmitting TC and received TC
         t_e("Not the expected difference between RX and TX timestamp. ts_tx[ts] = #{ts_tx["ts"]}  $frame_info[hw_tstamp] = #{$frame_info["hw_tstamp"]}  diff = #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
     end

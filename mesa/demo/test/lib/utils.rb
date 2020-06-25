@@ -91,7 +91,7 @@ MEASURE_PCP_NONE = 0xFFFF
 def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[1000000000], etolerance=[1], with_pre_tx=false, pcp=[])
     test "measure  ig: #{ig}  eg: #{eg}  size: #{size}  sec: #{sec}  frame_rate #{frame_rate}  data_rate #{data_rate}  erate #{erate}  etolerance #{etolerance}  with_pre_tx: #{with_pre_tx}  pcp #{pcp}" do
 
-    console ("Check all ports are up")
+    t_i ("Check all ports are up")
     dut_ports = []
     ig.each do |ig_value|
         dut_ports << $ts.dut.p[ig_value]
@@ -101,19 +101,19 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         t_e ("Port state is not UP")
     end
 
-    console("Clear port statistics")
+    t_i("Clear port statistics")
     $ts.dut.run("mesa-cmd port statis clear")
 
-    console ("learn mac address on egress port")
+    t_i ("learn mac address on egress port")
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
 #    $ts.dut.run("mesa-cmd mac dump")
 
     sec_count = 1000000000/8/(20+size)    # 'size' is requested frame size inclusive checksum
-    console("Calculated frames per sec at line speed: #{sec_count}")
+    t_i("Calculated frames per sec at line speed: #{sec_count}")
 
     pre_tx = with_pre_tx ? 1 : 0
-    console("Start Easy Frame transmitting #{sec*sec_count} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
+    t_i("Start Easy Frame transmitting #{sec*sec_count} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
     time = (pre_tx+sec+100)
     rep = time*sec_count
     ig_ports = ""
@@ -135,10 +135,10 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         ig_ports << "#{$ts.dut.p[ig_value]+1},"
     end
 
-    console("Start tcpdump logging on egress port: #{$ts.pc.p[eg]}")
+    t_i("Start tcpdump logging on egress port: #{$ts.pc.p[eg]}")
     pid_tcp = $ts.pc.bg("tcpdump", "tcpdump -i #{$ts.pc.p[eg]} -j adapter_unsynced -s18 -w /tmp/dump.pcap")
 
-#    console("Wait for necessary amount of frames to be transmitted")
+#    t_i("Wait for necessary amount of frames to be transmitted")
 #    time1 = Time.now
 #    low_count = 0
 #    fail = false
@@ -149,8 +149,8 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
 #        ecounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
 #        if (ecounters["prio"][3]["tx"] != low_count)
 #            ecounters1 = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
-#            console ("At sec_diff #{sec_diff} Low Priority tx detected.  count0 #{ecounters["prio"][3]["tx"]}  count1 #{ecounters1["prio"][3]["tx"]}")
-#            console ("Port tx count0 #{ecounters["rmon"]["tx_etherStatsPkts"]}  tx count1 #{ecounters1["rmon"]["tx_etherStatsPkts"]}")
+#            t_i ("At sec_diff #{sec_diff} Low Priority tx detected.  count0 #{ecounters["prio"][3]["tx"]}  count1 #{ecounters1["prio"][3]["tx"]}")
+#            t_i ("Port tx count0 #{ecounters["rmon"]["tx_etherStatsPkts"]}  tx count1 #{ecounters1["rmon"]["tx_etherStatsPkts"]}")
 #            low_count = ecounters1["prio"][3]["tx"]
 #            fail = true
 #        end
@@ -159,24 +159,24 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
 #        t_e("Failed as low priority tx is counted")
 #    end
 
-    console("Wait for necessary amount of frames to be transmitted")
+    t_i("Wait for necessary amount of frames to be transmitted")
     sleep(pre_tx+sec+2)
 
 #    $ts.dut.run("mesa-cmd mac dump")
 #    $ts.dut.run("mesa-cmd port statis #{ig_ports}#{$ts.dut.p[eg]+1} pac")
 
-    console("Kill the tcpdump process")
+    t_i("Kill the tcpdump process")
     $ts.pc.run("kill -s SIGHUP #{pid_tcp}")
 
-    console("Wait for tcpdump process to terminate")
+    t_i("Wait for tcpdump process to terminate")
     sleep(1)  #TODO        Process.wait(pid_tcp)
 
-    console("Kill Easy Frame transmitters")
+    t_i("Kill Easy Frame transmitters")
     pid_ef.each do |pid|
         $ts.pc.run("kill -s SIGHUP #{pid}")
     end
 
-    console("Wait for Easy Frame transmitter to complete")
+    t_i("Wait for Easy Frame transmitter to complete")
     old_count = 0
     ecounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
     max = 0
@@ -189,7 +189,7 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         t_e("Easy Frame transmitting never completed")
     end
 
-    console("Analyze pcap file")
+    t_i("Analyze pcap file")
     sec_count = 1000000000/8/((data_rate ? 0 : 20)+size)  # 'size' is requested frame size inclusive checksum
     expected_count = ""
     expected_tolerance = ""

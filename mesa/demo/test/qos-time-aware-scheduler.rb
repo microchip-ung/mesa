@@ -29,7 +29,7 @@ def equal_interval_gcl_reconfig_test
     cycle_time = 3*time_interval                                 # GCL cycle time
     cycle_time_ext = time_interval / 2                           # GCL cycle time extension
 
-    console ("Create GCL")
+    t_i ("Create GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
     gcl = conf[0]
     gce_cnt = conf[1]
@@ -47,13 +47,13 @@ def equal_interval_gcl_reconfig_test
     gcl[2]["time_interval"] = time_interval
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    console ("Get TOD of domain 0")
+    t_i ("Get TOD of domain 0")
     tod = $ts.dut.call("mesa_ts_timeofday_get")
     tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_timeofday_set", tod[0])
 
-    console ("Start GCL")
+    t_i ("Start GCL")
     base_time = tod[0].dup
     base_time["seconds"] = 3
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -69,21 +69,21 @@ def equal_interval_gcl_reconfig_test
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Wait for GCL to start")
+    t_i ("Wait for GCL to start")
     sleep 3
 
-    console ("Check GCL is started")
+    t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    console ("Measure the frame rate and cycle time")
+    t_i ("Measure the frame rate and cycle time")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
 
-    console ("-----------Create new GCL with new interval time for cycle extension----------------")
+    t_i ("-----------Create new GCL with new interval time for cycle extension----------------")
     frame_tx_interval_count = 700                                # Number of frame transmitted in a GCL entry time interval
     time_interval = frame_tx_interval_count * frame_tx_time_nano # number of nano for each interval
     cycle_time_1 = 3*time_interval                                 # GCL cycle time
@@ -93,7 +93,7 @@ def equal_interval_gcl_reconfig_test
     gcl[2]["time_interval"] = time_interval
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    console ("Re-configurate GCL with cycle extension")
+    t_i ("Re-configurate GCL with cycle extension")
     # Calculate a new base time two seconds away at cycle end time
     tod = $ts.dut.call("mesa_ts_timeofday_get")
     seconds = tod[0]["seconds"] + 2
@@ -121,21 +121,21 @@ def equal_interval_gcl_reconfig_test
     conf["base_time"] = base_time_1
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Wait for GCL to start")
+    t_i ("Wait for GCL to start")
     sleep 3
 
-    console ("Check GCL is started")
+    t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    console ("Measure the frame rate and cycle time")
+    t_i ("Measure the frame rate and cycle time")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time_1,cycle_time_1,cycle_time_1])
 
-    console ("------------Create new GCL with new interval time for cycle truncation----------")
+    t_i ("------------Create new GCL with new interval time for cycle truncation----------")
     frame_tx_interval_count = 400                                # Number of frame transmitted in a GCL entry time interval
     time_interval = frame_tx_interval_count * frame_tx_time_nano # number of nano for each interval
     cycle_time_2 = 3*time_interval                                 # GCL cycle time
@@ -145,7 +145,7 @@ def equal_interval_gcl_reconfig_test
     gcl[2]["time_interval"] = time_interval
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    console ("Re-configurate GCL with cycle trunkation")
+    t_i ("Re-configurate GCL with cycle trunkation")
     # Calculate a new base time two seconds away at cycle end time
     tod = $ts.dut.call("mesa_ts_timeofday_get")
     seconds = tod[0]["seconds"] + 2
@@ -173,35 +173,35 @@ def equal_interval_gcl_reconfig_test
     conf["base_time"] = base_time_2
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Wait for GCL to start")
+    t_i ("Wait for GCL to start")
     sleep 3
 
-    console ("Check GCL is started")
+    t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    console ("Measure the frame rate and cycle time")
+    t_i ("Measure the frame rate and cycle time")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time_2,cycle_time_2,cycle_time_2])
 
-    console ("Stop GCL")
+    t_i ("Stop GCL")
     conf["gate_enabled"] = false
     conf["config_change"] = false
     conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Wait for GCL to stop")
+    t_i ("Wait for GCL to stop")
     sleep 2
 
-    console ("Check GCL is stopped")
+    t_i ("Check GCL is stopped")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    console ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
+    t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
@@ -220,7 +220,7 @@ def equal_interval_3_prio_1_port_test
     time_interval = frame_tx_interval_count * frame_tx_time_nano
     cycle_time = 3*time_interval
 
-    console ("Create GCL")
+    t_i ("Create GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
     gcl = conf[0]
     gce_cnt = conf[1]
@@ -239,13 +239,13 @@ def equal_interval_3_prio_1_port_test
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[ig[0]], 3, gcl)       # Create dummy GCL in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    console ("Get TOD of domain 0")
+    t_i ("Get TOD of domain 0")
     tod = $ts.dut.call("mesa_ts_timeofday_get")
     tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_timeofday_set", tod[0])
 
-    console ("Start GCL")
+    t_i ("Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
     conf["max_sdu"][0] = frame_size + (frame_size/2)
     conf["max_sdu"][3] = frame_size + (frame_size/2)
@@ -262,16 +262,16 @@ def equal_interval_3_prio_1_port_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[ig[0]], conf)       # Start dummy TAS in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Check GCL is pending")
+    t_i ("Check GCL is pending")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (conf["config_pending"] != true)
         t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
     end
 
-    console ("Wait for GCL to start")
+    t_i ("Wait for GCL to start")
     sleep 3
 
-    console ("Check GCL is started")
+    t_i ("Check GCL is started")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (conf["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
@@ -294,16 +294,16 @@ def equal_interval_3_prio_1_port_test
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
 
-    console ("Stop GCL")
+    t_i ("Stop GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
     conf["gate_enabled"] = false
     conf["config_change"] = false
     conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    console ("Wait for GCL to stop")
+    t_i ("Wait for GCL to stop")
     sleep 2
 
-    console ("Check GCL is stopped")
+    t_i ("Check GCL is stopped")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (conf["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
@@ -322,12 +322,12 @@ def equal_interval_3_prio_1_port_test
         t_e("GCL unexpected number of open gates #{open}")
     end
 
-    console ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
+    t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
 
-    console ("Stop dummy GCL")
+    t_i ("Stop dummy GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[ig[0]])
     conf["gate_enabled"] = false
     conf["config_change"] = false
@@ -347,7 +347,7 @@ def equal_interval_1_prio_3_port_test
     time_interval = frame_tx_interval_count * frame_tx_time_nano
     cycle_time = 3*time_interval
 
-    console ("Initialize GCL configuration")
+    t_i ("Initialize GCL configuration")
     conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg[0]], 256)
     gcl = conf[0]
     gce_cnt = conf[1]
@@ -361,22 +361,22 @@ def equal_interval_1_prio_3_port_test
     gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
     gcl[2]["time_interval"] = time_interval
 
-    console ("Create GCL on all egress ports")
+    t_i ("Create GCL on all egress ports")
     eg.each do |eg_idx|
         gcl[1]["gate_open"][eg_idx] = true  #Enable this prio
         $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg_idx], 3, gcl)
         gcl[1]["gate_open"][eg_idx] = false     #This prio must be false in next loop
     end
 
-    console ("Get TOD of domain 0")
+    t_i ("Get TOD of domain 0")
     tod = $ts.dut.call("mesa_ts_timeofday_get")
     tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_timeofday_set", tod[0])
 
-    console ("Start TAS on all egress ports")
+    t_i ("Start TAS on all egress ports")
     eg.each do |eg_idx|
-        console ("Start GCL")
+        t_i ("Start GCL")
         conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg_idx])
         conf["max_sdu"][eg_idx] = frame_size + (frame_size/2)
         conf["gate_enabled"] = true
@@ -391,28 +391,28 @@ def equal_interval_1_prio_3_port_test
         conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg_idx], conf)
     end
 
-    console ("Wait for GCL to start")
+    t_i ("Wait for GCL to start")
     sleep 3
 
-    console ("Test TAS on all egress ports")
+    t_i ("Test TAS on all egress ports")
     eg.each do |eg_idx|
        #measure(ig,   eg,     size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 2,     false,            false,           [990000000/3],       [2],            true,              [eg_idx], [cycle_time])
     end
 
-    console ("Stop TAS on all egress ports")
+    t_i ("Stop TAS on all egress ports")
     eg.each do |eg_idx|
-        console ("Stop GCL")
+        t_i ("Stop GCL")
         conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg_idx])
         conf["gate_enabled"] = false
         conf["config_change"] = false
         conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg_idx], conf)
     end
 
-    console ("Wait for GCL to stop")
+    t_i ("Wait for GCL to stop")
     sleep 2
 
-    console ("Test witout TAS on all egress ports")
+    t_i ("Test witout TAS on all egress ports")
     eg.each do |eg_idx|
        #measure(ig, eg,       size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 1,     false,            false,           [990000000],         [1],            true,              [eg_idx])
@@ -434,22 +434,22 @@ test "test_conf" do
     $dconf2 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[2], $dpl_cnt)
     $dconf3 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[3], $dpl_cnt)
 
-    console ("Only forward on relevant ports #{$ts.dut.port_list}")
+    t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
     port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
     $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
-    console ("Configure all ports to C tag aware")
+    t_i ("Configure all ports to C tag aware")
     (0..3).each do |i|
         $ts.dut.run("mesa-cmd port flow control #{$ts.dut.p[i]+1} disable")
 
-        console ("Configure all ports to C tag aware")
+        t_i ("Configure all ports to C tag aware")
         conf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[i])
         conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
         conf["untagged_vid"] = MESA_VID_NULL
         $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[i], conf)
 
-        console("Configure ingress prio classificationand prio and dpl mapping to 1:1")
-        console("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
+        t_i("Configure ingress prio classificationand prio and dpl mapping to 1:1")
+        t_i("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
         conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[i])
         conf["tag"]["class_enable"] = true
         conf["tag"]["remark_mode"] = "MESA_TAG_REMARK_MODE_MAPPED"
@@ -468,7 +468,7 @@ test "test_conf" do
         conf["shaper"]["mode"] = "MESA_SHAPER_MODE_LINE"
         $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[i], conf)
 
-        console("Configure egress prio and dpl mapping to 1:1")
+        t_i("Configure egress prio and dpl mapping to 1:1")
         dconf = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[i], $dpl_cnt)
         dconf[0]["pcp"] = [0,1,2,3,4,5,6,7]
         dconf[0]["dei"] = [0,0,0,0,0,0,0,0]
@@ -479,7 +479,7 @@ test "test_conf" do
 end
 
 test "test_run" do
-    console("Test call of TAS global configuration")
+    t_i("Test call of TAS global configuration")
     conf = $ts.dut.call("mesa_qos_tas_conf_get")
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)

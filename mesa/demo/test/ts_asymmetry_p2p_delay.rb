@@ -120,7 +120,7 @@ def tod_asymmetry_p2p_delay_test
         t_e("Unexpected correction field including egress delay.")
     end
 
-    console ("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
+    t_i ("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
     end
 end
 

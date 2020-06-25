@@ -20,16 +20,16 @@ eg = rand(3)    # Get a random egress port between 0 and 3
 begin   # Get a random ingress port between 0 and 3 different from egress port
     ig = rand(3)
 end while eg == ig
-console("ig: #{ig}  eg: #{eg}")
+t_i("ig: #{ig}  eg: #{eg}")
 
 class_cnt = 3
 cosid = 1
 
-console ("Only forward on relevant ports #{$ts.dut.port_list}")
+t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
 port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
-console("Enable ingress tag pcp mapping")
+t_i("Enable ingress tag pcp mapping")
 conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[ig])
 conf["tag"]["class_enable"] = true
 conf["default_prio"] = cosid
@@ -37,25 +37,25 @@ conf["cosid"] = cosid
 conf["default_dpl"] = 0
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
-console("Allocate resources")
+t_i("Allocate resources")
 iflow = $ts.dut.call("mesa_iflow_alloc")
 pol = $ts.dut.call("mesa_dlb_policer_alloc", class_cnt)
 eflow = $ts.dut.call("mesa_eflow_alloc")
 estat = $ts.dut.call("mesa_egress_cnt_alloc", class_cnt)
 
-console("Configure IFLOW to point to policer")
+t_i("Configure IFLOW to point to policer")
 conf = $ts.dut.call("mesa_iflow_conf_get", iflow)
 conf["dlb_enable"] = true
 conf["dlb_id"] = pol
 $ts.dut.call("mesa_iflow_conf_set", iflow, conf)
 
-console("Configure EFLOW to point to counter set")
+t_i("Configure EFLOW to point to counter set")
 conf = $ts.dut.call("mesa_eflow_conf_get", eflow)
 conf["cnt_enable"] = true
 conf["cnt_id"] = estat
 $ts.dut.call("mesa_eflow_conf_set", eflow, conf)
 
-console("Ingress configuration VCE pointing untagged frames to policer")
+t_i("Ingress configuration VCE pointing untagged frames to policer")
 vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ANY")
 vce["id"] = 1
 key = vce["key"]
@@ -71,7 +71,7 @@ action = vce["action"]
 action["flow_id"] = iflow
 $ts.dut.call("mesa_vce_add", 0, vce)
 
-console ("Egress configuration TCE pointing to counter set")
+t_i ("Egress configuration TCE pointing to counter set")
 tce = $ts.dut.call("mesa_tce_init")
 tce["id"] = 1;
 tce["key"]["port_list"] = "#{$ts.dut.port_list[eg]}"
@@ -121,7 +121,7 @@ $ts.dut.call("mesa_tce_add", 0, tce)
         conf["ebs"] = 2048
         conf = $ts.dut.call("mesa_dlb_policer_conf_set", pol, cosid, conf)
 
-        console("Clear counters")
+        t_i("Clear counters")
         $ts.dut.call("mesa_egress_cnt_clear", estat, cosid)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)

@@ -24,7 +24,7 @@ def tod_domain_offset_test(domain, seconds)
         domain = 0    # The default domain is 0
     end
 
-    console("Test delta TOD in seconds")
+    t_i("Test delta TOD in seconds")
 
     # Set TOD to 'second'
     tod  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
@@ -32,7 +32,7 @@ def tod_domain_offset_test(domain, seconds)
     tod[0]["nanoseconds"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
-    console("Set TOD delta 10 seconds - positive")
+    t_i("Set TOD delta 10 seconds - positive")
     tod[0]["seconds"] = 10
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], false) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], false)
 
@@ -43,7 +43,7 @@ def tod_domain_offset_test(domain, seconds)
         t_e("TOD in domain #{domain} was not read as expected.  expected seconds = #{seconds+10}  tod_new[seconds] = #{tod_new[0]["seconds"]}")
     end
 
-    console("Set TOD delta 10 seconds - negative")
+    t_i("Set TOD delta 10 seconds - negative")
     tod[0]["seconds"] = 10
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], true) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], true)
 
@@ -54,13 +54,13 @@ def tod_domain_offset_test(domain, seconds)
         t_e("TOD in domain #{domain} was not read as expected.  expected seconds = #{seconds+1}  tod_new[seconds] = #{tod_new[0]["seconds"]}")
     end
 
-    console("Test delta TOD in nanoseconds")
+    t_i("Test delta TOD in nanoseconds")
 
     # Clear TOD seconds and nanoseconds
     tod[0]["seconds"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
-    console ("Set TOD delta 0.5 seconds - positive")
+    t_i ("Set TOD delta 0.5 seconds - positive")
     tod[0]["nanoseconds"] = 500000000
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], false) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], false)
 
@@ -73,7 +73,7 @@ def tod_domain_offset_test(domain, seconds)
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 
-    console("Set TOD delta 0.5 seconds - negative")
+    t_i("Set TOD delta 0.5 seconds - negative")
     tod[0]["nanoseconds"] = 500000000
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], true) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], true)
 
@@ -86,14 +86,14 @@ def tod_domain_offset_test(domain, seconds)
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 
-    console("Test TOD offset in nanoseconds")
+    t_i("Test TOD offset in nanoseconds")
 
     # Clear TOD seconds and nanoseconds
     tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
-    console("Set TOD offset 0.5 seconds - positive. Its weired - offset parameter is signed but always subtracted in the API, so in order to add an offset it has to be negative :-)")
+    t_i("Set TOD offset 0.5 seconds - positive. Its weired - offset parameter is signed but always subtracted in the API, so in order to add an offset it has to be negative :-)")
     domain_def ? $ts.dut.call("mesa_ts_timeofday_offset_set", -500000000) : $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain, -500000000)
 
     # Check new TOD
@@ -103,7 +103,7 @@ def tod_domain_offset_test(domain, seconds)
         t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
     end
 
-    console("Set TOD offset 0.5 seconds - negative. Its weired - offset parameter is signed but always subtracted in the API, so in order to subtract an offset it has to be positive :-)")
+    t_i("Set TOD offset 0.5 seconds - negative. Its weired - offset parameter is signed but always subtracted in the API, so in order to subtract an offset it has to be positive :-)")
     domain_def ? $ts.dut.call("mesa_ts_timeofday_offset_set", 500000000) : $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain, 500000000)
 
     # Check new TOD

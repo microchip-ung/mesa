@@ -20,12 +20,12 @@ end while ig == eg[0]
 begin   # Get a random egress port between 0 and 3 different from egress port
     eg[1] = rand(3)
 end while (ig == eg[1]) || (eg[0] == eg[1])
-console("---------ig: #{ig}  eg: #{eg}---------")
+t_i("---------ig: #{ig}  eg: #{eg}---------")
 
 vid = 10
 
 test "test_conf" do
-    console("Configure the test by calling the example code command")
+    t_i("Configure the test by calling the example code command")
     $ts.dut.run("mesa-cmd example init stp b-port #{$ts.dut.p[eg[0]]+1} f-port #{$ts.dut.p[eg[1]]+1}")
 end
 
@@ -33,53 +33,53 @@ smac = ["00:00:00:00:00:06"]
 counters = []
 
 test "test_run" do
-    console("Clear port statistics")
+    t_i("Clear port statistics")
     $ts.dut.run("mesa-cmd port statis clear")
 
-    console("Transmit untagged frame - claasified to PVID")
+    t_i("Transmit untagged frame - claasified to PVID")
     cmd = "sudo ef tx #{$ts.pc.p[ig]} eth smac #{smac}"
     $ts.pc.run(cmd)
 
     counters[0] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[0]])
     counters[1] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[1]])
 
-    console("Check that port counters are as expected. One frame on forwarding port")
+    t_i("Check that port counters are as expected. One frame on forwarding port")
     if ((counters[0]["rmon"]["tx_etherStatsPkts"] != 0) || (counters[1]["rmon"]["tx_etherStatsPkts"] != 1))
         t_e("Port counters are not as expected. portb tx #{counters[0]["rmon"]["tx_etherStatsPkts"]}  portf tx #{counters[1]["rmon"]["tx_etherStatsPkts"]}")
     end
 
-    console("Clean up the test by calling the example code command")
+    t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 
-    console("Configure the test by calling the example code command")
+    t_i("Configure the test by calling the example code command")
     $ts.dut.run("mesa-cmd example init stp b-port #{$ts.dut.p[eg[0]]+1} f-port #{$ts.dut.p[eg[1]]+1} ing-port #{$ts.dut.p[ig]+1} vid #{vid}")
 
-    console("Transmit untagged frame - claasified to PVID")
+    t_i("Transmit untagged frame - claasified to PVID")
     cmd = "sudo ef tx #{$ts.pc.p[ig]} eth smac #{smac}"
     $ts.pc.run(cmd)
 
     counters[0] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[0]])
     counters[1] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[1]])
 
-    console("Check that port counters are as expected. One more frame on forwarding port and blocking")
+    t_i("Check that port counters are as expected. One more frame on forwarding port and blocking")
     if ((counters[0]["rmon"]["tx_etherStatsPkts"] != 1) || (counters[1]["rmon"]["tx_etherStatsPkts"] != 2))
         t_e("Port counters are not as expected. portb tx #{counters[0]["rmon"]["tx_etherStatsPkts"]}  portf tx #{counters[1]["rmon"]["tx_etherStatsPkts"]}")
     end
 
-    console("Transmit tagged frame - classified to VID")
+    t_i("Transmit tagged frame - classified to VID")
     cmd = "sudo ef tx #{$ts.pc.p[ig]} eth smac #{smac} ctag vid #{vid} pcp 1 et 0x8902"
     $ts.pc.run(cmd)
 
     counters[0] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[0]])
     counters[1] = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg[1]])
 
-    console("Check that port counters are as expected. One more frame on forwarding port")
+    t_i("Check that port counters are as expected. One more frame on forwarding port")
     if ((counters[0]["rmon"]["tx_etherStatsPkts"] != 1) || (counters[1]["rmon"]["tx_etherStatsPkts"] != 3))
         t_e("Port counters are not as expected. portb tx #{counters[0]["rmon"]["tx_etherStatsPkts"]}  portf tx #{counters[1]["rmon"]["tx_etherStatsPkts"]}")
     end
 end
 
 test "test_clean_up" do
-    console("Clean up the test by calling the example code command")
+    t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 end

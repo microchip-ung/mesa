@@ -14,7 +14,7 @@ check_capabilities do
     assert($cap_synce != 0, "SYNCE is not supported")
     assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
-    console("cap_family #{$cap_family}  cap_synce #{$cap_synce}  cap_in_type #{$cap_in_type}")
+    t_i("cap_family #{$cap_family}  cap_synce #{$cap_synce}  cap_in_type #{$cap_in_type}")
 end
 
 def frequency_calc(speed, divider)
@@ -60,7 +60,7 @@ def frequency_calc(speed, divider)
 end
 
 def test_reco_clock(clock_out, speed, divider1, divider2)
-    console("clock_out #{clock_out}  speed #{speed}")
+    t_i("clock_out #{clock_out}  speed #{speed}")
 
     $ts.dut.run("mesa-cmd port mode #{$source_port+1} #{speed}")
     $ts.dut.run("mesa-cmd port mode #{$clock_port+1} #{speed}")
@@ -79,22 +79,22 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
     conf["enable"] = true
     $ts.dut.call("mesa_synce_clock_out_set", clock_out, conf)
 
-    console ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider1}. Squelch is enabled. Port speed is #{speed}")
-    console ("Observe Recovered clock active at #{frequency_calc(speed, divider1)} MHz")
-    console ("Hit CR to shut down port")
+    t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider1}. Squelch is enabled. Port speed is #{speed}")
+    t_i ("Observe Recovered clock active at #{frequency_calc(speed, divider1)} MHz")
+    t_i ("Hit CR to shut down port")
     STDIN.gets
     $ts.dut.run("mesa-cmd port state #{$source_port+1} disable")
 
-    console ("Observe Recovered clock NOT active")
-    console ("Hit CR to disable squelch")
+    t_i ("Observe Recovered clock NOT active")
+    t_i ("Hit CR to disable squelch")
     STDIN.gets
     
     conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
     conf["squelsh"] = false
     $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
 
-    console ("Observe Recovered clock active")
-    console ("Hit CR to continue")
+    t_i ("Observe Recovered clock active")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
@@ -107,17 +107,17 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
     conf["divider"] = divider2
     $ts.dut.call("mesa_synce_clock_out_set", clock_out, conf)
 
-    console ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider2}. Squelch is enabled. Port speed is #{speed}")
-    console ("Observe Recovered clock active at #{frequency_calc(speed, divider2)} MHz")
-    console ("Hit CR to continue")
+    t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider2}. Squelch is enabled. Port speed is #{speed}")
+    t_i ("Observe Recovered clock active at #{frequency_calc(speed, divider2)} MHz")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     conf = $ts.dut.call("mesa_synce_clock_out_get", clock_out)
     conf["enable"] = false
     $ts.dut.call("mesa_synce_clock_out_set", clock_out, conf)
 
-    console ("Recovered clock is disabled - Observe NOT active")
-    console ("Hit CR to continue")
+    t_i ("Recovered clock is disabled - Observe NOT active")
+    t_i ("Hit CR to continue")
     STDIN.gets
 end
 
@@ -126,10 +126,10 @@ def test_port_speed_change
     $clock_port = 8
     $source_port = 10
 
-    console ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
 
-    console ("connect measurement to Recovered clock #{$clock_out0}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     $ts.dut.run("mesa-cmd port mode #{$source_port+1} 1000fdx")
@@ -149,9 +149,9 @@ def test_port_speed_change
     conf["enable"] = true
     $ts.dut.call("mesa_synce_clock_out_set", $clock_out0, conf)
 
-    console ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 1000fdx")
-    console ("Observe Recovered clock active at #{frequency_calc("1000fdx", "MESA_SYNCE_DIVIDER_5")} MHz")
-    console ("Hit CR to continue to change speed")
+    t_i ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 1000fdx")
+    t_i ("Observe Recovered clock active at #{frequency_calc("1000fdx", "MESA_SYNCE_DIVIDER_5")} MHz")
+    t_i ("Hit CR to continue to change speed")
     STDIN.gets
 
     $ts.dut.run("mesa-cmd port mode #{$source_port+1} 10g")
@@ -159,9 +159,9 @@ def test_port_speed_change
     sleep(1)
     $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
 
-    console ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 2500")
-    console ("Observe Recovered clock active at #{frequency_calc("10g", "MESA_SYNCE_DIVIDER_5")} MHz")
-    console ("Hit CR to continue")
+    t_i ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 2500")
+    t_i ("Observe Recovered clock active at #{frequency_calc("10g", "MESA_SYNCE_DIVIDER_5")} MHz")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     conf = $ts.dut.call("mesa_synce_clock_out_get", $clock_out0)
@@ -175,10 +175,10 @@ def test_10G_serdes
     $clock_port = 8
     $source_port = 10
 
-    console ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
 
-    console ("connect measurement to Recovered clock #{$clock_out0}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out0, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_8")
@@ -186,8 +186,8 @@ def test_10G_serdes
     test_reco_clock($clock_out0, "5g", "MESA_SYNCE_DIVIDER_1", "MESA_SYNCE_DIVIDER_2")
     test_reco_clock($clock_out0, "10g", "MESA_SYNCE_DIVIDER_1", "MESA_SYNCE_DIVIDER_4")
 
-    console ("connect measurement to Recovered clock #{$clock_out1}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out1}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out1, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_25")
@@ -202,10 +202,10 @@ def test_25G_serdes_10G_mode
     $clock_port = 12
     $source_port = 13
 
-    console ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
 
-    console ("connect measurement to Recovered clock #{$clock_out0}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out0, "1000fdx", "MESA_SYNCE_DIVIDER_2", "MESA_SYNCE_DIVIDER_5")
@@ -213,8 +213,8 @@ def test_25G_serdes_10G_mode
     test_reco_clock($clock_out0, "5g", "MESA_SYNCE_DIVIDER_1", "MESA_SYNCE_DIVIDER_2")
     test_reco_clock($clock_out0, "10g", "MESA_SYNCE_DIVIDER_1", "MESA_SYNCE_DIVIDER_25")
 
-    console ("connect measurement to Recovered clock #{$clock_out1}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out1}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out1, "1000fdx", "MESA_SYNCE_DIVIDER_2", "MESA_SYNCE_DIVIDER_5")
@@ -229,11 +229,11 @@ def test_25G_serdes_25G_mode
     $clock_port = 0
     $source_port = 1
 
-    console ("The 10G ports are not used. 25G Port 1 is port 13")
-    console ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
+    t_i ("The 10G ports are not used. 25G Port 1 is port 13")
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
 
-    console ("connect measurement to Recovered clock #{$clock_out0}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out0, "1000fdx", "MESA_SYNCE_DIVIDER_2", "MESA_SYNCE_DIVIDER_5")
@@ -242,8 +242,8 @@ def test_25G_serdes_25G_mode
     test_reco_clock($clock_out0, "10g", "MESA_SYNCE_DIVIDER_1", "MESA_SYNCE_DIVIDER_25")
     test_reco_clock($clock_out0, "25g", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_4")
 
-    console ("connect measurement to Recovered clock #{$clock_out1}")
-    console ("Hit CR to continue")
+    t_i ("connect measurement to Recovered clock #{$clock_out1}")
+    t_i ("Hit CR to continue")
     STDIN.gets
 
     test_reco_clock($clock_out1, "1000fdx", "MESA_SYNCE_DIVIDER_2", "MESA_SYNCE_DIVIDER_5")
@@ -266,23 +266,23 @@ test "test_run" do
     conf = $ts.dut.call("mesa_port_conf_get", 0)
     if (conf["speed"] == "MESA_SPEED_25G")
         test_25G_serdes_25G_mode
-        console ("Change PCB to run 10G. Do the following linux commands:")
-        console ("ps")
-        console ("  ps-id root     er -b -l /tmp/console-er -- mesa-demo -f")
-        console ("kill ps-id")
-        console ("fw_setenv pcb_var")
-        console ("mesa-demo")
+        t_i ("Change PCB to run 10G. Do the following linux commands:")
+        t_i ("ps")
+        t_i ("  ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
+        t_i ("kill ps-id")
+        t_i ("fw_setenv pcb_var")
+        t_i ("mesa-demo")
     else
         test_port_speed_change
         test_10G_serdes
         test_25G_serdes_10G_mode
-        console ("To change PCB to run 25G Do the following linux commands:")
-        console ("ps")
-        console ("              ps-id root     er -b -l /tmp/console-er -- mesa-demo -f")
-        console ("kill ps-id")
-        console ("fw_setenv pcb_var 9")
-        console ("mesa-demo")
-        console ("Run the script with option --no-init or the wire check will not pass")
+        t_i ("To change PCB to run 25G Do the following linux commands:")
+        t_i ("ps")
+        t_i ("              ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
+        t_i ("kill ps-id")
+        t_i ("fw_setenv pcb_var 9")
+        t_i ("mesa-demo")
+        t_i ("Run the script with option --no-init or the wire check will not pass")
     end
 end
 

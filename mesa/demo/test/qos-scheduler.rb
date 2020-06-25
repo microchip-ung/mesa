@@ -30,15 +30,15 @@ MESA_VID_NULL = 0
 eg = rand(3)    # Get a random egress port between 0 and 3
 ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
 
-console("-------------------------")
-console("ig: #{ig}  eg: #{eg}")
-console("-------------------------")
+t_i("-------------------------")
+t_i("ig: #{ig}  eg: #{eg}")
+t_i("-------------------------")
 
-console ("Only forward on relevant ports #{$ts.dut.port_list}")
+t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
 port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
-console ("Configure ingress ports to C tag aware")
+t_i ("Configure ingress ports to C tag aware")
 ig.each do |i|
     $ts.dut.run("mesa-cmd port flow control #{$ts.dut.p[i]+1} disable")
 
@@ -61,13 +61,13 @@ ig.each do |i|
     $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[i], conf)
 end
 
-console ("Configure egress port to C tag all")
+t_i ("Configure egress port to C tag all")
 vconf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[eg])
 vconf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
 vconf["untagged_vid"] = MESA_VID_NULL
 $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
 
-console("Configure egress prio and dpl mapping to 1:1")
+t_i("Configure egress prio and dpl mapping to 1:1")
 dconf = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[eg], $dpl_cnt)
 dconf[0]["pcp"] = [0,1,2,3,4,5,6,7]
 dconf[0]["dei"] = [0,0,0,0,0,0,0,0]
@@ -75,7 +75,7 @@ dconf[1]["pcp"] = [0,1,2,3,4,5,6,7]
 dconf[1]["dei"] = [1,1,1,1,1,1,1,1]
 $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[eg], $dpl_cnt, dconf)
 
-console("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
+t_i("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
 qconf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
 qconf["tag"]["remark_mode"] = "MESA_TAG_REMARK_MODE_MAPPED"
 qconf["shaper"]["level"] = 25000    # Shaper must have "large" burst size level in order to shape correctly at "high" rates
@@ -126,7 +126,7 @@ test "Weighted scheduling with 10, 30 and 60 percent test from #{$ts.dut.p[ig[0]
     measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6,5],     true,              [0,1,2])
 end
 
-console("Clean up")
+t_i("Clean up")
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[0], $qconf0)
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[1], $qconf1)
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[2], $qconf2)

@@ -20,9 +20,9 @@ eg = rand(3)    # Get a random egress port between 0 and 3
 begin   # Get a random ingress port between 0 and 3 different from egress port
     ig = rand(3)
 end while eg == ig
-console("ig: #{ig}  eg: #{eg}")
+t_i("ig: #{ig}  eg: #{eg}")
 
-console ("Only forward on relevant ports #{$ts.dut.port_list}")
+t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
 port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 

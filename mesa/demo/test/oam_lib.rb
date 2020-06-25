@@ -325,7 +325,7 @@ def voi_ltm_config(voi_idx, redir)
 end
 
 def vce_level_mask(l_level, h_level)
-    console("vce_level_mask  l_level: #{l_level}  h_level: #{h_level}")
+    t_i("vce_level_mask  l_level: #{l_level}  h_level: #{h_level}")
 
     mask = (0x01 << (h_level - l_level)) - 1;   # "don't care" mask value is calculated
     mask <<= l_level;                           # mask is rotated to cover levels
@@ -335,7 +335,7 @@ def vce_level_mask(l_level, h_level)
 end
 
 def vce_level_value(l_level)
-    console("vce_level_value  l_level: #{l_level}")
+    t_i("vce_level_value  l_level: #{l_level}")
 
     value = (0x01 << l_level) - 1;
     value
@@ -644,7 +644,7 @@ def check_voe_event(voe_idx, events)
     test "check_voe_event  voe_idx #{voe_idx}  events #{events}" do
 
     mask = $ts.dut.call("mesa_voe_event_get", voe_idx)
-    console("mask #{mask}")
+    t_i("mask #{mask}")
 
     events.each_index do |index|
         if events[index] == EVENT_PERIOD
