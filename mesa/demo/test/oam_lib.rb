@@ -344,7 +344,7 @@ def vce_level_value(l_level)
     value
 end
 
-def vce_config(id, port_list, vid, level_val, level_mask, flow_id, oam_detect)
+def vce_config(id, port_list, vid, level_val, level_mask, flow_id, oam_detect, before_id=VCE_ID_LAST)
     test "vce_config  id: #{id}  port_list: #{port_list}  vid: #{vid}  level_val: #{level_val}  level_mask: #{level_mask}  flow_id: #{flow_id}  oam_detect: #{oam_detect}" do
 
     vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ETYPE")
@@ -373,7 +373,7 @@ def vce_config(id, port_list, vid, level_val, level_mask, flow_id, oam_detect)
     action["flow_id"] = flow_id
     action["oam_detect"] = oam_detect
 
-    $ts.dut.call("mesa_vce_add", VCE_ID_LAST, vce)
+    $ts.dut.call("mesa_vce_add", before_id, vce)
     end
 end
 

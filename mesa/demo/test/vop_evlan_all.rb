@@ -398,8 +398,8 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
     if $cap_oam_v2 && (tag_vid != 0)    # CCM Rx Port and Port move event is not supported on Serval1
         test "Check RX port move" do
         t_i("Configure Down VOE/VOI to have two ports")
-        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]},#{$ts.dut.port_list[$port2]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
-        vce_config($u_voi_vce, "#{$ts.dut.port_list[$port1]}", $vid, 0, 0, $u_voi_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
+        # Note that this rule must be in front of the Up-MIP and default port rules. Last parameter assure this
+        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]},#{$ts.dut.port_list[$port2]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED", $u_voi_vce)
 
         t_i("Transmit four valid CCM frame against VOE on the extra port")
         frametx = frame.dup
@@ -415,8 +415,7 @@ def voe_cc_rx_test_func(voe_idx, level, tag_vid)
         check_cc_status_values(voe_idx, $ts.dut.port_list[$port2], 2, 2)
 
         t_i("Configure Down VOE/VOI to have one port ")
-        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
-        vce_config($u_voi_vce, "#{$ts.dut.port_list[$port1]},#{$ts.dut.port_list[$port2]}", $vid, 0, 0, $u_voi_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED")
+        vce_config($d_vo_vce, "#{$ts.dut.port_list[$port0]}", $vid, 0, vce_level_mask(0, $voi_meg_level), $d_vo_iflow, "MESA_OAM_DETECT_SINGLE_TAGGED", $u_voi_vce)
         end
     end
 
