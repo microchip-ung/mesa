@@ -70,12 +70,18 @@ OptionParser.new do |opts|
         $options[:timeout] = t
     end
 
+    opts.on("-e", "--et path", "Use this et script") do |e|
+        $options[:et] = e
+    end
+
 end.parse!
 
 # Change directory to the test folder
 Dir.chdir $options[:dir]
 
-if File.file?("../../../../../../easytest/test-setup-server/et")
+if $options[:et] != nil
+    $et = $options[:et]
+elsif File.file?("../../../../../../easytest/test-setup-server/et")
     $et = "../../../../../../easytest/test-setup-server/et"
 else
     $et = "/easytest/easytest/test-setup-server/et"
