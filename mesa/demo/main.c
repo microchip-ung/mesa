@@ -1011,6 +1011,14 @@ static mesa_rc serdes_tap_get(const mesa_inst_t inst, mesa_port_no_t port_no,
     }
 }
 
+mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t poll_cnt, uint32_t wait_usec)
+{
+    if ((sleep_us * poll_cnt) % wait_usec == 0) {
+        return 1;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     mesa_rc            rc;
@@ -1029,6 +1037,11 @@ int main(int argc, char **argv)
     fd_read_reg_t      *reg;
     reg_read_t         reg_read;
     reg_write_t        reg_write;
+    uint32_t           sleep_us = 10000;
+
+    if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
+        sleep_us = 100;
+    }
 
     // Register trace
     init->cmd = MSCC_INIT_CMD_REG;
@@ -1167,8 +1180,7 @@ int main(int argc, char **argv)
     if  (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_FAN_SUPPORT)) {
         MEBA_WRAP(meba_reset, init->board_inst, MEBA_FAN_INITIALIZE);
     }
-
-        // Poll modules
+    // Poll modules
     while (1) {
         FD_ZERO(&rfds);
         fd_max = 0;
@@ -1182,7 +1194,7 @@ int main(int argc, char **argv)
             }
         }
         tv.tv_sec = 0;
-        tv.tv_usec = 10;
+        tv.tv_usec = sleep_us; // was 10000
         if (select(fd_max + 1, &rfds, NULL, NULL, &tv) < 0) {
             T_E("select() failed");
         } else {
@@ -1193,13 +1205,21 @@ int main(int argc, char **argv)
                 }
             }
         }
-        init->cmd = MSCC_INIT_CMD_POLL_FAST;
+        init->cmd = MSCC_INIT_CMD_POLL_FASTEST;
         init_modules(init);
         poll_cnt++;
-        if (poll_cnt >= 100) {
-            poll_cnt = 0;
-            T_N("Call init_modules()");
+        if (poll_cnt_us(sleep_us, poll_cnt, 1000000)) { // 1 sec poll
+            T_N("Call init_modules() and mesa_poll_1sec()");
             init->cmd = MSCC_INIT_CMD_POLL;
+            init_modules(init);
+            if (MESA_RC_OK != mesa_poll_1sec(NULL)) {  // One sec poll
+                T_E("mesa_poll_1sec() failed");
+            }
+        }
+
+        if (poll_cnt_us(sleep_us, poll_cnt, 10000)) { // 10 ms poll
+            T_N("MSCC_INIT_CMD_POLL_FAST");
+            init->cmd = MSCC_INIT_CMD_POLL_FAST;
             init_modules(init);
         }
     }
