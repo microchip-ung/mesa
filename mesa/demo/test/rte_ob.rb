@@ -44,8 +44,9 @@ end
 # 2: OPC flag (default Profinet), affecting the following three parts
 # 3: RCE key/action fields
 # 4: RTP entry fields
-# 5: Frame fields
-# 6: Counter values expected
+# 5: Data group fields
+# 6: Frame fields
+# 7: Counter values expected
 
 $test_table =
 [
@@ -85,21 +86,17 @@ $test_table =
         cnt: {rx_0: 2}
     },
     {
-        txt: "ps_ds_check_invalid_primary",
-        frame: {ds: "01"},
-    },
-    {
-        txt: "pn_ds_check_valid_primary",
-        frame: {ds: "05"},
+        txt: "pn_ds_check_ok",
+        rtp: {pn_ds: 0x07},
+        frame: {ds: "07"},
         cnt: {rx_0: 1}
     },
     {
-        txt: "pn_ds_check_valid_backup",
-        frame: {ds: "04"},
-        cnt: {rx_0: 1}
+        txt: "pn_ds_check_fail",
+        rtp: {pn_ds: 0x36},
     },
     {
-        txt: "pn_ts_check",
+        txt: "pn_ts_check_fail",
         frame: {ts: "01"},
     },
 
@@ -110,38 +107,52 @@ $test_table =
         cnt: {rx_0: 1}
     },
     {
-        txt: "opc_version",
+        txt: "opc_version_check_fail",
         opc: true,
         frame: {ver: "0"}
     },
     {
-        txt: "opc_flags",
+        txt: "opc_flags_check_fail",
         opc: true,
-        frame: {flags: "7"}
+        frame: {flags: "3"}
     },
     {
-        txt: "opc_flags1",
+        txt: "opc_flags1_check_fail",
         opc: true,
         frame: {flags1: "03"}
     },
     {
-        txt: "opc_group_flags",
+        txt: "opc_group_flags_check_fail",
         opc: true,
-        frame: {gflags: "30"}
+        frame: {gflags: "0e"}
     },
     {
-        txt: "opc_group_version",
+        txt: "opc_group_version_fail",
         opc: true,
-        frame: {gver: "01000000"}
+        rtp: {opc_grp_ver: 0x12345678},
+        frame: {gver: "78563413"}
     },
     {
-        txt: "opc_nmsg_num",
+        txt: "opc_group_version_ok",
+        opc: true,
+        rtp: {opc_grp_ver: 0x12345678},
+        frame: {gver: "78563412"},
+        cnt: {rx_0: 1}
+    },
+    {
+        txt: "opc_nmsg_num_fail",
         opc: true,
         frame: {nmsg_num: "0200"}
     },
+    # Data group transfer
+    {
+        txt: "dg_write",
+        dg: {length: 4},
+        cnt: {rx_0: 1}
+    },
 ]
 
-def fld_get(v, fld, defval)
+def fld_get(v, fld, defval = 0)
     val = defval
     if (v != nil and v.key?(fld))
         val = v[fld]
@@ -154,6 +165,7 @@ def rte_ob_test(t)
     opc = fld_get(t, :opc, false)
     r = t[:rce]
     e = t[:rtp]
+    d = t[:dg]
     f = t[:frame]
     c = t[:cnt]
 
@@ -173,8 +185,19 @@ def rte_ob_test(t)
     # Setup RTP entry
     conf = $ts.dut.call("lan9662_rte_ob_rtp_conf_get", $rtp_id)
     conf["type"] = ("LAN9662_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
-    conf["length"] = fld_get(e, :length, 0)
+    conf["length"] = fld_get(e, :length)
+    conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
+    conf["pn_ds"] = fld_get(e, :pn_ds, 0x37);
     $ts.dut.call("lan9662_rte_ob_rtp_conf_set", $rtp_id, conf)
+
+    # Add data group
+    if (d != nil)
+        conf = $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_init")
+        conf["pdu_offset"] = fld_get(d, :offs)
+        conf["length"] = fld_get(d, :length, 1)
+        conf["dg_addr"] = fld_get(d, :addr)
+        $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_add", $rtp_id, conf)
+    end
 
     # Send frames
     et = (opc ? 0xb62c : 0x8892)
@@ -185,9 +208,9 @@ def rte_ob_test(t)
         if (opc)
             # OPC-UA: Header and data
             ver = fld_get(f, :ver, "1")
-            flags = fld_get(f, :flags, "3") # Default TBD
+            flags = fld_get(f, :flags, "b")
             flags1 = fld_get(f, :flags1, "01")
-            gflags = fld_get(f, :gflags, "10")
+            gflags = fld_get(f, :gflags, "0f")
             gver = fld_get(f, :gver, "00000000")     # Little-endian
             nmsg_num = fld_get(f, :nmsg_num, "0100") # Little-endian
             cmd += " data hex #{flags}#{ver}#{flags1}aaaa#{gflags}bbbb#{gver}#{nmsg_num}cccc"
@@ -198,7 +221,7 @@ def rte_ob_test(t)
             if (cc.kind_of? Array)
                 cc = cc[i]
             end
-            ds = fld_get(f, :ds, "00")
+            ds = fld_get(f, :ds, "37")
             ts = fld_get(f, :ts, "00")
             cmd += " data pattern cnt #{len - 4}"
             cmd += " data hex #{cc}#{ds}#{ts}"
@@ -207,8 +230,8 @@ def rte_ob_test(t)
     end
 
     # Check counters
-    rx_0 = fld_get(c, :rx_0, 0)
-    rx_1 = fld_get(c, :rx_1, 0)
+    rx_0 = fld_get(c, :rx_0)
+    rx_1 = fld_get(c, :rx_1)
     cnt = $ts.dut.call("lan9662_rte_ob_rtp_counters_get", $rtp_id)
     check_counter("rx_0", cnt["rx_0"], rx_0)
     check_counter("rx_1", cnt["rx_1"], rx_1)
