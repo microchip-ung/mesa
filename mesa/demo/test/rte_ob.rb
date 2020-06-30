@@ -144,10 +144,11 @@ $test_table =
         opc: true,
         frame: {nmsg_num: "0200"}
     },
+
     # Data group transfer
     {
         txt: "dg_write",
-        dg: {length: 4},
+        dg: [{length: 4},{offs: 4, length: 4, addr: 2}],
         cnt: {rx_0: 1}
     },
 ]
@@ -165,7 +166,7 @@ def rte_ob_test(t)
     opc = fld_get(t, :opc, false)
     r = t[:rce]
     e = t[:rtp]
-    d = t[:dg]
+    dg = t[:dg]
     f = t[:frame]
     c = t[:cnt]
 
@@ -187,16 +188,18 @@ def rte_ob_test(t)
     conf["type"] = ("LAN9662_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     conf["length"] = fld_get(e, :length)
     conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
-    conf["pn_ds"] = fld_get(e, :pn_ds, 0x37);
+    conf["pn_ds"] = fld_get(e, :pn_ds, 0x35);
     $ts.dut.call("lan9662_rte_ob_rtp_conf_set", $rtp_id, conf)
 
     # Add data group
-    if (d != nil)
-        conf = $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_init")
-        conf["pdu_offset"] = fld_get(d, :offs)
-        conf["length"] = fld_get(d, :length, 1)
-        conf["dg_addr"] = fld_get(d, :addr)
-        $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_add", $rtp_id, conf)
+    if (dg != nil)
+        dg.each do |d|
+            conf = $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_init")
+            conf["pdu_offset"] = fld_get(d, :offs)
+            conf["length"] = fld_get(d, :length, 1)
+            conf["dg_addr"] = fld_get(d, :addr)
+            $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_add", $rtp_id, conf)
+        end
     end
 
     # Send frames
@@ -221,7 +224,7 @@ def rte_ob_test(t)
             if (cc.kind_of? Array)
                 cc = cc[i]
             end
-            ds = fld_get(f, :ds, "37")
+            ds = fld_get(f, :ds, "35")
             ts = fld_get(f, :ts, "00")
             cmd += " data pattern cnt #{len - 4}"
             cmd += " data hex #{cc}#{ds}#{ts}"
