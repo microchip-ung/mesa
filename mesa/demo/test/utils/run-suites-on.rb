@@ -94,6 +94,7 @@ def run_suites(system)
     $test_suites.each { |suite|
         puts("run suite #{suite} on system #{system}")
         res = run("./#{suite} > #{system}.#{suite}.log", false)
+        puts("Completed suite #{suite} on system #{system}")
 #res = 1
         if !res
             puts "Failed running suite #{suite} on system #{system}"
@@ -105,7 +106,8 @@ if ($options[:system] != nil) && ($options[:image] != nil)
     # Reserve system
     t1 = Time.now
     seconds = ($options[:timeout] != nil) ? $options[:timeout] : 0
-    puts("#{$system}: Try reserve");
+
+    puts("#{$system}: ----------Try reserve----------");
     reserved = false
     failed = false
     begin
@@ -140,12 +142,12 @@ if ($options[:system] != nil) && ($options[:image] != nil)
             end
         end
 
-        puts("#{$system}: Run test suites")
+        puts("#{$system}: ----------Run test suites #{$test_suites}----------")
         run("date")
         run_suites $system
 
     rescue => e
-        puts("#{$system}: Test failed")
+        puts("#{$system}: ----------Test failed----------")
         failed = true
         print_err e
 
@@ -153,8 +155,9 @@ if ($options[:system] != nil) && ($options[:image] != nil)
         # Release $system
         begin
             if (reserved)
-                puts("#{$system}: Release");
+                puts("#{$system}: ----------Release----------");
                 run("#{$et} -l release", false)
+                puts("#{$system}: Completed Release");
             end
         rescue
         end
