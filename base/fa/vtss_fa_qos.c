@@ -1471,6 +1471,7 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     // Cut-through configuration.
     VTSS_RC(fa_qos_queue_cut_through_set(vtss_state, port_no));
 
+#ifdef VTSS_FEATURE_QOS_WRED_V3
     // WRED group configuration.
     if (conf->wred_group > 2) {
         VTSS_E("Invalid WRED group: %u!", conf->wred_group);
@@ -1478,7 +1479,7 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     }
     REG_WR(VTSS_QRES_WRED_GROUP(chip_port),
            VTSS_F_QRES_WRED_GROUP_WRED_GROUP(conf->wred_group));
-
+#endif
     // Tag remarking configuration (egress)
     // Port default PCP and DEI values (egress)
     REG_WRM(VTSS_REW_PORT_VLAN_CFG(chip_port),
@@ -1593,6 +1594,7 @@ static vtss_rc fa_storm_policer_set(vtss_state_t             *vtss_state,
 
 static vtss_rc fa_qos_wred_conf_set(vtss_state_t *vtss_state)
 {
+#ifdef VTSS_FEATURE_QOS_WRED_V3
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     u32              group, queue, dpl, wm_high;
 
@@ -1653,6 +1655,7 @@ static vtss_rc fa_qos_wred_conf_set(vtss_state_t *vtss_state)
     //VTSS_RC(vtss_jr2_wm_update(vtss_state)); /* Update watermarks */
 
     VTSS_D("Exit");
+#endif
     return VTSS_RC_OK;
 }
 
@@ -4423,6 +4426,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         }
         pr("Global configuration:\n");
         pr("---------------------\n");
+#ifdef VTSS_FEATURE_QOS_WRED_V3
         pr("WRED profile configuration:\n");
         pr("WRED_GROUP  QOS_CLASS  DPL  WM_RED_LOW  WM_RED_HIGH\n");
         for (i = 0; i < VTSS_WRED_GROUP_CNT; i++) {
@@ -4439,6 +4443,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                 }
             }
         }
+#endif
         pr("\n");
     }
 
