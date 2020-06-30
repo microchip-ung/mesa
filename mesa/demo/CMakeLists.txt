@@ -126,7 +126,7 @@ macro(IMG_TARGET)
     set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init fa_spi_chip_id base64decode)
 
     if (${HAS_RTE})
-        set(EXECUTABLES ${EXECUTABLES} lan9662-rte-demo lan9662-rte-cmd)
+        set(EXECUTABLES ${EXECUTABLES} mera-demo mera-cmd)
     endif ()
 
     # Add library dependencies

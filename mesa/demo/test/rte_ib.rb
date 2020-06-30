@@ -21,15 +21,15 @@ test "conf" do
     end
 
     # Enable RTE
-    conf = $ts.dut.call("lan9662_rte_gen_conf_get")
+    conf = $ts.dut.call("mera_gen_conf_get")
     conf["enable"] = true
-    $ts.dut.call("lan9662_rte_gen_conf_set", conf)
+    $ts.dut.call("mera_gen_conf_set", conf)
 end
 
 def tx_len_test(len)
     idx_rx = 1
-    conf = $ts.dut.call("lan9662_rte_ib_rtp_conf_get", $rtp_id)
-    conf["type"] = "LAN9662_RTP_TYPE_PN"
+    conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
+    conf["type"] = "MERA_RTP_TYPE_PN"
     conf["time"] = 0 # One-shot
     conf["port"] = $port[idx_rx]
     conf["length"] = len
@@ -42,7 +42,7 @@ def tx_len_test(len)
         d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : ((i - 14) & 0xff))
         conf["data"][i] = d
     end
-    $ts.dut.call("lan9662_rte_ib_rtp_conf_set", $rtp_id, conf)
+    $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
     $rtp_id = ($rtp_id + 1)
     cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 14}"
     [0, 1, 2, 3].each do |idx|
@@ -63,8 +63,8 @@ test "tx-data-max" do
 end
 
 def tx_time_test(idx, time, margin)
-    conf = $ts.dut.call("lan9662_rte_ib_rtp_conf_get", $rtp_id)
-    conf["type"] = "LAN9662_RTP_TYPE_PN"
+    conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
+    conf["type"] = "MERA_RTP_TYPE_PN"
     conf["time"] = time
     conf["port"] = $port[idx]
     len = 60
@@ -72,7 +72,7 @@ def tx_time_test(idx, time, margin)
     for i in 0..(len - 1) do
         conf["data"][i] = 0
     end
-    $ts.dut.call("lan9662_rte_ib_rtp_conf_set", $rtp_id, conf)
+    $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 
     tx_cnt = 10
     cmd = "sudo ef -c #{$ts.pc.p[idx]},1,adapter_unsynced,,#{tx_cnt} "
@@ -101,12 +101,12 @@ def tx_time_test(idx, time, margin)
     end
 
     # Show counters
-    cnt = $ts.dut.call("lan9662_rte_ib_rtp_counters_get", $rtp_id)
+    cnt = $ts.dut.call("mera_ib_rtp_counters_get", $rtp_id)
     t_i("cnt: #{cnt}")
 
     # Disable RTP to stop transmissions
-    conf["type"] = "LAN9662_RTP_TYPE_DISABLED"
-    $ts.dut.call("lan9662_rte_ib_rtp_conf_set", $rtp_id, conf)
+    conf["type"] = "MERA_RTP_TYPE_DISABLED"
+    $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
     $rtp_id = ($rtp_id + 1)
 end
 
@@ -141,15 +141,15 @@ test "otf" do
     a["port_list"] = "#{$ts.dut.p[idx_rx]}"
     $ts.dut.call("mesa_rce_add", 0, rce)
 
-    conf = $ts.dut.call("lan9662_rte_ib_rtp_conf_get", $rtp_id)
-    conf["type"] = "LAN9662_RTP_TYPE_OPC_UA"
-    conf["mode"] = "LAN9662_RTP_IB_MODE_OTF"
+    conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
+    conf["type"] = "MERA_RTP_TYPE_OPC_UA"
+    conf["mode"] = "MERA_RTP_IB_MODE_OTF"
     len = 60
     conf["length"] = len
     offs = 14 # Update data at offset 14
     conf["data"][offs] = 0xaa
     conf["update"][offs] = 1
-    $ts.dut.call("lan9662_rte_ib_rtp_conf_set", $rtp_id, conf)
+    $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 
     f1 = "eth dmac 2 et 0xb62c"
     cmd = "sudo ef name f1 #{f1} name f2 #{f1} data hex aa"
@@ -162,10 +162,10 @@ test "otf" do
     end
     $ts.pc.run(cmd)
 
-    cnt = $ts.dut.call("lan9662_rte_ib_rtp_counters_get", $rtp_id)
+    cnt = $ts.dut.call("mera_ib_rtp_counters_get", $rtp_id)
     check_counter("tx_otf", cnt["tx_otf"], 1)
 end
 
 test "dump" do
-    #$ts.dut.run("lan9662-rte-cmd debug api ib")
+    #$ts.dut.run("mera-cmd debug api ib")
 end

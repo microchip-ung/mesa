@@ -33,9 +33,9 @@ test "conf" do
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
 
     # Enable RTE
-    conf = $ts.dut.call("lan9662_rte_gen_conf_get")
+    conf = $ts.dut.call("mera_gen_conf_get")
     conf["enable"] = true
-    $ts.dut.call("lan9662_rte_gen_conf_set", conf)
+    $ts.dut.call("mera_gen_conf_set", conf)
 
 end
 
@@ -184,21 +184,21 @@ def rte_ob_test(t)
     $ts.dut.call("mesa_rce_add", 0, rce)
 
     # Setup RTP entry
-    conf = $ts.dut.call("lan9662_rte_ob_rtp_conf_get", $rtp_id)
-    conf["type"] = ("LAN9662_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
+    conf = $ts.dut.call("mera_ob_rtp_conf_get", $rtp_id)
+    conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     conf["length"] = fld_get(e, :length)
     conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
     conf["pn_ds"] = fld_get(e, :pn_ds, 0x35);
-    $ts.dut.call("lan9662_rte_ob_rtp_conf_set", $rtp_id, conf)
+    $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
     # Add data group
     if (dg != nil)
         dg.each do |d|
-            conf = $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_init")
+            conf = $ts.dut.call("mera_ob_rtp_pdu2dg_init")
             conf["pdu_offset"] = fld_get(d, :offs)
             conf["length"] = fld_get(d, :length, 1)
             conf["dg_addr"] = fld_get(d, :addr)
-            $ts.dut.call("lan9662_rte_ob_rtp_pdu2dg_add", $rtp_id, conf)
+            $ts.dut.call("mera_ob_rtp_pdu2dg_add", $rtp_id, conf)
         end
     end
 
@@ -235,7 +235,7 @@ def rte_ob_test(t)
     # Check counters
     rx_0 = fld_get(c, :rx_0)
     rx_1 = fld_get(c, :rx_1)
-    cnt = $ts.dut.call("lan9662_rte_ob_rtp_counters_get", $rtp_id)
+    cnt = $ts.dut.call("mera_ob_rtp_counters_get", $rtp_id)
     check_counter("rx_0", cnt["rx_0"], rx_0)
     check_counter("rx_1", cnt["rx_1"], rx_1)
 
@@ -250,5 +250,5 @@ $test_table.each do |t|
 end
 
 test "dump" do
-    #$ts.dut.run("lan9662-rte-cmd debug api ob")
+    #$ts.dut.run("mera-cmd debug api ob")
 end

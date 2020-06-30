@@ -500,7 +500,7 @@ class MesaDut
 
     def call_execute cmd, method, *args
         t_d "#{__LINE__}: #{cmd} #{args.to_json.to_s.size}"
-        cli = (cmd.start_with?("lan9662") ? "lan9662-rte" : "mesa")
+        cli = (cmd.start_with?("mera") ? "mera" : "mesa")
         res = execute "#{cli}-cmd -i call #{cmd}", method, args.to_json
 
         if res[:res] > 0
@@ -1085,7 +1085,7 @@ class Mesa_Pc_b2b
             t = $options[:dut_trace]
 
             @dut.bg "api", "mesa-demo -f #{dut_args} #{t} #{mesa_args}"
-            @dut.bg "rte", "lan9662-rte-demo -f"
+            @dut.bg "rte", "mera-demo -f"
         end
 
         if !$options[:no_init]
