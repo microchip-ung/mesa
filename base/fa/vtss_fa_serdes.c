@@ -482,8 +482,8 @@ vtss_rc fa_port_10g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
 }
 
 
-static vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
-                                  u16 tap_dly, u16 tap_adv, u16 ampl)
+vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                           u16 tap_dly, u16 tap_adv, u16 ampl)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 

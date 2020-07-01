@@ -1857,12 +1857,13 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_AN_XMIT_DISABLE. Aneg is restarted.
     if (irq & KR_AN_XMIT_DISABLE) {
+        vtss_port_kr_fw_req_t req_msg = {0};
+        req_msg.transmit_disable = TRUE;
         if (krs->training_started) {
             krs->training_started = FALSE;
-            vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.stop_training = TRUE;
-            (void)kr_fw_req(vtss_state, port_no, &req_msg);
         }
+        (void)kr_fw_req(vtss_state, port_no, &req_msg);
         kr_reset_state(krs);
     }
 

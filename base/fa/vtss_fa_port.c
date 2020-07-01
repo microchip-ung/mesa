@@ -866,6 +866,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
+
     if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
         || fw_req->gen0_tmr_start || fw_req->gen1_tmr_start) {
         REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt),
@@ -891,6 +892,11 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         if (fw_req->rate_done) {
             REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer after speed config
         }
+    }
+
+    if (fw_req->transmit_disable) {
+        /* Increase the amplitude during Aneg. */
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, 0, 0, 240));
     }
 
     if (fw_req->start_training) {
@@ -1169,8 +1175,9 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0);
         return VTSS_RC_OK;
     }
-    // Enable IRQ propagation
-//    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0xFFFFFFFF);
+
+    /* Increase the amplitude during Aneg. */
+    VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, 0, 0, 240));
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),

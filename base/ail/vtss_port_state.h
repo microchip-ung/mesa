@@ -374,6 +374,7 @@ typedef struct {
     BOOL rate_done;
     BOOL start_training;
     BOOL stop_training;
+    BOOL transmit_disable;
     BOOL training_failure;
     BOOL aneg_disable;
     BOOL next_page;
