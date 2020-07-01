@@ -143,16 +143,42 @@ def voe_test(tag_vid = 0)
     $ts.dut.run("mesa-cmd example run command 5")
     sleep 1
     $ts.pc.run("ef rx #{$ts.pc.p[$port0]}") # This is required in order to make the previously started back ground print result. Dont know why !!
-    
+
     t_i("Increment sequence number")
     ccm_pdu = ccm_pdu_create($level, $period, $cap_oam_v2 ? 1 : 2, 2, $megid)
-    
+
     t_i("Inject and expect valid CCM frame from the VOE")
     framerx = frame.dup + ccm_pdu
     frame_rx(framerx, $port0)
     $ts.dut.run("mesa-cmd example run command 5")
     sleep 1
     $ts.pc.run("ef rx #{$ts.pc.p[$port0]}") # This is required in order to make the previously started back ground print result. Dont know why !!
+    end
+
+    test "Check LBM PDU injection" do
+    $ts.dut.run("mesa-cmd example run command 0")
+
+    frame = frame_create(MC_STRING, SC_STRING, tag_vid)
+    lbm_pdu = lb_pdu_create($level, 3, 1)
+
+    t_i("Inject and expect valid CCM frame from the VOE")
+    framerx = frame.dup + lbm_pdu
+    frame_rx(framerx, $port0)
+    $ts.dut.run("mesa-cmd example run command 6")
+    sleep 1
+    $ts.pc.run("ef rx #{$ts.pc.p[$port0]}") # This is required in order to make the previously started back ground print result. Dont know why !!
+
+    t_i("Increment sequence number")
+    lbm_pdu = lb_pdu_create($level, 3, 2)
+
+    t_i("Inject and expect valid LBM frame from the VOE")
+    framerx = frame.dup + lbm_pdu
+    frame_rx(framerx, $port0)
+    $ts.dut.run("mesa-cmd example run command 6")
+    sleep 1
+    $ts.pc.run("ef rx #{$ts.pc.p[$port0]}") # This is required in order to make the previously started back ground print result. Dont know why !!
+
+    $ts.dut.run("mesa-cmd example run command 0")
     end
     end
 end
@@ -165,7 +191,7 @@ end
 test "test_run" do
     t_i("Port VOE test")
     voe_test(0)
-
+exit 0
     t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 

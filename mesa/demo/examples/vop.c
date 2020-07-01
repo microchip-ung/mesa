@@ -626,7 +626,8 @@ static int vop_run(int argc, const char *argv[])
         value 2 is LT status show.\n\
         value 3 is LAPS status show.\n\
         value 4 is CPU RX frame print.\n\
-        value 5 is CPU TX CCM frame.\n");
+        value 5 is CPU TX CCM frame.\n\
+        value 6 is CPU TX LBM frame.\n");
     uint32_t exp_ccm_seen = ARGV_RUN_OPT_INT("exp-seen-ccm", "The CC status show expected CCM seen. Default is nothing expected", NO_EXP);
     uint32_t exp_ltm_seen = ARGV_RUN_OPT_INT("exp-seen-ltm", "The LT status show expected LTM seen. Default is nothing expected", NO_EXP);
     uint32_t exp_laps_seen = ARGV_RUN_OPT_INT("exp-seen-laps", "The LAPS status show expected LAPS seen. Default is nothing expected", NO_EXP);
@@ -635,6 +636,7 @@ static int vop_run(int argc, const char *argv[])
     uint32_t exp_event_loc = ARGV_RUN_OPT_INT("exp-event-loc", "The VOE event status show expected LOC event. Default is nothing expected", NO_EXP);
     uint32_t exp_oam_opcode = ARGV_RUN_OPT_INT("exp-oam-opcode", "The CPU frame expected opcode. Default is nothing expected", NO_EXP);
     mesa_voe_cc_status_t    cc_status;
+    mesa_voe_counters_t     voe_counters;
     mesa_voe_lt_status_t    lt_status;
     mesa_voe_laps_status_t  laps_status;
     mesa_packet_tx_info_t   tx_info;
@@ -676,6 +678,11 @@ static int vop_run(int argc, const char *argv[])
             cli_printf("level state %u is not as expected %u\n", cc_status.mel_unexp, exp_state_level);
             return -1;
         }
+
+        RC(mesa_voe_counters_get(NULL, state.voe_idx, &voe_counters));
+        cli_printf("\nVOE counters:\n");
+        cli_printf("    rx_counter:     %llu\n", voe_counters.rx_counter);
+        cli_printf("    tx_counter:     %llu\n", voe_counters.tx_counter);
         break;
 
     case 1:
@@ -791,6 +798,46 @@ static int vop_run(int argc, const char *argv[])
         idx += 1;  // This is end TLV
         idx += 2;  // This is end TLV length
         idx += 1;  // This is end TLV value
+
+        // Transmit the frame
+        RC(mesa_packet_tx_frame(NULL, &tx_info, frame, idx));
+        break;
+
+    case 6:
+        // Initialize the TX info
+        RC(mesa_packet_tx_info_init(NULL, &tx_info));
+        if (state.family == MESA_CHIP_FAMILY_SPARX5) {
+            tx_info.dst_port = state.front_port;
+        } else {
+            tx_info.dst_port_mask = 0x01 << state.front_port;
+        }
+        tx_info.switch_frm = FALSE;
+        tx_info.masquerade_port = MESA_PORT_NO_NONE;
+        tx_info.pdu_offset = 14;
+        tx_info.oam_type = MESA_PACKET_OAM_TYPE_LBM;
+        tx_info.pipeline_pt = MESA_PACKET_PIPELINE_PT_REW_IN_VOE;
+        tx_info.tag.vid = (state.vid == 0) ? pvid : state.vid;
+        tx_info.iflow_id = state.v2 ? ((state.vid == 0) ? state.iflow_id : 0) : ((state.vid == 0) ? 0 : state.iflow_id);
+
+        // Initialize the TX frame
+        memset(frame, 0, sizeof(frame));
+        idx = 0;
+        memcpy(frame+idx, mc_addr, sizeof(mc_addr));
+        idx += 6;
+        memcpy(frame+idx, tx_uc_addr, sizeof(tx_uc_addr));
+        idx += 6;
+        *(frame+idx+0) = 0x89;
+        *(frame+idx+1) = 0x02;
+        idx += 2;
+        *(frame+idx+0) = (state.level & 0x07) << 5;    // Level
+        *(frame+idx+1) = 3;                            // Opcode LBM
+        *(frame+idx+2) = 0;                            // Flags period 1 f/s
+        *(frame+idx+3) = 4;                            // TLV offset
+        idx += 4;  // This is Sequence number
+        idx += 1;  // This is end TLV
+        idx += 2;  // This is end TLV length
+        idx += 1;  // This is end TLV value
+        idx += (87 - idx); // This is fill
 
         // Transmit the frame
         RC(mesa_packet_tx_frame(NULL, &tx_info, frame, idx));

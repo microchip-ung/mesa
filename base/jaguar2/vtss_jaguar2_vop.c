@@ -1037,6 +1037,7 @@ static vtss_rc jr2_voe_counters_get(vtss_state_t         *vtss_state,
     counters->rx_discard_counter  = chipcnt->voe.rx_discard_counter.value;
     counters->tx_discard_counter  = chipcnt->voe.tx_discard_counter.value;
 
+VTSS_D("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "", counters->rx_counter, counters->tx_counter);
     return rc;
 }
 
