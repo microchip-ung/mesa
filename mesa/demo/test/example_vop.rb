@@ -191,7 +191,7 @@ end
 test "test_run" do
     t_i("Port VOE test")
     voe_test(0)
-exit 0
+
     t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 
