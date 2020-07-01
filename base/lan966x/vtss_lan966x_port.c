@@ -479,6 +479,9 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
     REG_WR(SYS_ATOP_TOT_CFG, wm_enc_bytes(atop_wm));
     REG_WR(SYS_ATOP(port), wm_enc_bytes(rsrv_raw));
 
+    /* Discard pause frames 01:80:C2:00:00:01 */
+    REG_WRM(ANA_CPU_FWD_BPDU_CFG(port), 0x00020000, 0x00020002);
+
     return VTSS_RC_OK;
 }
 
