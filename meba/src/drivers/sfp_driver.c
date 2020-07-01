@@ -380,6 +380,12 @@ static mesa_rc tr_25g_dac_get(meba_sfp_device_t *dev,
     return MESA_RC_OK;
 }
 
+static mesa_rc tr_25g_cr_get(meba_sfp_device_t *dev,
+                              meba_sfp_transreceiver_t *tr) {
+    *tr = MEBA_SFP_TRANSRECEIVER_25G_DAC;
+    return MESA_RC_OK;
+}
+
 static mesa_rc tr_25g_sr_get(meba_sfp_device_t *dev,
                              meba_sfp_transreceiver_t *tr) {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_SR;
@@ -833,10 +839,15 @@ typedef mesa_rc (*conf_func_t)(meba_sfp_device_t *dev,
 #define SFP_MSA_10GBASE_SR 0x10
 #define SFP_MSA_SFP_PLUS_PASSIVE 0x04
 #define SFP_MSA_SFP_PLUS_ACTIVE 0x08
+#define SFP_MSA_25GBASE_SR 0x2
+#define SFP_MSA_25GBASE_LR 0x3
+#define SFP_MSA_25GBASE_ER 0x4
+#define SFP_MSA_25GBASE_CR 0xD
 
 static tr_func_t get_tr(uint8_t *rom, uint32_t rom_size) {
     // Values are are based on SFF-8472 - Table 5-3.
-    uint8_t eth_10g = rom[3];  // SFP+/SFP28 Ethernet Compliance Codes
+    uint8_t eth_10g = rom[3];  // SFP+ Ethernet Compliance Codes
+    uint8_t eth_25g = rom[36]; // SFP28 Ethernet Compliance Codes
     uint8_t eth = rom[6];      // Ethernet Compiance Codes
     uint8_t speed = rom[12];   // Nominal speed[100Md]
     uint8_t tech = rom[8];     // SFP+ Cable Technology
@@ -845,23 +856,34 @@ static tr_func_t get_tr(uint8_t *rom, uint32_t rom_size) {
         return tr_10g_dac_get;
     if ((tech & SFP_MSA_SFP_PLUS_PASSIVE) && (speed >= 250))
         return tr_25g_dac_get;
+
     if ((speed >= 100 && speed < 250) && ((eth_10g & 0xf0) > 0)) {
         if (eth_10g & SFP_MSA_10GBASE_ER) return tr_10g_er_get;
         if (eth_10g & SFP_MSA_10GBASE_LRM) return tr_10g_lrm_get;
         if (eth_10g & SFP_MSA_10GBASE_LR) return tr_10g_lr_get;
         return tr_10g_sr_get;
     }
+    // SFF-8024 Extended spec compliance reference (ROM address 36)
+    if (speed >= 250 && eth_25g > 0) {
+        if (eth_25g & SFP_MSA_25GBASE_SR) return tr_25g_sr_get;
+        if (eth_25g & SFP_MSA_25GBASE_LR) return tr_25g_lr_get;
+        if (eth_25g & SFP_MSA_25GBASE_ER) return tr_25g_er_get;
+        if (eth_25g & SFP_MSA_25GBASE_CR) return tr_25g_cr_get;
+        return tr_25g_sr_get;
+    }
+    // Legaqcy support
     if (speed >= 250 && ((eth_10g & 0xf0) > 0)) {
         if (eth_10g & SFP_MSA_10GBASE_ER) return tr_25g_er_get;
         if (eth_10g & SFP_MSA_10GBASE_LRM) return tr_25g_lrm_get;
         if (eth_10g & SFP_MSA_10GBASE_LR) return tr_25g_lr_get;
         return tr_25g_sr_get;
     }
+
     if (eth & SFP_MSA_1000BASE_SX) return tr_1000_sx_get;
     if (eth & SFP_MSA_1000BASE_CX) return tr_1000_cx_get;
     if (eth & SFP_MSA_1000BASE_T) return tr_1000_t_get;
     if (eth & SFP_MSA_1000BASE_LX) {
-        if ((speed == 0xd && rom[14] == 0x50 && rom[15] == 0xFF) || 
+        if ((speed == 0xd && rom[14] == 0x50 && rom[15] == 0xFF) ||
             (speed == 0xc && rom[14] == 0x58 && rom[15] == 0xFF)) {
             return tr_1000_zx_get;
         } else {
