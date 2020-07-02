@@ -1730,6 +1730,11 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
             VTSS_F_QSYS_FWD_PRESSURE_FWD_PRESSURE_DIS(fc_obey),
             VTSS_M_QSYS_FWD_PRESSURE_FWD_PRESSURE_DIS);
 
+    /* Discard pause frame 01-80-C2-00-00-01 */
+    REG_WRM(VTSS_ANA_CL_CAPTURE_BPDU_CFG(port),
+            VTSS_F_ANA_CL_CAPTURE_BPDU_CFG_CPU_BPDU_REDIR_SEL(0xC),
+            VTSS_M_ANA_CL_CAPTURE_BPDU_CFG_CPU_BPDU_REDIR_SEL);
+
     return VTSS_RC_OK;
 }
 
