@@ -8,7 +8,7 @@
 |===
 |Version:          |MESA-2020.06
 |Previous Version: |MESA-2020.03
-|Date:             |2020-06-19
+|Date:             |2020-07-03
 |Description:      |Roadmap release
 |===
 
@@ -25,14 +25,14 @@ quality. It can be used for early access, to evaluate the features and/or start
 SW integration. It is not suitable for production use.
 
 
-=== Genreal
+=== General
 
 ==== 10G/25G 802.3ap Backplane Ethernet (KR) has been added for SparX-5/5i (all SKUs)
 
-This release updates the existing KR API, and with this it introduce support for
-the SparX-5/5i family. The existing APIs prefixed with `mesa_port_10g_kr_*` has
-been renamed to `mesa_port_kr_*`. Beside from this change, a number of
-additional APIs has been added to fully support SparX-5/5i.
+This release updates the existing KR API, and with this it introduces support
+for the SparX-5/5i family. The existing APIs prefixed with `mesa_port_10g_kr_*`
+have been renamed to `mesa_port_kr_*`. Besides this change, a number of
+additional APIs have been added to fully support SparX-5/5i.
 
 
 ==== Serval-T is regressions solved
@@ -47,7 +47,7 @@ in this release, and Serval-T is considered stable again.
 
 The SW support of VSC7414, VSC7416 and VSC7418 has been removed in this release.
 
-Customer who needs support for these parts needs to stay at the MESA-2020.03
+Customers who needs support for these parts needs to stay at the MESA-2020.03
 release.
 
 
