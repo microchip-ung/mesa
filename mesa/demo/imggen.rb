@@ -17,7 +17,8 @@ $machines = {
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-          { :name => "pcbxxx", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
+          { :name => "conf@ls1046", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
+          { :name => "conf@ls1046_sr", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
         ],
         :fdtaddr => "<0x90000000>",
         :rootfs => "arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
