@@ -154,15 +154,16 @@ $test_list.each do |entry|
                 end
             end
         end
-
         $ts.dut.run "mesa-cmd port statis clear"
         cmd =  "sudo ef "
-        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
-        cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$frame_dmac} #{tag} data pattern cnt #{sz} "
+        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} "
+        cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$frame_dmac} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep 1000 name f#{$port_tx1} "
         cmd += "tx #{$ts.pc.p[$port_tx2]} rep 1000 name f#{$port_tx2} "
         $ts.pc.try cmd
         $ts.dut.run "mesa-cmd port statis pac"
+        $ts.dut.run "mesa-cmd port statis 1"
+        $ts.dut.run "mesa-cmd port statis 2"
 
     end # test
 end # test_list
