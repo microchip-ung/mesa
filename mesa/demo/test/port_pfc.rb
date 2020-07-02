@@ -36,7 +36,8 @@ $frame_dmac    = "00:00:00:00:00:02"
 $pause_dmac    = "01:80:C2:00:00:01"
 $pause_etype   = 0x8808
 $frame_size    = 1518
-$num_of_frames = 5000
+$num_of_frames = 10000
+$num_of_pause  = 5000
 $test_list     = [
                   { port_conf_pfc:[1,0,0,0,0,0,0,0], data_frame_pcp: 0, pause_frame_pfc:[1,0,0,0,0,0,0,0]}, # PFC 0 active
                   { port_conf_pfc:[1,1,0,0,0,0,0,0], data_frame_pcp: 1, pause_frame_pfc:[1,1,0,0,0,0,0,0]}, # PFC 0 active
@@ -97,6 +98,7 @@ $test_list.each do |entry|
                 fc[:pfc][i] = (conf_pfc[i] == 0 ? false : true);
             end
             conf["flow_control"] = fc
+            #conf["max_frame_length"] = conf["max_frame_length"] + 1
             $ts.dut.call "mesa_port_conf_set", $ts.dut.p[port_tx], conf
         end
 
@@ -115,8 +117,9 @@ $test_list.each do |entry|
         cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
         cmd += "name f#{$port_tx2} eth dmac #{$pause_dmac} smac #{$frame_dmac} et #{$pause_etype} data hex #{pause_str} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
-        cmd += "tx #{$ts.pc.p[$port_tx2]} rep #{$num_of_frames} name f#{$port_tx2} "
+        cmd += "tx #{$ts.pc.p[$port_tx2]} rep #{$num_of_pause} name f#{$port_tx2} "
         $ts.pc.try cmd
+        $ts.dut.run "mesa-cmd port statis pac"
 
         # Test verification
         [$ts.dut.p[$port_tx1], $ts.dut.p[$port_tx2]].each do |port|
@@ -159,5 +162,15 @@ $test_list.each do |entry|
                 end
             end
         end
+
+        $ts.dut.run "mesa-cmd port statis clear"
+        cmd =  "sudo ef "
+        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+        cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$frame_dmac} #{tag} data pattern cnt #{sz} "
+        cmd += "tx #{$ts.pc.p[$port_tx1]} rep 1000 name f#{$port_tx1} "
+        cmd += "tx #{$ts.pc.p[$port_tx2]} rep 1000 name f#{$port_tx2} "
+        $ts.pc.try cmd
+        $ts.dut.run "mesa-cmd port statis pac"
+
     end # test
 end # test_list
