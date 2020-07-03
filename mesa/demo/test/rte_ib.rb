@@ -168,4 +168,6 @@ end
 
 test "dump" do
     #$ts.dut.run("mera-cmd debug api ib")
+    #$ts.dut.call("mera_ib_flush")
+    #$ts.dut.run("mera-cmd debug api ib")
 end

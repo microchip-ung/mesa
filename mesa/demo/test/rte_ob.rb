@@ -148,7 +148,7 @@ $test_table =
     # Data group transfer
     {
         txt: "dg_write",
-        dg: [{length: 4},{offs: 4, length: 4, addr: 2}],
+        dg: [{length: 4},{offs: 8, length: 38},{offs: 4, length: 4}],
         cnt: {rx_0: 1}
     },
 ]
@@ -193,11 +193,11 @@ def rte_ob_test(t)
 
     # Add data group
     if (dg != nil)
-        dg.each do |d|
+        dg.each_with_index do |d, i|
             conf = $ts.dut.call("mera_ob_rtp_pdu2dg_init")
+            conf["id"] = i
             conf["pdu_offset"] = fld_get(d, :offs)
             conf["length"] = fld_get(d, :length, 1)
-            conf["dg_addr"] = fld_get(d, :addr)
             $ts.dut.call("mera_ob_rtp_pdu2dg_add", $rtp_id, conf)
         end
     end
@@ -250,5 +250,7 @@ $test_table.each do |t|
 end
 
 test "dump" do
+    #$ts.dut.run("mera-cmd debug api ob")
+    #$ts.dut.call("mera_ob_flush")
     #$ts.dut.run("mera-cmd debug api ob")
 end
