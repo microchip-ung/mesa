@@ -260,7 +260,7 @@ static vtss_rc fa_temp_sensor_get(vtss_state_t *vtss_state,
     }
 
     // See VML:'
-    *temp_celsius = ((VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
+    *temp_celsius = ((i16)(VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
 
     return VTSS_RC_OK;
 }

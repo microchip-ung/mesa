@@ -239,7 +239,7 @@ static vtss_rc jr2_temp_sensor_get(vtss_state_t *vtss_state,
     JR2_RD(VTSS_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT, &status);
 
     // See data-sheet section 3.8.11
-    *temp = (197400 - 953 * (status & VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT_TEMP))/1000;
+    *temp = (197400 - 953 * (i16)(status & VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT_TEMP))/1000;
     
     // Check if the data is valid.
     if (status & VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT_TEMP_VALID) {
