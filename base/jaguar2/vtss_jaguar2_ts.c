@@ -744,6 +744,9 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
 
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
     /* I/O delays taken from DSH1061 section 2.31.9 */
+    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
+        interface = VTSS_PORT_INTERFACE_QSGMII;
+    }
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_2G5:
