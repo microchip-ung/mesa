@@ -249,6 +249,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_24x1G_4x10G_NPI:
         if (port_no < 24) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
+            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support         = true;
         } else if (port_no < 28) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 24); // 10G: 56-59
         } else if (port_no == 28) {
@@ -260,6 +262,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_4x10G_NPI:
         if (port_no < 48) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
+            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support         = true;
         } else if (port_no < 52) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-59
         } else if (port_no == 52) {
@@ -271,6 +275,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
+            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support         = true;
         } else if (port_no < 56) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-63
         } else if (port_no == 56) {
@@ -282,6 +288,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI:
         if (port_no < 48) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
+            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support         = true;
         } else if (port_no < 52) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-59
         } else if (port_no < 56) {
@@ -708,7 +716,7 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
     T_N(inst, "Called - %d", cap);
     switch (cap) {
         case MEBA_CAP_POE:
-            return 0;
+            return board->type == BOARD_TYPE_SPARX5_PCB135;   // Only PCB135
         case MEBA_CAP_1588_CLK_ADJ_DAC:
             return 0;
         case MEBA_CAP_1588_REF_CLK_SEL:
@@ -761,6 +769,8 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
             }
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
             return false;
+        case MEBA_CAP_POE_BT:
+            return true;
         case MEBA_CAP_CPU_PORTS_COUNT:
             return board->ls1046 ? 1 : 0;
         default:
@@ -2031,6 +2041,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_gpio_func_info_get         = fa_gpio_func_info_get;
     inst->api_synce                           = meba_synce_get();
     inst->api_tod                             = meba_tod_get();
+    inst->api_poe                             = meba_poe_get();
     inst->api_cpu_port                        = board->ls1046 ? fa_ls1046_cpu_ports : NULL;
     inst->api.meba_serdes_tap_get             = fa_serdes_tap_get;
     inst->api.meba_irq_enable                 = fa_meba_irq_enable;

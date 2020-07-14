@@ -214,9 +214,10 @@ mesa_rc pd69200_rd(const meba_poe_ctrl_inst_t *const inst,
 {
     char buf[size * 3 + 1];
     VTSS_MSLEEP(50); // Wait 50ms
+    memset(data, 0, size);
     int cnt = read(inst->adapter_fd, data, size);
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Read  %s ",
-          inst->adapter_name,
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Read(%d/%d)  %s ",
+          inst->adapter_name, size, cnt,
           print_as_hex_string(data, size, buf, sizeof(buf)));
     return (cnt == size) ? MESA_RC_OK : MESA_RC_ERROR;
 }
@@ -258,7 +259,7 @@ mesa_rc pd69200_firm_update_rd(const meba_poe_ctrl_inst_t *const inst, uint8_t *
         if (data[0] == 0)
         {
             VTSS_MSLEEP(5);
-            printf("read again:%d\n\r", loop_number);
+            DEBUG(inst, MEBA_TRACE_LVL_NOISE, "read again:%d", loop_number);
         }
         loop_number++;
     }
@@ -271,7 +272,7 @@ mesa_rc pd69200_firm_update_rd(const meba_poe_ctrl_inst_t *const inst, uint8_t *
 
     if (rc == MESA_RC_ERROR)
     {
-        printf("error2:%d\n\r", rc);
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "error2:%d", rc);
     }
 
     return rc;
@@ -511,7 +512,7 @@ static mesa_rc pd69200_tx(
             if (report_key_ok(inst, buf_copy[1])) {
                 rc = MESA_RC_OK;
             } else {
-                DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s called from %s(%d) failed\n",  __FUNCTION__, file, line);
+                DEBUG(inst, MEBA_TRACE_LVL_WARNING, "%s called from %s(%d) failed\n",  __FUNCTION__, file, line);
             }
         } else if (buf_copy[0] == REQUEST_KEY) {
             rc = get_controller_response(inst, &buf[0], buf_copy[1]);
@@ -520,7 +521,7 @@ static mesa_rc pd69200_tx(
         }
     } else {
         char dbg_txt[sizeof(buf_copy)*4];
-        DEBUG(inst, MEBA_TRACE_LVL_ERROR,
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING,
               "%s called from %s(%d), Invalid response: %s\n",  __FUNCTION__, file, line,
               print_as_hex_string(buf, PD_BUFFER_SIZE, dbg_txt, sizeof(dbg_txt)));
     }
@@ -1467,7 +1468,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     VTSS_MSLEEP(100); // read TPE\r\n - Section 5.1 - step 2 - response may take 100 ms
     pd69200_rd(inst, buf, 5); // read TPE\r\n - Section 5.1 - step 2
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
-        DEBUG(inst, MEBA_TRACE_LVL_ERROR,"No TPE!");
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING,"No TPE!");
         // Reset - Section 5.1 - step 9
         //        goto out;
     }
@@ -1950,7 +1951,7 @@ mesa_rc meba_poe_pd69200_do_detection(
     if ((cpu_status1 & 0x01) || (cpu_status2 & 0x01)) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "PD69200 Firmware update required");
     } else {
-        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): STATUS OK", __FUNCTION__, inst->adapter_name);
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): STATUS OK", __FUNCTION__, inst->adapter_name);
         meba_poe_status_t *current_status =
                 &(((poe_driver_private_t *)(inst->private_data))->status.global);
         MESA_RC(meba_poe_pd69200_ctrl_version_get(inst, MEBA_POE_VERSION_STRING_SIZE, current_status->version));
@@ -1998,7 +1999,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     port_status->chip_state = meba_poe_pd69200_get_chipset(inst);
 
     if (port_status->chip_state == MEBA_POE_FIRMWARE_UPGRADE) {
-        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Firmware upgrading", __FUNCTION__);
+        DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s Firmware upgrading", __FUNCTION__);
         port_status->assigned_pd_class_a = -1;
         port_status->assigned_pd_class_b = -1;
         port_status->pd_structure = MEBA_POE_PORT_PD_STRUCTURE_NOT_PERFORMED;
