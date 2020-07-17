@@ -941,6 +941,36 @@ class Switchdev_Pc_b2b_4x
     end
 end
 
+class Switchdev_Pc_bsp
+    attr_accessor :dut, :pc
+
+    def initialize conf
+        dut_url = conf["dut"]["terminal"]
+        port_admin = conf["dut"]["port_admin"]
+        pcb = conf["dut"]["pcb"]
+        @dut = MesaDut.new :bsp, dut_url, nil, nil, nil, port_admin, pcb
+
+        if conf.key?("easytest_cmd_server")
+            @pc = TestPCRemote.new conf["easytest_cmd_server"], nil, conf["easytest_server"]
+            @pc.bash_function "rvm use 2.6.2"
+            #@pc.run "rvm info"
+            upload_utils conf
+            @pc.run "bundle-install.sh"
+            @pc.run "lazy-ef-install.rb #{$easyframes_sha}" # TODO, find a better place to store this data
+        else
+            @pc = TestPC.new nil
+        end
+
+        t_i "Rebooting DUT"
+        @dut.sw_reboot
+        @dut.linux_login
+    end
+
+    def uninit
+        @dut.unmute
+    end
+end
+
 class Mesa_Pc_b2b
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
 
@@ -1073,6 +1103,8 @@ def get_test_setup_inner(setup, conf, mesa_args)
         return Mesa_Pc_b2b.new(conf, mesa_args, 2)
     when "switchdev_pc_b2b_4x"
         return Switchdev_Pc_b2b_4x.new(conf, mesa_args)
+    when "switchdev_pc_bsp"
+        return Switchdev_Pc_bsp.new(conf)
     else
         raise "No such setup in inventory"
     end

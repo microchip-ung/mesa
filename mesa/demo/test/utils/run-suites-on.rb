@@ -131,11 +131,15 @@ if ($options[:system] != nil) && ($options[:image] != nil)
 
         10.times do
             begin
-                puts("#{$system}: Download latest image from jenkins");
-                dl "#{$options[:image]}", "img"
-
+                if File.file?($options[:image])
+                    img = $options[:image]
+                else
+                    puts("#{$system}: Download latest image from jenkins");
+                    img = "img"
+                    dl "#{$options[:image]}", img
+                end
                 puts("#{$system}: Upload image to DUT")
-                run("#{$et} -l upload img")
+                run("#{$et} -l upload #{img}")
                 break
             rescue => e
                 print_err e
