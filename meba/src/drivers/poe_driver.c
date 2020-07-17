@@ -166,7 +166,7 @@ typedef struct poe_driver_private_t {
     const char               *builtin_firmware; /**< Path to file with builtin firmware */
 } poe_driver_private_t;
 
-#define DEBUG(_inst, _lvl, _fmt, ...) do { ((poe_driver_private_t *)((_inst)->private_data))->debug(_lvl, __FILE__, __LINE__, _fmt, ##__VA_ARGS__); } while (0)
+#define DEBUG(_inst, _lvl, _fmt, ...) do { ((poe_driver_private_t *)((_inst)->private_data))->debug(_lvl, __FILE__, __LINE__, "(%s) " _fmt, _inst->adapter_name, ##__VA_ARGS__); } while (0)
 
 /*********************
    Local Functions
@@ -1398,6 +1398,13 @@ mesa_rc pd69200_rd_system_status_ok(const meba_poe_ctrl_inst_t *const inst)
             // Empty I2C buffer in controller, just continue
             return MESA_RC_OK;
         }
+        uint8_t one_buf[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                              0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+        if (memcmp(one_buf, buf, PD_BUFFER_SIZE) == 0) {
+            // No I2C response
+            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Reading all 0xFF", __FUNCTION__);
+            return MESA_RC_ERROR;
+        }
 
         char cpu_status1     = buf[3];
         char cpu_status2     = buf[4];
@@ -1542,7 +1549,8 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     printf("\n\rUpdating PoE firmware...\n\r");
 
     // If greater than 127 then we have reached end of file
-    while ((byte_cnt <= firmware_size) && (*microsemi_firmware <= 127)) {
+    while ((byte_cnt < firmware_size) && (*microsemi_firmware <= 127)) {
+
         byteArr = microsemi_firmware;
 
         // Print out progress
@@ -1555,6 +1563,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
         if (byteArr[0] == 10) {
             DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"Skipping LF (Line Feed)");
             microsemi_firmware++;
+            byte_cnt++;
             byteArr = microsemi_firmware;
         }
 
@@ -1585,11 +1594,11 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
                 byte_cnt++;
             }
             microsemi_firmware++; // For the "\n"
+            byte_cnt++;
 
             DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Writing new line - byte_cnt:%u", byte_cnt);
-            line[line_index++] = '\r';
-            line[line_index] = '\n';
-            line[line_index+1] = 0;
+            line[line_index++] = '\n';
+            line[line_index] = 0;
 
             (void) pd69200_wr(inst, line, line_index); // Write the line - Section 5.1 - step 6
             //T_NG_HEX(VTSS_TRACE_GRP_CUSTOM, line, line_index);
@@ -1603,8 +1612,9 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
                 printf("PoE Firmware update progress:100 %%\n\r");
                 break; //end of file
             } else {
-                DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Waiting 100ms");
-                VTSS_MSLEEP(100);
+                DEBUG(inst, MEBA_TRACE_LVL_ERROR, "No Ack");
+                rc = MESA_RC_ERROR;
+                goto error_out;
             }
 
         } else {
@@ -1629,6 +1639,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     rc = pd69200_rd_system_status_ok(inst); // Download succeeded
     meba_poe_pd69200_set_chipset(inst, MEBA_POE_CHIPSET_FOUND);
 
+error_out:
     if (fd >= 0) {
         if (mapped_memory) {
             munmap(mapped_memory, mapped_memory_size);

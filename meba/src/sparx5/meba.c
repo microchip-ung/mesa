@@ -1360,6 +1360,17 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
             break;
         case MEBA_SYNCE_DPLL_INITIALIZE:
             break;
+        case MEBA_POE_INITIALIZE:
+            if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+                mesa_sgpio_conf_t  conf;
+                if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
+                    conf.port_conf[16].enabled = true;
+                    conf.port_conf[16].mode[0] =  MESA_SGPIO_MODE_ON;
+                    conf.port_conf[16].mode[1] =  MESA_SGPIO_MODE_ON;
+                    rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
+                }
+            }
+            break;
     }
     T_D(inst, "Called - %d - Done", reset);
     return rc;

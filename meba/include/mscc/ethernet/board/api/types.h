@@ -45,6 +45,8 @@ typedef enum {
     MEBA_INTERRUPT_INITIALIZE,
     // Initialize the SyncE DPLL i.e. setup dividers, references, monitors etc.
     MEBA_SYNCE_DPLL_INITIALIZE,
+    // PoE Initialize
+    MEBA_POE_INITIALIZE,
 } meba_reset_point_t;
 
 typedef enum {

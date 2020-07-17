@@ -145,7 +145,7 @@ typedef mesa_rc (*meba_poe_debug_t)(
 // reset         [IN]  If true, the controller is reset after upgrade.
 // size          [IN]  Size of firmware data in bytes.
 // firmware      [IN]  Firmware to load.
-typedef mesa_rc (*meba_poe_firmware_upgrade_t)(
+typedef int (*meba_poe_firmware_upgrade_t)(
         struct meba_inst               *inst,
         mesa_bool_t                     reset,
         uint32_t                        size,

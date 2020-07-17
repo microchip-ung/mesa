@@ -70,7 +70,7 @@ mesa_rc meba_poe_generic_supply_limits_get(
     meba_poe_ctrl_psu_t        id,
     meba_poe_psu_input_prob_t *psu_prop);
 
-mesa_rc meba_poe_generic_firmware_upgrade(
+int meba_poe_generic_firmware_upgrade(
     const meba_inst_t               inst,
     mesa_bool_t                     reset,
     uint32_t                        size,

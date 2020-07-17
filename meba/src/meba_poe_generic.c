@@ -129,7 +129,7 @@ mesa_rc meba_poe_generic_reset_command(
     return MESA_RC_OK;
 }
 
-mesa_rc meba_poe_generic_firmware_upgrade(
+int meba_poe_generic_firmware_upgrade(
     const meba_inst_t               inst,
     mesa_bool_t                     reset,
     uint32_t                        size,
@@ -139,20 +139,19 @@ mesa_rc meba_poe_generic_firmware_upgrade(
     int i;
 
     if ( !inst || !inst->api_poe || !inst->api_poe->meba_poe_system_get) {
-        return MESA_RC_OK;
+        return 0;
     }
     if (inst->api_poe->meba_poe_system_get(inst, &system) != MESA_RC_OK) {
-        return MESA_RC_OK;
+        return 0;
     }
 
+    int count = 0;
     for (i=0; i<system->controller_count; ++i) {
-        mesa_rc rc;
-        rc = system->controllers[i].api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i], reset, size, data);
-        if (rc != MESA_RC_OK) {
-            return rc;
+        if (MESA_RC_OK ==  system->controllers[i].api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i], reset, size, data)) {
+            count++;
         }
     }
-    return MESA_RC_OK;
+    return count;
 }
 
 mesa_rc meba_poe_generic_prepare_firmware_upgrade(
