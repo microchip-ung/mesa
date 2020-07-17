@@ -592,6 +592,8 @@ static mesa_rc caracal_reset(meba_inst_t inst,
             break;
         case MEBA_SYNCE_DPLL_INITIALIZE:
             break;
+        case MEBA_POE_INITIALIZE:
+            break;
     }
 
     return rc;

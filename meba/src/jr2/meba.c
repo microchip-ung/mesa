@@ -1935,6 +1935,8 @@ static mesa_rc jr2_reset(meba_inst_t inst,
             break;
         case MEBA_SYNCE_DPLL_INITIALIZE:
             break;
+        case MEBA_POE_INITIALIZE:
+            break;
     }
     return rc;
 }

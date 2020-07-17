@@ -457,6 +457,8 @@ static mesa_rc servalt_reset(meba_inst_t inst,
                 }
             }
             break;
+        case MEBA_POE_INITIALIZE:
+            break;
     }
 
     return rc;
