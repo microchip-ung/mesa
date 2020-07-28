@@ -862,12 +862,12 @@ static vtss_rc vtss_phy_100BaseT_long_linkup_workaround(vtss_state_t *vtss_state
                 /* If the is Link is down and has been down, only execute the work-around if retryCnt100 has incremented more than 3 */
                 /* Note: vtss_phy_status_get() is called by the Applicaiton, so the rate could be 1/sec or 10/sec or 5/sec  */
                 /*       The retryCnt100 is trying to limit the number of times this is activated giving reasonable time for link-up */
+           VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_DEVICE_AUTONEG_ADVERTISEMENT, &reg4val));
             if (!aneg_ena) {  /* Forced Mode Operation */
                 if (speed_sel == 0x1) {  /* 00=10M; 01=100M; 10=1000M; 11=Resvd;  Forced Speed */
                     VTSS_I("Forced Mode - Cu Media Interface, Speed=100M, Executing 100BT_Long_LinkDn_Work_Around");
                     if ((tr_reg18 & 0x0080) &&  /* Currently Have NO Link and PreEmphEnabledStatus set */
                         (retryCnt100 >= VTSS_FORCED_LONG_LINKUP_COUNTER_WINDOW)) {
-                            VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_DEVICE_AUTONEG_ADVERTISEMENT, &reg4val));
                             VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_CONTROL, &reg9val));
                             VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_DEVICE_AUTONEG_ADVERTISEMENT, 0x1));
                             VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_CONTROL, 0x0));
@@ -4320,7 +4320,7 @@ static BOOL vtss_phy_chk_serdes_init_mac_mode_private(vtss_state_t              
             // Reg19G    1      0
             // Check to see if it's enabled
             if ((sys_rst == 0x1) && (ena_lane == 0x1) && (pll_fsm_ena == 0x1)) {
-                if ((if_mode == 0x3) && (qrate == 0) && (hrate == 0)) {
+                if ((qrate == 0) && (hrate == 0)) {
                     micro_patch_mac_mode = VTSS_PORT_INTERFACE_QSGMII;
                 } else if ((if_mode == 0x1) && (qrate == 1) && (hrate == 0)) {
                     micro_patch_mac_mode = VTSS_PORT_INTERFACE_SGMII;
