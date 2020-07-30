@@ -10,7 +10,7 @@ void vtss_lan966x_vcap_key_set(struct vtss_lan966x_vcap_data *data, u32 offset,
                                u32 width, u32 value, u32 mask);
 
 void vtss_lan966x_vcap_key_bytes_set(struct vtss_lan966x_vcap_data *data,
-                                     u32 offset, u8 *val, u8 *msk, u32 count);
+                                     u32 offset, const u8 *val, const u8 *msk, u32 count);
 
 void vtss_lan966x_vcap_key_bit_set(struct vtss_lan966x_vcap_data *data, u32 offset,
                                    enum vtss_lan966x_vcap_bit val);
