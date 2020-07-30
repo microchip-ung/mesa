@@ -855,3 +855,14 @@ def run_(cmd, verify=true)
     res
 end
 
+# Intialize QSPI
+def qspi_init
+    for gpio in 0..5
+        $ts.dut.call("mesa_gpio_mode_set", 0, gpio, "MESA_GPIO_ALT_0")
+    end
+    $ts.dut.run("symreg qspi_qspi_mr[1]  0x00000001") # Set SMM
+    $ts.dut.run("symreg qspi_qspi_scr[1] 0x00000000") # Clear CPHA/CPOL
+    $ts.dut.run("symreg qspi_qspi_cr[1]  0x00000100") # Set UPDCFG
+    sleep(1)
+    $ts.dut.run("symreg qspi_qspi_cr[1]  0x00000001") # Set QSPIEN
+end

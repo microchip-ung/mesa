@@ -37,6 +37,8 @@ test "conf" do
     conf["enable"] = true
     $ts.dut.call("mera_gen_conf_set", conf)
 
+    # Initialize QSPI
+    qspi_init
 end
 
 # Each entry in the test table has these items (only text is mandatory):
@@ -148,13 +150,14 @@ $test_table =
     # Data group transfer
     {
         txt: "dg_write",
-        dg: [{length: 4},{offs: 8, length: 38},{offs: 4, length: 4}],
+        rtp: {wal_id: 7},
+        dg: [{length: 4}],
+#        dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
         cnt: {rx_0: 1}
     },
 ]
 
-def fld_get(v, fld, defval = 0)
-    val = defval
+def fld_get(v, fld, val = 0)
     if (v != nil and v.key?(fld))
         val = v[fld]
     end
@@ -186,19 +189,30 @@ def rte_ob_test(t)
     # Setup RTP entry
     conf = $ts.dut.call("mera_ob_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
-    conf["length"] = fld_get(e, :length)
+    conf["length"] = fld_get(e, :length, 46)
     conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
     conf["pn_ds"] = fld_get(e, :pn_ds, 0x35);
+    wal_id = fld_get(e, :wal_id);
+    conf["wal_enable"] = (wal_id == 0 ? false : true)
+    conf["wal_id"] = wal_id
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
     # Add data group
+    wr_addr = 0x100
     if (dg != nil)
         dg.each_with_index do |d, i|
-            conf = $ts.dut.call("mera_ob_rtp_pdu2dg_init")
-            conf["id"] = i
+            conf = $ts.dut.call("mera_ob_dg_init")
+            conf["dg_id"] = i
             conf["pdu_offset"] = fld_get(d, :offs)
-            conf["length"] = fld_get(d, :length, 1)
-            $ts.dut.call("mera_ob_rtp_pdu2dg_add", $rtp_id, conf)
+            len = fld_get(d, :length, 1)
+            conf["length"] = len
+            $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
+            conf = $ts.dut.call("mera_ob_wa_init")
+            conf["rtp_id"] = $rtp_id
+            conf["dg_id"] = i
+            conf["wr_addr"] = wr_addr
+            wr_addr = (wr_addr + len)
+            $ts.dut.call("mera_ob_wa_add", wal_id, conf)
         end
     end
 
@@ -253,4 +267,5 @@ test "dump" do
     #$ts.dut.run("mera-cmd debug api ob")
     #$ts.dut.call("mera_ob_flush")
     #$ts.dut.run("mera-cmd debug api ob")
+    #$ts.pc.run("mera-iofpga-rw /dev/hidraw0 dump 0x100 64")
 end
