@@ -358,16 +358,18 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     if (mesa_sgpio_conf_get(NULL, 0, 2, &conf) == MESA_RC_OK) {
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 3;
-        for (port = 0; port < 32; port++) {
-            if (port == 0 || (port >= 16 && port <= 18) || port >= 28) {
-                conf.port_conf[port].enabled = 1;
-                conf.port_conf[port].int_pol_high[0] = true;        // LOS interrupt is active high (input)
-                conf.port_conf[port].int_pol_high[2] = true;        // TX_FAULT interrupt is active high (input)
-                conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_OFF; // TXDisable is enabled through fa_port_admin_state_set() (output)
-                conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_ON;  // Ratesel0 always eanbled (output)
-                conf.port_conf[port].mode[2] = MESA_SGPIO_MODE_ON;  // Ratesel1 always eanbled (output)
-            }
+        for (port = 28; port < 32; port++) {
+            conf.port_conf[port].enabled = 1;
+            conf.port_conf[port].int_pol_high[0] = true;        // LOS interrupt is active high (input)
+            conf.port_conf[port].int_pol_high[2] = true;        // TX_FAULT interrupt is active high (input)
+            conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_OFF; // TXDisable is enabled through fa_port_admin_state_set() (output)
+            conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_ON;  // Ratesel0 always eanbled (output)
+            conf.port_conf[port].mode[2] = MESA_SGPIO_MODE_ON;  // Ratesel1 always eanbled (output)
         }
+        conf.port_conf[0].enabled  = true; // I2C
+        conf.port_conf[16].enabled = true; // I2C
+        conf.port_conf[17].enabled = true; // Elise Phy
+        conf.port_conf[18].enabled = true; // Elise Phy
         conf.port_conf[17].int_pol_high[0] = false; // INTR for QSGMII Elise Phy 0-1 (8 instances)
         conf.port_conf[17].int_pol_high[1] = false; // INTR for QSGMII Elise Phy 2-3 (8 instances)
         conf.port_conf[17].int_pol_high[2] = false; // INTR for QSGMII Elise Phy 4-5 (8 instances)
