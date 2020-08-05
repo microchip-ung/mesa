@@ -133,15 +133,12 @@ vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
 {
 
 #if defined(GCB_GPIO_OUT_SET2)
-    u32 mask = VTSS_BIT(gpio_no), alt_0 = 0, alt_1 = 0;
+    u32 mask = VTSS_BIT(gpio_no % 32), alt_0 = 0, alt_1 = 0;
 
-    // Sunrise
-    REG_WRM_CLR(GCB_GPIO_INTR_ENA, mask); /* Disable IRQ */
     switch (mode) {
     case VTSS_GPIO_OUT:
     case VTSS_GPIO_IN:
     case VTSS_GPIO_IN_INT:
-        REG_WRM_CTL(GCB_GPIO_OE, mode == VTSS_GPIO_OUT, mask);
         break;
     case VTSS_GPIO_ALT_0:
         alt_0 = mask;
@@ -157,13 +154,31 @@ vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
         VTSS_E("illegal mode");
         return VTSS_RC_ERROR;
     }
-    REG_WRM(GCB_GPIO_ALT(0), alt_0, mask);
-    REG_WRM(GCB_GPIO_ALT(1), alt_1, mask);
-    if (mode == VTSS_GPIO_IN_INT) {
-        REG_WRM_SET(GCB_GPIO_INTR_ENA, mask);
+    if (gpio_no < 32) {
+        REG_WRM_CLR(GCB_GPIO_INTR_ENA, mask);
+        REG_WRM_CTL(GCB_GPIO_OE, mode == VTSS_GPIO_OUT, mask);
+        REG_WRM(GCB_GPIO_ALT(0), alt_0, mask);
+        REG_WRM(GCB_GPIO_ALT(1), alt_1, mask);
+        if (mode == VTSS_GPIO_IN_INT) {
+            REG_WRM_SET(GCB_GPIO_INTR_ENA, mask);
+        }
+    } else if (gpio_no < 64) {
+        REG_WRM_CLR(GCB_GPIO_INTR_ENA1, mask);
+        REG_WRM_CTL(GCB_GPIO_OE1, mode == VTSS_GPIO_OUT, mask);
+        REG_WRM(GCB_GPIO_ALT1(0), alt_0, mask);
+        REG_WRM(GCB_GPIO_ALT1(1), alt_1, mask);
+        if (mode == VTSS_GPIO_IN_INT) {
+            REG_WRM_SET(GCB_GPIO_INTR_ENA1, mask);
+        }
+    } else {
+        REG_WRM_CLR(GCB_GPIO_INTR_ENA2, mask);
+        REG_WRM_CTL(GCB_GPIO_OE2, mode == VTSS_GPIO_OUT, mask);
+        REG_WRM(GCB_GPIO_ALT2(0), alt_0, mask);
+        REG_WRM(GCB_GPIO_ALT2(1), alt_1, mask);
+        if (mode == VTSS_GPIO_IN_INT) {
+            REG_WRM_SET(GCB_GPIO_INTR_ENA2, mask);
+        }
     }
-#else
-    // Adaro
 #endif
     return VTSS_RC_OK;
 }
@@ -173,6 +188,18 @@ static vtss_rc lan966x_gpio_read(vtss_state_t *vtss_state,
                                  const vtss_gpio_no_t  gpio_no,
                                  BOOL                  *const value)
 {
+#if defined(GCB_GPIO_IN2)
+    u32 val, mask = VTSS_BIT(gpio_no % 32);
+
+    if (gpio_no < 32) {
+        REG_RD(GCB_GPIO_IN, &val);
+    } else if (gpio_no < 64) {
+        REG_RD(GCB_GPIO_IN1, &val);
+    } else {
+        REG_RD(GCB_GPIO_IN2, &val);
+    }
+    *value = VTSS_BOOL(val & mask);
+#endif
     return VTSS_RC_OK;
 }
 
@@ -181,6 +208,29 @@ static vtss_rc lan966x_gpio_write(vtss_state_t *vtss_state,
                                   const vtss_gpio_no_t  gpio_no,
                                   const BOOL            value)
 {
+#if defined(GCB_GPIO_OUT_SET2)
+    u32 mask = VTSS_BIT(gpio_no % 32);
+
+    if (gpio_no < 32) {
+        if (value) {
+            REG_WR(GCB_GPIO_OUT_SET, mask);
+        } else {
+            REG_WR(GCB_GPIO_OUT_CLR, mask);
+        }
+    } else if (gpio_no < 64) {
+        if (value) {
+            REG_WR(GCB_GPIO_OUT_SET1, mask);
+        } else {
+            REG_WR(GCB_GPIO_OUT_CLR1, mask);
+        }
+    } else {
+        if (value) {
+            REG_WR(GCB_GPIO_OUT_SET2, mask);
+        } else {
+            REG_WR(GCB_GPIO_OUT_CLR2, mask);
+        }
+    }
+#endif
     return VTSS_RC_OK;
 }
 

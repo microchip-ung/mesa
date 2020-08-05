@@ -522,7 +522,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS         (8*6)
+#define VTSS_GPIOS         78
 #endif /* VTSS_ARCH_LAN966X */
 
 /** \brief GPIO number */
