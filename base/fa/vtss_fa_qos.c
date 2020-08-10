@@ -3177,8 +3177,8 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
             VTSS_E("frame preemption requires at least 500 MHz core clock for 10G ports");
             return VTSS_RC_ERROR;
         }
-        if (vtss_state->misc.chip_id.revision == 0 && conf->add_frag_size == 3) {
-            VTSS_E("revision 0 does not support add_frag_size 3");
+        if (conf->add_frag_size == 3) {
+            VTSS_E("frame preemption does not support add_frag_size 3");
             return VTSS_RC_ERROR;
         }
     }

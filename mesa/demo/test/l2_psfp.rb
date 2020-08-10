@@ -176,11 +176,13 @@ test "frame-gate" do
     conf["prio"]["enable"] = true
     conf["prio"]["value"] = prio
     chip_id = $ts.dut.call("mesa_chip_id_get")
+    len = 64
     if (cap_get("PACKET_IFH_EPID") == 11 and chip_id["revision"] == 0)
-        # FireAnt revision 0 does not support priority change
+        # FireAnt revision 0 does not support priority change and small frames
         prio = 0
+        len = 192
     end
-    gate_test("prio", conf, prio, 192, 1)
+    gate_test("prio", conf, prio, len, 1)
 
     # The following tests should work at 1G and 10G speeds:
     # - 100 usec gate intervals are used.
