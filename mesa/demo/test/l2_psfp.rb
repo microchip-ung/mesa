@@ -19,8 +19,15 @@ $istat = 0
 $pol = 0
 $filter_id = 10
 $gate_id = 20
+$fa_rev0 = false
 
 test "conf" do
+    chip_id = $ts.dut.call("mesa_chip_id_get")
+    if (cap_get("PACKET_IFH_EPID") == 11 and chip_id["revision"] == 0)
+        # FireAnt revision 0 does not support priority change and discard of small frames
+        $fa_rev0 = true
+    end
+
     # Ingress counters
     $istat = $ts.dut.call("mesa_ingress_cnt_alloc", 1)
     
@@ -154,9 +161,10 @@ test "frame-filter" do
 
     # Gate discard
     prio = 0
+    len = ($fa_rev0 ? 192 : 64)
     conf = $ts.dut.call("mesa_psfp_gate_conf_get", $gate_id)
     conf["enable"] = true
-    gate_test("closed", conf, prio, 192, 1, 0)
+    gate_test("closed", conf, prio, len, 1, 0)
 
     # Counter check
     cnt = $ts.dut.call("mesa_ingress_cnt_get", $istat, 0)
@@ -169,21 +177,14 @@ end
 
 test "frame-gate" do
     # Gate priority
-    prio = 7
+    prio = ($fa_rev0 ? 0 : 7)
     conf = $ts.dut.call("mesa_psfp_gate_conf_get", $gate_id)
     conf["enable"] = true
     conf["gate_open"] = true
     conf["prio"]["enable"] = true
     conf["prio"]["value"] = prio
-    chip_id = $ts.dut.call("mesa_chip_id_get")
-    len = 64
-    if (cap_get("PACKET_IFH_EPID") == 11 and chip_id["revision"] == 0)
-        # FireAnt revision 0 does not support priority change and small frames
-        prio = 0
-        len = 192
-    end
-    gate_test("prio", conf, prio, len, 1)
-
+    gate_test("prio", conf, prio, 192, 1)
+    conf["prio"]["enable"] = false
     # The following tests should work at 1G and 10G speeds:
     # - 100 usec gate intervals are used.
     # - Frame size of 10000 bits per frame.
