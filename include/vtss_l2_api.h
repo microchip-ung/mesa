@@ -845,6 +845,7 @@ typedef struct
 #if defined(VTSS_FEATURE_VCL_KEY_DIP)
     vtss_vcap_ip_t  dip;      /**< Destination IP address */
 #endif
+    vtss_vcap_vr_t  sport;    /**< UDP/TCP: Source port */
     vtss_vcap_vr_t  dport;    /**< UDP/TCP: Destination port */
 } vtss_vce_frame_ipv4_t;
 
@@ -857,6 +858,7 @@ typedef struct
 #if defined(VTSS_FEATURE_VCL_KEY_DIP)
     vtss_vcap_u128_t dip;   /**< Destination IP address */
 #endif
+    vtss_vcap_vr_t  sport; /**< UDP/TCP: Source port */
     vtss_vcap_vr_t  dport; /**< UDP/TCP: Destination port */
 } vtss_vce_frame_ipv6_t;
 

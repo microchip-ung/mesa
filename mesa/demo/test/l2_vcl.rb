@@ -181,14 +181,26 @@ $test_table =
          f_1: {port_idx: 1, cmd: "ipv4 proto 102 dip 5.6.7.9"}
      },
      {
+         txt: "ipv4/sport",
+         vce: {vid: 408, port_idx: 0, type: "IPV4", proto: {v: 17, m: 0xff}, sport: {v: 0x0304, m: 0xffff}},
+         f_0: {port_idx: 0, cmd: "ipv4 udp sport 0x0304"},
+         f_1: {port_idx: 0, cmd: "ipv4 udp sport 0x0305"}
+     },
+     {
+         txt: "ipv4/sport-range",
+         vce: {vid: 409, port_idx: 0, type: "IPV4", proto: {v: 6, m: 0xff}, sport: {l: 13, h: 14}},
+         f_0: {port_idx: 0, cmd: "ipv4 tcp sport 13"},
+         f_1: {port_idx: 0, cmd: "ipv4 tcp sport 15"}
+     },
+     {
          txt: "ipv4/dport",
-         vce: {vid: 408, port_idx: 0, type: "IPV4", proto: {v: 17, m: 0xff}, dport: {v: 0x0102, m: 0xffff}},
+         vce: {vid: 410, port_idx: 0, type: "IPV4", proto: {v: 17, m: 0xff}, dport: {v: 0x0102, m: 0xffff}},
          f_0: {port_idx: 0, cmd: "ipv4 udp dport 0x0102"},
          f_1: {port_idx: 0, cmd: "ipv4 udp dport 0x0103"}
      },
      {
          txt: "ipv4/dport-range",
-         vce: {vid: 409, port_idx: 0, type: "IPV4", proto: {v: 6, m: 0xff}, dport: {l: 11, h: 12}},
+         vce: {vid: 411, port_idx: 0, type: "IPV4", proto: {v: 6, m: 0xff}, dport: {l: 11, h: 12}},
          f_0: {port_idx: 0, cmd: "ipv4 tcp dport 12"},
          f_1: {port_idx: 0, cmd: "ipv4 tcp dport 13"}
      },
@@ -211,14 +223,26 @@ $test_table =
          f_1: {port_idx: 1, cmd: "ipv6 dip ::0506:0709"}
      },
      {
+         txt: "ipv6/sport",
+         vce: {vid: 503, port_idx: 0, type: "IPV6", proto: {v: 17, m: 0xff}, sport: {v: 0x0102, m: 0xffff}},
+         f_0: {port_idx: 0, cmd: "ipv6 udp sport 0x0102"},
+         f_1: {port_idx: 0, cmd: "ipv6 udp sport 0x0103"}
+     },
+     {
+         txt: "ipv6/sport-range",
+         vce: {vid: 504, port_idx: 0, type: "IPV6", proto: {v: 6, m: 0xff}, sport: {l: 15, h: 16}},
+         f_0: {port_idx: 0, cmd: "ipv6 tcp sport 15"},
+         f_1: {port_idx: 0, cmd: "ipv6 tcp sport 17"}
+     },
+     {
          txt: "ipv6/dport",
-         vce: {vid: 503, port_idx: 0, type: "IPV6", proto: {v: 17, m: 0xff}, dport: {v: 0x0304, m: 0xffff}},
+         vce: {vid: 505, port_idx: 0, type: "IPV6", proto: {v: 17, m: 0xff}, dport: {v: 0x0304, m: 0xffff}},
          f_0: {port_idx: 0, cmd: "ipv6 udp dport 0x0304"},
          f_1: {port_idx: 0, cmd: "ipv6 udp dport 0x0305"}
      },
      {
          txt: "ipv6/dport-range",
-         vce: {vid: 504, port_idx: 0, type: "IPV6", proto: {v: 6, m: 0xff}, dport: {l: 17, h: 18}},
+         vce: {vid: 506, port_idx: 0, type: "IPV6", proto: {v: 6, m: 0xff}, dport: {l: 17, h: 18}},
          f_0: {port_idx: 0, cmd: "ipv6 tcp dport 17"},
          f_1: {port_idx: 0, cmd: "ipv6 tcp dport 16"}
      },
@@ -275,6 +299,7 @@ $test_table.each do |t|
             vcap_vm_set(k, "proto", v, :proto)
             vcap_vm_set(k, "sip", v, :sip)
             vcap_vm_set(k, str, v, :dip)
+            vcap_range_set(k, "sport", v, :sport)
             vcap_range_set(k, "dport", v, :dport)
         when "IPV6"
             k = f["ipv6"]
@@ -282,6 +307,7 @@ $test_table.each do |t|
             vcap_vm_set(k, "proto", v, :proto)
             vcap_vm_set(k, "sip", v, :sip)
             vcap_vm_set(k, str, v, :dip)
+            vcap_range_set(k, "sport", v, :sport)
             vcap_range_set(k, "dport", v, :dport)
         else
         end

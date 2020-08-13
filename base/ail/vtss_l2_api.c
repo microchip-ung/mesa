@@ -5793,32 +5793,34 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
         key->frame.snap.data = vce->key.frame.snap.data;
         break;
     case VTSS_VCE_TYPE_IPV4:
+        key->type                = VTSS_IS1_TYPE_IPV4;
+        key->frame.ipv4.fragment = vce->key.frame.ipv4.fragment;
+        key->frame.ipv4.options  = vce->key.frame.ipv4.options;
+        key->frame.ipv4.dscp     = vce->key.frame.ipv4.dscp;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP, &key->frame.ipv4.dscp));
+        key->frame.ipv4.proto    = vce->key.frame.ipv4.proto;
+        key->frame.ipv4.sip      = vce->key.frame.ipv4.sip;
+#if defined(VTSS_FEATURE_VCL_KEY_DIP)
+        key->frame.ipv4.dip      = vce->key.frame.ipv4.dip;
+#endif
+        key->frame.ipv4.sport    = vce->key.frame.ipv4.sport;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range, VTSS_VCAP_RANGE_TYPE_SPORT, &key->frame.ipv4.sport));
+        key->frame.ipv4.dport    = vce->key.frame.ipv4.dport;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT, &key->frame.ipv4.dport));
+        break;
     case VTSS_VCE_TYPE_IPV6:
-        if (vce->key.type == VTSS_VCE_TYPE_IPV4) {
-            key->type                = VTSS_IS1_TYPE_IPV4;
-            key->frame.ipv4.fragment = vce->key.frame.ipv4.fragment;
-            key->frame.ipv4.options  = vce->key.frame.ipv4.options;
-            key->frame.ipv4.dscp     = vce->key.frame.ipv4.dscp;
-            VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP, &key->frame.ipv4.dscp));
-            key->frame.ipv4.proto    = vce->key.frame.ipv4.proto;
-            key->frame.ipv4.sip      = vce->key.frame.ipv4.sip;
+        key->type                = VTSS_IS1_TYPE_IPV6;
+        key->frame.ipv6.dscp     = vce->key.frame.ipv6.dscp;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP, &key->frame.ipv6.dscp));
+        key->frame.ipv6.proto    = vce->key.frame.ipv6.proto;
+        key->frame.ipv6.sip      = vce->key.frame.ipv6.sip;
 #if defined(VTSS_FEATURE_VCL_KEY_DIP)
-            key->frame.ipv4.dip      = vce->key.frame.ipv4.dip;
+        key->frame.ipv6.dip      = vce->key.frame.ipv6.dip;
 #endif
-            key->frame.ipv4.dport    = vce->key.frame.ipv4.dport;
-            VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT, &key->frame.ipv4.dport));
-        } else {
-            key->type                = VTSS_IS1_TYPE_IPV6;
-            key->frame.ipv6.dscp     = vce->key.frame.ipv6.dscp;
-            VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP, &key->frame.ipv6.dscp));
-            key->frame.ipv6.proto    = vce->key.frame.ipv6.proto;
-            key->frame.ipv6.sip      = vce->key.frame.ipv6.sip;
-#if defined(VTSS_FEATURE_VCL_KEY_DIP)
-            key->frame.ipv6.dip      = vce->key.frame.ipv6.dip;
-#endif
-            key->frame.ipv6.dport    = vce->key.frame.ipv6.dport;
-            VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT, &key->frame.ipv6.dport));
-        }
+        key->frame.ipv6.sport    = vce->key.frame.ipv6.sport;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range, VTSS_VCAP_RANGE_TYPE_SPORT, &key->frame.ipv6.sport));
+        key->frame.ipv6.dport    = vce->key.frame.ipv6.dport;
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT, &key->frame.ipv6.dport));
         break;
     default:
         VTSS_E("illegal type: %d", vce->key.type);

@@ -447,6 +447,7 @@ typedef struct
     mesa_vcap_u8_t  proto;    // Protocol
     mesa_vcap_ip_t  sip;      // Source IP address
     mesa_vcap_ip_t  dip;      // Destination IP address
+    mesa_vcap_vr_t  sport;    // UDP/TCP: Source port
     mesa_vcap_vr_t  dport;    // UDP/TCP: Destination port
 } mesa_vce_frame_ipv4_t;
 
@@ -457,6 +458,7 @@ typedef struct
     mesa_vcap_u8_t   proto; // Protocol
     mesa_vcap_u128_t sip;   // Source IP address
     mesa_vcap_u128_t dip;   // Destination IP address
+    mesa_vcap_vr_t   sport; // UDP/TCP: Source port
     mesa_vcap_vr_t   dport; // UDP/TCP: Destination port
 } mesa_vce_frame_ipv6_t;
 
