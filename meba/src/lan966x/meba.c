@@ -183,6 +183,7 @@ static mesa_rc lan9668_reset(meba_inst_t inst,
         case MEBA_SENSOR_INITIALIZE:
         case MEBA_INTERRUPT_INITIALIZE:
         case MEBA_SYNCE_DPLL_INITIALIZE:
+        case MEBA_POE_INITIALIZE:
             break;
     }
 
