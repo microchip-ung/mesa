@@ -13,6 +13,7 @@ $port_idx_tx = 3
 
 $cap_dmac = cap_get("L2_VCL_KEY_DMAC")
 $cap_dip = cap_get("L2_VCL_KEY_DIP")
+$vce_added = false
 
 test "conf" do
     t_i("set S-custom tag Ethernet Type")
@@ -86,39 +87,69 @@ $test_table =
      },
      {
          txt: "etype/untagged",
-         vce: {vid: 107, port_idx: 0, type: "ETYPE", tagged: 0},
+         vce: {vid: 110, port_idx: 0, type: "ETYPE", ot: {tagged: 0}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa"},
          f_1: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100}}
      },
      {
          txt: "etype/c-tagged",
-         vce: {vid: 108, port_idx: 0, type: "ETYPE", tagged: 1, s_tag: 0},
+         vce: {vid: 111, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 0}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100}},
          f_1: {port_idx: 0, cmd: "et 0xaaaa"}
      },
      {
          txt: "etype/s-tagged",
-         vce: {vid: 108, port_idx: 0, type: "ETYPE", tagged: 1, s_tag: 1},
+         vce: {vid: 112, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 1}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x88a8}},
          f_1: {port_idx: 0, cmd: "et 0xaaaa"}
      },
      {
          txt: "etype/s-custom-tagged",
-         vce: {vid: 108, port_idx: 0, type: "ETYPE", tagged: 1, s_tag: 1},
+         vce: {vid: 113, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 1}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x9100}},
          f_1: {port_idx: 0, cmd: "et 0xaaaa"}
      },
      {
+         txt: "etype/c-vid",
+         vce: {vid: 114, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 0, vid: {v: 7, m: 0xfff}}},
+         f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100, vid: 7}},
+         f_1: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100, vid: 6}}
+     },
+     {
          txt: "etype/c-pcp",
-         vce: {vid: 109, port_idx: 0, type: "ETYPE", tagged: 1, s_tag: 0, pcp: {v: 5, m: 0x7}},
+         vce: {vid: 115, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 0, pcp: {v: 5, m: 0x7}}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100, pcp: 5}},
          f_1: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100, pcp: 4}}
      },
      {
          txt: "etype/c-dei",
-         vce: {vid: 110, port_idx: 0, type: "ETYPE", tagged: 1, s_tag: 0, dei: 1},
+         vce: {vid: 116, port_idx: 0, type: "ETYPE", ot: {tagged: 1, s_tag: 0, dei: 1}},
          f_0: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100, dei: 1}},
          f_1: {port_idx: 0, cmd: "et 0xaaaa", ot: {tpid: 0x8100}}
+     },
+     {
+         txt: "any/c-tagged + s-tagged",
+         vce: {vid: 120, port_idx: 0, type: "ANY", ot: {tagged: 1, s_tag: 0}, it: {tagged: 1, s_tag: 1}},
+         f_0: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8}},
+         f_1: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}}
+     },
+     {
+         txt: "any/c-tagged + s-vid",
+         vce: {vid: 121, port_idx: 0, type: "ANY", ot: {tagged: 1, s_tag: 0}, it: {tagged: 1, s_tag: 1, vid: {v: 8, m: 0xfff}}},
+         f_0: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, vid: 8}},
+         f_1: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, vid: 9}}
+     },
+     {
+         txt: "any/c-tagged + s-pcp",
+         vce: {vid: 122, port_idx: 0, type: "ANY", ot: {tagged: 1, s_tag: 0}, it: {tagged: 1, s_tag: 1, pcp: {v: 6, m: 0x7}}},
+         f_0: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, pcp: 6}},
+         f_1: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, pcp: 7}}
+     },
+     {
+         txt: "any/c-tagged + s-dei",
+         vce: {vid: 123, port_idx: 0, type: "ANY", ot: {tagged: 1, s_tag: 0}, it: {tagged: 1, s_tag: 1, dei: 1}},
+         f_0: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, dei: 1}},
+         f_1: {port_idx: 0, cmd: "", ot: {tpid: 0x8100}, it: {tpid: 0x88a8, dei: 0}}
      },
      {
          txt: "llc/llc",
@@ -248,113 +279,203 @@ $test_table =
      },
    ]
 
-$test_table.each do |t|
-    test t[:txt] do
-        v = t[:vce]
-        vid = v[:vid]
+def vce_tag_set(k, tag)
+    vcap_vm_set(k, "vid", tag, :vid)
+    vcap_vm_set(k, "pcp", tag, :pcp)
+    vcap_bit_set(k, "dei", tag, :dei)
+    vcap_bit_set(k, "tagged", tag, :tagged)
+    vcap_bit_set(k, "s_tag", tag, :s_tag)
+end
 
-        # Make egress port member of VLAN
-        port = $ts.dut.port_list[$port_idx_tx]
-        $ts.dut.call("mesa_vlan_port_members_set", vid, "#{port}")
+def vce_test(t)
+    v = t[:vce]
+    vid = v[:vid]
+
+    # Make egress port member of VLAN
+    port = $ts.dut.port_list[$port_idx_tx]
+    $ts.dut.call("mesa_vlan_port_members_set", vid, "#{port}")
         
-        # Add VCL rule
-        conf = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_" + v[:type])
-        conf["id"] = 1
-        key = conf["key"]
+    # Add VCL rule
+    conf = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_" + v[:type])
+    conf["id"] = 1
+    key = conf["key"]
 
-        k = key["mac"]
-        vcap_bit_set(k, "dmac_mc", v, :dmac_mc)
-        vcap_bit_set(k, "dmac_bc", v, :dmac_bc)
-        vcap_vm_set(k, "smac", v, :smac)
-        # Encode DMAC in SMAC field for some platforms
-        str = (v[:port_idx] == 1 and $cap_dmac == 0 ? "smac" : "dmac")
-        vcap_vm_set(k, str, v, :dmac)
+    k = key["mac"]
+    vcap_bit_set(k, "dmac_mc", v, :dmac_mc)
+    vcap_bit_set(k, "dmac_bc", v, :dmac_bc)
+    vcap_vm_set(k, "smac", v, :smac)
+    # Encode DMAC in SMAC field for some platforms
+    str = (v[:port_idx] == 1 and $cap_dmac == 0 ? "smac" : "dmac")
+    vcap_vm_set(k, str, v, :dmac)
 
-        k = key["tag"]
-        vcap_vm_set(k, "vid", v, :tag_vid)
-        vcap_vm_set(k, "pcp", v, :pcp)
-        vcap_bit_set(k, "dei", v, :dei)
-        vcap_bit_set(k, "tagged", v, :tagged)
-        vcap_bit_set(k, "s_tag", v, :s_tag)
+    vce_tag_set(key["tag"], v[:ot])
+    vce_tag_set(key["inner_tag"], v[:it])
 
-        # Encode DIP in SIP field for some platforms
-        str = (v[:port_idx] == 1 and $cap_dip == 0 ? "sip" : "dip");
-        f = key["frame"]
-        case (v[:type])
-        when "ETYPE"
-            k = f["etype"]
-            vcap_vm_set(k, "etype", v, :etype)
-            vcap_vm_set(k, "data", v, :data)
-        when "LLC"
-            k = f["llc"]
-            vcap_vm_set(k, "data", v, :llc)
-        when "SNAP"
-            k = f["snap"]
-            vcap_vm_set(k, "data", v, :snap)
-        when "IPV4"
-            k = f["ipv4"]
-            vcap_bit_set(k, "fragment", v, :fragment)
-            vcap_bit_set(k, "options", v, :options)
-            vcap_range_set(k, "dscp", v, :dscp)
-            vcap_vm_set(k, "proto", v, :proto)
-            vcap_vm_set(k, "sip", v, :sip)
-            vcap_vm_set(k, str, v, :dip)
-            vcap_range_set(k, "sport", v, :sport)
-            vcap_range_set(k, "dport", v, :dport)
-        when "IPV6"
-            k = f["ipv6"]
-            vcap_range_set(k, "dscp", v, :dscp)
-            vcap_vm_set(k, "proto", v, :proto)
-            vcap_vm_set(k, "sip", v, :sip)
-            vcap_vm_set(k, str, v, :dip)
-            vcap_range_set(k, "sport", v, :sport)
-            vcap_range_set(k, "dport", v, :dport)
-        else
+    # Encode DIP in SIP field for some platforms
+    str = (v[:port_idx] == 1 and $cap_dip == 0 ? "sip" : "dip");
+    f = key["frame"]
+    case (v[:type])
+    when "ETYPE"
+        k = f["etype"]
+        vcap_vm_set(k, "etype", v, :etype)
+        vcap_vm_set(k, "data", v, :data)
+    when "LLC"
+        k = f["llc"]
+        vcap_vm_set(k, "data", v, :llc)
+    when "SNAP"
+        k = f["snap"]
+        vcap_vm_set(k, "data", v, :snap)
+    when "IPV4"
+        k = f["ipv4"]
+        vcap_bit_set(k, "fragment", v, :fragment)
+        vcap_bit_set(k, "options", v, :options)
+        vcap_range_set(k, "dscp", v, :dscp)
+        vcap_vm_set(k, "proto", v, :proto)
+        vcap_vm_set(k, "sip", v, :sip)
+        vcap_vm_set(k, str, v, :dip)
+        vcap_range_set(k, "sport", v, :sport)
+        vcap_range_set(k, "dport", v, :dport)
+    when "IPV6"
+        k = f["ipv6"]
+        vcap_range_set(k, "dscp", v, :dscp)
+        vcap_vm_set(k, "proto", v, :proto)
+        vcap_vm_set(k, "sip", v, :sip)
+        vcap_vm_set(k, str, v, :dip)
+        vcap_range_set(k, "sport", v, :sport)
+        vcap_range_set(k, "dport", v, :dport)
+    else
+    end
+    key["port_list"] = "#{$ts.dut.port_list[v[:port_idx]]}"
+    conf["action"]["vid"] = vid
+    $ts.dut.call("mesa_vce_add", 0, conf)
+    $vce_added = true
+
+    for i in 0..1 do
+        f = (i == 0 ? t[:f_0] : t[:f_1])
+        idx_tx = f[:port_idx]
+
+        # Calculate classified VLAN ID
+        vid = (i == 0 ? v[:vid] : 1)
+
+        f_base = "eth"
+        if (f.key?:dmac)
+            f_base += " dmac #{f[:dmac]}"
         end
-        key["port_list"] = "#{$ts.dut.port_list[v[:port_idx]]}"
-        conf["action"]["vid"] = vid
-        $ts.dut.call("mesa_vce_add", 0, conf)
+        if (f.key?:smac)
+            f_base += " smac #{f[:smac]}"
+        end
+        f_ot = ((f.key?:ot) ? cmd_tag_push(f[:ot]) : "")
+        f_it = ((f.key?:it) ? cmd_tag_push(f[:it]) : "")
+        f_end = " data pattern cnt 64" # Avoid switch padding after popping tag
 
-        for i in 0..1 do
-            f = (i == 0 ? t[:f_0] : t[:f_1])
-            idx_tx = f[:port_idx]
+        # Name f1 is Tx frame, and also Rx frame if no tag is pushed
+        f1 = f_base
+        f1 += f_ot
+        f1 += f_it
+        f1 += " #{f[:cmd]}"
+        f1 += f_end
 
-            # Calculate classified VLAN ID
-            vid = (i == 0 ? v[:vid] : 1)
+        # Name f2 is Rx frame if a tag is pushed
+        f2 = f_base
+        f2 += cmd_tag_push({tpid: 0x8100, vid: vid})
+        f2 += f_ot
+        f2 += f_it
+        f2 += " #{f[:cmd]}"
+        f2 += f_end
 
-            f_base = "eth"
-            if (f.key?:dmac)
-                f_base += " dmac #{f[:dmac]}"
+        cmd = "sudo ef name f1 #{f1} name f2 #{f2} tx #{$ts.pc.p[idx_tx]} name f1"
+        $ts.dut.p.each_index do |idx_rx|
+            cmd += " rx #{$ts.pc.p[idx_rx]}"
+            tagged = (idx_rx == $port_idx_tx)
+            if (idx_rx != idx_tx and (tagged or vid == 1))
+                cmd += " name #{tagged ? "f2" : "f1"}"
             end
-            if (f.key?:smac)
-                f_base += " smac #{f[:smac]}"
+        end
+        t_i("Frame[#{i}], classified VID: #{vid}")
+        $ts.pc.run(cmd)
+    end
+end
+
+epid = cap_get("PACKET_IFH_EPID")
+$test_table.each do |t|
+    # Calculate list of keys to test
+    skip_double_tag = false
+    skip_normal = false
+    skip_ip_addr = false
+    skip_mac_ip_addr = false
+    vce = t[:vce]
+
+    if (vce.key?:smac or vce.key?:dmac)
+        # SMAC/DMAC matching not possible for double_tag
+        skip_double_tag = true
+    end
+
+    if (vce.key?:etype or vce.key?:llc or vce.key?:snap)
+        # ETYPE/LLC/SNAP matching not possible for double_tag
+        skip_double_tag = true
+    end
+
+    if (vce.key?:type and (vce[:type] == "IPV4" or vce[:type] == "IPV6"))
+        # IP matching not possible for double_tag
+        skip_double_tag = true
+    end
+
+    if (vce.key?:sport or vce.key?:dport)
+        # SPORT/DPORT matching not possible for double_tag/ip_addr
+        skip_double_tag = true
+        skip_ip_addr = true
+    end
+
+    if (epid == 7 or epid == 9 or epid == 11)
+        # Jaguar-2/Serval-T/FireAnt
+    elsif (epid == 10 or epid == 13)
+        # Ocelot/Maserati
+        if (vce.key?:it)
+            # Inner tag not possible for normal/ip_addr
+            skip_normal = true
+            skip_ip_addr = true
+        end
+    else
+        # Luton26, key not supported
+        skip_double_tag = true
+        skip_ip_addr = true
+        skip_mac_ip_addr = true
+        if (vce.key?:it)
+            # Inner tag matching not possible
+            skip_normal = true
+        end
+    end
+
+    key_list = []
+    if (!skip_double_tag)
+        key_list << "DOUBLE_TAG"
+    end
+    if (!skip_normal)
+        key_list << "NORMAL"
+    end
+    if (!skip_ip_addr)
+        key_list << "IP_ADDR"
+    end
+    if (!skip_mac_ip_addr)
+        key_list << "MAC_IP_ADDR"
+    end
+
+    port = $ts.dut.p[vce[:port_idx]]
+    conf = nil
+    key_list.each do |k|
+        txt = (t[:txt] + " (#{k})")
+        test txt do
+            if ($vce_added)
+                # Delete VCE before setting up port key
+                $vce_added = false
+                $ts.dut.call("mesa_vce_del", 1)
             end
-            f_ot = ((f.key?:ot) ? cmd_tag_push(f[:ot]) : "")
-            f_end = " data pattern cnt 64" # Avoid switch padding after popping tag
-
-            # Name f1 is Tx frame, and also Rx frame if no tag is pushed
-            f1 = f_base
-            f1 += f_ot
-            f1 += " #{f[:cmd]}"
-            f1 += f_end
-
-            # Name f2 is Rx frame if a tag is pushed
-            f2 = f_base
-            f2 += cmd_tag_push({tpid: 0x8100, vid: vid})
-            f2 += f_ot
-            f2 += " #{f[:cmd]}"
-            f2 += f_end
-
-            cmd = "sudo ef name f1 #{f1} name f2 #{f2} tx #{$ts.pc.p[idx_tx]} name f1"
-            $ts.dut.p.each_index do |idx_rx|
-                cmd += " rx #{$ts.pc.p[idx_rx]}"
-                tagged = (idx_rx == $port_idx_tx)
-                if (idx_rx != idx_tx and (tagged or vid == 1))
-                    cmd += " name #{tagged ? "f2" : "f1"}"
-                end
+            if (conf == nil)
+                conf = $ts.dut.call("mesa_vcl_port_conf_get", port)
             end
-            t_i("Frame[#{i}], classified VID: #{vid}")
-            $ts.pc.run(cmd)
+            conf["key_type"] = ("MESA_VCAP_KEY_TYPE_" + k)
+            $ts.dut.call("mesa_vcl_port_conf_set", port, conf)
+            vce_test(t)
         end
     end
 end

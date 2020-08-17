@@ -148,7 +148,7 @@ static u32 fa_port2upsid(vtss_state_t *vtss_state, u32 *port)
     u32 upsid = 0;
 
     /* Convert local chip port to local UPSID */
-    if (*port > 31) {
+    while (*port > 31) {
         *port = (*port - 32);
         upsid++;
     }
