@@ -1771,6 +1771,9 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
     value = (1000000000/(8*512*vtss_lan966x_clk_period_ps(vtss_state)));
     REG_WR(QSYS_FRER_CFG, QSYS_FRER_CFG_WATCHDOG_PRESCALER(value));
 
+    /* Enable FRER */
+    REG_WR(QSYS_MISC_DROP_CFG, QSYS_MISC_DROP_CFG_FRER_ENA(1));
+
     return VTSS_RC_OK;
 }
 
