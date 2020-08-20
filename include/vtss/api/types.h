@@ -656,7 +656,7 @@ typedef u16 vtss_qos_egress_map_id_t;
 // TBD_VK: Check the defined values when the FA datasheet is available
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_TAS_GCL_LEN_MAX     256 /**< Maximum supported length of TAS gate control list */
-#define VTSS_QOS_TAS_CT_MIN          100 /**< Minimum supported Gate CycleTime in nS */
+#define VTSS_QOS_TAS_CT_MIN          256 /**< Minimum supported Gate CycleTime in nS. This is due to STARTUP_TIME register resolution */
 #define VTSS_QOS_TAS_CT_MAX   (1000000000-1) /**< Maximum supported Gate CycleTime in nS. Must be less than one second */
 #define VTSS_QOS_TAS_MAX_SDU_MAX  (255*64) /**< Maximum supported MAX SDU size */
 #define VTSS_QOS_TAS_MAX_SDU_MIN  64       /**< Minimum supported MAX SDU size */

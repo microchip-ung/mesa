@@ -2702,7 +2702,12 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     u32                 gcl_length = port_conf->gcl_length;
     vtss_qos_tas_gce_t  *gcl = port_conf->gcl;;
 
-    VTSS_D("Enter list_idx %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, obsolete_list_idx, entry_idx, profile_idx, chip_port);
+    VTSS_D("Enter list_idx %u  startup_time %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, startup_time, obsolete_list_idx, entry_idx, profile_idx, chip_port);
+
+    if (startup_time < 256) {
+        VTSS_D("The Startup time %u must be at least 256 ns");
+        return VTSS_RC_ERROR;
+    }
 
     /* Select the list */
     REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM(list_idx), VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM);
