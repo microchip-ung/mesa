@@ -2705,7 +2705,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     VTSS_D("Enter list_idx %u  startup_time %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, startup_time, obsolete_list_idx, entry_idx, profile_idx, chip_port);
 
     if (startup_time < 256) {
-        VTSS_D("The Startup time %u must be at least 256 ns");
+        VTSS_D("The Startup time %u must be at least 256 ns", startup_time);
         return VTSS_RC_ERROR;
     }
 
