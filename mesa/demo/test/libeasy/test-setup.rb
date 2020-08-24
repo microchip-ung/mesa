@@ -912,13 +912,13 @@ class Switchdev_Pc_b2b_4x
             @pc.run "/easytest/local/if-setup-l2-test.sh"
             @dut.mute
         else
-            t_i "Preparing PC for network load"
-            @pc.run "/easytest/local/if-setup-dhcp.sh"
+#            t_i "Preparing PC for network load"
+#            @pc.run "/easytest/local/if-setup-dhcp.sh"
             t_i "Rebooting DUT"
             @dut.sw_reboot
             @dut.linux_login
-            t_i "Prepare for test run"
-            @pc.run "/easytest/local/if-setup-l2-test.sh"
+#            t_i "Prepare for test run"
+#            @pc.run "/easytest/local/if-setup-l2-test.sh"
             @dut.mute
 
             t = ""
@@ -1012,13 +1012,13 @@ class Mesa_Pc_b2b
             @pc.run "/easytest/local/if-setup-l2-test.sh"
             @dut.mute
         else
-            t_i "Preparing PC for network load"
-            @pc.run "/easytest/local/if-setup-dhcp.sh"
+            # t_i "Preparing PC for network load"
+            # @pc.run "/easytest/local/if-setup-dhcp.sh"
 
             reboot_dut conf
 
             t_i "Prepare for test run"
-            @pc.run "/easytest/local/if-setup-l2-test.sh"
+            # @pc.run "/easytest/local/if-setup-l2-test.sh"
             @dut.mute
 
             t = ""
