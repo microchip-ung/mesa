@@ -16,3 +16,13 @@ set(src_aqr phy/aqr/phy_driver.c
 
 
 add_library(phy_aqr SHARED ${src_aqr})
+
+include_directories("phy/intl/GPY_API_v251/src/os/linux")
+include_directories("phy/intl/GPY_API_v251/src/inc")
+
+set(src_intl phy/intl/phy_driver.c
+            phy/intl/GPY_API_v251/src/api/phy/gpy211_chip.c
+            phy/intl/GPY_API_v251/src/api/phy/gpy211_phy.c)
+
+set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
+add_library(phy_intl SHARED ${src_intl})

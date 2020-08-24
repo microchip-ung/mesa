@@ -26,6 +26,8 @@
 #define PHY_ID_AQR411C_A0_ES1 0xB700
 #define PHY_ID_AQR412C_A0_ES1 0xB710
 
+#define PHY_ID_GPY241 0xDC00
+
 /* JR2 Ref board port configurations  */
 typedef enum {
     VTSS_BOARD_CONF_20x1G_4x2G5_4xSFI_NPI,
@@ -114,6 +116,7 @@ typedef struct meba_board_state {
     jr2_10g_detect_t      detect;
     mesa_bool_t           malibu_present;
     uint16_t              aqr_sb_present; //PCB126
+    uint16_t              gpy241_sb_present; // UNG 8277
     uint16_t              venice_present; //Stores the model value otherwise 0
     int                   phy10g_ts_cnt;
 } meba_board_state_t;
@@ -266,6 +269,17 @@ static void jr2_aqr_side_board_detect(meba_inst_t inst)
                             || value == PHY_ID_AQR412_B0
                             || value == PHY_ID_AQR411C_A0_ES1
                             || value == PHY_ID_AQR412C_A0_ES1 ? value : 0;
+}
+
+static void jr2_gpy241_side_board_detect(meba_inst_t inst)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    uint16_t value = 0;
+    uint8_t ctrl = 0;
+
+    mebaux_mmd_rd(inst, &rawio, ctrl, 24, 0x1, 0x3, &value);
+    board->gpy241_sb_present = value == PHY_ID_GPY241 ? value : 0;
+    T_D(inst, "GPY241 side board %s\n", board->gpy241_sb_present ? "found" : "not found");
 }
 
 static mesa_bool_t jr2_10g_detect(meba_inst_t inst)
@@ -473,6 +487,14 @@ static void init_port_jr2(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
                 } else if ((board->aqr_sb_present == PHY_ID_AQR412_A0_ES1) || (board->aqr_sb_present == PHY_ID_AQR412_B0) || (board->aqr_sb_present == PHY_ID_AQR412C_A0_ES1)) {
                     entry->cap                 &= ~(MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX);
                 }
+            } if ((port_no > 23 && port_no < 28) && board->gpy241_sb_present) {
+                /* GPY241 side board */
+                entry->map.max_bw = MESA_BW_2G5;
+                entry->map.chip_port       = port_no + 25;
+                entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;
+                entry->map.miim_addr       = port_no;
+                entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
+                entry->cap                 = MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_SERDES_RX_INVERT |MEBA_PORT_CAP_SERDES_TX_INVERT|MEBA_PORT_CAP_NO_FORCE;
             } else if ((port_no == 24 || port_no == 25) && jr2_10g_detect(inst)) {
                 /* API Port 26,27 = XAUI chip ports 49,50 - possibly VTSS PHYs */
                 if (board->port_cfg == VTSS_BOARD_CONF_DEFAULT_VENICE_1G_MODE) {
@@ -1246,7 +1268,7 @@ static mesa_rc led_update_j2_cu8sfp16(meba_inst_t inst,
         mode_green =  MESA_SGPIO_MODE_OFF;
         mode_yellow = MESA_SGPIO_MODE_OFF;
     } else if (entry->map.chip_port > 48) {
-        if (board->aqr_sb_present) {
+        if (board->aqr_sb_present || board->gpy241_sb_present) {
             led0_value = AQR_LED_OFF;
             led1_value = AQR_LED_OFF;
         }
@@ -1262,7 +1284,7 @@ static mesa_rc led_update_j2_cu8sfp16(meba_inst_t inst,
     }
 
     /* If AQR PCB126 SB link then update LED */
-    if (entry->map.chip_port > 48 && board->aqr_sb_present) {
+    if (entry->map.chip_port > 48 && (board->aqr_sb_present || board->gpy241_sb_present)) {
         if (status->link) {
             /* LED0/LED2: Right
                LED1: Left
@@ -2623,7 +2645,7 @@ static mesa_rc jr2_phy_event_enable(meba_inst_t inst,
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
             T_N(inst, "%sable phy event %d on port %d", enable ? "en" : "dis", phy_event, port_no);
-            if (!board->aqr_sb_present) {
+            if (!board->aqr_sb_present && !board->gpy241_sb_present) {
                 if ((rc = mesa_phy_event_enable_set(PHY_INST, port_no, phy_event, enable)) != MESA_RC_OK) {
                     T_E(inst, "mesa_phy_event_enable_set = %d", rc);
                     break;
@@ -3278,6 +3300,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     // Initialize Malibu/AQR side board presence to false
     board->malibu_present = false;
     board->aqr_sb_present = 0;
+    board->gpy241_sb_present = 0;
 
     inst->props.mux_mode = MESA_PORT_MUX_MODE_AUTO;    // Default
     switch (board->type) {
@@ -3319,6 +3342,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     board->port_cnt = 29;
                     // Detect AQR side board exist
                     jr2_aqr_side_board_detect(inst);
+                    jr2_gpy241_side_board_detect(inst);
             }
             break;
         case BOARD_TYPE_JAGUAR2_AQR:

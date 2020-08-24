@@ -1,0 +1,329 @@
+/*
+ Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+*/
+
+#include <unistd.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include <mscc/ethernet/board/api/phy_driver.h>
+
+#include "phy_driver.h"
+#include "os.h"
+#include "gpy211.h"
+#include "gpy211_common.h"
+#include "registers/phy/std.h"
+#include "registers/phy/phy.h"
+#include "registers/phy/pmapmd.h"
+#include "registers/phy/pcs.h"
+#include "registers/phy/aneg.h"
+#include "registers/phy/vspec2.h"
+
+#define T_D(format, ...) if (data->debug_func) data->debug_func(MEBA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) if (data->debug_func) data->debug_func(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) if (data->debug_func) data->debug_func(MEBA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) if (data->debug_func) data->debug_func(MEBA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+
+#define TRUE 1
+#define FALSE 0
+
+#define VTSS_FREE(_p_)                          free(_p_)
+
+#define INTL_PHY_CHIPID 0x67c9dc00
+//#define INTL_PHY_MAP(port_no)    (port_no+1)
+#if 0
+#define INTL_PHY_ADDR(port_no)  (port_no+4)
+#else
+//#define INTL_PHY_ADDR(port_no)  (port_no)
+#endif
+
+typedef struct Intl_Port {
+    mmd_read_t              mmd_read;
+    mmd_write_t             mmd_write;
+    miim_read_t             miim_read;
+    miim_write_t            miim_write;
+    mesa_inst_t             inst;
+    mesa_port_no_t          port_no;
+} Intl_Port_t;
+
+typedef struct{
+    struct gpy211_device initconf;
+    struct Intl_Port port_param;
+    debug_func_t            debug_func;
+    struct meba_inst       *meba_inst;
+    mesa_port_list_t phy_diag_done;
+    mesa_port_list_t phy_shutdown;
+} INTL_priv_data_t;
+
+#define GPY211_DEVICE(dev) (&(((INTL_priv_data_t *)dev->data)->initconf))
+#define INTL_PORT(dev) (&(((INTL_priv_data_t *)dev->data)->port_param))
+#define PRIV_DATA(dev) ((INTL_priv_data_t *)dev->data)
+
+static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
+{
+    miim_read_t mdio_read = ((Intl_Port_t *)mdiobus_data)->miim_read;
+    mmd_read_t mmd_read = ((Intl_Port_t *)mdiobus_data)->mmd_read;
+    mesa_inst_t inst = ((Intl_Port_t *)mdiobus_data)->inst;
+    mesa_port_no_t port_no = ((Intl_Port_t *)mdiobus_data)->port_no;
+    u16 value;
+    bool mmd_access = false;
+    uint8_t devtype, regaddr;
+
+    if (regnum | MII_ADDR_C45) {
+        mmd_access=true;
+        devtype = regnum >>16 & 0x1f;
+        regaddr = regnum & 0xffff;
+    }
+
+    if (mmd_access) {
+        if (mmd_read(inst, port_no, devtype, regaddr, &value) == MESA_RC_OK) {
+            return value;
+        }
+    } else {
+        //if (mdio_read(inst, 0, MESA_MIIM_CONTROLLER_1, addr, regnum, &value) == MESA_RC_OK) {
+        //    return value;
+        //}
+
+        if (mesa_phy_read(inst, port_no, regnum, &value) == MESA_RC_OK) {
+            return value;
+        }
+    }
+
+    return -1;
+}
+
+static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
+{
+    miim_write_t mdio_write = ((Intl_Port_t *)mdiobus_data)->miim_write;
+    mmd_write_t mmd_write = ((Intl_Port_t *)mdiobus_data)->mmd_write;
+    mesa_inst_t inst = ((Intl_Port_t *)mdiobus_data)->inst;
+    mesa_port_no_t port_no = ((Intl_Port_t *)mdiobus_data)->port_no;
+    bool mmd_access = false;
+    uint8_t devtype, regaddr;
+
+    if (regnum | MII_ADDR_C45) {
+        mmd_access=true;
+        devtype = regnum >>16 & 0x1f;
+        regaddr = regnum & 0xffff;
+    }
+
+    if (mmd_access) {
+        if (mmd_write(inst, port_no, devtype, regaddr, val) == MESA_RC_OK) {
+            return 0;
+        }
+    } else {
+        //if (mdio_write(inst, 0, MESA_MIIM_CONTROLLER_1, addr, regnum, val) == MESA_RC_OK) {
+        //    return 0;
+        //}
+
+        if (mesa_phy_write(inst, port_no, regnum, val) == MESA_RC_OK) {
+            return 0;
+        }
+
+    }
+
+    return -1;
+}
+
+static mesa_rc intl_if_get(meba_phy_device_t *dev, mesa_port_speed_t speed,
+                          mesa_port_interface_t *mac_if)
+{
+    *mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
+
+    return MESA_RC_OK;
+}
+
+void intl_phy_sgmii_conf(meba_phy_driver_status_t *status, mesa_port_no_t port_no)
+{
+    uint16_t reg_val = 0;
+
+    reg_val |= (status->fdx ? 1 : 0) << 8;
+    switch(status->speed){
+        case(MESA_SPEED_2500M): reg_val |= (1 << 13 | 1 << 6); break;
+        case(MESA_SPEED_1G): reg_val |= (0 << 13 | 1 << 6); break;
+        case(MESA_SPEED_100M): reg_val |= (1 << 13 | 0 << 6); break;
+        case(MESA_SPEED_10M): reg_val |= (0 << 13 | 0 << 6); break;
+        default:
+            return;
+    }
+    reg_val |= 1 << 1;
+    mesa_port_mmd_write(NULL, port_no, 0x1e, 0x8, reg_val);
+}
+
+static mesa_rc intl_poll(meba_phy_device_t *dev, meba_phy_driver_status_t *status)
+{
+    struct gpy211_device *intel_status = GPY211_DEVICE(dev);
+    struct Intl_Port *port_param = INTL_PORT(dev);
+    INTL_priv_data_t *data = PRIV_DATA(dev);
+    bool link_change = false;
+
+    if (gpy2xx_update_link(intel_status) < 0)
+        return MESA_RC_ERROR;
+    if (gpy2xx_read_status(intel_status) < 0)
+        return MESA_RC_ERROR;
+    if (status->link != intel_status->link.link)
+        link_change = true;
+    status->link = intel_status->link.link;
+    if (status->link) {
+        switch(intel_status->link.speed) {
+            case (SPEED_1000):
+                status->speed = MESA_SPEED_1G;
+                break;
+            case (SPEED_100):
+                status->speed = MESA_SPEED_100M;
+                break;
+            case (SPEED_2500):
+                status->speed = MESA_SPEED_2500M;
+                break;
+            default:
+                //T_E("not expected speed");
+                break;
+        }
+    }
+    status->fdx = intel_status->link.duplex;
+    status->aneg.obey_pause = intel_status->link.pause;
+    status->aneg.generate_pause = intel_status->link.pause;
+    status->copper = TRUE;
+    status->fiber = FALSE;
+    T_D("intl_phy_status_get: link %d, speed %d  duplex %d\n", intel_status->link.link, intel_status->link.speed, intel_status->link.duplex);
+
+    if (link_change && status->link) {
+        T_D("link change");
+#if 0
+        // require change in gpy211_phy.c:__gpy211_sgmii_setup_forced()
+        // remove "if (sgmii->linkcfg_dir != SGMII_LINKCFG_TPI) {"
+        struct gpy211_sgmii sgmii;
+
+        sgmii.linkcfg_dir = SGMII_LINKCFG_TPI;
+        sgmii.aneg_mode = SGMII_ANEG_CISCO_PHY;
+        sgmii.link.autoneg = 0;
+        sgmii.link.duplex = DUPLEX_FULL;
+        sgmii.link.speed = intel_status->link.speed;
+        sgmii.eee_enable = 0;
+        gpy2xx_sgmii_config_aneg(intel_status, &sgmii);
+#else
+        intl_phy_sgmii_conf(status, port_param->port_no);
+#endif
+    }
+
+    return MESA_RC_OK;
+}
+
+static meba_phy_device_t *intl_probe(meba_phy_driver_t *drv,
+                                  const meba_phy_driver_address_t *mode)
+{
+    meba_phy_device_t *device = (meba_phy_device_t *)calloc(1, sizeof(meba_phy_device_t));
+    if (device == NULL)
+        return NULL;
+
+    INTL_priv_data_t *priv = (INTL_priv_data_t *)calloc(1, sizeof(INTL_priv_data_t));
+    if (priv == NULL) {
+        free(device);
+        return NULL;
+    }
+    struct gpy211_device *initconf = &(priv->initconf);
+
+    if (mode->mode != mscc_phy_driver_address_mode) {
+        free(device);
+        free(priv);
+        return NULL;
+    }
+
+    device->drv = drv;
+    priv->port_param.miim_read = mode->val.mscc_address.miim_read;
+    priv->port_param.miim_write = mode->val.mscc_address.miim_write;
+    priv->port_param.mmd_read = mode->val.mscc_address.mmd_read;
+    priv->port_param.mmd_write = mode->val.mscc_address.mmd_write;
+    priv->port_param.port_no = mode->val.mscc_address.port_no;
+    priv->port_param.inst = mode->val.mscc_address.inst;
+    priv->debug_func = mode->val.mscc_address.debug_func;
+    priv->meba_inst = mode->val.mscc_address.meba_inst;
+    priv->initconf.mdiobus_read = mdiobus_read;
+    priv->initconf.mdiobus_write = mdiobus_write;
+    priv->initconf.mdiobus_data = (void *)&priv->port_param;
+    priv->initconf.lock = NULL;
+    //priv->initconf.phy_addr = INTL_PHY_ADDR(mode->val.mscc_address.port_no);
+    device->data = priv;
+
+    INTL_priv_data_t *data = PRIV_DATA(device);
+    T_D("intl_probe, enter\n");
+
+    if (gpy2xx_init(initconf) < 0)
+        T_E("intl phy init error\n");
+
+    return device;
+}
+
+static mesa_rc intl_delete(meba_phy_device_t *dev)
+{
+    INTL_priv_data_t *data = (INTL_priv_data_t *)dev->data;
+
+    VTSS_FREE(data);
+    VTSS_FREE(dev);
+    return MESA_RC_OK;
+}
+
+static mesa_rc intl_reset(meba_phy_device_t *dev,
+                             mesa_phy_media_interface_t media_if)
+{
+    return MESA_RC_OK;
+}
+
+static mesa_rc intl_conf_set(meba_phy_device_t *dev, meba_port_cap_t cap,
+                                const meba_phy_driver_conf_t *config)
+{
+    return MESA_RC_OK;
+}
+
+static mesa_rc intl_status_1g_get(meba_phy_device_t    *dev,
+                                     mesa_phy_status_1g_t *status)
+{
+    return MESA_RC_OK;
+}
+
+meba_phy_drivers_t driver_init()
+{
+#define NR_INTL_PHY 1
+    meba_phy_drivers_t res;
+    static meba_phy_driver_t intl_drivers[NR_INTL_PHY] = {};
+
+    intl_drivers[0].id = INTL_PHY_CHIPID;
+    intl_drivers[0].mask = 0xffffffff;
+    intl_drivers[0].meba_phy_driver_delete = intl_delete;
+    intl_drivers[0].meba_phy_driver_reset = intl_reset;
+    intl_drivers[0].meba_phy_driver_poll = intl_poll;
+    intl_drivers[0].meba_phy_driver_conf_set = intl_conf_set;
+    intl_drivers[0].meba_phy_driver_if_get = intl_if_get;
+    intl_drivers[0].meba_phy_driver_mt_get = NULL;
+    intl_drivers[0].meba_phy_driver_power_set = NULL;
+    intl_drivers[0].meba_phy_driver_veriphy_start = NULL;
+    intl_drivers[0].meba_phy_driver_veriphy_get = NULL;
+    intl_drivers[0].meba_phy_driver_media_set = NULL;
+    intl_drivers[0].meba_phy_driver_probe = intl_probe;
+    intl_drivers[0].meba_phy_driver_status_1g_get = intl_status_1g_get;
+
+    res.phy_drv = intl_drivers;
+    res.count = NR_INTL_PHY;
+
+    return res;
+#undef NR_INTL_PHY
+}

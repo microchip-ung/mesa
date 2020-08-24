@@ -1,0 +1,8 @@
+#
+# Phy drivers for Lantiq / Intel platforms
+#
+config INTEL_GPY211_PHY
+	tristate "Intel GPY211 PHY driver"
+	default y
+	help
+	  Support for Intel GPY211 PHY platform.

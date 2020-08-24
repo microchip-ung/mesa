@@ -1,0 +1,147 @@
+
+[  398.535941] gpy211: module verification failed: signature and/or required key missing - tainting kernel
+[  398.536611] Welcome to GPY2XX platform driver....
+[  398.536687] Entering gpy2xx_driver_probe
+[  398.536689] The top allocated gpy2xx_priv_data = ffff979e651f5218
+[  398.536690] The int allocated gpy211_device = ffff979e651f5290
+[  398.536692] The msec top allocated gpy211_macsec_dev = ffff979eb93a4800
+[  398.536693] The GPHY device addr = ffff979e651f5290
+[  398.536694] The GPHY device addr = ffff979e651f5290
+[  398.536695] Exiting gpy2xx_driver_probe
+[  406.204087] MACsec IEEE 802.1AE
+[  406.204093] Register GPY211 MACsec driver
+[  406.204096] Entering gpy211_macsec_register 50
+[  406.204097] Exiting gpy211_macsec_register 55
+[  420.315315] Calling macsec_add_rxsc 1771
+[  420.315327] Entering gpy211_macsec_postdoit 1058
+[  420.315328] Entering gpy211_add_rxsc 1029
+[  420.315330] Entering gpy211_create_rx_sc 290
+[  420.315331] Exiting gpy211_create_rx_sc 311
+[  420.315332] Exiting gpy211_add_rxsc 1050
+[  420.315333] Exiting gpy211_macsec_postdoit 1111
+[  421.909246] Calling macsec_add_txsa 1840
+[  421.909272] Entering gpy211_macsec_postdoit 1058
+[  421.909274] Entering gpy211_add_txsa 657
+[  421.909276] No.of rx SCs 1
+[  421.909277] SCI 815e89c024351512
+[  421.909278] Key len 16
+[  421.909279] ICV len 8
+[  421.909280] Val lvl 2
+[  421.909281] Protect 0
+[  421.909282] The parsed AN = 2
+[  421.909283] The parsed Seq0 = b2c28464
+[  421.909285] The dst MAC1 =  6: 2:66:fb:90: 0
+[  421.909287] The dst MAC2 = 00:90:fb:66:02:06
+[  421.909288] The dst MAC3 = 06:02:66:fb:90:00
+[  421.909289] The linuxp key = ad7a2bd03eac835a6f620fdcb506b345
+[  421.909290] The copied key = ad7a2bd03eac835a6f620fdcb506b345
+[  421.909291] Copied SCI 815e89c024351512
+[  421.909293] The src MAC1 = 35:24:c0:89:5e:81
+[  421.909294] The src MAC2 = 81:5e:89:c0:24:35
+[  421.909295] The src MAC3 = 35:24:c0:89:5e:81
+[  421.909296] The GPHY device addr = ffff979e651f5290
+[  421.909302] TRec[00] = 9a4be066
+[  421.909303] TRec[01] = bf025c00
+[  421.909304] TRec[02] = d02b7aad
+[  421.909305] TRec[03] = 5a83ac3e
+[  421.909306] TRec[04] = dc0f626f
+[  421.909307] TRec[05] = 45b306b5
+[  421.909307] TRec[06] = 803da273
+[  421.909308] TRec[07] = d5e21d12
+[  421.909309] TRec[08] = 3f2550a8
+[  421.909310] TRec[09] =  e1243cf
+[  421.909311] TRec[10] = b2c28464
+[  421.909311] TRec[11] = 24351512
+[  421.909312] TRec[12] = 815e89c0
+[  421.909313] TRec[13] =        0
+[  421.909314] TRec[14] =        0
+[  421.909314] TRec[15] = 80004000
+[  421.909315] TRec[16] =        0
+[  421.909316] TRec[17] =        0
+[  421.909317] TRec[18] =        0
+[  421.909317] TRec[19] =        0
+[  421.909318] TRec[20] =        0
+[  421.909319] TRec[21] =        0
+[  421.909319] TRec[22] =        0
+[  421.909320] TRec[23] =        0
+[  421.909321] The GPHY device addr = ffff979e651f5290
+[  421.909323] SAM-Par[00] = c0895e81
+[  421.909323] SAM-Par[01] =  8003524
+[  421.909324] SAM-Par[02] = 66fb9000
+[  421.909325] SAM-Par[03] =      602
+[  421.909326] SAM-Par[04] =      f00
+[  421.909327] SAM-Par[05] = 24351512
+[  421.909327] SAM-Par[06] = 815e89c0
+[  421.909328] SAM-Par[07] =       3f
+[  421.909329] SAM-Par[08] =        0
+[  421.909330] SAM-Par[09] =        0
+[  421.909331] SAM-Par[10] =        0
+[  421.909331] SAM-Par[11] =        0
+[  421.909332] SAM-Par[12] =        0
+[  421.909333] SAM-Par[13] =        0
+[  421.909334] SAM-Par[14] =        0
+[  421.909334] SAM-Par[15] =        0
+[  421.909340] Exiting gpy211_macsec_postdoit 1111
+[  608.964049] Calling macsec_add_rxsa 1683
+[  608.964082] Entering gpy211_macsec_postdoit 1058
+[  608.964085] Entering gpy211_add_rxsa 830
+[  608.964087] No.of rx SCs 1
+[  608.964089] SCI 815e89c024351512
+[  608.964091] Key len 16
+[  608.964092] ICV len 8
+[  608.964093] Val lvl 2
+[  608.964095] Rep protect 0
+[  608.964096] Rep window 5
+[  608.964098] The parsed AN = 2
+[  608.964100] The parsed Seq0 = b2c28464
+[  608.964103] The dst MAC1 =  6: 2:66:fb:90: 0
+[  608.964105] The dst MAC2 = 00:90:fb:66:02:06
+[  608.964106] The dst MAC3 = 06:02:66:fb:90:00
+[  608.964108] The copied key = ad7a2bd03eac835a6f620fdcb506b345
+[  608.964110] Copied SCI 815e89c024351512
+[  608.964112] The src MAC1 = 35:24:c0:89:5e:81
+[  608.964114] The src MAC2 = 81:5e:89:c0:24:35
+[  608.964115] The src MAC3 = 35:24:c0:89:5e:81
+[  608.964117] The GPHY device addr = ffff979e651f5290
+[  608.964126] TRec[00] = d24be06f
+[  608.964127] TRec[01] = debba000
+[  608.964129] TRec[02] = d02b7aad
+[  608.964130] TRec[03] = 5a83ac3e
+[  608.964131] TRec[04] = dc0f626f
+[  608.964132] TRec[05] = 45b306b5
+[  608.964133] TRec[06] = 803da273
+[  608.964134] TRec[07] = d5e21d12
+[  608.964135] TRec[08] = 3f2550a8
+[  608.964136] TRec[09] =  e1243cf
+[  608.964138] TRec[10] = b2c28464
+[  608.964139] TRec[11] =        0
+[  608.964141] TRec[12] = 24351512
+[  608.964142] TRec[13] = 815e89c0
+[  608.964143] TRec[14] =        0
+[  608.964144] TRec[15] =        0
+[  608.964146] TRec[16] =        0
+[  608.964147] TRec[17] =        0
+[  608.964148] TRec[18] =        0
+[  608.964149] TRec[19] =        0
+[  608.964151] The GPHY device addr = ffff979e651f5290
+[  608.964155] TCI-AN 0 Match-pri 0 Src-port 0 K 0 B 0 T 0 U 0 C 0
+[  608.964158] TCI-mask 3f SCI-mask 0 CP-mask 0 SP-mask 0 ET-mask 0 DA5-mask 0 DA2-mask 0 DA0-mask 0 SA4-mask 0 SA3-mask 0 SA1-mask 0
+[  608.964159] Flow-ind 0 Vlan-in-up 0 Vlan-in 0
+[  608.964162] SAM-Par[00] = c0895e81
+[  608.964163] SAM-Par[01] =  8003524
+[  608.964165] SAM-Par[02] = 66fb9000
+[  608.964166] SAM-Par[03] =      602
+[  608.964167] SAM-Par[04] =      f00
+[  608.964168] SAM-Par[05] = 24351512
+[  608.964169] SAM-Par[06] = 815e89c0
+[  608.964170] SAM-Par[07] =       3f
+[  608.964171] SAM-Par[08] =        0
+[  608.964172] SAM-Par[09] =        0
+[  608.964174] SAM-Par[10] =        0
+[  608.964174] SAM-Par[11] =        0
+[  608.964175] SAM-Par[12] =        0
+[  608.964176] SAM-Par[13] =        0
+[  608.964177] SAM-Par[14] =        0
+[  608.964177] SAM-Par[15] =        0
+[  608.964183] Exiting gpy211_macsec_postdoit 1111
+gmudepa@gmudepa:~$

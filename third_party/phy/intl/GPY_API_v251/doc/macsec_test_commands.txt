@@ -1,0 +1,249 @@
+Area-wise commands
+===============================================================================
+
+Initialization
+-------------------------------------------------------------------------------
+gpy2xx_msec_init_ing_dev
+gpy2xx_msec_init_egr_dev
+
+HW Cap
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_ing_cap
+gpy2xx_msec_get_egr_cap
+
+SAM Rule creation
+===============================================================================
+Transform records (SAs)
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_tr sa_index=0 ca_type=5 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B345 sci=12153524C0895E81 seq0=0x1 seq1=0x0 rep_window=0 salt=E630E81A48DE86A21C66FA6D short_sci=7A30C118
+
+gpy2xx_msec_config_egr_tr sa_index=0 ca_type=5 an=0 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B345 sci=12153524C0895E81 seq0=0xB2C28464 seq1=0 salt=E630E81A48DE86A21C66FA6D short_sci=7A30C118 sa_index=0 sa_expirq=0 sa_indvalid=0 flow_index=0 sa_indupen=0
+
+gpy2xx_msec_update_egr_sa_cw sa_index=0 ca_type=5 sn_type=1 sa_index=0 sa_expirq=1 sa_indvalid=0 flow_index=0 sa_indupen=1
+
+gpy2xx_msec_get_ing_tr sa_index=1
+gpy2xx_msec_get_egr_tr sa_index=1
+
+gpy2xx_msec_clear_ing_tr sa_index=1
+gpy2xx_msec_clear_egr_tr sa_index=1
+
+SA match parameters
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_sam_rule rule_index=0 sa_mac=02:63:3f:1b:d9:92 da_mac=c2:fc:9a:c5:f0:99 eth_type=0x0800 misc=0xf00 sci=02633f1bd9920010 mask=0x1fff flow_index=0
+
+gpy2xx_msec_config_egr_sam_rule rule_index=0 sa_mac=c2:fc:9a:c5:f0:99 da_mac=02:63:3f:1b:d9:92 eth_type=0x0800 misc=0xf00 mask=0x1fff flow_index=0
+
+gpy2xx_msec_get_ing_sam_rule rule_index=2
+gpy2xx_msec_get_egr_sam_rule rule_index=2
+
+gpy2xx_msec_clear_ing_sam_rule rule_index=2
+gpy2xx_msec_clear_egr_sam_rule rule_index=2
+
+gpy2xx_msec_config_ing_vlan_parse qinq_en=1 stag_en=1 qtag_en=1
+gpy2xx_msec_config_egr_vlan_parse qinq_en=1 stag_en=1 qtag_en=1
+
+SA match flow control
+-------------------------------------------------------------------------------
+//1)Encrypt/Decrypt
+====================
+gpy2xx_msec_config_ing_sam_fca flow_index=0 flow_type=2 dest_port=2 drop_nonres=0 drop_act=0 sa_index=0 rep_protect=1 sa_inuse=1 validate_type=2 conf_offset=0
+
+gpy2xx_msec_config_egr_sam_fca flow_index=0 flow_type=3 dest_port=2 drop_act=0 sa_index=0 frame_protect=1 sa_inuse=1 include_sci=1 use_es=0 use_scb=0 tag_bpsize=0 sa_indup=1 conf_offset=0 conf_protect=1
+
+
+//2)Bypass/Drop
+====================
+gpy2xx_msec_config_ing_sam_fca flow_index=0 flow_type=0/1 dest_port=2 drop_act=0 sa_index=0 sa_inuse=1 validate_type=2
+gpy2xx_msec_config_egr_sam_fca flow_index=0 flow_type=0/1 dest_port=2 drop_act=0 sa_index=0 sa_inuse=1
+
+//3)Cryptographic Authentication
+====================
+gpy2xx_msec_config_ing_sam_fca flow_index=0 dest_port=2 drop_nonres=0 crypt_auth=1 drop_act=0 sa_index=0 validate_type
+=2 ivl_mode=0 conf_offset7=0 verify_icv=0 conf_offset=0 conf_protect=0 ca_bp_len=0
+
+gpy2xx_msec_config_egr_sam_fca flow_index=0 dest_port=2 crypt_auth=1 drop_act=0 sa_index=0 ivl_mode=0 conf_offset7=0
+append_icv=0 conf_offset=0 conf_protect=0 ca_bp_len=0
+
+
+gpy2xx_msec_get_ing_sam_fca flow_index=0
+gpy2xx_msec_get_egr_sam_fca flow_index=0
+
+gpy2xx_msec_clear_ing_sam_fca flow_index=0
+gpy2xx_msec_clear_egr_sam_fca flow_index=0
+
+SA match entry enable control
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_sam_eex eex_type=0 eex_word0=0x1
+gpy2xx_msec_config_egr_sam_eex eex_type=0 eex_word0=0x1
+
+gpy2xx_msec_get_ing_sam_eef
+gpy2xx_msec_get_egr_sam_eef
+
+gpy2xx_msec_config_ing_sam_eec sam_ind_set=0 set_single=0 set_all=1 sam_ind_clr=0 clr_single=1 clr_all=0
+gpy2xx_msec_config_egr_sam_eec sam_ind_set=0 set_single=0 set_all=1 sam_ind_clr=0 clr_single=1 clr_all=0
+
+Control packet classification
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_cp_rule cpc_index=0 entry_type=0 da_mac=c2:fc:9a:c5:f0:99 da_end=c2:fc:9a:c5:f0:ff eth_type=0x0800 cpm_mode=0xf00 cpm_en=0x1fff
+
+gpy2xx_msec_config_egr_cp_rule cpc_index=0 entry_type=0 da_mac=c2:fc:9a:c5:f0:99 da_end=c2:fc:9a:c5:f0:ff eth_type=0x0800 cpm_mode=0xf00 cpm_en=0x1fff
+
+MACsec tag classification
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_sa_nm_ctrl comp_etype=1 check_ver=1 check_kay=1 check_ce=1 check_sc=1 check_sl=1 check_pn=0 msec_eth=0x88E5
+
+gpy2xx_msec_config_egr_sa_nm_ctrl comp_etype=1 check_ver=1 check_kay=1 check_ce=1 check_sc=1 check_sl=1 check_pn=0 msec_eth=0x88E5
+
+SA non-matching flow control
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_sa_nm_cp pkt_type=4 flow_type=1 dest_port=2 drop_nonres=1 drop_action=2
+gpy2xx_msec_config_egr_sa_nm_cp pkt_type=4 flow_type=1 dest_port=0 drop_action=2
+
+gpy2xx_msec_config_ing_sa_nm_ncp pkt_type=4 flow_type=1 dest_port=2 drop_nonres=1 drop_action=2
+gpy2xx_msec_config_egr_sa_nm_ncp pkt_type=4 flow_type=1 dest_port=0 drop_action=2
+
+gpy2xx_msec_config_ing_sa_nm_expl flow_type=1 dest_port=2 drop_nonres=1 drop_action=2
+gpy2xx_msec_config_egr_sa_nm_expl flow_type=1 dest_port=0 drop_action=2
+
+Miscellaneous control
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_misc_ctrl mc_latency=0 static_bp=0 nm_macsec=1 validate_level=2 sectag_avlan=1
+gpy2xx_msec_config_egr_misc_ctrl mc_latency=0 static_bp=0 nm_macsec=1 validate_level=2 sectag_avlan=1
+
+SA expired summary
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_egr_sa_exp_summ
+gpy2xx_msec_clear_egr_sa_exp_summ saexp_summ0=0xffffffff
+
+Statistics counters
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_ing_debug_stats
+gpy2xx_msec_get_egr_debug_stats
+
+gpy2xx_msec_get_ing_global_stats
+gpy2xx_msec_get_egr_global_stats
+
+gpy2xx_msec_get_ing_sa_stats rule_index=3
+gpy2xx_msec_get_egr_sa_stats rule_index=3
+
+gpy2xx_msec_config_ing_count_ctrl rst_all=0 ctr_saturate=1 ctr_conr=1 rst_summary=1
+gpy2xx_msec_config_egr_count_ctrl rst_all=0 ctr_saturate=1 ctr_conr=1 rst_summary=1
+
+gpy2xx_msec_config_ing_count_incen sa_inc=0x7ff global_inc=0x3fff
+gpy2xx_msec_config_egr_count_incen sa_inc=0xf global_inc=0x1f
+
+gpy2xx_msec_config_ing_count_thresh frame_thr=0xfffffffffffffffa octet_thr=0xffffffffffffff00
+gpy2xx_msec_config_egr_count_thresh frame_thr=0xfffffffffffffffa octet_thr=0xffffffffffffff00
+
+gpy2xx_msec_get_ing_count_thresh
+gpy2xx_msec_get_egr_count_thresh
+
+gpy2xx_msec_clear_ing_stats_summ psa_summ0=0xffffffff glb_summ=0x3fff
+gpy2xx_msec_clear_egr_stats_summ psa_summ0=0xffffffff glb_summ=0x1f
+
+gpy2xx_msec_get_ing_stats_summ
+gpy2xx_msec_get_egr_stats_summ
+
+gpy2xx_msec_clear_ing_psa_stats_summ psa_type=1 rule_index=0 psa_summ0=0
+gpy2xx_msec_clear_egr_psa_stats_summ psa_type=1 rule_index=0 psa_summ0=0
+
+gpy2xx_msec_get_ing_psa_stats_summ psa_type=1 rule_index=3
+gpy2xx_msec_get_egr_psa_stats_summ psa_type=1 rule_index=3
+
+Ingress consistency check
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_cc_rule icc_index=0 eth_type=0x0800 misc=0x0C008335
+gpy2xx_msec_get_ing_cc_rule icc_index=0
+
+gpy2xx_msec_config_ing_cc_eef eec_word0=0x3
+gpy2xx_msec_get_ing_cc_eef
+
+gpy2xx_msec_config_ing_cc_eec icc_ind_set=0 set_single=1 set_all=0 icc_ind_clr=0 clr_single=1 clr_all=0
+
+gpy2xx_msec_config_ing_cc_ctrl nm_act=1 nm_ctrl_act=1 etype_max_len=0x05FF
+
+Security fail and error mask
+-------------------------------------------------------------------------------
+gpy2xx_msec_config_ing_count_secfail misc_secfail=0x7ff global_secfail=0x3fff
+
+Output post-processor
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_sa_pn_thr_summ
+gpy2xx_msec_clear_sa_pn_thr_summ pnthr_summ0=0xffffffff
+
+MACsec crypto-core control/status
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_ing_cc_int_stat
+gpy2xx_msec_clear_ing_cc_int_stat int_stat=0xc03f803f ctx_stat=0x7ff
+
+gpy2xx_msec_get_egr_cc_int_stat
+gpy2xx_msec_clear_egr_cc_int_stat int_stat=0xc03f803f ctx_stat=0x7ff
+
+gpy2xx_msec_get_ing_sn_thresh sn_type=1
+gpy2xx_msec_config_ing_sn_thresh sn_type=1 sn_thr=0xfefdfcfadcdbdad9
+
+gpy2xx_msec_get_egr_sn_thresh sn_type=1
+gpy2xx_msec_config_egr_sn_thresh sn_type=1 sn_thr=0xfefdfcfadcdbdad9
+
+Advanced Interrupt Controller
+-------------------------------------------------------------------------------
+gpy2xx_msec_get_ing_aic_csr
+gpy2xx_msec_get_egr_aic_csr
+
+gpy2xx_msec_config_ing_aic_csr enable_ctrl=0x3ff ack=0x3ff enable_set=0x3ff enable_clr=0x3ff
+gpy2xx_msec_config_egr_aic_csr enable_ctrl=0x3ff ack=0x3ff enable_set=0x3ff enable_clr=0x3ff
+
+===============================================================================
+
+Example rules
+-------------------------------------------------------------------------------
+//Initi GPHY and Enable MACSec settings
+gpy2xx_init
+gpy2xx_gmacf_count_ctrl_cfg rstCnt=1 stopRoll=1 conRead=1 frzCnt=0 pstCnt=0 psthFull=0 cntbcDrop=1
+gpy2xx_gmacx_pm_pdi_cfg bpMsec=0 dropCrc=1 dropPerr=1 dropSfail=1 dropClass=1
+gpy2xx_gmacf_pkt_cfg pcStrip=1 crcStrip=1 macIpg=0
+gpy2xx_gmacf_pm_cfg crcPad=0
+gpy2xx_gmacl_pm_cfg crcPad=0
+
+//Init MACSec Ingress and Egress devices
+gpy2xx_msec_init_ing_dev
+gpy2xx_msec_init_egr_dev
+
+Rule-0
+------
+//Ingress rule
+gpy2xx_msec_config_ing_tr sa_index=0 ca_type=5 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B345 sci=7A0D46DF998D0001 seq0=0x1 seq1=0x0 rep_window=0x40
+gpy2xx_msec_config_ing_sam_fca flow_index=0 flow_type=2 dest_port=2 drop_nonres=0 crypt_auth=0 drop_act=0 sa_index=0 rep_protect=1 sa_inuse=1 validate_type=2
+gpy2xx_msec_config_ing_sam_rule rule_index=0 sci=7A0D46DF998D0001 misc=0xa80 mask=0x800000 flow_index=0
+gpy2xx_msec_config_ing_sam_eec sam_ind_set=0 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0
+//Egress rule
+gpy2xx_msec_config_egr_tr sa_index=0 ca_type=5 an=2 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B345 sci=7A0D46DF998D0001 seq0=0x0 seq1=0x0 sa_index=0 sa_expirq=1 sa_indval=0 flow_index=0 sa_indupen=0
+gpy2xx_msec_config_egr_sam_fca flow_index=0 flow_type=3 dest_port=0 crypt_auth=0 drop_act=0 sa_index=0 frame_protect=1 sa_inuse=1 include_sci=1 use_es=0 use_scb=0 tag_bpsize=0 sa_indup=0 conf_offset=0 conf_protect=1
+gpy2xx_msec_config_egr_sam_rule rule_index=0 sa_mac=7A:0D:46:DF:99:8D misc=0x100 mask=0x03f flow_index=0
+gpy2xx_msec_config_egr_sam_eec sam_ind_set=0 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0
+
+Rule-1
+------
+//Ingress rule
+gpy2xx_msec_config_ing_tr sa_index=1 ca_type=5 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B346 sci=7A0D46DF998E0001 seq0=0x1 seq1=0x0 rep_window=0x40
+gpy2xx_msec_config_ing_sam_fca flow_index=1 flow_type=2 dest_port=2 drop_nonres=0 crypt_auth=0 drop_act=0 sa_index=1 rep_protect=1 sa_inuse=1 validate_type=2
+gpy2xx_msec_config_ing_sam_rule rule_index=1 sci=7A0D46DF998E0001 misc=0xa80 mask=0x800000 flow_index=1
+gpy2xx_msec_config_ing_sam_eec sam_ind_set=1 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0
+//Egress rule
+gpy2xx_msec_config_egr_tr sa_index=1 ca_type=5 an=2 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B346 sci=7A0D46DF998E0001 seq0=0x0 seq1=0x0 sa_index=0 sa_expirq=1 sa_indval=0 flow_index=0 sa_indupen=0
+gpy2xx_msec_config_egr_sam_fca flow_index=1 flow_type=3 dest_port=0 crypt_auth=0 drop_act=0 sa_index=1 frame_protect=1 sa_inuse=1 include_sci=1 use_es=0 use_scb=0 tag_bpsize=0 sa_indup=0 conf_offset=0 conf_protect=1
+gpy2xx_msec_config_egr_sam_rule rule_index=1 sa_mac=7A:0D:46:DF:99:8E misc=0x100 mask=0x03f flow_index=1
+gpy2xx_msec_config_egr_sam_eec sam_ind_set=1 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0
+
+Rule-2
+------
+//Ingress rule
+gpy2xx_msec_config_ing_tr sa_index=2 ca_type=5 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B347 sci=7A0D46DF998F0001 seq0=0x1 seq1=0x0 rep_window=0x40
+gpy2xx_msec_config_ing_sam_fca flow_index=2 flow_type=2 dest_port=2 drop_nonres=0 crypt_auth=0 drop_act=0 sa_index=2 rep_protect=1 sa_inuse=1 validate_type=2
+gpy2xx_msec_config_ing_sam_rule rule_index=2 sci=7A0D46DF998F0001 misc=0xa80 mask=0x800000 flow_index=2
+gpy2xx_msec_config_ing_sam_eec sam_ind_set=2 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0
+//Egress rule
+gpy2xx_msec_config_egr_tr sa_index=2 ca_type=5 an=2 sn_type=1 key=AD7A2BD03EAC835A6F620FDCB506B347 sci=7A0D46DF998F0001 seq0=0x0 seq1=0x0 sa_index=0 sa_expirq=1 sa_indval=0 flow_index=0 sa_indupen=0
+gpy2xx_msec_config_egr_sam_fca flow_index=2 flow_type=3 dest_port=0 crypt_auth=0 drop_act=0 sa_index=2 frame_protect=1 sa_inuse=1 include_sci=1 use_es=0 use_scb=0 tag_bpsize=0 sa_indup=0 conf_offset=0 conf_protect=1
+gpy2xx_msec_config_egr_sam_rule rule_index=2 sa_mac=7A:0D:46:DF:99:8F misc=0x100 mask=0x03f flow_index=2
+gpy2xx_msec_config_egr_sam_eec sam_ind_set=2 set_single=1 set_all=0 sam_ind_clr=0 clr_single=0 clr_all=0

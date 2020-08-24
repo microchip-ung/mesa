@@ -1,0 +1,92 @@
+gmudepa@gmudepa:linux-4.19.49$ pwd
+/home/gmudepa/Kernel/linux-4.19.49
+gmudepa@gmudepa:linux-4.19.49$
+gmudepa@gmudepa:linux-4.19.49$
+gmudepa@gmudepa:linux-4.19.49$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   drivers/net/macsec.c
+	modified:   drivers/phy/Kconfig
+	modified:   drivers/phy/Makefile
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	drivers/phy/lantiq/gpy211/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+gmudepa@gmudepa:linux-4.19.49$
+gmudepa@gmudepa:linux-4.19.49$
+gmudepa@gmudepa:linux-4.19.49$ git diff
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 7de88b33d..6959a1e28 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -23,6 +23,10 @@
+
+ #include <uapi/linux/if_macsec.h>
+
++#if IS_ENABLED(CONFIG_INTEL_GPY211_PHY)
++void gpy211_macsec_register(struct genl_family *fam);
++#endif
++
+ typedef u64 __bitwise sci_t;
+
+ #define MACSEC_SCI_LEN 8
+@@ -1097,9 +1101,17 @@ static rx_handler_result_t macsec_handle_frame(struct sk_buff **pskb)
+        hdr = macsec_ethhdr(skb);
+        if (hdr->eth.h_proto != htons(ETH_P_MACSEC)) {
+                handle_not_macsec(skb);
++#if IS_ENABLED(CONFIG_INTEL_GPY211_PHY)
++               printk("Do not process non-MACSec pkt further");
++               kfree_skb(skb);
++               *pskb = NULL;
+
++               /* and do not process it further */
++               return RX_HANDLER_CONSUMED;
++#else
+                /* and deliver to the uncontrolled port */
+                return RX_HANDLER_PASS;
++#endif
+        }
+
+        skb = skb_unshare(skb, GFP_ATOMIC);
+@@ -3539,6 +3551,11 @@ static int __init macsec_init(void)
+        if (err)
+                return err;
+
++#if IS_ENABLED(CONFIG_INTEL_GPY211_PHY)
++       printk("Register GPY211 MACsec driver\n");
++       gpy211_macsec_register(&macsec_fam);
++#endif
++
+        err = rtnl_link_register(&macsec_link_ops);
+        if (err)
+                goto notifier;
+diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+index 5c8d452e3..2372f4724 100644
+--- a/drivers/phy/Kconfig
++++ b/drivers/phy/Kconfig
+@@ -56,5 +56,6 @@ source "drivers/phy/samsung/Kconfig"
+ source "drivers/phy/st/Kconfig"
+ source "drivers/phy/tegra/Kconfig"
+ source "drivers/phy/ti/Kconfig"
++source "drivers/phy/lantiq/gpy211/Kconfig"
+
+ endmenu
+diff --git a/drivers/phy/Makefile b/drivers/phy/Makefile
+index 84e3bd9c5..6bd8db87b 100644
+--- a/drivers/phy/Makefile
++++ b/drivers/phy/Makefile
+@@ -10,6 +10,7 @@ obj-$(CONFIG_PHY_PISTACHIO_USB)               += phy-pistachio-usb.o
+ obj-$(CONFIG_ARCH_SUNXI)               += allwinner/
+ obj-$(CONFIG_ARCH_MESON)               += amlogic/
+ obj-$(CONFIG_LANTIQ)                   += lantiq/
++obj-$(CONFIG_INTEL_GPY211_PHY)         += lantiq/gpy211/
+ obj-$(CONFIG_ARCH_MEDIATEK)            += mediatek/
+ obj-$(CONFIG_ARCH_RENESAS)             += renesas/
+ obj-$(CONFIG_ARCH_ROCKCHIP)            += rockchip/
+gmudepa@gmudepa:linux-4.19.49$
