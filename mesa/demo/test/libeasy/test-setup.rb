@@ -937,6 +937,7 @@ class Switchdev_Pc_b2b_4x
     end
 
     def uninit
+        @pc.run "/easytest/local/if-setup-dhcp.rb"
         @dut.unmute
     end
 end
@@ -967,6 +968,7 @@ class Switchdev_Pc_bsp
     end
 
     def uninit
+        @pc.run "/easytest/local/if-setup-dhcp.rb"
         @dut.unmute
     end
 end
@@ -1063,6 +1065,7 @@ class Mesa_Pc_b2b
     end
 
     def uninit
+        @pc.run "/easytest/local/if-setup-dhcp.rb"
         @dut.unmute
     end
 end
