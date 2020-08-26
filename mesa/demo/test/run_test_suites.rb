@@ -9,17 +9,17 @@ require 'net/http'
 require_relative './libeasy/utils'
 
 $systems = [
-#           { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master",     parallel: "yes" },
-            { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master",     parallel: "yes" },
-#           { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master",     parallel: "yes" },
+#           { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master",     parallel: "no" },
+            { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master",     parallel: "no" },
+#           { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master",     parallel: "no" },
             { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no" },
             { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no" },
-#           { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master",     parallel: "yes" }, MESA-428 / Atom issue
-            { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master",     parallel: "yes" },
-#           { name: "dk-t35-3", image: "mipsel_vsc7429.mfi",         branch:"master",     parallel: "yes" } Removed due to Ref-board instability (hangs)
+#           { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master",     parallel: "no" }, MESA-428 / Atom issue
+            { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master",     parallel: "no" },
+#           { name: "dk-t35-3", image: "mipsel_vsc7429.mfi",         branch:"master",     parallel: "no" } Removed due to Ref-board instability (hangs)
             { name: "dk-t34-1", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no" },
-            { name: "dk-t35-4", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "yes" },
-            { name: "dk-t35-0", image: "arm64_ls1046_lan9662.itb",   branch:"master.mas", parallel: "yes" },
+            { name: "dk-t35-4", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no" },
+            { name: "dk-t35-0", image: "arm64_ls1046_lan9662.itb",   branch:"master.mas", parallel: "no" },
             { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master",     parallel: "no" }
            ]
 
