@@ -53,6 +53,7 @@ static void btsig_program_info_print(FILE *fd, const btsig_entry_t *btsig_entry)
     FILE      *fp;
     char      filename[100], cmdline[PATH_MAX], time_buf[30];
     time_t    cur_time;
+    struct tm timeinfo;
     struct tm *tm_info;
 
     pid = syscall(SYS_getpid);
@@ -70,7 +71,7 @@ static void btsig_program_info_print(FILE *fd, const btsig_entry_t *btsig_entry)
     }
 
     time(&cur_time);
-    tm_info = localtime(&cur_time);
+    tm_info = localtime_r(&cur_time, &timeinfo);
     strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", tm_info);
 
     fprintf(fd, "\n%s: %s Thread ID %d of process ID %d with cmdline \"%s\" received signal %s (%d)\n", btsig_entry->abort ? "Error" : "Info", time_buf, tid, pid, cmdline, btsig_entry->name, btsig_entry->sig);

@@ -48,11 +48,12 @@ int pivot_root(const char *n, const char *o) {
 
 void print_time() {
     time_t rawtime;
+    struct tm timeinfo_r;
     struct tm *timeinfo;
     char buffer[80];
 
     time(&rawtime);
-    timeinfo = localtime(&rawtime);
+    timeinfo = localtime_r(&rawtime, &timeinfo_r);
     strftime(buffer, 80, "%X", timeinfo);
     printf("%s ", buffer);
 }

@@ -6313,7 +6313,8 @@ static char *vtss_opt_prio_str(vtss_opt_prio_t *p, char *buf)
 static char *vtss_ts_str(vtss_timestamp_t *ts, char *buf, int max)
 {
     time_t time = ts->seconds;
-    struct tm *t = localtime(&time);
+    struct tm timeinfo;
+    struct tm *t = localtime_r(&time, &timeinfo);
     strftime(buf, max, "%Y-%m-%d %H:%M:%S", t);
     sprintf(buf + strlen(buf), ".%09u (%u-%u)", ts->nanoseconds, ts->seconds, ts->nanoseconds);
     return buf;
