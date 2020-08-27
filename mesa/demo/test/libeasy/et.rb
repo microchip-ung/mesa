@@ -514,10 +514,10 @@ END {
         "file"   => $0,
     }
 
+    $global_test_setup.uninit if $global_test_setup
+
     xml_tag "test_run_end", nil, a
     xml_tag_end "test_run"
-
-    $global_test_setup.uninit if $global_test_setup
 
     if $global_errors > 0
         exit (-1)
