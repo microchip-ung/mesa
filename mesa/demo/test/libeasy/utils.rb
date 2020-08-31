@@ -855,14 +855,159 @@ def run_(cmd, verify=true)
     res
 end
 
+def int2hex(val)
+    val = ("0x%08x" % val)
+end
+
+def qspi_rw(reg, fld = "", val = "")
+    if (fld == "")
+        # Read
+    elsif (val == "")
+        # Write register
+        val = int2hex(fld)
+        fld = ""
+    else
+        # Write field
+        fld = ".#{fld}"
+        val = int2hex(val)
+    end
+    $ts.dut.run("symreg qspi_qspi_#{reg}[1]#{fld} #{val}")
+end
+
 # Intialize QSPI
 def qspi_init
-    for gpio in 0..5
+    for gpio in 59..64
         $ts.dut.call("mesa_gpio_mode_set", 0, gpio, "MESA_GPIO_ALT_0")
     end
-    $ts.dut.run("symreg qspi_qspi_mr[1]  0x00000001") # Set SMM
-    $ts.dut.run("symreg qspi_qspi_scr[1] 0x00000000") # Clear CPHA/CPOL
-    $ts.dut.run("symreg qspi_qspi_cr[1]  0x00000100") # Set UPDCFG
-    sleep(1)
-    $ts.dut.run("symreg qspi_qspi_cr[1]  0x00000001") # Set QSPIEN
+
+    qspi_rw("mr", "smm", 1)
+    qspi_rw("cr", "updcfg", 1)
+    qspi_rw("cr", "qspien", 1)
+    qspi_rw("ricr", "rdinst", 0xeb)
+    qspi_rw("wicr", "wrinst", 0x38)
+    qspi_rw("ifr", "apbtfrtyp", 1)
+    qspi_rw("ifr", "tfrtyp", 1)
+    qspi_rw("ifr", "nbdum", 6)
+    qspi_rw("ifr", "addrl", 2)
+    qspi_rw("ifr", "dataen", 1)
+    qspi_rw("ifr", "addren", 1)
+    qspi_rw("ifr", "insten", 1)
+    qspi_rw("ifr", "width", 4)
+    qspi_rw("cr", "lastxfer", 1)
+    qspi_rw("cr", "updcfg", 1)
+end
+
+def io_fpga_rw(cmd)
+    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw1 #{cmd}")[:out]
+    if (cmd.include? "read")
+        i = txt.index("value: ")
+        if (i == nil)
+            txt = "0xdeaddead"
+        else
+            txt = txt[(i + 7)..(i + 16)]
+        end
+    end
+    txt
+end
+
+def vcore_rw(addr, val = "")
+    symreg = false
+    value = val
+    read = (val == "" ? true : false)
+    if (symreg)
+        addr = int2hex(addr)
+        if (read)
+            $ts.dut.run("symreg gcb_va_addr #{addr}")
+            $ts.dut.run("symreg gcb_va_data")
+            txt = $ts.dut.run("symreg gcb_va_data")[:out]
+            i = txt.index("=")
+            if (i > 0)
+                value = txt[(i + 2)..(i + 11)].to_i(16)
+            end
+        else
+            val = int2hex(val)
+            $ts.dut.run("symreg gcb_va_addr #{addr}")
+            $ts.dut.run("symreg gcb_va_data #{val}")
+        end
+    else
+        if (read)
+            value = $ts.dut.call("mesa_reg_read", 0, addr)
+        else
+            $ts.dut.call("mesa_reg_write", 0, addr, val)
+        end
+        addr = int2hex(addr)
+    end
+    val = int2hex(value)
+    t_i("vcore_#{read ? "read " : "write"}: #{addr}:#{val}")
+    value
+end
+
+def io_rw(addr, io, val = "")
+    txt = "0xdeaddead"
+    swap = false
+    if (io == "QSPI")
+        if (val == "")
+            txt = io_fpga_rw("read #{addr}")
+            swap = true
+        else
+            io_fpga_rw("write #{addr} #{val}")
+        end
+    elsif (io == "SRAM")
+        value = vcore_rw(addr + 0x00100000, val)
+        if (val == "")
+            txt = int2hex(value)
+            swap = true
+        end
+    else
+        t_e("unknown I/O: #{io}")
+    end
+    if (swap)
+        # Little-endian swapping
+        txt = ("0x" + txt[8..9] + txt[6..7] + txt[4..5] + txt[2..3])
+    end
+    txt
+end
+
+def io_rd(addr, io)
+    io_rw(addr, io)
+end
+
+def io_wr(addr, val, io)
+    io_rw(addr, io, val)
+end
+
+def io_check(addr, str, io = "QSPI")
+    len = str.length
+    if (len == 0)
+        t_e("length zero")
+    elsif (len.odd?)
+        t_e("odd length: #{len}")
+    else
+        base = addr
+        n = (addr & 3)
+        addr = (addr - n)
+        res = ""
+        while (len > 0)
+            txt = io_rd(addr, io)
+            # Format '0x12345678'
+            i = (2 + n * 2)
+            j = (i + len - 1)
+            if (j > 9)
+                j = 9
+            end
+            res = (res + txt[i..j])
+            n = 0
+            len = (len + i - j - 1)
+            addr = (addr + 4)
+        end
+        exp = "Exp (#{io}): #{str}"
+        act = ("0x%08x: #{res}" % base)
+        if (res == str)
+            t_i(exp)
+            t_i(act)
+        else
+            t_e(exp)
+            t_e(act)
+        end
+    end
 end

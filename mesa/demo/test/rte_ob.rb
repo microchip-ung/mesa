@@ -39,6 +39,12 @@ test "conf" do
 
     # Initialize QSPI
     qspi_init
+
+    # Big-endian QSPI
+    #vcore_rw(0x40000004, 0x1b1b1b1b)
+    #vcore_rw(0x40000004, 0x5b5b5b5b)
+
+    io_fpga_rw("fill 0x100 0x100 0")
 end
 
 # Each entry in the test table has these items (only text is mandatory):
@@ -72,13 +78,13 @@ $test_table =
         txt: "length_check_ok",
         opc: true,
         rtp: {length: 50},
-        frame: {tx_cnt: 1, len: 50},
+        frame: {len: 50},
         cnt: {rx_0: 1}
     },
     {
         txt: "length_check_fail",
         rtp: {length: 50},
-        frame: {tx_cnt: 1, len: 46},
+        frame: {len: 46},
     },
 
     # Profinet
@@ -149,11 +155,19 @@ $test_table =
 
     # Data group transfer
     {
-        txt: "dg_write",
+        txt: "dg_write - QSPI",
         rtp: {wal_id: 7},
-        dg: [{length: 4}],
-#        dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
-        cnt: {rx_0: 1}
+        dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
+        frame: {tx_cnt: 2},
+        cnt: {rx_0: 2}
+    },
+    {
+        txt: "dg_write - SRAM",
+        intf: "SRAM",
+        rtp: {wal_id: 8},
+        dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
+        frame: {tx_cnt: 2},
+        cnt: {rx_0: 2}
     },
 ]
 
@@ -197,13 +211,23 @@ def rte_ob_test(t)
     conf["wal_id"] = wal_id
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
+    # I/O interface is a global setting, which should be setup once during initialization.
+    # It is setup here for test purposes only.
+    intf = fld_get(t, :intf, "QSPI")
+    if (intf != "QSPI")
+        conf = $ts.dut.call("mera_gen_conf_get")
+        conf["intf"] = ("MERA_IO_INTF_" + intf)
+        $ts.dut.call("mera_gen_conf_set", conf)
+    end
+
     # Add data group
     wr_addr = 0x100
     if (dg != nil)
         dg.each_with_index do |d, i|
             conf = $ts.dut.call("mera_ob_dg_init")
             conf["dg_id"] = i
-            conf["pdu_offset"] = fld_get(d, :offs)
+            offs = fld_get(d, :offs)
+            conf["pdu_offset"] = offs
             len = fld_get(d, :length, 1)
             conf["length"] = len
             $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
@@ -211,7 +235,14 @@ def rte_ob_test(t)
             conf["rtp_id"] = $rtp_id
             conf["dg_id"] = i
             conf["wr_addr"] = wr_addr
+            d[:addr] = wr_addr
             wr_addr = (wr_addr + len)
+            str = ""
+            len.times do |j|
+                # Incrementing hex data expected, e.g. '04050607' at offset 4
+                str = (str + ("%02x" % (offs + j)))
+            end
+            d[:str] = str
             $ts.dut.call("mera_ob_wa_add", wal_id, conf)
         end
     end
@@ -253,6 +284,15 @@ def rte_ob_test(t)
     check_counter("rx_0", cnt["rx_0"], rx_0)
     check_counter("rx_1", cnt["rx_1"], rx_1)
 
+    # Check data groups
+    if (dg != nil)
+        dg.each do |d|
+            if (d.key?:str)
+                io_check(d[:addr], d[:str], intf)
+            end
+        end
+    end
+
     # Next RTP ID
     $rtp_id = ($rtp_id + 1)
 end
@@ -267,5 +307,5 @@ test "dump" do
     #$ts.dut.run("mera-cmd debug api ob")
     #$ts.dut.call("mera_ob_flush")
     #$ts.dut.run("mera-cmd debug api ob")
-    #$ts.pc.run("mera-iofpga-rw /dev/hidraw0 dump 0x100 64")
+    #io_fpga_rw("dump 0x100 64")
 end

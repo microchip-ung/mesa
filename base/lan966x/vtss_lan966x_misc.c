@@ -50,12 +50,23 @@ static vtss_rc lan966x_fan_rotation_get(vtss_state_t *vtss_state,
 static vtss_rc lan966x_reg_read(vtss_state_t *vtss_state,
                                 const vtss_chip_no_t chip_no, const u32 addr, u32 * const value)
 {
+    u32 ctrl;
+
+    REG_WR(GCB_VA_ADDR, addr);
+    REG_RD(GCB_VA_DATA, value);
+    REG_RD(GCB_VA_CTRL, &ctrl);
+    REG_RD(GCB_VA_DATA, value);
     return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_reg_write(vtss_state_t *vtss_state,
                                  const vtss_chip_no_t chip_no, const u32 addr, const u32 value)
 {
+    u32 ctrl;
+
+    REG_WR(GCB_VA_ADDR, addr);
+    REG_WR(GCB_VA_DATA, value);
+    REG_RD(GCB_VA_CTRL, &ctrl);
     return VTSS_RC_OK;
 }
 
