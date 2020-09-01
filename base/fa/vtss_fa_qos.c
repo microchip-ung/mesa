@@ -2928,6 +2928,15 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
                 return VTSS_RC_ERROR;
             }
 
+            /* Check for correct cycle extension time */
+            /* The cycle extension time must not be smaller than VTSS_QOS_TAS_CT_MIN as this time */
+            /* will become the trunk list cycle time that again will be the new_startup_time when the */
+            /* new list is started after the trunk list */
+            if (new_port_conf->cycle_time_ext < VTSS_QOS_TAS_CT_MIN) {
+                VTSS_D("Check of cycle extension time failed");
+                return VTSS_RC_ERROR;
+            }
+
             /* Calculate the end time of possible current list cycle */
             if (!tas_current_end_time_calc(vtss_state, gcl_state->curr_list_idx, &new_port_conf->base_time, &current_end_time)) {
                 VTSS_D("Calculate the end time of current list cycle failed");

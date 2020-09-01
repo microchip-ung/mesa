@@ -343,11 +343,13 @@ typedef struct {
 
     // The administrative cycle time in nanoseconds.
     // The cycle time must be at least as long as the sum of all time_interval
-    // in the GCL configured by mesa_qos_tas_port_gcl_conf_set() and must also be less than MESA_CAP_TBD.
+    // in the GCL configured by mesa_qos_tas_port_gcl_conf_set() and must also be larger than
+    // MESA_CAP_QOS_TAS_CT_MIN-1 and smaller MESA_CAP_QOS_TAS_CT_MAX+1.
     uint32_t         cycle_time;
 
     // In case a new GCL start time (cycle_time) is not lining up exactly with an currently active (old) GCL.
     // This is the maximum time that current GCL will be extended. Otherwise it will be truncated.
+    // Must also be larger than MESA_CAP_QOS_TAS_CT_MIN-1 and smaller MESA_CAP_QOS_TAS_CT_MAX+1.
     uint32_t         cycle_time_ext;
 
     // The administrative base time. This is GCL start active time after config_change true.

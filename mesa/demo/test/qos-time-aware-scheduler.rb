@@ -253,7 +253,7 @@ def equal_interval_3_prio_1_port_test
     conf["gate_enabled"] = true
     conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
     conf["cycle_time"] = cycle_time
-    conf["cycle_time_ext"] = 0
+    conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 0
     conf["base_time"]["seconds"] = 3
     conf["base_time"]["sec_msb"] = 0
@@ -374,7 +374,7 @@ def jira_appl_3396_test
     conf["gate_enabled"] = true
     conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
     conf["cycle_time"] = 256
-    conf["cycle_time_ext"] = 0
+    conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 303697500
     conf["base_time"]["seconds"] = 3
     conf["base_time"]["sec_msb"] = 0
@@ -399,6 +399,7 @@ def jira_appl_3396_test
 
     t_i ("Start GCL again")
     conf["base_time"]["seconds"] = 6
+    conf["base_time"]["nanoseconds"] += 128    #Move the start time out less than cycle_time_ext
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Check GCL is pending")
@@ -479,7 +480,7 @@ def equal_interval_1_prio_3_port_test
         conf["gate_enabled"] = true
         conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
         conf["cycle_time"] = cycle_time
-        conf["cycle_time_ext"] = 0
+        conf["cycle_time_ext"] = 256
         conf["base_time"]["nanoseconds"] = 0
         conf["base_time"]["seconds"] = 3
         conf["base_time"]["sec_msb"] = 0
