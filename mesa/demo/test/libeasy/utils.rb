@@ -642,7 +642,8 @@ def wait_iface_state ts, device, iface, timeout = 10, sleep_time = 1, flags = []
         ni.each do |i|
             next if ok.include? i
 
-            res = ts.dut.run "ip link show dev #{i}"
+            res = ts.pc.run "ip link show dev #{i}" if device == :pc
+            res = ts.dut.run "ip link show dev #{i}" if device == :dut
             if /<([^>]+)>/ =~ res[:out].lines.first
                 f = $1.split ","
 
