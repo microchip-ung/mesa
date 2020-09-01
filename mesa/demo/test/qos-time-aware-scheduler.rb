@@ -383,38 +383,51 @@ def jira_appl_3396_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Check GCL is pending")
-    conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (conf["config_pending"] != true)
-        t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
     t_i ("Wait for GCL to start")
     sleep 3
 
     t_i ("Check GCL is started")
-    conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (conf["config_pending"] == true)
-        t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
     t_i ("Start GCL again")
-    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
     conf["base_time"]["seconds"] = 6
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Check GCL is pending")
-    conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (conf["config_pending"] != true)
-        t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
     t_i ("Wait for GCL to start")
     sleep 3
 
     t_i ("Check GCL is started")
-    conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (conf["config_pending"] == true)
-        t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
     end
 end
