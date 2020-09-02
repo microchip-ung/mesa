@@ -9,18 +9,18 @@ require 'net/http'
 require_relative './libeasy/utils'
 
 $systems = [
-#           { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master",     parallel: "no" },
-            { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master",     parallel: "no" },
-#           { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master",     parallel: "no" },
-            { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no" },
-            { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no" },
-#           { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master",     parallel: "no" }, MESA-428 / Atom issue
-            { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master",     parallel: "no" },
-#           { name: "dk-t35-3", image: "mipsel_vsc7429.mfi",         branch:"master",     parallel: "no" } Removed due to Ref-board instability (hangs)
-            { name: "dk-t34-1", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no" },
-            { name: "dk-t35-4", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no" },
-            { name: "dk-t35-0", image: "arm64_ls1046_lan9662.itb",   branch:"master.mas", parallel: "no" },
-            { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master",     parallel: "no" }
+#           { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master",     parallel: "no", server: "35", started: "no" },
+            { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master",     parallel: "no", server: "34", started: "no" },
+#           { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master",     parallel: "no", server: "35", started: "no" },
+            { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no", server: "34", started: "no" },
+            { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no", server: "34", started: "no" },
+#           { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master",     parallel: "no", server: "35", started: "no" }, MESA-428 / Atom issue
+            { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master",     parallel: "no", server: "35", started: "no" },
+#           { name: "dk-t35-3", image: "mipsel_vsc7429.mfi",         branch:"master",     parallel: "no", server: "35", started: "no" } Removed due to Ref-board instability (hangs)
+            { name: "dk-t34-1", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no", server: "34", started: "no" },
+            { name: "dk-t35-4", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no", server: "35", started: "no" },
+            { name: "dk-t35-0", image: "arm64_ls1046_lan9662.itb",   branch:"master.mas", parallel: "no", server: "35", started: "no" },
+            { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master",     parallel: "no", server: "34", started: "no" }
            ]
 
 if File.file?("../../../../easytest/test-setup-server/et")
@@ -80,39 +80,57 @@ $systems.each { |system|
     run_("tar xzf et.tar.gz -C #{system[:name]}-test")
 }
 
-$threads = []
-def start_test(system)
+$parallel_threads = []
+$sequential_threads = []
+def start_test(system, threads)
     # Compose path to the image and test folder of the requested branch
     jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
 
-    if (system[:parallel] == "no")
-        puts("Start 'sequentiel' test suites on system #{system[:name]}")
+    puts("Start test suites on system #{system[:name]} in a thread")
+    threads << Thread.new do
         system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"
-    else
-        puts("Start 'parallel' test suites on system #{system[:name]} in a thread")
-        $threads << Thread.new do
-            system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"
-        end
     end
 end
 
 puts "-----Start test on all 'parallel' systems in a thread.-----"
 $systems.each { |system|
     if (system[:parallel] == "yes")
-        start_test(system)
+        start_test(system, $parallel_threads)
     end
 }
 
+def start_server_sequential(server)
+    $systems.each { |system|
+        if ((system[:parallel] == "no") && (system[:server] == server) && (system[:started] == "no"))
+            start_test(system, $sequential_threads)
+            system[:started] = "yes"
+            break
+        end
+    }
+end
+
+def all_sequential_started
+    $systems.each { |system|
+        if ((system[:parallel] == "no") && (system[:started] == "no"))
+            return false
+        end
+    }
+    return true
+end
+
 puts "-----Start test on all 'sequential' systems.-----"
-$systems.each { |system|
-    if (system[:parallel] == "no")
-        start_test(system)
+until (all_sequential_started) do    # Stop when all has been started
+    start_server_sequential("34")    # Start a test on server 34
+    start_server_sequential("35")    # Start a test on server 35
+    $sequential_threads.each do |t|  # Wait for them to finish
+      t.join
     end
-}
+    $sequential_threads = []
+end
 puts "-----All 'sequential' tests are completed-----"
 
 puts "-----Wait for all 'parallel' tests to complete-----"
-$threads.each do |t|
+$parallel_threads.each do |t|
   t.join
 end
 puts "-----All 'parallel' tests are completed-----"
