@@ -1223,6 +1223,9 @@ static vtss_rc fa_cstream_conf_set(vtss_state_t *vtss_state, const vtss_frer_cst
            VTSS_F_EACL_FRER_CFG_COMPOUND_RESET_TICKS(conf->reset_time ? conf->reset_time : 1) |
            VTSS_F_EACL_FRER_CFG_COMPOUND_RESET(1) |
            VTSS_F_EACL_FRER_CFG_COMPOUND_ENABLE(conf->recovery));
+    if (conf->recovery) {
+        vtss_state->l2.cs_counters[id].resets.value++;
+    }
     return VTSS_RC_OK;
 }
 
@@ -1239,6 +1242,9 @@ static vtss_rc fa_mstream_conf_set(vtss_state_t *vtss_state, const u16 idx)
            VTSS_F_EACL_FRER_CFG_MEMBER_RESET(1) |
            VTSS_F_EACL_FRER_CFG_MEMBER_ENABLE(conf->recovery) |
            VTSS_F_EACL_FRER_CFG_MEMBER_COMPOUND_HANDLE(conf->cstream_id));
+    if (conf->recovery) {
+        vtss_state->l2.ms_counters[idx].resets.value++;
+    }
     return VTSS_RC_OK;
 }
 
