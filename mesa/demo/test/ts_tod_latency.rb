@@ -102,6 +102,22 @@ def nano_delay_measure(port0, port1)
     $nano_delay
 end
 
+def multiple_measure(port0, port1)
+    delays = []
+    20.times {
+        nano_delay = nano_delay_measure(port0, port1)
+
+        delays << nano_delay
+        $ts.dut.run ("mesa-cmd port state #{port0} disable")
+        sleep 1
+        $ts.dut.run ("mesa-cmd port state #{port0} enable")
+        sleep 2
+        $ts.dut.call("mesa_ts_status_change", port0)
+        $ts.dut.call("mesa_ts_status_change", port1)
+    }
+    t_i("delays = #{delays}")
+end
+
 def tod_latency_test(port0, port1)
     test "tod_latency_test" do
 
@@ -136,23 +152,19 @@ def tod_latency_test(port0, port1)
     latency = 0
     $ts.dut.call("mesa_ts_ingress_latency_set", port1, latency)
 
-#delays = []
-#10.times {
     t_i "Measure nanosecond delay with egress latency 0 and ingress latency 0"
-    nano_delay_0 = nano_delay_measure(port0, port1)
-
-#delays << nano_delay_0
-#$ts.dut.run ("mesa-cmd port state #{port0} disable")
-#sleep 1
-#$ts.dut.run ("mesa-cmd port state #{port0} enable")
-#sleep 2
-#$ts.dut.call("mesa_ts_status_change", port0)
-#$ts.dut.call("mesa_ts_status_change", port1)
-#}
-#t_i("delays = #{delays}")
+#multiple_measure(port0, port1)
 #return
+    nano_delay_0 = nano_delay_measure(port0, port1)
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
-    if ((nano_delay_0 < -2) || (nano_delay_0 > 9))  #Value 9 is seen on Fireant Jenkins test
+    min = -2
+    max = 9  #Value 9 is seen on Fireant Jenkins test
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        min = -11
+        max = 11
+    end
+
+    if ((nano_delay_0 < min) || (nano_delay_0 > max))
         t_e("Unexpected delay with egress latency 0 and ingress latency 0.  Delay = #{nano_delay_0}")
     end
 
