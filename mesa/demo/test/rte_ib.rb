@@ -27,6 +27,9 @@ test "conf" do
 
     # Initialize QSPI
     qspi_init
+
+    # Clear IO-FPGA memory
+    io_fpga_rw("fill 0x100 0x100 0")
 end
 
 def tx_len_test(len)
@@ -170,43 +173,69 @@ test "otf" do
     $rtp_id = ($rtp_id + 1)
 end
 
-test "dg" do
+def tx_dg_test(intf, ral_id)
+    # I/O interface is a global setting, but setup here for test purposes only.
+    conf = $ts.dut.call("mera_gen_conf_get")
+    conf["intf"] = ("MERA_IO_INTF_" + intf)
+    $ts.dut.call("mera_gen_conf_set", conf)
+    use_buf = (intf == "SRAM")
+
     len = 60
     idx_rx = 1
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
-    conf["time"] = 0 # One-shot
+    conf["time"] = 1000000000 # One second
     conf["port"] = $port[idx_rx]
     conf["length"] = len
+    payload = ""
     for i in 0..(len - 1) do
-        # Ethernet frame:
-        # DMAC : ff-ff-ff-ff-ff-ff
-        # SMAC : 00-00-00-00-00-01
-        # EType: 0xaaaa
-        # Data : Incrementing from 0
-        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : ((i - 14) & 0xff))
+        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : 0xff)
         conf["data"][i] = d
+        if (i > 13)
+            payload = (payload + ("%02x" % d))
+        end
     end
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 
-    ral_id = 1
     conf = $ts.dut.call("mera_ib_ral_conf_get", ral_id)
-    conf["time"] = 1000000
+    conf["time"] = 1000000000 # One second
     $ts.dut.call("mera_ib_ral_conf_set", ral_id, conf)
 
-    ra_id = 2
-    conf = $ts.dut.call("mera_ib_ra_init")
-    conf["ra_id"] = ra_id
-    conf["rd_addr"] = 0x100
-    conf["length"] = 4
-    $ts.dut.call("mera_ib_ra_add", ral_id, conf)
+    rd_addr = 0x100
+    ra_id = 3
+    dg = [{offs: 0, data: "0123456789ab"},{offs: 7, data: "ef"}]
+    dg.each do |d|
+        offs = (d[:offs] * 2)
+        data = d[:data]
+        size = data.length
+        payload[offs..(offs + size - 1)] = data
+        size = (size / 2)
+        conf = $ts.dut.call("mera_ib_ra_init")
+        conf["ra_id"] = ra_id
+        conf["rd_addr"] = rd_addr
+        conf["length"] = size
+        $ts.dut.call("mera_ib_ra_add", ral_id, conf)
 
-    conf = $ts.dut.call("mera_ib_dg_init")
-    conf["rtp_id"] = $rtp_id
-    conf["pdu_offset"] = 4
-    $ts.dut.call("mera_ib_dg_add", ral_id, ra_id, conf)
+        conf = $ts.dut.call("mera_ib_dg_init")
+        conf["rtp_id"] = $rtp_id
+        conf["pdu_offset"] = d[:offs]
+        $ts.dut.call("mera_ib_dg_add", ral_id, ra_id, conf)
 
-    cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 14}"
+        addr = rd_addr
+        if (use_buf)
+            buf = $ts.dut.call("mera_ib_ra_req", ral_id, ra_id)
+            addr = (addr + buf["addr"])
+        end
+        io_str_wr(addr, d[:data], intf)
+        if (use_buf)
+            $ts.dut.call("mera_ib_ra_rel", ral_id, ra_id)
+        end
+        rd_addr = (rd_addr + size)
+        ra_id = (ra_id + 1)
+    end
+
+    sleep(1)
+    cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data hex #{payload}"
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == idx_rx)
@@ -214,11 +243,20 @@ test "dg" do
         end
     end
     $ts.pc.run(cmd)
+    $rtp_id = ($rtp_id + 1)
+end
+
+test "dg-QSPI" do
+    tx_dg_test("QSPI", 1)
+end
+
+test "dg-SRAM" do
+    tx_dg_test("SRAM", 2)
 end
 
 test "dump" do
     #$ts.dut.run("mera-cmd debug api ib")
     #$ts.dut.call("mera_ib_flush")
     #$ts.dut.run("mera-cmd debug api ib")
-    #$ts.pc.run("mera-iofpga-rw /dev/hidraw0 dump 0x100 64")
+    #io_fpga_rw("dump 0x100 64")
 end

@@ -40,10 +40,7 @@ test "conf" do
     # Initialize QSPI
     qspi_init
 
-    # Big-endian QSPI
-    #vcore_rw(0x40000004, 0x1b1b1b1b)
-    #vcore_rw(0x40000004, 0x5b5b5b5b)
-
+    # Clear IO-FPGA memory
     io_fpga_rw("fill 0x100 0x100 0")
 end
 
@@ -211,8 +208,7 @@ def rte_ob_test(t)
     conf["wal_id"] = wal_id
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
-    # I/O interface is a global setting, which should be setup once during initialization.
-    # It is setup here for test purposes only.
+    # I/O interface is a global setting, but setup here for test purposes only.
     intf = fld_get(t, :intf, "QSPI")
     if (intf != "QSPI")
         conf = $ts.dut.call("mera_gen_conf_get")
@@ -288,7 +284,16 @@ def rte_ob_test(t)
     if (dg != nil)
         dg.each do |d|
             if (d.key?:str)
-                io_check(d[:addr], d[:str], intf)
+                addr = d[:addr]
+                str = d[:str]
+                res = io_str_rd(addr, str, intf)
+                t_i("Exp (#{intf}): #{str}")
+                act = ("0x%08x: #{res}" % addr)
+                if (res == str)
+                    t_i(act)
+                else
+                    t_e(act)
+                end
             end
         end
     end

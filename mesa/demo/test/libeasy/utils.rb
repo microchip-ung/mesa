@@ -863,6 +863,11 @@ end
 def qspi_rw(reg, fld = "", val = "")
     if (fld == "")
         # Read
+        i = (reg.length - 1)
+        if (reg[i] == ".")
+            reg = reg[0..(i - 1)]
+            fld = "."
+        end
     elsif (val == "")
         # Write register
         val = int2hex(fld)
@@ -912,23 +917,22 @@ def io_fpga_rw(cmd)
 end
 
 def vcore_rw(addr, val = "")
-    symreg = false
+    symreg = true
     value = val
     read = (val == "" ? true : false)
     if (symreg)
         addr = int2hex(addr)
         if (read)
-            $ts.dut.run("symreg gcb_va_addr #{addr}")
-            $ts.dut.run("symreg gcb_va_data")
-            txt = $ts.dut.run("symreg gcb_va_data")[:out]
-            i = txt.index("=")
-            if (i > 0)
-                value = txt[(i + 2)..(i + 11)].to_i(16)
-            end
+            $ts.dut.run("symreg -r gcb_va_addr #{addr}")
+            $ts.dut.run("symreg -r gcb_va_data")
+            $ts.dut.run("symreg -r gcb_va_ctrl")
+            txt = $ts.dut.run("symreg -r gcb_va_data_inert")[:out]
+            value = txt[2..11].to_i(16)
         else
             val = int2hex(val)
-            $ts.dut.run("symreg gcb_va_addr #{addr}")
-            $ts.dut.run("symreg gcb_va_data #{val}")
+            $ts.dut.run("symreg -r gcb_va_addr #{addr}")
+            $ts.dut.run("symreg -r gcb_va_ctrl")
+            $ts.dut.run("symreg -r gcb_va_data #{val}")
         end
     else
         if (read)
@@ -945,11 +949,18 @@ end
 
 def io_rw(addr, io, val = "")
     txt = "0xdeaddead"
-    swap = false
+    swap = true
+    if (swap and val != "")
+        # Little-endian swapping before writing
+        v0 = ((val >> 24) & 0xff)
+        v1 = ((val >> 16) & 0xff)
+        v2 = ((val >>  8) & 0xff)
+        v3 = ((val >>  0) & 0xff)
+        val = ((v3 << 24) + (v2 << 16) + (v1 << 8) + v0)
+    end
     if (io == "QSPI")
         if (val == "")
             txt = io_fpga_rw("read #{addr}")
-            swap = true
         else
             io_fpga_rw("write #{addr} #{val}")
         end
@@ -957,13 +968,12 @@ def io_rw(addr, io, val = "")
         value = vcore_rw(addr + 0x00100000, val)
         if (val == "")
             txt = int2hex(value)
-            swap = true
         end
     else
         t_e("unknown I/O: #{io}")
     end
     if (swap)
-        # Little-endian swapping
+        # Little-endian swapping after reading
         txt = ("0x" + txt[8..9] + txt[6..7] + txt[4..5] + txt[2..3])
     end
     txt
@@ -977,38 +987,55 @@ def io_wr(addr, val, io)
     io_rw(addr, io, val)
 end
 
-def io_check(addr, str, io = "QSPI")
+def io_str_rd(addr, str, io = "QSPI")
     len = str.length
-    if (len == 0)
-        t_e("length zero")
-    elsif (len.odd?)
+    res = ""
+    if (len.odd?)
         t_e("odd length: #{len}")
-    else
-        base = addr
-        n = (addr & 3)
-        addr = (addr - n)
-        res = ""
-        while (len > 0)
+        return res
+    end
+    n = (addr & 3)
+    addr = (addr - n)
+    while (len > 0)
+        txt = io_rd(addr, io)
+        # Format '0x12345678'
+        i = (2 + n * 2)
+        j = (i + len - 1)
+        if (j > 9)
+            j = 9
+        end
+        res = (res + txt[i..j])
+        n = 0
+        len = (len + i - j - 1)
+        addr = (addr + 4)
+    end
+    res
+end
+
+def io_str_wr(addr, str, io = "QSPI")
+    len = str.length
+    if (len.odd?)
+        t_e("odd length: #{len}")
+        return
+    end
+    n = (addr & 3)
+    addr = (addr - n)
+    i = 0
+    while (i < len)
+        # Format '0x12345678'
+        txt = "0xffffffff"
+        cnt = (len - i)
+        if (n > 0 or cnt < 8)
             txt = io_rd(addr, io)
-            # Format '0x12345678'
-            i = (2 + n * 2)
-            j = (i + len - 1)
-            if (j > 9)
-                j = 9
+        end
+        j = (2 + n * 2)
+            if ((j + cnt) > 10)
+                cnt = (10 - j)
             end
-            res = (res + txt[i..j])
             n = 0
-            len = (len + i - j - 1)
+            txt[j..(j + cnt - 1)] = str[i ..(i + cnt - 1)]
+            io_wr(addr, txt.to_i(16), io)
             addr = (addr + 4)
-        end
-        exp = "Exp (#{io}): #{str}"
-        act = ("0x%08x: #{res}" % base)
-        if (res == str)
-            t_i(exp)
-            t_i(act)
-        else
-            t_e(exp)
-            t_e(act)
-        end
+            i = (i + cnt)
     end
 end
