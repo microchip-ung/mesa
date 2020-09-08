@@ -916,6 +916,19 @@ def io_fpga_rw(cmd)
     txt
 end
 
+def io_sram_rw(cmd)
+    txt = $ts.dut.run("mera-sram-rw #{cmd}")[:out]
+    if (cmd.include? "read")
+        i = txt.index("value: ")
+        if (i == nil)
+            txt = "0xdeaddead"
+        else
+            txt = txt[(i + 7)..(i + 16)]
+        end
+    end
+    txt
+end
+
 def vcore_rw(addr, val = "")
     symreg = true
     value = val
@@ -949,7 +962,7 @@ end
 
 def io_rw(addr, io, val = "")
     txt = "0xdeaddead"
-    swap = true
+    swap = (io != "SRAM")
     if (swap and val != "")
         # Little-endian swapping before writing
         v0 = ((val >> 24) & 0xff)
@@ -965,6 +978,13 @@ def io_rw(addr, io, val = "")
             io_fpga_rw("write #{addr} #{val}")
         end
     elsif (io == "SRAM")
+        if (val == "")
+            txt = io_sram_rw("read #{addr}")
+        else
+            io_sram_rw("write #{addr} #{val}")
+        end
+    elsif (io == "VCORE")
+        # SRAM via VCore
         value = vcore_rw(addr + 0x00100000, val)
         if (val == "")
             txt = int2hex(value)

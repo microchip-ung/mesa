@@ -282,9 +282,15 @@ def rte_ob_test(t)
 
     # Check data groups
     if (dg != nil)
+        use_buf = (intf == "SRAM")
+        base = 0
+        if (use_buf)
+            buf = $ts.dut.call("mera_ob_wal_req", wal_id)
+            base = buf["addr"]
+        end
         dg.each do |d|
             if (d.key?:str)
-                addr = d[:addr]
+                addr = (d[:addr] + base)
                 str = d[:str]
                 res = io_str_rd(addr, str, intf)
                 t_i("Exp (#{intf}): #{str}")
@@ -295,6 +301,9 @@ def rte_ob_test(t)
                     t_e(act)
                 end
             end
+        end
+        if (use_buf)
+            $ts.dut.call("mera_ob_wal_rel", wal_id)
         end
     end
 

@@ -178,7 +178,6 @@ def tx_dg_test(intf, ral_id)
     conf = $ts.dut.call("mera_gen_conf_get")
     conf["intf"] = ("MERA_IO_INTF_" + intf)
     $ts.dut.call("mera_gen_conf_set", conf)
-    use_buf = (intf == "SRAM")
 
     len = 60
     idx_rx = 1
@@ -189,7 +188,7 @@ def tx_dg_test(intf, ral_id)
     conf["length"] = len
     payload = ""
     for i in 0..(len - 1) do
-        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : 0xff)
+        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : 0)
         conf["data"][i] = d
         if (i > 13)
             payload = (payload + ("%02x" % d))
@@ -203,6 +202,12 @@ def tx_dg_test(intf, ral_id)
 
     rd_addr = 0x100
     ra_id = 3
+    use_buf = (intf == "SRAM")
+    base = 0
+    if (use_buf)
+        buf = $ts.dut.call("mera_ib_ral_req", ral_id)
+        base = buf["addr"]
+    end
     dg = [{offs: 0, data: "0123456789ab"},{offs: 7, data: "ef"}]
     dg.each do |d|
         offs = (d[:offs] * 2)
@@ -221,17 +226,12 @@ def tx_dg_test(intf, ral_id)
         conf["pdu_offset"] = d[:offs]
         $ts.dut.call("mera_ib_dg_add", ral_id, ra_id, conf)
 
-        addr = rd_addr
-        if (use_buf)
-            buf = $ts.dut.call("mera_ib_ra_req", ral_id, ra_id)
-            addr = (addr + buf["addr"])
-        end
-        io_str_wr(addr, d[:data], intf)
-        if (use_buf)
-            $ts.dut.call("mera_ib_ra_rel", ral_id, ra_id)
-        end
+        io_str_wr(rd_addr + base, d[:data], intf)
         rd_addr = (rd_addr + size)
         ra_id = (ra_id + 1)
+    end
+    if (use_buf)
+        $ts.dut.call("mera_ib_ral_rel", ral_id)
     end
 
     sleep(1)
