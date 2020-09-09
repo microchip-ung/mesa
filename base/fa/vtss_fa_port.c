@@ -1431,6 +1431,7 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M && speed != VTSS_SPEED_2500M) {
             VTSS_E("SGMII port interface only supports 10/100/1000M/2.5G speeds (port:%u)",port);
             return FALSE;
@@ -1982,17 +1983,18 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
-        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_1000BaseX);
+        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         break;
     case VTSS_PORT_INTERFACE_SGMII:
-        serdes_mode = VTSS_SERDES_MODE_SGMII;
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
+        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = TRUE;
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
             serdes_mode = VTSS_SERDES_MODE_QSGMII; // Do not change the Serdes mode
         } else {
-            serdes_mode = VTSS_SERDES_MODE_1000BaseX;
+            serdes_mode = VTSS_SERDES_MODE_SGMII;
         }
         sgmii = TRUE;
         break;
