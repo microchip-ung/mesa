@@ -174,11 +174,6 @@ test "otf" do
 end
 
 def tx_dg_test(intf, ral_id)
-    # I/O interface is a global setting, but setup here for test purposes only.
-    conf = $ts.dut.call("mera_gen_conf_get")
-    conf["intf"] = ("MERA_IO_INTF_" + intf)
-    $ts.dut.call("mera_gen_conf_set", conf)
-
     len = 60
     idx_rx = 1
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
@@ -217,7 +212,9 @@ def tx_dg_test(intf, ral_id)
         size = (size / 2)
         conf = $ts.dut.call("mera_ib_ra_init")
         conf["ra_id"] = ra_id
-        conf["rd_addr"] = rd_addr
+        addr = conf["rd_addr"]
+        addr["intf"] = ("MERA_IO_INTF_" + intf)
+        addr["addr"] = rd_addr
         conf["length"] = size
         $ts.dut.call("mera_ib_ra_add", ral_id, conf)
 
@@ -255,8 +252,7 @@ test "dg-SRAM" do
 end
 
 test "dump" do
-    #$ts.dut.run("mera-cmd debug api ib")
-    #$ts.dut.call("mera_ib_flush")
-    #$ts.dut.run("mera-cmd debug api ib")
-    #io_fpga_rw("dump 0x100 64")
+    break
+    $ts.dut.run("mera-cmd debug api ib")
+    io_fpga_rw("dump 0x100 64")
 end

@@ -208,15 +208,8 @@ def rte_ob_test(t)
     conf["wal_id"] = wal_id
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
-    # I/O interface is a global setting, but setup here for test purposes only.
-    intf = fld_get(t, :intf, "QSPI")
-    if (intf != "QSPI")
-        conf = $ts.dut.call("mera_gen_conf_get")
-        conf["intf"] = ("MERA_IO_INTF_" + intf)
-        $ts.dut.call("mera_gen_conf_set", conf)
-    end
-
     # Add data group
+    intf = fld_get(t, :intf, "QSPI")
     wr_addr = 0x100
     if (dg != nil)
         dg.each_with_index do |d, i|
@@ -230,7 +223,9 @@ def rte_ob_test(t)
             conf = $ts.dut.call("mera_ob_wa_init")
             conf["rtp_id"] = $rtp_id
             conf["dg_id"] = i
-            conf["wr_addr"] = wr_addr
+            addr = conf["wr_addr"]
+            addr["intf"] = ("MERA_IO_INTF_" + intf)
+            addr["addr"] = wr_addr
             d[:addr] = wr_addr
             wr_addr = (wr_addr + len)
             str = ""
@@ -318,8 +313,7 @@ $test_table.each do |t|
 end
 
 test "dump" do
-    #$ts.dut.run("mera-cmd debug api ob")
-    #$ts.dut.call("mera_ob_flush")
-    #$ts.dut.run("mera-cmd debug api ob")
-    #io_fpga_rw("dump 0x100 64")
+    break
+    $ts.dut.run("mera-cmd debug api ob")
+    io_fpga_rw("dump 0x100 64")
 end

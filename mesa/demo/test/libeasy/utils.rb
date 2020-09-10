@@ -904,7 +904,7 @@ def qspi_init
 end
 
 def io_fpga_rw(cmd)
-    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw1 #{cmd}")[:out]
+    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw0 #{cmd}")[:out]
     if (cmd.include? "read")
         i = txt.index("value: ")
         if (i == nil)
@@ -962,7 +962,7 @@ end
 
 def io_rw(addr, io, val = "")
     txt = "0xdeaddead"
-    swap = (io != "SRAM")
+    swap = (io == "VCORE")
     if (swap and val != "")
         # Little-endian swapping before writing
         v0 = ((val >> 24) & 0xff)
