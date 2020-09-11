@@ -135,6 +135,8 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
+    - MESA-663   # Bjarni hasn't moved it to "Devlopment Done"
+    - PHYAPI-872 # Issue is still open (John Haechten)
 
   # See the 'del' section above for a description
   #
