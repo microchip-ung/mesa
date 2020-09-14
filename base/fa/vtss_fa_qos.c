@@ -3235,11 +3235,6 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     REG_WRM(VTSS_DEV1G_PCS1G_MODE_CFG(tgt),
             VTSS_F_DEV1G_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA(enable_tx),
             VTSS_M_DEV1G_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
-    if (!VTSS_PORT_IS_2G5(port)) {
-        tgt = VTSS_TO_HIGH_DEV(port);
-        REG_WR(VTSS_DEV10G_DEV_PFRAME_CFG(tgt),
-               VTSS_F_DEV10G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(enable_tx ? 0 : 16));
-    }
 
     /* Enable/disable preemptable queues */
     for (i = 0; i < 8; i++) {

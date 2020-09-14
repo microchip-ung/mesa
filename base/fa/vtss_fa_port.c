@@ -2215,6 +2215,11 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM((speed == VTSS_SPEED_10M || speed == VTSS_SPEED_100M) ? 1 : 0),
             VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
+    // Always update FCS, needed for Frame Preemption
+    REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
+            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(1),
+            VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
+
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
 
@@ -2405,6 +2410,11 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(tgt),
             VTSS_F_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA(conf->frame_length_chk),
             VTSS_M_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA);
+
+    // Always update FCS, needed for Frame Preemption
+    REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
+            VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(2),
+            VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
 
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
