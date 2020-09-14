@@ -65,7 +65,7 @@ case $chip in
      ;;
 
      ms)
-     ts=dk-t35-0
+     ts=dk-t35-5
      img=arm64_ls1046_lan9662.itb
      dir=build-lan966x
      ;;
