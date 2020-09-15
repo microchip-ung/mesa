@@ -62,11 +62,13 @@ test "conf" do
 end
 
 def filter_test(txt, conf, fwd, len = 192)
-    t_i("filter." + txt)
-    if (conf != nil)
-        $ts.dut.call("mesa_psfp_filter_conf_set", $filter_id, conf)
+    txt = ("filter." + txt)
+    test txt do
+        if (conf != nil)
+            $ts.dut.call("mesa_psfp_filter_conf_set", $filter_id, conf)
+        end
+        run_ef_tx_rx_cmd($ts, $idx_tx, fwd ? [1,2,3] : [], "eth data pattern cnt #{len - 18}")
     end
-    run_ef_tx_rx_cmd($ts, $idx_tx, fwd ? [1,2,3] : [], "eth data pattern cnt #{len - 18}")    
 end
 
 def frame_test(txt, prio, len, tx_cnt, rx_min, rx_max)
@@ -86,26 +88,28 @@ end
 
 def policer_test(txt, conf, prio, len, tx_cnt, rx_min = tx_cnt, rx_max = rx_min)
     txt = ("policer." + txt)
-    t_i(txt)
-    if (conf != nil)
-        $ts.dut.call("mesa_dlb_policer_conf_set", $pol, 0, conf)
+    test txt do
+        if (conf != nil)
+            $ts.dut.call("mesa_dlb_policer_conf_set", $pol, 0, conf)
+        end
+        sleep(1) # Allow bucket tokens to accumulate
+        frame_test(txt, prio, len, tx_cnt, rx_min, rx_max)
     end
-    sleep(1) # Allow bucket tokens to accumulate
-    frame_test(txt, prio, len, tx_cnt, rx_min, rx_max)
 end
 
 def gate_test(txt, conf, prio, len, tx_cnt, rx_min = tx_cnt, rx_max = rx_min)
     txt = ("gate." + txt)
-    t_i(txt)
-    if (conf != nil)
-        # Apply GCL in one second
-        base_time = $ts.dut.call("mesa_ts_timeofday_get")[0]
-        base_time["seconds"] = (base_time["seconds"] + 1)
-        conf["config"]["base_time"] = base_time
-        $ts.dut.call("mesa_psfp_gate_conf_set", $gate_id, conf)
-        sleep(1)
+    test txt do
+        if (conf != nil)
+            # Apply GCL in one second
+            base_time = $ts.dut.call("mesa_ts_timeofday_get")[0]
+            base_time["seconds"] = (base_time["seconds"] + 1)
+            conf["config"]["base_time"] = base_time
+            $ts.dut.call("mesa_psfp_gate_conf_set", $gate_id, conf)
+            sleep(1)
+        end
+        frame_test(txt, prio, len, tx_cnt, rx_min, rx_max)
     end
-    frame_test(txt, prio, len, tx_cnt, rx_min, rx_max)
 end
 
 def fld_check(data, name, exp)
