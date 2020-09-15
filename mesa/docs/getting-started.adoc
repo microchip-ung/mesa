@@ -122,7 +122,7 @@ Here the scripts complains about the BSP is missing:
 
 ----
 $ ./.cmake/create_cmake_project.rb mipsel
-Please install the BSP: /opt/mscc/mscc-brsdk-mipsel-2019.02.1-220
+Please install the BSP: /opt/mscc/mscc-brsdk-mipsel-2020.02.3-310
 
 This may be done by using the following command:
 sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
@@ -135,7 +135,7 @@ Run the script again, this time it detects that the toolchain is missing:
 
 ----
 $ ./.cmake/create_cmake_project.rb mipsel
-Please install the toolchain: mscc-toolchain-bin-2019.02.1-079 into /opt/mscc/
+Please install the toolchain: mscc-toolchain-bin-2020.02.3-085 into /opt/mscc/
 
 This may be done by using the following command:
 sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
@@ -264,7 +264,7 @@ $ ./cmake .. -Dmfi_vsc7514_pcb120=on
 --   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
--- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-2019.02.1-220/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
+-- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-2002.02.3-310/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
 -- Configuring done
 -- Generating done
 -- Build files have been written to: /tmp/mesa-v2019.06-217-g9c57e1c@master/build-mipsel
