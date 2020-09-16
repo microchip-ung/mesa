@@ -40,8 +40,10 @@ test "conf" do
     # Initialize QSPI
     qspi_init
 
-    # Clear IO-FPGA memory
-    io_fpga_rw("fill 0x100 0x100 0")
+    # Clear IO memory
+    io_fpga_rw("fill 0x0100 0x100 0")
+    io_sram_rw("fill 0x0100 0x100 0")
+    io_sram_rw("fill 0xa900 0x100 0")
 end
 
 # Each entry in the test table has these items (only text is mandatory):
@@ -58,96 +60,98 @@ $test_table =
     # General
     {
         txt: "rx_cnt_0",
-        frame: {tx_cnt: 2},
-        cnt: {rx_0: 2}
+        frame: [{},{}],
     },
     {
         txt: "rx_cnt_1",
         rce: {sub_id: true},
-        frame: {tx_cnt: 3},
-        cnt: {rx_1: 3}
+        frame: [{},{},{}],
+        cnt: {rx_0: 0, rx_1: 3}
     },
     {
         txt: "length_check_disabled",
-        cnt: {rx_0: 1}
     },
     {
         txt: "length_check_ok",
         opc: true,
         rtp: {length: 50},
-        frame: {len: 50},
-        cnt: {rx_0: 1}
+        frame: [{len: 50}],
     },
     {
         txt: "length_check_fail",
         rtp: {length: 50},
-        frame: {len: 46},
+        frame: [{len: 46}],
+        cnt: {rx_0: 0}
     },
-
     # Profinet
     {
         txt: "pn_cc_check",
-        frame: {tx_cnt: 3, cc: ["1234", "1233", "1235"]},
+        frame: [{cc: "1234"},{cc: "1233"},{cc: "1235"}],
         cnt: {rx_0: 2}
     },
     {
         txt: "pn_ds_check_ok",
         rtp: {pn_ds: 0x07},
-        frame: {ds: "07"},
-        cnt: {rx_0: 1}
+        frame: [{ds: "07"}],
     },
     {
         txt: "pn_ds_check_fail",
         rtp: {pn_ds: 0x36},
+        cnt: {rx_0: 0}
     },
     {
         txt: "pn_ts_check_fail",
-        frame: {ts: "01"},
+        frame: [{ts: "01"}],
+        cnt: {rx_0: 0}
     },
 
     # OPC-UA
     {
         txt: "opc_ok",
         opc: true,
-        cnt: {rx_0: 1}
     },
     {
         txt: "opc_version_check_fail",
         opc: true,
-        frame: {ver: "0"}
+        frame: [{ver: "0"}],
+        cnt: {rx_0: 0}
     },
     {
         txt: "opc_flags_check_fail",
         opc: true,
-        frame: {flags: "3"}
+        frame: [{flags: "3"}],
+        cnt: {rx_0: 0}
     },
     {
         txt: "opc_flags1_check_fail",
         opc: true,
-        frame: {flags1: "03"}
+        frame: [{flags1: "03"}],
+        cnt: {rx_0: 0}
     },
     {
         txt: "opc_group_flags_check_fail",
         opc: true,
-        frame: {gflags: "0e"}
+        frame: [{gflags: "0e"}],
+        cnt: {rx_0: 0}
     },
     {
         txt: "opc_group_version_fail",
         opc: true,
         rtp: {opc_grp_ver: 0x12345678},
-        frame: {gver: "78563413"}
+        frame: [{gver: "78563413"}],
+        cnt: {rx_0: 0}
     },
     {
         txt: "opc_group_version_ok",
         opc: true,
         rtp: {opc_grp_ver: 0x12345678},
-        frame: {gver: "78563412"},
-        cnt: {rx_0: 1}
+        frame: [{gver: "78563412"}],
     },
     {
         txt: "opc_nmsg_num_fail",
         opc: true,
-        frame: {nmsg_num: "0200"}
+        frame: [{nmsg_num: "0200"}],
+        cnt: {rx_0: 0}
     },
 
     # Data group transfer
@@ -155,16 +159,37 @@ $test_table =
         txt: "dg_write - QSPI",
         rtp: {wal_id: 7},
         dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
-        frame: {tx_cnt: 2},
-        cnt: {rx_0: 2}
     },
     {
         txt: "dg_write - SRAM",
         intf: "SRAM",
         rtp: {wal_id: 8},
         dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
-        frame: {tx_cnt: 2},
-        cnt: {rx_0: 2}
+    },
+    {
+        txt: "pn_dg_write - default",
+        intf: "SRAM",
+        rtp: {wal_id: 9},
+        # IOPS at offset 4, bit 7 is valid flag
+        dg: [{length: 5, vld_offs: 4, vld_chk: true, inv_def: true, str: "0102030405", data: [1,2,3,4,5]}],
+        frame: [{data: "0001020300"}],
+    },
+    {
+        txt: "pn_dg_write - last valid",
+        intf: "SRAM",
+        rtp: {wal_id: 10},
+        # IOPS at offset 4, bit 7 is valid flag
+        dg: [{length: 5, vld_offs: 4, vld_chk: true, str: "0001020380"}],
+        frame: [{data: "0001020380"},{data: "0102030400"}],
+    },
+    {
+        txt: "opc_dg_write - last valid",
+        intf: "SRAM",
+        opc: true,
+        rtp: {wal_id: 11},
+        # DataSetFlags1 at offset 15, bit 0 is valid flag
+        dg: [{offs: 15, length: 5, vld_offs: 15, vld_chk: true, str: "0102030405"}],
+        frame: [{data: "0102030405"},{data: "0001020304"}],
     },
 ]
 
@@ -181,7 +206,7 @@ def rte_ob_test(t)
     r = t[:rce]
     e = t[:rtp]
     dg = t[:dg]
-    f = t[:frame]
+    fr = fld_get(t, :frame, [{}])
     c = t[:cnt]
 
     # Add RCE mapping to RTP ID
@@ -219,7 +244,20 @@ def rte_ob_test(t)
             conf["pdu_offset"] = offs
             len = fld_get(d, :length, 1)
             conf["length"] = len
+            conf["invalid_default"] = fld_get(d, :inv_def, false)
+            conf["valid_offset"] = fld_get(d, :vld_offs)
+            conf["valid_chk"] = fld_get(d, :vld_chk, false)
+            str = ""
+            data = fld_get(d, :data, "")
+            len.times do |j|
+                conf["data"][j] = (data == "" ? 0 : data[j])
+                str = (str + ("%02x" % (offs + j)))
+            end
+            if (fld_get(d, :str) == 0)
+                d[:str] = str
+            end
             $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
+
             conf = $ts.dut.call("mera_ob_wa_init")
             conf["rtp_id"] = $rtp_id
             conf["dg_id"] = i
@@ -228,21 +266,15 @@ def rte_ob_test(t)
             addr["addr"] = wr_addr
             d[:addr] = wr_addr
             wr_addr = (wr_addr + len)
-            str = ""
-            len.times do |j|
-                # Incrementing hex data expected, e.g. '04050607' at offset 4
-                str = (str + ("%02x" % (offs + j)))
-            end
-            d[:str] = str
             $ts.dut.call("mera_ob_wa_add", wal_id, conf)
         end
     end
 
     # Send frames
     et = (opc ? 0xb62c : 0x8892)
-    len = fld_get(f, :len, 46)
-    tx_cnt = fld_get(f, :tx_cnt, 1)
-    for i in 0..(tx_cnt - 1)
+    fr.each_with_index do |f, i|
+        data = fld_get(f, :data, "")
+        len = (fld_get(f, :len, 46) - (data.length / 2))
         cmd = "eth dmac 2 et #{et}"
         if (opc)
             # OPC-UA: Header and data
@@ -253,6 +285,9 @@ def rte_ob_test(t)
             gver = fld_get(f, :gver, "00000000")     # Little-endian
             nmsg_num = fld_get(f, :nmsg_num, "0100") # Little-endian
             cmd += " data hex #{flags}#{ver}#{flags1}aaaa#{gflags}bbbb#{gver}#{nmsg_num}cccc"
+            if (data != "")
+                cmd += " data hex #{data}"
+            end
             cmd += " data pattern cnt #{len - 15}"
         else
             # Profinet: Data and trailer
@@ -262,6 +297,9 @@ def rte_ob_test(t)
             end
             ds = fld_get(f, :ds, "35")
             ts = fld_get(f, :ts, "00")
+            if (data != "")
+                cmd += " data hex #{data}"
+            end
             cmd += " data pattern cnt #{len - 4}"
             cmd += " data hex #{cc}#{ds}#{ts}"
         end
@@ -269,7 +307,7 @@ def rte_ob_test(t)
     end
 
     # Check counters
-    rx_0 = fld_get(c, :rx_0)
+    rx_0 = fld_get(c, :rx_0, fr.length)
     rx_1 = fld_get(c, :rx_1)
     cnt = $ts.dut.call("mera_ob_rtp_counters_get", $rtp_id)
     check_counter("rx_0", cnt["rx_0"], rx_0)
@@ -315,5 +353,7 @@ end
 test "dump" do
     break
     $ts.dut.run("mera-cmd debug api ob")
-    io_fpga_rw("dump 0x100 64")
+    io_fpga_rw("dump 0x0100 64")
+    io_sram_rw("dump 0x0100 64")
+    io_sram_rw("dump 0xa900 64")
 end
