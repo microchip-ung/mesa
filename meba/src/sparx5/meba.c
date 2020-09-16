@@ -1640,15 +1640,11 @@ static mesa_rc kr_handler(meba_inst_t inst,
                           mesa_irq_t chip_irq,
                           meba_event_signal_t signal_notifier)
 {
-    mesa_rc rc;
     mesa_port_no_t port_no = 0;
     if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
         return MESA_RC_OK; // Not used in the current board config
     }
 
-    if ((rc = mesa_port_kr_event_enable(NULL, port_no, false)) != MESA_RC_OK) {
-        T_E(inst, "mesa_port_kr_enable = %d", rc);
-    }
     signal_notifier(MEBA_EVENT_KR, port_no);
     return MESA_RC_OK;
 }
