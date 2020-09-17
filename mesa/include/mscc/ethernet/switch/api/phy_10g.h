@@ -1,6 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+// Microchip is aware that some terminology used in this technical document is
+// antiquated and inappropriate. As a result of the complex nature of software
+// where seemingly simple changes have unpredictable, and often far-reaching
+// negative results on the software's functionality (requiring extensive
+// retesting and revalidation) we are unable to make the desired changes in all
+// legacy systems without compromising our product or our clients' products.
+
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_PHY_10G_
 #define _MSCC_ETHERNET_SWITCH_API_PHY_10G_
@@ -102,10 +109,10 @@ typedef enum {
     MESA_DDR_MODE_M, /**< Interleave mode with A alignment and 8b10b decoding disabled   */
 } mesa_ddr_mode_t CAP(PHY_10G);              /**< Interleave mode combinations supported.                        */
 
-/** \brief Clock master */
+/** \brief Clock Primary */
 typedef enum {
-    MESA_CLK_MSTR_INTERNAL, /**< Master clock is internal */
-    MESA_CLK_MSTR_EXTERNAL, /**< Master clock is external */
+    MESA_CLK_MSTR_INTERNAL, /**< Primary clock is internal */
+    MESA_CLK_MSTR_EXTERNAL, /**< Primary clock is external */
 } mesa_clk_mstr_t CAP(PHY_10G);
 
 /** \brief Repeater Data rate */
@@ -337,7 +344,7 @@ typedef struct {
     uint16_t  pma_txratecontrol;   /**< Normal pma_txratecontrol value to be restored when loopback is disabled */
     mesa_bool_t venice_rev_a_los_detection_workaround;  /**< TRUE => LOS detection woak around enabled. Requires interrupt handling */
     mesa_ddr_mode_t ddr_mode; /**< DDR Interleave mode */
-    mesa_clk_mstr_t master;   /**< Clock Master */
+    mesa_clk_mstr_t master;   /**< Clock Primary */
     mesa_rptr_rate_t rate;    /**< Data rate in repeater mode */
     mesa_phy_10g_polarity_inv_t polarity; /**< polarity inversion configuration */
     mesa_bool_t is_host_wan;   /**< Flag that gives information of WAN rate is supported at host interface */
@@ -2503,7 +2510,7 @@ typedef enum {
     MESA_10G_PHY_GPIO_1588_1PPS_2,       /**< Output 1588 1PPS from channel 2 function */
     MESA_10G_PHY_GPIO_1588_1PPS_3,       /**< Output 1588 1PPS from channel 3 function */
     MESA_10G_PHY_GPIO_PCS_RX_FAULT,      /**< PCS_RX_FAULT (from channel 0 or 1) is transmitted on GPIO */
-    MESA_10G_PHY_GPIO_SET_I2C_MASTER,    /**< Used in communicating with I2C slave, like SPP+ */
+    MESA_10G_PHY_GPIO_SET_I2C_MASTER,    /**< Used in communicating with I2C client, like SPP+ */
     MESA_10G_PHY_GPIO_TX_ENABLE,         /**< Transmit enable           , MALIBU */
     MESA_10G_PHY_GPIO_LINE_PLL_STATUS,   /**< Line PLL Status           , MALIBU */
     MESA_10G_PHY_GPIO_HOST_PLL_STATUS,   /**< Host PLL Status           , MALIBU */
@@ -2518,7 +2525,7 @@ typedef enum {
     MESA_10G_PHY_GPIO_AGG_INT_3,         /**< Aggregated interrupt 3    , MALIBU */
     MESA_10G_PHY_GPIO_PLL_INT_0,         /**< Interrupt 0 from PLL      , MALIBU */
     MESA_10G_PHY_GPIO_PLL_INT_1,         /**< Interrupt 0 from PLL      , MALIBU */
-    MESA_10G_PHY_GPIO_SET_I2C_SLAVE,     /**< I2C Slave set             , MALIBU */
+    MESA_10G_PHY_GPIO_SET_I2C_SLAVE,     /**< I2C client set            , MALIBU */
     MESA_10G_PHY_GPIO_CRSS_INT,          /**< Cross Connect Interrupt   , MALIBU */
     MESA_10G_PHY_GPIO_LED,               /**< LED Setting               , MALIBU */
     MESA_10G_PHY_GPIO_DRIVE_LOW,         /**< GPIO output to LOW        , MALIBU */
@@ -2532,8 +2539,8 @@ typedef enum {
  **/
 typedef enum
 {
-    MESA_10G_GPIO_INTR_SGNL_I2C_MSTR_DATA_OUT,              /** GPIO outupt I2C master data out */
-    MESA_10G_GPIO_INTR_SGNL_I2C_MSTR_CLK_OUT,               /** GPIO outupt I2C master clock out */
+    MESA_10G_GPIO_INTR_SGNL_I2C_MSTR_DATA_OUT,              /** GPIO outupt I2C server data out */
+    MESA_10G_GPIO_INTR_SGNL_I2C_MSTR_CLK_OUT,               /** GPIO outupt I2C server clock out */
     MESA_10G_GPIO_INTR_SGNL_LED_TX,                         /** LED transmit*/
     MESA_10G_GPIO_INTR_SGNL_LED_RX,                         /** LED receive*/
     MESA_10G_GPIO_INTR_SGNL_RX_ALARM,                       /** RX Alarm*/
@@ -3079,18 +3086,18 @@ mesa_rc mesa_phy_10g_i2c_write(const mesa_inst_t    inst,
                                const uint16_t       *value)
     CAP(PHY_10G);
 
-/** \brief 10G Phy I2C Master Interface for SFP Module Configuration */
+/** \brief 10G Phy I2C server Interface for SFP Module Configuration */
 typedef struct {
-    uint8_t  slave_id; /**< I2C Slave ID */
+    uint8_t  slave_id; /**< I2C client ID */
     uint16_t prescale; /**< SCL frequency = 156.25 MHZ/5*(Prescale + 1), 0 to 0x4C are invalid settings. */
 } mesa_phy_10g_i2c_slave_conf_t;
 
 /**
- * \brief Sets the configuration for the I2C slave
+ * \brief Sets the configuration for the I2C client
  *
  * \param inst       [IN]  Target instance reference
  * \param port_no    [IN]  Port number
- * \param i2c_conf   [IN]  Sets configuration for Slave
+ * \param i2c_conf   [IN]  Sets configuration for client
  *
  * \return Return code.
  **/
@@ -3105,7 +3112,7 @@ mesa_rc mesa_phy_10g_i2c_slave_conf_set(const mesa_inst_t                       
  *
  * \param inst         [IN]    Target instance reference.
  * \param port_no      [IN]    Port number
- * \param i2c_conf     [OUT]   Gets configuration for Slave
+ * \param i2c_conf     [OUT]   Gets configuration for client
  *
  * \return Return code.
  **/

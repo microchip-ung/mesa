@@ -69,7 +69,7 @@ set(API_MESA_CACHE_IN)
 set(API_MESA_CACHE_OUT)
 
 # List of header files to exclude from the mesa-hdr processing
-set(MESA_CACHE_BLACK_LIST include/vtss_os_linux.h
+set(MESA_CACHE_DENY_LIST include/vtss_os_linux.h
                           include/vtss_os_ecos.h
                           include/vtss_ae_api.h
                           mesa/include/mscc/ethernet/switch/api/hdr_end.h
@@ -78,7 +78,7 @@ set(MESA_CACHE_BLACK_LIST include/vtss_os_linux.h
 
 # Macro to produce the mesa processing cache
 macro(MESA_CACHE)
-    list(FIND MESA_CACHE_BLACK_LIST ${ARGV0} BL)
+    list(FIND MESA_CACHE_DENY_LIST ${ARGV0} BL)
     if(-1 EQUAL ${BL})
         #message(STATUS "mesa_cache: ${ARGV0}")
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/${ARGV0}.cache

@@ -1,6 +1,12 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+// Microchip is aware that some terminology used in this technical document is
+// antiquated and inappropriate. As a result of the complex nature of software
+// where seemingly simple changes have unpredictable, and often far-reaching
+// negative results on the software's functionality (requiring extensive
+// retesting and revalidation) we are unable to make the desired changes in all
+// legacy systems without compromising our product or our clients' products.
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_INIT_
 #define _MSCC_ETHERNET_SWITCH_API_INIT_
@@ -124,8 +130,8 @@ typedef mesa_rc (*mesa_clock_write_t)(const uint32_t addr, const uint32_t value)
 // inst [IN] Vitesse API instance.
 // port_no [IN] Port number.
 // bitsize [IN] Size (in bytes) of bitstream following this parameter.
-// data [IN|OUT] Pointer to the data to be written to SPI Slave, if doing write operation.
-//               Pointer to the data read from SPI Slave, if doing read operation.
+// data [IN|OUT] Pointer to the data to be written to SPI Client, if doing write operation.
+//               Pointer to the data read from SPI Client, if doing read operation.
 typedef mesa_rc (*mesa_spi_read_write_t)(const mesa_inst_t inst,
                                        const mesa_port_no_t port_no,
                                        const uint8_t bitsize,
@@ -136,8 +142,8 @@ typedef mesa_rc (*mesa_spi_read_write_t)(const mesa_inst_t inst,
 // read    [IN] Read/Write.
 // dev     [IN] MMD device number.
 // reg_num [IN] Register offset.
-// data [IN|OUT] Pointer to the data to be written to SPI Slave, if doing write operation.
-//               Pointer to the data read from SPI Slave, if doing read operation.
+// data [IN|OUT] Pointer to the data to be written to SPI Client, if doing write operation.
+//               Pointer to the data read from SPI Client, if doing read operation.
 typedef mesa_rc (*mesa_spi_32bit_read_write_t)(const mesa_inst_t inst,
                                                mesa_port_no_t    port_no,
                                                mesa_bool_t       read,
@@ -150,8 +156,8 @@ typedef mesa_rc (*mesa_spi_32bit_read_write_t)(const mesa_inst_t inst,
 // read    [IN] Read/Write.
 // dev     [IN] MMD device number.
 // reg_num [IN] Register offset.
-// data [IN|OUT] Pointer to the data to be written to SPI Slave, if doing write operation.
-//               Pointer to the data read from SPI Slave, if doing read operation.
+// data [IN|OUT] Pointer to the data to be written to SPI Client, if doing write operation.
+//               Pointer to the data read from SPI Client, if doing read operation.
 typedef mesa_rc (*mesa_spi_64bit_read_write_t)(const mesa_inst_t inst,
                                                mesa_port_no_t    port_no,
                                                mesa_bool_t       read,
@@ -381,19 +387,19 @@ mesa_rc mesa_register_access_mode_set(const mesa_inst_t inst, mesa_bool_t spi_bu
 // spi_bus [OUT] Pointer to a mesa_bool_t receiving current access mode.
 mesa_rc mesa_register_access_mode_get(const mesa_inst_t inst, mesa_bool_t *spi_bus);
 
-// SPI slave endian configuration
+// SPI Client endian configuration
 typedef enum {
     MESA_SPI_ENDIAN_LITTLE, // Use little endian
     MESA_SPI_ENDIAN_BIG     // Use big endian
 } mesa_spi_endian_t;
 
-// SPI slave bit order configuration
+// SPI Client bit order configuration
 typedef enum {
     MESA_SPI_BIT_ORDER_MSB_FIRST, // Transfer MSB first
     MESA_SPI_BIT_ORDER_LSB_FIRST  // Transfer LSB first
 } mesa_spi_bit_order_t;
 
-// SPI slave initialization configuration.
+// SPI Client initialization configuration.
 typedef struct {
     mesa_reg_write_t     reg_write; // Register write function
     mesa_reg_read_t      reg_read;  // Register read function
@@ -402,7 +408,7 @@ typedef struct {
     uint8_t              padding;   // Number of padding bytes to insert before read-data is shifted out
 } mesa_spi_slave_init_t;
 
-// Initialize SPI slave interface when using an external CPU.
+// Initialize SPI Client interface when using an external CPU.
 // This must always be the first call into the API.
 // conf [IN] Initialization configuration
 mesa_rc mesa_spi_slave_init(const mesa_spi_slave_init_t *const conf);

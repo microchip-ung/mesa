@@ -815,8 +815,8 @@ mesa_rc mesa_eee_port_conf_set(const mesa_inst_t          inst,
 // RS422 specifications
 typedef struct
 {
-    uint32_t     gpio_rs422_1588_mstoen; // IO pin used for RS422 master output enable/disable
-    uint32_t     gpio_rs422_1588_slvoen; // IO pin used for RS422 slave output enable/disable
+    uint32_t     gpio_rs422_1588_mstoen; // IO pin used for RS422 server output enable/disable
+    uint32_t     gpio_rs422_1588_slvoen; // IO pin used for RS422 client output enable/disable
     uint32_t     ptp_pin_ldst;           // PTP_IO pin used for RS422 Load/store input
     uint32_t     ptp_pin_ppso;           // PTP_IO pin used for RS422 1 PPS output
     uint32_t     ptp_rs422_pps_int_id;   // Interrupt id for RS422 1PPS interrupt

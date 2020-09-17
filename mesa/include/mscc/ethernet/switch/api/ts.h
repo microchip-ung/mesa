@@ -1,6 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+// Microchip is aware that some terminology used in this technical document is
+// antiquated and inappropriate. As a result of the complex nature of software
+// where seemingly simple changes have unpredictable, and often far-reaching
+// negative results on the software's functionality (requiring extensive
+// retesting and revalidation) we are unable to make the desired changes in all
+// legacy systems without compromising our product or our clients' products.
+
 
 #ifndef _MSCC_ETHERNET_SWITCH_API_TS_
 #define _MSCC_ETHERNET_SWITCH_API_TS_
