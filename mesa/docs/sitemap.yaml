@@ -41,6 +41,9 @@ pages:
     - name: "Getting started"
       src:  "mesa/docs/getting-started.adoc"
 
+    - name: "Supported HW"
+      src:  "mesa/docs/supported-hw.adoc"
+
     - name: "Functional descriptions"
       pages:
         - src: "mesa/docs/init/init.adoc"

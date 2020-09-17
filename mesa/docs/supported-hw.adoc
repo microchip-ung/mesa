@@ -1,0 +1,106 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnumlevels: 5
+:toclevels: 5
+
+= Supported HW
+
+== Supported HW
+
+The following tables lists the supported HW in this release.
+
+=== Supported Switches
+
+[cols="1,1,1", options="header"]
+|===
+| Family   | SKU     | Alt name
+| Luton 26 | VSC7424 | SparX-III-10
+| Luton 26 | VSC7425 | SparX-III-18
+| Luton 26 | VSC7426 | SparX-III-24
+| Luton 26 | VSC7427 | SparX-III-26
+| Luton 26 | VSC7423 | Caracal-Lite
+| Luton 26 | VSC7428 | Caracal-1
+| Luton 26 | VSC7429 | Caracal-2
+| Serval-T | VSC7410 | Serval-T
+| Serval-T | VSC7415 | Serval-TP
+| Serval-T | VSC7430 | Serval-TE
+| Serval-T | VSC7435 | Serval-TEP
+| Serval-T | VSC7436 | Serval-2-Lite
+| Serval-T | VSC7437 | Serval-TE10
+| Serval-T | VSC7440 | Sparx-IV-34
+| Jaguar-2 | VSC7442 | SparX-IV-52
+| Jaguar-2 | VSC7444 | SparX-IV-44
+| Jaguar-2 | VSC7448 | SparX-IV-80
+| Jaguar-2 | VSC7449 | SparX-IV-90
+| Jaguar-2 | VSC7438 | Serval-2
+| Jaguar-2 | VSC7464 | LynX-2
+| Jaguar-2 | VSC7468 | Jaguar-2
+| Ocelot   | VSC7511 | Ocelot-4-UM
+| Ocelot   | VSC7512 | Ocelot-10-UM
+| Ocelot   | VSC7513 | Ocelot-8
+| Ocelot   | VSC7514 | Ocelot-10
+| SparX-5  | VSC7546 | SparX-5-64
+| SparX-5  | VSC7549 | SparX-5-90
+| SparX-5  | VSC7552 | SparX-5-128
+| SparX-5  | VSC7556 | SparX-5-160
+| SparX-5  | VSC7558 | SparX-5-200
+| SparX-5i | VSC7546TSN | SparX-5i-64
+| SparX-5i | VSC7549TSN | SparX-5i-90
+| SparX-5i | VSC7552TSN | SparX-5i-128
+| SparX-5i | VSC7556TSN | SparX-5i-160
+| SparX-5i | VSC7558TSN | SparX-5i-200
+|===
+
+=== Supported PHYs
+
+[cols="1,1,1", options="header"]
+|===
+| Family   | SKU
+| Cobra    | VSC8211
+| Cobra    | VSC8221
+| Quatro   | VSC8224
+| Quatro   | VSC8244
+| Nano     | VSC8501
+| Nano     | VSC8502
+| Tesla    | VSC8504
+| Tesla    | VSC8552
+| Tesla    | VSC8572
+| Tesla    | VSC8574
+| Atom12   | VSC8512
+| Atom12   | VSC8522
+| Elise    | VSC8514
+| Malibu   | VSC8256
+| Malibu   | VSC8257
+| Malibu   | VSC8258
+| Venice   | VSC8489
+| Venice   | VSC8490
+| Venice   | VSC8491
+| Viper    | VSC8562
+| Viper    | VSC8564
+| Viper    | VSC8575
+| Viper    | VSC8582
+| Viper    | VSC8584
+| 8488     | VSC8487
+| 8488     | VSC8488
+| 8488     | VSC8487-15
+| 8488     | VSC8488-15
+| Others   | VSC8484
+| Others   | VSC8486
+|===
+
+=== Third-Party PHYs
+
+[options="header"]
+|===
+| Vendor   | Chip ID         | Driver version  | Firmware version
+| Aquantia | GEN2/AQR407     | 2.6.1           | 3.3.9
+| Aquantia | GEN2/AQR409     | 2.6.1           | 3.3.9
+| Aquantia | GEN3/AQR411_A0  | 2.6.1           | 4.0.4
+| Aquantia | GEN3/AQR411C_A0 | 2.6.1           | 4.0.4
+| Aquantia | GEN3/AQR411_B0  | 2.6.1           | 4.2.3
+| Aquantia | GEN3/AQR412_A0  | 2.6.1           | 4.0.4
+| Aquantia | GEN3/AQR412C_A0 | 2.6.1           | 4.0.4
+| Aquantia | GEN3/AQR412_B0  | 2.6.1           | 4.2.3
+| Intel    | GPY211          | 2.4.1           | -
+|===
