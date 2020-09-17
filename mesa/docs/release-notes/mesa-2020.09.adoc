@@ -26,4 +26,5 @@ BETA).
 ==== Third-Party PHY support added for Intel GPY211
 
 Support for 2G5 Intel GPY211 added in the third-party PHY library. This support
-is based on the Intel driver version 2.4.1, and chip ID 0x67c9dc00.
+is based on the Intel driver version 2.5.1, and chip ID 0x67c9dc00.
+

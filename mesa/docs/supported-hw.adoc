@@ -102,5 +102,7 @@ The following tables lists the supported HW in this release.
 | Aquantia | GEN3/AQR412_A0  | 2.6.1           | 4.0.4
 | Aquantia | GEN3/AQR412C_A0 | 2.6.1           | 4.0.4
 | Aquantia | GEN3/AQR412_B0  | 2.6.1           | 4.2.3
-| Intel    | GPY211          | 2.4.1           | -
+| Intel    | GPY211          | 2.5.1           | -
 |===
+
+
