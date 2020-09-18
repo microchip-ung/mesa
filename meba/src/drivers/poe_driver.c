@@ -3203,6 +3203,7 @@ void meba_pd69200bt_driver_init(
         private_data->status.global.chip_state = MEBA_POE_CHIPSET_DETECTION;
     }
     private_data->builtin_firmware = "/etc/mscc/poe/firmware/mscc_firmware_bt.txt";
+    private_data->cfg.global.primary_max_power = 999999999; // Make sure initial value is different from configured value as configuration only is applied when values are different.
     inst->api = &meba_pd69200bt_api;
     inst->private_data = private_data;
     inst->adapter_fd = adapter_fd;
