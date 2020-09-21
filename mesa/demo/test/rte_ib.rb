@@ -32,6 +32,24 @@ test "conf" do
     io_fpga_rw("fill 0x100 0x100 0")
 end
 
+# Push Profinet APDU status
+def cmd_apdu_push(apdu = {})
+    pcp = "ign"
+    dei = "ign"
+    vid = "ign"
+    if (apdu.key?:cc)
+        cc = a[:cc]
+        pcp = ((cc >> 13) & 0x7)
+        dei = ((cc >> 12) & 0x1)
+        vid = (cc & 0xfff)
+    end
+    et = "ign"
+    if (apdu.key?:ds)
+        et = (apdu[:ds] << 8)
+    end
+    cmd = " ctag pcp #{pcp} dei #{dei} vid #{vid} et #{et}"
+end
+
 def tx_len_test(len)
     idx_rx = 1
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
@@ -50,7 +68,8 @@ def tx_len_test(len)
     end
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
     $rtp_id = ($rtp_id + 1)
-    cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 14}"
+    cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
+    cmd += cmd_apdu_push
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == idx_rx)
@@ -183,9 +202,9 @@ def tx_dg_test(intf, ral_id)
     conf["length"] = len
     payload = ""
     for i in 0..(len - 1) do
-        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : 0)
+        d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : 0xdd)
         conf["data"][i] = d
-        if (i > 13)
+        if (i > 13 and i < (len - 4))
             payload = (payload + ("%02x" % d))
         end
     end
@@ -233,6 +252,7 @@ def tx_dg_test(intf, ral_id)
 
     sleep(1)
     cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data hex #{payload}"
+    cmd += cmd_apdu_push
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == idx_rx)
@@ -254,5 +274,6 @@ end
 test "dump" do
     break
     $ts.dut.run("mera-cmd debug api ib")
-    io_fpga_rw("dump 0x100 64")
+    io_fpga_rw("dump 0x0100 64")
+    io_sram_rw("dump 0x0100 64")
 end

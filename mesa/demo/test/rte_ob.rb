@@ -179,8 +179,8 @@ $test_table =
         intf: "SRAM",
         rtp: {wal_id: 10},
         # IOPS at offset 4, bit 7 is valid flag
-        dg: [{length: 5, vld_offs: 4, vld_chk: true, str: "0001020380"}],
-        frame: [{data: "0001020380"},{data: "0102030400"}],
+        dg: [{length: 5, vld_offs: 4, vld_chk: true, valid: 0x78, str: "0001020380"}],
+        frame: [{data: "0001020380"},{data: "0102030478"}],
     },
     {
         txt: "opc_dg_write - last valid",
@@ -188,8 +188,26 @@ $test_table =
         opc: true,
         rtp: {wal_id: 11},
         # DataSetFlags1 at offset 15, bit 0 is valid flag
-        dg: [{offs: 15, length: 5, vld_offs: 15, vld_chk: true, str: "0102030405"}],
-        frame: [{data: "0102030405"},{data: "0001020304"}],
+        dg: [{offs: 15, length: 5, vld_offs: 15, vld_chk: true, valid: 0xfe, str: "0102030405"}],
+        frame: [{data: "0102030405"},{data: "fe01020304"}],
+    },
+    {
+        txt: "opc_dg_code",
+        intf: "SRAM",
+        opc: true,
+        rtp: {wal_id: 12},
+        # DataSetFlags1 at offset 15, StatusCode is little-endian at offset 18
+        dg: [{offs: 15, length: 5, vld_offs: 15, code_chk: true, code: 0x8704, str: "0102030405"}],
+        frame: [{data: "0102030405"},{data: "0102030487"}],
+    },
+    {
+        txt: "opc_dg_seq",
+        intf: "SRAM",
+        opc: true,
+        rtp: {wal_id: 13},
+        # DataSetFlags1 at offset 15, SequenceNumber is little-endian at offset 16
+        dg: [{offs: 15, length: 5, vld_offs: 15, seq_chk: true, str: "0102030405"}],
+        frame: [{data: "0102030405"},{data: "0102030406"}],
     },
 ]
 
@@ -205,7 +223,7 @@ def rte_ob_test(t)
     opc = fld_get(t, :opc, false)
     r = t[:rce]
     e = t[:rtp]
-    dg = t[:dg]
+    dg = fld_get(t, :dg, [])
     fr = fld_get(t, :frame, [{}])
     c = t[:cnt]
 
@@ -236,38 +254,38 @@ def rte_ob_test(t)
     # Add data group
     intf = fld_get(t, :intf, "QSPI")
     wr_addr = 0x100
-    if (dg != nil)
-        dg.each_with_index do |d, i|
-            conf = $ts.dut.call("mera_ob_dg_init")
-            conf["dg_id"] = i
-            offs = fld_get(d, :offs)
-            conf["pdu_offset"] = offs
-            len = fld_get(d, :length, 1)
-            conf["length"] = len
-            conf["invalid_default"] = fld_get(d, :inv_def, false)
-            conf["valid_offset"] = fld_get(d, :vld_offs)
-            conf["valid_chk"] = fld_get(d, :vld_chk, false)
-            str = ""
-            data = fld_get(d, :data, "")
-            len.times do |j|
-                conf["data"][j] = (data == "" ? 0 : data[j])
-                str = (str + ("%02x" % (offs + j)))
-            end
-            if (fld_get(d, :str) == 0)
-                d[:str] = str
-            end
-            $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
-
-            conf = $ts.dut.call("mera_ob_wa_init")
-            conf["rtp_id"] = $rtp_id
-            conf["dg_id"] = i
-            addr = conf["wr_addr"]
-            addr["intf"] = ("MERA_IO_INTF_" + intf)
-            addr["addr"] = wr_addr
-            d[:addr] = wr_addr
-            wr_addr = (wr_addr + len)
-            $ts.dut.call("mera_ob_wa_add", wal_id, conf)
+    dg.each_with_index do |d, i|
+        conf = $ts.dut.call("mera_ob_dg_init")
+        conf["dg_id"] = i
+        offs = fld_get(d, :offs)
+        conf["pdu_offset"] = offs
+        len = fld_get(d, :length, 1)
+        conf["length"] = len
+        conf["invalid_default"] = fld_get(d, :inv_def, false)
+        conf["valid_offset"] = fld_get(d, :vld_offs)
+        conf["valid_chk"] = fld_get(d, :vld_chk, false)
+        conf["opc_seq_chk"] = fld_get(d, :seq_chk, false)
+        conf["opc_code_chk"] = fld_get(d, :code_chk, false)
+        str = ""
+        data = fld_get(d, :data, "")
+        len.times do |j|
+            conf["data"][j] = (data == "" ? 0 : data[j])
+            str = (str + ("%02x" % (offs + j)))
         end
+        if (fld_get(d, :str) == 0)
+            d[:str] = str
+        end
+        $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
+
+        conf = $ts.dut.call("mera_ob_wa_init")
+        conf["rtp_id"] = $rtp_id
+        conf["dg_id"] = i
+        addr = conf["wr_addr"]
+        addr["intf"] = ("MERA_IO_INTF_" + intf)
+        addr["addr"] = wr_addr
+        d[:addr] = wr_addr
+        wr_addr = (wr_addr + len)
+        $ts.dut.call("mera_ob_wa_add", wal_id, conf)
     end
 
     # Send frames
@@ -314,30 +332,39 @@ def rte_ob_test(t)
     check_counter("rx_1", cnt["rx_1"], rx_1)
 
     # Check data groups
-    if (dg != nil)
-        use_buf = (intf == "SRAM")
-        base = 0
-        if (use_buf)
-            buf = $ts.dut.call("mera_ob_wal_req", wal_id)
-            base = buf["addr"]
-        end
-        dg.each do |d|
-            if (d.key?:str)
-                addr = (d[:addr] + base)
-                str = d[:str]
-                res = io_str_rd(addr, str, intf)
-                t_i("Exp (#{intf}): #{str}")
-                act = ("0x%08x: #{res}" % addr)
-                if (res == str)
-                    t_i(act)
-                else
-                    t_e(act)
-                end
+    use_buf = false
+    if (dg.size != 0 and intf == "SRAM")
+        use_buf = true
+    end
+    base = 0
+    if (use_buf)
+        buf = $ts.dut.call("mera_ob_wal_req", wal_id)
+        base = buf["addr"]
+    end
+    dg.each_with_index do |d, i|
+        if (d.key?:str)
+            addr = (d[:addr] + base)
+            str = d[:str]
+            res = io_str_rd(addr, str, intf)
+            t_i("Exp (#{intf}): #{str}")
+            act = ("0x%08x: #{res}" % addr)
+            if (res == str)
+                t_i(act)
+            else
+                t_e(act)
             end
         end
-        if (use_buf)
-            $ts.dut.call("mera_ob_wal_rel", wal_id)
+        if (d.key?:valid)
+            status = $ts.dut.call("mera_ob_dg_status_get", $rtp_id, i)
+            check_val_hex_u8("valid", status["valid"], d[:valid])
         end
+        if (d.key?:code)
+            status = $ts.dut.call("mera_ob_dg_status_get", $rtp_id, i)
+            check_val_hex_u16("opc_code", status["opc_code"], d[:code])
+        end
+    end
+    if (use_buf)
+        $ts.dut.call("mera_ob_wal_rel", wal_id)
     end
 
     # Next RTP ID
