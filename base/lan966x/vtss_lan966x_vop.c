@@ -110,7 +110,7 @@ static vtss_rc voe_counter_update(vtss_state_t         *vtss_state,
 
 static vtss_rc srvl_oam_vop_int_enable(vtss_state_t *vtss_state, BOOL enable)
 {
-    REG_WRM(MEP_MASTER_INTR_CTRL, MEP_MASTER_INTR_CTRL_INTR_ENA(enable), MEP_MASTER_INTR_CTRL_INTR_ENA_M);
+    REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(enable), MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
 
     return VTSS_RC_OK;
 }
@@ -257,8 +257,8 @@ static vtss_rc lan966x_voe_event_active_get(vtss_state_t   *vtss_state,
     u32 value;
 
     memset(active, 0, sizeof(active_size));
-    REG_RD(MEP_MASTER_INTR_CTRL, &value);
-    if (MEP_MASTER_INTR_CTRL_INTR_ENA_X(value) == 0) {
+    REG_RD(MEP_INTR_CTRL, &value);
+    if (MEP_INTR_CTRL_OAM_MEP_INTR_ENA_X(value) == 0) {
         VTSS_D("No interrupts are enabled");
         return VTSS_RC_OK;
     }
@@ -647,7 +647,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t               *vtss_state,
             vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_LOC_PERIOD_CFG(i)), i, "MEP_LOC_PERIOD_CFG");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_LOC_CTRL), "MEP_LOC_CTRL");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_LOC_SCAN_STICKY), "MEP_LOC_SCAN_STICKY");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MASTER_INTR_CTRL), "MEP_MASTER_INTR_CTRL");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_INTR_CTRL), "MEP_INTR_CTRL");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_INTR), "MEP_INTR");
         for (i=0; i<7; ++i)
             vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_VOE_CNT_CTRL(i)), i, "MEP_VOE_CNT_CTRL");
