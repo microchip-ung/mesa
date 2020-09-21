@@ -108,6 +108,14 @@ static vtss_rc voe_counter_update(vtss_state_t         *vtss_state,
 #undef UPDATE16
 }
 
+// TBD: Temporary Adaro backward compatibility
+#if defined(MEP_MASTER_INTR_CTRL)
+#define MEP_INTR_CTRL                       MEP_MASTER_INTR_CTRL
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA(x)   MEP_MASTER_INTR_CTRL_INTR_ENA(x)
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M    MEP_MASTER_INTR_CTRL_INTR_ENA_M
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA_X(x) MEP_MASTER_INTR_CTRL_INTR_ENA_X(x)
+#endif
+
 static vtss_rc srvl_oam_vop_int_enable(vtss_state_t *vtss_state, BOOL enable)
 {
     REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(enable), MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
