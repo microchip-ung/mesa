@@ -3347,6 +3347,12 @@ enum lan966x_target {
 #define MEP_MASTER_INTR_CTRL_INTR_ENA_M          GENMASK(25, 25)
 #define MEP_MASTER_INTR_CTRL_INTR_ENA_X(x)       (((x) & GENMASK(25, 25)) >> 25)
 
+// Temporary Adaro backward compatibility
+#define MEP_INTR_CTRL                       MEP_MASTER_INTR_CTRL
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA(x)   MEP_MASTER_INTR_CTRL_INTR_ENA(x)
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M    MEP_MASTER_INTR_CTRL_INTR_ENA_M
+#define MEP_INTR_CTRL_OAM_MEP_INTR_ENA_X(x) MEP_MASTER_INTR_CTRL_INTR_ENA_X(x)
+
 /*      MEP:COMMON:INTR */
 #define MEP_INTR                  TARGET_MEP,0,1,3328,0,1,192,104,0,1,4
 
