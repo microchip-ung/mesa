@@ -96,20 +96,28 @@ libvsc7410.so:
   :int: 113
   :val: 0
   :chip: libvsc7410.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7410.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7410.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7410.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -166,7 +174,7 @@ libvsc7410.so:
   :chip: libvsc7410.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7410.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -1136,8 +1144,12 @@ libvsc7410.so:
   :int: 1533
   :val: 0
   :chip: libvsc7410.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7410.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7410.so
 - :str: MESA_CAP_PHY_10G
@@ -1313,20 +1325,28 @@ libvsc7415.so:
   :int: 113
   :val: 0
   :chip: libvsc7415.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7415.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7415.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7415.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7415.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7415.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7415.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -1383,7 +1403,7 @@ libvsc7415.so:
   :chip: libvsc7415.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7415.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -2353,8 +2373,12 @@ libvsc7415.so:
   :int: 1533
   :val: 0
   :chip: libvsc7415.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7415.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7415.so
 - :str: MESA_CAP_PHY_10G
@@ -2530,20 +2554,28 @@ libvsc7423.so:
   :int: 113
   :val: 0
   :chip: libvsc7423.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7423.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7423.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 8
   :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7423.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -3570,8 +3602,12 @@ libvsc7423.so:
   :int: 1533
   :val: 1
   :chip: libvsc7423.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7423.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7423.so
 - :str: MESA_CAP_PHY_10G
@@ -3747,20 +3783,28 @@ libvsc7424.so:
   :int: 113
   :val: 0
   :chip: libvsc7424.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7424.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7424.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7424.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7424.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7424.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7424.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -4787,8 +4831,12 @@ libvsc7424.so:
   :int: 1533
   :val: 1
   :chip: libvsc7424.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7424.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7424.so
 - :str: MESA_CAP_PHY_10G
@@ -4964,20 +5012,28 @@ libvsc7425.so:
   :int: 113
   :val: 0
   :chip: libvsc7425.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7425.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7425.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 19
   :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7425.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -6004,8 +6060,12 @@ libvsc7425.so:
   :int: 1533
   :val: 1
   :chip: libvsc7425.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7425.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7425.so
 - :str: MESA_CAP_PHY_10G
@@ -6181,20 +6241,28 @@ libvsc7426.so:
   :int: 113
   :val: 0
   :chip: libvsc7426.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7426.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7426.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7426.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 25
   :chip: libvsc7426.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7426.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7426.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -7221,8 +7289,12 @@ libvsc7426.so:
   :int: 1533
   :val: 1
   :chip: libvsc7426.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7426.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7426.so
 - :str: MESA_CAP_PHY_10G
@@ -7398,20 +7470,28 @@ libvsc7427.so:
   :int: 113
   :val: 0
   :chip: libvsc7427.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7427.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7427.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 27
   :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7427.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -8438,8 +8518,12 @@ libvsc7427.so:
   :int: 1533
   :val: 1
   :chip: libvsc7427.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7427.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7427.so
 - :str: MESA_CAP_PHY_10G
@@ -8615,20 +8699,28 @@ libvsc7428.so:
   :int: 113
   :val: 0
   :chip: libvsc7428.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7428.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7428.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7428.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7428.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7428.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7428.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -9655,8 +9747,12 @@ libvsc7428.so:
   :int: 1533
   :val: 1
   :chip: libvsc7428.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7428.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7428.so
 - :str: MESA_CAP_PHY_10G
@@ -9832,20 +9928,28 @@ libvsc7429.so:
   :int: 113
   :val: 0
   :chip: libvsc7429.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7429.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7429.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 27
   :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 1
   :chip: libvsc7429.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -10872,8 +10976,12 @@ libvsc7429.so:
   :int: 1533
   :val: 1
   :chip: libvsc7429.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7429.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7429.so
 - :str: MESA_CAP_PHY_10G
@@ -11049,20 +11157,28 @@ libvsc7430.so:
   :int: 113
   :val: 1
   :chip: libvsc7430.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7430.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7430.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7430.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7430.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7430.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7430.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -11119,7 +11235,7 @@ libvsc7430.so:
   :chip: libvsc7430.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7430.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -12089,8 +12205,12 @@ libvsc7430.so:
   :int: 1533
   :val: 0
   :chip: libvsc7430.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7430.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7430.so
 - :str: MESA_CAP_PHY_10G
@@ -12266,20 +12386,28 @@ libvsc7435.so:
   :int: 113
   :val: 1
   :chip: libvsc7435.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7435.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7435.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 11
   :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7435.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -12336,7 +12464,7 @@ libvsc7435.so:
   :chip: libvsc7435.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7435.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -13306,8 +13434,12 @@ libvsc7435.so:
   :int: 1533
   :val: 0
   :chip: libvsc7435.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7435.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7435.so
 - :str: MESA_CAP_PHY_10G
@@ -13483,20 +13615,28 @@ libvsc7436.so:
   :int: 113
   :val: 1
   :chip: libvsc7436.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7436.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7436.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7436.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 13
   :chip: libvsc7436.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7436.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7436.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -13553,7 +13693,7 @@ libvsc7436.so:
   :chip: libvsc7436.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7436.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -14523,8 +14663,12 @@ libvsc7436.so:
   :int: 1533
   :val: 0
   :chip: libvsc7436.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7436.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7436.so
 - :str: MESA_CAP_PHY_10G
@@ -14700,20 +14844,28 @@ libvsc7437.so:
   :int: 113
   :val: 1
   :chip: libvsc7437.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7437.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7437.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 13
   :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7437.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -14770,7 +14922,7 @@ libvsc7437.so:
   :chip: libvsc7437.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7437.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -15740,8 +15892,12 @@ libvsc7437.so:
   :int: 1533
   :val: 0
   :chip: libvsc7437.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7437.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7437.so
 - :str: MESA_CAP_PHY_10G
@@ -15917,20 +16073,28 @@ libvsc7438.so:
   :int: 113
   :val: 1
   :chip: libvsc7438.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7438.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7438.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7438.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 19
   :chip: libvsc7438.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7438.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7438.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -15987,7 +16151,7 @@ libvsc7438.so:
   :chip: libvsc7438.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7438.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -16957,8 +17121,12 @@ libvsc7438.so:
   :int: 1533
   :val: 0
   :chip: libvsc7438.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7438.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7438.so
 - :str: MESA_CAP_PHY_10G
@@ -17134,20 +17302,28 @@ libvsc7440.so:
   :int: 113
   :val: 0
   :chip: libvsc7440.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7440.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7440.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 13
   :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7440.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -17204,7 +17380,7 @@ libvsc7440.so:
   :chip: libvsc7440.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7440.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -18174,8 +18350,12 @@ libvsc7440.so:
   :int: 1533
   :val: 0
   :chip: libvsc7440.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7440.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7440.so
 - :str: MESA_CAP_PHY_10G
@@ -18351,20 +18531,28 @@ libvsc7442.so:
   :int: 113
   :val: 0
   :chip: libvsc7442.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7442.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7442.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7442.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 57
   :chip: libvsc7442.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7442.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7442.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -18421,7 +18609,7 @@ libvsc7442.so:
   :chip: libvsc7442.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7442.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -19391,8 +19579,12 @@ libvsc7442.so:
   :int: 1533
   :val: 0
   :chip: libvsc7442.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7442.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7442.so
 - :str: MESA_CAP_PHY_10G
@@ -19568,20 +19760,28 @@ libvsc7444.so:
   :int: 113
   :val: 0
   :chip: libvsc7444.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7444.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7444.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 31
   :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7444.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -19638,7 +19838,7 @@ libvsc7444.so:
   :chip: libvsc7444.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7444.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -20608,8 +20808,12 @@ libvsc7444.so:
   :int: 1533
   :val: 0
   :chip: libvsc7444.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7444.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7444.so
 - :str: MESA_CAP_PHY_10G
@@ -20785,20 +20989,28 @@ libvsc7448.so:
   :int: 113
   :val: 0
   :chip: libvsc7448.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7448.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7448.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7448.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 55
   :chip: libvsc7448.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7448.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7448.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -20855,7 +21067,7 @@ libvsc7448.so:
   :chip: libvsc7448.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7448.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -21825,8 +22037,12 @@ libvsc7448.so:
   :int: 1533
   :val: 0
   :chip: libvsc7448.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7448.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7448.so
 - :str: MESA_CAP_PHY_10G
@@ -22002,20 +22218,28 @@ libvsc7449.so:
   :int: 113
   :val: 0
   :chip: libvsc7449.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7449.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7449.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 57
   :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7449.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -22072,7 +22296,7 @@ libvsc7449.so:
   :chip: libvsc7449.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7449.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -23042,8 +23266,12 @@ libvsc7449.so:
   :int: 1533
   :val: 0
   :chip: libvsc7449.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7449.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7449.so
 - :str: MESA_CAP_PHY_10G
@@ -23219,20 +23447,28 @@ libvsc7464.so:
   :int: 113
   :val: 1
   :chip: libvsc7464.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7464.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7464.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7464.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 31
   :chip: libvsc7464.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7464.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7464.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -23289,7 +23525,7 @@ libvsc7464.so:
   :chip: libvsc7464.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7464.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -24259,8 +24495,12 @@ libvsc7464.so:
   :int: 1533
   :val: 0
   :chip: libvsc7464.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7464.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7464.so
 - :str: MESA_CAP_PHY_10G
@@ -24436,20 +24676,28 @@ libvsc7468.so:
   :int: 113
   :val: 1
   :chip: libvsc7468.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7468.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
   :val: 1
   :chip: libvsc7468.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 0
+  :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 55
   :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7468.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -24506,7 +24754,7 @@ libvsc7468.so:
   :chip: libvsc7468.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7468.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -25476,8 +25724,12 @@ libvsc7468.so:
   :int: 1533
   :val: 0
   :chip: libvsc7468.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7468.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7468.so
 - :str: MESA_CAP_PHY_10G
@@ -25653,20 +25905,28 @@ libvsc7511.so:
   :int: 113
   :val: 0
   :chip: libvsc7511.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7511.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7511.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7511.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 5
   :chip: libvsc7511.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7511.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7511.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -26693,8 +26953,12 @@ libvsc7511.so:
   :int: 1533
   :val: 0
   :chip: libvsc7511.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7511.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7511.so
 - :str: MESA_CAP_PHY_10G
@@ -26870,20 +27134,28 @@ libvsc7512.so:
   :int: 113
   :val: 0
   :chip: libvsc7512.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7512.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7512.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 12
   :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7512.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -27910,8 +28182,12 @@ libvsc7512.so:
   :int: 1533
   :val: 0
   :chip: libvsc7512.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7512.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7512.so
 - :str: MESA_CAP_PHY_10G
@@ -28087,20 +28363,28 @@ libvsc7513.so:
   :int: 113
   :val: 0
   :chip: libvsc7513.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7513.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7513.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7513.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 10
   :chip: libvsc7513.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7513.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7513.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -29127,8 +29411,12 @@ libvsc7513.so:
   :int: 1533
   :val: 0
   :chip: libvsc7513.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7513.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7513.so
 - :str: MESA_CAP_PHY_10G
@@ -29304,20 +29592,28 @@ libvsc7514.so:
   :int: 113
   :val: 0
   :chip: libvsc7514.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
+  :val: 
+  :chip: libvsc7514.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 0
+  :chip: libvsc7514.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
   :val: 0
   :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 12
   :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1526
   :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7514.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -30344,8 +30640,12 @@ libvsc7514.so:
   :int: 1533
   :val: 0
   :chip: libvsc7514.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 1
+  :chip: libvsc7514.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 1
   :chip: libvsc7514.so
 - :str: MESA_CAP_PHY_10G
@@ -30521,20 +30821,28 @@ libvsc7546.so:
   :int: 113
   :val: 0
   :chip: libvsc7546.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7546.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7546.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7546.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 33
   :chip: libvsc7546.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7546.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7546.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -30591,7 +30899,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7546.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -30679,7 +30987,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7546.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -30767,7 +31075,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -30779,7 +31087,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -30819,7 +31127,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -30831,7 +31139,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -30847,7 +31155,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7546.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -31407,7 +31715,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7546.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -31561,8 +31869,12 @@ libvsc7546.so:
   :int: 1533
   :val: 0
   :chip: libvsc7546.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7546.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7546.so
 - :str: MESA_CAP_PHY_10G
@@ -31738,20 +32050,28 @@ libvsc7546TSN.so:
   :int: 113
   :val: 0
   :chip: libvsc7546TSN.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7546TSN.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7546TSN.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 33
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -31808,7 +32128,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -31896,7 +32216,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -31984,7 +32304,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -31996,7 +32316,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -32036,7 +32356,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -32048,7 +32368,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -32064,7 +32384,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -32624,7 +32944,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -32778,8 +33098,12 @@ libvsc7546TSN.so:
   :int: 1533
   :val: 0
   :chip: libvsc7546TSN.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7546TSN.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PHY_10G
@@ -32955,20 +33279,28 @@ libvsc7549.so:
   :int: 113
   :val: 0
   :chip: libvsc7549.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7549.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7549.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7549.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 57
   :chip: libvsc7549.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7549.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7549.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -33025,7 +33357,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7549.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -33113,7 +33445,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7549.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -33201,7 +33533,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -33213,7 +33545,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -33253,7 +33585,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -33265,7 +33597,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -33281,7 +33613,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7549.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -33841,7 +34173,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7549.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -33995,8 +34327,12 @@ libvsc7549.so:
   :int: 1533
   :val: 0
   :chip: libvsc7549.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7549.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7549.so
 - :str: MESA_CAP_PHY_10G
@@ -34172,20 +34508,28 @@ libvsc7549TSN.so:
   :int: 113
   :val: 0
   :chip: libvsc7549TSN.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7549TSN.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7549TSN.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 57
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -34242,7 +34586,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -34330,7 +34674,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -34418,7 +34762,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -34430,7 +34774,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -34470,7 +34814,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -34482,7 +34826,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -34498,7 +34842,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -35058,7 +35402,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -35212,8 +35556,12 @@ libvsc7549TSN.so:
   :int: 1533
   :val: 0
   :chip: libvsc7549TSN.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7549TSN.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PHY_10G
@@ -35389,20 +35737,28 @@ libvsc7552.so:
   :int: 113
   :val: 0
   :chip: libvsc7552.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7552.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7552.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7552.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7552.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7552.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7552.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -35459,7 +35815,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7552.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -35547,7 +35903,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7552.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -35635,7 +35991,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -35647,7 +36003,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -35687,7 +36043,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -35699,7 +36055,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -35715,7 +36071,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7552.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -36275,7 +36631,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7552.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -36429,8 +36785,12 @@ libvsc7552.so:
   :int: 1533
   :val: 0
   :chip: libvsc7552.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7552.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7552.so
 - :str: MESA_CAP_PHY_10G
@@ -36606,20 +36966,28 @@ libvsc7552TSN.so:
   :int: 113
   :val: 0
   :chip: libvsc7552TSN.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7552TSN.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7552TSN.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -36676,7 +37044,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -36764,7 +37132,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -36852,7 +37220,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -36864,7 +37232,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -36904,7 +37272,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -36916,7 +37284,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -36932,7 +37300,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -37492,7 +37860,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -37646,8 +38014,12 @@ libvsc7552TSN.so:
   :int: 1533
   :val: 0
   :chip: libvsc7552TSN.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7552TSN.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PHY_10G
@@ -37823,20 +38195,28 @@ libvsc7556.so:
   :int: 113
   :val: 0
   :chip: libvsc7556.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7556.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7556.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7556.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7556.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7556.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7556.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -37893,7 +38273,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7556.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -37981,7 +38361,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7556.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -38069,7 +38449,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -38081,7 +38461,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -38121,7 +38501,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -38133,7 +38513,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -38149,7 +38529,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7556.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -38709,7 +39089,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7556.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -38863,8 +39243,12 @@ libvsc7556.so:
   :int: 1533
   :val: 0
   :chip: libvsc7556.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7556.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7556.so
 - :str: MESA_CAP_PHY_10G
@@ -39040,20 +39424,28 @@ libvsc7556TSN.so:
   :int: 113
   :val: 0
   :chip: libvsc7556TSN.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7556TSN.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7556TSN.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -39110,7 +39502,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -39198,7 +39590,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -39286,7 +39678,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -39298,7 +39690,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -39338,7 +39730,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -39350,7 +39742,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -39366,7 +39758,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -39926,7 +40318,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -40080,8 +40472,12 @@ libvsc7556TSN.so:
   :int: 1533
   :val: 0
   :chip: libvsc7556TSN.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7556TSN.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PHY_10G
@@ -40257,20 +40653,28 @@ libvsc7558.so:
   :int: 113
   :val: 0
   :chip: libvsc7558.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7558.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7558.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7558.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -40327,7 +40731,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7558.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -40415,7 +40819,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7558.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -40503,7 +40907,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -40515,7 +40919,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -40555,7 +40959,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -40567,7 +40971,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -40583,7 +40987,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7558.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -41143,7 +41547,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7558.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -41297,8 +41701,12 @@ libvsc7558.so:
   :int: 1533
   :val: 0
   :chip: libvsc7558.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7558.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7558.so
 - :str: MESA_CAP_PHY_10G
@@ -41474,20 +41882,28 @@ libvsc7558TSN.so:
   :int: 113
   :val: 0
   :chip: libvsc7558TSN.so
-- :str: MESA_CAP_PORT_10GBASE_KR_V2
+- :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 0
+  :val: 
+  :chip: libvsc7558TSN.so
+- :str: MESA_CAP_PORT_KR
+  :int: 115
+  :val: 1
+  :chip: libvsc7558TSN.so
+- :str: MESA_CAP_PORT_KR_IRQ
+  :int: 116
+  :val: 1
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
-  :int: 115
+  :int: 117
   :val: 61
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
-  :int: 116
+  :int: 118
   :val: 1518
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PORT_PCS_CONF
-  :int: 117
+  :int: 119
   :val: 0
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
@@ -41544,7 +41960,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 87
+  :val: 119
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
@@ -41632,7 +42048,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 0
+  :val: 1
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
@@ -41720,7 +42136,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 3
+  :val: 0
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
@@ -41732,7 +42148,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 100
+  :val: 256
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
@@ -41772,7 +42188,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 1
+  :val: 0
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
@@ -41784,7 +42200,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 620
-  :val: 1
+  :val: 0
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 621
@@ -41800,7 +42216,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 624
-  :val: 1
+  :val: 0
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 625
@@ -42360,7 +42776,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 0
+  :val: 1
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
@@ -42514,8 +42930,12 @@ libvsc7558TSN.so:
   :int: 1533
   :val: 0
   :chip: libvsc7558TSN.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
+  :val: 0
+  :chip: libvsc7558TSN.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1535
   :val: 2
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PHY_10G
