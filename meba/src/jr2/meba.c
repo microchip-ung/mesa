@@ -487,7 +487,7 @@ static void init_port_jr2(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
                 } else if ((board->aqr_sb_present == PHY_ID_AQR412_A0_ES1) || (board->aqr_sb_present == PHY_ID_AQR412_B0) || (board->aqr_sb_present == PHY_ID_AQR412C_A0_ES1)) {
                     entry->cap                 &= ~(MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX);
                 }
-            } if ((port_no > 23 && port_no < 28) && board->gpy241_sb_present) {
+            } else if ((port_no > 23 && port_no < 28) && board->gpy241_sb_present) {
                 /* GPY241 side board */
                 entry->map.max_bw = MESA_BW_2G5;
                 entry->map.chip_port       = port_no + 25;
