@@ -212,12 +212,19 @@ def equal_interval_gcl_reconfig_test
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
+    pcp0 = 150
+    pcp3 = 500
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        pcp0 = 1100
+        pcp3 = 1100
+    end
+
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
-   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1,   with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [pcp0,pcp3,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
     end
 end
 
@@ -340,15 +347,15 @@ def equal_interval_3_prio_1_port_test
     pcp0 = 150
     pcp3 = 500
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-        pcp_0_tolerance = 900
-        pcp_3_tolerance = 1100
+        pcp0 = 1100
+        pcp3 = 1100
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
-   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1,   with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [pcp0,pcp3,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
 
     t_i ("Stop dummy GCL")
