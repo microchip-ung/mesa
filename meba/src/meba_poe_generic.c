@@ -208,7 +208,6 @@ mesa_rc meba_poe_generic_status_get(
             uint32_t controller_count = 0;
             uint32_t valid_controller;
             for (i=0; i<system->controller_count; ++i) {
-                mesa_rc rc;
                 if (MESA_RC_OK == system->controllers[i].api->meba_poe_ctrl_status_get(&system->controllers[i],
                                                                                        &local_status[i])) {
                     controller_count++;
