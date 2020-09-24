@@ -30,7 +30,7 @@ libvsc7410.so:
   :chip: libvsc7410.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7410.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -98,7 +98,7 @@ libvsc7410.so:
   :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -1206,7 +1206,7 @@ libvsc7410.so:
   :chip: libvsc7410.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7410.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -1259,7 +1259,7 @@ libvsc7415.so:
   :chip: libvsc7415.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7415.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -1327,7 +1327,7 @@ libvsc7415.so:
   :chip: libvsc7415.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7415.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -2435,7 +2435,7 @@ libvsc7415.so:
   :chip: libvsc7415.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7415.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -2488,7 +2488,7 @@ libvsc7423.so:
   :chip: libvsc7423.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7423.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -2556,7 +2556,7 @@ libvsc7423.so:
   :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -3717,7 +3717,7 @@ libvsc7424.so:
   :chip: libvsc7424.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7424.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -3785,7 +3785,7 @@ libvsc7424.so:
   :chip: libvsc7424.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7424.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -4946,7 +4946,7 @@ libvsc7425.so:
   :chip: libvsc7425.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7425.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -5014,7 +5014,7 @@ libvsc7425.so:
   :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -6175,7 +6175,7 @@ libvsc7426.so:
   :chip: libvsc7426.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7426.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -6243,7 +6243,7 @@ libvsc7426.so:
   :chip: libvsc7426.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7426.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -7404,7 +7404,7 @@ libvsc7427.so:
   :chip: libvsc7427.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7427.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -7472,7 +7472,7 @@ libvsc7427.so:
   :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -8633,7 +8633,7 @@ libvsc7428.so:
   :chip: libvsc7428.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7428.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -8701,7 +8701,7 @@ libvsc7428.so:
   :chip: libvsc7428.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7428.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -9862,7 +9862,7 @@ libvsc7429.so:
   :chip: libvsc7429.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7429.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -9930,7 +9930,7 @@ libvsc7429.so:
   :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -11091,7 +11091,7 @@ libvsc7430.so:
   :chip: libvsc7430.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7430.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -11159,7 +11159,7 @@ libvsc7430.so:
   :chip: libvsc7430.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7430.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -12267,7 +12267,7 @@ libvsc7430.so:
   :chip: libvsc7430.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7430.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -12320,7 +12320,7 @@ libvsc7435.so:
   :chip: libvsc7435.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7435.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -12388,7 +12388,7 @@ libvsc7435.so:
   :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -13496,7 +13496,7 @@ libvsc7435.so:
   :chip: libvsc7435.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7435.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -13549,7 +13549,7 @@ libvsc7436.so:
   :chip: libvsc7436.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7436.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -13617,7 +13617,7 @@ libvsc7436.so:
   :chip: libvsc7436.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7436.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -14725,7 +14725,7 @@ libvsc7436.so:
   :chip: libvsc7436.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7436.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -14778,7 +14778,7 @@ libvsc7437.so:
   :chip: libvsc7437.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7437.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -14846,7 +14846,7 @@ libvsc7437.so:
   :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -15954,7 +15954,7 @@ libvsc7437.so:
   :chip: libvsc7437.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7437.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -16007,7 +16007,7 @@ libvsc7438.so:
   :chip: libvsc7438.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7438.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -16075,7 +16075,7 @@ libvsc7438.so:
   :chip: libvsc7438.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7438.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -17183,7 +17183,7 @@ libvsc7438.so:
   :chip: libvsc7438.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7438.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -17236,7 +17236,7 @@ libvsc7440.so:
   :chip: libvsc7440.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7440.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -17304,7 +17304,7 @@ libvsc7440.so:
   :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -18412,7 +18412,7 @@ libvsc7440.so:
   :chip: libvsc7440.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7440.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -18465,7 +18465,7 @@ libvsc7442.so:
   :chip: libvsc7442.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7442.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -18533,7 +18533,7 @@ libvsc7442.so:
   :chip: libvsc7442.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7442.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -19641,7 +19641,7 @@ libvsc7442.so:
   :chip: libvsc7442.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7442.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -19694,7 +19694,7 @@ libvsc7444.so:
   :chip: libvsc7444.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7444.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -19762,7 +19762,7 @@ libvsc7444.so:
   :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -20870,7 +20870,7 @@ libvsc7444.so:
   :chip: libvsc7444.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7444.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -20923,7 +20923,7 @@ libvsc7448.so:
   :chip: libvsc7448.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7448.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -20991,7 +20991,7 @@ libvsc7448.so:
   :chip: libvsc7448.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7448.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -22099,7 +22099,7 @@ libvsc7448.so:
   :chip: libvsc7448.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7448.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -22152,7 +22152,7 @@ libvsc7449.so:
   :chip: libvsc7449.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7449.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -22220,7 +22220,7 @@ libvsc7449.so:
   :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -23328,7 +23328,7 @@ libvsc7449.so:
   :chip: libvsc7449.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7449.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -23381,7 +23381,7 @@ libvsc7464.so:
   :chip: libvsc7464.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7464.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -23449,7 +23449,7 @@ libvsc7464.so:
   :chip: libvsc7464.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7464.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -24557,7 +24557,7 @@ libvsc7464.so:
   :chip: libvsc7464.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7464.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -24610,7 +24610,7 @@ libvsc7468.so:
   :chip: libvsc7468.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7468.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -24678,7 +24678,7 @@ libvsc7468.so:
   :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -25786,7 +25786,7 @@ libvsc7468.so:
   :chip: libvsc7468.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc7468.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
@@ -25839,7 +25839,7 @@ libvsc7511.so:
   :chip: libvsc7511.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7511.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -25907,7 +25907,7 @@ libvsc7511.so:
   :chip: libvsc7511.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7511.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -26763,7 +26763,7 @@ libvsc7511.so:
   :chip: libvsc7511.so
 - :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1209
-  :val: 
+  :val:
   :chip: libvsc7511.so
 - :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1210
@@ -27068,7 +27068,7 @@ libvsc7512.so:
   :chip: libvsc7512.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7512.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -27136,7 +27136,7 @@ libvsc7512.so:
   :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -27992,7 +27992,7 @@ libvsc7512.so:
   :chip: libvsc7512.so
 - :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1209
-  :val: 
+  :val:
   :chip: libvsc7512.so
 - :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1210
@@ -28297,7 +28297,7 @@ libvsc7513.so:
   :chip: libvsc7513.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7513.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -28365,7 +28365,7 @@ libvsc7513.so:
   :chip: libvsc7513.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7513.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -29221,7 +29221,7 @@ libvsc7513.so:
   :chip: libvsc7513.so
 - :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1209
-  :val: 
+  :val:
   :chip: libvsc7513.so
 - :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1210
@@ -29526,7 +29526,7 @@ libvsc7514.so:
   :chip: libvsc7514.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7514.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -29594,7 +29594,7 @@ libvsc7514.so:
   :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -30450,7 +30450,7 @@ libvsc7514.so:
   :chip: libvsc7514.so
 - :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1209
-  :val: 
+  :val:
   :chip: libvsc7514.so
 - :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1210
@@ -30755,7 +30755,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7546.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -30823,7 +30823,7 @@ libvsc7546.so:
   :chip: libvsc7546.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7546.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -31984,7 +31984,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -32052,7 +32052,7 @@ libvsc7546TSN.so:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -33213,7 +33213,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7549.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -33281,7 +33281,7 @@ libvsc7549.so:
   :chip: libvsc7549.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7549.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -34442,7 +34442,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -34510,7 +34510,7 @@ libvsc7549TSN.so:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -35671,7 +35671,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7552.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -35739,7 +35739,7 @@ libvsc7552.so:
   :chip: libvsc7552.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7552.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -36900,7 +36900,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -36968,7 +36968,7 @@ libvsc7552TSN.so:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -38129,7 +38129,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7556.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -38197,7 +38197,7 @@ libvsc7556.so:
   :chip: libvsc7556.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7556.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -39358,7 +39358,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -39426,7 +39426,7 @@ libvsc7556TSN.so:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -40587,7 +40587,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7558.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -40655,7 +40655,7 @@ libvsc7558.so:
   :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
@@ -41816,7 +41816,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
@@ -41884,7 +41884,7 @@ libvsc7558TSN.so:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_PORT_KR
   :int: 115

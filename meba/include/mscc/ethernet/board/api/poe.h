@@ -98,8 +98,10 @@ typedef mesa_rc (*meba_poe_do_detection_t)(
         struct meba_inst               *inst);
 
 // Perform chip initialization.
+// board_count   [OUT] numbner of PoE boards found
 typedef mesa_rc (*meba_poe_chip_initialization_t)(
-    struct meba_inst   *inst);
+    struct meba_inst   *inst,
+        uint32_t           *board_count);
 
 // Perform chip synchronization
 typedef mesa_rc (*meba_poe_sync_t)(

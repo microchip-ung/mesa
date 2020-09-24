@@ -9,7 +9,8 @@
 #include "mscc/ethernet/board/api.h"
 
 mesa_rc meba_poe_generic_chip_initialization(
-    const meba_inst_t               inst);
+    const meba_inst_t               inst,
+    uint32_t *board_count);
 
 mesa_rc meba_poe_generic_sync(
     const meba_inst_t               inst);
