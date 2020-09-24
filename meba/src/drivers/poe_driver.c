@@ -232,8 +232,8 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t *const inst,
 {
     char buf[size * 3 + 1];
     int cnt = write(inst->adapter_fd, data, size);
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Wrote %s ",
-          inst->adapter_name,
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Wrote(%d/%d) %s ",
+          inst->adapter_name, size, cnt,
           print_as_hex_string(data, size, buf, sizeof(buf)));
     return (cnt == size) ? MESA_RC_OK : MESA_RC_ERROR;
 }
@@ -1429,7 +1429,7 @@ mesa_rc pd69200_rd_system_status_ok(const meba_poe_ctrl_inst_t *const inst)
     } 
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: System data read failure", __FUNCTION__);
-    return MESA_RC_ERROR;
+    return MESA_RC_OK;
 }
 
 static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *const inst,
@@ -1975,7 +1975,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
     const meba_poe_ctrl_inst_t     *const inst)
 {
     if (MEBA_POE_CHIPSET_FOUND != meba_poe_pd69200_get_chipset(inst)) {
-        return MESA_RC_OK;
+        return MESA_RC_ERROR;
     }
     // Disable i2c ready interrupt
     MESA_RC(meba_poe_pd69200_individual_mask_set(inst, 0x1E, 0));
@@ -3145,7 +3145,7 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
     const meba_poe_ctrl_inst_t     *const inst)
 {
     if (MEBA_POE_CHIPSET_FOUND != meba_poe_pd69200_get_chipset(inst)) {
-        return MESA_RC_OK;
+        return MESA_RC_ERROR;
     }
 
     // I2C restart enable - Initializes the I2C module system after 10 seconds of inactivity.
