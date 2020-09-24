@@ -8,13 +8,12 @@
 #define MESA_RC(EXPR) { mesa_rc rc = EXPR; if (rc != MESA_RC_OK) { return rc; } }
 
 mesa_rc meba_poe_generic_chip_initialization(
-    const meba_inst_t   inst,
-    uint32_t           *board_count)
+    const meba_inst_t   inst)
 {
     meba_poe_system_t   *system;
     int i;
 
-    if ( !inst || !inst->api_poe || !inst->api_poe->meba_poe_system_get || !board_count) {
+    if ( !inst || !inst->api_poe || !inst->api_poe->meba_poe_system_get ) {
         return MESA_RC_ERROR;
     }
 
@@ -22,12 +21,8 @@ mesa_rc meba_poe_generic_chip_initialization(
         return MESA_RC_ERROR;
     }
 
-    *board_count = 0;
     for (i=0; i<system->controller_count; ++i) {
-
-        if (MESA_RC_OK == system->controllers[i].api->meba_poe_ctrl_chip_initialization(&system->controllers[i])) {
-            *board_count+=1;
-        }
+        (void)system->controllers[i].api->meba_poe_ctrl_chip_initialization(&system->controllers[i]);
     }
 
     return MESA_RC_OK;
@@ -208,11 +203,22 @@ mesa_rc meba_poe_generic_status_get(
     meba_poe_system_t   *system;
     if ( inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {
         if (inst->api_poe->meba_poe_system_get(inst, &system) == MESA_RC_OK) {
-            int i;
+            uint32_t i;
+            meba_poe_status_t local_status[system->controller_count];
+            uint32_t controller_count = 0;
+            uint32_t valid_controller;
             for (i=0; i<system->controller_count; ++i) {
                 mesa_rc rc;
-                rc = system->controllers[i].api->meba_poe_ctrl_status_get(&system->controllers[i], status);
-                return rc;
+                if (MESA_RC_OK == system->controllers[i].api->meba_poe_ctrl_status_get(&system->controllers[i],
+                                                                                       &local_status[i])) {
+                    controller_count++;
+                    valid_controller = i;
+                }
+            }
+            if (controller_count>0) {
+                *status = local_status[valid_controller];
+                status->operational_controller_count = controller_count;
+                return MESA_RC_OK;
             }
         }
     }

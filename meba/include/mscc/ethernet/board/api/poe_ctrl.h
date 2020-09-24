@@ -301,6 +301,8 @@ typedef struct {
     // PoE power source.
     meba_poe_power_source_t     source;
 
+    uint32_t                    operational_controller_count;
+
     // Total power.
     uint16_t total_power;
 } meba_poe_status_t;
