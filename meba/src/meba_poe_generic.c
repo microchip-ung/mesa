@@ -221,7 +221,7 @@ mesa_rc meba_poe_generic_status_get(
             }
         }
     }
-    return MESA_RC_OK;
+    return MESA_RC_ERROR;
 }
 
 mesa_rc meba_poe_generic_capabilities_get(

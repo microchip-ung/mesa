@@ -1429,7 +1429,7 @@ mesa_rc pd69200_rd_system_status_ok(const meba_poe_ctrl_inst_t *const inst)
     } 
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: System data read failure", __FUNCTION__);
-    return MESA_RC_OK;
+    return MESA_RC_ERROR;
 }
 
 static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *const inst,
