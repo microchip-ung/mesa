@@ -32,22 +32,31 @@ test "conf" do
     io_fpga_rw("fill 0x100 0x100 0")
 end
 
-# Push Profinet APDU status
-def cmd_apdu_push(apdu = {})
-    pcp = "ign"
-    dei = "ign"
-    vid = "ign"
-    if (apdu.key?:cc)
-        cc = a[:cc]
-        pcp = ((cc >> 13) & 0x7)
-        dei = ((cc >> 12) & 0x1)
-        vid = (cc & 0xfff)
+def cmd_payload_push(payload)
+    len = payload.length
+    i = 0
+    cmd = ""
+    data = ""
+    while (i < len)
+        j = (i + 7)
+        if (j == (len - 1) or payload[i..(i + 3)] == "xxxx")
+            # PN CC or wildcard
+            if (data.length > 0)
+                cmd += " data hex #{data}"
+                data = ""
+            end
+            # Ignore 2 bytes using ctag
+            cmd += " ctag pcp ign dei ign vid ign et 0x#{payload[(i+4)..j]}"
+        else
+            j = (i + 1)
+            data = (data + payload[i..j])
+        end
+        i = (j + 1)
     end
-    et = "ign"
-    if (apdu.key?:ds)
-        et = (apdu[:ds] << 8)
+    if (data.length > 0)
+        cmd += " data hex #{data}"
     end
-    cmd = " ctag pcp #{pcp} dei #{dei} vid #{vid} et #{et}"
+    cmd
 end
 
 def tx_len_test(len)
@@ -58,6 +67,7 @@ def tx_len_test(len)
     # One-shot time by default
     conf["port"] = $port[idx_rx]
     conf["length"] = len
+    payload = ""
     for i in 0..(len - 1) do
         # Ethernet frame:
         # DMAC : ff-ff-ff-ff-ff-ff
@@ -65,11 +75,15 @@ def tx_len_test(len)
         # EType: 0xaaaa
         # Data : Incrementing from 0
         d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : ((i - 14) & 0xff))
+        if (i > (len - 5))
+            # PN trailer added as payload
+            payload += ("%02x" % d)
+        end
         conf["data"][i] = d
     end
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
     cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
-    cmd += cmd_apdu_push
+    cmd += cmd_payload_push(payload)
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == idx_rx)
@@ -214,8 +228,8 @@ def tx_dg_test(intf, ral_id, opc = false)
     for i in 0..(len - 1) do
         d = (i < 6 ? 0xff : i < 11 ? 0 : i < 12 ? 1 : i < 14 ? 0xaa : $rtp_id)
         conf["data"][i] = d
-        if (i > 13 and i < (len - 4))
-            payload = (payload + ("%02x" % d))
+        if (i > 13)
+            payload += ("%02x" % d)
         end
     end
     rtp_conf = conf
@@ -231,7 +245,7 @@ def tx_dg_test(intf, ral_id, opc = false)
     end
     dg = [{offs: 0, data: "0123456789ab"},
           {offs: 7, data: "ef", vld_offs: 8, vld_update: true},
-          {offs: 12, data: "9876", vld_offs: 14, code_update: true}]
+          {offs: 12, data: "9876", vld_offs: 14, seq_update: true, code_update: true}]
     dg.each do |d|
         offs = (d[:offs] * 2)
         data = d[:data]
@@ -253,6 +267,8 @@ def tx_dg_test(intf, ral_id, opc = false)
         conf["valid_offset"] = vld_offs
         vld_update = fld_get(d, :vld_update, false)
         conf["valid_update"] = vld_update
+        seq_update = fld_get(d, :seq_update, false)
+        conf["opc_seq_update"] = seq_update
         code_update = fld_get(d, :code_update, false)
         conf["opc_code_update"] = code_update
         $ts.dut.call("mera_ib_dg_add", ral_id, ra_id, conf)
@@ -260,6 +276,11 @@ def tx_dg_test(intf, ral_id, opc = false)
             # PN/OPC valid update
             offs = (vld_offs * 2)
             payload[offs..(offs + 1)] = (opc ? "1d" : "80")
+        end
+        if (opc and seq_update)
+            # OPC sequence number update at offset 1 from valid byte
+            offs = ((vld_offs + 1) * 2)
+            payload[offs..(offs + 3)] = "xxxx"
         end
         if (opc and code_update)
             # OPC status code update at offset 3 from valid byte
@@ -279,11 +300,11 @@ def tx_dg_test(intf, ral_id, opc = false)
     time = conf["time"]
     conf["time"]["interval"] = 1000000000 # One second, offset zero
     $ts.dut.call("mera_ib_ral_conf_set", ral_id, conf)
-
     sleep(1)
+
     # Easyframe runs a little longer, so 900 msec means about a second.
-    cmd = "sudo ef -t 900 name f1 eth et 0xaaaa data hex #{payload}"
-    cmd += cmd_apdu_push
+    cmd = "sudo ef -t 900 name f1 eth et 0xaaaa"
+    cmd += cmd_payload_push(payload)
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == idx_rx)
