@@ -9,6 +9,10 @@
 
 /* - Local functions ------------------------------------------------- */
 
+static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
+                                const vtss_port_no_t        port_no,
+                                vtss_port_counters_t *const counters,
+                                BOOL                        clear);
 // Devices:
 // D0  - D11      DEV5G  (12)
 // D12 - D15      DEV10G  (4)
@@ -2513,6 +2517,8 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
                 VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(!use_primary_dev),
                 VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
 
+        /* Read port counters ignoring updates */
+        VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, 2));
     }
     /* MESA-641 - Setting the tx_stop_wm manually to avoid preemtion issues */
     stop_wm = vtss_get_fifo_size(vtss_state, port_no);

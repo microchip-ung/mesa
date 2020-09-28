@@ -182,7 +182,9 @@ void vtss_cmn_counter_32_update(u32 value, vtss_chip_counter_t *counter, BOOL cl
 {
     u64 add = 0, new = value;
 
-    if (clear) {
+    if (clear == 2) {
+        /* No operation */
+    } else if (clear) {
         /* Clear counter */
         counter->value = 0;
     } else {
