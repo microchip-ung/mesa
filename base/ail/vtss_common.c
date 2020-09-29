@@ -180,18 +180,26 @@ void vtss_cmn_counter_32_rebase(u32 new_base_value, vtss_chip_counter_t *counter
 /* Clear/increment 64-bit counter based on 32 bit chip counter */
 void vtss_cmn_counter_32_update(u32 value, vtss_chip_counter_t *counter, BOOL clear)
 {
+    vtss_cmn_counter_32_cmd(value, counter, clear ? VTSS_COUNTER_CMD_CLEAR : VTSS_COUNTER_CMD_UPDATE);
+}
+
+void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd)
+{
     u64 add = 0, new = value;
 
-    if (clear == 2) {
-        /* No operation */
-    } else if (clear) {
+    switch (cmd) {
+    case VTSS_COUNTER_CMD_CLEAR:
         /* Clear counter */
         counter->value = 0;
-    } else {
+        break;
+    case VTSS_COUNTER_CMD_UPDATE:
         /* Accumulate counter */
         if (new < counter->prev)
             add = (1ULL<<32); /* Wrapped */
         counter->value += (new + add - counter->prev);
+        break;
+    default:
+        break;
     }
     counter->prev = new;
 }

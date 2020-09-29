@@ -12,7 +12,7 @@
 static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
                                 const vtss_port_no_t        port_no,
                                 vtss_port_counters_t *const counters,
-                                BOOL                        clear);
+                                vtss_counter_cmd_t          cmd);
 // Devices:
 // D0  - D11      DEV5G  (12)
 // D12 - D15      DEV10G  (4)
@@ -2518,7 +2518,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
                 VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
 
         /* Read port counters ignoring updates */
-        VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, 2));
+        VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_REBASE));
     }
     /* MESA-641 - Setting the tx_stop_wm manually to avoid preemtion issues */
     stop_wm = vtss_get_fifo_size(vtss_state, port_no);
@@ -2690,49 +2690,49 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 }
 
 
-#define REG_CNT_1G_ONE(name, i, cnt, clr)        \
-{                                                \
-    u32 value;                                   \
-    REG_RD(VTSS_ASM_##name##_CNT(i), &value);    \
-    vtss_cmn_counter_32_update(value, cnt, clr); \
+#define REG_CNT_1G_ONE(name, i, cnt, cmd)     \
+{                                             \
+    u32 value;                                \
+    REG_RD(VTSS_ASM_##name##_CNT(i), &value); \
+    vtss_cmn_counter_32_cmd(value, cnt, cmd); \
 }
 
-#define REG_CNT_10G_ONE(name, i, cnt, clr)       \
+#define REG_CNT_10G_ONE(name, i, cnt, cmd)       \
 {                                                \
     u32 value;                                   \
     REG_RD(VTSS_DEV10G_##name##_CNT(i), &value); \
-    vtss_cmn_counter_32_update(value, cnt, clr); \
+    vtss_cmn_counter_32_cmd(value, cnt, cmd);    \
 }
 
-#define REG_CNT_ANA_AC(name, cnt, clr)               \
+#define REG_CNT_ANA_AC(name, cnt, cmd)               \
 {                                                    \
     u32 value;                                       \
     REG_RD(VTSS_ANA_AC_STAT_CNT_CFG_##name, &value); \
-    vtss_cmn_counter_32_update(value, cnt, clr);     \
+    vtss_cmn_counter_32_cmd(value, cnt, cmd);        \
 }
 
-#define REG_CNT_1G(name, i, cnt, clr)                \
+#define REG_CNT_1G(name, i, cnt, cmd)                \
 {                                                    \
-    REG_CNT_1G_ONE(name, i, cnt.emac, clr);          \
-    REG_CNT_1G_ONE(PMAC_##name, i, cnt.pmac, clr);   \
+    REG_CNT_1G_ONE(name, i, cnt.emac, cmd);          \
+    REG_CNT_1G_ONE(PMAC_##name, i, cnt.pmac, cmd);   \
 }
 
-#define REG_CNT_10G(name, i, cnt, clr)               \
+#define REG_CNT_10G(name, i, cnt, cmd)               \
 {                                                    \
-    REG_CNT_10G_ONE(name, i, cnt.emac, clr);         \
-    REG_CNT_10G_ONE(PMAC_##name, i, cnt.pmac, clr);  \
+    REG_CNT_10G_ONE(name, i, cnt.emac, cmd);         \
+    REG_CNT_10G_ONE(PMAC_##name, i, cnt.pmac, cmd);  \
 }
 
 #define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
 
 static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
-                                            u32 *addr, vtss_chip_counter_t *counter, BOOL clear)
+                                           u32 *addr, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd)
 {
     u32 value;
 
     REG_RD(VTSS_XQS_CNT(*addr), &value);
     *addr = (*addr + 1); /* Next counter address */
-    vtss_cmn_counter_32_update(value, counter, clear);
+    vtss_cmn_counter_32_cmd(value, counter, cmd);
 
     return VTSS_RC_OK;
 }
@@ -2744,11 +2744,11 @@ static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
 /* Index of ANA_AC queue counters */
 #define REG_CNT_ANA_AC_QUEUE_PRIO 0
 
-static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
-                                      vtss_port_no_t               port_no,
-                                      vtss_port_fa_counters_t      *c,
-                                      vtss_port_counters_t *const  counters,
-                                      BOOL                         clr)
+static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
+                                     vtss_port_no_t              port_no,
+                                     vtss_port_fa_counters_t     *c,
+                                     vtss_port_counters_t *const counters,
+                                     vtss_counter_cmd_t          cmd)
 {
     u32                                i, addr, port;
     vtss_port_counter_t                rx_errors;
@@ -2764,103 +2764,103 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
         /* ASM counters */
         port = VTSS_CHIP_PORT(port_no);
         i = port;
-        REG_CNT_1G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
-        REG_CNT_1G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, clr);
-        REG_CNT_1G(RX_PAUSE, i, &c->rx_pause, clr);
-        REG_CNT_1G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, clr);
-        REG_CNT_1G(RX_OK_BYTES, i, &c->rx_ok_bytes, clr);
-        REG_CNT_1G(RX_BAD_BYTES, i, &c->rx_bad_bytes, clr);
-        REG_CNT_1G(RX_UC, i, &c->rx_unicast, clr);
-        REG_CNT_1G(RX_MC, i, &c->rx_multicast, clr);
-        REG_CNT_1G(RX_BC, i, &c->rx_broadcast, clr);
-        REG_CNT_1G(RX_CRC_ERR, i, &c->rx_crc_err, clr);
-        REG_CNT_1G(RX_UNDERSIZE, i, &c->rx_undersize, clr);
-        REG_CNT_1G(RX_FRAGMENTS, i, &c->rx_fragments, clr);
-        REG_CNT_1G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, clr);
-        REG_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, clr);
-        REG_CNT_1G(RX_OVERSIZE, i, &c->rx_oversize, clr);
-        REG_CNT_1G(RX_JABBERS, i, &c->rx_jabbers, clr);
-        REG_CNT_1G(RX_SIZE64, i, &c->rx_size64, clr);
-        REG_CNT_1G(RX_SIZE65TO127, i, &c->rx_size65_127, clr);
-        REG_CNT_1G(RX_SIZE128TO255, i, &c->rx_size128_255, clr);
-        REG_CNT_1G(RX_SIZE256TO511, i, &c->rx_size256_511, clr);
-        REG_CNT_1G(RX_SIZE512TO1023, i, &c->rx_size512_1023, clr);
-        REG_CNT_1G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, clr);
-        REG_CNT_1G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, clr);
+        REG_CNT_1G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, cmd);
+        REG_CNT_1G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, cmd);
+        REG_CNT_1G(RX_PAUSE, i, &c->rx_pause, cmd);
+        REG_CNT_1G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, cmd);
+        REG_CNT_1G(RX_OK_BYTES, i, &c->rx_ok_bytes, cmd);
+        REG_CNT_1G(RX_BAD_BYTES, i, &c->rx_bad_bytes, cmd);
+        REG_CNT_1G(RX_UC, i, &c->rx_unicast, cmd);
+        REG_CNT_1G(RX_MC, i, &c->rx_multicast, cmd);
+        REG_CNT_1G(RX_BC, i, &c->rx_broadcast, cmd);
+        REG_CNT_1G(RX_CRC_ERR, i, &c->rx_crc_err, cmd);
+        REG_CNT_1G(RX_UNDERSIZE, i, &c->rx_undersize, cmd);
+        REG_CNT_1G(RX_FRAGMENTS, i, &c->rx_fragments, cmd);
+        REG_CNT_1G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, cmd);
+        REG_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, cmd);
+        REG_CNT_1G(RX_OVERSIZE, i, &c->rx_oversize, cmd);
+        REG_CNT_1G(RX_JABBERS, i, &c->rx_jabbers, cmd);
+        REG_CNT_1G(RX_SIZE64, i, &c->rx_size64, cmd);
+        REG_CNT_1G(RX_SIZE65TO127, i, &c->rx_size65_127, cmd);
+        REG_CNT_1G(RX_SIZE128TO255, i, &c->rx_size128_255, cmd);
+        REG_CNT_1G(RX_SIZE256TO511, i, &c->rx_size256_511, cmd);
+        REG_CNT_1G(RX_SIZE512TO1023, i, &c->rx_size512_1023, cmd);
+        REG_CNT_1G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, cmd);
+        REG_CNT_1G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, cmd);
 
-        REG_CNT_1G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
-        REG_CNT_1G(TX_PAUSE, i, &c->tx_pause, clr);
-        REG_CNT_1G(TX_OK_BYTES, i, &c->tx_ok_bytes, clr);
-        REG_CNT_1G(TX_UC, i, &c->tx_unicast, clr);
-        REG_CNT_1G(TX_MC, i, &c->tx_multicast, clr);
-        REG_CNT_1G(TX_BC, i, &c->tx_broadcast, clr);
-        REG_CNT_1G(TX_SIZE64, i, &c->tx_size64, clr);
-        REG_CNT_1G(TX_SIZE65TO127, i, &c->tx_size65_127, clr);
-        REG_CNT_1G(TX_SIZE128TO255, i, &c->tx_size128_255, clr);
-        REG_CNT_1G(TX_SIZE256TO511, i, &c->tx_size256_511, clr);
-        REG_CNT_1G(TX_SIZE512TO1023, i, &c->tx_size512_1023, clr);
-        REG_CNT_1G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, clr);
-        REG_CNT_1G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, clr);
-        REG_CNT_1G_ONE(TX_MULTI_COLL, i, &c->tx_multi_coll, clr);
-        REG_CNT_1G_ONE(TX_LATE_COLL, i, &c->tx_late_coll, clr);
-        REG_CNT_1G_ONE(TX_XCOLL, i, &c->tx_xcoll, clr);
-        REG_CNT_1G_ONE(TX_DEFER, i, &c->tx_defer, clr);
-        REG_CNT_1G_ONE(TX_XDEFER, i, &c->tx_xdefer, clr);
-        REG_CNT_1G_ONE(TX_BACKOFF1, i, &c->tx_backoff1, clr);
+        REG_CNT_1G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, cmd);
+        REG_CNT_1G(TX_PAUSE, i, &c->tx_pause, cmd);
+        REG_CNT_1G(TX_OK_BYTES, i, &c->tx_ok_bytes, cmd);
+        REG_CNT_1G(TX_UC, i, &c->tx_unicast, cmd);
+        REG_CNT_1G(TX_MC, i, &c->tx_multicast, cmd);
+        REG_CNT_1G(TX_BC, i, &c->tx_broadcast, cmd);
+        REG_CNT_1G(TX_SIZE64, i, &c->tx_size64, cmd);
+        REG_CNT_1G(TX_SIZE65TO127, i, &c->tx_size65_127, cmd);
+        REG_CNT_1G(TX_SIZE128TO255, i, &c->tx_size128_255, cmd);
+        REG_CNT_1G(TX_SIZE256TO511, i, &c->tx_size256_511, cmd);
+        REG_CNT_1G(TX_SIZE512TO1023, i, &c->tx_size512_1023, cmd);
+        REG_CNT_1G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, cmd);
+        REG_CNT_1G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, cmd);
+        REG_CNT_1G_ONE(TX_MULTI_COLL, i, &c->tx_multi_coll, cmd);
+        REG_CNT_1G_ONE(TX_LATE_COLL, i, &c->tx_late_coll, cmd);
+        REG_CNT_1G_ONE(TX_XCOLL, i, &c->tx_xcoll, cmd);
+        REG_CNT_1G_ONE(TX_DEFER, i, &c->tx_defer, cmd);
+        REG_CNT_1G_ONE(TX_XDEFER, i, &c->tx_xdefer, cmd);
+        REG_CNT_1G_ONE(TX_BACKOFF1, i, &c->tx_backoff1, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, clr);
-        REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, clr);
-        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, clr);
-        REG_CNT_1G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, clr);
-        REG_CNT_1G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, clr);
+        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
+        REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
+        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
+        REG_CNT_1G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
+        REG_CNT_1G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
 #endif
     } else {
         /* DEV5G/DEV10G/DEV25G counters */
         port = VTSS_CHIP_PORT(port_no);
         i = VTSS_TO_HIGH_DEV(port);
-        REG_CNT_10G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, clr);
-        REG_CNT_10G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, clr);
-        REG_CNT_10G(RX_PAUSE, i, &c->rx_pause, clr);
-        REG_CNT_10G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, clr);
-        REG_CNT_10G(RX_OK_BYTES, i, &c->rx_ok_bytes, clr);
-        REG_CNT_10G(RX_BAD_BYTES, i, &c->rx_bad_bytes, clr);
-        REG_CNT_10G(RX_UC, i, &c->rx_unicast, clr);
-        REG_CNT_10G(RX_MC, i, &c->rx_multicast, clr);
-        REG_CNT_10G(RX_BC, i, &c->rx_broadcast, clr);
-        REG_CNT_10G(RX_CRC_ERR, i, &c->rx_crc_err, clr);
-        REG_CNT_10G(RX_UNDERSIZE, i, &c->rx_undersize, clr);
-        REG_CNT_10G(RX_FRAGMENTS, i, &c->rx_fragments, clr);
-        REG_CNT_10G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, clr);
-        REG_CNT_10G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, clr);
-        REG_CNT_10G(RX_OVERSIZE, i, &c->rx_oversize, clr);
-        REG_CNT_10G(RX_JABBERS, i, &c->rx_jabbers, clr);
-        REG_CNT_10G(RX_SIZE64, i, &c->rx_size64, clr);
-        REG_CNT_10G(RX_SIZE65TO127, i, &c->rx_size65_127, clr);
-        REG_CNT_10G(RX_SIZE128TO255, i, &c->rx_size128_255, clr);
-        REG_CNT_10G(RX_SIZE256TO511, i, &c->rx_size256_511, clr);
-        REG_CNT_10G(RX_SIZE512TO1023, i, &c->rx_size512_1023, clr);
-        REG_CNT_10G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, clr);
-        REG_CNT_10G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, clr);
+        REG_CNT_10G_ONE(RX_IN_BYTES, i, &c->rx_in_bytes, cmd);
+        REG_CNT_10G(RX_SYMBOL_ERR, i, &c->rx_symbol_err, cmd);
+        REG_CNT_10G(RX_PAUSE, i, &c->rx_pause, cmd);
+        REG_CNT_10G(RX_UNSUP_OPCODE, i, &c->rx_unsup_opcode, cmd);
+        REG_CNT_10G(RX_OK_BYTES, i, &c->rx_ok_bytes, cmd);
+        REG_CNT_10G(RX_BAD_BYTES, i, &c->rx_bad_bytes, cmd);
+        REG_CNT_10G(RX_UC, i, &c->rx_unicast, cmd);
+        REG_CNT_10G(RX_MC, i, &c->rx_multicast, cmd);
+        REG_CNT_10G(RX_BC, i, &c->rx_broadcast, cmd);
+        REG_CNT_10G(RX_CRC_ERR, i, &c->rx_crc_err, cmd);
+        REG_CNT_10G(RX_UNDERSIZE, i, &c->rx_undersize, cmd);
+        REG_CNT_10G(RX_FRAGMENTS, i, &c->rx_fragments, cmd);
+        REG_CNT_10G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, cmd);
+        REG_CNT_10G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, cmd);
+        REG_CNT_10G(RX_OVERSIZE, i, &c->rx_oversize, cmd);
+        REG_CNT_10G(RX_JABBERS, i, &c->rx_jabbers, cmd);
+        REG_CNT_10G(RX_SIZE64, i, &c->rx_size64, cmd);
+        REG_CNT_10G(RX_SIZE65TO127, i, &c->rx_size65_127, cmd);
+        REG_CNT_10G(RX_SIZE128TO255, i, &c->rx_size128_255, cmd);
+        REG_CNT_10G(RX_SIZE256TO511, i, &c->rx_size256_511, cmd);
+        REG_CNT_10G(RX_SIZE512TO1023, i, &c->rx_size512_1023, cmd);
+        REG_CNT_10G(RX_SIZE1024TO1518, i, &c->rx_size1024_1518, cmd);
+        REG_CNT_10G(RX_SIZE1519TOMAX, i, &c->rx_size1519_max, cmd);
 
-        REG_CNT_10G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, clr);
-        REG_CNT_10G(TX_PAUSE, i, &c->tx_pause, clr);
-        REG_CNT_10G(TX_OK_BYTES, i, &c->tx_ok_bytes, clr);
-        REG_CNT_10G(TX_UC, i, &c->tx_unicast, clr);
-        REG_CNT_10G(TX_MC, i, &c->tx_multicast, clr);
-        REG_CNT_10G(TX_BC, i, &c->tx_broadcast, clr);
-        REG_CNT_10G(TX_SIZE64, i, &c->tx_size64, clr);
-        REG_CNT_10G(TX_SIZE65TO127, i, &c->tx_size65_127, clr);
-        REG_CNT_10G(TX_SIZE128TO255, i, &c->tx_size128_255, clr);
-        REG_CNT_10G(TX_SIZE256TO511, i, &c->tx_size256_511, clr);
-        REG_CNT_10G(TX_SIZE512TO1023, i, &c->tx_size512_1023, clr);
-        REG_CNT_10G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, clr);
-        REG_CNT_10G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, clr);
+        REG_CNT_10G_ONE(TX_OUT_BYTES, i, &c->tx_out_bytes, cmd);
+        REG_CNT_10G(TX_PAUSE, i, &c->tx_pause, cmd);
+        REG_CNT_10G(TX_OK_BYTES, i, &c->tx_ok_bytes, cmd);
+        REG_CNT_10G(TX_UC, i, &c->tx_unicast, cmd);
+        REG_CNT_10G(TX_MC, i, &c->tx_multicast, cmd);
+        REG_CNT_10G(TX_BC, i, &c->tx_broadcast, cmd);
+        REG_CNT_10G(TX_SIZE64, i, &c->tx_size64, cmd);
+        REG_CNT_10G(TX_SIZE65TO127, i, &c->tx_size65_127, cmd);
+        REG_CNT_10G(TX_SIZE128TO255, i, &c->tx_size128_255, cmd);
+        REG_CNT_10G(TX_SIZE256TO511, i, &c->tx_size256_511, cmd);
+        REG_CNT_10G(TX_SIZE512TO1023, i, &c->tx_size512_1023, cmd);
+        REG_CNT_10G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, cmd);
+        REG_CNT_10G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, clr);
-        REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, clr);
-        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, clr);
-        REG_CNT_10G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, clr);
-        REG_CNT_10G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, clr);
+        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
+        REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
+        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
+        REG_CNT_10G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
+        REG_CNT_10G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
 #endif
     }
 
@@ -2868,25 +2868,25 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
     REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(port));
     addr = 16;
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_green_drops[i], clr));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_green_drops[i], cmd));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_yellow_drops[i], clr));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_yellow_drops[i], cmd));
     }
     addr = 256;
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_green_class[i], clr));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_green_class[i], cmd));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_class[i], clr));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_class[i], cmd));
     }
-    VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_queue_drops, clr));
+    VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_queue_drops, cmd));
 
     /* ANA_AC counters */
-    REG_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, REG_CNT_ANA_AC_PORT_FILTER), &c->rx_local_drops, clr);
-    REG_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, REG_CNT_ANA_AC_PORT_POLICER_DROPS), &c->rx_policer_drops, clr);
+    REG_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, REG_CNT_ANA_AC_PORT_FILTER), &c->rx_local_drops, cmd);
+    REG_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, REG_CNT_ANA_AC_PORT_POLICER_DROPS), &c->rx_policer_drops, cmd);
     for (i = 0; i < VTSS_PRIOS; i++) {
-        REG_CNT_ANA_AC(QUEUE_STAT_LSB_CNT(port*8 + i, REG_CNT_ANA_AC_QUEUE_PRIO), &c->rx_class[i], clr);
+        REG_CNT_ANA_AC(QUEUE_STAT_LSB_CNT(port*8 + i, REG_CNT_ANA_AC_QUEUE_PRIO), &c->rx_class[i], cmd);
     }
 
     if (counters == NULL) {
@@ -3005,25 +3005,25 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                  *vtss_state,
 
 
 static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
-                                 const vtss_port_no_t        port_no,
-                                 vtss_port_counters_t *const counters,
-                                 BOOL                        clear)
+                                const vtss_port_no_t        port_no,
+                                vtss_port_counters_t *const counters,
+                                vtss_counter_cmd_t          cmd)
 {
     return fa_port_counters_chip(vtss_state,
-                                  port_no,
-                                  &vtss_state->port.counters[port_no].counter.fa,
-                                  counters,
-                                  clear);
+                                 port_no,
+                                 &vtss_state->port.counters[port_no].counter.fa,
+                                 counters,
+                                 cmd);
 }
 
 static vtss_rc fa_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    return fa_port_counters(vtss_state, port_no, NULL, 0);
+    return fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_UPDATE);
 }
 
 static vtss_rc fa_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    return fa_port_counters(vtss_state, port_no, NULL, 1);
+    return fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_CLEAR);
 }
 
 static vtss_rc fa_port_basic_counters_get(vtss_state_t *vtss_state,
@@ -3045,7 +3045,7 @@ static vtss_rc fa_port_counters_get(vtss_state_t *vtss_state,
                                       vtss_port_counters_t *const counters)
 {
     memset(counters, 0, sizeof(*counters));
-    return fa_port_counters(vtss_state, port_no, counters, 0);
+    return fa_port_counters(vtss_state, port_no, counters, VTSS_COUNTER_CMD_UPDATE);
 }
 
 
