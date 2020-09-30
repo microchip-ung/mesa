@@ -453,9 +453,9 @@ class MesaDut
             end
             @io.send ""
             @io.send ""
-            @io.send "er -l /tmp/console-er -- #{cmd} < /tmp/input-buf"
+            @io.send "er -l /tmp/console-er -- sh -c \"#{cmd}\" < /tmp/input-buf"
         else
-            @io.send "er -l /tmp/console-er -- #{cmd}"
+            @io.send "er -l /tmp/console-er -- sh -c \"#{cmd}\""
         end
 
         pid = pid_for_cmd cmd
