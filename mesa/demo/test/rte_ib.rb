@@ -245,7 +245,8 @@ def tx_dg_test(intf, ral_id, opc = false)
     end
     dg = [{offs: 0, data: "0123456789ab"},
           {offs: 7, data: "ef", vld_offs: 8, vld_update: true},
-          {offs: 12, data: "9876", vld_offs: 14, seq_update: true, code_update: true}]
+          {offs: 12, data: "9876", vld_offs: 14, seq_update: true, code_update: true},
+          {offs: 20, data: "0102030405060708", val: [8,7,6,5,4,3,2,1]}]
     dg.each do |d|
         offs = (d[:offs] * 2)
         data = d[:data]
@@ -259,6 +260,23 @@ def tx_dg_test(intf, ral_id, opc = false)
         addr["addr"] = rd_addr
         conf["length"] = size
         $ts.dut.call("mera_ib_ra_add", ral_id, conf)
+
+        if (d.key?:val and use_buf == false)
+            # Disable RA and write to frame memory
+            ctrl = {}
+            ctrl["enable"] = false
+            $ts.dut.call("mera_ib_ra_ctrl_set", ral_id, ra_id, ctrl)
+
+            d[:val].each_with_index do |v, j|
+                data = {}
+                offs = (d[:offs] + j)
+                data["offset"] = (14 + offs)
+                data["value"] = v
+                offs = (offs * 2)
+                payload[offs..(offs + 1)] = ("%02x" % v)
+                $ts.dut.call("mera_ib_rtp_data_set", $rtp_id, data)
+            end
+        end
 
         conf = $ts.dut.call("mera_ib_dg_init")
         conf["rtp_id"] = $rtp_id

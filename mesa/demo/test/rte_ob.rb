@@ -209,6 +209,12 @@ $test_table =
         dg: [{offs: 15, length: 5, vld_offs: 15, seq_chk: true, str: "0102030405"}],
         frame: [{data: "0102030405"},{data: "0102030406"}],
     },
+    {
+        txt: "dg_write - SRAM",
+        intf: "SRAM",
+        rtp: {wal_id: 14},
+        dg: [{length: 8, val: [8,7,6,5,4,3,2,1], str: "0807060504030201"}],
+    },
 ]
 
 def fld_get(v, fld, val = 0)
@@ -276,6 +282,20 @@ def rte_ob_test(t)
             d[:str] = str
         end
         $ts.dut.call("mera_ob_dg_add", $rtp_id, conf)
+
+        if (d.key?:val)
+            # Disable DG and write to DG memory
+            ctrl = {}
+            ctrl["enable"] = false
+            $ts.dut.call("mera_ob_dg_ctrl_set", $rtp_id, i, ctrl)
+
+            d[:val].each_with_index do |v, j|
+                data = {}
+                data["offset"] = j
+                data["value"] = v
+                $ts.dut.call("mera_ob_dg_data_set", $rtp_id, i, data)
+            end
+        end
 
         conf = $ts.dut.call("mera_ob_wa_init")
         conf["rtp_id"] = $rtp_id
