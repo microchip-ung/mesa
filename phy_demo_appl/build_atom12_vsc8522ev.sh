@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 #
-gcc -g -o vtss_api_atom12_vsc8522ev  -I ../include -DVTSS_OPSYS_LINUX=1  -DVTSS_OPT_PORT_COUNT=4  -DVTSS_CHIP_CU_PHY -DATOM12_EVAL_BOARD -DVTSS_FEATURE_EEE -DVTSS_SW_OPTION_EEE -DVTSS_FEATURE_SERDES_MACRO_SETTINGS appl/vtss_appl_board_atom12_eval.c appl/vtss_appl_cu_phy.c ../base/ail/vtss_api.c  ../base/ail/vtss_common.c  `find ../base/phy/phy_1g -name "*.c"`
+gcc -g -o vtss_api_atom12_vsc8522ev  -I ../include -DVTSS_OPSYS_LINUX=1  -DVTSS_OPT_PORT_COUNT=4  -DVTSS_CHIP_CU_PHY -DATOM12_EVAL_BOARD -DVTSS_FEATURE_EEE -DVTSS_SW_OPTION_EEE -DVTSS_FEATURE_SERDES_MACRO_SETTINGS appl/vtss_appl_board_atom12_eval.c appl/vtss_appl_vsc_phy_1g.c ../base/ail/vtss_api.c  ../base/ail/vtss_common.c  `find ../base/phy/phy_1g -name "*.c"`
 ## Available Defines:
 ##  -DVTSS_OPSYS_LINUX=1
 ##  -DVTSS_OPT_PORT_COUNT=4
