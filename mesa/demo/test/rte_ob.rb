@@ -387,8 +387,12 @@ def rte_ob_test(t)
         $ts.dut.call("mera_ob_wal_rel", wal_id)
     end
 
-    # Next RTP ID
-    $rtp_id = ($rtp_id + 1)
+    # Either flush the configuration or increment RTP ID
+    if (true)
+        $rtp_id = ($rtp_id + 1)
+    else
+        $ts.dut.call("mera_ob_flush")
+    end
 end
 
 $test_table.each do |t|

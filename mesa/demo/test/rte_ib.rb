@@ -32,6 +32,15 @@ test "conf" do
     io_fpga_rw("fill 0x100 0x100 0")
 end
 
+def rte_next_test
+    # Either flush the configuration or increment RTP ID
+    if (true)
+        $rtp_id = ($rtp_id + 1)
+    else
+        $ts.dut.call("mera_ib_flush")
+    end
+end
+
 def cmd_payload_push(payload)
     len = payload.length
     i = 0
@@ -61,7 +70,7 @@ end
 
 def tx_len_test(len)
     idx_rx = 1
-    $rtp_id = ($rtp_id + 1)
+    rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
     # One-shot time by default
@@ -102,7 +111,7 @@ test "tx-data-max" do
 end
 
 def tx_time_test(idx, time, margin)
-    $rtp_id = ($rtp_id + 1)
+    rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
     conf["time"]["interval"] = time
@@ -168,7 +177,7 @@ test "otf" do
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
 
     # Add RCE enabling inbound processing
-    $rtp_id = ($rtp_id + 1)
+    rte_next_test
     rce = $ts.dut.call("mesa_rce_init")
     rce["id"] = 1
     k = rce["key"]
@@ -216,7 +225,7 @@ end
 def tx_dg_test(intf, ral_id, opc = false)
     len = 60
     idx_rx = 1
-    $rtp_id = ($rtp_id + 1)
+    rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     time = conf["time"]
