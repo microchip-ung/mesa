@@ -20,11 +20,6 @@ test "conf" do
         $port[idx] = map[$ts.dut.p[idx]]["chip_port"]
     end
 
-    # Enable RTE
-    conf = $ts.dut.call("mera_gen_conf_get")
-    conf["enable"] = true
-    $ts.dut.call("mera_gen_conf_set", conf)
-
     # Initialize QSPI
     qspi_init
 

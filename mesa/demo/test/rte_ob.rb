@@ -32,11 +32,6 @@ test "conf" do
     conf = { "pcp": [true, true, true, true, true, true, true, true]}
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
 
-    # Enable RTE
-    conf = $ts.dut.call("mera_gen_conf_get")
-    conf["enable"] = true
-    $ts.dut.call("mera_gen_conf_set", conf)
-
     # Initialize QSPI
     qspi_init
 
