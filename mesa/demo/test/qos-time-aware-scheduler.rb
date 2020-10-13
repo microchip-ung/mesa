@@ -433,6 +433,127 @@ def jira_appl_3396_test
     end
 end
 
+def jira_appl_3433_no_preemption_measure(ig, eg, frame_size, cycle_time, fp)
+    t_i ("Disable Frame Preemption")
+    fp["enable_tx"] = false
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+
+    t_i ("Measure after Frame Preemption disabled")
+    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
+
+    t_i ("Enable Frame Preemption")
+    fp["enable_tx"] = true
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+end
+
+def jira_appl_3433_test
+    ig = 0
+    eg = 1
+    frame_size = 500
+    cycle_time = 1000000
+
+    test "Time aware scheduling JIRA APPL-3433" do
+
+    t_i ("Measure initially")
+    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+
+    t_i ("Enable Frame preemption")
+    fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $ts.dut.p[eg])
+    fp["admin_status"].each_index {|i| fp["admin_status"][i] = false}
+    fp["admin_status"][2] = true
+    fp["enable_tx"] = true
+    fp["verify_disable_tx"] = false
+    fp["add_frag_size"] = 1
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+    sleep 1
+    port_status = $ts.dut.call("mesa_qos_fp_port_status_get", $ts.dut.p[eg])
+
+
+    t_i ("Measure before creating TAS")
+    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+
+    t_i ("Create GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
+    gcl = conf[0]
+    gce_cnt = conf[1]
+    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC"
+    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
+    gcl[0]["gate_open"][2] = true
+    gcl[0]["time_interval"] = 200000
+    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
+    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = true}
+    gcl[1]["gate_open"][2] = false
+    gcl[1]["time_interval"] = 800000
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 0
+    tod[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    t_i ("Start GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["max_sdu"].each_index {|i| conf["max_sdu"][i] = 10240}
+    conf["gate_enabled"] = true
+    conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+    conf["cycle_time"] = cycle_time
+    conf["cycle_time_ext"] = 256
+    conf["base_time"]["nanoseconds"] = 303697500
+    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["sec_msb"] = 0
+    conf["gate_enabled"] = true
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Check GCL is pending")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Wait for GCL to start")
+    sleep 3
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Measure after TAS created")
+    t_i ("Tolerance must be high due to large MAXSDU meaning large guard band")
+    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [41],           true,              [2])
+
+    5.times {
+        sleep 1
+        jira_appl_3433_no_preemption_measure(ig, eg, frame_size, cycle_time, fp)
+    }
+
+    t_i ("Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Disable Frame Preemption")
+    fp["enable_tx"] = false
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+    end
+end
+
 def equal_interval_1_prio_3_port_test
     ig = rand(3)    # Get a random ingress port between 0 and 3
     eg = [0,1,2,3] - [ig]  # Calculate engress list as all other ports
@@ -582,6 +703,7 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
+#    jira_appl_3433_test
     jira_appl_3396_test
     equal_interval_3_prio_1_port_test
     equal_interval_1_prio_3_port_test
