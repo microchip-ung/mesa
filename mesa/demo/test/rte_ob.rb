@@ -152,6 +152,7 @@ $test_table =
     # Data group transfer
     {
         txt: "dg_write - QSPI",
+        intf: "QSPI",
         rtp: {wal_id: 7},
         dg: [{length: 4},{offs: 8, length: 32},{offs: 4, length: 4}],
         # UNG_MASERATI-614/684: Unaligned QSPI not supported
@@ -159,13 +160,11 @@ $test_table =
     },
     {
         txt: "dg_write - SRAM",
-        intf: "SRAM",
         rtp: {wal_id: 8},
         dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
     },
     {
         txt: "pn_dg_write - default",
-        intf: "SRAM",
         rtp: {wal_id: 9},
         # IOPS at offset 4, bit 7 is valid flag
         dg: [{length: 5, vld_offs: 4, vld_chk: true, inv_def: true, str: "0102030405", data: [1,2,3,4,5]}],
@@ -173,7 +172,6 @@ $test_table =
     },
     {
         txt: "pn_dg_write - last valid",
-        intf: "SRAM",
         rtp: {wal_id: 10},
         # IOPS at offset 4, bit 7 is valid flag
         dg: [{length: 5, vld_offs: 4, vld_chk: true, valid: 0x78, str: "0001020380"}],
@@ -181,7 +179,6 @@ $test_table =
     },
     {
         txt: "opc_dg_write - last valid",
-        intf: "SRAM",
         opc: true,
         rtp: {wal_id: 11},
         # DataSetFlags1 at offset 15, bit 0 is valid flag
@@ -190,7 +187,6 @@ $test_table =
     },
     {
         txt: "opc_dg_code",
-        intf: "SRAM",
         opc: true,
         rtp: {wal_id: 12},
         # DataSetFlags1 at offset 15, StatusCode is little-endian at offset 18
@@ -199,7 +195,6 @@ $test_table =
     },
     {
         txt: "opc_dg_seq",
-        intf: "SRAM",
         opc: true,
         rtp: {wal_id: 13},
         # DataSetFlags1 at offset 15, SequenceNumber is little-endian at offset 16
@@ -208,11 +203,22 @@ $test_table =
     },
     {
         txt: "dg_write - SRAM",
-        intf: "SRAM",
         rtp: {wal_id: 14},
         dg: [{length: 8, val: [8,7,6,5,4,3,2,1], str: "0807060504030201"}],
     },
+    {
+        txt: "rtp_timer - default",
+        rtp: {wal_id: 15, wal_int: 2000000, rtp_int: 1000000},
+        dg: [{length: 4, str: "01020304", data: [1,2,3,4]}],
+        frame: []
+    },
 ]
+
+def time_set(conf, interval)
+    time = conf["time"]
+    time["offset"] = 10000
+    time["interval"] = interval
+end
 
 def fld_get(v, fld, val = 0)
     if (v != nil and v.key?(fld))
@@ -252,10 +258,11 @@ def rte_ob_test(t)
     wal_id = fld_get(e, :wal_id);
     conf["wal_enable"] = (wal_id == 0 ? false : true)
     conf["wal_id"] = wal_id
+    time_set(conf, fld_get(e, :rtp_int))
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
     # Add data group
-    intf = fld_get(t, :intf, "QSPI")
+    intf = fld_get(t, :intf, "SRAM")
     wr_addr = 0x100
     dg.each_with_index do |d, i|
         conf = $ts.dut.call("mera_ob_dg_init")
@@ -303,6 +310,14 @@ def rte_ob_test(t)
         d[:addr] = wr_addr
         wr_addr = (wr_addr + len)
         $ts.dut.call("mera_ob_wa_add", wal_id, conf)
+    end
+
+    wal_int = fld_get(e, :wal_int)
+    if (wal_int > 0)
+        conf = $ts.dut.call("mera_ob_wal_conf_get", wal_id)
+        time_set(conf, wal_int)
+        $ts.dut.call("mera_ob_wal_conf_set", wal_id, conf)
+        sleep(1)
     end
 
     # Send frames
