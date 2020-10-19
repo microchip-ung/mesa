@@ -153,7 +153,9 @@ $test_table =
     {
         txt: "dg_write - QSPI",
         rtp: {wal_id: 7},
-        dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
+        dg: [{length: 4},{offs: 8, length: 32},{offs: 4, length: 4}],
+        # UNG_MASERATI-614/684: Unaligned QSPI not supported
+        #dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
     },
     {
         txt: "dg_write - SRAM",
