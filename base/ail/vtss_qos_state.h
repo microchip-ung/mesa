@@ -369,6 +369,7 @@ typedef struct {
     BOOL inherit_profile;
     u32  entry_idx;
     u32  profile_idx;
+    u32  hold_profile_idx;  /* Profile for FP hold MAC guard band */
 } vtss_tas_list_t;
 
 typedef struct {

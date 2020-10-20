@@ -2278,11 +2278,13 @@ static vtss_rc tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
 
     if (!tas_lists[list_idx].inherit_profile) {   /* Inherit profiles are not freed */
         (void)tas_profile_free(vtss_state, tas_lists[list_idx].profile_idx); /* Free any possible profile */
+        (void)tas_profile_free(vtss_state, tas_lists[list_idx].hold_profile_idx); /* Free any possible hold MAC profile */
     }
 
     tas_lists[list_idx].in_use = FALSE; /* Free the list */
     tas_lists[list_idx].inherit_profile = FALSE;
     tas_lists[list_idx].profile_idx = TAS_PROFILE_IDX_NONE;
+    tas_lists[list_idx].hold_profile_idx = TAS_PROFILE_IDX_NONE;
     tas_lists[list_idx].entry_idx = TAS_ENTRY_IDX_NONE;
 
     return VTSS_RC_OK;
@@ -2661,30 +2663,29 @@ static vtss_rc tas_list_cancel(vtss_state_t *vtss_state, u32 list_index)
     return VTSS_RC_OK;
 }
 
-static vtss_rc tas_qmaxsdu_configure(vtss_state_t *vtss_state, u32 profile_idx,  const vtss_port_no_t port_no)
+static vtss_rc hold_qmaxsdu_configure(vtss_state_t *vtss_state,  u32 profile_idx,  const vtss_port_no_t port_no)
 {
-    u32             i, mask, scheduled, value, maxsdu;
+    u32             i, maxsdu;
     vtss_port_no_t  chip_port = VTSS_CHIP_PORT(port_no);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     u32             fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
 #else
     u32             fp_enable_tx = FALSE;
 #endif
-    u16             *max_sdu  = vtss_state->qos.tas.port_conf[port_no].max_sdu;
 
-    REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
-    scheduled = VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value);
+    if (!fp_enable_tx || (profile_idx == TAS_PROFILE_IDX_NONE)) {
+        return VTSS_RC_OK;
+    }
 
-    for (i = 0, mask = 0x01; i < VTSS_QUEUE_ARRAY_SIZE; ++i, mask <<= 1) {
-        if (scheduled && !(scheduled & mask) && fp_enable_tx) { /* At least one queue is scheduled meaning hold/release MAC commands in the list. All preemptible queues must have preempt min size as MAXSDU */
-            REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
-            maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
-        } else {
-            maxsdu = (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
-        }
-        VTSS_D("profile_idx:%d  i:%d  maxsdu:%d\n", profile_idx, i, maxsdu);
+    /* Calculate the Max SDU size based of FP fragment size */
+    REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &maxsdu);
+    maxsdu += 1;    /* Must add 64 bytes as preemption must not be done if less than 64 bytes are remaining */
+
+    /* Configure the hold MAC profile Max SDU size */
+    for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
         REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
     }
+
     return VTSS_RC_OK;
 }
 
@@ -2692,17 +2693,21 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
-    u32                 i, value, time_interval_sum = 0, scheduled;
+    u32                 i, value, time_interval_sum = 0, scheduled, pindex, maxsdu;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
+    u32                 hold_profile_idx = vtss_state->qos.tas.tas_lists[list_idx].hold_profile_idx;
     u32                 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
+    u16                 *max_sdu  = vtss_state->qos.tas.port_conf[port_no].max_sdu;
     vtss_port_no_t      chip_port = VTSS_CHIP_PORT(port_no);
+    BOOL                hold;
 
     vtss_timestamp_t    *base_time = &port_conf->base_time;
     u32                 cycle_time = port_conf->cycle_time;
     u32                 gcl_length = port_conf->gcl_length;
     vtss_qos_tas_gce_t  *gcl = port_conf->gcl;;
 
-    VTSS_D("Enter list_idx %u  startup_time %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, startup_time, obsolete_list_idx, entry_idx, profile_idx, chip_port);
+    VTSS_D("Enter list_idx %u  startup_time %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u    hold_profile_idx %u  chip_port %u",
+           list_idx, startup_time, obsolete_list_idx, entry_idx, profile_idx, hold_profile_idx, chip_port);
 
     if (startup_time < 256) {
         VTSS_D("The Startup time %u must be at least 256 ns", startup_time);
@@ -2730,24 +2735,53 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 
-    /* Configure the profile */
+    /* Configure the profile(s) */
+    /* The profile for "normal" guard band - not Hold MAC guard band */
     scheduled = tas_scheduled_calc(gcl, gcl_length);
-    REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
-                                                      VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(scheduled) |
-                                                      VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
-    if (tas_qmaxsdu_configure(vtss_state, profile_idx, port_no) != VTSS_RC_OK) {
-        VTSS_D("tas_qmaxsdu_configure failed");
-        return VTSS_RC_ERROR;
+    REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx),
+                                        VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
+                                        VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(scheduled) |
+                                        VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
+    for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+        maxsdu = (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
+        REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), maxsdu);
+    }
+    if (hold_profile_idx != TAS_PROFILE_IDX_NONE) {
+        /* The profile for "Hold MAC" guard band */
+        REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(hold_profile_idx),
+                                            VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
+                                            VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(scheduled) |
+                                            VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
+        if (hold_qmaxsdu_configure(vtss_state, hold_profile_idx, port_no) != VTSS_RC_OK) {
+            VTSS_D("tas_qmaxsdu_configure failed");
+            return VTSS_RC_ERROR;
+        }
     }
 
+    hold = FALSE;
     /* Configure the list elements */
     for (i = 0; i < gcl_length; ++i) {
+        pindex = profile_idx;
+        if ((gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC) && !hold) {
+            /* Transition from no Hold MAC interval to Hold MAC interval */
+            /* Use the specific profile for that with Max SDU size based on FP fragment size */
+            pindex = hold_profile_idx;
+        }
+        if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC) {
+            /* Now in Hold MAC state */
+            hold = TRUE;
+        }
+        if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC) {
+            /* Now out of Hold MAC state */
+            hold = FALSE;
+        }
+
         /* Select the list entry */
         REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(i), VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM); /* The GCL_ENTRY_NUM is relative to the LIST_BASE_ADDR that is accessed latest  */
 
         /* Configure the list entry */
         REG_WR(VTSS_HSCH_TAS_GCL_CTRL_CFG, VTSS_F_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(vtss_bool8_to_u8(gcl[i].gate_open)) |
-                                           VTSS_F_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE(profile_idx) |
+                                           VTSS_F_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE(pindex) |
                                            VTSS_F_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(5040 + 64 + chip_port));   /* Default scheduler element when HQoS is not present */
         REG_WR(VTSS_HSCH_TAS_GCL_TIME_CFG, gcl[i].time_interval);
 
@@ -2776,7 +2810,8 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
     u32                 i;
     vtss_tas_profile_t  *tas_profiles = vtss_state->qos.tas.tas_profiles;
 
-    /* This must be done when the link comes up and link speed has been negotiated. The profile used on this port must be configured to actual speed */
+    /* This must be done when the link comes up and link speed has been negotiated. */
+    /* The profile used on this port must be configured to actual speed */
     for (i = 0; i < VTSS_TAS_NUMBER_OF_PROFILES; ++i) {
         if (tas_profiles[i].in_use && tas_profiles[i].port_no == port_no) {
             REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(i), VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),
@@ -2793,14 +2828,12 @@ static vtss_rc fa_qos_tas_frag_size_update(struct vtss_state_s   *vtss_state,
 {
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     vtss_tas_list_t       *tas_lists = vtss_state->qos.tas.tas_lists;
-    u32                   profile_idx;
 
     if (gcl_state->curr_list_idx == TAS_LIST_IDX_NONE) {
         return VTSS_RC_OK;
     }
-    profile_idx = tas_lists[gcl_state->curr_list_idx].profile_idx;
 
-    if (tas_qmaxsdu_configure(vtss_state, profile_idx, port_no) != VTSS_RC_OK) {
+    if (hold_qmaxsdu_configure(vtss_state, tas_lists[gcl_state->curr_list_idx].hold_profile_idx, port_no) != VTSS_RC_OK) {
         VTSS_D("tas_qmaxsdu_configure failed");
         return VTSS_RC_ERROR;
     }
@@ -3004,6 +3037,17 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             }
             tas_lists[list_idx].profile_idx = profile_idx;
             tas_lists[list_idx].inherit_profile = FALSE;
+            if (tas_scheduled_calc(new_port_conf->gcl, new_port_conf->gcl_length) != 0) {
+                /* This GCL contains hold/release MAC gate operations. */
+                /* This require extra profile to configure the Frame Preemption fragment based MAX SDU size */
+                if ((profile_idx = tas_profile_allocate(vtss_state, port_no)) == TAS_PROFILE_IDX_NONE) {    /* Allocate new profile */
+                    tas_list_free(vtss_state, list_idx);
+                    tas_list_free(vtss_state, trunk_list_idx);
+                    VTSS_I("No TAS profiles was allocated");
+                    return VTSS_RC_ERROR;
+                }
+                tas_lists[list_idx].hold_profile_idx = profile_idx;
+            }
             obsolete_list_idx = gcl_state->curr_list_idx;
 
             /* Resources are now allocated - start the lists */
@@ -4580,6 +4624,11 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     memset(&vtss_state->qos.tas.tas_profiles, 0, sizeof(vtss_state->qos.tas.tas_profiles));
     memset(&vtss_state->qos.tas.tas_entry_blocks, 0, sizeof(vtss_state->qos.tas.tas_entry_blocks));
     memset(&vtss_state->qos.tas.tas_entry_rows, 0, sizeof(vtss_state->qos.tas.tas_entry_rows));
+
+    for (i = 0; i < VTSS_TAS_NUMBER_OF_LISTS; i++) {
+        vtss_state->qos.tas.tas_lists[i].profile_idx = TAS_PROFILE_IDX_NONE;
+        vtss_state->qos.tas.tas_lists[i].hold_profile_idx = TAS_PROFILE_IDX_NONE;
+    }
 
     /* Normal scheduling mode for CPU ports */
     for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {

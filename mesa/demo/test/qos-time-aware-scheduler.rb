@@ -433,20 +433,6 @@ def jira_appl_3396_test
     end
 end
 
-def jira_appl_3433_no_preemption_measure(ig, eg, frame_size, cycle_time, fp)
-    t_i ("Disable Frame Preemption")
-    fp["enable_tx"] = false
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
-
-    t_i ("Measure after Frame Preemption disabled")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
-
-    t_i ("Enable Frame Preemption")
-    fp["enable_tx"] = true
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
-end
-
 def jira_appl_3433_test
     ig = 0
     eg = 1
@@ -494,6 +480,7 @@ def jira_appl_3433_test
     tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 0
     $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    base_time = tod[0].dup
 
     t_i ("Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -524,15 +511,64 @@ def jira_appl_3433_test
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
+#    $ts.dut.run("mesa-cmd deb api cil qos act 7")
+
     t_i ("Measure after TAS created")
+    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+
+    t_i ("Disable Frame Preemption")
+    fp["enable_tx"] = false
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+
+    t_i ("Create new GCL without hold/relese MAC")
+    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
+    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
+
+    t_i ("Re-configurate GCL with cycle extension")
+    # Calculate a new base time two seconds away at cycle end time
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    seconds = tod[0]["seconds"] + 2
+    base_time_1 = base_time.dup
+    cycle_time_ext = 800000 / 2
+    while true
+        base_time_1["nanoseconds"] += cycle_time
+        if (base_time_1["nanoseconds"] >= 1000000000)
+            base_time_1["seconds"] += 1
+            base_time_1["nanoseconds"] -= 1000000000
+        end
+
+        if (base_time_1["seconds"] > seconds)
+            break;
+        end
+    end
+    # Add half a extension time to assure extension
+    base_time_1["nanoseconds"] += (cycle_time_ext/2)
+    if (base_time_1["nanoseconds"] >= 1000000000)
+        base_time_1["seconds"] += 1
+        base_time_1["nanoseconds"] -= 1000000000
+    end
+    # Start new GCL
+    conf["cycle_time_ext"] = cycle_time_ext
+    conf["base_time"] = base_time_1
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to start")
+    sleep 3
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+#    $ts.dut.run("mesa-cmd deb api cil qos act 7")
+
+    t_i ("Measure after Frame Preemption disabled")
     t_i ("Tolerance must be high due to large MAXSDU meaning large guard band")
     #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [41],           true,              [2])
-
-    5.times {
-        sleep 1
-        jira_appl_3433_no_preemption_measure(ig, eg, frame_size, cycle_time, fp)
-    }
+     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
 
     t_i ("Stop GCL")
     conf["gate_enabled"] = false
@@ -703,7 +739,7 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
-#    jira_appl_3433_test
+    jira_appl_3433_test
     jira_appl_3396_test
     equal_interval_3_prio_1_port_test
     equal_interval_1_prio_3_port_test
