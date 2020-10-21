@@ -882,25 +882,10 @@ end
 
 # Intialize QSPI
 def qspi_init
-    for gpio in 59..64
-        $ts.dut.call("mesa_gpio_mode_set", 0, gpio, "MESA_GPIO_ALT_0")
-    end
-
-    qspi_rw("mr", "smm", 1)
-    qspi_rw("cr", "updcfg", 1)
-    qspi_rw("cr", "qspien", 1)
-    qspi_rw("ricr", "rdinst", 0xeb)
-    qspi_rw("wicr", "wrinst", 0x38)
-    qspi_rw("ifr", "apbtfrtyp", 1)
-    qspi_rw("ifr", "tfrtyp", 1)
-    qspi_rw("ifr", "nbdum", 6)
-    qspi_rw("ifr", "addrl", 2)
-    qspi_rw("ifr", "dataen", 1)
-    qspi_rw("ifr", "addren", 1)
-    qspi_rw("ifr", "insten", 1)
-    qspi_rw("ifr", "width", 4)
-    qspi_rw("cr", "lastxfer", 1)
-    qspi_rw("cr", "updcfg", 1)
+    ol = "/sys/kernel/config/device-tree/overlays/tsys01"
+    $ts.dut.run("mount -t configfs none /sys/kernel/config")
+    $ts.dut.run("mkdir -p #{ol}")
+    $ts.dut.run("sh -c 'cat /overlays/qspi_overlay.dtbo > #{ol}/dtbo'")
 end
 
 def io_fpga_rw(cmd)
