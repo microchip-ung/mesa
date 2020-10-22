@@ -973,6 +973,42 @@ class Switchdev_Pc_bsp
     end
 end
 
+class Qemu_Pc
+    attr_accessor :pc, :vinst, :vconn
+
+    def initialize conf
+        dut_url = conf["dut"]["terminal"]
+        port_admin = conf["dut"]["port_admin"]
+        pcb = conf["dut"]["pcb"]
+
+        if conf.key?("easytest_cmd_server")
+            @pc = TestPCRemote.new conf["easytest_cmd_server"], nil, conf["easytest_server"]
+            @pc.bash_function "rvm use 2.6.2"
+            #@pc.run "rvm info"
+            upload_utils conf
+            @pc.run "bundle-install.sh"
+            @pc.run "lazy-ef-install.rb #{$easyframes_sha}" # TODO, find a better place to store this data
+        else
+            @pc = TestPC.new nil
+        end
+
+        @vinst = []
+        @vconn = []
+    end
+
+    def uninit
+        @vinst.each do |q|
+            q.stop
+        end
+        @vinst = []
+
+        @vconn.each do |c|
+            c.stop
+        end
+        @vconn = []
+    end
+end
+
 class Mesa_Pc_b2b
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
 
@@ -1108,6 +1144,8 @@ def get_test_setup_inner(setup, conf, mesa_args)
         return Switchdev_Pc_b2b_4x.new(conf, mesa_args)
     when "switchdev_pc_bsp"
         return Switchdev_Pc_bsp.new(conf)
+    when "qemu_pc"
+        return Qemu_Pc.new(conf)
     else
         raise "No such setup in inventory"
     end
@@ -1195,7 +1233,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "")
         ts = get_test_setup_inner(setup, conf, mesa_args)
         $global_test_setup = ts
 
-        if ts.dut.api == :mesa
+        if (defined? ts.dut) and ts.dut.api == :mesa
             ports = ts.dut.call("mesa_vlan_port_members_get", 1)
             ports_a = ports.split(",").map(&:to_i)
             if (ts.dut.looped_port_list != nil)    # Check for looped front ports and remove them from VLAN 1 to avoid looping
