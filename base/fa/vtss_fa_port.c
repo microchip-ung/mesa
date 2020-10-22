@@ -1954,6 +1954,8 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
         }
 
         if (type == FA_SERDES_TYPE_25G) {
+            DEV_WRM(DEV_RST_CTRL, port, VTSS_F_DEV10G_DEV_RST_CTRL_PCS_TX_RST(power_down), VTSS_M_DEV10G_DEV_RST_CTRL_PCS_TX_RST);
+            VTSS_MSLEEP(1);
             REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
                     VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
                     VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
