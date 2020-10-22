@@ -160,8 +160,8 @@ u32 vtss_to_sd_lane(u32 indx)
 static vtss_sd10g28_preset_t serdes2preset(vtss_sd10g_media_type_t m)
 {
     switch (m) {
-    case VTSS_SD10G_MEDIA_SR:     return(VTSS_SD10G28_SR);
-    case VTSS_SD10G_MEDIA_ZR:     return(VTSS_SD10G28_ZR);
+    case VTSS_SD10G_MEDIA_SR:
+    case VTSS_SD10G_MEDIA_ZR:     return(VTSS_SD10G28_SR);
     case VTSS_SD10G_MEDIA_DAC:    return(VTSS_SD10G28_DAC3M); // Default to 3m
     case VTSS_SD10G_MEDIA_DAC_1M: return(VTSS_SD10G28_DAC1M);
     case VTSS_SD10G_MEDIA_DAC_2M: return(VTSS_SD10G28_DAC2M);
@@ -196,8 +196,8 @@ static vtss_sd25g28_preset_t serdes2preset_25g(vtss_sd10g_media_type_t m, vtss_p
 {
     if (speed == VTSS_SPEED_10G) {
         switch (m) {
-        case VTSS_SD10G_MEDIA_SR:     return(VTSS_SD25G28_10GSR);
-        case VTSS_SD10G_MEDIA_ZR:     return(VTSS_SD25G28_ZR);
+        case VTSS_SD10G_MEDIA_SR:
+        case VTSS_SD10G_MEDIA_ZR:     return(VTSS_SD25G28_10GSR);
         case VTSS_SD10G_MEDIA_DAC:    return(VTSS_SD25G28_10GDAC3M); // Default to 3m
         case VTSS_SD10G_MEDIA_DAC_1M: return(VTSS_SD25G28_10GDAC1M);
         case VTSS_SD10G_MEDIA_DAC_2M: return(VTSS_SD25G28_10GDAC3M);
