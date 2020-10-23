@@ -208,9 +208,16 @@ $test_table =
     },
     {
         txt: "rtp_timer - default",
-        rtp: {wal_id: 15, wal_int: 2000000, rtp_int: 1000000},
+        rtp: {wal_id: 15, wal_int: 2000000, rtp_int: 1000000, grp_id: 10},
         dg: [{length: 4, str: "01020304", data: [1,2,3,4]}],
         frame: []
+    },
+    {
+        # The previous test entry stops the group used in this test
+        txt: "rtp_grp - default",
+        skip_flush: 1,
+        rtp: {wal_id: 16, grp_id: 10, wr_addr: 0x104},
+        dg: [{length: 4, str: "05060708", data: [5,6,7,8]}],
     },
 ]
 
@@ -228,6 +235,11 @@ def fld_get(v, fld, val = 0)
 end
 
 def rte_ob_test(t)
+    flush = false
+    if (flush and fld_get(t, :skip_flush) > 0)
+        return
+    end
+
     # Extract test items
     opc = fld_get(t, :opc, false)
     r = t[:rce]
@@ -252,6 +264,8 @@ def rte_ob_test(t)
     # Setup RTP entry
     conf = $ts.dut.call("mera_ob_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
+    grp_id = fld_get(e, :grp_id)
+    conf["grp_id"] = grp_id
     conf["length"] = fld_get(e, :length, 46)
     conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
     conf["pn_ds"] = fld_get(e, :pn_ds, 0x35);
@@ -259,11 +273,12 @@ def rte_ob_test(t)
     conf["wal_enable"] = (wal_id == 0 ? false : true)
     conf["wal_id"] = wal_id
     time_set(conf, fld_get(e, :rtp_int))
+    conf["time_cnt"] = 1
     $ts.dut.call("mera_ob_rtp_conf_set", $rtp_id, conf)
 
     # Add data group
     intf = fld_get(t, :intf, "SRAM")
-    wr_addr = 0x100
+    wr_addr = fld_get(e, :wr_addr, 0x100)
     dg.each_with_index do |d, i|
         conf = $ts.dut.call("mera_ob_dg_init")
         conf["dg_id"] = i
@@ -303,6 +318,7 @@ def rte_ob_test(t)
 
         conf = $ts.dut.call("mera_ob_wa_init")
         conf["rtp_id"] = $rtp_id
+        conf["grp_id"] = grp_id
         conf["dg_id"] = i
         addr = conf["wr_addr"]
         addr["intf"] = ("MERA_IO_INTF_" + intf)
@@ -400,10 +416,10 @@ def rte_ob_test(t)
     end
 
     # Either flush the configuration or increment RTP ID
-    if (true)
-        $rtp_id = ($rtp_id + 1)
-    else
+    if (flush)
         $ts.dut.call("mera_ob_flush")
+    else
+        $rtp_id = ($rtp_id + 1)
     end
 end
 

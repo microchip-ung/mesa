@@ -889,7 +889,7 @@ def qspi_init
 end
 
 def io_fpga_rw(cmd)
-    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw0 #{cmd}")[:out]
+    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw3 #{cmd}")[:out]
     if (cmd.include? "read")
         i = txt.index("value: ")
         if (i == nil)
