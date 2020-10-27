@@ -926,7 +926,13 @@ class Switchdev_Pc_b2b_4x
         end
 
         dut_ports.each do |port|
-            @dut.run "ip link set eth#{port} up"
+            if @dut.pcb == 134
+                offset = port < 5 ? 12 : 44
+            else
+                offset = port < 48 ? 0 : 8
+            end
+
+            @dut.run "ip link set eth#{port+offset} up"
         end
 
         if !$options[:no_init]
