@@ -73,6 +73,7 @@ presets:
         :toolchainfile:    "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/bin/cmake"
         :legal:            "arm-cortex_a8-linux-gnu/lan966x/legal-info"
+        :release_artifact: true
 
     arm-debug:
         :arch:             "arm"
