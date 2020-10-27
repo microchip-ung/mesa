@@ -24,6 +24,21 @@ $machines = {
         :rootfs => "arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
     },
 
+    "lan966x" => {
+        :bsp_base => "../../../",
+        :arch => "arm",
+        :kernel => "arm-cortex_a8-linux-gnu/lan966x/mscc-linux-kernel.bin.gz",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
+        :kcomp => "gzip",
+        :dt => [
+          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/lan966x/at91-sunrise_fpga.dtb"},
+        ],
+        :fdtaddr => "<0x90000000>",
+        :rootfs => "arm-cortex_a8-linux-gnu/lan966x/rootfs.tar",
+    },
+
     "fireant" => {
         :bsp_base => "../../",
         :arch => "arm64",

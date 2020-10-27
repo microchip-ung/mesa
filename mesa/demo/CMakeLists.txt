@@ -287,6 +287,8 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     endif()
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
+    IMG_TARGET(NAME armv7_lan9662     TYPE fit    APP app_lan9662         MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan9668     TYPE fit    APP app_lan9668         MACHINE lan966x)
     IMG_TARGET(NAME armv7_vsc7428     TYPE fit    APP app_vsc7428         MACHINE BeagleBoneBlack)
     IMG_TARGET(NAME armv7_vsc7429     TYPE fit    APP app_vsc7429         MACHINE BeagleBoneBlack)
     IMG_TARGET(NAME armv7_vsc7468     TYPE fit    APP app_vsc7468         MACHINE BeagleBoneBlack)
