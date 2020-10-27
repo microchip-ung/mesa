@@ -12,15 +12,15 @@ $machines = {
         :bsp_base => "../../../",
         :arch => "arm64",
         :kernel => "arm64-armv8_a-linux-gnu/ls1046/mscc-linux-kernel.bin.xz",
-        :kerneladdr  => "<0x60008000>",
-        :kernelentry => "<0x60008000>",
-        :ramdiscaddr => "<0x63000000>",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
           { :name => "conf@ls1046", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
           { :name => "conf@ls1046_sr", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa_sr.dtb"},
         ],
-        :fdtaddr => "<0x61000000>",
+        :fdtaddr => "<0x90000000>",
         :rootfs => "arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
     },
 
@@ -28,14 +28,14 @@ $machines = {
         :bsp_base => "../../../",
         :arch => "arm",
         :kernel => "arm-cortex_a8-linux-gnu/lan966x/mscc-linux-kernel.bin.gz",
-        :kerneladdr => "<0x80080000>",
-        :kernelentry => "<0x80080000>",
-        :ramdiscaddr => "<0x88080000>",
+        :kerneladdr  => "<0x60008000>",
+        :kernelentry => "<0x60008000>",
+        :ramdiscaddr => "<0x63000000>",
         :kcomp => "gzip",
         :dt => [
           { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/lan966x/at91-sunrise_fpga.dtb"},
         ],
-        :fdtaddr => "<0x90000000>",
+        :fdtaddr => "<0x61000000>",
         :rootfs => "arm-cortex_a8-linux-gnu/lan966x/rootfs.tar",
     },
 
@@ -461,7 +461,7 @@ when "fit"
     install_dir = "install_#{$o[:name]}"
     basic_rootfs install_dir
     sys "rm -rf #{$o[:name]}.squashfs"
-    sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -comp xz -all-root"
+    sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -all-root"
 
     dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs"
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
