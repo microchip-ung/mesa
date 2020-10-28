@@ -33,7 +33,7 @@ $machines = {
         :ramdiscaddr => "<0x63000000>",
         :kcomp => "gzip",
         :dt => [
-          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/lan966x/at91-sunrise_fpga.dtb"},
+          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/lan966x/lan966x-sunrise-mesa.dtb"},
         ],
         :fdtaddr => "<0x61000000>",
         :rootfs => "arm-cortex_a8-linux-gnu/lan966x/rootfs.tar",
