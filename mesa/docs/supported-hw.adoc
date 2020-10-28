@@ -54,7 +54,7 @@ The following tables lists the supported HW in this release.
 
 === Supported PHYs
 
-[cols="1,1,1", options="header"]
+[cols="1,1", options="header"]
 |===
 | Family   | SKU
 | Cobra    | VSC8211
