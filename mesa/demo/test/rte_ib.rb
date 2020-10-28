@@ -68,7 +68,8 @@ def tx_len_test(len)
     rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
-    # One-shot time by default
+    time = conf["time"]
+    time["interval"] = 1000000000 # One second
     conf["port"] = $port[idx_rx]
     conf["length"] = len
     payload = ""
@@ -86,7 +87,7 @@ def tx_len_test(len)
         conf["data"][i] = d
     end
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
-    cmd = "sudo ef -t 1000 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
+    cmd = "sudo ef -t 900 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
     cmd += cmd_payload_push(payload)
     [0, 1, 2, 3].each do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
@@ -95,6 +96,10 @@ def tx_len_test(len)
         end
     end
     $ts.pc.run(cmd)
+
+    # Disable timer to stop transmissions
+    time["interval"] = 0
+    $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 end
 
 test "tx-data-min" do
