@@ -9,7 +9,7 @@ read-me, getting started documentation and more information.
 License information, see LICENSE.
 
 To generate mesa-doc.html (only relevant in non-released version) go to
-`./mesa/doc/scripts` and run `dg.rb`.
+`./mesa/docs/scripts` and run `dg.rb`.
 
 == Terminology
 
