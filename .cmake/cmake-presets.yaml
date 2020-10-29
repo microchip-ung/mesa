@@ -26,7 +26,7 @@ presets:
     lan966x:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DLAN966X_ONLY=on"
-        :brsdk:            "2020.02.3-254"
+        :brsdk:            "2020.02.3-257"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk.lan966x-3"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/ls1046/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -67,23 +67,23 @@ presets:
     arm:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2020.02.3-254"
+        :brsdk:            "2020.02.3-257"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk.lan966x-3"
-        :toolchainfile:    "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/share/buildroot/toolchainfile.cmake"
-        :cmake:            "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/bin/cmake"
+        :toolchainfile:    "arm-cortex_a8-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
+        :cmake:            "arm-cortex_a8-linux-gnu/x86_64-linux/bin/cmake"
         :legal:            "arm-cortex_a8-linux-gnu/lan966x/legal-info"
         :release_artifact: true
 
     arm-debug:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2020.02.3-250"
+        :brsdk:            "2020.02.3-257"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk.lan966x-3"
-        :toolchainfile:    "arm-cortex_a8-linux-gnu/bbb/x86_64-linux/share/buildroot/toolchainfile.cmake"
-        :cmake:            "arm-cortex_a8-linux-gnu/bbb/x86_64-linux/bin/cmake"
-        :legal:            "arm-cortex_a8-linux-gnu/bbb/legal-info"
+        :toolchainfile:    "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/share/buildroot/toolchainfile.cmake"
+        :cmake:            "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/bin/cmake"
+        :legal:            "arm-cortex_a8-linux-gnu/lan966x/legal-info"
 
     x86:
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DBUILD_MESA_CAPABILITY_DUMPER=true -DBUILD_MESA_DEMO=false"

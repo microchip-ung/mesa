@@ -25,7 +25,7 @@ $machines = {
     },
 
     "lan966x" => {
-        :bsp_base => "../../../",
+        :bsp_base => "../../",
         :arch => "arm",
         :kernel => "arm-cortex_a8-linux-gnu/lan966x/mscc-linux-kernel.bin.gz",
         :kerneladdr  => "<0x60008000>",
