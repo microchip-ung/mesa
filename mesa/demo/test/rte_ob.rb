@@ -32,9 +32,6 @@ test "conf" do
     conf = { "pcp": [true, true, true, true, true, true, true, true]}
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
 
-    # Initialize QSPI
-    qspi_init
-
     # Clear IO memory
     io_fpga_rw("fill 0x0100 0x100 0")
     io_sram_rw("fill 0x0100 0x100 0")

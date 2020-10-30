@@ -217,7 +217,7 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
     err = (diff > 1000);
 #endif
     if (err) {
-        VTSS_E("Unexpected build id. Got: %08x, Expected %08x, diff: %u", val, LAN966X_BUILD_ID, diff);
+        VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u", val, LAN966X_BUILD_ID, diff);
         return VTSS_RC_ERROR;
     }
 
