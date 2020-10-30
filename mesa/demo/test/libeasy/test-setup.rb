@@ -940,6 +940,8 @@ class Switchdev_Pc_b2b_4x
 
             t = ""
             t = $options[:dut_trace]
+
+            @dut.bg "rte", "mera-demo -f"
         end
 
         @vinst = []
