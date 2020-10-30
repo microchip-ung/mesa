@@ -20,6 +20,9 @@ test "conf" do
         $port[idx] = map[$ts.dut.p[idx]]["chip_port"]
     end
 
+    # Initialize QSPI
+    qspi_init
+
     # Clear IO-FPGA memory
     io_fpga_rw("fill 0x100 0x100 0")
 end
