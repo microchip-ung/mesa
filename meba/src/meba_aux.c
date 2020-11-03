@@ -230,6 +230,7 @@ mesa_rc meba_synce_spi_if_find_spidev(meba_inst_t inst, const char *id, char *sp
     DIR *dp;
     struct dirent *ep;
     int match = 0;
+    mesa_rc rc = MESA_RC_OK;
 
     dp = opendir ("/sys/bus/spi/devices/");
     if (dp == NULL) {
@@ -253,17 +254,19 @@ mesa_rc meba_synce_spi_if_find_spidev(meba_inst_t inst, const char *id, char *sp
         }
 
         int num_read;
-        if ((num_read = read(function_fd, function, MEBA_ARRSZ(function) - 1)) <= 0) {
-            goto CLOSE;
-        } else {
+        if ((num_read = read(function_fd, function, MEBA_ARRSZ(function) - 1)) > 0) {
             function[num_read] = 0;  // String needs to be zero-terminated.
+            if (strstr(function, id) != 0) {
+                match = 1;
+                if (strnlen(ep->d_name, sizeof(ep->d_name)) < 4) {
+                    T_E(inst, "Unexpected SPI device number: %s", ep->d_name);
+                    rc = MESA_RC_ERROR;
+                } else {
+                    snprintf(spi_file, max_size, "/dev/spidev%s", &ep->d_name[3]);
+                    spi_file[max_size - 1] = 0;
+                }
+            }
         }
-
-        if (strstr(function, id) != 0) {
-            match = 1;
-        }
-
-CLOSE:
         close(function_fd);
     }
     (void) closedir (dp);
@@ -272,14 +275,5 @@ CLOSE:
         T_I(inst, "Could not locate the SPI device with function %s", id);
         return MESA_RC_ERROR;
     }
-
-    if (strnlen(ep->d_name, sizeof(ep->d_name)) < 4) {
-        T_E(inst, "Unexpected SPI device number: %s", ep->d_name);
-        return MESA_RC_ERROR;
-    }
-
-    snprintf(spi_file, max_size, "/dev/spidev%s", &ep->d_name[3]);
-    spi_file[max_size - 1] = 0;
-
-    return MESA_RC_OK;
+    return rc;
 }
