@@ -102,7 +102,7 @@ macro(IMG_TARGET)
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND A_MACHINE STREQUAL "ls1046a")
-        set(KERNEL "${RELOCATED_HOST_DIR}/../../ls1046/mscc-linux-kernel.bin.xz")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../ls1046/mscc-linux-kernel.bin.xz")
     elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         set(KERNEL "${RELOCATED_HOST_DIR}/../fireant/mscc-linux-kernel.bin.gz")
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l" AND A_MACHINE STREQUAL "BeagleBoneBlack")

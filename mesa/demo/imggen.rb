@@ -9,7 +9,7 @@ require 'pp'
 
 $machines = {
     "ls1046a" => {
-        :bsp_base => "../../../",
+        :bsp_base => "../../",
         :arch => "arm64",
         :kernel => "arm64-armv8_a-linux-gnu/ls1046/mscc-linux-kernel.bin.xz",
         :kerneladdr => "<0x80080000>",
