@@ -761,7 +761,11 @@ end
 # percent deviation between actual and expected
 # returns true if deviation is within limit
 def percent_deviation act, exp, dev
-    pct = (act.to_f - exp.to_f) * 100 / exp.to_f
+    if exp.to_i == 0
+        pct = (act.to_f - exp.to_f) * 100 / Float::MIN # Avoid divide by zero
+    else
+        pct = (act.to_f - exp.to_f) * 100 / exp.to_f
+    end
     return (pct.abs <= dev.to_f)
 end
 
