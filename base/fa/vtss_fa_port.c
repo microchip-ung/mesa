@@ -2780,7 +2780,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
         REG_CNT_1G(RX_FRAGMENTS, i, &c->rx_fragments, cmd);
         REG_CNT_1G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, cmd);
         REG_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, cmd);
-        REG_CNT_1G(RX_OVERSIZE, i, &c->rx_oversize, cmd);
+        REG_CNT_1G_ONE(RX_OVERSIZE, i, &c->rx_oversize.emac, cmd);
         REG_CNT_1G(RX_JABBERS, i, &c->rx_jabbers, cmd);
         REG_CNT_1G(RX_SIZE64, i, &c->rx_size64, cmd);
         REG_CNT_1G(RX_SIZE65TO127, i, &c->rx_size65_127, cmd);
