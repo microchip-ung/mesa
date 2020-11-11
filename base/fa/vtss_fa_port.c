@@ -1680,8 +1680,8 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
 {
     u8                *smac = &conf->flow_control.smac.addr[0], q;
     BOOL              pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
-    u32               pause_start = 20;   // Number of cells (chip default)
-    u32               pause_stop  = 20;   // Number of cells (chip default)
+    u32               pause_start = 20;    // Number of cells (chip default)
+    u32               pause_stop  = 0xFFF; // Max number of cells - Disables FC (default) (JIRA APPL-2649)
     u32               atop        = VTSS_M_QSYS_ATOP_ATOP;   // Default disabled
 
     for (q = 0; q < VTSS_PRIOS; q++) {
@@ -1707,7 +1707,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(pause_start) |
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(pause_stop) |
-            VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(0),
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(1), // JIRA APPL-2649
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_START |
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_STOP |
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA); // enabled after reset
@@ -1852,8 +1852,11 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
     /* 4: Disable dequeuing from the egress queues  */
     REG_WRM_SET(VTSS_HSCH_PORT_MODE(port),
                 VTSS_M_HSCH_PORT_MODE_DEQUEUE_DIS);
+
     /* 5: Disable Flowcontrol */
-    REG_WRM_CLR(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
+    REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(0xFFF),
+            VTSS_M_QSYS_PAUSE_CFG_PAUSE_STOP);
 
     /* 5.1: Disable PFC */
     /* REG_WRM_CLR(VTSS_QRES_RES_QOS_ADV_PFC_CFG(port), VTSS_M_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA); */
@@ -2266,11 +2269,6 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
                 VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
                 VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
-
-        /* Enable flowcontrol - must be done after the port is enabled */
-        if (conf->flow_control.generate) {
-            REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
-        }
     }
 
     /* Setup QoS - out of reset */
@@ -2462,10 +2460,6 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
                 VTSS_M_QFWD_SWITCH_PORT_MODE_YEL_RSRVD | // An AFI bug makes this required. See bz.24445
                 VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
 
-        /* Enable flowcontrol - must be done after the port is enabled */
-        if (conf->flow_control.generate) {
-            REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
-        }
     } else {
         /* Disable the  serdes (not supported) */
     }
