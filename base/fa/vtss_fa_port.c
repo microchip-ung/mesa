@@ -1681,7 +1681,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     u8                *smac = &conf->flow_control.smac.addr[0], q;
     BOOL              pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     u32               pause_start = 20;    // Number of cells (chip default)
-    u32               pause_stop  = 0xFFF; // Max number of cells - Disables FC (default) (JIRA APPL-2649)
+    u32               pause_stop  = 0xFFF - 1; // Max number of cells - Disables FC (default) (JIRA APPL-2649)
     u32               atop        = VTSS_M_QSYS_ATOP_ATOP;   // Default disabled
 
     for (q = 0; q < VTSS_PRIOS; q++) {
@@ -1855,7 +1855,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 
     /* 5: Disable Flowcontrol */
     REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
-            VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(0xFFF),
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(0xFFF - 1),
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_STOP);
 
     /* 5.1: Disable PFC */
