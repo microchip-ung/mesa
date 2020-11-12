@@ -759,21 +759,30 @@ def get_iface_statistics ts, device, iface, prev = nil
 end
 
 # percent deviation between actual and expected
-# returns true if deviation is within limit
-def percent_deviation act, exp, dev
+def percent_deviation act, exp
     if exp.to_i == 0
         pct = (act.to_f - exp.to_f) * 100 / Float::MIN # Avoid divide by zero
     else
         pct = (act.to_f - exp.to_f) * 100 / exp.to_f
     end
-    return (pct.abs <= dev.to_f)
+    return pct.abs
+end
+
+# returns true if deviation is within limit
+def percent_deviation_check act, exp, dev
+    return (percent_deviation(act, exp) <= dev.to_f)
 end
 
 # absolute deviation between actual and expected
 # returns true if deviation is within limit
-def absolute_deviation act, exp, dev
+def absolute_deviation act, exp
     diff = act.to_f - exp.to_f
-    return (diff.abs <= dev.to_f)
+    return diff.abs
+end
+
+# returns true if deviation is within limit
+def absolute_deviation_check act, exp, dev
+    return (absolute_deviation(act, exp) <= dev.to_f)
 end
 
 # Evaluate statistics counters
@@ -812,11 +821,11 @@ def eval_statistics actual, expect, flags = []
                     s = e.gsub("%a", "#{v}") # Replace placeholder with actual for use with eval
                     if e.match('\A\s*(\d+)\s*\+-\s*(\d+)\s*\Z') # Match on e.g. '2000 +- 30'
 #                        t_i "Match #{e} #{$1} #{$2} abs"
-                        t_e "ERROR: #{dev} #{k}: Actual = #{v} is not #{e}!" if not absolute_deviation(v, $1, $2)
+                        t_e "ERROR: #{dev} #{k}: Actual = #{v} is not #{e}!" if not absolute_deviation_check(v, $1, $2)
                         err += 1
                     elsif e.match('\A\s*(\d+)\s*\+-\s*(\d+)\s*%\s*\Z') # Match on e.g. '2000 +- 10 %'
 #                        t_i "Match #{e} #{$1} #{$2} pct"
-                        t_e "ERROR: #{dev} #{k}: Actual = #{v} is not #{e}!" if not percent_deviation(v, $1, $2)
+                        t_e "ERROR: #{dev} #{k}: Actual = #{v} is not #{e}!" if not percent_deviation_check(v, $1, $2)
                         err += 1
                     elsif eval("(#{s})") == false # E.g. eval (100 < %a and %a < 300) returned false
                         t_e "ERROR: #{dev} #{k}: Actual = #{v}. Expected (#{s}) is false!"
