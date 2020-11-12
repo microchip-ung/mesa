@@ -1,16 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <ctype.h>
 #include <mscc/ethernet/board/api.h>
 #include <unistd.h>
 #include "../meba_aux.h"
 
 /* Get array size */
-#define VTSS_ARRSZ(t)          /*lint -e{574} */                             \
-    (sizeof(t) / sizeof(t[0])) /* Suppress Lint Warning 574: Signed-unsigned \
-                                  mix with relational */
+#define VTSS_ARRSZ(t) (sizeof(t) / sizeof(t[0]))
 
 typedef struct {
     mesa_port_no_t port_no;
@@ -150,33 +147,41 @@ static mesa_rc cisco_sgmii_if_get(meba_sfp_device_t *dev,
 
 static meba_sfp_device_t *dev_probe(meba_sfp_driver_t *drv,
                                     const meba_sfp_driver_address_t *mode,
-                                    const meba_sfp_device_info_t *info) {
-    if (mode->mode != mscc_sfp_driver_address_mode) return NULL;
+                                    const meba_sfp_device_info_t *device_info)
+{
+    meba_sfp_device_t *device;
+    sfp_data_t        *data;
 
-    meba_sfp_device_t *device =
-        (meba_sfp_device_t *)calloc(1, sizeof(meba_sfp_device_t));
+    if (drv         == NULL                        ||
+        mode        == NULL                        ||
+        mode->mode != mscc_sfp_driver_address_mode ||
+        device_info == NULL) {
+        return NULL;
+    }
 
-    if (device == NULL) goto out_device;
+    if ((device = (meba_sfp_device_t *)calloc(1, sizeof(meba_sfp_device_t))) == NULL) {
+        goto out_device;
+    }
 
-    sfp_data_t *data = (sfp_data_t *)calloc(1, sizeof(sfp_data_t));
+    if ((data = (sfp_data_t *)calloc(1, sizeof(sfp_data_t))) == NULL) {
+        goto out_data;
+    }
 
-    if (data == NULL) goto out_data;
-
-    device->drv = drv;
-    data->inst = mode->val.mscc_address.inst;
-    data->meba_inst = mode->val.mscc_address.meba_inst;
-    data->port_no = mode->val.mscc_address.port_no;
-    device->data = data;
-    device->info = *info;
-
-    device->sfp.present = true;
-    device->sfp.los = false;
+    device->drv          = drv;
+    data->inst           = mode->val.mscc_address.inst;
+    data->meba_inst      = mode->val.mscc_address.meba_inst;
+    data->port_no        = mode->val.mscc_address.port_no;
+    device->data         = data;
+    device->info         = *device_info;
+    device->sfp.present  = true;
+    device->sfp.los      = false;
     device->sfp.tx_fault = false;
 
     return device;
 
 out_data:
     free(device);
+
 out_device:
     return NULL;
 }
@@ -371,12 +376,6 @@ static mesa_rc tr_10g_lrm_get(meba_sfp_device_t *dev,
 static mesa_rc tr_25g_get(meba_sfp_device_t *dev,
                           meba_sfp_transreceiver_t *tr) {
     *tr = MEBA_SFP_TRANSRECEIVER_25G;
-    return MESA_RC_OK;
-}
-
-static mesa_rc tr_25g_dac_get(meba_sfp_device_t *dev,
-                              meba_sfp_transreceiver_t *tr) {
-    *tr = MEBA_SFP_TRANSRECEIVER_25G_DAC;
     return MESA_RC_OK;
 }
 
@@ -807,7 +806,19 @@ meba_sfp_drivers_t meba_mac_to_mac_driver_init() {
             .meba_sfp_driver_mt_get = sfi_mt_get,
             .meba_sfp_driver_tr_get = tr_10g_sr_get,
             .meba_sfp_driver_probe = dev_probe,
-        }};
+        },
+        {
+            .product_name = "MAC-to-MAC-25G",
+            .meba_sfp_driver_delete = dev_delete,
+            .meba_sfp_driver_reset = dev_reset,
+            .meba_sfp_driver_poll = dev_poll,
+            .meba_sfp_driver_conf_set = serdes_conf_set,
+            .meba_sfp_driver_if_get = sfi_if_get,
+            .meba_sfp_driver_mt_get = sfi_mt_get,
+            .meba_sfp_driver_tr_get = tr_25g_cr_get,
+            .meba_sfp_driver_probe = dev_probe,
+        }
+    };
 
     meba_sfp_drivers_t result;
     result.sfp_drv = mac_to_mac_drivers;
@@ -825,63 +836,78 @@ typedef mesa_rc (*mt_func_t)(meba_sfp_device_t *dev,
 typedef mesa_rc (*conf_func_t)(meba_sfp_device_t *dev,
                                const meba_sfp_driver_conf_t *conf);
 
-#define SFP_MSA_BASE_PX 0x80
-#define SFP_MSA_BASE_BX10 0x40
-#define SFP_MSA_100BASE_FX 0x20
-#define SFP_MSA_100BASE_LX 0x10
-#define SFP_MSA_1000BASE_T 0x08
-#define SFP_MSA_1000BASE_CX 0x04
-#define SFP_MSA_1000BASE_LX 0x02
 #define SFP_MSA_1000BASE_SX 0x01
-#define SFP_MSA_10GBASE_ER 0x80
+#define SFP_MSA_1000BASE_LX 0x02
+#define SFP_MSA_1000BASE_CX 0x04
+#define SFP_MSA_1000BASE_T  0x08
+#define SFP_MSA_100BASE_LX  0x10
+#define SFP_MSA_100BASE_FX  0x20
+#define SFP_MSA_BASE_BX10   0x40
+#define SFP_MSA_BASE_PX     0x80
+
+#define SFP_MSA_10GBASE_SR  0x10
+#define SFP_MSA_10GBASE_LR  0x20
 #define SFP_MSA_10GBASE_LRM 0x40
-#define SFP_MSA_10GBASE_LR 0x20
-#define SFP_MSA_10GBASE_SR 0x10
+#define SFP_MSA_10GBASE_ER  0x80
+#define SFM_MSA_10G_ETHER   0xF0
+
 #define SFP_MSA_SFP_PLUS_PASSIVE 0x04
-#define SFP_MSA_SFP_PLUS_ACTIVE 0x08
-#define SFP_MSA_25GBASE_SR 0x2
-#define SFP_MSA_25GBASE_LR 0x3
-#define SFP_MSA_25GBASE_ER 0x4
-#define SFP_MSA_25GBASE_CR 0xD
+#define SFP_MSA_SFP_PLUS_ACTIVE  0x08
+#define SFP_MSA_SFP_PLUS_CABLE   (SFP_MSA_SFP_PLUS_PASSIVE | SFP_MSA_SFP_PLUS_ACTIVE)
 
-static tr_func_t get_tr(uint8_t *rom, uint32_t rom_size) {
+#define SFP_MSA_25GBASE_SR    0x2
+#define SFP_MSA_25GBASE_LR    0x3
+#define SFP_MSA_25GBASE_ER    0x4
+#define SFP_MSA_25GBASE_CR_FC 0xC
+#define SFP_MSA_25GBASE_CR    0xD
+
+static tr_func_t tr_func_get(uint8_t *rom)
+{
     // Values are are based on SFF-8472 - Table 5-3.
-    uint8_t eth_10g = rom[3];  // SFP+ Ethernet Compliance Codes
-    uint8_t eth_25g = rom[36]; // SFP28 Ethernet Compliance Codes
-    uint8_t eth = rom[6];      // Ethernet Compiance Codes
-    uint8_t speed = rom[12];   // Nominal speed[100Md]
-    uint8_t tech = rom[8];     // SFP+ Cable Technology
+    uint8_t eth_10g = rom[ 3] & SFM_MSA_10G_ETHER; // SFP+ Ethernet Compliance Codes (only some codes are relevant)
+    uint8_t eth     = rom[ 6];                     // Ethernet Compliance Codes
+    uint8_t tech    = rom[ 8];                     // SFP+ Cable Technology
+    uint8_t speed   = rom[12];                     // Nominal speed [in units of 100MBd]
+    uint8_t eth_25g = rom[36];                     // Extended Compliance Codes
 
-    if ((tech & SFP_MSA_SFP_PLUS_PASSIVE) && (speed >= 100 && speed < 250))
-        return tr_10g_dac_get;
-    if ((tech & SFP_MSA_SFP_PLUS_PASSIVE) && (speed >= 250))
-        return tr_25g_dac_get;
+    if (tech & SFP_MSA_SFP_PLUS_CABLE) {
+        if (speed >= 100 && speed < 250) {
+            return tr_10g_dac_get;
+        }
 
-    if ((speed >= 100 && speed < 250) && ((eth_10g & 0xf0) > 0)) {
-        if (eth_10g & SFP_MSA_10GBASE_ER) return tr_10g_er_get;
+        if (speed >= 250) {
+            // DAC
+            return tr_25g_cr_get;
+        }
+    }
+
+    if (speed >= 100 && speed < 250 && eth_10g) {
+        if (eth_10g & SFP_MSA_10GBASE_ER)  return tr_10g_er_get;
         if (eth_10g & SFP_MSA_10GBASE_LRM) return tr_10g_lrm_get;
-        if (eth_10g & SFP_MSA_10GBASE_LR) return tr_10g_lr_get;
+        if (eth_10g & SFP_MSA_10GBASE_LR)  return tr_10g_lr_get;
         return tr_10g_sr_get;
     }
+
     // SFF-8024 Extended spec compliance reference (ROM address 36)
-    if (speed >= 250 && eth_25g > 0) {
-        if (eth_25g & SFP_MSA_25GBASE_SR) return tr_25g_sr_get;
-        if (eth_25g & SFP_MSA_25GBASE_LR) return tr_25g_lr_get;
-        if (eth_25g & SFP_MSA_25GBASE_ER) return tr_25g_er_get;
-        if (eth_25g & SFP_MSA_25GBASE_CR) return tr_25g_cr_get;
+    if (speed >= 250 && eth_25g) {
+        if (eth_25g == SFP_MSA_25GBASE_SR) return tr_25g_sr_get;
+        if (eth_25g == SFP_MSA_25GBASE_LR) return tr_25g_lr_get;
+        if (eth_25g == SFP_MSA_25GBASE_ER) return tr_25g_er_get;
+        if (eth_25g == SFP_MSA_25GBASE_CR_FC || eth_25g == SFP_MSA_25GBASE_CR) return tr_25g_cr_get;
         return tr_25g_sr_get;
     }
-    // Legaqcy support
-    if (speed >= 250 && ((eth_10g & 0xf0) > 0)) {
-        if (eth_10g & SFP_MSA_10GBASE_ER) return tr_25g_er_get;
+
+    // Legacy support (for those 25G SFPs without rom[36] set).
+    if (speed >= 250 && eth_10g) {
+        if (eth_10g & SFP_MSA_10GBASE_ER)  return tr_25g_er_get;
         if (eth_10g & SFP_MSA_10GBASE_LRM) return tr_25g_lrm_get;
-        if (eth_10g & SFP_MSA_10GBASE_LR) return tr_25g_lr_get;
+        if (eth_10g & SFP_MSA_10GBASE_LR)  return tr_25g_lr_get;
         return tr_25g_sr_get;
     }
 
     if (eth & SFP_MSA_1000BASE_SX) return tr_1000_sx_get;
     if (eth & SFP_MSA_1000BASE_CX) return tr_1000_cx_get;
-    if (eth & SFP_MSA_1000BASE_T) return tr_1000_t_get;
+    if (eth & SFP_MSA_1000BASE_T)  return tr_1000_t_get;
     if (eth & SFP_MSA_1000BASE_LX) {
         if ((speed == 0xd && rom[14] == 0x50 && rom[15] == 0xFF) ||
             (speed == 0xc && rom[14] == 0x58 && rom[15] == 0xFF)) {
@@ -900,12 +926,12 @@ static tr_func_t get_tr(uint8_t *rom, uint32_t rom_size) {
                    rom[16] == 0xC8 && rom[17] == 0xC8 && rom[18] == 0x0) {
             // This is a special SFP which is not defined in SFF-8472, but is
             // requested by a customer. See bugzilla#E2146
-            if(speed == 0x1) {
-                    return tr_100_sx_get;
-            } else if(speed == 0x2) {
-                    return tr_100_fx_get;
+            if (speed == 0x1) {
+                return tr_100_sx_get;
+            } else if (speed == 0x2) {
+                return tr_100_fx_get;
             } else {
-                    return tr_100_lx_get;
+                return tr_100_lx_get;
             }
         } else if (speed < 10) {
             return tr_100_lx_get;
@@ -925,18 +951,18 @@ static tr_func_t get_tr(uint8_t *rom, uint32_t rom_size) {
     return tr_1000_sx_get;
 }
 
-static if_func_t get_if(uint8_t *rom, uint32_t rom_size) {
-    meba_sfp_transreceiver_t tr;
-    tr_func_t tr_func = get_tr(rom, rom_size);
-    tr_func(NULL, &tr);
+static if_func_t if_func_get(meba_sfp_transreceiver_t tr)
+{
     switch (tr) {
         case MEBA_SFP_TRANSRECEIVER_100FX:
         case MEBA_SFP_TRANSRECEIVER_100BASE_LX:
         case MEBA_SFP_TRANSRECEIVER_100BASE_ZX:
         case MEBA_SFP_TRANSRECEIVER_100BASE_SX:
             return fx_if_get;
+
         case MEBA_SFP_TRANSRECEIVER_1000BASE_T:
             return cisco_sgmii_if_get;
+
         case MEBA_SFP_TRANSRECEIVER_1000BASE_BX10:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_CX:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_SX:
@@ -945,6 +971,7 @@ static if_func_t get_if(uint8_t *rom, uint32_t rom_size) {
         case MEBA_SFP_TRANSRECEIVER_1000BASE_LR:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_X:
             return serdes_if_get;
+
         case MEBA_SFP_TRANSRECEIVER_2G5:
         case MEBA_SFP_TRANSRECEIVER_5G:
         case MEBA_SFP_TRANSRECEIVER_10G:
@@ -960,19 +987,21 @@ static if_func_t get_if(uint8_t *rom, uint32_t rom_size) {
         case MEBA_SFP_TRANSRECEIVER_25G_ER:
         case MEBA_SFP_TRANSRECEIVER_25G_DAC:
             return sfi_if_get;
+
         default:
             break;
     }
+
     return serdes_if_get;
 }
 
-static mt_func_t get_mt(uint8_t *rom, uint32_t rom_size) {
-    meba_sfp_transreceiver_t tr;
-    tr_func_t tr_func = get_tr(rom, rom_size);
-    tr_func(NULL, &tr);
+static mt_func_t mt_func_get(meba_sfp_transreceiver_t tr)
+{
     switch (tr) {
         case MEBA_SFP_TRANSRECEIVER_10G:
-        case MEBA_SFP_TRANSRECEIVER_25G: return sfi_mt_none_get;
+        case MEBA_SFP_TRANSRECEIVER_25G:
+            return sfi_mt_none_get;
+
         case MEBA_SFP_TRANSRECEIVER_1000BASE_BX10:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_CX:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_SX:
@@ -980,34 +1009,42 @@ static mt_func_t get_mt(uint8_t *rom, uint32_t rom_size) {
         case MEBA_SFP_TRANSRECEIVER_10G_SR:
         case MEBA_SFP_TRANSRECEIVER_25G_SR:
         case MEBA_SFP_TRANSRECEIVER_10G_LRM:
-        case MEBA_SFP_TRANSRECEIVER_25G_LRM: return sfi_mt_get;
+        case MEBA_SFP_TRANSRECEIVER_25G_LRM:
+            return sfi_mt_get;
+
         case MEBA_SFP_TRANSRECEIVER_1000BASE_LX:
         case MEBA_SFP_TRANSRECEIVER_1000BASE_ZX:
         case MEBA_SFP_TRANSRECEIVER_10G_ER:
         case MEBA_SFP_TRANSRECEIVER_25G_ER:
         case MEBA_SFP_TRANSRECEIVER_10G_LR:
-        case MEBA_SFP_TRANSRECEIVER_25G_LR: return sfi_mt_zr_get;
+        case MEBA_SFP_TRANSRECEIVER_25G_LR:
+            return sfi_mt_zr_get;
+
         case MEBA_SFP_TRANSRECEIVER_1000BASE_T:
         case MEBA_SFP_TRANSRECEIVER_10G_DAC:
-        case MEBA_SFP_TRANSRECEIVER_25G_DAC: return sfi_mt_dac_get;
+        case MEBA_SFP_TRANSRECEIVER_25G_DAC:
+            return sfi_mt_dac_get;
+
      default:
-         return sfi_mt_none_get;
+         break;
     }
-    return NULL;
+
+    return sfi_mt_none_get;
 }
 
-static conf_func_t get_conf(uint8_t *rom, uint32_t rom_size) {
-    meba_sfp_transreceiver_t tr;
-    tr_func_t tr_func = get_tr(rom, rom_size);
-    tr_func(NULL, &tr);
-    if (tr == MEBA_SFP_TRANSRECEIVER_1000BASE_T) return cisco_sgmii_conf_set;
-    return serdes_conf_set;
+static conf_func_t conf_func_get(meba_sfp_transreceiver_t tr)
+{
+    return tr == MEBA_SFP_TRANSRECEIVER_1000BASE_T ? cisco_sgmii_conf_set : serdes_conf_set;
 }
 
-/* The size of destination array argument should be atleast (len + 1) */
-static void sfp_strncpy(char *dest, uint8_t *rom, uint32_t len) {
+// The size of destination array argument should at least be (len + 1)
+static void sfp_strncpy(char *dest, uint8_t *rom, uint32_t len)
+{
     int i, c, replace = '\0';
 
+    // Start from the end in order to replace trailing spaces with '\0'.
+    // Only when the first printable, non-space character is seen will we start
+    // replacing non-printable characters with spaces.
     for (i = len - 1; i >= 0; i--) {
         c = rom[i];
 
@@ -1018,45 +1055,87 @@ static void sfp_strncpy(char *dest, uint8_t *rom, uint32_t len) {
             dest[i] = replace;
         }
     }
+
     dest[len] = '\0';
 }
 
-static mesa_bool_t get_sfp_rom(meba_inst_t meba_inst, uint8_t *buf, mesa_port_no_t port_no) {
-    for (int i = 0; i < 10; ++i)
-        if ((meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x50, 0, buf, 88, false) == MESA_RC_OK))
-            if (buf[0] == 0x03)
-                return true;
+static mesa_bool_t get_sfp_rom(meba_inst_t meba_inst, mesa_port_no_t port_no, uint8_t *rom, size_t rom_size)
+{
+    for (int i = 0; i < 10; ++i) {
+        if ((meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x50, 0, rom, rom_size, false) == MESA_RC_OK)) {
+            // rom[0] == 0x03 means SFP or SFP+
+            return rom[0] == 0x03;
+        }
+
+        VTSS_MSLEEP(100); // Some SFPs are slow to start, wait 100ms
+    }
+
     return false;
 }
 
-mesa_bool_t meba_fill_driver(meba_inst_t meba_inst, mesa_port_no_t port_no,
-                             meba_sfp_driver_t *driver, meba_sfp_device_info_t *info) {
+static mesa_bool_t device_info_get(struct meba_inst *meba_inst, mesa_port_no_t port_no, meba_sfp_device_info_t *device_info, tr_func_t *tr_func)
+{
+    uint8_t rom[92];
 
-    static uint32_t rom_size = 88;
-    uint8_t rom[rom_size];
-
-    if (!get_sfp_rom(meba_inst, rom, port_no))
+    if (!get_sfp_rom(meba_inst, port_no, rom, sizeof(rom))) {
         return false;
+    }
 
-    driver->product_name = (char *)calloc(17, sizeof(char));
-    sfp_strncpy(driver->product_name, &rom[40], 16);
+    // Fill out vendor details
+    sfp_strncpy(device_info->vendor_name, &rom[20], 16);
+    sfp_strncpy(device_info->vendor_pn,   &rom[40], 16);
+    sfp_strncpy(device_info->vendor_rev,  &rom[56],  4);
+    sfp_strncpy(device_info->vendor_sn,   &rom[68], 16);
+    sfp_strncpy(device_info->vendor_date, &rom[84],  8);
 
-    // set function that will be for any driver
-    driver->meba_sfp_driver_probe = dev_probe;
-    driver->meba_sfp_driver_delete = dev_delete;
-    driver->meba_sfp_driver_reset = dev_reset;
-    driver->meba_sfp_driver_poll = dev_poll;
+    if (tr_func) {
+        *tr_func = tr_func_get(rom);
+    }
 
-    // set function based on data from rom
-    driver->meba_sfp_driver_if_get = get_if(rom, rom_size);    // SFP type -> API interface type
-    driver->meba_sfp_driver_mt_get = get_mt(rom, rom_size);    // SFP type -> 10G/25G media type
-    driver->meba_sfp_driver_tr_get = get_tr(rom, rom_size);    // SFP Rom  -> SFP tranceiver type
-    driver->meba_sfp_driver_conf_set = get_conf(rom, rom_size);// SFP type -> Serdes/Cisco-SGMII
-
-    // fill out vendor details
-    sfp_strncpy(info->vendor_name, &rom[20], 16);
-    sfp_strncpy(info->vendor_pn,   &rom[40], 16);
-    sfp_strncpy(info->vendor_rev,  &rom[56],  4);
-    sfp_strncpy(info->vendor_sn,   &rom[68], 16);
     return true;
+}
+
+mesa_bool_t meba_fill_driver(meba_inst_t meba_inst, mesa_port_no_t port_no, meba_sfp_driver_t *driver, meba_sfp_device_info_t *device_info)
+{
+    meba_sfp_transreceiver_t tr;
+    tr_func_t                tr_func;
+
+    if (meba_inst == NULL || driver == NULL || device_info == NULL) {
+        return false;
+    }
+
+    if (!device_info_get(meba_inst, port_no, device_info, &tr_func)) {
+        return false;
+    }
+
+    if ((driver->product_name = (char *)malloc(17)) == NULL) {
+        return false;
+    }
+
+    // Set functions common to any driver
+    driver->meba_sfp_driver_probe  = dev_probe;
+    driver->meba_sfp_driver_delete = dev_delete;
+    driver->meba_sfp_driver_reset  = dev_reset;
+    driver->meba_sfp_driver_poll   = dev_poll;
+
+    // Set functions based on transceiver type (which we got from the ROM).
+    driver->meba_sfp_driver_tr_get = tr_func;
+    driver->meba_sfp_driver_tr_get(NULL, &tr);
+
+    driver->meba_sfp_driver_if_get   = if_func_get(tr);   // SFP type -> API interface type
+    driver->meba_sfp_driver_mt_get   = mt_func_get(tr);   // SFP type -> 10G/25G media type
+    driver->meba_sfp_driver_conf_set = conf_func_get(tr); // SFP type -> Serdes/Cisco-SGMII
+
+    memcpy(driver->product_name, device_info->vendor_pn, 17);
+
+    return true;
+}
+
+mesa_bool_t meba_sfp_device_info_get(struct meba_inst *meba_inst, mesa_port_no_t port_no, meba_sfp_device_info_t *device_info)
+{
+    if (meba_inst == NULL || device_info == NULL) {
+        return false;
+    }
+
+    return device_info_get(meba_inst, port_no, device_info, NULL);
 }

@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #ifndef _MSCC_ETHERNET_BOARD_SFP_DRIVER_H_
 #define _MSCC_ETHERNET_BOARD_SFP_DRIVER_H_
 
@@ -73,6 +72,7 @@ typedef struct sfp_device_info {
     char vendor_pn[20];   // Product name
     char vendor_rev[6];   // Revision number
     char vendor_sn[20];   // Serial number
+    char vendor_date[9];  // Date code
 } meba_sfp_device_info_t;
 
 // SFP transreceivers types.
@@ -222,10 +222,16 @@ meba_sfp_drivers_t meba_excom_driver_init();
 meba_sfp_drivers_t meba_mac_to_mac_driver_init();
 
 // Let's the driver to detect which functions need to set based on the rom
-// memory
-mesa_bool_t meba_fill_driver(struct meba_inst *meba_inst, mesa_port_no_t
-                             port_no, meba_sfp_driver_t *driver,
-                             meba_sfp_device_info_t *info);
+// memory. device_info is filled with device-specific info on successful exit.
+mesa_bool_t meba_fill_driver(struct meba_inst       *meba_inst,
+                             mesa_port_no_t         port_no,
+                             meba_sfp_driver_t      *driver,
+                             meba_sfp_device_info_t *device_info);
+
+// Read the SFP ROM and return device-specific info.
+mesa_bool_t meba_sfp_device_info_get(struct meba_inst       *meba_inst,
+                                     mesa_port_no_t         port_no,
+                                     meba_sfp_device_info_t *device_info);
 
 #include <mscc/ethernet/board/api/hdr_end.h>
 #endif
