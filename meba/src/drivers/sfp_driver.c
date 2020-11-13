@@ -600,7 +600,21 @@ meba_sfp_drivers_t meba_finisar_driver_init() {
             .meba_sfp_driver_mt_get = sfi_mt_dac_get,
             .meba_sfp_driver_tr_get = tr_10g_dac_get,
             .meba_sfp_driver_probe = dev_probe,
-        }};
+        },
+        {
+            // This one reports itself as an optical SFP, where in fact it is a
+            // DAC.
+            .product_name = "SPT-SFP+C2",
+            .meba_sfp_driver_delete = dev_delete,
+            .meba_sfp_driver_reset = dev_reset,
+            .meba_sfp_driver_poll = dev_poll,
+            .meba_sfp_driver_conf_set = serdes_conf_set,
+            .meba_sfp_driver_if_get = sfi_if_get,
+            .meba_sfp_driver_mt_get = sfi_mt_dac_get,
+            .meba_sfp_driver_tr_get = tr_10g_dac_get,
+            .meba_sfp_driver_probe = dev_probe,
+        }
+    };
 
     meba_sfp_drivers_t result;
     result.sfp_drv = finisar_drivers;
