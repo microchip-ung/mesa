@@ -215,7 +215,7 @@ typedef enum {
     MESA_SD10G_MEDIA_PR_NONE, // No preset
     MESA_SD10G_MEDIA_SR,      // Short Range
     MESA_SD10G_MEDIA_ZR,      // Long Range
-    MESA_SD10G_MEDIA_DAC,     // DAC (Direct attached copper) cable, unspecified lenght >
+    MESA_SD10G_MEDIA_DAC,     // DAC (Direct attached copper) cable, unspecified length >
     MESA_SD10G_MEDIA_DAC_1M,  // 1m DAC
     MESA_SD10G_MEDIA_DAC_2M,  // 2m DAC
     MESA_SD10G_MEDIA_DAC_3M,  // 3m DAC

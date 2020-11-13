@@ -15,11 +15,19 @@ typedef struct {
     meba_inst_t meba_inst;
 } sfp_data_t;
 
-static mesa_rc dev_delete(meba_sfp_device_t *dev) {
-    sfp_data_t *data = (sfp_data_t *)dev->data;
+static mesa_rc dev_delete(meba_sfp_device_t *dev)
+{
+    sfp_data_t *data;
+
+    if (!dev) {
+        return MESA_RC_OK;
+    }
+
+    data = (sfp_data_t *)dev->data;
     free(data);
     free(dev);
     dev = NULL;
+
     return MESA_RC_OK;
 }
 
@@ -265,22 +273,28 @@ static mesa_rc sfi_if_get(meba_sfp_device_t *dev, mesa_port_speed_t speed,
     }
 }
 
-static mesa_rc sfi_mt_none_get(meba_sfp_device_t *dev,
-                                mesa_sd10g_media_type_t *mt) {
+static mesa_rc sfi_mt_none_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
+{
     *mt = MESA_SD10G_MEDIA_PR_NONE;
     return MESA_RC_OK;
 }
 
-static mesa_rc sfi_mt_get(meba_sfp_device_t *dev,
-                                mesa_sd10g_media_type_t *mt) {
+static mesa_rc sfi_mt_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
+{
     *mt = MESA_SD10G_MEDIA_SR;
     return MESA_RC_OK;
 }
 
-static mesa_rc sfi_mt_zr_get(meba_sfp_device_t *dev,
-                             mesa_sd10g_media_type_t *mt) {
+static mesa_rc sfi_mt_zr_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
+{
 
     *mt = MESA_SD10G_MEDIA_ZR;
+    return MESA_RC_OK;
+}
+
+static mesa_rc sfi_mt_bp_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
+{
+    *mt = MESA_SD10G_MEDIA_BP;
     return MESA_RC_OK;
 }
 
@@ -803,7 +817,7 @@ meba_sfp_drivers_t meba_mac_to_mac_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = sfi_if_get,
-            .meba_sfp_driver_mt_get = sfi_mt_get,
+            .meba_sfp_driver_mt_get = sfi_mt_bp_get, // Backplane
             .meba_sfp_driver_tr_get = tr_10g_sr_get,
             .meba_sfp_driver_probe = dev_probe,
         },
@@ -814,7 +828,7 @@ meba_sfp_drivers_t meba_mac_to_mac_driver_init() {
             .meba_sfp_driver_poll = dev_poll,
             .meba_sfp_driver_conf_set = serdes_conf_set,
             .meba_sfp_driver_if_get = sfi_if_get,
-            .meba_sfp_driver_mt_get = sfi_mt_get,
+            .meba_sfp_driver_mt_get = sfi_mt_bp_get, // Backplane
             .meba_sfp_driver_tr_get = tr_25g_cr_get,
             .meba_sfp_driver_probe = dev_probe,
         }
@@ -1075,7 +1089,8 @@ static mesa_bool_t get_sfp_rom(meba_inst_t meba_inst, mesa_port_no_t port_no, ui
 
 static mesa_bool_t device_info_get(struct meba_inst *meba_inst, mesa_port_no_t port_no, meba_sfp_device_info_t *device_info, tr_func_t *tr_func)
 {
-    uint8_t rom[92];
+    uint8_t   rom[92];
+    tr_func_t transceiver_func;
 
     if (!get_sfp_rom(meba_inst, port_no, rom, sizeof(rom))) {
         return false;
@@ -1086,10 +1101,14 @@ static mesa_bool_t device_info_get(struct meba_inst *meba_inst, mesa_port_no_t p
     sfp_strncpy(device_info->vendor_pn,   &rom[40], 16);
     sfp_strncpy(device_info->vendor_rev,  &rom[56],  4);
     sfp_strncpy(device_info->vendor_sn,   &rom[68], 16);
-    sfp_strncpy(device_info->vendor_date, &rom[84],  8);
+    sfp_strncpy(device_info->date_code,   &rom[84],  8);
+
+    transceiver_func = tr_func_get(rom);
+    transceiver_func(NULL, &device_info->transceiver);
+    device_info->connector = rom[2];
 
     if (tr_func) {
-        *tr_func = tr_func_get(rom);
+        *tr_func = transceiver_func;
     }
 
     return true;
@@ -1097,8 +1116,7 @@ static mesa_bool_t device_info_get(struct meba_inst *meba_inst, mesa_port_no_t p
 
 mesa_bool_t meba_fill_driver(meba_inst_t meba_inst, mesa_port_no_t port_no, meba_sfp_driver_t *driver, meba_sfp_device_info_t *device_info)
 {
-    meba_sfp_transreceiver_t tr;
-    tr_func_t                tr_func;
+    tr_func_t tr_func;
 
     if (meba_inst == NULL || driver == NULL || device_info == NULL) {
         return false;
@@ -1119,12 +1137,10 @@ mesa_bool_t meba_fill_driver(meba_inst_t meba_inst, mesa_port_no_t port_no, meba
     driver->meba_sfp_driver_poll   = dev_poll;
 
     // Set functions based on transceiver type (which we got from the ROM).
-    driver->meba_sfp_driver_tr_get = tr_func;
-    driver->meba_sfp_driver_tr_get(NULL, &tr);
-
-    driver->meba_sfp_driver_if_get   = if_func_get(tr);   // SFP type -> API interface type
-    driver->meba_sfp_driver_mt_get   = mt_func_get(tr);   // SFP type -> 10G/25G media type
-    driver->meba_sfp_driver_conf_set = conf_func_get(tr); // SFP type -> Serdes/Cisco-SGMII
+    driver->meba_sfp_driver_tr_get   = tr_func;
+    driver->meba_sfp_driver_if_get   = if_func_get(  device_info->transceiver); // SFP type -> API interface type
+    driver->meba_sfp_driver_mt_get   = mt_func_get(  device_info->transceiver); // SFP type -> 10G/25G media type
+    driver->meba_sfp_driver_conf_set = conf_func_get(device_info->transceiver); // SFP type -> Serdes/Cisco-SGMII
 
     memcpy(driver->product_name, device_info->vendor_pn, 17);
 

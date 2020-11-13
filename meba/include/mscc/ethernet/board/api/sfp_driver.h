@@ -66,27 +66,18 @@ typedef struct sfp_driver_conf {
     mesa_bool_t flow_control;      // Flow control (Standard 802.3x)
 } meba_sfp_driver_conf_t;
 
-// Information about the SFP module
-typedef struct sfp_device_info {
-    char vendor_name[20]; // Vendor name
-    char vendor_pn[20];   // Product name
-    char vendor_rev[6];   // Revision number
-    char vendor_sn[20];   // Serial number
-    char vendor_date[9];  // Date code
-} meba_sfp_device_info_t;
-
-// SFP transreceivers types.
+// SFP transceiver types.
 typedef enum {
     MEBA_SFP_TRANSRECEIVER_NONE,          // No SFP
     MEBA_SFP_TRANSRECEIVER_NOT_SUPPORTED, // SFP not supported for this interface
     MEBA_SFP_TRANSRECEIVER_100FX,         // 100M Fiber SFP
-    MEBA_SFP_TRANSRECEIVER_100BASE_LX,    // 100M CU SFP
-    MEBA_SFP_TRANSRECEIVER_100BASE_ZX,    // 100M CU SFP
-    MEBA_SFP_TRANSRECEIVER_100BASE_SX,    // 100M CU SFP
+    MEBA_SFP_TRANSRECEIVER_100BASE_LX,    // 100M Cu SFP
+    MEBA_SFP_TRANSRECEIVER_100BASE_ZX,    // 100M Cu SFP
+    MEBA_SFP_TRANSRECEIVER_100BASE_SX,    // 100M Cu SFP
     MEBA_SFP_TRANSRECEIVER_100BASE_BX10,  // Not supported
     MEBA_SFP_TRANSRECEIVER_100BASE_T,     // Not supported
     MEBA_SFP_TRANSRECEIVER_1000BASE_BX10, // Not supported
-    MEBA_SFP_TRANSRECEIVER_1000BASE_T,    // CU SFP
+    MEBA_SFP_TRANSRECEIVER_1000BASE_T,    // Cu SFP
     MEBA_SFP_TRANSRECEIVER_1000BASE_CX,   // 1G Fiber CX SFP
     MEBA_SFP_TRANSRECEIVER_1000BASE_SX,   // 1G Fiber SX SFP
     MEBA_SFP_TRANSRECEIVER_1000BASE_LX,   // 1G Fiber LX SFP
@@ -106,8 +97,47 @@ typedef enum {
     MEBA_SFP_TRANSRECEIVER_25G_LR,        // 25G Fiber SFP+ long range (10km)
     MEBA_SFP_TRANSRECEIVER_25G_LRM,       // 25G Fiber SFP+ long range multimode (220m)
     MEBA_SFP_TRANSRECEIVER_25G_ER,        // 25G Fiber SFP+ extended range (40km)
-    MEBA_SFP_TRANSRECEIVER_25G_DAC,       // 25G DAC SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_25G_DAC,       // 25G CR (DAC) SFP+ Cu
 } meba_sfp_transreceiver_t;
+
+// SFP connector types.
+// Aligned with SFF-8024, rev 4.7, table 4-3.
+typedef enum {
+    MEBA_SFP_CONNECTOR_NONE       = 0x00, // Unknown or unspecified
+    MEBA_SFP_CONNECTOR_SC         = 0x01, // Subscriber Conector
+    MEBA_SFP_CONNECTOR_FC_STYLE_1 = 0x02, // Fiber Channel Style 1 Cu
+    MEBA_SFP_CONNECTOR_FC_STYLE_2 = 0x03, // Fiber Channel Style 2 Cu
+    MEBA_SFP_CONNECTOR_BNC_TNC    = 0x04, // Bayonet/Threaded Neill-Concelman
+    MEBA_SFP_CONNECTOR_FC_COAX    = 0x05, // Fiber Channel Coax headers
+    MEBA_SFP_CONNECTOR_FJ         = 0x06, // Fiber Jack
+    MEBA_SFP_CONNECTOR_LC         = 0x07, // Lucent Connector
+    MEBA_SFP_CONNECTOR_MT_RJ      = 0x08, // Mechanical transfer - Registered Jack
+    MEBA_SFP_CONNECTOR_MU         = 0x09, // MUltiple Optical
+    MEBA_SFP_CONNECTOR_SG         = 0x0A, // SG
+    MEBA_SFP_CONNECTOR_OP         = 0x0B, // Optical Pigtail
+    MEBA_SFP_CONNECTOR_MPO_1X12   = 0x0C, // Multifiber Parallel Optic 1x12
+    MEBA_SFP_CONNECTOR_MPO_2X16   = 0x0D, // Multifiber Parallel Optic 2x16
+    MEBA_SFP_CONNECTOR_HSSDC_II   = 0x20, // High Speed Serial Data Connector
+    MEBA_SFP_CONNECTOR_CP         = 0x21, // Copper Pigtail (DAC)
+    MEBA_SFP_CONNECTOR_RJ45       = 0x22, // Registered Jack
+    MEBA_SFP_CONNECTOR_NO_SEP     = 0x23, // No separable connector
+    MEBA_SFP_CONNECTOR_MXC_2X16   = 0x24, // MXC 2x16
+    MEBA_SFP_CONNECTOR_CS         = 0x25, // CS optical connector
+    MEBA_SFP_CONNECTOR_SN         = 0x26, // SN (previously Mini CS) optical connector
+    MEBA_SFP_CONNECTOR_MPO_2X12   = 0x27, // Multifiber Parallel Optic 2x12
+    MEBA_SFP_CONNECTOR_MPO_1X16   = 0x28, // Multifiber Parallel Optic 1x16
+} meba_sfp_connector_t;
+
+// Information about the SFP module
+typedef struct sfp_device_info {
+    char                     vendor_name[20]; // Vendor name
+    char                     vendor_pn[20];   // Product name
+    char                     vendor_rev[6];   // Revision number
+    char                     vendor_sn[20];   // Serial number
+    char                     date_code[9];    // Date code
+    meba_sfp_transreceiver_t transceiver;     // Transceiver type
+    meba_sfp_connector_t     connector;       // Connector type
+} meba_sfp_device_info_t;
 
 // Clears up the data allocated in the probe function.
 typedef mesa_rc (*meba_sfp_driver_delete_t)(struct meba_sfp_device *dev);
@@ -172,16 +202,16 @@ typedef struct meba_sfp_driver {
     meba_sfp_driver_tr_get_t    meba_sfp_driver_tr_get;
     meba_sfp_driver_probe_t     meba_sfp_driver_probe;
 
-    char *product_name;     // Each driver has different product name
+    char *product_name;           // Each driver has different product name
     struct meba_sfp_driver *next; // Pointer to the next driver
 } meba_sfp_driver_t;
 
 // Represents the instance of the driver
 typedef struct meba_sfp_device {
-    meba_sfp_driver_t *drv;   // Pointer to the driver that creates the device
-    void *data; // Private data, that can be different for each device
+    meba_sfp_driver_t *drv;      // Pointer to the driver that creates the device
+    void *data;                  // Private data, that can be different for each device
     meba_sfp_status_t sfp;       // SFP status
-    meba_sfp_device_info_t info; // SFP info
+    meba_sfp_device_info_t info; // SFP device info from MSA ROM.
 } meba_sfp_device_t;
 
 // Wrapper over an array and counter. It is used
