@@ -604,6 +604,47 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     end # test
 end
 
+# Calculate bit rate (in bits per second) from number of bytes during duration uS
+def bit_rate bytes, duration
+    bytes.to_f * 8 * 1000000 / duration
+end
+
+# tx_capture() transmits and capture frames
+#
+# ts: test setup
+# tx: transmitting device on test PC, e.g. eth_red
+# cap: capturing device on test PC, e.g. eth_green
+# num_frames: number of frames to transmit and capture
+# frame: frame to transmit
+# min_pause: minimum pause between frames to detect.
+#
+# returns a hash (see below)
+def tx_capture ts, tx, cap, num_frames, frame, min_pause = nil
+    ts.pc.run "ef -c #{cap},20,adapter_unsynced tx #{tx} rep #{num_frames} #{frame}"
+
+    bytes = 0
+    duration = 0.0
+    pauses = 0.0
+    pkts = ts.pc.get_pcap "#{cap}.pcap"
+
+    pkts.each do |p|
+        #t_i "TS: %4d, TSD: %4d, len: %4d #{hexstr(p[:data])}" % [p[:us_rel], p[:us_delta], p[:len_on_wire]]
+        bytes += p[:len_on_wire]
+        duration = p[:us_rel] # Just save the last one
+        pauses += 1 if min_pause && (p[:us_delta] >= (min_pause / 1000))
+    end
+
+    rate = bit_rate(bytes, duration)
+    pps = pauses * 1_000_000 / duration # pauses per second. duration is in uS
+    t_i "#{cap}: Got #{pkts.size} packets and #{bytes} bytes during #{duration} usec"
+
+    { :num_packets => pkts.size,
+      :bit_rate    => rate, # bits pr second
+      :duration    => duration, # uS
+      :pps         => pps # pauses per second
+    }
+end
+
 # Wait for network interfaces to come up or down
 # ts: test setup
 # device: :dut or :pc
