@@ -303,7 +303,9 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg)
     conf.xaui_tx_lane_flip = (cap & MEBA_PORT_CAP_XAUI_LANE_FLIP ? 1 : 0);
     conf.serdes.rx_invert = (cap & MEBA_PORT_CAP_SERDES_RX_INVERT ? 1 : 0);
     conf.serdes.tx_invert = (cap & MEBA_PORT_CAP_SERDES_TX_INVERT ? 1 : 0);
-    conf.if_type = entry->meba.mac_if;
+    if (entry->media_type == MSCC_PORT_TYPE_CU) {
+        conf.if_type = entry->meba.mac_if;
+    }
     if (entry->sfp_device != NULL && entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
         (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
     } else {
