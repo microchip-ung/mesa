@@ -1370,7 +1370,7 @@ static vtss_rc fa_gate_conf_set(vtss_state_t *vtss_state, const vtss_psfp_gate_i
         REG_WR(VTSS_ANA_AC_SG_CONFIG_SG_GCL_OCT_CONFIG(i),
                VTSS_F_ANA_AC_SG_CONFIG_SG_GCL_OCT_CONFIG_INTERVAL_OCTET_MAX(gce->octet_max));
     }
-    if (conf->config_change) {
+    if (conf->enable && conf->config_change) {
         REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL,
                VTSS_F_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(sgid) |
                VTSS_F_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_CONFIG_CHANGE(1));
