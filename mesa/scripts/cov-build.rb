@@ -7,7 +7,7 @@ require 'pp'
 require 'csv'
 
 project = "API-mesa"
-$covopts = "--config /opt/coverity/credentials.xml"
+$covopts = "--config /opt/coverity/credentials.xml --auth-key-file /opt/coverity/reporter.key"
 $version = %x(git rev-parse HEAD).chop
 
 $l = Logger.new(STDERR)
