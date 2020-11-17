@@ -6,7 +6,7 @@ require 'logger'
 require 'pp'
 require 'csv'
 
-project = "API-mesa"
+project = "Mesa"
 $covopts = "--config /opt/coverity/credentials.xml --auth-key-file /opt/coverity/reporter.key"
 $version = %x(git rev-parse HEAD).chop
 
@@ -52,7 +52,7 @@ end
 def add_streams(project, streams)
   streams.each do |stream|
     $l.warn("Add %s to %s" % [stream, project])
-    run_cmd("cov-manage-im #{$covopts} --mode streams --add --set name:#{stream} --set lang:cpp --set expiration:enabled --set component-map:webstax --set \"desc:#{stream}\"")
+    run_cmd("cov-manage-im #{$covopts} --mode streams --add --set name:#{stream} --set lang:cpp --set expiration:enabled --set component-map:Mesa --set triage:Mesa --set \"desc:#{stream}\"")
     run_cmd("cov-manage-im #{$covopts} --mode projects --update --name #{project} --insert stream:#{stream}")
   end
 end
