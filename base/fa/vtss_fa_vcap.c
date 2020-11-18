@@ -798,7 +798,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_type_t v
         default:
             /* CLM */
             REG_WR(VTSS_ANA_CL_ADV_RNG_CTRL(i),
-                   VTSS_F_ANA_CL_ADV_RNG_CTRL_RNG_TYPE_SEL(type));
+                   VTSS_F_ANA_CL_ADV_RNG_CTRL_RNG_TYPE_SEL(type == 4 ? 7 : type));
             REG_WR(VTSS_ANA_CL_ADV_RNG_VALUE_CFG(i),
                    VTSS_F_ANA_CL_ADV_RNG_VALUE_CFG_RNG_MIN_VALUE(entry->min) |
                    VTSS_F_ANA_CL_ADV_RNG_VALUE_CFG_RNG_MAX_VALUE(entry->max));
