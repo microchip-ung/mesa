@@ -49,11 +49,10 @@ def get_streams(project)
   return streams
 end
 
-# --set component-map:Mesa
 def add_streams(project, streams)
   streams.each do |stream|
     $l.warn("Add %s to %s" % [stream, project])
-    run_cmd("cov-manage-im #{$covopts} --mode streams --add --set name:#{stream} --set lang:cpp --set expiration:enabled --set triage:Mesa --set \"desc:#{stream}\"")
+    run_cmd("cov-manage-im #{$covopts} --mode streams --add --set name:#{stream} --set lang:cpp --set component-map:Mesa --set ownerAssignmentOption:scm --set expiration:enabled --set triage:Mesa --set \"desc:#{stream}\"")
     run_cmd("cov-manage-im #{$covopts} --mode projects --update --name #{project} --insert stream:#{stream}")
   end
 end
@@ -68,7 +67,7 @@ def compile(cfg)
   run_cmd("./cmake .. -D#{cfg}=ON")
   run_cmd("make clean")
   run_cmd("cov-build --return-emit-failures --parse-error-threshold 50 --dir #{cov} make -j -l 10")
-  run_cmd("cov-analyze #{scanopts} --dir #{cov} --strip-path #{strip}")
+  run_cmd("cov-analyze #{scanopts} --dir #{cov} --strip-path #{strip}/")
   run_cmd("cov-commit-defects #{$covopts} --dir #{cov} --description 'Build of #{cfg} arch #{$arch}' --version #{$version} --stream #{$arch}-#{cfg}")
   run_cmd("./cmake .. -D#{cfg}=OFF")
 end
