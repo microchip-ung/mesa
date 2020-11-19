@@ -242,7 +242,9 @@ static vtss_rc lan966x_vop_conf_set(vtss_state_t          *vtss_state,
     REG_WR(MEP_CPU_CFG_1, value);
 
     /* Enable VOP */
-    value = MEP_MEP_CTRL_MEP_ENA(1) | MEP_MEP_CTRL_LOC_SCAN_ENA(1) | MEP_MEP_CTRL_EXT_CPU_PORTMASK(npi ? (0x01 << npi_port) : 0);
+    value = MEP_CPU_MASK_CFG_EXT_CPU_PORTMASK(npi ? (0x01 << npi_port) : 0);
+    REG_WR(MEP_CPU_MASK_CFG, value);
+    value = MEP_MEP_CTRL_MEP_ENA(1) | MEP_MEP_CTRL_LOC_SCAN_ENA(1);
     REG_WR(MEP_MEP_CTRL, value);
 
     return VTSS_RC_OK;

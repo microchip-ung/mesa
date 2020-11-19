@@ -50,7 +50,7 @@ static vtss_rc lan966x_pgid_mask_write(vtss_state_t *vtss_state,
     }
     REG_WR(ANA_PGID(pgid),
            ANA_PGID_PGID(mask) |
-           ANA_PGID_CPUQ_DST_PGID(queue));
+           ANA_PGID_CFG_CPUQ_DST_PGID(queue));
 
     return VTSS_RC_OK;
 }
@@ -627,9 +627,11 @@ static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
            ANA_VLANTIDX_VLAN_MIRROR(conf->mirror ? 1 : 0));
 
     /* VLAN mask */
-    REG_WR(ANA_VLANACCESS,
-           ANA_VLANACCESS_VLAN_PORT_MASK(vtss_lan966x_port_mask(vtss_state, member)) |
-           ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_WRITE));
+    REG_WR(ANA_VLAN_PORT_MASK,
+           ANA_VLAN_PORT_MASK_VLAN_PORT_MASK(vtss_lan966x_port_mask(vtss_state, member)));
+
+    /* VLAN write command */
+    REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_WRITE));
 
     /* FID */
     REG_WR(ANA_FID_MAP(vid),
@@ -846,9 +848,9 @@ static vtss_rc lan966x_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow
     VTSS_RC(lan966x_isdx_update(vtss_state, sdx));
 
     // Setup stream table
-    REG_WR(ANA_SEQ_MASK,
-           ANA_SEQ_MASK_SPLIT_MASK(0) |
-           ANA_SEQ_MASK_INPUT_PORT_MASK(VTSS_CHIP_PORT_MASK));
+    REG_WR(ANA_SPLIT_MASK, ANA_SPLIT_MASK_SPLIT_MASK(0));
+    REG_WR(ANA_INPUT_PORT_MASK,
+           ANA_INPUT_PORT_MASK_INPUT_PORT_MASK(VTSS_CHIP_PORT_MASK));
     REG_WR(ANA_STREAMTIDX,
            ANA_STREAMTIDX_S_INDEX(sdx->sdx) |
            ANA_STREAMTIDX_STREAM_SPLIT(0));
@@ -1453,7 +1455,7 @@ static vtss_rc lan966x_debug_aggr(vtss_state_t *vtss_state,
         pr("%-4u  %-3u  %-5u  ",
            i,
            mask & VTSS_BIT(VTSS_CHIP_PORT_CPU) ? 1 : 0,
-           ANA_PGID_CPUQ_DST_PGID_X(value));
+           ANA_PGID_CFG_CPUQ_DST_PGID_X(value));
         vtss_lan966x_debug_print_mask(pr, mask);
     }
     pr("\n");
@@ -1529,10 +1531,10 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
            ANA_STREAMACCESS_GEN_SEQ_NUM_X(val));
         REG_RD(ANA_STREAMTIDX, &val);
         pr("%-7u", ANA_STREAMTIDX_STREAM_SPLIT_X(val));
-        REG_RD(ANA_SEQ_MASK, &val);
-        pr("0x%02x   0x%02x   ",
-           ANA_SEQ_MASK_SPLIT_MASK_X(val),
-           ANA_SEQ_MASK_INPUT_PORT_MASK_X(val));
+        REG_RD(ANA_SPLIT_MASK, &val);
+        pr("0x%02x   ", ANA_SPLIT_MASK_SPLIT_MASK_X(val));
+        REG_RD(ANA_INPUT_PORT_MASK, &val);
+        pr("0x%02x   ", ANA_INPUT_PORT_MASK_INPUT_PORT_MASK_X(val));
         REG_RD(QSYS_FRER_FIRST(sdx->sdx), &val);
         pr("%-7u", QSYS_FRER_FIRST_FRER_FIRST_MEMBER_X(val));
         for (i = 0; i < 4; i++) {
@@ -1686,8 +1688,8 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
         REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_READ));
         if (lan966x_vlan_table_idle(vtss_state) != VTSS_RC_OK)
             continue;
-        REG_RD(ANA_VLANACCESS, &value);
-        mask = ANA_VLANACCESS_VLAN_PORT_MASK_X(value);
+        REG_RD(ANA_VLAN_PORT_MASK, &value);
+        mask = ANA_VLAN_PORT_MASK_VLAN_PORT_MASK_X(value);
         REG_RD(ANA_VLANTIDX, &value);
         REG_RD(ANA_FID_MAP(vid), &fid);
         fid = ANA_FID_MAP_FID_VAL_X(fid);
