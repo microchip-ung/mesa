@@ -713,6 +713,7 @@ static void cli_cmd_warm_start(cli_req_t *req)
 {
     mesa_inst_create_t create;
     mesa_init_conf_t   conf;
+    mesa_sgpio_conf_t  sgpio_conf;
     mesa_port_map_t    *port_map = NULL;
     uint32_t           port_cnt = mesa_port_cnt(NULL);
 
@@ -723,6 +724,8 @@ static void cli_cmd_warm_start(cli_req_t *req)
         T_E("port map calloc() failed");
     } else if (mesa_port_map_get(NULL, port_cnt, port_map) != MESA_RC_OK) {
         T_E("mesa_port_map_get() failed");
+    } else if (mesa_sgpio_conf_get(NULL, 0, 0, &sgpio_conf) != MESA_RC_OK) {
+        T_E("mesa_sgpio_conf_get() failed");
     } else {
         conf.warm_start_enable = 1;
         mesa_inst_get(appl_init.board_inst->props.target, &create);
@@ -733,7 +736,9 @@ static void cli_cmd_warm_start(cli_req_t *req)
         } else if (mesa_init_conf_set(NULL, &conf) != MESA_RC_OK) {
             T_E("mesa_init_conf_set() failed");
         } else if (mesa_port_map_set(NULL, port_cnt, port_map) != MESA_RC_OK) {
-            T_E("mesa_port_map_get() failed");
+            T_E("mesa_port_map_set() failed");
+        } else if (mesa_sgpio_conf_set(NULL, 0, 0, &sgpio_conf) != MESA_RC_OK) {
+            T_E("mesa_sgpio_conf_set() failed");
         } else {
             appl_init.cmd = MSCC_INIT_CMD_INIT_WARM;
             init_modules(&appl_init);

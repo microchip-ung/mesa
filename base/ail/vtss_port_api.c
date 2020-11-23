@@ -954,6 +954,7 @@ static vtss_rc vtss_port_conf_sync(vtss_state_t *vtss_state, vtss_port_no_t port
 
     memset(&old, 0, sizeof(old)); /* Please Lint */
     if ((rc = VTSS_FUNC(port.conf_get, port_no, &old)) == VTSS_RC_OK &&
+        new->speed != VTSS_SPEED_UNDEFINED &&
         (vtss_bool_changed(old.power_down, new->power_down) ||
          old.speed != new->speed ||
          vtss_bool_changed(old.fdx, new->fdx) ||
