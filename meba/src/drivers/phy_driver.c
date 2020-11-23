@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <mscc/ethernet/board/api.h>
 #include "../meba_aux.h"
 #include "../meba_generic.h"
@@ -284,9 +283,12 @@ static mesa_rc phy_10g_poll(meba_phy_device_t *dev,
     mesa_rc rc = mesa_port_status_get(data->inst, data->port_no, &mesa_status);
     if (rc != MESA_RC_OK) return rc;
 
-    status->link = mesa_status.link;
-    status->speed = mesa_status.speed;
-    status->fdx = mesa_status.fdx;
+    status->link   = mesa_status.link;
+    status->speed  = mesa_status.speed;
+    status->fdx    = mesa_status.fdx;
+    status->aneg   = mesa_status.aneg;
+    status->copper = mesa_status.copper;
+    status->fiber  = mesa_status.fiber;
 
     return MESA_RC_OK;
 }
