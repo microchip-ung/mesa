@@ -59,6 +59,7 @@ test("Setup learning, vlan and PCP classification") do
       copy_to_cpu: false,
       copy_to_cpu_smac: false,
       locked: true,
+      index_table: false,
       aged: false,
       cpu_queue: 0,
     }

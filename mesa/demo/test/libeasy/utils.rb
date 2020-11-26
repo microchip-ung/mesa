@@ -107,7 +107,7 @@ end
 
 def cap_check_exit(cap)
     check_capabilities do
-        assert(cap_get(cap) > 0, "Capability '#{cap}' not present, skipping test")
+        assert(cap_get(cap) > 0, "Capability '#{cap}' must be present")
     end
 end
 

@@ -251,6 +251,7 @@ test "test_conf" do
         copy_to_cpu: true,
         copy_to_cpu_smac: false,
         locked: true,
+        index_table: false,
         aged: false,
         cpu_queue: $cpu_queue,
     }

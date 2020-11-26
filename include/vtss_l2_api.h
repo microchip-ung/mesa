@@ -80,6 +80,9 @@ typedef struct
     BOOL           copy_to_cpu;                        /**< CPU copy flag for DMAC lookup */
     BOOL           copy_to_cpu_smac;                   /**< CPU copy flag for SMAC lookup */
     BOOL           locked;                             /**< Locked/static flag */
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    BOOL           index_table;                        /**< Index table used */
+#endif
     BOOL           aged;                               /**< Age flag */
     vtss_packet_rx_queue_t cpu_queue;                  /**< CPU queue */
 } vtss_mac_table_entry_t;

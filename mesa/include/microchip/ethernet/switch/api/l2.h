@@ -21,6 +21,7 @@ typedef struct
     mesa_bool_t      copy_to_cpu;      // CPU copy flag for DMAC lookup
     mesa_bool_t      copy_to_cpu_smac; // CPU copy flag for SMAC lookup
     mesa_bool_t      locked;           // Locked/static flag
+    mesa_bool_t      index_table;      // Index table used
     mesa_bool_t      aged;             // Age flag
     mesa_packet_rx_queue_t cpu_queue;  // CPU queue
 } mesa_mac_table_entry_t;

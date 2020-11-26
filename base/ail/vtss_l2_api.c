@@ -299,7 +299,7 @@ static vtss_rc vtss_pgid_table_write(vtss_state_t *vtss_state, u32 pgid)
 /* Allocate PGID */
 static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
                                u32 *new, const BOOL member[VTSS_PORT_ARRAY_SIZE],
-                               BOOL cpu_copy, vtss_packet_rx_queue_t cpu_queue)
+                               BOOL cpu_copy, vtss_packet_rx_queue_t cpu_queue, BOOL do_alloc)
 {
     u32               pgid, pgid_free = *new;
     BOOL              pgid_found = 0;
@@ -328,8 +328,10 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
             if (port_no == vtss_state->port_count &&
                 pgid_entry->cpu_copy == cpu_copy && pgid_entry->cpu_queue == cpu_queue) {
                 VTSS_D("reusing pgid: %u", pgid);
-                *new = pgid;
-                pgid_entry->references++;
+                if (do_alloc) {
+                    *new = pgid;
+                    pgid_entry->references++;
+                }
                 return VTSS_RC_OK;
             }
         }
@@ -342,6 +344,9 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
     }
 
     VTSS_D("using pgid: %u", pgid_free);
+    if (!do_alloc) {
+        return VTSS_RC_OK;
+    }
     *new = pgid_free;
     pgid_entry = &vtss_state->l2.pgid_table[pgid_free];
     pgid_entry->references = 1;
@@ -614,18 +619,200 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+typedef struct {
+    u32 oui;
+    u32 idx;
+} vtss_oui_idx_t;
+
+static void vtss_mac_oui_idx_get(const vtss_mac_t *mac, vtss_oui_idx_t *oi)
+{
+    u32 i;
+
+    memset(oi, 0, sizeof(*oi));
+    for (i = 0; i < 3; i++) {
+        oi->oui = ((oi->oui << 8) + mac->addr[i]);
+        oi->idx = ((oi->idx << 8) + mac->addr[i + 3]);
+    }
+}
+
+static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
+                                  vtss_mac_table_entry_t *entry, u32 *pgid, BOOL next)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    vtss_vid_mac_t         *vid_mac = &entry->vid_mac;
+    vtss_mac_vlan_entry_t  *e;
+    vtss_oui_idx_t         oi;
+    u32                    i, j, k;
+
+    vtss_mac_oui_idx_get(&vid_mac->mac, &oi);
+    if (next) {
+        // Get next entry
+        for (i = 0; i < t->cnt; i++) {
+            j = t->vidx[i];
+            e = &t->e[j];
+            if (e->vid < vid_mac->vid) {
+                // Smaller VID, no match
+                continue;
+            } else if (e->vid > vid_mac->vid) {
+                // Greater VID, search for smallest address
+                k = 0;
+            } else if (t->oui < oi.oui) {
+                // Same VID, smaller OUI, no match
+                continue;
+            } else if (t->oui > oi.oui) {
+                // Same VID, greater OUI, search for smallest address
+                k = 0;
+            } else {
+                // Same VID and OUI, search for next address
+                k = (oi.idx + 1);
+            }
+            for ( ; k < VTSS_MAC_INDEX_CNT; k++) {
+                if (VTSS_BF_GET(e->valid, k)) {
+                    t->idx_get = (j * VTSS_MAC_INDEX_VID_CNT + k);
+                    vid_mac->vid = e->vid;
+                    for (i = 0; i < 3; i++) {
+                        j = (16 - i * 8);
+                        vid_mac->mac.addr[i] = ((t->oui >> j) & 0xff);
+                        vid_mac->mac.addr[i + 3] = ((k >> j) & 0xff);
+                    }
+                    entry->index_table = 1;
+                    return VTSS_FUNC(l2.mac_table_get, entry, pgid);
+                }
+            }
+        }
+    } else if (oi.oui == t->oui && oi.idx < VTSS_MAC_INDEX_CNT) {
+        // Get specific entry
+        for (i = 0; i < t->cnt; i++) {
+            j = t->vidx[i];
+            e = &t->e[j];
+            if (e->vid == vid_mac->vid) {
+                if (VTSS_BF_GET(e->valid, oi.idx)) {
+                    t->idx_get = (j * VTSS_MAC_INDEX_VID_CNT + oi.idx);
+                    entry->index_table = 1;
+                    return VTSS_FUNC(l2.mac_table_get, entry, pgid);
+                }
+            }
+        }
+    }
+    return VTSS_RC_ERROR;
+}
+
+static vtss_rc vtss_mac_index_update(vtss_state_t *vtss_state)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    u8                     i, j, idx = 0;
+    vtss_vid_t             vid, vid_min = 0, vid_max;
+
+    // Build sorted list of VIDs for get-next
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        vid_max = VTSS_VIDS;
+        for (j = 0; j < VTSS_MAC_INDEX_VID_CNT; j++) {
+            vid = t->e[j].vid;
+            if (vid > vid_min && vid < vid_max) {
+                idx = j;
+                vid_max = vid;
+            }
+        }
+        if (vid_max == VTSS_VIDS) {
+            break;
+        }
+        vid_min = vid_max;
+        t->vidx[i] = idx;
+    }
+    t->cnt = i;
+    return VTSS_FUNC_0(l2.mac_index_update);
+}
+
+static vtss_rc vtss_mac_index_add(vtss_state_t *vtss_state,
+                                  const vtss_mac_table_entry_t *const entry)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    vtss_mac_vlan_entry_t  *e;
+    vtss_vid_t             vid = entry->vid_mac.vid;
+    vtss_oui_idx_t         oi;
+    u8                     i, i_free = VTSS_MAC_INDEX_VID_CNT;
+
+    if (vid == 0) {
+        VTSS_E("vid must be non-zero");
+        return VTSS_RC_ERROR;
+    }
+    vtss_mac_oui_idx_get(&entry->vid_mac.mac, &oi);
+    if (t->cnt && oi.oui != t->oui) {
+        VTSS_E("new OUI 0x%06x does not match old OUI 0x%06x", oi.oui, t->oui);
+        return VTSS_RC_ERROR;
+    }
+    if (oi.idx >= VTSS_MAC_INDEX_CNT) {
+        VTSS_E("MAC/idx 0x%06x/%u exceeds block size %u", oi.idx, oi.idx, VTSS_MAC_INDEX_CNT);
+        return VTSS_RC_ERROR;
+    }
+
+    // Look for existing or free entry
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        e = &t->e[i];
+        if (e->vid == vid) {
+            break;
+        }
+        if (e->vid == 0 && i_free == VTSS_MAC_INDEX_VID_CNT) {
+            i_free = i;
+        }
+    }
+    if (i == VTSS_MAC_INDEX_VID_CNT) {
+        // VID not found
+        i = i_free;
+        if (i == VTSS_MAC_INDEX_VID_CNT) {
+            VTSS_E("no more VLANs available");
+            return VTSS_RC_ERROR;
+        }
+        t->oui = oi.oui;
+        t->e[i].vid = vid;
+        VTSS_RC(vtss_mac_index_update(vtss_state));
+    }
+    e = &t->e[i];
+    if (VTSS_BF_GET(e->valid, oi.idx) == 0) {
+        e->cnt++;
+        VTSS_BF_SET(e->valid, oi.idx, 1);
+    }
+    t->idx_add = (i * VTSS_MAC_INDEX_VID_CNT + oi.idx); // Index to be added
+    return VTSS_RC_OK;
+}
+
+static vtss_rc vtss_mac_index_del(vtss_state_t *vtss_state,
+                                  const vtss_vid_mac_t *const vid_mac)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    vtss_mac_vlan_entry_t  *e;
+    vtss_oui_idx_t         oi;
+    u8                     i;
+
+    vtss_mac_oui_idx_get(&vid_mac->mac, &oi);
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        e = &t->e[i];
+        if (e->vid == vid_mac->vid && VTSS_BF_GET(e->valid, oi.idx)) {
+            e->cnt--;
+            VTSS_BF_SET(e->valid, oi.idx, 0);
+            if (e->cnt == 0) {
+                // Free VID entry
+                e->vid = 0;
+                return vtss_mac_index_update(vtss_state);
+            }
+        }
+    }
+    return VTSS_RC_OK;
+}
+#endif
+
 vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
                      vtss_mac_user_t user, const vtss_mac_table_entry_t *const entry)
 {
-    u32                    pgid, count = 0, port_count = vtss_state->port_count;
-    vtss_mac_table_entry_t old_entry;
+    u32                    pgid, pgid_old, port_count = vtss_state->port_count;
+    vtss_mac_table_entry_t old_entry = {0};
     vtss_mac_entry_t       *mac_entry;
     vtss_port_no_t         port_no;
-    BOOL                   ipmc = 0, member[VTSS_PORT_ARRAY_SIZE];
+    BOOL                   ipmc = 0, *member;
     vtss_vid_mac_t         vid_mac;
-    vtss_pgid_entry_t      *pgid_entry;
-    BOOL                   cpu_copy = 0, pgid_cpu_copy = 0;
-    vtss_packet_rx_queue_t cpu_queue = 0, pgid_cpu_queue = 0;
+    BOOL                   cpu_copy = 0;
+    vtss_packet_rx_queue_t cpu_queue = 0;
 
     vid_mac = entry->vid_mac;
     VTSS_D("vid: %d, mac: %02x-%02x-%02x-%02x-%02x-%02x",
@@ -633,17 +820,47 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
            vid_mac.mac.addr[0], vid_mac.mac.addr[1], vid_mac.mac.addr[2],
            vid_mac.mac.addr[3], vid_mac.mac.addr[4], vid_mac.mac.addr[5]);
 
+    if (!entry->locked) {
+        VTSS_E("entry must be locked");
+        return VTSS_RC_ERROR;
+    }
+
     if (entry->copy_to_cpu) {
         cpu_copy = 1;
         cpu_queue = entry->cpu_queue;
-        pgid_cpu_copy = 1;
-        pgid_cpu_queue = entry->cpu_queue;
     } else {
         /* Only entries without CPU copy can be encoded as IPMC entries */
         ipmc = vtss_ipmc_mac(vtss_state, &vid_mac);
     }
 
-    if (entry->locked) {
+    // Fill out member list for IPMC (pseudo PGID)
+    pgid = VTSS_PGID_NONE;
+    member = vtss_state->l2.pgid_table[pgid].member;
+    for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
+        member[port_no] = VTSS_BOOL(entry->destination[port_no]);
+    }
+
+    // Check if a PGID can be allocated
+    pgid_old = VTSS_PGID_NONE;
+    if (!ipmc) {
+        old_entry.vid_mac = vid_mac;
+        if (vtss_mac_get(vtss_state, &old_entry, &pgid_old) == VTSS_RC_OK && old_entry.locked) {
+            // Locked entry, PGID may be freed later
+        } else {
+            pgid_old = VTSS_PGID_NONE;
+        }
+        if (pgid_old == VTSS_PGID_NONE || vtss_state->l2.pgid_table[pgid_old].references > 1) {
+            // New PGID allocation is needed
+            VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, cpu_copy, cpu_queue, 0));
+        }
+    }
+
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    if (entry->index_table) {
+        VTSS_RC(vtss_mac_index_add(vtss_state, entry));
+    } else
+#endif
+    {
         /* Add all locked entries to state block */
         if ((mac_entry = vtss_mac_entry_add(vtss_state, user, &entry->vid_mac)) == NULL) {
             return VTSS_RC_ERROR;
@@ -653,24 +870,6 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
         mac_entry->cpu_copy = cpu_copy;
         mac_entry->cpu_copy_smac = entry->copy_to_cpu_smac;
         mac_entry->cpu_queue = cpu_queue;
-    } else {
-        /* Unlocked entry, must be non-IPMC with zero/one/all destination port and no CPU copy */
-        if (ipmc) {
-            VTSS_E("IP multicast entry must be locked");
-            return VTSS_RC_ERROR;
-        }
-
-        for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
-            if (entry->destination[port_no])
-                count++;
-        }
-        if (cpu_copy || (count != 0 && count != 1 && count != port_count)) {
-            VTSS_E("unlocked can only have zero, one or all destination ports and no cpu_copy");
-            return VTSS_RC_ERROR;
-        }
-
-        /* Delete any previous locked entry from state block */
-        VTSS_RC(vtss_mac_entry_del(vtss_state, user, &vid_mac));
     }
 
     /* No further processing in warm start mode */
@@ -679,34 +878,22 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
 
     if (ipmc) {
         /* IPv4/IPv6 multicast address, use pseudo PGID */
-        pgid = VTSS_PGID_NONE;
-        pgid_entry = &vtss_state->l2.pgid_table[pgid];
-        for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++)
-            pgid_entry->member[port_no] = VTSS_BOOL(entry->destination[port_no]);
-        vtss_pgid_members_get(vtss_state, pgid, pgid_entry->member);
+        vtss_pgid_members_get(vtss_state, pgid, member);
     } else {
         /* Free old PGID if the address exists */
-        old_entry.vid_mac = vid_mac;
-        pgid = 0; /* Please Lint */
-        if (VTSS_FUNC(l2.mac_table_get, &old_entry, &pgid) == VTSS_RC_OK && old_entry.locked) {
-            VTSS_RC(vtss_pgid_free(vtss_state, pgid));
+        if (pgid_old != VTSS_PGID_NONE) {
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+            if (old_entry.index_table != VTSS_BOOL(entry->index_table)) {
+                // Delete old locked entry if it is in the other table
+                VTSS_RC(vtss_mac_del(vtss_state, user, &vid_mac));
+                pgid_old = VTSS_PGID_NONE;
+            }
+#endif
+            VTSS_RC(vtss_pgid_free(vtss_state, pgid_old));
         }
 
         /* Allocate new PGID */
-        pgid = VTSS_PGID_NONE;
-        for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
-            member[port_no] = VTSS_BOOL(entry->destination[port_no]);
-            if (!entry->locked && member[port_no])
-                pgid = port_no;
-        }
-
-        if (entry->locked) {
-            VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, pgid_cpu_copy, pgid_cpu_queue));
-        } else if (count == 0) {
-            pgid = vtss_state->l2.pgid_drop;
-        } else if (count == port_count) {
-            pgid = vtss_state->l2.pgid_flood;
-        }
+        VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, cpu_copy, cpu_queue, 1));
     }
 
     vtss_state->l2.mac_status.learned = 1;
@@ -754,9 +941,14 @@ vtss_rc vtss_mac_del(vtss_state_t *vtss_state,
 
     /* Free PGID and delete if the entry exists */
     entry.vid_mac = *vid_mac;
-    if ((rc = VTSS_FUNC(l2.mac_table_get, &entry, &pgid)) == VTSS_RC_OK) {
+    if ((rc = vtss_mac_get(vtss_state, &entry, &pgid)) == VTSS_RC_OK) {
         if (entry.locked)
             VTSS_RC(vtss_pgid_free(vtss_state, pgid));
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+        if (entry.index_table) {
+            VTSS_RC(vtss_mac_index_del(vtss_state, vid_mac));
+        }
+#endif
         vtss_state->l2.mac_status.aged = 1;
         rc = VTSS_FUNC(l2.mac_table_del, vid_mac);
     }
@@ -791,25 +983,25 @@ static void vtss_mac_pgid_get(vtss_state_t *vtss_state,
 }
 
 vtss_rc vtss_mac_get(vtss_state_t *vtss_state,
-                     const vtss_vid_mac_t   *const vid_mac,
-                     vtss_mac_table_entry_t *const entry)
+                     vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     vtss_rc rc;
-    u32     pgid = 0; /* Please Lint */
 
-    VTSS_D("vid: %d, mac: %02x-%02x-%02x-%02x-%02x-%02x",
-           vid_mac->vid,
-           vid_mac->mac.addr[0], vid_mac->mac.addr[1], vid_mac->mac.addr[2],
-           vid_mac->mac.addr[3], vid_mac->mac.addr[4], vid_mac->mac.addr[5]);
-
-    entry->vid_mac = *vid_mac;
-    if ((rc = VTSS_FUNC(l2.mac_table_get, entry, &pgid)) != VTSS_RC_OK)
-        return rc;
-
-    vtss_mac_pgid_get(vtss_state, entry, pgid);
-
-    return VTSS_RC_OK;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    // Lookup in normal table first
+    entry->index_table = 0;
+    vtss_state->l2.mac_index_table.idx_get = 0xffffffff;
+#endif
+    rc = VTSS_FUNC(l2.mac_table_get, entry, pgid);
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    if (rc != VTSS_RC_OK) {
+        // Lookup in index table
+        rc = vtss_mac_index_get(vtss_state, entry, pgid, 0);
+    }
+#endif
+    return rc;
 }
+
 
 vtss_rc vtss_mac_table_get(const vtss_inst_t       inst,
                            const vtss_vid_mac_t    *const vid_mac,
@@ -817,10 +1009,19 @@ vtss_rc vtss_mac_table_get(const vtss_inst_t       inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+    u32          pgid = 0; /* Please Lint */
+
+    VTSS_D("vid: %d, mac: %02x-%02x-%02x-%02x-%02x-%02x",
+           vid_mac->vid,
+           vid_mac->mac.addr[0], vid_mac->mac.addr[1], vid_mac->mac.addr[2],
+           vid_mac->mac.addr[3], vid_mac->mac.addr[4], vid_mac->mac.addr[5]);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = vtss_mac_get(vtss_state, vid_mac, entry);
+    entry->vid_mac = *vid_mac;
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_mac_get(vtss_state, entry, &pgid)) == VTSS_RC_OK) {
+        vtss_mac_pgid_get(vtss_state, entry, pgid);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -834,14 +1035,16 @@ static vtss_rc vtss_mac_get_next(vtss_state_t *vtss_state,
     vtss_mac_table_entry_t mac_entry;
     u32                    mach, macl;
     vtss_mac_entry_t       *cur, *cmp;
-    vtss_vid_mac_t         vid_mac_next;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_mac_entry_t       mac_idx;
+#endif
 
     VTSS_D("vid: %d, mac: %02x-%02x-%02x-%02x-%02x-%02x",
            vid_mac->vid,
            vid_mac->mac.addr[0], vid_mac->mac.addr[1], vid_mac->mac.addr[2],
            vid_mac->mac.addr[3], vid_mac->mac.addr[4], vid_mac->mac.addr[5]);
 
-    mac_entry.vid_mac = *vid_mac;
+    // Look for static entry
     vtss_mach_macl_get(vid_mac, &mach, &macl);
     for (cur = vtss_mac_entry_get(vtss_state, mach, macl, 1); cur != NULL; cur = cur->next) {
         if (cur->user != VTSS_MAC_USER_NONE) {
@@ -849,13 +1052,32 @@ static vtss_rc vtss_mac_get_next(vtss_state_t *vtss_state,
         }
 
         /* Lookup in chip */
-        vtss_mach_macl_set(&vid_mac_next, cur->mach, cur->macl);
-        if ((rc = vtss_mac_get(vtss_state, &vid_mac_next, entry)) == VTSS_RC_OK) {
+        vtss_mach_macl_set(&entry->vid_mac, cur->mach, cur->macl);
+        if ((rc = vtss_mac_get(vtss_state, entry, &pgid)) == VTSS_RC_OK) {
+            vtss_mac_pgid_get(vtss_state, entry, pgid);
             VTSS_D("found sw entry 0x%08x%08x", cur->mach, cur->macl);
             break;
         }
     }
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    // Look for entry in index table
+    mac_entry.vid_mac = *vid_mac;
+    if (vtss_mac_index_get(vtss_state, &mac_entry, &pgid, 1) == VTSS_RC_OK) {
+        vtss_mach_macl_get(&mac_entry.vid_mac, &mach, &macl);
+        if (cur == NULL || (mach < cur->mach || (mach == cur->mach && macl < cur->macl))) {
+            // Index entry is smaller than static entry
+            vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
+            mac_idx.mach = mach;
+            mac_idx.macl = macl;
+            cur = &mac_idx;
+            *entry = mac_entry;
+            rc = VTSS_RC_OK;
+        }
+    }
+#endif
+
+    mac_entry.vid_mac = *vid_mac;
     while (VTSS_FUNC(l2.mac_table_get_next, &mac_entry, &pgid) == VTSS_RC_OK) {
         vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
         vtss_mach_macl_get(&mac_entry.vid_mac, &mach, &macl);
@@ -866,9 +1088,10 @@ static vtss_rc vtss_mac_get_next(vtss_state_t *vtss_state,
             continue;
         }
 
-        /* Check for 'cur == NULL' is to please Lint */
-        if (rc != VTSS_RC_OK || cur == NULL || (mach < cur->mach || (mach == cur->mach && macl < cur->macl)))
+        if (cur == NULL || (mach < cur->mach || (mach == cur->mach && macl < cur->macl))) {
+            // Chip entry is smaller than static/index entry
             *entry = mac_entry;
+        }
 
         rc = VTSS_RC_OK;
         break;
@@ -4745,7 +4968,7 @@ static void vtss_mac_entry_add_sync(vtss_state_t *vtss_state,
         pgid = VTSS_PGID_NONE;
         vtss_pgid_members_get(vtss_state, pgid, member);
     } else {
-        rc = vtss_pgid_alloc(vtss_state, &pgid, member, cur->cpu_copy, cur->cpu_queue);
+        rc = vtss_pgid_alloc(vtss_state, &pgid, member, cur->cpu_copy, cur->cpu_queue, 1);
     }
     if (rc == VTSS_RC_OK) {
         VTSS_I("adding %s: %08x-%08x, pgid: %u",
@@ -7841,6 +8064,37 @@ static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
     pr("IPv6 MC        ");
     vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.ipv6_mc_flood, 1);
     pr("\n");
+
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    {
+        vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+        vtss_mac_vlan_entry_t  *e;
+        u32                    i;
+
+        pr("Index OUI   : 0x%06x\n", t->oui);
+        pr("VID idx list: %s", t->cnt ? "" : "-");
+        for (i = 0; i < t->cnt; i++) {
+            pr("%s%u", i == 0 ? "" : "-", t->vidx[i]);
+        }
+        pr("\n\nIDX  VID   CNT\n");
+        for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+            e = &t->e[i];
+            pr("%-5u%-6u%u\n", i, e->vid, e->cnt);
+        }
+        pr("\n");
+
+        memset(&mac_entry, 0, sizeof(mac_entry));
+        while (vtss_mac_index_get(vtss_state, &mac_entry, &pgid, 1) == VTSS_RC_OK) {
+            vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
+            vtss_debug_print_mac_entry(pr, "Index Entries", &header, &mac_entry, pgid);
+            VTSS_EXIT_ENTER();
+        }
+        if (!header) {
+            header = 1;
+            pr("\n");
+        }
+    }
+#endif
 
     /* MAC address table in state */
     for (entry = vtss_state->l2.mac_list_used; entry != NULL; entry = entry->next) {

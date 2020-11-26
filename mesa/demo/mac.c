@@ -69,8 +69,8 @@ static void cli_mac_print(mesa_mac_table_entry_t *entry, mesa_bool_t first)
 
     if (first)
         cli_table_header("Type    VID  MAC Address        Ports");
-    cli_printf("%s %-4d %s  ",
-               entry->locked ? "Static " : "Dynamic",
+    cli_printf("%-7s %-4d %s  ",
+               entry->index_table ? "Index" : entry->locked ? "Static" : "Dynamic",
                entry->vid_mac.vid,
                cli_mac_txt(entry->vid_mac.mac.addr, buf));
     cli_printf("%s%s\n",

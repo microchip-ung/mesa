@@ -19,6 +19,7 @@ run %w{./l2_flood.rb}
 run %w{./l2_frer.rb}
 run %w{./l2_igmp.rb}
 run %w{./l2_isolation.rb}
+run %w{./l2_mac_idx.rb}
 run %w{./l2_mac_table.rb}
 run %w{./l2_mirror.rb}
 run %w{./l2_mld.rb}

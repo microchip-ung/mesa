@@ -140,9 +140,28 @@ static vtss_rc lan966x_mac_table_idle(vtss_state_t *vtss_state)
         REG_RD(ANA_MACACCESS, &cmd);
         cnt++;
         if (cnt == 100000) {
-            VTSS_E("Timeout! cmd =  %u", cmd);
+            VTSS_E("timeout, cmd = %u", cmd);
         }
     } while (ANA_MACACCESS_MAC_TABLE_CMD_X(cmd) != MACACCESS_CMD_IDLE);
+    return VTSS_RC_OK;
+}
+
+#define PMACACCESS_CMD_IDLE  0
+#define PMACACCESS_CMD_READ  1
+#define PMACACCESS_CMD_WRITE 2
+#define PMACACCESS_CMD_INIT  3
+
+static vtss_rc lan966x_pmac_table_idle(vtss_state_t *vtss_state)
+{
+    u32 cmd, cnt = 0;
+
+    do {
+        REG_RD(ANA_PMACACCESS, &cmd);
+        cnt++;
+        if (cnt == 100000) {
+            VTSS_E("timeout, cmd = %u", cmd);
+        }
+    } while (ANA_PMACACCESS_PMAC_TBL_CMD_X(cmd) != PMACACCESS_CMD_IDLE);
     return VTSS_RC_OK;
 }
 
@@ -168,9 +187,19 @@ static vtss_rc lan966x_mac_table_add(vtss_state_t *vtss_state,
         }
     } else {
         /* Not IP MC entry */
+        idx = lan966x_chip_pgid(vtss_state, pgid);
+        if (entry->index_table) {
+            REG_WR(ANA_PMACTIDX, ANA_PMACTIDX_PMAC_INDEX(vtss_state->l2.mac_index_table.idx_add));
+            REG_WR(ANA_PMACACCESS,
+                   ANA_PMACACCESS_PMAC_CPU_COPY(0) |
+                   ANA_PMACACCESS_PMAC_IGNORE_VLAN(0) |
+                   ANA_PMACACCESS_PMAC_VALID(1) |
+                   ANA_PMACACCESS_PMAC_DEST_IDX(idx) |
+                   ANA_PMACACCESS_PMAC_TBL_CMD(PMACACCESS_CMD_WRITE));
+            return lan966x_pmac_table_idle(vtss_state);
+        }
         /* Set FWD_KILL to make the switch discard frames in SMAC lookup */
         fwd_kill = (copy_to_cpu || pgid != vtss_state->l2.pgid_drop ? 0 : 1);
-        idx = lan966x_chip_pgid(vtss_state, pgid);
         type = (entry->locked ? MAC_TYPE_LOCKED : MAC_TYPE_NORMAL);
     }
 
@@ -218,7 +247,14 @@ static vtss_rc lan966x_mac_table_cmd(vtss_state_t *vtss_state, const vtss_vid_ma
 static vtss_rc lan966x_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
 {
     u32 type = lan966x_mac_type(vid_mac);
+    u32 idx = vtss_state->l2.mac_index_table.idx_get;
 
+    if (idx <= ANA_PMACTIDX_PMAC_INDEX_M) {
+        // Delete from index table
+        REG_WR(ANA_PMACTIDX, ANA_PMACTIDX_PMAC_INDEX(idx));
+        REG_WR(ANA_PMACACCESS, ANA_PMACACCESS_PMAC_TBL_CMD(PMACACCESS_CMD_WRITE));
+        return lan966x_pmac_table_idle(vtss_state);
+    }
     VTSS_RC(lan966x_mac_table_cmd(vtss_state, vid_mac, type, MACACCESS_CMD_FORGET));
     if (type != MAC_TYPE_NORMAL) {
         /* IPMC entries may be encoded as NORMAL */
@@ -248,6 +284,7 @@ static vtss_rc lan966x_mac_table_result(vtss_state_t *vtss_state,
     type = ANA_MACACCESS_ENTRYTYPE_X(value);
     idx = ANA_MACACCESS_DEST_IDX_X(value);
     entry->aged = VTSS_BOOL(value & ANA_MACACCESS_AGED_FLAG_M);
+    entry->index_table = 0;
     entry->copy_to_cpu = 0;
     entry->copy_to_cpu_smac = VTSS_BOOL(value & ANA_MACACCESS_MAC_CPU_COPY_M);
     entry->locked = (type == MAC_TYPE_NORMAL ? 0 : 1);
@@ -290,8 +327,24 @@ static vtss_rc lan966x_mac_table_get(vtss_state_t *vtss_state,
                                      vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     vtss_rc rc;
-    u32     type = lan966x_mac_type(&entry->vid_mac);
+    u32     value, type = lan966x_mac_type(&entry->vid_mac);
 
+    if (entry->index_table) {
+        // Get from index table
+        REG_WR(ANA_PMACTIDX, ANA_PMACTIDX_PMAC_INDEX(vtss_state->l2.mac_index_table.idx_get));
+        REG_WR(ANA_PMACACCESS, ANA_PMACACCESS_PMAC_TBL_CMD(PMACACCESS_CMD_READ));
+        VTSS_RC(lan966x_pmac_table_idle(vtss_state));
+        REG_RD(ANA_PMACACCESS, &value);
+        if (ANA_PMACACCESS_PMAC_VALID_X(value) == 0) {
+            return VTSS_RC_ERROR;
+        }
+        entry->copy_to_cpu = ANA_PMACACCESS_PMAC_CPU_COPY_X(value);
+        entry->copy_to_cpu_smac = 0;
+        entry->locked = 1;
+        entry->aged = 0;
+        *pgid = lan966x_vtss_pgid(vtss_state, ANA_PMACACCESS_PMAC_DEST_IDX_X(value));
+        return VTSS_RC_OK;
+    }
     VTSS_RC(lan966x_mac_table_cmd(vtss_state, &entry->vid_mac, type, MACACCESS_CMD_READ));
     rc = lan966x_mac_table_result(vtss_state, entry, pgid);
     if (type != MAC_TYPE_NORMAL && rc != VTSS_RC_OK) {
@@ -371,6 +424,23 @@ static vtss_rc lan966x_mac_table_status_get(vtss_state_t *vtss_state,
     status->replaced = VTSS_BOOL(value & ANA_ANEVENTS_LEARN_REMOVE_M);
     status->moved = VTSS_BOOL(value & ANA_ANEVENTS_AUTO_MOVED_M);
     status->aged = VTSS_BOOL(value & ANA_ANEVENTS_AGED_ENTRY_M);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_mac_index_update(vtss_state_t *vtss_state)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    u32                    i, vid;
+
+    REG_WR(ANA_PMAC_CFG,
+           ANA_PMAC_CFG_PMAC_ENA(t->cnt ? 1 : 0) |
+           ANA_PMAC_CFG_PMAC_OUI(t->oui));
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        vid = t->e[i].vid;
+        REG_WR(ANA_PMAC_VLAN_CFG(i),
+               ANA_PMAC_VLAN_CFG_PMAC_VLAN_ENA(vid ? 1 : 0) |
+               ANA_PMAC_VLAN_CFG_PMAC_VLAN_ID(vid));
+    }
     return VTSS_RC_OK;
 }
 
@@ -1271,7 +1341,7 @@ static vtss_rc lan966x_debug_mac_table(vtss_state_t *vtss_state,
                                        const vtss_debug_printf_t pr,
                                        const vtss_debug_info_t   *const info)
 {
-    u32  value, port;
+    u32  value, port, i;
     BOOL header = 1;
 
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
@@ -1295,6 +1365,12 @@ static vtss_rc lan966x_debug_mac_table(vtss_state_t *vtss_state,
     }
     if (!header)
         pr("\n");
+
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_PMAC_CFG), "PMAC_CFG");
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_PMAC_VLAN_CFG(i)), i, "PMAC_VLAN_CFG");
+    }
+    pr("\n");
 
     /* Read and clear analyzer sticky bits */
     REG_RD(ANA_ANEVENTS, &value);
@@ -1721,6 +1797,7 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
 
     /* Clear MAC table */
     REG_WR(ANA_MACACCESS, ANA_MACACCESS_MAC_TABLE_CMD(MACACCESS_CMD_INIT));
+    REG_WR(ANA_PMACACCESS, ANA_PMACACCESS_PMAC_TBL_CMD(PMACACCESS_CMD_INIT));
 
     /* Clear VLAN table */
     REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_INIT));
@@ -1826,6 +1903,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mac_table_age_time_set = lan966x_mac_table_age_time_set;
         state->mac_table_age = lan966x_mac_table_age;
         state->mac_table_status_get = lan966x_mac_table_status_get;
+        state->mac_index_update = lan966x_mac_index_update;
         state->learn_port_mode_set = lan966x_learn_port_mode_set;
         state->learn_state_set = lan966x_learn_state_set;
         state->mstp_state_set = vtss_cmn_mstp_state_set;

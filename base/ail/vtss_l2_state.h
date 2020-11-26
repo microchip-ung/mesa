@@ -84,6 +84,31 @@ typedef struct vtss_mac_entry_t {
 void vtss_mach_macl_get(const vtss_vid_mac_t *vid_mac, u32 *mach, u32 *macl);
 void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+#define VTSS_MAC_INDEX_VID_CNT 4
+#if defined(VTSS_ARCH_LAN966X_FPGA)
+#define VTSS_MAC_INDEX_CNT     512
+#else
+#define VTSS_MAC_INDEX_CNT     2048
+#endif
+
+/* MAC addresses for a VLAN in the index table */
+typedef struct {
+    vtss_vid_t vid;
+    u16        cnt;
+    u8         valid[VTSS_BF_SIZE(VTSS_MAC_INDEX_CNT)];
+} vtss_mac_vlan_entry_t;
+
+typedef struct {
+    u32                   idx_add; // Index for add operation
+    u32                   idx_get; // Index for get operation
+    u32                   oui;
+    u8                    cnt; // Number of VID indices in list
+    u8                    vidx[VTSS_MAC_INDEX_VID_CNT];
+    vtss_mac_vlan_entry_t e[VTSS_MAC_INDEX_VID_CNT];
+} vtss_mac_index_table_t;
+#endif
+
 /* Counter for number of enabled rings with port in discarding state */
 #if (VTSS_ERPIS > 255)
 typedef u16 vtss_erps_counter_t;
@@ -492,6 +517,9 @@ typedef struct {
                               const vtss_vid_t vid);
     vtss_rc (* mac_table_status_get)(struct vtss_state_s *vtss_state,
                                      vtss_mac_table_status_t *const status);
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_rc (* mac_index_update)(struct vtss_state_s *vtss_state);
+#endif
     vtss_rc (* learn_port_mode_set)(struct vtss_state_s *vtss_state,
                                     const vtss_port_no_t port_no);
     vtss_rc (* learn_state_set)(struct vtss_state_s *vtss_state,
@@ -692,6 +720,9 @@ typedef struct {
     vtss_mac_entry_t              mac_table[VTSS_MAC_ADDRS]; /* Sorted MAC address table */
     u32                           mac_ptr_count;   /* Number of valid pointers */
     vtss_mac_entry_t              *mac_list_ptr[VTSS_MAC_PTR_SIZE]; /* Pointer array */
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_mac_index_table_t        mac_index_table;
+#endif
     u32                           ac_count;
     vtss_aggr_mode_t              aggr_mode;
     u32                           aggr_chip_port_next[2];
@@ -770,8 +801,7 @@ vtss_rc vtss_mac_add(struct vtss_state_s *vtss_state,
 vtss_rc vtss_mac_del(struct vtss_state_s *vtss_state,
                      vtss_mac_user_t user, const vtss_vid_mac_t *const vid_mac);
 vtss_rc vtss_mac_get(struct vtss_state_s *vtss_state,
-                     const vtss_vid_mac_t   *const vid_mac,
-                     vtss_mac_table_entry_t *const entry);
+                     vtss_mac_table_entry_t *const entry, u32 *pgid);
 vtss_rc vtss_update_masks(struct vtss_state_s *vtss_state,
                           BOOL src_update, BOOL dest_update, BOOL aggr_update);
 vtss_rc vtss_cmn_vlan_members_get(struct vtss_state_s *state,

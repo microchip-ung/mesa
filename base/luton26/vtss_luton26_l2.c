@@ -478,12 +478,13 @@ static vtss_rc l26_ip_mc_mac_update(vtss_state_t *vtss_state,
     vtss_mac_table_entry_t mac_entry;
     vtss_vid_mac_t         *vid_mac = &mac_entry.vid_mac;
     vtss_ipmc_dst_t        *dst;
+    u32                    pgid;
 
     /* Update MAC address entries for all destinations */
     for (dst = src->dest; dst != NULL; dst = dst->next) {
         l26_ip_mc_mac_get(vid_mac, &dst->data, ipv6);
         vid_mac->vid = old_fid;
-        if (vtss_mac_get(vtss_state, vid_mac, &mac_entry) == VTSS_RC_OK &&
+        if (vtss_mac_get(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK &&
             vtss_mac_del(vtss_state, VTSS_MAC_USER_SSM, vid_mac) == VTSS_RC_OK) {
             vid_mac->vid = new_fid;
             VTSS_RC(vtss_mac_add(vtss_state, VTSS_MAC_USER_SSM, &mac_entry));
