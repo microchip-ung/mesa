@@ -54,14 +54,12 @@ $test_table =
         mac: [{vid: 10, oui: 0x020406, idx: 0x102, dst: [1,2] }],
         frm: [{dmac: "02:04:06:00:01:02", vid: 10, idx_tx: 0, idx_rx: [1,2]}]
     },
+    {
+        txt: "cpu_copy",
+        mac: [{vid: 20, oui: 0x020406, idx: 0x102, cpu_copy: true }],
+        frm: [{dmac: "02:04:06:00:01:02", vid: 20, idx_tx: 3, idx_npi: 1}]
+    },
 ]
-
-def fld_get(m, fld, val = 0)
-    if (m != nil and m.key?(fld))
-        val = m[fld]
-    end
-    val
-end
 
 def fld_vid_mac_get(m)
     val = { mac: { addr: [] } }
@@ -117,11 +115,51 @@ def mac_test(t)
         port_list = $ts.dut.p.join(",")
         $ts.dut.call("mesa_vlan_port_members_set", vid, port_list)
 
-        cmd = "eth dmac #{f[:dmac]}"
-        cmd += cmd_tag_push({tpid: 0x8100, vid: vid})
-        cmd += " data pattern cnt 64"
-        run_ef_tx_rx_cmd($ts, f[:idx_tx], f[:idx_rx], cmd)
-        f[:cmd] = cmd
+        conf = nil
+        idx_npi = f[:idx_npi]
+        if (idx_npi)
+            # Enable NPI port for CPU queue 0
+            conf = $ts.dut.call("mesa_packet_rx_conf_get")
+            conf["queue"][0]["npi"]["enable"] = true
+            $ts.dut.call("mesa_packet_rx_conf_set", conf)
+
+            conf = $ts.dut.call("mesa_npi_conf_get")
+            conf["enable"] = true
+            conf["port_no"] = $ts.dut.p[f[:idx_npi]]
+            $ts.dut.call("mesa_npi_conf_set", conf)
+        end
+
+        idx_tx = f[:idx_tx]
+        idx_rx = f[:idx_rx]
+        f1 = "eth dmac #{f[:dmac]}"
+        f1 += cmd_tag_push({tpid: 0x8100, vid: vid})
+        f1 += " data pattern cnt 64"
+        cmd = "sudo ef name f1 #{f1}"
+        if (idx_npi)
+            idx_rx = [idx_npi]
+            cmd += " name f2 "
+            cmd += cmd_rx_ifh_push({port_idx: idx_tx})
+            cmd += " #{f1}"
+        end
+        $ts.pc.p.each_index do |idx|
+            if (idx == idx_tx)
+                cmd += " tx #{$ts.pc.p[idx]} name f1"
+            else
+                cmd += " rx #{$ts.pc.p[idx]}"
+            end
+            if (idx == idx_npi)
+                cmd += " name f2"
+            elsif (idx_rx.include?idx)
+                cmd += " name f1"
+            end
+        end
+        $ts.pc.run(cmd)
+        f[:cmd] = f1
+        if (conf)
+            # Disable NPI port again
+            conf["enable"] = false
+            $ts.dut.call("mesa_npi_conf_set", conf)
+        end
     end
 
     # Get-next test

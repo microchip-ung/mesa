@@ -227,13 +227,6 @@ def time_set(conf, interval)
     time["interval"] = interval
 end
 
-def fld_get(v, fld, val = 0)
-    if (v != nil and v.key?(fld))
-        val = v[fld]
-    end
-    val
-end
-
 def rte_ob_test(t)
     flush = false
     if (flush and fld_get(t, :skip_flush) > 0)

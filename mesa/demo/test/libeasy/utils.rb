@@ -92,6 +92,13 @@ def ace_range_set(k, name, v, fld)
     end
 end
 
+def fld_get(v, fld, val = 0)
+    if (v != nil and v.key?(fld))
+        val = v[fld]
+    end
+    val
+end
+
 def port_idx_list_str(idx_list)
     str = ""
     idx_list.each do |idx|

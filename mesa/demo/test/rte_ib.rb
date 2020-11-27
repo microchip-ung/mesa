@@ -215,13 +215,6 @@ test "otf" do
     check_counter("tx_otf", cnt["tx_otf"], 1)
 end
 
-def fld_get(v, fld, val = 0)
-    if (v != nil and v.key?(fld))
-        val = v[fld]
-    end
-    val
-end
-
 def tx_dg_test(intf, ral_id, opc = false)
     len = 60
     idx_rx = 1

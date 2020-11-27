@@ -643,7 +643,7 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
     vtss_vid_mac_t         *vid_mac = &entry->vid_mac;
     vtss_mac_vlan_entry_t  *e;
     vtss_oui_idx_t         oi;
-    u32                    i, j, k;
+    u32                    i, j, k, m, n;
 
     vtss_mac_oui_idx_get(&vid_mac->mac, &oi);
     if (next) {
@@ -667,17 +667,30 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
                 // Same VID and OUI, search for next address
                 k = (oi.idx + 1);
             }
-            for ( ; k < VTSS_MAC_INDEX_CNT; k++) {
-                if (VTSS_BF_GET(e->valid, k)) {
-                    t->idx_get = (j * VTSS_MAC_INDEX_VID_CNT + k);
+
+            // Find next byte, then bit indicating a valid address
+            n = (k % 8);
+            m = (1 << n);
+            while (k < VTSS_MAC_INDEX_CNT) {
+                if (m && e->valid[k / 8] < m) {
+                    // Next byte
+                    k += (8 - n);
+                    n = 0;
+                    m = 1;
+                } else if (VTSS_BF_GET(e->valid, k)) {
                     vid_mac->vid = e->vid;
                     for (i = 0; i < 3; i++) {
-                        j = (16 - i * 8);
-                        vid_mac->mac.addr[i] = ((t->oui >> j) & 0xff);
-                        vid_mac->mac.addr[i + 3] = ((k >> j) & 0xff);
+                        n = (16 - i * 8);
+                        vid_mac->mac.addr[i] = ((t->oui >> n) & 0xff);
+                        vid_mac->mac.addr[i + 3] = ((k >> n) & 0xff);
                     }
+                    t->idx_get = (j * VTSS_MAC_INDEX_VID_CNT + k);
                     entry->index_table = 1;
                     return VTSS_FUNC(l2.mac_table_get, entry, pgid);
+                } else {
+                    // Next bit
+                    m = 0;
+                    k++;
                 }
             }
         }
