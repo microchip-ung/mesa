@@ -889,35 +889,22 @@ class Switchdev_Pc_b2b_4x
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
         dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
-
-        # Map port index id from topo file to eth<id> for some boards
-        if (pcb == 134 || pcb == 135)
-            dut_ports_sd = []
-            offset = 0
-            dut_ports.each do |port|
-                if pcb == 134
-                    offset = port < 5 ? 12 : 44
-                elsif pcb == 135
-                    offset = port < 48 ? 0 : 8
-                end
-                dut_ports_sd << "eth#{port+offset}"
+        dut_ports_sd = []
+        dut_looped_ports_sd = []
+        map = conf["dut"]["port-name-map"]
+        map.each do |item|
+            if dut_ports.include? item["idx"]
+                dut_ports_sd << item["linux"]
+            elsif dut_looped_ports.include? item["idx"]
+                dut_looped_ports_sd << item["linux"]
+            elsif dut_looped_ports_10g.include? item["idx"]
+                dut_looped_ports_sd << item["linux"]
+            else
+                puts "Error in portmap"
+                exit
             end
-            dut_looped_ports_sd = []
-            offset = 0
-            dut_looped_ports.each do |port|
-                if pcb == 134
-                    offset = port < 5 ? 12 : 44
-                elsif pcb == 135
-                    offset = port < 48 ? 0 : 8
-                end
-                dut_looped_ports_sd << "eth#{port+offset}"
-            end
-
-            dut_ports = dut_ports_sd
-            dut_looped_ports = dut_looped_ports_sd
         end
-
-        @dut = MesaDut.new :switchdev, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
+        @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
@@ -930,7 +917,7 @@ class Switchdev_Pc_b2b_4x
             @pc = TestPC.new pc_ports
         end
 
-        @links = dut_ports.zip(pc_ports).map{|e| {:dut => e[0], :pc => e[1]}}
+        @links = dut_ports_sd.zip(pc_ports).map{|e| {:dut => e[0], :pc => e[1]}}
         @ts_external_clock_looped = (conf["ts_external_clock_looped"] == true) ? true : false
         if conf["pc"].key?("et_idx")
            @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
@@ -953,7 +940,7 @@ class Switchdev_Pc_b2b_4x
             t = $options[:dut_trace]
         end
 
-        dut_ports.each do |port|
+        dut_ports_sd.each do |port|
             if port.is_a? Integer
                 @dut.run "ip link set eth#{port} up"
             else
