@@ -10,6 +10,7 @@ require 'open3'
 require 'optparse'
 require 'fileutils'
 require 'net/http'
+require 'timeout'
 require_relative '../libeasy/utils'
 
 def dl uri, out
@@ -149,8 +150,11 @@ if ($options[:system] != nil) && ($options[:image] != nil)
 
         puts("#{$system}: ----------Run test suites #{$test_suites}----------")
         run("date")
-        run_suites $system
 
+        # Run suites with timeout
+        Timeout.timeout(3*60*60) do
+            run_suites $system
+        end
     rescue => e
         puts("#{$system}: ----------Test failed----------")
         failed = true
