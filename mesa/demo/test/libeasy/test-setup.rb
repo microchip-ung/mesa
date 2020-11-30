@@ -889,33 +889,35 @@ class Switchdev_Pc_b2b_4x
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
         dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
-        # Map port index id from topo file to eth<id>
-        dut_ports_sd = []
-        offset = 0
-        dut_ports.each do |port|
-            if pcb == 134
-                offset = port < 5 ? 12 : 44
-            elsif pcb == 135
-                offset = port < 48 ? 0 : 8
-            else
-                t_e "PCB #{pcb} needs an port to eth mapping"
+
+        # Map port index id from topo file to eth<id> for some boards
+        if (pcb == 134 || pcb == 135)
+            dut_ports_sd = []
+            offset = 0
+            dut_ports.each do |port|
+                if pcb == 134
+                    offset = port < 5 ? 12 : 44
+                elsif pcb == 135
+                    offset = port < 48 ? 0 : 8
+                end
+                dut_ports_sd << "eth#{port+offset}"
             end
-            dut_ports_sd << "eth#{port+offset}"
-        end
-        dut_looped_ports_sd = []
-        offset = 0
-        dut_looped_ports.each do |port|
-            if pcb == 134
-                offset = port < 5 ? 12 : 44
-            elsif pcb == 135
-                offset = port < 48 ? 0 : 8
-            else
-                t_e "PCB #{pcb} needs an port to eth mapping"
+            dut_looped_ports_sd = []
+            offset = 0
+            dut_looped_ports.each do |port|
+                if pcb == 134
+                    offset = port < 5 ? 12 : 44
+                elsif pcb == 135
+                    offset = port < 48 ? 0 : 8
+                end
+                dut_looped_ports_sd << "eth#{port+offset}"
             end
-            dut_looped_ports_sd << "eth#{port+offset}"
+
+            dut_ports = dut_ports_sd
+            dut_looped_ports = dut_looped_ports_sd
         end
 
-        @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb
+        @dut = MesaDut.new :switchdev, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
@@ -951,8 +953,12 @@ class Switchdev_Pc_b2b_4x
             t = $options[:dut_trace]
         end
 
-        dut_ports_sd.each do |port|
-            @dut.run "ip link set #{port} up"
+        dut_ports.each do |port|
+            if port.is_a? Integer
+                @dut.run "ip link set eth#{port} up"
+            else
+                @dut.run "ip link set #{port} up"
+            end
         end
 
         if !$options[:no_init]
@@ -1290,11 +1296,17 @@ def get_test_setup(setup, labels= {}, mesa_args = "")
 end
 
 def basic_br_init()
-
-    $eth0 = $ts.dut.p[0] ? "#{$ts.dut.p[0]}" : nil
-    $eth1 = $ts.dut.p[1] ? "#{$ts.dut.p[1]}" : nil
-    $eth2 = $ts.dut.p[2] ? "#{$ts.dut.p[2]}" : nil
-    $eth3 = $ts.dut.p[3] ? "#{$ts.dut.p[3]}" : nil
+    if $ts.dut.p[0].is_a? Integer
+        $eth0 = $ts.dut.p[0] ? "eth#{$ts.dut.p[0]}" : nil
+        $eth1 = $ts.dut.p[1] ? "eth#{$ts.dut.p[1]}" : nil
+        $eth2 = $ts.dut.p[2] ? "eth#{$ts.dut.p[2]}" : nil
+        $eth3 = $ts.dut.p[3] ? "eth#{$ts.dut.p[3]}" : nil
+    else
+        $eth0 = $ts.dut.p[0] ? "#{$ts.dut.p[0]}" : nil
+        $eth1 = $ts.dut.p[1] ? "#{$ts.dut.p[1]}" : nil
+        $eth2 = $ts.dut.p[2] ? "#{$ts.dut.p[2]}" : nil
+        $eth3 = $ts.dut.p[3] ? "#{$ts.dut.p[3]}" : nil
+    end
     $br   = "br0"
 
     $eth0_mac      = "::1:0:0"
