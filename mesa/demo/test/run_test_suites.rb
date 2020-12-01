@@ -86,50 +86,55 @@ $systems.each { |system|
 
 $parallel_threads = []
 $sequential_threads = []
-def start_test(system, threads)
+def start_test(system)
     # Compose path to the image and test folder of the requested branch
     jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
 
     puts("Start test suites on system #{system[:name]} in a thread")
-    threads << Thread.new do
+    t = Thread.new do
         system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"
     end
+    t
 end
 
 puts "-----Start test on all 'parallel' systems in a thread.-----"
 $systems.each { |system|
     if (system[:parallel] == "yes")
-        start_test(system, $parallel_threads)
+        $parallel_threads << start_test(system)
     end
 }
 
 def start_server_sequential(server)
+    t = nil
     $systems.each { |system|
         if ((system[:parallel] == "no") && (system[:server] == server) && (system[:started] == "no"))
-            start_test(system, $sequential_threads)
+            t = start_test(system)
             system[:started] = "yes"
             break
         end
     }
-end
-
-def all_sequential_started
-    $systems.each { |system|
-        if ((system[:parallel] == "no") && (system[:started] == "no"))
-            return false
-        end
-    }
-    return true
+    t
 end
 
 puts "-----Start test on all 'sequential' systems.-----"
-until (all_sequential_started) do    # Stop when all has been started
-    start_server_sequential("34")    # Start a test on server 34
-    start_server_sequential("35")    # Start a test on server 35
-    $sequential_threads.each do |t|  # Wait for them to finish
-      t.join
+seq_done = false
+while (!seq_done)
+    seq_done = true
+    ["34", "35"].each_with_index do |s, i|
+        t = $sequential_threads[i]
+        if (t == nil)
+            t = start_server_sequential(s)
+        end
+        if (t != nil)
+            # Thread is not done
+            seq_done = false
+            if (t.join(60) != nil)
+                # Thread is done
+                t = nil
+            end
+        end
+        $sequential_threads[i] = t
     end
-    $sequential_threads = []
 end
 puts "-----All 'sequential' tests are completed-----"
 
