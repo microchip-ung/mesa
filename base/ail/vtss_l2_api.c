@@ -998,21 +998,16 @@ static void vtss_mac_pgid_get(vtss_state_t *vtss_state,
 vtss_rc vtss_mac_get(vtss_state_t *vtss_state,
                      vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
-    vtss_rc rc;
-
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-    // Lookup in normal table first
+    // Lookup in index table first
+    if (vtss_mac_index_get(vtss_state, entry, pgid, 0) == VTSS_RC_OK) {
+        return VTSS_RC_OK;
+    }
     entry->index_table = 0;
     vtss_state->l2.mac_index_table.idx_get = 0xffffffff;
 #endif
-    rc = VTSS_FUNC(l2.mac_table_get, entry, pgid);
-#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-    if (rc != VTSS_RC_OK) {
-        // Lookup in index table
-        rc = vtss_mac_index_get(vtss_state, entry, pgid, 0);
-    }
-#endif
-    return rc;
+    // Lookup in normal table
+    return VTSS_FUNC(l2.mac_table_get, entry, pgid);
 }
 
 
