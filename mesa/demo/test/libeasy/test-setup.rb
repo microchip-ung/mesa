@@ -905,6 +905,7 @@ class Switchdev_Pc_b2b_4x
                 puts "Error in portmap"
                 exit
             end
+            dut_looped_ports_sd << "eth#{port+offset}"
         end
         @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb
 
