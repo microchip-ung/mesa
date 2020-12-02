@@ -855,10 +855,26 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
     REG_WR(VTSS_IP_KRANEG_LD_NP0(tgt), np0);
     REG_WR(VTSS_IP_KRANEG_LD_NP1(tgt), np1);
     REG_WR(VTSS_IP_KRANEG_LD_NP2(tgt), np2);
+    REG_WRM(VTSS_IP_KRANEG_LD_ADV0(tgt), VTSS_BIT(15), VTSS_BIT(15));
 
     REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
             VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),
             VTSS_M_IP_KRANEG_FW_MSG_NP_LOADED);
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_np_rx(vtss_state_t *vtss_state,
+                         const vtss_port_no_t port_no)
+{
+    u32 val;
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+
+    REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &val);
+    REG_RD(VTSS_IP_KRANEG_LD_NP1(tgt), &val);
+    REG_RD(VTSS_IP_KRANEG_LD_NP2(tgt), &val);
+    // Handling of NP is TBD
+
     return VTSS_RC_OK;
 }
 
@@ -898,11 +914,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         }
     }
 
-    if (fw_req->transmit_disable) {
-        /* Increase the amplitude during Aneg. */
-        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, 0, 0, 240));
-    }
-
     if (fw_req->start_training) {
         // Change to 64 bit KR mode while training is done by the application through Rate Sel IRQ
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
@@ -936,7 +947,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->next_page) {
-        fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
+        (void)fa_np_rx(vtss_state, port_no);
+        (void)fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
     }
 
     return VTSS_RC_OK;
@@ -959,6 +971,18 @@ static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &val);
     *ber = (u16)val;
     return VTSS_RC_OK;
+}
+
+static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
+                                      const vtss_port_no_t port_no)
+{
+    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
+}
+
+static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
+{
+    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
 }
 
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
@@ -1020,6 +1044,13 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#define AN_RATE         (0xF)
+#define AN_XMIT_DISABLE (1 << 16)
+#define CMPL_ACK        (1 << 13)
+#define ANEG_KR_AN_GOOD (1 << 12)
+#define ANEG_RATE_25G    7
+#define ANEG_RATE_10G    9
+
 
 static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
@@ -1030,16 +1061,34 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 val;
     REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
-    *irq = val;
     if (val > 0) {
-        REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
-        if ((val & 0xf)  > 0) {
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40); // Freeze link_fail timer while speed config
-        }
-    }
 
+        if (val & CMPL_ACK) {
+            if (kr->aneg.next_page && vtss_state->port.kr_store[port_no].base_page) {
+                // Send next page
+                fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
+            }
+            vtss_state->port.kr_store[port_no].base_page = FALSE;
+            vtss_state->port.kr_store[port_no].compl_ack = TRUE;
+        }
+
+        if ((val & AN_RATE) > 0) {
+            // Freeze link_fail timer while speed config
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40);
+        }
+
+        if (val & AN_XMIT_DISABLE) {
+            vtss_state->port.kr_store[port_no].compl_ack = FALSE;
+            vtss_state->port.kr_store[port_no].base_page = TRUE;
+        }
+
+        // Clear the IRQs
+        REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
+    }
+    *irq = val;
     return VTSS_RC_OK;
 }
 
@@ -1132,6 +1181,12 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     // Debug
     REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &tr);
     status->aneg.sm = VTSS_X_IP_KRANEG_AN_SM_AN_SM(tr);
+    REG_RD(VTSS_IP_KRANEG_LP_BP0(tgt), &tr);
+    status->aneg.lp_bp0 = tr;
+    REG_RD(VTSS_IP_KRANEG_LP_BP1(tgt), &tr);
+    status->aneg.lp_bp1 = tr;
+    REG_RD(VTSS_IP_KRANEG_LP_BP2(tgt), &tr);
+    status->aneg.lp_bp2 = tr;
 
     REG_RD(VTSS_IP_KRANEG_AN_HIST(tgt), &tr);
     status->aneg.hist = VTSS_X_IP_KRANEG_AN_HIST_AN_SM_HIST(tr);
@@ -1172,24 +1227,31 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     u32 abil = 0;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
-    if (!kr->aneg.enable) {
-        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
-                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
-                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
-        REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), 0);
-        return VTSS_RC_OK;
-    }
+    // Reset aneg, training and IRQs
+    REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+            VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
+            VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
 
-    /* Increase the amplitude during Aneg. */
-    VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, 0, 0, 240));
+    REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), kr->aneg.enable ? 0xFFFFFFFF : 0);
+    REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), 0xFFFFFFFF);
+
+    REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+            VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
+            VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
+
+    REG_WRM(VTSS_IP_KRANEG_KR_PMD_CTRL(tgt),
+            VTSS_F_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE(0),
+            VTSS_M_IP_KRANEG_KR_PMD_CTRL_TR_ENABLE);
 
     /* AN Selector */
     REG_WR(VTSS_IP_KRANEG_LD_ADV0(tgt),
            VTSS_F_IP_KRANEG_LD_ADV0_ADV0(kr->aneg.enable));
 
     if (kr->aneg.enable) {
-        // Next page
-        REG_WRM(VTSS_IP_KRANEG_LD_ADV0(tgt), kr->aneg.next_page? VTSS_BIT(15) : 0, VTSS_BIT(15));
+
+        /* if (kr->aneg.next_page) { */
+        /*     fa_np_set(vtss_state, port_no, NP_NULL, 0, 0); */
+        /* } */
 
         /* AN Technology aneg field bit
            LD_ADV1 bit 5  = 1000Base-KX,
@@ -3341,6 +3403,10 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
         pr("10: Read TxEQ settings\n");
         pr("11: Enable Tx square wave\n");
         pr("12: Disable Tx square wave\n");
+        pr("13: Auto adjust VGA gain\n");
+        pr("14: Auto adjust EQR gain\n");
+        pr("15: Auto adjust EQC gain\n");
+        pr("16: Perform CTLE adjustment (13,14,15,13) \n");
         return VTSS_RC_OK;
     }
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
@@ -3766,6 +3832,8 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_eye_dim = fa_port_kr_eye_dim;
         state->kr_fec_set = fa_port_kr_fec_set;
         state->kr_ber_cnt = fa_port_kr_ber_cnt;
+        state->kr_ctle_adjust = fa_port_kr_ctle_adjust;
+        state->kr_ctle_get = fa_port_kr_ctle_get;
 #endif /* VTSS_FEATURE_10G_BASE_KR */
 
         /* SYNCE features */

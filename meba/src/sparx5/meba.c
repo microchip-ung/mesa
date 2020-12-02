@@ -1376,49 +1376,6 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
     return rc;
 }
 
-static mesa_rc fa_meba_irq_enable(meba_inst_t inst,
-                                  mesa_irq_t chip_irq,
-                                  mesa_bool_t enable)
-
-
-{
-    mesa_rc rc = MESA_RC_OK;
-    mesa_port_no_t port_no = 0;
-
-    switch (chip_irq) {
-    case MESA_IRQ_KR_SD10G_0:
-    case MESA_IRQ_KR_SD10G_1:
-    case MESA_IRQ_KR_SD10G_2:
-    case MESA_IRQ_KR_SD10G_3:
-    case MESA_IRQ_KR_SD10G_4:
-    case MESA_IRQ_KR_SD10G_5:
-    case MESA_IRQ_KR_SD10G_6:
-    case MESA_IRQ_KR_SD10G_7:
-    case MESA_IRQ_KR_SD10G_8:
-    case MESA_IRQ_KR_SD10G_9:
-    case MESA_IRQ_KR_SD10G_10:
-    case MESA_IRQ_KR_SD10G_11:
-    case MESA_IRQ_KR_SD10G_12:
-    case MESA_IRQ_KR_SD10G_13:
-    case MESA_IRQ_KR_SD10G_14:
-    case MESA_IRQ_KR_SD10G_15:
-    case MESA_IRQ_KR_SD10G_16:
-    case MESA_IRQ_KR_SD10G_17:
-    case MESA_IRQ_KR_SD10G_18:
-    case MESA_IRQ_KR_SD10G_19:
-        if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
-            // All KR IRQ instances are attempted to be enabled
-            // but not all are supported by the current board.
-            // kr_irq2port() checks for that.
-            return MESA_RC_OK; // Not used in the current board config
-        }
-        return mesa_port_kr_event_enable(NULL, port_no, enable);
-
-    default:
-        return rc;
-    }
-}
-
 // IRQ Support
 static mesa_rc fa_event_enable(meba_inst_t inst,
                                 meba_event_t event_id,
@@ -1525,7 +1482,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
         break;
 
     case MEBA_EVENT_KR:
-        // Handled in fa_meba_irq_enable
+        // Handled in kr application
         break;
     default:
         return MESA_RC_NOT_IMPLEMENTED;    // Will occur as part of probing
@@ -2053,7 +2010,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api_poe                             = meba_poe_get();
     inst->api_cpu_port                        = board->ls1046 ? fa_ls1046_cpu_ports : NULL;
     inst->api.meba_serdes_tap_get             = fa_serdes_tap_get;
-    inst->api.meba_irq_enable                 = fa_meba_irq_enable;
     return inst;
 
 error_out:

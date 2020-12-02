@@ -1347,6 +1347,35 @@ vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_ctle_adjust(vtss_inst_t inst,
+                                 const vtss_port_no_t port_no)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_ctle_adjust, port_no);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_ctle_get(vtss_inst_t inst,
+                              const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC_COLD(port.kr_ctle_get, port_no, ctle);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
@@ -1714,7 +1743,6 @@ static void kr_ber_training(vtss_state_t *vtss_state,
        (void)kr_train_frm_get(vtss_state, p, &frm);
        krs->ber_status_frm = frm.data;
        lp_status = kr_frm2status(frm.data, krs->current_tap);
-       krs->tr_res.status = frm.data;
     }
 
     switch (krs->ber_training_stage) {

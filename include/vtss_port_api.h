@@ -639,6 +639,9 @@ typedef struct {
     u32  hist;                /**< (debug) Aneg history                */
     BOOL lp_aneg_able;        /**< (debug) Link partner aneg ability   */
     BOOL block_lock;          /**< (debug) PCS block lock              */
+    u16  lp_bp0;              /**< (debug) LP Base page 0-15           */
+    u16  lp_bp1;              /**< (debug) LP Base page 16-31          */
+    u16  lp_bp2;              /**< (debug) LP Base page 32-47          */
 } vtss_port_kr_status_aneg_t;
 
 /** \brief  KR Training status */
@@ -779,6 +782,12 @@ typedef struct {
     u16 status;
 } vtss_kr_status_results_t;
 
+typedef struct {
+    u32 vga;
+    u32 edc;
+    u32 eqr;
+} vtss_port_ctle_t;
+
 /** \brief  KR state machine structures (for status/debug) */
 typedef struct {
     vtss_train_state_t current_state;
@@ -911,6 +920,28 @@ vtss_rc vtss_port_kr_event_enable(const vtss_inst_t     inst,
 vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              vtss_port_kr_eye_dim_t *const eye);
+/**
+ * \brief Start CTLE eq
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_ctle_adjust(vtss_inst_t inst,
+                                 const vtss_port_no_t port_no);
+/**
+ * \brief Get CTLE config
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_ctle_get(vtss_inst_t inst,
+                              const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle);
 
 /**
  * ============================================================================

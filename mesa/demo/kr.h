@@ -9,7 +9,7 @@
 
 char *mesa_port_spd2txt(mesa_port_speed_t speed);
 
-#define KR_HIST_NUM 500
+#define KR_HIST_NUM 2000
 
 #ifndef TRUE
 #define TRUE 1
@@ -62,6 +62,10 @@ typedef struct {
 typedef struct {
     uint32_t time;
     uint32_t irq;
+    uint32_t sm;
+    uint16_t lp_bp0;
+    uint16_t lp_bp1;
+    uint16_t lp_bp2;
     uint32_t port;
 } kr_irq_t;
 
@@ -98,6 +102,9 @@ typedef struct {
     mesa_bool_t debug_ena;
     mesa_bool_t aneg_enable;
     mesa_bool_t tr_done;
+    mesa_bool_t pd;
+    uint32_t pollcnt;
+    uint32_t conf_pollcnt;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

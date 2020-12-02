@@ -618,6 +618,9 @@ typedef struct {
     uint32_t          hist          CAP(PORT_KR_IRQ); // (debug) Aneg history
     mesa_bool_t       lp_aneg_able;                   // (debug) LP aneg ability
     mesa_bool_t       block_lock;                     // (debug) PCS block lock
+    uint16_t          lp_bp0        CAP(PORT_KR_IRQ); // (debug) LP Base page 0-15
+    uint16_t          lp_bp1        CAP(PORT_KR_IRQ); // (debug) LP Base page 16-31
+    uint16_t          lp_bp2        CAP(PORT_KR_IRQ); // (debug) LP Base page 32-47
 } mesa_port_kr_status_aneg_t        CAP(PORT_KR);
 
 // KR Training status
@@ -764,6 +767,12 @@ typedef struct {
     uint16_t status;
 } mesa_kr_status_results_t CAP(PORT_KR_IRQ);
 
+typedef struct {
+    uint32_t vga;
+    uint32_t edc;
+    uint32_t eqr;
+} mesa_port_ctle_t CAP(PORT_KR_IRQ);
+
 /** \brief KR state machine structures */
 typedef struct {
     mesa_train_state_t       current_state;
@@ -873,6 +882,35 @@ mesa_rc mesa_port_kr_eye_get(mesa_inst_t inst,
                              const mesa_port_no_t port_no,
                              mesa_port_kr_eye_dim_t *const eye)
     CAP(PORT_KR_IRQ);
+
+/**
+ * \brief Start CTLE adjustment
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_kr_ctle_adjust(mesa_inst_t inst,
+                                 const mesa_port_no_t port_no)
+    CAP(PORT_KR_IRQ);
+
+/**
+ * \brief Get CTLE config
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param ctle    [OUT] CTLE values.
+ *
+ * \return Return code.
+ **/
+mesa_rc mesa_port_kr_ctle_get(mesa_inst_t inst,
+                              const mesa_port_no_t port_no, mesa_port_ctle_t *const ctle)
+    CAP(PORT_KR_IRQ);
+
+
 
 /******************************************************************************/
 /* 10G/25G KR Backplane Ethernet - End                                        */

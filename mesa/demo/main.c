@@ -1045,7 +1045,7 @@ int main(int argc, char **argv)
     uint32_t           sleep_us = 10000;
 
     if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
-        sleep_us = 100;
+        sleep_us = 200;
     }
 
     // Register trace

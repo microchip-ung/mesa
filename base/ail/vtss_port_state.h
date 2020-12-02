@@ -385,6 +385,8 @@ typedef struct {
     u32  tap_dly;
     u32  tap_adv;
     BOOL c0_done;
+    BOOL compl_ack;
+    BOOL base_page;
 } vtss_port_kr_temp_storage_t;
 
 
@@ -484,6 +486,12 @@ typedef struct {
     vtss_rc (* kr_ber_cnt)(struct vtss_state_s *vtss_state,
                           const vtss_port_no_t port_no,
                           u16 *const ber);
+
+    vtss_rc (* kr_ctle_adjust)(struct vtss_state_s *vtss_state,
+                               const vtss_port_no_t port_no);
+
+    vtss_rc (* kr_ctle_get)(struct vtss_state_s *vtss_state,
+                            const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle);
 
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
     vtss_rc (* test_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
