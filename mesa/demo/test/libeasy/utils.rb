@@ -476,27 +476,19 @@ def default_cos2pcp(cos)
   end
 end
 
+def counter_get(direction, port)
+    grep_str = (direction == "RX") ? "rx_packets" : "tx_packets"
+    array = $ts.pc.run("sh -c 'ethtool -S #{port} | grep #{grep_str}'")[:out].split(' ')
+    t_i("counter_get #{port} #{direction} #{array[0]} #{array[1]}")
+    return array[1]
+end
+
 MEASURE_PCP_NONE = 0xFFFF
 def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[1000000000], etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     test "measure  ig: #{ig}  eg: #{eg}  size: #{size}  sec: #{sec}  frame_rate #{frame_rate}  data_rate #{data_rate}  erate #{erate}  etolerance #{etolerance}  with_pre_tx: #{with_pre_tx}  pcp #{pcp}  cycle_time #{cycle_time}" do
 
-    t_i ("Check all ports are up")
-    dut_ports = []
-    ig.each do |ig_value|
-        dut_ports << $ts.dut.p[ig_value]
-    end
-    dut_ports << $ts.dut.p[eg]
-    if (!dut_port_state_up(dut_ports))
-        t_e ("Port state is not UP")
-    end
-
-    t_i("Clear port statistics")
-    $ts.dut.run("mesa-cmd port statis clear")
-
     t_i ("learn mac address on egress port")
-    $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
-#    $ts.dut.run("mesa-cmd mac dump")
 
     sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
     t_i("Calculated frames per sec at line speed: #{sec_count_in}")
@@ -505,7 +497,6 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     t_i("Start Easy Frame transmitting #{sec*sec_count_in} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
     time = (pre_tx+sec+100)     # Calculate the required seconds that the transmitter must at least (+100) be transmitting
     rep = time*sec_count_in     # Convert the required transmission seconds to number of frames, as this is the parameter to ef tx function
-    ig_ports = ""
     pid_ef = []
     ig.each_with_index do |ig_value, ig_idx|
         if (pcp != [])
@@ -514,14 +505,13 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
             pid_ef << $ts.pc.bg("ef tx",                "sudo ef tx #{$ts.pc.p[ig_value]} rep #{rep} eth dmac 00:00:00:00:01:01 smac 00:00:00:00:01:1#{ig_idx} data pattern cnt #{size - (6+6+2+4)}") # 'size' is requested frame size inclusive checksum
         end
         max = 0
-        begin   # Check that the transmitter is running
-            icounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[ig_value])
+        begin   # Check that transmitter is started
+            rx_cnt = counter_get("TX", $ts.pc.p[ig_value])
             max = max + 1
-        end while (icounters["rmon"]["rx_etherStatsPkts"] == 0) && (max < 10)
+        end while (rx_cnt == counter_get("TX", $ts.pc.p[ig_value])) && (max < 10)
         if (max == 10)
             t_e("Easy Frame transmitting never started")
         end
-        ig_ports << "#{$ts.dut.p[ig_value]+1},"
     end
 
     t_i("Start tcpdump logging on egress port: #{$ts.pc.p[eg]}")
@@ -551,9 +541,6 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     t_i("Wait for necessary amount of frames to be transmitted")
     sleep(pre_tx+sec+2)
 
-#    $ts.dut.run("mesa-cmd mac dump")
-#    $ts.dut.run("mesa-cmd port statis #{ig_ports}#{$ts.dut.p[eg]+1} pac")
-
     t_i("Kill the tcpdump process")
     $ts.pc.run("kill -s SIGHUP #{pid_tcp}")
 
@@ -565,17 +552,14 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         $ts.pc.run("kill -s SIGHUP #{pid}")
     end
 
-    t_i("Wait for Easy Frame transmitter to complete")
-    old_count = 0
-    ecounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
+    t_i("Wait for Easy Frame transmitters to stop")
     max = 0
-    while (ecounters["rmon"]["tx_etherStatsPkts"] != old_count) && (max < 10) do  # Check that the transmitter is running
-        old_count = ecounters["rmon"]["tx_etherStatsPkts"]
-        ecounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
+    begin   # Check that all transmitters are stopping
+        rx_cnt = counter_get("RX", $ts.pc.p[eg])
         max = max + 1
-    end
+    end while (rx_cnt != counter_get("RX", $ts.pc.p[eg])) && (max < 10)
     if (max == 10)
-        t_e("Easy Frame transmitting never completed")
+        t_e("Easy Frame transmitting never stopped")
     end
 
     t_i("Analyze pcap file")
