@@ -315,6 +315,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->stop = 1;
     } else if (!strncasecmp(found, "test", 4)) {
         mreq->test = 1;
+    } else if (!strncasecmp(found, "pd", 2)) {
+        mreq->pd = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -406,6 +408,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             (void)fa_kr_reset_state(iport);
             if (req->set) {
                 mesa_bool_t aneg_ena = conf.aneg.enable;
+                kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
                 kr_conf_state[iport].aneg_enable = 1;
                 mesa_port_kr_fec_t fec = {0};
@@ -442,6 +445,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 if (mreq->dis && aneg_ena) {
                     mesa_port_conf_t pconf;
                     (void)mesa_port_conf_get(NULL, iport, &pconf);
+                    pconf.if_type = MESA_PORT_INTERFACE_SFI;
                     pconf.speed = MESA_SPEED_5G;
                     // Force a port/serdes update
                     (void)mesa_port_conf_set(NULL, iport, &pconf);
@@ -905,20 +909,28 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
 
 static mesa_port_speed_t kr_parallel_spd(mesa_port_no_t iport, mesa_port_kr_conf_t *conf)
 {
-    if (conf->aneg.adv_10g && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_10G)) {
-        kr_conf_state[iport].next_parallel_spd = conf->aneg.adv_5g ? MESA_SPEED_5G : conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    if (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_25G) {
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_10G;
+        return MESA_SPEED_25G;
+    } else if (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_10G) {
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_5G;
         return MESA_SPEED_10G;
-    } else if (conf->aneg.adv_5g && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_5G)) {
-        kr_conf_state[iport].next_parallel_spd = conf->aneg.adv_2g5 ? MESA_SPEED_2500M : MESA_SPEED_1G;
+    } else if (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_5G) {
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_2500M;
         return MESA_SPEED_5G;
-    } else if (conf->aneg.adv_2g5 && (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_2500M)) {
+    } else if (kr_conf_state[iport].next_parallel_spd == MESA_SPEED_2500M) {
         kr_conf_state[iport].next_parallel_spd = MESA_SPEED_1G;
         return MESA_SPEED_2500M;
     } else  {
-        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_10G;;
+        if (kr_conf_state[iport].cap_25g) {
+            kr_conf_state[iport].next_parallel_spd = MESA_SPEED_25G;
+        } else {
+            kr_conf_state[iport].next_parallel_spd = MESA_SPEED_10G;
+        }
         return MESA_SPEED_1G;
     }
 }
+
 
 static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq, mesa_port_kr_status_t *status)
 {
@@ -1069,8 +1081,13 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
 
     // Start the aneg timer if AN_XMIT_DISABLE IRQ
     if ((irq & MESA_KR_AN_XMIT_DISABLE)) {
+        kr_conf_state[iport].compl_ack_done = FALSE;
         kr_conf_state[iport].pollcnt = kr_conf_state[iport].conf_pollcnt;
         (void)time_start(&kr->time_start_aneg);
+    }
+
+    if (irq & MESA_KR_CMPL_ACK) {
+        kr_conf_state[iport].compl_ack_done = TRUE;
     }
 
     // Start the train timer if KR_TRAIN IRQ
@@ -1107,6 +1124,12 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
             (void)mesa_port_conf_set(NULL, iport, &pconf);
         }
         kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+
+        if (kr_conf_state[iport].compl_ack_done) {
+            kr_printf("Aneg is complete.  Now start training (if enabled).\n");
+        } else {
+            kr_printf("Now complete Aneg.\n");
+        }
     }
 
     // KR_RATE_DET (Link partner does not have Aneg support)
@@ -1114,12 +1137,10 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         // Parallel detect speed change
         if (kr_conf_state[iport].pd) { // Disabled by default
             kr_printf("Port:%d - Parallel rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
-            if (pconf.speed != kr_parallel_spd(iport, &kr_conf)) {
-                pconf.speed = kr_parallel_spd(iport, &kr_conf);
-                pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-                kr_printf("Port:%d - Parallel detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-                (void)mesa_port_conf_set(NULL, iport, &pconf);
-            }
+            pconf.speed = kr_parallel_spd(iport, &kr_conf);
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            kr_printf("Port:%d - Parallel detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
         }
     }
 
@@ -1446,7 +1467,6 @@ static void kr_init(meba_inst_t inst)
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
 
-        kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;
         kr_conf_state[port_no].conf_pollcnt = 1;
 
         if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &meba) != MESA_RC_OK) {
@@ -1455,6 +1475,12 @@ static void kr_init(meba_inst_t inst)
 
         kr_conf_state[port_no].cap_25g = (meba.cap & MEBA_PORT_CAP_25G_FDX) > 0 ? 1 : 0;
         kr_conf_state[port_no].cap_10g = (meba.cap & MEBA_PORT_CAP_10G_FDX) > 0 ? 1 : 0;
+
+        if (kr_conf_state[port_no].cap_25g) {
+            kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_25G;
+        } else {
+            kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;
+        }
     }
 }
 

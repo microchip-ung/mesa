@@ -52,6 +52,12 @@ case $chip in
 #     img=arm64_vsc7552TSN.itb     # 500MHz
      dir=build-arm64
      ;;
+     fa135)
+     ts=dk-t34-3
+     img=arm64_vsc7558TSN.itb     # 625MHz
+     dir=build-arm64
+     ;;
+
 
      *)
      echo "Illegal chip: $chip"

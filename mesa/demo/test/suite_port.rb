@@ -20,4 +20,5 @@ run %w{./port_frame_length_chk.rb}
 run %w{./port_mtu.rb}
 run %w{./port_speeds.rb}
 run %w{./port_bulk_frames.rb}
+run %w{./port_kr.rb}
 
