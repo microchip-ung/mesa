@@ -277,7 +277,7 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     return MESA_RC_OK;
 }
 
-static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg)
+static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t init)
 {
     port_entry_t            *entry = &port_table[port_no];
     mscc_appl_port_conf_t   *pc = &entry->conf;
@@ -343,9 +343,11 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg)
                     T_E("mesa_phy_conf_set(%u) failed", port_no);
                     return;
                 }
-                if (pc->autoneg) {
-                    // The Phy is configured. When the link comes up the switch gets configured.
-                    return;
+                if (!init) {
+                    if (pc->autoneg) {
+                        // The Phy is configured. When the link comes up the switch gets configured.
+                        return;
+                    }
                 }
             }
             conf.speed = (pc->autoneg ? MESA_SPEED_1G : pc->speed);
@@ -504,7 +506,7 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
             default:
                 return;
             }
-            port_setup(iport, 0);
+            port_setup(iport, FALSE, FALSE);
         } else {
             if (first) {
                 cli_table_header("Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link      ");
@@ -1283,7 +1285,7 @@ static void port_init(meba_inst_t inst)
             }
         }
 
-        port_setup(port_no, 0);
+        port_setup(port_no, FALSE, TRUE);
 
         if (port_no == loop_port) { // This port is the active loop port
             cli_printf("Using port %u as loop-port\n", loop_port + 1);
@@ -1438,7 +1440,7 @@ void port_poll(meba_inst_t inst)
                 T_I("SFP was %s port %d", entry->sfp_status.present ? "inserted in" : "removed from", port_no);
                 check_sfp_drv_status(inst, port_no, entry->sfp_status.present);
                 if (entry->sfp_status.present) {
-                    port_setup(port_no, 0);
+                    port_setup(port_no, FALSE, FALSE);
                     ps->link = FALSE;
                 } else {
                     MEBA_WRAP(meba_port_entry_get, inst, port_no, &entry->meba);
@@ -1464,7 +1466,7 @@ void port_poll(meba_inst_t inst)
             T_I("link up event on port_no: %u", port_no);
             mesa_port_state_set(NULL, port_no, TRUE);
             if (port_is_aneg_mode(entry)) {
-                port_setup(port_no, TRUE);
+                port_setup(port_no, TRUE, FALSE);
             }
         }
 

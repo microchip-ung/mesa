@@ -31,7 +31,6 @@ $num_of_frames = 10000
 $test_list     = [
   { obey:false, generate:false, rx_pause_cnt:true,  tx_pause_cnt:false, frameloss:false },
   { obey:false, generate:true,  rx_pause_cnt:true,  tx_pause_cnt:false, frameloss:false },
-  { obey:true,  generate:false, rx_pause_cnt:true,  tx_pause_cnt:false, frameloss:true  },
   { obey:true,  generate:true,  rx_pause_cnt:true,  tx_pause_cnt:true,  frameloss:false },
 ]
 
@@ -46,7 +45,6 @@ entry = {
   aged: false,
   cpu_queue: 0,
 }
-$ts.dut.run "mesa-cmd deb port polling disable"
 $ts.dut.call "mesa_mac_table_add", entry
 
 
@@ -83,7 +81,8 @@ $test_list.each do |entry|
           tx_pause = cnt['ethernet_like']['dot3OutPauseFrames']
           tx_frames = cnt['if_group']['ifOutUcastPkts']
 
-          if port == $port_tx1
+          if port == $ts.dut.p[$port_tx1]
+              t_i("#{$port_tx1} RX pause #{rx_pause}")
               if (entry[:tx_pause_cnt] && (tx_pause == 0))
                   t_e("No tx pause frames")
               end
@@ -91,9 +90,10 @@ $test_list.each do |entry|
                   t_e("Unexpected pause frames")
               end
           end
-          if port == $port_tx2
+          if port == $ts.dut.p[$port_tx2]
+              t_i("#{$port_tx2} RX pause #{rx_pause}")
               if (entry[:rx_pause_cnt] && (rx_pause != $num_of_frames))
-                  t_e("No rx pause frames seen")
+                  t_e("No rx pause frames seen: #{entry[:rx_pause_cnt]} port #{$port_tx2} #{rx_pause}")
               end
               if (!entry[:rx_pause_cnt] && (rx_pause > 0))
                   t_e("Unexpected pause frames seen")
