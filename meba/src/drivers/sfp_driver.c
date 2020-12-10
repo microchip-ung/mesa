@@ -104,8 +104,9 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst,
     //  different SFP manufacturers.
     //  Currently, we only set it for Marvell 88EE1111.
     if (phy_present == false || reg2 != 0x0141 || (reg3 & 0xfff0) != 0x0cc0) {
-        /* The PHY is not Marvell 88E1111 */
-        return false;
+        // The PHY is not Marvell 88E1111, so we rely on the PHY being
+        // default-configured to SGMII/aneg.
+        return true;
     }
 
     // The SFP's PHY supports SGMII(at present, only Marvell 88E1111 is
