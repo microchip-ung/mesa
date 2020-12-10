@@ -72,7 +72,7 @@ $speed_list.each do |spd_entry|
         if !dut_port_state_up($ts.dut.port_list)
             t_e "Port state is not up"
         end
-
+        sleep 5
         $num_of_frames.times do
             $ts.pc.try cmd
         end
