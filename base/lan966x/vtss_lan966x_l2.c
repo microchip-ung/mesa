@@ -1818,6 +1818,7 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
     }
 
     /* Clear VLAN table masks */
+    REG_WR(ANA_VLAN_PORT_MASK, 0);
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         if (vid == VTSS_VID_DEFAULT) /* Default VLAN includes all ports */
             continue;
