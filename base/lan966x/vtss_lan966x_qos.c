@@ -22,16 +22,6 @@
 #define CPU_PORT_0_SE_INDEX 88
 #define CPU_PORT_1_SE_INDEX 89
 
-static u32 divide_by_33_1_3(u32 x)
-{
-    u32 ret_val, rest;
-
-    ret_val = (x / 100) * 3;
-    rest = (x % 100) * 3;
-    ret_val += VTSS_DIV_ROUND_UP(rest*1000, 33333);
-    return ret_val;
-}
-
 vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer, vtss_policer_conf_t *conf)
 {
     u32  cir = 0, cbs = 0, pir, pbs, mode;
@@ -50,9 +40,9 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer,
         /* There are two frame rate "modes" that has 33 1/3 frame or 1/3 frame resolution. Use 1/3 frame resolution if possible. The pir configuration bit field is 15 bit wide */
         if (pir >= (0x7FFF / 3)) {  /* PIR rate requires the 33 1/3 frame resolution */
             mode = POL_MODE_FRMRATE_33_1_3_FPS;
-            pir = divide_by_33_1_3(pir);    /* Resolution is in steps of 33 1/3 fps */
-            pbs = (pbs * 10 / 328);         /* Burst unit is 32.8 frames */
-            pbs_max = VTSS_BITMASK(6);      /* Limit burst to the maximum value */
+            pir = VTSS_DIV_ROUND_UP(pir*3, 100); /* Resolution is in steps of 33 1/3 fps. 33 1/3 => 100/3 */
+            pbs = (pbs * 10 / 328);              /* Burst unit is 32.8 frames */
+            pbs_max = VTSS_BITMASK(6);           /* Limit burst to the maximum value */
         } else {                    /* PIR rate can be configured using the 1/3 frame resolution */
             mode = POL_MODE_FRMRATE_1_3_FPS;
             pir = pir*3;          /* Resolution is in steps of 1/3 fps */
@@ -83,23 +73,25 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer,
                 /* Discard CIR frames */
                 cir_discard = 1;
             }
-            cir = divide_by_33_1_3(cir);        /* Rate unit is 33 1/3 kbps, round up */
+            cir = VTSS_DIV_ROUND_UP(cir*3, 100);/* Rate unit is 33 1/3 kbps, round up */
             cbs = (cbs ? cbs : 1);              /* BZ 9813: Avoid using zero burst size */
             cbs = VTSS_DIV_ROUND_UP(cbs, 4096); /* Burst unit is 4kB, round up */
             cbs_max = 61;                       /* See Bugzilla#4944, comment#2  */
             cir_ena = 1;
             cf = conf->cf;
-            if (cf)
+            if (cf) {
                 pir += conf->cir;
+                pbs += conf->ebs;
+            }
         }
         if (pir == 0 && pbs == 0) {
             /* Discard PIR frames */
             pir_discard = 1;
         }
-        pir = divide_by_33_1_3(pir);        /* Rate unit is 33 1/3 kbps, round up */
-        pbs = (pbs ? pbs : 1);              /* BZ 9813: Avoid using zero burst size */
-        pbs = VTSS_DIV_ROUND_UP(pbs, 4096); /* Burst unit is 4kB, round up */
-        pbs_max = 61;                       /* See Bugzilla#4944, comment#2  */
+        pir = VTSS_DIV_ROUND_UP(pir*3, 100); /* Rate unit is 33 1/3 kbps, round up */
+        pbs = (pbs ? pbs : 1);               /* BZ 9813: Avoid using zero burst size */
+        pbs = VTSS_DIV_ROUND_UP(pbs, 4096);  /* Burst unit is 4kB, round up */
+        pbs_max = 61;                        /* See Bugzilla#4944, comment#2  */
     }
 
     /* Limit to maximum values */
