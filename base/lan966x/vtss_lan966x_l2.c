@@ -48,9 +48,8 @@ static vtss_rc lan966x_pgid_mask_write(vtss_state_t *vtss_state,
         mask |= VTSS_BIT(VTSS_CHIP_PORT_CPU);
         queue = cpu_queue;
     }
-    REG_WR(ANA_PGID(pgid),
-           ANA_PGID_PGID(mask) |
-           ANA_PGID_CFG_CPUQ_DST_PGID(queue));
+    REG_WR(ANA_PGID(pgid), ANA_PGID_PGID(mask));
+    REG_WR(ANA_PGID_CFG(pgid), ANA_PGID_CFG_CPUQ_DST_PGID(queue));
 
     return VTSS_RC_OK;
 }
@@ -1452,6 +1451,7 @@ static vtss_rc lan966x_debug_aggr(vtss_state_t *vtss_state,
     for (i = 0; i < VTSS_PGIDS; i++) {
         REG_RD(ANA_PGID(i), &value);
         mask = ANA_PGID_PGID_X(value);
+        REG_RD(ANA_PGID_CFG(i), &value);
         pr("%-4u  %-3u  %-5u  ",
            i,
            mask & VTSS_BIT(VTSS_CHIP_PORT_CPU) ? 1 : 0,
