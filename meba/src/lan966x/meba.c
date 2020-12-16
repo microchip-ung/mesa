@@ -190,6 +190,26 @@ static mesa_rc lan9668_reset(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc lan9668_event_enable(meba_inst_t inst,
+                                   meba_event_t event_id,
+                                   mesa_bool_t enable)
+{
+    return MESA_RC_NOT_IMPLEMENTED;
+}
+
+
+static mesa_rc lan9668_irq_handler(meba_inst_t inst,
+                               mesa_irq_t chip_irq,
+                               meba_event_signal_t signal_notifier)
+{
+    return MESA_RC_NOT_IMPLEMENTED;
+}
+
+static mesa_rc lan9668_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
+{
+    return MESA_RC_NOT_IMPLEMENTED;
+}
+
 meba_inst_t meba_initialize(size_t callouts_size,
                             const meba_board_interface_t *callouts)
 {
@@ -225,8 +245,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
     /* Fill out port mapping table */
     if (inst->props.target == 0x9662) {
         lan9668_sunrise_init_porttable(inst);
+        inst->props.board_type = VTSS_BOARD_LAN9668_SUNRISE_REF;
     } else {
         lan9668_adaro_init_porttable(inst);
+        inst->props.board_type = VTSS_BOARD_LAN9668_ADARO_REF;
     }
 
     T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d",
@@ -237,6 +259,9 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_capability                 = lan9668_capability;
     inst->api.meba_port_entry_get             = lan9668_port_entry_get;
     inst->api.meba_reset                      = lan9668_reset;
+    inst->api.meba_irq_handler                = lan9668_irq_handler;
+    inst->api.meba_irq_requested              = lan9668_irq_requested;
+    inst->api.meba_event_enable               = lan9668_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
 
     return inst;
