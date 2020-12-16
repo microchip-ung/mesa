@@ -342,6 +342,13 @@ static mesa_rc ksz_status_1g_get(meba_phy_device_t *dev, mesa_phy_status_1g_t *s
     return MESA_RC_OK;
 }
 
+static mesa_rc ksz_1g_if_get(meba_phy_device_t *dev, mesa_port_speed_t speed,
+                              mesa_port_interface_t *mac_if) {
+
+    return MESA_RC_OK;
+}
+
+
 static mesa_rc ksz_delete(meba_phy_device_t *dev)
 {
     VTSS_FREE(dev->data);
@@ -360,7 +367,7 @@ meba_phy_drivers_t driver_init()
     ksz_drivers[0].meba_phy_driver_reset = NULL;
     ksz_drivers[0].meba_phy_driver_poll = ksz_poll;
     ksz_drivers[0].meba_phy_driver_conf_set = ksz_conf_set;
-    ksz_drivers[0].meba_phy_driver_if_get = NULL;
+    ksz_drivers[0].meba_phy_driver_if_get = ksz_1g_if_get;
     ksz_drivers[0].meba_phy_driver_mt_get = NULL;
     ksz_drivers[0].meba_phy_driver_power_set = NULL;
     ksz_drivers[0].meba_phy_driver_veriphy_start = NULL;
