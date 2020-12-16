@@ -505,6 +505,8 @@ typedef enum {
     VTSS_BOARD_LUTON10_PDS408G, // PoE design from PoE business unit
     VTSS_BOARD_FIREANT_PCB134_REF = 134,
     VTSS_BOARD_FIREANT_PCB135_REF = 135,
+    VTSS_BOARD_LAN9668_ADARO_REF = 200,
+    VTSS_BOARD_LAN9668_SUNRISE_REF,
 } vtss_board_type_t;
 
 typedef struct {
