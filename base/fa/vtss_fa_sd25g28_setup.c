@@ -159,6 +159,22 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_CMU_0E_CFG_SEL_DIV_3_0(res_struct->cfg_sel_div_3_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_0E_CFG_SEL_DIV_3_0);
 
+    REG_WRM(VTSS_SD25G_TARGET_CMU_12(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_12_CFG_I_VCO_3_0(10),
+                VTSS_M_SD25G_TARGET_CMU_12_CFG_I_VCO_3_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_0F(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_0F_CFG_ICP_BASE_SEL_3_0(5),
+                VTSS_M_SD25G_TARGET_CMU_0F_CFG_ICP_BASE_SEL_3_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_11(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_11_CFG_ICP_SEL_2_0(4),
+                VTSS_M_SD25G_TARGET_CMU_11_CFG_ICP_SEL_2_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_CMU_0F(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0(6),
+                VTSS_M_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0);
+
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0x00),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);

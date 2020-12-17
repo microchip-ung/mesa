@@ -94,6 +94,22 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST(0),
                 VTSS_M_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST);
 
+    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0B(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_0B_CFG_I_VCO_3_0(12),
+                VTSS_M_SD10G_CMU_TARGET_CMU_0B_CFG_I_VCO_3_0);
+
+    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0B(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_0B_CFG_ICP_BASE_SEL_3_0(6),
+                VTSS_M_SD10G_CMU_TARGET_CMU_0B_CFG_ICP_BASE_SEL_3_0);
+
+    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0C(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_0C_CFG_ICP_SEL_2_0(4),
+                VTSS_M_SD10G_CMU_TARGET_CMU_0C_CFG_ICP_SEL_2_0);
+
+    REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0C(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_0C_CFG_RSEL_2_0(6),
+                VTSS_M_SD10G_CMU_TARGET_CMU_0C_CFG_RSEL_2_0);
+
     VTSS_MSLEEP(20);
 
     REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_44(cmu_tgt),
