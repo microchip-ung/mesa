@@ -144,6 +144,7 @@ static mesa_rc cisco_sgmii_if_get(meba_sfp_device_t *dev,
                                   mesa_port_interface_t *mac_if) {
     switch (speed) {
         case MESA_SPEED_AUTO:
+        case MESA_SPEED_1G:
             *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
             return MESA_RC_OK;
         default:
