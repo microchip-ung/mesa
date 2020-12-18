@@ -46,7 +46,7 @@ end
 # 2: ACE to be configured with discard action
 # 3: Frame[0] matching the ACE, must be discarded
 # 4: Frame[1] not matching the ACE, must be forwarded
-$test_table = 
+test_table =
     [
      {
          txt: "any/dmac",
@@ -685,7 +685,11 @@ acl_ext_dip = cap_get("ACL_EXT_DIP")
 acl_ext_mac = cap_get("ACL_EXT_MAC")
 port = $ts.dut.port_list[$idx_tx]
 conf = $ts.dut.call("mesa_acl_port_conf_get", port)
-$test_table.each do |t|
+
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     v = t[:ace]
     ipv4 = (v[:type] == "IPV4" ? true : false)
     ipv6 = (v[:type] == "IPV6" ? true : false)

@@ -50,7 +50,7 @@ def frer_frame(t, idx)
     cmd
 end
 
-$test_table =
+test_table =
     [
         {
             txt: "Tx U-port, generation, seq = 0",
@@ -90,7 +90,10 @@ $test_table =
         }
     ]
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         cmd = "sudo ef"
         tx = t[:tx]

@@ -41,7 +41,7 @@ end
 # 2: VCE to be configured with VLAN classification
 # 3: Frame[0] matching the VCE
 # 4: Frame[1] not matching the VCE
-$test_table =
+test_table =
     [
      {
          txt: "any",
@@ -397,7 +397,10 @@ def vce_test(t)
 end
 
 epid = cap_get("PACKET_IFH_EPID")
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     # Calculate list of keys to test
     skip_double_tag = false
     skip_normal = false

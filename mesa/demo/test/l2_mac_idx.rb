@@ -22,7 +22,7 @@ test "setup vlan-aware" do
 end
 
 # Test table
-$test_table =
+test_table =
 [
     {
         txt: "error-unlocked",
@@ -194,7 +194,10 @@ def mac_test(t)
     end
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         mac_test(t)
     end

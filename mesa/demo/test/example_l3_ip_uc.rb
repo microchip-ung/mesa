@@ -20,7 +20,7 @@ test "init" do
     $ts.dut.run("mesa-cmd example init ipv4_uc iport #{$ts.dut.p[$idx_ip]} eport #{$ts.dut.p[$idx_ep]}")
 end
 
-$test_table = 
+test_table =
     [
      {
          txt: "forward 1.1.1.1 -> 2.2.2.2",
@@ -60,7 +60,10 @@ def ip_frame(f)
     cmd
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         cmd = "sudo ef"
         tx = t[:tx]

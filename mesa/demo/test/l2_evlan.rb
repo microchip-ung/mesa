@@ -53,7 +53,7 @@ end
 # 3: Switch Tx port configuration values
 # 3: Host Tx frame values
 # 4: Host Rx frame values
-$test_table = 
+test_table =
     [
      {
          txt: "rx any, tx c-tag",
@@ -229,29 +229,36 @@ def cnt_check(name, val, exp)
     end
 end
 
-test "frame-io" do
+$iflow = 0
+$cap_xstat = false
+$eflow = 0
+$cap_imap = false
+$istat = 0
+$estat = 0
+$imap = 0
+test "conf-common" do
     cap_xflow = (cap_get("L2_XFLOW") != 0)
-    cap_xstat = (cap_get("L2_XSTAT") != 0)
+    $cap_xstat = (cap_get("L2_XSTAT") != 0)
     cap_xdlb = (cap_get("L2_XDLB") != 0)
-    cap_imap = (cap_get("QOS_INGRESS_MAP_CNT") != 0)
-    class_cnt = (cap_imap ? 4 : 1)
-    iflow = (cap_xflow ? $ts.dut.call("mesa_iflow_alloc") : 0)
-    istat = (cap_xstat ? $ts.dut.call("mesa_ingress_cnt_alloc", class_cnt) : 0)
+    $cap_imap = (cap_get("QOS_INGRESS_MAP_CNT") != 0)
+    class_cnt = ($cap_imap ? 4 : 1)
+    $iflow = (cap_xflow ? $ts.dut.call("mesa_iflow_alloc") : 0)
+    $istat = ($cap_xstat ? $ts.dut.call("mesa_ingress_cnt_alloc", class_cnt) : 0)
     pol = (cap_xdlb ? $ts.dut.call("mesa_dlb_policer_alloc", class_cnt) : 0)
-    eflow = (cap_xflow ? $ts.dut.call("mesa_eflow_alloc") : 0)
-    estat = (cap_xstat ? $ts.dut.call("mesa_egress_cnt_alloc", class_cnt) : 0)
+    $eflow = (cap_xflow ? $ts.dut.call("mesa_eflow_alloc") : 0)
+    $estat = ($cap_xstat ? $ts.dut.call("mesa_egress_cnt_alloc", class_cnt) : 0)
     if (cap_xflow)
-        conf = $ts.dut.call("mesa_iflow_conf_get", iflow)
+        conf = $ts.dut.call("mesa_iflow_conf_get", $iflow)
         conf["cnt_enable"] = true
-        conf["cnt_id"] = istat
+        conf["cnt_id"] = $istat
         conf["dlb_enable"] = true
         conf["dlb_id"] = pol
-        $ts.dut.call("mesa_iflow_conf_set", iflow, conf)
+        $ts.dut.call("mesa_iflow_conf_set", $iflow, conf)
 
-        conf = $ts.dut.call("mesa_eflow_conf_get", eflow)
+        conf = $ts.dut.call("mesa_eflow_conf_get", $eflow)
         conf["cnt_enable"] = true
-        conf["cnt_id"] = estat
-        $ts.dut.call("mesa_eflow_conf_set", eflow, conf)
+        conf["cnt_id"] = $estat
+        $ts.dut.call("mesa_eflow_conf_set", $eflow, conf)
     end
 
     # Policer with COSID 1 discards all frames
@@ -262,10 +269,10 @@ test "frame-io" do
         conf = $ts.dut.call("mesa_dlb_policer_conf_set", pol, cosid, conf)
     end
     # Ingress map, PCP -> COSID (0-3)
-    imap = 10
-    if (cap_imap)
+    $imap = 10
+    if ($cap_imap)
         map = $ts.dut.call("mesa_qos_ingress_map_init", "MESA_QOS_INGRESS_MAP_KEY_PCP")
-        map["id"] = imap
+        map["id"] = $imap
         map["action"]["cosid"] = true
         for pcp in 0..7 do
             map["maps"]["pcp"][pcp]["cosid"] = (pcp / 2)
@@ -305,9 +312,12 @@ test "frame-io" do
             $ts.dut.call("mesa_qos_port_dpl_conf_set", port, dpl_cnt, conf)
         end
     end
+end
 
-    $test_table.each do |t|
-        t_i("Config: '#{t[:txt]}'")
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
+    test t[:txt] do
         if (t.key?:skip and t[:skip])
             t_i("Skipping for this platform")
             next
@@ -333,14 +343,14 @@ test "frame-io" do
         key["port_list"] = "#{port}"
         action = vce["action"]
         action["vid"] = $vid_a
-        action["flow_id"] = iflow
+        action["flow_id"] = $iflow
         if (cfg.key?:pop)
             action["pop_enable"] = true
             action["pop_cnt"] = cfg[:pop]
         end
         if (cfg.key?:map)
             action["map_sel"] = ("MESA_IMAP_SEL_" + cfg[:map])
-            action["map_id"] = imap
+            action["map_id"] = $imap
         end
         $ts.dut.call("mesa_vce_add", 0, vce)
 
@@ -363,7 +373,7 @@ test "frame-io" do
         key["port_list"] = "#{port}"
         key["vid"] = $vid_a
         action = tce["action"]
-        action["flow_id"] = eflow
+        action["flow_id"] = $eflow
         tce_tag_set(action["tag"], cfg, :ot, $emap);
         tce_tag_set(action["inner_tag"], cfg, :it, $emap);
         $ts.dut.call("mesa_tce_add", 0, tce)
@@ -408,7 +418,7 @@ test "frame-io" do
             cmd += f_end
 
             rx_f = t[:rx_frm][i]
-            cosid = ((cap_imap and (rx_f.key?:cosid)) ? rx_f[:cosid] : 0)
+            cosid = (($cap_imap and (rx_f.key?:cosid)) ? rx_f[:cosid] : 0)
             discard = rx_f.key?:discard
             forward = (!discard and cosid != 1)
             pop = ((rx_f.key?:pop) ? rx_f[:pop] : 0)
@@ -426,18 +436,18 @@ test "frame-io" do
                 cmd += " name f2"
             end
 
-            if (cap_xstat)
+            if ($cap_xstat)
                 # Clear counters
-                $ts.dut.call("mesa_ingress_cnt_clear", istat, cosid)
-                $ts.dut.call("mesa_egress_cnt_clear", estat, cosid)
+                $ts.dut.call("mesa_ingress_cnt_clear", $istat, cosid)
+                $ts.dut.call("mesa_egress_cnt_clear", $estat, cosid)
             end
             $ts.pc.run(cmd)
-            if (cap_xstat)
+            if ($cap_xstat)
                 # Check counters
-                cnt = $ts.dut.call("mesa_ingress_cnt_get", istat, cosid)
+                cnt = $ts.dut.call("mesa_ingress_cnt_get", $istat, cosid)
                 name = (cosid == 1 ? "rx_red" : "rx_green")
                 cnt_check(name, cnt[name]["frames"], discard ? 0 : 1)
-                cnt = $ts.dut.call("mesa_egress_cnt_get", estat, cosid)
+                cnt = $ts.dut.call("mesa_egress_cnt_get", $estat, cosid)
                 name = "tx_green"
                 cnt_check(name, cnt[name]["frames"], forward ? 1 : 0)
             end

@@ -7,6 +7,9 @@ require_relative 'libeasy/et'
 
 $ts = get_test_setup("mesa_pc_b2b_4x")
 
+# Check if RCL supported
+cap_check_exit("L2_RCL")
+
 $idx_tx  = 0 # PC Tx port
 $idx_rx  = 1 # PC Rx port, normal forwarding
 $idx_ifh = 2 # PC Rx port, with IFH
@@ -19,7 +22,7 @@ $idx_rtp = 3 # PC Rx port, RTP forwarding
 # 4: Frame[0] matching RCEs, forwarded based on RCE actions
 # 5: Frame[1] not matching RCEs, forwarded normally.
 
-$test_table =
+test_table =
 [
     {
         txt: "key/port_no",
@@ -239,7 +242,10 @@ def rte_test(t)
     end
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         rte_test(t)
     end

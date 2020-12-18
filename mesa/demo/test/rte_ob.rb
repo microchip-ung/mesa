@@ -50,7 +50,7 @@ end
 # 6: Frame fields
 # 7: Counter values expected
 
-$test_table =
+test_table =
 [
     # General
     {
@@ -416,7 +416,10 @@ def rte_ob_test(t)
     end
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         rte_ob_test(t)
     end

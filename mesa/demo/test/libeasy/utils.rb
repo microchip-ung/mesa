@@ -99,6 +99,17 @@ def fld_get(v, fld, val = 0)
     val
 end
 
+def table_lookup(table, fld)
+    f = nil
+    table.each do |e|
+        v = e[fld]
+        if (v != nil)
+            f = v
+        end
+    end
+    f
+end
+
 def port_idx_list_str(idx_list)
     str = ""
     idx_list.each do |idx|

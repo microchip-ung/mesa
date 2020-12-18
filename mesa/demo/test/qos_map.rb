@@ -37,7 +37,7 @@ end
 # 3: Switch Tx port configuration values
 # 3: Host Tx frame values
 # 4: Host Rx frame values expected
-$test_table = 
+test_table =
     [
      {
          txt: "rx pcp to pcp",
@@ -120,10 +120,11 @@ def map_set(map, values, cfg)
     end
 end
 
-test "frame-io" do
-    $test_table.each do |t|
-        t_i("Conf '#{t[:txt]}'")
-
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
+    test t[:txt] do
         # Ingress port
         cfg = t[:rx_cfg]
         port = $ts.dut.port_list[$idx_tx]

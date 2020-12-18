@@ -40,7 +40,7 @@ end
 # 2: ACE to be configured with discard action
 # 3: Frame[0] matching the ACE, must be discarded
 # 4: Frame[1] not matching the ACE, must be forwarded
-$test_table = 
+test_table =
     [
     {
         txt: "any/dmac",
@@ -546,7 +546,10 @@ def ace_test(t, acl)
     $ts.dut.call("mesa_hace_del", hacl_type, ace["id"])
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     acl = t[:acl]
     case (t[:ace][:type])
     when "ARP", "IPV4", "IPV6"

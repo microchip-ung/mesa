@@ -49,7 +49,7 @@ end
 # 4: QCE to be configured with discard action
 # 5: Frame[0] matching the QCE, must be discarded
 # 6: Frame[1] not matching the QCE, must be forwarded
-$test_table = 
+test_table =
     [
      {
          txt: "dmac_mc",
@@ -281,10 +281,12 @@ def port_mode_set(idx, mode)
     $ts.dut.call("mesa_qos_port_conf_set", port, conf)
 end
 
-test "qcl_key" do
-    cap_key_type = cap_get("QOS_QCL_KEY_TYPE")
-
-    $test_table.each do |t|
+cap_key_type = cap_get("QOS_QCL_KEY_TYPE")
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
+    test "key-#{t[:txt]}" do
         if (t.key?:cap and cap_get("QOS_QCL_" + t[:cap]) == 0)
             next
         end
@@ -388,18 +390,31 @@ test "qcl_key" do
     end
 end
 
-test "qcl_action" do
-    action_table = 
-        [
-         { txt: "prio",    prio: 7, dp: 0, pcp_dei: 0, pcp: 7, dei: 0, dscp: 0, mode: "MAPPED", emode: "DISABLE" },
-         { txt: "dp",      prio: 0, dp: 1, pcp_dei: 0, pcp: 1, dei: 1, dscp: 0, mode: "MAPPED", emode: "DISABLE" },
-         { txt: "pcp/dei", prio: 0, dp: 0, pcp_dei: 1, pcp: 6, dei: 1, dscp: 0, mode: "CLASSIFIED", emode: "DISABLE" },
-         { txt: "dscp",    prio: 0, dp: 0, pcp_dei: 0, pcp: 0, dei: 0, dscp: 42, mode: "CLASSIFIED", emode: "REMARK" }
-        ]
+action_table =
+    [
+     {
+         txt: "prio",
+         prio: 7, dp: 0, pcp_dei: 0, pcp: 7, dei: 0, dscp: 0, mode: "MAPPED", emode: "DISABLE"
+     },
+     {
+         txt: "dp",
+         prio: 0, dp: 1, pcp_dei: 0, pcp: 1, dei: 1, dscp: 0, mode: "MAPPED", emode: "DISABLE"
+     },
+     {
+         txt: "pcp/dei",
+         prio: 0, dp: 0, pcp_dei: 1, pcp: 6, dei: 1, dscp: 0, mode: "CLASSIFIED", emode: "DISABLE"
+     },
+     {
+         txt: "dscp",
+         prio: 0, dp: 0, pcp_dei: 0, pcp: 0, dei: 0, dscp: 42, mode: "CLASSIFIED", emode: "REMARK"
+     }
+    ]
 
-    # Action test
-    action_table.each do |t|
-        t_i("Test action '#{t[:txt]}'")
+# Run all or selected test
+sel = table_lookup(action_table, :sel)
+action_table.each do |t|
+    next if (t[:sel] != sel)
+    test "action-#{t[:txt]}" do
         qce = $ts.dut.call("mesa_qce_init", "MESA_QCE_TYPE_IPV4")
         qce["id"] = 1
         qce["key"]["port_list"] = port_idx_list_str([$idx_tx]) 

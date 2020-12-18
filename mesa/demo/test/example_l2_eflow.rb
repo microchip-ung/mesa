@@ -17,7 +17,7 @@ $idx_ap2 = 1
 $idx_tp1 = 2
 $idx_tp2 = 3
 
-$test_table = 
+test_table =
     [
      {
          txt: "access/untag -> trunk/tag",
@@ -52,7 +52,10 @@ test "init" do
     $ts.dut.run("mesa-cmd example init eflow")
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     test t[:txt] do
         # Configuration
         rx = t[:rx]
