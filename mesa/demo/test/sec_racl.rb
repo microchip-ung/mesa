@@ -211,7 +211,7 @@ test "conf" do
 end
 
 # IPv4 options are not tested, such frames are always redirected to CPU, so RACLs have no effect.
-$test_table = 
+test_table =
     [
     {
         txt: "ipv4/fragment/MF",
@@ -618,7 +618,10 @@ def ace_test(t, acl)
     $ts.dut.call("mesa_hace_del", hacl_type, ace["id"])
 end
 
-$test_table.each do |t|
+# Run all or selected test
+sel = table_lookup(test_table, :sel)
+test_table.each do |t|
+    next if (t[:sel] != sel)
     acl_list = ["IRACL", "ERACL"]
     #acl_list = ["IRACL"]
     txt = t[:txt]

@@ -941,11 +941,11 @@ def qspi_init
     ol = "/sys/kernel/config/device-tree/overlays/tsys01"
     $ts.dut.run("mount -t configfs none /sys/kernel/config")
     $ts.dut.run("mkdir -p #{ol}")
-    $ts.dut.run("sh -c 'cat /overlays/ext_sr_qspi_overlay.dtbo > #{ol}/dtbo'")
+    $ts.dut.run("sh -c 'cat /overlays/qspi_overlay.dtbo > #{ol}/dtbo'")
 end
 
 def io_fpga_rw(cmd)
-    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw3 #{cmd}")[:out]
+    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw0 #{cmd}")[:out]
     if (cmd.include? "read")
         i = txt.index("value: ")
         if (i == nil)
