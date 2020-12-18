@@ -82,9 +82,10 @@ static mesa_rc cisco_sgmii_phy_write(meba_inst_t meba_inst,
 }
 
 #define VTSS_MSLEEP(m) usleep((m)*1000)
-static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst,
-                                   mesa_port_no_t port_no) {
-    uint16_t i, reg2 = 0, reg3 = 0;
+static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst, mesa_port_no_t port_no)
+{
+    uint16_t    i, reg2 = 0, reg3 = 0;
+    mesa_bool_t configure_phy;
 
     // Read PHY ID registers
     mesa_bool_t phy_present = false;
@@ -94,23 +95,36 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst,
             phy_present = true;
             break;
         }
+
         VTSS_MSLEEP(50);  // Wait while the SFP module wakes up
     }
+
+    //  printf("%s#%d. CuSFP: phy_present = %d, reg2 = 0x%x, reg3 = 0x%x)\n", __FUNCTION__, __LINE__, phy_present, reg2, reg3);
 
     //  BZ#22772:
     //  If Cu-SFP is default using SGMII mode, we don't need to setup PHY
     //  Else this Cu-SFP must be set to SGMII mode via I2C. However,
-    //  this kind of configuration is not standard and implemented by
-    //  different SFP manufacturers.
-    //  Currently, we only set it for Marvell 88EE1111.
-    if (phy_present == false || reg2 != 0x0141 || (reg3 & 0xfff0) != 0x0cc0) {
-        // The PHY is not Marvell 88E1111, so we rely on the PHY being
-        // default-configured to SGMII/aneg.
+    //  this kind of configuration is not standard and may be implemented
+    //  differently by different CuSFP manufacturers.
+
+    // The following code has been seen to work fine (and is required for it to
+    // work) with the following CuSFPs:
+    //   Marvell 88EE1111: Returns reg2 == 0x0141 and reg3 == 0x0ccX
+    //   Adtran/Methode Elec. SP7041-ADT: Returns reg2 == reg3 == 0x0.
+    if (!phy_present) {
+        // Nothing more to do.
         return true;
     }
 
-    // The SFP's PHY supports SGMII(at present, only Marvell 88E1111 is
-    // supported), execute follwoing setting to configure to SGMII mode
+    configure_phy = (reg2 == 0x0141 && (reg3 & 0xFFF0) == 0x0CC0) || // Marvell 88EE1111
+                    (reg2 == 0x0000 && reg3            == 0x0000);   // Adtran/Methode Elec. SP7041-ADT
+
+    if (!configure_phy) {
+        // Nothing more to do.
+        return true;
+    }
+
+    // The following configures the SFP's PHY to SGMII mode
     for (i = 0; i < 10; i++) {
         if (cisco_sgmii_phy_write(meba_inst, port_no, 27, 0x9084) ==
                 MESA_RC_OK &&  // SGMII mode
@@ -124,8 +138,10 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst,
                 MESA_RC_OK) {  // Apply Software reset
             return true;
         }
-        VTSS_MSLEEP(50);  // Wait while the SFP module wakes up
+
+        VTSS_MSLEEP(50); // Wait while the SFP module wakes up
     }
+
     return false;
 }
 
