@@ -196,8 +196,7 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
     return MESA_RC_ERROR;
 }
 
-static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry,
-                              mesa_port_conf_t *conf, mscc_appl_port_conf_t *pc) {
+static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_port_conf_t *conf) {
 
     mscc_appl_port_conf_t         *p_conf = &entry->conf;
     mesa_port_interface_t         mac_if = entry->meba.mac_if;
@@ -227,8 +226,9 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry,
     }
     conf->if_type = mac_if;
 
+
     if (p_conf->admin.enable && (cap & MEBA_PORT_CAP_AUTONEG)
-        && (conf->if_type == MESA_PORT_INTERFACE_SERDES) && (pc->autoneg)) {
+        && (conf->if_type == MESA_PORT_INTERFACE_SERDES) && (p_conf->speed == MESA_SPEED_1G)) {
         /* IEEE 802.3 clause 37 auto-negotiation */
         T_N("Port:%d, Clause 37 setup", port_no);
         /* PCS auto negotiation */
@@ -243,6 +243,7 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry,
                              MESA_PORT_CLAUSE_37_RF_OFFLINE);
         adv->acknowledge = FALSE;
         adv->next_page = FALSE;
+
         T_D("Port: %d set port via clause_37, ena:%d %s%s%s", port_no, control.enable,
             adv->fdx ?"FDX " : "HDX ", p_conf->flow_control ? ", Flow control": "",
             adv->remote_fault ? ", remote_fault":"" );
@@ -250,8 +251,8 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry,
             T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             return MESA_RC_ERROR;
         }
-    } else if (((cap & MEBA_PORT_CAP_AUTONEG) &&
-                (p_conf->speed == MESA_SPEED_2500M)) || (!pc->autoneg)) {
+    } else if ((cap & MEBA_PORT_CAP_AUTONEG) &&
+               (p_conf->speed == MESA_SPEED_2500M)) {
         // Disable clause 37 aneg for 2G5 ports
         mesa_port_clause_37_control_t ctrl;
         if (mesa_port_clause_37_control_get(NULL, port_no, &ctrl) != MESA_RC_OK) {
@@ -352,7 +353,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
             conf.speed = (pc->autoneg ? MESA_SPEED_1G : pc->speed);
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
-            if (port_setup_sfp(port_no, entry, &conf, pc) != MESA_RC_OK) {
+            if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
                 T_E("Could not configure SFP port(%u)", port_no);
             }
         }
