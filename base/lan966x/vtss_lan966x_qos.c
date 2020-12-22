@@ -1122,7 +1122,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
-    u32                 i, gcl_idx, hold_advance, value, time_interval_sum = 0;
+    u32                 maxsdu, i, gcl_idx, hold_advance, value, time_interval_sum = 0;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32                 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
     vtss_port_no_t      chip_port = VTSS_CHIP_PORT(port_no);
@@ -1132,6 +1132,11 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     u32                 gcl_length = port_conf->gcl_length;
     vtss_qos_tas_gce_t  *gcl = port_conf->gcl;;
     u16                 *max_sdu  = port_conf->max_sdu;
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    u32  fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+#else
+    u32  fp_enable_tx = FALSE;
+#endif
 
     VTSS_D("Enter list_idx %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, obsolete_list_idx, entry_idx, profile_idx, chip_port);
 
@@ -1156,7 +1161,8 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     /* Configure the profile */
     for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL((max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0)));
+        maxsdu = (fp_enable_tx != 0) ? 1 : (max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0);  /* In case of FP aktive the MAXSDU must be as small as possible */
+        REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
     }
     REG_RD(SYS_FRONT_PORT_MODE(chip_port), &value);
     hold_advance = SYS_FRONT_PORT_MODE_ADD_FRAG_SIZE_X(value) + 1;
@@ -1179,7 +1185,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
         /* Configure the list entry */
         REG_WR(QSYS_TAS_GCL_CT_CFG, QSYS_TAS_GCL_CT_CFG_GATE_STATE(vtss_bool8_to_u8(gcl[gcl_idx].gate_open)) |
                                     QSYS_TAS_GCL_CT_CFG_OP_TYPE(tas_op_type_calc(gcl[gcl_idx].gate_operation)) |
-                                    QSYS_TAS_GCL_CT_CFG_HSCH_POS(5040 + 64 + chip_port));   /* Default scheduler element when HQoS is not present */
+                                    QSYS_TAS_GCL_CT_CFG_HSCH_POS(chip_port));
         REG_WR(QSYS_TAS_GCL_CT_CFG2, QSYS_TAS_GCL_CT_CFG2_PORT_PROFILE(profile_idx) |
                                      QSYS_TAS_GCL_CT_CFG2_NEXT_GCL(entry_idx));
         REG_WR(QSYS_TAS_GCL_TM_CFG, gcl[gcl_idx].time_interval);
@@ -1223,15 +1229,29 @@ vtss_rc vtss_lan966x_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
 static vtss_rc lan966x_qos_tas_frag_size_update(struct vtss_state_s   *vtss_state,
                                                 const vtss_port_no_t  port_no)
 {
-    vtss_port_no_t        chip_port = VTSS_CHIP_PORT(port_no);
-    vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
-    u32                   hold_advance, profile_idx, value;
+    vtss_port_no_t           chip_port = VTSS_CHIP_PORT(port_no);
+    vtss_qos_tas_port_conf_t *port_conf = &vtss_state->qos.tas.port_conf[port_no];
+    vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
+    u32                      i, maxsdu, hold_advance, profile_idx, value;
+    u16                      *max_sdu  = port_conf->max_sdu;
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    u32  fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+#else
+    u32  fp_enable_tx = FALSE;
+#endif
 
-    /* This must be done when the frame preemption RemAddFragSize is changing */
-    REG_RD(SYS_FRONT_PORT_MODE(chip_port), &value);
-    hold_advance = SYS_FRONT_PORT_MODE_ADD_FRAG_SIZE_X(value) + 1;
     if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {    /* Check if there is a current list active */
         profile_idx = vtss_state->qos.tas.tas_lists[gcl_state->curr_list_idx].profile_idx;  /* Get the profile index for the currently active list */
+
+        /* This must be done depending on FP enabled or disabled */
+        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+            maxsdu = (fp_enable_tx != 0) ? 1 : (max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0);  /* In case of FP active the MAXSDU must be as small as possible */
+            REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
+        }
+
+        /* This must be done when the frame preemption RemAddFragSize is changing */
+        REG_RD(SYS_FRONT_PORT_MODE(chip_port), &value);
+        hold_advance = (fp_enable_tx != 0) ? (SYS_FRONT_PORT_MODE_ADD_FRAG_SIZE_X(value) + 1) : 0;
         REG_WRM(QSYS_TAS_PROFILE_CFG(profile_idx), QSYS_TAS_PROFILE_CFG_HOLDADVANCE(hold_advance), QSYS_TAS_PROFILE_CFG_HOLDADVANCE_M); /* Update the hold_advance configuration */
     }
 

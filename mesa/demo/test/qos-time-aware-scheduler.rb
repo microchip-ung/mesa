@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
@@ -483,8 +483,8 @@ def jira_appl_3433_test
     $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$loop_port1}")
 
     t_i ("Measure initially")
-    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
     t_i ("Enable Frame preemption")
     fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $loop_port0)
@@ -498,8 +498,8 @@ def jira_appl_3433_test
     port_status = $ts.dut.call("mesa_qos_fp_port_status_get", $loop_port0)
 
     t_i ("Measure before creating TAS")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
     t_i ("Create GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $loop_port0, 256)
@@ -560,13 +560,18 @@ def jira_appl_3433_test
     end
 
     t_i ("Disable Frame Preemption")
+    fp["admin_status"][2] = false
     fp["enable_tx"] = false
     $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
 
     t_i ("Measure after Frame Preemption disabled")
     t_i ("Tolerance must be high due to large MAXSDU meaning large guard band")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [38],           true,              [2])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
+    end
 
     t_i ("Enable Frame Preemption")
     fp["enable_tx"] = true
@@ -670,6 +675,7 @@ def equal_interval_1_prio_3_port_test
     t_i ("Test TAS on all egress ports")
     eg.each do |eg_idx|
         $ts.dut.run("mesa-cmd mac flush")
+        $ts.pc.run("sudo ef tx #{$ts.pc.p[eg_idx]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
        #measure(ig,   eg,     size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 2,     false,            false,           [990000000/3],       [2],            true,              [eg_idx], [cycle_time])
     end
@@ -689,6 +695,7 @@ def equal_interval_1_prio_3_port_test
     t_i ("Test witout TAS on all egress ports")
     eg.each do |eg_idx|
         $ts.dut.run("mesa-cmd mac flush")
+        $ts.pc.run("sudo ef tx #{$ts.pc.p[eg_idx]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
        #measure(ig, eg,       size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 1,     false,            false,           [990000000],         [1],            true,              [eg_idx])
     end
