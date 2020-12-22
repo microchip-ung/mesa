@@ -407,8 +407,8 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     $ts.dut.run("mesa-cmd port statis clear")
 
     t_i ("learn mac address on egress port")
-    $ts.dut.run("mesa-cmd mac flush")
-    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+#    $ts.dut.run("mesa-cmd mac flush")
+#    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
 #    $ts.dut.run("mesa-cmd mac dump")
 
     sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum

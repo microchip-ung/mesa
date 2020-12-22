@@ -12,6 +12,10 @@ check_capabilities do
     $tas_support = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_TAS")
     assert(($tas_support == 1),
            "TAS not supported on this platform")
+    if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
+        $loop_port0 = $ts.dut.looped_port_list[0]
+        $loop_port1 = $ts.dut.looped_port_list[1]
+    end
 end
 
 MESA_VID_NULL = 0
@@ -290,6 +294,8 @@ def equal_interval_3_prio_1_port_test
         t_e("GCL unexpected number of open gates #{open}")
     end
 
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
@@ -324,6 +330,8 @@ def equal_interval_3_prio_1_port_test
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
 
@@ -336,7 +344,7 @@ def equal_interval_3_prio_1_port_test
 end
 
 def jira_appl_3396_test
-    eg = rand(3)    # Get a random egress port between 0 and 3
+    eg = rand(2)    # Get a random egress port between 0 and 1
 
     test "Time aware scheduling JIRA APPL-3396" do
 
@@ -435,44 +443,54 @@ end
 
 def jira_appl_3433_test
     ig = 0
-    eg = 1
+    eg = $loop_port0
+    eg_measure = 1
     frame_size = 500
-    cycle_time = 1000000
+    frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
+    interval1 = 50*frame_tx_time_nano
+    interval2 = 200*frame_tx_time_nano
+    cycle_time = 250*frame_tx_time_nano      #1040000
 
     test "Time aware scheduling JIRA APPL-3433" do
 
+    # Port-to-port forwarding via loop ports
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$ts.dut.port_list[0]},#{$loop_port0},#{$loop_port1}")
+    pvlan = $ts.dut.call("mesa_pvlan_port_members_get", 0)
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{$ts.dut.port_list[0]},#{$loop_port0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$loop_port1}")
+
     t_i ("Measure initially")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
     t_i ("Enable Frame preemption")
-    fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $ts.dut.p[eg])
+    fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $loop_port0)
     fp["admin_status"].each_index {|i| fp["admin_status"][i] = false}
     fp["admin_status"][2] = true
     fp["enable_tx"] = true
     fp["verify_disable_tx"] = false
     fp["add_frag_size"] = 1
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
     sleep 1
-    port_status = $ts.dut.call("mesa_qos_fp_port_status_get", $ts.dut.p[eg])
+    port_status = $ts.dut.call("mesa_qos_fp_port_status_get", $loop_port0)
 
     t_i ("Measure before creating TAS")
     #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
+    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $loop_port0, 256)
     gcl = conf[0]
     gce_cnt = conf[1]
     gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC"
     gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
     gcl[0]["gate_open"][2] = true
-    gcl[0]["time_interval"] = 200000
+    gcl[0]["time_interval"] = interval1
     gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
     gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = true}
     gcl[1]["gate_open"][2] = false
-    gcl[1]["time_interval"] = 800000
-    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
+    gcl[1]["time_interval"] = interval2
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $loop_port0, 2, gcl)
 
     t_i ("Get TOD of domain 0")
     tod = $ts.dut.call("mesa_ts_timeofday_get")
@@ -482,7 +500,7 @@ def jira_appl_3433_test
     base_time = tod[0].dup
 
     t_i ("Start GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $loop_port0)
     conf["max_sdu"].each_index {|i| conf["max_sdu"][i] = 10240}
     conf["gate_enabled"] = true
     conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
@@ -493,10 +511,10 @@ def jira_appl_3433_test
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
-    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
 
     t_i ("Check GCL is pending")
-    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
     if (status["config_pending"] != true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
@@ -505,55 +523,65 @@ def jira_appl_3433_test
     sleep 3
 
     t_i ("Check GCL is started")
-    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-#    $ts.dut.run("mesa-cmd deb api cil qos act 7")
-
-    t_i ("Measure after TAS created")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+    t_i ("Measure after TAS created  pcb #{$ts.dut.pcb}")
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($ts.dut.pcb == 135)
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.5],          true,              [2])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+    end
 
     t_i ("Disable Frame Preemption")
     fp["enable_tx"] = false
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
-
-#    $ts.dut.run("mesa-cmd deb api cil qos act 7")
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
 
     t_i ("Measure after Frame Preemption disabled")
     t_i ("Tolerance must be high due to large MAXSDU meaning large guard band")
     #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
+     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [37],           true,              [2],    [cycle_time])
 
     t_i ("Enable Frame Preemption")
     fp["enable_tx"] = true
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
-
-#    $ts.dut.run("mesa-cmd deb api cil qos act 7")
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
 
     t_i ("Measure after Frame Preemption enabled")
-    #measure(ig,   eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-     measure([ig], eg, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($ts.dut.pcb == 135)
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.5],          true,              [2])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+    end
 
     t_i ("Stop GCL")
     conf["gate_enabled"] = false
     conf["config_change"] = false
-    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
 
     t_i ("Wait for GCL to stop")
     sleep 2
 
     t_i ("Check GCL is stopped")
-    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
     t_i ("Disable Frame Preemption")
     fp["enable_tx"] = false
-    $ts.dut.call("mesa_qos_fp_port_conf_set", $ts.dut.p[eg], fp)
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
+
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, pvlan)
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "")
+    if ($ts.dut.port_list.length == 4)
+        t_i ("Only forward on relevant ports ")
+        port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+        $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
+    end
     end
 end
 
@@ -618,6 +646,7 @@ def equal_interval_1_prio_3_port_test
 
     t_i ("Test TAS on all egress ports")
     eg.each do |eg_idx|
+        $ts.dut.run("mesa-cmd mac flush")
        #measure(ig,   eg,     size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 2,     false,            false,           [990000000/3],       [2],            true,              [eg_idx], [cycle_time])
     end
@@ -636,6 +665,7 @@ def equal_interval_1_prio_3_port_test
 
     t_i ("Test witout TAS on all egress ports")
     eg.each do |eg_idx|
+        $ts.dut.run("mesa-cmd mac flush")
        #measure(ig, eg,       size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
         measure([ig], eg_idx, frame_size, 1,     false,            false,           [990000000],         [1],            true,              [eg_idx])
     end
@@ -643,36 +673,30 @@ def equal_interval_1_prio_3_port_test
 end
 
 test "test_conf" do
-    $qconf0 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[0])
-    $qconf1 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[1])
-    $qconf2 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[2])
-    $qconf3 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[3])
-    $vconf0 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[0])
-    $vconf1 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[1])
-    $vconf2 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[2])
-    $vconf3 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[3])
-    $dconf0 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[0], $dpl_cnt)
-    $dconf1 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[1], $dpl_cnt)
-    $dconf2 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[2], $dpl_cnt)
-    $dconf3 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[3], $dpl_cnt)
+    if ($ts.dut.port_list.length == 4)
+        t_i ("Only forward on relevant ports ")
+        port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+        $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
+    end
 
-    t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-    port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
-    $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
-
-    t_i ("Configure all ports to C tag aware")
-    (0..3).each do |i|
-        $ts.dut.run("mesa-cmd port flow control #{$ts.dut.p[i]+1} disable")
+    port_list = $ts.dut.port_list
+    if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
+        port_list = port_list + $ts.dut.looped_port_list
+    end
+    t_i ("Configure all ports to C tag aware.  port_list #{port_list}")
+    port_list.each do |i|
+        $ts.dut.run("mesa-cmd port flow control #{i+1} disable")
+        $ts.dut.run("mesa-cmd port mode #{i+1} 1000fdx")
 
         t_i ("Configure all ports to C tag aware")
-        conf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[i])
+        conf = $ts.dut.call("mesa_vlan_port_conf_get", i)
         conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
         conf["untagged_vid"] = MESA_VID_NULL
-        $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[i], conf)
+        $ts.dut.call("mesa_vlan_port_conf_set", i, conf)
 
         t_i("Configure ingress prio classificationand prio and dpl mapping to 1:1")
         t_i("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
-        conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[i])
+        conf = $ts.dut.call("mesa_qos_port_conf_get", i)
         conf["tag"]["class_enable"] = true
         conf["tag"]["remark_mode"] = "MESA_TAG_REMARK_MODE_MAPPED"
         conf["tag"]["pcp_dei_map"][0][0]["prio"] = 0
@@ -688,15 +712,15 @@ test "test_conf" do
         conf["shaper"]["level"] = 25000    # Shaper must have "large" burst size level in order to shape correctly at "high" rates
         conf["shaper"]["rate"] = 990000
         conf["shaper"]["mode"] = "MESA_SHAPER_MODE_LINE"
-        $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[i], conf)
+        $ts.dut.call("mesa_qos_port_conf_set", i, conf)
 
         t_i("Configure egress prio and dpl mapping to 1:1")
-        dconf = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[i], $dpl_cnt)
+        dconf = $ts.dut.call("mesa_qos_port_dpl_conf_get", i, $dpl_cnt)
         dconf[0]["pcp"] = [0,1,2,3,4,5,6,7]
         dconf[0]["dei"] = [0,0,0,0,0,0,0,0]
         dconf[1]["pcp"] = [0,1,2,3,4,5,6,7]
         dconf[1]["dei"] = [1,1,1,1,1,1,1,1]
-        $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[i], $dpl_cnt, dconf)
+        $ts.dut.call("mesa_qos_port_dpl_conf_set", i, $dpl_cnt, dconf)
     end
 end
 
@@ -706,24 +730,17 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
-    jira_appl_3433_test
-    jira_appl_3396_test
-    equal_interval_3_prio_1_port_test
-    equal_interval_1_prio_3_port_test
-    equal_interval_gcl_reconfig_test
+#    jira_appl_3396_test
+    if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
+        jira_appl_3433_test
+    end
+
+#    if ($ts.dut.port_list.length == 4)
+#        equal_interval_3_prio_1_port_test
+#        equal_interval_1_prio_3_port_test
+#        equal_interval_gcl_reconfig_test
+#    end
 end
 
 test "test_clean_up" do
-    $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[0], $qconf0)
-    $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[1], $qconf1)
-    $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[2], $qconf2)
-    $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[3], $qconf3)
-    $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[0], $vconf0)
-    $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[1], $vconf1)
-    $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[2], $vconf2)
-    $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[3], $vconf3)
-    $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[0], $dpl_cnt, $dconf0)
-    $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[1], $dpl_cnt, $dconf1)
-    $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[2], $dpl_cnt, $dconf2)
-    $ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[3], $dpl_cnt, $dconf3)
 end
