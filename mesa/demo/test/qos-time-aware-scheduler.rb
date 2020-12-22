@@ -83,6 +83,8 @@ def equal_interval_gcl_reconfig_test
     end
 
     t_i ("Measure the frame rate and cycle time")
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
@@ -135,6 +137,8 @@ def equal_interval_gcl_reconfig_test
     end
 
     t_i ("Measure the frame rate and cycle time")
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time_1,cycle_time_1,cycle_time_1])
@@ -187,6 +191,8 @@ def equal_interval_gcl_reconfig_test
     end
 
     t_i ("Measure the frame rate and cycle time")
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time_2,cycle_time_2,cycle_time_2])
@@ -207,6 +213,8 @@ def equal_interval_gcl_reconfig_test
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
     end
@@ -333,7 +341,7 @@ def equal_interval_3_prio_1_port_test
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,500,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
+    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [150,510,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
 
     t_i ("Stop dummy GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[ig[0]])
@@ -730,16 +738,16 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
-#    jira_appl_3396_test
+    jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
         jira_appl_3433_test
     end
 
-#    if ($ts.dut.port_list.length == 4)
-#        equal_interval_3_prio_1_port_test
-#        equal_interval_1_prio_3_port_test
-#        equal_interval_gcl_reconfig_test
-#    end
+    if ($ts.dut.port_list.length == 4)
+        equal_interval_3_prio_1_port_test
+        equal_interval_1_prio_3_port_test
+        equal_interval_gcl_reconfig_test
+    end
 end
 
 test "test_clean_up" do
