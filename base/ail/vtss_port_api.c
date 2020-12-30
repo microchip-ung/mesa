@@ -1336,7 +1336,11 @@ vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI) {
+        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI &&
+           (conf->r_fec || conf->rs_fec)) {
+            // If enabling R-FEC and/or RS-FEC and the MAC I/F is not SFI, it's
+            // an error. If disabling both R-FEC and RS-FEC, the MAC I/F can be
+            // anything.
             rc = VTSS_RC_ERROR;
         } else {
             vtss_state->port.kr_fec[port_no] = *conf;
