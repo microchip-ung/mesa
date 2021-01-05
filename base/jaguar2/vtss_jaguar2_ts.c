@@ -623,6 +623,7 @@ static vtss_rc jr2_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_
 
     switch (interface) {
         case VTSS_PORT_INTERFACE_SGMII:
+        case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_SGMII_CISCO:
         case VTSS_PORT_INTERFACE_SERDES:
         case VTSS_PORT_INTERFACE_VAUI:
@@ -746,6 +747,10 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     /* I/O delays taken from DSH1061 section 2.31.9 */
     if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
         interface = VTSS_PORT_INTERFACE_QSGMII;
+    } else if (interface == VTSS_PORT_INTERFACE_SGMII_2G5) {
+        if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_2500M) {
+            interface = VTSS_PORT_INTERFACE_VAUI;
+        }
     }
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
@@ -895,6 +900,7 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_100FX:
         if ((port >= 8 && port <= 31) || (port >= 48 && port <= 52)) {
@@ -944,6 +950,7 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
             return VTSS_RC_ERROR;
         }
         break;
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
         /* SerDes 1G */
@@ -1048,6 +1055,7 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
         /* SerDes 1G */
         if (port <= 4) {
             rx_delay += 110;
@@ -1312,6 +1320,7 @@ static vtss_rc jr2_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t 
         case VTSS_PORT_INTERFACE_SGMII_CISCO:
         case VTSS_PORT_INTERFACE_SERDES:
         case VTSS_PORT_INTERFACE_VAUI:
+        case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
             sprintf(buf, "DEV1G (port_no %u):DEV_CFG_STATUS", port_no);

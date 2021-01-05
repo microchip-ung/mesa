@@ -829,6 +829,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -901,6 +902,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -1173,6 +1175,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         case VTSS_PORT_INTERFACE_SGMII_CISCO:
         case VTSS_PORT_INTERFACE_SERDES:
         case VTSS_PORT_INTERFACE_VAUI:
+        case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
             sprintf(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
