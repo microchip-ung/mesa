@@ -21,13 +21,15 @@ static vtss_rc lan966x_npi_mask_set(vtss_state_t *vtss_state)
     vtss_port_no_t        port_no = vtss_state->packet.npi_conf.port_no;
     u32                   val = 0, qmask, i;
 
+    val = QSYS_EXT_CPU_CFG_EXT_CPU_KILL_ENA(1) |
+          QSYS_EXT_CPU_CFG_INT_CPU_KILL_ENA(1);
     if (port_no < vtss_state->port_count) {
         for (qmask = i = 0; i < vtss_state->packet.rx_queue_count; i++) {
             if (conf->queue[i].npi.enable) {
                 qmask |= VTSS_BIT(i); /* NPI redirect */
             }
         }
-        val = (QSYS_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(port_no)) |
+        val |= (QSYS_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(port_no)) |
                QSYS_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask));
     }
     REG_WR(QSYS_EXT_CPU_CFG, val);
@@ -802,6 +804,8 @@ static vtss_rc lan966x_packet_init(vtss_state_t *vtss_state)
            ANA_VLAN_CFG_VLAN_POP_CNT(1) |
            ANA_VLAN_CFG_VLAN_VID(1));
 
+    REG_WR(REW_PORT_CFG(port), REW_PORT_CFG_NO_REWRITE(1));
+
     // Disable learning (only RECV_ENA must be set)
     REG_WR(ANA_PORT_CFG(port), ANA_PORT_CFG_RECV_ENA_M);
 
@@ -812,6 +816,8 @@ static vtss_rc lan966x_packet_init(vtss_state_t *vtss_state)
 
     // Enable PCP classification for CPU port
     REG_WR(ANA_QOS_CFG(port), ANA_QOS_CFG_QOS_PCP_ENA_M);
+
+    lan966x_packet_mode_update(vtss_state);
 
     // Set-up the one-to-one mapping between PCP and QoS class
     for (pcp = 0; pcp < 8; pcp++) {
