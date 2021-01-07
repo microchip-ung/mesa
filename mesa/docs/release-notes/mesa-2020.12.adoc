@@ -1,0 +1,17 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2020.12
+
+== MESA-2020.12
+
+|===
+|Version:          |MESA-2020.12
+|Previous Version: |MESA-2020.09
+|Date:             |2021-01-15
+|Description:      |Roadmap release
+|===
+
+=== General
+
+This is a bug-fix release with no new features.
