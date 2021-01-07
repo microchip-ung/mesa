@@ -1326,6 +1326,21 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
     return rc;
 }
 
+vtss_rc vtss_port_kr_fec_get(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_port_kr_fec_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        *conf = vtss_state->port.kr_fec[port_no];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              const vtss_port_kr_fec_t *const conf)

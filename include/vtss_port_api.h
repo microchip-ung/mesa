@@ -839,6 +839,20 @@ vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
                                vtss_port_kr_state_t *const state);
 
 /**
+ * \brief Get KR FEC
+ *
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param conf    [IN]  FEC Enable/disable
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_kr_fec_get(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_port_kr_fec_t *const conf);
+
+/**
  * \brief Set KR FEC
  *
  *
@@ -851,6 +865,7 @@ vtss_rc vtss_port_kr_state_get(const vtss_inst_t inst,
 vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
                              const vtss_port_no_t port_no,
                              const vtss_port_kr_fec_t *const conf);
+
 /**
  * \brief Apply KR interrupt
  *

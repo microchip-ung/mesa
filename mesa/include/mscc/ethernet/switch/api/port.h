@@ -820,6 +820,14 @@ typedef struct {
     uint32_t height;
 } mesa_port_kr_eye_dim_t CAP(PORT_KR_IRQ);
 
+// Get KR FEC
+// inst    [IN]  Target instance reference.
+// port_no [IN]  Port number.
+// conf    [IN]  Configuration structure.
+mesa_rc mesa_port_kr_fec_get(const mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             mesa_port_kr_fec_t *const conf)
+    CAP(PORT_KR_IRQ);
 
 // Set KR FEC
 // inst    [IN]  Target instance reference.
