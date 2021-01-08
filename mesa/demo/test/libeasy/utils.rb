@@ -933,16 +933,28 @@ def qspi_rw(reg, fld = "", val = "")
     $ts.dut.run("symreg qspi_qspi_#{reg}[1]#{fld} #{val}")
 end
 
+$io_fpga_dev = nil
+
 # Intialize QSPI
 def qspi_init
     ol = "/sys/kernel/config/device-tree/overlays/tsys01"
     $ts.dut.run("mount -t configfs none /sys/kernel/config")
     $ts.dut.run("mkdir -p #{ol}")
     $ts.dut.run("sh -c 'cat /overlays/qspi_overlay.dtbo > #{ol}/dtbo'")
+
+    # Detect device (device 0 currently fails, so we count down)
+    for i in (5).downto(0) do
+        dev = "/dev/hidraw#{i}"
+        txt = $ts.pc.run("mera-iofpga-rw #{dev} read 256")[:out]
+        if (txt.include? "value:")
+            $io_fpga_dev = dev
+            break
+        end
+    end
 end
 
 def io_fpga_rw(cmd)
-    txt = $ts.pc.run("mera-iofpga-rw /dev/hidraw0 #{cmd}")[:out]
+    txt = $ts.pc.run("mera-iofpga-rw #{$io_fpga_dev} #{cmd}")[:out]
     if (cmd.include? "read")
         i = txt.index("value: ")
         if (i == nil)

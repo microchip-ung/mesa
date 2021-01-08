@@ -78,6 +78,7 @@ test_table =
         frame: [{len: 46}],
         cnt: {rx_0: 0}
     },
+
     # Profinet
     {
         txt: "pn_cc_check",
@@ -91,8 +92,9 @@ test_table =
     },
     {
         txt: "pn_ds_check_fail",
-        rtp: {pn_ds: 0x36},
-        cnt: {rx_0: 0}
+        rtp: {pn_ds: 0x36, pn_discard: true, pn_mm: 0x35},
+        cnt: {rx_0: 0},
+        ev: "PN_DS_MISMATCH"
     },
     {
         txt: "pn_ts_check_fail",
@@ -169,6 +171,7 @@ test_table =
         # IOPS at offset 4, bit 7 is valid flag
         dg: [{length: 5, vld_offs: 4, vld_chk: true, inv_def: true, str: "0102030405", data: [1,2,3,4,5]}],
         frame: [{data: "0001020300"}],
+        ev: "DG_INVALID"
     },
     {
         txt: "pn_dg_write - last valid",
@@ -184,6 +187,7 @@ test_table =
         # DataSetFlags1 at offset 15, bit 0 is valid flag
         dg: [{offs: 15, length: 5, vld_offs: 15, vld_chk: true, valid: 0xfe, str: "0102030405"}],
         frame: [{data: "0102030405"},{data: "fe01020304"}],
+        ev: "DG_INVALID"
     },
     {
         txt: "opc_dg_code",
@@ -210,7 +214,8 @@ test_table =
         txt: "rtp_timer - default",
         rtp: {wal_id: 15, wal_int: 2000000, rtp_int: 1000000, grp_id: 10},
         dg: [{length: 4, str: "01020304", data: [1,2,3,4]}],
-        frame: []
+        frame: [],
+        ev: "RTP_STATE_STOPPED"
     },
     {
         # The previous test entry stops the group used in this test
@@ -241,6 +246,12 @@ def rte_ob_test(t)
     fr = fld_get(t, :frame, [{}])
     c = t[:cnt]
 
+    # Clear events
+    ev = fld_get(t, :ev, "")
+    if (ev != "")
+        $ts.dut.call("mera_event_poll")
+    end
+
     # Add RCE mapping to RTP ID
     rce = $ts.dut.call("mesa_rce_init")
     rce["id"] = 1
@@ -262,6 +273,7 @@ def rte_ob_test(t)
     conf["length"] = fld_get(e, :length, 46)
     conf["opc_grp_ver"] = fld_get(e, :opc_grp_ver);
     conf["pn_ds"] = fld_get(e, :pn_ds, 0x35);
+    conf["pn_discard"] = fld_get(e, :pn_discard, false);
     wal_id = fld_get(e, :wal_id);
     conf["wal_enable"] = (wal_id == 0 ? false : true)
     conf["wal_id"] = wal_id
@@ -371,6 +383,19 @@ def rte_ob_test(t)
     cnt = $ts.dut.call("mera_ob_rtp_counters_get", $rtp_id)
     check_counter("rx_0", cnt["rx_0"], rx_0)
     check_counter("rx_1", cnt["rx_1"], rx_1)
+
+    # Check PN status
+    pn_mm = fld_get(e, :pn_mm)
+    if (pn_mm > 0)
+        status = $ts.dut.call("mera_ob_rtp_status_get", $rtp_id)
+        check_val_hex_u8("pn_ds", status["pn_ds"], pn_mm)
+    end
+
+    # Check event
+    if (ev != "")
+        val = $ts.dut.call("mera_event_poll")
+        check_val_str("event", val, "MERA_EVENT_" + ev)
+    end
 
     # Check data groups
     use_buf = false
