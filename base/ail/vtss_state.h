@@ -74,6 +74,10 @@
 #include "vtss_vop_state.h"
 #endif
 
+#if defined(VTSS_FEATURE_MRP)
+#include "vtss_mrp_state.h"
+#endif
+
 #if defined(VTSS_FEATURE_TIMESTAMP)
 #include "vtss_ts_state.h"
 #endif
@@ -683,6 +687,10 @@ typedef struct vtss_state_s {
 #if defined(VTSS_FEATURE_VOP)
     vtss_oam_state_t oam;
 #endif /* VTSS_FEATURE_VOP */
+
+#if defined(VTSS_FEATURE_MRP)
+    vtss_mrp_state_t mrp;
+#endif /* VTSS_FEATURE_MRP */
 
 #if defined(VTSS_FEATURE_SYNCE)
     vtss_synce_state_t synce;

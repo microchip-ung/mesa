@@ -168,6 +168,9 @@ static vtss_rc lan966x_debug_info_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VOP)
     VTSS_RC(vtss_lan966x_oam_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_VOP */
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_lan966x_mrp_debug_print(vtss_state, pr, info));
+#endif /* VTSS_FEATURE_MRP */
     return VTSS_RC_OK;
 }
 
@@ -186,6 +189,9 @@ vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 #if defined(VTSS_FEATURE_VOP)
     VTSS_RC(vtss_lan966x_oam_init(vtss_state, cmd));
+#endif
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_lan966x_mrp_init(vtss_state, cmd));
 #endif
 
     return VTSS_RC_OK;

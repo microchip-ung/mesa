@@ -532,6 +532,11 @@ typedef u32 vtss_voi_idx_t;
 
 #define VTSS_VOI_IDX_NONE 0xFFFFFFFF /**< Special value meaning no VOI (MIP) */
 
+// MRP index
+typedef uint32_t vtss_mrp_idx_t;
+
+#define VTSS_MRP_IDX_NONE 0xFFFFFFFF /**< Special value meaning no MRP */
+
 /****************************************************************************
  * QoS types
  ****************************************************************************/

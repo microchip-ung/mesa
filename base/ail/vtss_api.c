@@ -100,6 +100,9 @@ vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] =
     [VTSS_TRACE_GROUP_OAM] = {
         .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
     },
+    [VTSS_TRACE_GROUP_MRP] = {
+        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
+    },
     [VTSS_TRACE_GROUP_TS] = {
         .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
     },
@@ -410,6 +413,10 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
 #if defined(VTSS_FEATURE_VOP)
     VTSS_RC(vtss_oam_inst_create(vtss_state));
 #endif /* VTSS_FEATURE_VOP */
+
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_mrp_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_MRP */
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
     VTSS_RC(vtss_ts_inst_create(vtss_state));

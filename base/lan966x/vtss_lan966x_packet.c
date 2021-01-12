@@ -235,6 +235,34 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     return VTSS_RC_OK;
 }
 
+static u32 pdu_type_calc(vtss_packet_oam_type_t oam_type)
+{
+    switch (oam_type) {
+    case VTSS_PACKET_OAM_TYPE_CCM:      return 1;
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:  return 2;
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST: return 3;
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:  return 4;
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:  return 5;
+    default:
+        VTSS_E("Invalid oam_type (%u)", oam_type);
+    }
+    return 0;
+}
+
+static u32 seq_num_oam_calc(vtss_packet_oam_type_t oam_type, u32 chip_port)
+{
+    switch (oam_type) {
+    case VTSS_PACKET_OAM_TYPE_CCM:      return chip_port;   /* VOP sequence numbers */
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:  return VTSS_VOE_CNT + chip_port;   /* DLR sequence numbers */
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST: return (VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + chip_port;   /* MRP sequence numbers */
+    default:
+        VTSS_E("Invalid oam_type (%u)", oam_type);
+    }
+    return 0;
+}
+
 static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      const vtss_packet_tx_info_t *const info,
                                      u8                    *const ifh,
@@ -300,11 +328,9 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
             break;
         case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ:
             rew_cmd = 7;
-            IFH_SET(ifh, SEQ_NUM, (VTSS_VOE_CNT*2) + info->sequence_idx); /* Point to the sequence number update configuration. VOP got the first VTSS_VOE_CNT counter sets */
             break;
         case VTSS_PACKET_PTP_ACTION_AFI_NONE:
             rew_cmd = 12;
-            IFH_SET(ifh, SEQ_NUM, (VTSS_VOE_CNT*2) + info->sequence_idx); /* Point to the sequence number update configuration. VOP got the first VTSS_VOE_CNT counter sets */
             break;
         default:
             if (tag->tpid != 0 || tag->vid == VTSS_VID_NULL) {
@@ -318,8 +344,16 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         }
         if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             IFH_SET(ifh, REW_OAM, 1);
-            IFH_SET(ifh, PDU_TYPE, 1);  /* Only CCM pdu type is supported */
-            IFH_SET(ifh, SEQ_NUM, seq_num_chip_port); /* Point to the sequence number update configuration */
+            IFH_SET(ifh, PDU_TYPE, pdu_type_calc(info->oam_type));
+            IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
+        } else {
+            if ((info->ptp_action == VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ) ||
+                (info->ptp_action == VTSS_PACKET_PTP_ACTION_AFI_NONE)) {
+                /* The VOP and DLR requires a 32 bit counter. MRP and PT requires 16 bit sequence number */
+                /* The PTP sequence numbers are last after VOP, DLR and MRP */
+                /* In case of PTP frame the SEQ_NUM field is indexing every 16 bit field in the PTP_SEQ_NO configuration - see VML */
+                IFH_SET(ifh, SEQ_NUM, ((VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + VTSS_VOE_CNT) + info->sequence_idx);
+            }
         }
 
         // AFI

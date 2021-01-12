@@ -40,6 +40,7 @@ typedef enum
     MESA_TRACE_GROUP_MACSEC,      // MACSEC control
     MESA_TRACE_GROUP_VCAP,        // VCAP
     MESA_TRACE_GROUP_OAM,         // OAM
+    MESA_TRACE_GROUP_MRP,         // MRP
     MESA_TRACE_GROUP_TS,          // Timestamping
     MESA_TRACE_GROUP_CLOCK,       // Synce Clock
     MESA_TRACE_GROUP_EMUL,        // Emulation
@@ -164,6 +165,7 @@ typedef enum {
     MESA_DEBUG_GROUP_HQOS,      // Hierarchical Quality of Service
     MESA_DEBUG_GROUP_VXLAT,     // VLAN Translation
     MESA_DEBUG_GROUP_OAM,       // OAM, incl. VOEs/VOP
+    MESA_DEBUG_GROUP_MRP,       // MRP
     MESA_DEBUG_GROUP_SER_GPIO,  // Serial GPIO configuration
     MESA_DEBUG_GROUP_L3,        // L3 services
     MESA_DEBUG_GROUP_AFI,       // Automatic Frame Injector

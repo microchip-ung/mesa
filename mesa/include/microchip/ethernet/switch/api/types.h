@@ -152,6 +152,11 @@ typedef uint32_t mesa_voi_idx_t;
 
 #define MESA_VOI_IDX_NONE 0xFFFFFFFF // Special value meaning no VOI (MIP)
 
+// MRP index
+typedef uint32_t mesa_mrp_idx_t;
+
+#define MESA_MRP_IDX_NONE 0xFFFFFFFF // Special value meaning no MRP
+
 /****************************************************************************
  * QoS types
  ****************************************************************************/

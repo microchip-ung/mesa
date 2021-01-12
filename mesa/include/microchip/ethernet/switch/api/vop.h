@@ -58,7 +58,7 @@
 // --- VOP - Versatile OAM Processor ---------------------------------------
 // -------------------------------------------------------------------------
 
-// VOP configuration. Once the VOP is configured, VOEs can be configured.
+// VOP configuration. Once the VOP is configured, VOEs and MRPs (see mrp.h) can be configured.
 typedef struct {
     mesa_mac_t  multicast_dmac;     // Common MC DMAC for all VOEs
 
@@ -82,7 +82,8 @@ typedef struct {
     mesa_packet_rx_queue_t  voe_queue_lbr CAP(VOP_CFM);
     mesa_packet_rx_queue_t  voe_queue_aps CAP(VOP_CFM); // LAPS and RAPS
     mesa_packet_rx_queue_t  voe_queue_err;
-    mesa_packet_rx_queue_t  voi_queue   CAP(VOP_V2);
+    mesa_packet_rx_queue_t  voi_queue     CAP(VOP_V2);
+    mesa_packet_rx_queue_t  mrp_queue     CAP(VOP_MRP);
 } mesa_vop_conf_t CAP(VOP);
 
 // Set VOP configuration.

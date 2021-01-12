@@ -95,6 +95,8 @@ MC_STRING_INV = "01:80:C3:00:00:30"
 UC_STRING = "00:00:00:00:05:06"
 UC_STRING_INV = "00:00:00:04:05:06"
 SC_STRING = "00:00:00:00:05:07"
+MC_TEST = "01:15:4E:00:00:01"
+MC_CONTROL = "01:15:4E:00:00:02"
 
 $cap_event_supported = 0
 $cap_oam_v1 = false
@@ -120,6 +122,7 @@ def vop_config(cpu_queue)
     conf["voe_queue_aps"] = cpu_queue
     conf["voe_queue_err"] = cpu_queue
     conf["voi_queue"] = cpu_queue
+    conf["mrp_queue"] = cpu_queue
 
     $ts.dut.call("mesa_vop_conf_set", conf)
     end
@@ -506,6 +509,26 @@ def ccm_pdu_create(level, period, sequence, mepid, megid, rdi=0, version=0, tlv=
     return $ccm_pdu
 end
 
+def mrp_tst_pdu_create(sequence=0)
+    $pdu = ""
+
+    test "mrp_tst_pdu_create  sequence #{sequence}" do
+    $pdu = "mrp_tst c_seq_num #{sequence} "
+    end
+
+    return $pdu
+end
+
+def mrp_mrp_pdu_create(sequence=0)
+    $pdu = ""
+
+    test "mrp_mrp_pdu_create" do
+    $pdu = "mrp_prop "
+    end
+
+    return $pdu
+end
+
 def unexpected_pdu_create(level, opcode, version=0)
     $lb_pdu = ""
 
@@ -572,7 +595,7 @@ def lt_pdu_create(level, opcode, trans_id)
     return $lt_pdu
 end
 
-def frame_create(dmac, smac, vid=0, pcp=0)
+def frame_create(dmac, smac, vid=0, pcp=0, type="oam")
     $frame = ""
 
     test "frame_create.  dmac = #{dmac}  smac = #{smac}  vid = #{vid}  pcp = #{pcp}" do
@@ -583,7 +606,12 @@ def frame_create(dmac, smac, vid=0, pcp=0)
         $frame += " ctag vid #{vid} pcp #{pcp}"
     end
 
-    $frame += " et 0x8902 "
+    if (type == "oam")
+        $frame += " et 0x8902 "
+    end
+    if (type == "mrp")
+        $frame += " et 0x88E3 "
+    end
     end
 
     $frame

@@ -297,5 +297,11 @@ vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
 
+// MRP API
+vtss_rc vtss_lan966x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_lan966x_mrp_debug_print(vtss_state_t *vtss_state,
+                                     const vtss_debug_printf_t pr,
+                                     const vtss_debug_info_t   *const info);
+
 #endif /* VTSS_ARCH_LAN966X */
 #endif /* _VTSS_MAS_CIL_H_ */

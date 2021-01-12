@@ -181,6 +181,7 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_HQOS]      = "hqos",
     [MESA_DEBUG_GROUP_VXLAT]     = "vxlat",
     [MESA_DEBUG_GROUP_OAM]       = "oam",
+    [MESA_DEBUG_GROUP_MRP]       = "mrp",
     [MESA_DEBUG_GROUP_SER_GPIO]  = "sgpio",
     [MESA_DEBUG_GROUP_L3]        = "l3",
     [MESA_DEBUG_GROUP_AFI]       = "afi",

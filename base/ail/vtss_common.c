@@ -319,6 +319,9 @@ static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
 #if defined(VTSS_FEATURE_VOP)
     [VTSS_DEBUG_GROUP_OAM]       = "OAM",
 #endif
+#if defined(VTSS_FEATURE_MRP)
+    [VTSS_DEBUG_GROUP_MRP]       = "MRP",
+#endif
 #if defined(VTSS_FEATURE_LAYER3)
     [VTSS_DEBUG_GROUP_L3]        = "L3",
 #endif /* VTSS_FEATURE_LAYER3 */
@@ -431,6 +434,9 @@ static void vtss_debug_print_init(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_CLOCK */
 #if defined(VTSS_FEATURE_VOP)
     pr("OAM Size   : %zu\n", sizeof(vtss_state->oam));
+#endif /* VTSS_FEATURE_VOP */
+#if defined(VTSS_FEATURE_MRP)
+    pr("MRP Size   : %zu\n", sizeof(vtss_state->mrp));
 #endif /* VTSS_FEATURE_VOP */
 #if defined(VTSS_FEATURE_SYNCE)
     pr("SyncE Size : %zu\n", sizeof(vtss_state->synce));
@@ -607,6 +613,10 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_VOP)
     vtss_oam_debug_print(vtss_state, pr, info);
+#endif
+
+#if defined(VTSS_FEATURE_MRP)
+    vtss_mrp_debug_print(vtss_state, pr, info);
 #endif
 
 #if defined(VTSS_FEATURE_LAYER3)

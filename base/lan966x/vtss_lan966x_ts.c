@@ -653,7 +653,12 @@ static vtss_rc lan966x_ts_seq_cnt_get(vtss_state_t *vtss_state,  uint32_t sec_cn
     vtss_rc rc = VTSS_RC_OK;
     u32 value;
 
-    sec_cntr += (VTSS_VOE_CNT*2);    /* Point to the sequence number update configuration. VOP got the first VTSS_VOE_CNT counter sets */
+    /* Point to the sequence number update configuration for PTP. */
+    /* VOP and DLR got the first 2*VTSS_VOE_CNT counter sets as they require 32 bit */
+    /* MPR got the next VTSS_VOE_CNT/2 counter sets as they require 16 bit */
+    /* PTP requires 16 bit */
+    /* sec_cntr is calculated as a 16 bit counter offset */
+    sec_cntr += ((VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + VTSS_VOE_CNT);
     if (sec_cntr <= 255*2) {
         // read sec counter REW:PTP_SEQ_NO:PTP_SEQ_NO[0-255]
         REG_RD(REW_PTP_SEQ_NO(sec_cntr/2), &value);

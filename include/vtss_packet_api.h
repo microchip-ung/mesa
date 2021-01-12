@@ -288,6 +288,10 @@ typedef enum {
     VTSS_PACKET_OAM_TYPE_LCK,      /**< Locked Signal                                              */
     VTSS_PACKET_OAM_TYPE_MPLS_TP_1,/**< MPLS-TP (ITU G.8113.1)                                     */
     VTSS_PACKET_OAM_TYPE_MPLS_TP_2,/**< MPLS-TP (ITU G.8113.2)                                     */
+    VTSS_PACKET_OAM_TYPE_MRP_TST,  /**< MRP TST frame (IEC62439-2-2016)                            */
+    VTSS_PACKET_OAM_TYPE_MRP_ITST, /**< MRP ITST frame (IEC62439-2-2016)                           */
+    VTSS_PACKET_OAM_TYPE_DLR_BCN,  /**< DLR Beacon frame (CIP Networks Library Volume 2)           */
+    VTSS_PACKET_OAM_TYPE_DLR_ADV,  /**< MRP Advertise frame (CIP Networks Library Volume 2)        */
 } vtss_packet_oam_type_t;
 
 /**

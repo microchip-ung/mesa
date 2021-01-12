@@ -101,6 +101,9 @@ typedef struct {
 #if defined(VTSS_FEATURE_VOP_V2)
     vtss_packet_rx_queue_t  voi_queue;
 #endif
+#if defined(VTSS_FEATURE_MRP)
+    vtss_packet_rx_queue_t  mrp_queue;
+#endif
 } vtss_vop_conf_t;
 
 // Set VOP configuration.

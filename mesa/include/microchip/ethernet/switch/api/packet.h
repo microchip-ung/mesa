@@ -220,6 +220,10 @@ typedef enum {
     MESA_PACKET_OAM_TYPE_LCK,       // Locked Signal
     MESA_PACKET_OAM_TYPE_MPLS_TP_1, // MPLS-TP (ITU G.8113.1)
     MESA_PACKET_OAM_TYPE_MPLS_TP_2, // MPLS-TP (ITU G.8113.2)
+    MESA_PACKET_OAM_TYPE_MRP_TST,   // MRP TST frame (IEC62439-2-2016)
+    MESA_PACKET_OAM_TYPE_MRP_ITST,  // MRP ITST frame (IEC62439-2-2016)
+    MESA_PACKET_OAM_TYPE_DLR_BCN,   // DLR Beacon frame (CIP Networks Library Volume 2)
+    MESA_PACKET_OAM_TYPE_DLR_ADV,   // MRP Advertise frame (CIP Networks Library Volume 2)
 } mesa_packet_oam_type_t;
 
 // PTP actions used when encoding an injection header.
@@ -471,11 +475,8 @@ typedef struct {
     uint32_t pdu_offset;
 
     // On LAN966X:
-    // PTP, MRP, DLR frames are able to get automatically updated sequence numbers.
+    // PTP frames are able to get automatically updated sequence numbers.
     // There are a number of sequence number update counters. The 'sequence_idx' is a pointer to a counter.
-    // PTP and MRP requires 16 bits sequence number. CCM and DLR requires 32 bits sequence number.
-    // The 16 bits sequence number frames (PTP and MRP) are using one counter (16 bits). The valid index is 0-1-2-...
-    // The 32 bits sequence number frame (DLR) is using two counters (32 bits). The valid index is 0-2-4-...
     uint32_t sequence_idx;
 
     // Automatic Frame Injector ID (not used for Luton26).

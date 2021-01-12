@@ -105,6 +105,10 @@ static mscc_appl_trace_group_t trace_groups_ail[TRACE_GROUP_CNT] = {
         .level = MESA_TRACE_LEVEL_ERROR
     },
     {
+        .name = "mrp",
+        .level = MESA_TRACE_LEVEL_ERROR
+    },
+    {
         .name = "ts",
         .level = MESA_TRACE_LEVEL_ERROR
     },

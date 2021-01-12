@@ -86,6 +86,7 @@
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
 #define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
+#define VTSS_FEATURE_MRP                          /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #define VTSS_FEATURE_RCL                          /**< Real-time Control List */

@@ -108,29 +108,6 @@ static vtss_rc voe_counter_update(vtss_state_t         *vtss_state,
 #undef UPDATE16
 }
 
-static vtss_rc srvl_oam_vop_int_enable(vtss_state_t *vtss_state, BOOL enable)
-{
-    REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(enable), MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
-
-    return VTSS_RC_OK;
-}
-
-/* Determine VOP interrupt flag -- clear if no enabled VOEs have interrupts enabled */
-static vtss_rc oam_vop_int_update(vtss_state_t *vtss_state)
-{
-    u32 i;
-    u32 must_enable;
-
-    for (i = 0, must_enable = 0; !must_enable && i < VTSS_VOE_CNT; ++i) {
-        if (vtss_state->oam.voe_alloc_data[i].allocated) {
-            REG_RD(MEP_INTR_ENA(i), &must_enable);
-            must_enable &= 0xff;  /* Only bits 0-7 are valid */
-        }
-    }
-
-    return srvl_oam_vop_int_enable(vtss_state, must_enable ? TRUE : FALSE);
-}
-
 static vtss_rc lan966x_voe_alloc(vtss_state_t                *vtss_state,
                                  const vtss_voe_type_t       type,
                                  const vtss_port_no_t        port,
@@ -208,9 +185,6 @@ static vtss_rc lan966x_voe_free(vtss_state_t          *vtss_state,
     if ((rc = voe_default_set(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = oam_vop_int_update(vtss_state)) != VTSS_RC_OK) {
-        ret_rc = rc;
-    }
 
     return (ret_rc);
 }
@@ -235,11 +209,18 @@ static vtss_rc lan966x_vop_conf_set(vtss_state_t          *vtss_state,
     /* CPU extraction queue configuration */
     value = MEP_CPU_CFG_DEF_EXT_PORT_ENA(npi ? 1 : 0) | MEP_CPU_CFG_DEF_COPY_QU(npi ? npi_port : conf->voe_queue_ccm) |
             MEP_CPU_CFG_CPU_ERR_EXT_PORT_ENA(npi ? 1 : 0) | MEP_CPU_CFG_CPU_ERR_QU(npi ? npi_port : conf->voe_queue_err);
-
     REG_WR(MEP_CPU_CFG, value);
 
     value = MEP_CPU_CFG_1_CCM_EXT_PORT_ENA(npi ? 1: 0) | MEP_CPU_CFG_1_CCM_CPU_QU(npi ? npi_port : conf->voe_queue_ccm);
     REG_WR(MEP_CPU_CFG_1, value);
+
+    value = MEP_MRP_CPU_CFG_REM_CPU_QU(conf->mrp_queue) | MEP_MRP_CPU_CFG_OWN_CPU_QU(conf->mrp_queue) | MEP_MRP_CPU_CFG_MRP_OTHER_CPU_QU(conf->mrp_queue) |
+            MEP_MRP_CPU_CFG_MRP_TST_CPU_QU(conf->mrp_queue) | MEP_MRP_CPU_CFG_MRP_CTRL_CPU_QU(conf->mrp_queue) | MEP_MRP_CPU_CFG_MRP_ITST_CPU_QU(conf->mrp_queue) |
+            MEP_MRP_CPU_CFG_MRP_ICTRL_CPU_QU(conf->mrp_queue);
+    REG_WR(MEP_MRP_CPU_CFG, value);
+
+    /* Enable master interrupt */
+    REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(1), MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
 
     /* Enable VOP */
     value = MEP_CPU_MASK_CFG_EXT_CPU_PORTMASK(npi ? (0x01 << npi_port) : 0);
@@ -256,17 +237,11 @@ static vtss_rc lan966x_voe_event_active_get(vtss_state_t   *vtss_state,
 {
     VTSS_D("Enter  active_size %u", active_size);
 
-    u32 value;
-
     memset(active, 0, sizeof(active_size));
-    REG_RD(MEP_INTR_CTRL, &value);
-    if (MEP_INTR_CTRL_OAM_MEP_INTR_ENA_X(value) == 0) {
-        VTSS_D("No interrupts are enabled");
-        return VTSS_RC_OK;
-    }
 
     /* just scan all VOEs: */
     REG_RD(MEP_INTR, active);
+    *active = MEP_INTR_CCM_INTR_X(*active);
 
     return VTSS_RC_OK;
 }
@@ -299,7 +274,7 @@ static vtss_rc lan966x_voe_event_mask_set(vtss_state_t          *vtss_state,
     /* Write back the interrupt enable mask */
     REG_WR(MEP_INTR_ENA(voe_idx), enable_mask);
 
-    return enable_mask ? srvl_oam_vop_int_enable(vtss_state, TRUE) : oam_vop_int_update(vtss_state);
+    return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_voe_event_get(vtss_state_t          *vtss_state,
@@ -807,7 +782,7 @@ static vtss_rc lan966x_init(vtss_state_t *vtss_state)
     REG_WRM(MEP_LOC_CTRL, MEP_LOC_CTRL_BASE_TICK_CNT(value), MEP_LOC_CTRL_BASE_TICK_CNT_M);
     base_tick_ps = clk_period_in_ps * value;
 
-    /* Configure LOC periods used for CCM LOC: */
+    /* Configure LOC periods used for CCM LOC. Note that MRP is using the last five LOC timers */
     value = (3300000000 / base_tick_ps) + ((3300000000 % base_tick_ps) ? 1 : 0);
     REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)), value);
     value = (10000000000 / base_tick_ps) + ((10000000000 % base_tick_ps) ? 1 : 0);

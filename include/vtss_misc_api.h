@@ -48,6 +48,7 @@ typedef enum
     VTSS_TRACE_GROUP_MACSEC,        /**< MACSEC control */
     VTSS_TRACE_GROUP_VCAP,          /**< VCAP */
     VTSS_TRACE_GROUP_OAM,           /**< OAM */
+    VTSS_TRACE_GROUP_MRP,           /**< MRP */
     VTSS_TRACE_GROUP_TS,            /**< Timestamping */
     VTSS_TRACE_GROUP_CLOCK,         /**< Synce Clock */
     VTSS_TRACE_GROUP_EMUL,          /**< Emulation */
@@ -193,6 +194,7 @@ typedef enum {
     VTSS_DEBUG_GROUP_HQOS,      /**< Hierarchical Quality of Service */
     VTSS_DEBUG_GROUP_VXLAT,     /**< VLAN Translation */
     VTSS_DEBUG_GROUP_OAM,       /**< OAM, incl. VOEs/VOP */
+    VTSS_DEBUG_GROUP_MRP,       /**< Media Redundancy Protocol (MRP) */
     VTSS_DEBUG_GROUP_SER_GPIO,  /**< Serial GPIO configuration */
     VTSS_DEBUG_GROUP_L3,        /**< L3 services */
     VTSS_DEBUG_GROUP_AFI,       /**< Automatic Frame Injector */

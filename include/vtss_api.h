@@ -55,6 +55,10 @@
 #include <vtss_vop_api.h>
 #endif
 
+#ifdef VTSS_FEATURE_MRP
+#include <vtss_mrp_api.h>
+#endif
+
 #ifdef VTSS_FEATURE_LAYER2
 #include <vtss_l2_api.h>
 #endif

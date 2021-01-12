@@ -391,6 +391,10 @@ typedef enum {
     // Init
     MESA_CAP_INIT_CORE_CLOCK = 2100,        /**< Core Clock (LCPLL) */
 
+    // MRP
+    MESA_CAP_MRP = 2200,                    /**< Media Redundancy Protocol - IEC 62439-2 MRP */
+    MESA_CAP_MRP_CNT,                       /**< Total count of MRPs */
+
 } mesa_cap_t;
 
 typedef struct mesa_state_s *mesa_inst_t;   /**< Opaque instance */
