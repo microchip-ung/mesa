@@ -22,7 +22,7 @@ conf:
 
   # git_tag_prv points to a GIT changeset corresponding to the previous release.
   # MANDATORY.
-  git_tag_prv: origin/2020.06-soak
+  git_tag_prv: origin/2020.09-soak
 
   # git_tag_cur points to a GIT changeset corresponding to the upcoming release.
   # In general, this can be set to HEAD, but for release note generation based
@@ -36,8 +36,8 @@ conf:
   # these names are used.
   #
   # MANDATORY.
-  friendly_name_prv: MESA-2020.06
-  friendly_name_cur: MESA-2020.09
+  friendly_name_prv: MESA-2020.09
+  friendly_name_cur: MESA-2020.12
 
   # Disclaimer input file. Will be added as is between a small header and the
   # new-features section of the release note.
@@ -135,8 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
-    - MESA-663   # Bjarni hasn't moved it to "Devlopment Done"
-    - PHYAPI-872 # Issue is still open (John Haechten)
+    - MESA-698 # A work-around has been committed, not a fix.
 
   # See the 'del' section above for a description
   #
