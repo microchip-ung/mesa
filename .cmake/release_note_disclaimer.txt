@@ -53,5 +53,6 @@ This is a bug-fix release with no new features.
 SparX-5/5i / Priority Flow Control not working
 ----------------------------------------------
 
-There is a know bug causing PFC not to work for SparX-5/5i. Due to this, the PFC
+There is a known bug causing PFC not to work for SparX-5/5i. Due to this, the PFC
 feature is not advertised by the capability system.
+
