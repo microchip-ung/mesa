@@ -965,6 +965,15 @@ static mesa_rc fa_status_led_set(meba_inst_t inst,
                                   meba_led_color_t color)
 {
     mesa_rc rc = MESA_RC_ERROR;
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    /* Jira MESA-698 */
+    if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+        if (color == MEBA_LED_COLOR_RED || color == MEBA_LED_COLOR_YELLOW) {
+            color = MEBA_LED_COLOR_OFF;
+        }
+    }
+
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
         T_I(inst, "LED:%d, color=%d", type, color);
         switch (color) {
