@@ -651,8 +651,9 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 
     switch (board->type) {
         case BOARD_TYPE_SPARX5_PCB134:
-            if (gpio_events[7]) {
-                if ((rc = mesa_gpio_event_enable(NULL, 0, 7, false)) != MESA_RC_OK) {
+        case BOARD_TYPE_SPARX5_PCB135:
+            if (gpio_events[2]) {
+                if ((rc = mesa_gpio_event_enable(NULL, 0, 2, false)) != MESA_RC_OK) {
                     T_E(inst, "mesa_gpio_event_enable = %d", rc);
                 }
                 signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
@@ -1464,7 +1465,8 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
     case MEBA_EVENT_PUSH_BUTTON:
         switch (board->type) {
         case BOARD_TYPE_SPARX5_PCB134:
-            gpio = 7;
+        case BOARD_TYPE_SPARX5_PCB135:
+            gpio = 2;
             break;
 
         default:
@@ -1474,9 +1476,9 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
         if (gpio >= 0) {
             T_I(inst, "%sable Push_button(GPIO_%d) interrupt", enable ? "en" : "dis", gpio);
             // TBD_FA_IRQ
-            //if (mesa_gpio_event_enable(NULL, 0, gpio, enable) != MESA_RC_OK) {
-                //T_E(inst, "Could not control event for gpio #%d", gpio);
-            //}
+            if (mesa_gpio_event_enable(NULL, 0, gpio, enable) != MESA_RC_OK) {
+                T_E(inst, "Could not control event for gpio #%d", gpio);
+            }
         }
         break;
     case MEBA_EVENT_PTP_PIN_0:
