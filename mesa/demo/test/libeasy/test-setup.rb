@@ -272,7 +272,7 @@ class MesaDut
         call_execute cmd, "try_ignore", *args
     end
 
-    def sw_reboot
+    def sw_reboot(cnt = 10)
         @io.sysrq("b")
         @io.send "\nres\n" # in case we are in uboot
 
@@ -287,7 +287,7 @@ class MesaDut
                 redboot = true
                 break
             when /b: not found/ #in case sysrq("b") fails
-                sw_reboot
+                sw_reboot(cnt - 1) if (cnt > 0)
                 return
             when /b: command not found/ #in case sysrq("b") fails
                 @io.send "\necho 'b' > /proc/sysrq-trigger\n" # in case we are in qemu
