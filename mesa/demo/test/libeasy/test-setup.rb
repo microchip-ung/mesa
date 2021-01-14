@@ -287,7 +287,11 @@ class MesaDut
                 redboot = true
                 break
             when /b: not found/ #in case sysrq("b") fails
-                sw_reboot(cnt - 1) if (cnt > 0)
+                if (cnt > 0)
+                    sw_reboot(cnt - 1)
+                else
+                    @io.send "\nreboot\n" # if in Linux and sysrq not working
+                end
                 return
             when /b: command not found/ #in case sysrq("b") fails
                 @io.send "\necho 'b' > /proc/sysrq-trigger\n" # in case we are in qemu
