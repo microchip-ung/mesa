@@ -962,7 +962,7 @@ static tr_func_t tr_func_get(uint8_t *rom)
             return tr_1000_lx_get;
         }
     }
-    if (eth & SFP_MSA_100BASE_FX) return tr_100_fx_get;
+    if ((eth & SFP_MSA_100BASE_FX) || (eth & SFP_MSA_100BASE_LX)) return tr_100_fx_get;
     if (eth == 0 || (eth & (SFP_MSA_BASE_BX10 | SFP_MSA_BASE_PX))) {
         if (speed == 1 && rom[14] == 0x50 && rom[15] == 0xFF) {
             // This is a special SFP which is not defined in SFF-8472, but is
