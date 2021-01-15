@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# Copyright (c) 2004-2021 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
 ---
@@ -7,7 +7,7 @@ maintainer: cpj
 name: MESA-API
 description: MSCC Ethernet Switch API (MESA)
 attribution: |
-  Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
+  Copyright (c) 2004-2021 Microsemi Corporation "Microsemi".
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
