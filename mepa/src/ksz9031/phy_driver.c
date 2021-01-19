@@ -22,6 +22,8 @@
 #define VTSS_FREE(_p_)                          free(_p_)
 #define MSLEEP(sec)                             usleep(sec*1000)
 
+#define KSZ_PHY_CHIPID 0x00221622
+
 #define KSZ_2_MESA_RC(aq_rc)                    ((aq_rc == AQ_RET_OK) ? MESA_RC_OK : MESA_RC_ERROR)
 
 #define PHY_POLL        -1
@@ -361,8 +363,8 @@ meba_phy_drivers_t driver_init()
     meba_phy_drivers_t res;
     static meba_phy_driver_t ksz_drivers[1] = {};
 
-    ksz_drivers[0].id = 0;
-    ksz_drivers[0].mask = 0;
+    ksz_drivers[0].id = KSZ_PHY_CHIPID;
+    ksz_drivers[0].mask = 0xffffffff;
     ksz_drivers[0].meba_phy_driver_delete = ksz_delete;
     ksz_drivers[0].meba_phy_driver_reset = NULL;
     ksz_drivers[0].meba_phy_driver_poll = ksz_poll;
