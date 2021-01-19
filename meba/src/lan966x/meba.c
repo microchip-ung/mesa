@@ -115,6 +115,7 @@ static uint32_t lan9668_capability(meba_inst_t inst,
         case MEBA_CAP_LED_DIM_SUPPORT:
         case MEBA_CAP_BOARD_HAS_PCB107_CPLD:
         case MEBA_CAP_PCB107_CPLD_CS_VIA_MUX:
+        case MEBA_CAP_BOARD_HAS_PCB135_CPLD:
             return false;
 
         case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:      // NOTE: Capability currently not used on lan9668. Therefore, it has been set to -1
