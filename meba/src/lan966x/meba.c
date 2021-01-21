@@ -195,7 +195,81 @@ static mesa_rc lan9668_event_enable(meba_inst_t inst,
                                    meba_event_t event_id,
                                    mesa_bool_t enable)
 {
-    return MESA_RC_NOT_IMPLEMENTED;
+    mesa_rc rc = MESA_RC_OK;
+    T_I(inst, "%sable event %d  REQUIRE IMPLEMENTATION ", enable ? "en" : "dis", event_id);
+
+    switch (event_id) {
+    case MEBA_EVENT_SYNC:
+    case MEBA_EVENT_EXT_SYNC:
+    case MEBA_EVENT_EXT_1_SYNC:
+    case MEBA_EVENT_CLK_ADJ:
+    case MEBA_EVENT_VOE:
+    case MEBA_EVENT_LOS:
+    case MEBA_EVENT_KR:
+    case MEBA_EVENT_FLNK: // Phy link down event
+        return rc;    // Dummy for now
+
+    default:
+        return MESA_RC_NOT_IMPLEMENTED;    // Will occur as part of probing
+    }
+
+    return rc;
+
+}
+
+
+static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
+{
+    mesa_rc        rc;
+    int            handled = 0;
+    mesa_bool_t    sgpio_events[MESA_SGPIO_PORTS];
+    mesa_port_no_t port_no;
+
+    // Chip_no == 0, Group == 0 and bit == 0)
+    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events)) != MESA_RC_OK) {
+        T_E(inst, "mesa_sgpio_event_poll = %d", rc);
+        return rc;
+    }
+
+    // Poll SGPIO LOS from SFP ports
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+    }
+
+    return handled ? MESA_RC_OK : MESA_RC_ERROR;
+}
+
+static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
+{
+    return  MESA_RC_ERROR;
+}
+
+static mesa_rc dev_all_handler(meba_inst_t inst,
+                               meba_board_state_t *board,
+                               meba_event_signal_t signal_notifier)
+{
+    mesa_dev_all_event_type_t  dev_all_events[MESA_CAP(MESA_CAP_PORT_CNT)];
+    mesa_port_no_t port_no;
+    int handled = 0;
+
+    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) != MESA_RC_OK) {
+        T_E(inst, "mesa_dev_all_event_poll failed");
+        return MESA_RC_ERROR;
+    }
+
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        if (dev_all_events[port_no] & MESA_DEV_ALL_LINK_EV) {
+            T_I(inst, "DEV %d intr", port_no);
+            if (mesa_dev_all_event_enable(NULL, port_no, dev_all_events[port_no], false) != MESA_RC_OK) {
+                T_E(inst, "mesa_dev_all_event_enable failed");
+            }
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                T_D(inst, "port(%d) PHY IRQ handled", port_no);
+                handled++;
+            }
+        }
+    }
+
+    return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
 
@@ -203,12 +277,45 @@ static mesa_rc lan9668_irq_handler(meba_inst_t inst,
                                mesa_irq_t chip_irq,
                                meba_event_signal_t signal_notifier)
 {
+    meba_board_state_t *board = INST2BOARD(inst);
+    T_I(inst, "Called - irq %d", chip_irq);
+
+    switch (chip_irq) {
+        case MESA_IRQ_PTP_SYNC:
+            return meba_generic_ptp_handler(inst, signal_notifier);
+        case MESA_IRQ_PTP_RDY:
+            signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
+            return MESA_RC_OK;
+        case MESA_IRQ_OAM:
+            signal_notifier(MEBA_EVENT_VOE, 0);
+            return MESA_RC_OK;
+        case MESA_IRQ_SGPIO:
+            return sgpio_handler(inst, board, signal_notifier);
+        case MESA_IRQ_EXT0:
+            return ext0_handler(inst, board, signal_notifier);
+        case MESA_IRQ_DEV_ALL:
+            return dev_all_handler(inst, board, signal_notifier);
+        default:;
+    }
+
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
+
 static mesa_rc lan9668_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
 {
-    return MESA_RC_NOT_IMPLEMENTED;
+    mesa_rc rc = MESA_RC_NOT_IMPLEMENTED;
+    switch (chip_irq) {
+        case MESA_IRQ_PTP_SYNC:
+        case MESA_IRQ_PTP_RDY:
+        case MESA_IRQ_OAM:
+        case MESA_IRQ_SGPIO:
+        case MESA_IRQ_EXT0:
+        case MESA_IRQ_DEV_ALL:
+            rc = MESA_RC_OK;
+        default:;
+    }
+    return rc;
 }
 
 meba_inst_t meba_initialize(size_t callouts_size,
