@@ -1769,7 +1769,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(pause_start) |
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(pause_stop) |
-            VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(1), // JIRA APPL-2649
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(0),
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_START |
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_STOP |
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA); // enabled after reset
@@ -2333,6 +2333,11 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
     }
 
+    /* Enable flowcontrol - must be done after the port is enabled */
+    if (conf->flow_control.generate) {
+        REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
+    }
+
     /* Setup QoS - out of reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
 
@@ -2524,6 +2529,11 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
     } else {
         /* Disable the  serdes (not supported) */
+    }
+
+    /* Enable flowcontrol - must be done after the port is enabled */
+    if (conf->flow_control.generate) {
+        REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
     }
 
     /* Setup QoS - out of reset */
