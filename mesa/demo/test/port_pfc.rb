@@ -36,8 +36,8 @@ $frame_dmac    = "00:00:00:00:00:02"
 $pause_dmac    = "01:80:C2:00:00:01"
 $pause_etype   = 0x8808
 $frame_size    = 1518
-$num_of_frames = 10000
-$num_of_pause  = 5000
+$num_of_frames = 20000
+$num_of_pause  = 10000
 $test_list     = [
                   { port_conf_pfc:[1,0,0,0,0,0,0,0], data_frame_pcp: 0, pause_frame_pfc:[1,0,0,0,0,0,0,0]}, # PFC 0 active
                   { port_conf_pfc:[1,1,0,0,0,0,0,0], data_frame_pcp: 1, pause_frame_pfc:[1,1,0,0,0,0,0,0]}, # PFC 0 active
