@@ -25,6 +25,15 @@ typedef struct meba_board_state {
     meba_port_entry_t     *entry;
 } meba_board_state_t;
 
+static const meba_ptp_rs422_conf_t lan9668_rs422_conf = {
+    .gpio_rs422_1588_mstoen = (15<<8)+1,
+    .gpio_rs422_1588_slvoen = (15<<8)+0,
+    .ptp_pin_ldst           = 2,
+    .ptp_pin_ppso           = 0,
+    .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_0,
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
+};
+
 /* --------------------------- Board specific ------------------------------- */
 
 // NB: No SFP support!
@@ -84,6 +93,16 @@ static void lan9668_sunrise_init_porttable(meba_inst_t inst)
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         port_entry_map(&board->entry[port_no], &port_table_sunrise[port_no]);
     }
+}
+
+static mesa_rc lan9668_ptp_rs422_conf_get(meba_inst_t inst,
+        meba_ptp_rs422_conf_t *conf)
+{
+    mesa_rc rc = MESA_RC_OK;
+    //meba_board_state_t *board = INST2BOARD(inst);
+    T_I(inst, "IMPLEMENTATION OF rs422_conf requires check/update to actual MASERATI hardware properties.");
+    *conf = lan9668_rs422_conf;
+    return rc;
 }
 
 /* ---------------------------   Exposed API  ------------------------------- */
@@ -371,6 +390,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_irq_requested              = lan9668_irq_requested;
     inst->api.meba_event_enable               = lan9668_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
+    inst->api.meba_ptp_rs422_conf_get         = lan9668_ptp_rs422_conf_get;
 
     return inst;
 
