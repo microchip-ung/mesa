@@ -799,6 +799,33 @@ static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
+{
+    vtss_port_no_t port_no;
+    vtss_port_sgpio_map_t *sd_map;
+    u32 bit_index;
+    BOOL ena;
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        sd_map = &vtss_state->port.map[port_no].sd_map;
+        if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
+            continue;
+        }
+        ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
+        REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG,
+                VTSS_F_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL(ena),
+                VTSS_M_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL);
+
+        if (!ena) {
+            return VTSS_RC_OK;
+        }
+        bit_index = sd_map->group * 32 * 4 + sd_map->port * 4 + sd_map->bit;
+        REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
+    }
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_sgpio_event_poll(vtss_state_t             *vtss_state,
                                     const vtss_chip_no_t     chip_no,
                                     const vtss_sgpio_group_t group,
@@ -1109,6 +1136,8 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
     } else if (cmd == VTSS_INIT_CMD_INIT) {
         VTSS_RC(fa_sgpio_init(vtss_state));
+    } else if (cmd == VTSS_INIT_CMD_PORT_MAP) {
+        VTSS_RC(fa_sgpio_sd_map_set(vtss_state));
     }
 
     return VTSS_RC_OK;

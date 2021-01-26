@@ -175,6 +175,29 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         }
         entry->map.max_bw          = bw;
         entry->mac_if              = if_type;
+        if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+            // Due to a hardware bug in PCB134, the SFP SD is connected to the wrong SGPIO bit.
+            // The 'SD to SGPIO' needs remapping as follows (for dev12-15, dev48-63):
+            // dev12 --> [SGPIO2, port 11, bit 1],
+            // ...
+            // dev63 --> [SGPIO2, port 30, bit 1]
+            entry->map.sd_map.action   = MESA_SD_SGPIO_MAP_ENABLE;
+            entry->map.sd_map.group    = 2;
+            entry->map.sd_map.port     = port_no < 16 ? (11 + (port_no - 12)) : 11 + (port_no - 48 + 4);
+            entry->map.sd_map.bit      = 1;
+        } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+            // Per default the device SD is mapped to SGPIO1
+            // On PCB135 the SFP SD is connected to SGPIO2.
+            // Therefore a new mapping is needed (for dev12-15, dev48-63):
+            // dev12 --> [SGPIO2, port 12, bit 0],
+            // ...
+            // dev63 --> [SGPIO2, port 31, bit 0]
+            entry->map.sd_map.action   = MESA_SD_SGPIO_MAP_ENABLE;
+            entry->map.sd_map.group    = 2;
+            entry->map.sd_map.port     = port_no < 16 ? (12 + (port_no - 12)) : 12 + (port_no - 48 + 4);
+            entry->map.sd_map.bit      = 0;
+        }
+
     } else if (if_type == MESA_PORT_INTERFACE_SGMII) {
         // NPI port
         entry->map.chip_port       = 64;
@@ -185,9 +208,7 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
     }
     entry->cap &= ~MEBA_PORT_CAP_SD_INTERNAL; // Signal detect (LOS) comes from SFP module (and not from Serdes)
-    if (board->type == BOARD_TYPE_SPARX5_PCB134) {
-        entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed (only needed due to a PCB134 board bug)
-    }
+    entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed
 }
 
 static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
@@ -485,32 +506,10 @@ static void fa_pcb134_board_init(meba_inst_t inst)
         (void)mesa_sgpio_conf_set(NULL, 0, 2, &conf);
     }
 
-    // Due to the same hardware bug as above the Signal Detect (LOS) from the
-    // SFP modules cannot be used as an input into the PCS as the bit position
-    // has changed from default.
-    // Therefore we need to manually map the LOS bit into the correct device.
-    // There is no API for this therefore we write directly to the hw.
-    uint32_t addr;
-    // Register:   VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG:SD_MAP_SEL(1)
-    (void)inst->iface.reg_write(0, 0x4000000 + 0x404005, 0x1);
-    for (uint32_t port = 0; port < 20; port++) {
-        // ctrl [1-3], port [1-32], bit [1-4]
-        // Mapping: DEV12->p11b1 : sgpio(ctrl,port,bit) = sgpio(2,11,2) = (ctrl-1)*32*4 + (port-1)*4 + bit
-        uint32_t val = 2 * 32 * 4 + (11 + port) * 4 + 1;
-        if (port < 4) {
-            addr = port + 0x404012 + 0x4000000;
-        } else {
-            addr = port + 0x404032 + 0x4000000;
-        }
-        // Register: VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(dev):SGPIO_TO_SD_SEL(val)
-        (void)inst->iface.reg_write(0, addr, val);
-    }
-
     /* Turn on the Status LED to RED */
     mesa_gpio_direction_set(NULL, 0, STATUSLED_G_GPIO, true);
     mesa_gpio_direction_set(NULL, 0, STATUSLED_R_GPIO, true);
     inst->api.meba_status_led_set(inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_RED);
-
 }
 
 static mesa_bool_t port_activity(meba_inst_t inst,

@@ -83,17 +83,35 @@ typedef enum
     MESA_BW_UNDEFINED,   // Undefined
 } mesa_internal_bw_t;
 
+// Enable/disable SD-to-SGPIO mapping */
+typedef enum
+{
+    MESA_SD_SGPIO_MAP_IGNORE,   /**< No mapping as default */
+    MESA_SD_SGPIO_MAP_ENABLE,   /**< Enable and use mapping  */
+    MESA_SD_SGPIO_MAP_DISABLE,  /**< Disable mapping globally */
+} mesa_sd_sgpio_action_t;
+
+// Signal detect mapping to SGPIO group/port/bit
+typedef struct
+{
+    mesa_sd_sgpio_action_t action; // Enable mapping
+    mesa_sgpio_group_t     group;  // SGPIO group (0-2)
+    uint32_t               port;   // SGPIO port (0-31)
+    uint32_t               bit;    // SGPIO bit (0-3)
+} mesa_port_sgpio_map_t;
+
 #define CHIP_PORT_UNUSED -1 // Signifies an unused chip port
 
 // Port map structure
 typedef struct
 {
-    int32_t                chip_port;           // Set to -1 if not used
-    mesa_chip_no_t         chip_no;             // Chip number, multi-chip targets
-    mesa_internal_bw_t     max_bw CAP(PORT_BW); // Max internal bandwidth reserved for the port
-    mesa_miim_controller_t miim_controller;     // MII management controller
-    uint8_t                miim_addr;           // PHY address, ignored for MESA_MIIM_CONTROLLER_NONE
-    mesa_chip_no_t         miim_chip_no;        // MII management chip number, multi-chip targets
+    int32_t                chip_port;             // Set to -1 if not used
+    mesa_chip_no_t         chip_no;               // Chip number, multi-chip targets
+    mesa_internal_bw_t     max_bw CAP(PORT_BW);   // Max internal bandwidth reserved for the port
+    mesa_miim_controller_t miim_controller;       // MII management controller
+    uint8_t                miim_addr;             // PHY address, ignored for MESA_MIIM_CONTROLLER_NONE
+    mesa_chip_no_t         miim_chip_no;          // MII management chip number, multi-chip targets
+    mesa_port_sgpio_map_t  sd_map CAP(SGPIO_MAP); // PCS signal detect to SGPIO bit map
 } mesa_port_map_t;
 
 // Set port map.
@@ -612,7 +630,7 @@ typedef struct {
     mesa_bool_t       active;                         // Aneg is running
     mesa_port_speed_t speed_req;                      // Speed negotiated (needs to be configured)
     mesa_bool_t       request_fec_change;             // FEC state change is negotiated (needs to be configured)
-    mesa_bool_t       r_fec_enable;                   // Base-R-FEC (Clause 74) is negotiated 
+    mesa_bool_t       r_fec_enable;                   // Base-R-FEC (Clause 74) is negotiated
     mesa_bool_t       rs_fec_enable CAP(PORT_KR_IRQ); // Base-RS-FEC (Clause 108) is negotiated
     uint32_t          sm;                             // (debug) Aneg state machine
     uint32_t          hist          CAP(PORT_KR_IRQ); // (debug) Aneg history
@@ -666,9 +684,9 @@ typedef struct {
 typedef struct {
     mesa_bool_t enable;                        // Enable KR training, BER method used
     mesa_bool_t no_remote   CAP(PORT_KR_IRQ);  // Do not train remote, only local
-    mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ);  // Use BER count instead of eye height 
+    mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ);  // Use BER count instead of eye height
     mesa_bool_t test_mode   CAP(PORT_KR_IRQ);  // Debug only
-    uint32_t test_repeat    CAP(PORT_KR_IRQ);  // Debug only 
+    uint32_t test_repeat    CAP(PORT_KR_IRQ);  // Debug only
 } mesa_port_kr_train_t      CAP(PORT_KR);
 
 // KR configuration structures
@@ -744,7 +762,7 @@ typedef enum {
     MESA_TR_SEND_DATA,
     MESA_TR_TRAINING_FAILURE,
     MESA_TR_LINK_READY
-} mesa_train_state_t CAP(PORT_KR_IRQ); 
+} mesa_train_state_t CAP(PORT_KR_IRQ);
 
 typedef enum {
     MESA_BER_GO_TO_MIN,
@@ -815,7 +833,7 @@ typedef struct {
     mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
 } mesa_port_kr_fec_t CAP(PORT_KR_IRQ);
 
-// KR eye info 
+// KR eye info
 typedef struct {
     uint32_t height;
 } mesa_port_kr_eye_dim_t CAP(PORT_KR_IRQ);
@@ -838,7 +856,7 @@ mesa_rc mesa_port_kr_fec_set(const mesa_inst_t inst,
                              const mesa_port_kr_fec_t *const conf)
     CAP(PORT_KR_IRQ);
 
-// Apply KR interrupts 
+// Apply KR interrupts
 // port_no [IN]  Port number.
 // irq    [IN]  interrupt id.
 mesa_rc mesa_port_kr_irq_apply(const mesa_inst_t inst,

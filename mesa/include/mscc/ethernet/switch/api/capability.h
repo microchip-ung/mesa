@@ -45,6 +45,7 @@ typedef enum {
     MESA_CAP_MISC_CPU_TYPE,                 /**< CPU type */
     MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC,   /**< Local oscillator is controlled by DAC */
     MESA_CAP_MISC_SWITCH_BW,                /**< Max switching Bandwidth in Gbps */
+    MESA_CAP_MISC_SGPIO_MAP,                /**< SGPIO to Signal detect map */
 
     // Port
     MESA_CAP_PORT_CNT = 100,                /**< Maximum number of ports */

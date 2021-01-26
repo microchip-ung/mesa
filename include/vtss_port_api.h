@@ -47,6 +47,23 @@ typedef enum
     VTSS_BW_UNDEFINED,   /**< Undefined */
 } vtss_internal_bw_t;
 
+/** \brief Enable/disable SD-to-SGPIO mapping */
+typedef enum
+{
+    VTSS_SD_SGPIO_MAP_IGNORE,   /**< No mapping as default */
+    VTSS_SD_SGPIO_MAP_ENABLE,   /**< Enable and use mapping  */
+    VTSS_SD_SGPIO_MAP_DISABLE,  /**< Disable mapping globally */
+} vtss_sd_sgpio_action_t;
+
+/** \brief Signal detect mapping to SGPIO group/port/bit */
+typedef struct
+{
+    vtss_sd_sgpio_action_t action; /**< Enable mapping */
+    vtss_sgpio_group_t     group;  /**< SGPIO group (0-2) */
+    u32                    port;   /**< SGPIO port (0-31) */
+    u32                    bit;    /**< SGPIO bit (0-3) */
+} vtss_port_sgpio_map_t;
+
 #define CHIP_PORT_UNUSED -1 /**< Signifies an unused chip port */
 
 /** \brief Port map structure */
@@ -60,6 +77,9 @@ typedef struct
     vtss_miim_controller_t miim_controller;  /**< MII management controller */
     u8                     miim_addr;        /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
     vtss_chip_no_t         miim_chip_no;     /**< MII management chip number, multi-chip targets */
+#if defined(VTSS_ARCH_SPARX5)
+    vtss_port_sgpio_map_t  sd_map;           /**< PCS signal detect to SGPIO bit map */
+#endif /*VTSS_ARCH_SPARX5 */
 } vtss_port_map_t;
 
 /**
