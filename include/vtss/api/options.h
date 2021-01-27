@@ -41,7 +41,7 @@
 // #define VTSS_FEATURE_VSTAX                       /**< VStaX stacking */
 // #define VTSS_FEATURE_VSTAX_V2                    /**< VStaX stacking, as implemented on Jaguar2 (VStaX2/AF) */
 // #define VTSS_FEATURE_PORT_MUX                    /**< Port mux between serdes blocks and ports */
-// #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */ /* APPL-2649 */
+#define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
