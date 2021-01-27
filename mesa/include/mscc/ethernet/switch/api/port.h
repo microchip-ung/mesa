@@ -6,6 +6,7 @@
 #define _MSCC_ETHERNET_SWITCH_API_PORT_
 
 #include <mscc/ethernet/switch/api/types.h>
+#include <mscc/ethernet/switch/api/misc.h>       // For mesa_sgpio_group_t
 #include <mscc/ethernet/switch/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // Port speed
