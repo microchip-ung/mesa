@@ -440,6 +440,9 @@ vtss_rc vtss_jr2_ts_debug_print(vtss_state_t *vtss_state,
                                    (port - VTSS_PORT_10G_START) + 2) * (VTSS_TO_XGANA_1 - VTSS_TO_XGANA_0)))
 #define VTSS_TO_10G_XFI_TGT(port)  (VTSS_TO_XGXFI_0 + ((VTSS_PORT_IS_1G(port) ? (port - 7) : \
                                    (port - VTSS_PORT_10G_START) + 2) * (VTSS_TO_XGXFI_1 - VTSS_TO_XGXFI_0)))
+#define VTSS_TO_10G_KR_DEV1_TGT(port)  (VTSS_TO_XGKR0_2 + ((port - VTSS_PORT_10G_START) * (VTSS_TO_XGKR0_3 - VTSS_TO_XGKR0_2)))
+#define VTSS_TO_10G_KR_DEV7_TGT(port)  (VTSS_TO_XGKR1_2 + ((port - VTSS_PORT_10G_START) * (VTSS_TO_XGKR1_3 - VTSS_TO_XGKR1_2)))
+#define VTSS_TO_10G_PCS10G_BR(port)  (VTSS_TO_PCS10G_BR_0 + ((port - VTSS_PORT_10G_START) * (VTSS_TO_PCS10G_BR_1 - VTSS_TO_PCS10G_BR_0)))
 #else
 #define VTSS_TO_10G_APC_TGT(port)  (VTSS_TO_XGDIG_0 + ((port - VTSS_PORT_10G_START) * (VTSS_TO_XGDIG_1 - VTSS_TO_XGDIG_0)))
 #define VTSS_TO_10G_SRD_TGT(port)  (VTSS_TO_XGANA_0 + ((port - VTSS_PORT_10G_START) * (VTSS_TO_XGANA_1 - VTSS_TO_XGANA_0)))

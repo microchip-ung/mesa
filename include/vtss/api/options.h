@@ -177,7 +177,6 @@
 #if defined(VTSS_ARCH_JAGUAR_2_C)
 #define VTSS_ARCH_JAGUAR_2                       /**< Jaguar-2 architecture */
 #define VTSS_FEATURE_10G                         /**< 10G ports */
-#define VTSS_FEATURE_PORT_KR                     /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). JR2-C version.  */
 #define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER        /**< QoS: Has CPU queue shaper */
 #endif /* VTSS_ARCH_JAGUAR_2_C */
 
@@ -204,6 +203,7 @@
 #define VTSS_FEATURE_MISC                        /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                 /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                /**< Port control */
+#define VTSS_FEATURE_PORT_KR                     /**< 10GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). JR2/Serval-t HW version.  */
 #define VTSS_FEATURE_PORT_IFH                    /**< Port IFH control */
 #define VTSS_FEATURE_CLAUSE_37                   /**< IEEE 802.3 clause 37 auto-negotiation */
 #define VTSS_FEATURE_EXC_COL_CONT                /**< Excessive collision continuation */
