@@ -799,6 +799,7 @@ static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+/* PCS signal detect to SGPIO bit mapping  */
 static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
 {
     vtss_port_no_t port_no;
@@ -811,6 +812,7 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
         if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
             continue;
         }
+        /* Enable/disable mapping globally */
         ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
         REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG,
                 VTSS_F_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL(ena),
@@ -819,6 +821,8 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
         if (!ena) {
             return VTSS_RC_OK;
         }
+        /* Each device can be mapped to any of the bit in the SGPIOs which consist of:
+           3 groups, 32 ports in each group and 4 bits for each port = 384 bits */
         bit_index = sd_map->group * 32 * 4 + sd_map->port * 4 + sd_map->bit;
         REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
     }
