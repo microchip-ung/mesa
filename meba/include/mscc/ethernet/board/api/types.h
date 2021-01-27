@@ -324,54 +324,62 @@ typedef struct {
     mesa_bool_t  present;    // SFP module present
 } meba_sfp_status_t;
 
-#define MEBA_PORT_CAP_NONE              0x00000000
-#define MEBA_PORT_CAP_AUTONEG           0x00000001
-#define MEBA_PORT_CAP_10M_HDX           0x00000002
-#define MEBA_PORT_CAP_10M_FDX           0x00000004
-#define MEBA_PORT_CAP_100M_HDX          0x00000008
-#define MEBA_PORT_CAP_100M_FDX          0x00000010
-#define MEBA_PORT_CAP_1G_FDX            0x00000020
-#define MEBA_PORT_CAP_2_5G_FDX          0x00000040
-#define MEBA_PORT_CAP_5G_FDX            0x00000080
-#define MEBA_PORT_CAP_10G_FDX           0x00000100
-#define MEBA_PORT_CAP_25G_FDX           0x00000200
-#define MEBA_PORT_CAP_FLOW_CTRL         0x00001000
-#define MEBA_PORT_CAP_COPPER            0x00002000
-#define MEBA_PORT_CAP_FIBER             0x00004000
+#define MEBA_PORT_CAP_NONE              0x000000000
+#define MEBA_PORT_CAP_AUTONEG           0x000000001
+#define MEBA_PORT_CAP_10M_HDX           0x000000002
+#define MEBA_PORT_CAP_10M_FDX           0x000000004
+#define MEBA_PORT_CAP_100M_HDX          0x000000008
+#define MEBA_PORT_CAP_100M_FDX          0x000000010
+#define MEBA_PORT_CAP_1G_FDX            0x000000020
+#define MEBA_PORT_CAP_2_5G_FDX          0x000000040
+#define MEBA_PORT_CAP_5G_FDX            0x000000080
+#define MEBA_PORT_CAP_10G_FDX           0x000000100
+#define MEBA_PORT_CAP_25G_FDX           0x000000200
+#define MEBA_PORT_CAP_FLOW_CTRL         0x000001000
+#define MEBA_PORT_CAP_COPPER            0x000002000
+#define MEBA_PORT_CAP_FIBER             0x000004000
 
 // Dual media, copper preferred
-#define MEBA_PORT_CAP_DUAL_COPPER       0x00008000
+#define MEBA_PORT_CAP_DUAL_COPPER       0x000008000
 
 // Dual media, fiber preferred
-#define MEBA_PORT_CAP_DUAL_FIBER        0x00010000
+#define MEBA_PORT_CAP_DUAL_FIBER        0x000010000
 
-#define MEBA_PORT_CAP_SD_ENABLE         0x00020000
-#define MEBA_PORT_CAP_SD_HIGH           0x00040000
-#define MEBA_PORT_CAP_SD_INTERNAL       0x00080000
-#define MEBA_PORT_CAP_XAUI_LANE_FLIP    0x00200000
-#define MEBA_PORT_CAP_VTSS_10G_PHY      0x00400000
-#define MEBA_PORT_CAP_SFP_DETECT        0x00800000
-#define MEBA_PORT_CAP_STACKING          0x01000000
+#define MEBA_PORT_CAP_SD_ENABLE         0x000020000
+#define MEBA_PORT_CAP_SD_HIGH           0x000040000
+#define MEBA_PORT_CAP_SD_INTERNAL       0x000080000
+#define MEBA_PORT_CAP_XAUI_LANE_FLIP    0x000200000
+#define MEBA_PORT_CAP_VTSS_10G_PHY      0x000400000
+#define MEBA_PORT_CAP_SFP_DETECT        0x000800000
+#define MEBA_PORT_CAP_STACKING          0x001000000
 
 // Auto detect the SFP module for dual media
-#define MEBA_PORT_CAP_DUAL_SFP_DETECT   0x02000000
+#define MEBA_PORT_CAP_DUAL_SFP_DETECT   0x002000000
 
 // SFP only port (not dual media)
-#define MEBA_PORT_CAP_SFP_ONLY          0x04000000
+#define MEBA_PORT_CAP_SFP_ONLY          0x004000000
 
 // SFP copper not supported in dual media
-#define MEBA_PORT_CAP_DUAL_NO_COPPER    0x08000000
-#define MEBA_PORT_CAP_SERDES_RX_INVERT  0x10000000
-#define MEBA_PORT_CAP_SERDES_TX_INVERT  0x20000000
+#define MEBA_PORT_CAP_DUAL_NO_COPPER    0x008000000
+#define MEBA_PORT_CAP_SERDES_RX_INVERT  0x010000000
+#define MEBA_PORT_CAP_SERDES_TX_INVERT  0x020000000
 
 // Connected to internal PHY
-#define MEBA_PORT_CAP_INT_PHY           0x40000000
+#define MEBA_PORT_CAP_INT_PHY           0x040000000
 
 // Force mode is unsupported
-#define MEBA_PORT_CAP_NO_FORCE          0x80000000
+#define MEBA_PORT_CAP_NO_FORCE          0x080000000
 
 // CPU port
-#define MEBA_PORT_CAP_CPU             0x0100000000
+#define MEBA_PORT_CAP_CPU               0x100000000
+
+// If (DUAL_)SFP_DETECT is set, it is indeed possible to detect whether an SFP
+// is inserted. If - at the same time - SFP_INACCESSIBLE is set, the SFP's I2C
+// interface is not accessible, so the application should use a MAC-to-MAC
+// driver when an SFP is inserted, rather than attempting to read the SFP's ROM.
+// If (DUAL_)SFP_DETECT is not set on an SFP port, SFP_INACCESSIBLE is a don't
+// care, and a MAC-to-MAC driver should be used right away (copper backplane).
+#define MEBA_PORT_CAP_SFP_INACCESSIBLE  0x200000000
 
 #define MEBA_PORT_CAP_HDX        \
         (MEBA_PORT_CAP_10M_HDX | \

@@ -368,21 +368,32 @@ static mesa_rc caracal_port_entry_get(meba_inst_t inst, mesa_port_no_t port_no, 
             if (inst->props.target == MESA_TARGET_SPARX_III_18) {
                 chip_port_no = port_no + 8;
             }
+
             entry->map.chip_port = chip_port_no;
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_1;
             entry->map.miim_addr = (chip_port_no - 12);
             entry->mac_if = MESA_PORT_INTERFACE_QSGMII;
-            /* For dual media ports (iport 20-23), SFP auto detection only works for iport 20 */
-            /* According to the decument on https://vitesse.knowledgetree.com/01jwq,
-               iport 21-23 don't support SFP media. */
-            entry->cap = (chip_port_no < 20 ? MEBA_PORT_CAP_TRI_SPEED_COPPER :
-                          chip_port_no == 20 ? MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER :
-                          MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER_FIXED_SFP_SPEED);
 
+            // SFP auto-detection works for all dual media ports (chip_port_no
+            // 20-23), but it's not possible to access SFPs in chip_port_no
+            // 21-23 through I2C, because their I2C bus is connected to ATOM12
+            // and not Lu26.
+            entry->cap = chip_port_no < 20 ? MEBA_PORT_CAP_TRI_SPEED_COPPER :
+                                             MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER;
+
+            // Since chip_port_no 20-23 are connected through QSGMII on ATOM12,
+            // we can't (easily?) change a single port to run SGMII_CISCO and
+            // therefore we can't support CuSFPs.
             if (chip_port_no >= 20 && chip_port_no <= 23) {
-                entry->cap |= MEBA_PORT_CAP_DUAL_NO_COPPER; // Disable copper SFP in dual media port.
+                entry->cap |= MEBA_PORT_CAP_DUAL_NO_COPPER;
+            }
+
+            // chip_port_no 21-23 are not I2C accessible
+            if (chip_port_no >= 21 && chip_port_no <= 23) {
+                entry->cap |= MEBA_PORT_CAP_SFP_INACCESSIBLE;
             }
         }
+
         if (caracal_capability(inst, MEBA_CAP_POE)) {
             entry->poe_support = true;
             entry->poe_chip_port = entry->map.chip_port;
@@ -425,7 +436,7 @@ static mesa_rc caracal_reset(meba_inst_t inst,
                     (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_SYSTEM_LED_IO, true);
 
                     // Set GPIO 10 as POE En/Dis by output pin (0=disable)
-                    (void)mesa_gpio_write(NULL        , 0, PDS_408G_POE_DISABLE_PORTS_IO, true ); // "1" = dont disable PoE 
+                    (void)mesa_gpio_write(NULL        , 0, PDS_408G_POE_DISABLE_PORTS_IO, true ); // "1" = dont disable PoE
                     (void)mesa_gpio_mode_set(NULL     , 0, PDS_408G_POE_DISABLE_PORTS_IO, MESA_GPIO_OUT);
                     (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_POE_DISABLE_PORTS_IO, true);
 
@@ -693,9 +704,10 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t inst,
 static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t inst,
                                                 mesa_port_list_t *present)
 {
-    meba_board_state_t *board = INST2BOARD(inst);
+    meba_board_state_t     *board = INST2BOARD(inst);
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
-    mesa_port_no_t port_no;
+    mesa_port_no_t         port_no;
+    uint32_t               offset;
 
     //T_D(inst, "Called");
 
@@ -705,23 +717,31 @@ static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t inst,
         return MESA_RC_ERROR;
 
     if (board->type == BOARD_LUTON26) {
-        // Note : SFP ports 22-24 do't work due to a hardware board bug with the I2C clocks for these ports, so them we ignore.
-        // Work around for that dual-media port swapped at the board where port20 = SFP2. See UG1037, Table 11.
+        // Chip ports 21-23 are not I2C accessible (because I2C for these ports
+        // is connected to ATOM12 and not Lu26). However, SFP detect works, and
+        // it's nice to know whether an SFP is plugged in or not.
+        // The mapping from SGPIO port and bit to port number and function can
+        // be found in UG1037, Table 11 (the non-greyed cells).
         if (inst->props.target == MESA_TARGET_SPARX_III_18) {
-            mesa_port_list_set(present, 12, data[21].value[2] ? 0 : 1);  /* Bit 2 is mod_detect, 0=detected */
-        } else { // MESA_TARGET_SPARX_III_26 || MESA_TARGET_SPARX_III_24
-            mesa_port_list_set(present, 20, data[21].value[2] ? 0 : 1);  /* Bit 2 is mod_detect, 0=detected */
+            // port_no 20 is called port_no 12 on SPARX_III_18.
+            // port_no 21 is called port_no 13 on SPARX_III_18, etc.
+            offset = 8;
+        } else {
+            offset = 0;
         }
 
-        // SFP uplink ports, only sparxIII_24 doens't have uplink port
+        // Dual media ports
+        mesa_port_list_set(present, 20 - offset, data[27].value[0] ? 0 : 1); // sfp2present (p27b0)
+        mesa_port_list_set(present, 21 - offset, data[27].value[2] ? 0 : 1); // sfp3present (p27b2)
+        mesa_port_list_set(present, 22 - offset, data[28].value[1] ? 0 : 1); // sfp4present (p28b1)
+        mesa_port_list_set(present, 23 - offset, data[29].value[0] ? 0 : 1); // sfp5present (p29b0)
+
+        // SFP uplink ports. Only sparxIII_24 doens't have uplink port
         if (inst->props.target != MESA_TARGET_SPARX_III_24) {
-            int i;
-            for(port_no = board->port_cnt - 2, i = 24; port_no < board->port_cnt; port_no++, i++) {
-                /* Bit 1 is mod_detect, 0=detected */
-                mesa_port_list_set(present, port_no, data[i].value[1] ? 0 : 1);
-            }
+            mesa_port_list_set(present, 24 - offset, data[24].value[1] ? 0 : 1); // sfp0present (p24b1)
+            mesa_port_list_set(present, 25 - offset, data[25].value[1] ? 0 : 1); // sfp1present (p25b1)
         }
-    } else if(board->type == BOARD_LUTON10 ) {
+    } else if(board->type == BOARD_LUTON10) {
         int i;
         for(port_no = board->port_cnt - 2, i = 26; port_no < board->port_cnt; port_no++, i++) {
             /* Bit one is mod_detect, 0=detected */
@@ -915,7 +935,7 @@ static mesa_rc caracal_port_led_update(meba_inst_t inst,
 
         return MESA_RC_OK;
 
-    } 
+    }
 
     if ((port_no % 4) == 0 && mesa_gpio_read(NULL, 0, 12, &gpio_val) == MESA_RC_OK && gpio_val) {
         tower_mode_changed = true;
