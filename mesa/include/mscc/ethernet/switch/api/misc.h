@@ -620,6 +620,7 @@ typedef enum
     MESA_IRQ_SGPIO2,   // Serial GPIO2 IRQ
     MESA_IRQ_DPLL,     // DPLL
     MESA_IRQ_GPIO,     // GPIO
+    MESA_IRQ_PUSH_BUTTON, // General purpose pushbutton
     MESA_IRQ_DEV_ALL,  // Device (port) IRQ
     MESA_IRQ_KR_SD10G_0,  // KR IRQ 0
     MESA_IRQ_KR_SD10G_1,  // KR IRQ 1

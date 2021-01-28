@@ -626,48 +626,6 @@ static mesa_rc fa_phy_event_enable(meba_inst_t inst,
     return rc;
 }
 
-static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
-{
-    uint32_t gpio;
-    int gpio_cnt = MESA_CAP(MESA_CAP_MISC_GPIO_CNT);
-    mesa_bool_t gpio_events[gpio_cnt], gpio_state[gpio_cnt];
-    mesa_rc     rc;
-    int handled = 0;
-
-    if ((rc = mesa_gpio_event_poll(NULL, 0, gpio_events)) != MESA_RC_OK) {
-        T_E(inst, "mesa_gpio_event_poll: %d", rc);
-        return rc;
-    }
-
-    // Disable the interrupt while handling the event
-    memset(gpio_state, 0, sizeof(gpio_state));
-    for (gpio = 0; gpio < gpio_cnt; gpio++) {
-        if (gpio_events[gpio]) {
-            T_I(inst, "Got interrupt from gpio #%u", gpio);
-            (void) mesa_gpio_read(NULL, 0, gpio, &gpio_state[gpio]);
-        }
-    }
-
-    switch (board->type) {
-        case BOARD_TYPE_SPARX5_PCB134:
-        case BOARD_TYPE_SPARX5_PCB135:
-            if (gpio_events[2]) {
-                if ((rc = mesa_gpio_event_enable(NULL, 0, 2, false)) != MESA_RC_OK) {
-                    T_E(inst, "mesa_gpio_event_enable = %d", rc);
-                }
-                signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
-                handled++;
-            }
-            break;
-
-        default:
-            T_E(inst, "Board type (%d) not supported!", board->type);
-            return MESA_RC_ERROR;
-    }
-
-    return handled ? MESA_RC_OK : MESA_RC_ERROR;
-}
-
 static mesa_rc kr_irq2port(meba_inst_t inst, mesa_irq_t chip_irq, mesa_port_no_t *port_no)
 {
     meba_board_state_t    *board = INST2BOARD(inst);
@@ -1624,8 +1582,9 @@ static mesa_rc fa_irq_handler(meba_inst_t inst,
         case MESA_IRQ_OAM:
             signal_notifier(MEBA_EVENT_VOE, 0);
             return MESA_RC_OK;
-        case MESA_IRQ_GPIO:
-            return gpio_handler(inst, board, signal_notifier);
+        case MESA_IRQ_PUSH_BUTTON:
+            signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+            return MESA_RC_OK;
         case MESA_IRQ_SGPIO2:
             return sgpio2_handler(inst, board, signal_notifier);
        case MESA_IRQ_EXT0:
@@ -1664,7 +1623,7 @@ static mesa_rc fa_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
         case MESA_IRQ_PTP_SYNC:
         case MESA_IRQ_PTP_RDY:
         case MESA_IRQ_OAM:
-        case MESA_IRQ_GPIO:
+        case MESA_IRQ_PUSH_BUTTON:
         case MESA_IRQ_SGPIO2:
         case MESA_IRQ_EXT0:
         case MESA_IRQ_KR_SD10G_0:
