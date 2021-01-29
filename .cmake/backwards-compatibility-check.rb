@@ -219,8 +219,14 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)               # Configs to build
 
 # Backwards compatibility with previous build was broken because of KR updates
+#check("backwards-check",              # Name of check
+#      "b44a6ccf33@master",            # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because of addition of the PUSH_BUTTON
+# IRQ source
 check("backwards-check",              # Name of check
-      "b44a6ccf33@master",            # Appl release to use
+      "8aa7926f19@master",            # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
