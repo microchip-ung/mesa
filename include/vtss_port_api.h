@@ -59,7 +59,9 @@ typedef enum
 typedef struct
 {
     vtss_sd_sgpio_action_t action; /**< Enable mapping */
+#if defined(VTSS_FEATURE_SERIAL_GPIO)
     vtss_sgpio_group_t     group;  /**< SGPIO group (0-2) */
+#endif
     u32                    port;   /**< SGPIO port (0-31) */
     u32                    bit;    /**< SGPIO bit (0-3) */
 } vtss_port_sgpio_map_t;
