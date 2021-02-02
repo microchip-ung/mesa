@@ -190,11 +190,17 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 #if defined(VTSS_AFI_V2)
 
 // Chip specific properties
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
 #define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
 #define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
 #define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
-#endif /* VTSS_ARCH_JAGUAR_2_B */
+#endif /* VTSS_ARCH_JAGUAR_2_B || VTSS_ARCH_JAGUAR_2_C */
+
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
+#define VTSS_AFI_FAST_INJ_BPS_MAX 25000000000ULL /**< Max rate in bits per second: 25Gbps (including IFG and preamble) */
+#endif /* VTSS_ARCH_SPARX5 */
 
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_AFI_SLOW_INJ_CNT     2048           /**< Maximum number of simultaneous slow injections */
