@@ -148,14 +148,14 @@ static vtss_afi_port_t *lan966x_afi_port_tbl_entry(vtss_state_t *vtss_state, vts
 
 static vtss_rc lan966x_afi_chip_port_stop(vtss_state_t *vtss_state, u32 port)
 {
-    u32 frm_out_max = 1000;
-
+    // Set FC_SKIP_TTI_INJ = 1
+    // Stop the port by setting FRM_OUT_MAX to 0.
     REG_WRM(AFI_PORT_CFG(port),
             AFI_PORT_CFG_FC_SKIP_TTI_INJ(1) |
-            AFI_PORT_CFG_FRM_OUT_MAX(frm_out_max),
+            AFI_PORT_CFG_FRM_OUT_MAX(0),
             AFI_PORT_CFG_FC_SKIP_TTI_INJ_M |
             AFI_PORT_CFG_FRM_OUT_MAX_M);
-    VTSS_I("Stopped injection to chip-port %u, and increased frame out max to %u", port, frm_out_max);
+    VTSS_I("Stopped injection to chip-port %u by setting FRM_OUT_MAX to 0", port);
     return VTSS_RC_OK;
 }
 
