@@ -3867,6 +3867,7 @@ vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined( VTSS_FEATURE_PORT_KR)
         state->kr_conf_set = jr2_port_kr_conf_set;
         state->kr_status = jr2_port_kr_status;
+        state->kr_fec_set = jr2_port_kr_fec_set;
 #endif /*  VTSS_FEATURE_PORT_KR */
         state->status_get = jr2_port_status_get;
         state->counters_update = jr2_port_counters_update;

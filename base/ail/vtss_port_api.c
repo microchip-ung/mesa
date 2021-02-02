@@ -1258,8 +1258,47 @@ vtss_rc vtss_port_kr_conf_get(const vtss_inst_t inst,
     return rc;
 }
 
-#endif /* VTSS_FEATURE_PORT_KR */
+vtss_rc vtss_port_kr_fec_get(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_port_kr_fec_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
 
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        *conf = vtss_state->port.kr_fec[port_no];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             const vtss_port_kr_fec_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("port_no: %u", port_no);
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI &&
+           (conf->r_fec || conf->rs_fec)) {
+            // If enabling R-FEC and/or RS-FEC and the MAC I/F is not SFI, it's
+            // an error. If disabling both R-FEC and RS-FEC, the MAC I/F can be
+            // anything.
+            rc = VTSS_RC_ERROR;
+        } else {
+            vtss_state->port.kr_fec[port_no] = *conf;
+            rc = VTSS_FUNC_COLD(port.kr_fec_set, port_no);
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+#endif /* defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ) */
 
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
@@ -1321,46 +1360,6 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = VTSS_FUNC_COLD(port.kr_eye_dim, port_no, eye);
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_fec_get(const vtss_inst_t inst,
-                             const vtss_port_no_t port_no,
-                             vtss_port_kr_fec_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        *conf = vtss_state->port.kr_fec[port_no];
-    }
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_port_kr_fec_set(const vtss_inst_t inst,
-                             const vtss_port_no_t port_no,
-                             const vtss_port_kr_fec_t *const conf)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
-
-    VTSS_D("port_no: %u", port_no);
-    VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI &&
-           (conf->r_fec || conf->rs_fec)) {
-            // If enabling R-FEC and/or RS-FEC and the MAC I/F is not SFI, it's
-            // an error. If disabling both R-FEC and RS-FEC, the MAC I/F can be
-            // anything.
-            rc = VTSS_RC_ERROR;
-        } else {
-            vtss_state->port.kr_fec[port_no] = *conf;
-            rc = VTSS_FUNC_COLD(port.kr_fec_set, port_no);
-        }
     }
     VTSS_EXIT();
     return rc;

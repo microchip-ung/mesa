@@ -830,9 +830,9 @@ mesa_rc mesa_port_kr_state_get(const mesa_inst_t inst,
 
 // KR FEC structure */
 typedef struct {
-    mesa_bool_t r_fec;    /**< Enable/Disable Clause 74 R-FEC  */
-    mesa_bool_t rs_fec; /**< Enable/Disable Clause 108 RS-FEC (25G only)   */
-} mesa_port_kr_fec_t CAP(PORT_KR_IRQ);
+    mesa_bool_t r_fec;                   /**< Enable/Disable Clause 74 R-FEC              */
+    mesa_bool_t rs_fec CAP(PORT_KR_IRQ); /**< Enable/Disable Clause 108 RS-FEC (25G only) */
+} mesa_port_kr_fec_t CAP(PORT_KR);
 
 // KR eye info
 typedef struct {
@@ -846,7 +846,7 @@ typedef struct {
 mesa_rc mesa_port_kr_fec_get(const mesa_inst_t inst,
                              const mesa_port_no_t port_no,
                              mesa_port_kr_fec_t *const conf)
-    CAP(PORT_KR_IRQ);
+    CAP(PORT_KR);
 
 // Set KR FEC
 // inst    [IN]  Target instance reference.
@@ -855,7 +855,7 @@ mesa_rc mesa_port_kr_fec_get(const mesa_inst_t inst,
 mesa_rc mesa_port_kr_fec_set(const mesa_inst_t inst,
                              const mesa_port_no_t port_no,
                              const mesa_port_kr_fec_t *const conf)
-    CAP(PORT_KR_IRQ);
+    CAP(PORT_KR);
 
 // Apply KR interrupts
 // port_no [IN]  Port number.
