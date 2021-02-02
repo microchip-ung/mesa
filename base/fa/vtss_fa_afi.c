@@ -272,23 +272,15 @@ static vtss_rc fa_afi_chip_port_start(vtss_state_t *vtss_state, u32 port, vtss_a
 
 static vtss_rc fa_afi_chip_port_stop(vtss_state_t *vtss_state, u32 port)
 {
-    u32 frm_out_max;
-
     // Set FC_SKIP_TTI_INJ = 1
-    // Use FRM_RM_ONLY = 1 to stop port
-    // In order to ensure that we can remove all flows in this state, increase
-    // FRM_OUT_MAX to 1000 (otherwise, the FRM_GONE bit might not be set if the
-    // MAC's Tx clock is not running, FRM_OUT_MAX is reached, and a frame
-    // removal afterwards is issued). It will be set back to its normal when
-    // fa_afi_port_start() is invoked, that is, when link comes back up.
-    frm_out_max = 1000;
+    // Stop the port by setting FRM_OUT_MAX to 0.
     REG_WRM(VTSS_AFI_PORT_CFG(port),
             VTSS_F_AFI_PORT_CFG_FC_SKIP_TTI_INJ(1) |
-            VTSS_F_AFI_PORT_CFG_FRM_OUT_MAX(frm_out_max),
+            VTSS_F_AFI_PORT_CFG_FRM_OUT_MAX(0),
             VTSS_M_AFI_PORT_CFG_FC_SKIP_TTI_INJ |
             VTSS_M_AFI_PORT_CFG_FRM_OUT_MAX);
 
-    VTSS_I("Stopped injection to chip-port %u, and increased frame out max to %u", port, frm_out_max);
+    VTSS_I("Stopped injection to chip-port %u by setting FRM_OUT_MAX to 0", port);
 
     return VTSS_RC_OK;
 }
