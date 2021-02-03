@@ -361,9 +361,9 @@ static mesa_rc ksz_delete(meba_phy_device_t *dev)
 meba_phy_drivers_t driver_init()
 {
     meba_phy_drivers_t res;
-    static meba_phy_driver_t ksz_drivers[1] = {};
+    static meba_phy_driver_t ksz_drivers[2] = {};
 
-    ksz_drivers[0].id = KSZ_PHY_CHIPID;
+    ksz_drivers[0].id = KSZ_PHY_CHIPID; // This is for lan966x ls1046 CPU
     ksz_drivers[0].mask = 0xffffffff;
     ksz_drivers[0].meba_phy_driver_delete = ksz_delete;
     ksz_drivers[0].meba_phy_driver_reset = NULL;
@@ -378,8 +378,24 @@ meba_phy_drivers_t driver_init()
     ksz_drivers[0].meba_phy_driver_probe = ksz_probe;
     ksz_drivers[0].meba_phy_driver_status_1g_get = ksz_status_1g_get;
 
+    ksz_drivers[1].id = 0x707c1;        // This is for lan966x internal CPU
+    ksz_drivers[1].mask = 0xffffffff;
+    ksz_drivers[1].meba_phy_driver_delete = ksz_delete;
+    ksz_drivers[1].meba_phy_driver_reset = NULL;
+    ksz_drivers[1].meba_phy_driver_poll = ksz_poll;
+    ksz_drivers[1].meba_phy_driver_conf_set = ksz_conf_set;
+    ksz_drivers[1].meba_phy_driver_if_get = ksz_1g_if_get;
+    ksz_drivers[1].meba_phy_driver_mt_get = NULL;
+    ksz_drivers[1].meba_phy_driver_power_set = NULL;
+    ksz_drivers[1].meba_phy_driver_veriphy_start = NULL;
+    ksz_drivers[1].meba_phy_driver_veriphy_get = NULL;
+    ksz_drivers[1].meba_phy_driver_media_set = NULL;
+    ksz_drivers[1].meba_phy_driver_probe = ksz_probe;
+    ksz_drivers[1].meba_phy_driver_status_1g_get = ksz_status_1g_get;
+
+
     res.phy_drv = ksz_drivers;
-    res.count = 1;
+    res.count = 2;
 
     return res;
 }
