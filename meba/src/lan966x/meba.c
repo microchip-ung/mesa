@@ -291,6 +291,12 @@ static mesa_rc dev_all_handler(meba_inst_t inst,
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
+static mesa_rc lan9668_sfp_insertion_status_get(meba_inst_t inst,
+                                               mesa_port_list_t *present)
+{
+    mesa_port_list_clear(present);
+    return MESA_RC_OK;
+}
 
 static mesa_rc lan9668_irq_handler(meba_inst_t inst,
                                mesa_irq_t chip_irq,
@@ -385,6 +391,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     T_D(inst, "Hooking up board API");
     inst->api.meba_capability                 = lan9668_capability;
     inst->api.meba_port_entry_get             = lan9668_port_entry_get;
+    inst->api.meba_sfp_insertion_status_get   = lan9668_sfp_insertion_status_get;
     inst->api.meba_reset                      = lan9668_reset;
     inst->api.meba_irq_handler                = lan9668_irq_handler;
     inst->api.meba_irq_requested              = lan9668_irq_requested;
