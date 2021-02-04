@@ -347,6 +347,8 @@ static mesa_rc ksz_status_1g_get(meba_phy_device_t *dev, mesa_phy_status_1g_t *s
 static mesa_rc ksz_1g_if_get(meba_phy_device_t *dev, mesa_port_speed_t speed,
                               mesa_port_interface_t *mac_if) {
 
+    *mac_if = 4; // VTSS_PORT_INTERFACE_GMII = 4 from vtss/api/types.h
+
     return MESA_RC_OK;
 }
 
