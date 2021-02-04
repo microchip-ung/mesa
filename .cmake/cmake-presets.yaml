@@ -26,7 +26,7 @@ presets:
     lan966x:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DLAN966X_ONLY=on"
-        :brsdk:            "2020.02.3-334"
+        :brsdk:            "2020.02.3-336"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk.lan966x-3"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -67,7 +67,7 @@ presets:
     arm:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2020.02.3-334"
+        :brsdk:            "2020.02.3-336"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk.lan966x-3"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -78,7 +78,7 @@ presets:
     arm-debug:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2020.02.3-334"
+        :brsdk:            "2020.02.3-336"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk.lan966x-3"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/lan966x/x86_64-linux/share/buildroot/toolchainfile.cmake"
