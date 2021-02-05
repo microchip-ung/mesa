@@ -1107,6 +1107,14 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         if (mesa_port_kr_status_get(NULL, iport, &status) != MESA_RC_OK) {
             printf("Failure during port_kr_status_get\n");
         }
+        if (pconf.speed != kr_irq2spd(irq & 0xf)) {
+            pconf.speed = kr_irq2spd(irq & 0xf);
+            // Aneg speed change request
+            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
+            kr_printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            (void)mesa_port_conf_set(NULL, iport, &pconf);
+        }
+        kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         // Aneg FEC change request
         if (status.aneg.request_fec_change) {
             fec.r_fec = status.aneg.r_fec_enable;
@@ -1116,14 +1124,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
                 cli_printf("Failure during port_kr_fec_set\n");
             }
         }
-        if (pconf.speed != kr_irq2spd(irq & 0xf)) {
-            pconf.speed = kr_irq2spd(irq & 0xf);
-            // Aneg speed change request
-            pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            kr_printf("Port:%d - Aneg speed is %s (%d ms) - Set\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-            (void)mesa_port_conf_set(NULL, iport, &pconf);
-        }
-        kr_printf("Port:%d - Aneg speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+
 
         if (kr_conf_state[iport].compl_ack_done) {
             kr_printf("Aneg is complete.  Now start training (if enabled).\n");

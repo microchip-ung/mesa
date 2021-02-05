@@ -996,6 +996,13 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     vtss_port_kr_fec_t *kr = &vtss_state->port.kr_fec[port_no];
     u32 pcs = VTSS_TO_PCS_TGT(port);
     u32 tgt = VTSS_TO_HIGH_DEV(port);
+    u32 val;
+    BOOL pcs_ena;
+
+    if (kr->r_fec && kr->rs_fec) {
+        VTSS_E("Illegal FEC config");
+        return VTSS_RC_ERROR;
+    }
 
     // R-FEC: 10G/25G in 10G-mode
     REG_WRM(VTSS_PCS_10GBASE_R_KR_FEC_CFG(pcs),
@@ -1008,13 +1015,21 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 
     if (VTSS_PORT_IS_25G(port)) {
         u32 rs_fec = vtss_to_rsfec(port);
+
+        // 25G PCS must be disabled when enabling FEC
+        REG_RD(VTSS_DEV10G_PCS25G_CFG(tgt), &val);
+        pcs_ena = VTSS_X_DEV10G_PCS25G_CFG_PCS25G_ENA(val);
+        if (pcs_ena) {
+            REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(tgt),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
+        }
+
         // R-FEC: 25G in 25G mode
         REG_WRM(VTSS_DEV10G_PCS25G_FEC74_CFG(tgt),
                 VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX(kr->r_fec) |
                 VTSS_F_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX(kr->r_fec),
                 VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_RX |
                 VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX);
-
 
         REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
                 VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(1) |
@@ -1039,6 +1054,10 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                 VTSS_F_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25(kr->rs_fec),
                 VTSS_M_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25);
 
+        if (pcs_ena) {
+            REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(tgt),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
+        }
     }
 
     return VTSS_RC_OK;
