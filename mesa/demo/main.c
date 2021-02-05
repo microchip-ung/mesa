@@ -1016,10 +1016,13 @@ static mesa_rc serdes_tap_get(const mesa_inst_t inst, mesa_port_no_t port_no,
     }
 }
 
-mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t poll_cnt, uint32_t wait_usec)
+mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t *poll_cnt, uint32_t wait_usec)
 {
-    if ((sleep_us * poll_cnt) % wait_usec == 0) {
+    if ((sleep_us * *poll_cnt) % wait_usec == 0) {
         return 1;
+    }
+    if (*poll_cnt > 1000000) {
+        *poll_cnt = 0;
     }
     return 0;
 }
@@ -1037,12 +1040,12 @@ int main(int argc, char **argv)
     mesa_port_no_t     port_no;
     mesa_chip_id_t     chip_id;
     struct timeval     tv;
-    int                i, fd, fd_max, poll_cnt = 0;
+    int                i, fd, fd_max;
     fd_set             rfds;
     fd_read_reg_t      *reg;
     reg_read_t         reg_read;
     reg_write_t        reg_write;
-    uint32_t           sleep_us = 10000;
+    uint32_t           sleep_us = 10000, poll_cnt = 0;
 
     if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
         sleep_us = 200;
@@ -1213,7 +1216,7 @@ int main(int argc, char **argv)
         init->cmd = MSCC_INIT_CMD_POLL_FASTEST;
         init_modules(init);
         poll_cnt++;
-        if (poll_cnt_us(sleep_us, poll_cnt, 1000000)) { // 1 sec poll
+        if (poll_cnt_us(sleep_us, &poll_cnt, 1000000)) { // 1 sec poll
             T_N("Call init_modules() and mesa_poll_1sec()");
             init->cmd = MSCC_INIT_CMD_POLL;
             init_modules(init);
@@ -1222,7 +1225,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (poll_cnt_us(sleep_us, poll_cnt, 10000)) { // 10 ms poll
+        if (poll_cnt_us(sleep_us, &poll_cnt, 10000)) { // 10 ms poll
             T_N("MSCC_INIT_CMD_POLL_FAST");
             init->cmd = MSCC_INIT_CMD_POLL_FAST;
             init_modules(init);
