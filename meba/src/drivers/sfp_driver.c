@@ -1110,7 +1110,9 @@ static mesa_bool_t get_sfp_rom(meba_inst_t meba_inst, mesa_port_no_t port_no, ui
     for (int i = 0; i < 10; ++i) {
         if ((meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x50, 0, rom, rom_size, false) == MESA_RC_OK)) {
             // rom[0] == 0x03 means SFP or SFP+
-            return rom[0] == 0x03;
+            if (rom[0] == 0x03) {
+                return true;
+            }
         }
 
         VTSS_MSLEEP(100); // Some SFPs are slow to start, wait 100ms
