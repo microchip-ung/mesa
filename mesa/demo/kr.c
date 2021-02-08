@@ -899,7 +899,6 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("  LD EDC            : %d\n",ctle.edc);
             cli_printf("  LD EQR            : %d\n",ctle.eqr);
 
-            cli_printf("\n  FEC Corr./Uncor.  : %d/%d\n", sts.fec.corrected_block_cnt, sts.fec.uncorrected_block_cnt);
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             cli_printf("\n  Current eye height: %d\n",eye.height);
             cli_printf("  Training time     : %d ms\n",appl->time_ld);
@@ -1087,10 +1086,6 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         (void)time_start(&kr->time_start_aneg);
     }
 
-    if (irq & MESA_KR_LINK_FAIL) {
-        printf("p:%d LINK failed\n",iport);
-    }
-
     if (irq & MESA_KR_CMPL_ACK) {
         kr_conf_state[iport].compl_ack_done = TRUE;
     }
@@ -1184,13 +1179,6 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
             cli_printf("Failure during port_kr_ctle_adjust\n");
         }
-        mesa_port_ctle_t        ctle;
-        (void)mesa_port_kr_ctle_get(NULL, iport, &ctle);
-        printf("\n  This port Rx CTLE settings:\n");
-        printf("  LD VGA            : %d\n",ctle.vga);
-        printf("  LD EDC            : %d\n",ctle.edc);
-        printf("  LD EQR            : %d\n",ctle.eqr);
-//        printf("Port:%d - No CTLE\n",uport);
 
         kr->time_ld = get_time_ms(&kr->time_start_train);
         mesa_port_kr_eye_dim_t  eye;
