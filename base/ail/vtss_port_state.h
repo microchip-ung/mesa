@@ -387,6 +387,8 @@ typedef struct {
     BOOL c0_done;
     BOOL compl_ack;
     BOOL base_page;
+    u32  rs_fec_cc;
+    u32  rs_fec_uc;
 } vtss_port_kr_temp_storage_t;
 
 

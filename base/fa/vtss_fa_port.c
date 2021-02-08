@@ -1054,6 +1054,9 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                 VTSS_F_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25(kr->rs_fec),
                 VTSS_M_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25);
 
+        vtss_state->port.kr_store[port_no].rs_fec_cc = 0;
+        vtss_state->port.kr_store[port_no].rs_fec_uc = 0;
+
         if (pcs_ena) {
             REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(tgt),
                         VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
@@ -1138,9 +1141,14 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
-    u32 sts0, sts1, tr;
+    u32 sts0, sts1, tr, reg, reg2;
     u16 val1, val2, val3;
     u32 tgt, pcs;
+    u32 port = VTSS_CHIP_PORT(port_no);
+    BOOL spd10g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G;
+    BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
+    u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
+    u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
 
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1190,12 +1198,34 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     } else {
         status->aneg.request_fec_change = FALSE;
     }
-    REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_CORRECTED(pcs), &tr);
-    status->fec.corrected_block_cnt = tr;
-    REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_UNCORRECTED(pcs), &tr);
-    status->fec.uncorrected_block_cnt = tr;
+
     status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
     status->fec.rs_fec_enable = vtss_state->port.kr_fec[port_no].rs_fec;
+
+    if (spd10g) {
+        REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_CORRECTED(pcs), &tr);
+        status->fec.corrected_block_cnt = tr;
+        REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_UNCORRECTED(pcs), &tr);
+        status->fec.uncorrected_block_cnt = tr;
+    } else if (spd25g) {
+        if (status->fec.r_fec_enable) {
+            u32 dev_tgt = VTSS_TO_HIGH_DEV(port);
+            REG_RD(VTSS_DEV10G_PCS25G_FEC74_CERR_CNT(dev_tgt), &reg);
+            status->fec.corrected_block_cnt = reg;
+            REG_RD(VTSS_DEV10G_PCS25G_FEC74_NCERR_CNT(dev_tgt), &reg);
+            status->fec.uncorrected_block_cnt = reg;
+        } else {
+            u32 rs_fec = vtss_to_rsfec(port);
+            REG_RD(VTSS_PCS25G_RSFEC_RS_FEC_CCW_LO(rs_fec), &reg);
+            REG_RD(VTSS_PCS25G_RSFEC_RS_FEC_CCW_HI(rs_fec), &reg2); // Clear on read
+            *rs_fec_cc +=  (reg2 << 16) | reg;
+            status->fec.corrected_block_cnt = *rs_fec_cc;
+            REG_RD(VTSS_PCS25G_RSFEC_RS_FEC_NCCW_LO(rs_fec), &reg);
+            REG_RD(VTSS_PCS25G_RSFEC_RS_FEC_NCCW_HI(rs_fec), &reg2); // Clear on read
+            *rs_fec_uc +=  (reg2 << 16) | reg;
+            status->fec.uncorrected_block_cnt = *rs_fec_uc;
+        }
+    }
 
     // Debug
     REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &tr);
@@ -2687,6 +2717,18 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                             VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_ERROR_STICKY(value) ||
                             VTSS_X_DEV1G_PCS_FX100_STATUS_SSD_ERROR_STICKY(value) ||
                             VTSS_X_DEV1G_PCS_FX100_STATUS_FEF_STATUS(value);
+
+        if (VTSS_X_DEV1G_PCS_FX100_STATUS_SYNC_LOST_STICKY(value))
+            printf("p:%d FX100_STATUS_SYNC_LOST\n",port_no);
+
+        if (VTSS_X_DEV1G_PCS_FX100_STATUS_FEF_FOUND_STICKY(value))
+            printf("p:%d FX100_STATUS_FEF_FOUND\n",port_no);
+
+        if (VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_ERROR_STICKY(value))
+            printf("p:%d PCS_FX100_STATUS_PCS_ERROR\n",port_no);
+
+        if (VTSS_X_DEV1G_PCS_FX100_STATUS_SSD_ERROR_STICKY(value))
+            printf("p:%d PCS_FX100_STATUS_SSD_ERROR\n",port_no);
 
         if (status->link_down) {
             /* Clear the stickies and re-read */

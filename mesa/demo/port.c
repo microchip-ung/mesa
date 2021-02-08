@@ -13,6 +13,8 @@
 #include "port.h"
 // #include "sfp.h"
 
+#include <sys/time.h>
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -1332,6 +1334,26 @@ static void port_init(meba_inst_t inst)
 
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET_POST);
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_LED_INITIALIZE);
+
+    uint16_t cnt = MEBA_WRAP(meba_capability, inst, MEBA_CAP_BOARD_PORT_COUNT);
+
+    mesa_port_list_t member;
+    mesa_pvlan_port_members_get(NULL, 0,  &member);
+    for (port_no = 0; port_no < (cnt-1); port_no++)
+        mesa_port_list_set(&member, port_no, 0);
+    mesa_pvlan_port_members_set(NULL, 0,  &member);
+
+    mesa_pvlan_port_members_get(NULL, 1,  &member);
+    for (port_no = 0; port_no < (cnt-1); port_no++, port_no++)
+        mesa_port_list_set(&member, port_no, 1);
+    mesa_pvlan_port_members_set(NULL, 1,  &member);
+
+    mesa_pvlan_port_members_get(NULL, 2,  &member);
+    for (port_no = 1; port_no < (cnt-1); port_no++, port_no++)
+        mesa_port_list_set(&member, port_no, 1);
+    mesa_pvlan_port_members_set(NULL, 2,  &member);
+
+
 }
 
 static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *driver,
@@ -1455,7 +1477,16 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link down and disable forwarding on port */
         if ((!ps->link || ps->link_down) && link_old) {
+                struct timeval tv;
+                int            h, m, s;
+
             T_I("link down event on port_no: %u", port_no);
+
+            (void)gettimeofday(&tv, NULL);
+            h = (tv.tv_sec / 3600 % 24);
+            m = (tv.tv_sec / 60 % 60);
+            s = (tv.tv_sec % 60);
+//            printf("%u:%02u:%02u:%05lu link down event on port_no: %u\n", h, m, s, tv.tv_usec, port_no);
             link_old = 0;
             mesa_port_state_set(NULL, port_no, FALSE);
             mesa_mac_table_port_flush(NULL, port_no);
