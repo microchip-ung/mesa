@@ -4,7 +4,7 @@
 #ifndef _MSCC_APPL_PORT_H_
 #define _MSCC_APPL_PORT_H_
 
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 #include "trace.h"
 
 char *mesa_port_spd2txt(mesa_port_speed_t speed);

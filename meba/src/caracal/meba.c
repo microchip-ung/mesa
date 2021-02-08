@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_aux.h"
 
@@ -137,6 +137,7 @@ typedef struct meba_board_state {
     led_tower_mode_t led_tower_mode;
     const sgpio_mapping_t *status_led_map;
     uint64_t tmp_timer;
+    mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 
 #define VTSS_OS_TICK2MSEC(x)    ((x)*100)  // assume itteration every 100msec
@@ -604,6 +605,11 @@ static mesa_rc caracal_reset(meba_inst_t inst,
         case MEBA_SYNCE_DPLL_INITIALIZE:
             break;
         case MEBA_POE_INITIALIZE:
+            break;
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
     }
 

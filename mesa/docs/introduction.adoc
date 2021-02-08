@@ -89,7 +89,7 @@ Internally MESA contains the following layers of abstraction:
 
 MESA Wrapper:: Provides the public `mesa` header files which should be included
 and used by the application. All symbols can be included using `#include
-"mscc/ethernet/switch/api.h"`. The MESA wrapper implementation is converting
+"microchip/ethernet/switch/api.h"`. The MESA wrapper implementation is converting
 between the ABI stable memory layout and the `ifdef`'ed interface offered by the
 UnifiedAPI. In many cases this is just a type-cast, and this poses an
 insignificant overhead.
@@ -129,19 +129,19 @@ way to get started with the demo application on a reference board.
 * `./include` Include files for the original UnifiedAPI.
 * `./meba` Home of MEBA (source and headers).
 * `./meba/include/` The MEBA include path.
-* `./meba/include/mscc/ethernet/board/api.h` MEBA top header file. Application
+* `./meba/include/microchip/ethernet/board/api.h` MEBA top header file. Application
   accessing MEBA should include this file. The include statement should be
-`#include "mscc/ethernet/board/api.h"`.
+`#include "microchip/ethernet/board/api.h"`.
 * `./mesa` Home of MESA (mostly headers, sources call into `./base`
 * `./mesa/include` The MESA include path.
-* `./mesa/include/mscc/ethernet/switch/api.h` MESA top header file. Application
+* `./mesa/include/microchip/ethernet/switch/api.h` MESA top header file. Application
   accessing MESA should include this file. The include statement should be
 * `./mesa/demo` A demo application showing how the MESA API can be instantiated,
   and how to do basic stuff like port polling etc.
 * `./mesa/demo/examples` A collection of examples showing how the APIs can be
   used. These examples are part of the documentation and can be seen in the
 link:#mesa/docs/examples/introduction[Cookbook example] section.
-`#include "mscc/ethernet/switch/api.h"`.
+`#include "microchip/ethernet/switch/api.h"`.
 * `./.module_info` License/module information used by WebStaX.
 * `./third_party` Sources for which Microchip does not own the copyright. All
   sources included in the MESA packet uses the MIT or MIT compatible license.

@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #include "main.h"
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/board/api.h"
 
 /* Initialize CLI */
 void mscc_appl_cli_init(mscc_appl_init_t *init);

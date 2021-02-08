@@ -91,7 +91,7 @@ end
 
 # TODO, only progress included files
 #puts "Processing headers"
-#Dir.glob("../include/mscc/ethernet/switch/api/*.h").each do |f|
+#Dir.glob("../include/microchip/ethernet/switch/api/*.h").each do |f|
 #    begin
 #        old_size = $symbol_index.size
 #        record_symbols get_symbol_sequence(f)

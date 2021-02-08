@@ -3,8 +3,11 @@
 
 
 #include <stdio.h>
-#include <mscc/ethernet/switch/api.h>
+#include <microchip/ethernet/switch/api.h>
+#include <microchip/ethernet/board/api/phy.h>
 #include <json-c/json.h>
+
+extern meba_inst_t meba_global_inst;
 
 typedef struct {
     int         idx;

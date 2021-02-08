@@ -64,6 +64,7 @@ $types = {
     "i32"          => {:type_fam=>:type_alias, :type_name=>"i32",          :type_next=>"int32_t",      :type_resolved=>{:type=>"int32_t",      :abi=>:abi_stable}},
     "i64"          => {:type_fam=>:type_alias, :type_name=>"i64",          :type_next=>"int64_t",      :type_resolved=>{:type=>"int64_t",      :abi=>:abi_stable}},
     "mesa_inst_t"  => {:type_fam=>:type_alias, :type_name=>"mesa_inst_t",  :type_next=>"mesa_inst_t",  :type_resolved=>{:type=>"mesa_inst_t",  :abi=>:abi_stable}},
+    "meba_inst_t"  => {:type_fam=>:type_alias, :type_name=>"meba_inst_t",  :type_next=>"meba_inst_t",  :type_resolved=>{:type=>"meba_inst_t",  :abi=>:abi_stable}},
     "mesa_bool_t"  => {:type_fam=>:type_alias, :type_name=>"mesa_bool_t",  :type_next=>"mesa_bool_t",  :type_resolved=>{:type=>"mesa_bool_t",  :abi=>:abi_stable}},
 
     # terminal types
@@ -788,6 +789,9 @@ def handle_func_proto ast
         if n.to_s.include? "mesa_phy"
             return
         end
+        if n.to_s.include? "mepa"
+            return
+        end
     end
 
     f = ast[:func_proto]
@@ -922,10 +926,10 @@ end
 
 $options[:input_files].each do |x|
     begin
-        next if x == "./mesa/include/mscc/ethernet/switch/api/utils.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/hdr_end.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/hdr_start.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/port_list.h"
+        next if x == "./mesa/include/microchip/ethernet/switch/api/utils.h"
+        next if x == "./mesa/include/microchip/ethernet/hdr_end.h"
+        next if x == "./mesa/include/microchip/ethernet/hdr_start.h"
+        next if x == "./mesa/include/microchip/ethernet/switch/api/port_list.h"
         next if /vtss/ =~ x
         next if not (/.*\.h$/ =~ x)
 
@@ -963,13 +967,18 @@ resolve_all_types
 $tl = []
 $tl_implemented = []
 
+def skip_inst(a)
+    str = a[:type_base]
+    skip = (str == "mesa_inst_t" or str == "meba_inst_t")
+end
+
 $methods.each do |m, o|
     aaa = nil
     #begin
         cap = (m == "mesa_capability")
         aa = analyze_args o[:args]
         aa.each do |a|
-            next if a[:type_base] == "mesa_inst_t"
+            next if skip_inst(a)
             t = (cap ? "mesa_cap_t" : a[:type_resolved][:type_resolved][:type])
             $tl << t
         end
@@ -1300,7 +1309,7 @@ $methods.each do |m, o|
 
         str1 = ""
         aa.each do |a|
-            next if a[:type_base] == "mesa_inst_t"
+            next if skip_inst(a)
             str = a[:type_base]
             str1 = "[#{a[:array][0]}]" if (a[:array].size > 0)
             $c_src.puts "    #{str} #{a[:arg_name]}#{str1};"
@@ -1309,7 +1318,7 @@ $methods.each do |m, o|
         $c_src.puts ""
         prev_arg = ""
         aa.each do |a|
-            next if a[:type_base] == "mesa_inst_t"
+            next if skip_inst(a)
             next if a[:direction] == :DIR_OUT
             if (a[:array].size > 0)
                 end_str = a[:array][0]
@@ -1339,7 +1348,8 @@ $methods.each do |m, o|
         end
 
         begin
-            has_rc = (o[:normal][:type].to_s.strip == "mesa_rc")
+            str = o[:normal][:type].to_s.strip
+            has_rc = (str == "mesa_rc" or str == "mepa_rc")
             $c_src.puts "/* #{__LINE__} */"
             if has_rc
                 $c_src.print "    MESA_RC(json_rpc_call(req, #{m}("
@@ -1349,8 +1359,11 @@ $methods.each do |m, o|
             is_array = false
             aa.each do |a|
                 $c_src.print ", " if a != aa.first
-                if a[:type_base] == "mesa_inst_t"
+                str = a[:type_base]
+                if str == "mesa_inst_t"
                     $c_src.print "NULL"
+                elsif str == "meba_inst_t"
+                    $c_src.print "meba_global_inst"
                 else
                     $c_src.print "&" if a[:ptr] and !is_array
                     $c_src.print "#{a[:arg_name]}"
@@ -1365,7 +1378,7 @@ $methods.each do |m, o|
         prev_arg = ""
 
         aa.each do |a|
-            next if a[:type_base] == "mesa_inst_t"
+            next if skip_inst(a)
 
             #$c_src.puts "#if 0"
             #$c_src.puts a.pretty_inspect

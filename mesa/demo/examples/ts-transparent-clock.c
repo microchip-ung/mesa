@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "cli.h"
 #include "example.h"
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 static mesa_vid_t  vid = 100;
 static mesa_ace_id_t acl_id = 1;

@@ -29,12 +29,19 @@ target_link_libraries(init PUBLIC "-static")
 add_executable(fa_board_fpga_init fa_board_fpga_init.c)
 add_executable(fa_spi_chip_id     fa_spi_chip_id.c)
 
+include_directories(../../meba/include)
+
 if (EXISTS ag/mesa-rpc.c AND EXISTS ag/mesa-rpc.h AND ${MESA_PRE_AG})
 set(MESA_RPC ag/mesa-rpc.c)
 include_directories(ag)
 else()
+set(API_MEBA_CACHE_IN)
+list(APPEND API_MEBA_CACHE_IN meba/include/microchip/ethernet/board/api/types.h)
+list(APPEND API_MEBA_CACHE_IN meba/include/microchip/ethernet/board/api/phy.h)
+list(APPEND API_MEBA_CACHE_IN mepa/include/microchip/ethernet/phy/api/types.h)
+list(APPEND API_MEBA_CACHE_IN mepa/include/microchip/ethernet/phy/api/phy.h)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.c
-                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../mesa/scripts/ag2.rb -b ${CMAKE_CURRENT_SOURCE_DIR}/../.. -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN}
+                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../mesa/scripts/ag2.rb -b ${CMAKE_CURRENT_SOURCE_DIR}/../.. -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN} ${API_MEBA_CACHE_IN}
                    DEPENDS mesa_cache
                    COMMENT "Generate mesa-rpc.h/mesa-rpc.c")
 add_custom_target(mesa_rpc_src DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.c)
@@ -71,7 +78,16 @@ macro(APP_TARGET)
     endif()
 
     add_executable(${A_NAME} main.c)
-    target_link_libraries(${A_NAME} mesa_demo_lib mesa_demo_examples_lib ${A_MESA} ${A_MEBA} json-c)
+    target_link_libraries(${A_NAME}
+        mesa_demo_lib
+        mesa_demo_examples_lib
+        json-c
+        ${A_MESA}
+        ${A_MEBA}_static
+        mepa_vtss_static
+        mepa_intel_static
+        mepa_aqr_static
+    )
     set_target_properties(${A_NAME} PROPERTIES OUTPUT_NAME "mesa-demo-${A_MESA}")
 
     if (${A_NAME})
@@ -133,10 +149,6 @@ macro(IMG_TARGET)
 
     # Add overlays
     set(cmd ${cmd} -i ${CMAKE_CURRENT_SOURCE_DIR}/overlay)
-
-    # Install the PHY drivers
-    list(APPEND SOLIBS phy_aqr)
-    set(cmd ${cmd} -i $<TARGET_FILE:phy_aqr>@lib/phy_drivers/)
 
     # Make sure the 'init' program is installed, even though it is not always needed
     list(APPEND EXECUTABLES init)

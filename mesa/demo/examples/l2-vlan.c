@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "cli.h"
 #include "example.h"
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 static struct {
     mesa_port_no_t        uport;

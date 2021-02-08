@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 
-#ifndef _MSCC_ETHERNET_BOARD_POE_GENERIC_H_
-#define _MSCC_ETHERNET_BOARD_POE_GENERIC_H_
+#ifndef _MICROCHIP_ETHERNET_BOARD_POE_GENERIC_H_
+#define _MICROCHIP_ETHERNET_BOARD_POE_GENERIC_H_
 
 #include <stdio.h>
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/board/api.h"
 
 mesa_rc meba_poe_generic_chip_initialization(
     const meba_inst_t               inst);
@@ -101,4 +101,4 @@ mesa_rc meba_poe_generic_port_pd_data_clear(
     const meba_inst_t               inst,
     mesa_port_no_t                  port_no);
 
-#endif  // _MSCC_ETHERNET_BOARD_POE_GENERIC_H_
+#endif  // _MICROCHIP_ETHERNET_BOARD_POE_GENERIC_H_

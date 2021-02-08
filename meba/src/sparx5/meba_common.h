@@ -1,7 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
+#define MAX_PORTS 57
 typedef struct {
     meba_port_entry_t  map;
     uint32_t           board_port;
@@ -50,5 +50,6 @@ typedef struct meba_board_state {
     int                   cpu_port_cnt;
     fa_port_info_t       *port;
     const board_func_t    *func;
+     mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 

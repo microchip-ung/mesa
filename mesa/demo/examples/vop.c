@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "cli.h"
 #include "example.h"
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 static uint8_t                rx_uc_addr[6] = {0,0,0,0,5,6};
 static uint8_t                tx_uc_addr[6] = {0,0,0,0,5,7};

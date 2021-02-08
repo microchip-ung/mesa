@@ -53,7 +53,7 @@ if not $options[:cache_only]
     $c_hdr = File.open("#{$options[:output_dir]}/mesa.h", "w")
     $c_src = File.open("#{$options[:output_dir]}/mesa.c", "w")
     $c_hdr.puts "#include \"vtss_api.h\""
-    $c_hdr.puts "#include <mscc/ethernet/switch/api.h>"
+    $c_hdr.puts "#include <microchip/ethernet/switch/api.h>"
     $c_hdr.puts ""
     $c_hdr.puts "#ifndef __MESA_H__"
     $c_hdr.puts "#define __MESA_H__"
@@ -887,10 +887,10 @@ end
 
 $options[:input_files].each do |x|
     begin
-        next if x == "./mesa/include/mscc/ethernet/switch/api/utils.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/hdr_end.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/hdr_start.h"
-        next if x == "./mesa/include/mscc/ethernet/switch/api/port_list.h"
+        next if x == "./mesa/include/microchip/ethernet/switch/api/utils.h"
+        next if x == "./mesa/include/microchip/ethernet/hdr_end.h"
+        next if x == "./mesa/include/microchip/ethernet/hdr_start.h"
+        next if x == "./mesa/include/microchip/ethernet/switch/api/port_list.h"
         next if x == "./include/vtss_os_ecos.h"
         next if x == "./include/vtss_os_linux.h"
         next if not (/.*\.h$/ =~ x)

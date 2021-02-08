@@ -18,7 +18,7 @@
 The following public header files (and implementation) have been removed in this
 release:
 
-* MESA-headers (in `./mesa/include/mscc/ethernet/switch/api`):
+* MESA-headers (in `./mesa/include/microchip/ethernet/switch/api`):
 ** `evc.h`
 ** `hqos.h`
 ** `hw_prot.h`

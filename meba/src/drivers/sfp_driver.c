@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <ctype.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 #include <unistd.h>
 #include "../meba_aux.h"
 

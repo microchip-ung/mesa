@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_aux.h"
 
@@ -13,7 +13,7 @@
 #define GREEN 1    // NB: Red/Green reversed in board docs
 #define LED_ON  MESA_SGPIO_MODE_OFF    // Inverse polarity
 #define LED_OFF MESA_SGPIO_MODE_ON     // Inverse polarity
-
+#define MAX_PORTS 8
 /* Local mapping table */
 typedef struct {
     int32_t                chip_port;
@@ -28,6 +28,7 @@ typedef meba_port_entry_t ocelot_port_info_t;
 typedef struct meba_board_state {
     int                   port_cnt;
     meba_port_entry_t     *entry;
+    mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 
 /* --------------------------- Board specific ------------------------------- */
@@ -258,6 +259,7 @@ static mesa_rc ocelot_port_led_update(meba_inst_t inst,
 static mesa_rc ocelot_reset(meba_inst_t inst,
                             meba_reset_point_t reset)
 {
+    meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
     mesa_port_no_t int_phy_base_port = 4, ext_phy_base_port = 0;
 
@@ -290,6 +292,11 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
         case MEBA_SYNCE_DPLL_INITIALIZE:
             break;
         case MEBA_POE_INITIALIZE:
+            break;
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
     }
 

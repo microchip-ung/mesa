@@ -111,7 +111,7 @@ covered in more details later. See <<ug1068>> for more details.
 
 ==== MEBA
 
-The MSCC Ethernet Board API (MEBA) is created to provide an abstract
+The Microchip Ethernet Board API (MEBA) is created to provide an abstract
 interface to all the board facilities. MSCC provides a MEBA library for each of
 the reference systems, and the main application should use it to handle the
 board specific details. If customers are doing a custom board, then they should
@@ -120,7 +120,7 @@ also do an implementation of the MEBA library which matches their board. See
 
 ==== MESA
 
-The MSCC Ethernet Switch API (MESA) is the component covered in this document.
+The Microchip Ethernet Switch API (MESA) is the component covered in this document.
 
 ==== Third-party Application
 
@@ -212,7 +212,7 @@ implements a function to query the status of a given capability:
 uint32_t mesa_capability(mesa_inst_t inst, int cap);
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/capability.h
+.microchip/ethernet/switch/api/capability.h
 ----
 typedef enum {
     MESA_CAP_MISC_GPIO_CNT = 0,  /**< Number of GPIOs */
@@ -393,7 +393,7 @@ members.
 This is illustrated below:
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/evc.h
+.microchip/ethernet/switch/api/evc.h
 ----
 typedef struct {
   mesa_vcap_vr_t  dscp;
@@ -469,7 +469,7 @@ but the `vstax2` and `sr` are quite special and does consume some space - we
 do not want to included them every representation of a mac-table in user space.
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/l2.suggested.h
+.microchip/ethernet/switch/api/l2.suggested.h
 ----
 typedef struct {
   mesa_vid_mac_t vid_mac;
@@ -554,7 +554,7 @@ Below is illustrated how the same behavioral can be achieved without making the
 ABI depending on the actual configuration.
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/l2.h
+.microchip/ethernet/switch/api/l2.h
 ----
 typedef struct {
   mesa_port_mask_t port_list;
@@ -600,7 +600,7 @@ vtss_rc vtss_vlan_tx_tag_set(
 ----
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/l2.h
+.microchip/ethernet/switch/api/l2.h
 ----
 mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
                              const mesa_vid_t         vid,
@@ -743,7 +743,7 @@ typedef struct {
 ----
 
 [source,c,linenums]
-.mscc/ethernet/switch/api/qos.h
+.microchip/ethernet/switch/api/qos.h
 ----
 typedef struct {
     mesa_shaper_t              shaper;
@@ -1208,7 +1208,7 @@ further. Here is a small example using it:
 .vtss_appl/main/caparray.hxx
 ----
 #include "caparray.hxx"
-#include "mscc/ethernet/switch/api/capability.h"
+#include "microchip/ethernet/switch/api/capability.h"
 
 struct Foo {
     int a, b;
@@ -1241,7 +1241,7 @@ Following is the CapArray sources.
 .vtss_appl/main/caparray.hxx
 ----
 /*
-Copyright (c) 2004-2020 Microsemi Corporation "Microsemi".
+Copyright (c) 2004-2021 Microsemi Corporation "Microsemi".
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1736,7 +1736,7 @@ class CapArray<T, C1, C2, C3, C4> {
 [bibliography]
 == References
 
-- [[[AN1007]]] MSCC Ethernet API Software
+- [[[AN1007]]] Microchip Ethernet API Software
 - [[[ug1068]]] SW Introduction to WebStaX under Linux
 - [[[ug1069]]] MEBA Programmers Guide
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <stdio.h>
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/board/api.h"
 #include "meba_poe_generic.h"
 
 #define MESA_RC(EXPR) { mesa_rc rc = EXPR; if (rc != MESA_RC_OK) { return rc; } }

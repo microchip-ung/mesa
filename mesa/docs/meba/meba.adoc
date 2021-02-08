@@ -29,7 +29,7 @@ implementation to make WebStaX/MESA-Demo run.
 Throughout the document the following terms are used.
 
 MEBA API:: The "C" language application programming interface defined
-by the header `<mscc/ethernet/board/api.h>`, being part of the
+by the header `<microchip/ethernet/board/api.h>`, being part of the
 Microsemi Switch API. This is located in the `meba/include` directory
 of the Microsemi Switch API source tree.
 
@@ -83,7 +83,7 @@ image::meba-overview.png[align="center"]
 == Using MEBA
 
 To use MEBA, the application is expected to include the
-`mscc/ethernet/board/api.h` header, which provides access to all the defined
+`microchip/ethernet/board/api.h` header, which provides access to all the defined
 MEBA symbols and types.
 
 The initialization sequence for an application using MEBA must perform
@@ -437,7 +437,7 @@ of a graph for a Serval2 Lite board:
 image::SyncE_board_graph_Serval2_lite.svg[align="center"]
 
 The data types used for specifying the board graph are defined in
-`mscc/ethernet/board/api/synce.h`.
+`microchip/ethernet/board/api/synce.h`.
 
 The graph itself (the array synce_graph_elements_serval2_lite_board) is defined
 in `meba/src/servalt/synce.c`

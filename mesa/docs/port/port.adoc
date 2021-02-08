@@ -58,11 +58,11 @@ TBD
 //    - meba_maliby_driver_init
 //    - meba_venice_driver_init
 //All these functions can be found in:
-//meba/include/mscc/ethernet/board/api/phy_driver.h
+//meba/include/microchip/ethernet/board/api/phy_driver.h
 //
 //The initialization of the sfp_drivers is the same as the phy_driver. The only
 //difference is that there are other init functions that need to be called. Ex:
-//meba/include/mscc/ethernet/board/api/sfp_driver.h
+//meba/include/microchip/ethernet/board/api/sfp_driver.h
 //
 //It is developer responsibility to keep track of all existing drivers.
 //

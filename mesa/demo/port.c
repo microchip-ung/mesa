@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 #include <dlfcn.h> //for dlopen, dlsym
-#include "mscc/ethernet/switch/api.h"
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/switch/api.h"
+#include "microchip/ethernet/board/api.h"
 #include "main.h"
 #include "trace.h"
 #include "cli.h"
@@ -40,7 +40,7 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 meba_inst_t meba_global_inst;
 #define LOOP_PORT_INVALID  0xFFFFFFFF
 static uint32_t loop_port = LOOP_PORT_INVALID;
-static meba_phy_driver_t *phy_drivers = NULL;
+static mepa_driver_t *phy_drivers = NULL;
 /* ================================================================= *
  *  Port control
  * ================================================================= */
@@ -283,7 +283,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     mscc_appl_port_conf_t   *pc = &entry->conf;
     mesa_port_status_t      *ps = &entry->status;
     mesa_port_conf_t        conf;
-    mesa_phy_conf_t         phy;
+    mepa_driver_conf_t      phy;
     meba_port_cap_t         cap = entry->meba.cap;
 
     if (mesa_port_conf_get(NULL, port_no, &conf) != MESA_RC_OK) {
@@ -325,22 +325,20 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
             } else {
                 /* Setup PHY */
                 memset(&phy, 0, sizeof(phy));
-                phy.mode = (pc->admin.enable ?
-                            (pc->autoneg || pc->speed == MESA_SPEED_1G ?
-                             MESA_PHY_MODE_ANEG : MESA_PHY_MODE_FORCED) :
-                            MESA_PHY_MODE_POWER_DOWN);
-                phy.aneg.speed_10m_hdx = 1;
-                phy.aneg.speed_10m_fdx = 1;
-                phy.aneg.speed_100m_hdx = 1;
-                phy.aneg.speed_100m_fdx = 1;
-                phy.aneg.speed_1g_fdx = 1;
-                phy.aneg.symmetric_pause = pc->flow_control;
-                phy.aneg.asymmetric_pause = pc->flow_control;
-                phy.forced.speed = pc->speed;
-                phy.forced.fdx = pc->fdx;
-                phy.mdi = MESA_PHY_MDIX_AUTO; // always enable auto detection of crossed/non-crossed cables
-                if (mesa_phy_conf_set(NULL, port_no, &phy) != MESA_RC_OK) {
-                    T_E("mesa_phy_conf_set(%u) failed", port_no);
+                if (pc->admin.enable) {
+                    phy.admin.enable = 1;
+                    if (pc->autoneg || pc->speed == MESA_SPEED_1G) {
+                        // Auto negotiation
+                        phy.speed = (pc->autoneg ? MESA_SPEED_AUTO : MESA_SPEED_1G);
+                        phy.flow_control = pc->flow_control;
+                    } else {
+                        // Forced speed
+                        phy.speed = pc->speed;
+                        phy.fdx = pc->fdx;
+                    }
+                }
+                if (meba_phy_conf_set(meba_global_inst, port_no, &phy) != MESA_RC_OK) {
+                    T_E("meba_phy_conf_set(%u) failed", port_no);
                     return;
                 }
                 if (!init) {
@@ -377,7 +375,7 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
 {
     port_entry_t       *entry;
     mesa_port_status_t *ps;
-    meba_phy_driver_status_t phy_status;
+    mepa_driver_status_t phy_status;
 
     T_N("Enter, port %d", port_no);
 
@@ -386,17 +384,15 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
 
     if (entry->media_type == MSCC_PORT_TYPE_CU) {
         if (entry->phy_device != NULL) { // AQR Phys
-            entry->phy_device->drv->meba_phy_driver_poll(entry->phy_device, &phy_status);
-            ps->link = phy_status.link;
-            ps->speed = phy_status.speed;
-            ps->fdx = phy_status.fdx;
-        } else {
-            if (mesa_phy_status_get(NULL, port_no, ps) != MESA_RC_OK) {
-                T_E("mesa_phy_status_get(%u) failed (disable polling)", port_no);
-                entry->valid = FALSE; // Polling disabled
-                return MESA_RC_ERROR;
-            }
+            entry->phy_device->drv->mepa_driver_poll(entry->phy_device, &phy_status);
+        } else if (meba_phy_status_poll(meba_global_inst, port_no, &phy_status) != MESA_RC_OK) {
+            T_E("meba_phy_status_get(%u) failed (disable polling)", port_no);
+            entry->valid = FALSE; // Polling disabled
+            return MESA_RC_ERROR;
         }
+        ps->link = phy_status.link;
+        ps->speed = phy_status.speed;
+        ps->fdx = phy_status.fdx;
     } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
         if (mesa_port_status_get(NULL, port_no, ps) != MESA_RC_OK) {
             T_E("mesa_port_status_get(%u) failed", port_no);
@@ -732,8 +728,8 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
     }
 }
 
-meba_phy_driver_conf_t create_phy_conf() {
-    meba_phy_driver_conf_t phy_conf = {};
+mepa_driver_conf_t create_phy_conf() {
+    mepa_driver_conf_t phy_conf = {};
     phy_conf.speed = MESA_SPEED_AUTO;
     phy_conf.fdx = TRUE;
     phy_conf.admin.enable = TRUE;
@@ -741,15 +737,15 @@ meba_phy_driver_conf_t create_phy_conf() {
 }
 
 static void set_phy_driver(mesa_port_no_t port_no, uint32_t model,
-                           meba_phy_driver_address_t address_mode) {
+                           mepa_driver_address_t address_mode) {
     port_entry_t    *entry = &port_table[port_no];
-    meba_phy_driver_t *driver = phy_drivers;
+    mepa_driver_t *driver = phy_drivers;
 
     while (driver != NULL) {
         if ((driver->id & driver->mask) == (model & driver->mask)) {
-            entry->phy_device = driver->meba_phy_driver_probe(driver, &address_mode);
-            meba_phy_driver_conf_t phy_conf = create_phy_conf();
-            driver->meba_phy_driver_conf_set(entry->phy_device, entry->meba.cap, &phy_conf);
+            entry->phy_device = driver->mepa_driver_probe(driver, &address_mode);
+            mepa_driver_conf_t phy_conf = create_phy_conf();
+            driver->mepa_driver_conf_set(entry->phy_device, &phy_conf);
             T_D("Port: %d, create device for driver: %x", port_no, driver->id);
         }
         driver = driver->next;
@@ -758,7 +754,7 @@ static void set_phy_driver(mesa_port_no_t port_no, uint32_t model,
 
 static void set_aqr_driver(mesa_port_no_t port_no) {
     uint16_t model = 0;
-    meba_phy_driver_address_t address_mode = {};
+    mepa_driver_address_t address_mode = {};
     address_mode.mode = mscc_phy_driver_address_mode;
     address_mode.val.mscc_address.mmd_read = mesa_port_mmd_read;
     address_mode.val.mscc_address.mmd_write = mesa_port_mmd_write;
@@ -779,13 +775,13 @@ static void add_aqr_driver() {
         T_E("Unable to load aqr driver");
         return;
     }
-    meba_phy_drivers_t (*drv)(void) = dlsym(dlh, "driver_init");
+    mepa_drivers_t (*drv)(void) = dlsym(dlh, "driver_init");
     if (!drv) {
         T_E("Unable to locate 'driver_init' func");
         dlclose(dlh);
         return;
     }
-    meba_phy_drivers_t res = drv();
+    mepa_drivers_t res = drv();
     for (int i = 0; i < res.count; ++i) {
         res.phy_drv[i].next = phy_drivers;
         phy_drivers = &res.phy_drv[i];
@@ -1193,8 +1189,6 @@ static void port_init(meba_inst_t inst)
     if (port_table != NULL) {
         free(port_table);
     }
-    /* Store the meba inst globally */
-    meba_global_inst = inst;
 
     // Initialize ports
     if ((port_table = calloc(port_cnt, sizeof(*port_table))) == NULL) {
@@ -1209,6 +1203,7 @@ static void port_init(meba_inst_t inst)
 
     // Port reset
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET);
+    MEBA_WRAP(meba_reset, inst, MEBA_PHY_INITIALIZE);
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
         entry = &port_table[port_no];
@@ -1265,15 +1260,11 @@ static void port_init(meba_inst_t inst)
                 }
                 set_aqr_driver(port_no);
             } else {
-                mesa_phy_reset_conf_t phy_reset;
-                if (mesa_phy_reset_get(NULL, port_no, &phy_reset) != MESA_RC_OK) {
-                    T_E("mesa_phy_reset_get(%u) failed", port_no);
-                    continue;
-                }
-                phy_reset.mac_if = entry->meba.mac_if;
-                phy_reset.media_if = MESA_PHY_MEDIA_IF_CU;
-                if (mesa_phy_reset(NULL, port_no, &phy_reset) != MESA_RC_OK) {
-                    T_E("mesa_phy_reset(%u) failed", port_no);
+                mepa_reset_param_t phy_reset;
+                phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
+                T_I("phy_reset: %u", port_no);
+                if (meba_phy_reset(inst, port_no, &phy_reset) != MESA_RC_OK) {
+                    T_E("meba_phy_reset(%u) failed", port_no);
                     continue;
                 }
             }

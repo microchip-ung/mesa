@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
+#include <microchip/ethernet/phy/api.h>
 
 #include "meba_aux.h"
 #include "meba_generic.h"
@@ -25,6 +26,8 @@
 #define PHY_ID_AQR412_B0      0xB6F2
 #define PHY_ID_AQR411C_A0_ES1 0xB700
 #define PHY_ID_AQR412C_A0_ES1 0xB710
+
+#define PORTS_MAX 53
 
 #define PHY_ID_GPY241 0xDC00
 
@@ -119,6 +122,8 @@ typedef struct meba_board_state {
     uint16_t              gpy241_sb_present; // UNG 8277
     uint16_t              venice_present; //Stores the model value otherwise 0
     int                   phy10g_ts_cnt;
+
+    mepa_device_t        *phy_devices[PORTS_MAX];
 } meba_board_state_t;
 
 static const mesa_fan_conf_t fan_conf = {
@@ -226,6 +231,7 @@ static mesa_bool_t jr2_10g_malibu_detect(const meba_inst_t inst)
 
     /* Trying to read PHY ID at MIIM controller = 0 */
     if (mebaux_mmd_rd(inst, &rawio, 0, 0, 30, 0, &model) == MESA_RC_OK) {
+        T_I(inst, "10g phy model %x\n", model);
         if (model == 0x8254 || model == 0x8256 || model == 0x8257 || model == 0x8258) {
             return true;
         }
@@ -1959,6 +1965,11 @@ static mesa_rc jr2_reset(meba_inst_t inst,
             break;
         case MEBA_POE_INITIALIZE:
             break;
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
+            break;
     }
     return rc;
 }
@@ -3258,7 +3269,6 @@ static void i2c_add_sym_link(meba_inst_t inst, uint32_t port, uint32_t cap,
     }
 }
 
-
 // Public Initialize
 
 meba_inst_t meba_initialize(size_t callouts_size,
@@ -3267,7 +3277,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     meba_inst_t         inst;
     meba_board_state_t *board;
     mesa_port_no_t      port_no;
-    int                 i;
+    int                 i=0;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",

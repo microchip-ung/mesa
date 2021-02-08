@@ -8,8 +8,8 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <netinet/in.h>
-#include "mscc/ethernet/switch/api.h"
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/switch/api.h"
+#include "microchip/ethernet/board/api.h"
 #include <mesa-rpc.h>
 #include "trace.h"
 #include "main.h"

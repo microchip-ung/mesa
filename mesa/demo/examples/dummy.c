@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "cli.h"
 #include "example.h"
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 const char *dummy_help_txt = "\
 This is a dummy test.\n\

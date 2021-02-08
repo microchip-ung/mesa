@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_aux.h"
 
@@ -30,6 +30,8 @@
 #define STATUS_RED_PORT   6
 #define STATUS_RED_BIT    3
 
+#define MAX_PORTS         9
+
 /* LED tower mode */
 typedef enum {
     LED_TOWER_MODE_LINK_SPEED,      /**< Green: 1G link/activity; Orange: 10/100 link/activity */
@@ -54,6 +56,7 @@ typedef struct meba_board_state {
     led_tower_mode_t      led_tower_mode;
     servalt_port_info_t   *port;
     const mesa_fan_conf_t *fan_spec;
+    mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 
 static const mesa_fan_conf_t fan_conf = {
@@ -458,6 +461,11 @@ static mesa_rc servalt_reset(meba_inst_t inst,
             }
             break;
         case MEBA_POE_INITIALIZE:
+            break;
+            case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
     }
 

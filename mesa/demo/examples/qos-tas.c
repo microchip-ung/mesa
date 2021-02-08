@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "cli.h"
 #include "example.h"
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 static const char *tas_help_txt = "\
 This is a Time Aware Scheduling test. Currently only able to run on 1G link\n\

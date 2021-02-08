@@ -10,7 +10,7 @@
 #include<sys/mman.h>
 #include <linux/i2c-dev.h>  /* I2C support */
 #include <errno.h> 
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 #include "../meba_aux.h"
 #include "../meba_generic.h"
 

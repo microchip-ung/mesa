@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 
-#ifndef _MSCC_ETHERNET_BOARD_POE_DRIVER_H_
-#define _MSCC_ETHERNET_BOARD_POE_DRIVER_H_
+#ifndef _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
+#define _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
 
-#include <mscc/ethernet/board/api/types.h>
-#include <mscc/ethernet/switch/api/types.h>
+#include <microchip/ethernet/board/api/types.h>
+#include <microchip/ethernet/switch/api/types.h>
 
 typedef struct {
     const char *i2c_device;
@@ -77,4 +77,4 @@ void meba_pd69200bt_driver_init(
     uint32_t                    psu_map_length,
     meba_debug_t                debug);
 
-#endif // _MSCC_ETHERNET_BOARD_POE_DRIVER_H_
+#endif // _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_

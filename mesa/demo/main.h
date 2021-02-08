@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 typedef enum {
     MSCC_INIT_CMD_REG,       // Register trace and startup options

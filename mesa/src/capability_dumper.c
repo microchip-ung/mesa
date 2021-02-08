@@ -5,8 +5,8 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "mscc/ethernet/switch/api/misc.h"
-#include "mscc/ethernet/switch/api/capability.h"
+#include "microchip/ethernet/switch/api/misc.h"
+#include "microchip/ethernet/switch/api/capability.h"
 
 int main(int argc, char *argv[]) {
     int i, cap;

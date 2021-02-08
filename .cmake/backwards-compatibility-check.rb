@@ -223,15 +223,31 @@ $default_configs = "istax_multi.mk"
 #      "b44a6ccf33@master",            # Appl release to use
 #      $default_configs)               # Configs to build
 
-# Backwards compatibility with previous build was broken because of addition of the PUSH_BUTTON
-# IRQ source
+# Backwards compatibility with previous build was broken because of MEPA updates
+#check("backwards-check",              # Name of check
+#      "0c82a739d8@master.mepa",       # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because of change in
+# MEPA library names
+#check("backwards-check",              # Name of check
+#      "1aa78aaf02@master.mepa",       # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because of addition of
+# the PUSH_BUTTON IRQ source
+#check("backwards-check",              # Name of check
+#      "8aa7926f19@master",            # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because of MEPA
 check("backwards-check",              # Name of check
-      "8aa7926f19@master",            # Appl release to use
+      "562a234fb3@master.port.mepa",  # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
-# DO NOT COMMENT OUT / DELETE THIS ENTRY - IF YOU BELIVE IT IS NEEDED, ASK
+# DO NOT COMMENT OUT / DELETE THIS ENTRY - IF YOU BELIEVE IT IS NEEDED, ASK
 # ALLAN W. NIELSEN TO DO IT FOR YOU!
 #check("backwards-check",        # Name of check
 #      "xxxxxxx@4-rel",          # Appl release to use

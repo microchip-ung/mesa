@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 
 mesa_rc vt_port_config(const mesa_inst_t inst) {
     mesa_rc rc = MESA_RC_OK;

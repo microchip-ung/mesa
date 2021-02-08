@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <stdio.h>
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/board/api.h"
 #include "meba_poe_generic.h"
 #include "poe_driver.h"
 

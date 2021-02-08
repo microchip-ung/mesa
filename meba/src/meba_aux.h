@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <fcntl.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_generic.h"
 

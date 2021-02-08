@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_aux.h"
 
@@ -15,7 +15,7 @@ typedef enum {
     BOARD_TYPE_OCELOT_PCB120,
     BOARD_TYPE_OCELOT_PCB123,
 } board_type_t;
-
+#define MAX_PORTS 11
 typedef enum {
     SFP_DETECT,
     SFP_FAULT,
@@ -43,6 +43,7 @@ typedef struct meba_board_state {
     ocelot_port_info_t    *port;
     uint32_t              *sgpio_port;
     const board_func_t    *func;
+    mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 
 static const meba_aux_rawio_t rawio = {
@@ -790,6 +791,12 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
             break;
         case MEBA_POE_INITIALIZE:
             break;
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
+            break;
+
     }
 
     return rc;

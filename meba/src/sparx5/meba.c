@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/board/api.h>
 
 #include "meba_aux.h"
 #include "meba_generic.h"
@@ -1253,6 +1253,8 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                 }
                 // Take Aquantia Phy out of reset
                 (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
+                // Delay for aquantia phy coming out of reset
+                VTSS_MSLEEP(50);
             }
             break;
         case MEBA_PORT_RESET_POST:
@@ -1328,6 +1330,11 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                     rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
                 }
             }
+            break;
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
     }
     T_D(inst, "Called - %d - Done", reset);

@@ -5,7 +5,9 @@
 #ifndef _MSCC_APPL_PORT_H_
 #define _MSCC_APPL_PORT_H_
 
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
+#include "microchip/ethernet/board/api.h"
+#include "microchip/ethernet/phy/api.h"
 // #include "sfp.h"
 
 char *mesa_port_spd2txt(mesa_port_speed_t speed);
@@ -26,7 +28,7 @@ typedef enum {
 
 // Port configuration
 typedef struct {
-    meba_port_admin_state_t admin;       /* Admin enable/disable */
+    mesa_port_admin_state_t admin;       /* Admin enable/disable */
     mesa_bool_t             autoneg;      /* Auto negotiation */
     mesa_port_speed_t       speed;        /* Forced port speed */
     mesa_bool_t             fdx;          /* Forced duplex mode */
@@ -45,8 +47,8 @@ typedef struct {
     meba_sfp_transreceiver_t sfp_type;
     meba_sfp_device_t     *sfp_device;
     meba_sfp_driver_t     sfp_driver;
-    meba_phy_device_t     *phy_device;
-    meba_phy_driver_t     phy_driver;
+    mepa_device_t     *phy_device;
+    mepa_driver_t     phy_driver;
 } port_entry_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

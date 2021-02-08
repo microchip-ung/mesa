@@ -3,7 +3,7 @@
 
 
 #include <vtss_api.h>
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 #include "mesa_internal.h"        /* For MESA_ASSERT() */
 
 #include "../base/ail/vtss_state.h" /* For VTSS_E() and vtss_inst_check_no_persist() */

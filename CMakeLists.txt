@@ -9,7 +9,7 @@ include(CMakeParseArguments)
 include(.cmake/common.cmake)
 
 option(BUILD_ALL         "Enable all" OFF)
-option(BUILD_STATIC_LIBS "Build static versions of the libraries" OFF)
+option(BUILD_STATIC_LIBS "Build static versions of the libraries" ON)
 option(BUILD_SHARED_LIBS "Build shared versions of the libraries" ON)
 option(BUILD_MESA_ALL    "Build the MESA libraries" OFF)
 option(BUILD_DOXYGEN     "Build doxygen" OFF)
@@ -20,11 +20,13 @@ mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
 
 include(.cmake/doxygen.cmake)
 
+include_directories(me/include)
 include_directories(mesa/include)
 include_directories(meba/include)
+include_directories(mepa/include)
 
 add_subdirectory(meba)
-add_subdirectory(third_party)
+add_subdirectory(mepa)
 
 #find_program(CCACHE_FOUND ccache)
 #if(CCACHE_FOUND)
@@ -52,6 +54,8 @@ file(GLOB_RECURSE API_UNI_HDR_ABS "include/**.h")
 file(GLOB_RECURSE API_MESA_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "mesa/src/**.c")
 file(GLOB_RECURSE API_MESA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mesa/include" "mesa/include/**.h")
 file(GLOB_RECURSE API_MEBA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/meba/include" "meba/include/**.h")
+file(GLOB_RECURSE API_MEPA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mepa/include" "mepa/include/**.h")
+file(GLOB_RECURSE API_ME_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/me/include" "me/include/**.h")
 
 list(REMOVE_ITEM API_MESA_SRC mesa/src/capability_dumper.c)
 
@@ -72,9 +76,9 @@ set(API_MESA_CACHE_OUT)
 set(MESA_CACHE_DENY_LIST include/vtss_os_linux.h
                           include/vtss_os_ecos.h
                           include/vtss_ae_api.h
-                          mesa/include/mscc/ethernet/switch/api/hdr_end.h
-                          mesa/include/mscc/ethernet/switch/api/hdr_start.h
-                          mesa/include/mscc/ethernet/switch/api/port_list.h)
+                          mesa/include/microchip/ethernet/hdr_end.h
+                          mesa/include/microchip/ethernet/hdr_start.h
+                          mesa/include/microchip/ethernet/switch/api/port_list.h)
 
 # Macro to produce the mesa processing cache
 macro(MESA_CACHE)
@@ -110,6 +114,16 @@ ENDFOREACH()
 
 FOREACH(f ${API_MEBA_HDR})
     configure_file("meba/include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
+ENDFOREACH()
+
+FOREACH(f ${API_MEPA_HDR})
+    # Add all mepa headers
+    configure_file("mepa/include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
+ENDFOREACH()
+
+FOREACH(f ${API_ME_HDR})
+    # Add all me headers
+    configure_file("me/include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
 ENDFOREACH()
 
 # Target to drive the mesa-cache processing

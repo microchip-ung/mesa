@@ -3,7 +3,7 @@
 
 
 #include <stdio.h>
-#include "mscc/ethernet/switch/api.h"
+#include "microchip/ethernet/switch/api.h"
 #include "trace.h"
 #include "cli.h"
 #include "example.h"

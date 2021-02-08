@@ -8,8 +8,8 @@
 // TODO!!!
 #define VTSS_PORTS 5
 #include "catch.hpp"
-#include "mscc/ethernet/switch/api/utils.h"
-#include "mscc/ethernet/switch/api/capability.h"
+#include "microchip/ethernet/switch/api/utils.h"
+#include "microchip/ethernet/switch/api/capability.h"
 
 TEST_CASE("caparray 1d", "[CapArray]") {
     CapArray<int, MESA_CAP_PORT_CNT> a1;

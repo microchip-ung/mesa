@@ -9,8 +9,8 @@
 #include <libgen.h>
 #include <sys/time.h>
 
-#include "mscc/ethernet/switch/api.h"
-#include "mscc/ethernet/board/api.h"
+#include "microchip/ethernet/switch/api.h"
+#include "microchip/ethernet/board/api.h"
 #include "main.h"
 #include "trace.h"
 #include "cli.h"

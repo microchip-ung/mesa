@@ -7,7 +7,7 @@ The L3 API provides facilities to configure IP-routing between two or more L2
 broadcast domains. The API supports unicast routing of both IPv4 and IPv6
 traffic, and it support routing between VLANs.
 
-See link:../../../include/mscc/ethernet/switch/api/l3.h.html[l3.h] for more details.
+See link:../../../include/microchip/ethernet/switch/api/l3.h.html[l3.h] for more details.
 
 *NOTE:* All L3 functionality depends on the `mscc-sym:CAP(L3)` capability.
 

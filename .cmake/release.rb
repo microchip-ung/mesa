@@ -339,7 +339,7 @@ $res.addSibling($res_bin)
 $res.addSibling($res_lic) if $do_internal_checks
 
 step $res, "Update CapDB" do
-    run "./mesa/docs/scripts/capdump.rb -o mesa/docs/capdb.yaml -c mesa/include/mscc/ethernet/switch/api/capability.h -C #{$ws}/bin/x86/capability_dumper #{$ws}/bin/x86/libvsc*.so", "capdb"
+    run "./mesa/docs/scripts/capdump.rb -o mesa/docs/capdb.yaml -c mesa/include/microchip/ethernet/switch/api/capability.h -C #{$ws}/bin/x86/capability_dumper #{$ws}/bin/x86/libvsc*.so", "capdb"
     # TODO, check if equal to the one checked into git
     run "cp mesa/docs/capdb.yaml #{$ws}/mesa/docs/capdb.yaml", "capdb"
     run "cp mesa/docs/capdb.yaml images/.", "capdb"

@@ -5,7 +5,7 @@
 #include "catch.hpp"
 #include <assert.h>
 #include <string.h>
-#include "mscc/ethernet/switch/api/port_list.h"
+#include "microchip/ethernet/switch/api/port_list.h"
 #include <type_traits>
 
 TEST_CASE("port_list get", "[port_list]") {
