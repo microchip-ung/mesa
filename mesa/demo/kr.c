@@ -899,6 +899,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("  LD EDC            : %d\n",ctle.edc);
             cli_printf("  LD EQR            : %d\n",ctle.eqr);
 
+            cli_printf("\n  FEC Corr./Uncor.  : %d/%d\n", sts.fec.corrected_block_cnt, sts.fec.uncorrected_block_cnt);
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             cli_printf("\n  Current eye height: %d\n",eye.height);
             cli_printf("  Training time     : %d ms\n",appl->time_ld);
