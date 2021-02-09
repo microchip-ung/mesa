@@ -88,21 +88,6 @@ typedef enum {
     SFP_LOS
 } sfp_signal_t;
 
-// Configure the DAC to use output voltage 1.5V -> 0ppm (default is -5ppm)
-void dac_init()
-{
-    u8 i2c_data[4];
-    i2c_data[0] = 0x38;
-    i2c_data[1] = 0x00;
-    i2c_data[2] = 0x01;
-    (void)jr2_i2c_write(0, 0xf, i2c_data, 3); // use internal ref voltage
-
-    i2c_data[0] = 0x17;
-    i2c_data[1] = 0x99;
-    i2c_data[2] = 0x99;
-    (void)jr2_i2c_write(0, 0xf, i2c_data, 3); // set voltage to 1.5V
-}
-
 /* Jaguar-2 register targets and addresses */
 #define JR2_TGT_GCB            0x01
 #define JR2_ADDR_CHIP_ID       0x02
@@ -379,8 +364,6 @@ static void jr2_init_cu48(void)
     (void)vtss_sgpio_event_enable(NULL, 0, 2, 25, 1, TRUE); // SFPplusA_TXFAULT
     (void)vtss_sgpio_event_enable(NULL, 0, 2, 25, 1, TRUE); // SFPplusB_MODDET
     (void)vtss_sgpio_event_enable(NULL, 0, 2, 25, 2, TRUE); // SFPplusB_TXFAULT
-
-    dac_init();
 }
 
 static void jr2_init_sfp24(void)
@@ -487,8 +470,6 @@ static void jr2_init_sfp24(void)
 
         (void)vtss_sgpio_conf_set(NULL, 0, 2, &conf);
     }
-
-    dac_init();
 }
 
 static void jr2_init_srv2_nid(void)

@@ -713,20 +713,6 @@ static void init_port_aqr(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
     }
 }
 
-void dac_init(meba_inst_t inst)
-{
-    uint8_t i2c_data[4];
-    i2c_data[0] = 0x38;
-    i2c_data[1] = 0x00;
-    i2c_data[2] = 0x01;
-    (void) inst->iface.i2c_write(0, 0xf, i2c_data, 3); // use internal ref voltage
-
-    i2c_data[0] = 0x17;
-    i2c_data[1] = 0x99;
-    i2c_data[2] = 0x99;
-    (void) inst->iface.i2c_write(0, 0xf, i2c_data, 3); // set voltage to 1.5V
-}
-
 static void jr2_init_srv2_nid(meba_inst_t inst)
 {
     mesa_sgpio_conf_t conf;
@@ -908,8 +894,6 @@ static void jr2_init_cu48(meba_inst_t inst)
     (void)jr2_sgpio_event_enable(inst, 2, 25, 1, true); // SFPplusA_TXFAULT
     (void)jr2_sgpio_event_enable(inst, 2, 25, 1, true); // SFPplusB_MODDET
     (void)jr2_sgpio_event_enable(inst, 2, 25, 2, true); // SFPplusB_TXFAULT
-
-    dac_init(inst);
 }
 
 static void jr2_init_sfp24(meba_inst_t inst)
@@ -1025,8 +1009,6 @@ static void jr2_init_sfp24(meba_inst_t inst)
 
         (void)mesa_sgpio_conf_set(NULL, 0, 2, &conf);
     }
-
-    dac_init(inst);
 }
 
 static void jr2_init_aqr(meba_inst_t inst)
