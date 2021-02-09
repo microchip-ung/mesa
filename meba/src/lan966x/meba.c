@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <mscc/ethernet/board/api.h>
+
+#include <microchip/ethernet/board/api.h>
+#include <microchip/ethernet/phy/api.h>
 
 #include "meba_aux.h"
 
@@ -20,9 +22,11 @@ typedef struct {
 
 typedef meba_port_entry_t lan9668_port_info_t;
 
+#define PORTS_MAX 8
 typedef struct meba_board_state {
     int                   port_cnt;
     meba_port_entry_t     *entry;
+    mepa_device_t         *phy_devices[PORTS_MAX];
 } meba_board_state_t;
 
 static const meba_ptp_rs422_conf_t lan9668_rs422_conf = {
@@ -186,6 +190,7 @@ static mesa_rc lan9668_port_entry_get(meba_inst_t inst,
 static mesa_rc lan9668_reset(meba_inst_t inst,
                             meba_reset_point_t reset)
 {
+    meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
 
     T_I(inst, "Called - %d", reset);
@@ -204,6 +209,12 @@ static mesa_rc lan9668_reset(meba_inst_t inst,
         case MEBA_INTERRUPT_INITIALIZE:
         case MEBA_SYNCE_DPLL_INITIALIZE:
         case MEBA_POE_INITIALIZE:
+            break;
+
+        case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
     }
 

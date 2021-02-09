@@ -147,21 +147,6 @@ mesa_trace_level_t meba_to_mesa_level(meba_trace_level_t  level)
     return MESA_TRACE_LEVEL_NONE;
 }
 
-static void debug_func(meba_trace_level_t  level,
-                       const char          *location,
-                       uint32_t            line_no,
-                       const char          *fmt,
-                       ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    if (trace_groups[TRACE_GROUP_DEFAULT].level >= meba_to_mesa_level(level)) {
-        mscc_appl_trace_vprintf(trace_module.name, trace_groups[TRACE_GROUP_DEFAULT].name, meba_to_mesa_level(level), "phy_driver.c", line_no, location, fmt, args);
-    }
-    va_end(args);
-}
-
 static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
                                  mesa_port_interface_t if_type,
                                  mesa_port_speed_t speed_in,
@@ -420,6 +405,7 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
             entry->valid = FALSE; // Polling disabled
             return MESA_RC_ERROR;
         }
+        memset(ps, 0, sizeof(*ps));
         ps->link = phy_status.link;
         ps->speed = phy_status.speed;
         ps->fdx = phy_status.fdx;
