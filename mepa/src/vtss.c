@@ -14,7 +14,8 @@ typedef struct {
     mepa_port_interface_t mac_if;
 } phy_data_t;
 
-static mepa_rc mscc_1g_delete(mepa_device_t *dev) {
+static mepa_rc mscc_1g_delete(mepa_device_t *dev)
+{
     phy_data_t *data = (phy_data_t *)dev->data;
     free(data);
     free(dev);
@@ -22,7 +23,8 @@ static mepa_rc mscc_1g_delete(mepa_device_t *dev) {
     return MEPA_RC_OK;
 }
 
-static mepa_rc reset_phy(phy_data_t *data, mepa_reset_conf_t *conf) {
+static mepa_rc reset_phy(phy_data_t *data, mepa_reset_conf_t *conf)
+{
     mepa_event_t events;
 
     MEPA_RC(mesa_phy_event_enable_get(data->inst, data->port_no, &events));
@@ -31,7 +33,8 @@ static mepa_rc reset_phy(phy_data_t *data, mepa_reset_conf_t *conf) {
 }
 
 static mepa_rc mscc_1g_reset(mepa_device_t *dev,
-                             const mepa_reset_param_t *rst_conf) {
+                             const mepa_reset_param_t *rst_conf)
+{
     mepa_reset_conf_t conf = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
 
@@ -45,7 +48,8 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
 }
 
 static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
-                                  const mepa_reset_param_t *rst_conf) {
+                                  const mepa_reset_param_t *rst_conf)
+{
     mepa_reset_conf_t conf = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
 
@@ -59,12 +63,15 @@ static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
 }
 
 static mepa_rc mscc_1g_poll(mepa_device_t *dev,
-                            mepa_driver_status_t *status) {
+                            mepa_driver_status_t *status)
+{
     phy_data_t *data = (phy_data_t *)dev->data;
     mesa_port_status_t mesa_status = {};
 
     mepa_rc rc = mesa_phy_status_get(data->inst, data->port_no, &mesa_status);
-    if (rc != MEPA_RC_OK) return rc;
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
 
     // fill up status
     status->link = mesa_status.link;
@@ -77,7 +84,8 @@ static mepa_rc mscc_1g_poll(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config) {
+static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
+{
     phy_data_t *data = (phy_data_t *)dev->data;
     mesa_phy_conf_t phy_config = {};
 
@@ -113,7 +121,8 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
 }
 
 static mepa_rc mscc_1g_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
-                              mepa_port_interface_t *mac_if) {
+                              mepa_port_interface_t *mac_if)
+{
     phy_data_t *data = (phy_data_t *)dev->data;
 
     *mac_if = data->mac_if;
@@ -121,20 +130,23 @@ static mepa_rc mscc_1g_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
 }
 
 static mepa_rc mscc_1g_power_set(mepa_device_t *dev,
-                                 mepa_power_mode_t power) {
+                                 mepa_power_mode_t power)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     mesa_phy_power_conf_t power_conf = {};
     power_conf.mode = power;
     return mesa_phy_power_conf_set(data->inst, data->port_no, &power_conf);
 }
 
-static mepa_rc mscc_1g_veriphy_start(mepa_device_t *dev, int mode) {
+static mepa_rc mscc_1g_veriphy_start(mepa_device_t *dev, int mode)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     return mesa_phy_veriphy_start(data->inst, data->port_no, mode);
 }
 
 static mepa_rc mscc_1g_veriphy_get(mepa_device_t *dev,
-                                   mepa_cable_diag_result_t *res) {
+                                   mepa_cable_diag_result_t *res)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     mesa_phy_veriphy_result_t result;
     mepa_rc rc;
@@ -148,7 +160,8 @@ static mepa_rc mscc_1g_veriphy_get(mepa_device_t *dev,
 }
 
 static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
-                                 mepa_media_interface_t phy_media_if) {
+                                 mepa_media_interface_t phy_media_if)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     mesa_phy_reset_conf_t conf = {};
     mesa_phy_reset_get(data->inst, data->port_no, &conf);
@@ -160,17 +173,24 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 }
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
-                                        const mepa_driver_address_t *mode) {
-    if (mode->mode != mscc_phy_driver_address_mode) return NULL;
+                                    const mepa_driver_address_t *mode)
+{
+    if (mode->mode != mscc_phy_driver_address_mode) {
+        return NULL;
+    }
 
     mepa_device_t *device =
         (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
 
-    if (device == NULL) goto out_device;
+    if (device == NULL) {
+        goto out_device;
+    }
 
     phy_data_t *data = (phy_data_t *)calloc(1, sizeof(phy_data_t));
 
-    if (data == NULL) goto out_data;
+    if (data == NULL) {
+        goto out_data;
+    }
 
     device->drv = drv;
     data->inst = mode->val.mscc_address.inst;
@@ -187,7 +207,8 @@ out_device:
 }
 
 static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
-                                     mepa_aneg_status_t *status) {
+                                     mepa_aneg_status_t *status)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     return mesa_phy_status_1g_get(data->inst, data->port_no, status);
 }
@@ -198,7 +219,8 @@ typedef struct malibu_10g_phy_data {
     mepa_port_interface_t mac_if;
 } malibu_10g_phy_data_t;
 
-static mepa_rc phy_10g_delete(mepa_device_t *dev) {
+static mepa_rc phy_10g_delete(mepa_device_t *dev)
+{
     malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)dev->data;
     free(data);
     free(dev);
@@ -207,7 +229,8 @@ static mepa_rc phy_10g_delete(mepa_device_t *dev) {
 }
 
 static mepa_rc malibu_10g_reset(mepa_device_t *dev,
-                                const mepa_reset_param_t *rst_conf) {
+                                const mepa_reset_param_t *rst_conf)
+{
     mesa_phy_10g_mode_t oper_mode = {};
     malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
 
@@ -237,7 +260,8 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
 }
 
 static mepa_rc venice_10g_reset(mepa_device_t *dev,
-                                const mepa_reset_param_t *rst_conf) {
+                                const mepa_reset_param_t *rst_conf)
+{
     mesa_phy_10g_mode_t oper_mode = {};
     mesa_phy_10g_id_t phy_10g_id;
     malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
@@ -256,12 +280,15 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
 
 
 static mepa_rc phy_10g_poll(mepa_device_t *dev,
-                               mepa_driver_status_t *status) {
+                            mepa_driver_status_t *status)
+{
     malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
     mesa_port_status_t mesa_status = {};
 
     mepa_rc rc = mesa_port_status_get(data->inst, data->port_no, &mesa_status);
-    if (rc != MEPA_RC_OK) return rc;
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
 
     status->link   = mesa_status.link;
     status->speed  = mesa_status.speed;
@@ -273,7 +300,8 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config) {
+static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
+{
     malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)dev->data;
     mesa_phy_10g_mode_t mode = {};
 
@@ -283,8 +311,8 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
 
     mepa_port_speed_t speed =
         config->speed == MESA_SPEED_2500M || config->speed == MESA_SPEED_AUTO
-            ? MESA_SPEED_1G
-            : config->speed;
+        ? MESA_SPEED_1G
+        : config->speed;
 
     if (speed == MESA_SPEED_1G) {
         /* Need to flip the lanes to match JR XAUI-lane-0 and 8487 XAUI-lane-0
@@ -293,8 +321,9 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
         if (mode.oper_mode != MESA_PHY_1G_MODE) {
             mode.oper_mode = MESA_PHY_1G_MODE;
             if (mesa_phy_10g_mode_set(data->inst, data->port_no, &mode) !=
-                MEPA_RC_OK)
+                MEPA_RC_OK) {
                 return MEPA_RC_ERROR;
+            }
         }
 
         mesa_phy_10g_clause_37_control_t ctrl = {};
@@ -304,11 +333,12 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
         ctrl.advertisement.asymmetric_pause = config->flow_control;
         ctrl.advertisement.remote_fault =
             (config->admin.enable ? MESA_PHY_10G_CLAUSE_37_RF_LINK_OK
-                                  : MESA_PHY_10G_CLAUSE_37_RF_OFFLINE);
+             : MESA_PHY_10G_CLAUSE_37_RF_OFFLINE);
         ctrl.l_h = true;
         if (mesa_phy_10g_clause_37_control_set(data->inst, data->port_no,
-                                               &ctrl) != MEPA_RC_OK)
+                                               &ctrl) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
+        }
 
         mesa_port_clause_37_control_t port_ctrl;
         port_ctrl.enable = false;
@@ -317,8 +347,9 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
         mode.xaui_lane_flip = false;
         mode.oper_mode = MESA_PHY_LAN_MODE;
         if (mesa_phy_10g_mode_set(data->inst, data->port_no, &mode) !=
-            MEPA_RC_OK)
+            MEPA_RC_OK) {
             return MEPA_RC_ERROR;
+        }
     }
 
     return MEPA_RC_OK;
@@ -326,48 +357,57 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
 
 static mepa_rc malibu_10g_if_get(mepa_device_t *dev,
                                  mepa_port_speed_t speed,
-                                 mepa_port_interface_t *mac_if) {
+                                 mepa_port_interface_t *mac_if)
+{
     switch (speed) {
-        case MESA_SPEED_AUTO:
-        case MESA_SPEED_1G:
-            *mac_if = MESA_PORT_INTERFACE_SERDES;
-            break;
-        default:
-            *mac_if = MESA_PORT_INTERFACE_SFI;
-            break;
+    case MESA_SPEED_AUTO:
+    case MESA_SPEED_1G:
+        *mac_if = MESA_PORT_INTERFACE_SERDES;
+        break;
+    default:
+        *mac_if = MESA_PORT_INTERFACE_SFI;
+        break;
     }
     return MEPA_RC_OK;
 }
 
 static mepa_rc venice_10g_if_get(mepa_device_t *dev,
                                  mepa_port_speed_t speed,
-                                 mepa_port_interface_t *mac_if) {
+                                 mepa_port_interface_t *mac_if)
+{
     switch (speed) {
-        case MESA_SPEED_AUTO:
-        case MESA_SPEED_1G:
-            *mac_if = MESA_PORT_INTERFACE_SERDES;
-            break;
-        default:
-            *mac_if = MESA_PORT_INTERFACE_XAUI;
-            break;
+    case MESA_SPEED_AUTO:
+    case MESA_SPEED_1G:
+        *mac_if = MESA_PORT_INTERFACE_SERDES;
+        break;
+    default:
+        *mac_if = MESA_PORT_INTERFACE_XAUI;
+        break;
     }
     return MEPA_RC_OK;
 
 }
 
 static mepa_device_t *phy_10g_probe(
-    mepa_driver_t *drv, const mepa_driver_address_t *mode) {
-    if (mode->mode != mscc_phy_driver_address_mode) return NULL;
+    mepa_driver_t *drv, const mepa_driver_address_t *mode)
+{
+    if (mode->mode != mscc_phy_driver_address_mode) {
+        return NULL;
+    }
 
     mepa_device_t *device =
         (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
 
-    if (device == NULL) goto out_device;
+    if (device == NULL) {
+        goto out_device;
+    }
 
     malibu_10g_phy_data_t *data =
         (malibu_10g_phy_data_t *)calloc(1, sizeof(malibu_10g_phy_data_t));
 
-    if (data == NULL) goto out_data;
+    if (data == NULL) {
+        goto out_data;
+    }
 
     device->drv = drv;
     data->inst = mode->val.mscc_address.inst;
@@ -383,7 +423,8 @@ out_device:
     return NULL;
 }
 
-mepa_drivers_t mepa_mscc_driver_init() {
+mepa_drivers_t mepa_mscc_driver_init()
+{
     static const int nr_mscc_phy = 4;
     static mepa_driver_t mscc_drivers[] = {
         {
@@ -447,7 +488,8 @@ mepa_drivers_t mepa_mscc_driver_init() {
             .mepa_driver_media_set = mscc_1g_media_set,
             .mepa_driver_probe = mscc_1g_probe,
             .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
-        }};
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = mscc_drivers;
@@ -456,23 +498,25 @@ mepa_drivers_t mepa_mscc_driver_init() {
     return result;
 }
 
-mepa_drivers_t mepa_malibu_driver_init() {
+mepa_drivers_t mepa_malibu_driver_init()
+{
     static const int nr_malibu_phy = 1;
     static mepa_driver_t malibu_drivers[] = {{
-        .id = 0x8200,
-        .mask = 0x0000FF00,
-        .mepa_driver_delete = phy_10g_delete,
-        .mepa_driver_reset = malibu_10g_reset,
-        .mepa_driver_poll = phy_10g_poll,
-        .mepa_driver_conf_set = phy_10g_conf_set,
-        .mepa_driver_if_get = malibu_10g_if_get,
-        .mepa_driver_power_set = NULL,
-        .mepa_driver_cable_diag_start = NULL,
-        .mepa_driver_cable_diag_get = NULL,
-        .mepa_driver_media_set = NULL,
-        .mepa_driver_probe = phy_10g_probe,
-        .mepa_driver_aneg_status_get = NULL,
-    }};
+            .id = 0x8200,
+            .mask = 0x0000FF00,
+            .mepa_driver_delete = phy_10g_delete,
+            .mepa_driver_reset = malibu_10g_reset,
+            .mepa_driver_poll = phy_10g_poll,
+            .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_if_get = malibu_10g_if_get,
+            .mepa_driver_power_set = NULL,
+            .mepa_driver_cable_diag_start = NULL,
+            .mepa_driver_cable_diag_get = NULL,
+            .mepa_driver_media_set = NULL,
+            .mepa_driver_probe = phy_10g_probe,
+            .mepa_driver_aneg_status_get = NULL,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = malibu_drivers;
@@ -481,23 +525,25 @@ mepa_drivers_t mepa_malibu_driver_init() {
     return result;
 }
 
-mepa_drivers_t mepa_venice_driver_init() {
+mepa_drivers_t mepa_venice_driver_init()
+{
     static const int nr_venice_phy = 1;
     static mepa_driver_t venice_drivers[] = {{
-        .id = 0x8400,
-        .mask = 0x0000FF00,
-        .mepa_driver_delete = phy_10g_delete,
-        .mepa_driver_reset = venice_10g_reset,
-        .mepa_driver_poll = phy_10g_poll,
-        .mepa_driver_conf_set = phy_10g_conf_set,
-        .mepa_driver_if_get = venice_10g_if_get,
-        .mepa_driver_power_set = NULL,
-        .mepa_driver_cable_diag_start =NULL,
-        .mepa_driver_cable_diag_get =NULL,
-        .mepa_driver_media_set = NULL,
-        .mepa_driver_probe = phy_10g_probe,
-        .mepa_driver_aneg_status_get = NULL,
-    }};
+            .id = 0x8400,
+            .mask = 0x0000FF00,
+            .mepa_driver_delete = phy_10g_delete,
+            .mepa_driver_reset = venice_10g_reset,
+            .mepa_driver_poll = phy_10g_poll,
+            .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_if_get = venice_10g_if_get,
+            .mepa_driver_power_set = NULL,
+            .mepa_driver_cable_diag_start = NULL,
+            .mepa_driver_cable_diag_get = NULL,
+            .mepa_driver_media_set = NULL,
+            .mepa_driver_probe = phy_10g_probe,
+            .mepa_driver_aneg_status_get = NULL,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = venice_drivers;
@@ -506,23 +552,25 @@ mepa_drivers_t mepa_venice_driver_init() {
     return result;
 }
 
-mepa_drivers_t mepa_default_phy_driver_init() {
+mepa_drivers_t mepa_default_phy_driver_init()
+{
     static const int nr_default_drivers = 1;
     static mepa_driver_t default_drivers[] = {{
-        .id = 0x0,
-        .mask = 0x00,
-        .mepa_driver_delete = mscc_1g_delete,
-        .mepa_driver_reset = mscc_1g_reset,
-        .mepa_driver_poll = mscc_1g_poll,
-        .mepa_driver_conf_set = mscc_1g_conf_set,
-        .mepa_driver_if_get = mscc_1g_if_get,
-        .mepa_driver_power_set = mscc_1g_power_set,
-        .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
-        .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
-        .mepa_driver_media_set = mscc_1g_media_set,
-        .mepa_driver_probe = mscc_1g_probe,
-        .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
-    }};
+            .id = 0x0,
+            .mask = 0x00,
+            .mepa_driver_delete = mscc_1g_delete,
+            .mepa_driver_reset = mscc_1g_reset,
+            .mepa_driver_poll = mscc_1g_poll,
+            .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_if_get = mscc_1g_if_get,
+            .mepa_driver_power_set = mscc_1g_power_set,
+            .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
+            .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
+            .mepa_driver_media_set = mscc_1g_media_set,
+            .mepa_driver_probe = mscc_1g_probe,
+            .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = default_drivers;

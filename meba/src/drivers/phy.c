@@ -9,18 +9,18 @@
 #include <microchip/ethernet/phy/api/phy.h>
 #include "meba_generic.h"
 
- /* Reset the PHY */
+/* Reset the PHY */
 mepa_rc meba_phy_reset(meba_inst_t inst, mepa_port_no_t port_no,
                        const mepa_reset_param_t *rst_conf)
 {
     mepa_device_t *phy_dev;
 
     T_I(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_reset) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_reset) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_reset(phy_dev, rst_conf);
@@ -33,11 +33,11 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
     mepa_device_t *phy_dev;
 
     T_N(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_poll) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_poll) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -57,11 +57,11 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
     inst->api.meba_port_entry_get(inst, port_no, &entry);
     cap = entry.cap;
 
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_conf_set) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -108,7 +108,7 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
                  !(conf->speed == MESA_SPEED_AUTO &&
                    conf->adv_dis & MEPA_ADV_DIS_1G));
             conf->aneg.no_restart_aneg =
-                   !!(conf->adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
+                !!(conf->adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
         }
     }
 
@@ -123,11 +123,11 @@ mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_if_get) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_if_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -142,11 +142,11 @@ mepa_rc meba_phy_power_set(meba_inst_t inst, mepa_port_no_t port_no,
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_power_set) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_power_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_power_set(phy_dev, power);
@@ -158,11 +158,11 @@ mepa_rc meba_phy_cable_diag_start(meba_inst_t inst, mepa_port_no_t port_no, int 
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_cable_diag_start) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_cable_diag_start) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_cable_diag_start(phy_dev, mode);
@@ -175,11 +175,11 @@ mepa_rc meba_phy_cable_diag_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_c
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_cable_diag_get) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_cable_diag_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_cable_diag_get(phy_dev, result);
@@ -191,11 +191,11 @@ mepa_rc meba_phy_media_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_media_
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_media_set) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_media_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_media_set(phy_dev, phy_media_if);
@@ -207,11 +207,11 @@ mepa_rc meba_phy_aneg_status_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_aneg_status_get) {
+    if (!phy_dev || !phy_dev->drv->mepa_driver_aneg_status_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
