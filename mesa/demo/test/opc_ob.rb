@@ -58,7 +58,7 @@ end
 
 test "mera-conf" do
     # When OPC-UA MERA demo code is done, the setup below may be replaced by:
-    # $ts.dut.run("mera-cmd opc ...")
+    $ts.dut.run("mera-cmd opc 1")
 
     # Setup RTP entry
     wal_id = 2
