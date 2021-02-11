@@ -44,7 +44,7 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
  * \return
 **/
 mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
-                          mepa_driver_conf_t *conf);
+                          const mepa_driver_conf_t *conf);
 /**
  * \brief Get the PHY interface based on speed.
  *

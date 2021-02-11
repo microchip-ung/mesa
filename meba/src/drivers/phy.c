@@ -46,12 +46,13 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
 
 /* Set the configuration to the PHY. */
 mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
-                          mepa_driver_conf_t *conf)
+                          const mepa_driver_conf_t *conf)
 
 {
     mepa_device_t *phy_dev;
     meba_port_cap_t cap;
     meba_port_entry_t entry;
+    mepa_driver_conf_t cf = *conf;
 
     T_D(inst, "Called");
     inst->api.meba_port_entry_get(inst, port_no, &entry);
@@ -68,51 +69,51 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
     if (conf->admin.enable) {
         if (conf->speed == MESA_SPEED_AUTO ||
             conf->speed == MESA_SPEED_1G) {
-            memset(&conf->aneg, 0, sizeof(conf->aneg));
+            memset(&cf.aneg, 0, sizeof(cf.aneg));
 
             /* Set Auto-negotiation parameters using board capability. */
-            conf->aneg.speed_2g5_fdx =
+            cf.aneg.speed_2g5_fdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_2_5G_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_2500M);
-            conf->aneg.speed_5g_fdx =
+            cf.aneg.speed_5g_fdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_5G_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_5G);
-            conf->aneg.speed_10g_fdx =
+            cf.aneg.speed_10g_fdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10G_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_10G);
-            conf->aneg.speed_10m_hdx =
+            cf.aneg.speed_10m_hdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_HDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_HDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_10M);
-            conf->aneg.speed_10m_fdx =
+            cf.aneg.speed_10m_fdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_10M);
-            conf->aneg.speed_100m_hdx =
+            cf.aneg.speed_100m_hdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_HDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_HDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_100M);
-            conf->aneg.speed_100m_fdx =
+            cf.aneg.speed_100m_fdx =
                 conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_FDX) &&
                 !(conf->adv_dis & MEPA_ADV_DIS_100M);
-            conf->aneg.speed_1g_fdx =
+            cf.aneg.speed_1g_fdx =
                 ((cap & MEBA_PORT_CAP_1G_FDX) &&
                  !(conf->speed == MESA_SPEED_AUTO &&
                    conf->adv_dis & MEPA_ADV_DIS_1G));
-            conf->aneg.no_restart_aneg =
+            cf.aneg.no_restart_aneg =
                 !!(conf->adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
         }
     }
 
-    return phy_dev->drv->mepa_driver_conf_set(phy_dev, conf);
+    return phy_dev->drv->mepa_driver_conf_set(phy_dev, &cf);
 }
 
 /* Get the PHY interface based on speed.*/
