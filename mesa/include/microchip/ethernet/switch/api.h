@@ -21,6 +21,7 @@
 #include <microchip/ethernet/switch/api/tsn.h>
 #include <microchip/ethernet/switch/api/qos.h>
 #include <microchip/ethernet/switch/api/vop.h>
+#include <microchip/ethernet/switch/api/mrp.h>
 #include <microchip/ethernet/switch/api/l2.h>
 #include <microchip/ethernet/switch/api/afi.h>
 #include <microchip/ethernet/switch/api/packet.h>

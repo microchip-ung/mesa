@@ -5,8 +5,8 @@
 #ifndef _MSCC_ETHERNET_SWITCH_API_MRP_
 #define _MSCC_ETHERNET_SWITCH_API_MRP_
 
-#include <mscc/ethernet/switch/api/types.h>
-#include <mscc/ethernet/switch/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
+#include <microchip/ethernet/switch/api/types.h>
+#include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // MRP ring role.
 typedef enum {
@@ -225,5 +225,6 @@ typedef struct {
 mesa_rc mesa_mrp_event_get(const mesa_inst_t     inst,
                            const mesa_mrp_idx_t  mrp_idx,
                            mesa_mrp_event_t      *const events)  CAP(MRP);
-#include <mscc/ethernet/switch/api/hdr_end.h>
+#include <microchip/ethernet/hdr_end.h>
 #endif // _MSCC_ETHERNET_SWITCH_API_MRP_
+
