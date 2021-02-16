@@ -43,7 +43,7 @@ set(src_intel src/intel/phy_driver.c
               src/intel/GPY_API_v251/src/api/phy/gpy211_chip.c
               src/intel/GPY_API_v251/src/api/phy/gpy211_phy.c)
 
-set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DP31G_B0=1 -DSAFE_C_LIB=0")
 add_library(mepa_intel SHARED ${src_intel})
 add_library(mepa_intel_static STATIC ${src_intel})
 set_target_properties(mepa_intel_static PROPERTIES OUTPUT_NAME mepa_intel)
