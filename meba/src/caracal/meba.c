@@ -389,7 +389,10 @@ static mesa_rc caracal_port_entry_get(meba_inst_t inst, mesa_port_no_t port_no, 
                 entry->cap |= MEBA_PORT_CAP_DUAL_NO_COPPER;
             }
 
-            // chip_port_no 21-23 are not I2C accessible
+            // chip_port_no 21-23 are not I2C accessible on PCB boards <=
+            // rev 2.0. It may work on rev. 2.03, but MCHP has not produced such
+            // boards. Customers that use newer schematics may want to remove
+            // the following three lines of code.
             if (chip_port_no >= 21 && chip_port_no <= 23) {
                 entry->cap |= MEBA_PORT_CAP_SFP_INACCESSIBLE;
             }
@@ -691,8 +694,11 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t inst,
         }
     } else {
         if (chip_port >= 20 && chip_port <= 23) {
-            // Due to a hardware board issue only SFP i2c mux 0 works, so that is always used.
-            rc = mesa_phy_i2c_read(NULL, port_no, 0, addr, i2c_addr, data, cnt, word_access);
+            // Due to a hardware board issue on rev 2.0 and less, onlySFP i2c
+            // mux 0 works. However, on schematics sent to customers (rev. 2.03)
+            // this has been fixed, so that it works. The cutomer may want to
+            // remove the lines where MEBA_PORT_CAP_SFP_INACCESSIBLE are set.
+            rc = mesa_phy_i2c_read(NULL, port_no, port_no - 20, addr, i2c_addr, data, cnt, word_access);
         } else {
             // Uplink ports - Connected to switch i2c
             /* This function pointer refers to i2c_read() in vtss_appl/main/vtss_api_if.cxx,
