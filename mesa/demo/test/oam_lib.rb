@@ -97,6 +97,8 @@ UC_STRING_INV = "00:00:00:04:05:06"
 SC_STRING = "00:00:00:00:05:07"
 MC_TEST = "01:15:4E:00:00:01"
 MC_CONTROL = "01:15:4E:00:00:02"
+MC_ITEST = "01:15:4E:00:00:03"
+MC_ICONTROL = "01:15:4E:00:00:04"
 
 $cap_event_supported = 0
 $cap_oam_v1 = false

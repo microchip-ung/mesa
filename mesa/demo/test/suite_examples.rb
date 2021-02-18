@@ -22,4 +22,5 @@ run %w{./example_tsn_fp.rb}
 run %w{./example_tsn_frer.rb}
 run %w{./example_tsn_psfp.rb}
 run %w{./example_vop.rb}
+run %w{./example_mrp.rb}
 

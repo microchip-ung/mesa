@@ -782,7 +782,7 @@ static vtss_rc lan966x_init(vtss_state_t *vtss_state)
     REG_WRM(MEP_LOC_CTRL, MEP_LOC_CTRL_BASE_TICK_CNT(value), MEP_LOC_CTRL_BASE_TICK_CNT_M);
     base_tick_ps = clk_period_in_ps * value;
 
-    /* Configure LOC periods used for CCM LOC. Note that MRP is using the last five LOC timers */
+    /* Configure LOC periods used for CCM LOC. Note that MRP is using the last six LOC timers */
     value = (3300000000 / base_tick_ps) + ((3300000000 % base_tick_ps) ? 1 : 0);
     REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)), value);
     value = (10000000000 / base_tick_ps) + ((10000000000 % base_tick_ps) ? 1 : 0);

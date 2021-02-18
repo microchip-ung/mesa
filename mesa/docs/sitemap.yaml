@@ -62,6 +62,7 @@ pages:
         - src: "mesa/docs/qos/qos.adoc"
         - src: "mesa/docs/acl/acl.adoc"
         - src: "mesa/docs/vop/vop.adoc"
+        - src: "mesa/docs/mrp/mrp.adoc"
         - src: "mesa/docs/ts/ts.adoc"
 
     - name: "Cookbook examples"
@@ -146,6 +147,12 @@ pages:
             name: "Description"
           - src: "mesa/demo/examples/vop.c"
 
+        - name: "OAM MRP"
+          pages:
+          - src: "mesa/docs/examples/mrp.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/mrp.c"
+
         - name: "TS Transparent clock"
           pages:
           - src: "mesa/docs/examples/ts-transparent-clock.adoc"
@@ -178,6 +185,7 @@ pages:
         - src:  "mesa/include/microchip/ethernet/switch/api/tsn.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/types.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/vop.h"
+        - src:  "mesa/include/microchip/ethernet/switch/api/mrp.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/wis.h"
 
     - name: "MEBA API Reference"

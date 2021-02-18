@@ -124,6 +124,50 @@ vtss_rc vtss_mrp_ring_role_get(const vtss_inst_t     inst,
     return rc;
 }
 
+vtss_rc vtss_mrp_in_ring_role_set(const vtss_inst_t           inst,
+                                  const vtss_mrp_idx_t        mrp_idx,
+                                  const vtss_mrp_ring_role_t  role)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_in_ring_role_set, mrp_idx, role)) == VTSS_RC_OK) {
+            vtss_state->mrp.data[mrp_idx].conf.in_ring_role = role;
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_in_ring_role_get(const vtss_inst_t     inst,
+                                  const vtss_mrp_idx_t  mrp_idx,
+                                  vtss_mrp_ring_role_t  *const role)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        *role = vtss_state->mrp.data[mrp_idx].conf.in_ring_role;
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_mrp_ports_set(const vtss_inst_t       inst,
                            const vtss_mrp_idx_t    mrp_idx,
                            const vtss_mrp_ports_t  *const ports)
@@ -209,6 +253,161 @@ vtss_rc vtss_mrp_ring_state_get(const vtss_inst_t      inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *state = vtss_state->mrp.data[mrp_idx].ring_state;
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_in_ring_state_set(const vtss_inst_t            inst,
+                                   const vtss_mrp_idx_t         mrp_idx,
+                                   const vtss_mrp_ring_state_t  state)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_in_ring_state_set, mrp_idx, state)) == VTSS_RC_OK) {
+            vtss_state->mrp.data[mrp_idx].in_ring_state = state;
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_in_ring_state_get(const vtss_inst_t      inst,
+                                   const vtss_mrp_idx_t   mrp_idx,
+                                   vtss_mrp_ring_state_t  *const state)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        *state = vtss_state->mrp.data[mrp_idx].in_ring_state;
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_port_state_set(const vtss_inst_t            inst,
+                                const vtss_mrp_idx_t         mrp_idx,
+                                const vtss_port_no_t         port,
+                                const vtss_mrp_port_state_t  state)
+{
+    vtss_state_t    *vtss_state;
+    vtss_rc         rc;
+    vtss_mrp_data_t *mrp_data;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_port_state_set, mrp_idx, port, state)) == VTSS_RC_OK) {
+            mrp_data = &vtss_state->mrp.data[mrp_idx];
+            if (mrp_data->conf.p_port == port) {
+                mrp_data->p_port_state = state;
+            }
+            if (mrp_data->conf.s_port == port) {
+                mrp_data->s_port_state = state;
+            }
+            if (mrp_data->conf.i_port == port) {
+                mrp_data->i_port_state = state;
+            }
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_port_state_get(const vtss_inst_t      inst,
+                                const vtss_mrp_idx_t   mrp_idx,
+                                const vtss_port_no_t   port,
+                                vtss_mrp_port_state_t  *const state)
+{
+    vtss_state_t *vtss_state;
+    vtss_mrp_data_t *mrp_data;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+            mrp_data = &vtss_state->mrp.data[mrp_idx];
+            if (mrp_data->conf.p_port == port) {
+                *state = mrp_data->p_port_state;
+            }
+            if (mrp_data->conf.s_port == port) {
+                *state = mrp_data->s_port_state;
+            }
+            if (mrp_data->conf.i_port == port) {
+                *state = mrp_data->i_port_state;
+            }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_mrp_best_set(const vtss_inst_t      inst,
+                          const vtss_mrp_idx_t   mrp_idx,
+                          const vtss_mrp_best_t  *const best)
+{
+    vtss_state_t    *vtss_state;
+    vtss_rc         rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_best_set, mrp_idx, best)) == VTSS_RC_OK) {
+            vtss_state->mrp.data[mrp_idx].best = *best;
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+
+vtss_rc vtss_mrp_best_get(const vtss_inst_t      inst,
+                          const vtss_mrp_idx_t   mrp_idx,
+                          vtss_mrp_best_t        *const best)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        *best = vtss_state->mrp.data[mrp_idx].best;
     }
     VTSS_EXIT();
     return rc;
@@ -455,8 +654,8 @@ static char *debug_ring_role_string(const vtss_mrp_ring_role_t  role)
 {
     switch (role) {
         case VTSS_MRP_RING_ROLE_DISABLED:  return("DIS");
-        case VTSS_MRP_RING_ROLE_MRC:       return("MRC");
-        case VTSS_MRP_RING_ROLE_MRM:       return("MRM");
+        case VTSS_MRP_RING_ROLE_CLIENT:    return("MRC");
+        case VTSS_MRP_RING_ROLE_MANAGER:   return("MRM");
     }
     return("INVALID");
 }
@@ -615,10 +814,10 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
 
                 if (VTSS_FUNC(mrp.mrp_counters_get, i, &mrp_counters) == VTSS_RC_OK) {
                     pr("MRP counters:\n");
-                    pr("p-port: tst_rx_count %u  itst_rx_count %u\n",
+                    pr("p-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
                        mrp_counters.p_counters.tst_rx_count,
                        mrp_counters.p_counters.itst_rx_count);
-                    pr("s-port: tst_rx_count %u  itst_rx_count %u\n",
+                    pr("s-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
                        mrp_counters.s_counters.tst_rx_count,
                        mrp_counters.s_counters.itst_rx_count);
                     pr("-----\n");
