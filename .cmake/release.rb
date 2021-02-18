@@ -243,7 +243,7 @@ run "git archive --prefix=./#{$ws}/ --format=tar HEAD > #{$tar}"
 # because we are going to make a tar ball in the parent folder,
 # which results in a warning if the source files were in the same folder.
 run "mkdir -p #{$ws}/tmp"
-run "tar -xf #{$tar} -C #{$ws}/tmp"
+run "tar -xmf #{$tar} -C #{$ws}/tmp"
 
 # Make easytest source copy
 run "tar -C #{$ws}/tmp/release_ws/mesa/demo/ -cz test -f images/et.tar.gz"
