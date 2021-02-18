@@ -370,9 +370,5 @@ mepa_drivers_t mepa_aqr_driver_init();
 
 // Returns drivers for intel PHY
 mepa_drivers_t mepa_intel_driver_init();
-
-// Returns drivers for ksz PHY
-mepa_drivers_t mepa_ksz9031_driver_init();
-
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_PHY_API_PHY_H_

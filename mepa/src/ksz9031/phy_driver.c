@@ -6,15 +6,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
+#include <mscc/ethernet/board/api/phy_driver.h>
 
+#include "phy_driver.h"
 
-#define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_D(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEBA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 #define TRUE 1
 #define FALSE 0
@@ -263,7 +263,7 @@ static int genphy_read_status(phy_device *phydev)
     return 0;
 }
 
-static mesa_rc ksz_poll(mepa_device_t *dev, mepa_driver_status_t *status)
+static mesa_rc ksz_poll(meba_phy_device_t *dev, meba_phy_driver_status_t *status)
 {
     phy_device *phydev = &((priv_data_t *)dev->data)->phydev;
 
@@ -280,8 +280,9 @@ static mesa_rc ksz_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     return MESA_RC_OK;
 }
 
-static mesa_rc ksz_conf_set(mepa_device_t             *dev,
-                            const mepa_driver_conf_t  *config)
+static mesa_rc ksz_conf_set(meba_phy_device_t             *dev,
+                            meba_port_cap_t               cap,
+                            const meba_phy_driver_conf_t  *config)
 {
     phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
 
@@ -290,14 +291,14 @@ static mesa_rc ksz_conf_set(mepa_device_t             *dev,
     return center_flp_timing(phydev);
 }
 
-static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
-                                const mepa_driver_address_t  *mode)
+static meba_phy_device_t *ksz_probe(meba_phy_driver_t                *drv,
+                                    const meba_phy_driver_address_t  *mode)
 {
     uint32_t         cnt;
     mesa_port_map_t  *port_map = NULL;
     mesa_port_no_t   port_no = mode->val.mscc_address.port_no;
 
-    mepa_device_t *device = (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
+    meba_phy_device_t *device = (meba_phy_device_t *)calloc(1, sizeof(meba_phy_device_t));
     if (device == NULL)
         return NULL;
 
@@ -334,7 +335,7 @@ static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
     return device;
 }
 
-static mesa_rc ksz_status_1g_get(mepa_device_t *dev, mesa_phy_status_1g_t *status)
+static mesa_rc ksz_status_1g_get(meba_phy_device_t *dev, mesa_phy_status_1g_t *status)
 {
     phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
 
@@ -343,43 +344,60 @@ static mesa_rc ksz_status_1g_get(mepa_device_t *dev, mesa_phy_status_1g_t *statu
     return MESA_RC_OK;
 }
 
-static mesa_rc ksz_1g_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
-                             mesa_port_interface_t *mac_if) {
+static mesa_rc ksz_1g_if_get(meba_phy_device_t *dev, mesa_port_speed_t speed,
+                              mesa_port_interface_t *mac_if) {
 
-    *mac_if = MESA_PORT_INTERFACE_GMII;
+    *mac_if = 4; // VTSS_PORT_INTERFACE_GMII = 4 from vtss/api/types.h
 
     return MESA_RC_OK;
 }
 
 
-static mesa_rc ksz_delete(mepa_device_t *dev)
+static mesa_rc ksz_delete(meba_phy_device_t *dev)
 {
     VTSS_FREE(dev->data);
     VTSS_FREE(dev);
     return MESA_RC_OK;
 }
 
-mepa_drivers_t mepa_ksz9031_driver_init()
+meba_phy_drivers_t driver_init()
 {
-    mepa_drivers_t res;
-    static mepa_driver_t ksz_drivers[1] = {};
+    meba_phy_drivers_t res;
+    static meba_phy_driver_t ksz_drivers[2] = {};
 
-    ksz_drivers[0].id = KSZ_PHY_CHIPID;
+    ksz_drivers[0].id = KSZ_PHY_CHIPID; // This is for lan966x ls1046 CPU
     ksz_drivers[0].mask = 0xffffffff;
-    ksz_drivers[0].mepa_driver_delete = ksz_delete;
-    ksz_drivers[0].mepa_driver_reset = NULL;
-    ksz_drivers[0].mepa_driver_poll = ksz_poll;
-    ksz_drivers[0].mepa_driver_conf_set = ksz_conf_set;
-    ksz_drivers[0].mepa_driver_if_get = ksz_1g_if_get;
-    ksz_drivers[0].mepa_driver_power_set = NULL;
-    ksz_drivers[0].mepa_driver_cable_diag_start = NULL;
-    ksz_drivers[0].mepa_driver_cable_diag_get = NULL;
-    ksz_drivers[0].mepa_driver_media_set = NULL;
-    ksz_drivers[0].mepa_driver_probe = ksz_probe;
-    ksz_drivers[0].mepa_driver_aneg_status_get = ksz_status_1g_get;
+    ksz_drivers[0].meba_phy_driver_delete = ksz_delete;
+    ksz_drivers[0].meba_phy_driver_reset = NULL;
+    ksz_drivers[0].meba_phy_driver_poll = ksz_poll;
+    ksz_drivers[0].meba_phy_driver_conf_set = ksz_conf_set;
+    ksz_drivers[0].meba_phy_driver_if_get = ksz_1g_if_get;
+    ksz_drivers[0].meba_phy_driver_mt_get = NULL;
+    ksz_drivers[0].meba_phy_driver_power_set = NULL;
+    ksz_drivers[0].meba_phy_driver_veriphy_start = NULL;
+    ksz_drivers[0].meba_phy_driver_veriphy_get = NULL;
+    ksz_drivers[0].meba_phy_driver_media_set = NULL;
+    ksz_drivers[0].meba_phy_driver_probe = ksz_probe;
+    ksz_drivers[0].meba_phy_driver_status_1g_get = ksz_status_1g_get;
+
+    ksz_drivers[1].id = 0x707c1;        // This is for lan966x internal CPU
+    ksz_drivers[1].mask = 0xffffffff;
+    ksz_drivers[1].meba_phy_driver_delete = ksz_delete;
+    ksz_drivers[1].meba_phy_driver_reset = NULL;
+    ksz_drivers[1].meba_phy_driver_poll = ksz_poll;
+    ksz_drivers[1].meba_phy_driver_conf_set = ksz_conf_set;
+    ksz_drivers[1].meba_phy_driver_if_get = ksz_1g_if_get;
+    ksz_drivers[1].meba_phy_driver_mt_get = NULL;
+    ksz_drivers[1].meba_phy_driver_power_set = NULL;
+    ksz_drivers[1].meba_phy_driver_veriphy_start = NULL;
+    ksz_drivers[1].meba_phy_driver_veriphy_get = NULL;
+    ksz_drivers[1].meba_phy_driver_media_set = NULL;
+    ksz_drivers[1].meba_phy_driver_probe = ksz_probe;
+    ksz_drivers[1].meba_phy_driver_status_1g_get = ksz_status_1g_get;
+
 
     res.phy_drv = ksz_drivers;
-    res.count = 1;
+    res.count = 2;
 
     return res;
 }

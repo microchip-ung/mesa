@@ -51,13 +51,3 @@ set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
 add_library(mepa_intel SHARED ${src_intel})
 add_library(mepa_intel_static STATIC ${src_intel})
 set_target_properties(mepa_intel_static PROPERTIES OUTPUT_NAME mepa_intel)
-
-
-include_directories("src/ksz9031")
-
-set(src_ksz9031 src/ksz9031/phy_driver.c )
-
-set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
-add_library(mepa_ksz9031 SHARED ${src_ksz9031})
-add_library(mepa_ksz9031_static STATIC ${src_ksz9031})
-set_target_properties(mepa_ksz9031_static PROPERTIES OUTPUT_NAME mepa_ksz9031)
