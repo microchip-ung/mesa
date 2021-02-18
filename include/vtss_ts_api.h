@@ -37,6 +37,11 @@ extern "C" {
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 4
 #endif
+#if defined (VTSS_ARCH_LAN966X)  /* TBD. Check/set correct value */
+#define VTSS_HW_TIME_CNT_PR_SEC 1000000000
+/** \brief Number of nanoseconds pr clock count. */
+#define VTSS_HW_TIME_NSEC_PR_CNT 1
+#endif
 
 #if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
