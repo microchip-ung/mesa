@@ -257,8 +257,6 @@ void meba_phy_driver_init(meba_inst_t inst)
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
     // Initialize all the drivers needed
-
-
 #define PHY_FAMILIES 32
     mepa_drivers_t phy_lib[PHY_FAMILIES] = {};
 
