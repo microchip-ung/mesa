@@ -4,8 +4,8 @@
 #ifndef _VTSS_PHY_DRIVER_HXX_
 #define _VTSS_PHY_DRIVER_HXX_
 
-#include <mscc/ethernet/board/api.h>
+#include <microchip/ethernet/phy/api.h>
 
-meba_phy_drivers_t driver_init();
+mepa_drivers_t driver_init();
 
 #endif
