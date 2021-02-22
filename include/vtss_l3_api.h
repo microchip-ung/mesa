@@ -148,7 +148,7 @@
 
 // SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits each).
 // This means that a single block will give us 256*12 = 3072 entries.
-#define VTSS_RLEG_CNT    511  /**< Length of RLEG table */
+#define VTSS_RLEG_CNT    128  /**< Length of RLEG table */
 #define VTSS_LPM_CNT     3072 /**< Length of LPM table */
 #define VTSS_ARP_CNT     2048 /**< Length of ARP table */
 #define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */

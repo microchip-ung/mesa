@@ -48,6 +48,7 @@ $rleg_vid = []
 $mc_conf = []
 #$ts.dut.run "mesa-cmd deb trace api_ail l3 info"
 test "l3-mc-conf" do
+    vid_cnt = 0
     $conf_table.each_with_index do |e, idx|
         test "Set VLAN port configuration" do
             port = $ts.dut.p[idx]
@@ -61,6 +62,7 @@ test "l3-mc-conf" do
         test "Set VLAN memberships" do
             for vlan in e[:vid]..e[:vid_end]
                 $ts.dut.call "mesa_vlan_port_members_set", vlan, "#{$ts.dut.port_list[idx]}"
+                vid_cnt = (vid_cnt + 1)
             end
         end
     end
@@ -77,11 +79,13 @@ test "l3-mc-conf" do
     $ts.dut.call "mesa_l3_common_set", conf
 
     test "Add router legs" do
+        rl_incr = cap_get("L3_RLEG_CNT") / vid_cnt
+        rl_id = 0
         $conf_table.each_with_index do |e, idx|
             for vlan in e[:vid]..e[:vid_end]
                 conf = {
-                  rleg_enable: false,
-                  rleg_id: 0,
+                  rleg_enable: true,
+                  rleg_id: rl_id,
                   ipv4_unicast_enable: true,
                   ipv6_unicast_enable: false,
                   ipv4_multicast_enable: true,
@@ -98,6 +102,7 @@ test "l3-mc-conf" do
                 }            
                 $ts.dut.call "mesa_l3_rleg_add", conf
                 $rleg_vid << vlan
+                rl_id = (rl_id + rl_incr)
             end
         end
     end
