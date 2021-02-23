@@ -44,6 +44,8 @@ static mesa_rc dev_poll(meba_sfp_device_t *dev,
     status->link = status->link ? !mesa_status.link_down && mesa_status.link : mesa_status.link;
     status->speed = mesa_status.speed;
     status->fdx = mesa_status.fdx;
+    status->obey_pause = mesa_status.aneg.obey_pause;
+    status->generate_pause = mesa_status.aneg.generate_pause;
 
     if (data->meba_inst->api.meba_sfp_status_get)
         rc = data->meba_inst->api.meba_sfp_status_get(data->meba_inst,

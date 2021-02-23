@@ -58,6 +58,8 @@ typedef struct sfp_driver_status {
     mesa_port_speed_t speed; // Speed
     mesa_bool_t fdx;         // Full duplex
     mesa_bool_t los;         // Loss of signal
+    mesa_bool_t obey_pause;     // Obey pause frames
+    mesa_bool_t generate_pause; // Generate pause frames
 } meba_sfp_driver_status_t;
 
 // Represents the configuration that is applied to SFP module.
