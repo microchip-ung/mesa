@@ -60,6 +60,8 @@ test "mera-conf" do
     # When OPC-UA MERA demo code is done, the setup below may be replaced by:
     $ts.dut.run("mera-cmd opc 1")
 
+    break
+
     # Setup RTP entry
     wal_id = 2
     conf = $ts.dut.call("mera_ob_rtp_conf_get", $rtp_id)

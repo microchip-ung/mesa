@@ -25,6 +25,10 @@ test "qspi-init" do
     map = $ts.dut.call("mesa_port_map_get", port_cnt)
     $g[:port] = map[$ts.dut.p[$idx_rx]]["chip_port"]
 
+    puts "PORT"
+    puts $g[:port]
+
+
     # Initialize QSPI
     qspi_init
 
@@ -43,6 +47,9 @@ end
 test "mera-conf" do
     # When OPC-UA MERA demo code is done, the setup below may be replaced by:
     $ts.dut.run("mera-cmd opc 2")
+
+    break
+
 
     # Setup RTP entry
     rtp_id = 1
