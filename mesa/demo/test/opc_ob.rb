@@ -22,7 +22,10 @@ end
 
 test "mesa-conf" do
     # When OPC-UA MESA demo code is done, replace setup by this:
-    # $ts.dut.run("mesa-cmd example init opc-ua port #{$ts.dut.p[$idx_tx]} ...")
+    # $ts.dut.run("mesa-cmd example init opc_ua port #{$ts.dut.p[$idx_tx]} ...")
+    $ts.dut.run("mesa-cmd example init opc_ua iport 0")
+
+    break;
 
     # Find MESA port mapping to RTE port (4)
     port_rte = nil

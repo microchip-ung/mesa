@@ -25,10 +25,6 @@ test "qspi-init" do
     map = $ts.dut.call("mesa_port_map_get", port_cnt)
     $g[:port] = map[$ts.dut.p[$idx_rx]]["chip_port"]
 
-    puts "PORT"
-    puts $g[:port]
-
-
     # Initialize QSPI
     qspi_init
 
