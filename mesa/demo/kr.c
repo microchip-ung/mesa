@@ -903,7 +903,7 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             cli_printf("\n  Current eye height: %d\n",eye.height);
             cli_printf("  Training time     : %d ms\n",appl->time_ld);
-            cli_printf("  Training status   : %s\n",krs->current_state == MESA_TR_SEND_DATA ? "OK" : "Failed");
+            cli_printf("  Training status   : %s\n",sts.train.complete ? "OK" : "Failed");
         }
     }
 }
