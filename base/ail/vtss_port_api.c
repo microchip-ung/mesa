@@ -1211,15 +1211,12 @@ vtss_rc vtss_port_kr_status_get(vtss_inst_t inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
-    vtss_port_kr_state_t *krs;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         memset(status, 0, sizeof(*status));
         rc = VTSS_FUNC_COLD(port.kr_status, port_no, status);
-        krs = &vtss_state->port.train_state[port_no];
-        status->train.complete = krs->current_state == VTSS_TR_SEND_DATA;
     }
     VTSS_EXIT();
     return rc;

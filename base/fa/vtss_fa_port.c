@@ -1149,6 +1149,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
     u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
     u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
+    vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
 
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1182,6 +1183,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     status->train.cm_ob_tap_result = (u8)val1;
     status->train.cp_ob_tap_result = (u8)val2;
     status->train.c0_ob_tap_result = (u8)val3;
+    status->train.complete = krs->current_state == VTSS_TR_SEND_DATA;
 
     REG_RD(VTSS_IP_KRANEG_TR_FRSENT(tgt), &tr);
     status->train.frame_sent = tr;
