@@ -724,14 +724,6 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static BOOL fa_port_kr_aneg_ena(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
-{
-#if defined(VTSS_FEATURE_PORT_KR_IRQ)
-    return vtss_state->port.kr_conf[port_no].aneg.enable;
-#endif
-    return FALSE;
-}
-
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -1939,6 +1931,8 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = high_speed_dev ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
+    vtss_port_speed_t spd = vtss_state->port.current_speed[port_no];
+    u32 spd_prm = spd == VTSS_SPEED_10M ? 1000 : spd == VTSS_SPEED_100M ? 100 : 10;
 
     VTSS_I("Flush chip port: %u (%s device)", port, high_speed_dev ? "5/10/25G" : "2G5");
 
@@ -1975,7 +1969,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
     /* REG_WRM_CLR(VTSS_QRES_RES_QOS_ADV_PFC_CFG(port), VTSS_M_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA); */
 
     /* 6: Wait a worst case time 8ms (jumbo/10Mbit) *\/ */
-    VTSS_MSLEEP(8);
+    VTSS_NSLEEP(8000 * spd_prm);
 
     /* 7: Flush the queues accociated with the port */
     REG_WRM(VTSS_HSCH_FLUSH_CTRL,
@@ -2157,10 +2151,8 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-    if (!fa_port_kr_aneg_ena(vtss_state, port_no)) {
-        /* Port disable and flush procedure: */
-        VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
-    }
+    /* Port disable and flush procedure: */
+    VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
 
     /* Configure the Serdes Macro to 'serdes_mode' */
     if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
@@ -2442,10 +2434,8 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
-    if (!fa_port_kr_aneg_ena(vtss_state, port_no)) {
-        /* Port disable and flush procedure: */
-        VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
-    }
+    /* Port disable and flush procedure: */
+    VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
 
    /* Re-configure Serdes if needed */
     if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
