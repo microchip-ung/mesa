@@ -1723,6 +1723,18 @@ vtss_rc vtss_fa_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_dsm_wm_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    u32 port = VTSS_CHIP_PORT(port_no), stop_wm;
+    /* MESA-641 - Setting the tx_stop_wm manually to avoid preemtion issues */
+    stop_wm = vtss_get_fifo_size(vtss_state, port_no);
+    REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
+            VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(stop_wm),
+            VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
+
+    return VTSS_RC_OK;
+}
+
 /* Configure 802.1Qbb Priority Flow Control */
 static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
@@ -2324,12 +2336,10 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_F_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA(conf->frame_length_chk),
             VTSS_M_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA);
 
-    /* Must be 1 for 10/100 */
-    REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
-            VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM((speed == VTSS_SPEED_10M || speed == VTSS_SPEED_100M) ? 1 : 0),
-            VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
+    /* Set DSM Watermark */
+    VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
 
-    // Always update FCS, needed for Frame Preemption
+    /* Always update FCS, needed for Frame Preemption */
     REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
             VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(1),
             VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
@@ -2523,7 +2533,10 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
             VTSS_F_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA(conf->frame_length_chk),
             VTSS_M_DEV10G_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
-    // Always update FCS, needed for Frame Preemption
+    /* Set DSM Watermark */
+    VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
+
+    /* Always update FCS, needed for Frame Preemption */
     REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
             VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(2),
             VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
@@ -2589,7 +2602,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
-    u32                   port = VTSS_CHIP_PORT(port_no), bt_indx, stop_wm = 0;
+    u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
 
     VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
@@ -2629,11 +2642,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
         /* Read port counters ignoring updates */
         VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_REBASE));
     }
-    /* MESA-641 - Setting the tx_stop_wm manually to avoid preemtion issues */
-    stop_wm = vtss_get_fifo_size(vtss_state, port_no);
-    REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
-            VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(stop_wm),
-            VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
    VTSS_RC(fa_port_mux_set(vtss_state, port_no));
