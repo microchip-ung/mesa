@@ -3133,6 +3133,61 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
    return rc;
 }
 
+vtss_rc fa_serdes_tx_eq_tune(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+                             u32 port_no, vtss_port_kr_coef_type_t coef, vtss_port_kr_coef_update_t action)
+{
+    vtss_kr_status_results_t status_out;
+    u16 coef_in = 0;
+    u16 action_sts = 0;
+    char action_out[20];
+
+    if (coef == VTSS_COEF_PRESET) {
+        coef_in = BT(13);
+    } else if (coef == VTSS_COEF_INIT) {
+        coef_in = BT(12);
+    } else if ((coef == VTSS_COEF_CM1) && (action == VTSS_COEF_INCR)) {
+          coef_in = 0x1;
+    } else if ((coef == VTSS_COEF_CM1) && (action == VTSS_COEF_DECR)) {
+          coef_in = 0x2;
+    } else if ((coef == VTSS_COEF_C0) && (action == VTSS_COEF_INCR)) {
+          coef_in = 2 << 0x1;
+    } else if ((coef == VTSS_COEF_C0) && (action == VTSS_COEF_DECR)) {
+          coef_in = 2 << 0x2;
+    } else if ((coef == VTSS_COEF_CP1) && (action == VTSS_COEF_INCR)) {
+          coef_in = 4 << 0x1;
+    } else if ((coef == VTSS_COEF_CP1) && (action == VTSS_COEF_DECR)) {
+          coef_in = 4 << 0x2;
+    } else {
+        pr("unsupported choice\n");
+        return VTSS_RC_OK;
+    }
+
+    fa_kr_coef2status(vtss_state, port_no, coef_in, &status_out);
+
+    if ((status_out.status & 0x3) > 0) {
+        action_sts = status_out.status & 0x3;
+    } else if ((status_out.status & 0xc) > 0) {
+        action_sts = (status_out.status >> 2) & 3;
+    } else if ((status_out.status & 0x30) > 0 ) {
+        action_sts = (status_out.status >> 4) & 3;
+    } else {
+        action_sts = 0;
+    }
+
+    if (action_sts == 0) {
+        sprintf(action_out, "NOT_UPDATED");
+    } else if (action_sts == 1) {
+        sprintf(action_out, "UPDATED");
+    } else if (action_sts == 2) {
+        sprintf(action_out, "MIN");
+    } else if (action_sts == 3) {
+        sprintf(action_out, "MAX");
+    }
+    pr("Results: %s [CM(tap_adv):%d CP(tap_dly):%d C0(amp):%d]\n", action_out, status_out.cm1, status_out.cp1, status_out.c0);
+
+    return VTSS_RC_OK;
+}
+
 
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
@@ -3142,6 +3197,8 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
     u32            port, indx = 0, sd_type = 0, ret_val;
     char           buf[32] = {0};
     char           buf2[32] = {0};
+    vtss_port_kr_coef_type_t coef;
+    vtss_port_kr_coef_update_t action;
 
     port = VTSS_CHIP_PORT(port_no);
 
@@ -3218,7 +3275,45 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
         VTSS_RC(fa_serdes_eqc_adjust(vtss_state, pr, port_no));
     } else if (info->action == 16) {
         VTSS_RC(fa_serdes_ctle_adjust(vtss_state, pr, port_no, FALSE, NULL, NULL, NULL));
+    } else if (info->action == 20) {
+        pr("Request: INIT\n");
+        coef = VTSS_COEF_INIT;
+        action = 0;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 21) {
+        pr("Request: CM DECR\n");
+        coef = VTSS_COEF_CM1;
+        action = VTSS_COEF_DECR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 22) {
+        pr("Request: CM INCR\n");
+        coef = VTSS_COEF_CM1;
+        action = VTSS_COEF_INCR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 23) {
+        pr("Request: CP DECR\n");
+        coef = VTSS_COEF_CP1;
+        action = VTSS_COEF_DECR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 24) {
+        pr("Request: CP INCR\n");
+        coef = VTSS_COEF_CP1;
+        action = VTSS_COEF_INCR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 25) {
+        pr("Request: C0 DECR\n");
+        coef = VTSS_COEF_C0;
+        action = VTSS_COEF_DECR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+    } else if (info->action == 26) {
+        pr("Request: C0 INCR\n");
+        coef = VTSS_COEF_C0;
+        action = VTSS_COEF_INCR;
+        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
     }
+
+
+
     return VTSS_RC_OK;
 }
 

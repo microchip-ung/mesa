@@ -3466,6 +3466,13 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
         pr("14: Auto adjust EQR gain\n");
         pr("15: Auto adjust EQC gain\n");
         pr("16: Perform CTLE adjustment (13,14,15,13) \n");
+        pr("20: INIT\n");
+        pr("21: CM1 DECR\n");
+        pr("22: CM1 INCR\n");
+        pr("23: CP1 DECR\n");
+        pr("24: CP1 INCR\n");
+        pr("25: CM0 DECR\n");
+        pr("26: CM0 INCR\n");
         return VTSS_RC_OK;
     }
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
