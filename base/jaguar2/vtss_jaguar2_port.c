@@ -1750,11 +1750,21 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
-        //Update vtss_state database accordingly
-        jr2_port_clause_37_control_get(vtss_state,port_no,&(vtss_state->port.clause_37[port_no]));
+        // Update vtss_state database accordingly
+        jr2_port_clause_37_control_get(vtss_state,port_no, &(vtss_state->port.clause_37[port_no]));
 
-        JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
-               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA(0));
+        // Disable 100fx and 1000BaseX PCS
+        JR2_WRM(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
+                VTSS_F_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST(1),
+                VTSS_M_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST);
+
+        JR2_WRM(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
+                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA(0),
+                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
+
+        JR2_WRM(VTSS_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA(0),
+                VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA);
 
         return VTSS_RC_OK;
     }
