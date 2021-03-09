@@ -2471,6 +2471,7 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     FA_ACT_SET(IS2, BASE_TYPE_CPU_COPY_ENA, action->cpu);
     FA_ACT_SET(IS2, BASE_TYPE_CPU_QU_NUM, action->cpu_queue);
     FA_ACT_SET(IS2, BASE_TYPE_MASK_MODE,
+               act == VTSS_ACL_PORT_ACTION_PGID ? 2 :   /* REPLACE_PGID */
                act == VTSS_ACL_PORT_ACTION_FILTER ? 1 : /* AND_VLANMASK */
                act == VTSS_ACL_PORT_ACTION_REDIR ? 3 :  /* REPLACE_ALL */
                0);                                      /* OR_DSTMASK */

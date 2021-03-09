@@ -707,6 +707,9 @@ typedef struct {
     BOOL       ipmc;         /* IPMC flag */
 } vtss_is2_entry_t;
 
+// Internal port action used for SSM
+#define VTSS_ACL_PORT_ACTION_PGID 1000
+
 typedef struct {
     BOOL redir;                     /* Port redirect flag */
     BOOL member[VTSS_PORT_BF_SIZE]; /* Port redirect list */
