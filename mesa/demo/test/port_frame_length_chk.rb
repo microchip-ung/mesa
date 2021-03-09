@@ -49,9 +49,12 @@ test "frame_func" do
             cmd =  "sudo ef name f#{$port_1} eth dmac #{$tx_dmac} smac #{$tx_smac} "
             cmd += "et #{entry[:len_field]} data pattern cnt #{sz} "
             cmd += "tx #{$ts.pc.p[$port_1]} name f#{$port_1} "
-            $ts.dut.call "mesa_port_counters_clear", $ts.dut.p[$port_2]
+            p1 = $ts.dut.p[$port_1]
+            p2 = $ts.dut.p[$port_2]
+            $ts.dut.call("mesa_port_counters_clear", p1)
+            $ts.dut.call("mesa_port_counters_clear", p2)
             $ts.pc.try cmd
-            cnt = $ts.dut.call "mesa_port_counters_get", $ts.dut.p[$port_2]
+            cnt = $ts.dut.call("mesa_port_counters_get", p2)
             if entry[:fwd]
                 if cnt['rmon']['tx_etherStatsPkts'] != 1
                     t_e "unexpected frameloss"
@@ -61,6 +64,9 @@ test "frame_func" do
                     t_e "unexpected framefwd"
                 end
             end
+            # For Jaguar-2/FireAnt, ifInErrors counts
+            cnt = $ts.dut.call("mesa_port_counters_get", p1)
+            t_i("ifInErrors: #{cnt['if_group']['ifInErrors']}")
         end
     end
 end

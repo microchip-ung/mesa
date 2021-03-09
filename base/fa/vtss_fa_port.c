@@ -3025,8 +3025,10 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     }
     rmon->rx_etherStatsOctets = (CNT_SUM(c->rx_ok_bytes) + CNT_SUM(c->rx_bad_bytes));
     rx_errors = (CNT_SUM(c->rx_crc_err) +  CNT_SUM(c->rx_undersize) + CNT_SUM(c->rx_oversize) +
-                 CNT_SUM(c->rx_out_of_range_len_err) + CNT_SUM(c->rx_symbol_err) +
-                 CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_fragments));
+                 CNT_SUM(c->rx_symbol_err) + CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_fragments));
+    if (vtss_state->port.conf[port_no].frame_length_chk) {
+        rx_errors += (CNT_SUM(c->rx_in_range_len_err) + CNT_SUM(c->rx_out_of_range_len_err));
+    }
     rmon->rx_etherStatsPkts = (CNT_SUM(c->rx_unicast) + CNT_SUM(c->rx_multicast) +
                                CNT_SUM(c->rx_broadcast) + rx_errors);
     rmon->rx_etherStatsBroadcastPkts = CNT_SUM(c->rx_broadcast);
@@ -3542,8 +3544,8 @@ static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
-                         vtss_dual_counter_t *c1, vtss_dual_counter_t *c2)
+static void fa_debug_dual_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                              vtss_dual_counter_t *c1, vtss_dual_counter_t *c2, BOOL mixed)
 {
     u32  i;
     char buf1[32], buf2[32];
@@ -3562,7 +3564,10 @@ static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
         if (col2 == NULL) {
             vtss_fa_debug_cnt(pr, buf1, NULL, c, NULL);
         } else {
-            if (strlen(col2) != 0) {
+            if (mixed) {
+                sprintf(buf2, "%s", col2);
+                col2 = NULL;
+            } else if (strlen(col2) != 0) {
                 sprintf(buf2, "%s_%s", name, col2);
             } else {
                 strcpy(buf2, "");
@@ -3570,6 +3575,21 @@ static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
             vtss_fa_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
         }
     }
+}
+
+static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                         vtss_dual_counter_t *c1, vtss_dual_counter_t *c2)
+{
+    fa_debug_dual_cnt(pr, col1, col2, c1, c2, FALSE);
+}
+
+static void fa_debug_mix_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
+                             vtss_dual_counter_t *c1, vtss_chip_counter_t *c2)
+{
+    vtss_dual_counter_t c;
+
+    c.emac = *c2;
+    fa_debug_dual_cnt(pr, col1, col2, c1, &c, TRUE);
 }
 
 static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
@@ -3601,10 +3621,12 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
         fa_debug_cnt(pr, "1024_1526", "", &cnt.rx_size1024_1518, &cnt.tx_size1024_1518);
         fa_debug_cnt(pr, "jumbo", "", &cnt.rx_size1519_max, &cnt.tx_size1519_max);
         fa_debug_cnt(pr, "crc", NULL, &cnt.rx_crc_err, NULL);
-        fa_debug_cnt(pr, "undersize", NULL, &cnt.rx_undersize, NULL);
-        fa_debug_cnt(pr, "oversize", NULL, &cnt.rx_oversize, NULL);
-        fa_debug_cnt(pr, "fragments", NULL, &cnt.rx_fragments, NULL);
-        fa_debug_cnt(pr, "jabbers", NULL, &cnt.rx_jabbers, NULL);
+        fa_debug_mix_cnt(pr, "undersize", "multi_coll", &cnt.rx_undersize, &cnt.tx_multi_coll);
+        fa_debug_mix_cnt(pr, "fragments", "late_coll", &cnt.rx_fragments, &cnt.tx_late_coll);
+        fa_debug_mix_cnt(pr, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err, &cnt.tx_xcoll);
+        fa_debug_mix_cnt(pr, "oor_len_err", "defer", &cnt.rx_out_of_range_len_err, &cnt.tx_defer);
+        fa_debug_mix_cnt(pr, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
+        fa_debug_mix_cnt(pr, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
         /* 802.3br counters */
         vtss_fa_debug_cnt(pr, "mm_ass_err", NULL, &cnt.rx_mm_assembly_errors, NULL);

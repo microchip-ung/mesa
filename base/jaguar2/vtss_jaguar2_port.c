@@ -2541,8 +2541,10 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
     }
     rmon->rx_etherStatsOctets = (c->rx_ok_bytes.value + c->rx_bad_bytes.value);
     rx_errors = (c->rx_crc_err.value +  c->rx_undersize.value + c->rx_oversize.value +
-                 c->rx_out_of_range_len_err.value + c->rx_symbol_err.value +
-                 c->rx_jabbers.value + c->rx_fragments.value);
+                 c->rx_symbol_err.value + c->rx_jabbers.value + c->rx_fragments.value);
+    if (vtss_state->port.conf[port_no].frame_length_chk) {
+        rx_errors += (c->rx_in_range_len_err.value + c->rx_out_of_range_len_err.value);
+    }
     rmon->rx_etherStatsPkts = (c->rx_unicast.value + c->rx_multicast.value +
                                c->rx_broadcast.value + rx_errors);
     rmon->rx_etherStatsBroadcastPkts = c->rx_broadcast.value;
@@ -3282,6 +3284,12 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
         vtss_jr2_debug_cnt(pr, "1024_1526", "", &cnt.rx_size1024_1518, &cnt.tx_size1024_1518);
         vtss_jr2_debug_cnt(pr, "jumbo", "", &cnt.rx_size1519_max, &cnt.tx_size1519_max);
         vtss_jr2_debug_cnt(pr, "crc", NULL, &cnt.rx_crc_err, NULL);
+        vtss_jr2_debug_cnt(pr, "undersize", "multi_coll", &cnt.rx_undersize, &cnt.tx_multi_coll);
+        vtss_jr2_debug_cnt(pr, "fragments", "late_coll", &cnt.rx_fragments, &cnt.tx_late_coll);
+        vtss_jr2_debug_cnt(pr, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err, &cnt.tx_xcoll);
+        vtss_jr2_debug_cnt(pr, "oor_len_err", "defer", &cnt.rx_out_of_range_len_err, &cnt.tx_defer);
+        vtss_jr2_debug_cnt(pr, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
+        vtss_jr2_debug_cnt(pr, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
     }
     vtss_jr2_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
     vtss_jr2_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
