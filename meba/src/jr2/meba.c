@@ -2084,7 +2084,7 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
     uint32_t loop = 0;
 
     // Is Malibu there ?
-    while (!(board->malibu_present = jr2_10g_malibu_detect(inst)) && loop < 10) {
+    while (!(board->malibu_present = jr2_10g_malibu_detect(inst)) && loop < 50) {
         // After power up malibu is slow to respond.
         loop++;
     }
