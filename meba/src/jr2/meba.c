@@ -236,6 +236,7 @@ static mesa_bool_t jr2_10g_malibu_detect(const meba_inst_t inst)
             return true;
         }
     }
+
     return false;
 }
 
@@ -2091,7 +2092,8 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
     if (!board->malibu_present) {
         return MESA_RC_OK;
     }
-    if (mesa_port_cnt(NULL) < 24) {
+
+    if (mesa_port_cnt(NULL) < 28) {
         return MESA_RC_ERROR; // Shall never happen if Malibu is detected.
     }
 
@@ -2103,7 +2105,7 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
        26         1       0
        27         0       0
      */
-    for (mesa_port_no_t iport = 24; iport < mesa_port_cnt(NULL) - 1; iport++) {
+    for (mesa_port_no_t iport = 24; iport <= 27; iport++) {
         board->port[iport].map.mac_if              = MESA_PORT_INTERFACE_SFI;
         board->port[iport].map.map.miim_controller = MESA_MIIM_CONTROLLER_0;
         board->port[iport].map.map.miim_addr       = 27 - iport;
