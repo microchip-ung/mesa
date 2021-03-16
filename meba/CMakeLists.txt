@@ -27,8 +27,8 @@ macro(MEBA_LIB)
         add_library(meba_${arg}_static STATIC ${c_files})
 
         # TODO, make the list of MEPA libraries configurable
-        target_link_libraries(meba_${arg} mepa_vtss mepa_aqr mepa_intel)
-        target_link_libraries(meba_${arg}_static mepa_vtss_static mepa_aqr_static mepa_intel_static)
+        target_link_libraries(meba_${arg} mepa_vtss mepa_aqr mepa_intel mepa_indy)
+        target_link_libraries(meba_${arg}_static mepa_vtss_static mepa_aqr_static mepa_intel_static mepa_indy_static)
         set_target_properties(meba_${arg}_static PROPERTIES OUTPUT_NAME meba_${arg})
 
         if (${BUILD_ALL} OR ${BUILD_MEBA_ALL})

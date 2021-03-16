@@ -71,6 +71,9 @@ typedef struct {
     mepa_port_no_t          port_no;
     debug_func_t            debug_func;
     mepa_port_interface_t   mac_if;
+    mesa_miim_controller_t  miim_controller;
+    uint8_t                 miim_addr;
+    mesa_chip_no_t          chip_no;
 } mscc_phy_driver_address_t;
 
 // Union that contains all the values for address mode. Enumeration
@@ -133,6 +136,9 @@ typedef enum {
                             MEPA_ADV_UP_MEP_LOOP) // All valid bits
 } mepa_adv_dis_t;
 
+//  MEPA event mask
+typedef uint32_t mepa_event_t;
+
 // Clears up the data allocated in the probe function.
 typedef mepa_rc (*mepa_driver_delete_t)(struct mepa_device *dev);
 
@@ -192,6 +198,48 @@ typedef struct mepa_device *(*mepa_driver_probe_t)(
 typedef mepa_rc (*mepa_driver_aneg_status_get_t)(
     struct mepa_device *dev, mepa_aneg_status_t *status);
 
+// PHY register read access using clause22 format for debugging
+// address : bits 0 - 4 : address within page
+//                5 - 31: page number
+typedef mepa_rc (*mepa_driver_clause22_read_t)(struct mepa_device *dev,
+                 uint32_t address, uint16_t *const value);
+
+// PHY register write access using clause22 format for debugging
+// address : bits 0 - 4 : address within page
+//                5 - 31: page number
+typedef mepa_rc (*mepa_driver_clause22_write_t)(struct mepa_device *dev,
+                 uint32_t address, uint16_t value);
+
+// PHY register read access using clause45 format for debugging
+// address : bits 0  - 15 : address within page
+//                16 - 31 : page number
+typedef mepa_rc (*mepa_driver_clause45_read_t)(struct mepa_device *dev,
+                 uint32_t address, uint16_t *const value);
+
+// PHY register write access using clause45 format for debugging
+// address : bits 0  - 15 : address within page
+//                16 - 31 : page number
+typedef mepa_rc (*mepa_driver_clause45_write_t)(struct mepa_device *dev,
+                 uint32_t address, uint16_t value);
+
+//  Enable PHY events.
+//  event          [IN] PHY event mask to be enabled.
+//  enable         [IN] enable or disable the event
+typedef mepa_rc (*mepa_driver_event_enable_set_t)(struct mepa_device *dev,
+                 mepa_event_t event, mesa_bool_t enable);
+
+//  Get the PHY events currently enabled.
+//  event          [OUT] Event mask which is currently enabled in PHY
+typedef mepa_rc (*mepa_driver_event_enable_get_t)(struct mepa_device *dev,
+                 mepa_event_t *const event);
+
+//  Poll the status of PHY events
+//  ev_mask        [OUT] Event mask containing current status of PHY events.
+typedef mepa_rc (*mepa_driver_event_poll_t)(struct mepa_device *dev, mepa_event_t *const ev_mask);
+
+// Set loopback. Used for debugging purpose
+typedef mepa_rc (*mepa_driver_loopback_set_t)(struct mepa_device *dev, mepa_loopback_t loopback);
+
 // Full list of PHY driver interface
 #define MEBA_LIST_OF_API_PHY_DRIVER_CALLS \
     X(mepa_driver_delete)             \
@@ -204,7 +252,15 @@ typedef mepa_rc (*mepa_driver_aneg_status_get_t)(
     X(mepa_driver_cable_diag_get)     \
     X(mepa_driver_media_set)          \
     X(mepa_driver_probe)              \
-    X(mepa_driver_aneg_status_get)
+    X(mepa_driver_aneg_status_get)    \
+    X(mepa_driver_clause22_read)      \
+    X(mepa_driver_clause22_write)     \
+    X(mepa_driver_clause45_read)      \
+    X(mepa_driver_clause45_write)     \
+    X(mepa_driver_event_enable_set)   \
+    X(mepa_driver_event_enable_get)   \
+    X(mepa_driver_event_poll)         \
+    X(mepa_driver_loopback_set)
 
 typedef struct mepa_driver {
     mepa_driver_delete_t            mepa_driver_delete;
@@ -218,6 +274,14 @@ typedef struct mepa_driver {
     mepa_driver_media_set_t         mepa_driver_media_set;
     mepa_driver_probe_t             mepa_driver_probe;
     mepa_driver_aneg_status_get_t   mepa_driver_aneg_status_get;
+    mepa_driver_clause22_read_t     mepa_driver_clause22_read;
+    mepa_driver_clause22_write_t    mepa_driver_clause22_write;
+    mepa_driver_clause45_read_t     mepa_driver_clause45_read;
+    mepa_driver_clause45_write_t    mepa_driver_clause45_write;
+    mepa_driver_event_enable_set_t  mepa_driver_event_enable_set;
+    mepa_driver_event_enable_get_t  mepa_driver_event_enable_get;
+    mepa_driver_event_poll_t        mepa_driver_event_poll;
+    mepa_driver_loopback_set_t      mepa_driver_loopback_set;
 
     uint32_t id;                  // Id of the driver
     uint32_t mask;                // Mask of the driver
@@ -256,5 +320,8 @@ mepa_drivers_t mepa_aqr_driver_init();
 
 // Returns drivers for intel PHY
 mepa_drivers_t mepa_intel_driver_init();
+
+// Returns drivers for Indy PHY
+mepa_drivers_t mepa_indy_driver_init();
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_PHY_API_PHY_H_

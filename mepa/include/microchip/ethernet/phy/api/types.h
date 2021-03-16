@@ -5,6 +5,7 @@
 #define _MICROCHIP_ETHERNET_PHY_API_TYPES_H_
 
 #include <microchip/ethernet/common.h>
+#include <microchip/ethernet/switch/api/phy_1g.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 typedef mesa_aneg_t mepa_aneg_t;
@@ -27,7 +28,15 @@ typedef mesa_phy_pkt_mode_t mepa_pkt_mode_t;
 typedef mesa_phy_reset_conf_t mepa_reset_conf_t;
 typedef mesa_phy_event_t mepa_event_t;
 typedef mesa_phy_veriphy_status_t mepa_cable_diag_status_t;
+typedef mesa_phy_loopback_t mepa_loopback_t;
 typedef mesa_port_admin_state_t mepa_port_admin_state_t;
+
+/** \brief Port speeds */
+#define MEPA_SPEED_UNDEFINED MESA_SPEED_UNDEFINED
+#define MEPA_SPEED_10M       MESA_SPEED_10M
+#define MEPA_SPEED_100M      MESA_SPEED_100M
+#define MEPA_SPEED_1G        MESA_SPEED_1G
+#define MEPA_SPEED_AUTO      MESA_SPEED_AUTO
 
 /** \brief Cable diagnostics status */
 #define MEPA_CABLE_DIAG_STATUS_OK        MESA_VERIPHY_STATUS_OK
@@ -44,6 +53,10 @@ typedef mesa_port_admin_state_t mepa_port_admin_state_t;
 #define MEPA_CABLE_DIAG_STATUS_COUPL_D   MESA_VERIPHY_STATUS_COUPL_D
 #define MEPA_CABLE_DIAG_STATUS_UNKNOWN   MESA_VERIPHY_STATUS_UNKNOWN
 #define MEPA_CABLE_DIAG_STATUS_RUNNING   MESA_VERIPHY_STATUS_RUNNING
+
+/** \brief PHY events */
+#define MEPA_LINK_LOS MESA_PHY_LINK_LOS_EV
+#define MEPA_FAST_LINK_FAIL MESA_PHY_LINK_FFAIL_EV
 
 /** \brief PHY auto negotiation advertisement */
 typedef struct {

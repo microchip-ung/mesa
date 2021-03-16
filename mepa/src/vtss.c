@@ -207,10 +207,46 @@ out_device:
 }
 
 static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
-                                     mepa_aneg_status_t *status)
-{
+                                     mepa_aneg_status_t *status) {
     phy_data_t *data = (phy_data_t *)(dev->data);
     return mesa_phy_status_1g_get(data->inst, data->port_no, status);
+}
+
+static mepa_rc phy_1g_event_enable_set(mepa_device_t *dev, mepa_event_t event,
+                                        mesa_bool_t enable)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_event_enable_set(data->inst, data->port_no, event, enable);
+}
+
+static mepa_rc phy_1g_event_enable_get(mepa_device_t *dev, mepa_event_t *ev_mask)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_event_enable_get(data->inst, data->port_no, ev_mask);
+}
+
+static mepa_rc phy_1g_event_poll(mepa_device_t *dev, mepa_event_t *status)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_event_poll(data->inst, data->port_no, status);
+}
+
+static mepa_rc phy_1g_loopback_set(mepa_device_t *dev, mepa_loopback_t loopback)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_loopback_set(data->inst, data->port_no, loopback);
+}
+
+static mepa_rc phy_1g_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_read(data->inst, data->port_no, address, value);
+}
+
+static mepa_rc phy_1g_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    return mesa_phy_write(data->inst, data->port_no, address, value);
 }
 
 typedef struct malibu_10g_phy_data {
@@ -441,6 +477,12 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_media_set = mscc_1g_media_set,
             .mepa_driver_probe = mscc_1g_probe,
             .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+            .mepa_driver_clause22_read = phy_1g_read,
+            .mepa_driver_clause22_write = phy_1g_write,
+            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+            .mepa_driver_event_poll = phy_1g_event_poll,
+            .mepa_driver_loopback_set = phy_1g_loopback_set,
         },
         // Atom - QSGMII family
         {
@@ -457,6 +499,12 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_media_set = mscc_1g_media_set,
             .mepa_driver_probe = mscc_1g_probe,
             .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+            .mepa_driver_clause22_read = phy_1g_read,
+            .mepa_driver_clause22_write = phy_1g_write,
+            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+            .mepa_driver_event_poll = phy_1g_event_poll,
+            .mepa_driver_loopback_set = phy_1g_loopback_set,
         },
         // Atom - SGMII
         {
@@ -473,6 +521,12 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_media_set = mscc_1g_media_set,
             .mepa_driver_probe = mscc_1g_probe,
             .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+            .mepa_driver_clause22_read = phy_1g_read,
+            .mepa_driver_clause22_write = phy_1g_write,
+            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+            .mepa_driver_event_poll = phy_1g_event_poll,
+            .mepa_driver_loopback_set = phy_1g_loopback_set,
         },
         {
             .id = 0x000FC400,
@@ -488,6 +542,12 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_media_set = mscc_1g_media_set,
             .mepa_driver_probe = mscc_1g_probe,
             .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+            .mepa_driver_clause22_read = phy_1g_read,
+            .mepa_driver_clause22_write = phy_1g_write,
+            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+            .mepa_driver_event_poll = phy_1g_event_poll,
+            .mepa_driver_loopback_set = phy_1g_loopback_set,
         }
     };
 
@@ -502,21 +562,20 @@ mepa_drivers_t mepa_malibu_driver_init()
 {
     static const int nr_malibu_phy = 1;
     static mepa_driver_t malibu_drivers[] = {{
-            .id = 0x8200,
-            .mask = 0x0000FF00,
-            .mepa_driver_delete = phy_10g_delete,
-            .mepa_driver_reset = malibu_10g_reset,
-            .mepa_driver_poll = phy_10g_poll,
-            .mepa_driver_conf_set = phy_10g_conf_set,
-            .mepa_driver_if_get = malibu_10g_if_get,
-            .mepa_driver_power_set = NULL,
-            .mepa_driver_cable_diag_start = NULL,
-            .mepa_driver_cable_diag_get = NULL,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_probe = phy_10g_probe,
-            .mepa_driver_aneg_status_get = NULL,
-        }
-    };
+        .id = 0x8200,
+        .mask = 0x0000FF00,
+        .mepa_driver_delete = phy_10g_delete,
+        .mepa_driver_reset = malibu_10g_reset,
+        .mepa_driver_poll = phy_10g_poll,
+        .mepa_driver_conf_set = phy_10g_conf_set,
+        .mepa_driver_if_get = malibu_10g_if_get,
+        .mepa_driver_power_set = NULL,
+        .mepa_driver_cable_diag_start = NULL,
+        .mepa_driver_cable_diag_get = NULL,
+        .mepa_driver_media_set = NULL,
+        .mepa_driver_probe = phy_10g_probe,
+        .mepa_driver_aneg_status_get = NULL,
+    }};
 
     mepa_drivers_t result;
     result.phy_drv = malibu_drivers;
@@ -529,21 +588,15 @@ mepa_drivers_t mepa_venice_driver_init()
 {
     static const int nr_venice_phy = 1;
     static mepa_driver_t venice_drivers[] = {{
-            .id = 0x8400,
-            .mask = 0x0000FF00,
-            .mepa_driver_delete = phy_10g_delete,
-            .mepa_driver_reset = venice_10g_reset,
-            .mepa_driver_poll = phy_10g_poll,
-            .mepa_driver_conf_set = phy_10g_conf_set,
-            .mepa_driver_if_get = venice_10g_if_get,
-            .mepa_driver_power_set = NULL,
-            .mepa_driver_cable_diag_start = NULL,
-            .mepa_driver_cable_diag_get = NULL,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_probe = phy_10g_probe,
-            .mepa_driver_aneg_status_get = NULL,
-        }
-    };
+        .id = 0x8400,
+        .mask = 0x0000FF00,
+        .mepa_driver_delete = phy_10g_delete,
+        .mepa_driver_reset = venice_10g_reset,
+        .mepa_driver_poll = phy_10g_poll,
+        .mepa_driver_conf_set = phy_10g_conf_set,
+        .mepa_driver_if_get = venice_10g_if_get,
+        .mepa_driver_probe = phy_10g_probe,
+    }};
 
     mepa_drivers_t result;
     result.phy_drv = venice_drivers;
@@ -556,21 +609,26 @@ mepa_drivers_t mepa_default_phy_driver_init()
 {
     static const int nr_default_drivers = 1;
     static mepa_driver_t default_drivers[] = {{
-            .id = 0x0,
-            .mask = 0x00,
-            .mepa_driver_delete = mscc_1g_delete,
-            .mepa_driver_reset = mscc_1g_reset,
-            .mepa_driver_poll = mscc_1g_poll,
-            .mepa_driver_conf_set = mscc_1g_conf_set,
-            .mepa_driver_if_get = mscc_1g_if_get,
-            .mepa_driver_power_set = mscc_1g_power_set,
-            .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
-            .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
-            .mepa_driver_media_set = mscc_1g_media_set,
-            .mepa_driver_probe = mscc_1g_probe,
-            .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
-        }
-    };
+        .id = 0x0,
+        .mask = 0x00,
+        .mepa_driver_delete = mscc_1g_delete,
+        .mepa_driver_reset = mscc_1g_reset,
+        .mepa_driver_poll = mscc_1g_poll,
+        .mepa_driver_conf_set = mscc_1g_conf_set,
+        .mepa_driver_if_get = mscc_1g_if_get,
+        .mepa_driver_power_set = mscc_1g_power_set,
+        .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
+        .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
+        .mepa_driver_media_set = mscc_1g_media_set,
+        .mepa_driver_probe = mscc_1g_probe,
+        .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+        .mepa_driver_clause22_read = phy_1g_read,
+        .mepa_driver_clause22_write = phy_1g_write,
+        .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+        .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+        .mepa_driver_event_poll = phy_1g_event_poll,
+        .mepa_driver_loopback_set = phy_1g_loopback_set,
+    }};
 
     mepa_drivers_t result;
     result.phy_drv = default_drivers;

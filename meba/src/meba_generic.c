@@ -256,14 +256,15 @@ void meba_phy_driver_init(meba_inst_t inst)
     int                 probe_completed;
     meba_port_entry_t   entry;
     // Initialize all the drivers needed
-#define PHY_FAMILIES 6
+#define PHY_FAMILIES 7
     mepa_drivers_t phy_lib[PHY_FAMILIES];
     phy_lib[0] = mepa_mscc_driver_init();
     phy_lib[1] = mepa_malibu_driver_init();
     phy_lib[2] = mepa_venice_driver_init();
     phy_lib[3] = mepa_aqr_driver_init();
     phy_lib[4] = mepa_intel_driver_init();
-    phy_lib[5] = mepa_default_phy_driver_init();
+    phy_lib[5] = mepa_indy_driver_init();
+    phy_lib[6] = mepa_default_phy_driver_init();
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
         probe_completed = 0;
@@ -292,6 +293,9 @@ void meba_phy_driver_init(meba_inst_t inst)
             address_mode.val.mscc_address.port_no = port_no;
             address_mode.val.mscc_address.meba_inst = inst;
             address_mode.val.mscc_address.mac_if = entry.mac_if;
+            address_mode.val.mscc_address.miim_controller = entry.map.miim_controller;
+            address_mode.val.mscc_address.miim_addr = entry.map.miim_addr;
+            address_mode.val.mscc_address.chip_no = entry.map.chip_no;
 
             for (int i = 0; i < PHY_FAMILIES; i++) {
                 if (!phy_lib[i].count || !phy_lib[i].phy_drv) {

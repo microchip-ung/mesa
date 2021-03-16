@@ -32,12 +32,12 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
 {
     mepa_device_t *phy_dev;
 
-    T_N(inst, "Called");
-    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    T_N(inst, "Called port %d", port_no);
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if (!phy_dev || !phy_dev->drv->mepa_driver_poll) {
+    if(!phy_dev || !phy_dev->drv->mepa_driver_poll) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -58,58 +58,50 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
     inst->api.meba_port_entry_get(inst, port_no, &entry);
     cap = entry.cap;
 
-    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if (!phy_dev || !phy_dev->drv->mepa_driver_conf_set) {
+    if(!phy_dev || !phy_dev->drv->mepa_driver_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    if (conf->admin.enable) {
-        if (conf->speed == MESA_SPEED_AUTO ||
-            conf->speed == MESA_SPEED_1G) {
+    if (cf.admin.enable) {
+        if (cf.speed == MESA_SPEED_AUTO) {
             memset(&cf.aneg, 0, sizeof(cf.aneg));
 
             /* Set Auto-negotiation parameters using board capability. */
             cf.aneg.speed_2g5_fdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_2_5G_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_2500M);
+                !(cf.adv_dis & MEPA_ADV_DIS_2500M);
             cf.aneg.speed_5g_fdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_5G_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_5G);
+                !(cf.adv_dis & MEPA_ADV_DIS_5G);
             cf.aneg.speed_10g_fdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10G_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_10G);
+                !(cf.adv_dis & MEPA_ADV_DIS_10G);
             cf.aneg.speed_10m_hdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_HDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_HDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_10M);
+                !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_10M);
             cf.aneg.speed_10m_fdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_10M);
+                !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_10M);
             cf.aneg.speed_100m_hdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_HDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_HDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_100M);
+                !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_100M);
             cf.aneg.speed_100m_fdx =
-                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_FDX) &&
-                !(conf->adv_dis & MEPA_ADV_DIS_100M);
+                !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_100M);
             cf.aneg.speed_1g_fdx =
                 ((cap & MEBA_PORT_CAP_1G_FDX) &&
-                 !(conf->speed == MESA_SPEED_AUTO &&
-                   conf->adv_dis & MEPA_ADV_DIS_1G));
+                !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_1G));
             cf.aneg.no_restart_aneg =
-                !!(conf->adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
+                   !!(cf.adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
         }
     }
 
@@ -123,12 +115,12 @@ mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
 {
     mepa_device_t *phy_dev;
 
-    T_D(inst, "Called");
-    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    T_I(inst, "Called port %d", port_no);
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if (!phy_dev || !phy_dev->drv->mepa_driver_if_get) {
+    if(!phy_dev || !phy_dev->drv->mepa_driver_if_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -143,11 +135,11 @@ mepa_rc meba_phy_power_set(meba_inst_t inst, mepa_port_no_t port_no,
     mepa_device_t *phy_dev;
 
     T_D(inst, "Called");
-    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     phy_dev = inst->phy_devices[port_no];
-    if (!phy_dev || !phy_dev->drv->mepa_driver_power_set) {
+    if(!phy_dev || !phy_dev->drv->mepa_driver_power_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
     return phy_dev->drv->mepa_driver_power_set(phy_dev, power);
@@ -217,4 +209,124 @@ mepa_rc meba_phy_aneg_status_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_
     }
 
     return phy_dev->drv->mepa_driver_aneg_status_get(phy_dev, status);
+}
+
+mepa_rc meba_phy_clause22_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t *const value)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_clause22_read) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_clause22_read(phy_dev, address, value);
+}
+
+mepa_rc meba_phy_clause22_write(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t value)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_clause22_write) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_clause22_write(phy_dev, address, value);
+}
+
+mepa_rc meba_phy_clause45_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t *const value)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_clause45_read) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_clause45_read(phy_dev, address, value);
+}
+
+mepa_rc meba_phy_clause45_write(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t value)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_clause45_write) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_clause45_write(phy_dev, address, value);
+}
+
+mepa_rc meba_phy_event_enable_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t event, mesa_bool_t enable)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_event_enable_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_event_enable_set(phy_dev, event, enable);
+}
+
+mepa_rc meba_phy_event_enable_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_event_enable_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_event_enable_get(phy_dev, event);
+}
+
+mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_event_poll) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_event_poll(phy_dev, event);
+}
+
+mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t loopback)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_loopback_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_loopback_set(phy_dev, loopback);
 }

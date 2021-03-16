@@ -1222,7 +1222,11 @@ static void port_init(meba_inst_t inst)
             pc->speed = MESA_SPEED_100M;
             break;
         case MESA_PORT_INTERFACE_SGMII_CISCO:
-            entry->media_type = MSCC_PORT_TYPE_SFP;
+            if (cap & MEBA_PORT_CAP_COPPER) {
+                entry->media_type = MSCC_PORT_TYPE_CU; // Indy phys
+            } else {
+                entry->media_type = MSCC_PORT_TYPE_SFP;
+            }
             pc->speed = MESA_SPEED_1G;
             pc->autoneg = 1;
             break;

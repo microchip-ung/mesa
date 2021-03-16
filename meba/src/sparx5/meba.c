@@ -608,17 +608,14 @@ static mesa_rc fa_phy_event_enable(meba_inst_t inst,
     T_D(inst, "%sable phy event %d on all ports", enable ? "en" : "dis", phy_event);
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
-            // TBD_FA_AQR
-            // For the time being we exclude AQR PHY ports from
-            // any event configuration.
-            // Need to review this once we add support for the AQR PHY.
-            uint32_t board_port = PORT_2_BOARD_PORT(board, port_no);
-            if (board->type == BOARD_TYPE_SPARX5_PCB135 && ((board_port >= 48) && (board_port <= 51))) {
+            // We do not need/expect any event configuration to be done for AQR.
+            // Currently the feature is not implemented in the MEPA layer, and
+            // MEBA will therefore return MESA_RC_NOT_IMPLEMENTED.
+            rc = meba_phy_event_enable_set(inst, port_no, phy_event, enable);
+            if (rc == MESA_RC_OK || rc == MESA_RC_NOT_IMPLEMENTED) {
                 continue;
-            }
-            T_N(inst, "%sable phy event %d on port %d", enable ? "en" : "dis", phy_event, port_no);
-            if ((rc = mesa_phy_event_enable_set(NULL, port_no, phy_event, enable)) != MESA_RC_OK) {
-                T_E(inst, "mesa_phy_event_enable_set = %d, port_no %d", rc, port_no);
+            } else {
+                T_E(inst, "meba_phy_event_enable = %d, port %d", rc, port_no);
                 break;
             }
         }

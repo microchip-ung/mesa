@@ -784,42 +784,33 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[0].id = 0xB552;
     aqr_drivers[0].mask = 0x0000FFff;
     aqr_drivers[0].mepa_driver_delete = aqr_delete;
-    aqr_drivers[0].mepa_driver_reset = NULL;
     aqr_drivers[0].mepa_driver_poll = aqr_poll;
     aqr_drivers[0].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[0].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[0].mepa_driver_power_set = NULL;
     aqr_drivers[0].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[0].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[0].mepa_driver_media_set = NULL;
     aqr_drivers[0].mepa_driver_probe = aqr_407_probe;
     aqr_drivers[0].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[1].id = 0xB582;
     aqr_drivers[1].mask = 0x0000FFff;
     aqr_drivers[1].mepa_driver_delete = aqr_delete;
-    aqr_drivers[1].mepa_driver_reset = NULL;
     aqr_drivers[1].mepa_driver_poll = aqr_poll;
     aqr_drivers[1].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[1].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[1].mepa_driver_power_set = NULL;
     aqr_drivers[1].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[1].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[1].mepa_driver_media_set = NULL;
     aqr_drivers[1].mepa_driver_probe = aqr_407_probe;
     aqr_drivers[1].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[2].id = 0xB581;
     aqr_drivers[2].mask = 0x00000FFff;
     aqr_drivers[2].mepa_driver_delete = aqr_delete;
-    aqr_drivers[2].mepa_driver_reset = NULL;
     aqr_drivers[2].mepa_driver_poll = aqr_poll;
     aqr_drivers[2].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[2].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[2].mepa_driver_power_set = NULL;
     aqr_drivers[2].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[2].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[2].mepa_driver_media_set = NULL;
     aqr_drivers[2].mepa_driver_probe = aqr_407_probe;
     aqr_drivers[2].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
@@ -827,28 +818,22 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[3].id = 0xB692;
     aqr_drivers[3].mask = 0x0000FFff;
     aqr_drivers[3].mepa_driver_delete = aqr_delete;
-    aqr_drivers[3].mepa_driver_reset = NULL;
     aqr_drivers[3].mepa_driver_poll = aqr_poll;
     aqr_drivers[3].mepa_driver_conf_set = aqr_409_conf_set;
     aqr_drivers[3].mepa_driver_if_get = aqr_409_if_get;
-    aqr_drivers[3].mepa_driver_power_set = NULL;
     aqr_drivers[3].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[3].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[3].mepa_driver_media_set = NULL;
     aqr_drivers[3].mepa_driver_probe = aqr_409_probe;
     aqr_drivers[3].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[4].id = 0xB572;
     aqr_drivers[4].mask = 0x0000FFff;
     aqr_drivers[4].mepa_driver_delete = aqr_delete;
-    aqr_drivers[4].mepa_driver_reset = NULL;
     aqr_drivers[4].mepa_driver_poll = aqr_poll;
     aqr_drivers[4].mepa_driver_conf_set = aqr_409_conf_set;
     aqr_drivers[4].mepa_driver_if_get = aqr_409_if_get;
-    aqr_drivers[4].mepa_driver_power_set = NULL;
     aqr_drivers[4].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[4].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[4].mepa_driver_media_set = NULL;
     aqr_drivers[4].mepa_driver_probe = aqr_409_probe;
     aqr_drivers[4].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
@@ -856,42 +841,33 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[5].id = 0xB6E0;
     aqr_drivers[5].mask = 0x0000FFff;
     aqr_drivers[5].mepa_driver_delete = aqr_delete;
-    aqr_drivers[5].mepa_driver_reset = NULL;
     aqr_drivers[5].mepa_driver_poll = aqr_poll;
     aqr_drivers[5].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[5].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[5].mepa_driver_power_set = NULL;
     aqr_drivers[5].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[5].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[5].mepa_driver_media_set = NULL;
     aqr_drivers[5].mepa_driver_probe = aqr_gen3a_probe;
     aqr_drivers[5].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[6].id = 0xB700;
     aqr_drivers[6].mask = 0x0000FFff;
     aqr_drivers[6].mepa_driver_delete = aqr_delete;
-    aqr_drivers[6].mepa_driver_reset = NULL;
     aqr_drivers[6].mepa_driver_poll = aqr_poll;
     aqr_drivers[6].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[6].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[6].mepa_driver_power_set = NULL;
     aqr_drivers[6].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[6].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[6].mepa_driver_media_set = NULL;
     aqr_drivers[6].mepa_driver_probe = aqr_gen3a_probe;
     aqr_drivers[6].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[7].id = 0xB6E2;
     aqr_drivers[7].mask = 0x0000FFff;
     aqr_drivers[7].mepa_driver_delete = aqr_delete;
-    aqr_drivers[7].mepa_driver_reset = NULL;
     aqr_drivers[7].mepa_driver_poll = aqr_poll;
     aqr_drivers[7].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[7].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[7].mepa_driver_power_set = NULL;
     aqr_drivers[7].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[7].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[7].mepa_driver_media_set = NULL;
     aqr_drivers[7].mepa_driver_probe = aqr_gen3b_probe;
     aqr_drivers[7].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
@@ -899,42 +875,33 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[8].id = 0xB6F0;
     aqr_drivers[8].mask = 0x0000FFff;
     aqr_drivers[8].mepa_driver_delete = aqr_delete;
-    aqr_drivers[8].mepa_driver_reset = NULL;
     aqr_drivers[8].mepa_driver_poll = aqr_poll;
     aqr_drivers[8].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[8].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[8].mepa_driver_power_set = NULL;
     aqr_drivers[8].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[8].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[8].mepa_driver_media_set = NULL;
     aqr_drivers[8].mepa_driver_probe = aqr_gen3a_probe;
     aqr_drivers[8].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[9].id = 0xB710;
     aqr_drivers[9].mask = 0x0000FFff;
     aqr_drivers[9].mepa_driver_delete = aqr_delete;
-    aqr_drivers[9].mepa_driver_reset = NULL;
     aqr_drivers[9].mepa_driver_poll = aqr_poll;
     aqr_drivers[9].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[9].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[9].mepa_driver_power_set = NULL;
     aqr_drivers[9].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[9].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[9].mepa_driver_media_set = NULL;
     aqr_drivers[9].mepa_driver_probe = aqr_gen3a_probe;
     aqr_drivers[9].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[10].id = 0xB6F2;
     aqr_drivers[10].mask = 0x0000FFff;
     aqr_drivers[10].mepa_driver_delete = aqr_delete;
-    aqr_drivers[10].mepa_driver_reset = NULL;
     aqr_drivers[10].mepa_driver_poll = aqr_poll;
     aqr_drivers[10].mepa_driver_conf_set = aqr_conf_set;
     aqr_drivers[10].mepa_driver_if_get = aqr_if_get;
-    aqr_drivers[10].mepa_driver_power_set = NULL;
     aqr_drivers[10].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[10].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[10].mepa_driver_media_set = NULL;
     aqr_drivers[10].mepa_driver_probe = aqr_gen3b_probe;
     aqr_drivers[10].mepa_driver_aneg_status_get = aqr_status_1g_get;
 

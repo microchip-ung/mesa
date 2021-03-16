@@ -17,6 +17,10 @@ add_library(mepa_vtss SHARED src/vtss.c)
 add_library(mepa_vtss_static STATIC src/vtss.c)
 set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)
 
+add_library(mepa_indy SHARED src/microchip/indy.c)
+add_library(mepa_indy_static STATIC src/microchip/indy.c)
+set_target_properties(mepa_indy_static PROPERTIES OUTPUT_NAME mepa_indy)
+
 include_directories(".")
 include_directories("src/aqr/AQR_API_2.6.1/include")
 include_directories("src/aqr/AQR_API_2.6.1/include/registerMap")

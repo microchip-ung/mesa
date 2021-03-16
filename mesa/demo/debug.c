@@ -11,6 +11,8 @@
 #include "cli.h"
 #include "symreg.h"
 
+extern meba_inst_t meba_global_inst;
+
 static mscc_appl_trace_module_t trace_module = {
     .name = "debug"
 };
@@ -84,8 +86,8 @@ static void cli_cmd_debug_phy(cli_req_t *req, mesa_bool_t write)
             reg = ((mreq->page << 5) | addr);
             if (write) {
                 /* Write */
-                mesa_phy_write(NULL, iport, reg, mreq->value);
-            } else if (mesa_phy_read(NULL, iport, reg, &value) == MESA_RC_OK) {
+                meba_phy_clause22_write(meba_global_inst, iport, reg, mreq->value);
+            } else if (meba_phy_clause22_read(meba_global_inst, iport, reg, &value) == MESA_RC_OK) {
                 /* Read success */
                 if (first) {
                     first = 0;

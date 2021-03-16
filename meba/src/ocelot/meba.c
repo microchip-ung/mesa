@@ -14,6 +14,7 @@
 typedef enum {
     BOARD_TYPE_OCELOT_PCB120,
     BOARD_TYPE_OCELOT_PCB123,
+    BOARD_TYPE_OCELOT_PCB123_INDY
 } board_type_t;
 #define MAX_PORTS 11
 typedef enum {
@@ -290,6 +291,70 @@ static mesa_rc pcb123_init_board(meba_inst_t inst)
     }
     return rc;
 }
+
+static mesa_rc pcb123_indy_init_board(meba_inst_t inst)
+{
+    mesa_rc rc;
+    mesa_sgpio_conf_t conf;
+    uint32_t port, gpio_no;
+
+    /* Configure GPIOs for MIIM/MDIO and I2C */
+    for (gpio_no = 14; gpio_no <= 17; gpio_no++) {
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
+    }
+
+    /* GPIO pins 0-3 are used for SGPIOs. */
+    (void)mesa_gpio_mode_set(NULL, 0, 0, MESA_GPIO_ALT_0);  // SGPIO Grp 0 / CLK
+    (void)mesa_gpio_mode_set(NULL, 0, 1, MESA_GPIO_ALT_0);  // SGPIO Grp 0 / DO
+    (void)mesa_gpio_mode_set(NULL, 0, 2, MESA_GPIO_ALT_0);  // SGPIO Grp 0 / DI
+    (void)mesa_gpio_mode_set(NULL, 0, 3, MESA_GPIO_ALT_0);  // SGPIO Grp 0 / LD
+
+    /* Setup SGPIO group 0 */
+    if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
+        /* The blink mode 0 is 5 HZ for link activity and collisions in half duplex. */
+        conf.bmode[0] = MESA_SGPIO_BMODE_5;
+
+        /* Enable two bits per port */
+        conf.bit_count = 2;
+
+        /* Enable SLED ports 10:0 as port status LEDs */
+        for (port = 0; port <= 10; port++) {
+            conf.port_conf[port].enabled = true;
+            conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_ON;
+            conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_ON;
+            conf.port_conf[port].int_pol_high[0] = true; /* LOS of signal is active high */
+        }
+
+        /* Enable SLED port 11 as system status LED */
+        conf.port_conf[11].enabled = true;
+        conf.port_conf[11].mode[0] = MESA_SGPIO_MODE_ON;
+        conf.port_conf[11].mode[1] = MESA_SGPIO_MODE_OFF;
+
+        /* Enable SGPIO output ports till 17 */
+        for (port = 12; port <= 17; port++) {
+            conf.port_conf[port].enabled = true;
+            conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_ON;
+            conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_ON;
+        }
+
+        /* MUX_SELx (I2C) is controlled by the BSP driver */
+        conf.port_conf[13].mode[0] = MESA_SGPIO_MODE_NO_CHANGE;
+        conf.port_conf[13].mode[1] = MESA_SGPIO_MODE_NO_CHANGE;
+        conf.port_conf[14].mode[0] = MESA_SGPIO_MODE_NO_CHANGE;
+
+        /* Disable coma mode. TODO:Move to PHY Api. */
+        conf.port_conf[16].mode[0] = MESA_SGPIO_MODE_OFF;
+
+        for (port = 18; port <= 23; port++) {
+            conf.port_conf[port].enabled = true;
+            conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_NO_CHANGE;
+            conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_NO_CHANGE;
+        }
+        (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+    }
+    return rc;
+}
+
 // When the dual media ports are in Serdes mode the sd_enable, sd_high and sd_internal should be set.
 // MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER does not include those capabilities, therefore they are added specifically.
 #define CAP_SFP_SD_HIGH (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH | MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT)
@@ -534,6 +599,61 @@ static void pcb123_init_porttable(meba_inst_t inst)
     memcpy(board->sgpio_port, sgpio_port_map, sizeof(sgpio_port_map));
 }
 
+static void pcb123_indy_init_porttable(meba_inst_t inst)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t      port_no;
+    /* Local mapping table */
+    typedef struct {
+        int32_t                board_port;
+        int32_t                chip_port;
+        mesa_miim_controller_t miim_controller;
+        uint8_t                miim_addr;
+        mesa_port_interface_t  mac_if;
+        meba_port_cap_t        cap;
+    } port_map_t;
+    typedef struct {
+        port_map_t map[8];
+    } map_wrap_t;
+    map_wrap_t map_wrap = {};
+
+    if (inst->props.target == MESA_TARGET_7514) {
+        switch (inst->props.mux_mode) {
+        case MESA_PORT_MUX_MODE_2:
+            map_wrap = (map_wrap_t) {
+                {
+                    {0, 2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {1, 3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {2, 0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {3, 1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {8, 4, MESA_MIIM_CONTROLLER_1, 7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {9, 5, MESA_MIIM_CONTROLLER_1, 8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {10,6, MESA_MIIM_CONTROLLER_1, 9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {11,7, MESA_MIIM_CONTROLLER_1,10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                }
+            };
+            break;
+        default:
+            T_E(inst, "Missing port mux_mode for board port table configuration");
+            return;
+        }
+    }
+    /* Fill out port mapping table */
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        board->port[port_no].board_port = map_wrap.map[port_no].board_port;
+        board->port[port_no].board_port_dual = -1;
+        meba_port_entry_t  *entry = &board->port[port_no].map;
+        entry->map.chip_port = map_wrap.map[port_no].chip_port;
+        entry->map.miim_addr = map_wrap.map[port_no].miim_addr;
+        entry->map.miim_controller = map_wrap.map[port_no].miim_controller;
+        entry->mac_if = map_wrap.map[port_no].mac_if;
+        entry->cap = map_wrap.map[port_no].cap;
+    }
+    /* Fill out board to sgpio port mapping table */
+    uint32_t sgpio_port_map[12] = {2, 3, 0, 1, 0, 1, 4, 6, 9, 10, 7, 8};
+    memcpy(board->sgpio_port, sgpio_port_map, sizeof(sgpio_port_map));
+}
+
 static const board_func_t board_funcs[] = {
     [BOARD_TYPE_OCELOT_PCB120] = {
         .board_init      = pcb120_init_board,
@@ -542,6 +662,10 @@ static const board_func_t board_funcs[] = {
     [BOARD_TYPE_OCELOT_PCB123] = {
         .board_init      = pcb123_init_board,
         .init_porttable  = pcb123_init_porttable,
+    },
+    [BOARD_TYPE_OCELOT_PCB123_INDY] = {
+        .board_init      = pcb123_indy_init_board,
+        .init_porttable  = pcb123_indy_init_porttable,
     },
 };
 
@@ -602,7 +726,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
             return (sfp == SFP_DETECT) ? !data[11].value[0] : (sfp == SFP_FAULT) ? data[11].value[1] : data[10].value[0];
         }
         return false;
-    } else {
+    } else if (board->type != BOARD_TYPE_OCELOT_PCB123_INDY) {
         // Assuming BOARD_TYPE_OCELOT_PCB123
         switch (board_port) {
         case 4:
@@ -624,6 +748,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
         }
         return false;
     }
+    return false;
 }
 
 /* ---------------------------   Exposed API  ------------------------------- */
@@ -966,7 +1091,7 @@ static mesa_rc ocelot_port_admin_state_set(meba_inst_t inst,
 
             rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
         }
-    } else {
+    } else if (board->type == BOARD_TYPE_OCELOT_PCB123) {
         // If the port is a dual-media one, then the board port no is different
         if (has_cap(board->port[port_no].map.cap, (MEBA_PORT_CAP_DUAL_COPPER | MEBA_PORT_CAP_DUAL_FIBER))) {
             board_port = DUAL_PORT_2_BOARD_PORT(board, port_no);
@@ -1019,7 +1144,7 @@ static mesa_rc ocelot_status_led_set(meba_inst_t inst,
         T_N(inst, "LED:%d, color=%d", type, color);
         if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
             uint32_t sgpio = MESA_SGPIO_PORTS;
-            if (board->type == BOARD_TYPE_OCELOT_PCB123) {
+            if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
                 switch (type) {
                     case MEBA_LED_TYPE_FRONT:
                         sgpio = 11;
@@ -1131,7 +1256,7 @@ static mesa_rc ocelot_port_led_update(meba_inst_t inst,
                     mode_green = ((activity & ACTIVITY_CNT) ? MESA_SGPIO_MODE_0_ACTIVITY : MESA_SGPIO_MODE_OFF);
                     /* Hack for port mux modes where PCB123 cannot provide automatic LED activity blink.
                        For these ports, the port LED will only indicate the link status, but no activity. */
-                    if (board->type == BOARD_TYPE_OCELOT_PCB123) {
+                    if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
                         switch (inst->props.mux_mode) {
                         case MESA_PORT_MUX_MODE_0:
                             if ((board_port >= 6) & (board_port <= 8)) {
@@ -1248,8 +1373,8 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
                 }
                 if (is_phy_port(board->port[port_no].map.cap)) {
                     T_D(inst, "%sable FLNK on port %d", enable ? "en" : "dis", port_no);
-                    if ((rc = mesa_phy_event_enable_set(PHY_INST, port_no, MESA_PHY_LINK_FFAIL_EV, enable)) != MESA_RC_OK) {
-                        T_E(inst, "mesa_phy_event_enable_set = %d", rc);
+                    if ((rc = meba_phy_event_enable_set(inst, port_no, MEPA_FAST_LINK_FAIL, enable)) != MESA_RC_OK) {
+                        T_E(inst, "meba_phy_event_enable_set = %d", rc);
                         break;
                     }
                 }
@@ -1432,7 +1557,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 {
     meba_inst_t        inst;
     meba_board_state_t *board;
-    uint16_t           dummy = 0;
+    uint16_t           dummy = 0, oui = 0;
     uint32_t           i;
 
     if (callouts_size < sizeof(*callouts)) {
@@ -1467,7 +1592,17 @@ meba_inst_t meba_initialize(size_t callouts_size,
 
     (void)mebaux_gpio_mode_set(inst, &rawio, 14, MESA_GPIO_ALT_0);
     (void)mebaux_gpio_mode_set(inst, &rawio, 15, MESA_GPIO_ALT_0);
-    if (mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_1, 0, 0, &dummy) == MESA_RC_OK) {
+    if (mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_1, 7, 2, &oui) == MESA_RC_OK) {
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
+        board->type = BOARD_TYPE_OCELOT_PCB123_INDY;
+        strncpy(inst->props.name, "Ocelot Indy EVB", sizeof(inst->props.name));
+        if (inst->props.target == MESA_TARGET_7514) {
+            board->port_cnt = 8;
+        } else {
+            T_E(inst, "The %s board does not support the port mux_mode %d", inst->props.name, inst->props.mux_mode);
+            goto error_out;
+        }
+    } else if (mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_1, 0, 0, &dummy) == MESA_RC_OK) {
         board->type = BOARD_TYPE_OCELOT_PCB120;
         strncpy(inst->props.name, "Ocelot DIN", sizeof(inst->props.name));
         if (inst->props.target == MESA_TARGET_7513) {
@@ -1543,7 +1678,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     // The actual number of ports the HW design has, not the one exposed by board->port_cnt
-    uint32_t count = (board->type == BOARD_TYPE_OCELOT_PCB123) ? 12 : 10;
+    uint32_t count = (board->type == BOARD_TYPE_OCELOT_PCB123) ? 12 :
+                     ((board->type == BOARD_TYPE_OCELOT_PCB123_INDY) ? 12 : 10);
     board->sgpio_port = (uint32_t*) calloc(count, sizeof(uint32_t));
     if (board->sgpio_port == NULL) {
         fprintf(stderr, "Board to SGPIO port table malloc failure\n");
