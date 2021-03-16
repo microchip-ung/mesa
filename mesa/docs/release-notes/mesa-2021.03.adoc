@@ -16,19 +16,18 @@
 
 ==== Introducing MEPA / Microchip Ethernet PHY API
 
-This release introduces MEPA with a basic feature set. MEPA aims a providing a
-common interface for the various PHY drivers. Currently all the PHYs supported
+This release introduces MEPA with a basic feature set. MEPA aims at providing a
+common interface for the various PHY drivers. Currently, all the PHYs supported
 in MESA/Unified-API is also supported by the MEPA abstraction layer, by simply
-calling into the MESA/UnifiedAPI implementation. Future PHYs will be supported
+calling into the MESA/Unified-API implementation. Future PHYs will be supported
 with self-contained implementations in MEPA.
 
-The main header file for MEPA
-
-Beside from the single PHY centric support in MEPA, we also offer a board layer
+Besides the single PHY-centric support in MEPA, we also offer a board layer
 of abstraction in MEBA. MEBA will take care of instantiating all the PHY
-instances according to the port map, and provide access functions using the port
-index, and forward the call to the respective MEPA driver.
+instances according to the port map and provide access functions using the port
+index and forward the call to the respective MEPA driver.
 
-The MEBA layer is optional, but highly encouraged for designed using both the
+The MEBA layer is optional, but highly encouraged for designs using both the
 Microchip Ethernet PHYs and Switches. Users only needing the PHYs for end-node
 and alternative switch-fabrics should use MEPA directly.
+
