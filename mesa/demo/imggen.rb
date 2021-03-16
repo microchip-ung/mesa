@@ -39,7 +39,7 @@ $machines = {
             { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb121.dtb"},
             { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb134.dtb"},
         ],
-        :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
         :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
     },
 
