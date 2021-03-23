@@ -84,9 +84,6 @@ macro(APP_TARGET)
         json-c
         ${A_MESA}
         ${A_MEBA}_static
-        mepa_vtss_static
-        mepa_intel_static
-        mepa_aqr_static
     )
     set_target_properties(${A_NAME} PROPERTIES OUTPUT_NAME "mesa-demo-${A_MESA}")
 
