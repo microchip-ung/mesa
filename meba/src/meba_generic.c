@@ -278,7 +278,11 @@ void meba_phy_driver_init(meba_inst_t inst)
     phy_lib[5] = mepa_lan8814_driver_init();
 #endif
 
-    phy_lib[6] = mepa_default_phy_driver_init();
+#if defined(MEBA_HAS_MEPA_KSZ9031)
+    phy_lib[6] = mepa_ksz9031_driver_init();
+#endif
+
+    phy_lib[7] = mepa_default_phy_driver_init();
 
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
