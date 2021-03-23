@@ -138,9 +138,9 @@ MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
          DYNAMIC_DEPENDENCIES   mepa_vtss)
 
 MEBA_LIB(LIB_NAME lan966x MEBA_SRC_FOLDER lan966x
-         MEBA_DEFINES           MEBA_HAS_MEPA_KSZ9031  MEBA_HAS_MEPA_INDY
-         STATIC_DEPENDENCIES    mepa_ksz9031_static    mepa_indy_static
-         DYNAMIC_DEPENDENCIES   mepa_ksz9031           mepa_indy)
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_KSZ9031  MEBA_HAS_MEPA_INDY
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_ksz9031_static    mepa_indy_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_ksz9031           mepa_indy)
 
 file(GLOB_RECURSE MEBA_HDRS "include/**.h")
 doxygen_target(TARGET meba NAME "MEBA" FILES ${MEBA_HDRS} INCLUDES -I${CMAKE_CURRENT_SOURCE_DIR}/include)
