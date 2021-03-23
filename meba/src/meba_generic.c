@@ -256,15 +256,31 @@ void meba_phy_driver_init(meba_inst_t inst)
     int                 probe_completed;
     meba_port_entry_t   entry;
     // Initialize all the drivers needed
-#define PHY_FAMILIES 7
-    mepa_drivers_t phy_lib[PHY_FAMILIES];
+
+
+#define PHY_FAMILIES 32
+    mepa_drivers_t phy_lib[PHY_FAMILIES] = {};
+
+#if defined(MEBA_HAS_MEPA_VTSS)
     phy_lib[0] = mepa_mscc_driver_init();
     phy_lib[1] = mepa_malibu_driver_init();
     phy_lib[2] = mepa_venice_driver_init();
+#endif
+
+#if defined(MEBA_HAS_MEPA_AQR)
     phy_lib[3] = mepa_aqr_driver_init();
+#endif
+
+#if defined(MEBA_HAS_MEPA_INTEL)
     phy_lib[4] = mepa_intel_driver_init();
+#endif
+
+#if defined(MEBA_HAS_MEPA_INDY)
     phy_lib[5] = mepa_indy_driver_init();
+#endif
+
     phy_lib[6] = mepa_default_phy_driver_init();
+
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
         probe_completed = 0;

@@ -14,49 +14,128 @@ include_directories(./src/drivers)
 option(BUILD_MEBA_ALL "Build all MEBA layers" OFF)
 mark_as_advanced(BUILD_MEBA_ALL)
 
-macro(MEBA_LIB)
-    set(LIST_OF_MEBA_TARGETS ${ARGN})
+macro(merge_static_libs)
+    set(oneValueArgs   TARGET FILENAME)
+    set(multiValueArgs LIBRARIES)
 
-    foreach(arg ${ARGN})
-        option(BUILD_MEBA_${arg}        "Build the MEBA layer for ${arg}" OFF)
-        option(BUILD_MEBA_${arg}_static "Build the STATIC MEBA layer for ${arg}" OFF)
-        mark_as_advanced(BUILD_MEBA_${arg} BUILD_MEBA_${arg}_static)
-        FILE(GLOB c_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/${arg}/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/*.c")
+    cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-        add_library(meba_${arg} SHARED ${c_files})
-        add_library(meba_${arg}_static STATIC ${c_files})
+    set(WD ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.tmp)
 
-        # TODO, make the list of MEPA libraries configurable
-        target_link_libraries(meba_${arg} mepa_vtss mepa_aqr mepa_intel mepa_indy)
-        target_link_libraries(meba_${arg}_static mepa_vtss_static mepa_aqr_static mepa_intel_static mepa_indy_static)
-        set_target_properties(meba_${arg}_static PROPERTIES OUTPUT_NAME meba_${arg})
-
-        if (${BUILD_ALL} OR ${BUILD_MEBA_ALL})
-            set(BUILD_MEBA_${arg} ON CACHE BOOL "" FORCE)
-        endif()
-
-        if (${BUILD_MEBA_${arg}})
-            if (${BUILD_SHARED_LIBS})
-                message(STATUS "Build STARED MEBA layer for ${arg}")
-                set_target_properties(meba_${arg}        PROPERTIES EXCLUDE_FROM_ALL FALSE)
-            endif()
-            if (${BUILD_STATIC_LIBS})
-                message(STATUS "Build STATIC MEBA layer for ${arg}")
-                set_target_properties(meba_${arg}_static PROPERTIES EXCLUDE_FROM_ALL FALSE)
-            endif()
-
-        else()
-            if (${BUILD_SHARED_LIBS})
-                set_target_properties(meba_${arg}        PROPERTIES EXCLUDE_FROM_ALL TRUE)
-            endif()
-            if (${BUILD_STATIC_LIBS})
-                set_target_properties(meba_${arg}_static PROPERTIES EXCLUDE_FROM_ALL TRUE)
-            endif()
-        endif()
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar.in "CREATE ${A_FILENAME}\n" )
+    foreach(e ${A_LIBRARIES})
+        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar.in
+            "ADDLIB $<TARGET_FILE:${e}>\n")
     endforeach()
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar.in "SAVE\n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar.in "END\n")
+    file(GENERATE
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar
+        INPUT ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar.in)
+
+    add_custom_command(
+        COMMAND ${CMAKE_AR} -Ms < ${CMAKE_CURRENT_BINARY_DIR}/${A_TARGET}.ar
+        OUTPUT  ${A_FILENAME}
+        DEPENDS ${A_LIBRARIES}
+        COMMENT "Bundling ${A_TARGET}"
+        VERBATIM
+    )
+
+    add_custom_target(${A_TARGET}_target DEPENDS ${A_FILENAME})
+
+    add_library(${A_TARGET} STATIC IMPORTED GLOBAL)
+    add_dependencies(${A_TARGET} ${A_TARGET}_target)
+    set_target_properties(${A_TARGET} PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${A_FILENAME}
+    )
+endmacro(merge_static_libs)
+
+macro(MEBA_LIB)
+    set(oneValueArgs   LIB_NAME MEBA_SRC_FOLDER MEBA_DEFINES)
+    set(multiValueArgs STATIC_DEPENDENCIES DYNAMIC_DEPENDENCIES)
+
+    cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    option(BUILD_MEBA_${A_LIB_NAME}        "Build the MEBA layer for ${A_LIB_NAME}" OFF)
+    option(BUILD_MEBA_STATIC_${A_LIB_NAME} "Build the STATIC MEBA layer for ${A_LIB_NAME}" OFF)
+
+    #mark_as_advanced(BUILD_MEBA_${A_LIB_NAME} BUILD_MEBA_${A_LIB_NAME}_static)
+    FILE(GLOB c_files
+         RELATIVE
+         "${CMAKE_CURRENT_SOURCE_DIR}"
+         "${CMAKE_CURRENT_SOURCE_DIR}/src/${A_MEBA_SRC_FOLDER}/*.c"
+         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+         "${CMAKE_CURRENT_SOURCE_DIR}/src/drivers/*.c")
+
+    add_library(meba_${A_LIB_NAME} SHARED ${c_files})
+    target_compile_definitions(meba_${A_LIB_NAME} PRIVATE ${A_MEBA_DEFINES})
+    target_link_libraries(meba_${A_LIB_NAME} ${A_DYNAMIC_DEPENDENCIES})
+
+    add_library(meba_only_${A_LIB_NAME} STATIC ${c_files} )
+    target_compile_definitions(meba_only_${A_LIB_NAME} PRIVATE ${A_MEBA_DEFINES})
+
+    merge_static_libs(TARGET meba_${A_LIB_NAME}_static FILENAME libmeba_${A_LIB_NAME}.a
+                      LIBRARIES meba_only_${A_LIB_NAME} ${A_STATIC_DEPENDENCIES})
+
+    if (${BUILD_ALL} OR ${BUILD_MEBA_ALL})
+        set(BUILD_MEBA_${A_LIB_NAME} ON CACHE BOOL "" FORCE)
+        set(BUILD_MEBA_${A_LIB_NAME}_static ON CACHE BOOL "" FORCE)
+    endif()
+
+    if (${BUILD_MEBA_${A_LIB_NAME}})
+        message(STATUS "Build SHARED ${A_LIB_NAME} including ${A_MEBA_DEFINES}")
+        set_target_properties(meba_${A_LIB_NAME}        PROPERTIES EXCLUDE_FROM_ALL FALSE)
+    else()
+        set_target_properties(meba_${A_LIB_NAME}        PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
+
+    if (${BUILD_MEBA_STATIC_${A_LIB_NAME}})
+        message(STATUS "Build STATIC ${A_LIB_NAME} including ${A_MEBA_DEFINES}")
+        set_target_properties(meba_${A_LIB_NAME}_static_target PROPERTIES EXCLUDE_FROM_ALL FALSE)
+    else()
+        set_target_properties(meba_${A_LIB_NAME}_static_target PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    endif()
 endmacro()
 
-MEBA_LIB(caracal jr2 servalt ocelot ocelot_pcb121 sparx5)
+MEBA_LIB(LIB_NAME caracal MEBA_SRC_FOLDER caracal
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
+
+MEBA_LIB(LIB_NAME jr2 MEBA_SRC_FOLDER jr2
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_AQR  MEBA_HAS_MEPA_INTEL
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_aqr_static    mepa_intel_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_aqr           mepa_intel)
+
+MEBA_LIB(LIB_NAME jr2_bringup MEBA_SRC_FOLDER jr2
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
+
+MEBA_LIB(LIB_NAME servalt MEBA_SRC_FOLDER servalt
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
+
+MEBA_LIB(LIB_NAME ocelot MEBA_SRC_FOLDER ocelot
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
+
+MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
+
+MEBA_LIB(LIB_NAME sparx5 MEBA_SRC_FOLDER sparx5
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_AQR   MEBA_HAS_MEPA_INTEL   MEBA_HAS_MEPA_INDY
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_aqr_static     mepa_intel_static     mepa_indy_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_aqr            mepa_intel            mepa_indy)
+
+MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
+         STATIC_DEPENDENCIES    mepa_vtss_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss)
 
 file(GLOB_RECURSE MEBA_HDRS "include/**.h")
 doxygen_target(TARGET meba NAME "MEBA" FILES ${MEBA_HDRS} INCLUDES -I${CMAKE_CURRENT_SOURCE_DIR}/include)

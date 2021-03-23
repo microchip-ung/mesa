@@ -44,6 +44,10 @@ libvsc7410.so:
   :int: 10
   :val:
   :chip: libvsc7410.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7410.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 7
@@ -1272,6 +1276,10 @@ libvsc7415.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7415.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7415.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -2510,6 +2518,10 @@ libvsc7423.so:
   :int: 10
   :val:
   :chip: libvsc7423.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7423.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 7
@@ -3738,6 +3750,10 @@ libvsc7424.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7424.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7424.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -4976,6 +4992,10 @@ libvsc7425.so:
   :int: 10
   :val:
   :chip: libvsc7425.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7425.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 18
@@ -6204,6 +6224,10 @@ libvsc7426.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7426.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7426.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -7442,6 +7466,10 @@ libvsc7427.so:
   :int: 10
   :val:
   :chip: libvsc7427.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7427.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 26
@@ -8670,6 +8698,10 @@ libvsc7428.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7428.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7428.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -9908,6 +9940,10 @@ libvsc7429.so:
   :int: 10
   :val:
   :chip: libvsc7429.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7429.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 26
@@ -11136,6 +11172,10 @@ libvsc7430.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7430.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7430.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -12374,6 +12414,10 @@ libvsc7435.so:
   :int: 10
   :val:
   :chip: libvsc7435.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7435.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 7
@@ -13602,6 +13646,10 @@ libvsc7436.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7436.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7436.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -14840,6 +14888,10 @@ libvsc7437.so:
   :int: 10
   :val:
   :chip: libvsc7437.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7437.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 9
@@ -16068,6 +16120,10 @@ libvsc7438.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7438.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7438.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -17306,6 +17362,10 @@ libvsc7440.so:
   :int: 10
   :val:
   :chip: libvsc7440.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7440.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 9
@@ -18534,6 +18594,10 @@ libvsc7442.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7442.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7442.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -19772,6 +19836,10 @@ libvsc7444.so:
   :int: 10
   :val:
   :chip: libvsc7444.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7444.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 27
@@ -21000,6 +21068,10 @@ libvsc7448.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7448.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7448.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -22238,6 +22310,10 @@ libvsc7449.so:
   :int: 10
   :val:
   :chip: libvsc7449.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7449.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 53
@@ -23466,6 +23542,10 @@ libvsc7464.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7464.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7464.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -24704,6 +24784,10 @@ libvsc7468.so:
   :int: 10
   :val:
   :chip: libvsc7468.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7468.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 51
@@ -25932,6 +26016,10 @@ libvsc7511.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7511.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7511.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -27170,6 +27258,10 @@ libvsc7512.so:
   :int: 10
   :val:
   :chip: libvsc7512.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7512.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 11
@@ -28398,6 +28490,10 @@ libvsc7513.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 0
+  :chip: libvsc7513.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7513.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -29636,6 +29732,10 @@ libvsc7514.so:
   :int: 10
   :val:
   :chip: libvsc7514.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7514.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 11
@@ -30864,6 +30964,10 @@ libvsc7546.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 1
+  :chip: libvsc7546.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7546.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -32102,6 +32206,10 @@ libvsc7546TSN.so:
   :int: 10
   :val:
   :chip: libvsc7546TSN.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7546TSN.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 29
@@ -33330,6 +33438,10 @@ libvsc7549.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 2
+  :chip: libvsc7549.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7549.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -34568,6 +34680,10 @@ libvsc7549TSN.so:
   :int: 10
   :val:
   :chip: libvsc7549TSN.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7549TSN.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 53
@@ -35796,6 +35912,10 @@ libvsc7552.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 3
+  :chip: libvsc7552.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7552.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -37034,6 +37154,10 @@ libvsc7552TSN.so:
   :int: 10
   :val:
   :chip: libvsc7552TSN.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7552TSN.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 57
@@ -38262,6 +38386,10 @@ libvsc7556.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 4
+  :chip: libvsc7556.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7556.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
@@ -39500,6 +39628,10 @@ libvsc7556TSN.so:
   :int: 10
   :val:
   :chip: libvsc7556TSN.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7556TSN.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 57
@@ -40733,6 +40865,10 @@ libvsc7558.so:
   :int: 10
   :val:
   :chip: libvsc7558.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
+  :chip: libvsc7558.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 57
@@ -41961,6 +42097,10 @@ libvsc7558TSN.so:
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
   :val: 5
+  :chip: libvsc7558TSN.so
+- :str: MESA_CAP_MISC_SGPIO_MAP
+  :int: 10
+  :val:
   :chip: libvsc7558TSN.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
