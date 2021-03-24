@@ -386,11 +386,14 @@ Dir["#{$ws}/bin/**/*"].reverse_each do |e|
     end
 
     %x{rm -f #{e}} if ext == ".log"
+    %x{rm -f #{e}} if ext == ".ar"
+    %x{rm -f #{e}} if ext == ".in"
     %x{rm -f #{e}} if n == "Jenkinsfile"
     %x{rm -f #{e}} if n == "CMakeCache.txt"
     %x{rm -f #{e}} if n == "CMakeFiles"
     %x{rm -f #{e}} if n == "cmake_install.cmake"
     %x{rm -f #{e}} if n == "Makefile"
+    %x{rm -f #{e}} if n =~ /libmeba_only/
 
     if e.include? "mesa\/demo"
         case e

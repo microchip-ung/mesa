@@ -79,7 +79,7 @@ macro(MEBA_LIB)
 
     if (${BUILD_ALL} OR ${BUILD_MEBA_ALL})
         set(BUILD_MEBA_${A_LIB_NAME} ON CACHE BOOL "" FORCE)
-        set(BUILD_MEBA_${A_LIB_NAME}_static ON CACHE BOOL "" FORCE)
+        set(BUILD_MEBA_STATIC_${A_LIB_NAME} ON CACHE BOOL "" FORCE)
     endif()
 
     if (${BUILD_MEBA_${A_LIB_NAME}})
