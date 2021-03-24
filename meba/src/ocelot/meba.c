@@ -360,6 +360,7 @@ static void pcb123_init_porttable(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_no_t      port_no;
+
     /* Local mapping table */
     typedef struct {
         int32_t                board_port;
@@ -1412,6 +1413,20 @@ static mesa_rc ocelot_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
+static mesa_bool_t pcb123_npi_port_detect(const meba_inst_t inst)
+{
+    uint16_t    dummy = 0;
+    mesa_bool_t detected;
+
+    // The "NPI" port on PCB123 is detachable from the board. This function
+    // detects whether it's present or not.
+    detected = mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_1, 28, 0x2, &dummy) == MESA_RC_OK;
+
+    T_I(inst, "NPI port %sdetected", detected ? "" : "not ");
+
+    return detected;
+}
+
 meba_inst_t meba_initialize(size_t callouts_size,
                             const meba_board_interface_t *callouts)
 {
@@ -1472,7 +1487,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
         if (inst->props.target == MESA_TARGET_7513) {
             switch (inst->props.mux_mode) {
             case MESA_PORT_MUX_MODE_0:
-                board->port_cnt = 7;
+                // "Luckily" the NPI port comes last in the port map, so it's
+                // safe to just decrease the port count by 1 if it's not
+                // present.
+                board->port_cnt = pcb123_npi_port_detect(inst) ? 7 : 6;
                 break;
             case MESA_PORT_MUX_MODE_1:
                 board->port_cnt = 6;
@@ -1488,7 +1506,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else if (inst->props.target == MESA_TARGET_7514) {
             switch (inst->props.mux_mode) {
             case MESA_PORT_MUX_MODE_0:
-                board->port_cnt = 9;
+                // "Luckily" the NPI port comes last in the port map, so it's
+                // safe to just decrease the port count by 1 if it's not
+                // present.
+                board->port_cnt = pcb123_npi_port_detect(inst) ? 9 : 8;
                 break;
             case MESA_PORT_MUX_MODE_1:
                 board->port_cnt = 8;
@@ -1498,7 +1519,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
                 T_E(inst, "This board does not support mux_mode %d", inst->props.mux_mode);
                 goto error_out;
             case MESA_PORT_MUX_MODE_4:
-                board->port_cnt = 11;
+                // "Luckily" the NPI port comes last in the port map, so it's
+                // safe to just decrease the port count by 1 if it's not
+                // present.
+                board->port_cnt = pcb123_npi_port_detect(inst) ? 11 : 10;
                 break;
             case MESA_PORT_MUX_MODE_5:
                 board->port_cnt = 10;
