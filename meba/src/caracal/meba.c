@@ -1163,6 +1163,7 @@ static mesa_rc caracal_event_enable(meba_inst_t inst,
             }
             break;
         case MEBA_EVENT_FLNK:
+            printf("%s#%d. **************************MEBA_EVENT_FLNK\n", __FUNCTION__, __LINE__);
             rc = caracal_phy_event_enable(inst, MESA_PHY_LINK_FFAIL_EV, enable);
             break;
         default:
