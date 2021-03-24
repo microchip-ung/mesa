@@ -1426,6 +1426,23 @@ void port_poll(meba_inst_t inst)
         link_old = ps->link;
         memset(&counters, 0, sizeof(counters));
 
+        if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
+            mesa_port_kr_status_t kr_status;
+            mesa_port_kr_conf_t   kr_conf;
+
+            if (mesa_port_kr_conf_get(NULL, port_no,  &kr_conf) != MESA_RC_OK) {
+                T_E("P:%d could not get KR conf", port_no);
+            }
+            if (kr_conf.aneg.enable) {
+                if (mesa_port_kr_status_get(NULL, port_no, &kr_status) != MESA_RC_OK) {
+                    T_E("P:%d could not get KR status", port_no);
+                }
+                if (!kr_status.aneg.complete || !kr_status.train.complete) {
+                    continue; // KR aneg/training is ongoing - skip polling status
+                }
+            }
+        }
+
         if (entry->media_type == MSCC_PORT_TYPE_SFP && (entry->meba.cap & MEBA_PORT_CAP_SFP_DETECT)) {
             meba_sfp_status_t old_sfp_status = entry->sfp_status;
             /* Fetch SFP port status (presence, Tx fault and LoS) using MEBA */

@@ -1021,7 +1021,7 @@ mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t *poll_cnt, uint32_t wait_use
     if ((sleep_us * *poll_cnt) % wait_usec == 0) {
         return 1;
     }
-    if (*poll_cnt > 1000000) {
+    if (*poll_cnt > 10000) {
         *poll_cnt = 0;
     }
     return 0;

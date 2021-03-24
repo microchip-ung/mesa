@@ -407,6 +407,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
+                mesa_port_state_set(NULL, iport, FALSE);
                 mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
@@ -1075,6 +1076,11 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         }
         return;
     }
+
+    if ((irq & MESA_KR_AN_XMIT_DISABLE) || (irq & MESA_KR_LINK_FAIL)) {
+        mesa_port_state_set(NULL, iport, FALSE);
+    }
+
     kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
 
     // Add IRQs to history
