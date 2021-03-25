@@ -11,15 +11,24 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 # Test KR functionality
 #
 # Test procedure:
-# 1. Aneg (no training) to 1g, 2g5, 5g, 10g, 25g and verify successful aneg complete
-# 2. Aneg and train at 10G/25g and verify successful training
-# 3. Parallel detect to to 1g, 2g5, 5g, 10g, 25g and verify successful aneg complete
-# 4. Disable KR and verify successful link up
+# 1. Create 2 VLANs with p1 + loop port 1 in VLAN-2 and p2 and loop port 2 in VLAN-3,
+#    to allow frame forwarding from port 1 --> loop --> port 2
+# 2. Aneg (no training) to 1g, 2g5, 5g, 10g, 25g and verify successful aneg complete + frame FWD
+# 3. Aneg and train at 10G/25g and verify successful training + frame FWD
+# 4. Parallel detect to 1g, 2g5, 5g, 10g, 25g and verify successful aneg complete + frame FWD
+# 5. Disable KR and verify successful link up + frame FWD
 
 #---------- Configuration -----------------------------------------------------
 check_capabilities do
     $cap_kr = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_KR_IRQ")
     assert(($cap_kr != true), "KR IRQ must be supported")
+end
+
+def send_and_verify(tx, rx)
+    cmd =  "sudo ef name f-#{tx} eth dmac ff:ff:ff:ff:ff:ff smac ::1 "
+    cmd += "tx #{$ts.pc.p[tx]} name f-#{tx} "
+    cmd += "rx #{$ts.pc.p[rx]} name f-#{tx} "
+    $ts.pc.try cmd
 end
 
 $kr_ports = []
@@ -50,9 +59,25 @@ check_capabilities do
     assert((speed_cap.count > 0), "Loop ports must be 10G or 25G")
 end
 
+###### Create 2 VLANs for frame forwarding  ########
+# PC-p1 --> DUT-p1 --VLAN2--> cable-loop --> --VLAN3--> DUT-p2 -> PC-p2
+p1 = $ts.dut.p[0] + 1
+p2 = $kr_ports[0] + 1
+vlan2p = p1.to_s + ',' + p2.to_s
+p1 = $ts.dut.p[1] + 1
+p2 = $kr_ports[1] + 1
+vlan3p = p1.to_s + ',' + p2.to_s
+$ts.dut.run "mesa-cmd vlan add 2 #{vlan2p}"
+$ts.dut.run "mesa-cmd vlan add 3 #{vlan3p}"
+$ts.dut.run "mesa-cmd vlan pvid #{vlan2p} 2"
+$ts.dut.run "mesa-cmd vlan pvid #{vlan3p} 3"
+$ts.dut.run "mesa-cmd vlan uvid #{vlan2p} pvid"
+$ts.dut.run "mesa-cmd vlan uvid #{vlan3p} pvid"
+
 ############ ANEG only ################
 test "Aneg" do
     cli_port = $kr_ports[0]+1
+    #    $ts.dut.run "mesa-cmd port kr aneg #{cli_port} adv-1g adv-2g5 adv-5g adv-10g #{cap25}"
     $ts.dut.run "mesa-cmd port kr aneg #{cli_port} adv-1g adv-2g5 adv-5g adv-10g #{cap25}"
     speed_cap.each do |cap|
         cli_port = $kr_ports[1]+1
@@ -64,9 +89,13 @@ test "Aneg" do
                 t_e("Could not complete aneg for #{cap} got #{conf["aneg"]["complete"]}");
                 break
             else
-                t_i("Aneg to '#{cap}' completed");
-                t_i("==========================");
+                t_i("Port #{idx} Aneg to '#{cap}' completed");
+                t_i("=============================");
             end
+        end
+        test "Frame forwarding with broadcast frames" do
+            send_and_verify(0, 1)
+            send_and_verify(1, 0)
         end
     end
     $ts.dut.run "mesa-cmd port kr aneg dis"
@@ -90,8 +119,8 @@ test "Training" do
           if conf["train"]["complete"] != true
               t_e("Could not complete aneg for #{spd} got #{conf["aneg"]["complete"]}");
           else
-              t_i("Training (#{spd}) completed with eye height:#{eye["height"]}");
-              t_i("=================================================");
+              t_i("Training port #{idx} (#{spd}) completed with eye height:#{eye["height"]}");
+              t_i("=====================================================");
           end
 
           if eye["height"] < 10
@@ -105,6 +134,11 @@ test "Training" do
               if conf["fec"]["rs_fec_enable"] != true
                   t_e("Base RS-FEC not enabled");
               end
+          end
+
+          test "Frame forwarding with broadcast frames" do
+            send_and_verify(0, 1)
+            send_and_verify(1, 0)
           end
       end
     end
@@ -127,6 +161,11 @@ test "Parallel detect" do
             t_i("Parallel detect to '#{cap}' completed");
             t_i("=================================");
         end
+
+        test "Frame forwarding with broadcast frames" do
+            send_and_verify(0, 1)
+            send_and_verify(1, 0)
+        end
     end
 end
 
@@ -137,8 +176,12 @@ test "Disable KR" do
         if status["link"] != true
             t_e("No link after KR disable");
         else
-            t_i("Link is up after KR disable");
+            t_i("Link is up port #{idx} after KR disable");
             t_i("===========================");
         end
+    end
+    test "Frame forwarding with broadcast frames" do
+        send_and_verify(0, 1)
+        send_and_verify(1, 0)
     end
 end

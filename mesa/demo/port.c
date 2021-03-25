@@ -1437,7 +1437,8 @@ void port_poll(meba_inst_t inst)
                 if (mesa_port_kr_status_get(NULL, port_no, &kr_status) != MESA_RC_OK) {
                     T_E("P:%d could not get KR status", port_no);
                 }
-                if (!kr_status.aneg.complete || !kr_status.train.complete) {
+                if (!kr_status.aneg.complete) {
+                    ps->link = FALSE;
                     continue; // KR aneg/training is ongoing - skip polling status
                 }
             }

@@ -407,7 +407,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
-                mesa_port_state_set(NULL, iport, FALSE);
                 mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
@@ -437,6 +436,9 @@ static void cli_cmd_port_kr(cli_req_t *req)
                     if (mreq->rsfec) {
                         printf("rsfec (25g only) not supported - ignoring\n");
                     }
+                }
+                if (!mreq->dis) {
+                    mesa_port_state_set(NULL, iport, FALSE);
                 }
                 conf.aneg.next_page = mreq->np;
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
@@ -1181,7 +1183,6 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
 
     // Training completed
     if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
-
         // Adjust CTLE Rx setings (MESA-693)
         if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
             cli_printf("Failure during port_kr_ctle_adjust\n");
@@ -1201,6 +1202,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         if (!kr_conf.train.enable) {
             printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
+        mesa_port_state_set(NULL, iport, TRUE);
     }
 }
 
