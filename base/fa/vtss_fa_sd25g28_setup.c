@@ -457,6 +457,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ(0),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ);
 
+    REG_WR(VTSS_SD25G_TARGET_LANE_1B(sd25g_tgt), 4); /* APPL-3702 */
 
   return rc;
 }
