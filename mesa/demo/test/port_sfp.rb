@@ -56,6 +56,18 @@ def vlan_add(vlan, port)
     $ts.dut.run "mesa-cmd vlan uvid #{port} pvid"
 end
 
+def send_bulk(port_tx1, port_tx2, frames)
+    frame_smac    = "00:00:00:00:00:01"
+    frame_dmac    = "00:00:00:00:00:02"
+    frame_size    = 64
+    sz = frame_size - 14 - 4
+    cmd =  "sudo ef name f#{port_tx1} eth dmac #{frame_dmac} smac #{frame_smac} data pattern cnt #{sz} "
+    cmd += "name f#{port_tx2} eth dmac #{frame_smac} smac #{frame_dmac} data pattern cnt #{sz} "
+    cmd += "tx #{$ts.pc.p[port_tx1]} rep #{frames} name f#{port_tx1} "
+    cmd += "tx #{$ts.pc.p[port_tx2]} rep #{frames} name f#{port_tx2} "
+    $ts.pc.try cmd
+end
+
 #---------- Test parameters -------------------------------------------------------
 $ports = []
 $ports << $ts.dut.p[0]
@@ -69,20 +81,7 @@ $p1 =  $ts.dut.p[1] + 1
 $tx_port = [0, 1]
 $vlan2ports = $p0.to_s
 $vlan3ports = $p1.to_s
-
-#---------- Frame transmit profile---------------------------------------------------
-$port_tx1      = 0
-$port_tx2      = 1
-$frame_smac    = "00:00:00:00:00:01"
-$frame_dmac    = "00:00:00:00:00:02"
-$frame_size    = 64
 $bulk_frames = 1000000
-sz = $frame_size - 14 - 4
-cmd =  "sudo ef name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} data pattern cnt #{sz} "
-cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$frame_dmac} data pattern cnt #{sz} "
-cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$bulk_frames} name f#{$port_tx1} "
-cmd += "tx #{$ts.pc.p[$port_tx2]} rep #{$bulk_frames} name f#{$port_tx2} "
-
 
 #---------- Now the test--------------------------------------------------------------
 i = 0
@@ -116,17 +115,20 @@ test "Test SFP loop" do
             t_i("======== DAC ports:#{cli_ports} speed:#{spd} =============")
             sleep 1
             test "Frame forwarding with broadcast frames" do
-                $ts.dut.run "mesa-cmd port statis clear"
                 if spd == "100fdx"
                     send_and_verify($tx_port[0], $tx_port[1])
                     send_and_verify($tx_port[1], $tx_port[0])
                 else
-                    $ts.pc.try cmd
+                    send_bulk(0, 1, 10)
+                    $ts.dut.run "mesa-cmd port statis clear"
+                    # Send frames from PC
+                    send_bulk(0, 1, $bulk_frames)
+                    # Verify by reading DUT counters
                     for p in 0..1 do
                         cnt = $ts.dut.call "mesa_port_counters_get", $ts.dut.port_list[p]
                         tx_frames = cnt['if_group']['ifOutUcastPkts']
                         if (tx_frames != $bulk_frames)
-                            t_e("Unexpected framloss port #{$ts.dut.port_list[p]} Tx:#{$bulk_frames} Rx:#{tx_frames}")
+                            t_e("Unexpected framloss port #{$ts.dut.port_list[p]} speed:#{spd} Tx:#{$bulk_frames} Rx:#{tx_frames}")
                         else
                             t_i("Port #{$ts.dut.port_list[p]} at speed '#{spd}' Tx:#{$bulk_frames} Rx:#{tx_frames} - OK (loop #{i/2+1})")
                             t_i("==============================================================================");
