@@ -47,8 +47,6 @@ typedef struct {
     meba_sfp_transreceiver_t sfp_type;
     meba_sfp_device_t     *sfp_device;
     meba_sfp_driver_t     sfp_driver;
-    mepa_device_t     *phy_device;
-    mepa_driver_t     phy_driver;
 } port_entry_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */
