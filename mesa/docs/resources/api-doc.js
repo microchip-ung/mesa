@@ -7,7 +7,7 @@ get_symbol_landing_page = function(sym, obj) {
 
     const decl = Object.entries(obj["decl"]);
     if (decl.length > 0) {
-        html += "<h2>Defind in " + decl.length + " files:</h2>";
+        html += "<h2>Defined in " + decl.length + " files:</h2>";
         html += "<ul>";
 
         for (var i = 0; i < decl.length; ++i) {
@@ -124,13 +124,8 @@ hashChange = function(e) {
         var split = hash.split('@');
         var path = split[0];
 
-        if (split.length > 1) {
-            anc = "a[name*='" + split[1] + "']";
-        }
-
-        console.log('Path: ' + path);
-        console.log('anc: ' + anc);
-        console.log(split.length);
+        anc = split[1]; // The value of the hash after '@' or undefined if no '@'
+        console.log('path: ' + path);
 
         page = pages[path];
     }
@@ -138,24 +133,29 @@ hashChange = function(e) {
     if (page) {
         $('#content').html(page);
 
-        console.log("ANC: " + anc);
+        console.log("anc: " + anc);
         if (anc) {
-            var scrollto = $(anc)
-            if (scrollto && window.innerDocClick) {
-                scrollto.css("background-color", "DarkGray");
-                scrollto.css("font-weight", "bold");
-                var el_offset = scrollto.offset().top;
-                var el_height = scrollto.height();
-                var window_height = $(window).height();
-                var off;
+            var id_found = $("#" + anc); // $() returns an array with zero length if id not found
+            if (id_found && id_found.length > 0) { // If id is found then anc refers to an anchor in current document
+                id_found[0].scrollIntoView(); // Use first element
+            } else {
+                var scrollto = $("a[name*='" + anc + "']");
+                if (scrollto && window.innerDocClick) { // If scrollto is found then anc refers to a line number in current document
+                    scrollto.css("background-color", "DarkGray");
+                    scrollto.css("font-weight", "bold");
+                    var el_offset = scrollto.offset().top;
+                    var el_height = scrollto.height();
+                    var window_height = $(window).height();
+                    var off;
 
-                if (el_height < window_height) {
-                    off = el_offset - ((window_height / 2) - (el_height / 2));
-                } else {
-                    off = el_offset;
+                    if (el_height < window_height) {
+                        off = el_offset - ((window_height / 2) - (el_height / 2));
+                    } else {
+                        off = el_offset;
+                    }
+
+                    $('html, body').animate({scrollTop: off}, 500);
                 }
-
-                $('html, body').animate({scrollTop: off}, 500);
             }
         } else {
             if (window.innerDocClick) {
