@@ -51,8 +51,8 @@ macro(merge_static_libs)
 endmacro(merge_static_libs)
 
 macro(MEBA_LIB)
-    set(oneValueArgs   LIB_NAME MEBA_SRC_FOLDER MEBA_DEFINES)
-    set(multiValueArgs STATIC_DEPENDENCIES DYNAMIC_DEPENDENCIES)
+    set(oneValueArgs   LIB_NAME MEBA_SRC_FOLDER )
+    set(multiValueArgs STATIC_DEPENDENCIES DYNAMIC_DEPENDENCIES MEBA_DEFINES)
 
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
