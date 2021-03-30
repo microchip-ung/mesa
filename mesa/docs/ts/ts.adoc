@@ -21,10 +21,8 @@ If MESA capability `TS_DELAY_REQ_AUTO_RESP` is not zero this API is configuring 
 * Update sequence number in PTP message.
 
 === TS Ingress Detailed.
-.Ingress frame flow (click for full image)
-image:./ts-flow.svg[
-"My screenshot",width=900,
-link="./ts-flow.svg"]
+.Ingress frame flow.
+image:./ts-flow.svg[width=900]
 
 There can be a number of domains that has a clock running the TOD of that domain.
 This TOD is used for time stamp operations on both ingress and egress PTP frames classified to a given domain. +
