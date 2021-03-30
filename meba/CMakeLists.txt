@@ -118,9 +118,9 @@ MEBA_LIB(LIB_NAME servalt MEBA_SRC_FOLDER servalt
          DYNAMIC_DEPENDENCIES   mepa_vtss)
 
 MEBA_LIB(LIB_NAME ocelot MEBA_SRC_FOLDER ocelot
-         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_vtss_static
-         DYNAMIC_DEPENDENCIES   mepa_vtss)
+         MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_INDY
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_indy_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_indy)
 
 MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
          MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
