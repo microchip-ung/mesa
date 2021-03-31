@@ -148,8 +148,7 @@ end
 ############ PARALLEL DETECT ################
 test "Parallel detect" do
     cli_port = $kr_ports[0]+1
-    $ts.dut.run "mesa-cmd port kr deb #{cli_port} pd"
-    $ts.dut.run "mesa-cmd port kr aneg #{cli_port} adv-1g adv-2g5 adv-5g adv-10g #{cap25}"
+    $ts.dut.run "mesa-cmd port kr aneg #{cli_port} all"
     speed.each do |cap|
         cli_port = $kr_ports[1]+1
         $ts.dut.run "mesa-cmd port mode #{cli_port} #{cap}"
