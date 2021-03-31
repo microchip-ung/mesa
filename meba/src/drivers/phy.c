@@ -211,6 +211,7 @@ mepa_rc meba_phy_aneg_status_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_
     return phy_dev->drv->mepa_driver_aneg_status_get(phy_dev, status);
 }
 
+// Debug register read function using clause 22 access
 mepa_rc meba_phy_clause22_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t *const value)
 {
     mepa_device_t *phy_dev;
@@ -226,6 +227,7 @@ mepa_rc meba_phy_clause22_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_
     return phy_dev->drv->mepa_driver_clause22_read(phy_dev, address, value);
 }
 
+// Debug register write function using clause 22 access
 mepa_rc meba_phy_clause22_write(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t value)
 {
     mepa_device_t *phy_dev;
@@ -241,6 +243,7 @@ mepa_rc meba_phy_clause22_write(meba_inst_t inst, mepa_port_no_t port_no, uint32
     return phy_dev->drv->mepa_driver_clause22_write(phy_dev, address, value);
 }
 
+// Debug register read function using clause 45 access
 mepa_rc meba_phy_clause45_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t *const value)
 {
     mepa_device_t *phy_dev;
@@ -256,6 +259,7 @@ mepa_rc meba_phy_clause45_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_
     return phy_dev->drv->mepa_driver_clause45_read(phy_dev, address, value);
 }
 
+// Debug register write function using clause 45 access
 mepa_rc meba_phy_clause45_write(meba_inst_t inst, mepa_port_no_t port_no, uint32_t address, uint16_t value)
 {
     mepa_device_t *phy_dev;
@@ -271,6 +275,7 @@ mepa_rc meba_phy_clause45_write(meba_inst_t inst, mepa_port_no_t port_no, uint32
     return phy_dev->drv->mepa_driver_clause45_write(phy_dev, address, value);
 }
 
+// Enable/Disable events in phy
 mepa_rc meba_phy_event_enable_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t event, mesa_bool_t enable)
 {
     mepa_device_t *phy_dev;
@@ -286,6 +291,7 @@ mepa_rc meba_phy_event_enable_set(meba_inst_t inst, mepa_port_no_t port_no, mepa
     return phy_dev->drv->mepa_driver_event_enable_set(phy_dev, event, enable);
 }
 
+// Get the events enabled currently in PHY
 mepa_rc meba_phy_event_enable_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event)
 {
     mepa_device_t *phy_dev;
@@ -300,7 +306,7 @@ mepa_rc meba_phy_event_enable_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
 
     return phy_dev->drv->mepa_driver_event_enable_get(phy_dev, event);
 }
-
+// Obtain the phy event status
 mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event)
 {
     mepa_device_t *phy_dev;
@@ -315,7 +321,7 @@ mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event
 
     return phy_dev->drv->mepa_driver_event_poll(phy_dev, event);
 }
-
+// Apply loopback configuration. Used for debugging.
 mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t loopback)
 {
     mepa_device_t *phy_dev;
@@ -329,4 +335,49 @@ mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loo
     }
 
     return phy_dev->drv->mepa_driver_loopback_set(phy_dev, loopback);
+}
+// Set the phy gpio mode.
+mepa_rc meba_phy_gpio_mode_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_gpio_conf_t *gpio_conf)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_gpio_mode_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_gpio_mode_set(phy_dev, gpio_conf);
+}
+// Set the phy gpio pin data value.
+mepa_rc meba_phy_gpio_out_set(meba_inst_t inst, mepa_port_no_t port_no, uint8_t gpio_no, mepa_bool_t enable)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_gpio_out_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_gpio_out_set(phy_dev, gpio_no, enable);
+}
+// Get the phy gpio pin data value.
+mepa_rc meba_phy_gpio_in_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t gpio_no, mepa_bool_t *const enable)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_gpio_in_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_gpio_in_get(phy_dev, gpio_no, enable);
 }

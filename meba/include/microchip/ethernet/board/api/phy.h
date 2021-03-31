@@ -76,5 +76,13 @@ mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event
 // Enable or disable the loopback in phy. Used for debugging purpose.
 mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t loopback);
 
+// Set the phy gpio mode.
+mepa_rc meba_phy_gpio_mode_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_gpio_conf_t *gpio_conf);
+
+// Set the phy gpio pin data value.
+mepa_rc meba_phy_gpio_out_set(meba_inst_t inst, mepa_port_no_t port_no, uint8_t gpio_no, mepa_bool_t enable);
+
+// Get the phy gpio pin data value.
+mepa_rc meba_phy_gpio_in_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t gpio_no, mepa_bool_t *const enable);
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

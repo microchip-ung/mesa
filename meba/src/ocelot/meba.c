@@ -342,9 +342,6 @@ static mesa_rc pcb123_indy_init_board(meba_inst_t inst)
         conf.port_conf[13].mode[1] = MESA_SGPIO_MODE_NO_CHANGE;
         conf.port_conf[14].mode[0] = MESA_SGPIO_MODE_NO_CHANGE;
 
-        /* Disable coma mode. TODO:Move to PHY Api. */
-        conf.port_conf[16].mode[0] = MESA_SGPIO_MODE_OFF;
-
         for (port = 18; port <= 23; port++) {
             conf.port_conf[port].enabled = true;
             conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_NO_CHANGE;
@@ -886,6 +883,14 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
             if ((rc = mesa_phy_post_reset(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
                 if (board->type == BOARD_TYPE_OCELOT_PCB120) {
                     rc = mesa_phy_post_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
+                }
+            }
+            if (board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
+                mesa_sgpio_conf_t conf;
+                if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
+                    /* Disable coma mode. */
+                    conf.port_conf[16].mode[0] = MESA_SGPIO_MODE_OFF;
+                    (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
                 }
             }
             break;

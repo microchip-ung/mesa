@@ -249,6 +249,55 @@ static mepa_rc phy_1g_write(mepa_device_t *dev, uint32_t address, uint16_t value
     return mesa_phy_write(data->inst, data->port_no, address, value);
 }
 
+static mepa_rc phy_1g_gpio_mode(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mesa_phy_gpio_mode_t gpio_mode;
+
+    // VSC8584 has 0-13 gpios
+    if (gpio_conf->gpio_no > 13) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    if (gpio_conf->mode == MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    switch (gpio_conf->mode) {
+        case MEPA_GPIO_MODE_OUT: gpio_mode = MESA_PHY_GPIO_OUT;
+            break;
+        case MEPA_GPIO_MODE_IN: gpio_mode = MESA_PHY_GPIO_IN;
+            break;
+        default: gpio_mode = MESA_PHY_GPIO_ALT_0;
+            break;
+    }
+    if (gpio_conf->mode >= MEPA_GPIO_MODE_LED_LINK_ACTIVITY && gpio_conf->mode < MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
+        mesa_phy_led_mode_select_t mode_select;
+        mode_select.number = gpio_conf->led_num == MEPA_LED0 ? MESA_PHY_LED0 : MESA_PHY_LED1;
+        mode_select.mode = MESA_PHY_LED_MODE_LINK_ACTIVITY + (gpio_conf->mode - MEPA_GPIO_MODE_LED_LINK_ACTIVITY);
+        mesa_phy_led_mode_set(data->inst, data->port_no, mode_select);
+    }
+    return mesa_phy_gpio_mode(data->inst, data->port_no, gpio_conf->gpio_no, gpio_mode);
+}
+
+static mepa_rc phy_1g_gpio_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t enable)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    // VSC8584 has 0-13 gpios
+    if (gpio_no > 13) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    return mesa_phy_gpio_set(data->inst, data->port_no, gpio_no, enable);
+}
+
+static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t * const enable)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    // VSC8584 has 0-13 gpios
+    if (gpio_no > 13) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    return mesa_phy_gpio_get(data->inst, data->port_no, gpio_no, enable);
+}
+
 typedef struct malibu_10g_phy_data {
     mesa_inst_t inst;
     mepa_port_no_t port_no;
@@ -483,6 +532,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
         },
         // Atom - QSGMII family
         {
@@ -505,6 +557,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
         },
         // Atom - SGMII
         {
@@ -527,6 +582,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
         },
         {
             .id = 0x000FC400,
@@ -548,6 +606,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
         }
     };
 
@@ -628,6 +689,9 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_event_enable_get = phy_1g_event_enable_get,
         .mepa_driver_event_poll = phy_1g_event_poll,
         .mepa_driver_loopback_set = phy_1g_loopback_set,
+        .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+        .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+        .mepa_driver_gpio_in_get = phy_1g_gpio_get,
     }};
 
     mepa_drivers_t result;

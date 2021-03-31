@@ -26,6 +26,8 @@ typedef struct {
     mepa_loopback_t loopback;
 } phy_data_t;
 
+static mepa_bool_t qsgmii_hard_rst;
+
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
 
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
@@ -156,12 +158,26 @@ out_data:
 out_device:
     return NULL;
 }
+static uint16_t get_base_addr(mepa_device_t *dev)
+{
+    uint16_t val;
+
+    EP_RD(dev, INDY_STRAP_STATUS_1, &val);
+    return INDY_X_STRAP_STATUS_STRAP_PHYAD(val);
+}
 
 static mepa_rc indy_init_conf(mepa_device_t *dev)
 {
-    // Disable QSGMII
-    EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
-    EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
+    // QSGMII hard reset
+    if (!qsgmii_hard_rst) {
+        EP_WR(dev, INDY_QSGMII_HARD_RESET, 1);
+        qsgmii_hard_rst = 1;
+        PHY_MSLEEP(1);
+        // Disable QSGMII auto-negotiation
+        EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
+    }
+    // Disable QSGMII auto-negotiation
+    EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
 }
 
 static mepa_rc indy_rev_a_workaround(mepa_device_t *dev)
@@ -178,7 +194,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         indy_init_conf(dev);
         data->init_done = TRUE;
     }
-    //indy_rev_a_workaround(dev);
+    indy_rev_a_workaround(dev);
     WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
     PHY_MSLEEP(1);
     MEPA_EXIT();
@@ -255,18 +271,23 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    uint16_t value, mask;
+    uint16_t new_value, mask, old_value;
     data->conf = *config;
+    mepa_bool_t restart_aneg = FALSE;
 
     MEPA_ENTER();
     data->conf = *config;
     if (config->admin.enable) {
         if (config->speed == MEPA_SPEED_AUTO) {
-            value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
-            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, value,
+            RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &old_value);
+            new_value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
+            if ((old_value & INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP) != new_value) {
+                restart_aneg = TRUE;
+            }
+            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, new_value,
                 INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
             // Set up auo-negotiation advertisement in register 4
-            value = (((config->aneg.tx_remote_fault ? 1 : 0) << 13) |
+            new_value = (((config->aneg.tx_remote_fault ? 1 : 0) << 13) |
                      ((config->flow_control ? 1 : 0) << 11) |
                      ((config->flow_control ? 1 : 0) << 10) |
                      ((config->aneg.speed_100m_fdx ? 1 : 0) << 8) |
@@ -274,16 +295,23 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
                      ((config->aneg.speed_10m_fdx ? 1 : 0) << 6) |
                      ((config->aneg.speed_10m_hdx ? 1 : 0) << 5) |
                      (1 << 0)); // default selector field - 1
-            WR(dev, INDY_ANEG_ADVERTISEMENT, value);
+            RD(dev, INDY_ANEG_ADVERTISEMENT, &old_value);
+            if (old_value != new_value) {
+                restart_aneg = TRUE;
+            }
+            WR(dev, INDY_ANEG_ADVERTISEMENT, new_value);
             // Enable & restart auto-negotiation
-            value = INDY_F_BASIC_CTRL_RESTART_ANEG | INDY_F_BASIC_CTRL_ANEG_ENA;
-            WRM(dev, INDY_BASIC_CONTROL, value, value | INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+            new_value = INDY_F_BASIC_CTRL_ANEG_ENA;
+            WRM(dev, INDY_BASIC_CONTROL, new_value, new_value | INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+            if (restart_aneg) {
+                WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+            }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
-            value = ((config->speed == MEPA_SPEED_100M ? 1 : 0) << 13) | (0 << 12) |
+            new_value = ((config->speed == MEPA_SPEED_100M ? 1 : 0) << 13) | (0 << 12) |
                     ((config->fdx ? 1 : 0) << 8) |
                     ((config->speed == MEPA_SPEED_1G ? 1 : 0) << 6);
             mask = INDY_BIT(13) | INDY_BIT(12) | INDY_BIT(8) | INDY_BIT(6) | INDY_F_BASIC_CTRL_SOFT_POW_DOWN | INDY_F_BASIC_CTRL_ANEG_ENA;
-            WRM(dev, INDY_BASIC_CONTROL, value, mask);
+            WRM(dev, INDY_BASIC_CONTROL, new_value, mask);
         }
     } else {
         // set soft power down bit
@@ -505,6 +533,174 @@ static mepa_rc indy_loopback_set(mepa_device_t *dev, mepa_loopback_t loopback)
     MEPA_EXIT();
     return MEPA_RC_OK;
 }
+// Returns gpio using port number and led number
+static uint8_t led_num_to_gpio_mapping(mepa_device_t *dev, mepa_led_num_t led_num)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    uint16_t port_addr = data->access.miim_addr - get_base_addr(dev);
+    uint8_t gpio = 11;// port 0 as default.
+    switch(port_addr) {
+        case 0:
+               gpio = led_num == MEPA_LED0 ? 11 : 12;
+               break;
+        case 1:
+               gpio = led_num == MEPA_LED0 ? 17 : 18;
+               break;
+        case 2:
+               gpio = led_num == MEPA_LED0 ? 19 : 20;
+               break;
+        case 3:
+               gpio = led_num == MEPA_LED0 ? 13 : 14;
+               break;
+        default:
+               // invalid.
+               break;
+    }
+    return gpio;
+}
+static uint8_t led_mepa_mode_to_indy(mepa_gpio_mode_t mode)
+{
+    uint8_t ret=0;
+    switch(mode) {
+        case MEPA_GPIO_MODE_LED_LINK_ACTIVITY: ret = 0;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY: ret = 1;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK100_ACTIVITY: ret = 2;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK10_ACTIVITY: ret = 3;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK100_1000_ACTIVITY: ret = 4;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK10_1000_ACTIVITY: ret = 5;
+             break;
+        case MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY: ret = 6;
+             break;
+        case MEPA_GPIO_MODE_LED_DUPLEX_COLLISION: ret = 8;
+             break;
+        case MEPA_GPIO_MODE_LED_COLLISION: ret = 9;
+             break;
+        case MEPA_GPIO_MODE_LED_ACTIVITY: ret = 10;
+             break;
+        case MEPA_GPIO_MODE_LED_AUTONEGOTIATION_FAULT: ret = 12;
+             break;
+        case MEPA_GPIO_MODE_LED_FORCE_LED_OFF: ret = 14;
+            break;
+        case MEPA_GPIO_MODE_LED_FORCE_LED_ON: ret = 15;
+            break;
+        case MEPA_GPIO_MODE_LED_DISABLE_EXTENDED: ret = 0xf0;
+            break;
+        default:
+            ret = 0xff; // Not valid for indy
+            break;
+    }
+    return ret;
+}
+// In Indy, LED0 of software Api maps to LED1 of hardware,
+//          LED1 of software Api maps to LED2 of hardware.
+static mepa_rc indy_led_mode_set(mepa_device_t *dev, mepa_gpio_mode_t led_mode, mepa_led_num_t led_num)
+{
+    uint16_t mode;
+    // Indy supports only LED0 and LED1
+    if ((led_num != MEPA_LED0) && (led_num != MEPA_LED1)) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    if ((mode = led_mepa_mode_to_indy(led_mode)) == 0xff) {// Not valid
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    if (mode == MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
+        // Normal operation
+        EP_WRM(dev, INDY_LED_CONTROL_REG1, INDY_F_LED_CONTROL_KSZ_LED_MODE, INDY_F_LED_CONTROL_KSZ_LED_MODE);
+    } else { // extended mode
+        EP_WRM(dev, INDY_LED_CONTROL_REG1, 0, INDY_F_LED_CONTROL_KSZ_LED_MODE);
+        EP_WRM(dev, INDY_LED_CONTROL_REG2, INDY_ENCODE_BITFIELD(mode, led_num * 4, 4), INDY_ENCODE_BITMASK(led_num * 4, 4));
+    }
+}
+static mepa_rc indy_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t *data)
+{
+    uint16_t gpio_en = 0, dir, val = 0, gpio_no = data->gpio_no;
+    mepa_gpio_mode_t mode = data->mode;
+
+    if (mode == MEPA_GPIO_MODE_OUT || mode == MEPA_GPIO_MODE_IN) {
+        gpio_en = 1;
+        dir = mode == MEPA_GPIO_MODE_OUT ? 1 : 0;
+    } else if (mode >= MEPA_GPIO_MODE_LED_LINK_ACTIVITY && mode <= MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
+        MEPA_RC(indy_led_mode_set(dev, mode, data->led_num));
+        // Enable alternative gpio mode for led.
+        gpio_no = led_num_to_gpio_mapping(dev, data->led_num);
+    }
+    if (gpio_no < 16) {
+        val = 1 << gpio_no;
+        dir = dir << gpio_no;
+        EP_WRM(dev, INDY_GPIO_EN2, gpio_en ? val : 0, val);
+        if (gpio_en) {
+            EP_WRM(dev, INDY_GPIO_DIR2, dir, val);
+        }
+    } else if (gpio_no < 24) {
+        val = 1 << (gpio_no - 16);
+        dir = dir << (gpio_no - 16);
+        EP_WRM(dev, INDY_GPIO_EN1, gpio_en ? val : 0, val);
+        if (gpio_en) {
+            EP_WRM(dev, INDY_GPIO_DIR1, dir, val);
+        }
+    } else {
+        // Not supported. Illegal for Indy.
+    }
+    return MEPA_RC_OK;
+}
+
+// Set gpio mode to input, output or alternate function
+static mepa_rc indy_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    // Indy has 0-23 gpios.
+    if (gpio_conf->gpio_no > 23) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    MEPA_ENTER();
+    rc = indy_gpio_mode_private(dev, gpio_conf);
+    MEPA_EXIT();
+    return rc;
+}
+static mepa_rc indy_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t value)
+{
+    uint16_t val = 0;
+    // Indy has 0-23 gpios.
+    if (gpio_no > 23) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    MEPA_ENTER();
+    if (gpio_no < 16) {
+        val = 1 << gpio_no;
+        EP_WRM(dev, INDY_GPIO_DATA2, value ? val : 0, val);
+    } else if (gpio_no < 24) {
+        val = 1 << (gpio_no - 16);
+        EP_WRM(dev, INDY_GPIO_DATA1, value ? val : 0, val);
+    } else {
+        // Not supported. Illegal for Indy.
+    }
+
+    MEPA_EXIT();
+    return MEPA_RC_OK;
+}
+static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t * const value)
+{
+    uint16_t val = 0;
+    // Indy has 0-23 gpios.
+    if (gpio_no > 23) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    MEPA_ENTER();
+    if (gpio_no < 16) {
+        EP_RD(dev, INDY_GPIO_DATA2, &val);
+        *value = (val >> gpio_no) & 0x1 ? TRUE : FALSE;
+    } else if (gpio_no < 24) {
+        EP_RD(dev, INDY_GPIO_DATA1, &val);
+        *value = ((val >> (gpio_no - 16)) & 0x1) ? TRUE : FALSE;
+    }
+    MEPA_EXIT();
+    return MEPA_RC_OK;
+}
 mepa_drivers_t mepa_indy_driver_init() {
     static const int nr_indy_drivers = 1;
     static mepa_driver_t indy_drivers[] = {{
@@ -528,6 +724,9 @@ mepa_drivers_t mepa_indy_driver_init() {
         .mepa_driver_event_enable_get = indy_event_enable_get,
         .mepa_driver_event_poll = indy_event_status_poll,
         .mepa_driver_loopback_set = indy_loopback_set,
+        .mepa_driver_gpio_mode_set = indy_gpio_mode_set,
+        .mepa_driver_gpio_out_set = indy_gpio_out_set,
+        .mepa_driver_gpio_in_get = indy_gpio_in_get,
     }};
 
     mepa_drivers_t result;

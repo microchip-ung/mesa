@@ -30,6 +30,7 @@ typedef mesa_phy_event_t mepa_event_t;
 typedef mesa_phy_veriphy_status_t mepa_cable_diag_status_t;
 typedef mesa_phy_loopback_t mepa_loopback_t;
 typedef mesa_port_admin_state_t mepa_port_admin_state_t;
+typedef mesa_phy_led_number_t mepa_led_number_t;
 
 /** \brief Port speeds */
 #define MEPA_SPEED_UNDEFINED MESA_SPEED_UNDEFINED
@@ -105,5 +106,49 @@ typedef enum {
     MEPA_TRACE_LVL_NONE    = 10,
 } mepa_trace_level_t;
 
+// GPIO modes
+typedef enum {
+    MEPA_GPIO_MODE_NONE = 0,
+    MEPA_GPIO_MODE_IN,
+    MEPA_GPIO_MODE_OUT,
+    MEPA_GPIO_MODE_ALT,
+    MEPA_GPIO_MODE_LED_LINK_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK100_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK10_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK100_1000_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK10_1000_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK100BASE_FX_1000BASE_X_ACTIVITY,
+    MEPA_GPIO_MODE_LED_DUPLEX_COLLISION,
+    MEPA_GPIO_MODE_LED_COLLISION,
+    MEPA_GPIO_MODE_LED_ACTIVITY,
+    MEPA_GPIO_MODE_LED_BASE100_FX_1000BASE_X_FIBER_ACTIVITY,
+    MEPA_GPIO_MODE_LED_AUTONEGOTIATION_FAULT,
+    MEPA_GPIO_MODE_LED_LINK1000BASE_X_ACTIVITY,
+    MEPA_GPIO_MODE_LED_LINK100BASE_FX_ACTIVITY,
+    MEPA_GPIO_MODE_LED_BASE1000_ACTIVITY,
+    MEPA_GPIO_MODE_LED_BASE100_FX_ACTIVITY,
+    MEPA_GPIO_MODE_LED_FORCE_LED_OFF,
+    MEPA_GPIO_MODE_LED_FORCE_LED_ON,
+    MEPA_GPIO_MODE_LED_FAST_LINK_FAIL,
+    MEPA_GPIO_MODE_LED_LINK_TX,
+    MEPA_GPIO_MODE_LED_LINK_RX,
+    MEPA_GPIO_MODE_LED_LINK_FAULT,
+    MEPA_GPIO_MODE_LED_DISABLE_EXTENDED
+} mepa_gpio_mode_t;
+
+// Led id
+typedef enum {
+    MEPA_LED0 = 0,
+    MEPA_LED1
+} mepa_led_num_t;
+
+// Additional GPIO data used while setting gpio mode
+typedef struct {
+    uint8_t gpio_no;
+    mepa_led_num_t led_num;
+    mepa_gpio_mode_t mode;
+} mepa_gpio_conf_t;
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

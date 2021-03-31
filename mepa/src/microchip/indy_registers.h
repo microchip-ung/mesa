@@ -114,12 +114,45 @@
 //====================================================================================
 //      Extended Page 4
 //====================================================================================
+// Register 0
+#define INDY_STRAP_STATUS_1 INDY_EXT_PAGE_4, 0
+#define INDY_X_STRAP_STATUS_STRAP_PHYAD(x) INDY_EXTRACT_BITFIELD(x, 0, 5)
+
+// Register 32
+#define INDY_GPIO_EN1   4, 32
+
+// Register 33
+#define INDY_GPIO_EN2   4, 33
+
+// Register 34
+#define INDY_GPIO_DIR1  4, 34
+
+// Register 35
+#define INDY_GPIO_DIR2  4, 35
+
+// Register 38
+#define INDY_GPIO_DATA1 4, 38
+
+// Register 39
+#define INDY_GPIO_DATA2 4, 39
+
+// Register 66
+#define INDY_QSGMII_HARD_RESET INDY_EXT_PAGE_4, 66
+
+// Register 69
 #define INDY_QSGMII_AUTO_ANEG INDY_EXT_PAGE_4, 69
-#define INDY_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA INDY_BIT(0)
+#define INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA INDY_BIT(0)
 
 //====================================================================================
 //      Extended Page 5
 //====================================================================================
+// Register 0
+#define INDY_LED_CONTROL_REG1 INDY_EXT_PAGE_5, 0
+#define INDY_F_LED_CONTROL_KSZ_LED_MODE INDY_BIT(6)
+
+// Register 1
+#define INDY_LED_CONTROL_REG2 INDY_EXT_PAGE_5, 1
+
 // Register - 5.19
 #define INDY_QSGMII_PCS1G_ANEG_CONFIG INDY_EXT_PAGE_5, 19
 #define INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA INDY_BIT(3)

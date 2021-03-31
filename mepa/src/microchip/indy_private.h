@@ -8,7 +8,7 @@
 
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
 #define TRUE  1
-#define FALSE 1
+#define FALSE 0
 #define EXT_PAGE 1 // extended page access
 #define MMD_DEV  2 // MMD device access
 //Direct register access macros
