@@ -3464,7 +3464,7 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
 
-    if (kr->train.enable && (speed == VTSS_SPEED_25G)) {
+    if (kr->train.enable && (speed == VTSS_SPEED_25G) && vtss_state->port.kr_store[port_no].compl_ack) {
         mode = VTSS_SERDES_MODE_SFI_KR;
     }
 #endif

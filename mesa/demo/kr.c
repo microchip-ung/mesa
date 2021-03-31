@@ -411,6 +411,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
                 kr_conf_state[iport].aneg_enable = 1;
+                kr_conf_state[iport].pd = 1;
                 mesa_port_kr_fec_t fec = {0};
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
@@ -1146,11 +1147,10 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
     if (irq & MESA_KR_RATE_DET) {
         // Parallel detect speed change
         if (kr_conf_state[iport].pd) { // Disabled by default
-            kr_printf("Port:%d - Parallel rate detect %d ms)\n",uport, get_time_ms(&kr->time_start_aneg));
             pconf.speed = kr_parallel_spd(iport, &kr_conf);
             pconf.if_type = pconf.speed > MESA_SPEED_2500M ? MESA_PORT_INTERFACE_SFI : MESA_PORT_INTERFACE_SERDES;
-            kr_printf("Port:%d - Parallel detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
             (void)mesa_port_conf_set(NULL, iport, &pconf);
+            kr_printf("Port:%d - Parallel detect speed is %s (%d ms) - Done\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
     }
 
@@ -1187,22 +1187,20 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
             cli_printf("Failure during port_kr_ctle_adjust\n");
         }
-
         kr->time_ld = get_time_ms(&kr->time_start_train);
-        mesa_port_kr_eye_dim_t  eye;
-        (void)mesa_port_kr_eye_get(NULL, iport, &eye);
         kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
-        if (!kr_debug) {
-            printf("Port:%d - Training completed (%d ms) (height: %d)\n",uport, get_time_ms(&kr->time_start_train),eye.height);
-        }
     }
 
     // Aneg completed
     if (irq & MESA_KR_AN_GOOD) {
-        if (!kr_conf.train.enable) {
-            printf("Port:%d - AN_GOOD (%s) (%d ms)\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
-        }
         mesa_port_state_set(NULL, iport, TRUE);
+        if (krs->current_state == MESA_TR_SEND_DATA) {
+            mesa_port_kr_eye_dim_t  eye;
+            (void)mesa_port_kr_eye_get(NULL, iport, &eye);
+            printf("Port:%d - Training (eye:%d) and Aneg (%s) completed in %d ms\n",uport, eye.height, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+        } else {
+            printf("Port:%d - Aneg completed (%s) in %d ms\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+        }
     }
 }
 

@@ -1320,6 +1320,26 @@ static mesa_bool_t port_is_aneg_mode(port_entry_t *entry) {
     return FALSE;
 }
 
+void port_kr_status(mesa_port_no_t  port_no, mesa_bool_t *link)
+{
+    /* If KR is enabled then aneg must be complete to signal a linkup */
+    mesa_port_kr_status_t kr_status;
+    mesa_port_kr_conf_t   kr_conf;
+
+    if (mesa_port_kr_conf_get(NULL, port_no,  &kr_conf) != MESA_RC_OK) {
+        T_E("P:%d could not get KR conf", port_no);
+    }
+    if (kr_conf.aneg.enable) {
+        if (mesa_port_kr_status_get(NULL, port_no, &kr_status) != MESA_RC_OK) {
+            T_E("P:%d could not get KR status", port_no);
+        }
+        if (!kr_status.aneg.complete) {
+            *link = FALSE;
+        }
+    }
+}
+
+
 void port_poll(meba_inst_t inst)
 {
     uint32_t              port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
@@ -1353,24 +1373,6 @@ void port_poll(meba_inst_t inst)
         link_old = ps->link;
         memset(&counters, 0, sizeof(counters));
 
-        if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
-            mesa_port_kr_status_t kr_status;
-            mesa_port_kr_conf_t   kr_conf;
-
-            if (mesa_port_kr_conf_get(NULL, port_no,  &kr_conf) != MESA_RC_OK) {
-                T_E("P:%d could not get KR conf", port_no);
-            }
-            if (kr_conf.aneg.enable) {
-                if (mesa_port_kr_status_get(NULL, port_no, &kr_status) != MESA_RC_OK) {
-                    T_E("P:%d could not get KR status", port_no);
-                }
-                if (!kr_status.aneg.complete) {
-                    ps->link = FALSE;
-                    continue; // KR aneg/training is ongoing - skip polling status
-                }
-            }
-        }
-
         if (entry->media_type == MSCC_PORT_TYPE_SFP && (entry->meba.cap & MEBA_PORT_CAP_SFP_DETECT)) {
             meba_sfp_status_t old_sfp_status = entry->sfp_status;
             /* Fetch SFP port status (presence, Tx fault and LoS) using MEBA */
@@ -1391,6 +1393,11 @@ void port_poll(meba_inst_t inst)
         /* Poll port status and update the status data structure */
         if (port_status_poll(port_no) != MESA_RC_OK) {
             continue;
+        }
+
+        if (mesa_capability(NULL, MESA_CAP_PORT_KR_IRQ)) {
+            /* Verify KR aneg complete */
+            port_kr_status(port_no, &ps->link);
         }
 
         /* Detect link down and disable forwarding on port */
