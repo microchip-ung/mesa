@@ -2780,6 +2780,20 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             /* Combine status from PCS and Analog Macro */
             status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
         }
+
+        /* Perform CTLE training at link-up for 10G/25G */
+        if (conf->speed == VTSS_SPEED_10G || conf->speed == VTSS_SPEED_25G) {
+            if (status->link_down) {
+                vtss_state->port.ctle_done[port_no] = FALSE;
+            } else if (status->link && !vtss_state->port.ctle_done[port_no]) {
+                if (fa_port_kr_ctle_adjust(vtss_state, port_no)) {
+                    VTSS_E("CTLE tuning not supported for port: %u", port_no);
+                }
+                REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
+                vtss_state->port.ctle_done[port_no] = TRUE;
+            }
+        }
+
         status->speed = conf->speed;
         break;
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
