@@ -543,8 +543,31 @@ vtss_rc vtss_register_access_mode_set(const vtss_inst_t inst, BOOL spi_bus)
 /* SPI slave initialization configuration */
 vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 {
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
-    u32 if_ctrl = 0, if_cfgstat = 0, value;
+#if defined(VTSS_ARCH_LUTON26)
+    u32 si = 0, value;
+    u32 base_addr = 0x70000>>2;
+
+    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian, conf->bit_order, conf->padding);
+
+    if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
+        si |= 0x10;
+    }
+
+    if (conf->bit_order == VTSS_SPI_BIT_ORDER_LSB_FIRST) {
+        si |= 0x20;
+    }
+
+    si |= (conf->padding & 0xf);
+
+    VTSS_RC(conf->reg_write(0, base_addr + 1, si));
+    VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
+
+    if (si != value) {
+        VTSS_E("Read back of SI register failed 0x%08x != 0x%08x", si, value);
+        return VTSS_RC_ERROR;
+    }
+#else // Not VTSS_ARCH_LUTON26
+    u32 if_ctrl = 0, if_cfgstat, value;
 #ifdef VTSS_ARCH_SPARX5
     u32 base_addr = 0x40406A;
     u32 chip_id;
@@ -583,42 +606,9 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
         VTSS_E("Wrong if_cfgstat 0x%08x |= 0x%08x", if_cfgstat, value);
         return VTSS_RC_ERROR;
     }
-
-    VTSS_D("exit");
-
-    return VTSS_RC_OK;
-
-#elif defined(VTSS_ARCH_LUTON26)
-    u32 si = 0, value;
-    u32 base_addr = 0x70000>>2;
-
-    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian, conf->bit_order, conf->padding);
-
-    if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
-        si |= 0x10;
-    }
-
-    if (conf->bit_order == VTSS_SPI_BIT_ORDER_LSB_FIRST) {
-        si |= 0x20;
-    }
-
-    si |= (conf->padding & 0xf);
-
-    VTSS_RC(conf->reg_write(0, base_addr + 1, si));
-    VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
-
-    if (si != value) {
-        VTSS_E("Read back of SI register failed 0x%08x != 0x%08x", si, value);
-        return VTSS_RC_ERROR;
-    }
-
-    VTSS_D("exit");
-
-    return VTSS_RC_OK;
-#else
-    VTSS_E("SPI slave initialization is not implemented for this platform");
-    return VTSS_RC_ERROR;
 #endif
+    VTSS_D("exit");
+    return VTSS_RC_OK;
 }
 
 /* ================================================================= *
