@@ -369,7 +369,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     // Allocate pulic state
     if ((inst = meba_state_alloc(callouts,
                                  "lan9668_adaro",
-                                 MESA_TARGET_LAN9668,
+                                 MESA_TARGET_LAN966X,
                                  sizeof(*board))) == NULL) {
         return NULL;
     }
@@ -378,7 +378,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
 
-    board->port_cnt = (inst->props.target == 0x9662 ? 5 : 4);
+    board->port_cnt = (inst->props.name[0] == 'A' ? 4 : 5); // Adaro
 
     board->entry = (lan9668_port_info_t*) calloc(board->port_cnt, sizeof(lan9668_port_info_t));
     if (board->entry == NULL) {
@@ -387,7 +387,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     /* Fill out port mapping table */
-    if (inst->props.target == 0x9662) {
+    if (board->port_cnt == 5) {
         lan9668_sunrise_init_porttable(inst);
         inst->props.board_type = VTSS_BOARD_LAN9668_SUNRISE_REF;
     } else {

@@ -362,8 +362,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         break;
 #endif /* VTSS_ARCH_SPARX5 */
 #if defined(VTSS_ARCH_LAN966X)
-    case VTSS_TARGET_LAN9662:
-    case VTSS_TARGET_LAN9668:
+    case VTSS_TARGET_LAN966X:
         arch = VTSS_ARCH_LAN_966X;
         VTSS_RC(vtss_lan966x_inst_create(vtss_state));
         break;
