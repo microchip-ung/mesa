@@ -2687,7 +2687,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     u32              sd_indx = 0, sd_type, sd_tgt;
-    BOOL             analog_sd = 0;
+    BOOL             analog_sd = FALSE, kr_aneg_ena = FALSE;
 
     if (conf->power_down) {
         /* Disabled port is considered down */
@@ -2774,15 +2774,18 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             } else {
                 status->link = vtss_state->port.link[port_no];
             }
-
-
         } else {
             /* Combine status from PCS and Analog Macro */
             status->link = VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd;
         }
 
-        /* Perform CTLE training at link-up for 10G/25G */
-        if (conf->speed == VTSS_SPEED_10G || conf->speed == VTSS_SPEED_25G) {
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
+        if (vtss_state->port.kr_conf[port_no].aneg.enable) {
+            kr_aneg_ena = TRUE;
+        }
+#endif
+        /* Perform CTLE training at link-up for 10G/25G when KR-Aneg is not enabled */
+        if (!kr_aneg_ena && (conf->speed == VTSS_SPEED_10G || conf->speed == VTSS_SPEED_25G)) {
             if (status->link_down) {
                 vtss_state->port.ctle_done[port_no] = FALSE;
             } else if (status->link && !vtss_state->port.ctle_done[port_no]) {
