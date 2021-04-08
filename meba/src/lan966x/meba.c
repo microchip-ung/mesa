@@ -11,6 +11,14 @@
 
 #include "meba_aux.h"
 
+typedef enum {
+    BOARD_TYPE_ADARO = 6813,
+    BOARD_TYPE_SUNRISE = 6849,
+    BOARD_TYPE_8PORT = 8290,
+    BOARD_TYPE_ENDNODE = 8291,
+    BOARD_TYPE_ENDNODE_CARRIER = 8309
+} board_type_t;
+
 /* Local mapping table */
 typedef struct {
     int32_t                chip_port;
@@ -24,6 +32,7 @@ typedef meba_port_entry_t lan9668_port_info_t;
 
 #define PORTS_MAX 8
 typedef struct meba_board_state {
+    board_type_t          type;
     int                   port_cnt;
     meba_port_entry_t     *entry;
     mepa_device_t         *phy_devices[PORTS_MAX];
@@ -56,6 +65,32 @@ static port_map_t port_table_sunrise[] = {
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
 };
 
+static port_map_t port_table_8port[] = {
+    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {4, MESA_MIIM_CONTROLLER_0, 4, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {5, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {6, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {7, MESA_MIIM_CONTROLLER_0, 7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+
+};
+
+static port_map_t port_table_endnode[] = {
+    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
+};
+
+static port_map_t port_table_endnode_carrier[] = {
+    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)},
+    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
+};
+
 static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
 {
     uint32_t gpio_no;
@@ -77,27 +112,18 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->cap = map->cap;
 }
 
-static void lan9668_adaro_init_porttable(meba_inst_t inst)
+static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
 {
     meba_board_state_t *board = INST2BOARD(inst);
-    mesa_port_no_t      port_no;
+    mesa_port_no_t     port_no;
 
     /* Fill out port mapping table */
-    for (port_no = 0; port_no < board->port_cnt; port_no++) {
-        port_entry_map(&board->entry[port_no], &port_table_adaro[port_no]);
+    board->port_cnt = port_cnt;
+    for (port_no = 0; port_no < port_cnt; port_no++) {
+        port_entry_map(&board->entry[port_no], &map[port_no]);
     }
 }
 
-static void lan9668_sunrise_init_porttable(meba_inst_t inst)
-{
-    meba_board_state_t *board = INST2BOARD(inst);
-    mesa_port_no_t      port_no;
-
-    /* Fill out port mapping table */
-    for (port_no = 0; port_no < board->port_cnt; port_no++) {
-        port_entry_map(&board->entry[port_no], &port_table_sunrise[port_no]);
-    }
-}
 
 static mesa_rc lan9668_ptp_rs422_conf_get(meba_inst_t inst,
         meba_ptp_rs422_conf_t *conf)
@@ -359,6 +385,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 {
     meba_inst_t        inst;
     meba_board_state_t *board;
+    uint32_t           type;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -378,21 +405,39 @@ meba_inst_t meba_initialize(size_t callouts_size,
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
 
-    board->port_cnt = (inst->props.name[0] == 'A' ? 4 : 5); // Adaro
-
-    board->entry = (lan9668_port_info_t*) calloc(board->port_cnt, sizeof(lan9668_port_info_t));
+    // Always allocate for 8 ports
+    board->entry = (lan9668_port_info_t*) calloc(8, sizeof(lan9668_port_info_t));
     if (board->entry == NULL) {
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
 
-    /* Fill out port mapping table */
-    if (board->port_cnt == 5) {
-        lan9668_sunrise_init_porttable(inst);
-        inst->props.board_type = VTSS_BOARD_LAN9668_SUNRISE_REF;
+    // Get board type
+    if (meba_conf_get_u32(inst, "type", &type) == MESA_RC_OK) {
+        board->type = (board_type_t)type;
     } else {
-        lan9668_adaro_init_porttable(inst);
-        inst->props.board_type = VTSS_BOARD_LAN9668_ADARO_REF;
+        board->type = BOARD_TYPE_ADARO;   // Default
+    }
+
+    /* Fill out port mapping table */
+    switch (board->type) {
+    case BOARD_TYPE_ADARO:
+        lan966x_init_port_table(inst, 4, port_table_adaro);
+        break;
+    case BOARD_TYPE_SUNRISE:
+        lan966x_init_port_table(inst, 5, port_table_sunrise);
+        break;
+    case BOARD_TYPE_8PORT:
+        lan966x_init_port_table(inst, 8, port_table_8port);
+        break;
+    case BOARD_TYPE_ENDNODE:
+        lan966x_init_port_table(inst, 3, port_table_endnode);
+        break;
+    case BOARD_TYPE_ENDNODE_CARRIER:
+        lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
+        break;
+    default:
+        break;
     }
 
     T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d",

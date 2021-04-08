@@ -435,12 +435,14 @@ static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t s
     return 0;
 }
 
+#define PCB_TYPE_NONE 10000
+
 static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
     uint32_t   port_cnt = mesa_port_cnt(NULL); // Compiled
     const char *board = NULL;
     uint32_t   target = 0;
-    uint32_t   type = 1000;
+    uint32_t   type = PCB_TYPE_NONE;
     uint32_t   board_port_cnt = 1000;
     size_t     len = 0;
     uint32_t   mux_mode = 0xffffffff;
@@ -514,10 +516,25 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         break;
 
     case MESA_CHIP_FAMILY_LAN966X:
-        if (port_cnt > 5) {
+        if (REF_BOARD_PCB == -1) {
+            if (!get_env("pcb", &REF_BOARD_PCB)) {
+                REF_BOARD_PCB = (port_cnt > 5 ? 6813 : 6849);
+                printf("uboot 'pcb' env variable not found, using %u\n", REF_BOARD_PCB);
+            }
+        }
+        type = REF_BOARD_PCB;
+        if (type == 6813) {
             board = "Adaro";
-        } else {
+        } else if (type == 6849) {
             board = "Sunrise";
+        } else if (type == 8290) {
+            board = "LAN9668-8port";
+        } else if (type == 8291) {
+            board = "LAN9662-EndNode";
+        } else if (type == 8309) {
+            board = "LAN9662-EndNode-Carrier";
+        } else {
+            printf("unknown LAN966X PCB: %u\n", REF_BOARD_PCB);
         }
         break;
 
@@ -529,14 +546,13 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         len = snprintf(buf, bufsize, "%s", board);
     } else if (strcmp(tag, "target") == 0 && target) {
         len = snprintf(buf, bufsize, "0x%x", target);
-    } else if (strcmp(tag, "type") == 0 && type < 1000) {
-
+    } else if (strcmp(tag, "type") == 0 && type != PCB_TYPE_NONE) {
         len = snprintf(buf, bufsize, "%u", type);
     } else if (mux_mode != 0xffffffff && strcmp(tag, "mux_mode") == 0) {
         len = snprintf(buf, bufsize, "%u", mux_mode);
     } else if (LOOP_PORT >= 0 && strcmp(tag, "mep_loop_port") == 0) {
         len = snprintf(buf, bufsize, "%u", LOOP_PORT); // The loop port is internal port LOOP_PORT
-    } else if (strcmp(tag, "pcb") == 0 && type < 1000) {
+    } else if (strcmp(tag, "pcb") == 0 && type != PCB_TYPE_NONE) {
         len = snprintf(buf, bufsize, "pcb%u", type);
     } else if (strcmp(tag, "pcb_var") == 0 && board_port_cnt < 1000) {
         len = snprintf(buf, bufsize, "%u", board_port_cnt);
