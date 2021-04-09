@@ -327,6 +327,9 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                     // Auto negotiation
                     phy.speed = (pc->autoneg ? MESA_SPEED_AUTO : MESA_SPEED_1G);
                     phy.flow_control = pc->flow_control;
+                } else if (pc->speed == MESA_SPEED_10G) {
+                    // This is to handle AQR Cu phy in aneg mode and switch in unchangeble 10G SFI mode
+                    phy.speed = MESA_SPEED_AUTO;
                 } else {
                     // Forced speed
                     phy.speed = pc->speed;
