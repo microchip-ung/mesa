@@ -7,6 +7,9 @@ require 'optparse'
 require 'open3'
 require 'pp'
 
+
+$mfi = "#{File.expand_path(File.dirname(__FILE__))}/mfi.rb"
+
 $machines = {
     "ls1046a" => {
         :bsp_base => "../../",
@@ -25,149 +28,149 @@ $machines = {
     },
 
     "lan966x" => {
-        :bsp_base => "../../",
+        :bsp_base => "../../../../",
         :arch => "arm",
-        :kernel => "arm-cortex_a8-linux-gnu/lan966x/mscc-linux-kernel.bin.gz",
+        :kernel => "arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr  => "<0x60008000>",
         :kernelentry => "<0x60008000>",
         :ramdiscaddr => "<0x63000000>",
         :kcomp => "gzip",
         :dt => [
-          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/lan966x/lan966x-sunrise-mesa.dtb"},
+          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb"},
         ],
         :fdtaddr => "<0x61000000>",
-        :rootfs => "arm-cortex_a8-linux-gnu/lan966x/rootfs.tar",
+        :rootfs => "arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "fireant" => {
-        :bsp_base => "../../",
+        :bsp_base => "../../../..",
         :arch => "arm64",
-        :kernel => "arm64-armv8_a-linux-gnu/fireant/mscc-linux-kernel.bin.gz",
+        :kernel => "arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr => "/bits/ 64 <0x700080000>",
         :kernelentry => "/bits/ 64 <0x700080000>",
         :kcomp => "gzip",
         :dt => [
-            { :name => "pcb125",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb125.dtb"},
-            { :name => "pcb134",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb134.dtb"},
-            { :name => "pcb134_emmc",   :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb134_emmc.dtb"},
-            { :name => "pcb135",        :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb135.dtb"},
-            { :name => "pcb135_emmc",   :file => "arm64-armv8_a-linux-gnu/fireant/fireant_pcb135_emmc.dtb"},
-            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb121.dtb"},
-            { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb134.dtb"},
+            { :name => "pcb125",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb125.dtb"},
+            { :name => "pcb134",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134.dtb"},
+            { :name => "pcb134_emmc",   :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134_emmc.dtb"},
+            { :name => "pcb135",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135.dtb"},
+            { :name => "pcb135_emmc",   :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135_emmc.dtb"},
+            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
+            { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb134.dtb"},
         ],
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
         :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
     },
 
     "ocelot_pcb121" => {
-        :bsp_base => "../../",
+        :bsp_base => "../../../..",
         :arch => "arm64",
-        :kernel => "arm64-armv8_a-linux-gnu/fireant/mscc-linux-kernel.bin.gz",
+        :kernel => "arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr => "<0x80080000>",
         :kernelentry => "<0x80080000>",
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/fireant/ls1046_pcb121.dtb"},
+            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
         ],
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
         :fdtaddr => "<0x90000000>",
-        :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
+        :rootfs => "arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "BeagleBoneBlack" => {
-        :bsp_base    => "../../",
+        :bsp_base    => "../../../..",
         :arch        => "arm",
-        :kernel      => "arm-cortex_a8-linux-gnu/bbb/mscc-linux-kernel.bin.gz",
+        :kernel      => "arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr  => "<0x80080000>",
         :kernelentry => "<0x80080000>",
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-            { :name => "pcb134", :file => "arm-cortex_a8-linux-gnu/bbb/am335x-boneblack-mscc.dtb"},
+            { :name => "pcb134", :file => "arm-cortex_a8-linux-gnu/xstax/release/am335x-boneblack-mscc.dtb" },
         ],
         :fw_env => "/dev/mmcblk1 0x260000 0x20000\n/dev/mmcblk1 0x280000 0x20000\n",
-        :rootfs => "arm-cortex_a8-linux-gnu/bbb/rootfs.tar",
+        :rootfs => "arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "luton_pcb090" => {
         :socfam => "luton26",
         :chipno => "2",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/luton_pcb090.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb090.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "luton_pcb091" => {
         :socfam => "luton26",
         :chipno => "2",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/luton_pcb091.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb091.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "serval2_pcb112" => {
         :socfam => "jaguar2",
         :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/serval2_pcb112.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/serval2_pcb112.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "servalt_pcb116" => {
         :socfam => "servalt",
         :chipno => "6",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/servalt_pcb116.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/servalt_pcb116.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "jaguar2_pcb110" => {
         :socfam => "jaguar2",
         :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/jaguar2_pcb110.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb110.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "jaguar2_pcb111" => {
         :socfam => "jaguar2",
         :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/jaguar2_pcb111.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb111.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "ocelot_pcb120" => {
         :socfam => "ocelot",
         :chipno => "8",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/ocelot_pcb120.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb120.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "ocelot_pcb123" => {
         :socfam => "ocelot",
         :chipno => "8",
-        :kernel => "mipsel-mips32r2-linux-gnu/smb/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/smb/ocelot_pcb123.dtb",
+        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb123.dtb",
         :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/smb/rootfs.tar",
+        :bsp_base => "../../../..",
+        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
     },
 }
 
@@ -513,7 +516,7 @@ when "mfi"
     sys "cat #{$bsp}/#{$m[:dtb]} >> kernel_#{$o[:name]}"
     sys "xz --check=crc32 --lzma2=preset=6e,dict=64KiB kernel_#{$o[:name]}"
 
-    c = "#{$bsp}/mipsel-mips32r2-linux-uclibc/x86_64-linux/bin/mfi.rb"
+    c = $mfi
     c += " -o #{$o[:name]}.mfi"
     c += " stage1"
     c += " --kernel-set kernel_#{$o[:name]}.xz"

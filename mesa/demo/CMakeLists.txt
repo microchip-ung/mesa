@@ -102,11 +102,11 @@ macro(IMG_TARGET)
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" AND A_MACHINE STREQUAL "ls1046a")
-        set(KERNEL "${RELOCATED_HOST_DIR}/../ls1046/mscc-linux-kernel.bin.xz")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../mscc-linux-kernel.bin.xz")
     elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-        set(KERNEL "${RELOCATED_HOST_DIR}/../fireant/mscc-linux-kernel.bin.gz")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../mscc-linux-kernel.bin.gz")
     elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l" AND A_MACHINE STREQUAL "BeagleBoneBlack")
-        set(KERNEL "${RELOCATED_HOST_DIR}/../bbb/mscc-linux-kernel.bin.gz")
+        set(KERNEL "${RELOCATED_HOST_DIR}/../mscc-linux-kernel.bin.gz")
     endif()
 
     option(IMG_${A_NAME}_${A_TYPE} "Build the MESA DEMO firmware image for ${A_MESA}/${A_MEBA}" OFF)
@@ -180,7 +180,7 @@ macro(IMG_TARGET)
             add_custom_command(
                 OUTPUT ${A_NAME}.ext4.gz ${A_NAME}.ubifs
                 DEPENDS ${KERNEL} ${EXECUTABLES} ${SOLIBS} ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
-                COMMAND ${CMAKE_COMMAND} -E env "PATH=\"${RELOCATED_HOST_DIR}/bin=:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}\"" ${cmd} -t ext4
+                COMMAND ${CMAKE_COMMAND} -E env "PATH=\"${RELOCATED_HOST_DIR}/bin:${RELOCATED_HOST_DIR}/sbin:$ENV{PATH}\"" ${cmd} -t ext4
                 COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/imggen.rb
             )
             add_custom_target(${A_NAME}_ext4 ALL DEPENDS ${A_NAME}.ext4.gz ${A_NAME}.ubifs)
@@ -234,6 +234,7 @@ APP_TARGET(NAME app_vsc7549TSN         MESA vsc7549TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7546TSN         MESA vsc7546TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7558TSN         MESA vsc7558TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7556            MESA vsc7556            MEBA meba_sparx5)
+APP_TARGET(NAME app_lan966x            MESA lan966x            MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_sr         MESA lan966x_sr         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_ad         MESA lan966x_ad         MEBA meba_lan966x)
 
@@ -288,21 +289,26 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     endif()
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
-    IMG_TARGET(NAME armv7_lan9662     TYPE fit    APP app_lan966x_sr      MACHINE lan966x)
-    IMG_TARGET(NAME armv7_lan9668     TYPE fit    APP app_lan966x_ad      MACHINE lan966x)
+    # TODO, need to merge the BBB and none BBB versions
+    IMG_TARGET(NAME armv7_lan966x         TYPE fit    APP app_lan966x         MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan966x_sr      TYPE fit    APP app_lan966x_sr      MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan966x_ad      TYPE fit    APP app_lan966x_ad      MACHINE lan966x)
+
+    IMG_TARGET(NAME armv7_lan966x_bbb     TYPE fit    APP app_lan966x         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_lan966x_sr_bbb  TYPE fit    APP app_lan966x_sr      MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_lan966x_ad_bbb  TYPE fit    APP app_lan966x_ad      MACHINE BeagleBoneBlack)
 
 
-    # TODO, needs to be enabled again
-    #IMG_TARGET(NAME armv7_vsc7428     TYPE fit    APP app_vsc7428         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7429     TYPE fit    APP app_vsc7429         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7468     TYPE fit    APP app_vsc7468         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7449     TYPE fit    APP app_vsc7449         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7436     TYPE fit    APP app_vsc7436         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7437     TYPE fit    APP app_vsc7437         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7438     TYPE fit    APP app_vsc7438         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7514     TYPE fit    APP app_vsc7514         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7512     TYPE fit    APP app_vsc7512         MACHINE BeagleBoneBlack)
-    #IMG_TARGET(NAME armv7_vsc7558TSN  TYPE fit    APP app_vsc7558TSN      MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7428         TYPE fit    APP app_vsc7428         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7429         TYPE fit    APP app_vsc7429         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7468         TYPE fit    APP app_vsc7468         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7449         TYPE fit    APP app_vsc7449         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7436         TYPE fit    APP app_vsc7436         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7437         TYPE fit    APP app_vsc7437         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7438         TYPE fit    APP app_vsc7438         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7514         TYPE fit    APP app_vsc7514         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7512         TYPE fit    APP app_vsc7512         MACHINE BeagleBoneBlack)
+    IMG_TARGET(NAME armv7_vsc7558TSN      TYPE fit    APP app_vsc7558TSN      MACHINE BeagleBoneBlack)
 
 endif()
 

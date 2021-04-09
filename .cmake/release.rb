@@ -13,6 +13,7 @@ require_relative "./resultnode.rb"
 
 $have_internal_tools = true
 $do_internal_checks = false
+$do_compile = true
 begin
     require_relative "./licenses.rb"
 rescue
@@ -118,6 +119,13 @@ global = OptionParser.new do |opts|
         $opt[:parallel] = true
     end
 
+    opts.on("--no-compile", "Skip the actual compilation - just run all other tests. Implies internal checks") do
+      if $have_internal_tools
+           $do_internal_checks = true
+           $do_compile = false
+      end
+    end
+
     if $have_internal_tools
         opts.on("-i", "--internal-checks", "Do checks that requires internal resources") do
             $do_internal_checks = true
@@ -165,8 +173,11 @@ def compile(ws, odir, preset, c)
         tc_name += "-#{c[:toolchain_branch]}" if c[:toolchain_branch] != "toolchain"
         bcmd += "sudo /usr/local/bin/mscc-install-pkg -t toolchains/#{c[:toolchain]}-#{c[:toolchain_branch]} #{tc_name}; "
     end
-    bcmd += "#{cmake} #{get_cmake_toolchain(c)} #{get_cmake_options(c)} ../.. && #{cmake} ../.. && make -j 10)"
-    #bcmd += ")"
+    if $do_compile
+        bcmd += "#{cmake} #{get_cmake_toolchain(c)} #{get_cmake_options(c)} ../.. && #{cmake} ../.. && make -j 10)"
+    else
+        bcmd += ")"
+    end
 
     if $opt[:simplegrid]
         cmd = "SimpleGridClient -l webstax "
