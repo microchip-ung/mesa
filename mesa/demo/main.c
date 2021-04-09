@@ -518,23 +518,28 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     case MESA_CHIP_FAMILY_LAN966X:
         if (REF_BOARD_PCB == -1) {
             if (!get_env("pcb", &REF_BOARD_PCB)) {
-                REF_BOARD_PCB = (port_cnt > 5 ? 6813 : 6849);
-                printf("uboot 'pcb' env variable not found, using %u\n", REF_BOARD_PCB);
+                REF_BOARD_PCB = (port_cnt > 5 ? 0x6813 : 0x6849);
+                printf("uboot 'pcb' env variable not found, using 0x%x\n", REF_BOARD_PCB);
             }
         }
         type = REF_BOARD_PCB;
-        if (type == 6813) {
+        if (type == 0x6813) {
             board = "Adaro";
-        } else if (type == 6849) {
+            target = MESA_TARGET_LAN9668;
+        } else if (type == 0x6849) {
             board = "Sunrise";
-        } else if (type == 8290) {
+            target = MESA_TARGET_LAN9662;
+        } else if (type == 0x8290) {
             board = "LAN9668-8port";
-        } else if (type == 8291) {
+            target = MESA_TARGET_LAN9668;
+        } else if (type == 0x8291) {
             board = "LAN9662-EndNode";
-        } else if (type == 8309) {
+            target = MESA_TARGET_LAN9662;
+        } else if (type == 0x8309) {
             board = "LAN9662-EndNode-Carrier";
+            target = MESA_TARGET_LAN9662;
         } else {
-            printf("unknown LAN966X PCB: %u\n", REF_BOARD_PCB);
+            printf("unknown LAN966X PCB: 0x%x\n", REF_BOARD_PCB);
         }
         break;
 
