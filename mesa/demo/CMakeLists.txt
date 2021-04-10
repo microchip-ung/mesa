@@ -119,7 +119,7 @@ macro(IMG_TARGET)
     set(cmd ${cmd} -p ${CMAKE_CURRENT_SOURCE_DIR})
     set(cmd ${cmd} -n ${A_NAME})
     set(cmd ${cmd} -m ${A_MACHINE})
-    set(cmd ${cmd} -b ${RELOCATED_HOST_DIR})
+    set(cmd ${cmd} -b ${RELOCATED_HOST_DIR}/../../../../)
     set(cmd ${cmd} -s ${CMAKE_STRIP})
 
     # List of executables to install on target

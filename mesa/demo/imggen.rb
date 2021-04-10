@@ -10,170 +10,6 @@ require 'pp'
 
 $mfi = "#{File.expand_path(File.dirname(__FILE__))}/mfi.rb"
 
-$machines = {
-    "ls1046a" => {
-        :bsp_base => "../../",
-        :arch => "arm64",
-        :kernel => "arm64-armv8_a-linux-gnu/ls1046/mscc-linux-kernel.bin.xz",
-        :kerneladdr => "<0x80080000>",
-        :kernelentry => "<0x80080000>",
-        :ramdiscaddr => "<0x88080000>",
-        :kcomp => "gzip",
-        :dt => [
-          { :name => "conf@ls1046", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
-          { :name => "conf@ls1046_sr", :file => "arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa_sr.dtb"},
-        ],
-        :fdtaddr => "<0x90000000>",
-        :rootfs => "arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
-    },
-
-    "lan966x" => {
-        :bsp_base => "../../../../",
-        :arch => "arm",
-        :kernel => "arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
-        :kerneladdr  => "<0x60008000>",
-        :kernelentry => "<0x60008000>",
-        :ramdiscaddr => "<0x63000000>",
-        :kcomp => "gzip",
-        :dt => [
-          { :name => "conf@lan966x", :file => "arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb"},
-        ],
-        :fdtaddr => "<0x61000000>",
-        :rootfs => "arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "fireant" => {
-        :bsp_base => "../../../..",
-        :arch => "arm64",
-        :kernel => "arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
-        :kerneladdr => "/bits/ 64 <0x700080000>",
-        :kernelentry => "/bits/ 64 <0x700080000>",
-        :kcomp => "gzip",
-        :dt => [
-            { :name => "pcb125",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb125.dtb"},
-            { :name => "pcb134",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134.dtb"},
-            { :name => "pcb134_emmc",   :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134_emmc.dtb"},
-            { :name => "pcb135",        :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135.dtb"},
-            { :name => "pcb135_emmc",   :file => "arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135_emmc.dtb"},
-            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
-            { :name => "ls1046_pcb134", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb134.dtb"},
-        ],
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :rootfs => "arm64-armv8_a-linux-gnu/fireant/rootfs.tar",
-    },
-
-    "ocelot_pcb121" => {
-        :bsp_base => "../../../..",
-        :arch => "arm64",
-        :kernel => "arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
-        :kerneladdr => "<0x80080000>",
-        :kernelentry => "<0x80080000>",
-        :ramdiscaddr => "<0x88080000>",
-        :kcomp => "gzip",
-        :dt => [
-            { :name => "ls1046_pcb121", :file => "arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
-        ],
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :fdtaddr => "<0x90000000>",
-        :rootfs => "arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "BeagleBoneBlack" => {
-        :bsp_base    => "../../../..",
-        :arch        => "arm",
-        :kernel      => "arm-cortex_a8-linux-gnu/standalone/release/mscc-linux-kernel.bin.gz",
-        :kerneladdr  => "<0x80080000>",
-        :kernelentry => "<0x80080000>",
-        :ramdiscaddr => "<0x88080000>",
-        :kcomp => "gzip",
-        :dt => [
-            { :name => "pcb134", :file => "arm-cortex_a8-linux-gnu/xstax/release/am335x-boneblack-mscc.dtb" },
-        ],
-        :fw_env => "/dev/mmcblk1 0x260000 0x20000\n/dev/mmcblk1 0x280000 0x20000\n",
-        :rootfs => "arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "luton_pcb090" => {
-        :socfam => "luton26",
-        :chipno => "2",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb090.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "luton_pcb091" => {
-        :socfam => "luton26",
-        :chipno => "2",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb091.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "serval2_pcb112" => {
-        :socfam => "jaguar2",
-        :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/serval2_pcb112.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "servalt_pcb116" => {
-        :socfam => "servalt",
-        :chipno => "6",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/servalt_pcb116.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "jaguar2_pcb110" => {
-        :socfam => "jaguar2",
-        :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb110.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "jaguar2_pcb111" => {
-        :socfam => "jaguar2",
-        :chipno => "7",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb111.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "ocelot_pcb120" => {
-        :socfam => "ocelot",
-        :chipno => "8",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb120.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-
-    "ocelot_pcb123" => {
-        :socfam => "ocelot",
-        :chipno => "8",
-        :kernel => "mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
-        :dtb    => "mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb123.dtb",
-        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
-        :bsp_base => "../../../..",
-        :rootfs => "mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
-    },
-}
-
 $o = {
     :install => [],
     :symlink => [],
@@ -188,7 +24,6 @@ $op = OptionParser.new do |opts|
 
     opts.on("-m,--machine MACHINE-NAME", "Machine name") do |m|
         $o[:machine] = m
-        $m = $machines[m]
     end
 
     opts.on("-b,--bsp PATH", "BSP Path") do |p|
@@ -223,12 +58,194 @@ end.parse!
 
 #pp $o
 
+$p_mesa = File.expand_path "#{$o[:src]}/../../"
+$bsp = File.expand_path $o[:bsp]
+#puts "BSP-TOP: #{$bsp}"
+#puts "MESA-TOP: #{$p_mesa}"
+
+$machines = {
+    "ls1046a" => {
+        :arch => "arm64",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mscc-linux-kernel.bin.xz",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
+        :kcomp => "gzip",
+        :dt => [
+          { :name => "conf@ls1046", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
+          { :name => "conf@ls1046_sr", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa_sr.dtb"},
+        ],
+        :fdtaddr => "<0x90000000>",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
+    },
+
+    "lan966x" => {
+        :arch => "arm",
+        :kernel => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
+        :kerneladdr  => "<0x60008000>",
+        :kernelentry => "<0x60008000>",
+        :ramdiscaddr => "<0x63000000>",
+        :kcomp => "gzip",
+        :dt => [
+          {
+            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb",
+            :overlays => [
+                { :name => "6813_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6813_0.dtso"},
+                { :name => "6849_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
+                { :name => "8290_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
+                { :name => "8291_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
+                { :name => "8309_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+            ]
+          },
+        ],
+        :fdtaddr => "<0x61000000>",
+        :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "fireant" => {
+        :arch => "arm64",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
+        :kerneladdr => "/bits/ 64 <0x700080000>",
+        :kernelentry => "/bits/ 64 <0x700080000>",
+        :kcomp => "gzip",
+        :dt => [
+            { :name => "pcb125",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb125.dtb"},
+            { :name => "pcb134",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134.dtb"},
+            { :name => "pcb134_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134_emmc.dtb"},
+            { :name => "pcb135",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135.dtb"},
+            { :name => "pcb135_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135_emmc.dtb"},
+            { :name => "ls1046_pcb121", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
+            { :name => "ls1046_pcb134", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb134.dtb"},
+        ],
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "ocelot_pcb121" => {
+        :arch => "arm64",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
+        :kerneladdr => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
+        :kcomp => "gzip",
+        :dt => [
+            { :name => "ls1046_pcb121", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
+        ],
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :fdtaddr => "<0x90000000>",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "BeagleBoneBlack" => {
+        :arch        => "arm",
+        :kernel      => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
+        :kerneladdr  => "<0x80080000>",
+        :kernelentry => "<0x80080000>",
+        :ramdiscaddr => "<0x88080000>",
+        :kcomp => "gzip",
+        :dt => [
+            {
+              :name => "pcb134",
+              :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/am335x-boneblack-mscc.dtb"
+            },
+            {
+              :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb",
+              :overlays => [
+                  { :name => "6813_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6813_0.dtso"},
+                  { :name => "6849_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
+                  { :name => "8290_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
+                  { :name => "8291_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
+                  { :name => "8309_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+              ]
+            },
+        ],
+        :fw_env => "/dev/mmcblk1 0x260000 0x20000\n/dev/mmcblk1 0x280000 0x20000\n",
+        :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "luton_pcb090" => {
+        :socfam => "luton26",
+        :chipno => "2",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb090.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "luton_pcb091" => {
+        :socfam => "luton26",
+        :chipno => "2",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/luton_pcb091.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "serval2_pcb112" => {
+        :socfam => "jaguar2",
+        :chipno => "7",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/serval2_pcb112.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "servalt_pcb116" => {
+        :socfam => "servalt",
+        :chipno => "6",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/servalt_pcb116.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "jaguar2_pcb110" => {
+        :socfam => "jaguar2",
+        :chipno => "7",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb110.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "jaguar2_pcb111" => {
+        :socfam => "jaguar2",
+        :chipno => "7",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/jaguar2_pcb111.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "ocelot_pcb120" => {
+        :socfam => "ocelot",
+        :chipno => "8",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb120.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+
+    "ocelot_pcb123" => {
+        :socfam => "ocelot",
+        :chipno => "8",
+        :kernel => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/mscc-linux-kernel.bin",
+        :dtb    => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/ocelot_pcb123.dtb",
+        :fw_env => "/dev/mtd2 0x0000 0x2000 0x40000\n/dev/mtd3 0x0000 0x2000 0x40000\n",
+        :rootfs => "#{$bsp}/mipsel-mips32r2-linux-gnu/xstax/release/rootfs.tar",
+    },
+}
+
+
+if $o[:machine]
+    $m = $machines[$o[:machine]]
+end
+
+
 if $o[:name].nil? or $o[:machine].nil? or $o[:bsp].nil? or $o[:type].nil? or $m.nil?
     puts "Invalid options"
     exit 1
 end
-
-$bsp = "#{$o[:bsp]}/#{$m[:bsp_base]}"
 
 def sys cmd, input = nil
     exception = nil
@@ -304,8 +321,8 @@ def sys cmd, input = nil
     end
 end
 
-def dts path, machine, ramdisk
-    kernel = "#{$bsp}/#{$m[:kernel]}"
+def dts path, machine, machine_name, ramdisk
+    kernel = "#{machine[:kernel]}"
     if File.extname(kernel) == ".xz"
         o = "./#{File.basename(kernel)}.gz"
         sys "xz -d -c #{kernel} | gzip -f -c > #{o}"
@@ -314,42 +331,42 @@ def dts path, machine, ramdisk
 
     s  = "/dts-v1/\n;"
     s += "/ {\n"
-    s += "        description = \"Image file for the MESA SDK Demo on target #{machine}\";\n"
+    s += "        description = \"Image file for the MESA SDK Demo on target #{machine_name}\";\n"
     s += "\n"
     s += "        images {\n"
     s += "                kernel {\n"
     s += "                        description = \"Linux kernel\";\n"
     s += "                        data = /incbin/(\"#{kernel}\");\n"
     s += "                        type = \"kernel\";\n"
-    s += "                        arch = \"#{$m[:arch]}\";\n"
+    s += "                        arch = \"#{machine[:arch]}\";\n"
     s += "                        os = \"linux\";\n"
-    s += "                        compression = \"#{$m[:kcomp]}\";\n"
-    s += "                        load = #{$m[:kerneladdr]};\n"
-    s += "                        entry = #{$m[:kernelentry]};\n"
+    s += "                        compression = \"#{machine[:kcomp]}\";\n"
+    s += "                        load = #{machine[:kerneladdr]};\n"
+    s += "                        entry = #{machine[:kernelentry]};\n"
     s += "                };\n"
     s += "                ramdisk {\n"
     s += "                        description = \"ramdisk\";\n"
     s += "                        data = /incbin/(\"#{ramdisk}\");\n"
     s += "                        type = \"ramdisk\";\n"
-    s += "                        arch = \"#{$m[:arch]}\";\n"
+    s += "                        arch = \"#{machine[:arch]}\";\n"
     s += "                        os = \"linux\";\n"
-    s += "                        load = #{$m[:ramdiscaddr]};\n" if $m[:ramdiscaddr]
+    s += "                        load = #{machine[:ramdiscaddr]};\n" if machine[:ramdiscaddr]
     s += "                        compression = \"none\";\n"
     s += "                };\n"
-    $m[:dt].each do |d|
+    machine[:dt].each do |d|
         s += "                fdt_#{d[:name]} {\n"
         s += "                        description = \"Flattened Device Tree blob\";\n"
-        s += "                        data = /incbin/(\"#{$bsp}/#{d[:file]}\");\n"
+        s += "                        data = /incbin/(\"#{d[:file]}\");\n"
         s += "                        type = \"flat_dt\";\n"
-        s += "                        arch = \"#{$m[:arch]}\";\n"
-        s += "                        load = #{$m[:fdtaddr]};\n" if $m[:fdtaddr]
+        s += "                        arch = \"#{machine[:arch]}\";\n"
+        s += "                        load = #{machine[:fdtaddr]};\n" if machine[:fdtaddr]
         s += "                        compression = \"none\";\n"
         s += "                };\n"
     end
     s += "        };\n"
     s += "        configurations {\n"
-    s += "                default = \"#{$m[:dt][0][:name]}\";\n"
-    $m[:dt].each do |d|
+    s += "                default = \"#{machine[:dt][0][:name]}\";\n"
+    machine[:dt].each do |d|
         s += "                #{d[:name]} {\n"
         s += "                        description = \"Boot Linux kernel with DT #{d[:name]}\";\n"
         s += "                        kernel = \"kernel\";\n"
@@ -361,6 +378,34 @@ def dts path, machine, ramdisk
     s += "};\n"
 
     IO.write path, s
+end
+
+def dts_process_overlays name, machine
+    return machine if machine[:dt].nil?
+
+    new_dt_array = []
+    machine[:dt].each do |dt_entry|
+        dtb = dt_entry[:file]
+        dtb_basename = File.basename(dtb)
+
+        if dt_entry[:overlays]
+            dt_entry[:overlays].each do |dto_entry|
+                out_dtbo = "#{name}_#{File.basename(dto_entry[:file], ".dtso")}.dtbo"
+                out = "#{dtb_basename}_#{File.basename(dto_entry[:file], ".dtso")}.dtb"
+                sys "dtc -o #{out_dtbo} #{dto_entry[:file]}"
+                sys "fdtoverlay -i #{dtb} -o #{out} #{out_dtbo}"
+                new_dt_array << { :name => dto_entry[:name], :file => out }
+            end
+        else
+            new_dt_array << dt_entry
+        end
+
+    end
+
+    m = machine.clone
+    m[:dt] = new_dt_array
+
+    return m
 end
 
 def strip from, to
@@ -436,7 +481,7 @@ end
 def basic_rootfs install_dir
     sys "rm -rf #{install_dir}"
     sys "mkdir -p #{install_dir}"
-    tar("#{$bsp}/#{$m[:rootfs]}", install_dir)
+    tar("#{$m[:rootfs]}", install_dir)
 
     IO.write("#{install_dir}/etc/fw_env.config", $m[:fw_env]) if $m[:fw_env]
 
@@ -466,7 +511,8 @@ when "fit"
     sys "rm -rf #{$o[:name]}.squashfs"
     sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -all-root"
 
-    dts "#{$o[:name]}.its", $o[:machine], "#{$o[:name]}.squashfs"
+    m = dts_process_overlays $o[:machine], $m
+    dts "#{$o[:name]}.its", m, $o[:machine], "#{$o[:name]}.squashfs"
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
 
 when "ext4"
@@ -487,8 +533,9 @@ when "ext4"
     sys "mkdir -p #{stage1_dir}/mnt"
     strip "init", "#{stage1_dir}/sbin/init"
 
+    m = dts_process_overlays $o[:machine], $m
     sys "mksquashfs #{stage1_dir}/* #{$o[:name]}_initrd.squashfs -no-progress -quiet -comp xz -all-root"
-    dts "#{$o[:name]}_ext4.its", $o[:machine], "#{$o[:name]}_initrd.squashfs"
+    dts "#{$o[:name]}_ext4.its", m, $o[:machine], "#{$o[:name]}_initrd.squashfs"
     sys "mkimage -q -f #{$o[:name]}_ext4.its #{install_dir}/Image.itb"
 
     t1 = Thread.new {
@@ -511,9 +558,9 @@ when "mfi"
     basic_rootfs install_dir
     sys "rm -rf #{$o[:name]}.squashfs"
     sys "mksquashfs #{install_dir}/* #{$o[:name]}.squashfs -no-progress -quiet -comp xz -all-root"
-    sys "cp #{$bsp}/#{$m[:kernel]} kernel_#{$o[:name]}"
+    sys "cp #{$m[:kernel]} kernel_#{$o[:name]}"
     sys "rm -f kernel_#{$o[:name]}.xz"
-    sys "cat #{$bsp}/#{$m[:dtb]} >> kernel_#{$o[:name]}"
+    sys "cat #{$m[:dtb]} >> kernel_#{$o[:name]}"
     sys "xz --check=crc32 --lzma2=preset=6e,dict=64KiB kernel_#{$o[:name]}"
 
     c = $mfi

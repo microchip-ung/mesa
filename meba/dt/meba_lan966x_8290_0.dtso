@@ -1,0 +1,19 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+/dts-v1/;
+/plugin/;
+
+/ {
+        fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			meba {
+				board = "EVB-LAN9668-8port";
+				pcb = "0x8290";
+				type = "0";
+				target = "0x9668";
+			};
+		};
+	};
+};
