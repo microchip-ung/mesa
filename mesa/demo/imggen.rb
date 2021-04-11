@@ -66,17 +66,25 @@ $bsp = File.expand_path $o[:bsp]
 $machines = {
     "ls1046a" => {
         :arch => "arm64",
-        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mscc-linux-kernel.bin.xz",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.xz",
         :kerneladdr => "<0x80080000>",
         :kernelentry => "<0x80080000>",
         :ramdiscaddr => "<0x88080000>",
         :kcomp => "gzip",
         :dt => [
-          { :name => "conf@ls1046", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa.dtb"},
-          { :name => "conf@ls1046_sr", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/mchp-ls1046a-lan966x_mesa_sr.dtb"},
+          {
+            :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mchp-ls1046a-lan966x_vtss.dtb",
+            :overlays => [
+                { :name => "6813_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6813_0.dtso"},
+                { :name => "6849_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
+                { :name => "8290_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
+                { :name => "8291_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
+                { :name => "8309_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+            ]
+          },
         ],
         :fdtaddr => "<0x90000000>",
-        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/ls1046/rootfs.tar",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "lan966x" => {
@@ -513,6 +521,7 @@ when "fit"
 
     m = dts_process_overlays $o[:machine], $m
     dts "#{$o[:name]}.its", m, $o[:machine], "#{$o[:name]}.squashfs"
+    puts "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
     sys "mkimage -q -f #{$o[:name]}.its #{$o[:name]}.itb"
 
 when "ext4"
