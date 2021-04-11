@@ -61,19 +61,25 @@ case $chip in
      mi)
      ts=dk-t34-1
      img=arm64_ls1046_lan9668.itb
-     dir=build-lan966x
+     dir=build-arm64
+     ;;
+
+     mb)
+     ts=dk-t35-4
+     img=armv7_lan966x_ad_bbb.itb
+     dir=build-arm
      ;;
 
      ms)
      ts=dk-t35-5
-     img=armv7_lan9662.itb
+     img=armv7_lan966x_sr.itb
      dir=build-arm
      ;;
 
      me)
      ts=dk-t35-5
      img=arm64_ls1046_lan9662.itb
-     dir=build-lan966x
+     dir=build-arm64
      ;;
 
      *)
