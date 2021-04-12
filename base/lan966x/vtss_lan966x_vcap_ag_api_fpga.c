@@ -6,10 +6,10 @@
  * Commit ID: c711da44a264dfde5b84c8610229e44598a7e0a6
  */
 
-#include "vtss_lan966x_vcap_ag_api.h"
+#include "vtss_lan966x_vcap_ag_api_fpga.h"
 #include "vtss_lan966x_vcap.h"
 
-#if defined(VTSS_ARCH_LAN966X) && !defined(VTSS_OPT_FPGA)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_OPT_FPGA)
 
 /*******************************************************************************
  * VCAP ES0

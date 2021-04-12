@@ -6,10 +6,10 @@
  * Commit ID: c711da44a264dfde5b84c8610229e44598a7e0a6
  */
 
-#ifndef _VTSS_LAN966X_VCAP_AG_API_H_
-#define _VTSS_LAN966X_VCAP_AG_API_H_
+#ifndef _VTSS_LAN966X_VCAP_AG_API_FPGA_H_
+#define _VTSS_LAN966X_VCAP_AG_API_FPGA_H_
 
-#include "vtss_lan966x_vcap_ag_layout.h"
+#include "vtss_lan966x_vcap_ag_layout_fpga.h"
 
 /*******************************************************************************
  * VCAP ES0
@@ -146,4 +146,4 @@ const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_action_field_attrs
 #endif /* VTSS_LAN966X_VCAP_INCLUDE_FIELD_ATTRS */
 
 
-#endif /* _VTSS_LAN966X_VCAP_AG_API_H_ */
+#endif /* _VTSS_LAN966X_VCAP_AG_API_FPGA_H_ */
