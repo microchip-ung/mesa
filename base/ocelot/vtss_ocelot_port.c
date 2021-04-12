@@ -1590,9 +1590,7 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
                      VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
 
         // Notify link partner
-        SRVL_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-                VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA |
-                VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT);
+        srvl_port_clause_37_control_set(vtss_state, port_no);
 
         if (conf->if_type != VTSS_PORT_INTERFACE_QSGMII) {
             VTSS_RC(srvl_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_IDLE));
