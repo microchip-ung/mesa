@@ -60,7 +60,7 @@ case $chip in
 
      mi)
      ts=dk-t34-1
-     img=arm64_ls1046_lan9668.itb
+     img=arm64_ls1046_lan966x_ad.itb
      dir=build-arm64
      ;;
 
