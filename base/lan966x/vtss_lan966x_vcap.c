@@ -2441,7 +2441,6 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             LAN966X_DEBUG_BITS(IS2, "proto", IP6_OTHER_FLD_L3_PROTO);
             LAN966X_DEBUG_BITS(IS2, "payload1", IP6_OTHER_FLD_L3_PAYLOAD_1);
             LAN966X_DEBUG_BITS(IS2, "payload0", IP6_OTHER_FLD_L3_PAYLOAD_0);
-            LAN966X_DEBUG_BITS(IS2, "spare", IP6_OTHER_FLD_SPARE);
         }
         pr("\n");
         return VTSS_RC_OK;
@@ -2625,7 +2624,6 @@ static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     LAN966X_DEBUG_BITS(ES0, "pcp", VID_FLD_PCP);
     LAN966X_DEBUG_BITS(ES0, "dei", VID_FLD_DEI);
     LAN966X_DEBUG_BITS(ES0, "dp", VID_FLD_DP);
-    LAN966X_DEBUG_BITS(ES0, "spare", VID_FLD_SPARE);
     pr("\n");
     return VTSS_RC_OK;
 }

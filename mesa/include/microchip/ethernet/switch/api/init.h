@@ -234,6 +234,10 @@ typedef mesa_rc (*mesa_mmd_write_t)(const mesa_inst_t    inst,
 // MESA_PORT_MUX_MODE_3: 4x1G Dual + 1xQSGMII + PCIe (+ 1x1G SGMII + 1x2.5G SGMII for VSC7514)
 // MESA_PORT_MUX_MODE_4: 2x1G Dual + 2x1G CuPHY + 4x1G SGMII + 2x2.5G SGMII + 2.5G NPI (VSC7514 only)
 // MESA_PORT_MUX_MODE_5: 2x1G Dual + 2x1G CuPHY + 4x1G SGMII + 2x2.5G SGMII + PCIe (VSC7514 only)
+//
+// LAN966X
+// MESA_PORT_MUX_MODE_0: 2xQSGMII (LAN9668)
+// MESA_PORT_MUX_MODE_1: 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668)
 
 typedef enum {
     MESA_PORT_MUX_MODE_AUTO CAP(PORT_MUX_AUTO),

@@ -360,6 +360,10 @@ typedef enum {
     VTSS_PORT_MUX_MODE_4, /**< Conf:e 2x1G Dual + 2x1G CuPHY + 4x1G SGMII + 2x2.5G SGMII + 2.5G NPI */
     VTSS_PORT_MUX_MODE_5, /**< Conf:f 2x1G Dual + 2x1G CuPHY + 4x1G SGMII + 2x2.5G SGMII + PCIe */
 #endif  /* VTSS_ARCH_OCELOT */
+#if defined(VTSS_ARCH_LAN966X)
+    VTSS_PORT_MUX_MODE_0, /**< 2xQSGMII (LAN9668) */
+    VTSS_PORT_MUX_MODE_1, /**< 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668) */
+#endif
 } vtss_port_mux_mode_t;
 #endif /* VTSS_FEATURE_PORT_MUX */
 

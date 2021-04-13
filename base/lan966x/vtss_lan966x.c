@@ -209,7 +209,9 @@ static vtss_rc lan966x_restart_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
 {
-    u32 val, diff, err;
+    u32 val;
+#if defined(VTSS_OPT_FPGA)
+    u32 diff, err;
 
     REG_RD(GCB_BUILDID, &val);
     if (val > LAN966X_BUILD_ID) {
@@ -217,15 +219,16 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
     } else {
         diff = (LAN966X_BUILD_ID - val);
     }
-#if defined(VTSS_CHIP_9668)
-    err = (diff != 0);
-#else
+#if (VTSS_OPT_FPGA == 1)
     err = (diff > 1000);
+#else
+    err = (diff != 0);
 #endif
     if (err) {
         VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u", val, LAN966X_BUILD_ID, diff);
         return VTSS_RC_ERROR;
     }
+#endif
 
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
 
