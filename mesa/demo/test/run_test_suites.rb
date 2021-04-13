@@ -10,15 +10,15 @@ require_relative './libeasy/utils'
 
 $systems = [
     # dk-t34, starting with Maserati and Fireant systems
-    { name: "dk-t34-1", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no", server: "34", started: "no" },
+    { name: "dk-t34-1", image: "arm64_ls1046_lan966x_ad.itb",branch:"master.mas", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master",     parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master",     parallel: "no", server: "34", started: "no" },
 
     # dk-t35, starting with Maserati systems
-    { name: "dk-t35-5", image: "armv7_lan9662.itb",          branch:"master.mas", parallel: "no", server: "35", started: "no" },
-    { name: "dk-t35-4", image: "arm64_ls1046_lan9668.itb",   branch:"master.mas", parallel: "no", server: "35", started: "no" },
+    { name: "dk-t35-5", image: "armv7_lan966x_sr.itb",       branch:"master.mas", parallel: "no", server: "35", started: "no" },
+    { name: "dk-t35-4", image: "armv7_lan966x_ad_bbb.itb",   branch:"master.mas", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master",     parallel: "no", server: "35", started: "no" },
 
 #   { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master",     parallel: "no", server: "35", started: "no" },
