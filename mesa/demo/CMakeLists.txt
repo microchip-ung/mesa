@@ -21,13 +21,13 @@ set_target_properties(cli PROPERTIES OUTPUT_NAME "mesa-cmd")
 add_library(btsig SHARED btsig.c)
 
 add_executable(er easy_run.c)
+add_executable(spi_reg_read spi_reg_read.c)
 
 add_executable(init initramfs/main.c)
 target_link_libraries(init PUBLIC "-static")
 
 # TODO, delete these once we do not need them any more
 add_executable(fa_board_fpga_init fa_board_fpga_init.c)
-add_executable(fa_spi_chip_id     fa_spi_chip_id.c)
 
 include_directories(../../meba/include)
 
@@ -122,7 +122,7 @@ macro(IMG_TARGET)
     set(cmd ${cmd} -s ${CMAKE_STRIP})
 
     # List of executables to install on target
-    set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init fa_spi_chip_id base64decode)
+    set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init spi_reg_read base64decode)
 
     if (${HAS_RTE})
         set(EXECUTABLES ${EXECUTABLES} mera-demo mera-cmd mera-sram-rw)

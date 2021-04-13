@@ -3,8 +3,10 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
@@ -15,7 +17,6 @@
 static int spi_fd = -1;
 static int spi_freq = 400000;
 static int spi_padding = 1;
-static const char *spi_dev = "/dev/spidev1.1";
 
 /* MEBA callouts */
 #define TO_SPI(_a_)     (_a_ & 0x00FFFFFF) /* 24 bit SPI address */
@@ -57,7 +58,7 @@ int spi_reg_read(const uint32_t addr, uint32_t *const value)
 
     *value = rxword;
 
-    printf("RX: %02x %02x %02x-%02x %02x %02x %02x",
+    printf("RX: %02x %02x %02x-%02x %02x %02x %02x\n",
            tx[0], tx[1], tx[2],
            rx[3 + spi_padding],
            rx[4 + spi_padding],
@@ -111,7 +112,7 @@ int spi_reg_write(const uint32_t addr, const uint32_t value)
     return 0;
 }
 
-int spi_reg_io_init()
+int spi_reg_io_init(char *spi_dev)
 {
     int ret, mode = 0;
     printf("DEV: %s, Freq: %d, Padding: %d\n", spi_dev, spi_freq, spi_padding);
@@ -145,14 +146,44 @@ int spi_reg_io_init()
     return 0;
 }
 
+static void help(void)
+{
+    printf("Usage: spi_reg_read spi_dev offset_hex\n");
+    printf("options:\n");
+    printf("  -h | --help              Show this help text\n");
+    printf("commands:\n");
+}
+
 int main(int argc, char **argv)
 {
     int res;
     uint32_t chip_id;
+    uint32_t reg = 0;
+    int f;
 
-    res = spi_reg_io_init();
-    spi_reg_read(0x404000, &chip_id);
-    printf("fa chip id: %08x\n", chip_id);
+    static const struct option options[] =
+    {
+	{.name = "help",	.val = 'h'},
+	{ 0 }
+    };
+
+    while (EOF != (f = getopt_long(argc, argv, "h", options, NULL))) {
+	switch (f) {
+	case 'h':
+		help();
+		return 0;
+	}
+    }
+
+    if (argc < 3) {
+	   help();
+	   return 0;
+    }
+
+    reg = strtol(argv[2], NULL, 16);
+
+    res = spi_reg_io_init(argv[1]);
+    spi_reg_read(reg, &chip_id);
 
     return res;
 }
