@@ -17,6 +17,11 @@ typedef struct {
 } phy_switch_access_t;
 
 typedef struct {
+    uint8_t  model;
+    uint8_t  rev;
+} phy_dev_info_t;
+
+typedef struct {
     mepa_bool_t init_done;
     mepa_port_no_t port_no;
     phy_switch_access_t access;
@@ -25,6 +30,7 @@ typedef struct {
     mepa_event_t events;
     mepa_loopback_t loopback;
     mepa_bool_t qsgmii_phy_aneg_dis;
+    phy_dev_info_t dev;
 } phy_data_t;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
@@ -126,6 +132,19 @@ static mepa_rc indy_delete(mepa_device_t *dev)
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_get_device_info(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t id_1, id_2;
+
+    RD(dev, INDY_DEVICE_ID_2, &id_2);
+
+    data->dev.model = INDY_X_DEV_ID_MODEL(id_2);
+    data->dev.rev = INDY_X_DEV_ID_REV(id_2);
+
+    return MEPA_RC_OK;
+}
+
 static mepa_device_t *indy_probe(
     mepa_driver_t *drv, const mepa_driver_address_t *mode) {
     if (mode->mode != mscc_phy_driver_address_mode) return NULL;
@@ -169,12 +188,16 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
+    indy_get_device_info(dev);
+
     // Set config only for base port of phy.
-    if (data->access.miim_addr == get_base_addr(dev)) {
-        if (!data->qsgmii_phy_aneg_dis) {
-            // Disable QSGMII auto-negotiation common for 4 ports.
-            EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
-            data->qsgmii_phy_aneg_dis = TRUE;
+    if (data->dev.model == 0x26) {
+        if (data->access.miim_addr == get_base_addr(dev)) {
+            if (!data->qsgmii_phy_aneg_dis) {
+                // Disable QSGMII auto-negotiation common for 4 ports.
+                EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
+                data->qsgmii_phy_aneg_dis = TRUE;
+            }
         }
     }
     return MEPA_RC_OK;
@@ -182,6 +205,11 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
 {
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    if (data->dev.model != 0x26) {
+        return MEPA_RC_OK;
+    }
     if (!ena) {
         // Disable QSGMII auto-negotiation
         EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
@@ -194,6 +222,11 @@ static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
 
 static mepa_rc indy_rev_a_workaround(mepa_device_t *dev)
 {
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    if (data->dev.model != 0x26 || data->dev.rev) {
+        return MEPA_RC_OK;
+    }
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_LOW, 0x2);
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_HIGH, 0xc001);
 }
@@ -790,9 +823,10 @@ static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t
 }
 mepa_drivers_t mepa_indy_driver_init() {
     static const int nr_indy_drivers = 1;
-    static mepa_driver_t indy_drivers[] = {{
-        .id = 0x221400,
-        .mask = 0xff0000,
+    static mepa_driver_t indy_drivers[] = {
+    {
+        .id = 0x221660,
+        .mask = 0xff00f0,
         .mepa_driver_delete = indy_delete,
         .mepa_driver_reset = indy_reset,
         .mepa_driver_poll = indy_poll,
@@ -816,7 +850,35 @@ mepa_drivers_t mepa_indy_driver_init() {
         .mepa_driver_gpio_mode_set = indy_gpio_mode_set,
         .mepa_driver_gpio_out_set = indy_gpio_out_set,
         .mepa_driver_gpio_in_get = indy_gpio_in_get,
-    }};
+    },
+    {
+        .id = 0x221670,
+        .mask = 0xff00f0,
+        .mepa_driver_delete = indy_delete,
+        .mepa_driver_reset = indy_reset,
+        .mepa_driver_poll = indy_poll,
+        .mepa_driver_conf_set = indy_conf_set,
+        .mepa_driver_conf_get = indy_conf_get,
+        .mepa_driver_if_get = indy_if_get,
+        .mepa_driver_power_set = indy_power_set,
+        .mepa_driver_cable_diag_start = indy_cable_diag_start,
+        .mepa_driver_cable_diag_get = indy_cable_diag_get,
+        .mepa_driver_probe = indy_probe,
+        .mepa_driver_aneg_status_get = indy_aneg_status_get,
+        .mepa_driver_clause22_read = indy_direct_reg_read,
+        .mepa_driver_clause22_write = indy_direct_reg_write,
+        .mepa_driver_clause45_read  = indy_ext_mmd_reg_read,
+        .mepa_driver_clause45_write = indy_ext_mmd_reg_write,
+        .mepa_driver_event_enable_set = indy_event_enable_set,
+        .mepa_driver_event_enable_get = indy_event_enable_get,
+        .mepa_driver_event_poll = indy_event_status_poll,
+        .mepa_driver_loopback_set = indy_loopback_set,
+        .mepa_driver_loopback_get = indy_loopback_get,
+        .mepa_driver_gpio_mode_set = indy_gpio_mode_set,
+        .mepa_driver_gpio_out_set = indy_gpio_out_set,
+        .mepa_driver_gpio_in_get = indy_gpio_in_get,
+    },
+    };
 
     mepa_drivers_t result;
     result.phy_drv = indy_drivers;
