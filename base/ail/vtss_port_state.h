@@ -444,6 +444,9 @@ typedef struct {
 
 
 #endif // defined(VTSS_FEATURE_PORT_KR_IRQ)
+
+#define VTSS_SD6G_40_CNT 3
+
 typedef struct {
     /* CIL function pointers */
     vtss_rc (* miim_read)(struct vtss_state_s *vtss_state,
@@ -572,6 +575,7 @@ typedef struct {
     vtss_port_map_t               map[VTSS_PORT_ARRAY_SIZE];
     vtss_port_conf_t              conf[VTSS_PORT_ARRAY_SIZE];
     BOOL                          conf_set_called[VTSS_PORT_ARRAY_SIZE];
+    vtss_serdes_mode_t            sd6g40_mode[VTSS_SD6G_40_CNT];
     vtss_serdes_mode_t            serdes_mode[VTSS_PORT_ARRAY_SIZE];
     vtss_port_clause_37_control_t clause_37[VTSS_PORT_ARRAY_SIZE];
     vtss_port_test_conf_t         test_conf[VTSS_PORT_ARRAY_SIZE];

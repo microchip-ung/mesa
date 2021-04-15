@@ -12,6 +12,8 @@
 #include "../ail/vtss_state.h"
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
+#include "../ail/vtss_sd6g40_procs.h"
+#include "vtss_lan966x_sd6g40_setup.h"
 #include "vtss_lan966x.h"
 #if defined(VTSS_OPT_FPGA)
 #if (VTSS_OPT_FPGA == 1)

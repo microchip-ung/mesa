@@ -491,15 +491,78 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
+                                  vtss_port_no_t port_no, vtss_serdes_mode_t mode)
+{
+    vtss_rc                  rc = VTSS_RC_OK;
+#if !defined(VTSS_OPT_FPGA)
+    u32                      port = VTSS_CHIP_PORT(port_no);
+    u32                      idx = VTSS_SD6G_40_CNT, value;
+    vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
+    vtss_sd6g40_setup_args_t conf = {};
+    BOOL                     lan9668 = (vtss_state->create.target == VTSS_TARGET_LAN9668);
+
+    switch (vtss_state->init_conf.mux_mode) {
+    case VTSS_PORT_MUX_MODE_0:
+        // 2xQSGMII
+        if (port < 4) {
+            mode_req = VTSS_SERDES_MODE_QSGMII;
+            idx = 1;
+        } else if (lan9668) {
+            mode_req = VTSS_SERDES_MODE_QSGMII;
+            idx = 2;
+        }
+        break;
+    case VTSS_PORT_MUX_MODE_1:
+        // 2xCu + 2x2,5G + 1xQSGMII
+        if (port < 2) {
+            // Port 0/1: Cu
+            mode_req = VTSS_SERDES_MODE_SGMII;
+        } else if (port < 4) {
+            // Port 2/3: 2.5G
+            idx = (port - 2);
+        } else if (lan9668) {
+            // Port 4-7: QSGMII
+            mode_req = VTSS_SERDES_MODE_QSGMII;
+            idx = 2;
+        }
+        break;
+    default:
+        VTSS_E("unknown mux mode");
+        return VTSS_RC_ERROR;
+    }
+
+    if (mode_req != VTSS_SERDES_MODE_DISABLE && mode != mode_req) {
+        VTSS_E("port %u must be %s", port, vtss_serdes_if_txt(mode_req));
+        return VTSS_RC_ERROR;
+    }
+    if (idx < VTSS_SD6G_40_CNT && vtss_state->port.sd6g40_mode[idx] != mode) {
+        vtss_state->port.sd6g40_mode[idx] = mode;
+        // Map to SD6G mode
+        conf.mode = (mode == VTSS_SERDES_MODE_QSGMII ? VTSS_SD6G40_MODE_QSGMII :
+                     mode == VTSS_SERDES_MODE_2G5 ? VTSS_SD6G40_MODE_SGMII2G5 :
+                     VTSS_SD6G40_MODE_SGMII);
+
+        // PLL determines whether 125MHz or 25MHz is used
+        REG_RD(GCB_HW_STAT, &value);
+        value = GCB_HW_STAT_PLL_CONF_X(value);
+        conf.refclk125M = (value == 1 || value == 2 ? 1 : 0);
+        rc = vtss_maserati_sd6g40_setup_lane(vtss_state, conf, idx);
+    }
+#endif
+    return rc;
+}
+
 static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc                rc = VTSS_RC_OK;
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
-    u32                    value, link_speed, delay = 0, pfc_mask;
-    BOOL                   disable = conf->power_down;
+    u32                    value, link_speed = 1, delay = 0, pfc_mask;
+    BOOL                   disable = conf->power_down, giga;
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
+    vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
 
     /* Verify speed and interface type */
     switch (speed) {
@@ -510,10 +573,14 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         link_speed = 2;
         break;
     case VTSS_SPEED_1G:
-        link_speed = 1;
         break;
+    case VTSS_SPEED_2500M:
+        if (conf->if_type == VTSS_PORT_INTERFACE_SERDES) {
+            break;
+        }
+        // Fall through
     default:
-        VTSS_E("illegal speed:%d, port %u", speed, port);
+        VTSS_E("illegal speed: %u, port %u", speed, port);
         return VTSS_RC_ERROR;
     }
 
@@ -521,14 +588,21 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
         disable = 1;
         break;
+#if defined(VTSS_OPT_FPGA)
     case VTSS_PORT_INTERFACE_GMII:
+#endif
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         sgmii = 1;
         break;
+    case VTSS_PORT_INTERFACE_QSGMII:
+        mode = VTSS_SERDES_MODE_QSGMII;
+        break;
     case VTSS_PORT_INTERFACE_SERDES:
-        if (speed != VTSS_SPEED_1G) {
-            VTSS_E("illegal speed, port %u", port);
+        if (speed == VTSS_SPEED_2500M) {
+            mode = VTSS_SERDES_MODE_2G5;
+        } else if (speed != VTSS_SPEED_1G) {
+            VTSS_E("illegal speed 10/100, port %u", port);
             return VTSS_RC_ERROR;
         }
         break;
@@ -599,13 +673,17 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 
     /* The port is disabled and flushed, now set up the port in the new operating mode */
 
+    // Setup SerDes
+    VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no, mode));
+
     /* Configure framelength check (from ethertype / length field) */
     REG_WRM_CTL(DEV_MAC_ADV_CHK_CFG(port), conf->frame_length_chk, DEV_MAC_ADV_CHK_CFG_LEN_DROP_ENA_M);
 
     /* GIG/FDX mode */
+    giga = (link_speed == 1 ? 1 : 0);
     if (conf->fdx) {
         value = DEV_MAC_MODE_CFG_FDX_ENA_M;
-        if (speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) {
+        if (giga) {
             value |= DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M;
         }
     } else {
@@ -614,9 +692,17 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     }
     REG_WR(DEV_MAC_MODE_CFG(port), value);
 
+#if !defined(VTSS_OPT_FPGA)
+    // Internal PHYs
+    if (port < 2) {
+        REG_WRM_CTL(CHIP_TOP_CUPHY_PORT_CFG(port),
+                    giga, CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
+    }
+#endif
+
     /* Default gaps */
     gaps.fdx_gap = 15;
-    if (speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) {
+    if (giga) {
         gaps.fdx_gap = 5;
     }
     if (conf->fdx) {

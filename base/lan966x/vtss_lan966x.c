@@ -207,6 +207,34 @@ static vtss_rc lan966x_restart_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
+{
+#if !defined(VTSS_OPT_FPGA)
+    switch (vtss_state->init_conf.mux_mode) {
+    case VTSS_PORT_MUX_MODE_0:
+        // 2xQSGMII
+        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_QSGMII_ENA(3));
+        break;
+    case VTSS_PORT_MUX_MODE_1:
+        // 2xCu + 2x2,5G + 1xQSGMII
+        REG_WR(HSIO_HW_CFG,
+               HSIO_HW_CFG_SD6G_0_CFG(1) |
+               HSIO_HW_CFG_SD6G_1_CFG(1) |
+               HSIO_HW_CFG_GMII_ENA(2) |
+               HSIO_HW_CFG_QSGMII_ENA(2));
+        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
+               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(0) |
+               CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
+               CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        break;
+    default:
+        VTSS_E("unknown mux mode");
+        return VTSS_RC_ERROR;
+    }
+#endif
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 val;
@@ -229,6 +257,8 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
         return VTSS_RC_ERROR;
     }
 #endif
+
+    VTSS_RC(lan966x_mux_mode_set(vtss_state));
 
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
 

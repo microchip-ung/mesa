@@ -420,6 +420,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     /* Fill out port mapping table */
+    inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
     switch (board->type) {
     case BOARD_TYPE_ADARO:
         lan966x_init_port_table(inst, 4, port_table_adaro);
@@ -428,6 +429,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         lan966x_init_port_table(inst, 5, port_table_sunrise);
         break;
     case BOARD_TYPE_8PORT:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
         lan966x_init_port_table(inst, 8, port_table_8port);
         break;
     case BOARD_TYPE_ENDNODE:
