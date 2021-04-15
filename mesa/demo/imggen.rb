@@ -92,7 +92,7 @@ $machines = {
         :kernel => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr  => "<0x60008000>",
         :kernelentry => "<0x60008000>",
-        :ramdiscaddr => "<0x63000000>",
+        :ramdiscaddr => "<0x68000000>",
         :kcomp => "gzip",
         :dt => [
           {
@@ -105,7 +105,7 @@ $machines = {
             ]
           },
         ],
-        :fdtaddr => "<0x61000000>",
+        :fdtaddr => "<0x67e00000>",
         :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
     },
 
