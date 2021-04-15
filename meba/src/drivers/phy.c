@@ -108,6 +108,23 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
     return phy_dev->drv->mepa_driver_conf_set(phy_dev, &cf);
 }
 
+// Get the current phy port configuration
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_driver_conf_t *const  conf)
+{
+    mepa_device_t *phy_dev;
+
+    T_I(inst, "Called port %d", port_no);
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if(!phy_dev || !phy_dev->drv->mepa_driver_conf_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_conf_get(phy_dev, conf);
+}
+
 /* Get the PHY interface based on speed.*/
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf)
@@ -322,7 +339,7 @@ mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event
     return phy_dev->drv->mepa_driver_event_poll(phy_dev, event);
 }
 // Apply loopback configuration. Used for debugging.
-mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t loopback)
+mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_loopback_t *loopback)
 {
     mepa_device_t *phy_dev;
 
@@ -336,6 +353,22 @@ mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loo
 
     return phy_dev->drv->mepa_driver_loopback_set(phy_dev, loopback);
 }
+// Obtain the current loopback configuration.
+mepa_rc meba_phy_loopback_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t *const loopback)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_loopback_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_loopback_get(phy_dev, loopback);
+}
+
 // Set the phy gpio mode.
 mepa_rc meba_phy_gpio_mode_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_gpio_conf_t *gpio_conf)
 {

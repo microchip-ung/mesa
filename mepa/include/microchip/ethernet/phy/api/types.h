@@ -28,7 +28,6 @@ typedef mesa_phy_pkt_mode_t mepa_pkt_mode_t;
 typedef mesa_phy_reset_conf_t mepa_reset_conf_t;
 typedef mesa_phy_event_t mepa_event_t;
 typedef mesa_phy_veriphy_status_t mepa_cable_diag_status_t;
-typedef mesa_phy_loopback_t mepa_loopback_t;
 typedef mesa_port_admin_state_t mepa_port_admin_state_t;
 typedef mesa_phy_led_number_t mepa_led_number_t;
 
@@ -150,5 +149,21 @@ typedef struct {
     mepa_led_num_t led_num;
     mepa_gpio_mode_t mode;
 } mepa_gpio_conf_t;
+
+// Loopback types
+typedef struct {
+    mepa_bool_t far_end_ena;    // far end loopback where traffic is looped back towards link partner from pcs.
+    mepa_bool_t near_end_ena;   // Near end loopback where traffic is looped back towards Mac from pcs.
+    mepa_bool_t connector_ena;  // connector loopback where traffic is looped back towards Mac uing external connector.
+    mepa_bool_t mac_serdes_input_ena;   // Mac side serdes input loopback where traffic is looped towards link partner.
+    mepa_bool_t mac_serdes_facility_ena;// Mac side serdes facility loopback where traffic is looped towards link partner.
+    mepa_bool_t mac_serdes_equip_ena;   // Mac side serdes equipment loopback where traffic is looped towards Mac.
+    mepa_bool_t media_serdes_input_ena; // Media side serdes input loopback where traffic is looped towards Mac.
+    mepa_bool_t media_serdes_facility_ena; // Media side serdes facility loopback where traffic is looped towards link partner.
+    mepa_bool_t media_serdes_equip_ena; // Media side serdes equipment loopback where traffic is looped back towards link partner.
+    mepa_bool_t qsgmii_pcs_tbi_ena;  // QSGMII tbi loopback where traffic is looped towards link partner from QSGMII pcs.
+    mepa_bool_t qsgmii_pcs_gmii_ena; // QSGMII gmi loopback where traffic is looped towards Mac from QSGMII pcs.
+    mepa_bool_t qsgmii_serdes_ena;   // QSGMII serdes loopback where traffic is looped towards link partner from QSGMII serdes. This would affect all the 4 ports of PHY.
+} mepa_loopback_t;
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

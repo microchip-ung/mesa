@@ -22,6 +22,9 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
 mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
                           const mepa_driver_conf_t *conf);
 
+// Get the current PHY configuration.
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_driver_conf_t *const  conf);
+
 // Get the PHY interface based on speed.
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf);
@@ -74,7 +77,10 @@ mepa_rc meba_phy_event_enable_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
 mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event);
 
 // Enable or disable the loopback in phy. Used for debugging purpose.
-mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t loopback);
+mepa_rc meba_phy_loopback_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_loopback_t *loopback);
+
+// Get current loopback configuration.
+mepa_rc meba_phy_loopback_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_loopback_t *const loopback);
 
 // Set the phy gpio mode.
 mepa_rc meba_phy_gpio_mode_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_gpio_conf_t *gpio_conf);

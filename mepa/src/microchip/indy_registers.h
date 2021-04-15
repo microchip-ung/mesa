@@ -27,6 +27,7 @@
 #define INDY_F_BASIC_CTRL_SOFT_POW_DOWN   INDY_BIT(11)
 #define INDY_F_BASIC_CTRL_ANEG_ENA        INDY_BIT(12)
 #define INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0 INDY_BIT(13)
+#define INDY_F_BASIC_CTRL_LOOPBACK        INDY_BIT(14)
 #define INDY_F_BASIC_CTRL_SOFT_RESET      INDY_BIT(15)
 
 // Register - 1
@@ -54,6 +55,8 @@
 // Register - 9
 #define INDY_ANEG_MSTR_SLV_CTRL 9
 #define INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP INDY_BIT(9)
+#define INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL         INDY_BIT(11)
+#define INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA         INDY_BIT(12)
 
 // Register - 10
 #define INDY_ANEG_MSTR_SLV_STATUS 10
@@ -75,7 +78,7 @@
 #define INDY_F_EXT_STATUS_1000_X_FULL_DUP INDY_BIT(15)
 
 // Register - 17
-#define INDY_PCS_LOOP_POLARITY_CTRL 18
+#define INDY_PCS_LOOP_POLARITY_CTRL 17
 #define INDY_F_PCS_LOOP_CTRL_PORT_LOOP INDY_BIT(8)
 
 // Register - 18
@@ -100,6 +103,9 @@
 
 // Register - 27
 #define INDY_GPHY_INTR_STATUS 27
+
+// Register - 30 .... Reserved register for applying connector loopback
+#define INDY_RESV_CON_LOOP 30
 
 //====================================================================================
 //      Extended Page 2
@@ -143,6 +149,9 @@
 #define INDY_QSGMII_AUTO_ANEG INDY_EXT_PAGE_4, 69
 #define INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA INDY_BIT(0)
 
+// Register 137
+#define INDY_QSGMII_SERDES_MISC_CTRL INDY_EXT_PAGE_4, 137
+#define INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE INDY_BIT(4)
 //====================================================================================
 //      Extended Page 5
 //====================================================================================
@@ -156,7 +165,14 @@
 // Register - 5.19
 #define INDY_QSGMII_PCS1G_ANEG_CONFIG INDY_EXT_PAGE_5, 19
 #define INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA INDY_BIT(3)
+#define INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_RESTART INDY_BIT(4)
 
 // Register - 5.20
 #define INDY_QSGMII_PCS1G_ANEG_TX_ADVERTISE_CAP INDY_EXT_PAGE_5, 20
+
+// Register - 5.24
+#define INDY_QSGMII_PCS1G_DEBUG INDY_EXT_PAGE_5, 24
+#define INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK INDY_BIT(0)
+#define INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK INDY_BIT(1)
+
 #endif

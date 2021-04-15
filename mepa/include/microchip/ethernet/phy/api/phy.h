@@ -112,6 +112,7 @@ typedef struct {
     uint32_t adv_dis;              // Auto neg advertisement disable
     mepa_port_admin_state_t admin; // Admin state
     mepa_aneg_adv_t aneg;          // Auto-negitiation advertisement
+    mepa_bool_t mac_if_aneg_ena;   // Enable auto-negotiation on host mac interface
 } mepa_driver_conf_t;
 
 // Advertise disable flags.
@@ -158,6 +159,9 @@ typedef mepa_rc (*mepa_driver_poll_t)(
 // conf          [IN] PHY configuration.
 typedef mepa_rc (*mepa_driver_conf_set_t)(
     struct mepa_device *dev, const mepa_driver_conf_t *conf);
+
+// Get the current interface configuration of PHY
+typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_driver_conf_t *const conf);
 
 // Get the PHY interface based on speed.
 // speed         [IN] Speed.
@@ -238,7 +242,10 @@ typedef mepa_rc (*mepa_driver_event_enable_get_t)(struct mepa_device *dev,
 typedef mepa_rc (*mepa_driver_event_poll_t)(struct mepa_device *dev, mepa_event_t *const ev_mask);
 
 // Set loopback. Used for debugging purpose
-typedef mepa_rc (*mepa_driver_loopback_set_t)(struct mepa_device *dev, mepa_loopback_t loopback);
+typedef mepa_rc (*mepa_driver_loopback_set_t)(struct mepa_device *dev, const mepa_loopback_t *loopback);
+
+// Get current loopback configuration
+typedef mepa_rc (*mepa_driver_loopback_get_t)(struct mepa_device *dev, mepa_loopback_t *const loopback);
 
 // Set the GPIO pin mode to input, output or alternate function
 typedef mepa_rc (*mepa_driver_gpio_mode_set_t)(struct mepa_device *dev, const mepa_gpio_conf_t *data);
@@ -255,6 +262,7 @@ typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gp
     X(mepa_driver_reset)              \
     X(mepa_driver_poll)               \
     X(mepa_driver_conf_set)           \
+    X(mepa_driver_conf_get)           \
     X(mepa_driver_if_get)             \
     X(mepa_driver_power_set)          \
     X(mepa_driver_cable_diag_start)   \
@@ -270,6 +278,7 @@ typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gp
     X(mepa_driver_event_enable_get)   \
     X(mepa_driver_event_poll)         \
     X(mepa_driver_loopback_set)       \
+    X(mepa_driver_loopback_get)       \
     X(mepa_driver_gpio_mode_set)      \
     X(mepa_driver_gpio_out_set)       \
     X(mepa_driver_gpio_in_get)
@@ -279,6 +288,7 @@ typedef struct mepa_driver {
     mepa_driver_reset_t             mepa_driver_reset;
     mepa_driver_poll_t              mepa_driver_poll;
     mepa_driver_conf_set_t          mepa_driver_conf_set;
+    mepa_driver_conf_get_t          mepa_driver_conf_get;
     mepa_driver_if_get_t            mepa_driver_if_get;
     mepa_driver_power_set_t         mepa_driver_power_set;
     mepa_driver_cable_diag_start_t  mepa_driver_cable_diag_start;
@@ -294,6 +304,7 @@ typedef struct mepa_driver {
     mepa_driver_event_enable_get_t  mepa_driver_event_enable_get;
     mepa_driver_event_poll_t        mepa_driver_event_poll;
     mepa_driver_loopback_set_t      mepa_driver_loopback_set;
+    mepa_driver_loopback_get_t      mepa_driver_loopback_get;
     mepa_driver_gpio_mode_set_t     mepa_driver_gpio_mode_set;
     mepa_driver_gpio_out_set_t      mepa_driver_gpio_out_set;
     mepa_driver_gpio_in_get_t       mepa_driver_gpio_in_get;

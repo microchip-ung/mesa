@@ -87,7 +87,7 @@ static mepa_rc mscc_1g_poll(mepa_device_t *dev,
 static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    mesa_phy_conf_t phy_config = {};
+    mesa_phy_conf_t phy_config = {}, cur_conf;
 
     phy_config.mdi = MESA_PHY_MDIX_AUTO;
     if (config->admin.enable) {
@@ -117,9 +117,43 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
     } else {
         phy_config.mode = MESA_PHY_MODE_POWER_DOWN;
     }
+    phy_config.mac_if_pcs.serdes_aneg_ena = config->mac_if_aneg_ena;
+    if (mesa_phy_conf_get(data->inst, data->port_no, &cur_conf) == MESA_RC_OK) {
+        if (phy_config.mac_if_pcs.serdes_aneg_ena && (cur_conf.mac_if_pcs.serdes_aneg_ena != phy_config.mac_if_pcs.serdes_aneg_ena)) {
+            phy_config.mac_if_pcs.aneg_restart = true;
+        }
+    }
     return mesa_phy_conf_set(data->inst, data->port_no, &phy_config);
 }
 
+static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const conf)
+{
+    mesa_phy_conf_t phy_conf;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    *conf = (const mepa_driver_conf_t){};
+
+    if (mesa_phy_conf_get(data->inst, data->port_no, &phy_conf) == MESA_RC_OK) {
+        if (phy_conf.mode == MESA_PHY_MODE_ANEG) {
+            conf->speed = MEPA_SPEED_AUTO;
+            conf->flow_control = phy_conf.aneg.symmetric_pause;
+            conf->aneg.speed_2g5_fdx = phy_conf.aneg.speed_2g5_fdx;
+            conf->aneg.speed_5g_fdx = phy_conf.aneg.speed_5g_fdx;
+            conf->aneg.speed_10g_fdx = phy_conf.aneg.speed_10g_fdx;
+            conf->aneg.speed_10m_hdx = phy_conf.aneg.speed_10m_hdx;
+            conf->aneg.speed_10m_fdx = phy_conf.aneg.speed_10m_fdx;
+            conf->aneg.speed_100m_hdx = phy_conf.aneg.speed_100m_hdx;
+            conf->aneg.speed_100m_fdx = phy_conf.aneg.speed_100m_fdx;
+            conf->aneg.speed_1g_fdx = phy_conf.aneg.speed_1g_fdx;
+            conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
+        } else if (phy_conf.mode == MESA_PHY_MODE_FORCED) {
+            conf->speed = phy_conf.forced.speed;
+            conf->fdx = phy_conf.forced.fdx;
+        }
+        conf->mac_if_aneg_ena = phy_conf.mac_if_pcs.serdes_aneg_ena;
+        conf->admin.enable = phy_conf.mode != MESA_PHY_MODE_POWER_DOWN ? true : false;
+    }
+    return MEPA_RC_OK;
+}
 static mepa_rc mscc_1g_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
                               mepa_port_interface_t *mac_if)
 {
@@ -231,10 +265,43 @@ static mepa_rc phy_1g_event_poll(mepa_device_t *dev, mepa_event_t *status)
     return mesa_phy_event_poll(data->inst, data->port_no, status);
 }
 
-static mepa_rc phy_1g_loopback_set(mepa_device_t *dev, mepa_loopback_t loopback)
+static mepa_rc phy_1g_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loopback)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return mesa_phy_loopback_set(data->inst, data->port_no, loopback);
+    mesa_phy_loopback_t phy_loop = {};
+
+    if (loopback->qsgmii_pcs_tbi_ena == true || loopback->qsgmii_pcs_gmii_ena == true ||
+        loopback->qsgmii_serdes_ena == true) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    phy_loop.near_end_enable = loopback->near_end_ena;
+    phy_loop.far_end_enable = loopback->far_end_ena;
+    phy_loop.connector_enable = loopback->connector_ena;
+    phy_loop.mac_serdes_input_enable = loopback->mac_serdes_input_ena;
+    phy_loop.mac_serdes_facility_enable = loopback->mac_serdes_facility_ena;
+    phy_loop.mac_serdes_equipment_enable = loopback->mac_serdes_equip_ena;
+    phy_loop.media_serdes_input_enable = loopback->media_serdes_input_ena;
+    phy_loop.media_serdes_facility_enable = loopback->media_serdes_facility_ena;
+    phy_loop.media_serdes_equipment_enable = loopback->media_serdes_equip_ena;
+    return mesa_phy_loopback_set(data->inst, data->port_no, phy_loop);
+}
+
+static mepa_rc phy_1g_loopback_get(mepa_device_t *dev, mepa_loopback_t *const loopback)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mesa_phy_loopback_t loop = {};
+    if (mesa_phy_loopback_get(data->inst, data->port_no, &loop) == MESA_RC_OK) {
+        loopback->far_end_ena = loop.far_end_enable;
+        loopback->near_end_ena = loop.near_end_enable;
+        loopback->connector_ena = loop.connector_enable;
+        loopback->mac_serdes_input_ena = loop.mac_serdes_input_enable;
+        loopback->mac_serdes_facility_ena = loop.mac_serdes_facility_enable;
+        loopback->mac_serdes_equip_ena = loop.mac_serdes_equipment_enable;
+        loopback->media_serdes_input_ena = loop.media_serdes_input_enable;
+        loopback->media_serdes_facility_ena = loop.media_serdes_facility_enable;
+        loopback->media_serdes_equip_ena = loop.media_serdes_equipment_enable;
+    }
+    return MEPA_RC_OK;
 }
 
 static mepa_rc phy_1g_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
@@ -519,6 +586,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_conf_get = phy_1g_conf_get,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -532,6 +600,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_loopback_get = phy_1g_loopback_get,
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
@@ -544,6 +613,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_reset = mscc_1g_atom_reset,
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_conf_get = phy_1g_conf_get,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -557,6 +627,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_loopback_get = phy_1g_loopback_get,
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
@@ -569,6 +640,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_conf_get = phy_1g_conf_get,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -582,6 +654,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_loopback_get = phy_1g_loopback_get,
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
@@ -593,6 +666,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_conf_get = phy_1g_conf_get,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -606,6 +680,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_event_enable_get = phy_1g_event_enable_get,
             .mepa_driver_event_poll = phy_1g_event_poll,
             .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_loopback_get = phy_1g_loopback_get,
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
@@ -676,6 +751,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_reset = mscc_1g_reset,
         .mepa_driver_poll = mscc_1g_poll,
         .mepa_driver_conf_set = mscc_1g_conf_set,
+        .mepa_driver_conf_get = phy_1g_conf_get,
         .mepa_driver_if_get = mscc_1g_if_get,
         .mepa_driver_power_set = mscc_1g_power_set,
         .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -689,6 +765,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_event_enable_get = phy_1g_event_enable_get,
         .mepa_driver_event_poll = phy_1g_event_poll,
         .mepa_driver_loopback_set = phy_1g_loopback_set,
+        .mepa_driver_loopback_get = phy_1g_loopback_get,
         .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
         .mepa_driver_gpio_out_set = phy_1g_gpio_set,
         .mepa_driver_gpio_in_get = phy_1g_gpio_get,

@@ -24,9 +24,8 @@ typedef struct {
     mepa_driver_conf_t conf;
     mepa_event_t events;
     mepa_loopback_t loopback;
+    mepa_bool_t qsgmii_phy_aneg_dis;
 } phy_data_t;
-
-static mepa_bool_t qsgmii_hard_rst;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
 
@@ -168,16 +167,29 @@ static uint16_t get_base_addr(mepa_device_t *dev)
 
 static mepa_rc indy_init_conf(mepa_device_t *dev)
 {
-    // QSGMII hard reset
-    if (!qsgmii_hard_rst) {
-        EP_WR(dev, INDY_QSGMII_HARD_RESET, 1);
-        qsgmii_hard_rst = 1;
-        PHY_MSLEEP(1);
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    // Set config only for base port of phy.
+    if (data->access.miim_addr == get_base_addr(dev)) {
+        if (!data->qsgmii_phy_aneg_dis) {
+            // Disable QSGMII auto-negotiation common for 4 ports.
+            EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
+            data->qsgmii_phy_aneg_dis = TRUE;
+        }
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
+{
+    if (!ena) {
         // Disable QSGMII auto-negotiation
         EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
+    } else {
+        // Enable QSGMII auto-negotiation
+        EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
     }
-    // Disable QSGMII auto-negotiation
-    EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
+    return MEPA_RC_OK;
 }
 
 static mepa_rc indy_rev_a_workaround(mepa_device_t *dev)
@@ -192,6 +204,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     MEPA_ENTER();
     if (!data->init_done) {
         indy_init_conf(dev);
+        indy_qsgmii_aneg(dev, FALSE);
         data->init_done = TRUE;
     }
     indy_rev_a_workaround(dev);
@@ -272,12 +285,13 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t new_value, mask, old_value;
-    data->conf = *config;
     mepa_bool_t restart_aneg = FALSE;
 
     MEPA_ENTER();
-    data->conf = *config;
     if (config->admin.enable) {
+        if (config->mac_if_aneg_ena != data->conf.mac_if_aneg_ena) {
+            indy_qsgmii_aneg(dev, config->mac_if_aneg_ena);
+        }
         if (config->speed == MEPA_SPEED_AUTO) {
             RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &old_value);
             new_value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
@@ -317,11 +331,21 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
         // set soft power down bit
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
+    data->conf = *config;
     MEPA_EXIT();
 
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const config)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    MEPA_ENTER();
+    *config = data->conf;
+    MEPA_EXIT();
+    return MEPA_RC_OK;
+}
 static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
                            mepa_port_interface_t *mac_if)
 {
@@ -517,19 +541,82 @@ static mepa_rc indy_event_status_poll(mepa_device_t *dev, mepa_event_t *const st
 }
 
 // Set loopback modes in phy
-static mepa_rc indy_loopback_set(mepa_device_t *dev, mepa_loopback_t loopback)
+static mepa_rc indy_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loopback)
 {
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
+    if ((loopback->mac_serdes_input_ena == TRUE) || (loopback->mac_serdes_facility_ena == TRUE) ||
+        (loopback->mac_serdes_equip_ena == TRUE) || (loopback->media_serdes_input_ena == TRUE) ||
+        (loopback->media_serdes_facility_ena == TRUE) || (loopback->media_serdes_equip_ena == TRUE)) {
+        // Not supported on Indy
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
     MEPA_ENTER();
     // Far end loopback
-    if (loopback.far_end_enable == TRUE) {
-        // TODO: Check if we need to set-up speed configuration.
+    if (loopback->far_end_ena == TRUE) {
         WRM(dev, INDY_PCS_LOOP_POLARITY_CTRL, INDY_F_PCS_LOOP_CTRL_PORT_LOOP,
                  INDY_F_PCS_LOOP_CTRL_PORT_LOOP);
+    } else if (data->loopback.far_end_ena == TRUE) {
+        WRM(dev, INDY_PCS_LOOP_POLARITY_CTRL, 0, INDY_F_PCS_LOOP_CTRL_PORT_LOOP);
     }
-    data->loopback = loopback;
+    if (loopback->near_end_ena == TRUE) {
+        WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_LOOPBACK, INDY_F_BASIC_CTRL_LOOPBACK);
+        if (data->conf.speed == MEPA_SPEED_AUTO) {
+            // Set 1000mbps speed for loopback when there is auto-negotiation mode. While removing loopback, restore the original mode.
+            // Disable auto-negotiation
+            WRM(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_ANEG_ENA);
+            // Set 1000mbps speed
+            WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1, INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1 | INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0);
+            // Enable phy as master cfg.
+            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA,
+                INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
+        }
+    } else if (data->loopback.near_end_ena == TRUE) {
+        WRM(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_LOOPBACK);
+        if (data->conf.speed == MEPA_SPEED_AUTO) {
+            // Remove 1000mbps config applied while setting loopback.
+            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, 0, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA |
+                INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+            // Enable aneg
+            WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_ANEG_ENA | INDY_F_BASIC_CTRL_RESTART_ANEG,
+                INDY_F_BASIC_CTRL_ANEG_ENA | INDY_F_BASIC_CTRL_RESTART_ANEG);
+        }
+    }
+    if (loopback->connector_ena == TRUE) {
+        WR(dev, INDY_RESV_CON_LOOP, 0xfc08);
+    } else if (data->loopback.connector_ena == TRUE) {
+        WR(dev, INDY_RESV_CON_LOOP, 0xfc00);
+    }
+    if (loopback->qsgmii_pcs_tbi_ena == TRUE) { // Enable tbi loopback
+        EP_WRM(dev, INDY_QSGMII_PCS1G_DEBUG, INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK,
+               INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
+    } else if (data->loopback.qsgmii_pcs_tbi_ena == TRUE) { // Disable tbi loopback
+        EP_WRM(dev, INDY_QSGMII_PCS1G_DEBUG, 0, INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
+    }
+    if (loopback->qsgmii_pcs_gmii_ena == TRUE) { // Enable gmii loopback
+        EP_WRM(dev, INDY_QSGMII_PCS1G_DEBUG, INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK,
+               INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
+    } else if (data->loopback.qsgmii_pcs_gmii_ena == TRUE) { // Disable gmii loopback
+        EP_WRM(dev, INDY_QSGMII_PCS1G_DEBUG, 0, INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
+    }
+    if (loopback->qsgmii_serdes_ena == TRUE) { // Enable qsgmii serdes loopback.
+        // Serdes configuration would affect all the 4 ports.
+        EP_WRM(dev, INDY_QSGMII_SERDES_MISC_CTRL, INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE,
+               INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
+    } else if (data->loopback.qsgmii_serdes_ena == TRUE) {
+        EP_WRM(dev, INDY_QSGMII_SERDES_MISC_CTRL, 0, INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
+    }
+    data->loopback = *loopback;
+    MEPA_EXIT();
+    return MEPA_RC_OK;
+}
+mepa_rc indy_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loopback)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    MEPA_ENTER();
+    *loopback = data->loopback;
     MEPA_EXIT();
     return MEPA_RC_OK;
 }
@@ -710,6 +797,7 @@ mepa_drivers_t mepa_indy_driver_init() {
         .mepa_driver_reset = indy_reset,
         .mepa_driver_poll = indy_poll,
         .mepa_driver_conf_set = indy_conf_set,
+        .mepa_driver_conf_get = indy_conf_get,
         .mepa_driver_if_get = indy_if_get,
         .mepa_driver_power_set = indy_power_set,
         .mepa_driver_cable_diag_start = indy_cable_diag_start,
@@ -724,6 +812,7 @@ mepa_drivers_t mepa_indy_driver_init() {
         .mepa_driver_event_enable_get = indy_event_enable_get,
         .mepa_driver_event_poll = indy_event_status_poll,
         .mepa_driver_loopback_set = indy_loopback_set,
+        .mepa_driver_loopback_get = indy_loopback_get,
         .mepa_driver_gpio_mode_set = indy_gpio_mode_set,
         .mepa_driver_gpio_out_set = indy_gpio_out_set,
         .mepa_driver_gpio_in_get = indy_gpio_in_get,
