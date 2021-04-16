@@ -727,7 +727,7 @@ static vtss_rc lan966x_ip_mc_update(vtss_state_t *vtss_state,
         ipv4->dip.mask = 0xffffffff;
     }
     ace->action.learn = TRUE;
-    ace->action.port_action = VTSS_ACL_PORT_ACTION_FILTER;
+    ace->action.port_action = VTSS_ACL_PORT_ACTION_PGID;
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         ace->port_list[port_no] = 1;
         ace->action.port_list[port_no] = VTSS_PORT_BF_GET(ipmc->dst.member, port_no);

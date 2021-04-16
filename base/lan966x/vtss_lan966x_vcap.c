@@ -1011,6 +1011,7 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
         a->cpu_copy_ena = action->cpu;
         a->cpu_qu_num = action->cpu_queue;
         a->mask_mode = (act == VTSS_ACL_PORT_ACTION_FILTER ? 1 :
+                        act == VTSS_ACL_PORT_ACTION_PGID ? 2 :
                         act == VTSS_ACL_PORT_ACTION_REDIR ? 3 : 0);
         a->mirror_ena = action->mirror;
         a->lrn_dis = (action->learn ? 0 : 1);

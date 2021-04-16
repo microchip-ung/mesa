@@ -423,11 +423,7 @@ typedef enum {
 #if defined(VTSS_CHIP_966X)
 #if (VTSS_PORT_COUNT < 8)
 #undef VTSS_PORT_COUNT
-#if defined(VTSS_OPT_FPGA) && (VTSS_OPT_FPGA == 1)
-#define VTSS_PORT_COUNT 5 /**< Number of ports */
-#else
 #define VTSS_PORT_COUNT 8 /**< Number of ports */
-#endif
 #endif
 #endif
 

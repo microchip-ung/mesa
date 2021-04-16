@@ -385,7 +385,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 {
     meba_inst_t        inst;
     meba_board_state_t *board;
-    uint32_t           type;
+    int                pcb;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -413,8 +413,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     // Get board type
-    if (meba_conf_get_u32(inst, "type", &type) == MESA_RC_OK) {
-        board->type = (board_type_t)type;
+    if (meba_conf_get_hex(inst, "pcb", &pcb) == MESA_RC_OK) {
+        board->type = (board_type_t)pcb;
     } else {
         board->type = BOARD_TYPE_ADARO;   // Default
     }

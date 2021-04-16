@@ -435,6 +435,27 @@ static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t s
     return 0;
 }
 
+static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
+{
+    int    fd;
+    char   fname[128];
+    size_t n;
+
+    sprintf(fname, "/proc/device-tree/meba/%s", tag);
+    if ((fd = open(fname, O_RDONLY)) < 0) {
+        T_D("dt tag %s not found", fname);
+        return MESA_RC_ERROR;
+    }
+
+    if ((n = read(fd, buf, bufsize)) < 0) {
+        n = 0;
+    }
+    buf[n] = 0;
+    close(fd);
+    T_D("dt tag %s: %s", tag, buf);
+    return MESA_RC_OK;
+}
+
 #define PCB_TYPE_NONE 10000
 
 static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
@@ -447,6 +468,11 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     size_t     len = 0;
     uint32_t   mux_mode = 0xffffffff;
     char       name[20];
+
+    // Try device-tree first
+    if (board_dtree_get(tag, buf, bufsize, buflen) == MESA_RC_OK) {
+        return MESA_RC_OK;
+    }
 
     /* Board detection is currently done based on MESA capabilities */
     switch (mesa_capability(NULL, MESA_CAP_MISC_CHIP_FAMILY)) {
@@ -516,31 +542,7 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         break;
 
     case MESA_CHIP_FAMILY_LAN966X:
-        if (REF_BOARD_PCB == -1) {
-            if (!get_env("pcb", &REF_BOARD_PCB)) {
-                REF_BOARD_PCB = (port_cnt > 5 ? 0x6813 : 0x6849);
-                printf("uboot 'pcb' env variable not found, using 0x%x\n", REF_BOARD_PCB);
-            }
-        }
-        type = REF_BOARD_PCB;
-        if (type == 0x6813) {
-            board = "Adaro";
-            target = MESA_TARGET_LAN9668;
-        } else if (type == 0x6849) {
-            board = "Sunrise";
-            target = MESA_TARGET_LAN9662;
-        } else if (type == 0x8290) {
-            board = "LAN9668-8port";
-            target = MESA_TARGET_LAN9668;
-        } else if (type == 0x8291) {
-            board = "LAN9662-EndNode";
-            target = MESA_TARGET_LAN9662;
-        } else if (type == 0x8309) {
-            board = "LAN9662-EndNode-Carrier";
-            target = MESA_TARGET_LAN9662;
-        } else {
-            printf("unknown LAN966X PCB: 0x%x\n", REF_BOARD_PCB);
-        }
+        // Device-tree is expected
         break;
 
     default:
