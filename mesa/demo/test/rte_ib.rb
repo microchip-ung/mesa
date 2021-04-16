@@ -5,20 +5,20 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
-$port = [] # Chip ports
+$idx_tx  = 0 # PC Tx port
+$idx_rx  = 1 # PC Rx port
+$port_tx = nil # Chip Tx port
 $rtp_id = 3
 
 test "conf" do
     # Find chip Tx port
     port_cnt = cap_get("PORT_CNT")
     map = $ts.dut.call("mesa_port_map_get", port_cnt)
-    [0, 1, 2, 3].each do |idx|
-        $port[idx] = map[$ts.dut.p[idx]]["chip_port"]
-    end
+    $port_tx = map[$ts.dut.p[$idx_rx]]["chip_port"]
 
     # Initialize QSPI
     qspi_init
@@ -64,13 +64,12 @@ def cmd_payload_push(payload)
 end
 
 def tx_len_test(len)
-    idx_rx = 1
     rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
     time = conf["time"]
     time["interval"] = 1000000000 # One second
-    conf["port"] = $port[idx_rx]
+    conf["port"] = $port_tx
     conf["length"] = len
     payload = ""
     for i in 0..(len - 1) do
@@ -89,9 +88,9 @@ def tx_len_test(len)
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
     cmd = "sudo ef -t 900 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
     cmd += cmd_payload_push(payload)
-    [0, 1, 2, 3].each do |idx|
+    $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
-        if (idx == idx_rx)
+        if (idx == $idx_rx)
             cmd += " name f1"
         end
     end
@@ -110,12 +109,12 @@ test "tx-data-max" do
     tx_len_test(1514)
 end
 
-def tx_time_test(idx, time, margin)
+def tx_time_test(time, margin)
     rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
     conf["time"]["interval"] = time
-    conf["port"] = $port[idx]
+    conf["port"] = $port_tx
     len = 60
     conf["length"] = len
     for i in 0..(len - 1) do
@@ -124,9 +123,9 @@ def tx_time_test(idx, time, margin)
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 
     tx_cnt = 10
-    cmd = "sudo ef -c #{$ts.pc.p[idx]},1,adapter_unsynced,,#{tx_cnt} "
+    cmd = "sudo ef -c #{$ts.pc.p[$idx_rx]},1,adapter_unsynced,,#{tx_cnt} "
     $ts.pc.run(cmd)
-    pkts = $ts.pc.get_pcap("#{$ts.links[idx][:pc]}.pcap")
+    pkts = $ts.pc.get_pcap("#{$ts.links[$idx_rx][:pc]}.pcap")
     cnt = pkts.size
     if (cnt != tx_cnt)
         t_e("Only #{cnt} packets logged");
@@ -160,18 +159,15 @@ end
 
 test "tx-interval-min" do
     # 10 usec
-    tx_time_test(2, 10000, 2)
+    tx_time_test(10000, 2)
 end
 
 test "tx-interval-max" do
     # 10 msec
-    tx_time_test(1, 10000000, 20)
+    tx_time_test(10000000, 20)
 end
 
 test "otf" do
-    idx_tx = 0
-    idx_rx = 1
-
     # Enable untagged RTP processing
     conf = { "pcp": [true, true, true, true, true, true, true, true]}
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
@@ -181,13 +177,13 @@ test "otf" do
     rce = $ts.dut.call("mesa_rce_init")
     rce["id"] = 1
     k = rce["key"]
-    k["port_no"] = $ts.dut.p[idx_tx]
+    k["port_no"] = $ts.dut.p[$idx_tx]
     k["etype"] = "MESA_RCL_ETYPE_OPC_UA"
     a = rce["action"]
     a["rtp_id"] = $rtp_id
     a["rtp_inbound"] = true
     a["port_enable"] = true
-    a["port_list"] = "#{$ts.dut.p[idx_rx]}"
+    a["port_list"] = "#{$ts.dut.p[$idx_rx]}"
     $ts.dut.call("mesa_rce_add", 0, rce)
 
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
@@ -202,10 +198,10 @@ test "otf" do
 
     f1 = "eth dmac 2 et 0xb62c"
     cmd = "sudo ef name f1 #{f1} name f2 #{f1} data hex aa"
-    cmd += " tx #{$ts.pc.p[idx_tx]} name f1"
-    [0, 1, 2, 3].each do |idx|
+    cmd += " tx #{$ts.pc.p[$idx_tx]} name f1"
+    $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
-        if (idx == idx_rx)
+        if (idx == $idx_rx)
             cmd += " name f2"
         end
     end
@@ -217,14 +213,13 @@ end
 
 def tx_dg_test(intf, ral_id, opc = false)
     len = 60
-    idx_rx = 1
     rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     time = conf["time"]
     time["offset"] = 1000000 # One msec
     time["interval"] = 1000000000 # One second
-    conf["port"] = $port[idx_rx]
+    conf["port"] = $port_tx
     conf["length"] = len
     payload = ""
     for i in 0..(len - 1) do
@@ -325,9 +320,9 @@ def tx_dg_test(intf, ral_id, opc = false)
     # Easyframe runs a little longer, so 900 msec means about a second.
     cmd = "sudo ef -t 900 name f1 eth et 0xaaaa"
     cmd += cmd_payload_push(payload)
-    [0, 1, 2, 3].each do |idx|
+    $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
-        if (idx == idx_rx)
+        if (idx == $idx_rx)
             cmd += " name f1"
         end
     end
