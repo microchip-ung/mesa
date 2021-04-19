@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'libeasy/et'
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Capabilities -----------------------------------------------------
 check_capabilities do
@@ -25,8 +25,8 @@ end
 
 
 #---------- Test parameters ----------------------------------------------------
-$port_tx1      = 2
-$port_tx2      = 3
+$port_tx1      = 0
+$port_tx2      = 1
 $frame_smac    = "00:00:00:00:00:01"
 $frame_dmac    = "00:00:00:00:00:02"
 $frame_size    = 64

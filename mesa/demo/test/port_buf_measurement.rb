@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'libeasy/et'
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Description -------------------------------------------------------
 # Purpose:
@@ -17,8 +17,8 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 # and the result is logged.  Very low buffer capacity will produce an error.
 
 #---------- Test parameters ----------------------------------------------------
-$port_tx1      = 2
-$port_rx1      = 3
+$port_tx1      = 0
+$port_rx1      = 1
 $frame_smac    = "00:00:00:00:00:01"
 $frame_dmac    = "00:00:00:00:00:02"
 $frame_size    = 1518

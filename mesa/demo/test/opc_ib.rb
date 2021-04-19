@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
@@ -104,7 +104,7 @@ test "frame-io" do
 
     # Easyframe runs a little longer, so 900 msec means about a second.
     cmd = "sudo ef -t 900 name f1 data hex #{str}"
-    [0, 1, 2, 3].each do |idx|
+    $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
         if (idx == $idx_rx)
             cmd += " name f1"

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'libeasy/et'
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     c = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
