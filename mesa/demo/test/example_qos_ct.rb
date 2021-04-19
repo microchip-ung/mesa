@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 # Check that cut-through is supported
 cap_check_exit("QOS_EGRESS_QUEUE_CUT_THROUGH")

@@ -6,7 +6,7 @@
 require_relative 'libeasy/et'
 
 # Enable PSFP counters using "-vp" option
-$ts = get_test_setup("mesa_pc_b2b_4x", {}, "-vp")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "-vp")
 
 # Check that PSFP is supported
 cap_check_exit("L2_PSFP")
@@ -21,7 +21,13 @@ test "init" do
 end
 
 def filter_test(fwd, len)
-    run_ef_tx_rx_cmd($ts, $idx_tx, fwd ? ([1,2,3] - [$idx_tx]) : [], "eth data pattern cnt #{len - 18}")
+    idx_list = []
+    $ts.dut.p.each_index do |idx|
+        if (fwd and idx != $idx_tx)
+            idx_list << idx
+        end
+    end
+    run_ef_tx_rx_cmd($ts, $idx_tx, idx_list, "eth data pattern cnt #{len - 18}")
 end
 
 test "filter.max_sdu" do

@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
@@ -32,6 +32,12 @@ test "frame-io" do
 end
 
 test "uninit" do
+    idx_list = []
+    $ts.dut.p.each_index do |idx|
+        if (idx != $idx_iport)
+            idx_list << idx
+        end
+    end
     $ts.dut.run("mesa-cmd example uninit")
-    run_ef_tx_rx_cmd($ts, $idx_iport, [$idx_eport, 2, 3], "eth" + cmd_tag_push({tpid: 0x8100, vid: 10}) + " data pattern cnt 46")
+    run_ef_tx_rx_cmd($ts, $idx_iport, idx_list, "eth" + cmd_tag_push({tpid: 0x8100, vid: 10}) + " data pattern cnt 46")
 end

@@ -5,12 +5,16 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
 $idx_iport = 0
 $idx_eport = 1
+$idx_list = []
+$ts.dut.p.each_index do |idx|
+    $idx_list << idx
+end
 
 test "init" do
     $ts.dut.run("mesa-cmd example init packet iport #{$ts.dut.p[$idx_iport]} eport #{$ts.dut.p[$idx_eport]}")
@@ -32,11 +36,11 @@ test "port-forward" do
 end
 
 test "vlan-forward" do
-    packet_test($idx_eport, [0,1,2,3])
+    packet_test($idx_eport, $idx_list)
 end
 
 test "uninit" do
     $ts.dut.run("mesa-cmd example run");
     $ts.dut.run("mesa-cmd example uninit")
-    packet_test($idx_iport, [0,1,2,3] - [$idx_iport])
+    packet_test($idx_iport, $idx_list - [$idx_iport])
 end
