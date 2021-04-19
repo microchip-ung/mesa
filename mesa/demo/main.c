@@ -452,6 +452,9 @@ static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_
     }
     buf[n] = 0;
     close(fd);
+    if (buflen) {
+        *buflen = n;
+    }
     T_D("dt tag %s: %s", tag, buf);
     return MESA_RC_OK;
 }

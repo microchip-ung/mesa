@@ -6,32 +6,29 @@
 require_relative 'libeasy/et'
 require_relative 'libeasy/utils'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-
-
-$vconf0 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[0])
-$vconf1 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[1])
-$vconf2 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[2])
-$vconf3 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[3])
-$qconf0 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[0])
-$qconf1 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[1])
-$qconf2 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[2])
-$qconf3 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[3])
-
-
 
 MESA_VID_NULL = 0
 MESA_BITRATE_DISABLED = 0xffffffff
 
-eg = rand(3)    # Get a random egress port between 0 and 3
-begin   # Get a random ingress port between 0 and 3 different from egress port
-    ig = rand(3)
-end while eg == ig
+# Use random ingress/egress port
+idx_list = port_idx_shuffle($ts)
+ig = idx_list[0]
+eg = idx_list[1]
 t_i("ig: #{ig}  eg: #{eg}")
 
-t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+# Save configuration
+$vconf = []
+$qconf = []
+[ig, eg].each do |idx|
+    port = $ts.dut.p[idx]
+    $vconf[port] = $ts.dut.call("mesa_vlan_port_conf_get", port)
+    $qconf[port] = $ts.dut.call("mesa_qos_port_conf_get", port)
+end
+
+t_i ("Only forward on relevant ports #{$ts.dut.p}")
+port_list = port_idx_list_str(idx_list)
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
 t_i ("Configure ingress port to C tag aware")
@@ -150,11 +147,9 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
     end
 end
 
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[0], $vconf0)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[1], $vconf1)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[2], $vconf2)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[3], $vconf3)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[0], $qconf0)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[1], $qconf1)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[2], $qconf2)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[3], $qconf3)
+# Restore configuration
+[ig, eg].each do |idx|
+    port = $ts.dut.p[idx]
+    $ts.dut.call("mesa_vlan_port_conf_set", port, $vconf[port])
+    $ts.dut.call("mesa_qos_port_conf_set", port, $qconf[port])
+end

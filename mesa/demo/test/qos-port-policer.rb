@@ -5,25 +5,27 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 $pol_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_PORT_POLICER_CNT")
 
-$pconf0 = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[0], $pol_cnt)
-$pconf1 = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[1], $pol_cnt)
-$pconf2 = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[2], $pol_cnt)
-$pconf3 = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[3], $pol_cnt)
-
 MESA_BITRATE_DISABLED = 0xffffffff
 
-eg = rand(3)    # Get a random egress port between 0 and 3
-begin   # Get a random ingress port between 0 and 3 different from egress port
-    ig = rand(3)
-end while eg == ig
+# Use random ingress/egress port
+idx_list = port_idx_shuffle($ts)
+ig = idx_list[0]
+eg = idx_list[1]
 t_i("ig: #{ig}  eg: #{eg}")
 
-t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+# Save configuration
+$pconf = []
+[ig, eg].each do |idx|
+    port = $ts.dut.p[idx]
+    $pconf[port] = $ts.dut.call("mesa_qos_port_policer_conf_get", port, $pol_cnt)
+end
+
+t_i ("Only forward on relevant ports #{$ts.dut.p}")
+port_list = port_idx_list_str(idx_list)
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
 # Check bit rate without using a policer
@@ -141,7 +143,8 @@ test "Port policer frame rate 100000 fps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg
     measure([ig], eg, 1000, 1,     true,            false,           [100000],          [2],         false)
 end
 
-$ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[0], $pol_cnt, $pconf0)
-$ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[1], $pol_cnt, $pconf1)
-$ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[2], $pol_cnt, $pconf2)
-$ts.dut.call("mesa_qos_port_policer_conf_set", $ts.dut.p[3], $pol_cnt, $pconf3)
+# Restore configuration
+[ig, eg].each do |idx|
+    port = $ts.dut.p[idx]
+    $ts.dut.call("mesa_qos_port_policer_conf_set", port, $pol_cnt, $pconf[port])
+end

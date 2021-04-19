@@ -6,7 +6,7 @@
 require_relative 'libeasy/et'
 require_relative 'libeasy/utils'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
@@ -16,10 +16,10 @@ check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
 end
 
-eg = rand(3)    # Get a random egress port between 0 and 3
-begin   # Get a random ingress port between 0 and 3 different from egress port
-    ig = rand(3)
-end while eg == ig
+# Use random ingress/egress port
+idx_list = port_idx_shuffle($ts)
+ig = idx_list[0]
+eg = idx_list[1]
 t_i("ig: #{ig}  eg: #{eg}")
 
 class_cnt = 3
@@ -29,8 +29,8 @@ if (cap_get("QOS_COSID_CLASSIFICATION") == 0)
     cosid = 0
 end
 
-t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+t_i ("Only forward on relevant ports #{$ts.dut.p}")
+port_list = port_idx_list_str(idx_list)
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
 t_i("Enable ingress tag pcp mapping")

@@ -119,6 +119,14 @@ def port_idx_list_str(idx_list)
     str
 end
 
+def port_idx_shuffle(ts)
+    port_list = []
+    ts.pc.p.each_index do |idx|
+        port_list << idx
+    end
+    port_list.shuffle
+end
+
 def cap_get(cap)
     return $ts.dut.call "mesa_capability", "MESA_CAP_" + cap
 end

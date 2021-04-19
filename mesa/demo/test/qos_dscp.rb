@@ -5,22 +5,17 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
 t_i("$dpl_cnt: #{$dpl_cnt}  ")
 
-$egr_port = rand(3)    # Get a random egress port between 0 and 3
-begin   # Get a random ingress port between 0 and 3 different from egress port
-    $igr_port = rand(3)
-end while $egr_port == $igr_port
+idx_list = port_idx_shuffle($ts)
+$igr_port = idx_list[0]
+$egr_port = idx_list[1]
 t_i("$igr_port: #{$igr_port}  $egr_port: #{$egr_port}")
 
 MESA_VID_NULL = 0
-
-t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
-$ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
 $cos_conf_restore = $ts.dut.call("mesa_qos_conf_get")
 $igr_qconf_restore = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[$igr_port])

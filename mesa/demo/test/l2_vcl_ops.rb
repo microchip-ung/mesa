@@ -5,12 +5,12 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
 $port_idx_ingress = 0 # Port index for ingress port
-$port_idx_egress  = 3 # Port index for egress port, tagging all frames
+$port_idx_egress  = 1 # Port index for egress port, tagging all frames
 
 $vid_list = [10, 20, 30]
 $vid_max = 32
