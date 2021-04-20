@@ -615,6 +615,10 @@ typedef mesa_rc (*meba_poe_ctrl_capabilities_get_t)(
 typedef mesa_rc (*meba_poe_ctrl_reset_command_t)(
         const meba_poe_ctrl_inst_t     *const inst);
 
+// Save PoE controller parameters
+typedef mesa_rc (*meba_poe_ctrl_save_command_t)(
+        const meba_poe_ctrl_inst_t     *const inst);
+
 // Perform chip detection.
 typedef mesa_rc (*meba_poe_ctrl_do_detection_t)(
         const meba_poe_ctrl_inst_t     *const inst);
@@ -698,6 +702,7 @@ typedef mesa_rc (*meba_poe_ctrl_port_pd_data_clear_t)(
     X(meba_poe_ctrl_cfg_set)                                                   \
     X(meba_poe_ctrl_status_get)                                                \
     X(meba_poe_ctrl_reset_command)                                             \
+    X(meba_poe_ctrl_save_command)                                              \
     X(meba_poe_ctrl_chipset_get)                                               \
     X(meba_poe_ctrl_debug)                                                     \
     X(meba_poe_ctrl_firmware_upgrade)                                          \
@@ -718,6 +723,7 @@ typedef struct meba_poe_ctrl_api {
     meba_poe_ctrl_cfg_set_t                   meba_poe_ctrl_cfg_set;
     meba_poe_ctrl_status_get_t                meba_poe_ctrl_status_get;
     meba_poe_ctrl_reset_command_t             meba_poe_ctrl_reset_command;
+    meba_poe_ctrl_save_command_t              meba_poe_ctrl_save_command;
     meba_poe_ctrl_chipset_get_t               meba_poe_ctrl_chipset_get;
     meba_poe_ctrl_debug_t                     meba_poe_ctrl_debug;
     meba_poe_ctrl_firmware_upgrade_t          meba_poe_ctrl_firmware_upgrade;

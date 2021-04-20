@@ -105,6 +105,7 @@ static meba_api_poe_t public_functions = {
     .meba_poe_status_get = meba_poe_generic_status_get,
     .meba_poe_capabilities_get = meba_poe_generic_capabilities_get,
     .meba_poe_reset_command = meba_poe_generic_reset_command,
+    .meba_poe_save_command = meba_poe_generic_save_command,
     .meba_poe_debug = meba_poe_generic_debug,
     .meba_poe_firmware_upgrade = meba_poe_generic_firmware_upgrade,
     .meba_poe_prepare_firmware_upgrade = meba_poe_generic_prepare_firmware_upgrade,

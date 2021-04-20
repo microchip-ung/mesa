@@ -124,8 +124,12 @@ typedef mesa_rc (*meba_poe_capabilities_get_t)(
         struct meba_inst               *inst,
         meba_poe_ctrl_cap_t            *capabilities);
 
-// Resset PoE controller.
+// Reset PoE controller.
 typedef mesa_rc (*meba_poe_reset_command_t)(
+        struct meba_inst               *inst);
+
+// Save PoE controller parameters
+typedef mesa_rc (*meba_poe_save_command_t)(
         struct meba_inst               *inst);
 
 // Enable debug traces.
@@ -240,6 +244,7 @@ typedef mesa_rc (*meba_poe_version_get_t)(
     X(meba_poe_status_get)                             \
     X(meba_poe_capabilities_get)                       \
     X(meba_poe_reset_command)                          \
+    X(meba_poe_save_command)                           \
     X(meba_poe_debug)                                  \
     X(meba_poe_firmware_upgrade)                       \
     X(meba_poe_prepare_firmware_upgrade)               \

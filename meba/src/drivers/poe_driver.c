@@ -988,6 +988,31 @@ static mesa_rc meba_poe_pd69200_ctrl_reset_command(
     return MESA_RC_OK;
 }
 
+static mesa_rc meba_poe_pd69200_ctrl_save_command(
+    const meba_poe_ctrl_inst_t  *const inst)
+{
+    uint8_t buf[PD_BUFFER_SIZE] = {
+        PROGRAM_KEY,
+        DUMMY_SEQ_NUM,
+        E2_KEY,
+        0x0F, //Save config
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE
+    };
+    MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    return MESA_RC_OK;
+}
+
 static 
 mesa_rc meba_poe_pd69200_ctrl_set_system_masks(
     const meba_poe_ctrl_inst_t *const inst,
@@ -1449,7 +1474,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t  *co
     size_t       mapped_memory_size = 0;
     char         *mapped_memory = NULL;
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s: Enter %d",  __FUNCTION__, meba_poe_pd69200_get_chipset(inst));
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Enter %d",  __FUNCTION__, meba_poe_pd69200_get_chipset(inst));
 
     if (MEBA_POE_FIRMWARE_UPGRADE != meba_poe_pd69200_get_chipset(inst)) {
         return MESA_RC_OK; // No PD69200 chip found, don't do anything
@@ -1989,12 +2014,12 @@ mesa_rc meba_poe_pd69200_chip_initialization(
             MESA_RC(meba_poe_pd69200_ctrl_set_port_layer2_lldp_pd_data(inst, i, 0, 0, 0, 0, 0));
         }
     }
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): PROGRAM MATRIX", __FUNCTION__, inst->adapter_name);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): PROGRAM MATRIX", __FUNCTION__, inst->adapter_name);
 
     MESA_RC(pd69200_temp_matrix_init(inst));
     MESA_RC(pd69200_temp_matrix_set(inst));
     MESA_RC(pd69200_program_global_matrix(inst));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): PROGRAM MATRIX DONE", __FUNCTION__, inst->adapter_name);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): PROGRAM MATRIX DONE", __FUNCTION__, inst->adapter_name);
     return MESA_RC_OK;
 }
 
@@ -2394,6 +2419,7 @@ void meba_pd69200_driver_init(
         .meba_poe_ctrl_chip_initialization = meba_poe_pd69200_chip_initialization,
         .meba_poe_ctrl_sync = meba_poe_pd69200_sync,
         .meba_poe_ctrl_reset_command = meba_poe_pd69200_ctrl_reset_command,
+        .meba_poe_ctrl_save_command = meba_poe_pd69200_ctrl_save_command,
         .meba_poe_ctrl_version_get = meba_poe_pd69200_ctrl_version_get,
         .meba_poe_ctrl_port_cfg_set = meba_poe_pd69200_ctrl_port_cfg_set,
         .meba_poe_ctrl_port_status_get = meba_poe_pd69200_ctrl_port_status_get,
@@ -3181,6 +3207,7 @@ void meba_pd69200bt_driver_init(
         .meba_poe_ctrl_chip_initialization = meba_poe_pd69200bt_chip_initialization,
         .meba_poe_ctrl_sync = meba_poe_pd69200_sync,
         .meba_poe_ctrl_reset_command = meba_poe_pd69200_ctrl_reset_command,
+        .meba_poe_ctrl_save_command = meba_poe_pd69200_ctrl_save_command,
         .meba_poe_ctrl_version_get = meba_poe_pd69200_ctrl_version_get,
         .meba_poe_ctrl_port_cfg_set = meba_poe_pd69200bt_ctrl_port_cfg_set,
         .meba_poe_ctrl_port_status_get = meba_poe_pd69200bt_ctrl_port_status_get,

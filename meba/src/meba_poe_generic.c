@@ -129,6 +129,25 @@ mesa_rc meba_poe_generic_reset_command(
     return MESA_RC_OK;
 }
 
+mesa_rc meba_poe_generic_save_command(
+    const meba_inst_t         inst)
+{
+    meba_poe_system_t   *system;
+    if ( inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {
+        if (inst->api_poe->meba_poe_system_get(inst, &system) == MESA_RC_OK) {
+            int i;
+            for (i=0; i<system->controller_count; ++i) {
+                mesa_rc rc;
+                rc = system->controllers[i].api->meba_poe_ctrl_save_command(&system->controllers[i]);
+                if (rc != MESA_RC_OK) {
+                    return rc;
+                }
+            }
+        }
+    }
+    return MESA_RC_OK;
+}
+
 int meba_poe_generic_firmware_upgrade(
     const meba_inst_t               inst,
     mesa_bool_t                     reset,
