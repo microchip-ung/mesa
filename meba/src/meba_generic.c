@@ -255,6 +255,7 @@ void meba_phy_driver_init(meba_inst_t inst)
     mesa_port_no_t      port_no;
     int                 probe_completed;
     meba_port_entry_t   entry;
+    mepa_device_t       *phy_dev;
     // Initialize all the drivers needed
 
 
@@ -337,6 +338,15 @@ void meba_phy_driver_init(meba_inst_t inst)
             } else {
                 T_I(inst, "No probing");
             }
+        }
+    }
+
+    // Enable accessing the shared resources by linking the base port on each port
+    for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
+        inst->api.meba_port_entry_get(inst, port_no, &entry);
+        phy_dev = inst->phy_devices[port_no];
+        if ((phy_dev != NULL) && (inst->phy_devices[entry.phy_base_port] != NULL) &&  phy_dev->drv->mepa_driver_link_base_port) {
+            phy_dev->drv->mepa_driver_link_base_port(phy_dev, inst->phy_devices[entry.phy_base_port]);
         }
     }
 }
