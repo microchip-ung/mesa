@@ -604,6 +604,7 @@ static void pcb123_indy_init_porttable(meba_inst_t inst)
     typedef struct {
         int32_t                board_port;
         int32_t                chip_port;
+        mesa_port_no_t         phy_base_port;
         mesa_miim_controller_t miim_controller;
         uint8_t                miim_addr;
         mesa_port_interface_t  mac_if;
@@ -619,14 +620,14 @@ static void pcb123_indy_init_porttable(meba_inst_t inst)
         case MESA_PORT_MUX_MODE_2:
             map_wrap = (map_wrap_t) {
                 {
-                    {0, 2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
-                    {1, 3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
-                    {2, 0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
-                    {3, 1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
-                    {8, 4, MESA_MIIM_CONTROLLER_1, 7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-                    {9, 5, MESA_MIIM_CONTROLLER_1, 8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-                    {10,6, MESA_MIIM_CONTROLLER_1, 9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-                    {11,7, MESA_MIIM_CONTROLLER_1,10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {0, 2, 2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {1, 3, 2, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {2, 0, 2, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {3, 1, 2, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_SGMII, (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_INT_PHY)},
+                    {8, 4, 4, MESA_MIIM_CONTROLLER_1, 7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {9, 5, 4, MESA_MIIM_CONTROLLER_1, 8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {10,6, 4, MESA_MIIM_CONTROLLER_1, 9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+                    {11,7, 4, MESA_MIIM_CONTROLLER_1,10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
                 }
             };
             break;
@@ -641,6 +642,7 @@ static void pcb123_indy_init_porttable(meba_inst_t inst)
         board->port[port_no].board_port_dual = -1;
         meba_port_entry_t  *entry = &board->port[port_no].map;
         entry->map.chip_port = map_wrap.map[port_no].chip_port;
+        entry->phy_base_port = map_wrap.map[port_no].phy_base_port;
         entry->map.miim_addr = map_wrap.map[port_no].miim_addr;
         entry->map.miim_controller = map_wrap.map[port_no].miim_controller;
         entry->mac_if = map_wrap.map[port_no].mac_if;
