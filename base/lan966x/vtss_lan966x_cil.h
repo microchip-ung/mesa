@@ -58,6 +58,10 @@ inline u32 vtss_lan966x_target_id_to_addr(int target_id)
     case (TARGET_VCAP + 0): return LAN966X_TARGET_VCAP_0_OFFSET;
     case (TARGET_VCAP + 1): return LAN966X_TARGET_VCAP_1_OFFSET;
     case (TARGET_VCAP + 2): return LAN966X_TARGET_VCAP_2_OFFSET;
+#if !defined(VTSS_OPT_FPGA)
+    case TARGET_CHIP_TOP:   return LAN966X_TARGET_CHIP_TOP_OFFSET;
+    case TARGET_HSIO:       return LAN966X_TARGET_HSIO_OFFSET;
+#endif
     default: return 0xffffffff;
     }
 }
