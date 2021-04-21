@@ -256,9 +256,6 @@ typedef mepa_rc (*mepa_driver_gpio_out_set_t)(struct mepa_device *dev, uint8_t g
 // Get the GPIO pin value
 typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t * const value);
 
-// Link Base Port. Used for accessing the chip leavel common resources
-typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct mepa_device *base_dev);
-
 // Full list of PHY driver interface
 #define MEPA_LIST_OF_API_PHY_DRIVER_CALLS \
     X(mepa_driver_delete)             \
@@ -284,8 +281,7 @@ typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct 
     X(mepa_driver_loopback_get)       \
     X(mepa_driver_gpio_mode_set)      \
     X(mepa_driver_gpio_out_set)       \
-    X(mepa_driver_gpio_in_get)        \
-    X(mepa_driver_link_base_port)
+    X(mepa_driver_gpio_in_get)
 
 typedef struct mepa_driver {
     mepa_driver_delete_t            mepa_driver_delete;
@@ -312,7 +308,6 @@ typedef struct mepa_driver {
     mepa_driver_gpio_mode_set_t     mepa_driver_gpio_mode_set;
     mepa_driver_gpio_out_set_t      mepa_driver_gpio_out_set;
     mepa_driver_gpio_in_get_t       mepa_driver_gpio_in_get;
-    mepa_driver_link_base_port_t    mepa_driver_link_base_port;
 
     uint32_t id;                  // Id of the driver
     uint32_t mask;                // Mask of the driver

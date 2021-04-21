@@ -517,10 +517,7 @@ typedef struct {
     mesa_port_map_t        map;
     mesa_port_interface_t  mac_if;
     meba_port_cap_t        cap;
-    // Chips including multiple PHYs (dual, quad) typically have shared
-    // resources. The base-port indicate which "port" owning such
-    // shared resources.
-    mesa_port_no_t         phy_base_port;
+
     // Chip port number (may be different than poe channel number)
     mesa_chip_no_t         poe_chip_port;
     mesa_bool_t            poe_support;
