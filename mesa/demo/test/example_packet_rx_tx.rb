@@ -25,7 +25,7 @@ def packet_test(idx_tx, idx_list)
     cmd += "eth dmac 01:00:5e:05:06:07 smac 00:00:00:00:00:0a "
     cmd += "ipv4 proto 2 dip 225.5.6.7 data pattern cnt 32 "
     cmd += "tx #{$ts.pc.p[idx_tx]} name f1 "
-    [0,1,2,3].each do |idx|
+    $idx_list.each do |idx|
         cmd += "rx #{$ts.pc.p[idx]} #{idx_list.include?(idx) ? "name f1 " : ""}"
     end
     $ts.pc.run(cmd)

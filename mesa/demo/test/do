@@ -65,8 +65,8 @@ case $chip in
      ;;
 
      mb)
-     ts=dk-t34-6
-     img=armv7_lan966x_sr_bbb.itb
+     ts=dk-t35-4
+     img=armv7_lan966x_bbb.itb
      dir=build-arm
      ;;
 

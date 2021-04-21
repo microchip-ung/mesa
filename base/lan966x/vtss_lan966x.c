@@ -220,7 +220,7 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
         REG_WR(HSIO_HW_CFG,
                HSIO_HW_CFG_SD6G_0_CFG(1) |
                HSIO_HW_CFG_SD6G_1_CFG(1) |
-               HSIO_HW_CFG_GMII_ENA(2) |
+               HSIO_HW_CFG_GMII_ENA(3) |
                HSIO_HW_CFG_QSGMII_ENA(2));
         REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
                CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(0) |
@@ -256,6 +256,10 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
         VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u", val, LAN966X_BUILD_ID, diff);
         return VTSS_RC_ERROR;
     }
+#else
+    // Reset switch core
+    REG_WR(GCB_SOFT_RST, GCB_SOFT_RST_SOFT_SWC_RST(1));
+    VTSS_MSLEEP(100);
 #endif
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));

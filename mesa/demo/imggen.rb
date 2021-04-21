@@ -156,7 +156,7 @@ $machines = {
               :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/am335x-boneblack-mscc.dtb"
             },
             {
-              :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb",
+              :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/am335x-boneblack-mscc.dtb",
               :overlays => [
                   { :name => "6813_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6813_0.dtso"},
                   { :name => "6849_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
