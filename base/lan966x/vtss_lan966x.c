@@ -223,7 +223,7 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
                HSIO_HW_CFG_GMII_ENA(3) |
                HSIO_HW_CFG_QSGMII_ENA(2));
         REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
-               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(0) |
+               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
                CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
                CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
