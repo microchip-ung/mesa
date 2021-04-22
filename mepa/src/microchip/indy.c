@@ -822,7 +822,7 @@ static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t
     return MEPA_RC_OK;
 }
 mepa_drivers_t mepa_indy_driver_init() {
-    static const int nr_indy_drivers = 1;
+    static const int nr_indy_drivers = 2;
     static mepa_driver_t indy_drivers[] = {
     {
         .id = 0x221660,
