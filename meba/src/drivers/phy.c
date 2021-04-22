@@ -67,8 +67,14 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
     }
 
     if (cf.admin.enable) {
-        if (cf.speed == MESA_SPEED_AUTO) {
+        if (cf.speed == MESA_SPEED_AUTO || cf.speed == MESA_SPEED_1G) {
             memset(&cf.aneg, 0, sizeof(cf.aneg));
+
+            if (cf.speed == MESA_SPEED_1G) {
+                cf.adv_dis |= MEPA_ADV_DIS_10M;
+                cf.adv_dis |= MEPA_ADV_DIS_100M;
+                cf.adv_dis |= MEPA_ADV_DIS_HDX;
+            }
 
             /* Set Auto-negotiation parameters using board capability. */
             cf.aneg.speed_2g5_fdx =
