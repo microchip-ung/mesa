@@ -326,7 +326,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
         if (config->mac_if_aneg_ena != data->conf.mac_if_aneg_ena) {
             indy_qsgmii_aneg(dev, config->mac_if_aneg_ena);
         }
-        if (config->speed == MEPA_SPEED_AUTO) {
+        if (config->speed == MEPA_SPEED_AUTO || config->speed == MEPA_SPEED_1G) {
             RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &old_value);
             new_value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
             if ((old_value & INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP) != new_value) {

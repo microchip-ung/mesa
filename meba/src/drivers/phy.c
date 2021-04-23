@@ -70,42 +70,43 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
         if (cf.speed == MESA_SPEED_AUTO || cf.speed == MESA_SPEED_1G) {
             memset(&cf.aneg, 0, sizeof(cf.aneg));
 
-            if (cf.speed == MESA_SPEED_1G) {
-                cf.adv_dis |= MEPA_ADV_DIS_10M;
-                cf.adv_dis |= MEPA_ADV_DIS_100M;
-                cf.adv_dis |= MEPA_ADV_DIS_HDX;
-            }
-
             /* Set Auto-negotiation parameters using board capability. */
             cf.aneg.speed_2g5_fdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_2_5G_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_2500M);
             cf.aneg.speed_5g_fdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_5G_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_5G);
             cf.aneg.speed_10g_fdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10G_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_10G);
             cf.aneg.speed_10m_hdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_HDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_10M);
             cf.aneg.speed_10m_fdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_10M_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_10M);
             cf.aneg.speed_100m_hdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_HDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_100M);
             cf.aneg.speed_100m_fdx =
+                conf->speed == MESA_SPEED_AUTO &&
                 (cap & MEBA_PORT_CAP_100M_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
                 !(cf.adv_dis & MEPA_ADV_DIS_100M);
             cf.aneg.speed_1g_fdx =
                 ((cap & MEBA_PORT_CAP_1G_FDX) &&
-                !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
-                !(cf.adv_dis & MEPA_ADV_DIS_1G));
+                !(conf->speed == MESA_SPEED_AUTO &&
+                  conf->adv_dis & MEPA_ADV_DIS_1G));
             cf.aneg.no_restart_aneg =
                    !!(cf.adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
         }
