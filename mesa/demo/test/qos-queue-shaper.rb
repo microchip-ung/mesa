@@ -28,7 +28,10 @@ t_i ("Only forward on relevant ports #{$ts.dut.p}")
 port_list = port_idx_list_str(idx_list)
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
-$ts.dut.run("mesa-cmd port flow control #{$ts.dut.p[ig]+1} disable")
+port = $ts.dut.p[ig]
+$ts.dut.run("mesa-cmd port flow control #{port + 1} disable")
+sleep(5)
+dut_port_state_up([port])
 
 t_i ("Configure ingress port to C tag aware")
 conf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[ig])

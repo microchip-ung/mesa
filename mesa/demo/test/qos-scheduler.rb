@@ -5,37 +5,38 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
 $chip_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
 
 MESA_CHIP_FAMILY_CARACAL = 2
 
-$qconf0 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[0])
-$qconf1 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[1])
-$qconf2 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[2])
-$qconf3 = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[3])
-$vconf0 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[0])
-$vconf1 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[1])
-$vconf2 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[2])
-$vconf3 = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[3])
-$dconf0 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[0], $dpl_cnt)
-$dconf1 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[1], $dpl_cnt)
-$dconf2 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[2], $dpl_cnt)
-$dconf3 = $ts.dut.call("mesa_qos_port_dpl_conf_get", $ts.dut.p[3], $dpl_cnt)
+# Use random ingress/egress port
+idx_list = port_idx_shuffle($ts)
+eg = idx_list[0]
+ig = (idx_list - [eg])
+ig_list = port_idx_list_str(ig)
+
+# Save configuration
+$vconf = []
+$qconf = []
+$dconf = []
+idx_list.each do |idx|
+    port = $ts.dut.p[idx]
+    $vconf[port] = $ts.dut.call("mesa_vlan_port_conf_get", port)
+    $qconf[port] = $ts.dut.call("mesa_qos_port_conf_get", port)
+    $dconf[port] = $ts.dut.call("mesa_qos_port_dpl_conf_get", port, $dpl_cnt)
+end
 
 MESA_VID_NULL = 0
-
-eg = rand(3)    # Get a random egress port between 0 and 3
-ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
 
 t_i("-------------------------")
 t_i("ig: #{ig}  eg: #{eg}")
 t_i("-------------------------")
 
-t_i ("Only forward on relevant ports #{$ts.dut.port_list}")
-port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+t_i ("Only forward on relevant ports #{$ts.dut.p}")
+port_list = port_idx_list_str(idx_list)
 $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
 
 t_i ("Configure ingress ports to C tag aware")
@@ -60,6 +61,8 @@ ig.each do |i|
     conf["default_dpl"] = 0
     $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[i], conf)
 end
+sleep(5)
+dut_port_state_up(ig)
 
 t_i ("Configure egress port to C tag all")
 vconf = $ts.dut.call("mesa_vlan_port_conf_get", $ts.dut.p[eg])
@@ -83,7 +86,7 @@ qconf["shaper"]["rate"] = 990000
 qconf["shaper"]["mode"] = "MESA_SHAPER_MODE_LINE"
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], qconf)
 
-test "Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}" do
+test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Only expect frames in the highest priority queue when running strict scheduling
        #measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_CARACAL"))
@@ -101,7 +104,7 @@ test "Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.
     end
 end
 
-test "Weighted scheduling with equal weights test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}" do
+test "Weighted scheduling with equal weights test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Expect equal distribution of frames in queue 0..2
     conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
     conf["dwrr_enable"] = true
@@ -117,7 +120,7 @@ test "Weighted scheduling with equal weights test from #{$ts.dut.p[ig[0]]},#{$ts
     end
 end
 
-test "Weighted scheduling with 10, 30 and 60 percent test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}" do
+test "Weighted scheduling with 10, 30 and 60 percent test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Expect distribution of frames in queue 0..2 based on weights (10%, 30%, 60%)
     conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
     conf["dwrr_enable"] = true
@@ -139,17 +142,11 @@ test "Weighted scheduling with 10, 30 and 60 percent test from #{$ts.dut.p[ig[0]
     end
 end
 
+# Restore configuration
 t_i("Clean up")
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[0], $qconf0)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[1], $qconf1)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[2], $qconf2)
-$ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[3], $qconf3)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[0], $vconf0)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[1], $vconf1)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[2], $vconf2)
-$ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[3], $vconf3)
-$ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[0], $dpl_cnt, $dconf0)
-$ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[1], $dpl_cnt, $dconf1)
-$ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[2], $dpl_cnt, $dconf2)
-$ts.dut.call("mesa_qos_port_dpl_conf_set", $ts.dut.p[3], $dpl_cnt, $dconf3)
-
+idx_list.each do |idx|
+    port = $ts.dut.p[idx]
+    $ts.dut.call("mesa_vlan_port_conf_set", port, $vconf[port])
+    $ts.dut.call("mesa_qos_port_conf_set", port, $qconf[port])
+    $ts.dut.call("mesa_qos_port_dpl_conf_set", port, $dpl_cnt, $dconf[port])
+end

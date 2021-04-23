@@ -514,6 +514,7 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     time = (pre_tx+sec+100)     # Calculate the required seconds that the transmitter must at least (+100) be transmitting
     rep = time*sec_count_in     # Convert the required transmission seconds to number of frames, as this is the parameter to ef tx function
     pid_ef = []
+    max_cnt = 50
     ig.each_with_index do |ig_value, ig_idx|
         if (pcp != [])
             pid_ef << $ts.pc.bg("ef tx #{pcp[ig_idx]}", "sudo ef tx #{$ts.pc.p[ig_value]} rep #{rep} eth dmac 00:00:00:00:01:01 smac 00:00:00:00:01:1#{ig_idx} ctag vid 0 pcp #{pcp[ig_idx]} data pattern cnt #{size - (6+6+4+2+4)}") # 'size' is requested frame size inclusive checksum
@@ -524,8 +525,8 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         begin   # Check that transmitter is started
             rx_cnt = counter_get("TX", $ts.pc.p[ig_value])
             max = max + 1
-        end while (rx_cnt == counter_get("TX", $ts.pc.p[ig_value])) && (max < 10)
-        if (max == 10)
+        end while (rx_cnt == counter_get("TX", $ts.pc.p[ig_value])) && (max < max_cnt)
+        if (max == max_cnt)
             t_e("Easy Frame transmitting never started")
         end
     end
@@ -573,8 +574,8 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     begin   # Check that all transmitters are stopping
         rx_cnt = counter_get("RX", $ts.pc.p[eg])
         max = max + 1
-    end while (rx_cnt != counter_get("RX", $ts.pc.p[eg])) && (max < 10)
-    if (max == 10)
+    end while (rx_cnt != counter_get("RX", $ts.pc.p[eg])) && (max < max_cnt)
+    if (max == max_cnt)
         t_e("Easy Frame transmitting never stopped")
     end
 
