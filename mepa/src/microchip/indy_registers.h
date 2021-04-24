@@ -13,6 +13,7 @@
 #define INDY_ENCODE_BITFIELD(value, offset, width)   (((value) & INDY_BIT_MASK(width)) << (offset))
 #define INDY_ENCODE_BITMASK(offset, width) (INDY_BIT_MASK(width) << (offset))
 
+#define INDY_EXT_PAGE_0 0
 #define INDY_EXT_PAGE_2 2
 #define INDY_EXT_PAGE_3 3
 #define INDY_EXT_PAGE_4 4
@@ -114,6 +115,14 @@
 #define INDY_RESV_CON_LOOP 30
 
 //====================================================================================
+//      Extended Page 0
+//====================================================================================
+// Register 15
+#define INDY_FLF_CONFIG_STATUS INDY_EXT_PAGE_0, 15
+#define INDY_FLF_CFG_STAT_LINK_DOWN INDY_BIT(0)
+#define INDY_FLF_CFG_STAT_FLF_ENABLE INDY_BIT(1)
+#define INDY_FLF_CFG_STAT_FLF_STATUS INDY_BIT(2)
+//====================================================================================
 //      Extended Page 2
 //====================================================================================
 // Register 2
@@ -131,22 +140,26 @@
 #define INDY_X_STRAP_STATUS_STRAP_PHYAD(x) INDY_EXTRACT_BITFIELD(x, 0, 5)
 
 // Register 32
-#define INDY_GPIO_EN1   4, 32
+#define INDY_GPIO_EN1   INDY_EXT_PAGE_4, 32
 
 // Register 33
-#define INDY_GPIO_EN2   4, 33
+#define INDY_GPIO_EN2   INDY_EXT_PAGE_4, 33
 
 // Register 34
-#define INDY_GPIO_DIR1  4, 34
+#define INDY_GPIO_DIR1  INDY_EXT_PAGE_4, 34
 
 // Register 35
-#define INDY_GPIO_DIR2  4, 35
+#define INDY_GPIO_DIR2  INDY_EXT_PAGE_4, 35
 
 // Register 38
-#define INDY_GPIO_DATA1 4, 38
+#define INDY_GPIO_DATA1 INDY_EXT_PAGE_4, 38
 
 // Register 39
-#define INDY_GPIO_DATA2 4, 39
+#define INDY_GPIO_DATA2 INDY_EXT_PAGE_4, 39
+
+// Register 52
+#define INDY_INTR_CTRL  INDY_EXT_PAGE_4, 52
+#define INDY_INTR_CTRL_CHIP_LVL_ENA INDY_BIT(0)
 
 // Register 66
 #define INDY_QSGMII_HARD_RESET INDY_EXT_PAGE_4, 66

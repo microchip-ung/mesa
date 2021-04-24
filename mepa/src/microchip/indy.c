@@ -520,26 +520,30 @@ static mepa_rc indy_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint
 static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mesa_bool_t enable)
 {
     mepa_rc rc = MEPA_RC_OK;
-    uint16_t ev_mask;
+    uint16_t ev_mask = 0, i, val;
     phy_data_t *data = (phy_data_t *)dev->data;
-    MEPA_ENTER();
-    RD(dev, INDY_GPHY_INTR_ENA, &ev_mask);
-    switch(event) {
-        case MEPA_LINK_LOS:
-            ev_mask = enable ? (ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN) :
-                               (ev_mask & ~INDY_F_GPHY_INTR_ENA_LINK_DOWN);
-            break;
-        case MEPA_FAST_LINK_FAIL:
-            ev_mask = enable ? (ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR) :
-                               (ev_mask & ~INDY_F_GPHY_INTR_ENA_FLF_INTR);
-            break;
-        default:
-            // Not yet implemented
-            break;
-    }
-    WR(dev, INDY_GPHY_INTR_ENA, ev_mask);
     data->events = enable ? (data->events | event) :
                             (data->events & ~event);
+    MEPA_ENTER();
+    for (i = 0; i < sizeof(mepa_event_t)*8; i++) {
+        switch(event & (1 << i)) {
+            case MEPA_LINK_LOS:
+                ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN;
+                break;
+            case MEPA_FAST_LINK_FAIL:
+                val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
+                EP_WRM(dev, INDY_FLF_CONFIG_STATUS, enable ? val : 0, val);
+                ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR;
+                break;
+            default:
+                // Not yet implemented
+                break;
+        }
+    }
+    WRM(dev, INDY_GPHY_INTR_ENA, enable ? ev_mask : 0, ev_mask);
+    EP_WRM(dev, INDY_INTR_CTRL, data->events ? INDY_INTR_CTRL_CHIP_LVL_ENA : 0,
+           INDY_INTR_CTRL_CHIP_LVL_ENA);
+
     MEPA_EXIT();
     return rc;
 }
