@@ -9,6 +9,9 @@ require 'net/http'
 require_relative './libeasy/utils'
 
 $systems = [
+    # dk-t35, Maserati systems
+    { name: "dk-t33-0", image: "armv7_lan966x.itb",          branch:"master.mas", parallel: "no", server: "33", started: "no" },
+
     # dk-t34, starting with Maserati and Fireant systems
     { name: "dk-t34-1", image: "arm64_ls1046_lan966x_ad.itb",branch:"master.mas", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master",     parallel: "no", server: "34", started: "no" },
@@ -120,7 +123,7 @@ puts "-----Start test on all 'sequential' systems.-----"
 seq_done = false
 while (!seq_done)
     seq_done = true
-    ["34", "35"].each_with_index do |s, i|
+    ["33", "34", "35"].each_with_index do |s, i|
         t = $sequential_threads[i]
         if (t == nil)
             t = start_server_sequential(s)
