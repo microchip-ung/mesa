@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 oc/op/j2/j48/st/ca/fa/mi/ms/me [<test_server>] <test_script>"
+   echo "Usage: $0 oc/op/j2/j48/st/ca/fa/mi/ms/mb/me [<test_server>] <test_script>"
    exit
 fi
 
@@ -77,9 +77,9 @@ case $chip in
      ;;
 
      me)
-     ts=dk-t35-5
-     img=arm64_ls1046_lan9662.itb
-     dir=build-arm64
+     ts=dk-t33-0
+     img=armv7_lan966x.itb
+     dir=build-arm
      ;;
 
      *)

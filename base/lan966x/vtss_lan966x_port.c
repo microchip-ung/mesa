@@ -1161,6 +1161,54 @@ static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
+static vtss_rc lan966x_debug_port(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    vtss_port_no_t port_no;
+    u32            port;
+    char           buf[32];
+#if !defined(VTSS_OPT_FPGA)
+    u32            i;
+
+    sprintf(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
+    vtss_lan966x_debug_reg_header(pr, buf);
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_HW_CFG), "HW_CFG");
+    pr("\n");
+
+    for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
+        pr("SD6G[%u]: %s\n", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+    }
+    pr("\n");
+#endif
+    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+        port_no = vtss_cmn_port2port_no(vtss_state, info, port);
+        if (port_no == VTSS_PORT_NO_NONE) {
+            continue;
+        }
+        sprintf(buf, "Port %u (%u)", port, port_no);
+        vtss_lan966x_debug_reg_header(pr, buf);
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_CLOCK_CFG(port)), "CLOCK_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_ENA_CFG(port)), "MAC_ENA_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_MODE_CFG(port)), "MAC_MODE_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_ADV_CHK_CFG(port)), "MAC_ADV_CHK_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_IFG_CFG(port)), "MAC_IFG_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_HDX_CFG(port)), "MAC_HDX_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_MAXLEN_CFG(port)), "MAC_MAXLEN_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_SW_PORT_MODE(port)), "SW_PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_PORT_MODE(port)), "PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_FRONT_PORT_MODE(port)), "SW_PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PAUSE_CFG(port)), "SYS_PAUSE_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_PFC_CFG(port)), "ANA_PFC_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PORT_MISC(port)), "PORT_MISC");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PCS1G_CFG(port)), "PCS1G_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PCS1G_SD_CFG(port)), "PCS1G_SD_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PCS1G_ANEG_CFG(port)), "PCS1G_ANEG_CFG");
+        pr("\n");
+    }
+    return VTSS_RC_OK;
+}
+
 static void lan966x_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
                                    const char *col1, const char *col2,
                                    vtss_chip_counter_t *c1, vtss_chip_counter_t *c2)
@@ -1488,6 +1536,7 @@ vtss_rc vtss_lan966x_port_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info)
 {
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, lan966x_debug_port, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, lan966x_debug_port_cnt, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm, vtss_state, pr, info));
     return VTSS_RC_OK;

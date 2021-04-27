@@ -257,9 +257,11 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
         return VTSS_RC_ERROR;
     }
 #else
-    // Reset switch core
-    REG_WR(GCB_SOFT_RST, GCB_SOFT_RST_SOFT_SWC_RST(1));
-    VTSS_MSLEEP(100);
+    // Reset switch core if using SPI from external CPU
+    if (vtss_state->init_conf.spi_bus) {
+        REG_WR(GCB_SOFT_RST, GCB_SOFT_RST_SOFT_SWC_RST(1));
+        VTSS_MSLEEP(100);
+    }
 #endif
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));
