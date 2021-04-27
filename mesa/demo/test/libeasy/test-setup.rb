@@ -936,9 +936,9 @@ class Switchdev_Pc_b2b_4x
         else
             t_i "Preparing PC for network load"
             @pc.run "/easytest/local/if-setup-dhcp.rb"
-            t_i "Rebooting DUT"
-            @dut.sw_reboot
-            @dut.linux_login
+
+            reboot_dut conf
+
             t_i "Prepare for test run"
             @pc.run "/easytest/local/if-setup-l2-test.rb"
             @dut.mute
@@ -965,6 +965,22 @@ class Switchdev_Pc_b2b_4x
         end
 
         # TODO, wait for the DUT to see the link
+    end
+
+    def reboot_dut conf
+        t_i "SW Rebooting DUT"
+        @dut.sw_reboot
+        loop = 0
+        while loop < 3 do
+            if !@dut.terminal_alive 5
+                t_i "Terminal not responsive - power-cycle "
+                @pc.run conf["power_control"]
+            else
+                break
+            end
+            loop = loop + 1
+        end
+        @dut.linux_login
     end
 
     def uninit
