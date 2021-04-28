@@ -227,6 +227,18 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
                CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
                CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
+    case VTSS_PORT_MUX_MODE_5:
+        // 2xCu + 3x1G
+        REG_WR(HSIO_HW_CFG,
+               HSIO_HW_CFG_SD6G_0_CFG(1) |
+               HSIO_HW_CFG_SD6G_1_CFG(1) |
+               HSIO_HW_CFG_GMII_ENA(3) |
+               HSIO_HW_CFG_QSGMII_ENA(0));
+        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
+               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
+               CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
+               CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        break;
     default:
         VTSS_E("unknown mux mode");
         return VTSS_RC_ERROR;

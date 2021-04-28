@@ -527,6 +527,16 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
             idx = 2;
         }
         break;
+    case VTSS_PORT_MUX_MODE_5:
+        // 2xCu + 3x1G
+        if (port < 2) {
+            // Port 0/1: Cu
+            mode_req = VTSS_SERDES_MODE_SGMII;
+        } else if (port < 5) {
+            // Port 2-4: 2.5G
+            idx = (port - 2);
+        }
+        break;
     default:
         VTSS_E("unknown mux mode");
         return VTSS_RC_ERROR;

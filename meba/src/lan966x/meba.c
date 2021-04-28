@@ -91,6 +91,13 @@ static port_map_t port_table_endnode_carrier[] = {
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
 };
 
+static port_map_t port_table_svb[] = {
+    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT)},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT)},
+};
+
 static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
 {
     uint32_t gpio_no;
@@ -385,7 +392,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
 {
     meba_inst_t        inst;
     meba_board_state_t *board;
-    int                pcb;
+    int                pcb, beaglebone = 0;
+    FILE               *fp;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -419,6 +427,16 @@ meba_inst_t meba_initialize(size_t callouts_size,
         board->type = BOARD_TYPE_ADARO;   // Default
     }
 
+    // Check for Beaglebone platform
+    if ((fp = fopen("/sys/firmware/devicetree/base/model", "r"))) {
+        char model[128];
+        const char *m = fgets(model, sizeof(model), fp);
+        fclose(fp);
+        if (m && strstr(model, "BeagleBone")) {
+            beaglebone = 1;
+        }
+    }
+
     /* Fill out port mapping table */
     inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
     switch (board->type) {
@@ -436,7 +454,12 @@ meba_inst_t meba_initialize(size_t callouts_size,
         lan966x_init_port_table(inst, 3, port_table_endnode);
         break;
     case BOARD_TYPE_ENDNODE_CARRIER:
-        lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
+        if (beaglebone) {
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
+            lan966x_init_port_table(inst, 4, port_table_svb);
+        } else {
+            lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
+        }
         break;
     default:
         break;

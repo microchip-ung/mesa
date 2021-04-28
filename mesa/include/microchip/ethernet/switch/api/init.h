@@ -238,6 +238,7 @@ typedef mesa_rc (*mesa_mmd_write_t)(const mesa_inst_t    inst,
 // LAN966X
 // MESA_PORT_MUX_MODE_0: 2xQSGMII (LAN9668)
 // MESA_PORT_MUX_MODE_1: 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668)
+// MESA_PORT_MUX_MODE_5: 2xCu + 3x1G (LAN9668)
 
 typedef enum {
     MESA_PORT_MUX_MODE_AUTO CAP(PORT_MUX_AUTO),
