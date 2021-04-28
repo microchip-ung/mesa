@@ -11,6 +11,7 @@ require_relative './libeasy/utils'
 $systems = [
     # dk-t35, Maserati systems
     { name: "dk-t33-0", image: "armv7_lan966x.itb",          branch:"master.mas", parallel: "no", server: "33", started: "no" },
+    { name: "dk-t33-3", image: "armv7_lan966x_bbb.itb",      branch:"master.mas", parallel: "no", server: "33", started: "no" },
 
     # dk-t34, starting with Maserati and Fireant systems
     { name: "dk-t34-1", image: "arm64_ls1046_lan966x_ad.itb",branch:"master.mas", parallel: "no", server: "34", started: "no" },
