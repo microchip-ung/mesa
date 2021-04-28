@@ -364,6 +364,20 @@ static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     }
     return mesa_phy_gpio_get(data->inst, data->port_no, gpio_no, enable);
 }
+static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mesa_phy_clock_conf_t phy_conf = {};
+    mesa_phy_recov_clk_t clk_port = conf->dst == MEPA_SYNCE_CLOCK_DST_1 ? MESA_PHY_RECOV_CLK1 : MESA_PHY_RECOV_CLK2;
+
+    phy_conf.squelch = conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED ? MESA_PHY_CLK_SQUELCH_NONE : MESA_PHY_CLK_SQUELCH_MAX;
+    phy_conf.src = conf->src == MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA ? MESA_PHY_SERDES_MEDIA :
+                   conf->src == MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA ? MESA_PHY_COPPER_MEDIA : MESA_PHY_CLK_DISABLED;
+    phy_conf.freq = conf->freq == MEPA_FREQ_25M ? MESA_PHY_FREQ_25M :
+                    conf->freq == MEPA_FREQ_31_25M ? MESA_PHY_FREQ_3125M : MESA_PHY_FREQ_125M;
+
+    return mesa_phy_clock_conf_set(data->inst, data->port_no, clk_port, &phy_conf);
+}
 
 typedef struct malibu_10g_phy_data {
     mesa_inst_t inst;
@@ -604,6 +618,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         },
         // Atom - QSGMII family
         {
@@ -631,6 +646,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         },
         // Atom - SGMII
         {
@@ -658,6 +674,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         },
         {
             .id = 0x000FC400,
@@ -684,6 +701,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         }
     };
 
@@ -769,6 +787,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
         .mepa_driver_gpio_out_set = phy_1g_gpio_set,
         .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+        .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
     }};
 
     mepa_drivers_t result;

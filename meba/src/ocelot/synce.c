@@ -52,6 +52,13 @@
 #define phy_mux_port_out_0               MESA_SYNCE_DEV_MUX_PHY(    200,      0)
 #define phy_mux_port_out_1               MESA_SYNCE_DEV_MUX_PHY(    200,      1)
 
+#define phy_mux_1_port_in_4              MESA_SYNCE_DEV_MUX_PHY(    201,      MESA_SYNCE_DEV_INPUT | 4)
+#define phy_mux_1_port_in_5              MESA_SYNCE_DEV_MUX_PHY(    201,      MESA_SYNCE_DEV_INPUT | 5)
+#define phy_mux_1_port_in_6              MESA_SYNCE_DEV_MUX_PHY(    201,      MESA_SYNCE_DEV_INPUT | 6)
+#define phy_mux_1_port_in_7              MESA_SYNCE_DEV_MUX_PHY(    201,      MESA_SYNCE_DEV_INPUT | 7)
+#define phy_mux_1_port_out_0             MESA_SYNCE_DEV_MUX_PHY(    201,      0)
+#define phy_mux_1_port_out_1             MESA_SYNCE_DEV_MUX_PHY(    201,      1)
+
 #define switch_mux_port_in_0             MESA_SYNCE_DEV_MUX_SWITCH( 300,      MESA_SYNCE_DEV_INPUT | 0)
 #define switch_mux_port_in_1             MESA_SYNCE_DEV_MUX_SWITCH( 300,      MESA_SYNCE_DEV_INPUT | 1)
 #define switch_mux_port_in_2             MESA_SYNCE_DEV_MUX_SWITCH( 300,      MESA_SYNCE_DEV_INPUT | 2)
@@ -209,6 +216,46 @@ static const meba_synce_terminal_attr_t attr_ocelot10_ref_board_zarlink_dpll[] =
     MESA_SYNCE_ATTR(dpll_port_7,   MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_25MHZ),
 };
 
+static const meba_synce_graph_element_t synce_graph_elements_ocelot8_ref_board[] = {
+    // type                               source                           destination
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_0,                      phy_mux_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_1,                      phy_mux_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_2,                      phy_mux_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_3,                      phy_mux_port_in_3),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_4,                      phy_mux_1_port_in_4),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_5,                      phy_mux_1_port_in_5),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_6,                      phy_mux_1_port_in_6),
+    MESA_SYNCE_GRAPH_CONNECTION(          eth_port_7,                      phy_mux_1_port_in_7),
+
+    MESA_SYNCE_GRAPH_CONNECTION(          phy_mux_port_out_0,              switch_mux_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(          phy_mux_port_out_1,              switch_mux_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(          phy_mux_1_port_out_0,            switch_mux_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(          phy_mux_1_port_out_1,            switch_mux_port_in_3),
+
+    MESA_SYNCE_GRAPH_CONNECTION(          switch_mux_port_out_0,           dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(          switch_mux_port_out_1,           dpll_port_1),
+    MESA_SYNCE_GRAPH_CONNECTION(          station_clock_port_0,            dpll_port_4),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(  switch_mux_port_in_0,            switch_mux_port_out_1),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(  switch_mux_port_in_1,            switch_mux_port_out_0),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(  switch_mux_port_in_2,            switch_mux_port_out_1),
+    MESA_SYNCE_GRAPH_INVALID_CONNECTION(  switch_mux_port_in_3,            switch_mux_port_out_0),
+};
+static const meba_synce_terminal_attr_t attr_ocelot8_ref_board[] = {
+    //              device         attr-type                attr-value
+    MESA_SYNCE_ATTR(dpll_port_0,   MEBA_ATTR_CLOCK_ID,                   1),
+    MESA_SYNCE_ATTR(dpll_port_1,   MEBA_ATTR_CLOCK_ID,                   2),
+    MESA_SYNCE_ATTR(dpll_port_4,   MEBA_ATTR_CLOCK_ID,                   3),
+
+    MESA_SYNCE_ATTR(eth_port_0,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_1,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_2,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_3,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_4,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_5,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_6,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_7,    MEBA_ATTR_FREQ,       MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+};
+
 mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
 {
     static meba_synce_graph_t synce_graph;
@@ -257,6 +304,11 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
                 synce_graph.attr_length += MEBA_ARRSZ(attr_ocelot10_ref_board_zarlink_dpll);
                 break;
         }
+    } else if ( board_type == VTSS_BOARD_OCELOT_PCB123_REF_INDY) {
+        synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_ocelot8_ref_board);
+        synce_graph.graph = synce_graph_elements_ocelot8_ref_board;
+        memcpy(attr, attr_ocelot8_ref_board, sizeof(attr_ocelot8_ref_board));
+        synce_graph.attr_length = MEBA_ARRSZ(attr_ocelot8_ref_board);
     } else {  // Other Ocelot boards not featuring a SyncE DPLL e.g. PCB123
         synce_graph.graph_length = 0;
         synce_graph.graph = NULL;

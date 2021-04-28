@@ -134,7 +134,9 @@ typedef enum {
     MEPA_GPIO_MODE_LED_LINK_TX,
     MEPA_GPIO_MODE_LED_LINK_RX,
     MEPA_GPIO_MODE_LED_LINK_FAULT,
-    MEPA_GPIO_MODE_LED_DISABLE_EXTENDED
+    MEPA_GPIO_MODE_LED_DISABLE_EXTENDED,
+    MEPA_GPIO_MODE_RCVRD_CLK_OUT1,
+    MEPA_GPIO_MODE_RCVRD_CLK_OUT2,
 } mepa_gpio_mode_t;
 
 // Led id
@@ -165,5 +167,33 @@ typedef struct {
     mepa_bool_t qsgmii_pcs_gmii_ena; // QSGMII gmi loopback where traffic is looped towards Mac from QSGMII pcs.
     mepa_bool_t qsgmii_serdes_ena;   // QSGMII serdes loopback where traffic is looped towards link partner from QSGMII serdes. This would affect all the 4 ports of PHY.
 } mepa_loopback_t;
+
+// phy clock source
+typedef enum {
+    MEPA_SYNCE_CLOCK_SRC_DISABLED,
+    MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA,
+    MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA
+} mepa_synce_clock_src_t;
+
+// synce recovered clock
+typedef enum {
+    MEPA_SYNCE_CLOCK_DST_1 = 0,
+    MEPA_SYNCE_CLOCK_DST_2,
+    MEPA_SYNCE_CLOCK_DST_MAX,
+} mepa_synce_clock_dst_t;
+
+// recovered clock frequencies
+typedef enum {
+    MEPA_FREQ_25M,    // 25Mhz recovered clock
+    MEPA_FREQ_31_25M, // 31.25Mhz receovered clock
+    MEPA_FREQ_125M,   // 125Mhz recovered clock
+} mepa_freq_t;
+
+// Synce recovered clock configuration
+typedef struct {
+    mepa_synce_clock_src_t src; // source type
+    mepa_synce_clock_dst_t dst; // recovered clock number
+    mepa_freq_t            freq;// recovered clock frequency
+} mepa_synce_clock_conf_t;
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

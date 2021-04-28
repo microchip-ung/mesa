@@ -22,16 +22,17 @@ typedef struct {
 } phy_dev_info_t;
 
 typedef struct {
-    mepa_bool_t            init_done;
-    mepa_port_no_t         port_no;
-    phy_switch_access_t    access;
-    mepa_port_interface_t  mac_if;
-    mepa_driver_conf_t     conf;
-    mepa_event_t           events;
-    mepa_loopback_t        loopback;
-    mepa_bool_t            qsgmii_phy_aneg_dis;
-    phy_dev_info_t         dev;
-    mepa_device_t         *base_dev; // Pointer to the device of base port on the phy chip
+    mepa_bool_t             init_done;
+    mepa_port_no_t          port_no;
+    phy_switch_access_t     access;
+    mepa_port_interface_t   mac_if;
+    mepa_driver_conf_t      conf;
+    mepa_event_t            events;
+    mepa_loopback_t         loopback;
+    mepa_bool_t             qsgmii_phy_aneg_dis;
+    phy_dev_info_t          dev;
+    mepa_synce_clock_conf_t synce_conf;
+    mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
 } phy_data_t;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
@@ -384,7 +385,7 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
                            mepa_port_interface_t *mac_if)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    // Indy uses only QSGMII and hence returned always.
+
     *mac_if = data->mac_if;
     return MEPA_RC_OK;
 }
@@ -753,6 +754,8 @@ static mepa_rc indy_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t
         MEPA_RC(indy_led_mode_set(dev, mode, data->led_num));
         // Enable alternative gpio mode for led.
         gpio_no = led_num_to_gpio_mapping(dev, data->led_num);
+    } else if (mode == MEPA_GPIO_MODE_RCVRD_CLK_OUT1 || mode == MEPA_GPIO_MODE_RCVRD_CLK_OUT2) {
+        gpio_no = mode == MEPA_GPIO_MODE_RCVRD_CLK_OUT1 ? 9 : 10;
     }
     if (gpio_no < 16) {
         val = 1 << gpio_no;
@@ -826,6 +829,49 @@ static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t
     MEPA_EXIT();
     return MEPA_RC_OK;
 }
+
+static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    mepa_gpio_conf_t gpio_conf;
+    uint16_t divider = 1;
+    uint16_t port_ena;
+    mepa_rc rc = MEPA_RC_OK;
+
+    MEPA_ENTER();
+    // Enable recovered clock outputs in gpio
+    gpio_conf.mode = conf->dst == MEPA_SYNCE_CLOCK_DST_1 ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
+    rc = indy_gpio_mode_private(dev, &gpio_conf);
+
+    port_ena = data->access.miim_addr - get_base_addr(dev);
+    switch(conf->freq) {
+        case MEPA_FREQ_25M:
+            divider = 5; // 125Mhz/25Mhz = 5
+            break;
+        case MEPA_FREQ_31_25M:
+            divider = 4; // 125Mhz/31.25Mhz = 4
+            break;
+        case MEPA_FREQ_125M:
+        default:
+            divider = 1; // 125Mhz/125Mhz = 1
+            break;
+    }
+    if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
+        port_ena = 7;
+    }
+    if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_1, port_ena);
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_1, divider);
+    } else {
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_2, port_ena);
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_2, divider);
+    }
+
+    MEPA_EXIT();
+
+    data->synce_conf = *conf;
+    return rc;
+}
 // Link the base port
 static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
 {
@@ -867,6 +913,7 @@ mepa_drivers_t mepa_indy_driver_init() {
             .mepa_driver_gpio_out_set = indy_gpio_out_set,
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_link_base_port = indy_link_base_port,
+            .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x

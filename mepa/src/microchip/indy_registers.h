@@ -171,6 +171,11 @@
 // Register 137
 #define INDY_QSGMII_SERDES_MISC_CTRL INDY_EXT_PAGE_4, 137
 #define INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE INDY_BIT(4)
+
+#define INDY_RCVRD_CLK_OUT_SEL_1 INDY_EXT_PAGE_4, 256
+#define INDY_RCVRD_CLK_OUT_DIV_1 INDY_EXT_PAGE_4, 257
+#define INDY_RCVRD_CLK_OUT_SEL_2 INDY_EXT_PAGE_4, 258
+#define INDY_RCVRD_CLK_OUT_DIV_2 INDY_EXT_PAGE_4, 259
 //====================================================================================
 //      Extended Page 5
 //====================================================================================

@@ -256,63 +256,68 @@ typedef mepa_rc (*mepa_driver_gpio_out_set_t)(struct mepa_device *dev, uint8_t g
 // Get the GPIO pin value
 typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t * const value);
 
+// Configure recovered clock
+typedef mepa_rc (*mepa_driver_synce_clock_conf_set_t)(struct mepa_device *dev, const mepa_synce_clock_conf_t *conf);
+
 // Link Base Port. Used for accessing the chip leavel common resources
 typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct mepa_device *base_dev);
 
 // Full list of PHY driver interface
 #define MEPA_LIST_OF_API_PHY_DRIVER_CALLS \
-    X(mepa_driver_delete)             \
-    X(mepa_driver_reset)              \
-    X(mepa_driver_poll)               \
-    X(mepa_driver_conf_set)           \
-    X(mepa_driver_conf_get)           \
-    X(mepa_driver_if_get)             \
-    X(mepa_driver_power_set)          \
-    X(mepa_driver_cable_diag_start)   \
-    X(mepa_driver_cable_diag_get)     \
-    X(mepa_driver_media_set)          \
-    X(mepa_driver_probe)              \
-    X(mepa_driver_aneg_status_get)    \
-    X(mepa_driver_clause22_read)      \
-    X(mepa_driver_clause22_write)     \
-    X(mepa_driver_clause45_read)      \
-    X(mepa_driver_clause45_write)     \
-    X(mepa_driver_event_enable_set)   \
-    X(mepa_driver_event_enable_get)   \
-    X(mepa_driver_event_poll)         \
-    X(mepa_driver_loopback_set)       \
-    X(mepa_driver_loopback_get)       \
-    X(mepa_driver_gpio_mode_set)      \
-    X(mepa_driver_gpio_out_set)       \
-    X(mepa_driver_gpio_in_get)        \
+    X(mepa_driver_delete)                 \
+    X(mepa_driver_reset)                  \
+    X(mepa_driver_poll)                   \
+    X(mepa_driver_conf_set)               \
+    X(mepa_driver_conf_get)               \
+    X(mepa_driver_if_get)                 \
+    X(mepa_driver_power_set)              \
+    X(mepa_driver_cable_diag_start)       \
+    X(mepa_driver_cable_diag_get)         \
+    X(mepa_driver_media_set)              \
+    X(mepa_driver_probe)                  \
+    X(mepa_driver_aneg_status_get)        \
+    X(mepa_driver_clause22_read)          \
+    X(mepa_driver_clause22_write)         \
+    X(mepa_driver_clause45_read)          \
+    X(mepa_driver_clause45_write)         \
+    X(mepa_driver_event_enable_set)       \
+    X(mepa_driver_event_enable_get)       \
+    X(mepa_driver_event_poll)             \
+    X(mepa_driver_loopback_set)           \
+    X(mepa_driver_loopback_get)           \
+    X(mepa_driver_gpio_mode_set)          \
+    X(mepa_driver_gpio_out_set)           \
+    X(mepa_driver_gpio_in_get)            \
+    X(mepa_driver_synce_clock_conf_set)   \
     X(mepa_driver_link_base_port)
 
 typedef struct mepa_driver {
-    mepa_driver_delete_t            mepa_driver_delete;
-    mepa_driver_reset_t             mepa_driver_reset;
-    mepa_driver_poll_t              mepa_driver_poll;
-    mepa_driver_conf_set_t          mepa_driver_conf_set;
-    mepa_driver_conf_get_t          mepa_driver_conf_get;
-    mepa_driver_if_get_t            mepa_driver_if_get;
-    mepa_driver_power_set_t         mepa_driver_power_set;
-    mepa_driver_cable_diag_start_t  mepa_driver_cable_diag_start;
-    mepa_driver_cable_diag_get_t    mepa_driver_cable_diag_get;
-    mepa_driver_media_set_t         mepa_driver_media_set;
-    mepa_driver_probe_t             mepa_driver_probe;
-    mepa_driver_aneg_status_get_t   mepa_driver_aneg_status_get;
-    mepa_driver_clause22_read_t     mepa_driver_clause22_read;
-    mepa_driver_clause22_write_t    mepa_driver_clause22_write;
-    mepa_driver_clause45_read_t     mepa_driver_clause45_read;
-    mepa_driver_clause45_write_t    mepa_driver_clause45_write;
-    mepa_driver_event_enable_set_t  mepa_driver_event_enable_set;
-    mepa_driver_event_enable_get_t  mepa_driver_event_enable_get;
-    mepa_driver_event_poll_t        mepa_driver_event_poll;
-    mepa_driver_loopback_set_t      mepa_driver_loopback_set;
-    mepa_driver_loopback_get_t      mepa_driver_loopback_get;
-    mepa_driver_gpio_mode_set_t     mepa_driver_gpio_mode_set;
-    mepa_driver_gpio_out_set_t      mepa_driver_gpio_out_set;
-    mepa_driver_gpio_in_get_t       mepa_driver_gpio_in_get;
-    mepa_driver_link_base_port_t    mepa_driver_link_base_port;
+    mepa_driver_delete_t               mepa_driver_delete;
+    mepa_driver_reset_t                mepa_driver_reset;
+    mepa_driver_poll_t                 mepa_driver_poll;
+    mepa_driver_conf_set_t             mepa_driver_conf_set;
+    mepa_driver_conf_get_t             mepa_driver_conf_get;
+    mepa_driver_if_get_t               mepa_driver_if_get;
+    mepa_driver_power_set_t            mepa_driver_power_set;
+    mepa_driver_cable_diag_start_t     mepa_driver_cable_diag_start;
+    mepa_driver_cable_diag_get_t       mepa_driver_cable_diag_get;
+    mepa_driver_media_set_t            mepa_driver_media_set;
+    mepa_driver_probe_t                mepa_driver_probe;
+    mepa_driver_aneg_status_get_t      mepa_driver_aneg_status_get;
+    mepa_driver_clause22_read_t        mepa_driver_clause22_read;
+    mepa_driver_clause22_write_t       mepa_driver_clause22_write;
+    mepa_driver_clause45_read_t        mepa_driver_clause45_read;
+    mepa_driver_clause45_write_t       mepa_driver_clause45_write;
+    mepa_driver_event_enable_set_t     mepa_driver_event_enable_set;
+    mepa_driver_event_enable_get_t     mepa_driver_event_enable_get;
+    mepa_driver_event_poll_t           mepa_driver_event_poll;
+    mepa_driver_loopback_set_t         mepa_driver_loopback_set;
+    mepa_driver_loopback_get_t         mepa_driver_loopback_get;
+    mepa_driver_gpio_mode_set_t        mepa_driver_gpio_mode_set;
+    mepa_driver_gpio_out_set_t         mepa_driver_gpio_out_set;
+    mepa_driver_gpio_in_get_t          mepa_driver_gpio_in_get;
+    mepa_driver_synce_clock_conf_set_t mepa_driver_synce_clock_conf_set;
+    mepa_driver_link_base_port_t       mepa_driver_link_base_port;
 
     uint32_t id;                  // Id of the driver
     uint32_t mask;                // Mask of the driver

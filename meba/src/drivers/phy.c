@@ -421,3 +421,19 @@ mepa_rc meba_phy_gpio_in_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t g
 
     return phy_dev->drv->mepa_driver_gpio_in_get(phy_dev, gpio_no, enable);
 }
+
+// Set the phy recovered clock configuration
+mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_synce_clock_conf_t *conf)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_synce_clock_conf_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_synce_clock_conf_set(phy_dev, conf);
+}
