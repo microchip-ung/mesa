@@ -22,8 +22,8 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 #---------- Configuration -----------------------------------------------------
 
 check_capabilities do
-    $cap_kr = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_KR_IRQ")
-    assert(($cap_kr != true), "KR IRQ must be supported")
+    cap_kr = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_KR_IRQ")
+    assert(cap_kr != 0, "KR IRQ must be supported")
 end
 
 repeat_test = 10
