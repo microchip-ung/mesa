@@ -187,9 +187,9 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
 #define LAN966X_POLICER_PORT  0   // 0-8   : Port policers (9)
 #define LAN966X_POLICER_QUEUE 9   // 9-80  : Queue policers (72)
 #define LAN966X_POLICER_ACL   81  // 81-96 : ACL policers (16)
-#define LAN966X_POLICER_DLB   97  // 97-254: DLB policers (158)
-#define LAN966X_POLICER_DISC  255 // 255   : Discard policer
-#define LAN966X_POLICER_CNT   256 // Total number of policers
+#define LAN966X_POLICER_DLB   97  // 97-343: DLB policers (247)
+#define LAN966X_POLICER_DISC  344 // 255   : Discard policer
+#define LAN966X_POLICER_CNT   345 // Total number of policers
 
 #define LAN966X_PRIOS        8   /* Number of priorities */
 

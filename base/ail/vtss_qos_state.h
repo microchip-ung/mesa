@@ -78,7 +78,7 @@ typedef struct {
 
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_SDX_CNT      255
-#define VTSS_EVC_POL_CNT  (256 - 9 * 9 - 16) /* DLB policers (port/queue/ACL policers reserved) */
+#define VTSS_EVC_POL_CNT  240 /* DLB policers (port/queue/ACL policers reserved) */
 #define VTSS_EVC_STAT_CNT 256 /* ISDX/ESDX statistics */
 #endif
 
