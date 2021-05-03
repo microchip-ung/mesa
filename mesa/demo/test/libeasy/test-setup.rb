@@ -886,18 +886,42 @@ $easyframes_sha = "e922a34e1778e60be322ef7c3f54d3fac68e03c7"
 class Switchdev_Pc_b2b_4x
     attr_accessor :dut, :pc, :links, :vinst, :vconn, :ts_external_clock_looped, :port_admin
 
-    def initialize conf, mesa_args
+    def initialize conf, mesa_args, topo_name
+        #Default topology
         dut_url = conf["dut"]["terminal"]
         dut_args = conf["dut"]["mesa_demo_args"]
         dut_ports = conf["dut"]["ports"]
         dut_looped_ports = conf["dut"]["looped_ports"]
-        pc_ports = conf["pc"]["ports"]
+        dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
-        dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
+        map = conf["dut"]["port-name-map"]
+        pc_ports = conf["pc"]["ports"]
+
+        #Check for any multi topology overwriting
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                next if (topo["#{topo_name}"] == nil)
+                name = topo["#{topo_name}"]
+                if (name["dut"] != nil)
+                    if (name["dut"]["ports"] != nil)
+                        dut_ports = name["dut"]["ports"]
+                    end
+                    if (topo["dut"]["port-name-map"] != nil)
+                        map = topo["dut"]["port-name-map"]
+                    end
+                end
+                if (name["pc"] != nil)
+                    if (name["pc"]["ports"] != nil)
+                        pc_ports = name["pc"]["ports"]
+                    end
+                end
+            end
+        end
+
+        #Do the Linux port mapping if any
         dut_ports_sd = []
         dut_looped_ports_sd = []
-        map = conf["dut"]["port-name-map"]
         map.each do |item|
             if dut_ports.include? item["idx"]
                 dut_ports_sd << item["linux"]
@@ -911,6 +935,8 @@ class Switchdev_Pc_b2b_4x
             end
             dut_looped_ports_sd << "eth#{port+offset}"
         end
+
+        #Create the DUT
         @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
@@ -962,6 +988,18 @@ class Switchdev_Pc_b2b_4x
 
         if !$options[:no_init]
             @pc.run "poll_interface_state.rb -t 60 #{pc_ports.join " "}"
+        end
+
+        #Check for any multi topology commands
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                if (topo["#{topo_name}"] != nil)
+                    name = topo["#{topo_name}"]
+                    name["command"].each do |command|  #Do all required server PC commands
+                        @pc.run command
+                    end
+                end
+            end
         end
 
         # TODO, wait for the DUT to see the link
@@ -1069,21 +1107,43 @@ end
 class Mesa_Pc_b2b
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
 
-    def initialize conf, mesa_args, port_cnt
+    def initialize conf, mesa_args, port_cnt, topo_name
+        #Default topology
         dut_url = conf["dut"]["terminal"]
         dut_args = conf["dut"]["mesa_demo_args"]
         dut_ports = conf["dut"]["ports"]
         dut_looped_ports = conf["dut"]["looped_ports"]
         dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
-        pc_ports = conf["pc"]["ports"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
+        pc_ports = conf["pc"]["ports"]
+
+        #Check for any multi topology overwriting
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                next if (topo["#{topo_name}"] == nil)
+                name = topo["#{topo_name}"]
+                if (name["dut"] != nil)
+                    if (name["dut"]["ports"] != nil)
+                        dut_ports = name["dut"]["ports"]
+                    end
+                end
+                if (name["pc"] != nil)
+                    if (name["pc"]["ports"] != nil)
+                        pc_ports = name["pc"]["ports"]
+                    end
+                end
+            end
+        end
+
         check_capabilities do
             cnt = dut_ports.length
             if (cnt < port_cnt)
                 assert(false, "setup has #{cnt} ports, test requires #{port_cnt}")
             end
         end
+
+        #Create the DUT
         @dut = MesaDut.new :mesa, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
 
         if conf.key?("easytest_cmd_server")
@@ -1099,9 +1159,9 @@ class Mesa_Pc_b2b
 
         @links = dut_ports.zip(pc_ports).map{|e| {:dut => e[0], :pc => e[1]}}
         @ts_external_clock_looped = (conf["ts_external_clock_looped"] == true) ? true : false
-       if conf["pc"].key?("et_idx")
-           @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
-       end
+        if conf["pc"].key?("et_idx")
+            @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
+        end
 
         if $options[:no_init]
             @pc.run "/easytest/local/if-setup-l2-test.rb"
@@ -1137,6 +1197,18 @@ class Mesa_Pc_b2b
                         break;
                     end
                     sleep 1
+                end
+            end
+        end
+
+        #Check for any multi topology commands
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                if (topo["#{topo_name}"] != nil)
+                    name = topo["#{topo_name}"]
+                    name["command"].each do |command|  #Do all required server PC commands
+                        @pc.run command
+                    end
                 end
             end
         end
@@ -1192,14 +1264,14 @@ def dut_init_block name
     exit -1 if has_err
 end
 
-def get_test_setup_inner(setup, conf, mesa_args)
+def get_test_setup_inner(setup, conf, mesa_args, topo_name)
     case setup
     when "mesa_pc_b2b_4x"
-        return Mesa_Pc_b2b.new(conf, mesa_args, 4)
+        return Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name)
     when "mesa_pc_b2b_2x"
-        return Mesa_Pc_b2b.new(conf, mesa_args, 2)
+        return Mesa_Pc_b2b.new(conf, mesa_args, 2, topo_name)
     when "switchdev_pc_b2b_4x"
-        return Switchdev_Pc_b2b_4x.new(conf, mesa_args)
+        return Switchdev_Pc_b2b_4x.new(conf, mesa_args, topo_name)
     when "switchdev_pc_bsp"
         return Switchdev_Pc_bsp.new(conf)
     when "qemu_pc"
@@ -1223,13 +1295,12 @@ def git_info cmd, env = nil, default = "UNKNOWN"
     end
 end
 
-def get_test_setup(setup, labels= {}, mesa_args = "")
+def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     # URI:
     #    telnet://  -> if using a terminal server
     #    termhub:// -> if using termhub
     #
     # Keep the topology file .mscc-libeasy-topology.yaml in the home directory of the test PC
-
     if (File.exist?('.mscc-libeasy-topology.yaml'))
         conf = YAML.load_file ".mscc-libeasy-topology.yaml"
     else
@@ -1288,7 +1359,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "")
     xml_tag_end "labels"
 
     dut_init_block setup do
-        ts = get_test_setup_inner(setup, conf, mesa_args)
+        ts = get_test_setup_inner(setup, conf, mesa_args, topo_name)
         $global_test_setup = ts
 
         if (defined? ts.dut) and ts.dut.api == :mesa
