@@ -835,17 +835,26 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 {
-    u32 domain, clk_in_100ps, i;
+    u32 domain, clk_in_ps, i;
+    u64 nsec, psec;
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(0));
 
     /* Configure the nominal TOD increment per clock cycle */
-    /* Read the nominal system clock period length in 100 ps */
-    clk_in_100ps = vtss_lan966x_clk_period_ps(vtss_state) / 100;
+    clk_in_ps = vtss_lan966x_clk_period_ps(vtss_state);
 
-    /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
-    nominal_tod_increment = ((clk_in_100ps/10) * 0x0800000000000000) + (((clk_in_100ps%10) * 0x0800000000000000)/10);
+    // Bit 63:59 are nano seconds, bit 58:0 is the rest (pico seconds)
+    nsec = (clk_in_ps / 1000);
+    psec = (clk_in_ps % 1000);
+
+    // This calculation could overflow: psec = ((psec << 59) / 1000)
+    if (psec < 256) {
+        psec = ((psec << 56) / 125);
+    } else {
+        psec = (((psec << 54) / 125) << 2);
+    }
+    nominal_tod_increment = ((nsec << 59) + psec);
 
     /* Configure the calculated increment */
     REG_WRM(PTP_DOM_CFG, PTP_DOM_CFG_CLKCFG_DIS(7), PTP_DOM_CFG_CLKCFG_DIS_M);

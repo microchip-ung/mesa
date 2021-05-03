@@ -52,7 +52,7 @@ u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state)
 #if defined(VTSS_ARCH_LAN966X_FPGA)
     return 15125;
 #else
-    return 6154;
+    return 6038; // 165.625 MHz
 #endif
 }
 

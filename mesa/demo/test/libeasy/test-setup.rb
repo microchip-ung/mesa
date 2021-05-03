@@ -1120,7 +1120,7 @@ class Mesa_Pc_b2b
             t = $options[:dut_trace]
 
             @dut.bg "api", "mesa-demo -f #{dut_args} #{t} #{mesa_args}"
-            @dut.bg "rte", "mera-demo -f"
+            @dut.bg "rte", "mera-demo -f #{dut_args}"
         end
 
         if !$options[:no_init]
