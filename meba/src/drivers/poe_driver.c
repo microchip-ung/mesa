@@ -38,6 +38,7 @@
 #define SET_SYSTEM_MASKS                0x2B
 #define RESTORE_FACT_KEY                0x2D
 #define TMP_MATRIX_KEY                  0x43
+#define CHANNEL_MATRIX_KEY              0x44
 #define BT_LLDP_PD_KEY                  0x50
 #define BT_LLDP_PSE_KEY                 0x51
 #define REPORT_KEY                      0x52
@@ -1043,6 +1044,39 @@ mesa_rc meba_poe_pd69200_ctrl_set_system_masks(
     return MESA_RC_OK;
 }
 
+static
+mesa_rc meba_poe_pd69200_ctrl_get_active_matrix(
+    const meba_poe_ctrl_inst_t *const inst,
+    meba_poe_port_handle_t      handle,
+    uint8_t                    *phys_numb_a,
+    uint8_t                    *phys_numb_b)
+{
+    // Transmit the command
+    uint8_t buf[PD_BUFFER_SIZE] = {
+        REQUEST_KEY,
+        DUMMY_SEQ_NUM,
+        CHANNEL_KEY,
+        CHANNEL_MATRIX_KEY,
+        handle,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE
+    };
+
+    MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    *phys_numb_a = buf[2];
+    *phys_numb_b = buf[3];
+    return MESA_RC_OK;
+}
+
 static 
 mesa_rc meba_poe_pd69200_ctrl_set_temporary_matrix(
     const meba_poe_ctrl_inst_t *const inst,
@@ -1930,6 +1964,22 @@ mesa_rc meba_poe_pd69200_ctrl_status_get(
     return MESA_RC_OK;
 }
 
+static mesa_rc pd69200_active_matrix_verify(
+    const meba_poe_ctrl_inst_t     *const inst)
+{
+    for (uint8_t i = 0; i < inst->port_map_length; i++) {
+        if (inst->port_map[i].capabilities & MEBA_POE_PORT_CAP_POE) {
+            uint8_t port_a, port_b;
+            MESA_RC(meba_poe_pd69200_ctrl_get_active_matrix(
+                inst, i, &port_a, &port_b));
+            if (port_a != inst->port_map[i].phys_port_a ||
+                port_b != inst->port_map[i].phys_port_b) {
+                return MESA_RC_ERROR;
+            }
+        }
+    }
+    return MESA_RC_OK;
+}
 
 // If we end up mapping two channels to the same port the "pd69200_program_global_matrix"
 // will not be executed (no errors will indicate this). To avoid this we start be mapping all channels
@@ -3182,9 +3232,13 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
     MESA_RC(meba_poe_pd69200_individual_mask_set(inst, SUPPORT_HIGH_RES_DETECTION, 1));
     // Enable port poe led.
     MESA_RC(meba_poe_pd69200_individual_mask_set(inst, LED_STREAM_TYPE, 2));
-    MESA_RC(pd69200_temp_matrix_init(inst));
-    MESA_RC(pd69200_temp_matrix_set(inst));
-    MESA_RC(pd69200_program_global_matrix(inst));
+    // Read active matrix and compare with intended matrix before programming it.
+    // Get physical port number from active matrix
+    if (pd69200_active_matrix_verify(inst) != MESA_RC_OK) {
+        MESA_RC(pd69200_temp_matrix_init(inst));
+        MESA_RC(pd69200_temp_matrix_set(inst));
+        MESA_RC(pd69200_program_global_matrix(inst));
+    }
 
     return MESA_RC_OK;
 }
