@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_4x")
 
 $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
 $chip_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
