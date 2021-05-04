@@ -104,6 +104,15 @@ $machines = {
                 { :name => "8309_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
             ]
           },
+          {
+            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-sr.dtb",
+            :overlays => [
+                { :name => "6849_0@lan966x-sr", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
+                { :name => "8290_0@lan966x-sr", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
+                { :name => "8291_0@lan966x-sr", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
+                { :name => "8309_0@lan966x-sr", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+            ]
+          },
         ],
         :fdtaddr => "<0x67e00000>",
         :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
