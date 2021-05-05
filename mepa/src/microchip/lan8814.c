@@ -4,8 +4,8 @@
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/switch/api.h>
 
-#include "indy_registers.h"
-#include "indy_private.h"
+#include "lan8814_registers.h"
+#include "lan8814_private.h"
 
 typedef struct {
     mesa_inst_t inst;

@@ -119,8 +119,8 @@ MEBA_LIB(LIB_NAME servalt MEBA_SRC_FOLDER servalt
 
 MEBA_LIB(LIB_NAME ocelot MEBA_SRC_FOLDER ocelot
          MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_INDY
-         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_indy_static
-         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_indy)
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_lan8814_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_lan8814)
 
 MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
          MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
@@ -129,8 +129,8 @@ MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
 
 MEBA_LIB(LIB_NAME sparx5 MEBA_SRC_FOLDER sparx5
          MEBA_DEFINES           MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_AQR   MEBA_HAS_MEPA_INTEL   MEBA_HAS_MEPA_INDY
-         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_aqr_static     mepa_intel_static     mepa_indy_static
-         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_aqr            mepa_intel            mepa_indy)
+         STATIC_DEPENDENCIES    mepa_vtss_static     mepa_aqr_static     mepa_intel_static     mepa_lan8814_static
+         DYNAMIC_DEPENDENCIES   mepa_vtss            mepa_aqr            mepa_intel            mepa_lan8814)
 
 MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
          MEBA_DEFINES           MEBA_HAS_MEPA_VTSS
