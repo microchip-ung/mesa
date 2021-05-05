@@ -56,8 +56,8 @@ static vtss_rc vtss_maserati_sd6g40_reg_cfg(vtss_state_t *vtss_state, vtss_sd6g4
             HSIO_SD_CFG2_RX_EQ_M);
 
     REG_WRM(HSIO_SD_CFG2(idx),
-            HSIO_SD_CFG2_RX_EQ(res_struct->tx_preemp[0]),
-            HSIO_SD_CFG2_RX_EQ_M);
+            HSIO_SD_CFG2_TX_PREEMPH(res_struct->tx_preemp[0]),
+            HSIO_SD_CFG2_TX_PREEMPH_M);
 
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_RX_TERM_EN(res_struct->rx_term_en[0]),

@@ -1187,9 +1187,14 @@ static vtss_rc lan966x_debug_port(vtss_state_t *vtss_state,
     pr("\n");
 
     for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
-        pr("SD6G[%u]: %s\n", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+        sprintf(buf, "SD6G[%u]: %s", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+        vtss_lan966x_debug_reg_header(pr, buf);
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG(i)), "SD_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG2(i)), "SD_CFG2");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_MPLL_CFG(i)), "MPLL_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_STAT(i)), "SD_STAT");
+        pr("\n");
     }
-    pr("\n");
 #endif
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         port_no = vtss_cmn_port2port_no(vtss_state, info, port);
