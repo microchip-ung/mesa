@@ -276,8 +276,8 @@ void meba_phy_driver_init(meba_inst_t inst)
     phy_lib[4] = mepa_intel_driver_init();
 #endif
 
-#if defined(MEBA_HAS_MEPA_INDY)
-    phy_lib[5] = mepa_indy_driver_init();
+#if defined(MEBA_HAS_MEPA_LAN8814)
+    phy_lib[5] = mepa_lan8814_driver_init();
 #endif
 
     phy_lib[6] = mepa_default_phy_driver_init();

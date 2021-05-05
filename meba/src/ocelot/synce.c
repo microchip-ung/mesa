@@ -304,7 +304,7 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
                 synce_graph.attr_length += MEBA_ARRSZ(attr_ocelot10_ref_board_zarlink_dpll);
                 break;
         }
-    } else if ( board_type == VTSS_BOARD_OCELOT_PCB123_REF_INDY) {
+    } else if ( board_type == VTSS_BOARD_OCELOT_PCB123_LAN8814_REF) {
         synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_ocelot8_ref_board);
         synce_graph.graph = synce_graph_elements_ocelot8_ref_board;
         memcpy(attr, attr_ocelot8_ref_board, sizeof(attr_ocelot8_ref_board));

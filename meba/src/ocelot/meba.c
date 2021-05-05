@@ -14,7 +14,7 @@
 typedef enum {
     BOARD_TYPE_OCELOT_PCB120,
     BOARD_TYPE_OCELOT_PCB123,
-    BOARD_TYPE_OCELOT_PCB123_INDY
+    BOARD_TYPE_OCELOT_PCB123_LAN8814
 } board_type_t;
 #define MAX_PORTS 11
 typedef enum {
@@ -292,7 +292,7 @@ static mesa_rc pcb123_init_board(meba_inst_t inst)
     return rc;
 }
 
-static mesa_rc pcb123_indy_init_board(meba_inst_t inst)
+static mesa_rc pcb123_lan8814_init_board(meba_inst_t inst)
 {
     mesa_rc rc;
     mesa_sgpio_conf_t conf;
@@ -596,7 +596,7 @@ static void pcb123_init_porttable(meba_inst_t inst)
     memcpy(board->sgpio_port, sgpio_port_map, sizeof(sgpio_port_map));
 }
 
-static void pcb123_indy_init_porttable(meba_inst_t inst)
+static void pcb123_lan8814_init_porttable(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_no_t      port_no;
@@ -662,9 +662,9 @@ static const board_func_t board_funcs[] = {
         .board_init      = pcb123_init_board,
         .init_porttable  = pcb123_init_porttable,
     },
-    [BOARD_TYPE_OCELOT_PCB123_INDY] = {
-        .board_init      = pcb123_indy_init_board,
-        .init_porttable  = pcb123_indy_init_porttable,
+    [BOARD_TYPE_OCELOT_PCB123_LAN8814] = {
+        .board_init      = pcb123_lan8814_init_board,
+        .init_porttable  = pcb123_lan8814_init_porttable,
     },
 };
 
@@ -725,7 +725,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
             return (sfp == SFP_DETECT) ? !data[11].value[0] : (sfp == SFP_FAULT) ? data[11].value[1] : data[10].value[0];
         }
         return false;
-    } else if (board->type != BOARD_TYPE_OCELOT_PCB123_INDY) {
+    } else if (board->type != BOARD_TYPE_OCELOT_PCB123_LAN8814) {
         // Assuming BOARD_TYPE_OCELOT_PCB123
         switch (board_port) {
         case 4:
@@ -887,7 +887,7 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
                     rc = mesa_phy_post_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
                 }
             }
-            if (board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
+            if (board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
                 mesa_sgpio_conf_t conf;
                 if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
                     /* Disable coma mode. */
@@ -1151,7 +1151,7 @@ static mesa_rc ocelot_status_led_set(meba_inst_t inst,
         T_N(inst, "LED:%d, color=%d", type, color);
         if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
             uint32_t sgpio = MESA_SGPIO_PORTS;
-            if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
+            if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
                 switch (type) {
                     case MEBA_LED_TYPE_FRONT:
                         sgpio = 11;
@@ -1263,7 +1263,7 @@ static mesa_rc ocelot_port_led_update(meba_inst_t inst,
                     mode_green = ((activity & ACTIVITY_CNT) ? MESA_SGPIO_MODE_0_ACTIVITY : MESA_SGPIO_MODE_OFF);
                     /* Hack for port mux modes where PCB123 cannot provide automatic LED activity blink.
                        For these ports, the port LED will only indicate the link status, but no activity. */
-                    if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_INDY) {
+                    if (board->type == BOARD_TYPE_OCELOT_PCB123 || board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
                         switch (inst->props.mux_mode) {
                         case MESA_PORT_MUX_MODE_0:
                             if ((board_port >= 6) & (board_port <= 8)) {
@@ -1601,7 +1601,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     (void)mebaux_gpio_mode_set(inst, &rawio, 15, MESA_GPIO_ALT_0);
     if (mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_1, 7, 2, &oui) == MESA_RC_OK) {
         inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
-        board->type = BOARD_TYPE_OCELOT_PCB123_INDY;
+        board->type = BOARD_TYPE_OCELOT_PCB123_LAN8814;
         strncpy(inst->props.name, "Ocelot Indy EVB", sizeof(inst->props.name));
         if (inst->props.target == MESA_TARGET_7514) {
             board->port_cnt = 8;
@@ -1686,7 +1686,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 
     // The actual number of ports the HW design has, not the one exposed by board->port_cnt
     uint32_t count = (board->type == BOARD_TYPE_OCELOT_PCB123) ? 12 :
-                     ((board->type == BOARD_TYPE_OCELOT_PCB123_INDY) ? 12 : 10);
+                     ((board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) ? 12 : 10);
     board->sgpio_port = (uint32_t*) calloc(count, sizeof(uint32_t));
     if (board->sgpio_port == NULL) {
         fprintf(stderr, "Board to SGPIO port table malloc failure\n");

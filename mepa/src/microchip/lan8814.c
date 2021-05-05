@@ -883,7 +883,7 @@ static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
     MEPA_EXIT();
     return MEPA_RC_OK;
 }
-mepa_drivers_t mepa_indy_driver_init() {
+mepa_drivers_t mepa_lan8814_driver_init() {
     static const int nr_indy_drivers = 2;
     static mepa_driver_t indy_drivers[] = {
         {

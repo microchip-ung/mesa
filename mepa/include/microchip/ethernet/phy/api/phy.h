@@ -357,7 +357,7 @@ mepa_drivers_t mepa_aqr_driver_init();
 // Returns drivers for intel PHY
 mepa_drivers_t mepa_intel_driver_init();
 
-// Returns drivers for Indy PHY
-mepa_drivers_t mepa_indy_driver_init();
+// Returns drivers for lan8814 PHY
+mepa_drivers_t mepa_lan8814_driver_init();
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_PHY_API_PHY_H_
