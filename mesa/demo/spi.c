@@ -41,7 +41,7 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 };
 
 /* MEBA callouts */
-#define TO_SPI(_a_)     (_a_ & 0x00FFFFFF) /* 24 bit SPI address */
+#define TO_SPI(_a_)     (_a_ & 0x007FFFFF) /* 23 bit SPI address */
 #define SPI_NR_BYTES     7                 /* Number of bytes to transmit or receive */
 #define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
 
