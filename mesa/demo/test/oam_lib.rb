@@ -474,6 +474,7 @@ def frame_tx(frame, port, frame0, frame1, frame2, framenpi)
     end
 
     $ts.pc.run cmd
+return 0
 end
 
 def ccm_pdu_create(level, period, sequence, mepid, megid, rdi=0, version=0, tlv=TLV_NONE)

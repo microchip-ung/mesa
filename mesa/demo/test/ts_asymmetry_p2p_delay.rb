@@ -35,7 +35,7 @@ def tod_asymmetry_p2p_delay_test
     if ($pcb == 135)    #Test on Copper PHY
         diff_max = 500
     end
-    if (($pcb == "Adaro") || ($pcb == "Sunrise"))    #Test on Copper PHY
+    if (($pcb == "6813-Adaro") || ($pcb == "6849-Sunrise"))    #Test on Copper PHY
         diff_max = 250
     end
 
@@ -63,7 +63,7 @@ def tod_asymmetry_p2p_delay_test
             t_i("CF ok")
         end
     else
-    if (($pcb == "Adaro") || ($pcb == "Sunrise"))    #Test on Copper PHY
+    if (($pcb == "6813-Adaro") || ($pcb == "6849-Sunrise"))    #Test on Copper PHY
         if ((lowest_corr_none > 3050) || (lowest_corr_none < 2600))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else

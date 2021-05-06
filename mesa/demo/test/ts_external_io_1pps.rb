@@ -20,7 +20,7 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
-if ($pcb == "Adaro")
+if ($pcb == "6813-Adaro")
     $external_io_in = 0
 end
 if ($pcb == 111)
@@ -28,7 +28,7 @@ if ($pcb == 111)
     $diff_high = 16
     $diff_low = -25
 else
-if ($pcb == "Adaro")
+if ($pcb == "6813-Adaro")
     $external_io_out = 1
     $diff_high = 10
     $diff_low = -10

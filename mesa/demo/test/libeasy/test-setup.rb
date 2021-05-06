@@ -897,18 +897,22 @@ class Switchdev_Pc_b2b_4x
         pcb = conf["dut"]["pcb"]
         map = conf["dut"]["port-name-map"]
         pc_ports = conf["pc"]["ports"]
-
+t_i"topo_name #{topo_name} #{conf["Multi_topo"]}"
         #Check for any multi topology overwriting
         if (conf["Multi_topo"] != nil)
             conf["Multi_topo"].each do |topo|
                 next if (topo["#{topo_name}"] == nil)
                 name = topo["#{topo_name}"]
+t_i"name #{name}"
                 if (name["dut"] != nil)
                     if (name["dut"]["ports"] != nil)
                         dut_ports = name["dut"]["ports"]
                     end
-                    if (topo["dut"]["port-name-map"] != nil)
-                        map = topo["dut"]["port-name-map"]
+                    if (name["dut"]["port-name-map"] != nil)
+                        map = name["dut"]["port-name-map"]
+                    end
+                    if (name["dut"]["looped_ports"] != nil)
+                        dut_looped_ports = name["dut"]["looped_ports"]
                     end
                 end
                 if (name["pc"] != nil)
@@ -1118,14 +1122,19 @@ class Mesa_Pc_b2b
         pcb = conf["dut"]["pcb"]
         pc_ports = conf["pc"]["ports"]
 
+t_i"topo_name #{topo_name} #{conf["Multi_topo"]}"
         #Check for any multi topology overwriting
         if (conf["Multi_topo"] != nil)
             conf["Multi_topo"].each do |topo|
                 next if (topo["#{topo_name}"] == nil)
                 name = topo["#{topo_name}"]
+t_i"name #{name}"
                 if (name["dut"] != nil)
                     if (name["dut"]["ports"] != nil)
                         dut_ports = name["dut"]["ports"]
+                    end
+                    if (name["dut"]["looped_ports"] != nil)
+                        dut_looped_ports = name["dut"]["looped_ports"]
                     end
                 end
                 if (name["pc"] != nil)
@@ -1183,6 +1192,20 @@ class Mesa_Pc_b2b
             @dut.bg "rte", "mera-demo -f #{dut_args}"
         end
 
+        #Check for any multi topology commands
+#        if (conf["Multi_topo"] != nil)
+#            conf["Multi_topo"].each do |topo|
+#                if (topo["#{topo_name}"] != nil)
+#                    name = topo["#{topo_name}"]
+#                    name["command"].each do |command|  #Do all required server PC commands
+#                        @pc.run command
+#sleep 5
+#                    end
+#                end
+#            end
+#sleep 10
+#        end
+
         if !$options[:no_init]
             @pc.run "poll_interface_state.rb -t 60 #{pc_ports.join " "}"
 
@@ -1197,18 +1220,6 @@ class Mesa_Pc_b2b
                         break;
                     end
                     sleep 1
-                end
-            end
-        end
-
-        #Check for any multi topology commands
-        if (conf["Multi_topo"] != nil)
-            conf["Multi_topo"].each do |topo|
-                if (topo["#{topo_name}"] != nil)
-                    name = topo["#{topo_name}"]
-                    name["command"].each do |command|  #Do all required server PC commands
-                        @pc.run command
-                    end
                 end
             end
         end

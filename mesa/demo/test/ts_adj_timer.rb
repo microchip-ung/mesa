@@ -21,7 +21,7 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
-if ($pcb == "Adaro")
+if ($pcb == "6813-Adaro")
     $external_io_in = 0
 end
 if ($pcb == 111)
@@ -74,7 +74,7 @@ def tod_adj_timer_test(domain_out, domain_in)
         diff_low = 1185000
     end
     diff_no_adj = 2
-    if ($pcb == "Adaro")
+    if ($pcb == "6813-Adaro")
         diff_no_adj = 8
         adj_max = 1200000
         diff_high = 120114

@@ -7,7 +7,7 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 require 'pry'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
@@ -19,6 +19,7 @@ check_capabilities do
            "Two front ports must be looped")
     $loop_port0 = $ts.dut.looped_port_list[0]
     $loop_port1 = $ts.dut.looped_port_list[1]
+t_i"loop_port0 #{$loop_port0}  loop_port1 #{$loop_port1}"
 end
 
 loop_pair_check
@@ -44,7 +45,9 @@ def tod_tx_fifo_test
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create($loop_port1) + frameHdrTx.dup + sync_pdu_rx_create()
+$ts.dut.run("mesa-cmd port statis clear")
     frame_tx(frametx, $npi_port, " ", " ", " ", framerx, 60)
+$ts.dut.run("mesa-cmd port statis pac")
 
     t_i "Calculate the IFH and decode it"
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
