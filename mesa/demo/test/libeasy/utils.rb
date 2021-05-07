@@ -509,7 +509,7 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
     t_i("Calculated frames per sec at line speed: #{sec_count_in}")
 
-    pre_tx = with_pre_tx ? 1 : 0    # Calculate the possible pre tx time in seconds
+    pre_tx = with_pre_tx ? 3 : 0    # Calculate the possible pre tx time in seconds
     t_i("Start Easy Frame transmitting #{sec*sec_count_in} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
     time = (pre_tx+sec+100)     # Calculate the required seconds that the transmitter must at least (+100) be transmitting
     rep = time*sec_count_in     # Convert the required transmission seconds to number of frames, as this is the parameter to ef tx function

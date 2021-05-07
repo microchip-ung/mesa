@@ -897,13 +897,12 @@ class Switchdev_Pc_b2b_4x
         pcb = conf["dut"]["pcb"]
         map = conf["dut"]["port-name-map"]
         pc_ports = conf["pc"]["ports"]
-t_i"topo_name #{topo_name} #{conf["Multi_topo"]}"
+
         #Check for any multi topology overwriting
         if (conf["Multi_topo"] != nil)
             conf["Multi_topo"].each do |topo|
                 next if (topo["#{topo_name}"] == nil)
                 name = topo["#{topo_name}"]
-t_i"name #{name}"
                 if (name["dut"] != nil)
                     if (name["dut"]["ports"] != nil)
                         dut_ports = name["dut"]["ports"]
@@ -1122,13 +1121,11 @@ class Mesa_Pc_b2b
         pcb = conf["dut"]["pcb"]
         pc_ports = conf["pc"]["ports"]
 
-t_i"topo_name #{topo_name} #{conf["Multi_topo"]}"
         #Check for any multi topology overwriting
         if (conf["Multi_topo"] != nil)
             conf["Multi_topo"].each do |topo|
                 next if (topo["#{topo_name}"] == nil)
                 name = topo["#{topo_name}"]
-t_i"name #{name}"
                 if (name["dut"] != nil)
                     if (name["dut"]["ports"] != nil)
                         dut_ports = name["dut"]["ports"]
@@ -1193,18 +1190,17 @@ t_i"name #{name}"
         end
 
         #Check for any multi topology commands
-#        if (conf["Multi_topo"] != nil)
-#            conf["Multi_topo"].each do |topo|
-#                if (topo["#{topo_name}"] != nil)
-#                    name = topo["#{topo_name}"]
-#                    name["command"].each do |command|  #Do all required server PC commands
-#                        @pc.run command
-#sleep 5
-#                    end
-#                end
-#            end
-#sleep 10
-#        end
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                if (topo["#{topo_name}"] != nil)
+                    name = topo["#{topo_name}"]
+                    name["command"].each do |command|  #Do all required server PC commands
+                        @pc.run command
+                        sleep 1
+                    end
+                end
+            end
+        end
 
         if !$options[:no_init]
             @pc.run "poll_interface_state.rb -t 60 #{pc_ports.join " "}"
