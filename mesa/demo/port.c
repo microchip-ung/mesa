@@ -340,13 +340,10 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                 T_E("meba_phy_conf_set(%u) failed", port_no);
                 return;
             }
-            if (!init) {
-                if (pc->autoneg) {
-                    // The Phy is configured. When the link comes up the switch gets configured.
-                    return;
-                }
+            if (!init && pc->autoneg) {
+                // The Phy is configured. When the link comes up the switch gets configured.
+                return;
             }
-
             conf.speed = (pc->autoneg ? MESA_SPEED_1G : pc->speed);
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
@@ -472,7 +469,7 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
     mscc_appl_port_conf_t *pc;
     mesa_port_status_t    *ps;
     mesa_bool_t           first = 1;
-    mesa_bool_t           rx, tx;
+    mesa_bool_t           rx, tx, init;
     port_cli_req_t        *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
@@ -485,6 +482,7 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
         ps = &entry->status;
 
         if (req->set) {
+            init = 0;
             switch (cmd) {
             case CLI_CMD_PORT_STATE:
                 pc->admin.enable = req->enable;
@@ -501,11 +499,12 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                 break;
             case CLI_CMD_PORT_MAXLEN:
                 pc->max_length = mreq->max_length;
+                init = 1;
                 break;
             default:
                 return;
             }
-            port_setup(iport, FALSE, FALSE);
+            port_setup(iport, FALSE, init);
         } else {
             if (first) {
                 cli_table_header("Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link      ");
