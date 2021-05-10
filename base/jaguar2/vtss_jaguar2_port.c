@@ -63,7 +63,7 @@ static vtss_rc jr2_port_clause_37_status_get(vtss_state_t *vtss_state,
 
 {
     u32                    value;
-    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner_adv_sgmii;
+    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner.sgmii;
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    tgt = VTSS_TO_DEV1G(port);
 
@@ -115,13 +115,13 @@ static vtss_rc jr2_port_clause_37_status_get(vtss_state_t *vtss_state,
         sgmii_adv->speed_10M = (value == 0 ? 1 : 0);
         sgmii_adv->speed_100M = (value == 1 ? 1 : 0);
         sgmii_adv->speed_1G = (value == 2 ? 1 : 0);
-        sgmii_adv->hdx = (status->autoneg.partner_advertisement.fdx ? 0 : 1);
+        sgmii_adv->hdx = (status->autoneg.partner.cl37.fdx ? 0 : 1);
         if (status->link) {
             /* If the SFP module does not have a link then the port does not have link */
             status->link = sgmii_adv->link;
         }
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner_advertisement));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
 
     return VTSS_RC_OK;

@@ -170,6 +170,7 @@ typedef enum {
     MESA_DEBUG_GROUP_MACSEC,    // 802.1AE MacSec
     MESA_DEBUG_GROUP_SERDES,    // Serdes Macroes
     MESA_DEBUG_GROUP_KR,        // 5G/10G/25G-KR
+    MESA_DEBUG_GROUP_MUX,       // mux mode
 
     // New groups are added above this line
     MESA_DEBUG_GROUP_COUNT      // Number of groups

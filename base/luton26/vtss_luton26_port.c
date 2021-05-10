@@ -116,18 +116,17 @@ static vtss_rc l26_port_clause_37_status_get(vtss_state_t *vtss_state,
     value = VTSS_X_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
 
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
-        status->autoneg.partner_adv_sgmii.link = ((value >> 15) == 1) ? 1 : 0;
-        status->autoneg.partner_adv_sgmii.speed_10M = (((value >> 10) & 3) == 0) ? 1 : 0;
-        status->autoneg.partner_adv_sgmii.speed_100M =(((value >> 10) & 3) == 1) ? 1 : 0;
-        status->autoneg.partner_adv_sgmii.speed_1G =  (((value >> 10) & 3) == 2) ? 1 : 0;
-        status->autoneg.partner_adv_sgmii.fdx = (((value >> 12) & 0x1) == 1) ? 1 : 0;
-        status->autoneg.partner_adv_sgmii.hdx = status->autoneg.partner_advertisement.fdx ? 0 : 1;
+        status->autoneg.partner.sgmii.link = ((value >> 15) == 1) ? 1 : 0;
+        status->autoneg.partner.sgmii.speed_10M = (((value >> 10) & 3) == 0) ? 1 : 0;
+        status->autoneg.partner.sgmii.speed_100M =(((value >> 10) & 3) == 1) ? 1 : 0;
+        status->autoneg.partner.sgmii.speed_1G =  (((value >> 10) & 3) == 2) ? 1 : 0;
+        status->autoneg.partner.sgmii.fdx = (((value >> 12) & 0x1) == 1) ? 1 : 0;
         if (status->link) {
             /* If the SFP module does not have a link then the port does not have link */
-            status->link = status->autoneg.partner_adv_sgmii.link;
+            status->link = status->autoneg.partner.sgmii.link;
         }
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner_advertisement));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
 
     return VTSS_RC_OK;

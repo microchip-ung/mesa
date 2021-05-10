@@ -176,6 +176,9 @@ static mesa_rc intl_poll(mepa_device_t *dev, mepa_driver_status_t *status)
             case (SPEED_100):
                 status->speed = MESA_SPEED_100M;
                 break;
+            case (SPEED_10):
+                status->speed = MESA_SPEED_10M;
+                break;
             case (SPEED_2500):
                 status->speed = MESA_SPEED_2500M;
                 break;

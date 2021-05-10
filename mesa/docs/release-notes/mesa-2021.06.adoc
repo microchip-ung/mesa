@@ -1,0 +1,13 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2021.06
+
+== MESA-2021.06
+
+=== General
+
+==== USXGMII mode
+
+This release introduces USXGMII mode which is a 4x2.5G mode over 10G or 25G serdes.
+This mode supports in-band status (USXGMII code word) as well as out-of-band (from the phy over MDIO).

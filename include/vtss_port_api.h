@@ -146,6 +146,15 @@ typedef struct
     BOOL                               aneg_complete;     /**< Aneg process completed       */
 } vtss_port_sgmii_aneg_t;
 
+/** \brief Advertisement for USXGMII aneg */
+typedef struct
+{
+    BOOL                               link;              /**< LP link status               */
+    BOOL                               fdx;               /**< Full duplex                  */
+    vtss_port_speed_t                  speed;             /**< Port speed                   */
+    BOOL                               aneg_complete;     /**< Aneg process completed       */
+} vtss_port_usxgmii_aneg_t;
+
 
 /** \brief Auto-negotiation control parameter struct */
 typedef struct

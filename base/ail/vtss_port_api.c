@@ -256,6 +256,26 @@ vtss_rc vtss_port_ifh_conf_get(const vtss_inst_t     inst,
 #endif /* VTSS_FEATURE_PORT_IFH */
 
 /* - Port status --------------------------------------------------- */
+static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t         *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            vtss_port_status_t   *const status)
+{
+    vtss_rc                       rc;
+    vtss_port_clause_37_status_t  clause_37_status;
+
+    VTSS_N("port_no: %u", port_no);
+    memset(&clause_37_status, 0, sizeof(clause_37_status));
+    if ((rc = VTSS_FUNC(port.clause_37_status_get, port_no, &clause_37_status)) != VTSS_RC_OK) {
+        return rc;
+    }
+    status->link_down = (clause_37_status.link ? 0 : 1);
+    status->aneg_complete = clause_37_status.autoneg.complete;
+    status->link = clause_37_status.autoneg.partner.usxgmii.link;
+    status->fdx = clause_37_status.autoneg.partner.usxgmii.fdx;
+    status->speed = clause_37_status.autoneg.partner.usxgmii.speed;
+
+    return rc;
+}
 
 static vtss_rc vtss_port_clause_37_status_get(vtss_state_t         *vtss_state,
                                               const vtss_port_no_t port_no,
@@ -290,14 +310,14 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t         *vtss_state,
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         /* The SGMII aneg status is a status from SFP-Phy on the copper side */
         if (clause_37_status.autoneg.complete) {
-            if (clause_37_status.autoneg.partner_adv_sgmii.speed_1G) {
+            if (clause_37_status.autoneg.partner.sgmii.speed_1G) {
                 status->speed = VTSS_SPEED_1G;
-            } else if (clause_37_status.autoneg.partner_adv_sgmii.speed_100M) {
+            } else if (clause_37_status.autoneg.partner.sgmii.speed_100M) {
                 status->speed = VTSS_SPEED_100M;
             } else {
                 status->speed = VTSS_SPEED_10M;
             }
-            status->fdx = clause_37_status.autoneg.partner_adv_sgmii.fdx;
+            status->fdx = clause_37_status.autoneg.partner.sgmii.fdx;
             /* Flow control is not supported by SGMII aneg. */
             status->aneg.obey_pause = 0;
             status->aneg.generate_pause = 0;
@@ -309,7 +329,7 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t         *vtss_state,
         if (control->enable) {
             /* Auto-negotiation enabled */
             adv = &control->advertisement;
-            lp = &clause_37_status.autoneg.partner_advertisement;
+            lp = &clause_37_status.autoneg.partner.cl37;
             if (clause_37_status.autoneg.complete) {
                 /* Speed and duplex mode auto negotiation result */
                 if (adv->fdx && lp->fdx) {
@@ -440,11 +460,6 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
             case VTSS_PORT_INTERFACE_SGMII:
             case VTSS_PORT_INTERFACE_SGMII_2G5:
             case VTSS_PORT_INTERFACE_QSGMII:
-            case VTSS_PORT_INTERFACE_SXGMII:
-            case VTSS_PORT_INTERFACE_USGMII:
-            case VTSS_PORT_INTERFACE_QXGMII:
-            case VTSS_PORT_INTERFACE_DXGMII_5G:
-            case VTSS_PORT_INTERFACE_DXGMII_10G:
 #if defined(VTSS_CHIP_CU_PHY)
                 rc = vtss_phy_status_get_private(vtss_state, port_no, status);
 #endif /* VTSS_CHIP_CU_PHY */
@@ -452,6 +467,13 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
             case VTSS_PORT_INTERFACE_SERDES:
             case VTSS_PORT_INTERFACE_SGMII_CISCO:
                 rc = vtss_port_clause_37_status_get(vtss_state, port_no, status);
+                break;
+            case VTSS_PORT_INTERFACE_SXGMII:
+            case VTSS_PORT_INTERFACE_DXGMII_5G:
+            case VTSS_PORT_INTERFACE_DXGMII_10G:
+            case VTSS_PORT_INTERFACE_QXGMII:
+            case VTSS_PORT_INTERFACE_USGMII:
+                rc = vtss_port_usxgmii_status_get(vtss_state, port_no, status);
                 break;
             default:
                 rc = VTSS_FUNC(port.status_get, port_no, status);
@@ -1121,6 +1143,36 @@ vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sg
     sgmii_adv->speed_10M = (value == 0 ? 1 : 0);
     sgmii_adv->speed_100M = (value == 1 ? 1 : 0);
     sgmii_adv->speed_1G = (value == 2 ? 1 : 0);
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 lp_adv, vtss_port_usxgmii_aneg_t *usxgmii)
+{
+    usxgmii->link = ((lp_adv >> 15) == 1) ? 1 : 0;
+    usxgmii->fdx = (((lp_adv >> 12) & 0x1) == 1) ? 1 : 0;
+    switch ((lp_adv >> 9) & 7) {
+    case 0:
+        usxgmii->speed = VTSS_SPEED_10M;
+        break;
+    case 1:
+        usxgmii->speed = VTSS_SPEED_100M;
+        break;
+    case 2:
+        usxgmii->speed = VTSS_SPEED_1G;
+        break;
+    case 3:
+        usxgmii->speed = VTSS_SPEED_10G;
+        break;
+    case 4:
+        usxgmii->speed = VTSS_SPEED_2500M;
+        break;
+    case 5:
+        usxgmii->speed = VTSS_SPEED_5G;
+        break;
+    default:
+        VTSS_E("Unknown speed '%d' after usxgmii aneg", ((lp_adv >> 9) & 7));
+        break;
+    }
     return VTSS_RC_OK;
 }
 /* Encode advertisement word */

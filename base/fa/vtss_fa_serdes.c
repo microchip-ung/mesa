@@ -3194,9 +3194,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
                              const vtss_debug_info_t   *const info,
                              vtss_port_no_t port_no)
 {
-    u32            port, indx = 0, sd_type = 0, ret_val;
-    char           buf[32] = {0};
-    char           buf2[32] = {0};
+    u32            port, indx = 0, sd_type = 0, ret_val, sd_indx;
+    char           buf[100] = {0};
+    char           buf2[100] = {0};
+    char           buf3[100] = {0};
     vtss_port_kr_coef_type_t coef;
     vtss_port_kr_coef_update_t action;
 
@@ -3204,9 +3205,14 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
 
     (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type);
     if (sd_type == FA_SERDES_TYPE_10G) {
-        indx += VTSS_SERDES_10G_START;
+        sd_indx = indx + VTSS_SERDES_10G_START;
+        sprintf(buf3,"10G_SD_%d",indx);
     } else if (sd_type == FA_SERDES_TYPE_25G) {
-        indx += VTSS_SERDES_25G_START;
+        sd_indx = indx + VTSS_SERDES_25G_START;
+        sprintf(buf3,"25G_SD_%d",indx);
+    } else {
+        sprintf(buf3,"5G_SD_%d",indx);
+        sd_indx = indx;
     }
     if (vtss_fa_port_is_high_speed(vtss_state, port)) {
         if (sd_type == FA_SERDES_TYPE_10G) {
@@ -3217,21 +3223,20 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
             sprintf(buf2,"Serdes preset: %s",vtss_serdes_preset_txt(serdes2preset(vtss_state->port.serdes_mode[port_no])));
         }
     } else {
-        sprintf(buf2,"Serdes preset: None");
+        sprintf(buf2,"Serdes preset: %s",vtss_serdes_preset_txt(serdes2preset(vtss_state->port.conf[port_no].serdes.media_type)));
     }
     if (vtss_fa_port_is_high_speed(vtss_state, port)) {
-        sprintf(buf, "Port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
+        sprintf(buf, "Chip port %u (API %u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
                 ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
     } else {
-        sprintf(buf, "Port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
+        sprintf(buf, "Chip port %u (API %u) Dev%s_%d", port, port_no, "2G5", port);
     }
-    sprintf(buf + strlen(buf)," -> SD%d", indx);
+    sprintf(buf + strlen(buf)," -> SD%d", sd_indx);
     if (info->action == 1) {
         vtss_fa_debug_reg_header(pr, buf);
     } else {
         if (info->action < 3) {
-            pr("%s",buf);
-            pr("  %s\n",buf2);
+            pr("%s (%s) %s\n",buf, buf3, buf2);
         }
     }
 
@@ -3473,11 +3478,10 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
     sd_cfg.rxinvert = 1;
     sd_cfg.txswing = 240;
     sd_cfg.reg_ctrl = 1;
-    sd_cfg.preset = VTSS_SD25G28_PRESET_NONE;
+    sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
     if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
         sd_cfg.reg_rst = 1; // Must start with RST
     }
-
      /* Apply the serdes mode */
     switch (mode) {
         case VTSS_SERDES_MODE_IDLE:
@@ -3488,7 +3492,6 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         case VTSS_SERDES_MODE_SFI_B2B:
         case VTSS_SERDES_MODE_SFI_PR_NONE:
         case VTSS_SERDES_MODE_SFI: {
-            sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
             if (speed == VTSS_SPEED_25G) {
                 sd_cfg.mode = VTSS_SD25G28_MODE_25G_LAN;
             } else if (speed == VTSS_SPEED_10G) {
@@ -3501,7 +3504,6 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
             break;
         }
         case VTSS_SERDES_MODE_SFI_KR:
-            sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
             sd_cfg.mode = VTSS_SD25G28_MODE_25G_KR; // KR 64bit mode for now
             break;
         case VTSS_SERDES_MODE_DXGMII_10G: { // 2x5G, mode 'U'
@@ -3527,15 +3529,6 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         case VTSS_SERDES_MODE_SGMII:
         case VTSS_SERDES_MODE_1000BaseX: {
             sd_cfg.mode = VTSS_SD25G28_MODE_SGMII;
-            break;
-        }
-
-        case VTSS_SERDES_MODE_QSGMII: {
-            sd_cfg.mode = VTSS_SD25G28_MODE_10G_QSXGMII;
-            break;
-        }
-        case VTSS_SERDES_MODE_100FX: {
-            sd_cfg.mode = VTSS_SD25G28_MODE_FX100;
             break;
         }
         default: {

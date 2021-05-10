@@ -199,6 +199,7 @@ typedef enum {
     VTSS_DEBUG_GROUP_MACSEC,    /**< 802.1AE MacSec */
     VTSS_DEBUG_GROUP_SERDES,    /**< Serdes Macroes */
     VTSS_DEBUG_GROUP_KR,        /**< 5G/10G/25Base-KR */
+    VTSS_DEBUG_GROUP_MUX,       /**< Mux mode */
 
     /* New groups are added above this line */
     VTSS_DEBUG_GROUP_COUNT      /**< Number of groups */

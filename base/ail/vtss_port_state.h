@@ -276,12 +276,14 @@ typedef struct {
 typedef struct
 {
     BOOL link;        /**< FALSE if link has been down since last status read */
-    struct
-    {
-        BOOL                      complete;               /**< Completion status */
-        vtss_port_clause_37_adv_t partner_advertisement;  /**< Clause 37 Advertisement control data */
-        vtss_port_sgmii_aneg_t    partner_adv_sgmii;      /**< SGMII Advertisement control data */
-    } autoneg;                                            /**< Autoneg status */
+    struct {
+        BOOL complete; /**< Aneg completion status */
+        union {
+            vtss_port_clause_37_adv_t cl37;    /**< Clause 37 advertisement results */
+            vtss_port_sgmii_aneg_t    sgmii;   /**< Cisco-SGMII advertisement results */
+            vtss_port_usxgmii_aneg_t  usxgmii; /**< USXGMII advertisement results */
+        } partner;
+    } autoneg;       /**< Autoneg status */
 } vtss_port_clause_37_status_t;
 
 #if defined(VTSS_ARCH_JAGUAR_2) && !defined(VTSS_ARCH_JAGUAR_2_B)
@@ -571,6 +573,7 @@ vtss_rc vtss_port_conf_set_private(struct vtss_state_s    *vtss_state,
 vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *adv);
 vtss_rc vtss_cmn_port_clause_37_adv_set(u32 *value, vtss_port_clause_37_adv_t *adv, BOOL aneg_enable);
 vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv);
+vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 value, vtss_port_usxgmii_aneg_t *usxgmii);
 void vtss_port_debug_print(struct vtss_state_s *vtss_state,
                            const vtss_debug_printf_t pr,
                            const vtss_debug_info_t   *const info);

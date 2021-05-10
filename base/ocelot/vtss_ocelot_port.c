@@ -50,7 +50,7 @@ static vtss_rc srvl_port_clause_37_status_get(vtss_state_t *vtss_state,
                                               vtss_port_clause_37_status_t *const status)
 {
     u32                    value, tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
-    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner_adv_sgmii;
+    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner.sgmii;
     BOOL                   synced_status;
     vtss_port_clause_37_control_t *aneg = &vtss_state->port.clause_37[port_no];
 
@@ -106,7 +106,7 @@ static vtss_rc srvl_port_clause_37_status_get(vtss_state_t *vtss_state,
         sgmii_adv->speed_10M = (value == 0 ? 1 : 0);
         sgmii_adv->speed_100M = (value == 1 ? 1 : 0);
         sgmii_adv->speed_1G = (value == 2 ? 1 : 0);
-        sgmii_adv->hdx = (status->autoneg.partner_advertisement.fdx ? 0 : 1);
+        sgmii_adv->hdx = (status->autoneg.partner.cl37.fdx ? 0 : 1);
 
         if (status->link) {
             /* If the SFP module does not have a link then the port does not have link */
@@ -115,7 +115,7 @@ static vtss_rc srvl_port_clause_37_status_get(vtss_state_t *vtss_state,
 
         VTSS_N("port:%d, value:0x%X, sgmii_adv->link:%d, status->link:%d", port_no, value, sgmii_adv->link, status->link);
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner_advertisement));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
     return VTSS_RC_OK;
 }

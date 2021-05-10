@@ -350,8 +350,13 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
             conf.speed = (pc->autoneg ? MESA_SPEED_1G : pc->speed);
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
-            if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
-                T_E("Could not configure SFP port(%u)", port_no);
+            if (entry->meba.mac_if == MESA_PORT_INTERFACE_QXGMII) {
+                conf.if_type = MESA_PORT_INTERFACE_QXGMII;
+                conf.speed = pc->speed;
+            } else {
+                if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
+                    T_E("Could not configure SFP port(%u)", port_no);
+                }
             }
         }
     }
@@ -390,6 +395,7 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
         ps->link = phy_status.link;
         ps->speed = phy_status.speed;
         ps->fdx = phy_status.fdx;
+
     } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
         if (mesa_port_status_get(NULL, port_no, ps) != MESA_RC_OK) {
             T_E("mesa_port_status_get(%u) failed", port_no);
@@ -1177,7 +1183,6 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_SGMII:
         case MESA_PORT_INTERFACE_RGMII:
         case MESA_PORT_INTERFACE_QSGMII:
-        case MESA_PORT_INTERFACE_QXGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
             pc->speed = MESA_SPEED_1G;
             pc->autoneg = 1;
@@ -1186,6 +1191,16 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_SERDES:
             entry->media_type = MSCC_PORT_TYPE_SFP;
             pc->speed = MESA_SPEED_1G;
+            break;
+        case MESA_PORT_INTERFACE_QXGMII:
+            entry->media_type = MSCC_PORT_TYPE_SFP;
+            pc->speed = MESA_SPEED_2500M;
+            pc->autoneg = 1;
+            break;
+        case MESA_PORT_INTERFACE_SXGMII:
+            entry->media_type = MSCC_PORT_TYPE_SFP;
+            pc->speed = MESA_SPEED_10G;
+            pc->autoneg = 1;
             break;
         default:
             T_E("unknown if_type on port %u", port_no);
@@ -1405,7 +1420,7 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link down and disable forwarding on port */
         if ((!ps->link || ps->link_down) && link_old) {
-            T_I("link down event on port_no: %u", port_no);
+            T_I("link down event on port_no: %u\n", port_no);
             link_old = 0;
             mesa_port_state_set(NULL, port_no, FALSE);
             mesa_mac_table_port_flush(NULL, port_no);
@@ -1413,7 +1428,7 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link up and setup port */
         if (ps->link && !link_old) {
-            T_I("link up event on port_no: %u", port_no);
+            T_I("link up event on port_no: %u spd:%s fdx:%d\n", port_no, mesa_port_spd2txt(ps->speed), ps->fdx);
             mesa_port_state_set(NULL, port_no, TRUE);
             if (port_is_aneg_mode(entry)) {
                 port_setup(port_no, TRUE, FALSE);

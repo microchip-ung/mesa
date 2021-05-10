@@ -303,6 +303,33 @@ static vtss_rc fa_port_clause_37_control_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
+                                          const vtss_port_no_t port_no,
+                                          vtss_port_clause_37_status_t *const status)
+{
+    u32 adv, aneg, port = VTSS_CHIP_PORT(port_no);
+    u32 tgt;
+    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    vtss_port_usxgmii_aneg_t *usxgmii = &status->autoneg.partner.usxgmii;
+
+    if (if_type == VTSS_PORT_INTERFACE_QXGMII || if_type == VTSS_PORT_INTERFACE_DXGMII_5G) {
+        tgt = VTSS_TO_DEV2G5(port);
+        REG_RD(VTSS_DEV1G_USXGMII_ANEG_STATUS(tgt), &aneg);
+        REG_WR(VTSS_DEV1G_USXGMII_ANEG_STATUS(tgt), aneg); /* Clear PAGE_RX_STICKY */
+    } else {
+        tgt = VTSS_TO_HIGH_DEV(port);
+        REG_RD(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), &aneg);
+        REG_WR(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), aneg); /* Clear PAGE_RX_STICKY */
+    }
+    status->autoneg.complete = REG_BF(DEV10G_USXGMII_ANEG_STATUS_ANEG_COMPLETE, aneg);
+    adv = VTSS_X_DEV10G_USXGMII_ANEG_STATUS_LP_ADV_ABILITY(aneg);
+    VTSS_RC(vtss_cmn_port_usxgmii_aneg_get(adv, usxgmii));
+    status->link = !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_PAGE_RX_STICKY(aneg) &&
+                   !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_LINK_DOWN_STATUS(aneg);
+
+    return VTSS_RC_OK;
+}
+
 
 static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
                                               const vtss_port_no_t         port_no,
@@ -311,11 +338,25 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV2G5(port);
-    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner_adv_sgmii;
+    vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner.sgmii;
+    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
 
     if (vtss_state->port.conf[port_no].power_down) {
         status->link = 0;
         return VTSS_RC_OK;
+    }
+
+    if (if_type == VTSS_PORT_INTERFACE_USGMII) {
+        VTSS_E("USGMII mode not supported\n");
+        return VTSS_RC_ERROR;
+    }
+
+    /* USXGMII modes  */
+    if (if_type == VTSS_PORT_INTERFACE_QXGMII ||
+        if_type == VTSS_PORT_INTERFACE_SXGMII ||
+        if_type == VTSS_PORT_INTERFACE_DXGMII_10G ||
+        if_type == VTSS_PORT_INTERFACE_DXGMII_5G) {
+        return fa_port_usxgmii_status_get(vtss_state, port_no, status);
     }
 
     /* Get the link state 'down' sticky bit  */
@@ -326,7 +367,8 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
         REG_WR(VTSS_DEV1G_PCS1G_STICKY(tgt),
                 VTSS_M_DEV1G_PCS1G_STICKY_LINK_DOWN_STICKY);
     } else {
-       /* PCS1G_LINK_STATUS holds the result of 1) aneg-enable=LINK_OK or 2) aneg-disable=AN_DISABLE_LINK_OK */
+       /* PCS1G_LINK_STATUS holds the result of 1) aneg-enable=LINK_OK or
+                                                2) aneg-disable=AN_DISABLE_LINK_OK */
         REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(tgt), &value);
         status->link = REG_BF(DEV1G_PCS1G_LINK_STATUS_LINK_STATUS, value) &&
                        REG_BF(DEV1G_PCS1G_LINK_STATUS_SYNC_STATUS, value);
@@ -346,7 +388,7 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
         /* status->link = PCS link. sgmii_adv->link = Phy link */
         status->link = sgmii_adv->link & status->link;
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner_advertisement));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
 
     return VTSS_RC_OK;
@@ -1515,8 +1557,10 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
             return FALSE;
         }
         break;
-    case VTSS_PORT_INTERFACE_QSGMII:
     case VTSS_PORT_INTERFACE_USGMII: /* USGMII: 8x2G5 devices. Mode 'X'  Use 2G5 device. */
+        VTSS_E("port %d USGMII not supported yet",port);
+        return FALSE;
+    case VTSS_PORT_INTERFACE_QSGMII:
         if (port > 47) {
             VTSS_E("port %d does not support QSGMII",port);
             return FALSE;
@@ -1563,16 +1607,14 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         }
         break;
     case VTSS_PORT_INTERFACE_SXGMII:
-        if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M &&
-            speed != VTSS_SPEED_2500M && speed != VTSS_SPEED_5G && speed != VTSS_SPEED_10G) {
-            VTSS_E("SXGMII port interface supports speeds 10M-10G (port:%u speed:%d)",port, speed);
-            return FALSE;
-        }
-        break;
+        VTSS_E("port %d SXGMII not supported yet",port);
+        return FALSE;
     case VTSS_PORT_INTERFACE_DXGMII_5G:  /* DXGMII_5G: 2x2G5 devices. Mode 'F'. Use 2G5 device. */
+        VTSS_E("port %d not DXGMII_5G supported yet",port);
+        return FALSE;
     case VTSS_PORT_INTERFACE_QXGMII:     /* QXGMII:    4x2G5 devices. Mode 'R'. Use 2G5 device. */
         if (port > 64) {
-            VTSS_E("port %d does not support DXGMII",port);
+            VTSS_E("port %d does not support QXGMII",port);
             return FALSE;
         }
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M &&
@@ -1580,12 +1622,22 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
             VTSS_E("SXGMII/DXGMII_5G port interface supports speeds 10M-2G5 (port:%u speed:%d)",port, speed);
             return FALSE;
         }
+        if (!fdx) {
+            VTSS_E("QXGMII port only supports full duplex (port:%u speed:%d)",port, speed);
+            return FALSE;
+        }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices.  Mode 'U'. Use primary device.*/
+        VTSS_E("port %d DXGMII_10G not supported yet",port);
+        return FALSE;
         if (port <= 63 && (port <= 15 || port >= 48)) {
             if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M &&
                 speed != VTSS_SPEED_2500M && speed != VTSS_SPEED_5G) {
                 VTSS_E("DXGMII_10G port interface supports speeds 10M-5G (port:%u speed:%d)",port, speed);
+                return FALSE;
+            }
+            if (!fdx) {
+                VTSS_E("SXGMII/DXGMII_5G port only supports full duplex (port:%u speed:%d)",port, speed);
                 return FALSE;
             }
         } else {
@@ -1608,7 +1660,7 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
 // DXGMII_10G: 2x5G  devices.
 static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 p = VTSS_CHIP_PORT(port_no), Q,X,R,U,F;
+    u32 p = VTSS_CHIP_PORT(port_no), Q,X,R,U,F,S,bt;
 
     if (vtss_state->port.current_if_type[port_no] == vtss_state->port.conf[port_no].if_type) {
         return VTSS_RC_OK; // Nothing to do
@@ -1636,11 +1688,25 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         break;
     case VTSS_PORT_INTERFACE_QXGMII:     /* QXGMII:    4x2G5 devices. Mode 'R'. Use 2G5 device. */
         R = (p < 16) ? p : (p < 32) ? p - 16 : (p < 48) ? p - 32 : p - 48;
-        REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(R),
-                VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(2),
-                VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
         R = R + 16;
+        REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(R),
+                VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
+                VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
+                VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(2),
+                VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA |
+                VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
+                VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
         REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(R), VTSS_BIT(R));
+        if (VTSS_PORT_IS_5G(p)) {
+            bt = (p < 12) ? p : 12;
+            REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+        } else if (VTSS_PORT_IS_10G(p)) {
+            bt = (p < 16) ? (p - 12) : (p - 48 + 4);
+            REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+        } else if (VTSS_PORT_IS_25G(p)) {
+            bt = p - 56;
+            REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+        }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_5G:  /* DXGMII_5G: 2x2G5 devices. Mode 'F'. Use 2G5 device. */
         F = (p - p % 8) / 8;
@@ -1656,6 +1722,22 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
                 VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
         U = U + 16;
         REG_WRM(VTSS_PORT_CONF_USGMII_ENA, VTSS_BIT(U), VTSS_BIT(U));
+        break;
+    case VTSS_PORT_INTERFACE_SXGMII:     /* SXGMII: 1x10G */
+        if (p >= 48 && p < 64) {
+            S = p - 32;
+            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(S),
+                    VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
+                    VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
+                    VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(0),
+                    VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA |
+                    VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
+                    VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
+            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(S), VTSS_BIT(S));
+        } else {
+            VTSS_E("chip port %d does not support SXGMII mode",p);
+            return VTSS_RC_ERROR;
+        }
         break;
     default:
         break;
@@ -1931,6 +2013,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = high_speed_dev ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
+    vtss_port_conf_t *conf  = &vtss_state->port.conf[port_no];
     vtss_port_speed_t spd = vtss_state->port.current_speed[port_no];
     u32 spd_prm = spd == VTSS_SPEED_10M ? 1000 : spd == VTSS_SPEED_100M ? 100 : 10;
 
@@ -2000,21 +2083,23 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
                 VTSS_M_DEV10G_DEV_RST_CTRL_MAC_TX_RST);
 
     } else {
-        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(3)    |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(1) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(1) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(1) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(1),
-                VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+        if (conf->if_type != VTSS_PORT_INTERFACE_QXGMII) { // Aneg workaround
+            REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+                    VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(3)    |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1) |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(1) |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(1) |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(1) |
+                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(1),
+                    VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
+                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+        }
     }
     /* 11: Clear flushing */
     REG_WRM(VTSS_HSCH_FLUSH_CTRL,
@@ -2083,6 +2168,65 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_usxgmii_enable(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL dev_high)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+    u32 tgt = dev_high ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
+
+    if (!dev_high) {
+        REG_WRM(VTSS_DEV1G_USXGMII_TX_RADAPT_CFG(tgt),
+                VTSS_F_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(3) |
+                VTSS_F_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL(7) |
+                VTSS_F_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG(1),
+                VTSS_M_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL |
+                VTSS_M_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL |
+                VTSS_M_DEV1G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG);
+
+        REG_WRM(VTSS_DEV1G_USXGMII_RX_RADAPT_CFG(tgt),
+                VTSS_F_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_ADD_LVL(2) |
+                VTSS_F_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_DROP_LVL(6) |
+                VTSS_F_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_MIN_IFG(1),
+                VTSS_M_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_ADD_LVL |
+                VTSS_M_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_DROP_LVL |
+                VTSS_M_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_MIN_IFG);
+
+        REG_WRM(VTSS_DEV1G_USXGMII_ANEG_CFG(tgt),
+                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY(0x0001) |
+                VTSS_F_DEV1G_USXGMII_ANEG_CFG_LINK_TIMER(1) |
+                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
+                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
+                VTSS_F_DEV1G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
+                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY |
+                VTSS_M_DEV1G_USXGMII_ANEG_CFG_LINK_TIMER |
+                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_ENA |
+                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
+                VTSS_M_DEV1G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
+    } else {
+        REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(4) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL(8) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG(1) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_FIFO_FLUSH(0) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS(1),
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_FIFO_FLUSH |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS);
+
+        REG_WRM(VTSS_DEV10G_USXGMII_ANEG_CFG(tgt),
+                VTSS_F_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY(0x0001) |
+                VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
+                VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
+                VTSS_F_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
+                VTSS_M_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY |
+                VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA |
+                VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
+                VTSS_M_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
+    }
+    return VTSS_RC_OK;
+}
+
 /* Configuration of the 2G5 device (dev1G architecture) */
 static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -2091,7 +2235,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     u32                    tx_gap, hdx_gap_1 = 0, hdx_gap_2 = 0;
     vtss_port_speed_t      speed = conf->speed;
     u32                    value;
-    BOOL                   fdx = conf->fdx, disable = conf->power_down;
+    BOOL                   fdx = conf->fdx;
     BOOL                   sgmii = FALSE, pcs_100fx = FALSE, pcs_usx = FALSE;
     u32                    tgt = VTSS_TO_DEV2G5(port), clk_spd = 0;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SGMII;
@@ -2141,7 +2285,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     case VTSS_SPEED_100M: clk_spd = 1; break;
     case VTSS_SPEED_1G:   clk_spd = 2; break;
     case VTSS_SPEED_2500M:
-        clk_spd = conf->if_type == VTSS_PORT_INTERFACE_USGMII ? 6 : 2;
+        clk_spd = pcs_usx ? 6 : 2;
         break;
     default:{ VTSS_E("Speed not supported"); }
     }
@@ -2215,7 +2359,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     if (pcs_100fx) {
         /* Enable 100FX */
         REG_WRM(VTSS_DEV1G_PCS_FX100_CFG(tgt),
-                VTSS_F_DEV1G_PCS_FX100_CFG_PCS_ENA(!disable) |
+                VTSS_F_DEV1G_PCS_FX100_CFG_PCS_ENA(1) |
                 VTSS_F_DEV1G_PCS_FX100_CFG_SD_SEL(!conf->sd_internal) |
                 VTSS_F_DEV1G_PCS_FX100_CFG_SD_POL(conf->sd_active_high) |
                 VTSS_F_DEV1G_PCS_FX100_CFG_SD_ENA(conf->sd_enable),
@@ -2234,30 +2378,10 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(freq),
                 VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);
     } else if (pcs_usx) {
-        /* Disable 100FX */
-        REG_WRM_CLR(VTSS_DEV1G_PCS_FX100_CFG(tgt),
-                     VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA);
-        /* Disable SGMII/Serdes PCS */
-        REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt),
-                    VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-
-        /* Signal Detect configuration */
-        REG_WRM(VTSS_DEV1G_USXGMII_PCS_SD_CFG(tgt),
-               VTSS_F_DEV1G_USXGMII_PCS_SD_CFG_SD_POL(conf->sd_active_high) |
-               VTSS_F_DEV1G_USXGMII_PCS_SD_CFG_SD_ENA(conf->sd_enable),
-               VTSS_M_DEV1G_USXGMII_PCS_SD_CFG_SD_POL |
-               VTSS_M_DEV1G_USXGMII_PCS_SD_CFG_SD_ENA);
-
-        /* Enable USXGMII aneg.  We still use the Aneg results from the Phy though. */
-        REG_WRM(VTSS_DEV1G_USXGMII_ANEG_CFG(tgt),
-                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY(0x0001) |
-                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
-                VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
-                VTSS_F_DEV1G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
-                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY |
-                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_ENA |
-                VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
-                VTSS_M_DEV1G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
+        /* Setup USXGMII mode (once) */
+        if (vtss_state->port.current_if_type[port_no] != vtss_state->port.conf[port_no].if_type) {
+            VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, 0));
+        }
     } else {
         /* 1000BaseX PCS in SGMII or Serdes mode */
 
@@ -2286,9 +2410,9 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                VTSS_F_DEV1G_PCS1G_SD_CFG_SD_ENA(conf->sd_enable) |
                VTSS_F_DEV1G_PCS1G_SD_CFG_SD_SEL(!conf->sd_internal));
 
-        /* Enable/disable PCS */
+        /* Enable PCS */
         REG_WR(VTSS_DEV1G_PCS1G_CFG(tgt),
-               VTSS_F_DEV1G_PCS1G_CFG_PCS_ENA(!disable));
+               VTSS_F_DEV1G_PCS1G_CFG_PCS_ENA(1));
 
         if (sgmii && conf->if_type != VTSS_PORT_INTERFACE_SGMII_CISCO) {
             /* Disable SGMII aneg */
@@ -2335,44 +2459,50 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
 
-    if (!disable) {
-        /* Configure flow control */
-        if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
-            VTSS_E("Could not configure FC port: %u", port);
-        }
-
-        /* Update policer flow control configuration */
-        VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
-
-        /* Enable MAC module */
-        REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
-               VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA |
-               VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
-
-        /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
-        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
-                VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
-
-        /* Core: Set the fwd_urgency and and enable port for frame transfer */
-        REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
-                VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
-                VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
-                VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
-                VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
+    /* Configure flow control */
+    if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
+        VTSS_E("Could not configure FC port: %u", port);
     }
+
+    /* Update policer flow control configuration */
+    VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
+
+    /* Enable MAC module */
+    REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
+           VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA |
+           VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
+
+    if (pcs_usx) {
+        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1),
+                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST);
+    }
+
+    /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
+    REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+            VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
+            VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
+            VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
+            VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+
+    /* Core: Set the fwd_urgency and and enable port for frame transfer */
+    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
+            VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
+            VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
+            VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
+            VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
 
     /* Enable flowcontrol - must be done after the port is enabled */
     if (conf->flow_control.generate) {
@@ -2398,14 +2528,13 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    clk_spd = 0, muxed_ports = 0;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SFI;
     BOOL                   pcs_usx = FALSE;
-    BOOL                   disable = conf->power_down;
 
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_SFI:
         serdes_mode = VTSS_SERDES_MODE_SFI;
         break;
     case VTSS_PORT_INTERFACE_SXGMII:     // 1x10G device. 10M-10G.
-        serdes_mode = VTSS_SERDES_MODE_SFI;
+        serdes_mode = VTSS_SERDES_MODE_QXGMII;
         pcs_usx = TRUE;
         break;
     case VTSS_PORT_INTERFACE_DXGMII_10G: // 2x5G devices. Mode 'U', 10M-5G.
@@ -2451,7 +2580,6 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
             VTSS_F_DSM_BUF_CFG_CSC_STAT_DIS(1),
             VTSS_M_DSM_BUF_CFG_CSC_STAT_DIS);
 
-
     if (conf->speed == VTSS_SPEED_25G) {
         /* Disable 10G PCS */
         REG_WRM_CLR(VTSS_PCS_10GBASE_R_PCS_CFG(pcs),
@@ -2465,31 +2593,14 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
         /* Enable 25G PCS */
         REG_WRM(VTSS_DEV10G_PCS25G_CFG(tgt),
-                VTSS_F_DEV10G_PCS25G_CFG_PCS25G_ENA(!disable),
+                VTSS_F_DEV10G_PCS25G_CFG_PCS25G_ENA(1),
                 VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
     } else {
-        if (VTSS_PORT_IS_25G(port)) {/* Disable 25G PCS */
-            REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(tgt),
-                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA); // 25G PCS within the Device
-        }
         if (pcs_usx) {
-            /* Handle SD. */
-            REG_WRM(VTSS_DEV10G_USXGMII_PCS_SD_CFG(tgt),
-                    VTSS_F_DEV10G_USXGMII_PCS_SD_CFG_SD_POL(conf->sd_active_high) |
-                    VTSS_F_DEV10G_USXGMII_PCS_SD_CFG_SD_ENA(conf->sd_enable),
-                    VTSS_M_DEV10G_USXGMII_PCS_SD_CFG_SD_POL |
-                    VTSS_M_DEV10G_USXGMII_PCS_SD_CFG_SD_ENA);
-
-            /* Enable USXGMII aneg. We still use the Aneg results from the Phy though. */
-            REG_WRM(VTSS_DEV10G_USXGMII_ANEG_CFG(tgt),
-                    VTSS_F_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY(0x0001) |
-                    VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
-                    VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
-                    VTSS_F_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
-                    VTSS_M_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY |
-                    VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA |
-                    VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
-                    VTSS_M_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
+            /* Setup USXGMII mode (once) */
+            if (vtss_state->port.current_if_type[port_no] != vtss_state->port.conf[port_no].if_type) {
+                VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, 1));
+            }
         } else {
             /* The PCS_BR block below handles 5G/10G speeds for all primary devices */
 
@@ -2501,7 +2612,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
             /* Enable 10G PCS  */
             REG_WRM(VTSS_PCS_10GBASE_R_PCS_CFG(pcs),
-                    VTSS_F_PCS_10GBASE_R_PCS_CFG_PCS_ENA(!disable),
+                    VTSS_F_PCS_10GBASE_R_PCS_CFG_PCS_ENA(1),
                     VTSS_M_PCS_10GBASE_R_PCS_CFG_PCS_ENA);
         }
     }
@@ -2532,46 +2643,41 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
 
-    if (!conf->power_down) {
-        /* Configure flow control */
-        if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
-            VTSS_E("Could not configure FC port: %u", port);
-        }
-
-        /* Update policer flow control configuration */
-        VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
-
-        /* Enable MAC module */
-        REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
-               VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA |
-               VTSS_M_DEV10G_MAC_ENA_CFG_TX_ENA);
-
-        /* Take MAC and PCS out of reset */
-        REG_WRM(VTSS_DEV10G_DEV_RST_CTRL(tgt),
-                VTSS_F_DEV10G_DEV_RST_CTRL_MUXED_USXGMII_NETWORK_PORTS(muxed_ports) |
-                VTSS_F_DEV10G_DEV_RST_CTRL_PCS_RX_RST(0) |
-                VTSS_F_DEV10G_DEV_RST_CTRL_PCS_TX_RST(0) |
-                VTSS_F_DEV10G_DEV_RST_CTRL_MAC_RX_RST(0) |
-                VTSS_F_DEV10G_DEV_RST_CTRL_MAC_TX_RST(0) |
-                VTSS_F_DEV10G_DEV_RST_CTRL_SPEED_SEL(clk_spd),
-                VTSS_M_DEV10G_DEV_RST_CTRL_MUXED_USXGMII_NETWORK_PORTS |
-                VTSS_M_DEV10G_DEV_RST_CTRL_PCS_RX_RST |
-                VTSS_M_DEV10G_DEV_RST_CTRL_PCS_TX_RST |
-                VTSS_M_DEV10G_DEV_RST_CTRL_MAC_RX_RST |
-                VTSS_M_DEV10G_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEV10G_DEV_RST_CTRL_SPEED_SEL);
-
-        REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
-                VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
-                VTSS_F_QFWD_SWITCH_PORT_MODE_YEL_RSRVD(0xf) |
-                VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
-                VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
-                VTSS_M_QFWD_SWITCH_PORT_MODE_YEL_RSRVD | // An AFI bug makes this required. See bz.24445
-                VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
-
-    } else {
-        /* Disable the  serdes (not supported) */
+    /* Configure flow control */
+    if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
+        VTSS_E("Could not configure FC port: %u", port);
     }
+
+    /* Update policer flow control configuration */
+    VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
+
+    /* Enable MAC module */
+    REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
+           VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA |
+           VTSS_M_DEV10G_MAC_ENA_CFG_TX_ENA);
+
+    /* Take MAC and PCS out of reset */
+    REG_WRM(VTSS_DEV10G_DEV_RST_CTRL(tgt),
+            VTSS_F_DEV10G_DEV_RST_CTRL_MUXED_USXGMII_NETWORK_PORTS(muxed_ports) |
+            VTSS_F_DEV10G_DEV_RST_CTRL_PCS_RX_RST(0) |
+            VTSS_F_DEV10G_DEV_RST_CTRL_PCS_TX_RST(0) |
+            VTSS_F_DEV10G_DEV_RST_CTRL_MAC_RX_RST(0) |
+            VTSS_F_DEV10G_DEV_RST_CTRL_MAC_TX_RST(0) |
+            VTSS_F_DEV10G_DEV_RST_CTRL_SPEED_SEL(clk_spd),
+            VTSS_M_DEV10G_DEV_RST_CTRL_MUXED_USXGMII_NETWORK_PORTS |
+            VTSS_M_DEV10G_DEV_RST_CTRL_PCS_RX_RST |
+            VTSS_M_DEV10G_DEV_RST_CTRL_PCS_TX_RST |
+            VTSS_M_DEV10G_DEV_RST_CTRL_MAC_RX_RST |
+            VTSS_M_DEV10G_DEV_RST_CTRL_MAC_TX_RST |
+            VTSS_M_DEV10G_DEV_RST_CTRL_SPEED_SEL);
+
+    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
+            VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
+            VTSS_F_QFWD_SWITCH_PORT_MODE_YEL_RSRVD(0xf) |
+            VTSS_F_QFWD_SWITCH_PORT_MODE_FWD_URGENCY(port_fwd_urg(vtss_state, conf->speed)),
+            VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA |
+            VTSS_M_QFWD_SWITCH_PORT_MODE_YEL_RSRVD | // An AFI bug makes this required. See bz.24445
+            VTSS_M_QFWD_SWITCH_PORT_MODE_FWD_URGENCY);
 
     /* Enable flowcontrol - must be done after the port is enabled */
     if (conf->flow_control.generate) {
@@ -3517,6 +3623,47 @@ static vtss_rc fa_debug_kr(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_debug_mux(vtss_state_t *vtss_state,
+                            const vtss_debug_printf_t pr,
+                            const vtss_debug_info_t   *const info)
+
+{
+    u32 val, val2;
+
+    REG_RD(VTSS_PORT_CONF_USXGMII_ENA, &val2);
+    for (u32 a = 0; a < 32; a++) {
+        if ((val2 & VTSS_BIT(a)) == 0) {
+            continue;
+        }
+        REG_RD(VTSS_PORT_CONF_USXGMII_CFG(a), &val);
+        if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 0) {
+            if (a > 15) {
+                pr("USX extender:%d is in SXGMII mode with chip port %d --> SD%d\n",a, a + 32, a + 1);
+            }
+        } else if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 1) {
+            pr("2 port mode not currently supported\n");
+        } else {
+            pr("USX extender:%d is in QXGMII mode with chip ports: [",a);
+            for (u32 i = 0; i < 4; i++ ) {
+                pr("  %d",a - 16 + i * 16);
+            }
+            pr(" ]  --> SD%d\n", a + 1);
+        }
+    }
+    REG_RD(VTSS_PORT_CONF_QSGMII_ENA, &val2);
+    for (u32 a = 0; a < 12; a++) {
+        if ((val2 & VTSS_BIT(a)) == 0) {
+            continue;
+        }
+        pr("MUX:%d is in QSGMII mode with chip ports: [",a);
+        for (u32 i = 0; i < 4; i++ ) {
+            pr("  %d",a * 4 + i);
+        }
+        pr(" ]  --> SD%d\n", a + 13);
+    }
+
+    return VTSS_RC_OK;
+}
 
 static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr,
@@ -3843,6 +3990,7 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, fa_debug_wm, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_SERDES, fa_debug_serdes, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, fa_debug_kr, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MUX, fa_debug_mux, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 

@@ -154,6 +154,7 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_MACSEC]    = "macsec",
     [MESA_DEBUG_GROUP_SERDES]    = "serdes",
     [MESA_DEBUG_GROUP_KR]        = "kr",
+    [MESA_DEBUG_GROUP_MUX]       = "mux",
 };
 
 static void cli_cmd_debug_api(cli_req_t *req)
