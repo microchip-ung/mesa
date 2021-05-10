@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 # Check if Frame Preemption supported
 cap_check_exit("QOS_FRAME_PREEMPTION")

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'libeasy/et'
-$ts = get_test_setup("mesa_pc_b2b_4x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 #---------- Description -------------------------------------------------------
 # Purpose:
@@ -82,6 +82,11 @@ test "Test SFP loop" do
             if conf["speed"].include? "10G" then spds = ["10g"] end
             if conf["speed"].include? "1G" then spds = ["1000fdx"] end
             if conf["speed"].include? "100M" then spds = ["100fdx"] end
+        end
+
+        if (spds == nil)
+            t_i "*******No valid speeds found**********"
+            return
         end
 
         $loop0 = $ts.dut.looped_port_list[i] + 1
