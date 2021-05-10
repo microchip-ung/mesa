@@ -7,7 +7,7 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 require 'pry'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")

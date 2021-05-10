@@ -6,7 +6,7 @@
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
@@ -147,7 +147,7 @@ def tod_latency_test(port0, port1)
     latency = 0
     $ts.dut.call("mesa_ts_egress_latency_set", port0, latency)
 
-    # Set Port inress latency to zero on loop RX port
+    # Set Port ingress latency to zero on loop RX port
     latency = $ts.dut.call("mesa_ts_ingress_latency_get", port1)
     latency = 0
     $ts.dut.call("mesa_ts_ingress_latency_set", port1, latency)
@@ -162,10 +162,13 @@ def tod_latency_test(port0, port1)
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         min = -11
         max = 11
+        if ($ts.dut.pcb == "6813-Adaro")
+            max = 33
+        end
     end
 
     if ((nano_delay_0 < min) || (nano_delay_0 > max))
-        t_e("Unexpected delay with egress latency 0 and ingress latency 0.  Delay = #{nano_delay_0}")
+        t_e("Unexpected delay with egress latency 0 and ingress latency 0.  Delay = #{nano_delay_0}  min #{min}  max #{max}")
     end
 
     # Set Port egress latency to max
@@ -176,8 +179,12 @@ def tod_latency_test(port0, port1)
     nano_delay_1 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_1
     t_i ("delay difference #{diff}")
-    if ((diff > (PTP_LATENCY_MAX + 9)) || (diff < (PTP_LATENCY_MAX - 9)))
-        t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency 0.  Delay = #{nano_delay_1}")
+    diff_tolerance = 9
+        if ($ts.dut.pcb == "6813-Adaro")
+            diff_tolerance = 13
+        end
+    if ((diff > (PTP_LATENCY_MAX + diff_tolerance)) || (diff < (PTP_LATENCY_MAX - diff_tolerance)))
+        t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency 0.  Delay = #{nano_delay_1}  tolerance #{diff_tolerance}")
     end
 
     # Set Port ingress latency to max
