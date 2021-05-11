@@ -105,6 +105,12 @@ $machines = {
             ]
           },
           {
+            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-svb.dtb",
+            :overlays => [
+                { :name => "8281_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+            ]
+          },
+          {
             :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-sr.dtb",
             :overlays => [
                 { :name => "6849_0@lan966x-sr", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
