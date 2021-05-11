@@ -19,10 +19,12 @@ end
 
 $port0 = 0
 $port1 = 1
-$npi_port = 2
 $vlan = 100
 $acl_id = 1
 $pcb = $ts.dut.pcb
+if ($pcb == "8281-SVB@bbb")    #On this specific board there are four ports with Indy PHY on 0 and 1 and copper SFP on 2 and 3.
+    $port0 = 2                 #Is seems that the Indy PHY is manipulating the correction field at ingress
+end
 
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
