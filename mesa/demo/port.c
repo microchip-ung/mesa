@@ -392,7 +392,7 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
         ps->link = phy_status.link;
         ps->speed = phy_status.speed;
         ps->fdx = phy_status.fdx;
-
+        ps->aneg = phy_status.aneg;
     } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
         if (mesa_port_status_get(NULL, port_no, ps) != MESA_RC_OK) {
             T_E("mesa_port_status_get(%u) failed", port_no);
