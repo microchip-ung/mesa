@@ -160,24 +160,36 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_M_SD25G_TARGET_CMU_0E_CFG_SEL_DIV_3_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_12(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_12_CFG_I_VCO_3_0(10),
+                VTSS_F_SD25G_TARGET_CMU_12_CFG_I_VCO_3_0(res_struct->cfg_i_vco_3_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_12_CFG_I_VCO_3_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_0F(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_0F_CFG_ICP_BASE_SEL_3_0(5),
+                VTSS_F_SD25G_TARGET_CMU_0F_CFG_ICP_BASE_SEL_3_0(res_struct->cfg_icp_base_sel_3_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_0F_CFG_ICP_BASE_SEL_3_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_11(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_11_CFG_ICP_SEL_2_0(4),
+                VTSS_F_SD25G_TARGET_CMU_11_CFG_ICP_SEL_2_0(res_struct->cfg_icp_sel_2_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_11_CFG_ICP_SEL_2_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_0F(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0(6),
+                VTSS_F_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0(res_struct->cfg_rsel_2_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0x00),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_2C(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_2C_LN_CFG_DIS_2NDORDER(res_struct->ln_cfg_dis_2ndorder[0]),
+                VTSS_M_SD25G_TARGET_LANE_2C_LN_CFG_DIS_2NDORDER);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_1B(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_1B_LN_CFG_CDR_M_7_0(res_struct->ln_cfg_cdr_m_7_0[0]),
+                VTSS_M_SD25G_TARGET_LANE_1B_LN_CFG_CDR_M_7_0);
+
+    REG_WRM(VTSS_SD25G_TARGET_LANE_29(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_LANE_29_LN_CFG_FILTER2ND_YZ_6_0(res_struct->ln_cfg_filter2nd_yz_6_0[0]),
+                VTSS_M_SD25G_TARGET_LANE_29_LN_CFG_FILTER2ND_YZ_6_0);
 
     REG_WRM(VTSS_SD25G_TARGET_LANE_0C(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0C_LN_CFG_PMA_TX_CK_BITWIDTH_2_0(res_struct->ln_cfg_pma_tx_ck_bitwidth_2_0[0]),
@@ -457,7 +469,6 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ(0),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ);
 
-    REG_WR(VTSS_SD25G_TARGET_LANE_1B(sd25g_tgt), 4); /* APPL-3702 */
 
   return rc;
 }

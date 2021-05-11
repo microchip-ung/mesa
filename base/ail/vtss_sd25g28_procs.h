@@ -169,6 +169,10 @@ typedef struct {
     u8 ln_r_dfe_rstn;
     u8  ln_cfg_pi_bw_3_0;
     u8  ln_cfg_itx_ipcml_base;
+    u8  cfg_i_vco_3_0;
+    u8  cfg_icp_base_sel_3_0;
+    u8  cfg_icp_sel_2_0;
+    u8  cfg_rsel_2_0;
 
 } vtss_sd25g28_mode_args_t;
 
@@ -242,8 +246,13 @@ typedef struct {
     u8  ln_cfg_cdr_kf_2_0[1];
     u8  ln_cfg_cdr_m_7_0[1];
     u8  ln_cfg_pi_bw_3_0[1];
+    u8  cfg_i_vco_3_0[1];
+    u8  cfg_icp_base_sel_3_0[1];
+    u8  cfg_icp_sel_2_0[1];
+    u8  cfg_rsel_2_0[1];
     u8  ln_cfg_pi_steps_1_0[1];
     u8  ln_cfg_dis_2ndorder[1];
+    u8  ln_cfg_filter2nd_yz_6_0[1];
     u8  ln_cfg_ctle_rstn[1];
     u8  ln_r_dfe_rstn[1];
     u8  ln_cfg_alos_thr_2_0[1];

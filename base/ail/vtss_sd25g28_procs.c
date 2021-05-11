@@ -56,6 +56,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
     ret_val->ln_r_dfe_rstn =0;//Default; 
     ret_val->ln_cfg_itx_ipcml_base =0;//Default; 
     ret_val->com_pll_reserve =0xf;//Default; 
+    ret_val->cfg_i_vco_3_0 = 6;
+    ret_val->cfg_icp_base_sel_3_0 = 3;
+    ret_val->cfg_icp_sel_2_0 = 3;
+    ret_val->cfg_rsel_2_0 = 5;
     switch(f_mode) {
       case VTSS_SD25G28_MODE_25G_ETH :
       case VTSS_SD25G28_MODE_25G_LAN :   {
@@ -141,6 +145,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
         ret_val->txmargin=0x1;
+        ret_val->cfg_i_vco_3_0 = 10;
+        ret_val->cfg_icp_base_sel_3_0 = 5;
+        ret_val->cfg_icp_sel_2_0 = 4;
+        ret_val->cfg_rsel_2_0 = 6;
         ret_val->ln_cfg_ctle_rstn =1; 
         ret_val->ln_r_dfe_rstn =1;//This clears most CRC errors 
 		ret_val->tx_tap_dly=0; 
@@ -168,6 +176,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_bw= 3;
         ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_rxterm=3;//Changed to 2 CTS 07/06/2019
+        ret_val->cfg_i_vco_3_0 = 10;
+        ret_val->cfg_icp_base_sel_3_0 = 5;
+        ret_val->cfg_icp_sel_2_0 = 4;
+        ret_val->cfg_rsel_2_0 = 6;
         ret_val->dfe_enable= 1;
         ret_val->dfe_tap= 0x1f;
         ret_val->ln_cfg_ctle_rstn =1; 
@@ -197,6 +209,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_bw= 0;
         ret_val->ln_rxterm=0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
+        ret_val->cfg_i_vco_3_0 = 10;
+        ret_val->cfg_icp_base_sel_3_0 = 5;
+        ret_val->cfg_icp_sel_2_0 = 4;
+        ret_val->cfg_rsel_2_0 = 6;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0x0;
 
@@ -224,6 +240,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_bw= 0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->ln_rxterm=0;
+        ret_val->cfg_i_vco_3_0 = 10;
+        ret_val->cfg_icp_base_sel_3_0 = 5;
+        ret_val->cfg_icp_sel_2_0 = 4;
+        ret_val->cfg_rsel_2_0 = 6;
         ret_val->dfe_enable= 0;
         ret_val->dfe_tap= 0x0;
 
@@ -358,6 +378,10 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->cfg_vco_div_mode_1_0[0]   =                       mode_args->vco_div_mode;//hwt_vco_div_sel; PMA divider setting or Reference clock multiplying factor; 0:/1;1:/2;2:/4;3:/8                                                                  
     ret_val->cfg_pre_divsel_1_0[0]   =                         mode_args->pre_divsel ;//hwt_pre_div_sel; Reference clk divide: 00:/1;01:/2;10:/4                                                                                                          
     ret_val->cfg_sel_div_3_0[0]   =                            mode_args->sel_div    ;//hwt_cfg_sel_div PLL multiplying factor (Fref*N); Application notes for more details and restrictions. Common settings:0110: Divide by 160 1111: Divide by 330 
+    ret_val->cfg_i_vco_3_0[0]   =                         mode_args->cfg_i_vco_3_0;
+    ret_val->cfg_icp_base_sel_3_0[0]   =                         mode_args->cfg_icp_base_sel_3_0;
+    ret_val->cfg_icp_sel_2_0[0]   =                         mode_args->cfg_icp_sel_2_0;
+    ret_val->cfg_rsel_2_0[0]   =                         mode_args->cfg_rsel_2_0;
     ret_val->cfg_vco_start_code_3_0[0] =                       0;
     ret_val->ln_cfg_pma_tx_ck_bitwidth_2_0[0]   =              mode_args->ck_bitwidth;//L1_pma_txck_sel; pma_tx_ck_leaf frequency selection                                                                                                                  
     ret_val->ln_cfg_tx_prediv_1_0[0]   =                       mode_args->tx_pre_div;  // L1_pcs2pma_tx_speed; TX subrate control                                                                                                                                   
@@ -564,11 +588,12 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_txcal_valid_sel_3_0[0]   =                 4;
     ret_val->ln_cfg_txcal_en[0]   =                            0;
     ret_val->ln_cfg_cdr_kf_2_0[0]   =                          1;
-    ret_val->ln_cfg_cdr_m_7_0[0]   =                           6;//6->3; back to As per AN_0003 20/06/2019;
+    ret_val->ln_cfg_cdr_m_7_0[0]   =                           4;//6->4: Updating setting that we got from receiver tolerance testing
     ret_val->ln_cfg_pi_bw_3_0[0]   =                         mode_args->ln_cfg_pi_bw_3_0;
     //ret_val->ln_cfg_pi_bw_3_0[0]   =                           0;//Changed from 0 to 6 CTS 07/06/2019
     ret_val->ln_cfg_pi_steps_1_0[0]   =                        0;
-    ret_val->ln_cfg_dis_2ndorder[0]   =                        1;
+    ret_val->ln_cfg_dis_2ndorder[0]   =                        0;
+    ret_val->ln_cfg_filter2nd_yz_6_0[0]   =                    0x3f;
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
     ret_val->ln_r_dfe_rstn[0]   =                              mode_args->ln_r_dfe_rstn;
     ret_val->ln_cfg_alos_thr_2_0[0]   =                        preset.ln_cfg_alos_thr_2_0;//was 7
