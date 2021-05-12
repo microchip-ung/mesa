@@ -592,7 +592,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_pi_bw_3_0[0]   =                         mode_args->ln_cfg_pi_bw_3_0;
     //ret_val->ln_cfg_pi_bw_3_0[0]   =                           0;//Changed from 0 to 6 CTS 07/06/2019
     ret_val->ln_cfg_pi_steps_1_0[0]   =                        0;
-    ret_val->ln_cfg_dis_2ndorder[0]   =                        0;
+    ret_val->ln_cfg_dis_2ndorder[0]   =                        1;
     ret_val->ln_cfg_filter2nd_yz_6_0[0]   =                    0x3f;
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
     ret_val->ln_r_dfe_rstn[0]   =                              mode_args->ln_r_dfe_rstn;
