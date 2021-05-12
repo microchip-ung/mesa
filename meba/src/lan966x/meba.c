@@ -392,8 +392,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 {
     meba_inst_t        inst;
     meba_board_state_t *board;
-    int                pcb, beaglebone = 0;
-    FILE               *fp;
+    int                pcb;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -427,16 +426,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
         board->type = BOARD_TYPE_ADARO;   // Default
     }
 
-    // Check for Beaglebone platform
-    if ((fp = fopen("/sys/firmware/devicetree/base/model", "r"))) {
-        char model[128];
-        const char *m = fgets(model, sizeof(model), fp);
-        fclose(fp);
-        if (m && strstr(model, "BeagleBone")) {
-            beaglebone = 1;
-        }
-    }
-
     /* Fill out port mapping table */
     inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
     switch (board->type) {
@@ -454,7 +443,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
         lan966x_init_port_table(inst, 3, port_table_endnode);
         break;
     case BOARD_TYPE_ENDNODE_CARRIER:
-        if (beaglebone) {
+        if (1) {
+            // Fow now, use SVB
             inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
             lan966x_init_port_table(inst, 4, port_table_svb);
         } else {

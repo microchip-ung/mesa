@@ -1512,13 +1512,6 @@ mesa_rc mscc_appl_port_status_get(const mesa_port_no_t  port_no,
                                   mesa_port_status_t    *const status)
 {
     T_D("enter");
-
-    /* Poll port status and update the status data structure */
-    if (port_status_poll(port_no) != MESA_RC_OK) {
-        return MESA_RC_ERROR;
-    }
-
     *status = port_table[port_no].status;
-
     return MESA_RC_OK;
 }

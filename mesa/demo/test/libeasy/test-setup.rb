@@ -1169,6 +1169,19 @@ class Mesa_Pc_b2b
             @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
         end
 
+        #Check for any multi topology commands
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                if (topo["#{topo_name}"] != nil)
+                    name = topo["#{topo_name}"]
+                    name["command"].each do |command|  #Do all required server PC commands
+                        @pc.run command
+                        sleep 1
+                    end
+                end
+            end
+        end
+
         if $options[:no_init]
             @pc.run "/easytest/local/if-setup-l2-test.rb"
             @dut.mute
@@ -1187,19 +1200,6 @@ class Mesa_Pc_b2b
 
             @dut.bg "api", "mesa-demo -f #{dut_args} #{t} #{mesa_args}"
             @dut.bg "rte", "mera-demo -f #{dut_args}"
-        end
-
-        #Check for any multi topology commands
-        if (conf["Multi_topo"] != nil)
-            conf["Multi_topo"].each do |topo|
-                if (topo["#{topo_name}"] != nil)
-                    name = topo["#{topo_name}"]
-                    name["command"].each do |command|  #Do all required server PC commands
-                        @pc.run command
-                        sleep 1
-                    end
-                end
-            end
         end
 
         if !$options[:no_init]

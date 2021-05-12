@@ -67,42 +67,46 @@ static vtss_rc vtss_maserati_sd6g40_reg_cfg(vtss_state_t *vtss_state, vtss_sd6g4
             HSIO_MPLL_CFG_REF_SSP_EN(1),
             HSIO_MPLL_CFG_REF_SSP_EN_M);
 
-    VTSS_NSLEEP(1000);
+    //VTSS_NSLEEP(1000);
+    VTSS_MSLEEP(1);
 
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_PHY_RESET(0),
             HSIO_SD_CFG_PHY_RESET_M);
 
-    VTSS_NSLEEP(10);
+    //VTSS_NSLEEP(10);
+    VTSS_MSLEEP(1);
 
     REG_WRM(HSIO_MPLL_CFG(idx),
             HSIO_MPLL_CFG_MPLL_EN(1),
             HSIO_MPLL_CFG_MPLL_EN_M);
 
-    VTSS_NSLEEP(7000);
+    //VTSS_NSLEEP(7000);
+    VTSS_MSLEEP(1);
 
     REG_RD(HSIO_SD_STAT(idx), &value);
     value = HSIO_SD_STAT_MPLL_STATE_X(value);
     if(value != 0x1) {
-        VTSS_E("The expected value for sd_sd_stat mpll_state was 0x1 but is 0x%x", value);
+        VTSS_E("The expected value for sd_sd_stat[%u] mpll_state was 0x1 but is 0x%x", idx, value);
         rc = VTSS_RC_ERROR;
     } else {
-        VTSS_D("Note: The value of sd_sd_stat mpll_state was 0x%x", value);
+        VTSS_D("Note: The value of sd_sd_stat[%u] mpll_state was 0x%x", idx, value);
     }
 
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_TX_CM_EN(1),
             HSIO_SD_CFG_TX_CM_EN_M);
 
-    VTSS_NSLEEP(230000);
+    //VTSS_NSLEEP(230000);
+    VTSS_MSLEEP(1);
 
     REG_RD(HSIO_SD_STAT(idx), &value);
     value = HSIO_SD_STAT_TX_CM_STATE_X(value);
     if(value != 0x1) {
-        VTSS_E("The expected value for sd_sd_stat tx_cm_state was 0x1 but is 0x%x", value);
+        VTSS_E("The expected value for sd_sd_stat[%u] tx_cm_state was 0x1 but is 0x%x", idx, value);
         rc = VTSS_RC_ERROR;
     } else {
-        VTSS_D("Note: The value of sd_sd_stat tx_cm_state was 0x%x", value);
+        VTSS_D("Note: The value of sd_sd_stat[%u] tx_cm_state was 0x%x", idx, value);
     }
 
     REG_WRM(HSIO_SD_CFG(idx),
@@ -111,26 +115,27 @@ static vtss_rc vtss_maserati_sd6g40_reg_cfg(vtss_state_t *vtss_state, vtss_sd6g4
             HSIO_SD_CFG_RX_PLL_EN_M |
             HSIO_SD_CFG_TX_EN_M);
 
-    VTSS_NSLEEP(4000);
+    //VTSS_NSLEEP(4000);
+    VTSS_MSLEEP(1);
 
 /* Waiting for serdes 0 rx DPLL to lock...  */
     REG_RD(HSIO_SD_STAT(idx), &value);
     value = HSIO_SD_STAT_RX_PLL_STATE_X(value);
     if(value != 0x1) {
-        VTSS_E("The expected value for sd_sd_stat rx_pll_state was 0x1 but is 0x%x", value);
+        VTSS_E("The expected value for sd_sd_stat[%u] rx_pll_state was 0x1 but is 0x%x", idx, value);
         rc = VTSS_RC_ERROR;
     } else {
-        VTSS_D("Note: The value of sd_sd_stat rx_pll_state was 0x%x", value);
+        VTSS_D("Note: The value of sd_sd_stat[%u] rx_pll_state was 0x%x", idx, value);
     }
 
 /* Waiting for serdes 0 tx operational...  */
     REG_RD(HSIO_SD_STAT(idx), &value);
     value = HSIO_SD_STAT_TX_STATE_X(value);
     if(value != 0x1) {
-        VTSS_E("The expected value for sd_sd_stat tx_state was 0x1 but is 0x%x", value);
+        VTSS_E("The expected value for sd_sd_stat[%u] tx_state was 0x1 but is 0x%x", idx, value);
         rc = VTSS_RC_ERROR;
     } else {
-        VTSS_D("Note: The value of sd_sd_stat tx_state was 0x%x", value);
+        VTSS_D("Note: The value of sd_sd_stat[%u] tx_state was 0x%x", idx, value);
     }
 
     REG_WRM(HSIO_SD_CFG(idx),
