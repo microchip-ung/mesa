@@ -60,6 +60,9 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
     ret_val->cfg_icp_base_sel_3_0 = 3;
     ret_val->cfg_icp_sel_2_0 = 3;
     ret_val->cfg_rsel_2_0 = 5;
+    ret_val->ln_cfg_cdr_m_7_0 = 6;
+    ret_val->ln_cfg_dis_2ndorder = 1;
+    ret_val->ln_cfg_filter2nd_yz_6_0 = 8;
     switch(f_mode) {
       case VTSS_SD25G28_MODE_25G_ETH :
       case VTSS_SD25G28_MODE_25G_LAN :   {
@@ -86,6 +89,9 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_cfg_ctle_rstn =1; 
         ret_val->ln_r_dfe_rstn =1;//Default; 
         ret_val->ln_cfg_pi_bw_3_0 = 0;
+        ret_val->ln_cfg_cdr_m_7_0 = 4;
+        ret_val->ln_cfg_dis_2ndorder = 0;
+        ret_val->ln_cfg_filter2nd_yz_6_0 = 0x3f;
 
 		ret_val->tx_tap_dly=8; 
 		ret_val->tx_tap_adv=0xc;// this depends on actual Si
@@ -116,6 +122,10 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t        f_mode,
         ret_val->ln_cfg_ctle_rstn =1; 
         ret_val->ln_r_dfe_rstn =1;//Default; 
         ret_val->ln_cfg_pi_bw_3_0 = 0;
+        ret_val->ln_cfg_cdr_m_7_0 = 4;
+        ret_val->ln_cfg_dis_2ndorder = 0;
+        ret_val->ln_cfg_filter2nd_yz_6_0 = 0x3f;
+
 
 		ret_val->tx_tap_dly=8; 
 		ret_val->tx_tap_adv=0xc;// this depends on actual Si
@@ -588,12 +598,12 @@ vtss_rc vtss_calc_sd25g28_setup_lane (const vtss_sd25g28_setup_args_t config,
     ret_val->ln_cfg_txcal_valid_sel_3_0[0]   =                 4;
     ret_val->ln_cfg_txcal_en[0]   =                            0;
     ret_val->ln_cfg_cdr_kf_2_0[0]   =                          1;
-    ret_val->ln_cfg_cdr_m_7_0[0]   =                           4;//6->4: Updating setting that we got from receiver tolerance testing
+    ret_val->ln_cfg_cdr_m_7_0[0]   =                           mode_args->ln_cfg_cdr_m_7_0;
     ret_val->ln_cfg_pi_bw_3_0[0]   =                         mode_args->ln_cfg_pi_bw_3_0;
     //ret_val->ln_cfg_pi_bw_3_0[0]   =                           0;//Changed from 0 to 6 CTS 07/06/2019
     ret_val->ln_cfg_pi_steps_1_0[0]   =                        0;
-    ret_val->ln_cfg_dis_2ndorder[0]   =                        1;
-    ret_val->ln_cfg_filter2nd_yz_6_0[0]   =                    0x3f;
+    ret_val->ln_cfg_dis_2ndorder[0]   =                        mode_args->ln_cfg_dis_2ndorder;
+    ret_val->ln_cfg_filter2nd_yz_6_0[0]   =                    mode_args->ln_cfg_filter2nd_yz_6_0;
     ret_val->ln_cfg_ctle_rstn[0]   =                           mode_args->ln_cfg_ctle_rstn;
     ret_val->ln_r_dfe_rstn[0]   =                              mode_args->ln_r_dfe_rstn;
     ret_val->ln_cfg_alos_thr_2_0[0]   =                        preset.ln_cfg_alos_thr_2_0;//was 7

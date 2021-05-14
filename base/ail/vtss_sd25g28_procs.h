@@ -173,6 +173,9 @@ typedef struct {
     u8  cfg_icp_base_sel_3_0;
     u8  cfg_icp_sel_2_0;
     u8  cfg_rsel_2_0;
+    u8  ln_cfg_cdr_m_7_0;
+    u8  ln_cfg_dis_2ndorder;
+    u8  ln_cfg_filter2nd_yz_6_0;
 
 } vtss_sd25g28_mode_args_t;
 
