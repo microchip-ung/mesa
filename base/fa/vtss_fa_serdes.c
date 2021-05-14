@@ -2153,10 +2153,10 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_
         }
     }
 
-    VTSS_RC(fa_serdes_vga_adjust(vtss_state, NULL, port_no));
-    VTSS_RC(fa_serdes_eqr_adjust(vtss_state, NULL, port_no));
-    VTSS_RC(fa_serdes_eqc_adjust(vtss_state, NULL, port_no));
-    VTSS_RC(fa_serdes_vga_adjust(vtss_state, NULL, port_no));
+    VTSS_RC(fa_serdes_vga_adjust(vtss_state, pr, port_no));
+    VTSS_RC(fa_serdes_eqr_adjust(vtss_state, pr, port_no));
+    VTSS_RC(fa_serdes_eqc_adjust(vtss_state, pr, port_no));
+    VTSS_RC(fa_serdes_vga_adjust(vtss_state, pr, port_no));
 
     if (pr == NULL) {
         return VTSS_RC_OK;
