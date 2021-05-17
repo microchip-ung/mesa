@@ -455,6 +455,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
         break;
     }
 
+    inst->props.board_type = board->type;
+
     T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d",
         inst->props.name, inst->props.target, board->port_cnt, inst->props.mux_mode);
 
