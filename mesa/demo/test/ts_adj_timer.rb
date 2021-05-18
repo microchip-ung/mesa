@@ -21,14 +21,18 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
+$external_io_out = 1
 if ($pcb == "6813-Adaro")
     $external_io_in = 0
 end
 if ($pcb == 111)
     $external_io_out = 0
-else
-    $external_io_out = 1
 end
+if ($pcb == "8291-EndNode")
+    $external_io_in = 4
+end
+t_i "external_io_in #{$external_io_in}  external_io_out #{$external_io_out}"
+
 
 def get_next_saved_ts
     test "get_next_saved_ts" do
@@ -79,6 +83,12 @@ def tod_adj_timer_test(domain_out, domain_in)
         adj_max = 1200000
         diff_high = 120114
         diff_low = 119885
+    end
+    if ($pcb == "8291-EndNode")
+        diff_no_adj = 8
+        adj_max = 2400000
+        diff_high = 240114
+        diff_low = 239885
     end
 
     #domain_out == 3 indicates use of default domain API
