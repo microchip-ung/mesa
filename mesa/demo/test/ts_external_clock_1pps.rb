@@ -23,6 +23,10 @@ $external_io_in = 2
 if ($pcb == "6813-Adaro")
     $external_io_in = 0
 end
+if ($pcb == "8291-EndNode")
+    $external_io_in = 4
+end
+t_i "external_io_in #{$external_io_in}"
 
 def tod_external_clock_1pps_test
     test "tod_external_clock_1pps_test" do
@@ -68,13 +72,19 @@ def tod_external_clock_1pps_test
             t_e("Case 1PPS is not enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
         end
 
-        # Configure external 1PPS output that is looped back to 1PPS input pin
+        t_i "Configure external 1PPS output that is looped back to 1PPS input pin"
         ext_conf["one_pps_mode"] = "MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT"
         $ts.dut.call("mesa_ts_external_clock_mode_set", ext_conf)
         sleep(0.9)
 
-        # Get TOD on 1PPS input pin
-        pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+        t_i "Get TOD on 1PPS input pin"
+        5.times {
+            pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+            if (pin[0]["seconds"] > pin_ts1["seconds"])
+                break
+            end
+            sleep(0.8)
+        }
         pin_ts1 = pin[0]
 
         sleep(1.6)
@@ -86,7 +96,7 @@ def tod_external_clock_1pps_test
             t_e("Case 1PPS is enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
         end
 
-        # Configure external to no 1PPS output
+        t_i "Configure external to no 1PPS output"
         ext_conf["one_pps_mode"] = "MESA_TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE"
         $ts.dut.call("mesa_ts_external_clock_mode_set", ext_conf)
         end

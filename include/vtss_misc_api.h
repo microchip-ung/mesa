@@ -649,7 +649,8 @@ typedef enum {
     VTSS_GPIO_FUNC_PTP_0,   // PTP 0 GPIO functionality
     VTSS_GPIO_FUNC_PTP_1,   // PTP 1 GPIO functionality
     VTSS_GPIO_FUNC_PTP_2,   // PTP 2 GPIO functionality
-    VTSS_GPIO_FUNC_PTP_3    // PTP 3 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_3,   // PTP 3 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_4    // PTP 4 GPIO functionality
 } vtss_gpio_func_t;
 
 // GPIO functionality ALT mode

@@ -8,16 +8,18 @@
 #if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_TIMESTAMP)
 
 /* GPIO configuration */
-#define PCB134_GPIO_FUNC_INFO_SIZE 4
-static vtss_gpio_func_info_t ptp_gpio[PCB134_GPIO_FUNC_INFO_SIZE] = {   /* PCB134 is default */
-    {.gpio_no = 8, //PTP_0
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 9, //PTP_1
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 24, //PTP_2
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 25, //PTP_3
-     .alt = VTSS_GPIO_FUNC_ALT_0},
+#define PCB8291_GPIO_FUNC_INFO_SIZE 5
+static vtss_gpio_func_info_t ptp_gpio[PCB8291_GPIO_FUNC_INFO_SIZE] = {   /* PCB8291 is default. This also cover PCB8290 except PTP2 is not connected */
+    {.gpio_no = 35, //PTP_0
+     .alt = VTSS_GPIO_FUNC_ALT_1},
+    {.gpio_no = 36, //PTP_1
+     .alt = VTSS_GPIO_FUNC_ALT_1},
+    {.gpio_no = 37, //PTP_2
+     .alt = VTSS_GPIO_FUNC_ALT_1},
+    {.gpio_no = 38, //PTP_3
+     .alt = VTSS_GPIO_FUNC_ALT_1},
+    {.gpio_no = 39, //PTP_4
+     .alt = VTSS_GPIO_FUNC_ALT_1},
 };
 
 static u64 nominal_tod_increment;
@@ -604,6 +606,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     VTSS_D("interface %d  speed %u", interface, speed);
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
+    case VTSS_PORT_INTERFACE_SGMII:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -623,6 +626,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     /* Add additional delays found in testing. Note that rx_delay and tx_delay values are in pico seconds */
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
+    case VTSS_PORT_INTERFACE_SGMII:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -835,7 +839,7 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 {
-    u32 domain, clk_in_ps, i;
+    u32 domain, clk_in_ps, i, rc=0;
     u64 nsec, psec;
 
     /* Disable PTP (all 3 domains)*/
@@ -868,8 +872,29 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(7));
 
     /* Configure the PTP pin to GPIO selection */
-    for (i = 0; i < 4; ++i) {
+    for (i = 0; i < 8; ++i) {
         REG_WRM(PTP_PIN_CFG(i), PTP_PIN_CFG_PIN_SELECT(i), PTP_PIN_CFG_PIN_SELECT_M);
+    }
+
+    /* Get the GPIO functionallity information */
+    if (vtss_state->init_conf.gpio_func_info_get != NULL) {
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_0, &ptp_gpio[0]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_1, &ptp_gpio[1]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_2, &ptp_gpio[2]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_3, &ptp_gpio[3]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
+        if (rc != VTSS_RC_OK) {
+            VTSS_E("Not able to get valid GPIO functionallity information");
+        }
+    } else {
+        VTSS_E("gpio_func_info_get is NULL");
+    }
+    for (i = 0; i < PCB8291_GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
+        switch (ptp_gpio[i].alt) {
+            case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;
+            case VTSS_GPIO_FUNC_ALT_1: ptp_gpio[i].alt = VTSS_GPIO_ALT_1; break;
+            case VTSS_GPIO_FUNC_ALT_2: ptp_gpio[i].alt = VTSS_GPIO_ALT_2; break;
+        }
     }
 
     memset(seriel_1G_delay, 0, sizeof(seriel_1G_delay));

@@ -20,24 +20,26 @@ end
 $pcb = $ts.dut.pcb
 
 $external_io_in = 2
-if ($pcb == "6813-Adaro")
-    $external_io_in = 0
+$external_io_out = 1
+$diff_high = 1
+$diff_low = 1
+
+if ($pcb == "8291-EndNode")
+    $external_io_in = 4
+    $diff_low = 3
 end
 if ($pcb == 111)
     $external_io_out = 0
     $diff_high = 16
-    $diff_low = -25
-else
+    $diff_low = 25
+end
 if ($pcb == "6813-Adaro")
-    $external_io_out = 1
+    $external_io_in = 0
     $diff_high = 10
-    $diff_low = -10
-else
-    $external_io_out = 1
-    $diff_high = 1
-    $diff_low = -1
+    $diff_low = 10
 end
-end
+t_i "$external_io_out #{$external_io_out} $external_io_in #{$external_io_in}"
+
 def tod_external_io_1pps_test
     test "tod_external_io_1pps_test" do
 
@@ -80,16 +82,25 @@ def tod_external_io_1pps_test
         pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT"
         $ts.dut.call("mesa_ts_external_io_mode_set", $external_io_out, pin_conf)
 
-        sleep(0.8)
-
         t_i("Get TOD on 1PPS input pin")
-        pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+        5.times {
+            pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+            if (pin[0]["seconds"] > pin_ts1["seconds"])
+                break
+            end
+            sleep(0.8)
+        }
         pin_ts1 = pin[0]
 
         sleep(0.8)
 
         t_i("Get TOD on 1PPS input pin to check incremented")
         pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+        if (pin[0]["seconds"] == pin_ts1["seconds"])
+            sleep(0.2)
+            pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+        end
+
         pin_ts2 = pin[0]
         if ((pin_ts2["seconds"] > (pin_ts1["seconds"] + 2)) || (pin_ts2["seconds"] <= pin_ts1["seconds"]))
             t_e("Case 1PPS is enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
@@ -156,7 +167,7 @@ def tod_external_io_1pps_tod_offset_test
 
     diff = ts1["nanoseconds"] - ts2["nanoseconds"]
     t_i("Difference #{diff} in TOD nanoseconds must be approx #{offset}")
-    if (diff > (offset+$diff_high)) || (diff < (offset-1))
+    if (diff > (offset+$diff_high)) || (diff < (offset-$diff_low))
         t_e("Difference is not as expected")
     end
 
@@ -174,7 +185,7 @@ def tod_external_io_1pps_tod_offset_test
 
     diff = ts2["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff} in TOD nanoseconds must be approx 0")
-    if ((diff > 1) || (diff < $diff_low))
+    if ((diff > 1) || (diff < -$diff_low))
         t_e("Difference is not as expected")
     end
     end
