@@ -73,6 +73,7 @@ def tod_domain_test(domain, seconds)
 
     # Get previous PPS TOD. Only default domain call possible - there is no domain interface for this !!!
     if (domain_def)
+        $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0])
         prev_ts = $ts.dut.call("mesa_ts_timeofday_prev_pps_get")
         if (prev_ts["seconds"] != seconds)
             t_e("Previous TOD in domain #{domain} was not configured as expected.  seconds = #{seconds}  prev_ts[seconds] = #{prev_ts["seconds"]}")
@@ -80,12 +81,17 @@ def tod_domain_test(domain, seconds)
     end
 
     # Get next PPS TOD.
+    $tod_ts[0]["seconds"] = seconds
+    $tod_ts[0]["nanoseconds"] = 0
+    domain_def ? $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     next_ts = domain_def ? $ts.dut.call("mesa_ts_timeofday_next_pps_get") : $ts.dut.call("mesa_ts_domain_timeofday_next_pps_get", domain)
     if (next_ts["seconds"] != (seconds + 1))
-        t_e("next TOD in domain #{domain} was not configured as expected.  seconds = #{seconds+1}  next_ts[seconds] = #{next_ts["seconds"]}")
+        t_e("next TOD in domain #{domain} was not configured as expected.  seconds = #{seconds}  next_ts[seconds] = #{next_ts["seconds"]}")
     end
 
     t_i ("Sleep one second and check that TOD seconds is incremented - do a new TOD set first")
+    $tod_ts[0]["seconds"] = seconds
+    $tod_ts[0]["nanoseconds"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     sleep(1)
 
@@ -98,26 +104,26 @@ def tod_domain_test(domain, seconds)
     $tod_ts[0]["nanoseconds"] = 0
 
     test "Inject SYNC frame with PTP action NONE AFI into NPI port and receive SYNC frame from front port and check the origin timestamp" do
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_AFI_NONE", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, 0)  # Frame should not be updated
 
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
     test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the origin timestamp" do
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0)
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
     framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, seconds)
 
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
-    test " Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port" do
+    test "Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port" do
     # Update default ingress and egress latency in the API. This is based on register values potentially different after link up
     # Delay after call to mesa_ts_status_change should be smaller as the default delay (that is added) is calculated internally in the API
     # This is only the case the first run of the test after boot as this default delay is remembered in the API
