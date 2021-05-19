@@ -22,9 +22,9 @@ $port1 = 1
 $vlan = 100
 $acl_id = 1
 $pcb = $ts.dut.pcb
-if ($pcb == "8281-SVB@bbb")    #On this specific board there are four ports with Indy PHY on 0 and 1 and copper SFP on 2 and 3.
-    $port0 = 2                 #Is seems that the Indy PHY is manipulating the correction field at ingress
-end
+#if ($pcb == "8281-SVB")    #On this specific board there are four ports with Indy PHY on 0 and 1 and copper SFP on 2 and 3.
+#    $port0 = 2             #Is seems that the Indy PHY is manipulating the correction field at ingress
+#end
 
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
@@ -55,6 +55,7 @@ def tod_asymmetry_p2p_delay_test
     action = conf["action"]
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
     $ts.dut.call("mesa_ace_add", 0, conf)
+
     lowest_corr_none = nano_corr_lowest_measure
 
     test ("No asymmetry delay check of correction field") do

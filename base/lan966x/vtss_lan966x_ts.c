@@ -607,6 +607,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SGMII_CISCO:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -627,6 +628,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SGMII_CISCO:
         /* Single-Lane SerDes at 1 or 2.5 Gbps */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */
@@ -763,7 +765,8 @@ static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_print
     int            idx;
 
     /* REW:PORT */
-    for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        port = VTSS_CHIP_PORT(port_no);
         sprintf(buf, "REW:PORT[%u]", port);
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(REW_PTP_MISC_CFG(port)), "REW_PTP_MISC_CFG");
@@ -775,7 +778,8 @@ static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_print
     }
 
     /* SYS:PTPPORT */
-    for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        port = VTSS_CHIP_PORT(port_no);
         sprintf(buf, "SYS:PTPPORT[%u]", port);
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PCH_CFG(port)), "SYS_PCH_CFG");
@@ -818,9 +822,14 @@ static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_print
     /* DEV:PORT_MODE */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "DEV:PORT_MODE[%u]", port_no);
+        sprintf(buf, "DEV:PORT_MODE[%u]", port);
         vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PTP_MISC_CFG(port)), "DEV_PTP_MISC_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PTP_MISC_CFG(port)), "PTP_MISC_CFG");
+
+        sprintf(buf, "DEV[%u]:PHASE_DETECTOR_CTRL[0-1]", port);
+        vtss_lan966x_debug_reg_header(pr, buf);
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_CTRL[0]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_CTRL[1]");
     }
 
     pr("\n");
@@ -907,6 +916,13 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
     seriel_1G_delay[5].rx = 40807;    seriel_1G_delay[5].tx = 144394;
     seriel_1G_delay[6].rx = 40807;    seriel_1G_delay[6].tx = 144394;
     seriel_1G_delay[7].rx = 48814;    seriel_1G_delay[7].tx = 152394;
+
+    for (i = 0; i <= VTSS_CHIP_PORTS; i++) {
+        REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
+                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
+        REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
+                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
+    }
 
     return VTSS_RC_OK;
 }
