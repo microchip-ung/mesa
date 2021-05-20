@@ -893,10 +893,10 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_3, &ptp_gpio[3]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
         if (rc != VTSS_RC_OK) {
-            VTSS_E("Not able to get valid GPIO functionallity information");
+            VTSS_I("Not able to get valid GPIO functionallity information");
         }
     } else {
-        VTSS_E("gpio_func_info_get is NULL");
+        VTSS_I("gpio_func_info_get is NULL");
     }
     for (i = 0; i < PCB8291_GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
         switch (ptp_gpio[i].alt) {
@@ -917,7 +917,7 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
     seriel_1G_delay[6].rx = 40807;    seriel_1G_delay[6].tx = 144394;
     seriel_1G_delay[7].rx = 48814;    seriel_1G_delay[7].tx = 152394;
 
-    for (i = 0; i <= VTSS_CHIP_PORTS; i++) {
+    for (i = 0; i < VTSS_CHIP_PORTS; i++) {
         REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
                                      DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
         REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
