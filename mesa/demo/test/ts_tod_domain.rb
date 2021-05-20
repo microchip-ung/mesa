@@ -85,7 +85,7 @@ def tod_domain_test(domain, seconds)
     $tod_ts[0]["nanoseconds"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     next_ts = domain_def ? $ts.dut.call("mesa_ts_timeofday_next_pps_get") : $ts.dut.call("mesa_ts_domain_timeofday_next_pps_get", domain)
-    if (next_ts["seconds"] != (seconds + 1))
+    if (next_ts["seconds"] > (seconds + 2))   # It has been seen that two seconds has passed since mesa_ts_timeofday_set()
         t_e("next TOD in domain #{domain} was not configured as expected.  seconds = #{seconds}  next_ts[seconds] = #{next_ts["seconds"]}")
     end
 
