@@ -103,6 +103,29 @@ static void cli_cmd_debug_phy(cli_req_t *req, mesa_bool_t write)
     }
 }
 
+static void cli_cmd_deb_phy_clause45_rd_wr(cli_req_t *req, mesa_bool_t write)
+{
+    mesa_port_no_t  port, iport;
+    uint32_t        reg;
+    uint16_t        value;
+    debug_cli_req_t *mreq = req->module_req;
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        port = iport2uport(iport);
+        if (req->port_list[port] == 0)
+            continue;
+
+        reg = mreq->page << 16 | mreq->addr;
+        if (write) {
+            value = (uint16_t)mreq->value;
+            meba_phy_clause45_write(meba_global_inst, iport, reg, value);
+        } else if (meba_phy_clause45_read(meba_global_inst, iport, reg, &value) == MESA_RC_OK) {
+            cli_table_header("Port  page  Address  Value  ");
+            cli_printf("%-6u%-6u0x%-7x0x%x\n", port, mreq->page, mreq->addr, value);
+        }
+    }
+}
+
 static void cli_cmd_debug_phy_read(cli_req_t *req)
 {
     cli_cmd_debug_phy(req, 0);
@@ -111,6 +134,16 @@ static void cli_cmd_debug_phy_read(cli_req_t *req)
 static void cli_cmd_debug_phy_write(cli_req_t *req)
 {
     cli_cmd_debug_phy(req, 1);
+}
+
+static void cli_cmd_debug_phy_clause45_read(cli_req_t *req)
+{
+    cli_cmd_deb_phy_clause45_rd_wr(req, 0);
+}
+
+static void cli_cmd_debug_phy_clause45_write(cli_req_t *req)
+{
+    cli_cmd_deb_phy_clause45_rd_wr(req, 1);
 }
 
 static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
@@ -148,13 +181,13 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_HQOS]      = "hqos",
     [MESA_DEBUG_GROUP_VXLAT]     = "vxlat",
     [MESA_DEBUG_GROUP_OAM]       = "oam",
+    [MESA_DEBUG_GROUP_MRP]       = "mrp",
     [MESA_DEBUG_GROUP_SER_GPIO]  = "sgpio",
     [MESA_DEBUG_GROUP_L3]        = "l3",
     [MESA_DEBUG_GROUP_AFI]       = "afi",
     [MESA_DEBUG_GROUP_MACSEC]    = "macsec",
     [MESA_DEBUG_GROUP_SERDES]    = "serdes",
     [MESA_DEBUG_GROUP_KR]        = "kr",
-    [MESA_DEBUG_GROUP_MUX]       = "mux",
 };
 
 static void cli_cmd_debug_api(cli_req_t *req)
@@ -418,6 +451,18 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_debug_serdes,
         CLI_CMD_FLAG_ALL_PORTS
     },
+    {
+        "Debug PHY cls-45 Read <port_list> <page> <addr16>",
+        "Read PHY clause-45 register",
+        cli_cmd_debug_phy_clause45_read,
+        CLI_CMD_FLAG_ALL_PORTS
+    },
+    {
+        "Debug PHY cls-45 Write <port_list> <page> <addr16> <value>",
+        "Write PHY clause-45 register",
+        cli_cmd_debug_phy_clause45_write,
+        CLI_CMD_FLAG_ALL_PORTS
+    },
 
 };
 
@@ -579,6 +624,12 @@ static int cli_parm_reg_value(cli_req_t *req)
     return cli_parm_u32(req, &mreq->value, 0, 0xffffffff);
 }
 
+static int cli_parm_addr_16bit(cli_req_t *req)
+{
+    debug_cli_req_t *mreq = req->module_req;
+    return cli_parm_u32(req, &mreq->addr, 0, 0xffff);
+}
+
 static cli_parm_t cli_parm_table[] = {
     {
         "<layer>",
@@ -715,6 +766,12 @@ static cli_parm_t cli_parm_table[] = {
         "Tx equalization: deb serdes <port> txeq dly,adv,ampl",
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
+    },
+    {
+        "<addr16>",
+        "16-bit address (0-65535)",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_addr_16bit
     },
 
 };
