@@ -162,8 +162,8 @@ def tod_latency_test(port0, port1)
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         min = -11
         max = 11
-        if ($ts.dut.pcb == "6813-Adaro")
-            max = 33
+        if ($ts.dut.pcb == "8281-SVB")
+            max = 30
         end
     end
 
@@ -180,9 +180,9 @@ def tod_latency_test(port0, port1)
     diff = nano_delay_0 - nano_delay_1
     t_i ("delay difference #{diff}")
     diff_tolerance = 9
-        if ($ts.dut.pcb == "6813-Adaro")
-            diff_tolerance = 13
-        end
+    if ($ts.dut.pcb == "8281-SVB")
+        diff_tolerance = 13
+    end
     if ((diff > (PTP_LATENCY_MAX + diff_tolerance)) || (diff < (PTP_LATENCY_MAX - diff_tolerance)))
         t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency 0.  Delay = #{nano_delay_1}  tolerance #{diff_tolerance}")
     end
@@ -195,7 +195,7 @@ def tod_latency_test(port0, port1)
     nano_delay_2 = nano_delay_measure(port0, port1)
     diff = nano_delay_0 - nano_delay_2
     t_i ("delay difference #{diff}")
-    if ((diff > (PTP_LATENCY_MAX*2 + 9)) || (diff < (PTP_LATENCY_MAX*2 - 9)))
+    if ((diff > (PTP_LATENCY_MAX*2 + diff_tolerance)) || (diff < (PTP_LATENCY_MAX*2 - diff_tolerance)))
         t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency #{PTP_LATENCY_MAX}.  Delay = #{nano_delay_2}")
     end
 

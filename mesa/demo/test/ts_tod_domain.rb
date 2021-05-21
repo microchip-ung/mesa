@@ -186,7 +186,7 @@ def tod_domain_test(domain, seconds)
 
     if (((rx_tc - $tx_tc) > 0) ||
         (($tx_tc - rx_tc) > 210))
-        t_e("Difference between TX TC and RX TC is unexpected high.  max: #{310}")
+        t_e("Difference between TX TC and RX TC is unexpected high.  max: #{210}")
     end
 
     if (($hw_tstamp - (tx_props[:delay_comp][:delay_cnt]>>16) - (tx_props[:delay_comp][:asymmetry_cnt]>>16)) != rx_tc)  # Check that the calculated frame tc is correctly compensated

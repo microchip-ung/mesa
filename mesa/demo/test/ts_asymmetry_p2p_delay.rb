@@ -190,6 +190,7 @@ end
 
 test "test_run" do
     # Test egress and ingress asymmetry and p2p delay
+$ts.dut.run("mesa-cmd deb api cil ts")
     tod_asymmetry_p2p_delay_test
 end
 

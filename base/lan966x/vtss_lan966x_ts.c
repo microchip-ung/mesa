@@ -579,7 +579,12 @@ typedef struct {
     u32 rx;
     u32 tx;
 } io_delay_t;
-static io_delay_t seriel_1G_delay[VTSS_PORT_COUNT];
+static io_delay_t gmii_delay[VTSS_PORT_COUNT];
+static io_delay_t qsgmii_delay[VTSS_PORT_COUNT];
+static io_delay_t sgmii_delay[VTSS_PORT_COUNT];
+static io_delay_t sgmii_2g5_delay[VTSS_PORT_COUNT];
+static io_delay_t swc_gmii_delay[VTSS_PORT_COUNT];
+static io_delay_t swc_gmii_2g5_delay[VTSS_PORT_COUNT];
 
 /*
 * Signal port status (configuration actually) change (used to detect and compensate for the internal ingress and egress latencies)
@@ -604,18 +609,32 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     port = VTSS_CHIP_PORT(port_no);
 
     VTSS_D("interface %d  speed %u", interface, speed);
+    REG_RD(DEV_PCS1G_LINK_STATUS(port), &value);
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay = gmii_delay[port].rx;
+            tx_delay = gmii_delay[port].tx;
+            rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
+        }
+        break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
-        /* Single-Lane SerDes at 1 or 2.5 Gbps */
-        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
-            /* According to Morten this is not relevant */
-        }
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay = seriel_1G_delay[port].rx;
-            tx_delay = seriel_1G_delay[port].tx;
-            REG_RD(DEV_PCS1G_LINK_STATUS(port), &value);
+            rx_delay = sgmii_delay[port].rx;
+            tx_delay = sgmii_delay[port].tx;
+            rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
+        }
+        if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
+            rx_delay = sgmii_2g5_delay[port].rx;
+            tx_delay = sgmii_2g5_delay[port].tx;
+            rx_delay += 320 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
+        }
+        break;
+    case VTSS_PORT_INTERFACE_QSGMII:
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay = qsgmii_delay[port].rx;
+            tx_delay = qsgmii_delay[port].tx;
             rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
         }
         break;
@@ -627,15 +646,26 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     /* Add additional delays found in testing. Note that rx_delay and tx_delay values are in pico seconds */
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay += (1000 * 276);
+            tx_delay += (1000 * 276);
+        }
+        break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
-        /* Single-Lane SerDes at 1 or 2.5 Gbps */
-        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
-            /* According to Morten this is not relevant */
-        }
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (1000 * 244);
-            tx_delay += (1000 * 244);
+            rx_delay += (1000 * 276);
+            tx_delay += (1000 * 276);
+        }
+        if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
+            rx_delay += (1000 * 276);
+            tx_delay += (1000 * 276);
+        }
+        break;
+    case VTSS_PORT_INTERFACE_QSGMII:
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay += (1000 * 276);
+            tx_delay += (1000 * 276);
         }
         break;
     default:
@@ -906,22 +936,61 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
         }
     }
 
-    memset(seriel_1G_delay, 0, sizeof(seriel_1G_delay));
+    memset(gmii_delay, 0, sizeof(gmii_delay));
+    memset(qsgmii_delay, 0, sizeof(qsgmii_delay));
+    memset(sgmii_delay, 0, sizeof(sgmii_delay));
+    memset(sgmii_2g5_delay, 0, sizeof(sgmii_2g5_delay));
+    memset(swc_gmii_delay, 0, sizeof(swc_gmii_delay));
+    memset(swc_gmii_2g5_delay, 0, sizeof(swc_gmii_2g5_delay));
 
-    seriel_1G_delay[0].rx = 24803;    seriel_1G_delay[0].tx = 128394;
-    seriel_1G_delay[1].rx = 24803;    seriel_1G_delay[1].tx = 128394;
-    seriel_1G_delay[2].rx = 24803;    seriel_1G_delay[2].tx = 128394;
-    seriel_1G_delay[3].rx = 40807;    seriel_1G_delay[3].tx = 144394;
-    seriel_1G_delay[4].rx = 40807;    seriel_1G_delay[4].tx = 144394;
-    seriel_1G_delay[5].rx = 40807;    seriel_1G_delay[5].tx = 144394;
-    seriel_1G_delay[6].rx = 40807;    seriel_1G_delay[6].tx = 144394;
-    seriel_1G_delay[7].rx = 48814;    seriel_1G_delay[7].tx = 152394;
+    gmii_delay[2].rx = 146879;    gmii_delay[2].tx = 93300;
+    gmii_delay[3].rx = 146879;    gmii_delay[3].tx = 93300;
+    gmii_delay[5].rx = 138879;    gmii_delay[5].tx = 93294;
+    gmii_delay[6].rx = 138879;    gmii_delay[6].tx = 93294;
 
+    qsgmii_delay[0].rx = 120810;    qsgmii_delay[0].tx = 158009;
+    qsgmii_delay[1].rx = 120810;    qsgmii_delay[1].tx = 158009;
+    qsgmii_delay[2].rx = 120810;    qsgmii_delay[2].tx = 158009;
+    qsgmii_delay[3].rx = 120810;    qsgmii_delay[3].tx = 158009;
+    qsgmii_delay[4].rx = 120810;    qsgmii_delay[4].tx = 158009;
+    qsgmii_delay[5].rx = 120810;    qsgmii_delay[5].tx = 158009;
+    qsgmii_delay[6].rx = 120810;    qsgmii_delay[6].tx = 158009;
+    qsgmii_delay[7].rx = 120810;    qsgmii_delay[7].tx = 158009;
+
+    sgmii_delay[0].rx = 114733;    sgmii_delay[0].tx = 207688;
+    sgmii_delay[1].rx = 114733;    sgmii_delay[1].tx = 207688;
+    sgmii_delay[2].rx = 114733;    sgmii_delay[2].tx = 207688;
+    sgmii_delay[3].rx = 114733;    sgmii_delay[3].tx = 207688;
+    sgmii_delay[4].rx = 114733;    sgmii_delay[4].tx = 207688;
+
+    sgmii_2g5_delay[2].rx = 45790;    sgmii_2g5_delay[2].tx = 82862;
+    sgmii_2g5_delay[3].rx = 45790;    sgmii_2g5_delay[3].tx = 82862;
+    sgmii_2g5_delay[4].rx = 45791;    sgmii_2g5_delay[4].tx = 83051;
+
+    swc_gmii_delay[0].rx = 88070;    swc_gmii_delay[0].tx = 72045;
+    swc_gmii_delay[1].rx = 88070;    swc_gmii_delay[1].tx = 72045;
+    swc_gmii_delay[2].rx = 88070;    swc_gmii_delay[2].tx = 72045;
+    swc_gmii_delay[3].rx = 88070;    swc_gmii_delay[3].tx = 72045;
+    swc_gmii_delay[4].rx = 88070;    swc_gmii_delay[4].tx = 72045;
+    swc_gmii_delay[5].rx = 88070;    swc_gmii_delay[5].tx = 72045;
+    swc_gmii_delay[6].rx = 88070;    swc_gmii_delay[6].tx = 72045;
+    swc_gmii_delay[7].rx = 88070;    swc_gmii_delay[7].tx = 72045;
+
+    swc_gmii_2g5_delay[2].rx = 35065;    swc_gmii_2g5_delay[2].tx = 28876;
+    swc_gmii_2g5_delay[3].rx = 35065;    swc_gmii_2g5_delay[3].tx = 28876;
+    swc_gmii_2g5_delay[4].rx = 35065;    swc_gmii_2g5_delay[4].tx = 28876;
+
+    /* Enable Phase detector on all ports for increased time stamping precision */
     for (i = 0; i < VTSS_CHIP_PORTS; i++) {
         REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
                                      DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
         REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
                                      DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
+// The below is with the phase detector enabled configuration according to Morten. This is breaking the ts_asymmetry_p2p_delay.rb test
+//        REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
+//                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
+//        REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
+//                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
     }
 
     return VTSS_RC_OK;
