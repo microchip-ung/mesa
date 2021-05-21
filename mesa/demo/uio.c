@@ -62,6 +62,9 @@ mesa_rc uio_reg_write(const mesa_chip_no_t chip_no,
     return MESA_RC_OK;
 }
 
+int uio_fd = -1;
+char uio_path[PATH_MAX];
+
 mesa_rc uio_reg_io_init(void)
 {
     const char *driver = "mscc_switch";
@@ -87,6 +90,7 @@ mesa_rc uio_reg_io_init(void)
                 const char *rrd = fgets(devname, sizeof(devname), fp);
                 fclose(fp);
                 if (rrd && (strstr(devname, driver) || strstr(devname, "vcoreiii_switch"))) {
+                    snprintf(uio_path, sizeof(uio_path), "%s/%s/device/irqctl", top, dent->d_name);
                     snprintf(iodev, sizeof(iodev), "/dev/%s", dent->d_name);
                     snprintf(fn, sizeof(fn), "%s/%s/maps/map0/size", top, dent->d_name);
                     if ((fp = fopen(fn, "r"))) {
@@ -115,6 +119,7 @@ mesa_rc uio_reg_io_init(void)
             base_mem = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, dev_fd, 0);
             if(base_mem != MAP_FAILED) {
                 T_D("Mapped register memory @ %p", base_mem);
+                uio_fd = dev_fd;
             } else {
                 T_E("mmap failed");
                 rc = MESA_RC_ERROR;

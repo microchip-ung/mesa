@@ -556,7 +556,7 @@ static void board_debug(meba_trace_level_t level,
     va_list                 ap;
 
     lvl = (level > MEBA_TRACE_LVL_ERROR ? MESA_TRACE_LEVEL_NONE :
-           level > MEBA_TRACE_LVL_INFO ? MESA_TRACE_LEVEL_ERROR :
+           level > MEBA_TRACE_LVL_WARNING ? MESA_TRACE_LEVEL_ERROR :
            level > MEBA_TRACE_LVL_DEBUG ? MESA_TRACE_LEVEL_INFO :
            level > MEBA_TRACE_LVL_NOISE ? MESA_TRACE_LEVEL_DEBUG : MESA_TRACE_LEVEL_NOISE);
     if (group->level >= lvl) {
@@ -948,6 +948,7 @@ static void init_modules(mscc_appl_init_t *init)
     mscc_appl_example_init(init);
     mscc_appl_uio_init(init);
     mscc_appl_spi_init(init);
+    mscc_appl_intr_init(init);
 }
 
 typedef struct {

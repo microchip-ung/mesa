@@ -1412,6 +1412,20 @@ static mesa_rc mesa_rpc_packet_tx_frame(json_rpc_req_t *req)
     return MESA_RC_OK;
 }
 
+mesa_rc intr_ev_get(const char *name, uint32_t idx, uint32_t *cnt);
+
+static mesa_rc event_get(json_rpc_req_t *req)
+{
+    const char *name;
+    uint32_t   idx, cnt;
+
+    MESA_RC(json_rpc_get_idx_json_string(req, req->params, &req->idx, &name));
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &idx));
+    MESA_RC(json_rpc_call(req, intr_ev_get(name, idx, &cnt)));
+    MESA_RC(json_rpc_add_uint32_t(req, req->result, &cnt));
+    return MESA_RC_OK;
+}
+
 static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_qos_dscp_dpl_conf_get", mesa_rpc_mesa_qos_dscp_dpl_conf_get },
     { "mesa_qos_dscp_dpl_conf_set", mesa_rpc_mesa_qos_dscp_dpl_conf_set },
@@ -1421,6 +1435,7 @@ static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_tx_timestamp_get", tx_timestamp_get },
     { "mesa_misc_get", misc_get },
     { "mesa_packet_tx_frame", mesa_rpc_packet_tx_frame },
+    { "mesa_event_get", event_get },
     { NULL, NULL}
 };
 /* - JSON-RPC parser ----------------------------------------------- */

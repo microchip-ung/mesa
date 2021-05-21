@@ -54,6 +54,7 @@ void mscc_appl_kr_init(mscc_appl_init_t *init);
 void mscc_appl_example_init(mscc_appl_init_t *init);
 void mscc_appl_uio_init(mscc_appl_init_t *init);
 void mscc_appl_spi_init(mscc_appl_init_t *init);
+void mscc_appl_intr_init(mscc_appl_init_t *init);
 
 typedef enum {
     SPI_USER_REG,  // Switch register access
