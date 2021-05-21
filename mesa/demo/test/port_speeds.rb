@@ -39,7 +39,7 @@ $port_tx2   = 1
 $frame_smac = "00:00:00:00:00:01"
 $frame_dmac = "00:00:00:00:00:02"
 $frame_size = 64
-$num_of_frames = 10
+$num_of_frames = 1
 $speed_list = [{ speed: 100,    dpx: "fdx"},
                { speed: 100,    dpx: "hdx"},
                { speed: 10,     dpx: "fdx"},
