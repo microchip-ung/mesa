@@ -163,7 +163,7 @@ def tod_latency_test(port0, port1)
         min = -11
         max = 11
         if ($ts.dut.pcb == "8281-SVB")
-            max = 30
+            max = 43
         end
     end
 

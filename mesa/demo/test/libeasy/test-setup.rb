@@ -959,6 +959,19 @@ class Switchdev_Pc_b2b_4x
            @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
         end
 
+        #Check for any multi topology commands
+        if (conf["Multi_topo"] != nil)
+            conf["Multi_topo"].each do |topo|
+                if (topo["#{topo_name}"] != nil)
+                    name = topo["#{topo_name}"]
+                    name["command"].each do |command|  #Do all required server PC commands
+                        @pc.run command
+                        sleep 1
+                    end
+                end
+            end
+        end
+
         if $options[:no_init]
             @pc.run "/easytest/local/if-setup-l2-test.rb"
             @dut.mute
@@ -991,18 +1004,6 @@ class Switchdev_Pc_b2b_4x
 
         if !$options[:no_init]
             @pc.run "poll_interface_state.rb -t 60 #{pc_ports.join " "}"
-        end
-
-        #Check for any multi topology commands
-        if (conf["Multi_topo"] != nil)
-            conf["Multi_topo"].each do |topo|
-                if (topo["#{topo_name}"] != nil)
-                    name = topo["#{topo_name}"]
-                    name["command"].each do |command|  #Do all required server PC commands
-                        @pc.run command
-                    end
-                end
-            end
         end
 
         # TODO, wait for the DUT to see the link

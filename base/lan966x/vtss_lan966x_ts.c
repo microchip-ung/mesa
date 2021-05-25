@@ -860,6 +860,10 @@ static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_print
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_CTRL[0]");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_CTRL[1]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_CYC_STAT[0]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_CYC_STAT[1]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_ERR_STAT[0]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_ERR_STAT[1]");
     }
 
     pr("\n");
