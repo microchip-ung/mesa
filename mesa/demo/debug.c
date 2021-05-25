@@ -181,13 +181,13 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_HQOS]      = "hqos",
     [MESA_DEBUG_GROUP_VXLAT]     = "vxlat",
     [MESA_DEBUG_GROUP_OAM]       = "oam",
-    [MESA_DEBUG_GROUP_MRP]       = "mrp",
     [MESA_DEBUG_GROUP_SER_GPIO]  = "sgpio",
     [MESA_DEBUG_GROUP_L3]        = "l3",
     [MESA_DEBUG_GROUP_AFI]       = "afi",
     [MESA_DEBUG_GROUP_MACSEC]    = "macsec",
     [MESA_DEBUG_GROUP_SERDES]    = "serdes",
     [MESA_DEBUG_GROUP_KR]        = "kr",
+    [MESA_DEBUG_GROUP_MUX]       = "mux",
 };
 
 static void cli_cmd_debug_api(cli_req_t *req)
