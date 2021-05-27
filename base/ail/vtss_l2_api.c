@@ -1364,6 +1364,13 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
+#if defined(VTSS_FEATURE_TIMESTAMP)
+        if (!vtss_state->l2.port_state[port_no] && state) {
+            (void)VTSS_FUNC(ts.link_up, port_no);
+        }
+    }
+#endif
+
         vtss_state->l2.port_state[port_no] = state;
         rc = vtss_update_masks(vtss_state, 1, 0, 1);
 
@@ -1378,7 +1385,6 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
-    }
     VTSS_EXIT();
     return rc;
 }

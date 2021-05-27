@@ -192,7 +192,10 @@ typedef struct {
     vtss_rc (* alt_clock_saved_timeofday_get) (struct vtss_state_s *vtss_state,
                                      vtss_timestamp_t               *ts);
 #endif
-    
+#if defined(VTSS_ARCH_LAN966X)
+    vtss_rc (* link_up)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+#endif
+
     /* Configuration/state */
     vtss_ts_conf_t              conf;
     vtss_ts_internal_mode_t     int_mode;

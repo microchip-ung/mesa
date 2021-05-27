@@ -785,6 +785,24 @@ static vtss_rc lan966x_ts_output_clock_edge_offset_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_ts_link_up(vtss_state_t *vtss_state, const vtss_port_no_t  port_no)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    /* Link is coming up - disable and enable the phase detector */
+    REG_WRM(DEV_PHAD_CTRL(port, 0), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(0),
+                                    DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M);
+    REG_WRM(DEV_PHAD_CTRL(port, 1), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(0),
+                                    DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M);
+
+    REG_WRM(DEV_PHAD_CTRL(port, 0), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3),
+                                    DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M);
+    REG_WRM(DEV_PHAD_CTRL(port, 1), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3),
+                                    DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M);
+
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
@@ -860,10 +878,10 @@ static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_print
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_CTRL[0]");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_CTRL[1]");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_CYC_STAT[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_CYC_STAT[1]");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,0)), "PHAD_ERR_STAT[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port,1)), "PHAD_ERR_STAT[1]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CYC_STAT(port,0)), "PHAD_CYC_STAT[0]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CYC_STAT(port,1)), "PHAD_CYC_STAT[1]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_ERR_STAT(port,0)), "PHAD_ERR_STAT[0]");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_ERR_STAT(port,1)), "PHAD_ERR_STAT[1]");
     }
 
     pr("\n");
@@ -986,15 +1004,10 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 
     /* Enable Phase detector on all ports for increased time stamping precision */
     for (i = 0; i < VTSS_CHIP_PORTS; i++) {
-        REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
-                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
-        REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(0) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(6),
-                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M);
-// The below is with the phase detector enabled configuration according to Morten. This is breaking the ts_asymmetry_p2p_delay.rb test
-//        REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
-//                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
-//        REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
-//                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
+        REG_WRM(DEV_PHAD_CTRL(i, 0), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
+                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
+        REG_WRM(DEV_PHAD_CTRL(i, 1), DEV_PHAD_CTRL_PHAD_ENA(1) | DEV_PHAD_CTRL_DIV_CFG(3) | DEV_PHAD_CTRL_TWEAKS(1) | DEV_PHAD_CTRL_REALIGN_OFS(5) | DEV_PHAD_CTRL_LOCK_ACC(2),
+                                     DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
     }
 
     return VTSS_RC_OK;
@@ -1038,6 +1051,7 @@ vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->output_clock_edge_offset_get = lan966x_ts_output_clock_edge_offset_get;
 
         state->seq_cnt_get = lan966x_ts_seq_cnt_get;
+        state->link_up = lan966x_ts_link_up;
         break;
 
     case VTSS_INIT_CMD_INIT:

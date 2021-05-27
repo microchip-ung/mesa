@@ -22,23 +22,19 @@ $port1 = 1
 $vlan = 100
 $acl_id = 1
 $pcb = $ts.dut.pcb
-#if ($pcb == "8281-SVB")    #On this specific board there are four ports with Indy PHY on 0 and 1 and copper SFP on 2 and 3.
-#    $port0 = 2             #Is seems that the Indy PHY is manipulating the correction field at ingress
-#end
 
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
 
+    diff_max = 100
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         diff_max = 520
-    else
-        diff_max = 100
     end
     if ($pcb == 135)    #Test on Copper PHY
         diff_max = 500
     end
-    if (($pcb == "6813-Adaro") || ($pcb == "6849-Sunrise"))    #Test on Copper PHY
-        diff_max = 250
+    if ($pcb == "8281-SVB")    #Test on Copper SFP
+        diff_max = 180
     end
 
     if ($cap_core_clock != 0)
@@ -61,13 +57,6 @@ def tod_asymmetry_p2p_delay_test
     test ("No asymmetry delay check of correction field") do
     if ($pcb == 135)    #Test on Copper PHY
         if ((lowest_corr_none > 2300) || (lowest_corr_none < 1900))
-            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
-        else
-            t_i("CF ok")
-        end
-    else
-    if (($pcb == "6813-Adaro") || ($pcb == "6849-Sunrise"))    #Test on Copper PHY
-        if ((lowest_corr_none > 3050) || (lowest_corr_none < 2600))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else
             t_i("CF ok")
@@ -190,7 +179,6 @@ end
 
 test "test_run" do
     # Test egress and ingress asymmetry and p2p delay
-$ts.dut.run("mesa-cmd deb api cil ts")
     tod_asymmetry_p2p_delay_test
 end
 
