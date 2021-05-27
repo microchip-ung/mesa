@@ -10,28 +10,33 @@ $ts = get_test_setup("mesa_pc_b2b_2x")
 # Check if internal CPU
 cap_check_exit("MISC_CPU_TYPE")
 
-test "los" do
-    # Find SFP port
-    sfp = nil
+test "link-down" do
+    $ts.pc.p.each do |eth|
+        $ts.pc.run("ip link set #{eth} down")
+    end
     $ts.dut.p.each do |port|
         conf = $ts.dut.call("mesa_port_conf_get", port)
-        if (conf["if_type"] == "MESA_PORT_INTERFACE_SGMII_CISCO")
-            sfp = port
-            break
+        type = conf["if_type"]
+        name = "los"
+        if (type == "MESA_PORT_INTERFACE_SGMII" or
+            type == "MESA_PORT_INTERFACE_QSGMII")
+            name = "flnk"
         end
+        cnt = $ts.dut.call("mesa_event_get", name, port)
+        check_counter("#{name}[#{port}]", cnt, 1)
     end
-    port = sfp
-    if (port == nil)
-        t_i("no SFP ports found")
-        break
-    end
-
-    $ts.dut.run("mesa-cmd port state #{port + 1} dis")
-    sleep(1)
-    cnt = $ts.dut.call("mesa_event_get", "los", port)
-    check_counter("los[#{port}]", cnt, 1)
 end
 
 test "dump" do
+    str = ""
+    $ts.dut.p.each do |port|
+        if (str != "")
+            str += ","
+        end
+        str += "#{port + 1}"
+    end
+    $ts.dut.run("mesa-cmd port mode #{str}")
+    $ts.dut.run("mesa-cmd deb api ai port #{str}")
+    $ts.dut.run("mesa-cmd deb api ai phy #{str}")
     $ts.dut.run("mesa-cmd intr")
 end

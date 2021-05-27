@@ -80,14 +80,15 @@ static irq_map_t irq_map[] = {
     { "unknown", MESA_IRQ_MAX },
 };
 
-#define INTR_EV_IDX_MAX (MESA_PORT_LIST_ARRAY_SIZE * 8)
+// Event counter per port and one extra for exceeding index
+#define INTR_EV_IDX_MAX (MESA_PORT_LIST_ARRAY_SIZE * 8 + 1)
 
 typedef struct {
     const char *name;
     uint32_t cnt[INTR_EV_IDX_MAX];
 } intr_ev_info_t;
 
-static intr_ev_info_t intr_ev_table[MEBA_EVENT_LAST] = {
+static intr_ev_info_t intr_ev_table[MEBA_EVENT_LAST + 1] = {
     [MEBA_EVENT_LOS] = { "los" },
     [MEBA_EVENT_FLNK] = { "flnk" },
     [MEBA_EVENT_AMS] = { "ams" },
@@ -111,6 +112,7 @@ static intr_ev_info_t intr_ev_table[MEBA_EVENT_LAST] = {
     [MEBA_EVENT_PUSH_BUTTON] = { "push_button" },
     [MEBA_EVENT_MOD_DET] = { "mod_det" },
     [MEBA_EVENT_KR] = { "kr" },
+    [MEBA_EVENT_LAST] = { "unknown" },
 };
 
 mesa_rc intr_ev_get(const char *name, uint32_t idx, uint32_t *cnt)
@@ -119,9 +121,9 @@ mesa_rc intr_ev_get(const char *name, uint32_t idx, uint32_t *cnt)
     int            i;
     uint32_t       port_cnt = mesa_port_cnt(NULL);
 
-    for (i = 0; i < MEBA_EVENT_LAST; i++) {
+    for (i = 0; i <= MEBA_EVENT_LAST; i++) {
         ev = &intr_ev_table[i];
-        if (idx < port_cnt && strcmp(name, ev->name) == 0) {
+        if (idx <= port_cnt && strcmp(name, ev->name) == 0) {
             *cnt = ev->cnt[idx];
             return MESA_RC_OK;
         }
@@ -137,19 +139,21 @@ static void intr_event_enable(meba_event_t ev)
 static void intr_event(meba_event_t ev, uint32_t idx)
 {
     intr_ev_info_t *info;
+    uint32_t       port_cnt = mesa_port_cnt(NULL);
 
     if (ev < MEBA_EVENT_LAST) {
-        info = &intr_ev_table[ev];
-        if (idx < INTR_EV_IDX_MAX) {
-            T_I("event: %u (%s), idx: %u", ev, info->name, idx);
-            info->cnt[idx]++;
-            intr_event_enable(ev);
-        } else {
-            T_E("event: %u (%s), idx: %u", ev, info->name, idx);
-        }
+        intr_event_enable(ev);
     } else {
-        T_E("event: %u, idx: %u", ev, idx);
+        // Unknown event
+        ev = MEBA_EVENT_LAST;
     }
+    info = &intr_ev_table[ev];
+    T_I("event: %u (%s), idx: %u", ev, info->name, idx);
+    if (idx > port_cnt) {
+        // Exceeded index
+        idx = port_cnt;
+    }
+    info->cnt[idx]++;
 }
 
 static void intr_enable(void)
@@ -292,19 +296,19 @@ static void cli_cmd_intr(cli_req_t *req)
         }
     }
 
-    for (i = 0, header = 1; i < MEBA_EVENT_LAST; i++) {
+    for (i = 0, header = 1; i <= MEBA_EVENT_LAST; i++) {
         ev = &intr_ev_table[i];
-        for (j = 0; j < port_cnt; j++) {
+        for (j = 0; j <= port_cnt; j++) {
             if (mreq->clear) {
                 ev->cnt[j] = 0;
             } else if (ev->cnt[j] || mreq->all) {
                 if (header) {
                     header = 0;
                     cli_printf("\n");
-                    cli_table_header("Event                 Count");
+                    cli_table_header("Event                   Count");
                 }
-                sprintf(buf, "%s[%u]", ev->name, j);
-                cli_printf("%-22s%u\n", buf, ev->cnt[j]);
+                sprintf(buf, "%s[%u%s]", ev->name, j, j < port_cnt ? "" : "+");
+                cli_printf("%-24s%u\n", buf, ev->cnt[j]);
             }
         }
     }
