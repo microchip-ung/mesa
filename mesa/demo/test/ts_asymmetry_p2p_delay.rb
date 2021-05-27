@@ -33,7 +33,7 @@ def tod_asymmetry_p2p_delay_test
     if ($pcb == 135)    #Test on Copper PHY
         diff_max = 500
     end
-    if ($pcb == "8281-SVB")    #Test on Copper SFP
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))    #Test on internal Copper PHY
         diff_max = 180
     end
 
@@ -67,7 +67,6 @@ def tod_asymmetry_p2p_delay_test
         else
             t_i("CF ok")
         end
-    end
     end
     end
 
