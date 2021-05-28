@@ -217,6 +217,9 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
             }
         }
     }
+
+    // MDI-X setting for swap A,B transmit
+    EP_WRM(dev, INDY_ALIGN_SWAP, INDY_F_ALIGN_TX_A_B_SWAP, INDY_M_ALIGN_TX_SWAP);
     return MEPA_RC_OK;
 }
 
