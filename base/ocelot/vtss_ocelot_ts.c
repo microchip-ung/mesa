@@ -674,7 +674,7 @@ static vtss_rc srvl_ts_timestamp_get(vtss_state_t *vtss_state)
 #endif /* VTSS_FEATURE_VOP && VTSS_FEATURE_TIMESTAMP*/
         {
             if (mess_id >= VTSS_TS_ID_SIZE) {
-                VTSS_E("invalid mess_id (%u)", mess_id);
+                VTSS_D("invalid mess_id (%u)", mess_id);
             } else {
                 if (tx_port < VTSS_PORT_ARRAY_SIZE) {
                     vtss_state->ts.status[mess_id].tx_tc[tx_port] = (u64)delay << 16; /* 0 - 15 bits are meant for fractional nano seconds. */

@@ -706,7 +706,9 @@ static vtss_rc jr2_ts_timestamp_get(vtss_state_t *vtss_state)
         overflow |= VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
         JR2_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP, &mess_id);
 
-        if (tx_port < VTSS_PORT_ARRAY_SIZE) {
+        if (mess_id >= VTSS_TS_ID_SIZE) {
+            VTSS_D("skip mess_id %u", mess_id);
+        } else if (tx_port < VTSS_PORT_ARRAY_SIZE) {
             vtss_state->ts.status[mess_id].tx_tc[tx_port] = (u64)delay << 16; // 0-15 bits are meant for fractional nano seconds.
             vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
             vtss_state->ts.status[mess_id].valid_mask |= 1LL<<tx_port;
