@@ -552,12 +552,14 @@ static vtss_rc lan966x_ts_timestamp_get(vtss_state_t *vtss_state)
         REG_RD(PTP_TWOSTEP_STAMP, &rx_stamp);
 
         mess_id = PTP_TWOSTEP_STAMP_STAMP_NSEC_X(rx_stamp); /* The RX timestamp ns part is used as the message id. This will only work if this is not a real RX timestamp by something inserted in IFH by SW when injecting */
-        if ((tx_port < VTSS_PORT_ARRAY_SIZE) && (mess_id < VTSS_PORT_ARRAY_SIZE)) {
+        if (mess_id >= VTSS_TS_ID_SIZE) {
+            VTSS_D("skip mess_id %u", mess_id);
+        } else if (tx_port < VTSS_PORT_ARRAY_SIZE) {
             vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)PTP_TWOSTEP_STAMP_STAMP_NSEC_X(tx_stamp) << 16) | (PTP_TWOSTEP_STAMP_STAMP_SUB_NSEC_X(tx_stamp) << 14);    /* Sub ns is only two bits */
             vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
             vtss_state->ts.status[mess_id].valid_mask |= 1LL<<tx_port;
         } else {
-            VTSS_E("invalid port (%u) or message id (mess_id %u)", tx_port, mess_id);
+            VTSS_E("invalid port (%u)", tx_port);
         }
 
         VTSS_D("value %x, tx_stamp %u, tx_port %u, mess_id %u", value, tx_stamp, tx_port, mess_id);
