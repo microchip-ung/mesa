@@ -1201,6 +1201,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         } else {
             printf("Port:%d - Aneg completed (%s) in %d ms\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
+        kr_conf_state[iport].next_parallel_spd = MESA_SPEED_2500M;
     }
 }
 
@@ -1483,12 +1484,7 @@ static void kr_init(meba_inst_t inst)
 
         kr_conf_state[port_no].cap_25g = (meba.cap & MEBA_PORT_CAP_25G_FDX) > 0 ? 1 : 0;
         kr_conf_state[port_no].cap_10g = (meba.cap & MEBA_PORT_CAP_10G_FDX) > 0 ? 1 : 0;
-
-        if (kr_conf_state[port_no].cap_25g) {
-            kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_25G;
-        } else {
-            kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_10G;
-        }
+        kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_2500M;
     }
 }
 
