@@ -685,7 +685,7 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS 1
 #endif /* VTSS_ARCH_LUTON26/SERVAL/SERVAL_T */

@@ -62,6 +62,9 @@ inline u32 vtss_lan966x_target_id_to_addr(int target_id)
     case TARGET_CHIP_TOP:   return LAN966X_TARGET_CHIP_TOP_OFFSET;
     case TARGET_HSIO:       return LAN966X_TARGET_HSIO_OFFSET;
 #endif
+#if defined(LAN966X_TARGET_CPU_OFFSET)
+    case TARGET_CPU:        return LAN966X_TARGET_CPU_OFFSET;
+#endif
     default: return 0xffffffff;
     }
 }

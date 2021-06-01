@@ -63,6 +63,9 @@ test "ptp-rdy" do
     # Send frame
     run_ef_tx_rx_cmd($ts, 0, [1], "eth")
 
+    # Delete ACE to stop timestamping
+    $ts.dut.call("mesa_ace_del", 1)
+
     # Update from timestamp FIFO to stop events
     $ts.dut.call("mesa_tx_timestamp_update")
 

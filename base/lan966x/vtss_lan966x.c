@@ -260,8 +260,11 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
         diff = (LAN966X_BUILD_ID - val);
     }
 #if (VTSS_OPT_FPGA == 1)
+    // Sunrise
     err = (diff > 1000);
 #else
+    // Adaro
+    vtss_state->sys_config.using_pcie = 1; // Indicate external CPU
     err = (diff != 0);
 #endif
     if (err) {

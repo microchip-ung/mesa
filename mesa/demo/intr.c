@@ -217,6 +217,11 @@ static void intr_init(void)
     mesa_irq_conf_t conf;
     meba_event_t    ev;
 
+    // For now, no support for external CPU
+    if (cap == MESA_CPU_TYPE_EXTERNAL) {
+        return;
+    }
+
     if (uio_fd < 1) {
         T_I("invalid uio_fd");
         return;
