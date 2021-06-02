@@ -2894,10 +2894,12 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         if (!kr_aneg_ena && (conf->speed == VTSS_SPEED_10G || conf->speed == VTSS_SPEED_25G)) {
             if (status->link_down) {
                 vtss_state->port.ctle_done[port_no] = FALSE;
-            } else if (status->link && !vtss_state->port.ctle_done[port_no]) {
+            }
+            if (status->link && !vtss_state->port.ctle_done[port_no]) {
                 if (fa_port_kr_ctle_adjust(vtss_state, port_no)) {
                     VTSS_E("CTLE tuning not supported for port: %u", port_no);
                 }
+                VTSS_NSLEEP(300000); /* wait 300us while the link stabilize */
                 REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
                 vtss_state->port.ctle_done[port_no] = TRUE;
             }
