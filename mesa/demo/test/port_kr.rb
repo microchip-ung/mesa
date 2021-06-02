@@ -152,7 +152,7 @@ test "Parallel detect" do
     speed.each do |cap|
         cli_port = $kr_ports[1]+1
         $ts.dut.run "mesa-cmd port mode #{cli_port} #{cap}"
-        sleep 3
+        sleep 5
         conf = $ts.dut.call "mesa_port_kr_status_get", $kr_ports[0]
         if conf["aneg"]["complete"] != true
             t_e("Could not complete aneg for #{cap} got #{conf["aneg"]["complete"]}");
