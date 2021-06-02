@@ -1132,13 +1132,18 @@ static vtss_rc lan966x_port_test_conf_set(vtss_state_t *vtss_state, const vtss_p
 
 static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
 {
-    int q;
+    int q, i;
     u32 port, value;
 
     // Default watermarks are used
     for (q = 0; q < VTSS_PRIOS; q++) {
         /* Save initial encoded value of shared area for later use by WRED */
         REG_RD(QSYS_RES_CFG((q + 216 + 512)), &vtss_state->port.buf_prio_shr[q]);
+    }
+    // Set source buffer size for each priority and each port to 1500 bytes */
+    for (i = 0; i <= 95; i++) {
+        REG_WR(QSYS_RES_CFG((i)), 1500/64);
+        REG_WR(QSYS_RES_CFG((512 + i)), 1500/64);
     }
 
     // The CPU will only use its reserved buffer in the shared queue system and
