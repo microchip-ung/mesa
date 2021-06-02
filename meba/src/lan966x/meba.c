@@ -28,7 +28,7 @@ typedef struct {
     meba_port_cap_t        cap;
 } port_map_t;
 
-typedef meba_port_entry_t lan9668_port_info_t;
+typedef meba_port_entry_t lan966x_port_info_t;
 
 #define PORTS_MAX 8
 typedef struct meba_board_state {
@@ -36,9 +36,10 @@ typedef struct meba_board_state {
     int                   port_cnt;
     meba_port_entry_t     *entry;
     mepa_device_t         *phy_devices[PORTS_MAX];
+    mesa_port_status_t    status[PORTS_MAX];
 } meba_board_state_t;
 
-static const meba_ptp_rs422_conf_t lan9668_rs422_conf = {
+static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
     .gpio_rs422_1588_mstoen = (15<<8)+1,
     .gpio_rs422_1588_slvoen = (15<<8)+0,
     .ptp_pin_ldst           = 2,
@@ -98,14 +99,61 @@ static port_map_t port_table_svb[] = {
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT)},
 };
 
-static mesa_rc lan9668_adaro_init_board(meba_inst_t inst)
+static mesa_rc lan966x_board_init(meba_inst_t inst)
 {
-    uint32_t gpio_no;
+    meba_board_state_t     *board = INST2BOARD(inst);
+    mesa_sgpio_conf_t      conf;
+    mesa_sgpio_port_conf_t *pc;
+    uint32_t               gpio_no, port;
 
-    if (inst->props.target == 0x9662) {
+    switch (board->type) {
+    case BOARD_TYPE_SUNRISE:
         for (gpio_no = 28; gpio_no < 30; gpio_no++) {
             (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
         }
+        sleep(1); // Make sure PHYs are accessible
+        break;
+    case BOARD_TYPE_ENDNODE_CARRIER:
+        if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
+            // Mode 0 is 5 Hz, two bits per port are used
+            conf.bmode[0] = MESA_SGPIO_BMODE_5;
+            conf.bit_count = 2;
+
+            for (port = 1; port < 12; port++) {
+                pc = &conf.port_conf[port];
+                pc->enabled = 1;
+
+                // Input port 1: SFP0_TXFAULT, SFP1_TXFAULT (Tx fault)
+                // Input port 2: SFP0_LOS, SFP0_MODDET (Module detect)
+                // Input port 3: SFP1_LOS, SFP1_MODDET (Module detect)
+                if (port < 4) {
+                    pc->int_pol_high[0] = 1;
+                    pc->int_pol_high[1] = 1;
+                }
+
+                // Output port  2: SFP0_GR, SFP0_RD (LED control)
+                // Output port  3: SFP1_GR, SFP1_RD (LED control)
+                // Output port  8: SFP0_RS0, SFP0_RS1 (Rate select)
+                // Output port  9: SFP1_RS0, SFP1_RS1 (Rate select)
+                // Output port 10: SFP0_TXEN, SFP1_TXEN (Tx enable)
+                // Output port 11: SFP0_SCKEN, SFP1_SCKEN (I2C clock select)
+                if (port == 2 || port == 3) {
+                    // LED control, turn green on while booting
+                    pc->mode[0] = MESA_SGPIO_MODE_ON;
+                } else if (port == 8 || port == 9) {
+                    // Rate select
+                    pc->mode[0] = MESA_SGPIO_MODE_ON;
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
+                }
+            }
+            (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        }
+        break;
+    case BOARD_TYPE_ADARO:
+    case BOARD_TYPE_8PORT:
+    case BOARD_TYPE_ENDNODE:
+    default:
+        break;
     }
     return MESA_RC_OK;
 }
@@ -131,21 +179,19 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
     }
 }
 
-
-static mesa_rc lan9668_ptp_rs422_conf_get(meba_inst_t inst,
-        meba_ptp_rs422_conf_t *conf)
+static mesa_rc lan966x_ptp_rs422_conf_get(meba_inst_t inst,
+                                          meba_ptp_rs422_conf_t *conf)
 {
     mesa_rc rc = MESA_RC_OK;
     //meba_board_state_t *board = INST2BOARD(inst);
     T_I(inst, "IMPLEMENTATION OF rs422_conf requires check/update to actual MASERATI hardware properties.");
-    *conf = lan9668_rs422_conf;
+    *conf = lan966x_rs422_conf;
     return rc;
 }
 
 /* ---------------------------   Exposed API  ------------------------------- */
 
-static uint32_t lan9668_capability(meba_inst_t inst,
-                                  int cap)
+static uint32_t lan966x_capability(meba_inst_t inst, int cap)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     T_N(inst, "Called - %d", cap);
@@ -174,21 +220,21 @@ static uint32_t lan9668_capability(meba_inst_t inst,
         case MEBA_CAP_BOARD_HAS_PCB135_CPLD:
             return false;
 
-        case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:      // NOTE: Capability currently not used on lan9668. Therefore, it has been set to -1
+        case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:      // NOTE: Capability currently not used on lan966x. Therefore, it has been set to -1
             return -1;
-        case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:  // NOTE: Capability currently not used on lan9668. Therefore, it has been set to 0
+        case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:  // NOTE: Capability currently not used on lan966x. Therefore, it has been set to 0
             return 0;
-        case MEBA_CAP_SYNCE_CLOCK_DPLL:            // NOTE: Capability currently not used on lan9668. Therefore, it has been set to -1
+        case MEBA_CAP_SYNCE_CLOCK_DPLL:            // NOTE: Capability currently not used on lan966x. Therefore, it has been set to -1
             return -1;
-        case MEBA_CAP_SYNCE_CLOCK_OUTPUT_CNT:      // NOTE: Capability currently not used on lan9668. Therefore, it has been set to 0
+        case MEBA_CAP_SYNCE_CLOCK_OUTPUT_CNT:      // NOTE: Capability currently not used on lan966x. Therefore, it has been set to 0
             return 0;
-        case MEBA_CAP_SYNCE_CLOCK_EEC_OPTION_CNT:  // NOTE: Capability currently not used on lan9668. Therefore, it has been set to 0
+        case MEBA_CAP_SYNCE_CLOCK_EEC_OPTION_CNT:  // NOTE: Capability currently not used on lan966x. Therefore, it has been set to 0
             return 0;
         case MEBA_CAP_ONE_PPS_INT_ID:
             return 0;
 
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
-        case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:        // lan9668 does not support dual DPLL mode
+        case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:        // lan966x does not support dual DPLL mode
         case MEBA_CAP_POE_BT:
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
             return false;
@@ -203,9 +249,9 @@ static uint32_t lan9668_capability(meba_inst_t inst,
     return 0;
 }
 
-static mesa_rc lan9668_port_entry_get(meba_inst_t inst,
-                                     mesa_port_no_t port_no,
-                                     meba_port_entry_t *entry)
+static mesa_rc lan966x_port_entry_get(meba_inst_t inst,
+                                      mesa_port_no_t port_no,
+                                      meba_port_entry_t *entry)
 {
     mesa_rc rc;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -220,8 +266,8 @@ static mesa_rc lan9668_port_entry_get(meba_inst_t inst,
     return rc;
 }
 
-static mesa_rc lan9668_reset(meba_inst_t inst,
-                            meba_reset_point_t reset)
+static mesa_rc lan966x_reset(meba_inst_t inst,
+                             meba_reset_point_t reset)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
@@ -229,8 +275,7 @@ static mesa_rc lan9668_reset(meba_inst_t inst,
     T_I(inst, "Called - %d", reset);
     switch (reset) {
         case MEBA_BOARD_INITIALIZE:
-            rc = lan9668_adaro_init_board(inst);
-            sleep(1); // Make sure PHYs are accessible
+            rc = lan966x_board_init(inst);
             break;
 
         case MEBA_PORT_RESET:
@@ -254,50 +299,163 @@ static mesa_rc lan9668_reset(meba_inst_t inst,
     return rc;
 }
 
-static mesa_rc lan9668_event_enable(meba_inst_t inst,
-                                   meba_event_t event_id,
-                                   mesa_bool_t enable)
+static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t inst,
+                                    mesa_port_no_t port_no,
+                                    mesa_bool_t write,
+                                    uint8_t i2c_addr,
+                                    uint8_t addr,
+                                    uint8_t *data,
+                                    uint8_t cnt,
+                                    mesa_bool_t word_access)
 {
-    mesa_rc rc = MESA_RC_OK;
-    T_I(inst, "%sable event %d  REQUIRE IMPLEMENTATION ", enable ? "en" : "dis", event_id);
+    mesa_rc rc;
+    uint8_t i2c_data[3];
 
-    switch (event_id) {
-    case MEBA_EVENT_SYNC:
-    case MEBA_EVENT_EXT_SYNC:
-    case MEBA_EVENT_EXT_1_SYNC:
-    case MEBA_EVENT_CLK_ADJ:
-    case MEBA_EVENT_VOE:
-    case MEBA_EVENT_LOS:
-    case MEBA_EVENT_KR:
-    case MEBA_EVENT_FLNK: // Phy link down event
-        return rc;    // Dummy for now
-
-    default:
-        return MESA_RC_NOT_IMPLEMENTED;    // Will occur as part of probing
+    T_N(inst, "Called");
+    if (write) { // cnt ignored
+        i2c_data[0] = addr;
+        memcpy(&i2c_data[1], data, 2);
+        rc = inst->iface.i2c_write(port_no, i2c_addr, i2c_data, 3);
+    } else {
+        rc = inst->iface.i2c_read(port_no, i2c_addr, addr, data, cnt);
     }
-
     return rc;
-
 }
 
+static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t inst,
+                                                mesa_port_list_t *present)
+{
+    mesa_rc                rc = MESA_RC_OK;
+    meba_board_state_t     *board = INST2BOARD(inst);
+    mesa_port_no_t         port_no;
+    mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
+
+    mesa_port_list_clear(present);
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
+        (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
+        for (port_no = 2; port_no < 4; port_no++) {
+            // SFP LOS at bit 0
+            mesa_port_list_set(present, port_no, data[port_no].value[0]);
+        }
+    }
+    return rc;
+}
+
+static mesa_rc lan966x_sfp_status_get(meba_inst_t inst,
+                                      mesa_port_no_t port_no,
+                                      meba_sfp_status_t *status)
+{
+    mesa_rc                rc = MESA_RC_OK;
+    meba_board_state_t     *board = INST2BOARD(inst);
+    mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
+
+    memset(status, 0, sizeof(*status));
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
+        (port_no == 2 || port_no == 3) &&
+        (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
+        status->los      = data[port_no].value[0];     // SFP LOS at bit 0
+        status->present  = data[port_no].value[1];     // SFP MODDET at bit 1
+        status->tx_fault = data[1].value[port_no - 2]; // SFP TXFAULT at port 1, bit 0/1
+    }
+    return rc;
+}
+
+static mesa_rc lan966x_port_admin_state_set(meba_inst_t inst,
+                                            mesa_port_no_t port_no,
+                                            const meba_port_admin_state_t *state)
+{
+    mesa_rc            rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_sgpio_conf_t  conf;
+    mesa_sgpio_mode_t  mode;
+
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
+        (port_no == 2 || port_no == 3) &&
+        (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
+        mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+        conf.port_conf[10].mode[port_no - 2] = mode; // SFP TXEN at port 10, bit 0/1
+        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+    }
+    return rc;
+}
+
+static mesa_rc lan966x_port_led_update(meba_inst_t inst,
+                                       mesa_port_no_t port_no,
+                                       const mesa_port_status_t *status,
+                                       const mesa_port_counters_t *counters,
+                                       const meba_port_admin_state_t *state)
+{
+    mesa_rc            rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_status_t *old_status = &board->status[port_no];
+    mesa_sgpio_conf_t  conf;
+    mesa_sgpio_mode_t  mode_green, mode_red;
+
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
+        (port_no == 2 || port_no == 3) &&
+        (status->link != old_status->link || status->speed != old_status->speed) &&
+        (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
+        *old_status = *status; // Save status
+        mode_green = MESA_SGPIO_MODE_OFF;
+        mode_red = MESA_SGPIO_MODE_OFF;
+        if (status->link) {
+            if (status->speed >= MESA_SPEED_1G) {
+                mode_green = MESA_SGPIO_MODE_0_ACTIVITY_INV;
+            } else {
+                mode_red = MESA_SGPIO_MODE_0_ACTIVITY_INV;
+            }
+        }
+        conf.port_conf[port_no].mode[0] = mode_green; // SFP GR at bit 0
+        conf.port_conf[port_no].mode[1] = mode_red;   // SFP RD at bit 0
+        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+    }
+    return rc;
+}
 
 static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
-    mesa_rc        rc;
-    int            handled = 0;
-    mesa_bool_t    sgpio_events[MESA_SGPIO_PORTS];
+    mesa_rc        rc = MESA_RC_OK;
+    mesa_bool_t    sgpio_events[2][MESA_SGPIO_PORTS];
     mesa_port_no_t port_no;
+    uint32_t       i, port, bit;
+    int            event_detected, handled = 0;
 
-    // Chip_no == 0, Group == 0 and bit == 0)
-    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events)) != MESA_RC_OK) {
-        T_E(inst, "mesa_sgpio_event_poll = %d", rc);
+    if (board->type != BOARD_TYPE_ENDNODE_CARRIER) {
         return rc;
     }
 
-    // Poll SGPIO LOS from SFP ports
-    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+    // Get event bits 0-1
+    for (bit = 0; bit < 2; bit++) {
+        mesa_sgpio_event_poll(NULL, 0, 0, bit, sgpio_events[bit]);
+        if (rc != MESA_RC_OK) {
+            return rc;
+        }
     }
 
+    // Check for LOS, MODDET and TXFAULT events
+    for (port_no = 2; port_no < 4; port_no++) {
+        event_detected = 0;
+        for (i = 0; i < 3; i++) {
+            if (i == 2) {
+                // TXFAULT at port 1, bit 0/1
+                port = 1;
+                bit = (port_no - 2);
+            } else {
+                // LOS/MODDET at bit 0/1
+                port = port_no;
+                bit = i;
+            }
+            if (sgpio_events[bit][port]) {
+                // Event detected, disable while handling it
+                (void)mesa_sgpio_event_enable(NULL, 0, 0, port, bit, false);
+                event_detected = 1;
+            }
+        }
+        if (event_detected) {
+            signal_notifier(MEBA_EVENT_LOS, port_no);
+            handled++;
+        }
+    }
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
@@ -306,83 +464,100 @@ static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
     return  MESA_RC_ERROR;
 }
 
-static mesa_rc dev_all_handler(meba_inst_t inst,
-                               meba_board_state_t *board,
-                               meba_event_signal_t signal_notifier)
-{
-    mesa_dev_all_event_type_t  dev_all_events[MESA_CAP(MESA_CAP_PORT_CNT)];
-    mesa_port_no_t port_no;
-    int handled = 0;
-
-    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) != MESA_RC_OK) {
-        T_E(inst, "mesa_dev_all_event_poll failed");
-        return MESA_RC_ERROR;
-    }
-
-    for (port_no = 0; port_no < board->port_cnt; port_no++) {
-        if (dev_all_events[port_no] & MESA_DEV_ALL_LINK_EV) {
-            T_I(inst, "DEV %d intr", port_no);
-            if (mesa_dev_all_event_enable(NULL, port_no, dev_all_events[port_no], false) != MESA_RC_OK) {
-                T_E(inst, "mesa_dev_all_event_enable failed");
-            }
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
-                T_D(inst, "port(%d) PHY IRQ handled", port_no);
-                handled++;
-            }
-        }
-    }
-
-    return handled ? MESA_RC_OK : MESA_RC_ERROR;
-}
-
-static mesa_rc lan9668_sfp_insertion_status_get(meba_inst_t inst,
-                                               mesa_port_list_t *present)
-{
-    mesa_port_list_clear(present);
-    return MESA_RC_OK;
-}
-
-static mesa_rc lan9668_irq_handler(meba_inst_t inst,
-                               mesa_irq_t chip_irq,
-                               meba_event_signal_t signal_notifier)
+static mesa_rc lan966x_irq_handler(meba_inst_t inst,
+                                   mesa_irq_t chip_irq,
+                                   meba_event_signal_t signal_notifier)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     T_I(inst, "Called - irq %d", chip_irq);
 
     switch (chip_irq) {
-        case MESA_IRQ_PTP_SYNC:
-            return meba_generic_ptp_handler(inst, signal_notifier);
-        case MESA_IRQ_PTP_RDY:
-            signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
-            return MESA_RC_OK;
-        case MESA_IRQ_OAM:
-            signal_notifier(MEBA_EVENT_VOE, 0);
-            return MESA_RC_OK;
-        case MESA_IRQ_SGPIO:
-            return sgpio_handler(inst, board, signal_notifier);
-        case MESA_IRQ_EXT0:
-            return ext0_handler(inst, board, signal_notifier);
-        case MESA_IRQ_DEV_ALL:
-            return dev_all_handler(inst, board, signal_notifier);
-        default:;
+    case MESA_IRQ_PTP_SYNC:
+        return meba_generic_ptp_handler(inst, signal_notifier);
+    case MESA_IRQ_PTP_RDY:
+        signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
+        return MESA_RC_OK;
+    case MESA_IRQ_OAM:
+        signal_notifier(MEBA_EVENT_VOE, 0);
+        return MESA_RC_OK;
+    case MESA_IRQ_SGPIO:
+        return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_EXT0:
+        return ext0_handler(inst, board, signal_notifier);
+    default:
+        break;
     }
 
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
 
-static mesa_rc lan9668_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
+static mesa_rc lan966x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
 {
     mesa_rc rc = MESA_RC_NOT_IMPLEMENTED;
+
     switch (chip_irq) {
-        case MESA_IRQ_PTP_SYNC:
-        case MESA_IRQ_PTP_RDY:
-        case MESA_IRQ_OAM:
-        case MESA_IRQ_SGPIO:
-        case MESA_IRQ_EXT0:
-        case MESA_IRQ_DEV_ALL:
-            rc = MESA_RC_OK;
-        default:;
+    case MESA_IRQ_PTP_SYNC:
+    case MESA_IRQ_PTP_RDY:
+    case MESA_IRQ_OAM:
+    case MESA_IRQ_SGPIO:
+    case MESA_IRQ_EXT0:
+        rc = MESA_RC_OK;
+        break;
+    default:
+        break;
+    }
+    return rc;
+}
+
+static mesa_rc lan966x_event_enable(meba_inst_t inst,
+                                    meba_event_t event_id,
+                                    mesa_bool_t enable)
+{
+    mesa_rc            rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t     port_no;
+    uint32_t           i, port, bit;
+
+    switch (event_id) {
+    case MEBA_EVENT_SYNC:
+    case MEBA_EVENT_EXT_SYNC:
+    case MEBA_EVENT_EXT_1_SYNC:
+    case MEBA_EVENT_CLK_ADJ:
+    case MEBA_EVENT_VOE:
+        break;
+    case MEBA_EVENT_LOS:
+        if (board->type == BOARD_TYPE_ENDNODE_CARRIER) {
+            for (port_no = 2; port_no < 4; port_no++) {
+                for (i = 0; i < 3; i++) {
+                    if (i == 2) {
+                        // TXFAULT at port 1, bit 0/1
+                        port = 1;
+                        bit = (port_no - 2);
+                    } else {
+                        // LOS/MODDET at bit 0/1
+                        port = port_no;
+                        bit = i;
+                    }
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, port, bit, enable);
+                }
+            }
+        }
+        break;
+    case MEBA_EVENT_FLNK:
+        for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            if (is_phy_port(board->entry[port_no].cap)) {
+                rc = meba_phy_event_enable_set(inst, port_no, MESA_PHY_LINK_FFAIL_EV, enable);
+                if (rc != MESA_RC_OK) {
+                    break;
+                }
+
+            }
+        }
+        break;
+    default:
+        rc = MESA_RC_NOT_IMPLEMENTED; // Will occur as part of probing
+        break;
     }
     return rc;
 }
@@ -413,7 +588,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     board = INST2BOARD(inst);
 
     // Always allocate for 8 ports
-    board->entry = (lan9668_port_info_t*) calloc(8, sizeof(lan9668_port_info_t));
+    board->entry = (lan966x_port_info_t*) calloc(8, sizeof(lan966x_port_info_t));
     if (board->entry == NULL) {
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
@@ -462,15 +637,19 @@ meba_inst_t meba_initialize(size_t callouts_size,
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");
-    inst->api.meba_capability                 = lan9668_capability;
-    inst->api.meba_port_entry_get             = lan9668_port_entry_get;
-    inst->api.meba_sfp_insertion_status_get   = lan9668_sfp_insertion_status_get;
-    inst->api.meba_reset                      = lan9668_reset;
-    inst->api.meba_irq_handler                = lan9668_irq_handler;
-    inst->api.meba_irq_requested              = lan9668_irq_requested;
-    inst->api.meba_event_enable               = lan9668_event_enable;
+    inst->api.meba_capability                 = lan966x_capability;
+    inst->api.meba_port_entry_get             = lan966x_port_entry_get;
+    inst->api.meba_reset                      = lan966x_reset;
+    inst->api.meba_sfp_i2c_xfer               = lan966x_sfp_i2c_xfer;
+    inst->api.meba_sfp_insertion_status_get   = lan966x_sfp_insertion_status_get;
+    inst->api.meba_sfp_status_get             = lan966x_sfp_status_get;
+    inst->api.meba_port_admin_state_set       = lan966x_port_admin_state_set;
+    inst->api.meba_port_led_update            = lan966x_port_led_update;
+    inst->api.meba_irq_handler                = lan966x_irq_handler;
+    inst->api.meba_irq_requested              = lan966x_irq_requested;
+    inst->api.meba_event_enable               = lan966x_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
-    inst->api.meba_ptp_rs422_conf_get         = lan9668_ptp_rs422_conf_get;
+    inst->api.meba_ptp_rs422_conf_get         = lan966x_ptp_rs422_conf_get;
 
     return inst;
 
