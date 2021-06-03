@@ -39,6 +39,9 @@ typedef struct meba_board_state {
     mesa_port_status_t    status[PORTS_MAX];
 } meba_board_state_t;
 
+// GPIO for push button
+#define GPIO_PUSH_BUTTON 55
+
 static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
     .gpio_rs422_1588_mstoen = (15<<8)+1,
     .gpio_rs422_1588_slvoen = (15<<8)+0,
@@ -67,15 +70,17 @@ static port_map_t port_table_sunrise[] = {
 };
 
 static port_map_t port_table_8port[] = {
-    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    // Front port view:
+    // 3 1 7 5
+    // 2 0 6 4
     {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {4, MESA_MIIM_CONTROLLER_0, 4, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {5, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {6, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {7, MESA_MIIM_CONTROLLER_0, 7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-
+    {6, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {5, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {4, MESA_MIIM_CONTROLLER_0, 4, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
 };
 
 static port_map_t port_table_endnode[] = {
@@ -426,7 +431,7 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
 
     // Get event bits 0-1
     for (bit = 0; bit < 2; bit++) {
-        mesa_sgpio_event_poll(NULL, 0, 0, bit, sgpio_events[bit]);
+        rc = mesa_sgpio_event_poll(NULL, 0, 0, bit, sgpio_events[bit]);
         if (rc != MESA_RC_OK) {
             return rc;
         }
@@ -453,10 +458,32 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
         }
         if (event_detected) {
             signal_notifier(MEBA_EVENT_LOS, port_no);
-            handled++;
+            handled = 1;
         }
     }
-    return handled ? MESA_RC_OK : MESA_RC_ERROR;
+    return (handled ? MESA_RC_OK : MESA_RC_ERROR);
+}
+
+static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
+{
+    int         handled = 0;
+    mesa_bool_t gpio_events[100];
+
+    switch (board->type) {
+    case BOARD_TYPE_8PORT:
+    case BOARD_TYPE_ENDNODE:
+    case BOARD_TYPE_ENDNODE_CARRIER:
+        if (mesa_gpio_event_poll(NULL, 0, gpio_events) == MESA_RC_OK &&
+            gpio_events[GPIO_PUSH_BUTTON]) {
+            (void)mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, false);
+            signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+            handled = 1;
+        }
+        break;
+    default:
+        break;
+    }
+    return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
 static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
@@ -482,12 +509,16 @@ static mesa_rc lan966x_irq_handler(meba_inst_t inst,
         return MESA_RC_OK;
     case MESA_IRQ_SGPIO:
         return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_GPIO:
+        return gpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_PUSH_BUTTON:
+        signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+        return MESA_RC_OK;
     case MESA_IRQ_EXT0:
         return ext0_handler(inst, board, signal_notifier);
     default:
         break;
     }
-
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
@@ -501,6 +532,8 @@ static mesa_rc lan966x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     case MESA_IRQ_PTP_RDY:
     case MESA_IRQ_OAM:
     case MESA_IRQ_SGPIO:
+    case MESA_IRQ_GPIO:
+    case MESA_IRQ_PUSH_BUTTON:
     case MESA_IRQ_EXT0:
         rc = MESA_RC_OK;
         break;
@@ -551,8 +584,14 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
                 if (rc != MESA_RC_OK) {
                     break;
                 }
-
             }
+        }
+        break;
+    case MEBA_EVENT_PUSH_BUTTON:
+        if (board->type == BOARD_TYPE_8PORT ||
+            board->type == BOARD_TYPE_ENDNODE ||
+            board->type == BOARD_TYPE_ENDNODE_CARRIER) {
+            rc = mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, enable);
         }
         break;
     default:
