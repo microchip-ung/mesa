@@ -256,6 +256,20 @@ static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             entry->map.chip_port = CHIP_PORT_UNUSED;
         }
     break;
+    case VTSS_BOARD_CONF_10x10G_4x25G_NPI:
+        if (port_no < 10) {
+            // 10G ports, chip ports: 12-15,48-53.
+            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, port_no < 4 ? port_no + 12 : port_no + 44);
+        } else if (port_no < 14) {
+            // 25G ports, chip ports: 56-59.
+            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_25G, 56 + port_no - 10);
+        } else if (port_no == 14) {
+            // NPI port, chip port: 64.
+            update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G, 64);
+        } else {
+            entry->map.chip_port = CHIP_PORT_UNUSED;
+        }
+    break;
 
     default:
         T_E(inst, "Board type (%d) not supported!", board->type);
@@ -1824,6 +1838,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
             board->port_cfg = VTSS_BOARD_CONF_16x10G_NPI;
         } else if (board->port_cnt == 13) {
             board->port_cfg = VTSS_BOARD_CONF_12x10G_NPI;
+        } else if (board->port_cnt == 15) {
+            board->port_cfg = VTSS_BOARD_CONF_10x10G_4x25G_NPI;
         } else if (board->port_cnt == 21) {
             board->port_cfg = VTSS_BOARD_CONF_20x10G_NPI;
         } else {
@@ -1901,6 +1917,21 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     // NPI port has no SPGIO, so assigning an out-of-range value.
                     board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
                 }
+            } else if (board->port_cfg == VTSS_BOARD_CONF_10x10G_4x25G_NPI) {
+                if (port_no < 10) {
+                    board->port[port_no].board_port = port_no;
+                    board->port[port_no].sgpio_port = port_no + 12;
+                } else if (port_no < 14) {
+                    board->port[port_no].board_port = port_no + 2;
+                    board->port[port_no].sgpio_port = port_no + 14;
+                } else {
+                    // NPI port is always board port 20,
+                    // the last port in the physical board map.
+                    board->port[port_no].board_port = 20;
+                    // NPI port has no SPGIO, so assigning an out-of-range value.
+                    board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
+                }
+
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type, board->port_cfg);
                 goto error_out;
