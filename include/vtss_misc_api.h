@@ -548,6 +548,9 @@ typedef enum
     VTSS_GPIO_ALT_0,  /**< Alternate function 0 */
     VTSS_GPIO_ALT_1,  /**< Alternate function 1 */
     VTSS_GPIO_ALT_2,  /**< Alternate function 2 */
+    VTSS_GPIO_ALT_3,  /**< Alternate function 3 */
+    VTSS_GPIO_ALT_4,  /**< Alternate function 4 */
+    VTSS_GPIO_ALT_5,  /**< Alternate function 5 */
 } vtss_gpio_mode_t;
 
 /**

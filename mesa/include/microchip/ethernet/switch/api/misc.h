@@ -382,6 +382,9 @@ typedef enum
     MESA_GPIO_ALT_0,  // Alternate function 0
     MESA_GPIO_ALT_1,  // Alternate function 1
     MESA_GPIO_ALT_2,  // Alternate function 2
+    MESA_GPIO_ALT_3,  // Alternate function 3
+    MESA_GPIO_ALT_4,  // Alternate function 4
+    MESA_GPIO_ALT_5,  // Alternate function 5
 } mesa_gpio_mode_t;
 
 // Set GPIO mode.
