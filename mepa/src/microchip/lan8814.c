@@ -33,9 +33,11 @@ typedef struct {
     phy_dev_info_t          dev;
     mepa_synce_clock_conf_t synce_conf;
     mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
+    mepa_bool_t             link_status;
 } phy_data_t;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
+static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
 
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
@@ -205,6 +207,21 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
     return MEPA_RC_OK;
 }
 
+// Configure qsgmii aneg advertisement capabilities
+static void indy_qsgmii_tx_abilities(mepa_device_t *dev, mepa_port_speed_t speed, mepa_bool_t duplex)
+{
+    uint16_t value = 0x181; // default EEE enable & EEE clock stop
+
+    if (duplex) {
+        value |= INDY_BIT(12);
+    }
+    value |= (speed == MEPA_SPEED_1G) ? INDY_BIT(10) : (speed == MEPA_SPEED_100M) ? INDY_BIT(9): 0;
+    value |= INDY_BIT(14);
+    EP_WR(dev, INDY_QSGMII_PCS1G_ANEG_TX_ADVERTISE_CAP, value);
+
+    EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_RESTART, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_RESTART);
+}
+
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -216,7 +233,7 @@ static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
         // Disable QSGMII auto-negotiation
         EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
     } else {
-        // Enable QSGMII auto-negotiation
+        // Enable QSGMII auto-negotiation.
         EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
     }
     return MEPA_RC_OK;
@@ -243,7 +260,16 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         data->init_done = TRUE;
     }
     indy_rev_a_workaround(dev);
-    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
+    if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
+        WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
+    } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST_MAC) {
+        // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
+        // This must be applied after Mac serdes is configured.
+        if (data->dev.model == 0x26) {
+            EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
+            WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+        }
+    }
     PHY_MSLEEP(1);
     MEPA_EXIT();
     // Reconfigure the phy after reset
@@ -259,6 +285,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     MEPA_ENTER();
     RD(dev, INDY_BASIC_STATUS, &val);
     status->link = (val & INDY_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
+
     if (data->conf.speed == MEPA_SPEED_AUTO) {
         uint16_t lp_sym_pause = 0, lp_asym_pause = 0;
         uint8_t ext_status = 0;
@@ -312,6 +339,14 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     }
 
     end:
+    if (data->dev.model == 0x26 && data->conf.speed == MEPA_SPEED_AUTO &&
+        data->conf.mac_if_aneg_ena) {
+        if (status->link && status->link != data->link_status) {
+            // copy the capabilities on host side
+            indy_qsgmii_tx_abilities(dev, status->speed, status->fdx);
+        }
+    }
+    data->link_status = status->link;
     MEPA_EXIT();
     return MEPA_RC_OK;
 }
@@ -321,13 +356,17 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t new_value, mask, old_value;
     mepa_bool_t restart_aneg = FALSE;
+    mepa_bool_t qsgmii_aneg = config->speed != MEPA_SPEED_AUTO ? FALSE : config->mac_if_aneg_ena;
 
     MEPA_ENTER();
     if (config->admin.enable) {
-        if (config->mac_if_aneg_ena != data->conf.mac_if_aneg_ena) {
-            indy_qsgmii_aneg(dev, config->mac_if_aneg_ena);
+        if (qsgmii_aneg != data->conf.mac_if_aneg_ena) {
+            indy_qsgmii_aneg(dev, qsgmii_aneg);
         }
         if (config->speed == MEPA_SPEED_AUTO || config->speed == MEPA_SPEED_1G) {
+            if (data->conf.admin.enable != config->admin.enable) {
+                restart_aneg = TRUE;
+            }
             RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &old_value);
             new_value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
             if ((old_value & INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP) != new_value) {
@@ -367,6 +406,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
     data->conf = *config;
+    data->conf.mac_if_aneg_ena = qsgmii_aneg;
     MEPA_EXIT();
 
     return MEPA_RC_OK;

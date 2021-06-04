@@ -80,8 +80,17 @@ typedef struct {
     uint8_t                   length[4]; /**< Length (meters), pair A-D (0-3) */
 } mepa_cable_diag_result_t;
 
+// phy reset points
+typedef enum {
+    MEPA_RESET_POINT_DEFAULT = 0,
+    MEPA_RESET_POINT_PRE,
+    MEPA_RESET_POINT_POST,
+    MEPA_RESET_POINT_POST_MAC
+} mepa_reset_point_t;
+
 typedef struct {
     mepa_media_interface_t media_intf;
+    mepa_reset_point_t     reset_point;
 } mepa_reset_param_t;
 
 /* mepa_rc error codes */

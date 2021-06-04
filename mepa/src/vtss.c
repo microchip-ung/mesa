@@ -37,14 +37,24 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
 {
     mepa_reset_conf_t conf = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
+    mepa_rc rc = MEPA_RC_OK;
 
-    mesa_phy_reset_get(data->inst, data->port_no, &conf);
-    conf.force = MESA_PHY_FORCE_RESET;
-    conf.mac_if = data->mac_if;
-    conf.media_if = rst_conf->media_intf;
-    conf.i_cpu_en = 0;
+    if (rst_conf->reset_point == MEPA_RESET_POINT_PRE) {
+        // pre reset api should be called on base port
+        rc = mesa_phy_pre_reset(data->inst, data->port_no);
+    } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST) {
+        // post reset api should be called on base port
+        rc = mesa_phy_post_reset(data->inst, data->port_no);
+    } else if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
+        mesa_phy_reset_get(data->inst, data->port_no, &conf);
+        conf.force = MESA_PHY_FORCE_RESET;
+        conf.mac_if = data->mac_if;
+        conf.media_if = rst_conf->media_intf;
+        conf.i_cpu_en = 0;
+        rc = reset_phy(data, &conf);
+    }
 
-    return reset_phy(data, &conf);
+    return rc;
 }
 
 static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
