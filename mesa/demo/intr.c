@@ -56,6 +56,8 @@ static irq_map_t irq_map[] = {
     { "dpll", MESA_IRQ_DPLL },
     { "gpio", MESA_IRQ_GPIO },
     { "dev_all", MESA_IRQ_DEV_ALL },
+    { "cu_phy0", MESA_IRQ_CU_PHY_0 },
+    { "cu_phy1", MESA_IRQ_CU_PHY_1 },
     { "pushbutton", MESA_IRQ_PUSH_BUTTON },
     { "sd10g_kr0", MESA_IRQ_KR_SD10G_0 },
     { "sd10g_kr1", MESA_IRQ_KR_SD10G_1  },
@@ -77,6 +79,7 @@ static irq_map_t irq_map[] = {
     { "sd10g_kr17", MESA_IRQ_KR_SD10G_17 },
     { "sd10g_kr18", MESA_IRQ_KR_SD10G_18 },
     { "sd10g_kr19", MESA_IRQ_KR_SD10G_19 },
+
     { "unknown", MESA_IRQ_MAX },
 };
 
@@ -193,6 +196,7 @@ static void intr_callback(int fd, void *ref)
         for (i = 0; ; i++) {
             map = &irq_map[i];
             if (map->irq == MESA_IRQ_MAX) {
+                T_I("unknown: %s", line);
                 map->cnt++;
                 break;
             }

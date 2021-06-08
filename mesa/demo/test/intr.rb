@@ -104,4 +104,5 @@ test "dump" do
     $ts.dut.run("mesa-cmd deb api ai port #{str}")
     $ts.dut.run("mesa-cmd deb api ai phy #{str}")
     $ts.dut.run("mesa-cmd intr")
+    $ts.dut.run("cat /proc/interrupts")
 end

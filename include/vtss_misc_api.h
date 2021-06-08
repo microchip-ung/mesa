@@ -917,6 +917,8 @@ typedef enum
     VTSS_IRQ_DPLL,              /**< DPLL */
     VTSS_IRQ_GPIO,              /**< GPIO */
     VTSS_IRQ_DEV_ALL,           /**< Device (port) IRQ */
+    VTSS_IRQ_CU_PHY_0,          /**< LAN966X internal PHY 0 */
+    VTSS_IRQ_CU_PHY_1,          /**< LAN966X internal PHY 1 */
     VTSS_IRQ_KR_SD10G_0,        /**< KR IRQ 0 */
     VTSS_IRQ_KR_SD10G_1,        /**< KR IRQ 1 */
     VTSS_IRQ_KR_SD10G_2,        /**< KR IRQ 2 */

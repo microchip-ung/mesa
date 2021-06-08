@@ -629,6 +629,8 @@ typedef enum
     MESA_IRQ_GPIO,     // GPIO
     MESA_IRQ_PUSH_BUTTON, // General purpose pushbutton
     MESA_IRQ_DEV_ALL,  // Device (port) IRQ
+    MESA_IRQ_CU_PHY_0,    // LAN966X internal PHY 0
+    MESA_IRQ_CU_PHY_1,    // LAN966X internal PHY 1
     MESA_IRQ_KR_SD10G_0,  // KR IRQ 0
     MESA_IRQ_KR_SD10G_1,  // KR IRQ 1
     MESA_IRQ_KR_SD10G_2,  // KR IRQ 2
@@ -649,6 +651,7 @@ typedef enum
     MESA_IRQ_KR_SD10G_17, // KR IRQ 17
     MESA_IRQ_KR_SD10G_18, // KR IRQ 18
     MESA_IRQ_KR_SD10G_19, // KR IRQ 19
+
     MESA_IRQ_MAX,      // Maximum IRQ Source - MUST be the last in this enum
 } mesa_irq_t CAP(MISC_IRQ_CONTROL);
 

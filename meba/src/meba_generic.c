@@ -184,39 +184,37 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t inst,
                                      mesa_port_no_t port_no,
                                      meba_event_signal_t signal_notifier)
 {
-    mesa_phy_event_t phy_events;
-    mesa_rc          rc;
+    mepa_event_t events;
+    mesa_rc      rc;
 
-    if ((rc = mesa_phy_event_poll(PHY_INST, port_no, &phy_events)) != MESA_RC_OK) {
-        T_E(inst, "mesa_phy_event_poll = %d", rc);
+    if ((rc = meba_phy_event_poll(inst, port_no, &events)) != MESA_RC_OK) {
+        T_E(inst, "meba_phy_event_poll = %d", rc);
     } else {
         int handled = 0;
-        if (phy_events) {
+        if (events) {
+            T_I(inst, "Port %u, event: 0x%x", port_no, events);
 
-            T_I(inst, "Port %u, PHY event: 0x%x", port_no, phy_events);
-
-            if ((rc = mesa_phy_event_enable_set(PHY_INST, port_no, phy_events, false)) != MESA_RC_OK) {
-                T_E(inst, "mesa_phy_event_enable_set = %d", rc);
+            if ((rc = meba_phy_event_enable_set(inst, port_no, events, false)) != MESA_RC_OK) {
+                T_E(inst, "meba_phy_event_enable_set = %d", rc);
             }
 
-            if (phy_events & MESA_PHY_LINK_FFAIL_EV) {
+            if (events & MESA_PHY_LINK_FFAIL_EV) {
                 signal_notifier(MEBA_EVENT_FLNK, port_no);
                 handled++;
             }
 
-            if (phy_events & MESA_PHY_LINK_LOS_EV) {
+            if (events & MESA_PHY_LINK_LOS_EV) {
                 signal_notifier(MEBA_EVENT_LOS, port_no);
                 handled++;
             }
 
-            if (phy_events & MESA_PHY_LINK_AMS_EV) {
+            if (events & MESA_PHY_LINK_AMS_EV) {
                 signal_notifier(MEBA_EVENT_AMS, port_no);
                 handled++;
             }
         }
         rc = handled ? MESA_RC_OK : MESA_RC_ERROR;
     }
-
     return rc;
 }
 /* Returns the phy id, which is a combination of reg2 with reg3, where reg2 is MSB. */
