@@ -33,8 +33,35 @@ For debug purposes, device registers can be accessed (`mesa_reg_read()` and
 `mesa_reg_write()`). For register access using symbolic names, a database of the
 register set is available (`mesa_symreg_data_get()`).
 
-== Interrupts, Events and Polling
-TBD
+== Interrupts and Events
+
+Interrupts may be generated from a number of interrupt sources `mesa_irq_t`.
+The handling of interrupts depends on whether an internal or external CPU is used.
+MEBA functions may be used for mapping interrupts to events.
+
+=== Internal CPU
+When an internal CPU is used, interrupt sources are controlled by the OS.
+
+=== External CPU
+When an external CPU is used, interrupt sources are setup using `mesa_irq_conf_set()` and
+enabled/disabled using `mesa_irq_enable()`. The status of sources may be retrieved using
+`mesa_irq_status_get_and_mask()`.
+
+=== MEBA Events
+Interrupts can be mapped to MEBA events:
+
+* During initialization, `meba_api_t::meba_irq_requested()` may be called to determine
+whether the interrupt source is handled by MEBA.
+* When the OS signals an interrupt from a source, the application software may call
+`meba_api_t::meba_irq_handler()` to decode the interrupt into MEBA events.
+* MEBA events are enabled/disabled using `meba_api_t::meba_event_enable()`.
+
+MESA provides a number of functions used to decode and enable/disable events:
+
+* `MESA_IRQ_PTP_SYNC` is done using `mesa_ptp_event_poll()` and `mesa_ptp_event_enable()`.
+* `MESA_IRQ_GPIO` is done using `mesa_gpio_event_poll()` and `mesa_gpio_event_enable()`.
+* `MESA_IRQ_SGPIO` is done using `mesa_sgpio_event_poll()` and `mesa_sgpio_event_enable()`.
+* `MESA_IRQ_DEV_ALL` is done using `mesa_dev_all_event_poll()` and `mesa_dev_all_event_enable()`.
 
 == GPIOs
 
@@ -86,10 +113,6 @@ Energy Efficient Ethernet (EEE) can enabled per port to reduce power consumption
 `mesa_sgpio_read()` +
 `mesa_sgpio_event_poll()` +
 `mesa_sgpio_event_enable()` +
-`mesa_intr_cfg()` +
-`mesa_intr_mask_set()` +
-`mesa_intr_status_get()` +
-`mesa_intr_pol_negation()` +
 `mesa_irq_conf_get()` +
 `mesa_irq_conf_set()` +
 `mesa_irq_status_get_and_mask()` +
