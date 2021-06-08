@@ -60,7 +60,7 @@ This module contains the definitions used to configure AQ_API behavior as desire
 typedef struct{
     mesa_inst_t inst;
     mesa_port_no_t port_no;
-    void (*debug_func)(meba_trace_level_t level, const char *location, uint32_t line_no, const char *fmt, ...);
+    void (*debug_func)(mepa_trace_level_t level, const char *location, uint32_t line_no, const char *fmt, ...);
     mesa_rc (*mmd_read)(mesa_inst_t inst, mesa_port_no_t port_no, uint16_t mmd, uint16_t address, uint16_t *val);
     mesa_rc (*mmd_write)(mesa_inst_t inst, mesa_port_no_t port_no, uint16_t mmd, uint16_t address, uint16_t val);
 } AQ_Port;

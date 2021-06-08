@@ -60,7 +60,18 @@ typedef void (*debug_func_t)(mepa_trace_level_t                level,
                              const char                       *fmt,
                                                                ...);
 
-// Address mode that is specific for mscc phy.
+// phy trace callbacks
+typedef void (*mepa_trace_func_t)(mepa_trace_group_t                group,
+                                  mepa_trace_level_t                level,
+                                  const char                        *location,
+                                  uint32_t                          line_no,
+                                  const char                        *fmt,
+                                                                    ...);
+
+// phy synchronisation callbacks passed by application
+typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
+
+// Address mode that is specific for mchp phy.
 typedef struct {
     mmd_read_t              mmd_read;
     mmd_write_t             mmd_write;
@@ -70,10 +81,13 @@ typedef struct {
     struct meba_inst        *meba_inst;
     mepa_port_no_t          port_no;
     debug_func_t            debug_func;
+    mepa_trace_func_t       trace_func;
     mepa_port_interface_t   mac_if;
     mesa_miim_controller_t  miim_controller;
     uint8_t                 miim_addr;
     mesa_chip_no_t          chip_no;
+    mepa_lock_func_t        lock_enter;
+    mepa_lock_func_t        lock_exit;
 } mscc_phy_driver_address_t;
 
 // Union that contains all the values for address mode. Enumeration

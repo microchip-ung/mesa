@@ -313,6 +313,9 @@ void meba_phy_driver_init(meba_inst_t inst)
             address_mode.val.mscc_address.miim_controller = entry.map.miim_controller;
             address_mode.val.mscc_address.miim_addr = entry.map.miim_addr;
             address_mode.val.mscc_address.chip_no = entry.map.chip_no;
+            address_mode.val.mscc_address.trace_func = inst->iface.trace_func;
+            address_mode.val.mscc_address.lock_enter = inst->iface.lock_enter;
+            address_mode.val.mscc_address.lock_exit  = inst->iface.lock_exit;
 
             for (int i = 0; i < PHY_FAMILIES; i++) {
                 if (!phy_lib[i].count || !phy_lib[i].phy_drv) {

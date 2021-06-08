@@ -204,5 +204,20 @@ typedef struct {
     mepa_synce_clock_dst_t dst; // recovered clock number
     mepa_freq_t            freq;// recovered clock frequency
 } mepa_synce_clock_conf_t;
+
+// mepa trace groups
+typedef enum {
+    MEPA_TRACE_GRP_GEN,   // PHY general features
+    MEPA_TRACE_GRP_TS,    // Timestamp Api
+} mepa_trace_group_t;
+
+
+// lock structure
+typedef struct {
+    const char *function;  // function name
+    const char *file;      // file name
+    int        line;       // line number
+} mepa_lock_t;
+
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

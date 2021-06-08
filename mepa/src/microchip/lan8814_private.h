@@ -28,23 +28,33 @@
 
 #define PHY_MSLEEP(m) usleep((m)*1000)
 
+#define T_D(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+
 // Locking Macros
-// TODO, still using MESA callouts - should be safe from a thread/lock
-// persepctive, but needs to be changed to make MEPA self-contained
-#define MEPA_ENTER(...) {         \
-    mesa_api_lock_t lock;         \
-    lock.function = __FUNCTION__; \
-    lock.file = __FILE__;         \
-    lock.line = __LINE__;         \
-    mesa_callout_lock(&lock);     \
+// The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.
+#define MEPA_ENTER(dev) {                               \
+    mepa_lock_t lock;                                \
+    phy_data_t *lock_data = (phy_data_t *)dev->data; \
+    lock.function = __FUNCTION__;                    \
+    lock.file = __FILE__;                            \
+    lock.line = __LINE__;                            \
+    if (lock_data->lock_enter) {                     \
+        lock_data->lock_enter(&lock);                \
+    }                                                \
 }
 
-#define MEPA_EXIT(...) {          \
-    mesa_api_lock_t lock;         \
-    lock.function = __FUNCTION__; \
-    lock.file = __FILE__;         \
-    lock.line = __LINE__;         \
-    mesa_callout_unlock(&lock);   \
+#define MEPA_EXIT(dev) {          \
+    mepa_lock_t lock;                                \
+    phy_data_t *lock_data = (phy_data_t *)dev->data; \
+    lock.function = __FUNCTION__;                    \
+    lock.file = __FILE__;                            \
+    lock.line = __LINE__;                            \
+    if (lock_data->lock_exit) {                      \
+        lock_data->lock_exit(&lock);                 \
+    }                                                \
 }
 
 // register access functions

@@ -62,7 +62,7 @@ typedef struct Intl_Port {
 typedef struct{
     struct gpy211_device initconf;
     struct Intl_Port port_param;
-    debug_func_t            debug_func;
+    debug_func_t           debug_func;
     struct meba_inst       *meba_inst;  // WHY IS THIS NEEDED?
     //mesa_port_list_t phy_diag_done;
     //mesa_port_list_t phy_shutdown;

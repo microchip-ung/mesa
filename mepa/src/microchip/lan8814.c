@@ -34,6 +34,9 @@ typedef struct {
     mepa_synce_clock_conf_t synce_conf;
     mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
     mepa_bool_t             link_status;
+    mepa_trace_func_t       trace_func;
+    mepa_lock_func_t        lock_enter;
+    mepa_lock_func_t        lock_exit;
 } phy_data_t;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
@@ -45,10 +48,9 @@ mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
     phy_switch_access_t *access = &data->access;
     miim_read_t read = access->miim_read;
 
-    // Need to unlock to allow locking in switch Api's miim read
-    MEPA_EXIT();
-    read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, value);
-    MEPA_ENTER();
+    if (read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, value) != MESA_RC_OK) {
+        T_E(data, MEPA_TRACE_GRP_GEN, "miim read failed\n");
+    }
     return MEPA_RC_OK;
 }
 mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uint16_t mask)
@@ -58,17 +60,22 @@ mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, ui
     miim_read_t read = access->miim_read;
     miim_write_t write = access->miim_write;
     uint16_t reg_val = value;
+    mesa_rc rc;
 
-    // Need to unlock to allow locking in switch Api's miim read
-    MEPA_EXIT();
-    read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, &reg_val);
-    if (mask != INDY_DEF_MASK) {
-        reg_val = (reg_val & ~mask) | (value & mask);
+    rc = read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, &reg_val);
+    if (rc == MESA_RC_OK) {
+        if (mask != INDY_DEF_MASK) {
+            reg_val = (reg_val & ~mask) | (value & mask);
+        } else {
+            reg_val = value;
+        }
+        rc = write(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, reg_val);
+        if (rc != MESA_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "miim write failed\n");
+        }
     } else {
-        reg_val = value;
+        T_E(data, MEPA_TRACE_GRP_GEN, "miim write failed\n");
     }
-    write(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, reg_val);
-    MEPA_ENTER();
     return MEPA_RC_OK;
 }
 
@@ -145,6 +152,7 @@ static mepa_rc indy_get_device_info(mepa_device_t *dev)
 
     data->dev.model = INDY_X_DEV_ID_MODEL(id_2);
     data->dev.rev = INDY_X_DEV_ID_REV(id_2);
+    T_I(data, MEPA_TRACE_GRP_GEN, "model 0x%x rev %d\n", data->dev.model, data->dev.rev);
 
     return MEPA_RC_OK;
 }
@@ -163,6 +171,8 @@ static mepa_device_t *indy_probe(
     if (data == NULL) goto out_data;
 
     device->drv = drv;
+    device->data = data;
+
     data->port_no = mode->val.mscc_address.port_no;
     data->access.miim_read = mode->val.mscc_address.miim_read;
     data->access.miim_write = mode->val.mscc_address.miim_write;
@@ -171,8 +181,11 @@ static mepa_device_t *indy_probe(
     data->access.miim_addr = mode->val.mscc_address.miim_addr;
     data->access.chip_no = mode->val.mscc_address.chip_no;
     data->events = 0;
-    device->data = data;
+    data->trace_func = mode->val.mscc_address.trace_func;
+    data->lock_enter = mode->val.mscc_address.lock_enter;
+    data->lock_exit = mode->val.mscc_address.lock_exit;
 
+    T_I(data, MEPA_TRACE_GRP_GEN, "indy driver probed for port %d", data->port_no);
     return device;
 
 out_data:
@@ -229,6 +242,7 @@ static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
     if (data->dev.model != 0x26) {
         return MEPA_RC_OK;
     }
+    T_I(data, MEPA_TRACE_GRP_GEN, "qsgmii aneg ena %d", ena);
     if (!ena) {
         // Disable QSGMII auto-negotiation
         EP_WRM(dev, INDY_QSGMII_PCS1G_ANEG_CONFIG, 0, INDY_F_QSGMII_PCS1G_ANEG_CONFIG_ANEG_ENA);
@@ -248,12 +262,14 @@ static mepa_rc indy_rev_a_workaround(mepa_device_t *dev)
     }
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_LOW, 0x2);
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_HIGH, 0xc001);
+
+    T_D(data, MEPA_TRACE_GRP_GEN, "rev A work-around configured");
 }
 
 static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (!data->init_done) {
         indy_init_conf(dev);
         indy_qsgmii_aneg(dev, FALSE);
@@ -271,7 +287,8 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         }
     }
     PHY_MSLEEP(1);
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_I(data, MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
     // Reconfigure the phy after reset
     indy_conf_set(dev, &data->conf);
     return MEPA_RC_OK;
@@ -282,7 +299,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     uint16_t val, val2 = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     RD(dev, INDY_BASIC_STATUS, &val);
     status->link = (val & INDY_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
 
@@ -294,6 +311,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         status->fdx = 1;
         // check if auto-negotiation is completed or not.
         if (!(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
+            T_I(data, MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
             status->link = 0;
             goto end;
         }
@@ -334,7 +352,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         status->fdx = !!(val & INDY_F_BASIC_CTRL_DUP_MODE);
         //check that aneg is not enabled.
         if (val2 & INDY_F_BASIC_CTRL_ANEG_ENA) {
-            // TODO: Enable trace
+            T_W(data, MEPA_TRACE_GRP_GEN, "Aneg is enabled for forced speed config on port %d", data->port_no);
         }
     }
 
@@ -347,7 +365,8 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         }
     }
     data->link_status = status->link;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_D(data, MEPA_TRACE_GRP_GEN, "status link %d, speed %d, fdx %d", status->link, status->speed, status->fdx);
     return MEPA_RC_OK;
 }
 
@@ -358,7 +377,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
     mepa_bool_t restart_aneg = FALSE;
     mepa_bool_t qsgmii_aneg = config->speed != MEPA_SPEED_AUTO ? FALSE : config->mac_if_aneg_ena;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (config->admin.enable) {
         if (qsgmii_aneg != data->conf.mac_if_aneg_ena) {
             indy_qsgmii_aneg(dev, qsgmii_aneg);
@@ -392,9 +411,11 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
             new_value = INDY_F_BASIC_CTRL_ANEG_ENA;
             WRM(dev, INDY_BASIC_CONTROL, new_value, new_value | INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
             if (restart_aneg) {
+                T_I(data, MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                 WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
             }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
+            T_I(data, MEPA_TRACE_GRP_GEN, "forced speed %d configured\n", config->speed);
             new_value = ((config->speed == MEPA_SPEED_100M ? 1 : 0) << 13) | (0 << 12) |
                     ((config->fdx ? 1 : 0) << 8) |
                     ((config->speed == MEPA_SPEED_1G ? 1 : 0) << 6);
@@ -402,12 +423,13 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
             WRM(dev, INDY_BASIC_CONTROL, new_value, mask);
         }
     } else {
+        T_I(data, MEPA_TRACE_GRP_GEN, "set power down\n");
         // set soft power down bit
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
     data->conf = *config;
     data->conf.mac_if_aneg_ena = qsgmii_aneg;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
 }
@@ -416,9 +438,10 @@ static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const confi
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     *config = data->conf;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_D(data, MEPA_TRACE_GRP_GEN, "returning phy config on port %d", data->port_no);
     return MEPA_RC_OK;
 }
 static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
@@ -426,23 +449,26 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
+    MEPA_ENTER(dev);
     *mac_if = data->mac_if;
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 
 static mepa_rc indy_power_set(mepa_device_t *dev, mepa_power_mode_t power)
 {
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
 
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 
 static mepa_rc indy_cable_diag_start(mepa_device_t *dev, int mode)
 {
     uint16_t value, mask = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     //check if cable diagnostics has not started.
     RD(dev, INDY_CABLE_DIAG, &value);
     if (!(value & INDY_F_CABLE_DIAG_TEST_ENA)) {
@@ -451,7 +477,8 @@ static mepa_rc indy_cable_diag_start(mepa_device_t *dev, int mode)
         mask |= INDY_F_CABLE_DIAG_TEST_ENA | INDY_M_CABLE_TEST_PAIR;
         WRM(dev, INDY_CABLE_DIAG, value, mask);
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_I(data, MEPA_TRACE_GRP_GEN, "cable diagnostics started");
     return MEPA_RC_OK;
 }
 
@@ -459,7 +486,9 @@ static mepa_rc indy_cable_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t 
 {
     uint16_t value, status;
     mepa_rc rc = MEPA_RC_OK;
-    MEPA_ENTER();
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    MEPA_ENTER(dev);
     RD(dev, INDY_CABLE_DIAG, &value);
     if (value & INDY_F_CABLE_DIAG_TEST_ENA) {
         res->status[0] = MEPA_CABLE_DIAG_STATUS_RUNNING; // Pair A
@@ -481,19 +510,22 @@ static mepa_rc indy_cable_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t 
                 break;
         }
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_I(data, MEPA_TRACE_GRP_GEN, "cable diagnostics result status[0] %d", res->status[0]);
     return MEPA_RC_OK;
 }
 
 static mepa_rc indy_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *status)
 {
     uint16_t val;
+    phy_data_t *data = (phy_data_t *)dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     RD(dev, INDY_ANEG_MSTR_SLV_STATUS, &val);
     status->master_cfg_fault = (val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
     status->master = val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_I(data, MEPA_TRACE_GRP_GEN, "aneg status get mstr %d", status->master);
     return MEPA_RC_OK;
 }
 
@@ -503,9 +535,9 @@ static mepa_rc indy_direct_reg_read(mepa_device_t *dev, uint32_t address, uint16
     mepa_rc rc;
     uint16_t addr = address & 0x1f;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     rc = indy_direct_reg_rd(dev, addr, value);
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -515,9 +547,9 @@ static mepa_rc indy_direct_reg_write(mepa_device_t *dev, uint32_t address, uint1
     mepa_rc rc;
     uint16_t addr = address & 0x1f;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     rc = indy_direct_reg_wr(dev, addr, value, 0xFFFF);
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -529,13 +561,13 @@ static mepa_rc indy_ext_mmd_reg_read(mepa_device_t *dev, uint32_t address, uint1
     uint16_t addr = address & 0xffff;
     uint16_t mmd = (page_mmd >> 11);
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (mmd) {
         rc = indy_mmd_reg_rd(dev, mmd, addr, value);
     } else {
         rc = indy_ext_reg_rd(dev, page_mmd, addr, value);
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -547,13 +579,13 @@ static mepa_rc indy_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint
     uint16_t addr = address & 0xffff;
     uint16_t mmd = (page_mmd >> 11);
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (mmd) {
         rc = indy_mmd_reg_wr(dev, mmd, addr, value, 0xFFFF);
     } else {
         rc = indy_ext_reg_wr(dev, page_mmd, addr, value, 0xFFFF);
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -565,7 +597,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mes
     phy_data_t *data = (phy_data_t *)dev->data;
     data->events = enable ? (data->events | event) :
                             (data->events & ~event);
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     for (i = 0; i < sizeof(mepa_event_t)*8; i++) {
         switch(event & (1 << i)) {
             case MEPA_LINK_LOS:
@@ -585,7 +617,8 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mes
     EP_WRM(dev, INDY_INTR_CTRL, data->events ? INDY_INTR_CTRL_CHIP_LVL_ENA : 0,
            INDY_INTR_CTRL_CHIP_LVL_ENA);
 
-    MEPA_EXIT();
+    T_D(data, MEPA_TRACE_GRP_GEN, "events enabled 0x%x\n", data->events);
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -594,9 +627,9 @@ static mepa_rc indy_event_enable_get(mepa_device_t *dev, mepa_event_t *const eve
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     *event = data->events;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -607,7 +640,7 @@ static mepa_rc indy_event_status_poll(mepa_device_t *dev, mepa_event_t *const st
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
     *status = 0;
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     rc = RD(dev, INDY_GPHY_INTR_STATUS, &val);
     if (val & INDY_F_GPHY_INTR_ENA_LINK_DOWN) {
         *status |= data->events & MEPA_LINK_LOS;
@@ -615,7 +648,8 @@ static mepa_rc indy_event_status_poll(mepa_device_t *dev, mepa_event_t *const st
     if (val & INDY_F_GPHY_INTR_ENA_FLF_INTR) {
         *status |= data->events & MEPA_FAST_LINK_FAIL;
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_D(data, MEPA_TRACE_GRP_GEN, "events polled 0x%x\n", *status);
     return rc;
 }
 
@@ -631,7 +665,7 @@ static mepa_rc indy_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loop
         // Not supported on Indy
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     // Far end loopback
     if (loopback->far_end_ena == TRUE) {
         WRM(dev, INDY_PCS_LOOP_POLARITY_CTRL, INDY_F_PCS_LOOP_CTRL_PORT_LOOP,
@@ -687,16 +721,17 @@ static mepa_rc indy_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loop
         EP_WRM(dev, INDY_QSGMII_SERDES_MISC_CTRL, 0, INDY_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
     }
     data->loopback = *loopback;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
+    T_I(data, MEPA_TRACE_GRP_GEN, "loopback enabled\n");
     return MEPA_RC_OK;
 }
 mepa_rc indy_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loopback)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     *loopback = data->loopback;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 // Returns gpio using port number and led number
@@ -722,6 +757,7 @@ static uint8_t led_num_to_gpio_mapping(mepa_device_t *dev, mepa_led_num_t led_nu
                // invalid.
                break;
     }
+    T_I(data, MEPA_TRACE_GRP_GEN, "gpio mapped %d\n", gpio);
     return gpio;
 }
 static uint8_t led_mepa_mode_to_indy(mepa_gpio_mode_t mode)
@@ -767,11 +803,14 @@ static uint8_t led_mepa_mode_to_indy(mepa_gpio_mode_t mode)
 static mepa_rc indy_led_mode_set(mepa_device_t *dev, mepa_gpio_mode_t led_mode, mepa_led_num_t led_num)
 {
     uint16_t mode;
+    phy_data_t *phy_data = (phy_data_t *) dev->data;
     // Indy supports only LED0 and LED1
     if ((led_num != MEPA_LED0) && (led_num != MEPA_LED1)) {
+        T_W(phy_data, MEPA_TRACE_GRP_GEN, "8814 supports only leds 0 & 1\n");
         return MEPA_RC_NOT_IMPLEMENTED;
     }
     if ((mode = led_mepa_mode_to_indy(led_mode)) == 0xff) {// Not valid
+        T_W(phy_data, MEPA_TRACE_GRP_GEN, "Not valid led mode");
         return MEPA_RC_NOT_IMPLEMENTED;
     }
     if (mode == MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
@@ -786,6 +825,7 @@ static mepa_rc indy_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t
 {
     uint16_t gpio_en = 0, dir, val = 0, gpio_no = data->gpio_no;
     mepa_gpio_mode_t mode = data->mode;
+    phy_data_t *phy_data = (phy_data_t *) dev->data;
 
     if (mode == MEPA_GPIO_MODE_OUT || mode == MEPA_GPIO_MODE_IN) {
         gpio_en = 1;
@@ -813,6 +853,7 @@ static mepa_rc indy_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t
         }
     } else {
         // Not supported. Illegal for Indy.
+        T_W(phy_data, MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
     }
     return MEPA_RC_OK;
 }
@@ -821,23 +862,26 @@ static mepa_rc indy_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t
 static mepa_rc indy_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
 {
     mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
     // Indy has 0-23 gpios.
     if (gpio_conf->gpio_no > 23) {
+        T_W(data, MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     rc = indy_gpio_mode_private(dev, gpio_conf);
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return rc;
 }
 static mepa_rc indy_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t value)
 {
     uint16_t val = 0;
+    phy_data_t *phy_data = (phy_data_t *) dev->data;
     // Indy has 0-23 gpios.
     if (gpio_no > 23) {
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (gpio_no < 16) {
         val = 1 << gpio_no;
         EP_WRM(dev, INDY_GPIO_DATA2, value ? val : 0, val);
@@ -846,19 +890,22 @@ static mepa_rc indy_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_
         EP_WRM(dev, INDY_GPIO_DATA1, value ? val : 0, val);
     } else {
         // Not supported. Illegal for Indy.
+        T_W(phy_data, MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
     }
 
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t * const value)
 {
     uint16_t val = 0;
+    phy_data_t *phy_data = (phy_data_t *) dev->data;
     // Indy has 0-23 gpios.
     if (gpio_no > 23) {
+        T_W(phy_data, MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     if (gpio_no < 16) {
         EP_RD(dev, INDY_GPIO_DATA2, &val);
         *value = (val >> gpio_no) & 0x1 ? TRUE : FALSE;
@@ -866,7 +913,7 @@ static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t
         EP_RD(dev, INDY_GPIO_DATA1, &val);
         *value = ((val >> (gpio_no - 16)) & 0x1) ? TRUE : FALSE;
     }
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 
@@ -878,7 +925,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
     uint16_t port_ena;
     mepa_rc rc = MEPA_RC_OK;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     // Enable recovered clock outputs in gpio
     gpio_conf.mode = conf->dst == MEPA_SYNCE_CLOCK_DST_1 ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
     rc = indy_gpio_mode_private(dev, &gpio_conf);
@@ -899,6 +946,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
     if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
         port_ena = 7;
     }
+    T_I(data, MEPA_TRACE_GRP_GEN, "port_ena %d divider %d\n", port_ena, divider);
     if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
         EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_1, port_ena);
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_1, divider);
@@ -907,7 +955,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_2, divider);
     }
 
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
 
     data->synce_conf = *conf;
     return rc;
@@ -918,11 +966,12 @@ static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    MEPA_ENTER();
+    MEPA_ENTER(dev);
     data->base_dev = base_dev;
-    MEPA_EXIT();
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
+
 mepa_drivers_t mepa_lan8814_driver_init() {
     static const int nr_indy_drivers = 2;
     static mepa_driver_t indy_drivers[] = {
