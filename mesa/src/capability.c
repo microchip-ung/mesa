@@ -162,7 +162,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX      VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN     VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX     VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT_T) || defined(VTSS_ARCH_LAN966X)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MIN        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MAX        0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_BURST_MIN       0 /* undefined */
@@ -484,7 +484,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_AUTO_TAGGING:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
         c = 1;
 #endif
         break;

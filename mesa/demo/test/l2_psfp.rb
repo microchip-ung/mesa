@@ -19,13 +19,17 @@ $istat = 0
 $pol = 0
 $filter_id = 10
 $gate_id = 20
+$is_fireant = false
 $fa_rev0 = false
 
 test "conf" do
-    chip_id = $ts.dut.call("mesa_chip_id_get")
-    if (cap_get("PACKET_IFH_EPID") == 11 and chip_id["revision"] == 0)
-        # FireAnt revision 0 does not support priority change and discard of small frames
-        $fa_rev0 = true
+    if (cap_get("PACKET_IFH_EPID") == 11)
+        $is_fireant = true
+        chip_id = $ts.dut.call("mesa_chip_id_get")
+        if (chip_id["revision"] == 0)
+            # FireAnt revision 0 does not support priority change and discard of small frames
+            $fa_rev0 = true
+        end
     end
 
     # Ingress counters
@@ -140,8 +144,6 @@ def dlb_status_test(id, name, exp)
     status = $ts.dut.call("mesa_dlb_policer_status_get", id, 0)
     fld_check(status, name, exp)
 end
-
-$is_fireant = (cap_get("PACKET_IFH_EPID") == 11)
 
 test "frame-filter" do
     # MaxSDU

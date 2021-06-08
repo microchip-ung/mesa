@@ -1377,7 +1377,7 @@ typedef struct {
     vtss_vcap_port_conf_t         port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_vcap_port_conf_t         port_conf_old;
     vtss_dmac_dip_conf_t          dmac_dip_conf[VTSS_PORT_ARRAY_SIZE];/* Aggregated dmac_dip flag - per port per IS1 lookup */
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     vtss_acl_sip_conf_t           acl_sip_table[VTSS_ACL_SIP_CNT];
     u8 acl_cnt_alloc[VTSS_BF_SIZE(VTSS_ACL_CNT_SIZE)];

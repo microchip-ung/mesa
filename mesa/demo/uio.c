@@ -111,6 +111,7 @@ mesa_rc uio_reg_io_init(void)
         }
 
         snprintf(iodev, sizeof(iodev), "/dev/%s", dent->d_name);
+        snprintf(uio_path, sizeof(uio_path), "%s/%s/device/irqctl", top, dent->d_name);
         snprintf(fn, sizeof(fn), "%s/%s/maps/map0/size", top, dent->d_name);
         fp = fopen(fn, "r");
         if (!fp) {
@@ -144,6 +145,7 @@ mesa_rc uio_reg_io_init(void)
         if(base_mem != MAP_FAILED) {
             T_D("Mapped register memory @ %p", base_mem);
             // printf("Buildid (maybe): 0x%08x\n", *(base_mem + (0x70008 / 4)));
+            uio_fd = dev_fd;
         } else {
             T_E("mmap failed");
             rc = MESA_RC_ERROR;

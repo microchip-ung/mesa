@@ -5998,7 +5998,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
-#endif /* VTSS_ARCH_OCELOT */
+#endif
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);

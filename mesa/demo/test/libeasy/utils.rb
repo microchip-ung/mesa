@@ -178,10 +178,6 @@ def loop_pair_check
     if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
         t_e ("Loop ports must be up")
     end
-
-    if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
-        t_e ("Loop ports must be up")
-    end
 end
 
 def check_val(name, val, exp, fmt)

@@ -14,54 +14,50 @@ extern "C" {
 
 #if defined(VTSS_FEATURE_VOP_V1)     /* VOP V1 */
 
-#define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
-#define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.
-#if defined(VTSS_ARCH_OCELOT)   /* Ocelot */
-#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
-#define VTSS_PATH_SERVICE_VOE_CNT   (32)                        // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (32)                        // Index of first port VOE
-#elif defined(VTSS_ARCH_SERVAL) /* Serval1 */
-#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
-#define VTSS_PATH_SERVICE_VOE_CNT   (64)                        // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (64)                        // Index of first port VOE
-#elif defined(VTSS_ARCH_LAN966X)   /* Maserati */
-#define VTSS_PORT_VOE_CNT           (8)                        // Number of port VOEs in HW
-#define VTSS_PATH_SERVICE_VOE_CNT   (0)                        // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (0)                        // Index of first port VOE
-#else
-#error "not defined expected architure for VOP V1"
-#endif
+#  define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
+#  define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.
+#  if defined(VTSS_ARCH_OCELOT)   /* Ocelot */
+#    define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
+#    define VTSS_PATH_SERVICE_VOE_CNT   (32)                        // Number of path/service VOEs in HW
+#    define VTSS_PORT_VOE_BASE_IDX      (32)                        // Index of first port VOE
+#  elif defined(VTSS_ARCH_LAN966X)   /* Maserati */
+#    define VTSS_PORT_VOE_CNT           (8)                        // Number of port VOEs in HW
+#    define VTSS_PATH_SERVICE_VOE_CNT   (0)                        // Number of path/service VOEs in HW
+#    define VTSS_PORT_VOE_BASE_IDX      (0)                        // Index of first port VOE
+#  else
+#    error "not defined expected architure for VOP V1"
+#  endif
 
 #elif defined(VTSS_FEATURE_VOP_V2)  /* End VOP V1 */
                                     /* Begin VOP V2*/
-#if defined(VTSS_ARCH_SERVAL_T)     /* ServalT */
+#  if defined(VTSS_ARCH_SERVAL_T)     /* ServalT */
 
-#define VTSS_PATH_SERVICE_VOE_CNT   (192)                       // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (192)                       // Index of first port VOE
-#define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
+#    define VTSS_PATH_SERVICE_VOE_CNT   (192)                       // Number of path/service VOEs in HW
+#    define VTSS_PORT_VOE_BASE_IDX      (192)                       // Index of first port VOE
+#    define VTSS_PORT_VOE_CNT           (11)                        // Number of port VOEs in HW
 
-#define VTSS_DOWN_VOI_CNT           (128)                       // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT             (127)                       // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
+#    define VTSS_DOWN_VOI_CNT           (128)                       // Number of down VOI (MIP) in HW
+#    define VTSS_UP_VOI_CNT             (127)                       // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
 
-#else                               /* End ServalT */
+#  else                               /* End ServalT */
 
-#define VTSS_PATH_SERVICE_VOE_CNT   (1024)                      // Number of path/service VOEs in HW
-#define VTSS_PORT_VOE_BASE_IDX      (1024)                      // Index of first port VOE
+#    define VTSS_PATH_SERVICE_VOE_CNT   (1024)                      // Number of path/service VOEs in HW
+#    define VTSS_PORT_VOE_BASE_IDX      (1024)                      // Index of first port VOE
 
-#if defined(VTSS_ARCH_JAGUAR_2)     /* Jaguar2 */
-#define VTSS_PORT_VOE_CNT           (53)                        // Number of port VOEs in HW
-#elif defined(VTSS_ARCH_SPARX5)     /* SparX-5 */
-#define VTSS_PORT_VOE_CNT           (65)                        // Number of port VOEs in HW
-#else
-#error "not defined expected architure for VOP V2"
-#endif
+#    if defined(VTSS_ARCH_JAGUAR_2)     /* Jaguar2 */
+#      define VTSS_PORT_VOE_CNT           (53)                        // Number of port VOEs in HW
+#    elif defined(VTSS_ARCH_SPARX5)     /* SparX-5 */
+#      define VTSS_PORT_VOE_CNT           (65)                        // Number of port VOEs in HW
+#    else
+#      error "not defined expected architure for VOP V2"
+#    endif
 
-#define VTSS_DOWN_VOI_CNT           (1024)                      // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT             (1023)                      // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
-#endif
+#    define VTSS_DOWN_VOI_CNT           (1024)                      // Number of down VOI (MIP) in HW
+#    define VTSS_UP_VOI_CNT             (1023)                      // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB
+#  endif
 
 #else                               /* End VOP V2 */
-#error "VOP V1 or V2 must be defined"
+#  error "VOP V1 or V2 must be defined"
 #endif
 
 
