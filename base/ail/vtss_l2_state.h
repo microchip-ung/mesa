@@ -672,6 +672,7 @@ typedef struct {
 
     /* Configuration/state */
     /* Aggregated forwarding information */
+    BOOL                          learn[VTSS_PORT_ARRAY_SIZE];
     BOOL                          rx_forward[VTSS_PORT_ARRAY_SIZE];
     BOOL                          tx_forward[VTSS_PORT_ARRAY_SIZE];
     BOOL                          tx_forward_aggr[VTSS_PORT_ARRAY_SIZE];

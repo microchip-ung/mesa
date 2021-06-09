@@ -490,6 +490,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             vtss_state->l2.rx_forward[i_port] = rx_forward[i_port];
             vtss_state->l2.vlan_filter_changed = TRUE;
         }
+        vtss_state->l2.learn[i_port] = learn[i_port];
 
         /* Special case - NPI port */
         if (vtss_state->packet.npi_conf.enable && i_port == vtss_state->packet.npi_conf.port_no) {

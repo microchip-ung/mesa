@@ -110,8 +110,17 @@ static vtss_rc jr2_pmap_table_write(vtss_state_t *vtss_state,
 static vtss_rc jr2_learn_state_set(vtss_state_t *vtss_state,
                                    const BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
+    vtss_port_no_t    port;
+    BOOL              lrn[VTSS_PORTS];
+    vtss_mstp_entry_t *mstp = &vtss_state->l2.mstp_table[0];
+
+    for (port = 0; port < vtss_state->port_count; port++) {
+        // Include MSTP instance 0 state
+        lrn[port] = (member[port] && mstp->state[port] != VTSS_STP_STATE_DISCARDING);
+    }
+
     /* Setup learn mask */
-    u64 pmask = vtss_jr2_port_mask(vtss_state, member);
+    u64 pmask = vtss_jr2_port_mask(vtss_state, lrn);
 
     JR2_WRX_PMASK(VTSS_ANA_L3_MSTP_MSTP_LRN_CFG, 0, pmask);
     return VTSS_RC_OK;
@@ -130,6 +139,10 @@ static vtss_rc jr2_mstp_state_set(vtss_state_t *vtss_state,
         state = vtss_state->l2.mstp_table[msti].state[port];
         fwd[port] = (state == VTSS_STP_STATE_FORWARDING ? 1 : 0);
         lrn[port] = (state == VTSS_STP_STATE_DISCARDING ? 0 : 1);
+        if (msti == 0 && vtss_state->l2.learn[port] == 0) {
+            // Include port learn state for MSTI 0
+            lrn[port] = 0;
+        }
     }
     pmask = vtss_jr2_port_mask(vtss_state, fwd);
     JR2_WRX_PMASK(VTSS_ANA_L3_MSTP_MSTP_FWD_CFG, msti, pmask);

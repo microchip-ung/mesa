@@ -1208,30 +1208,10 @@ class Mesa_Pc_b2b
             t_i "Wait until DUT ports are operational"
             ts = Time.now.to_i
             dut_ports.each do |port|
-                restart = true
                 loop do
                     oper_up = @dut.call "mesa_port_state_get", port
-                    sleep 1
-                    if (oper_up)
-                        s = @dut.call("mscc_appl_port_status_get", port)
-                        if (!s["link"])
-                            t_i("Port #{port} flap ignored");
-                            oper_up = false
-                        elsif (s["speed"] == "MESA_SPEED_100M")
-                            # 100 Mbps, restart once
-                            if (restart)
-                                restart = false
-                                t_i("Port #{port} restart")
-                                @dut.run("mesa-cmd port state #{port + 1} dis")
-                                sleep(1)
-                                @dut.run("mesa-cmd port state #{port + 1} ena")
-                            else
-                                t_i("Port #{port} 100Mbps ignored");
-                            end
-                            oper_up = false
-                        end
-                    end
                     break if oper_up
+                    sleep 1
                     if ((Time.now.to_i - ts) > 60)
                         t_f "DUT port #{port} not operational"
                         break;
