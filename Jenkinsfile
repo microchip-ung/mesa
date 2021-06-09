@@ -56,14 +56,14 @@ node('blademaster') {
             }
         }
 
-        // stage("Backwards compatibility") {
-        //     try {
-        //         sh "./.cmake/backwards-compatibility-check.rb"
-        //     } catch (error) {
-        //         currentBuild.result = 'FAILURE'
-        //         throw error
-        //     }
-        // }
+        stage("Backwards compatibility") {
+            try {
+                sh "./.cmake/backwards-compatibility-check.rb"
+            } catch (error) {
+                currentBuild.result = 'FAILURE'
+                throw error
+            }
+        }
 
     } catch(error) {
     } finally {
