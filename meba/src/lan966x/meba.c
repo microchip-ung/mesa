@@ -14,6 +14,7 @@
 typedef enum {
     BOARD_TYPE_ADARO = 0x6813,
     BOARD_TYPE_SUNRISE = 0x6849,
+    BOARD_TYPE_SVB = 0x8281,
     BOARD_TYPE_8PORT = 0x8290,
     BOARD_TYPE_ENDNODE = 0x8291,
     BOARD_TYPE_ENDNODE_CARRIER = 0x8309
@@ -154,9 +155,6 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
             (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
         }
         break;
-    case BOARD_TYPE_ADARO:
-    case BOARD_TYPE_8PORT:
-    case BOARD_TYPE_ENDNODE:
     default:
         break;
     }
@@ -660,6 +658,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
     case BOARD_TYPE_SUNRISE:
         lan966x_init_port_table(inst, 5, port_table_sunrise);
         break;
+    case BOARD_TYPE_SVB:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
+        lan966x_init_port_table(inst, 4, port_table_svb);
+        break;
     case BOARD_TYPE_8PORT:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
         lan966x_init_port_table(inst, 8, port_table_8port);
@@ -668,13 +670,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         lan966x_init_port_table(inst, 3, port_table_endnode);
         break;
     case BOARD_TYPE_ENDNODE_CARRIER:
-        if (1) {
-            // Fow now, use SVB
-            inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
-            lan966x_init_port_table(inst, 4, port_table_svb);
-        } else {
-            lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
-        }
+        lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
         break;
     default:
         break;
