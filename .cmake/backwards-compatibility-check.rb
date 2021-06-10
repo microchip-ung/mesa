@@ -241,8 +241,13 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)               # Configs to build
 
 # Backwards compatibility with previous build was broken because of MEPA
+#check("backwards-check",              # Name of check
+#      "562a234fb3@master.port.mepa",  # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken because master.mas merge
 check("backwards-check",              # Name of check
-      "562a234fb3@master.port.mepa",  # Appl release to use
+      "eaa1d31e72@master",            # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
