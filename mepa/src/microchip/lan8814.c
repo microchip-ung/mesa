@@ -204,6 +204,7 @@ static uint16_t get_base_addr(mepa_device_t *dev)
 static mepa_rc indy_init_conf(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
+    uint16_t val;
 
     indy_get_device_info(dev);
 
@@ -220,6 +221,10 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 
     // MDI-X setting for swap A,B transmit
     EP_WRM(dev, INDY_ALIGN_SWAP, INDY_F_ALIGN_TX_A_B_SWAP, INDY_M_ALIGN_TX_SWAP);
+
+    // Clear all GPHY interrupts during initialisation
+    WR(dev, INDY_GPHY_INTR_ENA, 0);
+    RD(dev, INDY_GPHY_INTR_STATUS, &val);
     return MEPA_RC_OK;
 }
 
