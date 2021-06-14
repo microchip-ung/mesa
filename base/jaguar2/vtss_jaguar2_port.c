@@ -1745,6 +1745,9 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         // allowing the AFI to remove frames from a port that already has reached its AFI::FRM_OUT_MAX.
         VTSS_RC(srvlt_phy_config(vtss_state, port, FALSE));
 #endif
+        if (conf->if_type == VTSS_PORT_INTERFACE_QSGMII) {
+            return VTSS_RC_OK; // Do nothing for multi port modes
+        }
         /* The port is not powered down in CE builds, as frames still needs to be forwarded to an up-mep */
         /* Instead the PCS is disabled, which forces link down and discards frame forwarding */
         JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
