@@ -78,6 +78,7 @@ test "link-down" do
     $ts.pc.p.each do |eth|
         $ts.pc.run("ip link set #{eth} down")
     end
+    sleep(1)
 
     # Check for LOS/FLNK event
     $ts.dut.p.each do |port|
