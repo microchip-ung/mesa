@@ -101,14 +101,6 @@ def tx_len_test(len)
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 end
 
-test "tx-data-min" do
-    tx_len_test(60)
-end
-
-test "tx-data-max" do
-    tx_len_test(1514)
-end
-
 def tx_time_test(time, margin)
     rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
@@ -157,17 +149,7 @@ def tx_time_test(time, margin)
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 end
 
-test "tx-interval-min" do
-    # 10 usec
-    tx_time_test(10000, 2)
-end
-
-test "tx-interval-max" do
-    # 10 msec
-    tx_time_test(10000000, 20)
-end
-
-test "otf" do
+def otf_test
     # Enable untagged RTP processing
     conf = { "pcp": [true, true, true, true, true, true, true, true]}
     $ts.dut.call("mesa_rcl_vid_add", 0, conf)
@@ -332,6 +314,28 @@ def tx_dg_test(intf, ral_id, opc = false)
     conf = rtp_conf
     conf["type"] = "MERA_RTP_TYPE_DISABLED"
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
+end
+
+test "tx-data-min" do
+    tx_len_test(60)
+end
+
+test "tx-data-max" do
+    tx_len_test(1514)
+end
+
+test "tx-interval-min" do
+    # 10 usec
+    tx_time_test(10000, 2)
+end
+
+test "tx-interval-max" do
+    # 10 msec
+    tx_time_test(10000000, 20)
+end
+
+test "otf" do
+    otf_test
 end
 
 test "dg-QSPI" do
