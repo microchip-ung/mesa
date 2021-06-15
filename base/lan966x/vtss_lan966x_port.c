@@ -570,6 +570,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    value, link_speed = 1, delay = 0, pfc_mask;
     BOOL                   disable = conf->power_down, giga;
+    BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST);
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
@@ -775,6 +776,18 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 
     // Update vtss_state database accordingly
     lan966x_port_clause_37_control_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
+
+    // Loopback mode
+#if defined(VTSS_OPT_FPGA)
+    REG_WRM(DEV_PORT_MISC(port),
+            DEV_PORT_MISC_DEV_LOOP_ENA(loop ? 2 : 0),
+            DEV_PORT_MISC_DEV_LOOP_ENA_M);
+    REG_WRM(SYS_FRONT_PORT_MODE(port),
+            SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS(loop ? 1 : 0),
+            SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS_M);
+#else
+    REG_WR(DEV_PCS1G_LB_CFG(port), DEV_PCS1G_LB_CFG_TBI_HOST_LB_ENA(loop));
+#endif
 
     /* Set Max Length and maximum tags allowed */
     REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
