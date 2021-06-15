@@ -120,14 +120,18 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         sleep(1); // Make sure PHYs are accessible
         break;
     case BOARD_TYPE_ENDNODE_CARRIER:
+        for (gpio_no = 32; gpio_no < 36; gpio_no++) {
+            // SGPIO signals
+            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
+        }
         if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
             // Mode 0 is 5 Hz, two bits per port are used
             conf.bmode[0] = MESA_SGPIO_BMODE_5;
             conf.bit_count = 2;
 
-            for (port = 1; port < 12; port++) {
+            for (port = 0; port < 12; port++) {
                 pc = &conf.port_conf[port];
-                pc->enabled = 1;
+                pc->enabled = (port < 4 || port > 7); // Port 4-7 unused
 
                 // Input port 1: SFP0_TXFAULT, SFP1_TXFAULT (Tx fault)
                 // Input port 2: SFP0_LOS, SFP0_MODDET (Module detect)
