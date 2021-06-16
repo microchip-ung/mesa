@@ -98,6 +98,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     mesa_phy_conf_t phy_config = {}, cur_conf;
+    mesa_phy_conf_1g_t cfg_neg = {};
 
     phy_config.mdi = MESA_PHY_MDIX_AUTO;
     if (config->admin.enable) {
@@ -119,6 +120,13 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
             phy_config.aneg.speed_1g_hdx = 0;
             phy_config.aneg.symmetric_pause = config->flow_control;
             phy_config.aneg.asymmetric_pause = config->flow_control;
+
+            // manual negotiation
+            if (config->man_neg) {
+                cfg_neg.master.cfg = true;
+                cfg_neg.master.val = config->man_neg == MEPA_MANUAL_NEG_REF ? true : false;
+            }
+            (void)mesa_phy_conf_1g_set(data->inst, data->port_no, &cfg_neg);
         } else {
             phy_config.mode = MESA_PHY_MODE_FORCED;
             phy_config.forced.speed = config->speed;
@@ -139,6 +147,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
 static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const conf)
 {
     mesa_phy_conf_t phy_conf;
+    mesa_phy_conf_1g_t cfg_neg = {};
     phy_data_t *data = (phy_data_t *)dev->data;
     *conf = (const mepa_driver_conf_t){};
 
@@ -155,6 +164,12 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const con
             conf->aneg.speed_100m_fdx = phy_conf.aneg.speed_100m_fdx;
             conf->aneg.speed_1g_fdx = phy_conf.aneg.speed_1g_fdx;
             conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
+
+            // Get manual negotiation options
+            if (mesa_phy_conf_1g_get(data->inst, data->port_no, &cfg_neg) == MESA_RC_OK) {
+                conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
+                                cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
+            }
         } else if (phy_conf.mode == MESA_PHY_MODE_FORCED) {
             conf->speed = phy_conf.forced.speed;
             conf->fdx = phy_conf.forced.fdx;

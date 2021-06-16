@@ -394,13 +394,21 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
             if (data->conf.admin.enable != config->admin.enable) {
                 restart_aneg = TRUE;
             }
-            RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &old_value);
+
+            // 1G manual negotiation & speed
             new_value = config->aneg.speed_1g_fdx ? INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP : 0;
-            if ((old_value & INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP) != new_value) {
+            mask = INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP;
+            if (config->man_neg) {
+                new_value |= INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA;
+                new_value |= config->man_neg == MEPA_MANUAL_NEG_REF ? INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL : 0;
+            }
+            mask |= (INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
+            if (config->aneg.speed_1g_fdx != data->conf.aneg.speed_1g_fdx ||
+                config->man_neg           != data->conf.man_neg) {
                 restart_aneg = TRUE;
             }
-            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, new_value,
-                INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
+            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, new_value, mask);
+
             // Set up auo-negotiation advertisement in register 4
             new_value = (((config->aneg.tx_remote_fault ? 1 : 0) << 13) |
                      ((config->flow_control ? 1 : 0) << 11) |

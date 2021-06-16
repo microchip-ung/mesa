@@ -127,6 +127,7 @@ typedef struct {
     mepa_port_admin_state_t admin; // Admin state
     mepa_aneg_adv_t aneg;          // Auto-negitiation advertisement
     mepa_bool_t mac_if_aneg_ena;   // Enable auto-negotiation on host mac interface
+    mepa_manual_neg_t man_neg;     // manual negotiation control in 1G instead of using auto-negotiation
 } mepa_driver_conf_t;
 
 // Advertise disable flags.

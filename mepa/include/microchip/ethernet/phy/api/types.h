@@ -211,6 +211,12 @@ typedef enum {
     MEPA_TRACE_GRP_TS,    // Timestamp Api
 } mepa_trace_group_t;
 
+// manual negotiation preferred state
+typedef enum {
+    MEPA_MANUAL_NEG_DISABLED = 0, // Disable manual preference of master/slave states in IEEE registers 9,10 for 1G speed
+    MEPA_MANUAL_NEG_REF,          // master state used in IEEE registers 9,10 for 1G speed
+    MEPA_MANUAL_NEG_CLIENT        // slave  state used in IEEE registers 9,10 for 1G speed
+} mepa_manual_neg_t;
 
 // lock structure
 typedef struct {
