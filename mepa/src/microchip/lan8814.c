@@ -231,8 +231,15 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 // Configure qsgmii aneg advertisement capabilities
 static void indy_qsgmii_tx_abilities(mepa_device_t *dev, mepa_port_speed_t speed, mepa_bool_t duplex)
 {
-    uint16_t value = 0x181; // default EEE enable & EEE clock stop
+    uint16_t value = 0x1; // default disable EEE enable & EEE clock stop
+    uint16_t eee_val;
 
+    MMD_RD(dev, INDY_LINK_PARTNER_EEE_ABILITY, &eee_val);
+    if (speed == MEPA_SPEED_1G) {
+        value |= (eee_val & INDY_F_LP_EEE_ABILITY_1000_BT) ? 0x180 : 0;
+    } else if (speed == MEPA_SPEED_100M) {
+        value |= (eee_val & INDY_F_LP_EEE_ABILITY_100_BT) ? 0x180 : 0;
+    }
     if (duplex) {
         value |= INDY_BIT(12);
     }
@@ -474,14 +481,6 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_power_set(mepa_device_t *dev, mepa_power_mode_t power)
-{
-    MEPA_ENTER(dev);
-
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
 static mepa_rc indy_cable_diag_start(mepa_device_t *dev, int mode)
 {
     uint16_t value, mask = 0;
@@ -510,7 +509,7 @@ static mepa_rc indy_cable_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t 
     MEPA_ENTER(dev);
     RD(dev, INDY_CABLE_DIAG, &value);
     if (value & INDY_F_CABLE_DIAG_TEST_ENA) {
-        res->status[0] = MEPA_CABLE_DIAG_STATUS_RUNNING; // Pair A
+        res->status[0] = MEPA_CABLE_DIAG_STATUS_RUNNING; // only Pair A status currently. Other pairs need to be added.
         rc = MEPA_RC_INCOMPLETE;
     } else {
         status = INDY_X_CABLE_DIAG_STATUS(value);
@@ -1003,7 +1002,6 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_conf_set = indy_conf_set,
             .mepa_driver_conf_get = indy_conf_get,
             .mepa_driver_if_get = indy_if_get,
-            .mepa_driver_power_set = indy_power_set,
             .mepa_driver_cable_diag_start = indy_cable_diag_start,
             .mepa_driver_cable_diag_get = indy_cable_diag_get,
             .mepa_driver_probe = indy_probe,
@@ -1032,7 +1030,6 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_conf_set = indy_conf_set,
             .mepa_driver_conf_get = indy_conf_get,
             .mepa_driver_if_get = indy_if_get,
-            .mepa_driver_power_set = indy_power_set,
             .mepa_driver_cable_diag_start = indy_cable_diag_start,
             .mepa_driver_cable_diag_get = indy_cable_diag_get,
             .mepa_driver_probe = indy_probe,

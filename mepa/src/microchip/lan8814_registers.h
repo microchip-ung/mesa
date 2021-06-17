@@ -18,6 +18,8 @@
 #define INDY_EXT_PAGE_3 3
 #define INDY_EXT_PAGE_4 4
 #define INDY_EXT_PAGE_5 5
+
+#define INDY_MMD_7      7
 // Direct registers
 
 // Register - 0
@@ -206,5 +208,13 @@
 #define INDY_QSGMII_PCS1G_DEBUG INDY_EXT_PAGE_5, 24
 #define INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK INDY_BIT(0)
 #define INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK INDY_BIT(1)
+
+//====================================================================================
+//      MMD 7
+//====================================================================================
+// Register 61
+#define INDY_LINK_PARTNER_EEE_ABILITY INDY_MMD_7, 61
+#define INDY_F_LP_EEE_ABILITY_100_BT INDY_BIT(1)
+#define INDY_F_LP_EEE_ABILITY_1000_BT INDY_BIT(2)
 
 #endif
