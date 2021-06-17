@@ -6,7 +6,7 @@ presets:
     mipsel:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -17,7 +17,7 @@ presets:
     mipsel-debug:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -28,7 +28,7 @@ presets:
     #    :arch:             "arm64"
     #    :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DLAN966X_ONLY=on"
     #    :brsdk:            "2020.02.3-336"
-    #    :brsdk:            "2021.02-458"
+    #    :brsdk:            "2021.02-465"
     #    :brsdk_arch:       "arm64-armv8_a-linux-gnu"
     #    :brsdk_branch:     "brsdk.lan966x-3"
     #    :toolchainfile:    "arm64-armv8_a-linux-gnu/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -39,7 +39,7 @@ presets:
     arm64:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -50,7 +50,7 @@ presets:
     arm64-debug:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -60,7 +60,7 @@ presets:
     arm64-asan:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug -DBUILD_ASAN=true"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -70,7 +70,7 @@ presets:
     arm:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -81,7 +81,7 @@ presets:
     arm-debug:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2021.02-458"
+        :brsdk:            "2021.02-465"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
