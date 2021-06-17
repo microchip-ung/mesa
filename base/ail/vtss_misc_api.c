@@ -692,7 +692,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t *vtss_state,
     char                   buf[64];
     vtss_sgpio_conf_t      *conf;
     vtss_sgpio_port_conf_t *port_conf;
-    u32                    port, i;
+    u32                    port, i, cnt;
 
     if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_SER_GPIO))
         return;
@@ -720,13 +720,19 @@ static void vtss_debug_print_ser_gpio(vtss_state_t *vtss_state,
 
             pr("\n");
             pr("Port  Status    ");
-            for (i = 0; i < 4; i++)
+            cnt = (info->full ? 4 : conf->bit_count);
+            for (i = 0; i < cnt; i++)
                 pr("Mode_%u     ", i);
+            for (i = 0; i < cnt; i++)
+                pr("Pol_High_%u  ", i);
             pr("\n");
             for (port = 0; port < VTSS_SGPIO_PORTS; port++) {
                 port_conf = &conf->port_conf[port];
+                if (port_conf->enabled == 0 && info->full == 0) {
+                    continue;
+                }
                 pr("%-4u  %-10s", port, vtss_bool_txt(port_conf->enabled));
-                for (i = 0; i < 4; i++) {
+                for (i = 0; i < cnt; i++) {
                     vtss_sgpio_mode_t m = port_conf->mode[i];
                     pr("%-11s", 
                        m == VTSS_SGPIO_MODE_OFF ? "Off" :
@@ -737,6 +743,9 @@ static void vtss_debug_print_ser_gpio(vtss_state_t *vtss_state,
                        m == VTSS_SGPIO_MODE_1_ACTIVITY ? "1_ACT" :
                        m == VTSS_SGPIO_MODE_0_ACTIVITY_INV ? "0_ACT_INV" :
                        m == VTSS_SGPIO_MODE_1_ACTIVITY_INV ? "1_ACT_INV" : "?");
+                }
+                for (i = 0; i < cnt; i++) {
+                    pr("%-12s", vtss_bool_txt(port_conf->int_pol_high[i]));
                 }
                 pr("\n");
             }

@@ -1198,6 +1198,7 @@ class Mesa_Pc_b2b
             t = ""
             t = $options[:dut_trace]
 
+            @dut.run "echo 0 > /proc/sys/kernel/printk"
             @dut.bg "api", "mesa-demo -f #{dut_args} #{t} #{mesa_args}"
             @dut.bg "rte", "mera-demo -f #{dut_args}"
         end

@@ -136,7 +136,7 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
                 // Input port 1: SFP0_TXFAULT, SFP1_TXFAULT (Tx fault)
                 // Input port 2: SFP0_LOS, SFP0_MODDET (Module detect)
                 // Input port 3: SFP1_LOS, SFP1_MODDET (Module detect)
-                if (port < 4) {
+                if (port > 0 && port < 4) {
                     pc->int_pol_high[0] = 1;
                     pc->int_pol_high[1] = 1;
                 }
