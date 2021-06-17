@@ -458,6 +458,10 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
                 VTSS_F_SD_LANE_TARGET_MISC_MUX_ENA(res_struct->fx_100[0]),
                 VTSS_M_SD_LANE_TARGET_MISC_MUX_ENA);
 
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_18(sd_tgt),
+            VTSS_F_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD(res_struct->fx_100[0]),
+            VTSS_M_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD);
+
     VTSS_MSLEEP(3);
 
     REG_RD(VTSS_SD_LANE_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
