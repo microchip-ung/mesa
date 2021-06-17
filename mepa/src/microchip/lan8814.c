@@ -318,9 +318,12 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         status->speed = MEPA_SPEED_UNDEFINED;
         status->fdx = 1;
         // check if auto-negotiation is completed or not.
-        if (!(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
+        if (status->link && !(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
             T_I(data, MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
             status->link = 0;
+        }
+        if (!status->link) {
+            // No need to read aneg values when link is down
             goto end;
         }
         // Obtain speed and duplex from link partner's advertised capability.
@@ -351,7 +354,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     } else {
         uint8_t speed;
         // Forced speed
-        MEPA_RC(RD(dev, INDY_BASIC_CONTROL, &val2));
+        RD(dev, INDY_BASIC_CONTROL, &val2);
         speed = !!(val2 & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0) |
                 (!!(val2 & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
         status->speed = (speed == 0) ? MEPA_SPEED_10M :
@@ -374,7 +377,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     }
     data->link_status = status->link;
     MEPA_EXIT(dev);
-    T_D(data, MEPA_TRACE_GRP_GEN, "status link %d, speed %d, fdx %d", status->link, status->speed, status->fdx);
+    T_D(data, MEPA_TRACE_GRP_GEN, "port %d status link %d, speed %d, fdx %d", data->port_no, status->link, status->speed, status->fdx);
     return MEPA_RC_OK;
 }
 
