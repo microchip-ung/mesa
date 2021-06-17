@@ -183,6 +183,8 @@ typedef struct {
     u8                   pi_bw_gen1;      /**< Enable inversion of input data >                                                       */
     u8                   duty_cycle;     /**< Set output level to  half/full                                                  */
     BOOL                 dfe_enable;
+    BOOL                 cfg_oscal_afe;
+    BOOL                 cfg_pd_osdac_afe;
 } vtss_sd10g28_mode_args_t;
 
 
