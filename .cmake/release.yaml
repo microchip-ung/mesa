@@ -135,7 +135,6 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
-    - AA-723 # Bjarni added it as 'Jira-723'. A MESA-723 changeset already exists.
 
   # See the 'del' section above for a description
   #
