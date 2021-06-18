@@ -167,6 +167,7 @@ pages:
 
     - name: "MESA API Reference"
       pages:
+        - src:  "mesa/include/microchip/ethernet/common.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/afi.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/capability.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/clock.h"
