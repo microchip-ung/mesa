@@ -706,41 +706,42 @@ static void cli_cmd_port_cable(cli_req_t *req)
 
 static void cli_cmd_sfp_dump(cli_req_t *req)
 {
-    uint32_t port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
-    int found = 0;
-    char buf[10];
-    mesa_port_status_t ps;
-    mesa_port_conf_t   conf;
+    uint32_t               port_cnt = mesa_port_cnt(NULL);
+    mesa_port_no_t         uport, iport;
+    mesa_port_status_t     ps;
+    mesa_port_conf_t       conf;
+    port_entry_t           *entry;
+    meba_sfp_device_info_t *info;
+    int                    found = 0;
 
-    for (uint32_t port_no = 0; port_no < port_cnt; port_no++) {
-        port_entry_t *entry = &port_table[port_no];
-
-        if (entry->media_type == MSCC_PORT_TYPE_SFP) {
-            if (entry->sfp_status.present) {
-                if (!found) {
-                    cli_printf("Port(cli)  SFP-type        Vendor          Rev     SN              Los   API-IF      Speed Link\n");
-                    found = 1;
-                }
-                if ((entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC) ||
-                    (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_25G_DAC)) {
-                    sprintf(buf, "-");
-                } else {
-                    sprintf(buf, "%s",entry->sfp_status.los?"yes":"no");
-                }
-                (void)mesa_port_status_get(NULL, port_no, &ps);
-                (void)mesa_port_conf_get(NULL, port_no, &conf);
-                if (entry->sfp_device != NULL) {
-                    cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",port_no + 1,
-                               mesa_sfp_if2txt(entry->sfp_type), entry->sfp_device->info.vendor_name,
-                               entry->sfp_device->info.vendor_rev, entry->sfp_device->info.vendor_sn, buf,
-                               mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), ps.link ? "yes" : "no");
-                } else {
-                    cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",port_no + 1, mesa_sfp_if2txt(entry->sfp_type),
-                               "N/A", "N/A", "N/A", buf,
-                               mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), ps.link ? "yes" : "no");
-                }
-            }
+    for (iport = 0; iport < port_cnt; iport++) {
+        uport = iport2uport(iport);
+        entry = &port_table[iport];
+        if (req->port_list[uport] == 0 ||
+            entry->media_type != MSCC_PORT_TYPE_SFP ||
+            entry->sfp_status.present == 0 ||
+            mesa_port_status_get(NULL, iport, &ps) != MESA_RC_OK ||
+            mesa_port_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
+            continue;
         }
+
+        if (!found) {
+            cli_printf("Port(cli)  SFP-type        Vendor          Rev     SN              Los   API-IF      Speed Link\n");
+            found = 1;
+        }
+        info = (entry->sfp_device ? &entry->sfp_device->info : NULL);
+        cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",
+                   uport,
+                   mesa_sfp_if2txt(entry->sfp_type),
+                   info ? info->vendor_name : "N/A",
+                   info ? info->vendor_rev : "N/A",
+                   info ? info->vendor_sn : "N/A",
+                   entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
+                   entry->sfp_type == MEBA_SFP_TRANSRECEIVER_25G_DAC ? "-" :
+                   entry->sfp_status.los ? "yes" : "no",
+                   mesa_port_if2txt(conf.if_type),
+                   mesa_port_spd2txt(conf.speed),
+                   ps.link ? "yes" : "no");
     }
     if (!found) {
         cli_printf("No SFPs found\n");
@@ -972,7 +973,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_polling
     },
     {
-        "Debug sfp dump",
+        "Debug SFP [<port_list>]",
         "Shows all detected SFPs",
         cli_cmd_sfp_dump
     },
