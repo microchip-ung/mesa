@@ -318,6 +318,10 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     RD(dev, INDY_BASIC_STATUS, &val);
     status->link = (val & INDY_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
 
+    if (data->loopback.near_end_ena == TRUE) {
+        // loops back to Mac. Ignore Line side status to Link partner.
+        status->link = 1;
+    }
     if (data->conf.speed == MEPA_SPEED_AUTO) {
         uint16_t lp_sym_pause = 0, lp_asym_pause = 0;
         uint8_t ext_status = 0;
@@ -325,12 +329,14 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         status->speed = MEPA_SPEED_UNDEFINED;
         status->fdx = 1;
         // check if auto-negotiation is completed or not.
-        if (status->link && !(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
+        if (!data->loopback.near_end_ena && status->link && !(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
             T_I(data, MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
             status->link = 0;
+        } else if (data->loopback.near_end_ena) {
+            status->speed = MEPA_SPEED_1G;
         }
-        if (!status->link) {
-            // No need to read aneg values when link is down
+        if (!status->link || data->loopback.near_end_ena) {
+            // No need to read aneg values when link is down or when near-end loopback enabled.
             goto end;
         }
         // Obtain speed and duplex from link partner's advertised capability.
@@ -693,19 +699,16 @@ static mepa_rc indy_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loop
     }
     if (loopback->near_end_ena == TRUE) {
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_LOOPBACK, INDY_F_BASIC_CTRL_LOOPBACK);
-        if (data->conf.speed == MEPA_SPEED_AUTO) {
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
             // Set 1000mbps speed for loopback when there is auto-negotiation mode. While removing loopback, restore the original mode.
             // Disable auto-negotiation
             WRM(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_ANEG_ENA);
             // Set 1000mbps speed
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1, INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1 | INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0);
-            // Enable phy as master cfg.
-            WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA,
-                INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
         }
     } else if (data->loopback.near_end_ena == TRUE) {
         WRM(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_LOOPBACK);
-        if (data->conf.speed == MEPA_SPEED_AUTO) {
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
             // Remove 1000mbps config applied while setting loopback.
             WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, 0, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA |
                 INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
