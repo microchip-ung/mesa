@@ -13,11 +13,13 @@
 #define INDY_ENCODE_BITFIELD(value, offset, width)   (((value) & INDY_BIT_MASK(width)) << (offset))
 #define INDY_ENCODE_BITMASK(offset, width) (INDY_BIT_MASK(width) << (offset))
 
-#define INDY_EXT_PAGE_0 0
-#define INDY_EXT_PAGE_2 2
-#define INDY_EXT_PAGE_3 3
-#define INDY_EXT_PAGE_4 4
-#define INDY_EXT_PAGE_5 5
+#define INDY_EXT_PAGE_0  0
+#define INDY_EXT_PAGE_2  2
+#define INDY_EXT_PAGE_3  3
+#define INDY_EXT_PAGE_4  4
+#define INDY_EXT_PAGE_5  5
+#define INDY_EXT_PAGE_28 28
+#define INDY_EXT_PAGE_29 29
 
 #define INDY_MMD_7      7
 // Direct registers
@@ -208,6 +210,34 @@
 #define INDY_QSGMII_PCS1G_DEBUG INDY_EXT_PAGE_5, 24
 #define INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK INDY_BIT(0)
 #define INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK INDY_BIT(1)
+
+//====================================================================================
+//      Extended Page 28
+//====================================================================================
+#define INDY_POWER_MGMT_MODE_0  INDY_EXT_PAGE_28, 16
+#define INDY_POWER_MGMT_MODE_1  INDY_EXT_PAGE_28, 17
+#define INDY_POWER_MGMT_MODE_2  INDY_EXT_PAGE_28, 18
+#define INDY_POWER_MGMT_MODE_3  INDY_EXT_PAGE_28, 19
+#define INDY_POWER_MGMT_MODE_4  INDY_EXT_PAGE_28, 20
+#define INDY_POWER_MGMT_MODE_5  INDY_EXT_PAGE_28, 21
+#define INDY_POWER_MGMT_MODE_6  INDY_EXT_PAGE_28, 22
+#define INDY_POWER_MGMT_MODE_7  INDY_EXT_PAGE_28, 23
+#define INDY_POWER_MGMT_MODE_8  INDY_EXT_PAGE_28, 24
+#define INDY_POWER_MGMT_MODE_9  INDY_EXT_PAGE_28, 25
+#define INDY_POWER_MGMT_MODE_10 INDY_EXT_PAGE_28, 26
+#define INDY_POWER_MGMT_MODE_11 INDY_EXT_PAGE_28, 27
+#define INDY_POWER_MGMT_MODE_12 INDY_EXT_PAGE_28, 28
+#define INDY_POWER_MGMT_MODE_13 INDY_EXT_PAGE_28, 29
+#define INDY_POWER_MGMT_MODE_14 INDY_EXT_PAGE_28, 30
+#define INDY_POWER_MGMT_MODE_15 INDY_EXT_PAGE_28, 31
+//====================================================================================
+//      Extended Page 29
+//====================================================================================
+// Register 1
+#define INDY_ANALOG_CONTROL_1 INDY_EXT_PAGE_29, 1
+
+// Register 13
+#define INDY_ANALOG_CONTROL_10 INDY_EXT_PAGE_29, 13
 
 //====================================================================================
 //      MMD 7

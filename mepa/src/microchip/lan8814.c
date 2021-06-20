@@ -219,9 +219,6 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
         }
     }
 
-    // MDI-X setting for swap A,B transmit
-    EP_WRM(dev, INDY_ALIGN_SWAP, INDY_F_ALIGN_TX_A_B_SWAP, INDY_M_ALIGN_TX_SWAP);
-
     // Clear all GPHY interrupts during initialisation
     WR(dev, INDY_GPHY_INTR_ENA, 0);
     RD(dev, INDY_GPHY_INTR_STATUS, &val);
@@ -268,17 +265,56 @@ static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_rev_a_workaround(mepa_device_t *dev)
+static mepa_rc indy_rev_workaround(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    if (data->dev.model != 0x26 || data->dev.rev) {
+    // work-arounds applicable for both models 0x26 & 0x27
+    do {
+        // work-around for Rev C done.
+        if (data->dev.rev >= 2) {
+            break;
+        }
+        // MDI-X setting for swap A,B transmit
+        EP_WRM(dev, INDY_ALIGN_SWAP, INDY_F_ALIGN_TX_A_B_SWAP, INDY_M_ALIGN_TX_SWAP);
+    } while(0);
+    // work-around for model 0x27 done.
+    if (data->dev.model != 0x26) {
+        return MEPA_RC_OK;
+    }
+    // work-arounds applicable for only model 0x26
+    // Rev A, B, C
+    // PLL trim
+    EP_WR(dev, INDY_ANALOG_CONTROL_1, 0x40);
+    EP_WR(dev, INDY_ANALOG_CONTROL_10, 0x1);
+
+    // Magjack center tapped ports
+    EP_WR(dev, INDY_POWER_MGMT_MODE_3, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_4, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_5, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_6, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_7, 0x0077);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_9, 0x4377);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x0777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_12, 0x0777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6677);
+
+    // Rev C work-around done.
+    if (data->dev.rev >= 2) {
+        return MEPA_RC_OK;
+    }
+    // Rev B work-around done.
+    if (data->dev.rev >= 1) {
         return MEPA_RC_OK;
     }
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_LOW, 0x2);
     EP_WR(dev, INDY_OPERATION_MODE_STRAP_HIGH, 0xc001);
 
     T_D(data, MEPA_TRACE_GRP_GEN, "rev A work-around configured");
+    return MEPA_RC_OK;
 }
 
 static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
@@ -287,10 +323,10 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     MEPA_ENTER(dev);
     if (!data->init_done) {
         indy_init_conf(dev);
+        indy_rev_workaround(dev);
         indy_qsgmii_aneg(dev, FALSE);
         data->init_done = TRUE;
     }
-    indy_rev_a_workaround(dev);
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
     } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST_MAC) {
