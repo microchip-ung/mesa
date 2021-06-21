@@ -447,6 +447,7 @@ typedef struct {
     mesa_bool_t dac2m;
     mesa_bool_t dac3m;
     mesa_bool_t dac5m;
+    mesa_bool_t compact;
 } port_cli_req_t;
 
 static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
@@ -700,6 +701,71 @@ static void cli_cmd_port_cable(cli_req_t *req)
                        conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_5M ? "DAC-5M" :
                        conf.serdes.media_type == MESA_SD10G_MEDIA_DAC ? "DAC (unspecified length)" :
                        conf.serdes.media_type == MESA_SD10G_MEDIA_PR_NONE ? "None" : "?");
+        }
+    }
+}
+
+#define PR_CAP(x) {if (cap_all & MEBA_PORT_CAP_##x) cli_printf("%-*s  ", strlen(#x), cap & MEBA_PORT_CAP_##x ? #x : "-");}
+
+static void cli_cmd_port_cap(cli_req_t *req)
+{
+    mesa_port_no_t  uport, iport;
+    meba_port_cap_t cap, cap_all = 0;
+    int             i;
+    mesa_bool_t     header = 1;
+    port_cli_req_t  *mreq = req->module_req;
+
+    for (i = 0; i < 2; i++) {
+        for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+            uport = iport2uport(iport);
+            if (req->port_list[uport] == 0) {
+                continue;
+            }
+            cap = port_table[iport].meba.cap;
+            if (i == 0) {
+                cap_all |= cap;
+                continue;
+            }
+            if (header) {
+                header = 0;
+                cli_printf("Port  Capabilities\n");
+            }
+            if (mreq->compact) {
+                cap_all = cap;
+            }
+            cli_printf("%-6u", uport);
+            PR_CAP(AUTONEG);
+            PR_CAP(10M_HDX);
+            PR_CAP(10M_FDX);
+            PR_CAP(100M_HDX);
+            PR_CAP(100M_FDX);
+            PR_CAP(1G_FDX);
+            PR_CAP(2_5G_FDX);
+            PR_CAP(5G_FDX);
+            PR_CAP(10G_FDX);
+            PR_CAP(25G_FDX);
+            PR_CAP(FLOW_CTRL);
+            PR_CAP(COPPER);
+            PR_CAP(FIBER);
+            PR_CAP(DUAL_COPPER);
+            PR_CAP(DUAL_FIBER);
+            PR_CAP(SD_ENABLE);
+            PR_CAP(SD_HIGH);
+            PR_CAP(SD_INTERNAL);
+            PR_CAP(XAUI_LANE_FLIP);
+            PR_CAP(VTSS_10G_PHY);
+            PR_CAP(SFP_DETECT);
+            PR_CAP(STACKING);
+            PR_CAP(DUAL_SFP_DETECT);
+            PR_CAP(SFP_ONLY);
+            PR_CAP(DUAL_NO_COPPER);
+            PR_CAP(SERDES_RX_INVERT);
+            PR_CAP(SERDES_TX_INVERT);
+            PR_CAP(INT_PHY);
+            PR_CAP(NO_FORCE);
+            PR_CAP(CPU);
+            PR_CAP(SFP_INACCESSIBLE);
+            cli_printf("%s\n", cap_all == 0 ? "None" : "");
         }
     }
 }
@@ -966,7 +1032,11 @@ static cli_cmd_t cli_cmd_table[] = {
         "Set or show the port forwarding mode",
         cli_cmd_port_cable
     },
-
+    {
+        "Debug Port Capabilities [<port_list>] [compact]",
+        "Show port capabilities",
+        cli_cmd_port_cap
+    },
     {
         "Debug Port Polling [enable|disable]",
         "Set or show the port polling mode",
@@ -1004,6 +1074,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->bytes = 1;
     else if (!strncasecmp(found, "clear", 5))
         mreq->clear = 1;
+    else if (!strncasecmp(found, "compact", 7))
+        mreq->compact = 1;
     else if (!strncasecmp(found, "discards", 8))
         mreq->discards = 1;
     else if (!strncasecmp(found, "errors", 6))
@@ -1113,7 +1185,12 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
-
+    {
+        "compact",
+        "Show compact view",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
 };
 
 static void port_cli_init(void)
