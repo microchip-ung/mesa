@@ -76,9 +76,12 @@ get_symbol_landing_page = function(sym, obj) {
 }
 
 hashChange = function(e) {
-    var anc = null;
-    var page = null;
-    var hash = window.top.location.hash.substr(1)
+    var param;
+    var anc;
+    var id;
+    var page;
+    var offset;
+    const hash = window.top.location.hash.substr(1)
     console.log('Hash: ' + hash);
 
     sym_regex = /^sym:(.*)/
@@ -121,10 +124,14 @@ hashChange = function(e) {
         page = pages["mesa/docs/readme"];
 
     } else {
-        var split = hash.split('@');
-        var path = split[0];
+        const split = hash.split('@');
+        const path = split[0];
 
-        anc = split[1]; // The value of the hash after '@' or undefined if no '@'
+        if (split.length > 1) {
+            param = split[1];
+            anc = "a[name*='" + param + "']";
+        }
+
         console.log('path: ' + path);
 
         page = pages[path];
@@ -133,36 +140,40 @@ hashChange = function(e) {
     if (page) {
         $('#content').html(page);
 
-        console.log("anc: " + anc);
-        if (anc) {
-            var id_found = $("#" + anc); // $() returns an array with zero length if id not found
-            if (id_found && id_found.length > 0) { // If id is found then anc refers to an anchor in current document
-                id_found[0].scrollIntoView(); // Use first element
-            } else {
-                var scrollto = $("a[name*='" + anc + "']");
-                if (scrollto && window.innerDocClick) { // If scrollto is found then anc refers to a line number in current document
-                    scrollto.css("background-color", "DarkGray");
-                    scrollto.css("font-weight", "bold");
-                    var el_offset = scrollto.offset().top;
-                    var el_height = scrollto.height();
-                    var window_height = $(window).height();
-                    var off;
+        if (param) { // Check if param is an id
+            console.log('param: ' + param);
+            const elements = $("#" + param); // $() returns an array with zero length if id not found
+            if (elements && elements.length > 0) { // If id is found then it is in first element
+                id = elements[0]; // Use first element
+            }
+        }
 
-                    if (el_height < window_height) {
-                        off = el_offset - ((window_height / 2) - (el_height / 2));
-                    } else {
-                        off = el_offset;
-                    }
+        if (id) { // id overrides anchor
+            console.log("id: ", id);
+            id.scrollIntoView();
+        } else if (anc) {
+            console.log("anc: " + anc);
+            const scrollto = $(anc);
+            if (scrollto && window.innerDocClick) { // If scrollto is found then anc refers to a line number in current document
+                scrollto.css("background-color", "DarkGray");
+                scrollto.css("font-weight", "bold");
+                const el_offset = scrollto.offset().top;
+                const el_height = scrollto.height();
+                const window_height = $(window).height();
 
-                    $('html, body').animate({scrollTop: off}, 500);
+                if (el_height < window_height) {
+                    offset = el_offset - ((window_height / 2) - (el_height / 2));
+                } else {
+                    offset = el_offset;
                 }
+
+                $('html, body').animate({scrollTop: offset}, 500);
             }
         } else {
             if (window.innerDocClick) {
                 window.scrollTo(0, 0);
             }
         }
-
     } else {
         $('#content').html('Page ' + hash + ' not found');
     }
