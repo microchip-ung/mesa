@@ -1736,6 +1736,11 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
 
     }
 
+    /* Enable the Serdes if disabled */
+    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
+        VTSS_RC(jr2_serdes_cfg(vtss_state, port_no, serdes_mode));
+    }
+
     if (disable) {
 #if defined(VTSS_ARCH_SERVAL_T)
         // In order to keep the Tx clock running, so that frames don't buffer up on a disabled port,
@@ -1770,11 +1775,6 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA);
 
         return VTSS_RC_OK;
-    }
-
-    /* Enable the Serdes if disabled */
-    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
-        VTSS_RC(jr2_serdes_cfg(vtss_state, port_no, serdes_mode));
     }
 
     /* Port disable and flush procedure: */
