@@ -90,27 +90,21 @@ static port_map_t port_table_endnode[] = {
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
 };
 
-#if 0 // When I2C is working
-#define CAP_SFP     ((MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX) | MEBA_PORT_CAP_SFP_SD_HIGH)
-#define PORT_IF_SFP MESA_PORT_INTERFACE_SERDES
-#else
-#define CAP_SFP     ((MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX) | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT)
-#define PORT_IF_SFP MESA_PORT_INTERFACE_SGMII_CISCO
-#endif
+#define CAP_SFP (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
 
 static port_map_t port_table_endnode_carrier[] = {
     {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_NONE, 0, PORT_IF_SFP, CAP_SFP},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, PORT_IF_SFP, CAP_SFP},
+    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH},
+    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH},
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
 };
 
 static port_map_t port_table_svb[] = {
     {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
     {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, PORT_IF_SFP, CAP_SFP},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, PORT_IF_SFP, CAP_SFP},
+    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT},
 };
 
 static mesa_rc lan966x_board_init(meba_inst_t inst)
@@ -349,8 +343,8 @@ static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t inst,
     if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
         for (port_no = 2; port_no < 4; port_no++) {
-            // SFP LOS at bit 0
-            mesa_port_list_set(present, port_no, data[port_no].value[0]);
+            // SFP MODDET at bit 1
+            mesa_port_list_set(present, port_no, data[port_no].value[1] ? 0 : 1);
         }
     }
     return rc;
@@ -368,9 +362,9 @@ static mesa_rc lan966x_sfp_status_get(meba_inst_t inst,
     if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
         (port_no == 2 || port_no == 3) &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
-        status->los      = data[port_no].value[0];     // SFP LOS at bit 0
-        status->present  = data[port_no].value[1];     // SFP MODDET at bit 1
-        status->tx_fault = data[1].value[port_no - 2]; // SFP TXFAULT at port 1, bit 0/1
+        status->los      = (data[port_no].value[0] ? 0 : 1);     // SFP LOS at bit 0
+        status->present  = (data[port_no].value[1] ? 0 : 1);     // SFP MODDET at bit 1
+        status->tx_fault = (data[1].value[port_no - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
     }
     return rc;
 }
