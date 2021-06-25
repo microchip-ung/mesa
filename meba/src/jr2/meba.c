@@ -1326,9 +1326,10 @@ static mesa_rc led_update_j2_cu8sfp16(meba_inst_t inst,
     }
 
     if ((rc = mesa_sgpio_conf_get(NULL, 0, sgpio_group, &conf)) == MESA_RC_OK) {
-        // The Green/yellow LEDs are inverted for 1G ports
-        conf.port_conf[sgpio_port].mode[LED_GREEN] = (entry->map.chip_port > 48) ? mode_green : mode_yellow;
-        conf.port_conf[sgpio_port].mode[LED_YELLOW] = (entry->map.chip_port > 48) ? mode_yellow : mode_green;
+        // The Green/yellow LEDs are inverted for 1G ports, except for NPI port
+        // (chip_port 48).
+        conf.port_conf[sgpio_port].mode[LED_GREEN] = (entry->map.chip_port >= 48) ? mode_green : mode_yellow;
+        conf.port_conf[sgpio_port].mode[LED_YELLOW] = (entry->map.chip_port >= 48) ? mode_yellow : mode_green;
         rc = mesa_sgpio_conf_set(NULL, 0, sgpio_group, &conf);
     }
     return rc;
