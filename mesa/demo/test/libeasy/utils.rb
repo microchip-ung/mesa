@@ -137,6 +137,13 @@ def cap_check_exit(cap)
     end
 end
 
+def dut_cap_check_exit(cap)
+    check_capabilities do
+        c = $ts.dut.cap
+        assert((c != nil and c.include?cap), "DUT capability '#{cap}' must be present")
+    end
+end
+
 def check_val(name, val, exp, fmt)
     v = (fmt % val);
     e = (fmt % exp);

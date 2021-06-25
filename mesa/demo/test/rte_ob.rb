@@ -7,6 +7,8 @@ require_relative 'libeasy/et'
 
 $ts = get_test_setup("mesa_pc_b2b_2x")
 
+dut_cap_check_exit("rte")
+
 #---------- Configuration -----------------------------------------------------
 
 $idx_tx  = 0 # PC Tx port

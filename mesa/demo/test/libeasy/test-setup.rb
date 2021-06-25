@@ -196,9 +196,9 @@ end
 
 
 class MesaDut
-    attr_accessor :api, :p, :port_list, :looped_port_list, :looped_port_list_10g, :io, :port_admin, :pcb
+    attr_accessor :api, :p, :port_list, :looped_port_list, :looped_port_list_10g, :io, :port_admin, :pcb, :cap
 
-    def initialize api, url, ports, looped_ports, looped_ports_10g, port_admin, pcb
+    def initialize api, url, ports, looped_ports, looped_ports_10g, port_admin, pcb, cap
         @api = api
         @p = ports
         @port_list = ports
@@ -206,6 +206,7 @@ class MesaDut
         @looped_port_list_10g = looped_ports_10g
         @port_admin = port_admin
         @pcb = pcb
+        @cap = cap
         @dut_term = URI(url)
         @stream = TCPSocket.open(@dut_term.host, @dut_term.port)
 
@@ -895,6 +896,7 @@ class Switchdev_Pc_b2b_4x
         dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
+        cap = conf["dut"]["cap"]
         map = conf["dut"]["port-name-map"]
         pc_ports = conf["pc"]["ports"]
 
@@ -939,7 +941,7 @@ class Switchdev_Pc_b2b_4x
         end
 
         #Create the DUT
-        @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb
+        @dut = MesaDut.new :switchdev, dut_url, dut_ports_sd, dut_looped_ports_sd, dut_looped_ports_10g, port_admin, pcb, cap
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
@@ -1047,7 +1049,7 @@ class Switchdev_Pc_bsp
         dut_url = conf["dut"]["terminal"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
-        @dut = MesaDut.new :bsp, dut_url, nil, nil, nil, port_admin, pcb
+        @dut = MesaDut.new :bsp, dut_url, nil, nil, nil, port_admin, pcb, nil
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], nil, conf["easytest_server"]
@@ -1119,6 +1121,7 @@ class Mesa_Pc_b2b
         dut_looped_ports_10g = conf["dut"]["looped_ports_10g"]
         port_admin = conf["dut"]["port_admin"]
         pcb = conf["dut"]["pcb"]
+        cap = conf["dut"]["cap"]
         pc_ports = conf["pc"]["ports"]
 
         #Check for any multi topology overwriting
@@ -1150,7 +1153,7 @@ class Mesa_Pc_b2b
         end
 
         #Create the DUT
-        @dut = MesaDut.new :mesa, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb
+        @dut = MesaDut.new :mesa, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb, cap
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
