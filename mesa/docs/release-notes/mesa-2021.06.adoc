@@ -35,7 +35,7 @@ SW integration. It is not suitable for production use.
 
 === General
 
-==== New serdes mode: `MESA_SERDES_MODE_QXGMII`
+==== New port mode: `MESA_SERDES_MODE_QXGMII`
 
 This release introduce support of `MESA_SERDES_MODE_QXGMII` (mode R) supporting
 4x 2G5 links using a single serdes.
