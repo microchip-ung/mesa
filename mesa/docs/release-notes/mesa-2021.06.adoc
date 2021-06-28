@@ -26,7 +26,7 @@ and/or start SW integration. It is not suitable for production use.
 
 LAN9668 should not be used in this release.
 
-==== LAN8814 (PHY) in ALFA with limited support
+==== LAN8814 (PHY) in ALPFA with limited support
 
 This is the first release which adds MEPA (Microchip Ethernet PHY API) support
 for LAN8814. The support of LAN8814 in this release is considered to be in BETA
@@ -35,19 +35,14 @@ SW integration. It is not suitable for production use.
 
 === General
 
-==== New serdes modes
+==== New serdes mode: `MESA_SERDES_MODE_QXGMII`
 
-This release introduces support of the following new serdes modes:
+This release introduce support of `MESA_SERDES_MODE_QXGMII` (mode R) supporting
+4x 2G5 links using a single serdes.
 
-* `MESA_SERDES_MODE_SXGMII`: 1 x USXGMII in 5G/10G mode
-* `MESA_SERDES_MODE_USGMII`: 8 x USGMII in 1G mode
-* `MESA_SERDES_MODE_QXGMII`: 4 x QXGMII in 2G5 mode.  Mode 'R'
-* `MESA_SERDES_MODE_DXGMII_10G`: 2 x DXGMII_10G in 5G mode.  Mode 'U'
-* `MESA_SERDES_MODE_DXGMII_5G`: 2 x DXGMII_5G in 2G5 mode.  Mode 'F'
+In the current release, only SparX-5/5i SKUs supports this mode, using either
+10G or 25G serdes.
 
-In the current release, only Sparx5/5i SKUs supports these modes, and they are
-all offered over a 10G or 25G serdes. These modes support in-band status
-(USXGMII code word) as well as out-of-band (from the PHY over MDIO).
 
 ==== MRP Support
 
@@ -65,7 +60,7 @@ MRP has profiles to support recovery times down to 10ms.
 API also supports auto-manager where the nodes automatically determine who shall
 act as manager, and it supports interconnecting multiple rings.
 
-This feature is availiable if the `MESA_CAP_MRP` capability is set. In the
+This feature is available if the `MESA_CAP_MRP` capability is set. In the
 current version, this will only be the case for LAN966x SKUs.
 
 ==== RCL Real-Time Control lists

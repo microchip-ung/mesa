@@ -468,11 +468,11 @@ typedef enum
     VTSS_PORT_INTERFACE_SPI4,          /**< SPI4 */
     VTSS_PORT_INTERFACE_QSGMII,        /**< QSGMII */
     VTSS_PORT_INTERFACE_SFI,           /**< SFI/LAN, 5G-25G, 64B/66B PCS */
-    VTSS_PORT_INTERFACE_SXGMII,        /**< 1x10G or 1x5G device.    Uses primary device. 64B/66B PCS */
-    VTSS_PORT_INTERFACE_USGMII,        /**< 8x2G5 devices. Mode 'X'. Uses 2G5 device.     */
-    VTSS_PORT_INTERFACE_QXGMII,        /**< 4x2G5 devices. Mode 'R'. Uses 2G5 device.     */
-    VTSS_PORT_INTERFACE_DXGMII_5G,     /**< 2x2G5 devices. Mode 'F'. Uses 2G5 device.     */
-    VTSS_PORT_INTERFACE_DXGMII_10G,    /**< 2x5G devices.  Mode 'U'. Uses primary device. */
+    VTSS_PORT_INTERFACE_SXGMII,        /**< 1x10G or 1x5G device.    Uses primary device. 64B/66B PCS. Experimental unsupported mode!  */
+    VTSS_PORT_INTERFACE_USGMII,        /**< 8x2G5 devices. Mode 'X'. Uses 2G5 device. Experimental unsupported mode!  */
+    VTSS_PORT_INTERFACE_QXGMII,        /**< 4x2G5 devices. Mode 'R'. Uses 2G5 device.    */
+    VTSS_PORT_INTERFACE_DXGMII_5G,     /**< 2x2G5 devices. Mode 'F'. Uses 2G5 device. Experimental unsupported mode!  */
+    VTSS_PORT_INTERFACE_DXGMII_10G,    /**< 2x5G devices.  Mode 'U'. Uses primary device. Experimental unsupported mode!  */
     VTSS_PORT_INTERFACE_CPU,           /**< Exposed CPU port. Not connected to switch */
 } vtss_port_interface_t;
 

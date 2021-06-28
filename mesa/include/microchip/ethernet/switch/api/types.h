@@ -135,11 +135,11 @@ typedef enum
     MESA_SERDES_MODE_SFI_PR_NONE, // No preset
     MESA_SERDES_MODE_IDLE,      // Send idles (port appears as down for LP)
     MESA_SERDES_MODE_TEST_MODE, // Send fixed test pattern (port appears as up for LP, but no frame rx/tx)
-    MESA_SERDES_MODE_SXGMII,    // 1 x USXGMII in 5G/10G mode */
-    MESA_SERDES_MODE_USGMII,    // 8 x USGMII in 1G mode */
-    MESA_SERDES_MODE_QXGMII,    // 4 x QXGMII in 2G5 mode.     Mode 'R'
-    MESA_SERDES_MODE_DXGMII_10G,// 2 x DXGMII_10G in 5G mode.  Mode 'U'
-    MESA_SERDES_MODE_DXGMII_5G  // 2 x DXGMII_5G in 2G5 mode.  Mode 'F'
+    MESA_SERDES_MODE_SXGMII,    // 1 x USXGMII in 5G/10G mode.           Experimental unsupported mode!
+    MESA_SERDES_MODE_USGMII,    // 8 x USGMII in 1G mode.                Experimental unsupported mode!
+    MESA_SERDES_MODE_QXGMII,    // 4 x QXGMII in 2G5 mode.     Mode 'R'.
+    MESA_SERDES_MODE_DXGMII_10G,// 2 x DXGMII_10G in 5G mode.  Mode 'U'. Experimental unsupported mode!
+    MESA_SERDES_MODE_DXGMII_5G  // 2 x DXGMII_5G in 2G5 mode.  Mode 'F'. Experimental unsupported mode!
 } mesa_serdes_mode_t;
 
 // VOE index
