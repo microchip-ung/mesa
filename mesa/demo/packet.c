@@ -36,6 +36,8 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 typedef struct {
     uint8_t     queue_valid;
     mesa_bool_t queue_list[MESA_PACKET_RX_QUEUE_CNT];
+    uint32_t    len;
+    uint32_t    cnt;
 } packet_cli_req_t;
 
 typedef struct {
@@ -66,6 +68,43 @@ static void cli_cmd_packet_forward(cli_req_t *req)
         }
         if (*iport != MESA_PORT_NO_NONE) {
             packet_conf.poll = 1;
+        }
+    }
+}
+
+static void cli_cmd_packet_tx(cli_req_t *req)
+{
+    mesa_port_no_t        uport, iport;
+    mesa_bool_t           state;
+    packet_cli_req_t      *mreq = req->module_req;
+    uint32_t              len = (mreq->len ? mreq->len : 64);
+    uint32_t              cnt = (mreq->cnt ? mreq->cnt : 1), i;
+    uint8_t               frame[1600];
+    mesa_packet_tx_info_t tx_info;
+
+    memset(frame, 0xaa, sizeof(frame));
+    memset(frame, 0xff, 6);
+    memset(&frame[6], 0x00, 6);
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0 ||
+            mesa_port_state_get(NULL, iport, &state) != MESA_RC_OK ||
+            state == 0 ||
+            mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
+            continue;
+        }
+
+        cli_printf("Sending %u frames of %u bytes on port %u\n", cnt, len, uport);
+        tx_info.dst_port_mask = 1;
+        tx_info.dst_port_mask <<= iport;
+        tx_info.dst_port = iport;
+        frame[11] = uport;
+        for (i = 0; i < cnt; i++) {
+            if (mesa_packet_tx_frame(NULL, &tx_info, frame, len - 4) != MESA_RC_OK) {
+                cli_printf("tx_frame[%u] failed\n", i);
+                break;
+            }
         }
     }
 }
@@ -188,6 +227,11 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_packet_forward
     },
     {
+        "Packet Tx [<port_list>] [<length>] [<count>]",
+        "Send broadcast frame to ports",
+        cli_cmd_packet_tx
+    },
+    {
         "Interface TAP Add <vid>",
         "Add TAP interface",
         cli_cmd_tap_add
@@ -211,12 +255,38 @@ static int cli_parm_queue_list(cli_req_t *req)
     return error;
 }
 
+static int cli_parm_length(cli_req_t *req)
+{
+    packet_cli_req_t *mreq = req->module_req;
+
+    return cli_parm_u32(req, &mreq->len, 64, 1518);
+}
+
+static int cli_parm_count(cli_req_t *req)
+{
+    packet_cli_req_t *mreq = req->module_req;
+
+    return cli_parm_u32(req, &mreq->cnt, 1, 1000);
+}
+
 static cli_parm_t cli_parm_table[] = {
     {
         "<queue_list>",
         "Queue list, default: All queues (0-7)",
         CLI_PARM_FLAG_NONE,
         cli_parm_queue_list
+    },
+    {
+        "<length>",
+        "Frame length including FCS (64 - 1518), default: 64 bytes",
+        CLI_PARM_FLAG_NONE | CLI_PARM_FLAG_SET,
+        cli_parm_length
+    },
+    {
+        "<count>",
+        "Frame count (1 - 1000), default: 1",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_count
     },
 };
 

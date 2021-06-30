@@ -21,6 +21,17 @@ test "conf" do
     # Write data
     vcore_rw(0x40000100, 0x12345678)
 
+    # Check IO-FPGA data (swapped)
+    str = "78563412"
+    res = io_str_rd(0x100, str)
+    t_i("Exp  : #{str}")
+    act = "0x100: #{res}"
+    if (res == str)
+        t_i(act)
+    else
+        t_e(act)
+    end
+
     # Read IO memory
     io_fpga_rw("dump 0x0100 16")
 end
