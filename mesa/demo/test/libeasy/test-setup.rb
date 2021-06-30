@@ -989,22 +989,25 @@ class Switchdev_Pc_b2b_4x
             t = ""
             t = $options[:dut_trace]
 
+            @dut.run "echo 0 > /proc/sys/kernel/printk"
             @dut.bg "rte", "mera-demo -f"
         end
 
         @vinst = []
         @vconn = []
 
-        dut_ports_sd.each do |port|
+        ports = []
+        dut_ports_sd.each_with_index do |port, idx|
             if port.is_a? Integer
                 @dut.run "ip link set eth#{port} up"
             else
                 @dut.run "ip link set #{port} up"
             end
+            ports << pc_ports[idx]
         end
 
         if !$options[:no_init]
-            @pc.run "poll_interface_state.rb -t 60 #{pc_ports.join " "}"
+            @pc.run "poll_interface_state.rb -t 60 #{ports.join " "}"
         end
 
         # TODO, wait for the DUT to see the link
