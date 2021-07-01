@@ -912,14 +912,27 @@ static vtss_rc fa_np_rx(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-
+static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode);
+static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                                      const vtss_port_no_t port_no,
                                      vtss_port_kr_fw_req_t *const fw_req)
 
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 port = VTSS_CHIP_PORT(port_no);
 
+    if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
+        /* Training is interruptet, restart serdes and kr blocks */
+        vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
+        vtss_state->port.kr_conf[port_no].train.enable = FALSE;
+        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
+        vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
+        vtss_state->port.kr_conf[port_no].train.enable = TRUE;
+        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        return VTSS_RC_OK;
+    }
 
     if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
         || fw_req->gen0_tmr_start || fw_req->gen1_tmr_start) {
@@ -1095,6 +1108,24 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 #define ANEG_RATE_25G    7
 #define ANEG_RATE_10G    9
 
+/* Restart aneg if SM is stuck (UNG_FIREANT-91) */
+static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), val;
+
+    REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &val);
+    if (VTSS_X_IP_KRANEG_AN_SM_AN_SM(val) == 1) {
+        if (vtss_state->port.kr_store[port_no].sm_dis) {
+            REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+                    VTSS_F_IP_KRANEG_AN_CFG0_AN_RESTART(1),
+                    VTSS_M_IP_KRANEG_AN_CFG0_AN_RESTART);
+            vtss_state->port.kr_store[port_no].sm_dis = FALSE;
+        } else {
+            vtss_state->port.kr_store[port_no].sm_dis = TRUE;
+        }
+    }
+    return VTSS_RC_OK;
+}
 
 static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
@@ -2916,7 +2947,12 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                 vtss_state->port.ctle_done[port_no] = TRUE;
             }
         }
-
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
+        if (kr_aneg_ena) {
+            /* UNG_FIREANT-91 workaround */
+            (void)fa_kr_state_chk(vtss_state, port_no);
+        }
+#endif
         status->speed = conf->speed;
         break;
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
@@ -3561,6 +3597,19 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
         }
     }
 
+    REG_RD(VTSS_IP_KRANEG_BP_ETH_STS(tgt), &val);
+    if (val > 0) {
+        pr("\n  BP_ETH_ST: ");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_5G_KR(val),     "AN_NEG_5G_KR");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_2P5G_KX(val),   "AN_NEG_2P5G_KX");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_25G_KR(val),    "AN_NEG_25G_KR");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_25G_KR_S(val),  "AN_NEG_25G_KR_S");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_RS_FEC(val),    "AN_NEG_RS_FEC");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_R_FEC(val),     "AN_NEG_R_FEC");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_10G_KR(val),    "AN_NEG_10G_KR");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_NEG_1G_KX(val),     "AN_NEG_1G_KX");
+        print_reg_bit(pr, VTSS_X_IP_KRANEG_BP_ETH_STS_AN_BP_ABLE(val),       "AN_BP_ABLE");
+    }
 
     pr("\n");
 

@@ -440,6 +440,7 @@ typedef struct {
     BOOL base_page;
     u32  rs_fec_cc;
     u32  rs_fec_uc;
+    BOOL sm_dis;
 } vtss_port_kr_temp_storage_t;
 
 
