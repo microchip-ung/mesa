@@ -214,7 +214,6 @@ vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
                                const vtss_gpio_no_t   gpio_no,
                                const vtss_gpio_mode_t mode)
 {
-
 #if defined(GCB_GPIO_OUT_SET2)
     u32 msk = VTSS_BIT(gpio_no % 32), alt = 0, alt_0, alt_1, alt_2;
 
@@ -529,6 +528,37 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info)
 {
+#if defined(GCB_GPIO_OUT_SET2)
+    pr("%-34s  31    24.23    16.15     8.7      0\n", "GPIO 0-31");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_INTR_ENA), "GPIO_INTR_ENA");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OE), "GPIO_OE");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OUT), "GPIO_OUT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_IN), "GPIO_IN");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT(0)), "GPIO_ALT(0)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT(1)), "GPIO_ALT(1)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT(2)), "GPIO_ALT(2)");
+    pr("\n");
+
+    pr("%-34s  63    56.55    48.47    40.39    32\n", "GPIO 32-63");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_INTR_ENA1), "GPIO_INTR_ENA1");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OE1), "GPIO_OE1");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OUT1), "GPIO_OUT1");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_IN1), "GPIO_IN1");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT1(0)), "GPIO_ALT1(0)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT1(1)), "GPIO_ALT1(1)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT1(2)), "GPIO_ALT1(2)");
+    pr("\n");
+
+    pr("%-34s  95    88.87    80.79    72.71    64\n", "GPIO 64-77");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_INTR_ENA2), "GPIO_INTR_ENA2");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OE2), "GPIO_OE2");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_OUT2), "GPIO_OUT2");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_IN2), "GPIO_IN2");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT2(0)), "GPIO_ALT2(0)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT2(1)), "GPIO_ALT2(1)");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(GCB_GPIO_ALT2(2)), "GPIO_ALT2(2)");
+    pr("\n");
+#endif
     return VTSS_RC_OK;
 }
 

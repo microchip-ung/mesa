@@ -74,14 +74,14 @@ static port_map_t port_table_8port[] = {
     // Front port view:
     // 3 1 7 5
     // 2 0 6 4
-    {3, MESA_MIIM_CONTROLLER_0,  7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_0,  6, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_0,  5, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {0, MESA_MIIM_CONTROLLER_0,  4, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {7, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {6, MESA_MIIM_CONTROLLER_0, 14, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {5, MESA_MIIM_CONTROLLER_0, 13, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {4, MESA_MIIM_CONTROLLER_0, 12, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_0,  9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_0,  8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {0, MESA_MIIM_CONTROLLER_0,  7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
 };
 
 static port_map_t port_table_endnode[] = {
@@ -160,6 +160,22 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
             }
             (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
         }
+        break;
+    case BOARD_TYPE_8PORT:
+        // GPIO 24 is IRQ from PHYs
+        (void)mesa_gpio_mode_set(NULL, 0, 24, MESA_GPIO_ALT_4);
+
+        // GPIO 28/29 are MDC/MDIO
+        for (gpio_no = 28; gpio_no < 30; gpio_no++) {
+            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
+        }
+
+        // GPIO 53 is used for PHY reset
+        gpio_no = 53;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
         break;
     default:
         break;

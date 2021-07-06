@@ -14,6 +14,7 @@ $idx_tx  = 0 # PC Tx port
 $idx_rx  = 1 # PC Rx port, normal forwarding
 $idx_ifh = 2 # PC Rx port, with IFH
 $idx_rtp = 3 # PC Rx port, RTP forwarding
+$port_map = nil
 
 # Each entry in the test table has these items:
 # 1: Text string used to name the test step
@@ -121,6 +122,10 @@ test_table =
 ]
 
 test "conf" do
+    # Get port map
+    port_cnt = cap_get("PORT_CNT")
+    $port_map = $ts.dut.call("mesa_port_map_get", port_cnt)
+
     # Include only two ports in default PVLAN
     port_list = port_idx_list_str([$idx_tx, $idx_rx])
     $ts.dut.call("mesa_pvlan_port_members_set", 0, port_list)
@@ -182,7 +187,7 @@ def rte_test(t)
         rce_set(a, "rtp_sub_id", v, :rtp_sub_id)
         rce_set(a, "rtp_inbound", v, :rtp_inbound)
         a["port_enable"] = true
-        if (v.key?:llct and port < 2)
+        if (v.key?:llct and $port_map[port]["chip_port"] < 2)
             # Only ingress port 0 and 1 support LLCT
             a["llct_enable"] = true
             a["llct_port_no"] = $ts.dut.p[v[:llct]]
