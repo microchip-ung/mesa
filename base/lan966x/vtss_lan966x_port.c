@@ -491,15 +491,113 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_OPT_FPGA)
+static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state, u32 idx,
+                                       vtss_serdes_mode_t mode, BOOL ref125M)
+{
+    u32 val, lane_sel, rate, mpll_multi;
+
+    if (mode == VTSS_SERDES_MODE_QSGMII) {
+        lane_sel = 0;
+        mpll_multi = (ref125M ? 40 : 100);
+        rate = 0;
+    } else if (mode == VTSS_SERDES_MODE_2G5) {
+        lane_sel = 1;
+        mpll_multi = (ref125M ? 50 : 125);
+        rate = 1;
+    } else {
+        lane_sel = 1;
+        mpll_multi = (ref125M ? 40 : 100);
+        rate = 2;
+    }
+
+    REG_WR(HSIO_SD_CFG(idx),
+           HSIO_SD_CFG_PHY_RESET(1) |
+           HSIO_SD_CFG_LANE_10BIT_SEL(lane_sel) |
+           HSIO_SD_CFG_RX_RATE(rate) |
+           HSIO_SD_CFG_TX_RATE(rate));
+
+    REG_WR(HSIO_MPLL_CFG(idx),
+           HSIO_MPLL_CFG_REF_SSP_EN(1) |
+           HSIO_MPLL_CFG_MPLL_MULTIPLIER(mpll_multi) |
+           HSIO_MPLL_CFG_REF_CLKDIV2(ref125M ? 1 : 0));
+    VTSS_MSLEEP(1);
+
+    REG_WRM(HSIO_SD_CFG(idx),
+            HSIO_SD_CFG_PHY_RESET(0),
+            HSIO_SD_CFG_PHY_RESET_M);
+    VTSS_MSLEEP(1);
+
+    REG_WRM(HSIO_MPLL_CFG(idx),
+            HSIO_MPLL_CFG_MPLL_EN(1),
+            HSIO_MPLL_CFG_MPLL_EN_M);
+    VTSS_MSLEEP(1);
+
+    REG_RD(HSIO_SD_STAT(idx), &val);
+    val = HSIO_SD_STAT_MPLL_STATE_X(val);
+    if (val != 1) {
+        VTSS_E("sd_stat[%u].mpll_state is %u, expected 1", idx, val);
+        return VTSS_RC_ERROR;
+    }
+    VTSS_D("sd_stat[%u].mpll_state is %u", idx, val);
+
+    REG_WRM(HSIO_SD_CFG(idx),
+            HSIO_SD_CFG_TX_CM_EN(1),
+            HSIO_SD_CFG_TX_CM_EN_M);
+    VTSS_MSLEEP(1);
+
+    REG_RD(HSIO_SD_STAT(idx), &val);
+    val = HSIO_SD_STAT_TX_CM_STATE_X(val);
+    if (val != 1) {
+        VTSS_E("sd_stat[%u].tx_cm_state is %u, expected 1", idx, val);
+        return VTSS_RC_ERROR;
+    }
+    VTSS_D("sd_stat[%u].tx_cm_state is %u", idx, val);
+
+    // Enable PLL
+    REG_WRM(HSIO_SD_CFG(idx),
+            HSIO_SD_CFG_RX_PLL_EN(1) |
+            HSIO_SD_CFG_TX_EN(1),
+            HSIO_SD_CFG_RX_PLL_EN_M |
+            HSIO_SD_CFG_TX_EN_M);
+    VTSS_MSLEEP(1);
+
+    // Wait for Rx DPLL to lock
+    REG_RD(HSIO_SD_STAT(idx), &val);
+    val = HSIO_SD_STAT_RX_PLL_STATE_X(val);
+    if (val != 1) {
+        VTSS_E("sd_stat[%u].rx_pll_state is %u, expected 1", idx, val);
+        return VTSS_RC_ERROR;
+    }
+    VTSS_D("sd_stat[%u].rx_pll_state is %u", idx, val);
+
+    // Wait for Tx operational
+    REG_RD(HSIO_SD_STAT(idx), &val);
+    val = HSIO_SD_STAT_TX_STATE_X(val);
+    if (val != 1) {
+        VTSS_E("sd_stat[%u].tx_state is %u, expected 1", idx, val);
+        return VTSS_RC_ERROR;
+    }
+    VTSS_D("sd_stat[%u].tx_state is %u", idx, val);
+
+    // Enable Rx/Tx
+    REG_WRM(HSIO_SD_CFG(idx),
+            HSIO_SD_CFG_TX_DATA_EN(1) |
+            HSIO_SD_CFG_RX_DATA_EN(1),
+            HSIO_SD_CFG_TX_DATA_EN_M |
+            HSIO_SD_CFG_RX_DATA_EN_M);
+    return VTSS_RC_OK;
+}
+#endif
+
 static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
                                   vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
     vtss_rc                  rc = VTSS_RC_OK;
 #if !defined(VTSS_OPT_FPGA)
     u32                      port = VTSS_CHIP_PORT(port_no);
-    u32                      idx = VTSS_SD6G_40_CNT, value;
+    u32                      idx = VTSS_SD6G_40_CNT, val;
     vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
-    vtss_sd6g40_setup_args_t conf = {};
     BOOL                     lan9668 = (vtss_state->create.target == VTSS_TARGET_LAN9668);
 
     switch (vtss_state->init_conf.mux_mode) {
@@ -548,16 +646,10 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     }
     if (idx < VTSS_SD6G_40_CNT && vtss_state->port.sd6g40_mode[idx] != mode) {
         vtss_state->port.sd6g40_mode[idx] = mode;
-        // Map to SD6G mode
-        conf.mode = (mode == VTSS_SERDES_MODE_QSGMII ? VTSS_SD6G40_MODE_QSGMII :
-                     mode == VTSS_SERDES_MODE_2G5 ? VTSS_SD6G40_MODE_SGMII2G5 :
-                     VTSS_SD6G40_MODE_SGMII);
-
         // PLL determines whether 125MHz or 25MHz is used
-        REG_RD(GCB_HW_STAT, &value);
-        value = GCB_HW_STAT_PLL_CONF_X(value);
-        conf.refclk125M = (value == 1 || value == 2 ? 1 : 0);
-        rc = vtss_maserati_sd6g40_setup_lane(vtss_state, conf, idx);
+        REG_RD(GCB_HW_STAT, &val);
+        val = GCB_HW_STAT_PLL_CONF_X(val);
+        rc = lan966x_serdes_conf_set(vtss_state, idx, mode, val == 1 || val == 2);
     }
 #endif
     return rc;
