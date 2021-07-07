@@ -99,7 +99,6 @@ $machines = {
             :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa.dtb",
             :overlays => [
                 { :name => "6849_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
-                { :name => "8290_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
                 { :name => "8291_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
             ]
           },
@@ -107,6 +106,12 @@ $machines = {
             :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-pcb8309.dtb",
             :overlays => [
                 { :name => "8309_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+            ]
+          },
+          {
+            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-pcb8290.dtb",
+            :overlays => [
+                { :name => "8290_0@lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
             ]
           },
           {
