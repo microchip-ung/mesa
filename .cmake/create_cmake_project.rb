@@ -55,13 +55,17 @@ tc_base = nil
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk]
     brsdk_name = "mscc-brsdk-#{c[:arch]}-#{c[:brsdk]}"
-    brsdk_name += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] != "brsdk"
+    brsdk_name += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] and c[:brsdk_branch] != "brsdk"
     brsdk_base = "/opt/mscc/#{brsdk_name}"
     base = brsdk_base
 
     if not File.exist? brsdk_base
         if File.exist? "/usr/local/bin/mscc-install-pkg"
-            run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{brsdk_name};"
+            if c[:brsdk_branch]
+                run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{brsdk_name};"
+            else
+                run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]} #{brsdk_name};"
+            end
         else
             puts "Please install the BSP: #{brsdk_base}"
             puts ""

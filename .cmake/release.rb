@@ -78,7 +78,7 @@ def get_cmake_toolchain conf
     base = "/opt/mscc/"
     if conf[:brsdk]
         base += "mscc-brsdk-#{conf[:arch]}-#{conf[:brsdk]}"
-        base += "-#{conf[:brsdk_branch]}" if conf[:brsdk_branch] != "brsdk"
+        base += "-#{conf[:brsdk_branch]}" if conf[:brsdk_branch] and conf[:brsdk_branch] != "brsdk"
     else
         base += "mscc-toolchain-bin-#{conf[:toolchain]}"
         base += "-#{conf[:toolchain_branch]}" if conf[:toolchain_branch] != "toolchain"
@@ -93,7 +93,7 @@ def get_cmake conf
     base = "/opt/mscc/"
     if conf[:brsdk]
         base += "mscc-brsdk-#{conf[:arch]}-#{conf[:brsdk]}"
-        base += "-#{conf[:brsdk_branch]}" if conf[:brsdk_branch] != "brsdk"
+        base += "-#{conf[:brsdk_branch]}" if conf[:brsdk_branch] and conf[:brsdk_branch] != "brsdk"
     else
         base += "mscc-toolchain-bin-#{conf[:toolchain]}"
         base += "-#{conf[:toolchain_branch]}" if conf[:toolchain_branch] != "toolchain"
@@ -165,8 +165,12 @@ def compile(ws, odir, preset, c)
     bcmd = "(cd #{ws}; mkdir -p #{odir}; cd #{odir}; "
     if c[:brsdk]
         dw_file = "mscc-brsdk-#{arch}-#{c[:brsdk]}"
-        dw_file += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] != "brsdk"
-        bcmd += "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{dw_file}; "
+        dw_file += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] and c[:brsdk_branch] != "brsdk"
+        if c[:brsdk_branch]
+            bcmd += "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{dw_file}; "
+        else
+            bcmd += "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]} #{dw_file}; "
+        end
         bcmd += "sudo /usr/local/bin/mscc-install-pkg -t toolchains/#{c[:tc_folder]} mscc-toolchain-bin-#{c[:tc]};"
     else
         tc_name = "mscc-toolchain-bin-#{c[:toolchain]}"
@@ -206,7 +210,7 @@ def compile(ws, odir, preset, c)
 
             if c[:brsdk] and c[:legal]
                 v  = "mscc-brsdk-#{c[:arch]}-#{c[:brsdk]}"
-                v += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] != "brsdk"
+                v += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] and c[:brsdk_branch] != "brsdk"
                 p  = "/opt/mscc/#{v}/#{c[:legal]}/manifest.csv"
                 legal_bsp = {:path => p, :ver => v}
 
@@ -315,10 +319,14 @@ $presets.each do |preset, c|
     next if not c[:release_artifact]
     arch = c[:arch]
     dw_file = "mscc-brsdk-#{arch}-#{c[:brsdk]}"
-    dw_file += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] != "brsdk"
+    dw_file += "-#{c[:brsdk_branch]}" if c[:brsdk_branch] and c[:brsdk_branch] != "brsdk"
 
     if c[:brsdk]
-        run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{dw_file};"
+        if c[:brsdk_branch]
+            run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]}-#{c[:brsdk_branch]} #{dw_file};"
+        else
+            run "sudo /usr/local/bin/mscc-install-pkg -t brsdk/#{c[:brsdk]} #{dw_file};"
+        end
         tc_conf = YAML.load_file("/opt/mscc/#{dw_file}/.mscc-version")
         tc_folder = tc_conf["toolchain"]
         tc_folder = "#{tc_conf["toolchain"]}-toolchain" if not tc_conf["toolchain"].include? "toolchain"
