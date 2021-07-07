@@ -492,10 +492,16 @@ static vtss_rc lan966x_port_conf_get(vtss_state_t *vtss_state,
 }
 
 #if !defined(VTSS_OPT_FPGA)
-static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state, u32 idx,
-                                       vtss_serdes_mode_t mode, BOOL ref125M)
+static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
+                                       u32 idx, vtss_serdes_mode_t mode)
 {
-    u32 val, lane_sel, rate, mpll_multi;
+    u32  val, lane_sel, rate, mpll_multi;
+    BOOL ref125M;
+
+    // PLL determines whether 125MHz or 25MHz is used
+    REG_RD(GCB_HW_STAT, &val);
+    val = GCB_HW_STAT_PLL_CONF_X(val);
+    ref125M = (val == 1 || val == 2);
 
     if (mode == VTSS_SERDES_MODE_QSGMII) {
         lane_sel = 0;
@@ -528,11 +534,13 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state, u32 idx,
             HSIO_SD_CFG_PHY_RESET_M);
     VTSS_MSLEEP(1);
 
+    // Enable PLL
     REG_WRM(HSIO_MPLL_CFG(idx),
             HSIO_MPLL_CFG_MPLL_EN(1),
             HSIO_MPLL_CFG_MPLL_EN_M);
     VTSS_MSLEEP(1);
 
+    // Wait for PLL to lock
     REG_RD(HSIO_SD_STAT(idx), &val);
     val = HSIO_SD_STAT_MPLL_STATE_X(val);
     if (val != 1) {
@@ -541,11 +549,13 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state, u32 idx,
     }
     VTSS_D("sd_stat[%u].mpll_state is %u", idx, val);
 
+    // Enable Tx common mode
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_TX_CM_EN(1),
             HSIO_SD_CFG_TX_CM_EN_M);
     VTSS_MSLEEP(1);
 
+    // Wait for Tx common state
     REG_RD(HSIO_SD_STAT(idx), &val);
     val = HSIO_SD_STAT_TX_CM_STATE_X(val);
     if (val != 1) {
@@ -554,7 +564,7 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state, u32 idx,
     }
     VTSS_D("sd_stat[%u].tx_cm_state is %u", idx, val);
 
-    // Enable PLL
+    // Enable Rx PLL
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_RX_PLL_EN(1) |
             HSIO_SD_CFG_TX_EN(1),
@@ -596,7 +606,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     vtss_rc                  rc = VTSS_RC_OK;
 #if !defined(VTSS_OPT_FPGA)
     u32                      port = VTSS_CHIP_PORT(port_no);
-    u32                      idx = VTSS_SD6G_40_CNT, val;
+    u32                      idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
     BOOL                     lan9668 = (vtss_state->create.target == VTSS_TARGET_LAN9668);
 
@@ -646,10 +656,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     }
     if (idx < VTSS_SD6G_40_CNT && vtss_state->port.sd6g40_mode[idx] != mode) {
         vtss_state->port.sd6g40_mode[idx] = mode;
-        // PLL determines whether 125MHz or 25MHz is used
-        REG_RD(GCB_HW_STAT, &val);
-        val = GCB_HW_STAT_PLL_CONF_X(val);
-        rc = lan966x_serdes_conf_set(vtss_state, idx, mode, val == 1 || val == 2);
+        rc = lan966x_serdes_conf_set(vtss_state, idx, mode);
     }
 #endif
     return rc;

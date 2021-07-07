@@ -524,9 +524,9 @@ static vtss_rc lan966x_sgpio_read(vtss_state_t *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      const vtss_debug_info_t   *const info)
+static vtss_rc lan966x_debug_misc(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
 {
 #if defined(GCB_GPIO_OUT_SET2)
     pr("%-34s  31    24.23    16.15     8.7      0\n", "GPIO 0-31");
@@ -560,6 +560,13 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
     pr("\n");
 #endif
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
+                                      const vtss_debug_printf_t pr,
+                                      const vtss_debug_info_t   *const info)
+{
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, lan966x_debug_misc, vtss_state, pr, info);
 }
 
 /* - Initialization ------------------------------------------------ */
