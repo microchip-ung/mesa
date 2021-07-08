@@ -369,6 +369,29 @@ static void cli_cmd_port_kr_fec(cli_req_t *req)
 
 }
 
+static void cli_cmd_port_kr_ctle(cli_req_t *req)
+{
+    mesa_port_no_t        iport, uport;
+    kr_appl_train_t       *kr;
+    mesa_port_kr_eye_dim_t  eye, eye2;
+
+    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0 || !kr_conf_state[iport].cap_10g) {
+            continue;
+        }
+        (void)mesa_port_kr_eye_get(NULL, iport, &eye);
+        kr = &kr_conf_state[iport].tr;
+        (void)time_start(&kr_conf_state[iport].tr.time_start_aneg); // Start timer
+        if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
+            cli_printf("Failure during port_kr_ctle_adjust\n");
+        }
+        (void)mesa_port_kr_eye_get(NULL, iport, &eye2);
+        cli_printf("Port:%d - CTLE done (%d ms). Eye height before:%d after:%d\n",iport, get_time_ms(&kr->time_start_aneg), eye.height, eye2.height);
+    }
+}
+
+
 static void cli_cmd_port_kr(cli_req_t *req)
 {
     mesa_port_no_t        uport, iport;
@@ -1244,6 +1267,12 @@ static cli_cmd_t cli_cmd_table[] = {
         "Toggle fec",
         cli_cmd_port_kr_fec
     },
+    {
+        "Port KR ctle [<port_list>]",
+        "Adjust ctle",
+        cli_cmd_port_kr_ctle
+    },
+
     {
         "Port KR poll [<port_list>] <poll_cnt>",
         "Set the KR poll count",
