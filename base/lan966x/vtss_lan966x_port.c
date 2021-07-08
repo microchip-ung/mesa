@@ -685,7 +685,8 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     case VTSS_SPEED_1G:
         break;
     case VTSS_SPEED_2500M:
-        if (conf->if_type == VTSS_PORT_INTERFACE_SERDES) {
+        if (conf->if_type == VTSS_PORT_INTERFACE_SERDES ||
+            conf->if_type == VTSS_PORT_INTERFACE_VAUI) {
             break;
         }
         // Fall through
@@ -709,6 +710,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         mode = VTSS_SERDES_MODE_QSGMII;
         break;
     case VTSS_PORT_INTERFACE_SERDES:
+    case VTSS_PORT_INTERFACE_VAUI:
         if (speed == VTSS_SPEED_2500M) {
             mode = VTSS_SERDES_MODE_2G5;
         } else if (speed != VTSS_SPEED_1G) {
@@ -959,6 +961,20 @@ static vtss_rc lan966x_port_status_get(vtss_state_t *vtss_state,
                                        const vtss_port_no_t  port_no,
                                        vtss_port_status_t    *const status)
 {
+    vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
+    u32              val, port = VTSS_CHIP_PORT(port_no);
+
+    if (conf->if_type == VTSS_PORT_INTERFACE_VAUI) {
+        REG_RD(DEV_PCS1G_LINK_STATUS(port), &val);
+        status->link = DEV_PCS1G_LINK_STATUS_LINK_STATUS_X(val);
+        REG_RD(DEV_PCS1G_STICKY(port), &val);
+        status->link_down = DEV_PCS1G_STICKY_LINK_DOWN_STICKY_X(val);
+        if (status->link_down) {
+            REG_WR(DEV_PCS1G_STICKY(port), DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M);
+        }
+        status->speed = VTSS_SPEED_2500M;
+        status->fdx = 1;
+    }
     return VTSS_RC_OK;
 }
 
