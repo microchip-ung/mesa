@@ -1331,6 +1331,9 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     u32 abil = 0;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
+    // Reset the serdes
+    VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
+
     // Reset aneg, training and IRQs
     REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
             VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),

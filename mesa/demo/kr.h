@@ -103,6 +103,7 @@ typedef struct {
     mesa_bool_t aneg_enable;
     mesa_bool_t tr_done;
     mesa_bool_t pd;
+    mesa_bool_t ctle;
     uint32_t pollcnt;
     uint32_t conf_pollcnt;
     mesa_bool_t compl_ack_done;

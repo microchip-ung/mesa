@@ -266,6 +266,7 @@ typedef struct {
     mesa_bool_t pd;
     mesa_bool_t stop;
     mesa_bool_t test;
+    mesa_bool_t ctle;
 } port_cli_req_t;
 
 
@@ -273,7 +274,6 @@ static int cli_parm_keyword(cli_req_t *req)
 {
     const char     *found;
     port_cli_req_t *mreq = req->module_req;
-
     if ((found = cli_parse_find(req->cmd, req->stx)) == NULL)
         return 1;
 
@@ -317,6 +317,9 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->test = 1;
     } else if (!strncasecmp(found, "pd", 2)) {
         mreq->pd = 1;
+    } else if (!strncasecmp(found, "ctl", 3)) {
+        mreq->ctle = 1;
+
     } else
         cli_printf("no match: %s\n", found);
 
@@ -326,26 +329,6 @@ static int cli_parm_keyword(cli_req_t *req)
 static void fa_kr_reset_state(u32 p) {
     kr_appl_train_t *krs = &kr_conf_state[p].tr;
     memset(krs, 0, sizeof(kr_appl_train_t));
-}
-
-static void cli_cmd_port_kr_ctle(cli_req_t *req)
-{
-    mesa_port_no_t        iport, uport;
-    kr_appl_train_t       *kr;
-
-    for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
-        uport = iport2uport(iport);
-        if (req->port_list[uport] == 0 || !kr_conf_state[iport].cap_10g) {
-            continue;
-        }
-        kr = &kr_conf_state[iport].tr;
-        (void)time_start(&kr_conf_state[iport].tr.time_start_aneg); // Start timer
-        if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
-            cli_printf("Failure during port_kr_ctle_adjust\n");
-        }
-        printf("Port:%d - CTLE done (%d ms)\n",iport, get_time_ms(&kr->time_start_aneg));
-    }
-
 }
 
 static void cli_cmd_port_kr_fec(cli_req_t *req)
@@ -407,7 +390,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
             (void)fa_kr_reset_state(iport);
             if (req->set) {
-                mesa_bool_t aneg_ena = conf.aneg.enable;
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
                 kr_conf_state[iport].aneg_enable = 1;
@@ -446,17 +428,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
                     cli_printf("KR set failed for port %u\n", uport);
                 }
 
-                if (mreq->dis && aneg_ena) {
-                    mesa_port_conf_t pconf;
-                    (void)mesa_port_conf_get(NULL, iport, &pconf);
-                    pconf.if_type = MESA_PORT_INTERFACE_SFI;
-                    pconf.speed = MESA_SPEED_5G;
-                    // Force a port/serdes update
-                    (void)mesa_port_conf_set(NULL, iport, &pconf);
-                    // Apply the correct speed
-                    pconf.speed = kr_conf_state[iport].cap_25g ? MESA_SPEED_25G : MESA_SPEED_10G;
-                    (void)mesa_port_conf_set(NULL, iport, &pconf);
-                }
                 (void)time_start(&kr_conf_state[iport].tr.time_start_aneg); // Start the aneg timer
             } else {
                 cli_printf("Port: %d\n", uport);
@@ -493,7 +464,6 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
         if (req->port_list[uport] == 0 || !kr_conf_state[iport].cap_10g) {
             continue;
         }
-
         if (mreq->irq) {
             if (mreq->all) {
                 deb_dump_irq = 30;
@@ -533,13 +503,14 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             }
             printf("Port %d: parallel detect %s\n",uport, kr_conf_state[iport].pd ? "enabled" : "disabled");
         }
-
-    }
-
-    if (mreq->dis) {
-        kr_debug = 0;
-    } else {
-        kr_debug = 1;
+        if (mreq->ctle) {
+            if (kr_conf_state[iport].ctle) {
+                kr_conf_state[iport].ctle = 0;
+            } else {
+                kr_conf_state[iport].ctle = 1;
+            }
+            printf("Port %d: ctle tuning %s\n",uport, kr_conf_state[iport].ctle ? "enabled" : "disabled");
+        }
     }
 }
 
@@ -812,13 +783,18 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         return;
     }
 
-    if ((mreq->hist || mreq->irq) && mreq->clr) {
+    if (mreq->clr) {
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
+            uport = iport2uport(iport);
+            if (req->port_list[uport] == 0) {
+                continue;
+            }
             kr_conf_state[iport].tr.irq_glb_hist_index = 0;
             kr_conf_state[iport].tr.lp_hist_index = 0;
             kr_conf_state[iport].tr.ld_hist_index = 0;
             kr_conf_state[iport].tr.irq_hist_index = 0;
         }
+        return;
     }
 
     if (mreq->hist) {
@@ -860,38 +836,35 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
         if (!kr.train.enable) {
             cli_printf("  Training          : Disabled\n");
         } else {
-            if (!kr.train.no_remote) {
-                cli_printf("\n  Training Results:\n");
-                cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
-                cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
-                cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
-                cli_printf("  BER_COUNT CM1     : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-                    cli_printf("%d ",krs->ber_cnt[0][i]);
-                }
-                cli_printf("\n  BER_COUNT C0      : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-                    cli_printf("%d ",krs->ber_cnt[1][i]);
-                }
-                cli_printf("\n  BER_COUNT CP1     : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-                    cli_printf("%d ",krs->ber_cnt[2][i]);
-                }
-                cli_printf("\n  EYE HEIGHT CM1    : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
-                    cli_printf("%d ",krs->eye_height[0][i]);
-                }
-                cli_printf("\n  EYE HEIGHT C0     : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
-                    cli_printf("%d ",krs->eye_height[1][i]);
-                }
-                cli_printf("\n  EYE HEIGHT CP1    : ");
-                for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
-                    cli_printf("%d ",krs->eye_height[2][i]);
-                }
-            } else {
-                cli_printf("\n  Link partner not trained\n");
+            cli_printf("\n  Training Results:\n");
+            cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
+            cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
+            cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
+            cli_printf("  BER_COUNT CM1     : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
+                cli_printf("%d ",krs->ber_cnt[0][i]);
             }
+            cli_printf("\n  BER_COUNT C0      : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
+                cli_printf("%d ",krs->ber_cnt[1][i]);
+            }
+            cli_printf("\n  BER_COUNT CP1     : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
+                cli_printf("%d ",krs->ber_cnt[2][i]);
+            }
+            cli_printf("\n  EYE HEIGHT CM1    : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
+                cli_printf("%d ",krs->eye_height[0][i]);
+            }
+            cli_printf("\n  EYE HEIGHT C0     : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[C0]; i++) {
+                cli_printf("%d ",krs->eye_height[1][i]);
+            }
+            cli_printf("\n  EYE HEIGHT CP1    : ");
+            for (u32 i = 0; i < krs->lp_tap_max_cnt[CP1]; i++) {
+                cli_printf("%d ",krs->eye_height[2][i]);
+            }
+
             cli_printf("\n\n  This port Tx Equalizer settings:\n");
             cli_printf("  LD CM (tap_dly)   : %d\n",sts.train.cm_ob_tap_result);
             cli_printf("  LD C0 (amplitude) : %d\n",sts.train.c0_ob_tap_result);
@@ -1100,11 +1073,6 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         kr_conf_state[iport].compl_ack_done = TRUE;
     }
 
-    // Start the train timer if KR_TRAIN IRQ
-    if ((irq & MESA_KR_TRAIN)) {
-        (void)time_start(&kr->time_start_train);
-    }
-
     // Dump IRQs if debug is enabled
     dump_irq(uport, irq, get_time_us(&kr->time_start_aneg), 0);
 
@@ -1159,6 +1127,16 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         printf("Failure during port_kr_irq_apply\n");
     }
 
+    if ((irq & MESA_KR_TRAIN)) {
+        (void)time_start(&kr->time_start_train);
+        if (kr_conf_state[iport].ctle) {
+             // Adjust CTLE Rx setings (MESA-693) - before training
+            if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
+                cli_printf("Failure during port_kr_ctle_adjust\n");
+            }
+        }
+    }
+
     // Get the internal training state for debug purposes
     if (mesa_port_kr_state_get(NULL, iport, krs) != MESA_RC_OK) {
         printf("Failure during port_kr_state_get\n");
@@ -1183,10 +1161,6 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
 
     // Training completed
     if (irq & MESA_KR_WT_DONE && (krs->current_state == MESA_TR_SEND_DATA)) {
-        // Adjust CTLE Rx setings (MESA-693)
-        if (mesa_port_kr_ctle_adjust(NULL, iport) != MESA_RC_OK) {
-            cli_printf("Failure during port_kr_ctle_adjust\n");
-        }
         kr->time_ld = get_time_ms(&kr->time_start_train);
         kr_printf("Port:%d - Training completed (%d ms)\n",uport, get_time_ms(&kr->time_start_train));
     }
@@ -1261,7 +1235,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr_status
     },
     {
-        "Port KR debug [<port_list>] [stop] [irq] [sm] [use-ber] [all] [pd] [disable]",
+        "Port KR debug [<port_list>] [stop] [irq] [sm] [use-ber] [all] [pd] [disable] [ctl]",
         "Toggle debug",
         cli_cmd_port_kr_debug
     },
@@ -1270,12 +1244,6 @@ static cli_cmd_t cli_cmd_table[] = {
         "Toggle fec",
         cli_cmd_port_kr_fec
     },
-    {
-        "Port KR ctle [<port_list>]",
-        "Adjust ctle",
-        cli_cmd_port_kr_ctle
-    },
-
     {
         "Port KR poll [<port_list>] <poll_cnt>",
         "Set the KR poll count",
@@ -1415,6 +1383,14 @@ static cli_parm_t cli_parm_table[] = {
         cli_parm_keyword
     },
     {
+        "ctl",
+        "ctle: Toggle CTLE usage as a part of training",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
+
+    {
         "pr",
         "print out",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
@@ -1485,6 +1461,7 @@ static void kr_init(meba_inst_t inst)
         kr_conf_state[port_no].cap_25g = (meba.cap & MEBA_PORT_CAP_25G_FDX) > 0 ? 1 : 0;
         kr_conf_state[port_no].cap_10g = (meba.cap & MEBA_PORT_CAP_10G_FDX) > 0 ? 1 : 0;
         kr_conf_state[port_no].next_parallel_spd = MESA_SPEED_2500M;
+        kr_conf_state[port_no].ctle = 1;
     }
 }
 
