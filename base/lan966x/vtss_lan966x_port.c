@@ -529,6 +529,11 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
            HSIO_MPLL_CFG_REF_CLKDIV2(ref125M ? 1 : 0));
     VTSS_MSLEEP(1);
 
+    if (mode == VTSS_SERDES_MODE_DISABLE) {
+        // Leave SerDes disabled
+        return VTSS_RC_OK;
+    }
+
     REG_WRM(HSIO_SD_CFG(idx),
             HSIO_SD_CFG_PHY_RESET(0),
             HSIO_SD_CFG_PHY_RESET_M);
@@ -668,7 +673,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    value, link_speed = 1, delay = 0, pfc_mask;
-    BOOL                   disable = conf->power_down, giga;
+    BOOL                   disable = conf->power_down, disable_serdes = 0, giga;
     BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST);
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
@@ -703,7 +708,10 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     case VTSS_PORT_INTERFACE_GMII:
 #endif
     case VTSS_PORT_INTERFACE_SGMII:
+        sgmii = 1;
+        break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
+        disable_serdes = 1;
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
@@ -711,6 +719,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         break;
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
+        disable_serdes = 1;
         if (speed == VTSS_SPEED_2500M) {
             mode = VTSS_SERDES_MODE_2G5;
         } else if (speed != VTSS_SPEED_1G) {
@@ -721,6 +730,11 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     default:
         VTSS_E("illegal interface, port %u", port);
         return VTSS_RC_ERROR;
+    }
+
+    if (disable && disable_serdes) {
+        // Disable SerDes to cause link down at the other end
+        mode = VTSS_SERDES_MODE_DISABLE;
     }
 
     /* 1: Reset the PCS Rx clock domain  */
