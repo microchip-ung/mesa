@@ -412,8 +412,8 @@ def dts_process_overlays name, machine
 
         if dt_entry[:overlays]
             dt_entry[:overlays].each do |dto_entry|
-                out_dtbo = "#{name}_#{File.basename(dto_entry[:file], ".dtso")}.dtbo"
-                out = "#{dtb_basename}_#{File.basename(dto_entry[:file], ".dtso")}.dtb"
+                out_dtbo = "#{$o[:name]}_#{name}_#{File.basename(dto_entry[:file], ".dtso")}.dtbo"
+                out = "#{$o[:name]}_#{dtb_basename}_#{File.basename(dto_entry[:file], ".dtso")}.dtb"
                 sys "dtc -o #{out_dtbo} #{dto_entry[:file]}"
                 sys "fdtoverlay -i #{dtb} -o #{out} #{out_dtbo}"
                 new_dt_array << { :name => dto_entry[:name], :file => out }
