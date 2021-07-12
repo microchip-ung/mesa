@@ -13,6 +13,8 @@ int viper_board_init(int argc, const char **argv, vtss_appl_board_t *board);
 
 void vtss_board_phy_init(vtss_appl_board_t *board);
 
+BOOL get_valid_port_no(vtss_port_no_t *  port_no, char port_no_str[]);
+
 vtss_rc miim_read(const vtss_inst_t    inst,
                   const vtss_port_no_t port_no,
                   const u8             addr,

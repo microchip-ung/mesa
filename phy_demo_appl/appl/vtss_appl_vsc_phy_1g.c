@@ -5,20 +5,20 @@
 #include "vtss_appl.h"  // For vtsss_board_t
 #include "vtss_port_api.h"
 #include "vtss_appl_cu_phy.h" // For board init
-#include "vtss_macsec_api.h"
 #include <netdb.h>  // For socket
 #include <stdarg.h> // For va_list
 #include <unistd.h>
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
-#include "vtss_phy_ts_api.h"
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 #include "vtss_appl_ts_demo.h"
+#include "vtss_phy_ts_api.h"
 #endif
 
+
 #ifdef VTSS_FEATURE_MACSEC
+#include "vtss_appl_macsec_demo.h"
 #include "vtss_macsec_api.h"
 #include <openssl/aes.h>
-#include "vtss_appl_macsec_demo.h"
 #endif
 
 // byte order is handled by the API
@@ -42,6 +42,7 @@
 FILE   *fp;
 #endif
 
+
 /* ================================================================= *
  *  Board init.
  * ================================================================= */
@@ -59,16 +60,13 @@ static BOOL live_debug_enable = TRUE;
 // These Definitions are set in the build_xxxxx_eval.bat file ..
 // To compile, simply do:  bash build_tesla_eval.bat and
 // the .bat file defines TESLA_EVAL_BOARD
-#ifdef  _DEFINED_IN_BAT_FILE_
-#undef  ATOM12_EVAL_BOARD
-#undef  TESLA_EVAL_BOARD
-#undef  ELISE_EVAL_BOARD
-#undef  NANO_EVAL_BOARD
-#undef  VIPER_EVAL_BOARD
-#endif
-
-#undef  EVAL_BOARD_1588_CAPABLE
-#undef  EVAL_BOARD_MACSEC_CAPABLE
+//#ifdef  _DEFINED_IN_BUILD_FILE_
+//#undef  ATOM12_EVAL_BOARD
+//#undef  TESLA_EVAL_BOARD
+//#undef  ELISE_EVAL_BOARD
+//#undef  NANO_EVAL_BOARD
+//#undef  VIPER_EVAL_BOARD
+//#endif
 
 #define EXTENDED_LOOPBACK    // Enable SerDes Loopback
 #undef  CHANGE_PHY_BASE_PORT // Eval Board has the Base Port Addr set to something other than 0
@@ -88,7 +86,6 @@ void vtss_board_phy_init(vtss_appl_board_t *board)
 #endif
 #if defined (TESLA_EVAL_BOARD)
     board->board_init = tesla_board_init; // Pointer to function initializing the board
-//#define EVAL_BOARD_1588_CAPABLE
 #endif
 #if defined (ELISE_EVAL_BOARD)
     board->board_init = elise_board_init; // Pointer to function initializing the board
@@ -98,22 +95,29 @@ void vtss_board_phy_init(vtss_appl_board_t *board)
 #endif
 #if defined (VIPER_EVAL_BOARD)
     board->board_init = viper_board_init; // Pointer to function initializing the board
-//#define EVAL_BOARD_MACSEC_CAPABLE
-//#define EVAL_BOARD_1588_CAPABLE
 #endif
 }
 
-#if defined (VTSS_OPT_PHY_TIMESTAMP) && (defined (VIPER_EVAL_BOARD) || defined (TESLA_EVAL_BOARD))
-#define EVAL_BOARD_1588_CAPABLE
-#else
+
+// 1588 Must be compiled into the Code AND the Eval Board must be 1588 Capable
 #undef EVAL_BOARD_1588_CAPABLE
+
+#if defined (VTSS_OPT_PHY_TIMESTAMP)
+#if defined (VIPER_EVAL_BOARD) || defined (TESLA_EVAL_BOARD)
+#define EVAL_BOARD_1588_CAPABLE
+#endif
 #endif
 
-#if defined (VTSS_FEATURE_MACSEC) && defined (VIPER_EVAL_BOARD)
-#define EVAL_BOARD_MACSEC_CAPABLE
-#else
+
+// MACSEC Must be compiled into the Code AND the Eval Board must be MACSEC Capable
 #undef EVAL_BOARD_MACSEC_CAPABLE
+
+#if defined (VTSS_FEATURE_MACSEC)
+#if defined (VIPER_EVAL_BOARD)
+#define EVAL_BOARD_MACSEC_CAPABLE
 #endif
+#endif
+
 
 #define VTSS_RC_TEST(X)           \
 {                                 \
@@ -1606,6 +1610,7 @@ int main(int argc, const char **argv) {
 #ifdef _INCLUDE_DEBUG_FILE_PRINT_
         fprintf (fp,"PHY POST-RESET\n");
 #endif
+        printf ("PHY POST-RESET\n");
         rc = vtss_phy_post_reset(board->inst, phy_base_port);
         if (rc != VTSS_RC_OK) {
             printf ("//ERROR DETECTED during PHY post-reset, rc = %d\n", rc);
@@ -3164,49 +3169,23 @@ int main(int argc, const char **argv) {
             }
 #endif  // End of EEE
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP  // Is Timestamp code compiled into the build
+#ifdef VTSS_OPT_PHY_TIMESTAMP  // Is Timestamp code compiled into the build
 #ifdef  EVAL_BOARD_1588_CAPABLE    // 1588 and MACSec get #ifdef'd because they are completely seperate Modules, not in vtss_phy.c
         } else if (strcmp(command, "1588")  == 0) {
-            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
-                continue;
-            }
 
-            printf ("Port %d", port_no);
-#if 1
-#ifdef  EVAL_BOARD_1588_CAPABLE    // 1588 and MACSec get #ifdef'd because they are completely seperate Modules
-            printf ("Configure 1588 Block? (Y/N)  \n");
-            memset (&value_str[0], 0, sizeof(value_str));
-            scanf("%s", &value_str[0]);
-
-            if (value_str [0] == 'y' || value_str [0] == 'Y' ) {
-                vtss_appl_ts_demo_menu(board->inst, port_no);
-            }
-#endif // EVAL_BOARD_1588_CAPABLE
-#endif // if 1
+            vtss_appl_ts_demo_menu(board->inst, port_no);
 
             continue;
 #endif // EVAL_BOARD_1588_CAPABLE
-#endif // VTSS_FEATURE_PHY_TIMESTAMP
-
+#endif // VTSS_OPT_PHY_TIMESTAMP
 
 #ifdef VTSS_FEATURE_MACSEC
 #ifdef EVAL_BOARD_MACSEC_CAPABLE  // 1588 and MACSec get #ifdef'd because they are completely seperate Modules, not in vtss_phy.c
 
         } else if (strcmp(command, "macsec")  == 0) {
-            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
-                continue;
-            }
 
-            printf ("Port %d", port_no);
-#if 1
-            printf ("Configure MACSEC Block? (Y/N)  \n");
-            memset (&value_str[0], 0, sizeof(value_str));
-            scanf("%s", &value_str[0]);
+            vtss_appl_macsec_demo_menu(board->inst, port_no);
 
-            if (value_str [0] == 'y' || value_str [0] == 'Y' ) {
-                vtss_appl_macsec_demo_menu(board->inst, port_no);
-            }
-#endif
             continue;
 
 #endif  // End of EVAL_BOARD_MACSEC_CAPABLE

@@ -31,9 +31,9 @@
 FILE   *fp;
 #endif
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
-#include "vtss_phy_ts_api.h"
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 #include "vtss_appl_ts_demo.h"
+#include "vtss_phy_ts_api.h"
 #define EVAL_BOARD_1588_CAPABLE
 
 #else
@@ -1982,16 +1982,18 @@ int main(int argc, const char **argv) {
 
     memset(&oper_mode, 0, sizeof(vtss_phy_10g_mode_t));
 
+    // The following call pre-populates the PHY_INST with initization params
     init_parm.channel_conf = VTSS_CHANNEL_AUTO;
     if(vtss_phy_10g_init(board->inst, port_no, &init_parm) != VTSS_RC_OK) {
       T_E("vtss_phy_10g_init failed, port %d\n", port_no);
       printf("vtss_phy_10g_init failed, port %d\n", port_no);
     }
 
-    // if (vtss_phy_10g_mode_get(board->inst, port_no, &oper_mode) != VTSS_RC_OK) {
-    //   T_E("vtss_phy_10g_mode_get failed, port %d\n", port_no);
-    //   printf("vtss_phy_10g_mode_get failed, port %d\n", port_no);
-    // }
+    // The mode_get is used to retrieve the pre-populated values from the PHY_INST
+    if (vtss_phy_10g_mode_get(board->inst, port_no, &oper_mode) != VTSS_RC_OK) {
+       T_E("vtss_phy_10g_mode_get failed, port %d\n", port_no);
+       printf("vtss_phy_10g_mode_get failed, port %d\n", port_no);
+    }
 
     switch (phy_mode) {
     case PHY_MODE_10G_LAN:   /* 0=MODE_10GLAN */
@@ -2615,7 +2617,7 @@ int main(int argc, const char **argv) {
 
             continue;
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 
         } else if (strcmp(command, "ts_int")  == 0) {
             if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
@@ -2656,7 +2658,7 @@ int main(int argc, const char **argv) {
 
             continue;
 
-#endif // #VTSS_FEATURE_PHY_TIMESTAMP
+#endif // #VTSS_OPT_PHY_TIMESTAMP
 
 #ifdef VTSS_FEATURE_MACSEC
         } else if (strcmp(command, "macsec")  == 0) {
@@ -2680,7 +2682,7 @@ int main(int argc, const char **argv) {
 
 #endif // VTSS_FEATURE_MACSEC
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 
         } else if (strcmp(command, "1588")  == 0) {
             if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
@@ -2700,7 +2702,7 @@ int main(int argc, const char **argv) {
 #endif // EVAL_BOARD_1588_CAPABLE
 #endif
 
-#endif // VTSS_FEATURE_PHY_TIMESTAMP
+#endif // VTSS_OPT_PHY_TIMESTAMP
             continue;
 
         } else if (strcmp(command, "exit")  == 0) {

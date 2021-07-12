@@ -23,7 +23,7 @@
 FILE   *fp;
 #endif
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 #include "vtss_phy_ts_api.h"
 #include "vtss_appl_ts_demo.h"
 

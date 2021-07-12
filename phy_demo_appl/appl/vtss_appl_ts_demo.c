@@ -4,19 +4,19 @@
 #include "vtss_api.h"   // For board initialization
 #include "vtss_appl.h"  // For vtss_board_t
 #include "vtss_port_api.h"
+#include "vtss_appl_cu_phy.h"
 
 #ifdef _INCLUDE_DEBUG_FILE_PRINT_
 extern FILE   *fp;
 #endif
 
-#ifdef VTSS_FEATURE_PHY_TIMESTAMP
+#ifdef VTSS_OPT_PHY_TIMESTAMP
+//#include "vtss_appl_ts_demo.h"
 #include "vtss_phy_ts_api.h"
 #include "vtss_appl_ts_demo.h"
-
-
-#define EVAL_BOARD_1588_CAPABLE
-
 #endif
+
+void vtss_appl_ts_demo_menu(vtss_inst_t  inst, vtss_port_no_t  port_no);
 
 // Assuming that if this one is not defined, the others are not defined either
 // byte order is handled by the API
@@ -38,7 +38,7 @@ extern FILE   *fp;
 #endif
 
 
-#ifdef EVAL_BOARD_1588_CAPABLE
+#ifdef VTSS_OPT_PHY_TIMESTAMP
 
 /* ********************************************************** */
 /* *** Example of init of SPI for Timestamp Push Out  ******* */
@@ -189,17 +189,6 @@ static vtss_rc vtss_1588_sample_flows_ep(const vtss_inst_t inst,
 		    /* Map each flow to the channel which already mapped to the port */
 		    flow_conf->channel_map[flow_id] = VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH0 | VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH1;
 
-#ifdef TESLA_ING_TS_ERRFIX
-                    /* If OOS Patch is enabled, then we need to Reserve Flow_id=7 (Not Enable) for OOS recovery steps */
-                    if (flow_id == 7) {
-                        if (resv_oos_flow7) {
-                            printf("PHY TS Engine %d  Disabling FLOW_7, Reserving for OOS Recovery!\n", eng_id);
-                            flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = FALSE;
-                        } else {
-                            flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = TRUE;
-                        }
-                    }
-#endif
 		    /* Enable the MAC flow */
 		    flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = TRUE;
 
@@ -548,17 +537,7 @@ static vtss_rc vtss_1588_sample_flows_eip(const vtss_inst_t inst,
                 for (flow_id = in_flow; flow_id < numflows; flow_id++) {
 		    /* Map each flow to the channel which already mapped to the port */
 		    flow_conf->channel_map[flow_id] = VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH0 | VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH1;
-#ifdef TESLA_ING_TS_ERRFIX
-                    /* If OOS Patch is enabled, then we need to Reserve Flow_id=7 (Not Enable) for OOS recovery steps */
-                    if (flow_id == 7) {
-                        if (resv_oos_flow7) {
-                            printf("PHY TS Engine %d  Disabling FLOW_7, Reserving for OOS Recovery!\n", eng_id);
-                            flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = FALSE;
-                        } else {
-                            flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = TRUE;
-                        }
-                    }
-#endif
+
                     /* Enable the MAC flow */
                     flow_conf->flow_conf.ptp.eth1_opt.flow_opt[flow_id].flow_en = TRUE;
                     /* Options are: VTSS_PHY_TS_ETH_ADDR_MATCH_48BIT if Eth_Addr to be matched, */
@@ -679,6 +658,7 @@ static vtss_rc vtss_1588_sample_flows_eip(const vtss_inst_t inst,
                  /* dport_val = 319; dport_mask = 0xffff; sport_val=0; sport_mask=0  */
                  /* dport_val = 319; dport_mask = 0xffff; sport_val=319; sport_mask=0xffff  */
 		 flow_conf->flow_conf.ptp.ip1_opt.comm_opt.dport_val = 319; 	 /* UDP Dest Port 319/320 */
+
 		 /* Set dest port mask 0 means any port 0xFFFF means exact match to given port */
 		 flow_conf->flow_conf.ptp.ip1_opt.comm_opt.dport_mask = 0xffff;  /* UDP Dest Port Mask	*/
 		 flow_conf->flow_conf.ptp.ip1_opt.comm_opt.sport_val = 0x0;	/* UDP Source Port */
@@ -2464,38 +2444,19 @@ static vtss_rc vtss_ptp_sample_clock(const vtss_inst_t inst,
              conf.macsec_ena);
 
 	rc = vtss_ptp_get_pkt_encap(&pkt_encap);
-        printf("\nSelect the Number of Flows to configure (1-8) -- config OOS, Flows = 8  (1-8) : ");
+        printf("\nFlow config for Demo will Auto-Increment MAC Addr and IP Addr so each flow differs");
+        printf("\nSelect the Number of Flows for Demo to Auto-configure (1-8), Flows = 8  (1-8) : ");
         memset (&value_str[0], 0, sizeof(value_str));
         scanf("%s", &value_str[0]);
         numflows = atoi(value_str);
         if (numflows == 0 || numflows > 8) {
             printf("\nInvalid Number of Flows; Values are (1-7): \n");
-            return;
+            return VTSS_RC_ERROR;
         }
         printf("\nSelected Number of Flows: %d  \n", numflows);
 
 	start_flow = 0;
         end_flow = numflows-1;
-
-        if (((pkt_encap == VTSS_PHY_TS_ENCAP_ETH_PTP) || (pkt_encap == VTSS_PHY_TS_ENCAP_ETH_IP_PTP)) &&
-             (numflows == 8)) {
-            printf("\nWARNING: Flow_Id: 7 Appears to be Used by Application and will be Over-Written by OOS Recovery! \n ");
-            printf("WARNING: Flow_Id: 7 Enabling Flow 7 for OOS Recovery \n ");
-            resv_oos_flow7 = TRUE;
-        }
-
-#if 0
-i### #ifdef _INCLUDE_DEBUG_FILE_PRINT_
-        fprintf(fp, "Configure 1588: Encap: %d, Engine:%d, ptp_action_id: %d, clk_mode: %s, Delay_Type: %s \n",
-                         pkt_encap, eng_id, ptp_action_id,
-                        (ptp_clk_mode == VTSS_PHY_TS_PTP_CLOCK_MODE_BC1STEP ? "BC1STEP" :
-                         ptp_clk_mode == VTSS_PHY_TS_PTP_CLOCK_MODE_BC2STEP ? "BC2STEP" :
-                         ptp_clk_mode == VTSS_PHY_TS_PTP_CLOCK_MODE_TC1STEP ? "TC1STEP" :
-                         ptp_clk_mode == VTSS_PHY_TS_PTP_CLOCK_MODE_TC2STEP ? "TC2STEP" :
-                         ptp_clk_mode == VTSS_PHY_TS_PTP_DELAY_COMP_ENGINE  ? "DELAY_COMP_ENG" : "INVALID CLK MODE SELECTION"),
-                        (ptp_delay_type == VTSS_PHY_TS_PTP_DELAYM_P2P ? "DELAY_P2P" :
-                         ptp_delay_type == VTSS_PHY_TS_PTP_DELAYM_E2E ? "DELAY_E2E" : "INVALID DELAY SELECTION"));
-#endif
 
 	do {
 
@@ -2563,44 +2524,10 @@ i### #ifdef _INCLUDE_DEBUG_FILE_PRINT_
 
                 switch (pkt_encap) {
                     case VTSS_PHY_TS_ENCAP_ETH_PTP:
-#ifdef TESLA_ING_TS_ERRFIX
-                        rc = vtss_phy_ts_fifo_sig_get(inst, ing_port_no, &sig_mask);
-                        if (sig_mask < sig_mask_min) {
-                            printf ("Src IP address:    VTSS_PHY_TS_FIFO_SIG_SRC_IP          = 0x01 \n");
-                            printf ("Dest IP address:   VTSS_PHY_TS_FIFO_SIG_DEST_IP         = 0x02 \n");
-                            printf ("Msg Type:          VTSS_PHY_TS_FIFO_SIG_MSG_TYPE        = 0x04 \n");
-                            printf ("Domain Number:     VTSS_PHY_TS_FIFO_SIG_DOMAIN_NUM      = 0x08 \n");
-                            printf ("Src Port ID:       VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID  = 0x10 \n");
-                            printf ("PTP Frame Seq ID:  VTSS_PHY_TS_FIFO_SIG_SEQ_ID          = 0x20 \n");
-                            printf ("Dest MAC Addr:     VTSS_PHY_TS_FIFO_SIG_DEST_MAC        = 0x40 \n");
-                            printf ("Note: Signature Masks are OR'd together, so Multiple can be chosen \n\n");
-                            printf ("Port: %d;   Current TS Signatgure Mask: 0x%04x \n", ing_port_no, sig_mask);
-                            printf ("Port: %d;   Minimum TS Signatgure Mask: 0x%04x \n", ing_port_no, sig_mask_min);
-                            printf ("Port: %d;   Forcing Sig_Mask to Min Required: 0x%04x \n", ing_port_no, sig_mask_min);
-                            vtss_phy_ts_fifo_sig_set(inst, ing_port_no, sig_mask_min);
-                        }
-#endif
                         vtss_1588_sample_flows_ep(inst, ing_port_no,egr_port_no, eng_id, numflows, flow_id, resv_oos_flow7);
                         break;
 
                     case VTSS_PHY_TS_ENCAP_ETH_IP_PTP:
-#ifdef TESLA_ING_TS_ERRFIX
-                        rc = vtss_phy_ts_fifo_sig_get(inst, ing_port_no, &sig_mask);
-                        if (sig_mask < sig_mask_min) {
-                            printf ("Src IP address:    VTSS_PHY_TS_FIFO_SIG_SRC_IP          = 0x01 \n");
-                            printf ("Dest IP address:   VTSS_PHY_TS_FIFO_SIG_DEST_IP         = 0x02 \n");
-                            printf ("Msg Type:          VTSS_PHY_TS_FIFO_SIG_MSG_TYPE        = 0x04 \n");
-                            printf ("Domain Number:     VTSS_PHY_TS_FIFO_SIG_DOMAIN_NUM      = 0x08 \n");
-                            printf ("Src Port ID:       VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID  = 0x10 \n");
-                            printf ("PTP Frame Seq ID:  VTSS_PHY_TS_FIFO_SIG_SEQ_ID          = 0x20 \n");
-                            printf ("Dest MAC Addr:     VTSS_PHY_TS_FIFO_SIG_DEST_MAC        = 0x40 \n");
-                            printf ("Note: Signature Masks are OR'd together, so Multiple can be chosen \n\n");
-                            printf ("Port: %d;   Current TS Signatgure Mask: 0x%04x \n", ing_port_no, sig_mask);
-                            printf ("Port: %d;   Minimum TS Signatgure Mask: 0x%04x \n", ing_port_no, sig_mask_min);
-                            printf ("Port: %d;   Forcing Sig_Mask to Min Required: 0x%04x \n", ing_port_no, sig_mask_min);
-                            vtss_phy_ts_fifo_sig_set(inst, ing_port_no, sig_mask_min);
-                        }
-#endif
                         vtss_1588_sample_flows_eip(inst, ing_port_no, egr_port_no, eng_id, numflows, flow_id, resv_oos_flow7);
                         break;
 
@@ -2661,7 +2588,7 @@ i### #ifdef _INCLUDE_DEBUG_FILE_PRINT_
                     vtss_oam_sample_actions(inst, ing_port_no,egr_port_no, eng_id);
                 }
 
-           } while (0);
+        } while (0);
 
     return VTSS_RC_OK;
 
@@ -2697,15 +2624,6 @@ void vtss_appl_ts_demo_menu(vtss_inst_t  inst, vtss_port_no_t  port_no)
     vtss_port_no_t ing_port_no = 0;
     vtss_port_no_t egr_port_no = 0;
 
-
-#ifdef TESLA_ING_TS_ERRFIX
-    BOOL OOS = FALSE;
-    vtss_phy_ts_fifo_conf_t        fifo_conf = {.detect_only = FALSE,
-                                                .eng_recov = VTSS_PHY_TS_PTP_ENGINE_ID_0,
-                                                .eng_minE = VTSS_PHY_TS_OAM_ENGINE_ID_2B
-                                               };
-#endif  /* TESLA_ING_TS_ERRFIX */
-
     vtss_phy_ts_engine_t           eng_id = 0;
     vtss_phy_ts_fifo_sig_mask_t    sig_mask=0;
 
@@ -2737,7 +2655,6 @@ void vtss_appl_ts_demo_menu(vtss_inst_t  inst, vtss_port_no_t  port_no)
             printf (" ts_reg_dump  <port_no> - Dump 1588 Registers\n");
             printf (" sig_get    <port_no> - Get TS Signature Bytes  \n");
             printf (" sig_set    <port_no> - Set TS Signature Bytes  \n");
-            printf (" run_oos    <port_no> - Run the Tesla OOS Recovery via Direct API Call \n");
             printf (" x - exit             - Exit to upper level menu\n");
             printf ("> ");
             rc = scanf("%s", &command[0]);
@@ -3193,53 +3110,6 @@ void vtss_appl_ts_demo_menu(vtss_inst_t  inst, vtss_port_no_t  port_no)
 
                 continue;
 
-#ifdef TESLA_ING_TS_ERRFIX
-
-           } else if (strcmp(command, "run_oos") == 0) {
-                vtss_rc                 rc;
-                if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
-                    continue;
-                }
-
-                /* Note: fifo_conf declared at beginning of 1588 sub-section !! */
-
-#ifdef _INCLUDE_DEBUG_FILE_PRINT_
-                fprintf (fp,"PHY_Start_of_OOS\n");
-#endif
-                rc = vtss_phy_ts_fifo_sig_get(inst, port_no, &sig_mask);
-                printf("Sig_Mask: 0x%04x  for port %d\n", sig_mask, port_no);
-                if (sig_mask < 0x30) {
-                    printf("Sig_Mask is not compatable for OOS::FORCING Sig_Mask = 0x30 for port %d\n", port_no);
-                    printf("This Over-ride is ONLY for Manually Calling/Testing of OOS Patch! Port_no:%d\n", port_no);
-                    printf("Minimum Sig_Mask: VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | VTSS_PHY_TS_FIFO_SIG_SEQ_ID\n");
-                    sig_mask = VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | VTSS_PHY_TS_FIFO_SIG_SEQ_ID; // 0x30
-                    rc = vtss_phy_ts_fifo_sig_set(inst, port_no, sig_mask);
-                }
-
-                //fifo.eng_recov = VTSS_PHY_TS_PTP_ENGINE_ID_0;
-                //fifo.eng_minE = VTSS_PHY_TS_OAM_ENGINE_ID_2B;
-                printf ("Select Primary OOS Recovery Engine (Default: 0): Enter 0/1 for port  %d :", port_no);
-                memset (&value_str[0], 0, sizeof(value_str));
-                scanf("%s", &value_str[0]);
-                if (value_str[0] == '1') {
-                    fifo_conf.eng_recov = VTSS_PHY_TS_PTP_ENGINE_ID_1;
-                }
-
-               /* Reason for calling twice with engine-id is due to fact that API returns 'VTSS_RC_ERROR'
-               only in case of OOS recovery failure and 'VTSS_RC_OK' is returned even in case of incomplete
-               API execution. There is a chance of PTP-IP-ETH enabled on engine-1 & different encapsulation on
-               engine 0 and it must be allowed to test in API. */
-                if (vtss_phy_ts_tesla_tsp_fifo_sync(inst, port_no,(vtss_debug_printf_t)printf, &fifo_conf, &OOS) != VTSS_RC_OK) {
-                    printf("\nERROR: FIFO sync API returned pre-maturely for port %d\n", port_no);
-                } else {
-                    printf("\nFIFO sync API returned VTSS_RC_OK for port %d\n", port_no);
-                }
-
-#ifdef _INCLUDE_DEBUG_FILE_PRINT_
-                fprintf (fp,"PHY_END_of_OOS\n");
-#endif
-                continue;
-#endif  /* TESLA_ING_TS_ERRFIX */
             } else {
                 continue;
             }
@@ -3252,4 +3122,5 @@ void vtss_appl_ts_demo_menu(vtss_inst_t  inst, vtss_port_no_t  port_no)
 
 } // end of  vtss_appl_ts_demo_menu
 
-#endif // End of 1588
+#endif // End of 1588 - VTSS_OPT_PHY_TIMESTAMP
+

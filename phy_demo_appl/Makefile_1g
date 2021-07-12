@@ -4,8 +4,8 @@
 #XCC     = /opt/hardhat/devkit/ppc/405/bin/ppc_405-gcc
 XCC     = gcc
 
-DIR_vtss_api := ./base
-DIR_vtss_inc := ./include
+DIR_vtss_api := ../base
+DIR_vtss_inc := ../include
 compile_c = $(XCC) -c -o $*.o -MD -DVTSS_OPSYS_LINUX=1 -DVTSS_OPT_PORT_COUNT=4 -DVTSS_CHIP_CU_PHY -DVTSS_FEATURE_PHY_TIMESTAMP -DVTSS_FEATURE_MACSEC -I$(DIR_vtss_inc) $<
 
 OBJECTS_vtss_api_core := vtss_api.o vtss_wis_api.o 

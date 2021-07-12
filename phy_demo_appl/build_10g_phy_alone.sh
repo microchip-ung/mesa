@@ -23,7 +23,7 @@ gcc -Werror -Wall -Wextra -Wdeclaration-after-statement -Wunused-but-set-variabl
                                              -DVTSS_CHIP_10G_PHY \
                                              -DVTSS_FEATURE_10G  \
                                              -DVTSS_FEATURE_10GBASE_KR \
-                                             -DVTSS_FEATURE_PHY_TIMESTAMP \
+                                             -DVTSS_OPT_PHY_TIMESTAMP \
                                              -DVTSS_USE_STDINT_H \
                                              -DVTSS_FEATURE_MACSEC \
                                              -DVIPER_EVAL_BOARD \
