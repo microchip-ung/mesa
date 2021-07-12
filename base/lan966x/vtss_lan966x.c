@@ -288,7 +288,7 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
     REG_WRM(SYS_RAM_INIT, SYS_RAM_INIT_RAM_INIT(1), SYS_RAM_INIT_RAM_INIT_M);
     do {
         REG_RD(SYS_RAM_INIT, &val);
-    } while (SYS_RAM_INIT_RAM_INIT_X(val != 0));
+    } while (SYS_RAM_INIT_RAM_INIT_X(val) != 0);
 
     /* Enable switch core */
     REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(1), SYS_RESET_CFG_CORE_ENA_M);

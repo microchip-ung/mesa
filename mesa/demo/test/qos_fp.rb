@@ -53,6 +53,9 @@ test "conf" do
     conf["enable_tx"] = true
     conf["verify_disable_tx"] = false
     $ts.dut.call("mesa_qos_fp_port_conf_set", port, conf)
+
+    # Wait for loop ports to come up
+    dut_port_state_up([$lp0, $lp1])
 end
 
 def cnt_check(port, cnt, name, exp)
