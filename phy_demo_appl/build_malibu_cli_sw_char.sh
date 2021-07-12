@@ -24,7 +24,7 @@
 #
 ##
 ##    -DRPI_MIIM \
-##    -DVTSS_FEATURE_PHY_TIMESTAMP \
+##    -DVTSS_OPT_PHY_TIMESTAMP \
 ##    -DVTSS_ARCH_MALIBU_B=TRUE \
 ##    -DVTSS_CHIP_CU_PHY \
 ##    -DVTSS_CHIP_10G_PHY \
@@ -57,5 +57,6 @@ gcc -I ../include -I ../base/phy/phy_10g -std=gnu89 \
     -D_INCLUDE_DEBUG_TERM_PRINT_ \
     -DMALIBU_CHAR_BOARD \
     -DVTSS_FEATURE_MACSEC \
-    -DVTSS_FEATURE_PHY_TIMESTAMP \
+    -DVTSS_OPT_PHY_TIMESTAMP \
     -o malibu_char
+

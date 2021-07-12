@@ -55,5 +55,6 @@ gcc -I ../include -std=gnu89 \
     -D_INCLUDE_DEBUG_TERM_PRINT_ \
     -DVENICE_CHAR_BOARD \
     -DVTSS_FEATURE_MACSEC \
-    -DVTSS_FEATURE_PHY_TIMESTAMP \
+    -DVTSS_OPT_PHY_TIMESTAMP \
     -o venice_char
+
