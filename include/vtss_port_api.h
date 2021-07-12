@@ -33,6 +33,26 @@ typedef enum
     VTSS_MIIM_CONTROLLER_NONE = -1  /**< Unassigned MIIM controller */
 } vtss_miim_controller_t;
 
+
+/* The Definition of vtss_sd10g_media_type_t is used by the PHY API and SWITCH API */
+/* It should not be inside any VTSS_FEATURE_PORT_CONTROL definition to be included */
+
+/** \brief Different media/cable types attached to the 10G Serdes */
+typedef enum {
+    VTSS_SD10G_MEDIA_PR_NONE,    /**< No preset > */
+    VTSS_SD10G_MEDIA_SR,         /**< SR, Short Range > */
+    VTSS_SD10G_MEDIA_ZR,         /**< ZR, Long Range > */
+    VTSS_SD10G_MEDIA_DAC,        /**< DAC (Direct attached copper) cable, unspecified lenght > */
+    VTSS_SD10G_MEDIA_DAC_1M,     /**< 1m DAC > */
+    VTSS_SD10G_MEDIA_DAC_2M,     /**< 2m DAC > */
+    VTSS_SD10G_MEDIA_DAC_3M,     /**< 3m DAC > */
+    VTSS_SD10G_MEDIA_DAC_5M,     /**< 5m DAC > */
+    VTSS_SD10G_MEDIA_BP,         /**< Backplane > */
+    VTSS_SD10G_MEDIA_B2B,        /**< Bord to Board > */
+    VTSS_SD10G_MEDIA_10G_KR,     /**< 10G Base KR > */
+} vtss_sd10g_media_type_t;
+
+
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 
 /** \brief The internal bandwidth allocated for the port */
@@ -249,21 +269,6 @@ typedef enum
     VTSS_PORT_LOOP_DISABLE,   /**< No port loop */
     VTSS_PORT_LOOP_PCS_HOST,  /**< PCS host port loop */
 } vtss_port_loop_t;
-
-/** \brief Different media/cable types attached to the 10G Serdes */
-typedef enum {
-    VTSS_SD10G_MEDIA_PR_NONE,    /**< No preset > */
-    VTSS_SD10G_MEDIA_SR,         /**< SR, Short Range > */
-    VTSS_SD10G_MEDIA_ZR,         /**< ZR, Long Range > */
-    VTSS_SD10G_MEDIA_DAC,        /**< DAC (Direct attached copper) cable, unspecified lenght > */
-    VTSS_SD10G_MEDIA_DAC_1M,     /**< 1m DAC > */
-    VTSS_SD10G_MEDIA_DAC_2M,     /**< 2m DAC > */
-    VTSS_SD10G_MEDIA_DAC_3M,     /**< 3m DAC > */
-    VTSS_SD10G_MEDIA_DAC_5M,     /**< 5m DAC > */
-    VTSS_SD10G_MEDIA_BP,         /**< Backplane > */
-    VTSS_SD10G_MEDIA_B2B,        /**< Bord to Board > */
-    VTSS_SD10G_MEDIA_10G_KR,     /**< 10G Base KR > */
-} vtss_sd10g_media_type_t;
 
 /** \brief SFI Serdes configuration */
 typedef struct

@@ -82,12 +82,12 @@ static vtss_rc vtss_phy_conf_1g_set_private(vtss_state_t *vtss_state,
 static vtss_rc vtss_phy_debug_reg_dump_private(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
                                                BOOL clear, const vtss_port_no_t port_no);
 
+static vtss_rc vtss_phy_detect_base_ports_private(vtss_state_t *vtss_state);
+
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
 static BOOL vtss_phy_chk_serdes_init_mac_mode_private(vtss_state_t                      *vtss_state,
                                                       vtss_port_no_t                     port_no,
                                                       const vtss_phy_reset_conf_t *const conf);
-
-static vtss_rc vtss_phy_detect_base_ports_private(vtss_state_t *vtss_state);
 
 u8 vtss_phy_cfg_buf_size(vtss_state_t *vtss_state, const vtss_port_no_t    port_no);
 

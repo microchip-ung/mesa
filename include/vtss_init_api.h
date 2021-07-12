@@ -451,7 +451,9 @@ typedef struct {
     vtss_spi_32bit_read_write_t   spi_32bit_read_write;/**< Board specific SPI read/write callout function for 32 bit data */
     vtss_spi_64bit_read_write_t   spi_64bit_read_write;/**< Board specific SPI read/write callout function for 64 bit data*/
 
+#if defined(VTSS_GPIOS)
     vtss_gpio_func_info_get_t gpio_func_info_get;       /**< GPIO functionallity information get callout function */
+#endif
 
     vtss_port_serdes_tap_get_t serdes_tap_get;  /**< Serdes tap get callout function */
 
