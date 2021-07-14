@@ -298,8 +298,8 @@ end
 
 if $do_internal_checks
     begin
-#        release_note()
-#        run "cp images/release_note_*.txt #{$ws}"
+        release_note()
+        run "cp images/release_note_*.txt #{$ws}"
     rescue
         $res.addSibling(ResultNode.new("Release note", "Failed"))
     end
