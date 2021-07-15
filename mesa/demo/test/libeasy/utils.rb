@@ -182,8 +182,8 @@ def loop_pair_check
         assert(port_list != nil && port_list.length > 1, "Two front ports must be looped")
     end
 
-    if (!$ts.dut.call("mesa_port_state_get", port_list[0]))
-        t_e ("Loop ports must be up")
+    check_capabilities do
+        assert(dut_port_state_up(port_list.take(2)), "Loop ports must be up")
     end
 end
 

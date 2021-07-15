@@ -344,22 +344,23 @@ class MesaDut
 
         while l = @io.pop_line
             ts_now = Time.now
+            ts = ts_now.to_f
             msg = nil
             case l
             when /ER-M-(\d+)-(\d+\.\d+)-RUN\s+(.*)/
-                msg = {:type => :run, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :run, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDOUT\s+(.*)/
-                msg = {:type => :out, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :out, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDERR\s+(.*)/
-                msg = {:type => :err, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :err, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDIN\s+(.*)/
-                msg = {:type => :in, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :in, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-M-(\d+)-(\d+\.\d+)-EXIT\s+(.*)/
-                msg = {:type => :res, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :res, :pid => $1.to_i, :ts => ts, :data => $3}
 
             else
                 # none-matched lines are matched as console messages in the xml
@@ -379,7 +380,7 @@ class MesaDut
             # we can easily see where the messages was emitted
             ts_begin = bg_job[:ts_begin]
             ts = ts_begin + msg[:ts]
-            attrs = {"pid" => msg[:pid], "name" => bg_job[:name], "on" => bg_job[:on], "ts_rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts)}
+            attrs = {"pid" => msg[:pid], "name" => bg_job[:name], "on" => bg_job[:on], "ts_rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts_now)}
 
             case msg[:type]
             when :out
@@ -544,22 +545,23 @@ class TestPCRemote
         while l = @io.pop_line
             puts l
             ts_now = Time.now
+            ts = ts_now.to_f
             msg = nil
             case l
             when /ER-M-(\d+)-(\d+\.\d+)-RUN\s+(.*)/
-                msg = {:type => :run, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :run, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDOUT\s+(.*)/
-                msg = {:type => :out, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :out, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDERR\s+(.*)/
-                msg = {:type => :err, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :err, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-[LC]-(\d+)-(\d+\.\d+)-STDIN\s+(.*)/
-                msg = {:type => :in, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :in, :pid => $1.to_i, :ts => ts, :data => $3}
 
             when /ER-M-(\d+)-(\d+\.\d+)-EXIT\s+(.*)/
-                msg = {:type => :res, :pid => $1.to_i, :ts => $2.to_f, :data => $3}
+                msg = {:type => :res, :pid => $1.to_i, :ts => ts, :data => $3}
 
             else
                 # none-matched lines are matched as console messages in the xml
@@ -579,7 +581,7 @@ class TestPCRemote
             # we can easily see where the messages was emitted
             ts_begin = bg_job[:ts_begin]
             ts = ts_begin + msg[:ts]
-            attrs = {"pid" => msg[:pid], "name" => bg_job[:name], "on" => bg_job[:on], "ts_rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts)}
+            attrs = {"pid" => msg[:pid], "name" => bg_job[:name], "on" => bg_job[:on], "ts_rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts_now)}
 
             case msg[:type]
             when :out

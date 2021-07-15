@@ -1519,7 +1519,7 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link down and disable forwarding on port */
         if ((!ps->link || ps->link_down) && link_old) {
-            T_I("link down event on port_no: %u\n", port_no);
+            T_I("link down event on port_no: %u", port_no);
             link_old = 0;
             mesa_port_state_set(NULL, port_no, FALSE);
             mesa_mac_table_port_flush(NULL, port_no);
@@ -1527,7 +1527,7 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link up and setup port */
         if (ps->link && !link_old) {
-            T_I("link up event on port_no: %u spd:%s fdx:%d\n", port_no, mesa_port_spd2txt(ps->speed), ps->fdx);
+            T_I("link up event on port_no: %u spd:%s fdx:%d", port_no, mesa_port_spd2txt(ps->speed), ps->fdx);
             mesa_port_state_set(NULL, port_no, TRUE);
             if (port_is_aneg_mode(entry)) {
                 port_setup(port_no, TRUE, FALSE);
