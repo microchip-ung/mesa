@@ -304,26 +304,42 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
 
     T_I(inst, "Called - %d", reset);
     switch (reset) {
-        case MEBA_BOARD_INITIALIZE:
-            rc = lan966x_board_init(inst);
-            break;
+    case MEBA_BOARD_INITIALIZE:
+        rc = lan966x_board_init(inst);
+        break;
 
-        case MEBA_PORT_RESET:
-        case MEBA_PORT_RESET_POST:
-        case MEBA_STATUS_LED_INITIALIZE:
-        case MEBA_PORT_LED_INITIALIZE:
-        case MEBA_FAN_INITIALIZE:
-        case MEBA_SENSOR_INITIALIZE:
-        case MEBA_INTERRUPT_INITIALIZE:
-        case MEBA_SYNCE_DPLL_INITIALIZE:
-        case MEBA_POE_INITIALIZE:
-            break;
+    case MEBA_PORT_LED_INITIALIZE:
+        if (board->type == BOARD_TYPE_8PORT) {
+            mesa_port_no_t   port_no;
+            mepa_gpio_conf_t conf;
 
-        case MEBA_PHY_INITIALIZE:
-            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
-            inst->phy_device_cnt = board->port_cnt;
-            meba_phy_driver_init(inst);
-            break;
+            conf.gpio_no = 0;
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                conf.led_num = MEPA_LED0;
+                conf.mode = MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY;
+                (void)meba_phy_gpio_mode_set(inst, port_no, &conf);
+                conf.led_num = MEPA_LED1;
+                conf.mode = MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY;
+                (void)meba_phy_gpio_mode_set(inst, port_no, &conf);
+            }
+        }
+        break;
+
+    case MEBA_PORT_RESET:
+    case MEBA_PORT_RESET_POST:
+    case MEBA_STATUS_LED_INITIALIZE:
+    case MEBA_FAN_INITIALIZE:
+    case MEBA_SENSOR_INITIALIZE:
+    case MEBA_INTERRUPT_INITIALIZE:
+    case MEBA_SYNCE_DPLL_INITIALIZE:
+    case MEBA_POE_INITIALIZE:
+        break;
+
+    case MEBA_PHY_INITIALIZE:
+        inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+        inst->phy_device_cnt = board->port_cnt;
+        meba_phy_driver_init(inst);
+        break;
     }
 
     return rc;

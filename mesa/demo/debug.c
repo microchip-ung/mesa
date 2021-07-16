@@ -108,6 +108,7 @@ static void cli_cmd_deb_phy_clause45_rd_wr(cli_req_t *req, mesa_bool_t write)
     mesa_port_no_t  port, iport;
     uint32_t        reg;
     uint16_t        value;
+    int             i, first = 1;
     debug_cli_req_t *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
@@ -120,8 +121,15 @@ static void cli_cmd_deb_phy_clause45_rd_wr(cli_req_t *req, mesa_bool_t write)
             value = (uint16_t)mreq->value;
             meba_phy_clause45_write(meba_global_inst, iport, reg, value);
         } else if (meba_phy_clause45_read(meba_global_inst, iport, reg, &value) == MESA_RC_OK) {
-            cli_table_header("Port  page  Address  Value  ");
-            cli_printf("%-6u%-6u0x%-7x0x%x\n", port, mreq->page, mreq->addr, value);
+            if (first) {
+                first = 0;
+                cli_table_header("Port  Page  Address  15******8*7*******0  Value");
+            }
+            cli_printf("%-6u%-6u0x%04x   ", port, mreq->page, mreq->addr);
+            for (i = 15; i >= 0; i--) {
+                cli_printf("%d%s", value & (1<<i) ? 1 : 0, (i % 4) || i == 0 ? "" : ".");
+            }
+            cli_printf("  0x%04x\n", value);
         }
     }
 }

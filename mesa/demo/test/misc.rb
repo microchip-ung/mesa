@@ -72,3 +72,17 @@ test "forward-loop-2.5G" do
     $ts.dut.run("mesa-cmd port mode")
     $ts.dut.run("mesa-cmd port stati pa")
 end
+
+test "led-control" do
+    break
+    $ts.dut.p.each_with_index do |port, i|
+        mode = (i == 0 ? "100fdx" : i == 1 ? "100hdx" : i == 2 ? "10fdx" : "10hdx")
+        $ts.dut.run("mesa-cmd port mode #{port + 1} #{mode}")
+    end
+    sleep(5)
+    $ts.dut.run("mesa-cmd debug phy cls read 1,8 5 0")
+    $ts.dut.run("mesa-cmd debug phy cls read 1,8 5 1")
+    $ts.dut.run("mesa-cmd debug phy cls read 1,8 4 32")
+    $ts.dut.run("mesa-cmd debug phy cls read 1,8 4 33")
+    $ts.dut.run("mesa-cmd port mode")
+end
