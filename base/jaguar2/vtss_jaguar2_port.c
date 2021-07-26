@@ -898,7 +898,7 @@ static vtss_rc jr2_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t
 static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
     u8                *smac = &conf->flow_control.smac.addr[0];
-    u32               q, pause_start = 0x77F00, pause_stop = 0x77F00, rsrv_raw = 0x77F00, atop_tot = 0x77F00;
+    u32               q, pause_start = 0x77F00, pause_stop = 0x77F00, rsrv_raw = 0x77F00, atop_tot = 0x77F00, sum_port, sum_cpu, val;
     BOOL              pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     vtss_port_no_t    port_no;
 
@@ -923,15 +923,38 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_c
     }
 
     if (pfc || fc_gen || fc_obey) {
-        /* pause_start must be greater than reserved memory for PORT + reserved memory for (PORT,PRIO) */
-        pause_start = 16 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ);
+        // pause_start must be greater than reserved memory for
+        //    IGR_WM(PORT) + IGR_WM(PORT, PRIO)
+        // and
+        //    EGR_WM(CPUPORT_0) + EGR_WM(CPUPORT_0, PRIO)
+        // The latter is required in order not to transmit pause frames when the
+        // CPU is congested.
+
+        // Per port:
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(   0 /* ingress */ + 512 /* per port */ + port),                 &sum_port);
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress  */ + 512 /* per port */ + VTSS_CHIP_PORT_CPU_0), &sum_cpu);
+
+        // Per prio:
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(   0 /* ingress */ + port *                 VTSS_PRIOS /* per prio */ + q), &val);
+            sum_port += val;
+
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress  */ + VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */+ q), &val);
+            sum_cpu += val;
+        }
+
+        pause_start = MAX(sum_port, sum_cpu);
+
+        // Allow for a max frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_MAX / JR2_BUFFER_CELL_SZ;
+        printf("sum_port = %u, sum_cpu = %u => pause_start = %u (used to be %u)\n", sum_port, sum_cpu, pause_start, 16 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ));
+
         pause_stop = 4 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ);
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
             rsrv_raw = (20 * VTSS_MAX_FRAME_LENGTH_STANDARD) / JR2_BUFFER_CELL_SZ;
         } else {
             rsrv_raw = 40000 / JR2_BUFFER_CELL_SZ;
         }
-
     }
 
     /* Set Pause WM hysteresis*/
@@ -965,7 +988,6 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_c
     /*  When 'port ATOP' and 'common ATOP_TOT' are exceeded, tail dropping is activated on port */
     JR2_WR(VTSS_QSYS_PAUSE_CFG_ATOP_TOT_CFG,
            VTSS_F_QSYS_PAUSE_CFG_ATOP_TOT_CFG_ATOP_TOT(wm_enc(atop_tot)));
-
 
     return VTSS_RC_OK;
 }

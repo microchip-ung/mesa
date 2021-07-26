@@ -876,7 +876,7 @@ static vtss_rc l26_port_fc_setup(vtss_state_t *vtss_state, u32 port,
                                  const vtss_port_conf_t *const conf)
 {
     const u8 *mac;
-    u32 pause_start, pause_stop, rsrv_raw, rsrv_total=0, atop_wm;
+    u32 pause_start, pause_stop, rsrv_raw, rsrv_total=0, atop_wm, q, sum_port, sum_cpu, val;
     vtss_port_conf_t *conf_tmp;
     vtss_port_no_t port_no;
 
@@ -886,11 +886,32 @@ static vtss_rc l26_port_fc_setup(vtss_state_t *vtss_state, u32 port,
     rsrv_raw = 0;
 
     if (conf->flow_control.generate) {
-        if (conf->max_frame_length <= VTSS_MAX_FRAME_LENGTH_STANDARD) {
-            pause_start = 190;    /* 6 x 1518 / 48 */
-        } else {
-            pause_start = 221;    /* 7 x 1518 / 48 */
+        // pause_start must be greater than reserved memory for
+        //    IGR_WM(PORT) + IGR_WM(PORT, PRIO)
+        // and
+        //    EGR_WM(CPUPORT_0) + EGR_WM(CPUPORT_0, PRIO)
+        // The latter is required in order not to transmit pause frames when the
+        // CPU is congested.
+
+        // Per port:
+        L26_RD(VTSS_SYS_RES_CTRL_RES_CFG(  0 /* ingress */ + 224 /* per port */ + port),                 &sum_port);
+        L26_RD(VTSS_SYS_RES_CTRL_RES_CFG(512 /* egress  */ + 224 /* per port */ + VTSS_CHIP_PORT_CPU_0), &sum_cpu);
+
+        // Per prio:
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            L26_RD(VTSS_SYS_RES_CTRL_RES_CFG(  0 /* ingress */ + port *                 VTSS_PRIOS /* per prio */ + q), &val);
+            sum_port += val;
+
+            L26_RD(VTSS_SYS_RES_CTRL_RES_CFG(512 /* egress  */ + VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */+ q), &val);
+            sum_cpu += val;
         }
+
+        pause_start = MAX(sum_port, sum_cpu);
+
+        // Allow for a max frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_MAX / L26_BUFFER_CELL_SZ;
+
+        printf("sum_port = %u, sum_cpu = %u => pause_start = %u (used to be 221)\n", sum_port, sum_cpu, pause_start);
     }
 
     if (conf->flow_control.generate && conf->max_frame_length <= VTSS_MAX_FRAME_LENGTH_STANDARD) {
@@ -920,7 +941,7 @@ static vtss_rc l26_port_fc_setup(vtss_state_t *vtss_state, u32 port,
 
     /* Set Pause WM hysteresis*/
     L26_WR(VTSS_SYS_PAUSE_CFG_PAUSE_CFG(port),
-           VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(pause_start) |
+           VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(wm_enc(pause_start)) |
            VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_STOP(pause_stop) |
            (conf->flow_control.generate ? VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA : 0));
 

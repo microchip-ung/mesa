@@ -1332,7 +1332,7 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
     vtss_port_speed_t speed = conf->speed;
     vtss_port_no_t    port_no;
     u32               rsrv_raw, rsrv_total = 0, atop_wm, tgt = VTSS_TO_DEV(port);
-    u32               pause_start = 0x7ff;
+    u32               pause_start = 0x7ff, sum_port, sum_cpu, val;
     u32               pause_stop  = 0xfff;
     u32               rsrv_raw_fc_jumbo = 40000;
     u32               rsrv_raw_no_fc_jumbo = 12000;
@@ -1358,9 +1358,34 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
         rsrv_raw = rsrv_raw_fc_no_jumbo;
     } else {
         /* Standard Flowcontrol */
+
+        // pause_start must be greater than reserved memory for
+        //    IGR_WM(PORT) + IGR_WM(PORT, PRIO)
+        // and
+        //    EGR_WM(CPUPORT_0) + EGR_WM(CPUPORT_0, PRIO)
+        // The latter is required in order not to transmit pause frames when the
+        // CPU is congested.
+
+        // Per port:
+        SRVL_RD(VTSS_QSYS_RES_CTRL_RES_CFG(  0 /* ingress */ + 224 /* per port */ + port),                 &sum_port);
+        SRVL_RD(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress  */ + 224 /* per port */ + VTSS_CHIP_PORT_CPU_0), &sum_cpu);
+
+        // Per prio:
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            SRVL_RD(VTSS_QSYS_RES_CTRL_RES_CFG(  0 /* ingress */ + port *                 VTSS_PRIOS /* per prio */ + q), &val);
+            sum_port += val;
+
+            SRVL_RD(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress  */ + VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */+ q), &val);
+            sum_cpu += val;
+        }
+
+        pause_start = MAX(sum_port, sum_cpu);
+
+        // Allow for a max frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_MAX / SRVL_BUFFER_CELL_SZ;
+        printf("sum_port = %u, sum_cpu = %u => pause_start = %u (used to be 228)\n", sum_port, sum_cpu, pause_start);
+
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
-            // 9 x 1518 rounded up for the WM allocation unit
-            pause_start = 228;     /* 9 x 1518 / 60 */
             if (fc_gen) { /* FC and jumbo enabled*/
                 pause_stop  = 177;     /* 7 x 1518 / 60 */
                 rsrv_raw    = rsrv_raw_fc_jumbo;
@@ -1368,7 +1393,6 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
                 rsrv_raw = rsrv_raw_no_fc_jumbo;
             }
         } else {
-            pause_start = 152;    /* 6 x 1518 / 60 */
             if (fc_gen) { /* FC enabled, jumbo disabled */
                 pause_stop  = 101;    /* 4 x 1518 / 60 */
                 rsrv_raw    = rsrv_raw_fc_no_jumbo;
@@ -1380,7 +1404,7 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
 
     /* Set Pause WM hysteresis*/
     SRVL_WR(VTSS_SYS_PAUSE_CFG_PAUSE_CFG(port),
-            VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(pause_start) |
+            VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(wm_enc(pause_start)) |
             VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_STOP(pause_stop) |
             (fc_gen ? VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA : 0));
     

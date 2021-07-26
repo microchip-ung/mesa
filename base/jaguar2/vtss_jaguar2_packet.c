@@ -250,12 +250,41 @@ static vtss_rc jr2_rx_conf_set(vtss_state_t *vtss_state)
     BOOL                       cpu_only;
     vtss_jr2_l2cp_conf_t       l2cp_conf;
 
-    // Each CPU queue gets reserved extraction buffer space. No sharing at port or buffer level
+#if defined(VTSS_ARCH_SERVAL_T)
+    // Due to a chip-bug on ServalT (see MESA-742), we must set per-queue
+    // egress reservation to 0 and only use the per-port egress reservation.
+    // The user has asked for a number of bytes per queue, which we cannot
+    // honor, but let's sum up those and set a limit of 32 KBytes.
+    u32 sum = 0;
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue), conf->queue[queue].size / JR2_BUFFER_CELL_SZ);
+        sum += conf->queue[queue].size;
     }
 
-    JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + 512 /* per-port reservation */ + VTSS_CHIP_PORT_CPU), 0); // No extra shared space at port level
+    sum = MIN(32768, sum);
+
+    for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
+        // CPU_0 gets space, CPU_1 doesn't.
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + 512 /* per-port reservation */ + port), port == VTSS_CHIP_PORT_CPU_0 ? sum / JR2_BUFFER_CELL_SZ : 0);
+
+        // Per-queue limit must be set to 0.
+        for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+            JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + port * VTSS_PRIOS + queue), 0);
+        }
+    }
+
+#else
+    // Each CPU queue on CPU_0 gets reserved extraction buffer space. No sharing
+    // at port or buffer level. CPU_1 (often used for throttling) gets zero
+    // space.
+    for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + 512 /* per-port reservation */ + port), 0); // No extra shared space at port level
+
+        for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+            JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress */ + port * VTSS_PRIOS + queue), port == VTSS_CHIP_PORT_CPU_0 ? conf->queue[queue].size / JR2_BUFFER_CELL_SZ : 0);
+        }
+    }
+
+#endif
 
     // Setup Rx registrations that we only have per-switch API support for (not per-port)
     cap_cfg = VTSS_F_ANA_CL_PORT_CAPTURE_CFG_CPU_MLD_REDIR_ENA  (reg->mld_cpu_only)       |
