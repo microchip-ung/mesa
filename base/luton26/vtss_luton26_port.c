@@ -871,6 +871,27 @@ static vtss_rc l26_mmd_read_inc(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+// Watermark values encoded at little odd for values larger than 1024
+/*
+ * Watermark encode/decode for SYS:RES_CTRL:RES_CFG.WM_HIGH
+ * Bit 10:  Unit; 0:1, 1:16
+ * Bit 9-0: Value to be multiplied with unit
+ */
+static int wm_enc(int value) {
+    if (value >= 1024) {
+        return 1024 + value / 16;
+    }
+    return value;
+}
+
+static u32 wm_dec(u32 value)
+{
+    if (value > 1024) {
+        return (value - 1024) * 16;
+    }
+    return value;
+}
+
 /* Setup water marks, drop levels, etc for port */
 static vtss_rc l26_port_fc_setup(vtss_state_t *vtss_state, u32 port,
                                  const vtss_port_conf_t *const conf)
@@ -1899,27 +1920,6 @@ static vtss_rc l26_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
     }
 
     return VTSS_RC_OK;
-}
-
-// Watermark values encoded at little odd for values larger than 1024
-/*
- * Watermark encode/decode for SYS:RES_CTRL:RES_CFG.WM_HIGH
- * Bit 10:  Unit; 0:1, 1:16
- * Bit 9-0: Value to be multiplied with unit
- */
-static int wm_enc(int value) {
-    if (value >= 1024) {
-        return 1024 + value / 16;
-    }
-    return value;
-}
-
-static u32 wm_dec(u32 value)
-{
-    if (value > 1024) {
-        return (value - 1024) * 16;
-    }
-    return value;
 }
 
 static vtss_rc l26_buf_conf_set(vtss_state_t *vtss_state)
