@@ -766,6 +766,12 @@ static mepa_rc indy_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loop
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_ANEG_ENA | INDY_F_BASIC_CTRL_RESTART_ANEG,
                 INDY_F_BASIC_CTRL_ANEG_ENA | INDY_F_BASIC_CTRL_RESTART_ANEG);
         }
+        if (data->dev.rev <= 1) {
+            EP_WR(dev, INDY_POWER_MGMT_MODE_5, 0x6677);
+            EP_WR(dev, INDY_POWER_MGMT_MODE_6, 0x6677);
+            EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
+            EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x4377);
+        }
     }
     if (loopback->connector_ena == TRUE) {
         WR(dev, INDY_RESV_CON_LOOP, 0xfc08);
