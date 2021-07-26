@@ -41,6 +41,7 @@ typedef struct {
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
+static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable);
 
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
@@ -344,7 +345,12 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     MEPA_EXIT(dev);
     T_I(data, MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
     // Reconfigure the phy after reset
-    indy_conf_set(dev, &data->conf);
+    if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
+        indy_conf_set(dev, &data->conf);
+        if (data->events) {
+            indy_event_enable_set(dev, data->events, TRUE);
+        }
+    }
     return MEPA_RC_OK;
 }
 
@@ -658,7 +664,7 @@ static mepa_rc indy_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint
 }
 
 // Enable events
-static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mesa_bool_t enable)
+static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint16_t ev_mask = 0, i, val;
