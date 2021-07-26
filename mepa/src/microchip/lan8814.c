@@ -361,7 +361,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         // loops back to Mac. Ignore Line side status to Link partner.
         status->link = 1;
     }
-    if (data->conf.speed == MEPA_SPEED_AUTO) {
+    if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
         uint16_t lp_sym_pause = 0, lp_asym_pause = 0;
         uint8_t ext_status = 0;
         // Default values
@@ -382,19 +382,24 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
         RD(dev, INDY_ANEG_LP_BASE, &val);
         RD(dev, INDY_ANEG_MSTR_SLV_STATUS, &val2);
         // 1G half duplex is not supported. Refer direct register - 9
-        if (val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) {
+        if ((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
+            data->conf.aneg.speed_1g_fdx) {
             status->speed = MEPA_SPEED_1G;
             status->fdx = 1;
-        } else if (val & INDY_F_ANEG_LP_BASE_100_X_FULL_DUP) {
+        } else if ((val & INDY_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
+            data->conf.aneg.speed_100m_fdx) {
             status->speed = MEPA_SPEED_100M;
             status->fdx = 1;
-        } else if (val & INDY_F_ANEG_LP_BASE_100_X_HALF_DUP) {
+        } else if ((val & INDY_F_ANEG_LP_BASE_100_X_HALF_DUP) &&
+            data->conf.aneg.speed_100m_hdx) {
             status->speed = MEPA_SPEED_100M;
             status->fdx = 0;
-        } else if (val & INDY_F_ANEG_LP_BASE_10_T_FULL_DUP) {
+        } else if ((val & INDY_F_ANEG_LP_BASE_10_T_FULL_DUP) &&
+            data->conf.aneg.speed_10m_fdx) {
             status->speed = MEPA_SPEED_10M;
             status->fdx = 1;
-        } else if (val & INDY_F_ANEG_LP_BASE_10_T_HALF_DUP) {
+        } else if ((val & INDY_F_ANEG_LP_BASE_10_T_HALF_DUP) &&
+            data->conf.aneg.speed_10m_hdx) {
             status->speed = MEPA_SPEED_10M;
             status->fdx = 0;
         }
