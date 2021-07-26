@@ -211,6 +211,9 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
     // Set config only for base port of phy.
     if (data->dev.model == 0x26) {
         if (data->access.miim_addr == get_base_addr(dev)) {
+            EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
+            PHY_MSLEEP(1);
+
             if (!data->qsgmii_phy_aneg_dis) {
                 // Disable QSGMII auto-negotiation common for 4 ports.
                 EP_WRM(dev, INDY_QSGMII_AUTO_ANEG, 0, INDY_F_QSGMII_AUTO_ANEG_AUTO_ANEG_ENA);
@@ -1034,7 +1037,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
     static mepa_driver_t indy_drivers[] = {
         {
             .id = 0x221660,  // LAN8814 QSGMII standalone PHY
-            .mask = 0xff00f0,
+            .mask = 0xfffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,
@@ -1062,7 +1065,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
-            .mask = 0xff00f0,
+            .mask = 0xfffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,
