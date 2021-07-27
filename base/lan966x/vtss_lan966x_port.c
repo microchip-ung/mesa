@@ -391,13 +391,13 @@ static vtss_rc lan966x_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_co
 
 static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
-    u8                *mac;
+    u8                *mac, q;
     u32               pfc_mask = lan966x_pfc_mask(conf);
     BOOL              fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     vtss_port_speed_t speed = conf->speed;
     vtss_port_no_t    port_no;
     u32               rsrv_raw, rsrv_total = 0, atop_wm;
-    u32               pause_stop  = 1;
+    u32               pause_stop = 1, pause_start = (pause_stop + 2) * 1518, sum_port, sum_cpu, val;
     u32               rsrv_raw_fc_jumbo = 40000;
     u32               rsrv_raw_no_fc_jumbo = 12000;
     u32               rsrv_raw_fc_no_jumbo = (9 * 1518);
@@ -418,6 +418,35 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
         rsrv_raw = rsrv_raw_fc_no_jumbo;
     } else {
         /* Standard Flowcontrol */
+
+        // pause_start must be greater than reserved memory for
+        //    IGR_WM(PORT) + IGR_WM(PORT, PRIO)
+        // and
+        //    EGR_WM(CPUPORT_0) + EGR_WM(CPUPORT_0, PRIO)
+        // The latter is required in order not to transmit pause frames when the
+        // CPU is congested.
+
+        // Per port:
+        REG_RD(QSYS_RES_CFG(  0 /* ingress */ + 224 /* per port */ + port),                 &sum_port);
+        REG_RD(QSYS_RES_CFG(512 /* egress  */ + 224 /* per port */ + VTSS_CHIP_PORT_CPU_0), &sum_cpu);
+
+        // Per prio:
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            REG_RD(QSYS_RES_CFG(  0 /* ingress */ + port *                 VTSS_PRIOS /* per prio */ + q), &val);
+            sum_port += val;
+
+            REG_RD(QSYS_RES_CFG(512 /* egress  */ + VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */+ q), &val);
+            sum_cpu += val;
+        }
+
+        pause_start = MAX(sum_port, sum_cpu);
+
+        // Convert from cells to bytes
+        pause_start *= LAN966X_BUFFER_CELL_SZ;
+
+        // Allow for a max frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_MAX;
+
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
             if (fc_gen) { /* FC and jumbo enabled*/
                 pause_stop = 7;
@@ -437,7 +466,7 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
 
     /* Set Pause WM hysteresis, start/stop are in 1518 byte units */
     REG_WR(SYS_PAUSE_CFG(port),
-           SYS_PAUSE_CFG_PAUSE_START(wm_enc_bytes((pause_stop + 2) * 1518)) |
+           SYS_PAUSE_CFG_PAUSE_START(wm_enc_bytes(pause_start)) |
            SYS_PAUSE_CFG_PAUSE_STOP(wm_enc_bytes(pause_stop * 1518)) |
            SYS_PAUSE_CFG_PAUSE_ENA(fc_gen ? 1 : 0));
 

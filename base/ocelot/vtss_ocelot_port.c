@@ -1383,7 +1383,6 @@ static vtss_rc srvl_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_
 
         // Allow for a max frame.
         pause_start += VTSS_MAX_FRAME_LENGTH_MAX / SRVL_BUFFER_CELL_SZ;
-        printf("sum_port = %u, sum_cpu = %u => pause_start = %u (used to be 228)\n", sum_port, sum_cpu, pause_start);
 
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
             if (fc_gen) { /* FC and jumbo enabled*/

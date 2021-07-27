@@ -947,7 +947,6 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_c
 
         // Allow for a max frame.
         pause_start += VTSS_MAX_FRAME_LENGTH_MAX / JR2_BUFFER_CELL_SZ;
-        printf("sum_port = %u, sum_cpu = %u => pause_start = %u (used to be %u)\n", sum_port, sum_cpu, pause_start, 16 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ));
 
         pause_stop = 4 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ);
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
