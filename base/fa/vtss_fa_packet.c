@@ -234,15 +234,56 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     vtss_packet_rx_queue_map_t *map = &conf->map;
     vtss_packet_rx_port_conf_t *port_conf;
     vtss_port_no_t             port_no;
-    u32                        port, i, j, cap_cfg, queue;
+    u32                        port, i, j, cap_cfg, queue, max_req = 0;
     BOOL                       cpu_only;
     vtss_fa_l2cp_conf_t        l2cp_conf;
 
-    // Each CPU queue gets reserved extraction buffer space. No sharing at port or buffer level
+    // For the CPU ports, we use qlimit shared memory pool #1. All front ports
+    // use qlimit shared memory pool #0. In this way, we can set different
+    // watermarks for the CPU and for the front ports.
+    // fa_port_buf_qlim_set() has already configured the legacy QRES system to
+    // never be able to drop.
+    // The thing is that the new system doesn't support different CPU queue
+    // limits, but the mesa_rx_conf_set() API allows for setting different
+    // limits to different CPU queues. In order to overcome this, it has been
+    // decided to use the maximum requested queue size for all queues and set
+    // the overall CPU port scheduling element to 0.
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-        REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue), conf->queue[queue].size / FA_BUFFER_CELL_SZ);
+        max_req = MAX(max_req, conf->queue[queue].size);
     }
-    REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + 560 /* per-port reservation */ + VTSS_CHIP_PORT_CPU), 0); // No extra shared space at port level
+
+    // Convert to cells
+    max_req /= FA_BUFFER_CELL_SZ;
+
+    // Don't exceed the field width (this field is located at offset 0, so it's
+    // fine to use the mask itself).
+    max_req = MIN(max_req, VTSS_M_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG);
+
+    // Set per-queue congestion values to max_req for shared memory pool #1.
+    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(1), max_req);
+
+    // Set the overall port scheduling element congestion value to 0 for shared
+    // memory pool #1, so that it's only the queue limits that rule.
+    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(1), 0);
+
+    // Switch the CPU ports to memory pool #1, and disallow egress sharing.
+    for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
+        REG_WRM(VTSS_XQS_QLIMIT_PORT_CFG(port),
+                VTSS_F_XQS_QLIMIT_PORT_CFG_QLIMIT_SHR_VAL(1) |
+                VTSS_F_XQS_QLIMIT_PORT_CFG_QLIMIT_NO_ESHR(1),
+                VTSS_M_XQS_QLIMIT_PORT_CFG_QLIMIT_SHR_VAL |
+                VTSS_M_XQS_QLIMIT_PORT_CFG_QLIMIT_NO_ESHR);
+    }
+
+    // Enable EGRESS_DROP_MODE on both CPU ports. This code also sets
+    // EGR_NO_SHARING, but this is only needed if using the legacy QRES system.
+    for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
+        REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
+                VTSS_F_QFWD_SWITCH_PORT_MODE_EGR_NO_SHARING(1) |
+                VTSS_F_QFWD_SWITCH_PORT_MODE_EGRESS_DROP_MODE(1),
+                VTSS_M_QFWD_SWITCH_PORT_MODE_EGR_NO_SHARING |
+                VTSS_M_QFWD_SWITCH_PORT_MODE_EGRESS_DROP_MODE);
+    }
 
     // Setup Rx registrations that we only have per-switch API support for (not per-port)
     cap_cfg = VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA  (reg->mld_cpu_only)       |

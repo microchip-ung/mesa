@@ -1920,13 +1920,30 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     /* If FC is enabled then set the FC WMs */
     if (pfc || fc_gen || fc_obey) {
         atop        = wm_enc(20 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
-        pause_start = wm_enc(6  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
         pause_stop  = wm_enc(4  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+
+        // To avoid that traffic that is copied or redirected to the CPU causes
+        // pause frames on a F/C-enabled port, we must set pause_start to be
+        // greater than what a single egress queue towards the CPU can spend of
+        // memory. In principle, we should multiply what we read by 8, because
+        // we have this amount of memory per queue, but we only guarantee no
+        // pause frames when sending to the same CPU queue causes congestion.
+        // The overall CPU port SE congestion watermark is not used on CPU
+        // ports, so this does not go into the calculations.
+        // Note: The CPU uses QLIMIT shared memory pool #1, as opposed to the
+        // front ports, which use pool #0, hence read of replication #1.
+        REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(1), &pause_start);
+
+        // Also, we only guarantee that a maximum standard ethernet frame goes
+        // to the CPU without pause frame generation. Due to the way the QLIMIT
+        // system works, we have to make room for two such frames plus one
+        // extra cell. Also remember that the IFH takes up space.
+        pause_start += 2 * VTSS_DIV_ROUND_UP(VTSS_MAX_FRAME_LENGTH_STANDARD + VTSS_FA_RX_IFH_SIZE, FA_BUFFER_CELL_SZ) + 1;
     }
 
     /* Set Pause WM hysteresis */
     REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
-            VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(pause_start) |
+            VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(wm_enc(pause_start)) |
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_STOP(pause_stop) |
             VTSS_F_QSYS_PAUSE_CFG_PAUSE_ENA(0),
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_START |
