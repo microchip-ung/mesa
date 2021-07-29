@@ -444,8 +444,8 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_po
         // Convert from cells to bytes
         pause_start *= LAN966X_BUFFER_CELL_SZ;
 
-        // Allow for a max frame.
-        pause_start += VTSS_MAX_FRAME_LENGTH_MAX;
+        // Allow for a standard frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_STANDARD;
 
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
             if (fc_gen) { /* FC and jumbo enabled*/

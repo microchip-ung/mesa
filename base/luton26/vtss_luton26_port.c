@@ -929,8 +929,8 @@ static vtss_rc l26_port_fc_setup(vtss_state_t *vtss_state, u32 port,
 
         pause_start = MAX(sum_port, sum_cpu);
 
-        // Allow for a max frame.
-        pause_start += VTSS_MAX_FRAME_LENGTH_MAX / L26_BUFFER_CELL_SZ;
+        // Allow for a standard frame.
+        pause_start += VTSS_MAX_FRAME_LENGTH_STANDARD / L26_BUFFER_CELL_SZ;
     }
 
     if (conf->flow_control.generate && conf->max_frame_length <= VTSS_MAX_FRAME_LENGTH_STANDARD) {
