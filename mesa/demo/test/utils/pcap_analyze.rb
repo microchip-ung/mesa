@@ -250,7 +250,7 @@ if ($options[:frame_count] == :pcp)
             max = max_cycle[pcp_idx]
             short = $short_cycle[pcp_idx]
             long = $long_cycle[pcp_idx]
-            if ((short > 4) || (long > 8))
+            if ((short > 6) || (long > 8))
                 $stderr.puts "Analyze failed.  Cycle time is not as expected. pcp #{pcp_value}  exp_cycle_f #{exp_cycle_f}"
                 puts "min #{min}  max #{max}  min_lim #{exp_cycle_f - max_diff}  max_lim #{exp_cycle_f + max_diff}\n\
                       min_percent #{((exp_cycle_f - min) / exp_cycle_f) * 100}  max_percent #{((max - exp_cycle_f) / exp_cycle_f) * 100}"
