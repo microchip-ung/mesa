@@ -1221,11 +1221,15 @@ static void kr_poll_v2(meba_inst_t inst, mesa_port_no_t iport)
 static void kr_poll(meba_inst_t inst)
 {
     mesa_port_no_t iport;
+    mesa_port_conf_t pconf;
     uint16_t meba_cnt = inst->api.meba_capability(inst, MEBA_CAP_BOARD_PORT_COUNT);
 
     if (BASE_KR_V3) {
         for (iport = 0; iport < meba_cnt; iport++) {
             if (!kr_conf_state[iport].aneg_enable) {
+                continue;
+            }
+            if (mesa_port_conf_get(NULL, iport, &pconf) == MESA_RC_OK && pconf.power_down) {
                 continue;
             }
             if (kr_conf_state[iport].pollcnt == 0) {
