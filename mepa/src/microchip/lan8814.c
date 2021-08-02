@@ -212,7 +212,7 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
     // Set config only for base port of phy.
     if (data->dev.model == 0x26) {
         if (data->access.miim_addr == get_base_addr(dev)) {
-            EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
+            //EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
             PHY_MSLEEP(1);
 
             if (!data->qsgmii_phy_aneg_dis) {
