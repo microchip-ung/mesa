@@ -98,6 +98,7 @@ test "Training" do
             $ts.dut.run "mesa-cmd port kr aneg #{$cli_port} #{spd} rfec rsfec train"
             t_i("==============================================");
         end
+        sleep 1
         for i in 1..repeat_test do
             kr_ports.each do |idx|
                 conf = $ts.dut.call "mesa_port_kr_status_get", idx

@@ -113,6 +113,7 @@ test "Training" do
         cli_port = idx+1
         $ts.dut.run "mesa-cmd port kr aneg #{cli_port} #{spd} rfec rsfec train"
       end
+      sleep 1
       $kr_ports.each do |idx|
           conf = $ts.dut.call "mesa_port_kr_status_get", idx
           eye = $ts.dut.call "mesa_port_kr_eye_get", idx
