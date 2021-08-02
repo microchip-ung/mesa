@@ -26,6 +26,7 @@ $diff_low = 1
 
 if ($pcb == "8291-EndNode")
     $external_io_in = 4
+    $diff_high = 2
     $diff_low = 3
 end
 if ($pcb == 111)
