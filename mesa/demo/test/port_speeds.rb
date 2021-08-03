@@ -69,10 +69,10 @@ $speed_list.each do |spd_entry|
         $ts.dut.run "mesa-cmd port mode #{cli_ports} #{speed}#{duplex}"
 
         t_i "Wait until DUT ports are operational"
+        sleep 5
         if !dut_port_state_up($ts.dut.port_list)
             t_e "Port state is not up"
         end
-        sleep 5
         $num_of_frames.times do
             $ts.pc.try cmd
         end
