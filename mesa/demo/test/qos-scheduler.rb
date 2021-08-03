@@ -114,7 +114,7 @@ test "Weighted scheduling with equal weights test from #{ig_list} to #{$ts.dut.p
     erate = 990000000/3
        #measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000,    tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-        measure(ig, eg, 100,  1,     false,            false,           [erate,erate,erate], [0.5,0.5,0.5],  true,              [0,1,2])
+        measure(ig, eg, 100,  1,     false,            false,           [erate,erate,erate], [0.8,0.8,0.8],  true,              [0,1,2])
     else
         measure(ig, eg, 1000, 1,     false,            false,           [erate,erate,erate], [2,2,2],        true,              [0,1,2])
     end

@@ -556,7 +556,7 @@ def jira_appl_3433_test
     if ($ts.dut.pcb == 135)
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.5],          true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1],            true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1.1],          true,              [2])
     end
 
     t_i ("Disable Frame Preemption")
