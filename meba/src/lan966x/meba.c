@@ -40,6 +40,9 @@ typedef struct meba_board_state {
     mesa_port_status_t    status[PORTS_MAX];
 } meba_board_state_t;
 
+// GPIO for interrupts from external PHYs
+#define GPIO_IRQ         24
+
 // GPIO for push button
 #define GPIO_PUSH_BUTTON 55
 
@@ -163,7 +166,8 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         break;
     case BOARD_TYPE_8PORT:
         // GPIO 24 is IRQ from PHYs
-        (void)mesa_gpio_mode_set(NULL, 0, 24, MESA_GPIO_ALT_4);
+        (void)mesa_gpio_mode_set(NULL, 0, GPIO_IRQ, MESA_GPIO_ALT_4);
+        (void)mesa_gpio_event_enable(NULL, 0, GPIO_IRQ, true);
 
         // GPIO 28/29 are MDC/MDIO
         for (gpio_no = 28; gpio_no < 30; gpio_no++) {
@@ -503,18 +507,26 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
 
 static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
-    int         handled = 0;
-    mesa_bool_t gpio_events[100];
+    int            handled = 0;
+    mesa_bool_t    gpio_events[100];
+    mesa_port_no_t port_no;
 
     if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE) {
         return MESA_RC_ERROR;
     }
 
-    if (mesa_gpio_event_poll(NULL, 0, gpio_events) == MESA_RC_OK &&
-        gpio_events[GPIO_PUSH_BUTTON]) {
-        (void)mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, false);
-        signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
-        handled = 1;
+    if (mesa_gpio_event_poll(NULL, 0, gpio_events) == MESA_RC_OK) {
+        if (gpio_events[GPIO_PUSH_BUTTON]) {
+            (void)mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, false);
+            signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+            handled = 1;
+        }
+        if (board->type == BOARD_TYPE_8PORT && gpio_events[GPIO_IRQ]) {
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                (void)meba_generic_phy_event_check(inst, port_no, signal_notifier);
+            }
+            handled = 1;
+        }
     }
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
@@ -527,7 +539,7 @@ static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 static mesa_rc cu_phy_handler(meba_inst_t inst, meba_board_state_t *board,
                               mesa_irq_t irq, meba_event_signal_t signal_notifier)
 {
-    if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE) {
+    if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE || board->type == BOARD_TYPE_8PORT) {
         return MESA_RC_ERROR;
     }
     return meba_generic_phy_event_check(inst, irq - MESA_IRQ_CU_PHY_0, signal_notifier);
