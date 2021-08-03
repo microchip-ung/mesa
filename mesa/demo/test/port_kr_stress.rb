@@ -90,7 +90,7 @@ spds << "adv-10g"
 if cap25 != ""
     spds << "adv-25g"
 end
-
+cnt = 0
 test "Training" do
     spds.each do |spd|
         kr_ports.each do |idx|
@@ -98,16 +98,24 @@ test "Training" do
             $ts.dut.run "mesa-cmd port kr aneg #{$cli_port} #{spd} rfec rsfec train"
             t_i("==============================================");
         end
-        sleep 1
         for i in 1..repeat_test do
             kr_ports.each do |idx|
-                conf = $ts.dut.call "mesa_port_kr_status_get", idx
-                eye = $ts.dut.call "mesa_port_kr_eye_get", idx
+                cnt = 0
+                while cnt < 5
+                    conf = $ts.dut.call "mesa_port_kr_status_get", idx
+                    if conf["train"]["complete"] == true
+                        break
+                    end
+                    sleep 2
+                    cnt += 1
+                end
                 if conf["train"]["complete"] != true
-                    t_e("Could not complete aneg for #{spd} got #{conf["aneg"]["complete"]}");
+                    t_e("Could not complete training for #{spd}");
                 else
+                    eye = $ts.dut.call "mesa_port_kr_eye_get", idx
                     t_i("Training port #{idx} (#{spd}) completed with eye height:#{eye["height"]}");
                 end
+
             end
             test "Frame forwarding " do
                 $ts.dut.run "mesa-cmd port statis clear"
