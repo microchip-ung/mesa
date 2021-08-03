@@ -32,6 +32,12 @@ $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
 def tod_tx_fifo_test
     test "tod_tx_fifo_test" do
 
+    # Update default ingress and egress latency in the API. This is based on register values potentially different after link up
+    # Delay after call to mesa_ts_status_change should be smaller as the default delay (that is added) is calculated internally in the API
+    # This is only the case the first run of the test after boot as this default delay is remembered in the API
+    $ts.dut.call("mesa_ts_status_change", $loop_port0)
+    $ts.dut.call("mesa_ts_status_change", $loop_port1)
+
     # age out any allocated timestamps id's
     4.times {$ts.dut.call("mesa_timestamp_age")}
 

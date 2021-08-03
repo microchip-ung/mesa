@@ -610,7 +610,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
 
     port = VTSS_CHIP_PORT(port_no);
 
-    VTSS_D("interface %d  speed %u", interface, speed);
+    VTSS_D("chip_port %u  interface %d  speed %u", port, interface, speed);
     REG_RD(DEV_PCS1G_LINK_STATUS(port), &value);
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
@@ -666,8 +666,8 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (1000 * 276);
-            tx_delay += (1000 * 276);
+            rx_delay += (1000 * 538);
+            tx_delay += (1000 * 538);
         }
         break;
     default:
@@ -939,7 +939,7 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
         REG_WRM(PTP_PIN_CFG(i), PTP_PIN_CFG_PIN_SELECT(i), PTP_PIN_CFG_PIN_SELECT_M);
     }
 
-    /* Get the GPIO functionallity information */
+    /* Get the GPIO functionality information */
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_0, &ptp_gpio[0]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_1, &ptp_gpio[1]);
@@ -947,7 +947,7 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_3, &ptp_gpio[3]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
         if (rc != VTSS_RC_OK) {
-            VTSS_I("Not able to get valid GPIO functionallity information");
+            VTSS_I("Not able to get valid GPIO functionality information");
         }
     } else {
         VTSS_I("gpio_func_info_get is NULL");

@@ -165,6 +165,9 @@ def tod_latency_test(port0, port1)
         if ($ts.dut.pcb == "8281-SVB")
             max = 43
         end
+        if ($ts.dut.pcb == "8290")
+            max = 70
+        end
     end
 
     if ((nano_delay_0 < min) || (nano_delay_0 > max))
