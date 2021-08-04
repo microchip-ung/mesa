@@ -34,7 +34,7 @@ def tod_asymmetry_p2p_delay_test
         diff_max = 500
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))    #Test on internal Copper PHY
-        diff_max = 180
+        diff_max = 185
     end
 
     if ($cap_core_clock != 0)
