@@ -2884,18 +2884,6 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                             VTSS_X_DEV1G_PCS_FX100_STATUS_FEF_STATUS(value);
 
         if (status->link_down) {
-            /* Reset the serdes for re-calibration */
-            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-            u32 sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
-            REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
-                    VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST(1),
-                    VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
-            VTSS_MSLEEP(3);
-            REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
-                    VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST(0),
-                    VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
-            VTSS_MSLEEP(1);
-
             /* Clear the stickies and re-read */
             REG_WR(VTSS_DEV1G_PCS_FX100_STATUS(tgt), value);
             VTSS_MSLEEP(1);
