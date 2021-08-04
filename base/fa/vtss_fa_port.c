@@ -1781,13 +1781,20 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode)
 {
-    u32 port = VTSS_CHIP_PORT(port_no);
-    if (serdes_mode == VTSS_SERDES_MODE_QSGMII && ((port % 4) != 0)) {
-        vtss_state->port.serdes_mode[port_no] = serdes_mode;
-        return VTSS_RC_OK;
-    }
     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
     vtss_state->port.serdes_mode[port_no] = serdes_mode;
+
+    /* QSGMII serdes mode is only needed for 1 of the 4 port instances */
+    if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
+        u32 p = (VTSS_CHIP_PORT(port_no) / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+                if (p + cnt == VTSS_CHIP_PORT(port_no)) {
+                    vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QSGMII;
+                }
+            }
+        }
+    }
     return VTSS_RC_OK;
 }
 
@@ -2547,6 +2554,19 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
             VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
             VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+
+    /* Must take the PCS out of reset for all 4 QSGMII instances */
+    if (conf->if_type == VTSS_PORT_INTERFACE_QSGMII) {
+        u32 p = (port / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            if (p + cnt == port) {
+                continue;
+            }
+            REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(VTSS_TO_DEV2G5(p + cnt)),
+                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(0),
+                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST);
+        }
+    }
 
     /* Core: Set the fwd_urgency and and enable port for frame transfer */
     REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
