@@ -2584,6 +2584,19 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
             VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
 
+    /* Must take the PCS out of reset for all 4 QSGMII instances */
+    if (conf->if_type == VTSS_PORT_INTERFACE_QSGMII) {
+        u32 p = (port / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            if (p + cnt == port) {
+                continue;
+            }
+            REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(VTSS_TO_DEV2G5(p + cnt)),
+                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(0),
+                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST);
+        }
+    }
+
     /* Core: Set the fwd_urgency and and enable port for frame transfer */
     REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
             VTSS_F_QFWD_SWITCH_PORT_MODE_PORT_ENA(1) |
