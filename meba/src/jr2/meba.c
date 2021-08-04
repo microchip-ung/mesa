@@ -3028,8 +3028,11 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
 
                 // Check for Cu Phy events (ports 0-7)
                 for (port_no = start_port; port_no <= end_port; port_no++) {
-                    if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK)
-                        handled++;
+                    meba_port_entry_t *entry = &board->port[port_no].map;
+                    if (is_phy_port(entry->cap)) {
+                        if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK)
+                            handled++;
+                    }
                 }
             }
 
