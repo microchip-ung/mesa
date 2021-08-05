@@ -9,7 +9,11 @@ Enhanced VLAN functions are used in combination with FRER functions when setting
 * Stream Identification is done using VCL rules mapping to ingress flows.
 * Sequence Generation and mapping to Member Streams is done using ingress flows.
 * Stream Split and Merge is done using VLAN port memberships and static MAC address entries.
-* R-tag pop and push operations are controlled using TCL rules (`mesa_tce_rtag_t`).
+* If the capability `MESA_CAP_L2_FRER_IFLOW_POP` is zero:
+** R-tag pop and push operations are controlled using TCL rules (`mesa_tce_rtag_t`).
+* If the capability `MESA_CAP_L2_FRER_IFLOW_POP` is non-zero:
+** R-tag push operation is done when Sequence Generation has been done.
+** R-tag pop operation is controlled per ingress flow (`mesa_frer_iflow_conf_t`).
 
 For Recovery, Member Streams must be allocated for an egress port list (`mesa_frer_mstream_alloc()`).
 For an ingress flow, it is possible to enable Sequence Generation or map to a Member Stream (`mesa_frer_iflow_conf_t`).

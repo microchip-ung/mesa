@@ -30,7 +30,7 @@ cap_check_exit("L2_FRER")
 # +----+  +----+  +----+      +----+
 
 $vid = 100
-$cap_iflow_pop = cap_get("L2_FRER_IFLOW_POP")
+$cap_iflow_pop = (cap_get("L2_FRER_IFLOW_POP") > 0)
 
 $conf_table = 
     [

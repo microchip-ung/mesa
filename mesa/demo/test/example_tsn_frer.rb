@@ -17,7 +17,7 @@ $idx_rp    = 1
 $idx_cp    = 2
 $idx_other = 3
 
-$cap_iflow_pop = cap_get("L2_FRER_IFLOW_POP")
+$cap_iflow_pop = (cap_get("L2_FRER_IFLOW_POP") > 0)
 
 test "init" do
   cmd = "mesa-cmd example init frer"
@@ -41,7 +41,7 @@ def frer_frame(t, idx)
         if (t.key?:tag)
             cmd += cmd_tag_push(t[:tag])
         end
-        if (t.key?:seq and (idx != $idx_up or $cap_iflow_pop))
+        if (t.key?:seq and (t[:idx] != $idx_up or $cap_iflow_pop))
             # For U-port, sequence number is not popped if iflow popping supported
             cmd += " rtag seqn #{t[:seq]}"
         end

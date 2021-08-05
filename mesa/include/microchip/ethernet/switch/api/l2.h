@@ -791,7 +791,7 @@ typedef struct
     uint8_t         pop_cnt;   // Tag pop count
     mesa_eflow_id_t flow_id;   // Egress flow ID.
                                // (VOP_V2) If MESA_EFLOW_ID_NONE possibly enabled port-VOE will see OAM as data.
-    mesa_tce_rtag_t rtag;      // R-tag
+    mesa_tce_rtag_t rtag;      // R-tag control, if capability MESA_CAP_L2_FRER is non-zero and MESA_CAP_L2_FRER_IFLOW_POP is zero.
 } mesa_tce_action_t;
 
 // Tag Control Entry
