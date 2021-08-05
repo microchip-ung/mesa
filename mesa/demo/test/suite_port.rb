@@ -12,7 +12,6 @@ run %w{./check_wireing.rb}, {:name => "check_wireing@port", :abort_on_err => tru
 run %w{./port_buf_measurement.rb}
 run %w{./port_flow_control_test1.rb}
 run %w{./port_forward.rb}
-run %w{./port_loop.rb}
 run %w{./port_pfc.rb}
 run %w{./port_counters.rb}
 run %w{./port_frame_length_chk.rb}
