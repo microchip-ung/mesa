@@ -50,7 +50,7 @@ typedef enum
     VTSS_SYNCE_DIVIDER_1,   /**< Divide input clock with one (no division) */
     VTSS_SYNCE_DIVIDER_4,   /**< Divide input clock with 4 */
     VTSS_SYNCE_DIVIDER_5,   /**< Divide input clock with 5 */
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
     VTSS_SYNCE_DIVIDER_2,   /**< Divide input clock with 2 */
     VTSS_SYNCE_DIVIDER_8,   /**< Divide input clock with 8 */
     VTSS_SYNCE_DIVIDER_16,   /**< Divide input clock with 16 */

@@ -12,8 +12,8 @@ check_capabilities do
     $cap_synce = $ts.dut.call("mesa_capability", "MESA_CAP_SYNCE")
     $cap_in_type = $ts.dut.call("mesa_capability", "MESA_CAP_SYNCE_IN_TYPE")
     assert($cap_synce != 0, "SYNCE is not supported")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5).")
+    assert((($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Maserati).")
     t_i("cap_family #{$cap_family}  cap_synce #{$cap_synce}  cap_in_type #{$cap_in_type}")
 end
 
@@ -69,7 +69,8 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
 
     conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
     conf["port_no"] = $clock_port
-    conf["squelsh"] = true
+#    conf["squelsh"] = true
+conf["squelsh"] = false
     conf["enable"] = true
     conf["clk_in"] = "MESA_SYNCE_CLOCK_INTERFACE"
     $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
@@ -81,27 +82,30 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
 
     t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider1}. Squelch is enabled. Port speed is #{speed}")
     t_i ("Observe Recovered clock active at #{frequency_calc(speed, divider1)} MHz")
-    t_i ("Hit CR to shut down port")
-    STDIN.gets
-    $ts.dut.run("mesa-cmd port state #{$source_port+1} disable")
+t_i ("Hit CR to continue")
+STDIN.gets
 
-    t_i ("Observe Recovered clock NOT active")
-    t_i ("Hit CR to disable squelch")
-    STDIN.gets
+#    t_i ("Hit CR to shut down port")
+#    STDIN.gets
+#    $ts.dut.run("mesa-cmd port state #{$source_port+1} disable")
+#
+#    t_i ("Observe Recovered clock NOT active")
+#    t_i ("Hit CR to disable squelch")
+#    STDIN.gets
     
-    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
-    conf["squelsh"] = false
-    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
+#    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
+#    conf["squelsh"] = false
+#    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
+#
+#    t_i ("Observe Recovered clock active")
+#    t_i ("Hit CR to continue")
+#    STDIN.gets
+#
+#    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
+#    conf["squelsh"] = true
+#    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
 
-    t_i ("Observe Recovered clock active")
-    t_i ("Hit CR to continue")
-    STDIN.gets
-
-    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
-    conf["squelsh"] = true
-    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
-
-    $ts.dut.run("mesa-cmd port state #{$source_port+1} enable")
+#    $ts.dut.run("mesa-cmd port state #{$source_port+1} enable")
 
     conf = $ts.dut.call("mesa_synce_clock_out_get", clock_out)
     conf["divider"] = divider2
@@ -121,14 +125,20 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
     STDIN.gets
 end
 
-def test_port_speed_change
+def test_port_speed_change(clock_out)
     test "test_port_speed_change" do
-    $clock_port = 8
-    $source_port = 10
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        $clock_port = 8
+        $source_port = 10
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        $clock_port = 2
+        $source_port = 3
+    end
 
     t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 25G SFP")
 
-    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("connect measurement to Recovered clock #{clock_out}")
     t_i ("Hit CR to continue")
     STDIN.gets
 
@@ -137,36 +147,49 @@ def test_port_speed_change
     sleep(1)
     $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
 
-    conf = $ts.dut.call("mesa_synce_clock_in_get", $clock_out0)
+    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
     conf["port_no"] = $clock_port
-    conf["squelsh"] = true
+conf["squelsh"] = false
+#    conf["squelsh"] = true
     conf["enable"] = true
     conf["clk_in"] = "MESA_SYNCE_CLOCK_INTERFACE"
-    $ts.dut.call("mesa_synce_clock_in_set", $clock_out0, conf)
+    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
 
-    conf = $ts.dut.call("mesa_synce_clock_out_get", $clock_out0)
+    conf = $ts.dut.call("mesa_synce_clock_out_get", clock_out)
     conf["divider"] = "MESA_SYNCE_DIVIDER_5"
     conf["enable"] = true
-    $ts.dut.call("mesa_synce_clock_out_set", $clock_out0, conf)
+    $ts.dut.call("mesa_synce_clock_out_set", clock_out, conf)
 
-    t_i ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 1000fdx")
+    t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 1000fdx")
     t_i ("Observe Recovered clock active at #{frequency_calc("1000fdx", "MESA_SYNCE_DIVIDER_5")} MHz")
     t_i ("Hit CR to continue to change speed")
     STDIN.gets
 
-    $ts.dut.run("mesa-cmd port mode #{$source_port+1} 10g")
-    $ts.dut.run("mesa-cmd port mode #{$clock_port+1} 10g")
-    sleep(1)
-    $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        $ts.dut.run("mesa-cmd port mode #{$source_port+1} 10g")
+        $ts.dut.run("mesa-cmd port mode #{$clock_port+1} 10g")
+        sleep(1)
+        $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
 
-    t_i ("Recovered clock #{$clock_out0} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 2500")
-    t_i ("Observe Recovered clock active at #{frequency_calc("10g", "MESA_SYNCE_DIVIDER_5")} MHz")
+        t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 10g")
+        t_i ("Observe Recovered clock active at #{frequency_calc("10g", "MESA_SYNCE_DIVIDER_5")} MHz")
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        $ts.dut.run("mesa-cmd port mode #{$source_port+1} 2500")
+        $ts.dut.run("mesa-cmd port mode #{$clock_port+1} 2500")
+        sleep(1)
+        $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
+
+        t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is MESA_SYNCE_DIVIDER_5. Squelch is enabled. Port speed is 2500")
+        t_i ("Observe Recovered clock active at #{frequency_calc("2500", "MESA_SYNCE_DIVIDER_5")} MHz")
+    end
+
     t_i ("Hit CR to continue")
     STDIN.gets
 
-    conf = $ts.dut.call("mesa_synce_clock_out_get", $clock_out0)
+    conf = $ts.dut.call("mesa_synce_clock_out_get", clock_out)
     conf["enable"] = false
-    $ts.dut.call("mesa_synce_clock_out_set", $clock_out0, conf)
+    $ts.dut.call("mesa_synce_clock_out_set", clock_out, conf)
     end
 end
 
@@ -254,36 +277,71 @@ def test_25G_serdes_25G_mode
     end
 end
 
+def test_2G5_serdes
+    test "test_2G5_serdes" do
+    $clock_port = 2
+    $source_port = 3
+
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with optical fiber using 2G5 SFP")
+
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
+    STDIN.gets
+
+    test_reco_clock($clock_out0, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_8")
+    test_reco_clock($clock_out0, "2500", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_16")
+
+    t_i ("connect measurement to Recovered clock #{$clock_out1}")
+    t_i ("Hit CR to continue")
+    STDIN.gets
+
+    test_reco_clock($clock_out1, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_25")
+    test_reco_clock($clock_out1, "2500", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_4")
+    end
+end
+
 test "test_config" do
     # disable VLAN 1 to avoid looping
     $ts.dut.call("mesa_vlan_port_members_set", 1, "")
 end
 
 test "test_run" do
-    $clock_out0 = 2   # On PCB134 the clockout 0 on the SYNCE connector is connected to Fireant clock output 2
-    $clock_out1 = 3   # On PCB134 the clockout 1 on the SYNCE connector is connected to Fireant clock output 3
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        $clock_out0 = 2   # On PCB134 the clockout 0 on the SYNCE connector is connected to Fireant clock output 2
+        $clock_out1 = 3   # On PCB134 the clockout 1 on the SYNCE connector is connected to Fireant clock output 3
 
-    conf = $ts.dut.call("mesa_port_conf_get", 0)
-    if (conf["speed"] == "MESA_SPEED_25G")
-        test_25G_serdes_25G_mode
-        t_i ("Change PCB to run 10G. Do the following linux commands:")
-        t_i ("ps")
-        t_i ("  ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
-        t_i ("kill ps-id")
-        t_i ("fw_setenv pcb_var")
-        t_i ("mesa-demo")
-    else
-        test_port_speed_change
-        test_10G_serdes
-        test_25G_serdes_10G_mode
-        t_i ("To change PCB to run 25G Do the following linux commands:")
-        t_i ("ps")
-        t_i ("              ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
-        t_i ("kill ps-id")
-        t_i ("fw_setenv pcb_var 9")
-        t_i ("mesa-demo")
-        t_i ("Run the script with option --no-init or the wire check will not pass")
+        conf = $ts.dut.call("mesa_port_conf_get", 0)
+        if (conf["speed"] == "MESA_SPEED_25G")
+            test_25G_serdes_25G_mode
+            t_i ("Change PCB to run 10G. Do the following linux commands:")
+            t_i ("ps")
+            t_i ("  ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
+            t_i ("kill ps-id")
+            t_i ("fw_setenv pcb_var")
+            t_i ("mesa-demo")
+        else
+            test_port_speed_change($clock_out0)
+            test_10G_serdes
+            test_25G_serdes_10G_mode
+            t_i ("To change PCB to run 25G Do the following linux commands:")
+            t_i ("ps")
+            t_i ("              ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f")
+            t_i ("kill ps-id")
+            t_i ("fw_setenv pcb_var 9")
+            t_i ("mesa-demo")
+            t_i ("Run the script with option --no-init or the wire check will not pass")
+        end
     end
+
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        $clock_out0 = 0     #On PBC8291 carrier
+        $clock_out1 = 1
+
+        test_port_speed_change($clock_out0)
+        test_port_speed_change($clock_out1)
+        test_2G5_serdes
+    end
+
 end
 
 test "test_clean_up" do

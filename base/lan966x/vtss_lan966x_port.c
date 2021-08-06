@@ -203,13 +203,188 @@ static vtss_rc lan966x_port_clause_37_status_get(vtss_state_t *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_SYNCE)
+#define RCVRD_CLK_GPIO_NO 30      // on Maserati the 2 recovered clock outputs are GPIO 30-31
 static vtss_rc lan966x_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
+    u32                     div_mask;
+    vtss_synce_clock_out_t  *conf;
+
+    if (clk_port > 1) {
+        VTSS_E("Invalid clock port no: %d\n", clk_port);
+        return VTSS_RC_ERROR;
+    }
+
+    conf = &vtss_state->synce.out_conf[clk_port];
+
+    VTSS_D("clk_port %X  enable %u\n", clk_port, conf->enable);
+
+    switch (conf->divider) {
+        case VTSS_SYNCE_DIVIDER_1:  div_mask = 6; break;
+        case VTSS_SYNCE_DIVIDER_2:  div_mask = 0; break;
+        case VTSS_SYNCE_DIVIDER_4:  div_mask = 1; break;
+        case VTSS_SYNCE_DIVIDER_5:  div_mask = 4; break;
+        case VTSS_SYNCE_DIVIDER_8:  div_mask = 2; break;
+        case VTSS_SYNCE_DIVIDER_16: div_mask = 3; break;
+        case VTSS_SYNCE_DIVIDER_25: div_mask = 5; break;
+        default:                    div_mask = 0; break;
+    }
+    REG_WRM(HSIO_SYNC_ETH_CFG(clk_port),
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV(div_mask) |
+            HSIO_SYNC_ETH_CFG_RECO_CLK_ENA(conf->enable),
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV_M |
+            HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
+
+    if (VTSS_RC_OK != vtss_lan966x_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + clk_port, conf->enable ? VTSS_GPIO_ALT_4 : VTSS_GPIO_IN)) {
+        VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n", clk_port);
+        return VTSS_RC_ERROR;
+    }
+
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_OPT_FPGA)
+typedef enum {
+    PORT_TYPE_NONE,
+    PORT_TYPE_CUPHY,
+    PORT_TYPE_SD,
+    PORT_TYPE_RGMII
+} port_type_t;
+
+static vtss_rc lan966x_port_type_calc(vtss_state_t *vtss_state,
+                                      vtss_port_no_t port_no, port_type_t *port_type, u32 *idx, vtss_serdes_mode_t *mode_req)
+{
+    u32   port = VTSS_CHIP_PORT(port_no);
+    BOOL  lan9668 = (vtss_state->create.target == VTSS_TARGET_LAN9668);
+
+    *port_type = PORT_TYPE_NONE;
+    *idx = VTSS_SD6G_40_CNT;
+    *mode_req = VTSS_SERDES_MODE_DISABLE;
+
+    VTSS_I("port %u mux_mode %u", port, vtss_state->init_conf.mux_mode);
+
+    switch (vtss_state->init_conf.mux_mode) {
+    case VTSS_PORT_MUX_MODE_0:
+        // 2xQSGMII
+        *port_type = PORT_TYPE_SD;
+        if (port < 4) {
+            *mode_req = VTSS_SERDES_MODE_QSGMII;
+            *idx = 1;
+        } else if (lan9668) {
+            *mode_req = VTSS_SERDES_MODE_QSGMII;
+            *idx = 2;
+        }
+        break;
+    case VTSS_PORT_MUX_MODE_1:
+        // 2xCu + 2x2,5G + 1xQSGMII
+        *port_type = PORT_TYPE_SD;
+        if (port < 2) {
+            // Port 0/1: Cu
+            *port_type = PORT_TYPE_CUPHY;
+            *idx = port;
+        } else if (port < 4) {
+            // Port 2/3: 2.5G
+            *idx = (port - 2);
+        } else if (lan9668) {
+            // Port 4-7: QSGMII
+            *mode_req = VTSS_SERDES_MODE_QSGMII;
+            *idx = 2;
+        }
+        break;
+    case VTSS_PORT_MUX_MODE_5:
+        // 2xCu + 3x1G
+        *port_type = PORT_TYPE_SD;
+        if (port < 2) {
+            // Port 0/1: Cu
+            *port_type = PORT_TYPE_CUPHY;
+            *idx = port;
+        } else if (port < 5) {
+            // Port 2-4: 2.5G
+            *idx = (port - 2);
+        }
+        break;
+    default:
+        VTSS_E("unknown mux mode");
+        return VTSS_RC_ERROR;
+    }
+    return VTSS_RC_OK;
+}
+#endif
+
 static vtss_rc lan966x_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
+#if !defined(VTSS_OPT_FPGA)
+    vtss_synce_clock_in_t    *conf;
+    u32                      idx = VTSS_SD6G_40_CNT;
+    vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
+    port_type_t              port_type;
+    i32                      clk_src = 0;
+    BOOL                     ena;
+    u32                      link_stat, clk_div, sd_ena;
+
+    VTSS_D("Enter");
+
+    if (clk_port > 1) {
+        VTSS_E("Invalid clock port no: %d\n", clk_port);
+        return VTSS_RC_ERROR;
+    }
+    conf = &vtss_state->synce.in_conf[clk_port];
+    if (conf->port_no >= VTSS_PORT_ARRAY_SIZE) {
+        VTSS_E("Invalid port no: %d\n", conf->port_no);
+        return VTSS_RC_ERROR;
+    }
+    ena = conf->enable;
+
+    if (lan966x_port_type_calc(vtss_state, conf->port_no, &port_type, &idx, &mode_req) != VTSS_RC_OK) {
+        return VTSS_RC_ERROR;
+    }
+
+    switch (port_type) {
+    case PORT_TYPE_NONE:
+        VTSS_E("unknown port type");
+        return VTSS_RC_ERROR;
+    case PORT_TYPE_SD:
+        clk_src = idx;
+        break;
+    case PORT_TYPE_RGMII:
+        clk_src = 3 + idx;
+        break;
+    case PORT_TYPE_CUPHY:
+        clk_src = 5 + idx;
+        break;
+    }
+
+    VTSS_D("clk_port %X, port_no %u, enable %u, squelch %u, clk_src %d\n", clk_port, conf->port_no, ena, conf->squelsh, clk_src);
+
+    /* Configure the SerDes to select for recovered clock */
+    REG_WRM(HSIO_SYNC_ETH_CFG(clk_port),
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC(clk_src) |
+            HSIO_SYNC_ETH_CFG_RECO_CLK_ENA(ena),
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC_M |
+            HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
+
+    if (ena && (port_type == PORT_TYPE_SD)) {  /* Enable Port type SERDES */
+        /* Enable input clock configuration - now configuring the new (or maybe the same) input port */
+        /* In the following the SERDES recovered clock divider is calculated. */
+        /* Values are chosen that gives frequency closest to 100 MHz or the frequency closest to a whole number - less decimals */
+        clk_div = 0; /* Divide by 1 is default */
+        link_stat = 1;
+        sd_ena = 1;
+
+        REG_WRM(HSIO_SYNC_ETH_SD_CFG(idx),
+                HSIO_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV(clk_div) |
+                HSIO_SYNC_ETH_SD_CFG_SD_LINK_STAT_ENA(link_stat) |
+                HSIO_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA(conf->squelsh),
+                HSIO_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV_M |
+                HSIO_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA_M |
+                HSIO_SYNC_ETH_SD_CFG_SD_LINK_STAT_ENA_M);
+
+        REG_WR(HSIO_SIGDET_CFG(idx),
+               HSIO_SIGDET_CFG_SD_SEL(1) |
+               HSIO_SIGDET_CFG_SD_POL(0) |
+               HSIO_SIGDET_CFG_SD_ENA(sd_ena));
+    }
+#endif
+
     return VTSS_RC_OK;
 }
 #endif
@@ -642,46 +817,15 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     u32                      port = VTSS_CHIP_PORT(port_no);
     u32                      idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
-    BOOL                     lan9668 = (vtss_state->create.target == VTSS_TARGET_LAN9668);
+    port_type_t              port_type = PORT_TYPE_NONE;
 
-    switch (vtss_state->init_conf.mux_mode) {
-    case VTSS_PORT_MUX_MODE_0:
-        // 2xQSGMII
-        if (port < 4) {
-            mode_req = VTSS_SERDES_MODE_QSGMII;
-            idx = 1;
-        } else if (lan9668) {
-            mode_req = VTSS_SERDES_MODE_QSGMII;
-            idx = 2;
-        }
-        break;
-    case VTSS_PORT_MUX_MODE_1:
-        // 2xCu + 2x2,5G + 1xQSGMII
-        if (port < 2) {
-            // Port 0/1: Cu
-            mode_req = VTSS_SERDES_MODE_SGMII;
-        } else if (port < 4) {
-            // Port 2/3: 2.5G
-            idx = (port - 2);
-        } else if (lan9668) {
-            // Port 4-7: QSGMII
-            mode_req = VTSS_SERDES_MODE_QSGMII;
-            idx = 2;
-        }
-        break;
-    case VTSS_PORT_MUX_MODE_5:
-        // 2xCu + 3x1G
-        if (port < 2) {
-            // Port 0/1: Cu
-            mode_req = VTSS_SERDES_MODE_SGMII;
-        } else if (port < 5) {
-            // Port 2-4: 2.5G
-            idx = (port - 2);
-        }
-        break;
-    default:
-        VTSS_E("unknown mux mode");
-        return VTSS_RC_ERROR;
+    if ((rc = lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req)) != VTSS_RC_OK) {
+        return rc;
+    }
+
+    if (port_type != PORT_TYPE_SD) {
+        VTSS_I("port %u port_type %u is not a SERDES port", port, port_type);
+        return VTSS_RC_OK;
     }
 
     if (mode_req != VTSS_SERDES_MODE_DISABLE && mode != mode_req) {
