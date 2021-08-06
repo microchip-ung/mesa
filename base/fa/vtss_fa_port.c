@@ -2511,7 +2511,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 
     /* Always update FCS, needed for Frame Preemption */
     REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
-            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(1),
+            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(vtss_state->misc.chip_id.revision ? 1 : 0),
             VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
 
     /* Setup QoS - in reset */
@@ -2708,7 +2708,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
     /* Always update FCS, needed for Frame Preemption */
     REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
-            VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(2),
+            VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(vtss_state->misc.chip_id.revision ? 2 : 0),
             VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
 
     /* Setup QoS - in reset */

@@ -23,11 +23,37 @@ $rport = $ts.dut.looped_port_list[1]
 test "init" do
     # Allow jumbo frames
     $ts.dut.run("mesa-cmd port max 10240")
-    [$tport, $rport].each do |port|
+    port_list = [$tport, $rport]
+    port_list.each do |port|
         $ts.dut.run("mesa-cmd port mode #{port + 1} 1000fdx")
     end
 
+    # Wait for loop ports to go down and come up again
+    sleep(1)
+    if (!dut_port_state_up(port_list))
+        t_e("loop ports are not up")
+    end
+
+    # Setup frame preemption
     $ts.dut.run("mesa-cmd example init fp iport #{$ts.dut.p[$idx_iport]} eport #{$ts.dut.p[$idx_eport]} tport #{$tport} rport #{$rport}")
+
+    # Wait for Tx Verify
+    ts = Time.now.to_i
+    port = $tport
+    loop do
+        s = $ts.dut.call("mesa_qos_fp_port_status_get", port)
+        status = s["status_verify"]
+        active = s["preemption_active"]
+        txt = "port #{port} status: #{status}, active: #{active}"
+        if (status == "MESA_MM_STATUS_VERIFY_SUCCEEDED" and active)
+            t_i(txt)
+            break
+        elsif ((Time.now.to_i - ts) > 3)
+            t_e(txt)
+            break
+        end
+        sleep(1)
+    end
 end
 
 test "frame-test" do
