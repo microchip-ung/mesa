@@ -78,7 +78,9 @@
 #define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */
+#if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_SYNCE                        /**< SYNCE - L1 syncronization feature */
+#endif
 #define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_PTP_RS422                    /**< Support for the RS422 serial/1PPS interface */
