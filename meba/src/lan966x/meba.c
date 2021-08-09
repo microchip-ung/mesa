@@ -167,7 +167,7 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
     case BOARD_TYPE_8PORT:
         // GPIO 24 is IRQ from PHYs
         (void)mesa_gpio_mode_set(NULL, 0, GPIO_IRQ, MESA_GPIO_ALT_4);
-        (void)mesa_gpio_event_enable(NULL, 0, GPIO_IRQ, true);
+        //(void)mesa_gpio_event_enable(NULL, 0, GPIO_IRQ, true);
 
         // GPIO 28/29 are MDC/MDIO
         for (gpio_no = 28; gpio_no < 30; gpio_no++) {
