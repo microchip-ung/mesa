@@ -420,7 +420,7 @@ def jira_appl_3396_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
