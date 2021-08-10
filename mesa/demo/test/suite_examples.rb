@@ -15,7 +15,6 @@ run %w{./example_l2_stp.rb}
 run %w{./example_l2_vlan.rb}
 run %w{./example_l3_ip_uc.rb}
 run %w{./example_packet_rx_tx.rb}
-run %w{./example_qos_ct.rb}
 run %w{./example_qos-time-aware-scheduler.rb}
 run %w{./example_ts_transparent_clock.rb}
 run %w{./example_tsn_fp.rb}

@@ -257,7 +257,7 @@ test "frame-gate" do
                 t0 = t
                 t0_valid = true
             else
-                t_e("Closed interval #{txt}")
+                t_i("Closed interval #{txt}")
             end
         end
     end

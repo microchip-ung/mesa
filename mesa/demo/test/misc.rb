@@ -86,3 +86,49 @@ test "led-control" do
     $ts.dut.run("mesa-cmd debug phy cls read 1,8 4 33")
     $ts.dut.run("mesa-cmd port mode")
 end
+
+test "timestamp" do
+    break
+    idx_tx = 0
+    idx_rx = 1
+
+    # Send learn frame to ensure forwarding to a single port
+    mac = 10
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[idx_rx]} eth smac #{mac}")
+
+    a = []
+    10.times do
+        # Send two frames and capture Rx/Tx timestamps
+        cmd = "sudo ef name f0 eth dmac #{mac} "
+        2.times do
+            cmd += "tx #{$ts.pc.p[idx_tx]} name f0 "
+        end
+        idx_list = [idx_tx, idx_rx]
+        idx_list.each do |idx|
+            cmd += "-c #{$ts.pc.p[idx]},1,adapter_unsynced,,2 "
+        end
+        $ts.pc.run(cmd)
+
+        # Calculate timestamp difference between the two frames on Tx and Rx port
+        t = []
+        ok = true
+        idx_list.each do |idx|
+            p = $ts.pc.get_pcap("#{$ts.pc.p[idx]}.pcap")
+            if (p.size == 2)
+                t[idx] = (p[1][:us] - p[0][:us])
+            else
+                ok = false
+            end
+        end
+        if (ok)
+            a << t
+        end
+        sleep(1)
+    end
+
+    a.each_with_index do |t, i|
+        tx = t[idx_tx]
+        rx = t[idx_rx]
+        t_i("Index #{i}: tx: #{tx}, rx: #{rx}, tx - rx: #{tx - rx}")
+    end
+end

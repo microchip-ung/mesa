@@ -11,7 +11,6 @@ run %w{./check_wireing.rb}, {:name => "check_wireing@qos", :abort_on_err => true
 run %w{./qos_map.rb}
 run %w{./qos_dscp.rb}
 run %w{./qos_crb.rb}
-run %w{./qos_ct.rb}
 run %w{./qos_fp.rb}
 run %w{./qos_pcp.rb}
 run %w{./qos_qcl.rb}
