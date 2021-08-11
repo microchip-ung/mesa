@@ -64,13 +64,13 @@ def test_reco_clock(clock_out, speed, divider1, divider2)
 
     $ts.dut.run("mesa-cmd port mode #{$source_port+1} #{speed}")
     $ts.dut.run("mesa-cmd port mode #{$clock_port+1} #{speed}")
-    sleep(1)
+    sleep(5)
     $ts.dut.run("mesa-cmd port state #{$clock_port+1},#{$source_port+1}")
 
     conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
     conf["port_no"] = $clock_port
-#    conf["squelsh"] = true
-conf["squelsh"] = false
+    conf["squelsh"] = true
+#conf["squelsh"] = false
     conf["enable"] = true
     conf["clk_in"] = "MESA_SYNCE_CLOCK_INTERFACE"
     $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
@@ -82,30 +82,31 @@ conf["squelsh"] = false
 
     t_i ("Recovered clock #{clock_out} is taken from Port #{$clock_port+1}. Divider is #{divider1}. Squelch is enabled. Port speed is #{speed}")
     t_i ("Observe Recovered clock active at #{frequency_calc(speed, divider1)} MHz")
-t_i ("Hit CR to continue")
-STDIN.gets
+#t_i ("Hit CR to continue")
+#exit 0
+#STDIN.gets
 
-#    t_i ("Hit CR to shut down port")
-#    STDIN.gets
-#    $ts.dut.run("mesa-cmd port state #{$source_port+1} disable")
-#
-#    t_i ("Observe Recovered clock NOT active")
-#    t_i ("Hit CR to disable squelch")
-#    STDIN.gets
+    t_i ("Hit CR to shut down port")
+    STDIN.gets
+    $ts.dut.run("mesa-cmd port state #{$source_port+1} disable")
+
+    t_i ("Observe Recovered clock NOT active")
+    t_i ("Hit CR to disable squelch")
+    STDIN.gets
     
-#    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
-#    conf["squelsh"] = false
-#    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
-#
-#    t_i ("Observe Recovered clock active")
-#    t_i ("Hit CR to continue")
-#    STDIN.gets
-#
-#    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
-#    conf["squelsh"] = true
-#    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
+    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
+    conf["squelsh"] = false
+    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
 
-#    $ts.dut.run("mesa-cmd port state #{$source_port+1} enable")
+    t_i ("Observe Recovered clock active")
+    t_i ("Hit CR to continue")
+    STDIN.gets
+
+    conf = $ts.dut.call("mesa_synce_clock_in_get", clock_out)
+    conf["squelsh"] = true
+    $ts.dut.call("mesa_synce_clock_in_set", clock_out, conf)
+
+    $ts.dut.run("mesa-cmd port state #{$source_port+1} enable")
 
     conf = $ts.dut.call("mesa_synce_clock_out_get", clock_out)
     conf["divider"] = divider2
@@ -300,6 +301,38 @@ def test_2G5_serdes
     end
 end
 
+def test_1G_phy
+    test "test_1G_phy" do
+    $clock_port = 0
+    $source_port = 1
+
+    conf = $ts.dut.call("meba_phy_conf_get", $source_port)
+    conf["man_neg"] = "MEPA_MANUAL_NEG_REF"
+    $ts.dut.call("meba_phy_conf_set", $source_port, conf)
+
+    conf = $ts.dut.call("meba_phy_conf_get", $clock_port)
+    conf["man_neg"] = "MEPA_MANUAL_NEG_CLIENT"
+    $ts.dut.call("meba_phy_conf_set", $clock_port, conf)
+
+    conf = { src: "MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA", dst: "MEPA_SYNCE_CLOCK_DST_1", freq: "MEPA_FREQ_125M"}
+    $ts.dut.call("meba_phy_synce_clock_conf_set", $clock_port, conf)
+
+    t_i ("connect port #{$clock_port+1} and port #{$source_port+1} with electrical cable")
+
+    t_i ("connect measurement to Recovered clock #{$clock_out0}")
+    t_i ("Hit CR to continue")
+    STDIN.gets
+
+    test_reco_clock($clock_out0, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_8")
+
+    t_i ("connect measurement to Recovered clock #{$clock_out1}")
+    t_i ("Hit CR to continue")
+    STDIN.gets
+
+    test_reco_clock($clock_out1, "1000fdx", "MESA_SYNCE_DIVIDER_5", "MESA_SYNCE_DIVIDER_25")
+    end
+end
+
 test "test_config" do
     # disable VLAN 1 to avoid looping
     $ts.dut.call("mesa_vlan_port_members_set", 1, "")
@@ -340,6 +373,7 @@ test "test_run" do
         test_port_speed_change($clock_out0)
         test_port_speed_change($clock_out1)
         test_2G5_serdes
+        test_1G_phy
     end
 
 end

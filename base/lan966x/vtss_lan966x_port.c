@@ -383,6 +383,12 @@ static vtss_rc lan966x_synce_clock_in_set(vtss_state_t *vtss_state, const u32 cl
                HSIO_SIGDET_CFG_SD_POL(0) |
                HSIO_SIGDET_CFG_SD_ENA(sd_ena));
     }
+
+    if (ena && (port_type == PORT_TYPE_CUPHY)) {  /* Enable Port type Internal PHY */
+        REG_WRM(CHIP_TOP_CUPHY_PORT_CFG(idx),
+                CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA(conf->squelsh),
+                CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA_M);
+    }
 #endif
 
     return VTSS_RC_OK;
