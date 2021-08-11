@@ -580,9 +580,9 @@ def jira_appl_3433_test
     t_i ("Measure after Frame Preemption enabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     if ($ts.dut.pcb == 135)
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.5],          true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.7],          true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1.1],            true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [3.6],          true,              [2])
     end
 
     t_i ("Stop GCL")

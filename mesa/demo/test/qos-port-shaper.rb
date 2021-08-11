@@ -122,7 +122,7 @@ test "Port shaper data rate 10000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}
     conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
 
    #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure([ig], eg, 1000, 1,     false,            true,            [10000000],       [2],         true)
+    measure([ig], eg, 1000, 1,     false,            true,            [10000000],       [2.2],       true)
 end
 
 test "Port shaper data rate 100000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do

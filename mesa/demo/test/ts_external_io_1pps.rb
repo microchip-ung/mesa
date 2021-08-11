@@ -21,8 +21,8 @@ $pcb = $ts.dut.pcb
 
 $external_io_in = 2
 $external_io_out = 1
-$diff_high = 1
-$diff_low = 1
+$diff_high = 2
+$diff_low = 2
 
 if ($pcb == "8291-EndNode")
     $external_io_in = 4

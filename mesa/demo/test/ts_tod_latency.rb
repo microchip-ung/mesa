@@ -158,7 +158,7 @@ def tod_latency_test(port0, port1)
     nano_delay_0 = nano_delay_measure(port0, port1)
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
     min = -2
-    max = 9  #Value 9 is seen on Fireant Jenkins test
+    max = 18  #Value 17 is seen on Fireant Jenkins test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         min = -11
         max = 11

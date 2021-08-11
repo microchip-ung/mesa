@@ -89,7 +89,7 @@ end
 
 test "test_conf" do
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        t_e("Test not implemented yet")
+        t_i("Test not implemented yet")
         exit 0
     end
 
