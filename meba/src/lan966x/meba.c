@@ -124,6 +124,7 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         }
         sleep(1); // Make sure PHYs are accessible
         break;
+    case BOARD_TYPE_ENDNODE:
     case BOARD_TYPE_ENDNODE_CARRIER:
         for (gpio_no = 32; gpio_no < 36; gpio_no++) {
             // SGPIO signals
@@ -146,15 +147,24 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
                     pc->int_pol_high[1] = 1;
                 }
 
-                // Output port  2: SFP0_GR, SFP0_RD (LED control)
-                // Output port  3: SFP1_GR, SFP1_RD (LED control)
+                // Output port  0: P0_GRN, P0_YEL (LED control)
+                // Output port  1: P1_GRN, P1_YEL (LED control)
+                // Output port  2: SFP0_GR, SFP0_RD (LED control), S0_BLU/S0_GRN (Endnode)
+                // Output port  3: SFP1_GR, SFP1_RD (LED control), S1_BLU/S1_GRN (Endnode)
                 // Output port  8: SFP0_RS0, SFP0_RS1 (Rate select)
                 // Output port  9: SFP1_RS0, SFP1_RS1 (Rate select)
                 // Output port 10: SFP0_TXEN, SFP1_TXEN (Tx enable)
                 // Output port 11: SFP0_SCKEN, SFP1_SCKEN (I2C clock select)
-                if (port == 2 || port == 3) {
-                    // LED control, turn green on while booting
-                    pc->mode[0] = MESA_SGPIO_MODE_ON;
+                if (port < 2) {
+                    // Port 0/1 LED control, turn green on and yellow off while booting
+                    pc->mode[0] = MESA_SGPIO_MODE_OFF;
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
+                } else if (port < 4) {
+                    // Port 2/3 LED control, turn green on and red off while booting
+                    // Endnode: Turn blue/green off (Carrier SFP ports not present)
+                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE ?
+                                   MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
                 } else if (port == 8 || port == 9) {
                     // Rate select
                     pc->mode[0] = MESA_SGPIO_MODE_ON;
@@ -435,24 +445,22 @@ static mesa_rc lan966x_port_led_update(meba_inst_t inst,
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_status_t *old_status = &board->status[port_no];
     mesa_sgpio_conf_t  conf;
-    mesa_sgpio_mode_t  mode_green, mode_red;
+    mesa_sgpio_mode_t  *mode = conf.port_conf[port_no].mode;
 
-    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
-        (port_no == 2 || port_no == 3) &&
+    if ((board->type == BOARD_TYPE_ENDNODE || board->type == BOARD_TYPE_ENDNODE_CARRIER) &&
+        port_no < 4 &&
         (status->link != old_status->link || status->speed != old_status->speed) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         *old_status = *status; // Save status
-        mode_green = MESA_SGPIO_MODE_OFF;
-        mode_red = MESA_SGPIO_MODE_OFF;
+        mode[0] = MESA_SGPIO_MODE_ON; // P0_GR/P1_GR/SFP0_GR/SFP1_GR
+        mode[1] = MESA_SGPIO_MODE_ON; // P0_YEL/P1_YEL/SFP0_RD/SFP1_RD
         if (status->link) {
             if (status->speed >= MESA_SPEED_1G) {
-                mode_green = MESA_SGPIO_MODE_0_ACTIVITY_INV;
+                mode[0] = MESA_SGPIO_MODE_0_ACTIVITY;
             } else {
-                mode_red = MESA_SGPIO_MODE_0_ACTIVITY_INV;
+                mode[1] = MESA_SGPIO_MODE_0_ACTIVITY;
             }
         }
-        conf.port_conf[port_no].mode[0] = mode_green; // SFP GR at bit 0
-        conf.port_conf[port_no].mode[1] = mode_red;   // SFP RD at bit 0
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
     return rc;
