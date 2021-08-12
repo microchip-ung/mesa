@@ -446,9 +446,12 @@ static mesa_rc lan966x_port_led_update(meba_inst_t inst,
     mesa_port_status_t *old_status = &board->status[port_no];
     mesa_sgpio_conf_t  conf;
     mesa_sgpio_mode_t  *mode = conf.port_conf[port_no].mode;
+    uint32_t           port_max;
 
-    if ((board->type == BOARD_TYPE_ENDNODE || board->type == BOARD_TYPE_ENDNODE_CARRIER) &&
-        port_no < 4 &&
+    // Only the first 2/4 ports on Endnode/Carrier systems need LED update
+    port_max = (board->type == BOARD_TYPE_ENDNODE ? 2 :
+                board->type == BOARD_TYPE_ENDNODE_CARRIER ? 4 : 0);
+    if (port_no < port_max &&
         (status->link != old_status->link || status->speed != old_status->speed) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         *old_status = *status; // Save status

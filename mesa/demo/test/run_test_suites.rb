@@ -15,19 +15,17 @@ $systems = [
     { name: "dk-t33-4", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-6", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
 
-    # dk-t34, starting with Maserati and Fireant systems
-    { name: "dk-t34-1", image: "arm64_ls1046_lan966x_ad.itb",branch:"master", parallel: "no", server: "34", started: "no" },
+    # dk-t34, starting with Fireant systems
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master", parallel: "no", server: "34", started: "no" },
 
     # dk-t35, starting with Maserati systems
-    { name: "dk-t35-5", image: "armv7_lan966x_sr.itb",       branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-4", image: "armv7_lan966x_bbb.itb",      branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },
+    { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master", parallel: "no", server: "35", started: "no" },
 
-#   { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master", parallel: "no", server: "35", started: "no" },
 #   { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master", parallel: "no", server: "35", started: "no" },
 #   { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master", parallel: "no", server: "35", started: "no" }, MESA-428 / Atom issue
 #   { name: "dk-t35-3", image: "mipsel_vsc7429.mfi",         branch:"master", parallel: "no", server: "35", started: "no" }, Removed due to Ref-board instability (hangs)
