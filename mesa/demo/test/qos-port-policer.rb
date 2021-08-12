@@ -39,8 +39,12 @@ test "Port policer disabled from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
     icounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[ig])
     ecounters = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[eg])
 
-    if ((icounters["rmon"]["rx_etherStatsPkts"] - (icounters["if_group"]["ifInDiscards"] + icounters["if_group"]["ifInErrors"])) != ecounters["rmon"]["tx_etherStatsPkts"])   # Check that all frames are transmitted - no policing
-        t_e("ingress/egress counters not as expected. rx #{icounters["rmon"]["rx_etherStatsPkts"]}   tx #{ecounters["rmon"]["tx_etherStatsPkts"]}")
+    rxcnt = icounters["rmon"]["rx_etherStatsPkts"] - (icounters["if_group"]["ifInDiscards"] + icounters["if_group"]["ifInErrors"])
+    txcnt = ecounters["rmon"]["tx_etherStatsPkts"]
+
+    if ((rxcnt > (txcnt + 5)) ||  # Check that all frames are transmitted - no policing
+        (rxcnt < txcnt))          # It is seen that more frame are received than transmitted. Seems that server sometimes transmit protocol PDUs
+        t_e("ingress/egress counters not as expected. rx #{rxcnt}   tx #{txcnt}")
     end
 end
 

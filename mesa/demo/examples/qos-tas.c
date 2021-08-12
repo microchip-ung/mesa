@@ -185,7 +185,7 @@ static int tas_init(int argc, const char *argv[])
     tas_conf.gate_enabled = TRUE;
     memset(tas_conf.gate_open, TRUE, sizeof(tas_conf.gate_open));
     tas_conf.cycle_time = cycle_time;
-    tas_conf.cycle_time_ext = 0;
+    tas_conf.cycle_time_ext = 256;
     tas_conf.base_time = base_time;
     tas_conf.gate_enabled = TRUE;
     tas_conf.config_change = TRUE;
