@@ -950,9 +950,9 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_c
 
         pause_stop = 4 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ);
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
-            rsrv_raw = (20 * VTSS_MAX_FRAME_LENGTH_STANDARD) / JR2_BUFFER_CELL_SZ;
+            rsrv_raw = pause_start + (3 * VTSS_MAX_FRAME_LENGTH_STANDARD) / JR2_BUFFER_CELL_SZ;
         } else {
-            rsrv_raw = 40000 / JR2_BUFFER_CELL_SZ;
+            rsrv_raw = pause_start + 20000 / JR2_BUFFER_CELL_SZ;
         }
     }
 
