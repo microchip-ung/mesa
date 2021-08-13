@@ -1879,12 +1879,13 @@ static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t 
             VTSS_F_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!VTSS_BOOL(pfc_mask)),
             VTSS_M_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
 
-    /* ASM / Rx enable */
-    REG_WRM(VTSS_ASM_PFC_CFG(port),
-            VTSS_F_ASM_PFC_CFG_RX_PFC_ENA(pfc_mask) |
-            VTSS_F_ASM_PFC_CFG_FC_LINK_SPEED(spd),
-            VTSS_M_ASM_PFC_CFG_RX_PFC_ENA |
-            VTSS_M_ASM_PFC_CFG_FC_LINK_SPEED);
+    /* Asm / Rx enable */
+    REG_WR(VTSS_ASM_PFC_CFG(port),
+           VTSS_F_ASM_PFC_CFG_RX_PFC_ENA(pfc_mask) |
+           VTSS_F_ASM_PFC_CFG_FC_LINK_SPEED(spd));
+    REG_WR(VTSS_ASM_PFC_CFG(port),
+           VTSS_F_ASM_PFC_CFG_RX_PFC_ENA(pfc_mask) |
+           VTSS_F_ASM_PFC_CFG_FC_LINK_SPEED(spd));
 
     /* ASM must not drop PFC frames as the PFC detection is done on the cellbus interface */
     REG_WRM(VTSS_ASM_PAUSE_CFG(port),
