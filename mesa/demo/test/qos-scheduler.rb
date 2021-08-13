@@ -104,6 +104,11 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     end
 end
 
+if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT"))
+# For some reason on Ocelot if this frame is not transmitted the following two tests will - by far - not pass
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+end
+
 test "Weighted scheduling with equal weights test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Expect equal distribution of frames in queue 0..2
     conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
