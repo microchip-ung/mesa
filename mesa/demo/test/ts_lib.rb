@@ -71,7 +71,7 @@ def tc_to_tod_nano(tc)
         tod_ret  = $ts.dut.call("mesa_ts_timeofday_get")
         tod_tc = (tod_ret[1] >> 16)
         if (tod_tc < tc)
-            t_i("TOD tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tod_tc - tc}")
+            t_i("TOD tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tc - tod_tc}")
             tod_tc += 0xFFFFFFFF    # Add 0xFFFFFFFF to TOD tc
         end
         diff_tc = tod_tc - tc
@@ -79,13 +79,13 @@ def tc_to_tod_nano(tc)
             t_i("TOD nanoseconds has wrapped")
             tod_ret[0]["nanoseconds"] += (1000000000*(diff_tc/1000000000))    # Add seconds to TOD nanoseconds
         end
-        $tod_nano_ret = ((tod_ret[0]["nanoseconds"] - diff_tc) & 0x3FFFFFFF) << 16
+        $tod_nano_ret = (tod_ret[0]["nanoseconds"] - diff_tc) & 0x3FFFFFFF
     
         t_i("tc = #{tc}  tod_tc = #{tod_tc}  tod[nanoseconds] = #{tod_ret[0]["nanoseconds"]}  diff_tc = #{diff_tc}  tod_nano_ret = #{$tod_nano_ret}")
     
         end
     end
-    $tod_nano_ret
+    $tod_nano_ret << 16
 end
 
 def frame_tx(frame, port, frame0, frame1, frame2, framenpi, capture_size=0)

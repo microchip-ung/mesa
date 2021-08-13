@@ -212,7 +212,7 @@ def equal_interval_gcl_reconfig_test
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    pcp0 = 150
+    pcp0 = 210
     pcp3 = 500
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
@@ -580,7 +580,7 @@ def jira_appl_3433_test
     t_i ("Measure after Frame Preemption enabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     if ($ts.dut.pcb == 135)
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [2.7],          true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
     else
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [3.7],          true,              [2])
     end
