@@ -5,7 +5,7 @@
 
 == Introduction
 
-The MEBA (Microsemi Ethernet Board API), is a `c` library to organize and
+The MEBA (Microchip Ethernet Board API), is a `c` library to organize and
 simplify the configuration and status of the various components on the switch
 reference boards.
 
@@ -30,18 +30,18 @@ Throughout the document the following terms are used.
 
 MEBA API:: The "C" language application programming interface defined
 by the header `<microchip/ethernet/board/api.h>`, being part of the
-Microsemi Switch API. This is located in the `meba/include` directory
-of the Microsemi Switch API source tree.
+Microchip Switch API. This is located in the `meba/include` directory
+of the Microchip Switch API source tree.
 
 MEBA user:: An application using the MEBA API. This will typically be
 the WebStaX switch application or the MESA-Demo application.
 
 MEBA implementation:: An implementation of the MEBA API for one or
 more specific hardware targets. The MEBA implementations for the
-Microsemi reference boards are located in the `meba/src` directory of
-the Microsemi Switch API source tree.
+Microchip reference boards are located in the `meba/src` directory of
+the Microchip Switch API source tree.
 
-MESA:: Microsemi Ethernet Switch API.
+MESA:: Microchip Ethernet Switch API.
 
 Application:: Another term for MEBA user.
 
@@ -688,7 +688,7 @@ also consider whether you:
    operations where needed. This will require the code to keep track of which
    board it is operating on. This will require the code to either be able to
    tell the boards apart by probing the hardware, or by means of configuration
-   data. Examples of both can be seen in the MEBA support for the Microsemi
+   data. Examples of both can be seen in the MEBA support for the Microchip
    reference boards.
 
 It should be noted that if you are aiming to support more than one of
@@ -712,7 +712,7 @@ dependencies, by enabling the configuration options.
 . Verify you can build your MEBA library.
 
 . Extend the empty MEBA file to include the following (use one of the MEBA
-  libraries for the Microsemi boards as a reference):
+  libraries for the Microchip boards as a reference):
 
 .. A `meba_initialize_t` function, setting up target switch and the
     MEBA API function pointers below:
@@ -754,7 +754,7 @@ function can be used to querying configuration data. The application can then
 implement access to configuration values for a specific name. The MEBA library
 is free to define the naming, for example `"myname.port_cfg"`.
 
-The Microsemi MEBA implementations use `"target"` to define the target
+The Microchip MEBA implementations use `"target"` to define the target
 API switch type, and `"type"` in some cases where a MEBA library
 support more than one board type, but probing to distinguish them is
 not feasible.
