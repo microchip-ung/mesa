@@ -101,7 +101,7 @@ test "Test SFP loop" do
             $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
             t_i("==========================================================");
             t_i("======== DAC ports:#{cli_ports} speed:#{spd} =============")
-            sleep 1
+            sleep 3
             test "Frame forwarding with broadcast frames" do
                 if spd == "100fdx"
                     send_and_verify($tx_port[0], $tx_port[1])
@@ -117,6 +117,7 @@ test "Test SFP loop" do
                         tx_frames = cnt['if_group']['ifOutUcastPkts']
                         if (tx_frames != $bulk_frames)
                             t_e("Unexpected framloss port #{$ts.dut.port_list[p]} speed:#{spd} Tx:#{$bulk_frames} Rx:#{tx_frames}")
+                            exit
                         else
                             t_i("Port #{$ts.dut.port_list[p]} at speed '#{spd}' Tx:#{$bulk_frames} Rx:#{tx_frames} - OK (loop #{i/2+1})")
                             t_i("==============================================================================");

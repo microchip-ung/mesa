@@ -64,8 +64,7 @@ $speed_list.each do |spd_entry|
         speed = spd_entry[:speed]
         duplex = spd_entry[:dpx]
         cli_port1 = $port_tx1 + 1
-        cli_port2 = $port_tx2 + 1
-        cli_ports = cli_port1.to_s + ',' + cli_port2.to_s
+        cli_ports = cli_port1.to_s
         $ts.dut.run "mesa-cmd port mode #{cli_ports} #{speed}#{duplex}"
 
         t_i "Wait until DUT ports are operational"

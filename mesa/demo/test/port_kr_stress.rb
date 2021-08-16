@@ -111,6 +111,7 @@ test "Training" do
                 end
                 if conf["train"]["complete"] != true
                     t_e("Could not complete training for #{spd}");
+                    exit
                 else
                     eye = $ts.dut.call "mesa_port_kr_eye_get", idx
                     t_i("Training port #{idx} (#{spd}) completed with eye height:#{eye["height"]}");
@@ -126,6 +127,7 @@ test "Training" do
                     tx_frames = cnt['if_group']['ifOutUcastPkts']
                     if (tx_frames != $bulk_frames)
                         t_e("Unexpected framloss port #{$ts.dut.port_list[p]} Tx:#{$bulk_frames} Rx:#{tx_frames}")
+                        exit
                     else
                         t_i("Port #{$ts.dut.port_list[p]} at speed '#{spd}' Tx:#{$bulk_frames} Rx:#{tx_frames} - OK (round #{i})")
                         t_i("============================================");
@@ -134,7 +136,7 @@ test "Training" do
             end
             $ts.dut.run "mesa-cmd port state #{$cli_port} dis"
             $ts.dut.run "mesa-cmd port state #{$cli_port} ena"
-            sleep 2
+            sleep 3
         end
     end
 end
