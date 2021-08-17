@@ -119,6 +119,7 @@ test "Training" do
 
             end
             test "Frame forwarding " do
+                sleep 2
                 $ts.dut.run "mesa-cmd port statis clear"
                 $ts.pc.try cmd
 
@@ -127,7 +128,6 @@ test "Training" do
                     tx_frames = cnt['if_group']['ifOutUcastPkts']
                     if (tx_frames != $bulk_frames)
                         t_e("Unexpected framloss port #{$ts.dut.port_list[p]} Tx:#{$bulk_frames} Rx:#{tx_frames}")
-                        exit
                     else
                         t_i("Port #{$ts.dut.port_list[p]} at speed '#{spd}' Tx:#{$bulk_frames} Rx:#{tx_frames} - OK (round #{i})")
                         t_i("============================================");
