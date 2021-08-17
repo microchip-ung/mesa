@@ -119,11 +119,15 @@
 
 #if defined(VTSS_CHIP_7546TSN) || defined(VTSS_CHIP_7549TSN) || defined(VTSS_CHIP_7552TSN) || \
     defined(VTSS_CHIP_7556TSN) || defined(VTSS_CHIP_7558TSN)
-#define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-V architecture */
+#define VTSS_ARCH_SPARX5 || defined(VTSS_ARCH_LAN969X) /**< Jaguar-3/SparX-V architecture */
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
 #endif
 
 #if defined(VTSS_ARCH_SPARX5)
+#define VTSS_FEATURE_25G                         /**< 25G ports */
+#endif
+
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */

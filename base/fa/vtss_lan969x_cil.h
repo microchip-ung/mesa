@@ -18,7 +18,7 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_ARCH_FA
 #endif
 
@@ -39,43 +39,20 @@
 #include "vtss_fa_reg.h"
 #include "vtss_fa_vcap.h"
 
-// Port 0-(VTSS_CHIP_PORTS-1) are switch ports, others are internal ports
-#if defined(VTSS_ARCH_SPARX5)
-#define VTSS_CHIP_PORTS       65
-#define VTSS_SERDES_10G_START 13
-#define VTSS_SERDES_25G_START 25
-#define FA_BUFFER_MEMORY      4194280 /* 22795 words * 184 bytes */
-#define FA_BUFFER_REFERENCE   22795   /* Frame references */
-#define FA_MULTIPLIER_BIT     2048
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
-#define VTSS_CHIP_PORTS       30
-#define VTSS_SERDES_10G_START 0
-#define VTSS_SERDES_25G_START 0
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define FA_BUFFER_MEMORY      157285 /* (?) */
-#define FA_BUFFER_REFERENCE   2279   /* (?) */
-#define FA_MULTIPLIER_BIT     64
-#else
-#define FA_BUFFER_MEMORY      1572855 /* TBD (12Mbit) */
-#define FA_BUFFER_REFERENCE   8548    /* TBD */
-#define FA_MULTIPLIER_BIT     1024
-#endif
-#endif
-
-#define FA_PRIOS 8                  /* Number of priorities */
-#define FA_BUFFER_CELL_SZ     184   /* Cell size  */
-
-#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS
-#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0) /* 1. CPU Port */
-#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1) /* 2. CPU Port */
-#define VTSS_CHIP_PORT_VD0   (VTSS_CHIP_PORT_CPU + 2) /* VD0/Port used for IPMC */
-#define VTSS_CHIP_PORT_VD1   (VTSS_CHIP_PORT_CPU + 3) /* VD1/Port used for AFI/OAM */
-#define VTSS_CHIP_PORT_VD2   (VTSS_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
+// Port 0-64 are switch ports and 65-69 are internal ports
+#define VTSS_CHIP_PORTS  65
+#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS  /* Next port is CPU port */
+#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0) /* CPU Port 65 */
+#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1) /* CPU Port 66 */
+#define VTSS_CHIP_PORT_VD0   (VTSS_CHIP_PORT_CPU + 2) /* VD0/Port 67 used for IPMC */
+#define VTSS_CHIP_PORT_VD1   (VTSS_CHIP_PORT_CPU + 3) /* VD1/Port 68 used for AFI/OAM */
+#define VTSS_CHIP_PORT_VD2   (VTSS_CHIP_PORT_CPU + 4) /* VD2/Port 69 used for IPinIP*/
 #define VTSS_CHIP_PORTS_ALL  (VTSS_CHIP_PORT_CPU + 5) /* Total number of ports */
 
-#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_SERDES_10G_START 13
+#define VTSS_SERDES_25G_START 25
+
+
 // Fireant port devices:
 // D0  - D11      DEV5G  (12)
 // D12 - D15      DEV10G  (4)
@@ -85,11 +62,14 @@
 // D64            DEV5G   (1)
 //                -----------
 //                65 port devices + 33 DEV2G5 'shadow' devices
+
 // Macros for primary ports:
 #define VTSS_PORT_IS_2G5(port)   (port >= 16 && port <= 47)
 #define VTSS_PORT_IS_5G(port)    (port <= 11 || port == 64)
 #define VTSS_PORT_IS_10G(port)   ((port >= 12 && port <= 15) || (port >= 48 && port <= 55))
 #define VTSS_PORT_IS_25G(port)   (port >= 56 && port <= 63)
+#define VTSS_PORT_DEV_INDX(port) (VTSS_PORT_IS_2G5(port) ? port : VTSS_PORT_IS_5G(port) ? (port <= 11 ? port : 12) : \
+                                  VTSS_PORT_IS_10G(port) ? ((port >= 12 && port <= 15) ? port - 12 : port - 44) : (port - 56))
 // Macros for block address targets:
 #define VTSS_TO_DEV2G5(port)   vtss_to_dev2g5(port)
 #define VTSS_TO_DEV5G(port)    vtss_to_dev5g(port)
@@ -103,35 +83,7 @@
 #define VTSS_TO_SD10G_LANE(indx) vtss_to_sd10g_lane(indx)
 #define VTSS_TO_SD25G_LANE(indx) vtss_to_sd25g_lane(indx)
 #define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(indx)
-#endif
 
-#if defined(VTSS_ARCH_LAN969X)
-// Laguna port devices:
-// D1-D3,D5-D7,D10-D11,D14-D15,
-// D18-D19.D22-D23,D28-D29       DEV2G5 (16)
-// D0,D4,D9,D13,D17,D21          DEV5G  (6)
-// D8,D12,D16,D20,D24-D27        DEV10G (8)
-//                               -----------
-//                               30 port devices + 14 'shadow' devices
-// Macros for primary ports:
-#define VTSS_PORT_IS_2G5(port)   ((port >= 1 && port <= 3) || (port >= 5 && port <= 7) || (port == 10) || (port == 11) \
-                                  || (port >= 14 && port <= 15) || (port == 18) || (port == 19) || (port == 22) || (port == 23) || (port == 28) || (port == 29))
-#define VTSS_PORT_IS_5G(port)    ((port == 0) || (port == 4) || (port == 9) || (port == 13) || (port == 17) || (port == 21))
-#define VTSS_PORT_IS_10G(port)   ((port == 8) || (port == 12) || (port == 16) || (port == 20) || (port >= 24 && port <= 27))
-#define VTSS_PORT_IS_25G(port)   0
-// Macros for block address targets:
-#define VTSS_TO_DEV2G5(port)   vtss_to_dev2g5(port)
-#define VTSS_TO_DEV5G(port)    vtss_to_dev5g(port)
-#define VTSS_TO_DEV10G(port)   vtss_to_dev10g(port)
-#define VTSS_TO_HIGH_DEV(port) VTSS_PORT_IS_5G(port) ? VTSS_TO_DEV5G(port) :  VTSS_TO_DEV10G(port)
-#define VTSS_TO_PCS_TGT(port)  VTSS_PORT_IS_5G(port) ? vtss_to_pcs5g(port) :  vtss_to_pcs10g(port)
-#define VTSS_TO_SD_CMU(indx)  vtss_to_sd_cmu(indx)
-#define VTSS_TO_SD_CMU_CFG(indx)  vtss_to_sd_cmu_cfg(indx)
-#define VTSS_TO_SD10G_LANE(indx) vtss_to_sd10g_lane(indx)
-#define VTSS_TO_SD6G_LANE(indx) vtss_to_sd10g_lane(indx) /* For compile reason */
-#define VTSS_TO_SD25G_LANE(indx) vtss_to_sd10g_lane(indx) /* For compile reason */
-#define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(indx)
-#endif /* VTSS_ARCH_LAN969X */
 
 /* Fireant has 4 PTP PIN connected to GPIO that can be used for different purposes, the defines below defines the
  * default usage of the 4 pins.
@@ -146,6 +98,11 @@
 /* The last PTP pin is not connected to GPIO but can be used for TOD access */
 #define TOD_ACC_PIN 4               /* pin used for timeofday get/set */
 
+#define FA_BUFFER_MEMORY    4194280 /* 22795 words * 184 bytes */
+#define FA_BUFFER_REFERENCE 22795   /* Frame references */
+#define FA_BUFFER_CELL_SZ   184     /* Cell size  */
+
+#define FA_PRIOS 8 /* Number of priorities */
 
 /* ================================================================= *
  *  Register access
@@ -203,12 +160,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
             REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value); \
         }                                                              \
     }
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define DEV_WRM(name, port, value, mask)                                      \
-    {                                                                         \
-          REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask);   \
-    }
-#else
+
 #define DEV_WRM(name, port, value, mask)                                      \
     {                                                                         \
         REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);        \
@@ -216,7 +168,6 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
             REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask); \
         }                                                                     \
     }
-#endif
 
 /* Decode register bit field */
 #define REG_BF(name, value) ((VTSS_M_##name & value) ? 1 : 0)
@@ -245,8 +196,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 #define REG_RD_PMASK(_t, _m)          { REG_RD(_t, &(_m)->m[0]);              REG_RD(_t##1, &(_m)->m[1]);              REG_RD(_t##2, &(_m)->m[2]);              }
 #define REG_RDX_PMASK(_t, x, _m)      { REG_RD(_t(x), &(_m)->m[0]);           REG_RD(_t##1(x), &(_m)->m[1]);           REG_RD(_t##2(x), &(_m)->m[2]);           }
 #define REG_WRXM_PMASK(_t, x, _v, _m) { REG_WRM(_t(x), (_v).m[0], (_m).m[0]); REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]); REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]); }
-#endif
-#if defined(VTSS_ARCH_LAN969X)
+#else
 #define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]);                }
 #define REG_WRX_PMASK(_t, x, _m)      { REG_WR(_t(x), (_m).m[0]);             }
 #define REG_WRM_PMASK(_t, _v, _m)     { REG_WRM(_t, (_v).m[0], (_m).m[0]);    }
@@ -272,7 +222,7 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
 #define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_##tgt##_##addr(x), x, name)
 
 /* MC PGIDs */
-#define PGID_BASE         VTSS_CHIP_PORTS
+#define PGID_BASE         65
 #define PGID_UC_FLOOD     (PGID_BASE + 0)
 #define PGID_MC_FLOOD     (PGID_BASE + 1)
 #define PGID_IPV4_MC_DATA (PGID_BASE + 2)
@@ -314,45 +264,39 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
                                    const vtss_debug_info_t   *const info);
 vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, BOOL res_stat_cur);
 
-/* Port functions for index to address target */
-u32 vtss_port_dev_index(u32 port);
+/* port or index to address target */
 u32 vtss_to_dev2g5(u32 port);
 u32 vtss_to_dev5g(u32 port);
 u32 vtss_to_dev10g(u32 port);
+u32 vtss_to_dev25g(u32 port);
+u32 vtss_to_sd6g_lane(u32 indx);
 u32 vtss_to_sd10g_lane(u32 indx);
+u32 vtss_to_sd25g_lane(u32 indx);
 u32 vtss_to_sd_cmu(u32 indx);
 u32 vtss_to_sd_cmu_cfg(u32 indx);
 u32 vtss_to_sd_lane(u32 indx);
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-#if defined(VTSS_ARCH_SPARX5)
-u32 vtss_to_dev25g(u32 port);
-u32 vtss_to_sd6g_lane(u32 indx);
-u32 vtss_to_sd25g_lane(u32 indx);
-vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
-#endif
+
 
 /* Serdes functions */
 #define FA_SERDES_TYPE_6G  6
 #define FA_SERDES_TYPE_10G 10
 #define FA_SERDES_TYPE_25G 25
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type);
-u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);
 vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id);
+vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
 u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no);
 u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);
+vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info, vtss_port_no_t port_no);
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf);
-BOOL fa_is_target(vtss_state_t *vtss_state);
 
-vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
-vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
-                              u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc);
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
+vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
@@ -366,6 +310,8 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no);
 
 vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                            u16 tap_dly, u16 tap_adv, u16 ampl);
+vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+                              u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc);
 #endif
 
 
@@ -485,6 +431,7 @@ vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
 BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
+
 #endif /* VTSS_ARCH_FA */
 #if defined(VTSS_ARCH_LAN969X)
 // TBD
