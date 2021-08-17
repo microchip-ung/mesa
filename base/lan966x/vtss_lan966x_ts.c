@@ -621,6 +621,8 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SERDES:
+    case VTSS_PORT_INTERFACE_VAUI:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
             rx_delay = sgmii_delay[port].rx;
@@ -654,14 +656,16 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SERDES:
+    case VTSS_PORT_INTERFACE_VAUI:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
-            rx_delay += (1000 * 276);
-            tx_delay += (1000 * 276);
+            rx_delay += (1000 * 39);
+            tx_delay += (1000 * 39);
         }
         if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
-            rx_delay += (1000 * 276);
-            tx_delay += (1000 * 276);
+            rx_delay += (1000 * 18);
+            tx_delay += (1000 * 18);
         }
         break;
     case VTSS_PORT_INTERFACE_QSGMII:

@@ -168,6 +168,9 @@ def tod_latency_test(port0, port1)
         if ($ts.dut.pcb == "8290")
             max = 75
         end
+        if ($ts.dut.pcb == "8309")
+            max = 15
+        end
     end
 
     if ((nano_delay_0 < min) || (nano_delay_0 > max))
@@ -300,7 +303,8 @@ test "test_run" do
         $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
         tod_latency_test(port0, port1)
 
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))   # Only 1G on LAN966X
+        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) &&
+            ($ts.dut.pcb != "8309"))
             next
         end
 
@@ -308,6 +312,10 @@ test "test_run" do
         $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
         $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
         tod_latency_test(port0, port1)
+
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+            next
+        end
 
         if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
             t_i("------------ Measuring 5G mode -----------------")
