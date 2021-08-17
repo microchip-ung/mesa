@@ -349,7 +349,7 @@ typedef enum {
 #endif /* VTSS_PORT_COUNT < 9 */
 #endif /* VTSS_CHIP_SERVAL_TE10 */
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if (VTSS_PORT_COUNT < 65)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 65 /**< Number of ports */
@@ -518,7 +518,7 @@ typedef u8 vtss_dp_level_t;
 typedef vtss_dp_level_t vtss_dpl_t;
 #define VTSS_DPLS 2 /**< Default number of drop precedence levels */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #undef VTSS_DPLS
 #define VTSS_DPLS 4 /**< Number of drop precedence levels */
 #endif /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
@@ -582,7 +582,7 @@ typedef u32 vtss_wred_group_t;
 /** \brief Ingress map ID */
 typedef u16 vtss_qos_ingress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_QOS_INGRESS_MAP_IDS      256                                                        /**< Number of IDs */
 #else
 #define VTSS_QOS_INGRESS_MAP_IDS      128                                                        /**< Number of IDs */
@@ -595,7 +595,7 @@ typedef u16 vtss_qos_ingress_map_id_t;
 /** \brief Egress map ID */
 typedef u16 vtss_qos_egress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_QOS_EGRESS_MAP_IDS       512                                                        /**< Number of IDs */
 #else
 #define VTSS_QOS_EGRESS_MAP_IDS       256                                                        /**< Number of IDs */
@@ -606,7 +606,7 @@ typedef u16 vtss_qos_egress_map_id_t;
 #define VTSS_QOS_EGRESS_MAP_ID_NONE   VTSS_QOS_MAP_ID_NONE                                       /**< ID for unallocated/unused */
 
 // TBD_VK: Check the defined values when the FA datasheet is available
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_QOS_TAS_GCL_LEN_MAX     256 /**< Maximum supported length of TAS gate control list */
 #define VTSS_QOS_TAS_CT_MIN          256 /**< Minimum supported Gate CycleTime in nS. This is due to STARTUP_TIME register resolution */
 #define VTSS_QOS_TAS_CT_MAX   (1000000000-1) /**< Maximum supported Gate CycleTime in nS. Must be less than one second */
@@ -766,7 +766,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #define VTSS_PACKET_TX_GRP_CNT      2  /**< Number of Tx packet groups */
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #undef  VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT    8  /**< Number of Rx packet queues */
 #undef  VTSS_PACKET_RX_GRP_CNT
@@ -1140,7 +1140,7 @@ typedef u32 vtss_acl_policer_no_t;
 typedef u32 vtss_acl_policy_no_t;
 #define VTSS_ACL_POLICY_NO_NONE  0xffffffff                                     /**< ACLs disabled on port */
 #define VTSS_ACL_POLICY_NO_MIN   0                                              /**< ACLs policy minimum number */
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_ACL_POLICY_NO_MAX   255                                            /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_ACL_POLICY_NO_MAX   127                                            /**< ACLs policy maximum number */
@@ -1252,7 +1252,7 @@ typedef u8 vtss_clock_identity[VTSS_CLOCK_IDENTITY_LENGTH];
  * SYNCE types
  ****************************************************************************/
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE  4    /**< SYNCE clock out port numberarray size */
 #else
 #define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE  2    /**< SYNCE clock out port numberarray size */

@@ -7,8 +7,15 @@
 
 #if defined(VTSS_ARCH_FA)
 
+#if defined(VTSS_ARCH_SPARX5)
 #include "vtss_fa_regs.h"
 #include "vtss_fa_kernel_regs.h"
+#endif
+
+#if defined(VTSS_ARCH_LAN969X)
+#include "vtss_laguna_regs.h"
+#endif
+
 
 /* Commands for Mac Table Command register */
 #define MAC_CMD_LEARN         0 /* Insert (Learn) 1 entry */

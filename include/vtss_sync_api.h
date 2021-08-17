@@ -34,7 +34,7 @@ extern "C" {
 typedef u32 vtss_synce_clk_port_t;
 #define VTSS_SYNCE_CLK_A 0   /**< Clock A output port */
 #define VTSS_SYNCE_CLK_B 1   /**< Clock B output port */
-#if defined (VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
+#if defined (VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 //#if defined (VTSS_ARCH_SERVAL_T)
 //#define VTSS_SYNCE_CLK_MAX 2   /**< Number of recovered clock outputs is 2 in ServalT*/
 //#else
@@ -50,7 +50,7 @@ typedef enum
     VTSS_SYNCE_DIVIDER_1,   /**< Divide input clock with one (no division) */
     VTSS_SYNCE_DIVIDER_4,   /**< Divide input clock with 4 */
     VTSS_SYNCE_DIVIDER_5,   /**< Divide input clock with 5 */
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
     VTSS_SYNCE_DIVIDER_2,   /**< Divide input clock with 2 */
     VTSS_SYNCE_DIVIDER_8,   /**< Divide input clock with 8 */
     VTSS_SYNCE_DIVIDER_16,   /**< Divide input clock with 16 */
@@ -90,7 +90,7 @@ vtss_rc vtss_synce_clock_out_get(const vtss_inst_t           inst,
                                  vtss_synce_clock_out_t      *const conf);
 
 
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Identification of a clock oniut type. */
 typedef enum
 {
@@ -99,7 +99,7 @@ typedef enum
     VTSS_SYNCE_CLOCK_STATION_CLK, /**< Station clock input */
     VTSS_SYNCE_CLOCK_DIFF         /**< Differential clock input */
 #endif
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     VTSS_SYNCE_CLOCK_AUX          /**< AUX Clock */
 #endif
 } vtss_synce_clock_in_type_t;
@@ -112,7 +112,7 @@ typedef struct
     vtss_port_no_t              port_no;    /**< Selection of the input port number - must map to a SERDES port. If clk_in is VTSS_SYNCE_CLOCK_STATION_CLK this is station clock 0->3. If clk_in is VTSS_SYNCE_CLOCK_AUX this is AUX clock 0->3. */
     BOOL                        squelsh;    /**< Enable/disable of automatic squelch */
     BOOL                        enable;     /**< Enable/disable of delivery of recovered clock to this selected output clock port */
-#if defined (VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_SPARX5)
+#if defined (VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_synce_clock_in_type_t  clk_in;     /**< Select clock input type (Traffic interface, station clock, differential clock input or AUX clock */
 #endif
 } vtss_synce_clock_in_t;

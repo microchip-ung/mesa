@@ -543,7 +543,7 @@ vtss_rc vtss_ts_external_clock_saved_get(
 }
 
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 vtss_rc vtss_ts_alt_clock_saved_get(
     const vtss_inst_t           inst,
     u64    *const               saved)
@@ -624,8 +624,8 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t       inst,
 }
 
 #endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
-
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||
+    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /*
  * Get the external io mode.
  */
@@ -855,7 +855,7 @@ vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t              inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
         if ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
                 (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode)) {
             vtss_state->ts.port_conf[port_no].mode = *mode;

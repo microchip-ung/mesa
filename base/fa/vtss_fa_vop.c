@@ -1207,7 +1207,7 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
 }
 
 
-
+#if defined(VTSS_ARCH_SPARX5)
 
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
@@ -1562,7 +1562,17 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
 #undef DR_VOE_I
 #undef DR_VOE_II
 
+#endif /* defined(VTSS_ARCH_SPARX5) */
 
+#if defined(VTSS_ARCH_LAN969X)
+vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
+                                const vtss_debug_printf_t pr,
+                                const vtss_debug_info_t   *const info)
+{
+    return VTSS_RC_OK;
+}
+
+#endif
 
 /* - Initialization ------------------------------------------------ */
 /* - Initialization ------------------------------------------------ */

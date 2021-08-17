@@ -3,6 +3,77 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
 #include "vtss_fa_cil.h"
+#if defined(VTSS_ARCH_LAN969X)
+vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                            const vtss_port_serdes_debug_t *const conf)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_port_kr_tap_get(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                           u16 *tap_dly, u16 *tap_adv, u16 *ampl)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
+                             const vtss_debug_printf_t pr,
+                             const vtss_debug_info_t   *const info,
+                             vtss_port_no_t port_no)
+{
+    return VTSS_RC_OK;
+}
+
+typedef enum {
+    VTSS_COEF_PRESET,
+} vtss_port_kr_coef_type_t;
+const char *vtss_kr_coef2txt(vtss_port_kr_coef_type_t coef)
+{
+    return "";
+}
+vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode)
+{
+    return VTSS_RC_OK;
+}
+u32 vtss_to_sd10g_lane(u32 indx)
+{
+    return 0;
+}
+vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
+{
+    return VTSS_RC_OK;
+}
+u32 vtss_to_sd_lane(u32 indx)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
+                         vtss_port_no_t port_no,
+                         u32 action,
+                         u32 *ret_val)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+                              u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc)
+{
+    return VTSS_RC_OK;
+}
+vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
+                          const vtss_port_no_t port_no,
+                          const u16 coef_in,
+                          vtss_kr_status_results_t *const status_out)
+{
+    return VTSS_RC_OK;
+}
+#endif
+#if defined(VTSS_ARCH_SPARX5)
 #include "vtss_fa_sd10g28_setup.h"
 #include "vtss_fa_sd25g28_setup.h"
 
@@ -3434,6 +3505,15 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
             return VTSS_RC_ERROR;
         }
     }
+
+    /* if (type == FA_SERDES_TYPE_6G) { */
+        /*     sd_tgt = VTSS_TO_SD6G_LANE(indx); */
+        /* } else if (type == FA_SERDES_TYPE_10G) { */
+        /*     sd_tgt = VTSS_TO_SD10G_LANE(indx); */
+        /* } else { */
+        /*     sd_tgt = VTSS_TO_SD25G_LANE(indx); */
+        /* } */
+
     return VTSS_RC_OK;
 }
 
@@ -3464,6 +3544,7 @@ u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 
 static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
+#if defined(VTSS_ARCH_SPARX5)
     vtss_sd25g28_setup_args_t sd_cfg = {0};
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -3541,12 +3622,13 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
         VTSS_E("Could not configure Serdes mode (%d) at port:%d",mode,port_no);
         return VTSS_RC_ERROR;
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode, u32 sd_type)
 {
+#if defined(VTSS_ARCH_SPARX5)
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     vtss_sd10g28_setup_args_t sd_cfg = {0};
 
@@ -3621,12 +3703,13 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
         VTSS_E("Could not configure Serdes mode (%d) at port:%d",mode,port_no);
         return VTSS_RC_ERROR;
     }
-
+#endif
     return VTSS_RC_OK;
 }
 // Apply board specific TX equalizer settings
 static vtss_rc vtss_fa_sd_board_settings(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 sd_indx, u32 sd_type)
 {
+#if defined(VTSS_ARCH_SPARX5)
     vtss_rc rc = VTSS_RC_OK;
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     u32 value;
@@ -3762,3 +3845,5 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
 }
 
 #endif /* VTSS_ARCH_FA */
+
+#endif /* VTSS_ARCH_SPARX5 */

@@ -115,7 +115,7 @@ typedef struct {
 // ========================================
 // Fireant
 // ----------------------------------------
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_AFI_FRM_CNT 4096
 
 // Layout of AFI:MISC:NEW_FRM_INFO.FRM_INFO

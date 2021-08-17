@@ -4420,7 +4420,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     }
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
         if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;
@@ -4439,7 +4439,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     if (stat != NULL) {
         u32 cosid;
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
         es0->esdx = stat->idx;
 #endif
         for (cosid = 0; cosid < 8; cosid++) {
@@ -6112,7 +6112,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
 #endif
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &data.key_size);
     }
@@ -6591,7 +6591,7 @@ static void vtss_debug_print_dlb(vtss_state_t *vtss_state,
                 pr("%-17s", "");
             }
             conf = &vtss_state->l2.pol_conf[pol->idx + j];
-#if defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined (VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
             cm = conf->cm;
 #endif
             pr("%-7u%-5u%-8s%-4u%-4u%-6s%-12u%-12u%-12u%-12u",
@@ -7002,7 +7002,7 @@ static vtss_rc vtss_vt_is1_entry_add(vtss_state_t *vtss_state,
     is1->lookup = 1; /* Second lookup */
     vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &key_size);
 #endif /* VTSS_ARCH_OCELOT */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
         vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key, &key_size);
     }
@@ -8409,7 +8409,7 @@ static void vtss_debug_print_mirror(vtss_state_t *vtss_state,
 
     vtss_debug_print_port_none(pr, "Mirror Port      ", conf->port_no);
     pr("Mirror Forwarding: %s\n", vtss_bool_txt(conf->fwd_enable));
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     pr("Mirror Tag       : %s\n",
        conf->tag == VTSS_MIRROR_TAG_NONE ? "None" :
        conf->tag == VTSS_MIRROR_TAG_C ? "C-Tag" :

@@ -299,7 +299,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
                 VTSS_F_ANA_AC_PS_COMMON_SFLOW_CFG_SFLOW_CPU_QU(map->sflow_queue),
                 VTSS_M_ANA_AC_PS_COMMON_SFLOW_CFG_SFLOW_CPU_QU);
     }
-
+#if VTSS_FEATURE_LAYER3
     // Configure L3 routing CPU queues
     REG_WR(VTSS_ANA_L3_CPU_QU_CFG,
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_RLEG_QU            (map->l3_uc_queue)    |
@@ -310,7 +310,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_MC_FAIL_QU         (map->l3_other_queue) |
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_UC_FAIL_QU         (map->l3_uc_queue)    |
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_IP_TTL_FAIL_QU     (map->l3_other_queue));
-
+#endif
     // Configure Rx Queue #i to map to an Rx group.
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
         if (conf->grp_map[i]) {

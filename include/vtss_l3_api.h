@@ -144,7 +144,7 @@
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 
 // SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits each).
 // This means that a single block will give us 256*12 = 3072 entries.

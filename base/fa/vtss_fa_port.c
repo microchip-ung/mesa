@@ -31,6 +31,7 @@ static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
 //                33 Serdes instances
 
 
+#if defined(VTSS_ARCH_SPARX5)
 u32 vtss_to_dev2g5(u32 p)
 {
     if (p < 3)        { return VTSS_TO_DEV2G5_0 + (p) * (VTSS_TO_DEV2G5_1 - VTSS_TO_DEV2G5_0);}
@@ -254,6 +255,175 @@ u32 vtss_to_rsfec(u32 port)
     }
 }
 
+#endif
+
+#if defined(VTSS_ARCH_LAN969X)
+u32 vtss_to_dev2g5(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0:  return VTSS_TO_DEV2G5_0;
+    case 1:  return VTSS_TO_DEV2G5_1;
+    case 2:  return VTSS_TO_DEV2G5_2;
+    case 3:  return VTSS_TO_DEV2G5_3;
+    case 4:  return VTSS_TO_DEV2G5_4;
+    case 5:  return VTSS_TO_DEV2G5_5;
+    case 6:  return VTSS_TO_DEV2G5_6;
+    case 7:  return VTSS_TO_DEV2G5_7;
+    case 8:  return VTSS_TO_DEV2G5_8;
+    case 9:  return VTSS_TO_DEV2G5_9;
+    case 10: return VTSS_TO_DEV2G5_10;
+    case 11: return VTSS_TO_DEV2G5_11;
+    case 12: return VTSS_TO_DEV2G5_12;
+    case 13: return VTSS_TO_DEV2G5_13;
+    case 14: return VTSS_TO_DEV2G5_14;
+    case 15: return VTSS_TO_DEV2G5_15;
+    case 16: return VTSS_TO_DEV2G5_16;
+    case 17: return VTSS_TO_DEV2G5_17;
+    case 18: return VTSS_TO_DEV2G5_18;
+    case 19: return VTSS_TO_DEV2G5_19;
+    case 20: return VTSS_TO_DEV2G5_20;
+    case 21: return VTSS_TO_DEV2G5_21;
+    case 22: return VTSS_TO_DEV2G5_22;
+    case 23: return VTSS_TO_DEV2G5_23;
+    case 24: return VTSS_TO_DEV2G5_24;
+    case 25: return VTSS_TO_DEV2G5_25;
+    case 26: return VTSS_TO_DEV2G5_26;
+    case 27: return VTSS_TO_DEV2G5_27;
+    case 28: return VTSS_TO_DEV2G5_28;
+    case 29: return VTSS_TO_DEV2G5_29;
+        default:
+        VTSS_E("illegal 2G5 port number %d",port);
+        return 0;
+    }
+}
+
+u32 vtss_to_dev5g(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0:  return VTSS_TO_DEV5G_0;
+    case 1:  return VTSS_TO_DEV5G_1;
+    case 2:  return VTSS_TO_DEV5G_2;
+    case 3:  return VTSS_TO_DEV5G_3;
+    case 4:  return VTSS_TO_DEV5G_4;
+    case 5:  return VTSS_TO_DEV5G_5;
+    default:
+        VTSS_E("illegal 5G port number %d",port);
+        return 0;
+    }
+}
+
+u32 vtss_to_dev10g(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0:  return VTSS_TO_DEV10G_0;
+    case 1:  return VTSS_TO_DEV10G_1;
+    case 2:  return VTSS_TO_DEV10G_2;
+    case 3:  return VTSS_TO_DEV10G_3;
+    case 4:  return VTSS_TO_DEV10G_4;
+    case 5:  return VTSS_TO_DEV10G_5;
+    case 6:  return VTSS_TO_DEV10G_6;
+    case 7:  return VTSS_TO_DEV10G_7;
+    default:
+        VTSS_E("illegal 10G port number %d",port);
+        return 0;
+    }
+}
+
+u32 vtss_to_pcs5g(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0:  return VTSS_TO_PCS5G_BR_0;
+    case 1:  return VTSS_TO_PCS5G_BR_1;
+    case 2:  return VTSS_TO_PCS5G_BR_2;
+    case 3:  return VTSS_TO_PCS5G_BR_3;
+    case 4:  return VTSS_TO_PCS5G_BR_4;
+    case 5:  return VTSS_TO_PCS5G_BR_5;
+    default:
+        VTSS_E("illegal 5G port number %d",p);
+        return 0;
+    }
+}
+
+u32 vtss_to_pcs10g(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    switch (p) {
+    case 0:  return VTSS_TO_PCS10G_BR_0;
+    case 1:  return VTSS_TO_PCS10G_BR_1;
+    case 2:  return VTSS_TO_PCS10G_BR_2;
+    case 3:  return VTSS_TO_PCS10G_BR_3;
+    case 4:  return VTSS_TO_PCS10G_BR_4;
+    case 5:  return VTSS_TO_PCS10G_BR_5;
+    case 6:  return VTSS_TO_PCS10G_BR_6;
+    case 7:  return VTSS_TO_PCS10G_BR_7;
+    default:
+        VTSS_E("illegal 10G port number %d",p);
+        return 0;
+    }
+}
+
+u32 vtss_to_sd6g_kr(u32 port)
+{
+    VTSS_E("Not supported on Laguna");
+    return 0;
+}
+
+u32 vtss_to_sd10g_kr(u32 port)
+{
+    u32 p = VTSS_PORT_DEV_INDX(port);
+    if (VTSS_PORT_IS_25G(port)) {
+        p += 12; // VTSS_TO_SD10G_KR covers 10G and 25G, where 25G starts index 12.
+    }
+    switch (p) {
+    case 0: return VTSS_TO_SD10G_KR_0;
+    case 1: return VTSS_TO_SD10G_KR_1;
+    case 2: return VTSS_TO_SD10G_KR_2;
+    case 3: return VTSS_TO_SD10G_KR_3;
+    case 4: return VTSS_TO_SD10G_KR_4;
+    case 5: return VTSS_TO_SD10G_KR_5;
+    case 6: return VTSS_TO_SD10G_KR_6;
+    case 7: return VTSS_TO_SD10G_KR_7;
+    default:
+        VTSS_E("illegal 10G port number %d",p);
+        return 0;
+    }
+}
+
+u32 vtss_port_dev_index(u32 port)
+{
+    if (VTSS_PORT_IS_2G5(port)) {
+        return port;
+    } else if (VTSS_PORT_IS_5G(port)) {
+        switch (port) {
+        case 0:  return 0;
+        case 4:  return 1;
+        case 9:  return 2;
+        case 13: return 3;
+        case 17: return 4;
+        case 21: return 5;
+        }
+    } else if (VTSS_PORT_IS_10G(port)) {
+        switch (port) {
+        case 8:  return 0;
+        case 12: return 1;
+        case 16: return 2;
+        case 20: return 3;
+        case 24: return 4;
+        case 25: return 5;
+        case 26: return 6;
+        case 27: return 7;
+        }
+    } else {
+        VTSS_E("illegal  port number %d",port);
+    }
+    return 0;
+}
+#endif
+
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 p = VTSS_CHIP_PORT(port_no);
@@ -444,8 +614,10 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port)
         REG_RD(VTSS_PORT_CONF_DEV5G_MODES, &value);
     } else if (VTSS_PORT_IS_10G(port)) {
         REG_RD(VTSS_PORT_CONF_DEV10G_MODES, &value);
+#if defined(VTSS_ARCH_SPARX5)
     } else if (VTSS_PORT_IS_25G(port)) {
         REG_RD(VTSS_PORT_CONF_DEV25G_MODES, &value);
+#endif
     }
     mask = VTSS_BIT(VTSS_PORT_DEV_INDX(port));
     return (value & mask ? FALSE : TRUE);
@@ -820,11 +992,15 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
 
 u32 vtss_to_sd_kr(u32 p)
 {
+#if defined(VTSS_ARCH_SPARX5)
     if (p < 12 || p == 64) {
         return vtss_to_sd6g_kr(p);
     } else {
         return vtss_to_sd10g_kr(p);
     }
+#else
+    return vtss_to_sd10g_kr(p);
+#endif
 }
 
 static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
@@ -1032,9 +1208,6 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
     vtss_port_kr_fec_t *kr = &vtss_state->port.kr_fec[port_no];
     vtss_port_kr_conf_t *kr_conf = &vtss_state->port.kr_conf[port_no];
     u32 pcs = VTSS_TO_PCS_TGT(port);
-    u32 tgt = VTSS_TO_HIGH_DEV(port);
-    u32 val;
-    BOOL pcs_ena;
 
     if (kr->r_fec && kr->rs_fec) {
         VTSS_E("Illegal FEC config");
@@ -1049,9 +1222,11 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_TX_DATA_FLIP |
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_RX_DATA_FLIP |
             VTSS_M_PCS_10GBASE_R_KR_FEC_CFG_FEC_ENA);
-
+#if defined(VTSS_ARCH_SPARX5)
     if (VTSS_PORT_IS_25G(port)) {
+        BOOL pcs_ena;
         u32 rs_fec = vtss_to_rsfec(port);
+        u32 tgt = VTSS_TO_HIGH_DEV(port), val;
 
         // 25G PCS must be disabled when enabling FEC
         REG_RD(VTSS_DEV10G_PCS25G_CFG(tgt), &val);
@@ -1099,7 +1274,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                         VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
         }
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1166,7 +1341,9 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_irq_activity(vtss_state_t *vtss_state,
                                        u32 *const irq_mask)
 {
+#if defined(VTSS_ARCH_SPARX5)
     REG_RD(VTSS_CPU_KR10G_INTR_RAW, irq_mask);
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1189,14 +1366,11 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
-    u32 sts0, sts1, tr, reg, reg2;
+    u32 sts0, sts1, tr;
     u16 val1, val2, val3;
     u32 tgt, pcs;
-    u32 port = VTSS_CHIP_PORT(port_no);
     BOOL spd10g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G;
     BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
-    u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
-    u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
 
@@ -1288,6 +1462,11 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
         REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_UNCORRECTED(pcs), &tr);
         status->fec.uncorrected_block_cnt = tr;
     } else if (spd25g) {
+#if defined(VTSS_ARCH_SPARX5)
+        u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
+        u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
+        u32 port = VTSS_CHIP_PORT(port_no), reg, reg2;
+
         if (status->fec.r_fec_enable) {
             u32 dev_tgt = VTSS_TO_HIGH_DEV(port);
             REG_RD(VTSS_DEV10G_PCS25G_FEC74_CERR_CNT(dev_tgt), &reg);
@@ -1305,6 +1484,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
             *rs_fec_uc +=  (reg2 << 16) | reg;
             status->fec.uncorrected_block_cnt = *rs_fec_uc;
         }
+#endif
     }
     // Aneg history (for debug)
     REG_RD(VTSS_IP_KRANEG_AN_HIST(tgt), &tr);
@@ -1860,6 +2040,7 @@ static vtss_rc fa_enable_usx_extender(vtss_state_t *vtss_state, const vtss_port_
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_ARCH_SPARX5)
 // Configure port muxing:
 // QSGMII:     4x2G5 devices
 // USGMII:     8x2G5 devices.
@@ -1942,6 +2123,30 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     }
     return VTSS_RC_OK;
 }
+#endif
+
+#if defined(VTSS_ARCH_LAN969X)
+// Configure port muxing:
+// QSGMII:     4x2G5 devices
+static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    u32 p = VTSS_CHIP_PORT(port_no), Q;
+
+    if (vtss_state->port.current_if_type[port_no] == vtss_state->port.conf[port_no].if_type) {
+        return VTSS_RC_OK; // Nothing to do
+    }
+
+    switch (vtss_state->port.conf[port_no].if_type) {
+    case VTSS_PORT_INTERFACE_QSGMII: /* QSGMII: 4x2G5 devices. Mode Q'  */
+        Q = (p - p % 4) / 4;
+        REG_WRM(VTSS_PORT_CONF_QSGMII_ENA, VTSS_BIT(Q), VTSS_BIT(Q));
+        break;
+    default:
+        break;
+    }
+    return VTSS_RC_OK;
+}
+#endif
 
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode)
 {
@@ -2394,11 +2599,13 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
         }
 
         if (type == FA_SERDES_TYPE_25G) {
+#if defined(VTSS_ARCH_SPARX5)
             DEV_WRM(DEV_RST_CTRL, port, VTSS_F_DEV10G_DEV_RST_CTRL_PCS_TX_RST(power_down), VTSS_M_DEV10G_DEV_RST_CTRL_PCS_TX_RST);
             VTSS_MSLEEP(1);
             REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
                     VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(power_down),
                     VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
+#endif
         } else {
             // 6G and 10G
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
@@ -2997,8 +3204,10 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
             bt_indx = VTSS_BIT((port >= 12 && port <= 15) ? port - 12 : port - 44);
             REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_25G(port)) {
+#if defined(VTSS_ARCH_SPARX5)
             bt_indx = VTSS_BIT(port - 56);
             REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
+#endif
         }
         REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
                 VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(!use_primary_dev),
@@ -3139,9 +3348,11 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DF(sd_tgt), &val2);
             analog_sd = !VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
         } else {
+#if defined(VTSS_ARCH_SPARX5)
             /* Check the analog loss of signal detect of the 25G-Serdes */
             REG_RD(VTSS_SD25G_TARGET_LANE_DE(sd_tgt), &val2);
             analog_sd = !VTSS_X_SD25G_TARGET_LANE_DE_LN_PMA_RXEI(val2); // 0 = link
+#endif
         }
         /* MAC10G Tx Monitor Sticky bit Register */
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
@@ -4353,12 +4564,12 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
     /* Reset the Port Mux (not done through chip-soft-reset) */
     REG_WR(VTSS_PORT_CONF_DEV5G_MODES,  0);
     REG_WR(VTSS_PORT_CONF_DEV10G_MODES, 0);
-    REG_WR(VTSS_PORT_CONF_DEV25G_MODES, 0);
     REG_WR(VTSS_PORT_CONF_QSGMII_ENA,   0);
-    REG_WR(VTSS_PORT_CONF_USGMII_ENA,   0);
     REG_WR(VTSS_PORT_CONF_USXGMII_ENA,  0);
-
-
+#if defined(VTSS_ARCH_SPARX5)
+    REG_WR(VTSS_PORT_CONF_DEV25G_MODES, 0);
+    REG_WR(VTSS_PORT_CONF_USGMII_ENA,   0);
+#endif
 
     return VTSS_RC_OK;
 }

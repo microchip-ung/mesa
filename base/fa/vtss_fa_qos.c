@@ -2480,7 +2480,7 @@ static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no
 
     /* Read list length and assure that the following entry access */
     REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
-    current_port_conf->gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value);
+//    current_port_conf->gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value); TBD
 
     /* Read the list elements */
     for (i = 0; i < current_port_conf->gcl_length; ++i) {
@@ -2782,9 +2782,14 @@ static vtss_rc gcl_port_profile_configure(vtss_state_t *vtss_state, u32 list_idx
 
         /* Select the list entry */
         REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(i), VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM); /* The GCL_ENTRY_NUM is relative to the LIST_BASE_ADDR that is accessed latest  */
-
+#if defined(VTSS_ARCH_SPARX5)
         /* Configure the profile reference */
         REG_WRM(VTSS_HSCH_TAS_GCL_CTRL_CFG, VTSS_F_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE(pindex), VTSS_M_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE);   /* Default scheduler element when HQoS is not present */
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+        /* Configure the profile reference */
+        REG_WRM(VTSS_HSCH_TAS_GCL_CTRL_CFG2, VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(pindex), VTSS_M_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE);   /* Default scheduler element when HQoS is not present */
+#endif // TBD
     }
     return VTSS_RC_OK;
 }
@@ -2830,9 +2835,15 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     REG_WR(VTSS_HSCH_TAS_CYCLE_TIME_CFG, cycle_time);
     REG_WR(VTSS_HSCH_TAS_STARTUP_CFG, VTSS_F_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE) ? obsolete_list_idx : list_idx) |
                                       VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time/256));
+#if defined(VTSS_ARCH_SPARX5)
     REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_LENGTH(gcl_length) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+    REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
+#endif
 
     /* Configure the profile(s) */
     /* The profile for "normal" guard band - not Hold MAC guard band */
@@ -3755,7 +3766,7 @@ static char *debug_tas_state_string(u32 value)
 
 static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,  u32 list_idx,  BOOL any_state)
 {
-    u32   i, j, value, state, gcl_length, entry_idx, profile_idx;
+    u32   i, j, value, state, gcl_length = 0, entry_idx, profile_idx;
 
     /* Select the list */
     REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM(list_idx), VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM);
@@ -3776,7 +3787,9 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "OBSOLETE_IDX", VTSS_X_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX(value));
         pr("    %s: %u\n", "STARTUP_TIME", VTSS_X_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(value));
         REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
+#if defined(VTSS_ARCH_SPARX5)
         gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value);
+#endif
         pr("    %s: %u\n", "LIST_LENGTH", gcl_length);
         pr("    %s: %u\n", "LIST_TOD_DOM", VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(value));
         entry_idx = VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(value);
@@ -3793,8 +3806,14 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
             REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(i), VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM); /* The GCL_ENTRY_NUM is relative to the LIST_BASE_ADDR that is accessed latest  */
 
             /* Read the gate state */
+#if defined(VTSS_ARCH_SPARX5)
             REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG, &value);
             profile_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE(value);
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+            REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG2, &value);
+            profile_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(value);
+#endif
             pr("        %s: 0x%X\n", "GATE_STATE", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(value));
             pr("        %s: %u\n", "PORT_PROFILE", profile_idx);
             pr("        %s: %u\n", "HSCH_POS", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(value));

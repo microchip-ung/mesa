@@ -58,7 +58,7 @@ extern "C" {
 
 #    if defined(VTSS_ARCH_JAGUAR_2)     /* Jaguar2 */
 #      define VTSS_PORT_VOE_CNT           (53)                        // Number of port VOEs in HW
-#    elif defined(VTSS_ARCH_SPARX5)     /* SparX-5 */
+#    elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)     /* SparX-5 */
 #      define VTSS_PORT_VOE_CNT           (65)                        // Number of port VOEs in HW
 #    else
 #      error "not defined expected architure for VOP V2"

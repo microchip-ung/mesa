@@ -264,6 +264,7 @@ APP_TARGET(NAME app_vsc7556            MESA vsc7556            MEBA meba_sparx5)
 APP_TARGET(NAME app_lan966x            MESA lan966x            MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_lm         MESA lan966x_lm         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_ad         MESA lan966x_ad         MEBA meba_lan966x)
+APP_TARGET(NAME app_lan969x_sr         MESA lan969x_sr         MEBA meba_sparx5)
 
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
@@ -325,6 +326,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     IMG_TARGET(NAME armv7_lan966x         TYPE fit    APP app_lan966x         MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_lm      TYPE fit    APP app_lan966x_lm      MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_ad      TYPE fit    APP app_lan966x_ad      MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan969x_sr_bbb  TYPE fit    APP app_lan969x_sr      MACHINE BeagleBoneBlack)
 
     IMG_TARGET(NAME armv7_lan966x_bbb     TYPE fit    APP app_lan966x         MACHINE BeagleBoneBlack)
     IMG_TARGET(NAME armv7_lan966x_ad_bbb  TYPE fit    APP app_lan966x_ad      MACHINE BeagleBoneBlack)

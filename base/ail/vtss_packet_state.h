@@ -56,7 +56,7 @@ typedef struct {
     vtss_packet_rx_conf_t      rx_conf;
     vtss_packet_rx_port_conf_t rx_port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_npi_conf_t            npi_conf;
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     // Desired redirect port for a given Rx queue.
     vtss_phys_port_no_t        default_qu_redirect[VTSS_PACKET_RX_QUEUE_CNT];
 #endif

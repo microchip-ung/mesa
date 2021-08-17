@@ -518,7 +518,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #define VTSS_GPIOS         64
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         64
@@ -701,7 +701,7 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
 #define VTSS_SGPIO_GROUPS 3
 #endif /* VTSS_ARCH_JAGUAR_2_B/C */
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS  3
 #endif /* VTSS_ARCH_SPARX5 */

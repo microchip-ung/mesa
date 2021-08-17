@@ -479,12 +479,17 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(clk_period/100),
             VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
 
+#if defined(VTSS_ARCH_SPARX5)
     for(u8 i = 0; i < 3; i++) {
         REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(i),
                 VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
                 VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
     }
-
+#else
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
+#endif
     REG_WRM(VTSS_HSCH_TAS_STATEMACHINE_CFG,
             VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY((256 * 1000) / clk_period),
             VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY);
@@ -942,6 +947,8 @@ static vtss_rc fa_dsm_chk_calender(vtss_state_t *vtss_state, u32 *calender, i32 
 
 /* MESA-641. Function ported from verification/TCL to manually calculate fifo size for DSM calender */
 u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
+    u32 tmp4 = 0;
+#if defined(VTSS_ARCH_SPARX5)
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32 sys_clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
     u32 mac_width = 8;
@@ -990,7 +997,9 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     tmp1 = 1000 * mac_width / fifo_width;
     tmp2 = 3000 + ((12000 + 2 * taxi_dist[port] * 1000) * sys_clk / mac_per);
     tmp3 = tmp1 * tmp2 / 1000;
-    return  (tmp3 + 2000 + 999) / 1000 + addition;
+    tmp4 = (tmp3 + 2000 + 999) / 1000 + addition;
+#endif
+    return tmp4;
 }
 
 

@@ -343,7 +343,7 @@ typedef enum {
 #define VTSS_LAN966X_PACKET_HDR_SIZE_BYTES 32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for VLAN tag) */
 
 // Find the largest required header size.
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_PACKET_HDR_SIZE_BYTES VTSS_JR2_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is only useful if you only compile for one target. */
@@ -633,7 +633,7 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
                                         u32                   *const bin_hdr_len);
 
 /* Maximum Rx/Tx IFH length */
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_PACKET_TX_IFH_MAX     36  /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX     36  /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_JAGUAR_2)

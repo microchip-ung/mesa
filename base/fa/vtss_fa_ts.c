@@ -3,11 +3,10 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_TS
 #include "vtss_fa_cil.h"
-
 #if defined(VTSS_ARCH_FA)
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
-
+#include "vtss_fa_ts.h"
 /* - CIL functions ------------------------------------------------- */
 
 /* GPIO configuration */
@@ -53,6 +52,7 @@ REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(pin),                     \
 static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss_timestamp_t *ts, u64 *tc)
 {
     u32 value;
+
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(io), &value);
     ts->sec_msb = VTSS_X_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(value);
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(io), &ts->seconds);
@@ -641,7 +641,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
-    u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var, sd_tx_delay_var;
+    u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
     io_delay_t            *dv_factor;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
@@ -676,9 +676,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
     /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
     if (sd_type == FA_SERDES_TYPE_25G) {
+#if defined(VTSS_ARCH_SPARX5)
         REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
         sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
+#endif
         dv_factor = delay_var_factor_25G;
     } else {
         REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);

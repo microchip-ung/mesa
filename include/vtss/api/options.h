@@ -19,6 +19,14 @@
 #define VTSS_OPT_LIGHT 0
 #endif
 
+#if defined(VTSS_CHIP_969X)
+#define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
+// #define VTSS_ARCH_SPARX5
+#if defined(VTSS_OPT_FPGA)
+#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
+#endif
+#endif
+
 #if defined(VTSS_CHIP_966X)
 #define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
 #if defined(VTSS_OPT_FPGA)
@@ -111,11 +119,15 @@
 
 #if defined(VTSS_CHIP_7546TSN) || defined(VTSS_CHIP_7549TSN) || defined(VTSS_CHIP_7552TSN) || \
     defined(VTSS_CHIP_7556TSN) || defined(VTSS_CHIP_7558TSN)
-#define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-V architecture */
+#define VTSS_ARCH_SPARX5 || defined(VTSS_ARCH_LAN969X) /**< Jaguar-3/SparX-V architecture */
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
 #endif
 
 #if defined(VTSS_ARCH_SPARX5)
+#define VTSS_FEATURE_25G                         /**< 25G ports */
+#endif
+
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
@@ -192,7 +204,7 @@
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                 /**< Automatic MAC address ageing */
 #define VTSS_FEATURE_MAC_CPU_QUEUE                /**< CPU queue per MAC address */
-#define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */
+#define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */  BJO-TBD
 #define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_TEMP_SENSOR                  /**< Temperature Sensor */
@@ -243,14 +255,14 @@
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_S5I)
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
-#elif defined(VTSS_ARCH_SPARX5)
+#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #endif /* VTSS_ARCH_SPARX5_CE */
 
@@ -606,11 +618,11 @@
 #define VTSS_FEATURE_L2_MSTP                   /**< MSTP */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
 #endif
 
-#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_VOP_CFM                   /**< OAM/VOE supporting full 802.1 CFM implementation */
 #endif
 

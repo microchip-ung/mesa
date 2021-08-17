@@ -23,10 +23,10 @@ typedef enum
     VTSS_MIIM_CONTROLLER_0    = 0,  /**< MIIM controller 0 */
     VTSS_MIIM_CONTROLLER_1    = 1,  /**< MIIM controller 1 */
 #endif
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     VTSS_MIIM_CONTROLLER_2    = 2,  /**< MIIM controller 2 */
 #endif
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     VTSS_MIIM_CONTROLLER_3    = 3,  /**< MIIM controller 3 */
 #endif
     VTSS_MIIM_CONTROLLERS,          /**< Number of MIIM controllers */
@@ -94,13 +94,13 @@ typedef struct
 {
     i32                    chip_port;        /**< Set to -1 if not used */
     vtss_chip_no_t         chip_no;          /**< Chip number, multi-chip targets */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_internal_bw_t     max_bw;           /**< Max internal bandwidth reserved for the port */
 #endif /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_SPARX5 */
     vtss_miim_controller_t miim_controller;  /**< MII management controller */
     u8                     miim_addr;        /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
     vtss_chip_no_t         miim_chip_no;     /**< MII management chip number, multi-chip targets */
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_port_sgpio_map_t  sd_map;           /**< PCS signal detect to SGPIO bit map */
 #endif /*VTSS_ARCH_SPARX5 */
 } vtss_port_map_t;

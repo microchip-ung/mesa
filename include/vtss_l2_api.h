@@ -2071,7 +2071,7 @@ vtss_rc vtss_aggr_mode_set(const vtss_inst_t       inst,
     By default, mirroring is disabled for all ports.
 */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Mirror port configuration */
 typedef enum
 {
@@ -2087,7 +2087,7 @@ typedef struct
 {
     vtss_port_no_t    port_no;    /**< Mirror port or VTSS_PORT_NO_NONE */
     BOOL              fwd_enable; /**< Enable normal traffic forwarding to mirror port */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_mirror_tag_t tag;        /**< Mirror tag type */
     vtss_vid_t        vid;        /**< Mirror tag VID */
     vtss_tagprio_t    pcp;        /**< Mirror tag PCP */
