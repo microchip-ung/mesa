@@ -1054,7 +1054,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
     static mepa_driver_t indy_drivers[] = {
         {
             .id = 0x221660,  // LAN8814 QSGMII standalone PHY
-            .mask = 0xfffff0,
+            .mask = 0xfffffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,
@@ -1082,7 +1082,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
-            .mask = 0xfffff0,
+            .mask = 0xfffffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,

@@ -616,39 +616,12 @@ out_device:
 
 mepa_drivers_t mepa_mscc_driver_init()
 {
-    static const int nr_mscc_phy = 4;
+    static const int nr_mscc_phy = 3;
     static mepa_driver_t mscc_drivers[] = {
         {
-            .id = 0x00070400,
-            .mask = 0x02fffc00,
-            .mepa_driver_delete = mscc_1g_delete,
-            .mepa_driver_reset = mscc_1g_reset,
-            .mepa_driver_poll = mscc_1g_poll,
-            .mepa_driver_conf_set = mscc_1g_conf_set,
-            .mepa_driver_conf_get = phy_1g_conf_get,
-            .mepa_driver_if_get = mscc_1g_if_get,
-            .mepa_driver_power_set = mscc_1g_power_set,
-            .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
-            .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
-            .mepa_driver_media_set = mscc_1g_media_set,
-            .mepa_driver_probe = mscc_1g_probe,
-            .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
-            .mepa_driver_clause22_read = phy_1g_read,
-            .mepa_driver_clause22_write = phy_1g_write,
-            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
-            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
-            .mepa_driver_event_poll = phy_1g_event_poll,
-            .mepa_driver_loopback_set = phy_1g_loopback_set,
-            .mepa_driver_loopback_get = phy_1g_loopback_get,
-            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
-            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
-            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
-            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
-        },
-        // Atom - QSGMII family
-        {
+            // VTSS Atom PHY
             .id = 0x000706e0,
-            .mask = 0x02ffFFe0,
+            .mask = 0xffffffe0,
             .mepa_driver_delete = mscc_1g_delete,
             .mepa_driver_reset = mscc_1g_atom_reset,
             .mepa_driver_poll = mscc_1g_poll,
@@ -673,10 +646,10 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         },
-        // Atom - SGMII
         {
-            .id = 0x706d1,
-            .mask = 0xFFffFFff,
+            // VTSS (all other models)
+            .id = 0x00070400,
+            .mask = 0xfffffc00,
             .mepa_driver_delete = mscc_1g_delete,
             .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
@@ -702,8 +675,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
         },
         {
+            // Cicada (all models)
             .id = 0x000FC400,
-            .mask = 0x02fffc00,
+            .mask = 0xfffffc00,
             .mepa_driver_delete = mscc_1g_delete,
             .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
