@@ -37,7 +37,7 @@
 
 #define dpll_port_0             MESA_SYNCE_DEV_DPLL(            500,      MESA_SYNCE_DEV_INPUT | 0)
 #define dpll_port_1             MESA_SYNCE_DEV_DPLL(            500,      MESA_SYNCE_DEV_INPUT | 1)
-#define dpll_port_5             MESA_SYNCE_DEV_DPLL(            500,      MESA_SYNCE_DEV_INPUT | 5)
+#define dpll_port_4             MESA_SYNCE_DEV_DPLL(            500,      MESA_SYNCE_DEV_INPUT | 4)
 
 static const meba_synce_graph_element_t synce_graph_elements_8290_board[] = {
     // type                             source                    destination
@@ -55,19 +55,31 @@ static const meba_synce_graph_element_t synce_graph_elements_8290_board[] = {
 
     MESA_SYNCE_GRAPH_CONNECTION(        phy_mux_1_port_out_0,     dpll_port_0),
     MESA_SYNCE_GRAPH_CONNECTION(        phy_mux_1_port_out_1,     dpll_port_1),
-    MESA_SYNCE_GRAPH_CONNECTION(        station_clock_port_0,     dpll_port_5),
+    MESA_SYNCE_GRAPH_CONNECTION(        station_clock_port_0,     dpll_port_4),
 };
 
 static const meba_synce_terminal_attr_t attr_8290_board[] = {
     //              device                   attr-type             attr-value
     MESA_SYNCE_ATTR(dpll_port_0,             MEBA_ATTR_CLOCK_ID,   1),
     MESA_SYNCE_ATTR(dpll_port_1,             MEBA_ATTR_CLOCK_ID,   2),
-    MESA_SYNCE_ATTR(dpll_port_5,             MEBA_ATTR_CLOCK_ID,   3),
+    MESA_SYNCE_ATTR(dpll_port_4,             MEBA_ATTR_CLOCK_ID,   3),
 
     MESA_SYNCE_ATTR(eth_port_0,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
     MESA_SYNCE_ATTR(eth_port_1,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_2,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_3,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_4,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_5,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_6,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_7,              MEBA_ATTR_FREQ_1G,    MEBA_SYNCE_CLOCK_FREQ_125MHZ),
     MESA_SYNCE_ATTR(eth_port_0,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
     MESA_SYNCE_ATTR(eth_port_1,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_2,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_3,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_4,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_5,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_6,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_7,              MEBA_ATTR_FREQ_100M,  MEBA_SYNCE_CLOCK_FREQ_25MHZ),
 };
 
 static mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
