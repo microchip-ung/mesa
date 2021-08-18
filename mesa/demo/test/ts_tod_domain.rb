@@ -182,11 +182,29 @@ def tod_domain_test(domain, seconds)
     tx_props = { ts_feature_is_PTS: false, phy_ts_mode: "MESA_PACKET_INTERNAL_TC_MODE_32BIT", backplane_port: false, delay_comp: {delay_cnt: 100<<16, asymmetry_cnt: 100<<16} }
     rx_ts = $ts.dut.call("mesa_ptp_get_timestamp", [0,1,2,3], $frame_info, "MESA_PACKET_PTP_MESSAGE_TYPE_SYNC", tx_props)
     rx_tc = rx_ts[0] >> 16
-    t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$hw_tstamp}  rx_tc: #{rx_tc}  difference: #{rx_tc-$tx_tc}")
+    diff = rx_tc - $tx_tc
+    t_i ("tx_tc: #{$tx_tc}  hw_tstamp: #{$hw_tstamp}  rx_tc: #{rx_tc}  difference: #{diff}")
 
-    if (((rx_tc - $tx_tc) > 0) ||
-        (($tx_tc - rx_tc) > 210))
-        t_e("Difference between TX TC and RX TC is unexpected high.  max: #{210}")
+    # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
+    min = -200-2
+    max = -200+18  #200ns is from delay_comp: {delay_cnt: 100<<16, asymmetry_cnt: 100<<16}
+                   #Latency 17 is seen on Fireant Jenkins test
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        if ($ts.dut.pcb == "8281-SVB")
+            min = -200+490  #Copper SFP
+            max = -200+520  #Copper SFP
+        end
+        if ($ts.dut.pcb == "8290")
+            min = -200+40   #External PHY
+            max = -200+75   #External PHY
+        end
+    end
+
+    if (diff > max)
+        t_e("Difference between TX TC and RX TC is unexpected high.  max: #{max}")
+    end
+    if (diff < min)
+        t_e("Difference between TX TC and RX TC is unexpected low.  min: #{min}")
     end
 
     if (($hw_tstamp - (tx_props[:delay_comp][:delay_cnt]>>16) - (tx_props[:delay_comp][:asymmetry_cnt]>>16)) != rx_tc)  # Check that the calculated frame tc is correctly compensated
