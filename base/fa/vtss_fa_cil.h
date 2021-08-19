@@ -486,8 +486,4 @@ BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *t
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
 #endif /* VTSS_ARCH_FA */
-#if defined(VTSS_ARCH_LAN969X)
-// TBD
-#endif /* VTSS_ARCH_LAN969X */
-
 #endif /* _VTSS_FA_CIL_H_ */
