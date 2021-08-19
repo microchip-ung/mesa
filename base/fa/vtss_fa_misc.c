@@ -1176,9 +1176,9 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
             FA_DEBUG_SIO_INST(pr, INPUT_DATA(g,i), i, "INPUT_DATA");
             FA_DEBUG_SIO_INST(pr, INTR_POL(g,i), i, "INTR_POL");
             FA_DEBUG_SIO_INST(pr, INTR(g,i), i, "INTR");
-            FA_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-            FA_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
-            FA_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
+            FA_DEBUG_SIO_INST(pr, INPUT_DATA(g,i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(pr, INTR_POL(g,i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(pr, INTR(g,i), i, "INTR");
 
         }
         FA_DEBUG_SIO(pr, PORT_ENA(g), "PORT_ENA");

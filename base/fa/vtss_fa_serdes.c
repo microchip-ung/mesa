@@ -3280,7 +3280,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
     }
     if (vtss_fa_port_is_high_speed(vtss_state, port)) {
         VTSS_SPRINTF(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
-                ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
+                ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_dev_index(port));
     } else {
         VTSS_SPRINTF(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, "2G5", port);
     }

@@ -13,6 +13,7 @@ static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
                                 const vtss_port_no_t        port_no,
                                 vtss_port_counters_t *const counters,
                                 vtss_counter_cmd_t          cmd);
+#if defined(VTSS_ARCH_SPARX5)
 // Devices:
 // D0  - D11      DEV5G  (12)
 // D12 - D15      DEV10G  (4)
@@ -30,8 +31,30 @@ static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
 //                -----------
 //                33 Serdes instances
 
+u32 vtss_port_dev_index(u32 port)
+{
+    if (VTSS_PORT_IS_2G5(port)) {
+        return port;
+    } else if (VTSS_PORT_IS_5G(port)) {
+        if (port <= 11) {
+            return port;
+        } else {
+            return 12;
+        }
+    } else if (VTSS_PORT_IS_10G(port)) {
+        if (port >= 12 && port <= 15) {
+            return port - 12;
+        } else {
+            return port - 44;
+        }
+    } else if (VTSS_PORT_IS_25G(port)) {
+        return port - 56;
+    } else {
+        VTSS_E("illegal  port number %d",port);
+    }
+    return 0;
+}
 
-#if defined(VTSS_ARCH_SPARX5)
 u32 vtss_to_dev2g5(u32 p)
 {
     if (p < 3)        { return VTSS_TO_DEV2G5_0 + (p) * (VTSS_TO_DEV2G5_1 - VTSS_TO_DEV2G5_0);}
@@ -57,7 +80,7 @@ u32 vtss_to_dev2g5(u32 p)
 
 u32 vtss_to_dev5g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_DEV5G_0;
     case 1:  return VTSS_TO_DEV5G_1;
@@ -80,7 +103,7 @@ u32 vtss_to_dev5g(u32 port)
 
 u32 vtss_to_dev10g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_DEV10G_0;
     case 1:  return VTSS_TO_DEV10G_1;
@@ -102,7 +125,7 @@ u32 vtss_to_dev10g(u32 port)
 
 u32 vtss_to_dev25g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0: return VTSS_TO_DEV25G_0;
     case 1: return VTSS_TO_DEV25G_1;
@@ -120,7 +143,7 @@ u32 vtss_to_dev25g(u32 port)
 
 u32 vtss_to_pcs5g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_PCS5G_BR_0;
     case 1:  return VTSS_TO_PCS5G_BR_1;
@@ -143,7 +166,7 @@ u32 vtss_to_pcs5g(u32 port)
 
 u32 vtss_to_pcs10g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_PCS10G_BR_0;
     case 1:  return VTSS_TO_PCS10G_BR_1;
@@ -165,7 +188,7 @@ u32 vtss_to_pcs10g(u32 port)
 
 u32 vtss_to_pcs25g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0: return VTSS_TO_PCS25G_BR_0;
     case 1: return VTSS_TO_PCS25G_BR_1;
@@ -183,7 +206,7 @@ u32 vtss_to_pcs25g(u32 port)
 
 u32 vtss_to_sd10g_kr(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     if (VTSS_PORT_IS_25G(port)) {
         p += 12; // VTSS_TO_SD10G_KR covers 10G and 25G, where 25G starts index 12.
     }
@@ -216,7 +239,7 @@ u32 vtss_to_sd10g_kr(u32 port)
 
 u32 vtss_to_sd6g_kr(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0: return VTSS_TO_SD6G_KR_0;
     case 1: return VTSS_TO_SD6G_KR_1;
@@ -239,7 +262,7 @@ u32 vtss_to_sd6g_kr(u32 port)
 
 u32 vtss_to_rsfec(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0: return VTSS_TO_PCS25G_RSFEC_0;
     case 1: return VTSS_TO_PCS25G_RSFEC_1;
@@ -254,13 +277,54 @@ u32 vtss_to_rsfec(u32 port)
         return 0;
     }
 }
-
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
+// Laguna port devices:
+// D1-D3,D5-D7,D10-D11,D14-D15,D18-D19.D22-D23,D28-D29    DEV2G5 (16)
+// D0,D4,D9,D13,D17,D21                                   DEV5G  (6)
+// D8,D12,D16,D20,D24-D27                                 DEV10G (8)
+//                                                        -----------
+//                                                        30 port devices + 14 shadow devices
+
+// Serdeses:
+// SD0 - SD9    (10x10G Serdes instances)
+// RGMII:
+// 2x1G  (hardcoded to D28, D29)
+
+u32 vtss_port_dev_index(u32 port)
+{
+    if (VTSS_PORT_IS_2G5(port)) {
+        return port;
+    } else if (VTSS_PORT_IS_5G(port)) {
+        switch (port) {
+        case 0:  return 0;
+        case 4:  return 1;
+        case 9:  return 2;
+        case 13: return 3;
+        case 17: return 4;
+        case 21: return 5;
+        }
+    } else if (VTSS_PORT_IS_10G(port)) {
+        switch (port) {
+        case 8:  return 0;
+        case 12: return 1;
+        case 16: return 2;
+        case 20: return 3;
+        case 24: return 4;
+        case 25: return 5;
+        case 26: return 6;
+        case 27: return 7;
+        }
+    } else {
+        VTSS_E("illegal  port number %d",port);
+    }
+    return 0;
+}
+
 u32 vtss_to_dev2g5(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_DEV2G5_0;
     case 1:  return VTSS_TO_DEV2G5_1;
@@ -300,7 +364,7 @@ u32 vtss_to_dev2g5(u32 port)
 
 u32 vtss_to_dev5g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_DEV5G_0;
     case 1:  return VTSS_TO_DEV5G_1;
@@ -316,7 +380,7 @@ u32 vtss_to_dev5g(u32 port)
 
 u32 vtss_to_dev10g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_DEV10G_0;
     case 1:  return VTSS_TO_DEV10G_1;
@@ -334,7 +398,7 @@ u32 vtss_to_dev10g(u32 port)
 
 u32 vtss_to_pcs5g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_PCS5G_BR_0;
     case 1:  return VTSS_TO_PCS5G_BR_1;
@@ -350,7 +414,7 @@ u32 vtss_to_pcs5g(u32 port)
 
 u32 vtss_to_pcs10g(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0:  return VTSS_TO_PCS10G_BR_0;
     case 1:  return VTSS_TO_PCS10G_BR_1;
@@ -374,10 +438,7 @@ u32 vtss_to_sd6g_kr(u32 port)
 
 u32 vtss_to_sd10g_kr(u32 port)
 {
-    u32 p = VTSS_PORT_DEV_INDX(port);
-    if (VTSS_PORT_IS_25G(port)) {
-        p += 12; // VTSS_TO_SD10G_KR covers 10G and 25G, where 25G starts index 12.
-    }
+    u32 p = vtss_port_dev_index(port);
     switch (p) {
     case 0: return VTSS_TO_SD10G_KR_0;
     case 1: return VTSS_TO_SD10G_KR_1;
@@ -392,37 +453,7 @@ u32 vtss_to_sd10g_kr(u32 port)
         return 0;
     }
 }
-
-u32 vtss_port_dev_index(u32 port)
-{
-    if (VTSS_PORT_IS_2G5(port)) {
-        return port;
-    } else if (VTSS_PORT_IS_5G(port)) {
-        switch (port) {
-        case 0:  return 0;
-        case 4:  return 1;
-        case 9:  return 2;
-        case 13: return 3;
-        case 17: return 4;
-        case 21: return 5;
-        }
-    } else if (VTSS_PORT_IS_10G(port)) {
-        switch (port) {
-        case 8:  return 0;
-        case 12: return 1;
-        case 16: return 2;
-        case 20: return 3;
-        case 24: return 4;
-        case 25: return 5;
-        case 26: return 6;
-        case 27: return 7;
-        }
-    } else {
-        VTSS_E("illegal  port number %d",port);
-    }
-    return 0;
-}
-#endif
+#endif /* VTSS_ARCH_LAN969X */
 
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
@@ -619,7 +650,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port)
         REG_RD(VTSS_PORT_CONF_DEV25G_MODES, &value);
 #endif
     }
-    mask = VTSS_BIT(VTSS_PORT_DEV_INDX(port));
+    mask = VTSS_BIT(vtss_port_dev_index(port));
     return (value & mask ? FALSE : TRUE);
 }
 
@@ -990,19 +1021,6 @@ static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
 #define ANEG_RATE_10G    9
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode);
 
-u32 vtss_to_sd_kr(u32 p)
-{
-#if defined(VTSS_ARCH_SPARX5)
-    if (p < 12 || p == 64) {
-        return vtss_to_sd6g_kr(p);
-    } else {
-        return vtss_to_sd10g_kr(p);
-    }
-#else
-    return vtss_to_sd10g_kr(p);
-#endif
-}
-
 static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
@@ -1012,7 +1030,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
     if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
         return VTSS_RC_OK;
     }
-    tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
 
     if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
         spd = KR_ANEG_RATE_10G;
@@ -1082,7 +1100,7 @@ static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
                                         const vtss_port_kr_frame_t *const frm)
 {
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
 
     if (frm->type == VTSS_COEFFICIENT_UPDATE_FRM) {
         REG_WR(VTSS_IP_KRANEG_LD_COEF_UPD(tgt), frm->data);
@@ -1104,7 +1122,7 @@ static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
                                         vtss_port_kr_frame_t *const frm)
 {
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), val;
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no)), val;
 
     if (frm->type == VTSS_COEFFICIENT_UPDATE_FRM) {
         REG_RD(VTSS_IP_KRANEG_LP_COEF_UPD(tgt), &val);
@@ -1121,7 +1139,7 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
                          u32 np0, u32 np1, u32 np2)
 {
     u32 val;
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &val);
 
     if ((val & NP_TOGGLE) == 0) {
@@ -1163,7 +1181,7 @@ static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   u16 *const ber)
 {
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     u32 val;
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &val);
     *ber = (u16)val;
@@ -1281,7 +1299,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 /* Restart aneg if SM is stuck (UNG_FIREANT-91) */
 static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no)), val;
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no)), val;
 
     REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &val);
     if (VTSS_X_IP_KRANEG_AN_SM_AN_SM(val) == 1) {
@@ -1305,7 +1323,7 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
     }
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 val;
     REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
@@ -1343,7 +1361,7 @@ static vtss_rc fa_port_kr_irq_activity(vtss_state_t *vtss_state,
 {
 #if defined(VTSS_ARCH_SPARX5)
     REG_RD(VTSS_CPU_KR10G_INTR_RAW, irq_mask);
-#endif
+#endif // TBD for Laguna
     return VTSS_RC_OK;
 }
 
@@ -1357,7 +1375,7 @@ static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
     u32 mask = enable ? 0xFFFFFFFF : 0;
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), mask);
     return VTSS_RC_OK;
 }
@@ -1380,7 +1398,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     }
 
     pcs = VTSS_TO_PCS_TGT(VTSS_CHIP_PORT(port_no));
-    tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
 
     REG_RD(VTSS_IP_KRANEG_AN_STS0(tgt), &sts0);
     REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts1);
@@ -2141,6 +2159,7 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         Q = (p - p % 4) / 4;
         REG_WRM(VTSS_PORT_CONF_QSGMII_ENA, VTSS_BIT(Q), VTSS_BIT(Q));
         break;
+
     default:
         break;
     }
@@ -4205,7 +4224,7 @@ static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
 
         if (fa_is_high_speed_device(vtss_state, port_no)) {
             VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
-                    ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
+                    ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_dev_index(port));
         } else {
             VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
         }
