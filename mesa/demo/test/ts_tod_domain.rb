@@ -191,7 +191,7 @@ def tod_domain_test(domain, seconds)
                    #Latency 17 is seen on Fireant Jenkins test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         if ($ts.dut.pcb == "8281-SVB")
-            min = -200+490  #Copper SFP
+            min = -200+480  #Copper SFP
             max = -200+520  #Copper SFP
         end
         if ($ts.dut.pcb == "8290")
