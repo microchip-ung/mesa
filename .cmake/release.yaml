@@ -135,6 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
+    - AA-681
 
   # See the 'del' section above for a description
   #
@@ -144,4 +145,5 @@ bugs:
   #
   # OPTIONAL. No bugs will be added if not specified.
   add:
+    - MESA-681
 
