@@ -539,7 +539,11 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
                 }
 
                 if (i == 0) {
-                    REG_WRM_SET(r.init_reg, r.init_val);
+                    if (r.gazwrap) {
+                        REG_WR(r.init_reg, r.init_val);
+                    } else {
+                        REG_WRM_SET(r.init_reg, r.init_val);
+                    }
                 } else {
                     REG_RD(r.init_reg, &value);
                     if ((value & r.init_val) != r.init_val) {
