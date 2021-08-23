@@ -75,7 +75,7 @@ def equal_interval_gcl_reconfig_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -129,7 +129,7 @@ def equal_interval_gcl_reconfig_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -183,7 +183,7 @@ def equal_interval_gcl_reconfig_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -213,7 +213,7 @@ def equal_interval_gcl_reconfig_test
     end
 
     pcp0 = 400
-    pcp3 = 500
+    pcp3 = 650
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
         pcp3 = 1100
@@ -289,7 +289,7 @@ def equal_interval_3_prio_1_port_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -345,7 +345,7 @@ def equal_interval_3_prio_1_port_test
     end
 
     pcp0 = 400
-    pcp3 = 500
+    pcp3 = 650
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
         pcp3 = 1100
@@ -440,7 +440,7 @@ def jira_appl_3396_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -543,7 +543,7 @@ def jira_appl_3433_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
@@ -670,7 +670,7 @@ def equal_interval_1_prio_3_port_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 3
+    sleep 4
 
     t_i ("Test TAS on all egress ports")
     eg.each do |eg_idx|
