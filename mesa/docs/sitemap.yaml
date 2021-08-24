@@ -177,12 +177,8 @@ pages:
         - src:  "mesa/include/microchip/ethernet/switch/api/init.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/l2.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/l3.h"
-        - src:  "mesa/include/microchip/ethernet/switch/api/macsec.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/misc.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/packet.h"
-        - src:  "mesa/include/microchip/ethernet/switch/api/phy_10g.h"
-        - src:  "mesa/include/microchip/ethernet/switch/api/phy_1g.h"
-        - src:  "mesa/include/microchip/ethernet/switch/api/phy_ts.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/port.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/port_list.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/qos.h"
@@ -193,7 +189,6 @@ pages:
         - src:  "mesa/include/microchip/ethernet/switch/api/types.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/vop.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/mrp.h"
-        - src:  "mesa/include/microchip/ethernet/switch/api/wis.h"
 
     - name: "MEBA API Reference"
       pages:

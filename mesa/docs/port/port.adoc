@@ -7,7 +7,7 @@
 The basic port control procedure for a port depends on whether the port is connected to a 1G PHY or an SFP module:
 
 * Initial configuration:
-** If the port is connected to a 1G PHY, it must be reset (`mesa_phy_reset()`) and setup (`mesa_phy_conf_set()`).
+** If the port is connected to a 1G PHY, it must be reset and setup using the PHY driver.
 ** If the port is connected to an SFP module, the port may be setup with IEEE 802.3 clause 37 auto-negotiation (`mesa_port_clause_37_control_set()`).
 ** The port must be setup (`mesa_port_conf_set()`).
 * Port polling must be done to detect link state changes (`mesa_port_status_get()`).
@@ -193,24 +193,3 @@ The API provides functions to read and clear counters for each port (`mesa_port_
 `mesa_port_10g_kr_status_get()` +
 `mesa_port_test_conf_get()` +
 `mesa_port_test_conf_set()` +
-
-=== Basic 1G PHY API
-`mesa_phy_pre_reset()` +
-`mesa_phy_post_reset()` +
-`mesa_phy_pre_system_reset()` +
-`mesa_phy_reset()` +
-`mesa_phy_reset_get()` +
-`mesa_phy_conf_get()` +
-`mesa_phy_conf_set()` +
-`mesa_phy_status_get()` +
-
-=== Basic 10G PHY API
-`mesa_phy_10g_init()` +
-`mesa_phy_10g_mode_get()` +
-`mesa_phy_10g_mode_set()` +
-`mesa_phy_10g_status_get()` +
-`mesa_phy_10g_serdes_status_get()` +
-`mesa_phy_10g_reset()` +
-`mesa_phy_10g_clause_37_status_get()` +
-`mesa_phy_10g_clause_37_control_get()` +
-`mesa_phy_10g_clause_37_control_set()`
