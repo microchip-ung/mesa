@@ -80,30 +80,8 @@ static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_s
                                          BOOL                            *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
-        u32 packet_ns = fa_packet_unpack32(frm);
-        if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
-            /* convert to jaguar 32 bit NSF */
-            VTSS_D("rxTime before %u", packet_ns);
-            (void)lan966x_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
-            VTSS_D("rxTime after %u", *rxTime);
-            *timestamp_ok = rx_info->hw_tstamp_decoded;
-        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
-            /* convert to jaguar 32 bit NSF */
-            VTSS_D("rxTime before %u", packet_ns);
-            (void)fa_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, rxTime);
-            VTSS_D("rxTime after %u", *rxTime);
-            *timestamp_ok = rx_info->hw_tstamp_decoded;
-        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
-            VTSS_I("rxTime can not be retrieved from the packet suppress warning for mode %d ", ts_props.phy_ts_mode);
-        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
-            VTSS_I("rxTime can not be retrieved from the packet suppress warning for mode %d ", ts_props.phy_ts_mode);
-        } else {
-            VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
-        }
-#else
-        VTSS_I("PHY timestamp feature not supported");
-#endif
+        VTSS_E("PHY timestamp feature not supported");
+        return VTSS_RC_ERROR;
     } else {
         /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits nsec + 16 bits sub nsec) wrapping) */
         *rxTime = rx_info->hw_tstamp;
