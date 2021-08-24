@@ -51,9 +51,9 @@ static vtss_rc srvl_eee_port_conf_set(vtss_state_t *vtss_state,
         // when the PHY has auto negotiated and have found that the link partner supports EEE.
         if (conf->lp_advertisement == 0) {
             VTSS_I("Link partner doesn't support EEE - Keeping EEE disabled. Port:%d", chip_port);
-        } else if (!(vtss_state->phy_state[port_no].status.fdx)) {
+        } else if (!vtss_state->port.conf[port_no].fdx) {
             // EEE and Half duplex are not supposed to work together, so we disables EEE in the case where the port is in HDX mode.
-            VTSS_I("EEE disabled due to that port is in HDX mode, port:%d, fdx:%d", chip_port, vtss_state->phy_state[port_no].status.fdx);
+            VTSS_I("EEE disabled due to that port is in HDX mode, port:%d", chip_port);
         } else {
             eee_cfg_reg |= VTSS_F_DEV_PORT_MODE_EEE_CFG_EEE_ENA;
         }

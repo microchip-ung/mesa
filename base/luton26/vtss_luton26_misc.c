@@ -665,7 +665,7 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t *vtss_state,
         }
     }
 
-    if ((vtss_state->misc.chip_id.revision == VTSS_PHY_ATOM_REV_B) && (chip_port < 12) && (chip_port < VTSS_PORT_ARRAY_SIZE) && (vtss_state->eee.ena[port_no] != conf->eee_ena)) {
+    if ((vtss_state->misc.chip_id.revision == 1) && (chip_port < 12) && (chip_port < VTSS_PORT_ARRAY_SIZE) && (vtss_state->eee.ena[port_no] != conf->eee_ena)) {
         vtss_state->eee.ena[port_no] = conf->eee_ena; // On RevB the Fast Link Fail signal interrupt from internal PHY (12 ports) must be disabled when EEE is enabled
         VTSS_N("conf->eee_ena:%d", conf->eee_ena);
         VTSS_RC(l26_intr_cfg(vtss_state, (0x01 << chip_port), 0, !conf->eee_ena));
@@ -687,11 +687,11 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t *vtss_state,
         // when the PHY has auto negotiated and have found that the link partner supports EEE.
         if (conf->lp_advertisement == 0) {
             VTSS_D("Link partner doesn't support EEE - Keeping EEE disabled. Port:%u", chip_port);
-        } else if (!(vtss_state->phy_state[port_no].status.fdx)) {
+        } else if (!(vtss_state->port.conf[port_no].fdx)) {
             // EEE and Half duplex are not supposed to work together, so we disables EEE in the case where the port is in HDX mode.
-            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u, fdx:%u", chip_port, vtss_state->phy_state[port_no].status.fdx);
+            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u", chip_port);
 
-        } else if ((vtss_state->phy_state[port_no].status.aneg.obey_pause || vtss_state->phy_state[port_no].status.aneg.generate_pause) &&
+        } else if ((vtss_state->port.conf[port_no].flow_control.obey || vtss_state->port.conf[port_no].flow_control.generate) &&
                    (vtss_state->misc.chip_id.revision == 0 ||  vtss_state->misc.chip_id.revision == 1)) {
             // For chip revision A and B Flow control and EEE doesn't work together.
             VTSS_D("EEE disabled due to bugzilla#4235, port:%d", chip_port);

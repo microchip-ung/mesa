@@ -704,12 +704,10 @@ static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
 static u32 srvl_packet_unpack32(const u8 *buf)
 {
     return (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
 }
-#endif
 
 static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                    *vtss_state,
                                       const u8                        *const frm,
@@ -722,7 +720,6 @@ static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                    *vtss_stat
     vtss_ts_id_t ts_id;
     *rxTime = rx_info->hw_tstamp;
     *timestamp_ok = rx_info->hw_tstamp_decoded;
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
     if (ts_props.ts_feature_is_PTS || ts_props.backplane_port) {
         u32 packet_ns;
         packet_ns = srvl_packet_unpack32(frm);
@@ -735,7 +732,6 @@ static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                    *vtss_stat
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
         }
     }
-#endif // VTSS_OPT_PHY_TIMESTAMP
     VTSS_D("Raw timestamp %" PRIu64 ", hw_tstamp_decoded %u", *rxTime, *timestamp_ok);
     ts_id.ts_id = rx_info->tstamp_id;
     if (rx_info->tstamp_id_decoded) {

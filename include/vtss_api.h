@@ -76,7 +76,6 @@
 #endif
 
 #if defined(VTSS_OPT_PHY_TIMESTAMP) || defined(VTSS_FEATURE_TIMESTAMP)
-#include <vtss_phy_ts_api.h>
 #include <vtss_ts_api.h>
 #endif
 

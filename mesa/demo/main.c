@@ -15,6 +15,7 @@
 #include <sys/select.h>
 #include <sys/syscall.h>
 
+#include <vtss_phy_api.h>
 #include "microchip/ethernet/switch/api.h"
 #include "microchip/ethernet/switch/api.h"
 #include "microchip/ethernet/board/api.h"
@@ -1063,6 +1064,54 @@ mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t *poll_cnt, uint32_t wait_use
     return 0;
 }
 
+
+// MII management wrappers
+mesa_init_conf_t mesa_init_conf;
+
+static vtss_rc miim_read_wrapper(const vtss_inst_t    inst,
+                                 const vtss_port_no_t port_no,
+                                 const u8             addr,
+                                 u16                  *const value)
+{
+    return mesa_init_conf.miim_read(NULL, port_no, addr, value);
+}
+
+static vtss_rc miim_write_wrapper(const vtss_inst_t    inst,
+                                  const vtss_port_no_t port_no,
+                                  const u8             addr,
+                                  const u16            value)
+{
+    return mesa_init_conf.miim_write(NULL, port_no, addr, value);
+}
+
+static vtss_rc mmd_read_wrapper(const vtss_inst_t    inst,
+                                const vtss_port_no_t port_no,
+                                const u8             mmd,
+                                const u16            addr,
+                                u16                  *const value)
+{
+    return mesa_init_conf.mmd_read(NULL, port_no, mmd, addr, value);
+}
+
+static vtss_rc mmd_read_inc_wrapper(const vtss_inst_t    inst,
+                                    const vtss_port_no_t port_no,
+                                    const u8             mmd,
+                                    const u16            addr,
+                                    u16                  *const buf,
+                                    u8                   count)
+{
+    return mesa_init_conf.mmd_read_inc(NULL, port_no, mmd, addr, buf, count);
+}
+
+static vtss_rc mmd_write_wrapper(const vtss_inst_t    inst,
+                                 const vtss_port_no_t port_no,
+                                 const u8             mmd,
+                                 const u16            addr,
+                                 const u16            value)
+{
+    return mesa_init_conf.mmd_write(NULL, port_no, mmd, addr, value);
+}
+
 int main(int argc, char **argv)
 {
     mesa_rc            rc;
@@ -1179,6 +1228,29 @@ int main(int argc, char **argv)
         return 1;
     }
     T_D("API initialized");
+
+    if (vtss_phy_inst_create(NULL) != VTSS_RC_OK) {
+        T_E("VTSS PHY API failed to instantiate");
+        return 1;
+    } else {
+        vtss_phy_init_conf_t phy_conf;
+
+        T_D("VTSS PHY API instantiated");
+        if (vtss_phy_init_conf_get(NULL, &phy_conf) != VTSS_RC_OK) {
+            T_E("vtss_phy_init_conf_get() failed");
+            return 1;
+        }
+        mesa_init_conf = conf;
+        phy_conf.miim_read = miim_read_wrapper;
+        phy_conf.miim_write = miim_write_wrapper;
+        phy_conf.mmd_read = mmd_read_wrapper;
+        phy_conf.mmd_read_inc = mmd_read_inc_wrapper;
+        phy_conf.mmd_write = mmd_write_wrapper;
+        if (vtss_phy_init_conf_set(NULL, &phy_conf) != VTSS_RC_OK) {
+            T_E("vtss_phy_init_conf_set() failed");
+            return 1;
+        }
+    }
 
     // Do a board init before the port map is established in case of any changes
     MEBA_WRAP(meba_reset, init->board_inst, MEBA_BOARD_INITIALIZE);

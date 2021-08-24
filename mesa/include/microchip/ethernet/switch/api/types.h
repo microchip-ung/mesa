@@ -10,101 +10,6 @@
 #include <microchip/ethernet/switch/api/capability.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
-// Error codes
-enum
-{
-    MESA_RC_OK                                  =  0,  // Success
-    MESA_RC_ERROR                               = -1,  // Unspecified error
-    MESA_RC_INV_STATE                           = -2,  // Invalid state for operation
-    MESA_RC_INCOMPLETE                          = -3,  // Incomplete result
-    MESA_RC_NOT_IMPLEMENTED                     = -4,  // Not implemented
-    MESA_RC_ERR_PARM                            = -5,  // Invalid parameter
-    MESA_RC_ERR_NO_RES                          = -6,  // Out of resources
-
-    MESA_RC_ERR_KR_CONF_NOT_SUPPORTED           = -7,  // The PHY doesn't support 10GBASE_KR equalization
-    MESA_RC_ERR_KR_CONF_INVALID_PARAMETER       = -8,  // One of the parameters are out of range
-
-    // 1G ERRORS ****/
-    MESA_RC_ERR_PHY_BASE_NO_NOT_FOUND           = -50,  // Port base number (first port within a chip) is not found
-    MESA_RC_ERR_PHY_6G_MACRO_SETUP              = -51,  // Setup of 6G macro failed
-    MESA_RC_ERR_PHY_MEDIA_IF_NOT_SUPPORTED      = -52,  // PHY does not support the selected media mode
-    MESA_RC_ERR_PHY_CLK_CONF_NOT_SUPPORTED      = -53,  // The PHY doesn't support clock configuration (for SynceE)
-    MESA_RC_ERR_PHY_GPIO_ALT_MODE_NOT_SUPPORTED = -54,  // The PHY doesn't support the alternative mode for the selected GPIO pin
-    MESA_RC_ERR_PHY_GPIO_PIN_NOT_SUPPORTED      = -55,  // The PHY doesn't support the selected GPIO pin
-    MESA_RC_ERR_PHY_PORT_OUT_RANGE              = -56,  // PHY API called with port number larger than MESA_PORTS
-    MESA_RC_ERR_PHY_PATCH_SETTING_NOT_SUPPORTED = -57,  // PHY API micro patch setting not supported for the port in question
-    MESA_RC_ERR_PHY_LCPLL_NOT_SUPPORTED         = -58,  // PHY API LC-PLL status not supported for the port
-    MESA_RC_ERR_PHY_RCPLL_NOT_SUPPORTED         = -59,  // PHY API RC-PLL status not supported for the port
-
-    // MACSEC ERRORS
-    MESA_RC_ERR_MACSEC_INVALID_SCI_MACADDR      = -60,  // From IEEE 802.1AE-2006, section 9.9 - The 64-bit value FF-FF-FF-FF-FF-FF is never used as an SCI and is reserved for use by implementations to indicate the absence of an SC or an SCI in contexts where an SC can be present
-    MESA_RC_ERR_MACSEC_NOT_ENABLED              = -61,  // Trying to access port where MACSEC is not enabled
-    MESA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE      = -63,  // Trying to use a secy which is already in use
-    MESA_RC_ERR_MACSEC_NO_SECY_FOUND            = -64,  // No SecY found for the specific port
-    MESA_RC_ERR_MACSEC_NO_SECY_VACANCY          = -65,  // No secy vacancy
-    MESA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM     = -66,  // Validate_frames value invalid
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH   = -67,  // Could not program the SA match
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW    = -68,  // Could not program the SA flow
-    MESA_RC_ERR_MACSEC_COULD_NOT_ENA_SA         = -69,  // Could not enable the SA
-    MESA_RC_ERR_MACSEC_COULD_NOT_SET_SA         = -70,  // Could not set SA to in use
-    MESA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN   = -71,  // Invalid header bypass length
-    MESA_RC_ERR_MACSEC_SC_NOT_FOUND             = -72,  // Could not find SC (from sci)
-    MESA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH        = -73,  // No control frame match
-    MESA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN    = -74,  // Could no set bypass pattern for CP rule
-    MESA_RC_ERR_MACSEC_TIMEOUT_ISSUE            = -75,  // Internal timeout issue, bailing out
-    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS   = -76,  // Could not empty the egress pipeline
-    MESA_RC_ERR_MACSEC_AN_NOT_CREATED           = -77,  // AN not created.
-    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS  = -78,  // Could not empty the ingress pipeline
-    MESA_RC_ERR_MACSEC_TX_SC_NOT_EXIST          = -80,  // No tx SC found
-    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA     = -81,  // Could not disable sa
-    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA      = -82,  // Could not delete rx sa
-    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA      = -83,  // Could not delete tx sa
-    MESA_RC_ERR_MACSEC_PATTERN_NOT_SET          = -84,  // Pattern not set
-    MESA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED     = -85,  // HW resources exhausted
-    MESA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS       = -86,  // SCI already exists
-    MESA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND    = -87,  // Could not find SC resources
-    MESA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE     = -88,  // Rx AN is in use
-    MESA_RC_ERR_MACSEC_EMPTY_RECORD             = -89,  // Could not get an empty record
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM      = -90,  // Could not program the xform record
-    MESA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA      = -91,  // Could not toggle SA
-    MESA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE     = -92,  // Tx AN is in use
-    MESA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE  = -93,  // All available SA's are in use
-    MESA_RC_ERR_MACSEC_MATCH_DISABLE            = -94,  // MACSEC match disabled
-    MESA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE      = -95,  // All CP rules of the specific type are in use
-    MESA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID   = -96,  // The pattern priority is not valid
-    MESA_RC_ERR_MACSEC_BUFFER_TOO_SMALL         = -97,  // Buffer to small, must be greater than MESA_MACSEC_FRAME_CAPTURE_SIZE_MAX
-    MESA_RC_ERR_MACSEC_FRAME_TOO_LONG           = -98,  // Frame length is supposed to be less than the amount of data in the fifo
-    MESA_RC_ERR_MACSEC_FRAME_TRUNCATED          = -99,  // Frame is Truncated
-    MESA_RC_ERR_MACSEC_PHY_POWERED_DOWN         = -100, // Phy is powered down, i.e. the MacSec block is not accessible
-    MESA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE   = -101, // Port/Phy is not MacSec capable
-    MESA_RC_ERR_MACSEC_AN_NOT_EXIST             = -102, // AN does not exist
-    MESA_RC_ERR_MACSEC_NO_PATTERN_CFG           = -103, // No pattern is configured
-    MESA_RC_ERR_MACSEC_MAX_MTU                  = -105, // Maximum MTU allowed is 32761 (+ 4 bytes for VLAN)
-    MESA_RC_ERR_MACSEC_UNEXPECT_CP_MODE         = -106, // Unexpected CP mode
-    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN     = -107, // Could not disable AN
-    MESA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE        = -108, // Rule id is out of range. Must not be larger than MESA_MACSEC_CP_RULES
-    MESA_RC_ERR_MACSEC_RULE_NOT_EXIST           = -109, // Rule does not exist
-    MESA_RC_ERR_MACSEC_CSR_READ                 = -110, // Could not do CSR read
-    MESA_RC_ERR_MACSEC_CSR_WRITE                = -111, // Could not do CSR write
-    MESA_RC_ERR_PHY_6G_RCPLL_ON_BASE_PORT_ONLY  = -112, // PHY API 6G RC-PLL status support only on Base port
-
-    // MISC ERRORS
-    MESA_RC_ERR_INVALID_NULL_PTR                = -200, // A pointer was unexpected NULL
-    MESA_RC_ERR_INV_PORT_BOARD                  = -201, // The specific port not available on this board
-
-    // Clause 37 ERRORS
-    MESA_RC_ERR_PCS_BLOCK_NOT_SUPPORTED         = -300, // Invalid access to PCS block
-
-    // PoE ERRORS
-    MESA_RC_ERR_POE_FIRMWARE_VER_NOT_NEW        = -400 // The version of loaded firmware is identical to new
-
-}; // Leave it anonymous.
-
-// Event type.
-// When a variable of this type is used as an input parameter, the API will set the variable if the event has occured.
-// The API will never clear the variable. If is up to the application to clear the variable, when the event has been handled.
-typedef uint8_t mesa_event_t;
-
 // Policer packet rate in PPS
 typedef uint32_t mesa_packet_rate_t;
 
@@ -112,35 +17,6 @@ typedef uint32_t mesa_packet_rate_t;
 
 // Physical port number
 typedef uint32_t mesa_phys_port_no_t;
-
-// Serdes macro mode
-typedef enum
-{
-    MESA_SERDES_MODE_DISABLE,   // Disable serdes
-    MESA_SERDES_MODE_XAUI_12G,  // XAUI 12G mode
-    MESA_SERDES_MODE_XAUI,      // XAUI 10G mode
-    MESA_SERDES_MODE_RXAUI,     // RXAUI 10G mode
-    MESA_SERDES_MODE_RXAUI_12G, // RXAUI 12G mode
-    MESA_SERDES_MODE_2G5,       // 2.5G mode
-    MESA_SERDES_MODE_QSGMII,    // QSGMII mode
-    MESA_SERDES_MODE_SGMII,     // SGMII mode
-    MESA_SERDES_MODE_100FX,     // 100FX mode
-    MESA_SERDES_MODE_1000BaseX, // 1000BaseX mode
-    MESA_SERDES_MODE_SFI,       // LAN/10G mode
-    MESA_SERDES_MODE_SFI_DAC,   // LAN/10G DAC(CU)
-    MESA_SERDES_MODE_SFI_SR,    // Short Range
-    MESA_SERDES_MODE_SFI_ZR,    // ZR with APC hardware algorithm
-    MESA_SERDES_MODE_SFI_BP,    // Backplane
-    MESA_SERDES_MODE_SFI_B2B,   // Bord to Board
-    MESA_SERDES_MODE_SFI_PR_NONE, // No preset
-    MESA_SERDES_MODE_IDLE,      // Send idles (port appears as down for LP)
-    MESA_SERDES_MODE_TEST_MODE, // Send fixed test pattern (port appears as up for LP, but no frame rx/tx)
-    MESA_SERDES_MODE_SXGMII,    // 1 x USXGMII in 5G/10G mode.           Experimental unsupported mode!
-    MESA_SERDES_MODE_USGMII,    // 8 x USGMII in 1G mode.                Experimental unsupported mode!
-    MESA_SERDES_MODE_QXGMII,    // 4 x QXGMII in 2G5 mode.     Mode 'R'.
-    MESA_SERDES_MODE_DXGMII_10G,// 2 x DXGMII_10G in 5G mode.  Mode 'U'. Experimental unsupported mode!
-    MESA_SERDES_MODE_DXGMII_5G  // 2 x DXGMII_5G in 2G5 mode.  Mode 'F'. Experimental unsupported mode!
-} mesa_serdes_mode_t;
 
 // VOE index
 typedef uint32_t mesa_voe_idx_t;
@@ -258,9 +134,6 @@ typedef struct {
  * VLAN types
  ****************************************************************************/
 
-// VLAN Identifier
-typedef uint16_t mesa_vid_t; // 0-4095
-
 #define MESA_VID_NULL     ((const mesa_vid_t)0)     // NULL VLAN ID
 #define MESA_VID_DEFAULT  ((const mesa_vid_t)1)     // Default VLAN ID
 #define MESA_VID_RESERVED ((const mesa_vid_t)0xFFF) // Reserved VLAN ID
@@ -275,9 +148,6 @@ typedef enum
     MESA_VLAN_FRAME_UNTAGGED  // Accept untagged frames only
 } mesa_vlan_frame_t;
 
-// Ethernet Type
-typedef uint16_t mesa_etype_t;
-
 // VLAN tag with "arbitrary" TPID.
 typedef struct {
     mesa_etype_t   tpid; // Tag Protocol Identifier
@@ -287,12 +157,6 @@ typedef struct {
 } mesa_vlan_tag_t;
 
 #define MESA_ETYPE_VTSS 0x8880 // Vitesse Ethernet Type
-
-// MAC Address
-typedef struct
-{
-    uint8_t addr[6];   // Network byte order
-} mesa_mac_t;
 
 // Number of bytes for representing MAC address (SMAC/DMAC) type
 #define MESA_MAC_ADDR_SZ_BYTES 6
@@ -381,12 +245,6 @@ typedef struct {
     // GARP range: 01-80-C2-00-00-2X
     mesa_packet_rx_port_l2cp_conf_t garp[16] CAP(PACKET_PORT_L2CP_REG);
 } mesa_packet_rx_port_conf_t;
-
-// VDD power supply
-typedef enum {
-    MESA_VDD_1V0, // 1.0V (default)
-    MESA_VDD_1V2, // 1.2V
-} mesa_vdd_t;
 
 /****************************************************************************
  * L3 types
@@ -731,11 +589,6 @@ typedef uint8_t mesa_mpls_tc_t;
 // Range is +-2**47 ppb
 // For example, 8.25 ppb is expressed as 0x0000.0000.0008.4000
 typedef int64_t mesa_clk_adj_rate_t;
-
-// Time interval in ns * 1<<16
-// range +-2**47 ns = 140737 sec = 39 hours
-// For example, 2.5 ns is expressed as 0x0000.0000.0002.8000
-typedef int64_t mesa_timeinterval_t;
 
 #define MESA_ONE_MIA 1000000000 // One billion
 #define MESA_ONE_MILL   1000000 // One million

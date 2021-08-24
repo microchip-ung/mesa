@@ -595,12 +595,13 @@
 
 /* Cu PHY API always included for switch/OTN targets */
 #if defined(VTSS_FEATURE_PORT_CONTROL)
-#define VTSS_CHIP_CU_PHY                       /**< Cobber PHY chip */
+//#define VTSS_CHIP_CU_PHY                       /**< Cobber PHY chip */
+#define VTSS_FEATURE_WARM_START                /**< Warm start */
 #endif /* VTSS_FEATURE_PORT_CONTROL */
 
 /* 10G PHY API included if switch has 10G ports */
 #if defined(VTSS_FEATURE_10G)
-#define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
+//#define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
@@ -632,10 +633,6 @@
 #define VTSS_PHY_OPT_VERIPHY 1 /**< VeriPHY enabled by default */
 #endif /* VTSS_PHY_OPT_VERIPHY */
 
-#if defined(VTSS_CHIP_CU_PHY)
-#define VTSS_FEATURE_WARM_START                /**< Warm start */
-#endif /* VTSS_CHIP_CU_PHY */
-
 #if defined(VTSS_CHIP_10G_PHY)
 #define VTSS_FEATURE_SYNCE_10G                 /**< SYNCE - L1 syncronization feature for 10G PHYs*/
 #define VTSS_FEATURE_EDC_FW_LOAD               /**< 848x EDC firmware will get loaded at initilization */
@@ -656,29 +653,12 @@
 // The option must be defined by the user (build configuration) on the builds to boards that have a timestamp PHY mounted.
 // For special timestamp PHY builds the VTSS_FEATURE_PHY_TIMESTAMP is defined in this file, i.e. the
 // PHY timestamp will always be enabled on these builds.
-#if !defined(VTSS_OPT_PHY_TIMESTAMP)
-  #if defined(VTSS_FEATURE_PHY_TIMESTAMP)
-    #define VTSS_OPT_PHY_TIMESTAMP 1 /**< Enable PHY timestamp feature */
-  #endif
-#endif
+#undef VTSS_OPT_PHY_TIMESTAMP
 
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
-    #define VTSS_VIPER_B_FIFO_RESET                      /**< Viper B 1588 OOS fix */
-    #define VTSS_VIPER_B_FIFO_RESET_API_CALL             /**< Viper B OOS fix taken care of within the PHY API */
-#endif
 // Some building script uses the feature define as an option. This is not the
 // idea, but we want to have some level of backwards compatibility. If
 // VTSS_OPT_PHY_MACSEC is defined, then it will control the availability for the
 // MACsec feature regardless of the VTSS_FEATURE_MACSEC define.
-#if defined(VTSS_OPT_PHY_MACSEC)
-#  undef VTSS_FEATURE_MACSEC
-#  if VTSS_OPT_PHY_MACSEC
-#    define VTSS_FEATURE_MACSEC /**< Enable macsec feature */
-#  endif
-#elif defined(VTSS_FEATURE_MACSEC)
-#  define VTSS_OPT_PHY_MACSEC 1 /**< Enable macsec feature */
-#else
-#  define VTSS_OPT_PHY_MACSEC 0 /**< Disable macsec feature */
-#endif
+#undef VTSS_FEATURE_MACSEC
 
 #endif /* _VTSS_OPTIONS_H_ */

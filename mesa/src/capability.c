@@ -1753,7 +1753,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PHY_TS_NUMBER_OF_ENGINES:
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
-        c = MESA_PHY_TS_ENGINE_ID_INVALID;
+        c = 4; // TBD: MESA_PHY_TS_ENGINE_ID_INVALID
 #endif
         break;
 

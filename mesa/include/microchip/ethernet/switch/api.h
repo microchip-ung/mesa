@@ -13,11 +13,6 @@
 #include <microchip/ethernet/switch/api/init.h>
 #include <microchip/ethernet/switch/api/misc.h>
 #include <microchip/ethernet/switch/api/port.h>
-#include <microchip/ethernet/switch/api/phy_1g.h>
-#include <microchip/ethernet/switch/api/phy_10g.h>
-#include <microchip/ethernet/switch/api/phy_ts.h>
-#include <microchip/ethernet/switch/api/macsec.h>
-#include <microchip/ethernet/switch/api/wis.h>
 #include <microchip/ethernet/switch/api/tsn.h>
 #include <microchip/ethernet/switch/api/qos.h>
 #include <microchip/ethernet/switch/api/vop.h>

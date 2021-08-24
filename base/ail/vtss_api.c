@@ -914,11 +914,10 @@ vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t            inst,
 static vtss_rc vtss_restart_sync(vtss_state_t *vtss_state)
 {
     vtss_port_no_t port_no;
-    vtss_rc rc = VTSS_RC_OK;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
 #if defined(VTSS_CHIP_CU_PHY)
-        rc = vtss_phy_sync(vtss_state, port_no);
+        vtss_rc rc = vtss_phy_sync(vtss_state, port_no);
         if (rc != VTSS_RC_OK) {
             VTSS_D("vtss_phy_sync port(%d) return rc(0x%04X)", port_no, rc);
         }

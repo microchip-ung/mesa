@@ -95,17 +95,6 @@ mesa_rc mesa_port_map_set(const mesa_inst_t     inst,
     return vtss_port_map_set((const vtss_inst_t)inst, vtss_map);
 }
 
-mesa_rc mesa_phy_patch_settings_get(const mesa_inst_t    inst,
-                                    const mesa_port_no_t port_no,
-                                    const uint8_t        mcb_bus,
-                                    uint8_t              *mcb_res,
-                                    uint8_t              *cfg_buf,
-                                    uint8_t              *stat_buf)
-{
-    *mcb_res = mcb_bus; // INOUT in VTSS API
-    return vtss_phy_patch_settings_get((const vtss_inst_t)inst, port_no, mcb_res, cfg_buf, stat_buf);
-}
-
 #ifndef VTSS_CHIP_10G_PHY
 mesa_bool_t mesa_phy_10G_is_valid(const mesa_inst_t inst, const mesa_port_no_t port_no)
 {

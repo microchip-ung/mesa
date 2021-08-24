@@ -30,6 +30,7 @@ target_link_libraries(init PUBLIC "-static")
 add_executable(fa_board_fpga_init fa_board_fpga_init.c)
 
 include_directories(../../meba/include)
+include_directories(../../mepa/src/vtss/include)
 
 if (EXISTS ag/mesa-rpc.c AND EXISTS ag/mesa-rpc.h AND ${MESA_PRE_AG})
 set(MESA_RPC ag/mesa-rpc.c)

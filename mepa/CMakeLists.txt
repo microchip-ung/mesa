@@ -12,9 +12,37 @@ include_directories(../me/include)
 include_directories(../mesa/include)
 include_directories(../meba/include)
 include_directories(include)
+include_directories(src/vtss/include)
 
-add_library(mepa_vtss SHARED src/vtss.c src/vtss_ts.c)
-add_library(mepa_vtss_static STATIC src/vtss.c src/vtss_ts.c)
+set(src_vtss src/vtss.c
+             src/vtss_ts.c
+             src/vtss/src/common/vtss_phy_common.c
+             src/vtss/src/phy_1g/vtss_phy_init_scripts.c
+             src/vtss/src/phy_1g/vtss_phy_veriphy.c
+             src/vtss/src/phy_1g/vtss_phy.c
+             src/vtss/src/macsec/vtss_macsec_api.c
+             src/vtss/src/phy_10g/vtss_venice_c_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_phy_10g_malibu.c
+             src/vtss/src/phy_10g/vtss_malibu_b_f2df_df2f_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_venice_c_f2df_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_malibu_b_host_pma_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_malibu_line_pma_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_phy_10g.c
+             src/vtss/src/phy_10g/vtss_phy_10g_api.c
+             src/vtss/src/phy_10g/vtss_wis_api.c
+             src/vtss/src/phy_10g/vtss_malibu_b_pll5g_setup.c
+             src/vtss/src/phy_10g/vtss_malibu_f2df_df2f_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_malibu_host_pma_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_phy_10g_venice.c
+             src/vtss/src/phy_10g/vtss_malibu_b_line_pma_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_venice_f2df_sd10g65_setup.c
+             src/vtss/src/ts/vtss_phy_ts_api.c
+             src/vtss/src/ts/vtss_phy_ewis.c
+             src/vtss/src/ts/vtss_phy_ts_util.c
+             src/vtss/src/mesa_phy.c)
+
+add_library(mepa_vtss SHARED ${src_vtss})
+add_library(mepa_vtss_static STATIC ${src_vtss})
 set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)
 
 add_library(mepa_lan8814 SHARED src/microchip/lan8814.c src/microchip/lan8814_ts.c)

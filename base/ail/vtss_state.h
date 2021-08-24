@@ -714,11 +714,11 @@ typedef struct vtss_state_s {
 
 #ifdef VTSS_CHIP_CU_PHY
   vtss_phy_led_mode_select_t led_mode_select; // LED blink mode
-#endif
 #if defined(VTSS_FEATURE_LED_POW_REDUC)
     u8                            led_intensity;
     vtss_phy_enhanced_led_control_t enhanced_led_control;
     BOOL                            phy_led_control_warm_start_port_list[VTSS_PORTS]; /**<List of ports which is used for LED control (Normally only one port). This is needed in order to know which ports that shall be configured during warm start */
+#endif
 #endif
 
 #if defined(VTSS_OPT_PHY_TIMESTAMP)

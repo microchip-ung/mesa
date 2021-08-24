@@ -79,12 +79,6 @@ mesa_rc mesa_trace_conf_get(const mesa_trace_group_t  group,
 mesa_rc mesa_trace_conf_set(const mesa_trace_group_t  group,
                             const mesa_trace_conf_t   *const conf);
 
-#if defined(__GNUC__) && (__GNUC__ > 2)
-#define MESA_ATTR_PRINTF(X, Y) __attribute__ ((format(printf,X,Y)))
-#else
-#define MESA_ATTR_PRINTF(X, Y)
-#endif
-
 // Trace callout function
 //
 // layer [IN]     Trace layer
@@ -193,11 +187,6 @@ typedef struct {
     mesa_bool_t        has_action; // Action parameter is present
     uint32_t           action;     // Debug group depending action value
 } mesa_debug_info_t;
-
-// Debug printf function
-// The signature is similar to that of printf(). However, the return value is
-// not used anywhere within MESA.
-typedef int (*mesa_debug_printf_t)(const char *fmt, ...) MESA_ATTR_PRINTF(1, 2);
 
 // Get default debug information structure
 // info [OUT]  Debug information

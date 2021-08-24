@@ -9,32 +9,6 @@
 #include <microchip/ethernet/switch/api/misc.h> // For mesa_sgpio_group_t
 #include <microchip/ethernet/hdr_start.h>       // ALL INCLUDE ABOVE THIS LINE
 
-/******************************************************************************/
-/* Port status                                                                */
-/******************************************************************************/
-
-// Port status parameter struct
-typedef struct
-{
-    mesa_event_t      link_down;     // Link down event occurred since last call
-    mesa_bool_t       link;          // Link is up. Remaining fields only valid if TRUE
-    mesa_port_speed_t speed;         // Speed
-    mesa_bool_t       fdx;           // Full duplex
-    mesa_bool_t       remote_fault;  // Remote fault signalled
-    mesa_bool_t       aneg_complete; // Autoneg completed (for clause_37 and Cisco aneg)
-
-    // TRUE: PHY able to transmit from media independent interface regardless of whether the PHY has
-    // determined that a valid link has been established.FALSE: PHY able to transmit from media
-    // independent interface only when the PHY has determined that a valid link has been established.
-    // Note This bit is only applicable to 100BASE-FX and 1000BASE-X fiber media modes.*/
-    mesa_bool_t       unidirectional_ability;
-
-    mesa_aneg_t       aneg;          // Auto negotiation result
-    mesa_bool_t       mdi_cross;     // Indication of if Auto-MDIX crossover is performed
-    mesa_bool_t       fiber;         // Indication of if the link is a fiber link
-    mesa_bool_t       copper;        // Indication of if the link is a copper link
-} mesa_port_status_t;
-
 // The internal bandwidth allocated for the port
 typedef enum
 {

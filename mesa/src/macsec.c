@@ -59,16 +59,5 @@ mesa_rc mesa_macsec_port_inst_dump(const mesa_inst_t           inst,
     return MESA_RC_OK;
 }
 
-#else  // if defined(VTSS_FEATURE_MACSEC)
-
-mesa_rc mesa_macsec_port_inst_dump(const mesa_inst_t           inst,
-                                   const mesa_port_no_t        port_no,
-                                   uint32_t                    max,
-                                   uint32_t                    *cnt,
-                                   mesa_macsec_port_sc_data_t  *data) {
-    *cnt = 0;
-    return MESA_RC_ERROR;
-}
-
 #endif  // if defined(VTSS_FEATURE_MACSEC)
 
