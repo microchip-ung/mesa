@@ -162,13 +162,13 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
             /* convert to jaguar 32 bit NSF */
             VTSS_D("ts_cnt before %u", packet_ns);
             (void)fa_packet_ns_to_ts_cnt(vtss_state, packet_ns, ts_cnt);
-            VTSS_D("ts_cnt after %u", *ts_cnt);
+            VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             /* convert to jaguar 32 bit NSF */
             VTSS_D("ts_cnt before %u", packet_ns);
             (void)fa_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, ts_cnt);
-            VTSS_D("ts_cnt after %u", *ts_cnt);
+            VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
             VTSS_I("ts_cnt can not be retrieved from the packet supress warning for mode %d ", ts_props.phy_ts_mode);
