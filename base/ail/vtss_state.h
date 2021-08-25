@@ -199,6 +199,17 @@ typedef struct {
 } vtss_synce_state_t;
 #endif /* VTSS_FEATURE_SYNCE */
 
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+typedef enum {
+    FEATURE_VLAN_COUNTERS,
+    FEATURE_QOS_FRAME_PREEMPTION,
+    FEATURE_SYNCE,
+    FEATURE_FRER,
+    FEATURE_PSFP,
+    FEATURE_LAST
+} vtss_feature_t;
+#endif
+
 /* Opaque forward declaration */
 struct vtss_state_s;
 
@@ -331,6 +342,10 @@ typedef struct vtss_state_s {
     char txt_buf[256];  /* General purpose text string buffer */
     int  txt_buf_index; /* Index to text buffer */
     void *app_data;    /**< Application data pointer */
+
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    BOOL vtss_features[FEATURE_LAST];
+#endif
 } vtss_state_t;
 
 /* Check instance */

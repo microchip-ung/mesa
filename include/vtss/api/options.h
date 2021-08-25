@@ -21,6 +21,7 @@
 
 #if defined(VTSS_CHIP_969X)
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
+#define VTSS_ARCH_S5I                             /**< SparX-5i architecture */
 // #define VTSS_ARCH_SPARX5
 #if defined(VTSS_OPT_FPGA)
 #define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
@@ -119,12 +120,8 @@
 
 #if defined(VTSS_CHIP_7546TSN) || defined(VTSS_CHIP_7549TSN) || defined(VTSS_CHIP_7552TSN) || \
     defined(VTSS_CHIP_7556TSN) || defined(VTSS_CHIP_7558TSN)
-#define VTSS_ARCH_SPARX5 || defined(VTSS_ARCH_LAN969X) /**< Jaguar-3/SparX-V architecture */
+#define VTSS_ARCH_SPARX5                         /**< Jaguar-3/SparX-V architecture */
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
-#endif
-
-#if defined(VTSS_ARCH_SPARX5)
-#define VTSS_FEATURE_25G                         /**< 25G ports */
 #endif
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)

@@ -4628,8 +4628,10 @@ static vtss_rc fa_es0_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     FA_ACT_SET(ES0, ES0_SWAP_MACS_ENA, action->mac_swap_enable);
 
 #if defined(VTSS_FEATURE_FRER)
-    FA_ACT_SET(ES0, ES0_RTAG_POP_ENA, action->rtag.pop);
-    FA_ACT_SET(ES0, ES0_RTAG_PUSH_SEL, action->rtag.sel);
+    if (vtss_state->vtss_features[FEATURE_FRER]) {
+        FA_ACT_SET(ES0, ES0_RTAG_POP_ENA, action->rtag.pop);
+        FA_ACT_SET(ES0, ES0_RTAG_PUSH_SEL, action->rtag.sel);
+    }
 #endif
 
     /* Update action fields based on egress QoS mapping */

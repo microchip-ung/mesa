@@ -1369,9 +1369,42 @@ static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
 }
 
+/* Initilize features based on target */
+static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
+{
+    switch (vtss_state->create.target) {
+    case VTSS_TARGET_7546:
+    case VTSS_TARGET_7549:
+    case VTSS_TARGET_7552:
+    case VTSS_TARGET_7556:
+    case VTSS_TARGET_7558:
+    case VTSS_TARGET_LAN9698:
+        vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
+        break;
+    case VTSS_TARGET_7546TSN:
+    case VTSS_TARGET_7549TSN:
+    case VTSS_TARGET_7552TSN:
+    case VTSS_TARGET_7556TSN:
+    case VTSS_TARGET_7558TSN:
+    case VTSS_TARGET_LAN9698TSN:
+    case VTSS_TARGET_LAN9698HSN:
+        vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
+        vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
+        vtss_state->vtss_features[FEATURE_FRER]  = TRUE;
+        vtss_state->vtss_features[FEATURE_PSFP]  = TRUE;
+        break;
+    default:
+        return VTSS_RC_ERROR;
+    }
+
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 {
     /* Initialization */
+    VTSS_RC(fa_feature_init(vtss_state));
+
     vtss_state->cil.init_conf_set    = fa_init_conf_set;
     vtss_state->cil.restart_conf_set = fa_restart_conf_set;
     vtss_state->cil.debug_info_print = fa_debug_info_print;

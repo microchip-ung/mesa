@@ -289,6 +289,8 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     case VTSS_TARGET_7556TSN:
     case VTSS_TARGET_7558TSN:
     case VTSS_TARGET_LAN9698:
+    case VTSS_TARGET_LAN9698TSN:
+    case VTSS_TARGET_LAN9698HSN:
         arch = VTSS_ARCH_ANT;
         VTSS_RC(vtss_fa_inst_create(vtss_state));
         break;

@@ -607,7 +607,21 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_VLAN_COUNTERS:
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        {
+            vtss_state_t *vtss_state;
+
+            if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+                VTSS_E("Unable to get state from inst = %p", inst);
+                MESA_ASSERT(0);
+            }
+            if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+                c = 1;
+            }
+        }
+#else
         c = 1;
+#endif
 #endif
         break;
 
@@ -684,7 +698,17 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_FRER:
 #if defined(VTSS_FEATURE_FRER)
-        c = 1;
+    {
+        vtss_state_t *vtss_state;
+
+        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+            VTSS_E("Unable to get state from inst = %p", inst);
+            MESA_ASSERT(0);
+        }
+        if (vtss_state->vtss_features[FEATURE_FRER]) {
+            c = 1;
+        }
+    }
 #endif
         break;
 
@@ -701,7 +725,17 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_PSFP:
 #if defined(VTSS_FEATURE_PSFP)
-        c = 1;
+    {
+        vtss_state_t *vtss_state;
+
+        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+            VTSS_E("Unable to get state from inst = %p", inst);
+            MESA_ASSERT(0);
+        }
+        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+            c = 1;
+        }
+    }
 #endif
         break;
 
@@ -972,10 +1006,23 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_FRAME_PREEMPTION:
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    {
+        vtss_state_t *vtss_state;
+
+        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+            VTSS_E("Unable to get state from inst = %p", inst);
+            MESA_ASSERT(0);
+        }
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            c = 1;
+        }
+    }
+#else
         c = 1;
 #endif
+#endif
         break;
-
     case MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MIN:
         c = VTSS_QOS_PORT_POLICER_BIT_RATE_MIN;
         break;

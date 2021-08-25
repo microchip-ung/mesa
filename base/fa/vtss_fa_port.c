@@ -791,6 +791,7 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
             }
 
             if (sd_type == FA_SERDES_TYPE_25G) {
+#if defined(VTSS_ARCH_SPARX5)
                 REG_WRM(VTSS_SD25G_CFG_TARGET_SYNC_ETH_SD_CFG(sd_lane_tgt),
                         VTSS_F_SD25G_CFG_TARGET_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV(clk_div) |
                         VTSS_F_SD25G_CFG_TARGET_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA(conf->squelsh),
@@ -801,6 +802,7 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
                        VTSS_F_SD25G_CFG_TARGET_SD_CFG_SD_SEL(1) |
                        VTSS_F_SD25G_CFG_TARGET_SD_CFG_SD_POL(0) |
                        VTSS_F_SD25G_CFG_TARGET_SD_CFG_SD_ENA(sd_ena));
+#endif /* VTSS_ARCH_SPARX5 */
             } else {
                 REG_WRM(VTSS_SD_LANE_TARGET_SYNC_ETH_SD_CFG(sd_lane_tgt),
                         VTSS_F_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV(clk_div) |
@@ -3254,12 +3256,14 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     }
 
 #if defined(VTSS_FEATURE_SYNCE)
-    vtss_synce_clk_port_t clk_port;
-    /* Some changes in port configuration require that the Synce input configuration must be updated */
-    for (clk_port = 0; clk_port < VTSS_SYNCE_CLK_PORT_ARRAY_SIZE; clk_port++) {
-        if ((vtss_state->synce.in_conf[clk_port].port_no == port_no) &&
-            ((vtss_state->port.current_speed[port_no] |= conf->speed) || (vtss_state->port.current_mt[port_no] = conf->serdes.media_type))) {
-            (void)fa_synce_clock_in_set(vtss_state, clk_port);
+    if (vtss_state->vtss_features[FEATURE_SYNCE]) {
+        vtss_synce_clk_port_t clk_port;
+        /* Some changes in port configuration require that the Synce input configuration must be updated */
+        for (clk_port = 0; clk_port < VTSS_SYNCE_CLK_PORT_ARRAY_SIZE; clk_port++) {
+            if ((vtss_state->synce.in_conf[clk_port].port_no == port_no) &&
+                ((vtss_state->port.current_speed[port_no] |= conf->speed) || (vtss_state->port.current_mt[port_no] = conf->serdes.media_type))) {
+                (void)fa_synce_clock_in_set(vtss_state, clk_port);
+            }
         }
     }
 #endif
@@ -3556,11 +3560,13 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
         REG_CNT_1G_ONE(TX_XDEFER, i, &c->tx_xdefer, cmd);
         REG_CNT_1G_ONE(TX_BACKOFF1, i, &c->tx_backoff1, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
-        REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
-        REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
-        REG_CNT_1G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
-        REG_CNT_1G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
+            REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
+            REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
+            REG_CNT_1G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
+            REG_CNT_1G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
+        }
 #endif
     } else {
         /* DEV5G/DEV10G/DEV25G counters */
@@ -3604,11 +3610,13 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
         REG_CNT_10G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, cmd);
         REG_CNT_10G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
-        REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
-        REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
-        REG_CNT_10G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
-        REG_CNT_10G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
+            REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
+            REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
+            REG_CNT_10G_ONE(MM_RX_MERGE_FRAG, i, &c->rx_mm_fragments, cmd);
+            REG_CNT_10G_ONE(MM_TX_PFRAGMENT, i, &c->tx_mm_fragments, cmd);
+        }
 #endif
     }
 
@@ -3738,16 +3746,18 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     counters->bridge.dot1dTpPortInDiscards = c->rx_local_drops.value;
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    {
-        vtss_port_dot3br_counters_t *dot3br = &counters->dot3br;
+    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        {
+            vtss_port_dot3br_counters_t *dot3br = &counters->dot3br;
 
-        /* 802.3br counters */
-        dot3br->aMACMergeFrameAssErrorCount = c->rx_mm_assembly_errors.value;
-        dot3br->aMACMergeFrameSmdErrorCount = c->rx_mm_smd_errors.value;
-        dot3br->aMACMergeFrameAssOkCount = c->rx_mm_assembly_ok.value;
-        dot3br->aMACMergeFragCountRx = c->rx_mm_fragments.value;
-        dot3br->aMACMergeFragCountTx = c->tx_mm_fragments.value;
-        dot3br->aMACMergeHoldCount = 0;
+            /* 802.3br counters */
+            dot3br->aMACMergeFrameAssErrorCount = c->rx_mm_assembly_errors.value;
+            dot3br->aMACMergeFrameSmdErrorCount = c->rx_mm_smd_errors.value;
+            dot3br->aMACMergeFrameAssOkCount = c->rx_mm_assembly_ok.value;
+            dot3br->aMACMergeFragCountRx = c->rx_mm_fragments.value;
+            dot3br->aMACMergeFragCountTx = c->tx_mm_fragments.value;
+            dot3br->aMACMergeHoldCount = 0;
+        }
     }
 #endif /* VTSS_FEATURE_QOS_FRAME_PREEMPTION */
     return VTSS_RC_OK;
@@ -4322,11 +4332,13 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
         fa_debug_mix_cnt(pr, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
         fa_debug_mix_cnt(pr, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        /* 802.3br counters */
-        vtss_fa_debug_cnt(pr, "mm_ass_err", NULL, &cnt.rx_mm_assembly_errors, NULL);
-        vtss_fa_debug_cnt(pr, "mm_smd_err", NULL, &cnt.rx_mm_smd_errors, NULL);
-        vtss_fa_debug_cnt(pr, "mm_ass_ok",  NULL, &cnt.rx_mm_assembly_ok, NULL);
-        vtss_fa_debug_cnt(pr, "mm_frag", "", &cnt.rx_mm_fragments, &cnt.tx_mm_fragments);
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            /* 802.3br counters */
+            vtss_fa_debug_cnt(pr, "mm_ass_err", NULL, &cnt.rx_mm_assembly_errors, NULL);
+            vtss_fa_debug_cnt(pr, "mm_smd_err", NULL, &cnt.rx_mm_smd_errors, NULL);
+            vtss_fa_debug_cnt(pr, "mm_ass_ok",  NULL, &cnt.rx_mm_assembly_ok, NULL);
+            vtss_fa_debug_cnt(pr, "mm_frag", "", &cnt.rx_mm_fragments, &cnt.tx_mm_fragments);
+        }
 #endif
     }
 
@@ -4636,8 +4648,10 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
         /* SYNCE features */
 #if defined(VTSS_FEATURE_SYNCE)
-        vtss_state->synce.clock_out_set = fa_synce_clock_out_set;
-        vtss_state->synce.clock_in_set = fa_synce_clock_in_set;
+        if (vtss_state->vtss_features[FEATURE_SYNCE]) {
+            vtss_state->synce.clock_out_set = fa_synce_clock_out_set;
+            vtss_state->synce.clock_in_set = fa_synce_clock_in_set;
+        }
 #endif /* VTSS_FEATURE_SYNCE */
         break;
 

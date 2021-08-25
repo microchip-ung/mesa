@@ -757,45 +757,49 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
            VTSS_F_ANA_CL_ISDX_CFG_MIP_IDX(conf->voi_idx == VTSS_EVC_MIP_IDX_NONE ? 0 : vtss_fa_voi_idx_to_mip_idx(conf->voi_idx)));
 
 #if defined(VTSS_FEATURE_FRER)
-    REG_WR(VTSS_ANA_AC_FRER_GEN_FRER_GEN(isdx),
-           VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_RESET(1) |
-           VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_ENABLE(conf->frer.generation));
-    {
-        vtss_xms_entry_t *ms;
-        vtss_port_no_t   port_no;
-        u8               port[8], cnt = 0;
+    if (vtss_state->vtss_features[FEATURE_FRER]) {
+        REG_WR(VTSS_ANA_AC_FRER_GEN_FRER_GEN(isdx),
+               VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_RESET(1) |
+               VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_ENABLE(conf->frer.generation));
+        {
+            vtss_xms_entry_t *ms;
+            vtss_port_no_t   port_no;
+            u8               port[8], cnt = 0;
 
-        /* Build table of 8 FRER egress chip ports */
-        if (conf->frer.mstream_enable) {
-            ms = &vtss_state->l2.ms.table[conf->frer.mstream_id];
-            if (ms->cnt) {
-                for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
-                    if (VTSS_PORT_BF_GET(ms->port_list, port_no) && cnt < 8) {
-                        port[cnt] = VTSS_CHIP_PORT(port_no);
-                        cnt++;
+            /* Build table of 8 FRER egress chip ports */
+            if (conf->frer.mstream_enable) {
+                ms = &vtss_state->l2.ms.table[conf->frer.mstream_id];
+                if (ms->cnt) {
+                    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+                        if (VTSS_PORT_BF_GET(ms->port_list, port_no) && cnt < 8) {
+                            port[cnt] = VTSS_CHIP_PORT(port_no);
+                            cnt++;
+                        }
                     }
                 }
             }
+            for (; cnt < 8; cnt++) {
+                port[cnt] = 0x7f; /* Disable FRER for the rest */
+            }
+            REG_WR(VTSS_EACL_FRER_EGR_PORT(isdx, 0),
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT0(port[0]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT1(port[1]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT2(port[2]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT3(port[3]));
+            REG_WR(VTSS_EACL_FRER_EGR_PORT(isdx, 1),
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT0(port[4]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT1(port[5]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT2(port[6]) |
+                   VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT3(port[7]));
         }
-        for (; cnt < 8; cnt++) {
-            port[cnt] = 0x7f; /* Disable FRER for the rest */
-        }
-        REG_WR(VTSS_EACL_FRER_EGR_PORT(isdx, 0),
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT0(port[0]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT1(port[1]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT2(port[2]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT3(port[3]));
-        REG_WR(VTSS_EACL_FRER_EGR_PORT(isdx, 1),
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT0(port[4]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT1(port[5]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT2(port[6]) |
-               VTSS_F_EACL_FRER_EGR_PORT_FRER_EGR_PORT3(port[7]));
     }
 #endif
 
 #if defined(VTSS_FEATURE_PSFP)
-    REG_WR(VTSS_ANA_L2_TSN_CFG(isdx),
-           VTSS_F_ANA_L2_TSN_CFG_TSN_SFID(conf->psfp.filter_enable ? fa_psfp_sfid(conf->psfp.filter_id) : 0));
+    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        REG_WR(VTSS_ANA_L2_TSN_CFG(isdx),
+               VTSS_F_ANA_L2_TSN_CFG_TSN_SFID(conf->psfp.filter_enable ? fa_psfp_sfid(conf->psfp.filter_id) : 0));
+    }
 #endif
 
     return VTSS_RC_OK;
@@ -819,15 +823,17 @@ static vtss_rc fa_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_count
         counters->rx_discard = cnt.rx_discard;
         counters->tx_discard = cnt.tx_discard;
 #if defined(VTSS_FEATURE_PSFP)
-        if (vtss_state->init_conf.psfp_counters_enable) {
-            counters->rx_match = counters->rx_green.bytes;
-            counters->rx_green.bytes = 0;
-            counters->rx_gate_discard = counters->rx_yellow.bytes;
-            counters->rx_yellow.bytes = 0;
-            counters->rx_sdu_discard = counters->rx_red.bytes;
-            counters->rx_red.bytes = 0;
-            counters->rx_gate_pass = (counters->rx_match - counters->rx_gate_discard);
-            counters->rx_sdu_pass = (counters->rx_gate_pass - counters->rx_sdu_discard);
+        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+            if (vtss_state->init_conf.psfp_counters_enable) {
+                counters->rx_match = counters->rx_green.bytes;
+                counters->rx_green.bytes = 0;
+                counters->rx_gate_discard = counters->rx_yellow.bytes;
+                counters->rx_yellow.bytes = 0;
+                counters->rx_sdu_discard = counters->rx_red.bytes;
+                counters->rx_red.bytes = 0;
+                counters->rx_gate_pass = (counters->rx_match - counters->rx_gate_discard);
+                counters->rx_sdu_pass = (counters->rx_gate_pass - counters->rx_sdu_discard);
+            }
         }
 #endif
     }
@@ -1815,10 +1821,14 @@ static vtss_rc fa_debug_vxlat(vtss_state_t *vtss_state,
     VTSS_RC(vtss_fa_debug_clm_b(vtss_state, pr, info));
     VTSS_RC(vtss_fa_debug_es0(vtss_state, pr, info));
 #if defined(VTSS_FEATURE_FRER)
-    VTSS_RC(fa_debug_frer(vtss_state, pr, info));
+    if (vtss_state->vtss_features[FEATURE_FRER]) {
+        VTSS_RC(fa_debug_frer(vtss_state, pr, info));
+    }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    VTSS_RC(fa_debug_psfp(vtss_state, pr, info));
+    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        VTSS_RC(fa_debug_psfp(vtss_state, pr, info));
+    }
 #endif
     return VTSS_RC_OK;
 }
@@ -2002,14 +2012,16 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
 #endif
 
 #if defined(VTSS_FEATURE_FRER)
-    /* Enable R-tag awareness */
-    REG_WR(VTSS_ANA_CL_RTAG_CFG, VTSS_F_ANA_CL_RTAG_CFG_RTAG_TPID_ENA(1));
-    REG_WR(VTSS_EACL_RTAG_CFG, VTSS_F_EACL_RTAG_CFG_RTAG_TPID_ENA(1));
-    REG_WR(VTSS_REW_COMMON_CTRL, VTSS_F_REW_COMMON_CTRL_RTAG_TPID_ENA(1));
+    if (vtss_state->vtss_features[FEATURE_FRER]) {
+        /* Enable R-tag awareness */
+        REG_WR(VTSS_ANA_CL_RTAG_CFG, VTSS_F_ANA_CL_RTAG_CFG_RTAG_TPID_ENA(1));
+        REG_WR(VTSS_EACL_RTAG_CFG, VTSS_F_EACL_RTAG_CFG_RTAG_TPID_ENA(1));
+        REG_WR(VTSS_REW_COMMON_CTRL, VTSS_F_REW_COMMON_CTRL_RTAG_TPID_ENA(1));
 
-    /* Set FRER TicksPerSecond to 1000 */
-    i = (1000000000/(8*1024*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
-    REG_WR(VTSS_EACL_FRER_CFG, VTSS_F_EACL_FRER_CFG_WATCHDOG_PRESCALER(i));
+        /* Set FRER TicksPerSecond to 1000 */
+        i = (1000000000/(8*1024*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
+        REG_WR(VTSS_EACL_FRER_CFG, VTSS_F_EACL_FRER_CFG_WATCHDOG_PRESCALER(i));
+    }
 #endif
 
     /* VLAN counters */
@@ -2020,16 +2032,18 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
 #if defined(VTSS_FEATURE_PSFP)
-    /* PSFP CycleTime polling every 10 usec */
-    value = (10000000 / vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq));
-    REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD,
-           VTSS_F_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD_SG_CT_CLKS(value) |
-           VTSS_F_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD_SG_CT_UPDATE_ENA(1));
+    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        /* PSFP CycleTime polling every 10 usec */
+        value = (10000000 / vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq));
+        REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD,
+               VTSS_F_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD_SG_CT_CLKS(value) |
+               VTSS_F_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD_SG_CT_UPDATE_ENA(1));
 
-    if (vtss_state->init_conf.psfp_counters_enable) {
-        psfp_counters = TRUE;
+        if (vtss_state->init_conf.psfp_counters_enable) {
+            psfp_counters = TRUE;
+        }
     }
-#endif /* VTSS_FEATURE_VLAN_COUNTERS */
+#endif /* VTSS_FEATURE_PSFP */
 
 
     if (vlan_counters) {
@@ -2077,7 +2091,9 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
     BOOL            vlan_counters_disable = TRUE;
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
-    vlan_counters_disable = vtss_state->init_conf.vlan_counters_disable;
+    if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+        vlan_counters_disable = vtss_state->init_conf.vlan_counters_disable;
+    }
 #endif
 
     if (vlan_counters_disable) {
@@ -2095,50 +2111,56 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
         }
     } else {
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
-        vtss_vlan_counter_info_t *vlan_info = &vtss_state->l2.vlan_counters_info;
+        if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+            vtss_vlan_counter_info_t *vlan_info = &vtss_state->l2.vlan_counters_info;
 
-        /* For 100Gbps, 32-bit counter wrap time is about 26 seconds.
-           We poll 200 VLAN counters per second, giving approximately 20 seconds between each poll */
-        for (i = 0; i < 200; i++) {
-            idx = (vlan_info->poll_idx + 1);
-            vlan_info->poll_idx = (idx < (VTSS_VIDS - 1) ? idx : 0);
-            VTSS_RC(fa_vlan_counters_update(vtss_state, idx, NULL, FALSE));
+            /* For 100Gbps, 32-bit counter wrap time is about 26 seconds.
+               We poll 200 VLAN counters per second, giving approximately 20 seconds between each poll */
+            for (i = 0; i < 200; i++) {
+                idx = (vlan_info->poll_idx + 1);
+                vlan_info->poll_idx = (idx < (VTSS_VIDS - 1) ? idx : 0);
+                VTSS_RC(fa_vlan_counters_update(vtss_state, idx, NULL, FALSE));
+            }
         }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
     }
 #if defined(VTSS_FEATURE_FRER)
-    /* Poll counters for 10 entries, giving 1536/10 = 153 seconds between each poll */
-    for (i = 0; i < 10; i++) {
-        idx = state->poll_idx;
-        if (idx < VTSS_MSTREAM_CNT) {
-            if (vtss_state->l2.mstream_conf[idx].recovery) {
-                VTSS_RC(fa_mstream_cnt_update(vtss_state, idx, NULL, FALSE));
+    if (vtss_state->vtss_features[FEATURE_FRER]) {
+        /* Poll counters for 10 entries, giving 1536/10 = 153 seconds between each poll */
+        for (i = 0; i < 10; i++) {
+            idx = state->poll_idx;
+            if (idx < VTSS_MSTREAM_CNT) {
+                if (vtss_state->l2.mstream_conf[idx].recovery) {
+                    VTSS_RC(fa_mstream_cnt_update(vtss_state, idx, NULL, FALSE));
+                }
+            } else {
+                u32 j = (idx - VTSS_MSTREAM_CNT);
+                if (vtss_state->l2.cstream_conf[j].recovery) {
+                    VTSS_RC(fa_cstream_cnt_update(vtss_state, j, NULL, FALSE));
+                }
             }
-        } else {
-            u32 j = (idx - VTSS_MSTREAM_CNT);
-            if (vtss_state->l2.cstream_conf[j].recovery) {
-                VTSS_RC(fa_cstream_cnt_update(vtss_state, j, NULL, FALSE));
-            }
+            idx++;
+            state->poll_idx = (idx < (VTSS_MSTREAM_CNT + VTSS_CSTREAM_CNT) ? idx : 0);
         }
-        idx++;
-        state->poll_idx = (idx < (VTSS_MSTREAM_CNT + VTSS_CSTREAM_CNT) ? idx : 0);
     }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    // Detect up to 10 DLB state changes
-    for (i = 0; i < 10; i++) {
-        u32 value;
+    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        // Detect up to 10 DLB state changes
+        for (i = 0; i < 10; i++) {
+            u32 value;
 
-        REG_RD(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET, &value);
-        if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(value)) {
-            idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(value);
-            if (idx < VTSS_EVC_POL_CNT) {
-                vtss_state->l2.pol_status[idx].mark_all_red = 1;
+            REG_RD(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET, &value);
+            if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(value)) {
+                idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(value);
+                if (idx < VTSS_EVC_POL_CNT) {
+                    vtss_state->l2.pol_status[idx].mark_all_red = 1;
+                }
+                VTSS_I("policer %u mark_all_red", idx);
+                REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET,
+                       VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(idx) |
+                       VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(0));
             }
-            VTSS_I("policer %u mark_all_red", idx);
-            REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET,
-                   VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(idx) |
-                   VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(0));
         }
     }
 #endif
@@ -2192,8 +2214,10 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->sflow_port_conf_set         = fa_sflow_port_conf_set;
         state->sflow_sampling_rate_convert = fa_sflow_sampling_rate_convert;
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
-        state->vlan_counters_get           = fa_vlan_counters_get;
-        state->vlan_counters_clear         = fa_vlan_counters_clear;
+        if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+            state->vlan_counters_get           = fa_vlan_counters_get;
+            state->vlan_counters_clear         = fa_vlan_counters_clear;
+        }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
         state->vcl_port_conf_set        = fa_vcl_port_conf_set;
         state->vce_add                  = vtss_cmn_vce_add;
@@ -2205,17 +2229,21 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
         state->iflow_conf_set = fa_iflow_conf_set;
 #if defined(VTSS_FEATURE_FRER)
-        state->cstream_conf_set = fa_cstream_conf_set;
-        state->mstream_conf_set = fa_mstream_conf_set;
-        state->cstream_cnt_get = fa_cstream_cnt_get;
-        state->mstream_cnt_get = fa_mstream_cnt_get;
+        if (vtss_state->vtss_features[FEATURE_FRER]) {
+            state->cstream_conf_set = fa_cstream_conf_set;
+            state->mstream_conf_set = fa_mstream_conf_set;
+            state->cstream_cnt_get = fa_cstream_cnt_get;
+            state->mstream_cnt_get = fa_mstream_cnt_get;
+        }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-        state->psfp_gate_conf_set = fa_gate_conf_set;
-        state->psfp_gate_status_get = fa_gate_status_get;
-        state->psfp_filter_conf_set = fa_filter_conf_set;
-        state->psfp_filter_status_get = fa_filter_status_get;
-        state->policer_status_get = fa_policer_status_get;
+        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+            state->psfp_gate_conf_set = fa_gate_conf_set;
+            state->psfp_gate_status_get = fa_gate_status_get;
+            state->psfp_filter_conf_set = fa_filter_conf_set;
+            state->psfp_filter_status_get = fa_filter_status_get;
+            state->policer_status_get = fa_policer_status_get;
+        }
 #endif
         state->icnt_get = fa_icnt_get;
         state->ecnt_get = fa_ecnt_get;

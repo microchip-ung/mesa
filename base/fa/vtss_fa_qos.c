@@ -340,7 +340,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state, u32 ir, u32 bs, u32 bs_hy
 /* A LB group will be configured that supports a LB with the rate 'max_rate' and the burst size 'min_burst' */
 /* The 'min_burst' will give the burst size configuration unit. The combination of 'max_rate' and 'min_burst' will give the update interval of this group */
 /* The update interval for the group dictates the minimum rate for the group */
-/* It is possible to add LB with higher rate but then the bust size must also be higher */ 
+/* It is possible to add LB with higher rate but then the bust size must also be higher */
 /* max_rate in bps */
 static vtss_rc lb_group_add(vtss_state_t *vtss_state, u64 max_rate, u32 min_burst, u32 frame_size, u32 idx)
 {
@@ -1427,9 +1427,11 @@ static vtss_rc fa_qos_queue_cut_through_set(vtss_state_t *vtss_state, const vtss
     }
     for (q = 0; q < 8; q++) {
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        // If frame preemption is enabled, cut-through is disabled
-        if (conf->enable_tx && conf->admin_status[q]) {
-            continue;
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            // If frame preemption is enabled, cut-through is disabled
+            if (conf->enable_tx && conf->admin_status[q]) {
+                continue;
+            }
         }
 #endif
         if (vtss_state->qos.port_conf[port_no].cut_through_enable[q]) {
@@ -2355,12 +2357,12 @@ static u8 tas_scheduled_calc(vtss_qos_tas_gce_t *gcl, u32 gcl_length)
 
     for (i = 0; i < gcl_length; ++i) {
         if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC) { /* The MAC hold operation requires at least one open priority configured as 'scheduled' */
-            vector |= vtss_bool8_to_u8(gcl[i].gate_open); 
+            vector |= vtss_bool8_to_u8(gcl[i].gate_open);
         }
     }
     for (i = 0; i < gcl_length; ++i) {
         if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC) { /* The MAC release operation requires all open priorities configured as not 'scheduled'*/
-            vector &= ~vtss_bool8_to_u8(gcl[i].gate_open); 
+            vector &= ~vtss_bool8_to_u8(gcl[i].gate_open);
         }
     }
     return vector;
@@ -2752,7 +2754,10 @@ static vtss_rc gcl_port_profile_configure(vtss_state_t *vtss_state, u32 list_idx
     u32  profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32  hold_profile_idx = vtss_state->qos.tas.tas_lists[list_idx].hold_profile_idx;
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    u32  fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+    u32  fp_enable_tx = FALSE;
+    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+    }
 #else
     u32  fp_enable_tx = FALSE;
 #endif
@@ -2929,6 +2934,10 @@ static vtss_rc fa_qos_tas_update(struct vtss_state_s   *vtss_state,
     vtss_qos_tas_gce_t       *gcl = port_conf->gcl;
     vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     vtss_tas_list_t          *tas_lists = vtss_state->qos.tas.tas_lists;
+
+    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("fa_qos_tas_update Enter");
 
@@ -3336,9 +3345,12 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
     BOOL                    verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
+    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        return VTSS_RC_ERROR;
+    }
+
     if (speed > VTSS_SPEED_10G) {
         VTSS_E("frame preemption is not supported for port speeds above 10G");
-        return VTSS_RC_ERROR;
     }
 
     if (enable_tx) {
@@ -3422,11 +3434,16 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
 
+    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        return VTSS_RC_ERROR;
+    }
+
     if (speed > VTSS_SPEED_10G) {
         status->preemption_active = 0;
         status->status_verify = VTSS_MM_STATUS_VERIFY_DISABLED;
         return VTSS_RC_OK;
     }
+
     DEV_RD(MM_STATUS, port, &value);
     status->preemption_active = VTSS_X_DEV1G_MM_STATUS_PRMPT_ACTIVE_STATUS(value);
     if (vtss_state->qos.fp.port_conf[port_no].verify_disable_tx) {
@@ -3455,7 +3472,6 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
 
 vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset)
 {
-    /* Setup depending on port reset status */
     return (is_reset ? fa_qos_queue_cut_through_set(vtss_state, port_no) : VTSS_RC_OK);
 }
 
@@ -3796,7 +3812,7 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "LIST_BASE_ADDR", entry_idx);
         pr("    %s: %s\n", "LIST_STATE", debug_tas_state_string(VTSS_X_HSCH_TAS_LIST_STATE_LIST_STATE(state)));
         pr("\n");
-    
+
         /* Read the list elements */
         for (i = 0; i < gcl_length; ++i) {
             pr("    Enty Index: %u\n", i);
@@ -4475,7 +4491,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             }
             pr("%-32s: %s\n", "DWRR_COST", "C0 C1 C2 C3 C4 C5 C6 C7");
             pr("%-32s: %s\n", "", cost_buf);
-    
+
             pr("\n");
         }
 
@@ -4581,7 +4597,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             se = chip_port;
             pr("Port shaper, layer %u, se %u:\n", layer, se);
             fa_debug_qos_scheduler_element(vtss_state, pr, layer, se);
-    
+
             layer = 0;
             for (i = 0; i < 8; i++) {
                 se = FA_HSCH_L0_SE(chip_port, i);
@@ -4680,7 +4696,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             REG_RD(VTSS_REW_DSCP_MAP(chip_port), &value);
             pr("%-32s: %2u\n", "DSCP_UPDATE_ENA", VTSS_X_REW_DSCP_MAP_DSCP_UPDATE_ENA(value));
             pr("%-32s: %2u\n", "DSCP_REMAP_ENA", VTSS_X_REW_DSCP_MAP_DSCP_REMAP_ENA(value));
-    
+
             pr("\n");
         }
         pr("Global configuration:\n");
@@ -4750,7 +4766,9 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
             vtss_state->qos.tas.port_conf[port_no].max_sdu[i] = 24 * 64;   /* Default register value is 24. Resolution is 64 bytes */
         }
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        vtss_state->qos.fp.port_conf[port_no].add_frag_size = 1;    // P_MIN_SIZE default value is 1
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            vtss_state->qos.fp.port_conf[port_no].add_frag_size = 1;    // P_MIN_SIZE default value is 1
+        }
 #endif
     }
     VTSS_MEMSET(&vtss_state->qos.tas.tas_lists, 0, sizeof(vtss_state->qos.tas.tas_lists));
@@ -4788,21 +4806,22 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
                 VTSS_F_XQS_FWD_CT_CFG_FWD_CT_ENA(0),
                 VTSS_M_XQS_FWD_CT_CFG_FWD_CT_ENA);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        // Always enable Rx frame preemption
-        DEV_WR(ENABLE_CONFIG, port,
-               VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
-               VTSS_F_DEV1G_ENABLE_CONFIG_MM_TX_ENA(1) |
-               VTSS_F_DEV1G_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            // Always enable Rx frame preemption
+            DEV_WR(ENABLE_CONFIG, port,
+                   VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
+                   VTSS_F_DEV1G_ENABLE_CONFIG_MM_TX_ENA(1) |
+                   VTSS_F_DEV1G_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
 
-        DEV_WRM(DEV_PFRAME_CFG, port,
-                VTSS_F_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(12),
-                VTSS_M_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG);
+            DEV_WRM(DEV_PFRAME_CFG, port,
+                    VTSS_F_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(12),
+                    VTSS_M_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG);
 
-        if (!VTSS_PORT_IS_2G5(port)) {
-            REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
-                    VTSS_F_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA(0),
-                    VTSS_M_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA);
-        }
+            if (!VTSS_PORT_IS_2G5(port)) {
+                REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
+                        VTSS_F_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA(0),
+                        VTSS_M_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA);
+            }
 #endif
     }
     return VTSS_RC_OK;
@@ -4847,9 +4866,12 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        state->fp_port_conf_set = fa_qos_fp_port_conf_set;
-        state->fp_port_status_get = fa_qos_fp_port_status_get;
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+            state->fp_port_conf_set = fa_qos_fp_port_conf_set;
+            state->fp_port_status_get = fa_qos_fp_port_status_get;
+        }
 #endif
+
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(fa_qos_init(vtss_state));

@@ -63,7 +63,9 @@ typedef enum {
     VTSS_TARGET_7558TSN            = 0x47558, /**< SparX-5-200i Industrial Switch */
     VTSS_TARGET_LAN9662            = 0x9662,  /**< LAN9662 switch */
     VTSS_TARGET_LAN9668            = 0x9668,  /**< LAN9668 switch */
-    VTSS_TARGET_LAN9698            = 0x96980, /**< LAN9698 switch (Laguna) */
+    VTSS_TARGET_LAN9698            = 0x96980, /**< LAN9698 switch (Laguna 80G) */
+    VTSS_TARGET_LAN9698TSN         = 0x96987, /**< LAN9698TSN switch (Laguna 80G + TSN) */
+    VTSS_TARGET_LAN9698HSN         = 0x96989, /**< LAN9698HSN switch (Laguna 80G + TSN + HSR/PRP) */
 } vtss_target_type_t;
 
 /** \brief Create structure */
