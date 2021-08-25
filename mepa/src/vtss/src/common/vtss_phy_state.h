@@ -536,6 +536,9 @@ vtss_rc vtss_phy_restart_update(vtss_state_t *vtss_state, u32 value);
 #define vtss_cmn_restart_value_get vtss_phy_restart_value_get
 u32 vtss_phy_restart_value_get(vtss_state_t *vtss_state);
 
+#define vtss_port_if_txt vtss_phy_port_if_txt
+extern const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type);
+
 #define vtss_debug_group_enabled vtss_phy_debug_group_enabled
 BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t *const info,
@@ -573,11 +576,38 @@ BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
  *  Trace
  * ================================================================= */
 
-#if VTSS_OPT_TRACE
+#if VTSS_PHY_OPT_TRACE
 
-// TBD
+extern vtss_phy_trace_conf_t vtss_phy_trace_conf[];
 
-#else /* VTSS_OPT_TRACE */
+#define VTSS_TRACE_GROUP_PHY    VTSS_PHY_TRACE_GROUP_DEFAULT
+#define VTSS_TRACE_GROUP_MACSEC VTSS_PHY_TRACE_GROUP_MACSEC
+
+#define VTSS_TRACE_LAYER_CIL    VTSS_PHY_TRACE_LAYER_CIL
+
+/* Default trace layer */
+#ifndef VTSS_TRACE_LAYER
+#define VTSS_TRACE_LAYER VTSS_PHY_TRACE_LAYER_AIL
+#endif /* VTSS_TRACE_LAYER */
+
+/* Default trace group */
+#ifndef VTSS_TRACE_GROUP
+#define VTSS_TRACE_GROUP VTSS_PHY_TRACE_GROUP_DEFAULT
+#endif /* VTSS_TRACE_GROUP */
+
+#define VTSS_E(...) VTSS_EG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_I(...) VTSS_IG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_D(...) VTSS_DG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_N(...) VTSS_NG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+
+/* For files with multiple trace groups: */
+#define VTSS_T(_grp, _lvl, ...) { if (vtss_phy_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_phy_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
+#define VTSS_EG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_ERROR, __VA_ARGS__)
+#define VTSS_IG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_INFO,  __VA_ARGS__)
+#define VTSS_DG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_DEBUG, __VA_ARGS__)
+#define VTSS_NG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_NOISE, __VA_ARGS__)
+
+#else /* VTSS_PHY_OPT_TRACE */
 
 /* No trace */
 #define VTSS_E(...)
@@ -590,10 +620,5 @@ BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
 #define VTSS_DG(_grp, ...)
 #define VTSS_NG(_grp, ...)
 
-#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)
-#define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt)
-#define VTSS_DG_HEX(_grp, _byte_p, _byte_cnt)
-#define VTSS_NG_HEX(_grp, _byte_p, _byte_cnt)
-
-#endif /* VTSS_OPT_TRACE */
+#endif /* VTSS_PHY_OPT_TRACE */
 #endif /* _VTSS_PHY_STATE_H_ */

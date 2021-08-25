@@ -10,6 +10,7 @@
 #define VTSS_FEATURE_MACSEC
 #define VTSS_CHIP_10G_PHY
 #define VTSS_OPT_PHY_TIMESTAMP 1
+#define VTSS_PHY_OPT_TRACE 1
 
 #define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
 

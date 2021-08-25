@@ -1066,7 +1066,7 @@ mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t *poll_cnt, uint32_t wait_use
 
 
 // MII management wrappers
-mesa_init_conf_t mesa_init_conf;
+static mesa_init_conf_t mesa_init_conf;
 
 static vtss_rc miim_read_wrapper(const vtss_inst_t    inst,
                                  const vtss_port_no_t port_no,

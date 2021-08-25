@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_TYPES_H_
-#define _VTSS_TYPES_H_
+#ifndef _VTSS_PHY_TYPES_H_
+#define _VTSS_PHY_TYPES_H_
 
 #include <stdint.h>
 #include <string.h>
@@ -603,4 +603,85 @@ typedef enum {
     VTSS_RESTART_WARM  /**< Warm: CPU restart only */
 } vtss_restart_t;
 
-#endif /* _VTSS_TYPES_H_ */
+/** \brief Trace group layer */
+typedef enum
+{
+    VTSS_PHY_TRACE_LAYER_AIL,   /**< Application Interface Layer */
+    VTSS_PHY_TRACE_LAYER_CIL,   /**< Chip Interface Layer */
+
+    VTSS_PHY_TRACE_LAYER_COUNT  /**< Number of layers */
+} vtss_phy_trace_layer_t;
+
+/** \brief Trace groups */
+typedef enum
+{
+    VTSS_PHY_TRACE_GROUP_DEFAULT,       /**< Default trace group */
+    VTSS_PHY_TRACE_GROUP_MACSEC,        /**< MACSEC control */
+
+    VTSS_PHY_TRACE_GROUP_COUNT          /**< Number of trace groups */
+} vtss_phy_trace_group_t;
+
+/** \brief Trace levels */
+typedef enum
+{
+    VTSS_PHY_TRACE_LEVEL_NONE,  /**< No trace */
+    VTSS_PHY_TRACE_LEVEL_ERROR, /**< Error trace */
+    VTSS_PHY_TRACE_LEVEL_INFO,  /**< Information trace */
+    VTSS_PHY_TRACE_LEVEL_DEBUG, /**< Debug trace */
+    VTSS_PHY_TRACE_LEVEL_NOISE, /**< More debug information */
+
+    VTSS_PHY_TRACE_LEVEL_COUNT  /**< Number of trace levels */
+} vtss_phy_trace_level_t;
+
+/** \brief Trace group configuration */
+typedef struct
+{
+    vtss_phy_trace_level_t level[VTSS_PHY_TRACE_LAYER_COUNT]; /**< Trace level per layer */
+} vtss_phy_trace_conf_t;
+
+/**
+ * \brief Get trace configuration
+ *
+ * \param group [IN]  Trace group
+ * \param conf [OUT]  Trace group configuration.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_phy_trace_conf_get(const vtss_phy_trace_group_t  group,
+                                vtss_phy_trace_conf_t         *const conf);
+
+
+/**
+ * \brief Set trace configuration
+ *
+ * \param group [IN]  Trace group
+ * \param conf [IN]   Trace group configuration.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_phy_trace_conf_set(const vtss_phy_trace_group_t  group,
+                                const vtss_phy_trace_conf_t   *const conf);
+
+/**
+ * \brief Trace callout function
+ *
+ * \param layer [IN]     Trace layer
+ * \param group [IN]     Trace group
+ * \param level [IN]     Trace level
+ * \param file [IN]      File name string
+ * \param line [IN]      Line number in file
+ * \param function [IN]  Function name string
+ * \param format [IN]    Print format string
+ *
+ * \return Nothing.
+ **/
+void vtss_phy_callout_trace_printf(const vtss_phy_trace_layer_t layer,
+                                   const vtss_phy_trace_group_t group,
+                                   const vtss_phy_trace_level_t level,
+                                   const char                   *file,
+                                   const int                    line,
+                                   const char                   *function,
+                                   const char                   *format,
+                                   ...) VTSS_ATTR_PRINTF(7, 8);
+
+#endif /* _VTSS_PHY_TYPES_H_ */

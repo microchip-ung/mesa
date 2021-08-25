@@ -9,6 +9,7 @@
 #include <libgen.h>
 #include <sys/time.h>
 
+#include <vtss_phy_api.h>
 #include "microchip/ethernet/switch/api.h"
 #include "microchip/ethernet/board/api.h"
 #include "main.h"
@@ -189,6 +190,33 @@ void mesa_callout_trace_printf(const mesa_trace_layer_t layer,
     fflush(stdout);
 }
 
+void vtss_phy_callout_trace_printf(const vtss_phy_trace_layer_t layer,
+                                   const vtss_phy_trace_group_t group,
+                                   const vtss_phy_trace_level_t level,
+                                   const char *file,
+                                   const int line,
+                                   const char *function,
+                                   const char *format,
+                                   ...)
+{
+    va_list            args;
+    mesa_trace_layer_t m_layer;
+    mesa_trace_group_t m_group;
+    mesa_trace_level_t m_level;
+
+    m_layer = (layer == VTSS_PHY_TRACE_LAYER_AIL ? MESA_TRACE_LAYER_AIL :
+               MESA_TRACE_LAYER_CIL);
+    m_group = (group == VTSS_PHY_TRACE_GROUP_MACSEC ? MESA_TRACE_GROUP_MACSEC :
+               MESA_TRACE_GROUP_PHY);
+    m_level = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MESA_TRACE_LEVEL_ERROR :
+               level == VTSS_PHY_TRACE_LEVEL_INFO ? MESA_TRACE_LEVEL_INFO :
+               level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MESA_TRACE_LEVEL_DEBUG :
+               MESA_TRACE_LEVEL_NOISE);
+    va_start(args, format);
+    mesa_callout_trace_printf(m_layer, m_group, m_level, file, line, function, format, args);
+    va_end(args);
+}
+
 void mscc_appl_trace_printf(const char *mname,
                             const char *gname,
                             const mesa_trace_level_t level,
@@ -282,8 +310,11 @@ static void trace_control(char *module_name, char *group_name, mesa_trace_level_
     mscc_appl_trace_module_t *module;
     mscc_appl_trace_group_t  *group;
     int                      first = 1;
-    int                      i;
+    int                      i, j;
     mesa_trace_conf_t        conf;
+    vtss_phy_trace_conf_t    phy_conf;
+    vtss_phy_trace_group_t   phy_group;
+    vtss_phy_trace_layer_t   layer;
 
     for (module = trace_module_list; module != NULL; module = module->next) {
         if (strlen(module_name) != 0 && strstr(module->name, module_name) != module->name) {
@@ -319,6 +350,23 @@ static void trace_control(char *module_name, char *group_name, mesa_trace_level_
                 conf.level[MESA_TRACE_LAYER_AIL] = trace_groups_ail[i].level;
                 conf.level[MESA_TRACE_LAYER_CIL] = trace_groups_cil[i].level;
                 mesa_trace_conf_set(i, &conf);
+            }
+            phy_group = (i == MESA_TRACE_GROUP_PHY ? VTSS_PHY_TRACE_GROUP_DEFAULT :
+                         i == MESA_TRACE_GROUP_MACSEC ? VTSS_PHY_TRACE_GROUP_MACSEC :
+                         VTSS_PHY_TRACE_GROUP_COUNT);
+            if (phy_group < VTSS_PHY_TRACE_GROUP_COUNT &&
+                vtss_phy_trace_conf_get(phy_group, &phy_conf) == VTSS_RC_OK) {
+                for (j = 0; j < 2; j++) {
+                    layer = (j ? VTSS_PHY_TRACE_LAYER_CIL : VTSS_PHY_TRACE_LAYER_AIL);
+                    level = (j ? trace_groups_cil[i].level : trace_groups_ail[i].level);
+                    phy_conf.level[layer] =
+                        (level == MESA_TRACE_LEVEL_NONE ? VTSS_PHY_TRACE_LEVEL_NONE :
+                         level == MESA_TRACE_LEVEL_ERROR ? VTSS_PHY_TRACE_LEVEL_ERROR :
+                         level == MESA_TRACE_LEVEL_INFO ? VTSS_PHY_TRACE_LEVEL_INFO :
+                         level == MESA_TRACE_LEVEL_DEBUG ? VTSS_PHY_TRACE_LEVEL_DEBUG :
+                         VTSS_PHY_TRACE_LEVEL_NOISE);
+                }
+                vtss_phy_trace_conf_set(phy_group, &phy_conf);
             }
         }
     }

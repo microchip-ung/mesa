@@ -44,8 +44,6 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
 
-    printf("PHY state: %u\n", sizeof(*vtss_state));
-
     if ((vtss_state = malloc(sizeof(*vtss_state))) == NULL)
         return VTSS_RC_ERROR;
 
@@ -248,6 +246,76 @@ u32 vtss_phy_restart_value_get(vtss_state_t *vtss_state)
             VTSS_ENCODE_BITFIELD(VTSS_API_VERSION,
                                  VTSS_RESTART_VERSION_OFFSET,
                                  VTSS_RESTART_VERSION_WIDTH));
+}
+
+/* Trace group table */
+vtss_phy_trace_conf_t vtss_phy_trace_conf[VTSS_PHY_TRACE_GROUP_COUNT] =
+{
+    [VTSS_PHY_TRACE_GROUP_DEFAULT] = {
+        .level = { VTSS_PHY_TRACE_LEVEL_ERROR, VTSS_PHY_TRACE_LEVEL_ERROR}
+    },
+    [VTSS_PHY_TRACE_GROUP_MACSEC] = {
+        .level = { VTSS_PHY_TRACE_LEVEL_ERROR, VTSS_PHY_TRACE_LEVEL_ERROR}
+    },
+};
+
+/* Get trace configuration */
+vtss_rc vtss_phy_trace_conf_get(const vtss_phy_trace_group_t group,
+                                vtss_phy_trace_conf_t * const conf)
+{
+    if (group >= VTSS_PHY_TRACE_GROUP_COUNT) {
+        VTSS_E("illegal group: %d", group);
+        return VTSS_RC_ERROR;
+    }
+
+    *conf = vtss_phy_trace_conf[group];
+    return VTSS_RC_OK;
+}
+
+/* Set trace configuration */
+vtss_rc vtss_phy_trace_conf_set(const vtss_phy_trace_group_t group,
+                                const vtss_phy_trace_conf_t * const conf)
+{
+    if (group >= VTSS_PHY_TRACE_GROUP_COUNT) {
+        VTSS_E("illegal group: %d", group);
+        return VTSS_RC_ERROR;
+    }
+
+    vtss_phy_trace_conf[group] = *conf;
+    return VTSS_RC_OK;
+}
+
+const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type)
+{
+    switch (if_type) {
+    case VTSS_PORT_INTERFACE_NO_CONNECTION: return "N/C";
+    case VTSS_PORT_INTERFACE_LOOPBACK:      return "LOOPBACK";
+    case VTSS_PORT_INTERFACE_INTERNAL:      return "INTERNAL";
+    case VTSS_PORT_INTERFACE_MII:           return "MII";
+    case VTSS_PORT_INTERFACE_GMII:          return "GMII";
+    case VTSS_PORT_INTERFACE_RGMII:         return "RGMII";
+    case VTSS_PORT_INTERFACE_TBI:           return "TBI";
+    case VTSS_PORT_INTERFACE_RTBI:          return "RTBI";
+    case VTSS_PORT_INTERFACE_SGMII:         return "SGMII";
+    case VTSS_PORT_INTERFACE_SGMII_2G5:     return "SGMII_2G5";
+    case VTSS_PORT_INTERFACE_SERDES:        return "SERDES";
+    case VTSS_PORT_INTERFACE_VAUI:          return "VAUI";
+    case VTSS_PORT_INTERFACE_100FX:         return "100FX";
+    case VTSS_PORT_INTERFACE_XAUI:          return "XAUI";
+    case VTSS_PORT_INTERFACE_RXAUI:         return "RXAUI";
+    case VTSS_PORT_INTERFACE_XGMII:         return "XGMII";
+    case VTSS_PORT_INTERFACE_SPI4:          return "SPI4";
+    case VTSS_PORT_INTERFACE_SGMII_CISCO:   return "SGMII_CISCO";
+    case VTSS_PORT_INTERFACE_QSGMII:        return "QSGMII";
+    case VTSS_PORT_INTERFACE_SFI:           return "SFI";
+    case VTSS_PORT_INTERFACE_USGMII:        return "USGMII";
+    case VTSS_PORT_INTERFACE_SXGMII:        return "SXGMII";
+    case VTSS_PORT_INTERFACE_QXGMII:        return "QXGMII";
+    case VTSS_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
+    case VTSS_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
+    case VTSS_PORT_INTERFACE_CPU:           return "CPU";
+    }
+    return "?   ";
 }
 
 static void vtss_phy_debug_print_header_underlined(const vtss_debug_printf_t pr,
