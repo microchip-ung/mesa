@@ -31,7 +31,7 @@ def tod_asymmetry_p2p_delay_test
         diff_max = 520
     end
     if ($pcb == 135)    #Test on Copper PHY
-        diff_max = 500
+        diff_max = 810 # This is the biggest difference seen between highest and lowest measurement without asymmetry
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))    #Test on internal Copper PHY
         diff_max = 185
@@ -56,7 +56,7 @@ def tod_asymmetry_p2p_delay_test
 
     test ("No asymmetry delay check of correction field") do
     if ($pcb == 135)    #Test on Copper PHY
-        if ((lowest_corr_none > 2300) || (lowest_corr_none < 1900))
+        if ((lowest_corr_none > 2700) || (lowest_corr_none < 1830))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else
             t_i("CF ok")
@@ -79,7 +79,7 @@ def tod_asymmetry_p2p_delay_test
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
-    lowest_corr_eg = nano_corr_lowest_measure
+    lowest_corr_eg = nano_corr_lowest_measure  #Measure lowest with asymmetry deducted
     diff0 = (lowest_corr_eg - (lowest_corr_none - asymmetry))
 
     test ("The asymmetry delay is subtracted from correction on egress") do
@@ -138,6 +138,7 @@ def tod_asymmetry_p2p_delay_test
     end
     end
 
+    t_i("lowest_corr_none #{lowest_corr_none} lowest_corr_eg #{lowest_corr_eg} lowest_corr_in1 #{lowest_corr_in1} lowest_corr_in2 #{lowest_corr_in2}")
     t_i("diff_max #{diff_max} diff0 #{diff0} diff1 #{diff1} diff2 #{diff2} diff3 #{diff3}")
     end
 end

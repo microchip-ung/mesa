@@ -33,6 +33,7 @@ MESA_CHIP_FAMILY_OCELOT =  8
 
 def nano_corr_lowest_measure
     $nano_corr_loewst=0xFFFFFFFFFFFFFFFF
+    $nano_corr_highest=0
 
     test "nano_corr_lowest_measure" do
 
@@ -42,7 +43,7 @@ def nano_corr_lowest_measure
     frametx = frame.dup + sync_pdu_create(0)
     framerx = frame.dup + sync_pdu_rx_create(0)
 
-    for i in 0..2
+    for i in 0..5
         # Transmit SYNC frame into $port0
         frame_tx(frametx, $port0, "", framerx, " ", " ", 40)
         pkts = $ts.pc.get_pcap "#{$ts.links[$port1][:pc]}.pcap"
@@ -53,9 +54,13 @@ def nano_corr_lowest_measure
         if (nano_correction < $nano_corr_loewst)
             $nano_corr_loewst = nano_correction
         end
+        if (nano_correction > $nano_corr_highest)
+            $nano_corr_highest = nano_correction
+        end
     end
 
     t_i("nano_corr_loewst = #{$nano_corr_loewst}")
+    t_i("nano_corr_highest = #{$nano_corr_highest}")
     end
 
     $nano_corr_loewst
