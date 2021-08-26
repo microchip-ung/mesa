@@ -36,6 +36,9 @@ set(src_vtss src/vtss.c
              src/vtss/src/phy_10g/vtss_phy_10g_venice.c
              src/vtss/src/phy_10g/vtss_malibu_b_line_pma_sd10g65_setup.c
              src/vtss/src/phy_10g/vtss_venice_f2df_sd10g65_setup.c
+             src/vtss/src/phy_10g/vtss_pll5g_procs.c
+             src/vtss/src/phy_10g/vtss_sd10g65_procs.c
+             src/vtss/src/phy_10g/vtss_sd10g65_apc_procs.c
              src/vtss/src/ts/vtss_phy_ts_api.c
              src/vtss/src/ts/vtss_phy_ewis.c
              src/vtss/src/ts/vtss_phy_ts_util.c

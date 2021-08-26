@@ -44,10 +44,9 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
 
-    if ((vtss_state = malloc(sizeof(*vtss_state))) == NULL)
+    if ((vtss_state = calloc(1, sizeof(*vtss_state))) == NULL)
         return VTSS_RC_ERROR;
 
-    memset(vtss_state, 0, sizeof(*vtss_state));
     vtss_state->cookie = VTSS_STATE_COOKIE;
     vtss_state->port_count = VTSS_PORTS;
 
@@ -61,33 +60,6 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
         }
     }
 #endif
-
-#if defined(VTSS_FEATURE_MACSEC)
-    {
-        vtss_macsec_internal_conf_t *macsec;
-        vtss_port_no_t              port_no;
-        u16                         secy, sc, sa;
-
-        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
-            macsec = &vtss_state->macsec_conf[port_no];
-            for (secy = 0; secy < VTSS_MACSEC_MAX_SECY; secy++) {
-                for (sc = 0; sc < VTSS_MACSEC_MAX_SC_RX; sc++) {
-                    macsec->secy[secy].rx_sc[sc] = NULL;
-                }
-                for (sa = 0; sa < VTSS_MACSEC_SA_PER_SC; sa++) {
-                macsec->secy[secy].tx_sc.sa[sa] = NULL;
-                }
-            }
-
-            for (sc = 0; sc < VTSS_MACSEC_MAX_SC_RX; sc++) {
-                for (sa = 0; sa < VTSS_MACSEC_SA_PER_SC; sa++) {
-                    macsec->rx_sc[sc].sa[sa] = NULL;
-                }
-            }
-        }
-    }
-#endif /* VTSS_FEATURE_MACSEC */
-
 #if defined(VTSS_FEATURE_WIS)
     if (vtss_phy_inst_ewis_create(vtss_state) != VTSS_RC_OK)  {
         VTSS_E("Could not hook up ewis functions");
@@ -98,7 +70,7 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
     VTSS_RC(vtss_phy_10g_inst_malibu_create(vtss_state));
 #endif /* VTSS_CHIP_10G_PHY */
 
-        // Setup default instance
+    // Setup default instance
     if (vtss_phy_default_inst == NULL)
         vtss_phy_default_inst = vtss_state;
 
