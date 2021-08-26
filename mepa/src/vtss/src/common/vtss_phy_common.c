@@ -40,10 +40,13 @@ vtss_rc  debug_vtss_phy_1g_spi_read_write_inst(vtss_inst_t inst,
 /* Default instance */
 static vtss_inst_t vtss_phy_default_inst = NULL;
 
+const char *vtss_phy_func;
+
 vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
 
+    VTSS_I("state size: %zu (%u ports)", sizeof(*vtss_state), VTSS_PORTS);
     if ((vtss_state = calloc(1, sizeof(*vtss_state))) == NULL)
         return VTSS_RC_ERROR;
 
@@ -79,6 +82,22 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
         *inst = vtss_state;
 
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_phy_inst_destroy(const vtss_inst_t inst)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("enter");
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if (vtss_state == vtss_phy_default_inst)
+            vtss_phy_default_inst = NULL;
+        free(vtss_state);
+    }
+    VTSS_D("exit");
+
+    return rc;
 }
 
 vtss_rc vtss_phy_init_conf_get(const vtss_inst_t    inst,
@@ -129,7 +148,7 @@ vtss_rc vtss_phy_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state)
 
     /* Check cookie */
     if (*vtss_state == NULL || (*vtss_state)->cookie != VTSS_STATE_COOKIE) {
-        VTSS_E("illegal inst: %p", inst);
+        VTSS_E("%s: illegal inst: %p", vtss_phy_func, inst);
         return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
@@ -145,7 +164,7 @@ vtss_rc vtss_phy_inst_port_no_check(const vtss_inst_t    inst,
     if ((rc = vtss_inst_check(inst, vtss_state)) == VTSS_RC_OK) {
         port_count = (*vtss_state)->port_count;
         if (port_no >= port_count) {
-            VTSS_E("illegal port_no: %u.  port_count: %u", port_no, port_count);
+            VTSS_E("%s: illegal port_no: %u.  port_count: %u", vtss_phy_func, port_no, port_count);
             rc = VTSS_RC_ERROR;
         }
     }

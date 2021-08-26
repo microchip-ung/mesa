@@ -548,6 +548,8 @@ BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
 #define NULL ((void *)0)
 #endif
 
+extern const char *vtss_phy_func;
+
 /* Call Chip Interface Layer function if it exists */
 #define VTSS_FUNC(func, ...) (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state, ##__VA_ARGS__))
 
@@ -559,8 +561,8 @@ BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
 
 #define VTSS_RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }
 
-#define VTSS_ENTER(...) { } // TBD
-#define VTSS_EXIT(...)  { } // TBD
+#define VTSS_ENTER(...) { vtss_phy_func = __FUNCTION__; } // TBD
+#define VTSS_EXIT(...)  { vtss_phy_func = NULL; } // TBD
 
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 

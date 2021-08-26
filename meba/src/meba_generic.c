@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
+#include <vtss_phy_api.h>
 #include <microchip/ethernet/board/api.h>
 
 #include "meba_generic.h"
@@ -246,10 +247,74 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
     return phy_id;
 }
 
+// MII management wrappers
+static mesa_init_conf_t mesa_init_conf;
+
+static vtss_rc miim_read_wrapper(const vtss_inst_t    inst,
+                                 const vtss_port_no_t port_no,
+                                 const u8             addr,
+                                 u16                  *const value)
+{
+    return mesa_init_conf.miim_read(NULL, port_no, addr, value);
+}
+
+static vtss_rc miim_write_wrapper(const vtss_inst_t    inst,
+                                  const vtss_port_no_t port_no,
+                                  const u8             addr,
+                                  const u16            value)
+{
+    return mesa_init_conf.miim_write(NULL, port_no, addr, value);
+}
+
+static vtss_rc mmd_read_wrapper(const vtss_inst_t    inst,
+                                const vtss_port_no_t port_no,
+                                const u8             mmd,
+                                const u16            addr,
+                                u16                  *const value)
+{
+    return mesa_init_conf.mmd_read(NULL, port_no, mmd, addr, value);
+}
+
+static vtss_rc mmd_read_inc_wrapper(const vtss_inst_t    inst,
+                                    const vtss_port_no_t port_no,
+                                    const u8             mmd,
+                                    const u16            addr,
+                                    u16                  *const buf,
+                                    u8                   count)
+{
+    return mesa_init_conf.mmd_read_inc(NULL, port_no, mmd, addr, buf, count);
+}
+
+static vtss_rc mmd_write_wrapper(const vtss_inst_t    inst,
+                                 const vtss_port_no_t port_no,
+                                 const u8             mmd,
+                                 const u16            addr,
+                                 const u16            value)
+{
+    return mesa_init_conf.mmd_write(NULL, port_no, mmd, addr, value);
+}
+
+static void meba_create_vtss_phy_api(int create)
+{
+    vtss_phy_init_conf_t conf;
+
+    if (create &&
+        mesa_init_conf_get(NULL, &mesa_init_conf) == MESA_RC_OK &&
+        vtss_phy_inst_create(NULL) == VTSS_RC_OK &&
+        vtss_phy_init_conf_get(NULL, &conf) == VTSS_RC_OK) {
+        conf.miim_read = miim_read_wrapper;
+        conf.miim_write = miim_write_wrapper;
+        conf.mmd_read = mmd_read_wrapper;
+        conf.mmd_read_inc = mmd_read_inc_wrapper;
+        conf.mmd_write = mmd_write_wrapper;
+        vtss_phy_init_conf_set(NULL, &conf);
+    }
+}
+
 void meba_phy_driver_init(meba_inst_t inst)
 {
     mesa_port_no_t      port_no;
-    int                 probe_completed;
+    int                 probe_completed, create = 0;
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
     // Initialize all the drivers needed
@@ -341,6 +406,8 @@ void meba_phy_driver_init(meba_inst_t inst)
             }
         }
     }
+
+    meba_create_vtss_phy_api(create);
 
     // Enable accessing the shared resources by linking the base port on each port
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {

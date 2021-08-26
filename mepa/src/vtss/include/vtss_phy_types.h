@@ -120,6 +120,7 @@ enum
 typedef u32 vtss_chip_no_t;
 
 /** \brief Instance identifier */
+typedef struct vtss_phy_state_s *vtss_phy_inst_t;
 typedef struct vtss_state_s *vtss_inst_t;
 
 /**
@@ -401,9 +402,9 @@ typedef int (*vtss_debug_printf_t)(const char *fmt, ...) VTSS_ATTR_PRINTF(1, 2);
  * \return Return code.
  **/
 typedef vtss_rc (*vtss_spi_read_write_t)(const vtss_inst_t inst,
-                                       const vtss_port_no_t port_no,
-                                       const u8 bitsize,
-                                       u8 *const bitstream);
+                                         const vtss_port_no_t port_no,
+                                         const u8 bitsize,
+                                         u8 *const bitstream);
 
 /**
  * \brief SPI 32 bit read/write function
@@ -564,6 +565,9 @@ typedef struct {
 
 /** \brief Create PHY instance */
 vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst);
+
+/** \brief Destroy PHY instance */
+vtss_rc vtss_phy_inst_destroy(const vtss_inst_t inst);
 
 /** \brief Initialization configuration. */
 typedef struct {
