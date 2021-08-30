@@ -354,7 +354,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_CHIP_FAMILY_SERVALT;
 #elif defined(VTSS_ARCH_JAGUAR_2)
         c = MESA_CHIP_FAMILY_JAGUAR2;
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_SPARX5)
         c = MESA_CHIP_FAMILY_SPARX5;
 #elif defined(VTSS_ARCH_LAN966X)
         c = MESA_CHIP_FAMILY_LAN966X;
