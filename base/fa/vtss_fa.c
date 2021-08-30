@@ -343,6 +343,11 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     case VTSS_TARGET_7558:
     case VTSS_TARGET_7558TSN:
         return 201000;
+    case VTSS_TARGET_LAN9698:
+    case VTSS_TARGET_LAN9698TSN:
+    case VTSS_TARGET_LAN9698HSN:
+        return 82000; // TBD
+
     default: {}
     }
     return 0;
@@ -395,6 +400,16 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             freq = 0; // Not supported
         }
         break;
+    case VTSS_TARGET_LAN9698:
+    case VTSS_TARGET_LAN9698TSN:
+    case VTSS_TARGET_LAN9698HSN:
+        if (f == VTSS_CORE_CLOCK_DEFAULT) {
+            freq = VTSS_CORE_CLOCK_625MHZ;
+        } else if (f == VTSS_CORE_CLOCK_250MHZ) {
+            freq = 0; // Not supported
+        }
+        break;
+
     default:
         VTSS_E("Target (%x) not supported",vtss_state->create.target);
         return VTSS_RC_ERROR;
@@ -661,7 +676,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 
     /* Initialize function groups */
-    VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
+//    VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
 
     return VTSS_RC_OK;
 }
@@ -1356,14 +1371,35 @@ static vtss_rc fa_restart_conf_set(vtss_state_t *vtss_state)
 {
     return VTSS_RC_OK;
 }
+static vtss_rc is_target_fa(vtss_state_t *vtss_state)
+{
+    switch (vtss_state->create.target) {
+    case VTSS_TARGET_7546:
+    case VTSS_TARGET_7549:
+    case VTSS_TARGET_7552:
+    case VTSS_TARGET_7556:
+    case VTSS_TARGET_7558:
+    case VTSS_TARGET_7546TSN:
+    case VTSS_TARGET_7549TSN:
+    case VTSS_TARGET_7552TSN:
+    case VTSS_TARGET_7556TSN:
+    case VTSS_TARGET_7558TSN:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 
 static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
 {
     VTSS_RC(fa_calendar_auto(vtss_state));
 
-    /* Calculate and configure the DSM calender */
-    if (fa_dsm_calc_and_apply_calender(vtss_state) != VTSS_RC_OK) {
-         VTSS_E("DSM Calender calc failed");
+    if (is_target_fa(vtss_state)) {
+        /* Calculate and configure the DSM calender */
+        if (fa_dsm_calc_and_apply_calender(vtss_state) != VTSS_RC_OK) {
+            VTSS_E("DSM Calender calc failed");
+        }
     }
 
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);

@@ -940,6 +940,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
 
     // Get board type
     if (meba_conf_get_hex(inst, "pcb", &pcb) == MESA_RC_OK) {
+        printf("Found pcb %x\n",pcb);
         board->type = (board_type_t)pcb;
     } else {
         board->type = BOARD_TYPE_ADARO;   // Default

@@ -18,7 +18,7 @@
 #include "../jaguar2/vtss_jaguar2.h"
 #endif
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #include "../fa/vtss_fa.h"
 #endif
 
@@ -221,7 +221,6 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
 {
     vtss_state_t *vtss_state;
     vtss_arch_t  arch;
-
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
 
     if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL)
@@ -277,7 +276,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         VTSS_RC(vtss_jaguar2_inst_create(vtss_state));
         break;
 #endif /* VTSS_ARCH_JAGUAR_2 */
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7549:
     case VTSS_TARGET_7552:
@@ -368,6 +367,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
 
     return VTSS_RC_OK;
 }
+
 
 vtss_rc vtss_inst_destroy(const vtss_inst_t inst)
 {

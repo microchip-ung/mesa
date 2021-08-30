@@ -490,7 +490,10 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     case MESA_CHIP_FAMILY_LAN966X:
         // Device-tree is expected
         break;
-
+    case MESA_CHIP_FAMILY_LAN969X:
+        // Until Device-tree is implemented
+        type = 6849;
+        break;
     default:
         break;
     }
@@ -1118,6 +1121,7 @@ int main(int argc, char **argv)
     if (mesa_capability(NULL, MESA_CAP_INIT_CORE_CLOCK)) {
         conf.core_clock.freq = assign_core_clock(meba_inst->props.target);
     }
+
     if (mesa_init_conf_set(NULL, &conf) != MESA_RC_OK) {
         T_E("mesa_init_conf_set() failed");
         return 1;

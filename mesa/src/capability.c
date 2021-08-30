@@ -354,10 +354,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_CHIP_FAMILY_SERVALT;
 #elif defined(VTSS_ARCH_JAGUAR_2)
         c = MESA_CHIP_FAMILY_JAGUAR2;
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_SPARX5)
         c = MESA_CHIP_FAMILY_SPARX5;
 #elif defined(VTSS_ARCH_LAN966X)
         c = MESA_CHIP_FAMILY_LAN966X;
+#elif defined(VTSS_ARCH_LAN969X)
+        c = MESA_CHIP_FAMILY_LAN969X;
 #endif
         break;
 
@@ -698,6 +700,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_FRER:
 #if defined(VTSS_FEATURE_FRER)
+#if defined(VTSS_ARCH_LAN969X)
     {
         vtss_state_t *vtss_state;
 
@@ -709,6 +712,9 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
             c = 1;
         }
     }
+#else
+    c = 1;
+#endif
 #endif
         break;
 
@@ -725,6 +731,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_PSFP:
 #if defined(VTSS_FEATURE_PSFP)
+#if defined(VTSS_ARCH_LAN969X)
     {
         vtss_state_t *vtss_state;
 
@@ -736,6 +743,9 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
             c = 1;
         }
     }
+#else
+    c = 1;
+#endif
 #endif
         break;
 

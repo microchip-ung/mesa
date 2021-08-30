@@ -18,6 +18,7 @@ typedef enum {
     MESA_CHIP_FAMILY_OCELOT  = 8, /**< Ocelot/Ferret */
     MESA_CHIP_FAMILY_SPARX5  = 9, /**< SparX-5 */
     MESA_CHIP_FAMILY_LAN966X = 10,/**< LAN966X */
+    MESA_CHIP_FAMILY_LAN969X = 11,/**< LAN969X */
 } mesa_chip_family_t;
 
 typedef enum {
@@ -27,7 +28,10 @@ typedef enum {
 
 typedef enum {
     MESA_SWITCH_BW_UNKNOWN,  /**< Unknown */
+    MESA_SWITCH_BW_40,       /**< 40Gb  + NPI */
+    MESA_SWITCH_BW_60,       /**< 60Gb  + NPI */
     MESA_SWITCH_BW_64,       /**< 64Gb  + NPI */
+    MESA_SWITCH_BW_80,       /**< 80Gb  + NPI */
     MESA_SWITCH_BW_90,       /**< 90Gb  + NPI */
     MESA_SWITCH_BW_128,      /**< 128Gb + NPI */
     MESA_SWITCH_BW_160,      /**< 160Gb + NPI */

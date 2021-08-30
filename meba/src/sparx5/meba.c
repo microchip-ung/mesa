@@ -202,61 +202,6 @@ static void fa_gpy241_detect(meba_inst_t inst)
     }
 }
 
-
-static void fa_emul_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
-{
-    entry->map.chip_port       = port_no;
-    entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;
-    entry->map.miim_addr       = port_no;
-    entry->map.max_bw          = MESA_BW_1G;
-    entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
-    entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
-}
-
-static void fa_emul_board_init(meba_inst_t inst)
-{
-    T_I(inst, "TBD");
-}
-
-
-static void fa_pcb125_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
-{
-    meba_board_state_t *board = INST2BOARD(inst);
-
-    switch (board->port_cfg) {
-    case VTSS_BOARD_CONF_4x10G:
-        if (port_no < board->port_cnt) {
-            if (port_no < 4) {
-                // 10G ports
-                entry->map.chip_port       = port_no + 48; // 12-15(10G), 48-55(10G), 56-63(25G)
-                entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
-                entry->map.max_bw          = MESA_BW_10G;
-                entry->mac_if              = MESA_PORT_INTERFACE_SGMII_CISCO;
-                entry->cap                 = (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
-                entry->cap                 &= ~MEBA_PORT_CAP_SFP_DETECT; // No SFP detection
-            } else {
-                // 25G ports
-                entry->map.chip_port       = port_no - 4 + 56; // 56-63(25G)
-                entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
-                entry->map.max_bw          = MESA_BW_10G;
-                if ((port_no == 4) || (port_no == 5)) {
-                    entry->mac_if              = MESA_PORT_INTERFACE_SERDES;
-                } else {
-                    entry->mac_if              = MESA_PORT_INTERFACE_SGMII_CISCO;
-                }
-                entry->cap                 = (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
-                entry->cap                 &= ~MEBA_PORT_CAP_SFP_DETECT; // No SFP detection
-            }
-        } else {
-            entry->map.chip_port = CHIP_PORT_UNUSED;
-        }
-
-        break;
-    default:
-        T_E(inst, "Board type (%d) not supported!", board->type);
-    }
-}
-
 static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_interface_t if_type, mesa_internal_bw_t bw, uint32_t chip_port)
 {
     meba_board_state_t *board = INST2BOARD(inst);
@@ -488,11 +433,6 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     }
 }
 
-static void fa_pcb125_board_init(meba_inst_t inst)
-{
-
-}
-
 static void fa_pcb135_board_init(meba_inst_t inst)
 {
     mesa_sgpio_conf_t conf;
@@ -715,14 +655,6 @@ static mesa_bool_t port_activity(meba_inst_t inst,
 }
 
 static const board_func_t board_funcs[] = {
-    [BOARD_TYPE_SPARX5_EMULATION] = {
-        .board_init = fa_emul_board_init,
-        .init_port  = fa_emul_init_port,
-    },
-    [BOARD_TYPE_SPARX5_PCB125] = {
-        .board_init = fa_pcb125_board_init,
-        .init_port  = fa_pcb125_init_port,
-    },
     [BOARD_TYPE_SPARX5_PCB134] = {
         .board_init = fa_pcb134_board_init,
         .init_port  = fa_pcb134_init_port,
@@ -1113,11 +1045,7 @@ static mesa_rc fa_port_admin_state_set(meba_inst_t inst,
     mesa_rc            rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
 
-    if (board->type == BOARD_TYPE_SPARX5_PCB125) {
-        return rc;
-    }
-
-//    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE || port_no == 52) {
+    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE) {
         mesa_sgpio_conf_t  conf;
         mesa_sgpio_mode_t  sgpio_mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
         uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
@@ -1141,7 +1069,7 @@ static mesa_rc fa_port_admin_state_set(meba_inst_t inst,
             }
             rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
         }
-//    }
+    }
 
     return rc;
 }
@@ -1265,8 +1193,6 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
     }
 
     switch (board->type) {
-    case BOARD_TYPE_SPARX5_PCB125:
-        return MESA_RC_OK;
     case BOARD_TYPE_SPARX5_PCB134:
         if (sgpio_port >= 12 && sgpio_port <= 15) {
             sgpio_group = 0;
@@ -2177,7 +2103,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     mesa_port_no_t     port_no;
     char               buf[32];
     uint32_t           u;
-    int                i;
+    int                i,pcb;
     FILE               *fp;
 
     if (callouts_size < sizeof(*callouts)) {
@@ -2185,7 +2111,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
                 sizeof(*callouts), callouts_size);
         return NULL;
     }
-
     // Allocate public state and set the board name and target.
     // The name and target are fetched from the application (through MESA capabilities)
     if ((inst = meba_state_alloc(callouts,
@@ -2194,60 +2119,68 @@ meba_inst_t meba_initialize(size_t callouts_size,
                                  sizeof(*board))) == NULL) {
         return NULL;
     }
-
     // Initialize our state. 'board' provides the private info from this file.
     MEBA_ASSERT(inst->private_data != NULL);
     board = INST2BOARD(inst);
-
     // Get the chip ID
     if (meba_conf_get_hex(inst, "chip_id", &i) == MESA_RC_OK) {
         inst->props.target = (mesa_target_type_t) i;
     }
-
     // Get the board type from the application
-    if (inst->iface.conf_get("pcb", buf, sizeof(buf), NULL) == MESA_RC_OK) {
-        mesa_switch_bw_t bw = mesa_capability(NULL, MESA_CAP_MISC_SWITCH_BW);
-        T_D(inst, "Board Type is %s", buf);
+    if (meba_conf_get_hex(inst, "type", &pcb) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read pcb id\n");
+        goto error_out;
+    }
+    if (pcb == BOARD_TYPE_SUNRISE) {
+        // This is Laguna
+        return lan969x_initialize(inst, callouts);
+    }
 
-        // Assign the board type to the board name
-        // as we do not have a separate variable to store the board name.
-        strncpy(inst->props.name, buf, sizeof(inst->props.name));
-        if (strstr(buf, "pcb134")) {
-            board->type = BOARD_TYPE_SPARX5_PCB134;
-            // Default port count, in case it cannot be read out
-            // in the next step
-            switch (bw) {
-                case MESA_SWITCH_BW_64:
-                    board->port_cnt = 7;
-                    break;
-                case MESA_SWITCH_BW_90:
-                    board->port_cnt = 10;
-                    break;
-                case MESA_SWITCH_BW_128:
-                    board->port_cnt = 13;
-                    break;
-                case MESA_SWITCH_BW_160:
-                    board->port_cnt = 17;
-                    break;
-                default:
-                    board->port_cnt = 21;
-            }
+    if (inst->iface.conf_get("pcb", buf, sizeof(buf), NULL) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read pcb id\n");
+        goto error_out;
+    }
+    mesa_switch_bw_t bw = mesa_capability(NULL, MESA_CAP_MISC_SWITCH_BW);
+    T_D(inst, "Board Type is %s", buf);
 
-        } else if (strstr(buf, "pcb135")) {
-            board->type = BOARD_TYPE_SPARX5_PCB135;
-            // Default port count, in case it cannot be read out
-            // in the next step
-            switch (bw) {
-                case MESA_SWITCH_BW_64:
-                    board->port_cnt = 29;
-                    break;
-                case MESA_SWITCH_BW_90:
-                    board->port_cnt = 53;
-                    break;
-                default:
-                    board->port_cnt = 57;
-                    break;
-            }
+    // Assign the board type to the board name
+    // as we do not have a separate variable to store the board name.
+    strncpy(inst->props.name, buf, sizeof(inst->props.name));
+    if (strstr(buf, "pcb134")) {
+        board->type = BOARD_TYPE_SPARX5_PCB134;
+        // Default port count, in case it cannot be read out
+        // in the next step
+        switch (bw) {
+        case MESA_SWITCH_BW_64:
+            board->port_cnt = 7;
+            break;
+        case MESA_SWITCH_BW_90:
+            board->port_cnt = 10;
+            break;
+        case MESA_SWITCH_BW_128:
+            board->port_cnt = 13;
+            break;
+        case MESA_SWITCH_BW_160:
+            board->port_cnt = 17;
+            break;
+        default:
+            board->port_cnt = 21;
+        }
+
+    } else if (strstr(buf, "pcb135")) {
+        board->type = BOARD_TYPE_SPARX5_PCB135;
+        // Default port count, in case it cannot be read out
+        // in the next step
+        switch (bw) {
+        case MESA_SWITCH_BW_64:
+            board->port_cnt = 29;
+            break;
+        case MESA_SWITCH_BW_90:
+            board->port_cnt = 53;
+            break;
+        default:
+            board->port_cnt = 57;
+            break;
         }
     }
 
@@ -2271,9 +2204,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     switch (board->type) {
-    case BOARD_TYPE_SPARX5_PCB125:
-        board->port_cfg = VTSS_BOARD_CONF_4x10G;
-        break;
     case BOARD_TYPE_SPARX5_PCB134:
         if (board->port_cnt == 7) {
             board->port_cfg = VTSS_BOARD_CONF_6x10G_NPI;
@@ -2333,19 +2263,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
 
     inst->props.board_type = board->type;
+
     // Fill out port mapping table
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         board->func->init_port(inst, port_no, &board->port[port_no].map);
         switch (board->type) {
-        case BOARD_TYPE_SPARX5_PCB125:
-            if (board->port_cfg == VTSS_BOARD_CONF_4x10G) {
-                    board->port[port_no].board_port = port_no;
-                    board->port[port_no].sgpio_port = port_no;
-            } else {
-                T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type, board->port_cfg);
-                goto error_out;
-            }
-            break;
         case BOARD_TYPE_SPARX5_PCB134:
             if ((board->port_cfg == VTSS_BOARD_CONF_6x10G_NPI) ||
                 (board->port_cfg == VTSS_BOARD_CONF_9x10G_NPI) ||
