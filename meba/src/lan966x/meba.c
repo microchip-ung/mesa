@@ -274,6 +274,17 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
             return 0;
 
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
+            if (board->type == BOARD_TYPE_8PORT) {
+                meba_synce_clock_hw_id_t dpll_type;
+
+                if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) && (dpll_type != MEBA_SYNCE_CLOCK_HW_NONE)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:        // lan966x does not support dual DPLL mode
         case MEBA_CAP_POE_BT:
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
@@ -758,6 +769,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_event_enable               = lan966x_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get         = lan966x_ptp_rs422_conf_get;
+    inst->api_synce                           = meba_synce_get();
 
     return inst;
 

@@ -43,7 +43,7 @@ mesa_rc meba_synce_spi_if_spi_transfer(meba_inst_t inst, uint32_t buflen, const 
                 T_E(inst, "Timeout while waiting for access to SPI IF (giving up now after waiting 10 seconds).");
             }
         } else {
-            T_E(inst, "Got unexpected error code (errno = %d) from SPI ioctl call.", errsv);
+            T_E(inst, "Got unexpected error code (errno = %d) from SPI ioctl call.  %s", errsv, strerror(errsv));
 //            T_E(inst, "buflen = %u, tx_data = %u, rx_data = %u", buflen, (uintptr_t) tx_data, (uintptr_t) rx_data);
             break;
         }
