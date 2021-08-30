@@ -2,11 +2,19 @@
 # SPDX-License-Identifier: MIT
 
 ##    -DRPI_MIIM \
-##    -DVTSS_FEATURE_PHY_TIMESTAMP \
-##    -DVTSS_ARCH_VENICE_C=TRUE \
-##    -DVTSS_CHIP_CU_PHY \
-#3    -DVTSS_CHIP_10G_PHY \
-##    `find base/phy/phy_1g -name "*.c"` \
+##    -DVTSS_ARCH_VENICE_C=TRUE \     // Compile in support for Venice C and later
+##    -DVTSS_CHIP_CU_PHY \            // Compile in support for 1G PHY Families in API
+##    -DVTSS_CHIP_10G_PHY \           // Compile in support for 10G PHY Families in API
+##    -DVTSS_OPT_PORT_COUNT=2  \      // Compile for MAX Number of Ports in this PHY_INST
+##    -DVTSS_OPSYS_LINUX=1 \          // Compile in Linux OS Support <Default OS>
+##    -DVTSS_FEATURE_10G  \           // Include 10G Capability, used in MESA builds
+##    -DVTSS_FEATURE_10GBASE_KR \     // Compile in Support for 10G Base-KR
+##    -DVTSS_USE_STDINT_H \           // Compile to Use Linux Std INT types as defined in stdint.h
+##    -D_INCLUDE_DEBUG_TERM_PRINT_ \  // Include Debug Output to Console (EVB/Char Board Setup, in Sample Application Code)
+##    -DVENICE_CHAR_BOARD \           // Compile in support for EVB/CHAR BOARD setup
+##    -DVTSS_FEATURE_MACSEC \         // Compile in support for MACSEC Block
+##    -DVTSS_OPT_PHY_TIMESTAMP \      // Compile in support for IEEE-1588 Timestamp Block
+##    `find base/phy/phy_1g -name "*.c"` \    // Compile all files in the phy_1g Directory for 1G PHY Support
 ##
 ## TIMESTAMPING & MACSEC ENABLED ON EVAL BOARD - vtss_appl_cli DEMO code
 gcc -I ../include -std=gnu89 \

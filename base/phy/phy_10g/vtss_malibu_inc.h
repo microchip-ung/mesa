@@ -11,7 +11,11 @@
 #include "../../ail/vtss_pll5g_procs.h"
 #include "vtss_phy_10g.h"
 
+#ifndef _MAL_IO_VAR
+#define _MAL_IO_VAR
 ioreg_blk mal_io_var;
+#endif
+
 #if defined(VTSS_IOREG)
 #undef VTSS_IOREG
 #endif

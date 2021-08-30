@@ -135,8 +135,8 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
-    - AA-681
-
+     - AA-681 # Was added as JIRA-681 instead of MESA-681
+     - AA-746 # Was added as JIRA-746 instead of MESA-746
   # See the 'del' section above for a description
   #
   # Example of a list:
@@ -145,5 +145,5 @@ bugs:
   #
   # OPTIONAL. No bugs will be added if not specified.
   add:
-    - MESA-681
-
+    - MESA-681 # Was added as JIRA-681
+    - MESA-746 # Was added as JIRA-746

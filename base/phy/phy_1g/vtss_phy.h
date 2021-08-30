@@ -906,4 +906,181 @@ typedef struct {
 #define VTSS_PHY_PAGE_MACSEC_CSR_DATA_MSB VTSS_PHY_PAGE_MACSEC, 18
 
 
+/* ********************************************************************* */
+/*            The following Definitions Apply for Tesla SERDES ONLY      */
+/* ********************************************************************* */
+/* PHY SerDes Init Interface */
+typedef enum {
+    VTSS_PHY_SERDES_INIT_NONE,          /* Unknown */
+    VTSS_PHY_SERDES_INIT_MAC,           /* MAC */
+    VTSS_PHY_SERDES_INIT_MEDIA,         /* MEDIA */
+} vtss_phy_serdes_init_t;
+
+typedef enum {
+    VTSS_TESLA_SERDES_PRBS_7
+} vtss_phy_serdes_prbs_t;
+
+typedef enum {
+    VTSS_TESLA_SERDES_TEST_MODE_OFF,
+    VTSS_TESLA_SERDES_TEST_MODE_BIST
+} vtss_phy_serdes_test_mode_t;
+
+#define VTSS_TESLA_MCB_CFG_BUF_START_ADDR   (0xd7c7)
+// the following match the current config and status sizes (in bits) in Tesla
+#define VTSS_TESLA_SD1G_ANA_CFG_SIZE    100
+#define VTSS_TESLA_SD1G_DIG_CFG_SIZE    96
+#define VTSS_TESLA_CFG_SIZE_SD1G    (VTSS_TESLA_SD1G_ANA_CFG_SIZE+VTSS_TESLA_SD1G_DIG_CFG_SIZE) //196
+
+#define VTSS_TESLA_SD6G_ANA_CFG_SIZE    148
+#define VTSS_TESLA_SD6G_DIG_CFG_SIZE    154
+#define VTSS_TESLA_CFG_SIZE_SD6G    (VTSS_TESLA_SD6G_ANA_CFG_SIZE+VTSS_TESLA_SD6G_DIG_CFG_SIZE) //302
+
+#define VTSS_TESLA_SYNC_ETH_CFG_SIZE    6
+#define VTSS_TESLA_RCOMP_CFG_SIZE   12
+// for LCPLL
+#define VTSS_TESLA_PLL5G_CFG_SIZE   154
+#define VTSS_TESLA_CFG_SIZE_RCPL    (VTSS_TESLA_SYNC_ETH_CFG_SIZE+VTSS_TESLA_RCOMP_CFG_SIZE+VTSS_TESLA_PLL5G_CFG_SIZE)  //172
+
+#define VTSS_TESLA_SD1G_ANA_STAT_SIZE   11
+#define VTSS_TESLA_SD1G_DIG_STAT_SIZE   7
+#define VTSS_TESLA_STAT_SIZE_SD1G   (VTSS_TESLA_SD1G_ANA_STAT_SIZE+VTSS_TESLA_SD1G_DIG_STAT_SIZE)   //18
+
+#define VTSS_TESLA_SD6G_ANA_STAT_SIZE   11
+#define VTSS_TESLA_SD6G_DIG_STAT_SIZE   7
+#define VTSS_TESLA_STAT_SIZE_SD6G   VTSS_TESLA_SD6G_ANA_STAT_SIZE+VTSS_TESLA_SD6G_DIG_STAT_SIZE //18
+
+#define VTSS_TESLA_RCOMP_STAT_SIZE  6
+#define VTSS_TESLA_PLL5G_STAT_SIZE  40
+#define VTSS_TESLA_STAT_SIZE_RCPL   VTSS_TESLA_RCOMP_STAT_SIZE+VTSS_TESLA_PLL5G_STAT_SIZE   //46
+
+// frequently used config bit locations (min. bit if bit field)
+// SERDES1G_ANA_CFG
+#define VTSS_TESLA_SERDES1G_ANA_CFG_PLL_FSM_ENA_1G           3  // cfg_vec[3]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_PLL_FSM_CTRL_DATA_1G     4  // cfg_vec[11:4]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_PLL_ENA_RC_DIV2_1G      12  // cfg_vec[12]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IF_MODE_1G              14  // cfg_vec[14]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_HRATE_1G                15  // cfg_vec[15]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_ENA_PLOOP_1G            16  // cfg_vec[16]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_ENA_ILOOP_1G            17  // cfg_vec[17]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_ENA_FLOOP_1G            18  // cfg_vec[18]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_ENA_ELOOP_1G            19  // cfg_vec[19]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_PWD_TX_1G               24  // cfg_vec[24]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_PWD_RX_1G               25  // cfg_vec[25]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_ENA_LANE_1G             26  // cfg_vec[26]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_SYS_RST_1G              31  // cfg_vec[31]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_OB_RES_CTRL_1G          42  // cfg_vec[45:42]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_OB_VCM_CTRL_1G          46  // cfg_vec[49:46]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_OB_AMP_CTRL_1G          55  // cfg_vec[58:55]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_RES_CTRL_1G          61  // cfg_vec[64:61]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_EQ_GAIN_1G           67  // cfg_vec[69:67]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_OFFSET_COMP_1G   70  // cfg_vec[70]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_HYST_1G          71  // cfg_vec[71]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_DETLEV_1G        72  // cfg_vec[72]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_DC_COUPLING_1G   73  // cfg_vec[73]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_CMV_TERM_1G      74  // cfg_vec[74]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_DET_LEV_1G           76  // cfg_vec[78:76]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_IB_FX100_ENA_1G         82  // cfg_vec[82]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_DES_BW_ANA_1G           88  // cfg_vec[90:88]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_DES_MBTR_CTRL_1G        91  // cfg_vec[93:91]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_DES_CPMD_SEL_1G         94  // cfg_vec[95:94]
+#define VTSS_TESLA_SERDES1G_ANA_CFG_DES_PHS_CTRL_1G         96  // cfg_vec[99:96]
+// SERDES1G_DIG_CFG
+#define VTSS_TESLA_SERDES1G_DIG_CFG_LANE_RST_1G            100  // cfg_vec[100]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_TX_DATA_INV_ENA_1G     101  // cfg_vec[101]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_RX_DATA_INV_ENA_1G     102  // cfg_vec[102]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_TX_LPI_MODE_ENA_1G     103  // cfg_vec[103]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_RX_LPI_MODE_ENA_1G     104  // cfg_vec[104]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_DES_100FX_CPMD_ENA_1G  105  // cfg_vec[105]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_DES_100FX_CPMD_MODE_1G 106  // cfg_vec[106]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_DES_100FX_CPMD_SWAP_1G 107  // cfg_vec[107]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_TEST_MODE_1G           189 // cfg_vec[191:189]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_PRBS_SEL_1G            192 // cfg_vec[193:192]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_INV_DIS_1G             194 // cfg_vec[194]
+#define VTSS_TESLA_SERDES1G_DIG_CFG_LAZYBIT_1G             195 // cfg_vec[195]
+
+// SERDES6G_ANA_CFG
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_ROT_FRQ_6G        0   // cfg_vec[0]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_ROT_DIR_6G        1   // cfg_vec[1]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_FSM_ENA_6G        5   // cfg_vec[5]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_FSM_CTRL_DATA_6G  6   // cfg_vec[13:6]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_ENA_ROT_6G       14  // cfg_vec[14]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PLL_DIV4_6G          15  // cfg_vec[15]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IF_MODE_6G           16  // cfg_vec[17:16]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_QRATE_6G             18  // cfg_vec[18]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_HRATE_6G             19  // cfg_vec[19]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_ENA_PLOOP_6G         20  // cfg_vec[20]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_ENA_ILOOP_6G         21  // cfg_vec[21]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_ENA_FLOOP_6G         22  // cfg_vec[22]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_ENA_ELOOP_6G         23  // cfg_vec[23]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PWD_TX_6G            28  // cfg_vec[28]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_PWD_RX_6G            29  // cfg_vec[29]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_ENA_LANE_6G          30  // cfg_vec[30]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_SYS_RST_6G           35  // cfg_vec[35]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_LEV_6G            45  // cfg_vec[50:45]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_EN_CAS_6G         51  // cfg_vec[53:51]
+//#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_RES_CTRL_6G     54  // cfg_vec[57:54]
+//#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_SR_6G           58  // cfg_vec[61:58]
+// these were swapped in routing in Luton26/Atom12
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_SR_6G             54  // cfg_vec[57:54]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_RES_CTRL_6G       58  // cfg_vec[61:58]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_SR_H_6G           62  // cfg_vec[62]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST0_6G          77  // cfg_vec[82:77]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST1_6G          72  // cfg_vec[76:72]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_PREC_6G           67  // cfg_vec[71:67]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_POL_6G            83  // cfg_vec[83]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_OB_ENA1V_MODE_6G     84  // cfg_vec[84]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_RST_6G            86  // cfg_vec[86]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_FX100_ENA_6G      87  // cfg_vec[87]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_ENA_OFFSDC_6G     88  // cfg_vec[88]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_ENA_OFFSAC_6G     89  // cfg_vec[89]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_DIS_EQ_6G         90  // cfg_vec[90]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_CTERM_ENA_6G      91  // cfg_vec[91]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_C_6G              94  // cfg_vec[97:94]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_RES_CTRL_6G      100 // cfg_vec[103:100]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_VBCOM_6G         104 // cfg_vec[106:104]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_VBAC_6G          107 // cfg_vec[109:107]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_RT_6G            110 // cfg_vec[113:110]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_RF_6G            114 // cfg_vec[117:114]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_IC_DC_6G         119 // cfg_vec[121:119]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_IC_COM_6G        122 // cfg_vec[124:122]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_IB_IC_AC_6G         125 // cfg_vec[127:125]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_BW_ANA_6G       132 // cfg_vec[134:132]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_SWAP_HYST_6G    135 // cfg_vec[135]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_BW_HYST_6G      136 // cfg_vec[138:136]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_CPMD_SEL_6G     139 // cfg_vec[140:139]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_MBTR_CTRL_6G    141 // cfg_vec[143:141]
+#define VTSS_TESLA_SERDES6G_ANA_CFG_DES_PHS_CTRL_6G     144 // cfg_vec[147:144]
+// SERDES6G_DIG_CFG
+#define VTSS_TESLA_SERDES6G_DIG_CFG_AN_OB_LEV_6G        148 // cfg_vec[153:148]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_AN_OB_ENA_CAS_6G    154 // cfg_vec[156:154]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_AN_OB_PREC_6G       157 // cfg_vec[161:157]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_AN_OB_POST1_6G      162 // cfg_vec[166:162]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_AN_OB_POST0_6G      167 // cfg_vec[172:167]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_LANE_RESET_6G       173 // cfg_vec[173]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_TX_DATA_INV_ENA_6G  174 // cfg_vec[174]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_RX_DATA_INV_ENA_6G  175 // cfg_vec[175]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_TX_LPI_MODE_ENA_6G  176 // cfg_vec[176]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_RX_LPI_MODE_ENA_6G  177 // cfg_vec[177]
+//=====//
+#define VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G        284 // cfg_vec[286:284]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_PRBS_SEL_6G         287 // cfg_vec[288:287]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_INV_DIS_6G          289 // cfg_vec[289]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_LAZYBIT_6G          290 // cfg_vec[290]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_SIGDET_DST_6G       291 // cfg_vec[293:291]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_SIGDET_AST_6G       294 // cfg_vec[296:294]
+#define VTSS_TESLA_SERDES6G_DIG_CFG_SIGDET_TESTMODE_6G  297 // cfg_vec[297]
+
+// RCOMP_CFG
+#define VTSS_TESLA_RCOMP_CFG_RCOMP_MODE_SEL         (VTSS_TESLA_SYNC_ETH_CFG_SIZE+5)  // cfg_vec[12:11]
+#define VTSS_TESLA_RCOMP_CFG_RCOMP_RUN_CAL          (VTSS_TESLA_SYNC_ETH_CFG_SIZE+9)  // cfg_vec[15]
+#define VTSS_TESLA_RCOMP_CFG_RCOMP_DISTR_DIS        (VTSS_TESLA_SYNC_ETH_CFG_SIZE+11) // cfg_vec[17]
+// RCOMP_STATUS
+#define VTSS_TESLA_RCOMP_STATUS_RCOMP_RCOMP     0   // stat_vec[3:0]
+#define VTSS_TESLA_RCOMP_STATUS_RCOMP_BUSY      5   // stat_vec[5]
+// PLL5G_STATUS (LCPLL)
+#define VTSS_TESLA_PLL5G_STATUS_PLL5G_LOCK_STATUS   (VTSS_TESLA_RCOMP_STAT_SIZE+26)   // stat_vec[32]
+#define VTSS_TESLA_PLL5G_STATUS_PLL5G_FSM_LOCK      (VTSS_TESLA_RCOMP_STAT_SIZE+39)   // stat_vec[45]
+
+
+
 #endif /* _VTSS_PHY_H_ */

@@ -2269,6 +2269,76 @@ vtss_rc vtss_phy_firmware_update(const vtss_inst_t    inst,
                                  u8 *const fw,
                                  u32 *const len);
 
+/**
+ * \brief PHY SerDes to Retrieve PRBS Settings
+ *
+ * \param inst [IN]       Target instance reference.
+ * \param port_no [IN]    Port number.
+ * \param test_sel [OUT]  Test Mode (0=OFF, 1=BIST)
+ * \param prbs [OUT]      PRBS Type (0=PRBS7)
+ *
+ * \return Return code. VTSS_RC_OK if PRBS Config OK.
+ *                      VTSS_RC_ERROR if and error occurred.
+ **/
+vtss_rc vtss_phy_serdes_prbs_conf_get(const vtss_inst_t     inst,
+                                      const vtss_port_no_t  port_no,
+                                      u8                   *test_sel,
+                                      u8                   *prbs);
+
+/**
+ * \brief PHY SerDes Config to Enable/Disable PRBS7
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param prbs_ena [IN] PRBS7 Enable flag (TRUE=Enable, FALSE=Disable)
+ *
+ * \return Return code. VTSS_RC_OK if PRBS Config OK.
+ *                      VTSS_RC_ERROR if and error occurred.
+ **/
+vtss_rc vtss_phy_serdes_prbs_conf_set(const vtss_inst_t    inst,
+                                      const vtss_port_no_t port_no,
+                                      const BOOL           prbs_ena);
+
+
+/**
+ * \brief Configure/update PHY MAC i/f SerDes OB_CNTRL Config
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param ob_post0 [IN] SerDes Config Range 0-63
+ * \param ob_post1 [IN] SerDes Config Range 0-31
+ * \param ob_prec  [IN] SerDes Config Range 0-31
+ *
+ * \return Return code. VTSS_RC_OK if SerDes OB_CNTRL Config OK.
+ *                      VTSS_RC_ERROR if and error occurred.
+ **/
+vtss_rc vtss_phy_mac_serdes_ob_cntrl_set(const vtss_inst_t     inst,
+                                         const vtss_port_no_t  port_no,
+                                         const u8              ob_post0,
+                                         const u8              ob_post1,
+                                         const u8              ob_prec);
+
+
+/**
+ * \brief Retrieve PHY MEDIA i/f SerDes OB_CNTRL Config
+ *
+ * \param inst [IN]      Target instance reference.
+ * \param port_no [IN]   Port number.
+ * \param ob_post0 [OUT] SerDes Config Range 0-63
+ * \param ob_post1 [OUT] SerDes Config Range 0-31
+ * \param ob_prec  [OUT] SerDes Config Range 0-31
+ *
+ * \return Return code. VTSS_RC_OK if SerDes OB_CNTRL Config OK.
+ *                      VTSS_RC_ERROR if and error occurred.
+ **/
+vtss_rc vtss_phy_mac_serdes_ob_cntrl_get(const vtss_inst_t     inst,
+                                         const vtss_port_no_t  port_no,
+                                         u8                   *ob_post0,
+                                         u8                   *ob_post1,
+                                         u8                   *ob_prec);
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -4474,16 +4474,370 @@ static vtss_rc vtss_phy_warmstart_chk_micro_patch_mac_mode(vtss_state_t *vtss_st
 #endif
 
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+
+// Function for manipulating specific bit(s) in the phy patch configuration array for TESLA.
+// NOTICE: Very Important!!  It is assumed that the MCB Data has already been fetched !!!!
+//                           This function will configure the MCB, but the caller must write it back out!
+// Limitations: This function only allow bit fields up to 8 bits.
+//      This function handles: Single bit, Multi-bit in same byte, Multi-bit spanning 2 bytes, but Max of 8 bits.
+// IN : port_no - PHY Port being operated upon
+//      msb    - MSB bit in array.
+//      lsb    - LSB bit in array - If only one bit the LSB shall be set to -1
+//      val    - Value to be set
+static vtss_rc patch_array_set_value(vtss_state_t *vtss_state, vtss_port_no_t port_no, i16 msb, i16 lsb, u8 val)
+{
+    vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    vtss_phy_type_t        phy_id;
+    u16                    arr_bit_lsb;
+    u16                    arr_idx_lsb;
+    u16                    arr_bit_msb;
+    u16                    arr_idx_msb;
+    u16                    reg18g = 0;
+    u16                    addr = 0;
+    u8                     pos = 0;
+    u8                     tmp = 0;
+    u8                     m = 0;
+    u8                     sz = 0;
+
+    if (ps->family != VTSS_PHY_FAMILY_TESLA) {
+        VTSS_I ("port_no: %d,  Not TESLA Family!: 1G SerDes Config - INVALID FAMILY - ", port_no);
+        return (VTSS_RC_INV_STATE);
+    }
+
+    VTSS_RC(vtss_phy_id_get_private(vtss_state, port_no, &phy_id));
+
+    // We have the bit(s) we want to modify, i.e. VTSS_TESLA_SERDES1G_ANA_CFG_IB_ENA_DC_COUPLING_1G, so we need to find
+    // the Address of the Byte that contains the bit(s).  A shift 3, bit >> 3, is a divide by 8, 8bits per byte
+    if (lsb > 0) {
+        arr_bit_lsb = lsb;
+        arr_idx_lsb = arr_bit_lsb >> 3;
+        arr_bit_msb = msb;
+        arr_idx_msb = arr_bit_msb >> 3;
+    } else {
+        arr_bit_lsb = msb;
+        arr_idx_lsb = arr_bit_lsb >> 3;
+        arr_bit_msb = msb;
+        arr_idx_msb = arr_bit_msb >> 3;
+    }
+
+    sz = (arr_bit_msb - arr_bit_lsb) + 1;
+    if (sz > 8) {
+        return (-101);
+    }
+
+    // Compute bit field starting position in local byte; arr_idx_lsb << 3 is arr_idx_lsb * 8;
+    pos = arr_bit_lsb - (arr_idx_lsb << 3);
+    addr = VTSS_TESLA_MCB_CFG_BUF_START_ADDR + arr_idx_lsb;
+
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, addr));  // set mem_addr to cfg_buf[arr_idx_lsb]
+    (void)(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+    // read the value of cfg_buf[arr_idx_lsb] w/o post-incr.
+    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8007));
+    VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+    // Now pointing at cfg_buf[arr_idx_lsb].
+    // Read Reg18g, contains 16bits, starting at the address selected
+    VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, &reg18g));
+    // This is setup for the lower 8bits first, then upper 8 bits; Manipulate the 16bits as required
+
+    tmp = (u8)((reg18g >> 4) & 0xff);
+
+    /* There are 3 cases to handle:   */
+    /* 1. Single Bit field - Simplest */
+    /* 2. Multiple bits in single byte   */
+    /* 3. Multiple bits spanning 2 bytes   */
+    m = 0;
+    if (arr_idx_msb == arr_idx_lsb) {          // The bit fields are all in the same byte
+        if (sz > 1) {          // Multiple bits
+            u8 i;
+            for (i = 0; i < sz; i++) {
+                m |= 1 << (i % 8);
+            }
+            val = val & m;       // Mask the value to fit in this field
+            m = m << pos;        // Shift the mask into the proper position
+            tmp &= ~m;           // Clear any existing data in the fields
+            tmp |= (val << pos); // Or in the data into the appropropriate fields
+        } else {       // Multi-bit field
+            m = 1 << ((pos) % 8);
+            if (val) {
+                tmp |= m;
+            } else {
+                tmp &= ~m;
+            }
+        }
+
+        VTSS_D ("(1): port_no: %d, Addr: 0x%x; cfg_buf[%d]; lsb: %d; loc_pos: %d; m= 0x%x, sz: %d, Reg18g:0x%x; val:0x%x, Tmp:0x%x ",
+                port_no, addr, arr_idx_lsb, arr_bit_lsb, pos, m, sz, (reg18g >> 4), val, tmp);
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        // write the value back to cfg_buf[arr_idx_lsb] w/ post-incr.
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8006 | ((u16)tmp << 4)));
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+        // Now pointing at cfg_buf[arr_idx_lsb+1].
+    } else {                                   // The bit fields span 2 bytes
+        u8   m1 = 0;
+        u8   m2 = 0;
+        u8   i;
+        for (i = 0; i < sz; i++) {
+            m |= 1 << (i % 8);
+        }
+        val = val & m;                 // Mask the value to fit in this field
+        m1 = (m << pos) & 0xff;        // Shift the mask into the proper position for the lower byte
+        m2 = (m >> (8 - pos)) & 0xff;      // Shift the mask into the proper position for the upper byte
+        tmp &= ~m1;                    // Clear any existing data in the fields
+        tmp |= ((val << pos) & m1);    // Or in the data into the appropropriate fields
+
+        VTSS_D ("(2-Split): port_no: %d, Addr: 0x%x; cfg_buf[%d]; lsb: %d; loc_pos: %d; m=0x%x, m1= 0x%x, sz: %d, Reg18g:0x%x; val:0x%x, Tmp:0x%x ",
+                port_no, addr, arr_idx_lsb, arr_bit_lsb, pos, m, m1, sz, (reg18g >> 4), val, tmp);
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        // write the value back to cfg_buf[arr_idx_lsb] w/post-incr.
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x9006 | ((u16)tmp << 4)));
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        // read the value of cfg_buf[arr_idx_lsb+1] w/o post-incr.
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8007));
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        // because of post-incr, Now pointing at cfg_buf[arr_idx_lsb+1].
+        // Read Reg18g, contains 16bits, starting at the address selected
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, &reg18g));
+        // This is setup for the lower 8bits first, then upper 8 bits; Manipulate the 16bits as required
+
+        tmp = (u8)((reg18g >> 4) & 0xff);    // Since this is a continuation, the position is going to be 0
+        tmp &= ~m2;                          // Clear any existing data in the fields
+        tmp |= (val >> (8 - pos)) & m2;      // Shift the data to match to location in this byte
+        arr_bit_lsb = arr_idx_msb << 3;      // Starting bit location for 2nd part of value in patch stream
+
+        VTSS_D("(3-Split) port_no: %d, Addr: 0x%x; cfg_buf[%d]; lsb: %d; loc_pos: %d; m2= 0x%x, sz: %d, Reg18g:0x%x; val:0x%x, Tmp:0x%x",
+               port_no, addr + 1, arr_idx_lsb + 1, arr_bit_lsb, pos, m2, sz, (reg18g >> 4), val, tmp);
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        // write the value back to cfg_buf[arr_idx_lsb+1] w/post-incr.
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8006 | ((u16)tmp << 4)));
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+        // Now pointing at cfg_buf[arr_idx_lsb+2].
+
+    }
+
+    return VTSS_RC_OK;
+}
+
+
+// Function for configuring/updating the MAC (SGMII)/MEDIA (Fiber) 1G-SerDes PHY settings for PRBS enablement
+// In - port_no - Phy port number.
+//    - mcb_bus - MCB Bus to be configured
+//                0: SerDes 1G
+//                1: SerDes 6G
+//                2: LCPLL/RComp
+//    - slave_num - Slave to be Configured (1G Macro for MAC=SGMII/MEDIA=Fiber)
+//                MAC i/f
+//                mcb_bus=1, slave = 0 for QSGMII (6G Macro)
+//                mcb_bus=1, slave = 0 for QSGMII (6G Macro) for Port 0
+//                mcb_bus=0, slave = 1 for SGMII  (1G Macro) for Port 1
+//                mcb_bus=0, slave = 3 for SGMII  (1G Macro) for Port 2
+//                mcb_bus=0, slave = 5 for SGMII  (1G Macro) for Port 3
+//                MEDIA i/f
+//                mcb_bus=0, slave = 0 for Fiber (1G Macro) for Port 0
+//                mcb_bus=0, slave = 2 for Fiber (1G Macro) for Port 1
+//                mcb_bus=0, slave = 4 for Fiber (1G Macro) for Port 2
+//                mcb_bus=0, slave = 6 for Fiber (1G Macro) for Port 3
+//
+static vtss_rc vtss_phy_tesla_serdes_sd6g_1g_prbs_conf_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 mcb_bus, u8 slave_num, BOOL is_fiber, BOOL prbs_ena)
+{
+    vtss_phy_type_t        phy_id;
+    vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    u16   micro_cmd = 0;
+    u8    portAddr = 0;
+
+    if (ps->family != VTSS_PHY_FAMILY_TESLA) {
+        VTSS_I ("port_no: %d,  Not TESLA Family!: 1G SerDes Config - INVALID FAMILY,  mcb_bus: %d, slave_num: %d", port_no, mcb_bus, slave_num);
+        return (VTSS_RC_INV_STATE);
+    }
+
+    VTSS_RC(vtss_phy_id_get_private(vtss_state, port_no, &phy_id));
+    portAddr = vtss_phy_chip_port(vtss_state, port_no);
+
+    if ((mcb_bus == 0) || (mcb_bus == 1)) {
+        VTSS_I ("port_no: %d,  1G SerDes Config - Chip_Port: 0x%x, mcb_bus: %d, slave_num: %d", port_no, portAddr, mcb_bus, slave_num);
+    } else {
+        VTSS_I ("port_no: %d,  1G SerDes Config - INVALID MCB!,  Chip_Port: 0x%x, mcb_bus: %d, slave_num: %d", port_no, portAddr, mcb_bus, slave_num);
+        return (VTSS_RC_INV_STATE);
+    }
+
+    // Note: The function patch_array_set_value() will reset the cfg_buf ptr to the correct offset based upon the bits manipulated each time it is called
+    // The Function for manipulating specific bit(s) in the phy patch configuration array for TESLA.
+    // NOTICE: Very Important!!  This function assumes that the MCB Data has already been fetched !!!!
+    //                           This function will configure the MCB, but the caller must write it back out!
+    //
+    // Step 1: fetch MCB data
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));     // Switch to micro/GPIO register-page
+    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, (0x8003 | (slave_num << 8) | (mcb_bus << 4))));     // Read MCB macro into PRAM
+    VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+    // Step 2: Modify the MCB Array
+               mcb_bus = 1;
+                slave_num = 0;
+
+    if (mcb_bus == 1 && slave_num == 0) {   // VTSS_PORT_INTERFACE_QSGMII MACRO - one macro per quad)
+        micro_cmd = 0x9c40;
+
+        // Modify bits 288-287  PRBS_SEL=PRBS7
+        VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_DIG_CFG_PRBS_SEL_6G + 1, VTSS_TESLA_SERDES6G_DIG_CFG_PRBS_SEL_6G, VTSS_TESLA_SERDES_PRBS_7));
+
+        if (prbs_ena) {
+            // Modify bits 286-284  TEST_MODE=BIST
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G + 2, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G, VTSS_TESLA_SERDES_TEST_MODE_BIST));
+        } else {
+            // Modify bits 286-284  TEST_MODE=OFF
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G + 2, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G, VTSS_TESLA_SERDES_TEST_MODE_OFF));
+        }
+    } else if (mcb_bus == 0 && slave_num > 0) {  // VTSS_PORT_INTERFACE_SGMII MACRO
+        // Modify bits 193-192  PRBS_SEL=PRBS7
+        VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES1G_DIG_CFG_PRBS_SEL_1G + 1, VTSS_TESLA_SERDES1G_DIG_CFG_PRBS_SEL_1G, VTSS_TESLA_SERDES_PRBS_7));
+
+        if (prbs_ena) {
+            // Modify bits 191-189  TEST_MODE=BIST
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES1G_DIG_CFG_TEST_MODE_1G + 2, VTSS_TESLA_SERDES1G_DIG_CFG_TEST_MODE_1G, VTSS_TESLA_SERDES_TEST_MODE_BIST));
+        } else {
+            // Modify bits 191-189  TEST_MODE=OFF
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES1G_DIG_CFG_TEST_MODE_1G + 2, VTSS_TESLA_SERDES1G_DIG_CFG_TEST_MODE_1G, VTSS_TESLA_SERDES_TEST_MODE_OFF));
+        }
+
+        // 1000BASE-X/SGMII
+        if (is_fiber) {
+            // Setup MicroCmd for Write out the MCB - 1G Macro
+            micro_cmd = 0x8040 | ((1 << portAddr) << 8);
+            VTSS_I("port_no: %d, Media = FIBER (1000BX): Setting 1G MEDIA SerDes,  mcb_bus: %d, slave: %d, Cmd: 0x%x", port_no, mcb_bus, slave_num, micro_cmd);
+        } else {
+            // Setup MicroCmd for Write out the MCB - 1G Macro
+            if (portAddr == 0) {
+                micro_cmd = 0x9c40;
+            } else {
+                micro_cmd = 0x9040 | (portAddr << 8);
+            }
+            VTSS_I("port_no: %d, MAC = SGMII: Setting 1G MAC SerDes, mcb_bus: %d, slave: %d,  Cmd: 0x%x", port_no, mcb_bus, slave_num, micro_cmd);
+        }
+    }
+
+    // Step 3: Write the MCB Array back out to take effect
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, micro_cmd)); // Write MCB for 1G macros X from PRAM
+    (void) vtss_phy_wait_for_micro_complete(vtss_state, port_no);
+
+    return VTSS_RC_OK;
+}
+
+// Function for configuring/updating the MAC SerDes PRBS PHY settings.
+// In - port_no - Phy port number.
+// In - prbs_ena - PRBS Enable  (TRUE=Enable/FALSE=Disable)
+static vtss_rc vtss_phy_tesla_serdes_prbs_conf_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL prbs_ena)
+{
+    vtss_port_no_t         chip_port_no;
+    vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    vtss_phy_reset_conf_t *conf = &ps->reset;
+    u8 slave_num = 0;
+    u8 mcb_bus = 0;
+    BOOL  is_fiber = FALSE;
+
+    if (ps->family != VTSS_PHY_FAMILY_TESLA) {
+        return (VTSS_RC_OK);
+    }
+
+    chip_port_no = vtss_phy_chip_port(vtss_state, port_no);
+
+    if (vtss_state->sync_calling_private) {
+        return VTSS_RC_OK;
+    }
+
+    switch (ps->family) {
+    case VTSS_PHY_FAMILY_TESLA :
+        // set mem_addr to cfg_buf (0xd7c7 for Tesla)
+        //mem_addr = 0xD7c7;
+
+        // assume MCB bus is passed in as mcb_bus
+        //    it is passed to 8051 in bits 7:4
+        //    0: SerDes 1G
+        //    1: SerDes 6G
+        //    2: LCPLL/RComp
+
+        //    it is passed to 8051 in bits 12:8
+        //    for 1G the range is 0-7 (see port to MCB mappings in TN1121)
+        //    for GG the range is 0-3 (see port to MCB mappings in TN1121)
+        //    for LCPLL/RComp (only one) the value is always 0
+        if (conf->mac_if ==  VTSS_PORT_INTERFACE_QSGMII) {  // QSGMII mapping (these are one macro per quad)
+            mcb_bus = 1;  // only 6G macros used for QSGMII MACs
+            switch (chip_port_no) {
+            // 6G macro 0 not used in QSGMII mode
+            case 0 :    // 6G macro 0
+            case 1 :
+            case 2 :
+            case 3 :
+                slave_num = 0;
+                break;
+            default :
+                VTSS_E("Invalid port:%d", port_no);;
+            }
+        } else { // SGMII
+            switch (chip_port_no) {
+            // all 6G and 1G macros used for MACs in this mode
+            case 0 :    // 6G macro 0
+                mcb_bus = 1;
+                slave_num = 0;
+                break;
+            case 1 :    // 1G macro 1
+                mcb_bus = 0;
+                slave_num = 1;
+                break;
+            case 2 :    // 1G macro 3
+                mcb_bus = 0;
+                slave_num = 3;
+                break;
+            case 3 :    // 1G macro 5
+                mcb_bus = 0;
+                slave_num = 5;
+                break;
+            default :
+                VTSS_E("Invalid port:%d", port_no);  // some sort of error handling should go here
+            }
+        }
+        break;
+    default:
+        VTSS_I("Patch setting get not supported for family:%s", vtss_phy_family2txt(ps->family));
+        return (VTSS_RC_ERROR);
+    }
+
+    // MAC ports
+    VTSS_RC(vtss_phy_tesla_serdes_sd6g_1g_prbs_conf_private(vtss_state, port_no, mcb_bus, slave_num, is_fiber, prbs_ena));
+
+    return VTSS_RC_OK;
+}
+#endif
+
+
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
 // Function to set the ob_post0 parameter after configuring the 6G macro for QSGMII for ATOM12
 // In : port_no - Port to configure
 //      val     - Value to configure
 static vtss_rc vtss_phy_cfg_ob_post0_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 val)
 {
-    u8 tmp;
-    u16 reg18g = 0;
-    vtss_rc rc = VTSS_RC_OK;
-
     vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    vtss_phy_reset_conf_t *conf = &ps->reset;
+    vtss_rc rc = VTSS_RC_OK;
+    u16 reg18g = 0;
+    u8 tmp;
+
+    if (conf->mac_if !=  VTSS_PORT_INTERFACE_QSGMII) {
+        VTSS_I("vtss_phy_cfg_ob_post0 not supported on Non-QSGMII MAC i/f at port %u, Chip family:%s", port_no + 1, vtss_phy_family2txt(vtss_state->phy_state[port_no].family));
+        return VTSS_RC_ERROR;
+    }
+
     switch (ps->family) {
     case VTSS_PHY_FAMILY_ATOM:
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch to micro/GPIO register-page
@@ -4494,11 +4848,9 @@ static vtss_rc vtss_phy_cfg_ob_post0_private(vtss_state_t *vtss_state, vtss_port
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0xd7d8));  // set mem_addr to cfg_buf[9] (0x47d8)
         (void)(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
 
-
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8007));  // read the value of cfg_buf[9] w/o post-incr.
         VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
-
 
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
         // get bits 11:4 from return value and mask off upper 3 bits
@@ -4549,11 +4901,9 @@ static vtss_rc vtss_phy_cfg_ob_post0_private(vtss_state_t *vtss_state, vtss_port
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0xd7d0));  // set mem_addr to cfg_buf[9] (0x47d0)
         (void)(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
 
-
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8007));  // read the value of cfg_buf[9] w/o post-incr.
         VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
-
 
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
         // get bits 11:4 from return value and mask off upper 3 bits
@@ -4595,6 +4945,154 @@ static vtss_rc vtss_phy_cfg_ob_post0_private(vtss_state_t *vtss_state, vtss_port
     return rc;
 }
 #endif
+
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+
+// Function to set the ob_post0, ob_post1, ob_prec parameter after configuring the 6G macro for QSGMII for TESLA
+// In : port_no - Port to configure
+//      ob_post0     - Value to configure for ob_post0, 6 bits, Range 0-63
+//      ob_post1     - Value to configure for ob_post1, 5 bits, Range 0-31
+//      ob_prec      - Value to configure for ob_prec,  5 bits, Range 0-31
+//
+static vtss_rc vtss_phy_cfg_ob_cntrl_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 mcb_bus, u8 slave_num, u8 ob_post0, u8 ob_post1, u8 ob_prec)
+{
+    vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    vtss_rc rc = VTSS_RC_OK;
+
+    if (mcb_bus == 1 && slave_num == 0) {   // VTSS_PORT_INTERFACE_QSGMII MACRO - one macro per quad)
+        switch (ps->family) {
+        case VTSS_PHY_FAMILY_TESLA:
+            // fetch MCB data
+            VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));     // Switch to micro/GPIO register-page
+            VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, (0x8003 | (slave_num << 8) | (mcb_bus << 4))));     // Read MCB macro into PRAM
+            VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+            VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));     // Switch back to micro/GPIO register-page
+            VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, VTSS_TESLA_MCB_CFG_BUF_START_ADDR));    // 0xd7c7
+            VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+            // ob_post0 = cfg_vec[ 82: 77], 6 bits
+            // ob_post1 = cfg_vec[ 76: 72], 5 bits
+            // ob_prec =  cfg_vec[ 71: 67], 5 bits
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST0_6G + 5 , VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST0_6G, ob_post0));
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST1_6G + 4 , VTSS_TESLA_SERDES6G_ANA_CFG_OB_POST1_6G, ob_post1));
+            VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_ANA_CFG_OB_PREC_6G + 4 , VTSS_TESLA_SERDES6G_ANA_CFG_OB_PREC_6G, ob_prec));
+
+            VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+            VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x9c40));  // Write MCB for 6G macro 0 from PRAM
+            VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+            break;
+        default:
+            rc = VTSS_RC_ERROR;
+            VTSS_I("vtss_phy_cfg_ob_cntrl_private not supported at port %u, Chip family:%s", port_no + 1, vtss_phy_family2txt(vtss_state->phy_state[port_no].family));
+        }
+    } else {
+        VTSS_I("vtss_phy_cfg_ob_cntrl_private Only QSGMII supported at port %u, Chip family:%s", port_no + 1, vtss_phy_family2txt(vtss_state->phy_state[port_no].family));
+        rc = VTSS_RC_ERROR;
+    }
+    return rc;
+}
+
+// Function for configuring/updating the MAC SerDes PRBS PHY settings.
+// In - port_no - Phy port number.
+// In - mode - INIT of MAC or MEDIA i/f values
+// In - ob_post0 - ob_post0 value (6 bits: range 0-63)
+// In - ob_post1 - ob_post0 value (5 bits: range 0-31)
+// In - ob_prec  - ob_prec  value (5 bits: range 0-31)
+static vtss_rc vtss_phy_tesla_serdes_ob_cntrl_conf_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_phy_serdes_init_t mode, u8 ob_post0, u8 ob_post1, u8 ob_prec)
+{
+    vtss_port_no_t         chip_port_no;
+    vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+    vtss_phy_reset_conf_t *conf = &ps->reset;
+    u8 slave_num = 0;
+    u8 mcb_bus = 0;
+
+    if (ps->family != VTSS_PHY_FAMILY_TESLA) {
+        return (VTSS_RC_OK);
+    }
+
+    chip_port_no = vtss_phy_chip_port(vtss_state, port_no);
+
+    if (vtss_state->sync_calling_private) {
+        return VTSS_RC_OK;
+    }
+
+    switch (ps->family) {
+    case VTSS_PHY_FAMILY_TESLA :
+        // set mem_addr to cfg_buf (0xd7c7 for Tesla)
+        //mem_addr = 0xD7c7;
+
+        // assume MCB bus is passed in as mcb_bus
+        //    it is passed to 8051 in bits 7:4
+        //    0: SerDes 1G
+        //    1: SerDes 6G
+        //    2: LCPLL/RComp
+
+        //    it is passed to 8051 in bits 12:8
+        //    for 1G the range is 0-7 (see port to MCB mappings in TN1121)
+        //    for GG the range is 0-3 (see port to MCB mappings in TN1121)
+        //    for LCPLL/RComp (only one) the value is always 0
+        if (conf->mac_if ==  VTSS_PORT_INTERFACE_QSGMII) {  // QSGMII mapping (these are one macro per quad)
+            mcb_bus = 1;  // only 6G macros used for QSGMII MACs
+            switch (chip_port_no) {
+            // 6G macro 0 not used in QSGMII mode
+            case 0 :    // 6G macro 0
+            case 1 :
+            case 2 :
+            case 3 :
+                slave_num = 0;
+                break;
+            default :
+                VTSS_E("Invalid port:%d", port_no);;
+            }
+        } else { // SGMII
+            switch (chip_port_no) {
+            // all 6G and 1G macros used for MACs in this mode
+            case 0 :    // 6G macro 0
+                mcb_bus = 1;
+                slave_num = 0;
+                break;
+            case 1 :    // 1G macro 1
+                mcb_bus = 0;
+                slave_num = 1;
+                break;
+            case 2 :    // 1G macro 3
+                mcb_bus = 0;
+                slave_num = 3;
+                break;
+            case 3 :    // 1G macro 5
+                mcb_bus = 0;
+                slave_num = 5;
+                break;
+            default :
+                VTSS_E("Invalid port:%d", port_no);  // some sort of error handling should go here
+            }
+        }
+        break;
+    default:
+        VTSS_I("OB CNTRL not supported for family:%s", vtss_phy_family2txt(ps->family));
+        return (VTSS_RC_ERROR);
+    }
+
+    /* Configure the MAC SerDes OB_CNTRL   */
+    if (mode == VTSS_PHY_SERDES_INIT_MAC) {
+        // MAC ports
+        VTSS_I("Setting SERDES OB_CNTRL (MAC) for family:%s,  port_no:%d, ob_post0:0x%x, ob_post1:0x%x, ob_prec:0x%x",
+                       vtss_phy_family2txt(ps->family), port_no, ob_post0, ob_post1, ob_prec);
+
+        VTSS_RC(vtss_phy_cfg_ob_cntrl_private(vtss_state, port_no, mcb_bus, slave_num, ob_post0, ob_post1, ob_prec));
+
+    } else {
+        VTSS_I("vtss_phy_tesla_serdes_ob_cntrl_conf_private: OB_CNTRL Only Supported for QSGMII MAC port: %u, Chip family:%s", port_no + 1, vtss_phy_family2txt(vtss_state->phy_state[port_no].family));
+        return (VTSS_RC_ERROR);
+    }
+
+    return VTSS_RC_OK;
+}
+
+
+#endif
+
 
 // Function that check if mac interface for a specific port  has changed since the last time this function was called.
 // Needed for Bugzero#48512, Changing speed at one port gives CRC errors at other ports.
@@ -15450,3 +15948,167 @@ vtss_rc vtss_phy_epg_gen_kat_frame( const vtss_inst_t        inst,
 }
 
 #endif /* VTSS_FEATURE_MACSEC && KAT_TEST_ENABLE_1G */
+
+// Function for configuring/updating the MAC SerDes OB_CNTRL PHY settings.
+// In - port_no - Phy port number.
+// Out - ob_post0 - ob_post0 value (6 bits: range 0-63)
+// Out - ob_post1 - ob_post0 value (5 bits: range 0-31)
+// Out - ob_prec  - ob_prec  value (5 bits: range 0-31)
+vtss_rc vtss_phy_mac_serdes_ob_cntrl_get(const vtss_inst_t    inst,
+                                           const vtss_port_no_t port_no,
+                                           u8                  *ob_post0,
+                                           u8                  *ob_post1,
+                                           u8                  *ob_prec)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc = VTSS_RC_ERROR;
+    u8           mcb_bus = 0;
+    u8           cfg_buf[MAX_CFG_BUF_SIZE] = {0};
+    u8           stat_buf[MAX_STAT_BUF_SIZE] = {0};
+
+    VTSS_ENTER();
+    VTSS_D("Enter vtss_phy_mac_serdes_ob_cntrl_get port_no:%d", port_no);
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+        rc = vtss_phy_patch_setttings_get_private(vtss_state, port_no, &mcb_bus, &cfg_buf[0], &stat_buf[0]);
+
+        if (rc == VTSS_RC_OK) {
+            *ob_prec = (cfg_buf[8] & 0xf8) >> 3;
+            *ob_post1 = cfg_buf[9] & 0x1f;
+            *ob_post0 = ((cfg_buf[10] & 0x07) << 3) | ((cfg_buf[9] & 0xe0) >> 5);
+             VTSS_D("Port: %x: MAC SerDes cfg_buf[8]:0x%x, cfg_buf[9]: 0x%x, cfg_buf[10]: 0x%x \n", port_no, cfg_buf[8], cfg_buf[9], cfg_buf[10]);
+             VTSS_I("Port: %x: MAC SerDes ob_prec: 0x%x, ob_post1: 0x%x, ob_post0: 0x%x \n", port_no, *ob_prec, *ob_post1, *ob_post0);
+        }
+#endif
+    }
+    VTSS_EXIT();
+
+    return rc;
+}
+
+// Function for configuring/updating the MAC SerDes OB_CNTRL PHY settings.
+// In - port_no - Phy port number.
+// In - ob_post0 - ob_post0 value (6 bits: range 0-63)
+// In - ob_post1 - ob_post0 value (5 bits: range 0-31)
+// In - ob_prec  - ob_prec  value (5 bits: range 0-31)
+vtss_rc vtss_phy_mac_serdes_ob_cntrl_set(const vtss_inst_t    inst,
+                                           const vtss_port_no_t port_no,
+                                           const u8   ob_post0,
+                                           const u8   ob_post1,
+                                           const u8   ob_prec)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc = VTSS_RC_ERROR;
+
+    VTSS_ENTER();
+    VTSS_D("Enter vtss_phy_mac_serdes_ob_cntrl_set port_no:%d", port_no);
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        /* -- Step 1: Detect PHY type and family -- */
+        rc = vtss_phy_detect(vtss_state, port_no);
+
+        if (rc == VTSS_RC_OK) {
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+            if (vtss_state->phy_state[port_no].family == VTSS_PHY_FAMILY_TESLA) {
+                rc = VTSS_RC_COLD(vtss_phy_tesla_serdes_ob_cntrl_conf_private(vtss_state, port_no, VTSS_PHY_SERDES_INIT_MAC, ob_post0, ob_post1, ob_prec));
+            } else {
+                VTSS_I("vtss_phy_mac_serdes_ob_cntrl_set NOT SUPPORTED!  port_no:%d", port_no);
+            }
+#else
+            VTSS_E("vtss_phy_mac_serdes_ob_cntrl_set NOT  compiled into build!  port_no:%d", port_no);
+#endif
+        }
+    }
+    VTSS_EXIT();
+
+    return rc;
+}
+
+// Function for Retrieving the MAC SerDes PRBS PHY settings.
+// In - port_no - Phy port number.
+// Out - ob_post0 - ob_post0 value (6 bits: range 0-63)
+// Out - ob_post1 - ob_post0 value (5 bits: range 0-31)
+// Out - ob_prec  - ob_prec  value (5 bits: range 0-31)
+//
+vtss_rc vtss_phy_serdes_prbs_conf_get (const vtss_inst_t    inst,
+                                       const vtss_port_no_t port_no,
+                                       u8                  *test_sel,
+                                       u8                  *prbs)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc = VTSS_RC_ERROR;
+    u8           mcb_bus = 0;
+    u8           cfg_buf[MAX_CFG_BUF_SIZE] = {0};
+    u8           stat_buf[MAX_STAT_BUF_SIZE] = {0};
+
+    VTSS_ENTER();
+    VTSS_D("Enter vtss_phy_serdes_prbs_conf_get port_no:%d", port_no);
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+        vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
+        vtss_phy_reset_conf_t *conf = &ps->reset;
+
+        rc = vtss_phy_patch_setttings_get_private(vtss_state, port_no, &mcb_bus, &cfg_buf[0], &stat_buf[0]);
+
+        if (rc == VTSS_RC_OK) {
+            if (conf->mac_if ==  VTSS_PORT_INTERFACE_QSGMII) {  // QSGMII mapping (these are one macro per quad)
+                // bits 286-284  TEST_MODE=BIST
+                // bits 288-287  PRBS_SEL=PRBS7
+                *prbs = (cfg_buf[36] & 0x1) << 1 | (cfg_buf[35] & 0x80) >> 7 ;
+                *test_sel = cfg_buf[35] & 0x70 >> 4;
+            } else if (conf->mac_if ==  VTSS_PORT_INTERFACE_SGMII) {  // SGMII mapping (these are four macro per quad)
+                // bits 193-192  PRBS_SEL=PRBS7
+                // bits 191-189  TEST_MODE=BIST
+                *prbs = cfg_buf[24] & 0x3;
+                *test_sel = cfg_buf[23] & 0xe0 >> 5;
+            }
+
+             VTSS_D("Port: %x: MAC SerDes PRBS: 1G-cfg_buf[24]:0x%x, 6G-cfg_buf[35]: 0x%x cfg_buf[36]: 0x%x \n", port_no, cfg_buf[24], cfg_buf[35], cfg_buf[36]);
+             VTSS_D("Port: %x: MAC SerDes Test Mode: 0x%x,   PRBS: 0x%x\n", port_no, *test_sel, *prbs);
+        }
+#endif
+    }
+    VTSS_EXIT();
+
+    return rc;
+}
+
+// Function to Enable/Disable the SerDes PRBS within the PHY.
+// In - port_no - Phy port number.
+// In - prbs_ena - PRBS7 Enable  (TRUE=Enable/FALSE=Disable)
+vtss_rc vtss_phy_serdes_prbs_conf_set(const vtss_inst_t    inst,
+                                      const vtss_port_no_t port_no,
+                                      const BOOL           prbs_ena)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc = VTSS_RC_ERROR;
+
+    VTSS_ENTER();
+    VTSS_D("Enter vtss_phy_media_serdes_ob_cntrl_set port_no:%d", port_no);
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        /* -- Step 1: Detect PHY type and family -- */
+        rc = vtss_phy_detect(vtss_state, port_no);
+
+        // For QSGMII MAC
+        // Modify bits 286-284  TEST_MODE=BIST
+        // Modify bits 288-287  PRBS_SEL=PRBS7
+        // For SGMII MAC
+        // Modify bits 193-192  PRBS_SEL=PRBS7
+        // Modify bits 191-189  TEST_MODE=BIST
+
+        if (rc == VTSS_RC_OK) {
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
+            if (vtss_state->phy_state[port_no].family == VTSS_PHY_FAMILY_TESLA) {
+                rc = VTSS_RC_COLD(vtss_phy_tesla_serdes_prbs_conf_private(vtss_state, port_no, prbs_ena));
+            } else {
+                VTSS_I("vtss_phy_serdes_prbs_conf NOT SUPPORTED!  port_no:%d", port_no);
+            }
+#else
+            VTSS_E("vtss_phy_serdes_prbs_conf NOT compiled into build!  port_no:%d", port_no);
+#endif
+        }
+    }
+    VTSS_EXIT();
+
+    return rc;
+}

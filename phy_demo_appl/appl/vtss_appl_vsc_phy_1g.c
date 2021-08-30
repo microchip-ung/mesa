@@ -1296,8 +1296,8 @@ int main(int argc, const char **argv) {
 #endif
 #ifdef  TESLA_EVAL_BOARD
         printf ("//Comment: Setup of VSC8574 - Tesla Eval Board \n");
-        //mac_if = VTSS_PORT_INTERFACE_QSGMII;
-        mac_if = VTSS_PORT_INTERFACE_SGMII;
+        mac_if = VTSS_PORT_INTERFACE_QSGMII;
+        //mac_if = VTSS_PORT_INTERFACE_SGMII;
         //mac_if = VTSS_PORT_INTERFACE_RGMII;
         media_if = VTSS_PHY_MEDIA_IF_CU;
 #endif
@@ -1428,7 +1428,7 @@ int main(int argc, const char **argv) {
         printf ("ALL MAC I/F defaulted to: %s \n", p_mac_if_name);
         printf ("ALL MEDIA I/F defaulted to: %s \n", p_media_if_name);
 
-#if 0
+#if 1
         printf ("Are Default MAC I/F and MEDIA I/F for ALL Ports Ok ? (Y/N)  \n");
         memset (&value_str[0], 0, sizeof(value_str));
         scanf("%s", &value_str[0]);
@@ -1685,6 +1685,8 @@ int main(int argc, const char **argv) {
             printf (" rd_1588   <port_no> - CSR_Read 1588 MACRO |  wr_1588     <port_no> - CSR_Write 1588 MACRO \n");
             printf (" rd_macsec <port_no> - CSR_Read MACSEC CSR |  wr_macsec   <port_no> - CSR_Write MACSEC CSR MACRO \n");
             printf (" getserdes <port_no> - Get the SerDes Cfg  |                                                     \n");
+            printf (" getobcntrl <port_no> - Get OB_CNTRL Cfg   |  setobcntrl  <port_no> - Set SerDes OB_CNTRL Cfg    \n");
+            printf (" getprbs    <port_no> - Get PRBS Cfg       |  setprbs     <port_no> - Set SerDes PRBS Cfg          \n");
 
 #ifndef NANO_EVAL_BOARD
             printf (" ob_post  <port_no> - ob_post SerDes Macro |  ob_level    <port_no> - Run ob_level SerDes Macro \n");
@@ -3786,6 +3788,154 @@ int main(int argc, const char **argv) {
                         printf(" \n");
                      }
                  }
+            }
+
+            continue;
+
+        } else if (strcmp(command, "getprbs") == 0) {
+            vtss_rc  rc;
+            u8 prbs = 0;
+            u8 test_mode = 0;
+            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
+                continue;
+            }
+
+            rc = vtss_phy_serdes_prbs_conf_get(board->inst, port_no, &test_mode, &prbs);
+
+            printf ("Port %d, Test_Mode: %u,   PRBS: %u, (PRBS7=0)     rc = %d \n", port_no, test_mode, prbs, rc);
+
+            continue;
+
+        } else if (strcmp(command, "setprbs") == 0) {
+            vtss_rc  rc;
+            u8 prbs_ena = 0;
+            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
+                continue;
+            }
+
+            printf ("Port %d, Please Enter PRBS Enable=1/Disable=0: \n", port_no);
+            memset (&value_str[0], 0, sizeof(value_str));
+            scanf("%s", &value_str[0]);
+            if (value_str[0] == '1') {
+                prbs_ena = 1;
+            } else {
+                prbs_ena = 0;
+            }
+
+            rc = vtss_phy_serdes_prbs_conf_set(board->inst, port_no, prbs_ena);
+
+            printf ("Port %d, PRBS7_ENA: %u,     rc = %d \n", port_no, prbs_ena, rc);
+
+            continue;
+
+       } else if (strcmp(command, "getobcntrl")  == 0) {
+            vtss_phy_reset_conf_t   phy_resetCfg;
+            vtss_rc                 rc;
+            char                   *mac_if_descr;
+            char                   *media_if_descr;
+            char                   *p_mac_if_name = NULL;
+            char                   *p_media_if_name = NULL;
+            u8                      ob_post0_rd = 0;
+            u8                      ob_post1_rd = 0;
+            u8                      ob_prec_rd  = 0;
+
+            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
+                continue;
+            }
+
+            vtss_phy_reset_get(board->inst, port_no, &phy_resetCfg);
+            p_mac_if_name = get_mac_if_name_by_mac_id( phy_resetCfg.mac_if );
+            p_media_if_name = get_media_if_name_by_media_id( phy_resetCfg.media_if);
+
+            if ((p_mac_if_name != NULL) && (p_media_if_name != NULL)) {
+                printf ("Port No: %d, MAC I/F: %s     MEDIA I/F: %s \n", port_no, p_mac_if_name, p_media_if_name);
+            } else {
+                printf ("Port No: %d, MAC I/F: 0x%x   MEDIA I/F: 0x%x \n", port_no, phy_resetCfg.mac_if, phy_resetCfg.media_if);
+            }
+
+            // ob_post0 = cfg_vec[ 82: 77] 6 bits
+            // ob_post1 = cfg_vec[ 76: 72] 5 bits
+            // ob_prec  = cfg_vec[ 71: 67] 5 bits
+            if (phy_resetCfg.mac_if == VTSS_PORT_INTERFACE_QSGMII) {
+                if (port_no == 0) {
+                    rc = vtss_phy_mac_serdes_ob_cntrl_get(board->inst, port_no, &ob_post0_rd, &ob_post1_rd, &ob_prec_rd);
+
+                    printf(" Getting OB_CNTRL Setting \n");
+                    printf("Port: %x: MAC SerDes ob_prec: 0x%x, ob_post1: 0x%x, ob_post0: 0x%x \n", port_no, ob_prec_rd, ob_post1_rd, ob_post0_rd);
+                }
+            } else if (phy_resetCfg.mac_if == VTSS_PORT_INTERFACE_SGMII) {
+                printf(" OB_CNTRL Getting NOT Supported \n");
+            }
+
+            continue;
+
+        } else if (strcmp(command, "setobcntrl")  == 0) {
+            vtss_phy_reset_conf_t   phy_resetCfg;
+            vtss_rc                 rc;
+            char                   *mac_if_descr;
+            char                   *media_if_descr;
+            char                   *p_mac_if_name = NULL;
+            char                   *p_media_if_name = NULL;
+            u16                     i;
+            u8                      ob_post0 = 0;
+            u8                      ob_post1 = 0;
+            u8                      ob_prec  = 0;
+            u8                      ob_post0_rd = 0;
+            u8                      ob_post1_rd = 0;
+            u8                      ob_prec_rd  = 0;
+
+            if (get_valid_port_no(&port_no, port_no_str) == FALSE) {
+                continue;
+            }
+
+            printf ("\nPort %d, Enter OB_POST0 Value (0-0x3f) to be Written (in Hex): ", port_no);
+            memset (&value_str[0], 0, sizeof(value_str));
+            scanf("%s", &value_str[0]);
+            ob_post0 = strtol(value_str, NULL, 16);
+
+            printf ("\nPort %d, Enter OB_POST1 Value (0-0x1f) to be Written (in Hex): ", port_no);
+            memset (&value_str[0], 0, sizeof(value_str));
+            scanf("%s", &value_str[0]);
+            ob_post1 = strtol(value_str, NULL, 16);
+
+            printf ("\nPort %d, Enter OB_PREC Value (0-0x1f) to be Written (in Hex): ", port_no);
+            memset (&value_str[0], 0, sizeof(value_str));
+            scanf("%s", &value_str[0]);
+            ob_prec = strtol(value_str, NULL, 16);
+
+            for (port_no = 0; port_no < 4; port_no++) {
+                vtss_phy_reset_get(board->inst, port_no, &phy_resetCfg);
+                p_mac_if_name = get_mac_if_name_by_mac_id( phy_resetCfg.mac_if );
+                p_media_if_name = get_media_if_name_by_media_id( phy_resetCfg.media_if);
+
+                if ((p_mac_if_name != NULL) && (p_media_if_name != NULL)) {
+                    printf ("Port No: %d, MAC I/F: %s     MEDIA I/F: %s \n", port_no,
+                         p_mac_if_name, p_media_if_name);
+                } else {
+                    printf ("Port No: %d, MAC I/F: 0x%x     MEDIA I/F: 0x%x \n", port_no,
+                         phy_resetCfg.mac_if, phy_resetCfg.media_if);
+                }
+
+                // ob_post0 = cfg_vec[ 82: 77] 6 bits Range 0-63
+                // ob_post1 = cfg_vec[ 76: 72] 5 bits Range 0-1f
+                // ob_prec  = cfg_vec[ 71: 67] 5 bits Range 0-1F
+                if (phy_resetCfg.mac_if == VTSS_PORT_INTERFACE_QSGMII) {
+                    if (port_no == 0) {
+                        rc = vtss_phy_mac_serdes_ob_cntrl_get(board->inst, port_no, &ob_post0_rd, &ob_post1_rd, &ob_prec_rd);
+
+                        printf(" Initial OB_CNTRL Setting \n");
+                        printf("Port: %x: MAC SerDes ob_prec: 0x%x, ob_post1: 0x%x, ob_post0: 0x%x \n", port_no, ob_prec_rd, ob_post1_rd, ob_post0_rd);
+
+                        rc = vtss_phy_mac_serdes_ob_cntrl_set(board->inst, port_no, ob_post0, ob_post1, ob_prec);
+
+                        rc = vtss_phy_mac_serdes_ob_cntrl_get(board->inst, port_no, &ob_post0_rd, &ob_post1_rd, &ob_prec_rd);
+
+                        printf(" Updated OB_CNTRL Setting \n");
+                        printf("Port: %x: MAC SerDes ob_prec: 0x%x, ob_post1: 0x%x, ob_post0: 0x%x \n", port_no, ob_prec_rd, ob_post1_rd, ob_post0_rd);
+                    }
+                } else if (phy_resetCfg.mac_if == VTSS_PORT_INTERFACE_SGMII) {
+                    printf(" OB_CNTRL Setting NOT Supported \n");
+                }
             }
 
             continue;

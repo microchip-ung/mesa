@@ -2004,6 +2004,75 @@ mesa_rc mesa_phy_macsec_csr_sd6g_wr(mesa_inst_t          inst,
                                     const uint32_t       csr_reg_addr,
                                     uint32_t             value);
 
+/**
+ * \brief PHY SerDes to Retrieve PRBS Settings
+ *
+ * \param inst [IN]       Target instance reference.
+ * \param port_no [IN]    Port number.
+ * \param test_sel [OUT]  Test Mode (0=OFF, 1=BIST)
+ * \param prbs [OUT]      PRBS Type (0=PRBS7)
+ *
+ * \return Return code. MESA_RC_OK if PRBS Config OK.
+ *                      MESA_RC_ERROR if and error occurred.
+ **/
+mesa_rc mesa_phy_serdes_prbs_conf_get(const mesa_inst_t     inst,
+                                      const mesa_port_no_t  port_no,
+                                      uint8_t              *test_sel,
+                                      uint8_t              *prbs);
+
+/**
+ * \brief PHY SerDes Config to Enable/Disable PRBS7
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param prbs_ena [IN] PRBS7 Enable flag (TRUE=Enable, FALSE=Disable)
+ *
+ * \return Return code. VTSS_RC_OK if PRBS Config OK.
+ *                      VTSS_RC_ERROR if and error occurred.
+ **/
+mesa_rc mesa_phy_serdes_prbs_conf_set(const mesa_inst_t    inst,
+                                      const mesa_port_no_t port_no,
+                                      const mesa_bool_t    prbs_ena);
+
+
+/**
+ * \brief Configure/update PHY MAC i/f SerDes OB_CNTRL Config
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param ob_post0 [IN] SerDes Config Range 0-63
+ * \param ob_post1 [IN] SerDes Config Range 0-31
+ * \param ob_prec  [IN] SerDes Config Range 0-31
+ *
+ * \return Return code. MESA_RC_OK if SerDes OB_CNTRL Config OK.
+ *                      MESA_RC_ERROR if and error occurred.
+ **/
+mesa_rc mesa_phy_mac_serdes_ob_cntrl_set(const mesa_inst_t     inst,
+                                         const mesa_port_no_t  port_no,
+                                         const uint8_t         ob_post0,
+                                         const uint8_t         ob_post1,
+                                         const uint8_t         ob_prec);
+
+
+/**
+ * \brief Retrieve PHY MEDIA i/f SerDes OB_CNTRL Config
+ *
+ * \param inst [IN]      Target instance reference.
+ * \param port_no [IN]   Port number.
+ * \param ob_post0 [OUT] SerDes Config Range 0-63
+ * \param ob_post1 [OUT] SerDes Config Range 0-31
+ * \param ob_prec  [OUT] SerDes Config Range 0-31
+ *
+ * \return Return code. MESA_RC_OK if SerDes OB_CNTRL Config OK.
+ *                      MESA_RC_ERROR if and error occurred.
+ **/
+mesa_rc mesa_phy_mac_serdes_ob_cntrl_get(const mesa_inst_t     inst,
+                                         const mesa_port_no_t  port_no,
+                                         uint8_t              *ob_post0,
+                                         uint8_t              *ob_post1,
+                                         uint8_t              *ob_prec);
+
+
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_PHY_1G_

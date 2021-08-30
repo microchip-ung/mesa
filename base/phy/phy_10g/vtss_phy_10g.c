@@ -763,6 +763,18 @@ static vtss_rc vtss_phy_10g_reset_blocks(vtss_state_t *vtss_state,
 
 
 /* Verify the Phy  */
+static vtss_rc vtss_inst_phy_10G_port_no_check_private(const vtss_inst_t    inst,
+                                                  vtss_state_t         **vtss_state,
+                                                  const vtss_port_no_t port_no)
+{
+    vtss_rc rc;
+
+    rc = vtss_inst_port_no_check(inst, vtss_state, port_no);
+
+    return rc;
+}
+
+/* Verify the Phy  */
 static vtss_rc vtss_inst_phy_10G_no_check_private(const vtss_inst_t    inst,
                                                   vtss_state_t         **vtss_state,
                                                   const vtss_port_no_t port_no)
@@ -2624,7 +2636,7 @@ vtss_rc vtss_phy_10g_init (const vtss_inst_t inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
     VTSS_ENTER();
-    if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_phy_10G_port_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->phy_10g_state[port_no].mode.channel_id = init_conf->channel_conf;
         if((rc = vtss_phy_10g_init_private(vtss_state, port_no)) != VTSS_RC_OK) {
             VTSS_E("vtss_phy_10g_init_private failed on port %u ",port_no);
@@ -2643,7 +2655,7 @@ vtss_rc vtss_phy_10g_mode_get (const vtss_inst_t inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
     VTSS_ENTER();
-    if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_phy_10G_port_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *mode = vtss_state->phy_10g_state[port_no].mode;
 
     }
