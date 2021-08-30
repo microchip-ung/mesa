@@ -394,36 +394,17 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
 
 static mesa_rc port_status_poll(mesa_port_no_t port_no)
 {
-    port_entry_t       *entry;
-    mesa_port_status_t *ps;
-    mepa_driver_status_t phy_status;
+    mesa_rc            rc;
+    port_entry_t       *entry = &port_table[port_no];
+    mesa_port_status_t *ps = &entry->status;;
 
     T_N("Enter, port %d", port_no);
-
-    entry = &port_table[port_no];
-    ps = &entry->status;
-
-    if (entry->media_type == MSCC_PORT_TYPE_CU) {
-        if (meba_phy_status_poll(meba_global_inst, port_no, &phy_status) != MESA_RC_OK) {
-            T_E("meba_phy_status_get(%u) failed (disable polling)", port_no);
-            entry->valid = FALSE; // Polling disabled
-            return MESA_RC_ERROR;
-        }
-        memset(ps, 0, sizeof(*ps));
-        ps->link = phy_status.link;
-        ps->speed = phy_status.speed;
-        ps->fdx = phy_status.fdx;
-        ps->aneg = phy_status.aneg;
-    } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
-        if (mesa_port_status_get(NULL, port_no, ps) != MESA_RC_OK) {
-            T_E("mesa_port_status_get(%u) failed", port_no);
-            return MESA_RC_ERROR;
-        }
+    if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
+        T_E("mesa_port_status_get(%u) failed", port_no);
+        return rc;
     }
-
     T_N("Exit, port %d", port_no);
-
-    return MESA_RC_OK;
+    return rc;
 }
 
 /* ================================================================= *

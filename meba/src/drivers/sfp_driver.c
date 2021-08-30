@@ -38,10 +38,10 @@ static mesa_rc dev_poll(meba_sfp_device_t *dev,
     sfp_data_t *data = (sfp_data_t *)(dev->data);
     mesa_port_status_t mesa_status = {};
 
-    mesa_rc rc = mesa_port_status_get(data->inst, data->port_no, &mesa_status);
+    mesa_rc rc = meba_port_status_get(data->meba_inst, data->port_no, &mesa_status);
     if (rc != MESA_RC_OK) return rc;
 
-    status->link = status->link ? !mesa_status.link_down && mesa_status.link : mesa_status.link;
+    status->link = !mesa_status.link_down && mesa_status.link;
     status->speed = mesa_status.speed;
     status->fdx = mesa_status.fdx;
     status->aneg = mesa_status.aneg;
