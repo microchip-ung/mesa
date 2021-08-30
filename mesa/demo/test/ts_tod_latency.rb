@@ -166,7 +166,7 @@ def tod_latency_test(port0, port1)
             max = 520  #Copper SFP
         end
         if ($ts.dut.pcb == "8290")
-            max = 75   #External PHY
+            max = 90   #External PHY
         end
         if ($ts.dut.pcb == "8309")
             max = 15  #DAC cable
@@ -186,7 +186,7 @@ def tod_latency_test(port0, port1)
     diff = nano_delay_0 - nano_delay_1
     t_i ("delay difference #{diff}")
     diff_tolerance = 9
-    if ($ts.dut.pcb == "8281-SVB")
+    if (($ts.dut.pcb == "8281-SVB") || ($ts.dut.pcb == "8290"))
         diff_tolerance = 20
     end
     if ((diff > (PTP_LATENCY_MAX + diff_tolerance)) || (diff < (PTP_LATENCY_MAX - diff_tolerance)))
@@ -202,7 +202,7 @@ def tod_latency_test(port0, port1)
     diff = nano_delay_0 - nano_delay_2
     t_i ("delay difference #{diff}")
     if ((diff > (PTP_LATENCY_MAX*2 + diff_tolerance)) || (diff < (PTP_LATENCY_MAX*2 - diff_tolerance)))
-        t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency #{PTP_LATENCY_MAX}.  Delay = #{nano_delay_2}")
+        t_e("Unexpected delay with egress latency #{PTP_LATENCY_MAX} and ingress latency #{PTP_LATENCY_MAX}.  Delay = #{nano_delay_2}  tolerance #{diff_tolerance}")
     end
 
     t_i("nano_delay_0 = #{nano_delay_0}  nano_delay_1 = #{nano_delay_1}  nano_delay_2 = #{nano_delay_2}  ")

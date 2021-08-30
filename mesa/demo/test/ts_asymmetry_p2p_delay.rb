@@ -61,12 +61,18 @@ def tod_asymmetry_p2p_delay_test
         else
             t_i("CF ok")
         end
-    else
-        if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) != exp_corr))
+    else if (($ts.dut.pcb == "8281-SVB") || ($ts.dut.pcb == "8290"))
+        if ((lowest_corr_none > 6800) || (lowest_corr_none < 0))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else
             t_i("CF ok")
         end
+    else if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) > exp_corr))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}  exp_corr = #{exp_corr}")
+        else
+            t_i("CF ok")
+        end
+    end
     end
     end
 
