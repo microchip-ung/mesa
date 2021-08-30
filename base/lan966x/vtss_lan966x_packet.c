@@ -249,7 +249,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      u32                   *const ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, seq_num_chip_port = 0;
+    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, seq_num_chip_port = 0, etype_ofs;
     const vtss_vlan_tag_t *tag = &info->tag;
 
     if (ifh == NULL) {
@@ -326,6 +326,21 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
             IFH_SET(ifh, REW_OAM, 1);
             IFH_SET(ifh, PDU_TYPE, pdu_type_calc(info->oam_type));
             IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
+
+            if (info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_TST ||
+                info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_ITST) {
+                if (info->pdu_offset <= 14) {
+                    etype_ofs = 0;
+                } else {
+                    etype_ofs = (info->pdu_offset - 14) / 4;
+                }
+
+                IFH_SET(ifh, ETYPE_OFS, etype_ofs);
+
+                // Don't set "do not rewrite", because then some fields of the
+                // MRP_[In]Test PDUs won't get updated in that case.
+                pop_cnt = 0;
+            }
         } else {
             if ((info->ptp_action == VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ) ||
                 (info->ptp_action == VTSS_PACKET_PTP_ACTION_AFI_NONE)) {

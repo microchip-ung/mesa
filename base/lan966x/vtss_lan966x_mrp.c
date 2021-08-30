@@ -253,7 +253,7 @@ static vtss_rc mrp_control_forwarding(vtss_state_t *vtss_state,  vtss_mrp_data_t
     //vice versa.
     tst_fwd_sel = FWD_NOP; /* Actual TST forwarding is controlled elsewhere if this it the MANAGER */
 
-    /* Frames failing MAC, version and sequence check are "error" forwarded. The manager wilt terminate them. */
+    /* Frames failing MAC, version and sequence check are "error" forwarded. The manager will terminate them. */
     err_fwd_sel = (mrp->conf.ring_role == VTSS_MRP_RING_ROLE_MANAGER) ? FWD_DISCARD : FWD_NOP;
 
     /* Configure forwarding from Primary port */
