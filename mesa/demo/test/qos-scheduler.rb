@@ -98,6 +98,9 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [210,500,0.3], true,             [0,3,7]) # On LAN966X some lower priority frames are slipping through
     else
+    if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT"))
+        measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [200,380,2],  true,              [0,3,7]) # On Ocelot some lower priority frames are slipping through
+    else
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [0,380,2],    true,              [0,3,7]) # On ServalT some lower priority frames are slipping through
     end
     end
