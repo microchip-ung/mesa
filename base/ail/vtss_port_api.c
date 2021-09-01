@@ -640,10 +640,10 @@ static vtss_rc vtss_miim_check(vtss_state_t           *vtss_state,
 
 
 /* MII management read function (IEEE 802.3 clause 22) */
-static vtss_rc vtss_port_miim_read(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
-                                   const u8             addr,
-                                   u16                  *const value)
+static vtss_rc vtss_miim_reg_read(const vtss_inst_t    inst,
+                                  const vtss_port_no_t port_no,
+                                  const u8             addr,
+                                  u16                  *const value)
 {
     vtss_state_t           *vtss_state;
     vtss_rc                rc;
@@ -660,10 +660,10 @@ static vtss_rc vtss_port_miim_read(const vtss_inst_t    inst,
 }
 
 /* MII management write function (IEEE 802.3 clause 22) */
-static vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no,
-                                    const u8             addr,
-                                    const u16            value)
+static vtss_rc vtss_miim_reg_write(const vtss_inst_t    inst,
+                                   const vtss_port_no_t port_no,
+                                   const u8             addr,
+                                   const u16            value)
 {
     vtss_state_t           *vtss_state;
     vtss_rc                rc;
@@ -675,6 +675,38 @@ static vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
     if ((rc = VTSS_FUNC(port.miim_write, miim_controller, miim_addr, addr, value, TRUE)) == VTSS_RC_OK) {
         VTSS_N("port_no: %u, addr: 0x%02x, value: 0x%04x", port_no, addr, value);
     }
+    return rc;
+}
+
+vtss_rc vtss_port_miim_read(const vtss_inst_t    inst,
+                            const vtss_port_no_t port_no,
+                            const u8             addr,
+                            u16                  *const value)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = vtss_miim_reg_read(vtss_state, port_no, addr, value);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
+                             const vtss_port_no_t port_no,
+                             const u8             addr,
+                             const u16            value)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = vtss_miim_reg_write(vtss_state, port_no, addr, value);
+    }
+    VTSS_EXIT();
     return rc;
 }
 
@@ -1044,8 +1076,8 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
     vtss_port_no_t   port_no;
     vtss_init_conf_t *init_conf = &vtss_state->init_conf;
 
-    init_conf->miim_read = vtss_port_miim_read;
-    init_conf->miim_write = vtss_port_miim_write;
+    init_conf->miim_read = vtss_miim_reg_read;
+    init_conf->miim_write = vtss_miim_reg_write;
     init_conf->mmd_read = vtss_mmd_reg_read;
     init_conf->mmd_read_inc = vtss_mmd_reg_read_inc;
     init_conf->mmd_write = vtss_mmd_reg_write;

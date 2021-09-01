@@ -286,6 +286,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     vtss_state->chip_count = 1;
 
     switch (create->target) {
+#if defined(VTSS_CHIP_CU_PHY)
     case VTSS_TARGET_CU_PHY:
         arch = VTSS_ARCH_CU_PHY;
 #if defined(VTSS_FEATURE_WIS)
@@ -294,6 +295,8 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         }
 #endif
         break;
+#endif
+#if defined(VTSS_CHIP_10G_PHY)
     case VTSS_TARGET_10G_PHY:
         arch = VTSS_ARCH_10G_PHY;
 #if defined(VTSS_FEATURE_WIS)
@@ -302,6 +305,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         }
 #endif
         break;
+#endif
 #if defined(VTSS_ARCH_OCELOT)
     case VTSS_TARGET_7511:
     case VTSS_TARGET_7512:

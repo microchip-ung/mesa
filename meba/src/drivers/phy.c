@@ -463,6 +463,7 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     mesa_phy_10g_id_t     id;
     mesa_phy_10g_mode_t   mode;
     mesa_phy_10g_status_t status_10g;
+    meba_port_entry_t     entry;
 
     MESA_RC(mesa_port_conf_get(NULL, port_no, &conf));
     switch (conf.if_type) {
@@ -489,7 +490,9 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     MESA_RC(mesa_port_status_get(NULL, port_no, status));
 
     // Check that it is Venice/Malibu
-    if (mesa_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
+    if (inst->api.meba_port_entry_get(inst, port_no, &entry) != MESA_RC_OK ||
+        (entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
+        mesa_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
         (id.family != MESA_PHY_FAMILY_VENICE && id.family != MESA_PHY_FAMILY_MALIBU)) {
         return MESA_RC_OK;
     }

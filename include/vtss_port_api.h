@@ -502,6 +502,36 @@ vtss_rc vtss_port_ifh_conf_get(const vtss_inst_t     inst,
 #endif /* VTSS_FEATURE_PORT_IFH) */
 
 /**
+ * \brief Read value from MIIM register.
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param addr    [IN]  PHY register address.
+ * \param value   [OUT] PHY register value.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_miim_read(const vtss_inst_t    inst,
+                            const vtss_port_no_t port_no,
+                            const u8             addr,
+                            u16                  *const value);
+
+/**
+ * \brief Write value to MIIM register.
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Port number.
+ * \param addr    [IN]  PHY register address.
+ * \param value   [IN]  PHY register value.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
+                             const vtss_port_no_t port_no,
+                             const u8             addr,
+                             const u16            value);
+
+/**
  * \brief Direct MIIM read (bypassing port map)
  *
  * \param inst            [IN]  Target instance reference.

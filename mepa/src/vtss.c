@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#include <vtss_phy_api.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/switch/api.h>
 #include <microchip/ethernet/phy/api/types.h>
@@ -11,13 +12,100 @@
 
 extern mepa_ts_driver_t vtss_ts_drivers;
 
+static vtss_inst_t vtss_inst;
+static int vtss_inst_cnt;
+static mscc_phy_driver_address_t vtss_addr;
+
+// MIIM/MMD wrapper functions
+static vtss_rc miim_read(const vtss_inst_t    inst,
+                         const vtss_port_no_t port_no,
+                         const u8             addr,
+                         u16                  *const value)
+{
+    return vtss_addr.port_miim_read(NULL, port_no, addr, value);
+}
+
+static vtss_rc miim_write(const vtss_inst_t    inst,
+                          const vtss_port_no_t port_no,
+                          const u8             addr,
+                          const u16            value)
+{
+    return vtss_addr.port_miim_write(NULL, port_no, addr, value);
+}
+
+static vtss_rc mmd_read(const vtss_inst_t    inst,
+                        const vtss_port_no_t port_no,
+                        const u8             mmd,
+                        const u16            addr,
+                        u16                  *const value)
+{
+    return vtss_addr.mmd_read(NULL, port_no, mmd, addr, value);
+}
+
+static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
+                            const vtss_port_no_t port_no,
+                            const u8             mmd,
+                            const u16            addr,
+                            u16                  *const buf,
+                            u8                   count)
+{
+    return vtss_addr.mmd_read_inc(NULL, port_no, mmd, addr, buf, count);
+}
+
+static vtss_rc mmd_write(const vtss_inst_t    inst,
+                         const vtss_port_no_t port_no,
+                         const u8             mmd,
+                         const u16            addr,
+                         const u16            value)
+{
+    return vtss_addr.mmd_write(NULL, port_no, mmd, addr, value);
+}
+
+static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
+{
+    vtss_phy_init_conf_t conf;
+
+    // Check that port does not exceed PHY instance maximum
+    if (mode->val.mscc_address.port_no >= VTSS_PORTS) {
+        return MEPA_RC_ERROR;
+    }
+
+    // Check that PHY instance can be created
+    if (vtss_inst_cnt == 0) {
+        if (vtss_phy_inst_create(&vtss_inst) != VTSS_RC_OK ||
+            vtss_phy_init_conf_get(NULL, &conf) != VTSS_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+        vtss_addr = mode->val.mscc_address;
+        conf.miim_read = miim_read;
+        conf.miim_write = miim_write;
+        conf.mmd_read = mmd_read;
+        conf.mmd_read_inc = mmd_read_inc;
+        conf.mmd_write = mmd_write;
+        (void)vtss_phy_init_conf_set(NULL, &conf);
+    }
+    vtss_inst_cnt++;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc mscc_vtss_destroy(void)
+{
+    if (vtss_inst_cnt) {
+        vtss_inst_cnt--;
+        if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(vtss_inst) != VTSS_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+    }
+    return MEPA_RC_OK;
+}
+
 static mepa_rc mscc_1g_delete(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     free(data);
     free(dev);
     dev = NULL;
-    return MEPA_RC_OK;
+    return mscc_vtss_destroy();
 }
 
 static mepa_rc reset_phy(phy_data_t *data, mepa_reset_conf_t *conf)
@@ -237,6 +325,10 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
         return NULL;
     }
 
+    if (mscc_vtss_create(mode) != MEPA_RC_OK) {
+        return NULL;
+    }
+
     mepa_device_t *device =
         (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
 
@@ -267,6 +359,7 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
 out_data:
     free(device);
 out_device:
+    (void)mscc_vtss_destroy();
     return NULL;
 }
 
@@ -479,7 +572,7 @@ static mepa_rc phy_10g_delete(mepa_device_t *dev)
     free(data);
     free(dev);
     dev = NULL;
-    return MEPA_RC_OK;
+    return mscc_vtss_destroy();
 }
 
 static mepa_rc malibu_10g_reset(mepa_device_t *dev,
@@ -675,6 +768,10 @@ static mepa_device_t *phy_10g_probe(
         return NULL;
     }
 
+    if (mscc_vtss_create(mode) != MEPA_RC_OK) {
+        return NULL;
+    }
+
     mepa_device_t *device =
         (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
 
@@ -701,6 +798,7 @@ static mepa_device_t *phy_10g_probe(
 out_data:
     free(device);
 out_device:
+    (void)mscc_vtss_destroy();
     return NULL;
 }
 

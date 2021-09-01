@@ -39,6 +39,13 @@ typedef mepa_rc (*mmd_read_t)(const mesa_inst_t                inst,
                               const uint16_t                   addr,
                               uint16_t                        *const value);
 
+typedef mepa_rc (*mmd_read_inc_t)(const mesa_inst_t            inst,
+                                  const mepa_port_no_t         port_no,
+                                  const uint8_t                mmd,
+                                  const uint16_t               addr,
+                                  uint16_t                     *const buf,
+                                  uint8_t                      count);
+
 typedef mepa_rc (*mmd_write_t)(const mesa_inst_t               inst,
                                const mepa_port_no_t            port_no,
                                const uint8_t                   mmd,
@@ -58,6 +65,16 @@ typedef mepa_rc (*miim_write_t)(const mesa_inst_t              inst,
                                 const uint8_t                  miim_addr,
                                 const uint8_t                  addr,
                                 const uint16_t                 value);
+
+typedef mepa_rc (*port_miim_read_t)(const mesa_inst_t          inst,
+                                    const mepa_port_no_t       port_no,
+                                    const uint8_t              addr,
+                                    uint16_t                   *const value);
+
+typedef mepa_rc (*port_miim_write_t)(const mesa_inst_t         inst,
+                                     const mepa_port_no_t      port_no,
+                                     const uint8_t             addr,
+                                     const uint16_t            value);
 
 typedef void (*debug_func_t)(mepa_trace_level_t                level,
                              const char                       *location,
@@ -79,9 +96,12 @@ typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
 // Address mode that is specific for mchp phy.
 typedef struct {
     mmd_read_t              mmd_read;
+    mmd_read_inc_t          mmd_read_inc;
     mmd_write_t             mmd_write;
     miim_read_t             miim_read;
     miim_write_t            miim_write;
+    port_miim_read_t        port_miim_read;
+    port_miim_write_t       port_miim_write;
     mesa_inst_t             inst;
     struct meba_inst        *meba_inst;
     mepa_port_no_t          port_no;

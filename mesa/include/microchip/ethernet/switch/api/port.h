@@ -433,6 +433,24 @@ mesa_rc mesa_port_ifh_conf_get(const mesa_inst_t     inst,
                                mesa_port_ifh_t      *const conf)
     CAP(PORT_IFH);
 
+// Read value from MIIM register.
+// port_no [IN]  Port number.
+// addr    [IN]  PHY register address.
+// value   [OUT] PHY register value.
+mesa_rc mesa_port_miim_read(const mesa_inst_t    inst,
+                            const mesa_port_no_t port_no,
+                            const uint8_t        addr,
+                            uint16_t             *const value);
+
+// Write value to MIIM register.
+// port_no [IN]  Port number.
+// addr    [IN]  PHY register address.
+// value   [IN]  PHY register value.
+mesa_rc mesa_port_miim_write(const mesa_inst_t    inst,
+                             const mesa_port_no_t port_no,
+                             const uint8_t        addr,
+                             const uint16_t       value);
+
 // Direct MIIM read (bypassing port map)
 // chip_no         [IN]  Chip number (if multi-chip instance).
 // miim_controller [IN]  MIIM Controller Instance

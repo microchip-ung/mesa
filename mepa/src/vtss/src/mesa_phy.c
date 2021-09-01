@@ -8781,4 +8781,17 @@ mesa_rc mesa_ewis_perf_mode_get(const mesa_inst_t inst, const mesa_port_no_t por
 }
 #endif  // defined(VTSS_FEATURE_WIS) /* ag.rb:1965 */
 
+#ifdef VTSS_CHIP_CU_PHY
+mesa_rc mesa_phy_patch_settings_get(const mesa_inst_t    inst,
+                                    const mesa_port_no_t port_no,
+                                    const uint8_t        mcb_bus,
+                                    uint8_t              *mcb_res,
+                                    uint8_t              *cfg_buf,
+                                    uint8_t              *stat_buf)
+{
+    *mcb_res = mcb_bus; // INOUT in VTSS API
+    return vtss_phy_patch_settings_get((const vtss_inst_t)inst, port_no, mcb_res, cfg_buf, stat_buf);
+}
+#endif // VTSS_CHIP_CU_PHY
+
 #pragma GCC diagnostic pop

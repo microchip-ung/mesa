@@ -30,6 +30,7 @@ typedef uint8_t            BOOL; /**< Boolean implemented as 8-bit unsigned */
 /** \brief Error code type */
 typedef int vtss_rc;
 
+#ifndef _VTSS_MAIN_TYPES_H_
 /** \brief Error codes */
 enum
 {
@@ -115,6 +116,7 @@ enum
     /*** Clause 37 ERRORS ***/
     VTSS_RC_ERR_PCS_BLOCK_NOT_SUPPORTED         = -300 /**< Invalid access to PCS block */
 }; // Leave it anonymous.
+#endif // _VTSS_MAIN_TYPES_H_
 
 /** \brief Chip number used for targets with multiple chips */
 typedef u32 vtss_chip_no_t;
@@ -143,7 +145,9 @@ typedef u32 vtss_port_no_t;
 #define VTSS_PORT_ARRAY_SIZE VTSS_PORTS
 #define VTSS_PORT_NO_START   (0)          /**< Port start number */
 #define VTSS_PORT_NO_END     (VTSS_PORT_NO_START+VTSS_PORTS) /**< Port end number */
+#ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_PORT_NO_NONE    (0xffffffff) /**< Port number none */
+#endif // _VTSS_MAIN_TYPES_H_
 
 /** \brief VLAN Identifier */
 typedef u16 vtss_vid_t; /* 0-4095 */
@@ -154,7 +158,9 @@ typedef struct
     u8 addr[6];   /**< Network byte order */
 } vtss_mac_t;
 
+#ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_MAC_ADDR_SZ_BYTES    6                 /**< Number of bytes for representing MAC address (SMAC/DMAC) type */
+#endif // _VTSS_MAIN_TYPES_H_
 typedef u8 vtss_mac_addr_t[VTSS_MAC_ADDR_SZ_BYTES]; /**< MAC address (SMAC/DMAC) */
 
 #define MAC_ADDR_BROADCAST {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}  /**< Broadcast address used for addr in the vtss_mac_t struct */
