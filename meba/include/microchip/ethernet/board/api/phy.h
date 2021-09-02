@@ -100,5 +100,8 @@ mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_inf
 // Get combined switch and PHY state
 mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port_status_t *const status);
 
+// Set switch and PHY trace levels
+mepa_rc meba_trace_conf_set(mesa_trace_group_t group, mesa_trace_conf_t *conf);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

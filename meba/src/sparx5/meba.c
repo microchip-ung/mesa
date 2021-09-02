@@ -431,6 +431,11 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     /* Currently unsupported in the API therefore direct write  */
     mesa_reg_write(NULL, 0, 0x4142038, 0xE);
     mesa_reg_write(NULL, 0, 0x4142039, 0xE);
+
+    // Take Aquantia Phy out of reset
+    (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
+    // Delay for aquantia phy coming out of reset
+    VTSS_MSLEEP(50);
 }
 
 static void fa_pcb134_board_init(meba_inst_t inst)
