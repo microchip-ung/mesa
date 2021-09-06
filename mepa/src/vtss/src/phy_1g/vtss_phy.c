@@ -13488,12 +13488,12 @@ vtss_rc vtss_phy_debug_stat_print(const vtss_inst_t         inst,
     return rc;
 }
 
-vtss_rc vtss_phy_debug_info_print(vtss_state_t *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  const vtss_debug_info_t   *const info,
-                                  const BOOL                ail,
-                                  const BOOL                ignore_group_enabled,
-                                  const BOOL                print_hdr)
+vtss_rc vtss_phy_1g_debug_info_print(vtss_state_t *vtss_state,
+                                     const vtss_debug_printf_t pr,
+                                     const vtss_debug_info_t   *const info,
+                                     const BOOL                ail,
+                                     const BOOL                ignore_group_enabled,
+                                     const BOOL                print_hdr)
 {
     vtss_port_no_t        port_no;
     vtss_phy_port_state_t *ps;
@@ -13569,7 +13569,7 @@ vtss_rc vtss_phy_debug_phyinfo_print(const vtss_inst_t         inst,
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         memset(&info, 0, sizeof(info));
         info.port_list[port_no] = TRUE;
-        rc = vtss_phy_debug_info_print(vtss_state, pr, &info, TRUE, TRUE, print_hdr);
+        rc = vtss_phy_1g_debug_info_print(vtss_state, pr, &info, TRUE, TRUE, print_hdr);
     }
     VTSS_EXIT();
     return rc;

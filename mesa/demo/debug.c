@@ -225,6 +225,7 @@ static void cli_cmd_debug_api(cli_req_t *req)
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++)
             mesa_port_list_set(&info.port_list, iport, req->port_list[iport2uport(iport)]);
         mesa_debug_info_print(NULL, cli_printf, &info);
+        meba_phy_debug_info_print(NULL, cli_printf, &info);
     }
 }
 

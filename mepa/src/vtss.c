@@ -61,6 +61,30 @@ static vtss_rc mmd_write(const vtss_inst_t    inst,
     return vtss_addr.mmd_write(NULL, port_no, mmd, addr, value);
 }
 
+static void lock_enter(const vtss_phy_lock_t *const lock)
+{
+    mepa_lock_t mepa_lock;
+
+    if (vtss_addr.lock_enter) {
+        mepa_lock.function = lock->function;
+        mepa_lock.file = lock->file;
+        mepa_lock.line = lock->line;
+        vtss_addr.lock_enter(&mepa_lock);
+    }
+}
+
+static void lock_exit(const vtss_phy_lock_t *const lock)
+{
+    mepa_lock_t mepa_lock;
+
+    if (vtss_addr.lock_exit) {
+        mepa_lock.function = lock->function;
+        mepa_lock.file = lock->file;
+        mepa_lock.line = lock->line;
+        vtss_addr.lock_exit(&mepa_lock);
+    }
+}
+
 static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
 {
     vtss_phy_init_conf_t conf;
@@ -82,6 +106,8 @@ static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
         conf.mmd_read = mmd_read;
         conf.mmd_read_inc = mmd_read_inc;
         conf.mmd_write = mmd_write;
+        conf.lock_enter = lock_enter;
+        conf.lock_exit = lock_exit;
         (void)vtss_phy_init_conf_set(NULL, &conf);
     }
     vtss_inst_cnt++;

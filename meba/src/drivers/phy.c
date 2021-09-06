@@ -439,22 +439,6 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, 
     return phy_dev->drv->mepa_driver_synce_clock_conf_set(phy_dev, conf);
 }
 
-// Get the phy info
-mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info)
-{
-    mepa_device_t *phy_dev;
-
-    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
-        return MESA_RC_ERR_INV_PORT_BOARD;
-    }
-    phy_dev = inst->phy_devices[port_no];
-    if (!phy_dev || !phy_dev->drv->mepa_driver_phy_info_get) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-
-    return phy_dev->drv->mepa_driver_phy_info_get(phy_dev, phy_info);
-}
-
 #define MESA_RC(expr) { mesa_rc rc = expr; if (rc != MESA_RC_OK) { return rc; } }
 
 mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port_status_t *const status)
@@ -581,4 +565,53 @@ mepa_rc meba_trace_conf_set(mesa_trace_group_t group, mesa_trace_conf_t *conf)
         vtss_phy_trace_conf_set(phy_group, &phy_conf);
     }
     return MESA_RC_OK;
+}
+
+mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
+                                  const mesa_debug_printf_t pr,
+                                  const mesa_debug_info_t   *const info)
+{
+    vtss_debug_info_t phy_info;
+    vtss_port_no_t    port_no;
+
+    // Map from MESA to PHY info
+    phy_info.layer = (info->layer == MESA_DEBUG_LAYER_AIL ? VTSS_DEBUG_LAYER_AIL :
+                      info->layer == MESA_DEBUG_LAYER_CIL ? VTSS_DEBUG_LAYER_CIL :
+                      VTSS_DEBUG_LAYER_ALL);
+    if (info->group == MESA_DEBUG_GROUP_ALL) {
+        phy_info.group = VTSS_DEBUG_GROUP_ALL;
+    } else if (info->group == MESA_DEBUG_GROUP_PHY) {
+        phy_info.group = VTSS_DEBUG_GROUP_PHY;
+    } else if (info->group == MESA_DEBUG_GROUP_PHY_TS) {
+        phy_info.group = VTSS_DEBUG_GROUP_PHY_TS;
+    } else if (info->group == MESA_DEBUG_GROUP_MACSEC) {
+        phy_info.group = VTSS_DEBUG_GROUP_MACSEC;
+    } else {
+        return MESA_RC_OK;
+    }
+    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+        phy_info.port_list[port_no] = (port_no < mesa_port_cnt(NULL) ?
+                                       mesa_port_list_get(&info->port_list, port_no) : 0);
+    }
+    phy_info.full = info->full;
+    phy_info.clear = info->clear;
+    phy_info.vml_format = info->vml_format;
+    vtss_phy_debug_info_print(NULL, pr, &phy_info);
+    return MESA_RC_OK;
+}
+
+// Get the phy info
+mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_phy_info_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_phy_info_get(phy_dev, phy_info);
 }

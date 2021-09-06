@@ -94,14 +94,18 @@ mepa_rc meba_phy_gpio_in_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t g
 // Set the phy recovered clock configuration
 mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_synce_clock_conf_t *conf);
 
-// Get the phy info
-mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info);
-
 // Get combined switch and PHY state
 mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port_status_t *const status);
 
 // Set switch and PHY trace levels
 mepa_rc meba_trace_conf_set(mesa_trace_group_t group, mesa_trace_conf_t *conf);
 
+// Debug print for PHY
+mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
+                                  const mesa_debug_printf_t pr,
+                                  const mesa_debug_info_t   *const info);
+
+// Get the phy info
+mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info);
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

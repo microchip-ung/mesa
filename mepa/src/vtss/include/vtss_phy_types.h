@@ -318,68 +318,22 @@ typedef enum {
 /** \brief Debug function group */
 typedef enum {
     VTSS_DEBUG_GROUP_ALL,       /**< All groups */
-    VTSS_DEBUG_GROUP_INIT,      /**< Initialization */
-    VTSS_DEBUG_GROUP_MISC,      /**< Miscellaneous */
-    VTSS_DEBUG_GROUP_PORT,      /**< Port configuration */
-    VTSS_DEBUG_GROUP_PORT_CNT,  /**< Port counters */
     VTSS_DEBUG_GROUP_PHY,       /**< PHY */
-    VTSS_DEBUG_GROUP_VLAN,      /**< VLAN */
-    VTSS_DEBUG_GROUP_PVLAN,     /**< PVLAN */
-    VTSS_DEBUG_GROUP_MAC_TABLE, /**< MAC address table */
-    VTSS_DEBUG_GROUP_ACL,       /**< ACL */
-    VTSS_DEBUG_GROUP_QOS,       /**< QoS */
-    VTSS_DEBUG_GROUP_AGGR,      /**< Link aggregation */
-    VTSS_DEBUG_GROUP_GLAG,      /**< Global link aggregation */
-    VTSS_DEBUG_GROUP_STP,       /**< Spanning Tree */
-    VTSS_DEBUG_GROUP_MIRROR,    /**< Mirroring */
-    VTSS_DEBUG_GROUP_EVC,       /**< EVC */
-    VTSS_DEBUG_GROUP_ERPS,      /**< ERPS */
-    VTSS_DEBUG_GROUP_EPS,       /**< EPS */
-    VTSS_DEBUG_GROUP_SR,        /**< Seamless Redundancy */
-    VTSS_DEBUG_GROUP_PACKET,    /**< Packet control */
-    VTSS_DEBUG_GROUP_FDMA,      /**< Obsoleted */
-    VTSS_DEBUG_GROUP_TS,        /**< TS: TimeStamping */
     VTSS_DEBUG_GROUP_PHY_TS,    /**< PHY_TS: PHY TimeStamping */
-    VTSS_DEBUG_GROUP_WM,        /**< WaterMarks */
-    VTSS_DEBUG_GROUP_LRN,       /**< DEPRECATED. Use VTSS_DEBUG_GROUP_MAC_TABLE instead */
-    VTSS_DEBUG_GROUP_IPMC,      /**< IP Multicast */
-    VTSS_DEBUG_GROUP_STACK,     /**< Stacking */
-    VTSS_DEBUG_GROUP_CMEF,      /**< Congestion Management */
-    VTSS_DEBUG_GROUP_HOST,      /**< CE-MAX Host configuration */
-    VTSS_DEBUG_GROUP_MPLS,      /**< MPLS */
-    VTSS_DEBUG_GROUP_HW_PROT,   /**< HW Protection */
-    VTSS_DEBUG_GROUP_HQOS,      /**< Hierarchical Quality of Service */
-    VTSS_DEBUG_GROUP_VXLAT,     /**< VLAN Translation */
-    VTSS_DEBUG_GROUP_OAM,       /**< OAM, incl. VOEs/VOP */
-    VTSS_DEBUG_GROUP_MRP,       /**< Media Redundancy Protocol (MRP) */
-    VTSS_DEBUG_GROUP_SER_GPIO,  /**< Serial GPIO configuration */
-    VTSS_DEBUG_GROUP_L3,        /**< L3 services */
-    VTSS_DEBUG_GROUP_AFI,       /**< Automatic Frame Injector */
     VTSS_DEBUG_GROUP_MACSEC,    /**< 802.1AE MacSec */
-    VTSS_DEBUG_GROUP_SERDES,    /**< Serdes Macroes */
-    VTSS_DEBUG_GROUP_KR,        /**< 5G/10G/25Base-KR */
-    VTSS_DEBUG_GROUP_MUX,       /**< Mux mode */
 
     /* New groups are added above this line */
     VTSS_DEBUG_GROUP_COUNT      /**< Number of groups */
 } vtss_debug_group_t;
 
-
-/** \brief Special chip number value for showing information from all chips */
-#define VTSS_CHIP_NO_ALL 0xffffffff
-
 /** \brief Debug information structure */
 typedef struct {
     vtss_debug_layer_t           layer;                           /**< Layer */
     vtss_debug_group_t           group;                           /**< Function group */
-    vtss_chip_no_t               chip_no;                         /**< Chip number, multi-chip targets */
     BOOL                         port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */
     BOOL                         full;                            /**< Full information dump */
     BOOL                         clear;                           /**< Clear counters */
     BOOL                         vml_format;                      /**< VML format register dump */
-    BOOL                         has_action;                      /**< Action parameter is present */
-    u32                          action;                          /**< Debug group depending action value */
-    u32                          prm[10];                         /**< Parameters from user */
 } vtss_debug_info_t;
 
 /** \brief Attribute */
@@ -396,6 +350,18 @@ typedef struct {
  */
 typedef int (*vtss_debug_printf_t)(const char *fmt, ...) VTSS_ATTR_PRINTF(1, 2);
 
+/**
+ * \brief Print default information
+ *
+ * \param inst [IN]   Target instance reference.
+ * \param prntf [IN]  Debug printf function.
+ * \param info [IN]   Debug information
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info);
 /**
  * \brief SPI read/write function
  *
@@ -569,6 +535,16 @@ typedef struct {
 } vtss_serdes_macro_conf_t;
 #endif /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
 
+/** \brief API lock structure */
+typedef struct {
+    const char *function; /**< Function name */
+    const char *file;     /**< File name */
+    int        line;      /**< Line number */
+} vtss_phy_lock_t;
+
+// API lock/unlock callback passed by application
+typedef void (*vtss_phy_lock_func_t)(const vtss_phy_lock_t *const lock);
+
 /** \brief Create PHY instance */
 vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst);
 
@@ -593,6 +569,8 @@ typedef struct {
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
     vtss_serdes_macro_conf_t serdes;            /**< Serdes macro configuration */
 #endif /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
+    vtss_phy_lock_func_t     lock_enter;
+    vtss_phy_lock_func_t     lock_exit;
 } vtss_phy_init_conf_t;
 
 /** \brief Get default init configuration */

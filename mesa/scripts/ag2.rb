@@ -110,6 +110,7 @@ $methods_blacklist = [
     "mesa_tx_timestamp_idx_alloc",
     "mesa_tod_set_ns_cnt_cb",
     "mesa_cap_callback_add",
+    "meba_phy_debug_info_print",
 ]
 
 $methods_greylist = [

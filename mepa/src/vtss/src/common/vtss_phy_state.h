@@ -561,8 +561,8 @@ extern const char *vtss_phy_func;
 
 #define VTSS_RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }
 
-#define VTSS_ENTER(...) { vtss_phy_func = __FUNCTION__; } // TBD
-#define VTSS_EXIT(...)  { vtss_phy_func = NULL; } // TBD
+#define VTSS_ENTER(...) { vtss_state_t *_vtss_state; if (vtss_inst_check(inst, &_vtss_state) != VTSS_RC_OK) { return VTSS_RC_ERROR; } else if (_vtss_state->init_conf.lock_enter) { vtss_phy_lock_t _lock; _lock.function = __FUNCTION__; _lock.file = __FILE__; _lock.line = __LINE__; _vtss_state->init_conf.lock_enter(&_lock); } vtss_phy_func = __FUNCTION__; }
+#define VTSS_EXIT(...) { vtss_state_t *_vtss_state; vtss_phy_func = NULL; if (vtss_inst_check(inst, &_vtss_state) == VTSS_RC_OK && _vtss_state->init_conf.lock_exit) { vtss_phy_lock_t _lock; _lock.function = __FUNCTION__; _lock.file = __FILE__; _lock.line = __LINE__; _vtss_state->init_conf.lock_exit(&_lock); } }
 
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 

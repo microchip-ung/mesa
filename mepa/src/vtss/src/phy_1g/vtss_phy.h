@@ -266,12 +266,12 @@ vtss_rc vtss_phy_page_0x2daf(struct vtss_state_s *vtss_state, vtss_port_no_t por
 vtss_rc vtss_phy_reset_private(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_phy_sync(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 
-vtss_rc vtss_phy_debug_info_print(struct vtss_state_s *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  const vtss_debug_info_t   *const info,
-                                  const BOOL                ail,
-                                  const BOOL                ignore_group_enabled,
-                                  const BOOL                print_hdr);
+vtss_rc vtss_phy_1g_debug_info_print(struct vtss_state_s *vtss_state,
+                                     const vtss_debug_printf_t pr,
+                                     const vtss_debug_info_t   *const info,
+                                     const BOOL                ail,
+                                     const BOOL                ignore_group_enabled,
+                                     const BOOL                print_hdr);
 BOOL  vtss_phy_veriphy_running(struct vtss_state_s *vtss_state,
                                vtss_port_no_t port_no, BOOL set, u8 running);
 vtss_rc vtss_atom_patch_suspend(struct vtss_state_s *vtss_state, vtss_port_no_t iport, BOOL suspend);

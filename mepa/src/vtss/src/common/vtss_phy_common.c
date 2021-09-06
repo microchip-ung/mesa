@@ -13,6 +13,9 @@
 #include "../phy_10g/chips/malibu/vtss_malibu_regs_ptp_2.h"
 #include "../phy_10g/chips/malibu/vtss_malibu_regs_ptp_3.h"
 #include "../phy_10g/chips/malibu/vtss_malibu_regs_line_pma.h"
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
+#include "../ts/vtss_phy_ts.h"
+#endif
 #if defined(VTSS_FEATURE_WIS)
 #include "../ts/vtss_wis.h"
 #endif
@@ -311,13 +314,14 @@ const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type)
 
 static void vtss_phy_debug_print_header_underlined(const vtss_debug_printf_t pr,
                                                    const char                *header,
-                                                   BOOL                      layer)
+                                                   BOOL layer)
 {
     int i, len = strlen(header);
 
     pr("%s\n", header);
-    for (i = 0; i < len; i++)
+    for (i = 0; i < len; i++) {
         pr(layer ? "=" : "-");
+    }
     pr("\n\n");
 }
 
@@ -325,11 +329,75 @@ BOOL vtss_phy_debug_group_enabled(const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t *const info,
                                   const vtss_debug_group_t group)
 {
-    if (info->group == VTSS_DEBUG_GROUP_ALL || info->group == group) {
-        vtss_phy_debug_print_header_underlined(pr, "PHY", 0);
-        return 1;
+    return (info->group == VTSS_DEBUG_GROUP_ALL || info->group == group);
+}
+
+static void vtss_phy_print_layer(const vtss_debug_printf_t pr,
+                                 int ail,
+                                 int *hdr)
+{
+    if (*hdr) {
+        *hdr = 0;
+        vtss_phy_debug_print_header_underlined(pr,
+                                               ail ? "Application Interface Layer" : "Chip Interface Layer",
+                                               1);
     }
-    return 0;
+}
+
+vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
+{
+    vtss_rc      rc;
+    vtss_state_t *vtss_state;
+    int          ail, hdr;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        // Print (AIL, CIL) information
+        for (ail = 1; ail >= 0; ail--) {
+            if ((ail && info->layer == VTSS_DEBUG_LAYER_CIL) ||
+                (!ail && info->layer == VTSS_DEBUG_LAYER_AIL)) {
+                continue;
+            }
+            hdr = 1;
+#if defined(VTSS_CHIP_CU_PHY)
+            if (rc == VTSS_RC_OK && vtss_phy_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PHY)) {
+                vtss_phy_print_layer(pr, ail, &hdr);
+                vtss_phy_debug_print_header_underlined(pr, "PHY", 0);
+                rc = vtss_phy_1g_debug_info_print(vtss_state, pr, info, ail, FALSE, TRUE);
+            }
+#endif
+#if defined(VTSS_CHIP_10G_PHY)
+            if (rc == VTSS_RC_OK && vtss_phy_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PHY)) {
+                vtss_phy_print_layer(pr, ail, &hdr);
+                pr("\n");
+                vtss_phy_debug_print_header_underlined(pr, "PHY_10G", 0);
+                rc = vtss_phy_10g_debug_info_print(vtss_state, pr, info, ail);
+            }
+#endif
+#if defined(VTSS_FEATURE_MACSEC)
+            if (rc == VTSS_RC_OK && !ail && vtss_phy_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MACSEC)) {
+                vtss_phy_print_layer(pr, ail, &hdr);
+                vtss_phy_debug_print_header_underlined(pr, "MACSEC", 0);
+                VTSS_RC(vtss_debug_print_macsec(vtss_state, pr, info));
+            }
+#endif
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
+            if (rc == VTSS_RC_OK && vtss_phy_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PHY_TS)) {
+                vtss_phy_print_layer(pr, ail, &hdr);
+                vtss_phy_debug_print_header_underlined(pr, "PHY_TS", 0);
+                if (ail) {
+                    vtss_phy_ts_api_ail_debug_print(vtss_state, pr, info);
+                } else {
+                    vtss_phy_ts_api_cil_debug_print(vtss_state, pr, info);
+                }
+            }
+#endif /* VTSS_OPT_PHY_TIMESTAMP */
+        }
+    }
+    VTSS_EXIT();
+    return rc;
 }
 
 #if defined(VTSS_CHIP_CU_PHY)
