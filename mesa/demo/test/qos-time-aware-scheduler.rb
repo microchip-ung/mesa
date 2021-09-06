@@ -212,7 +212,7 @@ def equal_interval_gcl_reconfig_test
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    pcp0 = 400
+    pcp0 = 770
     pcp3 = 690
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
@@ -344,7 +344,7 @@ def equal_interval_3_prio_1_port_test
         t_e("GCL unexpected number of open gates #{open}")
     end
 
-    pcp0 = 400
+    pcp0 = 770
     pcp3 = 650
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
