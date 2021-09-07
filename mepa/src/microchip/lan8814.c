@@ -999,15 +999,14 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
     phy_data_t *data = (phy_data_t *) dev->data;
     mepa_gpio_conf_t gpio_conf;
     uint16_t divider = 1;
-    uint16_t port_ena;
+    uint16_t clkout_src = 7;
     mepa_rc rc = MEPA_RC_OK;
 
     MEPA_ENTER(dev);
     // Enable recovered clock outputs in gpio
-    gpio_conf.mode = conf->dst == MEPA_SYNCE_CLOCK_DST_1 ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
+    gpio_conf.mode = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
     rc = indy_gpio_mode_private(dev, &gpio_conf);
 
-    port_ena = data->access.miim_addr - get_base_addr(dev);
     switch(conf->freq) {
         case MEPA_FREQ_25M:
             divider = 5; // 125Mhz/25Mhz = 5
@@ -1020,15 +1019,31 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
             divider = 1; // 125Mhz/125Mhz = 1
             break;
     }
-    if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
-        port_ena = 7;
+    switch(conf->src) {
+        case MEPA_SYNCE_CLOCK_SRC_DISABLED:
+            clkout_src = 7; // Forces Recovered Clock Output to 0
+            break;
+        case MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA:
+            clkout_src = data->access.miim_addr - get_base_addr(dev);
+            //clkout_src = 0b000; // Recovered Clock Input Port-0/Channel-0
+            break;
+        case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1:
+            clkout_src = 0b100; // Recovered Clock Input 1
+            break;
+        case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2:
+            clkout_src = 0b101; // Recovered Clock Input 2
+            break;
+        case MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA:
+        default:
+            T_W(data, MEPA_TRACE_GRP_GEN, "Invalid valid clock source, port-no : %d\n",data->port_no);
+            break;
     }
-    T_I(data, MEPA_TRACE_GRP_GEN, "port_ena %d divider %d\n", port_ena, divider);
+    T_I(data, MEPA_TRACE_GRP_GEN, "port_ena %d divider %d\n", clkout_src, divider);
     if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
-        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_1, port_ena);
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_1, clkout_src);
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_1, divider);
     } else {
-        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_2, port_ena);
+        EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_2, clkout_src);
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_2, divider);
     }
 

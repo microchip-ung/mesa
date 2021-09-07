@@ -181,7 +181,9 @@ typedef struct {
 typedef enum {
     MEPA_SYNCE_CLOCK_SRC_DISABLED,
     MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA,
-    MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA
+    MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA,
+    MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1,
+    MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2
 } mepa_synce_clock_src_t;
 
 // synce recovered clock
