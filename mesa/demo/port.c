@@ -1237,8 +1237,8 @@ static void port_init(meba_inst_t inst)
     MEBA_WRAP(meba_status_led_set, inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_GREEN);
 
     // Port reset
-    MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET);
     MEBA_WRAP(meba_reset, inst, MEBA_PHY_INITIALIZE);
+    MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET);
 
     for (port_no = 0; port_no < port_cnt; port_no++) {
         entry = &port_table[port_no];
@@ -1306,7 +1306,7 @@ static void port_init(meba_inst_t inst)
             break;
         }
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
-            mepa_reset_param_t phy_reset;
+            mepa_reset_param_t phy_reset = {};
             phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
             T_I("phy_reset: %u", port_no);
             rc = (meba_phy_reset(inst, port_no, &phy_reset));

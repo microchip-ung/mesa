@@ -421,6 +421,11 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     /* Aquantia Reset GPIO */
     mesa_gpio_direction_set(NULL, 0, AQR_RESET, true);
 
+    // Take Aquantia Phy out of reset
+    (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
+    // Delay for aquantia phy coming out of reset
+    VTSS_MSLEEP(50);
+
     /* We must increase the drive strength for MIIM/MDIO bus 3  */
     /* with HSIOWRAP:GPIO_CFG:G_DS[52-53] = 2.                  */
     /* Currently unsupported in the API therefore direct write  */
@@ -1305,10 +1310,6 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         }
                     }
                 }
-                // Take Aquantia Phy out of reset
-                (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
-                // Delay for aquantia phy coming out of reset
-                VTSS_MSLEEP(50);
             }
             break;
         case MEBA_PORT_RESET_POST:
