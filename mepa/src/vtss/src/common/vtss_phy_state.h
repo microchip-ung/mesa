@@ -578,12 +578,13 @@ extern const char *vtss_phy_func;
  *  Trace
  * ================================================================= */
 
+extern vtss_phy_trace_func_t vtss_phy_trace_func;
+
 #if VTSS_PHY_OPT_TRACE
 
-extern vtss_phy_trace_conf_t vtss_phy_trace_conf[];
 
 #define VTSS_TRACE_GROUP_PHY    VTSS_PHY_TRACE_GROUP_DEFAULT
-#define VTSS_TRACE_GROUP_MACSEC VTSS_PHY_TRACE_GROUP_MACSEC
+#define VTSS_TRACE_GROUP_MACSEC VTSS_PHY_TRACE_GROUP_DEFAULT
 
 #define VTSS_TRACE_LAYER_CIL    VTSS_PHY_TRACE_LAYER_CIL
 
@@ -603,7 +604,7 @@ extern vtss_phy_trace_conf_t vtss_phy_trace_conf[];
 #define VTSS_N(...) VTSS_NG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 
 /* For files with multiple trace groups: */
-#define VTSS_T(_grp, _lvl, ...) { if (vtss_phy_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_phy_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
+#define VTSS_T(_grp, _lvl, ...) { if (vtss_phy_trace_func) vtss_phy_trace_func(_grp, _lvl, __FUNCTION__, __LINE__, __VA_ARGS__); }
 #define VTSS_EG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_ERROR, __VA_ARGS__)
 #define VTSS_IG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_INFO,  __VA_ARGS__)
 #define VTSS_DG(_grp, ...) VTSS_T(_grp, VTSS_PHY_TRACE_LEVEL_DEBUG, __VA_ARGS__)

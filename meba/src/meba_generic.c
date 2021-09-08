@@ -316,6 +316,7 @@ void meba_phy_driver_init(meba_inst_t inst)
             address_mode.val.mscc_address.miim_addr = entry.map.miim_addr;
             address_mode.val.mscc_address.chip_no = entry.map.chip_no;
             address_mode.val.mscc_address.trace_func = inst->iface.trace_func;
+            address_mode.val.mscc_address.vtrace_func = inst->iface.vtrace_func;
             address_mode.val.mscc_address.lock_enter = inst->iface.lock_enter;
             address_mode.val.mscc_address.lock_exit  = inst->iface.lock_exit;
 

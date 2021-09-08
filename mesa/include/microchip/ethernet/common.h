@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 /****************************************************************************
  * Basic types (used in includes)

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
-#define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
+#define VTSS_TRACE_GROUP VTSS_PHY_TRACE_GROUP_TS
 
 // Avoid "vtss_api.h not used in module vtss_phy_ts_api.c"
 /*lint --e{766} */

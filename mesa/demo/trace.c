@@ -190,33 +190,6 @@ void mesa_callout_trace_printf(const mesa_trace_layer_t layer,
     fflush(stdout);
 }
 
-void vtss_phy_callout_trace_printf(const vtss_phy_trace_layer_t layer,
-                                   const vtss_phy_trace_group_t group,
-                                   const vtss_phy_trace_level_t level,
-                                   const char *file,
-                                   const int line,
-                                   const char *function,
-                                   const char *format,
-                                   ...)
-{
-    va_list            args;
-    mesa_trace_layer_t m_layer;
-    mesa_trace_group_t m_group;
-    mesa_trace_level_t m_level;
-
-    m_layer = (layer == VTSS_PHY_TRACE_LAYER_AIL ? MESA_TRACE_LAYER_AIL :
-               MESA_TRACE_LAYER_CIL);
-    m_group = (group == VTSS_PHY_TRACE_GROUP_MACSEC ? MESA_TRACE_GROUP_MACSEC :
-               MESA_TRACE_GROUP_PHY);
-    m_level = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MESA_TRACE_LEVEL_ERROR :
-               level == VTSS_PHY_TRACE_LEVEL_INFO ? MESA_TRACE_LEVEL_INFO :
-               level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MESA_TRACE_LEVEL_DEBUG :
-               MESA_TRACE_LEVEL_NOISE);
-    va_start(args, format);
-    mesa_callout_trace_printf(m_layer, m_group, m_level, file, line, function, format, args);
-    va_end(args);
-}
-
 void mscc_appl_trace_printf(const char *mname,
                             const char *gname,
                             const mesa_trace_level_t level,
@@ -230,6 +203,43 @@ void mscc_appl_trace_printf(const char *mname,
 
     va_start(args, format);
     mscc_appl_trace_vprintf(mname, gname, level, file, line, function, format, args);
+    va_end(args);
+}
+
+void mscc_phy_vtrace_printf(mepa_trace_group_t group,
+                            mepa_trace_level_t level,
+                            const char *location,
+                            uint32_t line,
+                            const char *format,
+                            va_list args)
+{
+    mesa_trace_layer_t layer = MESA_TRACE_LAYER_CIL;
+    mesa_trace_group_t grp;
+    mesa_trace_level_t lvl;
+
+    // Map from MEPA to MESA trace group/level
+    grp = (group == MEPA_TRACE_GRP_TS ? MESA_TRACE_GROUP_TS : MESA_TRACE_GROUP_PHY);
+    lvl = (level > MEPA_TRACE_LVL_ERROR ? MESA_TRACE_LEVEL_NONE :
+           level > MEPA_TRACE_LVL_WARNING ? MESA_TRACE_LEVEL_ERROR :
+           level > MEPA_TRACE_LVL_DEBUG ? MESA_TRACE_LEVEL_INFO :
+           level > MEPA_TRACE_LVL_NOISE ? MESA_TRACE_LEVEL_DEBUG :
+           MESA_TRACE_LEVEL_NOISE);
+    if (trace_groups_cil[grp].level >= lvl) {
+        mesa_callout_trace_printf(layer, grp, lvl, "x.c", line, location, format, args);
+    }
+}
+
+void mscc_phy_trace_printf(mepa_trace_group_t group,
+                           mepa_trace_level_t level,
+                           const char *location,
+                           uint32_t line,
+                           const char *format,
+                           ...)
+{
+    va_list args;
+
+    va_start(args, format);
+    mscc_phy_vtrace_printf(group, level, location, line, format, args);
     va_end(args);
 }
 
@@ -346,7 +356,7 @@ static void trace_control(char *module_name, char *group_name, mesa_trace_level_
             if (mesa_trace_conf_get(i, &conf) == MESA_RC_OK) {
                 conf.level[MESA_TRACE_LAYER_AIL] = trace_groups_ail[i].level;
                 conf.level[MESA_TRACE_LAYER_CIL] = trace_groups_cil[i].level;
-                meba_trace_conf_set(i, &conf);
+                mesa_trace_conf_set(i, &conf);
             }
         }
     }

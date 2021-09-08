@@ -89,6 +89,12 @@ typedef void (*mepa_trace_func_t)(mepa_trace_group_t                group,
                                   uint32_t                          line_no,
                                   const char                        *fmt,
                                                                     ...);
+typedef void (*mepa_vtrace_func_t)(mepa_trace_group_t               group,
+                                   mepa_trace_level_t               level,
+                                   const char                       *location,
+                                   uint32_t                         line_no,
+                                   const char                       *fmt,
+                                   va_list                          args);
 
 // phy synchronisation callbacks passed by application
 typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
@@ -107,6 +113,7 @@ typedef struct {
     mepa_port_no_t          port_no;
     debug_func_t            debug_func;
     mepa_trace_func_t       trace_func;
+    mepa_vtrace_func_t      vtrace_func;
     mepa_port_interface_t   mac_if;
     mesa_miim_controller_t  miim_controller;
     uint8_t                 miim_addr;

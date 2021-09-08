@@ -42,7 +42,7 @@ vtss_rc  debug_vtss_phy_1g_spi_read_write_inst(vtss_inst_t inst,
 
 /* Default instance */
 static vtss_inst_t vtss_phy_default_inst = NULL;
-
+vtss_phy_trace_func_t vtss_phy_trace_func;
 const char *vtss_phy_func;
 
 vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
@@ -67,9 +67,7 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
     }
 #endif
 #if defined(VTSS_FEATURE_WIS)
-    if (vtss_phy_inst_ewis_create(vtss_state) != VTSS_RC_OK)  {
-        VTSS_E("Could not hook up ewis functions");
-    }
+    VTSS_RC(vtss_phy_inst_ewis_create(vtss_state));
 #endif
 #if defined(VTSS_CHIP_10G_PHY)
     VTSS_RC(vtss_phy_10g_inst_venice_create(vtss_state));
@@ -126,6 +124,10 @@ vtss_rc vtss_phy_init_conf_set(const vtss_inst_t          inst,
 
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if (vtss_phy_trace_func == NULL) {
+            // Set global trace function
+            vtss_phy_trace_func = conf->trace_func;
+        }
         vtss_state->init_conf = *conf;
 #if defined(VTSS_CHIP_CU_PHY)
         rc = vtss_phy_1g_init_conf_set(vtss_state);
@@ -147,11 +149,9 @@ vtss_rc vtss_phy_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state)
     /* Default instance is used if inst is NULL */
     *vtss_state = (inst == NULL ? vtss_phy_default_inst : inst);
 
-    VTSS_N("enter");
-
     /* Check cookie */
     if (*vtss_state == NULL || (*vtss_state)->cookie != VTSS_STATE_COOKIE) {
-        VTSS_E("%s: illegal inst: %p", vtss_phy_func, inst);
+        //VTSS_E("%s: illegal inst: %p", vtss_phy_func, inst);
         return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
@@ -243,42 +243,6 @@ u32 vtss_phy_restart_value_get(vtss_state_t *vtss_state)
 }
 
 /* Trace group table */
-vtss_phy_trace_conf_t vtss_phy_trace_conf[VTSS_PHY_TRACE_GROUP_COUNT] =
-{
-    [VTSS_PHY_TRACE_GROUP_DEFAULT] = {
-        .level = { VTSS_PHY_TRACE_LEVEL_ERROR, VTSS_PHY_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_PHY_TRACE_GROUP_MACSEC] = {
-        .level = { VTSS_PHY_TRACE_LEVEL_ERROR, VTSS_PHY_TRACE_LEVEL_ERROR}
-    },
-};
-
-/* Get trace configuration */
-vtss_rc vtss_phy_trace_conf_get(const vtss_phy_trace_group_t group,
-                                vtss_phy_trace_conf_t * const conf)
-{
-    if (group >= VTSS_PHY_TRACE_GROUP_COUNT) {
-        VTSS_E("illegal group: %d", group);
-        return VTSS_RC_ERROR;
-    }
-
-    *conf = vtss_phy_trace_conf[group];
-    return VTSS_RC_OK;
-}
-
-/* Set trace configuration */
-vtss_rc vtss_phy_trace_conf_set(const vtss_phy_trace_group_t group,
-                                const vtss_phy_trace_conf_t * const conf)
-{
-    if (group >= VTSS_PHY_TRACE_GROUP_COUNT) {
-        VTSS_E("illegal group: %d", group);
-        return VTSS_RC_ERROR;
-    }
-
-    vtss_phy_trace_conf[group] = *conf;
-    return VTSS_RC_OK;
-}
-
 const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type)
 {
     switch (if_type) {

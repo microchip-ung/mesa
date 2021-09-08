@@ -85,6 +85,30 @@ static void lock_exit(const vtss_phy_lock_t *const lock)
     }
 }
 
+static void trace_func(const vtss_phy_trace_group_t group,
+                       const vtss_phy_trace_level_t level,
+                       const char                   *location,
+                       const int                    line,
+                       const char                   *format,
+                       ...)
+{
+    mepa_trace_group_t grp;
+    mepa_trace_level_t lvl;
+    va_list            args;
+
+    // Map from VTSS to MEPA trace group/level
+    grp = (group == VTSS_PHY_TRACE_GROUP_TS ? MEPA_TRACE_GRP_TS : MEPA_TRACE_GRP_GEN);
+    lvl = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MEPA_TRACE_LVL_ERROR :
+           level == VTSS_PHY_TRACE_LEVEL_INFO ? MEPA_TRACE_LVL_INFO :
+           level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MEPA_TRACE_LVL_DEBUG :
+           MEPA_TRACE_LVL_NOISE);
+    if (vtss_addr.vtrace_func) {
+        va_start(args, format);
+        vtss_addr.vtrace_func(grp, lvl, location, line, format, args);
+        va_end(args);
+    }
+}
+
 static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
 {
     vtss_phy_init_conf_t conf;
@@ -108,6 +132,7 @@ static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
         conf.mmd_write = mmd_write;
         conf.lock_enter = lock_enter;
         conf.lock_exit = lock_exit;
+        conf.trace_func = trace_func;
         (void)vtss_phy_init_conf_set(NULL, &conf);
     }
     vtss_inst_cnt++;

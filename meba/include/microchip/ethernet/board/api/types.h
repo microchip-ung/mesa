@@ -475,6 +475,7 @@ typedef struct {
     meba_clock_event_enable_t clock_event_enable; // TEMPORARY
     meba_clock_irq_handler_t  clock_irq_handler;  // TEMPORARY
     mepa_trace_func_t trace_func; // PHY driver trace callback passed from application.
+    mepa_vtrace_func_t vtrace_func; // VTSS PHY driver trace callback passed from application.
     mepa_lock_func_t  lock_enter; // lock callback function called before entering MEPA Api
     mepa_lock_func_t  lock_exit;  // unlock callback function called after executing MEPA Api
 } meba_board_interface_t;

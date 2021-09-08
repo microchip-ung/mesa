@@ -538,35 +538,6 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     return MESA_RC_OK;
 }
 
-mepa_rc meba_trace_conf_set(mesa_trace_group_t group, mesa_trace_conf_t *conf)
-{
-    vtss_phy_trace_conf_t  phy_conf;
-    vtss_phy_trace_group_t phy_group;
-    mesa_trace_level_t     level;
-    int                    i;
-
-    // Set switch trace levels
-    mesa_trace_conf_set(group, conf);
-
-    // Set PHY trace levels, if it is a PHY group
-    phy_group = (group == MESA_TRACE_GROUP_PHY ? VTSS_PHY_TRACE_GROUP_DEFAULT :
-                 group == MESA_TRACE_GROUP_MACSEC ? VTSS_PHY_TRACE_GROUP_MACSEC :
-                 VTSS_PHY_TRACE_GROUP_COUNT);
-    if (phy_group < VTSS_PHY_TRACE_GROUP_COUNT) {
-        for (i = 0; i < 2; i++) {
-            level = (i ? conf->level[MESA_TRACE_LAYER_CIL] : conf->level[MESA_TRACE_LAYER_AIL]);
-            phy_conf.level[i ? VTSS_PHY_TRACE_LAYER_CIL : VTSS_PHY_TRACE_LAYER_AIL] =
-                (level == MESA_TRACE_LEVEL_NONE ? VTSS_PHY_TRACE_LEVEL_NONE :
-                 level == MESA_TRACE_LEVEL_ERROR ? VTSS_PHY_TRACE_LEVEL_ERROR :
-                 level == MESA_TRACE_LEVEL_INFO ? VTSS_PHY_TRACE_LEVEL_INFO :
-                 level == MESA_TRACE_LEVEL_DEBUG ? VTSS_PHY_TRACE_LEVEL_DEBUG :
-                 VTSS_PHY_TRACE_LEVEL_NOISE);
-        }
-        vtss_phy_trace_conf_set(phy_group, &phy_conf);
-    }
-    return MESA_RC_OK;
-}
-
 mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
                                   const mesa_debug_printf_t pr,
                                   const mesa_debug_info_t   *const info)

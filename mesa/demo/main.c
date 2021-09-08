@@ -1140,6 +1140,8 @@ int main(int argc, char **argv)
     board_info.i2c_write = i2c_write;
     board_info.conf_get = board_conf_get;
     board_info.debug = board_debug;
+    board_info.trace_func = mscc_phy_trace_printf;
+    board_info.vtrace_func = mscc_phy_vtrace_printf;
     if ((meba_inst = meba_initialize(sizeof(board_info), &board_info)) == NULL) {
         T_E("MEBA failed to Instantiate");
         return 1;
