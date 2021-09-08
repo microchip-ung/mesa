@@ -177,6 +177,7 @@ $machines = {
                   { :name => "8290_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
                   { :name => "8291_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
                   { :name => "8309_0@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8309_0.dtso"},
+                  { :name => "6849_1@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan969x_6849_0.dtso"},
               ]
             },
             {

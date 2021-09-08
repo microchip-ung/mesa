@@ -23,7 +23,7 @@
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
 //#define VTSS_ARCH_S5I                             /**< SparX-5i architecture */
 #if defined(VTSS_OPT_FPGA)
-#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
+#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN966X FPGA */
 #endif
 #endif
 
@@ -123,7 +123,7 @@
 #define VTSS_ARCH_S5I                            /**< SparX-5i architecture */
 #endif
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */

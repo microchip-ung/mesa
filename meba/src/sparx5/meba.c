@@ -2131,6 +2131,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         fprintf(stderr, "Could not read pcb id\n");
         goto error_out;
     }
+    printf("type:%d\n",pcb);
     if (pcb == BOARD_TYPE_SUNRISE) {
         // Sparx-5 design on Sunrise means Laguna
         return lan969x_initialize(inst, callouts);

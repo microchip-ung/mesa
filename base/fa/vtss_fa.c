@@ -812,6 +812,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     /* Assign device BW to auto calendar */
     for (i = 0; i < replicator; i++) {
         REG_WR(VTSS_QSYS_CAL_AUTO(i), cal[i]);
+        printf("VTSS_QSYS_CAL_AUTO(%d) = %d\n", i, cal[i]);
     }
 
     /* Increase grant rate of all ports to account for core clock ppm deviations */
@@ -1365,25 +1366,6 @@ static vtss_rc fa_restart_conf_set(vtss_state_t *vtss_state)
 {
     return VTSS_RC_OK;
 }
-static vtss_rc is_target_fa(vtss_state_t *vtss_state)
-{
-    switch (vtss_state->create.target) {
-    case VTSS_TARGET_7546:
-    case VTSS_TARGET_7549:
-    case VTSS_TARGET_7552:
-    case VTSS_TARGET_7556:
-    case VTSS_TARGET_7558:
-    case VTSS_TARGET_7546TSN:
-    case VTSS_TARGET_7549TSN:
-    case VTSS_TARGET_7552TSN:
-    case VTSS_TARGET_7556TSN:
-    case VTSS_TARGET_7558TSN:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
 
 static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
 {
