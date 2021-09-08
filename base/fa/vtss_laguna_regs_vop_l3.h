@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_VOP_L3_H_
 #define _VTSS_LAGUNA_REGS_VOP_L3_H_
@@ -41,7 +22,7 @@
  *
  * The VOP includes the following:
  *
- *  * 32 Service / Path VOEs
+ *  * 8 Service / Path VOEs
  *  * 30 Port VOEs
  *
  * The VOEs can be configured for either Y.1731, MPLS-TP, or L3 OAM PDU
@@ -79,7 +60,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_COMMON_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_COMMON_CFG(gi)       VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,0)
 
@@ -140,14 +121,14 @@
 /**
  * \brief
  * Assigns a Path VOE to the VOE. See description in PATH_VOE_ENA.Must
- * point to a VOE in the pool of Service VOEs (0 - 31).
+ * point to a VOE in the pool of Service VOEs (0 - 7).
  *
  * \details
  * Field: ::VTSS_VOP_L3_VOE_COMMON_CFG . PATH_VOEID
  */
-#define  VTSS_F_VOP_L3_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_ENCODE_BITFIELD(x,1,5)
-#define  VTSS_M_VOP_L3_VOE_COMMON_CFG_PATH_VOEID     VTSS_ENCODE_BITMASK(1,5)
-#define  VTSS_X_VOP_L3_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_EXTRACT_BITFIELD(x,1,5)
+#define  VTSS_F_VOP_L3_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_ENCODE_BITFIELD(x,1,3)
+#define  VTSS_M_VOP_L3_VOE_COMMON_CFG_PATH_VOEID     VTSS_ENCODE_BITMASK(1,3)
+#define  VTSS_X_VOP_L3_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_EXTRACT_BITFIELD(x,1,3)
 
 /**
  * \brief
@@ -170,7 +151,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_CTRL_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_CTRL_L3(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,1)
 
@@ -234,7 +215,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_MAC_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_MAC_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,2)
 
@@ -263,7 +244,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_MAC_CFG1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_MAC_CFG1(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,3)
 
@@ -300,7 +281,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_IP_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_IP_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,4)
 
@@ -337,7 +318,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_IP_CFG1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_IP_CFG1(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,5)
 
@@ -374,7 +355,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_IP_CFG2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_IP_CFG2(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,6)
 
@@ -411,7 +392,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:VOE_IP_CFG3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_VOE_IP_CFG3(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,7)
 
@@ -451,7 +432,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:PEER_IP_SESSION_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_PEER_IP_SESSION_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,8)
@@ -492,7 +473,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:PEER_IP_SESSION_CFG1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_PEER_IP_SESSION_CFG1(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,11)
@@ -533,7 +514,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:PEER_IP_SESSION_CFG2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_PEER_IP_SESSION_CFG2(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,14)
@@ -574,7 +555,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:PEER_IP_SESSION_CFG3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_PEER_IP_SESSION_CFG3(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,17)
@@ -620,7 +601,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:UDP_SESSION_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_UDP_SESSION_CFG(gi,ri)   VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,20)
@@ -675,7 +656,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:TCP_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_TCP_CFG(gi)              VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,23)
 
@@ -719,7 +700,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:TWAMP_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_TWAMP_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,0,24)
 
@@ -748,7 +729,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:TWAMP_SESSION_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_TWAMP_SESSION_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,25)
@@ -862,7 +843,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:LOOPBACK_SESSION_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_LOOPBACK_SESSION_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,28)
@@ -888,13 +869,13 @@
  * in this register.
  *
  * \details
- * Valid ISDX value: 1-1023
+ * Valid ISDX value: 1-31
  *
  * Field: ::VTSS_VOP_L3_LOOPBACK_SESSION_CFG . LB_ISDX
  */
-#define  VTSS_F_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX(x)  VTSS_ENCODE_BITFIELD(x,17,10)
-#define  VTSS_M_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX     VTSS_ENCODE_BITMASK(17,10)
-#define  VTSS_X_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX(x)  VTSS_EXTRACT_BITFIELD(x,17,10)
+#define  VTSS_F_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX(x)  VTSS_ENCODE_BITFIELD(x,17,5)
+#define  VTSS_M_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX     VTSS_ENCODE_BITMASK(17,5)
+#define  VTSS_X_VOP_L3_LOOPBACK_SESSION_CFG_LB_ISDX(x)  VTSS_EXTRACT_BITFIELD(x,17,5)
 
 /**
  * \brief
@@ -935,7 +916,7 @@
  *
  * Register: \a VOP_L3:VOE_CONF_L3:LOOPBACK_SESSION_CFG1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_LOOPBACK_SESSION_CFG1(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x0,gi,64,ri,31)
@@ -959,13 +940,13 @@
  * register.
  *
  * \details
- * Valid RLEG value: 0-126
+ * Valid RLEG value: 0-14
  *
  * Field: ::VTSS_VOP_L3_LOOPBACK_SESSION_CFG1 . LB_RLEG
  */
-#define  VTSS_F_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG(x)  VTSS_ENCODE_BITFIELD(x,0,7)
-#define  VTSS_M_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG     VTSS_ENCODE_BITMASK(0,7)
-#define  VTSS_X_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG(x)  VTSS_EXTRACT_BITFIELD(x,0,7)
+#define  VTSS_F_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_VOP_L3_LOOPBACK_SESSION_CFG1_LB_RLEG(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
 
 /**
  * Register Group: \a VOP_L3:VOE_STAT_L3
@@ -982,7 +963,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:TCP_RX_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_TCP_RX_CNT(gi)           VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,0,0)
 
@@ -1006,7 +987,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:TCP_TX_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_TCP_TX_CNT(gi)           VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,0,1)
 
@@ -1033,7 +1014,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:UDP_SESSION_RX_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_UDP_SESSION_RX_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,2)
@@ -1061,7 +1042,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:UDP_SESSION_TX_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_UDP_SESSION_TX_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,5)
@@ -1092,7 +1073,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:INTR_STICKY_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_INTR_STICKY_L3(gi)       VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,0,8)
 
@@ -1160,7 +1141,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:INTR_ENA_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_INTR_ENA_L3(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,0,9)
 
@@ -1210,7 +1191,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:EXTRACT_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_L3_EXTRACT_L3(gi)           VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,0,10)
 
@@ -1371,7 +1352,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:INTR_STICKY_SESSION_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_INTR_STICKY_SESSION_L3(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,11)
@@ -1446,7 +1427,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:INTR_ENA_SESSION_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_INTR_ENA_SESSION_L3(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,14)
@@ -1500,7 +1481,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:EXTRACT_SESSION_L3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_EXTRACT_SESSION_L3(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,17)
@@ -1648,7 +1629,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:TWAMP_RX_SEQ_NUM
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_TWAMP_RX_SEQ_NUM(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,20)
@@ -1680,7 +1661,7 @@
  *
  * Register: \a VOP_L3:VOE_STAT_L3:TWAMP_TX_SEQ_NUM
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_L3_SESSIONS (??), 0-2
  */
 #define VTSS_VOP_L3_TWAMP_TX_SEQ_NUM(gi,ri)  VTSS_IOREG_IX(VTSS_TO_VOP_L3,0x1000,gi,32,ri,23)

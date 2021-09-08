@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_DEVCPU_GCB_H_
 #define _VTSS_LAGUNA_REGS_DEVCPU_GCB_H_
@@ -41,105 +22,12 @@
 
 
 /**
- * \brief Chip ID register
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:CHIP_ID
- */
-#define VTSS_DEVCPU_GCB_CHIP_ID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x0)
-
-/**
- * \brief
- * Revision ID : Chip revision starting from 0.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_CHIP_ID . REV_ID
- */
-#define  VTSS_F_DEVCPU_GCB_CHIP_ID_REV_ID(x)  VTSS_ENCODE_BITFIELD(x,28,4)
-#define  VTSS_M_DEVCPU_GCB_CHIP_ID_REV_ID     VTSS_ENCODE_BITMASK(28,4)
-#define  VTSS_X_DEVCPU_GCB_CHIP_ID_REV_ID(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
-
-/**
- * \brief
- * Part ID: Part ID for identification of Microchip chips.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_CHIP_ID . PART_ID
- */
-#define  VTSS_F_DEVCPU_GCB_CHIP_ID_PART_ID(x)  VTSS_ENCODE_BITFIELD(x,12,16)
-#define  VTSS_M_DEVCPU_GCB_CHIP_ID_PART_ID     VTSS_ENCODE_BITMASK(12,16)
-#define  VTSS_X_DEVCPU_GCB_CHIP_ID_PART_ID(x)  VTSS_EXTRACT_BITFIELD(x,12,16)
-
-/**
- * \brief
- * Manufacturer ID.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_CHIP_ID . MFG_ID
- */
-#define  VTSS_F_DEVCPU_GCB_CHIP_ID_MFG_ID(x)  VTSS_ENCODE_BITFIELD(x,1,11)
-#define  VTSS_M_DEVCPU_GCB_CHIP_ID_MFG_ID     VTSS_ENCODE_BITMASK(1,11)
-#define  VTSS_X_DEVCPU_GCB_CHIP_ID_MFG_ID(x)  VTSS_EXTRACT_BITFIELD(x,1,11)
-
-/**
- * \brief
- * Always 1.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_CHIP_ID . ONE
- */
-#define  VTSS_F_DEVCPU_GCB_CHIP_ID_ONE(x)     VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_CHIP_ID_ONE        VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_CHIP_ID_ONE(x)     VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief REV ID register
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:REVID_RAW
- */
-#define VTSS_DEVCPU_GCB_REVID_RAW            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x1)
-
-/**
- * \brief
- * Raw revision ID.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_REVID_RAW . REV_ID_RAW
- */
-#define  VTSS_F_DEVCPU_GCB_REVID_RAW_REV_ID_RAW(x)  VTSS_ENCODE_BITFIELD(x,0,15)
-#define  VTSS_M_DEVCPU_GCB_REVID_RAW_REV_ID_RAW     VTSS_ENCODE_BITMASK(0,15)
-#define  VTSS_X_DEVCPU_GCB_REVID_RAW_REV_ID_RAW(x)  VTSS_EXTRACT_BITFIELD(x,0,15)
-
-
-/**
- * \brief General purpose register
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:GPR
- */
-#define VTSS_DEVCPU_GCB_GPR                  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2)
-
-/**
- * \brief
- * General purpose register for software development.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPR . GPR
- */
-#define  VTSS_F_DEVCPU_GCB_GPR_GPR(x)         (x)
-#define  VTSS_M_DEVCPU_GCB_GPR_GPR            0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPR_GPR(x)         (x)
-
-
-/**
  * \brief Reset control register
  *
  * \details
  * Register: \a DEVCPU_GCB:CHIP_REGS:SOFT_RST
  */
-#define VTSS_DEVCPU_GCB_SOFT_RST             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3)
+#define VTSS_DEVCPU_GCB_SOFT_RST             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x0)
 
 /**
  * \brief
@@ -171,37 +59,6 @@
 
 
 /**
- * \brief Various status indications
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:HW_STAT
- */
-#define VTSS_DEVCPU_GCB_HW_STAT              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4)
-
-/**
- * \brief
- * PLL_CONF strapping value from GPIOs sampled after reset release.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_HW_STAT . PLL_CONF
- */
-#define  VTSS_F_DEVCPU_GCB_HW_STAT_PLL_CONF(x)  VTSS_ENCODE_BITFIELD(x,3,2)
-#define  VTSS_M_DEVCPU_GCB_HW_STAT_PLL_CONF     VTSS_ENCODE_BITMASK(3,2)
-#define  VTSS_X_DEVCPU_GCB_HW_STAT_PLL_CONF(x)  VTSS_EXTRACT_BITFIELD(x,3,2)
-
-/**
- * \brief
- * Strapped value for Secure JTAG multiplexer. Sampled on reset release.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_HW_STAT . SJTAG_MUX
- */
-#define  VTSS_F_DEVCPU_GCB_HW_STAT_SJTAG_MUX(x)  VTSS_ENCODE_BITFIELD(x,0,3)
-#define  VTSS_M_DEVCPU_GCB_HW_STAT_SJTAG_MUX     VTSS_ENCODE_BITMASK(0,3)
-#define  VTSS_X_DEVCPU_GCB_HW_STAT_SJTAG_MUX(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
-
-
-/**
  * \brief SGPIO to Signal Detect map
  *
  * \details
@@ -209,7 +66,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_FPORT_CNT (??), 0-29
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x5 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x1 + (ri))
 
 /**
  * \brief
@@ -231,7 +88,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SERDES_CNT (??), 0-9
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x23 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x1f + (ri))
 
 /**
  * \brief
@@ -246,20 +103,25 @@
 
 
 /**
- * \brief FPGA drop identifier
+ * \brief Disable of features
  *
  * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:BUILDID
+ * Register: \a DEVCPU_GCB:CHIP_REGS:FEA_DIS
  */
-#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2d)
+#define VTSS_DEVCPU_GCB_FEA_DIS              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x29)
 
 /**
+ * \brief
+ * Efuse force values. These bits are or'ed together with the corresponding
+ * efuse fields - setting bits here corresponds to burning efuses and can
+ * be used for validation purposes.
+ *
  * \details
- * Field: ::VTSS_DEVCPU_GCB_BUILDID . BUILDID
+ * Field: ::VTSS_DEVCPU_GCB_FEA_DIS . FEA_DIS
  */
-#define  VTSS_F_DEVCPU_GCB_BUILDID_BUILDID(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_BUILDID_BUILDID     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_BUILDID_BUILDID(x)  (x)
+#define  VTSS_F_DEVCPU_GCB_FEA_DIS_FEA_DIS(x)  (x)
+#define  VTSS_M_DEVCPU_GCB_FEA_DIS_FEA_DIS     0xffffffff
+#define  VTSS_X_DEVCPU_GCB_FEA_DIS_FEA_DIS(x)  (x)
 
 /**
  * Register Group: \a DEVCPU_GCB:SI_REGS
@@ -274,7 +136,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CTRL
  */
-#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2e)
+#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2a)
 
 /**
  * \brief
@@ -306,7 +168,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CFGSTAT
  */
-#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2f)
+#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2b)
 
 /**
  * \brief
@@ -335,936 +197,6 @@
 #define  VTSS_X_DEVCPU_GCB_IF_CFGSTAT_IF_CFG(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
 
 /**
- * Register Group: \a DEVCPU_GCB:SW_REGS
- *
- * Registers for software/software interaction
- */
-
-
-/**
- * \brief Manually assert software interrupt
- *
- * \details
- * This register provides a simple interface for interrupting on either
- * sofware interrupt 0 or 1, without implementing semaphore support. Note:
- * setting this field causes a short pulse on the corresponding interrupt
- * connection, this kind of interrupt cannot be used in combination with
- * the CPU::INTR_BYPASS feature.
- *
- * Register: \a DEVCPU_GCB:SW_REGS:SW_INTR
- */
-#define VTSS_DEVCPU_GCB_SW_INTR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x30)
-
-/**
- * \brief
- * Set this field to inject software interrupt 1. This field is
- * automatically cleared after interrupt has been generated.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_SW_INTR . SW1_INTR
- */
-#define  VTSS_F_DEVCPU_GCB_SW_INTR_SW1_INTR(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_SW_INTR_SW1_INTR   VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_SW_INTR_SW1_INTR(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * Set this field to assert software interrupt 0. This field is
- * automatically cleared after interrupt has been generated.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_SW_INTR . SW0_INTR
- */
-#define  VTSS_F_DEVCPU_GCB_SW_INTR_SW0_INTR(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_SW_INTR_SW0_INTR   VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_SW_INTR_SW0_INTR(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-/**
- * Register Group: \a DEVCPU_GCB:VCORE_ACCESS
- *
- * Registers for accessing the VCore
- */
-
-
-/**
- * \brief Control register for VCore accesses
- *
- * \details
- * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_CTRL
- */
-#define VTSS_DEVCPU_GCB_VA_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x31)
-
-/**
- * \brief
- * Controls the size of the access inside VCore domain. It is possible to
- * do 32-bit, 16-bit and 8-bit accesses. For 8bit and 16bit write-accesses
- * data must be aligned appropriately inside the 32bit write-data word
- * (i.e. for a byte-write to address 0x20001003 data has to be placed in
- * [31:24]). Likewise for 8bit and 16bit read operations, here data is
- * aligned accordingly to address.
- *
- * \details
- * 0: 32bit
- * 1: Reserved, do not use
- * 2: 8bit
- * 3: 16bit
- *
- * Field: ::VTSS_DEVCPU_GCB_VA_CTRL . VA_SIZE
- */
-#define  VTSS_F_DEVCPU_GCB_VA_CTRL_VA_SIZE(x)  VTSS_ENCODE_BITFIELD(x,4,2)
-#define  VTSS_M_DEVCPU_GCB_VA_CTRL_VA_SIZE     VTSS_ENCODE_BITMASK(4,2)
-#define  VTSS_X_DEVCPU_GCB_VA_CTRL_VA_SIZE(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
-
-/**
- * \brief
- * If the VCore access logic detects an error this field is set based on
- * the nature of the error. This is a read-only field which is cleared by
- * the VCore access logic when a new access is (sucessfully) accepted.
- *
- * \details
- * 0: No errors detected.
- * 1: SBA not ready when accessed.
- * 2: SBA reported error.
- * 3: DATA or ADDR written during active access.
- *
- * Field: ::VTSS_DEVCPU_GCB_VA_CTRL . VA_ERR
- */
-#define  VTSS_F_DEVCPU_GCB_VA_CTRL_VA_ERR(x)  VTSS_ENCODE_BITFIELD(x,2,2)
-#define  VTSS_M_DEVCPU_GCB_VA_CTRL_VA_ERR     VTSS_ENCODE_BITMASK(2,2)
-#define  VTSS_X_DEVCPU_GCB_VA_CTRL_VA_ERR(x)  VTSS_EXTRACT_BITFIELD(x,2,2)
-
-/**
- * \brief
- * This field is set to the value of VA_CTRL.VA_BUSY whenever one of the
- * data registers VA_DATA, VA_DATA_INCR, or VA_DATA_RO is read. By
- * examining this field it is possible to determine if VA_BUSY was set at
- * the time a read from one of these registers was performed.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_CTRL . VA_BUSY_RD
- */
-#define  VTSS_F_DEVCPU_GCB_VA_CTRL_VA_BUSY_RD(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_VA_CTRL_VA_BUSY_RD  VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_VA_CTRL_VA_BUSY_RD(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * This field is set by hardware when an access into VCore domain is
- * started, and cleared when the access is done.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_CTRL . VA_BUSY
- */
-#define  VTSS_F_DEVCPU_GCB_VA_CTRL_VA_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_VA_CTRL_VA_BUSY    VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_VA_CTRL_VA_BUSY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Address register for VCore accesses
- *
- * \details
- * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_ADDR
- */
-#define VTSS_DEVCPU_GCB_VA_ADDR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x32)
-
-/**
- * \brief
- * The address to access in the VCore domain, all addresses must be 32-bit
- * aligned (i.e. the two least significant bit must always be 0).When
- * accesses are initiated using the VA_DATA_INCR register, then this field
- * is autoincremented by 4 at the end of the transfer.The memory region of
- * the VCore that maps to switch-core registers may not be accessed by
- * using these registers.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_ADDR . VA_ADDR
- */
-#define  VTSS_F_DEVCPU_GCB_VA_ADDR_VA_ADDR(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_VA_ADDR_VA_ADDR     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_VA_ADDR_VA_ADDR(x)  (x)
-
-
-/**
- * \brief Data register for VCore accesses
- *
- * \details
- * The VA_DATA, VA_DATA_INCR, and VA_DATA_INERT registers are used for
- * indirect access into the VCore domain. The functionality of the
- * VA_DATA_INCR and VA_DATA_INERT registers are similar to this register -
- * but with minor exceptions. These exceptions are fleshed out in the
- * description of the respective registers.
- *
- * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA
- */
-#define VTSS_DEVCPU_GCB_VA_DATA              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x33)
-
-/**
- * \brief
- * Reading or writing from/to this field initiates accesses into the VCore
- * domain. While an access is ongoing (VA_CTRL.VA_BUSY is set) this field
- * may not be written. It is possible to read this field while an access is
- * ongoing, but the data returned will be 0x80000000.When writing to this
- * field; a write into the VCore domain is initiated to the address
- * specified in the VA_ADDR register, with the data that was written to
- * this field. Only 32-bit writes are supported. This field may not be
- * written to until the VA_CTRL.VA_BUSY indicates that no accesses is
- * ongoing.When reading from this field; a read from the VCore domain is
- * initiated from the address specified in the VA_ADDR register. Important:
- * The data that is returned from reading this field (and stating an
- * access) is not the result of the newly initiated read, instead the data
- * from the last access is returned. The result of the newly initiated read
- * access will be ready once the VA_CTRL.VA_BUSY field shows that the
- * access is done.Note: When the result of a read-access is read from this
- * field (the second read), a new access will automatically be intiated.
- * This is desirable when reading a series of addresses from VCore domain.
- * If a new access is not desirable, then the result should be read from
- * the VA_DATA_INERT register instead of this field!
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_DATA . VA_DATA
- */
-#define  VTSS_F_DEVCPU_GCB_VA_DATA_VA_DATA(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_VA_DATA_VA_DATA     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_VA_DATA_VA_DATA(x)  (x)
-
-
-/**
- * \brief Data register for VCore accesses (w. auto increment of address)
- *
- * \details
- * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA_INCR
- */
-#define VTSS_DEVCPU_GCB_VA_DATA_INCR         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x34)
-
-/**
- * \brief
- * This field behaves in the same way as VA_DATA.VA_DATA. Except when an
- * access is initiated by using this field (either read or write); the
- * address register (VA_ADDR) is automatically incremented by 4 at the end
- * of the access, i.e. when VA_CTRL.VA_BUSY is deasserted.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_DATA_INCR . VA_DATA_INCR
- */
-#define  VTSS_F_DEVCPU_GCB_VA_DATA_INCR_VA_DATA_INCR(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_VA_DATA_INCR_VA_DATA_INCR     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_VA_DATA_INCR_VA_DATA_INCR(x)  (x)
-
-
-/**
- * \brief Data register for VCore accesses (will not initiate access)
- *
- * \details
- * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA_INERT
- */
-#define VTSS_DEVCPU_GCB_VA_DATA_INERT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x35)
-
-/**
- * \brief
- * This field behaves in the same way as VA_DATA.VA_DATA. Except accesses
- * (read or write) does not initiate VCore accesses. Writing to this
- * register just overwrites the value currently held by all of the data
- * registers (VA_DATA, VA_DATA_INCR, and VA_DATA_INERT).
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VA_DATA_INERT . VA_DATA_INERT
- */
-#define  VTSS_F_DEVCPU_GCB_VA_DATA_INERT_VA_DATA_INERT(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_VA_DATA_INERT_VA_DATA_INERT     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_VA_DATA_INERT_VA_DATA_INERT(x)  (x)
-
-/**
- * Register Group: \a DEVCPU_GCB:GPIO
- *
- * Not documented
- */
-
-
-/**
- * \brief GPIO output set
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_SET         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x36)
-
-/**
- * \brief
- * Setting a bit in this field will immediately set the corresponding bit
- * in GPIO_OUT.G_OUT. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is set.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_SET . G_OUT_SET
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_SET_G_OUT_SET(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_SET_G_OUT_SET     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_SET_G_OUT_SET(x)  (x)
-
-
-/**
- * \brief GPIO output set
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET1
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_SET1        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x37)
-
-/**
- * \brief
- * Bit 32-63 of field G_OUT_SET.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is set.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_SET1 . G_OUT_SET1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1(x)  (x)
-
-
-/**
- * \brief GPIO output set
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET2
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_SET2        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x38)
-
-/**
- * \brief
- * Bit 64-77 of field G_OUT_SET.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is set.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_SET2 . G_OUT_SET2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO output clear
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_CLR
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_CLR         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x39)
-
-/**
- * \brief
- * Setting a bit in this field will immediately clear the corresponding bit
- * in GPIO_OUT.G_OUT. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is cleared.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_CLR . G_OUT_CLR
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_CLR_G_OUT_CLR(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_CLR_G_OUT_CLR     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_CLR_G_OUT_CLR(x)  (x)
-
-
-/**
- * \brief GPIO output clear
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_CLR1
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_CLR1        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3a)
-
-/**
- * \brief
- * Bit 32-63 of field G_OUT_CLR.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is cleared.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_CLR1 . G_OUT_CLR1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_CLR1_G_OUT_CLR1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_CLR1_G_OUT_CLR1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_CLR1_G_OUT_CLR1(x)  (x)
-
-
-/**
- * \brief GPIO output clear
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_CLR2
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_CLR2        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3b)
-
-/**
- * \brief
- * Bit 64-77 of field G_OUT_CLR.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in GPIO_OUT.G_OUT is cleared.
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_CLR2 . G_OUT_CLR2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO output
- *
- * \details
- * In a multi-threaded software environment using the registers
- * GPIO_OUT_SET and GPIO_OUT_CLR for modifying GPIO values removes the need
- * for software-locked access.
- *
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3c)
-
-/**
- * \brief
- * Controls the value on the GPIO pins enabled for output (via the GPIO_OE
- * register). This field can be modified directly or by using the
- * GPIO_O_SET and GPIO_O_CLR registers.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT . G_OUT
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_G_OUT(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_G_OUT     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_G_OUT(x)  (x)
-
-
-/**
- * \brief GPIO output
- *
- * \details
- * In a multi-threaded software environment using the registers
- * GPIO_OUT_SET and GPIO_OUT_CLR for modifying GPIO values removes the need
- * for software-locked access.
- *
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT1
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT1            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3d)
-
-/**
- * \brief
- * Bit 32-63 of field G_OUT.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT1 . G_OUT1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT1_G_OUT1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT1_G_OUT1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT1_G_OUT1(x)  (x)
-
-
-/**
- * \brief GPIO output
- *
- * \details
- * In a multi-threaded software environment using the registers
- * GPIO_OUT_SET and GPIO_OUT_CLR for modifying GPIO values removes the need
- * for software-locked access.
- *
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT2
- */
-#define VTSS_DEVCPU_GCB_GPIO_OUT2            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3e)
-
-/**
- * \brief
- * Bit 64-77 of field G_OUT.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT2 . G_OUT2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OUT2_G_OUT2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OUT2_G_OUT2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_OUT2_G_OUT2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO input
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_IN
- */
-#define VTSS_DEVCPU_GCB_GPIO_IN              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3f)
-
-/**
- * \brief
- * GPIO input register. Reflects the current state of the corresponding
- * GPIO pins.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_IN . G_IN
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_IN_G_IN(x)    (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_IN_G_IN       0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_IN_G_IN(x)    (x)
-
-
-/**
- * \brief GPIO input
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_IN1
- */
-#define VTSS_DEVCPU_GCB_GPIO_IN1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x40)
-
-/**
- * \brief
- * Bit 32-63 of field G_IN.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_IN1 . G_IN1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_IN1_G_IN1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_IN1_G_IN1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_IN1_G_IN1(x)  (x)
-
-
-/**
- * \brief GPIO input
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_IN2
- */
-#define VTSS_DEVCPU_GCB_GPIO_IN2             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x41)
-
-/**
- * \brief
- * Bit 64-77 of field G_IN.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_IN2 . G_IN2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_IN2_G_IN2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_IN2_G_IN2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_IN2_G_IN2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO pin direction
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OE
- */
-#define VTSS_DEVCPU_GCB_GPIO_OE              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x42)
-
-/**
- * \brief
- * Configures the direction of the GPIO pins.
- *
- * \details
- * '0': Input
- * '1': Output
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OE . G_OE
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OE_G_OE(x)    (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OE_G_OE       0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OE_G_OE(x)    (x)
-
-
-/**
- * \brief GPIO pin direction
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OE1
- */
-#define VTSS_DEVCPU_GCB_GPIO_OE1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x43)
-
-/**
- * \brief
- * Bit 32-63 of field G_OE.
- *
- * \details
- * '0': Input
- * '1': Output
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OE1 . G_OE1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OE1_G_OE1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OE1_G_OE1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_OE1_G_OE1(x)  (x)
-
-
-/**
- * \brief GPIO pin direction
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_OE2
- */
-#define VTSS_DEVCPU_GCB_GPIO_OE2             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x44)
-
-/**
- * \brief
- * Bit 64-77 of field G_OE.
- *
- * \details
- * '0': Input
- * '1': Output
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_OE2 . G_OE2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_OE2_G_OE2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_OE2_G_OE2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_OE2_G_OE2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO interrupt
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
-
-/**
- * \brief
- * Indicates whether a GPIO input has changed since last clear.
- *
- * \details
- * '0': No change
- * '1': GPIO has changed
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR . G_INTR
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_G_INTR(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_G_INTR     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_G_INTR(x)  (x)
-
-
-/**
- * \brief GPIO interrupt
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR1
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR1           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46)
-
-/**
- * \brief
- * Bit 32-63 of field G_INTR.
- *
- * \details
- * '0': No change
- * '1': GPIO has changed
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR1 . G_INTR1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR1_G_INTR1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR1_G_INTR1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR1_G_INTR1(x)  (x)
-
-
-/**
- * \brief GPIO interrupt
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR2
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR2           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x47)
-
-/**
- * \brief
- * Bit 64-77 of field G_INTR.
- *
- * \details
- * '0': No change
- * '1': GPIO has changed
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR2 . G_INTR2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR2_G_INTR2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR2_G_INTR2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR2_G_INTR2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO interrupt enable
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x48)
-
-/**
- * \brief
- * Enables individual GPIO pins for interrupt.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_ENA . G_INTR_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_ENA_G_INTR_ENA(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_ENA_G_INTR_ENA     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_ENA_G_INTR_ENA(x)  (x)
-
-
-/**
- * \brief GPIO interrupt enable
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA1
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA1       VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x49)
-
-/**
- * \brief
- * Bit 32-63 of field G_INTR_ENA.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_ENA1 . G_INTR_ENA1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_ENA1_G_INTR_ENA1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_ENA1_G_INTR_ENA1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_ENA1_G_INTR_ENA1(x)  (x)
-
-
-/**
- * \brief GPIO interrupt enable
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA2
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA2       VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4a)
-
-/**
- * \brief
- * Bit 64-77 of field G_INTR_ENA.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_ENA2 . G_INTR_ENA2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO interrupt identity
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4b)
-
-/**
- * \brief
- * Shows which GPIO sources that are currently interrupting. This field is
- * the result of an AND-operation between the GPIO_INTR and the
- * GPIO_INTR_ENA registers.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_IDENT . G_INTR_IDENT
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_IDENT_G_INTR_IDENT(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_IDENT_G_INTR_IDENT     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_IDENT_G_INTR_IDENT(x)  (x)
-
-
-/**
- * \brief GPIO interrupt identity
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT1
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT1     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4c)
-
-/**
- * \brief
- * Bit 32-63 of field G_INTR_IDENT.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_IDENT1 . G_INTR_IDENT1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_IDENT1_G_INTR_IDENT1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_IDENT1_G_INTR_IDENT1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_IDENT1_G_INTR_IDENT1(x)  (x)
-
-
-/**
- * \brief GPIO interrupt identity
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT2
- */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT2     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4d)
-
-/**
- * \brief
- * Bit 64-77 of field G_INTR_IDENT.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_IDENT2 . G_INTR_IDENT2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO alternate functions
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_ALT
- *
- * @param ri Register: GPIO_ALT (??), 0-2
- */
-#define VTSS_DEVCPU_GCB_GPIO_ALT(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4e + (ri))
-
-/**
- * \brief
- * Configures alternate functions for individual GPIOs. See datasheet for
- * information on possible alternate functions.The LSB of the GPIO encoding
- * is placed in replication 0, MSB is placed in replication 1. For example;
- * to encode Alternate mode 2 for GPIO[n] write DEVCPU_GCB::GPIO_ALT[0][n]
- * = 0,  DEVCPU_GCB::GPIO_ALT[1][n] = 1 and DEVCPU_GCB::GPIO_ALT[2][n] =
- * 0.Note: This register is only reset by the device's reset input, i.e. it
- * is not affected by soft reset!
- *
- * \details
- * 000: GPIO mode
- * 001: Alternate mode 1
- * 010: Alternate mode 2
- * 011: Alternate mode 3
- * 100: Alternate mode 4
- * 101: Alternate mode 5
- * 110: Alternate mode 6
- * 111: Reserved
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_ALT . G_ALT
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_ALT_G_ALT(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_ALT_G_ALT     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_ALT_G_ALT(x)  (x)
-
-
-/**
- * \brief GPIO alternate functions
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_ALT1
- *
- * @param ri Register: GPIO_ALT1 (??), 0-2
- */
-#define VTSS_DEVCPU_GCB_GPIO_ALT1(ri)        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x51 + (ri))
-
-/**
- * \brief
- * Bit 32-63 of field G_ALT.
- *
- * \details
- * 000: GPIO mode
- * 001: Alternate mode 1
- * 010: Alternate mode 2
- * 011: Alternate mode 3
- * 100: Alternate mode 4
- * 101: Alternate mode 5
- * 110: Alternate mode 6
- * 111: Reserved
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_ALT1 . G_ALT1
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_ALT1_G_ALT1(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_GPIO_ALT1_G_ALT1     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_GPIO_ALT1_G_ALT1(x)  (x)
-
-
-/**
- * \brief GPIO alternate functions
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_ALT2
- *
- * @param ri Register: GPIO_ALT2 (??), 0-2
- */
-#define VTSS_DEVCPU_GCB_GPIO_ALT2(ri)        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x54 + (ri))
-
-/**
- * \brief
- * Bit 64-77 of field G_ALT.
- *
- * \details
- * 000: GPIO mode
- * 001: Alternate mode 1
- * 010: Alternate mode 2
- * 011: Alternate mode 3
- * 100: Alternate mode 4
- * 101: Alternate mode 5
- * 110: Alternate mode 6
- * 111: Reserved
- *
- * Field: ::VTSS_DEVCPU_GCB_GPIO_ALT2 . G_ALT2
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_ALT2_G_ALT2(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_DEVCPU_GCB_GPIO_ALT2_G_ALT2     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_DEVCPU_GCB_GPIO_ALT2_G_ALT2(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
-
-
-/**
- * \brief GPIO Signal Detect Mapping to DEVs
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_SD_DEV_MAP
- *
- * @param ri Register: GPIO_SD_DEV_MAP (??), 0-5
- */
-#define VTSS_DEVCPU_GCB_GPIO_SD_DEV_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x57 + (ri))
-
-/**
- * \brief
- * Set to map a specific GPIO mapped signal detect input to specific
- * front-port index. There is one replication for each GPIO mapped signal
- * detect input. If multiple signal detects are enabled and map to same
- * front-port index, then the higher replication index will take priority.
- * For example to map 3'rd signal detect input asif it was provided by 2'nd
- * SERDES; set DEVCPU_GCB::GPIO_SD_DEV_MAP[2].G_SD_DEV_MAP = 1 and enable
- * SD2 via DEVCPU_GCB::GPIO_ALT registers.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_SD_DEV_MAP . G_SD_DEV_MAP
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_SD_DEV_MAP_G_SD_DEV_MAP(x)  VTSS_ENCODE_BITFIELD(x,0,5)
-#define  VTSS_M_DEVCPU_GCB_GPIO_SD_DEV_MAP_G_SD_DEV_MAP     VTSS_ENCODE_BITMASK(0,5)
-#define  VTSS_X_DEVCPU_GCB_GPIO_SD_DEV_MAP_G_SD_DEV_MAP(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
-
-
-/**
- * \brief GPIO Signal Detect Mapping to SERDES
- *
- * \details
- * Register: \a DEVCPU_GCB:GPIO:GPIO_SD_SERDES_MAP
- *
- * @param ri Register: GPIO_SD_SERDES_MAP (??), 0-5
- */
-#define VTSS_DEVCPU_GCB_GPIO_SD_SERDES_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x5d + (ri))
-
-/**
- * \brief
- * Similar to G_SD_DEV_MAP. Used to map external signal detect to SERDES.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_GPIO_SD_SERDES_MAP . G_SD_SERDES_MAP
- */
-#define  VTSS_F_DEVCPU_GCB_GPIO_SD_SERDES_MAP_G_SD_SERDES_MAP(x)  VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_DEVCPU_GCB_GPIO_SD_SERDES_MAP_G_SD_SERDES_MAP     VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_DEVCPU_GCB_GPIO_SD_SERDES_MAP_G_SD_SERDES_MAP(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
-
-/**
  * Register Group: \a DEVCPU_GCB:MIIM
  *
  * Not documented
@@ -1279,7 +211,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,0)
+#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,0)
 
 /**
  * \brief
@@ -1366,7 +298,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,1)
+#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,1)
 
 /**
  * \brief
@@ -1391,7 +323,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,2)
+#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,2)
 
 /**
  * \brief
@@ -1507,7 +439,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,3)
+#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,3)
 
 /**
  * \brief
@@ -1543,7 +475,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,4)
+#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,4)
 
 /**
  * \brief
@@ -1608,7 +540,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,5)
+#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,5)
 
 /**
  * \brief
@@ -1641,7 +573,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,6)
+#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,6)
 
 /**
  * \brief
@@ -1676,7 +608,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,7)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,7)
 
 /**
  * \brief
@@ -1703,7 +635,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x63,gi,9,0,8)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,8)
 
 /**
  * \brief
@@ -1734,7 +666,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x75 + (ri))
+#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3e + (ri))
 
 /**
  * \brief
@@ -1755,162 +687,6 @@
 #define  VTSS_X_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY_MIIM_SCAN_RSLTS_STICKY(x)  (x)
 
 /**
- * Register Group: \a DEVCPU_GCB:FLEXCOM_SHARED
- *
- * Mappings of shared FLEXCOM Chip Selects
- */
-
-
-/**
- * \brief Mappings of shared FLEXCOM Chip Selects
- *
- * \details
- * Register: \a DEVCPU_GCB:FLEXCOM_SHARED:SS_MASK
- *
- * @param gi Register: FLEXCOM_SHARED (??), 0-4
- * @param ri Register: SS_MASK (??), 0-1
- */
-#define VTSS_DEVCPU_GCB_SS_MASK(gi,ri)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x77,gi,2,ri,0)
-
-/**
- * \brief
- * Each bit corresponds to a shared chip-select.
- *
- * \details
- * One-cold
- *
- * Field: ::VTSS_DEVCPU_GCB_SS_MASK . MASK
- */
-#define  VTSS_F_DEVCPU_GCB_SS_MASK_MASK(x)    VTSS_ENCODE_BITFIELD(x,0,21)
-#define  VTSS_M_DEVCPU_GCB_SS_MASK_MASK       VTSS_ENCODE_BITMASK(0,21)
-#define  VTSS_X_DEVCPU_GCB_SS_MASK_MASK(x)    VTSS_EXTRACT_BITFIELD(x,0,21)
-
-/**
- * Register Group: \a DEVCPU_GCB:ROSC
- *
- * Ring oscillator control
- */
-
-
-/**
- * \brief Enable and configure ring oscillators
- *
- * \details
- * Register: \a DEVCPU_GCB:ROSC:ROSC_CFG
- *
- * @param ri Replicator: x_FFL_DEVCPU_ROSC_CNT (??), 0-4
- */
-#define VTSS_DEVCPU_GCB_ROSC_CFG(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x81 + (ri))
-
-/**
- * \brief
- * Select transistors used by the ring oscillators. The replication number
- * is used to select.See: ROSC_CFG.ROSC_ENAMode bit encoding:0: HVT1: SVT2:
- * LVT3: Reserved
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_CFG . ROSC_MODE
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_CFG_ROSC_MODE(x)  VTSS_ENCODE_BITFIELD(x,1,2)
-#define  VTSS_M_DEVCPU_GCB_ROSC_CFG_ROSC_MODE     VTSS_ENCODE_BITMASK(1,2)
-#define  VTSS_X_DEVCPU_GCB_ROSC_CFG_ROSC_MODE(x)  VTSS_EXTRACT_BITFIELD(x,1,2)
-
-/**
- * \brief
- * Enable any of the five ring oscillators. The replication number is used
- * to select:replication 0: NW cornerreplication 1: NE cornerreplication 2:
- * SE cornerreplication 3: SW cornerreplication 4: Center
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_CFG . ROSC_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_CFG_ROSC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_ROSC_CFG_ROSC_ENA  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_ROSC_CFG_ROSC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Configuration of ring oscillator measurements
- *
- * \details
- * Register: \a DEVCPU_GCB:ROSC:ROSC_MEASURE_CFG
- */
-#define VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x86)
-
-/**
- * \brief
- * Number of clock cycles per capture time unit. The default value of 2800
- * corresponds to a 10us base time unit.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG . TIME_BASE
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_TIME_BASE(x)  VTSS_ENCODE_BITFIELD(x,13,12)
-#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_TIME_BASE     VTSS_ENCODE_BITMASK(13,12)
-#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_TIME_BASE(x)  VTSS_EXTRACT_BITFIELD(x,13,12)
-
-/**
- * \brief
- * Configure the ring oscillator measuring time in base time units. The
- * default values corresponds to a measuring time of 1msSee:
- * ROSC_MEASURE_CFG.TIME_BASETime = MEASURE_TIME * TIME_BASE
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG . MEASURE_TIME
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_MEASURE_TIME(x)  VTSS_ENCODE_BITFIELD(x,5,8)
-#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_MEASURE_TIME     VTSS_ENCODE_BITMASK(5,8)
-#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_MEASURE_TIME(x)  VTSS_EXTRACT_BITFIELD(x,5,8)
-
-/**
- * \brief
- * Start sampling of the selected ring oscillator output. The HW will clear
- * this bit when the measuring time has passed.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG . START
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_START(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_START  VTSS_BIT(4)
-#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_START(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \brief
- * Select one of the five ring oscillators to sample:0: NW corner1: NE
- * corner2: SE corner3: SW corner4: Center5-7: Reserved
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG . ROSC_SEL
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_ENCODE_BITFIELD(x,0,3)
-#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL     VTSS_ENCODE_BITMASK(0,3)
-#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
-
-
-/**
- * \brief ROSC frequency
- *
- * \details
- * Register: \a DEVCPU_GCB:ROSC:ROSC_FREQ_CNT
- */
-#define VTSS_DEVCPU_GCB_ROSC_FREQ_CNT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x87)
-
-/**
- * \brief
- * The frequency of the configured ring oscillator. This is expressed as
- * the number of counts that has occurred during the measuring
- * time:freq_osc = FREQ_CNT / (TIME_BASE(s) * MEASURE_TIME)When the default
- * configuration is used a FREQ_CNT value of 1000 corresponds to a ring
- * oscillator frequency of 1 MHz.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_ROSC_FREQ_CNT . FREQ_CNT
- */
-#define  VTSS_F_DEVCPU_GCB_ROSC_FREQ_CNT_FREQ_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,17)
-#define  VTSS_M_DEVCPU_GCB_ROSC_FREQ_CNT_FREQ_CNT     VTSS_ENCODE_BITMASK(0,17)
-#define  VTSS_X_DEVCPU_GCB_ROSC_FREQ_CNT_FREQ_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,17)
-
-/**
  * Register Group: \a DEVCPU_GCB:SIO_CTRL
  *
  * Serial IO control configuration
@@ -1925,7 +701,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x88 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x40 + (ri))
 
 /**
  * \brief
@@ -1947,7 +723,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CFG
  */
-#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8c)
+#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x44)
 
 /**
  * \brief
@@ -2161,7 +937,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CLOCK
  */
-#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8d)
+#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
 
 /**
  * \brief
@@ -2199,7 +975,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_PORT_CNT (??), 0-31
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8e + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46 + (ri))
 
 /**
  * \brief
@@ -2267,7 +1043,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_PORT_ENA
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xae)
+#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x66)
 
 /**
  * \brief
@@ -2293,7 +1069,7 @@
  *
  * @param ri Register: SIO_PWM_CFG (??), 0-2
  */
-#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xaf + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x67 + (ri))
 
 /**
  * \brief
@@ -2318,7 +1094,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb2 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6a + (ri))
 
 /**
  * \brief
@@ -2345,7 +1121,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb6 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6e + (ri))
 
 /**
  * \brief
@@ -2369,7 +1145,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xba + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x72 + (ri))
 
 /**
  * \brief
@@ -2408,7 +1184,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xbe + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x76 + (ri))
 
 /**
  * \brief
@@ -2430,7 +1206,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc2 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7a + (ri))
 
 /**
  * \brief
@@ -2456,7 +1232,7 @@
  *
  * @param ri Register: SIO_INTR_ENA (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc6 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7e + (ri))
 
 /**
  * \brief
@@ -2482,7 +1258,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xca + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x82 + (ri))
 
 /**
  * \brief
@@ -2499,603 +1275,6 @@
 #define  VTSS_F_DEVCPU_GCB_SIO_INTR_IDENT_SIO_INTR_IDENT(x)  (x)
 #define  VTSS_M_DEVCPU_GCB_SIO_INTR_IDENT_SIO_INTR_IDENT     0xffffffff
 #define  VTSS_X_DEVCPU_GCB_SIO_INTR_IDENT_SIO_INTR_IDENT(x)  (x)
-
-/**
- * Register Group: \a DEVCPU_GCB:FAN_CTRL
- *
- * Fan controller configuration and status
- */
-
-
-/**
- * \brief Fan controller configuration
- *
- * \details
- * Register: \a DEVCPU_GCB:FAN_CTRL:FAN_CFG
- */
-#define VTSS_DEVCPU_GCB_FAN_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xce)
-
-/**
- * \brief
- * Define the duty cycle
- *
- * \details
- * 0x00: Always "off"
- * 0xFF: Always "on"
- *
- * Field: ::VTSS_DEVCPU_GCB_FAN_CFG . DUTY_CYCLE
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CFG_DUTY_CYCLE(x)  VTSS_ENCODE_BITFIELD(x,16,8)
-#define  VTSS_M_DEVCPU_GCB_FAN_CFG_DUTY_CYCLE     VTSS_ENCODE_BITMASK(16,8)
-#define  VTSS_X_DEVCPU_GCB_FAN_CFG_DUTY_CYCLE(x)  VTSS_EXTRACT_BITFIELD(x,16,8)
-
-/**
- * \brief
- * Define the polarity of the PWM output.
- *
- * \details
- * 0: PWM is logic 1 when "on"
- * 1: PWM is logic 0 when "on"
- *
- * Field: ::VTSS_DEVCPU_GCB_FAN_CFG . INV_POL
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CFG_INV_POL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_DEVCPU_GCB_FAN_CFG_INV_POL    VTSS_BIT(3)
-#define  VTSS_X_DEVCPU_GCB_FAN_CFG_INV_POL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
-
-/**
- * \brief
- * Enable gating of the TACH input by the PWM output so that only TACH
- * pulses received when PWM is "on" are counted.
- *
- * \details
- * 0: Disabled
- * 1: Enabled
- *
- * Field: ::VTSS_DEVCPU_GCB_FAN_CFG . GATE_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CFG_GATE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_DEVCPU_GCB_FAN_CFG_GATE_ENA   VTSS_BIT(2)
-#define  VTSS_X_DEVCPU_GCB_FAN_CFG_GATE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * Configure the PWM output to be open collector
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_FAN_CFG . PWM_OPEN_COL_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CFG_PWM_OPEN_COL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_FAN_CFG_PWM_OPEN_COL_ENA  VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_FAN_CFG_PWM_OPEN_COL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * Configure behavior of TACH input tick counter, see DEVCPU_GCB::FAN_CNT
- * for more infromation.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_FAN_CFG . FAN_STAT_CFG
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_STAT_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_FAN_CFG_FAN_STAT_CFG  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_FAN_CFG_FAN_STAT_CFG(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Configuration of the PWM frequency.
- *
- * \details
- * Register: \a DEVCPU_GCB:FAN_CTRL:PWM_FREQ
- */
-#define VTSS_DEVCPU_GCB_PWM_FREQ             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xcf)
-
-/**
- * \brief
- * The number of system clock cycles that fit in 10 us.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_PWM_FREQ . CLK_CYCLES_10US
- */
-#define  VTSS_F_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US(x)  VTSS_ENCODE_BITFIELD(x,16,12)
-#define  VTSS_M_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US     VTSS_ENCODE_BITMASK(16,12)
-#define  VTSS_X_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
-
-/**
- * \brief
- * Set the frequency of the PWM output. The value of this field must be
- * (System clock frequency)/(PWM frequency)/256.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_PWM_FREQ . PWM_FREQ
- */
-#define  VTSS_F_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DEVCPU_GCB_PWM_FREQ_PWM_FREQ     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
-
-
-/**
- * \brief TACH counter
- *
- * \details
- * Register: \a DEVCPU_GCB:FAN_CTRL:FAN_CNT
- */
-#define VTSS_DEVCPU_GCB_FAN_CNT              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd0)
-
-/**
- * \brief
- * Counts the number of TACH input ticks. If
- * DEVCPU_GCB::FAN_CFG.FAN_STAT_CFG is set then this is a wrapping counter
- * that shows the total number of registered TACH ticks. If
- * DEVCPU_GCB::FAN_CFG.FAN_STAT_CFG is cleared then this counter is updated
- * once every second with the number of TACH ticks registered during the
- * last second.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_FAN_CNT . FAN_CNT
- */
-#define  VTSS_F_DEVCPU_GCB_FAN_CNT_FAN_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DEVCPU_GCB_FAN_CNT_FAN_CNT     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DEVCPU_GCB_FAN_CNT_FAN_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
-
-/**
- * Register Group: \a DEVCPU_GCB:MEMITGR
- *
- * Memory integrity monitor
- */
-
-
-/**
- * \brief Monitor control
- *
- * \details
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_CTRL
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_CTRL         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd1)
-
-/**
- * \brief
- * Setting this field transitions the integrity monitor between operating
- * modes. Transitioning between modes takes time, this field remains set
- * until the new mode is reached. During this time the monitor also reports
- * busy DEVCPU_GCB::MEMITGR_STAT.MODE_BUSY is set).From IDLE
- * (DEVCPU_GCB::MEMITGR_STAT.MODE_IDLE is set) the monitor can transition
- * into either DETECT or LISTEN mode, the DETECT mode is entered if a
- * memory reports an indication - the LISTEN mode is entered if no
- * indications are reported. The first time after reset the monitor will
- * not detect indications, that is; it will transition directly from IDLE
- * to LISTEN mode.From DETECT (DEVCPU_GCB::MEMITGR_STAT.MODE_DETECT is set)
- * the monitor can transition into either DETECT or LISTEN mode, the DETECT
- * mode is entered if more indications are reported - the LISTEN mode is
- * entered if no more indications are reported.From LISTEN
- * (DEVCPU_GCB::MEMITGR_STAT.MODE_LISTEN is set) the monitor can transition
- * into IDLE mode.Software shall not set this field when the monitor is
- * BUSY (when DEVCPU_GCB::MEMITGR_STAT.MODE_BUSY is set.)
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_CTRL . ACTIVATE
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_CTRL_ACTIVATE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_CTRL_ACTIVATE  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_CTRL_ACTIVATE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Monitor status
- *
- * \details
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_STAT
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_STAT         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd2)
-
-/**
- * \brief
- * This field is set if there is an overflow when recording indications
- * from the memories. If this happens (setting of this field) the value of
- * the DEVCPU_GCB::MEMITGR_DIV.MEM_DIV field is set too low!
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . INDICATION_OVF
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_INDICATION_OVF(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_INDICATION_OVF  VTSS_BIT(5)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_INDICATION_OVF(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
-
-/**
- * \brief
- * If this field is set then there is an indication from one of the
- * memories that needs to be analyzed. An indication is either a parity
- * detection or an error correction.This field is only set when the monitor
- * is in LISTEN mode (DEVCPU_GCB::MEMITGR_STAT.MODE_LISTEN is set), in all
- * other states (including BUSY) this field returns 0.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . INDICATION
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_INDICATION(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_INDICATION  VTSS_BIT(4)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_INDICATION(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \brief
- * This field is set when the monitor is in LISTEN mode, during listen mode
- * the monitor continually check for parity/correction indications from the
- * memories.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . MODE_LISTEN
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_MODE_LISTEN(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_MODE_LISTEN  VTSS_BIT(3)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_MODE_LISTEN(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
-
-/**
- * \brief
- * This field is set when the monitor is in DETECT mode, during detect mode
- * the DEVCPU_GCB::MEMITGR_INFO and DEVCPU_GCB::MEMITGR_IDX registers
- * contains valid information about one indication.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . MODE_DETECT
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_MODE_DETECT(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_MODE_DETECT  VTSS_BIT(2)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_MODE_DETECT(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * This field is set when the monitor is in IDLE mode.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . MODE_IDLE
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_MODE_IDLE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_MODE_IDLE  VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_MODE_IDLE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * The busy signal is a copy of the DEVCPU_GCB::MEMITGR_CTRL.ACTIVATE
- * field, see description of that field for more information about the
- * different states/modes of the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_STAT . MODE_BUSY
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_STAT_MODE_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_STAT_MODE_BUSY  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_STAT_MODE_BUSY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Memory indication
- *
- * \details
- * This field is only valid when the monitor is in the DETECT
- * (DEVCPU_GCB::MEMITGR_STAT.MODE_DETECT is set) mode.
- *
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_INFO
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_INFO         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd3)
-
-/**
- * \brief
- * This field is set if the monitor has detected a parity indication (or an
- * unrecoverable correction).
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_INFO . MEM_ERR
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR  VTSS_BIT(31)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
-
-/**
- * \brief
- * This field is set if the monitor has detected a correction.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_INFO . MEM_COR
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_INFO_MEM_COR(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_INFO_MEM_COR  VTSS_BIT(30)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_INFO_MEM_COR(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
-
-/**
- * \brief
- * This field is set if the monitor has detected a parity indication (or an
- * unrecoverable correction) for which the address has not been recorded.If
- * DEVCPU_GCB::MEMITGR_INFO.MEM_ERR is set then there has been more than
- * one indication, then only the address of the newest indication has been
- * kept. If DEVCPU_GCB::MEMITGR_INFO.MEM_ERR is cleared then an indication
- * has occurred for which the address could not be stored, this is a very
- * rare situation that can only happen if an indication is detected just as
- * the memory is talking to the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_INFO . MEM_ERR_OVF
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR_OVF(x)  VTSS_ENCODE_BITFIELD(!!(x),29,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR_OVF  VTSS_BIT(29)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_INFO_MEM_ERR_OVF(x)  VTSS_EXTRACT_BITFIELD(x,29,1)
-
-/**
- * \brief
- * This field is set if the monitor has correction indication for which the
- * address has not been recorded.If DEVCPU_GCB::MEMITGR_INFO.MEM_ERR is set
- * then there has also been a parity indication (or an unrecoverable
- * correction) which takes priority over correction indications.If
- * DEVCPU_GCB::MEMITGR_INFO.MEM_ERR is cleared and
- * DEVCPU_GCB::MEMITGR_INFO.MEM_COR is set then there has been more than
- * one correction indication, then only the address of the newest
- * correction indication has been kept.If DEVCPU_GCB::MEMITGR_INFO.MEM_ERR
- * and DEVCPU_GCB::MEMITGR_INFO.MEM_COR is both cleared then a correction
- * indication has occurred for which the address could not be stored, this
- * is a very rare situation that can only happen if an indication is
- * detected just as the memory is talking to the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_INFO . MEM_COR_OVF
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_INFO_MEM_COR_OVF(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_INFO_MEM_COR_OVF  VTSS_BIT(28)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_INFO_MEM_COR_OVF(x)  VTSS_EXTRACT_BITFIELD(x,28,1)
-
-/**
- * \brief
- * This field is valid only when DEVCPU_GCB::MEMITGR_INFO.MEM_ERR or
- * DEVCPU_GCB::MEMITGR_INFO.MEM_COR is set.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_INFO . MEM_ADDR
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_INFO_MEM_ADDR(x)  VTSS_ENCODE_BITFIELD(x,0,28)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_INFO_MEM_ADDR     VTSS_ENCODE_BITMASK(0,28)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_INFO_MEM_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,0,28)
-
-
-/**
- * \brief Memory index
- *
- * \details
- * This field is only valid when the monitor is in the DETECT
- * (DEVCPU_GCB::MEMITGR_STAT.MODE_DETECT is set) mode.
- *
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_IDX
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_IDX          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd4)
-
-/**
- * \brief
- * This field contains a unique index for the memory for which info is
- * currently provided in DEVCPU_GCB::MEMITGR_INFO. Indexes are counted from
- * 1 (not 0).
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_IDX . MEM_IDX
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_IDX_MEM_IDX(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_IDX_MEM_IDX     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_IDX_MEM_IDX(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
-
-
-/**
- * \brief Monitor speed
- *
- * \details
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_DIV
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_DIV          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd5)
-
-/**
- * \brief
- * Configure divider for generating the sync-pulse to memories (controls
- * the speed at which the monitor talks to the memories). The lower this is
- * set the faster indications can be read out of the memories.
- *
- * \details
- * See datasheet for appropriate value.
- *
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DIV . MEM_DIV
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DIV_MEM_DIV(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DIV_MEM_DIV     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DIV_MEM_DIV(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
-
-
-/**
- * \brief Debug registers
- *
- * \details
- * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_DBG
- */
-#define VTSS_DEVCPU_GCB_MEMITGR_DBG          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd6)
-
-/**
- * \brief
- * This field is used for test purposes.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . MEM_DIV_SENSE
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_MEM_DIV_SENSE(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_MEM_DIV_SENSE  VTSS_BIT(9)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_MEM_DIV_SENSE(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
-
-/**
- * \brief
- * Set to force the intr-field of the intgrity-ring out from the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . FORCE_INTR
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_FORCE_INTR(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_FORCE_INTR  VTSS_BIT(8)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_FORCE_INTR(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
-
-/**
- * \brief
- * Always shows the (resynced) value of the sync-field of the
- * integrity-ring into the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . SYNC_IN
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_SYNC_IN(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_SYNC_IN  VTSS_BIT(7)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_SYNC_IN(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
-
-/**
- * \brief
- * Always shows the (resynced) value of the ena-field of the integrity-ring
- * into the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . ENA_IN
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_ENA_IN(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_ENA_IN  VTSS_BIT(6)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_ENA_IN(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
-
-/**
- * \brief
- * Always shows the (resynced) value of the data-field of the
- * integrity-ring into the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . DATA_IN
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_DATA_IN(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_DATA_IN  VTSS_BIT(5)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_DATA_IN(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
-
-/**
- * \brief
- * Always shows the (resynced) value of the intr-field of the
- * integrity-ring into the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . INTR_IN
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_INTR_IN(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_INTR_IN  VTSS_BIT(4)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_INTR_IN(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \brief
- * When DEVCPU_GCB::MEMITGR_DBG.FORCE_ENA is set, this value is driven to
- * sync-field of the intgrity-ring out from the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . SYNC_OUT
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_SYNC_OUT(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_SYNC_OUT  VTSS_BIT(3)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_SYNC_OUT(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
-
-/**
- * \brief
- * When DEVCPU_GCB::MEMITGR_DBG.FORCE_ENA is set, this value is driven to
- * ena-field of the intgrity-ring out from the monitor.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . ENA_OUT
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_ENA_OUT(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_ENA_OUT  VTSS_BIT(2)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_ENA_OUT(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * Set to overtake ena and sync outputs (bit banging on the integrity ring)
- * and drive these by DEVCPU_GCB::MEMITGR_DBG.ENA_OUT and
- * DEVCPU_GCB::MEMITGR_DBG.SYNC_OUT respectively.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . FORCE_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_FORCE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_FORCE_ENA  VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_FORCE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * Set this field to enable detection of parity detections and ecc
- * corrections.The monitor must be initialized before first use (after
- * reset), this is done by making the first transtion from IDLE to LISTEN
- * mode without enabeling detections (this field is cleared) and then
- * setting this field once the monitor reaches the LISTEN mode.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_MEMITGR_DBG . DETECT_ENA
- */
-#define  VTSS_F_DEVCPU_GCB_MEMITGR_DBG_DETECT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_MEMITGR_DBG_DETECT_ENA  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_MEMITGR_DBG_DETECT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-/**
- * Register Group: \a DEVCPU_GCB:VRAP
- *
- * VRAP controller
- */
-
-
-/**
- * \brief VRAP events
- *
- * \details
- * Register: \a DEVCPU_GCB:VRAP:VRAP_ACCESS_STAT
- */
-#define VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd7)
-
-/**
- * \brief
- * This field is set if a valid VRAP frame has been received.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT . FRM_RECV_STICKY
- */
-#define  VTSS_F_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_RECV_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_RECV_STICKY  VTSS_BIT(3)
-#define  VTSS_X_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_RECV_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
-
-/**
- * \brief
- * This field is set if an invalid command inside a valid VRAP frame has
- * been received. The VRAP engine has ignored the command.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT . CMD_INVALID_STICKY
- */
-#define  VTSS_F_DEVCPU_GCB_VRAP_ACCESS_STAT_CMD_INVALID_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_DEVCPU_GCB_VRAP_ACCESS_STAT_CMD_INVALID_STICKY  VTSS_BIT(2)
-#define  VTSS_X_DEVCPU_GCB_VRAP_ACCESS_STAT_CMD_INVALID_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * This field is set if an invalid VRAP frame has been received and
- * discarded by the VRAP-engine. Frames with a VRAP header different from
- * V1 are considered invalid.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT . FRM_INVALID_STICKY
- */
-#define  VTSS_F_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_INVALID_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_INVALID_STICKY  VTSS_BIT(1)
-#define  VTSS_X_DEVCPU_GCB_VRAP_ACCESS_STAT_FRM_INVALID_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * This field is set if a VRAP reply frame has been aborted. This my happen
- * if a protocol violation is detected during VRAP request frame
- * processing.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT . REPLY_ABORT_STICKY
- */
-#define  VTSS_F_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY  VTSS_BIT(0)
-#define  VTSS_X_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 #endif /* _VTSS_LAGUNA_REGS_DEVCPU_GCB_H_ */

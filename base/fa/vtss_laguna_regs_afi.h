@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_AFI_H_
 #define _VTSS_LAGUNA_REGS_AFI_H_
@@ -105,17 +86,17 @@
  * PART1
  *
  * \details
- * Bit 0-13: fp
- * Bit 14-19: dstp
- * Bit 20-22: eprio
- * Bit 23: short
+ * Bit 0-9: fp
+ * Bit 10-15: dstp
+ * Bit 16-18: eprio
+ * Bit 19: short
 
  *
  * Field: ::VTSS_AFI_NEW_FRM_INFO . FRM_INFO
  */
-#define  VTSS_F_AFI_NEW_FRM_INFO_FRM_INFO(x)  VTSS_ENCODE_BITFIELD(x,0,24)
-#define  VTSS_M_AFI_NEW_FRM_INFO_FRM_INFO     VTSS_ENCODE_BITMASK(0,24)
-#define  VTSS_X_AFI_NEW_FRM_INFO_FRM_INFO(x)  VTSS_EXTRACT_BITFIELD(x,0,24)
+#define  VTSS_F_AFI_NEW_FRM_INFO_FRM_INFO(x)  VTSS_ENCODE_BITFIELD(x,0,20)
+#define  VTSS_M_AFI_NEW_FRM_INFO_FRM_INFO     VTSS_ENCODE_BITMASK(0,20)
+#define  VTSS_X_AFI_NEW_FRM_INFO_FRM_INFO(x)  VTSS_EXTRACT_BITFIELD(x,0,20)
 
 
 /**
@@ -347,9 +328,9 @@
  * \details
  * Field: ::VTSS_AFI_DTI_DURATION_TICK_LEN . DTI_DURATION_TICK_LEN
  */
-#define  VTSS_F_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,19)
-#define  VTSS_M_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN     VTSS_ENCODE_BITMASK(0,19)
-#define  VTSS_X_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,19)
+#define  VTSS_F_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,17)
+#define  VTSS_M_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN     VTSS_ENCODE_BITMASK(0,17)
+#define  VTSS_X_AFI_DTI_DURATION_TICK_LEN_DTI_DURATION_TICK_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,17)
 
 /**
  * Register Group: \a AFI:FRM_TBL
@@ -429,9 +410,9 @@
  * Bit 0-29: DELAY
  *
  * Frame entry type:
- * Bit 0-13: fp
- * Bit 14-19: dstp
- * Bit 20-27: inj_cnt
+ * Bit 0-9: fp
+ * Bit 10-15: dstp
+ * Bit 16-23: inj_cnt
  *
  * Field: ::VTSS_AFI_FRM_ENTRY_PART0 . PART0
  */
@@ -1066,16 +1047,16 @@
 /**
  * \brief
  * Length of TTI Base Tick.Unit: One system clock cycle.In default
- * configuration and a clock cycle of 3572 ps, the tick length corresponds
+ * configuration and a clock cycle of 11875 ps, the tick length corresponds
  * to 52us.If the device is uses a longer clock cycle, then the value of
  * BASE_LEN must be reconfigured accordingly.
  *
  * \details
  * Field: ::VTSS_AFI_TTI_TICK_BASE . BASE_LEN
  */
-#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_LEN     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
+#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,13)
+#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_LEN     VTSS_ENCODE_BITMASK(0,13)
+#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,13)
 
 /**
  * \brief
@@ -1084,9 +1065,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_TICK_BASE . BASE_CNT
  */
-#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_ENCODE_BITFIELD(x,16,14)
-#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_CNT     VTSS_ENCODE_BITMASK(16,14)
-#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_EXTRACT_BITFIELD(x,16,14)
+#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_ENCODE_BITFIELD(x,16,13)
+#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_CNT     VTSS_ENCODE_BITMASK(16,13)
+#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_EXTRACT_BITFIELD(x,16,13)
 
 
 /**

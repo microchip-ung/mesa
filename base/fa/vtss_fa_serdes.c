@@ -65,6 +65,10 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_
 {
     return VTSS_RC_OK;
 }
+typedef struct {
+    u16 status;
+} vtss_kr_status_results_t;
+
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,

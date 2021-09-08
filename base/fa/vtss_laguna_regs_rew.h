@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_REW_H_
 #define _VTSS_LAGUNA_REGS_REW_H_
@@ -54,7 +35,7 @@
  *
  * Register: \a REW:COMMON:OWN_UPSID
  */
-#define VTSS_REW_OWN_UPSID                   VTSS_IOREG(VTSS_TO_REW,0x6000)
+#define VTSS_REW_OWN_UPSID                   VTSS_IOREG(VTSS_TO_REW,0x3e08)
 
 /**
  * \brief
@@ -77,7 +58,7 @@
  * \details
  * Register: \a REW:COMMON:COMMON_CTRL
  */
-#define VTSS_REW_COMMON_CTRL                 VTSS_IOREG(VTSS_TO_REW,0x6003)
+#define VTSS_REW_COMMON_CTRL                 VTSS_IOREG(VTSS_TO_REW,0x3e0b)
 
 /**
  * \brief
@@ -167,7 +148,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_REW_IFH_CTRL(ri)                VTSS_IOREG(VTSS_TO_REW,0x6004 + (ri))
+#define VTSS_REW_IFH_CTRL(ri)                VTSS_IOREG(VTSS_TO_REW,0x3e0c + (ri))
 
 /**
  * \brief
@@ -205,7 +186,7 @@
  *
  * Register: \a REW:COMMON:IFH_CTRL_CPUVD
  */
-#define VTSS_REW_IFH_CTRL_CPUVD              VTSS_IOREG(VTSS_TO_REW,0x6045)
+#define VTSS_REW_IFH_CTRL_CPUVD              VTSS_IOREG(VTSS_TO_REW,0x3e4d)
 
 /**
  * \brief
@@ -246,7 +227,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PORT_CTRL(ri)               VTSS_IOREG(VTSS_TO_REW,0x6046 + (ri))
+#define VTSS_REW_PORT_CTRL(ri)               VTSS_IOREG(VTSS_TO_REW,0x3e4e + (ri))
 
 /**
  * \brief
@@ -491,7 +472,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_RTAG_ETAG_CTRL(ri)          VTSS_IOREG(VTSS_TO_REW,0x608c + (ri))
+#define VTSS_REW_RTAG_ETAG_CTRL(ri)          VTSS_IOREG(VTSS_TO_REW,0x3e94 + (ri))
 
 /**
  * \brief
@@ -558,7 +539,7 @@
  *
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_REW_TPID_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x60d2 + (ri))
+#define VTSS_REW_TPID_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3eda + (ri))
 
 /**
  * \brief
@@ -582,7 +563,7 @@
  * \details
  * Register: \a REW:COMMON:ES0_CTRL
  */
-#define VTSS_REW_ES0_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x60d5)
+#define VTSS_REW_ES0_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3edd)
 
 /**
  * \brief
@@ -689,7 +670,7 @@
  * \details
  * Register: \a REW:COMMON:MIP_CTRL
  */
-#define VTSS_REW_MIP_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x60d6)
+#define VTSS_REW_MIP_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3ede)
 
 /**
  * \brief
@@ -736,7 +717,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_PROBE_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x60d7 + (ri))
+#define VTSS_REW_MIRROR_PROBE_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3edf + (ri))
 
 /**
  * \brief
@@ -804,7 +785,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_TAG_A_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x60da + (ri))
+#define VTSS_REW_MIRROR_TAG_A_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3ee2 + (ri))
 
 /**
  * \brief
@@ -896,7 +877,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_TAG_B_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x60dd + (ri))
+#define VTSS_REW_MIRROR_TAG_B_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3ee5 + (ri))
 
 /**
  * \brief
@@ -989,7 +970,7 @@
  *
  * Register: \a REW:COMMON:DP_MAP
  */
-#define VTSS_REW_DP_MAP                      VTSS_IOREG(VTSS_TO_REW,0x60e0)
+#define VTSS_REW_DP_MAP                      VTSS_IOREG(VTSS_TO_REW,0x3ee8)
 
 /**
  * \brief
@@ -1018,7 +999,7 @@
  *
  * @param ri Register: DSCP_REMAP (??), 0-63
  */
-#define VTSS_REW_DSCP_REMAP(ri)              VTSS_IOREG(VTSS_TO_REW,0x60e1 + (ri))
+#define VTSS_REW_DSCP_REMAP(ri)              VTSS_IOREG(VTSS_TO_REW,0x3ee9 + (ri))
 
 /**
  * \brief
@@ -1038,7 +1019,7 @@
  * \details
  * Register: \a REW:COMMON:RLEG_CFG_0
  */
-#define VTSS_REW_RLEG_CFG_0                  VTSS_IOREG(VTSS_TO_REW,0x6121)
+#define VTSS_REW_RLEG_CFG_0                  VTSS_IOREG(VTSS_TO_REW,0x3f29)
 
 /**
  * \brief
@@ -1067,7 +1048,7 @@
  * \details
  * Register: \a REW:COMMON:RLEG_CFG_1
  */
-#define VTSS_REW_RLEG_CFG_1                  VTSS_IOREG(VTSS_TO_REW,0x6122)
+#define VTSS_REW_RLEG_CFG_1                  VTSS_IOREG(VTSS_TO_REW,0x3f2a)
 
 /**
  * \brief
@@ -1123,7 +1104,7 @@
  * \details
  * Register: \a REW:COMMON:CNT_CTRL
  */
-#define VTSS_REW_CNT_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x6123)
+#define VTSS_REW_CNT_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3f2b)
 
 /**
  * \brief
@@ -1214,7 +1195,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT_COUNT
  */
-#define VTSS_REW_STICKY_EVENT_COUNT          VTSS_IOREG(VTSS_TO_REW,0x6124)
+#define VTSS_REW_STICKY_EVENT_COUNT          VTSS_IOREG(VTSS_TO_REW,0x3f2c)
 
 /**
  * \brief
@@ -1237,7 +1218,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT_CNT_MASK_CFG
  */
-#define VTSS_REW_STICKY_EVENT_CNT_MASK_CFG   VTSS_IOREG(VTSS_TO_REW,0x6125)
+#define VTSS_REW_STICKY_EVENT_CNT_MASK_CFG   VTSS_IOREG(VTSS_TO_REW,0x3f2d)
 
 /**
  * \brief
@@ -1484,7 +1465,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT
  */
-#define VTSS_REW_STICKY_EVENT                VTSS_IOREG(VTSS_TO_REW,0x6126)
+#define VTSS_REW_STICKY_EVENT                VTSS_IOREG(VTSS_TO_REW,0x3f2e)
 
 /**
  * \brief
@@ -1764,7 +1745,7 @@
  *
  * @param ri Register: GCPU_CFG (??), 0-7
  */
-#define VTSS_REW_GCPU_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x6127 + (ri))
+#define VTSS_REW_GCPU_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3f2f + (ri))
 
 /**
  * \brief
@@ -1900,7 +1881,7 @@
  *
  * @param ri Register: VSTAX_PORT_GRP_CFG (??), 0-1
  */
-#define VTSS_REW_VSTAX_PORT_GRP_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x612f + (ri))
+#define VTSS_REW_VSTAX_PORT_GRP_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x3f37 + (ri))
 
 /**
  * \brief
@@ -1963,7 +1944,7 @@
  *
  * @param ri Register: GCPU_TAG_CFG (??), 0-1
  */
-#define VTSS_REW_GCPU_TAG_CFG(ri)            VTSS_IOREG(VTSS_TO_REW,0x6131 + (ri))
+#define VTSS_REW_GCPU_TAG_CFG(ri)            VTSS_IOREG(VTSS_TO_REW,0x3f39 + (ri))
 
 /**
  * \brief
@@ -2052,7 +2033,7 @@
  *
  * Register: \a REW:COMMON:MIP_STICKY_EVENT
  */
-#define VTSS_REW_MIP_STICKY_EVENT            VTSS_IOREG(VTSS_TO_REW,0x6133)
+#define VTSS_REW_MIP_STICKY_EVENT            VTSS_IOREG(VTSS_TO_REW,0x3f3b)
 
 /**
  * \brief
@@ -2175,9 +2156,9 @@
  *
  * Register: \a REW:MAP_RES_A:MAP_VAL_A
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-1023
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
  */
-#define VTSS_REW_MAP_VAL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4000,gi,2,0,0)
+#define VTSS_REW_MAP_VAL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,2,0,0)
 
 /**
  * \brief
@@ -2266,9 +2247,9 @@
  *
  * Register: \a REW:MAP_RES_A:MAP_LBL_A
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-1023
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
  */
-#define VTSS_REW_MAP_LBL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4000,gi,2,0,1)
+#define VTSS_REW_MAP_LBL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,2,0,1)
 
 /**
  * \brief
@@ -2298,9 +2279,9 @@
  *
  * Register: \a REW:MAP_RES_B:MAP_VAL_B
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-1023
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
  */
-#define VTSS_REW_MAP_VAL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4800,gi,2,0,0)
+#define VTSS_REW_MAP_VAL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,0)
 
 /**
  * \brief
@@ -2389,9 +2370,9 @@
  *
  * Register: \a REW:MAP_RES_B:MAP_LBL_B
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-1023
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
  */
-#define VTSS_REW_MAP_LBL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4800,gi,2,0,1)
+#define VTSS_REW_MAP_LBL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,1)
 
 /**
  * \brief
@@ -2421,7 +2402,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PORT_VLAN_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,0)
+#define VTSS_REW_PORT_VLAN_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,0)
 
 /**
  * \brief
@@ -2472,7 +2453,7 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  * @param ri Register: PCP_MAP_DE0 (??), 0-7
  */
-#define VTSS_REW_PCP_MAP_DE0(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,ri,1)
+#define VTSS_REW_PCP_MAP_DE0(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,ri,1)
 
 /**
  * \brief
@@ -2496,7 +2477,7 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  * @param ri Register: PCP_MAP_DE1 (??), 0-7
  */
-#define VTSS_REW_PCP_MAP_DE1(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,ri,9)
+#define VTSS_REW_PCP_MAP_DE1(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,ri,9)
 
 /**
  * \brief
@@ -2520,7 +2501,7 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  * @param ri Register: DEI_MAP_DE0 (??), 0-7
  */
-#define VTSS_REW_DEI_MAP_DE0(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,ri,17)
+#define VTSS_REW_DEI_MAP_DE0(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,ri,17)
 
 /**
  * \brief
@@ -2546,7 +2527,7 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  * @param ri Register: DEI_MAP_DE1 (??), 0-7
  */
-#define VTSS_REW_DEI_MAP_DE1(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,ri,25)
+#define VTSS_REW_DEI_MAP_DE1(gi,ri)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,ri,25)
 
 /**
  * \brief
@@ -2571,7 +2552,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_TAG_CTRL(gi)                VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,33)
+#define VTSS_REW_TAG_CTRL(gi)                VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,33)
 
 /**
  * \brief
@@ -2692,7 +2673,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_DSCP_MAP(gi)                VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,34)
+#define VTSS_REW_DSCP_MAP(gi)                VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,34)
 
 /**
  * \brief
@@ -2739,7 +2720,7 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  * @param ri Register: PTP_MODE_CFG (??), 0-1
  */
-#define VTSS_REW_PTP_MODE_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,ri,35)
+#define VTSS_REW_PTP_MODE_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,ri,35)
 
 /**
  * \brief
@@ -2777,7 +2758,31 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,37)
+#define VTSS_REW_PTP_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,37)
+
+/**
+ * \brief
+ * Set to skip detection and indication of overflow conditions for frame
+ * transmitted on this port
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_EGR_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(6)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Set to skip detection and indication of overflow conditions for frames
+ * received on this port
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_IGR_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS  VTSS_BIT(5)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
@@ -2842,7 +2847,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_EDLY_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,38)
+#define VTSS_REW_PTP_EDLY_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,38)
 
 /**
  * \brief
@@ -2866,7 +2871,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_EDLY_CFG1(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,39)
+#define VTSS_REW_PTP_EDLY_CFG1(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,39)
 
 /**
  * \brief
@@ -2890,7 +2895,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_IDLY1_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,40)
+#define VTSS_REW_PTP_IDLY1_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,40)
 
 /**
  * \brief
@@ -2915,7 +2920,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_IDLY1_CFG1(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,41)
+#define VTSS_REW_PTP_IDLY1_CFG1(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,41)
 
 /**
  * \brief
@@ -2940,7 +2945,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_IDLY2_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,42)
+#define VTSS_REW_PTP_IDLY2_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,42)
 
 /**
  * \brief
@@ -2965,7 +2970,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_IDLY2_CFG1(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,43)
+#define VTSS_REW_PTP_IDLY2_CFG1(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,43)
 
 /**
  * \brief
@@ -2990,7 +2995,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_SMAC_LOW(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,44)
+#define VTSS_REW_PTP_SMAC_LOW(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,44)
 
 /**
  * \brief
@@ -3013,7 +3018,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PTP_SMAC_HIGH(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,45)
+#define VTSS_REW_PTP_SMAC_HIGH(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,64,0,45)
 
 /**
  * \brief
@@ -3040,9 +3045,9 @@
  * \details
  * Register: \a REW:MIP_TBL:MIP_CFG
  *
- * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_MIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x3900,gi,8,0,0)
+#define VTSS_REW_MIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,0)
 
 /**
  * \brief
@@ -3172,9 +3177,9 @@
  * \details
  * Register: \a REW:MIP_TBL:CCM_HMO_CTRL
  *
- * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_CCM_HMO_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3900,gi,8,0,1)
+#define VTSS_REW_CCM_HMO_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,1)
 
 /**
  * \brief
@@ -3208,9 +3213,9 @@
  * \details
  * Register: \a REW:MIP_TBL:MIP_VID_CTRL
  *
- * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_MIP_VID_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3900,gi,8,0,2)
+#define VTSS_REW_MIP_VID_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,2)
 
 /**
  * \brief
@@ -3251,9 +3256,9 @@
  * \details
  * Register: \a REW:MIP_TBL:LBM_MAC_HIGH
  *
- * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_LBM_MAC_HIGH(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3900,gi,8,0,3)
+#define VTSS_REW_LBM_MAC_HIGH(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,3)
 
 /**
  * \brief
@@ -3274,9 +3279,9 @@
  * \details
  * Register: \a REW:MIP_TBL:LBM_MAC_LOW
  *
- * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_LBM_MAC_LOW(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x3900,gi,8,0,4)
+#define VTSS_REW_LBM_MAC_LOW(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,4)
 
 /**
  * \brief
@@ -3304,9 +3309,9 @@
  *
  * Register: \a REW:MAC_TBL:MAC_TBL_CFG
  *
- * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-127
+ * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-31
  */
-#define VTSS_REW_MAC_TBL_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x3a00,gi,4,0,0)
+#define VTSS_REW_MAC_TBL_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x2900,gi,4,0,0)
 
 /**
  * \brief
@@ -3331,9 +3336,9 @@
  *
  * Register: \a REW:MAC_TBL:EACL_MAC_HIGH
  *
- * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-127
+ * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-31
  */
-#define VTSS_REW_EACL_MAC_HIGH(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x3a00,gi,4,0,1)
+#define VTSS_REW_EACL_MAC_HIGH(gi)           VTSS_IOREG_IX(VTSS_TO_REW,0x2900,gi,4,0,1)
 
 /**
  * \brief
@@ -3355,9 +3360,9 @@
  *
  * Register: \a REW:MAC_TBL:EACL_MAC_LOW
  *
- * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-127
+ * @param gi Replicator: x_FFL_REW_MAC_TBL_ENTRY_CNT (??), 0-31
  */
-#define VTSS_REW_EACL_MAC_LOW(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3a00,gi,4,0,2)
+#define VTSS_REW_EACL_MAC_LOW(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2900,gi,4,0,2)
 
 /**
  * \brief
@@ -3417,10 +3422,10 @@
  *
  * Register: \a REW:ISDX_TBL:COS_CTRL
  *
- * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-1023
+ * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-31
  * @param ri Register: COS_CTRL (??), 0-2
  */
-#define VTSS_REW_COS_CTRL(gi,ri)             VTSS_IOREG_IX(VTSS_TO_REW,0x2000,gi,4,ri,0)
+#define VTSS_REW_COS_CTRL(gi,ri)             VTSS_IOREG_IX(VTSS_TO_REW,0x2980,gi,4,ri,0)
 
 /**
  * \brief
@@ -3457,7 +3462,7 @@
  * \details
  * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO
  */
-#define VTSS_REW_PTP_RSRV_NOT_ZERO           VTSS_IOREG(VTSS_TO_REW,0x38c3)
+#define VTSS_REW_PTP_RSRV_NOT_ZERO           VTSS_IOREG(VTSS_TO_REW,0x2ad2)
 
 /**
  * \brief
@@ -3478,7 +3483,7 @@
  * \details
  * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO1
  */
-#define VTSS_REW_PTP_RSRV_NOT_ZERO1          VTSS_IOREG(VTSS_TO_REW,0x38c4)
+#define VTSS_REW_PTP_RSRV_NOT_ZERO1          VTSS_IOREG(VTSS_TO_REW,0x2ad3)
 
 /**
  * \brief
@@ -3501,7 +3506,7 @@
  *
  * @param ri Register: PTP_GEN_STAMP_FMT (??), 0-3
  */
-#define VTSS_REW_PTP_GEN_STAMP_FMT(ri)       VTSS_IOREG(VTSS_TO_REW,0x38c6 + (ri))
+#define VTSS_REW_PTP_GEN_STAMP_FMT(ri)       VTSS_IOREG(VTSS_TO_REW,0x2ad5 + (ri))
 
 /**
  * \brief
@@ -4303,7 +4308,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_IPV4_ENCAP_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,0)
+#define VTSS_REW_IPV4_ENCAP_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,0)
 
 /**
  * \brief
@@ -4330,7 +4335,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_IP_HDR_CFG(gi)              VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,1)
+#define VTSS_REW_IP_HDR_CFG(gi)              VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,1)
 
 /**
  * \brief
@@ -4427,7 +4432,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_GRE_PROTOCOL_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,2)
+#define VTSS_REW_GRE_PROTOCOL_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,2)
 
 /**
  * \brief
@@ -4463,7 +4468,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_SIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,3)
+#define VTSS_REW_SIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,3)
 
 /**
  * \brief
@@ -4487,7 +4492,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_DIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,4)
+#define VTSS_REW_DIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,4)
 
 /**
  * \brief
@@ -4511,7 +4516,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_ENCAP_ENTRIES (??), 0-255
  */
-#define VTSS_REW_IRLEG_CFG(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x5000,gi,8,0,5)
+#define VTSS_REW_IRLEG_CFG(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,8,0,5)
 
 /**
  * \brief
@@ -4537,9 +4542,9 @@
  * \details
  * Register: \a REW:VMID:RLEG_CTRL
  *
- * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
+ * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-14
  */
-#define VTSS_REW_RLEG_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x5e80,gi,1,0,0)
+#define VTSS_REW_RLEG_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2ac0,gi,1,0,0)
 
 /**
  * \brief
@@ -4549,9 +4554,9 @@
  * \details
  * Field: ::VTSS_REW_RLEG_CTRL . DECAP_IRLEG
  */
-#define  VTSS_F_REW_RLEG_CTRL_DECAP_IRLEG(x)  VTSS_ENCODE_BITFIELD(x,13,7)
-#define  VTSS_M_REW_RLEG_CTRL_DECAP_IRLEG     VTSS_ENCODE_BITMASK(13,7)
-#define  VTSS_X_REW_RLEG_CTRL_DECAP_IRLEG(x)  VTSS_EXTRACT_BITFIELD(x,13,7)
+#define  VTSS_F_REW_RLEG_CTRL_DECAP_IRLEG(x)  VTSS_ENCODE_BITFIELD(x,13,4)
+#define  VTSS_M_REW_RLEG_CTRL_DECAP_IRLEG     VTSS_ENCODE_BITMASK(13,4)
+#define  VTSS_X_REW_RLEG_CTRL_DECAP_IRLEG(x)  VTSS_EXTRACT_BITFIELD(x,13,4)
 
 /**
  * \brief
@@ -4597,7 +4602,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_PTP_SEQ_NUMBERS (??), 0-1023
  */
-#define VTSS_REW_PTP_SEQ_NO(ri)              VTSS_IOREG(VTSS_TO_REW,0x3c00 + (ri))
+#define VTSS_REW_PTP_SEQ_NO(ri)              VTSS_IOREG(VTSS_TO_REW,0x2c00 + (ri))
 
 /**
  * \brief
@@ -4633,9 +4638,9 @@
  *
  * Register: \a REW:VOE_SRV_LM_CNT:SRV_LM_CNT_LSB
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE_X_NUM_PRIO (??), 0-255
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE_X_NUM_PRIO (??), 0-63
  */
-#define VTSS_REW_SRV_LM_CNT_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x5f00,gi,1,0,0)
+#define VTSS_REW_SRV_LM_CNT_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x2a80,gi,1,0,0)
 
 /**
  * \brief
@@ -4678,7 +4683,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS_X_NUM_PRIO (??), 0-239
  */
-#define VTSS_REW_PORT_LM_CNT_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x5800,gi,4,0,0)
+#define VTSS_REW_PORT_LM_CNT_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3800,gi,4,0,0)
 
 /**
  * \brief
@@ -4709,7 +4714,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS_X_NUM_PRIO (??), 0-239
  */
-#define VTSS_REW_PORT_FRM_CNT_LSB(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x5800,gi,4,0,1)
+#define VTSS_REW_PORT_FRM_CNT_LSB(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x3800,gi,4,0,1)
 
 /**
  * \brief
@@ -4741,7 +4746,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS_X_NUM_PRIO (??), 0-239
  */
-#define VTSS_REW_PORT_BYTE_CNT_MSB(gi)       VTSS_IOREG_IX(VTSS_TO_REW,0x5800,gi,4,0,2)
+#define VTSS_REW_PORT_BYTE_CNT_MSB(gi)       VTSS_IOREG_IX(VTSS_TO_REW,0x3800,gi,4,0,2)
 
 /**
  * \brief
@@ -4772,7 +4777,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS_X_NUM_PRIO (??), 0-239
  */
-#define VTSS_REW_PORT_BYTE_CNT_LSB(gi)       VTSS_IOREG_IX(VTSS_TO_REW,0x5800,gi,4,0,3)
+#define VTSS_REW_PORT_BYTE_CNT_LSB(gi)       VTSS_IOREG_IX(VTSS_TO_REW,0x3800,gi,4,0,3)
 
 /**
  * \brief
@@ -4800,7 +4805,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CONTEXT_PORTS (??), 0-64
  */
-#define VTSS_REW_TEMP_CNT_REG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x5c00,gi,8,0,0)
+#define VTSS_REW_TEMP_CNT_REG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3c00,gi,8,0,0)
 
 /**
  * \details
@@ -4819,7 +4824,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CONTEXT_PORTS (??), 0-64
  */
-#define VTSS_REW_LM_CNT_FRAME(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x5c00,gi,8,0,1)
+#define VTSS_REW_LM_CNT_FRAME(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3c00,gi,8,0,1)
 
 /**
  * \brief
@@ -4856,7 +4861,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CONTEXT_PORTS (??), 0-64
  */
-#define VTSS_REW_CCM_LM_INFO_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x5c00,gi,8,0,2)
+#define VTSS_REW_CCM_LM_INFO_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3c00,gi,8,0,2)
 
 /**
  * \brief
@@ -4893,7 +4898,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CONTEXT_PORTS (??), 0-64
  */
-#define VTSS_REW_CCM_LM_TX_B_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x5c00,gi,8,0,3)
+#define VTSS_REW_CCM_LM_TX_B_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3c00,gi,8,0,3)
 
 /**
  * \brief
@@ -4919,7 +4924,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CONTEXT_PORTS (??), 0-64
  */
-#define VTSS_REW_CCM_LM_RX_B_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x5c00,gi,8,0,4)
+#define VTSS_REW_CCM_LM_RX_B_REG(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3c00,gi,8,0,4)
 
 /**
  * \brief
@@ -4962,7 +4967,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_REW_DM_PTP_DOMAIN_CFG(ri)       VTSS_IOREG(VTSS_TO_REW,0x5e08 + (ri))
+#define VTSS_REW_DM_PTP_DOMAIN_CFG(ri)       VTSS_IOREG(VTSS_TO_REW,0x2ad9 + (ri))
 
 /**
  * \brief
@@ -5009,7 +5014,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_REW_PTP_NTP_OFFSET_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x5e49 + (ri))
+#define VTSS_REW_PTP_NTP_OFFSET_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x2b1a + (ri))
 
 /**
  * \brief
@@ -5037,7 +5042,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_LM_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_LM_CNT_LSB     VTSS_IOREG(VTSS_TO_REW,0x5e4c)
+#define VTSS_REW_RD_LAST_PORT_LM_CNT_LSB     VTSS_IOREG(VTSS_TO_REW,0x2b1d)
 
 /**
  * \brief
@@ -5066,7 +5071,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_FRM_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_FRM_CNT_LSB    VTSS_IOREG(VTSS_TO_REW,0x5e4d)
+#define VTSS_REW_RD_LAST_PORT_FRM_CNT_LSB    VTSS_IOREG(VTSS_TO_REW,0x2b1e)
 
 /**
  * \brief
@@ -5095,7 +5100,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_MSB
  */
-#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_MSB   VTSS_IOREG(VTSS_TO_REW,0x5e4e)
+#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_MSB   VTSS_IOREG(VTSS_TO_REW,0x2b1f)
 
 /**
  * \brief
@@ -5124,7 +5129,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_LSB   VTSS_IOREG(VTSS_TO_REW,0x5e4f)
+#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_LSB   VTSS_IOREG(VTSS_TO_REW,0x2b20)
 
 /**
  * \brief
@@ -5156,7 +5161,7 @@
  *
  * Register: \a REW:RAM_CTRL:RAM_INIT
  */
-#define VTSS_REW_RAM_INIT                    VTSS_IOREG(VTSS_TO_REW,0x38ca)
+#define VTSS_REW_RAM_INIT                    VTSS_IOREG(VTSS_TO_REW,0x2b21)
 
 /**
  * \brief
@@ -5195,7 +5200,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_ADDR
  */
-#define VTSS_REW_CM_ADDR                     VTSS_IOREG(VTSS_TO_REW,0x38cb)
+#define VTSS_REW_CM_ADDR                     VTSS_IOREG(VTSS_TO_REW,0x2b22)
 
 /**
  * \brief
@@ -5215,7 +5220,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_DATA_WR
  */
-#define VTSS_REW_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_REW,0x38cc)
+#define VTSS_REW_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_REW,0x2b23)
 
 /**
  * \brief
@@ -5237,7 +5242,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_DATA_RD
  */
-#define VTSS_REW_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_REW,0x38cd)
+#define VTSS_REW_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_REW,0x2b24)
 
 /**
  * \brief
@@ -5257,7 +5262,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_OP
  */
-#define VTSS_REW_CM_OP                       VTSS_IOREG(VTSS_TO_REW,0x38ce)
+#define VTSS_REW_CM_OP                       VTSS_IOREG(VTSS_TO_REW,0x2b25)
 
 /**
  * \brief

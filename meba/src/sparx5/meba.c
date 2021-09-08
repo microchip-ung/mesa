@@ -2127,10 +2127,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
         inst->props.target = (mesa_target_type_t) i;
     }
     // Get the board type from the application
-    if (meba_conf_get_hex(inst, "type", &pcb) != MESA_RC_OK) {
+    if (meba_conf_get_hex(inst, "pcb", &pcb) != MESA_RC_OK) {
         fprintf(stderr, "Could not read pcb id\n");
         goto error_out;
     }
+    printf("type:%d\n",pcb);
     if (pcb == BOARD_TYPE_SUNRISE) {
         // This is Laguna
         return lan969x_initialize(inst, callouts);

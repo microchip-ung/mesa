@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_ANA_ACL_H_
 #define _VTSS_LAGUNA_REGS_ANA_ACL_H_
@@ -50,7 +31,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_INB_PORTS (??), 0-34
  */
-#define VTSS_ANA_ACL_VCAP_S2_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_ACL,0x800 + (ri))
+#define VTSS_ANA_ACL_VCAP_S2_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_ACL,0x40 + (ri))
 
 /**
  * \brief
@@ -305,7 +286,7 @@
  *
  * @param ri Register: SWAP_SIP (??), 0-31
  */
-#define VTSS_ANA_ACL_SWAP_SIP(ri)            VTSS_IOREG(VTSS_TO_ANA_ACL,0x846 + (ri))
+#define VTSS_ANA_ACL_SWAP_SIP(ri)            VTSS_IOREG(VTSS_TO_ANA_ACL,0x86 + (ri))
 
 /**
  * \brief
@@ -331,7 +312,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:PTP_MISC_CTRL
  */
-#define VTSS_ANA_ACL_PTP_MISC_CTRL           VTSS_IOREG(VTSS_TO_ANA_ACL,0x866)
+#define VTSS_ANA_ACL_PTP_MISC_CTRL           VTSS_IOREG(VTSS_TO_ANA_ACL,0xa6)
 
 /**
  * \brief
@@ -436,7 +417,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:SWAP_IP_CTRL
  */
-#define VTSS_ANA_ACL_SWAP_IP_CTRL            VTSS_IOREG(VTSS_TO_ANA_ACL,0x867)
+#define VTSS_ANA_ACL_SWAP_IP_CTRL            VTSS_IOREG(VTSS_TO_ANA_ACL,0xa7)
 
 /**
  * \brief
@@ -507,7 +488,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:VCAP_S2_MISC_CTRL
  */
-#define VTSS_ANA_ACL_VCAP_S2_MISC_CTRL       VTSS_IOREG(VTSS_TO_ANA_ACL,0x868)
+#define VTSS_ANA_ACL_VCAP_S2_MISC_CTRL       VTSS_IOREG(VTSS_TO_ANA_ACL,0xa8)
 
 /**
  * \brief
@@ -756,7 +737,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:VCAP_S2_MISC_CTRL2
  */
-#define VTSS_ANA_ACL_VCAP_S2_MISC_CTRL2      VTSS_IOREG(VTSS_TO_ANA_ACL,0x869)
+#define VTSS_ANA_ACL_VCAP_S2_MISC_CTRL2      VTSS_IOREG(VTSS_TO_ANA_ACL,0xa9)
 
 /**
  * \brief
@@ -828,7 +809,7 @@
  *
  * @param ri Register: VCAP_S2_RLEG_STAT (??), 0-3
  */
-#define VTSS_ANA_ACL_VCAP_S2_RLEG_STAT(ri)   VTSS_IOREG(VTSS_TO_ANA_ACL,0x86a + (ri))
+#define VTSS_ANA_ACL_VCAP_S2_RLEG_STAT(ri)   VTSS_IOREG(VTSS_TO_ANA_ACL,0xaa + (ri))
 
 /**
  * \brief
@@ -873,7 +854,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:VCAP_S2_FRAGMENT_CFG
  */
-#define VTSS_ANA_ACL_VCAP_S2_FRAGMENT_CFG    VTSS_IOREG(VTSS_TO_ANA_ACL,0x86e)
+#define VTSS_ANA_ACL_VCAP_S2_FRAGMENT_CFG    VTSS_IOREG(VTSS_TO_ANA_ACL,0xae)
 
 /**
  * \brief
@@ -928,7 +909,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_TCP_RANGES (??), 0-15
  */
-#define VTSS_ANA_ACL_VCAP_S2_RNG_CTRL(ri)    VTSS_IOREG(VTSS_TO_ANA_ACL,0x86f + (ri))
+#define VTSS_ANA_ACL_VCAP_S2_RNG_CTRL(ri)    VTSS_IOREG(VTSS_TO_ANA_ACL,0xaf + (ri))
 
 /**
  * \brief
@@ -961,7 +942,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_TCP_RANGES (??), 0-15
  */
-#define VTSS_ANA_ACL_VCAP_S2_RNG_VALUE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_ACL,0x87f + (ri))
+#define VTSS_ANA_ACL_VCAP_S2_RNG_VALUE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_ACL,0xbf + (ri))
 
 /**
  * \brief
@@ -992,7 +973,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:VCAP_S2_RNG_OFFSET_CFG
  */
-#define VTSS_ANA_ACL_VCAP_S2_RNG_OFFSET_CFG  VTSS_IOREG(VTSS_TO_ANA_ACL,0x88f)
+#define VTSS_ANA_ACL_VCAP_S2_RNG_OFFSET_CFG  VTSS_IOREG(VTSS_TO_ANA_ACL,0xcf)
 
 /**
  * \brief
@@ -1018,7 +999,7 @@
  * \details
  * Register: \a ANA_ACL:COMMON:VOE_LOOPBACK_CFG
  */
-#define VTSS_ANA_ACL_VOE_LOOPBACK_CFG        VTSS_IOREG(VTSS_TO_ANA_ACL,0x890)
+#define VTSS_ANA_ACL_VOE_LOOPBACK_CFG        VTSS_IOREG(VTSS_TO_ANA_ACL,0xd0)
 
 /**
  * \brief
@@ -1076,7 +1057,7 @@
  *
  * Register: \a ANA_ACL:COMMON:OWN_UPSID
  */
-#define VTSS_ANA_ACL_OWN_UPSID               VTSS_IOREG(VTSS_TO_ANA_ACL,0x891)
+#define VTSS_ANA_ACL_OWN_UPSID               VTSS_IOREG(VTSS_TO_ANA_ACL,0xd1)
 
 /**
  * \brief
@@ -1109,7 +1090,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_NUM_INB_PORTS (??), 0-34
  */
-#define VTSS_ANA_ACL_PTP_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x894,gi,3,0,0)
+#define VTSS_ANA_ACL_PTP_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xd4,gi,3,0,0)
 
 /**
  * \brief
@@ -1135,7 +1116,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_NUM_INB_PORTS (??), 0-34
  */
-#define VTSS_ANA_ACL_MAPPED_PORT_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x894,gi,3,0,1)
+#define VTSS_ANA_ACL_MAPPED_PORT_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xd4,gi,3,0,1)
 
 /**
  * \brief
@@ -1160,7 +1141,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_NUM_INB_PORTS (??), 0-34
  */
-#define VTSS_ANA_ACL_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x894,gi,3,0,2)
+#define VTSS_ANA_ACL_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xd4,gi,3,0,2)
 
 /**
  * \brief
@@ -1210,7 +1191,7 @@
  * @param gi Replicator: x_FFL_ANA_NUM_S2_KEY_SEL_TOT (??), 0-98
  * @param ri Replicator: x_FFL_ANA_S2_CNT (??), 0-3
  */
-#define VTSS_ANA_ACL_VCAP_S2_KEY_SEL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x8fd,gi,4,ri,0)
+#define VTSS_ANA_ACL_VCAP_S2_KEY_SEL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x13d,gi,4,ri,0)
 
 /**
  * \brief
@@ -1364,7 +1345,7 @@
  *
  * Register: \a ANA_ACL:CNT_A:CNT_A
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ACL_CNT (??), 0-1023
+ * @param gi Replicator: x_FFL_ANA_NUM_ACL_CNT (??), 0-31
  */
 #define VTSS_ANA_ACL_CNT_A(gi)               VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x0,gi,1,0,0)
 
@@ -1397,9 +1378,9 @@
  *
  * Register: \a ANA_ACL:CNT_B:CNT_B
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ACL_CNT (??), 0-1023
+ * @param gi Replicator: x_FFL_ANA_NUM_ACL_CNT (??), 0-31
  */
-#define VTSS_ANA_ACL_CNT_B(gi)               VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x400,gi,1,0,0)
+#define VTSS_ANA_ACL_CNT_B(gi)               VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x20,gi,1,0,0)
 
 /**
  * \brief
@@ -1427,7 +1408,7 @@
  *
  * @param gi Register: PTP_MASTER_CFG (??), 0-3
  */
-#define VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xa89,gi,4,0,0)
+#define VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x2c9,gi,4,0,0)
 
 /**
  * \brief
@@ -1449,7 +1430,7 @@
  *
  * @param gi Register: PTP_MASTER_CFG (??), 0-3
  */
-#define VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xa89,gi,4,0,1)
+#define VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x2c9,gi,4,0,1)
 
 /**
  * \brief
@@ -1471,7 +1452,7 @@
  *
  * @param gi Register: PTP_MASTER_CFG (??), 0-3
  */
-#define VTSS_ANA_ACL_PTP_SRC_PORT_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xa89,gi,4,0,2)
+#define VTSS_ANA_ACL_PTP_SRC_PORT_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x2c9,gi,4,0,2)
 
 /**
  * \brief
@@ -1506,7 +1487,7 @@
  *
  * @param gi Register: PTP_MASTER_CFG (??), 0-3
  */
-#define VTSS_ANA_ACL_PTP_MISC_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0xa89,gi,4,0,3)
+#define VTSS_ANA_ACL_PTP_MISC_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x2c9,gi,4,0,3)
 
 /**
  * \brief
@@ -1550,7 +1531,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_S2_CNT (??), 0-3
  */
-#define VTSS_ANA_ACL_SEC_LOOKUP_STICKY(ri)   VTSS_IOREG(VTSS_TO_ANA_ACL,0xa99 + (ri))
+#define VTSS_ANA_ACL_SEC_LOOKUP_STICKY(ri)   VTSS_IOREG(VTSS_TO_ANA_ACL,0x2d9 + (ri))
 
 /**
  * \brief

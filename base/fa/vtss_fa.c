@@ -220,6 +220,8 @@ vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
     return VTSS_RC_OK;
 }
 
+#endif /* VTSS_SDX_CNT */
+
 /* Clock period in picoseconds */
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 {
@@ -232,8 +234,24 @@ u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
     return 1600; // Default
 }
 
-
-#endif /* VTSS_SDX_CNT */
+static vtss_rc is_target_fa(vtss_state_t *vtss_state)
+{
+    switch (vtss_state->create.target) {
+    case VTSS_TARGET_7546:
+    case VTSS_TARGET_7549:
+    case VTSS_TARGET_7552:
+    case VTSS_TARGET_7556:
+    case VTSS_TARGET_7558:
+    case VTSS_TARGET_7546TSN:
+    case VTSS_TARGET_7549TSN:
+    case VTSS_TARGET_7552TSN:
+    case VTSS_TARGET_7556TSN:
+    case VTSS_TARGET_7558TSN:
+        return 1;
+    default:
+        return 0;
+    }
+}
 
 /* ================================================================= *
  *  Debug print utility functions
@@ -283,20 +301,16 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     /* Initialize ports */
     VTSS_RC(vtss_fa_port_init(vtss_state, cmd));
-
     /* Initialize miscellaneous */
     VTSS_RC(vtss_fa_misc_init(vtss_state, cmd));
-
     /* Initialize packet before L2 to ensure that VLAN table clear does not break VRAP access */
     VTSS_RC(vtss_fa_packet_init(vtss_state, cmd));
-
 #if defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
     VTSS_RC(vtss_fa_afi_init(vtss_state, cmd));
 #endif /* VTSS_FEATURE_AFI_SWC&& VTSS_AFI_V2 */
 
     /* Initialize L2 */
     VTSS_RC(vtss_fa_l2_init(vtss_state, cmd));
-
 #if defined(VTSS_FEATURE_LAYER3)
     /* Initialize L3 */
     VTSS_RC(vtss_fa_l3_init(vtss_state, cmd));
@@ -355,7 +369,6 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
 
 static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 {
-    u32 clk_div, clk_period, pol_upd_int, val;
     vtss_core_clock_freq_t freq, f = vtss_state->init_conf.core_clock.freq;
     freq = f;
 
@@ -404,9 +417,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9698TSN:
     case VTSS_TARGET_LAN9698HSN:
         if (f == VTSS_CORE_CLOCK_DEFAULT) {
-            freq = VTSS_CORE_CLOCK_625MHZ;
-        } else if (f == VTSS_CORE_CLOCK_250MHZ) {
-            freq = 0; // Not supported
+            freq = VTSS_CORE_CLOCK_250MHZ; // Laguna TBD
         }
         break;
 
@@ -415,6 +426,11 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         return VTSS_RC_ERROR;
     }
 
+    /* Update state with chosen frequency */
+    vtss_state->init_conf.core_clock.freq = freq;
+
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    u32 clk_div, clk_period, pol_upd_int, val;
     switch (freq) {
     case VTSS_CORE_CLOCK_250MHZ:
         clk_div = 10;
@@ -433,8 +449,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         return VTSS_RC_OK;
     }
 
-    /* Update state with chosen frequency */
-    vtss_state->init_conf.core_clock.freq = freq;
+
 
     /* Enable DPLL fractional mode (if not enabled already, MESA-825) */
     REG_RD(VTSS_LCPLL28_LCPLL_CONFIG2, &val);
@@ -513,31 +528,6 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(pol_upd_int),
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT);
 
-#if 0 // TBD need info from frontend, below is copied from JR2 - TBD-BJO
-    // Adapt other blocks to the new core speed
-    REG_WRM(VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL,
-            VTSS_F_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS(36),
-            VTSS_M_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS);
-
-    REG_WRM(VTSS_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL,
-            VTSS_F_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS(36),
-            VTSS_M_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS);
-
-    REG_WRM(VTSS_LRN_AUTOAGE_CFG_1,
-            VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(36),
-            VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
-
-    REG_WRM(VTSS_HSCH_SYS_CLK_PER,
-            VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(36),
-            VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS);
-
-    REG_WRM(VTSS_VOP_LOC_CTRL,
-            VTSS_F_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(28), // 100/3.6
-            VTSS_M_VOP_LOC_CTRL_LOC_BASE_TICK_CNT);
-
-    REG_WRM(VTSS_AFI_TTI_TICK_BASE,
-            VTSS_F_AFI_TTI_TICK_BASE_BASE_LEN(14444), // 52us/3.6ns
-            VTSS_M_AFI_TTI_TICK_BASE_BASE_LEN);
 #endif
 
     VTSS_I("Setting Core Clock - done");
@@ -641,9 +631,11 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 
     /* Set ASM/DSM watermarks for cpu traffic (see JR2) - needed here or handled by wm function ? TBD-BJO */
 #if !defined(VTSS_OPT_EMUL)
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 value;
     REG_RD(VTSS_CPU_GENERAL_STAT, &value);
     vtss_state->sys_config.vcore_cfg = VTSS_X_CPU_GENERAL_STAT_VCORE_CFG(value);
+#endif
 
     /* DS1241: 5 (8-12) available VCORE boot modes */
     vtss_state->sys_config.using_vcoreiii = (vtss_state->sys_config.vcore_cfg >= 8 &&
@@ -773,6 +765,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     u32                i;
     vtss_port_no_t     port_no;
     i32                port, this_bw, max_core_bw, bw = 0, port_bw = 0;
+    u32                replicator = is_target_fa(vtss_state) ? 7 : 4;
 
     VTSS_I("Using Auto calendar");
     max_core_bw = clock2bw(vtss_state->init_conf.core_clock.freq);
@@ -815,9 +808,11 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
             VTSS_F_QSYS_CAL_CTRL_CAL_MODE(10),
             VTSS_M_QSYS_CAL_CTRL_CAL_MODE);
 
+
     /* Assign device BW to auto calendar */
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < replicator; i++) {
         REG_WR(VTSS_QSYS_CAL_AUTO(i), cal[i]);
+        printf("VTSS_QSYS_CAL_AUTO(%d) = %d\n", i, cal[i]);
     }
 
     /* Increase grant rate of all ports to account for core clock ppm deviations */
@@ -1371,25 +1366,6 @@ static vtss_rc fa_restart_conf_set(vtss_state_t *vtss_state)
 {
     return VTSS_RC_OK;
 }
-static vtss_rc is_target_fa(vtss_state_t *vtss_state)
-{
-    switch (vtss_state->create.target) {
-    case VTSS_TARGET_7546:
-    case VTSS_TARGET_7549:
-    case VTSS_TARGET_7552:
-    case VTSS_TARGET_7556:
-    case VTSS_TARGET_7558:
-    case VTSS_TARGET_7546TSN:
-    case VTSS_TARGET_7549TSN:
-    case VTSS_TARGET_7552TSN:
-    case VTSS_TARGET_7556TSN:
-    case VTSS_TARGET_7558TSN:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
 
 static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
 {

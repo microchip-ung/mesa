@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_QRES_H_
 #define _VTSS_LAGUNA_REGS_QRES_H_
@@ -64,9 +45,9 @@
  * \details
  * Field: ::VTSS_QRES_WRED_PROFILE . WM_RED_LOW
  */
-#define  VTSS_F_QRES_WRED_PROFILE_WM_RED_LOW(x)  VTSS_ENCODE_BITFIELD(x,10,10)
-#define  VTSS_M_QRES_WRED_PROFILE_WM_RED_LOW     VTSS_ENCODE_BITMASK(10,10)
-#define  VTSS_X_QRES_WRED_PROFILE_WM_RED_LOW(x)  VTSS_EXTRACT_BITFIELD(x,10,10)
+#define  VTSS_F_QRES_WRED_PROFILE_WM_RED_LOW(x)  VTSS_ENCODE_BITFIELD(x,6,6)
+#define  VTSS_M_QRES_WRED_PROFILE_WM_RED_LOW     VTSS_ENCODE_BITMASK(6,6)
+#define  VTSS_X_QRES_WRED_PROFILE_WM_RED_LOW(x)  VTSS_EXTRACT_BITFIELD(x,6,6)
 
 /**
  * \brief
@@ -75,9 +56,9 @@
  * \details
  * Field: ::VTSS_QRES_WRED_PROFILE . WM_RED_HIGH
  */
-#define  VTSS_F_QRES_WRED_PROFILE_WM_RED_HIGH(x)  VTSS_ENCODE_BITFIELD(x,0,10)
-#define  VTSS_M_QRES_WRED_PROFILE_WM_RED_HIGH     VTSS_ENCODE_BITMASK(0,10)
-#define  VTSS_X_QRES_WRED_PROFILE_WM_RED_HIGH(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
+#define  VTSS_F_QRES_WRED_PROFILE_WM_RED_HIGH(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_QRES_WRED_PROFILE_WM_RED_HIGH     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_QRES_WRED_PROFILE_WM_RED_HIGH(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 /**
  * Register Group: \a QRES:RES_QOS_ADV
@@ -226,9 +207,9 @@
  *
  * Field: ::VTSS_QRES_RES_CFG . WM_HIGH
  */
-#define  VTSS_F_QRES_RES_CFG_WM_HIGH(x)       VTSS_ENCODE_BITFIELD(x,0,11)
-#define  VTSS_M_QRES_RES_CFG_WM_HIGH          VTSS_ENCODE_BITMASK(0,11)
-#define  VTSS_X_QRES_RES_CFG_WM_HIGH(x)       VTSS_EXTRACT_BITFIELD(x,0,11)
+#define  VTSS_F_QRES_RES_CFG_WM_HIGH(x)       VTSS_ENCODE_BITFIELD(x,0,7)
+#define  VTSS_M_QRES_RES_CFG_WM_HIGH          VTSS_ENCODE_BITMASK(0,7)
+#define  VTSS_X_QRES_RES_CFG_WM_HIGH(x)       VTSS_EXTRACT_BITFIELD(x,0,7)
 
 
 /**
@@ -249,9 +230,9 @@
  * \details
  * Field: ::VTSS_QRES_RES_STAT . MAXUSE
  */
-#define  VTSS_F_QRES_RES_STAT_MAXUSE(x)       VTSS_ENCODE_BITFIELD(x,0,19)
-#define  VTSS_M_QRES_RES_STAT_MAXUSE          VTSS_ENCODE_BITMASK(0,19)
-#define  VTSS_X_QRES_RES_STAT_MAXUSE(x)       VTSS_EXTRACT_BITFIELD(x,0,19)
+#define  VTSS_F_QRES_RES_STAT_MAXUSE(x)       VTSS_ENCODE_BITFIELD(x,0,15)
+#define  VTSS_M_QRES_RES_STAT_MAXUSE          VTSS_ENCODE_BITMASK(0,15)
+#define  VTSS_X_QRES_RES_STAT_MAXUSE(x)       VTSS_EXTRACT_BITFIELD(x,0,15)
 
 
 /**
@@ -271,9 +252,9 @@
  * \details
  * Field: ::VTSS_QRES_RES_STAT_CUR . INUSE
  */
-#define  VTSS_F_QRES_RES_STAT_CUR_INUSE(x)    VTSS_ENCODE_BITFIELD(x,0,19)
-#define  VTSS_M_QRES_RES_STAT_CUR_INUSE       VTSS_ENCODE_BITMASK(0,19)
-#define  VTSS_X_QRES_RES_STAT_CUR_INUSE(x)    VTSS_EXTRACT_BITFIELD(x,0,19)
+#define  VTSS_F_QRES_RES_STAT_CUR_INUSE(x)    VTSS_ENCODE_BITFIELD(x,0,15)
+#define  VTSS_M_QRES_RES_STAT_CUR_INUSE       VTSS_ENCODE_BITMASK(0,15)
+#define  VTSS_X_QRES_RES_STAT_CUR_INUSE(x)    VTSS_EXTRACT_BITFIELD(x,0,15)
 
 
 #endif /* _VTSS_LAGUNA_REGS_QRES_H_ */

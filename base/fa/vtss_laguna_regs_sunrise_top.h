@@ -1,0 +1,396 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+#ifndef _VTSS_LAGUNA_REGS_SUNRISE_TOP_H_
+#define _VTSS_LAGUNA_REGS_SUNRISE_TOP_H_
+
+#include "vtss_laguna_regs_common.h"
+
+/***********************************************************************
+ *
+ * Target: \a SUNRISE_TOP
+ *
+ *
+ *
+ ***********************************************************************/
+
+/**
+ * Register Group: \a SUNRISE_TOP:SERDES_DRP
+ *
+ * General high-speed IO configuration and status
+ */
+
+
+/**
+ * \brief SerDes DRP interface configuration
+ *
+ * \details
+ * Register: \a SUNRISE_TOP:SERDES_DRP:DRP_CFG
+ */
+#define VTSS_SUNRISE_TOP_DRP_CFG             VTSS_IOREG(VTSS_TO_SUNRISE_TOP,0x0)
+
+/**
+ * \brief
+ * Set this bit to perform a read operation. The HW will clear this bit
+ * when the read operation is done.The read data will be available in
+ * DRP_DATA when the read operation is complete.
+ *
+ * \details
+ * 0: Read complete
+ * 1: Start a read operation
+ *
+ * Field: ::VTSS_SUNRISE_TOP_DRP_CFG . DRP_RD
+ */
+#define  VTSS_F_SUNRISE_TOP_DRP_CFG_DRP_RD(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
+#define  VTSS_M_SUNRISE_TOP_DRP_CFG_DRP_RD    VTSS_BIT(28)
+#define  VTSS_X_SUNRISE_TOP_DRP_CFG_DRP_RD(x)  VTSS_EXTRACT_BITFIELD(x,28,1)
+
+/**
+ * \brief
+ * Set this bit to perform a DRP write operation. The HW will clear this
+ * bit when the write operation is complete. The write data must be
+ * configured in DRP_DATA before the DRP_WR is set.
+ *
+ * \details
+ * 0: Write complete
+ * 1: Start write
+ *
+ * Field: ::VTSS_SUNRISE_TOP_DRP_CFG . DRP_WR
+ */
+#define  VTSS_F_SUNRISE_TOP_DRP_CFG_DRP_WR(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_SUNRISE_TOP_DRP_CFG_DRP_WR    VTSS_BIT(27)
+#define  VTSS_X_SUNRISE_TOP_DRP_CFG_DRP_WR(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
+
+/**
+ * \brief
+ * DRP data. See DRP_RD and DRP_WR bits
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_DRP_CFG . DRP_DATA
+ */
+#define  VTSS_F_SUNRISE_TOP_DRP_CFG_DRP_DATA(x)  VTSS_ENCODE_BITFIELD(x,11,16)
+#define  VTSS_M_SUNRISE_TOP_DRP_CFG_DRP_DATA     VTSS_ENCODE_BITMASK(11,16)
+#define  VTSS_X_SUNRISE_TOP_DRP_CFG_DRP_DATA(x)  VTSS_EXTRACT_BITFIELD(x,11,16)
+
+/**
+ * \brief
+ * Address of DRP register to access
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_DRP_CFG . DRP_ADDR
+ */
+#define  VTSS_F_SUNRISE_TOP_DRP_CFG_DRP_ADDR(x)  VTSS_ENCODE_BITFIELD(x,2,9)
+#define  VTSS_M_SUNRISE_TOP_DRP_CFG_DRP_ADDR     VTSS_ENCODE_BITMASK(2,9)
+#define  VTSS_X_SUNRISE_TOP_DRP_CFG_DRP_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,2,9)
+
+/**
+ * \brief
+ * Select SerDes to configure
+ *
+ * \details
+ * 0: Select SerDes0
+ * 1: Select SerDes1
+ * 2: Select SerDes2
+ * 3: Reserved
+
+ *
+ * Field: ::VTSS_SUNRISE_TOP_DRP_CFG . SERDES_SEL
+ */
+#define  VTSS_F_SUNRISE_TOP_DRP_CFG_SERDES_SEL(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_SUNRISE_TOP_DRP_CFG_SERDES_SEL     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_SUNRISE_TOP_DRP_CFG_SERDES_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
+ * Register Group: \a SUNRISE_TOP:SERDES_CFG
+ *
+ * General high-speed IO configuration and status
+ */
+
+
+/**
+ * \brief SerDes configuration bits
+ *
+ * \details
+ * Register: \a SUNRISE_TOP:SERDES_CFG:SERDES_CFG
+ *
+ * @param gi Register: SERDES_CFG (??), 0-2
+ */
+#define VTSS_SUNRISE_TOP_SERDES_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_SUNRISE_TOP,0x1,gi,2,0,0)
+
+/**
+ * \brief
+ * Set userclk_tx_reset
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . USERCLK_TX_RESET
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_USERCLK_TX_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_USERCLK_TX_RESET  VTSS_BIT(10)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_USERCLK_TX_RESET(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * Set userclk_rx_reset
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . USERCLK_RX_RESET
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_USERCLK_RX_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_USERCLK_RX_RESET  VTSS_BIT(9)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_USERCLK_RX_RESET(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Set buffbypass_tx_reset
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . BUFFBYPASS_TX_RESET
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_RESET  VTSS_BIT(8)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_RESET(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Set buffbypass_tx_start_user
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . BUFFBYPASS_TX_START_USER
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_START_USER(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_START_USER  VTSS_BIT(7)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_TX_START_USER(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Set buffbypass_rx_reset
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . BUFFBYPASS_RX_RESET
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_RESET  VTSS_BIT(6)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_RESET(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Set buffbypass_rx_start_user
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . BUFFBYPASS_RX_START_USER
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_START_USER(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_START_USER  VTSS_BIT(5)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_BUFFBYPASS_RX_START_USER(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Set reset_all
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . RESET_ALL
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_ALL(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL  VTSS_BIT(4)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_RESET_ALL(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Set reset_tx_pll_and_datapath
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . RESET_TX_PLL_AND_DATAPATH
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_TX_PLL_AND_DATAPATH(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_TX_PLL_AND_DATAPATH  VTSS_BIT(3)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_RESET_TX_PLL_AND_DATAPATH(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Set reset_tx_datapath
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . RESET_TX_DATAPATH
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_TX_DATAPATH(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_TX_DATAPATH  VTSS_BIT(2)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_RESET_TX_DATAPATH(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Set reset_rx_pll_and_datapath
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . RESET_RX_PLL_AND_DATAPATH
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_RX_PLL_AND_DATAPATH(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_RX_PLL_AND_DATAPATH  VTSS_BIT(1)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_RESET_RX_PLL_AND_DATAPATH(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Set reset_rx_datapath
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_CFG . RESET_RX_DATAPATH
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_RX_DATAPATH(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_RX_DATAPATH  VTSS_BIT(0)
+#define  VTSS_X_SUNRISE_TOP_SERDES_CFG_RESET_RX_DATAPATH(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief SerDes status bits
+ *
+ * \details
+ * Register: \a SUNRISE_TOP:SERDES_CFG:SERDES_STAT
+ *
+ * @param gi Register: SERDES_CFG (??), 0-2
+ */
+#define VTSS_SUNRISE_TOP_SERDES_STAT(gi)     VTSS_IOREG_IX(VTSS_TO_SUNRISE_TOP,0x1,gi,2,0,1)
+
+/**
+ * \brief
+ * Read userclk_rx_active bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . USERCLK_RX_ACTIVE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_USERCLK_RX_ACTIVE(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_USERCLK_RX_ACTIVE  VTSS_BIT(12)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_USERCLK_RX_ACTIVE(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/**
+ * \brief
+ * Read userclk_tx_active bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . USERCLK_TX_ACTIVE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_USERCLK_TX_ACTIVE(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_USERCLK_TX_ACTIVE  VTSS_BIT(11)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_USERCLK_TX_ACTIVE(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
+ * Read buffbypass_rx_done bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . BUFFBYPASS_RX_DONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_DONE  VTSS_BIT(10)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_DONE(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * Read buffbypass_rx_error bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . BUFFBYPASS_RX_ERROR
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_ERROR(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_ERROR  VTSS_BIT(9)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_RX_ERROR(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Read buffbypass_tx_done bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . BUFFBYPASS_TX_DONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_DONE  VTSS_BIT(8)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_DONE(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Read buffbypass_tx_error bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . BUFFBYPASS_TX_ERROR
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_ERROR(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_ERROR  VTSS_BIT(7)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_BUFFBYPASS_TX_ERROR(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Read reset_rx_cdr_stable bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . RESET_RX_CDR_STABLE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_RESET_RX_CDR_STABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_RESET_RX_CDR_STABLE  VTSS_BIT(6)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_RESET_RX_CDR_STABLE(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Read reset_rx_done bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . RESET_RX_DONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_RESET_RX_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_RESET_RX_DONE  VTSS_BIT(5)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_RESET_RX_DONE(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Read reset_tx_done bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . RESET_TX_DONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_RESET_TX_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_RESET_TX_DONE  VTSS_BIT(4)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_RESET_TX_DONE(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Read gtpowergood bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . GTPOWERGOOD
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_GTPOWERGOOD(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_GTPOWERGOOD  VTSS_BIT(3)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_GTPOWERGOOD(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Read rxpmaresetdone bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . RXPMARESETDONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_RXPMARESETDONE(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_RXPMARESETDONE  VTSS_BIT(2)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_RXPMARESETDONE(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Read txpmaresetdone bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . TXPMARESETDONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_TXPMARESETDONE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_TXPMARESETDONE  VTSS_BIT(1)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_TXPMARESETDONE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read txprgdivresetdone bit
+ *
+ * \details
+ * Field: ::VTSS_SUNRISE_TOP_SERDES_STAT . TXPRGDIVRESETDONE
+ */
+#define  VTSS_F_SUNRISE_TOP_SERDES_STAT_TXPRGDIVRESETDONE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_SUNRISE_TOP_SERDES_STAT_TXPRGDIVRESETDONE  VTSS_BIT(0)
+#define  VTSS_X_SUNRISE_TOP_SERDES_STAT_TXPRGDIVRESETDONE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+#endif /* _VTSS_LAGUNA_REGS_SUNRISE_TOP_H_ */

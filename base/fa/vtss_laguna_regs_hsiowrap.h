@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_HSIOWRAP_H_
 #define _VTSS_LAGUNA_REGS_HSIOWRAP_H_
@@ -121,7 +102,7 @@
  * \details
  * Register: \a HSIOWRAP:GPIO_CFG:GPIO_CFG
  *
- * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-77
+ * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-63
  */
 #define VTSS_HSIOWRAP_GPIO_CFG(ri)           VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x4 + (ri))
 
@@ -184,7 +165,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CTRL
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x52)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x44)
 
 /**
  * \brief
@@ -261,7 +242,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CFG
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x53)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x45)
 
 /**
  * \brief
@@ -272,9 +253,9 @@
  * \details
  * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . CLK_CYCLES_1US
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_ENCODE_BITFIELD(x,15,9)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US     VTSS_ENCODE_BITMASK(15,9)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_EXTRACT_BITFIELD(x,15,9)
+#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_ENCODE_BITFIELD(x,15,7)
+#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US     VTSS_ENCODE_BITMASK(15,7)
+#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_EXTRACT_BITFIELD(x,15,7)
 
 /**
  * \brief
@@ -368,7 +349,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_STAT
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x54)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x46)
 
 /**
  * \brief

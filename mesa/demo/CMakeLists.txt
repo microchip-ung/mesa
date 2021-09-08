@@ -29,6 +29,9 @@ target_link_libraries(init PUBLIC "-static")
 # TODO, delete these once we do not need them any more
 add_executable(fa_board_fpga_init fa_board_fpga_init.c)
 
+# Validation 'eve' server
+add_executable(eve_server eve/eve_server.c eve/eve_gpio.c eve/eve_jtag.c eve/eve_miim.c eve/eve_portmon.c eve/eve_sio.c)
+
 include_directories(../../meba/include)
 include_directories(../../mepa/vtss/include)
 
@@ -149,7 +152,7 @@ macro(IMG_TARGET)
     set(cmd ${cmd} -s ${CMAKE_STRIP})
 
     # List of executables to install on target
-    set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init spi_reg_read base64decode)
+    set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init spi_reg_read base64decode eve_server)
 
     if (${A_MERA})
         set(EXECUTABLES ${EXECUTABLES} mera-demo mera-cmd mera-sram-rw)

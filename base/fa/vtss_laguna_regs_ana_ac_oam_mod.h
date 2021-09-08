@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_ANA_AC_OAM_MOD_H_
 #define _VTSS_LAGUNA_REGS_ANA_AC_OAM_MOD_H_
@@ -62,9 +43,9 @@
  *
  * Register: \a ANA_AC_OAM_MOD:VOE_SRV_LM_CNT:SRV_LM_CNT_LSB
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE_X_NUM_PRIO (??), 0-255
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE_X_NUM_PRIO (??), 0-63
  */
-#define VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_OAM_MOD,0x800,gi,1,0,0)
+#define VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_OAM_MOD,0x7c0,gi,1,0,0)
 
 /**
  * \brief
@@ -391,7 +372,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_AC_OAM_MOD_DM_PTP_DOMAIN_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x900 + (ri))
+#define VTSS_ANA_AC_OAM_MOD_DM_PTP_DOMAIN_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x800 + (ri))
 
 /**
  * \brief
@@ -438,7 +419,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_ANA_AC_OAM_MOD_PTP_NTP_OFFSET_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x941 + (ri))
+#define VTSS_ANA_AC_OAM_MOD_PTP_NTP_OFFSET_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x841 + (ri))
 
 /**
  * \brief
@@ -466,7 +447,7 @@
  *
  * Register: \a ANA_AC_OAM_MOD:PDU_MOD_CFG:RD_LAST_PORT_LM_CNT_LSB
  */
-#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_LM_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x944)
+#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_LM_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x844)
 
 /**
  * \brief
@@ -495,7 +476,7 @@
  *
  * Register: \a ANA_AC_OAM_MOD:PDU_MOD_CFG:RD_LAST_PORT_FRM_CNT_LSB
  */
-#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_FRM_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x945)
+#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_FRM_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x845)
 
 /**
  * \brief
@@ -524,7 +505,7 @@
  *
  * Register: \a ANA_AC_OAM_MOD:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_MSB
  */
-#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_BYTE_CNT_MSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x946)
+#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_BYTE_CNT_MSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x846)
 
 /**
  * \brief
@@ -553,7 +534,7 @@
  *
  * Register: \a ANA_AC_OAM_MOD:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_LSB
  */
-#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_BYTE_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x947)
+#define VTSS_ANA_AC_OAM_MOD_RD_LAST_PORT_BYTE_CNT_LSB  VTSS_IOREG(VTSS_TO_ANA_AC_OAM_MOD,0x847)
 
 /**
  * \brief

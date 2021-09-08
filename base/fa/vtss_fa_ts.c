@@ -208,7 +208,7 @@ static vtss_rc fa_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 
     /* Calculate the TOD increment delta value, that is a fraction of the nominal TOD increment. */
     /* The fraction is given by 'adj' in 1E-10. The calculation is: tod_delta = tod_inc * (adj / 1E10) */
-    tod_trunk = tod_inc % 10000000000LL;   /* We will divide before multiplying to avoid overrun. The TOD truncated part is saved in 'tod_trunk' */ 
+    tod_trunk = tod_inc % 10000000000LL;   /* We will divide before multiplying to avoid overrun. The TOD truncated part is saved in 'tod_trunk' */
     tod_delta = (tod_inc / 10000000000LL) * adj_abs;    /* Divide and then multiply */
     tod_delta += (tod_trunk * adj_abs) / 10000000000LL; /* Now the truncated part is multiplied and then divided. Result is added to 'tod_delta' */
 
@@ -361,7 +361,6 @@ static vtss_rc fa_ts_timeofday_next_pps_set(vtss_state_t *vtss_state, const vtss
 
 static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-    u32                   port;
     vtss_ts_port_conf_t   *conf;
     i32                   rx_delay;
     u64                   ingr_latency;
@@ -374,7 +373,6 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
         return VTSS_RC_OK;
     }
 
-    port = VTSS_CHIP_PORT(port_no);
     conf = &vtss_state->ts.port_conf[port_no];
     ingr_latency = VTSS_LLABS(conf->ingress_latency);
     if (conf->ingress_latency < 0) {
@@ -393,12 +391,15 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     if (rx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         rx_delay = 0xFFFFFF;
     }
-    VTSS_I("rx_delay %d  ingress_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(ingr_latency), conf->default_igr_latency);
 
+    VTSS_I("rx_delay %d  egress_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_igr_latency);
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    u32                   port;
+    port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_RXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY(rx_delay),
             VTSS_M_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -412,7 +413,6 @@ static vtss_rc fa_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port
 
 static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-    u32                   port;
     vtss_ts_port_conf_t   *conf;
     u32                   tx_delay;
     u64                   egr_latency;
@@ -425,7 +425,6 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
         return VTSS_RC_OK;
     }
 
-    port = VTSS_CHIP_PORT(port_no);
     conf = &vtss_state->ts.port_conf[port_no];
     egr_latency = VTSS_LLABS(conf->egress_latency);
     if (conf->egress_latency < 0) {
@@ -444,11 +443,14 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     if (tx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         tx_delay = 0xFFFFFF;
     }
-    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(egr_latency), conf->default_egr_latency);
-
+    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    u32                   port;
+    port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_TXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY(tx_delay),
             VTSS_M_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY);
+#endif
 
     return VTSS_RC_OK;
 }
@@ -512,10 +514,12 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1<<domain));
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     // Set domain in DEV_xxx
     DEV_WRM(PTP_CFG, port,
             VTSS_F_DEV1G_PTP_CFG_PTP_DOM(domain),
             VTSS_M_DEV1G_PTP_CFG_PTP_DOM);
+#endif
     // enable central counters in DEVCPU
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1<<domain),
@@ -648,7 +652,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
 
     VTSS_D("Enter  port_no %d", port_no);
-
+    (void)delay_var_factor;
+    (void)value;
     if (!vtss_state->port.conf_set_called[port_no]) {
         VTSS_I("port %d status change called before port is configured", port_no);
         return VTSS_RC_OK;
@@ -683,6 +688,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 #endif
         dv_factor = delay_var_factor_25G;
     } else {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
         sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
@@ -691,10 +697,12 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             delay_var_factor[2].tx = 49600;
         }
         dv_factor = delay_var_factor;
+#endif
     }
     VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
 
     switch (interface) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
@@ -733,6 +741,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         /* Single-Lane SerDes at 100 Mbps */
         /* According to Morten this is not relevant */
         break;
+#endif
     case VTSS_PORT_INTERFACE_SFI:
         /* Single-Lane SerDes at 5 or 10 or 25 Gbps */
         if (speed == VTSS_SPEED_5G) {   /* 5 Gbps */
@@ -1012,7 +1021,6 @@ static vtss_rc fa_ts_seq_cnt_get(vtss_state_t *vtss_state,
 static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
 {
     u32            port;
-    vtss_port_no_t port_no;
     char           buf[64];
     int            idx;
 
@@ -1075,7 +1083,8 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_MISC_CFG(idx), buf);
     }
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    vtss_port_no_t port_no;
     /* DEV1G:DEV_CFG_STATUS / DEV10G:DEV_CFG_STATUS */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
@@ -1112,7 +1121,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
             break;
         }
     }
-
+#endif
     pr("\n");
 
     return VTSS_RC_OK;

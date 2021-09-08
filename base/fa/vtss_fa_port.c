@@ -322,6 +322,7 @@ u32 vtss_port_dev_index(u32 port)
     return 0;
 }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 u32 vtss_to_dev2g5(u32 port)
 {
     u32 p = vtss_port_dev_index(port);
@@ -377,6 +378,65 @@ u32 vtss_to_dev5g(u32 port)
         return 0;
     }
 }
+
+#endif // VTSS_ARCH_LAN969X_FPGA
+
+
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+u32 vtss_to_dev10g(u32 port)
+{
+    u32 p = vtss_port_dev_index(port);
+    switch (p) {
+    case 0:  return VTSS_TO_DEV10G_0;
+    case 4:  return VTSS_TO_DEV10G_4;
+    default:
+        VTSS_E("illegal 10G port number %d",port);
+        return 0;
+    }
+}
+
+u32 vtss_to_pcs10g(u32 port)
+{
+    u32 p = vtss_port_dev_index(port);
+    switch (p) {
+    case 0:  return VTSS_TO_PCS10G_BR_0;
+    case 4:  return VTSS_TO_PCS10G_BR_4;
+    default:
+        VTSS_E("illegal 10G port number %d",p);
+        return 0;
+    }
+}
+
+u32 vtss_to_sd10g_kr(u32 port)
+{
+    VTSS_E("Not supported on Laguna FPGA");
+    return 0;
+}
+
+u32 vtss_to_pcs5g(u32 port)
+{
+    VTSS_E("Not supported on Laguna FPGA");
+    return 0;
+}
+
+u32 vtss_to_sd6g_kr(u32 port)
+{
+    VTSS_E("Not supported on Laguna FPGA");
+    return 0;
+}
+
+u32 vtss_to_dev2g5(u32 port)
+{
+    VTSS_E("Not supported on Laguna FPGA");
+    return 0;
+}
+u32 vtss_to_dev5g(u32 port)
+{
+    VTSS_E("Not supported on Laguna FPGA");
+    return 0;
+}
+
+#else
 
 u32 vtss_to_dev10g(u32 port)
 {
@@ -453,6 +513,7 @@ u32 vtss_to_sd10g_kr(u32 port)
         return 0;
     }
 }
+#endif
 #endif /* VTSS_ARCH_LAN969X */
 
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
@@ -461,6 +522,7 @@ u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     return (vtss_state->port.conf[port_no].speed <= VTSS_SPEED_2500M) ? VTSS_TO_DEV2G5(p) : VTSS_TO_HIGH_DEV(p);
 }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no,
                                                vtss_port_clause_37_control_t *const control)
@@ -608,6 +670,8 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+
+#endif //defined(VTSS_ARCH_LAN969X_FPGA)
 
 static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -1027,6 +1091,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt, sts, spd = 0;
 
     if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
@@ -1057,7 +1122,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_RATE(spd),
             VTSS_M_IP_KRANEG_AN_CFG1_RATE);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1102,6 +1167,7 @@ static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
                                         const vtss_port_kr_frame_t *const frm)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
 
     if (frm->type == VTSS_COEFFICIENT_UPDATE_FRM) {
@@ -1115,7 +1181,7 @@ static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
                 VTSS_F_IP_KRANEG_FW_MSG_LDSTAT_VLD(1),
                 VTSS_M_IP_KRANEG_FW_MSG_LDSTAT_VLD);
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1124,6 +1190,7 @@ static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
                                         vtss_port_kr_frame_t *const frm)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no)), val;
 
     if (frm->type == VTSS_COEFFICIENT_UPDATE_FRM) {
@@ -1133,6 +1200,7 @@ static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
     }
 
     frm->data = (u16)val;
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1140,6 +1208,7 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
                          const vtss_port_no_t port_no,
                          u32 np0, u32 np1, u32 np2)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 val;
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &val);
@@ -1156,19 +1225,20 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
     REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
             VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),
             VTSS_M_IP_KRANEG_FW_MSG_NP_LOADED);
-
+#endif
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_np_rx(vtss_state_t *vtss_state,
                         const vtss_port_no_t port_no, u32 *np0, u32 *np1, u32 *np2)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), np0);
     REG_RD(VTSS_IP_KRANEG_LD_NP1(tgt), np1);
     REG_RD(VTSS_IP_KRANEG_LD_NP2(tgt), np2);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1183,10 +1253,12 @@ static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   u16 *const ber)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     u32 val;
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &val);
     *ber = (u16)val;
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1219,6 +1291,7 @@ static vtss_rc fa_port_kr_rsfec_radapt_set(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1301,6 +1374,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 /* Restart aneg if SM is stuck (UNG_FIREANT-91) */
 static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no)), val;
 
     REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &val);
@@ -1314,6 +1388,7 @@ static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t po
             vtss_state->port.kr_store[port_no].sm_dis = TRUE;
         }
     }
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1321,6 +1396,7 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   u32 *const irq)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1355,6 +1431,7 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
         REG_WR(VTSS_IP_KRANEG_IRQ_VEC(tgt), val);
     }
     *irq = val;
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1372,6 +1449,7 @@ static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
                                        BOOL enable)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1379,6 +1457,7 @@ static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
     u32 mask = enable ? 0xFFFFFFFF : 0;
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     REG_WR(VTSS_IP_KRANEG_IRQ_MASK(tgt), mask);
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1386,6 +1465,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 sts0, sts1, tr;
     u16 val1, val2, val3;
     u32 tgt, pcs;
@@ -1530,13 +1610,14 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                     VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
         }
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1666,8 +1747,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     // Store the cuurnet TxEq values
     vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
     VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &st->tap_dly, &st->tap_adv, &st->amplitude));
-
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1795,7 +1875,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
 {
     u32 res, dp, prio;
-
     // QLIM WM setup from MOT 15/8/2019:
     // Set legacy share levels to max for src_mem and src_ref
     for (res = 0; res < 2; res++) {
@@ -1812,7 +1891,6 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
     REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), QLIM_WM(90));
     REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), QLIM_WM(95));
     REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0),  QLIM_WM(100));
-
     return VTSS_RC_OK;
 }
 
@@ -2229,11 +2307,13 @@ vtss_rc vtss_fa_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_
                 VTSS_F_DEV10G_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1),
                 VTSS_M_DEV10G_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK);
     }
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     REG_WR(VTSS_DEV1G_MAC_TAGS_CFG(VTSS_TO_DEV2G5(port)),
            VTSS_F_DEV1G_MAC_TAGS_CFG_TAG_ID(etype) |
            VTSS_F_DEV1G_MAC_TAGS_CFG_PB_ENA(max_tags == VTSS_PORT_MAX_TAGS_TWO ? 1 : 0) | // Triple tags not currently supported
            VTSS_F_DEV1G_MAC_TAGS_CFG_VLAN_AWR_ENA(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1) |
            VTSS_F_DEV1G_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1));
+#endif
 
     return VTSS_RC_OK;
 }
@@ -2475,12 +2555,14 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
         REG_WRM_CLR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
                     VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA);
     } else {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* 1: Reset the PCS Rx clock domain  */
         REG_WRM_SET(VTSS_DEV1G_DEV_RST_CTRL(tgt),
                     VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST);
         /* 2: Disable MAC frame reception */
         REG_WRM_CLR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
                     VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA);
+#endif
     }
     /* 3: Disable traffic being sent to or from switch port */
     REG_WRM_CLR(VTSS_QFWD_SWITCH_PORT_MODE(port),
@@ -2546,6 +2628,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
                 VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
                 VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
     }
+
     /* 11: Clear flushing */
     REG_WRM(VTSS_HSCH_FLUSH_CTRL,
             VTSS_F_HSCH_FLUSH_CTRL_FLUSH_PORT(port) |
@@ -2628,10 +2711,12 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
                     VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
 #endif
         } else {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
             // 6G and 10G
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
                     VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
                     VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+#endif
         }
     }
 
@@ -2643,6 +2728,7 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
 
 static vtss_rc fa_usxgmii_enable(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL dev_high)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = dev_high ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
 
@@ -2710,12 +2796,14 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t *vtss_state, const vtss_port_no_t 
                 VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
                 VTSS_M_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
     }
+#endif
     return VTSS_RC_OK;
 }
 
 /* Configuration of the 2G5 device (dev1G architecture) */
 static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     vtss_port_conf_t       *conf  = &vtss_state->port.conf[port_no];
     u32                    port   = VTSS_CHIP_PORT(port_no);
     u32                    tx_gap, hdx_gap_1 = 0, hdx_gap_2 = 0;
@@ -3012,7 +3100,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
 
     VTSS_D("Chip port: %u (1G) is configured", port);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -3302,8 +3390,9 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         /* Disabled port is considered down */
         return VTSS_RC_OK;
     }
-
+    (void)val2;
     switch (vtss_state->port.conf[port_no].if_type) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     case VTSS_PORT_INTERFACE_100FX:
         /* Get the PCS status  */
         REG_RD(VTSS_DEV1G_PCS_FX100_STATUS(tgt), &value);
@@ -3357,7 +3446,9 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         }
         status->speed = VTSS_SPEED_2500M;
         break;
+#endif
     case VTSS_PORT_INTERFACE_SFI:
+        (void)sd_tgt;
         VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
         if (sd_type == FA_SERDES_TYPE_6G) {
             sd_tgt = VTSS_TO_SD6G_LANE(sd_indx);
@@ -3367,9 +3458,11 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
             sd_tgt = VTSS_TO_SD25G_LANE(sd_indx);
         }
         if (sd_type != FA_SERDES_TYPE_25G) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
             /* Check the analog loss of signal detect of the 10G-Serdes */
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DF(sd_tgt), &val2);
             analog_sd = !VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(val2); // 0 = link
+#endif
         } else {
 #if defined(VTSS_ARCH_SPARX5)
             /* Check the analog loss of signal detect of the 25G-Serdes */
@@ -3840,6 +3933,7 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
                                    const vtss_debug_info_t   *const info,
                                    vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32  port = VTSS_CHIP_PORT(port_no);
     u32  value, pcs_st, sd_indx, sd_type, sd, val2;
     u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
@@ -3919,10 +4013,10 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
         (void)vtss_fa_cell_cal_debug(vtss_state, pr);
     }
 
-
+#endif
     return VTSS_RC_OK;
 }
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
 {
     if (bt) {
@@ -3963,11 +4057,13 @@ static char *fa_kr_aneg_rate(u32 reg)
     default: return "other";
     }
 }
+#endif
 vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
                          const vtss_debug_printf_t pr,
                          const vtss_debug_info_t   *const info,
                          vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 val;
     u32 tgt; u32 p = VTSS_CHIP_PORT(port_no);
 
@@ -4101,7 +4197,7 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
     }
 
     pr("\n");
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -4618,9 +4714,11 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mmd_write = fa_mmd_write;
         state->conf_get = fa_port_conf_get;
         state->conf_set = fa_port_conf_set;
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         state->clause_37_status_get = fa_port_clause_37_status_get;
         state->clause_37_control_get = fa_port_clause_37_control_get;
         state->clause_37_control_set = fa_port_clause_37_control_set;
+#endif
         state->status_get = fa_port_status_get;
         state->counters_update = fa_port_counters_update;
         state->counters_clear = fa_port_counters_clear;

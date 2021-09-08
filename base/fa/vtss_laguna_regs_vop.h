@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_VOP_H_
 #define _VTSS_LAGUNA_REGS_VOP_H_
@@ -41,7 +22,7 @@
  *
  * The VOP includes the following:
  *
- *  * 32 Service / Path VOEs
+ *  * 8 Service / Path VOEs
  *  * 30 Port VOEs
  *
  * The VOEs can be configured for either Y.1731, MPLS-TP, or L3 OAM PDU
@@ -77,7 +58,7 @@
  *
  * Register: \a VOP:COMMON:VOP_CTRL
  */
-#define VTSS_VOP_VOP_CTRL                    VTSS_IOREG(VTSS_TO_VOP,0x357e)
+#define VTSS_VOP_VOP_CTRL                    VTSS_IOREG(VTSS_TO_VOP,0xb26)
 
 /**
  * \brief
@@ -323,7 +304,7 @@
  *
  * Register: \a VOP:COMMON:CPU_EXTR_CFG
  */
-#define VTSS_VOP_CPU_EXTR_CFG                VTSS_IOREG(VTSS_TO_VOP,0x357f)
+#define VTSS_VOP_CPU_EXTR_CFG                VTSS_IOREG(VTSS_TO_VOP,0xb27)
 
 /**
  * \brief
@@ -432,7 +413,7 @@
  *
  * Register: \a VOP:COMMON:CPU_EXTR_CFG_1
  */
-#define VTSS_VOP_CPU_EXTR_CFG_1              VTSS_IOREG(VTSS_TO_VOP,0x3580)
+#define VTSS_VOP_CPU_EXTR_CFG_1              VTSS_IOREG(VTSS_TO_VOP,0xb28)
 
 /**
  * \brief
@@ -541,7 +522,7 @@
  *
  * Register: \a VOP:COMMON:CPU_EXTR_CFG_2
  */
-#define VTSS_VOP_CPU_EXTR_CFG_2              VTSS_IOREG(VTSS_TO_VOP,0x3581)
+#define VTSS_VOP_CPU_EXTR_CFG_2              VTSS_IOREG(VTSS_TO_VOP,0xb29)
 
 /**
  * \brief
@@ -600,7 +581,7 @@
  *
  * Register: \a VOP:COMMON:CPU_EXTR_MPLS
  */
-#define VTSS_VOP_CPU_EXTR_MPLS               VTSS_IOREG(VTSS_TO_VOP,0x3582)
+#define VTSS_VOP_CPU_EXTR_MPLS               VTSS_IOREG(VTSS_TO_VOP,0xb2a)
 
 /**
  * \brief
@@ -643,7 +624,7 @@
  *
  * Register: \a VOP:COMMON:CPU_EXTR_L3
  */
-#define VTSS_VOP_CPU_EXTR_L3                 VTSS_IOREG(VTSS_TO_VOP,0x3583)
+#define VTSS_VOP_CPU_EXTR_L3                 VTSS_IOREG(VTSS_TO_VOP,0xb2b)
 
 /**
  * \brief
@@ -706,7 +687,7 @@
  *
  * Register: \a VOP:COMMON:VERSION_CTRL
  */
-#define VTSS_VOP_VERSION_CTRL                VTSS_IOREG(VTSS_TO_VOP,0x3584)
+#define VTSS_VOP_VERSION_CTRL                VTSS_IOREG(VTSS_TO_VOP,0xb2c)
 
 /**
  * \brief
@@ -796,7 +777,7 @@
  *
  * Register: \a VOP:COMMON:VERSION_CTRL_2
  */
-#define VTSS_VOP_VERSION_CTRL_2              VTSS_IOREG(VTSS_TO_VOP,0x3585)
+#define VTSS_VOP_VERSION_CTRL_2              VTSS_IOREG(VTSS_TO_VOP,0xb2d)
 
 /**
  * \brief
@@ -885,7 +866,7 @@
  *
  * Register: \a VOP:COMMON:VERSION_CTRL_3
  */
-#define VTSS_VOP_VERSION_CTRL_3              VTSS_IOREG(VTSS_TO_VOP,0x3586)
+#define VTSS_VOP_VERSION_CTRL_3              VTSS_IOREG(VTSS_TO_VOP,0xb2e)
 
 /**
  * \brief
@@ -936,7 +917,7 @@
  * \details
  * Register: \a VOP:COMMON:VERSION_CTRL_MPLS
  */
-#define VTSS_VOP_VERSION_CTRL_MPLS           VTSS_IOREG(VTSS_TO_VOP,0x3587)
+#define VTSS_VOP_VERSION_CTRL_MPLS           VTSS_IOREG(VTSS_TO_VOP,0xb2f)
 
 /**
  * \brief
@@ -984,7 +965,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_GEN_OPCODES (??), 0-15
  */
-#define VTSS_VOP_OAM_GENERIC_CFG(ri)         VTSS_IOREG(VTSS_TO_VOP,0x3588 + (ri))
+#define VTSS_VOP_OAM_GENERIC_CFG(ri)         VTSS_IOREG(VTSS_TO_VOP,0xb30 + (ri))
 
 /**
  * \brief
@@ -1112,7 +1093,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_GEN_OPCODES (??), 0-15
  */
-#define VTSS_VOP_MPLS_GENERIC_CODEPOINT(ri)  VTSS_IOREG(VTSS_TO_VOP,0x3598 + (ri))
+#define VTSS_VOP_MPLS_GENERIC_CODEPOINT(ri)  VTSS_IOREG(VTSS_TO_VOP,0xb40 + (ri))
 
 /**
  * \brief
@@ -1160,7 +1141,7 @@
  *
  * Register: \a VOP:COMMON:SAM_SEQ_TS_CFG
  */
-#define VTSS_VOP_SAM_SEQ_TS_CFG              VTSS_IOREG(VTSS_TO_VOP,0x35a8)
+#define VTSS_VOP_SAM_SEQ_TS_CFG              VTSS_IOREG(VTSS_TO_VOP,0xb50)
 
 /**
  * \brief
@@ -1259,7 +1240,7 @@
  *
  * Register: \a VOP:COMMON:SAM_SEQ_TS_CFG_2
  */
-#define VTSS_VOP_SAM_SEQ_TS_CFG_2            VTSS_IOREG(VTSS_TO_VOP,0x35a9)
+#define VTSS_VOP_SAM_SEQ_TS_CFG_2            VTSS_IOREG(VTSS_TO_VOP,0xb51)
 
 /**
  * \brief
@@ -1295,7 +1276,7 @@
  *
  * Register: \a VOP:COMMON:LOC_CTRL
  */
-#define VTSS_VOP_LOC_CTRL                    VTSS_IOREG(VTSS_TO_VOP,0x35aa)
+#define VTSS_VOP_LOC_CTRL                    VTSS_IOREG(VTSS_TO_VOP,0xb52)
 
 /**
  * \brief
@@ -1431,7 +1412,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_LOC_SCAN_CNT (??), 0-6
  */
-#define VTSS_VOP_LOC_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0x35ab + (ri))
+#define VTSS_VOP_LOC_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb53 + (ri))
 
 /**
  * \brief
@@ -1523,7 +1504,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0x35b2 + (ri))
+#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb5a + (ri))
 
 /**
  * \brief
@@ -1568,7 +1549,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0x35b4 + (ri))
+#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0xb5c + (ri))
 
 /**
  * \brief
@@ -1604,7 +1585,7 @@
  *
  * Register: \a VOP:COMMON:HMO_TIMER_CFG
  */
-#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0x35b6)
+#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0xb5e)
 
 /**
  * \brief
@@ -1818,7 +1799,7 @@
  *
  * Register: \a VOP:COMMON:LOC_SCAN_STICKY
  */
-#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0x35b7)
+#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0xb5f)
 
 /**
  * \brief
@@ -1901,7 +1882,7 @@
  *
  * Register: \a VOP:COMMON:MASTER_INTR_CTRL
  */
-#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0x35b8)
+#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0xb60)
 
 /**
  * \brief
@@ -1958,7 +1939,7 @@
  *
  * Register: \a VOP:COMMON:VOE32_INTR
  */
-#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0x35b9)
+#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0xb61)
 
 /**
  * \brief
@@ -1981,8 +1962,8 @@
  *
  * The interrupts are numbered according to the VOEs:
  *
- * 0 - 31 are the Service / Path VOEs
- * 32 - 61 are the Port VOEs
+ * 0 - 7 are the Service / Path VOEs
+ * 8 - 37 are the Port VOEs
  *
  * The VOE interrupts are enabled in the following registers:
  *
@@ -2003,7 +1984,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE_DIV32_CEIL (??), 0-1
  */
-#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0x35bb + (ri))
+#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0xb63 + (ri))
 
 /**
  * \brief
@@ -2053,7 +2034,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_LSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0x35de)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0xb86)
 
 /**
  * \brief
@@ -2091,7 +2072,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_MSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0x35df)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0xb87)
 
 /**
  * \brief
@@ -2119,9 +2100,9 @@
  *
  * Register: \a VOP:VOE_CONF_REG:VOE_MISC_CONFIG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_VOE_MISC_CONFIG(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x34c0,gi,1,0,0)
+#define VTSS_VOP_VOE_MISC_CONFIG(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0xa80,gi,1,0,0)
 
 /**
  * \brief
@@ -2256,7 +2237,7 @@
  *
  * Register: \a VOP:VOE_CONF:VOE_COMMON_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_VOE_COMMON_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,0)
 
@@ -2317,14 +2298,14 @@
 /**
  * \brief
  * Assigns a Path VOE to the VOE. See description in PATH_VOE_ENA.Must
- * point to a VOE in the pool of Service VOEs (0 - 31).
+ * point to a VOE in the pool of Service VOEs (0 - 7).
  *
  * \details
  * Field: ::VTSS_VOP_VOE_COMMON_CFG . PATH_VOEID
  */
-#define  VTSS_F_VOP_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_ENCODE_BITFIELD(x,1,5)
-#define  VTSS_M_VOP_VOE_COMMON_CFG_PATH_VOEID     VTSS_ENCODE_BITMASK(1,5)
-#define  VTSS_X_VOP_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_EXTRACT_BITFIELD(x,1,5)
+#define  VTSS_F_VOP_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_ENCODE_BITFIELD(x,1,3)
+#define  VTSS_M_VOP_VOE_COMMON_CFG_PATH_VOEID     VTSS_ENCODE_BITMASK(1,3)
+#define  VTSS_X_VOP_VOE_COMMON_CFG_PATH_VOEID(x)  VTSS_EXTRACT_BITFIELD(x,1,3)
 
 /**
  * \brief
@@ -2353,7 +2334,7 @@
  *
  * Register: \a VOP:VOE_CONF:VOE_CTRL
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_VOE_CTRL(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,1)
 
@@ -2504,7 +2485,7 @@
  *
  * Register: \a VOP:VOE_CONF:VOE_MEPID_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_VOE_MEPID_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,2)
 
@@ -2552,7 +2533,7 @@
  *
  * Register: \a VOP:VOE_CONF:PEER_MEPID_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_PEER_MEPID_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,3)
 
@@ -2610,7 +2591,7 @@
  *
  * Register: \a VOP:VOE_CONF:SAM_COSID_SEQ_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SAM_COSID_SEQ_CFG(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,4)
 
@@ -2695,7 +2676,7 @@
  *
  * Register: \a VOP:VOE_CONF:SAM_NON_OAM_SEQ_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SAM_NON_OAM_SEQ_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,5)
 
@@ -2901,7 +2882,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_CPU_COPY_CTRL
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_CPU_COPY_CTRL(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,6)
 
@@ -3190,7 +3171,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_CPU_COPY_CTRL_2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_CPU_COPY_CTRL_2(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,7)
 
@@ -3226,7 +3207,7 @@
  *
  * Register: \a VOP:VOE_CONF:PDU_VOE_PASS
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_PDU_VOE_PASS(gi)            VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,8)
 
@@ -3287,7 +3268,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_CNT_OAM_CTRL
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_CNT_OAM_CTRL(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,9)
 
@@ -3570,7 +3551,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_CNT_DATA_CTRL
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_CNT_DATA_CTRL(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,10)
 
@@ -3814,7 +3795,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_CNT_DATA_CTRL_2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_CNT_DATA_CTRL_2(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,11)
 
@@ -3917,7 +3898,7 @@
  *
  * Register: \a VOP:VOE_CONF:MEP_UC_MAC_LSB
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_MEP_UC_MAC_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,12)
 
@@ -3945,7 +3926,7 @@
  *
  * Register: \a VOP:VOE_CONF:MEP_UC_MAC_MSB
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_MEP_UC_MAC_MSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,13)
 
@@ -3989,7 +3970,7 @@
  *
  * Register: \a VOP:VOE_CONF:OAM_HW_CTRL
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_HW_CTRL(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,14)
 
@@ -4183,7 +4164,7 @@
  *
  * Register: \a VOP:VOE_CONF:LOOPBACK_ENA
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LOOPBACK_ENA(gi)            VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,15)
 
@@ -4258,7 +4239,7 @@
  *
  * Register: \a VOP:VOE_CONF:LOOPBACK_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LOOPBACK_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,16)
 
@@ -4288,13 +4269,13 @@
  * direction with the ISDX value configured in this register.
  *
  * \details
- * Valid ISDX value: 1-1023
+ * Valid ISDX value: 1-31
  *
  * Field: ::VTSS_VOP_LOOPBACK_CFG . LB_ISDX
  */
-#define  VTSS_F_VOP_LOOPBACK_CFG_LB_ISDX(x)   VTSS_ENCODE_BITFIELD(x,1,10)
-#define  VTSS_M_VOP_LOOPBACK_CFG_LB_ISDX      VTSS_ENCODE_BITMASK(1,10)
-#define  VTSS_X_VOP_LOOPBACK_CFG_LB_ISDX(x)   VTSS_EXTRACT_BITFIELD(x,1,10)
+#define  VTSS_F_VOP_LOOPBACK_CFG_LB_ISDX(x)   VTSS_ENCODE_BITFIELD(x,1,5)
+#define  VTSS_M_VOP_LOOPBACK_CFG_LB_ISDX      VTSS_ENCODE_BITMASK(1,5)
+#define  VTSS_X_VOP_LOOPBACK_CFG_LB_ISDX(x)   VTSS_EXTRACT_BITFIELD(x,1,5)
 
 /**
  * \brief
@@ -4322,7 +4303,7 @@
  *
  * Register: \a VOP:VOE_CONF:TX_TRANSID_UPDATE
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_TX_TRANSID_UPDATE(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,17)
 
@@ -4361,7 +4342,7 @@
  *
  * Register: \a VOP:VOE_CONF:CCM_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,18)
 
@@ -4583,7 +4564,7 @@
  *
  * Register: \a VOP:VOE_CONF:CCM_MEGID_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Register: CCM_MEGID_CFG (??), 0-11
  */
 #define VTSS_VOP_CCM_MEGID_CFG(gi,ri)        VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,ri,19)
@@ -4609,7 +4590,7 @@
  *
  * Register: \a VOP:VOE_CONF:SLM_CONFIG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SLM_CONFIG(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,31)
 
@@ -4650,7 +4631,7 @@
  *
  * Register: \a VOP:VOE_CONF:SLM_TEST_ID
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SLM_TEST_ID(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,32)
 
@@ -4688,7 +4669,7 @@
  *
  * Register: \a VOP:VOE_CONF:SLM_PEER_LIST
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Replicator: x_VTSS_OAM_MEP_SLM_PEERS_SUPPORTED (??), 0-7
  */
 #define VTSS_VOP_SLM_PEER_LIST(gi,ri)        VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,ri,33)
@@ -4730,7 +4711,7 @@
  *
  * Register: \a VOP:VOE_CONF:G_8113_1_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_G_8113_1_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,41)
 
@@ -4845,7 +4826,7 @@
  *
  * Register: \a VOP:VOE_CONF:G_8113_1_REMOTE_MIPID
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_G_8113_1_REMOTE_MIPID(gi)   VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,42)
 
@@ -4892,7 +4873,7 @@
  *
  * Register: \a VOP:VOE_CONF:G_8113_1_REMOTE_MIPID1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_G_8113_1_REMOTE_MIPID1(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,43)
 
@@ -4939,7 +4920,7 @@
  *
  * Register: \a VOP:VOE_CONF:G_8113_1_REMOTE_MIPID2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_G_8113_1_REMOTE_MIPID2(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,44)
 
@@ -4986,7 +4967,7 @@
  *
  * Register: \a VOP:VOE_CONF:G_8113_1_REMOTE_MIPID3
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_G_8113_1_REMOTE_MIPID3(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x0,gi,64,0,45)
 
@@ -5021,7 +5002,7 @@
  *
  * Register: \a VOP:VOE_STAT:RX_SEL_OAM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_RX_SEL_OAM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,0)
 
@@ -5050,7 +5031,7 @@
  *
  * Register: \a VOP:VOE_STAT:RX_OAM_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_RX_OAM_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,1)
 
@@ -5079,7 +5060,7 @@
  *
  * Register: \a VOP:VOE_STAT:TX_SEL_OAM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_TX_SEL_OAM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,2)
 
@@ -5108,7 +5089,7 @@
  *
  * Register: \a VOP:VOE_STAT:TX_OAM_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_TX_OAM_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,3)
 
@@ -5140,7 +5121,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_RX_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_RX_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,4)
 
@@ -5189,7 +5170,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_TX_SEQ_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_TX_SEQ_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,5)
 
@@ -5225,7 +5206,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_RX_SEQ_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_RX_SEQ_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,6)
 
@@ -5258,7 +5239,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_RX_WARNING
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_RX_WARNING(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,7)
 
@@ -5286,7 +5267,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_ERR
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_ERR(gi)                 VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,8)
 
@@ -5329,7 +5310,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_RX_ERR_1
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_RX_ERR_1(gi)            VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,9)
 
@@ -5374,7 +5355,7 @@
  *
  * Register: \a VOP:VOE_STAT:LBM_TX_TRANSID_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LBM_TX_TRANSID_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,10)
 
@@ -5401,7 +5382,7 @@
  *
  * Register: \a VOP:VOE_STAT:LBR_TX_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LBR_TX_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,11)
 
@@ -5446,7 +5427,7 @@
  *
  * Register: \a VOP:VOE_STAT:LBR_RX_TRANSID_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LBR_RX_TRANSID_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,12)
 
@@ -5470,7 +5451,7 @@
  *
  * Register: \a VOP:VOE_STAT:LBR_RX_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LBR_RX_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,13)
 
@@ -5502,7 +5483,7 @@
  *
  * Register: \a VOP:VOE_STAT:LBR_RX_TRANSID_ERR_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LBR_RX_TRANSID_ERR_CNT(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,14)
 
@@ -5530,7 +5511,7 @@
  *
  * Register: \a VOP:VOE_STAT:DM_PDU_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_DM_PDU_CNT(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,15)
 
@@ -5594,7 +5575,7 @@
  *
  * Register: \a VOP:VOE_STAT:LM_PDU_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LM_PDU_CNT(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,16)
 
@@ -5655,7 +5636,7 @@
  *
  * Register: \a VOP:VOE_STAT:TX_OAM_DISCARD
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_TX_OAM_DISCARD(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,17)
 
@@ -5692,7 +5673,7 @@
  *
  * Register: \a VOP:VOE_STAT:RX_OAM_DISCARD
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_RX_OAM_DISCARD(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,18)
 
@@ -5753,7 +5734,7 @@
  *
  * Register: \a VOP:VOE_STAT:PDU_EXTRACT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_PDU_EXTRACT(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,19)
 
@@ -6258,7 +6239,7 @@
  *
  * Register: \a VOP:VOE_STAT:AUTO_HIT_ME_ONCE
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_AUTO_HIT_ME_ONCE(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,20)
 
@@ -6441,7 +6422,7 @@
  *
  * Register: \a VOP:VOE_STAT:SYNLM_EXTRACT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SYNLM_EXTRACT(gi)           VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,21)
 
@@ -6511,7 +6492,7 @@
  *
  * Register: \a VOP:VOE_STAT:OAM_TX_STICKY
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_TX_STICKY(gi)           VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,22)
 
@@ -6599,7 +6580,7 @@
  *
  * Register: \a VOP:VOE_STAT:OAM_RX_STICKY
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_RX_STICKY(gi)           VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,23)
 
@@ -7038,7 +7019,7 @@
  *
  * Register: \a VOP:VOE_STAT:OAM_RX_STICKY2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_OAM_RX_STICKY2(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,24)
 
@@ -7223,7 +7204,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_STAT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_STAT(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,25)
 
@@ -7418,7 +7399,7 @@
  * \details
  * Register: \a VOP:VOE_STAT:CCM_STAT_2
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_STAT_2(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,26)
 
@@ -7645,7 +7626,7 @@
  *
  * Register: \a VOP:VOE_STAT:CCM_RX_LAST
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CCM_RX_LAST(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,27)
 
@@ -7909,7 +7890,7 @@
  *
  * Register: \a VOP:VOE_STAT:AIS_STAT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_AIS_STAT(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,28)
 
@@ -7977,7 +7958,7 @@
  *
  * Register: \a VOP:VOE_STAT:AIS_RX_LAST
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_AIS_RX_LAST(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,29)
 
@@ -8034,7 +8015,7 @@
  *
  * Register: \a VOP:VOE_STAT:LCK_STAT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LCK_STAT(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,30)
 
@@ -8102,7 +8083,7 @@
  *
  * Register: \a VOP:VOE_STAT:LCK_RX_LAST
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_LCK_RX_LAST(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,31)
 
@@ -8159,7 +8140,7 @@
  *
  * Register: \a VOP:VOE_STAT:CSF_STAT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CSF_STAT(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,32)
 
@@ -8228,7 +8209,7 @@
  *
  * Register: \a VOP:VOE_STAT:CSF_RX_LAST
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_CSF_RX_LAST(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,33)
 
@@ -8355,7 +8336,7 @@
  *
  * Register: \a VOP:VOE_STAT:INTR_STICKY
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_INTR_STICKY(gi)             VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,34)
 
@@ -8712,7 +8693,7 @@
  *
  * Register: \a VOP:VOE_STAT:INTR_ENA
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_INTR_ENA(gi)                VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,35)
 
@@ -9017,7 +8998,7 @@
  *
  * Register: \a VOP:VOE_STAT:SLM_TX_FRM_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_SLM_TX_FRM_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0x1000,gi,64,0,36)
 
@@ -9045,9 +9026,9 @@
  * \details
  * Register: \a VOP:VOE_STAT_REG:BLK_STICKY
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_BLK_STICKY(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0x3500,gi,1,0,0)
+#define VTSS_VOP_BLK_STICKY(gi)              VTSS_IOREG_IX(VTSS_TO_VOP,0xac0,gi,1,0,0)
 
 /**
  * \brief
@@ -9132,9 +9113,9 @@
  *
  * Register: \a VOP:VOE_CCM_LM:CCM_TX_FCB_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_CCM_TX_FCB_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0xf80,gi,2,0,0)
+#define VTSS_VOP_CCM_TX_FCB_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0xa00,gi,2,0,0)
 
 /**
  * \brief
@@ -9160,9 +9141,9 @@
  *
  * Register: \a VOP:VOE_CCM_LM:CCM_RX_FCB_CFG
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_CCM_RX_FCB_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0xf80,gi,2,0,1)
+#define VTSS_VOP_CCM_RX_FCB_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_VOP,0xa00,gi,2,0,1)
 
 /**
  * \brief
@@ -10382,14 +10363,14 @@
  * This register will count the number of CRC errors received by the VOE.
  *
  * The CRC counters are indexed as follows:
- *  * Service (/Path) VOEs are indexed: 0 - 31
- *  * Port VOEs are indexed: 32 (Port 0) - 61 (Port 29)
+ *  * Service (/Path) VOEs are indexed: 0 - 7
+ *  * Port VOEs are indexed: 8 (Port 0) - 37 (Port 29)
  *
  * Register: \a VOP:VOE_CRC_ERR:LBR_CRC_ERR_CNT
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-61
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_LBR_CRC_ERR_CNT(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x3540,gi,1,0,0)
+#define VTSS_VOP_LBR_CRC_ERR_CNT(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0xb00,gi,1,0,0)
 
 /**
  * \brief
@@ -10419,9 +10400,9 @@
  *
  * Register: \a VOP:ANA_COSID_MAP_CONF:COSID_MAP_TABLE_ANA
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-31
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-7
  */
-#define VTSS_VOP_COSID_MAP_TABLE_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x3440,gi,2,0,0)
+#define VTSS_VOP_COSID_MAP_TABLE_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0xa50,gi,2,0,0)
 
 /**
  * \brief
@@ -10450,9 +10431,9 @@
  *
  * Register: \a VOP:ANA_COSID_MAP_CONF:COSID_MAP_CFG_ANA
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-31
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-7
  */
-#define VTSS_VOP_COSID_MAP_CFG_ANA(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x3440,gi,2,0,1)
+#define VTSS_VOP_COSID_MAP_CFG_ANA(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0xa50,gi,2,0,1)
 
 /**
  * \brief
@@ -10522,9 +10503,9 @@
  *
  * Register: \a VOP:REW_COSID_MAP_CONF:COSID_MAP_TABLE_REW
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-31
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-7
  */
-#define VTSS_VOP_COSID_MAP_TABLE_REW(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x3480,gi,2,0,0)
+#define VTSS_VOP_COSID_MAP_TABLE_REW(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0xa60,gi,2,0,0)
 
 /**
  * \brief
@@ -10553,9 +10534,9 @@
  *
  * Register: \a VOP:REW_COSID_MAP_CONF:COSID_MAP_CFG_REW
  *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-31
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE (??), 0-7
  */
-#define VTSS_VOP_COSID_MAP_CFG_REW(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x3480,gi,2,0,1)
+#define VTSS_VOP_COSID_MAP_CFG_REW(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0xa60,gi,2,0,1)
 
 /**
  * \brief
@@ -10628,7 +10609,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_VOP_PORT_RX_COSID_MAP(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x1f80,gi,4,0,0)
+#define VTSS_VOP_PORT_RX_COSID_MAP(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x980,gi,4,0,0)
 
 /**
  * \brief
@@ -10655,7 +10636,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_VOP_PORT_RX_COSID_MAP1(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x1f80,gi,4,0,1)
+#define VTSS_VOP_PORT_RX_COSID_MAP1(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x980,gi,4,0,1)
 
 /**
  * \brief
@@ -10682,7 +10663,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_VOP_PORT_TX_COSID_MAP(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x1f80,gi,4,0,2)
+#define VTSS_VOP_PORT_TX_COSID_MAP(gi)       VTSS_IOREG_IX(VTSS_TO_VOP,0x980,gi,4,0,2)
 
 /**
  * \brief
@@ -10709,7 +10690,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_VOP_PORT_TX_COSID_MAP1(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x1f80,gi,4,0,3)
+#define VTSS_VOP_PORT_TX_COSID_MAP1(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x980,gi,4,0,3)
 
 /**
  * \brief
@@ -10932,7 +10913,7 @@
  *
  * Register: \a VOP:RAM_CTRL:RAM_INIT
  */
-#define VTSS_VOP_RAM_INIT                    VTSS_IOREG(VTSS_TO_VOP,0xffc)
+#define VTSS_VOP_RAM_INIT                    VTSS_IOREG(VTSS_TO_VOP,0x9f8)
 
 /**
  * \brief
@@ -10971,7 +10952,7 @@
  * \details
  * Register: \a VOP:COREMEM:CM_ADDR
  */
-#define VTSS_VOP_CM_ADDR                     VTSS_IOREG(VTSS_TO_VOP,0x1ff8)
+#define VTSS_VOP_CM_ADDR                     VTSS_IOREG(VTSS_TO_VOP,0x9f9)
 
 /**
  * \brief
@@ -10991,7 +10972,7 @@
  * \details
  * Register: \a VOP:COREMEM:CM_DATA_WR
  */
-#define VTSS_VOP_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_VOP,0x1ff9)
+#define VTSS_VOP_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_VOP,0x9fa)
 
 /**
  * \brief
@@ -11013,7 +10994,7 @@
  * \details
  * Register: \a VOP:COREMEM:CM_DATA_RD
  */
-#define VTSS_VOP_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_VOP,0x1ffa)
+#define VTSS_VOP_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_VOP,0x9fb)
 
 /**
  * \brief
@@ -11033,7 +11014,7 @@
  * \details
  * Register: \a VOP:COREMEM:CM_OP
  */
-#define VTSS_VOP_CM_OP                       VTSS_IOREG(VTSS_TO_VOP,0x1ffb)
+#define VTSS_VOP_CM_OP                       VTSS_IOREG(VTSS_TO_VOP,0x9fc)
 
 /**
  * \brief

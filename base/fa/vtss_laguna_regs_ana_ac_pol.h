@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_ANA_AC_POL_H_
 #define _VTSS_LAGUNA_REGS_ANA_AC_POL_H_
@@ -50,7 +31,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_AC_POL_STORM_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1118 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xa80 + (ri))
 
 /**
  * \brief
@@ -89,7 +70,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_AC_POL_STORM_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_THRES_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1120 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_THRES_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xa88 + (ri))
 
 /**
  * \brief
@@ -127,7 +108,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_AC_POL_STORM_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1128 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xa90 + (ri))
 
 /**
  * \brief
@@ -236,9 +217,9 @@
  * \details
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_ACL_RATE_CFG
  *
- * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-31
+ * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1130 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xa98 + (ri))
 
 /**
  * \brief
@@ -273,9 +254,9 @@
  * \details
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_ACL_THRES_CFG
  *
- * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-31
+ * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_THRES_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1170 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_THRES_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xad8 + (ri))
 
 /**
  * \brief
@@ -315,9 +296,9 @@
  *
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_ACL_CTRL
  *
- * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-31
+ * @param ri Replicator: x_FFL_ANA_AC_POL_ACL_TOT_NUM_LB (??), 0-7
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x11b0 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xb18 + (ri))
 
 /**
  * \brief
@@ -439,7 +420,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_PORT_POL (??), 0-34
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x11f0 + (ri))
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xb58 + (ri))
 
 /**
  * \brief
@@ -482,7 +463,7 @@
  * \details
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_ALL_CFG
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1236)
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xb9e)
 
 /**
  * \brief
@@ -803,7 +784,7 @@
  *
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_UPD_INT_CFG
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1237)
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xb9f)
 
 /**
  * \brief
@@ -833,7 +814,7 @@
  * \details
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_STICKY
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1238)
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xba0)
 
 /**
  * \brief
@@ -1151,7 +1132,7 @@
  * \details
  * Register: \a ANA_AC_POL:POL_ALL_CFG:POL_STICKY1
  */
-#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STICKY1  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1239)
+#define VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STICKY1  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0xba1)
 
 /**
  * \brief
@@ -1334,7 +1315,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_PORT_POL (??), 0-34
  */
-#define VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_GAP(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x1000,gi,8,0,0)
+#define VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_GAP(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,0,0)
 
 /**
  * \brief
@@ -1401,7 +1382,7 @@
  * @param gi Replicator: x_FFL_ANA_NUM_PORT_POL (??), 0-34
  * @param ri Replicator: x_FFL_ANA_AC_POL_PORT_LB_SET_SIZE (??), 0-3
  */
-#define VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x1000,gi,8,ri,1)
+#define VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,ri,1)
 
 /**
  * \brief
@@ -1560,7 +1541,7 @@
  * @param gi Replicator: x_FFL_ANA_NUM_PT_CTRL_IDX (??), 0-39
  * @param ri Register: ACTION_CTRL (??), 0-4
  */
-#define VTSS_ANA_AC_POL_PORT_PT_CTRL_ACTION_CTRL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x123a,gi,5,ri,0)
+#define VTSS_ANA_AC_POL_PORT_PT_CTRL_ACTION_CTRL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xba2,gi,5,ri,0)
 
 /**
  * \brief
@@ -1597,7 +1578,7 @@
  * \details
  * Register: \a ANA_AC_POL:COMMON_BDLB:DLB_CTRL
  */
-#define VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1302)
+#define VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x918)
 
 /**
  * \brief
@@ -1662,7 +1643,7 @@
  * \details
  * Register: \a ANA_AC_POL:COMMON_BDLB:DLB_STICKY
  */
-#define VTSS_ANA_AC_POL_COMMON_BDLB_DLB_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1303)
+#define VTSS_ANA_AC_POL_COMMON_BDLB_DLB_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x919)
 
 /**
  * \brief
@@ -1768,9 +1749,9 @@
  * \details
  * Register: \a ANA_AC_POL:BDLB:MISC_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  */
-#define VTSS_ANA_AC_POL_BDLB_MISC_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,0,0)
+#define VTSS_ANA_AC_POL_BDLB_MISC_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x980,gi,8,0,0)
 
 /**
  * \brief
@@ -1844,9 +1825,9 @@
  * \details
  * Register: \a ANA_AC_POL:BDLB:DLB_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  */
-#define VTSS_ANA_AC_POL_BDLB_DLB_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,0,1)
+#define VTSS_ANA_AC_POL_BDLB_DLB_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x980,gi,8,0,1)
 
 /**
  * \brief
@@ -2004,10 +1985,10 @@
  * \details
  * Register: \a ANA_AC_POL:BDLB:LB_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  * @param ri Replicator: x_ANA_DLB_LB_SET_SIZE (??), 0-1
  */
-#define VTSS_ANA_AC_POL_BDLB_LB_CFG(gi,ri)   VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,ri,2)
+#define VTSS_ANA_AC_POL_BDLB_LB_CFG(gi,ri)   VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x980,gi,8,ri,2)
 
 /**
  * \brief
@@ -2051,10 +2032,10 @@
  * \details
  * Register: \a ANA_AC_POL:BDLB:LB_BUCKET_VAL
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  * @param ri Replicator: x_ANA_DLB_LB_SET_SIZE (??), 0-1
  */
-#define VTSS_ANA_AC_POL_BDLB_LB_BUCKET_VAL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x800,gi,8,ri,4)
+#define VTSS_ANA_AC_POL_BDLB_LB_BUCKET_VAL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0x980,gi,8,ri,4)
 
 /**
  * \brief
@@ -2063,9 +2044,9 @@
  * \details
  * Field: ::VTSS_ANA_AC_POL_BDLB_LB_BUCKET_VAL . BUCKET_VAL
  */
-#define  VTSS_F_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_ENCODE_BITFIELD(x,9,20)
-#define  VTSS_M_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL     VTSS_ENCODE_BITMASK(9,20)
-#define  VTSS_X_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_EXTRACT_BITFIELD(x,9,20)
+#define  VTSS_F_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_ENCODE_BITFIELD(x,9,19)
+#define  VTSS_M_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL     VTSS_ENCODE_BITMASK(9,19)
+#define  VTSS_X_ANA_AC_POL_BDLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_EXTRACT_BITFIELD(x,9,19)
 
 /**
  * \brief
@@ -2091,7 +2072,7 @@
  * \details
  * Register: \a ANA_AC_POL:COMMON_BUM_SLB:DLB_CTRL
  */
-#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1304)
+#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x91a)
 
 /**
  * \brief
@@ -2158,7 +2139,7 @@
  *
  * @param ri Replicator: x_ANA_DLB_LB_SET_SIZE (??), 0-2
  */
-#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_TRAFFIC_MASK_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1305 + (ri))
+#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_TRAFFIC_MASK_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x91b + (ri))
 
 /**
  * \brief
@@ -2190,7 +2171,7 @@
  * \details
  * Register: \a ANA_AC_POL:COMMON_BUM_SLB:SLB_STICKY
  */
-#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_SLB_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x1308)
+#define VTSS_ANA_AC_POL_COMMON_BUM_SLB_SLB_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC_POL,0x91e)
 
 /**
  * \brief
@@ -2266,9 +2247,9 @@
  * \details
  * Register: \a ANA_AC_POL:BUM_SLB:MISC_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  */
-#define VTSS_ANA_AC_POL_BUM_SLB_MISC_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xc00,gi,8,0,0)
+#define VTSS_ANA_AC_POL_BUM_SLB_MISC_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xa00,gi,8,0,0)
 
 /**
  * \brief
@@ -2292,9 +2273,9 @@
  * \details
  * Register: \a ANA_AC_POL:BUM_SLB:SLB_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  */
-#define VTSS_ANA_AC_POL_BUM_SLB_SLB_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xc00,gi,8,0,1)
+#define VTSS_ANA_AC_POL_BUM_SLB_SLB_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xa00,gi,8,0,1)
 
 /**
  * \brief
@@ -2377,10 +2358,10 @@
  *
  * Register: \a ANA_AC_POL:BUM_SLB:LB_CFG
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  * @param ri Replicator: x_ANA_DLB_LB_SET_SIZE (??), 0-2
  */
-#define VTSS_ANA_AC_POL_BUM_SLB_LB_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xc00,gi,8,ri,2)
+#define VTSS_ANA_AC_POL_BUM_SLB_LB_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xa00,gi,8,ri,2)
 
 /**
  * \brief
@@ -2426,10 +2407,10 @@
  *
  * Register: \a ANA_AC_POL:BUM_SLB:LB_BUCKET_VAL
  *
- * @param gi Replicator: x_ANA_NUM_DLB (??), 0-127
+ * @param gi Replicator: x_ANA_NUM_DLB (??), 0-15
  * @param ri Replicator: x_ANA_DLB_LB_SET_SIZE (??), 0-2
  */
-#define VTSS_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xc00,gi,8,ri,5)
+#define VTSS_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_POL,0xa00,gi,8,ri,5)
 
 /**
  * \brief
@@ -2438,9 +2419,9 @@
  * \details
  * Field: ::VTSS_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL . BUCKET_VAL
  */
-#define  VTSS_F_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_ENCODE_BITFIELD(x,9,20)
-#define  VTSS_M_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL     VTSS_ENCODE_BITMASK(9,20)
-#define  VTSS_X_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_EXTRACT_BITFIELD(x,9,20)
+#define  VTSS_F_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_ENCODE_BITFIELD(x,9,19)
+#define  VTSS_M_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL     VTSS_ENCODE_BITMASK(9,19)
+#define  VTSS_X_ANA_AC_POL_BUM_SLB_LB_BUCKET_VAL_BUCKET_VAL(x)  VTSS_EXTRACT_BITFIELD(x,9,19)
 
 /**
  * \brief

@@ -1,24 +1,5 @@
-/*
- Copyright (c) 2004-2019 Microsemi Corporation "Microsemi".
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
 
 #ifndef _VTSS_LAGUNA_REGS_EACL_H_
 #define _VTSS_LAGUNA_REGS_EACL_H_
@@ -48,7 +29,7 @@
  *
  * Register: \a EACL:COMMON:OPTIONS
  */
-#define VTSS_EACL_OPTIONS                    VTSS_IOREG(VTSS_TO_EACL,0x1f88)
+#define VTSS_EACL_OPTIONS                    VTSS_IOREG(VTSS_TO_EACL,0xf88)
 
 /**
  * \brief
@@ -281,7 +262,7 @@
  *
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_EACL_TPID_CFG(ri)               VTSS_IOREG(VTSS_TO_EACL,0x1f89 + (ri))
+#define VTSS_EACL_TPID_CFG(ri)               VTSS_IOREG(VTSS_TO_EACL,0xf89 + (ri))
 
 /**
  * \brief
@@ -305,7 +286,7 @@
  * \details
  * Register: \a EACL:COMMON:ETAG_CFG
  */
-#define VTSS_EACL_ETAG_CFG                   VTSS_IOREG(VTSS_TO_EACL,0x1f8c)
+#define VTSS_EACL_ETAG_CFG                   VTSS_IOREG(VTSS_TO_EACL,0xf8c)
 
 /**
  * \brief
@@ -326,7 +307,7 @@
  * \details
  * Register: \a EACL:COMMON:RTAG_CFG
  */
-#define VTSS_EACL_RTAG_CFG                   VTSS_IOREG(VTSS_TO_EACL,0x1f8d)
+#define VTSS_EACL_RTAG_CFG                   VTSS_IOREG(VTSS_TO_EACL,0xf8d)
 
 /**
  * \brief
@@ -347,7 +328,7 @@
  * \details
  * Register: \a EACL:COMMON:ES2_CTRL
  */
-#define VTSS_EACL_ES2_CTRL                   VTSS_IOREG(VTSS_TO_EACL,0x1f8e)
+#define VTSS_EACL_ES2_CTRL                   VTSS_IOREG(VTSS_TO_EACL,0xf8e)
 
 /**
  * \brief
@@ -486,7 +467,7 @@
  *
  * Register: \a EACL:COMMON:DP_MAP
  */
-#define VTSS_EACL_DP_MAP                     VTSS_IOREG(VTSS_TO_EACL,0x1f8f)
+#define VTSS_EACL_DP_MAP                     VTSS_IOREG(VTSS_TO_EACL,0xf8f)
 
 /**
  * \brief
@@ -529,7 +510,7 @@
  *
  * @param ri Register: GCPU_CFG (??), 0-7
  */
-#define VTSS_EACL_GCPU_CFG(ri)               VTSS_IOREG(VTSS_TO_EACL,0x1f90 + (ri))
+#define VTSS_EACL_GCPU_CFG(ri)               VTSS_IOREG(VTSS_TO_EACL,0xf90 + (ri))
 
 /**
  * \brief
@@ -556,7 +537,7 @@
  * \details
  * Register: \a EACL:COMMON:RLEG_CFG_0
  */
-#define VTSS_EACL_RLEG_CFG_0                 VTSS_IOREG(VTSS_TO_EACL,0x1f98)
+#define VTSS_EACL_RLEG_CFG_0                 VTSS_IOREG(VTSS_TO_EACL,0xf98)
 
 /**
  * \brief
@@ -583,7 +564,7 @@
  * \details
  * Register: \a EACL:COMMON:RLEG_CFG_1
  */
-#define VTSS_EACL_RLEG_CFG_1                 VTSS_IOREG(VTSS_TO_EACL,0x1f99)
+#define VTSS_EACL_RLEG_CFG_1                 VTSS_IOREG(VTSS_TO_EACL,0xf99)
 
 /**
  * \brief
@@ -636,7 +617,7 @@
  * \details
  * Register: \a EACL:COMMON:VCAP_ES2_FRAGMENT_CFG
  */
-#define VTSS_EACL_VCAP_ES2_FRAGMENT_CFG      VTSS_IOREG(VTSS_TO_EACL,0x1f9a)
+#define VTSS_EACL_VCAP_ES2_FRAGMENT_CFG      VTSS_IOREG(VTSS_TO_EACL,0xf9a)
 
 /**
  * \brief
@@ -680,7 +661,7 @@
  *
  * @param ri Replicator: x_FFL_EACL_NUM_RNG_CHKRS (??), 0-15
  */
-#define VTSS_EACL_VCAP_ES2_RNG_CTRL(ri)      VTSS_IOREG(VTSS_TO_EACL,0x1f9b + (ri))
+#define VTSS_EACL_VCAP_ES2_RNG_CTRL(ri)      VTSS_IOREG(VTSS_TO_EACL,0xf9b + (ri))
 
 /**
  * \brief
@@ -710,7 +691,7 @@
  *
  * @param ri Replicator: x_FFL_EACL_NUM_TCP_RANGES (??), 0-15
  */
-#define VTSS_EACL_VCAP_ES2_RNG_VALUE_CFG(ri)  VTSS_IOREG(VTSS_TO_EACL,0x1fab + (ri))
+#define VTSS_EACL_VCAP_ES2_RNG_VALUE_CFG(ri)  VTSS_IOREG(VTSS_TO_EACL,0xfab + (ri))
 
 /**
  * \brief
@@ -744,7 +725,7 @@
  *
  * Register: \a EACL:COMMON:INTR
  */
-#define VTSS_EACL_INTR                       VTSS_IOREG(VTSS_TO_EACL,0x1fbb)
+#define VTSS_EACL_INTR                       VTSS_IOREG(VTSS_TO_EACL,0xfbb)
 
 /**
  * \brief
@@ -794,7 +775,7 @@
  *
  * Register: \a EACL:COMMON:INTR_ENA
  */
-#define VTSS_EACL_INTR_ENA                   VTSS_IOREG(VTSS_TO_EACL,0x1fbc)
+#define VTSS_EACL_INTR_ENA                   VTSS_IOREG(VTSS_TO_EACL,0xfbc)
 
 /**
  * \brief
@@ -831,7 +812,7 @@
  * \details
  * Register: \a EACL:COMMON:INTR_IDENT
  */
-#define VTSS_EACL_INTR_IDENT                 VTSS_IOREG(VTSS_TO_EACL,0x1fbd)
+#define VTSS_EACL_INTR_IDENT                 VTSS_IOREG(VTSS_TO_EACL,0xfbd)
 
 /**
  * \brief
@@ -880,7 +861,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_QSYS_NUM_VPORTS (??), 0-1399
  */
-#define VTSS_EACL_IF_MAP_TBL(gi)             VTSS_IOREG_IX(VTSS_TO_EACL,0x1800,gi,1,0,0)
+#define VTSS_EACL_IF_MAP_TBL(gi)             VTSS_IOREG_IX(VTSS_TO_EACL,0x800,gi,1,0,0)
 
 /**
  * \brief
@@ -954,7 +935,7 @@
  * @param gi Replicator: x_FFL_EACL_NUM_PROFILES (??), 0-67
  * @param ri Replicator: x_FFL_EACL_NUM_LOOKUPS (??), 0-1
  */
-#define VTSS_EACL_VCAP_ES2_KEY_SEL(gi,ri)    VTSS_IOREG_IX(VTSS_TO_EACL,0x1f00,gi,2,ri,0)
+#define VTSS_EACL_VCAP_ES2_KEY_SEL(gi,ri)    VTSS_IOREG_IX(VTSS_TO_EACL,0xf00,gi,2,ri,0)
 
 /**
  * \brief
@@ -1039,7 +1020,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_NUM_CNT (??), 0-1023
  */
-#define VTSS_EACL_ES2_CNT(gi)                VTSS_IOREG_IX(VTSS_TO_EACL,0x2000,gi,1,0,0)
+#define VTSS_EACL_ES2_CNT(gi)                VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,1,0,0)
 
 /**
  * \brief
@@ -1067,7 +1048,7 @@
  *
  * @param ri Replicator: x_FFL_EACL_POL_TOT_NUM_LB (??), 0-31
  */
-#define VTSS_EACL_POL_EACL_RATE_CFG(ri)      VTSS_IOREG(VTSS_TO_EACL,0x2880 + (ri))
+#define VTSS_EACL_POL_EACL_RATE_CFG(ri)      VTSS_IOREG(VTSS_TO_EACL,0x1900 + (ri))
 
 /**
  * \brief
@@ -1105,7 +1086,7 @@
  *
  * @param ri Replicator: x_FFL_EACL_POL_TOT_NUM_LB (??), 0-31
  */
-#define VTSS_EACL_POL_EACL_THRES_CFG(ri)     VTSS_IOREG(VTSS_TO_EACL,0x28c0 + (ri))
+#define VTSS_EACL_POL_EACL_THRES_CFG(ri)     VTSS_IOREG(VTSS_TO_EACL,0x1940 + (ri))
 
 /**
  * \brief
@@ -1147,7 +1128,7 @@
  *
  * @param ri Replicator: x_FFL_EACL_POL_TOT_NUM_LB (??), 0-31
  */
-#define VTSS_EACL_POL_EACL_CTRL(ri)          VTSS_IOREG(VTSS_TO_EACL,0x2900 + (ri))
+#define VTSS_EACL_POL_EACL_CTRL(ri)          VTSS_IOREG(VTSS_TO_EACL,0x1980 + (ri))
 
 /**
  * \brief
@@ -1235,7 +1216,7 @@
  * \details
  * Register: \a EACL:POL_CFG:POL_EACL_CFG
  */
-#define VTSS_EACL_POL_EACL_CFG               VTSS_IOREG(VTSS_TO_EACL,0x2940)
+#define VTSS_EACL_POL_EACL_CFG               VTSS_IOREG(VTSS_TO_EACL,0x19c0)
 
 /**
  * \brief
@@ -1347,7 +1328,7 @@
  *
  * Register: \a EACL:POL_CFG:POL_UPD_INT_CFG
  */
-#define VTSS_EACL_POL_UPD_INT_CFG            VTSS_IOREG(VTSS_TO_EACL,0x2941)
+#define VTSS_EACL_POL_UPD_INT_CFG            VTSS_IOREG(VTSS_TO_EACL,0x19c1)
 
 /**
  * \brief
@@ -1377,7 +1358,7 @@
  * \details
  * Register: \a EACL:POL_CFG:POL_EACL_STICKY
  */
-#define VTSS_EACL_POL_EACL_STICKY            VTSS_IOREG(VTSS_TO_EACL,0x2942)
+#define VTSS_EACL_POL_EACL_STICKY            VTSS_IOREG(VTSS_TO_EACL,0x19c2)
 
 /**
  * \brief
@@ -1454,7 +1435,7 @@
  *
  * @param ri Register: SEC_LOOKUP_STICKY (??), 0-1
  */
-#define VTSS_EACL_SEC_LOOKUP_STICKY(ri)      VTSS_IOREG(VTSS_TO_EACL,0x1d7c + (ri))
+#define VTSS_EACL_SEC_LOOKUP_STICKY(ri)      VTSS_IOREG(VTSS_TO_EACL,0xd7c + (ri))
 
 /**
  * \brief
@@ -1557,7 +1538,7 @@
  * \details
  * Register: \a EACL:DBG_STICKY:DBG_STICKY
  */
-#define VTSS_EACL_DBG_STICKY                 VTSS_IOREG(VTSS_TO_EACL,0x1d7e)
+#define VTSS_EACL_DBG_STICKY                 VTSS_IOREG(VTSS_TO_EACL,0xd7e)
 
 /**
  * \brief
@@ -1606,9 +1587,9 @@
  * \details
  * Register: \a EACL:FRER_MAP:FRER_FIRST_MEMBER
  *
- * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-1023
+ * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-31
  */
-#define VTSS_EACL_FRER_FIRST_MEMBER(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,4,0,0)
+#define VTSS_EACL_FRER_FIRST_MEMBER(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0xd80,gi,4,0,0)
 
 /**
  * \brief
@@ -1633,10 +1614,10 @@
  * \details
  * Register: \a EACL:FRER_MAP:FRER_EGR_PORT
  *
- * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-1023
+ * @param gi Replicator: x_FFL_CHIP_NUM_SDX (??), 0-31
  * @param ri Replicator: x_FFL_EACL_FRER_EGR_PORT_REGISTERS (??), 0-1
  */
-#define VTSS_EACL_FRER_EGR_PORT(gi,ri)       VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,4,ri,1)
+#define VTSS_EACL_FRER_EGR_PORT(gi,ri)       VTSS_IOREG_IX(VTSS_TO_EACL,0xd80,gi,4,ri,1)
 
 /**
  * \brief
@@ -1711,7 +1692,7 @@
  * \details
  * Register: \a EACL:FRER_CFG:FRER_CFG
  */
-#define VTSS_EACL_FRER_CFG                   VTSS_IOREG(VTSS_TO_EACL,0x1d7f)
+#define VTSS_EACL_FRER_CFG                   VTSS_IOREG(VTSS_TO_EACL,0xd7f)
 
 /**
  * \brief
@@ -1767,7 +1748,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_FRER_CFG_COMPOUND(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x1d80,gi,1,0,0)
+#define VTSS_EACL_FRER_CFG_COMPOUND(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x1800,gi,1,0,0)
 
 /**
  * \brief
@@ -1879,7 +1860,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_FRER_CFG_MEMBER(gi)        VTSS_IOREG_IX(VTSS_TO_EACL,0x1e00,gi,1,0,0)
+#define VTSS_EACL_FRER_CFG_MEMBER(gi)        VTSS_IOREG_IX(VTSS_TO_EACL,0xe00,gi,1,0,0)
 
 /**
  * \brief
@@ -2004,7 +1985,7 @@
  * \details
  * Register: \a EACL:FRER_STA_COMPOUND:FRER_STA_COMPOUND
  */
-#define VTSS_EACL_FRER_STA_COMPOUND          VTSS_IOREG(VTSS_TO_EACL,0x1d78)
+#define VTSS_EACL_FRER_STA_COMPOUND          VTSS_IOREG(VTSS_TO_EACL,0xd78)
 
 /**
  * \brief
@@ -2052,7 +2033,7 @@
  * \details
  * Register: \a EACL:FRER_STA_COMPOUND:FRER_HST_COMPOUND
  */
-#define VTSS_EACL_FRER_HST_COMPOUND          VTSS_IOREG(VTSS_TO_EACL,0x1d79)
+#define VTSS_EACL_FRER_HST_COMPOUND          VTSS_IOREG(VTSS_TO_EACL,0xd79)
 
 /**
  * \brief
@@ -2080,7 +2061,7 @@
  * \details
  * Register: \a EACL:FRER_STA_MEMBER:FRER_STA_MEMBER
  */
-#define VTSS_EACL_FRER_STA_MEMBER            VTSS_IOREG(VTSS_TO_EACL,0x1d7a)
+#define VTSS_EACL_FRER_STA_MEMBER            VTSS_IOREG(VTSS_TO_EACL,0xd7a)
 
 /**
  * \brief
@@ -2128,7 +2109,7 @@
  * \details
  * Register: \a EACL:FRER_STA_MEMBER:FRER_HST_MEMBER
  */
-#define VTSS_EACL_FRER_HST_MEMBER            VTSS_IOREG(VTSS_TO_EACL,0x1d7b)
+#define VTSS_EACL_FRER_HST_MEMBER            VTSS_IOREG(VTSS_TO_EACL,0xd7b)
 
 /**
  * \brief
@@ -2158,7 +2139,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_RESETS(gi)    VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,0)
+#define VTSS_EACL_CNT_COMPOUND_RESETS(gi)    VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,0)
 
 /**
  * \brief
@@ -2180,7 +2161,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_TAGLESS(gi)   VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,1)
+#define VTSS_EACL_CNT_COMPOUND_TAGLESS(gi)   VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,1)
 
 /**
  * \brief
@@ -2202,7 +2183,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_PASSED(gi)    VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,2)
+#define VTSS_EACL_CNT_COMPOUND_PASSED(gi)    VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,2)
 
 /**
  * \brief
@@ -2224,7 +2205,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_DISCARDED(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,3)
+#define VTSS_EACL_CNT_COMPOUND_DISCARDED(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,3)
 
 /**
  * \brief
@@ -2246,7 +2227,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_OUTOFORDER(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,4)
+#define VTSS_EACL_CNT_COMPOUND_OUTOFORDER(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,4)
 
 /**
  * \brief
@@ -2268,7 +2249,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_ROGUE(gi)     VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,5)
+#define VTSS_EACL_CNT_COMPOUND_ROGUE(gi)     VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,5)
 
 /**
  * \brief
@@ -2290,7 +2271,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_COMPOUND_STREAMS (??), 0-127
  */
-#define VTSS_EACL_CNT_COMPOUND_LOST(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x2400,gi,8,0,6)
+#define VTSS_EACL_CNT_COMPOUND_LOST(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x1400,gi,8,0,6)
 
 /**
  * \brief
@@ -2318,7 +2299,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_RESETS(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,0)
+#define VTSS_EACL_CNT_MEMBER_RESETS(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,0)
 
 /**
  * \brief
@@ -2340,7 +2321,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_TAGLESS(gi)     VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,1)
+#define VTSS_EACL_CNT_MEMBER_TAGLESS(gi)     VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,1)
 
 /**
  * \brief
@@ -2362,7 +2343,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_PASSED(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,2)
+#define VTSS_EACL_CNT_MEMBER_PASSED(gi)      VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,2)
 
 /**
  * \brief
@@ -2384,7 +2365,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_DISCARDED(gi)   VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,3)
+#define VTSS_EACL_CNT_MEMBER_DISCARDED(gi)   VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,3)
 
 /**
  * \brief
@@ -2406,7 +2387,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_OUTOFORDER(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,4)
+#define VTSS_EACL_CNT_MEMBER_OUTOFORDER(gi)  VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,4)
 
 /**
  * \brief
@@ -2428,7 +2409,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_ROGUE(gi)       VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,5)
+#define VTSS_EACL_CNT_MEMBER_ROGUE(gi)       VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,5)
 
 /**
  * \brief
@@ -2450,7 +2431,7 @@
  *
  * @param gi Replicator: x_FFL_EACL_FRER_MEMBER_STREAMS (??), 0-255
  */
-#define VTSS_EACL_CNT_MEMBER_LOST(gi)        VTSS_IOREG_IX(VTSS_TO_EACL,0x1000,gi,8,0,6)
+#define VTSS_EACL_CNT_MEMBER_LOST(gi)        VTSS_IOREG_IX(VTSS_TO_EACL,0x0,gi,8,0,6)
 
 /**
  * \brief
@@ -2478,7 +2459,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_EACL_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_EACL,0x1fbe + (ri))
+#define VTSS_EACL_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_EACL,0xfbe + (ri))
 
 /**
  * \brief
@@ -2514,7 +2495,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_EACL_STAT_GLOBAL_CFG(ri)        VTSS_IOREG(VTSS_TO_EACL,0x1fc0 + (ri))
+#define VTSS_EACL_STAT_GLOBAL_CFG(ri)        VTSS_IOREG(VTSS_TO_EACL,0xfc0 + (ri))
 
 /**
  * \brief
@@ -2540,7 +2521,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_EACL_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_EACL,0x1fc2 + (ri))
+#define VTSS_EACL_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_EACL,0xfc2 + (ri))
 
 /**
  * \brief
@@ -2585,7 +2566,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_EACL_STAT_LSB_CNT(gi,ri)        VTSS_IOREG_IX(VTSS_TO_EACL,0x2800,gi,4,ri,0)
+#define VTSS_EACL_STAT_LSB_CNT(gi,ri)        VTSS_IOREG_IX(VTSS_TO_EACL,0x1880,gi,4,ri,0)
 
 /**
  * \brief
@@ -2608,7 +2589,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
  * @param ri Replicator: x_STAT_CNT_MSB_PER_FLW_ID (??), 0-1
  */
-#define VTSS_EACL_STAT_MSB_CNT(gi,ri)        VTSS_IOREG_IX(VTSS_TO_EACL,0x2800,gi,4,ri,2)
+#define VTSS_EACL_STAT_MSB_CNT(gi,ri)        VTSS_IOREG_IX(VTSS_TO_EACL,0x1880,gi,4,ri,2)
 
 /**
  * \brief
@@ -2648,7 +2629,7 @@
  *
  * Register: \a EACL:RAM_CTRL:RAM_INIT
  */
-#define VTSS_EACL_RAM_INIT                   VTSS_IOREG(VTSS_TO_EACL,0x1fc4)
+#define VTSS_EACL_RAM_INIT                   VTSS_IOREG(VTSS_TO_EACL,0xfc4)
 
 /**
  * \brief
@@ -2687,7 +2668,7 @@
  * \details
  * Register: \a EACL:COREMEM:CM_ADDR
  */
-#define VTSS_EACL_CM_ADDR                    VTSS_IOREG(VTSS_TO_EACL,0x1fc5)
+#define VTSS_EACL_CM_ADDR                    VTSS_IOREG(VTSS_TO_EACL,0xfc5)
 
 /**
  * \brief
@@ -2707,7 +2688,7 @@
  * \details
  * Register: \a EACL:COREMEM:CM_DATA_WR
  */
-#define VTSS_EACL_CM_DATA_WR                 VTSS_IOREG(VTSS_TO_EACL,0x1fc6)
+#define VTSS_EACL_CM_DATA_WR                 VTSS_IOREG(VTSS_TO_EACL,0xfc6)
 
 /**
  * \brief
@@ -2729,7 +2710,7 @@
  * \details
  * Register: \a EACL:COREMEM:CM_DATA_RD
  */
-#define VTSS_EACL_CM_DATA_RD                 VTSS_IOREG(VTSS_TO_EACL,0x1fc7)
+#define VTSS_EACL_CM_DATA_RD                 VTSS_IOREG(VTSS_TO_EACL,0xfc7)
 
 /**
  * \brief
@@ -2749,7 +2730,7 @@
  * \details
  * Register: \a EACL:COREMEM:CM_OP
  */
-#define VTSS_EACL_CM_OP                      VTSS_IOREG(VTSS_TO_EACL,0x1fc8)
+#define VTSS_EACL_CM_OP                      VTSS_IOREG(VTSS_TO_EACL,0xfc8)
 
 /**
  * \brief
