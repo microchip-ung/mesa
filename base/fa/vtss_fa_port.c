@@ -912,7 +912,7 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
 
 }
 
-#endif //defined(VTSS_ARCH_LAN969X_FPGA)
+}
 
 static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -5107,11 +5107,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mmd_write = fa_mmd_write;
         state->conf_get = fa_port_conf_get;
         state->conf_set = fa_port_conf_set;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         state->clause_37_status_get = fa_port_clause_37_status_get;
         state->clause_37_control_get = fa_port_clause_37_control_get;
         state->clause_37_control_set = fa_port_clause_37_control_set;
-#endif
         state->status_get = fa_port_status_get;
         state->counters_update = fa_port_counters_update;
         state->counters_clear = fa_port_counters_clear;
