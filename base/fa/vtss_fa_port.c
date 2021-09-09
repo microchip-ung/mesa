@@ -522,11 +522,12 @@ u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     return (vtss_state->port.conf[port_no].speed <= VTSS_SPEED_2500M) ? VTSS_TO_DEV2G5(p) : VTSS_TO_HIGH_DEV(p);
 }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
 static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no,
                                                vtss_port_clause_37_control_t *const control)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 value;
     u32 tgt = VTSS_TO_DEV2G5(VTSS_CHIP_PORT(port_no));
 
@@ -534,7 +535,7 @@ static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
     control->enable = VTSS_BOOL(VTSS_X_DEV1G_PCS1G_ANEG_CFG_ANEG_ENA(value));
     value = VTSS_X_DEV1G_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable ? value : 0);
     VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &control->advertisement));
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -542,6 +543,7 @@ static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
 static vtss_rc fa_port_clause_37_control_set(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32 value;
     u32 tgt = VTSS_TO_DEV2G5(VTSS_CHIP_PORT(port_no));
@@ -562,10 +564,11 @@ static vtss_rc fa_port_clause_37_control_set(vtss_state_t *vtss_state,
                VTSS_F_DEV1G_PCS1G_ANEG_CFG_ANEG_ENA(0) |
                VTSS_F_DEV1G_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
                                           const vtss_port_no_t port_no,
                                           vtss_port_clause_37_status_t *const status)
@@ -592,13 +595,14 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-
+#endif
 
 static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
                                               const vtss_port_no_t         port_no,
                                               vtss_port_clause_37_status_t *const status)
 
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 value, port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV2G5(port);
     vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner.sgmii;
@@ -667,11 +671,10 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     } else {
         VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
-
-    return VTSS_RC_OK;
-}
-
 #endif //defined(VTSS_ARCH_LAN969X_FPGA)
+    return VTSS_RC_OK;
+
+}
 
 static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -3302,9 +3305,10 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 
         VTSS_I("port_no:%d (chip port:%d) shutdown the %s device", port_no, port, use_primary_dev ? "shadow" : "primary");
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Shutdown the not-in-use device */
         VTSS_RC(fa_port_flush(vtss_state, port_no, !use_primary_dev));
-
+#endif
         /* Enable/disable shadow device */
         if (VTSS_PORT_IS_5G(port)) {
             bt_indx = VTSS_BIT((port <= 11) ? port : 12);
@@ -4714,11 +4718,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mmd_write = fa_mmd_write;
         state->conf_get = fa_port_conf_get;
         state->conf_set = fa_port_conf_set;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         state->clause_37_status_get = fa_port_clause_37_status_get;
         state->clause_37_control_get = fa_port_clause_37_control_get;
         state->clause_37_control_set = fa_port_clause_37_control_set;
-#endif
         state->status_get = fa_port_status_get;
         state->counters_update = fa_port_counters_update;
         state->counters_clear = fa_port_counters_clear;

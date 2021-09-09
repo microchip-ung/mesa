@@ -18,7 +18,7 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_ARCH_FA
 #endif
 

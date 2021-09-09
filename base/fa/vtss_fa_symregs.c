@@ -6,6 +6,7 @@
 #ifdef VTSS_ARCH_FA
 #ifdef VTSS_OPT_SYMREG
 #ifdef VTSS_ARCH_SPARX5
+sdf
 #define VTSS_IO_ORIGIN1_OFFSET 0x010000000 /*! default region*/
 #define VTSS_IO_ORIGIN1_SIZE 0x010000000
 #ifndef VTSS_IO_OFFSET1
@@ -8008,10 +8009,10 @@ vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const d
     return VTSS_RC_OK;
 }
 
-#else /* VTSS_OPT_SYMREG */
-vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
-    return VTSS_RC_ERROR;
-}
+/* #else /\* VTSS_OPT_SYMREG *\/ */
+/* vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) { */
+/*     return VTSS_RC_ERROR; */
+/* } */
 #endif /* VTSS_ARCH_SPARX5 */
 #endif /* VTSS_OPT_SYMREG */
 #endif /* VTSS_ARCH_FA */

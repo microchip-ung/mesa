@@ -139,8 +139,8 @@ int jtag_MicroCmd(const char *cmd_line, char *resbuf, int maxlen)
   p = cmd_line;
   while(*p == ' ') p++;
 
-  if ((strlen(p) / 2) >= JTAG_MAXLEN)
-	  return(sprintf(resbuf, "[0:errno -1 cmd too long (%ld)]\r\n", strlen(p)));
+  /* if ((strlen(p) / 2) >= JTAG_MAXLEN) */
+  /*     return(sprintf(resbuf, "[0:errno -1 cmd too long (%ld)]\r\n", strlen(p))); */
 
   // jtagbuf is used both for input and output data.
   // Therefore 0x14/0x15/0x24/0x25 (Read Data) MUST be last command in command sequence!
