@@ -3250,7 +3250,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     u32                     enable_tx = (conf->enable_tx ? 1 : 0);
-    u32                     i, unit, tgt, port = VTSS_CHIP_PORT(port_no);
+    u32                     i, unit, port = VTSS_CHIP_PORT(port_no);
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
 
     if (is_reset) {
@@ -3314,11 +3314,6 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
            VTSS_F_DSM_PREEMPT_CFG_P_MIN_SIZE(conf->add_frag_size));
     REG_WR(VTSS_DSM_IPG_SHRINK_CFG(port),
            VTSS_F_DSM_IPG_SHRINK_CFG_IPG_SHRINK_ENA(enable_tx));
-
-    tgt = VTSS_TO_DEV2G5(port);
-    REG_WRM(VTSS_DEV1G_PCS1G_MODE_CFG(tgt),
-            VTSS_F_DEV1G_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA(enable_tx),
-            VTSS_M_DEV1G_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
 
     /* Enable/disable preemptable queues */
     for (i = 0; i < 8; i++) {
