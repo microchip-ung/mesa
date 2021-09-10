@@ -30,7 +30,7 @@ const char *i2c_device = "/dev/i2c-1";
 const char *spi_device = "/dev/spidev1.0";
 int  spi_handle = -1;	// SPI file system handle
 int  spi_gpio_cs = 1;	// SPI uses GPIO for chip selects
-int  spi_mm_gpio = 0;	// SPI enable use of memory mapped GPIOs for chip selects (faster)
+int  spi_mm_gpio = 1;	// SPI enable use of memory mapped GPIOs for chip selects (faster)
 uint8_t spi_mode = SPI_MODE_0;	// SPI operating mode (CPOL=0,CPHA=0,LOOP=0 etc.)
 int  spi_cs[] = {P9_23, P9_25, P9_27};	// SPI default GPIOs used for Chip Selects
 static int spi_debug = 0; // SPI enable debug output
@@ -142,7 +142,7 @@ int SPI_close(int handle) {
 	}
 	return -1;
 }
-static int spi_padding = 1;
+
 /*
  * SPI_brw:	SPI Binary Read/Write
  *    Handles both Write-then-Read (duplex=0) and simultaneous R/W.
@@ -185,22 +185,11 @@ unsigned char * SPI_brw(SPI_STATE *spi, const unsigned char *txbuf, int txlen, u
 	if (spi_gpio_cs) SPI_set_cs(spi, 0);
 	status = ioctl(spi_handle, SPI_IOC_MESSAGE(1), &xfer);
 	if (spi_gpio_cs) SPI_set_cs(spi, 1);
-
-
-    printf("tr.len:%d tr.speed_hz:%d, tr.bits_per_word:%d\n",xfer.len, xfer.speed_hz, xfer.bits_per_word);
-    printf("RX: %02x %02x %02x-%02x %02x %02x %02x\n",
-           txbuf[0], txbuf[1], txbuf[2],
-           rxbuf[3 + spi_padding],
-           rxbuf[4 + spi_padding],
-           rxbuf[5 + spi_padding],
-           rxbuf[6 + spi_padding]);
-
 	if (status < 0) {
 		perror("SPI failed to send");
         log2stderr("SPI_BRW unable to send data to CS:%d", spi->channel);
 		return NULL;
 	}
-
 	return (rxbuf + (duplex ? 0 : txlen));
 }
 

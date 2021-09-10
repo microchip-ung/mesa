@@ -6,7 +6,6 @@
 #ifdef VTSS_ARCH_FA
 #ifdef VTSS_OPT_SYMREG
 #ifdef VTSS_ARCH_SPARX5
-sdf
 #define VTSS_IO_ORIGIN1_OFFSET 0x010000000 /*! default region*/
 #define VTSS_IO_ORIGIN1_SIZE 0x010000000
 #ifndef VTSS_IO_OFFSET1

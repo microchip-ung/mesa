@@ -234,7 +234,7 @@ u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
     return 1600; // Default
 }
 
-static vtss_rc is_target_fa(vtss_state_t *vtss_state)
+BOOL fa_is_target(vtss_state_t *vtss_state)
 {
     switch (vtss_state->create.target) {
     case VTSS_TARGET_7546:
@@ -247,9 +247,9 @@ static vtss_rc is_target_fa(vtss_state_t *vtss_state)
     case VTSS_TARGET_7552TSN:
     case VTSS_TARGET_7556TSN:
     case VTSS_TARGET_7558TSN:
-        return 1;
+        return TRUE;
     default:
-        return 0;
+        return FALSE;
     }
 }
 
@@ -765,7 +765,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     u32                i;
     vtss_port_no_t     port_no;
     i32                port, this_bw, max_core_bw, bw = 0, port_bw = 0;
-    u32                replicator = is_target_fa(vtss_state) ? 7 : 4;
+    u32                replicator = fa_is_target(vtss_state) ? 7 : 4;
 
     VTSS_I("Using Auto calendar");
     max_core_bw = clock2bw(vtss_state->init_conf.core_clock.freq);
@@ -1371,7 +1371,7 @@ static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
 {
     VTSS_RC(fa_calendar_auto(vtss_state));
 
-    if (is_target_fa(vtss_state)) {
+    if (fa_is_target(vtss_state)) {
         /* Calculate and configure the DSM calender */
         if (fa_dsm_calc_and_apply_calender(vtss_state) != VTSS_RC_OK) {
             VTSS_E("DSM Calender calc failed");

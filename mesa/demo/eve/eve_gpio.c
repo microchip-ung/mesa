@@ -111,7 +111,6 @@ int gpio_set_value(unsigned int gpio, int value)
 	char buf[MAX_BUF];
 
 	snprintf(buf, sizeof(buf), SYSFS_GPIO_DIR "/gpio%d/value", gpio);
-    printf("gpio_set_value:%s to %d\n",buf, value);
 	fd = open(buf, O_WRONLY);
 	if (fd < 0) {
 		perror("gpio/set-value");

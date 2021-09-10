@@ -3314,7 +3314,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
             bt_indx = VTSS_BIT((port <= 11) ? port : 12);
             REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_10G(port)) {
-            bt_indx = VTSS_BIT((port >= 12 && port <= 15) ? port - 12 : port - 44);
+            bt_indx = vtss_port_dev_index(port);
             REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_25G(port)) {
 #if defined(VTSS_ARCH_SPARX5)
@@ -3388,7 +3388,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     u32              sd_indx = 0, sd_type, sd_tgt;
-    BOOL             analog_sd = FALSE, kr_aneg_ena = FALSE;
+    BOOL             analog_sd = TRUE, kr_aneg_ena = FALSE;
 
     if (conf->power_down) {
         /* Disabled port is considered down */
