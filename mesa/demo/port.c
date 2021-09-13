@@ -4,6 +4,7 @@
 
 
 #include <stdio.h>
+#include <ctype.h>
 #include "microchip/ethernet/switch/api.h"
 #include "microchip/ethernet/board/api.h"
 #include "main.h"
@@ -448,6 +449,7 @@ typedef struct {
     mesa_bool_t dac3m;
     mesa_bool_t dac5m;
     mesa_bool_t compact;
+    mesa_bool_t full;
 } port_cli_req_t;
 
 static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
@@ -769,6 +771,33 @@ static void cli_cmd_port_cap(cli_req_t *req)
         }
     }
 }
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+char *misc_mem_print(const uint8_t *in_buf, size_t in_sz, char *out_buf, size_t out_sz)
+{
+    int  i = 0, j, out_cnt = 0;
+#define P(_fmt_, ...) out_cnt += snprintf(out_buf + out_cnt, MAX(out_sz - out_cnt, 0), _fmt_, ##__VA_ARGS__)
+    while (i < in_sz) {
+        P("%04x:", i);
+        j = 0;
+        while (j + i < in_sz && j < 16) {
+            P("%c%02x", j == 8 ? '-' : ' ', in_buf[i + j]);
+            j++;
+        }
+        while (j++ < 16) {
+            P("   ");
+        }
+        j = 0;
+        P(" ");
+        while (j + i < in_sz && j < 16) {
+            P("%c", isprint(in_buf[i + j]) ? in_buf[i + j] : '.');
+            j++;
+        }
+        P("\n");
+        i += 16;
+    }
+#undef P
+    return out_buf;
+}
 
 static void cli_cmd_sfp_dump(cli_req_t *req)
 {
@@ -779,6 +808,9 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
     port_entry_t           *entry;
     meba_sfp_device_info_t *info;
     int                    found = 0;
+    uint8_t                rom[255];
+    char                   out_buf[4096];
+    port_cli_req_t         *mreq = req->module_req;
 
     for (iport = 0; iport < port_cnt; iport++) {
         uport = iport2uport(iport);
@@ -808,6 +840,12 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
                    mesa_port_if2txt(conf.if_type),
                    mesa_port_spd2txt(conf.speed),
                    ps.link ? "yes" : "no");
+
+        if (mreq->full) {
+            MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, iport, FALSE, 0x50, 0, rom, sizeof(rom), FALSE);
+            cli_printf("Rom content at A0h:\n%s\n", misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
+        }
+
     }
     if (!found) {
         cli_printf("No SFPs found\n");
@@ -1043,7 +1081,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_polling
     },
     {
-        "Debug SFP [<port_list>]",
+        "Debug SFP [<port_list>] [full]",
         "Shows all detected SFPs",
         cli_cmd_sfp_dump
     },
@@ -1125,6 +1163,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->dac3m = 1;
     } else if (!strncasecmp(found, "dac-5m", 6)) {
         mreq->dac5m = 1;
+    } else if (!strncasecmp(found, "full", 4)) {
+        mreq->full = 1;
     } else
         cli_printf("no match: %s\n", found);
 
@@ -1188,6 +1228,12 @@ static cli_parm_t cli_parm_table[] = {
     {
         "compact",
         "Show compact view",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
+    {
+        "full",
+        "Show all",
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
     },
