@@ -116,7 +116,57 @@ static mesa_rc meba_synce_mux_set(meba_inst_t  inst,
                                   uint32_t     input,
                                   uint32_t     output)
 {
-    return MESA_RC_ERROR;
+    int board_type = inst->props.board_type;
+    uint32_t phy_port;
+    mepa_device_t *phy_dev;
+    mepa_synce_clock_conf_t conf;
+
+    T_D(inst, "Enter");
+
+    if (board_type != VTSS_BOARD_LAN9668_8PORT_REF) {
+        T_E(inst, "Board type not yet implemented.");
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if ((dev_id != 100) && (dev_id != 200)) {
+        T_E(inst, "Invalid device.");
+        return MESA_RC_ERROR;
+    }
+
+    if ((dev_id == 100) && ((input < (MESA_SYNCE_DEV_INPUT | 0)) || (input > (MESA_SYNCE_DEV_INPUT | 3)))) {
+        T_E(inst, "Invalid input.");
+        return MESA_RC_ERROR;
+    }
+    if ((dev_id == 200) && ((input < (MESA_SYNCE_DEV_INPUT | 0)) || (input > (MESA_SYNCE_DEV_INPUT | 5)))) {
+        T_E(inst, "Invalid input.");
+        return MESA_RC_ERROR;
+    }
+    if (output > 1) {
+        T_E(inst, "Invalid output.");
+        return MESA_RC_ERROR;
+    }
+
+    /* Calculate the physical PHY port number */
+    phy_port = input & ~MESA_SYNCE_DEV_INPUT;
+    if (input > (MESA_SYNCE_DEV_INPUT | 3)) {
+        phy_port = 0; /* Take the first port in case of clock input selected */
+    }
+
+    /* Get the PHY device */
+    phy_dev = (dev_id == 100) ? inst->phy_devices[phy_port] : inst->phy_devices[4 + phy_port];
+    if(!phy_dev || !phy_dev->drv->mepa_driver_synce_clock_conf_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    conf.src = MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA;
+    if (input > (MESA_SYNCE_DEV_INPUT | 3)) {
+        conf.src = (input == (MESA_SYNCE_DEV_INPUT | 4)) ? MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1 : MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2;
+    }
+    conf.dst = (output == 0) ? MEPA_SYNCE_CLOCK_DST_1 : MEPA_SYNCE_CLOCK_DST_2;
+    conf.freq = MEPA_FREQ_125M;
+
+    return phy_dev->drv->mepa_driver_synce_clock_conf_set(phy_dev, &conf);
+
 }
 
 static meba_api_synce_t public_functions = {
