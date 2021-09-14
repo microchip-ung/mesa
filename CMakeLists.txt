@@ -20,13 +20,14 @@ mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
 
 include(.cmake/doxygen.cmake)
 
+add_subdirectory(mepa)
+
 include_directories(me/include)
 include_directories(mesa/include)
 include_directories(meba/include)
 include_directories(mepa/include)
 
 add_subdirectory(meba)
-add_subdirectory(mepa)
 
 #find_program(CCACHE_FOUND ccache)
 #if(CCACHE_FOUND)
@@ -71,6 +72,9 @@ else()
 
 set(API_MESA_CACHE_IN)
 set(API_MESA_CACHE_OUT)
+
+set(API_ME_CACHE_IN)
+list(APPEND API_ME_CACHE_IN me/include/microchip/ethernet/common.h)
 
 # List of header files to exclude from the mesa-hdr processing
 set(MESA_CACHE_DENY_LIST include/vtss_os_linux.h
@@ -131,7 +135,7 @@ add_custom_target(mesa_cache DEPENDS ${API_MESA_CACHE_OUT})
 
 # Create the auto generated mesa header/src (using the earlier created cache).
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.c
-                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mesa/scripts/ag.rb -b ${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN}
+                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mesa/scripts/ag.rb -b ${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN} ${API_ME_CACHE_IN}
                    DEPENDS mesa_cache ${CMAKE_CURRENT_SOURCE_DIR}/mesa/scripts/ag.rb
                    COMMENT "Generate mesa.h/mesa.c")
 add_custom_target(mesa_src DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.c)
