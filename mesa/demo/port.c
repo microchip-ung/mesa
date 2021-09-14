@@ -156,7 +156,6 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
     port_entry_t    *entry = &port_table[port_no];
     meba_port_cap_t  cap = entry->meba.cap;
 
-
     /* Adjust the speed to the interface type */
     switch (if_type) {
     case MESA_PORT_INTERFACE_100FX:
@@ -168,6 +167,9 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
         if (cap & MEBA_PORT_CAP_2_5G_FDX) {
             if (speed_in == MESA_SPEED_1G || speed_in == MESA_SPEED_2500M) {
                 *speed_out = speed_in;
+                return MESA_RC_OK;
+            } else if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_2G5) {
+                *speed_out = MESA_SPEED_2500M;
                 return MESA_RC_OK;
             }
         }
