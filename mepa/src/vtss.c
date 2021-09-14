@@ -404,6 +404,31 @@ static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_cl
     return mesa_phy_clock_conf_set(data->inst, data->port_no, clk_port, &phy_conf);
 }
 
+static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mesa_phy_type_t phy_id;
+    mesa_rc rc = MESA_RC_OK;
+
+    phy_info->cap = 0;
+    rc = mesa_phy_id_get(data->inst, data->port_no, &phy_id);
+    if (rc == MESA_RC_OK) {
+        phy_info->part_number = phy_id.part_number;
+        phy_info->revision = phy_id.revision;
+        if (phy_id.part_number == MESA_PHY_TYPE_8582 || phy_id.part_number == MESA_PHY_TYPE_8584 ||
+            phy_id.part_number == MESA_PHY_TYPE_8575 || phy_id.part_number == MESA_PHY_TYPE_8586) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
+        } else if (phy_id.part_number == MESA_PHY_TYPE_8574 || phy_id.part_number == MESA_PHY_TYPE_8572) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_GEN_1;
+        } else {
+            phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+        }
+        phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+        phy_info->ts_base_port = phy_id.phy_api_base_no;
+    }
+    return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
+}
+
 typedef struct malibu_10g_phy_data {
     mesa_inst_t inst;
     mepa_port_no_t port_no;
@@ -579,6 +604,32 @@ static mepa_rc venice_10g_if_get(mepa_device_t *dev,
 
 }
 
+static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mesa_phy_10g_id_t phy_id = {};
+    mesa_rc rc = MESA_RC_OK;
+
+    phy_info->cap = 0;
+    rc = mesa_phy_10g_id_get(data->inst, data->port_no, &phy_id);
+    if (rc == MESA_RC_OK) {
+        phy_info->part_number = phy_id.part_number;
+        phy_info->revision = phy_id.revision;
+        if ((phy_id.part_number == 0x8488 || phy_id.part_number == 0x8487) && phy_id.revision >= 4) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_GEN_1;
+        } else if ((phy_id.part_number == 0x8489 && !(phy_id.device_feature_status & MESA_PHY_10G_TIMESTAMP_DISABLED)) ||
+            (phy_id.part_number == 0x8490 || phy_id.part_number == 0x8491) ||
+            (phy_id.family == MESA_PHY_FAMILY_MALIBU)) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
+        } else {
+            phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+        }
+        phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
+        phy_info->ts_base_port = (phy_id.channel_id > 1) ? (phy_id.phy_api_base_no + 2) : phy_id.phy_api_base_no;
+    }
+    return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
+}
+
 static mepa_device_t *phy_10g_probe(
     mepa_driver_t *drv, const mepa_driver_address_t *mode)
 {
@@ -645,6 +696,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
+            .mepa_driver_phy_info_get = phy_1g_info_get,
         },
         {
             // VTSS (all other models)
@@ -673,6 +725,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
+            .mepa_driver_phy_info_get = phy_1g_info_get,
         },
         {
             // Cicada (all models)
@@ -701,6 +754,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_gpio_out_set = phy_1g_gpio_set,
             .mepa_driver_gpio_in_get = phy_1g_gpio_get,
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
+            .mepa_driver_phy_info_get = phy_1g_info_get,
         }
     };
 
@@ -728,6 +782,7 @@ mepa_drivers_t mepa_malibu_driver_init()
         .mepa_driver_media_set = NULL,
         .mepa_driver_probe = phy_10g_probe,
         .mepa_driver_aneg_status_get = NULL,
+        .mepa_driver_phy_info_get = phy_10g_info_get,
     }};
 
     mepa_drivers_t result;
@@ -749,6 +804,7 @@ mepa_drivers_t mepa_venice_driver_init()
         .mepa_driver_conf_set = phy_10g_conf_set,
         .mepa_driver_if_get = venice_10g_if_get,
         .mepa_driver_probe = phy_10g_probe,
+        .mepa_driver_phy_info_get = phy_10g_info_get,
     }};
 
     mepa_drivers_t result;
@@ -787,6 +843,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_gpio_out_set = phy_1g_gpio_set,
         .mepa_driver_gpio_in_get = phy_1g_gpio_get,
         .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
+        .mepa_driver_phy_info_get = phy_1g_info_get,
     }};
 
     mepa_drivers_t result;

@@ -227,5 +227,24 @@ typedef struct {
     int        line;       // line number
 } mepa_lock_t;
 
+// PHY type
+typedef enum {
+    MEPA_CAP_SPEED_MASK_1G = 0x1,  // PHY supports maximum speed of 1G.
+    MEPA_CAP_SPEED_MASK_10G = 0x2, // PHY supports maximum speed of 10G.
+    MEPA_CAP_TS_MASK_GEN_1 = 0x4,  // PHY supports timestamping capability of GEN-1 devices such as vsc8574.
+    MEPA_CAP_TS_MASK_GEN_2 = 0x8,  // PHY supports timestamping capability of GEN-2 devices such as vsc8584, vsc8490.
+    MEPA_CAP_TS_MASK_GEN_3 = 0x10, // PHY supports timestamping capability of GEN-3 devices such as Lan8814.
+    MEPA_CAP_TS_MASK_NONE  = 0x20, // PHY does not support timestamping capability.
+} mepa_phy_cap_t;
+
+// phy info
+// vsc-phy note: In VSC-phys such as vsc8574, base port and alternate port pairs like {0,2} and {1,3} share the same 1588 engine. Suppose {0,2} is the timestamping port pair.
+//               Port '0' is the base port and Port '2' is the alternate port.
+typedef struct {
+    uint16_t             part_number;     // Part number
+    uint16_t             revision;        // Chip revision.
+    mepa_phy_cap_t       cap;             // PHY capability 1G or 10G phy.
+    mepa_port_no_t       ts_base_port;    // Timestamping base port number. VSC-phys like vsc8574 have 2 different timestamping base ports 0 and 1 in a phy. See note above.
+} mepa_phy_info_t;
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

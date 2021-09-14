@@ -1064,6 +1064,21 @@ static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
+
+    phy_info->cap = 0;
+    phy_info->part_number = 8814;
+    phy_info->revision = data->dev.rev;
+    phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3: MEPA_CAP_TS_MASK_NONE;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    phy_info->ts_base_port = base_data ? base_data->port_no : 0;
+
+    return MEPA_RC_OK;
+}
+
 mepa_drivers_t mepa_lan8814_driver_init() {
     static const int nr_indy_drivers = 2;
     static mepa_driver_t indy_drivers[] = {
@@ -1094,6 +1109,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_link_base_port = indy_link_base_port,
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
+            .mepa_driver_phy_info_get = indy_info_get,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1121,6 +1137,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_gpio_out_set = indy_gpio_out_set,
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
+            .mepa_driver_phy_info_get = indy_info_get,
         },
     };
 

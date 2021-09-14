@@ -437,3 +437,19 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, 
 
     return phy_dev->drv->mepa_driver_synce_clock_conf_set(phy_dev, conf);
 }
+
+// Get the phy info
+mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info)
+{
+    mepa_device_t *phy_dev;
+
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    phy_dev = inst->phy_devices[port_no];
+    if (!phy_dev || !phy_dev->drv->mepa_driver_phy_info_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return phy_dev->drv->mepa_driver_phy_info_get(phy_dev, phy_info);
+}
