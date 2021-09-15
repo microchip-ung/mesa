@@ -3,9 +3,9 @@
 
 #include <vtss_phy_api.h>
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api/phy_ts.h>
+#include <microchip/ethernet/switch/api/phy_1g.h>
+#include <microchip/ethernet/switch/api/phy_10g.h>
 #include "vtss_private.h"
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
@@ -680,22 +680,8 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
 static mepa_rc phy_10g_poll(mepa_device_t *dev,
                             mepa_driver_status_t *status)
 {
-    malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
-    mesa_port_status_t mesa_status = {};
-
-    mepa_rc rc = mesa_port_status_get(data->inst, data->port_no, &mesa_status);
-    if (rc != MEPA_RC_OK) {
-        return rc;
-    }
-
-    status->link   = mesa_status.link;
-    status->speed  = mesa_status.speed;
-    status->fdx    = mesa_status.fdx;
-    status->aneg   = mesa_status.aneg;
-    status->copper = mesa_status.copper;
-    status->fiber  = mesa_status.fiber;
-
-    return MEPA_RC_OK;
+    // TBD
+    return MEPA_RC_NOT_IMPLEMENTED;
 }
 
 static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
@@ -737,10 +723,6 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
                                                &ctrl) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
-
-        mesa_port_clause_37_control_t port_ctrl;
-        port_ctrl.enable = false;
-        mesa_port_clause_37_control_set(data->inst, data->port_no, &port_ctrl);
     } else {
         mode.xaui_lane_flip = false;
         mode.oper_mode = MESA_PHY_LAN_MODE;

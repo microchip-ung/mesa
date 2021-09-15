@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
 
 
 #define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
@@ -70,9 +69,6 @@ typedef struct {
     int pause;
     int asym_pause;
     mscc_phy_driver_address_t address;
-    mesa_chip_no_t         chip_no;
-    mesa_miim_controller_t miim_controller;
-    uint8_t                miim_addr;
 } phy_device;
 
 typedef struct {
@@ -88,7 +84,7 @@ static int phy_read(phy_device *phydev, uint32_t regnum)
 {
     uint16_t  value;
 
-    if (phydev->address.miim_read(NULL, phydev->chip_no, phydev->miim_controller, phydev->miim_addr, regnum, &value) != MESA_RC_OK) {
+    if (phydev->address.port_miim_read(NULL, phydev->address.port_no, regnum, &value) != MESA_RC_OK) {
         return -1;
     }
     return value;
@@ -96,7 +92,7 @@ static int phy_read(phy_device *phydev, uint32_t regnum)
 
 static int phy_write(phy_device *phydev, uint32_t regnum, uint16_t val)
 {
-    if (phydev->address.miim_write(NULL, phydev->chip_no, phydev->miim_controller, phydev->miim_addr, regnum, val) != MESA_RC_OK) {
+    if (phydev->address.port_miim_write(NULL, phydev->address.port_no, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
@@ -294,8 +290,6 @@ static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
                                 const mepa_driver_address_t  *mode)
 {
     uint32_t         cnt;
-    mesa_port_map_t  *port_map = NULL;
-    mesa_port_no_t   port_no = mode->val.mscc_address.port_no;
 
     mepa_device_t *device = (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
     if (device == NULL)
@@ -314,18 +308,7 @@ static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
     }
 
     /* Get the MIIM access information */
-    cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
-    if ((port_map = calloc(cnt, sizeof(*port_map))) == NULL) {
-        free(device);
-        free(priv);
-        return NULL;
-    }
-    (void)mesa_port_map_get(NULL, cnt, port_map);
-
     priv->phydev.address = mode->val.mscc_address;
-    priv->phydev.chip_no = port_map[port_no].chip_no;
-    priv->phydev.miim_controller = port_map[port_no].miim_controller;
-    priv->phydev.miim_addr = port_map[port_no].miim_addr;
     priv->phydev.irq = PHY_POLL;
 
     device->drv = drv;

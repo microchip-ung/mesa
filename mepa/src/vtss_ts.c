@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: MIT
 
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/phy/api/types.h>
-#include <microchip/ethernet/phy/api/phy_ts.h>
+#include <microchip/ethernet/switch/api/phy_1g.h>
+#include <microchip/ethernet/switch/api/phy_10g.h>
+#include <microchip/ethernet/switch/api/phy_ts.h>
 
 #include "vtss_private.h"
+
+#include <string.h>
 
 //#define PRINT 1
 #ifdef PRINT

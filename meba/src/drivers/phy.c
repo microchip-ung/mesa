@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <microchip/ethernet/board/api.h>
 #include <microchip/ethernet/phy/api/phy.h>
+#include <microchip/ethernet/switch/api/phy_10g.h>
 #include <vtss_phy_api.h>
 #include "meba_generic.h"
 
@@ -536,6 +537,30 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     }
 
     return MESA_RC_OK;
+}
+
+mepa_rc meba_port_test_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mesa_port_test_conf_t *const conf)
+{
+    mepa_loopback_t lb = {};
+
+    switch (conf->loopback) {
+    case MESA_PORT_LB_NEAR_END:
+        lb.near_end_ena = 1;
+        break;
+    case MESA_PORT_LB_FAR_END:
+        lb.far_end_ena = 1;
+        break;
+    case MESA_PORT_LB_FACILITY:
+        lb.mac_serdes_facility_ena = 1;
+        break;
+    case MESA_PORT_LB_EQUIPMENT:
+        lb.mac_serdes_equip_ena = 1;
+        break;
+    default:
+        break;
+    }
+    (void)meba_phy_loopback_set(inst, port_no, &lb);
+    return mesa_port_test_conf_set(NULL, port_no, conf);
 }
 
 mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,

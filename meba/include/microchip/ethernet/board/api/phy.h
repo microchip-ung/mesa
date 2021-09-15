@@ -97,6 +97,9 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, 
 // Get combined switch and PHY state
 mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port_status_t *const status);
 
+// Set combined switch and PHY test configuration
+mepa_rc meba_port_test_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mesa_port_test_conf_t *const conf);
+
 // Debug print for PHY
 mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
                                   const mesa_debug_printf_t pr,

@@ -5,8 +5,6 @@
 #ifndef _MICROCHIP_ETHERNET_SWITCH_API_PHY_TS_
 #define _MICROCHIP_ETHERNET_SWITCH_API_PHY_TS_
 
-#include <microchip/ethernet/common.h>
-#include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
@@ -1566,7 +1564,6 @@ mesa_rc mesa_phy_ts_mode_get(const mesa_inst_t    inst,
                              const mesa_port_no_t port_no,
                              mesa_bool_t          *const enable)
     CAP(PHY_TS);
-
 
 /**
  * \brief defines the Transparent Clock Operating Mode.

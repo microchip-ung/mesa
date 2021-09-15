@@ -26,7 +26,6 @@
 #include <stdbool.h>
 
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
 
 #include "os.h"
 #include "gpy211.h"
@@ -51,12 +50,7 @@
 #define INTL_PHY_CHIPID 0x67c9dc00
 
 typedef struct Intl_Port {
-    mmd_read_t              mmd_read;
-    mmd_write_t             mmd_write;
-    miim_read_t             miim_read;
-    miim_write_t            miim_write;
-    mesa_inst_t             inst;
-    mesa_port_no_t          port_no;
+    mscc_phy_driver_address_t mscc;
 } Intl_Port_t;
 
 typedef struct{
@@ -74,10 +68,7 @@ typedef struct{
 
 static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
 {
-    miim_read_t mdio_read = ((Intl_Port_t *)mdiobus_data)->miim_read;
-    mmd_read_t mmd_read = ((Intl_Port_t *)mdiobus_data)->mmd_read;
-    mesa_inst_t inst = ((Intl_Port_t *)mdiobus_data)->inst;
-    mesa_port_no_t port_no = ((Intl_Port_t *)mdiobus_data)->port_no;
+    mscc_phy_driver_address_t *mscc = &((Intl_Port_t *)mdiobus_data)->mscc;
     u16 value;
     bool mmd_access = false;
     uint8_t devtype, regaddr;
@@ -89,11 +80,11 @@ static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
     }
 
     if (mmd_access) {
-        if (mmd_read(inst, port_no, devtype, regaddr, &value) == MEPA_RC_OK) {
+        if (mscc->mmd_read(mscc->inst, mscc->port_no, devtype, regaddr, &value) == MEPA_RC_OK) {
             return value;
         }
     } else {
-        if (mesa_phy_read(inst, port_no, regnum, &value) == MEPA_RC_OK) {
+        if (mscc->port_miim_read(mscc->inst, mscc->port_no, regnum, &value) == MEPA_RC_OK) {
             return value;
         }
     }
@@ -103,10 +94,7 @@ static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
 
 static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
 {
-    miim_write_t mdio_write = ((Intl_Port_t *)mdiobus_data)->miim_write;
-    mmd_write_t mmd_write = ((Intl_Port_t *)mdiobus_data)->mmd_write;
-    mesa_inst_t inst = ((Intl_Port_t *)mdiobus_data)->inst;
-    mesa_port_no_t port_no = ((Intl_Port_t *)mdiobus_data)->port_no;
+    mscc_phy_driver_address_t *mscc = &((Intl_Port_t *)mdiobus_data)->mscc;
     bool mmd_access = false;
     uint8_t devtype, regaddr;
 
@@ -117,11 +105,11 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
     }
 
     if (mmd_access) {
-        if (mmd_write(inst, port_no, devtype, regaddr, val) == MEPA_RC_OK) {
+        if (mscc->mmd_write(mscc->inst, mscc->port_no, devtype, regaddr, val) == MEPA_RC_OK) {
             return 0;
         }
     } else {
-        if (mesa_phy_write(inst, port_no, regnum, val) == MEPA_RC_OK) {
+        if (mscc->port_miim_write(mscc->inst, mscc->port_no, regnum, val) == MEPA_RC_OK) {
             return 0;
         }
     }
@@ -137,7 +125,7 @@ static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
     return MEPA_RC_OK;
 }
 
-void intl_phy_sgmii_conf(mepa_driver_status_t *status, mesa_port_no_t port_no)
+void intl_phy_sgmii_conf(mepa_driver_status_t *status, mscc_phy_driver_address_t *mscc)
 {
     uint16_t reg_val = 0;
 
@@ -151,7 +139,7 @@ void intl_phy_sgmii_conf(mepa_driver_status_t *status, mesa_port_no_t port_no)
             return;
     }
     reg_val |= 1 << 1;
-    mesa_port_mmd_write(NULL, port_no, 0x1e, 0x8, reg_val);
+    mscc->mmd_write(NULL, mscc->port_no, 0x1e, 0x8, reg_val);
 }
 
 static mesa_rc intl_poll(mepa_device_t *dev, mepa_driver_status_t *status)
@@ -196,7 +184,7 @@ static mesa_rc intl_poll(mepa_device_t *dev, mepa_driver_status_t *status)
 
     if (link_change && status->link) {
         T_D("link change");
-        intl_phy_sgmii_conf(status, port_param->port_no);
+        intl_phy_sgmii_conf(status, &port_param->mscc);
     }
 
     return MEPA_RC_OK;
@@ -223,12 +211,7 @@ static mepa_device_t *intl_probe(mepa_driver_t *drv,
     }
 
     device->drv = drv;
-    priv->port_param.miim_read = mode->val.mscc_address.miim_read;
-    priv->port_param.miim_write = mode->val.mscc_address.miim_write;
-    priv->port_param.mmd_read = mode->val.mscc_address.mmd_read;
-    priv->port_param.mmd_write = mode->val.mscc_address.mmd_write;
-    priv->port_param.port_no = mode->val.mscc_address.port_no;
-    priv->port_param.inst = mode->val.mscc_address.inst;
+    priv->port_param.mscc = mode->val.mscc_address;
     priv->debug_func = mode->val.mscc_address.debug_func;
     priv->meba_inst = mode->val.mscc_address.meba_inst;
     priv->initconf.mdiobus_read = mdiobus_read;

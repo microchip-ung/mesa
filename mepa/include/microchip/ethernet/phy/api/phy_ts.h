@@ -5,8 +5,6 @@
 #define _MEPA_TS_API_H_
 
 #include <microchip/ethernet/phy/api/types.h>
-#include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 struct mepa_ts_driver;

@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 #include "vtss_phy_api.h"
+#include <microchip/ethernet/switch/api/phy_1g.h>
+#include <microchip/ethernet/switch/api/phy_10g.h>
+#include <microchip/ethernet/switch/api/phy_ts.h>
+#include <microchip/ethernet/switch/api/wis.h>
+#include <microchip/ethernet/switch/api/macsec.h>
 #include <microchip/ethernet/phy/api.h>
 #ifndef __MESA_H__
 #define __MESA_H__

@@ -580,8 +580,7 @@ extern const char *vtss_phy_func;
 
 extern vtss_phy_trace_func_t vtss_phy_trace_func;
 
-#if VTSS_PHY_OPT_TRACE
-
+#if VTSS_OPT_PHY_TRACE
 
 #define VTSS_TRACE_GROUP_PHY    VTSS_PHY_TRACE_GROUP_DEFAULT
 #define VTSS_TRACE_GROUP_MACSEC VTSS_PHY_TRACE_GROUP_DEFAULT

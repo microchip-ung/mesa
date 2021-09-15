@@ -8,9 +8,6 @@ cmake_minimum_required(VERSION 2.8.12)
 option(BUILD_MEPA_ALL "Build all MEPA libraries" OFF)
 mark_as_advanced(BUILD_MEPA_ALL)
 
-include_directories(../mesa/include)  # TODO, delete
-include_directories(../meba/include)  # TODO, delete
-include_directories(src/vtss/include) # TODO, delete
 set(inc_mepa ../me/include include)
 
 set(src_vtss src/vtss.c
@@ -69,7 +66,9 @@ set(inc_aqr src/aqr/AQR_API_2.6.1/include
             src/aqr/AQR_API_2.6.1/include/registerMap/APPIA
             src/aqr/AQR_API_2.6.1/include/registerMap/EUR
             src/aqr/AQR_API_2.6.1/include/registerMap/HHD
-            src/aqr/aqr_phy_fw)
+            src/aqr/aqr_phy_fw
+            ../mesa/include
+            ../meba/include)
 add_library(mepa_aqr        SHARED ${src_aqr})
 add_library(mepa_aqr_static STATIC ${src_aqr})
 set_target_properties(mepa_aqr_static PROPERTIES OUTPUT_NAME mepa_aqr)

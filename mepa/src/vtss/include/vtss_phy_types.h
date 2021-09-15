@@ -30,7 +30,6 @@ typedef uint8_t            BOOL; /**< Boolean implemented as 8-bit unsigned */
 /** \brief Error code type */
 typedef int vtss_rc;
 
-#ifndef _VTSS_MAIN_TYPES_H_
 /** \brief Error codes */
 enum
 {
@@ -116,7 +115,6 @@ enum
     /*** Clause 37 ERRORS ***/
     VTSS_RC_ERR_PCS_BLOCK_NOT_SUPPORTED         = -300 /**< Invalid access to PCS block */
 }; // Leave it anonymous.
-#endif // _VTSS_MAIN_TYPES_H_
 
 /** \brief Chip number used for targets with multiple chips */
 typedef u32 vtss_chip_no_t;

@@ -5,7 +5,6 @@
 #define _MICROCHIP_ETHERNET_PHY_API_TYPES_H_
 
 #include <microchip/ethernet/common.h>
-#include <microchip/ethernet/switch/api/phy_1g.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 typedef mesa_aneg_t mepa_aneg_t;
@@ -29,7 +28,6 @@ typedef mesa_phy_reset_conf_t mepa_reset_conf_t;
 typedef mesa_phy_event_t mepa_event_t;
 typedef mesa_phy_veriphy_status_t mepa_cable_diag_status_t;
 typedef mesa_port_admin_state_t mepa_port_admin_state_t;
-typedef mesa_phy_led_number_t mepa_led_number_t;
 
 /** \brief Port speeds */
 #define MEPA_SPEED_UNDEFINED MESA_SPEED_UNDEFINED

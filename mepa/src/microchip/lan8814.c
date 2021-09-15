@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
 
 #include "lan8814_registers.h"
 #include "lan8814_ts_registers.h"

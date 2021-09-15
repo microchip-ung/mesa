@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/switch/api.h>
 
 #include "lan8814_registers.h"
 #include "lan8814_ts_registers.h"
-
 #include "lan8814_private.h"
+#include <string.h>
 #define MEPA_LABS(arg)                labs(arg)                /**< long to abs */
 #define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor)) /**< support for 64 bit division */
 

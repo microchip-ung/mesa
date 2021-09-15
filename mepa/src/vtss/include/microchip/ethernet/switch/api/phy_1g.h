@@ -948,9 +948,6 @@ mesa_rc mesa_phy_led_mode_set(const mesa_inst_t            inst,
                               const mesa_port_no_t         port_no,
                               const mesa_phy_led_mode_select_t led_mode_select);
 
-/** \brief PHY led intensity */
-typedef uint8_t mesa_phy_led_intensity;   /**< LED intensity from 0-200, LED intensity led_intensity * 0.5 */
-
 /** \brief enhanced LED control */
 typedef struct {
     mesa_bool_t    ser_led_output_1;   /**<Set to TRUE if hardware board uses serial LEDs at PHY0, PHY1, PHY2 and PHY3 LED0 pins. */
@@ -1139,38 +1136,6 @@ mesa_rc mesa_phy_eee_link_partner_advertisements_get(const mesa_inst_t    inst,
 
 
 
-
-/* - Events ------------------------------------------------------- */
-/*  PHY interrupt events */
-#define MESA_PHY_LINK_LOS_EV                    (1 << 0) /**< PHY link interrupt */
-#define MESA_PHY_LINK_FFAIL_EV                  (1 << 1) /**< PHY fast failure interrupt */
-#define MESA_PHY_LINK_AMS_EV                    (1 << 2) /**< PHY Automatic Media Sense */
-#define MESA_PHY_LINK_SPEED_STATE_CHANGE_EV     (1 << 3) /**< PHY link state change event*/
-#define MESA_PHY_LINK_FDX_STATE_CHANGE_EV       (1 << 4) /**< PHY FDX state change event*/
-#define MESA_PHY_LINK_AUTO_NEG_ERROR_EV         (1 << 5) /**< PHY Autonegotiation error event*/
-#define MESA_PHY_LINK_AUTO_NEG_COMPLETE_EV      (1 << 6) /**< PHY Autonegotiation complete event*/
-#define MESA_PHY_LINK_INLINE_POW_DEV_DETECT_EV  (1 << 7) /**< PHY Inline powered device detect event */
-#define MESA_PHY_LINK_SYMBOL_ERR_INT_EV         (1 << 8) /**< PHY Symbol error event */
-#define MESA_PHY_LINK_TX_FIFO_OVERFLOW_INT_EV   (1 << 9) /**< PHY TX fifo over/underflow detect event*/
-#define MESA_PHY_LINK_RX_FIFO_OVERFLOW_INT_EV   (1 << 10) /**< PHY RX fifo over/underflow detect event*/
-#define MESA_PHY_LINK_FALSE_CARRIER_INT_EV      (1 << 11) /**< PHY false-carrier interrupt event*/
-#define MESA_PHY_LINK_LINK_SPEED_DS_DETECT_EV   (1 << 12) /**< PHY Link speed downshift detect event*/
-#define MESA_PHY_LINK_MASTER_SLAVE_RES_ERR_EV   (1 << 13) /**< PHY master/salve resolution error event*/
-#define MESA_PHY_LINK_RX_ER_INT_EV              (1 << 14) /**< PHY RX_ER interrupt event*/
-#define MESA_PHY_LINK_EXTENDED_REG_INT_EV       (1 << 15) /**< PHY Use Extended Reg to Access interrupt event*/
-#define MESA_PHY_LINK_WAKE_ON_LAN_INT_EV        (1 << 16) /**< PHY Wake-On-LAN interrupt event*/
-/* - Extended Events Defn ------------------------------------------------------- */
-#define MESA_PHY_LINK_EXT_EEE_WAKE_ERR_EV       (1 << 17) /**< PHY EEE Wake Error interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_WAIT_TS_EV        (1 << 18) /**< PHY EEE Wait Quit/Rx TS Timer interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_WAIT_RX_TQ_EV     (1 << 19) /**< PHY EEE Rx TQ Timer interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_LINKFAIL_EV       (1 << 20) /**< PHY EEE Link Fail interrupt event*/
-#define MESA_PHY_LINK_EXT_RR_SW_COMPL_EV        (1 << 21) /**< PHY Ring Resiliancy Switchover complete interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_HOST_MAC_EV    (1 << 22) /**< PHY MACSEC Host MAC interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_LINE_MAC_EV    (1 << 23) /**< PHY MACSEC Line MAC interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_FC_BUFF_EV     (1 << 24) /**< PHY MACSEC Flow Control Buff interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_INGRESS_EV     (1 << 25) /**< PHY MACSEC Ingress interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_EGRESS_EV      (1 << 26) /**< PHY MACSEC Egress interrupt event*/
-#define MESA_PHY_LINK_EXT_MEM_INT_RING_EV       (1 << 27) /**< PHY MEM Integrity Ring Control interrupt event*/
 
 /**
  * \brief Enabling / Disabling of events
