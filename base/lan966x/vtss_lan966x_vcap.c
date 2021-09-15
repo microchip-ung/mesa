@@ -1758,7 +1758,7 @@ static vtss_rc lan966x_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_po
            ANA_VCAP_S2_CFG_IP6_CFG(ipv6));
 
     REG_WRM(ANA_VCAP_CFG(port),
-            ANA_VCAP_CFG_PAG_VAL(enable ? conf->policy_no & 0x3f : 0),
+            ANA_VCAP_CFG_PAG_VAL(enable ? conf->policy_no : 0),
             ANA_VCAP_CFG_PAG_VAL_M);
 
     info.act_tg = LAN966X_VCAP_TG_X2;

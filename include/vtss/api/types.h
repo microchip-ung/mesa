@@ -1200,7 +1200,7 @@ typedef u32 vtss_acl_policer_no_t;
 typedef u32 vtss_acl_policy_no_t;
 #define VTSS_ACL_POLICY_NO_NONE  0xffffffff                                     /**< ACLs disabled on port */
 #define VTSS_ACL_POLICY_NO_MIN   0                                              /**< ACLs policy minimum number */
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_ACL_POLICY_NO_MAX   255                                            /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_ACL_POLICY_NO_MAX   127                                            /**< ACLs policy maximum number */
