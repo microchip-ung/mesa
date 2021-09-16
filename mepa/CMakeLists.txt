@@ -47,6 +47,36 @@ set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)
 target_include_directories(mepa_vtss        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
 target_include_directories(mepa_vtss_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
 
+set(def_vtss_ts -DVTSS_OPT_PHY_TIMESTAMP=1)
+add_library(mepa_vtss_ts        SHARED ${src_vtss})
+add_library(mepa_vtss_ts_static STATIC ${src_vtss})
+set_target_properties(mepa_vtss_ts_static PROPERTIES OUTPUT_NAME mepa_vtss_ts)
+target_include_directories(mepa_vtss_ts        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_include_directories(mepa_vtss_ts_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_compile_definitions(mepa_vtss_ts        PUBLIC ${def_vtss_ts})
+target_compile_definitions(mepa_vtss_ts_static PUBLIC ${def_vtss_ts})
+
+set(def_vtss_10g_ts -DVTSS_OPT_PHY_10G=1
+                    -DVTSS_OPT_PHY_TIMESTAMP=1)
+add_library(mepa_vtss_10g_ts        SHARED ${src_vtss})
+add_library(mepa_vtss_10g_ts_static STATIC ${src_vtss})
+set_target_properties(mepa_vtss_10g_ts_static PROPERTIES OUTPUT_NAME mepa_10g_ts_vtss)
+target_include_directories(mepa_vtss_10g_ts        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_include_directories(mepa_vtss_10g_ts_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_compile_definitions(mepa_vtss_10g_ts        PUBLIC ${def_vtss_10g_ts})
+target_compile_definitions(mepa_vtss_10g_ts_static PUBLIC ${def_vtss_10g_ts})
+
+set(def_vtss_10g_macsec_ts -DVTSS_OPT_PHY_10G=1
+                           -DVTSS_OPT_PHY_MACSEC=1
+                           -DVTSS_OPT_PHY_TIMESTAMP=1)
+add_library(mepa_vtss_10g_macsec_ts        SHARED ${src_vtss})
+add_library(mepa_vtss_10g_macsec_ts_static STATIC ${src_vtss})
+set_target_properties(mepa_vtss_10g_macsec_ts_static PROPERTIES OUTPUT_NAME mepa_vtss_10g_macsec_ts)
+target_include_directories(mepa_vtss_10g_macsec_ts        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_include_directories(mepa_vtss_10g_macsec_ts_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_compile_definitions(mepa_vtss_10g_macsec_ts        PUBLIC ${def_vtss_10g_macsec_ts})
+target_compile_definitions(mepa_vtss_10g_macsec_ts_static PUBLIC ${def_vtss_10g_macsec_ts})
+
 set(inc_lan8814 mepa/src/microchip)
 add_library(mepa_lan8814        SHARED src/microchip/lan8814.c src/microchip/lan8814_ts.c)
 add_library(mepa_lan8814_static STATIC src/microchip/lan8814.c src/microchip/lan8814_ts.c)
