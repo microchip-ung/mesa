@@ -7,17 +7,17 @@
 // 1G PHYs, always included
 #define VTSS_CHIP_CU_PHY
 
-// 10G PHYs, included by default
+// 10G PHYs, excluded by default
 #if !defined(VTSS_OPT_PHY_10G)
-#define VTSS_OPT_PHY_10G 1
+#define VTSS_OPT_PHY_10G 0
 #endif
 #if VTSS_OPT_PHY_10G
 #define VTSS_CHIP_10G_PHY
 #endif
 
-// Timestamping, included by default
+// Timestamping, excluded by default
 #if !defined(VTSS_OPT_PHY_TIMESTAMP)
-#define VTSS_OPT_PHY_TIMESTAMP 1
+#define VTSS_OPT_PHY_TIMESTAMP 0
 #endif
 #if !VTSS_OPT_PHY_TIMESTAMP
 #undef VTSS_OPT_PHY_TIMESTAMP
@@ -30,6 +30,13 @@
 #undef VTSS_FEATURE_MACSEC
 #if VTSS_OPT_PHY_MACSEC
 #define VTSS_FEATURE_MACSEC
+#endif
+
+// Number of ports
+#if VTSS_OPT_PHY_PORT_COUNT
+#define VTSS_PORTS VTSS_OPT_PHY_PORT_COUNT
+#else
+#define VTSS_PORTS 64
 #endif
 
 // Trace, included by default

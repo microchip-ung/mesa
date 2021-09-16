@@ -133,13 +133,6 @@ typedef BOOL vtss_event_t;
 /** \brief Port Number */
 typedef u32 vtss_port_no_t;
 
-// Number of ports
-#if VTSS_OPT_PORT_COUNT && ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
-#define VTSS_PORTS VTSS_OPT_PORT_COUNT /**< Number of ports */
-#else
-#define VTSS_PORTS 64                  /**< Number of ports */
-#endif /* VTSS_OPT_PORT_COUNT */
-
 #define VTSS_PORT_ARRAY_SIZE VTSS_PORTS
 #define VTSS_PORT_NO_START   (0)          /**< Port start number */
 #define VTSS_PORT_NO_END     (VTSS_PORT_NO_START+VTSS_PORTS) /**< Port end number */
