@@ -13,6 +13,7 @@ check_capabilities do
     assert(($tas_support == 1),
            "TAS not supported on this platform")
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
+        loop_pair_check
         $loop_port0 = $ts.dut.looped_port_list[0]
         $loop_port1 = $ts.dut.looped_port_list[1]
     end

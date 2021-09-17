@@ -16,6 +16,7 @@ check_capabilities do
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     assert((($ts.dut.looped_port_list != nil) && (($ts.dut.looped_port_list.length % 2) == 0)),
            "Number of looped front ports must be multiples of two")
+    assert(dut_port_state_up($ts.dut.looped_port_list), "Loop ports must be up")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         assert(($ts.dut.looped_port_list_10g != nil) && ($ts.dut.looped_port_list_10g.length > 1),
             "On Jaguar2 two 10G front ports must be looped")

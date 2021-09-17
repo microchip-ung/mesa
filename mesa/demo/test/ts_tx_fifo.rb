@@ -15,8 +15,7 @@ check_capabilities do
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-    assert(($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1),
-           "Two front ports must be looped")
+    loop_pair_check
     $loop_port0 = $ts.dut.looped_port_list[0]
     $loop_port1 = $ts.dut.looped_port_list[1]
 end

@@ -16,8 +16,7 @@ check_capabilities do
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_phy_ts = $ts.dut.call("mesa_capability", "MESA_CAP_PHY_TS")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-    assert(($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1),
-           "Two front ports must be looped")
+    loop_pair_check
     $loop_port0 = $ts.dut.looped_port_list[0]
     $loop_port1 = $ts.dut.looped_port_list[1]
 end
