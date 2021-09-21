@@ -344,6 +344,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                     // Auto negotiation
                     phy.speed = (pc->autoneg ? MESA_SPEED_AUTO : MESA_SPEED_1G);
                     phy.flow_control = pc->flow_control;
+                    phy.adv_dis = pc->adv_dis;
                 } else if (pc->speed == MESA_SPEED_10G) {
                     // This is to handle AQR Cu phy in aneg mode and switch in unchangeble 10G SFI mode
                     phy.speed = MESA_SPEED_AUTO;
@@ -433,6 +434,7 @@ typedef struct {
     mesa_port_speed_t speed;
     mesa_bool_t fdx;
     uint32_t    max_length;
+    uint32_t    adv_dis;
 
     mesa_bool_t auto_keyword;
     mesa_bool_t bytes;
@@ -479,9 +481,12 @@ static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
 typedef enum {
     CLI_CMD_PORT_STATE,
     CLI_CMD_PORT_MODE,
+    CLI_CMD_PORT_ADV,
     CLI_CMD_PORT_FC,
     CLI_CMD_PORT_MAXLEN
 } port_cli_cmd_t;
+
+#define PR_ADV(x, s) {if (!(pc->adv_dis & MEPA_ADV_DIS_##x)) { cli_printf("%s  ", s); cnt = 1; } }
 
 /* Port configuration */
 static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
@@ -490,7 +495,7 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
     port_entry_t          *entry;
     mscc_appl_port_conf_t *pc;
     mesa_port_status_t    *ps;
-    mesa_bool_t           first = 1;
+    mesa_bool_t           first = 1, cnt;
     mesa_bool_t           rx, tx, init;
     port_cli_req_t        *mreq = req->module_req;
 
@@ -516,6 +521,13 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                     pc->fdx = mreq->fdx;
                 }
                 break;
+            case CLI_CMD_PORT_ADV:
+                if (req->disable) {
+                    pc->adv_dis |= mreq->adv_dis;
+                } else {
+                    pc->adv_dis &= ~mreq->adv_dis;
+                }
+                break;
             case CLI_CMD_PORT_FC:
                 pc->flow_control = req->enable;
                 break;
@@ -527,6 +539,19 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                 return;
             }
             port_setup(iport, FALSE, init);
+        } else if (cmd == CLI_CMD_PORT_ADV) {
+            if (first) {
+                cli_table_header("Port  Advertisements");
+                first = 0;
+            }
+            cli_printf("%-6u", uport);
+            cnt = 0;
+            PR_ADV(HDX, "hdx");
+            PR_ADV(FDX, "fdx");
+            PR_ADV(10M, "10");
+            PR_ADV(100M, "100");
+            PR_ADV(1G, "1000");
+            cli_printf("%s\n", cnt ? "" : "-");
         } else {
             if (first) {
                 cli_table_header("Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link      ");
@@ -562,6 +587,11 @@ static void cli_cmd_port_state(cli_req_t *req)
 static void cli_cmd_port_mode(cli_req_t *req)
 {
     cli_cmd_port_conf(req, CLI_CMD_PORT_MODE);
+}
+
+static void cli_cmd_port_adv(cli_req_t *req)
+{
+    cli_cmd_port_conf(req, CLI_CMD_PORT_ADV);
 }
 
 static void cli_cmd_port_flow_control(cli_req_t *req)
@@ -1043,6 +1073,11 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_mode
     },
     {
+        "Port Advertisement [<port_list>] [hdx|fdx|10|100|1000] [enable|disable]",
+        "Set or show the advertised speed and duplex mode",
+        cli_cmd_port_adv
+    },
+    {
         "Port Flow Control [<port_list>] [enable|disable]",
         "Set or show the port flow control mode",
         cli_cmd_port_flow_control
@@ -1167,9 +1202,19 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->dac5m = 1;
     } else if (!strncasecmp(found, "full", 4)) {
         mreq->full = 1;
-    } else
+    } else if (!strncasecmp(found, "hdx", 3)) {
+        mreq->adv_dis = MEPA_ADV_DIS_HDX;
+    } else if (!strncasecmp(found, "fdx", 3)) {
+        mreq->adv_dis = MEPA_ADV_DIS_FDX;
+    } else if (!strncasecmp(found, "1000", 4)) {
+        mreq->adv_dis = MEPA_ADV_DIS_1G;
+    } else if (!strncasecmp(found, "100", 3)) {
+        mreq->adv_dis = MEPA_ADV_DIS_100M;
+    } else if (!strncasecmp(found, "10", 2)) {
+        mreq->adv_dis = MEPA_ADV_DIS_10M;
+    } else {
         cli_printf("no match: %s\n", found);
-
+    }
     return 0;
 }
 
@@ -1187,6 +1232,17 @@ static cli_parm_t cli_parm_table[] = {
         "25g        : 25 Gbps, full duplex\n"
         "auto       : Auto negotiation of speed and duplex\n"
         "(default: Show configured and current mode)",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+    {
+        "hdx|fdx|10|100|1000",
+        "hdx        : Half duplex (10/100 Mbps)\n"
+        "fdx        : Full duplex (10/100 Mbps)\n"
+        "10         : 10 Mbps\n"
+        "100        : 100 Mbps\n"
+        "1000       : 1 Gbps\n"
+        "(default: Show advertisements)",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },

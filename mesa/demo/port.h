@@ -35,6 +35,7 @@ typedef struct {
     mesa_bool_t             fdx;          /* Forced duplex mode */
     mesa_bool_t             flow_control; /* Flow control */
     uint32_t                max_length;   /* Max frame length */
+    uint32_t                adv_dis;      /* Advertisement disable flags */
 } mscc_appl_port_conf_t;
 
 // Port entry

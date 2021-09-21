@@ -157,11 +157,9 @@ const char *cli_parse_find(const char *cmd, const char *stx)
             start = 1;
         } else if (start) {
             start = 0;
-            if (strstr(p, cmd) == p) {
-                if (found != NULL)
-                    return NULL;
+            if (strstr(p, cmd) == p && found == NULL)
+                // First occurence is used
                 found = p;
-            }
         }
     }
     return found;
