@@ -107,7 +107,7 @@ def tod_internal_mode_egress_node_test
     test "tod_internal_mode_egress_node_test" do
 
     # This is the RX TOD nanosecond on the ingress node that is inserted in the PTP header reserved field against the egress node
-    ingress_node_tod_nanoseconds = 40000000
+    ingress_node_tod_nanoseconds = 30000000
 
     # Configure output port as mode NONE
     conf = $ts.dut.call("mesa_ts_operation_mode_get", $ts.dut.port_list[$port0])
