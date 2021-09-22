@@ -44,6 +44,28 @@ test "forward-length" do
     $ts.dut.run("mesa-cmd port stati pa")
 end
 
+test "forward-loop" do
+    break
+    loop_pair_check
+    t_i("Forward frames via loop ports and change to 100fdx")
+    p0 = $ts.dut.looped_port_list[0]
+    p1 = $ts.dut.looped_port_list[1]
+
+    vid = 2
+    $ts.dut.call("mesa_vlan_port_members_set", vid, "#{p0},#{p1}")
+    [p0,p1].each do |port|
+        conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
+        conf["pvid"] = vid
+        conf["untagged_vid"] = vid
+        $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
+    end
+    $ts.dut.run("mesa-cmd packet tx #{p0 + 1},#{p1 + 1}")
+    sleep(5)
+    $ts.dut.run("mesa-cmd port mode #{p0 + 1} 100fdx")
+    sleep(5)
+    $ts.dut.run("mesa-cmd port stati pa")
+end
+
 test "forward-loop-2.5G" do
     break
     loop_pair_check
