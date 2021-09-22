@@ -14,12 +14,14 @@
 #define INDY_ENCODE_BITMASK(offset, width) (INDY_BIT_MASK(width) << (offset))
 
 #define INDY_EXT_PAGE_0  0
+#define INDY_EXT_PAGE_1  1
 #define INDY_EXT_PAGE_2  2
 #define INDY_EXT_PAGE_3  3
 #define INDY_EXT_PAGE_4  4
 #define INDY_EXT_PAGE_5  5
 #define INDY_EXT_PAGE_28 28
 #define INDY_EXT_PAGE_29 29
+#define INDY_EXT_PAGE_31 31
 
 #define INDY_MMD_7      7
 // Direct registers
@@ -126,6 +128,12 @@
 #define INDY_FLF_CFG_STAT_LINK_DOWN INDY_BIT(0)
 #define INDY_FLF_CFG_STAT_FLF_ENABLE INDY_BIT(1)
 #define INDY_FLF_CFG_STAT_FLF_STATUS INDY_BIT(2)
+
+//====================================================================================
+//      Extended Page 1
+//====================================================================================
+#define INDY_LINK_QUALITY_MONITOR_SETTING INDY_EXT_PAGE_1, 142
+
 //====================================================================================
 //      Extended Page 2
 //====================================================================================
@@ -241,6 +249,11 @@
 
 // Register 13
 #define INDY_ANALOG_CONTROL_10 INDY_EXT_PAGE_29, 13
+
+//====================================================================================
+//      Extended Page 31
+//====================================================================================
+#define INDY_CLOCK_MANAGEMENT_MODE_5 INDY_EXT_PAGE_31, 13
 
 //====================================================================================
 //      MMD 7

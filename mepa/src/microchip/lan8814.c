@@ -272,6 +272,7 @@ static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
 static mepa_rc indy_rev_workaround(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
+    uint16_t val;
 
     // work-arounds applicable for both models 0x26 & 0x27
     do {
@@ -282,6 +283,12 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
         // MDI-X setting for swap A,B transmit
         EP_WRM(dev, INDY_ALIGN_SWAP, INDY_F_ALIGN_TX_A_B_SWAP, INDY_M_ALIGN_TX_SWAP);
     } while(0);
+    // work-around for model 0x27 only
+    if (data->dev.model == 0x27 && data->dev.rev <= 2) {
+        // In Indy internal phy clock generation stops when link goes down.
+        EP_WR(dev, INDY_CLOCK_MANAGEMENT_MODE_5, 0x27e);
+        EP_RD(dev, INDY_LINK_QUALITY_MONITOR_SETTING, &val);
+    }
     // work-around for model 0x27 done.
     if (data->dev.model != 0x26) {
         return MEPA_RC_OK;
