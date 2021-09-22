@@ -850,7 +850,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 {
     vtss_rc                rc = VTSS_RC_OK;
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
-    u32                    port = VTSS_CHIP_PORT(port_no);
+    u32                    port = VTSS_CHIP_PORT(port_no), i, p;
     u32                    value, link_speed = 1, delay = 0, pfc_mask;
     BOOL                   disable = conf->power_down, disable_serdes = 0, giga;
     BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST);
@@ -1122,6 +1122,21 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
             REG_WRM(QSYS_SW_PORT_MODE(port),
                     QSYS_SW_PORT_MODE_TX_PFC_ENA(pfc_mask),
                     QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
+        }
+    }
+
+    // For QSGMII, make sure PCS Tx is out of reset with valid speed for all 4 ports
+    if (mode == VTSS_SERDES_MODE_QSGMII) {
+        for (i = 0; i < 4; i++) {
+            p = ((port & 4) + i);
+            REG_RD(DEV_CLOCK_CFG(p), &value);
+            if (DEV_CLOCK_CFG_PCS_TX_RST_X(value)) {
+                value &= ~DEV_CLOCK_CFG_PCS_TX_RST_M;
+                if (DEV_CLOCK_CFG_LINK_SPEED_X(value) == 0) {
+                    value |= DEV_CLOCK_CFG_LINK_SPEED(1);
+                }
+                REG_WR(DEV_CLOCK_CFG(p), value);
+            }
         }
     }
 
