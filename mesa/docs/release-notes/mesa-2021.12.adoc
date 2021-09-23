@@ -1,0 +1,38 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2021.12
+
+== MESA-2021.12
+
+|===
+|Version:          |MESA-2021.12
+|Previous Version: |MESA-2021.09
+|Date:             |2022-01-14
+|Description:      |Roadmap release
+|===
+
+=== Disclaimers
+
+=== General
+
+==== PHY API Restructured
+
+In this release, the code has been restructured to allow separate release of the PHY API (MEPA). This following has been done:
+
+* VSC PHY implementation moved from base/phy to mepa/src/vtss/src.
+* VSC PHY header files moved from include to mepa/src/vtss/include.
+** These APIs are now considered internal and used by the MEPA VSC PHY driver (mepa/src/vtss.c).
+* MESA PHY header files moved from mesa/include/ethernet/switch/api to mepa/src/vtss/include/microchip/switch/api.
+** These APIs are now considered internal and used by the MEPA VSC PHY driver (mepa/src/vtss.c).
+* VSC PHY compile-time options:
+** VTSS_OPT_PHY_10G: 10G PHYs, default excluded.
+** VTSS_OPT_PHY_TIMESTAMP: Timestamping, default excluded.
+** VTSS_OPT_PHY_MACSEC: MacSec, default excluded.
+** VTSS_OPT_PHY_PORT_COUNT: Port count, default 64.
+** VTSS_OPT_PHY_TRACE: Trace, default included.
+
+For switch applications, it is recommended to control the PHYs using MEBA:
+
+* MEPA drivers are installed using meba_phy_driver_init().
+* PHY control is then done using meba_phy_*() functions.
