@@ -303,7 +303,7 @@ def cmd_tx_ifh_push(info={})
     cmd += "data hex #{ifh[0].take(ifh[1]).pack("c*").unpack("H*").first} "
 end
 
-def ethtool_stat ts, diff = nil, ns = nil
+def ethtool_stat ts, diff = nil, if_list = [], ns = nil
     tot = {}
 
     ns_ = ""
@@ -311,20 +311,21 @@ def ethtool_stat ts, diff = nil, ns = nil
         ns_ = "ip netns exec #{ns}"
     end
 
-    names = []
-    ts.pc.run("#{ns_} ip link")[:out].each_line do |l|
-        name = ""
-        if /^\d+:\s+(\w+):/ =~ l
-            name = $1
-        elsif /^\d+:\s+(\w+\.\d+)@/ =~ l
-            name = $1
-        end
-        if (ts.pc.p.include?(name))
-            names << name
+    if (if_list.length == 0)
+        ts.pc.run("#{ns_} ip link")[:out].each_line do |l|
+            name = ""
+            if /^\d+:\s+(\w+):/ =~ l
+                name = $1
+            elsif /^\d+:\s+(\w+\.\d+)@/ =~ l
+                name = $1
+            end
+            if (ts.pc.p.include?(name))
+                if_list << name
+            end
         end
     end
 
-    names.each do |e|
+    if_list.each do |e|
         begin
             ts.pc.run("#{ns_} ethtool -S #{e}")[:out].each_line do |l|
                 tot[e] = { "rx" => {}, "tx" => {}} if tot[e].nil?

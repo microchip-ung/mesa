@@ -70,7 +70,7 @@ def frame_rx(idx, usec)
     end
 end
 
-def check_cnt(port, prio)
+def check_cnt(port, prio, name, base)
     cnt = $ts.dut.call("mesa_port_counters_get", port)
     tx_cnt = cnt["rmon"]["tx_etherStatsPkts"]
     tx_prio = cnt["prio"][prio]["tx"]
@@ -80,6 +80,8 @@ def check_cnt(port, prio)
     else
         t_e(txt)
     end
+    base, diff = ethtool_stat($ts, base, [name])
+    eval_stats(diff, [name], {"#{name}-rx": tx_cnt})
 end
 
 test "frame-io-afi-v1" do
@@ -96,6 +98,8 @@ test "frame-io-afi-v1" do
     
     # Clear counters
     $ts.dut.call("mesa_port_counters_clear", port)
+    name = "#{$ts.pc.p[idx]}"
+    base = ethtool_stat($ts, nil, [name])
 
     t_i("allocate afi injection")
     id = $ts.dut.call("mesa_afi_alloc", {"fps": rate})[1]
@@ -113,7 +117,7 @@ test "frame-io-afi-v1" do
     $ts.dut.call("mesa_afi_free", id)
 
     # Check counters
-    check_cnt(port, prio)
+    check_cnt(port, prio, name, base)
 end
 
 test "frame-io-afi-v2-slow" do
@@ -130,6 +134,8 @@ test "frame-io-afi-v2-slow" do
     
     # Clear counters
     $ts.dut.call("mesa_port_counters_clear", port)
+    name = "#{$ts.pc.p[idx]}"
+    base = ethtool_stat($ts, nil, [name])
 
     t_i("allocate afi injection")
     conf = {}
@@ -158,7 +164,7 @@ test "frame-io-afi-v2-slow" do
     $ts.dut.call("mesa_afi_slow_inj_free", id)
 
     # Check counters
-    check_cnt(port, prio)
+    check_cnt(port, prio, name, base)
 end
 
 test "frame-io-afi-v2-fast" do
@@ -175,6 +181,8 @@ test "frame-io-afi-v2-fast" do
 
     # Clear counters
     $ts.dut.call("mesa_port_counters_clear", port)
+    name = "#{$ts.pc.p[idx]}"
+    base = ethtool_stat($ts, nil, [name])
 
     t_i("allocate afi injection")
     conf = {}
@@ -205,5 +213,5 @@ test "frame-io-afi-v2-fast" do
     $ts.dut.call("mesa_afi_fast_inj_free", id)
 
     # Check counters
-    check_cnt(port, prio)
+    check_cnt(port, prio, name, base)
 end
