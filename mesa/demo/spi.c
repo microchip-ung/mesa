@@ -45,59 +45,6 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 #define SPI_NR_BYTES     7                 /* Number of bytes to transmit or receive */
 #define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
 
-// TDB move BB GPIOs to DT
-#define BB_SYSFS_GPIO_DIR  "/sys/class/gpio"
-#define BB_SPI_CS_GPIO  49
-static void bb_gpio_export(unsigned int gpio)
-{
-	int fd, len;
-	char buf[64];
-
-	snprintf(buf, sizeof(buf), BB_SYSFS_GPIO_DIR "/gpio%d", gpio);
-	fd = open(BB_SYSFS_GPIO_DIR "/export", O_WRONLY);
-	if (fd < 0) {
-        T_E("Could not export GPIO %d", gpio);
-		return;
-	}
-	len = snprintf(buf, sizeof(buf), "%d", gpio);
-	write(fd, buf, len);
-	close(fd);
-}
-
-static void bb_gpio_set_dir(unsigned int gpio, int set_output)
-{
-	int fd;
-	char buf[64];
-
-	snprintf(buf, sizeof(buf), BB_SYSFS_GPIO_DIR  "/gpio%d/direction", gpio);
-	fd = open(buf, O_WRONLY);
-	if (fd < 0) {
-        T_E("Could not set direction on GPIO %d", gpio);
-		return;
-	}
-	if (set_output)
-		write(fd, "out", 4);
-	else
-		write(fd, "in", 3);
-	close(fd);
-}
-
-static void bb_gpio_set_value(unsigned int gpio, int value)
-{
-	int fd;
-	char buf[64];
-
-	snprintf(buf, sizeof(buf), BB_SYSFS_GPIO_DIR "/gpio%d/value", gpio);
-	fd = open(buf, O_WRONLY);
-	if (fd < 0) {
-        T_E("Could not set value GPIO %d", gpio);
-		return;
-	}
-	write(fd, value ? "1":"0", 2);
-	close(fd);
-}
-
-
 mesa_rc spi_read(spi_user_t     user,
                  const uint32_t addr,
                  uint32_t       *const value)
@@ -122,9 +69,8 @@ mesa_rc spi_read(spi_user_t     user,
         .speed_hz = conf->freq,
         .bits_per_word = 8,
     };
-    bb_gpio_set_value(BB_SPI_CS_GPIO, 0);
+
     ret = ioctl(conf->fd, SPI_IOC_MESSAGE(1), &tr);
-    bb_gpio_set_value(BB_SPI_CS_GPIO, 1);
     if (ret < 1) {
         T_E("spi_read: %s", strerror(errno));
         return MESA_RC_ERROR;
@@ -177,9 +123,8 @@ mesa_rc spi_write(spi_user_t     user,
         .speed_hz = conf->freq,
         .bits_per_word = 8,
     };
-    bb_gpio_set_value(BB_SPI_CS_GPIO, 0);
+
     ret = ioctl(conf->fd, SPI_IOC_MESSAGE(1), &tr);
-    bb_gpio_set_value(BB_SPI_CS_GPIO, 1);
     if (ret < 1) {
         T_E("spi_write: %s", strerror(errno));
         return MESA_RC_ERROR;
@@ -244,11 +189,6 @@ mesa_rc spi_io_init(spi_user_t user, const char *device, int freq, int padding)
     conf->fd = fd;
     conf->freq = freq;
     conf->padding = padding;
-
-    // Enable CS for spidev1.0 on BB
-    bb_gpio_export(BB_SPI_CS_GPIO);
-    bb_gpio_set_dir(BB_SPI_CS_GPIO, 1);
-    bb_gpio_set_value(BB_SPI_CS_GPIO, 1);
 
     return MESA_RC_OK;
 }
