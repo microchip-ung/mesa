@@ -7,7 +7,6 @@
 
 #include <stdint.h>
 #include <microchip/ethernet/switch/api.h>
-#include "microchip/ethernet/board/api.h"
 #include <microchip/ethernet/board/api/types.h>
 #include <microchip/ethernet/board/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
