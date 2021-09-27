@@ -917,14 +917,24 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
                 mesa_phy_type_t phy_id;
                 mesa_port_no_t port_no;
                 for (port_no = 0; port_no < board->port_cnt; port_no++) {
-                    if (mesa_phy_id_get(PHY_INST, port_no, &phy_id) != MESA_RC_OK) {
-                        continue;
-                    }
-                    if ((phy_id.part_number == MESA_PHY_TYPE_8574) || (phy_id.part_number == MESA_PHY_TYPE_8572) ||
-                            (phy_id.part_number == MESA_PHY_TYPE_8582) || (phy_id.part_number == MESA_PHY_TYPE_8584) ||
-                            (phy_id.part_number == MESA_PHY_TYPE_8575)) {
+                    mepa_device_t *phy_dev;
+                    phy_dev = inst->phy_devices[port_no];
+                    if ((phy_dev != NULL ) && (phy_dev->drv->mepa_ts != NULL)) {
                         board->port[port_no].ts_phy = true;
+                    } else { // This part can be removed after VTSS Phy API refactored
+                        if (mesa_phy_id_get(PHY_INST, port_no, &phy_id) != MESA_RC_OK) {
+                            continue;
+                        }
+                        if ((phy_id.part_number == MESA_PHY_TYPE_8574) || (phy_id.part_number == MESA_PHY_TYPE_8572) ||
+                                (phy_id.part_number == MESA_PHY_TYPE_8582) || (phy_id.part_number == MESA_PHY_TYPE_8584) ||
+                                (phy_id.part_number == MESA_PHY_TYPE_8575)) {
+                            board->port[port_no].ts_phy = true;
+                        }
                     }
+                }
+                if (board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
+                    (void)mesa_gpio_mode_set(NULL, 0, 4, MESA_GPIO_IN_INT);
+                    mesa_reg_write(NULL, 0, 0x41c012, 0x10); // set 4th bit to clear sticky.
                 }
             }
             break;
@@ -1398,7 +1408,7 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
             mesa_phy_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (board->port[port_no].ts_phy) {
-                    if ((rc = mesa_phy_ts_event_enable_set(PHY_INST, port_no, enable, event)) != MESA_RC_OK) {
+                    if ((rc = meba_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
                         T_E(inst, "mesa_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
                     }
                 }
@@ -1450,6 +1460,72 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
     }
 
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
+}
+
+static mesa_rc meba_phy_event_check(meba_inst_t inst,
+                                    mesa_port_no_t port_no,
+                                    mepa_event_t *const in_events)
+{
+    mepa_event_t events;
+    mesa_rc      rc;
+
+    if ((rc = meba_phy_event_poll(inst, port_no, &events)) != MESA_RC_OK) {
+        T_E(inst, "meba_phy_event_poll = %d", rc);
+    } else {
+        if (events) {
+            T_I(inst, "Port %u, event: 0x%x", port_no, events);
+
+            if ((rc = meba_phy_event_enable_set(inst, port_no, events, false)) != MESA_RC_OK) {
+                T_E(inst, "meba_phy_event_enable_set = %d", rc);
+            }
+        }
+    }
+    if (rc == MEPA_RC_OK) {
+        *in_events |= events;
+    }
+    return rc;
+}
+
+static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
+{
+    int            handled = 0, polled = 0;
+    mesa_port_no_t port_no;
+    mepa_event_t events = 0;
+
+    if (board->type != BOARD_TYPE_OCELOT_PCB123_LAN8814) {
+        return MESA_RC_ERROR;
+    }
+    // On ocelot + lan8814 platform, port number starts with port 4
+    for (port_no = 4; port_no < board->port_cnt; port_no++) {
+        if (meba_phy_event_check(inst, port_no, &events) == MESA_RC_OK) {
+            polled++;
+        }
+    }
+    if (polled) {
+        port_no = 4;
+        if (events & MESA_PHY_LINK_FFAIL_EV) {
+            signal_notifier(MEBA_EVENT_FLNK, port_no);
+            handled++;
+        }
+
+        if (events & MESA_PHY_LINK_LOS_EV) {
+            signal_notifier(MEBA_EVENT_LOS, port_no);
+            handled++;
+        }
+    }
+    // Check the timestamp events.
+    for (port_no = 4; port_no < board->port_cnt; port_no++) {
+        if (board->port[port_no].ts_phy) {
+            if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
+                handled++;
+        }
+    }
+    uint32_t val=0;
+    mesa_reg_read(NULL, 0,0x41c012, &val);
+    mesa_reg_write(NULL, 0, 0x41c012, val); // Clear gpio interrupt. set 4th bit to clear sticky.
+
+    T_I(inst, "events %x handled %d", events, handled);
+    return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
 static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
@@ -1519,6 +1595,8 @@ static mesa_rc ocelot_irq_handler(meba_inst_t inst,
             return MESA_RC_OK;
         case MESA_IRQ_SGPIO:
             return sgpio_handler(inst, board, signal_notifier);
+        case MESA_IRQ_GPIO:
+            return gpio_handler(inst, board, signal_notifier);
         case MESA_IRQ_EXT0:
             return ext0_handler(inst, board, signal_notifier);
         case MESA_IRQ_DEV_ALL:
@@ -1537,6 +1615,7 @@ static mesa_rc ocelot_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
         case MESA_IRQ_PTP_RDY:
         case MESA_IRQ_OAM:
         case MESA_IRQ_SGPIO:
+        case MESA_IRQ_GPIO:
         case MESA_IRQ_EXT0:
         case MESA_IRQ_DEV_ALL:
             rc = MESA_RC_OK;

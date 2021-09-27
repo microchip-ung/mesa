@@ -3,10 +3,16 @@
 
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/switch/api.h>
+#include <microchip/ethernet/phy/api/types.h>
+#include <microchip/ethernet/phy/api/phy_ts.h>
+
+#define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
 
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
 #define true 1
 #define false 0
+
+extern mepa_ts_driver_t vtss_ts_drivers;
 
 typedef struct {
     mesa_inst_t inst;
@@ -665,6 +671,359 @@ out_device:
     return NULL;
 }
 
+static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init_conf_t *const ts_init_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_ts_init_conf_t init_conf;
+
+
+    init_conf.clk_freq = ts_init_conf->clk_freq;
+    init_conf.clk_src = ts_init_conf->clk_src;
+    init_conf.rx_ts_pos = ts_init_conf->rx_ts_pos;
+    init_conf.rx_ts_len = ts_init_conf->rx_ts_len;
+    init_conf.tx_fifo_mode = ts_init_conf->tx_fifo_mode; /**< Tx TSFIFO access mode */
+    init_conf.tx_ts_len = ts_init_conf->tx_ts_len; /**< timestamp size in Tx TSFIFO */
+    init_conf.tx_fifo_spi_conf = true; /**< Modify default 1588_spi configuration, applicable only on PHYs with SPI timestamp fifo support */
+#if 0
+    init_conf.tx_fifo_hi_clk_cycs = ; /**< Number of clock periods that the spi_clk is high */
+    init_conf.tx_fifo_lo_clk_cycs; /**< Number of clock periods that the spi_clk is low */
+#endif
+
+    init_conf.xaui_sel_8487 = MESA_PHY_TS_8487_XAUI_SEL_0; /**< 8487 XAUI lane selection*/
+    init_conf.tc_op_mode = MESA_PHY_TS_TC_OP_MODE_C; /**< TC operating mode */
+    init_conf.auto_clear_ls = true; /**< Load and Save of LTC are auto cleared */
+    init_conf.macsec_ena = false;       /**< MACsec is enabled or disabled */
+    init_conf.chk_ing_modified = false;/**< True if the flag bit needs to be modified in ingress and thus in egress */
+    init_conf.one_step_txfifo = false; /**< used when transmitting Delay_Req in one step mode. False when correctionfield update is used instead */
+#if 0
+    if (phy_id.part_number == 0x8488 || phy_id.part_number == 0x8489 || phy_id.part_number == 0x8490) {
+        phy_conf.xaui_sel_8487 = MESA_PHY_TS_8487_XAUI_SEL_0; /* Required for 8488, 8489, 8490 */
+    } else {
+        phy_conf.xaui_sel_8487 = MESA_PHY_TS_8487_XAUI_SEL_0 | MESA_PHY_TS_8487_XAUI_SEL_1; /* Required for 8487 and 8491 */
+    }
+
+#endif
+
+    return mesa_phy_ts_init(data->inst, data->port_no, &init_conf);
+}
+
+
+static mepa_rc vtss_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *const ts_init_conf)
+{
+    uint16_t val = 0;
+    mepa_rc rc = MESA_RC_ERROR;
+    mepa_bool_t                     ts_init_done;
+    mesa_phy_ts_init_conf_t         init_conf;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    rc =  mesa_phy_ts_init_conf_get(data->inst, data->port_no, &ts_init_done, &init_conf);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+    ts_init_conf->clk_src           = init_conf.clk_src;
+    ts_init_conf->clk_freq          = init_conf.clk_freq;
+    ts_init_conf->rx_ts_len         = init_conf.rx_ts_len;
+    ts_init_conf->rx_ts_pos         = init_conf.rx_ts_pos;
+    ts_init_conf->tx_fifo_mode      = init_conf.tx_fifo_mode;
+    ts_init_conf->tx_fifo_spi_conf  = init_conf.tx_fifo_spi_conf;
+    ts_init_conf->tx_ts_len         = init_conf.tx_ts_len;
+    ts_init_conf->auto_clear_ls     = init_conf.auto_clear_ls;
+
+    return MEPA_RC_OK;
+}
+
+
+static mepa_rc vtss_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
+{
+    uint16_t val = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    return mesa_phy_ts_mode_set(data->inst, data->port_no,  enable);
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc vtss_ts_mode_get(mepa_device_t *dev, mepa_bool_t *const enable)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    return mesa_phy_ts_mode_get(data->inst, data->port_no,  enable);
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc vtss_ts_ltc_ls_en_set(mepa_device_t *dev, const mepa_ts_ls_type_t  ls_type)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    switch (ls_type) {
+    case MEPA_TS_CMD_LOAD:
+        return mesa_phy_ts_ptptime_set_done(data->inst, data->port_no);
+        break;
+    case MEPA_TS_CMD_SAVE:
+        return mesa_phy_ts_ptptime_arm(data->inst, data->port_no);
+        break;
+    default:
+        break;
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc vtss_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_timestamp_t vts;
+    mesa_rc rc;
+
+    if ((rc = mesa_phy_ts_ptptime_get(data->inst, data->port_no, &vts)) == MESA_RC_OK) {
+        ts->seconds.high = vts.seconds.high;
+        ts->seconds.low  = vts.seconds.low;
+        ts->nanoseconds  = vts.nanoseconds;
+        return MEPA_RC_OK;
+    } else {
+        return MEPA_RC_ERROR;
+    }
+}
+
+static mepa_rc vtss_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const ts)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_timestamp_t vts;
+
+    vts.seconds.high = ts->seconds.high;
+    vts.seconds.low = ts->seconds.low;
+    vts.nanoseconds = ts->nanoseconds;
+    return mesa_phy_ts_ptptime_set(data->inst, data->port_no, &vts);
+}
+
+static mepa_rc vtss_ts_clock_delay_asymmetry_get(mepa_device_t *dev, mepa_timeinterval_t *const delay_asym)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_delay_asymmetry_get(data->inst, data->port_no, delay_asym);
+}
+
+static mepa_rc vtss_ts_clock_delay_asymmetry_set(mepa_device_t *dev, const mepa_timeinterval_t *const delay_asym)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_delay_asymmetry_set(data->inst, data->port_no, delay_asym);
+}
+
+static mepa_rc vtss_ts_clock_path_delay_get(mepa_device_t *dev, mepa_timeinterval_t *const path_delay)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_path_delay_get(data->inst, data->port_no, path_delay);
+}
+
+static mepa_rc vtss_ts_clock_path_delay_set(mepa_device_t *dev, const mepa_timeinterval_t *const path_delay)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_path_delay_set(data->inst, data->port_no, path_delay);
+}
+
+static mepa_rc vtss_ts_clock_egress_latency_get(mepa_device_t *dev, mepa_timeinterval_t *const latency)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_egress_latency_get(data->inst, data->port_no, latency);
+
+}
+static mepa_rc vtss_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_egress_latency_set(data->inst, data->port_no, latency);
+}
+
+static mepa_rc vtss_ts_clock_ingress_latency_get(mepa_device_t *dev, mepa_timeinterval_t *const latency)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_ingress_latency_get(data->inst, data->port_no, latency);
+}
+
+static mepa_rc vtss_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_ingress_latency_set(data->inst, data->port_no, latency);
+}
+
+static mepa_rc vtss_ts_clock_rateadj_get(mepa_device_t *dev, mepa_ts_scaled_ppb_t *const adj)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_clock_rateadj_get(data->inst, data->port_no, adj);
+}
+
+static mepa_rc vtss_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scaled_ppb_t *const adj)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_clock_rateadj_set(data->inst, data->port_no, adj);
+}
+static mepa_rc vtss_ts_clock_adj1ns(mepa_device_t *dev, const mepa_bool_t incr)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_ptptime_adj1ns(data->inst, data->port_no, incr);
+}
+
+static mepa_rc vtss_ts_rx_clock_conf_get (mepa_device_t *dev, uint16_t clock_id, mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+{
+    mesa_phy_ts_engine_action_t action_conf;
+    mesa_phy_ts_engine_t eng_id = 0;
+    mepa_rc rc = MESA_RC_ERROR;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    rc =  mesa_phy_ts_ingress_engine_action_get(data->inst, data->port_no, eng_id, &action_conf);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    ptpclock_conf->delaym_type = action_conf.action.ptp_conf[0].delaym_type;
+    ptpclock_conf->clk_mode  = action_conf.action.ptp_conf[0].clk_mode;
+    ptpclock_conf->cf_update = action_conf.action.ptp_conf[0].cf_update;
+    return rc;
+}
+
+static mepa_rc vtss_ts_tx_clock_conf_get(mepa_device_t *dev, uint16_t clock_id, mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+{
+    mesa_phy_ts_engine_action_t action_conf;
+    mesa_phy_ts_engine_t eng_id = 0;
+    mepa_rc rc = MESA_RC_ERROR;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    rc =  mesa_phy_ts_egress_engine_action_get(data->inst, data->port_no, eng_id, &action_conf);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    ptpclock_conf->delaym_type = action_conf.action.ptp_conf[0].delaym_type;
+    ptpclock_conf->clk_mode  = action_conf.action.ptp_conf[0].clk_mode;
+    ptpclock_conf->cf_update = action_conf.action.ptp_conf[0].cf_update;
+    return rc;
+}
+
+static mepa_rc vtss_ts_rx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
+{
+    mesa_phy_ts_engine_action_t action_conf;
+    mesa_phy_ts_engine_t eng_id = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    action_conf.action.ptp_conf[0].clk_mode = ptpclock_conf->clk_mode;
+    action_conf.action.ptp_conf[0].delaym_type = ptpclock_conf->delaym_type;
+    action_conf.action.ptp_conf[0].cf_update = ptpclock_conf->cf_update;
+
+    return mesa_phy_ts_ingress_engine_action_set(data->inst, data->port_no, eng_id, &action_conf);
+}
+
+static mepa_rc vtss_ts_tx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
+{
+    mesa_phy_ts_engine_action_t action_conf;
+    mesa_phy_ts_engine_t eng_id = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    action_conf.action.ptp_conf[0].clk_mode = ptpclock_conf->clk_mode;
+    action_conf.action.ptp_conf[0].delaym_type = ptpclock_conf->delaym_type;
+    action_conf.action.ptp_conf[0].cf_update = ptpclock_conf->cf_update;
+
+    return mesa_phy_ts_egress_engine_action_set(data->inst, data->port_no, eng_id, &action_conf);
+}
+
+static mepa_rc vtss_ts_pps_conf_get (mepa_device_t *dev, mepa_ts_pps_conf_t *const phy_pps_conf)
+{
+
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_ts_pps_conf_t pps_conf;
+    mesa_rc rc;
+
+    if ((rc =  mesa_phy_ts_pps_conf_get(data->inst, data->port_no, &pps_conf)) == MESA_RC_OK) {
+        phy_pps_conf->pps_width_adj = pps_conf.pps_width_adj;
+        phy_pps_conf->pps_offset = pps_conf.pps_offset;
+        phy_pps_conf->pps_output_enable = pps_conf.pps_output_enable;
+        return MEPA_RC_OK;
+    } else {
+        return MEPA_RC_ERROR;
+    }
+}
+
+static mepa_rc vtss_ts_pps_conf_set (mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf)
+{
+
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_ts_pps_conf_t pps_conf;
+
+    pps_conf.pps_width_adj = phy_pps_conf->pps_width_adj;
+    pps_conf.pps_offset = phy_pps_conf->pps_offset;
+    pps_conf.pps_output_enable = phy_pps_conf->pps_output_enable;
+    return mesa_phy_ts_pps_conf_set(data->inst, data->port_no, &pps_conf);
+}
+
+mepa_rc vtss_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t *const statistics)
+{
+
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mesa_phy_ts_stats_t stats;
+    mesa_rc rc;
+
+    if ((rc = mesa_phy_ts_stats_get(data->inst, data->port_no, &stats)) == MESA_RC_OK) {
+        statistics->ingr_pream_shrink_err = stats.ingr_pream_shrink_err;
+        statistics->egr_pream_shrink_err = stats.egr_pream_shrink_err;
+        statistics->ingr_fcs_err         = stats.ingr_fcs_err;
+        statistics->egr_fcs_err          = stats.egr_fcs_err;
+        statistics->ingr_frm_mod_cnt     = stats.ingr_frm_mod_cnt;
+        statistics->egr_frm_mod_cnt      = stats.egr_frm_mod_cnt;
+        statistics->ts_fifo_tx_cnt       = stats.ts_fifo_tx_cnt;
+        statistics->ts_fifo_drop_cnt     = stats.ts_fifo_drop_cnt;
+        return MEPA_RC_OK;
+    } else {
+        return MEPA_RC_ERROR;
+    }
+}
+
+static mepa_rc vtss_ts_event_get (mepa_device_t *dev,
+                                  mepa_ts_event_t *const ev_mask)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    return mesa_phy_ts_event_enable_get(data->inst, data->port_no, ev_mask);
+}
+
+static mepa_rc vtss_ts_event_set (mepa_device_t *dev, const mepa_bool_t enable, const mepa_ts_event_t ev_mask)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    return mesa_phy_ts_event_enable_set(data->inst, data->port_no, enable, ev_mask);
+}
+
+static mepa_rc vtss_ts_event_poll(mepa_device_t *dev, mepa_ts_event_t  *const status)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    return mesa_phy_ts_event_poll(data->inst, data->port_no, status);
+
+}
+
+mepa_ts_driver_t vtss_ts_drivers = {
+    .mepa_ts_init_conf_get          = vtss_ts_init_conf_get,
+    .mepa_ts_init_conf_set          = vtss_ts_init_conf_set,
+    .mepa_ts_mode_get               = vtss_ts_mode_get,
+    .mepa_ts_mode_set               = vtss_ts_mode_set,
+    .mepa_ts_ltc_ls_en              = vtss_ts_ltc_ls_en_set,
+    .mepa_ts_ltc_get                = vtss_ts_ltc_get,
+    .mepa_ts_ltc_set                = vtss_ts_ltc_set,
+    .mepa_ts_clock_rateadj_get      = vtss_ts_clock_rateadj_get,
+    .mepa_ts_clock_rateadj_set      = vtss_ts_clock_rateadj_set,
+    .mepa_ts_clock_adj1ns           = vtss_ts_clock_adj1ns,
+    .mepa_ts_delay_asymmetry_get    = vtss_ts_clock_delay_asymmetry_get,
+    .mepa_ts_delay_asymmetry_set    = vtss_ts_clock_delay_asymmetry_set,
+    .mepa_ts_path_delay_get         = vtss_ts_clock_path_delay_get,
+    .mepa_ts_path_delay_set         = vtss_ts_clock_path_delay_set,
+    .mepa_ts_egress_latency_get     = vtss_ts_clock_egress_latency_get,
+    .mepa_ts_egress_latency_set     = vtss_ts_clock_egress_latency_set,
+    .mepa_ts_ingress_latency_get    = vtss_ts_clock_ingress_latency_get,
+    .mepa_ts_ingress_latency_set    = vtss_ts_clock_ingress_latency_set,
+    .mepa_ts_rx_clock_conf_get      = vtss_ts_rx_clock_conf_get,
+    .mepa_ts_tx_clock_conf_get      = vtss_ts_tx_clock_conf_get,
+    .mepa_ts_rx_clock_conf_set      = vtss_ts_rx_clock_conf_set,
+    .mepa_ts_tx_clock_conf_set      = vtss_ts_tx_clock_conf_set,
+    .mepa_ts_pps_conf_get           = vtss_ts_pps_conf_get,
+    .mepa_ts_pps_conf_set           = vtss_ts_pps_conf_set,
+    .mepa_ts_stats_get              = vtss_ts_stats_get,
+    .mepa_ts_event_get              = vtss_ts_event_get,
+    .mepa_ts_event_set              = vtss_ts_event_set,
+    .mepa_ts_event_poll             = vtss_ts_event_poll,
+};
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 3;
@@ -769,21 +1128,23 @@ mepa_drivers_t mepa_malibu_driver_init()
 {
     static const int nr_malibu_phy = 1;
     static mepa_driver_t malibu_drivers[] = {{
-        .id = 0x8200,
-        .mask = 0x0000FF00,
-        .mepa_driver_delete = phy_10g_delete,
-        .mepa_driver_reset = malibu_10g_reset,
-        .mepa_driver_poll = phy_10g_poll,
-        .mepa_driver_conf_set = phy_10g_conf_set,
-        .mepa_driver_if_get = malibu_10g_if_get,
-        .mepa_driver_power_set = NULL,
-        .mepa_driver_cable_diag_start = NULL,
-        .mepa_driver_cable_diag_get = NULL,
-        .mepa_driver_media_set = NULL,
-        .mepa_driver_probe = phy_10g_probe,
-        .mepa_driver_aneg_status_get = NULL,
-        .mepa_driver_phy_info_get = phy_10g_info_get,
-    }};
+            .id = 0x8200,
+            .mask = 0x0000FF00,
+            .mepa_driver_delete = phy_10g_delete,
+            .mepa_driver_reset = malibu_10g_reset,
+            .mepa_driver_poll = phy_10g_poll,
+            .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_if_get = malibu_10g_if_get,
+            .mepa_driver_power_set = NULL,
+            .mepa_driver_cable_diag_start = NULL,
+            .mepa_driver_cable_diag_get = NULL,
+            .mepa_driver_media_set = NULL,
+            .mepa_driver_probe = phy_10g_probe,
+            .mepa_driver_aneg_status_get = NULL,
+            .mepa_driver_phy_info_get = phy_10g_info_get,
+            .mepa_ts = &vtss_ts_drivers,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = malibu_drivers;
@@ -805,6 +1166,7 @@ mepa_drivers_t mepa_venice_driver_init()
         .mepa_driver_if_get = venice_10g_if_get,
         .mepa_driver_probe = phy_10g_probe,
         .mepa_driver_phy_info_get = phy_10g_info_get,
+        .mepa_ts = &vtss_ts_drivers,
     }};
 
     mepa_drivers_t result;

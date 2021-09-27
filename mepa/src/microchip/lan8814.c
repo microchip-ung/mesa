@@ -5,39 +5,11 @@
 #include <microchip/ethernet/switch/api.h>
 
 #include "lan8814_registers.h"
+#include "lan8814_ts_registers.h"
+
 #include "lan8814_private.h"
 
-typedef struct {
-    mesa_inst_t inst;
-    mesa_chip_no_t chip_no;
-    miim_read_t    miim_read;
-    miim_write_t   miim_write;
-    mesa_miim_controller_t miim_controller;
-    uint8_t        miim_addr;
-} phy_switch_access_t;
-
-typedef struct {
-    uint8_t  model;
-    uint8_t  rev;
-} phy_dev_info_t;
-
-typedef struct {
-    mepa_bool_t             init_done;
-    mepa_port_no_t          port_no;
-    phy_switch_access_t     access;
-    mepa_port_interface_t   mac_if;
-    mepa_driver_conf_t      conf;
-    mepa_event_t            events;
-    mepa_loopback_t         loopback;
-    mepa_bool_t             qsgmii_phy_aneg_dis;
-    phy_dev_info_t          dev;
-    mepa_synce_clock_conf_t synce_conf;
-    mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
-    mepa_bool_t             link_status;
-    mepa_trace_func_t       trace_func;
-    mepa_lock_func_t        lock_enter;
-    mepa_lock_func_t        lock_exit;
-} phy_data_t;
+extern mepa_ts_driver_t indy_ts_drivers;
 
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
@@ -223,9 +195,16 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
         }
     }
 
+    // Enable Fast link config
+    val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
+    EP_WRM(dev, INDY_FLF_CONFIG_STATUS, val, val);
+
     // Clear all GPHY interrupts during initialisation
     WR(dev, INDY_GPHY_INTR_ENA, 0);
+    EP_WRM(dev, INDY_PTP_TSU_INT_EN, 0, INDY_DEF_MASK);
     RD(dev, INDY_GPHY_INTR_STATUS, &val);
+    // Enable chip level interrupt
+    EP_WRM(dev, INDY_INTR_CTRL, INDY_INTR_CTRL_CHIP_LVL_ENA, INDY_INTR_CTRL_CHIP_LVL_ENA);
     return MEPA_RC_OK;
 }
 
@@ -348,6 +327,8 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
         }
     }
+
+    EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
     PHY_MSLEEP(1);
     MEPA_EXIT(dev);
     T_I(data, MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
@@ -685,8 +666,6 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
                 ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN;
                 break;
             case MEPA_FAST_LINK_FAIL:
-                val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
-                EP_WRM(dev, INDY_FLF_CONFIG_STATUS, enable ? val : 0, val);
                 ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR;
                 break;
             default:
@@ -695,10 +674,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
         }
     }
     WRM(dev, INDY_GPHY_INTR_ENA, enable ? ev_mask : 0, ev_mask);
-    EP_WRM(dev, INDY_INTR_CTRL, data->events ? INDY_INTR_CTRL_CHIP_LVL_ENA : 0,
-           INDY_INTR_CTRL_CHIP_LVL_ENA);
-
-    T_D(data, MEPA_TRACE_GRP_GEN, "events enabled 0x%x\n", data->events);
+    T_I(data, MEPA_TRACE_GRP_GEN, "events enabled 0x%x \n", data->events);
     MEPA_EXIT(dev);
     return rc;
 }
@@ -730,7 +706,7 @@ static mepa_rc indy_event_status_poll(mepa_device_t *dev, mepa_event_t *const st
         *status |= data->events & MEPA_FAST_LINK_FAIL;
     }
     MEPA_EXIT(dev);
-    T_D(data, MEPA_TRACE_GRP_GEN, "events polled 0x%x\n", *status);
+    T_I(data, MEPA_TRACE_GRP_GEN, " port %d events polled 0x%x val %x\n", data->port_no, *status, val);
     return rc;
 }
 
@@ -1091,7 +1067,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
     static mepa_driver_t indy_drivers[] = {
         {
             .id = 0x221660,  // LAN8814 QSGMII standalone PHY
-            .mask = 0xfffffff0,
+            .mask = 0xfffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,
@@ -1115,12 +1091,13 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_gpio_out_set = indy_gpio_out_set,
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_link_base_port = indy_link_base_port,
+            .mepa_ts = &indy_ts_drivers,
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
             .mepa_driver_phy_info_get = indy_info_get,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
-            .mask = 0xfffffff0,
+            .mask = 0xfffff0,
             .mepa_driver_delete = indy_delete,
             .mepa_driver_reset = indy_reset,
             .mepa_driver_poll = indy_poll,

@@ -15,6 +15,7 @@
 #include <microchip/ethernet/board/api/sfp_driver.h>
 #include <microchip/ethernet/board/api/cpu_port.h>
 #include <microchip/ethernet/board/api/phy.h>
+#include <microchip/ethernet/board/api/phy_ts.h>
 #include <microchip/ethernet/board/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 /** \brief Board instance struct */

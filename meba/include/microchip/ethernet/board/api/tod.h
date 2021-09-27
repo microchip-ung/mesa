@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <microchip/ethernet/switch/api.h>
+#include "microchip/ethernet/board/api.h"
 #include <microchip/ethernet/board/api/types.h>
 #include <microchip/ethernet/board/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
@@ -19,10 +20,10 @@
 //                      into the save register
 typedef mesa_rc (*meba_tod_phy_ts_clk_info_1g_t)(
         struct meba_inst        *inst,
-        mesa_phy_ts_clockfreq_t *freq,
-        mesa_phy_ts_clock_src_t *src,
-        mesa_timeinterval_t     *pps_load_delay,
-        mesa_timeinterval_t     *pps_save_delay);
+        mepa_ts_clock_freq_t *freq,
+        mepa_ts_clock_src_t *src,
+        mepa_timeinterval_t     *pps_load_delay,
+        mepa_timeinterval_t     *pps_save_delay);
 
 
 #define MEBA_LIST_OF_API_TOD_CALLS  \

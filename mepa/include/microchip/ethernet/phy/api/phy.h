@@ -7,6 +7,7 @@
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/switch/api/phy_1g.h>
+#include <microchip/ethernet/phy/api/phy_ts.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // PHY DRIVER
@@ -338,6 +339,7 @@ typedef struct mepa_driver {
     mepa_driver_synce_clock_conf_set_t mepa_driver_synce_clock_conf_set;
     mepa_driver_link_base_port_t       mepa_driver_link_base_port;
     mepa_driver_phy_info_get_t         mepa_driver_phy_info_get;
+    mepa_ts_driver_t                   *mepa_ts;
 
     uint32_t id;                  // Id of the driver
     uint32_t mask;                // Mask of the driver

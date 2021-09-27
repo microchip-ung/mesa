@@ -220,6 +220,115 @@ typedef struct
     mesa_bool_t generate_pause;  // Link partner obeys PAUSE frames
 } mesa_aneg_t;                   // Auto negotiation result
 
+// PHY timestamp in seconds and nanoseconds (10 bytes Timestamp)
+typedef struct {
+    struct {
+        uint16_t high; // bits 32-47 of 48-bit second
+        uint32_t low;  // bits 0-31 of 48-bit second
+    } seconds; // 6 bytes second part of Timestamp
+    uint32_t nanoseconds; // 4 bytes nano-sec part of Timestamp
+} mesa_phy_timestamp_t;
+
+// PPS Configuration
+typedef struct mesa_phy_ts_pps_config_s {
+    uint32_t   pps_width_adj ;    // The value of nano second counter upto which 1PPS is held high
+    uint32_t   pps_offset;        // PPS pulse offset in nano seconds
+    uint32_t   pps_output_enable; // PPS pulse output is enabled for this port
+} mesa_phy_ts_pps_conf_t;
+
+// Clock frequency ratio in scaled PartsPerBillion, defined as rate in units of ppb and multiplied by 2^16
+// Example, 2.5 ppb is expressed as 0000 0000 0002 8000
+typedef int64_t mesa_phy_ts_scaled_ppb_t;
+
+//brief Timestamp interrupt events
+#define MESA_PHY_TS_INGR_ENGINE_ERR            0x01  // More than one engine find match
+#define MESA_PHY_TS_INGR_RW_PREAM_ERR          0x02  // Preamble too short to append timestamp
+#define MESA_PHY_TS_INGR_RW_FCS_ERR            0x04  // FCS error in ingress
+#define MESA_PHY_TS_EGR_ENGINE_ERR             0x08  // More than one engine find match
+#define MESA_PHY_TS_EGR_RW_FCS_ERR             0x10  // FCS error in egress
+#define MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED     0x20  // Timestamp captured in Tx TSFIFO
+#define MESA_PHY_TS_EGR_FIFO_OVERFLOW          0x40  // Tx TSFIFO overflow
+#define MESA_PHY_TS_DATA_IN_RSRVD_FIELD        0x80  // Data in reserved Field
+#define MESA_PHY_TS_LTC_NEW_PPS_INTRPT         0x100 // New PPS pushed onto external PPS pin
+#define MESA_PHY_TS_LTC_LOAD_SAVE_NEW_TOD      0x200 // New LTC value either loaded in to HW or saved into registers
+
+typedef uint32_t mesa_phy_ts_event_t;   // Int events: Single event or 'OR' multiple events above
+
+
+// Timestamping Statistics.
+typedef struct {
+    uint32_t    ingr_pream_shrink_err; // Frames with preambles too short to shrink
+    uint32_t    egr_pream_shrink_err;  // Frames with preambles too short to shrink
+    uint32_t    ingr_fcs_err;          // Timestamp block received frame with FCS error in ingress
+    uint32_t    egr_fcs_err;           // Timestamp block received frame with FCS error in egress
+    uint32_t    ingr_frm_mod_cnt;      // No of frames modified by timestamp block (rewritter) in ingress
+    uint32_t    egr_frm_mod_cnt;       // No of frames modified by timestamp block (rewritter) in egress
+    uint32_t    ts_fifo_tx_cnt;        // the number of timestamps transmitted to the interface
+    uint32_t    ts_fifo_drop_cnt;      // Count of dropped Timestamps not enqueued to the Tx TSFIFO
+} mesa_phy_ts_stats_t;
+
+// Timestamp block clock frequencies
+typedef enum {
+    MESA_PHY_TS_CLOCK_FREQ_125M,   // 125 MHz
+    MESA_PHY_TS_CLOCK_FREQ_15625M, // 156.25 MHz
+    MESA_PHY_TS_CLOCK_FREQ_200M,   // 200 MHz
+    MESA_PHY_TS_CLOCK_FREQ_250M,   // 250 MHz
+    MESA_PHY_TS_CLOCK_FREQ_500M,   // 500 MHz
+    MESA_PHY_TS_CLOCK_FREQ_MAX,    // MAX Freq
+} mesa_phy_ts_clockfreq_t;
+
+// Clock input source
+typedef enum {
+    MESA_PHY_TS_CLOCK_SRC_EXTERNAL,   // External source
+    // 10G: XAUI lane 0 recovered clock, 1G: MAC RX clock (note: direction is opposite to 10G, i.e. PHY->MAC)
+    MESA_PHY_TS_CLOCK_SRC_CLIENT_RX,
+    // 10G: XAUI lane 0 recovered clock,1G: MAC TX clock (note:  direction is opposite to 10G, i.e. MAC->PHY)
+    MESA_PHY_TS_CLOCK_SRC_CLIENT_TX,
+    MESA_PHY_TS_CLOCK_SRC_LINE_RX,    // Received line clock
+    MESA_PHY_TS_CLOCK_SRC_LINE_TX,    // transmitted line clock
+    MESA_PHY_TS_CLOCK_SRC_INTERNAL,   // 10G: Invalid, 1G: Internal 250 MHz Clock
+} mesa_phy_ts_clock_src_t;
+
+//Rx Timestamp position inside PTP frame
+typedef enum {
+    MESA_PHY_TS_RX_TIMESTAMP_POS_IN_PTP, // Rx timestamp in Reserved 4 bytes of PTP header
+    MESA_PHY_TS_RX_TIMESTAMP_POS_AT_END, // Shrink Preamble by 4 bytes and append 4 bytes at the end of frame
+} mesa_phy_ts_rxtimestamp_pos_t;
+
+// RX Timestamp length in PTP header reserved field, 30bit or 32bit
+typedef enum {
+    MESA_PHY_TS_RX_TIMESTAMP_LEN_30BIT, // The nanosecCounter i.e. [0..999999999]
+    MESA_PHY_TS_RX_TIMESTAMP_LEN_32BIT, // nanosecCounter + secCounter*10^9
+} mesa_phy_ts_rxtimestamp_len_t;
+
+// Defines Tx TSFIFO access mode.
+typedef enum {
+    MESA_PHY_TS_FIFO_MODE_NORMAL, // Timestamp can be read from normal CPU interface
+    MESA_PHY_TS_FIFO_MODE_SPI,    /// Timestamps are pushed out on the SPI interface
+} mesa_phy_ts_fifo_mode_t;
+
+// Length of Timestamp stored in Tx TSFIFO.
+typedef enum {
+    MESA_PHY_TS_FIFO_TIMESTAMP_LEN_4BYTE,  // 4 byte Tx timestamp
+    MESA_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE, // 10 byte Tx timestamp
+} mesa_phy_ts_fifo_timestamp_len_t;
+
+
+// PTP Clock operational modes
+typedef enum {
+    MESA_PHY_TS_PTP_CLOCK_MODE_BC1STEP, // Ordinary/Boundary clock, 1 step
+    MESA_PHY_TS_PTP_CLOCK_MODE_BC2STEP, // Ordinary/Boundary clock, 2 step
+    MESA_PHY_TS_PTP_CLOCK_MODE_TC1STEP, // Transparent clock, 1 step
+    MESA_PHY_TS_PTP_CLOCK_MODE_TC2STEP, // Transparent clock, 2 step
+    MESA_PHY_TS_PTP_DELAY_COMP_ENGINE,  //  Delay Compenstaion
+} mesa_phy_ts_ptp_clock_mode_t;
+
+//PTP delay measurement method
+typedef enum {
+    MESA_PHY_TS_PTP_DELAYM_P2P, // Peer-to-Peer delay measurement method
+    MESA_PHY_TS_PTP_DELAYM_E2E, // End-to-End delay measurement method
+} mesa_phy_ts_ptp_delaym_type_t;
+
 typedef struct {
     mesa_bool_t             enable;
 } mesa_port_admin_state_t;

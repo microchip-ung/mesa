@@ -17,8 +17,8 @@ add_library(mepa_vtss SHARED src/vtss.c)
 add_library(mepa_vtss_static STATIC src/vtss.c)
 set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)
 
-add_library(mepa_lan8814 SHARED src/microchip/lan8814.c)
-add_library(mepa_lan8814_static STATIC src/microchip/lan8814.c)
+add_library(mepa_lan8814 SHARED src/microchip/lan8814.c src/microchip/lan8814_ts.c)
+add_library(mepa_lan8814_static STATIC src/microchip/lan8814.c src/microchip/lan8814_ts.c)
 set_target_properties(mepa_lan8814_static PROPERTIES OUTPUT_NAME mepa_lan8814)
 
 include_directories(".")

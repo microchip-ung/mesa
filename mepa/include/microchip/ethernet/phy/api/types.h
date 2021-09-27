@@ -38,6 +38,16 @@ typedef mesa_phy_led_number_t mepa_led_number_t;
 #define MEPA_SPEED_1G        MESA_SPEED_1G
 #define MEPA_SPEED_AUTO      MESA_SPEED_AUTO
 
+typedef mesa_port_admin_state_t mepa_port_admin_state_t;
+
+// Port speeds
+#define MEPA_SPEED_UNDEFINED MESA_SPEED_UNDEFINED
+#define MEPA_SPEED_10M       MESA_SPEED_10M
+#define MEPA_SPEED_100M      MESA_SPEED_100M
+#define MEPA_SPEED_1G        MESA_SPEED_1G
+#define MEPA_SPEED_AUTO      MESA_SPEED_AUTO
+
+
 /** \brief Cable diagnostics status */
 #define MEPA_CABLE_DIAG_STATUS_OK        MESA_VERIPHY_STATUS_OK
 #define MEPA_CABLE_DIAG_STATUS_OPEN      MESA_VERIPHY_STATUS_OPEN

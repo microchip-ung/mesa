@@ -5,6 +5,7 @@
 #ifndef _MICROCHIP_ETHERNET_SWITCH_API_PHY_TS_
 #define _MICROCHIP_ETHERNET_SWITCH_API_PHY_TS_
 
+#include <microchip/ethernet/common.h>
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
@@ -62,14 +63,6 @@ mesa_rc mesa_phy_ts_alt_clock_mode_set(const mesa_inst_t                  inst,
                                        const mesa_phy_ts_alt_clock_mode_t *const phy_alt_clock_mode)
     CAP(PHY_TS);
 
-/**
- * \brief PPS Configuration
- **/
-typedef struct mesa_phy_ts_pps_config_s {
-    uint32_t   pps_width_adj ;    /**< The value of nano second counter upto which 1PPS is held high*/
-    uint32_t   pps_offset;        /**< PPS pulse offset in nano seconds */
-    uint32_t   pps_output_enable; /**< PPS pulse output is enabled for this port */
-} mesa_phy_ts_pps_conf_t CAP(PHY_TS);
 
 /**
  * \brief  Set offset for the PPS generation.
@@ -221,18 +214,6 @@ mesa_rc mesa_phy_ts_delay_asymmetry_get(const mesa_inst_t    inst,
     CAP(PHY_TS);
 
 /**
- * \brief PHY timestamp in seconds and nanoseconds (10 bytes Timestamp)
- **/
-typedef struct {
-    struct {
-        uint16_t high; /**< bits 32-47 of 48-bit second */
-        uint32_t low;  /**< bits 0-31 of 48-bit second */
-    } seconds; /**< 6 bytes second part of Timestamp */
-    uint32_t nanoseconds; /**< 4 bytes nano-sec part of Timestamp */
-} mesa_phy_timestamp_t CAP(PHY_TS);
-
-
-/**
  * \brief Set the current PTP time into the PHY.
  * \note Time to be set must be next pps time.
  *
@@ -371,15 +352,6 @@ mesa_rc mesa_phy_ts_loadpulse_delay_get(const mesa_inst_t    inst,
                                         const mesa_port_no_t port_no,
                                         uint16_t             *const delay)
     CAP(PHY_TS);
-
-/**
- * \brief Data type defines the clock frequency ratio in scaled ppb
- * \note The frequency of the internal clock can be adjusted in units of
- * scaledPartsPerBillion, which is defined as the rate in units of ppb
- * and multiplied by 2^16 and contained in a signed 64 bit value.
- * For example, 2.5 ppb is expressed as 0000 0000 0002 8000
- **/
-typedef int64_t mesa_phy_ts_scaled_ppb_t CAP(PHY_TS);
 
 /**
  * \brief Adjust the local clock rate.
@@ -1281,30 +1253,6 @@ typedef struct {
 } mesa_phy_ts_ptp_conf_t CAP(PHY_TS);
 
 /**
- * \brief PTP Timestamp Engine operational modes
- * \note From the operational mode (mesa_phy_ts_ptp_clock_mode_t) and delay
- * measurement method (mesa_phy_ts_ptp_delaym_type_t) the API sets up flows
- * in the PTP comparator.
- **/
-typedef enum {
-    MESA_PHY_TS_PTP_CLOCK_MODE_BC1STEP, /**< Ordinary/Boundary clock, 1 step */
-    MESA_PHY_TS_PTP_CLOCK_MODE_BC2STEP, /**< Ordinary/Boundary clock, 2 step */
-    MESA_PHY_TS_PTP_CLOCK_MODE_TC1STEP, /**< Transparent clock, 1 step */
-    MESA_PHY_TS_PTP_CLOCK_MODE_TC2STEP, /**< Transparent clock, 2 step */
-    MESA_PHY_TS_PTP_DELAY_COMP_ENGINE,  /**<  Delay Compenstaion */
-} mesa_phy_ts_ptp_clock_mode_t CAP(PHY_TS);
-
-/**
- * \brief PTP delay measurement method
- * \note As described above, using clock mode and delay measurement method,
- *  API sets up flows in PTP comparator.
- **/
-typedef enum {
-    MESA_PHY_TS_PTP_DELAYM_P2P, /**< Peer-to-Peer delay measurement method */
-    MESA_PHY_TS_PTP_DELAYM_E2E, /**< End-to-End delay measurement method */
-} mesa_phy_ts_ptp_delaym_type_t CAP(PHY_TS);
-
-/**
  * \brief Analyzer PTP action configuration options
  * \note Timestamp action will be based on clock type and delay measurement method.
  **/
@@ -1509,22 +1457,6 @@ mesa_rc mesa_phy_ts_egress_engine_action_get(const mesa_inst_t           inst,
     CAP(PHY_TS);
 
 /**
- * \brief Timestamp interrupt events
- **/
-#define MESA_PHY_TS_INGR_ENGINE_ERR            0x01  /**< More than one engine find match */
-#define MESA_PHY_TS_INGR_RW_PREAM_ERR          0x02  /**< Preamble too short to append timestamp */
-#define MESA_PHY_TS_INGR_RW_FCS_ERR            0x04  /**< FCS error in ingress */
-#define MESA_PHY_TS_EGR_ENGINE_ERR             0x08  /**< More than one engine find match */
-#define MESA_PHY_TS_EGR_RW_FCS_ERR             0x10  /**< FCS error in egress */
-#define MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED     0x20  /**< Timestamp captured in Tx TSFIFO */
-#define MESA_PHY_TS_EGR_FIFO_OVERFLOW          0x40  /**< Tx TSFIFO overflow */
-#define MESA_PHY_TS_DATA_IN_RSRVD_FIELD        0x80  /**< Data in reserved Field */
-#define MESA_PHY_TS_LTC_NEW_PPS_INTRPT         0x100 /**< New PPS pushed onto external PPS pin*/
-#define MESA_PHY_TS_LTC_LOAD_SAVE_NEW_TOD      0x200 /**< New LTC value either loaded in to HW or saved into registers*/
-
-typedef uint32_t mesa_phy_ts_event_t CAP(PHY_TS); /**< Int events: Single event or 'OR' multiple events above */
-
-/**
  * \brief Enabling / Disabling of events
  *
  * \param inst    [IN]   Target instance reference.
@@ -1574,22 +1506,6 @@ mesa_rc mesa_phy_ts_event_poll(const mesa_inst_t    inst,
                                const mesa_port_no_t port_no,
                                mesa_phy_ts_event_t  *const status)
     CAP(PHY_TS);
-
-
-/**
- * \brief Timestamping Statistics.
- * \note Use mesa_phy_ts_stats_get() to retrieve current statistics.
- **/
-typedef struct {
-    uint32_t    ingr_pream_shrink_err; /**< Frames with preambles too short to shrink */
-    uint32_t    egr_pream_shrink_err;  /**< Frames with preambles too short to shrink */
-    uint32_t    ingr_fcs_err;          /**< Timestamp block received frame with FCS error in ingress */
-    uint32_t    egr_fcs_err;           /**< Timestamp block received frame with FCS error in egress */
-    uint32_t    ingr_frm_mod_cnt;      /**< No of frames modified by timestamp block (rewritter) in ingress */
-    uint32_t    egr_frm_mod_cnt;       /**< No of frames modified by timestamp block (rewritter) in egress */
-    uint32_t    ts_fifo_tx_cnt;        /**< the number of timestamps transmitted to the interface */
-    uint32_t    ts_fifo_drop_cnt;      /**< Count of dropped Timestamps not enqueued to the Tx TSFIFO */
-} mesa_phy_ts_stats_t CAP(PHY_TS);
 
 /**
  * \brief Get Timestamp statistics.
@@ -1650,77 +1566,6 @@ mesa_rc mesa_phy_ts_mode_get(const mesa_inst_t    inst,
                              mesa_bool_t          *const enable)
     CAP(PHY_TS);
 
-/**
- * \brief Timestamp block clock frequencies
- **/
-typedef enum {
-    MESA_PHY_TS_CLOCK_FREQ_125M,   /**< 125 MHz */
-    MESA_PHY_TS_CLOCK_FREQ_15625M, /**< 156.25 MHz */
-    MESA_PHY_TS_CLOCK_FREQ_200M,   /**< 200 MHz */
-    MESA_PHY_TS_CLOCK_FREQ_250M,   /**< 250 MHz */
-    MESA_PHY_TS_CLOCK_FREQ_500M,   /**< 500 MHz */
-    MESA_PHY_TS_CLOCK_FREQ_MAX,    /**< MAX Freq */
-} mesa_phy_ts_clockfreq_t CAP(PHY_TS);
-
-/**
- * \brief Clock input source
- **/
-typedef enum {
-    MESA_PHY_TS_CLOCK_SRC_EXTERNAL,   /**< External source */
-    MESA_PHY_TS_CLOCK_SRC_CLIENT_RX,  /**< 10G: XAUI lane 0 recovered clock, */
-                                      /**< 1G: MAC RX clock (note: direction is opposite to 10G, i.e. PHY->MAC) */
-    MESA_PHY_TS_CLOCK_SRC_CLIENT_TX,  /**< 10G: XAUI lane 0 recovered clock, */
-                                      /**< 1G: MAC TX clock (note:  direction is opposite to 10G, i.e. MAC->PHY)  */
-    MESA_PHY_TS_CLOCK_SRC_LINE_RX,    /**< Received line clock */
-    MESA_PHY_TS_CLOCK_SRC_LINE_TX,    /**< transmitted line clock */
-    MESA_PHY_TS_CLOCK_SRC_INTERNAL,   /**< 10G: Invalid, 1G: Internal 250 MHz Clock */
-} mesa_phy_ts_clock_src_t CAP(PHY_TS);
-
-
-/**
- * \brief defines Rx Timestamp position inside PTP frame.
- * \note There are two options to put Rx timestamp in PTP frame:
- *  (a) Rx timestamp in Reserved 4 bytes of PTP header.
- *  (b) Shrink Preamble by 4 bytes and append 4 bytes at the end of frame.
- *      In this case Ethernet CRC will be overwritten by Rx timestamp
- *      and a new CRC will be appended after timestamp
- *  Also note that Rx Timestamp position must be same for all the ports in
- *  the system; otherwsie in ingress timestamp will be put in one position
- *  based on that port config whereas egress extract the time from different
- *  position as par that port config.
- **/
-typedef enum {
-    MESA_PHY_TS_RX_TIMESTAMP_POS_IN_PTP, /**< 4 reserved bytes in PTP header */
-    MESA_PHY_TS_RX_TIMESTAMP_POS_AT_END, /**< 4 bytes appended at the end */
-} mesa_phy_ts_rxtimestamp_pos_t CAP(PHY_TS);
-
-/**
- * \brief Defines RX Timestamp format i.e. 30bit or 32bit Rx timestamp.
- * \note 30bit mode: The value in the reserved field is simply the nanosecCounter
- *              i.e. [0..999999999]
- *  32bit mode: The value in the reserved field is a 32 bit value and equals:
- *              (nanosecCounter + secCounter*10^9) mod 2^32
- **/
-typedef enum {
-    MESA_PHY_TS_RX_TIMESTAMP_LEN_30BIT, /**< 30 bit Rx timestamp */
-    MESA_PHY_TS_RX_TIMESTAMP_LEN_32BIT, /**< 32 bit Rx timestamp */
-} mesa_phy_ts_rxtimestamp_len_t CAP(PHY_TS);
-
-/**
- * \brief Defines Tx TSFIFO access mode.
- **/
-typedef enum {
-    MESA_PHY_TS_FIFO_MODE_NORMAL, /**< in this mode, timestamp can be read from normal CPU interface */
-    MESA_PHY_TS_FIFO_MODE_SPI,    /**< Timestamps are pushed out on the SPI interface */
-} mesa_phy_ts_fifo_mode_t CAP(PHY_TS);
-
-/**
- * \brief Defines 4 bytes vs. the default 10 bytes Timestamp stored in Tx TSFIFO.
- **/
-typedef enum {
-    MESA_PHY_TS_FIFO_TIMESTAMP_LEN_4BYTE,  /**< 4 byte Tx timestamp */
-    MESA_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE, /**< 10 byte Tx timestamp */
-} mesa_phy_ts_fifo_timestamp_len_t CAP(PHY_TS);
 
 /**
  * \brief defines the Transparent Clock Operating Mode.

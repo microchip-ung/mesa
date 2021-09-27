@@ -120,55 +120,52 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t inst,
                                          mesa_port_no_t port_no,
                                          meba_event_signal_t signal_notifier)
 {
-    mesa_rc                 rc;
-    mesa_phy_ts_init_conf_t ts_init_conf;
-    mesa_bool_t             port_ts_init_done = false;
+    mesa_rc             rc;
+    mepa_ts_init_conf_t ts_init_conf;
 
     // poll for TS interrupt only after ts_init is done
-    if ((rc = mesa_phy_ts_init_conf_get(PHY_INST, port_no, &port_ts_init_done, &ts_init_conf) == MESA_RC_OK) &&
-        port_ts_init_done) {
-        mesa_phy_ts_event_t ts_events = 0;
-        if ((rc = mesa_phy_ts_event_poll(PHY_INST, port_no, &ts_events)) == MESA_RC_OK &&
-            ts_events) {
+    if ((rc = meba_ts_init_conf_get(inst, port_no, &ts_init_conf)) == MESA_RC_OK) {
+        mepa_ts_event_t ts_events = 0;
+        if ((rc = meba_ts_event_poll(inst, port_no, &ts_events)) == MESA_RC_OK) {
             int handled = 0;
 
             T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
 
-            if ((rc = mesa_phy_ts_event_enable_set(PHY_INST, port_no, false, ts_events)) != MESA_RC_OK) {
-                T_E(inst, "mesa_phy_ts_event_enable_set = %d", rc);
+            if ((rc = meba_ts_event_set(inst, port_no, false, ts_events)) != MESA_RC_OK) {
+                T_E(inst, "meba_ts_event_enable_set = %d", rc);
             }
 
-            if (ts_events & MESA_PHY_TS_INGR_ENGINE_ERR) {
+            if (ts_events & MEPA_TS_INGR_ENGINE_ERR) {
                 signal_notifier(MEBA_EVENT_INGR_ENGINE_ERR, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_INGR_RW_PREAM_ERR) {
+            if (ts_events & MEPA_TS_INGR_RW_PREAM_ERR) {
                 signal_notifier(MEBA_EVENT_INGR_RW_PREAM_ERR, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_INGR_RW_FCS_ERR) {
+            if (ts_events & MEPA_TS_INGR_RW_FCS_ERR) {
                 signal_notifier(MEBA_EVENT_INGR_RW_FCS_ERR, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_EGR_ENGINE_ERR) {
+            if (ts_events & MEPA_TS_EGR_ENGINE_ERR) {
                 signal_notifier(MEBA_EVENT_EGR_ENGINE_ERR, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_EGR_RW_FCS_ERR) {
+            if (ts_events & MEPA_TS_EGR_RW_FCS_ERR) {
                 signal_notifier(MEBA_EVENT_EGR_RW_FCS_ERR, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED) {
+            if (ts_events & MEPA_TS_EGR_TIMESTAMP_CAPTURED) {
                 signal_notifier(MEBA_EVENT_EGR_TIMESTAMP_CAPTURED, port_no);
                 handled++;
             }
 
-            if (ts_events & MESA_PHY_TS_EGR_FIFO_OVERFLOW) {
+            if (ts_events & MEPA_TS_EGR_FIFO_OVERFLOW) {
                 signal_notifier(MEBA_EVENT_EGR_FIFO_OVERFLOW, port_no);
                 handled++;
             }
