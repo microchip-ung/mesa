@@ -212,46 +212,46 @@ int jtag_MicroCmd(const char *cmd_line, char *resbuf, int maxlen)
       case 0x80:  // Config: Start/stop TCK low. Shift clock Hi->Lo.
         jtag_clk_edge(0);
         break;
-      case 0x81:  // Config: Start/stop TCK high. Shift clock Lo->Hi.
-        jtag_clk_edge(1);
-        break;
-      case 0x90:  // Config: JTAG pins back to default
-        jtag_SetConfig(P_JTAG_TCK, -1);
-        jtag_SetConfig(P_JTAG_TDO, -1);
-        jtag_SetConfig(P_JTAG_TMS, -1);
-        jtag_SetConfig(P_JTAG_RST, -1);
-        jtag_SetConfig(P_JTAG_TDI, -1);
-        jtag_SetConfig(P_JTAG_DBG, -1);
-        break;
-      case 0x91:  // Config: TCK pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_TCK, (int) pin);
-        break;
-      case 0x92:  // Config: TDO pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_TDO, (int) pin);
-        break;
-      case 0x93:  // Config: TMS pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_TMS, (int) pin);
-        break;
-      case 0x94:  // Config: TRST pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_RST, (int) pin);
-        break;
-      case 0x95:  // Config: TDI pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_TDI, (int) pin);
-        break;
-      case 0x96:  // Config: DBG pin
-        pin = *cmdp++;
-        jtag_SetConfig(P_JTAG_DBG, (int) pin);
-        break;
-        // Config: Set extra clocks when entering TAP idle state.
-      case 0xA0: IDLE_CLKS = 0; break;
-      case 0xA1: IDLE_CLKS = 1; break;
-      case 0xA2: IDLE_CLKS = 2; break;
-      case 0xA3: IDLE_CLKS = 3; break;
+      /* case 0x81:  // Config: Start/stop TCK high. Shift clock Lo->Hi. */
+      /*   jtag_clk_edge(1); */
+      /*   break; */
+      /* case 0x90:  // Config: JTAG pins back to default */
+      /*   jtag_SetConfig(P_JTAG_TCK, -1);  */
+      /*   jtag_SetConfig(P_JTAG_TDO, -1);  */
+      /*   jtag_SetConfig(P_JTAG_TMS, -1);  */
+      /*   jtag_SetConfig(P_JTAG_RST, -1);  */
+      /*   jtag_SetConfig(P_JTAG_TDI, -1);  */
+      /*   jtag_SetConfig(P_JTAG_DBG, -1);  */
+      /*   break; */
+      /* case 0x91:  // Config: TCK pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_TCK, (int) pin);  */
+      /*   break; */
+      /* case 0x92:  // Config: TDO pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_TDO, (int) pin);  */
+      /*   break; */
+      /* case 0x93:  // Config: TMS pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_TMS, (int) pin);  */
+      /*   break; */
+      /* case 0x94:  // Config: TRST pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_RST, (int) pin);  */
+      /*   break; */
+      /* case 0x95:  // Config: TDI pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_TDI, (int) pin);  */
+      /*   break; */
+      /* case 0x96:  // Config: DBG pin */
+      /*   pin = *cmdp++;  */
+      /*   jtag_SetConfig(P_JTAG_DBG, (int) pin);  */
+      /*   break; */
+      /*   // Config: Set extra clocks when entering TAP idle state. */
+      /* case 0xA0: IDLE_CLKS = 0; break; */
+      /* case 0xA1: IDLE_CLKS = 1; break; */
+      /* case 0xA2: IDLE_CLKS = 2; break; */
+      /* case 0xA3: IDLE_CLKS = 3; break; */
       default:
         //DBG_PRINTF(("JTAG Unknown command 0x%02x\n", cmd));
         rc = sprintf(resbuf, "[0:errno -1 unknown cmd 0x%02x]\r\n", cmd);
