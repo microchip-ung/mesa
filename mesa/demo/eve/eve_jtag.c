@@ -133,7 +133,7 @@ Parameters:
 int jtag_MicroCmd(const char *cmd_line, char *resbuf, int maxlen)
 {
   int l, bytelen, rc, outlen;
-  unsigned int bitlen, pin;
+  unsigned int bitlen;
   char lastchunk;
   char cmd, *endp, *cmdp, jtagbuf[JTAG_MAXLEN];
   const char *p;
@@ -209,9 +209,9 @@ int jtag_MicroCmd(const char *cmd_line, char *resbuf, int maxlen)
           bitlen = 2*JTAG_MAX_DR;
         rc = sprintf(resbuf, "[%u]\r\n", jtag_ChainLen(bitlen));
         break;
-      case 0x80:  // Config: Start/stop TCK low. Shift clock Hi->Lo.
-        jtag_clk_edge(0);
-        break;
+      /* case 0x80:  // Config: Start/stop TCK low. Shift clock Hi->Lo. */
+      /*   jtag_clk_edge(0); */
+      /*   break; */
       /* case 0x81:  // Config: Start/stop TCK high. Shift clock Lo->Hi. */
       /*   jtag_clk_edge(1); */
       /*   break; */

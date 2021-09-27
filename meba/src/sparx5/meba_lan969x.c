@@ -12,17 +12,42 @@
 #include "meba_generic.h"
 #include "meba_common.h"
 
-static void lan969x_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
-{
-    if (port_no == 0)
-        entry->map.chip_port = 8;
-    else if (port_no == 1)
-        entry->map.chip_port = 24;
+/* Local mapping table */
+typedef struct {
+    int32_t                chip_port;
+    mesa_miim_controller_t miim_controller;
+    uint8_t                miim_addr;
+    mesa_port_interface_t  mac_if;
+    meba_port_cap_t        cap;
+    mesa_internal_bw_t     max_bw;
+} port_map_t;
 
-    entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
-    entry->map.max_bw          = MESA_BW_10G;
-    entry->mac_if              = MESA_PORT_INTERFACE_SFI;
-    entry->cap                 = MEBA_PORT_CAP_10G_FDX;
+
+static port_map_t port_table_sunrise[] = {
+    {8,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI, MEBA_PORT_CAP_10G_FDX, MESA_BW_10G},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI, MEBA_PORT_CAP_10G_FDX, MESA_BW_10G},
+};
+
+static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
+{
+    entry->map.chip_port = map->chip_port;
+    entry->map.miim_controller = map->miim_controller;
+    entry->map.miim_addr = map->miim_addr;
+    entry->mac_if = map->mac_if;
+    entry->cap = map->cap;
+    entry->map.max_bw = map->max_bw;
+}
+
+static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t     port_no;
+
+    /* Fill out port mapping table */
+    board->port_cnt = port_cnt;
+    for (port_no = 0; port_no < port_cnt; port_no++) {
+        port_entry_map(&board->port[port_no].map, &map[port_no]);
+    }
 }
 
 static mesa_rc lan969x_board_init(meba_inst_t inst)
@@ -278,11 +303,9 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
 }
 
 
-// lan969x Initialize
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
     meba_board_state_t *board;
-    mesa_port_no_t     port_no;
     int                pcb, target;
 
     board = INST2BOARD(inst);
@@ -308,10 +331,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
 
     switch (board->type) {
     case BOARD_TYPE_SUNRISE:
-        board->port_cnt = 2;
-        for (port_no = 0; port_no < board->port_cnt; port_no++) {
-            lan969x_init_port(inst, port_no,  &board->port[port_no].map);
-        }
+        lan966x_init_port_table(inst, 2, port_table_sunrise);
         break;
     default:
         break;

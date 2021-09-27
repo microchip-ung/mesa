@@ -23,7 +23,7 @@
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
 //#define VTSS_ARCH_S5I                             /**< SparX-5i architecture */
 #if defined(VTSS_OPT_FPGA)
-#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN966X FPGA */
+#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
 #endif
 #endif
 
