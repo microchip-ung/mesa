@@ -812,7 +812,6 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     /* Assign device BW to auto calendar */
     for (i = 0; i < replicator; i++) {
         REG_WR(VTSS_QSYS_CAL_AUTO(i), cal[i]);
-        printf("VTSS_QSYS_CAL_AUTO(%d) = %d\n", i, cal[i]);
     }
 
     /* Increase grant rate of all ports to account for core clock ppm deviations */
