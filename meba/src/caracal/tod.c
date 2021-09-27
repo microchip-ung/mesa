@@ -6,11 +6,12 @@
 
 #include "meba_aux.h"
 
-mesa_rc meba_tod_phy_ts_clk_info_1g(meba_inst_t inst,
-                                    mepa_ts_clock_freq_t *freq,
-                                    mepa_ts_clock_src_t  *src,
-                                    mepa_timeinterval_t *pps_load_delay,
-                                    mepa_timeinterval_t *pps_save_delay)
+mesa_rc meba_tod_phy_ts_clk_info(meba_inst_t inst,
+                                 mepa_port_no_t       port,
+                                 mepa_ts_clock_freq_t *freq,
+                                 mepa_ts_clock_src_t  *src,
+                                 mepa_timeinterval_t *pps_load_delay,
+                                 mepa_timeinterval_t *pps_save_delay)
 {
 #if defined(VTSS_PHY_TS_SILABS_CLK_DLL)
     *freq = MESA_PHY_TS_CLOCK_FREQ_250M;

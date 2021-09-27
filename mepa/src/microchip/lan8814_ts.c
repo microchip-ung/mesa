@@ -18,7 +18,7 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
-    if(ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_32BIT) {
+    if(ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
         T_E(data, MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
@@ -1203,7 +1203,6 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
             break;
     }
     EP_WRM(dev, INDY_PTP_RX_PARSE_CONFIG, parse_config, INDY_DEF_MASK);
-    MEPA_RC(indy_ts_classifier_ptp_conf_priv(dev, TRUE, &pkt_conf->ptp_class_conf));
     return MEPA_RC_OK;
 }
 
@@ -1307,7 +1306,6 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
             break;
     }
     EP_WRM(dev, INDY_PTP_TX_PARSE_CONFIG, parse_config, INDY_DEF_MASK);
-    MEPA_RC(indy_ts_classifier_ptp_conf_priv(dev, FALSE, &pkt_conf->ptp_class_conf));
     return rc;
 }
 
@@ -1376,9 +1374,11 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_get (mepa_device_t *dev, uint16_t clock
 
     MEPA_ASSERT(ptpclock_conf == NULL);
     MEPA_ENTER(dev);
+    ptpclock_conf->enable = data->ts_state.ts_port_conf.rx_clock_conf.enable;
     ptpclock_conf->clk_mode = data->ts_state.ts_port_conf.rx_clock_conf.clk_mode;
     ptpclock_conf->delaym_type = data->ts_state.ts_port_conf.rx_clock_conf.delaym_type;
     ptpclock_conf->cf_update = data->ts_state.ts_port_conf.rx_clock_conf.cf_update;
+    memcpy(&ptpclock_conf->ptp_class_conf, &data->ts_state.ts_port_conf.rx_clock_conf.ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -1392,9 +1392,11 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_get(mepa_device_t *dev, uint16_t clock_
 
     MEPA_ASSERT(ptpclock_conf == NULL);
     MEPA_ENTER(dev);
+    ptpclock_conf->enable = data->ts_state.ts_port_conf.tx_clock_conf.enable;
     ptpclock_conf->clk_mode = data->ts_state.ts_port_conf.tx_clock_conf.clk_mode;
     ptpclock_conf->delaym_type = data->ts_state.ts_port_conf.tx_clock_conf.delaym_type;
     ptpclock_conf->cf_update = data->ts_state.ts_port_conf.tx_clock_conf.cf_update;
+    memcpy(&ptpclock_conf->ptp_class_conf, &data->ts_state.ts_port_conf.tx_clock_conf.ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -1417,76 +1419,88 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 {
     uint16_t ts_insert = 0, cf_update = 0, val = 0, rx_mod = 0, ts_config = 0, cf_config = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_rc rc = MEPA_RC_OK;
     MEPA_ENTER(dev);
+    rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptpclock_conf->ptp_class_conf);
+    if (rc != MEPA_RC_OK) {
+        T_I(data, MEPA_TRACE_GRP_TS, "PTP rx classifier conf set error");
+    } else {
+        memcpy(&data->ts_state.ts_port_conf.rx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
+    }
     val =0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-    switch (ptpclock_conf->clk_mode) {
-        case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+    if (!ptpclock_conf->enable) {
+        EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
+    } else {
+        switch (ptpclock_conf->clk_mode) {
+            case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                }
+                break;
+            case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                }
+                break;
+            case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
             if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-            }
-            break;
-        case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-            }
-            break;
-        case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
-        if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-            // Peer-to-Peer delay measurement method
-            cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-        } else {
-            // End-to-End delay measurement method
-            //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
-            cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-        }
-        break;
-        case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
                 cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
             } else {
                 // End-to-End delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET;
+                //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
             }
             break;
-        default:
-            T_E(data, MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
-            break;
+            case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                }
+                break;
+            default:
+                T_E(data, MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
+                break;
+        }
+        EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
+        // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
+        cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD;
+        EP_WRM(dev, INDY_PTP_RX_CF_CFG, cf_config, INDY_DEF_MASK);
+        ts_config = ts_config | INDY_PTP_RX_PTP_ALT_MASTER_EN;
+        ts_config = ts_config | INDY_PTP_RX_PTP_UDP_CHKSUM_DIS;
+        EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_CONFIG, val, INDY_DEF_MASK);
+        val = 0x0405;
+        EP_WRM(dev, INDY_PTP_RX_RSVD_BYTE_CFG, val, INDY_DEF_MASK);
+        rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_EN;
+        //rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_32BIT;
+        //if(data->ts_state->rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT)
+        EP_WRM(dev, INDY_PTP_RX_MOD, rx_mod, rx_mod);
     }
-    EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
-    EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
-    // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
-    cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD;
-    EP_WRM(dev, INDY_PTP_RX_CF_CFG, cf_config, INDY_DEF_MASK);
-    ts_config = ts_config | INDY_PTP_RX_PTP_ALT_MASTER_EN;
-    ts_config = ts_config | INDY_PTP_RX_PTP_UDP_CHKSUM_DIS;
-    EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_CONFIG, val, INDY_DEF_MASK);
-    val = 0x0405;
-    EP_WRM(dev, INDY_PTP_RX_RSVD_BYTE_CFG, val, INDY_DEF_MASK);
-    rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_EN;
-    //rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_32BIT;
-    //if(data->ts_state->rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT)
-    EP_WRM(dev, INDY_PTP_RX_MOD, rx_mod, rx_mod);
 
     val =0;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
 
+    data->ts_state.ts_port_conf.rx_clock_conf.enable = ptpclock_conf->enable;
     data->ts_state.ts_port_conf.rx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
     data->ts_state.ts_port_conf.rx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
     MEPA_EXIT(dev);
@@ -1496,75 +1510,91 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
     uint16_t ts_insert = 0, cf_update = 0, val = 0,tx_mod=0, ts_config = 0, cf_config = 0;
+    mepa_rc rc;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
     MEPA_ENTER(dev);
+    rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptpclock_conf->ptp_class_conf);
+    if (rc != MEPA_RC_OK) {
+        T_I(data, MEPA_TRACE_GRP_TS, "PTP tx classifier conf set error");
+    } else {
+        memcpy(&data->ts_state.ts_port_conf.tx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
+    }
     val =0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-    // Configure the PTP actions to be taken on egress port
-    switch (ptpclock_conf->clk_mode) {
-        case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+    if (!ptpclock_conf->enable) {
+        EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
+    } else {
+        // Configure the PTP actions to be taken on egress port
+        switch (ptpclock_conf->clk_mode) {
+            case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                    cf_update = DELAY_REQ_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    ts_insert = SYNC_PACKET;
+                    cf_update = DELAY_REQ_PACKET;
+                }
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TS_INSERT;
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
+                break;
+            case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                    cf_update = DELAY_REQ_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    ts_insert = SYNC_PACKET;
+                    cf_update = DELAY_REQ_PACKET;
+                }
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
+                break;
+            case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
             if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                cf_update = DELAY_REQ_PACKET;
+                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
             } else {
                 // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET;
-                cf_update = DELAY_REQ_PACKET;
+                //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
             }
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
             break;
-        case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                cf_update = DELAY_REQ_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET;
-                cf_update = DELAY_REQ_PACKET;
-            }
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
-            break;
-        case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
-        if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-            // Peer-to-Peer delay measurement method
-            //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-            cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-        } else {
-            // End-to-End delay measurement method
-            //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
-            cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+            case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
+                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                    // Peer-to-Peer delay measurement method
+                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                } else {
+                    // End-to-End delay measurement method
+                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                }
+                break;
+            default:
+                break;
         }
-        break;
-        case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-            }
-            break;
-        default:
-            break;
+        EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_TX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
+        // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
+        cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD;
+        EP_WRM(dev, INDY_PTP_TX_CF_CFG, cf_config, INDY_DEF_MASK);
+        ts_config = ts_config | INDY_PTP_TX_PTP_ALT_MASTER_EN;
+        ts_config = ts_config | INDY_PTP_TX_PTP_UDP_CHKSUM_DIS;
+        EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_CONFIG, ts_config, INDY_DEF_MASK);
+        //val = 0x0a27;
+        //EP_WRM(dev, INDY_PTP_TX_RSVD_BYTE_CFG, val, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_TX_MOD, tx_mod, INDY_DEF_MASK);
     }
-    EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
-    EP_WRM(dev, INDY_PTP_TX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
-    // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
-    cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD;
-    EP_WRM(dev, INDY_PTP_TX_CF_CFG, cf_config, INDY_DEF_MASK);
-    ts_config = ts_config | INDY_PTP_TX_PTP_ALT_MASTER_EN;
-    ts_config = ts_config | INDY_PTP_TX_PTP_UDP_CHKSUM_DIS;
-    EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_CONFIG, ts_config, INDY_DEF_MASK);
-    //val = 0x0a27;
-    //EP_WRM(dev, INDY_PTP_TX_RSVD_BYTE_CFG, val, INDY_DEF_MASK);
-    EP_WRM(dev, INDY_PTP_TX_MOD, tx_mod, tx_mod);
+    data->ts_state.ts_port_conf.tx_clock_conf.enable = ptpclock_conf->enable;
+    data->ts_state.ts_port_conf.tx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
+    data->ts_state.ts_port_conf.tx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
     val =1;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
@@ -1821,6 +1851,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     mepa_ts_classifier_t pkt_conf;
     mepa_device_t *base_dev = data->base_dev;
     mepa_rc rc = MEPA_RC_OK;
+    mepa_ts_classifier_ptp_t ptp_class_conf = {};
     MEPA_ENTER(dev);
     if(base_dev == dev) {
         //EP_WRM(dev, INDY_PTP_LTC_SOFT_RESET, 0x1, INDY_DEF_MASK);
@@ -1880,13 +1911,13 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     pkt_conf.ip_class_conf.ip_match_mode = MEPA_TS_IP_MATCH_NONE;
     pkt_conf.eth_class_conf.mac_match_select =  MEPA_TS_ETH_MATCH_NONE;
     pkt_conf.eth_class_conf.vlan_check = 0;
-    pkt_conf.ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_RANGE;
-    pkt_conf.ptp_class_conf.domain.match.range.upper = 0xff;
-    pkt_conf.ptp_class_conf.domain.match.range.lower = 0x00;
-    pkt_conf.ptp_class_conf.version.lower = 0x2;
-    pkt_conf.ptp_class_conf.version.upper = 0x2;
-    pkt_conf.ptp_class_conf.minor_version.lower = 0x0;
-    pkt_conf.ptp_class_conf.minor_version.upper = 0x0;
+    ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_RANGE;
+    ptp_class_conf.domain.match.range.upper = 0xff;
+    ptp_class_conf.domain.match.range.lower = 0x00;
+    ptp_class_conf.version.lower = 0x2;
+    ptp_class_conf.version.upper = 0x2;
+    ptp_class_conf.minor_version.lower = 0x0;
+    ptp_class_conf.minor_version.upper = 0x0;
 
     if((rc = indy_ts_rx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
@@ -1899,6 +1930,14 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
         return rc;
     }
 
+    if (rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptp_class_conf) != MEPA_RC_OK) {
+        MEPA_EXIT(dev);
+        return rc;
+    }
+    if (rc = indy_ts_classifier_ptp_conf_priv(dev, FALSE, &ptp_class_conf) != MEPA_RC_OK) {
+        MEPA_EXIT(dev);
+        return rc;
+    }
     // Rx Clock Configuration
     ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
     cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;

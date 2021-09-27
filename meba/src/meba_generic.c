@@ -35,29 +35,29 @@ mesa_ptp_event_type_t meba_generic_ptp_source_to_event(meba_inst_t inst, meba_ev
     return (mesa_ptp_event_type_t)0;
 }
 
-mesa_phy_ts_event_t meba_generic_phy_ts_source_to_event(meba_inst_t inst, meba_event_t event_id)
+mepa_ts_event_t meba_generic_phy_ts_source_to_event(meba_inst_t inst, meba_event_t event_id)
 {
     switch (event_id) {
         case MEBA_EVENT_INGR_ENGINE_ERR:
-            return MESA_PHY_TS_INGR_ENGINE_ERR;
+            return MEPA_TS_INGR_ENGINE_ERR;
         case MEBA_EVENT_INGR_RW_PREAM_ERR:
-            return MESA_PHY_TS_INGR_RW_PREAM_ERR;
+            return MEPA_TS_INGR_RW_PREAM_ERR;
         case MEBA_EVENT_INGR_RW_FCS_ERR:
-            return MESA_PHY_TS_INGR_RW_FCS_ERR;
+            return MEPA_TS_INGR_RW_FCS_ERR;
         case MEBA_EVENT_EGR_ENGINE_ERR:
-            return MESA_PHY_TS_EGR_ENGINE_ERR;
+            return MEPA_TS_EGR_ENGINE_ERR;
         case MEBA_EVENT_EGR_RW_FCS_ERR:
-            return MESA_PHY_TS_EGR_RW_FCS_ERR;
+            return MEPA_TS_EGR_RW_FCS_ERR;
         case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
-            return MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED;
+            return MEPA_TS_EGR_TIMESTAMP_CAPTURED;
         case MEBA_EVENT_EGR_FIFO_OVERFLOW:
-            return MESA_PHY_TS_EGR_FIFO_OVERFLOW;
+            return MEPA_TS_EGR_FIFO_OVERFLOW;
         default:
             T_E(inst, "Unknown event %d", event_id);
             MEBA_ASSERT(0);
     }
 
-    return (mesa_phy_ts_event_t)0;
+    return (mepa_ts_event_t)0;
 }
 
 mesa_rc meba_generic_ptp_handler(meba_inst_t inst, meba_event_signal_t signal_notifier)
@@ -124,15 +124,15 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t inst,
     mepa_ts_init_conf_t ts_init_conf;
 
     // poll for TS interrupt only after ts_init is done
-    if ((rc = meba_ts_init_conf_get(inst, port_no, &ts_init_conf)) == MESA_RC_OK) {
+    if ((rc = meba_phy_ts_init_conf_get(inst, port_no, &ts_init_conf)) == MESA_RC_OK) {
         mepa_ts_event_t ts_events = 0;
-        if ((rc = meba_ts_event_poll(inst, port_no, &ts_events)) == MESA_RC_OK) {
+        if ((rc = meba_phy_ts_event_poll(inst, port_no, &ts_events)) == MESA_RC_OK) {
             int handled = 0;
 
             T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
 
-            if ((rc = meba_ts_event_set(inst, port_no, false, ts_events)) != MESA_RC_OK) {
-                T_E(inst, "meba_ts_event_enable_set = %d", rc);
+            if ((rc = meba_phy_ts_event_set(inst, port_no, false, ts_events)) != MESA_RC_OK) {
+                T_E(inst, "meba_phy_ts_event_enable_set = %d", rc);
             }
 
             if (ts_events & MEPA_TS_INGR_ENGINE_ERR) {
@@ -172,6 +172,7 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t inst,
 
             rc = handled ? MESA_RC_OK : MESA_RC_ERROR;
         }
+        T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
     }
 
     return rc;
@@ -324,7 +325,7 @@ void meba_phy_driver_init(meba_inst_t inst)
                     if (!probe_completed && ((driver->id & driver->mask) == (phy_id & driver->mask))) {
                         inst->phy_devices[port_no] = driver->mepa_driver_probe(driver, &address_mode);
                         probe_completed = 1;
-                        T_D(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, phy_id, i, j);
+                        T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, phy_id, i, j);
                         break;
                     }
                 }

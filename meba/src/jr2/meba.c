@@ -223,6 +223,7 @@ static mesa_rc jr2_sgpio_event_enable(const meba_inst_t        inst,
 
 static mesa_rc malibu_mode_conf(const meba_inst_t inst);
 static mesa_rc malibu_gpio_conf(const meba_inst_t inst);
+static mesa_rc venice_ts_gpio_conf();
 /* --------------------------- Board specific ------------------------------- */
 
 static mesa_bool_t jr2_10g_malibu_detect(const meba_inst_t inst)
@@ -466,6 +467,9 @@ static void init_port_jr2(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
             entry->map.max_bw          = MESA_BW_1G;
             entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
             entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
+            if (port_no >= 4) {
+                entry->phy_base_port = 4;
+            }
         } else if (port_no < 24) {
             entry->map.chip_port       = port_no;
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
@@ -595,6 +599,9 @@ static void init_port_jr2(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
             entry->map.max_bw          = MESA_BW_1G;
             entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
             entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
+            if (port_no >= 4) {
+                entry->phy_base_port = 4;
+            }
         } else if (port_no < 24) {
             entry->map.chip_port       = port_no;
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
@@ -1850,6 +1857,9 @@ static mesa_rc jr2_reset(meba_inst_t inst,
                 if (rc == MESA_RC_OK) {
                     rc = malibu_gpio_conf(inst);
                 }
+                if (board->venice_present) {
+                    rc = venice_ts_gpio_conf();
+                }
             }
             break;
         case MEBA_STATUS_LED_INITIALIZE:
@@ -2140,6 +2150,21 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
     return rc;
 }
 
+static mesa_rc venice_ts_gpio_conf()
+{
+    mesa_gpio_10g_gpio_mode_t  gpio_mode = {};
+    mesa_phy_10g_id_t phy_id = {};
+
+    if (mesa_phy_10g_id_get(PHY_INST, 24, &phy_id) == MESA_RC_OK) {
+        /* Get base port_no for 10G */
+        gpio_mode.port = phy_id.phy_api_base_no;
+        gpio_mode.mode = MESA_10G_PHY_GPIO_1588_1PPS_0;
+        mesa_phy_10g_gpio_mode_set(PHY_INST, phy_id.phy_api_base_no, 0, &gpio_mode);
+        gpio_mode.mode = MESA_10G_PHY_GPIO_1588_1PPS_1;
+        mesa_phy_10g_gpio_mode_set(PHY_INST, phy_id.phy_api_base_no, 11, &gpio_mode);
+    }
+    return MESA_RC_OK;
+}
 static mesa_rc malibu_gpio_conf(const meba_inst_t inst)
 {
     mesa_rc rc = MESA_RC_OK;
@@ -2780,7 +2805,7 @@ static mesa_rc jr2_event_enable(meba_inst_t inst,
         case MEBA_EVENT_EGR_RW_FCS_ERR:
         case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
         case MEBA_EVENT_EGR_FIFO_OVERFLOW: {
-            mesa_phy_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
+            mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
 
             if (board->type == BOARD_TYPE_JAGUAR2) {
                 if (enable) {
@@ -2800,18 +2825,14 @@ static mesa_rc jr2_event_enable(meba_inst_t inst,
                     }
                     for (port_no = 0; port_no < board->port_cnt; port_no++) {
                         if (is_10g_port(board->port[port_no].map.cap)) {
-                            // NB: Don't check rc - PHY may be non-present
-                            (void) mesa_phy_ts_event_enable_set(PHY_INST, port_no, enable, event);
+                            meba_phy_ts_event_set(inst, port_no, enable, event);
                         }
                     }
                 }
             }
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (board->port[port_no].ts_phy) {
-                    if ((rc = mesa_phy_ts_event_enable_set(PHY_INST, port_no, enable, event)) != MESA_RC_OK) {
-                        T_W(inst, "mesa_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
-                        break;
-                    }
+                    meba_phy_ts_event_set(inst, port_no, enable, event);
                 }
             }
             break;

@@ -1405,10 +1405,10 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
         case MEBA_EVENT_EGR_RW_FCS_ERR:
         case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
         case MEBA_EVENT_EGR_FIFO_OVERFLOW: {
-            mesa_phy_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
+            mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (board->port[port_no].ts_phy) {
-                    if ((rc = meba_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
+                    if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
                         T_E(inst, "mesa_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
                     }
                 }

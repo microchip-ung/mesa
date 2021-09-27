@@ -18,19 +18,20 @@
 //                      register is loaded into the timestamp engine
 // pps_save_delay [OUT] The delay from PPS going high to the time being saved
 //                      into the save register
-typedef mesa_rc (*meba_tod_phy_ts_clk_info_1g_t)(
+typedef mesa_rc (*meba_tod_phy_ts_clk_info_t)(
         struct meba_inst        *inst,
-        mepa_ts_clock_freq_t *freq,
-        mepa_ts_clock_src_t *src,
+        mepa_port_no_t          port,
+        mepa_ts_clock_freq_t    *freq,
+        mepa_ts_clock_src_t     *src,
         mepa_timeinterval_t     *pps_load_delay,
         mepa_timeinterval_t     *pps_save_delay);
 
 
 #define MEBA_LIST_OF_API_TOD_CALLS  \
-    X(meba_tod_phy_ts_clk_info_1g)  \
+    X(meba_tod_phy_ts_clk_info)     \
 
 typedef struct {
-    meba_tod_phy_ts_clk_info_1g_t meba_tod_phy_ts_clk_info_1g;
+    meba_tod_phy_ts_clk_info_t meba_tod_phy_ts_clk_info;
 } meba_api_tod_t;
 
 #include <microchip/ethernet/board/api/hdr_end.h>

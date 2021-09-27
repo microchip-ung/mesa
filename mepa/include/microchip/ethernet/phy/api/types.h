@@ -114,6 +114,19 @@ typedef struct {
 #define MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED       MESA_RC_ERR_KR_CONF_NOT_SUPPORTED
 #define MEPA_RC_ERR_KR_CONF_INVALID_PARAMETER   MESA_RC_ERR_KR_CONF_INVALID_PARAMETER
 
+#define MEPA_RC_ERR_TS_ENG_MAP                  -201 // Input flow index could not be converted to appropriate Engine id
+#define MEPA_RC_ERR_TS_ENG_INIT                 -202 // Engine init configuration error
+#define MEPA_RC_ERR_TS_ENG_ENCAP_OVERWRITE      -203 // Engine already has encapsulation configured on it.
+#define MEPA_RC_ERR_TS_ENG_INVALID_CLOCK        -204 // Invalid clock id for engine which contains the flow.
+#define MEPA_RC_ERR_TS_INVALID_ENCAP            -205 // Invalid encapsulation id
+#define MEPA_RC_ERR_TS_ENG_COMM_OVERWRITE       -206 // Engine common configuration options cannot be overwritten.
+#define MEPA_RC_ERR_TS_FLOW_CONF                -207 // Error in setting underlying engine's flow configuration
+#define MEPA_RC_ERR_TS_ACTION_IN_USE            -208 // Action in use by other port sharing the engine
+#define MEPA_RC_ERR_TS_ACTION_GET_FAIL          -209 // Failed to get the action information
+#define MEPA_RC_ERR_TS_FLOW_GET_FAIL            -210 // Error in obtaining underlying engine's flow configuration
+#define MEPA_RC_ERR_TS_ENG_CLR                  -211 // Error in clearing the engine configuration
+
+
 typedef enum {
     MEPA_TRACE_LVL_RACKET  = 1,
     MEPA_TRACE_LVL_NOISE   = 2,

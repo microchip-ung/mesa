@@ -70,11 +70,11 @@ typedef enum {
 
 // PTP Clock operational modes
 typedef enum {
+    MEPA_TS_PTP_CLOCK_MODE_NONE,    // No active PTP clock
     MEPA_TS_PTP_CLOCK_MODE_BC1STEP, // Ordinary/Boundary clock, 1 step
     MEPA_TS_PTP_CLOCK_MODE_BC2STEP, // Ordinary/Boundary clock, 2 step
     MEPA_TS_PTP_CLOCK_MODE_TC1STEP, // Transparent clock, 1 step
     MEPA_TS_PTP_CLOCK_MODE_TC2STEP, // Transparent clock, 2 step
-    MEPA_TS_PTP_DELAY_COMP_ENGINE,  //  Delay Compenstaion
 } mepa_ts_ptp_clock_mode_t;
 
 //PTP delay measurement method
@@ -128,8 +128,6 @@ typedef enum {
     MEPA_TS_CLOCK_SRC_CLIENT_RX,
     // 10G: XAUI lane 0 recovered clock,1G: MAC TX clock (note:  direction is opposite to 10G, i.e. MAC->PHY)
     MEPA_TS_CLOCK_SRC_CLIENT_TX,
-    MEPA_TS_CLOCK_SRC_LINE_RX,    // Received line clock
-    MEPA_TS_CLOCK_SRC_LINE_TX,    // transmitted line clock
     MEPA_TS_CLOCK_SRC_INTERNAL,   // 10G: Invalid, 1G: Internal 250 MHz Clock
 
     MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL,
@@ -160,6 +158,7 @@ typedef struct {
     mepa_bool_t                   tx_fifo_spi_conf; // If Tx Timestamp can be read through SPI interface
     mepa_bool_t                   auto_clear_ls;
     mepa_ts_tc_op_mode_t          tc_op_mode;       // TC operating mode
+    mepa_bool_t                   dly_req_recv_10byte_ts; // Store 10-byte ingress timestamp for delay request message. Used for auto delay req/response.
 } mepa_ts_init_conf_t;
 
 // PHY timestamp unit reset
@@ -213,24 +212,11 @@ typedef mepa_rc (*mepa_ts_clock_adj1ns_t)(struct mepa_device *dev, const mepa_bo
 typedef mepa_rc (*mepa_ts_pps_conf_get_t)(struct mepa_device *dev, mepa_ts_pps_conf_t *const phy_pps_conf);
 typedef mepa_rc (*mepa_ts_pps_conf_set_t) (struct mepa_device *dev, const mepa_ts_pps_conf_t *const phy_pps_conf);
 
-typedef enum {
-    MEPA_TS_CF_METHOD_RSVD          = 0, // Ingress time stored reserved bytes
-    MEPA_TS_CF_METHOD_SUB_ADD       = 1, // Sub local time at ingress and add at egress from CF
-    MEPA_TS_CF_METHOD_SUB_ADD_48B   = 2, // Sub local time at ingress and add at egress from CF and use 48 bits in CF
-} mepa_ts_cf_method_t;
-
-// PTP Clock configuration parameters
-typedef struct {
-    mepa_ts_ptp_clock_mode_t  clk_mode;     // clock mode: bc1step, bc2step, tc1step or tc2step
-    mepa_ts_ptp_delaym_type_t delaym_type;  // delay measurement method: P2P, E2E
-    mepa_bool_t               cf_update;    // correction field update for bc1step
-} mepa_ts_ptp_clock_conf_t;
-
 // PTP packet encapsuations supported
 typedef enum {
-    MEPA_TS_ENCAP_ETH_PTP,
-    MEPA_TS_ENCAP_ETH_IP_PTP,
     MEPA_TS_ENCAP_NONE,
+    MEPA_TS_ENCAP_ETH_PTP,
+    MEPA_TS_ENCAP_ETH_IP_PTP
 } mepa_ts_pkt_encap_t;
 
 typedef enum {
@@ -272,12 +258,14 @@ typedef union {
     mepa_ipv4_network_t ipv4;
     mepa_ipv6_network_t ipv6;
 } mepa_ts_ip_network_t; // IPv4/IPv6 address to be matched
+
 // Local TIME Counter Load/Save Enable commands
 typedef enum {
     MEPA_TS_MATCH_MODE_RANGE,
     MEPA_TS_MATCH_MODE_VALUE,
 } mepa_ts_match_mode_t;
 
+// VSC_phy note : In VSC phys, The udp fields udp_sport_en, udp_dport_en, udp_sport, udp_dport are shared by all the flows of engine.
 // IP header classifier configuration
 typedef struct {
     mepa_ts_ip_ver_t                ip_ver;
@@ -300,7 +288,7 @@ typedef struct {
 typedef union {
     mepa_range_unit16_t      range;
     mepa_value_unit16_t      value;
- }mepa_range_value_unit16_t;
+} mepa_range_value_unit16_t;
 
 typedef struct {
     mepa_ts_match_mode_t        mode;
@@ -319,12 +307,14 @@ typedef struct {
 typedef union {
     mepa_range_unit8_t      range;
     mepa_value_unit8_t      value;
- }mepa_range_value_unit8_t;
+} mepa_range_value_unit8_t;
 
 typedef struct {
     mepa_ts_match_mode_t        mode;  // Range/Value with Mask
     mepa_range_value_unit8_t    match; // values of Range/Value with Mask
 } mepa_ts_match_uint8_t;
+
+// VSC_phy note : In VSC phys, The fields pbb_en, tpid, etype are shared by all the flows of engine.
 typedef struct {
     mepa_bool_t                 pbb_en;     // PBB tag present
     uint16_t                    tpid;       // VLAN TPID for S or B-tag
@@ -352,13 +342,30 @@ typedef struct {
     mepa_ts_match_uint8_t       sdoid;
 } mepa_ts_classifier_ptp_t;
 
+// VSC_phy note : In VSC phys, all flows of engine share 2 clocks of corresponding engine. Flows [0-7] share clock-ids {0,1}, flows [8-15] share clock-ids {2,3}, flows [16-24] use {4,5} clocks.
 // PTP packet classifier configuration parameters
 typedef struct {
+    mepa_bool_t                     enable;
     mepa_ts_pkt_encap_t             pkt_encap_type;     // packet encap type: ETH/PTP, ETH/IP/PTP
-    mepa_ts_classifier_eth_t        eth_class_conf;           // delay measurement method: P2P, E2E
+    uint16_t                        clock_id;           // clock id to be used by this flow. This is for validation purpose only in vsc phys. Refer VSC_phy note above.
+    mepa_ts_classifier_eth_t        eth_class_conf;
     mepa_ts_classifier_ip_t         ip_class_conf;
-    mepa_ts_classifier_ptp_t        ptp_class_conf;
 } mepa_ts_classifier_t;
+
+typedef enum {
+    MEPA_TS_CF_METHOD_RSVD          = 0, // Ingress time stored reserved bytes
+    MEPA_TS_CF_METHOD_SUB_ADD       = 1, // Sub local time at ingress and add at egress from CF
+    MEPA_TS_CF_METHOD_SUB_ADD_48B   = 2, // Sub local time at ingress and add at egress from CF and use 48 bits in CF
+} mepa_ts_cf_method_t;
+
+// PTP Clock configuration parameters
+typedef struct {
+    mepa_bool_t               enable;
+    mepa_ts_classifier_ptp_t  ptp_class_conf;
+    mepa_ts_ptp_clock_mode_t  clk_mode;     // clock mode: bc1step, bc2step, tc1step or tc2step
+    mepa_ts_ptp_delaym_type_t delaym_type;  // delay measurement method: P2P, E2E
+    mepa_bool_t               cf_update;    // correction field update for bc1step
+} mepa_ts_ptp_clock_conf_t;
 
 // TS FIFO signature entry
 typedef struct {
