@@ -51,8 +51,8 @@
 #define VTSS_CHIP_PORTS  30
 #define VTSS_SERDES_10G_START 0
 #define VTSS_SERDES_25G_START 0
-#define FA_BUFFER_MEMORY      4194280 /* TBD (12Mbit) */
-#define FA_BUFFER_REFERENCE   22795   /* TBD */
+#define FA_BUFFER_MEMORY      112608 /* TBD (12Mbit) */
+#define FA_BUFFER_REFERENCE   2279   /* TBD */
 #endif
 
 #define FA_PRIOS 8                  /* Number of priorities */
@@ -263,7 +263,7 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
 #define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_##tgt##_##addr(x), x, name)
 
 /* MC PGIDs */
-#define PGID_BASE         65
+#define PGID_BASE         VTSS_CHIP_PORTS
 #define PGID_UC_FLOOD     (PGID_BASE + 0)
 #define PGID_MC_FLOOD     (PGID_BASE + 1)
 #define PGID_IPV4_MC_DATA (PGID_BASE + 2)
