@@ -1621,6 +1621,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
         }
     }
 #endif
+#endif
     return VTSS_RC_OK;
 }
 
