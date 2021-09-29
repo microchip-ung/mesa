@@ -53,8 +53,8 @@ end
 %x{git ls-files}.split.each do |f|
   ext = File.extname(f)
   base = File.basename(f)
-  next if /mepa.src.aqr/ =~ f # TODO, we should actually check that all third-party code is MIT licensed, but we need not to check the copyright
-  next if /mepa.src.intel/ =~ f
+  next if /mepa.aqr/ =~ f # TODO, we should actually check that all third-party code is MIT licensed, but we need not to check the copyright
+  next if /mepa.intel/ =~ f
   next if "mesa/docs/resources/asciidoctor-default.css" == f
   next if "mesa/docs/capdb.yaml" == f
   next if "mesa/docs/resources/pygments.css" == f
