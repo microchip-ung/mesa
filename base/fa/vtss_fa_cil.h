@@ -41,18 +41,27 @@
 
 // Port 0-(VTSS_CHIP_PORTS-1) are switch ports, others are internal ports
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_CHIP_PORTS  65
+#define VTSS_CHIP_PORTS       65
 #define VTSS_SERDES_10G_START 13
 #define VTSS_SERDES_25G_START 25
 #define FA_BUFFER_MEMORY      4194280 /* 22795 words * 184 bytes */
 #define FA_BUFFER_REFERENCE   22795   /* Frame references */
+#define FA_MULTIPLIER_BIT     2048
 #endif
+
 #if defined(VTSS_ARCH_LAN969X)
-#define VTSS_CHIP_PORTS  30
+#define VTSS_CHIP_PORTS       30
 #define VTSS_SERDES_10G_START 0
 #define VTSS_SERDES_25G_START 0
-#define FA_BUFFER_MEMORY      112608 /* TBD (12Mbit) */
-#define FA_BUFFER_REFERENCE   2279   /* TBD */
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define FA_BUFFER_MEMORY      157285 /* (?) */
+#define FA_BUFFER_REFERENCE   2279   /* (?) */
+#define FA_MULTIPLIER_BIT     64
+#else
+#define FA_BUFFER_MEMORY      1572855 /* TBD (12Mbit) */
+#define FA_BUFFER_REFERENCE   8548    /* TBD */
+#define FA_MULTIPLIER_BIT     1024
+#endif
 #endif
 
 #define FA_PRIOS 8                  /* Number of priorities */
