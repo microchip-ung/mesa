@@ -10,36 +10,36 @@ mark_as_advanced(BUILD_MEPA_ALL)
 
 set(inc_mepa ../me/include include)
 
-set(src_vtss src/vtss.c
-             src/vtss_ts.c
-             src/vtss/src/common/vtss_phy_common.c
-             src/vtss/src/phy_1g/vtss_phy_init_scripts.c
-             src/vtss/src/phy_1g/vtss_phy_veriphy.c
-             src/vtss/src/phy_1g/vtss_phy.c
-             src/vtss/src/macsec/vtss_macsec_api.c
-             src/vtss/src/phy_10g/vtss_venice_c_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_phy_10g_malibu.c
-             src/vtss/src/phy_10g/vtss_malibu_b_f2df_df2f_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_venice_c_f2df_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_malibu_b_host_pma_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_malibu_line_pma_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_phy_10g.c
-             src/vtss/src/phy_10g/vtss_phy_10g_api.c
-             src/vtss/src/phy_10g/vtss_wis_api.c
-             src/vtss/src/phy_10g/vtss_malibu_b_pll5g_setup.c
-             src/vtss/src/phy_10g/vtss_malibu_f2df_df2f_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_malibu_host_pma_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_phy_10g_venice.c
-             src/vtss/src/phy_10g/vtss_malibu_b_line_pma_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_venice_f2df_sd10g65_setup.c
-             src/vtss/src/phy_10g/vtss_pll5g_procs.c
-             src/vtss/src/phy_10g/vtss_sd10g65_procs.c
-             src/vtss/src/phy_10g/vtss_sd10g65_apc_procs.c
-             src/vtss/src/ts/vtss_phy_ts_api.c
-             src/vtss/src/ts/vtss_phy_ewis.c
-             src/vtss/src/ts/vtss_phy_ts_util.c
-             src/vtss/src/mesa_phy.c)
-set(inc_vtss src/vtss/include)
+set(src_vtss vtss/src/vtss.c
+             vtss/src/vtss_ts.c
+             vtss/src/common/vtss_phy_common.c
+             vtss/src/phy_1g/vtss_phy_init_scripts.c
+             vtss/src/phy_1g/vtss_phy_veriphy.c
+             vtss/src/phy_1g/vtss_phy.c
+             vtss/src/macsec/vtss_macsec_api.c
+             vtss/src/phy_10g/vtss_venice_c_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_phy_10g_malibu.c
+             vtss/src/phy_10g/vtss_malibu_b_f2df_df2f_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_venice_c_f2df_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_malibu_b_host_pma_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_malibu_line_pma_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_phy_10g.c
+             vtss/src/phy_10g/vtss_phy_10g_api.c
+             vtss/src/phy_10g/vtss_wis_api.c
+             vtss/src/phy_10g/vtss_malibu_b_pll5g_setup.c
+             vtss/src/phy_10g/vtss_malibu_f2df_df2f_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_malibu_host_pma_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_phy_10g_venice.c
+             vtss/src/phy_10g/vtss_malibu_b_line_pma_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_venice_f2df_sd10g65_setup.c
+             vtss/src/phy_10g/vtss_pll5g_procs.c
+             vtss/src/phy_10g/vtss_sd10g65_procs.c
+             vtss/src/phy_10g/vtss_sd10g65_apc_procs.c
+             vtss/src/ts/vtss_phy_ts_api.c
+             vtss/src/ts/vtss_phy_ewis.c
+             vtss/src/ts/vtss_phy_ts_util.c
+             vtss/src/mesa_phy.c)
+set(inc_vtss vtss/include)
 
 add_library(mepa_vtss        SHARED ${src_vtss})
 add_library(mepa_vtss_static STATIC ${src_vtss})
@@ -87,26 +87,26 @@ target_include_directories(mepa_vtss_10g_macsec_ts_static PUBLIC ${inc_mepa} PRI
 target_compile_definitions(mepa_vtss_10g_macsec_ts        PUBLIC ${def_vtss_10g_macsec_ts})
 target_compile_definitions(mepa_vtss_10g_macsec_ts_static PUBLIC ${def_vtss_10g_macsec_ts})
 
-set(inc_lan8814 mepa/src/microchip)
-add_library(mepa_lan8814        SHARED src/microchip/lan8814.c src/microchip/lan8814_ts.c)
-add_library(mepa_lan8814_static STATIC src/microchip/lan8814.c src/microchip/lan8814_ts.c)
+set(inc_lan8814 mepa/microchip)
+add_library(mepa_lan8814        SHARED microchip/lan8814.c microchip/lan8814_ts.c)
+add_library(mepa_lan8814_static STATIC microchip/lan8814.c microchip/lan8814_ts.c)
 set_target_properties(mepa_lan8814_static PROPERTIES OUTPUT_NAME mepa_lan8814)
 target_include_directories(mepa_lan8814        PUBLIC ${inc_mepa} PRIVATE ${inc_lan8814})
 target_include_directories(mepa_lan8814_static PUBLIC ${inc_mepa} PRIVATE ${inc_lan8814})
 
 include_directories(".")
 
-set(src_aqr src/aqr/phy_driver.c
-            src/aqr/vtss_platform/AQ_PhyInterface.c
-            src/aqr/vtss_platform/AQ_PlatformRoutines.c
-            src/aqr/AQR_API_2.6.1/src/AQ_API.c
-            src/aqr/AQR_API_2.6.1/src/AQ_API_flash.c)
-set(inc_aqr src/aqr/AQR_API_2.6.1/include
-            src/aqr/AQR_API_2.6.1/include/registerMap
-            src/aqr/AQR_API_2.6.1/include/registerMap/APPIA
-            src/aqr/AQR_API_2.6.1/include/registerMap/EUR
-            src/aqr/AQR_API_2.6.1/include/registerMap/HHD
-            src/aqr/aqr_phy_fw
+set(src_aqr aqr/phy_driver.c
+            aqr/vtss_platform/AQ_PhyInterface.c
+            aqr/vtss_platform/AQ_PlatformRoutines.c
+            aqr/AQR_API_2.6.1/src/AQ_API.c
+            aqr/AQR_API_2.6.1/src/AQ_API_flash.c)
+set(inc_aqr aqr/AQR_API_2.6.1/include
+            aqr/AQR_API_2.6.1/include/registerMap
+            aqr/AQR_API_2.6.1/include/registerMap/APPIA
+            aqr/AQR_API_2.6.1/include/registerMap/EUR
+            aqr/AQR_API_2.6.1/include/registerMap/HHD
+            aqr/aqr_phy_fw
             ../mesa/include
             ../meba/include)
 add_library(mepa_aqr        SHARED ${src_aqr})
@@ -117,11 +117,11 @@ target_include_directories(mepa_aqr_static PUBLIC ${inc_mepa} PRIVATE ${inc_aqr}
 
 
 set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
-set(src_intel src/intel/phy_driver.c
-              src/intel/GPY_API_v251/src/api/phy/gpy211_chip.c
-              src/intel/GPY_API_v251/src/api/phy/gpy211_phy.c)
-set(inc_intel src/intel/GPY_API_v251/src/os/linux
-              src/intel/GPY_API_v251/src/inc)
+set(src_intel intel/phy_driver.c
+              intel/GPY_API_v251/src/api/phy/gpy211_chip.c
+              intel/GPY_API_v251/src/api/phy/gpy211_phy.c)
+set(inc_intel intel/GPY_API_v251/src/os/linux
+              intel/GPY_API_v251/src/inc)
 add_library(mepa_intel SHARED ${src_intel})
 add_library(mepa_intel_static STATIC ${src_intel})
 set_target_properties(mepa_intel_static PROPERTIES OUTPUT_NAME mepa_intel)
@@ -129,8 +129,8 @@ target_include_directories(mepa_intel        PUBLIC ${inc_mepa} PRIVATE ${inc_in
 target_include_directories(mepa_intel_static PUBLIC ${inc_mepa} PRIVATE ${inc_intel})
 
 set(CMAKE_C_FLAGS "-DP31G_B0=1 -DSAFE_C_LIB=0")
-set(src_ksz9031 src/ksz9031/phy_driver.c )
-set(inc_ksz9031 src/ksz9031)
+set(src_ksz9031 ksz9031/phy_driver.c )
+set(inc_ksz9031 ksz9031)
 add_library(mepa_ksz9031 SHARED ${src_ksz9031})
 add_library(mepa_ksz9031_static STATIC ${src_ksz9031})
 set_target_properties(mepa_ksz9031_static PROPERTIES OUTPUT_NAME mepa_ksz9031)

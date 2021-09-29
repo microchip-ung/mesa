@@ -10,7 +10,7 @@ include_directories(../mesa/include)
 include_directories(../include)
 include_directories(./src)
 include_directories(./src/drivers)
-include_directories(../mepa/src/vtss/include)
+include_directories(../mepa/vtss/include)
 
 option(BUILD_MEBA_ALL "Build all MEBA layers" OFF)
 mark_as_advanced(BUILD_MEBA_ALL)
