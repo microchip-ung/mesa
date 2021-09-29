@@ -47,6 +47,16 @@ set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)
 target_include_directories(mepa_vtss        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
 target_include_directories(mepa_vtss_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
 
+set(def_vtss_10g_only -DVTSS_OPT_PHY_1G=0
+                      -DVTSS_OPT_PHY_10G=1)
+add_library(mepa_vtss_10g_only        SHARED ${src_vtss})
+add_library(mepa_vtss_10g_only_static STATIC ${src_vtss})
+set_target_properties(mepa_vtss_10g_only_static PROPERTIES OUTPUT_NAME mepa_10g_only_vtss)
+target_include_directories(mepa_vtss_10g_only        PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_include_directories(mepa_vtss_10g_only_static PUBLIC ${inc_mepa} PRIVATE ${inc_vtss})
+target_compile_definitions(mepa_vtss_10g_only        PUBLIC ${def_vtss_10g_only})
+target_compile_definitions(mepa_vtss_10g_only_static PUBLIC ${def_vtss_10g_only})
+
 set(def_vtss_ts -DVTSS_OPT_PHY_TIMESTAMP=1)
 add_library(mepa_vtss_ts        SHARED ${src_vtss})
 add_library(mepa_vtss_ts_static STATIC ${src_vtss})

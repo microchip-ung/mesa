@@ -15646,8 +15646,6 @@ vtss_rc vtss_phy_debug_tr_regdump_print(vtss_state_t *vtss_state,
 }
 #endif /* End of DEBUG_TOKEN_RING_REGDUMP_EN */
 
-#endif
-
 #if defined(VTSS_FEATURE_MACSEC) && defined(KAT_TEST_ENABLE_1G)
 
 /* **************************************************************** */
@@ -16098,3 +16096,5 @@ vtss_rc vtss_phy_serdes_prbs_conf_set(const vtss_inst_t    inst,
 
     return rc;
 }
+
+#endif // VTSS_CHIP_CU_PHY

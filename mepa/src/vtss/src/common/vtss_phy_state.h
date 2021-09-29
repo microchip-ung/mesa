@@ -4,7 +4,9 @@
 #ifndef _VTSS_PHY_STATE_H_
 #define _VTSS_PHY_STATE_H_
 
+#if defined(VTSS_CHIP_CU_PHY)
 #include "../phy_1g/vtss_phy.h"
+#endif
 
 #ifdef VTSS_CHIP_10G_PHY
 #include "../phy_10g/vtss_phy_10g.h"

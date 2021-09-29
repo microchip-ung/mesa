@@ -4,8 +4,13 @@
 #ifndef _VTSS_PHY_OPTIONS_H_
 #define _VTSS_PHY_OPTIONS_H_
 
-// 1G PHYs, always included
+// 1G PHYs, included by default
+#if !defined(VTSS_OPT_PHY_1G)
+#define VTSS_OPT_PHY_1G 1
+#endif
+#if VTSS_OPT_PHY_1G
 #define VTSS_CHIP_CU_PHY
+#endif
 
 // 10G PHYs, excluded by default
 #if !defined(VTSS_OPT_PHY_10G)

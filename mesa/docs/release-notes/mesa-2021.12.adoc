@@ -22,10 +22,9 @@ In this release, the code has been restructured to allow separate release of the
 
 * VSC PHY implementation moved from base/phy to mepa/src/vtss/src.
 * VSC PHY header files moved from include to mepa/src/vtss/include.
-** These APIs are now considered internal and used by the MEPA VSC PHY driver (mepa/src/vtss.c).
 * MESA PHY header files moved from mesa/include/ethernet/switch/api to mepa/src/vtss/include/microchip/switch/api.
-** These APIs are now considered internal and used by the MEPA VSC PHY driver (mepa/src/vtss.c).
 * VSC PHY compile-time options:
+** VTSS_OPT_PHY_1G: 1G PHYs, default included.
 ** VTSS_OPT_PHY_10G: 10G PHYs, default excluded.
 ** VTSS_OPT_PHY_TIMESTAMP: Timestamping, default excluded.
 ** VTSS_OPT_PHY_MACSEC: MacSec, default excluded.
