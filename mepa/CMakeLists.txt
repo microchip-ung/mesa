@@ -87,9 +87,11 @@ target_include_directories(mepa_vtss_10g_macsec_ts_static PUBLIC ${inc_mepa} PRI
 target_compile_definitions(mepa_vtss_10g_macsec_ts        PUBLIC ${def_vtss_10g_macsec_ts})
 target_compile_definitions(mepa_vtss_10g_macsec_ts_static PUBLIC ${def_vtss_10g_macsec_ts})
 
-set(inc_lan8814 mepa/microchip)
-add_library(mepa_lan8814        SHARED microchip/lan8814.c microchip/lan8814_ts.c)
-add_library(mepa_lan8814_static STATIC microchip/lan8814.c microchip/lan8814_ts.c)
+set(src_lan8814 microchip/lan8814/src/lan8814.c
+                microchip/lan8814/src/lan8814_ts.c)
+set(inc_lan8814 mepa/microchip/lan8814)
+add_library(mepa_lan8814        SHARED ${src_lan8814})
+add_library(mepa_lan8814_static STATIC ${src_lan8814})
 set_target_properties(mepa_lan8814_static PROPERTIES OUTPUT_NAME mepa_lan8814)
 target_include_directories(mepa_lan8814        PUBLIC ${inc_mepa} PRIVATE ${inc_lan8814})
 target_include_directories(mepa_lan8814_static PUBLIC ${inc_mepa} PRIVATE ${inc_lan8814})
