@@ -6,4 +6,4 @@ license: BSD-3
 maintainer: sriharsha.sankuratripati@microchip.com
 name: Intel PHY
 description: Driver for Intel GPY211
-attribution_file: mepa/src/intel/GPY_API_v251/LICENSE
+attribution_file: mepa/intel/GPY_API_v251/LICENSE
