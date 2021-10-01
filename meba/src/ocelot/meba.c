@@ -178,12 +178,12 @@ static mesa_rc pcb120_init_board(meba_inst_t inst)
         conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_0;//MESA_SGPIO_MODE_ON;
         conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_OFF;
 
-        port=29; // PD69200_RSTn, xDisablePorts
+        port=18; // PD69200_RSTn, xDisablePorts
         conf.port_conf[port].enabled = true;
         conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_ON;  // Not in reset
         conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_ON; // PoE enable by default
 
-        port=30; // Notused, ALARM
+        port=19; // Notused, ALARM
         conf.port_conf[port].enabled = true;
         conf.port_conf[port].mode[0] = MESA_SGPIO_MODE_0;//MESA_SGPIO_MODE_ON;
         conf.port_conf[port].mode[1] = MESA_SGPIO_MODE_OFF;
