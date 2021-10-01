@@ -7,6 +7,9 @@
 #include <microchip/ethernet/common.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
+struct mepa_ts_driver;
+struct mepa_device;
+
 typedef mesa_aneg_t mepa_aneg_t;
 typedef mesa_bool_t mepa_bool_t;
 typedef mesa_chip_no_t mepa_chip_no_t;

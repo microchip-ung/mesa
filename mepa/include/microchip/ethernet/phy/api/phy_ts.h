@@ -7,9 +7,6 @@
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
-struct mepa_ts_driver;
-struct mepa_device;
-
 // Time interval in ns * 1<<16
 // range +-2**47 ns = 140737 sec = 39 hours
 // For example, 2.5 ns is expressed as 0x0000.0000.0002.8000
