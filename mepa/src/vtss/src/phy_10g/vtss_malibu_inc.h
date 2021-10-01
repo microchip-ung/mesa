@@ -9,16 +9,11 @@
 #include "../phy_10g/vtss_pll5g_procs.h"
 #include "vtss_phy_10g.h"
 
-#ifndef _MAL_IO_VAR
-#define _MAL_IO_VAR
-ioreg_blk mal_io_var;
-#endif
-
 #if defined(VTSS_IOREG)
 #undef VTSS_IOREG
 #endif
 
-#define VTSS_IOREG(dev, is32, off)  _ioreg(&mal_io_var, (dev), (is32), (off))
+#define VTSS_IOREG(dev, is32, off)  _ioreg(&vtss_state->io_var, (dev), (is32), (off))
 #include "chips/malibu/vtss_malibu_regs.h"
 
 /* some of the register definitions which are missing in register files */

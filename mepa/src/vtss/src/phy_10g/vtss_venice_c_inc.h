@@ -9,12 +9,11 @@
 #include "vtss_venice_c_sd10g65_setup.h"
 #include "./chips/venice/vtss_venice_regs.h"
 #include "vtss_venice_f2df_sd10g65_setup.h"
-ioreg_blk io_var;
 #if defined(VTSS_IOREG)
 #undef VTSS_IOREG
 #endif
 
-#define VTSS_IOREG(dev, is32, off)  _ioreg(&io_var, (dev), (is32), (off))
+#define VTSS_IOREG(dev, is32, off)  _ioreg(&vtss_state->io_var, (dev), (is32), (off))
 #if defined(VTSS_IOREG_IX)
 #undef VTSS_IOREG_IX
 #endif
