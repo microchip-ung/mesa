@@ -1814,7 +1814,7 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
         REG_WRM(ANA_PORT_MODE(port),
                 ANA_PORT_MODE_REDTAG_PARSE_CFG(1),
                 ANA_PORT_MODE_REDTAG_PARSE_CFG_M);
-        REG_WR(DEV_PORT_MISC(port), DEV_PORT_MISC_RTAG48_ENA(1));
+        REG_WRM_SET(DEV_PORT_MISC(port), DEV_PORT_MISC_RTAG48_ENA_M);
     }
 
     /* Clear VLAN table masks */

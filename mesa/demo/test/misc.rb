@@ -47,23 +47,37 @@ end
 test "forward-loop" do
     break
     loop_pair_check
-    t_i("Forward frames via loop ports and change to 100fdx")
-    p0 = $ts.dut.looped_port_list[0]
-    p1 = $ts.dut.looped_port_list[1]
+    t_i("Forward frames via loop ports and change mode")
+    p0 = $ts.dut.p[0]
+    p1 = $ts.dut.p[1]
+    lp0 = $ts.dut.looped_port_list[0]
+    lp1 = $ts.dut.looped_port_list[1]
 
     vid = 2
-    $ts.dut.call("mesa_vlan_port_members_set", vid, "#{p0},#{p1}")
-    [p0,p1].each do |port|
+    $ts.dut.call("mesa_vlan_port_members_set", vid, "#{p0},#{p1},#{lp0},#{lp1}")
+    [p0,p1,lp0,lp1].each do |port|
         conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
         conf["pvid"] = vid
         conf["untagged_vid"] = vid
         $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
     end
-    $ts.dut.run("mesa-cmd packet tx #{p0 + 1},#{p1 + 1}")
-    sleep(5)
-    $ts.dut.run("mesa-cmd port mode #{p0 + 1} 100fdx")
-    sleep(5)
-    $ts.dut.run("mesa-cmd port stati pa")
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{p0},#{lp0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{p1},#{lp1}")
+
+    cnt = 10000000
+    cmd = "ef name f1 eth smac 1 name f2 eth smac 2"
+    cmd += " tx #{$ts.pc.p[0]} rep #{cnt} name f1"
+    cmd += " tx #{$ts.pc.p[1]} rep #{cnt} name f2"
+    $ts.pc.bg("ef", cmd)
+
+    10.times do |i|
+        t_i("--- Iteration #{i} ---")
+        sleep(1)
+        mode = (i.odd? ? "auto" : "100fdx")
+        $ts.dut.run("mesa-cmd port mode #{lp0 + 1} #{mode}")
+        sleep(5)
+        $ts.dut.run("mesa-cmd port stati packets")
+    end
 end
 
 test "forward-loop-2.5G" do
