@@ -53,6 +53,9 @@ static u8   sd10g28_get_iw_setting(const u8     interface_width) {
 vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL is_6g, vtss_sd10g28_mode_t        f_mode,
                                            vtss_sd10g28_mode_args_t *const ret_val) {
 
+    ret_val->cfg_oscal_afe = 1;
+    ret_val->cfg_pd_osdac_afe = 0;
+
     switch(f_mode) {
       case VTSS_SD10G28_MODE_10G_QSXGMII : 
       case VTSS_SD10G28_MODE_10G_DSXGMII : {
@@ -152,6 +155,8 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL is_6g, vtss_sd10g28_mode_t        f
         break;
       }
       case VTSS_SD10G28_MODE_FX100 :
+          ret_val->cfg_oscal_afe = 0;
+          ret_val->cfg_pd_osdac_afe = 1;
       case VTSS_SD10G28_MODE_SGMII : 
       case VTSS_SD10G28_MODE_1G_LAN :   {
         //ret_val->datarate= 1.25e9;
@@ -357,9 +362,9 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
                                         preset.cfg_tap_main                = 1;
                                         preset.cfg_tap_dly_4_0             = 0;
                                         //r_rxeq_reg related signals
-                                        preset.cfg_vga_ctrl_3_0            = 5      ;
+                                        preset.cfg_vga_ctrl_3_0            = 0xa      ;
                                         preset.cfg_vga_cp_2_0              = 0      ;
-                                        preset.cfg_eq_res_3_0              = 0xa    ;    //CTLE gain control.
+                                        preset.cfg_eq_res_3_0              = 2    ;    //CTLE gain control.
                                         preset.cfg_eqR_byp                 = 1      ;
                                         preset.cfg_eqC_force_3_0           = 0x8    ;
                                         preset.cfg_alos_thr_3_0            = 0x3    ;
@@ -451,8 +456,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
     
     ret_val->r_en_auto_cdr_rstn[0]          = 0;           //  Lane CDR auto reset function enable
       
-    ret_val->cfg_oscal_afe[0]               = 1;
-    ret_val->cfg_pd_osdac_afe[0]            = 0;
+    ret_val->cfg_oscal_afe[0]               = mode_args->cfg_oscal_afe;
+    ret_val->cfg_pd_osdac_afe[0]            = mode_args->cfg_pd_osdac_afe;;
     ret_val->cfg_resetb_oscal_afe[0]        = 0;
     ret_val->cfg_resetb_oscal_afe[1]        = 1;
     

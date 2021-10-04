@@ -2421,11 +2421,13 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_F_DEV1G_PCS_FX100_CFG_PCS_ENA(1) |
                 VTSS_F_DEV1G_PCS_FX100_CFG_SD_SEL(!conf->sd_internal) |
                 VTSS_F_DEV1G_PCS_FX100_CFG_SD_POL(conf->sd_active_high) |
-                VTSS_F_DEV1G_PCS_FX100_CFG_SD_ENA(conf->sd_enable),
+                VTSS_F_DEV1G_PCS_FX100_CFG_SD_ENA(conf->sd_enable) |
+                VTSS_F_DEV1G_PCS_FX100_CFG_RXBITSEL(0),
                 VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA |
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_SEL |
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_POL |
-                VTSS_M_DEV1G_PCS_FX100_CFG_SD_ENA);
+                VTSS_M_DEV1G_PCS_FX100_CFG_SD_ENA |
+                VTSS_M_DEV1G_PCS_FX100_CFG_RXBITSEL);
 
         // Set the Serdes to correct clock freq (not handled by UTE)
         u32 sd_indx, sd_type, sd;
@@ -2885,6 +2887,18 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                             VTSS_X_DEV1G_PCS_FX100_STATUS_FEF_STATUS(value);
 
         if (status->link_down) {
+            /* Reset the serdes for re-calibration */
+            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
+            u32 sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
+            REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                    VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST(1),
+                    VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
+            VTSS_MSLEEP(3);
+            REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                    VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST(0),
+                    VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
+            VTSS_MSLEEP(1);
+
             /* Clear the stickies and re-read */
             REG_WR(VTSS_DEV1G_PCS_FX100_STATUS(tgt), value);
             VTSS_MSLEEP(1);
