@@ -957,7 +957,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
 
         if (fw_req->rate_done) {
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer after speed config
+            // Release link_break timer after speed config
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x100);
         }
     }
 
@@ -1151,8 +1152,8 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
         }
 
         if ((val & AN_RATE) > 0) {
-            // Freeze link_fail timer while speed config
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x40, 0x40);
+            // Freeze link_break timer while speed config
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0x100, 0x100);
         }
 
         if (val & AN_XMIT_DISABLE) {
