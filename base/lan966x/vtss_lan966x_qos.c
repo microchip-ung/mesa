@@ -278,10 +278,10 @@ static vtss_rc lan966x_qos_wred_conf_set(vtss_state_t *vtss_state)
                 wm_red_low  = wm_high * red->min_fl / 100;                              /* Convert from % to actual value in bytes */
                 wm_red_high = wm_high * max_fl / 100;                                   /* Convert from % to actual value in bytes */
                 wm_red_high = ((wm_red_high - wm_red_low) * 100 / max_dp) + wm_red_low; /* Adjust wm_red_high to represent 100% drop probability */
-                wm_red_low  = MIN(wm_red_low / 1024, VTSS_BITMASK(5));                 /* Convert from bytes to 960 byte chunks and prevent overflow */
-                wm_red_high = MIN(wm_red_high / 1024, VTSS_BITMASK(5));                /* Convert from bytes to 960 byte chunks and prevent overflow */
+                wm_red_low  = MIN(wm_red_low / 1024, VTSS_BITMASK(8));                 /* Convert from bytes to 960 byte chunks and prevent overflow */
+                wm_red_high = MIN(wm_red_high / 1024, VTSS_BITMASK(8));                /* Convert from bytes to 960 byte chunks and prevent overflow */
             } else {
-                wm_red_low = wm_red_high = VTSS_BITMASK(5);                            /* Disable red by setting both fields to max */
+                wm_red_low = wm_red_high = VTSS_BITMASK(8);                            /* Disable red by setting both fields to max */
             }
 
             REG_WR(QSYS_RED_PROFILE((queue + (8 * dpl))), /* Red profile for queue, dpl */
