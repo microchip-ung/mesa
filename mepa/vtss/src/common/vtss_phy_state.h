@@ -4,18 +4,6 @@
 #ifndef _VTSS_PHY_STATE_H_
 #define _VTSS_PHY_STATE_H_
 
-#if defined(VTSS_CHIP_CU_PHY)
-#include "../phy_1g/vtss_phy.h"
-#endif
-
-#ifdef VTSS_CHIP_10G_PHY
-#include "../phy_10g/vtss_phy_10g.h"
-#endif
-
-#ifdef VTSS_FEATURE_MACSEC
-#include "../macsec/vtss_macsec.h"
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
@@ -96,6 +84,18 @@ typedef struct {
 #endif
 #else
 #error "Environment not 32 or 64-bit."
+#endif
+
+#if defined(VTSS_CHIP_CU_PHY)
+#include "../phy_1g/vtss_phy.h"
+#endif
+
+#ifdef VTSS_CHIP_10G_PHY
+#include "../phy_10g/vtss_phy_10g.h"
+#endif
+
+#ifdef VTSS_FEATURE_MACSEC
+#include "../macsec/vtss_macsec.h"
 #endif
 
 typedef struct {

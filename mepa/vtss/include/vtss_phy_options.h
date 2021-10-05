@@ -49,6 +49,11 @@
 #define VTSS_OPT_PHY_TRACE 1
 #endif
 
+// VeriPHY, included by default */
+#if !defined(VTSS_PHY_OPT_VERIPHY)
+#define VTSS_PHY_OPT_VERIPHY 1
+#endif /* VTSS_PHY_OPT_VERIPHY */
+
 // Energy Efficient Ethernet
 #define VTSS_FEATURE_EEE
 
