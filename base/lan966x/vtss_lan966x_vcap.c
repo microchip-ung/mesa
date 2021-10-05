@@ -1022,6 +1022,7 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
             action->cpu == 0) {
             /* Forwarding and CPU copy disabled, discard using policer to avoid CPU copy */
             pol_idx = LAN966X_POLICER_DISC;
+            a->mask_mode = 0; // Use mode 0 to make Rx red counters increase
         } else if (action->police) {
             pol_idx = (LAN966X_POLICER_ACL + action->policer_no);
         } else {

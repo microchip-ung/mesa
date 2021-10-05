@@ -1779,6 +1779,9 @@ static vtss_rc l26_port_counters_read(vtss_state_t *vtss_state,
 
     /* Bridge counters */
     counters->bridge.dot1dTpPortInDiscards = c->dr_local.value;
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        counters->bridge.dot1dTpPortInDiscards += c->rx_red_class[i].value;
+    }
 
 #if defined(VTSS_ARCH_CARACAL)
     /* EVC counters */

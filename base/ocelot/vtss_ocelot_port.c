@@ -2154,6 +2154,10 @@ static vtss_rc srvl_port_counters_read(vtss_state_t                 *vtss_state,
 
     /* Bridge counters */
     counters->bridge.dot1dTpPortInDiscards = (c->rx_classified_drops.value + c->dr_local.value);
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        counters->bridge.dot1dTpPortInDiscards += c->rx_red_class[i].value;
+    }
+
     return VTSS_RC_OK;
 }
 

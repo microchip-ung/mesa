@@ -817,7 +817,7 @@ static int cli_parse_command(int argc, const char **argv)
 
             if (i_parm) {
                 if (i_cmd < argc) {
-                    cli_printf("i_cmd:%d  < argc:%d \n",i_cmd,argc);
+                    //cli_printf("i_cmd:%d  < argc:%d \n",i_cmd,argc);
                     cli_printf("Invalid parameter: %s\n\n", argv[i_cmd]);
                     cli_printf("Syntax:\n%s\n", cli_cmd->syntax);
                     return -1;

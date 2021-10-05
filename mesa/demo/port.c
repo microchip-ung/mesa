@@ -1274,7 +1274,8 @@ static cli_parm_t cli_parm_table[] = {
         "full",
         "Show all",
         CLI_PARM_FLAG_NONE,
-        cli_parm_keyword
+        cli_parm_keyword,
+        cli_cmd_sfp_dump
     },
 };
 

@@ -2067,11 +2067,6 @@ static vtss_rc srvl_is2_action_set(vtss_state_t *vtss_state,
     srvl_vcap_action_bit_set(data, IS2_AO_HIT_ME_ONCE, action->cpu_once);
     srvl_vcap_action_bit_set(data, IS2_AO_CPU_COPY_ENA, action->cpu);
     srvl_vcap_action_set(data, IS2_AO_CPU_QU_NUM, IS2_AL_CPU_QU_NUM, action->cpu_queue);
-    srvl_vcap_action_set(data, IS2_AO_MASK_MODE, IS2_AL_MASK_MODE,
-                         act == VTSS_ACL_PORT_ACTION_NONE ? IS2_ACT_MASK_MODE_NONE :
-                         act == VTSS_ACL_PORT_ACTION_PGID ? IS2_ACT_MASK_MODE_POLICY :
-                         act == VTSS_ACL_PORT_ACTION_FILTER ? IS2_ACT_MASK_MODE_FILTER :
-                         IS2_ACT_MASK_MODE_REDIR);
     srvl_vcap_action_bit_set(data, IS2_AO_MIRROR_ENA, action->mirror);
     srvl_vcap_action_bit_set(data, IS2_AO_LRN_DIS, action->learn ? 0 : 1);
     mask = vtss_srvl_port_mask(vtss_state, action->port_list);
@@ -2079,6 +2074,7 @@ static vtss_rc srvl_is2_action_set(vtss_state_t *vtss_state,
     if (discard && action->cpu_once == 0 && action->cpu == 0) {
         /* Forwarding and CPU copy disabled, discard using policer to avoid CPU copy */
         pol_idx = SRVL_POLICER_DISCARD;
+        act = VTSS_ACL_PORT_ACTION_NONE; // Use mode 0 to make Rx red counters increase
     } else if (action->police) {
         pol_idx = (SRVL_POLICER_ACL + action->policer_no);
 #if defined(SRVL_POLICER_EVC)
@@ -2088,6 +2084,11 @@ static vtss_rc srvl_is2_action_set(vtss_state_t *vtss_state,
     } else {
         pol_idx = 0;
     }
+    srvl_vcap_action_set(data, IS2_AO_MASK_MODE, IS2_AL_MASK_MODE,
+                         act == VTSS_ACL_PORT_ACTION_NONE ? IS2_ACT_MASK_MODE_NONE :
+                         act == VTSS_ACL_PORT_ACTION_PGID ? IS2_ACT_MASK_MODE_POLICY :
+                         act == VTSS_ACL_PORT_ACTION_FILTER ? IS2_ACT_MASK_MODE_FILTER :
+                         IS2_ACT_MASK_MODE_REDIR);
     srvl_vcap_action_bit_set(data, IS2_AO_POLICE_ENA, pol_idx ? 1 : 0);
     srvl_vcap_action_set(data, IS2_AO_POLICE_IDX, IS2_AL_POLICE_IDX, pol_idx);
     srvl_vcap_action_bit_set(data, IS2_AO_POLICE_VCAP_ONLY, 0);

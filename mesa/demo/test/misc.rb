@@ -168,3 +168,27 @@ test "timestamp" do
         t_i("Index #{i}: tx: #{tx}, rx: #{rx}, tx - rx: #{tx - rx}")
     end
 end
+
+test "acl-port-counter" do
+    break
+    idx = 0
+    port = $ts.dut.p[idx]
+    conf = $ts.dut.call("mesa_acl_port_conf_get", port)
+    conf["action"]["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
+    $ts.dut.call("mesa_acl_port_conf_set", port, conf)
+    m = {
+        vid_mac: { vid: 1, mac: { addr: [255,255,255,255,255,255] } },
+        destination: "#{$ts.dut.p[1]}",
+        copy_to_cpu: true,
+        copy_to_cpu_smac: false,
+        locked: true,
+        index_table: false,
+        aged: false,
+        cpu_queue: 0,
+    }
+    $ts.dut.call("mesa_mac_table_add", m)
+    run_ef_tx_rx_cmd($ts, idx, [], "eth")
+    $ts.dut.run("mesa-cmd port stati pa")
+    cnt = $ts.dut.call("mesa_port_counters_get", port)["bridge"]["dot1dTpPortInDiscards"]
+    check_counter("Filtered", cnt, 1)
+end

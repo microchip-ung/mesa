@@ -1374,6 +1374,9 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
 
     /* Bridge counters */
     counters->bridge.dot1dTpPortInDiscards = (c->rx_classified_drops.value + c->dr_local.value);
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        counters->bridge.dot1dTpPortInDiscards += c->rx_red_class[i].value;
+    }
 
     /* 802.3br counters */
     dot3br->aMACMergeFrameAssErrorCount = c->rx_mm_assembly_errors.value;

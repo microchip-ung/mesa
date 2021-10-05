@@ -657,7 +657,6 @@ static vtss_rc l26_is2_prepare_action(vtss_state_t *vtss_state,
         VTSS_E("unknown port_action");
         return VTSS_RC_ERROR;
     }
-    entry[0] |= VTSS_ENCODE_BITFIELD(mode, 5, 2); 
     
     if (action->mirror)
         entry[0] |= VTSS_BIT(7); /* MIRROR_ENA */
@@ -670,6 +669,7 @@ static vtss_rc l26_is2_prepare_action(vtss_state_t *vtss_state,
         /* Forwarding and CPU copy disabled, discard using policer to avoid CPU copy */
         policer_ena = 1;
         policer = L26_ACL_POLICER_DISC;
+        mode = 0; // Use mode 0 to make Rx red counters increase
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
     } else if (action->evc_police) {
         policer_ena = 1;
@@ -679,6 +679,7 @@ static vtss_rc l26_is2_prepare_action(vtss_state_t *vtss_state,
         policer_ena = 1;
         policer = vtss_state->vcap.acl_policer_alloc[action->policer_no].policer;
     }
+    entry[0] |= VTSS_ENCODE_BITFIELD(mode, 5, 2);
     if (policer_ena)
         entry[0] |= (VTSS_BIT(9) | /* POLICE_ENA */
                      VTSS_ENCODE_BITFIELD(policer, 10, 8)); /* POLICE_IDX */

@@ -2448,10 +2448,6 @@ static vtss_rc jr2_is2_action_set(vtss_state_t *vtss_state, jr2_vcap_data_t *dat
     JR2_ACT_SET(IS2, HIT_ME_ONCE, action->cpu_once);
     JR2_ACT_SET(IS2, CPU_ENA, action->cpu);
     JR2_ACT_SET(IS2, CPU_VAL, action->cpu_queue);
-    JR2_ACT_SET(IS2, MASK_MODE,
-                act == VTSS_ACL_PORT_ACTION_PGID ? IS2_MASK_MODE_REPLACE_PGID :
-                act == VTSS_ACL_PORT_ACTION_FILTER ? IS2_MASK_MODE_AND_VLANMASK :
-                act == VTSS_ACL_PORT_ACTION_REDIR ? IS2_MASK_MODE_REPLACE_ALL : IS2_MASK_MODE_OR_DSTMASK);
     if (act != VTSS_ACL_PORT_ACTION_NONE) {
         /* Port filter or redirect */
         discard = 1;
@@ -2465,6 +2461,10 @@ static vtss_rc jr2_is2_action_set(vtss_state_t *vtss_state, jr2_vcap_data_t *dat
             }
         }
     }
+    JR2_ACT_SET(IS2, MASK_MODE,
+                act == VTSS_ACL_PORT_ACTION_PGID ? IS2_MASK_MODE_REPLACE_PGID :
+                (act == VTSS_ACL_PORT_ACTION_REDIR || discard) ? IS2_MASK_MODE_REPLACE_ALL :
+                act == VTSS_ACL_PORT_ACTION_FILTER ? IS2_MASK_MODE_AND_VLANMASK : IS2_MASK_MODE_OR_DSTMASK);
     /* If forwarding disabled, avoid CPU copy and signal ACL drop */
     JR2_ACT_SET(IS2, CPU_DIS, discard || action->cpu_disable ? 1 : 0);
     match_id = (JR2_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0));

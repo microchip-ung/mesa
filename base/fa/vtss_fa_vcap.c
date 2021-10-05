@@ -2470,11 +2470,6 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     /* Unused: BASE_TYPE_INTR_ENA */
     FA_ACT_SET(IS2, BASE_TYPE_CPU_COPY_ENA, action->cpu);
     FA_ACT_SET(IS2, BASE_TYPE_CPU_QU_NUM, action->cpu_queue);
-    FA_ACT_SET(IS2, BASE_TYPE_MASK_MODE,
-               act == VTSS_ACL_PORT_ACTION_PGID ? 2 :   /* REPLACE_PGID */
-               act == VTSS_ACL_PORT_ACTION_FILTER ? 1 : /* AND_VLANMASK */
-               act == VTSS_ACL_PORT_ACTION_REDIR ? 3 :  /* REPLACE_ALL */
-               0);                                      /* OR_DSTMASK */
     if (act != VTSS_ACL_PORT_ACTION_NONE) {
         /* Port filter or redirect */
         discard = 1;
@@ -2488,6 +2483,11 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
             }
         }
     }
+    FA_ACT_SET(IS2, BASE_TYPE_MASK_MODE,
+               act == VTSS_ACL_PORT_ACTION_PGID ? 2 :               /* REPLACE_PGID */
+               (act == VTSS_ACL_PORT_ACTION_REDIR || discard) ? 3 : /* REPLACE_ALL */
+               act == VTSS_ACL_PORT_ACTION_FILTER ? 1 :             /* AND_VLANMASK */
+               0);                                                  /* OR_DSTMASK */
     /* If forwarding disabled, avoid CPU copy and signal ACL drop */
     FA_ACT_SET(IS2, BASE_TYPE_CPU_DIS, discard || action->cpu_disable ? 1 : 0);
     FA_ACT_SET(IS2, BASE_TYPE_LRN_DIS, 0);
