@@ -87,6 +87,26 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
     data->ts_state.tx_fifo_ts_len   = ts_init_conf->tx_ts_len;
     data->ts_state.tsu_op_mode      = INDY_TS_MODE_STANDALONE;
 
+    // Read default latencies
+    val = 0;
+    EP_RD(dev, INDY_PTP_RX_LATENCY_10, &val);
+    data->ts_state.default_latencies.rx10mbps = val << 16;
+    val = 0;
+    EP_RD(dev, INDY_PTP_RX_LATENCY_100, &val);
+    data->ts_state.default_latencies.rx100mbps =  val << 16;
+    val = 0;
+    EP_RD(dev, INDY_PTP_RX_LATENCY_1000, &val);
+    data->ts_state.default_latencies.rx1000mbps =  val << 16;
+    val = 0;
+    EP_RD(dev, INDY_PTP_TX_LATENCY_10, &val);
+    data->ts_state.default_latencies.tx10mbps =  val << 16;
+    val = 0;
+    EP_RD(dev, INDY_PTP_TX_LATENCY_100, &val);
+    data->ts_state.default_latencies.tx100mbps =  val << 16;
+    val = 0;
+    EP_RD(dev, INDY_PTP_TX_LATENCY_1000, &val);
+    data->ts_state.default_latencies.tx1000mbps =  val << 16;
+
     return MEPA_RC_OK;
 
 }
@@ -357,9 +377,8 @@ static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scale
         int64_t adj_abs = MEPA_LABS(*adj), adj_val = 0, adj_abs1 = 0;
         adj_abs1 = adj_abs;
         adj_abs1 = adj_abs1 >> 16;
-        adj_val = ((1LL<<31)/1000000000)*adj_abs*3;
 
-        if(adj_val > 0 && adj_abs > 0) {
+        if( adj_abs > 0) {
             adj_val = MEPA_DIV64(1000000000ULL * 0x10000ULL, adj_abs);
             adj_val = MEPA_DIV64((1LL<<32) *4,  adj_val);
         }
@@ -481,9 +500,9 @@ static mepa_rc indy_ts_clock_delay_asymmetry_set(mepa_device_t *dev, const mepa_
 
     MEPA_ENTER(dev);
 
-    val = (*delay_asym >> 16) & 0xFFFF;
+    val = (*delay_asym >> 32) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_ASYM_DLY_HI, val, INDY_DEF_MASK);
-    val = *delay_asym & 0xFFFF;
+    val = (*delay_asym >> 16) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_ASYM_DLY_LO, val, INDY_DEF_MASK);
     data->ts_state.ts_port_conf.delay_asym = *delay_asym;
     T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Delay Asymmetry :: %d \n", data->port_no, *delay_asym);
@@ -515,9 +534,9 @@ static mepa_rc indy_ts_clock_path_delay_set(mepa_device_t *dev, const mepa_timei
     MEPA_ASSERT(path_delay == NULL);
     MEPA_ENTER(dev);
     ts_data = &data->ts_state;
-    val =  (*path_delay >> 16) & 0xFFFF;
+    val =  (*path_delay >> 32) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_PEERDLY_HI, val, INDY_DEF_MASK);
-    val = *path_delay & 0xFFFF;
+    val =  (*path_delay >> 16) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_PEERDLY_LO, val, INDY_DEF_MASK);
     T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Path Delay  :: %d \n", data->port_no, *path_delay);
     ts_data->ts_port_conf.path_delay = *path_delay;
@@ -532,7 +551,20 @@ static mepa_rc indy_ts_clock_egress_latency_get(mepa_device_t *dev, mepa_timeint
 
     MEPA_ASSERT(latency == NULL);
     MEPA_ENTER(dev);
-    *latency = data->ts_state.ts_port_conf.egress_latency;
+    switch (data->conf.speed) {
+        case MEPA_SPEED_10M:
+            *latency = data->ts_state.ts_port_conf.port_latencies.tx10mbps ;
+            break;
+        case MEPA_SPEED_100M:
+            *latency = data->ts_state.ts_port_conf.port_latencies.tx100mbps;
+            break;
+        case MEPA_SPEED_1G:
+        case MEPA_SPEED_AUTO:
+            *latency = data->ts_state.ts_port_conf.port_latencies.tx1000mbps;
+            break;
+        default:
+            break;
+    }
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -540,28 +572,59 @@ static mepa_rc indy_ts_clock_egress_latency_get(mepa_device_t *dev, mepa_timeint
 static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_phy;
     uint16_t val = 0;
 
-	MEPA_ASSERT(latency == NULL);
-    if(*latency <= 0)
-        return MEPA_RC_OK;
+    MEPA_ASSERT(latency == NULL);
+
+    base_phy = (phy_data_t *)base_dev->data;
     MEPA_ENTER(dev);
-    val = *latency & 0xFFFF;
+    val = (MEPA_LABS(*latency) >> 16) & 0xFFFF;
     switch (data->conf.speed) {
         case MEPA_SPEED_10M:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.tx10mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.tx10mbps = *latency;
             break;
         case MEPA_SPEED_100M:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.tx100mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.tx100mbps = *latency;
             break;
         case MEPA_SPEED_1G:
         case MEPA_SPEED_AUTO:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.tx1000mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *latency;
             break;
         default:
             break;
     }
-    data->ts_state.ts_port_conf.egress_latency = *latency;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -573,7 +636,20 @@ static mepa_rc indy_ts_clock_ingress_latency_get(mepa_device_t *dev, mepa_timein
 
     MEPA_ASSERT(latency == NULL);
     MEPA_ENTER(dev);
-    *latency = data->ts_state.ts_port_conf.ingress_latency;
+    switch (data->conf.speed) {
+        case MEPA_SPEED_10M:
+            *latency = data->ts_state.ts_port_conf.port_latencies.rx10mbps;
+            break;
+        case MEPA_SPEED_100M:
+            *latency = data->ts_state.ts_port_conf.port_latencies.rx100mbps;
+            break;
+        case MEPA_SPEED_1G:
+        case MEPA_SPEED_AUTO:
+            *latency = data->ts_state.ts_port_conf.port_latencies.rx1000mbps;
+            break;
+        default:
+            break;
+    }
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -582,28 +658,59 @@ static mepa_rc indy_ts_clock_ingress_latency_get(mepa_device_t *dev, mepa_timein
 static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_phy;
     uint16_t val = 0;
 
-	MEPA_ASSERT(latency == NULL);
-    if(*latency <= 0)
-        return MEPA_RC_OK;
+    MEPA_ASSERT(latency == NULL);
     MEPA_ENTER(dev);
-    val = *latency & 0xFFFF;
+    base_phy = (phy_data_t *)base_dev->data;
+
+    val = (MEPA_LABS(*latency) >> 16) & 0xFFFF;
     switch (data->conf.speed) {
         case MEPA_SPEED_10M:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.rx10mbps = *latency;
             break;
         case MEPA_SPEED_100M:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.rx100mbps = *latency;
             break;
         case MEPA_SPEED_1G:
         case MEPA_SPEED_AUTO:
+            if(*latency >= 0) {
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) + val;
+            }else {
+                if((base_phy->ts_state.default_latencies.rx1000mbps >> 16) <= val) {
+                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    break;
+                }
+                val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) - val;
+            }
             EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.rx1000mbps = *latency;
             break;
         default:
             break;
     }
-    data->ts_state.ts_port_conf.ingress_latency = *latency;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;

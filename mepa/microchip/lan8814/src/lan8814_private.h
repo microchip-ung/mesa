@@ -92,6 +92,16 @@ typedef enum {
     INDY_TS_MODE_PCHMCH = 3,        // PTP PCH Mode (MCH support enabled)
 } indy_ts_tsu_op_mode_t;
 
+// Port latencies in ns
+typedef struct {
+    mepa_timeinterval_t  rx10mbps;
+    mepa_timeinterval_t  rx100mbps;
+    mepa_timeinterval_t  rx1000mbps;
+    mepa_timeinterval_t  tx10mbps;
+    mepa_timeinterval_t  tx100mbps;
+    mepa_timeinterval_t  tx1000mbps;
+} indy_ts_port_latencies_t;
+
 typedef struct {
     mepa_bool_t                     tsu_en;            // Port TSU enabled/disabled
     mepa_timeinterval_t             ingress_latency;   //
@@ -105,20 +115,22 @@ typedef struct {
     mepa_ts_classifier_t            tx_pkt_conf;
     mepa_ts_ptp_clock_conf_t        rx_clock_conf;
     mepa_ts_ptp_clock_conf_t        tx_clock_conf;
+    indy_ts_port_latencies_t        port_latencies;
 } indy_ts_port_conf_t;
 
 typedef struct {
-    mepa_bool_t                   ptp_en;           // Chip PTP enabled/disabled
-    indy_ts_tsu_op_mode_t         tsu_op_mode;      // TSU operating Mode: Standalone/PCH/PCH-MCH
-    mepa_ts_clock_freq_t          clk_freq;         // reference clock frequency */
-    mepa_ts_clock_src_t           clk_src;          // clock source
-    mepa_ts_rx_timestamp_pos_t    rx_ts_pos;        // Rx timestamp position
-    mepa_ts_rx_timestamp_len_t    rx_ts_len;        // Rx timestamp length
-    mepa_ts_fifo_timestamp_len_t  tx_fifo_ts_len;   // Tx TS length in FIFO
-    mepa_ts_fifo_mode_t           tx_fifo_mode;     // Tx TSFIFO access mode
-    indy_ts_port_conf_t           ts_port_conf;     // Port specific TSU data
-    mepa_bool_t                   tx_spi_en;        // TS access through SPI enaled
-    mepa_ts_fifo_read_t           fifo_cb;          // Fifo TS callback
+    mepa_bool_t                   ptp_en;               // Chip PTP enabled/disabled
+    indy_ts_tsu_op_mode_t         tsu_op_mode;          // TSU operating Mode: Standalone/PCH/PCH-MCH
+    mepa_ts_clock_freq_t          clk_freq;             // reference clock frequency */
+    mepa_ts_clock_src_t           clk_src;              // clock source
+    mepa_ts_rx_timestamp_pos_t    rx_ts_pos;            // Rx timestamp position
+    mepa_ts_rx_timestamp_len_t    rx_ts_len;            // Rx timestamp length
+    mepa_ts_fifo_timestamp_len_t  tx_fifo_ts_len;       // Tx TS length in FIFO
+    mepa_ts_fifo_mode_t           tx_fifo_mode;         // Tx TSFIFO access mode
+    indy_ts_port_conf_t           ts_port_conf;         // Port specific TSU data
+    mepa_bool_t                   tx_spi_en;            // TS access through SPI enaled
+    mepa_ts_fifo_read_t           fifo_cb;              // Fifo TS callback
+    indy_ts_port_latencies_t      default_latencies;    // Default port latencies
 } indy_ts_data_t;
 
 typedef struct {
