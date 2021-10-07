@@ -288,8 +288,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf);
 
-#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
+vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+                              u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc);
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
                           const u16 coef_in,
@@ -303,8 +305,6 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no);
 
 vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                            u16 tap_dly, u16 tap_adv, u16 ampl);
-vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
-                              u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc);
 #endif
     
 

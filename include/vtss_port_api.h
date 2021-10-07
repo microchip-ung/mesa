@@ -840,6 +840,12 @@ vtss_rc vtss_port_kr_status_get(const vtss_inst_t inst,
 
 #endif // #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
 
+typedef struct {
+    u32 vga;
+    u32 edc;
+    u32 eqr;
+} vtss_port_ctle_t;
+
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 /** \brief States of the training state machine */
@@ -875,12 +881,6 @@ typedef struct {
     u16 coef;
     u16 status;
 } vtss_kr_status_results_t;
-
-typedef struct {
-    u32 vga;
-    u32 edc;
-    u32 eqr;
-} vtss_port_ctle_t;
 
 /** \brief  KR state machine structures (for status/debug) */
 typedef struct {

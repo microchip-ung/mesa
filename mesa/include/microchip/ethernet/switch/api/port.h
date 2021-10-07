@@ -730,7 +730,7 @@ typedef struct {
     uint32_t vga;
     uint32_t edc;
     uint32_t eqr;
-} mesa_port_ctle_t CAP(PORT_KR_IRQ);
+} mesa_port_ctle_t;
 
 /** \brief KR state machine structures */
 typedef struct {

@@ -605,7 +605,7 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
 #endif /* VTSS_FEATURE_SYNCE */
 
 /* ================================================================= *
- *  Port control
+ *  MIIM control
  * ================================================================= */
 
 /* PHY commands */
@@ -766,15 +766,39 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+/* ================================================================= *
+ *  KR related functions
+ * ================================================================= */
+
+static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
+                                      const vtss_port_no_t port_no)
+{
+    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
+}
+
+static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
+{
+    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
+}
+
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
+
 #define NP_NULL (VTSS_BIT(0) | VTSS_BIT(13) | VTSS_BIT(14))
 #define NP_TOGGLE (VTSS_BIT(11))
 #define NP_ACK2 (VTSS_BIT(12))
 #define NP_MP (VTSS_BIT(13))
 #define NP_ACK (VTSS_BIT(14))
 #define NP_NP (VTSS_BIT(15))
+#define AN_RATE         (0xF)
+#define AN_XMIT_DISABLE (1 << 16)
+#define CMPL_ACK        (1 << 13)
+#define ANEG_KR_AN_GOOD (1 << 12)
+#define ANEG_RATE_25G    7
+#define ANEG_RATE_10G    9
+static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode);
 
 u32 vtss_to_sd_kr(u32 p)
 {
@@ -912,97 +936,6 @@ static vtss_rc fa_np_rx(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode);
-static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
-static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_kr_fw_req_t *const fw_req)
-
-{
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    u32 port = VTSS_CHIP_PORT(port_no);
-
-    if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
-        /* Training is interruptet, restart serdes and kr blocks */
-        vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
-        vtss_state->port.kr_conf[port_no].train.enable = FALSE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
-        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
-        vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
-        vtss_state->port.kr_conf[port_no].train.enable = TRUE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
-        return VTSS_RC_OK;
-    }
-
-    if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
-        || fw_req->gen0_tmr_start || fw_req->gen1_tmr_start) {
-        REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt),
-                VTSS_F_IP_KRANEG_FW_REQ_BER_EN(fw_req->ber_enable) |
-                VTSS_F_IP_KRANEG_FW_REQ_MW_START(fw_req->mw_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_WT_START(fw_req->wt_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_GEN0_TMR_START(fw_req->gen0_tmr_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_GEN1_TMR_START(fw_req->gen1_tmr_start),
-                VTSS_M_IP_KRANEG_FW_REQ_BER_EN |
-                VTSS_M_IP_KRANEG_FW_REQ_MW_START |
-                VTSS_M_IP_KRANEG_FW_REQ_WT_START |
-                VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START |
-                VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
-    }
-
-    if (fw_req->rate_done || fw_req->tr_done ) {
-        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
-                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(fw_req->rate_done) |
-                VTSS_F_IP_KRANEG_FW_MSG_TR_DONE(fw_req->tr_done),
-                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
-                VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
-
-        if (fw_req->rate_done) {
-            // Release link_break timer after speed config
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x100);
-        }
-    }
-
-    if (fw_req->start_training) {
-        // Change to 64 bit KR mode while training is done by the application through Rate Sel IRQ
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
-    }
-
-    if (fw_req->stop_training) {
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
-
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            // Change back to 40bit mode
-            VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
-        }
-    }
-
-    if (fw_req->training_failure) {
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0) |
-                VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
-                VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
-    }
-
-    if (fw_req->aneg_disable) {
-        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
-                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
-                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
-    }
-
-    if (fw_req->next_page) {
-        (void)fa_np_rx(vtss_state, port_no);
-        (void)fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
-    }
-
-    return VTSS_RC_OK;
-}
-
-
 static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   vtss_port_kr_eye_dim_t *const eye)
@@ -1019,18 +952,6 @@ static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
     REG_RD(VTSS_IP_KRANEG_TR_ERRCNT(tgt), &val);
     *ber = (u16)val;
     return VTSS_RC_OK;
-}
-
-static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no)
-{
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
-}
-
-static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
-                                   const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
-{
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
 }
 
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
@@ -1101,13 +1022,6 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-
-#define AN_RATE         (0xF)
-#define AN_XMIT_DISABLE (1 << 16)
-#define CMPL_ACK        (1 << 13)
-#define ANEG_KR_AN_GOOD (1 << 12)
-#define ANEG_RATE_25G    7
-#define ANEG_RATE_10G    9
 
 /* Restart aneg if SM is stuck (UNG_FIREANT-91) */
 static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
@@ -1320,7 +1234,6 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-
 static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
@@ -1446,6 +1359,94 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     } else {
         // Link pass inihibit timer (in AN_GOOD_CHECK)
         REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 30 ms
+    }
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
+                                     const vtss_port_no_t port_no,
+                                     vtss_port_kr_fw_req_t *const fw_req)
+
+{
+    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
+        /* Training is interruptet, restart serdes and kr blocks */
+        vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
+        vtss_state->port.kr_conf[port_no].train.enable = FALSE;
+        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
+        vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
+        vtss_state->port.kr_conf[port_no].train.enable = TRUE;
+        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        return VTSS_RC_OK;
+    }
+
+    if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
+        || fw_req->gen0_tmr_start || fw_req->gen1_tmr_start) {
+        REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt),
+                VTSS_F_IP_KRANEG_FW_REQ_BER_EN(fw_req->ber_enable) |
+                VTSS_F_IP_KRANEG_FW_REQ_MW_START(fw_req->mw_start) |
+                VTSS_F_IP_KRANEG_FW_REQ_WT_START(fw_req->wt_start) |
+                VTSS_F_IP_KRANEG_FW_REQ_GEN0_TMR_START(fw_req->gen0_tmr_start) |
+                VTSS_F_IP_KRANEG_FW_REQ_GEN1_TMR_START(fw_req->gen1_tmr_start),
+                VTSS_M_IP_KRANEG_FW_REQ_BER_EN |
+                VTSS_M_IP_KRANEG_FW_REQ_MW_START |
+                VTSS_M_IP_KRANEG_FW_REQ_WT_START |
+                VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START |
+                VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
+    }
+
+    if (fw_req->rate_done || fw_req->tr_done ) {
+        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
+                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(fw_req->rate_done) |
+                VTSS_F_IP_KRANEG_FW_MSG_TR_DONE(fw_req->tr_done),
+                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
+                VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
+
+        if (fw_req->rate_done) {
+            // Release link_break timer after speed config
+            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x100);
+        }
+    }
+
+    if (fw_req->start_training) {
+        // Change to 64 bit KR mode while training is done by the application through Rate Sel IRQ
+        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
+                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
+    }
+
+    if (fw_req->stop_training) {
+        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
+                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
+
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            // Change back to 40bit mode
+            VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
+        }
+    }
+
+    if (fw_req->training_failure) {
+        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
+                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0) |
+                VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
+                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
+                VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
+    }
+
+    if (fw_req->aneg_disable) {
+        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
+                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
+                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+    }
+
+    if (fw_req->next_page) {
+        (void)fa_np_rx(vtss_state, port_no);
+        (void)fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
     }
 
     return VTSS_RC_OK;
@@ -4167,6 +4168,8 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->forward_set = fa_port_forward_set;
         state->test_conf_set = fa_port_test_conf_set;
         state->serdes_debug_set = fa_port_serdes_debug;
+        state->kr_ctle_adjust = fa_port_kr_ctle_adjust;
+        state->kr_ctle_get = fa_port_kr_ctle_get;
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;
@@ -4180,9 +4183,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->kr_eye_dim = fa_port_kr_eye_dim;
         state->kr_fec_set = fa_port_kr_fec_set;
         state->kr_ber_cnt = fa_port_kr_ber_cnt;
-        state->kr_ctle_adjust = fa_port_kr_ctle_adjust;
-        state->kr_ctle_get = fa_port_kr_ctle_get;
-#endif /* VTSS_FEATURE_10G_BASE_KR */
+#endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
         /* SYNCE features */
 #if defined(VTSS_FEATURE_SYNCE)
