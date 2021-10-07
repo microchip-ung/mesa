@@ -6,6 +6,23 @@
 
 // EP-4 Chip 1588 Common Registers
 
+//1588 PLL Registers
+#define INDY_1588_PLL_RESET                                 INDY_EXT_PAGE_4, 320
+#define INDY_1588_PLL_RESET_EN                              INDY_BIT(0)
+#define INDY_1588_PLL_BYPASS                                INDY_EXT_PAGE_4, 321
+#define INDY_1588_PLL_BYPASS_EN                             INDY_BIT(0)
+#define INDY_1588_PLL_STATUS                                INDY_EXT_PAGE_4, 322
+#define INDY_1588_PLL_DIVEDER                               INDY_EXT_PAGE_4, 323
+#define INDY_1588_PLL_DIVR_F(x)                             INDY_ENCODE_BITFIELD(x, 10,5)
+#define INDY_1588_PLL_DIVR                                  INDY_ENCODE_BITMASK(10, 5)
+#define INDY_1588_PLL_DIVF_F(x)                             INDY_ENCODE_BITFIELD(x, 3,7)
+#define INDY_1588_PLL_DIVF                                  INDY_ENCODE_BITMASK(3, 7)
+#define INDY_1588_PLL_DIVQ_F(x)                             INDY_ENCODE_BITFIELD(x, 0,3)
+#define INDY_1588_PLL_DIVQ                                  INDY_ENCODE_BITMASK(0, 3)
+#define INDY_1588_PLL_FILTER                                INDY_EXT_PAGE_4, 323
+#define INDY_1588_PLL_FILTER_RANGE_F(x)                     INDY_ENCODE_BITFIELD(x, 0,3)
+#define INDY_1588_PLL_FILTER_RANGE                          INDY_ENCODE_BITMASK(0, 3)
+
 // PTP Common Command and Control Register
 #define INDY_PTP_CMD_CTL                                    INDY_EXT_PAGE_4, 512
 #define INDY_PTP_CMD_CTL_LTC_DLYD_STEP_SECONDS              INDY_BIT(15)

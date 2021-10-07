@@ -10,13 +10,26 @@
 #define MEPA_LABS(arg)                labs(arg)                /**< long to abs */
 #define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor)) /**< support for 64 bit division */
 
-static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
+static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
+    {  000, 0000, 00000 }, // 1000,100,10 speeds
+    {  000, 0000, 00000 },
+    {  429, 2346, 8874 },
+    {  415, 1447, 8359 }, // 415 1447
+};
+
+static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
+    {  000, 0000, 00000 }, // 1000,100,100 speeds
+    {  000, 0000, 00000 },
+    {  201, 705, 11850},
+    {  186, 296, 11335 }, // 186 296
+};
+
+static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
-    uint16_t val = 0, clock_cfg = 0;
+    uint16_t val = 0, clock_cfg = 0, pll_div = 0;
     mepa_device_t *base_dev;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
-
     if(ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
         T_E(data, MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
@@ -38,6 +51,9 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(1);
             break;
         case MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK:
+            // take input from appl for exte_clk_freq; supported ext ref freq 10, 25, 125MHZ, default it is 125MHZ.
+            // 1588 PLL Filter Range Register, if 10 change to 2, (25/125 -> 3 default )
+            // write PLL Divider Register DIVR-> 1, DIVQ -> 8
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(2);
             break;
         case MEPA_TS_CLOCK_SRC_RESERVED:
@@ -61,9 +77,14 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
     }
     switch(ts_init_conf->clk_freq){
         case MEPA_TS_CLOCK_FREQ_200M:
+            // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
+            pll_div = pll_div | INDY_1588_PLL_DIVQ_F(8); //
+            pll_div = pll_div | INDY_1588_PLL_DIVF_F(32); //
+            EP_WRM(dev, INDY_1588_PLL_DIVEDER, pll_div, INDY_DEF_MASK);
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(5);
             break;
         case MEPA_TS_CLOCK_FREQ_250M:
+            // / PLL Divider Register default values will be for 250M
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(4);
             break;
         default:
@@ -87,6 +108,40 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
     data->ts_state.tx_fifo_ts_len   = ts_init_conf->tx_ts_len;
     data->ts_state.tsu_op_mode      = INDY_TS_MODE_STANDALONE;
 
+    return MEPA_RC_OK;
+
+}
+
+static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
+{
+    uint16_t val = 0, clock_cfg = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+#if 1 // Hardware default values are not aligned
+    // Ingress latencies
+    val = indy_ing_latencies[ts_init_conf->clk_freq][2];
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.rx10mbps = val << 16;
+    val = indy_ing_latencies[ts_init_conf->clk_freq][1];
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.rx100mbps =  val << 16;
+    val = indy_ing_latencies[ts_init_conf->clk_freq][0];
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.rx1000mbps =  val << 16;
+
+    // Egress latencies
+    val = indy_egr_latencies[ts_init_conf->clk_freq][2];
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.tx10mbps =  val << 16;
+    val = indy_egr_latencies[ts_init_conf->clk_freq][1];
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.tx100mbps =  val << 16;
+    val = indy_egr_latencies[ts_init_conf->clk_freq][0];
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val,INDY_DEF_MASK);
+    data->ts_state.default_latencies.tx1000mbps =  val << 16;
+
+#else
+
     // Read default latencies
     val = 0;
     EP_RD(dev, INDY_PTP_RX_LATENCY_10, &val);
@@ -107,10 +162,12 @@ static mepa_rc indy_ts_init_conf_set_private(mepa_device_t *dev, const mepa_ts_i
     EP_RD(dev, INDY_PTP_TX_LATENCY_1000, &val);
     data->ts_state.default_latencies.tx1000mbps =  val << 16;
 
+#endif
+
+
     return MEPA_RC_OK;
 
 }
-
 
 static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf_t *const ts_init_conf)
 {
@@ -121,15 +178,24 @@ static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf
 
     MEPA_ASSERT(ts_init_conf == NULL);
     base_dev = data->base_dev;
-    MEPA_ASSERT(base_dev == NULL);
+    if(base_dev == dev){
+        MEPA_ASSERT(base_dev == NULL);
 
-    MEPA_ENTER(base_dev);
-    // Reset the LTC
-    val = val | INDY_PTP_LTC_HARD_RESET_CMD;
-    EP_WRM(base_dev, INDY_PTP_LTC_HARD_RESET, val, INDY_DEF_MASK);
-    rc = indy_ts_init_conf_set_private(base_dev, ts_init_conf);
+        MEPA_ENTER(base_dev);
+        // Reset the LTC
+        val = val | INDY_PTP_LTC_HARD_RESET_CMD;
+        EP_WRM(base_dev, INDY_PTP_LTC_HARD_RESET, val, INDY_DEF_MASK);
+        if((rc = indy_tsu_block_init(base_dev, ts_init_conf)) != MEPA_RC_OK) {
+            MEPA_EXIT(base_dev);
+            return rc;
+        }
+        MEPA_EXIT(base_dev);
+    }
 
-    MEPA_EXIT(base_dev);
+    MEPA_ENTER(dev);
+    rc = indy_ts_port_init(dev, ts_init_conf);
+    MEPA_EXIT(dev);
+
     return rc;
 }
 
