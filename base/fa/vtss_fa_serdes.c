@@ -187,6 +187,7 @@ const char *vtss_serdes_preset_txt(vtss_sd10g28_preset_t pr)
     case VTSS_SD10G28_DAC3M_PVT:   return "DAC3_PVT";
     case VTSS_SD10G28_SR:          return "SR";
     case VTSS_SD10G28_KR:          return "KR";
+    case VTSS_SD10G28_FX100:       return "100FX";
     case VTSS_SD10G28_PRESET_NONE: return "None";
     }
     return "?   ";
@@ -3608,6 +3609,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
             break;
         }
         case VTSS_SERDES_MODE_100FX: {
+            sd_cfg.preset = VTSS_SD10G28_FX100;
             sd_cfg.mode = VTSS_SD10G28_MODE_FX100;
             break;
         }

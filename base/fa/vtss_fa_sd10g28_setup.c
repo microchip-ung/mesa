@@ -434,6 +434,10 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
                 VTSS_M_SD10G_LANE_TARGET_LANE_0E_CFG_RXLB_EN |
         VTSS_M_SD10G_LANE_TARGET_LANE_0E_CFG_TXLB_EN);
 
+    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_18(sd_tgt),
+                VTSS_F_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD(res_struct->fx_100[0]),
+                VTSS_M_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD);
+
     REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
                 VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_MACRO_RST(0),
                 VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_MACRO_RST);
@@ -457,10 +461,6 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
     REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd_lane_tgt),
                 VTSS_F_SD_LANE_TARGET_MISC_MUX_ENA(res_struct->fx_100[0]),
                 VTSS_M_SD_LANE_TARGET_MISC_MUX_ENA);
-
-    REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_18(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD(res_struct->fx_100[0]),
-            VTSS_M_SD10G_LANE_TARGET_LANE_18_CFG_PI_HOLD);
 
     VTSS_MSLEEP(3);
 
@@ -488,7 +488,7 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
 
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
     vtss_sd10g28_setup_struct_t calc_results = {};
-    vtss_rc rc = 0;
+    vtss_rc rc;
     VTSS_D("This function is generated with UTE based on TAG: temp");
 
     rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);

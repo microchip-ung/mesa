@@ -176,8 +176,8 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_M_SD25G_TARGET_CMU_0F_CFG_RSEL_2_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_47(sd25g_tgt),
-            VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(0),
-            VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
+                VTSS_F_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0(0),
+                VTSS_M_SD25G_TARGET_CMU_47_L0_CFG_ITX_IPDRIVER_BASE_2_0);
 
     REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0x00),
@@ -322,10 +322,10 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_CTLE_RSTN);
 
     REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
-            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(8) |
-            VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0(res_struct->ln_cfg_itx_ipcml_base_1_0[0]),
-            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0 |
-            VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0);
+                VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0(res_struct->ln_cfg_itx_ipcml_base_1_0[0]) |
+        VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(8),
+                VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0 |
+        VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
 
     REG_WRM(VTSS_SD25G_TARGET_LANE_44(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_44_LN_CFG_RX_RESERVE_7_0(res_struct->ln_cfg_rx_reserve_7_0[0]),

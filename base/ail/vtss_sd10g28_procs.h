@@ -84,6 +84,7 @@ typedef enum {
     VTSS_SD10G28_SR,          /**< Variable used for running SFP_SR at 10G speed > */
     VTSS_SD10G28_DAC3M_PVT,    /**<Variable used for running PVT using DAC3M at 10G speed>*/
     VTSS_SD10G28_KR,          /**< KR Backplane, not yet configured> */
+    VTSS_SD10G28_FX100,       /**< 100FX settings> */
     VTSS_SD10G28_PRESET_NONE   /**< Variable used for running using SFp, RJ45 at speed lesser than 10G> */ 
 } vtss_sd10g28_preset_t;
 
@@ -183,8 +184,6 @@ typedef struct {
     u8                   pi_bw_gen1;      /**< Enable inversion of input data >                                                       */
     u8                   duty_cycle;     /**< Set output level to  half/full                                                  */
     BOOL                 dfe_enable;
-    BOOL                 cfg_oscal_afe;
-    BOOL                 cfg_pd_osdac_afe;
 } vtss_sd10g28_mode_args_t;
 
 
