@@ -11,6 +11,9 @@ pages:
 
     - name: "Release notes"
       pages:
+        - name: "MESA-2021.09"
+          src:  "mesa/docs/release-notes/mesa-2021.09.adoc"
+
         - name: "MESA-2021.06"
           src:  "mesa/docs/release-notes/mesa-2021.06.adoc"
 

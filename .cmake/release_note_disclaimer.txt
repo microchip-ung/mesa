@@ -49,65 +49,27 @@ Intel driver for GPY211 version 2.5.1.
 Disclaimers
 ===========
 
-LAN9662 in BETA, and LAN9668 still not supported
-------------------------------------------------
+LAN9662 and LAN9668 in BETA
+---------------------------
 
-This is the first release introducing the two LAN9662 and LAN9668 SKUs. LAN9662
-has gone through limited testing and the support of LAN9662 in this release is
-considered to be in BETA quality. LAN9668 is covered in the implementation, but
-it is not tested and is not considered a supported target in this release.
+LAN966x (LAN9662 and LAN9668) support is included in this release, but they
+are still not fully tested and should be treated as BETA quality.
 
-LAN9662 in this release can be used for early access, to evaluate the features
+LAN966x in this release can be used for early access to evaluate the features
 and/or start SW integration. It is not suitable for production use.
 
-LAN9668 should not be used in this release.
 
-LAN8814 (PHY) in ALPFA with limited support
--------------------------------------------
+LAN8814 (PHY) in BETA with limited support
+------------------------------------------
 
-This is the first release which adds MEPA (Microchip Ethernet PHY API) support
-for LAN8814. The support of LAN8814 in this release is considered to be in BETA
-quality. It can be used for early access, to evaluate the features and/or start
-SW integration. It is not suitable for production use.
+The support of LAN8814 in this release is considered to be in BETA quality. It
+can be used for early access to evaluate the features and/or start SW
+integration. It is not suitable for production use.
+
 
 General
 =======
 
-New port mode: `MESA_SERDES_MODE_QXGMII`
-----------------------------------------
-
-This release introduce support of `MESA_SERDES_MODE_QXGMII` (mode R) supporting
-4x 2G5 links using a single serdes.
-
-In the current release, only SparX-5/5i SKUs supports this mode, using either
-10G or 25G serdes.
-
-
-MRP Support
------------
-
-Media Redundancy Protocol - IEC 62439-2 HW Offload API added.
-
-MRP is a redundancy protocol based on ring topologies. An MRP ring consists of a
-manager (MRM) and a number of clients (MRC). When the ring is closed (all links
-working), the manager blocks forwarding of frames between the two ring ports.
-The manager sends out a periodic frame through the ring to confirm full
-connectivity. If a link in the ring goes down, the manager will detect this, and
-the ring is considered open. In this case, the manager will enable forwarding of
-frames between the two ring ports and ask all clients to flush their MAC table.
-MRP has profiles to support recovery times down to 10ms.
-
-API also supports auto-manager where the nodes automatically determine who shall
-act as manager, and it supports interconnecting multiple rings.
-
-This feature is available if the `MESA_CAP_MRP` capability is set. In the
-current version, this will only be the case for LAN966x SKUs.
-
-RCL Real-Time Control lists
----------------------------
-
-The RCL API is a TCAM-based feature used to classify packets for processing by
-the RTE (Real-Time Engine) HW found in the LAN9662 silicon. This feature shall
-be used toghether with the MERA API, and a more detailed description can be
-found in the MERA-Doc.
+This release contains a number of bugfixes for the LAN966x family, but no new
+major features have been introduced.
 
