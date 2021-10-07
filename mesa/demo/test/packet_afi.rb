@@ -71,6 +71,7 @@ def frame_rx(idx, usec)
 end
 
 def check_cnt(port, prio, name, base)
+    $ts.dut.run("mesa-cmd debug api ci count #{port + 1} full")
     cnt = $ts.dut.call("mesa_port_counters_get", port)
     tx_cnt = cnt["rmon"]["tx_etherStatsPkts"]
     tx_prio = cnt["prio"][prio]["tx"]
