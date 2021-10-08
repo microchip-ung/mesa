@@ -277,6 +277,7 @@ u32 vtss_to_rsfec(u32 port)
 }
 #endif
 
+
 #if defined(VTSS_ARCH_LAN969X)
 // Laguna port devices:
 // D1-D3,D5-D7,D10-D11,D14-D15,D18-D19.D22-D23,D28-D29    DEV2G5 (16)
@@ -514,244 +515,6 @@ u32 vtss_to_sd10g_kr(u32 port)
 #endif /* !VTSS_ARCH_LAN969X_FPGA */
 #endif /* VTSS_ARCH_LAN969X */
 
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
-// Laguna port devices:
-// D1-D3,D5-D7,D10-D11,D14-D15,D18-D19.D22-D23,D28-D29    DEV2G5 (16)
-// D0,D4,D9,D13,D17,D21                                   DEV5G  (6)
-// D8,D12,D16,D20,D24-D27                                 DEV10G (8)
-//                                                        -----------
-//                                                        30 port devices + 14 shadow devices
-
-// Serdeses:
-// SD0 - SD9    (10x10G Serdes instances)
-// RGMII:
-// 2x1G  (hardcoded to D28, D29)
-
-u32 vtss_port_dev_index(u32 port)
-{
-    if (VTSS_PORT_IS_2G5(port)) {
-        return port;
-    } else if (VTSS_PORT_IS_5G(port)) {
-        switch (port) {
-        case 0:  return 0;
-        case 4:  return 1;
-        case 9:  return 2;
-        case 13: return 3;
-        case 17: return 4;
-        case 21: return 5;
-        }
-    } else if (VTSS_PORT_IS_10G(port)) {
-        switch (port) {
-        case 8:  return 0;
-        case 12: return 1;
-        case 16: return 2;
-        case 20: return 3;
-        case 24: return 4;
-        case 25: return 5;
-        case 26: return 6;
-        case 27: return 7;
-        }
-    } else {
-        VTSS_E("illegal  port number %d",port);
-    }
-    return 0;
-}
-
-u32 vtss_to_dev2g5(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_DEV2G5_0;
-    case 1:  return VTSS_TO_DEV2G5_1;
-    case 2:  return VTSS_TO_DEV2G5_2;
-    case 3:  return VTSS_TO_DEV2G5_3;
-    case 4:  return VTSS_TO_DEV2G5_4;
-    case 5:  return VTSS_TO_DEV2G5_5;
-    case 6:  return VTSS_TO_DEV2G5_6;
-    case 7:  return VTSS_TO_DEV2G5_7;
-    case 8:  return VTSS_TO_DEV2G5_8;
-    case 9:  return VTSS_TO_DEV2G5_9;
-    case 10: return VTSS_TO_DEV2G5_10;
-    case 11: return VTSS_TO_DEV2G5_11;
-    case 12: return VTSS_TO_DEV2G5_12;
-    case 13: return VTSS_TO_DEV2G5_13;
-    case 14: return VTSS_TO_DEV2G5_14;
-    case 15: return VTSS_TO_DEV2G5_15;
-    case 16: return VTSS_TO_DEV2G5_16;
-    case 17: return VTSS_TO_DEV2G5_17;
-    case 18: return VTSS_TO_DEV2G5_18;
-    case 19: return VTSS_TO_DEV2G5_19;
-    case 20: return VTSS_TO_DEV2G5_20;
-    case 21: return VTSS_TO_DEV2G5_21;
-    case 22: return VTSS_TO_DEV2G5_22;
-    case 23: return VTSS_TO_DEV2G5_23;
-    case 24: return VTSS_TO_DEV2G5_24;
-    case 25: return VTSS_TO_DEV2G5_25;
-    case 26: return VTSS_TO_DEV2G5_26;
-    case 27: return VTSS_TO_DEV2G5_27;
-    case 28: return VTSS_TO_DEV2G5_28;
-    case 29: return VTSS_TO_DEV2G5_29;
-        default:
-        VTSS_E("illegal 2G5 port number %d",port);
-        return 0;
-    }
-}
-
-u32 vtss_to_dev5g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_DEV5G_0;
-    case 1:  return VTSS_TO_DEV5G_1;
-    case 2:  return VTSS_TO_DEV5G_2;
-    case 3:  return VTSS_TO_DEV5G_3;
-    case 4:  return VTSS_TO_DEV5G_4;
-    case 5:  return VTSS_TO_DEV5G_5;
-    default:
-        VTSS_E("illegal 5G port number %d",port);
-        return 0;
-    }
-}
-
-#endif // VTSS_ARCH_LAN969X_FPGA
-
-
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-u32 vtss_to_dev10g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_DEV10G_0;
-    case 4:  return VTSS_TO_DEV10G_4;
-    default:
-        VTSS_E("illegal 10G port number %d",port);
-        return 0;
-    }
-}
-
-u32 vtss_to_pcs10g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_PCS10G_BR_0;
-    case 4:  return VTSS_TO_PCS10G_BR_4;
-    default:
-        VTSS_E("illegal 10G port number %d",p);
-        return 0;
-    }
-}
-
-u32 vtss_to_sd10g_kr(u32 port)
-{
-    VTSS_E("Not supported on Laguna FPGA");
-    return 0;
-}
-
-u32 vtss_to_pcs5g(u32 port)
-{
-    VTSS_E("Not supported on Laguna FPGA");
-    return 0;
-}
-
-u32 vtss_to_sd6g_kr(u32 port)
-{
-    VTSS_E("Not supported on Laguna FPGA");
-    return 0;
-}
-
-u32 vtss_to_dev2g5(u32 port)
-{
-    VTSS_E("Not supported on Laguna FPGA");
-    return 0;
-}
-u32 vtss_to_dev5g(u32 port)
-{
-    VTSS_E("Not supported on Laguna FPGA");
-    return 0;
-}
-
-#else
-
-u32 vtss_to_dev10g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_DEV10G_0;
-    case 1:  return VTSS_TO_DEV10G_1;
-    case 2:  return VTSS_TO_DEV10G_2;
-    case 3:  return VTSS_TO_DEV10G_3;
-    case 4:  return VTSS_TO_DEV10G_4;
-    case 5:  return VTSS_TO_DEV10G_5;
-    case 6:  return VTSS_TO_DEV10G_6;
-    case 7:  return VTSS_TO_DEV10G_7;
-    default:
-        VTSS_E("illegal 10G port number %d",port);
-        return 0;
-    }
-}
-
-u32 vtss_to_pcs5g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_PCS5G_BR_0;
-    case 1:  return VTSS_TO_PCS5G_BR_1;
-    case 2:  return VTSS_TO_PCS5G_BR_2;
-    case 3:  return VTSS_TO_PCS5G_BR_3;
-    case 4:  return VTSS_TO_PCS5G_BR_4;
-    case 5:  return VTSS_TO_PCS5G_BR_5;
-    default:
-        VTSS_E("illegal 5G port number %d",p);
-        return 0;
-    }
-}
-
-u32 vtss_to_pcs10g(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0:  return VTSS_TO_PCS10G_BR_0;
-    case 1:  return VTSS_TO_PCS10G_BR_1;
-    case 2:  return VTSS_TO_PCS10G_BR_2;
-    case 3:  return VTSS_TO_PCS10G_BR_3;
-    case 4:  return VTSS_TO_PCS10G_BR_4;
-    case 5:  return VTSS_TO_PCS10G_BR_5;
-    case 6:  return VTSS_TO_PCS10G_BR_6;
-    case 7:  return VTSS_TO_PCS10G_BR_7;
-    default:
-        VTSS_E("illegal 10G port number %d",p);
-        return 0;
-    }
-}
-
-u32 vtss_to_sd6g_kr(u32 port)
-{
-    VTSS_E("Not supported on Laguna");
-    return 0;
-}
-
-u32 vtss_to_sd10g_kr(u32 port)
-{
-    u32 p = vtss_port_dev_index(port);
-    switch (p) {
-    case 0: return VTSS_TO_SD10G_KR_0;
-    case 1: return VTSS_TO_SD10G_KR_1;
-    case 2: return VTSS_TO_SD10G_KR_2;
-    case 3: return VTSS_TO_SD10G_KR_3;
-    case 4: return VTSS_TO_SD10G_KR_4;
-    case 5: return VTSS_TO_SD10G_KR_5;
-    case 6: return VTSS_TO_SD10G_KR_6;
-    case 7: return VTSS_TO_SD10G_KR_7;
-    default:
-        VTSS_E("illegal 10G port number %d",p);
-        return 0;
-    }
-}
-#endif
-#endif /* VTSS_ARCH_LAN969X */
-
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 p = VTSS_CHIP_PORT(port_no);
@@ -909,9 +672,6 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     }
 #endif //defined(VTSS_ARCH_LAN969X_FPGA)
     return VTSS_RC_OK;
-
-}
-
 }
 
 static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
@@ -1288,22 +1048,6 @@ static vtss_rc fa_mmd_write(vtss_state_t *vtss_state,
  *  KR related functions
  * ================================================================= */
 
-/* ================================================================= *
- *  KR related functions
- * ================================================================= */
-
-static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no)
-{
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
-}
-
-static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
-                                   const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
-{
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
-}
-
 static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no)
 {
@@ -1480,7 +1224,6 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
     REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
             VTSS_F_IP_KRANEG_FW_MSG_NP_LOADED(1),
             VTSS_M_IP_KRANEG_FW_MSG_NP_LOADED);
-#endif
     return VTSS_RC_OK;
 }
 
@@ -2217,7 +1960,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
 /* ================================================================= *
