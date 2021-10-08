@@ -1487,16 +1487,18 @@ static vtss_rc vtss_phy_10g_fw_load_private(vtss_state_t *vtss_state,
 vtss_rc vtss_phy_10g_init_conf_set(vtss_state_t *vtss_state)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
-    vtss_port_no_t   port_no = conf->restart_info_port;
-    u16              reg;
-    u32              value;
+    vtss_port_no_t   port_no;
 
     VTSS_D("Enter");
+#if defined(VTSS_FEATURE_WARM_START)
+    port_no = conf->restart_info_port;
     if (conf->restart_info_src == VTSS_RESTART_INFO_SRC_10G_PHY && 
         vtss_phy_10g_identify_private(vtss_state, port_no) == VTSS_RC_OK &&
         vtss_state->phy_10g_state[port_no].family != VTSS_PHY_FAMILY_10G_NONE) {
-        vtss_state->phy_10g_api_base_no = port_no ;
+        u16 reg;
+        u32 value;
 
+        vtss_state->phy_10g_api_base_no = port_no;
         if (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8486) {
             /* Get restart information from Vitesse 10G PHY */
             VTSS_RC(vtss_mmd_rd(vtss_state, port_no, MMD_NVR_DOM, 0x8007, &reg));
@@ -1522,7 +1524,7 @@ vtss_rc vtss_phy_10g_init_conf_set(vtss_state_t *vtss_state)
         }
         VTSS_RC(vtss_cmn_restart_update(vtss_state, value));
     }
-
+#endif // VTSS_FEATURE_WARM_START
 
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         if  (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8486) {
@@ -1538,6 +1540,7 @@ vtss_rc vtss_phy_10g_init_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_WARM_START)
 vtss_rc vtss_phy_10g_restart_conf_set(vtss_state_t *vtss_state)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
@@ -1570,7 +1573,7 @@ vtss_rc vtss_phy_10g_restart_conf_set(vtss_state_t *vtss_state)
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
-
+#endif // VTSS_FEATURE_WARM_START
 
 /* Set the operating mode of the Phy  */
 static vtss_rc vtss_phy_10g_mode_set_private(vtss_state_t *vtss_state,

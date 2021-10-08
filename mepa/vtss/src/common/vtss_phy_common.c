@@ -174,6 +174,7 @@ vtss_rc vtss_phy_inst_port_no_check(const vtss_inst_t    inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_WARM_START)
 /* Warm start scratch-pad 32-bit register layout */
 #define VTSS_RESTART_VERSION_OFFSET 0
 #define VTSS_RESTART_VERSION_WIDTH  16
@@ -241,6 +242,7 @@ u32 vtss_phy_restart_value_get(vtss_state_t *vtss_state)
                                  VTSS_RESTART_VERSION_OFFSET,
                                  VTSS_RESTART_VERSION_WIDTH));
 }
+#endif // VTSS_FEATURE_WARM_START
 
 /* Trace group table */
 const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type)

@@ -7812,15 +7812,6 @@ vtss_rc vtss_phy_post_reset_private(vtss_state_t *vtss_state, const vtss_port_no
     case VTSS_PHY_FAMILY_VIPER:
     case VTSS_PHY_FAMILY_ELISE:
     case VTSS_PHY_FAMILY_NANO :
-#if defined(VTSS_ARCH_JAGUAR_2)
-        if (vtss_state->sync_calling_private == TRUE) {
-            if (vtss_state->phy_state[port_no].type.base_port_no == 0) {
-                VTSS_RC(vtss_phy_coma_mode_private(vtss_state, port_no, TRUE));
-            }
-        } else {
-            VTSS_RC(vtss_phy_coma_mode_private(vtss_state, port_no, TRUE));
-        }
-#else
         /* COMA mode should only be changed during COLD Start - not during phy_sync of WARMSTART */
         if (vtss_state->sync_calling_private == FALSE) {
             vtss_phy_conf_t       *conf = &ps->setup;
@@ -7833,7 +7824,6 @@ vtss_rc vtss_phy_post_reset_private(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_RC(vtss_phy_coma_mode_private(vtss_state, port_no, TRUE));
             }
         }
-#endif//VTSS_ARCH_JAGUAR_2
         break;
     default:
         VTSS_D("No post-initialising needed for family:%s, port = %d",

@@ -73,7 +73,7 @@
 #define VTSS_FEATURE_SYNCE_10G           /**< SYNCE - L1 syncronization feature for 10G PHYs*/
 #define VTSS_FEATURE_EDC_FW_LOAD         /**< 848x EDC firmware will get loaded at initilization */
 #define VTSS_FEATURE_WIS                 /**< WAN interface sublayer functionality */
-#define VTSS_FEATURE_WARM_START          /**< Warm start */
+#define VTSS_FEATURE_10GBASE_KR          /**< KR */
 #define VTSS_ARCH_MALIBU                 /**< Used for Malibu-A PHY */
 #define VTSS_ARCH_MALIBU_B               /**< Used for Malibu-B PHY */
 #define VTSS_ARCH_VENICE_C               /**< Used for Venice-C PHY */
