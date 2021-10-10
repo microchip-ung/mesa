@@ -327,7 +327,6 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         }
     }
 
-    EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
     PHY_MSLEEP(1);
     MEPA_EXIT(dev);
     T_I(data, MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
