@@ -13,7 +13,11 @@
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
-#include "vtss_laguna_regs.h"
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#include "fpga/vtss_laguna_regs.h"
+#else
+#include "laguna/vtss_laguna_regs.h"
+#endif
 #endif
 
 
