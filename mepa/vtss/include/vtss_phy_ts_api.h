@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 
+#include <vtss_phy_api.h>
+
 /**
  * \file
  * \brief PHY TimeStamping API
@@ -11,7 +13,6 @@
 #ifndef _VTSS_PHY_TS_API_H_
 #define _VTSS_PHY_TS_API_H_
 
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -473,7 +474,6 @@ vtss_rc vtss_phy_ts_ltc_freq_synth_pulse_get(const vtss_inst_t inst,
                                              const vtss_port_no_t port_no,
                                              vtss_phy_ltc_freq_synth_t *const ltc_freq_synthesis );
 
-#ifdef VTSS_CHIP_CU_PHY
 /** \brief SPI daisy chain configuration */
 typedef struct {
     BOOL spi_daisy_input;    /**< Enable SPI daisy-chain input port */
@@ -505,7 +505,6 @@ vtss_rc vtss_phy_daisy_conf_set(const vtss_inst_t                   inst,
 vtss_rc vtss_phy_daisy_conf_get(const vtss_inst_t           inst,
                                    const vtss_port_no_t        port_no,
                                    vtss_phy_daisy_chain_conf_t *const daisy_chain);
-#endif //VTSS_CHIP_CU_PHY
 
 /**
  * \brief Defines Tx TSFIFO signature mask.
@@ -672,9 +671,7 @@ typedef enum {
 
     VTSS_PHY_TS_ENCAP_ANY, /* Timestamp all packets */
     VTSS_PHY_TS_ENCAP_ETH_GEN, /* Generic timestamping */
-#if defined VTSS_FEATURE_WARM_START
     VTSS_PHY_TS_ENCAP_NONE,
-#endif
 } vtss_phy_ts_encap_t;
 
 /**
@@ -1684,9 +1681,7 @@ typedef struct {
     BOOL                              tx_fifo_spi_conf; /**< Modify default 1588_spi configuration, applicable only on PHYs with SPI timestamp fifo support */
     u8                                tx_fifo_hi_clk_cycs; /**< Number of clock periods that the spi_clk is high */
     u8                                tx_fifo_lo_clk_cycs; /**< Number of clock periods that the spi_clk is low */
-#ifdef VTSS_CHIP_10G_PHY
     vtss_phy_ts_8487_xaui_sel_t       xaui_sel_8487; /**< 8487 XAUI lane selection*/
-#endif
 #if defined (VTSS_SW_OPTION_REMOTE_TS_PHY)
     BOOL                              remote_phy;    /**< TRUE if the phy is remote */
 #endif /* VTSS_SW_OPTION_REMOTE_TS_PHY */
@@ -1846,7 +1841,7 @@ vtss_rc vtss_phy_ts_nphase_status_get(const vtss_inst_t     inst,
 #define VTSS_PHY_TS_EGR_LTC2_RESET              0x08  /**< Egress LTC clock domain logic for this channel*/
 #define VTSS_PHY_TS_EGR_FIFO_RESET              0x10  /**< Egress FIFO reset */
 
-#if defined(VTSS_CHIP_CU_PHY) && defined(VTSS_PHY_TS_SPI_CLK_THRU_PPS0)
+#if defined(VTSS_PHY_TS_SPI_CLK_THRU_PPS0)
 /**
  * \brief Enable/disable New SPI mode for 8574-15 (Rev A & Rev B) that uses
  *  PPS0 pin as the new SPI_CLK.
@@ -1891,9 +1886,8 @@ vtss_rc vtss_phy_ts_new_spi_mode_set(const vtss_inst_t          inst,
 vtss_rc vtss_phy_ts_new_spi_mode_get(const vtss_inst_t       inst,
                                      const vtss_port_no_t    port_no,
                                      BOOL                    *const mode);
-#endif /* VTSS_CHIP_CU_PHY && VTSS_PHY_TS_SPI_CLK_THRU_PPS0 */
+#endif /* VTSS_PHY_TS_SPI_CLK_THRU_PPS0 */
 
-#if defined(VTSS_CHIP_10G_PHY)
 /**
  * \brief Update the PHY timestamping block to predict the correct latency.
  * \note This function should be called when changing the PHY oper mode. Eg:LAN to WAN 
@@ -1906,7 +1900,6 @@ vtss_rc vtss_phy_ts_new_spi_mode_get(const vtss_inst_t       inst,
  **/
 vtss_rc vtss_phy_ts_phy_oper_mode_change(const vtss_inst_t          inst,
                                          const vtss_port_no_t       port_no);
-#endif /* VTSS_CHIP_10G_PHY */
 
 /**
  * \brief Set the the 1588 block CSR registers.
@@ -2008,5 +2001,4 @@ vtss_rc vtss_phy_ts_flow_clear_cf_set(const vtss_inst_t                     inst
 #ifdef __cplusplus
 }
 #endif
-#endif /* _VTSS_PHY_TS_API_H_ */
 #endif /* VTSS_OPT_PHY_TIMESTAMP */

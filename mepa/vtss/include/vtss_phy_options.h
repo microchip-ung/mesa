@@ -1,6 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#include <vtss_phy_api.h>
+
 #ifndef _VTSS_PHY_OPTIONS_H_
 #define _VTSS_PHY_OPTIONS_H_
 
@@ -61,6 +63,9 @@
 #define VTSS_FEATURE_WARM_START
 #endif
 
+// LED power reduction
+#define VTSS_FEATURE_LED_POW_REDUC
+
 // Hooks for Serdes Macro configuration
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS
 
@@ -71,6 +76,7 @@
 
 #if defined(VTSS_CHIP_10G_PHY)
 #define VTSS_FEATURE_SYNCE_10G           /**< SYNCE - L1 syncronization feature for 10G PHYs*/
+#define VTSS_FEATURE_10GBASE_KR          /**< KR */
 #define VTSS_FEATURE_EDC_FW_LOAD         /**< 848x EDC firmware will get loaded at initilization */
 #define VTSS_FEATURE_WIS                 /**< WAN interface sublayer functionality */
 #define VTSS_FEATURE_10GBASE_KR          /**< KR */

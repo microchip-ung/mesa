@@ -197,17 +197,17 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t inst,
                 T_E(inst, "meba_phy_event_enable_set = %d", rc);
             }
 
-            if (events & MESA_PHY_LINK_FFAIL_EV) {
+            if (events & VTSS_PHY_LINK_FFAIL_EV) {
                 signal_notifier(MEBA_EVENT_FLNK, port_no);
                 handled++;
             }
 
-            if (events & MESA_PHY_LINK_LOS_EV) {
+            if (events & VTSS_PHY_LINK_LOS_EV) {
                 signal_notifier(MEBA_EVENT_LOS, port_no);
                 handled++;
             }
 
-            if (events & MESA_PHY_LINK_AMS_EV) {
+            if (events & VTSS_PHY_LINK_AMS_EV) {
                 signal_notifier(MEBA_EVENT_AMS, port_no);
                 handled++;
             }
@@ -229,8 +229,8 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
     MEBA_ASSERT(inst->private_data != NULL);
     map = port_entry.map;
     if (port_entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) {
-        mesa_phy_10g_id_t phy_10g_id;
-        mesa_phy_10g_id_get(PHY_INST, port_no, &phy_10g_id);
+        vtss_phy_10g_id_t phy_10g_id;
+        vtss_phy_10g_id_get(PHY_INST, port_no, &phy_10g_id);
         phy_id = (uint32_t)phy_10g_id.part_number;
     } else {
         mesa_miim_read(NULL, map.chip_no, map.miim_controller, map.miim_addr, 2, &reg2_val);

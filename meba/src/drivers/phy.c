@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <microchip/ethernet/board/api.h>
 #include <microchip/ethernet/phy/api/phy.h>
-#include <microchip/ethernet/switch/api/phy_10g.h>
 #include <vtss_phy_api.h>
 #include "meba_generic.h"
 
@@ -446,9 +445,9 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
 {
     mesa_port_conf_t      conf;
     mepa_driver_status_t  status_mepa;
-    mesa_phy_10g_id_t     id;
-    mesa_phy_10g_mode_t   mode;
-    mesa_phy_10g_status_t status_10g;
+    vtss_phy_10g_id_t     id;
+    vtss_phy_10g_mode_t   mode;
+    vtss_phy_10g_status_t status_10g;
     meba_port_entry_t     entry;
 
     MESA_RC(mesa_port_conf_get(NULL, port_no, &conf));
@@ -478,26 +477,26 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     // Check that it is Venice/Malibu
     if (inst->api.meba_port_entry_get(inst, port_no, &entry) != MESA_RC_OK ||
         (entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
-        mesa_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
-        (id.family != MESA_PHY_FAMILY_VENICE && id.family != MESA_PHY_FAMILY_MALIBU)) {
+        vtss_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
+        (id.family != VTSS_PHY_FAMILY_VENICE && id.family != VTSS_PHY_FAMILY_MALIBU)) {
         return MESA_RC_OK;
     }
 
     // If the 10G PHY is in 1G mode, combine with 10G PHY clause 37 status
     if (conf.if_type != MESA_PORT_INTERFACE_XAUI &&
-        mesa_phy_10g_mode_get(NULL, port_no, &mode) == MESA_RC_OK &&
-        mode.oper_mode == MESA_PHY_1G_MODE) {
-        mesa_phy_10g_clause_37_cmn_status_t c37_status;
-        mesa_phy_10g_clause_37_status_t     *line = &c37_status.line;
-        mesa_phy_10g_clause_37_status_t     *host = &c37_status.host;
-        mesa_phy_10g_clause_37_control_t    c37_ctrl;
-        mesa_phy_10g_clause_37_adv_t        *adv = &c37_ctrl.advertisement;
-        mesa_phy_10g_clause_37_adv_t        *lp = &line->autoneg.partner_advertisement;
+        vtss_phy_10g_mode_get(NULL, port_no, &mode) == MESA_RC_OK &&
+        mode.oper_mode == VTSS_PHY_1G_MODE) {
+        vtss_phy_10g_clause_37_cmn_status_t c37_status;
+        vtss_phy_10g_clause_37_status_t     *line = &c37_status.line;
+        vtss_phy_10g_clause_37_status_t     *host = &c37_status.host;
+        vtss_phy_10g_clause_37_control_t    c37_ctrl;
+        vtss_phy_10g_clause_37_adv_t        *adv = &c37_ctrl.advertisement;
+        vtss_phy_10g_clause_37_adv_t        *lp = &line->autoneg.partner_advertisement;
 
-        MESA_RC(mesa_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
+        MESA_RC(vtss_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
         if (host->link == 0 || line->link == 0) {
             // Link has been down, get current status
-            MESA_RC(mesa_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
+            MESA_RC(vtss_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
             status->link_down = 1;
         }
         if (host->link == 0 || line->link == 0) {
@@ -506,7 +505,7 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
             return MESA_RC_OK;
         }
 
-        MESA_RC(mesa_phy_10g_clause_37_control_get(NULL, port_no, &c37_ctrl));
+        MESA_RC(vtss_phy_10g_clause_37_control_get(NULL, port_no, &c37_ctrl));
         if (c37_ctrl.enable) {
             // Auto-negotiation enabled
             if (host->autoneg.complete && line->autoneg.complete && adv->fdx && lp->fdx) {
@@ -521,7 +520,7 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
                       (adv->asymmetric_pause && lp->asymmetric_pause)) ? 1 : 0);
 
                 // Remote fault
-                if (lp->remote_fault != MESA_PHY_10G_CLAUSE_37_RF_LINK_OK)
+                if (lp->remote_fault != VTSS_PHY_10G_CLAUSE_37_RF_LINK_OK)
                     status->remote_fault = 1;
             } else {
                 // Auto-negotiation failed
@@ -531,7 +530,7 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     }
 
     // If the host MAC in the 10G PHY is enabled, combine with 10G PHY status
-    if (mesa_phy_10g_status_get(NULL, port_no, &status_10g) == MESA_RC_OK &&
+    if (vtss_phy_10g_status_get(NULL, port_no, &status_10g) == MESA_RC_OK &&
         status_10g.status == 0) {
         status->link = 0;
     }

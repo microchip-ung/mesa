@@ -662,7 +662,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
     case MEBA_EVENT_FLNK:
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (is_phy_port(board->entry[port_no].cap)) {
-                rc = meba_phy_event_enable_set(inst, port_no, MESA_PHY_LINK_FFAIL_EV, enable);
+                rc = meba_phy_event_enable_set(inst, port_no, VTSS_PHY_LINK_FFAIL_EV, enable);
                 if (rc != MESA_RC_OK) {
                     break;
                 }

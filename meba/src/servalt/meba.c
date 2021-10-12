@@ -336,7 +336,7 @@ static mesa_rc servalt_reset(meba_inst_t inst,
         case MEBA_PORT_RESET:
             break;
         case MEBA_PORT_RESET_POST:
-            rc = mesa_phy_post_reset(PHY_INST, 0);
+            rc = vtss_phy_post_reset(PHY_INST, 0);
             break;
         case MEBA_STATUS_LED_INITIALIZE:
         case MEBA_PORT_LED_INITIALIZE:
@@ -345,7 +345,7 @@ static mesa_rc servalt_reset(meba_inst_t inst,
             rc = mesa_fan_controller_init(NULL, board->fan_spec);
             break;
         case MEBA_SENSOR_INITIALIZE:
-            rc = mesa_phy_chip_temp_init(PHY_INST, 0);
+            rc = vtss_phy_chip_temp_init(PHY_INST, 0);
             break;
         case MEBA_INTERRUPT_INITIALIZE:
             break;
@@ -483,7 +483,7 @@ static mesa_rc servalt_sensor_get(meba_inst_t inst,
     T_N(inst, "Called %d:%d", type, six);
     if ((type == MEBA_SENSOR_BOARD_TEMP && six == 0) ||
         (type == MEBA_SENSOR_PORT_TEMP && six < board->port_cnt)) {
-        rc = mesa_phy_chip_temp_get(PHY_INST, 0, &temp);
+        rc = vtss_phy_chip_temp_get(PHY_INST, 0, &temp);
     }
     if (rc == MESA_RC_OK) {
         *value = temp;    // Conversion
@@ -850,9 +850,9 @@ static mesa_rc servalt_led_mode_set(meba_inst_t inst, uint32_t mode)
 }
 
 static mesa_rc servalt_led_intensity_set(meba_inst_t inst,
-                                         mesa_phy_led_intensity intensity)
+                                         vtss_phy_led_intensity intensity)
 {
-    return mesa_phy_led_intensity_set(PHY_INST, 0, intensity);
+    return vtss_phy_led_intensity_set(PHY_INST, 0, intensity);
 }
 
 static mesa_rc servalt_fan_param_get(meba_inst_t inst,
@@ -947,7 +947,7 @@ static mesa_rc servalt_event_enable(meba_inst_t inst,
                 }
                 if (is_phy_port(board->port[port_no].map.cap)) {
                     T_D(inst, "port(%d) %sable FLNK", port_no, enable ? "en" : "dis");
-                    if ((rc = mesa_phy_event_enable_set(PHY_INST, port_no, MESA_PHY_LINK_FFAIL_EV, enable)) != MESA_RC_OK) {
+                    if ((rc = vtss_phy_event_enable_set(PHY_INST, port_no, VTSS_PHY_LINK_FFAIL_EV, enable)) != MESA_RC_OK) {
                         T_E(inst, "Could not enable event for dev #%d = %d", port_no, rc);
                     }
                 }

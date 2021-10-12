@@ -9,7 +9,7 @@
 
 #include "meba_generic.h"
 
-static const int64_t clk_mhz[MESA_PHY_TS_CLOCK_FREQ_MAX] = {125000000LL, 156250000LL, 200000000LL, 250000000LL, 500000000LL};
+static const int64_t clk_mhz[VTSS_PHY_TS_CLOCK_FREQ_MAX] = {125000000LL, 156250000LL, 200000000LL, 250000000LL, 500000000LL};
 
 static inline mesa_rc meba_conf_get_hex(meba_inst_t inst,
                                         const char *tag,

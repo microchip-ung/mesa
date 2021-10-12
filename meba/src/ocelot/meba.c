@@ -438,7 +438,7 @@ static void pcb123_init_porttable(meba_inst_t inst)
     } map_wrap_t;
     map_wrap_t map_wrap;
 
-    /* Note that the mesa_phy_pre_reset() and mesa_phy_post_reset() functions
+    /* Note that the vtss_phy_pre_reset() and vtss_phy_post_reset() functions
      * rely on the base port of a PHY, so if a PHY is used in the following port
      * maps, then the map must always make use of the PHY's base port.
      * Also, the mapping from API port to chip port in 'meba_reset()' must also be
@@ -847,7 +847,7 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
     mesa_port_no_t int_phy_base_port = 0, ext_phy_base_port = 0;
 
     /* API port to chip port mapping.
-     * The mesa_phy_pre_reset() and mesa_phy_post_reset() functions of the PHY API
+     * The vtss_phy_pre_reset() and vtss_phy_post_reset() functions of the PHY API
      * need to be called using the base port of the PHY device. That is according to
      * their specifications. To do that, we need to determine the equivalent API port
      * number for the base port of the PHY.
@@ -875,16 +875,16 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
             sleep(1); // Make sure PHYs are accessible
             break;
         case MEBA_PORT_RESET:
-            if ((rc = mesa_phy_pre_reset(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
+            if ((rc = vtss_phy_pre_reset(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
                 if (board->type == BOARD_TYPE_OCELOT_PCB120) {
-                    rc = mesa_phy_pre_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
+                    rc = vtss_phy_pre_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
                 }
             }
             break;
         case MEBA_PORT_RESET_POST:
-            if ((rc = mesa_phy_post_reset(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
+            if ((rc = vtss_phy_post_reset(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
                 if (board->type == BOARD_TYPE_OCELOT_PCB120) {
-                    rc = mesa_phy_post_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
+                    rc = vtss_phy_post_reset(PHY_INST, ext_phy_base_port); // External Viper PHY
                 }
             }
             if (board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
@@ -906,15 +906,15 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
         case MEBA_FAN_INITIALIZE:
             break;
         case MEBA_SENSOR_INITIALIZE:
-            if ((rc = mesa_phy_chip_temp_init(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
+            if ((rc = vtss_phy_chip_temp_init(PHY_INST, int_phy_base_port)) == MESA_RC_OK) { // Internal Nano PHY
                 if (board->type == BOARD_TYPE_OCELOT_PCB120) {
-                    rc = mesa_phy_chip_temp_init(PHY_INST, ext_phy_base_port); // External Viper PHY
+                    rc = vtss_phy_chip_temp_init(PHY_INST, ext_phy_base_port); // External Viper PHY
                 }
             }
             break;
         case MEBA_INTERRUPT_INITIALIZE:
             {
-                mesa_phy_type_t phy_id;
+                vtss_phy_type_t phy_id;
                 mesa_port_no_t port_no;
                 for (port_no = 0; port_no < board->port_cnt; port_no++) {
                     mepa_device_t *phy_dev;
@@ -922,12 +922,12 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
                     if ((phy_dev != NULL ) && (phy_dev->drv->mepa_ts != NULL)) {
                         board->port[port_no].ts_phy = true;
                     } else { // This part can be removed after VTSS Phy API refactored
-                        if (mesa_phy_id_get(PHY_INST, port_no, &phy_id) != MESA_RC_OK) {
+                        if (vtss_phy_id_get(PHY_INST, port_no, &phy_id) != MESA_RC_OK) {
                             continue;
                         }
-                        if ((phy_id.part_number == MESA_PHY_TYPE_8574) || (phy_id.part_number == MESA_PHY_TYPE_8572) ||
-                                (phy_id.part_number == MESA_PHY_TYPE_8582) || (phy_id.part_number == MESA_PHY_TYPE_8584) ||
-                                (phy_id.part_number == MESA_PHY_TYPE_8575)) {
+                        if ((phy_id.part_number == VTSS_PHY_TYPE_8574) || (phy_id.part_number == VTSS_PHY_TYPE_8572) ||
+                                (phy_id.part_number == VTSS_PHY_TYPE_8582) || (phy_id.part_number == VTSS_PHY_TYPE_8584) ||
+                                (phy_id.part_number == VTSS_PHY_TYPE_8575)) {
                             board->port[port_no].ts_phy = true;
                         }
                     }
@@ -970,12 +970,12 @@ static mesa_rc ocelot_sensor_get(meba_inst_t inst,
                 // and one in the external Viper PHY.
                 // Viper is for board ports 0-3, thus we access it on port 0.
                 // Nano is for board ports 4-7, thus we access it on port 4.
-                rc = mesa_phy_chip_temp_get(PHY_INST, six * 4, &temp);
+                rc = vtss_phy_chip_temp_get(PHY_INST, six * 4, &temp);
             } else {
                 // Assuming BOARD_TYPE_OCELOT_PCB123
                 // PCB123 has only one sensor in the internal Nano PHY.
                 // We access it on port 0.
-                rc = mesa_phy_chip_temp_get(PHY_INST, six, &temp);
+                rc = vtss_phy_chip_temp_get(PHY_INST, six, &temp);
             }
         }
     } else if (type == MEBA_SENSOR_PORT_TEMP && six < board->port_cnt) {
@@ -989,7 +989,7 @@ static mesa_rc ocelot_sensor_get(meba_inst_t inst,
         }
         if (board_port <= max_phy_port_no) {
             // Call the PHY API and retrieve the temperature
-            rc = mesa_phy_chip_temp_get(PHY_INST, six, &temp);
+            rc = vtss_phy_chip_temp_get(PHY_INST, six, &temp);
         } else {
             // No temperature sensor on these ports
             temp = 0;
@@ -1409,7 +1409,7 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (board->port[port_no].ts_phy) {
                     if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
-                        T_E(inst, "mesa_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
+                        T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
                     }
                 }
             }
@@ -1503,12 +1503,12 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
     }
     if (polled) {
         port_no = 4;
-        if (events & MESA_PHY_LINK_FFAIL_EV) {
+        if (events & VTSS_PHY_LINK_FFAIL_EV) {
             signal_notifier(MEBA_EVENT_FLNK, port_no);
             handled++;
         }
 
-        if (events & MESA_PHY_LINK_LOS_EV) {
+        if (events & VTSS_PHY_LINK_LOS_EV) {
             signal_notifier(MEBA_EVENT_LOS, port_no);
             handled++;
         }

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 
+#include <vtss_phy_api.h>
+
 /**
  * \file vtss_wis_api.h
  * \brief eWIS layer API
@@ -10,7 +12,6 @@
 #ifndef _VTSS_WIS_API_H_
 #define _VTSS_WIS_API_H_
 
-#if defined(VTSS_FEATURE_WIS)
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -319,7 +320,6 @@ typedef struct vtss_ewis_conf_s {
  * \note These interrupts are not used for 8487-15/8488-15.
  *  There are seperate type vtss_phy_10g_event_t defined in vtss_phy_10g_api.h for these chips.
  **/
-#if defined(VTSS_CHIP_10G_PHY)
 #define VTSS_EWIS_SEF_EV                    0x00000001  /**< SEF has changed state */
 #define VTSS_EWIS_FPLM_EV                   0x00000002  /**< far-end (PLM-P) / (LCDP) */
 #define VTSS_EWIS_FAIS_EV                   0x00000004  /**< far-end (AIS-P) / (LOP) */
@@ -355,8 +355,6 @@ typedef struct vtss_ewis_conf_s {
 #define VTSS_EWIS_B3_THRESH_EV              0x20000000  /**< B3_THRESH_ERR */
 #define VTSS_EWIS_REIL_THRESH_EV            0x40000000  /**< REIL_THRESH_ERR */
 #define VTSS_EWIS_REIP_THRESH_EV            0x80000000  /**< REIp_THRESH_ERR */
-
-#endif /* VTSS_CHIP_10G_PHY */
 
 typedef u64 vtss_ewis_event_t; /**< Int events: Single event or 'OR' multiple events above */
 
@@ -915,5 +913,4 @@ vtss_rc vtss_ewis_perf_mode_get(const vtss_inst_t inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* VTSS_FEATURE_WIS */
 #endif /* _VTSS_WIS_API_H_ */

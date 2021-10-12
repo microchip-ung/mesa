@@ -6,9 +6,7 @@
 #define _MEBA_GENERIC_H_
 
 #include <microchip/ethernet/board/api.h>
-#include <microchip/ethernet/switch/api/phy_1g.h>
-#include <microchip/ethernet/switch/api/phy_10g.h>
-#include <microchip/ethernet/switch/api/phy_ts.h>
+#include <vtss_phy_api.h>
 
 /** Phy instance constant */
 #define PHY_INST NULL

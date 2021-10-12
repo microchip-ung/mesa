@@ -8,13 +8,14 @@
  * \details This header file describes 10G PHY control functions
  */
 
+#include <vtss_phy_api.h>
+
 #ifndef _VTSS_PHY_10G_API_H_
 #define _VTSS_PHY_10G_API_H_
 
 #define VTSS_10G_PHY_GPIO_MAX   12  /**< Max value of gpio_no parameter */
 #define VTSS_10G_PHY_GPIO_MAL_MAX   40  /**< Max value of gpio_no parameter,Malibu */
 
-#ifdef VTSS_CHIP_10G_PHY
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,7 +28,6 @@ typedef enum {
                                 /**< Venice: Single clock (XREFCK), no recovered clock output\n */
     VTSS_PHY_1G_MODE,           /**< 8488:   1G pass-through mode\n */
                                 /**< Venice: 1G mode, Single clock (XREFCK=156,25 MHz), no recovered clock output */
-#if defined(VTSS_FEATURE_SYNCE_10G)
     VTSS_PHY_LAN_SYNCE_MODE,    /**< LAN SyncE:\n */
                                 /**< if hl_clk_synth == 1:\n */
                                 /**< 8488:   Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
@@ -46,7 +46,6 @@ typedef enum {
                                    /**< Venice: Same as VTSS_PHY_LAN_SYNCE_MODE */
     VTSS_PHY_WAN_MIXED_SYNCE_MODE, /**< 8488:   Channels are in different modes, channel being configured is in WAN\n */
                                    /**< Venice: Same as VTSS_PHY_WAN_SYNCE_MODE */
-#endif /* VTSS_FEATURE_SYNCE_10G */
     VTSS_PHY_REPEATER_MODE,    /**< Malibu: Repeater mode,better jitter performance  */
 } vtss_oper_mode_t;
 
@@ -329,7 +328,6 @@ typedef struct {
 
     vtss_channel_t channel_id;            /**< Channel id of this instance of the Phy  */
 
-#if defined(VTSS_FEATURE_SYNCE_10G)
     BOOL hl_clk_synth;                          /**< 0: Free running clock  1: Hitless clock   */
     vtss_recvrd_t rcvrd_clk;                    /**< RXCLKOUT/TXCLKOUT used as recovered clock */
                                                 /**< (not used any more, instead use the api functions: */
@@ -337,7 +335,6 @@ typedef struct {
     vtss_recvrdclk_cdr_div_t rcvrd_clk_div;     /**< 8488 only: recovered clock's divisor      */
     vtss_srefclk_div_t  sref_clk_div;           /**< 8488 only: SRERCLK divisor                */
     vtss_wref_clk_div_t wref_clk_div;           /**< 8488 only: WREFCLK divisor                */
-#endif /* VTSS_FEATURE_SYNCE_10G */
 
 #if defined(VTSS_FEATURE_EDC_FW_LOAD)
     /** \brief EDC modes */
@@ -613,7 +610,6 @@ vtss_rc vtss_phy_10g_jitter_status_get (const vtss_inst_t inst,
                                         vtss_phy_10g_jitter_conf_t *const jitter_conf,
                                         BOOL is_host);
 
-#if defined(VTSS_FEATURE_SYNCE_10G) 
 /**
  * \brief Get the status of recovered clock from PHY. (recommended to use vtss_phy_10g_rxckout_get instead)
  *
@@ -1089,7 +1085,6 @@ vtss_rc vtss_phy_10g_line_recvrd_clk_conf_set (const vtss_inst_t inst,
 vtss_rc vtss_phy_10g_host_recvrd_clk_conf_set (const vtss_inst_t inst,
                                        const vtss_port_no_t port_no,
                                        const vtss_phy_10g_host_clk_conf_t *const host_clk);
-#endif /* VTSS_FEATURE_SYNCE_10G */
 
 /**
  * Malibu Only
@@ -1190,7 +1185,6 @@ typedef struct {
     BOOL ser_inv;   /**< Invert input to serializer */
 } vtss_phy_10g_base_kr_conf_t;
 
-#ifdef VTSS_FEATURE_10GBASE_KR
 /** \brief 10G Phy Base KR Autoneg config*/
 
 typedef struct {
@@ -1324,8 +1318,6 @@ vtss_rc vtss_phy_10g_kr_status_get(const vtss_inst_t inst,
                                         const vtss_port_no_t port_no,
                                         BOOL direction,
                                         vtss_phy_10g_base_kr_status_t *const kr_status);
-
-#endif // VTSS_FEATURE_10GBASE_KR
 
 /**
  * \brief Get the configuration of Line 10G output buffer setting.
@@ -2635,6 +2627,7 @@ typedef enum
     VTSS_10G_GPIO_INPUT_NONE,          /** Input that doesn't need any extra configuration */   
     VTSS_10G_GPIO_INPUT_LINE_LOPC,     /** LOPC from SFP on LINE */   
     VTSS_10G_GPIO_INPUT_HOST_LOPC,     /** LOPC from SFP on HOST */
+    VTSS_10G_GPIO_INPUT_SFP_MOD_DET,   /** SFP Module detect */
 } vtss_gpio_10g_input_t;       /** GPIO input modes */
 
 /**
@@ -2761,7 +2754,6 @@ vtss_rc vtss_phy_10g_gpio_write(const vtss_inst_t     inst,
 #define    VTSS_PHY_10G_HIGH_BER_EV            0x00000010 /**< PHY HIGH_BER interrupt - only on 8488 */
 #define    VTSS_PHY_10G_MODULE_STAT_EV         0x00000020 /**< PHY MODULE_STAT interrupt - only on 8488 */
 #define    VTSS_PHY_10G_PCS_RECEIVE_FAULT_EV   0x00000040 /**< PHY PCS_RECEIVE_FAULT interrupt - only on 8488 */
-#ifdef VTSS_FEATURE_WIS
 #define    VTSS_PHY_EWIS_SEF_EV                0x00000080 /**< SEF has changed state - only for 8488 */
 #define    VTSS_PHY_EWIS_FPLM_EV               0x00000100 /**< far-end (PLM-P) / (LCDP) - only for 8488 */
 #define    VTSS_PHY_EWIS_FAIS_EV               0x00000200 /**< far-end (AIS-P) / (LOP) - only for 8488 */
@@ -2787,7 +2779,6 @@ vtss_rc vtss_phy_10g_gpio_write(const vtss_inst_t     inst,
 #define    VTSS_PHY_EWIS_B3_THRESH_EV          0x20000000 /**< B3_THRESH_ERR - only for 8488 */
 #define    VTSS_PHY_EWIS_REIL_THRESH_EV        0x40000000 /**< REIL_THRESH_ERR - only for 8488 */
 #define    VTSS_PHY_EWIS_REIP_THRESH_EV        0x80000000 /**< REIp_THRESH_ERR - only for 8488 */
-#endif /* VTSS_FEATURE_WIS */
 typedef u32 vtss_phy_10g_event_t;   /**< The type definition to contain the above defined evant mask */
 
 
@@ -3103,5 +3094,4 @@ vtss_rc vtss_phy_10g_get_user_data(const vtss_inst_t                inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* VTSS_CHIP_10G_PHY */
 #endif /* _VTSS_PHY_10G_API_H_ */

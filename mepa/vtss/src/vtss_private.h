@@ -68,7 +68,6 @@ typedef struct {
 } phy_ts_data_t;
 
 typedef struct {
-    mesa_inst_t inst;
     mepa_port_no_t port_no;
     mepa_port_interface_t mac_if;
     phy_cap_t cap;

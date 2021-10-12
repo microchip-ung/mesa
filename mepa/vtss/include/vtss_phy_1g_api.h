@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 
+#include <vtss_phy_api.h>
+
 /**
  * \file
  * \brief PHY API
@@ -11,7 +13,6 @@
 #ifndef _VTSS_PHY_1G_API_H_
 #define _VTSS_PHY_1G_API_H_
 
-#ifdef VTSS_CHIP_CU_PHY
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1009,8 +1010,6 @@ vtss_rc vtss_phy_gpio_set(const vtss_inst_t          inst,
 
 /* - VeriPHY ------------------------------------------------------- */
 
-#if VTSS_PHY_OPT_VERIPHY
-
 /**
  * \brief Start VeriPHY.
  *
@@ -1044,7 +1043,6 @@ vtss_rc vtss_phy_veriphy_get(const vtss_inst_t          inst,
                              const vtss_port_no_t       port_no,
                              vtss_phy_veriphy_result_t  *const result);
 
-#endif /* VTSS_PHY_OPT_VERIPHY */
 
 /** \brief EEE mode */
 typedef enum {
@@ -1076,7 +1074,7 @@ typedef struct {
 vtss_rc vtss_phy_led_mode_set(const vtss_inst_t            inst,
                               const vtss_port_no_t         port_no,
                               const vtss_phy_led_mode_select_t led_mode_select);
-#if defined(VTSS_FEATURE_LED_POW_REDUC)
+
 /** \brief PHY led intensity */
 typedef u8  vtss_phy_led_intensity;   /**< LED intensity from 0-200, LED intensity led_intensity * 0.5 */
 
@@ -1149,9 +1147,6 @@ vtss_rc vtss_phy_enhanced_led_control_init_get(const vtss_inst_t            inst
                                                const vtss_port_no_t         port_no,
                                                vtss_phy_enhanced_led_control_t *conf);
 
-
-
- #endif
 
 
 /**
@@ -2337,5 +2332,4 @@ vtss_rc vtss_phy_mac_serdes_ob_cntrl_get(const vtss_inst_t     inst,
 #ifdef __cplusplus
 }
 #endif
-#endif // VTSS_CHIP_CU_PHY
 #endif /* _VTSS_PHY_1G_API_H_ */

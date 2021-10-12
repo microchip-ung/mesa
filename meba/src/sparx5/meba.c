@@ -618,7 +618,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
 
 static mesa_rc fa_phy_event_enable(meba_inst_t inst,
                                     meba_board_state_t *board,
-                                    mesa_phy_event_t phy_event,
+                                    vtss_phy_event_t phy_event,
                                     mesa_bool_t enable)
 {
     mesa_port_no_t     port_no;
@@ -840,7 +840,7 @@ static mesa_rc fa_sensor_get(meba_inst_t inst,
             rc = mesa_temp_sensor_get(NULL, &temp);
         } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
             if (board->port[six].map.mac_if == MESA_PORT_INTERFACE_QSGMII) {
-                rc = mesa_phy_chip_temp_get(PHY_INST, six, &temp);
+                rc = vtss_phy_chip_temp_get(PHY_INST, six, &temp);
             } else {
                 rc = mesa_temp_sensor_get(NULL, &temp);
             }
@@ -1156,7 +1156,7 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
 }
 
 static mesa_rc fa_led_intensity_set(meba_inst_t inst,
-                                    mesa_phy_led_intensity intensity)
+                                    vtss_phy_led_intensity intensity)
 {
     mesa_rc rc = MESA_RC_NOT_IMPLEMENTED;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1164,7 +1164,7 @@ static mesa_rc fa_led_intensity_set(meba_inst_t inst,
     if (fa_capability(inst, MEBA_CAP_LED_DIM_SUPPORT)) {
         for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
             if (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII) {
-                rc = mesa_phy_led_intensity_set(PHY_INST, port_no, intensity);
+                rc = vtss_phy_led_intensity_set(PHY_INST, port_no, intensity);
             }
         }
     }
@@ -1305,7 +1305,7 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
             if (board->type == BOARD_TYPE_SPARX5_PCB135) {
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
                     if (port_no % 4 == 0 && (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
-                        if ((rc = mesa_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
+                        if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
                             T_E(inst, "Could not pre reset phy %d", port_no);
                         }
                     }
@@ -1315,7 +1315,7 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_PORT_RESET_POST:
             if (board->type == BOARD_TYPE_SPARX5_PCB135) {
                 // Release COMA mode (activate Elise phys)
-                (void)mesa_phy_post_reset(PHY_INST, 0);
+                (void)vtss_phy_post_reset(PHY_INST, 0);
 
                 // PCB135 does not use reversed MDI pair for AQR as the driver defaults to.
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
@@ -1447,7 +1447,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
         break;
 
     case MEBA_EVENT_FLNK: // Phy link down event
-        rc = fa_phy_event_enable(inst, board, MESA_PHY_LINK_FFAIL_EV, enable);
+        rc = fa_phy_event_enable(inst, board, VTSS_PHY_LINK_FFAIL_EV, enable);
         if (board->type == BOARD_TYPE_SPARX5_PCB135) {
             uint32_t sgpio_port_old = 0xff;
             uint32_t sgpio_bit_old  = 0xff;

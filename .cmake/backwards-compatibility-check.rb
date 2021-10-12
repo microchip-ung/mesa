@@ -258,8 +258,14 @@ $default_configs = "istax_multi.mk"
 
 # Backwards compatibility with previous build was broken due to change
 # directories in MEPA
+#check("backwards-check",              # Name of check
+#      "e5a4eed5a4@master",            # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Backwards compatibility with previous build was broken due to change
+# of MESA-PHY functions to VTSS-PHY functions
 check("backwards-check",              # Name of check
-      "e5a4eed5a4@master",            # Appl release to use
+      "ed80b69366@master.mesa-phy-remove", # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release

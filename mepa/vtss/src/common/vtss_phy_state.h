@@ -484,6 +484,11 @@ typedef struct vtss_state_s {
     vtss_phy_inst_state_t phy_inst_state;
     vtss_phy_port_state_t phy_state[VTSS_PORT_ARRAY_SIZE];
     vtss_phy_led_mode_select_t led_mode_select; // LED blink mode
+#if defined(VTSS_FEATURE_LED_POW_REDUC)
+    u8                            led_intensity;
+    vtss_phy_enhanced_led_control_t enhanced_led_control;
+    BOOL                            phy_led_control_warm_start_port_list[VTSS_PORTS]; /**<List of ports which is used for LED control (Normally only one port). This is needed in order to know which ports that shall be configured during warm start */
+#endif
 #endif
     BOOL                  sync_calling_private; /* Used by PHY APIs */
     BOOL                  system_reseting;      // Signaling if system is rebooting.

@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: MIT
 
 
+#include <vtss_phy_api.h>
+
 #ifndef _VTSS_MACSEC_API_H_
 #define _VTSS_MACSEC_API_H_
-
-#if defined(VTSS_FEATURE_MACSEC)
 
 #define VTSS_MACSEC_10G_MAX_SA 64     /**< 10G PHY Max SAs : 64 */
 #define VTSS_MACSEC_1G_MAX_SA  16     /**< 1G PHY Max SAs : 16 */
@@ -2330,5 +2330,4 @@ vtss_rc vtss_macsec_dbg_update_seq_set(const vtss_inst_t        inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* VTSS_FEATURE_MACSEC */
 #endif /* _VTSS_MACSEC_API_H_ */

@@ -56,6 +56,7 @@ file(GLOB_RECURSE API_MESA_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "mesa/src/
 file(GLOB_RECURSE API_MESA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mesa/include" "mesa/include/**.h")
 file(GLOB_RECURSE API_MEBA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/meba/include" "meba/include/**.h")
 file(GLOB_RECURSE API_MEPA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mepa/include" "mepa/include/**.h")
+file(GLOB_RECURSE API_MEPA_VTSS_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mepa/vtss/include" "mepa/vtss/include/*.h")
 file(GLOB_RECURSE API_ME_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/me/include" "me/include/**.h")
 
 list(REMOVE_ITEM API_MESA_SRC mesa/src/capability_dumper.c)
@@ -101,10 +102,6 @@ macro(MESA_CACHE)
 endmacro(MESA_CACHE)
 
 FOREACH(f ${API_UNI_HDR})
-    # Install all public headers except for options.h, which will be processed later
-    if (NOT (${f} STREQUAL "vtss/api/options.h"))
-        configure_file("include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
-    endif()
     # Add header to mesa processing
     MESA_CACHE("include/${f}")
 ENDFOREACH()
@@ -123,6 +120,10 @@ ENDFOREACH()
 FOREACH(f ${API_MEPA_HDR})
     # Add all mepa headers
     configure_file("mepa/include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
+ENDFOREACH()
+
+FOREACH(f ${API_MEPA_VTSS_HDR})
+    configure_file("mepa/vtss/include/${f}" "${CMAKE_CURRENT_BINARY_DIR}/include_common/${f}" COPYONLY)
 ENDFOREACH()
 
 FOREACH(f ${API_ME_HDR})
@@ -201,11 +202,6 @@ macro(API_TARGET)
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
       COMMENT "Preprocessing options.h for ${A_LIB}"
   )
-
-  if (${A_LIB})
-      add_custom_target(options_${A_LIB} ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include_${A_LIB}/vtss/api/options.h")
-      doxygen_target(TARGET ${A_LIB} NAME "Microsemi API for ${A_LIB}" DEFINES ${DEFS} FILES ${API_UNI_HDR_ABS} INCLUDES -I${CMAKE_CURRENT_SOURCE_DIR}/include)
-  endif()
 
   list(APPEND LIST_OF_API_TARGETS ${A_LIB})
 endmacro(API_TARGET)

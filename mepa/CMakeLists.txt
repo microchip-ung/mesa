@@ -12,6 +12,7 @@ set(inc_mepa ../me/include include)
 
 set(src_vtss vtss/src/vtss.c
              vtss/src/vtss_ts.c
+             vtss/src/vtss_stubs.c
              vtss/src/common/vtss_phy_common.c
              vtss/src/phy_1g/vtss_phy_init_scripts.c
              vtss/src/phy_1g/vtss_phy_veriphy.c
@@ -37,8 +38,7 @@ set(src_vtss vtss/src/vtss.c
              vtss/src/phy_10g/vtss_sd10g65_apc_procs.c
              vtss/src/ts/vtss_phy_ts_api.c
              vtss/src/ts/vtss_phy_ewis.c
-             vtss/src/ts/vtss_phy_ts_util.c
-             vtss/src/mesa_phy.c)
+             vtss/src/ts/vtss_phy_ts_util.c)
 set(inc_vtss vtss/include)
 
 add_library(mepa_vtss        SHARED ${src_vtss})
