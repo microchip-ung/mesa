@@ -1810,7 +1810,6 @@ static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state, const vtss_debug
     } else {
 #if defined(VTSS_ARCH_SPARX5)
         // FA_SERDES_TYPE_25G
-        if (VTSS_PORT_IS_10G(port)) {
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
@@ -1868,6 +1867,7 @@ static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state, const vtss_debug
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 #endif
     }
+
     pr("Square wave %s\n", ena ? "started" : "stopped");
     return VTSS_RC_OK;
 }
