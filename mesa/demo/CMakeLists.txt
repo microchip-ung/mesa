@@ -268,6 +268,7 @@ APP_TARGET(NAME app_lan966x            MESA lan966x            MEBA meba_lan966x
 APP_TARGET(NAME app_lan966x_lm         MESA lan966x_lm         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_ad         MESA lan966x_ad         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan969x_sr         MESA lan969x_sr         MEBA meba_sparx5)
+APP_TARGET(NAME app_lan969x            MESA lan969x            MEBA meba_sparx5)
 
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
@@ -306,7 +307,6 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         IMG_TARGET(NAME arm64_ls1046_lan969x_sr  TYPE fit      APP app_lan969x_sr      MACHINE ls1046a) #To be removed
 
         #IMG_TARGET(NAME arm64_ls1046_vsc7468     TYPE fit      APP app_vsc7468         MACHINE ls1046a)
-        IMG_TARGET(NAME arm64_lan969x_sr         TYPE ext4     APP app_lan969x_sr      MACHINE fireant)
         IMG_TARGET(NAME arm64_vsc7558TSN         TYPE ext4     APP app_vsc7558TSN      MACHINE fireant)
         IMG_TARGET(NAME arm64_vsc7558MSEC        TYPE ext4     APP app_vsc7558MSEC     MACHINE fireant)
         IMG_TARGET(NAME arm64_vsc7552TSN         TYPE ext4     APP app_vsc7552TSN      MACHINE fireant)
@@ -331,6 +331,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     IMG_TARGET(NAME armv7_lan966x         TYPE fit    APP app_lan966x         MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_lm      TYPE fit    APP app_lan966x_lm      MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_ad      TYPE fit    APP app_lan966x_ad      MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan969x         TYPE fit    APP app_lan969x         MACHINE lan969x)
     IMG_TARGET(NAME armv7_lan969x_sr_bbb  TYPE fit    APP app_lan969x_sr      MACHINE BeagleBoneBlack)
 
     IMG_TARGET(NAME armv7_lan966x_bbb     TYPE fit    APP app_lan966x         MACHINE BeagleBoneBlack)
