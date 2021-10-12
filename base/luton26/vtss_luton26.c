@@ -316,6 +316,10 @@ static vtss_rc l26_init_conf_set(vtss_state_t *vtss_state)
         VTSS_RC(l26_setup_cpu_if(conf));
     }
 #endif
+    // Flush extraction queues
+    L26_WR(VTSS_DEVCPU_QS_XTR_XTR_QU_FLUSH, VTSS_F_DEVCPU_QS_XTR_XTR_QU_FLUSH_FLUSH(3));
+    VTSS_MSLEEP(1);
+    L26_WR(VTSS_DEVCPU_QS_XTR_XTR_QU_FLUSH, VTSS_F_DEVCPU_QS_XTR_XTR_QU_FLUSH_FLUSH(0));
 
     /* Read chip ID to check CPU interface */
     VTSS_RC(vtss_l26_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
