@@ -2002,7 +2002,8 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_ANA_L2_OWN_UPSID(i), i);
         REG_WR(VTSS_REW_OWN_UPSID(i), i);
     }
-#else
+#endif
+#if defined(VTSS_ARCH_LAN969X)
     /* Setup own UPSIDs */
     REG_WR(VTSS_ANA_AC_PS_COMMON_OWN_UPSID, 0);
     REG_WR(VTSS_ANA_ACL_OWN_UPSID, 0);

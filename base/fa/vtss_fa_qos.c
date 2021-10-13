@@ -2482,7 +2482,9 @@ static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no
 
     /* Read list length and assure that the following entry access */
     REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
-//    current_port_conf->gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value); TBD
+#if defined(VTSS_ARCH_SPARX5)
+    current_port_conf->gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value);
+#endif
 
     /* Read the list elements */
     for (i = 0; i < current_port_conf->gcl_length; ++i) {
@@ -2846,6 +2848,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 #endif
 #if defined(VTSS_ARCH_LAN969X)
+    // LIST_LENGTH ?
     REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 #endif

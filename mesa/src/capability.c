@@ -617,9 +617,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
                 VTSS_E("Unable to get state from inst = %p", inst);
                 MESA_ASSERT(0);
             }
-            if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
-                c = 1;
-            }
+            c = vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] ? 1 : 0;
         }
 #else
         c = 1;
@@ -700,7 +698,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_FRER:
 #if defined(VTSS_FEATURE_FRER)
-#if defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     {
         vtss_state_t *vtss_state;
 
@@ -708,9 +706,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
             VTSS_E("Unable to get state from inst = %p", inst);
             MESA_ASSERT(0);
         }
-        if (vtss_state->vtss_features[FEATURE_FRER]) {
-            c = 1;
-        }
+        c = vtss_state->vtss_features[FEATURE_FRER] ? 1 : 0;
     }
 #else
     c = 1;
@@ -731,7 +727,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_PSFP:
 #if defined(VTSS_FEATURE_PSFP)
-#if defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     {
         vtss_state_t *vtss_state;
 
@@ -739,9 +735,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
             VTSS_E("Unable to get state from inst = %p", inst);
             MESA_ASSERT(0);
         }
-        if (vtss_state->vtss_features[FEATURE_PSFP]) {
-            c = 1;
-        }
+        c = vtss_state->vtss_features[FEATURE_PSFP] ? 1 : 0;
     }
 #else
     c = 1;
@@ -1024,9 +1018,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
             VTSS_E("Unable to get state from inst = %p", inst);
             MESA_ASSERT(0);
         }
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
-            c = 1;
-        }
+        c = vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] ? 1 : 0;
     }
 #else
         c = 1;
@@ -1566,8 +1558,18 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_SYNCE:
-#if defined(VTSS_FEATURE_SYNCE)
-        c = 1;
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    {
+        vtss_state_t *vtss_state;
+
+        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+            VTSS_E("Unable to get state from inst = %p", inst);
+            MESA_ASSERT(0);
+        }
+        c = vtss_state->vtss_features[FEATURE_SYNCE] ? 1 : 0;
+    }
+#else
+    c = 1;
 #endif
         break;
     case MESA_CAP_SYNCE_CLK_CNT:
