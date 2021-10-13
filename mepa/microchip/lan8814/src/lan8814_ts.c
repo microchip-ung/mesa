@@ -1369,6 +1369,8 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
             }
             EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
             break;
+        case MEPA_TS_ENCAP_NONE:
+            break;
         default:
             T_E(data, MEPA_TRACE_GRP_TS, "Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
@@ -1471,6 +1473,8 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 EP_WRM(dev, INDY_PTP_TX_PARSE_UDP_DEST_PORT, pkt_conf->ip_class_conf.udp_dport, INDY_DEF_MASK);
             }
             EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
+            break;
+        case MEPA_TS_ENCAP_NONE:
             break;
         default:
             T_E(data, MEPA_TRACE_GRP_TS, "EGR Classifier: Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
