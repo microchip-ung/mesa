@@ -105,6 +105,7 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     end
     end
     end
+    end
 end
 
 if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT"))
