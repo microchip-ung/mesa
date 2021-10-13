@@ -1001,11 +1001,12 @@ mesa_rc json_rpc_add2_mesa_vcap_vr_t(json_rpc_req_t *req, json_object *obj, mesa
     MESA_RC(json_rpc_new(req, &obj_value));
     MESA_RC(json_rpc_add_name_json_object(req, obj, "vr", obj_value));
     switch (parm->type) {
-    case MESA_VCAP_VR_TYPE_VALUE_MASK:
-        MESA_RC(json_rpc_add_name_mesa_vcap_vr_v_t(req, obj_value, "v", &parm->vr.v));
+    case MESA_VCAP_VR_TYPE_RANGE_INCLUSIVE:
+    case MESA_VCAP_VR_TYPE_RANGE_EXCLUSIVE:
+        MESA_RC(json_rpc_add_name_mesa_vcap_vr_r_t(req, obj_value, "r", &parm->vr.r));
         break;
     default:
-        MESA_RC(json_rpc_add_name_mesa_vcap_vr_r_t(req, obj_value, "r", &parm->vr.r));
+        MESA_RC(json_rpc_add_name_mesa_vcap_vr_v_t(req, obj_value, "v", &parm->vr.v));
         break;
     }
     return MESA_RC_OK;
