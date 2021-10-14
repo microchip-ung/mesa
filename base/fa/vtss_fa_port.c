@@ -1786,13 +1786,22 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
     vtss_state->port.serdes_mode[port_no] = serdes_mode;
 
-    /* QSGMII serdes mode is only needed for 1 of the 4 port instances */
+    /* QSGMII/QXGMII serdes mode is only needed for 1 of the 4 port instances */
     if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
         u32 p = (VTSS_CHIP_PORT(port_no) / 4) * 4;
         for (u32 cnt = 0; cnt < 4; cnt++) {
             for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
                 if (p + cnt == VTSS_CHIP_PORT(port_no)) {
                     vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QSGMII;
+                }
+            }
+        }
+    } else if (serdes_mode == VTSS_SERDES_MODE_QXGMII) {
+        u32 port = VTSS_CHIP_PORT(port_no) % 16;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+                if (port + (cnt * 16) == VTSS_CHIP_PORT(port_no)) {
+                    vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QXGMII;
                 }
             }
         }
@@ -2612,19 +2621,20 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     default:{}
     }
 
-    /* Enable the Serdes if disabled (to get clock) */
     if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
+        /* Enable the Serdes if disabled (to get clock) */
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
-    }
-
-    /* Port disable and flush procedure: */
-    VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
-
-   /* Re-configure Serdes if needed */
-    if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
-        vtss_state->port.current_speed[port_no] != conf->speed ||
-        vtss_state->port.current_mt[port_no] != conf->serdes.media_type) {
-        VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
+        /* Port disable and flush procedure: */
+        VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
+    } else {
+        /* Port disable and flush procedure: */
+        VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
+        /* Re-configure Serdes if needed */
+        if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
+            vtss_state->port.current_speed[port_no] != conf->speed ||
+            vtss_state->port.current_mt[port_no] != conf->serdes.media_type) {
+            VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
+        }
     }
 
     /* Disable ASM/DSM 1G/2Gg5 counters */

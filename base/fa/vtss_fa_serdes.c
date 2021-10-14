@@ -3241,13 +3241,10 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
     if (info->action == 1) {
         VTSS_RC(fa_serdes_dump(vtss_state, pr, port_no));
     } else if (info->action >= 2 && info->action <= 4)  {
-        if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
+        if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
             VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
-        } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
-            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         } else {
-            pr("port %d  not supported",port_no);
-            return VTSS_RC_OK;
+            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         }
     } else if (info->action == 5) {
         // Read DFE settings
