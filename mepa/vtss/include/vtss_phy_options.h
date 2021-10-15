@@ -56,6 +56,19 @@
 #define VTSS_PHY_OPT_VERIPHY 1
 #endif /* VTSS_PHY_OPT_VERIPHY */
 
+// 10BASE-Te, excluded by default
+// 10BASE-Te settings select a reduced transmit amplitude that should be right
+// in the middle of the spec. range.
+// The 10BASE-T settings will be right at the lower spec.-limit for 10BASE-T
+// amplitude (higher than Te, but marginal to spec. the 2.2v spec.)
+#if !defined(VTSS_PHY_OPT_10BASE_TE)
+#define VTSS_PHY_OPT_10BASE_TE 0
+#endif
+#undef VTSS_10BASE_TE
+#if VTSS_PHY_OPT_10BASE_TE
+#define VTSS_10BASE_TE
+#endif
+
 // Energy Efficient Ethernet
 #define VTSS_FEATURE_EEE
 

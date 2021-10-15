@@ -1638,17 +1638,10 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    // PHY
+    // Deprecated PHY-MACSEC capabilities
     case MESA_CAP_PHY_10G:
-#if defined(VTSS_CHIP_10G_PHY)
-        c = 1;
-#endif
-        break;
-
     case MESA_CAP_PHY_TS:
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
-        c = 1;
-#endif
+        c = 0;
         break;
 
     case MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS:

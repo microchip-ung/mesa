@@ -364,78 +364,6 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t         *vtss_state,
 
 }
 
-#if defined(VTSS_CHIP_10G_PHY)
-static vtss_rc vtss_cmn_clause_37_status_get(const vtss_inst_t  inst,
-                                                  const vtss_port_no_t port_no,
-                                                  vtss_port_status_t   *const status)
-{
-    vtss_state_t *vtss_state;
-    vtss_phy_10g_clause_37_cmn_status_t clause_37_status;
-    vtss_phy_10g_clause_37_control_t *control;
-    vtss_phy_10g_clause_37_adv_t     *adv, *lp;
-
-    memset(status, 0, sizeof(*status));
-    VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
-    VTSS_RC(vtss_phy_10g_clause_37_status_get(inst, port_no, &clause_37_status));
-    status->link_down = (clause_37_status.host.link & clause_37_status.line.link) ? 0 : 1;
-    status->aneg_complete = clause_37_status.host.autoneg.complete & clause_37_status.line.autoneg.complete;
-
-    if (status->link_down) {
-        /* Link has been down, so get the current status */
-        VTSS_RC(vtss_phy_10g_clause_37_status_get(inst, port_no, &clause_37_status));
-        status->link = clause_37_status.host.link & clause_37_status.line.link;
-    } else {
-        status->link = 1;  /* Link is still up */
-    }
-
-    if (status->link == 0) {
-        return VTSS_RC_OK;    /* Link is still down */
-    }
-
-    control = &vtss_state->phy_10g_state[port_no].clause_37;
-
-    if (control->enable) {
-        /* Auto-negotiation enabled */
-        adv = &control->advertisement;
-        lp = &clause_37_status.line.autoneg.partner_advertisement;
-        if (status->aneg_complete) {
-            /* Speed and duplex mode auto negotiation result */
-            if (adv->fdx && lp->fdx) {
-                status->speed = VTSS_SPEED_1G;
-                status->fdx = 1;
-            } else if (adv->hdx && lp->hdx) {
-                status->speed = VTSS_SPEED_1G;
-                status->fdx = 0;
-            } else {
-                status->link = 0;
-            }
-
-            /* Flow control auto negotiation result */
-            status->aneg.obey_pause =
-                (adv->symmetric_pause &&
-                 (lp->symmetric_pause ||
-                  (adv->asymmetric_pause && lp->asymmetric_pause)) ? 1 : 0);
-            status->aneg.generate_pause =
-                (lp->symmetric_pause &&
-                 (adv->symmetric_pause ||
-                  (adv->asymmetric_pause && lp->asymmetric_pause)) ? 1 : 0);
-
-            /* Remote fault */
-            if (lp->remote_fault != VTSS_PHY_10G_CLAUSE_37_RF_LINK_OK)
-                status->remote_fault = 1;
-        } else {
-            /* Autoneg says that the link partner is not OK */
-            status->link = 0;
-        }
-    } else {
-        /* Forced speed */
-        status->speed = VTSS_SPEED_1G;
-        status->fdx = 1;
-    }
-    return VTSS_RC_OK;
-}
-#endif /* VTSS_CHIP_10G_PHY */
-
 vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
                              const vtss_port_no_t  port_no,
                              vtss_port_status_t    *const status)
@@ -454,9 +382,7 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
             case VTSS_PORT_INTERFACE_SGMII:
             case VTSS_PORT_INTERFACE_SGMII_2G5:
             case VTSS_PORT_INTERFACE_QSGMII:
-#if defined(VTSS_CHIP_CU_PHY)
-                rc = vtss_phy_status_get_private(vtss_state, port_no, status);
-#endif /* VTSS_CHIP_CU_PHY */
+                // PHY status
                 break;
             case VTSS_PORT_INTERFACE_SERDES:
             case VTSS_PORT_INTERFACE_SGMII_CISCO:
@@ -476,35 +402,6 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
     }
     VTSS_EXIT();
 
-#if defined(VTSS_CHIP_10G_PHY)
-    /* If a 10G PHY (Venice) is connected to the switch-port and is in 1G serdes mode, */
-    /* we need to get the combined status of the switch port and 10G phy. */
-    vtss_phy_10g_id_t phy_id;
-    vtss_port_status_t status_10g;
-    if ((rc == VTSS_RC_OK) && (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES || vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SFI)) {
-        if ((vtss_phy_10g_id_get(inst, port_no, &phy_id) == VTSS_RC_OK) && (phy_id.family == VTSS_PHY_FAMILY_VENICE || phy_id.family == VTSS_PHY_FAMILY_MALIBU)) {
-            if (vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_1G_MODE) {
-                VTSS_RC(vtss_cmn_clause_37_status_get(inst, port_no, &status_10g));
-                status->link_down = status->link_down | status_10g.link_down; /* Link status from switch port and Phy */
-                status->link = status->link & status_10g.link;
-                status->remote_fault = status->remote_fault | status_10g.remote_fault;
-                status->aneg =  status_10g.aneg;
-            }
-        }
-    }
-#if defined(VTSS_FEATURE_MACSEC)
-    if ((rc == VTSS_RC_OK) && (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_XAUI || vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SFI || vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES)) {
-        /* If the Host MAC in the Phy is enabled then the Switch will always see link. In this case we need to add a Phy link check. */
-        if ((vtss_phy_10g_id_get(inst, port_no, &phy_id) == VTSS_RC_OK) && (phy_id.family == VTSS_PHY_FAMILY_VENICE || phy_id.family == VTSS_PHY_FAMILY_MALIBU)) {
-            vtss_phy_10g_status_t status_phy;
-            VTSS_RC(vtss_phy_10g_status_get(inst, port_no, &status_phy));
-            //status->link = status_phy.pma.rx_link && status_phy.pcs.rx_link && status_phy.xs.rx_link && status->link;
-            VTSS_I("port %u Host link %s  PHY link %s \n",port_no,status->link ? "UP" : "DOWN",status_phy.status ? "UP" : "DOWN");
-            status->link = status->link && status_phy.status ;
-        }
-    }
-#endif /* VTSS_FEATURE_MACSEC */
-#endif /* VTSS_CHIP_10G_PHY   */
     return rc;
 }
 
@@ -1502,45 +1399,6 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t            inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        switch (vtss_state->port.conf[port_no].if_type) {
-        case VTSS_PORT_INTERFACE_RGMII:
-        case VTSS_PORT_INTERFACE_SGMII:
-        case VTSS_PORT_INTERFACE_SGMII_2G5:
-        case VTSS_PORT_INTERFACE_QSGMII:
-        {
-#if defined(VTSS_CHIP_CU_PHY)
-            /* PHY loopback is used */
-            vtss_phy_loopback_t loopback;
-
-            memset(&loopback, 0, sizeof(loopback));
-            switch (conf->loopback) {
-            case VTSS_PORT_LB_NEAR_END:
-                loopback.near_end_enable = TRUE;
-                break;
-            case VTSS_PORT_LB_FAR_END:
-                loopback.far_end_enable = TRUE;
-                break;
-            case VTSS_PORT_LB_FACILITY:
-                loopback.mac_serdes_facility_enable = TRUE;
-                break;
-            case VTSS_PORT_LB_EQUIPMENT:
-                loopback.mac_serdes_equipment_enable = TRUE;
-                break;
-            default:
-                break;
-            }
-            VTSS_EXIT();
-            rc = vtss_phy_loopback_set(inst, port_no, loopback);
-            VTSS_ENTER();
-#endif /* VTSS_CHIP_CU_PHY */
-            break;
-        }
-        default:
-            rc = VTSS_RC_OK;
-            break;
-        }
-    }
-    if (rc == VTSS_RC_OK) {
         vtss_state->port.test_conf[port_no] = *conf;
         rc = VTSS_FUNC_COLD(port.test_conf_set, port_no);
     }

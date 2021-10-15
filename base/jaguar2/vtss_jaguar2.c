@@ -2338,12 +2338,6 @@ vtss_rc vtss_jaguar2_inst_create(vtss_state_t *vtss_state)
     vtss_state->cil.debug_info_print = jr2_debug_info_print;
     vtss_state->port.map_set = jr2_port_map_set;
 
-#if defined(VTSS_FEATURE_WIS)
-    if (vtss_phy_inst_ewis_create(vtss_state) != VTSS_RC_OK) {
-        VTSS_E("vtss_phy_inst_ewis_create() failed");
-    }
-#endif
-
     /* Create function groups */
     return vtss_jr2_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }

@@ -24,7 +24,6 @@
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_PORT_MUX                     /**< Port mux between serdes blocks and ports */
 #define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
-#define VTSS_FEATURE_WARM_START                   /**< Warm start */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
 #define VTSS_FEATURE_PORT_IFH                     /**< Port IFH control */
@@ -112,7 +111,6 @@
 // FA-FIXME: This set must be revised
 #define VTSS_FEATURE_10G                          /**< 10G ports */
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
-// //#define VTSS_FEATURE_WARM_START              /**< Warm start */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
@@ -282,7 +280,6 @@
 #endif /* VTSS_CHIP_SERVAL_T/TE/TE10 */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
-//#define VTSS_FEATURE_WARM_START                  /**< Warm start */
 #define VTSS_FEATURE_MISC                        /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                 /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                /**< Port control */
@@ -502,7 +499,6 @@
 #define VTSS_FEATURE_MCE_ACT_PRIO              /**< MCE action priority class */
 #define VTSS_FEATURE_AFI_SWC                   /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V1                            /**< AFI API version 1 */
-#define VTSS_FEATURE_WARM_START                /**< Warm start */
 #define VTSS_FEATURE_MISC                      /**< Miscellaneous */
 #define VTSS_FEATURE_PORT_CONTROL              /**< Port control */
 #define VTSS_FEATURE_PORT_IFH                  /**< Port IFH control */
@@ -593,16 +589,7 @@
 #define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
 #endif /* VTSS_ARCH_OCELOT */
 
-/* Cu PHY API always included for switch/OTN targets */
-#if defined(VTSS_FEATURE_PORT_CONTROL)
-//#define VTSS_CHIP_CU_PHY                       /**< Cobber PHY chip */
 #define VTSS_FEATURE_WARM_START                /**< Warm start */
-#endif /* VTSS_FEATURE_PORT_CONTROL */
-
-/* 10G PHY API included if switch has 10G ports */
-#if defined(VTSS_FEATURE_10G)
-//#define VTSS_CHIP_10G_PHY                      /**< 10Gb 848x Phy API  */
-#endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
@@ -628,37 +615,5 @@
 #if !defined(VTSS_OPT_PORT_COUNT)
 #define VTSS_OPT_PORT_COUNT 0 /**< Use all target ports by default */
 #endif /* VTSS_OPT_PORT_COUNT */
-
-#if !defined(VTSS_PHY_OPT_VERIPHY)
-#define VTSS_PHY_OPT_VERIPHY 1 /**< VeriPHY enabled by default */
-#endif /* VTSS_PHY_OPT_VERIPHY */
-
-#if defined(VTSS_CHIP_10G_PHY)
-#define VTSS_FEATURE_SYNCE_10G                 /**< SYNCE - L1 syncronization feature for 10G PHYs*/
-#define VTSS_FEATURE_EDC_FW_LOAD               /**< 848x EDC firmware will get loaded at initilization */
-#define VTSS_FEATURE_WIS                       /**< WAN interface sublayer functionality */
-#define VTSS_FEATURE_WARM_START                /**< Warm start */
-#define VTSS_ARCH_MALIBU                     /**< Used for Malibu-A PHY */
-#define VTSS_ARCH_MALIBU_B                     /**< Used for Malibu-B PHY */
-#define VTSS_ARCH_VENICE_C                     /**< Used for Venice-C PHY */
-#endif /* VTSS_CHIP_10G_PHY */
-
-// defining VTSS_10BASE_TE select 10BASE-Te settings. If not defined code will default to 10BASE-T .
-// 10BASE-Te settings select a reduced transmit amplitude that should be right in the middle of the spec. range.
-// The 10BASE-T settings will be right at the lower spec.-limit for 10BASE-T amplitude (higher than Te, but marginal to spec. the 2.2v spec.)
-//#define VTSS_10BASE_TE
-
-// defining VTSS_OPT_PHY_TIMESTAMP enables the timestamp feature in the phy's that support it, and also activates the
-// TimeOfDay monitor that ensures that the PHY timestampers are in sync with the Switch Timestamper.
-// The option must be defined by the user (build configuration) on the builds to boards that have a timestamp PHY mounted.
-// For special timestamp PHY builds the VTSS_FEATURE_PHY_TIMESTAMP is defined in this file, i.e. the
-// PHY timestamp will always be enabled on these builds.
-#undef VTSS_OPT_PHY_TIMESTAMP
-
-// Some building script uses the feature define as an option. This is not the
-// idea, but we want to have some level of backwards compatibility. If
-// VTSS_OPT_PHY_MACSEC is defined, then it will control the availability for the
-// MACsec feature regardless of the VTSS_FEATURE_MACSEC define.
-#undef VTSS_FEATURE_MACSEC
 
 #endif /* _VTSS_OPTIONS_H_ */

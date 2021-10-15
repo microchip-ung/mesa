@@ -27,14 +27,6 @@
 #include <vtss_port_api.h>
 #endif
 
-#ifdef VTSS_CHIP_CU_PHY
-#include <vtss_phy_api.h>
-#endif
-
-#ifdef VTSS_CHIP_10G_PHY
-#include <vtss_phy_10g_api.h>
-#endif
-
 #ifdef VTSS_FEATURE_LAYER2
 #include <vtss_tsn_api.h>
 #endif
@@ -75,16 +67,8 @@
 #include <vtss_sync_api.h>
 #endif
 
-#if defined(VTSS_OPT_PHY_TIMESTAMP) || defined(VTSS_FEATURE_TIMESTAMP)
+#if defined(VTSS_FEATURE_TIMESTAMP)
 #include <vtss_ts_api.h>
-#endif
-
-#ifdef VTSS_FEATURE_WIS
-#include <vtss_wis_api.h>
-#endif
-
-#ifdef VTSS_FEATURE_MACSEC
-#include <vtss_macsec_api.h>
 #endif
 
 #ifdef VTSS_FEATURE_CLOCK

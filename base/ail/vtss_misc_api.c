@@ -96,10 +96,6 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t  inst)
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-#if defined(VTSS_CHIP_10G_PHY)
-    rc = vtss_phy_10g_poll_1sec(inst);
-#endif
-
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_rc rc2 = VTSS_FUNC_0(misc.poll_1sec);
