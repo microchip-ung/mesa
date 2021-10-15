@@ -361,20 +361,20 @@ typedef enum {
     MESA_CAP_TOD_SAMPLES_PR_SEC,            /**< The number of times per second that the timeofday is sampled */
 
     // PHY
-    MESA_CAP_PHY_10G = 1600,                /**< 10G PHY API */
-    MESA_CAP_PHY_TS,                        /**< PHY timestamping */
-    MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED, /**< Board has a Malibu 10G PHY plugin mounted */
-    MESA_CAP_PHY_TS_NUMBER_OF_ENGINES,      /**< Number of PHY timestamping engines */
-    MESA_CAP_PHY_10GBASE_KR,                /**< 10G PHY support for 10GBASE-KR */
+    MESA_CAP_PHY_10G = 1600,                /**< Deprecated: 10G PHY API */
+    MESA_CAP_PHY_TS,                        /**< Deprecated: PHY timestamping */
+    MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED, /**< Deprecated: Board has a Malibu 10G PHY plugin mounted */
+    MESA_CAP_PHY_TS_NUMBER_OF_ENGINES,      /**< Deprecated: Number of PHY timestamping engines */
+    MESA_CAP_PHY_10GBASE_KR,                /**< Deprecated: 10G PHY support for 10GBASE-KR */
 
     // Switching Chip
     MESA_CAP_SOC_FAMILY = 1700,
 
     // PHY-MACSEC
-    MESA_CAP_PHY_MACSEC = 1800,             /**< PHY MACSEC */
-    MESA_CAP_PHY_MACSEC_SA_CNT,             /**< Max number of supported secure associations in a given PHY */
-    MESA_CAP_PHY_MACSEC_SC_CNT,             /**< Max number of supported secure channels in a given PHY */
-    MESA_CAP_PHY_MACSEC_SECY_CNT,           /**< Max number of supported SECY instances in a given PHY */
+    MESA_CAP_PHY_MACSEC = 1800,             /**< Deprecated: PHY MACSEC */
+    MESA_CAP_PHY_MACSEC_SA_CNT,             /**< Deprecated: Max number of supported secure associations in a given PHY */
+    MESA_CAP_PHY_MACSEC_SC_CNT,             /**< Deprecated: Max number of supported secure channels in a given PHY */
+    MESA_CAP_PHY_MACSEC_SECY_CNT,           /**< Deprecated: Max number of supported SECY instances in a given PHY */
 
     // MEP
     MESA_CAP_MEP_LUTON26 = 1900,            /**< MEP for Luton26 */

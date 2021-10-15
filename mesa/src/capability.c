@@ -1752,9 +1752,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PHY_TS_NUMBER_OF_ENGINES:
-#if defined(VTSS_OPT_PHY_TIMESTAMP)
-        c = 4; // TBD: MESA_PHY_TS_ENGINE_ID_INVALID
-#endif
+        c = 0; // Deprecated (PHY capability)
         break;
 
     case MESA_CAP_TS_TWOSTEP_USE_PTP_ID:
@@ -1764,9 +1762,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PHY_10GBASE_KR:
-#if defined(VTSS_FEATURE_10GBASE_KR)
-        c = 1;
-#endif
+        c = 0; // Deprecated (PHY capability)
         break;
 
 
@@ -1797,35 +1793,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    // PHY-MACSEC
+    // Deprecated PHY-MACSEC capabilities
     case MESA_CAP_PHY_MACSEC:
-#if defined(VTSS_FEATURE_MACSEC)
-        c = 1;
-#endif
-        break;
-
     case MESA_CAP_PHY_MACSEC_SA_CNT:
-#if defined(VTSS_FEATURE_MACSEC)
-        c = VTSS_MACSEC_MAX_SA;
-#endif
-        break;
-
     case MESA_CAP_PHY_MACSEC_SC_CNT:
-#if defined(VTSS_FEATURE_MACSEC)
-        c = VTSS_MACSEC_MAX_SA/2;
-#endif
-        break;
-
     case MESA_CAP_PHY_MACSEC_SECY_CNT:
-#if defined(VTSS_FEATURE_MACSEC)
-        c = VTSS_MACSEC_MAX_SA/2;
-#endif
-        break;
-
     case MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED:
-#if defined(VTSS_CHIP_10G_PHY) && (defined(VTSS_CHIP_JAGUAR_2) || defined(VTSS_CHIP_SPARX_IV_80))
-        c = 1;
-#endif
+        c = 0;
         break;
 
     case MESA_CAP_MEP_LUTON26:
