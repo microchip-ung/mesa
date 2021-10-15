@@ -1638,9 +1638,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    // Deprecated PHY-MACSEC capabilities
+    // Deprecated PHY capabilities
     case MESA_CAP_PHY_10G:
     case MESA_CAP_PHY_TS:
+    case MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED:
+    case MESA_CAP_PHY_TS_NUMBER_OF_ENGINES:
+    case MESA_CAP_PHY_10GBASE_KR:
         c = 0;
         break;
 
@@ -1744,20 +1747,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_PHY_TS_NUMBER_OF_ENGINES:
-        c = 0; // Deprecated (PHY capability)
-        break;
-
     case MESA_CAP_TS_TWOSTEP_USE_PTP_ID:
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 1;
 #endif
         break;
-
-    case MESA_CAP_PHY_10GBASE_KR:
-        c = 0; // Deprecated (PHY capability)
-        break;
-
 
     // Switching Chip
     case MESA_CAP_SOC_FAMILY:
@@ -1791,7 +1785,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_PHY_MACSEC_SA_CNT:
     case MESA_CAP_PHY_MACSEC_SC_CNT:
     case MESA_CAP_PHY_MACSEC_SECY_CNT:
-    case MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED:
         c = 0;
         break;
 
