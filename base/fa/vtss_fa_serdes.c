@@ -1637,6 +1637,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
 
 vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
 {
+#if defined(VTSS_ARCH_SPARX5)
     u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
     u32 sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
 
@@ -1694,8 +1695,7 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
     REG_WRM(VTSS_SD25G_TARGET_CMU_00(sd25g_tgt),
             VTSS_F_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0(0xFF),
             VTSS_M_SD25G_TARGET_CMU_00_CFG_TX_RSTB_7_0);
-
-//    VTSS_MSLEEP(1);
+#endif /* defined(VTSS_ARCH_SPARX5) */
 
     return VTSS_RC_OK;
 }

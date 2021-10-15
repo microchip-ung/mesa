@@ -1469,7 +1469,6 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     u16 val1, val2, val3;
     u32 tgt, pcs;
     BOOL spd10g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G;
-    BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
 
@@ -1562,6 +1561,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
         status->fec.uncorrected_block_cnt = tr;
     }
 #if defined(VTSS_ARCH_SPARX5)
+    BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
     if (spd25g) {
         u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
         u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
