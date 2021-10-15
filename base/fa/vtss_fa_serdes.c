@@ -3476,8 +3476,8 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
     }
 #endif
     sd_cfg.chip_name = VTSS_SD25G28_CHIP_ANT;
-    sd_cfg.txinvert = 0;
-    sd_cfg.rxinvert = 1;
+    sd_cfg.txinvert = vtss_state->port.conf[port_no].serdes.tx_invert;
+    sd_cfg.rxinvert = !vtss_state->port.conf[port_no].serdes.rx_invert; /* inverted in substrate */
     sd_cfg.txswing = 240;
     sd_cfg.reg_ctrl = 1;
     sd_cfg.preset = serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, speed);
@@ -3554,8 +3554,8 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
 
     sd_cfg.chip_name = VTSS_SD10G28_CHIP_ANT;
     sd_cfg.is_6g =  sd_type == FA_SERDES_TYPE_6G ? TRUE : FALSE;
-    sd_cfg.txinvert = 0;
-    sd_cfg.rxinvert = 1;
+    sd_cfg.txinvert = vtss_state->port.conf[port_no].serdes.tx_invert;
+    sd_cfg.rxinvert = !vtss_state->port.conf[port_no].serdes.rx_invert; /* inverted in substrate */
     sd_cfg.txswing = 240;
     sd_cfg.preset = VTSS_SD10G28_PRESET_NONE;
 
