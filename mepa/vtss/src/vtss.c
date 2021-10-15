@@ -599,6 +599,7 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
     if (rc == MESA_RC_OK) {
         phy_info->part_number = phy_id.part_number;
         phy_info->revision = phy_id.revision;
+        phy_info->cap = MEPA_CAP_SPEED_MASK_1G;
         if (phy_id.part_number == VTSS_PHY_TYPE_8582 || phy_id.part_number == VTSS_PHY_TYPE_8584 ||
             phy_id.part_number == VTSS_PHY_TYPE_8575 || phy_id.part_number == VTSS_PHY_TYPE_8586) {
             phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
@@ -607,7 +608,6 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
         } else {
             phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
         }
-        phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
         phy_info->ts_base_port = phy_id.phy_api_base_no;
     }
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
@@ -782,6 +782,7 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
     if (rc == MESA_RC_OK) {
         phy_info->part_number = phy_id.part_number;
         phy_info->revision = phy_id.revision;
+        phy_info->cap = MEPA_CAP_SPEED_MASK_10G;
         if ((phy_id.part_number == 0x8488 || phy_id.part_number == 0x8487) && phy_id.revision >= 4) {
             phy_info->cap |= MEPA_CAP_TS_MASK_GEN_1;
         } else if ((phy_id.part_number == 0x8489 && !(phy_id.device_feature_status & VTSS_PHY_10G_TIMESTAMP_DISABLED)) ||
@@ -791,7 +792,6 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
         } else {
             phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
         }
-        phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
         phy_info->ts_base_port = (phy_id.channel_id > 1) ? (phy_id.phy_api_base_no + 2) : phy_id.phy_api_base_no;
     }
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
