@@ -192,3 +192,15 @@ test "acl-port-counter" do
     cnt = $ts.dut.call("mesa_port_counters_get", port)["bridge"]["dot1dTpPortInDiscards"]
     check_counter("Filtered", cnt, 1)
 end
+
+test "fwd-drop-count" do
+    break
+    # If a frame is dropped for one egress port, the ingress port drop counter increments
+    idx = 0
+    $ts.dut.run("mesa-cmd port flow control disable")
+    $ts.dut.run("mesa-cmd port adv #{$ts.dut.p[1] + 1} 1000 dis")
+    sleep(5)
+    $ts.pc.run("ef name f1 eth tx #{$ts.pc.p[idx]} rep 1000000 name f1")
+    $ts.dut.run("mesa-cmd port stati pac")
+    $ts.dut.run("mesa-cmd port stati #{$ts.dut.p[idx] + 1}")
+end
