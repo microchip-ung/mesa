@@ -15,6 +15,7 @@
 #define STATUSLED_G_GPIO 12
 #define STATUSLED_R_GPIO 13
 #define AQR_RESET 19
+#define PHY_ID_GPY241 0xDC00
 
 /* LED colors */
 typedef enum {
@@ -85,7 +86,39 @@ static const mesa_gpio_func_info_t pcb135_gpio_func_info[PCB135_GPIO_FUNC_INFO_S
 #define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
 #define PORT_2_SGPIO_BIT(board, p) (board->port[p].sgpio_bit)
 
+static const meba_aux_rawio_t rawio = {
+    .base = 0x4000000,
+    .gcb = 0x1,
+    .miim = {
+        .status = 0xAC+0,
+        .cmd    = 0xAC+2,
+        .data   = 0xAC+3,
+        .cfg    = 0xAC+4,
+    },
+    .gpio = {
+        .alt_0  = 0x10,
+        .alt1_0 = 0x12,
+    }
+};
+
 /* --------------------------- Board specific ------------------------------- */
+static void fa_gpy241_detect(meba_inst_t inst)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    uint16_t value = 0;
+
+    for (uint8_t ctrl = 0; ctrl < 3; ctrl++) {
+        for (uint8_t miim = 0; miim < 32; miim++) {
+            if (mebaux_mmd_rd(inst, &rawio, ctrl, miim, 0x1, 0x3, &value) == MESA_RC_OK) {
+                if (value == PHY_ID_GPY241) {
+                    board->gpy241_present = TRUE;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 static void fa_emul_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
 {
     entry->map.chip_port       = port_no;
@@ -1862,6 +1895,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else {
             T_E(inst, "Unknown board (%d) / port count (%d)",board->type,board->port_cnt);
         }
+        fa_gpy241_detect(inst);
         break;
     default:
         T_E(inst, "Unknown PCB type");

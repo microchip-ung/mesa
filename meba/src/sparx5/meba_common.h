@@ -47,6 +47,7 @@ typedef struct meba_board_state {
     const mesa_fan_conf_t *fan_spec;
     mesa_bool_t           beaglebone;
     mesa_bool_t           ls1046;
+    mesa_bool_t           gpy241_present;
     uint32_t              port_cnt;
     int                   cpu_port_cnt;
     fa_port_info_t       *port;

@@ -94,26 +94,27 @@ typedef struct meba_aux_rawgpio {
 } meba_aux_rawgpio_t;
 
 typedef struct meba_aux_rawio {
+    uint32_t base;
     uint8_t gcb;
     meba_aux_rawmiim_t miim;
     meba_aux_rawgpio_t gpio;
 } meba_aux_rawio_t;
 
 /* Read from primary device */
-static inline mesa_rc mebaux_rd(meba_inst_t inst, uint32_t tgt, uint32_t addr, uint32_t *value)
+static inline mesa_rc mebaux_rd(meba_inst_t inst, uint32_t base, uint32_t tgt, uint32_t addr, uint32_t *value)
 {
     mesa_rc rc;
     *value = 0xdeadbeef;
-    addr += (0x01 << 22) + (tgt << 14);
+    addr += base + (0x01 << 22) + (tgt << 14);
     rc = inst->iface.reg_read(0, addr, value);
     T_R(inst, "tgt: 0x%x, addr: 0x%x, value: 0x%08x", tgt, addr, *value);
     return rc;
 }
 
 /* Write to primary device */
-static inline mesa_rc mebaux_wr(meba_inst_t inst, uint32_t tgt, uint32_t addr, uint32_t value)
+static inline mesa_rc mebaux_wr(meba_inst_t inst, uint32_t base, uint32_t tgt, uint32_t addr, uint32_t value)
 {
-    addr += (0x01 << 22) + (tgt << 14);
+    addr += base + (0x01 << 22) + (tgt << 14);
     T_R(inst, "tgt: 0x%x, addr: 0x%x, value: 0x%08x", tgt, addr, value);
     return inst->iface.reg_write(0, addr, value);
 }
@@ -131,13 +132,13 @@ static inline void mebaux_gpio_mode_set(meba_inst_t inst, const meba_aux_rawio_t
     }
     bit = (1 << gpio);
     for (i = 0; i < 2; i++) {
-        (void) mebaux_rd(inst, raw->gcb, regoff + i, &mask);
+        (void) mebaux_rd(inst, raw->base, raw->gcb, regoff + i, &mask);
         if (alt & (1 << i)) {
             mask |= bit;
         } else {
             mask &= ~bit;
         }
-        mebaux_wr(inst, raw->gcb, regoff + i, mask);
+        mebaux_wr(inst, raw->base, raw->gcb, regoff + i, mask);
     }
 }
 
@@ -156,18 +157,18 @@ static inline mesa_rc mebaux_miim_cmd(meba_inst_t inst, const meba_aux_rawio_t *
 
     T_N(inst, "cmd: %u, sof: %u, ctrl: %u, miim_addr: %u, reg_addr: %u",  cmd, sof, ctrl, miim_addr, reg_addr);
 
-    if ((rc = mebaux_wr(inst, raw->gcb, raw->miim.cfg + offs, (sof << 9) | (0x32 << 0))) != MESA_RC_OK) {
+    if ((rc = mebaux_wr(inst, raw->base, raw->gcb, raw->miim.cfg + offs, (sof << 9) | (0x32 << 0))) != MESA_RC_OK) {
         return rc;
     }
 
-    rc = mebaux_wr(inst, raw->gcb, raw->miim.cmd + offs,
+    rc = mebaux_wr(inst, raw->base, raw->gcb, raw->miim.cmd + offs,
                    (1UL << 31) | (uint32_t)(miim_addr << 25) | (reg_addr << 20) |  ((*data) << 4) | (cmd << 1));
     if (rc != MESA_RC_OK) {
         return rc;
     }
 
     for (i = 0; i < 100; i++) {
-        if ((rc = mebaux_rd(inst, raw->gcb, raw->miim.status + offs, &value)) != MESA_RC_OK) {
+        if ((rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.status + offs, &value)) != MESA_RC_OK) {
             return rc;
         }
         T_N(inst, "RD: status(%d) value: 0x%08x", offs, value);
@@ -176,7 +177,7 @@ static inline mesa_rc mebaux_miim_cmd(meba_inst_t inst, const meba_aux_rawio_t *
         }
 
         if (cmd == MEBAUX_PHY_CMD_READ_INC || cmd == MEBAUX_PHY_CMD_READ) {
-            rc = mebaux_rd(inst, raw->gcb, raw->miim.data + offs, &value);
+            rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.data + offs, &value);
             if (rc != MESA_RC_OK) {
                 return rc;
             }

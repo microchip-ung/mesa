@@ -47,6 +47,7 @@ typedef struct meba_board_state {
 } meba_board_state_t;
 
 static const meba_aux_rawio_t rawio = {
+    .base = 0,
     .gcb = 0x07,
     .miim = {
         .status = 0x27+0,
