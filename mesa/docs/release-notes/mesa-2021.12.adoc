@@ -22,7 +22,7 @@ In this release, the code has been restructured to allow separate release of the
 
 * VSC PHY implementation moved from base/phy to mepa/vtss/src.
 * VSC PHY header files moved from include to mepa/vtss/include.
-* MESA PHY header files moved from mesa/include/ethernet/switch/api to mepa/vtss/include/microchip/switch/api.
+* MESA PHY header files removed.
 * VSC PHY compile-time options:
 ** VTSS_OPT_PHY_1G: 1G PHYs, default included.
 ** VTSS_OPT_PHY_10G: 10G PHYs, default excluded.
