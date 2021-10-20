@@ -65,6 +65,8 @@ typedef struct {
 
 typedef struct {
     mepa_bool_t          dly_req_recv_10byte_ts;
+    u8                   rx_flow_clk[24]; // TS_FLOWS_PER_ENG * 3(total engines in 1588 block)
+    u8                   tx_flow_clk[24]; // TS_FLOWS_PER_ENG * 3(total engines in 1588 block)
 } phy_ts_data_t;
 
 typedef struct {

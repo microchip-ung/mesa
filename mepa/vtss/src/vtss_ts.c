@@ -870,6 +870,7 @@ static mepa_rc phy_tx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow, 
                                    MEPA_TS_ENCAP_NONE;
         out_conf->enable = (flow_conf.channel_map[flow_id] & get_vs_channel_mask(dev)) ? true : false;
         get_class_from_flow(&flow_conf, flow_id, out_conf);
+        out_conf->clock_id = data->ts.tx_flow_clk[in_flow];
     }
     T_I(data, MEPA_TRACE_GRP_TS, "tx class end");
     return MEPA_RC_OK;
@@ -903,6 +904,7 @@ static mepa_rc phy_rx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow, 
                                    MEPA_TS_ENCAP_NONE;
         out_conf->enable = (flow_conf.channel_map[flow_id] & get_vs_channel_mask(dev)) ? true : false;
         get_class_from_flow(&flow_conf, flow_id, out_conf);
+        out_conf->clock_id = data->ts.rx_flow_clk[in_flow];
     }
     T_I(data, MEPA_TRACE_GRP_TS, "here ");
     //dump_flow_conf(&flow_conf);
@@ -1173,8 +1175,10 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             return MEPA_RC_ERR_TS_FLOW_CONF;
         }
         if (!get_compare_common_opt(&flow_conf.flow_conf.ptp, in_conf)) {
-            T_I(data, MEPA_TRACE_GRP_TS, "overwriting common configuration not valid");
-            return MEPA_RC_ERR_TS_ENG_COMM_OVERWRITE;
+            T_W(data, MEPA_TRACE_GRP_TS, "overwriting common configuration not valid");
+            // Allow over-writing common conf. The last config applied is the one that applies for all flows finally. Otherwise,
+            // it is not possible to modify common configuration after initialisation.
+            //return MEPA_RC_ERR_TS_ENG_COMM_OVERWRITE;
         }
         T_I(data, MEPA_TRACE_GRP_TS, "engine conf obtained");
     }
@@ -1207,6 +1211,8 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         // engine 2 -> 4, 5 clock-ids
         if (in_conf->clock_id != valid_clocks[eng_id][0] && in_conf->clock_id != valid_clocks[eng_id][1]) {
             return MEPA_RC_ERR_TS_ENG_INVALID_CLOCK;
+        } else {
+            data->ts.rx_flow_clk[in_flow] = in_conf->clock_id;
         }
         eth = &flow_conf.flow_conf.ptp.eth1_opt;
         eth_flow = &eth->flow_opt[flow_id];
@@ -1330,6 +1336,8 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         // engine 2 -> 4, 5 clock-ids
     if ((in_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE) && (in_conf->clock_id != valid_clocks[eng_id][0] && in_conf->clock_id != valid_clocks[eng_id][1])) {
         return MEPA_RC_ERR_TS_ENG_INVALID_CLOCK;
+    } else { // store clock id
+        data->ts.tx_flow_clk[in_flow] = in_conf->clock_id;
     }
 
     T_I(data, MEPA_TRACE_GRP_TS, "Get engine init conf \n");
@@ -1365,8 +1373,10 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             return MEPA_RC_ERR_TS_FLOW_CONF;
         }
         if (!get_compare_common_opt(&flow_conf.flow_conf.ptp, in_conf)) {
-            T_I(data, MEPA_TRACE_GRP_TS, "overwriting common configuration not valid");
-            return MEPA_RC_ERR_TS_ENG_COMM_OVERWRITE;
+            T_W(data, MEPA_TRACE_GRP_TS, "overwriting common configuration not valid");
+            // Allow over-writing common conf. The last config applied is the one that applies for all flows finally. Otherwise,
+            // it is not possible to modify common configuration after initialisation.
+            //return MEPA_RC_ERR_TS_ENG_COMM_OVERWRITE;
         }
         T_I(data, MEPA_TRACE_GRP_TS, "engine conf obtained");
     }
