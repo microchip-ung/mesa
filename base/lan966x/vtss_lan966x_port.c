@@ -1010,17 +1010,9 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 #endif
 
     /* Default gaps */
-    gaps.fdx_gap = 15;
-    if (giga) {
-        gaps.fdx_gap = 5;
-    }
-    if (conf->fdx) {
-        gaps.hdx_gap_1 = 0;
-        gaps.hdx_gap_2 = 0;
-    } else {
-        gaps.hdx_gap_1 = 5;
-        gaps.hdx_gap_2 = 5;
-    }
+    gaps.fdx_gap = (conf->fdx ? 6 : 5);
+    gaps.hdx_gap_1 = (speed == VTSS_SPEED_10M ? 2 : 1);
+    gaps.hdx_gap_2 = 2;
 
     /* Non default gaps */
     if (conf->frame_gaps.fdx_gap != VTSS_FRAME_GAP_DEFAULT)
