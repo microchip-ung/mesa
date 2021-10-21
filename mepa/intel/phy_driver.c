@@ -399,6 +399,7 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_probe = intl_probe;
     intl_drivers[0].mepa_driver_aneg_status_get = intl_status_1g_get;
     intl_drivers[0].mepa_driver_phy_info_get = intl_info_get,
+
     intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
     intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
     intl_drivers[0].mepa_driver_clause45_read  = intl_mmd_read,

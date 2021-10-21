@@ -610,9 +610,17 @@ static mesa_rc aqr_status_1g_get(mepa_device_t     *dev,
 
 static mepa_rc aqr_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
+<<<<<<< HEAD
     memset(phy_info, 0, sizeof(*phy_info));
     phy_info->part_number = dev->drv->id;
     phy_info->cap = MEPA_CAP_SPEED_MASK_10G;
+=======
+    phy_info->cap = 0;
+    phy_info->part_number = dev->drv->id;
+    phy_info->revision = dev->drv->id & 0xF;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+>>>>>>> Added mepa_driver_phy_info_get() for AQR and Intel phys
     return MEPA_RC_OK;
 }
 
