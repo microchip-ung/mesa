@@ -345,20 +345,16 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                 T_E("meba_phy_conf_set(%u) failed", port_no);
                 return;
             }
+
             if (!init && pc->autoneg) {
                 // The Phy is configured. When the link comes up the switch gets configured.
                 return;
             }
-            conf.speed = pc->speed;
+            conf.speed = pc->autoneg ? MESA_SPEED_1G : pc->speed;
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
-            if (entry->meba.mac_if == MESA_PORT_INTERFACE_QXGMII) {
-                conf.if_type = MESA_PORT_INTERFACE_QXGMII;
-                conf.speed = pc->speed;
-            } else {
-                if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
-                    T_E("Could not configure SFP port(%u)", port_no);
-                }
+            if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
+                T_E("Could not configure SFP port(%u)", port_no);
             }
         } else {
             conf.speed = pc->speed;
@@ -897,7 +893,28 @@ static void cli_cmd_phy_scan(cli_req_t *req)
     if (!found_mmd) {
         cli_printf("No mmd phys found\n");
     }
+
+    mepa_phy_info_t phy_id;
+    mesa_rc rc;
+    for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
+        if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
+            cli_printf("Port:%d Phy part number:%d/0x%x rev:%d\n", port_no, phy_id.part_number, phy_id.part_number, phy_id.revision);
+        }
+    }
 }
+
+static void cli_cmd_phy_id(cli_req_t *req)
+{
+    mepa_phy_info_t phy_id;
+    mesa_rc rc;
+    for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
+        if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
+            cli_printf("Port:%d Phy part number:%d/0x%x. Rev:%d. CAP:%x\n", port_no, phy_id.part_number, phy_id.part_number, phy_id.revision, phy_id.cap);
+        }
+    }
+}
+
+
 
 /* Print counters in two columns with header */
 static void cli_cmd_stat_port(mesa_port_no_t port, mesa_bool_t *first, const char *name,
@@ -1109,8 +1126,13 @@ static cli_cmd_t cli_cmd_table[] = {
     },
     {
         "Debug phy scan",
-        "Shows all detected phys (over all controlers)",
+        "Shows all detected phys (over all controllers)",
         cli_cmd_phy_scan
+    },
+    {
+        "Debug phy id",
+        "Shows all probed phys",
+        cli_cmd_phy_id
     },
 };
 
@@ -1376,7 +1398,7 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_RGMII:
         case MESA_PORT_INTERFACE_QSGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
-            pc->speed = MESA_SPEED_1G;
+            pc->speed = (cap & MEBA_PORT_CAP_2_5G_FDX) ? MESA_SPEED_2500M : MESA_SPEED_1G;
             pc->autoneg = 1;
             pc->flow_control = 1;
             break;
@@ -1389,7 +1411,7 @@ static void port_init(meba_inst_t inst)
             pc->speed = MESA_SPEED_1G;
             break;
         case MESA_PORT_INTERFACE_QXGMII:
-            entry->media_type = MSCC_PORT_TYPE_SFP;
+            entry->media_type = MSCC_PORT_TYPE_CU;
             pc->speed = MESA_SPEED_2500M;
             pc->autoneg = 1;
             break;

@@ -16,6 +16,7 @@
 #define STATUSLED_R_GPIO 13
 #define AQR_RESET 19
 #define PHY_ID_GPY241 0xDC00
+#define GPY241_QXGMII 1
 
 /* LED colors */
 typedef enum {
@@ -107,17 +108,17 @@ static void fa_gpy241_detect(meba_inst_t inst)
     meba_board_state_t *board = INST2BOARD(inst);
     uint16_t value = 0;
 
-    for (uint8_t ctrl = 0; ctrl < 3; ctrl++) {
+    for (uint8_t ctrl = 0; ctrl < 4; ctrl++) {
         for (uint8_t miim = 0; miim < 32; miim++) {
-            if (mebaux_mmd_rd(inst, &rawio, ctrl, miim, 0x1, 0x3, &value) == MESA_RC_OK) {
-                if (value == PHY_ID_GPY241) {
-                    board->gpy241_present = TRUE;
-                    break;
-                }
+            mebaux_mmd_rd(inst, &rawio, ctrl, miim, 0x1, 0x3, &value);
+            if (value == PHY_ID_GPY241) {
+                board->gpy241_present = TRUE;
+                break;
             }
         }
     }
 }
+
 
 static void fa_emul_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
 {
@@ -147,9 +148,7 @@ static void fa_pcb125_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 entry->map.chip_port       = port_no + 48; // 12-15(10G), 48-55(10G), 56-63(25G)
                 entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
                 entry->map.max_bw          = MESA_BW_10G;
-//                entry->mac_if              = MESA_PORT_INTERFACE_SFI;
                 entry->mac_if              = MESA_PORT_INTERFACE_SGMII_CISCO;
-//                entry->cap                 = (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
                 entry->cap                 = (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
                 entry->cap                 &= ~MEBA_PORT_CAP_SFP_DETECT; // No SFP detection
             } else {
@@ -157,13 +156,11 @@ static void fa_pcb125_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 entry->map.chip_port       = port_no - 4 + 56; // 56-63(25G)
                 entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
                 entry->map.max_bw          = MESA_BW_10G;
-//                entry->mac_if              = MESA_PORT_INTERFACE_SFI;
                 if ((port_no == 4) || (port_no == 5)) {
                     entry->mac_if              = MESA_PORT_INTERFACE_SERDES;
                 } else {
                     entry->mac_if              = MESA_PORT_INTERFACE_SGMII_CISCO;
                 }
-//                entry->cap                 = (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
                 entry->cap                 = (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH);
                 entry->cap                 &= ~MEBA_PORT_CAP_SFP_DETECT; // No SFP detection
             }
@@ -177,21 +174,22 @@ static void fa_pcb125_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     }
 }
 
-static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_interface_t if_type, mesa_internal_bw_t bw, uint32_t port_no)
+static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_interface_t if_type, mesa_internal_bw_t bw, uint32_t chip_port)
 {
     meba_board_state_t *board = INST2BOARD(inst);
+
     if (if_type == MESA_PORT_INTERFACE_QSGMII) {
-        entry->map.chip_port       = port_no;
-        entry->map.miim_addr       = port_no % 24;
-        entry->map.miim_controller = port_no < 24 ? MESA_MIIM_CONTROLLER_0 : MESA_MIIM_CONTROLLER_1;
+        entry->map.chip_port       = chip_port;
+        entry->map.miim_addr       = chip_port % 24;
+        entry->map.miim_controller = chip_port < 24 ? MESA_MIIM_CONTROLLER_0 : MESA_MIIM_CONTROLLER_1;
         entry->map.max_bw          = MESA_BW_1G;
         entry->mac_if              = MESA_PORT_INTERFACE_QSGMII;
         entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
     } else if  (if_type == MESA_PORT_INTERFACE_SFI || if_type == MESA_PORT_INTERFACE_SGMII_CISCO) {
-        entry->map.chip_port       = port_no;
+        entry->map.chip_port       = chip_port;
         if ((board->type == BOARD_TYPE_SPARX5_PCB135) && (entry->map.chip_port >= 56 && entry->map.chip_port < 60)) {
             // Aquantia Phy
-            entry->map.miim_addr       = port_no - 56;
+            entry->map.miim_addr       = chip_port - 56;
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_3;
             entry->cap  = (MEBA_PORT_CAP_COPPER_10G | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
             entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to AQR phys
@@ -216,7 +214,7 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
             // dev63 --> [SGPIO2, port 30, bit 1]
             entry->map.sd_map.action   = MESA_SD_SGPIO_MAP_ENABLE;
             entry->map.sd_map.group    = 2;
-            entry->map.sd_map.port     = port_no < 16 ? (11 + (port_no - 12)) : 11 + (port_no - 48 + 4);
+            entry->map.sd_map.port     = chip_port < 16 ? (11 + (chip_port - 12)) : 11 + (chip_port - 48 + 4);
             entry->map.sd_map.bit      = 1;
         } else if (board->type == BOARD_TYPE_SPARX5_PCB135) {
             // Per default the device SD is mapped to SGPIO1
@@ -227,18 +225,30 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
             // dev63 --> [SGPIO2, port 31, bit 0]
             entry->map.sd_map.action   = MESA_SD_SGPIO_MAP_ENABLE;
             entry->map.sd_map.group    = 2;
-            entry->map.sd_map.port     = port_no < 16 ? (12 + (port_no - 12)) : 12 + (port_no - 48 + 4);
+            entry->map.sd_map.port     = chip_port < 16 ? (12 + (chip_port - 12)) : 12 + (chip_port - 48 + 4);
             entry->map.sd_map.bit      = 0;
         }
-
+    } else if (if_type == MESA_PORT_INTERFACE_QXGMII) {
+        // GPY-241 Phy
+        entry->map.chip_port       = chip_port;
+        entry->mac_if              = if_type;
+        if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+            entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
+            entry->map.miim_addr       = chip_port == 8 ? 0 : chip_port == 24 ? 1 : chip_port == 40 ? 2 : 3;
+        } else {
+            entry->map.miim_controller = MESA_MIIM_CONTROLLER_0; // 4xGPY-241 on PCB-134 (mockup setup)
+            entry->map.miim_addr       = chip_port == 0 ? 29 : chip_port == 16 ? 28 : chip_port == 32 ? 31 : 30;
+        }
+        entry->map.max_bw          = bw;
+        entry->cap  = (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
+        entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to GPY phys
     } else if (if_type == MESA_PORT_INTERFACE_SGMII) {
-        // NPI port
-        entry->map.chip_port       = 64;
+        entry->map.chip_port       = chip_port;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_3;
-        entry->map.miim_addr       = 28;
-        entry->map.max_bw          = MESA_BW_1G;
-        entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
-        entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
+        entry->map.miim_addr       = chip_port == 64 ? 28 : (chip_port - 56); // NPI or GPY-241 x 4
+        entry->map.max_bw          = bw;
+        entry->mac_if              = if_type;
+        entry->cap                 = chip_port == 64 ? MEBA_PORT_CAP_TRI_SPEED_COPPER : MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER;
     }
     entry->cap &= ~MEBA_PORT_CAP_SD_INTERNAL; // Signal detect (LOS) comes from SFP module (and not from Serdes)
     entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed
@@ -255,12 +265,18 @@ static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_16x10G_NPI:
     case VTSS_BOARD_CONF_20x10G_NPI:
         if (port_no < board->port_cnt - 1) {
-            mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
-            if (board->beaglebone) {
-                // Hardcode some ports to support CuSFP as we are missing I2C support
-                mac_if = port_no < 8 ? MESA_PORT_INTERFACE_SGMII_CISCO : MESA_PORT_INTERFACE_SFI;
+            if (port_no <= 4 && board->gpy241_present) {
+                mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
+                uint32_t chip_port = 12;
+                if (port_no <= 3) {
+                    mac_if = MESA_PORT_INTERFACE_QXGMII;
+                    chip_port = port_no * 16;
+                }
+                update_entry(inst, entry, mac_if, MESA_BW_10G, chip_port); // 56-63(25G)
+            } else {
+                mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
+                update_entry(inst, entry, mac_if, MESA_BW_10G, port_no < 4 ? port_no + 12 : port_no + 44); // 56-63(25G)
             }
-            update_entry(inst, entry, mac_if, MESA_BW_10G, port_no < 4 ? port_no + 12 : port_no + 44); // 56-63(25G)
         } else if (port_no == board->port_cnt - 1) {
             if (board->ls1046) {
                 entry->map.chip_port = CHIP_PORT_UNUSED;
@@ -312,6 +328,9 @@ static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
 static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry)
 {
     meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_interface_t if_type;
+    uint32_t chip_port;
+    mesa_internal_bw_t bw;
 
     switch (board->port_cfg) {
     case VTSS_BOARD_CONF_24x1G_4x10G_NPI:
@@ -340,28 +359,39 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             entry->map.chip_port = CHIP_PORT_UNUSED;
         }
         break;
+    case VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI:
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
-            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
-            entry->poe_support         = true;
-        } else if (port_no < 56) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-63
-        } else if (port_no == 56) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G, 64);
-        } else {
-            entry->map.chip_port = CHIP_PORT_UNUSED;
-        }
-        break;
-    case VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI:
-        if (port_no < 48) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
+            if (board->gpy241_present && GPY241_QXGMII && (port_no % 16 == 8)) {
+                // QXGMII Test mode
+                if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
+                bw = MESA_BW_2G5;
+            } else {
+                if_type = MESA_PORT_INTERFACE_QSGMII;
+                bw = MESA_BW_1G;
+            }
+            update_entry(inst, entry, if_type, bw, port_no);
             entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
             entry->poe_support         = true;
         } else if (port_no < 52) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-59
+            chip_port = 56 + port_no - 48;
+            if (board->gpy241_present && GPY241_QXGMII && (chip_port % 16 == 8)) {
+                if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
+                bw = MESA_BW_2G5;
+            } else if (board->gpy241_present && GPY241_QXGMII) {
+                if_type = MESA_PORT_INTERFACE_NO_CONNECTION;
+                bw = MESA_BW_1G;
+            } else if (board->gpy241_present) {
+                if_type = MESA_PORT_INTERFACE_SGMII;
+                bw = MESA_BW_2G5;
+            } else {
+                if_type = MESA_PORT_INTERFACE_SFI;
+                bw = MESA_BW_10G;
+            }
+            update_entry(inst, entry, if_type, bw, chip_port); // 10G: 56-59
         } else if (port_no < 56) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_25G, 56 + port_no - 48); // 25G: 60-63
+            mesa_internal_bw_t bw = board->port_cfg == VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI ? MESA_BW_25G : MESA_BW_10G;
+            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, bw, 56 + port_no - 48); // 25G: 60-63
         } else if (port_no == 56) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G, 64);
         } else {
@@ -1879,6 +1909,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else {
             T_E(inst, "Unknown board (%d) / port count (%d)",board->type,board->port_cnt);
         }
+        fa_gpy241_detect(inst);
         break;
     case BOARD_TYPE_SPARX5_PCB135:
         if (board->port_cnt == 29) {
