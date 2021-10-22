@@ -712,7 +712,8 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
                ((pc->mld_reg == VTSS_PACKET_REG_NORMAL && reg->mld_cpu_only) ||
                 pc->mld_reg == VTSS_PACKET_REG_CPU_ONLY ? ANA_CPU_FWD_CFG_MLD_REDIR_ENA_M : 0));
         for (i = 0, bpdu = 0, garp = 0; i < 16; i++) {
-            bpdu |= lan966x_cpu_fwd_mask_get(pc->bpdu_reg[i], reg->bpdu_cpu_only, i);
+            // Always discard Pause frames 01:80:C2:00:00:01
+            bpdu |= lan966x_cpu_fwd_mask_get(i == 1 ? VTSS_PACKET_REG_DISCARD : pc->bpdu_reg[i], reg->bpdu_cpu_only, i);
             garp |= lan966x_cpu_fwd_mask_get(pc->garp_reg[i], reg->garp_cpu_only[i], i);
         }
         REG_WR(ANA_CPU_FWD_BPDU_CFG(port), bpdu);
