@@ -683,8 +683,15 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
 static mepa_rc phy_10g_poll(mepa_device_t *dev,
                             mepa_driver_status_t *status)
 {
-    // TBD
-    return MEPA_RC_NOT_IMPLEMENTED;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    vtss_phy_10g_status_t status_10g;
+
+    if (vtss_phy_10g_status_get(NULL, data->port_no, &status_10g) != VTSS_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    memset(status, 0, sizeof(*status));
+    status->link = status_10g.status;
+    return MEPA_RC_OK;
 }
 
 static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
