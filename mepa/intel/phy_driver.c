@@ -327,11 +327,13 @@ static mepa_rc intl_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info
 
 static mepa_rc intl_miim_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
 {
+
     return dev->callout->miim_read(dev->callout_ctx, address, value);
 }
 
 static mepa_rc intl_miim_write(mepa_device_t *dev, uint32_t address, uint16_t value)
 {
+
     return dev->callout->miim_write(dev->callout_ctx, address, value);
 }
 
@@ -399,6 +401,10 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_probe = intl_probe;
     intl_drivers[0].mepa_driver_aneg_status_get = intl_status_1g_get;
     intl_drivers[0].mepa_driver_phy_info_get = intl_info_get,
+    intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
+    intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
+    intl_drivers[0].mepa_driver_clause45_read  = intl_mmd_read,
+    intl_drivers[0].mepa_driver_clause45_write = intl_mmd_write,
 
     intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
     intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
