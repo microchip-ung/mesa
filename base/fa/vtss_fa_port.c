@@ -1244,9 +1244,10 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 abil = 0;
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     // Reset the serdes
-    VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
+    VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.sd28_mode[indx]));
 
     // Reset aneg, training and IRQs
     REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
@@ -1373,11 +1374,12 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     u32 port = VTSS_CHIP_PORT(port_no);
 
     if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
+        u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
         /* Training is interruptet, restart serdes and kr blocks */
         vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
         vtss_state->port.kr_conf[port_no].train.enable = FALSE;
         (void)fa_port_kr_conf_set(vtss_state, port_no);
-        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
+        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.sd28_mode[indx]));
         vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
         vtss_state->port.kr_conf[port_no].train.enable = TRUE;
         (void)fa_port_kr_conf_set(vtss_state, port_no);
@@ -1783,10 +1785,13 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode)
 {
-    VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
-    vtss_state->port.serdes_mode[port_no] = serdes_mode;
+    u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
-    /* QSGMII/QXGMII serdes mode is only needed for 1 of the 4 port instances */
+    VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
+    /* Store the serdes mode */
+    vtss_state->port.sd28_mode[indx] = serdes_mode;
+
+    /* Also update the port.serdes_mode[port_no] - for backward compatability */
     if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
         u32 p = (VTSS_CHIP_PORT(port_no) / 4) * 4;
         for (u32 cnt = 0; cnt < 4; cnt++) {
@@ -1805,6 +1810,8 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
                 }
             }
         }
+    } else {
+        vtss_state->port.serdes_mode[port_no] = serdes_mode;
     }
     return VTSS_RC_OK;
 }
@@ -2289,6 +2296,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     BOOL                   sgmii = FALSE, pcs_100fx = FALSE, pcs_usx = FALSE;
     u32                    tgt = VTSS_TO_DEV2G5(port), clk_spd = 0;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SGMII;
+    u32                    sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_SERDES:
@@ -2341,7 +2349,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
     /* Enable the Serdes if disabled */
-    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
+    if (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
@@ -2349,7 +2357,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
 
     /* Configure the Serdes Macro to 'serdes_mode' */
-    if (serdes_mode != vtss_state->port.serdes_mode[port_no]) {
+    if (serdes_mode != vtss_state->port.sd28_mode[sd_indx]) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
@@ -2593,6 +2601,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    clk_spd = 0, muxed_ports = 0;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SFI;
     BOOL                   pcs_usx = FALSE;
+    u32                    sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_SFI:
@@ -2621,7 +2630,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     default:{}
     }
 
-    if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
+    if (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE) {
         /* Enable the Serdes if disabled (to get clock) */
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
         /* Port disable and flush procedure: */
@@ -2630,7 +2639,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         /* Port disable and flush procedure: */
         VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
         /* Re-configure Serdes if needed */
-        if (serdes_mode != vtss_state->port.serdes_mode[port_no] ||
+        if (serdes_mode != vtss_state->port.sd28_mode[sd_indx] ||
             vtss_state->port.current_speed[port_no] != conf->speed ||
             vtss_state->port.current_mt[port_no] != conf->serdes.media_type) {
             VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));

@@ -3350,7 +3350,7 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
       FA_SERDES_TYPE_10G
       FA_SERDES_TYPE_25G
 
-    To get target of SD_LANE which is numbered 0-33:
+    To get target of SD_LANE which is numbered 0-32:
     target = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_xxG_START)
 
     On other targets indx can be used directly:
@@ -3461,6 +3461,20 @@ u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     u32 sd_indx = 0, sd_type;
     (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
     return sd_indx;
+}
+
+/* Returns serdes LANE index 0-33 */
+u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    u32 indx = 0, type;
+    (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &type);
+    if (type == FA_SERDES_TYPE_6G) {
+        return indx;
+    } else if (type == FA_SERDES_TYPE_10G) {
+        return indx + VTSS_SERDES_10G_START;
+    } else {
+        return(indx + VTSS_SERDES_25G_START);
+    }
 }
 
 

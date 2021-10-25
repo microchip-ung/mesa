@@ -276,6 +276,7 @@ u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #define FA_SERDES_TYPE_10G 10
 #define FA_SERDES_TYPE_25G 25
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type);
+u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);
 vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id);
 vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
