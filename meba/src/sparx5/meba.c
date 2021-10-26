@@ -16,7 +16,6 @@
 #define STATUSLED_R_GPIO 13
 #define AQR_RESET 19
 #define PHY_ID_GPY241 0xDC00
-#define GPY241_QXGMII 1
 
 /* LED colors */
 typedef enum {
@@ -113,6 +112,8 @@ static void fa_gpy241_detect(meba_inst_t inst)
             mebaux_mmd_rd(inst, &rawio, ctrl, miim, 0x1, 0x3, &value);
             if (value == PHY_ID_GPY241) {
                 board->gpy241_present = TRUE;
+                mebaux_mmd_rd(inst, &rawio, ctrl, miim, 30, 8, &value); //(?)
+                board->gpy241_usxgmii_mode = TRUE;
                 break;
             }
         }
@@ -362,7 +363,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI:
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
-            if (board->gpy241_present && GPY241_QXGMII && (port_no % 16 == 8)) {
+            if (board->gpy241_present && board->gpy241_usxgmii_mode && (port_no % 16 == 8)) {
                 // QXGMII Test mode
                 if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
                 bw = MESA_BW_2G5;
@@ -375,10 +376,10 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             entry->poe_support         = true;
         } else if (port_no < 52) {
             chip_port = 56 + port_no - 48;
-            if (board->gpy241_present && GPY241_QXGMII && (chip_port % 16 == 8)) {
+            if (board->gpy241_present && board->gpy241_usxgmii_mode && (chip_port % 16 == 8)) {
                 if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
                 bw = MESA_BW_2G5;
-            } else if (board->gpy241_present && GPY241_QXGMII) {
+            } else if (board->gpy241_present && board->gpy241_usxgmii_mode) {
                 if_type = MESA_PORT_INTERFACE_NO_CONNECTION;
                 bw = MESA_BW_1G;
             } else if (board->gpy241_present) {
