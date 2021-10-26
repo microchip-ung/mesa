@@ -41,6 +41,13 @@ set(src_vtss vtss/src/vtss.c
              vtss/src/ts/vtss_phy_ts_util.c)
 set(inc_vtss vtss/include)
 
+set(src_common common/src/phy.c)
+add_library(mepa_common        SHARED ${src_common})
+add_library(mepa_common_static STATIC ${src_common})
+set_target_properties(mepa_common_static PROPERTIES OUTPUT_NAME mepa_common)
+target_include_directories(mepa_common        PUBLIC ${inc_mepa} PRIVATE ${inc_common})
+target_include_directories(mepa_common_static PUBLIC ${inc_mepa} PRIVATE ${inc_common})
+
 add_library(mepa_vtss        SHARED ${src_vtss})
 add_library(mepa_vtss_static STATIC ${src_vtss})
 set_target_properties(mepa_vtss_static PROPERTIES OUTPUT_NAME mepa_vtss)

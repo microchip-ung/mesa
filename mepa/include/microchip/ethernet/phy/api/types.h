@@ -104,6 +104,39 @@ typedef struct {
     mepa_reset_point_t     reset_point;
 } mepa_reset_param_t;
 
+// Represents the status of the PHY.
+typedef struct {
+    mepa_bool_t link;        // Link is up
+    mepa_port_speed_t speed; // Speed
+    mepa_bool_t fdx;         // Full duplex
+    mepa_aneg_t aneg;        // Auto-negotiation
+    mepa_bool_t copper;      // For dual-media ports
+    mepa_bool_t fiber;       // For dual-media ports
+} mepa_driver_status_t;
+
+// manual negotiation preferred state
+typedef enum {
+    MEPA_MANUAL_NEG_DISABLED = 0, // Disable manual preference of master/slave states in IEEE registers 9,10 for 1G speed
+    MEPA_MANUAL_NEG_REF,          // master state used in IEEE registers 9,10 for 1G speed
+    MEPA_MANUAL_NEG_CLIENT        // slave  state used in IEEE registers 9,10 for 1G speed
+} mepa_manual_neg_t;
+
+// Represents the configuration that is applied to PHY.
+typedef struct {
+    mepa_port_speed_t speed;       // Forced port speed
+    mepa_bool_t fdx;               // Forced duplex mode
+    mepa_bool_t flow_control;      // Flow control (Standard 802.3x)
+    uint32_t adv_dis;              // Auto neg advertisement disable
+    mepa_port_admin_state_t admin; // Admin state
+    mepa_aneg_adv_t aneg;          // Auto-negitiation advertisement
+    mepa_bool_t mac_if_aneg_ena;   // Enable auto-negotiation on host mac interface
+    mepa_manual_neg_t man_neg;     // manual negotiation control in 1G instead of using auto-negotiation
+} mepa_driver_conf_t;
+
+//  MEPA event mask
+typedef uint32_t mepa_event_t;
+
+
 /* mepa_rc error codes */
 #define MEPA_RC_OK                              MESA_RC_OK
 #define MEPA_RC_ERROR                           MESA_RC_ERROR
@@ -236,13 +269,6 @@ typedef enum {
     MEPA_TRACE_GRP_GEN,   // PHY general features
     MEPA_TRACE_GRP_TS,    // Timestamp Api
 } mepa_trace_group_t;
-
-// manual negotiation preferred state
-typedef enum {
-    MEPA_MANUAL_NEG_DISABLED = 0, // Disable manual preference of master/slave states in IEEE registers 9,10 for 1G speed
-    MEPA_MANUAL_NEG_REF,          // master state used in IEEE registers 9,10 for 1G speed
-    MEPA_MANUAL_NEG_CLIENT        // slave  state used in IEEE registers 9,10 for 1G speed
-} mepa_manual_neg_t;
 
 // lock structure
 typedef struct {
