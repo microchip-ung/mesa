@@ -695,6 +695,9 @@ static mesa_rc fa_phy_event_enable(meba_inst_t inst,
             // Currently the feature is not implemented in the MEPA layer, and
             // MEBA will therefore return MESA_RC_NOT_IMPLEMENTED.
             rc = meba_phy_event_enable_set(inst, port_no, phy_event, enable);
+            if (rc == MESA_RC_OK) {
+                T_I(inst, "%sable phy event %d on phy:%d", enable ? "en" : "dis", phy_event, port_no);
+            }
             if (rc == MESA_RC_OK || rc == MESA_RC_NOT_IMPLEMENTED) {
                 continue;
             } else {
@@ -2032,7 +2035,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     } else {
                         board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
                     }
-
                 } else if (port_no < board->port_cnt - 1) {
                     // 4x10G Cu ports
                     // These are physical ports 48-51
@@ -2054,7 +2056,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
                     // These are physical ports 52-55
                     board->port[port_no].sgpio_port = board->port[port_no].map.map.chip_port - 32;
                 } else {
-                    // 1 SGPIO interrupt is assigned to 2 phys (8 ports)
+                    // 1 SGPIO interrupt is assigned to 2 vtss/microchip phys (8 port)
                     if (port_no < 8) {
                         board->port[port_no].sgpio_port = 17;
                         board->port[port_no].sgpio_bit = 0;
@@ -2072,6 +2074,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
                         board->port[port_no].sgpio_bit = 1;
                     } else if (port_no < 48) {
                         board->port[port_no].sgpio_port = 18;
+                        board->port[port_no].sgpio_bit = 2;
+                    } else if (port_no < 52 && is_phy_port(board->port[port_no].map.cap) && board->gpy241_present) {
+                         // SGPIO interrupt is assigned to the GPY241 Phy (note that the PCB135 needs to be ECO'ed for this)
+                        board->port[port_no].sgpio_port = 16;
                         board->port[port_no].sgpio_bit = 2;
                     } else {
                         board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
