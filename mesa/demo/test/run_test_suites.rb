@@ -22,8 +22,7 @@ $systems = [
     { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master", parallel: "no", server: "34", started: "no" },
 
-    # dk-t35, starting with Maserati systems
-    { name: "dk-t35-4", image: "armv7_lan966x_bbb.itb",      branch:"master", parallel: "no", server: "35", started: "no" },
+    # dk-t35, MIPS systems
     { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-4", image: "mipsel_vsc7428.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },
