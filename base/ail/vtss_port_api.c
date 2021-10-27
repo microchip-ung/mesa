@@ -2172,7 +2172,9 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             mode = "?";
             break;
         }
-        aneg = vtss_state->port.clause_37[port_no].enable ? "Yes" : "No";
+        aneg = conf->if_type == VTSS_PORT_INTERFACE_QXGMII ||
+               conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO ||
+               vtss_state->port.clause_37[port_no].enable ? "Yes" : "No";
         sprintf(buf, "%s", vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
         if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
             sprintf(buf + strlen(buf), "(%s)",vtss_media_type_if_txt(conf->serdes.media_type));
