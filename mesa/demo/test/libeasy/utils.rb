@@ -621,41 +621,75 @@ def bit_rate bytes, duration
     bytes.to_f * 8 * 1000000 / duration
 end
 
+# Calculate frame rate (in frames per second) from number of frames during duration uS
+def frame_rate frames, duration
+    frames.to_f * 1000000 / duration
+end
+
 # tx_capture() transmits and capture frames
 #
 # ts: test setup
-# tx: transmitting device on test PC, e.g. eth_red
-# cap: capturing device on test PC, e.g. eth_green
-# num_frames: number of frames to transmit and capture
-# frame: frame to transmit
-# min_pause: minimum pause between frames to detect.
+# tx: Transmit on this interface on the pc
+# capture: Capture on this interface on the pc. Set to nil ti disable.
+# no_rx: (optional) Check that no frames are received on these interfaces on the pc. Set to nil disable.
+# frame: Test frame specified as an EasyFrame FRAME
+# frame_size: Size of transmitted frame. Padded with enough zeroes.
+# num_frames: Number of frames to transmit.
+# pause: (optional) Count number of pauses greater than this value. Set to nil to disable.
 #
-# returns a hash (see below)
-def tx_capture ts, tx, cap, num_frames, frame, min_pause = nil
-    ts.pc.run "ef -c #{cap},20,adapter_unsynced tx #{tx} rep #{num_frames} #{frame}"
+# Returns hash of values calculated from capture or nil if no capture
+def tx_capture ts, tx, capture, no_rx, frame, frame_size, num_frames, pause = nil
+    if capture
+        cap = "-c #{capture},20,adapter_unsynced"
+    end
 
+    if no_rx
+        if no_rx.is_a?(Array)
+            rx = no_rx.map { |x| "rx #{x}" }.join(" ") # Array
+        else
+            rx = "rx #{no_rx}" # Single value
+        end
+    end
+
+    if num_frames > 1
+        rep = "rep #{num_frames}"
+    end
+
+    # Calculate current frame size
+    res = ts.pc.run "ef hex #{frame} data repeat 64 0" # Add 64 bytes to eliminate padding
+    fsz = (res[:out].chomp.length / 2) - 64 # Subtract 64 bytes to find length excluding padding
+    payload = frame_size - fsz
+
+    ts.pc.run "ef #{cap} #{rx} tx #{tx} #{rep} #{frame} data repeat #{payload} 0"
+
+    return nil if capture.nil?
+
+    pkts = ts.pc.get_pcap "#{capture}.pcap"
     bytes = 0
     duration = 0.0
     pauses = 0.0
-    pkts = ts.pc.get_pcap "#{cap}.pcap"
 
     pkts.each do |p|
         #t_i "TS: %4d, TSD: %4d, len: %4d #{hexstr(p[:data])}" % [p[:us_rel], p[:us_delta], p[:len_on_wire]]
         bytes += p[:len_on_wire]
         duration = p[:us_rel] # Just save the last one
-        pauses += 1 if min_pause && (p[:us_delta] >= (min_pause / 1000))
+        pauses += 1 if pause && (p[:us_delta] >= (pause / 1000))
     end
 
-    rate = bit_rate(bytes, duration)
-    pps = pauses * 1_000_000 / duration # pauses per second. duration is in uS
-    t_i "#{cap}: Got #{pkts.size} packets and #{bytes} bytes during #{duration} usec"
+    if duration == 0 # Probably only captured a single frame
+        bps = 0
+        fps = 0
+        pps = 0
+    else
+        bps = bit_rate(bytes, duration)
+        fps = frame_rate(pkts.size, duration)
+        pps = pauses * 1_000_000 / duration
+    end
 
-    { :num_packets => pkts.size,
-      :bit_rate    => rate, # bits pr second
-      :duration    => duration, # uS
-      :pps         => pps # pauses per second
-    }
+    #t_i "#{capture}: frames: #{pkts.size}, bytes: #{bytes}, duration in usec: #{duration}, bps: #{bps}, fps: #{fps}, pps: #{pps}"
+    {:frames => pkts.size, :bytes => bytes, :duration => duration, :bps => bps, :fps => fps, :pps => pps}
 end
+
 
 # Wait for network interfaces to come up or down
 # ts: test setup
