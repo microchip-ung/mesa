@@ -624,6 +624,23 @@ static mepa_rc aqr_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
     return MEPA_RC_OK;
 }
 
+static mepa_rc aqr_mmd_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    AQ_Port *data = AQ_PORT(dev);
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+    return data->mmd_read(NULL, data->port_no, page_mmd, addr, value);
+}
+
+static mepa_rc aqr_mmd_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    AQ_Port *data = AQ_PORT(dev);
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+
+    return data->mmd_write(NULL, data->port_no, page_mmd, addr, value);
+}
+
 mepa_drivers_t mepa_aqr_driver_init()
 {
 #define NR_AQR_PHY 11
@@ -642,7 +659,9 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[0].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[0].mepa_driver_probe = aqr_probe;
     aqr_drivers[0].mepa_driver_aneg_status_get = aqr_status_1g_get;
-    aqr_drivers[0].mepa_driver_phy_info_get = aqr_info_get,
+    aqr_drivers[0].mepa_driver_phy_info_get = aqr_info_get;
+    aqr_drivers[0].mepa_driver_clause45_read  = aqr_mmd_read;
+    aqr_drivers[0].mepa_driver_clause45_write = aqr_mmd_write;
 
     aqr_drivers[1].id = 0xB582;
     aqr_drivers[1].mask = 0x0000FFff;

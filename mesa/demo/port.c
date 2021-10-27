@@ -867,39 +867,27 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
 
 static void cli_cmd_phy_scan(cli_req_t *req)
 {
-    uint16_t value, reg2, reg3, oui, model, adr;
+    uint16_t value, adr;
     mesa_bool_t found = FALSE, found_mmd = FALSE;
     for (mesa_miim_controller_t miim_ctrl = MESA_MIIM_CONTROLLER_0; miim_ctrl < MESA_MIIM_CONTROLLERS; miim_ctrl++) {
         for (adr = 0; adr < 32; adr++) {
-            if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 0, &value) == MESA_RC_OK) {
-                mesa_miim_read(NULL, 0, miim_ctrl, adr, 2, &reg2);
-                mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &reg3);
-                oui = ((reg2 << 6) | ((reg3 >> 10) & 0x3F));
-                model = ((reg3 >> 4) & 0x3F);
-                cli_printf("MIIM Ctrl:%d MIIM addr:%d - Found Phy (OUI:0x%x Model:0x%x)\n",miim_ctrl, adr, oui, model);
+            if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &value) == MESA_RC_OK) {
+                cli_printf("Clause 28: Ctrl:%d MIIM addr:%-2d - Found Phy 0x%x (reg 3)\n",miim_ctrl, adr, value);
                 found = TRUE;
             }
         }
         for (adr = 0; adr < 32; adr++) {
-            if (mesa_mmd_read(NULL, 0, miim_ctrl, adr, 0, 0, &value) == MESA_RC_OK) {
-                cli_printf("MIIM Ctrl:%d MIIM addr:%d mmd:0 addr:0 = %x - Found MMD Phy\n",miim_ctrl, adr, value);
+            if (mesa_mmd_read(NULL, 0, miim_ctrl, adr, 1, 3, &value) == MESA_RC_OK) {
+                cli_printf("Clause 45: Ctrl:%d MMD addr:1,%-2d - Found Phy 0x%x (reg 3)\n",miim_ctrl, adr, value);
                 found_mmd = TRUE;
             }
         }
     }
     if (!found) {
-        cli_printf("No phys found\n");
+        cli_printf("No clause 28 phys found\n");
     }
     if (!found_mmd) {
-        cli_printf("No mmd phys found\n");
-    }
-
-    mepa_phy_info_t phy_id;
-    mesa_rc rc;
-    for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
-        if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
-            cli_printf("Port:%d Phy part number:%d/0x%x rev:%d\n", port_no, phy_id.part_number, phy_id.part_number, phy_id.revision);
-        }
+        cli_printf("No clause 45 phys found\n");
     }
 }
 
