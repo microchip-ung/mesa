@@ -12,7 +12,6 @@ $systems = [
     # dk-t33, Maserati systems
     { name: "dk-t33-0", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-2", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
-    { name: "dk-t33-3", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-4", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-6", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
 
