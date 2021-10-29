@@ -115,9 +115,7 @@ set(inc_aqr aqr/AQR_API_2.6.1/include
             aqr/AQR_API_2.6.1/include/registerMap/APPIA
             aqr/AQR_API_2.6.1/include/registerMap/EUR
             aqr/AQR_API_2.6.1/include/registerMap/HHD
-            aqr/aqr_phy_fw
-            ../mesa/include
-            ../meba/include)
+            aqr/aqr_phy_fw)
 add_library(mepa_aqr        SHARED ${src_aqr})
 add_library(mepa_aqr_static STATIC ${src_aqr})
 set_target_properties(mepa_aqr_static PROPERTIES OUTPUT_NAME mepa_aqr)

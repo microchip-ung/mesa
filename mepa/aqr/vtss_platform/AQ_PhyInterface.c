@@ -17,7 +17,6 @@
  * the implementation of these routines. */
 
 #include "AQ_PhyInterface.h"
-#include <microchip/ethernet/switch/api.h>
 
 
 /*******************************************************************
@@ -57,7 +56,7 @@ void AQ_API_MDIO_Write
   unsigned int data
 )
 {
-    PHY_ID.mmd_write(PHY_ID.inst, PHY_ID.port_no, (uint16_t)MMD, (uint16_t)address, (uint16_t)data);
+    PHY_ID.mscc.mmd_write(PHY_ID.mscc.inst, PHY_ID.mscc.port_no, (uint16_t)MMD, (uint16_t)address, (uint16_t)data);
 }
 
 /*! Provides generic synchronous PHY register read functionality. It is the
@@ -76,7 +75,7 @@ unsigned int AQ_API_MDIO_Read
 {
     uint16_t               reg_value[2] = {0};
 
-    PHY_ID.mmd_read(PHY_ID.inst, PHY_ID.port_no, (uint16_t)MMD, (uint16_t)address, &reg_value[0]);
+    PHY_ID.mscc.mmd_read(PHY_ID.mscc.inst, PHY_ID.mscc.port_no, (uint16_t)MMD, (uint16_t)address, &reg_value[0]);
 
     return (unsigned int)reg_value[0];
 }

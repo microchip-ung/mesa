@@ -46,8 +46,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/board/api.h>
-#include <microchip/ethernet/switch/api.h>
 
 /*! \defgroup User User Definitions
 This module contains the definitions used to configure AQ_API behavior as desired. */
@@ -59,12 +57,7 @@ This module contains the definitions used to configure AQ_API behavior as desire
 //typedef unsigned int AQ_Port;
 /*! Vitesse CIL api layer needs vtss_state and port_no */
 typedef struct{
-    mesa_inst_t inst;
-    mesa_port_no_t port_no;
-    meba_inst_t board_inst;
-    void (*debug_func)(mepa_trace_level_t level, const char *location, uint32_t line_no, const char *fmt, ...);
-    mesa_rc (*mmd_read)(mesa_inst_t inst, mesa_port_no_t port_no, const uint8_t mmd, const uint16_t address, uint16_t *val);
-    mesa_rc (*mmd_write)(mesa_inst_t inst, mesa_port_no_t port_no, const uint8_t mmd, const uint16_t address, uint16_t val);
+    mscc_phy_driver_address_t mscc;
 } AQ_Port;
 
 

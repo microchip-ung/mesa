@@ -44,8 +44,7 @@
 #define AQ_USER_TOKEN
 
 #include <stdint.h>
-#include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/board/api/types.h>
+#include <microchip/ethernet/phy/api.h>
 
 /*! \defgroup User User Definitions
 This module contains the definitions used to configure AQ_API behavior as desired. */
@@ -58,11 +57,7 @@ This module contains the definitions used to configure AQ_API behavior as desire
 /*! Vitesse CIL api layer needs vtss_state and port_no */
 
 typedef struct{
-    mesa_inst_t inst;
-    mesa_port_no_t port_no;
-    void (*debug_func)(mepa_trace_level_t level, const char *location, uint32_t line_no, const char *fmt, ...);
-    mesa_rc (*mmd_read)(mesa_inst_t inst, mesa_port_no_t port_no, uint16_t mmd, uint16_t address, uint16_t *val);
-    mesa_rc (*mmd_write)(mesa_inst_t inst, mesa_port_no_t port_no, uint16_t mmd, uint16_t address, uint16_t val);
+    mscc_phy_driver_address_t mscc;
 } AQ_Port;
 
 

@@ -251,10 +251,10 @@ static void cli_cmd_debug_mmd(cli_req_t *req, mesa_bool_t write)
                 /* Read success */
                 if (first) {
                     first = 0;
-                    cli_printf("Port  MMD  Addr    15******8*7*******0  Value\n");
+                    cli_printf("Port  MMD   Addr    15******8*7*******0  Value\n");
                 }
 
-                cli_printf("%-6u0x%02x  0x%04x", port, mmd, mreq->mmd_addr);
+                cli_printf("%-6u0x%02x  0x%04x  ", port, mmd, mreq->mmd_addr);
                 for (i = 15; i >= 0; i--)
                     cli_printf("%d%s",
                            value & (1<<i) ? 1 : 0, (i % 4) || i == 0 ? "" : ".");

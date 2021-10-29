@@ -109,6 +109,32 @@ test "forward-loop-2.5G" do
     $ts.dut.run("mesa-cmd port stati pa")
 end
 
+test "forward-loop-aqr" do
+    break
+    idx_tx = 0
+    idx_rx = 1
+    p0 = $ts.dut.p[idx_tx]
+    p1 = $ts.dut.p[idx_rx]
+
+    # Hard-coded loop ports
+    lp0 = 48
+    lp1 = 49
+    dut_port_state_up([lp0, lp1])
+
+    # Port-to-port forwarding via loop ports
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{p1},#{lp0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{p0},#{lp0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{p1},#{lp1}")
+
+    # Forwarding via loop ports
+    cmd = "sudo ef name f1 eth "
+    cmd += "tx #{$ts.pc.p[idx_tx]} name f1 "
+    cmd += "rx #{$ts.pc.p[idx_rx]} name f1 "
+    $ts.pc.run(cmd)
+    $ts.dut.run("mesa-cmd port mode")
+    $ts.dut.run("mesa-cmd port stati pa")
+end
+
 test "led-control" do
     break
     $ts.dut.p.each_with_index do |port, i|
