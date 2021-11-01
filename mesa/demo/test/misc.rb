@@ -119,6 +119,8 @@ test "forward-loop-aqr" do
     # Hard-coded loop ports
     lp0 = 48
     lp1 = 49
+    #$ts.dut.run("mesa-cmd port adv #{lp0 + 1} 10g dis")
+    sleep(3)
     dut_port_state_up([lp0, lp1])
 
     # Port-to-port forwarding via loop ports

@@ -328,7 +328,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     }
     if (aneg) {
         /* Setup port based on auto negotiation status */
-        conf.speed = ps->speed;
+        conf.speed = (conf.if_type == MESA_PORT_INTERFACE_SFI ? pc->speed : ps->speed);
         conf.fdx = ps->fdx;
         conf.flow_control.obey = ps->aneg.obey_pause;
         conf.flow_control.generate = ps->aneg.generate_pause;
@@ -362,7 +362,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                 // The Phy is configured. When the link comes up the switch gets configured.
                 return;
             }
-            conf.speed = (pc->autoneg ? MESA_SPEED_1G : pc->speed);
+            conf.speed = pc->speed;
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
             if (entry->meba.mac_if == MESA_PORT_INTERFACE_QXGMII) {
@@ -394,14 +394,25 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
 
 static mesa_rc port_status_poll(mesa_port_no_t port_no)
 {
-    mesa_rc            rc;
-    port_entry_t       *entry = &port_table[port_no];
-    mesa_port_status_t *ps = &entry->status;;
+    mesa_rc              rc;
+    port_entry_t         *entry = &port_table[port_no];
+    mesa_port_status_t   *ps = &entry->status;;
+    mepa_driver_status_t status;
 
     T_N("Enter, port %d", port_no);
-    if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
-        T_E("mesa_port_status_get(%u) failed", port_no);
-        return rc;
+    if (entry->media_type == MSCC_PORT_TYPE_CU) {
+        if ((rc = meba_phy_status_poll(meba_global_inst, port_no, &status)) == MESA_RC_OK) {
+            ps->link = status.link;
+            ps->speed = status.speed;
+            ps->fdx = status.fdx;
+            ps->aneg = status.aneg;
+            ps->copper = status.copper;
+            ps->fiber = status.fiber;
+        } else {
+            T_E("meba_phy_status_poll(%u) failed", port_no);
+        }
+    } else if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
+        T_E("meba_port_status_get(%u) failed", port_no);
     }
     T_N("Exit, port %d", port_no);
     return rc;
@@ -496,6 +507,9 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                 pc->admin.enable = req->enable;
                 break;
             case CLI_CMD_PORT_MODE:
+                if (entry->meba.cap & MEBA_PORT_CAP_NO_FORCE) {
+                    continue;
+                }
                 pc->autoneg = mreq->auto_keyword;
                 if (!pc->autoneg) {
                     pc->speed = mreq->speed;
@@ -532,6 +546,9 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
             PR_ADV(10M, "10");
             PR_ADV(100M, "100");
             PR_ADV(1G, "1000");
+            PR_ADV(2500M, "2500");
+            PR_ADV(5G, "5g");
+            PR_ADV(10G, "10g");
             cli_printf("%s\n", cnt ? "" : "-");
         } else {
             if (first) {
@@ -1054,7 +1071,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_mode
     },
     {
-        "Port Advertisement [<port_list>] [hdx|fdx|10|100|1000] [enable|disable]",
+        "Port Advertisement [<port_list>] [hdx|fdx|10|100|1000|2500|5g|10g] [enable|disable]",
         "Set or show the advertised speed and duplex mode",
         cli_cmd_port_adv
     },
@@ -1154,12 +1171,15 @@ static int cli_parm_keyword(cli_req_t *req)
     } else if (!strncasecmp(found, "2500", 4)) {
         mreq->speed = MESA_SPEED_2500M;
         mreq->fdx = 1;
+        mreq->adv_dis = MEPA_ADV_DIS_2500M;
     } else if (!strncasecmp(found, "5g", 2)) {
         mreq->speed = MESA_SPEED_5G;
         mreq->fdx = 1;
+        mreq->adv_dis = MEPA_ADV_DIS_5G;
     } else if (!strncasecmp(found, "10g", 3)) {
         mreq->speed = MESA_SPEED_10G;
         mreq->fdx = 1;
+        mreq->adv_dis = MEPA_ADV_DIS_10G;
     } else if (!strncasecmp(found, "25g", 3)) {
         mreq->speed = MESA_SPEED_25G;
         mreq->fdx = 1;
@@ -1217,12 +1237,15 @@ static cli_parm_t cli_parm_table[] = {
         cli_parm_keyword
     },
     {
-        "hdx|fdx|10|100|1000",
+        "hdx|fdx|10|100|1000|2500|5g|10g",
         "hdx        : Half duplex (10/100 Mbps)\n"
         "fdx        : Full duplex (10/100 Mbps)\n"
         "10         : 10 Mbps\n"
         "100        : 100 Mbps\n"
         "1000       : 1 Gbps\n"
+        "2500       : 2.5 Gbps\n"
+        "5g         : 5 Gbps\n"
+        "10g        : 10 Gbps\n"
         "(default: Show advertisements)",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
@@ -1359,6 +1382,7 @@ static void port_init(meba_inst_t inst)
                 entry->media_type = MSCC_PORT_TYPE_SFP;
             }
             pc->speed = (cap & MEBA_PORT_CAP_25G_FDX) ? MESA_SPEED_25G : MESA_SPEED_10G;
+            pc->autoneg = ((cap & MEBA_PORT_CAP_NO_FORCE) ? 1 : 0);
             break;
         case MESA_PORT_INTERFACE_GMII:
         case MESA_PORT_INTERFACE_SGMII:
