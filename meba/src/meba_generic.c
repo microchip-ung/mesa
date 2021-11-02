@@ -229,9 +229,7 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
     MEBA_ASSERT(inst->private_data != NULL);
     map = port_entry.map;
     if (port_entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) {
-        vtss_phy_10g_id_t phy_10g_id;
-        vtss_phy_10g_id_get(PHY_INST, port_no, &phy_10g_id);
-        phy_id = (uint32_t)phy_10g_id.part_number;
+        mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 30, 0, &reg3_val);
     } else {
         mesa_miim_read(NULL, map.chip_no, map.miim_controller, map.miim_addr, 2, &reg2_val);
         mesa_miim_read(NULL, map.chip_no, map.miim_controller, map.miim_addr, 3, &reg3_val);
@@ -240,8 +238,8 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
             mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 0x1, 0x2, &reg2_val);
             mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 0x1, 0x3, &reg3_val);
         }
-        phy_id = ((uint32_t)reg2_val) << 16 | reg3_val;
     }
+    phy_id = ((uint32_t)reg2_val) << 16 | reg3_val;
 
     T_D(inst, "port %d phy_id: %x", port_no, phy_id);
     return phy_id;

@@ -613,16 +613,9 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
 }
 
-typedef struct malibu_10g_phy_data {
-    mesa_inst_t inst;
-    mepa_port_no_t port_no;
-    mepa_port_interface_t mac_if;
-    phy_cap_t cap;
-} malibu_10g_phy_data_t;
-
 static mepa_rc phy_10g_delete(mepa_device_t *dev)
 {
-    malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)dev->data;
+    phy_data_t *data = (phy_data_t *)(dev->data);
     free(data);
     free(dev);
     dev = NULL;
@@ -633,7 +626,7 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
                                 const mepa_reset_param_t *rst_conf)
 {
     vtss_phy_10g_mode_t oper_mode = {};
-    malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
+    phy_data_t *data = (phy_data_t *)(dev->data);
 
     oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
     oper_mode.xfi_pol_invert = 1;
@@ -665,7 +658,8 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
 {
     vtss_phy_10g_mode_t oper_mode = {};
     vtss_phy_10g_id_t phy_10g_id;
-    malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)(dev->data);
+    phy_data_t *data = (phy_data_t *)(dev->data);
+
     oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
     if (vtss_phy_10g_id_get(0, data->port_no, &phy_10g_id) == MEPA_RC_OK) {
         if ((phy_10g_id.part_number == 0x8487) || (phy_10g_id.part_number == 0x8488)) {
@@ -696,7 +690,7 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
 
 static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
 {
-    malibu_10g_phy_data_t *data = (malibu_10g_phy_data_t *)dev->data;
+    phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_mode_t mode = {};
 
     if (vtss_phy_10g_mode_get(NULL, data->port_no, &mode) != MEPA_RC_OK) {
@@ -822,8 +816,7 @@ static mepa_device_t *phy_10g_probe(
         goto out_device;
     }
 
-    malibu_10g_phy_data_t *data =
-        (malibu_10g_phy_data_t *)calloc(1, sizeof(malibu_10g_phy_data_t));
+    phy_data_t *data = (phy_data_t *)calloc(1, sizeof(*data));
 
     if (data == NULL) {
         goto out_data;
@@ -832,6 +825,7 @@ static mepa_device_t *phy_10g_probe(
     device->drv = drv;
     data->port_no = mode->val.mscc_address.port_no;
     data->mac_if = mode->val.mscc_address.mac_if;
+    data->trace_func = mode->val.mscc_address.trace_func;
     data->cap = PHY_CAP_10G;
     device->data = data;
 
@@ -846,7 +840,7 @@ out_device:
 
 mepa_drivers_t mepa_mscc_driver_init()
 {
-    static const int nr_mscc_phy = 3;
+    static const int nr_mscc_phy = 5;
     static mepa_driver_t mscc_drivers[] = {
         {
             // VTSS Atom PHY

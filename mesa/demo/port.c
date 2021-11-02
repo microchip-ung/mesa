@@ -224,20 +224,7 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     if (device != NULL) {
         device->drv->meba_sfp_driver_if_get(device, p_conf->speed, &mac_if);
     } else {
-        // No I2C access
-        if ((p_conf->speed == MESA_SPEED_1G && cap & MEBA_PORT_CAP_1G_FDX) ||
-            (p_conf->speed == MESA_SPEED_2500M && cap & MEBA_PORT_CAP_2_5G_FDX)) {
-            if (entry->meba.mac_if == MESA_PORT_INTERFACE_SGMII_CISCO) {
-                mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
-            } else {
-                mac_if = MESA_PORT_INTERFACE_SERDES;
-            }
-        } else if ((p_conf->speed == MESA_SPEED_5G && (cap & MEBA_PORT_CAP_5G_FDX)) ||
-                   (p_conf->speed == MESA_SPEED_10G && (cap & MEBA_PORT_CAP_10G_FDX))) {
-            mac_if = MESA_PORT_INTERFACE_SFI;
-        } else if ((p_conf->speed == MESA_SPEED_100M && (cap & MEBA_PORT_CAP_100M_FDX))) {
-            mac_if = MESA_PORT_INTERFACE_100FX;
-        }
+        // No I2C access, fallback to MEBA interface type
     }
     conf->if_type = mac_if;
 
