@@ -6,6 +6,7 @@
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api/phy_ts.h>
+#include <microchip/ethernet/phy/api/phy_ts_drv.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // PHY DRIVER

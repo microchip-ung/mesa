@@ -5,6 +5,7 @@
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_H_
 
 #include <microchip/ethernet/phy/api.h>
+#include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 mepa_rc mepa_delete(struct mepa_device *dev);
 
@@ -91,4 +92,5 @@ mepa_rc mepa_link_base_port(struct mepa_device *dev,
 mepa_rc mepa_phy_info_get(struct mepa_device *dev,
                           mepa_phy_info_t *const phy_info);
 
+#include <microchip/ethernet/hdr_end.h>
 #endif

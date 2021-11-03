@@ -6,8 +6,8 @@
 
 #include <microchip/ethernet/common.h>
 #include <microchip/ethernet/phy/api/types.h>
-#include <microchip/ethernet/phy/api/phy_ts.h>
 #include <microchip/ethernet/phy/api/phy.h>
+#include <microchip/ethernet/phy/api/phy_ts.h>
 #include <microchip/ethernet/phy/api/phy_drv.h>
 
 #endif // _MICROCHIP_ETHERNET_PHY_API_H_
