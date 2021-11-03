@@ -550,6 +550,16 @@ mepa_rc mepa_ts_event_poll(struct mepa_device                     *dev,
     return dev->drv->mepa_ts->mepa_ts_event_poll(dev, status);
 }
 
+mepa_rc mepa_ts_fifo_read_install(struct mepa_device *dev, mepa_ts_fifo_read_t rd_cb)
+{
+    if (!dev->drv->mepa_ts->mepa_ts_fifo_read_install) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    dev->drv->mepa_ts->mepa_ts_fifo_read_install(dev, rd_cb);
+    return MESA_RC_OK;
+}
+
 mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev) {
     if (!dev->drv->mepa_ts->mepa_ts_fifo_empty) {
         return MESA_RC_NOT_IMPLEMENTED;

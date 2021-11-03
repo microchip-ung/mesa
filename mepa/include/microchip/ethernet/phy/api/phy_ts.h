@@ -463,8 +463,8 @@ typedef void (*mepa_ts_fifo_read_t)(mepa_port_no_t              port_no,
 
 // Install the callback function which will pass FIFO timestamp to application.
 // cntxt refers to the arguments context needed by the callback function.
-void mepa_ts_fifo_read_install(struct mepa_device                 *dev,
-                               mepa_ts_fifo_read_t                 rd_cb);
+mepa_rc mepa_ts_fifo_read_install(struct mepa_device                 *dev,
+                                  mepa_ts_fifo_read_t                 rd_cb);
 
 // Get all FIFO timestamp entries. Usually called after receiving timestamp captured interrupt.
 mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev);
