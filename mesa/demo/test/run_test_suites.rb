@@ -13,7 +13,7 @@ $systems = [
     { name: "dk-t33-0", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-2", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-4", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
-    { name: "dk-t33-6", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
+    { name: "dk-t33-5", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
 
     # dk-t34, starting with Fireant systems
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
