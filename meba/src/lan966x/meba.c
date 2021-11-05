@@ -770,6 +770,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_deinitialize               = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get         = lan966x_ptp_rs422_conf_get;
     inst->api_synce                           = meba_synce_get();
+    inst->api_tod                             = meba_tod_get();
 
     return inst;
 
