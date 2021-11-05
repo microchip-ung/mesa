@@ -82,7 +82,6 @@
 #endif
 #define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_FAN                          /**< Fan control */
-#define VTSS_FEATURE_PTP_RS422                    /**< Support for the RS422 serial/1PPS interface */
 #define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
