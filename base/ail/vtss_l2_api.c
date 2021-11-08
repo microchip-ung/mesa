@@ -4084,7 +4084,7 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
     vtss_rc          rc;
     vtss_sdx_entry_t *sdx;
     u16              stat_idx = 0, pol_idx = 0, ms_idx = 0;
-    u8               stat_cnt = 0, pol_cnt = 0;
+    u8               stat_cnt = 0, pol_cnt = 0, clear = 0;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -4125,9 +4125,10 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
                     stat_cnt = stat->cnt;
 #if defined(VTSS_ARCH_LAN966X)
                     // Ingress counters can only be mapped to one flow
-                    if (stat->sdx == 0 || stat->sdx == sdx->sdx) {
+                    if (stat->sdx == 0) {
+                        clear = 1;
                         stat->sdx = sdx->sdx;
-                    } else {
+                    } else if (stat->sdx != sdx->sdx) {
                         VTSS_E("cnt_id %u already mapped to iflow %u", conf->cnt_id, sdx->sdx);
                         rc = VTSS_RC_ERROR;
                     }
@@ -4143,6 +4144,11 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
                 sdx->pol_cnt = pol_cnt;
                 sdx->ms_idx = ms_idx;
                 rc = VTSS_FUNC(l2.iflow_conf_set, id);
+                if (rc == VTSS_RC_OK && clear) {
+#if defined(VTSS_FEATURE_XSTAT)
+                    rc = vtss_cmn_istat_clear(vtss_state, sdx->sdx);
+#endif
+                }
             }
         }
     }
