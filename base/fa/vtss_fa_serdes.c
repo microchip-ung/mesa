@@ -4,6 +4,20 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PORT
 #include "vtss_fa_cil.h"
 #if defined(VTSS_ARCH_LAN969X_FPGA)
+/* Returns serdes LANE index 0-33 */
+u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    u32 indx = 0, type;
+    (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &type);
+    if (type == FA_SERDES_TYPE_6G) {
+        return indx;
+    } else if (type == FA_SERDES_TYPE_10G) {
+        return indx + VTSS_SERDES_10G_START;
+    } else {
+        return(indx + VTSS_SERDES_25G_START);
+    }
+}
+
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf)
 {

@@ -449,6 +449,9 @@ typedef struct {
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_SD28_CNT 33
 #endif
+#if defined(VTSS_ARCH_LAN969X)
+#define VTSS_SD28_CNT 10
+#endif
 
 typedef struct {
     /* CIL function pointers */
@@ -579,7 +582,7 @@ typedef struct {
     vtss_port_conf_t              conf[VTSS_PORT_ARRAY_SIZE];
     BOOL                          conf_set_called[VTSS_PORT_ARRAY_SIZE];
     vtss_serdes_mode_t            sd6g40_mode[VTSS_SD6G_40_CNT];
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_serdes_mode_t            sd28_mode[VTSS_SD28_CNT];
     u32                           cmu_enable_mask;
 #endif

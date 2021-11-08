@@ -1634,7 +1634,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     }
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 abil = 0;
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
     u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     // Reset the serdes
@@ -1767,93 +1767,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
 {
     u32 tgt = vtss_to_sd10g_kr(VTSS_CHIP_PORT(port_no));
-    u32 port = VTSS_CHIP_PORT(port_no);
-
-    if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
-        /* Training is interruptet, restart serdes and kr blocks */
-        vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
-        vtss_state->port.kr_conf[port_no].train.enable = FALSE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
-        VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.serdes_mode[port_no]));
-        vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
-        vtss_state->port.kr_conf[port_no].train.enable = TRUE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
-        return VTSS_RC_OK;
-    }
-
-    if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
-        || fw_req->gen0_tmr_start || fw_req->gen1_tmr_start) {
-        REG_WRM(VTSS_IP_KRANEG_FW_REQ(tgt),
-                VTSS_F_IP_KRANEG_FW_REQ_BER_EN(fw_req->ber_enable) |
-                VTSS_F_IP_KRANEG_FW_REQ_MW_START(fw_req->mw_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_WT_START(fw_req->wt_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_GEN0_TMR_START(fw_req->gen0_tmr_start) |
-                VTSS_F_IP_KRANEG_FW_REQ_GEN1_TMR_START(fw_req->gen1_tmr_start),
-                VTSS_M_IP_KRANEG_FW_REQ_BER_EN |
-                VTSS_M_IP_KRANEG_FW_REQ_MW_START |
-                VTSS_M_IP_KRANEG_FW_REQ_WT_START |
-                VTSS_M_IP_KRANEG_FW_REQ_GEN0_TMR_START |
-                VTSS_M_IP_KRANEG_FW_REQ_GEN1_TMR_START);
-    }
-
-    if (fw_req->rate_done || fw_req->tr_done ) {
-        REG_WRM(VTSS_IP_KRANEG_FW_MSG(tgt),
-                VTSS_F_IP_KRANEG_FW_MSG_RATE_DONE(fw_req->rate_done) |
-                VTSS_F_IP_KRANEG_FW_MSG_TR_DONE(fw_req->tr_done),
-                VTSS_M_IP_KRANEG_FW_MSG_RATE_DONE |
-                VTSS_M_IP_KRANEG_FW_MSG_TR_DONE);
-
-        if (fw_req->rate_done) {
-            REG_WRM(VTSS_IP_KRANEG_TMR_HOLD(tgt), 0, 0x40); // Release link_fail timer after speed config
-        }
-    }
-
-    if (fw_req->start_training) {
-        // Change to 64 bit KR mode while training is done by the application through Rate Sel IRQ
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(1),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
-    }
-
-    if (fw_req->stop_training) {
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
-
-        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            // Change back to 40bit mode
-            VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
-        }
-    }
-
-    if (fw_req->training_failure) {
-        REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
-                VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0) |
-                VTSS_F_IP_KRANEG_KR_PMD_STS_TR_FAIL(1),
-                VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT |
-                VTSS_M_IP_KRANEG_KR_PMD_STS_TR_FAIL);
-    }
-
-    if (fw_req->aneg_disable) {
-        REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
-                VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(0),
-                VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
-    }
-
-    if (fw_req->next_page) {
-        (void)fa_np_rx(vtss_state, port_no);
-        (void)fa_np_set(vtss_state, port_no, NP_NULL, 0, 0);
-    }
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_kr_fw_req_t *const fw_req)
-
-{
-    u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
 
     if (fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
         u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
