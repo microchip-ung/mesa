@@ -476,6 +476,21 @@
 
 /**
  * \brief
+ * If set, the REW transfers Redbox specific fields from the IFH to the
+ * preamble
+ *
+ * \details
+ * 0: Don't modify preamble
+ * 1: Transfer Redbox IRI to preamble
+ *
+ * Field: ::VTSS_REW_RTAG_ETAG_CTRL . RB_ENA
+ */
+#define  VTSS_F_REW_RTAG_ETAG_CTRL_RB_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA     VTSS_BIT(10)
+#define  VTSS_X_REW_RTAG_ETAG_CTRL_RB_ENA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
  * Table to determine local ingress- and egress extension ports (L_IGR_PORT
  * and L_EGR_PORT) when operating as a 802.1BR controlling bridgeUse the
  * unmapped port number, if the mapped value is outside port range

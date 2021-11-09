@@ -206,8 +206,8 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define DEV_WRM(name, port, value, mask)                                      \
     {                                                                         \
-          REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask);   \
-    }
+          REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);  \
+      }
 #else
 #define DEV_WRM(name, port, value, mask)                                      \
     {                                                                         \

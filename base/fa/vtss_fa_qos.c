@@ -4550,17 +4550,17 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                 VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
                 vtss_fa_debug_reg_header(pr, buf);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
                     tgt = VTSS_TO_HIGH_DEV(port);
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV10G_ENABLE_CONFIG(tgt), port, "DEV10G:ENABLE_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV10G_VERIF_CONFIG(tgt), port, "DEV10G:VERIF_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV10G_MM_STATUS(tgt), port, "DEV10G:MM_STATUS");
+#endif
                 } else {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
                     tgt = VTSS_TO_DEV2G5(port);
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_ENABLE_CONFIG(tgt), port, "DEV1G:ENABLE_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_VERIF_CONFIG(tgt), port, "DEV1G:VERIF_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_MM_STATUS(tgt), port, "DEV1G:MM_STATUS");
-#endif
                 }
                 vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DSM_PREEMPT_CFG(port), port, "DSM:PREEMPT_CFG");
                 vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DSM_IPG_SHRINK_CFG(port), port, "DSM:IPG_SHRINK_CFG");

@@ -24,8 +24,10 @@ typedef struct {
 
 
 static port_map_t port_table_sunrise[] = {
-    {8,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI, MEBA_PORT_CAP_10G_FDX, MESA_BW_10G},
-    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI, MEBA_PORT_CAP_10G_FDX, MESA_BW_10G},
+    {0, MESA_MIIM_CONTROLLER_1, 0, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {1, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {2, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    {3, MESA_MIIM_CONTROLLER_1, 3, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
 };
 
 static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
@@ -243,7 +245,7 @@ static mesa_rc lan969x_status_led_set(meba_inst_t inst,
 
 static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
 {
-//    meba_board_state_t *board = INST2BOARD(inst);
+    meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
 
     T_D(inst, "Called - %d", reset);
@@ -252,8 +254,16 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
             lan969x_board_init(inst);
             break;
         case MEBA_PORT_RESET:
+            for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (port_no % 4 == 0 && (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
+                    if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
+                        T_E(inst, "Could not pre reset phy %d", port_no);
+                    }
+                }
+            }
             break;
         case MEBA_PORT_RESET_POST:
+            (void)vtss_phy_post_reset(PHY_INST, 0);
             break;
         case MEBA_STATUS_LED_INITIALIZE:
             break;
@@ -266,6 +276,9 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_INTERRUPT_INITIALIZE:
             break;
         case MEBA_PHY_INITIALIZE:
+            inst->phy_devices = (mepa_device_t **)&board->phy_devices;
+            inst->phy_device_cnt = board->port_cnt;
+            meba_phy_driver_init(inst);
             break;
         default:
             rc = MESA_RC_ERROR;
@@ -331,7 +344,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
 
     switch (board->type) {
     case BOARD_TYPE_SUNRISE:
-        lan966x_init_port_table(inst, 2, port_table_sunrise);
+        lan966x_init_port_table(inst, 4, port_table_sunrise);
         break;
     default:
         break;

@@ -10,9 +10,7 @@
 #ifndef VTSS_IO_OFFSET1
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
 #endif
-#ifndef VTSS_IO_ORIGIN2_OFFSET
 #define VTSS_IO_ORIGIN2_OFFSET 0x000000000 /*! amba_axi_top region*/
-#endif
 #ifndef VTSS_IO_ORIGIN2_SIZE
 #define VTSS_IO_ORIGIN2_SIZE 0x000000000
 #endif
@@ -118,7 +116,6 @@ static const vtss_symreg_reg_t regs_within_AFI_TTI_TBL[] = {
     {"TTI_FRM"                              , 0x00000002, 0x00000001, 0x00000001},
     {"TTI_TICKS"                            , 0x00000003, 0x00000001, 0x00000001},
     {"TTI_MISC_CFG"                         , 0x00000004, 0x00000001, 0x00000001},
-    {"TTI_TUPE_CTRL"                        , 0x00000005, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_AFI_TTI_TICKS[] = {
@@ -135,7 +132,6 @@ static const vtss_symreg_reg_t regs_within_AFI_TTI_MISC[] = {
     {"TTI_CAL_SLOT_CNT"                     , 0x00000004, 0x00000004, 0x00000001},
     {"TTI_CAL_STATE"                        , 0x00000008, 0x00000004, 0x00000001},
     {"TTI_CTRL"                             , 0x0000000c, 0x00000001, 0x00000001},
-    {"TTI_CTRL2"                            , 0x0000000d, 0x00000001, 0x00000001},
     {"TTI_INJ_CNT"                          , 0x0000000e, 0x00000001, 0x00000001},
     {"TTI_RAND_STATE"                       , 0x0000000f, 0x00000001, 0x00000001},
     {"TTI_PORT_FRM_OUT"                     , 0x00000010, 0x00000001, 0x00000001},
@@ -147,27 +143,16 @@ static const vtss_symreg_reg_t regs_within_AFI_PORT_TBL[] = {
     {"PORT_CFG"                             , 0x00000001, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_AFI_TUPE[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"TUPE_MISC"                            , 0x00000000, 0x00000001, 0x00000001},
-    {"TUPE_ADDR"                            , 0x00000001, 0x00000001, 0x00000001},
-    {"TUPE_CRIT1"                           , 0x00000002, 0x00000001, 0x00000001},
-    {"TUPE_CRIT2"                           , 0x00000003, 0x00000001, 0x00000001},
-    {"TUPE_CRIT3"                           , 0x00000004, 0x00000002, 0x00000001},
-    {"TUPE_CMD1"                            , 0x00000006, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
 static const vtss_symreg_reggrp_t reggrps_within_AFI[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"MISC"                                 , 0x0000c146, 0x00000001, 0x00000008, regs_within_AFI_MISC},
-    {"FRM_TBL"                              , 0x00008000, 0x00001000, 0x00000004, regs_within_AFI_FRM_TBL},
-    {"DTI_TBL"                              , 0x0000c000, 0x00000020, 0x00000008, regs_within_AFI_DTI_TBL},
-    {"DTI_MISC"                             , 0x0000c14e, 0x00000020, 0x00000003, regs_within_AFI_DTI_MISC},
-    {"TTI_TBL"                              , 0x00000000, 0x00001000, 0x00000008, regs_within_AFI_TTI_TBL},
-    {"TTI_TICKS"                            , 0x0000c1ae, 0x00000001, 0x0000000b, regs_within_AFI_TTI_TICKS},
-    {"TTI_MISC"                             , 0x0000c1b9, 0x00000001, 0x00000011, regs_within_AFI_TTI_MISC},
-    {"PORT_TBL"                             , 0x0000c100, 0x00000023, 0x00000002, regs_within_AFI_PORT_TBL},
-    {"TUPE"                                 , 0x0000c1ca, 0x00000001, 0x00000007, regs_within_AFI_TUPE},
+    {"MISC"                                 , 0x000018c6, 0x00000001, 0x00000008, regs_within_AFI_MISC},
+    {"FRM_TBL"                              , 0x00001000, 0x00000200, 0x00000004, regs_within_AFI_FRM_TBL},
+    {"DTI_TBL"                              , 0x00001800, 0x00000010, 0x00000008, regs_within_AFI_DTI_TBL},
+    {"DTI_MISC"                             , 0x000018ce, 0x00000010, 0x00000003, regs_within_AFI_DTI_MISC},
+    {"TTI_TBL"                              , 0x00000000, 0x00000200, 0x00000008, regs_within_AFI_TTI_TBL},
+    {"TTI_TICKS"                            , 0x000018fe, 0x00000001, 0x0000000b, regs_within_AFI_TTI_TICKS},
+    {"TTI_MISC"                             , 0x00001909, 0x00000001, 0x00000011, regs_within_AFI_TTI_MISC},
+    {"PORT_TBL"                             , 0x00001880, 0x00000023, 0x00000002, regs_within_AFI_PORT_TBL},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_ANA_AC_RAM_CTRL[] = {
@@ -1253,166 +1238,20 @@ static const vtss_symreg_reggrp_t reggrps_within_SUNRISE_TOP[] = {
     {"SERDES_CFG"                           , 0x00000001, 0x00000003, 0x00000002, regs_within_SUNRISE_TOP_SERDES_CFG},
     {NULL, 0, 0, 0, NULL}
 };
-static const vtss_symreg_reg_t regs_within_DEV10G_MAC_CFG_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"MAC_ENA_CFG"                          , 0x00000000, 0x00000001, 0x00000001},
-    {"MAC_MODE_CFG"                         , 0x00000001, 0x00000001, 0x00000001},
-    {"MAC_MAXLEN_CFG"                       , 0x00000002, 0x00000001, 0x00000001},
-    {"MAC_NUM_TAGS_CFG"                     , 0x00000003, 0x00000001, 0x00000001},
-    {"MAC_TAGS_CFG"                         , 0x00000004, 0x00000003, 0x00000001},
-    {"MAC_ADV_CHK_CFG"                      , 0x00000007, 0x00000001, 0x00000001},
-    {"MAC_LFS_CFG"                          , 0x00000008, 0x00000001, 0x00000001},
-    {"MAC_LB_CFG"                           , 0x00000009, 0x00000001, 0x00000001},
-    {"MAC_RX_LANE_STICKY_0"                 , 0x0000000a, 0x00000001, 0x00000001},
-    {"MAC_RX_LANE_STICKY_1"                 , 0x0000000b, 0x00000001, 0x00000001},
-    {"MAC_TX_MONITOR_STICKY"                , 0x0000000c, 0x00000001, 0x00000001},
-    {"MAC_STICKY"                           , 0x0000000d, 0x00000001, 0x00000001},
-    {"PMAC_STICKY"                          , 0x0000000e, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_DEV_STATISTICS_32BIT[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"RX_SYMBOL_ERR_CNT"                    , 0x00000000, 0x00000001, 0x00000001},
-    {"RX_PAUSE_CNT"                         , 0x00000001, 0x00000001, 0x00000001},
-    {"RX_UNSUP_OPCODE_CNT"                  , 0x00000002, 0x00000001, 0x00000001},
-    {"RX_UC_CNT"                            , 0x00000003, 0x00000001, 0x00000001},
-    {"RX_MC_CNT"                            , 0x00000004, 0x00000001, 0x00000001},
-    {"RX_BC_CNT"                            , 0x00000005, 0x00000001, 0x00000001},
-    {"RX_CRC_ERR_CNT"                       , 0x00000006, 0x00000001, 0x00000001},
-    {"RX_UNDERSIZE_CNT"                     , 0x00000007, 0x00000001, 0x00000001},
-    {"RX_FRAGMENTS_CNT"                     , 0x00000008, 0x00000001, 0x00000001},
-    {"RX_IN_RANGE_LEN_ERR_CNT"              , 0x00000009, 0x00000001, 0x00000001},
-    {"RX_OUT_OF_RANGE_LEN_ERR_CNT"          , 0x0000000a, 0x00000001, 0x00000001},
-    {"RX_OVERSIZE_CNT"                      , 0x0000000b, 0x00000001, 0x00000001},
-    {"RX_JABBERS_CNT"                       , 0x0000000c, 0x00000001, 0x00000001},
-    {"RX_SIZE64_CNT"                        , 0x0000000d, 0x00000001, 0x00000001},
-    {"RX_SIZE65TO127_CNT"                   , 0x0000000e, 0x00000001, 0x00000001},
-    {"RX_SIZE128TO255_CNT"                  , 0x0000000f, 0x00000001, 0x00000001},
-    {"RX_SIZE256TO511_CNT"                  , 0x00000010, 0x00000001, 0x00000001},
-    {"RX_SIZE512TO1023_CNT"                 , 0x00000011, 0x00000001, 0x00000001},
-    {"RX_SIZE1024TO1518_CNT"                , 0x00000012, 0x00000001, 0x00000001},
-    {"RX_SIZE1519TOMAX_CNT"                 , 0x00000013, 0x00000001, 0x00000001},
-    {"RX_IPG_SHRINK_CNT"                    , 0x00000014, 0x00000001, 0x00000001},
-    {"TX_PAUSE_CNT"                         , 0x00000015, 0x00000001, 0x00000001},
-    {"TX_UC_CNT"                            , 0x00000016, 0x00000001, 0x00000001},
-    {"TX_MC_CNT"                            , 0x00000017, 0x00000001, 0x00000001},
-    {"TX_BC_CNT"                            , 0x00000018, 0x00000001, 0x00000001},
-    {"TX_SIZE64_CNT"                        , 0x00000019, 0x00000001, 0x00000001},
-    {"TX_SIZE65TO127_CNT"                   , 0x0000001a, 0x00000001, 0x00000001},
-    {"TX_SIZE128TO255_CNT"                  , 0x0000001b, 0x00000001, 0x00000001},
-    {"TX_SIZE256TO511_CNT"                  , 0x0000001c, 0x00000001, 0x00000001},
-    {"TX_SIZE512TO1023_CNT"                 , 0x0000001d, 0x00000001, 0x00000001},
-    {"TX_SIZE1024TO1518_CNT"                , 0x0000001e, 0x00000001, 0x00000001},
-    {"TX_SIZE1519TOMAX_CNT"                 , 0x0000001f, 0x00000001, 0x00000001},
-    {"RX_ALIGNMENT_LOST_CNT"                , 0x00000020, 0x00000001, 0x00000001},
-    {"RX_TAGGED_FRMS_CNT"                   , 0x00000021, 0x00000001, 0x00000001},
-    {"RX_UNTAGGED_FRMS_CNT"                 , 0x00000022, 0x00000001, 0x00000001},
-    {"TX_TAGGED_FRMS_CNT"                   , 0x00000023, 0x00000001, 0x00000001},
-    {"TX_UNTAGGED_FRMS_CNT"                 , 0x00000024, 0x00000001, 0x00000001},
-    {"PMAC_RX_SYMBOL_ERR_CNT"               , 0x00000025, 0x00000001, 0x00000001},
-    {"PMAC_RX_PAUSE_CNT"                    , 0x00000026, 0x00000001, 0x00000001},
-    {"PMAC_RX_UNSUP_OPCODE_CNT"             , 0x00000027, 0x00000001, 0x00000001},
-    {"PMAC_RX_UC_CNT"                       , 0x00000028, 0x00000001, 0x00000001},
-    {"PMAC_RX_MC_CNT"                       , 0x00000029, 0x00000001, 0x00000001},
-    {"PMAC_RX_BC_CNT"                       , 0x0000002a, 0x00000001, 0x00000001},
-    {"PMAC_RX_CRC_ERR_CNT"                  , 0x0000002b, 0x00000001, 0x00000001},
-    {"PMAC_RX_UNDERSIZE_CNT"                , 0x0000002c, 0x00000001, 0x00000001},
-    {"PMAC_RX_FRAGMENTS_CNT"                , 0x0000002d, 0x00000001, 0x00000001},
-    {"PMAC_RX_IN_RANGE_LEN_ERR_CNT"         , 0x0000002e, 0x00000001, 0x00000001},
-    {"PMAC_RX_OUT_OF_RANGE_LEN_ERR_CNT"     , 0x0000002f, 0x00000001, 0x00000001},
-    {"PMAC_RX_OVERSIZE_CNT"                 , 0x00000030, 0x00000001, 0x00000001},
-    {"PMAC_RX_JABBERS_CNT"                  , 0x00000031, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE64_CNT"                   , 0x00000032, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE65TO127_CNT"              , 0x00000033, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE128TO255_CNT"             , 0x00000034, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE256TO511_CNT"             , 0x00000035, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE512TO1023_CNT"            , 0x00000036, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE1024TO1518_CNT"           , 0x00000037, 0x00000001, 0x00000001},
-    {"PMAC_RX_SIZE1519TOMAX_CNT"            , 0x00000038, 0x00000001, 0x00000001},
-    {"PMAC_TX_PAUSE_CNT"                    , 0x00000039, 0x00000001, 0x00000001},
-    {"PMAC_TX_UC_CNT"                       , 0x0000003a, 0x00000001, 0x00000001},
-    {"PMAC_TX_MC_CNT"                       , 0x0000003b, 0x00000001, 0x00000001},
-    {"PMAC_TX_BC_CNT"                       , 0x0000003c, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE64_CNT"                   , 0x0000003d, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE65TO127_CNT"              , 0x0000003e, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE128TO255_CNT"             , 0x0000003f, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE256TO511_CNT"             , 0x00000040, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE512TO1023_CNT"            , 0x00000041, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE1024TO1518_CNT"           , 0x00000042, 0x00000001, 0x00000001},
-    {"PMAC_TX_SIZE1519TOMAX_CNT"            , 0x00000043, 0x00000001, 0x00000001},
-    {"PMAC_RX_ALIGNMENT_LOST_CNT"           , 0x00000044, 0x00000001, 0x00000001},
-    {"MM_RX_ASSEMBLY_ERR_CNT"               , 0x00000045, 0x00000001, 0x00000001},
-    {"MM_RX_SMD_ERR_CNT"                    , 0x00000046, 0x00000001, 0x00000001},
-    {"MM_RX_ASSEMBLY_OK_CNT"                , 0x00000047, 0x00000001, 0x00000001},
-    {"MM_RX_MERGE_FRAG_CNT"                 , 0x00000048, 0x00000001, 0x00000001},
-    {"MM_TX_PFRAGMENT_CNT"                  , 0x00000049, 0x00000001, 0x00000001},
-    {"RX_HIH_CKSM_ERR_CNT"                  , 0x0000004a, 0x00000001, 0x00000001},
-    {"RX_XGMII_PROT_ERR_CNT"                , 0x0000004b, 0x00000001, 0x00000001},
-    {"PMAC_RX_HIH_CKSM_ERR_CNT"             , 0x0000004c, 0x00000001, 0x00000001},
-    {"PMAC_RX_XGMII_PROT_ERR_CNT"           , 0x0000004d, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_DEV_STATISTICS_40BIT[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"RX_IN_BYTES_CNT"                      , 0x00000000, 0x00000001, 0x00000001},
-    {"RX_IN_BYTES_MSB_CNT"                  , 0x00000001, 0x00000001, 0x00000001},
-    {"RX_OK_BYTES_CNT"                      , 0x00000002, 0x00000001, 0x00000001},
-    {"RX_OK_BYTES_MSB_CNT"                  , 0x00000003, 0x00000001, 0x00000001},
-    {"RX_BAD_BYTES_CNT"                     , 0x00000004, 0x00000001, 0x00000001},
-    {"RX_BAD_BYTES_MSB_CNT"                 , 0x00000005, 0x00000001, 0x00000001},
-    {"TX_OUT_BYTES_CNT"                     , 0x00000006, 0x00000001, 0x00000001},
-    {"TX_OUT_BYTES_MSB_CNT"                 , 0x00000007, 0x00000001, 0x00000001},
-    {"TX_OK_BYTES_CNT"                      , 0x00000008, 0x00000001, 0x00000001},
-    {"TX_OK_BYTES_MSB_CNT"                  , 0x00000009, 0x00000001, 0x00000001},
-    {"PMAC_RX_OK_BYTES_CNT"                 , 0x0000000a, 0x00000001, 0x00000001},
-    {"PMAC_RX_OK_BYTES_MSB_CNT"             , 0x0000000b, 0x00000001, 0x00000001},
-    {"PMAC_RX_BAD_BYTES_CNT"                , 0x0000000c, 0x00000001, 0x00000001},
-    {"PMAC_RX_BAD_BYTES_MSB_CNT"            , 0x0000000d, 0x00000001, 0x00000001},
-    {"PMAC_TX_OK_BYTES_CNT"                 , 0x0000000e, 0x00000001, 0x00000001},
-    {"PMAC_TX_OK_BYTES_MSB_CNT"             , 0x0000000f, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_DEV_CFG_STATUS[] = {
+static const vtss_symreg_reg_t regs_within_DEV1G_DEV_CFG_STATUS[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"DEV_RST_CTRL"                         , 0x00000000, 0x00000001, 0x00000001},
-    {"DEV_PORT_PROTECT"                     , 0x00000001, 0x00000001, 0x00000001},
-    {"DEV_LB_CFG"                           , 0x00000002, 0x00000001, 0x00000001},
-    {"USXGMII_TX_RADAPT_CFG"                , 0x00000003, 0x00000001, 0x00000001},
-    {"DEV_MISC_CFG"                         , 0x00000004, 0x00000001, 0x00000001},
-    {"PTP_STAMPER_CFG"                      , 0x00000005, 0x00000001, 0x00000001},
-    {"DEV_STICKY"                           , 0x00000006, 0x00000001, 0x00000001},
-    {"INTR"                                 , 0x00000007, 0x00000001, 0x00000001},
-    {"INTR_ENA"                             , 0x00000008, 0x00000001, 0x00000001},
-    {"INTR_IDENT"                           , 0x00000009, 0x00000001, 0x00000001},
-    {"DEV_RX_STATUS"                        , 0x0000000a, 0x00000001, 0x00000001},
-    {"EEE_CFG"                              , 0x0000000b, 0x00000001, 0x00000001},
-    {"PFC_PAUSE_MODE_CTRL"                  , 0x0000000c, 0x00000001, 0x00000001},
+    {"DEV_STICKY"                           , 0x00000001, 0x00000001, 0x00000001},
+    {"DEV_DBG_CFG"                          , 0x00000002, 0x00000001, 0x00000001},
+    {"DEV_PORT_PROTECT"                     , 0x00000003, 0x00000001, 0x00000001},
+    {"DEV_LB_CFG"                           , 0x00000004, 0x00000001, 0x00000001},
+    {"USXGMII_TX_RADAPT_CFG"                , 0x00000005, 0x00000001, 0x00000001},
+    {"USXGMII_GMII_XGMII_MAP_CFG"           , 0x00000006, 0x00000001, 0x00000001},
+    {"USXGMII_RX_RADAPT_CFG"                , 0x00000007, 0x00000001, 0x00000001},
+    {"EEE_CFG"                              , 0x00000008, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_DEV10G_PCS25G_CFG_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"PCS25G_CFG"                           , 0x00000000, 0x00000001, 0x00000001},
-    {"PCS25G_SD_CFG"                        , 0x00000001, 0x00000001, 0x00000001},
-    {"PCS25G_STATUS"                        , 0x00000002, 0x00000001, 0x00000001},
-    {"PCS25G_FEC74_CFG"                     , 0x00000003, 0x00000001, 0x00000001},
-    {"PCS25G_FEC74_STATUS"                  , 0x00000004, 0x00000001, 0x00000001},
-    {"PCS25G_FEC74_CERR_CNT"                , 0x00000005, 0x00000001, 0x00000001},
-    {"PCS25G_FEC74_NCERR_CNT"               , 0x00000006, 0x00000001, 0x00000001},
-    {"PCS25G_RSFEC_CFG"                     , 0x00000007, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_MM_CONFIG[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"ENABLE_CONFIG"                        , 0x00000000, 0x00000001, 0x00000001},
-    {"VERIF_CONFIG"                         , 0x00000001, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_MM_STATISTICS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"MM_STATUS"                            , 0x00000000, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_DEV10G_USXGMII_ANEG_CFG_STATUS[] = {
+static const vtss_symreg_reg_t regs_within_DEV1G_USXGMII_ANEG_CFG_STATUS[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"USXGMII_ANEG_CFG"                     , 0x00000000, 0x00000001, 0x00000001},
     {"USXGMII_ANEG_STATUS"                  , 0x00000001, 0x00000001, 0x00000001},
@@ -1420,7 +1259,57 @@ static const vtss_symreg_reg_t regs_within_DEV10G_USXGMII_ANEG_CFG_STATUS[] = {
     {"USXGMII_PCS_STATUS"                   , 0x00000003, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_DEV10G_PTP_CFG_STATUS[] = {
+static const vtss_symreg_reg_t regs_within_DEV1G_MAC_CFG_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"MAC_ENA_CFG"                          , 0x00000000, 0x00000001, 0x00000001},
+    {"MAC_MODE_CFG"                         , 0x00000001, 0x00000001, 0x00000001},
+    {"MAC_MAXLEN_CFG"                       , 0x00000002, 0x00000001, 0x00000001},
+    {"MAC_TAGS_CFG"                         , 0x00000003, 0x00000001, 0x00000001},
+    {"MAC_TAGS_CFG2"                        , 0x00000004, 0x00000001, 0x00000001},
+    {"MAC_ADV_CHK_CFG"                      , 0x00000005, 0x00000001, 0x00000001},
+    {"MAC_IFG_CFG"                          , 0x00000006, 0x00000001, 0x00000001},
+    {"MAC_HDX_CFG"                          , 0x00000007, 0x00000001, 0x00000001},
+    {"MAC_STICKY"                           , 0x00000008, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_PCS1G_CFG_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"PCS1G_CFG"                            , 0x00000000, 0x00000001, 0x00000001},
+    {"PCS1G_MODE_CFG"                       , 0x00000001, 0x00000001, 0x00000001},
+    {"PCS1G_SD_CFG"                         , 0x00000002, 0x00000001, 0x00000001},
+    {"PCS1G_ANEG_CFG"                       , 0x00000003, 0x00000001, 0x00000001},
+    {"PCS1G_ANEG_NP_CFG"                    , 0x00000004, 0x00000001, 0x00000001},
+    {"PCS1G_LB_CFG"                         , 0x00000005, 0x00000001, 0x00000001},
+    {"PCS1G_DBG_CFG"                        , 0x00000006, 0x00000001, 0x00000001},
+    {"PCS1G_CDET_CFG"                       , 0x00000007, 0x00000001, 0x00000001},
+    {"PCS1G_ANEG_STATUS"                    , 0x00000008, 0x00000001, 0x00000001},
+    {"PCS1G_ANEG_NP_STATUS"                 , 0x00000009, 0x00000001, 0x00000001},
+    {"PCS1G_LINK_STATUS"                    , 0x0000000a, 0x00000001, 0x00000001},
+    {"PCS1G_LINK_DOWN_CNT"                  , 0x0000000b, 0x00000001, 0x00000001},
+    {"PCS1G_STICKY"                         , 0x0000000c, 0x00000001, 0x00000001},
+    {"PCS1G_DEBUG_STATUS"                   , 0x0000000d, 0x00000001, 0x00000001},
+    {"PCS1G_LPI_CFG"                        , 0x0000000e, 0x00000001, 0x00000001},
+    {"PCS1G_LPI_WAKE_ERROR_CNT"             , 0x0000000f, 0x00000001, 0x00000001},
+    {"PCS1G_LPI_STATUS"                     , 0x00000010, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_PCS1G_TSTPAT_CFG_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"PCS1G_TSTPAT_MODE_CFG"                , 0x00000000, 0x00000001, 0x00000001},
+    {"PCS1G_TSTPAT_STATUS"                  , 0x00000001, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_PCS_FX100_CONFIGURATION[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"PCS_FX100_CFG"                        , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_PCS_FX100_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"PCS_FX100_STATUS"                     , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_PTP_CFG_STATUS[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"PTP_CFG"                              , 0x00000000, 0x00000001, 0x00000001},
     {"PTP_RXDLY_CFG"                        , 0x00000001, 0x00000001, 0x00000001},
@@ -1431,124 +1320,53 @@ static const vtss_symreg_reg_t regs_within_DEV10G_PTP_CFG_STATUS[] = {
     {"DEV_PFRAME_CFG"                       , 0x00000006, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_DEV10G_PHASE_DETECTOR_CTRL[] = {
+static const vtss_symreg_reg_t regs_within_DEV1G_PHASE_DETECTOR_CTRL[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"PHAD_CTRL"                            , 0x00000000, 0x00000001, 0x00000001},
     {"PHAD_CYC_STAT"                        , 0x00000001, 0x00000001, 0x00000001},
     {"PHAD_ERR_STAT"                        , 0x00000002, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reggrp_t reggrps_within_DEV10G[] = {
+static const vtss_symreg_reg_t regs_within_DEV1G_MM_CONFIG[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"ENABLE_CONFIG"                        , 0x00000000, 0x00000001, 0x00000001},
+    {"VERIF_CONFIG"                         , 0x00000001, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_MM_STATISTICS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"MM_STATUS"                            , 0x00000000, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_DEV2G5_INTR_CFG_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"DEV2G5_INTR_CFG"                      , 0x00000000, 0x00000001, 0x00000001},
+    {"DEV2G5_INTR"                          , 0x00000001, 0x00000001, 0x00000001},
+    {"DEV2G5_INTR_IDENT"                    , 0x00000002, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_DEV1G_DEV2G5U_INTR_CFG_STATUS[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"INTR"                                 , 0x00000000, 0x00000001, 0x00000001},
+    {"INTR_ENA"                             , 0x00000001, 0x00000001, 0x00000001},
+    {"INTR_IDENT"                           , 0x00000002, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reggrp_t reggrps_within_DEV1G[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"MAC_CFG_STATUS"                       , 0x00000000, 0x00000001, 0x0000000f, regs_within_DEV10G_MAC_CFG_STATUS},
-    {"DEV_STATISTICS_32BIT"                 , 0x0000000f, 0x00000001, 0x0000004e, regs_within_DEV10G_DEV_STATISTICS_32BIT},
-    {"DEV_STATISTICS_40BIT"                 , 0x0000005d, 0x00000001, 0x00000010, regs_within_DEV10G_DEV_STATISTICS_40BIT},
-    {"DEV_CFG_STATUS"                       , 0x0000006d, 0x00000001, 0x0000000d, regs_within_DEV10G_DEV_CFG_STATUS},
-    {"PCS25G_CFG_STATUS"                    , 0x0000007a, 0x00000001, 0x00000008, regs_within_DEV10G_PCS25G_CFG_STATUS},
-    {"MM_CONFIG"                            , 0x00000082, 0x00000001, 0x00000002, regs_within_DEV10G_MM_CONFIG},
-    {"MM_STATISTICS"                        , 0x00000084, 0x00000001, 0x00000001, regs_within_DEV10G_MM_STATISTICS},
-    {"USXGMII_ANEG_CFG_STATUS"              , 0x00000085, 0x00000001, 0x00000004, regs_within_DEV10G_USXGMII_ANEG_CFG_STATUS},
-    {"PTP_CFG_STATUS"                       , 0x00000089, 0x00000001, 0x00000007, regs_within_DEV10G_PTP_CFG_STATUS},
-    {"PHASE_DETECTOR_CTRL"                  , 0x00000090, 0x00000002, 0x00000003, regs_within_DEV10G_PHASE_DETECTOR_CTRL},
-    {NULL, 0, 0, 0, NULL}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_PCS_10GBR_CFG[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"PCS_CFG"                              , 0x00000000, 0x00000001, 0x00000001},
-    {"PCS_SD_CFG"                           , 0x00000001, 0x00000001, 0x00000001},
-    {"TX_SEEDA_MSB"                         , 0x00000002, 0x00000001, 0x00000001},
-    {"TX_SEEDA_LSB"                         , 0x00000003, 0x00000001, 0x00000001},
-    {"TX_SEEDB_MSB"                         , 0x00000004, 0x00000001, 0x00000001},
-    {"TX_SEEDB_LSB"                         , 0x00000005, 0x00000001, 0x00000001},
-    {"RX_PRBS31_INIT"                       , 0x00000006, 0x00000001, 0x00000001},
-    {"TX_DATAPAT_MSB"                       , 0x00000007, 0x00000001, 0x00000001},
-    {"TX_DATAPAT_LSB"                       , 0x00000008, 0x00000001, 0x00000001},
-    {"RX_DATAPAT_MSB"                       , 0x00000009, 0x00000001, 0x00000001},
-    {"RX_DATAPAT_LSB"                       , 0x0000000a, 0x00000001, 0x00000001},
-    {"TEST_CFG"                             , 0x0000000b, 0x00000001, 0x00000001},
-    {"PCS_INTR_MASK"                        , 0x0000000c, 0x00000001, 0x00000001},
-    {"TIMER_125"                            , 0x0000000d, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_PCS_10GBR_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"PCS_INTR_STAT"                        , 0x00000000, 0x00000001, 0x00000001},
-    {"PCS_STATUS"                           , 0x00000001, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_PCS_10GBR_HA_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"TEST_ERR_CNT"                         , 0x00000000, 0x00000001, 0x00000001},
-    {"TX_ERRBLK_CNT"                        , 0x00000001, 0x00000001, 0x00000001},
-    {"TX_CHARERR_CNT"                       , 0x00000002, 0x00000001, 0x00000001},
-    {"RX_BER_CNT"                           , 0x00000003, 0x00000001, 0x00000001},
-    {"RX_ERRBLK_CNT"                        , 0x00000004, 0x00000001, 0x00000001},
-    {"RX_CHARERR_CNT"                       , 0x00000005, 0x00000001, 0x00000001},
-    {"RX_OSET_FIFO_STAT"                    , 0x00000006, 0x00000001, 0x00000001},
-    {"RX_OSET_FIFO_DATA"                    , 0x00000007, 0x00000001, 0x00000001},
-    {"RX_FSET_FIFO_STAT"                    , 0x00000008, 0x00000001, 0x00000001},
-    {"RX_FSET_FIFO_DATA"                    , 0x00000009, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_KR_FEC_CFG[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"KR_FEC_CFG"                           , 0x00000000, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_KR_FEC_THRESHOLD_CFG[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"FIXED_ERROR_COUNT_THRESHOLD"          , 0x00000000, 0x00000001, 0x00000001},
-    {"UNFIXABLE_ERROR_COUNT_THRESHOLD"      , 0x00000001, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_KR_FEC_HA_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"KR_FEC_CORRECTED"                     , 0x00000000, 0x00000001, 0x00000001},
-    {"KR_FEC_UNCORRECTED"                   , 0x00000001, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_KR_FEC_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"KR_FEC_STICKY"                        , 0x00000000, 0x00000001, 0x00000001},
-    {"KR_FEC_STICKY_MASK"                   , 0x00000001, 0x00000001, 0x00000001},
-    {"KR_FEC_STATUS"                        , 0x00000002, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_KR_FEC_CAPABILITY[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"KR_FEC_CAPABILITY"                    , 0x00000000, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_EEE_TIMER_CFG[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"ONE_US_TIMER_REG"                     , 0x00000000, 0x00000001, 0x00000001},
-    {"TX_TS_TIMER_REG"                      , 0x00000001, 0x00000001, 0x00000001},
-    {"TX_TQ_TIMER_REG"                      , 0x00000002, 0x00000001, 0x00000001},
-    {"TX_TW_TIMER_REG"                      , 0x00000003, 0x00000001, 0x00000001},
-    {"RX_TQ_TIMER_REG"                      , 0x00000004, 0x00000001, 0x00000001},
-    {"RX_TW_TIMER_REG"                      , 0x00000005, 0x00000001, 0x00000001},
-    {"RX_WF_TIMER_REG"                      , 0x00000006, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_PCS_10GBASE_R_EEE_STATS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"WAKE_ERR_CNT"                         , 0x00000000, 0x00000001, 0x00000001},
-    {"EEE_STATUS"                           , 0x00000001, 0x00000001, 0x00000001},
-    {"EEE_INTR_MASK"                        , 0x00000002, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reggrp_t reggrps_within_PCS_10GBASE_R[] = {
-    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"PCS_10GBR_CFG"                        , 0x00000000, 0x00000001, 0x0000000e, regs_within_PCS_10GBASE_R_PCS_10GBR_CFG},
-    {"PCS_10GBR_STATUS"                     , 0x0000000e, 0x00000001, 0x00000002, regs_within_PCS_10GBASE_R_PCS_10GBR_STATUS},
-    {"PCS_10GBR_HA_STATUS"                  , 0x00000010, 0x00000001, 0x0000000a, regs_within_PCS_10GBASE_R_PCS_10GBR_HA_STATUS},
-    {"KR_FEC_CFG"                           , 0x0000001a, 0x00000001, 0x00000001, regs_within_PCS_10GBASE_R_KR_FEC_CFG},
-    {"KR_FEC_THRESHOLD_CFG"                 , 0x0000001b, 0x00000001, 0x00000002, regs_within_PCS_10GBASE_R_KR_FEC_THRESHOLD_CFG},
-    {"KR_FEC_HA_STATUS"                     , 0x0000001d, 0x00000001, 0x00000002, regs_within_PCS_10GBASE_R_KR_FEC_HA_STATUS},
-    {"KR_FEC_STATUS"                        , 0x0000001f, 0x00000001, 0x00000003, regs_within_PCS_10GBASE_R_KR_FEC_STATUS},
-    {"KR_FEC_CAPABILITY"                    , 0x00000022, 0x00000001, 0x00000001, regs_within_PCS_10GBASE_R_KR_FEC_CAPABILITY},
-    {"EEE_TIMER_CFG"                        , 0x00000023, 0x00000001, 0x00000007, regs_within_PCS_10GBASE_R_EEE_TIMER_CFG},
-    {"EEE_STATS"                            , 0x0000002a, 0x00000001, 0x00000003, regs_within_PCS_10GBASE_R_EEE_STATS},
+    {"DEV_CFG_STATUS"                       , 0x00000000, 0x00000001, 0x00000009, regs_within_DEV1G_DEV_CFG_STATUS},
+    {"USXGMII_ANEG_CFG_STATUS"              , 0x00000009, 0x00000001, 0x00000004, regs_within_DEV1G_USXGMII_ANEG_CFG_STATUS},
+    {"MAC_CFG_STATUS"                       , 0x0000000d, 0x00000001, 0x00000009, regs_within_DEV1G_MAC_CFG_STATUS},
+    {"PCS1G_CFG_STATUS"                     , 0x00000016, 0x00000001, 0x00000011, regs_within_DEV1G_PCS1G_CFG_STATUS},
+    {"PCS1G_TSTPAT_CFG_STATUS"              , 0x00000027, 0x00000001, 0x00000002, regs_within_DEV1G_PCS1G_TSTPAT_CFG_STATUS},
+    {"PCS_FX100_CONFIGURATION"              , 0x00000029, 0x00000001, 0x00000001, regs_within_DEV1G_PCS_FX100_CONFIGURATION},
+    {"PCS_FX100_STATUS"                     , 0x0000002a, 0x00000001, 0x00000001, regs_within_DEV1G_PCS_FX100_STATUS},
+    {"PTP_CFG_STATUS"                       , 0x0000002b, 0x00000001, 0x00000007, regs_within_DEV1G_PTP_CFG_STATUS},
+    {"PHASE_DETECTOR_CTRL"                  , 0x00000032, 0x00000002, 0x00000003, regs_within_DEV1G_PHASE_DETECTOR_CTRL},
+    {"MM_CONFIG"                            , 0x00000038, 0x00000001, 0x00000002, regs_within_DEV1G_MM_CONFIG},
+    {"MM_STATISTICS"                        , 0x0000003a, 0x00000001, 0x00000001, regs_within_DEV1G_MM_STATISTICS},
+    {"DEV2G5_INTR_CFG_STATUS"               , 0x0000003b, 0x00000001, 0x00000003, regs_within_DEV1G_DEV2G5_INTR_CFG_STATUS},
+    {"DEV2G5U_INTR_CFG_STATUS"              , 0x0000003e, 0x00000001, 0x00000003, regs_within_DEV1G_DEV2G5U_INTR_CFG_STATUS},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_DEVCPU_GCB_CHIP_REGS[] = {
@@ -3273,7 +3091,7 @@ static const vtss_symreg_reggrp_t reggrps_within_XQS[] = {
 };
 static const vtss_symreg_target_t vtss_symreg_targets[] = {
     //target name         , repl, tgt_id    , base_addr                  , register group list
-    {"CPU"                ,   -1, 0x00000044, VTSS_IO_OFFSET1(0x00110000), reggrps_within_CPU},
+    {"CPU"                ,   -1, 0x0000004c, VTSS_IO_OFFSET1(0x00130000), reggrps_within_CPU},
     {"AFI"                ,   -1, 0x00000090, VTSS_IO_OFFSET1(0x00240000), reggrps_within_AFI},
     {"ANA_AC"             ,   -1, 0x00000240, VTSS_IO_OFFSET1(0x00900000), reggrps_within_ANA_AC},
     {"ANA_AC_OAM_MOD"     ,   -1, 0x0000001c, VTSS_IO_OFFSET1(0x00070000), reggrps_within_ANA_AC_OAM_MOD},
@@ -3285,10 +3103,10 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"ANA_L3"             ,   -1, 0x00000120, VTSS_IO_OFFSET1(0x00480000), reggrps_within_ANA_L3},
     {"ASM"                ,   -1, 0x00000480, VTSS_IO_OFFSET1(0x01200000), reggrps_within_ASM},
     {"SUNRISE_TOP"        ,   -1, 0x0000051c, VTSS_IO_OFFSET1(0x01470000), reggrps_within_SUNRISE_TOP},
-    {"DEV10G"             ,    0, 0x0000040e, VTSS_IO_OFFSET1(0x01038000), reggrps_within_DEV10G},
-    {"DEV10G"             ,    4, 0x0000042e, VTSS_IO_OFFSET1(0x010b8000), reggrps_within_DEV10G},
-    {"PCS10G_BR"          ,    0, 0x0000040f, VTSS_IO_OFFSET1(0x0103c000), reggrps_within_PCS_10GBASE_R},
-    {"PCS10G_BR"          ,    4, 0x0000042f, VTSS_IO_OFFSET1(0x010bc000), reggrps_within_PCS_10GBASE_R},
+    {"DEV2G5"             ,    1, 0x00000404, VTSS_IO_OFFSET1(0x01010000), reggrps_within_DEV1G},
+    {"DEV2G5"             ,    2, 0x00000405, VTSS_IO_OFFSET1(0x01014000), reggrps_within_DEV1G},
+    {"DEV2G5"             ,    3, 0x00000406, VTSS_IO_OFFSET1(0x01018000), reggrps_within_DEV1G},
+    {"DEV2G5"             ,    0, 0x00000401, VTSS_IO_OFFSET1(0x01004000), reggrps_within_DEV1G},
     {"DEVCPU_GCB"         ,   -1, 0x00000004, VTSS_IO_OFFSET1(0x00010000), reggrps_within_DEVCPU_GCB},
     {"DEVCPU_ORG0"        ,   -1, 0x00000000, VTSS_IO_OFFSET1(0x00000000), reggrps_within_DEVCPU_ORG},
     {"DEVCPU_ORG1"        ,   -1, 0x00000400, VTSS_IO_OFFSET1(0x01000000), reggrps_within_DEVCPU_ORG},

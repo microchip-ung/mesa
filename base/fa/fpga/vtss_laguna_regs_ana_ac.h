@@ -2229,8 +2229,8 @@
 
 /**
  * \brief
- * Stream Gate ID.If set to 0, no Stream Gate is applied.Related
- * parameters:ANA_AC:SG_ACCESS:SG_ACCESS_CTRL.SGID
+ * Stream Gate ID.Valid range: 0-31If set to 0, no Stream Gate is
+ * applied.Related parameters:ANA_AC:SG_ACCESS:SG_ACCESS_CTRL.SGID
  *
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG . TSN_SGID
@@ -2408,9 +2408,9 @@
 /**
  * \brief
  * Specifies the Stream gate identifier (SGID) to which the
- * SG_CONFIG/SG_STATUS register group(s) are applicable.Note: This value
- * needs to be set first before accessing any of SG_CONFIG/SG_STATUS
- * register groups.
+ * SG_CONFIG/SG_STATUS register group(s) are applicable.Valid range:
+ * 0-31Note: This value needs to be set first before accessing any of
+ * SG_CONFIG/SG_STATUS register groups.
  *
  * \details
  * Field: ::VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL . SGID
