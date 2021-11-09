@@ -271,7 +271,7 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_SYNCE_CLOCK_EEC_OPTION_CNT:  // NOTE: Capability currently not used on lan966x. Therefore, it has been set to 0
             return 0;
         case MEBA_CAP_ONE_PPS_INT_ID:
-            return 0;
+            return MEBA_EVENT_PTP_PIN_0;
 
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
             if (board->type == BOARD_TYPE_8PORT) {
