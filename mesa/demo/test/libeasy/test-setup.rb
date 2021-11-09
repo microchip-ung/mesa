@@ -1420,7 +1420,11 @@ def basic_br_init()
         $eth2 = $ts.dut.p[2] ? "#{$ts.dut.p[2]}" : nil
         $eth3 = $ts.dut.p[3] ? "#{$ts.dut.p[3]}" : nil
     end
-    $br   = "br0"
+
+    # name the bridge the same as the index of the PC NIC that is used
+    # in this way in case the test fails we can clean up before the new
+    # test is started
+    $br   = "br#{$ts.pc.p[0][3..3]}"
 
     $eth0_mac      = "::1:0:0"
     $eth0_mac_peer = "::1:1:0"
@@ -1430,16 +1434,19 @@ def basic_br_init()
     $eth2_mac_peer = "::1:1:2"
     $br_mac        = "::1:0:0"
 
+    # try to delete the bridge on PC in case one exists
+    $ts.pc.try_ignore "ip link del dev #{$br}"
+
     $ts.dut.run "ip link set dev #{$eth0} address 00:00:00:01:00:00" if $eth0
     $ts.dut.run "ip link set dev #{$eth1} address 00:00:00:01:00:01" if $eth1
     $ts.dut.run "ip link set dev #{$eth2} address 00:00:00:01:00:02" if $eth2
     $ts.dut.run "ip link set dev #{$eth3} address 00:00:00:01:00:03" if $eth3
 
-    $ts.dut.run "ip link add name br0 type bridge"
-    $ts.dut.run "ip link set dev br0 up"
+    $ts.dut.run "ip link add name #{$br} type bridge"
+    $ts.dut.run "ip link set dev #{$br} up"
 
-    $ts.dut.run "ip link set #{$eth0} master br0" if $eth0
-    $ts.dut.run "ip link set #{$eth1} master br0" if $eth1
-    $ts.dut.run "ip link set #{$eth2} master br0" if $eth2
-    $ts.dut.run "ip link set #{$eth3} master br0" if $eth3
+    $ts.dut.run "ip link set #{$eth0} master #{$br}" if $eth0
+    $ts.dut.run "ip link set #{$eth1} master #{$br}" if $eth1
+    $ts.dut.run "ip link set #{$eth2} master #{$br}" if $eth2
+    $ts.dut.run "ip link set #{$eth3} master #{$br}" if $eth3
 end
