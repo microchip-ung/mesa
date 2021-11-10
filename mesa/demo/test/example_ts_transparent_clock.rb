@@ -50,7 +50,7 @@ test "test_run" do
         exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
     end
     if ($pcb == 135)    #Test on Copper PHY
-        if ((lowest_corr_none > 2380) || (lowest_corr_none < 1810))
+        if ((lowest_corr_none > 2380) || (lowest_corr_none < 1805))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         end
     else
