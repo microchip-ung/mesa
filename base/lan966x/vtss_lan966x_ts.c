@@ -1016,6 +1016,10 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
                                      DEV_PHAD_CTRL_PHAD_ENA_M | DEV_PHAD_CTRL_DIV_CFG_M | DEV_PHAD_CTRL_TWEAKS_M | DEV_PHAD_CTRL_REALIGN_OFS_M | DEV_PHAD_CTRL_LOCK_ACC_M);
     }
 
+    // Disable PTP towards CPU
+    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
+        REG_WR(SYS_PTP_MODE_CFG(i, 0), SYS_PTP_MODE_CFG_PTP_MODE_VAL(3));
+    }
     return VTSS_RC_OK;
 }
 

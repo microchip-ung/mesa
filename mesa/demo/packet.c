@@ -326,8 +326,8 @@ static void packet_poll(void)
     if (mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info) != MESA_RC_OK) {
         return;
     }
-    T_I("Rx frame on port %u, length: %u, qmask: 0x%02x",
-        rx_info.port_no, rx_info.length, rx_info.xtr_qu_mask);
+    T_I("Rx frame on port %u, length: %u, vid: %u, qmask: 0x%02x",
+        rx_info.port_no, rx_info.length, rx_info.tag.vid, rx_info.xtr_qu_mask);
     T_D_HEX(frame, rx_info.length);
     
     // Check if the VID matches a TAP interface

@@ -232,3 +232,22 @@ test "fwd-drop-count" do
     $ts.dut.run("mesa-cmd port stati pac")
     $ts.dut.run("mesa-cmd port stati #{$ts.dut.p[idx] + 1}")
 end
+
+test "acl-cpu-queue" do
+    break
+    idx_tx = 0
+    idx_rx = 1
+    queue = 6
+    port = $ts.dut.p[idx_tx]
+    ace = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
+    ace["id"] = 1
+    ace["port_list"] = "#{port}"
+    action = ace["action"]
+    action["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
+    action["cpu"] = true
+    action["cpu_queue"] = queue
+    action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2"
+    $ts.dut.call("mesa_ace_add", 0, ace)
+    $ts.dut.run("mesa-cmd packet forward #{queue} #{$ts.dut.p[idx_rx] + 1}")
+    run_ef_tx_rx_cmd($ts, idx_tx, [idx_rx], "eth")
+end
