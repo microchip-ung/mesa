@@ -47,12 +47,25 @@
 #define FA_BUFFER_MEMORY      4194280 /* 22795 words * 184 bytes */
 #define FA_BUFFER_REFERENCE   22795   /* Frame references */
 #define FA_MULTIPLIER_BIT     2048
+#define FA_DSM_CAL_LEN 64
+#define FA_DSM_CAL_EMPTY 0xFFFF
+#define FA_DSM_CAL_MAX_DEVS_PER_TAXI 13
+#define FA_DSM_CAL_TAXIS 8
+#define FA_DSM_CAL_BW_LOSS 553
+
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
 #define VTSS_CHIP_PORTS       30
 #define VTSS_SERDES_10G_START 0
 #define VTSS_SERDES_25G_START 0
+// Defines for DSM calender calculation
+#define FA_DSM_CAL_LEN 64
+#define FA_DSM_CAL_EMPTY 0xFFFF
+#define FA_DSM_CAL_MAX_DEVS_PER_TAXI 10
+#define FA_DSM_CAL_TAXIS 5
+#define FA_DSM_CAL_BW_LOSS 553
+
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define FA_BUFFER_MEMORY      157285 /* (?) */
 #define FA_BUFFER_REFERENCE   2279   /* (?) */
