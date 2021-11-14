@@ -216,6 +216,10 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
     board->port_cnt = port_cnt;
     for (port_no = 0; port_no < port_cnt; port_no++) {
         port_entry_map(&board->entry[port_no], &map[port_no]);
+        // Link phy base port for 8 port board.
+        if (board->type == BOARD_TYPE_8PORT) {
+            board->entry[port_no].phy_base_port = map[port_no].chip_port >= 4 && map[port_no].chip_port <= 7 ? 4 : 0;
+        }
     }
 }
 
@@ -629,10 +633,11 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
                                     meba_event_t event_id,
                                     mesa_bool_t enable)
 {
-    mesa_rc            rc = MESA_RC_OK;
-    meba_board_state_t *board = INST2BOARD(inst);
-    mesa_port_no_t     port_no;
-    uint32_t           i, port, bit;
+    mesa_rc               rc = MESA_RC_OK;
+    meba_board_state_t    *board = INST2BOARD(inst);
+    mesa_port_no_t        port_no;
+    uint32_t              i, port, bit;
+    mesa_ptp_event_type_t ptp_event;
 
     switch (event_id) {
     case MEBA_EVENT_SYNC:
@@ -674,6 +679,17 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
             board->type == BOARD_TYPE_ENDNODE ||
             board->type == BOARD_TYPE_ENDNODE_CARRIER) {
             rc = mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, enable);
+        }
+        break;
+    case MEBA_EVENT_PTP_PIN_0:
+    case MEBA_EVENT_PTP_PIN_1:
+    case MEBA_EVENT_PTP_PIN_2:
+    case MEBA_EVENT_PTP_PIN_3:
+    case MEBA_EVENT_CLK_TSTAMP:
+        ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
+
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
+            T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
         break;
     default:
