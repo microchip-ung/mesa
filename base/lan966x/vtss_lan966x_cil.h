@@ -198,7 +198,7 @@ inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
  * default usage of the 4 pins.
  */
 /* PIN configuration for external clock */
-#define EXT_CLK_PIN 1               /* external clock 1 pps output */
+#define EXT_CLK_PIN 3               /* external clock 1 pps output */
 
 /* PIN configuration for alternative clock */
 #define ALT_LDST_PIN 2              /* alternative clock 1 pps input (Load/Store) */

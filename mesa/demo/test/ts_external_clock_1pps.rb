@@ -26,6 +26,9 @@ end
 if ($pcb == "8291-EndNode")
     $external_io_in = 4
 end
+if ($pcb == "8290")
+    $external_io_in = 0
+end
 t_i "external_io_in #{$external_io_in}"
 
 def tod_external_clock_1pps_test
