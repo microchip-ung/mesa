@@ -103,6 +103,7 @@ MEPA_DRV(LIB_NAME mepa_drv_vtss_custom
 
 option(MEPA_vtss "Add VTSS family support in libmeba" OFF)
 if (${MEPA_vtss})
-    set(mepa_drvs ${mepa_drvs} mepa_drv_vtss_custom)
-    set(mepa_defs ${mepa_defs} -DMEPA_HAS_VTSS)
+    set(mepa_drvs ${mepa_drvs} mepa_drv_vtss_custom CACHE INTERNAL "")
+    set(mepa_defs ${mepa_defs} -DMEPA_HAS_VTSS CACHE INTERNAL "")
 endif()
+

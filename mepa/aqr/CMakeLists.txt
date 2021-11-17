@@ -14,6 +14,7 @@ MEPA_DRV(LIB_NAME mepa_drv_aqr
 
 option(MEPA_aqr "Add AQR family support in libmeba" OFF)
 if (${MEPA_aqr})
-    set(mepa_drvs ${mepa_drvs} mepa_drv_aqr)
-    set(mepa_defs ${mepa_defs} -DMEPA_HAS_AQR)
+    set(mepa_drvs ${mepa_drvs} mepa_drv_aqr CACHE INTERNAL "")
+    set(mepa_defs ${mepa_defs} -DMEPA_HAS_AQR CACHE INTERNAL "")
 endif()
+
