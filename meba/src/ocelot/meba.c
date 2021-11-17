@@ -6,11 +6,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <microchip/ethernet/board/api.h>
-
-// TODO, should not be needed - fix compile error and delete!
-#include <mepa_driver.h>
-#include <mepa_ts_driver.h>
-
 #include "meba_aux.h"
 
 #define MESA_GPIO__NOT_USED MESA_GPIO_IN
@@ -920,11 +915,16 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
             {
                 vtss_phy_type_t phy_id;
                 mesa_port_no_t port_no;
+                mepa_phy_info_t phy_info;
+
                 for (port_no = 0; port_no < board->port_cnt; port_no++) {
                     mepa_device_t *phy_dev;
                     phy_dev = inst->phy_devices[port_no];
-                    if ((phy_dev != NULL ) && (phy_dev->drv->mepa_ts != NULL)) {
+
+                    if (mepa_phy_info_get(phy_dev, &phy_info) == MESA_RC_OK &&
+                        (phy_info.cap & (MEPA_CAP_TS_MASK_GEN_1 | MEPA_CAP_TS_MASK_GEN_2 | MEPA_CAP_TS_MASK_GEN_3))) {
                         board->port[port_no].ts_phy = true;
+
                     } else { // This part can be removed after VTSS Phy API refactored
                         if (vtss_phy_id_get(PHY_INST, port_no, &phy_id) != MESA_RC_OK) {
                             continue;

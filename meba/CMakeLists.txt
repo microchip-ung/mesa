@@ -12,9 +12,6 @@ include_directories(./src)
 include_directories(./src/drivers)
 include_directories(../mepa/vtss/include)
 
-# TODO, should not be needed - fix compile error and delete!
-include_directories(../mepa/common/include)
-
 option(BUILD_MEBA_ALL "Build all MEBA layers" OFF)
 mark_as_advanced(BUILD_MEBA_ALL)
 
