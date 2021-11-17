@@ -35,38 +35,38 @@ MEPA_LIB(LIB_NAME mepa
 ## and other higher layer of applications                                    ##
 ###############################################################################
 MEPA_LIB(LIB_NAME mepa_caracal ADVANCED
-         DEFS     -DMEPA_HAS_MEPA_VTSS
+         DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss)
 
 MEPA_LIB(LIB_NAME mepa_jr2 ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS  -DMEBA_HAS_MEPA_AQR  -DMEBA_HAS_MEPA_INTEL
-         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr         mepa_drv_intel)
+         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211
+         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr    mepa_drv_intel)
 
 MEPA_LIB(LIB_NAME mepa_jr2_bringup ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS
+         DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
 
 MEPA_LIB(LIB_NAME mepa_servalt ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS
+         DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
 
 MEPA_LIB(LIB_NAME mepa_ocelot ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS  -DMEBA_HAS_MEPA_LAN8814
-         DRVS     mepa_drv_vtss_ts      mepa_drv_lan8814)
+         DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_LAN8814
+         DRVS     mepa_drv_vtss_ts mepa_drv_lan8814)
 
 MEPA_LIB(LIB_NAME mepa_ocelot_pcb121 ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS
+         DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_ts)
 
 MEPA_LIB(LIB_NAME mepa_sparx5 ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS  -DMEBA_HAS_MEPA_AQR  -DMEBA_HAS_MEPA_INTEL  -DMEBA_HAS_MEPA_LAN8814
-         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr         mepa_drv_intel         mepa_drv_lan8814)
+         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814
+         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814)
 
 MEPA_LIB(LIB_NAME mepa_sparx5_bringup ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS
+         DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
 
 MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
-         DEFS     -DMEBA_HAS_MEPA_VTSS  -DMEBA_HAS_MEPA_KSZ9031  -DMEBA_HAS_MEPA_LAN8814
-         DRVS     mepa_drv_vtss         mepa_drv_ksz9031         mepa_drv_lan8814)
+         DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -DMEPA_HAS_LAN8814
+         DRVS     mepa_drv_vtss    mepa_drv_ksz9031    mepa_drv_lan8814)
 

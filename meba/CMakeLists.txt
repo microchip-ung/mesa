@@ -99,50 +99,29 @@ macro(MEBA_LIB)
 endmacro()
 
 MEBA_LIB(LIB_NAME caracal MEBA_SRC_FOLDER caracal
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss)
+         STATIC_DEPENDENCIES    mepa_caracal)
 
 MEBA_LIB(LIB_NAME jr2 MEBA_SRC_FOLDER jr2
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS        MEBA_HAS_MEPA_AQR  MEBA_HAS_MEPA_INTEL
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_10g_ts_static   mepa_aqr_static    mepa_intel_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_10g_ts          mepa_aqr           mepa_intel)
+         STATIC_DEPENDENCIES    mepa_jr2)
 
 MEBA_LIB(LIB_NAME jr2_bringup MEBA_SRC_FOLDER jr2
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_10g_ts_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_10g_ts)
+         STATIC_DEPENDENCIES    mepa_jr2_bringup)
 
 MEBA_LIB(LIB_NAME servalt MEBA_SRC_FOLDER servalt
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_10g_ts_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_10g_ts)
+         STATIC_DEPENDENCIES    mepa_servalt)
 
 MEBA_LIB(LIB_NAME ocelot MEBA_SRC_FOLDER ocelot
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS    MEBA_HAS_MEPA_LAN8814
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_ts_static   mepa_lan8814_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_ts          mepa_lan8814)
+         STATIC_DEPENDENCIES    mepa_ocelot)
 
 MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_ts_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_ts)
+         STATIC_DEPENDENCIES    mepa_ocelot_pcb121)
 
 MEBA_LIB(LIB_NAME sparx5 MEBA_SRC_FOLDER sparx5
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS        MEBA_HAS_MEPA_AQR   MEBA_HAS_MEPA_INTEL   MEBA_HAS_MEPA_LAN8814
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_10g_ts_static   mepa_aqr_static     mepa_intel_static     mepa_lan8814_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_10g_ts          mepa_aqr            mepa_intel            mepa_lan8814)
+         STATIC_DEPENDENCIES    mepa_sparx5)
 
 MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_10g_ts_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss_10g_ts)
+         STATIC_DEPENDENCIES    mepa_sparx5_bringup)
 
 MEBA_LIB(LIB_NAME lan966x MEBA_SRC_FOLDER lan966x
-         MEBA_DEFINES                              MEBA_HAS_MEPA_VTSS   MEBA_HAS_MEPA_KSZ9031  MEBA_HAS_MEPA_LAN8814
-         STATIC_DEPENDENCIES    mepa_common_static mepa_vtss_static     mepa_ksz9031_static    mepa_lan8814_static
-         DYNAMIC_DEPENDENCIES   mepa_common        mepa_vtss            mepa_ksz9031           mepa_lan8814)
-
-file(GLOB_RECURSE MEBA_HDRS "include/**.h")
-doxygen_target(TARGET meba NAME "MEBA" FILES ${MEBA_HDRS} INCLUDES -I${CMAKE_CURRENT_SOURCE_DIR}/include)
+         STATIC_DEPENDENCIES    mepa_lan966x)
 
