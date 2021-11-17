@@ -154,9 +154,6 @@ static mesa_rc meba_synce_mux_set(meba_inst_t  inst,
 
     /* Get the PHY device */
     phy_dev = (dev_id == 100) ? inst->phy_devices[phy_port] : inst->phy_devices[4 + phy_port];
-    if(!phy_dev || !phy_dev->drv->mepa_driver_synce_clock_conf_set) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
 
     conf.src = MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA;
     if (input > (MESA_SYNCE_DEV_INPUT | 3)) {
@@ -165,8 +162,7 @@ static mesa_rc meba_synce_mux_set(meba_inst_t  inst,
     conf.dst = (output == 0) ? MEPA_SYNCE_CLOCK_DST_1 : MEPA_SYNCE_CLOCK_DST_2;
     conf.freq = MEPA_FREQ_125M;
 
-    return phy_dev->drv->mepa_driver_synce_clock_conf_set(phy_dev, &conf);
-
+    return mepa_synce_clock_conf_set(phy_dev, &conf);
 }
 
 static meba_api_synce_t public_functions = {

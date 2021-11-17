@@ -7,6 +7,10 @@
 #include <unistd.h>
 #include <microchip/ethernet/board/api.h>
 
+// TODO, should not be needed - fix compile error and delete!
+#include <mepa_driver.h>
+#include <mepa_ts_driver.h>
+
 #include "meba_aux.h"
 
 #define MESA_GPIO__NOT_USED MESA_GPIO_IN

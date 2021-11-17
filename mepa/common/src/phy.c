@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2021 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#include <mepa_driver.h>
 #include <microchip/ethernet/phy/api.h>
 
 #define PHY_FAMILIES 16
@@ -315,6 +316,10 @@ mepa_rc mepa_phy_info_get(struct mepa_device *dev,
 
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_mode_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -324,6 +329,10 @@ mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
 
 mepa_rc mepa_ts_mode_get(struct mepa_device *dev,
                          mepa_bool_t *const enable) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_mode_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -333,6 +342,10 @@ mepa_rc mepa_ts_mode_get(struct mepa_device *dev,
 
 mepa_rc mepa_ts_reset(struct mepa_device *dev,
                       const mepa_ts_reset_conf_t *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_reset) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -342,6 +355,10 @@ mepa_rc mepa_ts_reset(struct mepa_device *dev,
 
 mepa_rc mepa_ts_init_conf_set(struct mepa_device              *dev,
                               const mepa_ts_init_conf_t       *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_init_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -351,6 +368,10 @@ mepa_rc mepa_ts_init_conf_set(struct mepa_device              *dev,
 
 mepa_rc mepa_ts_init_conf_get(struct mepa_device              *dev,
                               mepa_ts_init_conf_t             *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_init_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -360,6 +381,10 @@ mepa_rc mepa_ts_init_conf_get(struct mepa_device              *dev,
 
 mepa_rc mepa_ts_ltc_ls_en(struct mepa_device                  *dev,
                           mepa_ts_ls_type_t                    const type) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_ltc_ls_en) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -369,6 +394,10 @@ mepa_rc mepa_ts_ltc_ls_en(struct mepa_device                  *dev,
 
 mepa_rc mepa_ts_ltc_get(struct mepa_device                    *dev,
                         mepa_timestamp_t                      *const ts) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_ltc_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -378,6 +407,10 @@ mepa_rc mepa_ts_ltc_get(struct mepa_device                    *dev,
 
 mepa_rc mepa_ts_ltc_set(struct mepa_device                    *dev,
                         const mepa_timestamp_t                *const ts) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_ltc_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -387,6 +420,10 @@ mepa_rc mepa_ts_ltc_set(struct mepa_device                    *dev,
 
 mepa_rc mepa_ts_delay_asymmetry_get(struct mepa_device        *dev,
                                     mepa_timeinterval_t       *const delay) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_delay_asymmetry_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -396,6 +433,10 @@ mepa_rc mepa_ts_delay_asymmetry_get(struct mepa_device        *dev,
 
 mepa_rc mepa_ts_delay_asymmetry_set(struct mepa_device        *dev,
                                     const mepa_timeinterval_t *const delay) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_delay_asymmetry_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -405,6 +446,10 @@ mepa_rc mepa_ts_delay_asymmetry_set(struct mepa_device        *dev,
 
 mepa_rc mepa_ts_path_delay_get(struct mepa_device             *dev,
                                mepa_timeinterval_t            *const delay) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_path_delay_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -414,6 +459,10 @@ mepa_rc mepa_ts_path_delay_get(struct mepa_device             *dev,
 
 mepa_rc mepa_ts_path_delay_set(struct mepa_device *dev,
                                const mepa_timeinterval_t      *const delay) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_path_delay_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -423,6 +472,10 @@ mepa_rc mepa_ts_path_delay_set(struct mepa_device *dev,
 
 mepa_rc mepa_ts_egress_latency_get(struct mepa_device         *dev,
                                    mepa_timeinterval_t        *const latency) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_egress_latency_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -432,6 +485,10 @@ mepa_rc mepa_ts_egress_latency_get(struct mepa_device         *dev,
 
 mepa_rc mepa_ts_egress_latency_set(struct mepa_device         *dev,
                                    const mepa_timeinterval_t  *const latency) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_egress_latency_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -441,6 +498,10 @@ mepa_rc mepa_ts_egress_latency_set(struct mepa_device         *dev,
 
 mepa_rc mepa_ts_ingress_latency_get(struct mepa_device        *dev,
                                     mepa_timeinterval_t       *const latency) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_ingress_latency_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -450,6 +511,10 @@ mepa_rc mepa_ts_ingress_latency_get(struct mepa_device        *dev,
 
 mepa_rc mepa_ts_ingress_latency_set(struct mepa_device        *dev,
                                     const mepa_timeinterval_t *const latency) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_ingress_latency_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -459,6 +524,10 @@ mepa_rc mepa_ts_ingress_latency_set(struct mepa_device        *dev,
 
 mepa_rc mepa_ts_clock_rateadj_get(struct mepa_device          *dev,
                                   mepa_ts_scaled_ppb_t        *const rateadj) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_clock_rateadj_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -468,6 +537,10 @@ mepa_rc mepa_ts_clock_rateadj_get(struct mepa_device          *dev,
 
 mepa_rc mepa_ts_clock_rateadj_set(struct mepa_device          *dev,
                                   const mepa_ts_scaled_ppb_t  *const rateadj) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_clock_rateadj_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -477,6 +550,10 @@ mepa_rc mepa_ts_clock_rateadj_set(struct mepa_device          *dev,
 
 mepa_rc mepa_ts_clock_adj1ns(struct mepa_device               *dev,
                              const mepa_bool_t                 incr) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_clock_adj1ns) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -486,6 +563,10 @@ mepa_rc mepa_ts_clock_adj1ns(struct mepa_device               *dev,
 
 mepa_rc mepa_ts_pps_conf_get(struct mepa_device               *dev,
                              mepa_ts_pps_conf_t               *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_pps_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -495,6 +576,10 @@ mepa_rc mepa_ts_pps_conf_get(struct mepa_device               *dev,
 
 mepa_rc mepa_ts_pps_conf_set(struct mepa_device              *dev,
                               const mepa_ts_pps_conf_t        *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_pps_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -505,6 +590,10 @@ mepa_rc mepa_ts_pps_conf_set(struct mepa_device              *dev,
 mepa_rc mepa_ts_rx_classifier_conf_get(struct mepa_device         *dev,
                                        uint16_t                    flow_index,
                                        mepa_ts_classifier_t       *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_rx_classifier_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -515,6 +604,10 @@ mepa_rc mepa_ts_rx_classifier_conf_get(struct mepa_device         *dev,
 mepa_rc mepa_ts_tx_classifier_conf_get(struct mepa_device         *dev,
                                        uint16_t                    flow_index,
                                        mepa_ts_classifier_t       *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_tx_classifier_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -525,6 +618,10 @@ mepa_rc mepa_ts_tx_classifier_conf_get(struct mepa_device         *dev,
 mepa_rc mepa_ts_rx_classifier_conf_set(struct mepa_device         *dev,
                                        uint16_t                    flow_index,
                                        const mepa_ts_classifier_t *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_rx_classifier_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -535,6 +632,10 @@ mepa_rc mepa_ts_rx_classifier_conf_set(struct mepa_device         *dev,
 mepa_rc mepa_ts_tx_classifier_conf_set(struct mepa_device         *dev,
                                        uint16_t                    flow_index,
                                        const mepa_ts_classifier_t *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_tx_classifier_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -545,6 +646,10 @@ mepa_rc mepa_ts_tx_classifier_conf_set(struct mepa_device         *dev,
 mepa_rc mepa_ts_rx_clock_conf_get(struct mepa_device              *dev,
                                   uint16_t                         clock_id,
                                   mepa_ts_ptp_clock_conf_t        *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_rx_clock_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -555,6 +660,10 @@ mepa_rc mepa_ts_rx_clock_conf_get(struct mepa_device              *dev,
 mepa_rc mepa_ts_tx_clock_conf_get(struct mepa_device              *dev,
                                   uint16_t                         clock_id,
                                   mepa_ts_ptp_clock_conf_t        *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_tx_clock_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -565,6 +674,10 @@ mepa_rc mepa_ts_tx_clock_conf_get(struct mepa_device              *dev,
 mepa_rc mepa_ts_rx_clock_conf_set(struct mepa_device              *dev,
                                   uint16_t                         clock_id,
                                   const mepa_ts_ptp_clock_conf_t  *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_rx_clock_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -575,6 +688,10 @@ mepa_rc mepa_ts_rx_clock_conf_set(struct mepa_device              *dev,
 mepa_rc mepa_ts_tx_clock_conf_set(struct mepa_device              *dev,
                                   uint16_t                         clock_id,
                                   const mepa_ts_ptp_clock_conf_t  *const conf) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_tx_clock_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -584,6 +701,10 @@ mepa_rc mepa_ts_tx_clock_conf_set(struct mepa_device              *dev,
 
 mepa_rc mepa_ts_stats_get(struct mepa_device                    *dev,
                           mepa_ts_stats_t                       *const stat) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_stats_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -594,6 +715,10 @@ mepa_rc mepa_ts_stats_get(struct mepa_device                    *dev,
 mepa_rc mepa_ts_event_set(struct mepa_device                      *dev,
                           const mepa_bool_t                        enable,
                           const mepa_ts_event_t                    ev_mask) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_event_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -603,6 +728,10 @@ mepa_rc mepa_ts_event_set(struct mepa_device                      *dev,
 
 mepa_rc mepa_ts_event_get(struct mepa_device                      *dev,
                           mepa_ts_event_t                         *const ev_mask) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_event_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -612,6 +741,10 @@ mepa_rc mepa_ts_event_get(struct mepa_device                      *dev,
 
 mepa_rc mepa_ts_event_poll(struct mepa_device                     *dev,
                            mepa_ts_event_t                        *const status) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_event_poll) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -621,6 +754,10 @@ mepa_rc mepa_ts_event_poll(struct mepa_device                     *dev,
 
 mepa_rc mepa_ts_fifo_read_install(struct mepa_device *dev, mepa_ts_fifo_read_t rd_cb)
 {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_fifo_read_install) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -630,6 +767,10 @@ mepa_rc mepa_ts_fifo_read_install(struct mepa_device *dev, mepa_ts_fifo_read_t r
 }
 
 mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_fifo_empty) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -640,6 +781,10 @@ mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev) {
 mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
                             uint16_t                               test_id,
                             mepa_bool_t                            reg_dump) {
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
     if (!dev->drv->mepa_ts->mepa_ts_test_config) {
         return MESA_RC_NOT_IMPLEMENTED;
     }

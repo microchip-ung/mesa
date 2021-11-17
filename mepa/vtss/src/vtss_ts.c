@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 #include <microchip/ethernet/phy/api.h>
+#include <mepa_driver.h>
+#include <mepa_ts_driver.h>
 #include <vtss_phy_api.h>
 #include "vtss_private.h"
 
@@ -89,6 +91,7 @@ static vtss_phy_ts_ptp_clock_mode_t get_mesa_clk_mode(mepa_ts_ptp_clock_mode_t i
                                        (in == MEPA_TS_PTP_CLOCK_MODE_BC2STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_BC2STEP :
                                        (in == MEPA_TS_PTP_CLOCK_MODE_TC1STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_TC1STEP :
                                        (in == MEPA_TS_PTP_CLOCK_MODE_TC2STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_TC2STEP : VTSS_PHY_TS_PTP_CLOCK_MODE_BC1STEP;
+    return ret;
 }
 
 

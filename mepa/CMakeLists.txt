@@ -6,6 +6,8 @@ project(MEPA)
 cmake_minimum_required(VERSION 2.8.12)
 include(.cmake/mepa-macros.cmake)
 
+include_directories(common/include)
+
 # Offer an options for CI to get good compliation coverage
 option(BUILD_MEPA_ALL "Build all MEPA libraries" OFF)
 mark_as_advanced(BUILD_MEPA_ALL)

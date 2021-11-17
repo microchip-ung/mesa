@@ -339,7 +339,7 @@ typedef struct {
     mepa_ts_pkt_encap_t             pkt_encap_type;     // packet encap type: ETH/PTP, ETH/IP/PTP
     mepa_ts_ptp_clock_mode_t        clk_mode;           // clock mode: bc1step, bc2step, tc1step or tc2step
     mepa_ts_ptp_delaym_type_t       delaym_type;        // delay measurement method: P2P, E2E
-}mepa_ts_sample_conf_t;
+} mepa_ts_sample_conf_t;
 
 // Enable/Disable the timestamp block (Mode:TSU in Bypass mode)
 mepa_rc mepa_ts_mode_set(struct mepa_device                   *dev,

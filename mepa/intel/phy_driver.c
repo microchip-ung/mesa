@@ -26,6 +26,8 @@
 #include <stdbool.h>
 
 #include <microchip/ethernet/phy/api.h>
+#include <mepa_driver.h>
+#include <mepa_ts_driver.h>
 
 #include "os.h"
 #include "gpy211.h"

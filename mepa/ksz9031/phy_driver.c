@@ -7,6 +7,8 @@
 #include <stdbool.h>
 
 #include <microchip/ethernet/phy/api.h>
+#include <mepa_driver.h>
+#include <mepa_ts_driver.h>
 
 
 #define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);

@@ -3,8 +3,6 @@
 
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/phy/api/phy.h>
-#include <microchip/ethernet/phy/api/phy_ts.h>
 #include <microchip/ethernet/board/api.h>
 #include "meba_generic.h"
 
@@ -19,9 +17,6 @@ static mepa_rc meba_dev_chk(meba_inst_t inst, mepa_port_no_t port_no)
 
     phy_dev = inst->phy_devices[port_no];
     if (!phy_dev) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-    if(!phy_dev->drv->mepa_ts){
         return MESA_RC_NOT_IMPLEMENTED;
     }
 

@@ -4,9 +4,9 @@
 #ifndef _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 
+#include <mepa_ts_driver.h>
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api/phy_ts.h>
-#include <microchip/ethernet/phy/api/phy_ts_drv.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // PHY DRIVER
@@ -21,35 +21,6 @@
 //  mepa_driver_probe_t
 //  mepa_driver_poll_t
 //  mepa_driver_conf_set_t
-
-// Contains methods that are specific to each phy.
-struct mepa_driver;
-
-// Represents an instance of the mepa_driver.
-struct mepa_device;
-
-
-// Advertise disable flags.
-typedef enum {
-    MEPA_ADV_DIS_HDX = 0x00000001,     // Disable Half duplex
-    MEPA_ADV_DIS_FDX = 0x00000002,     // Disable Full duplex
-    MEPA_ADV_UP_MEP_LOOP = 0x00000004, // Use port for UP MEP loop port
-    MEPA_ADV_DIS_2500M = 0x00000008,   // Disable 2.5G mode
-    MEPA_ADV_DIS_1G = 0x00000010,      // Disable 1G mode
-    MEPA_ADV_DIS_100M = 0x00000040,    // Disable 100Mbit mode
-    MEPA_ADV_DIS_10M = 0x00000080,     // Disable 10Mbit mode
-    MEPA_ADV_DIS_5G = 0x00000100,      // Disable 5G mode
-    MEPA_ADV_DIS_10G = 0x00000200,     // Disable 10G mode
-    MEPA_ADV_DIS_RESTART_ANEG = 0x00000400, // Do not restart aneg
-    MEPA_ADV_DIS_SPEED =
-        (MEPA_ADV_DIS_10M | MEPA_ADV_DIS_100M | MEPA_ADV_DIS_1G |
-         MEPA_ADV_DIS_2500M | MEPA_ADV_DIS_5G |
-         MEPA_ADV_DIS_10G), // All speed bits
-    MEPA_ADV_DIS_DUPLEX =
-        (MEPA_ADV_DIS_HDX | MEPA_ADV_DIS_FDX), // All duplex bits
-    MEPA_ADV_DIS_ALL = (MEPA_ADV_DIS_SPEED | MEPA_ADV_DIS_DUPLEX |
-                            MEPA_ADV_UP_MEP_LOOP) // All valid bits
-} mepa_adv_dis_t;
 
 // Clears up the data allocated in the probe function.
 typedef mepa_rc (*mepa_driver_delete_t)(struct mepa_device *dev);
