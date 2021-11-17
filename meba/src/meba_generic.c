@@ -248,40 +248,12 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
 void meba_phy_driver_init(meba_inst_t inst)
 {
     mesa_port_no_t      port_no;
-    int                 probe_completed;
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
     // Initialize all the drivers needed
-#define PHY_FAMILIES 32
-    mepa_drivers_t phy_lib[PHY_FAMILIES] = {};
-
-#if defined(MEBA_HAS_MEPA_VTSS)
-    phy_lib[0] = mepa_mscc_driver_init();
-    phy_lib[1] = mepa_malibu_driver_init();
-    phy_lib[2] = mepa_venice_driver_init();
-#endif
-
-#if defined(MEBA_HAS_MEPA_AQR)
-    phy_lib[3] = mepa_aqr_driver_init();
-#endif
-
-#if defined(MEBA_HAS_MEPA_INTEL)
-    phy_lib[4] = mepa_intel_driver_init();
-#endif
-
-#if defined(MEBA_HAS_MEPA_LAN8814)
-    phy_lib[5] = mepa_lan8814_driver_init();
-#endif
-
-#if defined(MEBA_HAS_MEPA_KSZ9031)
-    phy_lib[6] = mepa_ksz9031_driver_init();
-#endif
-
-    phy_lib[7] = mepa_default_phy_driver_init();
 
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
-        probe_completed = 0;
 
         // Identify and initialize PHYs (no CuSFPs at this point)
         // This PHY initialization needs to take place before the
@@ -299,11 +271,16 @@ void meba_phy_driver_init(meba_inst_t inst)
             uint32_t phy_id = meba_get_phy_id(inst, port_no, entry);
             mepa_driver_address_t address_mode = {};
             address_mode.mode = mscc_phy_driver_address_mode;
+            // Shall only be given if 10G
             address_mode.val.mscc_address.mmd_read = mesa_port_mmd_read;
             address_mode.val.mscc_address.mmd_read_inc = mesa_port_mmd_read_inc;
             address_mode.val.mscc_address.mmd_write = mesa_port_mmd_write;
+
+            // Shall only be given if 1G
             address_mode.val.mscc_address.miim_read = mesa_miim_read;
             address_mode.val.mscc_address.miim_write = mesa_miim_write;
+
+            // Shall only be given for vtss
             address_mode.val.mscc_address.port_miim_read = mesa_port_miim_read;
             address_mode.val.mscc_address.port_miim_write = mesa_port_miim_write;
             address_mode.val.mscc_address.inst = PHY_INST;
@@ -313,31 +290,15 @@ void meba_phy_driver_init(meba_inst_t inst)
             address_mode.val.mscc_address.miim_controller = entry.map.miim_controller;
             address_mode.val.mscc_address.miim_addr = entry.map.miim_addr;
             address_mode.val.mscc_address.chip_no = entry.map.chip_no;
+
+            // Should really be common
             address_mode.val.mscc_address.trace_func = inst->iface.trace_func;
             address_mode.val.mscc_address.vtrace_func = inst->iface.vtrace_func;
             address_mode.val.mscc_address.lock_enter = inst->iface.lock_enter;
             address_mode.val.mscc_address.lock_exit  = inst->iface.lock_exit;
 
-            for (int i = 0; i < PHY_FAMILIES; i++) {
-                if (!phy_lib[i].count || !phy_lib[i].phy_drv) {
-                    continue;
-                }
-
-                for (int j = 0; j < phy_lib[i].count; j++) {
-                    mepa_driver_t *driver = &phy_lib[i].phy_drv[j];
-                    if (!probe_completed && ((driver->id & driver->mask) == (phy_id & driver->mask))) {
-                        inst->phy_devices[port_no] = driver->mepa_driver_probe(driver, &address_mode);
-                        probe_completed = 1;
-                        T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, phy_id, i, j);
-                        break;
-                    }
-                }
-                if (probe_completed) {
-                    break;
-                }
-            }
-
-            if (probe_completed) {
+            inst->phy_devices[port_no] = mepa_create(&address_mode, phy_id);
+            if (inst->phy_devices[port_no]) {
                 T_I(inst, "Phy has been probed on port %d", port_no);
             } else {
                 T_I(inst, "No probing");
@@ -349,8 +310,8 @@ void meba_phy_driver_init(meba_inst_t inst)
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
         inst->api.meba_port_entry_get(inst, port_no, &entry);
         phy_dev = inst->phy_devices[port_no];
-        if ((phy_dev != NULL) && (inst->phy_devices[entry.phy_base_port] != NULL) &&  phy_dev->drv->mepa_driver_link_base_port) {
-            phy_dev->drv->mepa_driver_link_base_port(phy_dev, inst->phy_devices[entry.phy_base_port]);
+        if (phy_dev && inst->phy_devices[entry.phy_base_port]) {
+            (void)mepa_link_base_port(phy_dev, inst->phy_devices[entry.phy_base_port]);
         }
     }
 }

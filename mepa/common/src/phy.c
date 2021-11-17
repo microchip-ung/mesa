@@ -3,6 +3,75 @@
 
 #include <microchip/ethernet/phy/api.h>
 
+#define PHY_FAMILIES 16
+static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
+static int MEPA_init_done = 0;
+
+
+struct mepa_device *mepa_create(const mepa_driver_address_t *addr, uint32_t id)
+{
+    mepa_device_t  *dev;
+
+    // Initialize all the drivers needed
+    if (!MEPA_init_done) {
+        // Raise conditions does not matter here. Multiple threads can do this,
+        // it will waste a bit of CPU, but do no harm.
+        MEPA_init_done = 1;
+
+#if defined(MEPA_HAS_VTSS)
+        MEPA_phy_lib[0] = mepa_mscc_driver_init();
+        MEPA_phy_lib[1] = mepa_malibu_driver_init();
+        MEPA_phy_lib[2] = mepa_venice_driver_init();
+#endif
+
+#if defined(MEPA_HAS_AQR)
+        MEPA_phy_lib[3] = mepa_aqr_driver_init();
+#endif
+
+#if defined(MEPA_HAS_GPY2211)
+        MEPA_phy_lib[4] = mepa_intel_driver_init();
+#endif
+
+#if defined(MEPA_HAS_LAN8814)
+        MEPA_phy_lib[5] = mepa_lan8814_driver_init();
+#endif
+
+#if defined(MEPA_HAS_KSZ9031)
+        MEPA_phy_lib[6] = mepa_ksz9031_driver_init();
+#endif
+
+        // Shall be last
+#if defined(MEPA_HAS_VTSS)
+        MEPA_phy_lib[7] = mepa_default_phy_driver_init();
+#endif
+    }
+
+    for (int i = 0; i < PHY_FAMILIES; i++) {
+        //if (!MEPA_phy_lib[i]) {
+        //    continue;
+        //}
+
+        if (!MEPA_phy_lib[i].count || !MEPA_phy_lib[i].phy_drv) {
+            continue;
+        }
+
+        for (int j = 0; j < MEPA_phy_lib[i].count; j++) {
+            mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
+
+            if ((driver->id & driver->mask) == (id & driver->mask)) {
+                dev = driver->mepa_driver_probe(driver, addr);
+                if (dev) {
+                    //T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, id, i, j);
+                    return dev;
+                }
+            }
+        }
+    }
+
+    //T_I(inst, "No probing");
+    return 0;
+}
+
 mepa_rc mepa_delete(struct mepa_device *dev) {
     if (!dev || !dev->drv->mepa_driver_delete) {
         return MESA_RC_NOT_IMPLEMENTED;
