@@ -11,7 +11,7 @@ static int MEPA_init_done = 0;
 
 struct mepa_device *mepa_create(const mepa_driver_address_t *addr, uint32_t id)
 {
-    mepa_device_t  *dev;
+    mepa_device_t  *dev = 0;
 
     // Initialize all the drivers needed
     if (!MEPA_init_done) {
