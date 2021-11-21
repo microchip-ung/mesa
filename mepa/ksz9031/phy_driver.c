@@ -82,44 +82,48 @@ typedef struct {
 //    return 0;
 //}
 
-static int phy_read(phy_device *phydev, uint32_t regnum)
+static int phy_read(mepa_device_t  *dev, uint32_t regnum)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     uint16_t  value;
 
-    if (phydev->address.port_miim_read(NULL, phydev->address.port_no, regnum, &value) != MESA_RC_OK) {
+    if (phydev->address.miim_read(dev->callout_cxt, regnum, &value) != MESA_RC_OK) {
         return -1;
     }
     return value;
 }
 
-static int phy_write(phy_device *phydev, uint32_t regnum, uint16_t val)
+static int phy_write(mepa_device_t  *dev, uint32_t regnum, uint16_t val)
 {
-    if (phydev->address.port_miim_write(NULL, phydev->address.port_no, regnum, val) != MESA_RC_OK) {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
+    if (phydev->address.miim_write(dev->callout_cxt, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
 }
 
-int phy_modify(phy_device *phydev, uint32_t regnum, uint16_t mask, uint16_t set)
+int phy_modify(mepa_device_t  *dev, uint32_t regnum, uint16_t mask, uint16_t set)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     uint16_t  value;
 
-    if ((value = phy_read(phydev, regnum)) < 0) {
+    if ((value = phy_read(dev, regnum)) < 0) {
         return -1;
     }
 
     value &= ~mask;
     value |= (set & mask);
 
-    if ((value = phy_write(phydev, regnum, value)) < 0) {
+    if ((value = phy_write(dev, regnum, value)) < 0) {
         return -1;
     }
     return 0;
 }
 
-int phy_write_mmd(phy_device *phydev, int devad, uint32_t regnum, uint16_t val)
+int phy_write_mmd(mepa_device_t  *dev, int devad, uint32_t regnum, uint16_t val)
 {
-    if (phydev->address.mmd_write(NULL, phydev->address.port_no, devad, regnum, val) != MESA_RC_OK) {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
+    if (phydev->address.mmd_write(dev->callout_cxt, devad, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
@@ -129,29 +133,31 @@ int phy_write_mmd(phy_device *phydev, int devad, uint32_t regnum, uint16_t val)
  * genphy_restart_aneg - Enable and Restart Autonegotiation
  * @phydev: target phy_device struct
  */
-static int genphy_restart_aneg(phy_device *phydev)
+static int genphy_restart_aneg(mepa_device_t  *dev)
 {
     /* Don't isolate the PHY if we're negotiating */
-    return phy_modify(phydev, MII_BMCR, BMCR_ISOLATE,
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
+    return phy_modify(dev, MII_BMCR, BMCR_ISOLATE,
               BMCR_ANENABLE | BMCR_ANRESTART);
 }
 
 /* Center KSZ9031RNX FLP timing at 16ms. */
-static int center_flp_timing(phy_device *phydev)
+static int center_flp_timing(mepa_device_t  *dev)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     int result;
 
-    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_HI,
+    result = phy_write_mmd(dev, 0, MII_KSZ9031RN_FLP_BURST_TX_HI,
                    0x0006);
     if (result)
         return result;
 
-    result = phy_write_mmd(phydev, 0, MII_KSZ9031RN_FLP_BURST_TX_LO,
+    result = phy_write_mmd(dev, 0, MII_KSZ9031RN_FLP_BURST_TX_LO,
                    0x1A80);
     if (result)
         return result;
 
-    return genphy_restart_aneg(phydev);
+    return genphy_restart_aneg(dev);
 }
 
 /**
@@ -159,8 +165,9 @@ static int center_flp_timing(phy_device *phydev)
  * used to detect PHY status changes
  * @phydev: the phy_device struct
  */
-static inline bool phy_polling_mode(phy_device *phydev)
+static inline bool phy_polling_mode(mepa_device_t  *dev)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     return phydev->irq == PHY_POLL;
 }
 
@@ -172,11 +179,12 @@ static inline bool phy_polling_mode(phy_device *phydev)
  *   current link value.  In order to do this, we need to read
  *   the status register twice, keeping the second value.
  */
-static int genphy_update_link(phy_device *phydev)
+static int genphy_update_link(mepa_device_t  *dev)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     int status = 0, bmcr;
 
-    bmcr = phy_read(phydev, MII_BMCR);
+    bmcr = phy_read(dev, MII_BMCR);
     if (bmcr < 0)
         return bmcr;
 
@@ -190,8 +198,8 @@ static int genphy_update_link(phy_device *phydev)
      * drops can be detected. Do not double-read the status
      * in polling mode to detect such short link drops.
      */
-    if (!phy_polling_mode(phydev)) {
-        status = phy_read(phydev, MII_BMSR);
+    if (!phy_polling_mode(dev)) {
+        status = phy_read(dev, MII_BMSR);
         if (status < 0)
             return status;
         else if (status & BMSR_LSTATUS)
@@ -199,7 +207,7 @@ static int genphy_update_link(phy_device *phydev)
     }
 
     /* Read link and autonegotiation status */
-    status = phy_read(phydev, MII_BMSR);
+    status = phy_read(dev, MII_BMSR);
     if (status < 0)
         return status;
 done:
@@ -215,12 +223,13 @@ done:
     return 0;
 }
 
-static int genphy_read_status(phy_device *phydev)
+static int genphy_read_status(mepa_device_t  *dev)
 {
+    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     int err, old_link = phydev->link;
 
     /* Update the link, but return if there was an error */
-    err = genphy_update_link(phydev);
+    err = genphy_update_link(dev);
     if (err)
         return err;
 
@@ -233,14 +242,14 @@ static int genphy_read_status(phy_device *phydev)
     phydev->pause = 0;
     phydev->asym_pause = 0;
 
-//    err = genphy_read_lpa(phydev);
+//    err = genphy_read_lpa(dev);
 //    if (err < 0)
 //        return err;
 
-//    if (phydev->autoneg == AUTONEG_ENABLE && phydev->autoneg_complete) {
-//        phy_resolve_aneg_linkmode(phydev);
-//    } else if (phydev->autoneg == AUTONEG_DISABLE) {
-        int bmcr = phy_read(phydev, MII_BMCR);
+//    if (dev->autoneg == AUTONEG_ENABLE && phydev->autoneg_complete) {
+//        phy_resolve_aneg_linkmode(dev);
+//    } else if (dev->autoneg == AUTONEG_DISABLE) {
+        int bmcr = phy_read(dev, MII_BMCR);
 
         if (bmcr < 0)
             return bmcr;
@@ -265,9 +274,9 @@ static mesa_rc ksz_poll(mepa_device_t *dev, mepa_driver_status_t *status)
 {
     phy_device *phydev = &((priv_data_t *)dev->data)->phydev;
 
-    T_N("Enter  port_no %u", phydev->address.port_no);
+    T_N("Enter  port_no %u", dev->numeric_handle);
 
-    if (genphy_read_status(phydev)) {
+    if (genphy_read_status(dev)) {
         return MESA_RC_ERROR;
     }
 
@@ -285,11 +294,14 @@ static mesa_rc ksz_conf_set(mepa_device_t             *dev,
 
     T_D("Enter");
 
-    return center_flp_timing(phydev);
+    return center_flp_timing(dev);
 }
 
 static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
-                                const mepa_driver_address_t  *mode)
+                                const mepa_driver_address_t  *mode,
+                                mepa_port_interface_t         mac_if,
+                                uint32_t numeric_handle,
+                                struct mepa_callout_cxt *callout_cxt)
 {
     uint32_t         cnt;
 
@@ -315,6 +327,8 @@ static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
 
     device->drv = drv;
     device->data = priv;
+    device->numeric_handle = numeric_handle;
+    device->callout_cxt = callout_cxt;
 
     return device;
 }

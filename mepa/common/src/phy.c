@@ -9,7 +9,11 @@ static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
 
 
-struct mepa_device *mepa_create(const mepa_driver_address_t *addr, uint32_t id)
+struct mepa_device *mepa_create(const mepa_driver_address_t *addr,
+                                uint32_t id,
+                                mepa_port_interface_t        mac_if,
+                                uint32_t numeric_handle,
+                                struct mepa_callout_cxt *callout_cxt)
 {
     mepa_device_t  *dev = 0;
 
@@ -60,7 +64,8 @@ struct mepa_device *mepa_create(const mepa_driver_address_t *addr, uint32_t id)
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
             if ((driver->id & driver->mask) == (id & driver->mask)) {
-                dev = driver->mepa_driver_probe(driver, addr);
+                dev = driver->mepa_driver_probe(driver, addr, mac_if,
+                                                numeric_handle, callout_cxt);
                 if (dev) {
                     //T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, id, i, j);
                     return dev;
@@ -297,12 +302,13 @@ mepa_rc mepa_synce_clock_conf_set(struct mepa_device *dev,
 }
 
 mepa_rc mepa_link_base_port(struct mepa_device *dev,
-                            struct mepa_device *base_dev) {
+                            struct mepa_device *base_dev,
+                            uint8_t packet_idx) {
     if (!dev || !dev->drv->mepa_driver_link_base_port) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_link_base_port(dev, base_dev);
+    return dev->drv->mepa_driver_link_base_port(dev, base_dev, packet_idx);
 }
 
 mepa_rc mepa_phy_info_get(struct mepa_device *dev,

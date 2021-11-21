@@ -46,6 +46,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <microchip/ethernet/phy/api.h>
+#include <mepa_driver.h>
 
 /*! \defgroup User User Definitions
 This module contains the definitions used to configure AQ_API behavior as desired. */
@@ -57,7 +58,9 @@ This module contains the definitions used to configure AQ_API behavior as desire
 //typedef unsigned int AQ_Port;
 /*! Vitesse CIL api layer needs vtss_state and port_no */
 typedef struct{
-    mscc_phy_driver_address_t mscc;
+    mepa_device_t *dev;
+    mscc_phy_driver_address_t mscc;  // TODO, delete
+    mesa_port_interface_t mac_if;
 } AQ_Port;
 
 

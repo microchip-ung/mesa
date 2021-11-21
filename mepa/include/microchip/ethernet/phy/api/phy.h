@@ -7,62 +7,50 @@
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
-typedef mepa_rc (*mmd_read_t)(const mesa_inst_t                inst,
-                              const mepa_port_no_t             port_no,
-                              const uint8_t                    mmd,
-                              const uint16_t                   addr,
-                              uint16_t                        *const value);
+// Forigen pointer. MEPA only passes this pointer around, application instanting
+// MEPA must define this type. If no bus-addressing data is needed, a null
+// pointer can be used.
+struct mepa_callout_cxt;
 
-typedef mepa_rc (*mmd_read_inc_t)(const mesa_inst_t            inst,
-                                  const mepa_port_no_t         port_no,
-                                  const uint8_t                mmd,
-                                  const uint16_t               addr,
-                                  uint16_t                     *const buf,
-                                  uint8_t                      count);
 
-typedef mepa_rc (*mmd_write_t)(const mesa_inst_t               inst,
-                               const mepa_port_no_t            port_no,
-                               const uint8_t                   mmd,
-                               const uint16_t                  addr,
-                               const uint16_t                  value);
+typedef mepa_rc (*mmd_read_t)(struct mepa_callout_cxt           *cxt,
+                              const uint8_t                      mmd,
+                              const uint16_t                     addr,
+                              uint16_t                          *const value);
 
-typedef mepa_rc (*miim_read_t)(const mesa_inst_t               inst,
-                               const mepa_chip_no_t            chip_no,
-                               const mesa_miim_controller_t    miim_controller,
-                               const uint8_t                   miim_addr,
-                               const uint8_t                   addr,
-                               uint16_t                       *const value);
+typedef mepa_rc (*mmd_read_inc_t)(struct mepa_callout_cxt       *cxt,
+                                  const uint8_t                  mmd,
+                                  const uint16_t                 addr,
+                                  uint16_t                       *const buf,
+                                  uint8_t                        count);
 
-typedef mepa_rc (*miim_write_t)(const mesa_inst_t              inst,
-                                const mepa_chip_no_t           chip_no,
-                                const mesa_miim_controller_t   miim_controller,
-                                const uint8_t                  miim_addr,
-                                const uint8_t                  addr,
-                                const uint16_t                 value);
+typedef mepa_rc (*mmd_write_t)(struct mepa_callout_cxt          *cxt,
+                               const uint8_t                     mmd,
+                               const uint16_t                    addr,
+                               const uint16_t                    value);
 
-typedef mepa_rc (*port_miim_read_t)(const mesa_inst_t          inst,
-                                    const mepa_port_no_t       port_no,
-                                    const uint8_t              addr,
-                                    uint16_t                   *const value);
+typedef mepa_rc (*miim_read_t)(struct mepa_callout_cxt          *cxt,
+                               const uint8_t                     addr,
+                               uint16_t                         *const value);
 
-typedef mepa_rc (*port_miim_write_t)(const mesa_inst_t         inst,
-                                     const mepa_port_no_t      port_no,
-                                     const uint8_t             addr,
-                                     const uint16_t            value);
+typedef mepa_rc (*miim_write_t)(struct mepa_callout_cxt         *cxt,
+                                const uint8_t                    addr,
+                                const uint16_t                   value);
 
+// todo, add mepa_callout_cxt
 typedef void (*debug_func_t)(mepa_trace_level_t                level,
                              const char                       *location,
                              uint32_t                          line_no,
                              const char                       *fmt,
                                                                ...);
-
-// phy trace callbacks
+// todo, add mepa_callout_cxt
 typedef void (*mepa_trace_func_t)(mepa_trace_group_t                group,
                                   mepa_trace_level_t                level,
                                   const char                        *location,
                                   uint32_t                          line_no,
                                   const char                        *fmt,
                                                                     ...);
+// todo, add mepa_callout_cxt
 typedef void (*mepa_vtrace_func_t)(mepa_trace_group_t               group,
                                    mepa_trace_level_t               level,
                                    const char                       *location,
@@ -80,20 +68,13 @@ typedef struct {
     mmd_write_t             mmd_write;
     miim_read_t             miim_read;
     miim_write_t            miim_write;
-    port_miim_read_t        port_miim_read;
-    port_miim_write_t       port_miim_write;
-    mesa_inst_t             inst;
-    struct meba_inst        *meba_inst;
-    mepa_port_no_t          port_no;
+
     debug_func_t            debug_func;
     mepa_trace_func_t       trace_func;
-    mepa_vtrace_func_t      vtrace_func;
-    mepa_port_interface_t   mac_if;
-    mesa_miim_controller_t  miim_controller;
-    uint8_t                 miim_addr;
-    mesa_chip_no_t          chip_no;
+    mepa_vtrace_func_t      vtrace_func;  // TODO, use trace_func instead
     mepa_lock_func_t        lock_enter;
     mepa_lock_func_t        lock_exit;
+    // TODO, malloc
 } mscc_phy_driver_address_t;
 
 // Union that contains all the values for address mode. Enumeration
@@ -114,7 +95,11 @@ typedef struct mepa_driver_address {
     mepa_driver_address_val_t val;
 } mepa_driver_address_t;
 
-struct mepa_device *mepa_create(const mepa_driver_address_t *addr, uint32_t id);
+struct mepa_device *mepa_create(const mepa_driver_address_t *addr,
+                                uint32_t                     id,  // TODO, delete
+                                mepa_port_interface_t        mac_if,  // TODO, not sure about this...
+                                uint32_t                     numeric_handle,
+                                struct mepa_callout_cxt     *callout_cxt);
 
 mepa_rc mepa_delete(struct mepa_device *dev);
 
@@ -196,7 +181,8 @@ mepa_rc mepa_synce_clock_conf_set(struct mepa_device *dev,
                                   const mepa_synce_clock_conf_t *conf);
 
 mepa_rc mepa_link_base_port(struct mepa_device *dev,
-                            struct mepa_device *base_dev);
+                            struct mepa_device *base_dev,
+                            uint8_t packet_idx);
 
 mepa_rc mepa_phy_info_get(struct mepa_device *dev,
                           mepa_phy_info_t *const phy_info);

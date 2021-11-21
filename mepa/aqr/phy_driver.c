@@ -75,7 +75,7 @@ static void aqr_port_id_init(AQ_Port              *data,
         aq_port->device = AQ_DEVICE_EUR;
         aq_port->PHY_ID = *data;
     } else {
-        T_E("null aqr port, port_no: %u", data->mscc.port_no);
+        T_E("null aqr port, port_no: %u", data->dev->numeric_handle);
     }
 }
 
@@ -85,7 +85,7 @@ static AQ_Retcode aqr_phy_conf_get(AQ_Port *data,
     AQ_API_Port                aq_port;
     AQ_Retcode                 aq_rc = AQ_RET_OK;
 
-    T_D("Enter, port_no: %u", data->mscc.port_no);
+    T_D("Enter, port_no: %u", data->dev->numeric_handle);
 
     aqr_port_id_init(data, &aq_port);
 
@@ -93,7 +93,7 @@ static AQ_Retcode aqr_phy_conf_get(AQ_Port *data,
 
     AQR_TEST_RC(AQ_API_GetStaticConfiguration(&aq_port, aq_conf));
 
-    T_D("port_no: %u, OUI: %u, IEEE_ModelNumber: %u, IEEE_RevisionNumber: %u, aq_rc: %d", data->mscc.port_no,
+    T_D("port_no: %u, OUI: %u, IEEE_ModelNumber: %u, IEEE_RevisionNumber: %u, aq_rc: %d", data->dev->numeric_handle,
            aq_conf->OUI, aq_conf->IEEE_ModelNumber,
            aq_conf->IEEE_RevisionNumber, aq_rc);
 
@@ -112,7 +112,7 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
     AQ_API_AutonegotiationControl       aq_autoneg_config;
     AQ_API_Configuration                aq_config;
 
-    T_D("aqr_conf_set_private Enter, port_no: %u", data->mscc.port_no);
+    T_D("aqr_conf_set_private Enter, port_no: %u", data->dev->numeric_handle);
 
     memset(&aq_port, 0, sizeof(AQ_API_Port));
     memset(&aq_autoneg_config, 0, sizeof(AQ_API_AutonegotiationControl));
@@ -128,7 +128,7 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
             MSLEEP(50);
             T_D("aqr_conf_set_private mmd_read");
             uint16_t reg_value;
-            data->mscc.mmd_read(data->mscc.inst, data->mscc.port_no, 0x1e, 0xc831, &reg_value);
+            data->mscc.mmd_read(dev->callout_cxt, 0x1e, 0xc831, &reg_value);
             if (!(reg_value & 0x8000)) {
                 break; //1E.C831 Processor-intensive MDIO operation completed 0x0000: p584
             }
@@ -141,11 +141,11 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
     }
 
     if ((aq_rc = AQ_API_GetAutonegotiationControl(&aq_port, &aq_autoneg_config)) != AQ_RET_OK) {
-        T_E("failed to get AQR PHY autoneg conf, portno:%d, rc:%d\n", data->mscc.port_no, aq_rc);
+        T_E("failed to get AQR PHY autoneg conf, portno:%d, rc:%d\n", data->dev->numeric_handle, aq_rc);
     }
 
     if ((aq_rc = AQ_API_GetConfiguration(&aq_port, &aq_config)) != AQ_RET_OK) {
-        T_E("failed to get AQR PHY conf, portno:%d, rc:%d\n", data->mscc.port_no, aq_rc);
+        T_E("failed to get AQR PHY conf, portno:%d, rc:%d\n", data->dev->numeric_handle, aq_rc);
     }
 
     T_D("set config");
@@ -174,7 +174,7 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
         aq_autoneg_config.advertise1000BASE_T_FullDuplex = (AQ_boolean) config->aneg.speed_1g_fdx;
         aq_autoneg_config.advertise1000BASE_T_HalfDuplex = (AQ_boolean) FALSE;
 
-        T_I("port_no: %u, 10g_fdx:%d, 5g_fdx:%d, 2g5_fdx:%d, 10m_hdx:%d, \n\t10m_fdx:%d, 100m_hdx:%d, 100m_fdx:%d, 1g_fdx:%d, 1g_hdx:%d", data->mscc.port_no,
+        T_I("port_no: %u, 10g_fdx:%d, 5g_fdx:%d, 2g5_fdx:%d, 10m_hdx:%d, \n\t10m_fdx:%d, 100m_hdx:%d, 100m_fdx:%d, 1g_fdx:%d, 1g_hdx:%d", data->dev->numeric_handle,
                aq_autoneg_config.advertise10GBASE_T, aq_autoneg_config.advertise5G, aq_autoneg_config.advertise2_5G, aq_autoneg_config.advertise10BASE_T_HalfDuplex,
                aq_autoneg_config.advertise10BASE_T_FullDuplex, aq_autoneg_config.advertise100BASE_TX_HalfDuplex, aq_autoneg_config.advertise100BASE_TX_FullDuplex, aq_autoneg_config.advertise1000BASE_T_FullDuplex, aq_autoneg_config.advertise1000BASE_T_HalfDuplex);
     } else {
@@ -188,12 +188,12 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
     }
 
     if ((aq_rc = AQ_API_SetAutonegotiationControl(&aq_port, &aq_autoneg_config)) != AQ_RET_OK) {
-        T_E("Failed to set AQ Autonegotiation information, port_no: %u, rc: %d\n", data->mscc.port_no, aq_rc);
+        T_E("Failed to set AQ Autonegotiation information, port_no: %u, rc: %d\n", data->dev->numeric_handle, aq_rc);
         return AQR_2_MESA_RC(aq_rc);
     }
 
     if ((aq_rc = AQ_API_RestartAutonegotiation(&aq_port)) != AQ_RET_OK) {
-        T_E("Failed to restart autoneg, port_no:%d, rc:%d\n", data->mscc.port_no, aq_rc);
+        T_E("Failed to restart autoneg, port_no:%d, rc:%d\n", data->dev->numeric_handle, aq_rc);
     }
 
     return AQR_2_MESA_RC(aq_rc);
@@ -222,7 +222,7 @@ static mesa_rc aqr_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     AQ_API_LinkPartnerStatus             linkPartnerStatus;
     AQ_API_AutonegotiationControl        aq_autoneg_config;
 
-    T_D("aqr_poll Enter, port_no: %u", data->mscc.port_no);
+    T_D("aqr_poll Enter, port_no: %u", data->dev->numeric_handle);
 
     memset(&connectionStatus, 0, sizeof(AQ_API_ConnectionStatus));
     memset(&linkPartnerStatus, 0, sizeof(AQ_API_LinkPartnerStatus));
@@ -291,7 +291,7 @@ static mesa_rc aqr_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
 {
     AQ_Port *data = AQ_PORT(dev);
 
-    *mac_if = data->mscc.mac_if;
+    *mac_if = data->mac_if;
     return MESA_RC_OK;
 }
 
@@ -317,13 +317,13 @@ static mesa_rc aqr_veriphy_start(mepa_device_t *dev, int mode)
     AQ_Retcode                          aq_rc = AQ_RET_OK;
     AQ_API_Port                         aq_port;
 
-    T_D("Enter, aqr_veriphy_start, port_no: %u", data->mscc.port_no);
+    T_D("Enter, aqr_veriphy_start, port_no: %u", data->dev->numeric_handle);
 
     aqr_port_id_init(data, &aq_port);
     if (!priv->phy_diag_done) {
         aq_rc = AQ_API_RunBasicCableDiags(&aq_port);
         if (aq_rc == AQ_RET_OK) {
-            T_I("Successfully started cable diagonistic, port_no:%d\n", data->mscc.port_no);
+            T_I("Successfully started cable diagonistic, port_no:%d\n", data->dev->numeric_handle);
             priv->phy_diag_done = TRUE;
             MSLEEP(10);
         } else {
@@ -379,7 +379,7 @@ static mesa_rc aqr_veriphy_get(mepa_device_t         *dev,
     AQ_API_Port                     aq_port;
     AQ_API_BasicCableDiagResults    result;
 
-    T_D("Enter, aqr_veriphy_get, port_no: %u", data->mscc.port_no);
+    T_D("Enter, aqr_veriphy_get, port_no: %u", data->dev->numeric_handle);
 
     aqr_port_id_init(data, &aq_port);
     if (priv->phy_diag_done) {
@@ -412,10 +412,10 @@ static mesa_rc aqr_veriphy_get(mepa_device_t         *dev,
 
         priv->phy_diag_done = FALSE;
 
-        T_I("Got result(rc:%d). port_no:%d, L0:%d, L1:%d, L2:%d, L3:%d\n", aq_rc, data->mscc.port_no, res->length[0], res->length[1], res->length[2], res->length[3]);
+        T_I("Got result(rc:%d). port_no:%d, L0:%d, L1:%d, L2:%d, L3:%d\n", aq_rc, data->dev->numeric_handle, res->length[0], res->length[1], res->length[2], res->length[3]);
     }
 
-    T_I("Leaving> port_no:%d, ready:%d, rc:%d", data->mscc.port_no, priv->phy_diag_done, aq_rc);
+    T_I("Leaving> port_no:%d, ready:%d, rc:%d", data->dev->numeric_handle, priv->phy_diag_done, aq_rc);
 
     return AQR_2_MESA_RC(aq_rc);
 }
@@ -432,14 +432,14 @@ static mesa_rc aqr_phy_firmware_update(AQ_Port                *data,
     AQ_Retcode                 aq_ret;
 
     T_D("aqr_phy_firmware_update, port %u, major: %u, minor: %u, build: %u",
-        data->mscc.port_no, major_id, minor_id, build_id);
+        data->dev->numeric_handle, major_id, minor_id, build_id);
 
     aq_ret = aqr_phy_conf_get(data, &aq_config);
 
     if (aq_ret) {
         T_E("Get AQR PHY configuration fail with error code %d, skip to upgrade AQR PHY FW.", aq_ret);
     } else if (aq_config.daisyChainSetting == AQ_API_DC_Slave) {
-        T_I("port %d is DC %s, skip FW upgrade.", data->mscc.port_no, aq_config.daisyChainSetting == AQ_API_DC_Master ? "Master" : "Slave");
+        T_I("port %d is DC %s, skip FW upgrade.", data->dev->numeric_handle, aq_config.daisyChainSetting == AQ_API_DC_Master ? "Master" : "Slave");
         return MESA_RC_INV_STATE;
     } else {
         if (aq_config.firmwareMajorRevisionNumber == major_id &&
@@ -467,7 +467,7 @@ static mesa_rc aqr_phy_firmware_update(AQ_Port                *data,
 
 static void aqr_daisy_chain_reset(AQ_Port *data)
 {
-    T_E("port %u, daisy chain reset not supported", data->mscc.port_no);
+    T_E("port %u, daisy chain reset not supported", data->dev->numeric_handle);
 }
 
 #if 0
@@ -529,6 +529,9 @@ static void aqr_daisy_chain_reset(const mesa_inst_t     inst,
 
 static mepa_device_t *aqr_probe(mepa_driver_t *drv,
                                 const mepa_driver_address_t *mode,
+                                mepa_port_interface_t        mac_if,
+                                uint32_t numeric_handle,
+                                struct mepa_callout_cxt *callout_cxt,
                                 const uint8_t          *target_fw,
                                 const uint32_t         *target_fw_len,
                                 uint8_t                major_id,
@@ -555,7 +558,11 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
 
     data = &priv->aq_port;
     device->drv = drv;
+    device->numeric_handle = numeric_handle;
+    device->callout_cxt = callout_cxt;
     data->mscc = mode->val.mscc_address;
+    data->mac_if = mac_if;
+    data->dev = device;
     device->data = priv;
 
     if ((rc = aqr_phy_firmware_update(data, target_fw, target_fw_len, major_id, minor_id, build_id)) == MESA_RC_OK) {
@@ -568,10 +575,16 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
-                                      const mepa_driver_address_t *mode)
+                                      const mepa_driver_address_t *mode,
+                                      mepa_port_interface_t        mac_if,
+                                      uint32_t numeric_handle,
+                                      struct mepa_callout_cxt *callout_cxt)
 {
     return aqr_probe(drv,
                      mode,
+                     mac_if,
+                     numeric_handle,
+                     callout_cxt,
                      built_in_AQR_4_G3B_FW,
                      &built_in_AQR_4_G3B_FW_len,
                      BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
@@ -580,10 +593,16 @@ static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
-                                      const mepa_driver_address_t *mode)
+                                      const mepa_driver_address_t *mode,
+                                      mepa_port_interface_t        mac_if,
+                                      uint32_t numeric_handle,
+                                      struct mepa_callout_cxt *callout_cxt)
 {
     return aqr_probe(drv,
                      mode,
+                     mac_if,
+                     numeric_handle,
+                     callout_cxt,
                      built_in_AQR_4_G3A_FW,
                      &built_in_AQR_4_G3A_FW_len,
                      BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
@@ -592,14 +611,20 @@ static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
-                                    const mepa_driver_address_t *mode)
+                                    const mepa_driver_address_t *mode,
+                                    mepa_port_interface_t        mac_if,
+                                    uint32_t numeric_handle,
+                                    struct mepa_callout_cxt *callout_cxt)
 {
     mepa_device_t *device;
 
-    if (mode->val.mscc_address.mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
+    if (mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
         // Board JAGUAR2_AQR_REF
         device = aqr_probe(drv,
                            mode,
+                           mac_if,
+                           numeric_handle,
+                           callout_cxt,
                            built_in_AQR_24_FW,
                            &built_in_AQR_24_FW_len,
                            BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
@@ -609,6 +634,9 @@ static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
         // Board JAGUAR2_REF side board or other platform
         device = aqr_probe(drv,
                            mode,
+                           mac_if,
+                           numeric_handle,
+                           callout_cxt,
                            built_in_AQR_4_FW,
                            &built_in_AQR_4_FW_len,
                            BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,
@@ -617,12 +645,6 @@ static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
     }
     return device;
 
-}
-
-static mepa_device_t *aqr_409_probe(mepa_driver_t *drv,
-                                  const mepa_driver_address_t *mode)
-{
-    return aqr_407_probe(drv, mode);
 }
 
 static mesa_rc aqr_status_1g_get(mepa_device_t     *dev,
@@ -701,7 +723,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[3].mepa_driver_if_get = aqr_409_if_get;
     aqr_drivers[3].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[3].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[3].mepa_driver_probe = aqr_409_probe;
+    aqr_drivers[3].mepa_driver_probe = aqr_407_probe;
     aqr_drivers[3].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[4].id = 0xB572;
@@ -712,7 +734,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[4].mepa_driver_if_get = aqr_409_if_get;
     aqr_drivers[4].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[4].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[4].mepa_driver_probe = aqr_409_probe;
+    aqr_drivers[4].mepa_driver_probe = aqr_407_probe;
     aqr_drivers[4].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     // 411

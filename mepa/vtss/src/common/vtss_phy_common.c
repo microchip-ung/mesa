@@ -1826,3 +1826,22 @@ vtss_rc vtss_statistics_get(const vtss_inst_t inst,
 
     return rc;
 }
+
+vtss_rc vtss_phy_callout_set(const vtss_inst_t inst,
+                             const vtss_port_no_t  port_no,
+                             struct mepa_callout_cxt *c) {
+    vtss_state_t *vtss_state;
+    vtss_rc rc = VTSS_RC_OK;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        if (vtss_state->callout_cxt[port_no]) {
+            rc = VTSS_RC_ERROR;
+        } else {
+            vtss_state->callout_cxt[port_no] = c;
+        }
+    }
+    VTSS_EXIT();
+
+    return rc;
+}

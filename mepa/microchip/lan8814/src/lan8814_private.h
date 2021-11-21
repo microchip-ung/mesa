@@ -73,11 +73,8 @@ mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_
 
 typedef struct {
     mesa_inst_t inst;
-    mesa_chip_no_t chip_no;
     miim_read_t    miim_read;
     miim_write_t   miim_write;
-    mesa_miim_controller_t miim_controller;
-    uint8_t        miim_addr;
 } phy_switch_access_t;
 
 typedef struct {
@@ -135,6 +132,7 @@ typedef struct {
 
 typedef struct {
     mepa_bool_t             init_done;
+    uint8_t                 packet_idx;
     mepa_port_no_t          port_no;
     phy_switch_access_t     access;
     mepa_port_interface_t   mac_if;
@@ -146,7 +144,7 @@ typedef struct {
     mepa_synce_clock_conf_t synce_conf;
     mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
     mepa_bool_t             link_status;
-	indy_ts_data_t          ts_state;
+    indy_ts_data_t          ts_state;
 
     mepa_trace_func_t       trace_func;
     mepa_lock_func_t        lock_enter;

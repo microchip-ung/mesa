@@ -9,6 +9,8 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
 
+#include "common/vtss_phy_common.h"
+
 extern mepa_ts_driver_t vtss_ts_drivers;
 
 static vtss_inst_t vtss_inst;
@@ -21,7 +23,7 @@ static vtss_rc miim_read(const vtss_inst_t    inst,
                          const u8             addr,
                          u16                  *const value)
 {
-    return vtss_addr.port_miim_read(NULL, port_no, addr, value);
+    return vtss_addr.miim_read(inst->callout_cxt[port_no], addr, value);
 }
 
 static vtss_rc miim_write(const vtss_inst_t    inst,
@@ -29,7 +31,7 @@ static vtss_rc miim_write(const vtss_inst_t    inst,
                           const u8             addr,
                           const u16            value)
 {
-    return vtss_addr.port_miim_write(NULL, port_no, addr, value);
+    return vtss_addr.miim_write(inst->callout_cxt[port_no], addr, value);
 }
 
 static vtss_rc mmd_read(const vtss_inst_t    inst,
@@ -38,7 +40,7 @@ static vtss_rc mmd_read(const vtss_inst_t    inst,
                         const u16            addr,
                         u16                  *const value)
 {
-    return vtss_addr.mmd_read(NULL, port_no, mmd, addr, value);
+    return vtss_addr.mmd_read(inst->callout_cxt[port_no], mmd, addr, value);
 }
 
 static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
@@ -46,9 +48,10 @@ static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
                             const u8             mmd,
                             const u16            addr,
                             u16                  *const buf,
-                            u8                   count)
+                            u8                   cnt)
 {
-    return vtss_addr.mmd_read_inc(NULL, port_no, mmd, addr, buf, count);
+    return vtss_addr.mmd_read_inc(inst->callout_cxt[port_no], mmd, addr, buf,
+                                  cnt);
 }
 
 static vtss_rc mmd_write(const vtss_inst_t    inst,
@@ -57,7 +60,7 @@ static vtss_rc mmd_write(const vtss_inst_t    inst,
                          const u16            addr,
                          const u16            value)
 {
-    return vtss_addr.mmd_write(NULL, port_no, mmd, addr, value);
+    return vtss_addr.mmd_write(inst->callout_cxt[port_no], mmd, addr, value);
 }
 
 static void lock_enter(const vtss_phy_lock_t *const lock)
@@ -108,12 +111,14 @@ static void trace_func(const vtss_phy_trace_group_t group,
     }
 }
 
-static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
+static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode,
+                                uint32_t numeric_handle,
+                                struct mepa_callout_cxt *callout_cxt)
 {
     vtss_phy_init_conf_t conf;
 
     // Check that port does not exceed PHY instance maximum
-    if (mode->val.mscc_address.port_no >= VTSS_PORTS) {
+    if (numeric_handle >= VTSS_PORTS) {
         return MEPA_RC_ERROR;
     }
 
@@ -134,7 +139,14 @@ static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode)
         conf.trace_func = trace_func;
         (void)vtss_phy_init_conf_set(NULL, &conf);
     }
-    vtss_inst_cnt++;
+
+    if (vtss_phy_callout_set(NULL, numeric_handle, callout_cxt) == MEPA_RC_OK) {
+        vtss_inst_cnt++;
+    } else {
+        return MEPA_RC_ERROR;
+    }
+
+
     return MEPA_RC_OK;
 }
 
@@ -368,15 +380,14 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 }
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
-                                    const mepa_driver_address_t *mode)
+                                    const mepa_driver_address_t *mode,
+                                    mepa_port_interface_t        mac_if,  // TODO, not sure about this...
+                                    uint32_t numeric_handle,
+                                    struct mepa_callout_cxt *callout_cxt)
 {
     int i;
 
-    if (mode->mode != mscc_phy_driver_address_mode) {
-        return NULL;
-    }
-
-    if (mscc_vtss_create(mode) != MEPA_RC_OK) {
+    if (mscc_vtss_create(mode, numeric_handle, callout_cxt) != MEPA_RC_OK) {
         return NULL;
     }
 
@@ -393,9 +404,10 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
         goto out_data;
     }
 
+    vtss_phy_callout_set(NULL, numeric_handle, callout_cxt);
     device->drv = drv;
-    data->port_no = mode->val.mscc_address.port_no;
-    data->mac_if = mode->val.mscc_address.mac_if;
+    data->port_no = numeric_handle;
+    data->mac_if = mac_if;
     data->trace_func = mode->val.mscc_address.trace_func;
     data->cap = PHY_CAP_1G;
     device->data = data;
@@ -558,7 +570,7 @@ static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_cl
     return vtss_phy_clock_conf_set(NULL, data->port_no, clk_port, &phy_conf);
 }
 // store base_dev info in dev and store dev info in base_dev.
-static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
+static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
 {
     phy_data_t *base_data = (phy_data_t *)(base_dev->data);
     phy_data_t *data = (phy_data_t *)(dev->data);
@@ -801,13 +813,17 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
 }
 
 static mepa_device_t *phy_10g_probe(
-    mepa_driver_t *drv, const mepa_driver_address_t *mode)
+    mepa_driver_t *drv,
+    const mepa_driver_address_t *mode,
+    mepa_port_interface_t        mac_if,
+    uint32_t numeric_handle,
+    struct mepa_callout_cxt *callout_cxt)
 {
     if (mode->mode != mscc_phy_driver_address_mode) {
         return NULL;
     }
 
-    if (mscc_vtss_create(mode) != MEPA_RC_OK) {
+    if (mscc_vtss_create(mode, numeric_handle, callout_cxt) != MEPA_RC_OK) {
         return NULL;
     }
 
@@ -825,8 +841,8 @@ static mepa_device_t *phy_10g_probe(
     }
 
     device->drv = drv;
-    data->port_no = mode->val.mscc_address.port_no;
-    data->mac_if = mode->val.mscc_address.mac_if;
+    data->port_no = numeric_handle;
+    data->mac_if = mac_if;
     data->trace_func = mode->val.mscc_address.trace_func;
     data->cap = PHY_CAP_10G;
     device->data = data;

@@ -22,7 +22,7 @@ mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
     phy_switch_access_t *access = &data->access;
     miim_read_t read = access->miim_read;
 
-    if (read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, value) != MESA_RC_OK) {
+    if (read(dev->callout_cxt, addr, value) != MESA_RC_OK) {
         T_E(data, MEPA_TRACE_GRP_GEN, "miim read failed\n");
     }
     return MEPA_RC_OK;
@@ -36,14 +36,14 @@ mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, ui
     uint16_t reg_val = value;
     mesa_rc rc;
 
-    rc = read(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, &reg_val);
+    rc = read(dev->callout_cxt, addr, &reg_val);
     if (rc == MESA_RC_OK) {
         if (mask != INDY_DEF_MASK) {
             reg_val = (reg_val & ~mask) | (value & mask);
         } else {
             reg_val = value;
         }
-        rc = write(NULL, access->chip_no, access->miim_controller, access->miim_addr, addr, reg_val);
+        rc = write(dev->callout_cxt, addr, reg_val);
         if (rc != MESA_RC_OK) {
             T_E(data, MEPA_TRACE_GRP_GEN, "miim write failed\n");
         }
@@ -132,7 +132,12 @@ static mepa_rc indy_get_device_info(mepa_device_t *dev)
 }
 
 static mepa_device_t *indy_probe(
-    mepa_driver_t *drv, const mepa_driver_address_t *mode) {
+    mepa_driver_t *drv,
+    const mepa_driver_address_t *mode,
+    mepa_port_interface_t        mac_if,
+    uint32_t numeric_handle,
+    struct mepa_callout_cxt *callout_cxt)
+{
     if (mode->mode != mscc_phy_driver_address_mode) return NULL;
     mepa_device_t *device =
         (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
@@ -146,14 +151,13 @@ static mepa_device_t *indy_probe(
 
     device->drv = drv;
     device->data = data;
+    device->numeric_handle = numeric_handle;
+    device->callout_cxt = callout_cxt;
 
-    data->port_no = mode->val.mscc_address.port_no;
+    data->port_no = numeric_handle;
     data->access.miim_read = mode->val.mscc_address.miim_read;
     data->access.miim_write = mode->val.mscc_address.miim_write;
-    data->mac_if = mode->val.mscc_address.mac_if;
-    data->access.miim_controller = mode->val.mscc_address.miim_controller;
-    data->access.miim_addr = mode->val.mscc_address.miim_addr;
-    data->access.chip_no = mode->val.mscc_address.chip_no;
+    data->mac_if = mac_if;
     data->events = 0;
     data->trace_func = mode->val.mscc_address.trace_func;
     data->lock_enter = mode->val.mscc_address.lock_enter;
@@ -167,13 +171,6 @@ out_data:
 out_device:
     return NULL;
 }
-static uint16_t get_base_addr(mepa_device_t *dev)
-{
-    uint16_t val;
-
-    EP_RD(dev, INDY_STRAP_STATUS_1, &val);
-    return INDY_X_STRAP_STATUS_STRAP_PHYAD(val);
-}
 
 static mepa_rc indy_init_conf(mepa_device_t *dev)
 {
@@ -184,7 +181,7 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 
     // Set config only for base port of phy.
     if (data->dev.model == 0x26) {
-        if (data->access.miim_addr == get_base_addr(dev)) {
+        if (data->packet_idx == 0) {
             //EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
             PHY_MSLEEP(1);
 
@@ -831,9 +828,8 @@ mepa_rc indy_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loopba
 static uint8_t led_num_to_gpio_mapping(mepa_device_t *dev, mepa_led_num_t led_num)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
-    uint16_t port_addr = data->access.miim_addr - get_base_addr(dev);
     uint8_t gpio = 11;// port 0 as default.
-    switch(port_addr) {
+    switch(data->packet_idx) {
         case 0:
                gpio = led_num == MEPA_LED0 ? 11 : 12;
                break;
@@ -1040,7 +1036,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
             clkout_src = 7; // Forces Recovered Clock Output to 0
             break;
         case MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA:
-            clkout_src = data->access.miim_addr - get_base_addr(dev);
+            clkout_src = data->packet_idx;
             //clkout_src = 0b000; // Recovered Clock Input Port-0/Channel-0
             break;
         case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1:
@@ -1069,13 +1065,14 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
     return rc;
 }
 // Link the base port
-static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev)
+static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
 {
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ENTER(dev);
     data->base_dev = base_dev;
+    data->packet_idx = packet_idx;
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }

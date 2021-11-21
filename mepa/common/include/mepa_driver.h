@@ -5,8 +5,7 @@
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 
 #include <mepa_ts_driver.h>
-#include <microchip/ethernet/phy/api/types.h>
-#include <microchip/ethernet/phy/api/phy_ts.h>
+#include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
 // PHY DRIVER
@@ -77,7 +76,11 @@ typedef mepa_rc (*mepa_driver_media_set_t)(
 //  Create an instance of the driver and initialize the PHY.
 //  mode           [IN] Address mode.
 typedef struct mepa_device *(*mepa_driver_probe_t)(
-    struct mepa_driver *dev, const mepa_driver_address_t *mode);
+    struct mepa_driver *dev,
+    const mepa_driver_address_t *mode,
+    mepa_port_interface_t        mac_if,
+    uint32_t numeric_handle,
+    struct mepa_callout_cxt *callout_cxt);
 
 //  Gets copper PHY auto-negotiation status.
 //  mode           [IN] PHY 1G status.
@@ -142,7 +145,7 @@ typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gp
 typedef mepa_rc (*mepa_driver_synce_clock_conf_set_t)(struct mepa_device *dev, const mepa_synce_clock_conf_t *conf);
 
 // Link Base Port. Used for accessing the chip leavel common resources
-typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct mepa_device *base_dev);
+typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct mepa_device *base_dev, uint8_t packet_idx);
 
 // Get phy information like phy-id, revision etc.
 typedef mepa_rc (*mepa_driver_phy_info_get_t)(struct mepa_device *dev, mepa_phy_info_t *const phy_info);
@@ -186,6 +189,9 @@ typedef struct mepa_driver {
 typedef struct mepa_device {
     // Pointer to the driver that creates the device
     mepa_driver_t *drv;
+
+    uint32_t numeric_handle;
+    struct mepa_callout_cxt *callout_cxt;
 
     void *data; // Private data
 } mepa_device_t;
