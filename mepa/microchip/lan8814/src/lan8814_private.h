@@ -50,7 +50,6 @@ mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_
 // The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.
 #define MEPA_ENTER(dev) {                            \
     mepa_lock_t lock;                                \
-    phy_data_t *lock_data = (phy_data_t *)dev->data; \
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \
@@ -61,7 +60,6 @@ mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_
 
 #define MEPA_EXIT(dev) {                             \
     mepa_lock_t lock;                                \
-    phy_data_t *lock_data = (phy_data_t *)dev->data; \
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \

@@ -537,6 +537,17 @@ typedef struct {
     mesa_bool_t            poe_support;
 } meba_port_entry_t;
 
+// Yes, this is a MEPA type defined here. In MEPA it is "just" a pointer which
+// are never de-referenced.
+typedef struct mepa_callout_cxt {
+    mesa_inst_t             inst;
+    struct meba_inst        *meba_inst;
+    mepa_port_no_t          port_no;
+    mesa_miim_controller_t  miim_controller;
+    uint8_t                 miim_addr;
+    mesa_chip_no_t          chip_no;
+} mepa_callout_cxt_t;
+
 typedef struct {
     // The duration of time to be before going to low level (seconds)
     uint8_t start_time;

@@ -245,12 +245,66 @@ uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t p
     return phy_id;
 }
 
+mepa_rc meba_mmd_read(struct mepa_callout_cxt           *cxt,
+                      const uint8_t                      mmd,
+                      const uint16_t                     addr,
+                      uint16_t                          *const value)
+{
+    return mesa_mmd_read(cxt->inst, cxt->chip_no, cxt->miim_controller,
+                         cxt->miim_addr, mmd, addr, value);
+}
+
+mepa_rc meba_mmd_read_inc(struct mepa_callout_cxt       *cxt,
+                          const uint8_t                  mmd,
+                          const uint16_t                 addr,
+                          uint16_t                       *const buf,
+                          uint8_t                        count)
+{
+    return mesa_port_mmd_read_inc(cxt->inst, cxt->port_no,
+                                  mmd, addr, buf, count);
+}
+
+mepa_rc meba_mmd_write(struct mepa_callout_cxt          *cxt,
+                       const uint8_t                     mmd,
+                       const uint16_t                    addr,
+                       const uint16_t                    value)
+{
+    return mesa_mmd_write(cxt->inst, cxt->chip_no, cxt->miim_controller,
+                          cxt->miim_addr, mmd, addr, value);
+}
+
+mepa_rc meba_miim_read(struct mepa_callout_cxt          *cxt,
+                       const uint8_t                     addr,
+                       uint16_t                         *const value)
+{
+    return mesa_miim_read(cxt->inst, cxt->chip_no, cxt->miim_controller,
+                          cxt->miim_addr, addr, value);
+}
+
+mepa_rc meba_miim_write(struct mepa_callout_cxt         *cxt,
+                        const uint8_t                    addr,
+                        const uint16_t                   value)
+{
+    return mesa_miim_write(cxt->inst, cxt->chip_no, cxt->miim_controller,
+                           cxt->miim_addr, addr, value);
+}
+
 void meba_phy_driver_init(meba_inst_t inst)
 {
     mesa_port_no_t      port_no;
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
-    // Initialize all the drivers needed
+
+    inst->phy_device_cxt = calloc(inst->phy_device_cnt, sizeof(mepa_callout_cxt_t));
+    inst->mepa_callout.mmd_read = meba_mmd_read;
+    inst->mepa_callout.mmd_read_inc = meba_mmd_read_inc;
+    inst->mepa_callout.mmd_write = meba_mmd_write;
+    inst->mepa_callout.miim_read = meba_miim_read;
+    inst->mepa_callout.miim_write = meba_miim_write;
+    inst->mepa_callout.trace_func = inst->iface.trace_func;
+    inst->mepa_callout.vtrace_func = inst->iface.vtrace_func;
+    inst->mepa_callout.lock_enter = inst->iface.lock_enter;
+    inst->mepa_callout.lock_exit = inst->iface.lock_exit;
 
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
@@ -268,36 +322,23 @@ void meba_phy_driver_init(meba_inst_t inst)
         if ((port_cap & (MEBA_PORT_CAP_COPPER | MEBA_PORT_CAP_DUAL_COPPER)) ||
             (port_cap & MEBA_PORT_CAP_VTSS_10G_PHY)) {
 
-            uint32_t phy_id = meba_get_phy_id(inst, port_no, entry);
-            mepa_driver_address_t address_mode = {};
-            address_mode.mode = mscc_phy_driver_address_mode;
-            // Shall only be given if 10G
-            address_mode.val.mscc_address.mmd_read = mesa_port_mmd_read;
-            address_mode.val.mscc_address.mmd_read_inc = mesa_port_mmd_read_inc;
-            address_mode.val.mscc_address.mmd_write = mesa_port_mmd_write;
+            mepa_board_conf_t board_conf = {};
 
-            // Shall only be given if 1G
-            address_mode.val.mscc_address.miim_read = mesa_miim_read;
-            address_mode.val.mscc_address.miim_write = mesa_miim_write;
+            board_conf.id = meba_get_phy_id(inst, port_no, entry);
+            board_conf.mac_if = entry.mac_if;
+            board_conf.numeric_handle = port_no;
 
-            // Shall only be given for vtss
-            address_mode.val.mscc_address.port_miim_read = mesa_port_miim_read;
-            address_mode.val.mscc_address.port_miim_write = mesa_port_miim_write;
-            address_mode.val.mscc_address.inst = PHY_INST;
-            address_mode.val.mscc_address.port_no = port_no;
-            address_mode.val.mscc_address.meba_inst = inst;
-            address_mode.val.mscc_address.mac_if = entry.mac_if;
-            address_mode.val.mscc_address.miim_controller = entry.map.miim_controller;
-            address_mode.val.mscc_address.miim_addr = entry.map.miim_addr;
-            address_mode.val.mscc_address.chip_no = entry.map.chip_no;
+            inst->phy_device_cxt[port_no].inst = 0;
+            inst->phy_device_cxt[port_no].port_no = port_no;
+            inst->phy_device_cxt[port_no].meba_inst = inst;
+            inst->phy_device_cxt[port_no].miim_controller = entry.map.miim_controller;
+            inst->phy_device_cxt[port_no].miim_addr = entry.map.miim_addr;
+            inst->phy_device_cxt[port_no].chip_no = entry.map.chip_no;
 
-            // Should really be common
-            address_mode.val.mscc_address.trace_func = inst->iface.trace_func;
-            address_mode.val.mscc_address.vtrace_func = inst->iface.vtrace_func;
-            address_mode.val.mscc_address.lock_enter = inst->iface.lock_enter;
-            address_mode.val.mscc_address.lock_exit  = inst->iface.lock_exit;
 
-            inst->phy_devices[port_no] = mepa_create(&address_mode, phy_id);
+            inst->phy_devices[port_no] = mepa_create(&(inst->mepa_callout),
+                                                     &(inst->phy_device_cxt[port_no]),
+                                                     &board_conf);
             if (inst->phy_devices[port_no]) {
                 T_I(inst, "Phy has been probed on port %d", port_no);
             } else {
@@ -311,7 +352,9 @@ void meba_phy_driver_init(meba_inst_t inst)
         inst->api.meba_port_entry_get(inst, port_no, &entry);
         phy_dev = inst->phy_devices[port_no];
         if (phy_dev && inst->phy_devices[entry.phy_base_port]) {
-            (void)mepa_link_base_port(phy_dev, inst->phy_devices[entry.phy_base_port]);
+            (void)mepa_link_base_port(phy_dev,
+                                      inst->phy_devices[entry.phy_base_port],
+                                      entry.map.miim_addr % 4);
         }
     }
 }

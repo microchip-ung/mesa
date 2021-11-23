@@ -196,6 +196,7 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     info->acl_hit = IFH_GET(ifh, ACL_HIT);
 
     // Timestamp
+    // hw_tstamp 48bits NS + 16 Sub-NS.    TIMESTAMP: 30bits NS + 2 Sub-NS
     info->hw_tstamp = (u64)(IFH_GET(ifh, TIMESTAMP)) << 14;
     info->hw_tstamp_decoded = TRUE;
 
