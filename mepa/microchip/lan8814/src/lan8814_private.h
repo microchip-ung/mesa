@@ -41,41 +41,34 @@ mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_
 
 #define PHY_MSLEEP(m) usleep((m)*1000)
 
-#define T_D(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(grp, format, ...) if (dev->callout->trace_func) dev->callout->trace_func(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(grp, format, ...) if (dev->callout->trace_func) dev->callout->trace_func(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(grp, format, ...) if (dev->callout->trace_func) dev->callout->trace_func(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(grp, format, ...) if (dev->callout->trace_func) dev->callout->trace_func(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 // Locking Macros
 // The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.
-#define MEPA_ENTER(dev) {                               \
+#define MEPA_ENTER(dev) {                            \
     mepa_lock_t lock;                                \
     phy_data_t *lock_data = (phy_data_t *)dev->data; \
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \
-    if (lock_data->lock_enter) {                     \
-        lock_data->lock_enter(&lock);                \
+    if (dev->callout->lock_enter) {                  \
+        dev->callout->lock_enter(&lock);             \
     }                                                \
 }
 
-#define MEPA_EXIT(dev) {          \
+#define MEPA_EXIT(dev) {                             \
     mepa_lock_t lock;                                \
     phy_data_t *lock_data = (phy_data_t *)dev->data; \
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \
-    if (lock_data->lock_exit) {                      \
-        lock_data->lock_exit(&lock);                 \
+    if (dev->callout->lock_exit) {                   \
+        dev->callout->lock_exit(&lock);              \
     }                                                \
 }
-
-
-typedef struct {
-    mesa_inst_t inst;
-    miim_read_t    miim_read;
-    miim_write_t   miim_write;
-} phy_switch_access_t;
 
 typedef struct {
     uint8_t  model;
@@ -134,7 +127,6 @@ typedef struct {
     mepa_bool_t             init_done;
     uint8_t                 packet_idx;
     mepa_port_no_t          port_no;
-    phy_switch_access_t     access;
     mepa_port_interface_t   mac_if;
     mepa_driver_conf_t      conf;
     mepa_event_t            events;
@@ -145,10 +137,6 @@ typedef struct {
     mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
     mepa_bool_t             link_status;
     indy_ts_data_t          ts_state;
-
-    mepa_trace_func_t       trace_func;
-    mepa_lock_func_t        lock_enter;
-    mepa_lock_func_t        lock_exit;
 } phy_data_t;
 
 #endif

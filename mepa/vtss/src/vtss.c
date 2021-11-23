@@ -15,7 +15,7 @@ extern mepa_ts_driver_t vtss_ts_drivers;
 
 static vtss_inst_t vtss_inst;
 static int vtss_inst_cnt;
-static mscc_phy_driver_address_t vtss_addr;
+static const mepa_callout_t *CALLOUT;
 
 // MIIM/MMD wrapper functions
 static vtss_rc miim_read(const vtss_inst_t    inst,
@@ -23,7 +23,7 @@ static vtss_rc miim_read(const vtss_inst_t    inst,
                          const u8             addr,
                          u16                  *const value)
 {
-    return vtss_addr.miim_read(inst->callout_cxt[port_no], addr, value);
+    return CALLOUT->miim_read(inst->callout_cxt[port_no], addr, value);
 }
 
 static vtss_rc miim_write(const vtss_inst_t    inst,
@@ -31,7 +31,7 @@ static vtss_rc miim_write(const vtss_inst_t    inst,
                           const u8             addr,
                           const u16            value)
 {
-    return vtss_addr.miim_write(inst->callout_cxt[port_no], addr, value);
+    return CALLOUT->miim_write(inst->callout_cxt[port_no], addr, value);
 }
 
 static vtss_rc mmd_read(const vtss_inst_t    inst,
@@ -40,7 +40,7 @@ static vtss_rc mmd_read(const vtss_inst_t    inst,
                         const u16            addr,
                         u16                  *const value)
 {
-    return vtss_addr.mmd_read(inst->callout_cxt[port_no], mmd, addr, value);
+    return CALLOUT->mmd_read(inst->callout_cxt[port_no], mmd, addr, value);
 }
 
 static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
@@ -50,7 +50,7 @@ static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
                             u16                  *const buf,
                             u8                   cnt)
 {
-    return vtss_addr.mmd_read_inc(inst->callout_cxt[port_no], mmd, addr, buf,
+    return CALLOUT->mmd_read_inc(inst->callout_cxt[port_no], mmd, addr, buf,
                                   cnt);
 }
 
@@ -60,18 +60,18 @@ static vtss_rc mmd_write(const vtss_inst_t    inst,
                          const u16            addr,
                          const u16            value)
 {
-    return vtss_addr.mmd_write(inst->callout_cxt[port_no], mmd, addr, value);
+    return CALLOUT->mmd_write(inst->callout_cxt[port_no], mmd, addr, value);
 }
 
 static void lock_enter(const vtss_phy_lock_t *const lock)
 {
     mepa_lock_t mepa_lock;
 
-    if (vtss_addr.lock_enter) {
+    if (CALLOUT->lock_enter) {
         mepa_lock.function = lock->function;
         mepa_lock.file = lock->file;
         mepa_lock.line = lock->line;
-        vtss_addr.lock_enter(&mepa_lock);
+        CALLOUT->lock_enter(&mepa_lock);
     }
 }
 
@@ -79,11 +79,11 @@ static void lock_exit(const vtss_phy_lock_t *const lock)
 {
     mepa_lock_t mepa_lock;
 
-    if (vtss_addr.lock_exit) {
+    if (CALLOUT->lock_exit) {
         mepa_lock.function = lock->function;
         mepa_lock.file = lock->file;
         mepa_lock.line = lock->line;
-        vtss_addr.lock_exit(&mepa_lock);
+        CALLOUT->lock_exit(&mepa_lock);
     }
 }
 
@@ -104,21 +104,21 @@ static void trace_func(const vtss_phy_trace_group_t group,
            level == VTSS_PHY_TRACE_LEVEL_INFO ? MEPA_TRACE_LVL_INFO :
            level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MEPA_TRACE_LVL_DEBUG :
            MEPA_TRACE_LVL_NOISE);
-    if (vtss_addr.vtrace_func) {
+    if (CALLOUT->vtrace_func) {
         va_start(args, format);
-        vtss_addr.vtrace_func(grp, lvl, location, line, format, args);
+        CALLOUT->vtrace_func(grp, lvl, location, line, format, args);
         va_end(args);
     }
 }
 
-static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode,
-                                uint32_t numeric_handle,
-                                struct mepa_callout_cxt *callout_cxt)
+static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED *callout,
+                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                struct mepa_board_conf              *board_conf)
 {
     vtss_phy_init_conf_t conf;
 
     // Check that port does not exceed PHY instance maximum
-    if (numeric_handle >= VTSS_PORTS) {
+    if (board_conf->numeric_handle >= VTSS_PORTS) {
         return MEPA_RC_ERROR;
     }
 
@@ -128,7 +128,7 @@ static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode,
             vtss_phy_init_conf_get(NULL, &conf) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
-        vtss_addr = mode->val.mscc_address;
+        CALLOUT = callout;
         conf.miim_read = miim_read;
         conf.miim_write = miim_write;
         conf.mmd_read = mmd_read;
@@ -140,7 +140,7 @@ static mepa_rc mscc_vtss_create(const mepa_driver_address_t *mode,
         (void)vtss_phy_init_conf_set(NULL, &conf);
     }
 
-    if (vtss_phy_callout_set(NULL, numeric_handle, callout_cxt) == MEPA_RC_OK) {
+    if (vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_cxt) == MEPA_RC_OK) {
         vtss_inst_cnt++;
     } else {
         return MEPA_RC_ERROR;
@@ -380,14 +380,13 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 }
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
-                                    const mepa_driver_address_t *mode,
-                                    mepa_port_interface_t        mac_if,  // TODO, not sure about this...
-                                    uint32_t numeric_handle,
-                                    struct mepa_callout_cxt *callout_cxt)
+                                    const mepa_callout_t    MEPA_SHARED *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    struct mepa_board_conf              *board_conf)
 {
     int i;
 
-    if (mscc_vtss_create(mode, numeric_handle, callout_cxt) != MEPA_RC_OK) {
+    if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
@@ -404,11 +403,11 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
         goto out_data;
     }
 
-    vtss_phy_callout_set(NULL, numeric_handle, callout_cxt);
+    vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_cxt);
     device->drv = drv;
-    data->port_no = numeric_handle;
-    data->mac_if = mac_if;
-    data->trace_func = mode->val.mscc_address.trace_func;
+    data->port_no = board_conf->numeric_handle;
+    data->mac_if = board_conf->mac_if;
+    data->trace_func = callout->trace_func;
     data->cap = PHY_CAP_1G;
     device->data = data;
 
@@ -812,18 +811,13 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
 }
 
-static mepa_device_t *phy_10g_probe(
-    mepa_driver_t *drv,
-    const mepa_driver_address_t *mode,
-    mepa_port_interface_t        mac_if,
-    uint32_t numeric_handle,
-    struct mepa_callout_cxt *callout_cxt)
+static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
+                                    const mepa_callout_t    MEPA_SHARED *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    struct mepa_board_conf              *board_conf)
 {
-    if (mode->mode != mscc_phy_driver_address_mode) {
-        return NULL;
-    }
 
-    if (mscc_vtss_create(mode, numeric_handle, callout_cxt) != MEPA_RC_OK) {
+    if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
@@ -841,9 +835,9 @@ static mepa_device_t *phy_10g_probe(
     }
 
     device->drv = drv;
-    data->port_no = numeric_handle;
-    data->mac_if = mac_if;
-    data->trace_func = mode->val.mscc_address.trace_func;
+    data->port_no = board_conf->numeric_handle;
+    data->mac_if = board_conf->mac_if;
+    data->trace_func = callout->trace_func;
     data->cap = PHY_CAP_10G;
     device->data = data;
 

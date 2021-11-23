@@ -35,10 +35,10 @@
 #include "AQ_Firmware.h"
 #include "AQ_User.h"
 
-#define T_D(format, ...) if (data->mscc.trace_func) data->mscc.trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(format, ...) if (data->mscc.trace_func) data->mscc.trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(format, ...) if (data->mscc.trace_func) data->mscc.trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(format, ...) if (data->mscc.trace_func) data->mscc.trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(format, ...) if (data->dev->callout->trace_func) data->dev->callout->trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) if (data->dev->callout->trace_func) data->dev->callout->trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) if (data->dev->callout->trace_func) data->dev->callout->trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) if (data->dev->callout->trace_func) data->dev->callout->trace_func(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 #define TRUE 1
 #define FALSE 0
@@ -128,7 +128,7 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
             MSLEEP(50);
             T_D("aqr_conf_set_private mmd_read");
             uint16_t reg_value;
-            data->mscc.mmd_read(dev->callout_cxt, 0x1e, 0xc831, &reg_value);
+            data->dev->callout->mmd_read(dev->callout_cxt, 0x1e, 0xc831, &reg_value);
             if (!(reg_value & 0x8000)) {
                 break; //1E.C831 Processor-intensive MDIO operation completed 0x0000: p584
             }
@@ -528,24 +528,19 @@ static void aqr_daisy_chain_reset(const mesa_inst_t     inst,
 #endif
 
 static mepa_device_t *aqr_probe(mepa_driver_t *drv,
-                                const mepa_driver_address_t *mode,
-                                mepa_port_interface_t        mac_if,
-                                uint32_t numeric_handle,
-                                struct mepa_callout_cxt *callout_cxt,
-                                const uint8_t          *target_fw,
-                                const uint32_t         *target_fw_len,
-                                uint8_t                major_id,
-                                uint8_t                minor_id,
-                                uint8_t                build_id)
+                                const mepa_callout_t    MEPA_SHARED *callout,
+                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                struct mepa_board_conf              *board_conf,
+                                const uint8_t                       *target_fw,
+                                const uint32_t                      *target_fw_len,
+                                uint8_t                              major_id,
+                                uint8_t                              minor_id,
+                                uint8_t                              build_id)
 {
     mepa_device_t   *device;
     AQR_priv_data_t *priv;
     AQ_Port         *data;
     mesa_rc         rc;
-
-    if (mode->mode != mscc_phy_driver_address_mode) {
-        return NULL;
-    }
 
     if ((device = calloc(1, sizeof(mepa_device_t))) == NULL) {
         return NULL;
@@ -558,10 +553,10 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
 
     data = &priv->aq_port;
     device->drv = drv;
-    device->numeric_handle = numeric_handle;
+    device->numeric_handle = board_conf->numeric_handle;
+    device->callout = callout;
     device->callout_cxt = callout_cxt;
-    data->mscc = mode->val.mscc_address;
-    data->mac_if = mac_if;
+    data->mac_if = board_conf->mac_if;
     data->dev = device;
     device->data = priv;
 
@@ -575,16 +570,14 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
-                                      const mepa_driver_address_t *mode,
-                                      mepa_port_interface_t        mac_if,
-                                      uint32_t numeric_handle,
-                                      struct mepa_callout_cxt *callout_cxt)
+                                      const mepa_callout_t    MEPA_SHARED *callout,
+                                      struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                      struct mepa_board_conf              *board_conf)
 {
     return aqr_probe(drv,
-                     mode,
-                     mac_if,
-                     numeric_handle,
+                     callout,
                      callout_cxt,
+                     board_conf,
                      built_in_AQR_4_G3B_FW,
                      &built_in_AQR_4_G3B_FW_len,
                      BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
@@ -593,16 +586,14 @@ static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
-                                      const mepa_driver_address_t *mode,
-                                      mepa_port_interface_t        mac_if,
-                                      uint32_t numeric_handle,
-                                      struct mepa_callout_cxt *callout_cxt)
+                                      const mepa_callout_t    MEPA_SHARED *callout,
+                                      struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                      struct mepa_board_conf              *board_conf)
 {
     return aqr_probe(drv,
-                     mode,
-                     mac_if,
-                     numeric_handle,
+                     callout,
                      callout_cxt,
+                     board_conf,
                      built_in_AQR_4_G3A_FW,
                      &built_in_AQR_4_G3A_FW_len,
                      BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
@@ -611,20 +602,18 @@ static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
-                                    const mepa_driver_address_t *mode,
-                                    mepa_port_interface_t        mac_if,
-                                    uint32_t numeric_handle,
-                                    struct mepa_callout_cxt *callout_cxt)
+                                    const mepa_callout_t    MEPA_SHARED *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *device;
 
-    if (mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
+    if (board_conf->mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
         // Board JAGUAR2_AQR_REF
         device = aqr_probe(drv,
-                           mode,
-                           mac_if,
-                           numeric_handle,
+                           callout,
                            callout_cxt,
+                           board_conf,
                            built_in_AQR_24_FW,
                            &built_in_AQR_24_FW_len,
                            BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
@@ -633,10 +622,9 @@ static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
     } else {
         // Board JAGUAR2_REF side board or other platform
         device = aqr_probe(drv,
-                           mode,
-                           mac_if,
-                           numeric_handle,
+                           callout,
                            callout_cxt,
+                           board_conf,
                            built_in_AQR_4_FW,
                            &built_in_AQR_4_FW_len,
                            BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,

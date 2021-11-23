@@ -76,11 +76,10 @@ typedef mepa_rc (*mepa_driver_media_set_t)(
 //  Create an instance of the driver and initialize the PHY.
 //  mode           [IN] Address mode.
 typedef struct mepa_device *(*mepa_driver_probe_t)(
-    struct mepa_driver *dev,
-    const mepa_driver_address_t *mode,
-    mepa_port_interface_t        mac_if,
-    uint32_t numeric_handle,
-    struct mepa_callout_cxt *callout_cxt);
+    struct mepa_driver                  *dev,
+    const mepa_callout_t    MEPA_SHARED *callout,
+    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+    struct mepa_board_conf              *conf);
 
 //  Gets copper PHY auto-negotiation status.
 //  mode           [IN] PHY 1G status.
@@ -191,6 +190,8 @@ typedef struct mepa_device {
     mepa_driver_t *drv;
 
     uint32_t numeric_handle;
+
+    const mepa_callout_t    *callout;
     struct mepa_callout_cxt *callout_cxt;
 
     void *data; // Private data

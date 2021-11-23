@@ -11,11 +11,11 @@
 #include <mepa_ts_driver.h>
 
 
-#define T_N(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_D(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(format, ...) if (phydev->address.debug_func) phydev->address.debug_func(MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_N(format, ...) if (dev->callout->debug_func) dev->callout->debug_func(MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(format, ...) if (dev->callout->debug_func) dev->callout->debug_func(MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) if (dev->callout->debug_func) dev->callout->debug_func(MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) if (dev->callout->debug_func) dev->callout->debug_func(MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) if (dev->callout->debug_func) dev->callout->debug_func(MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 #define TRUE 1
 #define FALSE 0
@@ -70,7 +70,6 @@ typedef struct {
     int duplex;
     int pause;
     int asym_pause;
-    mscc_phy_driver_address_t address;
 } phy_device;
 
 typedef struct {
@@ -82,27 +81,25 @@ typedef struct {
 //    return 0;
 //}
 
-static int phy_read(mepa_device_t  *dev, uint32_t regnum)
+static int phy_read(mepa_device_t *dev, uint32_t regnum)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     uint16_t  value;
 
-    if (phydev->address.miim_read(dev->callout_cxt, regnum, &value) != MESA_RC_OK) {
+    if (dev->callout->miim_read(dev->callout_cxt, regnum, &value) != MESA_RC_OK) {
         return -1;
     }
     return value;
 }
 
-static int phy_write(mepa_device_t  *dev, uint32_t regnum, uint16_t val)
+static int phy_write(mepa_device_t *dev, uint32_t regnum, uint16_t val)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
-    if (phydev->address.miim_write(dev->callout_cxt, regnum, val) != MESA_RC_OK) {
+    if (dev->callout->miim_write(dev->callout_cxt, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
 }
 
-int phy_modify(mepa_device_t  *dev, uint32_t regnum, uint16_t mask, uint16_t set)
+int phy_modify(mepa_device_t *dev, uint32_t regnum, uint16_t mask, uint16_t set)
 {
     phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     uint16_t  value;
@@ -120,10 +117,9 @@ int phy_modify(mepa_device_t  *dev, uint32_t regnum, uint16_t mask, uint16_t set
     return 0;
 }
 
-int phy_write_mmd(mepa_device_t  *dev, int devad, uint32_t regnum, uint16_t val)
+int phy_write_mmd(mepa_device_t *dev, int devad, uint32_t regnum, uint16_t val)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
-    if (phydev->address.mmd_write(dev->callout_cxt, devad, regnum, val) != MESA_RC_OK) {
+    if (dev->callout->mmd_write(dev->callout_cxt, devad, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
@@ -297,11 +293,10 @@ static mesa_rc ksz_conf_set(mepa_device_t             *dev,
     return center_flp_timing(dev);
 }
 
-static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
-                                const mepa_driver_address_t  *mode,
-                                mepa_port_interface_t         mac_if,
-                                uint32_t numeric_handle,
-                                struct mepa_callout_cxt *callout_cxt)
+static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
+                                const mepa_callout_t    MEPA_SHARED *callout,
+                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                struct mepa_board_conf              *board_conf)
 {
     uint32_t         cnt;
 
@@ -315,20 +310,13 @@ static mepa_device_t *ksz_probe(mepa_driver_t                *drv,
         return NULL;
     }
 
-    if (mode->mode != mscc_phy_driver_address_mode) {
-        free(device);
-        free(priv);
-        return NULL;
-    }
-
-    /* Get the MIIM access information */
-    priv->phydev.address = mode->val.mscc_address;
     priv->phydev.irq = PHY_POLL;
 
     device->drv = drv;
     device->data = priv;
-    device->numeric_handle = numeric_handle;
+    device->callout = callout;
     device->callout_cxt = callout_cxt;
+    device->numeric_handle = board_conf->numeric_handle;
 
     return device;
 }

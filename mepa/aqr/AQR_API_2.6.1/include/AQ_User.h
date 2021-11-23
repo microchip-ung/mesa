@@ -59,7 +59,6 @@ This module contains the definitions used to configure AQ_API behavior as desire
 /*! Vitesse CIL api layer needs vtss_state and port_no */
 typedef struct{
     mepa_device_t *dev;
-    mscc_phy_driver_address_t mscc;  // TODO, delete
     mesa_port_interface_t mac_if;
 } AQ_Port;
 

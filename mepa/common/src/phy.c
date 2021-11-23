@@ -9,11 +9,9 @@ static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
 
 
-struct mepa_device *mepa_create(const mepa_driver_address_t *addr,
-                                uint32_t id,
-                                mepa_port_interface_t        mac_if,
-                                uint32_t numeric_handle,
-                                struct mepa_callout_cxt *callout_cxt)
+struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED *callout,
+                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                struct mepa_board_conf  *conf)
 {
     mepa_device_t  *dev = 0;
 
@@ -63,9 +61,8 @@ struct mepa_device *mepa_create(const mepa_driver_address_t *addr,
         for (int j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
-            if ((driver->id & driver->mask) == (id & driver->mask)) {
-                dev = driver->mepa_driver_probe(driver, addr, mac_if,
-                                                numeric_handle, callout_cxt);
+            if ((driver->id & driver->mask) == (conf->id & driver->mask)) {
+                dev = driver->mepa_driver_probe(driver, callout, callout_cxt, conf);
                 if (dev) {
                     //T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, id, i, j);
                     return dev;

@@ -16,6 +16,11 @@ struct mepa_driver;
 struct mepa_device;
 typedef struct mepa_device mepa_device_t;
 
+// This is pure annotation to warn the user that a given pointer will be used
+// stored internally and used at a later point in time. Application is
+// responsible for ensuring that such pointers remains valid through out the
+// lifetime of the givne MEPA instance.
+#define MEPA_SHARED
 
 typedef mesa_aneg_t mepa_aneg_t;
 typedef mesa_bool_t mepa_bool_t;

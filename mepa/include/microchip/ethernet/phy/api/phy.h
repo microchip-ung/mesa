@@ -12,7 +12,6 @@
 // pointer can be used.
 struct mepa_callout_cxt;
 
-
 typedef mepa_rc (*mmd_read_t)(struct mepa_callout_cxt           *cxt,
                               const uint8_t                      mmd,
                               const uint16_t                     addr,
@@ -62,7 +61,7 @@ typedef void (*mepa_vtrace_func_t)(mepa_trace_group_t               group,
 typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
 
 // Address mode that is specific for mchp phy.
-typedef struct {
+typedef struct mepa_callout {
     mmd_read_t              mmd_read;
     mmd_read_inc_t          mmd_read_inc;
     mmd_write_t             mmd_write;
@@ -75,31 +74,26 @@ typedef struct {
     mepa_lock_func_t        lock_enter;
     mepa_lock_func_t        lock_exit;
     // TODO, malloc
-} mscc_phy_driver_address_t;
+} mepa_callout_t;
 
-// Union that contains all the values for address mode. Enumeration
-// mepa_driver_address_mode_t decides which address type to be used.
-typedef union {
-    mscc_phy_driver_address_t mscc_address;
-} mepa_driver_address_val_t;
+typedef struct mepa_board_conf {
+    mepa_port_interface_t    mac_if;  // TODO, not sure about this...
+    uint32_t                 numeric_handle;
+    uint32_t                 id;  // TODO, delete
+} mepa_board_conf_t;
 
-// Enumeration of all possible address modes.
-typedef enum {
-    mscc_phy_driver_address_mode,
-} mepa_driver_address_mode_t;
-
-// Main structure that contains the address mode and the address value, these
-// values has to be filled up by the switch application.
-typedef struct mepa_driver_address {
-    mepa_driver_address_mode_t mode;
-    mepa_driver_address_val_t val;
-} mepa_driver_address_t;
-
-struct mepa_device *mepa_create(const mepa_driver_address_t *addr,
-                                uint32_t                     id,  // TODO, delete
-                                mepa_port_interface_t        mac_if,  // TODO, not sure about this...
-                                uint32_t                     numeric_handle,
-                                struct mepa_callout_cxt     *callout_cxt);
+// Create a new MEPA instance.
+//
+// NOTE: 'callout' and 'callout_cxt' pointers must be considered as SHARED,
+// meaning that they must remain valid until all MEPA instances are deleted.
+// MEPA will use these poiner values in sub-sequence MEPA calls.
+//
+// The same instance of the callout should be used for all MEPA instances.
+// Each PHY should have a unique callout_cxt which contains mdio address,
+// controllers etc.
+struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED *callout,
+                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                struct mepa_board_conf  *conf);
 
 mepa_rc mepa_delete(struct mepa_device *dev);
 

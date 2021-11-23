@@ -33,15 +33,15 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
     if(ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
-        T_E(data, MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     if(ts_init_conf->rx_ts_pos != MEPA_TS_RX_TIMESTAMP_POS_IN_PTP) {
-        T_E(data, MEPA_TRACE_GRP_TS, "Rx Timestamp position not supported::  Port : %d\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp position not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     if(ts_init_conf->tx_fifo_mode != MEPA_TS_FIFO_MODE_NORMAL) {
-        T_E(data, MEPA_TRACE_GRP_TS, "TX TS FIFO mode not supported::  Port : %d\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "TX TS FIFO mode not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     EP_RD(dev, INDY_PTP_REF_CLK_CFG, &clock_cfg);
@@ -74,7 +74,7 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(7);
             break;
         default:
-            T_E(data, MEPA_TRACE_GRP_TS, "Clock Source not supported::  Port : %d\n", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Clock Source not supported::  Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
     }
     switch(ts_init_conf->clk_freq){
@@ -90,7 +90,7 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
             clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(4);
             break;
         default:
-            T_E(data, MEPA_TRACE_GRP_TS, "Clock frequency not supported::  Port : %d\n", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Clock frequency not supported::  Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
             break;
     }
@@ -98,7 +98,7 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
     EP_WRM(dev, INDY_PTP_REF_CLK_CFG, clock_cfg, INDY_DEF_MASK);
     val = val | INDY_PTP_OPERATING_MODE_VAL_F(1); // 1 for PTP in normal operating mode
     EP_WRM(dev, INDY_PTP_OPERATING_MODE, val, INDY_PTP_OPERATING_MODE_VAL);
-    T_I(data, MEPA_TRACE_GRP_TS, "Port : %d  Clock Src : %d  Freq : %d Rx TS Len :%d Rx TS Pos : %d Tx FIFO Mode : %d Tx TS Len %d\n",
+    T_I(MEPA_TRACE_GRP_TS, "Port : %d  Clock Src : %d  Freq : %d Rx TS Len :%d Rx TS Pos : %d Tx FIFO Mode : %d Tx TS Len %d\n",
                                  data->port_no,ts_init_conf->clk_src,ts_init_conf->clk_freq,ts_init_conf->rx_ts_len,
                                  ts_init_conf->rx_ts_pos,ts_init_conf->tx_fifo_mode,ts_init_conf->tx_ts_len);
 
@@ -451,7 +451,7 @@ static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scale
             adj_val = MEPA_DIV64((1LL<<32) *4,  adj_val);
         }
         if (adj_abs >= (1LL << 30)) {
-            T_W(data, MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: direction %d Adj Value : %lld   Port : %d\n", adj_dir, adj_abs, data->port_no);
+            T_W(MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: direction %d Adj Value : %lld   Port : %d\n", adj_dir, adj_abs, data->port_no);
         } else {
             if(adj_dir) {
                 val = val | INDY_PTP_LTC_RATE_ADJ_HI_DIR;
@@ -463,7 +463,7 @@ static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scale
             EP_WRM(dev, INDY_PTP_LTC_RATE_ADJ_LO, val, INDY_DEF_MASK);
             data->ts_state.ts_port_conf.rate_adj = *adj;
         }
-        T_I(data, MEPA_TRACE_GRP_TS, "Rate Adjust :: direction %d Adj Value : %d   Port : %d\n", adj_dir, (0x3FFFFFFF & adj_val), data->port_no);
+        T_I(MEPA_TRACE_GRP_TS, "Rate Adjust :: direction %d Adj Value : %d   Port : %d\n", adj_dir, (0x3FFFFFFF & adj_val), data->port_no);
     }
     MEPA_EXIT(dev);
 
@@ -573,7 +573,7 @@ static mepa_rc indy_ts_clock_delay_asymmetry_set(mepa_device_t *dev, const mepa_
     val = (*delay_asym >> 16) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_ASYM_DLY_LO, val, INDY_DEF_MASK);
     data->ts_state.ts_port_conf.delay_asym = *delay_asym;
-    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Delay Asymmetry :: %d \n", data->port_no, *delay_asym);
+    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Delay Asymmetry :: %d \n", data->port_no, *delay_asym);
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -606,7 +606,7 @@ static mepa_rc indy_ts_clock_path_delay_set(mepa_device_t *dev, const mepa_timei
     EP_WRM(dev, INDY_PTP_PEERDLY_HI, val, INDY_DEF_MASK);
     val =  (*path_delay >> 16) & 0xFFFF;
     EP_WRM(dev, INDY_PTP_PEERDLY_LO, val, INDY_DEF_MASK);
-    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Path Delay  :: %d \n", data->port_no, *path_delay);
+    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Path Delay  :: %d \n", data->port_no, *path_delay);
     ts_data->ts_port_conf.path_delay = *path_delay;
 
     MEPA_EXIT(dev);
@@ -655,7 +655,7 @@ static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_t
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.tx10mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) - val;
@@ -668,7 +668,7 @@ static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_t
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.tx100mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) - val;
@@ -682,7 +682,7 @@ static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_t
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.tx1000mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) - val;
@@ -741,7 +741,7 @@ static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) - val;
@@ -754,7 +754,7 @@ static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) - val;
@@ -768,7 +768,7 @@ static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) + val;
             }else {
                 if((base_phy->ts_state.default_latencies.rx1000mbps >> 16) <= val) {
-                    T_I(data, MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
                     break;
                 }
                 val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) - val;
@@ -1213,7 +1213,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
                 EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
                 break;
             default:
-                T_E(data, MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
+                T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
                 return MEPA_RC_ERROR;
                 break;
         }
@@ -1228,7 +1228,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
                 EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
                 break;
             default:
-                T_E(data, MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
+                T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
                 return MEPA_RC_ERROR;
                 break;
         }
@@ -1272,7 +1272,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
             }
             break;
         default:
-            T_E(data, MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
             break;
     }
@@ -1284,12 +1284,12 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
     uint16_t val = 0, parse_config = 0, l2_en = 0,ip_en = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    T_I(data, MEPA_TRACE_GRP_TS, "RX Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
+    T_I(MEPA_TRACE_GRP_TS, "RX Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
                                  data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
                                  pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
     // PBB not supported
     if(pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en){
-        T_E(data, MEPA_TRACE_GRP_TS, "PBB not supported on Indy.  Port : %d\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "PBB not supported on Indy.  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     switch (pkt_conf->pkt_encap_type) {
@@ -1320,7 +1320,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
             EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
             break;
         case MEPA_TS_ENCAP_ETH_IP_PTP:
-            T_I(data, MEPA_TRACE_GRP_TS, "RX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
+            T_I(MEPA_TRACE_GRP_TS, "RX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
                                          data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode,pkt_conf->ip_class_conf.udp_sport_en,
                                          pkt_conf->ip_class_conf.udp_dport_en,pkt_conf->ip_class_conf.udp_sport,pkt_conf->ip_class_conf.udp_dport);
             parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
@@ -1374,7 +1374,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
         case MEPA_TS_ENCAP_NONE:
             break;
         default:
-            T_E(data, MEPA_TRACE_GRP_TS, "Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
             break;
     }
@@ -1388,7 +1388,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
-    T_I(data, MEPA_TRACE_GRP_TS, "Tx Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
+    T_I(MEPA_TRACE_GRP_TS, "Tx Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
                                  data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
                                  pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
 
@@ -1425,7 +1425,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
             EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
             break;
         case MEPA_TS_ENCAP_ETH_IP_PTP:
-            T_I(data, MEPA_TRACE_GRP_TS, "TX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
+            T_I(MEPA_TRACE_GRP_TS, "TX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
                                          data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode,pkt_conf->ip_class_conf.udp_sport_en,
                                          pkt_conf->ip_class_conf.udp_dport_en,pkt_conf->ip_class_conf.udp_sport,pkt_conf->ip_class_conf.udp_dport);
             parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_LAYER2_EN;
@@ -1479,7 +1479,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
         case MEPA_TS_ENCAP_NONE:
             break;
         default:
-            T_E(data, MEPA_TRACE_GRP_TS, "EGR Classifier: Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "EGR Classifier: Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
             rc = MEPA_RC_ERROR;
             break;
     }
@@ -1601,7 +1601,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     MEPA_ENTER(dev);
     rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptpclock_conf->ptp_class_conf);
     if (rc != MEPA_RC_OK) {
-        T_I(data, MEPA_TRACE_GRP_TS, "PTP rx classifier conf set error");
+        T_I(MEPA_TRACE_GRP_TS, "PTP rx classifier conf set error");
     } else {
         memcpy(&data->ts_state.ts_port_conf.rx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
@@ -1655,7 +1655,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
                 }
                 break;
             default:
-                T_E(data, MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
+                T_E(MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
                 break;
         }
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
@@ -1694,7 +1694,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     MEPA_ENTER(dev);
     rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptpclock_conf->ptp_class_conf);
     if (rc != MEPA_RC_OK) {
-        T_I(data, MEPA_TRACE_GRP_TS, "PTP tx classifier conf set error");
+        T_I(MEPA_TRACE_GRP_TS, "PTP tx classifier conf set error");
     } else {
         memcpy(&data->ts_state.ts_port_conf.tx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
