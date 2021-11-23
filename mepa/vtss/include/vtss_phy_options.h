@@ -72,9 +72,8 @@
 // Energy Efficient Ethernet
 #define VTSS_FEATURE_EEE
 
-#if defined(VTSS_CHIP_CU_PHY)
+// Internal define
 #define VTSS_FEATURE_WARM_START
-#endif
 
 // LED power reduction
 #define VTSS_FEATURE_LED_POW_REDUC
