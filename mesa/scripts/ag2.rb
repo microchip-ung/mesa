@@ -954,12 +954,15 @@ $options[:input_files].each do |x|
         handle_root ast[:root]
 
     rescue Parslet::ParseFailed => error
-        trace error.cause.ascii_tree
-        trace "Failed #{x}"
+        puts "Failed #{x}"
+        puts error
+        puts error.parse_failure_cause.ascii_tree
+        raise
 
     rescue => err
         trace "Failed #{x}"
         trace err.backtrace.join("\n\t") .sub("\n\t", ": #{err}#{err.class ? " (#{err.class})" : ''}\n\t")
+        raise
     end
 end
 

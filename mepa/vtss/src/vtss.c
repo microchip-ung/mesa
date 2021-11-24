@@ -111,8 +111,8 @@ static void trace_func(const vtss_phy_trace_group_t group,
     }
 }
 
-static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED *callout,
-                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf              *board_conf)
 {
     vtss_phy_init_conf_t conf;
@@ -380,8 +380,8 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 }
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
-                                    const mepa_callout_t    MEPA_SHARED *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                     struct mepa_board_conf              *board_conf)
 {
     int i;
@@ -812,8 +812,8 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
 }
 
 static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
-                                    const mepa_callout_t    MEPA_SHARED *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                     struct mepa_board_conf              *board_conf)
 {
 

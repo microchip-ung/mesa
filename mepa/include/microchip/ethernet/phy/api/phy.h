@@ -91,8 +91,8 @@ typedef struct mepa_board_conf {
 // The same instance of the callout should be used for all MEPA instances.
 // Each PHY should have a unique callout_cxt which contains mdio address,
 // controllers etc.
-struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED *callout,
-                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf  *conf);
 
 mepa_rc mepa_delete(struct mepa_device *dev);

@@ -528,8 +528,8 @@ static void aqr_daisy_chain_reset(const mesa_inst_t     inst,
 #endif
 
 static mepa_device_t *aqr_probe(mepa_driver_t *drv,
-                                const mepa_callout_t    MEPA_SHARED *callout,
-                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf              *board_conf,
                                 const uint8_t                       *target_fw,
                                 const uint32_t                      *target_fw_len,
@@ -570,8 +570,8 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
-                                      const mepa_callout_t    MEPA_SHARED *callout,
-                                      struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                      const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                      struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                       struct mepa_board_conf              *board_conf)
 {
     return aqr_probe(drv,
@@ -586,8 +586,8 @@ static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
-                                      const mepa_callout_t    MEPA_SHARED *callout,
-                                      struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                      const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                      struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                       struct mepa_board_conf              *board_conf)
 {
     return aqr_probe(drv,
@@ -602,8 +602,8 @@ static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
 }
 
 static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
-                                    const mepa_callout_t    MEPA_SHARED *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                     struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *device;

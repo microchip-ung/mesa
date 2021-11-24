@@ -20,7 +20,7 @@ typedef struct mepa_device mepa_device_t;
 // stored internally and used at a later point in time. Application is
 // responsible for ensuring that such pointers remains valid through out the
 // lifetime of the givne MEPA instance.
-#define MEPA_SHARED
+#define MEPA_SHARED_PTR
 
 typedef mesa_aneg_t mepa_aneg_t;
 typedef mesa_bool_t mepa_bool_t;

@@ -189,8 +189,8 @@ static mesa_rc intl_poll(mepa_device_t *dev, mepa_driver_status_t *status)
 }
 
 static mepa_device_t *intl_probe(mepa_driver_t *drv,
-                                 const mepa_callout_t    MEPA_SHARED *callout,
-                                 struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                  struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev = (mepa_device_t *)calloc(1, sizeof(mepa_device_t));

@@ -77,8 +77,8 @@ typedef mepa_rc (*mepa_driver_media_set_t)(
 //  mode           [IN] Address mode.
 typedef struct mepa_device *(*mepa_driver_probe_t)(
     struct mepa_driver                  *dev,
-    const mepa_callout_t    MEPA_SHARED *callout,
-    struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
     struct mepa_board_conf              *conf);
 
 //  Gets copper PHY auto-negotiation status.

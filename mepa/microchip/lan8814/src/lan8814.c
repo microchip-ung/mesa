@@ -124,8 +124,8 @@ static mepa_rc indy_get_device_info(mepa_device_t *dev)
 }
 
 static mepa_device_t *indy_probe(mepa_driver_t *drv,
-                                 const mepa_callout_t    MEPA_SHARED *callout,
-                                 struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                  struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev =

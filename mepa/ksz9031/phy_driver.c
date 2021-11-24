@@ -294,8 +294,8 @@ static mesa_rc ksz_conf_set(mepa_device_t             *dev,
 }
 
 static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
-                                const mepa_callout_t    MEPA_SHARED *callout,
-                                struct mepa_callout_cxt MEPA_SHARED *callout_cxt,
+                                const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf              *board_conf)
 {
     uint32_t         cnt;
