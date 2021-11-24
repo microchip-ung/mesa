@@ -32,6 +32,66 @@ $cpu_queue = 7
 $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
 
 
+def check_correction_field(domain)
+    frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
+
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
+    test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the correction field" do
+    frame_tx(frametx, $npi_port, " ", " ", " ", " ", 60)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
+    $data = pkts[0][:data].each_byte.map{|c| c.to_i}
+    t_i"$data #{$data}"
+    correction_ns = $data[22..27]
+    t_i"correction_ns #{correction_ns}   #{(correction_ns[0]<<40) + (correction_ns[1]<<32) + (correction_ns[2]<<24) + (correction_ns[3]<<16) + (correction_ns[4]<<8) + correction_ns[5]}"
+    end
+
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
+    test "Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port and check the correction field" do
+    frame_tx(frametx, $npi_port, " ", " ", " ", " ", 100)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
+    $data = pkts[1][:data].each_byte.map{|c| c.to_i}
+    t_i"$data #{$data}"
+    correction_ns = $data[44+22..44+27]
+    t_i"correction_ns #{correction_ns}   #{(correction_ns[0]<<40) + (correction_ns[1]<<32) + (correction_ns[2]<<24) + (correction_ns[3]<<16) + (correction_ns[4]<<8) + correction_ns[5]}"
+    end
+
+    frametx = frameHdrTx.dup + sync_pdu_create()
+    test "Inject SYNC into front port and receive SYNC frame from NPI port and check the correction field" do
+    frame_tx(frametx, $port0, " ", " ", " ", " ", 100)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
+    $data = pkts[0][:data].each_byte.map{|c| c.to_i}
+    t_i"$data #{$data}"
+    correction_ns = $data[44+22..44+27]
+    t_i"correction_ns #{correction_ns}   #{(correction_ns[0]<<40) + (correction_ns[1]<<32) + (correction_ns[2]<<24) + (correction_ns[3]<<16) + (correction_ns[4]<<8) + correction_ns[5]}"
+    end
+
+    t_i("Configure mirroring")
+    conf = $ts.dut.call("mesa_mirror_conf_get")
+    conf["port_no"] = $ts.dut.port_list[$port0]
+    conf["tag"] = "MESA_MIRROR_TAG_NONE"
+    $ts.dut.call("mesa_mirror_conf_set", conf)
+#    port_list = "0,1,2,3,4,5,6,7"
+    port_list = "#{$loop_port1}"
+    $ts.dut.call("mesa_mirror_ingress_ports_set", port_list)
+
+    frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP", 0xFEFEFEFE0000, domain) + frameHdrTx.dup + sync_pdu_create()
+    test "Inject SYNC into NPI port to be transmitted on loop0 port and receive SYNC frame from NPI port and check the correction field" do
+    frame_tx(frametx, $npi_port, " ", " ", " ", " ", 100)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
+    $data = pkts[1][:data].each_byte.map{|c| c.to_i}
+    t_i"$data #{$data}"
+    npi_corr_ns = $data[44+22..44+27]
+
+    pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
+    $data = pkts[0][:data].each_byte.map{|c| c.to_i}
+    t_i"$data #{$data}"
+    mirror_corr_ns = $data[22..27]
+
+    t_i"NPI port correction_ns #{npi_corr_ns}   #{(npi_corr_ns[0]<<40) + (npi_corr_ns[1]<<32) + (npi_corr_ns[2]<<24) + (npi_corr_ns[3]<<16) + (npi_corr_ns[4]<<8) + npi_corr_ns[5]}"
+    t_i"Mirror port correction_ns #{mirror_corr_ns}   #{(mirror_corr_ns[0]<<40) + (mirror_corr_ns[1]<<32) + (mirror_corr_ns[2]<<24) + (mirror_corr_ns[3]<<16) + (mirror_corr_ns[4]<<8) + mirror_corr_ns[5]}"
+    end
+end
+
 def tod_domain_test(domain, seconds)
     $data = ""
     $tod_ts = 0
@@ -111,6 +171,8 @@ def tod_domain_test(domain, seconds)
     $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
+
+#    check_correction_field(domain)
 
     test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the origin timestamp" do
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
