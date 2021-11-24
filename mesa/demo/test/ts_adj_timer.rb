@@ -31,6 +31,10 @@ end
 if ($pcb == "8291-EndNode")
     $external_io_in = 4
 end
+if ($pcb == "8290")
+    $external_io_in = 0
+    $external_io_out = 3
+end
 t_i "external_io_in #{$external_io_in}  external_io_out #{$external_io_out}"
 
 
@@ -84,7 +88,7 @@ def tod_adj_timer_test(domain_out, domain_in)
         diff_high = 120114
         diff_low = 119885
     end
-    if ($pcb == "8291-EndNode")
+    if ($pcb == "8290") || ($pcb == "8291")
         diff_no_adj = 8
         adj_max = 2400000
         diff_high = 240114
