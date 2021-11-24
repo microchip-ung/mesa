@@ -41,6 +41,8 @@ extern "C" {
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
+#define VTSS_HW_TIME_WRAP_LIMIT  0       /* time counter wrap around limit+1 */
+#define VTSS_HW_TIME_MIN_ADJ_RATE  10       /* 1 ppb */
 #endif
 
 #if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
