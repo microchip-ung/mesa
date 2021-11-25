@@ -236,7 +236,7 @@ static vtss_rc lan966x_synce_clock_out_set(vtss_state_t *vtss_state, const u32 c
 
     /* To get the best quality of the recovered clocks it is recommended to change the drive strength to 3 */
     REG_WRM(CHIP_TOP_GPIO_CFG(RCVRD_CLK_GPIO_NO + clk_port),
-            CHIP_TOP_GPIO_CFG_DS(3),
+            CHIP_TOP_GPIO_CFG_DS(conf->enable ? 3 : 1),  /* 1 is default */
             CHIP_TOP_GPIO_CFG_DS_M);
 
     if (VTSS_RC_OK != vtss_lan966x_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + clk_port, conf->enable ? VTSS_GPIO_ALT_4 : VTSS_GPIO_IN)) {
