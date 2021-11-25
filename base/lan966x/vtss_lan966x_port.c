@@ -234,6 +234,11 @@ static vtss_rc lan966x_synce_clock_out_set(vtss_state_t *vtss_state, const u32 c
             HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV_M |
             HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
 
+    /* To get the best quality of the recovered clocks it is recommended to change the drive strength to 3 */
+    REG_WRM(CHIP_TOP_GPIO_CFG(RCVRD_CLK_GPIO_NO + clk_port),
+            CHIP_TOP_GPIO_CFG_DS(3),
+            CHIP_TOP_GPIO_CFG_DS_M);
+
     if (VTSS_RC_OK != vtss_lan966x_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + clk_port, conf->enable ? VTSS_GPIO_ALT_4 : VTSS_GPIO_IN)) {
         VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n", clk_port);
         return VTSS_RC_ERROR;
