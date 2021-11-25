@@ -216,34 +216,6 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t inst,
     }
     return rc;
 }
-/* Returns the phy id, which is a combination of reg2 with reg3, where reg2 is MSB. */
-uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t port_entry)
-{
-
-    uint16_t reg2_val = 0;
-    uint16_t reg3_val = 0;
-    mesa_port_map_t map = {};
-    uint32_t phy_id = 0;
-
-    // Initialize our state
-    MEBA_ASSERT(inst->private_data != NULL);
-    map = port_entry.map;
-    if (port_entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) {
-        mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 30, 0, &reg3_val);
-    } else {
-        mesa_miim_read(NULL, map.chip_no, map.miim_controller, map.miim_addr, 2, &reg2_val);
-        mesa_miim_read(NULL, map.chip_no, map.miim_controller, map.miim_addr, 3, &reg3_val);
-        // maybe it is a side board, so we try to read it using mmd bus
-        if (reg2_val == 0 || reg3_val == 0) {
-            mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 0x1, 0x2, &reg2_val);
-            mesa_mmd_read(PHY_INST, map.chip_no, map.miim_controller, map.miim_addr, 0x1, 0x3, &reg3_val);
-        }
-    }
-    phy_id = ((uint32_t)reg2_val) << 16 | reg3_val;
-
-    T_D(inst, "port %d phy_id: %x", port_no, phy_id);
-    return phy_id;
-}
 
 mepa_rc meba_mmd_read(struct mepa_callout_cxt           *cxt,
                       const uint8_t                      mmd,
@@ -291,6 +263,7 @@ mepa_rc meba_miim_write(struct mepa_callout_cxt         *cxt,
 
 void meba_phy_driver_init(meba_inst_t inst)
 {
+    //uint32_t id2;
     mesa_port_no_t      port_no;
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
@@ -321,8 +294,6 @@ void meba_phy_driver_init(meba_inst_t inst)
             (port_cap & MEBA_PORT_CAP_VTSS_10G_PHY)) {
 
             mepa_board_conf_t board_conf = {};
-
-            board_conf.id = meba_get_phy_id(inst, port_no, entry);
             board_conf.mac_if = entry.mac_if;
             board_conf.numeric_handle = port_no;
 

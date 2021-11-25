@@ -65,7 +65,6 @@ typedef struct mepa_callout {
 typedef struct mepa_board_conf {
     mepa_port_interface_t    mac_if;  // TODO, not sure about this...
     uint32_t                 numeric_handle;
-    uint32_t                 id;  // TODO, delete
 } mepa_board_conf_t;
 
 // Create a new MEPA instance.

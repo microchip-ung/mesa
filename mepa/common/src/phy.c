@@ -4,6 +4,11 @@
 #include <mepa_driver.h>
 #include <microchip/ethernet/phy/api.h>
 
+#define T_D(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+
 #define PHY_FAMILIES 16
 static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
@@ -32,11 +37,54 @@ void MEPA_trace(mepa_trace_group_t  group,
     }
 }
 
+uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt)
+{
+    int i;
+    uint32_t phy_id = 0;
+    uint16_t reg2 = 0;
+    uint16_t reg3 = 0;
+
+    // 8488, Venice and Malibu are special and does not report the PHY on the
+    // normal addresses.
+    uint16_t special[] = { 0x8484, 0x8487, 0x8488, 0x8489, 0x8490, 0x8491,
+                           0x8254, 0x8256, 0x8257, 0x8258 };
+
+
+    // TODO, this check would be more robust if we combine it with the values of
+    // mmd=1 reg 2 and reg3 (on venice this is 0x0007 0x0400)
+    if (callout->mmd_read) {
+        callout->mmd_read(callout_cxt, 30, 0, &reg3);
+        for (i = 0; i < sizeof(special)/sizeof(special[0]); i++) {
+            if (reg3 == special[i]) {
+                return reg3;
+            }
+        }
+    }
+
+    if (callout->miim_read) {
+        callout->miim_read(callout_cxt, 2, &reg2);
+        callout->miim_read(callout_cxt, 3, &reg3);
+    }
+
+    // Maybe it is a PHY responding to MMD and not MIIM
+    if (callout->mmd_read && reg2 == 0 && reg3 == 0) {
+        callout->mmd_read(callout_cxt, 0x1, 0x2, &reg2);
+        callout->mmd_read(callout_cxt, 0x1, 0x3, &reg3);
+    }
+
+    phy_id = ((uint32_t)reg2) << 16 | reg3;
+    T_I("phy_id: %x", phy_id);
+
+    return phy_id;
+}
+
 
 struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf  *conf)
 {
+    uint32_t phy_id = 0;
     mepa_device_t  *dev = 0;
 
     // Initialize all the drivers needed
@@ -73,6 +121,12 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #endif
     }
 
+    phy_id = mepa_phy_id_get(callout, callout_cxt);
+
+    //if (phy_id != conf->id) {
+    //    T_E("PHY IDs does not match");
+    //}
+
     for (int i = 0; i < PHY_FAMILIES; i++) {
         //if (!MEPA_phy_lib[i]) {
         //    continue;
@@ -85,10 +139,10 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         for (int j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
-            if ((driver->id & driver->mask) == (conf->id & driver->mask)) {
+            if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
                 dev = driver->mepa_driver_probe(driver, callout, callout_cxt, conf);
                 if (dev) {
-                    //T_I(inst, "probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", port_no, driver->id, id, i, j);
+                    T_I("probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", conf->numeric_handle, driver->id, phy_id, i, j);
                     return dev;
                 }
             }
