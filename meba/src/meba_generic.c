@@ -301,8 +301,6 @@ void meba_phy_driver_init(meba_inst_t inst)
     inst->mepa_callout.mmd_write = meba_mmd_write;
     inst->mepa_callout.miim_read = meba_miim_read;
     inst->mepa_callout.miim_write = meba_miim_write;
-    inst->mepa_callout.trace_func = inst->iface.trace_func;
-    inst->mepa_callout.vtrace_func = inst->iface.vtrace_func;
     inst->mepa_callout.lock_enter = inst->iface.lock_enter;
     inst->mepa_callout.lock_exit = inst->iface.lock_exit;
 

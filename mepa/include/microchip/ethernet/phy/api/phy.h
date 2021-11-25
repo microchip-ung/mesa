@@ -36,45 +36,31 @@ typedef mepa_rc (*miim_write_t)(struct mepa_callout_cxt         *cxt,
                                 const uint8_t                    addr,
                                 const uint16_t                   value);
 
-// todo, add mepa_callout_cxt
-typedef void (*debug_func_t)(mepa_trace_level_t                level,
-                             const char                       *location,
-                             uint32_t                          line_no,
-                             const char                       *fmt,
-                                                               ...);
-// todo, add mepa_callout_cxt
-typedef void (*mepa_trace_func_t)(mepa_trace_group_t                group,
-                                  mepa_trace_level_t                level,
-                                  const char                        *location,
-                                  uint32_t                          line_no,
-                                  const char                        *fmt,
-                                                                    ...);
-// todo, add mepa_callout_cxt
-typedef void (*mepa_vtrace_func_t)(mepa_trace_group_t               group,
-                                   mepa_trace_level_t               level,
-                                   const char                       *location,
-                                   uint32_t                         line_no,
-                                   const char                       *fmt,
-                                   va_list                          args);
+typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data,
+                                  va_list                  args);
+
+// The MEPA trace function is a single global variable. Traces will only work
+// when a function is assigned to 'MEPA_TRACE_FUNCION'.
+// It is not per-instance, as it can be essential to provide tracing capability
+// while creating instances.
+extern mepa_trace_func_t MEPA_TRACE_FUNCION;
 
 // phy synchronisation callbacks passed by application
 typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
 
 // Address mode that is specific for mchp phy.
 typedef struct mepa_callout {
-    mmd_read_t              mmd_read;
-    mmd_read_inc_t          mmd_read_inc;
-    mmd_write_t             mmd_write;
-    miim_read_t             miim_read;
-    miim_write_t            miim_write;
+    mmd_read_t        mmd_read;
+    mmd_read_inc_t    mmd_read_inc;
+    mmd_write_t       mmd_write;
+    miim_read_t       miim_read;
+    miim_write_t      miim_write;
 
-    debug_func_t            debug_func;
-    mepa_trace_func_t       trace_func;
-    mepa_vtrace_func_t      vtrace_func;  // TODO, use trace_func instead
-    mepa_lock_func_t        lock_enter;
-    mepa_lock_func_t        lock_exit;
+    mepa_lock_func_t  lock_enter;
+    mepa_lock_func_t  lock_exit;
     // TODO, malloc
 } mepa_callout_t;
+
 
 typedef struct mepa_board_conf {
     mepa_port_interface_t    mac_if;  // TODO, not sure about this...

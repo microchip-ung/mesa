@@ -243,6 +243,14 @@ void mscc_phy_trace_printf(mepa_trace_group_t group,
     va_end(args);
 }
 
+void mscc_mepa_trace_printf(const mepa_trace_data_t *data,
+                            va_list                  args)
+{
+    mscc_phy_vtrace_printf(data->group, data->level, data->location, data->line,
+                           data->format, args);
+}
+
+
 void mscc_appl_trace_vprintf(const char *mname,
                              const char *gname,
                              const mesa_trace_level_t level,

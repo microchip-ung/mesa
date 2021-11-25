@@ -94,19 +94,25 @@ static void trace_func(const vtss_phy_trace_group_t group,
                        const char                   *format,
                        ...)
 {
-    mepa_trace_group_t grp;
-    mepa_trace_level_t lvl;
-    va_list            args;
+    mepa_trace_data_t data = {
+        .location = location,
+        .line = line,
+        .format = format,
+    };
 
-    // Map from VTSS to MEPA trace group/level
-    grp = (group == VTSS_PHY_TRACE_GROUP_TS ? MEPA_TRACE_GRP_TS : MEPA_TRACE_GRP_GEN);
-    lvl = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MEPA_TRACE_LVL_ERROR :
-           level == VTSS_PHY_TRACE_LEVEL_INFO ? MEPA_TRACE_LVL_INFO :
-           level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MEPA_TRACE_LVL_DEBUG :
-           MEPA_TRACE_LVL_NOISE);
-    if (CALLOUT->vtrace_func) {
+    va_list args;
+
+    if (MEPA_TRACE_FUNCION) {
+        // Map from VTSS to MEPA trace group/level
+        data.group = (group == VTSS_PHY_TRACE_GROUP_TS ? MEPA_TRACE_GRP_TS : MEPA_TRACE_GRP_GEN);
+        data.level = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MEPA_TRACE_LVL_ERROR :
+                      level == VTSS_PHY_TRACE_LEVEL_INFO ? MEPA_TRACE_LVL_INFO :
+                      level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MEPA_TRACE_LVL_DEBUG :
+                      MEPA_TRACE_LVL_NOISE);
+
+
         va_start(args, format);
-        CALLOUT->vtrace_func(grp, lvl, location, line, format, args);
+        MEPA_TRACE_FUNCION(&data, args);
         va_end(args);
     }
 }
@@ -407,7 +413,6 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
     device->drv = drv;
     data->port_no = board_conf->numeric_handle;
     data->mac_if = board_conf->mac_if;
-    data->trace_func = callout->trace_func;
     data->cap = PHY_CAP_1G;
     device->data = data;
 
@@ -837,7 +842,6 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
     device->drv = drv;
     data->port_no = board_conf->numeric_handle;
     data->mac_if = board_conf->mac_if;
-    data->trace_func = callout->trace_func;
     data->cap = PHY_CAP_10G;
     device->data = data;
 

@@ -7,6 +7,30 @@
 #define PHY_FAMILIES 16
 static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
+mepa_trace_func_t MEPA_TRACE_FUNCION = 0;
+
+void MEPA_trace(mepa_trace_group_t  group,
+                mepa_trace_level_t  level,
+                const char         *location,
+                uint32_t            line,
+                const char         *format,
+                ...)
+{
+    va_list args;
+    mepa_trace_data_t data = {
+        .group    = group,
+        .level    = level,
+        .location = location,
+        .line     = line,
+        .format   = format,
+    };
+
+    if (MEPA_TRACE_FUNCION) {
+        va_start(args, format);
+        MEPA_TRACE_FUNCION(&data, args);
+        va_end(args);
+    }
+}
 
 
 struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,

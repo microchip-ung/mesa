@@ -21,6 +21,13 @@
 //  mepa_driver_poll_t
 //  mepa_driver_conf_set_t
 
+void MEPA_trace(mepa_trace_group_t  group,
+                mepa_trace_level_t  level,
+                const char         *location,
+                uint32_t            line,
+                const char         *format,
+                ...);
+
 // Clears up the data allocated in the probe function.
 typedef mepa_rc (*mepa_driver_delete_t)(struct mepa_device *dev);
 

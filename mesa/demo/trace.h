@@ -75,6 +75,9 @@ void mscc_appl_trace_hex(const char *mname,
                          const unsigned char *byte_p,
                          const int byte_cnt);
 
+void mscc_mepa_trace_printf(const mepa_trace_data_t *data,
+                            va_list                  args);
+
 // Trace macros
 #define T(_grp, _lvl, _fmt, ...)       { if (trace_groups[_grp].level >= _lvl) mscc_appl_trace_printf(trace_module.name, trace_groups[_grp].name, _lvl, __FILE__, __LINE__, __FUNCTION__, _fmt, ##__VA_ARGS__);}
 #define T_HEX(_grp, _lvl, _byte, _cnt) { if (trace_groups[_grp].level >= _lvl) mscc_appl_trace_hex(trace_module.name, trace_groups[_grp].name, _lvl, __FILE__, __LINE__, __FUNCTION__, _byte, _cnt);}

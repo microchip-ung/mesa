@@ -7,6 +7,8 @@
 #include <microchip/ethernet/common.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
+struct mepa_callout_cxt;
+
 struct mepa_ts_driver;
 
 // Contains methods that are specific to each phy.
@@ -304,6 +306,14 @@ typedef enum {
     MEPA_TRACE_GRP_GEN,   // PHY general features
     MEPA_TRACE_GRP_TS,    // Timestamp Api
 } mepa_trace_group_t;
+
+typedef struct {
+    mepa_trace_group_t  group;
+    mepa_trace_level_t  level;
+    const char         *location;
+    uint32_t            line;
+    const char         *format;
+} mepa_trace_data_t;
 
 // lock structure
 typedef struct {

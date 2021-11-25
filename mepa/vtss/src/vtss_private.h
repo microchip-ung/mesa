@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
+
 // Trace macros
-#define T_D(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(data, grp, format, ...) if (data->trace_func) data->trace_func(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(data, grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_I(data, grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_W(data, grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_E(data, grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 #define true 1
 #define false 0
@@ -74,7 +75,6 @@ typedef struct {
     mepa_port_interface_t mac_if;
     phy_cap_t cap;
     phy_ts_data_t ts;
-    mepa_trace_func_t trace_func;
     mepa_bool_t   ts_base_detected;
     mepa_device_t *base_dev;
     mepa_device_t *other_dev[MAX_PORTS_PER_PHY]; // utmost 3 other ports would exist on phy.
