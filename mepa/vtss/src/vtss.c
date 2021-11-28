@@ -226,7 +226,7 @@ static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
 }
 
 static mepa_rc mscc_1g_poll(mepa_device_t *dev,
-                            mepa_driver_status_t *status)
+                            mepa_status_t *status)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_port_status_t mesa_status = {};
@@ -248,7 +248,7 @@ static mepa_rc mscc_1g_poll(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
+static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_conf_t phy_config = {}, cur_conf;
@@ -298,12 +298,12 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *co
     return vtss_phy_conf_set(NULL, data->port_no, &phy_config);
 }
 
-static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const conf)
+static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
 {
     vtss_phy_conf_t phy_conf;
     vtss_phy_conf_1g_t cfg_neg = {};
     phy_data_t *data = (phy_data_t *)dev->data;
-    *conf = (const mepa_driver_conf_t){};
+    *conf = (const mepa_conf_t){};
 
     if (vtss_phy_conf_get(NULL, data->port_no, &phy_conf) == MESA_RC_OK) {
         if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
@@ -703,7 +703,7 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
 
 
 static mepa_rc phy_10g_poll(mepa_device_t *dev,
-                            mepa_driver_status_t *status)
+                            mepa_status_t *status)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_status_t status_10g;
@@ -716,7 +716,7 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
+static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_mode_t mode = {};

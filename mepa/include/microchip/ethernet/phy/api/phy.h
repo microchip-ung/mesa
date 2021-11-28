@@ -85,13 +85,13 @@ mepa_rc mepa_reset(struct mepa_device *dev,
                    const mepa_reset_param_t *rst_conf);
 
 mepa_rc mepa_poll(struct mepa_device *dev,
-                  mepa_driver_status_t *status);
+                  mepa_status_t *status);
 
 mepa_rc mepa_conf_set(struct mepa_device *dev,
-                      const mepa_driver_conf_t *conf);
+                      const mepa_conf_t *conf);
 
 mepa_rc mepa_conf_get(struct mepa_device *dev,
-                      mepa_driver_conf_t *const conf);
+                      mepa_conf_t *const conf);
 
 mepa_rc mepa_if_set(struct mepa_device *dev,
                     mepa_port_interface_t intf);

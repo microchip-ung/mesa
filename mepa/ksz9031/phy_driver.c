@@ -265,7 +265,7 @@ static int genphy_read_status(mepa_device_t  *dev)
     return 0;
 }
 
-static mesa_rc ksz_poll(mepa_device_t *dev, mepa_driver_status_t *status)
+static mesa_rc ksz_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     phy_device *phydev = &((priv_data_t *)dev->data)->phydev;
 
@@ -282,8 +282,8 @@ static mesa_rc ksz_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     return MESA_RC_OK;
 }
 
-static mesa_rc ksz_conf_set(mepa_device_t             *dev,
-                            const mepa_driver_conf_t  *config)
+static mesa_rc ksz_conf_set(mepa_device_t      *dev,
+                            const mepa_conf_t  *config)
 {
     phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
 

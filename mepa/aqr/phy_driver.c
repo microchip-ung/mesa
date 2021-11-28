@@ -101,7 +101,7 @@ static AQ_Retcode aqr_phy_conf_get(AQ_Port *data,
 }
 
 static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
-                                    const mepa_driver_conf_t *config,
+                                    const mepa_conf_t *config,
                                     mesa_bool_t is_409)
 {
     AQR_priv_data_t *priv = (AQR_priv_data_t *)dev->data;
@@ -200,18 +200,18 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
 }
 
 static mesa_rc aqr_409_conf_set(mepa_device_t *dev,
-                                const mepa_driver_conf_t *config)
+                                const mepa_conf_t *config)
 {
     return aqr_conf_set_private(dev, config, true);
 }
 
 static mesa_rc aqr_conf_set(mepa_device_t *dev,
-                            const mepa_driver_conf_t *config)
+                            const mepa_conf_t *config)
 {
     return aqr_conf_set_private(dev, config, false);
 }
 
-static mesa_rc aqr_poll(mepa_device_t *dev, mepa_driver_status_t *status)
+static mesa_rc aqr_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     AQ_Port *data = AQ_PORT(dev);
 

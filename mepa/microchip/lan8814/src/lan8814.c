@@ -12,7 +12,7 @@
 
 extern mepa_ts_driver_t indy_ts_drivers;
 
-static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config);
+static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config);
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
 static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable);
 
@@ -356,7 +356,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
+static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     uint16_t val, val2 = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -446,7 +446,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_driver_status_t *status)
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *config)
+static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t new_value, mask, old_value;
@@ -518,7 +518,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_driver_conf_t *confi
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const config)
+static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 

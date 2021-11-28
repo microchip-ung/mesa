@@ -149,7 +149,7 @@ typedef struct {
     mepa_aneg_t aneg;        // Auto-negotiation
     mepa_bool_t copper;      // For dual-media ports
     mepa_bool_t fiber;       // For dual-media ports
-} mepa_driver_status_t;
+} mepa_status_t;
 
 // manual negotiation preferred state
 typedef enum {
@@ -168,7 +168,7 @@ typedef struct {
     mepa_aneg_adv_t aneg;          // Auto-negitiation advertisement
     mepa_bool_t mac_if_aneg_ena;   // Enable auto-negotiation on host mac interface
     mepa_manual_neg_t man_neg;     // manual negotiation control in 1G instead of using auto-negotiation
-} mepa_driver_conf_t;
+} mepa_conf_t;
 
 //  MEPA event mask
 typedef uint32_t mepa_event_t;

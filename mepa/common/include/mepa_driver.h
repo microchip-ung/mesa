@@ -41,15 +41,15 @@ typedef mepa_rc (*mepa_driver_reset_t)(
 // status        [OUT] PHY status.
 typedef mepa_rc (*mepa_driver_poll_t)(
         struct mepa_device *dev,
-        mepa_driver_status_t *status);
+        mepa_status_t *status);
 
 // Set the configuration to the PHY.
 // conf          [IN] PHY configuration.
 typedef mepa_rc (*mepa_driver_conf_set_t)(
-    struct mepa_device *dev, const mepa_driver_conf_t *conf);
+    struct mepa_device *dev, const mepa_conf_t *conf);
 
 // Get the current interface configuration of PHY
-typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_driver_conf_t *const conf);
+typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_conf_t *const conf);
 
 typedef mepa_rc (*mepa_driver_if_set_t)(
         struct mepa_device *dev,

@@ -16,14 +16,14 @@ mepa_rc meba_phy_reset(meba_inst_t inst, mepa_port_no_t port_no,
 
 // Get the current status of the PHY.
 mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
-                             mepa_driver_status_t *status);
+                             mepa_status_t *status);
 
 // Set the configuration to the PHY.
 mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
-                          const mepa_driver_conf_t *conf);
+                          const mepa_conf_t *conf);
 
 // Get the current PHY configuration.
-mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_driver_conf_t *const  conf);
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t *const  conf);
 
 // Get the PHY interface based on speed.
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,

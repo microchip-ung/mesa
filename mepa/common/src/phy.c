@@ -171,7 +171,7 @@ mepa_rc mepa_reset(struct mepa_device *dev,
 }
 
 mepa_rc mepa_poll(struct mepa_device *dev,
-                  mepa_driver_status_t *status) {
+                  mepa_status_t *status) {
     if(!dev || !dev->drv->mepa_driver_poll) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -180,7 +180,7 @@ mepa_rc mepa_poll(struct mepa_device *dev,
 }
 
 mepa_rc mepa_conf_set(struct mepa_device *dev,
-                      const mepa_driver_conf_t *conf) {
+                      const mepa_conf_t *conf) {
     if(!dev || !dev->drv->mepa_driver_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
@@ -189,7 +189,7 @@ mepa_rc mepa_conf_set(struct mepa_device *dev,
 }
 
 mepa_rc mepa_conf_get(struct mepa_device *dev,
-                      mepa_driver_conf_t *const conf) {
+                      mepa_conf_t *const conf) {
     if(!dev || !dev->drv->mepa_driver_conf_get) {
         return MESA_RC_NOT_IMPLEMENTED;
     }

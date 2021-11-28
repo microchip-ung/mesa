@@ -124,7 +124,7 @@ static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
     return MEPA_RC_OK;
 }
 
-void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_driver_status_t *status)
+void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
 {
     uint16_t reg_val = 0;
 
@@ -141,7 +141,7 @@ void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_driver_status_t *status)
     dev->callout->mmd_write(dev->callout_cxt, 0x1e, 0x8, reg_val);
 }
 
-static mesa_rc intl_poll(mepa_device_t *dev, mepa_driver_status_t *status)
+static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     struct gpy211_device *intel_status = GPY211_DEVICE(dev);
     struct Intl_Port *port_param = INTL_PORT(dev);
@@ -241,7 +241,7 @@ static mesa_rc intl_reset(mepa_device_t *dev,
 }
 
 static mesa_rc intl_conf_set(mepa_device_t *dev,
-                                const mepa_driver_conf_t *config)
+                                const mepa_conf_t *config)
 {
     return MEPA_RC_OK;
 }

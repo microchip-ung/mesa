@@ -285,7 +285,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     mscc_appl_port_conf_t   *pc = &entry->conf;
     mesa_port_status_t      *ps = &entry->status;
     mesa_port_conf_t        conf;
-    mepa_driver_conf_t      phy;
+    mepa_conf_t             phy;
     meba_port_cap_t         cap = entry->meba.cap;
 
     if (mesa_port_conf_get(NULL, port_no, &conf) != MESA_RC_OK) {
@@ -384,7 +384,7 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
     mesa_rc              rc;
     port_entry_t         *entry = &port_table[port_no];
     mesa_port_status_t   *ps = &entry->status;;
-    mepa_driver_status_t status;
+    mepa_status_t        status;
 
     T_N("Enter, port %d", port_no);
     if (entry->media_type == MSCC_PORT_TYPE_CU) {

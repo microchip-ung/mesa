@@ -22,7 +22,7 @@ mepa_rc meba_phy_reset(meba_inst_t inst, mepa_port_no_t port_no,
 
 /* Get the current status of the PHY. */
 mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
-                             mepa_driver_status_t *status)
+                             mepa_status_t *status)
 {
     T_N(inst, "Called port %d", port_no);
     if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
@@ -34,12 +34,12 @@ mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no,
 
 /* Set the configuration to the PHY. */
 mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
-                          const mepa_driver_conf_t *conf)
+                          const mepa_conf_t *conf)
 
 {
     meba_port_cap_t cap;
     meba_port_entry_t entry;
-    mepa_driver_conf_t cf = *conf;
+    mepa_conf_t cf = *conf;
 
     T_D(inst, "Called");
     inst->api.meba_port_entry_get(inst, port_no, &entry);
@@ -99,7 +99,7 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
 }
 
 // Get the current phy port configuration
-mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_driver_conf_t *const  conf)
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t *const  conf)
 {
     T_I(inst, "Called port %d", port_no);
     if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
@@ -292,7 +292,7 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t inst, mepa_port_no_t port_no, 
 mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port_status_t *const status)
 {
     mesa_port_conf_t      conf;
-    mepa_driver_status_t  status_mepa;
+    mepa_status_t         status_mepa;
     vtss_phy_10g_id_t     id;
     vtss_phy_10g_mode_t   mode;
     vtss_phy_10g_status_t status_10g;
