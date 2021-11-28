@@ -197,6 +197,15 @@ mepa_rc mepa_conf_get(struct mepa_device *dev,
     return dev->drv->mepa_driver_conf_get(dev, conf);
 }
 
+mepa_rc mepa_if_set(struct mepa_device *dev,
+                    mepa_port_interface_t intf) {
+    if(!dev || !dev->drv->mepa_driver_if_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_if_set(dev, intf);
+}
+
 mepa_rc mepa_if_get(struct mepa_device *dev,
                     mepa_port_speed_t speed,
                     mepa_port_interface_t *intf) {

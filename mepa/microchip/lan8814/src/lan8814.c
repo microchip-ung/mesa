@@ -145,7 +145,6 @@ static mepa_device_t *indy_probe(mepa_driver_t *drv,
     dev->numeric_handle = board_conf->numeric_handle;
 
     data->port_no = board_conf->numeric_handle;
-    data->mac_if = board_conf->mac_if;
     data->events = 0;
 
     T_I(MEPA_TRACE_GRP_GEN, "indy driver probed for port %d", data->port_no);
@@ -529,13 +528,24 @@ static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const confi
     T_D(MEPA_TRACE_GRP_GEN, "returning phy config on port %d", data->port_no);
     return MEPA_RC_OK;
 }
+
+static mepa_rc indy_if_set(mepa_device_t *dev,
+                           mepa_port_interface_t mac_if)
+{
+    if (mac_if != MESA_PORT_INTERFACE_QSGMII) {
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
                            mepa_port_interface_t *mac_if)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ENTER(dev);
-    *mac_if = data->mac_if;
+    *mac_if = MESA_PORT_INTERFACE_QSGMII;
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
@@ -1088,6 +1098,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_poll = indy_poll,
             .mepa_driver_conf_set = indy_conf_set,
             .mepa_driver_conf_get = indy_conf_get,
+            .mepa_driver_if_set = indy_if_set,
             .mepa_driver_if_get = indy_if_get,
             .mepa_driver_cable_diag_start = indy_cable_diag_start,
             .mepa_driver_cable_diag_get = indy_cable_diag_get,
@@ -1118,6 +1129,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_poll = indy_poll,
             .mepa_driver_conf_set = indy_conf_set,
             .mepa_driver_conf_get = indy_conf_get,
+            .mepa_driver_if_set = indy_if_set,
             .mepa_driver_if_get = indy_if_get,
             .mepa_driver_cable_diag_start = indy_cable_diag_start,
             .mepa_driver_cable_diag_get = indy_cable_diag_get,

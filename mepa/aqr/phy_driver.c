@@ -290,7 +290,6 @@ static mesa_rc aqr_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
                           mesa_port_interface_t *mac_if)
 {
     AQ_Port *data = AQ_PORT(dev);
-
     *mac_if = data->mac_if;
     return MESA_RC_OK;
 }
@@ -420,12 +419,12 @@ static mesa_rc aqr_veriphy_get(mepa_device_t         *dev,
     return AQR_2_MESA_RC(aq_rc);
 }
 
-static mesa_rc aqr_phy_firmware_update(AQ_Port                *data,
-                                       const uint8_t          *target_fw,
-                                       const uint32_t         *target_fw_len,
-                                       uint8_t                major_id,
-                                       uint8_t                minor_id,
-                                       uint8_t                build_id)
+static mesa_rc aqr_fw(AQ_Port                *data,
+                      const uint8_t          *target_fw,
+                      const uint32_t         *target_fw_len,
+                      uint8_t                major_id,
+                      uint8_t                minor_id,
+                      uint8_t                build_id)
 {
     AQ_API_StaticConfiguration aq_config;
     AQ_API_Port                aq_port;
@@ -465,9 +464,62 @@ static mesa_rc aqr_phy_firmware_update(AQ_Port                *data,
     return AQR_2_MESA_RC(aq_ret);
 }
 
-static void aqr_daisy_chain_reset(AQ_Port *data)
+static mesa_rc aqr_407_if_set(mepa_device_t *dev,
+                              mesa_port_interface_t mac_if)
 {
-    T_E("port %u, daisy chain reset not supported", data->dev->numeric_handle);
+    AQ_Port *data = AQ_PORT(dev);
+    // TODO, validate input!
+    data->mac_if = mac_if;
+
+    if (mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
+        // Board JAGUAR2_AQR_REF
+        return aqr_fw(data,
+                      built_in_AQR_24_FW,
+                      &built_in_AQR_24_FW_len,
+                      BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
+                      BUILT_IN_AQR_24_FW_MINOR_REV_NUM,
+                      BUILT_IN_AQR_24_FW_BUILD_ID_NUM);
+    } else {
+        // Board JAGUAR2_REF side board or other platform
+        return aqr_fw(data,
+                      built_in_AQR_4_FW,
+                      &built_in_AQR_4_FW_len,
+                      BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,
+                      BUILT_IN_AQR_4_FW_MINOR_REV_NUM,
+                      BUILT_IN_AQR_4_FW_BUILD_ID_NUM);
+    }
+}
+
+static mesa_rc aqr_gen3a_if_set(mepa_device_t *dev,
+                                mesa_port_interface_t mac_if)
+{
+    AQ_Port *data = AQ_PORT(dev);
+    // TODO, validate input!
+    data->mac_if = mac_if;
+
+    // Board JAGUAR2_AQR_REF
+    return aqr_fw(data,
+                  built_in_AQR_4_G3A_FW,
+                  &built_in_AQR_4_G3A_FW_len,
+                  BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
+                  BUILT_IN_AQR_4_G3A_FW_MINOR_REV_NUM,
+                  BUILT_IN_AQR_4_G3A_FW_BUILD_ID_NUM);
+}
+
+static mesa_rc aqr_gen3b_if_set(mepa_device_t *dev,
+                                mesa_port_interface_t mac_if)
+{
+    AQ_Port *data = AQ_PORT(dev);
+    // TODO, validate input!
+    data->mac_if = mac_if;
+
+    // Board JAGUAR2_AQR_REF
+    return aqr_fw(data,
+                  built_in_AQR_4_G3B_FW,
+                  &built_in_AQR_4_G3B_FW_len,
+                  BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
+                  BUILT_IN_AQR_4_G3B_FW_MINOR_REV_NUM,
+                  BUILT_IN_AQR_4_G3B_FW_BUILD_ID_NUM);
 }
 
 #if 0
@@ -530,12 +582,7 @@ static void aqr_daisy_chain_reset(const mesa_inst_t     inst,
 static mepa_device_t *aqr_probe(mepa_driver_t *drv,
                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
-                                struct mepa_board_conf              *board_conf,
-                                const uint8_t                       *target_fw,
-                                const uint32_t                      *target_fw_len,
-                                uint8_t                              major_id,
-                                uint8_t                              minor_id,
-                                uint8_t                              build_id)
+                                struct mepa_board_conf                  *board_conf)
 {
     mepa_device_t   *device;
     AQR_priv_data_t *priv;
@@ -556,83 +603,10 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
     device->numeric_handle = board_conf->numeric_handle;
     device->callout = callout;
     device->callout_cxt = callout_cxt;
-    data->mac_if = board_conf->mac_if;
     data->dev = device;
     device->data = priv;
 
-    if ((rc = aqr_phy_firmware_update(data, target_fw, target_fw_len, major_id, minor_id, build_id)) == MESA_RC_OK) {
-        aqr_daisy_chain_reset(data);
-    } else if (rc == MESA_RC_ERROR) {
-        T_E("Error while firmware upgrade");
-    }
-
     return device;
-}
-
-static mepa_device_t *aqr_gen3b_probe(mepa_driver_t *drv,
-                                      const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                      struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
-                                      struct mepa_board_conf              *board_conf)
-{
-    return aqr_probe(drv,
-                     callout,
-                     callout_cxt,
-                     board_conf,
-                     built_in_AQR_4_G3B_FW,
-                     &built_in_AQR_4_G3B_FW_len,
-                     BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
-                     BUILT_IN_AQR_4_G3B_FW_MINOR_REV_NUM,
-                     BUILT_IN_AQR_4_G3B_FW_BUILD_ID_NUM);
-}
-
-static mepa_device_t *aqr_gen3a_probe(mepa_driver_t *drv,
-                                      const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                      struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
-                                      struct mepa_board_conf              *board_conf)
-{
-    return aqr_probe(drv,
-                     callout,
-                     callout_cxt,
-                     board_conf,
-                     built_in_AQR_4_G3A_FW,
-                     &built_in_AQR_4_G3A_FW_len,
-                     BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
-                     BUILT_IN_AQR_4_G3A_FW_MINOR_REV_NUM,
-                     BUILT_IN_AQR_4_G3A_FW_BUILD_ID_NUM);
-}
-
-static mepa_device_t *aqr_407_probe(mepa_driver_t *drv,
-                                    const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
-                                    struct mepa_board_conf              *board_conf)
-{
-    mepa_device_t *device;
-
-    if (board_conf->mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
-        // Board JAGUAR2_AQR_REF
-        device = aqr_probe(drv,
-                           callout,
-                           callout_cxt,
-                           board_conf,
-                           built_in_AQR_24_FW,
-                           &built_in_AQR_24_FW_len,
-                           BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
-                           BUILT_IN_AQR_24_FW_MINOR_REV_NUM,
-                           BUILT_IN_AQR_24_FW_BUILD_ID_NUM);
-    } else {
-        // Board JAGUAR2_REF side board or other platform
-        device = aqr_probe(drv,
-                           callout,
-                           callout_cxt,
-                           board_conf,
-                           built_in_AQR_4_FW,
-                           &built_in_AQR_4_FW_len,
-                           BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,
-                           BUILT_IN_AQR_4_FW_MINOR_REV_NUM,
-                           BUILT_IN_AQR_4_FW_BUILD_ID_NUM);
-    }
-    return device;
-
 }
 
 static mesa_rc aqr_status_1g_get(mepa_device_t     *dev,
@@ -674,10 +648,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[0].mepa_driver_delete = aqr_delete;
     aqr_drivers[0].mepa_driver_poll = aqr_poll;
     aqr_drivers[0].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[0].mepa_driver_if_set = aqr_407_if_set;
     aqr_drivers[0].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[0].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[0].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[0].mepa_driver_probe = aqr_407_probe;
+    aqr_drivers[0].mepa_driver_probe = aqr_probe;
     aqr_drivers[0].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[1].id = 0xB582;
@@ -685,10 +660,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[1].mepa_driver_delete = aqr_delete;
     aqr_drivers[1].mepa_driver_poll = aqr_poll;
     aqr_drivers[1].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[1].mepa_driver_if_set = aqr_407_if_set;
     aqr_drivers[1].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[1].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[1].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[1].mepa_driver_probe = aqr_407_probe;
+    aqr_drivers[1].mepa_driver_probe = aqr_probe;
     aqr_drivers[1].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[2].id = 0xB581;
@@ -696,10 +672,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[2].mepa_driver_delete = aqr_delete;
     aqr_drivers[2].mepa_driver_poll = aqr_poll;
     aqr_drivers[2].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[2].mepa_driver_if_set = aqr_407_if_set;
     aqr_drivers[2].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[2].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[2].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[2].mepa_driver_probe = aqr_407_probe;
+    aqr_drivers[2].mepa_driver_probe = aqr_probe;
     aqr_drivers[2].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     // 409
@@ -708,10 +685,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[3].mepa_driver_delete = aqr_delete;
     aqr_drivers[3].mepa_driver_poll = aqr_poll;
     aqr_drivers[3].mepa_driver_conf_set = aqr_409_conf_set;
+    aqr_drivers[3].mepa_driver_if_set = aqr_407_if_set;
     aqr_drivers[3].mepa_driver_if_get = aqr_409_if_get;
     aqr_drivers[3].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[3].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[3].mepa_driver_probe = aqr_407_probe;
+    aqr_drivers[3].mepa_driver_probe = aqr_probe;
     aqr_drivers[3].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[4].id = 0xB572;
@@ -719,10 +697,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[4].mepa_driver_delete = aqr_delete;
     aqr_drivers[4].mepa_driver_poll = aqr_poll;
     aqr_drivers[4].mepa_driver_conf_set = aqr_409_conf_set;
+    aqr_drivers[4].mepa_driver_if_set = aqr_407_if_set;
     aqr_drivers[4].mepa_driver_if_get = aqr_409_if_get;
     aqr_drivers[4].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[4].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[4].mepa_driver_probe = aqr_407_probe;
+    aqr_drivers[4].mepa_driver_probe = aqr_probe;
     aqr_drivers[4].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     // 411
@@ -731,10 +710,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[5].mepa_driver_delete = aqr_delete;
     aqr_drivers[5].mepa_driver_poll = aqr_poll;
     aqr_drivers[5].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[5].mepa_driver_if_set = aqr_gen3a_if_set;
     aqr_drivers[5].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[5].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[5].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[5].mepa_driver_probe = aqr_gen3a_probe;
+    aqr_drivers[5].mepa_driver_probe = aqr_probe;
     aqr_drivers[5].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[6].id = 0xB700;
@@ -742,10 +722,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[6].mepa_driver_delete = aqr_delete;
     aqr_drivers[6].mepa_driver_poll = aqr_poll;
     aqr_drivers[6].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[6].mepa_driver_if_set = aqr_gen3a_if_set;
     aqr_drivers[6].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[6].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[6].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[6].mepa_driver_probe = aqr_gen3a_probe;
+    aqr_drivers[6].mepa_driver_probe = aqr_probe;
     aqr_drivers[6].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[7].id = 0xB6E2;
@@ -753,10 +734,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[7].mepa_driver_delete = aqr_delete;
     aqr_drivers[7].mepa_driver_poll = aqr_poll;
     aqr_drivers[7].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[7].mepa_driver_if_set = aqr_gen3b_if_set;
     aqr_drivers[7].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[7].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[7].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[7].mepa_driver_probe = aqr_gen3b_probe;
+    aqr_drivers[7].mepa_driver_probe = aqr_probe;
     aqr_drivers[7].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     // 412
@@ -765,10 +747,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[8].mepa_driver_delete = aqr_delete;
     aqr_drivers[8].mepa_driver_poll = aqr_poll;
     aqr_drivers[8].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[8].mepa_driver_if_set = aqr_gen3a_if_set;
     aqr_drivers[8].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[8].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[8].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[8].mepa_driver_probe = aqr_gen3a_probe;
+    aqr_drivers[8].mepa_driver_probe = aqr_probe;
     aqr_drivers[8].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[9].id = 0xB710;
@@ -776,10 +759,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[9].mepa_driver_delete = aqr_delete;
     aqr_drivers[9].mepa_driver_poll = aqr_poll;
     aqr_drivers[9].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[9].mepa_driver_if_set = aqr_gen3a_if_set;
     aqr_drivers[9].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[9].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[9].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[9].mepa_driver_probe = aqr_gen3a_probe;
+    aqr_drivers[9].mepa_driver_probe = aqr_probe;
     aqr_drivers[9].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     aqr_drivers[10].id = 0xB6F2;
@@ -787,10 +771,11 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[10].mepa_driver_delete = aqr_delete;
     aqr_drivers[10].mepa_driver_poll = aqr_poll;
     aqr_drivers[10].mepa_driver_conf_set = aqr_conf_set;
+    aqr_drivers[10].mepa_driver_if_set = aqr_gen3b_if_set;
     aqr_drivers[10].mepa_driver_if_get = aqr_if_get;
     aqr_drivers[10].mepa_driver_cable_diag_start = aqr_veriphy_start;
     aqr_drivers[10].mepa_driver_cable_diag_get = aqr_veriphy_get;
-    aqr_drivers[10].mepa_driver_probe = aqr_gen3b_probe;
+    aqr_drivers[10].mepa_driver_probe = aqr_probe;
     aqr_drivers[10].mepa_driver_aneg_status_get = aqr_status_1g_get;
 
     res.phy_drv = aqr_drivers;

@@ -263,7 +263,7 @@ mepa_rc meba_miim_write(struct mepa_callout_cxt         *cxt,
 
 void meba_phy_driver_init(meba_inst_t inst)
 {
-    //uint32_t id2;
+    mepa_rc             rc;
     mesa_port_no_t      port_no;
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
@@ -294,7 +294,6 @@ void meba_phy_driver_init(meba_inst_t inst)
             (port_cap & MEBA_PORT_CAP_VTSS_10G_PHY)) {
 
             mepa_board_conf_t board_conf = {};
-            board_conf.mac_if = entry.mac_if;
             board_conf.numeric_handle = port_no;
 
             inst->phy_device_cxt[port_no].inst = 0;
@@ -308,10 +307,16 @@ void meba_phy_driver_init(meba_inst_t inst)
             inst->phy_devices[port_no] = mepa_create(&(inst->mepa_callout),
                                                      &(inst->phy_device_cxt[port_no]),
                                                      &board_conf);
+
             if (inst->phy_devices[port_no]) {
                 T_I(inst, "Phy has been probed on port %d", port_no);
+                rc = mepa_if_set(inst->phy_devices[port_no], entry.mac_if);
+                if (rc != MESA_RC_OK) {
+                    T_E(inst, "Failed to set MAC interface on PHY: %d", port_no);
+                }
+
             } else {
-                T_I(inst, "No probing");
+                T_I(inst, "Probe failed on %d", port_no);
             }
         }
     }

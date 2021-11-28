@@ -51,6 +51,10 @@ typedef mepa_rc (*mepa_driver_conf_set_t)(
 // Get the current interface configuration of PHY
 typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_driver_conf_t *const conf);
 
+typedef mepa_rc (*mepa_driver_if_set_t)(
+        struct mepa_device *dev,
+        mepa_port_interface_t intf);
+
 // Get the PHY interface based on speed.
 // speed         [IN] Speed.
 // intf          [OUT] Interface that is needed to be used by the port.
@@ -162,6 +166,7 @@ typedef struct mepa_driver {
     mepa_driver_poll_t                 mepa_driver_poll;
     mepa_driver_conf_set_t             mepa_driver_conf_set;
     mepa_driver_conf_get_t             mepa_driver_conf_get;
+    mepa_driver_if_set_t               mepa_driver_if_set;
     mepa_driver_if_get_t               mepa_driver_if_get;
     mepa_driver_power_set_t            mepa_driver_power_set;
     mepa_driver_cable_diag_start_t     mepa_driver_cable_diag_start;

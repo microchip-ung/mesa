@@ -126,7 +126,6 @@ typedef struct {
     mepa_bool_t             init_done;
     uint8_t                 packet_idx;
     mepa_port_no_t          port_no;
-    mepa_port_interface_t   mac_if;
     mepa_driver_conf_t      conf;
     mepa_event_t            events;
     mepa_loopback_t         loopback;

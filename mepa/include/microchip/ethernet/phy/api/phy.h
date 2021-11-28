@@ -63,7 +63,6 @@ typedef struct mepa_callout {
 
 
 typedef struct mepa_board_conf {
-    mepa_port_interface_t    mac_if;  // TODO, not sure about this...
     uint32_t                 numeric_handle;
 } mepa_board_conf_t;
 
@@ -93,6 +92,9 @@ mepa_rc mepa_conf_set(struct mepa_device *dev,
 
 mepa_rc mepa_conf_get(struct mepa_device *dev,
                       mepa_driver_conf_t *const conf);
+
+mepa_rc mepa_if_set(struct mepa_device *dev,
+                    mepa_port_interface_t intf);
 
 mepa_rc mepa_if_get(struct mepa_device *dev,
                     mepa_port_speed_t speed,

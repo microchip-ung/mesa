@@ -333,6 +333,17 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_driver_conf_t *const con
     }
     return MEPA_RC_OK;
 }
+
+static mepa_rc mscc_if_set(mepa_device_t *dev,
+                           mepa_port_interface_t mac_if)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    // TODO, check that the configured interface is supported!
+    data->mac_if = mac_if;
+    return MEPA_RC_OK;
+}
+
+
 static mepa_rc mscc_1g_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
                               mepa_port_interface_t *mac_if)
 {
@@ -412,7 +423,6 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
     vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_cxt);
     device->drv = drv;
     data->port_no = board_conf->numeric_handle;
-    data->mac_if = board_conf->mac_if;
     data->cap = PHY_CAP_1G;
     device->data = data;
 
@@ -841,7 +851,6 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
 
     device->drv = drv;
     data->port_no = board_conf->numeric_handle;
-    data->mac_if = board_conf->mac_if;
     data->cap = PHY_CAP_10G;
     device->data = data;
 
@@ -867,6 +876,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -896,6 +906,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -927,6 +938,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -958,6 +970,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -988,6 +1001,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = mscc_1g_if_get,
             .mepa_driver_power_set = mscc_1g_power_set,
             .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
@@ -1027,6 +1041,7 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_reset = malibu_10g_reset,
             .mepa_driver_poll = phy_10g_poll,
             .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = malibu_10g_if_get,
             .mepa_driver_power_set = NULL,
             .mepa_driver_cable_diag_start = NULL,
@@ -1056,6 +1071,7 @@ mepa_drivers_t mepa_venice_driver_init()
         .mepa_driver_reset = venice_10g_reset,
         .mepa_driver_poll = phy_10g_poll,
         .mepa_driver_conf_set = phy_10g_conf_set,
+        .mepa_driver_if_set = mscc_if_set,
         .mepa_driver_if_get = venice_10g_if_get,
         .mepa_driver_probe = phy_10g_probe,
         .mepa_driver_phy_info_get = phy_10g_info_get,
@@ -1080,6 +1096,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
         .mepa_driver_poll = mscc_1g_poll,
         .mepa_driver_conf_set = mscc_1g_conf_set,
         .mepa_driver_conf_get = phy_1g_conf_get,
+        .mepa_driver_if_set = mscc_if_set,
         .mepa_driver_if_get = mscc_1g_if_get,
         .mepa_driver_power_set = mscc_1g_power_set,
         .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
