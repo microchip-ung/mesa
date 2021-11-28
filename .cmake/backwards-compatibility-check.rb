@@ -264,8 +264,14 @@ $default_configs = "istax_multi.mk"
 
 # Backwards compatibility with previous build was broken due to change
 # of MESA-PHY functions to VTSS-PHY functions
+#check("backwards-check",              # Name of check
+#      "ed80b69366@master.mesa-phy-remove", # Appl release to use
+#      $default_configs)               # Configs to build
+
+# As part of the MEPA clean-up a trance init has changed, and a few types has
+# been renamed.
 check("backwards-check",              # Name of check
-      "ed80b69366@master.mesa-phy-remove", # Appl release to use
+      "85fe340cb8@master.mepa-init-cleanup", # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release

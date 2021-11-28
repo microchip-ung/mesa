@@ -276,6 +276,7 @@ void meba_phy_driver_init(meba_inst_t inst)
     inst->mepa_callout.miim_write = meba_miim_write;
     inst->mepa_callout.lock_enter = inst->iface.lock_enter;
     inst->mepa_callout.lock_exit = inst->iface.lock_exit;
+    MEPA_TRACE_FUNCION = inst->iface.trace;
 
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {

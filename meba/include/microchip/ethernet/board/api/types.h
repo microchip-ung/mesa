@@ -476,6 +476,7 @@ typedef struct {
     meba_clock_irq_handler_t  clock_irq_handler;  // TEMPORARY
     mepa_lock_func_t  lock_enter; // lock callback function called before entering MEPA Api
     mepa_lock_func_t  lock_exit;  // unlock callback function called after executing MEPA Api
+    mepa_trace_func_t trace;
 } meba_board_interface_t;
 
  // INTERIM board enum - will be deleted eventually
