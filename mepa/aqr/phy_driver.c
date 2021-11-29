@@ -419,49 +419,34 @@ static mesa_rc aqr_veriphy_get(mepa_device_t         *dev,
     return AQR_2_MESA_RC(aq_rc);
 }
 
-static mesa_rc aqr_fw(AQ_Port                *data,
-                      const uint8_t          *target_fw,
-                      const uint32_t         *target_fw_len,
-                      uint8_t                major_id,
-                      uint8_t                minor_id,
-                      uint8_t                build_id)
+static mesa_rc aqr_fw_check(AQ_Port  *data,
+                            uint8_t  major_id,
+                            uint8_t  minor_id,
+                            uint8_t  build_id)
 {
     AQ_API_StaticConfiguration aq_config;
     AQ_API_Port                aq_port;
     AQ_Retcode                 aq_ret;
-
-    T_D("aqr_phy_firmware_update, port %u, major: %u, minor: %u, build: %u",
-        data->dev->numeric_handle, major_id, minor_id, build_id);
+    int rom;
 
     aq_ret = aqr_phy_conf_get(data, &aq_config);
-
     if (aq_ret) {
-        T_E("Get AQR PHY configuration fail with error code %d, skip to upgrade AQR PHY FW.", aq_ret);
-    } else if (aq_config.daisyChainSetting == AQ_API_DC_Slave) {
-        T_I("port %d is DC %s, skip FW upgrade.", data->dev->numeric_handle, aq_config.daisyChainSetting == AQ_API_DC_Master ? "Master" : "Slave");
-        return MESA_RC_INV_STATE;
-    } else {
-        if (aq_config.firmwareMajorRevisionNumber == major_id &&
-           (aq_config.firmwareMinorRevisionNumber != minor_id ||
-           (aq_config.firmwareROM_ID_Number & 0xf0) >> 4 != build_id)) {
-            aqr_port_id_init(data, &aq_port);
-            T_I("Upgrade fiwmare to FW-%d.%d.%d, it takes about 50 sec", major_id, minor_id, build_id);
-            aq_ret = AQ_API_WriteAndVerifyFlashImage(&aq_port, target_fw_len, target_fw);
-            if (aq_ret) {
-                T_E("Writing PHY FW-%d.%d.%d, AQ_API_WriteAndVerifyFlashImage returned fail with error code %d.",
-                        major_id,
-                        minor_id,
-                        build_id,
-                        aq_ret);
-            } else {
-                T_I("FW upgrade done");
-                return MESA_RC_OK;
-            }
-        } else {
-            return MESA_RC_INV_STATE;
-        }
+        T_E("aqr_fw_check/aqr_phy_conf_get failed. Port: %d, RC: %d", data->dev->numeric_handle, aq_ret);
+        return MEPA_RC_ERROR;
     }
-    return AQR_2_MESA_RC(aq_ret);
+
+    rom = (aq_config.firmwareROM_ID_Number & 0xf0) >> 4;
+    if (aq_config.firmwareMajorRevisionNumber != major_id &&
+        (aq_config.firmwareMinorRevisionNumber != minor_id || rom != build_id)) {
+        T_E("Unexpected firmware version. Port: %d, Major: %d/%d && (Minor %d/%d || ROM: %d/%d) (actual/expect)",
+            data->dev->numeric_handle,
+            aq_config.firmwareMajorRevisionNumber, major_id,
+            aq_config.firmwareMinorRevisionNumber, minor_id,
+            rom, build_id);
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
 }
 
 static mesa_rc aqr_407_if_set(mepa_device_t *dev,
@@ -473,20 +458,16 @@ static mesa_rc aqr_407_if_set(mepa_device_t *dev,
 
     if (mac_if == MESA_PORT_INTERFACE_SGMII_2G5) {
         // Board JAGUAR2_AQR_REF
-        return aqr_fw(data,
-                      built_in_AQR_24_FW,
-                      &built_in_AQR_24_FW_len,
-                      BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
-                      BUILT_IN_AQR_24_FW_MINOR_REV_NUM,
-                      BUILT_IN_AQR_24_FW_BUILD_ID_NUM);
+        return aqr_fw_check(data,
+                            BUILT_IN_AQR_24_FW_MAJOR_REV_NUM,
+                            BUILT_IN_AQR_24_FW_MINOR_REV_NUM,
+                            BUILT_IN_AQR_24_FW_BUILD_ID_NUM);
     } else {
         // Board JAGUAR2_REF side board or other platform
-        return aqr_fw(data,
-                      built_in_AQR_4_FW,
-                      &built_in_AQR_4_FW_len,
-                      BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,
-                      BUILT_IN_AQR_4_FW_MINOR_REV_NUM,
-                      BUILT_IN_AQR_4_FW_BUILD_ID_NUM);
+        return aqr_fw_check(data,
+                            BUILT_IN_AQR_4_FW_MAJOR_REV_NUM,
+                            BUILT_IN_AQR_4_FW_MINOR_REV_NUM,
+                            BUILT_IN_AQR_4_FW_BUILD_ID_NUM);
     }
 }
 
@@ -498,12 +479,10 @@ static mesa_rc aqr_gen3a_if_set(mepa_device_t *dev,
     data->mac_if = mac_if;
 
     // Board JAGUAR2_AQR_REF
-    return aqr_fw(data,
-                  built_in_AQR_4_G3A_FW,
-                  &built_in_AQR_4_G3A_FW_len,
-                  BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
-                  BUILT_IN_AQR_4_G3A_FW_MINOR_REV_NUM,
-                  BUILT_IN_AQR_4_G3A_FW_BUILD_ID_NUM);
+    return aqr_fw_check(data,
+                        BUILT_IN_AQR_4_G3A_FW_MAJOR_REV_NUM,
+                        BUILT_IN_AQR_4_G3A_FW_MINOR_REV_NUM,
+                        BUILT_IN_AQR_4_G3A_FW_BUILD_ID_NUM);
 }
 
 static mesa_rc aqr_gen3b_if_set(mepa_device_t *dev,
@@ -514,12 +493,10 @@ static mesa_rc aqr_gen3b_if_set(mepa_device_t *dev,
     data->mac_if = mac_if;
 
     // Board JAGUAR2_AQR_REF
-    return aqr_fw(data,
-                  built_in_AQR_4_G3B_FW,
-                  &built_in_AQR_4_G3B_FW_len,
-                  BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
-                  BUILT_IN_AQR_4_G3B_FW_MINOR_REV_NUM,
-                  BUILT_IN_AQR_4_G3B_FW_BUILD_ID_NUM);
+    return aqr_fw_check(data,
+                        BUILT_IN_AQR_4_G3B_FW_MAJOR_REV_NUM,
+                        BUILT_IN_AQR_4_G3B_FW_MINOR_REV_NUM,
+                        BUILT_IN_AQR_4_G3B_FW_BUILD_ID_NUM);
 }
 
 #if 0
