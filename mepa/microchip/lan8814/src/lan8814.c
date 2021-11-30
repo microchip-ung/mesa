@@ -306,6 +306,33 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
+{
+    // Improve cable reach beyond 130m
+    EP_WR(dev, INDY_PD_CONTROLS, 0x248b);
+    EP_WR(dev, INDY_DFE_INIT2_100, 0x3c30);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_0, 0x10a);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_1, 0xed);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_2, 0xd3);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_3, 0xbc);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_4, 0xa8);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_5, 0x96);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_6, 0x85);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_7, 0x77);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_8, 0x6a);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_9, 0x5e);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_10, 0x54);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_11, 0x4b);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_12, 0x43);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_13, 0x3c);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_14, 0x35);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_15, 0x2f);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_16, 0x2a);
+    EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_17, 0x26);
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -328,6 +355,9 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     }
 
     PHY_MSLEEP(1);
+    // Some of the work-around registers get cleared after reset. So, they are called here
+    // after every reset.
+    indy_workaround_after_reset(dev);
     MEPA_EXIT(dev);
     T_I(data, MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
     // Reconfigure the phy after reset

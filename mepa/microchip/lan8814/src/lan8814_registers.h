@@ -132,6 +132,26 @@
 //====================================================================================
 //      Extended Page 1
 //====================================================================================
+#define INDY_DFE_INIT2_100                INDY_EXT_PAGE_1, 119
+#define INDY_PGA_TABLE_1G_ENTRY_0         INDY_EXT_PAGE_1, 121
+#define INDY_PGA_TABLE_1G_ENTRY_1         INDY_EXT_PAGE_1, 122
+#define INDY_PGA_TABLE_1G_ENTRY_2         INDY_EXT_PAGE_1, 123
+#define INDY_PGA_TABLE_1G_ENTRY_3         INDY_EXT_PAGE_1, 124
+#define INDY_PGA_TABLE_1G_ENTRY_4         INDY_EXT_PAGE_1, 125
+#define INDY_PGA_TABLE_1G_ENTRY_5         INDY_EXT_PAGE_1, 126
+#define INDY_PGA_TABLE_1G_ENTRY_6         INDY_EXT_PAGE_1, 127
+#define INDY_PGA_TABLE_1G_ENTRY_7         INDY_EXT_PAGE_1, 128
+#define INDY_PGA_TABLE_1G_ENTRY_8         INDY_EXT_PAGE_1, 129
+#define INDY_PGA_TABLE_1G_ENTRY_9         INDY_EXT_PAGE_1, 130
+#define INDY_PGA_TABLE_1G_ENTRY_10        INDY_EXT_PAGE_1, 131
+#define INDY_PGA_TABLE_1G_ENTRY_11        INDY_EXT_PAGE_1, 132
+#define INDY_PGA_TABLE_1G_ENTRY_12        INDY_EXT_PAGE_1, 133
+#define INDY_PGA_TABLE_1G_ENTRY_13        INDY_EXT_PAGE_1, 134
+#define INDY_PGA_TABLE_1G_ENTRY_14        INDY_EXT_PAGE_1, 135
+#define INDY_PGA_TABLE_1G_ENTRY_15        INDY_EXT_PAGE_1, 136
+#define INDY_PGA_TABLE_1G_ENTRY_16        INDY_EXT_PAGE_1, 137
+#define INDY_PGA_TABLE_1G_ENTRY_17        INDY_EXT_PAGE_1, 138
+#define INDY_PD_CONTROLS                  INDY_EXT_PAGE_1, 157
 #define INDY_LINK_QUALITY_MONITOR_SETTING INDY_EXT_PAGE_1, 142
 
 //====================================================================================
