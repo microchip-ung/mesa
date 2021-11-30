@@ -102,7 +102,7 @@ static void trace_func(const vtss_phy_trace_group_t group,
 
     va_list args;
 
-    if (MEPA_TRACE_FUNCION) {
+    if (MEPA_TRACE_FUNCTION) {
         // Map from VTSS to MEPA trace group/level
         data.group = (group == VTSS_PHY_TRACE_GROUP_TS ? MEPA_TRACE_GRP_TS : MEPA_TRACE_GRP_GEN);
         data.level = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MEPA_TRACE_LVL_ERROR :
@@ -112,7 +112,7 @@ static void trace_func(const vtss_phy_trace_group_t group,
 
 
         va_start(args, format);
-        MEPA_TRACE_FUNCION(&data, args);
+        MEPA_TRACE_FUNCTION(&data, args);
         va_end(args);
     }
 }

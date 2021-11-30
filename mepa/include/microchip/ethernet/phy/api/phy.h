@@ -41,10 +41,10 @@ typedef void *(*mepa_mem_alloc_t)(struct mepa_callout_cxt *cxt, size_t size);
 typedef void (*mepa_mem_free_t)(struct mepa_callout_cxt *cxt, void *ptr);
 
 // The MEPA trace function is a single global variable. Traces will only work
-// when a function is assigned to 'MEPA_TRACE_FUNCION'.
+// when a function is assigned to 'MEPA_TRACE_FUNCTION'.
 // It is not per-instance, as it can be essential to provide tracing capability
 // while creating instances.
-extern mepa_trace_func_t MEPA_TRACE_FUNCION;
+extern mepa_trace_func_t MEPA_TRACE_FUNCTION;
 
 // phy synchronisation callbacks passed by application
 typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);

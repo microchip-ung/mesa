@@ -289,7 +289,7 @@ void meba_phy_driver_init(meba_inst_t inst)
     inst->mepa_callout.mem_alloc = mem_alloc;
     inst->mepa_callout.mem_free = mem_free;
 
-    MEPA_TRACE_FUNCION = inst->iface.trace;
+    MEPA_TRACE_FUNCTION = inst->iface.trace;
 
     memset(&entry, 0, sizeof(meba_port_entry_t));
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
