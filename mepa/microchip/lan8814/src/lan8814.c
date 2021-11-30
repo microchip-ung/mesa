@@ -330,6 +330,9 @@ static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
     EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_16, 0x2a);
     EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_17, 0x26);
 
+    // Set Rx-clk to avoid crc errors in near-end loopback
+    WRM(dev, INDY_UNH_TEST, INDY_F_TEST_RX_CLK, INDY_F_TEST_RX_CLK);
+
     return MEPA_RC_OK;
 }
 
