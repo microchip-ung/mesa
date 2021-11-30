@@ -97,6 +97,7 @@ void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     size_t cnt;
 
     if (!callout->mem_alloc) {
+        T_E("No mem_alloc callout");
         return 0;
     }
 
@@ -104,6 +105,7 @@ void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 
     mem = callout->mem_alloc(callout_cxt, size);
     if (!mem) {
+        T_E("Out of memory? %z", size);
         return 0;
     }
 
@@ -143,7 +145,7 @@ struct mepa_device *mepa_create_int(
     size_t priv_aligned = size_align(size_of_private_data);
 
     mem = (char *)mepa_mem_alloc_int(callout, callout_cxt, dev_aligned + priv_aligned);
-    if (!dev) {
+    if (!mem) {
         T_E("Alloc failed. Port: %d, size: %d", conf->numeric_handle, dev_aligned + priv_aligned);
         return NULL;
     }
