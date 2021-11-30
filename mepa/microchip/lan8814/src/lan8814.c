@@ -102,11 +102,7 @@ mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_
 
 static mepa_rc indy_delete(mepa_device_t *dev)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-    free(data);
-    free(dev);
-    dev = NULL;
-    return MEPA_RC_OK;
+    return mepa_delete_int(dev);
 }
 
 static mepa_rc indy_get_device_info(mepa_device_t *dev)
@@ -128,32 +124,20 @@ static mepa_device_t *indy_probe(mepa_driver_t *drv,
                                  struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                  struct mepa_board_conf              *board_conf)
 {
-    mepa_device_t *dev =
-        (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
+    mepa_device_t *dev;
+    phy_data_t *data;
 
-    if (dev == NULL) goto out_device;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    if (!dev) {
+        return 0;
+    }
 
-    phy_data_t *data =
-        (phy_data_t *)calloc(1, sizeof(phy_data_t));
-
-    if (data == NULL) goto out_data;
-
-    dev->drv = drv;
-    dev->data = data;
-    dev->callout = callout;
-    dev->callout_cxt = callout_cxt;
-    dev->numeric_handle = board_conf->numeric_handle;
-
+    data = dev->data;
     data->port_no = board_conf->numeric_handle;
     data->events = 0;
 
     T_I(MEPA_TRACE_GRP_GEN, "indy driver probed for port %d", data->port_no);
     return dev;
-
-out_data:
-    free(dev);
-out_device:
-    return NULL;
 }
 
 static mepa_rc indy_init_conf(mepa_device_t *dev)

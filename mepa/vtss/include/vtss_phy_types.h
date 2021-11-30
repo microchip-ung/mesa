@@ -300,11 +300,21 @@ typedef enum {
  */
 typedef i64 vtss_timeinterval_t;
 
+struct mepa_callout;
+typedef struct mepa_callout mepa_callout_t;
+
+struct mepa_callout_cxt;
+typedef struct mepa_callout_cxt mepa_callout_cxt_t;
+
 /** \brief Create PHY instance */
-vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst);
+vtss_rc vtss_phy_inst_create(const mepa_callout_t    *callout,
+                             struct mepa_callout_cxt *callout_cxt,
+                             vtss_inst_t *const inst);
 
 /** \brief Destroy PHY instance */
-vtss_rc vtss_phy_inst_destroy(const vtss_inst_t inst);
+vtss_rc vtss_phy_inst_destroy(const mepa_callout_t    *callout,
+                              struct mepa_callout_cxt *callout_cxt,
+                              const vtss_inst_t inst);
 
 /** \brief Debug layer */
 /* Debug layer */

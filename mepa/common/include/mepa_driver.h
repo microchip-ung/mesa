@@ -216,6 +216,24 @@ typedef struct mepa_drivers {
     unsigned int count;         // Number of entries in phy_drv
 } mepa_drivers_t;
 
+void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                         size_t                                   size);
+
+void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                       struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                       void                                    *ptr);
+
+// Internal function for drivers to use to build mepa_inst structure
+struct mepa_device *mepa_create_int(
+        mepa_driver_t                           *drv,
+        const mepa_callout_t    MEPA_SHARED_PTR *callout,
+        struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+        struct mepa_board_conf                  *conf,
+        int                                      size_of_private_data);
+
+mepa_rc mepa_delete_int(mepa_device_t *dev);
+
 // Default driver that match any PHY
 mepa_drivers_t mepa_default_phy_driver_init();
 

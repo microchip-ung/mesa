@@ -561,29 +561,21 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf                  *board_conf)
 {
-    mepa_device_t   *device;
+    mepa_device_t   *dev;
     AQR_priv_data_t *priv;
     AQ_Port         *data;
     mesa_rc         rc;
 
-    if ((device = calloc(1, sizeof(mepa_device_t))) == NULL) {
-        return NULL;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(AQR_priv_data_t));
+    if (!dev) {
+        return 0;
     }
 
-    if ((priv = calloc(1, sizeof(AQR_priv_data_t))) == NULL) {
-        free(device);
-        return NULL;
-    }
-
+    priv = dev->data;
     data = &priv->aq_port;
-    device->drv = drv;
-    device->numeric_handle = board_conf->numeric_handle;
-    device->callout = callout;
-    device->callout_cxt = callout_cxt;
-    data->dev = device;
-    device->data = priv;
+    data->dev = dev;  // TODO, why?
 
-    return device;
+    return dev;
 }
 
 static mesa_rc aqr_status_1g_get(mepa_device_t     *dev,

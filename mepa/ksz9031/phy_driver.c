@@ -19,7 +19,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#define VTSS_FREE(_p_)                          free(_p_)
 #define MSLEEP(sec)                             usleep(sec*1000)
 
 #define KSZ_PHY_CHIPID 0x00221622
@@ -297,27 +296,19 @@ static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                 struct mepa_board_conf              *board_conf)
 {
-    uint32_t         cnt;
+    uint32_t cnt;
+    priv_data_t *priv;
+    mepa_device_t *dev;
 
-    mepa_device_t *device = (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
-    if (device == NULL)
-        return NULL;
-
-    priv_data_t *priv = (priv_data_t *)calloc(1, sizeof(priv_data_t));
-    if (priv == NULL) {
-        free(device);
-        return NULL;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(priv_data_t));
+    if (!dev) {
+        return 0;
     }
 
+    priv = dev->data;
     priv->phydev.irq = PHY_POLL;
 
-    device->drv = drv;
-    device->data = priv;
-    device->callout = callout;
-    device->callout_cxt = callout_cxt;
-    device->numeric_handle = board_conf->numeric_handle;
-
-    return device;
+    return dev;
 }
 
 static mesa_rc ksz_status_1g_get(mepa_device_t *dev, mesa_phy_status_1g_t *status)
@@ -340,9 +331,7 @@ static mesa_rc ksz_1g_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
 
 static mesa_rc ksz_delete(mepa_device_t *dev)
 {
-    VTSS_FREE(dev->data);
-    VTSS_FREE(dev);
-    return MESA_RC_OK;
+    return mepa_delete_int(dev);
 }
 
 mepa_drivers_t mepa_ksz9031_driver_init()

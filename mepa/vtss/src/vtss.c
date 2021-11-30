@@ -130,7 +130,7 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 
     // Check that PHY instance can be created
     if (vtss_inst_cnt == 0) {
-        if (vtss_phy_inst_create(&vtss_inst) != VTSS_RC_OK ||
+        if (vtss_phy_inst_create(callout, callout_cxt, &vtss_inst) != VTSS_RC_OK ||
             vtss_phy_init_conf_get(NULL, &conf) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
@@ -156,11 +156,11 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
     return MEPA_RC_OK;
 }
 
-static mepa_rc mscc_vtss_destroy(void)
+static mepa_rc mscc_vtss_destroy(mepa_device_t *dev)
 {
     if (vtss_inst_cnt) {
         vtss_inst_cnt--;
-        if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(vtss_inst) != VTSS_RC_OK) {
+        if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(dev->callout, dev->callout_cxt, vtss_inst) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
     }
@@ -169,11 +169,8 @@ static mepa_rc mscc_vtss_destroy(void)
 
 static mepa_rc mscc_1g_delete(mepa_device_t *dev)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-    free(data);
-    free(dev);
-    dev = NULL;
-    return mscc_vtss_destroy();
+    (void)mscc_vtss_destroy(dev);
+    return mepa_delete_int(dev);
 }
 
 static mepa_rc reset_phy(phy_data_t *data, vtss_phy_reset_conf_t *conf)
@@ -402,41 +399,29 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
                                     struct mepa_board_conf              *board_conf)
 {
     int i;
+    mepa_device_t *dev;
+    phy_data_t *data;
 
     if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
-    mepa_device_t *device =
-        (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
-
-    if (device == NULL) {
-        goto out_device;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    if (!dev) {
+        return 0;
     }
 
-    phy_data_t *data = (phy_data_t *)calloc(1, sizeof(phy_data_t));
-
-    if (data == NULL) {
-        goto out_data;
-    }
-
-    vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_cxt);
-    device->drv = drv;
+    data = dev->data;
     data->port_no = board_conf->numeric_handle;
     data->cap = PHY_CAP_1G;
-    device->data = data;
 
     for (i = 0; i < MAX_PORTS_PER_PHY; i++) {
         data->other_dev[i] = NULL;
     }
-    T_I(data, MEPA_TRACE_GRP_GEN, "probed port %d", data->port_no);
-    return device;
 
-out_data:
-    free(device);
-out_device:
-    (void)mscc_vtss_destroy();
-    return NULL;
+    T_I(data, MEPA_TRACE_GRP_GEN, "probed port %d", data->port_no);
+
+    return dev;
 }
 
 static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
@@ -643,11 +628,8 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
 
 static mepa_rc phy_10g_delete(mepa_device_t *dev)
 {
-    phy_data_t *data = (phy_data_t *)(dev->data);
-    free(data);
-    free(dev);
-    dev = NULL;
-    return mscc_vtss_destroy();
+    (void)mscc_vtss_destroy(dev);
+    return mepa_delete_int(dev);
 }
 
 static mepa_rc malibu_10g_reset(mepa_device_t *dev,
@@ -831,36 +813,24 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
                                     struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                     struct mepa_board_conf              *board_conf)
 {
+    int i;
+    mepa_device_t *dev;
+    phy_data_t *data;
 
     if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
-    mepa_device_t *device =
-        (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
-
-    if (device == NULL) {
-        goto out_device;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    if (!dev) {
+        return 0;
     }
 
-    phy_data_t *data = (phy_data_t *)calloc(1, sizeof(*data));
-
-    if (data == NULL) {
-        goto out_data;
-    }
-
-    device->drv = drv;
+    data = dev->data;
     data->port_no = board_conf->numeric_handle;
     data->cap = PHY_CAP_10G;
-    device->data = data;
 
-    return device;
-
-out_data:
-    free(device);
-out_device:
-    (void)mscc_vtss_destroy();
-    return NULL;
+    return dev;
 }
 
 mepa_drivers_t mepa_mscc_driver_init()

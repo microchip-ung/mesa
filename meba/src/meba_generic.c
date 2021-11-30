@@ -261,6 +261,16 @@ mepa_rc meba_miim_write(struct mepa_callout_cxt         *cxt,
                            cxt->miim_addr, addr, value);
 }
 
+static void *mem_alloc(struct mepa_callout_cxt *cxt, size_t size)
+{
+    return malloc(size);
+}
+
+static void mem_free(struct mepa_callout_cxt *cxt, void *ptr)
+{
+    free(ptr);
+}
+
 void meba_phy_driver_init(meba_inst_t inst)
 {
     mepa_rc             rc;
@@ -276,6 +286,9 @@ void meba_phy_driver_init(meba_inst_t inst)
     inst->mepa_callout.miim_write = meba_miim_write;
     inst->mepa_callout.lock_enter = inst->iface.lock_enter;
     inst->mepa_callout.lock_exit = inst->iface.lock_exit;
+    inst->mepa_callout.mem_alloc = mem_alloc;
+    inst->mepa_callout.mem_free = mem_free;
+
     MEPA_TRACE_FUNCION = inst->iface.trace;
 
     memset(&entry, 0, sizeof(meba_port_entry_t));

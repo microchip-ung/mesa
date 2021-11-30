@@ -74,9 +74,97 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     }
 
     phy_id = ((uint32_t)reg2) << 16 | reg3;
-    T_I("phy_id: %x", phy_id);
 
     return phy_id;
+}
+
+static size_t size_align(size_t s) {
+    if (s % 8) {
+        s /= 8;
+        s += 1;
+        s *= 8;
+    }
+
+    return s;
+}
+
+void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                         size_t                                   size)
+{
+    void *mem;
+    uint64_t *mem64;
+    size_t cnt;
+
+    if (!callout->mem_alloc) {
+        return 0;
+    }
+
+    size = size_align(size);
+
+    mem = callout->mem_alloc(callout_cxt, size);
+    if (!mem) {
+        return 0;
+    }
+
+    mem64 = (uint64_t *)mem;
+
+    size /= 8;
+    for (cnt = 0; cnt < size; cnt++) {
+        mem64[cnt] = 0;
+    }
+
+    return mem;
+}
+
+void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                       struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                       void                                    *ptr)
+{
+    if (!callout->mem_free) {
+        return;
+    }
+
+    callout->mem_free(callout_cxt, ptr);
+}
+
+struct mepa_device *mepa_create_int(
+        mepa_driver_t *drv,
+        const mepa_callout_t    MEPA_SHARED_PTR *callout,
+        struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+        struct mepa_board_conf  *conf,
+        int size_of_private_data)
+{
+    char            *mem;
+    mepa_device_t   *dev;
+    void            *priv;
+
+    size_t dev_aligned = size_align(sizeof(mepa_device_t));
+    size_t priv_aligned = size_align(size_of_private_data);
+
+    mem = (char *)mepa_mem_alloc_int(callout, callout_cxt, dev_aligned + priv_aligned);
+    if (!dev) {
+        T_E("Alloc failed. Port: %d, size: %d", conf->numeric_handle, dev_aligned + priv_aligned);
+        return NULL;
+    }
+
+    dev = (mepa_device_t *)mem;
+    priv = (void *)(mem + dev_aligned);
+
+    dev->drv = drv;
+    dev->data = priv;
+    dev->callout = callout;
+    dev->callout_cxt = callout_cxt;
+    dev->numeric_handle = conf->numeric_handle;
+
+    T_I("mepa_device created (%d) at %p/%z, private data: %p/%z", conf->numeric_handle, dev, dev_aligned, dev->data, priv_aligned);
+    return dev;
+}
+
+mepa_rc mepa_delete_int(mepa_device_t *dev)
+{
+    mepa_mem_free_int(dev->callout, dev->callout_cxt, dev);
+    return MEPA_RC_OK;
 }
 
 

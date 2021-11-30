@@ -48,8 +48,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#define VTSS_FREE(_p_)                          free(_p_)
-
 #define INTL_PHY_CHIPID 0x67c9dc00
 
 typedef struct Intl_Port {
@@ -194,27 +192,22 @@ static mepa_device_t *intl_probe(mepa_driver_t *drv,
                                  struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
                                  struct mepa_board_conf              *board_conf)
 {
-    mepa_device_t *dev = (mepa_device_t *)calloc(1, sizeof(mepa_device_t));
-    if (dev == NULL)
-        return NULL;
+    mepa_device_t *dev;
+    INTL_priv_data_t *priv;
 
-    INTL_priv_data_t *priv = (INTL_priv_data_t *)calloc(1, sizeof(INTL_priv_data_t));
-    if (priv == NULL) {
-        free(dev);
-        return NULL;
+    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(INTL_priv_data_t));
+    if (!dev) {
+        return 0;
     }
+
+    priv = dev->data;
     struct gpy211_device *initconf = &(priv->initconf);
 
-    dev->drv = drv;
-    dev->numeric_handle = board_conf->numeric_handle;
-    dev->callout = callout;
-    dev->callout_cxt = callout_cxt;
     priv->port_param.dev = dev;
     priv->initconf.mdiobus_read = mdiobus_read;
     priv->initconf.mdiobus_write = mdiobus_write;
     priv->initconf.mdiobus_data = (void *)&priv->port_param;
     priv->initconf.lock = NULL;
-    dev->data = priv;
 
     INTL_priv_data_t *data = PRIV_DATA(dev);
     T_D("intl_probe, enter\n");
@@ -227,11 +220,7 @@ static mepa_device_t *intl_probe(mepa_driver_t *drv,
 
 static mesa_rc intl_delete(mepa_device_t *dev)
 {
-    INTL_priv_data_t *data = (INTL_priv_data_t *)dev->data;
-
-    VTSS_FREE(data);
-    VTSS_FREE(dev);
-    return MEPA_RC_OK;
+    return mepa_delete_int(dev);
 }
 
 static mesa_rc intl_reset(mepa_device_t *dev,

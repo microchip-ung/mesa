@@ -12,32 +12,33 @@
 // pointer can be used.
 struct mepa_callout_cxt;
 
-typedef mepa_rc (*mmd_read_t)(struct mepa_callout_cxt           *cxt,
-                              const uint8_t                      mmd,
-                              const uint16_t                     addr,
-                              uint16_t                          *const value);
+typedef mepa_rc (*mepa_mmd_read_t)(struct mepa_callout_cxt           *cxt,
+                                   const uint8_t                      mmd,
+                                   const uint16_t                     addr,
+                                   uint16_t                          *const value);
 
-typedef mepa_rc (*mmd_read_inc_t)(struct mepa_callout_cxt       *cxt,
-                                  const uint8_t                  mmd,
-                                  const uint16_t                 addr,
-                                  uint16_t                       *const buf,
-                                  uint8_t                        count);
+typedef mepa_rc (*mepa_mmd_read_inc_t)(struct mepa_callout_cxt       *cxt,
+                                       const uint8_t                  mmd,
+                                       const uint16_t                 addr,
+                                       uint16_t                       *const buf,
+                                       uint8_t                        count);
 
-typedef mepa_rc (*mmd_write_t)(struct mepa_callout_cxt          *cxt,
-                               const uint8_t                     mmd,
-                               const uint16_t                    addr,
-                               const uint16_t                    value);
+typedef mepa_rc (*mepa_mmd_write_t)(struct mepa_callout_cxt          *cxt,
+                                    const uint8_t                     mmd,
+                                    const uint16_t                    addr,
+                                    const uint16_t                    value);
 
-typedef mepa_rc (*miim_read_t)(struct mepa_callout_cxt          *cxt,
-                               const uint8_t                     addr,
-                               uint16_t                         *const value);
+typedef mepa_rc (*mepa_miim_read_t)(struct mepa_callout_cxt          *cxt,
+                                    const uint8_t                     addr,
+                                    uint16_t                         *const value);
 
-typedef mepa_rc (*miim_write_t)(struct mepa_callout_cxt         *cxt,
-                                const uint8_t                    addr,
-                                const uint16_t                   value);
+typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_cxt         *cxt,
+                                     const uint8_t                    addr,
+                                     const uint16_t                   value);
 
-typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data,
-                                  va_list                  args);
+typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data, va_list args);
+typedef void *(*mepa_mem_alloc_t)(struct mepa_callout_cxt *cxt, size_t size);
+typedef void (*mepa_mem_free_t)(struct mepa_callout_cxt *cxt, void *ptr);
 
 // The MEPA trace function is a single global variable. Traces will only work
 // when a function is assigned to 'MEPA_TRACE_FUNCION'.
@@ -50,15 +51,17 @@ typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
 
 // Address mode that is specific for mchp phy.
 typedef struct mepa_callout {
-    mmd_read_t        mmd_read;
-    mmd_read_inc_t    mmd_read_inc;
-    mmd_write_t       mmd_write;
-    miim_read_t       miim_read;
-    miim_write_t      miim_write;
+    mepa_mmd_read_t        mmd_read;
+    mepa_mmd_read_inc_t    mmd_read_inc;
+    mepa_mmd_write_t       mmd_write;
+    mepa_miim_read_t       miim_read;
+    mepa_miim_write_t      miim_write;
 
-    mepa_lock_func_t  lock_enter;
-    mepa_lock_func_t  lock_exit;
-    // TODO, malloc
+    mepa_lock_func_t       lock_enter;
+    mepa_lock_func_t       lock_exit;
+
+    mepa_mem_alloc_t       mem_alloc;
+    mepa_mem_free_t        mem_free;
 } mepa_callout_t;
 
 

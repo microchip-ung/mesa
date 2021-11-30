@@ -5,6 +5,7 @@
 // Avoid "XXX.h not used in module "this_file.c"
 /*lint --e{766} */
 
+#include "mepa_driver.h"
 #include "vtss_phy_common.h"
 #include "../phy_10g/chips/venice/vtss_venice_regs.h"
 #include "../phy_10g/chips/malibu/vtss_malibu_regs_line_pma.h"
@@ -45,13 +46,16 @@ static vtss_inst_t vtss_phy_default_inst = NULL;
 vtss_phy_trace_func_t vtss_phy_trace_func;
 const char *vtss_phy_func;
 
-vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
+vtss_rc vtss_phy_inst_create(const mepa_callout_t    *callout,
+                             struct mepa_callout_cxt *callout_cxt,
+                             vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
 
     VTSS_I("state size: %zu (%u ports)", sizeof(*vtss_state), VTSS_PORTS);
-    if ((vtss_state = calloc(1, sizeof(*vtss_state))) == NULL)
+    if ((vtss_state = mepa_mem_alloc_int(callout, callout_cxt, sizeof(*vtss_state))) == NULL) {
         return VTSS_RC_ERROR;
+    }
 
     vtss_state->cookie = VTSS_STATE_COOKIE;
     vtss_state->port_count = VTSS_PORTS;
@@ -85,7 +89,9 @@ vtss_rc vtss_phy_inst_create(vtss_inst_t *const inst)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_phy_inst_destroy(const vtss_inst_t inst)
+vtss_rc vtss_phy_inst_destroy(const mepa_callout_t    *callout,
+                              struct mepa_callout_cxt *callout_cxt,
+                              const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -94,7 +100,7 @@ vtss_rc vtss_phy_inst_destroy(const vtss_inst_t inst)
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (vtss_state == vtss_phy_default_inst)
             vtss_phy_default_inst = NULL;
-        free(vtss_state);
+        mepa_mem_free_int(callout, callout_cxt, vtss_state);
     }
     VTSS_D("exit");
 
