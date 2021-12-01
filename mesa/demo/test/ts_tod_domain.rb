@@ -256,7 +256,7 @@ def tod_domain_test(domain, seconds)
             max = -200+520  #Copper SFP
         end
         if ($ts.dut.pcb == "8290")
-            min = -200+15   #External PHY
+            min = -200+5    #External PHY
             max = -200+75   #External PHY
         end
     end
