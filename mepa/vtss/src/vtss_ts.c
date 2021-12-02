@@ -603,7 +603,7 @@ static mepa_rc vtss_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
 static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init_conf_t *const ts_init_conf)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    vtss_phy_ts_init_conf_t init_conf;
+    vtss_phy_ts_init_conf_t init_conf = {};
 
     data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
     init_conf.clk_freq = ts_init_conf->clk_freq;
