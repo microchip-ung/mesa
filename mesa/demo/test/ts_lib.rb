@@ -170,7 +170,7 @@ def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ",
     test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}  domain #{domain}  seq_idx #{seq_idx} proto #{proto}" do
 
     tx_info = $ts.dut.call("mesa_packet_tx_info_init")
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         tx_info["dst_port"] = port
     else
         tx_info["dst_port_mask"] = (0x01 << port)
@@ -189,7 +189,7 @@ def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ",
         tx_info["inj_encap"]["type"] = "MESA_PACKET_ENCAP_TYPE_IP6"
     end
 
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 36)
     else
         if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
@@ -219,6 +219,12 @@ def rx_ifh_create(port=IGNORE)
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         $ifh += "ifh-fa ign "
+        if (port != IGNORE)
+            $ifh += "f-src-port #{$port_map[port]["chip_port"]} "
+        end
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        $ifh += "ifh-la ign "
         if (port != IGNORE)
             $ifh += "f-src-port #{$port_map[port]["chip_port"]} "
         end

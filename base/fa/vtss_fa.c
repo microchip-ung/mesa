@@ -672,7 +672,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 
     /* Initialize function groups */
-//    VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
+    VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
 
     return VTSS_RC_OK;
 }

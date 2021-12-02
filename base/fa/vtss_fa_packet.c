@@ -526,6 +526,30 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 }
 
 #define VSTAX 73 /* The IFH bit position of the first VSTAX bit. This is because the VSTAX bit positions in Data sheet is starting from zero. */
+#ifdef VTSS_ARCH_SPARX5
+#define FWD_UPDATE_FCS       67
+#define FWD_AFI_INJ          72
+#define FWD_MIRROR_PROBE     53
+#define FWD_ESO_ISDX_KEY_ENA 70
+#define FWD_SFLOW_ID         57
+#define DST_PDU_W16_OFFSET  195
+#define DST_PDU_TYPE        191
+#define DST_XVID_EXT        202
+#define SRC_PORT_WID          7
+#define FWD_SFLOW_ID_POS     12
+#endif
+#ifdef VTSS_ARCH_LAN969X
+#define FWD_UPDATE_FCS       66
+#define FWD_AFI_INJ          71
+#define FWD_MIRROR_PROBE     52
+#define FWD_ESO_ISDX_KEY_ENA 69
+#define FWD_SFLOW_ID         56
+#define DST_PDU_W16_OFFSET  194
+#define DST_PDU_TYPE        190
+#define DST_XVID_EXT        201
+#define SRC_PORT_WID          6
+#define FWD_SFLOW_ID_POS     11
+#endif
 
 static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
                                 const vtss_packet_rx_meta_t *const meta,
@@ -535,13 +559,17 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     u16                 vstax_hi, vstax_one;
     u32                 fwd, misc, sflow_id;
     u64                 tstamp, dst, vstax_lo;
-    u8                  xtr_hdr_2;
+    u8                  xtr_hdr_2, rb;
     vtss_phys_port_no_t chip_port;
     vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
 
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
-    // Bit 287-272 (16 bits) are unused
+    // (Fireant) Bit 287-272 (16 bits) are unused
+    // (Laguna) Bit 287-279 (9 bits) are unused
+
+    // (Laguna) RB is Bit 278-272
+    rb        = xtr_hdr[ 1] & 0x7F;
 
     // TS is bit 232-271
     xtr_hdr_2 = xtr_hdr[ 2] & 0x3F;  /* For some reason bit6-7 is occasionally unexpectedly set. Must be cleared */
@@ -581,7 +609,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     info->length            = meta->length;
     info->hw_tstamp_decoded = TRUE;
 
-    chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, 7); // FWD:SRC_PORT
+    chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, SRC_PORT_WID); // FWD:SRC_PORT
     info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
     if (chip_port == VTSS_CHIP_PORT_CPU_0 || chip_port == VTSS_CHIP_PORT_CPU_1) {
         VTSS_IG(trc_grp, "This frame is transmitted by the CPU itself and should be discarded.");
@@ -590,7 +618,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 //     VTSS_IG(trc_grp, "Received on xtr_qu = %u, chip_no = %d, chip_port = %u, port_no = %u", meta->xtr_qu, meta->chip_no, chip_port, info->port_no);
 
     // TBD_PACKET: Check if bugzilla#17780 is valid for this architecture
-    sflow_id = VTSS_EXTRACT_BITFIELD(fwd, 12, 7); // FWD:SFLOW_ID
+    sflow_id = VTSS_EXTRACT_BITFIELD(fwd, FWD_SFLOW_ID_POS, 7); // FWD:SFLOW_ID
     if (sflow_id < VTSS_CHIP_PORTS) {
         info->sflow_type = VTSS_SFLOW_TYPE_TX;
         info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
@@ -735,12 +763,12 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
 
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX+79, 1); // VSTAX.RSV = 1. MSBit must be 1
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX+55, 1); // VSTAX.INGR_DROP_MODE = Enable. Don't make head-of-line blocking
-    IFH_ENCODE_BITFIELD(bin_hdr, 1, 67,       1); // FWD.UPDATE_FCS = Enable. Enforce update of FCS.
+    IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_UPDATE_FCS, 1); // FWD.UPDATE_FCS = Enable. Enforce update of FCS.
 
 #if defined(VTSS_FEATURE_AFI_SWC)
     if (info->afi_id != VTSS_AFI_ID_NONE) {
         // The CPU wants this frame to go into the AFI packet memory for repetitive injection.
-        IFH_ENCODE_BITFIELD(bin_hdr, 1, 72, 1); // FWD.AFI_INJ = Enable
+        IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_AFI_INJ, 1); // FWD.AFI_INJ = Enable
     }
 #endif
 
@@ -757,22 +785,22 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             chip_port = VTSS_CHIP_PORT_FROM_STATE(state, info->masquerade_port);
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port % 32,    VSTAX+0,  5); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port / 32,    VSTAX+5,  5); // VSTAX.SRC.SRC_UPSID = masquerade chip port
-            IFH_ENCODE_BITFIELD(bin_hdr, chip_port,         46,       7); // FWD.SRC_PORT = masquerade port
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port,         46,       SRC_PORT_WID); // FWD.SRC_PORT = masquerade port
             setup_cl = TRUE; // Setup classified fields later
             pl_pt = info->pipeline_pt;
             if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
                 pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
             }
         } else {
-            IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, 7); // FWD.SRC_PORT = CPU
+            IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
         }
     } else {
         // Not a switched frame.
-        IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, 7); // FWD.SRC_PORT = CPU
+        IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
 
         // Add mirror port if enabled.
         if (state->l2.mirror_conf.port_no != VTSS_PORT_NO_NONE && state->l2.mirror_cpu_ingress) {
-            IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, 53, 2);  /* FWD.MIRROR_PROBE = Ingress mirror probe. 1-based in this field */
+            IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE, 2);  /* FWD.MIRROR_PROBE = Ingress mirror probe. 1-based in this field */
         }
 
         if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
@@ -827,12 +855,12 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
                    info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
                    isdx == VTSS_ISDX_NONE) {
             // ESO_ISDX_KEY_ENA is configured to the opposite of the requested. Try not to hit ES0 when no rewriting is calculated
-            IFH_ENCODE_BITFIELD(bin_hdr, 1, 70, 1); // FWD.ESO_ISDX_KEY_ENA = 1
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_ESO_ISDX_KEY_ENA, 1); // FWD.ESO_ISDX_KEY_ENA = 1
             IFH_ENCODE_BITFIELD(bin_hdr, info->cosid, VSTAX+76, 3); // VSTAX.COSID = cosid.
         }
     } /* switched frame */
 
-    IFH_ENCODE_BITFIELD(bin_hdr, 124,    57, 7); // FWD.SFLOW_ID (disable SFlow sampling)
+    IFH_ENCODE_BITFIELD(bin_hdr, 124,    FWD_SFLOW_ID, 7); // FWD.SFLOW_ID (disable SFlow sampling)
     IFH_ENCODE_BITFIELD(bin_hdr, pl_pt,  37, 5); // MISC.PIPELINE_PT
     IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42, 3); // MISC.PIPELINE_ACT
 
@@ -841,8 +869,8 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             VTSS_E("Invalid pdu_offset %u. It must be an even number greater than 0", info->pdu_offset);
             return VTSS_RC_ERROR;
         }
-        IFH_ENCODE_BITFIELD(bin_hdr, info->pdu_offset / 2, 195, 6); // DST.PDU_W16_OFFSET
-        IFH_ENCODE_BITFIELD(bin_hdr, pdu_type,             191, 4); // DST.PDU_TYPE
+        IFH_ENCODE_BITFIELD(bin_hdr, info->pdu_offset / 2, DST_PDU_W16_OFFSET, 6); // DST.PDU_W16_OFFSET
+        IFH_ENCODE_BITFIELD(bin_hdr, pdu_type,             DST_PDU_TYPE, 4); // DST.PDU_TYPE
     }
 
     if (setup_cl) {
@@ -853,12 +881,12 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
         vid = info->tag.vid;
         if (vid >= VTSS_VIDS) {
             // Extended VID
-            IFH_ENCODE_BITFIELD(bin_hdr, 1, 202, 1); // DST.XVID_EXT = Enable.
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, DST_XVID_EXT, 1); // DST.XVID_EXT = Enable.
             vid = (VTSS_VIDS - vid);
         }
         IFH_ENCODE_BITFIELD(bin_hdr, vid, VSTAX+16, 12); // VSTAX.TAG.CL_VID = vid.
         if (isdx != VTSS_ISDX_NONE) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1,          70,        1); // FWD.ESO_ISDX_KEY_ENA = 1
+            IFH_ENCODE_BITFIELD(bin_hdr, 1,    FWD_ESO_ISDX_KEY_ENA, 1); // FWD.ESO_ISDX_KEY_ENA = 1
             IFH_ENCODE_BITFIELD(bin_hdr, isdx, VSTAX+64, 12); // VSTAX.MISH.ISDX = isdx
         }
     }
