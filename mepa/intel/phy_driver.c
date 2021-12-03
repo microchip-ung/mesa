@@ -77,11 +77,11 @@ static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
     }
 
     if (mmd_access) {
-        if (dev->callout->mmd_read(dev->callout_cxt, devtype, regaddr, &value) == MEPA_RC_OK) {
+        if (dev->callout->mmd_read(dev->callout_ctx, devtype, regaddr, &value) == MEPA_RC_OK) {
             return value;
         }
     } else {
-        if (dev->callout->miim_read(dev->callout_cxt, regnum, &value) == MEPA_RC_OK) {
+        if (dev->callout->miim_read(dev->callout_ctx, regnum, &value) == MEPA_RC_OK) {
             return value;
         }
     }
@@ -102,11 +102,11 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
     }
 
     if (mmd_access) {
-        if (dev->callout->mmd_write(dev->callout_cxt, devtype, regaddr, val) == MEPA_RC_OK) {
+        if (dev->callout->mmd_write(dev->callout_ctx, devtype, regaddr, val) == MEPA_RC_OK) {
             return 0;
         }
     } else {
-        if (dev->callout->miim_write(dev->callout_cxt, regnum, val) == MEPA_RC_OK) {
+        if (dev->callout->miim_write(dev->callout_ctx, regnum, val) == MEPA_RC_OK) {
             return 0;
         }
     }
@@ -136,7 +136,7 @@ void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
             return;
     }
     reg_val |= 1 << 1;
-    dev->callout->mmd_write(dev->callout_cxt, 0x1e, 0x8, reg_val);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x8, reg_val);
 }
 
 static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
@@ -189,13 +189,13 @@ static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
 
 static mepa_device_t *intl_probe(mepa_driver_t *drv,
                                  const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                  struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev;
     INTL_priv_data_t *priv;
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(INTL_priv_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(INTL_priv_data_t));
     if (!dev) {
         return 0;
     }

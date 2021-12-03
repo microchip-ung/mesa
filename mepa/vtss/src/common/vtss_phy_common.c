@@ -47,13 +47,13 @@ vtss_phy_trace_func_t vtss_phy_trace_func;
 const char *vtss_phy_func;
 
 vtss_rc vtss_phy_inst_create(const mepa_callout_t    *callout,
-                             struct mepa_callout_cxt *callout_cxt,
+                             struct mepa_callout_ctx *callout_ctx,
                              vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
 
     VTSS_I("state size: %zu (%u ports)", sizeof(*vtss_state), VTSS_PORTS);
-    if ((vtss_state = mepa_mem_alloc_int(callout, callout_cxt, sizeof(*vtss_state))) == NULL) {
+    if ((vtss_state = mepa_mem_alloc_int(callout, callout_ctx, sizeof(*vtss_state))) == NULL) {
         return VTSS_RC_ERROR;
     }
 
@@ -90,7 +90,7 @@ vtss_rc vtss_phy_inst_create(const mepa_callout_t    *callout,
 }
 
 vtss_rc vtss_phy_inst_destroy(const mepa_callout_t    *callout,
-                              struct mepa_callout_cxt *callout_cxt,
+                              struct mepa_callout_ctx *callout_ctx,
                               const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
@@ -100,7 +100,7 @@ vtss_rc vtss_phy_inst_destroy(const mepa_callout_t    *callout,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (vtss_state == vtss_phy_default_inst)
             vtss_phy_default_inst = NULL;
-        mepa_mem_free_int(callout, callout_cxt, vtss_state);
+        mepa_mem_free_int(callout, callout_ctx, vtss_state);
     }
     VTSS_D("exit");
 
@@ -1835,16 +1835,16 @@ vtss_rc vtss_statistics_get(const vtss_inst_t inst,
 
 vtss_rc vtss_phy_callout_set(const vtss_inst_t inst,
                              const vtss_port_no_t  port_no,
-                             struct mepa_callout_cxt *c) {
+                             struct mepa_callout_ctx *c) {
     vtss_state_t *vtss_state;
     vtss_rc rc = VTSS_RC_OK;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->callout_cxt[port_no]) {
+        if (vtss_state->callout_ctx[port_no]) {
             rc = VTSS_RC_ERROR;
         } else {
-            vtss_state->callout_cxt[port_no] = c;
+            vtss_state->callout_ctx[port_no] = c;
         }
     }
     VTSS_EXIT();

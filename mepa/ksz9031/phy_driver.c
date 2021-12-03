@@ -83,7 +83,7 @@ static int phy_read(mepa_device_t *dev, uint32_t regnum)
 {
     uint16_t  value;
 
-    if (dev->callout->miim_read(dev->callout_cxt, regnum, &value) != MESA_RC_OK) {
+    if (dev->callout->miim_read(dev->callout_ctx, regnum, &value) != MESA_RC_OK) {
         return -1;
     }
     return value;
@@ -91,7 +91,7 @@ static int phy_read(mepa_device_t *dev, uint32_t regnum)
 
 static int phy_write(mepa_device_t *dev, uint32_t regnum, uint16_t val)
 {
-    if (dev->callout->miim_write(dev->callout_cxt, regnum, val) != MESA_RC_OK) {
+    if (dev->callout->miim_write(dev->callout_ctx, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
@@ -117,7 +117,7 @@ int phy_modify(mepa_device_t *dev, uint32_t regnum, uint16_t mask, uint16_t set)
 
 int phy_write_mmd(mepa_device_t *dev, int devad, uint32_t regnum, uint16_t val)
 {
-    if (dev->callout->mmd_write(dev->callout_cxt, devad, regnum, val) != MESA_RC_OK) {
+    if (dev->callout->mmd_write(dev->callout_ctx, devad, regnum, val) != MESA_RC_OK) {
         return -1;
     }
     return 0;
@@ -293,14 +293,14 @@ static mesa_rc ksz_conf_set(mepa_device_t      *dev,
 
 static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf              *board_conf)
 {
     uint32_t cnt;
     priv_data_t *priv;
     mepa_device_t *dev;
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(priv_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(priv_data_t));
     if (!dev) {
         return 0;
     }

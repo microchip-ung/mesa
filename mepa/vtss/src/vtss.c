@@ -23,7 +23,7 @@ static vtss_rc miim_read(const vtss_inst_t    inst,
                          const u8             addr,
                          u16                  *const value)
 {
-    return CALLOUT->miim_read(inst->callout_cxt[port_no], addr, value);
+    return CALLOUT->miim_read(inst->callout_ctx[port_no], addr, value);
 }
 
 static vtss_rc miim_write(const vtss_inst_t    inst,
@@ -31,7 +31,7 @@ static vtss_rc miim_write(const vtss_inst_t    inst,
                           const u8             addr,
                           const u16            value)
 {
-    return CALLOUT->miim_write(inst->callout_cxt[port_no], addr, value);
+    return CALLOUT->miim_write(inst->callout_ctx[port_no], addr, value);
 }
 
 static vtss_rc mmd_read(const vtss_inst_t    inst,
@@ -40,7 +40,7 @@ static vtss_rc mmd_read(const vtss_inst_t    inst,
                         const u16            addr,
                         u16                  *const value)
 {
-    return CALLOUT->mmd_read(inst->callout_cxt[port_no], mmd, addr, value);
+    return CALLOUT->mmd_read(inst->callout_ctx[port_no], mmd, addr, value);
 }
 
 static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
@@ -50,7 +50,7 @@ static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
                             u16                  *const buf,
                             u8                   cnt)
 {
-    return CALLOUT->mmd_read_inc(inst->callout_cxt[port_no], mmd, addr, buf,
+    return CALLOUT->mmd_read_inc(inst->callout_ctx[port_no], mmd, addr, buf,
                                   cnt);
 }
 
@@ -60,7 +60,7 @@ static vtss_rc mmd_write(const vtss_inst_t    inst,
                          const u16            addr,
                          const u16            value)
 {
-    return CALLOUT->mmd_write(inst->callout_cxt[port_no], mmd, addr, value);
+    return CALLOUT->mmd_write(inst->callout_ctx[port_no], mmd, addr, value);
 }
 
 static void lock_enter(const vtss_phy_lock_t *const lock)
@@ -118,7 +118,7 @@ static void trace_func(const vtss_phy_trace_group_t group,
 }
 
 static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf              *board_conf)
 {
     vtss_phy_init_conf_t conf;
@@ -130,7 +130,7 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 
     // Check that PHY instance can be created
     if (vtss_inst_cnt == 0) {
-        if (vtss_phy_inst_create(callout, callout_cxt, &vtss_inst) != VTSS_RC_OK ||
+        if (vtss_phy_inst_create(callout, callout_ctx, &vtss_inst) != VTSS_RC_OK ||
             vtss_phy_init_conf_get(NULL, &conf) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
@@ -146,7 +146,7 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         (void)vtss_phy_init_conf_set(NULL, &conf);
     }
 
-    if (vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_cxt) == MEPA_RC_OK) {
+    if (vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_ctx) == MEPA_RC_OK) {
         vtss_inst_cnt++;
     } else {
         return MEPA_RC_ERROR;
@@ -160,7 +160,7 @@ static mepa_rc mscc_vtss_destroy(mepa_device_t *dev)
 {
     if (vtss_inst_cnt) {
         vtss_inst_cnt--;
-        if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(dev->callout, dev->callout_cxt, vtss_inst) != VTSS_RC_OK) {
+        if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(dev->callout, dev->callout_ctx, vtss_inst) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
     }
@@ -395,18 +395,18 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
                                     const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                    struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                     struct mepa_board_conf              *board_conf)
 {
     int i;
     mepa_device_t *dev;
     phy_data_t *data;
 
-    if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
+    if (mscc_vtss_create(callout, callout_ctx, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
     if (!dev) {
         return 0;
     }
@@ -810,18 +810,18 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
 
 static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
                                     const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                    struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                     struct mepa_board_conf              *board_conf)
 {
     int i;
     mepa_device_t *dev;
     phy_data_t *data;
 
-    if (mscc_vtss_create(callout, callout_cxt, board_conf) != MEPA_RC_OK) {
+    if (mscc_vtss_create(callout, callout_ctx, board_conf) != MEPA_RC_OK) {
         return NULL;
     }
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
     if (!dev) {
         return 0;
     }

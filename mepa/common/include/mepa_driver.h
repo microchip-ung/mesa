@@ -89,7 +89,7 @@ typedef mepa_rc (*mepa_driver_media_set_t)(
 typedef struct mepa_device *(*mepa_driver_probe_t)(
     struct mepa_driver                  *dev,
     const mepa_callout_t    MEPA_SHARED_PTR *callout,
-    struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+    struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
     struct mepa_board_conf              *conf);
 
 //  Gets copper PHY auto-negotiation status.
@@ -204,7 +204,7 @@ typedef struct mepa_device {
     uint32_t numeric_handle;
 
     const mepa_callout_t    *callout;
-    struct mepa_callout_cxt *callout_cxt;
+    struct mepa_callout_ctx *callout_ctx;
 
     void *data; // Private data
 } mepa_device_t;
@@ -217,18 +217,18 @@ typedef struct mepa_drivers {
 } mepa_drivers_t;
 
 void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                          size_t                                   size);
 
 void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                       struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                       struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                        void                                    *ptr);
 
 // Internal function for drivers to use to build mepa_inst structure
 struct mepa_device *mepa_create_int(
         mepa_driver_t                           *drv,
         const mepa_callout_t    MEPA_SHARED_PTR *callout,
-        struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+        struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
         struct mepa_board_conf                  *conf,
         int                                      size_of_private_data);
 

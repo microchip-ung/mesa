@@ -33,7 +33,7 @@ struct meba_inst {
     meba_api_cpu_port_t      *api_cpu_port;          /**< CPU Port API entrypoints */
     int                      phy_device_cnt;         /**< Total number of phy devices/ports available in board (needed for phy API) */
     mepa_device_t            **phy_devices;          /**< Entry point to phy driver devices. */
-    mepa_callout_cxt_t       *phy_device_cxt;        /**< Array of PHY context */
+    mepa_callout_ctx_t       *phy_device_ctx;        /**< Array of PHY context */
     mepa_callout_t           mepa_callout;
 };
 

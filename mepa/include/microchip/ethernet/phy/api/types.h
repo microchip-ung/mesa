@@ -7,7 +7,7 @@
 #include <microchip/ethernet/common.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
-struct mepa_callout_cxt;
+struct mepa_callout_ctx;
 
 struct mepa_ts_driver;
 

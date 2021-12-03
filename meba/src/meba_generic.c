@@ -217,56 +217,56 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t inst,
     return rc;
 }
 
-mepa_rc meba_mmd_read(struct mepa_callout_cxt           *cxt,
+mepa_rc meba_mmd_read(struct mepa_callout_ctx           *ctx,
                       const uint8_t                      mmd,
                       const uint16_t                     addr,
                       uint16_t                          *const value)
 {
-    return mesa_mmd_read(cxt->inst, cxt->chip_no, cxt->miim_controller,
-                         cxt->miim_addr, mmd, addr, value);
+    return mesa_mmd_read(ctx->inst, ctx->chip_no, ctx->miim_controller,
+                         ctx->miim_addr, mmd, addr, value);
 }
 
-mepa_rc meba_mmd_read_inc(struct mepa_callout_cxt       *cxt,
+mepa_rc meba_mmd_read_inc(struct mepa_callout_ctx       *ctx,
                           const uint8_t                  mmd,
                           const uint16_t                 addr,
                           uint16_t                       *const buf,
                           uint8_t                        count)
 {
-    return mesa_port_mmd_read_inc(cxt->inst, cxt->port_no,
+    return mesa_port_mmd_read_inc(ctx->inst, ctx->port_no,
                                   mmd, addr, buf, count);
 }
 
-mepa_rc meba_mmd_write(struct mepa_callout_cxt          *cxt,
+mepa_rc meba_mmd_write(struct mepa_callout_ctx          *ctx,
                        const uint8_t                     mmd,
                        const uint16_t                    addr,
                        const uint16_t                    value)
 {
-    return mesa_mmd_write(cxt->inst, cxt->chip_no, cxt->miim_controller,
-                          cxt->miim_addr, mmd, addr, value);
+    return mesa_mmd_write(ctx->inst, ctx->chip_no, ctx->miim_controller,
+                          ctx->miim_addr, mmd, addr, value);
 }
 
-mepa_rc meba_miim_read(struct mepa_callout_cxt          *cxt,
+mepa_rc meba_miim_read(struct mepa_callout_ctx          *ctx,
                        const uint8_t                     addr,
                        uint16_t                         *const value)
 {
-    return mesa_miim_read(cxt->inst, cxt->chip_no, cxt->miim_controller,
-                          cxt->miim_addr, addr, value);
+    return mesa_miim_read(ctx->inst, ctx->chip_no, ctx->miim_controller,
+                          ctx->miim_addr, addr, value);
 }
 
-mepa_rc meba_miim_write(struct mepa_callout_cxt         *cxt,
+mepa_rc meba_miim_write(struct mepa_callout_ctx         *ctx,
                         const uint8_t                    addr,
                         const uint16_t                   value)
 {
-    return mesa_miim_write(cxt->inst, cxt->chip_no, cxt->miim_controller,
-                           cxt->miim_addr, addr, value);
+    return mesa_miim_write(ctx->inst, ctx->chip_no, ctx->miim_controller,
+                           ctx->miim_addr, addr, value);
 }
 
-static void *mem_alloc(struct mepa_callout_cxt *cxt, size_t size)
+static void *mem_alloc(struct mepa_callout_ctx *ctx, size_t size)
 {
     return malloc(size);
 }
 
-static void mem_free(struct mepa_callout_cxt *cxt, void *ptr)
+static void mem_free(struct mepa_callout_ctx *ctx, void *ptr)
 {
     free(ptr);
 }
@@ -278,7 +278,7 @@ void meba_phy_driver_init(meba_inst_t inst)
     meba_port_entry_t   entry;
     mepa_device_t       *phy_dev;
 
-    inst->phy_device_cxt = calloc(inst->phy_device_cnt, sizeof(mepa_callout_cxt_t));
+    inst->phy_device_ctx = calloc(inst->phy_device_cnt, sizeof(mepa_callout_ctx_t));
     inst->mepa_callout.mmd_read = meba_mmd_read;
     inst->mepa_callout.mmd_read_inc = meba_mmd_read_inc;
     inst->mepa_callout.mmd_write = meba_mmd_write;
@@ -310,16 +310,16 @@ void meba_phy_driver_init(meba_inst_t inst)
             mepa_board_conf_t board_conf = {};
             board_conf.numeric_handle = port_no;
 
-            inst->phy_device_cxt[port_no].inst = 0;
-            inst->phy_device_cxt[port_no].port_no = port_no;
-            inst->phy_device_cxt[port_no].meba_inst = inst;
-            inst->phy_device_cxt[port_no].miim_controller = entry.map.miim_controller;
-            inst->phy_device_cxt[port_no].miim_addr = entry.map.miim_addr;
-            inst->phy_device_cxt[port_no].chip_no = entry.map.chip_no;
+            inst->phy_device_ctx[port_no].inst = 0;
+            inst->phy_device_ctx[port_no].port_no = port_no;
+            inst->phy_device_ctx[port_no].meba_inst = inst;
+            inst->phy_device_ctx[port_no].miim_controller = entry.map.miim_controller;
+            inst->phy_device_ctx[port_no].miim_addr = entry.map.miim_addr;
+            inst->phy_device_ctx[port_no].chip_no = entry.map.chip_no;
 
 
             inst->phy_devices[port_no] = mepa_create(&(inst->mepa_callout),
-                                                     &(inst->phy_device_cxt[port_no]),
+                                                     &(inst->phy_device_ctx[port_no]),
                                                      &board_conf);
 
             if (inst->phy_devices[port_no]) {

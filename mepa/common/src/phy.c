@@ -38,7 +38,7 @@ void MEPA_trace(mepa_trace_group_t  group,
 }
 
 uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt)
+                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx)
 {
     int i;
     uint32_t phy_id = 0;
@@ -54,7 +54,7 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     // TODO, this check would be more robust if we combine it with the values of
     // mmd=1 reg 2 and reg3 (on venice this is 0x0007 0x0400)
     if (callout->mmd_read) {
-        callout->mmd_read(callout_cxt, 30, 0, &reg3);
+        callout->mmd_read(callout_ctx, 30, 0, &reg3);
         for (i = 0; i < sizeof(special)/sizeof(special[0]); i++) {
             if (reg3 == special[i]) {
                 return reg3;
@@ -63,14 +63,14 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     }
 
     if (callout->miim_read) {
-        callout->miim_read(callout_cxt, 2, &reg2);
-        callout->miim_read(callout_cxt, 3, &reg3);
+        callout->miim_read(callout_ctx, 2, &reg2);
+        callout->miim_read(callout_ctx, 3, &reg3);
     }
 
     // Maybe it is a PHY responding to MMD and not MIIM
     if (callout->mmd_read && reg2 == 0 && reg3 == 0) {
-        callout->mmd_read(callout_cxt, 0x1, 0x2, &reg2);
-        callout->mmd_read(callout_cxt, 0x1, 0x3, &reg3);
+        callout->mmd_read(callout_ctx, 0x1, 0x2, &reg2);
+        callout->mmd_read(callout_ctx, 0x1, 0x3, &reg3);
     }
 
     phy_id = ((uint32_t)reg2) << 16 | reg3;
@@ -89,7 +89,7 @@ static size_t size_align(size_t s) {
 }
 
 void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                         struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                          size_t                                   size)
 {
     void *mem;
@@ -103,7 +103,7 @@ void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 
     size = size_align(size);
 
-    mem = callout->mem_alloc(callout_cxt, size);
+    mem = callout->mem_alloc(callout_ctx, size);
     if (!mem) {
         T_E("Out of memory? %z", size);
         return 0;
@@ -120,20 +120,20 @@ void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 }
 
 void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                       struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                       struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                        void                                    *ptr)
 {
     if (!callout->mem_free) {
         return;
     }
 
-    callout->mem_free(callout_cxt, ptr);
+    callout->mem_free(callout_ctx, ptr);
 }
 
 struct mepa_device *mepa_create_int(
         mepa_driver_t *drv,
         const mepa_callout_t    MEPA_SHARED_PTR *callout,
-        struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+        struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
         struct mepa_board_conf  *conf,
         int size_of_private_data)
 {
@@ -144,7 +144,7 @@ struct mepa_device *mepa_create_int(
     size_t dev_aligned = size_align(sizeof(mepa_device_t));
     size_t priv_aligned = size_align(size_of_private_data);
 
-    mem = (char *)mepa_mem_alloc_int(callout, callout_cxt, dev_aligned + priv_aligned);
+    mem = (char *)mepa_mem_alloc_int(callout, callout_ctx, dev_aligned + priv_aligned);
     if (!mem) {
         T_E("Alloc failed. Port: %d, size: %d", conf->numeric_handle, dev_aligned + priv_aligned);
         return NULL;
@@ -156,7 +156,7 @@ struct mepa_device *mepa_create_int(
     dev->drv = drv;
     dev->data = priv;
     dev->callout = callout;
-    dev->callout_cxt = callout_cxt;
+    dev->callout_ctx = callout_ctx;
     dev->numeric_handle = conf->numeric_handle;
 
     T_I("mepa_device created (%d) at %p/%z, private data: %p/%z", conf->numeric_handle, dev, dev_aligned, dev->data, priv_aligned);
@@ -165,13 +165,13 @@ struct mepa_device *mepa_create_int(
 
 mepa_rc mepa_delete_int(mepa_device_t *dev)
 {
-    mepa_mem_free_int(dev->callout, dev->callout_cxt, dev);
+    mepa_mem_free_int(dev->callout, dev->callout_ctx, dev);
     return MEPA_RC_OK;
 }
 
 
 struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf  *conf)
 {
     uint32_t phy_id = 0;
@@ -211,7 +211,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #endif
     }
 
-    phy_id = mepa_phy_id_get(callout, callout_cxt);
+    phy_id = mepa_phy_id_get(callout, callout_ctx);
 
     //if (phy_id != conf->id) {
     //    T_E("PHY IDs does not match");
@@ -230,7 +230,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
             if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
-                dev = driver->mepa_driver_probe(driver, callout, callout_cxt, conf);
+                dev = driver->mepa_driver_probe(driver, callout, callout_ctx, conf);
                 if (dev) {
                     T_I("probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", conf->numeric_handle, driver->id, phy_id, i, j);
                     return dev;

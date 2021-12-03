@@ -128,7 +128,7 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
             MSLEEP(50);
             T_D("aqr_conf_set_private mmd_read");
             uint16_t reg_value;
-            data->dev->callout->mmd_read(dev->callout_cxt, 0x1e, 0xc831, &reg_value);
+            data->dev->callout->mmd_read(dev->callout_ctx, 0x1e, 0xc831, &reg_value);
             if (!(reg_value & 0x8000)) {
                 break; //1E.C831 Processor-intensive MDIO operation completed 0x0000: p584
             }
@@ -558,7 +558,7 @@ static void aqr_daisy_chain_reset(const mesa_inst_t     inst,
 
 static mepa_device_t *aqr_probe(mepa_driver_t *drv,
                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf                  *board_conf)
 {
     mepa_device_t   *dev;
@@ -566,7 +566,7 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
     AQ_Port         *data;
     mesa_rc         rc;
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(AQR_priv_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(AQR_priv_data_t));
     if (!dev) {
         return 0;
     }

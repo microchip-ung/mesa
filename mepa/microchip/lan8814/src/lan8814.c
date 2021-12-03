@@ -18,7 +18,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
 
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
-    if (dev->callout->miim_read(dev->callout_cxt, addr, value) != MESA_RC_OK) {
+    if (dev->callout->miim_read(dev->callout_ctx, addr, value) != MESA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "miim read failed\n");
     }
     return MEPA_RC_OK;
@@ -28,14 +28,14 @@ mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, ui
     uint16_t reg_val = value;
     mesa_rc rc;
 
-    rc = dev->callout->miim_read(dev->callout_cxt, addr, &reg_val);
+    rc = dev->callout->miim_read(dev->callout_ctx, addr, &reg_val);
     if (rc == MESA_RC_OK) {
         if (mask != INDY_DEF_MASK) {
             reg_val = (reg_val & ~mask) | (value & mask);
         } else {
             reg_val = value;
         }
-        rc = dev->callout->miim_write(dev->callout_cxt, addr, reg_val);
+        rc = dev->callout->miim_write(dev->callout_ctx, addr, reg_val);
         if (rc != MESA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "miim write failed\n");
         }
@@ -121,13 +121,13 @@ static mepa_rc indy_get_device_info(mepa_device_t *dev)
 
 static mepa_device_t *indy_probe(mepa_driver_t *drv,
                                  const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                 struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                  struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev;
     phy_data_t *data;
 
-    dev = mepa_create_int(drv, callout, callout_cxt, board_conf, sizeof(phy_data_t));
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
     if (!dev) {
         return 0;
     }

@@ -160,7 +160,7 @@ vtss_rc vtss_fc_buffer_frm_gap_set(vtss_state_t *vtss_state, vtss_port_no_t port
 
 vtss_rc vtss_phy_callout_set(const vtss_inst_t inst,
                              const vtss_port_no_t  port_no,
-                             struct mepa_callout_cxt *c);
+                             struct mepa_callout_ctx *c);
 
 
 #ifdef __cplusplus

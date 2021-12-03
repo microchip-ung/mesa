@@ -10,35 +10,35 @@
 // Forigen pointer. MEPA only passes this pointer around, application instanting
 // MEPA must define this type. If no bus-addressing data is needed, a null
 // pointer can be used.
-struct mepa_callout_cxt;
+struct mepa_callout_ctx;
 
-typedef mepa_rc (*mepa_mmd_read_t)(struct mepa_callout_cxt           *cxt,
+typedef mepa_rc (*mepa_mmd_read_t)(struct mepa_callout_ctx           *ctx,
                                    const uint8_t                      mmd,
                                    const uint16_t                     addr,
                                    uint16_t                          *const value);
 
-typedef mepa_rc (*mepa_mmd_read_inc_t)(struct mepa_callout_cxt       *cxt,
+typedef mepa_rc (*mepa_mmd_read_inc_t)(struct mepa_callout_ctx       *ctx,
                                        const uint8_t                  mmd,
                                        const uint16_t                 addr,
                                        uint16_t                       *const buf,
                                        uint8_t                        count);
 
-typedef mepa_rc (*mepa_mmd_write_t)(struct mepa_callout_cxt          *cxt,
+typedef mepa_rc (*mepa_mmd_write_t)(struct mepa_callout_ctx          *ctx,
                                     const uint8_t                     mmd,
                                     const uint16_t                    addr,
                                     const uint16_t                    value);
 
-typedef mepa_rc (*mepa_miim_read_t)(struct mepa_callout_cxt          *cxt,
+typedef mepa_rc (*mepa_miim_read_t)(struct mepa_callout_ctx          *ctx,
                                     const uint8_t                     addr,
                                     uint16_t                         *const value);
 
-typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_cxt         *cxt,
+typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_ctx         *ctx,
                                      const uint8_t                    addr,
                                      const uint16_t                   value);
 
 typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data, va_list args);
-typedef void *(*mepa_mem_alloc_t)(struct mepa_callout_cxt *cxt, size_t size);
-typedef void (*mepa_mem_free_t)(struct mepa_callout_cxt *cxt, void *ptr);
+typedef void *(*mepa_mem_alloc_t)(struct mepa_callout_ctx *ctx, size_t size);
+typedef void (*mepa_mem_free_t)(struct mepa_callout_ctx *ctx, void *ptr);
 
 // The MEPA trace function is a single global variable. Traces will only work
 // when a function is assigned to 'MEPA_TRACE_FUNCTION'.
@@ -71,15 +71,15 @@ typedef struct mepa_board_conf {
 
 // Create a new MEPA instance.
 //
-// NOTE: 'callout' and 'callout_cxt' pointers must be considered as SHARED,
+// NOTE: 'callout' and 'callout_ctx' pointers must be considered as SHARED,
 // meaning that they must remain valid until all MEPA instances are deleted.
 // MEPA will use these poiner values in sub-sequence MEPA calls.
 //
 // The same instance of the callout should be used for all MEPA instances.
-// Each PHY should have a unique callout_cxt which contains mdio address,
+// Each PHY should have a unique callout_ctx which contains mdio address,
 // controllers etc.
 struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                struct mepa_callout_cxt MEPA_SHARED_PTR *callout_cxt,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf  *conf);
 
 mepa_rc mepa_delete(struct mepa_device *dev);
