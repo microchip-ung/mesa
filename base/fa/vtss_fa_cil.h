@@ -52,6 +52,9 @@
 #define FA_DSM_CAL_MAX_DEVS_PER_TAXI 13
 #define FA_DSM_CAL_TAXIS 8
 #define FA_DSM_CAL_BW_LOSS 553
+#define FA_RES_CFG_MAX_PORT_IDX 560
+#define FA_RES_CFG_MAX_PRIO_IDX 630
+#define FA_RES_CFG_MAX_COLOUR_IDX 638
 
 #endif
 
@@ -65,6 +68,9 @@
 #define FA_DSM_CAL_MAX_DEVS_PER_TAXI 10
 #define FA_DSM_CAL_TAXIS 5
 #define FA_DSM_CAL_BW_LOSS 553
+#define FA_RES_CFG_MAX_PORT_IDX 280
+#define FA_RES_CFG_MAX_PRIO_IDX 315
+#define FA_RES_CFG_MAX_COLOUR_IDX 323
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define FA_BUFFER_MEMORY      157285 /* (?) */
@@ -345,6 +351,7 @@ vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
 #endif
 
 /* Serdes functions */
+#define FA_SERDES_TYPE_UNKNOWN  0
 #define FA_SERDES_TYPE_6G  6
 #define FA_SERDES_TYPE_10G 10
 #define FA_SERDES_TYPE_25G 25

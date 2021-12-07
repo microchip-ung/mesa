@@ -3495,6 +3495,8 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
  */
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
 {
+    *sd_indx = 0;
+    *sd_type = FA_SERDES_TYPE_UNKNOWN;
 #if defined(VTSS_ARCH_SPARX5)
     u32 p = VTSS_CHIP_PORT(port_no);
 

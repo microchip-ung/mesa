@@ -1896,10 +1896,10 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
     // Set legacy share levels to max for src_mem and src_ref
     for (res = 0; res < 2; res++) {
         for (prio=0; prio<8; prio++) {
-            REG_WR(VTSS_QRES_RES_CFG(prio + 630 + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
+            REG_WR(VTSS_QRES_RES_CFG(prio + FA_RES_CFG_MAX_PRIO_IDX + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
         }
         for (dp = 0; dp < 4; dp++) {
-            REG_WR(VTSS_QRES_RES_CFG(dp + 638 + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
+            REG_WR(VTSS_QRES_RES_CFG(dp + FA_RES_CFG_MAX_COLOUR_IDX + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
         }
     }
 

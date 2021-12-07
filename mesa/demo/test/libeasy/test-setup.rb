@@ -1148,6 +1148,7 @@ class Mesa_Pc_b2b
     end
 
     def reboot_dut conf
+
       if ((conf["dut"]["pcb"] == "6849-Sunrise") && (conf["dut"]["family"] == "laguna"))
         trigger_laguna_reboot_dut conf
       else

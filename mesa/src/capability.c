@@ -456,7 +456,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_IFH_EPID:
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
         c = 0x0b;
 #elif defined(VTSS_ARCH_SERVAL_T)
         c = 0x09;
@@ -466,6 +466,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = 0x0a;
 #elif defined(VTSS_ARCH_LAN966X)
         c = 0x0d;
+#elif defined(VTSS_ARCH_LAN969X)
+        c = 0x0e;
 #endif
         break;
 

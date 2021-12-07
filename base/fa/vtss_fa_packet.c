@@ -236,7 +236,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
         REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue), conf->queue[queue].size / FA_BUFFER_CELL_SZ);
     }
-    REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + 560 /* per-port reservation */ + VTSS_CHIP_PORT_CPU), 0); // No extra shared space at port level
+    REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + FA_RES_CFG_MAX_PORT_IDX /* per-port reservation */ + VTSS_CHIP_PORT_CPU), 0); // No extra shared space at port level
 
     // Setup Rx registrations that we only have per-switch API support for (not per-port)
     cap_cfg = VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA  (reg->mld_cpu_only)       |
@@ -986,6 +986,41 @@ static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t   *const info)
 {
+    u32 qu;
+    vtss_fa_debug_reg_header(pr, "FRAME_COPY_CFG");
+    for (qu = 0; qu < 12; qu++) {
+        if (qu < 8)
+            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_CPU_QU");
+        else if (qu == 8)
+            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_LRN_ALL");
+        else
+            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_MIRROR_PROBE");
+    }
+    pr("\n");
+
+    vtss_fa_debug_reg_header(pr, "IFH_CTRL");
+    for (qu = 0; qu < 4; qu++) {
+        u32 port = VTSS_CHIP_PORT(qu);
+
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_REW_IFH_CTRL(port), port, "KEEP_IFH_SEL");
+    }
+    pr("\n");
+
+    vtss_fa_debug_reg_header(pr, "PORT_CFG");
+    for (qu = 0; qu < 4; qu++) {
+        u32 port = VTSS_CHIP_PORT(qu);
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ASM_PORT_CFG(port), port, "PORT_CFG");
+    }
+    pr("\n");
+
+    vtss_fa_debug_reg_header(pr, "PORT_STATUS");
+    for (qu = 0; qu < 4; qu++) {
+        u32 port = VTSS_CHIP_PORT(qu);
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ASM_PORT_STICKY(port), port, "PORT_STATUS");
+        REG_WR(VTSS_ASM_PORT_STICKY(port), 0xFFFFFFFF);
+    }
+    pr("\n");
+
     return VTSS_RC_OK;
 }
 

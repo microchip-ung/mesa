@@ -228,6 +228,12 @@ def cmd_rx_ifh_push(ifh={})
     when 13
         # Maserati
         cmd += " ifh-mas ign"
+    when 14
+        # Laguna
+        cmd += " ifh-la ign"
+        port_name = "f-src-port"
+        isdx_name = "vm1-isdx"
+        vid_name = "vt-cl-vid"
     else
         # Luton26, no prefix
         cmd = "efh-crcl ign"
