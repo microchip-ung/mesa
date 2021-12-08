@@ -390,23 +390,33 @@ typedef struct {
 
 // Chip pipeline injection point.
 typedef enum {
-    MESA_PACKET_PIPELINE_PT_NONE         =  0, // None
-    MESA_PACKET_PIPELINE_PT_ANA_PORT_VOE =  2, // Analyzer port VOE MEP (up)
-    MESA_PACKET_PIPELINE_PT_ANA_CL       =  3, // Basic classification
-    MESA_PACKET_PIPELINE_PT_ANA_CLM      =  4, // Analyzer CLM (up)
-    MESA_PACKET_PIPELINE_PT_ANA_OU_VOI   =  6, // Analyzer outer VOI (MIP) (up)
-    MESA_PACKET_PIPELINE_PT_ANA_OU_SW    =  7, // Analyzer outer software MEP (up)
-    MESA_PACKET_PIPELINE_PT_ANA_OU_VOE   =  9, // Analyzer outer VOE MEP (up)
-    MESA_PACKET_PIPELINE_PT_ANA_IN_VOE   = 11, // Analyzer inner VOE MEP (up)
-    MESA_PACKET_PIPELINE_PT_ANA_IN_SW    = 13, // Analyzer inner software MEP (up)
-    MESA_PACKET_PIPELINE_PT_ANA_IN_VOI   = 14, // Analyzer inner VOI (MIP) (up)
-    MESA_PACKET_PIPELINE_PT_REW_IN_VOI   = 17, // Rewriter inner VOI (MIP) (down)
-    MESA_PACKET_PIPELINE_PT_REW_IN_SW    = 18, // Rewriter inner software MEP (down)
-    MESA_PACKET_PIPELINE_PT_REW_IN_VOE   = 19, // Rewriter inner VOE MEP (down)
-    MESA_PACKET_PIPELINE_PT_REW_OU_VOE   = 20, // Rewriter outer VOE MEP (down)
-    MESA_PACKET_PIPELINE_PT_REW_OU_SW    = 21, // Rewriter outer software MEP (down)
-    MESA_PACKET_PIPELINE_PT_REW_OU_VOI   = 22, // Rewriter outer VOI (MIP) (down)
-    MESA_PACKET_PIPELINE_PT_REW_PORT_VOE = 24  // Rewriter port VOE MEP (down)
+    MESA_PACKET_PIPELINE_PT_NONE,         // None
+    MESA_PACKET_PIPELINE_PT_ANA_RB,       // Analyzer RedBOX
+    MESA_PACKET_PIPELINE_PT_ANA_VRAP,     // Analyzer port VOE MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_PORT_VOE, // Analyzer port VOE MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_CL,       // Basic classification
+    MESA_PACKET_PIPELINE_PT_ANA_CLM,      // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_IPT_PROT, // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_OU_VOI,   // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_OU_SW,    // Analyzer outer software MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_OU_PROT,  // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_OU_VOE,   // Analyzer outer VOE MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_MID_PROT, // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_IN_VOE,   // Analyzer inner VOE MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_IN_PROT,  // Analyzer CLM (up)
+    MESA_PACKET_PIPELINE_PT_ANA_IN_SW,    // Analyzer inner software MEP (up)
+    MESA_PACKET_PIPELINE_PT_ANA_IN_VOI,   // Analyzer inner VOI (MIP) (up)
+    MESA_PACKET_PIPELINE_PT_ANA_VLAN,     // Analyzer inner VOI (MIP) (up)
+    MESA_PACKET_PIPELINE_PT_ANA_DONE,     // Analyzer done
+    MESA_PACKET_PIPELINE_PT_REW_IN_VOI,   // Rewriter inner VOI (MIP) (down)
+    MESA_PACKET_PIPELINE_PT_REW_IN_SW,    // Rewriter inner software MEP (down)
+    MESA_PACKET_PIPELINE_PT_REW_IN_VOE,   // Rewriter inner VOE MEP (down)
+    MESA_PACKET_PIPELINE_PT_REW_OU_VOE,   // Rewriter outer VOE MEP (down)
+    MESA_PACKET_PIPELINE_PT_REW_OU_SW,    // Rewriter outer software MEP (down)
+    MESA_PACKET_PIPELINE_PT_REW_OU_VOI,   // Rewriter outer VOI (MIP) (down)
+    MESA_PACKET_PIPELINE_PT_REW_OU_SAT,   // Rewriter outer VOI (MIP) (down)
+    MESA_PACKET_PIPELINE_PT_REW_PORT_VOE, // Rewriter port VOE MEP (down)
+    MESA_PACKET_PIPELINE_PT_REW_VCAP      //iter port VOE MEP (down)
 } mesa_packet_pipeline_pt_t;
 
 #define MESA_ISDX_CPU_TX 1023 // ISDX used for CPU transmissions

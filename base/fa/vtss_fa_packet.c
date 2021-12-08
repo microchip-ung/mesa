@@ -679,9 +679,78 @@ static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
     return rc;
 }
 
-/*****************************************************************************/
-// fa_ptp_action_to_ifh()
-/*****************************************************************************/
+#if defined(VTSS_ARCH_SPARX5)
+static u32 fa_plpt_to_ifh(vtss_packet_pipeline_pt_t plpt)
+{
+    switch (plpt) {
+    case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(2);
+    case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(3);
+    case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(4);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(6);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(7);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(9);
+    case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(11);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(13);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(14);
+    case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(16);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(17);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(18);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(19);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(20);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(21);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(22);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(0);
+    case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(24);
+    case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(0);
+    }
+    return(0);
+}
+#endif
+
+#if defined(VTSS_ARCH_LAN969X)
+static u32 fa_plpt_to_ifh(vtss_packet_pipeline_pt_t plpt)
+{
+    switch (plpt) {
+    case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
+    case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(1);
+    case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(2);
+    case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(3);
+    case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(4);
+    case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(5);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(6);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(7);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(8);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(9);
+    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(10);
+    case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(11);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(12);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(13);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(14);
+    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(15);
+    case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(16);
+    case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(17);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(18);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(19);
+    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(20);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(21);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(22);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(23);
+    case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(24);
+    case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(25);
+    case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(26);
+    }
+    return(0);
+}
+#endif
+
 static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u8 ptp_domain, BOOL afi, u32 *result)  /* TBD_henrikb */
 {
     vtss_rc rc = VTSS_RC_OK;
@@ -861,7 +930,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     } /* switched frame */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 124,    FWD_SFLOW_ID, 7); // FWD.SFLOW_ID (disable SFlow sampling)
-    IFH_ENCODE_BITFIELD(bin_hdr, pl_pt,  37, 5); // MISC.PIPELINE_PT
+    IFH_ENCODE_BITFIELD(bin_hdr, fa_plpt_to_ifh(pl_pt),  37, 5); // MISC.PIPELINE_PT
     IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42, 3); // MISC.PIPELINE_ACT
 
     if (pdu_type) {

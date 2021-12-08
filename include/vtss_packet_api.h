@@ -500,59 +500,35 @@ typedef struct {
  * \brief Chip pipeline injection point.
  * Specifies where a frame is injected into the chip.
  */
-#if defined(VTSS_ARCH_SPARX5)
 typedef enum {
-    VTSS_PACKET_PIPELINE_PT_NONE         =  0, /**< None                               */
-    VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE =  2, /**< Analyzer port VOE MEP (up)         */
-    VTSS_PACKET_PIPELINE_PT_ANA_CL       =  3, /**< Basic classification               */
-    VTSS_PACKET_PIPELINE_PT_ANA_CLM      =  4, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI   =  6, /**< Analyzer outer VOI (MIP) (up)      */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_SW    =  7, /**< Analyzer outer software MEP (up)   */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE   =  9, /**< Analyzer outer VOE MEP (up)        */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE   = 11, /**< Analyzer inner VOE MEP (up)        */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_SW    = 13, /**< Analyzer inner software MEP (up)   */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI   = 14, /**< Analyzer inner VOI (MIP) (up)      */
-    VTSS_PACKET_PIPELINE_PT_ANA_DONE     = 16, /**< Analyzer done                      */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOI   = 17, /**< Rewriter inner VOI (MIP) (down)    */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_SW    = 18, /**< Rewriter inner software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOE   = 19, /**< Rewriter inner VOE MEP (down)      */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOE   = 20, /**< Rewriter outer VOE MEP (down)      */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_SW    = 21, /**< Rewriter outer software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOI   = 22, /**< Rewriter outer VOI (MIP) (down)    */
-    VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE = 24  /**< Rewriter port VOE MEP (down)       */
+    VTSS_PACKET_PIPELINE_PT_NONE, /**< None                               */
+    VTSS_PACKET_PIPELINE_PT_ANA_RB, /**< Analyzer RedBOX                    */
+    VTSS_PACKET_PIPELINE_PT_ANA_VRAP, /**< Analyzer port VOE MEP (up)         */
+    VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE, /**< Analyzer port VOE MEP (up)         */
+    VTSS_PACKET_PIPELINE_PT_ANA_CL, /**< Basic classification               */
+    VTSS_PACKET_PIPELINE_PT_ANA_CLM, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_OU_SW, /**< Analyzer outer software MEP (up)   */
+    VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE, /**< Analyzer outer VOE MEP (up)        */
+    VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE, /**< Analyzer inner VOE MEP (up)        */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_SW, /**< Analyzer inner software MEP (up)   */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI, /**< Analyzer inner VOI (MIP) (up)      */
+    VTSS_PACKET_PIPELINE_PT_ANA_VLAN, /**< Analyzer inner VOI (MIP) (up)      */
+    VTSS_PACKET_PIPELINE_PT_ANA_DONE, /**< Analyzer done                      */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_VOI, /**< Rewriter inner VOI (MIP) (down)    */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_SW, /**< Rewriter inner software MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_VOE, /**< Rewriter inner VOE MEP (down)      */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_VOE, /**< Rewriter outer VOE MEP (down)      */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_SW, /**< Rewriter outer software MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_VOI, /**< Rewriter outer VOI (MIP) (down)    */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_SAT, /**< Rewriter outer VOI (MIP) (down)    */
+    VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE,  /**< Rewriter port VOE MEP (down)       */
+    VTSS_PACKET_PIPELINE_PT_REW_VCAP/**< Rewriter port VOE MEP (down)       */
 } vtss_packet_pipeline_pt_t;
-#endif
-#if defined(VTSS_ARCH_LAN969X)
-typedef enum {
-    VTSS_PACKET_PIPELINE_PT_NONE         =  0, /**< None                               */
-    VTSS_PACKET_PIPELINE_PT_ANA_RB       =  1, /**< Analyzer RedBOX                    */
-    VTSS_PACKET_PIPELINE_PT_ANA_VRAP     =  2, /**< Analyzer port VOE MEP (up)         */
-    VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE =  3, /**< Analyzer port VOE MEP (up)         */
-    VTSS_PACKET_PIPELINE_PT_ANA_CL       =  4, /**< Basic classification               */
-    VTSS_PACKET_PIPELINE_PT_ANA_CLM      =  5, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT =  6, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI   =  7, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_SW    =  8, /**< Analyzer outer software MEP (up)   */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT  =  9, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE   = 10, /**< Analyzer outer VOE MEP (up)        */
-    VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT = 11, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE   = 12, /**< Analyzer inner VOE MEP (up)        */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT  = 13, /**< Analyzer CLM (up)                  */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_SW    = 14, /**< Analyzer inner software MEP (up)   */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI   = 15, /**< Analyzer inner VOI (MIP) (up)      */
-    VTSS_PACKET_PIPELINE_PT_ANA_VLAN     = 16, /**< Analyzer inner VOI (MIP) (up)      */
-    VTSS_PACKET_PIPELINE_PT_ANA_DONE     = 17, /**< Analyzer done                      */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOI   = 18, /**< Rewriter inner VOI (MIP) (down)    */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_SW    = 19, /**< Rewriter inner software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOE   = 20, /**< Rewriter inner VOE MEP (down)      */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOE   = 21, /**< Rewriter outer VOE MEP (down)      */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_SW    = 22, /**< Rewriter outer software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOI   = 23, /**< Rewriter outer VOI (MIP) (down)    */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_SAT   = 24, /**< Rewriter outer VOI (MIP) (down)    */
-    VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE = 25,  /**< Rewriter port VOE MEP (down)       */
-    VTSS_PACKET_PIPELINE_PT_REW_VCAP     = 26  /**< Rewriter port VOE MEP (down)       */
-} vtss_packet_pipeline_pt_t;
-#endif
 #endif /* defined(VTSS_FEATURE_PACKET_PIPELINE_PT) */
 
 #define VTSS_ISDX_CPU_TX 1023 /**< ISDX used for CPU transmissions */
