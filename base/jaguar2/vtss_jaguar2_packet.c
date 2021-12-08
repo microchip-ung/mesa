@@ -714,6 +714,7 @@ static u32 jr2_plpt_to_ifh(vtss_packet_pipeline_pt_t plpt)
     case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(24);
     case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(0);
     }
+    return(0);
 }
 
 static vtss_rc jr2_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, BOOL afi, u32 *result)

@@ -559,7 +559,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     u16                 vstax_hi, vstax_one;
     u32                 fwd, misc, sflow_id;
     u64                 tstamp, dst, vstax_lo;
-    u8                  xtr_hdr_2, rb;
+    u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
     vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
 
@@ -569,7 +569,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     // (Laguna) Bit 287-279 (9 bits) are unused
 
     // (Laguna) RB is Bit 278-272
-    rb        = xtr_hdr[ 1] & 0x7F;
+//    rb        = xtr_hdr[ 1] & 0x7F;
 
     // TS is bit 232-271
     xtr_hdr_2 = xtr_hdr[ 2] & 0x3F;  /* For some reason bit6-7 is occasionally unexpectedly set. Must be cleared */
