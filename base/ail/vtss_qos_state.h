@@ -89,11 +89,19 @@ typedef struct {
 #define VTSS_JR_SDX_CNT  511
 #define VTSS_EVC_POL_CNT  512  /* EVC policers */
 #define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
-#else /* End VTSS_ARCH_SERVAL_T */
+#elif defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_JR_SDX_CNT   31
+#define VTSS_EVC_POL_CNT  32    /* EVC policers */
+#define VTSS_EVC_STAT_CNT 32    /* EVC statistics */
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_JR_SDX_CNT   1023
+#define VTSS_EVC_POL_CNT  1024 /* EVC policers */
+#define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
+#else
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_EVC_POL_CNT  4096 /* EVC policers */
 #define VTSS_EVC_STAT_CNT 8192 /* EVC statistics */
-#endif /* End VTSS_ARCH_JAGUAR_2 */
+#endif
 #if defined(VTSS_FEATURE_VOP)
 #define VTSS_SDX_CNT VTSS_JR_SDX_CNT
 #endif
