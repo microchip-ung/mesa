@@ -435,6 +435,11 @@ static mesa_rc aqr_fw_check(AQ_Port  *data,
         return MEPA_RC_ERROR;
     }
 
+    // In earlier version of SW check was only performed if major number match
+    if (aq_config.firmwareMajorRevisionNumber != major_id) {
+        return MEPA_RC_OK;
+    }
+
     rom = (aq_config.firmwareROM_ID_Number & 0xf0) >> 4;
     if (aq_config.firmwareMajorRevisionNumber != major_id &&
         (aq_config.firmwareMinorRevisionNumber != minor_id || rom != build_id)) {

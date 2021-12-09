@@ -1410,7 +1410,7 @@ static void port_init(meba_inst_t inst)
             if (rc == MESA_RC_NOT_IMPLEMENTED || rc == MESA_RC_OK) {
                 // Reset is not always implemented in e.g. third party phys
             } else {
-                T_E("meba_phy_reset(%u) failed", port_no);
+                T_E("meba_phy_reset(%u) failed: %d", port_no, rc);
                 continue;
             }
         } else {

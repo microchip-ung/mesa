@@ -62,6 +62,9 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
         }
     }
 
+    reg2 = 0;
+    reg3 = 0;
+
     if (callout->miim_read) {
         callout->miim_read(callout_ctx, 2, &reg2);
         callout->miim_read(callout_ctx, 3, &reg3);
