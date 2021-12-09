@@ -105,18 +105,17 @@ static const meba_aux_rawio_t rawio = {
 static void fa_gpy241_detect(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
-    uint16_t value = 0;
+    u16 id = 0;
 
-    for (uint8_t ctrl = 0; ctrl < 4; ctrl++) {
-        for (uint8_t miim = 0; miim < 32; miim++) {
-            mebaux_mmd_rd(inst, &rawio, ctrl, miim, 0x1, 0x3, &value);
-            if (value == PHY_ID_GPY241) {
-                board->gpy241_present = TRUE;
-                mebaux_mmd_rd(inst, &rawio, ctrl, miim, 30, 8, &value); //(?)
-                board->gpy241_usxgmii_mode = TRUE;
-                break;
-            }
-        }
+    mebaux_miim_rd(inst, &rawio, 0, 0, 0x3, &id);
+
+    if (id == 0x0670) {
+        board->gpy241_present = FALSE;
+    } else {
+        /* Indy/Maxlinear phy's is in reset at this point  */
+        board->gpy241_present = TRUE;
+        /* Default to SGMII mode */
+        board->gpy241_usxgmii_mode = FALSE;
     }
 }
 
@@ -230,16 +229,11 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
             entry->map.sd_map.bit      = 0;
         }
     } else if (if_type == MESA_PORT_INTERFACE_QXGMII) {
-        // GPY-241 Phy
+        // GPY-241 Phy strapped into QXGMII mode connected to S25 (Serdes25G_0)
         entry->map.chip_port       = chip_port;
         entry->mac_if              = if_type;
-        if (board->type == BOARD_TYPE_SPARX5_PCB135) {
-            entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
-            entry->map.miim_addr       = chip_port == 8 ? 0 : chip_port == 24 ? 1 : chip_port == 40 ? 2 : 3;
-        } else {
-            entry->map.miim_controller = MESA_MIIM_CONTROLLER_0; // 4xGPY-241 on PCB-134 (mockup setup)
-            entry->map.miim_addr       = chip_port == 0 ? 29 : chip_port == 16 ? 28 : chip_port == 32 ? 31 : 30;
-        }
+        entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
+        entry->map.miim_addr       = chip_port == 8 ? 0 : chip_port == 24 ? 1 : chip_port == 40 ? 2 : 3;
         entry->map.max_bw          = bw;
         entry->cap  = (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
         entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to GPY phys
@@ -266,18 +260,12 @@ static void fa_pcb134_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_16x10G_NPI:
     case VTSS_BOARD_CONF_20x10G_NPI:
         if (port_no < board->port_cnt - 1) {
-            if (port_no <= 4 && board->gpy241_present) {
-                mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
-                uint32_t chip_port = 12;
-                if (port_no <= 3) {
-                    mac_if = MESA_PORT_INTERFACE_QXGMII;
-                    chip_port = port_no * 16;
-                }
-                update_entry(inst, entry, mac_if, MESA_BW_10G, chip_port); // 56-63(25G)
-            } else {
-                mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
-                update_entry(inst, entry, mac_if, MESA_BW_10G, port_no < 4 ? port_no + 12 : port_no + 44); // 56-63(25G)
+            mesa_port_interface_t mac_if = MESA_PORT_INTERFACE_SFI;
+            if (board->beaglebone) {
+                // Hardcode some ports to support CuSFP as we are missing I2C support
+                mac_if = port_no < 8 ? MESA_PORT_INTERFACE_SGMII_CISCO : MESA_PORT_INTERFACE_SFI;
             }
+            update_entry(inst, entry, mac_if, MESA_BW_10G, port_no < 4 ? port_no + 12 : port_no + 44); // 56-63(25G)
         } else if (port_no == board->port_cnt - 1) {
             if (board->ls1046) {
                 entry->map.chip_port = CHIP_PORT_UNUSED;
@@ -364,7 +352,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
             if (board->gpy241_present && board->gpy241_usxgmii_mode && (port_no % 16 == 8)) {
-                // QXGMII Test mode
+                // QXGMII Test mode, this will disable QSGMII ports
                 if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
                 bw = MESA_BW_2G5;
             } else {
@@ -417,6 +405,7 @@ static void fa_pcb135_board_init(meba_inst_t inst)
 {
     mesa_sgpio_conf_t conf;
     uint32_t port, gpio_no;
+    meba_board_state_t *board = INST2BOARD(inst);
 
     /* Configure GPIOs for MIIM/MDIO bus 0-1, QSGMII ports */
     for (gpio_no = 56; gpio_no < 60; gpio_no++) {
@@ -482,13 +471,21 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     mesa_gpio_direction_set(NULL, 0, STATUSLED_R_GPIO, true);
     inst->api.meba_status_led_set(inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_RED);
 
-    /* Aquantia Reset GPIO */
+    /* Aquantia (or Board) Reset GPIO */
     mesa_gpio_direction_set(NULL, 0, AQR_RESET, true);
 
-    // Take Aquantia Phy out of reset
+    (void) mesa_gpio_write(NULL, 0, AQR_RESET, false);
+    VTSS_MSLEEP(1);
+    // Take Aquantia (or Board) Phy out of reset
     (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
-    // Delay for aquantia phy coming out of reset
-    VTSS_MSLEEP(50);
+
+    if (board->gpy241_present) {
+        // Delay for gpy241 phy coming out of reset
+        VTSS_MSLEEP(1000);
+    } else {
+        // Delay for AQR phy coming out of reset
+        VTSS_MSLEEP(50);
+    }
 
     /* We must increase the drive strength for MIIM/MDIO bus 3  */
     /* with HSIOWRAP:GPIO_CFG:G_DS[52-53] = 2.                  */
@@ -689,9 +686,10 @@ static mesa_rc fa_phy_event_enable(meba_inst_t inst,
     mesa_rc            rc = MESA_RC_OK;
 
     T_D(inst, "%sable phy event %d on all ports", enable ? "en" : "dis", phy_event);
+
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
-            // We do not need/expect any event configuration to be done for AQR.
+            // We do not need/expect any event configuration to be done for AQR/ML.
             // Currently the feature is not implemented in the MEPA layer, and
             // MEBA will therefore return MESA_RC_NOT_IMPLEMENTED.
             rc = meba_phy_event_enable_set(inst, port_no, phy_event, enable);
@@ -1015,7 +1013,7 @@ static mesa_rc fa_port_admin_state_set(meba_inst_t inst,
         return rc;
     }
 
-    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE) {
+//    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE || port_no == 52) {
         mesa_sgpio_conf_t  conf;
         mesa_sgpio_mode_t  sgpio_mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
         uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
@@ -1039,7 +1037,7 @@ static mesa_rc fa_port_admin_state_set(meba_inst_t inst,
             }
             rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
         }
-    }
+//    }
 
     return rc;
 }
@@ -1369,7 +1367,7 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
             board->func->board_init(inst);
             break;
         case MEBA_PORT_RESET:
-            if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+            if (board->type == BOARD_TYPE_SPARX5_PCB135 && !board->gpy241_present) {
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
                     if (port_no % 4 == 0 && (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
                         if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
@@ -1413,6 +1411,36 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
                     }
                     (void)mesa_sgpio_conf_set(NULL, 0, 1, &conf);
+                }
+            }
+
+            if (board->type == BOARD_TYPE_SPARX5_PCB135 && board->gpy241_present) {
+                // Indy LED setup to fix a board layout issue
+                mepa_gpio_conf_t gpio_conf;
+                gpio_conf.mode = MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY;
+                gpio_conf.led_num = MEPA_LED0;
+                for (uint32_t port_no = 0; port_no < 48; port_no++) {
+                    gpio_conf.gpio_no = 12;
+                    meba_phy_gpio_mode_set(inst, port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 14;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 18;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 20;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
+                }
+
+                gpio_conf.mode = MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY;
+                gpio_conf.led_num = MEPA_LED1;
+                for (uint32_t port_no = 0; port_no < 48; port_no++) {
+                    gpio_conf.gpio_no = 11;
+                    meba_phy_gpio_mode_set(inst, port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 13;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 17;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
+                    gpio_conf.gpio_no = 19;
+                    meba_phy_gpio_mode_set(inst, ++port_no, &gpio_conf);
                 }
             }
             break;
@@ -1913,7 +1941,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else {
             T_E(inst, "Unknown board (%d) / port count (%d)",board->type,board->port_cnt);
         }
-        fa_gpy241_detect(inst);
         break;
     case BOARD_TYPE_SPARX5_PCB135:
         if (board->port_cnt == 29) {
@@ -1930,6 +1957,14 @@ meba_inst_t meba_initialize(size_t callouts_size,
         } else {
             T_E(inst, "Unknown board (%d) / port count (%d)",board->type,board->port_cnt);
         }
+        // Configure GPIOs for MIIM/MDI
+        for (i = 56; i < 60; i++) {
+            mebaux_gpio_mode_set(inst, &rawio, i, MESA_GPIO_ALT_0);
+        }
+        for (i = 52; i < 54; i++) {
+            mebaux_gpio_mode_set(inst, &rawio, i, MESA_GPIO_ALT_1);
+        }
+        // Detect gpy241 / PCB135v4 board
         fa_gpy241_detect(inst);
         break;
     default:
