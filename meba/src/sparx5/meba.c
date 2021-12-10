@@ -2126,11 +2126,12 @@ meba_inst_t meba_initialize(size_t callouts_size,
     if (meba_conf_get_hex(inst, "chip_id", &i) == MESA_RC_OK) {
         inst->props.target = (mesa_target_type_t) i;
     }
-    // Get the board type from the application
-    if (meba_conf_get_hex(inst, "pcb", &pcb) != MESA_RC_OK) {
-        fprintf(stderr, "Could not read pcb id\n");
+    // Get the board pcb type (134/135/Sunrise/..) from the application
+    if (meba_conf_get_hex(inst, "type", &pcb) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read pcb type\n");
         goto error_out;
     }
+
     if (pcb == BOARD_TYPE_SUNRISE) {
         // Sparx-5 design on Sunrise means Laguna
         return lan969x_initialize(inst, callouts);
