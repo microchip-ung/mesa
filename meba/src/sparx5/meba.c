@@ -236,7 +236,7 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->map.chip_port       = chip_port;
         entry->mac_if              = if_type;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
-        entry->map.miim_addr       = chip_port == 8 ? 0 : chip_port == 24 ? 1 : chip_port == 40 ? 2 : 3;
+        entry->map.miim_addr       = chip_port == 8 ? 3 : chip_port == 24 ? 0 : chip_port == 40 ? 2 : 1;
         entry->map.max_bw          = bw;
         entry->cap  = (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
         entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to GPY phys
