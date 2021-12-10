@@ -9,7 +9,12 @@
 #if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_QOS)
 
 /* Calculate Layer 0 Scheduler Element when using normal hierarchy */
+#if defined(VTSS_ARCH_SPARX5)
 #define FA_HSCH_L0_SE(port, queue) ((64 * port) + (8 * queue))
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+#define FA_HSCH_L0_SE(port, queue) ((32 * port) + (4 * queue))
+#endif
 
 #define LB_PUP_TOKEN_MAX              (0x1FFF-1)        /* The MAX number of tokens to add each update. The value 0x1FFF is reserved for permanently open buckets */
 #define LB_PUP_INTERVAL_MAX           0x7FFFF           /* The MAX updating interval */
@@ -597,6 +602,7 @@ static vtss_rc fa_qos_lb_init(vtss_state_t *vtss_state)
     /* Add groups. The max_rate parameter is in bps */
     /*                          max_rate,  min_burst, frame_size, grp_idx */
     /* Implementing Rule III in DS1110 */
+#if defined(VTSS_ARCH_SPARX5)
     lb_group_add(vtss_state, 25000000000,     8192/1,         64,       0);    /*  25 G */
     lb_group_add(vtss_state, 15000000000,     8192/1,         64,       1);    /*  15 G */
     lb_group_add(vtss_state, 10000000000,     8192/1,         64,       2);    /*  10 G */
@@ -607,6 +613,14 @@ static vtss_rc fa_qos_lb_init(vtss_state_t *vtss_state)
     lb_group_add(vtss_state,   100000000,     8192/4,         64,       7);    /* 100 M */
     lb_group_add(vtss_state,    50000000,     8192/4,         64,       8);    /*  50 M */
     lb_group_add(vtss_state,     5000000,     8192/8,         64,       9);    /*  10 M */
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+    lb_group_add(vtss_state,  1000000000,     8192/2,         64,       0);    /*   1 G */
+    lb_group_add(vtss_state,   500000000,     8192/2,         64,       1);    /* 500 M */
+    lb_group_add(vtss_state,   100000000,     8192/4,         64,       2);    /* 100 M */
+    lb_group_add(vtss_state,    50000000,     8192/4,         64,       3);    /*  50 M */
+    lb_group_add(vtss_state,     5000000,     8192/8,         64,       4);    /*  10 M */
+#endif
 
     /* The LB LBGRP number is used to indicate if the LB is part of a group */
     for (i = 0; i < LB_SET_CNT; ++i) {

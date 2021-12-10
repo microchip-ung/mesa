@@ -464,8 +464,14 @@ typedef struct {
     u32 frame_size;         /* Configures ANA_AC_SDLB:LBGRP_TBL[0-9]:FRM_RATE_TOKENS.FRM_RATE_TOKENS */
     u32 lb_set_count;       /* Number of LB set added to the group */
 } vtss_qos_lb_group_t;
+#if defined(VTSS_ARCH_SPARX5)
 #define LB_GROUP_CNT   10   /* The number of LB groups */
 #define LB_SET_CNT   4615   /* The number of LB sets */
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+#define LB_GROUP_CNT    5   /* The number of LB groups */
+#define LB_SET_CNT    272   /* The number of LB sets */
+#endif
 #endif
 
 typedef struct {
