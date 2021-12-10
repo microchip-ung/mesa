@@ -581,7 +581,7 @@ const char *vtss_port_if_txt(vtss_port_interface_t if_type)
     case VTSS_PORT_INTERFACE_SFI:           return "SFI";
     case VTSS_PORT_INTERFACE_USGMII:        return "USGMII";
     case VTSS_PORT_INTERFACE_SXGMII:        return "SXGMII";
-    case VTSS_PORT_INTERFACE_QXGMII:        return "QXGMII";
+    case VTSS_PORT_INTERFACE_QXGMII:        return "USX_QXGMII";
     case VTSS_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     case VTSS_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
     case VTSS_PORT_INTERFACE_CPU:           return "CPU";
@@ -633,7 +633,7 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
     case VTSS_SERDES_MODE_TEST_MODE: return "TEST";
     case VTSS_SERDES_MODE_USXGMII:   return "USXGMII";
     case VTSS_SERDES_MODE_USGMII:    return "USGMII";
-    case VTSS_SERDES_MODE_QXGMII:    return "QXGMII";
+    case VTSS_SERDES_MODE_QXGMII:    return "USX_QXGMII";
     case VTSS_SERDES_MODE_DXGMII_10G:return "DXGMII_10G";
     case VTSS_SERDES_MODE_DXGMII_5G: return "DXGMII_5G";
     }

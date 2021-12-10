@@ -311,7 +311,11 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     if (entry->sfp_device != NULL && entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
         (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
     } else {
-        conf.serdes.media_type = MESA_SD10G_MEDIA_DAC;
+        if (entry->media_type == MSCC_PORT_TYPE_CU) {
+            conf.serdes.media_type = MESA_SD10G_MEDIA_SR;  // For 10G serdes to Cu
+        } else {
+            conf.serdes.media_type = MESA_SD10G_MEDIA_DAC; // Best guess
+        }
     }
     if (aneg) {
         /* Setup port based on auto negotiation status */

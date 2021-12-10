@@ -105,14 +105,17 @@ static const meba_aux_rawio_t rawio = {
 static void fa_gpy241_detect(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
-    u16 id = 0;
+    u16 id = 0, id2 = 0;
 
     mebaux_miim_rd(inst, &rawio, 0, 0, 0x3, &id);
+    mebaux_miim_rd(inst, &rawio, 0, 1, 0x3, &id2);
 
-    if (id == 0x0670) {
+    if (id == 0x0670 || id2 == 0x0670) {
+        // Found Elise Phy which means PCB135 version 1-2
         board->gpy241_present = FALSE;
     } else {
-        /* Indy/Maxlinear phy's is in reset at this point  */
+        // Did not find Elise Phy which means PCB135 version 3
+        // Note Indy / Maxlinear phy's are in reset at this point
         board->gpy241_present = TRUE;
         /* Default to SGMII mode */
         board->gpy241_usxgmii_mode = FALSE;
@@ -1168,7 +1171,7 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
         }
         break;
     case BOARD_TYPE_SPARX5_PCB135:
-        if ((board_port >= 48) && (board_port <= 51)) {
+        if (!board->gpy241_present && (board_port >= 48) && (board_port <= 51)) {
             // 4x10G Cu ports
             // If AQR then update AQR LED
             (void)fa_aqr_led_update(inst, port_no, status);
@@ -1382,10 +1385,12 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                 // Release COMA mode (activate Elise phys)
                 (void)vtss_phy_post_reset(PHY_INST, 0);
 
+                if (!board->gpy241_present) {
                 // PCB135 does not use reversed MDI pair for AQR as the driver defaults to.
-                for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
-                    if (board->port[port_no].map.map.chip_port >= 56 && board->port[port_no].map.map.chip_port < 60) {
-                        mesa_mmd_write(NULL, 0, board->port[port_no].map.map.miim_controller, board->port[port_no].map.map.miim_addr, 0x1, 0xe400, 6);
+                    for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
+                        if (board->port[port_no].map.map.chip_port >= 56 && board->port[port_no].map.map.chip_port < 60) {
+                            mesa_mmd_write(NULL, 0, board->port[port_no].map.map.miim_controller, board->port[port_no].map.map.miim_addr, 0x1, 0xe400, 6);
+                        }
                     }
                 }
             }
