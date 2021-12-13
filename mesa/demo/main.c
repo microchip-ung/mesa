@@ -383,7 +383,7 @@ static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_
     int    fd;
     char   fname[128];
     size_t n;
-
+    return MESA_RC_ERROR; // to be fixed
     sprintf(fname, "/proc/device-tree/meba/%s", tag);
     if ((fd = open(fname, O_RDONLY)) < 0) {
         T_D("dt tag %s not found", fname);
