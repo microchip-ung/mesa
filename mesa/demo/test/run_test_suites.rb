@@ -82,9 +82,10 @@ $systems.each { |system|
     dl_file "#{jenkins_images}/et.tar.gz", "et.tar.gz"
 
     puts("Unpack Easy Test folder tar file")
-    run_("rm -rf #{system[:name]}-test")
-    run_("mkdir #{system[:name]}-test")
-    run_("tar xzf et.tar.gz -C #{system[:name]}-test")
+    dir = "#{system[:name]}-#{system[:branch]}-test"
+    run_("rm -rf #{dir}")
+    run_("mkdir #{dir}")
+    run_("tar xzf et.tar.gz -C #{dir}")
 }
 
 $parallel_threads = []
@@ -95,7 +96,7 @@ def start_test(system)
 
     puts("Start test suites on system #{system[:name]} in a thread")
     t = Thread.new do
-        system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-test/test --image #{jenkins_images}/#{system[:image]}"
+        system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-#{system[:branch]}-test/test --image #{jenkins_images}/#{system[:image]}"
     end
     t
 end
@@ -149,7 +150,7 @@ puts "-----All 'parallel' tests are completed-----"
 
 puts "-----Move all test-suite log files from created test folders to test folder-----"
 $systems.each { |system|
-    system("mv ./#{system[:name]}-test/test/*.log .")
+    system("mv ./#{system[:name]}-#{system[:branch]}-test/test/*.log .")
 }
 
 puts("-----Merge the test-suite log files to one-----")
