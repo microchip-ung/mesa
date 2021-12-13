@@ -2244,6 +2244,7 @@ static vtss_rc tas_profile_free(vtss_state_t *vtss_state,  u32 profile_idx)
     vtss_tas_profile_t  *tas_profiles = vtss_state->qos.tas.tas_profiles;
 
     if (profile_idx >= VTSS_TAS_NUMBER_OF_PROFILES) {
+        VTSS_D("profile_idx %u >= VTSS_TAS_NUMBER_OF_PROFILES", profile_idx);
         return VTSS_RC_ERROR;
     }
 
@@ -2330,6 +2331,7 @@ static vtss_rc tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
     vtss_tas_entry_block_t  (*tas_entry_blocks)[VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW] = vtss_state->qos.tas.tas_entry_blocks;
 
     if (list_idx >= VTSS_TAS_NUMBER_OF_LISTS) {
+        VTSS_D("list_idx %u >= VTSS_TAS_NUMBER_OF_LISTS", list_idx);
         return VTSS_RC_ERROR;
     }
 
@@ -2405,6 +2407,7 @@ static BOOL tas_time_stamp_diff(vtss_timestamp_t *ts, vtss_timestamp_t *ts_sub, 
 
     diff_time = *ts;
     if (vtss_timestampSub(&diff_time, ts_sub) != VTSS_RC_OK) {
+        VTSS_D("vtss_timestampSub() failed");
         return FALSE;
     }
 
@@ -2428,6 +2431,7 @@ static BOOL tas_trunk_port_conf_calc(vtss_qos_tas_port_conf_t  *current_port_con
     /* Calculate max duration of trunk list */
     trunk_duration_time = *new_start_time;
     if (vtss_timestampSub(&trunk_duration_time, current_end_time) != VTSS_RC_OK) {
+        VTSS_D("vtss_timestampSub() failed");
         return FALSE;
     }
 
@@ -2448,6 +2452,7 @@ static BOOL tas_trunk_port_conf_calc(vtss_qos_tas_port_conf_t  *current_port_con
 
     /* Check if any entries got into the trunk list */
     if (i == 0) {
+        VTSS_D("Check if any entries got into the trunk list failed");
         return FALSE;
     }
 
@@ -2685,6 +2690,7 @@ static BOOL tas_current_end_time_calc(vtss_state_t *vtss_state,  u32 current_lis
         /* Calculate base time difference (new_base_time - current_base_time) */
         diff_base_time = *new_base_time;
         if (vtss_timestampSub(&diff_base_time, &current_base_time) != VTSS_RC_OK) {
+            VTSS_D("vtss_timestampSub() failed");
             return FALSE;
         }
 
@@ -2697,6 +2703,7 @@ static BOOL tas_current_end_time_calc(vtss_state_t *vtss_state,  u32 current_lis
         /* Calculate the current_end_time = current_base_time + current_elapse_time */
         *current_end_time = current_base_time;
         if (vtss_timestampAddNano(current_end_time, current_elapse_time) != VTSS_RC_OK) {
+            VTSS_D("vtss_timestampAddNano() failed");
             return FALSE;
         }
     }
@@ -2953,6 +2960,7 @@ static vtss_rc fa_qos_tas_update(struct vtss_state_s   *vtss_state,
     vtss_tas_list_t          *tas_lists = vtss_state->qos.tas.tas_lists;
 
     if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        VTSS_D("No Frame preemption feature");
         return VTSS_RC_ERROR;
     }
 
@@ -3363,6 +3371,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     BOOL                    verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
     if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        VTSS_D("No Frame preemption feature");
         return VTSS_RC_ERROR;
     }
 
