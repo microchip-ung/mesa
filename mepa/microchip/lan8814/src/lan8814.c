@@ -516,6 +516,16 @@ static mepa_rc indy_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
 static mepa_rc mas_if_set(mepa_device_t *dev,
                            mepa_port_interface_t mac_if)
 {
+    if (mac_if != MESA_PORT_INTERFACE_SGMII) {
+        return MEPA_RC_ERROR;
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
+                           mepa_port_interface_t *mac_if)
+{
+    *mac_if = MESA_PORT_INTERFACE_SGMII;
     return MEPA_RC_OK;
 }
 
@@ -1120,7 +1130,7 @@ mepa_drivers_t mepa_lan8814_driver_init() {
             .mepa_driver_conf_set = indy_conf_set,
             .mepa_driver_conf_get = indy_conf_get,
             .mepa_driver_if_set = mas_if_set,
-            .mepa_driver_if_get = indy_if_get,
+            .mepa_driver_if_get = mas_if_get,
             .mepa_driver_cable_diag_start = indy_cable_diag_start,
             .mepa_driver_cable_diag_get = indy_cable_diag_get,
             .mepa_driver_probe = indy_probe,
