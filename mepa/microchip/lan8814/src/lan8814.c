@@ -522,8 +522,8 @@ static mepa_rc mas_if_set(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
-                           mepa_port_interface_t *mac_if)
+static mepa_rc mas_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
+                          mepa_port_interface_t *mac_if)
 {
     *mac_if = MESA_PORT_INTERFACE_SGMII;
     return MEPA_RC_OK;
