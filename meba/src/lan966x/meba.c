@@ -191,6 +191,12 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
         (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
         (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
+
+        // GPIO 60 is used for PHY coma mode for REV B
+        gpio_no = 60;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+
         break;
     default:
         break;
