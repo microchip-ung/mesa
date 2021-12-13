@@ -29,78 +29,77 @@ static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
 static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
     uint16_t val = 0, clock_cfg = 0, pll_div = 0;
-    mepa_device_t *base_dev;
     phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_rc rc = MEPA_RC_OK;
-    if(ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
+
+    if (ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
         T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
-    if(ts_init_conf->rx_ts_pos != MEPA_TS_RX_TIMESTAMP_POS_IN_PTP) {
+    if (ts_init_conf->rx_ts_pos != MEPA_TS_RX_TIMESTAMP_POS_IN_PTP) {
         T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp position not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
-    if(ts_init_conf->tx_fifo_mode != MEPA_TS_FIFO_MODE_NORMAL) {
+    if (ts_init_conf->tx_fifo_mode != MEPA_TS_FIFO_MODE_NORMAL) {
         T_E(MEPA_TRACE_GRP_TS, "TX TS FIFO mode not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     EP_RD(dev, INDY_PTP_REF_CLK_CFG, &clock_cfg);
-    switch(ts_init_conf->clk_src){
-        case MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(0);
-            break;
-        case MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(1);
-            break;
-        case MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK:
-            // take input from appl for exte_clk_freq; supported ext ref freq 10, 25, 125MHZ, default it is 125MHZ.
-            // 1588 PLL Filter Range Register, if 10 change to 2, (25/125 -> 3 default )
-            // write PLL Divider Register DIVR-> 1, DIVQ -> 8
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(2);
-            break;
-        case MEPA_TS_CLOCK_SRC_RESERVED:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(3);
-            break;
-        case MEPA_TS_CLOCK_SRC_FROM_RX_PORT0:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(4);
-            break;
-        case MEPA_TS_CLOCK_SRC_FROM_RX_PORT1:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(5);
-            break;
-        case MEPA_TS_CLOCK_SRC_FROM_RX_PORT2:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(6);
-            break;
-        case MEPA_TS_CLOCK_SRC_FROM_RX_PORT3:
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(7);
-            break;
-        default:
-            T_E(MEPA_TRACE_GRP_TS, "Clock Source not supported::  Port : %d\n", data->port_no);
-            return MEPA_RC_ERROR;
+    switch (ts_init_conf->clk_src) {
+    case MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(0);
+        break;
+    case MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(1);
+        break;
+    case MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK:
+        // take input from appl for exte_clk_freq; supported ext ref freq 10, 25, 125MHZ, default it is 125MHZ.
+        // 1588 PLL Filter Range Register, if 10 change to 2, (25/125 -> 3 default )
+        // write PLL Divider Register DIVR-> 1, DIVQ -> 8
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(2);
+        break;
+    case MEPA_TS_CLOCK_SRC_RESERVED:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(3);
+        break;
+    case MEPA_TS_CLOCK_SRC_FROM_RX_PORT0:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(4);
+        break;
+    case MEPA_TS_CLOCK_SRC_FROM_RX_PORT1:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(5);
+        break;
+    case MEPA_TS_CLOCK_SRC_FROM_RX_PORT2:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(6);
+        break;
+    case MEPA_TS_CLOCK_SRC_FROM_RX_PORT3:
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_SOURCE_F(7);
+        break;
+    default:
+        T_E(MEPA_TRACE_GRP_TS, "Clock Source not supported::  Port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
     }
-    switch(ts_init_conf->clk_freq){
-        case MEPA_TS_CLOCK_FREQ_200M:
-            // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
-            pll_div = pll_div | INDY_1588_PLL_DIVQ_F(8); //
-            pll_div = pll_div | INDY_1588_PLL_DIVF_F(32); //
-            EP_WRM(dev, INDY_1588_PLL_DIVEDER, pll_div, INDY_DEF_MASK);
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(5);
-            break;
-        case MEPA_TS_CLOCK_FREQ_250M:
-            // / PLL Divider Register default values will be for 250M
-            clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(4);
-            break;
-        default:
-            T_E(MEPA_TRACE_GRP_TS, "Clock frequency not supported::  Port : %d\n", data->port_no);
-            return MEPA_RC_ERROR;
-            break;
+    switch (ts_init_conf->clk_freq) {
+    case MEPA_TS_CLOCK_FREQ_200M:
+        // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
+        pll_div = pll_div | INDY_1588_PLL_DIVQ_F(8); //
+        pll_div = pll_div | INDY_1588_PLL_DIVF_F(32); //
+        EP_WRM(dev, INDY_1588_PLL_DIVEDER, pll_div, INDY_DEF_MASK);
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(5);
+        break;
+    case MEPA_TS_CLOCK_FREQ_250M:
+        // / PLL Divider Register default values will be for 250M
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(4);
+        break;
+    default:
+        T_E(MEPA_TRACE_GRP_TS, "Clock frequency not supported::  Port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+        break;
     }
     clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_OVERRIDE;
     EP_WRM(dev, INDY_PTP_REF_CLK_CFG, clock_cfg, INDY_DEF_MASK);
     val = val | INDY_PTP_OPERATING_MODE_VAL_F(1); // 1 for PTP in normal operating mode
     EP_WRM(dev, INDY_PTP_OPERATING_MODE, val, INDY_PTP_OPERATING_MODE_VAL);
     T_I(MEPA_TRACE_GRP_TS, "Port : %d  Clock Src : %d  Freq : %d Rx TS Len :%d Rx TS Pos : %d Tx FIFO Mode : %d Tx TS Len %d\n",
-                                 data->port_no,ts_init_conf->clk_src,ts_init_conf->clk_freq,ts_init_conf->rx_ts_len,
-                                 ts_init_conf->rx_ts_pos,ts_init_conf->tx_fifo_mode,ts_init_conf->tx_ts_len);
+        data->port_no, ts_init_conf->clk_src, ts_init_conf->clk_freq, ts_init_conf->rx_ts_len,
+        ts_init_conf->rx_ts_pos, ts_init_conf->tx_fifo_mode, ts_init_conf->tx_ts_len);
 
     data->ts_state.clk_src          = ts_init_conf->clk_src;
     data->ts_state.clk_freq         = ts_init_conf->clk_freq;
@@ -116,30 +115,30 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
 
 static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
-    uint16_t val = 0, clock_cfg = 0;
+    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
 #if 1 // Hardware default values are not aligned
     // Ingress latencies
     val = indy_ing_latencies[ts_init_conf->clk_freq][2];
-    EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.rx10mbps = val << 16;
     val = indy_ing_latencies[ts_init_conf->clk_freq][1];
-    EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.rx100mbps =  val << 16;
     val = indy_ing_latencies[ts_init_conf->clk_freq][0];
-    EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.rx1000mbps =  val << 16;
 
     // Egress latencies
     val = indy_egr_latencies[ts_init_conf->clk_freq][2];
-    EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.tx10mbps =  val << 16;
     val = indy_egr_latencies[ts_init_conf->clk_freq][1];
-    EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.tx100mbps =  val << 16;
     val = indy_egr_latencies[ts_init_conf->clk_freq][0];
-    EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val,INDY_DEF_MASK);
+    EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
     data->ts_state.default_latencies.tx1000mbps =  val << 16;
 
 #else
@@ -166,7 +165,6 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 
 #endif
 
-
     return MEPA_RC_OK;
 
 }
@@ -180,14 +178,14 @@ static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf
 
     MEPA_ASSERT(ts_init_conf == NULL);
     base_dev = data->base_dev;
-    if(base_dev == dev){
+    if (base_dev == dev) {
         MEPA_ASSERT(base_dev == NULL);
 
         MEPA_ENTER(base_dev);
         // Reset the LTC
         val = val | INDY_PTP_LTC_HARD_RESET_CMD;
         EP_WRM(base_dev, INDY_PTP_LTC_HARD_RESET, val, INDY_DEF_MASK);
-        if((rc = indy_tsu_block_init(base_dev, ts_init_conf)) != MEPA_RC_OK) {
+        if ((rc = indy_tsu_block_init(base_dev, ts_init_conf)) != MEPA_RC_OK) {
             MEPA_EXIT(base_dev);
             return rc;
         }
@@ -203,7 +201,6 @@ static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf
 
 static mepa_rc indy_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *const ts_init_conf)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ASSERT(ts_init_conf == NULL);
@@ -228,7 +225,7 @@ static mepa_rc indy_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
 
     MEPA_ENTER(dev);
     EP_RD(dev, INDY_PTP_CMD_CTL, &val);
-    if(enable){
+    if (enable) {
         val = val | INDY_PTP_CMD_CTL_ENABLE;
     } else {
         val = val | INDY_PTP_CMD_CTL_DISABLE;
@@ -242,10 +239,9 @@ static mepa_rc indy_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
 
     return MEPA_RC_OK;
 }
+
 static mepa_rc indy_ts_reset(mepa_device_t *dev, const mepa_ts_reset_conf_t *const tsreset)
 {
-    uint16_t val = 0;
-    phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ENTER(dev);
     MEPA_EXIT(dev);
@@ -266,6 +262,8 @@ static mepa_rc indy_ts_mode_get(mepa_device_t *dev, mepa_bool_t *const enable)
     return MEPA_RC_OK;
 }
 
+#if 0
+
 static mepa_rc indy_ts_ltc_ls_en_set2(mepa_device_t *dev, const mepa_ts_ls_type_t  ls_type)
 {
     uint16_t val = 0;
@@ -281,39 +279,41 @@ static mepa_rc indy_ts_ltc_ls_en_set2(mepa_device_t *dev, const mepa_ts_ls_type_
     return MEPA_RC_OK;
 }
 
+#endif
+
 static mepa_rc indy_ts_ltc_ls_en_set(mepa_device_t *dev, const mepa_ts_ls_type_t  ls_type)
 {
-    uint16_t val = 0, gpio=3; // Remove the hardcoded GPIO#3 and take it as input;
+    uint16_t val = 0, gpio = 3; // Remove the hardcoded GPIO#3 and take it as input;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
     mepa_bool_t     ls_pps = TRUE;
 
     MEPA_ASSERT(base_dev == NULL );
     MEPA_ENTER(dev);
-    if(base_dev == dev){
+    if (base_dev == dev) {
         switch (ls_type) {
-            case MEPA_TS_CMD_LOAD:
-                if(ls_pps == TRUE){
-                    EP_WRM(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, 0, INDY_DEF_MASK);
-                }else{
-                    EP_WRM(base_dev, INDY_PTP_CMD_CTL, INDY_PTP_CMD_CTL_LTC_LOAD, INDY_PTP_CMD_CTL_LTC_LOAD);
-                }
-                break;
-            case MEPA_TS_CMD_SAVE:
-                if(ls_pps == TRUE){
-                    EP_WRM(base_dev, INDY_PTP_GPIO_CAP_MAP_LO, INDY_PTP_GPIO_CAP_0_MAP_F(gpio), INDY_PTP_GPIO_CAP_0_MAP);
-                    // LTC captured on Channel#0 and on Raising edge. As of now these options are fixed.
-                    EP_WRM(base_dev, INDY_PTP_GPIO_CAP_EN, INDY_PTP_GPIO_RE_CAPTURE_EN_F(1), INDY_PTP_GPIO_RE_CAPTURE_EN);
-                    EP_WRM(base_dev, INDY_PTP_GPIO_CAP_LOCK, val, INDY_DEF_MASK);
-                }else{
-                    EP_WRM(base_dev, INDY_PTP_CMD_CTL, INDY_PTP_CMD_CTL_LTC_READ, INDY_PTP_CMD_CTL_LTC_READ);
-                }
-                break;
-            case MEPA_TS_ADJ_CMD_CLEAR:
+        case MEPA_TS_CMD_LOAD:
+            if (ls_pps == TRUE) {
                 EP_WRM(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, 0, INDY_DEF_MASK);
-                break;
-            default:
-                break;
+            } else {
+                EP_WRM(base_dev, INDY_PTP_CMD_CTL, INDY_PTP_CMD_CTL_LTC_LOAD, INDY_PTP_CMD_CTL_LTC_LOAD);
+            }
+            break;
+        case MEPA_TS_CMD_SAVE:
+            if (ls_pps == TRUE) {
+                EP_WRM(base_dev, INDY_PTP_GPIO_CAP_MAP_LO, INDY_PTP_GPIO_CAP_0_MAP_F(gpio), INDY_PTP_GPIO_CAP_0_MAP);
+                // LTC captured on Channel#0 and on Raising edge. As of now these options are fixed.
+                EP_WRM(base_dev, INDY_PTP_GPIO_CAP_EN, INDY_PTP_GPIO_RE_CAPTURE_EN_F(1), INDY_PTP_GPIO_RE_CAPTURE_EN);
+                EP_WRM(base_dev, INDY_PTP_GPIO_CAP_LOCK, val, INDY_DEF_MASK);
+            } else {
+                EP_WRM(base_dev, INDY_PTP_CMD_CTL, INDY_PTP_CMD_CTL_LTC_READ, INDY_PTP_CMD_CTL_LTC_READ);
+            }
+            break;
+        case MEPA_TS_ADJ_CMD_CLEAR:
+            EP_WRM(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, 0, INDY_DEF_MASK);
+            break;
+        default:
+            break;
         }
     }
     MEPA_EXIT(dev);
@@ -324,15 +324,15 @@ static mepa_rc indy_ts_ltc_ls_en_set(mepa_device_t *dev, const mepa_ts_ls_type_t
 
 static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
 {
-    uint16_t val = 0, ns_h =0, ns_l = 0;;
+    uint16_t val = 0, ns_h = 0, ns_l = 0;;
     mepa_bool_t     ls_pps = TRUE;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
 
     MEPA_ASSERT((ts == NULL) || (base_dev == NULL) );
     MEPA_ENTER(dev);
-    if(base_dev == dev){
-        if(ls_pps == FALSE){
+    if (base_dev == dev) {
+        if (ls_pps == FALSE) {
             EP_WRM(base_dev, INDY_PTP_CMD_CTL, INDY_PTP_CMD_CTL_LTC_READ, INDY_PTP_CMD_CTL_LTC_READ);
             ts->seconds.high = 0;
             ts->seconds.low = 0;
@@ -354,7 +354,7 @@ static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
             ts->nanoseconds = ts->nanoseconds | ns_l;
             EP_RD(base_dev, INDY_PTP_LTC_RD_SUBNS_HI, &val);
             EP_RD(base_dev, INDY_PTP_LTC_RD_SUBNS_LO, &val);
-        }else{
+        } else {
 
             ts->seconds.high = 0;
             ts->seconds.low = 0;
@@ -382,16 +382,15 @@ static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
 static mepa_rc indy_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const ts)
 {
     uint16_t val = 0, cmd = 0;
-    mepa_bool_t     ls_pps = TRUE;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
 
     MEPA_ASSERT((ts == NULL) || (base_dev == NULL) );
     MEPA_ENTER(dev);
 
-    if(base_dev == dev) {
+    if (base_dev == dev) {
         EP_RD(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, &cmd);
-        if(cmd & 0x10){
+        if (cmd & 0x10) {
             cmd = 0;
         } else {
             cmd = cmd | INDY_PTP_LTC_EXT_ADJ_MODE;
@@ -409,7 +408,7 @@ static mepa_rc indy_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const
         val = ts->nanoseconds & 0xFFFF;
         EP_WRM(base_dev, INDY_PTP_LTC_SET_NS_LO, val, INDY_DEF_MASK);
         EP_WRM(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, INDY_PTP_LTC_EXT_ADJ_LOAD_EN, INDY_PTP_LTC_EXT_ADJ_LOAD_EN);
-     }
+    }
 
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
@@ -418,8 +417,6 @@ static mepa_rc indy_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const
 static mepa_rc indy_ts_clock_rateadj_get(mepa_device_t *dev, mepa_ts_scaled_ppb_t *const adj)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no;
-    mepa_device_t *base_dev = data->base_dev;
 
     MEPA_ASSERT(adj == NULL);
     MEPA_ENTER(dev);
@@ -434,26 +431,24 @@ static mepa_rc indy_ts_clock_rateadj_get(mepa_device_t *dev, mepa_ts_scaled_ppb_
 static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scaled_ppb_t *const adj)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no;
     uint16_t val = 0;
-    int32_t adj_hi = 0, adj_lo = 0;
     mepa_device_t *base_dev = data->base_dev;
     MEPA_ASSERT(adj == NULL);
     MEPA_ENTER(dev);
-    if((base_dev == dev) &&(adj != 0)) {
+    if ((base_dev == dev) && (adj != 0)) {
         int16_t adj_dir = (*adj > 0 ? 1 : 0);
         int64_t adj_abs = MEPA_LABS(*adj), adj_val = 0, adj_abs1 = 0;
         adj_abs1 = adj_abs;
         adj_abs1 = adj_abs1 >> 16;
 
-        if( adj_abs > 0) {
+        if ( adj_abs > 0) {
             adj_val = MEPA_DIV64(1000000000ULL * 0x10000ULL, adj_abs);
-            adj_val = MEPA_DIV64((1LL<<32) *4,  adj_val);
+            adj_val = MEPA_DIV64((1LL << 32) * 4,  adj_val);
         }
         if (adj_abs >= (1LL << 30)) {
             T_W(MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: direction %d Adj Value : %lld   Port : %d\n", adj_dir, adj_abs, data->port_no);
         } else {
-            if(adj_dir) {
+            if (adj_dir) {
                 val = val | INDY_PTP_LTC_RATE_ADJ_HI_DIR;
             }
             val = val | (0x3FFF & (adj_val >> 16));
@@ -477,28 +472,30 @@ static mepa_rc indy_ts_clock_adj1ns(mepa_device_t *dev, const mepa_bool_t incr)
     phy_data_t *base_data;
     uint16_t val = 0, cmd = 0, cmd_org = 0, adj = 0;
     MEPA_ENTER(dev);
-    if(base_dev == dev) {
+    if (base_dev == dev) {
         base_data = (phy_data_t *)base_dev->data;
         EP_RD(dev, INDY_PTP_CMD_CTL, &cmd_org);
-        cmd = 0xFFFB &cmd_org;
+        cmd = 0xFFFB & cmd_org;
         EP_WRM(dev, INDY_PTP_CMD_CTL, cmd, INDY_DEF_MASK);
         val = val | INDY_PTP_LTC_STEP_ADJ_DIR;
 
         switch (base_data->ts_state.clk_freq) {
-            case MEPA_TS_CLOCK_FREQ_250M:
-                if(incr){
-                    adj = 4 + 1;
-                } else {
-                    adj = 4 - 1;
-                }
-                break;
-            case MEPA_TS_CLOCK_FREQ_200M:
-                if(incr){
-                    adj = 5 + 1;
-                } else {
-                    adj = 5 - 1;
-                }
-                break;
+        case MEPA_TS_CLOCK_FREQ_250M:
+            if (incr) {
+                adj = 4 + 1;
+            } else {
+                adj = 4 - 1;
+            }
+            break;
+        case MEPA_TS_CLOCK_FREQ_200M:
+            if (incr) {
+                adj = 5 + 1;
+            } else {
+                adj = 5 - 1;
+            }
+            break;
+        default:
+            break;
         }
         EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_HI, val, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_LO, adj, INDY_DEF_MASK);
@@ -510,6 +507,7 @@ static mepa_rc indy_ts_clock_adj1ns(mepa_device_t *dev, const mepa_bool_t incr)
     return MEPA_RC_OK;
 }
 
+#if 0
 static mepa_rc indy_ts_clock_adjns(mepa_device_t *dev, const mepa_bool_t incr)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -519,36 +517,37 @@ static mepa_rc indy_ts_clock_adjns(mepa_device_t *dev, const mepa_bool_t incr)
     uint16_t val = 0, cmd = 0, cmd_org = 0, adj = 0;
 
     MEPA_ENTER(dev);
-   if(base_dev == dev) {
-       base_data = (phy_data_t *)base_dev->data;
-       EP_RD(dev, INDY_PTP_CMD_CTL, &cmd_org);
-       cmd = 0xFFFB &cmd_org;
-       cmd = cmd |INDY_PTP_CMD_CTL_LTC_STEP_NANOSECONDS;
-       EP_WRM(dev, INDY_PTP_CMD_CTL, cmd, INDY_DEF_MASK);
-       switch (base_data->ts_state.clk_freq) {
-           case MEPA_TS_CLOCK_FREQ_250M:
-               if(incr){
-                   adj = 4 + 1;
-               } else {
-                   adj = 4 - 1;
-               }
-               break;
-           case MEPA_TS_CLOCK_FREQ_200M:
-               if(incr){
-                   adj = 5 + 1;
-               } else {
-                   adj = 5 - 1;
-               }
-               break;
-       }
-       EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_HI, val, INDY_DEF_MASK);
-       EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_LO, adj, INDY_DEF_MASK);
-       EP_WRM(dev, INDY_PTP_CMD_CTL, cmd_org, INDY_DEF_MASK);
-   }
+    if (base_dev == dev) {
+        base_data = (phy_data_t *)base_dev->data;
+        EP_RD(dev, INDY_PTP_CMD_CTL, &cmd_org);
+        cmd = 0xFFFB & cmd_org;
+        cmd = cmd | INDY_PTP_CMD_CTL_LTC_STEP_NANOSECONDS;
+        EP_WRM(dev, INDY_PTP_CMD_CTL, cmd, INDY_DEF_MASK);
+        switch (base_data->ts_state.clk_freq) {
+        case MEPA_TS_CLOCK_FREQ_250M:
+            if (incr) {
+                adj = 4 + 1;
+            } else {
+                adj = 4 - 1;
+            }
+            break;
+        case MEPA_TS_CLOCK_FREQ_200M:
+            if (incr) {
+                adj = 5 + 1;
+            } else {
+                adj = 5 - 1;
+            }
+            break;
+        }
+        EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_HI, val, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_LO, adj, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_CMD_CTL, cmd_org, INDY_DEF_MASK);
+    }
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
 }
+#endif
 
 static mepa_rc indy_ts_clock_delay_asymmetry_get(mepa_device_t *dev, mepa_timeinterval_t *const delay_asym)
 {
@@ -620,18 +619,18 @@ static mepa_rc indy_ts_clock_egress_latency_get(mepa_device_t *dev, mepa_timeint
     MEPA_ASSERT(latency == NULL);
     MEPA_ENTER(dev);
     switch (data->conf.speed) {
-        case MEPA_SPEED_10M:
-            *latency = data->ts_state.ts_port_conf.port_latencies.tx10mbps ;
-            break;
-        case MEPA_SPEED_100M:
-            *latency = data->ts_state.ts_port_conf.port_latencies.tx100mbps;
-            break;
-        case MEPA_SPEED_1G:
-        case MEPA_SPEED_AUTO:
-            *latency = data->ts_state.ts_port_conf.port_latencies.tx1000mbps;
-            break;
-        default:
-            break;
+    case MEPA_SPEED_10M:
+        *latency = data->ts_state.ts_port_conf.port_latencies.tx10mbps ;
+        break;
+    case MEPA_SPEED_100M:
+        *latency = data->ts_state.ts_port_conf.port_latencies.tx100mbps;
+        break;
+    case MEPA_SPEED_1G:
+    case MEPA_SPEED_AUTO:
+        *latency = data->ts_state.ts_port_conf.port_latencies.tx1000mbps;
+        break;
+    default:
+        break;
     }
     MEPA_EXIT(dev);
 
@@ -650,48 +649,48 @@ static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_t
     MEPA_ENTER(dev);
     val = (MEPA_LABS(*latency) >> 16) & 0xFFFF;
     switch (data->conf.speed) {
-        case MEPA_SPEED_10M:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.tx10mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16)&0xFFFF) - val;
+    case MEPA_SPEED_10M:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.tx10mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.tx10mbps = *latency;
-            break;
-        case MEPA_SPEED_100M:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.tx100mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16)&0xFFFF) - val;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.tx10mbps = *latency;
+        break;
+    case MEPA_SPEED_100M:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.tx100mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.tx100mbps = *latency;
-            break;
-        case MEPA_SPEED_1G:
-        case MEPA_SPEED_AUTO:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.tx1000mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16)&0xFFFF) - val;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.tx100mbps = *latency;
+        break;
+    case MEPA_SPEED_1G:
+    case MEPA_SPEED_AUTO:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.tx1000mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *latency;
-            break;
-        default:
-            break;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *latency;
+        break;
+    default:
+        break;
     }
     MEPA_EXIT(dev);
 
@@ -705,18 +704,18 @@ static mepa_rc indy_ts_clock_ingress_latency_get(mepa_device_t *dev, mepa_timein
     MEPA_ASSERT(latency == NULL);
     MEPA_ENTER(dev);
     switch (data->conf.speed) {
-        case MEPA_SPEED_10M:
-            *latency = data->ts_state.ts_port_conf.port_latencies.rx10mbps;
-            break;
-        case MEPA_SPEED_100M:
-            *latency = data->ts_state.ts_port_conf.port_latencies.rx100mbps;
-            break;
-        case MEPA_SPEED_1G:
-        case MEPA_SPEED_AUTO:
-            *latency = data->ts_state.ts_port_conf.port_latencies.rx1000mbps;
-            break;
-        default:
-            break;
+    case MEPA_SPEED_10M:
+        *latency = data->ts_state.ts_port_conf.port_latencies.rx10mbps;
+        break;
+    case MEPA_SPEED_100M:
+        *latency = data->ts_state.ts_port_conf.port_latencies.rx100mbps;
+        break;
+    case MEPA_SPEED_1G:
+    case MEPA_SPEED_AUTO:
+        *latency = data->ts_state.ts_port_conf.port_latencies.rx1000mbps;
+        break;
+    default:
+        break;
     }
     MEPA_EXIT(dev);
 
@@ -736,48 +735,48 @@ static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_
 
     val = (MEPA_LABS(*latency) >> 16) & 0xFFFF;
     switch (data->conf.speed) {
-        case MEPA_SPEED_10M:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16)&0xFFFF) - val;
+    case MEPA_SPEED_10M:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.rx10mbps = *latency;
-            break;
-        case MEPA_SPEED_100M:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16)&0xFFFF) - val;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_RX_LATENCY_10, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.rx10mbps = *latency;
+        break;
+    case MEPA_SPEED_100M:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.rx100mbps = *latency;
-            break;
-        case MEPA_SPEED_1G:
-        case MEPA_SPEED_AUTO:
-            if(*latency >= 0) {
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) + val;
-            }else {
-                if((base_phy->ts_state.default_latencies.rx1000mbps >> 16) <= val) {
-                    T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
-                    break;
-                }
-                val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16)&0xFFFF) - val;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx100mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_RX_LATENCY_100, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.rx100mbps = *latency;
+        break;
+    case MEPA_SPEED_1G:
+    case MEPA_SPEED_AUTO:
+        if (*latency >= 0) {
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16) & 0xFFFF) + val;
+        } else {
+            if ((base_phy->ts_state.default_latencies.rx1000mbps >> 16) <= val) {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
+                break;
             }
-            EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val, INDY_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.rx1000mbps = *latency;
-            break;
-        default:
-            break;
+            val = (uint16_t)((base_phy->ts_state.default_latencies.rx1000mbps >> 16) & 0xFFFF) - val;
+        }
+        EP_WRM(dev, INDY_PTP_RX_LATENCY_1000, val, INDY_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.rx1000mbps = *latency;
+        break;
+    default:
+        break;
     }
     MEPA_EXIT(dev);
 
@@ -813,185 +812,195 @@ static mepa_rc indy_ts_rx_classifier_conf_get (mepa_device_t *dev, uint16_t flow
 
 #endif
 
-static mepa_rc indy_ts_classifier_conf_reg_dump(mepa_device_t *dev){
-   uint16_t val = 0;
-   phy_data_t *data = (phy_data_t *)dev->data;
-   mepa_port_no_t port_no;
-   port_no = data->port_no;
+static mepa_rc indy_ts_classifier_conf_reg_dump(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_port_no_t port_no;
+    port_no = data->port_no;
 
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_HI", INDY_PTP_RX_USER_MAC_HI ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_MID", INDY_PTP_RX_USER_MAC_MID ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_LO", INDY_PTP_RX_USER_MAC_LO ,&val);
+    // Suppress warnings
+    if (port_no < 0) {
+        return MEPA_RC_OK;
+    }
 
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_0", INDY_PTP_RX_USER_IP_ADDR_0 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_1", INDY_PTP_RX_USER_IP_ADDR_1 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_2", INDY_PTP_RX_USER_IP_ADDR_2 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_3", INDY_PTP_RX_USER_IP_ADDR_3 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_4", INDY_PTP_RX_USER_IP_ADDR_4 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_5", INDY_PTP_RX_USER_IP_ADDR_5 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_6", INDY_PTP_RX_USER_IP_ADDR_6 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_7", INDY_PTP_RX_USER_IP_ADDR_7 ,&val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_HI", INDY_PTP_RX_USER_MAC_HI, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_MID", INDY_PTP_RX_USER_MAC_MID, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_LO", INDY_PTP_RX_USER_MAC_LO, &val);
 
-   //PTP User IP Mask Registers
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_0", INDY_PTP_RX_USER_IP_MASK_0 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_1", INDY_PTP_RX_USER_IP_MASK_1 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_2", INDY_PTP_RX_USER_IP_MASK_2 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_3", INDY_PTP_RX_USER_IP_MASK_3 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_4", INDY_PTP_RX_USER_IP_MASK_4 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_5", INDY_PTP_RX_USER_IP_MASK_5 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_6", INDY_PTP_RX_USER_IP_MASK_6 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_7", INDY_PTP_RX_USER_IP_MASK_7 ,&val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_0", INDY_PTP_RX_USER_IP_ADDR_0, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_1", INDY_PTP_RX_USER_IP_ADDR_1, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_2", INDY_PTP_RX_USER_IP_ADDR_2, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_3", INDY_PTP_RX_USER_IP_ADDR_3, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_4", INDY_PTP_RX_USER_IP_ADDR_4, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_5", INDY_PTP_RX_USER_IP_ADDR_5, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_6", INDY_PTP_RX_USER_IP_ADDR_6, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_7", INDY_PTP_RX_USER_IP_ADDR_7, &val);
 
-   // VLAN Registers for both ingress and Egress
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_VLAN_TYPE_ID", INDY_PTP_VLAN_ETH_TYPE_ID ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_TYPE_ID", INDY_VLAN1_TYPE_ID ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_ID_MASK", INDY_VLAN1_ID_MASK ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_UP", INDY_VLAN1_VID_RANGE_UP ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_LO", INDY_VLAN1_VID_RANGE_LO ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_TYPE_ID", INDY_VLAN2_TYPE_ID ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_ID_MASK", INDY_VLAN2_ID_MASK ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_UP", INDY_VLAN2_VID_RANGE_UP ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_LO", INDY_VLAN2_VID_RANGE_LO ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_LLC_TYPE_ID", INDY_LLC_TYPE_ID ,&val);
+    //PTP User IP Mask Registers
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_0", INDY_PTP_RX_USER_IP_MASK_0, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_1", INDY_PTP_RX_USER_IP_MASK_1, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_2", INDY_PTP_RX_USER_IP_MASK_2, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_3", INDY_PTP_RX_USER_IP_MASK_3, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_4", INDY_PTP_RX_USER_IP_MASK_4, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_5", INDY_PTP_RX_USER_IP_MASK_5, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_6", INDY_PTP_RX_USER_IP_MASK_6, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_7", INDY_PTP_RX_USER_IP_MASK_7, &val);
 
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_CAP_INFO", INDY_PTP_CAP_INFO ,&val);
-   //PTP TX USER MAC ADDRESS
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_HI", INDY_PTP_TX_USER_MAC_HI     ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_MID", INDY_PTP_TX_USER_MAC_MID    ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_LO", INDY_PTP_TX_USER_MAC_LO     ,&val);
-   //PTP TX USER IP ADDRESS REGISTERS
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_0", INDY_PTP_TX_USER_IP_ADDR_0 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_1", INDY_PTP_TX_USER_IP_ADDR_1 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_2", INDY_PTP_TX_USER_IP_ADDR_2 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_3", INDY_PTP_TX_USER_IP_ADDR_3 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_4", INDY_PTP_TX_USER_IP_ADDR_4 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_5", INDY_PTP_TX_USER_IP_ADDR_5 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_6", INDY_PTP_TX_USER_IP_ADDR_6 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_7", INDY_PTP_TX_USER_IP_ADDR_7 ,&val);
-   //PTP TX USER IP MASK REGISTERS
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_0", INDY_PTP_TX_USER_IP_MASK_0 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_1", INDY_PTP_TX_USER_IP_MASK_1 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_2", INDY_PTP_TX_USER_IP_MASK_2 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_3", INDY_PTP_TX_USER_IP_MASK_3 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_4", INDY_PTP_TX_USER_IP_MASK_4 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_5", INDY_PTP_TX_USER_IP_MASK_5 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_6", INDY_PTP_TX_USER_IP_MASK_6 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_7", INDY_PTP_TX_USER_IP_MASK_7 ,&val);
-   //PTP RX Parsing Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_CONFIG", INDY_PTP_RX_PARSE_CONFIG ,&val);
-   //PTP RX Parsing VLAN Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_VLAN_CONFIG", INDY_PTP_RX_PARSE_VLAN_CONFIG ,&val);
-   //PTP RX Parsing Layer2 Format Address Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_L2_ADDR_EN", INDY_PTP_RX_PARSE_L2_ADDR_EN ,&val);
-   //PTP RX Parsing IP Format Address Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_IP_ADDR_EN", INDY_PTP_RX_PARSE_IP_ADDR_EN ,&val);
-   //PTP RX Parsing UDP Source Port Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_SRC_PORT", INDY_PTP_RX_PARSE_UDP_SRC_PORT ,&val);
-   //PTP RX Parsing UDP Destination Port Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_DEST_PORT", INDY_PTP_RX_PARSE_UDP_DEST_PORT ,&val);
-   //PTP RX Version Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_VERSION", INDY_PTP_RX_VERSION ,&val);
-   //PTP RX Domain / Domain Range Lower Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_DOMAIN_LO", INDY_PTP_RX_DOMAIN_DOMAIN_LO ,&val);
-   //PTP RX Domain Mask / Domain Range Upper Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP ,&val);
-   //PTP RX SdoId / SdoId Range Lower Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_SDOID_LO", INDY_PTP_RX_SDOID_SDOID_LO ,&val);
-   //PTP RX SdoId Mask / SdoId Range Upper Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_MASK_SDOID_UP", INDY_PTP_RX_SDOID_MASK_SDOID_UP ,&val);
+    // VLAN Registers for both ingress and Egress
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_VLAN_TYPE_ID", INDY_PTP_VLAN_ETH_TYPE_ID, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_TYPE_ID", INDY_VLAN1_TYPE_ID, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_ID_MASK", INDY_VLAN1_ID_MASK, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_UP", INDY_VLAN1_VID_RANGE_UP, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_LO", INDY_VLAN1_VID_RANGE_LO, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_TYPE_ID", INDY_VLAN2_TYPE_ID, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_ID_MASK", INDY_VLAN2_ID_MASK, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_UP", INDY_VLAN2_VID_RANGE_UP, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_LO", INDY_VLAN2_VID_RANGE_LO, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_LLC_TYPE_ID", INDY_LLC_TYPE_ID, &val);
 
-   //PTP TX Parsing Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_CONFIG", INDY_PTP_TX_PARSE_CONFIG ,&val);
-   //PTP TX Parsing VLAN Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_VLAN_CONFIG", INDY_PTP_TX_PARSE_VLAN_CONFIG ,&val);
-   //PTP TX Parsing Layer2 Format Address Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_L2_ADDR_EN", INDY_PTP_TX_PARSE_L2_ADDR_EN ,&val);
-   //PTP TX Parsing IP Format Address Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_IP_ADDR_EN", INDY_PTP_TX_PARSE_IP_ADDR_EN ,&val);
-   //PTP TX Parsing UDP Source Port Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_SRC_PORT", INDY_PTP_TX_PARSE_UDP_SRC_PORT ,&val);
-   //PTP TX Parsing UDP Destination Port Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_DEST_PORT", INDY_PTP_TX_PARSE_UDP_DEST_PORT ,&val);
-   // PTP TX Version Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_VERSION", INDY_PTP_TX_VERSION ,&val);
-   // PTP TX Domain / Domain Range Lower Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_DOMAIN_LO", INDY_PTP_TX_DOMAIN_DOMAIN_LO ,&val);
-   // PTP TX Domain Mask / Domain Range Upper Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP ,&val);
-   // PTP TX SdoId / SdoId Range Lower Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_SDOID_LO", INDY_PTP_TX_SDOID_SDOID_LO,&val);
-   // PTP TX SdoId Mask / SdoId Range Upper Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_MASK_SDOID_UP", INDY_PTP_TX_SDOID_MASK_SDOID_UP ,&val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_CAP_INFO", INDY_PTP_CAP_INFO, &val);
+    //PTP TX USER MAC ADDRESS
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_HI", INDY_PTP_TX_USER_MAC_HI, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_MID", INDY_PTP_TX_USER_MAC_MID, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_LO", INDY_PTP_TX_USER_MAC_LO, &val);
+    //PTP TX USER IP ADDRESS REGISTERS
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_0", INDY_PTP_TX_USER_IP_ADDR_0, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_1", INDY_PTP_TX_USER_IP_ADDR_1, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_2", INDY_PTP_TX_USER_IP_ADDR_2, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_3", INDY_PTP_TX_USER_IP_ADDR_3, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_4", INDY_PTP_TX_USER_IP_ADDR_4, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_5", INDY_PTP_TX_USER_IP_ADDR_5, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_6", INDY_PTP_TX_USER_IP_ADDR_6, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_7", INDY_PTP_TX_USER_IP_ADDR_7, &val);
+    //PTP TX USER IP MASK REGISTERS
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_0", INDY_PTP_TX_USER_IP_MASK_0, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_1", INDY_PTP_TX_USER_IP_MASK_1, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_2", INDY_PTP_TX_USER_IP_MASK_2, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_3", INDY_PTP_TX_USER_IP_MASK_3, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_4", INDY_PTP_TX_USER_IP_MASK_4, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_5", INDY_PTP_TX_USER_IP_MASK_5, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_6", INDY_PTP_TX_USER_IP_MASK_6, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_7", INDY_PTP_TX_USER_IP_MASK_7, &val);
+    //PTP RX Parsing Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_CONFIG", INDY_PTP_RX_PARSE_CONFIG, &val);
+    //PTP RX Parsing VLAN Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_VLAN_CONFIG", INDY_PTP_RX_PARSE_VLAN_CONFIG, &val);
+    //PTP RX Parsing Layer2 Format Address Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_L2_ADDR_EN", INDY_PTP_RX_PARSE_L2_ADDR_EN, &val);
+    //PTP RX Parsing IP Format Address Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_IP_ADDR_EN", INDY_PTP_RX_PARSE_IP_ADDR_EN, &val);
+    //PTP RX Parsing UDP Source Port Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_SRC_PORT", INDY_PTP_RX_PARSE_UDP_SRC_PORT, &val);
+    //PTP RX Parsing UDP Destination Port Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_DEST_PORT", INDY_PTP_RX_PARSE_UDP_DEST_PORT, &val);
+    //PTP RX Version Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_VERSION", INDY_PTP_RX_VERSION, &val);
+    //PTP RX Domain / Domain Range Lower Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_DOMAIN_LO", INDY_PTP_RX_DOMAIN_DOMAIN_LO, &val);
+    //PTP RX Domain Mask / Domain Range Upper Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP, &val);
+    //PTP RX SdoId / SdoId Range Lower Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_SDOID_LO", INDY_PTP_RX_SDOID_SDOID_LO, &val);
+    //PTP RX SdoId Mask / SdoId Range Upper Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_MASK_SDOID_UP", INDY_PTP_RX_SDOID_MASK_SDOID_UP, &val);
 
-   //MEPA_EXIT(dev);
-   return MEPA_RC_OK;
+    //PTP TX Parsing Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_CONFIG", INDY_PTP_TX_PARSE_CONFIG, &val);
+    //PTP TX Parsing VLAN Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_VLAN_CONFIG", INDY_PTP_TX_PARSE_VLAN_CONFIG, &val);
+    //PTP TX Parsing Layer2 Format Address Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_L2_ADDR_EN", INDY_PTP_TX_PARSE_L2_ADDR_EN, &val);
+    //PTP TX Parsing IP Format Address Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_IP_ADDR_EN", INDY_PTP_TX_PARSE_IP_ADDR_EN, &val);
+    //PTP TX Parsing UDP Source Port Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_SRC_PORT", INDY_PTP_TX_PARSE_UDP_SRC_PORT, &val);
+    //PTP TX Parsing UDP Destination Port Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_DEST_PORT", INDY_PTP_TX_PARSE_UDP_DEST_PORT, &val);
+    // PTP TX Version Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_VERSION", INDY_PTP_TX_VERSION, &val);
+    // PTP TX Domain / Domain Range Lower Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_DOMAIN_LO", INDY_PTP_TX_DOMAIN_DOMAIN_LO, &val);
+    // PTP TX Domain Mask / Domain Range Upper Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP, &val);
+    // PTP TX SdoId / SdoId Range Lower Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_SDOID_LO", INDY_PTP_TX_SDOID_SDOID_LO, &val);
+    // PTP TX SdoId Mask / SdoId Range Upper Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_MASK_SDOID_UP", INDY_PTP_TX_SDOID_MASK_SDOID_UP, &val);
+
+    //MEPA_EXIT(dev);
+    return MEPA_RC_OK;
 }
-static mepa_rc indy_ts_clock_conf_reg_dump(mepa_device_t *dev){
-    uint16_t val = 0;
-   phy_data_t *data = (phy_data_t *)dev->data;
-   mepa_port_no_t port_no;
-   port_no = data->port_no;
-   // PTP TSU Interrupt Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_EN", INDY_PTP_TSU_INT_EN ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_STS", INDY_PTP_TSU_INT_STS ,&val);
+static mepa_rc indy_ts_clock_conf_reg_dump(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_port_no_t port_no;
+    port_no = data->port_no;
+    // Suppress warnings
+    if (port_no < 0) {
+        return MEPA_RC_OK;
+    }
+    // PTP TSU Interrupt Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_EN", INDY_PTP_TSU_INT_EN, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_STS", INDY_PTP_TSU_INT_STS, &val);
 
-   //PTP RX Timestamp Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_EN", INDY_PTP_RX_TIMESTAMP_EN ,&val);
-   //PTP RX Timestamp Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_CONFIG", INDY_PTP_RX_TIMESTAMP_CONFIG ,&val);
-   //PTP RX Modification Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_MOD", INDY_PTP_RX_MOD ,&val);
-   //PTP RX Reserved Bytes Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_RSVD_BYTE_CFG", INDY_PTP_RX_RSVD_BYTE_CFG ,&val);
-   //PTP RX Tail Tag Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TAIL_TAG", INDY_PTP_RX_TAIL_TAG ,&val);
-   //PTP RX Correction Field Modification Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_MOD_EN", INDY_PTP_RX_CF_MOD_EN ,&val);
-   //PTP RX Correction Field Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_CFG", INDY_PTP_RX_CF_CFG ,&val);
+    //PTP RX Timestamp Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_EN", INDY_PTP_RX_TIMESTAMP_EN, &val);
+    //PTP RX Timestamp Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_CONFIG", INDY_PTP_RX_TIMESTAMP_CONFIG, &val);
+    //PTP RX Modification Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_MOD", INDY_PTP_RX_MOD, &val);
+    //PTP RX Reserved Bytes Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_RSVD_BYTE_CFG", INDY_PTP_RX_RSVD_BYTE_CFG, &val);
+    //PTP RX Tail Tag Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TAIL_TAG", INDY_PTP_RX_TAIL_TAG, &val);
+    //PTP RX Correction Field Modification Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_MOD_EN", INDY_PTP_RX_CF_MOD_EN, &val);
+    //PTP RX Correction Field Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_CFG", INDY_PTP_RX_CF_CFG, &val);
 
-   // PTP TX Timestamp Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_EN", INDY_PTP_TX_TIMESTAMP_EN ,&val);
-   // PTP TX Timestamp Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_CONFIG", INDY_PTP_TX_TIMESTAMP_CONFIG ,&val);
-   // PTP TX Modification Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MOD", INDY_PTP_TX_MOD ,&val);
-   // PTP TX Reserved Bytes Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_RSVD_BYTE_CFG", INDY_PTP_TX_RSVD_BYTE_CFG ,&val);
-   // PTP TX Tail Tag Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TAIL_TAG", INDY_PTP_TX_TAIL_TAG ,&val);
-   // PTP TX Correction Field Modification Enable Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_MOD_EN", INDY_PTP_TX_CF_MOD_EN ,&val);
-   // PTP TX Correction Field Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_CFG", INDY_PTP_TX_CF_CFG ,&val);
-   // PTP TX Message Header
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER1", INDY_PTP_TX_MSG_HEADER1 ,&val);
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER2", INDY_PTP_TX_MSG_HEADER2 ,&val);
+    // PTP TX Timestamp Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_EN", INDY_PTP_TX_TIMESTAMP_EN, &val);
+    // PTP TX Timestamp Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_CONFIG", INDY_PTP_TX_TIMESTAMP_CONFIG, &val);
+    // PTP TX Modification Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MOD", INDY_PTP_TX_MOD, &val);
+    // PTP TX Reserved Bytes Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_RSVD_BYTE_CFG", INDY_PTP_TX_RSVD_BYTE_CFG, &val);
+    // PTP TX Tail Tag Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TAIL_TAG", INDY_PTP_TX_TAIL_TAG, &val);
+    // PTP TX Correction Field Modification Enable Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_MOD_EN", INDY_PTP_TX_CF_MOD_EN, &val);
+    // PTP TX Correction Field Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_CFG", INDY_PTP_TX_CF_CFG, &val);
+    // PTP TX Message Header
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER1", INDY_PTP_TX_MSG_HEADER1, &val);
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER2", INDY_PTP_TX_MSG_HEADER2, &val);
 
-   // TSU General Configuration Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_GEN_CONF", INDY_PTP_TSU_GEN_CONF ,&val);
-   // TSU Hard Reset Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_HARD_RESET", INDY_PTP_TSU_HARD_RESET ,&val);
-   // TSU Soft Reset Register
-   INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_SOFT_RESET", INDY_PTP_TSU_SOFT_RESET ,&val);
-   return MEPA_RC_OK;
+    // TSU General Configuration Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_GEN_CONF", INDY_PTP_TSU_GEN_CONF, &val);
+    // TSU Hard Reset Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_HARD_RESET", INDY_PTP_TSU_HARD_RESET, &val);
+    // TSU Soft Reset Register
+    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_SOFT_RESET", INDY_PTP_TSU_SOFT_RESET, &val);
+    return MEPA_RC_OK;
 }
-static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ts_classifier_ptp_t *ptp_hdr_conf){
+static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ts_classifier_ptp_t *ptp_hdr_conf)
+{
     uint16_t val = 0, version = 0;
 
-    if(ing){
-        val= 0xF & ptp_hdr_conf->version.upper;
+    if (ing) {
+        val = 0xF & ptp_hdr_conf->version.upper;
         val = val << 4;
         val = val | (0xF & ptp_hdr_conf->minor_version.upper);
         version = val;
         val = 0;
-        val= 0xF & ptp_hdr_conf->version.lower;
+        val = 0xF & ptp_hdr_conf->version.lower;
         val = val << 4;
         val = val | (0xF & ptp_hdr_conf->minor_version.lower);
         version = version << 8;
         version = version | (0xFF & val);
         EP_WRM(dev, INDY_PTP_RX_VERSION, version, INDY_DEF_MASK);
-        if(ptp_hdr_conf->domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
+        if (ptp_hdr_conf->domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
             val = 0;
             val = val | INDY_PTP_RX_DOMAIN_DOMAIN_LO_RANGE_EN;
             val = val | INDY_PTP_RX_DOMAIN_DOMAIN_LO_RANGE_LO_F(ptp_hdr_conf->domain.match.range.lower);
@@ -1007,7 +1016,7 @@ static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t 
             EP_WRM(dev, INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP, val, INDY_DEF_MASK);
         }
 #if 0
-        if(ptp_hdr_conf->sdoid.mode == MEPA_TS_MATCH_MODE_RANGE){
+        if (ptp_hdr_conf->sdoid.mode == MEPA_TS_MATCH_MODE_RANGE) {
             val = 0;
             val = val | INDY_PTP_RX_SDOID_SDOID_LO_RANGE_EN;
             val = val | INDY_PTP_RX_DOMAIN_DOMAIN_LO_RANGE_LO_F(ptp_hdr_conf->sdoid.match.range.lower);
@@ -1024,18 +1033,18 @@ static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t 
         }
 #endif
     } else {
-        val= 0xF & ptp_hdr_conf->version.upper;
+        val = 0xF & ptp_hdr_conf->version.upper;
         val = val << 4;
         val = val | (0xF & ptp_hdr_conf->minor_version.upper);
         version = val;
         val = 0;
-        val= 0xF & ptp_hdr_conf->version.lower;
+        val = 0xF & ptp_hdr_conf->version.lower;
         val = val << 4;
         val = val | (0xF & ptp_hdr_conf->minor_version.lower);
         version = version << 8;
         version = version | (0xFF & val);
         EP_WRM(dev, INDY_PTP_TX_VERSION, version, INDY_DEF_MASK);
-        if(ptp_hdr_conf->domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
+        if (ptp_hdr_conf->domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
             val = 0;
             val = val | INDY_PTP_TX_DOMAIN_DOMAIN_LO_RANGE_EN;
             val = val | INDY_PTP_TX_DOMAIN_DOMAIN_LO_RANGE_LO_F(ptp_hdr_conf->domain.match.range.lower);
@@ -1051,7 +1060,7 @@ static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t 
             EP_WRM(dev, INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP, val, INDY_DEF_MASK);
         }
 #if 0
-        if(ptp_hdr_conf->sdoid.mode == MEPA_TS_MATCH_MODE_RANGE){
+        if (ptp_hdr_conf->sdoid.mode == MEPA_TS_MATCH_MODE_RANGE) {
             val = val | INDY_PTP_TX_SDOID_SDOID_LO_RANGE_EN;
             val = val | INDY_PTP_TX_DOMAIN_DOMAIN_LO_RANGE_LO_F(ptp_hdr_conf->sdoid.match.range.lower);
             EP_WRM(dev, INDY_PTP_TX_SDOID_SDOID_LO, val, INDY_DEF_MASK);
@@ -1072,10 +1081,11 @@ static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t 
 }
 
 
-static mepa_rc indy_ts_classifier_ipv4_addr_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ipv4_network_t *ipv4){
+static mepa_rc indy_ts_classifier_ipv4_addr_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ipv4_network_t *ipv4)
+{
     uint16_t val = 0;
 
-    if(ing){
+    if (ing) {
         val = (ipv4->addr >> 16) & 0xFFFF;
         EP_WRM(dev, INDY_PTP_RX_USER_IP_ADDR_7, val, INDY_DEF_MASK);
         val = ipv4->addr & 0xFFFF;
@@ -1085,25 +1095,25 @@ static mepa_rc indy_ts_classifier_ipv4_addr_conf_priv(mepa_device_t *dev, mepa_b
         EP_WRM(dev, INDY_PTP_RX_USER_IP_MASK_7, val, INDY_DEF_MASK);
         val = ipv4->mask & 0xFFFF;
         EP_WRM(dev, INDY_PTP_RX_USER_IP_MASK_6, val, INDY_DEF_MASK);
-   }else{
-       val = (ipv4->addr >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_7, val, INDY_DEF_MASK);
-       val = ipv4->addr & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_6, val, INDY_DEF_MASK);
+    } else {
+        val = (ipv4->addr >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_7, val, INDY_DEF_MASK);
+        val = ipv4->addr & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_6, val, INDY_DEF_MASK);
 
-       val = (ipv4->mask >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_7, val, INDY_DEF_MASK);
-       val = ipv4->mask & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_6, val, INDY_DEF_MASK);
-   }
-   return MEPA_RC_OK;
+        val = (ipv4->mask >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_7, val, INDY_DEF_MASK);
+        val = ipv4->mask & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_6, val, INDY_DEF_MASK);
+    }
+    return MEPA_RC_OK;
 }
 
 static mepa_rc indy_ts_classifier_ipv6_addr_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ipv6_network_t *ipv6)
 {
     uint16_t val = 0;
 
-    if(ing){
+    if (ing) {
         val = (ipv6->addr[0] >> 16) & 0xFFFF;
         EP_WRM(dev, INDY_PTP_RX_USER_IP_ADDR_0, val, INDY_DEF_MASK);
         val = ipv6->addr[0] & 0xFFFF;
@@ -1137,56 +1147,56 @@ static mepa_rc indy_ts_classifier_ipv6_addr_conf_priv(mepa_device_t *dev, mepa_b
         EP_WRM(dev, INDY_PTP_RX_USER_IP_MASK_6, val, INDY_DEF_MASK);
         val = ipv6->mask[3] & 0xFFFF;
         EP_WRM(dev, INDY_PTP_RX_USER_IP_MASK_7, val, INDY_DEF_MASK);
-   }else{
-       val = (ipv6->addr[0] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_0, val, INDY_DEF_MASK);
-       val = ipv6->addr[0] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_1, val, INDY_DEF_MASK);
-       val = (ipv6->addr[1] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_2, val, INDY_DEF_MASK);
-       val = ipv6->addr[1] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_3, val, INDY_DEF_MASK);
-       val = (ipv6->addr[2] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_4, val, INDY_DEF_MASK);
-       val = ipv6->addr[2] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_5, val, INDY_DEF_MASK);
-       val = (ipv6->addr[3] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_6, val, INDY_DEF_MASK);
-       val = ipv6->addr[3] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_7, val, INDY_DEF_MASK);
+    } else {
+        val = (ipv6->addr[0] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_0, val, INDY_DEF_MASK);
+        val = ipv6->addr[0] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_1, val, INDY_DEF_MASK);
+        val = (ipv6->addr[1] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_2, val, INDY_DEF_MASK);
+        val = ipv6->addr[1] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_3, val, INDY_DEF_MASK);
+        val = (ipv6->addr[2] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_4, val, INDY_DEF_MASK);
+        val = ipv6->addr[2] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_5, val, INDY_DEF_MASK);
+        val = (ipv6->addr[3] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_6, val, INDY_DEF_MASK);
+        val = ipv6->addr[3] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_ADDR_7, val, INDY_DEF_MASK);
 
-       val = (ipv6->mask[0] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_0, val, INDY_DEF_MASK);
-       val = ipv6->mask[0] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_1, val, INDY_DEF_MASK);
-       val = (ipv6->mask[1] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_2, val, INDY_DEF_MASK);
-       val = ipv6->mask[1] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_3, val, INDY_DEF_MASK);
-       val = (ipv6->mask[2] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_4, val, INDY_DEF_MASK);
-       val = ipv6->mask[2] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_5, val, INDY_DEF_MASK);
-       val = (ipv6->mask[3] >> 16) & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_6, val, INDY_DEF_MASK);
-       val = ipv6->mask[3] & 0xFFFF;
-       EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_7, val, INDY_DEF_MASK);
-   }
-   return MEPA_RC_OK;
+        val = (ipv6->mask[0] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_0, val, INDY_DEF_MASK);
+        val = ipv6->mask[0] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_1, val, INDY_DEF_MASK);
+        val = (ipv6->mask[1] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_2, val, INDY_DEF_MASK);
+        val = ipv6->mask[1] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_3, val, INDY_DEF_MASK);
+        val = (ipv6->mask[2] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_4, val, INDY_DEF_MASK);
+        val = ipv6->mask[2] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_5, val, INDY_DEF_MASK);
+        val = (ipv6->mask[3] >> 16) & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_6, val, INDY_DEF_MASK);
+        val = ipv6->mask[3] & 0xFFFF;
+        EP_WRM(dev, INDY_PTP_TX_USER_IP_MASK_7, val, INDY_DEF_MASK);
+    }
+    return MEPA_RC_OK;
 }
 
 static mepa_rc indy_ts_classifier_mac_conf_set_priv(mepa_device_t *dev,  mepa_bool_t ing, const uint8_t *mac_addr)
 {
     uint16_t val = 0;
 
-    if(ing){
+    if (ing) {
         val = mac_addr[0] << 8 | mac_addr[1];
         EP_WRM(dev, INDY_PTP_RX_USER_MAC_HI, val, INDY_DEF_MASK);
         val = mac_addr[2] << 8 | mac_addr[3];
         EP_WRM(dev, INDY_PTP_RX_USER_MAC_MID, val, INDY_DEF_MASK);
         val = mac_addr[4] << 8 | mac_addr[5];
         EP_WRM(dev, INDY_PTP_RX_USER_MAC_LO, val, INDY_DEF_MASK);
-    }else{
+    } else {
         val = mac_addr[0] << 8 | mac_addr[1];
         EP_WRM(dev, INDY_PTP_TX_USER_MAC_HI, val, INDY_DEF_MASK);
         val = mac_addr[2] << 8 | mac_addr[3];
@@ -1199,184 +1209,184 @@ static mepa_rc indy_ts_classifier_mac_conf_set_priv(mepa_device_t *dev,  mepa_bo
 
 static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ts_vlan_conf_t *const vlan_conf)
 {
-    uint16_t val = 0, vlan_parse = 0, eth_type = 0, range_up = 0, range_lo = 0, vid = 0, mask = 0;
+    uint16_t vlan_parse = 0, eth_type = 0, range_up = 0, range_lo = 0, vid = 0, mask = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    if(ing){
+    if (ing) {
         switch (vlan_conf->num_tag) {
-            case 2:
-                vlan_parse = vlan_parse |INDY_PTP_RX_PARSE_VLAN_VLAN2_CHECK_EN;
-            case 1:
-                vlan_parse = vlan_parse |INDY_PTP_RX_PARSE_VLAN_VLAN1_CHECK_EN;
-                vlan_parse = vlan_parse |INDY_PTP_RX_PARSE_VLAN_CHECK_EN;
-                vlan_parse = vlan_parse |INDY_PTP_RX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
-                EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
-                break;
-            default:
-                T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
-                return MEPA_RC_ERROR;
-                break;
-        }
-    }else{
-        switch (vlan_conf->num_tag) {
-            case 2:
-                vlan_parse = vlan_parse |INDY_PTP_TX_PARSE_VLAN_VLAN2_CHECK_EN;
-            case 1:
-                vlan_parse = vlan_parse |INDY_PTP_TX_PARSE_VLAN_VLAN1_CHECK_EN;
-                vlan_parse = vlan_parse |INDY_PTP_TX_PARSE_VLAN_CHECK_EN;
-                vlan_parse = vlan_parse |INDY_PTP_TX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
-                EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
-                break;
-            default:
-                T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
-                return MEPA_RC_ERROR;
-                break;
-        }
-    }
-
-    // common configuration for both ingress and egress, reconfigures
-    if(vlan_conf->etype > 0 ) {
-        eth_type = vlan_conf->etype;
-        EP_WRM(dev, INDY_PTP_VLAN_ETH_TYPE_ID, eth_type, INDY_DEF_MASK);
-    }
-    switch (vlan_conf->num_tag) {
         case 2:
-            if(vlan_conf->outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE){
-                range_up = range_up | INDY_VLAN2_VID_RANGE_EN;
-                range_up = range_up | INDY_VLAN2_VID_RANGE_UP_VAL_F(vlan_conf->outer_tag.match.range.upper);
-                range_lo = range_lo | INDY_VLAN2_VID_RANGE_UP_VAL_F(vlan_conf->outer_tag.match.range.lower);
-                EP_WRM(dev, INDY_VLAN2_VID_RANGE_UP, range_up, INDY_DEF_MASK);
-                EP_WRM(dev, INDY_VLAN2_VID_RANGE_LO, range_lo, INDY_DEF_MASK);
-            } else {
-                vid = vid | INDY_VLAN2_TYPE_SELECT_F(0);
-                vid = vid | INDY_VLAN2_TYPE_ID_VAL_F(vlan_conf->outer_tag.match.value.val);
-                mask = mask | INDY_VLAN2_ID_MASK_VAL_F(vlan_conf->outer_tag.match.value.mask);
-                EP_WRM(dev, INDY_VLAN2_TYPE_ID, vid, INDY_DEF_MASK);
-                EP_WRM(dev, INDY_VLAN2_ID_MASK, mask, INDY_DEF_MASK);
-            }
+            vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_VLAN2_CHECK_EN;
         case 1:
-            if(vlan_conf->inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE){
-                range_up = 0, range_lo = 0;
-                range_up = range_up | INDY_VLAN1_VID_RANGE_EN;
-                range_up = range_up | INDY_VLAN1_VID_RANGE_UP_VAL_F(vlan_conf->inner_tag.match.range.upper);
-                range_lo = range_lo | INDY_VLAN1_VID_RANGE_UP_VAL_F(vlan_conf->inner_tag.match.range.lower);
-                EP_WRM(dev, INDY_VLAN1_VID_RANGE_UP, range_up, INDY_DEF_MASK);
-                EP_WRM(dev, INDY_VLAN1_VID_RANGE_LO, range_lo, INDY_DEF_MASK);
-            } else {
-                mask = 0, vid= 0;
-                vid = vid | INDY_VLAN1_TYPE_SELECT_F(0);
-                vid = vid | INDY_VLAN1_TYPE_ID_VAL_F(vlan_conf->outer_tag.match.value.val);
-                mask = mask | INDY_VLAN1_ID_MASK_VAL_F(vlan_conf->outer_tag.match.value.mask);
-                EP_WRM(dev, INDY_VLAN1_TYPE_ID, vid, INDY_DEF_MASK);
-                EP_WRM(dev, INDY_VLAN1_ID_MASK, mask, INDY_DEF_MASK);
-            }
+            vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_VLAN1_CHECK_EN;
+            vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_CHECK_EN;
+            vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
+            EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
             break;
         default:
             T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
             return MEPA_RC_ERROR;
             break;
+        }
+    } else {
+        switch (vlan_conf->num_tag) {
+        case 2:
+            vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_VLAN2_CHECK_EN;
+        case 1:
+            vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_VLAN1_CHECK_EN;
+            vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_CHECK_EN;
+            vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
+            EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
+            break;
+        default:
+            T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+            break;
+        }
+    }
+
+    // common configuration for both ingress and egress, reconfigures
+    if (vlan_conf->etype > 0 ) {
+        eth_type = vlan_conf->etype;
+        EP_WRM(dev, INDY_PTP_VLAN_ETH_TYPE_ID, eth_type, INDY_DEF_MASK);
+    }
+    switch (vlan_conf->num_tag) {
+    case 2:
+        if (vlan_conf->outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
+            range_up = range_up | INDY_VLAN2_VID_RANGE_EN;
+            range_up = range_up | INDY_VLAN2_VID_RANGE_UP_VAL_F(vlan_conf->outer_tag.match.range.upper);
+            range_lo = range_lo | INDY_VLAN2_VID_RANGE_UP_VAL_F(vlan_conf->outer_tag.match.range.lower);
+            EP_WRM(dev, INDY_VLAN2_VID_RANGE_UP, range_up, INDY_DEF_MASK);
+            EP_WRM(dev, INDY_VLAN2_VID_RANGE_LO, range_lo, INDY_DEF_MASK);
+        } else {
+            vid = vid | INDY_VLAN2_TYPE_SELECT_F(0);
+            vid = vid | INDY_VLAN2_TYPE_ID_VAL_F(vlan_conf->outer_tag.match.value.val);
+            mask = mask | INDY_VLAN2_ID_MASK_VAL_F(vlan_conf->outer_tag.match.value.mask);
+            EP_WRM(dev, INDY_VLAN2_TYPE_ID, vid, INDY_DEF_MASK);
+            EP_WRM(dev, INDY_VLAN2_ID_MASK, mask, INDY_DEF_MASK);
+        }
+    case 1:
+        if (vlan_conf->inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
+            range_up = 0, range_lo = 0;
+            range_up = range_up | INDY_VLAN1_VID_RANGE_EN;
+            range_up = range_up | INDY_VLAN1_VID_RANGE_UP_VAL_F(vlan_conf->inner_tag.match.range.upper);
+            range_lo = range_lo | INDY_VLAN1_VID_RANGE_UP_VAL_F(vlan_conf->inner_tag.match.range.lower);
+            EP_WRM(dev, INDY_VLAN1_VID_RANGE_UP, range_up, INDY_DEF_MASK);
+            EP_WRM(dev, INDY_VLAN1_VID_RANGE_LO, range_lo, INDY_DEF_MASK);
+        } else {
+            mask = 0, vid = 0;
+            vid = vid | INDY_VLAN1_TYPE_SELECT_F(0);
+            vid = vid | INDY_VLAN1_TYPE_ID_VAL_F(vlan_conf->outer_tag.match.value.val);
+            mask = mask | INDY_VLAN1_ID_MASK_VAL_F(vlan_conf->outer_tag.match.value.mask);
+            EP_WRM(dev, INDY_VLAN1_TYPE_ID, vid, INDY_DEF_MASK);
+            EP_WRM(dev, INDY_VLAN1_ID_MASK, mask, INDY_DEF_MASK);
+        }
+        break;
+    default:
+        T_E(MEPA_TRACE_GRP_TS, "Number of VLAN tags supported : 2 ::  Port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+        break;
     }
     return MEPA_RC_OK;
 }
 
 static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t flow_index, const mepa_ts_classifier_t *const pkt_conf)
 {
-    uint16_t val = 0, parse_config = 0, l2_en = 0,ip_en = 0;
+    uint16_t parse_config = 0, l2_en = 0, ip_en = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     T_I(MEPA_TRACE_GRP_TS, "RX Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
-                                 data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
-                                 pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
+        data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
+        pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
     // PBB not supported
-    if(pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en){
+    if (pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en) {
         T_E(MEPA_TRACE_GRP_TS, "PBB not supported on Indy.  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     switch (pkt_conf->pkt_encap_type) {
-        case MEPA_TS_ENCAP_ETH_PTP:
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
-            l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-            if(pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR){
+    case MEPA_TS_ENCAP_ETH_PTP:
+        parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
+        parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
+        l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+        if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
+            MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
+        } else {
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
-            }else {
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-                if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
-                } else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
-                }else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
-                    MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
-                }
             }
-            if(pkt_conf->eth_class_conf.vlan_check == TRUE){
-                MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, TRUE, &pkt_conf->eth_class_conf.vlan_conf));
-            }else {
-                EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
-            }
-            EP_WRM(dev, INDY_PTP_RX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
-            EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
-            break;
-        case MEPA_TS_ENCAP_ETH_IP_PTP:
-            T_I(MEPA_TRACE_GRP_TS, "RX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
-                                         data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode,pkt_conf->ip_class_conf.udp_sport_en,
-                                         pkt_conf->ip_class_conf.udp_dport_en,pkt_conf->ip_class_conf.udp_sport,pkt_conf->ip_class_conf.udp_dport);
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
-            l2_en = l2_en | INDY_PTP_RX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-            if(pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR){
+        }
+        if (pkt_conf->eth_class_conf.vlan_check == TRUE) {
+            MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, TRUE, &pkt_conf->eth_class_conf.vlan_conf));
+        } else {
+            EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
+        }
+        EP_WRM(dev, INDY_PTP_RX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
+        break;
+    case MEPA_TS_ENCAP_ETH_IP_PTP:
+        T_I(MEPA_TRACE_GRP_TS, "RX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
+            data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode, pkt_conf->ip_class_conf.udp_sport_en,
+            pkt_conf->ip_class_conf.udp_dport_en, pkt_conf->ip_class_conf.udp_sport, pkt_conf->ip_class_conf.udp_dport);
+        parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
+        parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
+        l2_en = l2_en | INDY_PTP_RX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+        if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
+            MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
+        } else {
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
-            }else {
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-                if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
-                } else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
-                }else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
-                    MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
-                }
             }
-            if(pkt_conf->eth_class_conf.vlan_check == TRUE){
-                MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, TRUE, &pkt_conf->eth_class_conf.vlan_conf));
-            }else {
-                EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
-            }
-            EP_WRM(dev, INDY_PTP_RX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
+        }
+        if (pkt_conf->eth_class_conf.vlan_check == TRUE) {
+            MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, TRUE, &pkt_conf->eth_class_conf.vlan_conf));
+        } else {
+            EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
+        }
+        EP_WRM(dev, INDY_PTP_RX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
 
-            if(pkt_conf->ip_class_conf.ip_match_mode == MEPA_TS_IP_MATCH_DEST){
-                ip_en = ip_en | INDY_PTP_RX_PARSE_IP_DA_EN;
-            }
-            if(pkt_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
-                ip_en = ip_en | INDY_PTP_RX_PARSE_IPv4_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-                ip_en = ip_en | INDY_PTP_RX_PARSE_IPv4_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_IPV4_EN;
-                MEPA_RC(indy_ts_classifier_ipv4_addr_conf_priv(dev,TRUE,&pkt_conf->ip_class_conf.ip_addr.ipv4));
-            } else {
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_IPV6_EN;
-                ip_en = ip_en | INDY_PTP_RX_PARSE_IPv6_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-                ip_en = ip_en | INDY_PTP_RX_PARSE_IPv6_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
-                MEPA_RC(indy_ts_classifier_ipv6_addr_conf_priv(dev, TRUE, &pkt_conf->ip_class_conf.ip_addr.ipv6));
-            }
-            if(pkt_conf->ip_class_conf.udp_sport_en){
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_UDP_SPORT_EN;
-                EP_WRM(dev, INDY_PTP_RX_PARSE_UDP_SRC_PORT, pkt_conf->ip_class_conf.udp_sport, INDY_DEF_MASK);
-            }
-            if(pkt_conf->ip_class_conf.udp_dport_en){
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_UDP_DPORT_EN;
-                EP_WRM(dev, INDY_PTP_RX_PARSE_UDP_DEST_PORT, pkt_conf->ip_class_conf.udp_dport, INDY_DEF_MASK);
-            }
-            EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
-            break;
-        case MEPA_TS_ENCAP_NONE:
-            break;
-        default:
-            T_E(MEPA_TRACE_GRP_TS, "Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
-            return MEPA_RC_ERROR;
-            break;
+        if (pkt_conf->ip_class_conf.ip_match_mode == MEPA_TS_IP_MATCH_DEST) {
+            ip_en = ip_en | INDY_PTP_RX_PARSE_IP_DA_EN;
+        }
+        if (pkt_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
+            ip_en = ip_en | INDY_PTP_RX_PARSE_IPv4_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+            ip_en = ip_en | INDY_PTP_RX_PARSE_IPv4_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_IPV4_EN;
+            MEPA_RC(indy_ts_classifier_ipv4_addr_conf_priv(dev, TRUE, &pkt_conf->ip_class_conf.ip_addr.ipv4));
+        } else {
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_IPV6_EN;
+            ip_en = ip_en | INDY_PTP_RX_PARSE_IPv6_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+            ip_en = ip_en | INDY_PTP_RX_PARSE_IPv6_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
+            MEPA_RC(indy_ts_classifier_ipv6_addr_conf_priv(dev, TRUE, &pkt_conf->ip_class_conf.ip_addr.ipv6));
+        }
+        if (pkt_conf->ip_class_conf.udp_sport_en) {
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_UDP_SPORT_EN;
+            EP_WRM(dev, INDY_PTP_RX_PARSE_UDP_SRC_PORT, pkt_conf->ip_class_conf.udp_sport, INDY_DEF_MASK);
+        }
+        if (pkt_conf->ip_class_conf.udp_dport_en) {
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_UDP_DPORT_EN;
+            EP_WRM(dev, INDY_PTP_RX_PARSE_UDP_DEST_PORT, pkt_conf->ip_class_conf.udp_dport, INDY_DEF_MASK);
+        }
+        EP_WRM(dev, INDY_PTP_RX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
+        break;
+    case MEPA_TS_ENCAP_NONE:
+        break;
+    default:
+        T_E(MEPA_TRACE_GRP_TS, "Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+        break;
     }
     EP_WRM(dev, INDY_PTP_RX_PARSE_CONFIG, parse_config, INDY_DEF_MASK);
     return MEPA_RC_OK;
@@ -1384,104 +1394,104 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
 
 static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t flow_index, const mepa_ts_classifier_t *const pkt_conf)
 {
-    uint16_t val = 0, parse_config = 0, l2_en = 0,ip_en = 0;
+    uint16_t parse_config = 0, l2_en = 0, ip_en = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
     T_I(MEPA_TRACE_GRP_TS, "Tx Classifier :Port : %d  Encapsulation :%d MAC Mode : %d MAC Select : %d VLAN En : %d\n",
-                                 data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
-                                 pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
+        data->port_no, pkt_conf->pkt_encap_type, pkt_conf->eth_class_conf.mac_match_mode,
+        pkt_conf->eth_class_conf.mac_match_select, pkt_conf->eth_class_conf.vlan_check);
 
     // PBB not supported
-    if(pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en){
+    if (pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en) {
         return MEPA_RC_ERROR;
     }
 
     switch (pkt_conf->pkt_encap_type) {
-        case MEPA_TS_ENCAP_ETH_PTP:
-            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_LAYER2_EN;
-            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
-            l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-            if(pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR){
+    case MEPA_TS_ENCAP_ETH_PTP:
+        parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_LAYER2_EN;
+        parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
+        l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+        if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
+            MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
+        } else {
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
-            }else {
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-                if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
-                } else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
-                }else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
-                    MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
-                }
             }
-            if(pkt_conf->eth_class_conf.vlan_check == TRUE){
-                MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, FALSE, &pkt_conf->eth_class_conf.vlan_conf));
-            }else {
-                EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
-            }
-            EP_WRM(dev, INDY_PTP_TX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
-            EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
-            break;
-        case MEPA_TS_ENCAP_ETH_IP_PTP:
-            T_I(MEPA_TRACE_GRP_TS, "TX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
-                                         data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode,pkt_conf->ip_class_conf.udp_sport_en,
-                                         pkt_conf->ip_class_conf.udp_dport_en,pkt_conf->ip_class_conf.udp_sport,pkt_conf->ip_class_conf.udp_dport);
-            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_LAYER2_EN;
-            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
-            l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-            if(pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR){
+        }
+        if (pkt_conf->eth_class_conf.vlan_check == TRUE) {
+            MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, FALSE, &pkt_conf->eth_class_conf.vlan_conf));
+        } else {
+            EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
+        }
+        EP_WRM(dev, INDY_PTP_TX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
+        break;
+    case MEPA_TS_ENCAP_ETH_IP_PTP:
+        T_I(MEPA_TRACE_GRP_TS, "TX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
+            data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode, pkt_conf->ip_class_conf.udp_sport_en,
+            pkt_conf->ip_class_conf.udp_dport_en, pkt_conf->ip_class_conf.udp_sport, pkt_conf->ip_class_conf.udp_dport);
+        parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_LAYER2_EN;
+        parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
+        l2_en = l2_en | INDY_PTP_TX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+        if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
+            MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
+        } else {
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
-            }else {
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-                if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
-                } else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
-                }else if(pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
-                    parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                    parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
-                    MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
-                }
             }
-            if(pkt_conf->eth_class_conf.vlan_check == TRUE){
-                MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, FALSE, &pkt_conf->eth_class_conf.vlan_conf));
-            }else {
-                EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
-            }
+        }
+        if (pkt_conf->eth_class_conf.vlan_check == TRUE) {
+            MEPA_RC(indy_ts_classifier_vlan_conf_set_priv(dev, FALSE, &pkt_conf->eth_class_conf.vlan_conf));
+        } else {
+            EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, 0, INDY_DEF_MASK);
+        }
 
-            EP_WRM(dev, INDY_PTP_TX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
-            if(pkt_conf->ip_class_conf.ip_match_mode == MEPA_TS_IP_MATCH_DEST){
-                ip_en = ip_en | INDY_PTP_TX_PARSE_IP_DA_EN;
-            }
-            if(pkt_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
-                ip_en = ip_en | INDY_PTP_TX_PARSE_IPv4_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-                ip_en = ip_en | INDY_PTP_TX_PARSE_IPv4_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_IPV4_EN;
-                MEPA_RC(indy_ts_classifier_ipv4_addr_conf_priv(dev,FALSE,&pkt_conf->ip_class_conf.ip_addr.ipv4));
-            } else {
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_IPV6_EN;
-                ip_en = ip_en | INDY_PTP_TX_PARSE_IPv6_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
-                ip_en = ip_en | INDY_PTP_TX_PARSE_IPv6_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
-                MEPA_RC(indy_ts_classifier_ipv6_addr_conf_priv(dev, FALSE, &pkt_conf->ip_class_conf.ip_addr.ipv6));
-            }
-            if(pkt_conf->ip_class_conf.udp_sport_en){
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_UDP_SPORT_EN;
-                EP_WRM(dev, INDY_PTP_TX_PARSE_UDP_SRC_PORT, pkt_conf->ip_class_conf.udp_sport, INDY_DEF_MASK);
-            }
-            if(pkt_conf->ip_class_conf.udp_dport_en){
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_UDP_DPORT_EN;
-                EP_WRM(dev, INDY_PTP_TX_PARSE_UDP_DEST_PORT, pkt_conf->ip_class_conf.udp_dport, INDY_DEF_MASK);
-            }
-            EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
-            break;
-        case MEPA_TS_ENCAP_NONE:
-            break;
-        default:
-            T_E(MEPA_TRACE_GRP_TS, "EGR Classifier: Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
-            rc = MEPA_RC_ERROR;
-            break;
+        EP_WRM(dev, INDY_PTP_TX_PARSE_L2_ADDR_EN, l2_en, INDY_DEF_MASK);
+        if (pkt_conf->ip_class_conf.ip_match_mode == MEPA_TS_IP_MATCH_DEST) {
+            ip_en = ip_en | INDY_PTP_TX_PARSE_IP_DA_EN;
+        }
+        if (pkt_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
+            ip_en = ip_en | INDY_PTP_TX_PARSE_IPv4_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+            ip_en = ip_en | INDY_PTP_TX_PARSE_IPv4_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_IPV4_EN;
+            MEPA_RC(indy_ts_classifier_ipv4_addr_conf_priv(dev, FALSE, &pkt_conf->ip_class_conf.ip_addr.ipv4));
+        } else {
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_IPV6_EN;
+            ip_en = ip_en | INDY_PTP_TX_PARSE_IPv6_UMAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
+            ip_en = ip_en | INDY_PTP_TX_PARSE_IPv6_IP_EN_F(pkt_conf->ip_class_conf.ip_match_mode);
+            MEPA_RC(indy_ts_classifier_ipv6_addr_conf_priv(dev, FALSE, &pkt_conf->ip_class_conf.ip_addr.ipv6));
+        }
+        if (pkt_conf->ip_class_conf.udp_sport_en) {
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_UDP_SPORT_EN;
+            EP_WRM(dev, INDY_PTP_TX_PARSE_UDP_SRC_PORT, pkt_conf->ip_class_conf.udp_sport, INDY_DEF_MASK);
+        }
+        if (pkt_conf->ip_class_conf.udp_dport_en) {
+            parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_UDP_DPORT_EN;
+            EP_WRM(dev, INDY_PTP_TX_PARSE_UDP_DEST_PORT, pkt_conf->ip_class_conf.udp_dport, INDY_DEF_MASK);
+        }
+        EP_WRM(dev, INDY_PTP_TX_PARSE_IP_ADDR_EN, ip_en, INDY_DEF_MASK);
+        break;
+    case MEPA_TS_ENCAP_NONE:
+        break;
+    default:
+        T_E(MEPA_TRACE_GRP_TS, "EGR Classifier: Encapsulation type not supported on Indy. Port : %d\n", data->port_no);
+        rc = MEPA_RC_ERROR;
+        break;
     }
     EP_WRM(dev, INDY_PTP_TX_PARSE_CONFIG, parse_config, INDY_DEF_MASK);
     return rc;
@@ -1489,19 +1499,19 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
 
 static mepa_rc indy_ts_rx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_index, const mepa_ts_classifier_t *const pkt_conf)
 {
-    uint16_t val = 0, parse_config = 0;
+    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
     MEPA_ASSERT(pkt_conf == NULL);
     MEPA_ENTER(dev);
-    val =0;
+    val = 0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-    if((rc = indy_ts_rx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
+    if ((rc = indy_ts_rx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
-    val =0;
+    val = 0;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     memcpy(&data->ts_state.ts_port_conf.rx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
@@ -1530,13 +1540,13 @@ static mepa_rc indy_ts_tx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_
 
     MEPA_ASSERT(pkt_conf == NULL);
     MEPA_ENTER(dev);
-    val =0;
+    val = 0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-    if((rc = indy_ts_tx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
+    if ((rc = indy_ts_tx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
-    val =0;
+    val = 0;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     memcpy(&data->ts_state.ts_port_conf.rx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
@@ -1545,9 +1555,8 @@ static mepa_rc indy_ts_tx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_
 }
 
 static mepa_rc indy_ts_rx_ptp_clock_conf_get (mepa_device_t *dev, uint16_t clock_id,
-                                          mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+                                              mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ASSERT(ptpclock_conf == NULL);
@@ -1563,9 +1572,8 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_get (mepa_device_t *dev, uint16_t clock
 }
 
 static mepa_rc indy_ts_tx_ptp_clock_conf_get(mepa_device_t *dev, uint16_t clock_id,
-                                         mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+                                             mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ASSERT(ptpclock_conf == NULL);
@@ -1605,58 +1613,58 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     } else {
         memcpy(&data->ts_state.ts_port_conf.rx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
-    val =0;
+    val = 0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     if (!ptpclock_conf->enable) {
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
     } else {
         switch (ptpclock_conf->clk_mode) {
-            case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                }
-                break;
-            case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                    //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
-                }
-                break;
-            case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+        case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+            }
+            break;
+        case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+            }
+            break;
+        case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
             } else {
                 // End-to-End delay measurement method
                 //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
             }
             break;
-            case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                }
-                break;
-            default:
-                T_E(MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
-                break;
+        case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+            }
+            break;
+        default:
+            T_E(MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
+            break;
         }
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
@@ -1674,7 +1682,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         EP_WRM(dev, INDY_PTP_RX_MOD, rx_mod, rx_mod);
     }
 
-    val =0;
+    val = 0;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
 
@@ -1687,7 +1695,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 
 static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
-    uint16_t ts_insert = 0, cf_update = 0, val = 0,tx_mod=0, ts_config = 0, cf_config = 0;
+    uint16_t ts_insert = 0, cf_update = 0, val = 0, tx_mod = 0, ts_config = 0, cf_config = 0;
     mepa_rc rc;
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -1698,65 +1706,65 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     } else {
         memcpy(&data->ts_state.ts_port_conf.tx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
-    val =0;
+    val = 0;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     if (!ptpclock_conf->enable) {
         EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
     } else {
         // Configure the PTP actions to be taken on egress port
         switch (ptpclock_conf->clk_mode) {
-            case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                    cf_update = DELAY_REQ_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    ts_insert = SYNC_PACKET;
-                    cf_update = DELAY_REQ_PACKET;
-                }
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TS_INSERT;
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
-                break;
-            case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                    cf_update = DELAY_REQ_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    ts_insert = SYNC_PACKET;
-                    cf_update = DELAY_REQ_PACKET;
-                }
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
-                tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
-                break;
-            case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
-            if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+        case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                cf_update = DELAY_REQ_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                ts_insert = SYNC_PACKET;
+                cf_update = DELAY_REQ_PACKET;
+            }
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TS_INSERT;
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
+            break;
+        case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                cf_update = DELAY_REQ_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                ts_insert = SYNC_PACKET;
+                cf_update = DELAY_REQ_PACKET;
+            }
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
+            tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
+            break;
+        case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
                 //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
             } else {
                 // End-to-End delay measurement method
                 //ts_insert = SYNC_PACKET | PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
             }
             break;
-            case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-                if(ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                    // Peer-to-Peer delay measurement method
-                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                } else {
-                    // End-to-End delay measurement method
-                    //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                }
-                break;
-            default:
-                break;
+        case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
+            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
+                // Peer-to-Peer delay measurement method
+                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+            } else {
+                // End-to-End delay measurement method
+                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+            }
+            break;
+        default:
+            break;
         }
         EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_TX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
@@ -1773,7 +1781,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     data->ts_state.ts_port_conf.tx_clock_conf.enable = ptpclock_conf->enable;
     data->ts_state.ts_port_conf.tx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
     data->ts_state.ts_port_conf.tx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
-    val =1;
+    val = 1;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     indy_ts_classifier_conf_reg_dump(dev);
@@ -1784,7 +1792,6 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 
 static mepa_rc indy_ts_pps_conf_get (mepa_device_t *dev, mepa_ts_pps_conf_t *const phy_pps_conf)
 {
-    uint16_t val = 0;
 
     MEPA_ENTER(dev);
     // Enable 1PPS Output
@@ -1809,7 +1816,7 @@ static mepa_rc indy_ts_pps_conf_set (mepa_device_t *dev, const mepa_ts_pps_conf_
     // Reload after every sec
     val = 0;
     EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_HI_A, val, INDY_DEF_MASK);
-    val= 1;
+    val = 1;
     EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_LO_A, val, INDY_DEF_MASK);
     val = 0;
     EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_HI_A, val, INDY_DEF_MASK);
@@ -1821,6 +1828,7 @@ static mepa_rc indy_ts_pps_conf_set (mepa_device_t *dev, const mepa_ts_pps_conf_
     return MEPA_RC_OK;
 }
 
+#if 0
 static mepa_rc indy_ts_rx_ts_get (mepa_device_t *dev)
 {
     uint16_t val = 0, head1 = 0, head2 = 0;
@@ -1835,7 +1843,7 @@ static mepa_rc indy_ts_rx_ts_get (mepa_device_t *dev)
     MEPA_ENTER(dev);
     do {
         EP_RD(dev, INDY_PTP_RX_TS_NS_HI, &val);
-        if(val & INDY_PTP_RX_TS_NS_PTP_TX_TS_VALID){
+        if (val & INDY_PTP_RX_TS_NS_PTP_TX_TS_VALID) {
             ts.nanoseconds = (((val) & 0x3fff) << 16);
             val = 0;
             EP_RD(dev, INDY_PTP_RX_TS_NS_LO, &val);
@@ -1858,15 +1866,16 @@ static mepa_rc indy_ts_rx_ts_get (mepa_device_t *dev)
             MEPA_EXIT(dev);
             rd_cb(data->port_no, &ts, &sig, status);
             MEPA_ENTER(dev);
-        }else {
+        } else {
             valid_ts = FALSE;
         }
 
-    }while(valid_ts);
+    } while (valid_ts);
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
 }
+#endif
 
 static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
 {
@@ -1884,7 +1893,7 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
     do {
         EP_RD(dev, INDY_PTP_TX_TS_NS_HI, &val);
 
-        if(val & INDY_PTP_TX_TS_NS_PTP_TX_TS_VALID){
+        if (val & INDY_PTP_TX_TS_NS_PTP_TX_TS_VALID) {
             ts.nanoseconds = (((val) & 0x3fff) << 16);
             val = 0;
             EP_RD(dev, INDY_PTP_TX_TS_NS_LO, &val);
@@ -1907,10 +1916,10 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
             MEPA_EXIT(dev);
             rd_cb(data->port_no, &ts, &sig, status);
             MEPA_ENTER(dev);
-        }else {
+        } else {
             valid_ts = FALSE;
         }
-    }while(valid_ts);
+    } while (valid_ts);
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -1918,13 +1927,11 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
 
 mepa_rc indy_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t   *const statistics)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no;
     uint16_t val = 0, val2 = 0;
 
     MEPA_ASSERT(statistics == NULL);
     MEPA_ENTER(dev);
-    memset(statistics, 0 , sizeof(mepa_ts_stats_t));
+    memset(statistics, 0, sizeof(mepa_ts_stats_t));
     EP_RD(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_HI, &val);
     EP_RD(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_LO, &val2);
     statistics->egr_fcs_err = val;
@@ -1977,7 +1984,7 @@ static mepa_rc indy_ts_event_set (mepa_device_t *dev, const mepa_bool_t enable, 
         data->ts_state.ts_port_conf.event_mask &= ~ev_mask;
     }
     EP_RD(dev, INDY_PTP_TSU_INT_EN, &mask);
-    if(mask_changed) {
+    if (mask_changed) {
         if (ev_mask & MEPA_TS_EGR_FIFO_OVERFLOW) {
             mask |= INDY_PTP_TSU_INT_TX_TS_OVRFL_EN;
             data->ts_state.ts_port_conf.event_mask = data->ts_state.ts_port_conf.event_mask | MEPA_TS_EGR_FIFO_OVERFLOW;
@@ -2031,7 +2038,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     mepa_rc rc = MEPA_RC_OK;
     mepa_ts_classifier_ptp_t ptp_class_conf = {};
     MEPA_ENTER(dev);
-    if(base_dev == dev) {
+    if (base_dev == dev) {
         //EP_WRM(dev, INDY_PTP_LTC_SOFT_RESET, 0x1, INDY_DEF_MASK);
         // Enable 1PPS Output on channel A
         val = 0;
@@ -2045,7 +2052,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
         // Reload after every 1 sec
         val = 0;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_HI_A, val, INDY_DEF_MASK);
-        val= 1;
+        val = 1;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_LO_A, val, INDY_DEF_MASK);
         val = 0;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_HI_A, val, INDY_DEF_MASK);
@@ -2064,7 +2071,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
         // Reload after every 0.5 sec
         val = 0;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_HI_B, val, INDY_DEF_MASK);
-        val= 0;
+        val = 0;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_LO_B, val, INDY_DEF_MASK);
         val = 0x1DCD;
         EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_HI_B, val, INDY_DEF_MASK);
@@ -2097,28 +2104,28 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     ptp_class_conf.minor_version.lower = 0x0;
     ptp_class_conf.minor_version.upper = 0x0;
 
-    if((rc = indy_ts_rx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
+    if ((rc = indy_ts_rx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
 
     //Tx Classifier configuration
-    if((rc = indy_ts_tx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
+    if ((rc = indy_ts_tx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
 
-    if (rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptp_class_conf) != MEPA_RC_OK) {
+    if ((rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptp_class_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
-    if (rc = indy_ts_classifier_ptp_conf_priv(dev, FALSE, &ptp_class_conf) != MEPA_RC_OK) {
+    if ((rc = indy_ts_classifier_ptp_conf_priv(dev, FALSE, &ptp_class_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
     // Rx Clock Configuration
-    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-    cf_update = SYNC_PACKET | DELAY_REQ_PACKET| PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
+    ts_insert = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+    cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
     EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
     EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
     val = 1;
@@ -2141,7 +2148,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     EP_WRM(dev, INDY_PTP_TX_MOD, tx_mod, tx_mod);
 
     EP_RD(dev, INDY_PTP_CMD_CTL, &val);
-    if(base_dev == dev) {
+    if (base_dev == dev) {
         // Enable PTP
         EP_RD(dev, INDY_PTP_CMD_CTL, &val);
         val = val | INDY_PTP_CMD_CTL_ENABLE;
@@ -2149,10 +2156,10 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     }
 
     // Enable TSU
-    val =0;
+    val = 0;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-    if(reg_dump){
+    if (reg_dump) {
         indy_ts_classifier_conf_reg_dump(dev);
         indy_ts_clock_conf_reg_dump(dev);
     }

@@ -37,25 +37,25 @@
 #define SPEED_1000        1000
 #define SPEED_UNKNOWN        -1
 
-#define AUTONEG_DISABLE		0x00
-#define AUTONEG_ENABLE		0x01
+#define AUTONEG_DISABLE     0x00
+#define AUTONEG_ENABLE      0x01
 
-#define MII_BMCR		0x00	/* Basic mode control register */
-#define MII_BMSR		0x01	/* Basic mode status register  */
-#define MII_CTRL1000		0x09	/* 1000BASE-T control          */
-#define BMCR_ISOLATE		0x0400	/* Isolate data paths from MII */
-#define BMCR_ANENABLE		0x1000	/* Enable auto negotiation     */
-#define BMCR_ANRESTART		0x0200	/* Auto negotiation restart    */
-#define BMSR_LSTATUS		0x0004	/* Link status                 */
-#define BMSR_ANEGCOMPLETE	0x0020	/* Auto-negotiation complete   */
-#define BMCR_FULLDPLX		0x0100	/* Full duplex                 */
-#define BMCR_SPEED1000		0x0040	/* MSB of Speed (1000)         */
-#define BMCR_SPEED100		0x2000	/* Select 100Mbps              */
-#define CTL1000_AS_MASTER	0x0800
-#define CTL1000_ENABLE_MASTER	0x1000
+#define MII_BMCR        0x00    /* Basic mode control register */
+#define MII_BMSR        0x01    /* Basic mode status register  */
+#define MII_CTRL1000        0x09    /* 1000BASE-T control          */
+#define BMCR_ISOLATE        0x0400  /* Isolate data paths from MII */
+#define BMCR_ANENABLE       0x1000  /* Enable auto negotiation     */
+#define BMCR_ANRESTART      0x0200  /* Auto negotiation restart    */
+#define BMSR_LSTATUS        0x0004  /* Link status                 */
+#define BMSR_ANEGCOMPLETE   0x0020  /* Auto-negotiation complete   */
+#define BMCR_FULLDPLX       0x0100  /* Full duplex                 */
+#define BMCR_SPEED1000      0x0040  /* MSB of Speed (1000)         */
+#define BMCR_SPEED100       0x2000  /* Select 100Mbps              */
+#define CTL1000_AS_MASTER   0x0800
+#define CTL1000_ENABLE_MASTER   0x1000
 
-#define MII_KSZ9031RN_FLP_BURST_TX_LO	3
-#define MII_KSZ9031RN_FLP_BURST_TX_HI	4
+#define MII_KSZ9031RN_FLP_BURST_TX_LO   3
+#define MII_KSZ9031RN_FLP_BURST_TX_HI   4
 
 
 typedef struct {
@@ -99,7 +99,6 @@ static int phy_write(mepa_device_t *dev, uint32_t regnum, uint16_t val)
 
 int phy_modify(mepa_device_t *dev, uint32_t regnum, uint16_t mask, uint16_t set)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     uint16_t  value;
 
     if ((value = phy_read(dev, regnum)) < 0) {
@@ -130,26 +129,26 @@ int phy_write_mmd(mepa_device_t *dev, int devad, uint32_t regnum, uint16_t val)
 static int genphy_restart_aneg(mepa_device_t  *dev)
 {
     /* Don't isolate the PHY if we're negotiating */
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     return phy_modify(dev, MII_BMCR, BMCR_ISOLATE,
-              BMCR_ANENABLE | BMCR_ANRESTART);
+                      BMCR_ANENABLE | BMCR_ANRESTART);
 }
 
 /* Center KSZ9031RNX FLP timing at 16ms. */
 static int center_flp_timing(mepa_device_t  *dev)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
     int result;
 
     result = phy_write_mmd(dev, 0, MII_KSZ9031RN_FLP_BURST_TX_HI,
-                   0x0006);
-    if (result)
+                           0x0006);
+    if (result) {
         return result;
+    }
 
     result = phy_write_mmd(dev, 0, MII_KSZ9031RN_FLP_BURST_TX_LO,
-                   0x1A80);
-    if (result)
+                           0x1A80);
+    if (result) {
         return result;
+    }
 
     return genphy_restart_aneg(dev);
 }
@@ -179,14 +178,16 @@ static int genphy_update_link(mepa_device_t  *dev)
     int status = 0, bmcr;
 
     bmcr = phy_read(dev, MII_BMCR);
-    if (bmcr < 0)
+    if (bmcr < 0) {
         return bmcr;
+    }
 
     /* Autoneg is being started, therefore disregard BMSR value and
      * report link as down.
      */
-    if (bmcr & BMCR_ANRESTART)
+    if (bmcr & BMCR_ANRESTART) {
         goto done;
+    }
 
     /* The link state is latched low so that momentary link
      * drops can be detected. Do not double-read the status
@@ -194,16 +195,18 @@ static int genphy_update_link(mepa_device_t  *dev)
      */
     if (!phy_polling_mode(dev)) {
         status = phy_read(dev, MII_BMSR);
-        if (status < 0)
+        if (status < 0) {
             return status;
-        else if (status & BMSR_LSTATUS)
+        } else if (status & BMSR_LSTATUS) {
             goto done;
+        }
     }
 
     /* Read link and autonegotiation status */
     status = phy_read(dev, MII_BMSR);
-    if (status < 0)
+    if (status < 0) {
         return status;
+    }
 done:
     phydev->link = status & BMSR_LSTATUS ? 1 : 0;
     phydev->autoneg_complete = status & BMSR_ANEGCOMPLETE ? 1 : 0;
@@ -211,8 +214,9 @@ done:
     /* Consider the case that autoneg was started and "aneg complete"
      * bit has been reset, but "link up" bit not yet.
      */
-    if (phydev->autoneg == AUTONEG_ENABLE && !phydev->autoneg_complete)
+    if (phydev->autoneg == AUTONEG_ENABLE && !phydev->autoneg_complete) {
         phydev->link = 0;
+    }
 
     return 0;
 }
@@ -224,12 +228,14 @@ static int genphy_read_status(mepa_device_t  *dev)
 
     /* Update the link, but return if there was an error */
     err = genphy_update_link(dev);
-    if (err)
+    if (err) {
         return err;
+    }
 
     /* why bother the PHY if nothing can have changed */
-    if (phydev->autoneg == AUTONEG_ENABLE && old_link && phydev->link)
+    if (phydev->autoneg == AUTONEG_ENABLE && old_link && phydev->link) {
         return 0;
+    }
 
     phydev->speed = SPEED_UNKNOWN;
     phydev->duplex = DUPLEX_UNKNOWN;
@@ -243,22 +249,25 @@ static int genphy_read_status(mepa_device_t  *dev)
 //    if (dev->autoneg == AUTONEG_ENABLE && phydev->autoneg_complete) {
 //        phy_resolve_aneg_linkmode(dev);
 //    } else if (dev->autoneg == AUTONEG_DISABLE) {
-        int bmcr = phy_read(dev, MII_BMCR);
+    int bmcr = phy_read(dev, MII_BMCR);
 
-        if (bmcr < 0)
-            return bmcr;
+    if (bmcr < 0) {
+        return bmcr;
+    }
 
-        if (bmcr & BMCR_FULLDPLX)
-            phydev->duplex = DUPLEX_FULL;
-        else
-            phydev->duplex = DUPLEX_HALF;
+    if (bmcr & BMCR_FULLDPLX) {
+        phydev->duplex = DUPLEX_FULL;
+    } else {
+        phydev->duplex = DUPLEX_HALF;
+    }
 
-        if (bmcr & BMCR_SPEED1000)
-            phydev->speed = SPEED_1000;
-        else if (bmcr & BMCR_SPEED100)
-            phydev->speed = SPEED_100;
-        else
-            phydev->speed = SPEED_10;
+    if (bmcr & BMCR_SPEED1000) {
+        phydev->speed = SPEED_1000;
+    } else if (bmcr & BMCR_SPEED100) {
+        phydev->speed = SPEED_100;
+    } else {
+        phydev->speed = SPEED_10;
+    }
 //    }
 
     return 0;
@@ -284,10 +293,6 @@ static mesa_rc ksz_poll(mepa_device_t *dev, mepa_status_t *status)
 static mesa_rc ksz_conf_set(mepa_device_t      *dev,
                             const mepa_conf_t  *config)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
-
-    T_D("Enter");
-
     return center_flp_timing(dev);
 }
 
@@ -296,7 +301,6 @@ static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf              *board_conf)
 {
-    uint32_t cnt;
     priv_data_t *priv;
     mepa_device_t *dev;
 
@@ -313,15 +317,12 @@ static mepa_device_t *ksz_probe(mepa_driver_t                       *drv,
 
 static mesa_rc ksz_status_1g_get(mepa_device_t *dev, mesa_phy_status_1g_t *status)
 {
-    phy_device  *phydev = &((priv_data_t *)dev->data)->phydev;
-
-    T_D("_________________Enter__________________________");
-
     return MESA_RC_OK;
 }
 
 static mesa_rc ksz_1g_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
-                             mesa_port_interface_t *mac_if) {
+                             mesa_port_interface_t *mac_if)
+{
 
     *mac_if = MESA_PORT_INTERFACE_GMII;
 

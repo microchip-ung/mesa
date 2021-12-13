@@ -319,7 +319,7 @@ vtss_rc vtss_macsec_mtu_set(const vtss_inst_t inst, const vtss_port_no_t port_no
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_mtu_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_mtu_t * mtu_conf)
+vtss_rc vtss_macsec_mtu_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_mtu_t *mtu_conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -384,7 +384,7 @@ vtss_rc vtss_macsec_lmac_counters_get(const vtss_inst_t inst, const vtss_port_no
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_is_capable(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * capable)
+vtss_rc vtss_macsec_is_capable(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *capable)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -449,12 +449,12 @@ vtss_rc vtss_macsec_secy_counters_clear(const vtss_inst_t inst, const vtss_macse
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_port_enable_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * status)
+vtss_rc vtss_macsec_port_enable_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rxsa_an_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, BOOL * status)
+vtss_rc vtss_macsec_rxsa_an_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, BOOL *status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -551,7 +551,7 @@ vtss_rc vtss_phy_10g_jitter_conf_set(const vtss_inst_t inst, const vtss_port_no_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_jitter_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_jitter_conf_t * jitter_conf, BOOL is_host)
+vtss_rc vtss_phy_10g_jitter_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_jitter_conf_t *jitter_conf, BOOL is_host)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -946,12 +946,12 @@ vtss_rc vtss_phy_10g_sgmii_mode_set(const vtss_inst_t inst, const vtss_port_no_t
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, uint16_t * value)
+vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, uint16_t *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, const uint16_t * value)
+vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, const uint16_t *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -961,12 +961,12 @@ vtss_rc vtss_phy_10g_i2c_slave_conf_set(const vtss_inst_t inst, const vtss_port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_i2c_slave_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_i2c_slave_conf_t * i2c_conf)
+vtss_rc vtss_phy_10g_i2c_slave_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_i2c_slave_conf_t *i2c_conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_get_user_data(const vtss_inst_t inst, const vtss_port_no_t port_no, void ** user_data)
+vtss_rc vtss_phy_10g_get_user_data(const vtss_inst_t inst, const vtss_port_no_t port_no, void **user_data)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -993,7 +993,7 @@ vtss_rc vtss_phy_reset(const vtss_inst_t inst, const vtss_port_no_t port_no, con
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_reset_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_reset_conf_t * conf)
+vtss_rc vtss_phy_reset_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_reset_conf_t *conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1028,7 +1028,7 @@ vtss_rc vtss_phy_cl37_lp_abil_get(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_id_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_type_t * phy_id)
+vtss_rc vtss_phy_id_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_type_t *phy_id)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1088,7 +1088,7 @@ vtss_rc vtss_phy_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, 
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr, const uint8_t i2c_device_addr, uint8_t * value, uint8_t cnt, BOOL word_access)
+vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr, const uint8_t i2c_device_addr, uint8_t *value, uint8_t cnt, BOOL word_access)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1133,7 +1133,7 @@ vtss_rc vtss_phy_gpio_mode(const vtss_inst_t inst, const vtss_port_no_t port_no,
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_gpio_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t gpio_no, BOOL * value)
+vtss_rc vtss_phy_gpio_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t gpio_no, BOOL *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1166,7 +1166,7 @@ vtss_rc vtss_phy_led_intensity_set(const vtss_inst_t inst, const vtss_port_no_t 
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_led_intensity_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_led_intensity * intensity)
+vtss_rc vtss_phy_led_intensity_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_led_intensity *intensity)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1176,7 +1176,7 @@ vtss_rc vtss_phy_enhanced_led_control_init(const vtss_inst_t inst, const vtss_po
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_enhanced_led_control_init_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_enhanced_led_control_t * conf)
+vtss_rc vtss_phy_enhanced_led_control_init_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_enhanced_led_control_t *conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1192,7 +1192,7 @@ vtss_rc vtss_phy_coma_mode_enable(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_port_eee_capable(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * eee_capable)
+vtss_rc vtss_phy_port_eee_capable(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *eee_capable)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1202,7 +1202,7 @@ vtss_rc vtss_phy_eee_ena(const vtss_inst_t inst, const vtss_port_no_t port_no, c
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_eee_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_eee_conf_t * conf)
+vtss_rc vtss_phy_eee_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_eee_conf_t *conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1212,12 +1212,12 @@ vtss_rc vtss_phy_eee_conf_set(const vtss_inst_t inst, const vtss_port_no_t port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_eee_power_save_state_get(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * rx_in_power_save_state, BOOL * tx_in_power_save_state)
+vtss_rc vtss_phy_eee_power_save_state_get(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *rx_in_power_save_state, BOOL *tx_in_power_save_state)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_eee_link_partner_advertisements_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t * advertisement)
+vtss_rc vtss_phy_eee_link_partner_advertisements_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *advertisement)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1227,7 +1227,7 @@ vtss_rc vtss_phy_event_enable_set(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_event_enable_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_event_t * ev_mask)
+vtss_rc vtss_phy_event_enable_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_event_t *ev_mask)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1247,12 +1247,12 @@ vtss_rc vtss_phy_csr_wr(const vtss_inst_t inst, const uint16_t page, const vtss_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_csr_rd(const vtss_inst_t inst, const uint16_t page, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t * value)
+vtss_rc vtss_phy_csr_rd(const vtss_inst_t inst, const uint16_t page, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_statistic_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_statistic_t * statistics)
+vtss_rc vtss_phy_statistic_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_statistic_t *statistics)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1262,7 +1262,7 @@ vtss_rc vtss_phy_do_page_chk_set(const vtss_inst_t inst, const BOOL enable)
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_do_page_chk_get(const vtss_inst_t inst, BOOL * enable)
+vtss_rc vtss_phy_do_page_chk_get(const vtss_inst_t inst, BOOL *enable)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1272,7 +1272,7 @@ vtss_rc vtss_phy_loopback_set(const vtss_inst_t inst, const vtss_port_no_t port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_loopback_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_loopback_t * loopback)
+vtss_rc vtss_phy_loopback_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_loopback_t *loopback)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1292,17 +1292,17 @@ vtss_rc vtss_phy_cfg_ib_cterm(const vtss_inst_t inst, const vtss_port_no_t port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_serdes6g_rcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_rcpll_status_t * rcpll_status)
+vtss_rc vtss_phy_serdes6g_rcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_rcpll_status_t *rcpll_status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_serdes1g_rcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_rcpll_status_t * rcpll_status)
+vtss_rc vtss_phy_serdes1g_rcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_rcpll_status_t *rcpll_status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_lcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_lcpll_status_t * lcpll_status)
+vtss_rc vtss_phy_lcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_lcpll_status_t *lcpll_status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1381,7 +1381,7 @@ vtss_rc vtss_phy_reset_lcpll(const vtss_inst_t inst, const vtss_port_no_t port_n
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_post_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t * ob_post0, uint8_t * ob_post1)
+vtss_rc vtss_phy_sd6g_ob_post_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *ob_post0, uint8_t *ob_post1)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1391,7 +1391,7 @@ vtss_rc vtss_phy_sd6g_ob_post_wr(vtss_inst_t inst, const vtss_port_no_t port_no,
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_lev_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t * ob_level)
+vtss_rc vtss_phy_sd6g_ob_lev_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *ob_level)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1406,7 +1406,7 @@ vtss_rc vtss_phy_mac_media_inhibit_odd_start(vtss_inst_t inst, const vtss_port_n
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_fefi_get(vtss_inst_t inst, const vtss_port_no_t port_no, vtss_fefi_mode_t * fefi)
+vtss_rc vtss_phy_fefi_get(vtss_inst_t inst, const vtss_port_no_t port_no, vtss_fefi_mode_t *fefi)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1416,27 +1416,27 @@ vtss_rc vtss_phy_fefi_set(vtss_inst_t inst, const vtss_port_no_t port_no, const 
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_fefi_detect(vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * fefi_detect)
+vtss_rc vtss_phy_fefi_detect(vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *fefi_detect)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mse_100m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t * mse)
+vtss_rc vtss_phy_mse_100m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *mse)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mse_1000m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t * mseA, uint32_t * mseB, uint32_t * mseC, uint32_t * mseD)
+vtss_rc vtss_phy_mse_1000m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *mseA, uint32_t *mseB, uint32_t *mseC, uint32_t *mseD)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_read_tr_addr(vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t tr_addr, uint16_t * tr_lower, uint16_t * tr_upper)
+vtss_rc vtss_phy_read_tr_addr(vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t tr_addr, uint16_t *tr_lower, uint16_t *tr_upper)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_is_viper_revB(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL * is_viper_revB)
+vtss_rc vtss_phy_is_viper_revB(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL *is_viper_revB)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1451,7 +1451,7 @@ vtss_rc vtss_phy_firmware_update(const vtss_inst_t inst, const vtss_port_no_t po
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_macsec_csr_sd6g_rd(vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t * value)
+vtss_rc vtss_phy_macsec_csr_sd6g_rd(vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1635,12 +1635,12 @@ vtss_rc vtss_phy_ts_fifo_empty(const vtss_inst_t inst, const vtss_port_no_t port
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_fifo_read_install(const vtss_inst_t inst, vtss_phy_ts_fifo_read rd_cb, void * cntxt)
+vtss_rc vtss_phy_ts_fifo_read_install(const vtss_inst_t inst, vtss_phy_ts_fifo_read rd_cb, void *cntxt)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t inst, vtss_phy_ts_fifo_read * rd_cb, void ** cntxt)
+vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t inst, vtss_phy_ts_fifo_read *rd_cb, void **cntxt)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1775,7 +1775,7 @@ vtss_rc vtss_phy_1588_csr_reg_read(const vtss_inst_t inst, const vtss_port_no_t 
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_viper_fifo_reset(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_fifo_conf_t * fifo_conf)
+vtss_rc vtss_phy_ts_viper_fifo_reset(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_fifo_conf_t *fifo_conf)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }

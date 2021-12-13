@@ -54,7 +54,7 @@ typedef struct Intl_Port {
     mepa_device_t *dev;
 } Intl_Port_t;
 
-typedef struct{
+typedef struct {
     struct gpy211_device initconf;
     struct Intl_Port port_param;
 } INTL_priv_data_t;
@@ -71,8 +71,8 @@ static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
     uint8_t devtype, regaddr;
 
     if (regnum | MII_ADDR_C45) {
-        mmd_access=true;
-        devtype = regnum >>16 & 0x1f;
+        mmd_access = true;
+        devtype = regnum >> 16 & 0x1f;
         regaddr = regnum & 0xffff;
     }
 
@@ -96,8 +96,8 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
     uint8_t devtype, regaddr;
 
     if (regnum | MII_ADDR_C45) {
-        mmd_access=true;
-        devtype = regnum >>16 & 0x1f;
+        mmd_access = true;
+        devtype = regnum >> 16 & 0x1f;
         regaddr = regnum & 0xffff;
     }
 
@@ -115,7 +115,7 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
 }
 
 static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
-                          mesa_port_interface_t *mac_if)
+                           mesa_port_interface_t *mac_if)
 {
     *mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
 
@@ -127,13 +127,21 @@ void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
     uint16_t reg_val = 0;
 
     reg_val |= (status->fdx ? 1 : 0) << 8;
-    switch(status->speed){
-        case(MESA_SPEED_2500M): reg_val |= (1 << 13 | 1 << 6); break;
-        case(MESA_SPEED_1G): reg_val |= (0 << 13 | 1 << 6); break;
-        case(MESA_SPEED_100M): reg_val |= (1 << 13 | 0 << 6); break;
-        case(MESA_SPEED_10M): reg_val |= (0 << 13 | 0 << 6); break;
-        default:
-            return;
+    switch (status->speed) {
+    case (MESA_SPEED_2500M):
+        reg_val |= (1 << 13 | 1 << 6);
+        break;
+    case (MESA_SPEED_1G):
+        reg_val |= (0 << 13 | 1 << 6);
+        break;
+    case (MESA_SPEED_100M):
+        reg_val |= (1 << 13 | 0 << 6);
+        break;
+    case (MESA_SPEED_10M):
+        reg_val |= (0 << 13 | 0 << 6);
+        break;
+    default:
+        return;
     }
     reg_val |= 1 << 1;
     dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x8, reg_val);
@@ -142,34 +150,35 @@ void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
 static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     struct gpy211_device *intel_status = GPY211_DEVICE(dev);
-    struct Intl_Port *port_param = INTL_PORT(dev);
-    INTL_priv_data_t *data = PRIV_DATA(dev);
     bool link_change = false;
 
-    if (gpy2xx_update_link(intel_status) < 0)
+    if (gpy2xx_update_link(intel_status) < 0) {
         return MESA_RC_ERROR;
-    if (gpy2xx_read_status(intel_status) < 0)
+    }
+    if (gpy2xx_read_status(intel_status) < 0) {
         return MESA_RC_ERROR;
-    if (status->link != intel_status->link.link)
+    }
+    if (status->link != intel_status->link.link) {
         link_change = true;
+    }
     status->link = intel_status->link.link;
     if (status->link) {
-        switch(intel_status->link.speed) {
-            case (SPEED_1000):
-                status->speed = MESA_SPEED_1G;
-                break;
-            case (SPEED_100):
-                status->speed = MESA_SPEED_100M;
-                break;
-            case (SPEED_10):
-                status->speed = MESA_SPEED_10M;
-                break;
-            case (SPEED_2500):
-                status->speed = MESA_SPEED_2500M;
-                break;
-            default:
-                T_E("not expected speed");
-                break;
+        switch (intel_status->link.speed) {
+        case (SPEED_1000):
+            status->speed = MESA_SPEED_1G;
+            break;
+        case (SPEED_100):
+            status->speed = MESA_SPEED_100M;
+            break;
+        case (SPEED_10):
+            status->speed = MESA_SPEED_10M;
+            break;
+        case (SPEED_2500):
+            status->speed = MESA_SPEED_2500M;
+            break;
+        default:
+            T_E("not expected speed");
+            break;
         }
     }
     status->fdx = intel_status->link.duplex;
@@ -209,11 +218,10 @@ static mepa_device_t *intl_probe(mepa_driver_t *drv,
     priv->initconf.mdiobus_data = (void *)&priv->port_param;
     priv->initconf.lock = NULL;
 
-    INTL_priv_data_t *data = PRIV_DATA(dev);
     T_D("intl_probe, enter\n");
-
-    if (gpy2xx_init(initconf) < 0)
+    if (gpy2xx_init(initconf) < 0) {
         T_E("intl phy init error\n");
+    }
 
     return dev;
 }
@@ -230,7 +238,7 @@ static mesa_rc intl_reset(mepa_device_t *dev,
 }
 
 static mesa_rc intl_conf_set(mepa_device_t *dev,
-                                const mepa_conf_t *config)
+                             const mepa_conf_t *config)
 {
     return MEPA_RC_OK;
 }

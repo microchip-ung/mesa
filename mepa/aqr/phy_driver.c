@@ -94,8 +94,8 @@ static AQ_Retcode aqr_phy_conf_get(AQ_Port *data,
     AQR_TEST_RC(AQ_API_GetStaticConfiguration(&aq_port, aq_conf));
 
     T_D("port_no: %u, OUI: %u, IEEE_ModelNumber: %u, IEEE_RevisionNumber: %u, aq_rc: %d", data->dev->numeric_handle,
-           aq_conf->OUI, aq_conf->IEEE_ModelNumber,
-           aq_conf->IEEE_RevisionNumber, aq_rc);
+        aq_conf->OUI, aq_conf->IEEE_ModelNumber,
+        aq_conf->IEEE_RevisionNumber, aq_rc);
 
     return aq_rc;
 }
@@ -175,8 +175,8 @@ static mesa_rc aqr_conf_set_private(mepa_device_t *dev,
         aq_autoneg_config.advertise1000BASE_T_HalfDuplex = (AQ_boolean) FALSE;
 
         T_I("port_no: %u, 10g_fdx:%d, 5g_fdx:%d, 2g5_fdx:%d, 10m_hdx:%d, \n\t10m_fdx:%d, 100m_hdx:%d, 100m_fdx:%d, 1g_fdx:%d, 1g_hdx:%d", data->dev->numeric_handle,
-               aq_autoneg_config.advertise10GBASE_T, aq_autoneg_config.advertise5G, aq_autoneg_config.advertise2_5G, aq_autoneg_config.advertise10BASE_T_HalfDuplex,
-               aq_autoneg_config.advertise10BASE_T_FullDuplex, aq_autoneg_config.advertise100BASE_TX_HalfDuplex, aq_autoneg_config.advertise100BASE_TX_FullDuplex, aq_autoneg_config.advertise1000BASE_T_FullDuplex, aq_autoneg_config.advertise1000BASE_T_HalfDuplex);
+            aq_autoneg_config.advertise10GBASE_T, aq_autoneg_config.advertise5G, aq_autoneg_config.advertise2_5G, aq_autoneg_config.advertise10BASE_T_HalfDuplex,
+            aq_autoneg_config.advertise10BASE_T_FullDuplex, aq_autoneg_config.advertise100BASE_TX_HalfDuplex, aq_autoneg_config.advertise100BASE_TX_FullDuplex, aq_autoneg_config.advertise1000BASE_T_FullDuplex, aq_autoneg_config.advertise1000BASE_T_HalfDuplex);
     } else {
         aq_autoneg_config.advertise2_5G                     = (AQ_boolean) ((config->speed == MESA_SPEED_2500M) ? TRUE : FALSE);
         aq_autoneg_config.advertise10BASE_T_HalfDuplex      = (AQ_boolean) ((!config->fdx && (config->speed == MESA_SPEED_10M)) ? TRUE : FALSE);
@@ -298,12 +298,12 @@ static mesa_rc aqr_409_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
                               mesa_port_interface_t *mac_if)
 {
     switch (speed) {
-        case MESA_SPEED_100M:
-            *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
-            break;
-        default:
-            *mac_if = MESA_PORT_INTERFACE_SGMII;
-            break;
+    case MESA_SPEED_100M:
+        *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
+        break;
+    default:
+        *mac_if = MESA_PORT_INTERFACE_SGMII;
+        break;
     }
     return MESA_RC_OK;
 }
@@ -425,7 +425,6 @@ static mesa_rc aqr_fw_check(AQ_Port  *data,
                             uint8_t  build_id)
 {
     AQ_API_StaticConfiguration aq_config;
-    AQ_API_Port                aq_port;
     AQ_Retcode                 aq_ret;
     int rom;
 
@@ -569,7 +568,6 @@ static mepa_device_t *aqr_probe(mepa_driver_t *drv,
     mepa_device_t   *dev;
     AQR_priv_data_t *priv;
     AQ_Port         *data;
-    mesa_rc         rc;
 
     dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(AQR_priv_data_t));
     if (!dev) {

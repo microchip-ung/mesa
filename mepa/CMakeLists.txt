@@ -8,7 +8,7 @@ include(.cmake/mepa-macros.cmake)
 
 # Old master branch did this (by acident!) Needed for now to surpress all the
 # warnings. Eventually we need to clean this up!
-set(CMAKE_C_FLAGS "")
+#set(CMAKE_C_FLAGS "")
 
 include_directories(common/include)
 

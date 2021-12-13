@@ -51,7 +51,7 @@ static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
                             u8                   cnt)
 {
     return CALLOUT->mmd_read_inc(inst->callout_ctx[port_no], mmd, addr, buf,
-                                  cnt);
+                                 cnt);
 }
 
 static vtss_rc mmd_write(const vtss_inst_t    inst,
@@ -300,7 +300,7 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     vtss_phy_conf_t phy_conf;
     vtss_phy_conf_1g_t cfg_neg = {};
     phy_data_t *data = (phy_data_t *)dev->data;
-    *conf = (const mepa_conf_t){};
+    *conf = (const mepa_conf_t) {};
 
     if (vtss_phy_conf_get(NULL, data->port_no, &phy_conf) == MESA_RC_OK) {
         if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
@@ -425,7 +425,8 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
 }
 
 static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
-                                     mepa_aneg_status_t *status) {
+                                     mepa_aneg_status_t *status)
+{
     phy_data_t *data = (phy_data_t *)(dev->data);
     mepa_rc rc;
     vtss_phy_status_1g_t vtss_status;
@@ -437,7 +438,7 @@ static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
 }
 
 static mepa_rc phy_1g_event_enable_set(mepa_device_t *dev, mepa_event_t event,
-                                        mesa_bool_t enable)
+                                       mesa_bool_t enable)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
     return vtss_phy_event_enable_set(NULL, data->port_no, event, enable);
@@ -519,12 +520,15 @@ static mepa_rc phy_1g_gpio_mode(mepa_device_t *dev, const mepa_gpio_conf_t *gpio
         return MEPA_RC_NOT_IMPLEMENTED;
     }
     switch (gpio_conf->mode) {
-        case MEPA_GPIO_MODE_OUT: gpio_mode = VTSS_PHY_GPIO_OUT;
-            break;
-        case MEPA_GPIO_MODE_IN: gpio_mode = VTSS_PHY_GPIO_IN;
-            break;
-        default: gpio_mode = VTSS_PHY_GPIO_ALT_0;
-            break;
+    case MEPA_GPIO_MODE_OUT:
+        gpio_mode = VTSS_PHY_GPIO_OUT;
+        break;
+    case MEPA_GPIO_MODE_IN:
+        gpio_mode = VTSS_PHY_GPIO_IN;
+        break;
+    default:
+        gpio_mode = VTSS_PHY_GPIO_ALT_0;
+        break;
     }
     if (gpio_conf->mode >= MEPA_GPIO_MODE_LED_LINK_ACTIVITY && gpio_conf->mode < MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
         vtss_phy_led_mode_select_t mode_select;
@@ -545,7 +549,7 @@ static mepa_rc phy_1g_gpio_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     return vtss_phy_gpio_set(NULL, data->port_no, gpio_no, enable);
 }
 
-static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t * const enable)
+static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t *const enable)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
     // VSC8584 has 0-13 gpios
@@ -573,8 +577,7 @@ static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev
 {
     phy_data_t *base_data = (phy_data_t *)(base_dev->data);
     phy_data_t *data = (phy_data_t *)(dev->data);
-    mepa_device_t *other_dev;
-    vtss_phy_type_t id, base_id;
+    vtss_phy_type_t base_id;
     mesa_rc rc;
     int i;
 
@@ -585,7 +588,7 @@ static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev
     base_data->all_phy_ports[0] = base_data->port_no;
     if (dev->drv->mepa_ts) {
         for (i = 1; i < MAX_PORTS_PER_PHY; i++) {
-            if ((dev != base_dev)&& base_data->other_dev[i] == NULL) {
+            if ((dev != base_dev) && base_data->other_dev[i] == NULL) {
                 base_data->other_dev[i] = dev;
                 base_data->all_phy_ports[i] = data->port_no;
                 break;
@@ -797,8 +800,8 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
         if ((phy_id.part_number == 0x8488 || phy_id.part_number == 0x8487) && phy_id.revision >= 4) {
             phy_info->cap |= MEPA_CAP_TS_MASK_GEN_1;
         } else if ((phy_id.part_number == 0x8489 && !(phy_id.device_feature_status & VTSS_PHY_10G_TIMESTAMP_DISABLED)) ||
-            (phy_id.part_number == 0x8490 || phy_id.part_number == 0x8491) ||
-            (phy_id.family == VTSS_PHY_FAMILY_MALIBU)) {
+                   (phy_id.part_number == 0x8490 || phy_id.part_number == 0x8491) ||
+                   (phy_id.family == VTSS_PHY_FAMILY_MALIBU)) {
             phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
         } else {
             phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
@@ -813,7 +816,6 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
                                     struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                     struct mepa_board_conf              *board_conf)
 {
-    int i;
     mepa_device_t *dev;
     phy_data_t *data;
 
@@ -868,7 +870,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_info_get = phy_1g_info_get,
         },
         {
-             // Tesla
+            // Tesla
             .id = 0x000704a0,
             .mask = 0xfffffff0,
             .mepa_driver_delete = mscc_1g_delete,
@@ -900,7 +902,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_ts = &vtss_ts_drivers,
         },
         {
-             // Viper
+            // Viper
             .id = 0x000707c0,
             .mask = 0xfffffff0,
             .mepa_driver_delete = mscc_1g_delete,
@@ -1035,18 +1037,19 @@ mepa_drivers_t mepa_venice_driver_init()
 {
     static const int nr_venice_phy = 1;
     static mepa_driver_t venice_drivers[] = {{
-        .id = 0x8400,
-        .mask = 0x0000FF00,
-        .mepa_driver_delete = phy_10g_delete,
-        .mepa_driver_reset = venice_10g_reset,
-        .mepa_driver_poll = phy_10g_poll,
-        .mepa_driver_conf_set = phy_10g_conf_set,
-        .mepa_driver_if_set = mscc_if_set,
-        .mepa_driver_if_get = venice_10g_if_get,
-        .mepa_driver_probe = phy_10g_probe,
-        .mepa_driver_phy_info_get = phy_10g_info_get,
-        .mepa_ts = &vtss_ts_drivers,
-    }};
+            .id = 0x8400,
+            .mask = 0x0000FF00,
+            .mepa_driver_delete = phy_10g_delete,
+            .mepa_driver_reset = venice_10g_reset,
+            .mepa_driver_poll = phy_10g_poll,
+            .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_if_set = mscc_if_set,
+            .mepa_driver_if_get = venice_10g_if_get,
+            .mepa_driver_probe = phy_10g_probe,
+            .mepa_driver_phy_info_get = phy_10g_info_get,
+            .mepa_ts = &vtss_ts_drivers,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = venice_drivers;
@@ -1059,34 +1062,35 @@ mepa_drivers_t mepa_default_phy_driver_init()
 {
     static const int nr_default_drivers = 1;
     static mepa_driver_t default_drivers[] = {{
-        .id = 0x0,
-        .mask = 0x00,
-        .mepa_driver_delete = mscc_1g_delete,
-        .mepa_driver_reset = mscc_1g_reset,
-        .mepa_driver_poll = mscc_1g_poll,
-        .mepa_driver_conf_set = mscc_1g_conf_set,
-        .mepa_driver_conf_get = phy_1g_conf_get,
-        .mepa_driver_if_set = mscc_if_set,
-        .mepa_driver_if_get = mscc_1g_if_get,
-        .mepa_driver_power_set = mscc_1g_power_set,
-        .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
-        .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
-        .mepa_driver_media_set = mscc_1g_media_set,
-        .mepa_driver_probe = mscc_1g_probe,
-        .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
-        .mepa_driver_clause22_read = phy_1g_read,
-        .mepa_driver_clause22_write = phy_1g_write,
-        .mepa_driver_event_enable_set = phy_1g_event_enable_set,
-        .mepa_driver_event_enable_get = phy_1g_event_enable_get,
-        .mepa_driver_event_poll = phy_1g_event_poll,
-        .mepa_driver_loopback_set = phy_1g_loopback_set,
-        .mepa_driver_loopback_get = phy_1g_loopback_get,
-        .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
-        .mepa_driver_gpio_out_set = phy_1g_gpio_set,
-        .mepa_driver_gpio_in_get = phy_1g_gpio_get,
-        .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
-        .mepa_driver_phy_info_get = phy_1g_info_get,
-    }};
+            .id = 0x0,
+            .mask = 0x00,
+            .mepa_driver_delete = mscc_1g_delete,
+            .mepa_driver_reset = mscc_1g_reset,
+            .mepa_driver_poll = mscc_1g_poll,
+            .mepa_driver_conf_set = mscc_1g_conf_set,
+            .mepa_driver_conf_get = phy_1g_conf_get,
+            .mepa_driver_if_set = mscc_if_set,
+            .mepa_driver_if_get = mscc_1g_if_get,
+            .mepa_driver_power_set = mscc_1g_power_set,
+            .mepa_driver_cable_diag_start = mscc_1g_veriphy_start,
+            .mepa_driver_cable_diag_get = mscc_1g_veriphy_get,
+            .mepa_driver_media_set = mscc_1g_media_set,
+            .mepa_driver_probe = mscc_1g_probe,
+            .mepa_driver_aneg_status_get = mscc_1g_status_1g_get,
+            .mepa_driver_clause22_read = phy_1g_read,
+            .mepa_driver_clause22_write = phy_1g_write,
+            .mepa_driver_event_enable_set = phy_1g_event_enable_set,
+            .mepa_driver_event_enable_get = phy_1g_event_enable_get,
+            .mepa_driver_event_poll = phy_1g_event_poll,
+            .mepa_driver_loopback_set = phy_1g_loopback_set,
+            .mepa_driver_loopback_get = phy_1g_loopback_get,
+            .mepa_driver_gpio_mode_set = phy_1g_gpio_mode,
+            .mepa_driver_gpio_out_set = phy_1g_gpio_set,
+            .mepa_driver_gpio_in_get = phy_1g_gpio_get,
+            .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
+            .mepa_driver_phy_info_get = phy_1g_info_get,
+        }
+    };
 
     mepa_drivers_t result;
     result.phy_drv = default_drivers;

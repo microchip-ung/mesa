@@ -94,10 +94,13 @@ static vtss_phy_ts_ptp_clock_mode_t get_mesa_clk_mode(mepa_ts_ptp_clock_mode_t i
     return ret;
 }
 
+static vtss_phy_ts_ptp_delaym_type_t get_mesa_delay_type(mepa_ts_ptp_delaym_type_t in)
+{
+    return (in == MEPA_TS_PTP_DELAYM_P2P) ? VTSS_PHY_TS_PTP_DELAYM_P2P : VTSS_PHY_TS_PTP_DELAYM_E2E;
+}
 
 static void get_clk_from_action(mepa_device_t *dev, const vtss_phy_ts_ptp_engine_action_t *action, mepa_ts_ptp_clock_conf_t *const clk_conf)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
     mepa_ts_match_uint8_t sdoid = {};
     clk_conf->enable = action->channel_map & get_vs_channel_mask(dev) ? true : false;
     T_I(data, MEPA_TRACE_GRP_TS, "clk_mode %d", action->clk_mode);
@@ -121,19 +124,19 @@ static void get_clk_from_action(mepa_device_t *dev, const vtss_phy_ts_ptp_engine
 static mesa_rc mepa_to_vtss_encap(mepa_ts_pkt_encap_t encap, vtss_phy_ts_encap_t *vsc_encap)
 {
     mesa_rc rc = MESA_RC_OK;
-    switch(encap) {
-        case MEPA_TS_ENCAP_ETH_PTP:
-            *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_PTP;
-            break;
-        case MEPA_TS_ENCAP_ETH_IP_PTP:
-            *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
-            break;
-        case MEPA_TS_ENCAP_NONE:
-            *vsc_encap = VTSS_PHY_TS_ENCAP_NONE;
-            break;
-        default:
-            rc = MESA_RC_ERROR;
-            break;
+    switch (encap) {
+    case MEPA_TS_ENCAP_ETH_PTP:
+        *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_PTP;
+        break;
+    case MEPA_TS_ENCAP_ETH_IP_PTP:
+        *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
+        break;
+    case MEPA_TS_ENCAP_NONE:
+        *vsc_encap = VTSS_PHY_TS_ENCAP_NONE;
+        break;
+    default:
+        rc = MESA_RC_ERROR;
+        break;
     }
     return rc;
 }
@@ -147,7 +150,7 @@ static void dump_chip_matching_flow(mepa_device_t *dev, mepa_bool_t ingress)
     uint16_t ip_fl[] = {0x1C0, 0x1C8};
     uint16_t i, j, st_fl;
     uint32_t blk_id = ingress ? 0 : 1;
-    uint32_t value, cnt=0;
+    uint32_t value, cnt = 0;
 
     pr(" Dump class flows\n");
     while (cnt++ < 2) {
@@ -229,7 +232,7 @@ static void dump_chip_ptp_flow(mepa_device_t *dev, mepa_bool_t ingress)
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t ptp_fl[] = {0x2D0, 0x2D8};
     uint16_t i, j, st_fl, incr = 0x10;
-    uint32_t blk_id, value, cnt=0;
+    uint32_t blk_id, value, cnt = 0;
 
     blk_id = ingress ? 0 : 1;
     while (cnt++ < 2) {
@@ -268,27 +271,28 @@ static void dump_chip_ptp_flow(mepa_device_t *dev, mepa_bool_t ingress)
 static void dump_flow_conf(vtss_phy_ts_engine_flow_conf_t *flow_conf)
 {
     int i;
-    char buf[50];
-    char *mac;
+
     pr("\nflow conf: eng_mode %d ", flow_conf->eng_mode);
     pr("ptp comm: ppb_en %d, etype %x, tpid %x\n", flow_conf->flow_conf.ptp.eth1_opt.comm_opt.pbb_en,
-           flow_conf->flow_conf.ptp.eth1_opt.comm_opt.etype,
-           flow_conf->flow_conf.ptp.eth1_opt.comm_opt.tpid);
+       flow_conf->flow_conf.ptp.eth1_opt.comm_opt.etype,
+       flow_conf->flow_conf.ptp.eth1_opt.comm_opt.tpid);
     for (i = 0; i < 8; i++) {
         pr(" channel_map[%d] %d ", i, flow_conf->channel_map[i]);
         pr(" ptp flow: flow_en %d, match_mode %d, match_select %d\n", flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].flow_en,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].addr_match_mode,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].addr_match_select);
-        mac = flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr;
-        spr(buf, "%02x-%02x-%02x-%02x-%02x-%02x",
-                mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-        pr(" mac address %s\n", buf);
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].addr_match_mode,
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].addr_match_select);
+        pr(" mac address : %02x-%02x-%02x-%02x-%02x-%02x\n", flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[0],
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[1],
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[2],
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[3],
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[4],
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].mac_addr[5]);
         pr(" vlan_check %d, num_tag %d, outer_tag_type %d, inner_tag_type %d, tag_range_mode %d\n",
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].vlan_check,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].num_tag,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].outer_tag_type,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].inner_tag_type,
-               flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].tag_range_mode);
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].vlan_check,
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].num_tag,
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].outer_tag_type,
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].inner_tag_type,
+           flow_conf->flow_conf.ptp.eth1_opt.flow_opt[i].tag_range_mode);
     }
 }
 static void dump_ptp_action(vtss_phy_ts_engine_action_t *ptp_action)
@@ -298,10 +302,10 @@ static void dump_ptp_action(vtss_phy_ts_engine_action_t *ptp_action)
     for (i = 0; i < 2; i++) {
         pr(" action[%d]: enable %d, channel_map %d\n", i, ptp_action->action.ptp_conf[i].enable, ptp_action->action.ptp_conf[i].channel_map);
         pr("  ptpconf: range_en %d, val/upper %d, mask/lower %d\n", ptp_action->action.ptp_conf[i].ptp_conf.range_en,
-               ptp_action->action.ptp_conf[i].ptp_conf.domain.value.val,
-               ptp_action->action.ptp_conf[i].ptp_conf.domain.value.mask);
-        pr("   clk__mode %d, delaym_type %d\n",ptp_action->action.ptp_conf[i].clk_mode,
-              ptp_action->action.ptp_conf[i].delaym_type);
+           ptp_action->action.ptp_conf[i].ptp_conf.domain.value.val,
+           ptp_action->action.ptp_conf[i].ptp_conf.domain.value.mask);
+        pr("   clk__mode %d, delaym_type %d\n", ptp_action->action.ptp_conf[i].clk_mode,
+           ptp_action->action.ptp_conf[i].delaym_type);
     }
 }
 
@@ -320,7 +324,7 @@ static uint8_t get_vs_channel_mask(mepa_device_t *dev)
         }
     } else {
         if (vtss_phy_10g_id_get(NULL, data->port_no, &phy_id_10g) == MESA_RC_OK) {
-            ch_mask = phy_id_10g.channel_id%2 == 0 ? VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH0 : VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH1;
+            ch_mask = phy_id_10g.channel_id % 2 == 0 ? VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH0 : VTSS_PHY_TS_ENG_FLOW_VALID_FOR_CH1;
         } else {
             T_W(data, MEPA_TRACE_GRP_TS, "error getting 10G phy id info");
         }
@@ -331,20 +335,20 @@ static uint8_t get_vs_channel_mask(mepa_device_t *dev)
 static uint8_t get_vs_addr_type(mepa_ts_mac_match_mode_t mac_match)
 {
     uint8_t ret = 0;
-    switch(mac_match) {
-        case MEPA_TS_ETH_ADDR_MATCH_48BIT:
-            ret = VTSS_PHY_TS_ETH_ADDR_MATCH_48BIT;
-            break;
-        case MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST:
-            ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
-            break;
-        case MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST:
-            ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_MULTICAST;
-            break;
-        case MEPA_TS_ETH_ADDR_MATCH_ANY:
-        default:
-            ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_MULTICAST | MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST;
-            break;
+    switch (mac_match) {
+    case MEPA_TS_ETH_ADDR_MATCH_48BIT:
+        ret = VTSS_PHY_TS_ETH_ADDR_MATCH_48BIT;
+        break;
+    case MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST:
+        ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
+        break;
+    case MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST:
+        ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_MULTICAST;
+        break;
+    case MEPA_TS_ETH_ADDR_MATCH_ANY:
+    default:
+        ret = VTSS_PHY_TS_ETH_ADDR_MATCH_ANY_MULTICAST | MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST;
+        break;
     }
     return ret;
 }
@@ -390,17 +394,17 @@ static mepa_ts_ip_match_select_t get_mepa_ip_match_mode(uint8_t match)
 static uint8_t get_vs_mac_type(mepa_ts_mac_match_select_t mac_type)
 {
     uint8_t ret;
-    switch(mac_type) {
-        case MEPA_TS_ETH_MATCH_DEST_ADDR:
-            ret = VTSS_PHY_TS_ETH_MATCH_DEST_ADDR;
-            break;
-        case MEPA_TS_ETH_MATCH_SRC_ADDR:
-            ret = VTSS_PHY_TS_ETH_MATCH_SRC_ADDR;
-            break;
-        case MEPA_TS_ETH_MATCH_SRC_OR_DEST:
-        default:
-            ret = VTSS_PHY_TS_ETH_MATCH_SRC_OR_DEST;
-            break;
+    switch (mac_type) {
+    case MEPA_TS_ETH_MATCH_DEST_ADDR:
+        ret = VTSS_PHY_TS_ETH_MATCH_DEST_ADDR;
+        break;
+    case MEPA_TS_ETH_MATCH_SRC_ADDR:
+        ret = VTSS_PHY_TS_ETH_MATCH_SRC_ADDR;
+        break;
+    case MEPA_TS_ETH_MATCH_SRC_OR_DEST:
+    default:
+        ret = VTSS_PHY_TS_ETH_MATCH_SRC_OR_DEST;
+        break;
     }
     return ret;
 }
@@ -417,7 +421,7 @@ void get_eng_flow_info(uint16_t in_flow, vtss_phy_ts_engine_t *eng_id, uint16_t 
     } else {
         *eng_id = VTSS_PHY_TS_ENGINE_ID_INVALID;
     }
-    *eng_flow = in_flow%TS_FLOWS_PER_ENG;
+    *eng_flow = in_flow % TS_FLOWS_PER_ENG;
     *flow_st = 0;
     *flow_end = 7;
     return;
@@ -427,15 +431,16 @@ void get_eng_clock_info(uint16_t clk_id, vtss_phy_ts_engine_t *eng_id, uint16_t 
     *eng_id = clk_id / TS_ACTIONS_PER_ENGINE;
     *act_id = clk_id % TS_ACTIONS_PER_ENGINE;
 }
-static mesa_rc get_ts_alt_base_dev(mepa_device_t *dev, mepa_device_t **ts_base_dev, mepa_device_t **ts_alt_dev)
+
+#if 0
+static mepa_rc get_ts_alt_base_dev(mepa_device_t *dev, mepa_device_t **ts_base_dev, mepa_device_t **ts_alt_dev)
 {
     vtss_phy_type_t id;
     phy_data_t *data = (phy_data_t *)(dev->data), *alt_data;
     phy_data_t *base_data = (phy_data_t *)(data->base_dev->data);
     mepa_port_no_t base_port;
-    mesa_rc rc = MESA_RC_ERROR;
 
-    rc = vtss_phy_id_get(NULL, data->port_no, &id);
+    vtss_phy_id_get(NULL, data->port_no, &id);
     T_I(data, MEPA_TRACE_GRP_TS, "base port %d port %d base_no %d\n", base_data->port_no, data->port_no, id.phy_api_base_no);
     if (id.phy_api_base_no == data->port_no) {
         *ts_base_dev = dev;
@@ -444,13 +449,13 @@ static mesa_rc get_ts_alt_base_dev(mepa_device_t *dev, mepa_device_t **ts_base_d
                 continue;
             }
             alt_data = (phy_data_t *)(base_data->other_dev[i]->data);
-            rc = vtss_phy_id_get(NULL, alt_data->port_no, &id);
+            vtss_phy_id_get(NULL, alt_data->port_no, &id);
             T_D(data, MEPA_TRACE_GRP_TS, "alt port %d base_no %d\n", alt_data->port_no, id.phy_api_base_no);
             if (id.phy_api_base_no == data->port_no) {
                 *ts_alt_dev = base_data->other_dev[i];
                 phy_data_t *alt_data = (phy_data_t *)((*ts_alt_dev)->data);
                 T_D(data, MEPA_TRACE_GRP_TS, "alt_dev port %d\n", alt_data->port_no );
-                return MESA_RC_OK;
+                return MEPA_RC_OK;
             }
         }
     } else {
@@ -460,37 +465,39 @@ static mesa_rc get_ts_alt_base_dev(mepa_device_t *dev, mepa_device_t **ts_base_d
                 continue;
             }
             alt_data = (phy_data_t *)(base_data->other_dev[i]->data);
-            rc = vtss_phy_id_get(NULL, alt_data->port_no, &id);
+            vtss_phy_id_get(NULL, alt_data->port_no, &id);
             T_D(data, MEPA_TRACE_GRP_TS, "alt port %d base_no %d\n", alt_data->port_no, id.phy_api_base_no);
             if (id.phy_api_base_no == base_port) {
                 *ts_base_dev = base_data->other_dev[i];
                 *ts_alt_dev = base_data->other_dev[i];
                 phy_data_t *alt_data = (phy_data_t *)((*ts_alt_dev)->data);
                 T_D(data, MEPA_TRACE_GRP_TS, "alt_dev port %d\n", alt_data->port_no );
-                return MESA_RC_OK;
+                return MEPA_RC_OK;
                 break;
             }
         }
     }
     T_I(data, MEPA_TRACE_GRP_TS, "reached end of alt dev base search");
-    return MESA_RC_ERROR;
+    return MEPA_RC_ERROR;
 }
+#endif
+
 static vtss_phy_ts_tc_op_mode_t mepa_to_mesa_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode)
 {
     vtss_phy_ts_tc_op_mode_t ret;
-    switch(tc_opmode) {
-        case MEPA_TS_TC_OP_MODE_A:
-            ret = VTSS_PHY_TS_TC_OP_MODE_A;
-            break;
-        case MEPA_TS_TC_OP_MODE_B:
-            ret = VTSS_PHY_TS_TC_OP_MODE_B;
-            break;
-        case MEPA_TS_TC_OP_MODE_C:
-            ret = VTSS_PHY_TS_TC_OP_MODE_C;
-            break;
-        default:
-            ret = VTSS_PHY_TS_TC_OP_MODE_A;
-            break;
+    switch (tc_opmode) {
+    case MEPA_TS_TC_OP_MODE_A:
+        ret = VTSS_PHY_TS_TC_OP_MODE_A;
+        break;
+    case MEPA_TS_TC_OP_MODE_B:
+        ret = VTSS_PHY_TS_TC_OP_MODE_B;
+        break;
+    case MEPA_TS_TC_OP_MODE_C:
+        ret = VTSS_PHY_TS_TC_OP_MODE_C;
+        break;
+    default:
+        ret = VTSS_PHY_TS_TC_OP_MODE_A;
+        break;
     }
     return ret;
 }
@@ -560,10 +567,10 @@ static mepa_bool_t get_compare_common_opt(const vtss_phy_ts_ptp_engine_flow_conf
 
     // compare ip common options.
     if (cls->pkt_encap_type == MEPA_TS_ENCAP_ETH_IP_PTP) {
-        if ((cls->ip_class_conf.ip_ver == MEPA_TS_IP_VER_6) &&
-            (flow->ip1_opt.comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_4) ||
-            (cls->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) &&
-            (flow->ip1_opt.comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_6)) {
+        if (((cls->ip_class_conf.ip_ver == MEPA_TS_IP_VER_6) &&
+             (flow->ip1_opt.comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_4)) ||
+            ((cls->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) &&
+             (flow->ip1_opt.comm_opt.ip_mode == VTSS_PHY_TS_IP_VER_6))) {
             return false;
         }
         if ((cls->ip_class_conf.udp_dport_en && !flow->ip1_opt.comm_opt.dport_mask) ||
@@ -580,8 +587,7 @@ static mepa_bool_t get_compare_common_opt(const vtss_phy_ts_ptp_engine_flow_conf
 ///////////////////////////////////////////////////////////////////////////////////
 static mepa_rc vtss_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *const ts_init_conf)
 {
-    uint16_t val = 0;
-    mepa_rc rc = MESA_RC_ERROR;
+    mepa_rc rc = MEPA_RC_ERROR;
     mepa_bool_t                     ts_init_done;
     vtss_phy_ts_init_conf_t         init_conf;
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -662,7 +668,6 @@ static mepa_rc vtss_ts_mode_get(mepa_device_t *dev, mepa_bool_t *const enable)
 
 static mepa_rc vtss_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     return vtss_phy_ts_mode_set(NULL, data->port_no,  enable);
@@ -672,14 +677,14 @@ static mepa_rc vtss_ts_ltc_ls_en_set(mepa_device_t *dev, const mepa_ts_ls_type_t
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     switch (ls_type) {
-        case MEPA_TS_CMD_LOAD:
-            return vtss_phy_ts_ptptime_set_done(NULL, data->port_no);
-            break;
-        case MEPA_TS_CMD_SAVE:
-            return vtss_phy_ts_ptptime_arm(NULL, data->port_no);
-            break;
-        default:
-            break;
+    case MEPA_TS_CMD_LOAD:
+        return vtss_phy_ts_ptptime_set_done(NULL, data->port_no);
+        break;
+    case MEPA_TS_CMD_SAVE:
+        return vtss_phy_ts_ptptime_arm(NULL, data->port_no);
+        break;
+    default:
+        break;
     }
     return MEPA_RC_OK;
 }
@@ -869,7 +874,7 @@ static mepa_rc phy_tx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow, 
             return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
         }
         out_conf->pkt_encap_type = (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_PTP) ? MEPA_TS_ENCAP_ETH_PTP :
-                                  (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) ? MEPA_TS_ENCAP_ETH_IP_PTP :
+                                   (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) ? MEPA_TS_ENCAP_ETH_IP_PTP :
                                    MEPA_TS_ENCAP_NONE;
         out_conf->enable = (flow_conf.channel_map[flow_id] & get_vs_channel_mask(dev)) ? true : false;
         get_class_from_flow(&flow_conf, flow_id, out_conf);
@@ -903,7 +908,7 @@ static mepa_rc phy_rx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow, 
             return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
         }
         out_conf->pkt_encap_type = (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_PTP) ? MEPA_TS_ENCAP_ETH_PTP :
-                                  (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) ? MEPA_TS_ENCAP_ETH_IP_PTP :
+                                   (eng_init_conf.encap_type == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) ? MEPA_TS_ENCAP_ETH_IP_PTP :
                                    MEPA_TS_ENCAP_NONE;
         out_conf->enable = (flow_conf.channel_map[flow_id] & get_vs_channel_mask(dev)) ? true : false;
         get_class_from_flow(&flow_conf, flow_id, out_conf);
@@ -946,7 +951,7 @@ static mepa_rc vtss_ts_rx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         T_I(data, MEPA_TRACE_GRP_TS, "action enabled already with clk_mode %d in mode %d\n", action->clk_mode, ptpclock_conf->clk_mode);
         dump_ptp_action(&action_conf);
         if ((action->clk_mode != get_mesa_clk_mode(ptpclock_conf->clk_mode)) ||
-            (action->delaym_type != ptpclock_conf->delaym_type)) {
+            (action->delaym_type != get_mesa_delay_type(ptpclock_conf->delaym_type))) {
             act_chng = true;
         }
         ch_map = get_vs_channel_mask(dev);
@@ -959,7 +964,7 @@ static mepa_rc vtss_ts_rx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         action->enable = true;
         action->channel_map |= get_vs_channel_mask(dev);
         action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
-        action->delaym_type = ptpclock_conf->delaym_type;
+        action->delaym_type = get_mesa_delay_type(ptpclock_conf->delaym_type);
         action->cf_update = false;
         action->delay_req_recieve_timestamp = data->ts.dly_req_recv_10byte_ts;
     }
@@ -1010,7 +1015,7 @@ static mepa_rc vtss_ts_tx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
     } else if (action->enable) {
         T_I(data, MEPA_TRACE_GRP_TS, "action enabled already\n");
         if ((action->clk_mode != get_mesa_clk_mode(ptpclock_conf->clk_mode)) ||
-            (action->delaym_type != ptpclock_conf->delaym_type) ||
+            (action->delaym_type != get_mesa_delay_type(ptpclock_conf->delaym_type)) ||
             (action->cf_update != ptpclock_conf->cf_update)) {
             act_chng = true;
         }
@@ -1024,7 +1029,7 @@ static mepa_rc vtss_ts_tx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         action->enable = true;
         action->channel_map |= get_vs_channel_mask(dev);
         action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
-        action->delaym_type = ptpclock_conf->delaym_type;
+        action->delaym_type = get_mesa_delay_type(ptpclock_conf->delaym_type);
         action->cf_update = false;
         action->delay_req_recieve_timestamp = false;
     }
@@ -1203,7 +1208,7 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             T_I(data, MEPA_TRACE_GRP_TS, "engine conf cleared");
         } else {
             dump_flow_conf(&flow_conf);
-            if(vtss_phy_ts_ingress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
+            if (vtss_phy_ts_ingress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
                 T_I(data, MEPA_TRACE_GRP_TS, " Not able to set ingress flow configuration for flow %d", flow_id);
                 return MEPA_RC_ERR_TS_FLOW_CONF;
             }
@@ -1264,7 +1269,7 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         eth_flow->num_tag = eth_in->vlan_conf.num_tag;
         eth_flow->tag_range_mode = VTSS_PHY_TS_TAG_RANGE_NONE;
         if (eth->comm_opt.pbb_en && (eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE ||
-            eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE)) {
+                                     eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE)) {
             T_I(data, MEPA_TRACE_GRP_TS, " For pbb enabled case, tag range cannot be configured");
             return MEPA_RC_ERROR;
         }
@@ -1296,7 +1301,7 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             eth_flow->inner_tag.value.mask = val_in->mask;
         }
         dump_flow_conf(&flow_conf);
-        if(vtss_phy_ts_ingress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
+        if (vtss_phy_ts_ingress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
             T_I(data, MEPA_TRACE_GRP_TS, " Not able to set ingress flow configuration for flow %d", flow_id);
             return MEPA_RC_ERR_TS_FLOW_CONF;
         }
@@ -1334,9 +1339,9 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         T_I(data, MEPA_TRACE_GRP_TS, "Could not convert encap pkt encap %d", in_conf->pkt_encap_type);
         return MEPA_RC_ERR_TS_INVALID_ENCAP;
     }
-        // engine 0 -> 0, 1 clock-ids
-        // engine 1 -> 2, 3 clock-ids
-        // engine 2 -> 4, 5 clock-ids
+    // engine 0 -> 0, 1 clock-ids
+    // engine 1 -> 2, 3 clock-ids
+    // engine 2 -> 4, 5 clock-ids
     if ((in_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE) && (in_conf->clock_id != valid_clocks[eng_id][0] && in_conf->clock_id != valid_clocks[eng_id][1])) {
         return MEPA_RC_ERR_TS_ENG_INVALID_CLOCK;
     } else { // store clock id
@@ -1401,7 +1406,7 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             T_I(data, MEPA_TRACE_GRP_TS, "engine conf cleared");
         } else {
             dump_flow_conf(&flow_conf);
-            if(vtss_phy_ts_egress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
+            if (vtss_phy_ts_egress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
                 T_I(data, MEPA_TRACE_GRP_TS, " Not able to set egress flow configuration for flow %d", flow_id);
                 return MEPA_RC_ERR_TS_FLOW_CONF;
             }
@@ -1454,7 +1459,7 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         eth_flow->num_tag = eth_in->vlan_conf.num_tag;
         eth_flow->tag_range_mode = VTSS_PHY_TS_TAG_RANGE_NONE;
         if (eth->comm_opt.pbb_en && (eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE ||
-            eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE)) {
+                                     eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE)) {
             T_I(data, MEPA_TRACE_GRP_TS, " For pbb enabled case, tag range cannot be configured");
             return MEPA_RC_ERROR;
         }
@@ -1486,25 +1491,25 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             eth_flow->inner_tag.value.mask = val_in->mask;
         }
         dump_flow_conf(&flow_conf);
-        if(vtss_phy_ts_egress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
+        if (vtss_phy_ts_egress_engine_conf_set(NULL, data->port_no, eng_id, &flow_conf) != MESA_RC_OK) {
             T_I(data, MEPA_TRACE_GRP_TS, " Not able to set egress flow configuration for flow %d", flow_id);
             return MEPA_RC_ERR_TS_FLOW_CONF;
         }
         T_I(data, MEPA_TRACE_GRP_TS, " egress flow configuration done for flow %d", flow_id);
     }
     vtss_phy_ts_fifo_sig_set(NULL, data->port_no, VTSS_PHY_TS_FIFO_SIG_MSG_TYPE | VTSS_PHY_TS_FIFO_SIG_DOMAIN_NUM |
-                        VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | VTSS_PHY_TS_FIFO_SIG_SEQ_ID);
+                             VTSS_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | VTSS_PHY_TS_FIFO_SIG_SEQ_ID);
     dump_chip_matching_flow(dev, false);
     T_I(data, MEPA_TRACE_GRP_TS, "exit");
     return MEPA_RC_OK;
 }
 
 static void vtss_phy_ts_fifo_read_cb(const vtss_inst_t              inst,
-                                const mesa_port_no_t           port_no,
-                                const vtss_phy_timestamp_t     *const fifo_ts,
-                                const vtss_phy_ts_fifo_sig_t   *const sig,
-                                void                           *cntxt,
-                                const vtss_phy_ts_fifo_status_t status)
+                                     const mesa_port_no_t           port_no,
+                                     const vtss_phy_timestamp_t     *const fifo_ts,
+                                     const vtss_phy_ts_fifo_sig_t   *const sig,
+                                     void                           *cntxt,
+                                     const vtss_phy_ts_fifo_status_t status)
 {
     mepa_ts_fifo_sig_t mep_sig;
     mepa_timestamp_t ts;
@@ -1520,7 +1525,7 @@ static void vtss_phy_ts_fifo_read_cb(const vtss_inst_t              inst,
 
 void vtss_ts_fifo_read_install(struct mepa_device *dev,  mepa_ts_fifo_read_t rd_cb)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
+
     fifo_cb = rd_cb ? rd_cb : fifo_cb; // Only one copy exists for all the vsc phy types
     vtss_phy_ts_fifo_read_install(NULL, vtss_phy_ts_fifo_read_cb, NULL);
 }

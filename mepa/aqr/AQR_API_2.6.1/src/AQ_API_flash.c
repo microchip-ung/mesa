@@ -3183,7 +3183,7 @@ static AQ_Retcode AQ_API_EraseBySectors
   uint32_t preDataSize;
   uint32_t postDataSize;
   uint8_t* preData = NULL;
-  uint8_t* postData;
+  uint8_t* postData = NULL;
   uint32_t actualSize;
   uint32_t sectorEraseAddress;
 
