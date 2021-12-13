@@ -3365,7 +3365,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
             bt_indx = VTSS_BIT((port <= 11) ? port : 12);
             REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_10G(port)) {
-            bt_indx = vtss_port_dev_index(port);
+            bt_indx = VTSS_BIT(vtss_port_dev_index(port));
             REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_25G(port)) {
 #if defined(VTSS_ARCH_SPARX5)
