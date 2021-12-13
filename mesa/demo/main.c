@@ -383,7 +383,7 @@ static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_
     int    fd;
     char   fname[128];
     size_t n;
-    return MESA_RC_ERROR; // to be fixed
+
     sprintf(fname, "/proc/device-tree/meba/%s", tag);
     if ((fd = open(fname, O_RDONLY)) < 0) {
         T_D("dt tag %s not found", fname);
@@ -509,7 +509,7 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     } else if (LOOP_PORT >= 0 && strcmp(tag, "mep_loop_port") == 0) {
         len = snprintf(buf, bufsize, "%u", LOOP_PORT); // The loop port is internal port LOOP_PORT
     } else if (strcmp(tag, "pcb") == 0 && type != PCB_TYPE_NONE) {
-        len = snprintf(buf, bufsize, "pcb%u", type);
+        len = snprintf(buf, bufsize, "%u", type);
     } else if (strcmp(tag, "pcb_var") == 0 && board_port_cnt < 1000) {
         len = snprintf(buf, bufsize, "%u", board_port_cnt);
     }

@@ -2127,7 +2127,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
         inst->props.target = (mesa_target_type_t) i;
     }
     // Get the board pcb type (134/135/Sunrise/..) from the application
-    if (meba_conf_get_hex(inst, "type", &pcb) != MESA_RC_OK) {
+    if (meba_conf_get_hex(inst, "pcb", &pcb) != MESA_RC_OK) {
         fprintf(stderr, "Could not read pcb type\n");
         goto error_out;
     }
@@ -2147,7 +2147,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     // Assign the board type to the board name
     // as we do not have a separate variable to store the board name.
     strncpy(inst->props.name, buf, sizeof(inst->props.name));
-    if (strstr(buf, "pcb134")) {
+    if (strstr(buf, "134")) {
         board->type = BOARD_TYPE_SPARX5_PCB134;
         // Default port count, in case it cannot be read out
         // in the next step
@@ -2168,7 +2168,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
             board->port_cnt = 21;
         }
 
-    } else if (strstr(buf, "pcb135")) {
+    } else if (strstr(buf, "135")) {
         board->type = BOARD_TYPE_SPARX5_PCB135;
         // Default port count, in case it cannot be read out
         // in the next step
