@@ -52,9 +52,7 @@ typedef struct {
     BOOL vcap_super;          /* VCAP_SUPER */
     u16  sw_count;            /* Subword count */
     u16  entry_count;         /* Row count */
-    u16  entry_width;         /* Entry width */
     u16  action_count;        /* Action count */
-    u16  action_width;        /* Action width */
 } fa_vcap_props_t;
 
 typedef enum {
@@ -67,13 +65,15 @@ typedef enum {
 #define FA_BITS_TO_WORDS(x) (((x)+31)/32)
 
 /* CLM: One default action per lookup (6) per port (70)
-   IS2: One default action per port (70) in first lookup
-   IS2: One default action for second/third/fourth lookup
+   IS2: One default action per port (70) in first lookup (0-69)
+   IS2: One default action for second lookup (70) and two unused (71-72)
+   IS2: One default action per port (70) in third lookup (73-142)
+   IS2: One default action for fourth lookup (143) and two unused (144-145)
    LPM: No default action */
 #define FA_VCAP_SUPER_SW_COUNT     12
-#define FA_VCAP_SUPER_BLK_COUNT    10
+#define FA_VCAP_SUPER_BLK_COUNT    VTSS_VCAP_SUPER_BLK_CNT
 #define FA_VCAP_SUPER_ENTRY_COUNT  (FA_VCAP_SUPER_BLK_COUNT * VTSS_VCAP_SUPER_ROW_CNT)
-#define FA_VCAP_SUPER_ACTION_COUNT (FA_VCAP_SUPER_ENTRY_COUNT + 7*VTSS_CHIP_PORTS_ALL + 3)
+#define FA_VCAP_SUPER_ACTION_COUNT (FA_VCAP_SUPER_ENTRY_COUNT + 8*VTSS_CHIP_PORTS_ALL + 6)
 
 #define FA_VCAP_SUPER_CLM_A_ACTION_BASE FA_VCAP_SUPER_ENTRY_COUNT
 #define FA_VCAP_SUPER_CLM_B_ACTION_BASE (FA_VCAP_SUPER_CLM_A_ACTION_BASE + 2*VTSS_CHIP_PORTS_ALL)
@@ -89,36 +89,28 @@ static const fa_vcap_props_t fa_vcap_info[] = {
         .vcap_super = TRUE,
         .sw_count = FA_VCAP_SUPER_SW_COUNT,
         .entry_count = FA_VCAP_SUPER_ENTRY_COUNT,
-        .entry_width = 52,
         .action_count = FA_VCAP_SUPER_ACTION_COUNT,
-        .action_width = 110,
     },
     [FA_VCAP_ES0] = {
         .name = "VCAP_ES0",
         .vcap_super = FALSE,
         .sw_count = 1,
         .entry_count = VTSS_FA_ES0_CNT,
-        .entry_width = 51,
         .action_count = (VTSS_FA_ES0_CNT + VTSS_CHIP_PORTS),
-        .action_width = 489,
     },
     [FA_VCAP_ES2] = {
         .name = "VCAP_ES2",
         .vcap_super = FALSE,
         .sw_count = FA_VCAP_SUPER_SW_COUNT,
         .entry_count = FA_ES2_CNT,
-        .entry_width = 52,
         .action_count = (FA_ES2_CNT + 74),
-        .action_width = 21,
     },
     [FA_VCAP_IP6PFX] = {
         .name = "VCAP_IP6PFX",
         .vcap_super = FALSE,
         .sw_count = 2,
         .entry_count = FA_IP6PFX_CNT,
-        .entry_width = 52,
         .action_count = FA_IP6PFX_CNT,
-        .action_width = 10,
     }
 };
 
@@ -459,6 +451,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
     const fa_vcap_type_props_t *props;
     u32                        addr, i, j, count, tg, tgw, w, value, mask, cnt;
     u32                        action_offs = 0, entry_offs = 0, addr_count;
+    u32                        action_width = 0, entry_width = 0;
     vtss_fa_vcap_reg_info_t    info;
 
     if (bank == FA_VCAP_TYPE_NONE) {
@@ -483,7 +476,10 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
 
         /* Entry */
         if (sel & FA_VCAP_SEL_ENTRY) {
-            count = FA_BITS_TO_WORDS(props->props->entry_width);
+            if (entry_width == 0) {
+                REG_RD(info.entry_width, &entry_width);
+            }
+            count = FA_BITS_TO_WORDS(entry_width);
             for (j = 0; j < count; j++) {
                 info.ndx = j;
                 VTSS_RC(fa_vcap_reg_info_get(&info));
@@ -530,7 +526,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
                     tgw = (tgw < 2 ? 0 : tgw - 2);
                     tg = (tg >> 2);
                 }
-                w = (props->props->entry_width % 32);
+                w = (entry_width % 32);
                 w = ((j == (count - 1) && w != 0 ? w : 32) - tgw);
                 if (cmd == FA_VCAP_CMD_READ) {
                     /* Read from entry cache */
@@ -554,7 +550,10 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
 
         /* Action */
         if ((sel & FA_VCAP_SEL_ACTION) && (i == 0 || i < fa_vcap_tg_count(data->type))) {
-            count = FA_BITS_TO_WORDS(props->props->action_width);
+            if (action_width == 0) {
+                REG_RD(info.action_width, &action_width);
+            }
+            count = FA_BITS_TO_WORDS(action_width);
             for (j = 0; j < count; j++) {
                 info.ndx = j;
                 VTSS_RC(fa_vcap_reg_info_get(&info));
@@ -590,7 +589,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
                         tg = (tg >> 1);
                     }
                 }
-                w = (props->props->action_width % 32);
+                w = (action_width % 32);
                 w = ((j == (count - 1) && w != 0 ? w : 32) - tgw);
                 if (cmd == FA_VCAP_CMD_READ) {
                     /* Read from action cache */
@@ -2187,6 +2186,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_BITS(CLM, "tcp", NORMAL_7TUPLE_TCP);
         FA_DEBUG_BITS(CLM, "l4_sport", NORMAL_7TUPLE_L4_SPORT);
         FA_DEBUG_BITS(CLM, "l4_rng", NORMAL_7TUPLE_L4_RNG);
+        pr("\n");
         break;
 
     default:
@@ -2433,7 +2433,11 @@ vtss_rc vtss_fa_debug_lpm(vtss_state_t *vtss_state,
 #define FA_RLEG_STAT_ERACL 1
 
 /* The first counters are used for port default actions. For convenience, ACE counters start from 100 */
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define FA_ACE_CNT_ID_BASE 10
+#else
 #define FA_ACE_CNT_ID_BASE 100
+#endif
 #define FA_ACE_CNT_ID_IPMC (FA_ACE_CNT_ID_BASE - 1)
 #define FA_ACE_CNT_ID_DEF  (FA_ACE_CNT_ID_BASE - 4)
 

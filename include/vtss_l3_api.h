@@ -148,12 +148,25 @@
 
 // SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits each).
 // This means that a single block will give us 256*12 = 3072 entries.
-#define VTSS_RLEG_CNT    127  /**< Length of RLEG table */
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_RLEG_CNT    128  /**< Length of RLEG table */
 #define VTSS_LPM_CNT     3072 /**< Length of LPM table */
 #define VTSS_ARP_CNT     2048 /**< Length of ARP table */
 #define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
 #define VTSS_MC_TBL_CNT  2048 /**< Length of MC RLEG bit-mask table */
-
+#elif defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_RLEG_CNT    15   /**< Length of RLEG table */
+#define VTSS_LPM_CNT     48   /**< Length of LPM table */
+#define VTSS_ARP_CNT     64   /**< Length of ARP table */
+#define VTSS_LPM_MC_CNT  24   /**< Length of LPM table for multicast entries */
+#define VTSS_MC_TBL_CNT  32   /**< Length of MC RLEG bit-mask table */
+#else
+#define VTSS_RLEG_CNT    127  /**< Length of RLEG table */
+#define VTSS_LPM_CNT     3072 /**< Length of LPM table */
+#define VTSS_ARP_CNT     1024 /**< Length of ARP table */
+#define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
+#define VTSS_MC_TBL_CNT  1024 /**< Length of MC RLEG bit-mask table */
+#endif
 // A IPv4 unicast address occupies 1 entry in the LPM VCAP while
 // IPv6 unicast address occupies 2 entries.
 // I.e. the max number of IP UC entries:

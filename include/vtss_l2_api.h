@@ -58,6 +58,8 @@ extern "C" {
 #define VTSS_MAC_ADDRS     128    /**< Number of MAC addresses */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_MAC_ADDRS     32768  /**< Number of MAC addresses */
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_MAC_ADDRS     16384  /**< Number of MAC addresses */
 #else
 #define VTSS_MAC_ADDRS     8192   /**< Number of MAC addresses */
 #endif

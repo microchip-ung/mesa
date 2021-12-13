@@ -37,7 +37,6 @@
 
 #include "vtss_fa.h"
 #include "vtss_fa_reg.h"
-#include "vtss_fa_vcap.h"
 
 // Port 0-(VTSS_CHIP_PORTS-1) are switch ports, others are internal ports
 #if defined(VTSS_ARCH_SPARX5)

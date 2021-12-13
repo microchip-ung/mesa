@@ -239,6 +239,10 @@
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
+#if defined(VTSS_ARCH_LAN969X)
+//#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
+#endif
+
 #if defined(VTSS_ARCH_S5I)
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */

@@ -1670,7 +1670,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
     }
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
         /* Jaguar-2 consumes full row */
         key->key_type = VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR;

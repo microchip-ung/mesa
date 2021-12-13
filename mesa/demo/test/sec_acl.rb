@@ -700,12 +700,12 @@ test_table.each do |t|
             next
         end
     end
-    if (epid == 11)
-        # FireAnt limitations
+    if (epid == 11 or epid == 14)
+        # FireAnt/Laguna limitations
         if (v.key?:sip_eq_dip or v.key?:sport_eq_dport or v.key?:seq_zero)
             next
         end
-        end
+    end
     if (ipv4 or ipv6)
         if (acl_ext_mac == 0 and (v.key?:dmac or v.key?:smac))
             # IP/MAC filtering not supported

@@ -10,13 +10,16 @@
 #if defined(VTSS_ARCH_SPARX5)
 #include "vtss_fa_regs.h"
 #include "vtss_fa_kernel_regs.h"
+#include "vtss_fa_vcap.h"
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #include "fpga/vtss_laguna_regs.h"
+#include "fpga/vtss_laguna_vcap.h"
 #else
 #include "laguna/vtss_laguna_regs.h"
+#include "laguna/vtss_laguna_vcap.h"
 #endif
 #endif
 

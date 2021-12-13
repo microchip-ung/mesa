@@ -10,7 +10,10 @@
 /* - FRER compound streams ----------------------------------------- */
 
 // Number of member streams and compound streams */
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN969X)
+#define VTSS_MSTREAM_CNT 256
+#define VTSS_CSTREAM_CNT 128
+#elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_MSTREAM_CNT 512
 #define VTSS_CSTREAM_CNT 256
 #else
@@ -236,7 +239,9 @@ vtss_rc vtss_psfp_gate_status_get(const vtss_inst_t         inst,
 typedef u16 vtss_psfp_filter_id_t;
 
 // Number of PSFP filters */
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_PSFP_FILTER_CNT 31
+#elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_PSFP_FILTER_CNT 256
 #else
 #define VTSS_PSFP_FILTER_CNT 1023
