@@ -32,7 +32,7 @@ extern vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *val);
 vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 val, u32 mask);
 void vtss_lan966x_reg_error(const char *file, int line);
 
-inline u32 vtss_lan966x_target_id_to_addr(int target_id)
+static inline u32 vtss_lan966x_target_id_to_addr(int target_id)
 {
     switch (target_id) {
     case TARGET_AFI:        return LAN966X_TARGET_AFI_OFFSET;
@@ -66,9 +66,10 @@ inline u32 vtss_lan966x_target_id_to_addr(int target_id)
     default: return 0xffffffff;
     }
 }
-inline u32 __ioreg(const char *file, int line, int tbaseid, int tinst, int tcnt,
-                   int gbase, int ginst, int gcnt, int gwidth,
-                   int raddr, int rinst, int rcnt, int rwidth)
+static inline u32 __ioreg(const char *file, int line,
+                          int tbaseid, int tinst, int tcnt,
+                          int gbase, int ginst, int gcnt, int gwidth,
+                          int raddr, int rinst, int rcnt, int rwidth)
 {
     u32 addr = vtss_lan966x_target_id_to_addr(tbaseid + tinst);
     if (addr == 0xffffffff || tinst >= tcnt ||
