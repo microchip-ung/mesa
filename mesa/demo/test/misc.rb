@@ -251,3 +251,42 @@ test "acl-cpu-queue" do
     $ts.dut.run("mesa-cmd packet forward #{queue} #{$ts.dut.p[idx_rx] + 1}")
     run_ef_tx_rx_cmd($ts, idx_tx, [idx_rx], "eth")
 end
+
+test "dlb-policer" do
+    break
+    idx = 0
+
+    # Ingress counters
+    istat = $ts.dut.call("mesa_ingress_cnt_alloc", 1)
+
+    # DLB policer
+    pol = $ts.dut.call("mesa_dlb_policer_alloc", 1)
+    conf = $ts.dut.call("mesa_dlb_policer_conf_get", pol, 0)
+    conf["enable"] = true
+    conf["cir"] = 100  # Current minimum rate in DLB API
+    conf["cbs"] = 1024 # Room for one frame
+    $ts.dut.call("mesa_dlb_policer_conf_set", pol, 0, conf)
+
+    # Ingress flow
+    iflow = $ts.dut.call("mesa_iflow_alloc")
+    conf = $ts.dut.call("mesa_iflow_conf_get", iflow)
+    conf["cnt_enable"] = true
+    conf["cnt_id"] = istat
+    conf["dlb_enable"] = true
+    conf["dlb_id"] = pol
+    $ts.dut.call("mesa_iflow_conf_set", iflow, conf)
+
+    # VCE
+    port = $ts.dut.p[idx]
+    vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ANY")
+    vce["id"] = 1
+    vce["key"]["port_list"] = "#{port}"
+    action = vce["action"]
+    action["flow_id"] = iflow
+    $ts.dut.call("mesa_vce_add", 0, vce)
+
+    # Frame Tx
+    len = 1024
+    $ts.pc.run("sudo ef name f1 eth et 0xaaaa data pattern cnt #{len - 18} tx #{$ts.pc.p[idx]} rep 10 name f1")
+    $ts.dut.run("mesa-cmd port stati pac")
+end
