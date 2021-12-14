@@ -37,6 +37,8 @@
 #include "vtss_laguna_regs_vcap_super.h"
 #include "vtss_laguna_regs_vop.h"
 #include "vtss_laguna_regs_vop_l3.h"
+#include "vtss_laguna_regs_vop_mrp.h"
+#include "vtss_laguna_regs_vop_dlr.h"
 #include "vtss_laguna_regs_vop_mpls.h"
 #include "vtss_laguna_regs_xqs.h"
 

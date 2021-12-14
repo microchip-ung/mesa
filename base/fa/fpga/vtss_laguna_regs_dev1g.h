@@ -1261,6 +1261,18 @@
 #define  VTSS_M_DEV1G_MAC_MODE_CFG_FDX_ENA    VTSS_BIT(0)
 #define  VTSS_X_DEV1G_MAC_MODE_CFG_FDX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
+/**
+ * \brief
+ * GMII data is feeded directly into receive buffers and appended a FCS
+ * afer original datad.
+ *
+ * \details
+ * Field: ::VTSS_DEV1G_MAC_MODE_CFG . RX_RAW_ENA
+ */
+#define  VTSS_F_DEV1G_MAC_MODE_CFG_RX_RAW_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_DEV1G_MAC_MODE_CFG_RX_RAW_ENA  VTSS_BIT(1)
+#define  VTSS_X_DEV1G_MAC_MODE_CFG_RX_RAW_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
 
 /**
  * \brief Max Length Configuration Register

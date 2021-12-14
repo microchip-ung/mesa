@@ -77,6 +77,8 @@
 #define VTSS_TO_VCAP_SUPER      VTSS_IO_OFFSET1(0x00080000) /*!< Base offset for target VCAP_SUPER */
 #define VTSS_TO_VOP             VTSS_IO_OFFSET1(0x00a00000) /*!< Base offset for target VOP */
 #define VTSS_TO_VOP_L3          VTSS_IO_OFFSET1(0x00b00000) /*!< Base offset for target VOP_L3 */
+#define VTSS_TO_VOP_MRP         VTSS_IO_OFFSET1(0x00700000) /*!< Base offset for target VOP_MRP */
+#define VTSS_TO_VOP_DLR         VTSS_IO_OFFSET1(0x00780000) /*!< Base offset for target VOP_DLR */
 #define VTSS_TO_VOP_MPLS        VTSS_IO_OFFSET1(0x00680000) /*!< Base offset for target VOP_MPLS */
 #define VTSS_TO_XQS             VTSS_IO_OFFSET1(0x000c0000) /*!< Base offset for target XQS */
 

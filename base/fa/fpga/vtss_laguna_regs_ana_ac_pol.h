@@ -536,6 +536,21 @@
 
 /**
  * \brief
+ * Police on EoF for all frames.When set, the following information is not
+ * updated until it is known - at EoF - whether frame has been dropped by
+ * Stream Gates or TSN_MAX_SDU:- LB state.- Policing sticky bits.- Policing
+ * statistics.Related
+ * parameters:ANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_POL_ON_EOF
+ *
+ * \details
+ * Field: ::VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG . POL_ON_EOF
+ */
+#define  VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_POL_ON_EOF(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_POL_ON_EOF  VTSS_BIT(15)
+#define  VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_POL_ON_EOF(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+
+/**
+ * \brief
  * Enables overall signaling of flow control from the port policers to DSM.
  * Flow control is enabled for each port policer in
  * POL_PORT_FC_CFG.FC_ENA.Related
@@ -1152,8 +1167,8 @@
 
 /**
  * \brief
- * Set if frame has been dropped by a BUM policer.One bit per BUM
- * policer.Bit is cleared by writing a 1 to this position.
+ * Set if frame has been dropped by a BUM policer.Bit is cleared by writing
+ * a 1 to this position.
  *
  * \details
  * 0: No event has occurred

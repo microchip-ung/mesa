@@ -2085,6 +2085,218 @@
 #define  VTSS_M_VOP_COMMON_MEP_MC_MAC_MSB_MEP_MC_MAC_MSB     VTSS_ENCODE_BITMASK(0,16)
 #define  VTSS_X_VOP_COMMON_MEP_MC_MAC_MSB_MEP_MC_MAC_MSB(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
 
+
+/**
+ * \brief Configuration for CPU-copied MRP frames
+ *
+ * \details
+ * Register: \a VOP:COMMON:CPU_EXTR_MRP
+ */
+#define VTSS_VOP_CPU_EXTR_MRP                VTSS_IOREG(VTSS_TO_VOP,0xb88)
+
+/**
+ * \brief
+ * CPU queue used by MRP_Test frames with MRP_SA from remote MRM or by
+ * MRP_InTest frames with MRP_SA from remote MIM.Related paramenters:-
+ * OAM_MEP:MRP:TST_FWD_CTRL.REM_FWD_SEL-
+ * OAM_MEP:MRP:ITST_FWD_CTRL.ITST_REM_FWD_SEL.
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . REM_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_REM_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,18,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_REM_CPU_QU     VTSS_ENCODE_BITMASK(18,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_REM_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,18,3)
+
+/**
+ * \brief
+ * CPU queue used by MRP_Test or MRP_InTest frames with MRP_SA from
+ * itself.Related paramenters:- OAM_MEP:MRP:TST_FWD_CTRL.OWN_FWD_SEL-
+ * OAM_MEP:MRP:ITST_FWD_CTRL.ITST_OWN_FWD_SEL.
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . OWN_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_OWN_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,15,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_OWN_CPU_QU     VTSS_ENCODE_BITMASK(15,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_OWN_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,15,3)
+
+/**
+ * \brief
+ * CPU queue used by OAM_MEP:MRP:MRP_FWD_CTRL.OTHER_FWD_SEL.
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . MRP_OTHER_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,12,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU     VTSS_ENCODE_BITMASK(12,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,12,3)
+
+/**
+ * \brief
+ * CPU queue used by frames with MC_TEST MAC address.Related paramenters:-
+ * OAM_MEP:MRP:MRP_FWD_CTRL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . MRP_TST_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,9,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU     VTSS_ENCODE_BITMASK(9,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,9,3)
+
+/**
+ * \brief
+ * CPU queue used by frames with MC_CONTROL MAC address.Related
+ * paramenters:- OAM_MEP:MRP:MRP_FWD_CTRL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . MRP_CTRL_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,6,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU     VTSS_ENCODE_BITMASK(6,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,6,3)
+
+/**
+ * \brief
+ * CPU queue used by frames with MC_INTEST MAC address.Related
+ * paramenters:- OAM_MEP:MRP:MRP_FWD_CTRL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . MRP_ITST_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,3,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU     VTSS_ENCODE_BITMASK(3,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,3,3)
+
+/**
+ * \brief
+ * CPU queue used by frames with MC_INCONTROL MAC address.Related
+ * paramenters:- OAM_MEP:MRP:MRP_FWD_CTRL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_MRP . MRP_ICTRL_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
+ * \brief Configuration for CPU-copied DLR frames
+ *
+ * \details
+ * Register: \a VOP:COMMON:CPU_EXTR_DLR
+ */
+#define VTSS_VOP_CPU_EXTR_DLR                VTSS_IOREG(VTSS_TO_VOP,0xb89)
+
+/**
+ * \brief
+ * CPU queue used by Beacon/Advertise frames from new ring
+ * surpervisor/gateway.Related paramenters:-
+ * OAM_MEP:DLR:BCN_FWD_CTRL.HI_PRIO_FWD_SEL-
+ * OAM_MEP:DLR:BCN_FWD_CTRL.LO_PRIO_FWD_SEL-
+ * OAM_MEP:DLR:ADV_FWD_CTRL.GW_HI_PRIO_FWD_SEL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_DLR . NEW_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_DLR_NEW_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,12,3)
+#define  VTSS_M_VOP_CPU_EXTR_DLR_NEW_CPU_QU     VTSS_ENCODE_BITMASK(12,3)
+#define  VTSS_X_VOP_CPU_EXTR_DLR_NEW_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,12,3)
+
+/**
+ * \brief
+ * CPU queue used by Beacon/Advertise frames from active ring
+ * surpervisor/gateway.Related paramenters:-
+ * OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FWD_SEL-
+ * OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FAULT_FWD_SEL-
+ * OAM_MEP:DLR:ADV_FWD_CTRL.GW_FWD_SEL
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_DLR . ACT_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_DLR_ACT_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,9,3)
+#define  VTSS_M_VOP_CPU_EXTR_DLR_ACT_CPU_QU     VTSS_ENCODE_BITMASK(9,3)
+#define  VTSS_X_VOP_CPU_EXTR_DLR_ACT_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,9,3)
+
+/**
+ * \brief
+ * CPU queue used by OAM_MEP:DLR:DLR_FWD_CTRL.DLR_ADV_FWD_SEL.
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_DLR . DLR_ADV_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_DLR_DLR_ADV_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,6,3)
+#define  VTSS_M_VOP_CPU_EXTR_DLR_DLR_ADV_CPU_QU     VTSS_ENCODE_BITMASK(6,3)
+#define  VTSS_X_VOP_CPU_EXTR_DLR_DLR_ADV_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,6,3)
+
+/**
+ * \brief
+ * CPU queue used by OAM_MEP:DLR:DLR_FWD_CTRL.DLR_BCN_FWD_SEL.
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_DLR . DLR_BCN_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_DLR_DLR_BCN_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,3,3)
+#define  VTSS_M_VOP_CPU_EXTR_DLR_DLR_BCN_CPU_QU     VTSS_ENCODE_BITMASK(3,3)
+#define  VTSS_X_VOP_CPU_EXTR_DLR_DLR_BCN_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,3,3)
+
+/**
+ * \brief
+ * CPU queue used by OAM_MEP:DLR:DLR_FWD_CTRL for non-Beacon and
+ * non-Advertise DLR frames
+ *
+ * \details
+ * Field: ::VTSS_VOP_CPU_EXTR_DLR . DLR_OTHER_CPU_QU
+ */
+#define  VTSS_F_VOP_CPU_EXTR_DLR_DLR_OTHER_CPU_QU(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_VOP_CPU_EXTR_DLR_DLR_OTHER_CPU_QU     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_VOP_CPU_EXTR_DLR_DLR_OTHER_CPU_QU(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
+ * \brief Configuration of MRP time stamp granularity
+ *
+ * \details
+ * Configuration of MRP time stamp granularity.
+ *
+ * Register: \a VOP:COMMON:TICK_CFG
+ */
+#define VTSS_VOP_TICK_CFG                    VTSS_IOREG(VTSS_TO_VOP,0xb8a)
+
+/**
+ * \brief
+ * Base tick count to 1ms.
+ *
+ * \details
+ * Field: ::VTSS_VOP_TICK_CFG . TICK_CNT
+ */
+#define  VTSS_F_VOP_TICK_CFG_TICK_CNT(x)      VTSS_ENCODE_BITFIELD(x,0,19)
+#define  VTSS_M_VOP_TICK_CFG_TICK_CNT         VTSS_ENCODE_BITMASK(0,19)
+#define  VTSS_X_VOP_TICK_CFG_TICK_CNT(x)      VTSS_EXTRACT_BITFIELD(x,0,19)
+
+
+/**
+ * \brief Configuration of MRP time stamp
+ *
+ * \details
+ * Configuration of MRP time stamp.
+ *
+ * Register: \a VOP:COMMON:MRP_TS_CFG
+ */
+#define VTSS_VOP_MRP_TS_CFG                  VTSS_IOREG(VTSS_TO_VOP,0xb8b)
+
+/**
+ * \brief
+ * Current time in ms. Value increments every 1 ms.
+ *
+ * \details
+ * Field: ::VTSS_VOP_MRP_TS_CFG . MRP_TS
+ */
+#define  VTSS_F_VOP_MRP_TS_CFG_MRP_TS(x)      (x)
+#define  VTSS_M_VOP_MRP_TS_CFG_MRP_TS         0xffffffff
+#define  VTSS_X_VOP_MRP_TS_CFG_MRP_TS(x)      (x)
+
 /**
  * Register Group: \a VOP:VOE_CONF_REG
  *
@@ -2108,15 +2320,16 @@
  * \brief
  * Enables VOE functionality.When the VOE is not enabled, it will not do
  * any OAM processing or update statistics.The VOE will process either
- * Y.1731, MPLS, or L3 OAM PDUs depending on the configuration of this
- * register.The VOE can be configured while not enabled.
+ * Y.1731, MPLS, L3 OAM PDUs, MRP PDUs or DLR PDUs depending on the
+ * configuration of this register.The VOE can be configured while not
+ * enabled.
  *
  * \details
  * Field: ::VTSS_VOP_VOE_MISC_CONFIG . VOE_ENA
  */
-#define  VTSS_F_VOP_VOE_MISC_CONFIG_VOE_ENA(x)  VTSS_ENCODE_BITFIELD(x,4,2)
-#define  VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA     VTSS_ENCODE_BITMASK(4,2)
-#define  VTSS_X_VOP_VOE_MISC_CONFIG_VOE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
+#define  VTSS_F_VOP_VOE_MISC_CONFIG_VOE_ENA(x)  VTSS_ENCODE_BITFIELD(x,4,3)
+#define  VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA     VTSS_ENCODE_BITMASK(4,3)
+#define  VTSS_X_VOP_VOE_MISC_CONFIG_VOE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,3)
 
 /**
  * \brief
@@ -9713,11 +9926,204 @@
  * \brief Context data
  *
  * \details
+ * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_MRP_DELTA_TS_ANA
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
+ */
+#define VTSS_VOP_CT_OAM_MRP_DELTA_TS_ANA(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,7)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_DELTA_TS_ANA . CT_DELTA_TS_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_DELTA_TS_ANA_CT_DELTA_TS_ANA(x)  (x)
+#define  VTSS_M_VOP_CT_OAM_MRP_DELTA_TS_ANA_CT_DELTA_TS_ANA     0xffffffff
+#define  VTSS_X_VOP_CT_OAM_MRP_DELTA_TS_ANA_CT_DELTA_TS_ANA(x)  (x)
+
+
+/**
+ * \brief Context for MRP OAM PDUs.
+ *
+ * \details
+ * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_MRP_SEQ_ANA
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
+ */
+#define VTSS_VOP_CT_OAM_MRP_SEQ_ANA(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,8)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_SEQ_ANA . CT_BEST_PRIO_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_SEQ_ANA_CT_BEST_PRIO_ANA(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_VOP_CT_OAM_MRP_SEQ_ANA_CT_BEST_PRIO_ANA     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_VOP_CT_OAM_MRP_SEQ_ANA_CT_BEST_PRIO_ANA(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_SEQ_ANA . CT_RX_SEQ_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_SEQ_ANA_CT_RX_SEQ_ANA(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_VOP_CT_OAM_MRP_SEQ_ANA_CT_RX_SEQ_ANA     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_VOP_CT_OAM_MRP_SEQ_ANA_CT_RX_SEQ_ANA(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+
+/**
+ * \brief Context for MRP OAM PDUs.
+ *
+ * \details
+ * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_MRP_INFO_ANA
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
+ */
+#define VTSS_VOP_CT_OAM_MRP_INFO_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,9)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_STORE_PRIO_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_STORE_PRIO_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_STORE_PRIO_ANA  VTSS_BIT(16)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_STORE_PRIO_ANA(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_TST_RX_SEQ_CHK_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_CHK_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_CHK_ANA  VTSS_BIT(15)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_CHK_ANA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_ITST_RX_SEQ_CHK_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_CHK_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_CHK_ANA  VTSS_BIT(14)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_CHK_ANA(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_TST_RX_SEQ_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_UPD_ANA  VTSS_BIT(13)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_SEQ_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,13,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_ITST_RX_SEQ_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_UPD_ANA  VTSS_BIT(12)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_SEQ_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_CLR_ITST_MISS_CNT_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_ITST_MISS_CNT_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_ITST_MISS_CNT_ANA  VTSS_BIT(11)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_ITST_MISS_CNT_ANA(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_CLR_MISS_CNT_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_MISS_CNT_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_MISS_CNT_ANA  VTSS_BIT(10)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_CLR_MISS_CNT_ANA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_VERSION_ERR_STICKY_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_VERSION_ERR_STICKY_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_VERSION_ERR_STICKY_ANA  VTSS_BIT(9)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_VERSION_ERR_STICKY_ANA(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_DMAC_ERR_STICKY_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_DMAC_ERR_STICKY_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_DMAC_ERR_STICKY_ANA  VTSS_BIT(8)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_DMAC_ERR_STICKY_ANA(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_MRP_RX_PROC_STICKY_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_PROC_STICKY_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_PROC_STICKY_ANA  VTSS_BIT(7)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_PROC_STICKY_ANA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_MRP_RX_STICKY_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_STICKY_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_STICKY_ANA  VTSS_BIT(6)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_MRP_RX_STICKY_ANA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_ITST_NXT_LOC_CPU_HITME_ONCE_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_NXT_LOC_CPU_HITME_ONCE_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_NXT_LOC_CPU_HITME_ONCE_ANA  VTSS_BIT(5)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_NXT_LOC_CPU_HITME_ONCE_ANA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_NXT_LOC_CPU_HITME_ONCE_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_NXT_LOC_CPU_HITME_ONCE_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_NXT_LOC_CPU_HITME_ONCE_ANA  VTSS_BIT(4)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_NXT_LOC_CPU_HITME_ONCE_ANA(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_ITST_RX_LOC_CNT_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_LOC_CNT_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_LOC_CNT_UPD_ANA  VTSS_BIT(3)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_LOC_CNT_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_ITST_RX_CNT_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_CNT_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_CNT_UPD_ANA  VTSS_BIT(2)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_ITST_RX_CNT_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_TST_RX_LOC_CNT_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_LOC_CNT_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_LOC_CNT_UPD_ANA  VTSS_BIT(1)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_LOC_CNT_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_ANA . CT_TST_RX_CNT_UPD_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_CNT_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_CNT_UPD_ANA  VTSS_BIT(0)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_ANA_CT_TST_RX_CNT_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Context data
+ *
+ * \details
  * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_DATA_ANA
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_DATA_ANA(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,7)
+#define VTSS_VOP_CT_OAM_DATA_ANA(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,10)
 
 /**
  * \details
@@ -9736,7 +10142,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_DATA1_ANA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,8)
+#define VTSS_VOP_CT_OAM_DATA1_ANA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,11)
 
 /**
  * \details
@@ -10300,6 +10706,25 @@
 
 
 /**
+ * \brief Context for MRP OAM PDUs.
+ *
+ * \details
+ * Register: \a VOP:VOE_CONTEXT_REW:CT_OAM_MRP_INFO_REW
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
+ */
+#define VTSS_VOP_CT_OAM_MRP_INFO_REW(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,7)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_REW . CT_FRM_TYPE_REW
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
  * \brief Context data
  *
  * \details
@@ -10307,7 +10732,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
  */
-#define VTSS_VOP_CT_OAM_DATA_REW(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,7)
+#define VTSS_VOP_CT_OAM_DATA_REW(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,8)
 
 /**
  * \details
@@ -10326,7 +10751,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
  */
-#define VTSS_VOP_CT_OAM_DATA1_REW(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,8)
+#define VTSS_VOP_CT_OAM_DATA1_REW(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,9)
 
 /**
  * \details

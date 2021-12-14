@@ -2177,6 +2177,32 @@
 
 /**
  * \brief
+ * Control whether frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 are included in bit 9
+ * ofANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_EVENT_MASK.GLOBAL_EVENT_MASKIn
+ * stead of including frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 in event# 9, it is also possible to
+ * generate a separate counter for frames passing TSN_MAX_SDU filter, but
+ * discarded due to StreamBlockedDueToOversizeFrame=1. Such frames are
+ * signaled using event# 10.Related
+ * parameters:ANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_EVENT_MASK.GLOBAL_EVE
+ * NT_MASKANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_MAX_SDUANA_AC:TSN_SF_CFG:TSN_SF_
+ * CFG.TSN_STREAM_BLOCK_OVERSIZE_ENA
+ *
+ * \details
+ * 0: Do not include frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 in GLOBAL_EVENT_MASK[9].
+ * 1: Include frames discarded due to StreamBlockedDueToOversizeFrame=1 in
+ * GLOBAL_EVENT_MASK[9].
+ *
+ * Field: ::VTSS_ANA_AC_TSN_SF_TSN_SF . MAX_SDU_CNT_INCL_BLOCKED
+ */
+#define  VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED  VTSS_BIT(10)
+#define  VTSS_X_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
  * TSN_STREAM_BLOCK_OVERSIZE_STATE has been set to 1 for one or more
  * streams.To determine which streams have triggered this sticky bit,
  * TSN_STREAM_BLOCK_OVERSIZE_STATE in ANA_AC:TSN_SF_CFG must be
@@ -2229,6 +2255,29 @@
 
 /**
  * \brief
+ * Determine whether policers shall update LB state, statistics and sticky
+ * bits on SoF or EoF.Doing policing updates on EoF is necessary to ensure
+ * that policing conceptually takes place after any frame drop decision of
+ * Stream Gates (if configured) or TSN_MAX_SDU has been applied.When set,
+ * the following information is not updated until it is known - at EoF -
+ * whether frame has been dropped by Stream Gates or TSN_MAX_SDU:- LB
+ * state.- Policing statistics.- Policing sticky bits.Related
+ * parameters:ANA_L2:ISDX:TSN_CFG.TSN_SFIDANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_
+ * SGIDANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_MAX_SDUANA_AC_POL:POL_ALL_CFG:POL_A
+ * LL_CFG.POL_ON_EOF
+ *
+ * \details
+ * 0: Do policing updates on SoF.
+ * 1: Do policing updates on EoF.
+ *
+ * Field: ::VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG . TSN_POL_ON_EOF
+ */
+#define  VTSS_F_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_POL_ON_EOF(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_POL_ON_EOF  VTSS_BIT(31)
+#define  VTSS_X_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_POL_ON_EOF(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+/**
+ * \brief
  * Stream Gate ID.Valid range: 0-31If set to 0, no Stream Gate is
  * applied.Related parameters:ANA_AC:SG_ACCESS:SG_ACCESS_CTRL.SGID
  *
@@ -2258,7 +2307,7 @@
  * subsequent frames in this stream will be dropped.Related
  * parameters:ANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_MAX_SDUANA_AC:TSN_SF_CFG:TSN
  * _SF_CFG.TSN_STREAM_BLOCK_OVERSIZE_STATEANA_AC::TSN_SF.TSN_STREAM_BLOCK_O
- * VERSIZE_STICKY
+ * VERSIZE_STICKYANA_AC:TSN_SF:TSN_SF.MAX_SDU_CNT_INCL_BLOCKED
  *
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG . TSN_STREAM_BLOCK_OVERSIZE_ENA
@@ -3104,7 +3153,8 @@
  *  where m is number of per port policers
  *  bit 4+2*m: Count storm policer drop events
  *  bit 4+2*m+1: Count policer drop events
- *  bit 4+2*m+3: Count lbk frame.
+ *  bit 4+2*m+3: Count lbk frame. bit 4+2*m+4: Count PSFP drop events (i.e.
+ * discards due to MaxSDU, Oversize or SG).
  *
  * \details
  * 0: This event will not trigger counting.
@@ -3112,9 +3162,9 @@
  *
  * Field: ::VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK . GLOBAL_EVENT_MASK
  */
-#define  VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_ENCODE_BITFIELD(x,0,17)
+#define  VTSS_M_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK     VTSS_ENCODE_BITMASK(0,17)
+#define  VTSS_X_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_EXTRACT_BITFIELD(x,0,17)
 
 
 /**
@@ -3170,9 +3220,9 @@
  *
  * Field: ::VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY . STICKY_BITS
  */
-#define  VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS(x)  VTSS_ENCODE_BITFIELD(x,0,17)
+#define  VTSS_M_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS     VTSS_ENCODE_BITMASK(0,17)
+#define  VTSS_X_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY_STICKY_BITS(x)  VTSS_EXTRACT_BITFIELD(x,0,17)
 
 
 /**
@@ -3653,7 +3703,7 @@
  * \details
  * Register: \a ANA_AC:STAT_GLOBAL_CFG_ISDX:GLOBAL_CNT_FRM_TYPE_CFG
  *
- * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
+ * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
 #define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5516 + (ri))
 
@@ -3689,9 +3739,9 @@
  *
  * Register: \a ANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_CFG
  *
- * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
+ * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x551c + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x551d + (ri))
 
 /**
  * \brief
@@ -3715,9 +3765,9 @@
  * \details
  * Register: \a ANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_EVENT_MASK
  *
- * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
+ * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5522 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5524 + (ri))
 
 /**
  * \brief
@@ -3753,9 +3803,13 @@
  *  Count frames discarded by Stream Gate.
  *
  *  Bit 9:
- *  Frames discarded by TSN_MAX_SDU filter.
- *  This does not include frames dropped due to
- * StreamBlockedDueToOversizeFrame=1
+ *  Count frames discarded by TSN_MAX_SDU filter.
+ *  MAX_SDU_CNT_INCL_BLOCKED controls whether frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 are included.
+ *
+ *  Bit 10:
+ *  Count frames, which have passed TSN_MAX_SDU filter, but have been
+ * discarded due to StreamBlockedDueToOversizeFrame=1.
  *
  *
  *  Related parameters:
@@ -3763,6 +3817,7 @@
  *  ANA_AC_SDLB:LBSET_TBL:DLB_CFG.DROP_ON_YELLOW_ENA
  *  ANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_MAX_SDU
  *  ANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_STREAM_BLOCK_OVERSIZE_ENA
+ *  ANA_AC:TSN_SF:TSN_SF.MAX_SDU_CNT_INCL_BLOCKED
 
  *
  * \details
@@ -3771,9 +3826,9 @@
  *
  * Field: ::VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK . GLOBAL_EVENT_MASK
  */
-#define  VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_ENCODE_BITFIELD(x,0,10)
-#define  VTSS_M_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK     VTSS_ENCODE_BITMASK(0,10)
-#define  VTSS_X_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
+#define  VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_ENCODE_BITFIELD(x,0,11)
+#define  VTSS_M_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK     VTSS_ENCODE_BITMASK(0,11)
+#define  VTSS_X_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(x)  VTSS_EXTRACT_BITFIELD(x,0,11)
 
 /**
  * Register Group: \a ANA_AC:STAT_CNT_CFG_ISDX
@@ -3789,7 +3844,7 @@
  * Register: \a ANA_AC:STAT_CNT_CFG_ISDX:STAT_LSB_CNT
  *
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
- * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
+ * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
 #define VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_LSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x4a00,gi,16,ri,0)
 
@@ -3814,7 +3869,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
  * @param ri Replicator: x_STAT_CNT_MSB_PER_FLW_ID (??), 0-2
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x4a00,gi,16,ri,6)
+#define VTSS_ANA_AC_STAT_CNT_CFG_ISDX_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x4a00,gi,16,ri,7)
 
 /**
  * \brief
@@ -3850,7 +3905,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5528 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552b + (ri))
 
 /**
  * \brief
@@ -3886,7 +3941,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552a + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552d + (ri))
 
 /**
  * \brief
@@ -3912,7 +3967,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552c + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552f + (ri))
 
 /**
  * \brief
@@ -4015,7 +4070,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x552e + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5531 + (ri))
 
 /**
  * \brief
@@ -4051,7 +4106,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5534 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5537 + (ri))
 
 /**
  * \brief
@@ -4077,7 +4132,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x553a + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x553d + (ri))
 
 /**
  * \brief
@@ -4186,7 +4241,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5540 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5543 + (ri))
 
 /**
  * \brief
@@ -4222,7 +4277,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5548 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x554b + (ri))
 
 /**
  * \brief
@@ -4248,7 +4303,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5550 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5553 + (ri))
 
 /**
  * \brief
@@ -4363,7 +4418,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5558 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x555b + (ri))
 
 /**
  * \brief
@@ -4399,7 +4454,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5560 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5563 + (ri))
 
 /**
  * \brief
@@ -4425,7 +4480,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x5568 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x556b + (ri))
 
 /**
  * \brief

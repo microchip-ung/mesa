@@ -352,15 +352,15 @@ static const vtss_symreg_reg_t regs_within_ANA_AC_STAT_CNT_CFG_QUEUE[] = {
 };
 static const vtss_symreg_reg_t regs_within_ANA_AC_STAT_GLOBAL_CFG_ISDX[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
-    {"GLOBAL_CNT_FRM_TYPE_CFG"              , 0x00000000, 0x00000006, 0x00000001},
-    {"STAT_GLOBAL_CFG"                      , 0x00000006, 0x00000006, 0x00000001},
-    {"STAT_GLOBAL_EVENT_MASK"               , 0x0000000c, 0x00000006, 0x00000001},
+    {"GLOBAL_CNT_FRM_TYPE_CFG"              , 0x00000000, 0x00000007, 0x00000001},
+    {"STAT_GLOBAL_CFG"                      , 0x00000007, 0x00000007, 0x00000001},
+    {"STAT_GLOBAL_EVENT_MASK"               , 0x0000000e, 0x00000007, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_ANA_AC_STAT_CNT_CFG_ISDX[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
-    {"STAT_LSB_CNT"                         , 0x00000000, 0x00000006, 0x00000001},
-    {"STAT_MSB_CNT"                         , 0x00000006, 0x00000003, 0x00000001},
+    {"STAT_LSB_CNT"                         , 0x00000000, 0x00000007, 0x00000001},
+    {"STAT_MSB_CNT"                         , 0x00000007, 0x00000003, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_ANA_AC_STAT_GLOBAL_CFG_BDLB[] = {
@@ -455,15 +455,15 @@ static const vtss_symreg_reggrp_t reggrps_within_ANA_AC[] = {
     {"STAT_CNT_CFG_ACL"                     , 0x00004fe0, 0x00000008, 0x00000004, regs_within_ANA_AC_STAT_CNT_CFG_ACL},
     {"STAT_GLOBAL_CFG_QUEUE"                , 0x00005510, 0x00000001, 0x00000006, regs_within_ANA_AC_STAT_GLOBAL_CFG_QUEUE},
     {"STAT_CNT_CFG_QUEUE"                   , 0x00005000, 0x00000118, 0x00000004, regs_within_ANA_AC_STAT_CNT_CFG_QUEUE},
-    {"STAT_GLOBAL_CFG_ISDX"                 , 0x00005516, 0x00000001, 0x00000012, regs_within_ANA_AC_STAT_GLOBAL_CFG_ISDX},
+    {"STAT_GLOBAL_CFG_ISDX"                 , 0x00005516, 0x00000001, 0x00000015, regs_within_ANA_AC_STAT_GLOBAL_CFG_ISDX},
     {"STAT_CNT_CFG_ISDX"                    , 0x00004a00, 0x00000020, 0x00000010, regs_within_ANA_AC_STAT_CNT_CFG_ISDX},
-    {"STAT_GLOBAL_CFG_BDLB"                 , 0x00005528, 0x00000001, 0x00000006, regs_within_ANA_AC_STAT_GLOBAL_CFG_BDLB},
+    {"STAT_GLOBAL_CFG_BDLB"                 , 0x0000552b, 0x00000001, 0x00000006, regs_within_ANA_AC_STAT_GLOBAL_CFG_BDLB},
     {"STAT_CNT_CFG_BDLB"                    , 0x00004f00, 0x00000010, 0x00000004, regs_within_ANA_AC_STAT_CNT_CFG_BDLB},
-    {"STAT_GLOBAL_CFG_BUM"                  , 0x0000552e, 0x00000001, 0x00000012, regs_within_ANA_AC_STAT_GLOBAL_CFG_BUM},
+    {"STAT_GLOBAL_CFG_BUM"                  , 0x00005531, 0x00000001, 0x00000012, regs_within_ANA_AC_STAT_GLOBAL_CFG_BUM},
     {"STAT_CNT_CFG_BUM"                     , 0x00004900, 0x00000010, 0x00000010, regs_within_ANA_AC_STAT_CNT_CFG_BUM},
-    {"STAT_GLOBAL_CFG_IRLEG"                , 0x00005540, 0x00000001, 0x00000018, regs_within_ANA_AC_STAT_GLOBAL_CFG_IRLEG},
+    {"STAT_GLOBAL_CFG_IRLEG"                , 0x00005543, 0x00000001, 0x00000018, regs_within_ANA_AC_STAT_GLOBAL_CFG_IRLEG},
     {"STAT_CNT_CFG_IRLEG"                   , 0x00005600, 0x00000020, 0x00000010, regs_within_ANA_AC_STAT_CNT_CFG_IRLEG},
-    {"STAT_GLOBAL_CFG_ERLEG"                , 0x00005558, 0x00000001, 0x00000018, regs_within_ANA_AC_STAT_GLOBAL_CFG_ERLEG},
+    {"STAT_GLOBAL_CFG_ERLEG"                , 0x0000555b, 0x00000001, 0x00000018, regs_within_ANA_AC_STAT_GLOBAL_CFG_ERLEG},
     {"STAT_CNT_CFG_ERLEG"                   , 0x00005800, 0x00000020, 0x00000010, regs_within_ANA_AC_STAT_CNT_CFG_ERLEG},
     {NULL, 0, 0, 0, NULL}
 };
@@ -2718,6 +2718,10 @@ static const vtss_symreg_reg_t regs_within_VOP_COMMON[] = {
     {"INTR"                                 , 0x0000003d, 0x00000002, 0x00000001},
     {"COMMON_MEP_MC_MAC_LSB"                , 0x00000060, 0x00000001, 0x00000001},
     {"COMMON_MEP_MC_MAC_MSB"                , 0x00000061, 0x00000001, 0x00000001},
+    {"CPU_EXTR_MRP"                         , 0x00000062, 0x00000001, 0x00000001},
+    {"CPU_EXTR_DLR"                         , 0x00000063, 0x00000001, 0x00000001},
+    {"TICK_CFG"                             , 0x00000064, 0x00000001, 0x00000001},
+    {"MRP_TS_CFG"                           , 0x00000065, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_VOP_VOE_CONF_REG[] = {
@@ -2818,8 +2822,11 @@ static const vtss_symreg_reg_t regs_within_VOP_VOE_CONTEXT_ANA[] = {
     {"CT_OAM_CCM_TLV_INFO_ANA"              , 0x00000004, 0x00000001, 0x00000001},
     {"CT_OAM_MPLS_INFO_ANA"                 , 0x00000005, 0x00000001, 0x00000001},
     {"CT_OAM_L3_INFO_ANA"                   , 0x00000006, 0x00000001, 0x00000001},
-    {"CT_OAM_DATA_ANA"                      , 0x00000007, 0x00000001, 0x00000001},
-    {"CT_OAM_DATA1_ANA"                     , 0x00000008, 0x00000001, 0x00000001},
+    {"CT_OAM_MRP_DELTA_TS_ANA"              , 0x00000007, 0x00000001, 0x00000001},
+    {"CT_OAM_MRP_SEQ_ANA"                   , 0x00000008, 0x00000001, 0x00000001},
+    {"CT_OAM_MRP_INFO_ANA"                  , 0x00000009, 0x00000001, 0x00000001},
+    {"CT_OAM_DATA_ANA"                      , 0x0000000a, 0x00000001, 0x00000001},
+    {"CT_OAM_DATA1_ANA"                     , 0x0000000b, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_VOP_VOE_CONTEXT_REW[] = {
@@ -2831,8 +2838,9 @@ static const vtss_symreg_reg_t regs_within_VOP_VOE_CONTEXT_REW[] = {
     {"CT_OAM_CCM_TLV_INFO_REW"              , 0x00000004, 0x00000001, 0x00000001},
     {"CT_OAM_MPLS_INFO_REW"                 , 0x00000005, 0x00000001, 0x00000001},
     {"CT_OAM_L3_INFO_REW"                   , 0x00000006, 0x00000001, 0x00000001},
-    {"CT_OAM_DATA_REW"                      , 0x00000007, 0x00000001, 0x00000001},
-    {"CT_OAM_DATA1_REW"                     , 0x00000008, 0x00000001, 0x00000001},
+    {"CT_OAM_MRP_INFO_REW"                  , 0x00000007, 0x00000001, 0x00000001},
+    {"CT_OAM_DATA_REW"                      , 0x00000008, 0x00000001, 0x00000001},
+    {"CT_OAM_DATA1_REW"                     , 0x00000009, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_VOP_VOE_CRC_ERR[] = {
@@ -2884,7 +2892,7 @@ static const vtss_symreg_reg_t regs_within_VOP_COREMEM[] = {
 };
 static const vtss_symreg_reggrp_t reggrps_within_VOP[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"COMMON"                               , 0x00000b26, 0x00000001, 0x00000062, regs_within_VOP_COMMON},
+    {"COMMON"                               , 0x00000b26, 0x00000001, 0x00000066, regs_within_VOP_COMMON},
     {"VOE_CONF_REG"                         , 0x00000a80, 0x00000026, 0x00000001, regs_within_VOP_VOE_CONF_REG},
     {"VOE_CONF"                             , 0x00000000, 0x00000026, 0x00000040, regs_within_VOP_VOE_CONF},
     {"VOE_STAT"                             , 0x00001000, 0x00000026, 0x00000040, regs_within_VOP_VOE_STAT},
@@ -2949,6 +2957,89 @@ static const vtss_symreg_reggrp_t reggrps_within_VOP_L3[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
     {"VOE_CONF_L3"                          , 0x00000000, 0x00000026, 0x00000040, regs_within_VOP_L3_VOE_CONF_L3},
     {"VOE_STAT_L3"                          , 0x00001000, 0x00000026, 0x00000020, regs_within_VOP_L3_VOE_STAT_L3},
+    {NULL, 0, 0, 0, NULL}
+};
+static const vtss_symreg_reg_t regs_within_VOP_MRP_VOE_CONF_MRP[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"VOE_COMMON_CFG"                       , 0x00000000, 0x00000001, 0x00000001},
+    {"MRP_CTRL"                             , 0x00000001, 0x00000001, 0x00000001},
+    {"MRP_FWD_CTRL"                         , 0x00000002, 0x00000001, 0x00000001},
+    {"RING_MASK_CFG"                        , 0x00000003, 0x00000001, 0x00000001},
+    {"ICON_MASK_CFG"                        , 0x00000004, 0x00000001, 0x00000001},
+    {"TST_FWD_CTRL"                         , 0x00000005, 0x00000001, 0x00000001},
+    {"TST_CFG"                              , 0x00000006, 0x00000001, 0x00000001},
+    {"TST_PRIO_CFG"                         , 0x00000007, 0x00000001, 0x00000001},
+    {"ITST_FWD_CTRL"                        , 0x00000008, 0x00000001, 0x00000001},
+    {"ITST_CFG"                             , 0x00000009, 0x00000001, 0x00000001},
+    {"MRP_MAC_LSB"                          , 0x0000000a, 0x00000001, 0x00000001},
+    {"MRP_MAC_MSB"                          , 0x0000000b, 0x00000001, 0x00000001},
+    {"BEST_MAC_LSB"                         , 0x0000000c, 0x00000001, 0x00000001},
+    {"BEST_MAC_MSB"                         , 0x0000000d, 0x00000001, 0x00000001},
+    {"MRP_TX_CFG"                           , 0x0000000e, 0x00000002, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_VOP_MRP_VOE_STAT_MRP[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"TST_RX_CNT"                           , 0x00000000, 0x00000001, 0x00000001},
+    {"TST_DELTA_TS"                         , 0x00000001, 0x00000001, 0x00000001},
+    {"TST_STAT"                             , 0x00000002, 0x00000001, 0x00000001},
+    {"NXT_LOC_HMO"                          , 0x00000003, 0x00000001, 0x00000001},
+    {"TST_PRIO_STAT"                        , 0x00000004, 0x00000001, 0x00000001},
+    {"ITST_STAT"                            , 0x00000005, 0x00000001, 0x00000001},
+    {"ITST_NXT_LOC_HMO"                     , 0x00000006, 0x00000001, 0x00000001},
+    {"ITST_RX_CNT"                          , 0x00000007, 0x00000001, 0x00000001},
+    {"ITST_DELTA_TS"                        , 0x00000008, 0x00000001, 0x00000001},
+    {"MRP_RX_SEQ"                           , 0x00000009, 0x00000002, 0x00000001},
+    {"MRP_TX_SEQ"                           , 0x0000000b, 0x00000002, 0x00000001},
+    {"MRP_STICKY"                           , 0x0000000d, 0x00000001, 0x00000001},
+    {"MRP_INTR_ENA"                         , 0x0000000e, 0x00000001, 0x00000001},
+    {"TST_RX_LOC_CNT"                       , 0x0000000f, 0x00000001, 0x00000001},
+    {"ITST_RX_LOC_CNT"                      , 0x00000010, 0x00000001, 0x00000001},
+    {"TST_RX_TS"                            , 0x00000011, 0x00000001, 0x00000001},
+    {"TST_TX_TS"                            , 0x00000012, 0x00000001, 0x00000001},
+    {"ITST_RX_TS"                           , 0x00000013, 0x00000001, 0x00000001},
+    {"ITST_TX_TS"                           , 0x00000014, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reggrp_t reggrps_within_VOP_MRP[] = {
+    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
+    {"VOE_CONF_MRP"                         , 0x00000800, 0x00000026, 0x00000010, regs_within_VOP_MRP_VOE_CONF_MRP},
+    {"VOE_STAT_MRP"                         , 0x00000000, 0x00000026, 0x00000020, regs_within_VOP_MRP_VOE_STAT_MRP},
+    {NULL, 0, 0, 0, NULL}
+};
+static const vtss_symreg_reg_t regs_within_VOP_DLR_VOE_CONF_DLR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"VOE_COMMON_CFG"                       , 0x00000000, 0x00000001, 0x00000001},
+    {"DLR_CTRL"                             , 0x00000001, 0x00000001, 0x00000001},
+    {"DLR_FWD_CTRL"                         , 0x00000002, 0x00000001, 0x00000001},
+    {"DLR_MASK_CFG"                         , 0x00000003, 0x00000001, 0x00000001},
+    {"BCN_FWD_CTRL"                         , 0x00000004, 0x00000001, 0x00000001},
+    {"BCN_CFG"                              , 0x00000005, 0x00000001, 0x00000001},
+    {"ADV_FWD_CTRL"                         , 0x00000006, 0x00000001, 0x00000001},
+    {"ADV_CFG"                              , 0x00000007, 0x00000001, 0x00000001},
+    {"DLR_RX_SEQ_CFG"                       , 0x00000008, 0x00000001, 0x00000001},
+    {"DLR_PREC_CFG"                         , 0x00000009, 0x00000001, 0x00000001},
+    {"DLR_MAC_LSB"                          , 0x0000000a, 0x00000001, 0x00000001},
+    {"DLR_MAC_MSB"                          , 0x0000000b, 0x00000001, 0x00000001},
+    {"GW_MAC_LSB"                           , 0x0000000c, 0x00000001, 0x00000001},
+    {"GW_MAC_MSB"                           , 0x0000000d, 0x00000001, 0x00000001},
+    {"DLR_TX_CFG"                           , 0x0000000e, 0x00000002, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reg_t regs_within_VOP_DLR_VOE_STAT_DLR[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"BCN_RX_CNT"                           , 0x00000000, 0x00000001, 0x00000001},
+    {"BCN_RX_LOC_CNT"                       , 0x00000001, 0x00000001, 0x00000001},
+    {"ADV_RX_CNT"                           , 0x00000002, 0x00000001, 0x00000001},
+    {"ADV_RX_LOC_CNT"                       , 0x00000003, 0x00000001, 0x00000001},
+    {"DLR_STICKY"                           , 0x00000004, 0x00000001, 0x00000001},
+    {"DLR_INTR_ENA"                         , 0x00000005, 0x00000001, 0x00000001},
+    {NULL, 0, 0, 0}
+};
+static const vtss_symreg_reggrp_t reggrps_within_VOP_DLR[] = {
+    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
+    {"VOE_CONF_DLR"                         , 0x00000000, 0x00000026, 0x00000010, regs_within_VOP_DLR_VOE_CONF_DLR},
+    {"VOE_STAT_DLR"                         , 0x00000400, 0x00000026, 0x00000008, regs_within_VOP_DLR_VOE_STAT_DLR},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_VOP_MPLS_VOE_CONF_MPLS[] = {
@@ -3129,6 +3220,8 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"VCAP_SUPER"         ,   -1, 0x00000020, VTSS_IO_OFFSET1(0x00080000), reggrps_within_VCAP_SUPER},
     {"VOP"                ,   -1, 0x00000280, VTSS_IO_OFFSET1(0x00a00000), reggrps_within_VOP},
     {"VOP_L3"             ,   -1, 0x000002c0, VTSS_IO_OFFSET1(0x00b00000), reggrps_within_VOP_L3},
+    {"VOP_MRP"            ,   -1, 0x000001c0, VTSS_IO_OFFSET1(0x00700000), reggrps_within_VOP_MRP},
+    {"VOP_DLR"            ,   -1, 0x000001e0, VTSS_IO_OFFSET1(0x00780000), reggrps_within_VOP_DLR},
     {"VOP_MPLS"           ,   -1, 0x000001a0, VTSS_IO_OFFSET1(0x00680000), reggrps_within_VOP_MPLS},
     {"XQS"                ,   -1, 0x00000030, VTSS_IO_OFFSET1(0x000c0000), reggrps_within_XQS},
 };
