@@ -4845,12 +4845,14 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
                     VTSS_F_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(12),
                     VTSS_M_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG);
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
             if (!VTSS_PORT_IS_2G5(port)) {
                 REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
                         VTSS_F_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA(0),
                         VTSS_M_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA);
             }
 #endif
+        }
     }
     return VTSS_RC_OK;
 }

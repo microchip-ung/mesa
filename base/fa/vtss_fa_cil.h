@@ -205,6 +205,22 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 #define REG_WRM_CLR(p, mask) REG_WRM(p, 0,    mask)
 #define REG_WRM_CTL(p, _cond_, mask) REG_WRM(p, (_cond_) ? mask : 0, mask)
 
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define DEV_RD(name, port, value)                                      \
+    {                                                                  \
+        REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);        \
+    }
+
+#define DEV_WR(name, port, value)                                      \
+    {                                                                  \
+        REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);        \
+    }
+
+#define DEV_WRM(name, port, value, mask)                               \
+    {                                                                  \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask); \
+    }
+#else
 #define DEV_RD(name, port, value)                                      \
     {                                                                  \
         if (vtss_fa_port_is_high_speed(vtss_state, port)) {            \
@@ -221,12 +237,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
             REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value); \
         }                                                              \
     }
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define DEV_WRM(name, port, value, mask)                                      \
-    {                                                                         \
-          REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);  \
-      }
-#else
+
 #define DEV_WRM(name, port, value, mask)                                      \
     {                                                                         \
         REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);        \
