@@ -21,13 +21,16 @@
 
 #if defined(VTSS_CHIP_969X)
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
-#if !defined(VTSS_OPT_FPGA)
-#define VTSS_ARCH_S5I                             /**< SparX-5i architecture */
-#endif
+/* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
+//#define VTSS_FEATURE_SYNCE                      /**< SYNCE - L1 syncronization feature */
+#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#define VTSS_FEATURE_VLAN_COUNTERS                /**< VLAN counters are only supported for SMB devices without OAM */
 #if defined(VTSS_OPT_FPGA)
 #define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
-#endif
-#endif
+#endif // VTSS_OPT_FPGA
+#endif // VTSS_CHIP_969X
 
 #if defined(VTSS_CHIP_966X)
 #define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
@@ -243,12 +246,20 @@
 //#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
 #endif
 
+#if defined(VTSS_ARCH_LAN969X)
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
+//#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
+#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
+#endif // VTSS_ARCH_LAN969X
+
 #if defined(VTSS_ARCH_S5I)
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #endif /* VTSS_ARCH_SPARX5_CE */
 

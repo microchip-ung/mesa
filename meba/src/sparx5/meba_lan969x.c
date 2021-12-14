@@ -319,25 +319,28 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
     meba_board_state_t *board;
-    int                pcb, target;
+    int                pcb, target, type;
 
     board = INST2BOARD(inst);
 
-    // Get board type
-    /* if (meba_conf_get_hex(inst, "pcb", &pcb) != MESA_RC_OK) { */
-    /*     fprintf(stderr, "Could not read pcb id\n"); */
-    /*     goto error_out; */
-    /* } */
-    /* if (meba_conf_get_hex(inst, "target", &target) != MESA_RC_OK) { */
-    /*     fprintf(stderr, "Could not read target\n"); */
-    /*     goto error_out; */
-    /* } */
-    pcb = VTSS_BOARD_LAN9668_SUNRISE_REF;
-    target = 0x96980;
-
+    // Get the board pcb type (134/135/Sunrise/...) from DT
+    if (meba_conf_get_hex(inst, "pcb", &pcb) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read pcb id\n");
+        goto error_out;
+    }
+    // Get the target (TSN/HSN/...) from DT
+    if (meba_conf_get_hex(inst, "target", &target) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read target\n");
+        goto error_out;
+    }
+    // Get the board type from DT (not currently used)
+    if (meba_conf_get_hex(inst, "type", &type) != MESA_RC_OK) {
+        fprintf(stderr, "Could not read target\n");
+        goto error_out;
+    }
 
     board->type = (board_type_t)pcb;
-    inst->props.board_type = board->type;
+    inst->props.board_type = type;
     inst->props.target = target;
     board->port = (fa_port_info_t*) calloc(30, sizeof(fa_port_info_t));
     if (board->port == NULL) {
