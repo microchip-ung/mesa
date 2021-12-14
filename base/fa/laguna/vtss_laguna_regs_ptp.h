@@ -869,42 +869,15 @@
 
 /**
  * \brief
- * Enable phase detector
- *
- * \details
- * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_ENA
- */
-#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),17,1)
-#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ENA        VTSS_BIT(17)
-#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ENA(x)     VTSS_EXTRACT_BITFIELD(x,17,1)
-
-/**
- * \brief
- * Phase detector has lost lock since the clearing of the bit. Can be
- * cleared writing one to this field.>
- *	     This field become unreliable for event clocks slower than 10
- * MHz, but phase detection can still be trusted. Slow event clocks are
- * only seen in synchronuous PPS detection.
-
- *
- * \details
- * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_FAILED
- */
-#define  VTSS_F_PTP_PHAD_CTRL_PHAD_FAILED(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
-#define  VTSS_M_PTP_PHAD_CTRL_PHAD_FAILED     VTSS_BIT(16)
-#define  VTSS_X_PTP_PHAD_CTRL_PHAD_FAILED(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
-
-/**
- * \brief
  * Phase detector has adjusted phase down(bit 0) or up(bit 1).
 
  *
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_ADJ
  */
-#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_ENCODE_BITFIELD(x,14,2)
-#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ADJ        VTSS_ENCODE_BITMASK(14,2)
-#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_EXTRACT_BITFIELD(x,14,2)
+#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_ENCODE_BITFIELD(x,16,2)
+#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ADJ        VTSS_ENCODE_BITMASK(16,2)
+#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_EXTRACT_BITFIELD(x,16,2)
 
 /**
  * \brief
@@ -914,31 +887,25 @@
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  VTSS_F_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
-#define  VTSS_M_PTP_PHAD_CTRL_ERR_MAX_ENA     VTSS_BIT(13)
-#define  VTSS_X_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,13,1)
+#define  VTSS_F_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_PTP_PHAD_CTRL_ERR_MAX_ENA     VTSS_BIT(15)
+#define  VTSS_X_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /**
  * \brief
- * Accuracy of lock logic 2**-x nsec
+ * Divide port clock by the power of this
  *
  * \details
- * Field: ::VTSS_PTP_PHAD_CTRL . LOCK_ACC
- */
-#define  VTSS_F_PTP_PHAD_CTRL_LOCK_ACC(x)     VTSS_ENCODE_BITFIELD(x,10,3)
-#define  VTSS_M_PTP_PHAD_CTRL_LOCK_ACC        VTSS_ENCODE_BITMASK(10,3)
-#define  VTSS_X_PTP_PHAD_CTRL_LOCK_ACC(x)     VTSS_EXTRACT_BITFIELD(x,10,3)
-
-/**
- * \brief
- * Alignment offset 2**-x nsec
+ * 0: Do not divide.
+ * 1: Divide port clock by two.
+ * 2: Divide port clock by four.
+ * 15: Automode.
  *
- * \details
- * Field: ::VTSS_PTP_PHAD_CTRL . REALIGN_OFS
+ * Field: ::VTSS_PTP_PHAD_CTRL . DIV_CFG
  */
-#define  VTSS_F_PTP_PHAD_CTRL_REALIGN_OFS(x)  VTSS_ENCODE_BITFIELD(x,7,3)
-#define  VTSS_M_PTP_PHAD_CTRL_REALIGN_OFS     VTSS_ENCODE_BITMASK(7,3)
-#define  VTSS_X_PTP_PHAD_CTRL_REALIGN_OFS(x)  VTSS_EXTRACT_BITFIELD(x,7,3)
+#define  VTSS_F_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_ENCODE_BITFIELD(x,11,4)
+#define  VTSS_M_PTP_PHAD_CTRL_DIV_CFG         VTSS_ENCODE_BITMASK(11,4)
+#define  VTSS_X_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_EXTRACT_BITFIELD(x,11,4)
 
 /**
  * \brief
@@ -954,25 +921,58 @@
  *
  * Field: ::VTSS_PTP_PHAD_CTRL . TWEAKS
  */
-#define  VTSS_F_PTP_PHAD_CTRL_TWEAKS(x)       VTSS_ENCODE_BITFIELD(x,4,3)
-#define  VTSS_M_PTP_PHAD_CTRL_TWEAKS          VTSS_ENCODE_BITMASK(4,3)
-#define  VTSS_X_PTP_PHAD_CTRL_TWEAKS(x)       VTSS_EXTRACT_BITFIELD(x,4,3)
+#define  VTSS_F_PTP_PHAD_CTRL_TWEAKS(x)       VTSS_ENCODE_BITFIELD(x,8,3)
+#define  VTSS_M_PTP_PHAD_CTRL_TWEAKS          VTSS_ENCODE_BITMASK(8,3)
+#define  VTSS_X_PTP_PHAD_CTRL_TWEAKS(x)       VTSS_EXTRACT_BITFIELD(x,8,3)
 
 /**
  * \brief
- * Divide port clock by the power of this
+ * Enable phase detector
  *
  * \details
- * 0: Do not divide.
- * 1: Divide port clock by two.
- * 2: Divide port clock by four.
- * 15: Automode.
- *
- * Field: ::VTSS_PTP_PHAD_CTRL . DIV_CFG
+ * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_ENA
  */
-#define  VTSS_F_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_PTP_PHAD_CTRL_DIV_CFG         VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_EXTRACT_BITFIELD(x,0,4)
+#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ENA        VTSS_BIT(7)
+#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ENA(x)     VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Phase detector has lost lock since the clearing of the bit. Can be
+ * cleared writing one to this field.>
+ *	     This field become unreliable for event clocks slower than 10
+ * MHz, but phase detection can still be trusted. Slow event clocks are
+ * only seen in synchronuous PPS detection.
+
+ *
+ * \details
+ * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_FAILED
+ */
+#define  VTSS_F_PTP_PHAD_CTRL_PHAD_FAILED(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_PTP_PHAD_CTRL_PHAD_FAILED     VTSS_BIT(6)
+#define  VTSS_X_PTP_PHAD_CTRL_PHAD_FAILED(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Alignment offset 2**-x nsec
+ *
+ * \details
+ * Field: ::VTSS_PTP_PHAD_CTRL . REALIGN_OFS
+ */
+#define  VTSS_F_PTP_PHAD_CTRL_REALIGN_OFS(x)  VTSS_ENCODE_BITFIELD(x,3,3)
+#define  VTSS_M_PTP_PHAD_CTRL_REALIGN_OFS     VTSS_ENCODE_BITMASK(3,3)
+#define  VTSS_X_PTP_PHAD_CTRL_REALIGN_OFS(x)  VTSS_EXTRACT_BITFIELD(x,3,3)
+
+/**
+ * \brief
+ * Accuracy of lock logic 2**-x nsec
+ *
+ * \details
+ * Field: ::VTSS_PTP_PHAD_CTRL . LOCK_ACC
+ */
+#define  VTSS_F_PTP_PHAD_CTRL_LOCK_ACC(x)     VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_PTP_PHAD_CTRL_LOCK_ACC        VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_PTP_PHAD_CTRL_LOCK_ACC(x)     VTSS_EXTRACT_BITFIELD(x,0,3)
 
 
 /**

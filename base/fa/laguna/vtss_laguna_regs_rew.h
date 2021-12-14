@@ -161,8 +161,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000B are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
+ * and EPID=0x000E are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use ES0 to generate an ENCAP_ID and insert the encapsulation in front
  * of the IFH:
@@ -200,8 +200,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000B are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
+ * and EPID=0x000E are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use ES0 to generate an ENCAP_ID and insert the encapsulation in front
  * of the IFH:
@@ -473,6 +473,21 @@
  * @param ri Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
 #define VTSS_REW_RTAG_ETAG_CTRL(ri)          VTSS_IOREG(VTSS_TO_REW,0x608c + (ri))
+
+/**
+ * \brief
+ * If set, the REW transfers Redbox specific fields from the IFH to the
+ * preamble
+ *
+ * \details
+ * 0: Don't modify preamble
+ * 1: Transfer Redbox IRI to preamble
+ *
+ * Field: ::VTSS_REW_RTAG_ETAG_CTRL . RB_ENA
+ */
+#define  VTSS_F_REW_RTAG_ETAG_CTRL_RB_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA     VTSS_BIT(10)
+#define  VTSS_X_REW_RTAG_ETAG_CTRL_RB_ENA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
 
 /**
  * \brief
@@ -1762,8 +1777,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000B are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
+ * and EPID=0x000E are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use GCPU_UPSID and GCPU_UPSPN or ES0 to generate an ENCAP_ID and
  * insert the encapsulation in front of the IFH:
@@ -2759,6 +2774,30 @@
  * @param gi Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
 #define VTSS_REW_PTP_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3000,gi,64,0,37)
+
+/**
+ * \brief
+ * Set to skip detection and indication of overflow conditions for frame
+ * transmitted on this port
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_EGR_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(6)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Set to skip detection and indication of overflow conditions for frames
+ * received on this port
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_IGR_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS  VTSS_BIT(5)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_IGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
@@ -4081,9 +4120,9 @@
 /**
  * \brief
  * Enable IFH encapsulation mode for this entry.The frame link layer format
- * is changed to:[LL_DMAC][LL_SMAC][0x8880][0x000B]Optionally one VLAN tag
+ * is changed to:[LL_DMAC][LL_SMAC][0x8880][0x000E]Optionally one VLAN tag
  * can be added if LL_TAG_CFG.TAG_CFG =
- * 1[LL_DMAC][LL_SMAC][LL_TAG:0][0x8880][0x000B]None of the other
+ * 1[LL_DMAC][LL_SMAC][LL_TAG:0][0x8880][0x000E]None of the other
  * encapsulation fields are used in this mode
  *
  * \details

@@ -34,7 +34,7 @@
  * \details
  * Register: \a AFI:MISC:MISC_CTRL
  */
-#define VTSS_AFI_MISC_CTRL                   VTSS_IOREG(VTSS_TO_AFI,0xc146)
+#define VTSS_AFI_MISC_CTRL                   VTSS_IOREG(VTSS_TO_AFI,0x18c6)
 
 /**
  * \brief
@@ -54,7 +54,7 @@
  * \details
  * Register: \a AFI:MISC:NEW_FRM_CTRL
  */
-#define VTSS_AFI_NEW_FRM_CTRL                VTSS_IOREG(VTSS_TO_AFI,0xc147)
+#define VTSS_AFI_NEW_FRM_CTRL                VTSS_IOREG(VTSS_TO_AFI,0x18c7)
 
 /**
  * \brief
@@ -74,7 +74,7 @@
  * \details
  * Register: \a AFI:MISC:NEW_FRM_INFO
  */
-#define VTSS_AFI_NEW_FRM_INFO                VTSS_IOREG(VTSS_TO_AFI,0xc148)
+#define VTSS_AFI_NEW_FRM_INFO                VTSS_IOREG(VTSS_TO_AFI,0x18c8)
 
 /**
  * \brief
@@ -107,7 +107,7 @@
  *
  * Register: \a AFI:MISC:ERR
  */
-#define VTSS_AFI_ERR                         VTSS_IOREG(VTSS_TO_AFI,0xc149)
+#define VTSS_AFI_ERR                         VTSS_IOREG(VTSS_TO_AFI,0x18c9)
 
 /**
  * \brief
@@ -131,7 +131,7 @@
  *
  * Register: \a AFI:MISC:WARN
  */
-#define VTSS_AFI_WARN                        VTSS_IOREG(VTSS_TO_AFI,0xc14a)
+#define VTSS_AFI_WARN                        VTSS_IOREG(VTSS_TO_AFI,0x18ca)
 
 /**
  * \brief
@@ -216,7 +216,7 @@
  *
  * Register: \a AFI:MISC:STICKY_INFO
  */
-#define VTSS_AFI_STICKY_INFO                 VTSS_IOREG(VTSS_TO_AFI,0xc14b)
+#define VTSS_AFI_STICKY_INFO                 VTSS_IOREG(VTSS_TO_AFI,0x18cb)
 
 /**
  * \brief
@@ -236,9 +236,9 @@
  * \details
  * Field: ::VTSS_AFI_STICKY_INFO . TTI_PTR
  */
-#define  VTSS_F_AFI_STICKY_INFO_TTI_PTR(x)    VTSS_ENCODE_BITFIELD(x,8,12)
-#define  VTSS_M_AFI_STICKY_INFO_TTI_PTR       VTSS_ENCODE_BITMASK(8,12)
-#define  VTSS_X_AFI_STICKY_INFO_TTI_PTR(x)    VTSS_EXTRACT_BITFIELD(x,8,12)
+#define  VTSS_F_AFI_STICKY_INFO_TTI_PTR(x)    VTSS_ENCODE_BITFIELD(x,8,9)
+#define  VTSS_M_AFI_STICKY_INFO_TTI_PTR       VTSS_ENCODE_BITMASK(8,9)
+#define  VTSS_X_AFI_STICKY_INFO_TTI_PTR(x)    VTSS_EXTRACT_BITFIELD(x,8,9)
 
 /**
  * \brief
@@ -265,7 +265,7 @@
  * \details
  * Register: \a AFI:MISC:STICKY_INFO_ENA
  */
-#define VTSS_AFI_STICKY_INFO_ENA             VTSS_IOREG(VTSS_TO_AFI,0xc14c)
+#define VTSS_AFI_STICKY_INFO_ENA             VTSS_IOREG(VTSS_TO_AFI,0x18cc)
 
 /**
  * \brief
@@ -318,7 +318,7 @@
  * \details
  * Register: \a AFI:MISC:DTI_DURATION_TICK_LEN
  */
-#define VTSS_AFI_DTI_DURATION_TICK_LEN       VTSS_IOREG(VTSS_TO_AFI,0xc14d)
+#define VTSS_AFI_DTI_DURATION_TICK_LEN       VTSS_IOREG(VTSS_TO_AFI,0x18cd)
 
 /**
  * \brief
@@ -349,9 +349,9 @@
  *
  * Register: \a AFI:FRM_TBL:FRM_NEXT_AND_TYPE
  *
- * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-511
  */
-#define VTSS_AFI_FRM_NEXT_AND_TYPE(gi)       VTSS_IOREG_IX(VTSS_TO_AFI,0x8000,gi,4,0,0)
+#define VTSS_AFI_FRM_NEXT_AND_TYPE(gi)       VTSS_IOREG_IX(VTSS_TO_AFI,0x1000,gi,4,0,0)
 
 /**
  * \brief
@@ -361,9 +361,9 @@
  * \details
  * Field: ::VTSS_AFI_FRM_NEXT_AND_TYPE . NEXT_PTR
  */
-#define  VTSS_F_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR     VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_AFI_FRM_NEXT_AND_TYPE_NEXT_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,9)
 
 /**
  * \brief
@@ -391,9 +391,9 @@
  *
  * Register: \a AFI:FRM_TBL:FRM_ENTRY_PART0
  *
- * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-511
  */
-#define VTSS_AFI_FRM_ENTRY_PART0(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0x8000,gi,4,0,1)
+#define VTSS_AFI_FRM_ENTRY_PART0(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0x1000,gi,4,0,1)
 
 /**
  * \brief
@@ -431,9 +431,9 @@
  *
  * Register: \a AFI:FRM_TBL:FRM_ENTRY_PART1
  *
- * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_FRM_TBL_DEPTH (??), 0-511
  */
-#define VTSS_AFI_FRM_ENTRY_PART1(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0x8000,gi,4,0,2)
+#define VTSS_AFI_FRM_ENTRY_PART1(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0x1000,gi,4,0,2)
 
 /**
  * \brief
@@ -471,9 +471,9 @@
  * \details
  * Register: \a AFI:DTI_TBL:DTI_MODE
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_MODE(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0xc000,gi,8,0,0)
+#define VTSS_AFI_DTI_MODE(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0x1800,gi,8,0,0)
 
 /**
  * \brief
@@ -560,9 +560,9 @@
  * \details
  * Field: ::VTSS_AFI_DTI_MODE . DTI_NEXT
  */
-#define  VTSS_F_AFI_DTI_MODE_DTI_NEXT(x)      VTSS_ENCODE_BITFIELD(x,24,5)
-#define  VTSS_M_AFI_DTI_MODE_DTI_NEXT         VTSS_ENCODE_BITMASK(24,5)
-#define  VTSS_X_AFI_DTI_MODE_DTI_NEXT(x)      VTSS_EXTRACT_BITFIELD(x,24,5)
+#define  VTSS_F_AFI_DTI_MODE_DTI_NEXT(x)      VTSS_ENCODE_BITFIELD(x,24,4)
+#define  VTSS_M_AFI_DTI_MODE_DTI_NEXT         VTSS_ENCODE_BITMASK(24,4)
+#define  VTSS_X_AFI_DTI_MODE_DTI_NEXT(x)      VTSS_EXTRACT_BITFIELD(x,24,4)
 
 /**
  * \brief
@@ -586,9 +586,9 @@
  * \details
  * Register: \a AFI:DTI_TBL:DTI_PORT_QU
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_PORT_QU(gi)             VTSS_IOREG_IX(VTSS_TO_AFI,0xc000,gi,8,0,1)
+#define VTSS_AFI_DTI_PORT_QU(gi)             VTSS_IOREG_IX(VTSS_TO_AFI,0x1800,gi,8,0,1)
 
 /**
  * \brief
@@ -622,9 +622,9 @@
  * \details
  * Register: \a AFI:DTI_TBL:DTI_FRM
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_FRM(gi)                 VTSS_IOREG_IX(VTSS_TO_AFI,0xc000,gi,8,0,2)
+#define VTSS_AFI_DTI_FRM(gi)                 VTSS_IOREG_IX(VTSS_TO_AFI,0x1800,gi,8,0,2)
 
 /**
  * \brief
@@ -633,9 +633,9 @@
  * \details
  * Field: ::VTSS_AFI_DTI_FRM . FIRST_FRM_PTR
  */
-#define  VTSS_F_AFI_DTI_FRM_FIRST_FRM_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_DTI_FRM_FIRST_FRM_PTR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_DTI_FRM_FIRST_FRM_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_AFI_DTI_FRM_FIRST_FRM_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_AFI_DTI_FRM_FIRST_FRM_PTR     VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_AFI_DTI_FRM_FIRST_FRM_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,9)
 
 /**
  * \brief
@@ -645,9 +645,9 @@
  * \details
  * Field: ::VTSS_AFI_DTI_FRM . NEXT_FRM_PTR
  */
-#define  VTSS_F_AFI_DTI_FRM_NEXT_FRM_PTR(x)   VTSS_ENCODE_BITFIELD(x,16,12)
-#define  VTSS_M_AFI_DTI_FRM_NEXT_FRM_PTR      VTSS_ENCODE_BITMASK(16,12)
-#define  VTSS_X_AFI_DTI_FRM_NEXT_FRM_PTR(x)   VTSS_EXTRACT_BITFIELD(x,16,12)
+#define  VTSS_F_AFI_DTI_FRM_NEXT_FRM_PTR(x)   VTSS_ENCODE_BITFIELD(x,16,9)
+#define  VTSS_M_AFI_DTI_FRM_NEXT_FRM_PTR      VTSS_ENCODE_BITMASK(16,9)
+#define  VTSS_X_AFI_DTI_FRM_NEXT_FRM_PTR(x)   VTSS_EXTRACT_BITFIELD(x,16,9)
 
 
 /**
@@ -656,9 +656,9 @@
  * \details
  * Register: \a AFI:DTI_TBL:DTI_CNT
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_CNT(gi)                 VTSS_IOREG_IX(VTSS_TO_AFI,0xc000,gi,8,0,3)
+#define VTSS_AFI_DTI_CNT(gi)                 VTSS_IOREG_IX(VTSS_TO_AFI,0x1800,gi,8,0,3)
 
 /**
  * \brief
@@ -680,9 +680,9 @@
  * \details
  * Register: \a AFI:DTI_TBL:DTI_DURATION
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_DURATION(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0xc000,gi,8,0,4)
+#define VTSS_AFI_DTI_DURATION(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0x1800,gi,8,0,4)
 
 /**
  * \brief
@@ -717,9 +717,9 @@
  *
  * Register: \a AFI:DTI_MISC:DTI_FC_CNT_DOWN
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_FC_CNT_DOWN(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0xc14e,gi,3,0,0)
+#define VTSS_AFI_DTI_FC_CNT_DOWN(gi)         VTSS_IOREG_IX(VTSS_TO_AFI,0x18ce,gi,3,0,0)
 
 /**
  * \brief
@@ -742,9 +742,9 @@
  * \details
  * Register: \a AFI:DTI_MISC:DTI_CNT_DOWN
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_CNT_DOWN(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0xc14e,gi,3,0,1)
+#define VTSS_AFI_DTI_CNT_DOWN(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0x18ce,gi,3,0,1)
 
 /**
  * \brief
@@ -767,9 +767,9 @@
  * \details
  * Register: \a AFI:DTI_MISC:DTI_CTRL
  *
- * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-31
+ * @param gi Replicator: x_GAZ_AFI_DTI_TBL_DEPTH (??), 0-15
  */
-#define VTSS_AFI_DTI_CTRL(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0xc14e,gi,3,0,2)
+#define VTSS_AFI_DTI_CTRL(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0x18ce,gi,3,0,2)
 
 /**
  * \brief
@@ -816,7 +816,7 @@
  * \details
  * Register: \a AFI:TTI_TBL:TTI_PORT_QU
  *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-511
  */
 #define VTSS_AFI_TTI_PORT_QU(gi)             VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,0)
 
@@ -852,7 +852,7 @@
  * \details
  * Register: \a AFI:TTI_TBL:TTI_TIMER
  *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-511
  */
 #define VTSS_AFI_TTI_TIMER(gi)               VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,1)
 
@@ -930,7 +930,7 @@
  * \details
  * Register: \a AFI:TTI_TBL:TTI_FRM
  *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-511
  */
 #define VTSS_AFI_TTI_FRM(gi)                 VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,2)
 
@@ -941,9 +941,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_FRM . FRM_PTR
  */
-#define  VTSS_F_AFI_TTI_FRM_FRM_PTR(x)        VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_TTI_FRM_FRM_PTR           VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_TTI_FRM_FRM_PTR(x)        VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_AFI_TTI_FRM_FRM_PTR(x)        VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_AFI_TTI_FRM_FRM_PTR           VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_AFI_TTI_FRM_FRM_PTR(x)        VTSS_EXTRACT_BITFIELD(x,0,9)
 
 
 /**
@@ -952,7 +952,7 @@
  * \details
  * Register: \a AFI:TTI_TBL:TTI_TICKS
  *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-511
  */
 #define VTSS_AFI_TTI_TICKS(gi)               VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,3)
 
@@ -987,7 +987,7 @@
  * \details
  * Register: \a AFI:TTI_TBL:TTI_MISC_CFG
  *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
+ * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-511
  */
 #define VTSS_AFI_TTI_MISC_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,4)
 
@@ -1003,32 +1003,6 @@
 #define  VTSS_M_AFI_TTI_MISC_CFG_INJ_CNT_ENA  VTSS_BIT(0)
 #define  VTSS_X_AFI_TTI_MISC_CFG_INJ_CNT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
-
-/**
- * \brief TUPE Control
- *
- * \details
- * Control value for Table UPdate Engine (TUPE).
- *
- * See AFI:TUPE.
- *
- * Register: \a AFI:TTI_TBL:TTI_TUPE_CTRL
- *
- * @param gi Replicator: x_GAZ_AFI_TTI_TBL_DEPTH (??), 0-4095
- */
-#define VTSS_AFI_TTI_TUPE_CTRL(gi)           VTSS_IOREG_IX(VTSS_TO_AFI,0x0,gi,8,0,5)
-
-/**
- * \brief
- * Control value for Table UPdate Engine (TUPE).See AFI:TUPE.
- *
- * \details
- * Field: ::VTSS_AFI_TTI_TUPE_CTRL . TUPE_CTRL
- */
-#define  VTSS_F_AFI_TTI_TUPE_CTRL_TUPE_CTRL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_AFI_TTI_TUPE_CTRL_TUPE_CTRL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_AFI_TTI_TUPE_CTRL_TUPE_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
 /**
  * Register Group: \a AFI:TTI_TICKS
  *
@@ -1042,7 +1016,7 @@
  * \details
  * Register: \a AFI:TTI_TICKS:TTI_TICK_BASE
  */
-#define VTSS_AFI_TTI_TICK_BASE               VTSS_IOREG(VTSS_TO_AFI,0xc1ae)
+#define VTSS_AFI_TTI_TICK_BASE               VTSS_IOREG(VTSS_TO_AFI,0x18fe)
 
 /**
  * \brief
@@ -1076,7 +1050,7 @@
  * \details
  * Register: \a AFI:TTI_TICKS:TTI_TICK_LEN_0_3
  */
-#define VTSS_AFI_TTI_TICK_LEN_0_3            VTSS_IOREG(VTSS_TO_AFI,0xc1af)
+#define VTSS_AFI_TTI_TICK_LEN_0_3            VTSS_IOREG(VTSS_TO_AFI,0x18ff)
 
 /**
  * \brief
@@ -1137,7 +1111,7 @@
  * \details
  * Register: \a AFI:TTI_TICKS:TTI_TICK_LEN_4_7
  */
-#define VTSS_AFI_TTI_TICK_LEN_4_7            VTSS_IOREG(VTSS_TO_AFI,0xc1b0)
+#define VTSS_AFI_TTI_TICK_LEN_4_7            VTSS_IOREG(VTSS_TO_AFI,0x1900)
 
 /**
  * \brief
@@ -1205,7 +1179,7 @@
  *
  * @param ri Replicator: x_GAZ_AFI_TTI_TICK_DEPTH (??), 0-7
  */
-#define VTSS_AFI_TTI_TICK_STATE(ri)          VTSS_IOREG(VTSS_TO_AFI,0xc1b1 + (ri))
+#define VTSS_AFI_TTI_TICK_STATE(ri)          VTSS_IOREG(VTSS_TO_AFI,0x1901 + (ri))
 
 /**
  * \brief
@@ -1248,7 +1222,7 @@
  *
  * @param ri Replicator: x_GAZ_AFI_TTI_CAL_DEPTH (??), 0-3
  */
-#define VTSS_AFI_TTI_CAL_SLOT_PTRS(ri)       VTSS_IOREG(VTSS_TO_AFI,0xc1b9 + (ri))
+#define VTSS_AFI_TTI_CAL_SLOT_PTRS(ri)       VTSS_IOREG(VTSS_TO_AFI,0x1909 + (ri))
 
 /**
  * \brief
@@ -1257,9 +1231,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_CAL_SLOT_PTRS . SLOT_START_PTR
  */
-#define  VTSS_F_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR     VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_AFI_TTI_CAL_SLOT_PTRS_SLOT_START_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,9)
 
 /**
  * \brief
@@ -1268,9 +1242,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_CAL_SLOT_PTRS . SLOT_END_PTR
  */
-#define  VTSS_F_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
-#define  VTSS_M_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR     VTSS_ENCODE_BITMASK(16,12)
-#define  VTSS_X_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+#define  VTSS_F_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR(x)  VTSS_ENCODE_BITFIELD(x,16,9)
+#define  VTSS_M_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR     VTSS_ENCODE_BITMASK(16,9)
+#define  VTSS_X_AFI_TTI_CAL_SLOT_PTRS_SLOT_END_PTR(x)  VTSS_EXTRACT_BITFIELD(x,16,9)
 
 
 /**
@@ -1281,7 +1255,7 @@
  *
  * @param ri Replicator: x_GAZ_AFI_TTI_CAL_DEPTH (??), 0-3
  */
-#define VTSS_AFI_TTI_CAL_SLOT_CNT(ri)        VTSS_IOREG(VTSS_TO_AFI,0xc1bd + (ri))
+#define VTSS_AFI_TTI_CAL_SLOT_CNT(ri)        VTSS_IOREG(VTSS_TO_AFI,0x190d + (ri))
 
 /**
  * \brief
@@ -1309,7 +1283,7 @@
  *
  * @param ri Replicator: x_GAZ_AFI_TTI_CAL_DEPTH (??), 0-3
  */
-#define VTSS_AFI_TTI_CAL_STATE(ri)           VTSS_IOREG(VTSS_TO_AFI,0xc1c1 + (ri))
+#define VTSS_AFI_TTI_CAL_STATE(ri)           VTSS_IOREG(VTSS_TO_AFI,0x1911 + (ri))
 
 /**
  * \brief
@@ -1323,9 +1297,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_CAL_STATE . SLOT_TIME_MAX
  */
-#define  VTSS_F_AFI_TTI_CAL_STATE_SLOT_TIME_MAX(x)  VTSS_ENCODE_BITFIELD(x,16,16)
-#define  VTSS_M_AFI_TTI_CAL_STATE_SLOT_TIME_MAX     VTSS_ENCODE_BITMASK(16,16)
-#define  VTSS_X_AFI_TTI_CAL_STATE_SLOT_TIME_MAX(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+#define  VTSS_F_AFI_TTI_CAL_STATE_SLOT_TIME_MAX(x)  VTSS_ENCODE_BITFIELD(x,16,13)
+#define  VTSS_M_AFI_TTI_CAL_STATE_SLOT_TIME_MAX     VTSS_ENCODE_BITMASK(16,13)
+#define  VTSS_X_AFI_TTI_CAL_STATE_SLOT_TIME_MAX(x)  VTSS_EXTRACT_BITFIELD(x,16,13)
 
 /**
  * \brief
@@ -1334,9 +1308,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_CAL_STATE . SLOT_TTI_TBL_PTR
  */
-#define  VTSS_F_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR     VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_AFI_TTI_CAL_STATE_SLOT_TTI_TBL_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,9)
 
 
 /**
@@ -1345,7 +1319,7 @@
  * \details
  * Register: \a AFI:TTI_MISC:TTI_CTRL
  */
-#define VTSS_AFI_TTI_CTRL                    VTSS_IOREG(VTSS_TO_AFI,0xc1c5)
+#define VTSS_AFI_TTI_CTRL                    VTSS_IOREG(VTSS_TO_AFI,0x1915)
 
 /**
  * \brief
@@ -1446,36 +1420,12 @@
 
 
 /**
- * \brief TTI Control
- *
- * \details
- * Register: \a AFI:TTI_MISC:TTI_CTRL2
- */
-#define VTSS_AFI_TTI_CTRL2                   VTSS_IOREG(VTSS_TO_AFI,0xc1c6)
-
-/**
- * \brief
- * Minium number of clock cycles between TUPE accessing TTI Table.TUPE
- * access to TTI Table takes precedence over both CSR accesses and normal
- * TTI processing.TUPE will at least consume 4 clock cycles per processed
- * TTI, so setting TTI_TUPE_RSV<4 results in same behavior as setting it to
- * 4.
- *
- * \details
- * Field: ::VTSS_AFI_TTI_CTRL2 . TTI_TUPE_RSV
- */
-#define  VTSS_F_AFI_TTI_CTRL2_TTI_TUPE_RSV(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_AFI_TTI_CTRL2_TTI_TUPE_RSV     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_AFI_TTI_CTRL2_TTI_TUPE_RSV(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
  * \brief TTI Injection Counter
  *
  * \details
  * Register: \a AFI:TTI_MISC:TTI_INJ_CNT
  */
-#define VTSS_AFI_TTI_INJ_CNT                 VTSS_IOREG(VTSS_TO_AFI,0xc1c7)
+#define VTSS_AFI_TTI_INJ_CNT                 VTSS_IOREG(VTSS_TO_AFI,0x1917)
 
 /**
  * \brief
@@ -1497,7 +1447,7 @@
  * \details
  * Register: \a AFI:TTI_MISC:TTI_RAND_STATE
  */
-#define VTSS_AFI_TTI_RAND_STATE              VTSS_IOREG(VTSS_TO_AFI,0xc1c8)
+#define VTSS_AFI_TTI_RAND_STATE              VTSS_IOREG(VTSS_TO_AFI,0x1918)
 
 /**
  * \brief
@@ -1519,7 +1469,7 @@
  * \details
  * Register: \a AFI:TTI_MISC:TTI_PORT_FRM_OUT
  */
-#define VTSS_AFI_TTI_PORT_FRM_OUT            VTSS_IOREG(VTSS_TO_AFI,0xc1c9)
+#define VTSS_AFI_TTI_PORT_FRM_OUT            VTSS_IOREG(VTSS_TO_AFI,0x1919)
 
 /**
  * \brief
@@ -1547,7 +1497,7 @@
  *
  * @param gi Replicator: x_GAZ_AFI_PORT_CNT (??), 0-34
  */
-#define VTSS_AFI_PORT_FRM_OUT(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0xc100,gi,2,0,0)
+#define VTSS_AFI_PORT_FRM_OUT(gi)            VTSS_IOREG_IX(VTSS_TO_AFI,0x1880,gi,2,0,0)
 
 /**
  * \brief
@@ -1574,7 +1524,7 @@
  *
  * @param gi Replicator: x_GAZ_AFI_PORT_CNT (??), 0-34
  */
-#define VTSS_AFI_PORT_CFG(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0xc100,gi,2,0,1)
+#define VTSS_AFI_PORT_CFG(gi)                VTSS_IOREG_IX(VTSS_TO_AFI,0x1880,gi,2,0,1)
 
 /**
  * \brief
@@ -1622,249 +1572,6 @@
 #define  VTSS_F_AFI_PORT_CFG_FC_SKIP_TTI_INJ(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
 #define  VTSS_M_AFI_PORT_CFG_FC_SKIP_TTI_INJ  VTSS_BIT(16)
 #define  VTSS_X_AFI_PORT_CFG_FC_SKIP_TTI_INJ(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
-
-/**
- * Register Group: \a AFI:TUPE
- *
- * AFI Table UPdata Engine (AFI TUPE)
- */
-
-
-/**
- * \brief Miscellaneous TUPE parameters
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_MISC
- */
-#define VTSS_AFI_TUPE_MISC                   VTSS_IOREG(VTSS_TO_AFI,0xc1ca)
-
-/**
- * \brief
- * Start TUPE.Write 1 to start TUPE.Set to 0 by TUPE when done.Before
- * running TUPE, AFI::MISC_CTRL.AFI_ENA must be set to 1.Note:While TUPE is
- * running (i.e. TUPE_START=1) CPU must not write to TTI Table.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . TUPE_START
- */
-#define  VTSS_F_AFI_TUPE_MISC_TUPE_START(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_AFI_TUPE_MISC_TUPE_START      VTSS_BIT(0)
-#define  VTSS_X_AFI_TUPE_MISC_TUPE_START(x)   VTSS_EXTRACT_BITFIELD(x,0,1)
-
-/**
- * \brief
- * Enable use of CRIT_PORT_NUM_VAL.For further information refer
- * toAFI:TUPE:TUPE_CRIT1.CRIT_PORT_NUM_VAL
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CRIT_PORT_NUM_ENA
- */
-#define  VTSS_F_AFI_TUPE_MISC_CRIT_PORT_NUM_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_AFI_TUPE_MISC_CRIT_PORT_NUM_ENA  VTSS_BIT(1)
-#define  VTSS_X_AFI_TUPE_MISC_CRIT_PORT_NUM_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * Enable use of CRIT_QU_NUM_ENA.For further information refer
- * toAFI:TUPE:TUPE_CRIT1.CRIT_QU_NUM_VAL
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CRIT_QU_NUM_ENA
- */
-#define  VTSS_F_AFI_TUPE_MISC_CRIT_QU_NUM_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_AFI_TUPE_MISC_CRIT_QU_NUM_ENA  VTSS_BIT(2)
-#define  VTSS_X_AFI_TUPE_MISC_CRIT_QU_NUM_ENA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * Enable use of CMD_TIMER_ENA_VAL.For further information refer
- * toAFI:TUPE:TUPE_MISC.CMD_TIMER_ENA_VAL
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CMD_TIMER_ENA_ENA
- */
-#define  VTSS_F_AFI_TUPE_MISC_CMD_TIMER_ENA_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_AFI_TUPE_MISC_CMD_TIMER_ENA_ENA  VTSS_BIT(4)
-#define  VTSS_X_AFI_TUPE_MISC_CMD_TIMER_ENA_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \brief
- * New value for TIMER_ENA for any TTIs matching TUPE criteria.Must be
- * enabled by AFI:TUPE:TUPE_MISC.CMD_TIMER_ENA_ENA.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CMD_TIMER_ENA_VAL
- */
-#define  VTSS_F_AFI_TUPE_MISC_CMD_TIMER_ENA_VAL(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_AFI_TUPE_MISC_CMD_TIMER_ENA_VAL  VTSS_BIT(5)
-#define  VTSS_X_AFI_TUPE_MISC_CMD_TIMER_ENA_VAL(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
-
-/**
- * \brief
- * Enable use of CMD_PORT_NUM_VAL.For further information refer
- * toAFI:TUPE:TUPE_CMD1.CMD_PORT_NUM_VAL
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CMD_PORT_NUM_ENA
- */
-#define  VTSS_F_AFI_TUPE_MISC_CMD_PORT_NUM_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_AFI_TUPE_MISC_CMD_PORT_NUM_ENA  VTSS_BIT(6)
-#define  VTSS_X_AFI_TUPE_MISC_CMD_PORT_NUM_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
-
-/**
- * \brief
- * Enable use of CMD_QU_NUM_VAL.For further information refer
- * toAFI:TUPE:TUPE_CMD1.CMD_QU_NUM_VAL
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_MISC . CMD_QU_NUM_ENA
- */
-#define  VTSS_F_AFI_TUPE_MISC_CMD_QU_NUM_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_AFI_TUPE_MISC_CMD_QU_NUM_ENA  VTSS_BIT(7)
-#define  VTSS_X_AFI_TUPE_MISC_CMD_QU_NUM_ENA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
-
-
-/**
- * \brief Address range for TUPE to process
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_ADDR
- */
-#define VTSS_AFI_TUPE_ADDR                   VTSS_IOREG(VTSS_TO_AFI,0xc1cb)
-
-/**
- * \brief
- * First address in TTI Table for TUPE to process.Must be <=
- * TUPE_START_ADDR.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_ADDR . TUPE_START_ADDR
- */
-#define  VTSS_F_AFI_TUPE_ADDR_TUPE_START_ADDR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_AFI_TUPE_ADDR_TUPE_START_ADDR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_AFI_TUPE_ADDR_TUPE_START_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
-
-/**
- * \brief
- * Last address in TTI Table for TUPE to process.Must be >=
- * TUPE_START_ADDR.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_ADDR . TUPE_END_ADDR
- */
-#define  VTSS_F_AFI_TUPE_ADDR_TUPE_END_ADDR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
-#define  VTSS_M_AFI_TUPE_ADDR_TUPE_END_ADDR     VTSS_ENCODE_BITMASK(16,12)
-#define  VTSS_X_AFI_TUPE_ADDR_TUPE_END_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
-
-
-/**
- * \brief TUPE Criteria
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_CRIT1
- */
-#define VTSS_AFI_TUPE_CRIT1                  VTSS_IOREG(VTSS_TO_AFI,0xc1cc)
-
-/**
- * \brief
- * If enabled by AFI:TUPE:TUPE_MISC.CRIT_PORT_NUM_ENA, then PORT_NUM in
- * TTIs must match this value in order to be processed by TUPE.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CRIT1 . CRIT_PORT_NUM_VAL
- */
-#define  VTSS_F_AFI_TUPE_CRIT1_CRIT_PORT_NUM_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,6)
-#define  VTSS_M_AFI_TUPE_CRIT1_CRIT_PORT_NUM_VAL     VTSS_ENCODE_BITMASK(0,6)
-#define  VTSS_X_AFI_TUPE_CRIT1_CRIT_PORT_NUM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
-
-/**
- * \brief
- * If enabled by AFI:TUPE:TUPE_MISC.CRIT_QU_NUM_ENA, then QU_NUM in TTIs
- * must match this value in order to be processed by TUPE.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CRIT1 . CRIT_QU_NUM_VAL
- */
-#define  VTSS_F_AFI_TUPE_CRIT1_CRIT_QU_NUM_VAL(x)  VTSS_ENCODE_BITFIELD(x,8,14)
-#define  VTSS_M_AFI_TUPE_CRIT1_CRIT_QU_NUM_VAL     VTSS_ENCODE_BITMASK(8,14)
-#define  VTSS_X_AFI_TUPE_CRIT1_CRIT_QU_NUM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,8,14)
-
-
-/**
- * \brief TUPE Criteria
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_CRIT2
- */
-#define VTSS_AFI_TUPE_CRIT2                  VTSS_IOREG(VTSS_TO_AFI,0xc1cd)
-
-/**
- * \brief
- * Refer to AFI:TUPE:TUPE_CRIT3.CRIT_TUPE_CTRL_VAL.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CRIT2 . CRIT_TUPE_CTRL_MASK
- */
-#define  VTSS_F_AFI_TUPE_CRIT2_CRIT_TUPE_CTRL_MASK(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_AFI_TUPE_CRIT2_CRIT_TUPE_CTRL_MASK     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_AFI_TUPE_CRIT2_CRIT_TUPE_CTRL_MASK(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief TUPE Criteria
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_CRIT3
- *
- * @param ri Replicator: x_GAZ_AFI_TTI_TUPE_CTRL_CRIT_CNT (??), 0-1
- */
-#define VTSS_AFI_TUPE_CRIT3(ri)              VTSS_IOREG(VTSS_TO_AFI,0xc1ce + (ri))
-
-/**
- * \brief
- * For one or more of the configured CRIT_TUPE_CTRL_VALs, TUPE_CTRL in TTIs
- * must match the following criteria in order to be processed by
- * TUPE:(TTI.TUPE_CTRL & CRIT_TUPE_CTRL_MASK) == CRIT_TUPE_CTRL_VAL[i]
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CRIT3 . CRIT_TUPE_CTRL_VAL
- */
-#define  VTSS_F_AFI_TUPE_CRIT3_CRIT_TUPE_CTRL_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_AFI_TUPE_CRIT3_CRIT_TUPE_CTRL_VAL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_AFI_TUPE_CRIT3_CRIT_TUPE_CTRL_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief TUPE Command Parameters
- *
- * \details
- * Register: \a AFI:TUPE:TUPE_CMD1
- */
-#define VTSS_AFI_TUPE_CMD1                   VTSS_IOREG(VTSS_TO_AFI,0xc1d0)
-
-/**
- * \brief
- * New value for PORT_NUM for any TTIs matching TUPE criteria.Must be
- * enabled by AFI:TUPE:TUPE_MISC.CMD_PORT_NUM_ENA.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CMD1 . CMD_PORT_NUM_VAL
- */
-#define  VTSS_F_AFI_TUPE_CMD1_CMD_PORT_NUM_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,6)
-#define  VTSS_M_AFI_TUPE_CMD1_CMD_PORT_NUM_VAL     VTSS_ENCODE_BITMASK(0,6)
-#define  VTSS_X_AFI_TUPE_CMD1_CMD_PORT_NUM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
-
-/**
- * \brief
- * New value for QU_NUM for any TTIs matching TUPE criteria.Must be enabled
- * by AFI:TUPE:TUPE_MISC.CMD_QU_NUM_ENA.
- *
- * \details
- * Field: ::VTSS_AFI_TUPE_CMD1 . CMD_QU_NUM_VAL
- */
-#define  VTSS_F_AFI_TUPE_CMD1_CMD_QU_NUM_VAL(x)  VTSS_ENCODE_BITFIELD(x,8,14)
-#define  VTSS_M_AFI_TUPE_CMD1_CMD_QU_NUM_VAL     VTSS_ENCODE_BITMASK(8,14)
-#define  VTSS_X_AFI_TUPE_CMD1_CMD_QU_NUM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,8,14)
 
 
 #endif /* _VTSS_LAGUNA_REGS_AFI_H_ */

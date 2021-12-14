@@ -354,8 +354,8 @@ u32 vtss_to_dev2g5(u32 port)
     case 25: return VTSS_TO_DEV2G5_25;
     case 26: return VTSS_TO_DEV2G5_26;
     case 27: return VTSS_TO_DEV2G5_27;
-    case 28: return VTSS_TO_DEV2G5_28;
-    case 29: return VTSS_TO_DEV2G5_29;
+    case 28: return VTSS_TO_DEVRGMII_0;
+    case 29: return VTSS_TO_DEVRGMII_1;
         default:
         VTSS_E("illegal 2G5 port number %d",port);
         return 0;

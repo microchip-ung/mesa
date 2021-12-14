@@ -22,7 +22,7 @@
 
 
 /**
- * \brief Master Register0
+ * \brief Master Register 0
  *
  * \details
  * Register: \a DDR_UMCTL2:UMCTL2_REGS:MSTR
@@ -32,12 +32,14 @@
 /**
  * \brief
  * Selects DDR3 SDRAM.
- *  - 1 - DDR3 SDRAM device in use
- *  - 0 - non-DDR3 SDRAM device in use
- * Present only in designs configured to support DDR3.
+ *   Present only in designs configured to support DDR3.
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . DDR3
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_DDR3(x)       VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -46,8 +48,24 @@
 
 /**
  * \brief
- * When this bit is set, enables burst-chop (BC4 or 8 on-the-fly) in
- * DDR3/DDR4.
+ * Selects DDR4 SDRAM.
+ *   Present only in designs configured to support DDR4.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MSTR . DDR4
+ */
+#define  VTSS_F_DDR_UMCTL2_MSTR_DDR4(x)       VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DDR_UMCTL2_MSTR_DDR4          VTSS_BIT(4)
+#define  VTSS_X_DDR_UMCTL2_MSTR_DDR4(x)       VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enables Burst Chop(BC4 or 8 on-the-fly) in DDR3/DDR4.
  * Burst Chop for reads is exercised only:
  *  - In HIF configurations (UMCTL2_INCL_ARB not set)
  *  - If in full bus width mode (MSTR.data_bus_width = 00)
@@ -58,6 +76,10 @@
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . BURSTCHOP
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_BURSTCHOP(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
@@ -66,7 +88,7 @@
 
 /**
  * \brief
- * If 1, then uMCTL2 uses 2T timing, otherwise uses 1T timing.
+ * Sets uMCTL2 timing mode.
  * In 2T timing, all command signals (except chip select) are held for 2
  * clocks on the SDRAM bus. Chip select is asserted on the second cycle of
  * the command.
@@ -80,6 +102,10 @@
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . EN_2T_TIMING_MODE
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_EN_2T_TIMING_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
@@ -88,19 +114,49 @@
 
 /**
  * \brief
+ * Indicates the DRAM in geardown mode.
+ *
+ *  This register can be changed, only when the controller is in the
+ * self-refresh mode.
+ * This signal must be set the same value as MR3 bit A3.
+ *
+ * Note:
+ *  - Geardown mode is not supported if the configuration parameter
+ * MEMC_CMD_RTN2IDLE is set
+ *  - Geardown mode is not supported if the configuration parameter
+ * UMCTL2_SHARED_AC is set (in Shared-AC mode) and the register value is
+ * don't care
+ * Programming Mode: Quasi-dynamic Group 2
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MSTR . GEARDOWN_MODE
+ */
+#define  VTSS_F_DDR_UMCTL2_MSTR_GEARDOWN_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_DDR_UMCTL2_MSTR_GEARDOWN_MODE  VTSS_BIT(11)
+#define  VTSS_X_DDR_UMCTL2_MSTR_GEARDOWN_MODE(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
  * Selects proportion of DQ bus width that is used by the SDRAM.
- *  - 00 - Full DQ bus width to SDRAM
- *  - 01 - Half DQ bus width to SDRAM
- *  - 10 - Quarter DQ bus width to SDRAM
- *  - 11 - Reserved
- * Note that half bus width mode is only supported when the SDRAM bus width
- * is a multiple of 16, and quarter bus width mode is only supported when
- * the SDRAM bus width is a multiple of 32 and the configuration parameter
- * MEMC_QBUS_SUPPORT is set. Bus width refers to DQ bus width (excluding
- * any ECC width).
+ *
+ *   Note that half bus width mode is only supported when the SDRAM bus
+ * width is a multiple of 16, and quarter bus width mode is only supported
+ * when the SDRAM bus width is a multiple of 32 and the configuration
+ * parameter MEMC_QBUS_SUPPORT is set. Bus width refers to DQ bus width
+ * (excluding any ECC width).
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . DATA_BUS_WIDTH
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_DATA_BUS_WIDTH(x)  VTSS_ENCODE_BITFIELD(x,12,2)
@@ -109,17 +165,16 @@
 
 /**
  * \brief
- * Set to:
- *  - 1 - When the uMCTL2 and DRAM has to be put in DLL-off mode for low
- * frequency operation
- *  - 0 - To put uMCTL2 and DRAM in DLL-on mode for normal frequency
- * operation
- *  If DDR4 CRC/parity retry is enabled (CRCPARCTL1.crc_parity_retry_enable
+ * Sets DLL-off mode.
+ * If DDR4 CRC/parity retry is enabled (CRCPARCTL1.crc_parity_retry_enable
  * = 1), dll_off_mode is not supported, and this bit must be set to '0'.
- *
  * Programming Mode: Quasi-dynamic Group 2
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . DLL_OFF_MODE
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_DLL_OFF_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
@@ -128,13 +183,9 @@
 
 /**
  * \brief
- * Indicates SDRAM burst length used:
- *  - 0001 - Burst length of 2 (only supported for mDDR)
- *  - 0010 - Burst length of 4
- *  - 0100 - Burst length of 8
- *  - 1000 - Burst length of 16 (only supported for mDDR, LPDDR2, and
- * LPDDR4)
- * All other values are reserved.
+ * Indicates SDRAM burst length used.
+ *
+ *   All other values are reserved.(See "Values" section)
  * This bit controls the burst size used to access the SDRAM. This must
  * match the burst length mode register setting in the SDRAM. (For BC4/8
  * on-the-fly mode of DDR3 and DDR4, set this field to 0x0100) Burst length
@@ -146,6 +197,12 @@
  * Programming Mode: Static
  *
  * \details
+ * 'h8:
+ * 'h1:
+ * 'h2:
+ * 'h4:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MSTR . BURST_RDWR
  */
 #define  VTSS_F_DDR_UMCTL2_MSTR_BURST_RDWR(x)  VTSS_ENCODE_BITFIELD(x,16,4)
@@ -160,10 +217,11 @@
  *  - 1 - Populated
  *  - 0 - Unpopulated
  * LSB is the lowest rank number.
- * For two ranks following combinations are legal:
- *  - 01 - One rank
- *  - 11 - Two ranks
- *  - Others - Reserved
+ * For two ranks only the following values are legal:
+ *  - OneRank
+ *  - Tworanks
+ *  - Others
+ *  - Reserved
  * For four ranks following combinations are legal:
  *  - 0001 - One rank
  *  - 0011 - Two ranks
@@ -177,6 +235,24 @@
 #define  VTSS_F_DDR_UMCTL2_MSTR_ACTIVE_RANKS(x)  VTSS_ENCODE_BITFIELD(x,24,2)
 #define  VTSS_M_DDR_UMCTL2_MSTR_ACTIVE_RANKS     VTSS_ENCODE_BITMASK(24,2)
 #define  VTSS_X_DDR_UMCTL2_MSTR_ACTIVE_RANKS(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
+
+/**
+ * \brief
+ * Indicates the configuration of the device used in the system.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h2:
+ * 'h3:
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MSTR . DEVICE_CONFIG
+ */
+#define  VTSS_F_DDR_UMCTL2_MSTR_DEVICE_CONFIG(x)  VTSS_ENCODE_BITFIELD(x,30,2)
+#define  VTSS_M_DDR_UMCTL2_MSTR_DEVICE_CONFIG     VTSS_ENCODE_BITMASK(30,2)
+#define  VTSS_X_DDR_UMCTL2_MSTR_DEVICE_CONFIG(x)  VTSS_EXTRACT_BITFIELD(x,30,2)
 
 
 /**
@@ -214,32 +290,23 @@
  * \details
  * Field: ::VTSS_DDR_UMCTL2_STAT . OPERATING_MODE
  */
-#define  VTSS_F_DDR_UMCTL2_STAT_OPERATING_MODE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_DDR_UMCTL2_STAT_OPERATING_MODE     VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_DDR_UMCTL2_STAT_OPERATING_MODE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+#define  VTSS_F_DDR_UMCTL2_STAT_OPERATING_MODE(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DDR_UMCTL2_STAT_OPERATING_MODE     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DDR_UMCTL2_STAT_OPERATING_MODE(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
 
 /**
  * \brief
  * Flags if self-refresh (except LPDDR4), or SR-Powerdown (LPDDR4) is
  * entered, and if it is under automatic self-refresh control only or not.
- *
- *  - 00 - SDRAM is not in self-refresh (except LPDDR4) or SR-Powerdown
- * (LPDDR4). If retry is enabled by CRCPARCTL1.crc_parity_retry_enable,
- * this also indicates that the SRE command is still in parity error window
- * or retry is in-progress.
- *  - 11 - SDRAM is in self-refresh (except LPDDR4) or SR-Powerdown
- * (LPDDR4), which was caused by Automatic self-refresh only. If retry is
- * enabled, this ensures that the SRE command is executed correctly without
- * parity error.
- *  - 10 - SDRAM is in self-refresh (except LPDDR4) or SR-Powerdown
- * (LPDDR4), which was not caused solely under automatic self-refresh
- * control. It could have been caused by Hardware Low Power Interface
- * and/or Software (PWRCTL.selfref_sw). If retry is enabled, this ensures
- * that the SRE command is executed correctly without parity error.
- *  - 01 - SDRAM is in self-refresh, which is caused by PHY Master Request.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h3:
+ * 'h2:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_STAT . SELFREF_TYPE
  */
 #define  VTSS_F_DDR_UMCTL2_STAT_SELFREF_TYPE(x)  VTSS_ENCODE_BITFIELD(x,4,2)
@@ -249,11 +316,13 @@
 /**
  * \brief
  * Self-refresh with CAMs not empty.
- * Set to 1 when self-refresh is entered but CAMs are not drained.
- * Cleared after exiting self-refresh.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_STAT . SELFREF_CAM_NOT_EMPTY
  */
 #define  VTSS_F_DDR_UMCTL2_STAT_SELFREF_CAM_NOT_EMPTY(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -272,6 +341,83 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Register: \a DDR_UMCTL2:UMCTL2_REGS:MRCTRL0
  */
 #define VTSS_DDR_UMCTL2_MRCTRL0              VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x4)
+
+/**
+ * \brief
+ * Indicates whether the mode register operation is read or write. Only
+ * used for LPDDR2/LPDDR3/LPDDR4/DDR4.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . MR_TYPE
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL0_MR_TYPE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL0_MR_TYPE    VTSS_BIT(0)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL0_MR_TYPE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Indicates whether the mode register operation is MRS or WR/RD for MPR
+ * (only supported for DDR4).
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . MPR_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL0_MPR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL0_MPR_EN     VTSS_BIT(1)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL0_MPR_EN(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Indicates whether the mode register operation is MRS in PDA mode or not.
+ *   Note that when pba_mode=1, PBA access is initiated instead of PDA
+ * access.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . PDA_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL0_PDA_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL0_PDA_EN     VTSS_BIT(2)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL0_PDA_EN(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Indicates whether software intervention is allowed through
+ * MRCTRL0/MRCTRL1 before automatic SDRAM initialization routine or not.
+ * For DDR4, this bit can be used to initialize the DDR4 RCD (MR7) before
+ * automatic SDRAM initialization.
+ * For LPDDR4, this bit can be used to program additional mode registers
+ * before automatic SDRAM initialization if necessary.
+ * In LPDDR4 dual channel mode, note that this must be programmed to both
+ * channels beforehand.
+ * Note that this must be cleared to 0 after completing Software operation.
+ * Otherwise, SDRAM initialization routine does not re-start.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . SW_INIT_INT
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL0_SW_INIT_INT(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL0_SW_INIT_INT  VTSS_BIT(3)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL0_SW_INIT_INT(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
 /**
  * \brief
@@ -297,15 +443,8 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Address of the mode register that is to be written to.
- *  - 0000 - MR0
- *  - 0001 - MR1
- *  - 0010 - MR2
- *  - 0011 - MR3
- *  - 0100 - MR4
- *  - 0101 - MR5
- *  - 0110 - MR6
- *  - 0111 - MR7
- * Don't Care for LPDDR2/LPDDR3/LPDDR4 (see MRCTRL1.mr_data for mode
+ *
+ *   Don't Care for LPDDR2/LPDDR3/LPDDR4 (see MRCTRL1.mr_data for mode
  * register addressing in LPDDR2/LPDDR3/LPDDR4).
  * This signal is also used for writing to control words of the register
  * chip on RDIMMs/LRDIMMs. In this case, it corresponds to the bank address
@@ -317,6 +456,16 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+ * 'h4:
+ * 'h5:
+ * 'h6:
+ * 'h7:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . MR_ADDR
  */
 #define  VTSS_F_DDR_UMCTL2_MRCTRL0_MR_ADDR(x)  VTSS_ENCODE_BITFIELD(x,12,4)
@@ -325,17 +474,39 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * Setting this register bit to 1 triggers a mode register read or write
- * operation.
- * When the MR operation is complete, the uMCTL2 automatically clears this
- * bit.
- * The other fields of this register must be written in a separate APB
+ * Indicates whether PBA access is executed. When setting this bit to 1
+ * along with setting pda_en to 1, uMCTL2 initiates PBA access instead of
+ * PDA access.
+ *   The completion of PBA access is confirmed by MRSTAT.pda_done in the
+ * same way as PDA.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . PBA_MODE
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL0_PBA_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL0_PBA_MODE   VTSS_BIT(30)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL0_PBA_MODE(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Triggers a Mode Register Read or Write operation.
+ *
+ *   The other fields of this register must be written in a separate APB
  * transaction, before setting this mr_wr bit.
  * It is recommended NOT to set this signal if in Init, Deep power-down, or
  * MPSM operating modes.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MRCTRL0 . MR_WR
  */
 #define  VTSS_F_DDR_UMCTL2_MRCTRL0_MR_WR(x)   VTSS_ENCODE_BITFIELD(!!(x),31,1)
@@ -364,9 +535,9 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \details
  * Field: ::VTSS_DDR_UMCTL2_MRCTRL1 . MR_DATA
  */
-#define  VTSS_F_DDR_UMCTL2_MRCTRL1_MR_DATA(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DDR_UMCTL2_MRCTRL1_MR_DATA     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DDR_UMCTL2_MRCTRL1_MR_DATA(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_DDR_UMCTL2_MRCTRL1_MR_DATA(x)  VTSS_ENCODE_BITFIELD(x,0,18)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL1_MR_DATA     VTSS_ENCODE_BITMASK(0,18)
+#define  VTSS_X_DDR_UMCTL2_MRCTRL1_MR_DATA(x)  VTSS_EXTRACT_BITFIELD(x,0,18)
 
 
 /**
@@ -385,17 +556,69 @@ Note: Do not enable more than one of the following fields simultaneously:
  *  - Low when the MRW/MRR command is issued to the SDRAM
  * It is recommended not to perform MRW/MRR commands when
  * 'MRSTAT.mr_wr_busy' is high.
- *  - 0 - Indicates that the SoC can initiate a mode register write
- * operation
- *  - 1 - Indicates that mode register write operation is in progress
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_MRSTAT . MR_WR_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_MRSTAT_MR_WR_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
 #define  VTSS_M_DDR_UMCTL2_MRSTAT_MR_WR_BUSY  VTSS_BIT(0)
 #define  VTSS_X_DDR_UMCTL2_MRSTAT_MR_WR_BUSY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * The SoC might initiate a MR write operation in PDA/PBA mode only if this
+ * signal is low.
+ * This signal goes:
+ *  - High when three consecutive MRS commands related to the PDA/PBA mode
+ * are issued to the SDRAM
+ *  - Low when MRCTRL0.pda_en becomes 0
+ *  Therefore, it is recommended to write MRCTRL0.pda_en to 0 after this
+ * signal goes high in order to prepare to perform PDA operation next time.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRSTAT . PDA_DONE
+ */
+#define  VTSS_F_DDR_UMCTL2_MRSTAT_PDA_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_DDR_UMCTL2_MRSTAT_PDA_DONE    VTSS_BIT(8)
+#define  VTSS_X_DDR_UMCTL2_MRSTAT_PDA_DONE(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+
+/**
+ * \brief Mode Register Read/Write Control Register 2
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:MRCTRL2
+ */
+#define VTSS_DDR_UMCTL2_MRCTRL2              VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x7)
+
+/**
+ * \brief
+ * Indicates the devices to be selected during the MRS that happens in PDA
+ * mode.
+ * Each bit is associated with one device. For example, bit[0] corresponds
+ * to Device 0, bit[1] to Device 1 and so on.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_MRCTRL2 . MR_DEVICE_SEL
+ */
+#define  VTSS_F_DDR_UMCTL2_MRCTRL2_MR_DEVICE_SEL(x)  (x)
+#define  VTSS_M_DDR_UMCTL2_MRCTRL2_MR_DEVICE_SEL     0xffffffff
+#define  VTSS_X_DDR_UMCTL2_MRCTRL2_MR_DEVICE_SEL(x)  (x)
 
 
 /**
@@ -408,14 +631,16 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * If true then the uMCTL2 puts the SDRAM into self-refresh after a
- * programmable number of cycles "maximum idle clocks before self-refresh
- * (PWRTMG.selfref_to_x32)".
+ * Sets Self-refresh.
  * This register bit may be re-programmed during the course of normal
  * operation.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PWRCTL . SELFREF_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PWRCTL_SELFREF_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -424,14 +649,16 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * If true then the uMCTL2 goes into power-down after a programmable number
- * of cycles "maximum idle clocks before power down"
- * (PWRTMG.powerdown_to_x32).
+ * Sets Power-down mode.
  * This register bit may be re-programmed during the course of normal
  * operation.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PWRCTL . POWERDOWN_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PWRCTL_POWERDOWN_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -442,7 +669,6 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * Enables the assertion of dfi_dram_clk_disable whenever a clock is not
  * required by the SDRAM.
- * If set to 0, dfi_dram_clk_disable is never asserted.
  * Assertion of dfi_dram_clk_disable is as follows:
  * In DDR2/DDR3, can only be asserted in self-refresh.
  * In DDR4, can be asserted in following:
@@ -461,6 +687,10 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PWRCTL . EN_DFI_DRAM_CLK_DISABLE
  */
 #define  VTSS_F_DDR_UMCTL2_PWRCTL_EN_DFI_DRAM_CLK_DISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
@@ -469,16 +699,40 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
+ * Sets Maximum powersaving mode.
+ * Present only in designs configured to support DDR4. For non-DDR4, this
+ * register must not be set to 1.
+ * Note that MPSM is not supported when using a Synopsys DWC DDR PHY, if
+ * the PHY parameter DWC_AC_CS_USE is disabled, as the MPSM exit sequence
+ * requires the chip-select signal to toggle.
+ * FOR PERFORMANCE ONLY.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_PWRCTL . MPSM_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_PWRCTL_MPSM_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DDR_UMCTL2_PWRCTL_MPSM_EN     VTSS_BIT(4)
+#define  VTSS_X_DDR_UMCTL2_PWRCTL_MPSM_EN(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
  * A value of 1 to this register causes system to move to self-refresh
  * state immediately, as long as it is not in INIT or DPD/MPSM
  * operating_mode.
  * This is referred to as Software Entry/Exit to self-refresh.
- *  - 1 - Software Entry to self-refresh
- *  - 0 - Software Exit from self-refresh
  *
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PWRCTL . SELFREF_SW
  */
 #define  VTSS_F_DDR_UMCTL2_PWRCTL_SELFREF_SW(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
@@ -490,14 +744,17 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Indicates whether skipping CAM draining is allowed when entering
  * self-refresh.
  * This register field cannot be modified while PWRCTL.selfref_sw == 1.
- *  - 0 - CAMs must be empty before entering SR
- *  - 1 - CAMs are not emptied before entering SR (unsupported)
+ *
  *   Note, PWRCTL.dis_cam_drain_selfref=1 is unsupported in this release.
  * PWRCTL.dis_cam_drain_selfref=0 is required.
  *
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PWRCTL . DIS_CAM_DRAIN_SELFREF
  */
 #define  VTSS_F_DDR_UMCTL2_PWRCTL_DIS_CAM_DRAIN_SELFREF(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
@@ -562,11 +819,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * Enable this bit for Hardware Low Power Interface.
+ * Enabled for Hardware Low Power Interface.
  *
  * Programming Mode: Quasi-dynamic Group 2
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_HWLPCTL . HW_LP_EN
  */
 #define  VTSS_F_DDR_UMCTL2_HWLPCTL_HW_LP_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -575,14 +836,17 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * When this bit is programmed to 1 the cactive_in_ddrc pin of the DDRC can
- * be used to exit from the automatic clock stop, automatic power down or
- * automatic self-refresh modes.
+ * Allows use of cactive_in_ddrc to exit from the automatic clock stop,
+ * automatic power down or automatic self-refresh modes.
  * Note, it does not cause exit of self-refresh that was caused by Hardware
  * Low Power Interface and/or Software (PWRCTL.selfref_sw).
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_HWLPCTL . HW_LP_EXIT_IDLE_EN
  */
 #define  VTSS_F_DDR_UMCTL2_HWLPCTL_HW_LP_EXIT_IDLE_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -649,6 +913,11 @@ Note: Do not enable more than one of the following fields simultaneously:
  * update is complete.
  * In per-bank refresh mode of LPDDR2/LPDDR3/LPDDR4
  * (RFSHCTL0.per_bank_refresh = 1), 64 refreshes can be postponed.
+ * In LPDDR4 mode, if per-bank refresh is enabled
+ * (RFSHCTL0.per_bank_refresh = 1), and automatic switching from per-bank
+ * to all-bank refresh is enabled (RFSHCTL0.auto_refab_en = 2'b01 or
+ * RFSHCTL0.auto_refab_en = 2'b10), the uCMTL2 divides this value by 8 when
+ * it switches automatically from per-bank to all-bank refresh.
  * Programming Mode: Dynamic - Refresh Related
  *
  * \details
@@ -769,7 +1038,7 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * When '1', disable auto-refresh generated by the uMCTL2.
+ * Disables auto-refresh generated by the uMCTL2.
  * When auto-refresh is disabled, the SoC must generate refreshes using the
  * registers DBGCMD.rankn_refresh.
  * When dis_auto_refresh transitions from 0 to 1, any pending refreshes are
@@ -783,6 +1052,10 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Dynamic - Refresh Related
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_RFSHCTL3 . DIS_AUTO_REFRESH
  */
 #define  VTSS_F_DDR_UMCTL2_RFSHCTL3_DIS_AUTO_REFRESH(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -799,11 +1072,45 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_RFSHCTL3 . REFRESH_UPDATE_LEVEL
  */
 #define  VTSS_F_DDR_UMCTL2_RFSHCTL3_REFRESH_UPDATE_LEVEL(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
 #define  VTSS_M_DDR_UMCTL2_RFSHCTL3_REFRESH_UPDATE_LEVEL  VTSS_BIT(1)
 #define  VTSS_X_DDR_UMCTL2_RFSHCTL3_REFRESH_UPDATE_LEVEL(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Indicates fine granularity refresh mode.
+ * Everything not described in "Values" section is reserved.
+ *
+ * Note:
+ *  - Only Fixed 1x mode is supported if RFSHCTL3.dis_auto_refresh = 1
+ *  - The on-the-fly modes are not supported in this version of the uMCTL2
+ *  - This must be set up while the controller is in reset or while the
+ * controller is in self-refresh mode. Changing this during normal
+ * operation is not allowed. Making this a dynamic register is supported in
+ * future version of the uMCTL2
+ *  - This register field has effect only if a DDR4 SDRAM device is in use
+ * (MSTR.ddr4 = 1)
+ * Programming Mode: Quasi-dynamic Group 2
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h5:
+ * 'h6:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_RFSHCTL3 . REFRESH_MODE
+ */
+#define  VTSS_F_DDR_UMCTL2_RFSHCTL3_REFRESH_MODE(x)  VTSS_ENCODE_BITFIELD(x,4,3)
+#define  VTSS_M_DDR_UMCTL2_RFSHCTL3_REFRESH_MODE     VTSS_ENCODE_BITMASK(4,3)
+#define  VTSS_X_DDR_UMCTL2_RFSHCTL3_REFRESH_MODE(x)  VTSS_EXTRACT_BITFIELD(x,4,3)
 
 
 /**
@@ -896,14 +1203,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * ECC mode indicator.
- *  - 000 - ECC disabled
- *  - 100 - ECC enabled - SEC/DED over 1 beat
- *  - 101 - ECC enabled - Advanced ECC X4/X8 (Illegal value when
- * MEMC_INLINE_ECC=1)
- *  - all other settings are reserved for future use
+ * Everything not described in "Values" section is reserved.
  * Programming Mode: Static
  *
  * \details
+ * 'h5:
+ * 'h0:
+ * 'h4:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . ECC_MODE
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_ECC_MODE(x)  VTSS_ENCODE_BITFIELD(x,0,3)
@@ -921,6 +1229,10 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . DIS_SCRUB
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_DIS_SCRUB(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -931,11 +1243,13 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * Enables address protection feature.
  * Only supported when inline ECC is enabled.
- *  - 0 - Disable
- *  - 1 - Enable
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . ECC_AP_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_ECC_AP_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
@@ -946,11 +1260,13 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * Enables remapping ECC region feature.
  * Only supported when inline ECC is enabled.
- *  - 0 - Disable
- *  - 1 - Enable
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . ECC_REGION_REMAP_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_ECC_REGION_REMAP_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
@@ -1036,14 +1352,17 @@ Note: Do not enable more than one of the following fields simultaneously:
  * controlled by ecc_region_map.
  * This register defines the region to be protected or non-protected for
  * Inline ECC.
- *  - 0 - Non-Protected
- *  - 1 - Protected
- * This register is valid only when ECCCFG0.ecc_region_map_granu>0 &&
+ *
+ *   This register is valid only when ECCCFG0.ecc_region_map_granu>0 &&
  * ECCCFG0.ecc_mode=4.
  *
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . ECC_REGION_MAP_OTHER
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_ECC_REGION_MAP_OTHER(x)  VTSS_ENCODE_BITFIELD(!!(x),29,1)
@@ -1054,14 +1373,15 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * Indicates granularity of selectable protected region.
  * Define one region size for ECCCFG0.ecc_region_map.
- *  - 0 - 1/8 of memory spaces
- *  - 1 - 1/16 of memory spaces
- *  - 2 - 1/32 of memory spaces
- *  - 3 - 1/64 of memory spaces
- *
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG0 . ECC_REGION_MAP_GRANU
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG0_ECC_REGION_MAP_GRANU(x)  VTSS_ENCODE_BITFIELD(x,30,2)
@@ -1085,6 +1405,10 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG1 . DATA_POISON_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG1_DATA_POISON_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -1094,13 +1418,14 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Selects whether to poison 1 or 2 bits.
- *  - if 0 -> 2-bit (uncorrectable) data poisoning
- *  - if 1 -> 1-bit (correctable) data poisoning, if
- * ECCCFG1.data_poison_en=1
- * Valid only when MEMC_ECC_SUPPORT==1 (SECDED ECC mode)
+ *   Valid only when MEMC_ECC_SUPPORT==1 (SECDED ECC mode)
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG1 . DATA_POISON_BIT
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG1_DATA_POISON_BIT(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -1112,12 +1437,13 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Locks the parity section of the ECC region (hole) which is the highest
  * system address part of the memory that stores ECC parity for protected
  * region.
- *  - 1 - Locked; if this region is accessed, error response is generated
- *  - 0 - Unlocked; this region can be accessed normally, similar to
- * non-ECC protected region
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG1 . ECC_REGION_PARITY_LOCK
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG1_ECC_REGION_PARITY_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -1128,12 +1454,13 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * Locks the remaining waste parts of the ECC region (hole) that are not
  * locked by ecc_region_parity_lock.
- *  - 1 - Locked; if this region is accessed, error response is generated
- *  - 0 - Unlocked; this region can be accessed normally, similar to
- * non-ECC protected region
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG1 . ECC_REGION_WASTE_LOCK
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG1_ECC_REGION_WASTE_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
@@ -1144,13 +1471,15 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \brief
  * If enabled, block channel is terminated when full block write or full
  * block read is performed (all address within block are written or read).
- *  - 0 - Disable (only for debug purpose)
- *  - 1 - Enable (default)
- * This is debug register, and this must be set to 1 for normal operation.
- *
+ *   This is debug register, and this must be set to 1 for normal
+ * operation.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCFG1 . BLK_CHANNEL_ACTIVE_TERM
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCFG1_BLK_CHANNEL_ACTIVE_TERM(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
@@ -1248,7 +1577,7 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Setting this register bit to 1 clears the currently stored corrected ECC
- * error.
+ * error. uMCTL2 automatically clears this bit.
  * The following registers are cleared:
  *  - ECCSTAT.ecc_corrected_err
  *  - ADVECCSTAT.advecc_corrected_err
@@ -1261,10 +1590,13 @@ Note: Do not enable more than one of the following fields simultaneously:
  *  - ECCBITMASK0
  *  - ECCBITMASK1
  *  - ECCBITMASK2
- * uMCTL2 automatically clears this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_CORRECTED_ERR_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_CORRECTED_ERR_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -1274,17 +1606,20 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Setting this register bit to 1 clears the currently stored uncorrected
- * ECC error.
+ * ECC error. uMCTL2 automatically clears this bit.
  * The following registers are cleared:
  *  - ECCSTAT.ecc_uncorrected_err
  *  - ADVECCSTAT.advecc_uncorrected_err
  *  - ECCUSYN0
  *  - ECCUSYN1
  *  - ECCUSYN2
- * uMCTL2 automatically clears this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_UNCORRECTED_ERR_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_UNCORRECTED_ERR_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -1293,13 +1628,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * Setting this register bit to 1 clears the currently stored corrected ECC
- * error count.
- * The ECCERRCNT.ecc_corr_err_cnt register is cleared by this operation.
- * The uMCTL2 automatically clears this bit.
+ * Clears the currently stored corrected ECC error count. The uMCTL2
+ * automatically clears this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_CORR_ERR_CNT_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_CORR_ERR_CNT_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
@@ -1308,13 +1645,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * Setting this register bit to 1 clears the currently stored uncorrected
- * ECC error count.
- * The ECCERRCNT.ecc_uncorr_err_cnt register is cleared by this operation.
- * The uMCTL2 automatically clears this bit.
+ * Clears currently stored uncorrected ECC error count. The uMCTL2
+ * automatically clears this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_UNCORR_ERR_CNT_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_UNCORR_ERR_CNT_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
@@ -1323,12 +1662,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 
 /**
  * \brief
- * Interrupt clear bit for ecc_ap_err.
- * If this bit is set, the ECCAPSTAT.ecc_ap_err/ecc_ap_err_intr is cleared.
- * The uMCTL2 automatically clears this bit.
+ * Interrupt clear bit for ecc_ap_err. The uMCTL2 automatically clears this
+ * bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_AP_ERR_INTR_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_AP_ERR_INTR_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -1338,12 +1680,13 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt enable bit for ecc_corrected_err_intr.
- *  - 1 - Enabled
- *  - 0 - Disabled
- *
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_CORRECTED_ERR_INTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_CORRECTED_ERR_INTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
@@ -1353,12 +1696,13 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt enable bit for ecc_uncorrected_err_intr.
- *  - 1 - Enabled
- *  - 0 - Disabled
- *
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_UNCORRECTED_ERR_INTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_UNCORRECTED_ERR_INTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
@@ -1368,12 +1712,13 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt enable bit for ecc_ap_err_intr.
- *  - 1 - Enabled
- *  - 0 - Disabled
- *
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_AP_ERR_INTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_AP_ERR_INTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
@@ -1383,13 +1728,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt force bit for ecc_corrected_err_intr.
- * Setting this register causes the output interrupt to be asserted.
- * The uMCTL2 automatically clears this bit.
  * There is no interaction between functionally triggering an interrupt and
  * forcing an interrupt (they are mutually exclusive).
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_CORRECTED_ERR_INTR_FORCE
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_CORRECTED_ERR_INTR_FORCE(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
@@ -1399,13 +1746,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt force bit for ecc_uncorrected_err_intr.
- * Setting this register causes the output interrupt to be asserted.
- * The	uMCTL2 automatically clears this bit.
  * There is no interaction between functionally triggering an interrupt and
  * forcing an interrupt (they are mutually exclusive).
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_UNCORRECTED_ERR_INTR_FORCE
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_UNCORRECTED_ERR_INTR_FORCE(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
@@ -1415,13 +1764,15 @@ Note: Do not enable more than one of the following fields simultaneously:
 /**
  * \brief
  * Interrupt force bit for ecc_ap_err_intr.
- * Setting this register causes the output interrupt to be asserted.
- * The uMCTL2 automatically clears this bit.
  * There is no interaction between functionally triggering an interrupt and
  * forcing an interrupt (they are mutually exclusive).
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCCTL . ECC_AP_ERR_INTR_FORCE
  */
 #define  VTSS_F_DDR_UMCTL2_ECCCTL_ECC_AP_ERR_INTR_FORCE(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
@@ -1489,9 +1840,9 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \details
  * Field: ::VTSS_DDR_UMCTL2_ECCCADDR0 . ECC_CORR_ROW
  */
-#define  VTSS_F_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,18)
+#define  VTSS_M_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW     VTSS_ENCODE_BITMASK(0,18)
+#define  VTSS_X_DDR_UMCTL2_ECCCADDR0_ECC_CORR_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,18)
 
 /**
  * \brief
@@ -1538,6 +1889,19 @@ Note: Do not enable more than one of the following fields simultaneously:
 #define  VTSS_F_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BANK(x)  VTSS_ENCODE_BITFIELD(x,16,3)
 #define  VTSS_M_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BANK     VTSS_ENCODE_BITMASK(16,3)
 #define  VTSS_X_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BANK(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+
+/**
+ * \brief
+ * Indicates the bank group number of a read resulting in a corrected ECC
+ * error.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ECCCADDR1 . ECC_CORR_BG
+ */
+#define  VTSS_F_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BG(x)  VTSS_ENCODE_BITFIELD(x,24,2)
+#define  VTSS_M_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BG     VTSS_ENCODE_BITMASK(24,2)
+#define  VTSS_X_DDR_UMCTL2_ECCCADDR1_ECC_CORR_BG(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
 
 
 /**
@@ -1721,9 +2085,9 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \details
  * Field: ::VTSS_DDR_UMCTL2_ECCUADDR0 . ECC_UNCORR_ROW
  */
-#define  VTSS_F_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,18)
+#define  VTSS_M_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW     VTSS_ENCODE_BITMASK(0,18)
+#define  VTSS_X_DDR_UMCTL2_ECCUADDR0_ECC_UNCORR_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,18)
 
 /**
  * \brief
@@ -1772,6 +2136,19 @@ Note: Do not enable more than one of the following fields simultaneously:
 #define  VTSS_F_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BANK(x)  VTSS_ENCODE_BITFIELD(x,16,3)
 #define  VTSS_M_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BANK     VTSS_ENCODE_BITMASK(16,3)
 #define  VTSS_X_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BANK(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+
+/**
+ * \brief
+ * Indicates the bank group number of a read resulting in an uncorrected
+ * ECC error.
+ * Programming Mode: Dynamic
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ECCUADDR1 . ECC_UNCORR_BG
+ */
+#define  VTSS_F_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BG(x)  VTSS_ENCODE_BITFIELD(x,24,2)
+#define  VTSS_M_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BG     VTSS_ENCODE_BITMASK(24,2)
+#define  VTSS_X_DDR_UMCTL2_ECCUADDR1_ECC_UNCORR_BG(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
 
 
 /**
@@ -1904,9 +2281,9 @@ Note: Do not enable more than one of the following fields simultaneously:
  * \details
  * Field: ::VTSS_DDR_UMCTL2_ECCPOISONADDR1 . ECC_POISON_ROW
  */
-#define  VTSS_F_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW     VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+#define  VTSS_F_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,18)
+#define  VTSS_M_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW     VTSS_ENCODE_BITMASK(0,18)
+#define  VTSS_X_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,18)
 
 /**
  * \brief
@@ -1914,15 +2291,43 @@ Note: Do not enable more than one of the following fields simultaneously:
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+ * 'h4:
+ * 'h5:
+ * 'h6:
+ * 'h7:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCPOISONADDR1 . ECC_POISON_BANK
  */
 #define  VTSS_F_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BANK(x)  VTSS_ENCODE_BITFIELD(x,24,3)
 #define  VTSS_M_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BANK     VTSS_ENCODE_BITMASK(24,3)
 #define  VTSS_X_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BANK(x)  VTSS_EXTRACT_BITFIELD(x,24,3)
 
+/**
+ * \brief
+ * Bank Group address for ECC poisoning.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_ECCPOISONADDR1 . ECC_POISON_BG
+ */
+#define  VTSS_F_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BG(x)  VTSS_ENCODE_BITFIELD(x,28,2)
+#define  VTSS_M_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BG     VTSS_ENCODE_BITMASK(28,2)
+#define  VTSS_X_DDR_UMCTL2_ECCPOISONADDR1_ECC_POISON_BG(x)  VTSS_EXTRACT_BITFIELD(x,28,2)
+
 
 /**
- * \brief CRC Parity Control Register0.
+ * \brief CRC Parity Control Register 0.
 Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previous access to CRCPARCTL0, as this might lead to data loss.
  *
  * \details
@@ -1933,11 +2338,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Interrupt enable bit for DFI alert error.
- * If this bit is set, any parity/CRC error detected on the dfi_alert_n
- * input results in an interrupt being set on CRCPARSTAT.dfi_alert_err_int.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL0 . DFI_ALERT_ERR_INT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_CRCPARCTL0_DFI_ALERT_ERR_INT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -1946,12 +2353,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Interrupt clear bit for DFI alert error. If this bit is set, the alert
- * error interrupt on CRCPARSTAT.dfi_alert_err_int is  cleared. uMCTL2
- * automatically clears this bit.
+ * Interrupt clear bit for DFI alert error. uMCTL2 automatically clears
+ * this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL0 . DFI_ALERT_ERR_INT_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_CRCPARCTL0_DFI_ALERT_ERR_INT_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -1960,17 +2370,108 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Indicates the clear bit for DFI alert error counter.
- * Asserting this bit clears the DFI alert error counter,
- * CRCPARSTAT.dfi_alert_err_cnt. uMCTL2 automatically clears this bit.
+ * Indicates the clear bit for DFI alert error counter. uMCTL2
+ * automatically clears this bit.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL0 . DFI_ALERT_ERR_CNT_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_CRCPARCTL0_DFI_ALERT_ERR_CNT_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
 #define  VTSS_M_DDR_UMCTL2_CRCPARCTL0_DFI_ALERT_ERR_CNT_CLR  VTSS_BIT(2)
 #define  VTSS_X_DDR_UMCTL2_CRCPARCTL0_DFI_ALERT_ERR_CNT_CLR(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+
+/**
+ * \brief CRC Parity Control Register 1
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:CRCPARCTL1
+ */
+#define VTSS_DDR_UMCTL2_CRCPARCTL1           VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x31)
+
+/**
+ * \brief
+ * C/A Parity enable register.
+ *
+ *   If RCD's parity error detection or SDRAM's parity detection is
+ * enabled, this register must be 1.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL1 . PARITY_ENABLE
+ */
+#define  VTSS_F_DDR_UMCTL2_CRCPARCTL1_PARITY_ENABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_DDR_UMCTL2_CRCPARCTL1_PARITY_ENABLE  VTSS_BIT(0)
+#define  VTSS_X_DDR_UMCTL2_CRCPARCTL1_PARITY_ENABLE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * CRC enable Register.
+ *
+ *   The setting of this register must match the CRC mode register setting
+ * in the DRAM.
+ * Programming Mode: Quasi-dynamic Group 2
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL1 . CRC_ENABLE
+ */
+#define  VTSS_F_DDR_UMCTL2_CRCPARCTL1_CRC_ENABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DDR_UMCTL2_CRCPARCTL1_CRC_ENABLE  VTSS_BIT(4)
+#define  VTSS_X_DDR_UMCTL2_CRCPARCTL1_CRC_ENABLE(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * CRC calculation setting register.
+ *
+ *   Present only in designs configured to support DDR4.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL1 . CRC_INC_DM
+ */
+#define  VTSS_F_DDR_UMCTL2_CRCPARCTL1_CRC_INC_DM(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_DDR_UMCTL2_CRCPARCTL1_CRC_INC_DM  VTSS_BIT(7)
+#define  VTSS_X_DDR_UMCTL2_CRCPARCTL1_CRC_INC_DM(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * If DDR4-SDRAM's CA parity is enabled by INIT6.mr5[2:0]!=0 and this
+ * register is set to 1, CA parity is automatically disabled before
+ * self-refresh entry, and enabled after self-refresh exit by issuing MR5.
+ *
+ *   If Geardown is used by MSTR.geardown_mode=1, this register must be set
+ * to 1.
+ * If this register set to 0, DRAMTMG5.t_ckesr and DRAMTMG5.t_cksre must be
+ * increased by PL(Parity latency).
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_CRCPARCTL1 . CAPARITY_DISABLE_BEFORE_SR
+ */
+#define  VTSS_F_DDR_UMCTL2_CRCPARCTL1_CAPARITY_DISABLE_BEFORE_SR(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_DDR_UMCTL2_CRCPARCTL1_CAPARITY_DISABLE_BEFORE_SR  VTSS_BIT(12)
+#define  VTSS_X_DDR_UMCTL2_CRCPARCTL1_CAPARITY_DISABLE_BEFORE_SR(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
 
 
 /**
@@ -2000,12 +2501,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * DFI alert error interrupt.
- * If a parity/CRC error is detected on dfi_alert_n, and the interrupt is
- * enabled by CRCPARCTL0.dfi_alert_err_int_en, this interrupt bit is set.
- * It remains set until cleared by CRCPARCTL0.dfi_alert_err_int_clr.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_CRCPARSTAT . DFI_ALERT_ERR_INT
  */
 #define  VTSS_F_DDR_UMCTL2_CRCPARSTAT_DFI_ALERT_ERR_INT(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
@@ -2074,16 +2576,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * If lower bit is enabled the SDRAM initialization routine is skipped. The
  * upper bit decides what state the controller starts up in when reset is
- * removed.
- *  - 00 - SDRAM Initialization routine is run after power-up
- *  - 01 - SDRAM Initialization routine is skipped after power-up. The
- * controller starts up in normal Mode
- *  - 11 - SDRAM Initialization routine is skipped after power-up. The
- * controller starts up in self-refresh Mode
- *  - 10 - Reserved
+ * removed. Value "10" is reserved.
  * Programming Mode: Quasi-dynamic Group 2
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h3:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_INIT0 . SKIP_DRAM_INIT
  */
 #define  VTSS_F_DDR_UMCTL2_INIT0_SKIP_DRAM_INIT(x)  VTSS_ENCODE_BITFIELD(x,30,2)
@@ -2166,7 +2667,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * DDR2: Indicates the value to write to MR register. Bit 8 is for DLL and
+ * DDR2:Indicates the value to write to MR register. Bit 8 is for DLL and
  * the setting here is ignored. The uMCTL2 sets this bit appropriately.
  * DDR3/DDR4: Value loaded into MR0 register.
  * mDDR: Value to write to MR register.
@@ -2253,6 +2754,63 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 
 /**
+ * \brief SDRAM Initialization Register 6
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:INIT6
+ */
+#define VTSS_DDR_UMCTL2_INIT6                VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x3a)
+
+/**
+ * \brief
+ * DDR4 - Indicates the value to be loaded into SDRAM MR5 registers.
+ * LPDDR4- Value to be loaded into SDRAM MR12 registers.
+ * Programming Mode: Quasi-dynamic Group 1, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_INIT6 . MR5
+ */
+#define  VTSS_F_DDR_UMCTL2_INIT6_MR5(x)       VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_DDR_UMCTL2_INIT6_MR5          VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_DDR_UMCTL2_INIT6_MR5(x)       VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * DDR4 - Indicates the value to be loaded into SDRAM MR4 registers.
+ * LPDDR4- Value to be loaded into SDRAM MR11 registers.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_INIT6 . MR4
+ */
+#define  VTSS_F_DDR_UMCTL2_INIT6_MR4(x)       VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_DDR_UMCTL2_INIT6_MR4          VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_DDR_UMCTL2_INIT6_MR4(x)       VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief SDRAM Initialization Register 7
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:INIT7
+ */
+#define VTSS_DDR_UMCTL2_INIT7                VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x3b)
+
+/**
+ * \brief
+ * DDR4 - Indicates the value to be loaded into SDRAM MR6 registers.
+ * LPDDR4- Value to be loaded into SDRAM MR14 registers.
+ * Programming Mode: Quasi-dynamic Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_INIT7 . MR6
+ */
+#define  VTSS_F_DDR_UMCTL2_INIT7_MR6(x)       VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_DDR_UMCTL2_INIT7_MR6          VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_DDR_UMCTL2_INIT7_MR6(x)       VTSS_EXTRACT_BITFIELD(x,0,16)
+
+
+/**
  * \brief DIMM Control Register
  *
  * \details
@@ -2268,12 +2826,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Note: Even if this bit is set it does not take care of software driven
  * MR commands (through MRCTRL0/MRCTRL1), where software is responsible to
  * send them to seperate ranks as appropriate.
- *  - 1 - (DDR4) Send MRS commands to each ranks seperately
- *  - 1 - (non-DDR4) Send all commands to even and odd ranks seperately
- *  - 0 - Do not stagger accesses
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . DIMM_STAGGER_CS_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DIMMCTL_DIMM_STAGGER_CS_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -2300,18 +2859,193 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Note: In case of x16 DDR4 DIMMs, BG1 output of MRS for the odd ranks is
  * same as BG0 because BG1 is invalid, hence dimm_dis_bg_mirroring register
  * must be set to 1.
- *  - 1 - For odd ranks, implement address mirroring for MRS commands
- * during initialization and for any automatic DDR4 MRS commands (to be
- * used if UDIMM/RDIMM/LRDIMM implements address mirroring)
- *  - 0 - Do not implement address mirroring
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . DIMM_ADDR_MIRR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DIMMCTL_DIMM_ADDR_MIRR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
 #define  VTSS_M_DDR_UMCTL2_DIMMCTL_DIMM_ADDR_MIRR_EN  VTSS_BIT(1)
 #define  VTSS_X_DDR_UMCTL2_DIMMCTL_DIMM_ADDR_MIRR_EN(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Enables output inversion (for DDR4 RDIMM/LRDIMM implementations only).
+ * DDR4 RDIMM/LRDIMM implements the Output Inversion feature by default,
+ * which means that the following address, bank address, and bank group
+ * bits of B-side DRAMs are inverted: A3-A9, A11, A13, A17, BA0-BA1,
+ * BG0-BG1.
+ * Setting this bit ensures that, for mode register accesses generated by
+ * the uMCTL2 during the automatic initialization routine and enabling of a
+ * particular DDR4 feature, separate A-side and B-side mode register
+ * accesses are generated.
+ * For B-side mode register accesses, these bits are inverted within the
+ * uMCTL2 to compensate for this RDIMM/LRDIMM inversion. It is recommended
+ * to set this bit always, if using DDR4 RDIMMs/LRDIMMs.
+ * Note: This has no effect on the address of any other memory accesses, or
+ * of software-driven mode register accesses.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . DIMM_OUTPUT_INV_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_DIMM_OUTPUT_INV_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_DIMM_OUTPUT_INV_EN  VTSS_BIT(2)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_DIMM_OUTPUT_INV_EN(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Enable this field for A17 bit of MRS command.
+ * A17 bit of the mode register address is specified as RFU (Reserved for
+ * Future Use) and must be programmed to 0 during MRS.
+ * In case where DRAMs that do not have A17 are attached as DDR4
+ * RDIMM/LRDIMM, and the output inversion is enabled, this must be set to
+ * 0, so that the calculation of CA parity does not include A17 bit.
+ * To keep consistency with the RCD, DA[3] in F0RC08 of the RCD also needs
+ * to be set to 1 (that is, Disabled).
+ * Note: This has no effect on the address of any other memory accesses, or
+ * of software-driven mode register accesses.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . MRS_A17_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_MRS_A17_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_MRS_A17_EN  VTSS_BIT(3)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_MRS_A17_EN(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Enable this field for BG1 bit of MRS command.
+ * BG1 bit of the mode register address is specified as RFU (Reserved for
+ * Future Use) and must be programmed to 0 during MRS.
+ * In case where DRAMs that do not have BG1 are attached, and both the CA
+ * parity and the output inversion are enabled, this must be set to 0, so
+ * that the calculation of CA parity does not include BG1 bit.
+ * Note: This has no effect on the address of any other memory accesses, or
+ * of software-driven mode register accesses.
+ * If address mirroring is enabled, this is applied to BG1 of even ranks
+ * and BG0 of odd ranks.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . MRS_BG1_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_MRS_BG1_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_MRS_BG1_EN  VTSS_BIT(4)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_MRS_BG1_EN(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Disables address mirroring for BG bits.
+ * When this is set to 1, BG0 and BG1 are NOT swapped even if Address
+ * Mirroring is enabled. This is required for DDR4 DIMMs with x16 devices.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . DIMM_DIS_BG_MIRRORING
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_DIMM_DIS_BG_MIRRORING(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_DIMM_DIS_BG_MIRRORING  VTSS_BIT(5)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_DIMM_DIS_BG_MIRRORING(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Protects the timing restrictions (tBCW/tMRC) between consecutive BCOM
+ * commands defined in the Data Buffer specification.
+ * When using DDR4 LRDIMM, this bit must be set to 1. Otherwise, this bit
+ * must be set to 0.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . LRDIMM_BCOM_CMD_PROT
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_LRDIMM_BCOM_CMD_PROT(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_LRDIMM_BCOM_CMD_PROT  VTSS_BIT(6)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_LRDIMM_BCOM_CMD_PROT(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Indicates the weak drive mode to be set to the RCD.
+ * This field is used only when the uMCTL2 disables CAL mode.
+ * When weak drive mode in the RCD is enabled during initialization, this
+ * field must be set to 1.
+ * When RCD is not used, this field must be set to 0.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . RCD_WEAK_DRIVE
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_RCD_WEAK_DRIVE(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_RCD_WEAK_DRIVE  VTSS_BIT(12)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_RCD_WEAK_DRIVE(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/**
+ * \brief
+ * Disables RCD outputs to A-side DRAMs.
+ * This field is used only when the uMCTL2 disables CAL mode.
+ * This value is written to F0RC0 DA[2] before and after disabling CAL
+ * mode. It is recommended to set it to 0 except for debug.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . RCD_A_OUTPUT_DISABLED
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_RCD_A_OUTPUT_DISABLED(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_RCD_A_OUTPUT_DISABLED  VTSS_BIT(13)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_RCD_A_OUTPUT_DISABLED(x)  VTSS_EXTRACT_BITFIELD(x,13,1)
+
+/**
+ * \brief
+ * Disables RCD outputs to B-side DRAMs.
+ * This field is used only when the uMCTL2 disables CAL mode.
+ * This value is written to F0RC0 DA[3] before and after disabling CAL
+ * mode. It is recommended to set it to ~DIMMCTL.dimm_output_inv_en except
+ * for debug.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DIMMCTL . RCD_B_OUTPUT_DISABLED
+ */
+#define  VTSS_F_DDR_UMCTL2_DIMMCTL_RCD_B_OUTPUT_DISABLED(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_DDR_UMCTL2_DIMMCTL_RCD_B_OUTPUT_DISABLED  VTSS_BIT(14)
+#define  VTSS_X_DDR_UMCTL2_DIMMCTL_RCD_B_OUTPUT_DISABLED(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 
 /**
@@ -2485,12 +3219,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Only present for multi-rank configurations.
- * 1-bit extension to be used when RANKCTL.diff_rank_rd_gap field needs to
- * be set to a value greater than 0xF.
+ * This is only present for multi-rank configurations.
  * Programming Mode: Quasi-dynamic Group 2
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_RANKCTL . DIFF_RANK_RD_GAP_MSB
  */
 #define  VTSS_F_DDR_UMCTL2_RANKCTL_DIFF_RANK_RD_GAP_MSB(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
@@ -2500,11 +3236,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Only present for multi-rank configurations.
- * 1-bit extension to be used when RANKCTL.diff_rank_wr_gap field needs to
- * be set to a value greater than 0xF.
  * Programming Mode: Quasi-dynamic Group 2
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_RANKCTL . DIFF_RANK_WR_GAP_MSB
  */
 #define  VTSS_F_DDR_UMCTL2_RANKCTL_DIFF_RANK_WR_GAP_MSB(x)  VTSS_ENCODE_BITFIELD(!!(x),26,1)
@@ -2705,13 +3443,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * system requirements.
  *
  * After the PHY has completed training, the value programmed may need to
- * be increased.  See the relevant PHY databook for details of what should
- * be included here.
+ * be increased.  Please see the relevant PHY databook for details of what
+ * should be included here.
  *
  * The following calculations are minimum values, and do not include the
  * PHY/system requirements mentioned above:
  *
- * DDR4: CWL + PL + BL/2 + tWTR_L
+ * DDR4: CWL + BL/2 + tWTR_L
  *
  * LPDDR2/3/4: WL + BL/2 + tWTR + 1
  *
@@ -2720,7 +3458,6 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Where:
  *  - CWL: CAS write latency
  *  - WL: Write latency
- *  - PL: Parity latency
  *  - BL: Burst length. This must match the value programmed in the BL bit
  * of the mode register to the SDRAM
  *  - tWTR_L: Internal write to read command delay for same bank group.
@@ -2755,8 +3492,8 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * system requirements.
  *
  * After the PHY has completed training, the value programmed may need to
- * be increased.  See the relevant PHY databook for details of what should
- * be included here.
+ * be increased.  Please see the relevant PHY databook for details of what
+ * should be included here.
  *
  * The following calculations are minimum values, and do not include the
  * PHY/system requirements mentioned above:
@@ -2771,7 +3508,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * + RD_POSTAMBLE - WL
  *
  * LPDDR4(DQ ODT is Enabled): RL + BL/2 + RU(tDQSCKmax/tCK) + RD_POSTAMBLE
- * - ODTLon - RU(tODTon(min)/tCK) + 1
+ * - ODTLon - RD(tODTon(min)/tCK) + 1
  *
  * Where:
  *  - WL: Write latency
@@ -2802,6 +3539,61 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 #define  VTSS_M_DDR_UMCTL2_DRAMTMG2_RD2WR     VTSS_ENCODE_BITMASK(8,6)
 #define  VTSS_X_DDR_UMCTL2_DRAMTMG2_RD2WR(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
 
+/**
+ * \brief
+ * Set this field to RL.
+ * Indicates the time from read command to read data on SDRAM interface.
+ * This must be set to RL.
+ * Note that, depending on the PHY, if using RDIMM/LRDIMM, it might be
+ * necessary to adjust the value of RL to compensate for the extra cycle of
+ * latency through the RDIMM/LRDIMM.
+ * When the controller is operating in 1:2 frequency ratio mode, divide the
+ * value calculated using the previous equation by 2, and round it up to
+ * next integer.
+ * This register field is not required for DDR2 and DDR3, as the DFI read
+ * and write latencies defined in DFITMG0 and DFITMG1 are sufficient for
+ * those protocols
+ * For all protocols, in addition to programming this register field, it is
+ * necessary to program DFITMG0 and DFITMG1 to control the read and write
+ * latencies
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 1, Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG2 . READ_LATENCY
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG2_READ_LATENCY(x)  VTSS_ENCODE_BITFIELD(x,16,6)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG2_READ_LATENCY     VTSS_ENCODE_BITMASK(16,6)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG2_READ_LATENCY(x)  VTSS_EXTRACT_BITFIELD(x,16,6)
+
+/**
+ * \brief
+ * Set this field to WL.
+ * Indicates the Time from write command to write data on SDRAM interface.
+ * This must be set to WL.
+ * For mDDR, it must  be set to 1.
+ * Note that, depending on the PHY, if using RDIMM/LRDIMM, it might be
+ * necessary to adjust the value of WL to compensate for the extra cycle of
+ * latency through the RDIMM/LRDIMM.
+ * When the controller is operating in 1:2 frequency ratio mode, divide the
+ * value calculated using the previous equation by 2, and round it up to
+ * next integer.
+ * This register field is not required for DDR2 and DDR3, as the DFI read
+ * and write latencies defined in DFITMG0 and DFITMG1 are sufficient for
+ * those protocols
+ * For all protocols, in addition to programming this register field, it is
+ * necessary to program DFITMG0 and DFITMG1 to control the read and write
+ * latencies
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 1, Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG2 . WRITE_LATENCY
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG2_WRITE_LATENCY(x)  VTSS_ENCODE_BITFIELD(x,24,6)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG2_WRITE_LATENCY     VTSS_ENCODE_BITMASK(24,6)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG2_WRITE_LATENCY(x)  VTSS_EXTRACT_BITFIELD(x,24,6)
+
 
 /**
  * \brief SDRAM Timing Register 3
@@ -2825,10 +3617,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * PHY, it may be necessary to adjust the value of this parameter to
  * compensate for the extra cycle of latency applied to mode register
  * writes by the RDIMM/LRDIMM chip.
- * Also note that if using RDIMM or LRDIMM, the minimum value of this
- * register is tMRD_L2 if controller is operating in 1:1 frequency ratio
- * mode, or tMRD_L2/2 (rounded up to next integer) if controller is
- * operating in 1:2 frequency ratio mode.
+ * Also note that if using LRDIMM, the minimum value of this register is
+ * tMRD_L2 if controller is operating in 1:1 frequency ratio mode, or
+ * tMRD_L2/2 (rounded up to next integer) if controller is operating in 1:2
+ * frequency ratio mode.
  * Unit: DFI clock cycles.
  * Programming Mode: Quasi-dynamic Group 2, Group 4
  *
@@ -2998,9 +3790,9 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \details
  * Field: ::VTSS_DDR_UMCTL2_DRAMTMG5 . T_CKESR
  */
-#define  VTSS_F_DDR_UMCTL2_DRAMTMG5_T_CKESR(x)  VTSS_ENCODE_BITFIELD(x,8,6)
-#define  VTSS_M_DDR_UMCTL2_DRAMTMG5_T_CKESR     VTSS_ENCODE_BITMASK(8,6)
-#define  VTSS_X_DDR_UMCTL2_DRAMTMG5_T_CKESR(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG5_T_CKESR(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG5_T_CKESR     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG5_T_CKESR(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
 
 /**
  * \brief
@@ -3028,9 +3820,9 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \details
  * Field: ::VTSS_DDR_UMCTL2_DRAMTMG5 . T_CKSRE
  */
-#define  VTSS_F_DDR_UMCTL2_DRAMTMG5_T_CKSRE(x)  VTSS_ENCODE_BITFIELD(x,16,7)
-#define  VTSS_M_DDR_UMCTL2_DRAMTMG5_T_CKSRE     VTSS_ENCODE_BITMASK(16,7)
-#define  VTSS_X_DDR_UMCTL2_DRAMTMG5_T_CKSRE(x)  VTSS_EXTRACT_BITFIELD(x,16,7)
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG5_T_CKSRE(x)  VTSS_ENCODE_BITFIELD(x,16,8)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG5_T_CKSRE     VTSS_ENCODE_BITMASK(16,8)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG5_T_CKSRE(x)  VTSS_EXTRACT_BITFIELD(x,16,8)
 
 /**
  * \brief
@@ -3105,6 +3897,367 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 #define  VTSS_M_DDR_UMCTL2_DRAMTMG8_T_XS_DLL_X32     VTSS_ENCODE_BITMASK(8,7)
 #define  VTSS_X_DDR_UMCTL2_DRAMTMG8_T_XS_DLL_X32(x)  VTSS_EXTRACT_BITFIELD(x,8,7)
 
+/**
+ * \brief
+ * tXS_ABORT: Exit self-refresh to commands not requiring a locked DLL in
+ * self-refresh Abort.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to the previous value divided by 2 and round up to next integer
+ * value.
+ * Note: Ensure this is less than or equal to t_xs_x32.
+ * Unit: Multiples of 32 DFI clock cycles.
+ * For more information on how to program this register field, see "Note 1"
+ * in the "Notes on Timing Registers" section.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG8 . T_XS_ABORT_X32
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG8_T_XS_ABORT_X32(x)  VTSS_ENCODE_BITFIELD(x,16,7)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG8_T_XS_ABORT_X32     VTSS_ENCODE_BITMASK(16,7)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG8_T_XS_ABORT_X32(x)  VTSS_EXTRACT_BITFIELD(x,16,7)
+
+/**
+ * \brief
+ * tXS_FAST: Exit self-refresh to ZQCL, ZQCS and MRS (only CL, WR, RTP and
+ * Geardown mode).
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to the previous value divided by 2 and round up to next integer
+ * value.
+ * Note: This is applicable to only ZQCL/ZQCS commands.
+ * Note: Ensure this is less than or equal to t_xs_x32.
+ * Unit: Multiples of 32 DFI clock cycles.
+ * For more information on how to program this register field, see "Note 1"
+ * in the "Notes on Timing Registers" section.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG8 . T_XS_FAST_X32
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG8_T_XS_FAST_X32(x)  VTSS_ENCODE_BITFIELD(x,24,7)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG8_T_XS_FAST_X32     VTSS_ENCODE_BITMASK(24,7)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG8_T_XS_FAST_X32(x)  VTSS_EXTRACT_BITFIELD(x,24,7)
+
+
+/**
+ * \brief SDRAM Timing Register 9
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DRAMTMG9
+ */
+#define VTSS_DDR_UMCTL2_DRAMTMG9             VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x49)
+
+/**
+ * \brief
+ * Minimum time from write command to read command for different bank
+ * group.  This must include time for bus turn-around and all PHY and
+ * system requirements.
+ *
+ * After the PHY has completed training, the value programmed may need to
+ * be increased.  Please see the relevant PHY databook for details of what
+ * should be included here.
+ *
+ * The following calculations are minimum values, and do not include the
+ * PHY/system requirements mentioned above:
+ *
+ * CWL + BL/2 + tWTR_S
+ *
+ * Where:
+ *  - CWL: CAS write latency
+ *  - BL: Burst length. This must match the value programmed in the BL bit
+ * of the mode register to the SDRAM
+ *  - tWTR_S: Internal write to read command delay for different bank
+ * group. This comes directly from the SDRAM specification
+ * WTR_S must be increased by one if DDR4 2tCK write preamble is used.
+ * When the controller is operating in 1:2 mode, divide the value
+ * calculated using the previous equation by 2, and round it up to next
+ * integer.
+ *
+ * If your configuration has RANKCTL1.wr2rd_dr, write to read bus
+ * turn-around between different physical ranks are controlled by
+ * RANKCTL1.wr2rd_dr.
+ *
+ *
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 1, Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG9 . WR2RD_S
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG9_WR2RD_S(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG9_WR2RD_S     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG9_WR2RD_S(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+
+/**
+ * \brief
+ * tRRD_S: This is the minimum time between activates from bank "a" to bank
+ * "b" for different bank group.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tRRD_S/2) and round it up to the next integer value.
+ * Present only in designs configured to support DDR4.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG9 . T_RRD_S
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG9_T_RRD_S(x)  VTSS_ENCODE_BITFIELD(x,8,4)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG9_T_RRD_S     VTSS_ENCODE_BITMASK(8,4)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG9_T_RRD_S(x)  VTSS_EXTRACT_BITFIELD(x,8,4)
+
+/**
+ * \brief
+ * tCCD_S: This is the minimum time between two reads or two writes for
+ * different bank group. For bank switching (from bank "a" to bank "b"),
+ * the minimum time is this value + 1.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tCCD_S/2) and round it up to the next integer value.
+ * Present only in designs configured to support DDR4.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG9 . T_CCD_S
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG9_T_CCD_S(x)  VTSS_ENCODE_BITFIELD(x,16,3)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG9_T_CCD_S     VTSS_ENCODE_BITMASK(16,3)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG9_T_CCD_S(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+
+/**
+ * \brief
+ * DDR4 Write preamble mode.
+ *
+ *   Present only with MEMC_FREQ_RATIO=2.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG9 . DDR4_WR_PREAMBLE
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG9_DDR4_WR_PREAMBLE(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG9_DDR4_WR_PREAMBLE  VTSS_BIT(30)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG9_DDR4_WR_PREAMBLE(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+
+/**
+ * \brief SDRAM Timing Register 10
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DRAMTMG10
+ */
+#define VTSS_DDR_UMCTL2_DRAMTMG10            VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x4a)
+
+/**
+ * \brief
+ * Indicates the geardown hold time.
+ * Minimum value of this register is 1. Zero is invalid.
+ * For DDR4-2666 and DDR4-3200, this parameter is defined as 2 clks
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tGEAR_hold/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG10 . T_GEAR_HOLD
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG10_T_GEAR_HOLD(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG10_T_GEAR_HOLD     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG10_T_GEAR_HOLD(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
+ * \brief
+ * Indicates the geardown setup time.
+ * Minimum value of this register is 1. Zero is invalid.
+ * For DDR4-2666 and DDR4-3200, this parameter is defined as 2 clks
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tGEAR_setup/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG10 . T_GEAR_SETUP
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG10_T_GEAR_SETUP(x)  VTSS_ENCODE_BITFIELD(x,2,2)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG10_T_GEAR_SETUP     VTSS_ENCODE_BITMASK(2,2)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG10_T_GEAR_SETUP(x)  VTSS_EXTRACT_BITFIELD(x,2,2)
+
+/**
+ * \brief
+ * Indicates a sync pulse to first valid command.
+ * For DDR4-2666 and DDR4-3200, this parameter is defined as tMOD(min)
+ * tMOD(min) is greater of 24nCK or 15ns
+ * 15ns / .625ns = 24
+ * Max value for this register is 24
+ * When the controller is operating in 1:2 mode, program this to
+ * (tCMD_GEAR/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG10 . T_CMD_GEAR
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG10_T_CMD_GEAR(x)  VTSS_ENCODE_BITFIELD(x,8,5)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG10_T_CMD_GEAR     VTSS_ENCODE_BITMASK(8,5)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG10_T_CMD_GEAR(x)  VTSS_EXTRACT_BITFIELD(x,8,5)
+
+/**
+ * \brief
+ * Indicates the time between MRS command and the sync pulse time.
+ * This must be even number of clocks.
+ * For DDR4-2666 and DDR4-3200, this parameter is defined as tMOD(min)+4nCK
+ * tMOD(min) is greater of 24nCK or 15ns
+ * 15ns / .625ns = 24
+ * Max value for this register is 24+4 = 28
+ * When the controller is operating in 1:2 mode, program this to
+ * (tSYNC_GEAR/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG10 . T_SYNC_GEAR
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG10_T_SYNC_GEAR(x)  VTSS_ENCODE_BITFIELD(x,16,5)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG10_T_SYNC_GEAR     VTSS_ENCODE_BITMASK(16,5)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG10_T_SYNC_GEAR(x)  VTSS_EXTRACT_BITFIELD(x,16,5)
+
+
+/**
+ * \brief SDRAM Timing Register 11
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DRAMTMG11
+ */
+#define VTSS_DDR_UMCTL2_DRAMTMG11            VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x4b)
+
+/**
+ * \brief
+ * tCKMPE: This is the minimum valid clock requirement after MPSM entry.
+ * Present only in designs configured to support DDR4.
+ *
+ * When the controller is operating in 1:2 frequency ratio mode, divide the
+ * value calculated using the previous equation by 2, and round it up to
+ * next integer.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG11 . T_CKMPE
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG11_T_CKMPE(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG11_T_CKMPE     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG11_T_CKMPE(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+
+/**
+ * \brief
+ * tMPX_S: This is the minimum time CS setup time to CKE.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tMPX_S/2) and round it up to the next integer value.
+ * Present only in designs configured to support DDR4.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG11 . T_MPX_S
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG11_T_MPX_S(x)  VTSS_ENCODE_BITFIELD(x,8,2)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG11_T_MPX_S     VTSS_ENCODE_BITMASK(8,2)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG11_T_MPX_S(x)  VTSS_EXTRACT_BITFIELD(x,8,2)
+
+/**
+ * \brief
+ * tMPX_LH: This is the minimum CS_n Low hold time to CKE rising edge.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to RoundUp(tMPX_LH/2)+1.
+ * Present only in designs configured to support DDR4.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG11 . T_MPX_LH
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG11_T_MPX_LH(x)  VTSS_ENCODE_BITFIELD(x,16,5)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG11_T_MPX_LH     VTSS_ENCODE_BITMASK(16,5)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG11_T_MPX_LH(x)  VTSS_EXTRACT_BITFIELD(x,16,5)
+
+/**
+ * \brief
+ * tXMPDLL: This is the minimum Exit MPSM to commands requiring a locked
+ * DLL.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tXMPDLL/2) and round it up to the next integer value.
+ * Present only in designs configured to support DDR4.
+ * Unit: Multiples of 32 DFI clock cycles.
+ * For more information on how to program this register field, see "Note 1"
+ * in the "Notes on Timing Registers" section.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG11 . POST_MPSM_GAP_X32
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG11_POST_MPSM_GAP_X32(x)  VTSS_ENCODE_BITFIELD(x,24,7)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG11_POST_MPSM_GAP_X32     VTSS_ENCODE_BITMASK(24,7)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG11_POST_MPSM_GAP_X32(x)  VTSS_EXTRACT_BITFIELD(x,24,7)
+
+
+/**
+ * \brief SDRAM Timing Register 12
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DRAMTMG12
+ */
+#define VTSS_DDR_UMCTL2_DRAMTMG12            VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x4c)
+
+/**
+ * \brief
+ * tMRD_PDA: This is the Mode Register Set command cycle time in PDA mode.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tMRD_PDA/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG12 . T_MRD_PDA
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG12_T_MRD_PDA(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG12_T_MRD_PDA     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG12_T_MRD_PDA(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+
+/**
+ * \brief
+ * This bit is used only in DDR4. Cycles between MPR Write and other
+ * command.
+ * Set this to tMOD + AL (or tMOD + PL + AL if C/A parity is also used).
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tWR_MPR/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DRAMTMG12 . T_WR_MPR
+ */
+#define  VTSS_F_DDR_UMCTL2_DRAMTMG12_T_WR_MPR(x)  VTSS_ENCODE_BITFIELD(x,24,6)
+#define  VTSS_M_DDR_UMCTL2_DRAMTMG12_T_WR_MPR     VTSS_ENCODE_BITMASK(24,6)
+#define  VTSS_X_DDR_UMCTL2_DRAMTMG12_T_WR_MPR(x)  VTSS_EXTRACT_BITFIELD(x,24,6)
+
 
 /**
  * \brief SDRAM Timing Register 15
@@ -3140,13 +4293,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- *
- *  - 1 - Enable using tSTAB when exiting DFI LP. This must be set when the
- * PHY is stopping the clock during DFI LP to save maximum power.
- *  - 0 - Disable using tSTAB when exiting DFI LP.
+ * Decides if using tSTAB when exiting DFI LP.
  * Programming Mode: Quasi-dynamic Group 2, Group 4
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DRAMTMG15 . EN_DFI_LP_T_STAB
  */
 #define  VTSS_F_DDR_UMCTL2_DRAMTMG15_EN_DFI_LP_T_STAB(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
@@ -3207,17 +4361,38 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
+ * Sets ZQCL command at Maximum Power Saving Mode exit.
  *
- *  - 1 - Denotes that ZQ resistor is shared between ranks. Means
- * ZQinit/ZQCL/ZQCS/MPC(ZQ calibration) commands are sent to one rank at a
- * time with tZQinit/tZQCL/tZQCS/tZQCAL/tZQLAT timing met between commands
- * so that commands to different ranks do not overlap
- *  - 0 - ZQ resistor is not shared
- * This is only present for designs supporting DDR3/DDR4 or
+ *   This is only present for designs supporting DDR4 devices.
+ *   Note: Do not issue ZQCL command at Maximum Power Save Mode exit if the
+ * UMCTL2_SHARED_AC configuration parameter is set. Program it to 1'b1. The
+ * software can send ZQCS after exiting MPSM mode.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h1:
+ * 'h0:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_ZQCTL0 . DIS_MPSMX_ZQCL
+ */
+#define  VTSS_F_DDR_UMCTL2_ZQCTL0_DIS_MPSMX_ZQCL(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
+#define  VTSS_M_DDR_UMCTL2_ZQCTL0_DIS_MPSMX_ZQCL  VTSS_BIT(28)
+#define  VTSS_X_DDR_UMCTL2_ZQCTL0_DIS_MPSMX_ZQCL(x)  VTSS_EXTRACT_BITFIELD(x,28,1)
+
+/**
+ * \brief
+ * Sets ZQ resistor sharing.
+ *
+ *   This is only present for designs supporting DDR3/DDR4 or
  * LPDDR2/LPDDR3/LPDDR4 devices.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ZQCTL0 . ZQ_RESISTOR_SHARED
  */
 #define  VTSS_F_DDR_UMCTL2_ZQCTL0_ZQ_RESISTOR_SHARED(x)  VTSS_ENCODE_BITFIELD(!!(x),29,1)
@@ -3226,18 +4401,18 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
+ * Sets issuing of ZQCL/MPC(ZQ calibration) command at
+ * self-refresh/SR-Powerdown exit.
  *
- *  - 1 - Disable issuing of ZQCL/MPC(ZQ calibration) command at
- * self-refresh/SR-Powerdown exit. Only applicable when run in DDR3 or DDR4
- * or LPDDR2 or LPDDR3 or LPDDR4 mode
- *  - 0 - Enable issuing of ZQCL/MPC(ZQ calibration) command at
- * self-refresh/SR-Powerdown exit. Only applicable when run in DDR3 or DDR4
- * or LPDDR2 or LPDDR3 or LPDDR4 mode
- * This is only present for designs supporting DDR3/DDR4 or
+ *   This is only present for designs supporting DDR3/DDR4 or
  * LPDDR2/LPDDR3/LPDDR4 devices.
  * Programming Mode: Quasi-dynamic Group 2, Group 4
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ZQCTL0 . DIS_SRX_ZQCL
  */
 #define  VTSS_F_DDR_UMCTL2_ZQCTL0_DIS_SRX_ZQCL(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
@@ -3246,17 +4421,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
+ * Sets uMCTL2 generation of ZQCS/MPC(ZQ calibration) command.
  *
- *  - 1 - Disable uMCTL2 generation of ZQCS/MPC(ZQ calibration) command.
- * Register DBGCMD.zq_calib_short can be used instead to issue ZQ
- * calibration request from APB module
- *  - 0 - Internally generate ZQCS/MPC(ZQ calibration) commands based on
- * ZQCTL1.t_zq_short_interval_x1024
- * This is only present for designs supporting DDR3/DDR4 or
+ *   This is only present for designs supporting DDR3/DDR4 or
  * LPDDR2/LPDDR3/LPDDR4 devices.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ZQCTL0 . DIS_AUTO_ZQ
  */
 #define  VTSS_F_DDR_UMCTL2_ZQCTL0_DIS_AUTO_ZQ(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
@@ -3349,10 +4524,9 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * clock) or SDR (DFI PHY clock) cycles.
  * Selects whether value in DFITMG0.dfi_tphy_wrdata is in terms of HDR (DFI
  * clock) or SDR (DFI PHY clock) cycles.
- *  - 0 in terms of HDR (DFI clock) cycles
- *  - 1 in terms of SDR (DFI PHY clock) cycles
- * Refer to PHY specification for correct value.
- * If using a Synopsys DWC DDR3/2 PHY, DWC DDR2/3-Lite/mDDR PHY, DWC DDR
+ *
+ *   Refer to PHY specification for correct value.
+ *   If using a Synopsys DWC DDR3/2 PHY, DWC DDR2/3-Lite/mDDR PHY, DWC DDR
  * multiPHY or DWC Gen2 DDR multiPHY, this field must be set to 0;
  * otherwise:
  *  - If MEMC_PROG_FREQ_RATIO=1 and MSTR.frequency_ratio=1, this field must
@@ -3362,6 +4536,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFITMG0 . DFI_WRDATA_USE_DFI_PHY_CLK
  */
 #define  VTSS_F_DDR_UMCTL2_DFITMG0_DFI_WRDATA_USE_DFI_PHY_CLK(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
@@ -3393,10 +4571,9 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Defines whether dfi_rddata_en/dfi_rddata/dfi_rddata_valid is generated
  * using HDR (DFI clock) or SDR (DFI PHY clock) values.
  * Selects whether value in DFITMG0.dfi_t_rddata_en is in terms of HDR (DFI
- * clock) or SDR (DFI PHY clock) cycles:
- *  - 0 in terms of HDR (DFI clock) cycles
- *  - 1 in terms of SDR (DFI PHY clock) cycles
- * Refer to PHY specification for correct value.
+ * clock) or SDR (DFI PHY clock) cycles.
+ *
+ *   Refer to PHY specification for correct value.
  * If using a Synopsys DWC DDR3/2 PHY, DWC DDR2/3-Lite/mDDR PHY, DWC DDR
  * multiPHY or DWC Gen2 DDR multiPHY, this field must be set to 0;
  * otherwise:
@@ -3407,6 +4584,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFITMG0 . DFI_RDDATA_USE_DFI_PHY_CLK
  */
 #define  VTSS_F_DDR_UMCTL2_DFITMG0_DFI_RDDATA_USE_DFI_PHY_CLK(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
@@ -3416,8 +4597,8 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Specifies the number of DFI clock cycles after an assertion or
- * deassertion of the DFI control signals that the control signals at the
- * PHY-DRAM interface reflect the assertion or deassertion.
+ * de-assertion of the DFI control signals that the control signals at the
+ * PHY-DRAM interface reflect the assertion or de-assertion.
  * If the DFI clock and the memory clock are not phase-aligned, this timing
  * parameter must be rounded up to the next integer value. Note that if
  * using RDIMM/LRDIMM, it is necessary to increment this parameter by
@@ -3443,7 +4624,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Specifies the number of DFI clock cycles from the deassertion of the
+ * Specifies the number of DFI clock cycles from the de-assertion of the
  * dfi_dram_clk_disable signal on the DFI until the first valid rising edge
  * of the clock to the DRAM memory devices, at the PHY-DRAM boundary.
  * If the DFI clock and the memory clock are not phase aligned, this timing
@@ -3508,11 +4689,38 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Quasi-dynamic Group 4
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFITMG1 . DFI_T_PARIN_LAT
  */
 #define  VTSS_F_DDR_UMCTL2_DFITMG1_DFI_T_PARIN_LAT(x)  VTSS_ENCODE_BITFIELD(x,24,2)
 #define  VTSS_M_DDR_UMCTL2_DFITMG1_DFI_T_PARIN_LAT     VTSS_ENCODE_BITMASK(24,2)
 #define  VTSS_X_DDR_UMCTL2_DFITMG1_DFI_T_PARIN_LAT(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
+
+/**
+ * \brief
+ * Specifies the number of DFI PHY clock cycles between when the dfi_cs
+ * signal is asserted and when the associated command is driven.
+ * This field is used for CAL mode, must be set to '0' or tCAL, which
+ * matches the CAL mode register setting in the DRAM.
+ * When enabling CAL mode with RDIMM/LRDIMM, this field must be set to
+ * tCAL-CLA (Command Latency Adder). For more information on CLA, see JEDEC
+ * DDR4 Register Specification.
+ * If the PHY can add the latency for CAL mode, this must be set to '0'.
+ * Valid Range: 0 to 8.
+ * Unit: DFI PHY clock cycles.
+ * Programming Mode: Quasi-dynamic Group 2, Group 4
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DFITMG1 . DFI_T_CMD_LAT
+ */
+#define  VTSS_F_DDR_UMCTL2_DFITMG1_DFI_T_CMD_LAT(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_DDR_UMCTL2_DFITMG1_DFI_T_CMD_LAT     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_DDR_UMCTL2_DFITMG1_DFI_T_CMD_LAT(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
 
 
 /**
@@ -3527,11 +4735,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Enables DFI Low Power interface handshaking during Power Down
  * Entry/Exit.
- *  - 0 - Disabled
- *  - 1 - Enabled
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFILPCFG0 . DFI_LP_EN_PD
  */
 #define  VTSS_F_DDR_UMCTL2_DFILPCFG0_DFI_LP_EN_PD(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -3542,27 +4752,30 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Indicates the value in DFI clock cycles to drive on dfi_lp_wakeup signal
  * when Power Down mode is entered.
- * Determines the DFI's tlp_wakeup time:
- *  - 0x0 - 16 cycles
- *  - 0x1 - 32 cycles
- *  - 0x2 - 64 cycles
- *  - 0x3 - 128 cycles
- *  - 0x4 - 256 cycles
- *  - 0x5 - 512 cycles
- *  - 0x6 - 1024 cycles
- *  - 0x7 - 2048 cycles
- *  - 0x8 - 4096 cycles
- *  - 0x9 - 8192 cycles
- *  - 0xA - 16384 cycles
- *  - 0xB - 32768 cycles
- *  - 0xC - 65536 cycles
- *  - 0xD - 131072 cycles
- *  - 0xE - 262144 cycles
- *  - 0xF - Unlimited
- * Unit: DFI clock cycles.
+ * Determines the DFI's tlp_wakeup time.
+ *
+ *   Unit: DFI clock cycles.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+ * 'h4:
+ * 'h5:
+ * 'h6:
+ * 'h7:
+ * 'h8:
+ * 'h9:
+ * 'ha:
+ * 'hb:
+ * 'hc:
+ * 'hd:
+ * 'he:
+ * 'hf:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFILPCFG0 . DFI_LP_WAKEUP_PD
  */
 #define  VTSS_F_DDR_UMCTL2_DFILPCFG0_DFI_LP_WAKEUP_PD(x)  VTSS_ENCODE_BITFIELD(x,4,4)
@@ -3573,11 +4786,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Enables DFI Low Power interface handshaking during self-refresh
  * Entry/Exit.
- *  - 0 - Disabled
- *  - 1 - Enabled
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFILPCFG0 . DFI_LP_EN_SR
  */
 #define  VTSS_F_DDR_UMCTL2_DFILPCFG0_DFI_LP_EN_SR(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
@@ -3588,27 +4803,30 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Indicates the value in DFI clock cycles to drive on dfi_lp_wakeup signal
  * when self-refresh mode is entered.
- * Determines the DFI's tlp_wakeup time:
- *  - 0x0 - 16 cycles
- *  - 0x1 - 32 cycles
- *  - 0x2 - 64 cycles
- *  - 0x3 - 128 cycles
- *  - 0x4 - 256 cycles
- *  - 0x5 - 512 cycles
- *  - 0x6 - 1024 cycles
- *  - 0x7 - 2048 cycles
- *  - 0x8 - 4096 cycles
- *  - 0x9 - 8192 cycles
- *  - 0xA - 16384 cycles
- *  - 0xB - 32768 cycles
- *  - 0xC - 65536 cycles
- *  - 0xD - 131072 cycles
- *  - 0xE - 262144 cycles
- *  - 0xF - Unlimited
- * Unit: DFI clock cycles.
+ * Determines the DFI's tlp_wakeup time.
+ *
+ *   Unit: DFI clock cycles.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+ * 'h4:
+ * 'h5:
+ * 'h6:
+ * 'h7:
+ * 'h8:
+ * 'h9:
+ * 'ha:
+ * 'hb:
+ * 'hc:
+ * 'hd:
+ * 'he:
+ * 'hf:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFILPCFG0 . DFI_LP_WAKEUP_SR
  */
 #define  VTSS_F_DDR_UMCTL2_DFILPCFG0_DFI_LP_WAKEUP_SR(x)  VTSS_ENCODE_BITFIELD(x,12,4)
@@ -3633,6 +4851,69 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 
 /**
+ * \brief DFI Low Power Configuration Register 1
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DFILPCFG1
+ */
+#define VTSS_DDR_UMCTL2_DFILPCFG1            VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x67)
+
+/**
+ * \brief
+ * Enables DFI Low Power interface handshaking during Maximum Power Saving
+ * Mode Entry/Exit.
+ *
+ *   This is only present for designs supporting DDR4 devices.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DFILPCFG1 . DFI_LP_EN_MPSM
+ */
+#define  VTSS_F_DDR_UMCTL2_DFILPCFG1_DFI_LP_EN_MPSM(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_DDR_UMCTL2_DFILPCFG1_DFI_LP_EN_MPSM  VTSS_BIT(0)
+#define  VTSS_X_DDR_UMCTL2_DFILPCFG1_DFI_LP_EN_MPSM(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Indicates the value in DFI clock cycles to drive on dfi_lp_wakeup signal
+ * when Maximum Power Saving Mode is entered.
+ * Determines the DFI's tlp_wakeup time.
+ *
+ *   This is only present for designs supporting DDR4 devices.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+ * 'h4:
+ * 'h5:
+ * 'h6:
+ * 'h7:
+ * 'h8:
+ * 'h9:
+ * 'ha:
+ * 'hb:
+ * 'hc:
+ * 'hd:
+ * 'he:
+ * 'hf:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DFILPCFG1 . DFI_LP_WAKEUP_MPSM
+ */
+#define  VTSS_F_DDR_UMCTL2_DFILPCFG1_DFI_LP_WAKEUP_MPSM(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_DDR_UMCTL2_DFILPCFG1_DFI_LP_WAKEUP_MPSM     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_DDR_UMCTL2_DFILPCFG1_DFI_LP_WAKEUP_MPSM(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+
+/**
  * \brief DFI Update Register 0
  *
  * \details
@@ -3645,7 +4926,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Specifies the minimum number of DFI clock cycles that the
  * dfi_ctrlupd_req signal must be asserted. The uMCTL2 expects the PHY to
  * respond within this time. If the PHY does not respond, the uMCTL2
- * deasserts dfi_ctrlupd_req after dfi_t_ctrlup_min + 2 cycles. Lowest
+ * de-asserts dfi_ctrlupd_req after dfi_t_ctrlup_min + 2 cycles. Lowest
  * value to assign to this variable is 0x1.
  * Unit: DFI clock cycles.
  * Programming Mode: Static
@@ -3674,19 +4955,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Selects dfi_ctrlupd_req requirements at SRX:
- *  - 0 - Send ctrlupd after SRX
- *  - 1 - Send ctrlupd before SRX
+ * Selects dfi_ctrlupd_req requirements at SRX.
  *
- *
- * If DFIUPD0.dis_auto_ctrlupd_srx=1, this register has no impact, because
- * no dfi_ctrlupd_req is issued when SRX.
- *
- *   For SNPS DDR32 PHY, keep the default value 0x0.
- *
+ *   If DFIUPD0.dis_auto_ctrlupd_srx=1, this register has no impact,
+ * because no dfi_ctrlupd_req is issued when SRX.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIUPD0 . CTRLUPD_PRE_SRX
  */
 #define  VTSS_F_DDR_UMCTL2_DFIUPD0_CTRLUPD_PRE_SRX(x)  VTSS_ENCODE_BITFIELD(!!(x),29,1)
@@ -3695,13 +4974,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When '1', disable the automatic dfi_ctrlupd_req generation by the uMCTL2
- * at self-refresh exit.
- * When '0', uMCTL2 issues a dfi_ctrlupd_req before or after exiting
- * self-refresh, depending on DFIUPD0.ctrlupd_pre_srx.
+ * Sets the automatic dfi_ctrlupd_req generation by the uMCTL2 at
+ * self-refresh exit.
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIUPD0 . DIS_AUTO_CTRLUPD_SRX
  */
 #define  VTSS_F_DDR_UMCTL2_DFIUPD0_DIS_AUTO_CTRLUPD_SRX(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
@@ -3710,14 +4991,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When '1', disable the automatic dfi_ctrlupd_req generation by the
- * uMCTL2.
+ * Sets the automatic dfi_ctrlupd_req generation by the uMCTL2.
  * The controller must issue the dfi_ctrlupd_req signal using register
  * DBGCMD.ctrlupd.
- * When '0', uMCTL2 issues dfi_ctrlupd_req periodically.
+ *
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIUPD0 . DIS_AUTO_CTRLUPD
  */
 #define  VTSS_F_DDR_UMCTL2_DFIUPD0_DIS_AUTO_CTRLUPD(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
@@ -3791,12 +5075,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Enables the support for acknowledging PHY-initiated updates:
- *  - 0 - Disabled
- *  - 1 - Enabled
+ * Enables the support for acknowledging PHY-initiated updates.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIUPD2 . DFI_PHYUPD_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DFIUPD2_DFI_PHYUPD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
@@ -3815,11 +5101,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * PHY initialization complete enable signal.
- * When asserted the dfi_init_complete signal can be used to trigger SDRAM
- * initialisation
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIMISC . DFI_INIT_COMPLETE_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DFIMISC_DFI_INIT_COMPLETE_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -3828,14 +5116,36 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Enables support of ctl_idle signal, which is non-DFI related pin
- * specific to certain Synopsys PHYs.
+ * DBI implemented in DDRC or PHY.
+ *
+ *   Present only in designs configured to support DDR4 and LPDDR4.
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DFIMISC . PHY_DBI_MODE
+ */
+#define  VTSS_F_DDR_UMCTL2_DFIMISC_PHY_DBI_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_DDR_UMCTL2_DFIMISC_PHY_DBI_MODE  VTSS_BIT(1)
+#define  VTSS_X_DDR_UMCTL2_DFIMISC_PHY_DBI_MODE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Sets support of ctl_idle signal, which is non-DFI related pin specific
+ * to certain Synopsys PHYs.
  * For more information on ctl_idle functionality, see signal description
  * of ctl_idle signal.
  *
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIMISC . CTL_IDLE_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DFIMISC_CTL_IDLE_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -3844,16 +5154,47 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * PHY init start request signal.When asserted it triggers the PHY init
- * start request.
+ * PHY init start request signal.
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIMISC . DFI_INIT_START
  */
 #define  VTSS_F_DDR_UMCTL2_DFIMISC_DFI_INIT_START(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
 #define  VTSS_M_DDR_UMCTL2_DFIMISC_DFI_INIT_START  VTSS_BIT(5)
 #define  VTSS_X_DDR_UMCTL2_DFIMISC_DFI_INIT_START(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Sets PHY specific Dynamic Tristating.
+ * This functionality works only in DFI 1:2 frequency ratio mode regardless
+ * of MSTR.en_2t_timing_mode, so if either of the following condition is
+ * met no special IDLE command is issued on the DFI bus:
+ *  - MEMC_FREQ_RATIO==1
+ *  - MEMC_PROG_FREQ_RATIO=1 and MSTR.frequency_ratio=1
+ * The special IDLE command means the following codes with the case where
+ * all the dfi_cs is 1:
+ *  - (phase 0 and 1) dfi_ras_n=1
+ *  - (phase 0 and 1) dfi_cas_n= 1
+ *  - phase 0 and 1) dfi_we_n= 1
+ *  - (phase 0 and 1) dfi_bank [0]= 0
+ *  - (phase 0 and 1) dfi_act_n= 1
+ * Programming Mode: Quasi-dynamic Group 3
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DFIMISC . DIS_DYN_ADR_TRI
+ */
+#define  VTSS_F_DDR_UMCTL2_DFIMISC_DIS_DYN_ADR_TRI(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_DDR_UMCTL2_DFIMISC_DIS_DYN_ADR_TRI  VTSS_BIT(6)
+#define  VTSS_X_DDR_UMCTL2_DFIMISC_DIS_DYN_ADR_TRI(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
@@ -3868,6 +5209,32 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 #define  VTSS_F_DDR_UMCTL2_DFIMISC_DFI_FREQUENCY(x)  VTSS_ENCODE_BITFIELD(x,8,5)
 #define  VTSS_M_DDR_UMCTL2_DFIMISC_DFI_FREQUENCY     VTSS_ENCODE_BITMASK(8,5)
 #define  VTSS_X_DDR_UMCTL2_DFIMISC_DFI_FREQUENCY(x)  VTSS_EXTRACT_BITFIELD(x,8,5)
+
+
+/**
+ * \brief DFI Timing Register 3
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DFITMG3
+ */
+#define VTSS_DDR_UMCTL2_DFITMG3              VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x6e)
+
+/**
+ * \brief
+ * The delay from dfi_geardown_en assertion to the time of the PHY being
+ * ready to receive commands.
+ * Refer to PHY specification for correct value.
+ * When the controller is operating in 1:2 frequency ratio mode, program
+ * this to (tgeardown_delay/2) and round it up to the next integer value.
+ * Unit: DFI clock cycles.
+ * Programming Mode: Static
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_DFITMG3 . DFI_T_GEARDOWN_DELAY
+ */
+#define  VTSS_F_DDR_UMCTL2_DFITMG3_DFI_T_GEARDOWN_DELAY(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_DDR_UMCTL2_DFITMG3_DFI_T_GEARDOWN_DELAY     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_DDR_UMCTL2_DFITMG3_DFI_T_GEARDOWN_DELAY(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
 
 /**
@@ -3887,6 +5254,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFISTAT . DFI_INIT_COMPLETE
  */
 #define  VTSS_F_DDR_UMCTL2_DFISTAT_DFI_INIT_COMPLETE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -3899,11 +5270,89 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFISTAT . DFI_LP_ACK
  */
 #define  VTSS_F_DDR_UMCTL2_DFISTAT_DFI_LP_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
 #define  VTSS_M_DDR_UMCTL2_DFISTAT_DFI_LP_ACK  VTSS_BIT(1)
 #define  VTSS_X_DDR_UMCTL2_DFISTAT_DFI_LP_ACK(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+
+/**
+ * \brief DM/DBI Control Register
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:DBICTL
+ */
+#define VTSS_DDR_UMCTL2_DBICTL               VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x70)
+
+/**
+ * \brief
+ * Indicates the DM enable signal in DDRC.
+ *
+ *   This signal must be set the same logical value as DRAM's mode
+ * register.
+ *  - DDR4 - Set this to same value as MR5 bit A10. When x4 devices are
+ * used, this signal must be set to 0
+ *  - LPDDR4 - Set this to inverted value of MR13[5] which is opposite
+ * polarity from this signal
+ * Programming Mode: Static
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DBICTL . DM_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DBICTL_DM_EN(x)    VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_DDR_UMCTL2_DBICTL_DM_EN       VTSS_BIT(0)
+#define  VTSS_X_DDR_UMCTL2_DBICTL_DM_EN(x)    VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Write DBI enable signal in DDRC.
+ *
+ *   This signal must be set the same value as DRAM's mode register.
+ *  - DDR4 - MR5 bit A11. When x4 devices are used, this signal must be set
+ * to 0
+ *  - LPDDR4 - MR3[7]
+ * Programming Mode: Quasi-dynamic Group 1
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DBICTL . WR_DBI_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DBICTL_WR_DBI_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_DDR_UMCTL2_DBICTL_WR_DBI_EN   VTSS_BIT(1)
+#define  VTSS_X_DDR_UMCTL2_DBICTL_WR_DBI_EN(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read DBI enable signal in DDRC.
+ *
+ *   This signal must be set the same value as DRAM's mode register.
+ *  - DDR4 - MR5 bit A12. When x4 devices are used, this signal must be set
+ * to 0
+ *  - LPDDR4 - MR3[6]
+ * Programming Mode: Quasi-dynamic Group 1
+ *
+ * \details
+ * 'h0:
+ * 'h1:
+
+ *
+ * Field: ::VTSS_DDR_UMCTL2_DBICTL . RD_DBI_EN
+ */
+#define  VTSS_F_DDR_UMCTL2_DBICTL_RD_DBI_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DDR_UMCTL2_DBICTL_RD_DBI_EN   VTSS_BIT(2)
+#define  VTSS_X_DDR_UMCTL2_DBICTL_RD_DBI_EN(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
 
 
 /**
@@ -3916,12 +5365,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Enables the PHY Master Interface:
- *  - 0 - Disabled
- *  - 1 - Enabled
+ * Enables the PHY Master Interface.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DFIPHYMSTR . DFI_PHYMSTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_DFIPHYMSTR_DFI_PHYMSTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -4562,6 +6013,93 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 
 /**
+ * \brief Address Map Register 7
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:ADDRMAP7
+ */
+#define VTSS_DDR_UMCTL2_ADDRMAP7             VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x87)
+
+/**
+ * \brief
+ * Selects the HIF address bit used as row address bit 16.
+ * Valid Range: 0 to 11, and 15
+ * Internal Base: 22
+ * The selected HIF address bit is determined by adding the internal base
+ * to the value of this field.
+ * If unused, set to 15 and then row address bit 16 is set to 0.
+ * Programming Mode: Static
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ADDRMAP7 . ADDRMAP_ROW_B16
+ */
+#define  VTSS_F_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B16(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B16     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B16(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+/**
+ * \brief
+ * Selects the HIF address bit used as row address bit 17.
+ * Valid Range: 0 to 11, and 15
+ * Internal Base: 23
+ * The selected HIF address bit is determined by adding the internal base
+ * to the value of this field.
+ * If unused, set to 15 and then row address bit 17 is set to 0 for DDR4 or
+ * set to 1 for LPDDR4 backward compability.
+ * Programming Mode: Static
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ADDRMAP7 . ADDRMAP_ROW_B17
+ */
+#define  VTSS_F_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B17(x)  VTSS_ENCODE_BITFIELD(x,8,4)
+#define  VTSS_M_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B17     VTSS_ENCODE_BITMASK(8,4)
+#define  VTSS_X_DDR_UMCTL2_ADDRMAP7_ADDRMAP_ROW_B17(x)  VTSS_EXTRACT_BITFIELD(x,8,4)
+
+
+/**
+ * \brief Address Map Register 8
+ *
+ * \details
+ * Register: \a DDR_UMCTL2:UMCTL2_REGS:ADDRMAP8
+ */
+#define VTSS_DDR_UMCTL2_ADDRMAP8             VTSS_IOREG(VTSS_TO_DDR_UMCTL2,0x88)
+
+/**
+ * \brief
+ * Selects the HIF address bits used as bank group address bit 0.
+ * Valid Range: 0 to 32, and 63
+ * Internal Base: 2
+ * The selected HIF address bit for each of the bank group address bits is
+ * determined by adding the internal base to the value of this field.
+ * If unused, set to 63 and then bank group address bit 0 is set to 0.
+ * Programming Mode: Static
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ADDRMAP8 . ADDRMAP_BG_B0
+ */
+#define  VTSS_F_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B0(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B0     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B0(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+
+/**
+ * \brief
+ * Selects the HIF address bits used as bank group address bit 1.
+ * Valid Range: 0 to 32, and 63
+ * Internal Base: 3
+ * The selected HIF address bit for each of the bank group address bits is
+ * determined by adding the internal base to the value of this field.
+ * If unused, set to 63 and then bank group address bit 1 is set to 0.
+ * Programming Mode: Static
+ *
+ * \details
+ * Field: ::VTSS_DDR_UMCTL2_ADDRMAP8 . ADDRMAP_BG_B1
+ */
+#define  VTSS_F_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B1(x)  VTSS_ENCODE_BITFIELD(x,8,6)
+#define  VTSS_M_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B1     VTSS_ENCODE_BITMASK(8,6)
+#define  VTSS_X_DDR_UMCTL2_ADDRMAP8_ADDRMAP_BG_B1(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
+
+
+/**
  * \brief Address Map Register 9
  *
  * \details
@@ -4964,6 +6502,9 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SCHED . DIS_OPT_WRECC_COLLISION_FLUSH
  */
 #define  VTSS_F_DDR_UMCTL2_SCHED_DIS_OPT_WRECC_COLLISION_FLUSH(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -4972,11 +6513,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set then the bank selector prefers writes over reads.
+ * Sets if the bank selector prefers writes over reads.
  * FOR DEBUG ONLY.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SCHED . PREFER_WRITE
  */
 #define  VTSS_F_DDR_UMCTL2_SCHED_PREFER_WRITE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -4985,26 +6530,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If true, bank is kept open only while there are page hit transactions
- * available in the CAM to that bank.
- * The last read or write command in the CAM with a bank and page hit is
- * executed with auto-precharge if SCHED1.pageclose_timer=0.
- * Even if this register set to 1 and SCHED1.pageclose_timer is set to 0,
- * explicit precharge (and not auto-precharge) may be issued in some cases
- * where there is a mode switch between Write and Read or between LPR and
- * HPR. The Read and Write commands that are executed as part of the ECC
- * scrub requests are also executed without auto-precharge.
- * If false, the bank remains open until there is a need to close it (to
- * open a different page, or for page timeout or refresh timeout) - also
- * known as open page policy. The open page policy can be overridden by
- * setting the per-command-autopre bit on the HIF interface
- * (hif_cmd_autopre).
- * The pageclose feature provids a midway between Open and Close page
- * policies.
+ * Sets if bank is kept open only while there are page hit transactions
+ * available in the CAM to that bank or if the bank remains open until
+ * there is a need to close it.
  * FOR PERFORMANCE ONLY.
  * Programming Mode: Quasi-dynamic Group 3
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SCHED . PAGECLOSE
  */
 #define  VTSS_F_DDR_UMCTL2_SCHED_PAGECLOSE(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
@@ -5015,12 +6551,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Selects behavior of hif_cmd_autopre if a RMW is received on HIF with
  * hif_cmd_autopre=1
- *  - 1 - Apply Autopre only for write part of RMW
- *  - 0 - Apply Autopre for both read and write parts of RMW
- *
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SCHED . AUTOPRE_RMW
  */
 #define  VTSS_F_DDR_UMCTL2_SCHED_AUTOPRE_RMW(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
@@ -5269,11 +6806,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When 1, disable write combine.
+ * Disables Write combine.
  * FOR DEBUG ONLY.
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG0 . DIS_WC
  */
 #define  VTSS_F_DDR_UMCTL2_DBG0_DIS_WC(x)     VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5282,8 +6823,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When this is set to '0', auto-precharge is disabled for the flushed
- * command in a collision case.
+ * Sets auto-precharge for the flushed command in a collision case.
  * Collision cases are write followed by read to same address, read
  * followed by write to same address, or write followed by write to same
  * address with DBG0.dis_wc bit = 1 (where same address comparisons exclude
@@ -5292,6 +6832,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG0 . DIS_COLLISION_PAGE_OPT
  */
 #define  VTSS_F_DDR_UMCTL2_DBG0_DIS_COLLISION_PAGE_OPT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -5303,10 +6847,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Indicates the disable optimized max_rank_rd and max_logical_rank_rd
  * feature.
  * This register is for debug purpose only.
- * For normal operation, This register must be set to 0.
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG0 . DIS_MAX_RANK_RD_OPT
  */
 #define  VTSS_F_DDR_UMCTL2_DBG0_DIS_MAX_RANK_RD_OPT(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
@@ -5318,10 +6865,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Indicates the disable optimized max_rank_wr and max_logical_rank_wr
  * feature.
  * This register is for debug purpose only.
- * For normal operation, This register must be set to 0.
  * Programming Mode: Static
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG0 . DIS_MAX_RANK_WR_OPT
  */
 #define  VTSS_F_DDR_UMCTL2_DBG0_DIS_MAX_RANK_WR_OPT(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
@@ -5339,7 +6889,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When 1, uMCTL2 does not de-queue any transactions from the CAM.
+ * Sets uMCTL2 to not de-queue any transactions from the CAM.
  * Bypass is also disabled.
  * All transactions are queued in the CAM. No reads or writes are issued to
  * SDRAM as long as this is asserted.
@@ -5354,6 +6904,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG1 . DIS_DQ
  */
 #define  VTSS_F_DDR_UMCTL2_DBG1_DIS_DQ(x)     VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5362,13 +6916,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When 1, uMCTL2 asserts the HIF command signal hif_cmd_stall.
+ * Asserts the HIF command signal hif_cmd_stall.
  * uMCTL2 ignores the hif_cmd_valid and all other associated request
  * signals.
  * This bit is intended to be switched on-the-fly.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h1:
+ * 'h0:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBG1 . DIS_HIF
  */
 #define  VTSS_F_DDR_UMCTL2_DBG1_DIS_HIF(x)    VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -5434,6 +6992,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCAM . DBG_STALL
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCAM_DBG_STALL(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
@@ -5442,8 +7004,8 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When 1, all the Read command queues and Read data buffers inside DDRC
- * are empty.
+ * This bit indicates that all the Read command queues and Read data
+ * buffers inside DDRC are empty.
  * This register is to be used for debug purpose.
  * An example use-case scenario: When the controller enters self-refresh
  * using the Low-Power entry sequence, controller is expected to have
@@ -5453,6 +7015,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCAM . DBG_RD_Q_EMPTY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCAM_DBG_RD_Q_EMPTY(x)  VTSS_ENCODE_BITFIELD(!!(x),25,1)
@@ -5461,8 +7027,8 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * When 1, all the Write command queues and Write data buffers inside DDRC
- * are empty.
+ * This bit indicates that all the Write command queues and Write data
+ * buffers inside DDRC are empty.
  * This register is to be used for debug purpose.
  * An example use-case scenario: When the controller enters self-refresh
  * using the Low-Power entry sequence, controller is expected to have
@@ -5472,6 +7038,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCAM . DBG_WR_Q_EMPTY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCAM_DBG_WR_Q_EMPTY(x)  VTSS_ENCODE_BITFIELD(!!(x),26,1)
@@ -5487,6 +7057,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCAM . RD_DATA_PIPELINE_EMPTY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCAM_RD_DATA_PIPELINE_EMPTY(x)  VTSS_ENCODE_BITFIELD(!!(x),28,1)
@@ -5502,6 +7076,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCAM . WR_DATA_PIPELINE_EMPTY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCAM_WR_DATA_PIPELINE_EMPTY(x)  VTSS_ENCODE_BITFIELD(!!(x),29,1)
@@ -5519,8 +7097,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Setting this register bit to 1 indicates to the uMCTL2 to issue a
- * refresh to rank 0.
+ * Requests a refresh to rank 0.
  * Writing to this bit causes DBGSTAT.rank0_refresh_busy to be set.
  * When DBGSTAT.rank0_refresh_busy is cleared, the command has been stored
  * in uMCTL2.
@@ -5531,6 +7108,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCMD . RANK0_REFRESH
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCMD_RANK0_REFRESH(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5539,8 +7120,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Setting this register bit to 1 indicates to the uMCTL2 to issue a
- * refresh to rank 1.
+ * Requests a refresh to rank 1.
  * Writing to this bit causes DBGSTAT.rank1_refresh_busy to be set.
  * When DBGSTAT.rank1_refresh_busy is cleared, the command has been stored
  * in uMCTL2.
@@ -5551,6 +7131,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCMD . RANK1_REFRESH
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCMD_RANK1_REFRESH(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -5559,10 +7143,8 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Setting this register bit to 1 indicates to the uMCTL2 to issue a ZQCS
- * (ZQ calibration short)/MPC(ZQ calibration) command to the SDRAM.
- * When this request is stored in the uMCTL2, the bit is automatically
- * cleared.
+ * Requests a ZQCS (ZQ calibration short)/MPC(ZQ calibration) command to
+ * the SDRAM.
  * This operation can be performed only when ZQCTL0.dis_auto_zq=1.
  * It is recommended NOT to set this register bit if in Init, in
  * self-refresh(except LPDDR4) or SR-Powerdown(LPDDR4) or Deep power-down
@@ -5570,10 +7152,15 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * For self-refresh(except LPDDR4) or SR-Powerdown(LPDDR4) it is scheduled
  * after SR(except LPDDR4) or SPRD(LPDDR4) has been exited.
  * For Deep power down and Maximum Power Saving Mode, it is not scheduled,
- * although DBGSTAT.zq_calib_short_busy is deasserted.
+ * although DBGSTAT.zq_calib_short_busy is de-asserted. When this request
+ * is stored in the uMCTL2, the bit is automatically cleared.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCMD . ZQ_CALIB_SHORT
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCMD_ZQ_CALIB_SHORT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -5582,14 +7169,17 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * Setting this register bit to 1 indicates to the uMCTL2 to issue a
- * dfi_ctrlupd_req to the PHY.
+ * Requests a dfi_ctrlupd_req to the PHY.
+ * This operation must only be performed when DFIUPD0.dis_auto_ctrlupd=1.
  * When this request is stored in the uMCTL2, the bit is automatically
  * cleared.
- * This operation must only be performed when DFIUPD0.dis_auto_ctrlupd=1.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGCMD . CTRLUPD
  */
 #define  VTSS_F_DDR_UMCTL2_DBGCMD_CTRLUPD(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
@@ -5614,12 +7204,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * uMCTL2.
  * It is recommended not to perform rank0_refresh operations when this
  * signal is high.
- *  - 0 - Indicates that the SoC can initiate a rank0_refresh operation
- *  - 1 - Indicates that rank0_refresh operation has not been stored yet in
- * the uMCTL2
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGSTAT . RANK0_REFRESH_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGSTAT_RANK0_REFRESH_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5635,12 +7226,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * uMCTL2.
  * It is recommended not to perform rank1_refresh operations when this
  * signal is high.
- *  - 0 - Indicates that the SoC can initiate a rank1_refresh operation
- *  - 1 - Indicates that rank1_refresh operation has not been stored yet in
- * the uMCTL2
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGSTAT . RANK1_REFRESH_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGSTAT_RANK1_REFRESH_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -5655,12 +7247,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * request.
  * It goes low when the ZQCS operation is initiated in the uMCTL2. It is
  * recommended not to perform ZQCS operations when this signal is high.
- *  - 0 - Indicates that the SoC can initiate a ZQCS operation
- *  - 1 - Indicates that ZQCS operation has not been initiated yet in the
- * uMCTL2
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGSTAT . ZQ_CALIB_SHORT_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGSTAT_ZQ_CALIB_SHORT_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -5675,12 +7268,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * It goes low when the ctrlupd operation is initiated in the uMCTL2.
  * It is recommended not to perform ctrlupd operations when this signal is
  * high.
- *  - 0 - Indicates that the SoC can initiate a ctrlupd operation
- *  - 1 - Indicates that ctrlupd operation has not been initiated yet in
- * the uMCTL2
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_DBGSTAT . CTRLUPD_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_DBGSTAT_CTRLUPD_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
@@ -5721,11 +7315,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Enables quasi-dynamic register programming outside reset.
- * Program this register to 0 to enable quasi-dynamic programming.
- * Set back register to 1 once programming is done.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SWCTL . SW_DONE
  */
 #define  VTSS_F_DDR_UMCTL2_SWCTL_SW_DONE(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5751,6 +7347,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SWSTAT . SW_DONE_ACK
  */
 #define  VTSS_F_DDR_UMCTL2_SWSTAT_SW_DONE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5769,12 +7369,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Enables static register programming outside reset.
- * Program this register to 1 to enable static register programming.
- * Set register back to 0 once programming is done.
  * Note: This ability is not supported.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SWCTLSTATIC . SW_STATIC_UNLOCK
  */
 #define  VTSS_F_DDR_UMCTL2_SWCTLSTATIC_SW_STATIC_UNLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5792,10 +7394,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables SLVERR response for write transaction poisoning.
+ * Sets SLVERR response for write transaction poisoning.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . WR_POISON_SLVERR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_WR_POISON_SLVERR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5804,10 +7410,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables interrupts for write transaction poisoning.
+ * Sets interrupts for write transaction poisoning.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . WR_POISON_INTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_WR_POISON_INTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -5818,11 +7428,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Interrupt clear for write transaction poisoning.
  * Allow 2/3 clock cycles for correct value to propagate to controller
- * logic and clear the interrupts.
- * uMCTL2 automatically clears this bit.
+ * logic and clear the interrupts. uMCTL2 automatically clears this bit
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . WR_POISON_INTR_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_WR_POISON_INTR_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
@@ -5831,10 +7444,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables SLVERR response for read transaction poisoning.
+ * Sets SLVERR response for read transaction poisoning.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . RD_POISON_SLVERR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_RD_POISON_SLVERR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
@@ -5843,10 +7460,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables interrupts for read transaction poisoning.
+ * Sets interrupts for read transaction poisoning.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . RD_POISON_INTR_EN
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_RD_POISON_INTR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
@@ -5857,11 +7478,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * Interrupt clear for read transaction poisoning.
  * Allow 2/3 clock cycles for correct value to propagate to controller
- * logic and clear the interrupts.
- * uMCTL2 automatically clears this bit.
+ * logic and clear the interrupts. uMCTL2 automatically clears this bit
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONCFG . RD_POISON_INTR_CLR
  */
 #define  VTSS_F_DDR_UMCTL2_POISONCFG_RD_POISON_INTR_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
@@ -5888,6 +7512,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . WR_POISON_INTR_0
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_WR_POISON_INTR_0(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -5905,6 +7533,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . WR_POISON_INTR_1
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_WR_POISON_INTR_1(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -5922,6 +7554,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . WR_POISON_INTR_2
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_WR_POISON_INTR_2(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
@@ -5939,6 +7575,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . RD_POISON_INTR_0
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_RD_POISON_INTR_0(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
@@ -5956,6 +7596,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . RD_POISON_INTR_1
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_RD_POISON_INTR_1(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
@@ -5973,6 +7617,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_POISONSTAT . RD_POISON_INTR_2
  */
 #define  VTSS_F_DDR_UMCTL2_POISONSTAT_RD_POISON_INTR_2(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
@@ -6020,6 +7668,12 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Quasi-dynamic Group 1
  *
  * \details
+ * 'h0:
+ * 'h1:
+ * 'h2:
+ * 'h3:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ADVECCINDEX . ECC_ERR_SYMBOL_SEL
  */
 #define  VTSS_F_DDR_UMCTL2_ADVECCINDEX_ECC_ERR_SYMBOL_SEL(x)  VTSS_ENCODE_BITFIELD(x,3,2)
@@ -6115,6 +7769,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_ECCAPSTAT . ECC_AP_ERR
  */
 #define  VTSS_F_DDR_UMCTL2_ECCAPSTAT_ECC_AP_ERR(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -6142,6 +7800,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . RD_PORT_BUSY_0
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_RD_PORT_BUSY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -6154,6 +7816,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . RD_PORT_BUSY_1
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_RD_PORT_BUSY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -6166,6 +7832,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . RD_PORT_BUSY_2
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_RD_PORT_BUSY_2(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
@@ -6178,6 +7848,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . WR_PORT_BUSY_0
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_WR_PORT_BUSY_0(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
@@ -6190,6 +7864,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . WR_PORT_BUSY_1
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_WR_PORT_BUSY_1(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
@@ -6202,6 +7880,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PSTAT . WR_PORT_BUSY_2
  */
 #define  VTSS_F_DDR_UMCTL2_PSTAT_WR_PORT_BUSY_2(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
@@ -6219,16 +7901,20 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1 (enabled), sets co_gs_go2critical_wr and
+ * If enabled, sets co_gs_go2critical_wr and
  * co_gs_go2critical_lpr/co_gs_go2critical_hpr signals going to DDRC based
  * on urgent input (awurgent, arurgent) coming from AXI master.
- * If set to 0 (disabled), co_gs_go2critical_wr and
+ * If disabled, co_gs_go2critical_wr and
  * co_gs_go2critical_lpr/co_gs_go2critical_hpr signals at DDRC are driven
  * to 1b'0.
  * For uPCTL2, this register field must be set to 0.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCCFG . GO2CRITICAL_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCCFG_GO2CRITICAL_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -6238,14 +7924,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Page match four limit.
- * If set to 1, limits the number of consecutive same page DDRC
- * transactions that can be granted by the Port Arbiter to four when Page
- * Match feature is enabled.
- * If set to 0, there is no limit imposed on number of consecutive same
- * page DDRC transactions.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCCFG . PAGEMATCH_LIMIT
  */
 #define  VTSS_F_DDR_UMCTL2_PCCFG_PAGEMATCH_LIMIT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
@@ -6255,9 +7940,6 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Burst length expansion mode.
- * By default (that is, bl_exp_mode==0) XPI expands every AXI burst into
- * multiple HIF commands, using the memory burst length as a unit. If set
- * to 1, then XPI uses half of the memory burst length as a unit.
  * This applies to both reads and writes. When MSTR.data_bus_width==00,
  * setting bl_exp_mode to 1 has no effect.
  * This can be used in order to avoid or minimize t_ccd_l penalty in DDR4
@@ -6274,6 +7956,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCCFG . BL_EXP_MODE
  */
 #define  VTSS_F_DDR_UMCTL2_PCCFG_BL_EXP_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
@@ -6322,10 +8008,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the read channel of the port.
+ * Sets aging function for the read channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_0 . PCFGR_0_RD_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_0_PCFGR_0_RD_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -6334,16 +8024,20 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (arurgent). When
- * enabled and arurgent is asserted by the master, that port becomes the
- * highest priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal
- * to DDRC is asserted if enabled in PCCFG.go2critical_en register.
+ * Sets the AXI urgent sideband signal (arurgent). When enabled and
+ * arurgent is asserted by the master, that port becomes the highest
+ * priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal to DDRC
+ * is asserted if enabled in PCCFG.go2critical_en register.
  * Note that arurgent signal can be asserted anytime and as long as
  * required which is independent of address handshaking (it is not
  * associated with any particular command).
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_0 . PCFGR_0_RD_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_0_PCFGR_0_RD_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -6352,14 +8046,18 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature. If enabled, once a
- * requesting port is granted, the port is continued to be granted if the
- * following immediate commands are to the same memory page (same rank,
- * same bank and same row).
+ * Sets the Page Match feature. If enabled, once a requesting port is
+ * granted, the port is continued to be granted if the following immediate
+ * commands are to the same memory page (same rank, same bank and same
+ * row).
  * See also related PCCFG.pagematch_limit register.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_0 . PCFGR_0_RD_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_0_PCFGR_0_RD_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -6404,10 +8102,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the write channel of the port.
+ * Sets aging function for the write channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_0 . PCFGW_0_WR_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_0_PCFGW_0_WR_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -6416,7 +8118,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (awurgent).
+ * Sets the AXI urgent sideband signal (awurgent).
  * When enabled and awurgent is asserted by the master, that port becomes
  * the highest priority and co_gs_go2critical_wr signal to DDRC is asserted
  * if enabled in PCCFG.go2critical_en register.
@@ -6426,6 +8128,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_0 . PCFGW_0_WR_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_0_PCFGW_0_WR_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -6434,7 +8140,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature.
+ * Sets the Page Match feature.
  * If enabled, once a requesting port is granted, the port is continued to
  * be granted if the following immediate commands are to the same memory
  * page (same rank, same bank and same row).
@@ -6442,6 +8148,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_0 . PCFGW_0_WR_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_0_PCFGW_0_WR_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -6463,6 +8173,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCTRL_0 . PCTRL_0_PORT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCTRL_0_PCTRL_0_PORT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -6745,10 +8459,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the read channel of the port.
+ * Sets aging function for the read channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_1 . PCFGR_1_RD_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_1_PCFGR_1_RD_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -6757,16 +8475,20 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (arurgent). When
- * enabled and arurgent is asserted by the master, that port becomes the
- * highest priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal
- * to DDRC is asserted if enabled in PCCFG.go2critical_en register.
+ * Sets the AXI urgent sideband signal (arurgent). When enabled and
+ * arurgent is asserted by the master, that port becomes the highest
+ * priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal to DDRC
+ * is asserted if enabled in PCCFG.go2critical_en register.
  * Note that arurgent signal can be asserted anytime and as long as
  * required which is independent of address handshaking (it is not
  * associated with any particular command).
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_1 . PCFGR_1_RD_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_1_PCFGR_1_RD_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -6775,14 +8497,18 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature. If enabled, once a
- * requesting port is granted, the port is continued to be granted if the
- * following immediate commands are to the same memory page (same rank,
- * same bank and same row).
+ * Sets the Page Match feature. If enabled, once a requesting port is
+ * granted, the port is continued to be granted if the following immediate
+ * commands are to the same memory page (same rank, same bank and same
+ * row).
  * See also related PCCFG.pagematch_limit register.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_1 . PCFGR_1_RD_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_1_PCFGR_1_RD_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -6827,10 +8553,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the write channel of the port.
+ * Sets aging function for the write channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_1 . PCFGW_1_WR_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_1_PCFGW_1_WR_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -6839,7 +8569,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (awurgent).
+ * Sets the AXI urgent sideband signal (awurgent).
  * When enabled and awurgent is asserted by the master, that port becomes
  * the highest priority and co_gs_go2critical_wr signal to DDRC is asserted
  * if enabled in PCCFG.go2critical_en register.
@@ -6849,6 +8579,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_1 . PCFGW_1_WR_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_1_PCFGW_1_WR_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -6857,7 +8591,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature.
+ * Sets the Page Match feature.
  * If enabled, once a requesting port is granted, the port is continued to
  * be granted if the following immediate commands are to the same memory
  * page (same rank, same bank and same row).
@@ -6865,6 +8599,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_1 . PCFGW_1_WR_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_1_PCFGW_1_WR_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -6886,6 +8624,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCTRL_1 . PCTRL_1_PORT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCTRL_1_PCTRL_1_PORT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -7168,10 +8910,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the read channel of the port.
+ * Sets aging function for the read channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_2 . PCFGR_2_RD_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_2_PCFGR_2_RD_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -7180,16 +8926,20 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (arurgent). When
- * enabled and arurgent is asserted by the master, that port becomes the
- * highest priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal
- * to DDRC is asserted if enabled in PCCFG.go2critical_en register.
+ * Sets the AXI urgent sideband signal (arurgent). When enabled and
+ * arurgent is asserted by the master, that port becomes the highest
+ * priority and co_gs_go2critical_lpr/co_gs_go2critical_hpr signal to DDRC
+ * is asserted if enabled in PCCFG.go2critical_en register.
  * Note that arurgent signal can be asserted anytime and as long as
  * required which is independent of address handshaking (it is not
  * associated with any particular command).
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_2 . PCFGR_2_RD_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_2_PCFGR_2_RD_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -7198,14 +8948,18 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature. If enabled, once a
- * requesting port is granted, the port is continued to be granted if the
- * following immediate commands are to the same memory page (same rank,
- * same bank and same row).
+ * Sets the Page Match feature. If enabled, once a requesting port is
+ * granted, the port is continued to be granted if the following immediate
+ * commands are to the same memory page (same rank, same bank and same
+ * row).
  * See also related PCCFG.pagematch_limit register.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGR_2 . PCFGR_2_RD_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGR_2_PCFGR_2_RD_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -7250,10 +9004,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables aging function for the write channel of the port.
+ * Sets aging function for the write channel of the port.
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_2 . PCFGW_2_WR_PORT_AGING_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_2_PCFGW_2_WR_PORT_AGING_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
@@ -7262,7 +9020,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the AXI urgent sideband signal (awurgent).
+ * Sets the AXI urgent sideband signal (awurgent).
  * When enabled and awurgent is asserted by the master, that port becomes
  * the highest priority and co_gs_go2critical_wr signal to DDRC is asserted
  * if enabled in PCCFG.go2critical_en register.
@@ -7272,6 +9030,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_2 . PCFGW_2_WR_PORT_URGENT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_2_PCFGW_2_WR_PORT_URGENT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
@@ -7280,7 +9042,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- * If set to 1, enables the Page Match feature.
+ * Sets the Page Match feature.
  * If enabled, once a requesting port is granted, the port is continued to
  * be granted if the following immediate commands are to the same memory
  * page (same rank, same bank and same row).
@@ -7288,6 +9050,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Static
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCFGW_2 . PCFGW_2_WR_PORT_PAGEMATCH_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCFGW_2_PCFGW_2_WR_PORT_PAGEMATCH_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
@@ -7309,6 +9075,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_PCTRL_2 . PCTRL_2_PORT_EN
  */
 #define  VTSS_F_DDR_UMCTL2_PCTRL_2_PCTRL_2_PORT_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -7611,15 +9381,19 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Enables ECC scrubber.
- * If set to 1, enables the scrubber to generate background read commands
- * after the memories are initialized.
- * If set to 0, disables the scrubber, resets the address generator to 0
- * and clears the scrubber status.
+ * (Enabled)Enables the scrubber to generate background read commands after
+ * the memories are initialized.
+ * (Disabled)Disables the scrubber, resets the address generator to 0 and
+ * clears the scrubber status.
  * This bitfield must be accessed separately from the other bitfields in
  * this register.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SBRCTL . SCRUB_EN
  */
 #define  VTSS_F_DDR_UMCTL2_SBRCTL_SCRUB_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -7629,16 +9403,20 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Continue scrubbing during low power.
- * If set to 1, burst of scrubs is issued in hardware controlled low power
+ * If enabled, burst of scrubs is issued in hardware controlled low power
  * modes. There are two such modes: automatically initiated by idleness or
  * initiated by Hardware low power interface.
- * If set to 0, the scrubber does not attempt to send commands while the
+ * If disabled, the scrubber does not attempt to send commands while the
  * DDRC is in HW controlled low power modes. In this case, the scrubber
  * remembers the last address issued and automatically continues from there
  * when the DDRC exits the low power mode.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SBRCTL . SCRUB_DURING_LOWPOWER
  */
 #define  VTSS_F_DDR_UMCTL2_SBRCTL_SCRUB_DURING_LOWPOWER(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -7647,12 +9425,14 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 /**
  * \brief
- *
- *  - scrub_mode:0 ECC scrubber performs reads
- *  - scrub_mode:1 ECC scrubber performs writes
+ * Sets scrub_mode.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SBRCTL . SCRUB_MODE
  */
 #define  VTSS_F_DDR_UMCTL2_SBRCTL_SCRUB_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
@@ -7723,12 +9503,13 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * Scrubber busy.
- * The controller sets this bit to 1 when the scrubber logic has
- * outstanding read commands being executed.
- * Cleared when there are no active outstanding scrub reads in the system.
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SBRSTAT . SCRUB_BUSY
  */
 #define  VTSS_F_DDR_UMCTL2_SBRSTAT_SCRUB_BUSY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -7747,6 +9528,10 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * Programming Mode: Dynamic
  *
  * \details
+ * 'h0:
+ * 'h1:
+
+ *
  * Field: ::VTSS_DDR_UMCTL2_SBRSTAT . SCRUB_DONE
  */
 #define  VTSS_F_DDR_UMCTL2_SBRSTAT_SCRUB_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
@@ -7755,7 +9540,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 
 
 /**
- * \brief Scrubber Write Data Pattern0
+ * \brief Scrubber Write Data Pattern 0
  *
  * \details
  * Register: \a DDR_UMCTL2:UMCTL2_MP:SBRWDATA0
@@ -7790,7 +9575,7 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * in Address Configuration in ECC Scrub and Scrubber. The scrubber address
  * registers are changed only when the scrubber is disabled
  * (SBRCTL.scrub_en = 0) and there are no scrubber commands in progress
- * (SBRSTAT.scrub_busy = 0).
+ * (SBRSTAT.scrub_busy = 0). It is HIF address.
  * Programming Mode: Dynamic
  *
  * \details
@@ -7812,11 +9597,11 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
 /**
  * \brief
  * sbr_address_start_mask_1 holds bits [MEMC_HIF_ADDR_WIDTH_MAX-1:32] of
- * the starting address the ECC scrubber generates.The register must be
+ * the starting address the ECC scrubber generates. The register must be
  * programmed as explained in Address Configuration in ECC Scrub and
  * Scrubber. The scrubber address registers are changed only when the
  * scrubber is disabled (SBRCTL.scrub_en = 0) and there are no scrubber
- * commands in progress (SBRSTAT.scrub_busy = 0).
+ * commands in progress (SBRSTAT.scrub_busy = 0). It is HIF address.
  * Programming Mode: Dynamic
  *
  * \details
@@ -7839,11 +9624,11 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * sbr_address_range_mask_0 holds the bits [31:0] of the scrubber address
  * range mask. The scrubber address range mask limits the address range
- * that the ECC scrubber can generate.The register must be programmed as
+ * that the ECC scrubber can generate. The register must be programmed as
  * explained in Address Configuration in ECC Scrub and Scrubber. The
  * scrubber address registers are changed only when the scrubber is
  * disabled (SBRCTL.scrub_en = 0) and there are no scrubber commands in
- * progress (SBRSTAT.scrub_busy = 0).
+ * progress (SBRSTAT.scrub_busy = 0). It is HIF address.
  * Programming Mode: Dynamic
  *
  * \details
@@ -7866,11 +9651,11 @@ Note: Do not perform any APB access to CRCPARCTL0 within 32 pclk cycles of previ
  * \brief
  * sbr_address_range_mask_1 holds the bits [MEMC_HIF_ADDR_WIDTH_MAX-1:32]
  * of the scrubber address range mask. The scrubber address range mask
- * limits the address range that the ECC scrubber can generate.The register
- * must be programmed as explained in Address Configuration in ECC Scrub
- * and Scrubber. The scrubber address registers are changed only when the
- * scrubber is disabled (SBRCTL.scrub_en = 0) and there are no scrubber
- * commands in progress (SBRSTAT.scrub_busy = 0).
+ * limits the address range that the ECC scrubber can generate. The
+ * register must be programmed as explained in Address Configuration in ECC
+ * Scrub and Scrubber. The scrubber address registers are changed only when
+ * the scrubber is disabled (SBRCTL.scrub_en = 0) and there are no scrubber
+ * commands in progress (SBRSTAT.scrub_busy = 0). It is HIF address.
  * Programming Mode: Dynamic
  *
  * \details

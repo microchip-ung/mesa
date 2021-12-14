@@ -745,21 +745,22 @@
  *
  * \details
  * 0: NONE
- * 1: ANA_VRAP
- * 2: ANA_PORT_VOE
- * 3: ANA_CL
- * 4: ANA_CLM
- * 5: ANA_IPT_PROT
- * 6: ANA_OU_MIP
- * 7: ANA_OU_SW
- * 8: ANA_OU_PROT
- * 9: ANA_OU_VOE
- * 10: ANA_MID_PROT
- * 11: ANA_IN_VOE
- * 12: ANA_IN_PROT
- * 13: ANA_IN_SW
- * 14: ANA_IN_MIP
- * 15: ANA_VLAN
+ * 1: ANA_RB
+ * 2: ANA_VRAP
+ * 3: ANA_PORT_VOE
+ * 4: ANA_CL
+ * 5: ANA_CLM
+ * 6: ANA_IPT_PROT
+ * 7: ANA_OU_MIP
+ * 8: ANA_OU_SW
+ * 9: ANA_OU_PROT
+ * 10: ANA_OU_VOE
+ * 11: ANA_MID_PROT
+ * 12: ANA_IN_VOE
+ * 13: ANA_IN_PROT
+ * 14: ANA_IN_SW
+ * 15: ANA_IN_MIP
+ * 16: ANA_VLAN
  *
  * Field: ::VTSS_ANA_ACL_VCAP_S2_MISC_CTRL2 . TWAMP_PIPELINE_PT
  */
@@ -1151,21 +1152,22 @@
  *
  * \details
  * 0: NONE
- * 1: ANA_VRAP
- * 2: ANA_PORT_VOE
- * 3: ANA_CL
- * 4: ANA_CLM
- * 5: ANA_IPT_PROT
- * 6: ANA_OU_MIP
- * 7: ANA_OU_SW
- * 8: ANA_OU_PROT
- * 9: ANA_OU_VOE
- * 10: ANA_MID_PROT
- * 11: ANA_IN_VOE
- * 12: ANA_IN_PROT
- * 13: ANA_IN_SW
- * 14: ANA_IN_MIP
- * 15: ANA_VLAN
+ * 1: ANA_RB
+ * 2: ANA_VRAP
+ * 3: ANA_PORT_VOE
+ * 4: ANA_CL
+ * 5: ANA_CLM
+ * 6: ANA_IPT_PROT
+ * 7: ANA_OU_MIP
+ * 8: ANA_OU_SW
+ * 9: ANA_OU_PROT
+ * 10: ANA_OU_VOE
+ * 11: ANA_MID_PROT
+ * 12: ANA_IN_VOE
+ * 13: ANA_IN_PROT
+ * 14: ANA_IN_SW
+ * 15: ANA_IN_MIP
+ * 16: ANA_VLAN
  *
  * Field: ::VTSS_ANA_ACL_MISC_CFG . VLAN_PIPELINE_PT
  */
@@ -1192,6 +1194,36 @@
  * @param ri Replicator: x_FFL_ANA_S2_CNT (??), 0-3
  */
 #define VTSS_ANA_ACL_VCAP_S2_KEY_SEL(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_ACL,0x8fd,gi,4,ri,0)
+
+/**
+ * \brief
+ * Applies to MAC frames.
+ *
+ * \details
+ * 0: Use selection from ARP_KEY_SEL.
+ * 1: Match against IP_7TUPLE entries.
+
+ *
+ * Field: ::VTSS_ANA_ACL_VCAP_S2_KEY_SEL . ARP_7TUPLE_ENA
+ */
+#define  VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA  VTSS_BIT(15)
+#define  VTSS_X_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+
+/**
+ * \brief
+ * Applies to MAC_ETYPE frames.
+ *
+ * \details
+ * 0: Match against MAC_ETYPE entries.
+ * 1: Match against IP_7TUPLE entries.
+
+ *
+ * Field: ::VTSS_ANA_ACL_VCAP_S2_KEY_SEL . MAC_KEY_SEL
+ */
+#define  VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL  VTSS_BIT(14)
+#define  VTSS_X_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 /**
  * \brief

@@ -2565,6 +2565,18 @@
 
 /**
  * \brief
+ * If this field is set the ASM transfers Redbox information fields from
+ * the preamble to the IFH.
+ *
+ * \details
+ * Field: ::VTSS_ASM_PORT_CFG . RB_ENA
+ */
+#define  VTSS_F_ASM_PORT_CFG_RB_ENA(x)        VTSS_ENCODE_BITFIELD(!!(x),13,1)
+#define  VTSS_M_ASM_PORT_CFG_RB_ENA           VTSS_BIT(13)
+#define  VTSS_X_ASM_PORT_CFG_RB_ENA(x)        VTSS_EXTRACT_BITFIELD(x,13,1)
+
+/**
+ * \brief
  * Disables updates of the ASM related counters for the common statistics
  * counter system that is used for DEV1G/DEV2G5 devices
  * (ASM:DEV_STATISTICS:RX_PAUSE_CNT and
@@ -2691,8 +2703,8 @@
  * contents in the IFH instead of normal forwarding. The prefix will be
  * stripped from the frame before it is forwarded.Three different prefix
  * modes are supported:- No prefix.- IFH short prefix:. any DMAC, any SMAC,
- * EtherType=0x8880, payload=0x000B- IFH long prefix: any DMAC, any SMAC,
- * VLAN Tag, EtherType=0x8880, payload=0x000B.The VLAN tag to compare
+ * EtherType=0x8880, payload=0x000E- IFH long prefix: any DMAC, any SMAC,
+ * VLAN Tag, EtherType=0x8880, payload=0x000E.The VLAN tag to compare
  * against is set in ASM:CFG:INJ_VLAN_CFG. Only the VID and TPID fields of
  * the VLAN Tag will be compared.If one of the IFH short or long prefix
  * modes are selected and a frame with non-matching prefix is received the

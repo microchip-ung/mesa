@@ -34,7 +34,7 @@
  *
  * Register: \a ANA_L2:COMMON:FWD_CFG
  */
-#define VTSS_ANA_L2_FWD_CFG                  VTSS_IOREG(VTSS_TO_ANA_L2,0x228c2)
+#define VTSS_ANA_L2_FWD_CFG                  VTSS_IOREG(VTSS_TO_ANA_L2,0x224c2)
 
 /**
  * \brief
@@ -235,7 +235,7 @@
  *
  * Register: \a ANA_L2:COMMON:LRN_CFG
  */
-#define VTSS_ANA_L2_LRN_CFG                  VTSS_IOREG(VTSS_TO_ANA_L2,0x228c3)
+#define VTSS_ANA_L2_LRN_CFG                  VTSS_IOREG(VTSS_TO_ANA_L2,0x224c3)
 
 /**
  * \brief
@@ -244,8 +244,8 @@
  * ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_ENA enables secure forwarding with
  * CPU-redirection on a per VLAN basis. Frames with unknown SMAC are
  * redirected to the CPU using CPU queue
- * ANA_L2:COMON:LRN_CFG.CPU_LRN_QU.See:ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_EN
- * A
+ * ANA_L2:COMMON:LRN_CFG.CPU_LRN_QU.See:ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_E
+ * NA
  *
  * \details
  * 0: No redirection
@@ -509,7 +509,7 @@
  * \details
  * Register: \a ANA_L2:COMMON:FILTER_OTHER_CTRL
  */
-#define VTSS_ANA_L2_FILTER_OTHER_CTRL        VTSS_IOREG(VTSS_TO_ANA_L2,0x228c4)
+#define VTSS_ANA_L2_FILTER_OTHER_CTRL        VTSS_IOREG(VTSS_TO_ANA_L2,0x224c4)
 
 /**
  * \brief
@@ -536,7 +536,7 @@
  * \details
  * Register: \a ANA_L2:COMMON:FILTER_LOCAL_CTRL
  */
-#define VTSS_ANA_L2_FILTER_LOCAL_CTRL        VTSS_IOREG(VTSS_TO_ANA_L2,0x228c5)
+#define VTSS_ANA_L2_FILTER_LOCAL_CTRL        VTSS_IOREG(VTSS_TO_ANA_L2,0x224c5)
 
 /**
  * \brief
@@ -566,7 +566,7 @@
  *
  * Register: \a ANA_L2:COMMON:AUTO_LRN_CFG
  */
-#define VTSS_ANA_L2_AUTO_LRN_CFG             VTSS_IOREG(VTSS_TO_ANA_L2,0x228c8)
+#define VTSS_ANA_L2_AUTO_LRN_CFG             VTSS_IOREG(VTSS_TO_ANA_L2,0x224c8)
 
 /**
  * \brief
@@ -594,7 +594,7 @@
  *
  * Register: \a ANA_L2:COMMON:LRN_SECUR_CFG
  */
-#define VTSS_ANA_L2_LRN_SECUR_CFG            VTSS_IOREG(VTSS_TO_ANA_L2,0x228cb)
+#define VTSS_ANA_L2_LRN_SECUR_CFG            VTSS_IOREG(VTSS_TO_ANA_L2,0x224cb)
 
 /**
  * \brief
@@ -621,7 +621,7 @@
  *
  * Register: \a ANA_L2:COMMON:LRN_SECUR_LOCKED_CFG
  */
-#define VTSS_ANA_L2_LRN_SECUR_LOCKED_CFG     VTSS_IOREG(VTSS_TO_ANA_L2,0x228ce)
+#define VTSS_ANA_L2_LRN_SECUR_LOCKED_CFG     VTSS_IOREG(VTSS_TO_ANA_L2,0x224ce)
 
 /**
  * \brief
@@ -650,7 +650,7 @@
  *
  * Register: \a ANA_L2:COMMON:LRN_COPY_CFG
  */
-#define VTSS_ANA_L2_LRN_COPY_CFG             VTSS_IOREG(VTSS_TO_ANA_L2,0x228d1)
+#define VTSS_ANA_L2_LRN_COPY_CFG             VTSS_IOREG(VTSS_TO_ANA_L2,0x224d1)
 
 /**
  * \brief
@@ -680,7 +680,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_L2_PORT_DLB_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_L2,0x228d4 + (ri))
+#define VTSS_ANA_L2_PORT_DLB_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_L2,0x224d4 + (ri))
 
 /**
  * \brief
@@ -721,7 +721,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_L2_PORT_ISDX_LIMIT_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_L2,0x22915 + (ri))
+#define VTSS_ANA_L2_PORT_ISDX_LIMIT_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_L2,0x22515 + (ri))
 
 /**
  * \brief
@@ -744,7 +744,7 @@
  *
  * Register: \a ANA_L2:COMMON:SCAN_FID_CTRL
  */
-#define VTSS_ANA_L2_SCAN_FID_CTRL            VTSS_IOREG(VTSS_TO_ANA_L2,0x22956)
+#define VTSS_ANA_L2_SCAN_FID_CTRL            VTSS_IOREG(VTSS_TO_ANA_L2,0x22556)
 
 /**
  * \brief
@@ -775,7 +775,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_SCAN_FID (??), 0-15
  */
-#define VTSS_ANA_L2_SCAN_FID_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_L2,0x22957 + (ri))
+#define VTSS_ANA_L2_SCAN_FID_CFG(ri)         VTSS_IOREG(VTSS_TO_ANA_L2,0x22557 + (ri))
 
 /**
  * \brief
@@ -801,7 +801,7 @@
  *
  * Register: \a ANA_L2:COMMON:MOVELOG_STICKY
  */
-#define VTSS_ANA_L2_MOVELOG_STICKY           VTSS_IOREG(VTSS_TO_ANA_L2,0x22967)
+#define VTSS_ANA_L2_MOVELOG_STICKY           VTSS_IOREG(VTSS_TO_ANA_L2,0x22567)
 
 /**
  * \brief
@@ -843,7 +843,7 @@
  *
  * Register: \a ANA_L2:COMMON:OWN_UPSID
  */
-#define VTSS_ANA_L2_OWN_UPSID                VTSS_IOREG(VTSS_TO_ANA_L2,0x2296a)
+#define VTSS_ANA_L2_OWN_UPSID                VTSS_IOREG(VTSS_TO_ANA_L2,0x2256a)
 
 /**
  * \brief
@@ -868,7 +868,7 @@
  *
  * Register: \a ANA_L2:COMMON:VSTAX_CTRL
  */
-#define VTSS_ANA_L2_VSTAX_CTRL               VTSS_IOREG(VTSS_TO_ANA_L2,0x2296d)
+#define VTSS_ANA_L2_VSTAX_CTRL               VTSS_IOREG(VTSS_TO_ANA_L2,0x2256d)
 
 /**
  * \brief
@@ -1085,7 +1085,7 @@
  *
  * Register: \a ANA_L2:COMMON:INTR
  */
-#define VTSS_ANA_L2_INTR                     VTSS_IOREG(VTSS_TO_ANA_L2,0x2296e)
+#define VTSS_ANA_L2_INTR                     VTSS_IOREG(VTSS_TO_ANA_L2,0x2256e)
 
 /**
  * \brief
@@ -1236,7 +1236,7 @@
  *
  * Register: \a ANA_L2:COMMON:INTR_ENA
  */
-#define VTSS_ANA_L2_INTR_ENA                 VTSS_IOREG(VTSS_TO_ANA_L2,0x2296f)
+#define VTSS_ANA_L2_INTR_ENA                 VTSS_IOREG(VTSS_TO_ANA_L2,0x2256f)
 
 /**
  * \brief
@@ -1357,7 +1357,7 @@
  * \details
  * Register: \a ANA_L2:COMMON:INTR_IDENT
  */
-#define VTSS_ANA_L2_INTR_IDENT               VTSS_IOREG(VTSS_TO_ANA_L2,0x22970)
+#define VTSS_ANA_L2_INTR_IDENT               VTSS_IOREG(VTSS_TO_ANA_L2,0x22570)
 
 /**
  * \brief
@@ -1471,6 +1471,35 @@
 #define  VTSS_M_ANA_L2_INTR_IDENT_ISDX_LIMIT_INTR_IDENT  VTSS_BIT(0)
 #define  VTSS_X_ANA_L2_INTR_IDENT_ISDX_LIMIT_INTR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
+
+/**
+ * \brief Secure learn configuration
+ *
+ * \details
+ * Configures secure forwarding per port
+ *
+ * Register: \a ANA_L2:COMMON:LRN_SECUR_LOCKED_COPY_CFG
+ */
+#define VTSS_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG  VTSS_IOREG(VTSS_TO_ANA_L2,0x22571)
+
+/**
+ * \brief
+ * Configures copy of frames from known stations with changed port
+ * (LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_ADDR_TYPE and
+ * LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_ADDR) in the source entry and the LOCKED
+ * bit (LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_LOCKED) set.Copies are sent to the
+ * CPU queue specified by ANA_L2::LRN_CFG.CPU_LRN_QU.
+ *
+ * \details
+ * x0x: Disable drop of incoming learn frames for the port
+ * x1x: Enable drop of incoming learn frames received on this port
+ *
+ * Field: ::VTSS_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG . COPY_MOVED_LOCKED_ENA
+ */
+#define  VTSS_F_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,30)
+#define  VTSS_M_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA     VTSS_ENCODE_BITMASK(0,30)
+#define  VTSS_X_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,30)
+
 /**
  * Register Group: \a ANA_L2:LRN_LIMIT
  *
@@ -1486,7 +1515,7 @@
  *
  * Register: \a ANA_L2:LRN_LIMIT:FID_LIMIT_STATUS
  *
- * @param gi Replicator: x_FFL_ANA_NUM_FIDS (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_NUM_FIDS (??), 0-4607
  */
 #define VTSS_ANA_L2_FID_LIMIT_STATUS(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x20000,gi,2,0,0)
 
@@ -1529,7 +1558,7 @@
  *
  * Register: \a ANA_L2:LRN_LIMIT:FID_LIMIT_CTRL
  *
- * @param gi Replicator: x_FFL_ANA_NUM_FIDS (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_NUM_FIDS (??), 0-4607
  */
 #define VTSS_ANA_L2_FID_LIMIT_CTRL(gi)       VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x20000,gi,2,0,1)
 
@@ -1712,7 +1741,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_PORT_LIMITS (??), 0-61
  */
-#define VTSS_ANA_L2_PORT_LIMIT_STATUS(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22800,gi,2,0,0)
+#define VTSS_ANA_L2_PORT_LIMIT_STATUS(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22400,gi,2,0,0)
 
 /**
  * \brief
@@ -1755,7 +1784,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_PORT_LIMITS (??), 0-61
  */
-#define VTSS_ANA_L2_PORT_LIMIT_CTRL(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22800,gi,2,0,1)
+#define VTSS_ANA_L2_PORT_LIMIT_CTRL(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22400,gi,2,0,1)
 
 /**
  * \brief
@@ -2114,9 +2143,9 @@
  * \details
  * Field: ::VTSS_ANA_L2_MISC_CFG . CT_DIS
  */
-#define  VTSS_F_ANA_L2_MISC_CFG_CT_DIS(x)     VTSS_ENCODE_BITFIELD(!!(x),26,1)
-#define  VTSS_M_ANA_L2_MISC_CFG_CT_DIS        VTSS_BIT(26)
-#define  VTSS_X_ANA_L2_MISC_CFG_CT_DIS(x)     VTSS_EXTRACT_BITFIELD(x,26,1)
+#define  VTSS_F_ANA_L2_MISC_CFG_CT_DIS(x)     VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_ANA_L2_MISC_CFG_CT_DIS        VTSS_BIT(27)
+#define  VTSS_X_ANA_L2_MISC_CFG_CT_DIS(x)     VTSS_EXTRACT_BITFIELD(x,27,1)
 
 /**
  * \brief
@@ -2126,15 +2155,15 @@
  * replaced:SERVICE_CTRL.LPORT_REMOVE_ENASERVICE_CTRL.PORT_MASK_REPLACE_ENA
  * SERVICE_CTRL.AGGR_VALSERVICE_CTRL.SRC_MASK_DISSERVICE_CTRL.AGGR_REPLACE_
  * ENASERVICE_CTRL.ES0_ISDX_KEY_ENAQGRP_CFG.QGRP_IDXQGRP_CFG.QGRP_OAM_TYPEM
- * ISC_CFG.CT_DISPORT_MASK_CFG.PORT_MASKPORT_MASK_CFG1.PORT_MASK1Related
+ * ISC_CFG.CT_DISPORT_MASK_CFG.PORT_MASKRelated
  * parameters:ANA_L3:VMID:VMID_MISC.RSDX
  *
  * \details
  * Field: ::VTSS_ANA_L2_MISC_CFG . RSDX_DIS
  */
-#define  VTSS_F_ANA_L2_MISC_CFG_RSDX_DIS(x)   VTSS_ENCODE_BITFIELD(!!(x),25,1)
-#define  VTSS_M_ANA_L2_MISC_CFG_RSDX_DIS      VTSS_BIT(25)
-#define  VTSS_X_ANA_L2_MISC_CFG_RSDX_DIS(x)   VTSS_EXTRACT_BITFIELD(x,25,1)
+#define  VTSS_F_ANA_L2_MISC_CFG_RSDX_DIS(x)   VTSS_ENCODE_BITFIELD(!!(x),26,1)
+#define  VTSS_M_ANA_L2_MISC_CFG_RSDX_DIS      VTSS_BIT(26)
+#define  VTSS_X_ANA_L2_MISC_CFG_RSDX_DIS(x)   VTSS_EXTRACT_BITFIELD(x,26,1)
 
 /**
  * \brief
@@ -2146,27 +2175,28 @@
  *
  * \details
  * 0: NONE
- * 1: ANA_VRAP
- * 2: ANA_PORT_VOE
- * 3: ANA_CL
- * 4: ANA_CLM
- * 5: ANA_IPT_PROT
- * 6: ANA_OU_MIP
- * 7: ANA_OU_SW
- * 8: ANA_OU_PROT
- * 9: ANA_OU_VOE
- * 10: ANA_MID_PROT
- * 11: ANA_IN_VOE
- * 12: ANA_IN_PROT
- * 13: ANA_IN_SW
- * 14: ANA_IN_MIP
- * 15: ANA_VLAN
+ * 1: ANA_RB
+ * 2: ANA_VRAP
+ * 3: ANA_PORT_VOE
+ * 4: ANA_CL
+ * 5: ANA_CLM
+ * 6: ANA_IPT_PROT
+ * 7: ANA_OU_MIP
+ * 8: ANA_OU_SW
+ * 9: ANA_OU_PROT
+ * 10: ANA_OU_VOE
+ * 11: ANA_MID_PROT
+ * 12: ANA_IN_VOE
+ * 13: ANA_IN_PROT
+ * 14: ANA_IN_SW
+ * 15: ANA_IN_MIP
+ * 16: ANA_VLAN
  *
  * Field: ::VTSS_ANA_L2_MISC_CFG . PIPELINE_PT
  */
-#define  VTSS_F_ANA_L2_MISC_CFG_PIPELINE_PT(x)  VTSS_ENCODE_BITFIELD(x,21,4)
-#define  VTSS_M_ANA_L2_MISC_CFG_PIPELINE_PT     VTSS_ENCODE_BITMASK(21,4)
-#define  VTSS_X_ANA_L2_MISC_CFG_PIPELINE_PT(x)  VTSS_EXTRACT_BITFIELD(x,21,4)
+#define  VTSS_F_ANA_L2_MISC_CFG_PIPELINE_PT(x)  VTSS_ENCODE_BITFIELD(x,21,5)
+#define  VTSS_M_ANA_L2_MISC_CFG_PIPELINE_PT     VTSS_ENCODE_BITMASK(21,5)
+#define  VTSS_X_ANA_L2_MISC_CFG_PIPELINE_PT(x)  VTSS_EXTRACT_BITFIELD(x,21,5)
 
 /**
  * \brief
@@ -2371,7 +2401,7 @@
  * \details
  * Register: \a ANA_L2:STICKY:STICKY
  */
-#define VTSS_ANA_L2_STICKY                   VTSS_IOREG(VTSS_TO_ANA_L2,0x22971)
+#define VTSS_ANA_L2_STICKY                   VTSS_IOREG(VTSS_TO_ANA_L2,0x22574)
 
 /**
  * \brief
@@ -2707,7 +2737,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L2_STICKY_MASK(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22972,gi,1,0,0)
+#define VTSS_ANA_L2_STICKY_MASK(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22575,gi,1,0,0)
 
 /**
  * \brief
@@ -2980,7 +3010,7 @@
  *
  * Register: \a ANA_L2:PMAC:PMAC_ACCESS_CTRL
  */
-#define VTSS_ANA_L2_PMAC_ACCESS_CTRL         VTSS_IOREG(VTSS_TO_ANA_L2,0x22976)
+#define VTSS_ANA_L2_PMAC_ACCESS_CTRL         VTSS_IOREG(VTSS_TO_ANA_L2,0x22579)
 
 /**
  * \brief
@@ -3006,7 +3036,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_INDEX
  */
-#define VTSS_ANA_L2_PMAC_INDEX               VTSS_IOREG(VTSS_TO_ANA_L2,0x22977)
+#define VTSS_ANA_L2_PMAC_INDEX               VTSS_IOREG(VTSS_TO_ANA_L2,0x2257a)
 
 /**
  * \brief
@@ -3028,7 +3058,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_ACCESS_CFG_2
  */
-#define VTSS_ANA_L2_PMAC_ACCESS_CFG_2        VTSS_IOREG(VTSS_TO_ANA_L2,0x22978)
+#define VTSS_ANA_L2_PMAC_ACCESS_CFG_2        VTSS_IOREG(VTSS_TO_ANA_L2,0x2257b)
 
 /**
  * \brief
@@ -3107,7 +3137,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_CFG
  */
-#define VTSS_ANA_L2_PMAC_CFG                 VTSS_IOREG(VTSS_TO_ANA_L2,0x22979)
+#define VTSS_ANA_L2_PMAC_CFG                 VTSS_IOREG(VTSS_TO_ANA_L2,0x2257c)
 
 /**
  * \brief
@@ -3137,7 +3167,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_CFG_2
  */
-#define VTSS_ANA_L2_PMAC_CFG_2               VTSS_IOREG(VTSS_TO_ANA_L2,0x2297a)
+#define VTSS_ANA_L2_PMAC_CFG_2               VTSS_IOREG(VTSS_TO_ANA_L2,0x2257d)
 
 /**
  * \brief
@@ -3173,7 +3203,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_PMAC_TABLE_VLANS (??), 0-3
  */
-#define VTSS_ANA_L2_PMAC_VLAN_CFG(ri)        VTSS_IOREG(VTSS_TO_ANA_L2,0x2297b + (ri))
+#define VTSS_ANA_L2_PMAC_VLAN_CFG(ri)        VTSS_IOREG(VTSS_TO_ANA_L2,0x2257e + (ri))
 
 /**
  * \brief

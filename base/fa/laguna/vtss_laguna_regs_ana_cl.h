@@ -1958,8 +1958,9 @@
  * E-tag information is available for classification, including CLM keys.
  * Any VLAN tags and PDU below the E-tag are parsed.If E-tag unaware, the
  * frame's E-tag is not analyzed and the frame is considered a frame with
- * ETYPE=0x893F.ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA shall be set to 0 when
- * E-tag awareness is enabled.
+ * ETYPE=0x893F.ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA and
+ * ANA_CL:COMMON:RTAG_CFG.HSR_TPID_ENA must be set to 0 when E-tag
+ * awareness is enabled.
  *
  * \details
  * Field: ::VTSS_ANA_CL_ETAG_CFG . ETAG_TPID_ENA
@@ -1979,14 +1980,34 @@
 
 /**
  * \brief
+ * Enable HSR tag awareness.If HSR tag aware, the frame's HSR-tag is parsed
+ * and HSR-tag information is available for stream recovery. Any VLAN tags
+ * before or after the HSR-tag are parsed (maximum two VLAN tags are
+ * supported together with an HSR-tag). The PDU below the tags is parsed.If
+ * HSR-tag unaware, the frame's HSR-tag is not analyzed and the frame is
+ * considered a frame with ETYPE=0xF1C1. Any VLAN tags before the HSR-tag
+ * are still analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA and
+ * ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA must be set to 0 when HSR-tag
+ * awareness is enabled.
+ *
+ * \details
+ * Field: ::VTSS_ANA_CL_RTAG_CFG . HSR_TPID_ENA
+ */
+#define  VTSS_F_ANA_CL_RTAG_CFG_HSR_TPID_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_ANA_CL_RTAG_CFG_HSR_TPID_ENA  VTSS_BIT(1)
+#define  VTSS_X_ANA_CL_RTAG_CFG_HSR_TPID_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
  * Enable R-tag awareness.If R-tag aware, the frame's R-tag is parsed and
  * R-tag information is available for stream recovery. Any VLAN tags before
  * or after the R-tag are parsed (maximum two VLAN tags are supported
  * together with an R-tag). The PDU below the tags is parsed.If R-tag
  * unaware, the frame's R-tag is not analyzed and the frame is considered a
  * frame with ETYPE=0xF1C1. Any VLAN tags before the R-tag are still
- * analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA shall be set to 0 when
- * R-tag awareness is enabled.
+ * analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA and
+ * ANA_CL:COMMON:RTAG_CFG.HSR_TPID_ENA must be set to 0 when R-tag
+ * awareness is enabled.
  *
  * \details
  * Field: ::VTSS_ANA_CL_RTAG_CFG . RTAG_TPID_ENA
@@ -3201,9 +3222,9 @@
  * \details
  * Field: ::VTSS_ANA_CL_MISC_CFG . UPDATE_DSCP_WITH_MEL_ENA
  */
-#define  VTSS_F_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA  VTSS_BIT(5)
-#define  VTSS_X_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+#define  VTSS_F_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA  VTSS_BIT(6)
+#define  VTSS_X_ANA_CL_MISC_CFG_UPDATE_DSCP_WITH_MEL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
@@ -3211,27 +3232,28 @@
  *
  * \details
  * 0: NONE
- * 1: ANA_VRAP
- * 2: ANA_PORT_VOE
- * 3: ANA_CL
- * 4: ANA_CLM
- * 5: ANA_IPT_PROT
- * 6: ANA_OU_MIP
- * 7: ANA_OU_SW
- * 8: ANA_OU_PROT
- * 9: ANA_OU_VOE
- * 10: ANA_MID_PROT
- * 11: ANA_IN_VOE
- * 12: ANA_IN_PROT
- * 13: ANA_IN_SW
- * 14: ANA_IN_MIP
- * 15: ANA_VLAN
+ * 1: ANA_RB
+ * 2: ANA_VRAP
+ * 3: ANA_PORT_VOE
+ * 4: ANA_CL
+ * 5: ANA_CLM
+ * 6: ANA_IPT_PROT
+ * 7: ANA_OU_MIP
+ * 8: ANA_OU_SW
+ * 9: ANA_OU_PROT
+ * 10: ANA_OU_VOE
+ * 11: ANA_MID_PROT
+ * 12: ANA_IN_VOE
+ * 13: ANA_IN_PROT
+ * 14: ANA_IN_SW
+ * 15: ANA_IN_MIP
+ * 16: ANA_VLAN
  *
  * Field: ::VTSS_ANA_CL_MISC_CFG . CSC_PIPELINE_PT
  */
-#define  VTSS_F_ANA_CL_MISC_CFG_CSC_PIPELINE_PT(x)  VTSS_ENCODE_BITFIELD(x,1,4)
-#define  VTSS_M_ANA_CL_MISC_CFG_CSC_PIPELINE_PT     VTSS_ENCODE_BITMASK(1,4)
-#define  VTSS_X_ANA_CL_MISC_CFG_CSC_PIPELINE_PT(x)  VTSS_EXTRACT_BITFIELD(x,1,4)
+#define  VTSS_F_ANA_CL_MISC_CFG_CSC_PIPELINE_PT(x)  VTSS_ENCODE_BITFIELD(x,1,5)
+#define  VTSS_M_ANA_CL_MISC_CFG_CSC_PIPELINE_PT     VTSS_ENCODE_BITMASK(1,5)
+#define  VTSS_X_ANA_CL_MISC_CFG_CSC_PIPELINE_PT(x)  VTSS_EXTRACT_BITFIELD(x,1,5)
 
 /**
  * \brief

@@ -1365,6 +1365,31 @@
 #define  VTSS_M_CPU_USB_GGPIO_GPI             VTSS_ENCODE_BITMASK(0,16)
 #define  VTSS_X_CPU_USB_GGPIO_GPI(x)          VTSS_EXTRACT_BITFIELD(x,0,16)
 
+
+/**
+ * \brief USB DRD Port capability direction Register
+ *
+ * \details
+ * The application can use this register for mode of operation of USB DRD
+ * controller.
+ *
+ * Register: \a CPU:USB_REGS:USB_DRD_OPMODE
+ */
+#define VTSS_CPU_USB_DRD_OPMODE              VTSS_IOREG(VTSS_TO_CPU,0x46)
+
+/**
+ * \brief
+ * Port capability direction.This signal defines the mode of operation of
+ * the controller. It directly reflects the value programmed in the bits
+ * [13:12] of the GCTL register..2'b01 : USB HOST.2'b10 : USB DEVICE.
+ *
+ * \details
+ * Field: ::VTSS_CPU_USB_DRD_OPMODE . DRD_OPMODE
+ */
+#define  VTSS_F_CPU_USB_DRD_OPMODE_DRD_OPMODE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CPU_USB_DRD_OPMODE_DRD_OPMODE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CPU_USB_DRD_OPMODE_DRD_OPMODE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
 /**
  * Register Group: \a CPU:MIIM_TARGET
  *
@@ -1378,7 +1403,7 @@
  * \details
  * Register: \a CPU:MIIM_TARGET:MIIM_TARGET_CFG
  */
-#define VTSS_CPU_MIIM_TARGET_CFG             VTSS_IOREG(VTSS_TO_CPU,0x46)
+#define VTSS_CPU_MIIM_TARGET_CFG             VTSS_IOREG(VTSS_TO_CPU,0x47)
 
 /**
  * \brief
@@ -1419,7 +1444,7 @@
  * \details
  * Register: \a CPU:VCORE_ACC:VCORE_ACC_CFG
  */
-#define VTSS_CPU_VCORE_ACC_CFG               VTSS_IOREG(VTSS_TO_CPU,0x47)
+#define VTSS_CPU_VCORE_ACC_CFG               VTSS_IOREG(VTSS_TO_CPU,0x48)
 
 /**
  * \brief
@@ -1448,7 +1473,7 @@
  * \details
  * Register: \a CPU:MSIX_ACC:MSIX_ACC_CFG
  */
-#define VTSS_CPU_MSIX_ACC_CFG                VTSS_IOREG(VTSS_TO_CPU,0x48)
+#define VTSS_CPU_MSIX_ACC_CFG                VTSS_IOREG(VTSS_TO_CPU,0x49)
 
 /**
  * \brief
@@ -1477,7 +1502,7 @@
  * \details
  * Register: \a CPU:EXT_IF_ACC_STAT:EXT_IF_ACC_STAT
  */
-#define VTSS_CPU_EXT_IF_ACC_STAT             VTSS_IOREG(VTSS_TO_CPU,0x49)
+#define VTSS_CPU_EXT_IF_ACC_STAT             VTSS_IOREG(VTSS_TO_CPU,0x4a)
 
 /**
  * \brief
@@ -1592,7 +1617,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW
  */
-#define VTSS_CPU_INTR_RAW                    VTSS_IOREG(VTSS_TO_CPU,0x4a)
+#define VTSS_CPU_INTR_RAW                    VTSS_IOREG(VTSS_TO_CPU,0x4b)
 
 /**
  * \brief
@@ -1614,7 +1639,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW1
  */
-#define VTSS_CPU_INTR_RAW1                   VTSS_IOREG(VTSS_TO_CPU,0x4b)
+#define VTSS_CPU_INTR_RAW1                   VTSS_IOREG(VTSS_TO_CPU,0x4c)
 
 /**
  * \brief
@@ -1634,7 +1659,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW2
  */
-#define VTSS_CPU_INTR_RAW2                   VTSS_IOREG(VTSS_TO_CPU,0x4c)
+#define VTSS_CPU_INTR_RAW2                   VTSS_IOREG(VTSS_TO_CPU,0x4d)
 
 /**
  * \brief
@@ -1656,7 +1681,7 @@
  *
  * @param ri Register: INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x4d + (ri))
+#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x4e + (ri))
 
 /**
  * \brief
@@ -1696,7 +1721,7 @@
  *
  * @param ri Register: INTR_TRIGGER1 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x4f + (ri))
+#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x50 + (ri))
 
 /**
  * \brief
@@ -1723,7 +1748,7 @@
  *
  * @param ri Register: INTR_TRIGGER2 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x51 + (ri))
+#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x52 + (ri))
 
 /**
  * \brief
@@ -1748,7 +1773,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_FORCE
  */
-#define VTSS_CPU_INTR_FORCE                  VTSS_IOREG(VTSS_TO_CPU,0x53)
+#define VTSS_CPU_INTR_FORCE                  VTSS_IOREG(VTSS_TO_CPU,0x54)
 
 /**
  * \brief
@@ -1769,7 +1794,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_FORCE1
  */
-#define VTSS_CPU_INTR_FORCE1                 VTSS_IOREG(VTSS_TO_CPU,0x54)
+#define VTSS_CPU_INTR_FORCE1                 VTSS_IOREG(VTSS_TO_CPU,0x55)
 
 /**
  * \brief
@@ -1789,7 +1814,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_FORCE2
  */
-#define VTSS_CPU_INTR_FORCE2                 VTSS_IOREG(VTSS_TO_CPU,0x55)
+#define VTSS_CPU_INTR_FORCE2                 VTSS_IOREG(VTSS_TO_CPU,0x56)
 
 /**
  * \brief
@@ -1809,7 +1834,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_STICKY
  */
-#define VTSS_CPU_INTR_STICKY                 VTSS_IOREG(VTSS_TO_CPU,0x56)
+#define VTSS_CPU_INTR_STICKY                 VTSS_IOREG(VTSS_TO_CPU,0x57)
 
 /**
  * \brief
@@ -1831,7 +1856,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_STICKY1
  */
-#define VTSS_CPU_INTR_STICKY1                VTSS_IOREG(VTSS_TO_CPU,0x57)
+#define VTSS_CPU_INTR_STICKY1                VTSS_IOREG(VTSS_TO_CPU,0x58)
 
 /**
  * \brief
@@ -1851,7 +1876,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_STICKY2
  */
-#define VTSS_CPU_INTR_STICKY2                VTSS_IOREG(VTSS_TO_CPU,0x58)
+#define VTSS_CPU_INTR_STICKY2                VTSS_IOREG(VTSS_TO_CPU,0x59)
 
 /**
  * \brief
@@ -1871,7 +1896,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS
  */
-#define VTSS_CPU_INTR_BYPASS                 VTSS_IOREG(VTSS_TO_CPU,0x59)
+#define VTSS_CPU_INTR_BYPASS                 VTSS_IOREG(VTSS_TO_CPU,0x5a)
 
 /**
  * \brief
@@ -1899,7 +1924,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS1
  */
-#define VTSS_CPU_INTR_BYPASS1                VTSS_IOREG(VTSS_TO_CPU,0x5a)
+#define VTSS_CPU_INTR_BYPASS1                VTSS_IOREG(VTSS_TO_CPU,0x5b)
 
 /**
  * \brief
@@ -1919,7 +1944,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS2
  */
-#define VTSS_CPU_INTR_BYPASS2                VTSS_IOREG(VTSS_TO_CPU,0x5b)
+#define VTSS_CPU_INTR_BYPASS2                VTSS_IOREG(VTSS_TO_CPU,0x5c)
 
 /**
  * \brief
@@ -1939,7 +1964,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA
  */
-#define VTSS_CPU_INTR_ENA                    VTSS_IOREG(VTSS_TO_CPU,0x5c)
+#define VTSS_CPU_INTR_ENA                    VTSS_IOREG(VTSS_TO_CPU,0x5d)
 
 /**
  * \brief
@@ -1962,7 +1987,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA1
  */
-#define VTSS_CPU_INTR_ENA1                   VTSS_IOREG(VTSS_TO_CPU,0x5d)
+#define VTSS_CPU_INTR_ENA1                   VTSS_IOREG(VTSS_TO_CPU,0x5e)
 
 /**
  * \brief
@@ -1982,7 +2007,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA2
  */
-#define VTSS_CPU_INTR_ENA2                   VTSS_IOREG(VTSS_TO_CPU,0x5e)
+#define VTSS_CPU_INTR_ENA2                   VTSS_IOREG(VTSS_TO_CPU,0x5f)
 
 /**
  * \brief
@@ -2002,7 +2027,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR
  */
-#define VTSS_CPU_INTR_ENA_CLR                VTSS_IOREG(VTSS_TO_CPU,0x5f)
+#define VTSS_CPU_INTR_ENA_CLR                VTSS_IOREG(VTSS_TO_CPU,0x60)
 
 /**
  * \brief
@@ -2023,7 +2048,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR1
  */
-#define VTSS_CPU_INTR_ENA_CLR1               VTSS_IOREG(VTSS_TO_CPU,0x60)
+#define VTSS_CPU_INTR_ENA_CLR1               VTSS_IOREG(VTSS_TO_CPU,0x61)
 
 /**
  * \brief
@@ -2043,7 +2068,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR2
  */
-#define VTSS_CPU_INTR_ENA_CLR2               VTSS_IOREG(VTSS_TO_CPU,0x61)
+#define VTSS_CPU_INTR_ENA_CLR2               VTSS_IOREG(VTSS_TO_CPU,0x62)
 
 /**
  * \brief
@@ -2063,7 +2088,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET
  */
-#define VTSS_CPU_INTR_ENA_SET                VTSS_IOREG(VTSS_TO_CPU,0x62)
+#define VTSS_CPU_INTR_ENA_SET                VTSS_IOREG(VTSS_TO_CPU,0x63)
 
 /**
  * \brief
@@ -2084,7 +2109,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET1
  */
-#define VTSS_CPU_INTR_ENA_SET1               VTSS_IOREG(VTSS_TO_CPU,0x63)
+#define VTSS_CPU_INTR_ENA_SET1               VTSS_IOREG(VTSS_TO_CPU,0x64)
 
 /**
  * \brief
@@ -2104,7 +2129,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET2
  */
-#define VTSS_CPU_INTR_ENA_SET2               VTSS_IOREG(VTSS_TO_CPU,0x64)
+#define VTSS_CPU_INTR_ENA_SET2               VTSS_IOREG(VTSS_TO_CPU,0x65)
 
 /**
  * \brief
@@ -2124,7 +2149,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_IDENT
  */
-#define VTSS_CPU_INTR_IDENT                  VTSS_IOREG(VTSS_TO_CPU,0x65)
+#define VTSS_CPU_INTR_IDENT                  VTSS_IOREG(VTSS_TO_CPU,0x66)
 
 /**
  * \brief
@@ -2146,7 +2171,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_IDENT1
  */
-#define VTSS_CPU_INTR_IDENT1                 VTSS_IOREG(VTSS_TO_CPU,0x66)
+#define VTSS_CPU_INTR_IDENT1                 VTSS_IOREG(VTSS_TO_CPU,0x67)
 
 /**
  * \brief
@@ -2166,7 +2191,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_IDENT2
  */
-#define VTSS_CPU_INTR_IDENT2                 VTSS_IOREG(VTSS_TO_CPU,0x67)
+#define VTSS_CPU_INTR_IDENT2                 VTSS_IOREG(VTSS_TO_CPU,0x68)
 
 /**
  * \brief
@@ -2190,7 +2215,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP(ri)            VTSS_IOREG(VTSS_TO_CPU,0x68 + (ri))
+#define VTSS_CPU_DST_INTR_MAP(ri)            VTSS_IOREG(VTSS_TO_CPU,0x69 + (ri))
 
 /**
  * \brief
@@ -2216,7 +2241,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x71 + (ri))
+#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x72 + (ri))
 
 /**
  * \brief
@@ -2240,7 +2265,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x7a + (ri))
+#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x7b + (ri))
 
 /**
  * \brief
@@ -2264,7 +2289,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x83 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x84 + (ri))
 
 /**
  * \brief
@@ -2291,7 +2316,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x8c + (ri))
+#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x8d + (ri))
 
 /**
  * \brief
@@ -2315,7 +2340,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x95 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x96 + (ri))
 
 /**
  * \brief
@@ -2335,7 +2360,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_SRC_INTR_POL
  */
-#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x9e)
+#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x9f)
 
 /**
  * \brief
@@ -2359,7 +2384,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_POL
  */
-#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x9f)
+#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0xa0)
 
 /**
  * \brief
@@ -2383,7 +2408,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_DRV
  */
-#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0xa0)
+#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0xa1)
 
 /**
  * \brief
@@ -2408,7 +2433,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_POL
  */
-#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0xa1)
+#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0xa2)
 
 /**
  * \brief
@@ -2432,7 +2457,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_RAW
  */
-#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0xa2)
+#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0xa3)
 
 /**
  * \brief
@@ -2456,7 +2481,7 @@
  *
  * @param ri Register: DEV_INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0xa3 + (ri))
+#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0xa4 + (ri))
 
 /**
  * \brief
@@ -2496,7 +2521,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_STICKY
  */
-#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0xa5)
+#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0xa6)
 
 /**
  * \brief
@@ -2518,7 +2543,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_BYPASS
  */
-#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0xa6)
+#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0xa7)
 
 /**
  * \brief
@@ -2541,7 +2566,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_ENA
  */
-#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0xa7)
+#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0xa8)
 
 /**
  * \brief
@@ -2562,7 +2587,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_IDENT
  */
-#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0xa8)
+#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0xa9)
 
 /**
  * \brief
@@ -2584,7 +2609,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_CFG
  */
-#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0xa9)
+#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0xaa)
 
 /**
  * \brief
@@ -2652,7 +2677,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_DOORBELL_ADDR
  */
-#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0xaa)
+#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0xab)
 
 /**
  * \brief
@@ -2674,7 +2699,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING
  */
-#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0xab)
+#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0xac)
 
 /**
  * \brief
@@ -2694,7 +2719,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING1
  */
-#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0xac)
+#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0xad)
 
 /**
  * \brief
@@ -2714,7 +2739,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING2
  */
-#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0xad)
+#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0xae)
 
 /**
  * \brief
@@ -2740,7 +2765,7 @@
  * \details
  * Register: \a CPU:DDRCTRL:DDRCTRL_CLK
  */
-#define VTSS_CPU_DDRCTRL_CLK                 VTSS_IOREG(VTSS_TO_CPU,0xae)
+#define VTSS_CPU_DDRCTRL_CLK                 VTSS_IOREG(VTSS_TO_CPU,0xaf)
 
 /**
  * \brief
@@ -2862,7 +2887,7 @@
  * \details
  * Register: \a CPU:DDRCTRL:DDRCTRL_RST
  */
-#define VTSS_CPU_DDRCTRL_RST                 VTSS_IOREG(VTSS_TO_CPU,0xaf)
+#define VTSS_CPU_DDRCTRL_RST                 VTSS_IOREG(VTSS_TO_CPU,0xb0)
 
 /**
  * \brief
@@ -2990,7 +3015,7 @@
  * \details
  * Register: \a CPU:DDRCTRL:DDRC_INTR_RAW_STAT
  */
-#define VTSS_CPU_DDRC_INTR_RAW_STAT          VTSS_IOREG(VTSS_TO_CPU,0xb0)
+#define VTSS_CPU_DDRC_INTR_RAW_STAT          VTSS_IOREG(VTSS_TO_CPU,0xb1)
 
 /**
  * \brief
@@ -3073,7 +3098,7 @@
  * \details
  * Register: \a CPU:DDRCTRL:DDRC_INTR_MASK
  */
-#define VTSS_CPU_DDRC_INTR_MASK              VTSS_IOREG(VTSS_TO_CPU,0xb1)
+#define VTSS_CPU_DDRC_INTR_MASK              VTSS_IOREG(VTSS_TO_CPU,0xb2)
 
 /**
  * \brief
@@ -3138,7 +3163,7 @@
  * \details
  * Register: \a CPU:DDRCTRL:DDRC_INTR_MASKED_STAT
  */
-#define VTSS_CPU_DDRC_INTR_MASKED_STAT       VTSS_IOREG(VTSS_TO_CPU,0xb2)
+#define VTSS_CPU_DDRC_INTR_MASKED_STAT       VTSS_IOREG(VTSS_TO_CPU,0xb3)
 
 /**
  * \brief
@@ -3225,7 +3250,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:CLK_GATING
  */
-#define VTSS_CPU_CLK_GATING                  VTSS_IOREG(VTSS_TO_CPU,0xb3)
+#define VTSS_CPU_CLK_GATING                  VTSS_IOREG(VTSS_TO_CPU,0xb4)
 
 /**
  * \brief
@@ -3297,7 +3322,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:AHBLITE2AXI
  */
-#define VTSS_CPU_AHBLITE2AXI                 VTSS_IOREG(VTSS_TO_CPU,0xb4)
+#define VTSS_CPU_AHBLITE2AXI                 VTSS_IOREG(VTSS_TO_CPU,0xb5)
 
 /**
  * \brief
@@ -3319,7 +3344,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:TZAESB
  */
-#define VTSS_CPU_TZAESB                      VTSS_IOREG(VTSS_TO_CPU,0xb5)
+#define VTSS_CPU_TZAESB                      VTSS_IOREG(VTSS_TO_CPU,0xb6)
 
 /**
  * \brief
@@ -3340,7 +3365,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:MCAN
  */
-#define VTSS_CPU_MCAN                        VTSS_IOREG(VTSS_TO_CPU,0xb6)
+#define VTSS_CPU_MCAN                        VTSS_IOREG(VTSS_TO_CPU,0xb7)
 
 /**
  * \brief
@@ -3375,7 +3400,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:HICM
  */
-#define VTSS_CPU_HICM                        VTSS_IOREG(VTSS_TO_CPU,0xb7)
+#define VTSS_CPU_HICM                        VTSS_IOREG(VTSS_TO_CPU,0xb8)
 
 /**
  * \brief
@@ -3410,7 +3435,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:UDPHS
  */
-#define VTSS_CPU_UDPHS                       VTSS_IOREG(VTSS_TO_CPU,0xb8)
+#define VTSS_CPU_UDPHS                       VTSS_IOREG(VTSS_TO_CPU,0xb9)
 
 /**
  * \brief
@@ -3445,7 +3470,7 @@
  * \details
  * Register: \a CPU:SFR_REGS:UDDR
  */
-#define VTSS_CPU_UDDR                        VTSS_IOREG(VTSS_TO_CPU,0xb9)
+#define VTSS_CPU_UDDR                        VTSS_IOREG(VTSS_TO_CPU,0xba)
 
 /**
  * \brief
@@ -3472,281 +3497,6 @@
 #define  VTSS_F_CPU_UDDR_AXI_WRITE_QOS(x)     VTSS_ENCODE_BITFIELD(x,0,4)
 #define  VTSS_M_CPU_UDDR_AXI_WRITE_QOS        VTSS_ENCODE_BITMASK(0,4)
 #define  VTSS_X_CPU_UDDR_AXI_WRITE_QOS(x)     VTSS_EXTRACT_BITFIELD(x,0,4)
-
-/**
- * Register Group: \a CPU:PCIE_PHY
- *
- * Not documented
- */
-
-
-/**
- * \brief PCIe PHY configuration
- *
- * \details
- * Register: \a CPU:PCIE_PHY:PHY_CFG
- */
-#define VTSS_CPU_PHY_CFG                     VTSS_IOREG(VTSS_TO_CPU,0xba)
-
-/**
- * \brief
- * Loss-of-Signal Detector Threshold Level Control.Sets the LOS detection
- * threshold level. This signal is reserved and must be set to 3'b010.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_CFG . LOS_BIAS
- */
-#define  VTSS_F_CPU_PHY_CFG_LOS_BIAS(x)       VTSS_ENCODE_BITFIELD(x,17,3)
-#define  VTSS_M_CPU_PHY_CFG_LOS_BIAS          VTSS_ENCODE_BITMASK(17,3)
-#define  VTSS_X_CPU_PHY_CFG_LOS_BIAS(x)       VTSS_EXTRACT_BITFIELD(x,17,3)
-
-/**
- * \brief
- * Loss-of-Signal Detector Sensitivity Level Control.Sets the sensitivity
- * level for the Loss-of-Signal detector. This bus must be set to 5'b01001.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_CFG . LOS_LEVEL
- */
-#define  VTSS_F_CPU_PHY_CFG_LOS_LEVEL(x)      VTSS_ENCODE_BITFIELD(x,12,5)
-#define  VTSS_M_CPU_PHY_CFG_LOS_LEVEL         VTSS_ENCODE_BITMASK(12,5)
-#define  VTSS_X_CPU_PHY_CFG_LOS_LEVEL(x)      VTSS_EXTRACT_BITFIELD(x,12,5)
-
-/**
- * \brief
- * RX Equalizer SettingSets the fixed value of the RX equalizer. The
- * recommended setting is 2 (3'b010). The optimal EQ setting varies
- * depending on users' system environment.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_CFG . RX_EQ
- */
-#define  VTSS_F_CPU_PHY_CFG_RX_EQ(x)          VTSS_ENCODE_BITFIELD(x,9,3)
-#define  VTSS_M_CPU_PHY_CFG_RX_EQ             VTSS_ENCODE_BITMASK(9,3)
-#define  VTSS_X_CPU_PHY_CFG_RX_EQ(x)          VTSS_EXTRACT_BITFIELD(x,9,3)
-
-/**
- * \brief
- * Transmitter Termination Offset.Enables adjustment of the transmitter
- * termination value from the default value of 50 Ohm.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_CFG . TX_TERM_OFFSET
- */
-#define  VTSS_F_CPU_PHY_CFG_TX_TERM_OFFSET(x)  VTSS_ENCODE_BITFIELD(x,4,5)
-#define  VTSS_M_CPU_PHY_CFG_TX_TERM_OFFSET     VTSS_ENCODE_BITMASK(4,5)
-#define  VTSS_X_CPU_PHY_CFG_TX_TERM_OFFSET(x)  VTSS_EXTRACT_BITFIELD(x,4,5)
-
-/**
- * \brief
- * TX Voltage Boost Level.This bus is reserved and must be set to 3'b100.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_CFG . TX_VBOOST_LVL
- */
-#define  VTSS_F_CPU_PHY_CFG_TX_VBOOST_LVL(x)  VTSS_ENCODE_BITFIELD(x,1,3)
-#define  VTSS_M_CPU_PHY_CFG_TX_VBOOST_LVL     VTSS_ENCODE_BITMASK(1,3)
-#define  VTSS_X_CPU_PHY_CFG_TX_VBOOST_LVL(x)  VTSS_EXTRACT_BITFIELD(x,1,3)
-
-/**
- * \brief
- * Built-in 3.3-V Regulator Bypass Mode Control.
- *
- * \details
- * 0: 3.3-V vph is applied, and the 3.3-2.5-V regulator is used.
- * 1: 2.5-V vph
- *
- * Field: ::VTSS_CPU_PHY_CFG . VREG_BYPASS
- */
-#define  VTSS_F_CPU_PHY_CFG_VREG_BYPASS(x)    VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_CPU_PHY_CFG_VREG_BYPASS       VTSS_BIT(0)
-#define  VTSS_X_CPU_PHY_CFG_VREG_BYPASS(x)    VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief PCIe PHY tune
- *
- * \details
- * Register: \a CPU:PCIE_PHY:PHY_TUNE
- */
-#define VTSS_CPU_PHY_TUNE                    VTSS_IOREG(VTSS_TO_CPU,0xbb)
-
-/**
- * \brief
- * Resistor Tune Request.Assertion triggers a resistor tune request (if one
- * is not already in progress). When this signal is asserted, RTUNE_ACK
- * goes high until calibration of the termination impedances is complete.
- * Note that termination resistance tuning disrupts the normal flow of
- * data, so RTUNE_REQ must be asserted only when the PHY is inactive. The
- * PHY performs a tune automatically after coming out of phy_reset.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_TUNE . RTUNE_REQ
- */
-#define  VTSS_F_CPU_PHY_TUNE_RTUNE_REQ(x)     VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_CPU_PHY_TUNE_RTUNE_REQ        VTSS_BIT(1)
-#define  VTSS_X_CPU_PHY_TUNE_RTUNE_REQ(x)     VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
- * Resistor Tune Acknowledge.While asserted, indicates that a resistor tune
- * is still in progress.
- *
- * \details
- * Field: ::VTSS_CPU_PHY_TUNE . RTUNE_ACK
- */
-#define  VTSS_F_CPU_PHY_TUNE_RTUNE_ACK(x)     VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_CPU_PHY_TUNE_RTUNE_ACK        VTSS_BIT(0)
-#define  VTSS_X_CPU_PHY_TUNE_RTUNE_ACK(x)     VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief PCIe PCS configuration
- *
- * \details
- * Register: \a CPU:PCIE_PHY:PCS_CFG
- */
-#define VTSS_CPU_PCS_CFG                     VTSS_IOREG(VTSS_TO_CPU,0xbc)
-
-/**
- * \brief
- * TX De-emphasis at 3.5 dB.This static value sets the TX driver
- * de-emphasis value in the case where pipeP_tx_deemph is set to 1'b1
- * (default setting) and the PHY is running at the Gen2 rate.
- *
- * \details
- * Field: ::VTSS_CPU_PCS_CFG . DEEMPH_GEN2_3P5DB
- */
-#define  VTSS_F_CPU_PCS_CFG_DEEMPH_GEN2_3P5DB(x)  VTSS_ENCODE_BITFIELD(x,26,6)
-#define  VTSS_M_CPU_PCS_CFG_DEEMPH_GEN2_3P5DB     VTSS_ENCODE_BITMASK(26,6)
-#define  VTSS_X_CPU_PCS_CFG_DEEMPH_GEN2_3P5DB(x)  VTSS_EXTRACT_BITFIELD(x,26,6)
-
-/**
- * \brief
- * TX De-emphasis at 6 dB.This static value sets the TX driver de-emphasis
- * value in the case where pipeP_tx_deemph is set to 1'b0 and the PHY is
- * running at the Gen2 rate.
- *
- * \details
- * Field: ::VTSS_CPU_PCS_CFG . DEEMPH_GEN2_6DB
- */
-#define  VTSS_F_CPU_PCS_CFG_DEEMPH_GEN2_6DB(x)  VTSS_ENCODE_BITFIELD(x,20,6)
-#define  VTSS_M_CPU_PCS_CFG_DEEMPH_GEN2_6DB     VTSS_ENCODE_BITMASK(20,6)
-#define  VTSS_X_CPU_PCS_CFG_DEEMPH_GEN2_6DB(x)  VTSS_EXTRACT_BITFIELD(x,20,6)
-
-/**
- * \brief
- * TX De-emphasis at 3.5 dB.This static value sets the TX driver
- * de-emphasis value in the case where pipeP_tx_deemph is set to 1'b1
- * (default setting) and the PHY is running at the Gen1 rate.
- *
- * \details
- * Field: ::VTSS_CPU_PCS_CFG . DEEMPH_GEN1
- */
-#define  VTSS_F_CPU_PCS_CFG_DEEMPH_GEN1(x)    VTSS_ENCODE_BITFIELD(x,14,6)
-#define  VTSS_M_CPU_PCS_CFG_DEEMPH_GEN1       VTSS_ENCODE_BITMASK(14,6)
-#define  VTSS_X_CPU_PCS_CFG_DEEMPH_GEN1(x)    VTSS_EXTRACT_BITFIELD(x,14,6)
-
-/**
- * \brief
- * TX Amplitude (Full Swing Mode).This static value sets the launch
- * amplitude of the transmitter when pipeP_tx_swing is set to 1'b0 (default
- * state).
- *
- * \details
- * Field: ::VTSS_CPU_PCS_CFG . SWING_FULL
- */
-#define  VTSS_F_CPU_PCS_CFG_SWING_FULL(x)     VTSS_ENCODE_BITFIELD(x,7,7)
-#define  VTSS_M_CPU_PCS_CFG_SWING_FULL        VTSS_ENCODE_BITMASK(7,7)
-#define  VTSS_X_CPU_PCS_CFG_SWING_FULL(x)     VTSS_EXTRACT_BITFIELD(x,7,7)
-
-/**
- * \brief
- * TX Amplitude (Low Swing Mode).This static value sets the launch
- * amplitude of the transmitter when pipeP_tx_swing is set to 1'b1 (low
- * swing mode). This bus can be set to an alternate launch amplitude if
- * required. This bus is provided for completeness and can be set to 7'b0.
- *
- * \details
- * Field: ::VTSS_CPU_PCS_CFG . SWING_LOW
- */
-#define  VTSS_F_CPU_PCS_CFG_SWING_LOW(x)      VTSS_ENCODE_BITFIELD(x,0,7)
-#define  VTSS_M_CPU_PCS_CFG_SWING_LOW         VTSS_ENCODE_BITMASK(0,7)
-#define  VTSS_X_CPU_PCS_CFG_SWING_LOW(x)      VTSS_EXTRACT_BITFIELD(x,0,7)
-
-
-/**
- * \brief Controls the PCIe PHY indirect register access
- *
- * \details
- * Register: \a CPU:PCIE_PHY:PHY_CR_CTRL
- */
-#define VTSS_CPU_PHY_CR_CTRL                 VTSS_IOREG(VTSS_TO_CPU,0xbd)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_CTRL . CAP_ADDR
- */
-#define  VTSS_F_CPU_PHY_CR_CTRL_CAP_ADDR(x)   VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_CPU_PHY_CR_CTRL_CAP_ADDR      VTSS_BIT(4)
-#define  VTSS_X_CPU_PHY_CR_CTRL_CAP_ADDR(x)   VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_CTRL . CAP_DATA
- */
-#define  VTSS_F_CPU_PHY_CR_CTRL_CAP_DATA(x)   VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_CPU_PHY_CR_CTRL_CAP_DATA      VTSS_BIT(3)
-#define  VTSS_X_CPU_PHY_CR_CTRL_CAP_DATA(x)   VTSS_EXTRACT_BITFIELD(x,3,1)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_CTRL . READ
- */
-#define  VTSS_F_CPU_PHY_CR_CTRL_READ(x)       VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_CPU_PHY_CR_CTRL_READ          VTSS_BIT(2)
-#define  VTSS_X_CPU_PHY_CR_CTRL_READ(x)       VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_CTRL . WRITE
- */
-#define  VTSS_F_CPU_PHY_CR_CTRL_WRITE(x)      VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_CPU_PHY_CR_CTRL_WRITE         VTSS_BIT(1)
-#define  VTSS_X_CPU_PHY_CR_CTRL_WRITE(x)      VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_CTRL . ACK
- */
-#define  VTSS_F_CPU_PHY_CR_CTRL_ACK(x)        VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_CPU_PHY_CR_CTRL_ACK           VTSS_BIT(0)
-#define  VTSS_X_CPU_PHY_CR_CTRL_ACK(x)        VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Data the PCIe PHY indirect register access
- *
- * \details
- * Register: \a CPU:PCIE_PHY:PHY_CR_DATA
- */
-#define VTSS_CPU_PHY_CR_DATA                 VTSS_IOREG(VTSS_TO_CPU,0xbe)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_DATA . DATA_IN
- */
-#define  VTSS_F_CPU_PHY_CR_DATA_DATA_IN(x)    VTSS_ENCODE_BITFIELD(x,16,16)
-#define  VTSS_M_CPU_PHY_CR_DATA_DATA_IN       VTSS_ENCODE_BITMASK(16,16)
-#define  VTSS_X_CPU_PHY_CR_DATA_DATA_IN(x)    VTSS_EXTRACT_BITFIELD(x,16,16)
-
-/**
- * \details
- * Field: ::VTSS_CPU_PHY_CR_DATA . DATA_OUT
- */
-#define  VTSS_F_CPU_PHY_CR_DATA_DATA_OUT(x)   VTSS_ENCODE_BITFIELD(x,0,16)
-#define  VTSS_M_CPU_PHY_CR_DATA_DATA_OUT      VTSS_ENCODE_BITMASK(0,16)
-#define  VTSS_X_CPU_PHY_CR_DATA_DATA_OUT(x)   VTSS_EXTRACT_BITFIELD(x,0,16)
 
 
 #endif /* _VTSS_LAGUNA_REGS_CPU_H_ */

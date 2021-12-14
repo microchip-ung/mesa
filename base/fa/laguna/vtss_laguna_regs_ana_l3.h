@@ -30,7 +30,7 @@
  * \details
  * Register: \a ANA_L3:COMMON:MISC_CTRL
  */
-#define VTSS_ANA_L3_MISC_CTRL                VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa10)
+#define VTSS_ANA_L3_MISC_CTRL                VTSS_IOREG(VTSS_TO_ANA_L3,0x16a10)
 
 /**
  * \brief
@@ -52,7 +52,7 @@
  *
  * Register: \a ANA_L3:COMMON:VLAN_CTRL
  */
-#define VTSS_ANA_L3_VLAN_CTRL                VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa11)
+#define VTSS_ANA_L3_VLAN_CTRL                VTSS_IOREG(VTSS_TO_ANA_L3,0x16a11)
 
 /**
  * \brief
@@ -76,7 +76,7 @@
  *
  * Register: \a ANA_L3:COMMON:L3_UC_ENA
  */
-#define VTSS_ANA_L3_L3_UC_ENA                VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa12)
+#define VTSS_ANA_L3_L3_UC_ENA                VTSS_IOREG(VTSS_TO_ANA_L3,0x16a12)
 
 /**
  * \brief
@@ -101,7 +101,7 @@
  *
  * Register: \a ANA_L3:COMMON:L3_MC_ENA
  */
-#define VTSS_ANA_L3_L3_MC_ENA                VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa15)
+#define VTSS_ANA_L3_L3_MC_ENA                VTSS_IOREG(VTSS_TO_ANA_L3,0x16a15)
 
 /**
  * \brief
@@ -126,7 +126,7 @@
  *
  * Register: \a ANA_L3:COMMON:SKIP_RLEG_DMAC_CHK
  */
-#define VTSS_ANA_L3_SKIP_RLEG_DMAC_CHK       VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa18)
+#define VTSS_ANA_L3_SKIP_RLEG_DMAC_CHK       VTSS_IOREG(VTSS_TO_ANA_L3,0x16a18)
 
 /**
  * \brief
@@ -152,7 +152,7 @@
  *
  * Register: \a ANA_L3:COMMON:PORT_FWD_CTRL
  */
-#define VTSS_ANA_L3_PORT_FWD_CTRL            VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa1b)
+#define VTSS_ANA_L3_PORT_FWD_CTRL            VTSS_IOREG(VTSS_TO_ANA_L3,0x16a1b)
 
 /**
  * \brief
@@ -176,7 +176,7 @@
  *
  * Register: \a ANA_L3:COMMON:PORT_LRN_CTRL
  */
-#define VTSS_ANA_L3_PORT_LRN_CTRL            VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa1e)
+#define VTSS_ANA_L3_PORT_LRN_CTRL            VTSS_IOREG(VTSS_TO_ANA_L3,0x16a1e)
 
 /**
  * \brief
@@ -199,7 +199,7 @@
  *
  * Register: \a ANA_L3:COMMON:VLAN_FILTER_CTRL
  */
-#define VTSS_ANA_L3_VLAN_FILTER_CTRL         VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa21)
+#define VTSS_ANA_L3_VLAN_FILTER_CTRL         VTSS_IOREG(VTSS_TO_ANA_L3,0x16a21)
 
 /**
  * \brief
@@ -228,7 +228,7 @@
  *
  * Register: \a ANA_L3:COMMON:VLAN_ISOLATED_CFG
  */
-#define VTSS_ANA_L3_VLAN_ISOLATED_CFG        VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa24)
+#define VTSS_ANA_L3_VLAN_ISOLATED_CFG        VTSS_IOREG(VTSS_TO_ANA_L3,0x16a24)
 
 /**
  * \brief
@@ -255,7 +255,7 @@
  *
  * Register: \a ANA_L3:COMMON:VLAN_COMMUNITY_CFG
  */
-#define VTSS_ANA_L3_VLAN_COMMUNITY_CFG       VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa27)
+#define VTSS_ANA_L3_VLAN_COMMUNITY_CFG       VTSS_IOREG(VTSS_TO_ANA_L3,0x16a27)
 
 /**
  * \brief
@@ -282,7 +282,7 @@
  *
  * Register: \a ANA_L3:COMMON:ROUTING_CFG
  */
-#define VTSS_ANA_L3_ROUTING_CFG              VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2a)
+#define VTSS_ANA_L3_ROUTING_CFG              VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2a)
 
 /**
  * \brief
@@ -633,7 +633,7 @@
  *
  * Register: \a ANA_L3:COMMON:ROUTING_CFG2
  */
-#define VTSS_ANA_L3_ROUTING_CFG2             VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2b)
+#define VTSS_ANA_L3_ROUTING_CFG2             VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2b)
 
 /**
  * \brief
@@ -747,7 +747,7 @@
  *
  * Register: \a ANA_L3:COMMON:RLEG_CFG_0
  */
-#define VTSS_ANA_L3_RLEG_CFG_0               VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2c)
+#define VTSS_ANA_L3_RLEG_CFG_0               VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2c)
 
 /**
  * \brief
@@ -778,7 +778,7 @@
  *
  * Register: \a ANA_L3:COMMON:RLEG_CFG_1
  */
-#define VTSS_ANA_L3_RLEG_CFG_1               VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2d)
+#define VTSS_ANA_L3_RLEG_CFG_1               VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2d)
 
 /**
  * \brief
@@ -835,7 +835,7 @@
  *
  * Register: \a ANA_L3:COMMON:CPU_QU_CFG
  */
-#define VTSS_ANA_L3_CPU_QU_CFG               VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2e)
+#define VTSS_ANA_L3_CPU_QU_CFG               VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2e)
 
 /**
  * \brief
@@ -994,7 +994,7 @@
  *
  * Register: \a ANA_L3:COMMON:CPU_QU_CFG2
  */
-#define VTSS_ANA_L3_CPU_QU_CFG2              VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa2f)
+#define VTSS_ANA_L3_CPU_QU_CFG2              VTSS_IOREG(VTSS_TO_ANA_L3,0x16a2f)
 
 /**
  * \brief
@@ -1022,7 +1022,7 @@
  *
  * Register: \a ANA_L3:COMMON:VRRP_IP4_CFG_0
  */
-#define VTSS_ANA_L3_VRRP_IP4_CFG_0           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa30)
+#define VTSS_ANA_L3_VRRP_IP4_CFG_0           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a30)
 
 /**
  * \brief
@@ -1049,7 +1049,7 @@
  *
  * Register: \a ANA_L3:COMMON:VRRP_IP4_CFG_1
  */
-#define VTSS_ANA_L3_VRRP_IP4_CFG_1           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa31)
+#define VTSS_ANA_L3_VRRP_IP4_CFG_1           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a31)
 
 /**
  * \brief
@@ -1076,7 +1076,7 @@
  *
  * Register: \a ANA_L3:COMMON:VRRP_IP6_CFG_0
  */
-#define VTSS_ANA_L3_VRRP_IP6_CFG_0           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa32)
+#define VTSS_ANA_L3_VRRP_IP6_CFG_0           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a32)
 
 /**
  * \brief
@@ -1103,7 +1103,7 @@
  *
  * Register: \a ANA_L3:COMMON:VRRP_IP6_CFG_1
  */
-#define VTSS_ANA_L3_VRRP_IP6_CFG_1           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa33)
+#define VTSS_ANA_L3_VRRP_IP6_CFG_1           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a33)
 
 /**
  * \brief
@@ -1127,7 +1127,7 @@
  *
  * Register: \a ANA_L3:COMMON:SIP_SECURE_ENA
  */
-#define VTSS_ANA_L3_SIP_SECURE_ENA           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa34)
+#define VTSS_ANA_L3_SIP_SECURE_ENA           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a34)
 
 /**
  * \brief
@@ -1163,7 +1163,7 @@
  *
  * Register: \a ANA_L3:COMMON:SIP_SECURE_ENA1
  */
-#define VTSS_ANA_L3_SIP_SECURE_ENA1          VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa35)
+#define VTSS_ANA_L3_SIP_SECURE_ENA1          VTSS_IOREG(VTSS_TO_ANA_L3,0x16a35)
 
 /**
  * \brief
@@ -1199,7 +1199,7 @@
  *
  * Register: \a ANA_L3:COMMON:DIP_SECURE_ENA
  */
-#define VTSS_ANA_L3_DIP_SECURE_ENA           VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa37)
+#define VTSS_ANA_L3_DIP_SECURE_ENA           VTSS_IOREG(VTSS_TO_ANA_L3,0x16a37)
 
 /**
  * \brief
@@ -1234,7 +1234,7 @@
  *
  * Register: \a ANA_L3:COMMON:SIP_RPF_ENA
  */
-#define VTSS_ANA_L3_SIP_RPF_ENA              VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa3a)
+#define VTSS_ANA_L3_SIP_RPF_ENA              VTSS_IOREG(VTSS_TO_ANA_L3,0x16a3a)
 
 /**
  * \brief
@@ -1260,7 +1260,7 @@
  *
  * Register: \a ANA_L3:COMMON:SIP_RPF_ENA1
  */
-#define VTSS_ANA_L3_SIP_RPF_ENA1             VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa3b)
+#define VTSS_ANA_L3_SIP_RPF_ENA1             VTSS_IOREG(VTSS_TO_ANA_L3,0x16a3b)
 
 /**
  * \brief
@@ -1286,7 +1286,7 @@
  *
  * Register: \a ANA_L3:COMMON:SERVICE_CFG
  */
-#define VTSS_ANA_L3_SERVICE_CFG              VTSS_IOREG(VTSS_TO_ANA_L3,0x1aa3d)
+#define VTSS_ANA_L3_SERVICE_CFG              VTSS_IOREG(VTSS_TO_ANA_L3,0x16a3d)
 
 /**
  * \brief
@@ -1317,7 +1317,7 @@
  * \details
  * Register: \a ANA_L3:VLAN:VMID_CFG
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_VMID_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,0)
 
@@ -1342,7 +1342,7 @@
  *
  * Register: \a ANA_L3:VLAN:BUM_CFG
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_BUM_CFG(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,1)
 
@@ -1369,7 +1369,7 @@
  *
  * Register: \a ANA_L3:VLAN:VLAN_CFG
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_VLAN_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,2)
 
@@ -1523,7 +1523,7 @@
  *
  * Register: \a ANA_L3:VLAN:TUPE_CTRL
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_TUPE_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,3)
 
@@ -1549,7 +1549,7 @@
  *
  * Register: \a ANA_L3:VLAN:VLAN_MASK_CFG
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_VLAN_MASK_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,4)
 
@@ -1580,7 +1580,7 @@
  *
  * Register: \a ANA_L3:VLAN:QGRP_CFG
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_QGRP_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,7)
 
@@ -1628,7 +1628,7 @@
  * \details
  * Register: \a ANA_L3:VLAN:MISC
  *
- * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-5119
+ * @param gi Replicator: x_FFL_ANA_L3_VLAN_TABLE_LEN (??), 0-4607
  */
 #define VTSS_ANA_L3_MISC(gi)                 VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x0,gi,16,0,8)
 
@@ -1662,7 +1662,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_MSTPS (??), 0-65
  */
-#define VTSS_ANA_L3_MSTP_FWD_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a800,gi,8,0,0)
+#define VTSS_ANA_L3_MSTP_FWD_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16800,gi,8,0,0)
 
 /**
  * \brief
@@ -1694,7 +1694,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_MSTPS (??), 0-65
  */
-#define VTSS_ANA_L3_MSTP_LRN_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a800,gi,8,0,3)
+#define VTSS_ANA_L3_MSTP_LRN_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16800,gi,8,0,3)
 
 /**
  * \brief
@@ -1729,7 +1729,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_RLEG_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,0)
+#define VTSS_ANA_L3_RLEG_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,0)
 
 /**
  * \brief
@@ -1973,7 +1973,7 @@
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  * @param ri Replicator: x_FFL_ANA_L3_NUM_VRID (??), 0-3
  */
-#define VTSS_ANA_L3_VRRP_CFG(gi,ri)          VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,ri,1)
+#define VTSS_ANA_L3_VRRP_CFG(gi,ri)          VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,ri,1)
 
 /**
  * \brief
@@ -2014,7 +2014,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_VMID_MC(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,5)
+#define VTSS_ANA_L3_VMID_MC(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,5)
 
 /**
  * \brief
@@ -2091,7 +2091,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_SIP_RPF(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,6)
+#define VTSS_ANA_L3_SIP_RPF(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,6)
 
 /**
  * \brief
@@ -2122,7 +2122,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_MAX_LEN(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,7)
+#define VTSS_ANA_L3_MAX_LEN(gi)              VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,7)
 
 /**
  * \brief
@@ -2165,7 +2165,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_VMID_ENCAP(gi)           VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,8)
+#define VTSS_ANA_L3_VMID_ENCAP(gi)           VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,8)
 
 /**
  * \brief
@@ -2279,7 +2279,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-126
  */
-#define VTSS_ANA_L3_VMID_MISC(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1a000,gi,16,0,9)
+#define VTSS_ANA_L3_VMID_MISC(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16000,gi,16,0,9)
 
 /**
  * \brief
@@ -2345,7 +2345,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_ARP_PTR_REMAP_ENTRIES (??), 0-63
  */
-#define VTSS_ANA_L3_ARP_PTR_REMAP_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1aa40,gi,1,0,0)
+#define VTSS_ANA_L3_ARP_PTR_REMAP_CFG(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16a40,gi,1,0,0)
 
 /**
  * \brief
@@ -2354,9 +2354,9 @@
  * \details
  * Field: ::VTSS_ANA_L3_ARP_PTR_REMAP_CFG . ARP_PTR
  */
-#define  VTSS_F_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,11)
-#define  VTSS_M_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR     VTSS_ENCODE_BITMASK(0,11)
-#define  VTSS_X_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,11)
+#define  VTSS_F_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,10)
+#define  VTSS_M_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR     VTSS_ENCODE_BITMASK(0,10)
+#define  VTSS_X_ANA_L3_ARP_PTR_REMAP_CFG_ARP_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
 
 /**
  * \brief
@@ -2397,9 +2397,9 @@
  *
  * Register: \a ANA_L3:ARP:ARP_CFG_0
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-2047
+ * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-1023
  */
-#define VTSS_ANA_L3_ARP_CFG_0(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,0)
+#define VTSS_ANA_L3_ARP_CFG_0(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x12000,gi,8,0,0)
 
 /**
  * \brief
@@ -2522,9 +2522,9 @@
  *
  * Register: \a ANA_L3:ARP:ARP_CFG_1
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-2047
+ * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-1023
  */
-#define VTSS_ANA_L3_ARP_CFG_1(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,1)
+#define VTSS_ANA_L3_ARP_CFG_1(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x12000,gi,8,0,1)
 
 /**
  * \brief
@@ -2560,9 +2560,9 @@
  *
  * Register: \a ANA_L3:ARP:ARP_CFG_2
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-2047
+ * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-1023
  */
-#define VTSS_ANA_L3_ARP_CFG_2(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,2)
+#define VTSS_ANA_L3_ARP_CFG_2(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x12000,gi,8,0,2)
 
 /**
  * \brief
@@ -2602,9 +2602,9 @@
  * \details
  * Register: \a ANA_L3:ARP:ARP_ENCAP
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-2047
+ * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-1023
  */
-#define VTSS_ANA_L3_ARP_ENCAP(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,3)
+#define VTSS_ANA_L3_ARP_ENCAP(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x12000,gi,8,0,3)
 
 /**
  * \brief
@@ -2643,9 +2643,9 @@
  * \details
  * Register: \a ANA_L3:ARP:ARP_MISC
  *
- * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-2047
+ * @param gi Replicator: x_FFL_ANA_NUM_ARP_ENTRIES (??), 0-1023
  */
-#define VTSS_ANA_L3_ARP_MISC(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,4)
+#define VTSS_ANA_L3_ARP_MISC(gi)             VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x12000,gi,8,0,4)
 
 /**
  * \brief
@@ -2692,7 +2692,7 @@
  * @param gi Replicator: x_FFL_ANA_L3_IPMC_TABLE_LEN (??), 0-1023
  * @param ri Replicator: x_FFL_ANA_EVMID_MASK_RLEG_CNT_DIV32_CEIL (??), 0-3
  */
-#define VTSS_ANA_L3_EVMID_MASK_CFG(gi,ri)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x18000,gi,8,ri,0)
+#define VTSS_ANA_L3_EVMID_MASK_CFG(gi,ri)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,ri,0)
 
 /**
  * \brief
@@ -2755,7 +2755,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_L3_IPMC_TABLE_LEN (??), 0-1023
  */
-#define VTSS_ANA_L3_L3MC_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x18000,gi,8,0,4)
+#define VTSS_ANA_L3_L3MC_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,4)
 
 /**
  * \brief
@@ -2889,7 +2889,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_L3_IPMC_TABLE_LEN (??), 0-1023
  */
-#define VTSS_ANA_L3_L3MC_NEXT_PTR(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x18000,gi,8,0,5)
+#define VTSS_ANA_L3_L3MC_NEXT_PTR(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x14000,gi,8,0,5)
 
 /**
  * \brief
@@ -2920,7 +2920,7 @@
  *
  * Register: \a ANA_L3:LPM_REMAP_STICKY:L3_LPM_REMAP_STICKY
  */
-#define VTSS_ANA_L3_L3_LPM_REMAP_STICKY      VTSS_IOREG(VTSS_TO_ANA_L3,0x1a7f0)
+#define VTSS_ANA_L3_L3_LPM_REMAP_STICKY      VTSS_IOREG(VTSS_TO_ANA_L3,0x167f0)
 
 /**
  * \brief
@@ -3119,7 +3119,7 @@
  * \details
  * Register: \a ANA_L3:VLAN_ARP_L3MC_STICKY:VLAN_STICKY
  */
-#define VTSS_ANA_L3_VLAN_STICKY              VTSS_IOREG(VTSS_TO_ANA_L3,0x1a7f1)
+#define VTSS_ANA_L3_VLAN_STICKY              VTSS_IOREG(VTSS_TO_ANA_L3,0x167f1)
 
 /**
  * \brief
@@ -3238,7 +3238,7 @@
  *
  * Register: \a ANA_L3:VLAN_ARP_L3MC_STICKY:L3_ARP_IPMC_STICKY
  */
-#define VTSS_ANA_L3_L3_ARP_IPMC_STICKY       VTSS_IOREG(VTSS_TO_ANA_L3,0x1a7f2)
+#define VTSS_ANA_L3_L3_ARP_IPMC_STICKY       VTSS_IOREG(VTSS_TO_ANA_L3,0x167f2)
 
 /**
  * \brief
@@ -3666,7 +3666,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L3_RLEG_STICKY_MASK(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1aa80,gi,4,0,0)
+#define VTSS_ANA_L3_RLEG_STICKY_MASK(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16a80,gi,4,0,0)
 
 /**
  * \brief
@@ -3768,7 +3768,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L3_ROUT_STICKY_MASK(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1aa80,gi,4,0,1)
+#define VTSS_ANA_L3_ROUT_STICKY_MASK(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16a80,gi,4,0,1)
 
 /**
  * \brief
@@ -3980,7 +3980,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L3_SECUR_STICKY_MASK(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1aa80,gi,4,0,2)
+#define VTSS_ANA_L3_SECUR_STICKY_MASK(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16a80,gi,4,0,2)
 
 /**
  * \brief
@@ -4082,7 +4082,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L3_VLAN_MSTP_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x1aa80,gi,4,0,3)
+#define VTSS_ANA_L3_VLAN_MSTP_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_L3,0x16a80,gi,4,0,3)
 
 /**
  * \brief

@@ -102,7 +102,7 @@
  * \details
  * Register: \a HSIOWRAP:GPIO_CFG:GPIO_CFG
  *
- * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-77
+ * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-63
  */
 #define VTSS_HSIOWRAP_GPIO_CFG(ri)           VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x4 + (ri))
 
@@ -165,7 +165,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CTRL
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x52)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x44)
 
 /**
  * \brief
@@ -242,7 +242,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CFG
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x53)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x45)
 
 /**
  * \brief
@@ -349,7 +349,7 @@
  * \details
  * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_STAT
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x54)
+#define VTSS_HSIOWRAP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x46)
 
 /**
  * \brief

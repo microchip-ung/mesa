@@ -785,8 +785,7 @@
  * 0: 625MHz
  * 1: 500MHz
  * 2: 250MHz
- * 3: Reserved
-
+ * 3: 280MHz
  *
  * Field: ::VTSS_SD_LANE_TARGET_MISC . CORE_CLK_FREQ
  */
