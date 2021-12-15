@@ -1,8 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+/* ================================================================= *
+    Start: Auto-generated content, do not edit.
 
-/* Auto-generated content, do not edit */
+    Generated using 'make c_header' in directory 'design/exb_vcap_lib'
+    @ 2021-12-08 13:09:48 UTC.
+ * ================================================================= */
+
 
 /* ================================================================= *
  *  VCAP CLM
@@ -2482,3 +2487,7 @@
 /* IP6PFX X1 IP6PFX_ID action fields */
 #define IP6PFX_AO_IP6PFX_ID_IP6PFX_ID                0
 #define IP6PFX_AL_IP6PFX_ID_IP6PFX_ID                8
+
+/* ================================================================= *
+    End: Auto-generated content, do not edit.
+ * ================================================================= */

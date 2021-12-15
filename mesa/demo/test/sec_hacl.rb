@@ -43,6 +43,7 @@ end
 test_table =
     [
     {
+        sel: 1,
         txt: "any/dmac",
         ace: {type: "ANY", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
         f_0: {dmac: "01:02:03:04:05:06", cmd: "et 46"},
@@ -565,6 +566,7 @@ test_table.each do |t|
     when "vacl"
         acl_list = ["IVACL", "EVACL"]
     end
+    #acl_list = ["EPACL"]
 
     acl_list.each do |acl|
         test "#{acl}: #{t[:txt]}" do
@@ -574,3 +576,6 @@ test_table.each do |t|
 end
 
 test_summary
+test "dump" do
+    #$ts.dut.run("mesa-cmd deb api ci acl")
+end

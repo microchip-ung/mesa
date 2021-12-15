@@ -45,7 +45,6 @@
 #define VTSS_SERDES_25G_START 25
 #define FA_BUFFER_MEMORY      4194280 /* 22795 words * 184 bytes */
 #define FA_BUFFER_REFERENCE   22795   /* Frame references */
-#define FA_MULTIPLIER_BIT     2048
 #define FA_DSM_CAL_LEN 64
 #define FA_DSM_CAL_EMPTY 0xFFFF
 #define FA_DSM_CAL_MAX_DEVS_PER_TAXI 13
@@ -54,7 +53,6 @@
 #define FA_RES_CFG_MAX_PORT_IDX 560
 #define FA_RES_CFG_MAX_PRIO_IDX 630
 #define FA_RES_CFG_MAX_COLOUR_IDX 638
-
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -74,14 +72,13 @@
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define FA_BUFFER_MEMORY      157285 /* (?) */
 #define FA_BUFFER_REFERENCE   2279   /* (?) */
-#define FA_MULTIPLIER_BIT     64
 #else
 #define FA_BUFFER_MEMORY      1572855 /* TBD (12Mbit) */
 #define FA_BUFFER_REFERENCE   8548    /* TBD */
-#define FA_MULTIPLIER_BIT     1024
 #endif
 #endif
 
+#define FA_MULTIPLIER_BIT     (VTSS_M_QRES_RES_CFG_WM_HIGH / 2)
 #define FA_PRIOS 8                  /* Number of priorities */
 #define FA_BUFFER_CELL_SZ     184   /* Cell size  */
 

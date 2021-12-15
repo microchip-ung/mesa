@@ -5048,6 +5048,40 @@ vtss_rc vtss_fa_vcap_port_key_set(vtss_state_t *vtss_state, vtss_port_no_t port_
 
 /* - Initialization ------------------------------------------------ */
 
+static vtss_rc fa_vcap_super_test(vtss_state_t *vtss_state)
+{
+    fa_vcap_data_t        fa_data, *data = &fa_data;
+    vtss_vcap_idx_t       idx;
+    u32                   addr;
+    vtss_vcap_type_t      vcap_type = VTSS_VCAP_TYPE_IS2;
+    vtss_vcap_super_obj_t *vcap_super = &vtss_state->vcap.vcap_super;
+
+    return VTSS_RC_OK; // Skip for now
+    VTSS_D("enter");
+
+    // Map block
+    vcap_super->block_type[0] = vcap_type;
+    vcap_super->block.count++;
+    VTSS_RC(fa_vcap_super_block_map(vtss_state, 0, vcap_type));
+
+    // Add rule
+    idx.row = 0;
+    idx.col = 0;
+    idx.key_size = VTSS_VCAP_KEY_SIZE_HALF;
+    addr = fa_vcap_entry_addr(vtss_state, vcap_type, &idx);
+    VTSS_I("row: %u, col: %u, addr: %u", idx.row, idx.col, addr);
+    memset(data, 0, sizeof(*data));
+    data->vcap_type = vcap_type;
+    data->tg = FA_VCAP_TG_X6;
+    VTSS_D("write");
+    VTSS_RC(fa_vcap_entry_cmd(vtss_state, data, addr, data->tg, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ALL));
+    VTSS_D("read");
+    VTSS_RC(fa_vcap_entry_cmd(vtss_state, data, addr, data->tg, FA_VCAP_CMD_READ, FA_VCAP_SEL_ALL));
+
+    VTSS_D("exit");
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_vcap_init(vtss_state_t *vtss_state)
 {
     VTSS_D("enter");
@@ -5055,6 +5089,7 @@ static vtss_rc fa_vcap_init(vtss_state_t *vtss_state)
     VTSS_RC(fa_vcap_initialize(vtss_state, FA_VCAP_TYPE_ES0));
     VTSS_RC(fa_vcap_initialize(vtss_state, FA_VCAP_TYPE_ES2));
     VTSS_RC(fa_vcap_initialize(vtss_state, FA_VCAP_TYPE_IP6PFX));
+    VTSS_RC(fa_vcap_super_test(vtss_state));
     VTSS_D("exit");
 
     return VTSS_RC_OK;

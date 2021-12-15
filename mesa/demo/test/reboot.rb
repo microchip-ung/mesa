@@ -12,4 +12,4 @@ meta = {
     "desc"  => "Reboot, load new SW, and start mesa-demo",
 }
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_2x", {}, "-t api_cil:vcap:debug")

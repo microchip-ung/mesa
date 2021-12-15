@@ -1,8 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+/* ================================================================= *
+    Start: Auto-generated content, do not edit.
 
-/* Auto-generated content, do not edit */
+    Generated using 'make c_header' in directory 'design/exb_vcap_lib'
+    @ 2021-12-09 09:33:53 UTC.
+ * ================================================================= */
+
 
 /* ================================================================= *
  *  VCAP CLM
@@ -693,9 +698,9 @@
 #define CLM_AO_FULL_OAM_IP_BFD_ENA                   (CLM_AO_FULL_OAM_TWAMP_ENA + CLM_AL_FULL_OAM_TWAMP_ENA)
 #define CLM_AL_FULL_OAM_IP_BFD_ENA                   1
 #define CLM_AO_FULL_OAM_MRP_ENA                      (CLM_AO_FULL_OAM_IP_BFD_ENA + CLM_AL_FULL_OAM_IP_BFD_ENA)
-#define CLM_AL_FULL_OAM_MRP_ENA                      0
+#define CLM_AL_FULL_OAM_MRP_ENA                      1
 #define CLM_AO_FULL_OAM_DLR_ENA                      (CLM_AO_FULL_OAM_MRP_ENA + CLM_AL_FULL_OAM_MRP_ENA)
-#define CLM_AL_FULL_OAM_DLR_ENA                      0
+#define CLM_AL_FULL_OAM_DLR_ENA                      1
 #define CLM_AO_FULL_RSVD_LBL_VAL                     (CLM_AO_FULL_OAM_DLR_ENA + CLM_AL_FULL_OAM_DLR_ENA)
 #define CLM_AL_FULL_RSVD_LBL_VAL                     4
 #define CLM_AO_FULL_TC_LABEL                         (CLM_AO_FULL_RSVD_LBL_VAL + CLM_AL_FULL_RSVD_LBL_VAL)
@@ -2441,3 +2446,6 @@
 #define IP6PFX_AO_IP6PFX_ID_IP6PFX_ID                0
 #define IP6PFX_AL_IP6PFX_ID_IP6PFX_ID                2
 
+/* ================================================================= *
+    End: Auto-generated content, do not edit.
+ * ================================================================= */
