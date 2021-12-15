@@ -986,7 +986,8 @@ static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SFID_VAL, act->sfid);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_ENA, act->sgid_enable);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_VAL, act->sgid);
-    // TBD: DLB update
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_POLICE_ENA, act->dlb_enable);
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_POLICE_IDX, act->dlb + LAN966X_POLICER_DLB);
     info.cmd = LAN966X_VCAP_CMD_WRITE;
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
