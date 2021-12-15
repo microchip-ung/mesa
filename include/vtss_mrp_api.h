@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define VTSS_MRP_CNT   (VTSS_PORTS/2) + 1  // The maximum number of MRP instances. One instance requires at least two ports
+#define VTSS_MRP_CNT   (VTSS_PORTS / 2)  // The maximum number of MRP instances. One instance requires at least two ports
 
 // MRP ring role.
 typedef enum {
@@ -29,12 +29,12 @@ typedef struct {
     vtss_port_no_t        p_port;       // Port with Primary port role
     vtss_port_no_t        s_port;       // Port with Secondary port role
     vtss_port_no_t        i_port;       // Port with Interconnect port role
-    vtss_mac_t            p_mac;        // Primary port MRP endpoint MAC address */
-    vtss_mac_t            s_mac;        // Secondary port MRP endpoint MAC address */
-    vtss_mac_t            i_mac;        // Interconnect port MRP endpoint MAC address */
+    vtss_mac_t            p_mac;        // Primary port MRP endpoint MAC address
+    vtss_mac_t            s_mac;        // Secondary port MRP endpoint MAC address
+    vtss_mac_t            i_mac;        // Interconnect port MRP endpoint MAC address
 } vtss_mrp_conf_t;
 
-// Add a MRP instance with configuration.
+// Add an MRP instance with configuration.
 // Resources are allocated.
 // The ring state is VTSS_MRP_RING_STATE_OPEN.
 // inst     [IN] Target instance reference.
@@ -48,13 +48,13 @@ vtss_rc vtss_mrp_get(const vtss_inst_t      inst,
                      const vtss_mrp_idx_t   mrp_idx,
                      vtss_mrp_conf_t        *const conf);
 
-// Delete a MRP instance.
+// Delete an MRP instance.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the deleted MRP instance.
 vtss_rc vtss_mrp_del(const vtss_inst_t      inst,
                      const vtss_mrp_idx_t   mrp_idx);
 
-// Set a MRP instance ring role.
+// Set an MRP instance ring role.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // role     [IN] The MRP ring role.
@@ -66,7 +66,7 @@ vtss_rc vtss_mrp_ring_role_get(const vtss_inst_t     inst,
                                const vtss_mrp_idx_t  mrp_idx,
                                vtss_mrp_ring_role_t  *const role);
 
-// Set a MRP instance Interconnet ring role.
+// Set an MRP instance interconnect ring role.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // role     [IN] The MRP ring role.
@@ -84,7 +84,6 @@ typedef struct {
     vtss_port_no_t   s_port;       // Port with Secondary port role
 } vtss_mrp_ports_t;
 
-// Set a MRP instance ring port numbers.
 // The Primary and Secondary ring port numbers can only be swapped.
 // After swapping ports vtss_mrp_port_state_set() must be called with updated port state.
 // inst     [IN] Target instance reference.
@@ -104,7 +103,7 @@ typedef enum {
     VTSS_MRP_RING_STATE_OPEN
 } vtss_mrp_ring_state_t;
 
-// Set a MRP instance ring state.
+// Set an MRP instance's ring state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // state    [IN] The ring state.
@@ -116,7 +115,7 @@ vtss_rc vtss_mrp_ring_state_get(const vtss_inst_t      inst,
                                 const vtss_mrp_idx_t   mrp_idx,
                                 vtss_mrp_ring_state_t  *const state);
 
-// Set a MRP instance Interconnect ring state.
+// Set an MRP instance's interconnect ring state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // state    [IN] The ring state.
@@ -135,7 +134,7 @@ typedef enum {
     VTSS_MRP_PORT_STATE_FORWARDING
 } vtss_mrp_port_state_t;
 
-// Set a MRP instance ring port state.
+// Set an MRP instance's ring port state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // port     [IN] The port.
@@ -152,12 +151,12 @@ vtss_rc vtss_mrp_port_state_get(const vtss_inst_t      inst,
 
 // MRP instance best information.
 typedef struct {
-    vtss_mac_t  mac;       // Best MAC address */
+    vtss_mac_t  mac;       // Best MAC address
 } vtss_mrp_best_t;
 
-// Set a MRP instance best received priority and MAC.
+// Set an MRP instance's best received priority and MAC.
 // This information can be received by MRP_TestMgrNAck or MRP_TestPropagate.
-// It is used to check for TST recetion from currentlu best MRM.
+// It is used to check for TST reception from current best MRM.
 //
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
@@ -179,7 +178,7 @@ typedef struct {
     u32  itst_mon_count;  // The ITST monitoring count of intervals without ITST generating ITST LOC
 } vtss_mrp_tst_loc_t;
 
-// Set a MRP instance TST LOC configuration.
+// Set an MRP instance TST LOC configuration.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // conf     [IN] The TST LOC configuration.
@@ -199,10 +198,10 @@ typedef struct {
     BOOL  itst_clear_loc;  // Copy next ITST that clear ITST LOC to CPU
 } vtss_mrp_copy_tst_t;
 
-// Set a MRP instance TST copy to CPU configuration.
+// Set an MRP instance's TST copy to CPU configuration.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-// copy     [IN] The TST copy configuration.
+// copy     [IN] The copy configuration.
 vtss_rc vtss_mrp_copy_tst_set(const vtss_inst_t          inst,
                               const vtss_mrp_idx_t       mrp_idx,
                               const vtss_mrp_copy_tst_t  *const copy);
@@ -229,7 +228,7 @@ typedef struct {
     vtss_mrp_port_status_t i_status;
 } vtss_mrp_status_t;
 
-// Get a MRP instance status.
+// Get an MRP instance's status.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // status   [IN] The MRP status.
@@ -249,7 +248,7 @@ typedef struct {
     vtss_mrp_port_counters_t i_counters;
 } vtss_mrp_counters_t;
 
-// Get a MRP instance counters.
+// Get an MRP instance's counters.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // counters [IN] The MRP counters.

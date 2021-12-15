@@ -24,12 +24,12 @@ typedef struct {
     mesa_port_no_t        p_port;       // Port with Primary port role
     mesa_port_no_t        s_port;       // Port with Secondary port role
     mesa_port_no_t        i_port;       // Port with Interconnect port role
-    mesa_mac_t            p_mac;        // Primary port MAC address used to determine own or other Test PDU received*/
-    mesa_mac_t            s_mac;        // Secondary port MAC address used to determine own or other Test PDU received */
-    mesa_mac_t            i_mac;        // Interconnect port MAC address used to determine own or other Test PDU received */
+    mesa_mac_t            p_mac;        // Primary port MAC address used to determine own or other Test PDU received
+    mesa_mac_t            s_mac;        // Secondary port MAC address used to determine own or other Test PDU received
+    mesa_mac_t            i_mac;        // Interconnect port MAC address used to determine own or other Test PDU received
 } mesa_mrp_conf_t CAP(MRP);
 
-// Add a MRP instance with configuration.
+// Add an MRP instance with configuration.
 // Resources in HW are allocated.
 // The ring state is defaulted to MESA_MRP_RING_STATE_OPEN.
 // All the MRP frames are forwarded according to IEC 62439-2 depending on ring role.
@@ -47,13 +47,13 @@ mesa_rc mesa_mrp_get(const mesa_inst_t      inst,
                      const mesa_mrp_idx_t   mrp_idx,
                      mesa_mrp_conf_t        *const conf)  CAP(MRP);
 
-// Delete a MRP instance.
+// Delete an MRP instance.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the deleted MRP instance.
 mesa_rc mesa_mrp_del(const mesa_inst_t      inst,
                      const mesa_mrp_idx_t   mrp_idx)  CAP(MRP);
 
-// Set a MRP instance ring role.
+// Set an MRP instance ring role.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // role     [IN] The MRP ring role.
@@ -65,7 +65,7 @@ mesa_rc mesa_mrp_ring_role_get(const mesa_inst_t     inst,
                                const mesa_mrp_idx_t  mrp_idx,
                                mesa_mrp_ring_role_t  *const role)  CAP(MRP);
 
-// Set a MRP instance Interconnected ring role.
+// Set an MRP instance Interconnected ring role.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // role     [IN] The MRP ring role.
@@ -83,12 +83,12 @@ typedef struct {
     mesa_port_no_t   s_port;       // Port with Secondary port role
 } mesa_mrp_ports_t  CAP(MRP);
 
-// Set a MRP instance ring port numbers.
+// Set an MRP instance's ring port numbers.
 // The Primary and Secondary ring port numbers can only be swapped.
 // After swapping ports mesa_mrp_port_state_set() must be called with updated port state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-// ports     [IN] The ports.
+// ports    [IN] The ports.
 mesa_rc mesa_mrp_ports_set(const mesa_inst_t       inst,
                            const mesa_mrp_idx_t    mrp_idx,
                            const mesa_mrp_ports_t  *const ports)  CAP(MRP);
@@ -103,7 +103,7 @@ typedef enum {
     MESA_MRP_RING_STATE_OPEN
 } mesa_mrp_ring_state_t  CAP(MRP);
 
-// Set a MRP instance ring state. This is the ring state inserted in the transmitted TST frames
+// Set an MRP instance ring state. This is the ring state inserted in the transmitted TST frames
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // state    [IN] The ring state.
@@ -115,7 +115,7 @@ mesa_rc mesa_mrp_ring_state_get(const mesa_inst_t      inst,
                                 const mesa_mrp_idx_t   mrp_idx,
                                 mesa_mrp_ring_state_t  *const state)  CAP(MRP);
 
-// Set a MRP instance Interconnected ring state. This is the ring state inserted in the transmitted INTST frames
+// Set an MRP instance Interconnected ring state. This is the ring state inserted in the transmitted INTST frames
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // state    [IN] The ring state.
@@ -129,10 +129,10 @@ mesa_rc mesa_mrp_in_ring_state_get(const mesa_inst_t      inst,
 
 // MRP instance best information.
 typedef struct {
-    mesa_mac_t  mac;       // Best MAC address */
+    mesa_mac_t  mac;       // Best MAC address
 } mesa_mrp_best_t CAP(MRP);
 
-// Set a MRP instance best received priority and MAC.
+// Set an MRP instance best received priority and MAC.
 // This information can be received by MRP_TestMgrNAck or MRP_TestPropagate.
 // It is used to check for TST reception from currently best MRM.
 //
@@ -154,7 +154,7 @@ typedef enum {
     MESA_MRP_PORT_STATE_FORWARDING
 } mesa_mrp_port_state_t  CAP(MRP);
 
-// Set a MRP instance ring port state.
+// Set an MRP instance ring port state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // port     [IN] The port.
@@ -178,7 +178,7 @@ typedef struct {
     uint32_t  itst_mon_count;  // The ITST monitoring count of intervals without ITST generating ITST LOC
 } mesa_mrp_tst_loc_t CAP(MRP);
 
-// Set a MRP instance TST LOC configuration.
+// Set an MRP instance TST LOC configuration.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // conf     [IN] The TST LOC configuration.
@@ -198,10 +198,10 @@ typedef struct {
     mesa_bool_t  itst_clear_loc;  // Copy next InTest that clear ITST LOC to CPU
 } mesa_mrp_copy_tst_t CAP(MRP);
 
-// Set a MRP instance TST copy to CPU configuration.
+// Set an MRP instance's TST copy to CPU configuration.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-// copy     [IN] The TST copy configuration.
+// copy     [IN] The copy configuration.
 mesa_rc mesa_mrp_copy_tst_set(const mesa_inst_t          inst,
                               const mesa_mrp_idx_t       mrp_idx,
                               const mesa_mrp_copy_tst_t  *const copy)  CAP(MRP);
@@ -229,7 +229,7 @@ typedef struct {
     mesa_mrp_port_status_t i_status;
 } mesa_mrp_status_t CAP(MRP);
 
-// Get a MRP instance status.
+// Get an MRP instance status.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // status   [IN] The MRP status.
@@ -249,7 +249,7 @@ typedef struct {
     mesa_mrp_port_counters_t i_counters;
 } mesa_mrp_counters_t;
 
-// Get a MRP instance counters.
+// Get an MRP instance counters.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // counters [IN] The MRP counters.

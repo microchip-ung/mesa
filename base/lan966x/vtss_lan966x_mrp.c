@@ -162,7 +162,7 @@ static vtss_rc mrp_uninit_port(vtss_state_t *vtss_state,  vtss_port_no_t port)
     /* Disable MEP to process MRP frames */
     REG_WRM(ANA_OAM_CFG(chip_port), ANA_OAM_CFG_MRP_ENA(0), ANA_OAM_CFG_MRP_ENA_M);
 
-    /* Disactivate MRP endpoint */
+    /* Deactivate MRP endpoint */
     REG_WRM(MEP_MRP_CTRL(chip_port), MEP_MRP_CTRL_MRP_ENA(0), MEP_MRP_CTRL_MRP_ENA_M);
 
     return VTSS_RC_OK;
@@ -548,14 +548,14 @@ static vtss_rc mrp_loc_configure(vtss_state_t *vtss_state,  vtss_mrp_data_t *mrp
             MEP_TST_CFG_MAX_MISS_CNT(mrp->tst_loc.tst_mon_count*2) |
             MEP_TST_CFG_CLR_MISS_CNT_ENA(process ? 1 : 0) |
             MEP_TST_CFG_MISS_CNT(0) |
-            MEP_TST_CFG_LOC_PERIOD(mrp->tst_loc_idx+1),
+            MEP_TST_CFG_LOC_PERIOD(mrp->tst_loc_idx + 1),
             MEP_TST_CFG_CLR_MISS_CNT_ENA_M | MEP_TST_CFG_LOC_PERIOD_M | MEP_TST_CFG_MAX_MISS_CNT_M | MEP_TST_CFG_MISS_CNT_M);
 
     REG_WRM(MEP_TST_CFG(s_chip_port),
-            MEP_TST_CFG_MAX_MISS_CNT(mrp->tst_loc.tst_mon_count*2) |
+            MEP_TST_CFG_MAX_MISS_CNT(mrp->tst_loc.tst_mon_count * 2) |
             MEP_TST_CFG_CLR_MISS_CNT_ENA(process ? 1 : 0) |
             MEP_TST_CFG_MISS_CNT(0) |
-            MEP_TST_CFG_LOC_PERIOD(mrp->tst_loc_idx+1),
+            MEP_TST_CFG_LOC_PERIOD(mrp->tst_loc_idx + 1),
             MEP_TST_CFG_CLR_MISS_CNT_ENA_M | MEP_TST_CFG_LOC_PERIOD_M | MEP_TST_CFG_MAX_MISS_CNT_M | MEP_TST_CFG_MISS_CNT_M);
 
     if (mrp->tst_loc_idx != LOC_PERIOD_CNT) {
@@ -759,7 +759,7 @@ u32 find_unused_loc_idx(vtss_mrp_data_t *mrp_array)
         }
     }
 
-    for (i=4; i<LOC_PERIOD_CNT; ++i) {  /* Note that VOP is using this first four timers */
+    for (i=4; i<LOC_PERIOD_CNT; ++i) {  /* Note that VOP is using the first four timers */
         if (!idx_used[i]) {
             break;
         }
@@ -951,7 +951,7 @@ static vtss_rc lan966x_mrp_in_ring_role_set(vtss_state_t                *vtss_st
     }
 
     if (role == VTSS_MRP_RING_ROLE_MANAGER) {
-        /* Allocate a InTest LOC timer index. */
+        /* Allocate an InTest LOC timer index. */
         if ((mrp_data->itst_loc_idx == LOC_PERIOD_CNT) && ((mrp_data->itst_loc_idx = find_unused_loc_idx(mrp_array)) == LOC_PERIOD_CNT)) {
             VTSS_E("No unused LOC timer found");
             return VTSS_RC_ERROR;
@@ -1059,7 +1059,7 @@ static vtss_rc lan966x_mrp_ports_set(vtss_state_t            *vtss_state,
     }
     /* Only swapping of p and s port is allowed */
     if ((ports->p_port == mrp_data->conf.p_port) || (ports->s_port == mrp_data->conf.s_port)) {
-        VTSS_E("Primary and secondary ports must be swapped");
+        VTSS_E("Primary and secondary ports are the same as already configured");
         return VTSS_RC_ERROR;
     }
     if (((ports->p_port != mrp_data->conf.p_port) && (ports->p_port != mrp_data->conf.s_port)) ||
@@ -1188,15 +1188,15 @@ static vtss_rc lan966x_mrp_port_state_set(vtss_state_t                 *vtss_sta
     }
     if ((mrp_data->conf.p_port == port) && (mrp_data->p_port_state == state)) {
         VTSS_D("MRP Primary Port role is unchanged");
-        return 0;
+        return VTSS_RC_OK;
     }
     if ((mrp_data->conf.s_port == port) && (mrp_data->s_port_state == state)) {
         VTSS_D("MRP Secondary Port role is unchanged");
-        return 0;
+        return VTSS_RC_OK;
     }
     if ((mrp_data->conf.i_port == port) && (mrp_data->i_port_state == state)) {
         VTSS_D("MRP Interconnect Port role is unchanged");
-        return 0;
+        return VTSS_RC_OK;
     }
     if ((port != mrp_data->conf.p_port) && (port != mrp_data->conf.s_port) && (port != mrp_data->conf.i_port)) {
         VTSS_E("Invalid port number");
@@ -1608,10 +1608,6 @@ static vtss_rc lan966x_mrp_event_get(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-// D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_REG(pr, name)            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(name), name)
-#define D_REG_I(pr, name, i)       vtss_lan966x_debug_reg_inst(vtss_state, pr, name, (i), name)
-
 static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
                                  const vtss_debug_printf_t  pr,
                                  const vtss_debug_info_t    *const info)
@@ -1671,6 +1667,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_RING_MASK_CFG(i)), i, "MEP_RING_MASK_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_FWD_CTRL(i)), i, "MEP_TST_FWD_CTRL");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_CFG(i)), i, "MEP_TST_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_PRIO_CFG(i)), i, "MEP_TST_PRIO_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_ITST_FWD_CTRL(i)), i, "MEP_ITST_FWD_CTRL");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_ITST_CFG(i)), i, "MEP_ITST_CFG");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_MAC_LSB(i)), i, "MEP_MRP_MAC_LSB");
@@ -1678,7 +1675,6 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_BEST_MAC_LSB(i)), i, "BEST_MRP_MAC_LSB");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_BEST_MAC_MSB(i)), i, "BEST_MRP_MAC_MSB");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_INTR_ENA(i)), i, "MEP_MRP_INTR_ENA");
-
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i,0)), i, "REW_MRP_TX_CFG[0]");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i,1)), i, "REW_MRP_TX_CFG[1]");
                 pr("\n");
@@ -1701,9 +1697,9 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_header(pr, buf);
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_STICKY(i)), i, "MEP_MRP_STICKY");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_RX_CNT(i)), i, "MEP_TST_RX_CNT");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_RX_LOC_CNT(i)), i, "MEP_TST_RX_LOC_CNT");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_ITST_RX_CNT(i)), i, "MEP_ITST_RX_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_CFG(i)), i, "MEP_TST_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_ITST_CFG(i)), i, "MEP_ITST_CFG");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_ITST_RX_LOC_CNT(i)), i, "MEP_ITST_RX_LOC_CNT");
                 pr("\n");
             }
         }
@@ -1720,11 +1716,21 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
 
             mrp_data = &vtss_state->mrp.data[i];
             if (info->full  ||  mrp_data->active) {
+                pr("idx: %u\n", i);
                 pr("active: %u\n", mrp_data->active);
                 pr("tst_loc_idx: %u\n", mrp_data->tst_loc_idx);
                 pr("itst_loc_idx: %u\n", mrp_data->itst_loc_idx);
                 pr("ring_transitions: %u\n", mrp_data->ring_transitions);
                 pr("in_ring_transitions: %u\n", mrp_data->in_ring_transitions);
+
+                if (mrp_data->tst_loc_idx != LOC_PERIOD_CNT) {
+                    vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_LOC_PERIOD_CFG(mrp_data->tst_loc_idx)), mrp_data->tst_loc_idx, "MEP_LOC_PERIOD_CFG");
+                }
+
+                if (mrp_data->itst_loc_idx != LOC_PERIOD_CNT) {
+                    vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_LOC_PERIOD_CFG(mrp_data->itst_loc_idx)), mrp_data->itst_loc_idx, "MEP_LOC_PERIOD_CFG");
+                }
+
                 pr("\n");
             }
         }
@@ -1740,9 +1746,6 @@ vtss_rc vtss_lan966x_mrp_debug_print(vtss_state_t               *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_MRP, lan966x_debug_mrp, vtss_state, pr, info);
 }
-
-#undef D_REG
-#undef D_REG_I
 
 static vtss_rc lan966x_mrp_poll_1sec(vtss_state_t *vtss_state)
 {

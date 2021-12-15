@@ -22,19 +22,27 @@ vtss_rc vtss_mrp_add(const vtss_inst_t      inst,
         return VTSS_RC_ERROR;
     }
 
-    vtss_state = (inst == NULL ? vtss_default_inst : inst);     /* This is required as VTSS_CHIP_PORT is using vtss_state */
-    if ((VTSS_CHIP_PORT(conf->p_port) >= VTSS_MRP_CNT) ||
-        (VTSS_CHIP_PORT(conf->s_port) >= VTSS_MRP_CNT)) {
-        VTSS_E("Invalid p_port %u s_port %u", conf->p_port, conf->s_port);
+    if (conf == NULL) {
         return VTSS_RC_ERROR;
     }
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(mrp.mrp_add, mrp_idx, conf)) == VTSS_RC_OK) {
-            vtss_state->mrp.data[mrp_idx].conf = *conf;
-        }
+
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->p_port)) != VTSS_RC_OK) {
+        VTSS_E("Invalid p_port %u", conf->p_port);
+        goto do_exit;
     }
+
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->s_port)) != VTSS_RC_OK) {
+        VTSS_E("Invalid s_port %u", conf->s_port);
+        goto do_exit;
+    }
+
+    if ((rc = VTSS_FUNC(mrp.mrp_add, mrp_idx, conf)) == VTSS_RC_OK) {
+        vtss_state->mrp.data[mrp_idx].conf = *conf;
+    }
+
+do_exit:
     VTSS_EXIT();
     return rc;
 }
@@ -790,6 +798,11 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
                    mrp_data->conf.p_port,
                    mrp_data->conf.s_port);
                 pr("------------------------------------------------------------------\n");
+
+                // Cannot get inactive status & counters without a trace error
+                if (!vtss_state->mrp.data[i].active) {
+                    continue;
+                }
 
                 if (VTSS_FUNC(mrp.mrp_status_get, i, &mrp_status) == VTSS_RC_OK) {
                     pr("MRP status:\n");
