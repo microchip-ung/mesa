@@ -304,7 +304,6 @@ if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
         #IMG_TARGET(NAME arm64_ls1046_lan966x     TYPE fit      APP app_lan966x         MACHINE ls1046a)
         #IMG_TARGET(NAME arm64_ls1046_lan966x_ad  TYPE fit      APP app_lan966x_ad      MACHINE ls1046a)
-        IMG_TARGET(NAME arm64_ls1046_lan969x_sr  TYPE fit      APP app_lan969x_sr      MACHINE ls1046a) #To be removed
 
         #IMG_TARGET(NAME arm64_ls1046_vsc7468     TYPE fit      APP app_vsc7468         MACHINE ls1046a)
         IMG_TARGET(NAME arm64_vsc7558TSN         TYPE ext4     APP app_vsc7558TSN      MACHINE fireant)
