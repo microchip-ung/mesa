@@ -217,15 +217,17 @@ end
 if ($options[:frame_count] == :all)
     exp = $options[:exp_count][0].to_i
     tolerance = exp_tolerance[0].to_i
+    off = 0.to_f
+    off = (exp) ? (((count.to_f - exp) / exp) * 100).to_f : 99999
     if ((count > (exp + tolerance)) || (count < (exp - tolerance)))
-        $stderr.puts "Analyze failed. Not expected number of frames counted.  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
+        $stderr.puts "Analyze failed. Not expected number of frames counted.  off #{off}  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
         if ((exp != 0) && (count == 0))
             save_pcap_file
         end
         exit 7
     end
 
-    puts "------Analyze succeeded.------"
+    puts "------Analyze succeeded.  off #{off}------"
     exit 0
 end
 
@@ -234,14 +236,16 @@ if ($options[:frame_count] == :pcp)
         count = pcp_count[pcp_idx]
         exp = $options[:exp_count][pcp_idx].to_i
         tolerance = exp_tolerance[pcp_idx].to_i
+        off = 0.to_f
+        off = (exp != 0) ? (((count.to_f - exp) / exp) * 100) : 99999
         if ((count > (exp + tolerance)) || (count < (exp - tolerance)))
-            $stderr.puts "Analyze failed. Not expected number of frames counted. pcp #{pcp_value}  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
+            $stderr.puts "Analyze failed. Not expected number of frames counted. pcp #{pcp_value}  off #{off}  Counted: #{count}  Expected: #{exp}  Tolerance: #{tolerance}"
             if ((exp != 0) && (count == 0))
                 save_pcap_file
             end
             exit 7
         end
-        puts "------Expected number of frames counted. pcp #{pcp_value}------"
+        puts "------Expected number of frames counted. pcp #{pcp_value}  off #{off}------"
     end
 
     if ($options[:exp_cycle] != nil)
