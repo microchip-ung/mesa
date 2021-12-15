@@ -5,7 +5,7 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_2x", {}, "-t api_cil:vcap:debug")
+$ts = get_test_setup("mesa_pc_b2b_2x")
 
 #---------- Configuration -----------------------------------------------------
 
@@ -198,7 +198,7 @@ test "timestamp" do
 end
 
 test "acl-port-counter" do
-    #break
+    break
     idx = 0
     port = $ts.dut.p[idx]
     conf = $ts.dut.call("mesa_acl_port_conf_get", port)
@@ -214,11 +214,11 @@ test "acl-port-counter" do
         aged: false,
         cpu_queue: 0,
     }
-    #$ts.dut.call("mesa_mac_table_add", m)
+    $ts.dut.call("mesa_mac_table_add", m)
     run_ef_tx_rx_cmd($ts, idx, [], "eth")
     $ts.dut.run("mesa-cmd port stati pa")
-    #cnt = $ts.dut.call("mesa_port_counters_get", port)["bridge"]["dot1dTpPortInDiscards"]
-    #check_counter("Filtered", cnt, 1)
+    cnt = $ts.dut.call("mesa_port_counters_get", port)["bridge"]["dot1dTpPortInDiscards"]
+    check_counter("Filtered", cnt, 1)
 end
 
 test "fwd-drop-count" do
