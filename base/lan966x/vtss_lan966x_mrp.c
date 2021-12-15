@@ -20,11 +20,11 @@ static vtss_rc mrp_counter_update(vtss_state_t         *vtss_state,
                                   const vtss_mrp_idx_t  mrp_idx,
                                   const u32             clear_mask)
 {
-/*
- * These macros will aid in reading and optionally clearing counter registers.
- * The clear operation will be triggered by matching the 'clear_mask' with both a
- * counter type (ctype) and a counter direction (cdir - TX or RX).
- */
+    /*
+     * These macros will aid in reading and optionally clearing counter registers.
+     * The clear operation will be triggered by matching the 'clear_mask' with both a
+     * counter type (ctype) and a counter direction (cdir - TX or RX).
+     */
 #define CHIPREAD(reg, cnt) { REG_RD(reg, &v); vtss_cmn_counter_32_update(v, cnt, (clear_mask  != 0)); }
 
     vtss_mrp_data_t               *mrp_data = &vtss_state->mrp.data[mrp_idx];
@@ -98,12 +98,14 @@ static void mrp_instance_default(vtss_state_t *vtss_state,  vtss_mrp_data_t *mrp
 static u32 ring_state_calc(vtss_mrp_ring_state_t state)
 {
     switch (state) {
-    case VTSS_MRP_RING_STATE_CLOSED: return 1;
-    case VTSS_MRP_RING_STATE_OPEN:   return 0;
+    case VTSS_MRP_RING_STATE_CLOSED:
+        return 1;
+    case VTSS_MRP_RING_STATE_OPEN:
+        return 0;
     }
 
     VTSS_D("Unknown ring state");
-    return(0);
+    return 0;
 }
 
 static vtss_rc mrp_init_port(vtss_state_t *vtss_state,  vtss_port_no_t port, u32 port_role)
@@ -297,7 +299,7 @@ static vtss_rc mrp_control_forwarding(vtss_state_t *vtss_state,  vtss_mrp_data_t
     //Each MRC shall forward MRP_InTest frames, MRP_InLinkChange frames,
     //MRP_InTopologyChange frames and MRP_InLinkStatusPoll frames between its ring ports, if
     //no MIM and no MIC is active on the node at the same time.
-    if ((mrp->conf.ring_role == VTSS_MRP_RING_ROLE_CLIENT) && (mrp->conf.in_ring_role == VTSS_MRP_RING_ROLE_DISABLED)){
+    if ((mrp->conf.ring_role == VTSS_MRP_RING_ROLE_CLIENT) && (mrp->conf.in_ring_role == VTSS_MRP_RING_ROLE_DISABLED)) {
         /* Configure forwarding from Primary port */
         REG_WRM(MEP_MRP_FWD_CTRL(p_chip_port),
                 MEP_MRP_FWD_CTRL_MRP_ITST_FWD_SEL(FWD_NOP) | MEP_MRP_FWD_CTRL_MRP_ITC_FWD_SEL(FWD_NOP) |
@@ -545,7 +547,7 @@ static vtss_rc mrp_loc_configure(vtss_state_t *vtss_state,  vtss_mrp_data_t *mrp
 
     /* Configure LOC */
     REG_WRM(MEP_TST_CFG(p_chip_port),
-            MEP_TST_CFG_MAX_MISS_CNT(mrp->tst_loc.tst_mon_count*2) |
+            MEP_TST_CFG_MAX_MISS_CNT(mrp->tst_loc.tst_mon_count * 2) |
             MEP_TST_CFG_CLR_MISS_CNT_ENA(process ? 1 : 0) |
             MEP_TST_CFG_MISS_CNT(0) |
             MEP_TST_CFG_LOC_PERIOD(mrp->tst_loc_idx + 1),
@@ -589,25 +591,25 @@ static vtss_rc mrp_in_loc_configure(vtss_state_t *vtss_state,  vtss_mrp_data_t *
 
     /* Configure LOC */
     REG_WRM(MEP_ITST_CFG(p_chip_port),
-            MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count*2) |
+            MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count * 2) |
             MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA(process ? 1 : 0) |
             MEP_ITST_CFG_ITST_MISS_CNT(0) |
-            MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx+1),
+            MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx + 1),
             MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA_M | MEP_ITST_CFG_ITST_LOC_PERIOD_M | MEP_ITST_CFG_ITST_MAX_MISS_CNT_M | MEP_ITST_CFG_ITST_MISS_CNT_M);
 
     REG_WRM(MEP_ITST_CFG(s_chip_port),
-            MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count*2) |
+            MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count * 2) |
             MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA(process ? 1 : 0) |
             MEP_ITST_CFG_ITST_MISS_CNT(0) |
-            MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx+1),
+            MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx + 1),
             MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA_M | MEP_ITST_CFG_ITST_LOC_PERIOD_M | MEP_ITST_CFG_ITST_MAX_MISS_CNT_M | MEP_ITST_CFG_ITST_MISS_CNT_M);
 
     if (mrp->conf.i_port < VTSS_PORTS) {
         REG_WRM(MEP_ITST_CFG(i_chip_port),
-                MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count*2) |
+                MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc.itst_mon_count * 2) |
                 MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA(process ? 1 : 0) |
                 MEP_ITST_CFG_ITST_MISS_CNT(0) |
-                MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx+1),
+                MEP_ITST_CFG_ITST_LOC_PERIOD(mrp->itst_loc_idx + 1),
                 MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA_M | MEP_ITST_CFG_ITST_LOC_PERIOD_M | MEP_ITST_CFG_ITST_MAX_MISS_CNT_M | MEP_ITST_CFG_ITST_MISS_CNT_M);
     }
 
@@ -747,7 +749,7 @@ u32 find_unused_loc_idx(vtss_mrp_data_t *mrp_array)
     BOOL idx_used[LOC_PERIOD_CNT];
     memset(idx_used, 0, sizeof(idx_used));
 
-    for (i=0; i<VTSS_MRP_CNT; ++i) {
+    for (i = 0; i < VTSS_MRP_CNT; ++i) {
         if (!mrp_array[i].active) {
             continue;
         }
@@ -759,7 +761,7 @@ u32 find_unused_loc_idx(vtss_mrp_data_t *mrp_array)
         }
     }
 
-    for (i=4; i<LOC_PERIOD_CNT; ++i) {  /* Note that VOP is using the first four timers */
+    for (i = 4; i < LOC_PERIOD_CNT; ++i) { /* Note that VOP is using the first four timers */
         if (!idx_used[i]) {
             break;
         }
@@ -792,11 +794,11 @@ static vtss_rc lan966x_mrp_add(vtss_state_t           *vtss_state,
         VTSS_E("Invallid Interconnected port");
         return VTSS_RC_ERROR;
     }
-    if ((conf->p_port == conf->s_port) || (conf->p_port == conf->i_port) || (conf->s_port == conf->i_port)){
+    if ((conf->p_port == conf->s_port) || (conf->p_port == conf->i_port) || (conf->s_port == conf->i_port)) {
         VTSS_E("Illegal port combination");
         return VTSS_RC_ERROR;
     }
-    for (i=0; i<VTSS_MRP_CNT; ++i) {
+    for (i = 0; i < VTSS_MRP_CNT; ++i) {
         if (!mrp_array[i].active) {
             continue;
         }
@@ -1415,8 +1417,8 @@ static vtss_rc lan966x_mrp_status_get(vtss_state_t          *vtss_state,
         /* Clear the sticky bits that has been detected */
         value = value &
                 (MEP_MRP_STICKY_MRP_RX_STICKY_M | MEP_MRP_STICKY_MRP_RX_PROC_STICKY_M   |
-                MEP_MRP_STICKY_DMAC_ERR_STICKY_M | MEP_MRP_STICKY_VERSION_ERR_STICKY_M   |
-                MEP_MRP_STICKY_RX_SEQ_ERR_STICKY_M);
+                 MEP_MRP_STICKY_DMAC_ERR_STICKY_M | MEP_MRP_STICKY_VERSION_ERR_STICKY_M   |
+                 MEP_MRP_STICKY_RX_SEQ_ERR_STICKY_M);
         REG_WR(MEP_MRP_STICKY(i_chip_port), value);
     }
 
@@ -1600,7 +1602,7 @@ static vtss_rc lan966x_mrp_event_get(vtss_state_t          *vtss_state,
 
         /* Translate I port sticky mask to returned event mask */
         events->i_mask = ((MEP_MRP_STICKY_ITST_LOC_STICKY_X(sticky_mask) != 0) ? VTSS_MRP_EVENT_MASK_ITST_LOC : 0) |
-                        ((MEP_MRP_STICKY_TST_LOC_STICKY_X(sticky_mask) != 0)  ? VTSS_MRP_EVENT_MASK_TST_LOC  : 0);
+                         ((MEP_MRP_STICKY_TST_LOC_STICKY_X(sticky_mask) != 0)  ? VTSS_MRP_EVENT_MASK_TST_LOC  : 0);
     }
 
     VTSS_D("Exit  p_mask %X  s_mask %X  i_mask %X", events->p_mask, events->s_mask, events->i_mask);
@@ -1653,7 +1655,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || mrp) { /* MRP configuration must be printed */
         pr("MRP Config:\n\n");
 
-        for (i=0; i<VTSS_PORTS; ++i) {
+        for (i = 0; i < VTSS_PORTS; ++i) {
             if (mrp && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1675,8 +1677,8 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_BEST_MAC_LSB(i)), i, "BEST_MRP_MAC_LSB");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_BEST_MAC_MSB(i)), i, "BEST_MRP_MAC_MSB");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_INTR_ENA(i)), i, "MEP_MRP_INTR_ENA");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i,0)), i, "REW_MRP_TX_CFG[0]");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i,1)), i, "REW_MRP_TX_CFG[1]");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i, 0)), i, "REW_MRP_TX_CFG[0]");
+                vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_MRP_TX_CFG(i, 1)), i, "REW_MRP_TX_CFG[1]");
                 pr("\n");
             }
         }
@@ -1686,7 +1688,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || status) { /* MRP status must be printed */
         pr("MRP Status:\n\n");
 
-        for (i=0; i<VTSS_PORTS; ++i) {
+        for (i = 0; i < VTSS_PORTS; ++i) {
             if (status && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1709,7 +1711,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || internal) { /* MRP internal must be printed */
         pr("MRP Internal:\n\n");
 
-        for (i=0; i<VTSS_MRP_CNT; ++i) {
+        for (i = 0; i < VTSS_MRP_CNT; ++i) {
             if (internal && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1763,7 +1765,7 @@ static vtss_rc lan966x_mrp_init(vtss_state_t *vtss_state)
 
     /* Set instances to default */
     memset(vtss_state->mrp.data, 0, sizeof(vtss_state->mrp.data));
-    for (i=0; i<VTSS_MRP_CNT; ++i) {
+    for (i = 0; i < VTSS_MRP_CNT; ++i) {
         mrp_instance_default(vtss_state, &vtss_state->mrp.data[i]);
     }
 

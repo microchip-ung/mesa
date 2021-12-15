@@ -361,16 +361,16 @@ vtss_rc vtss_mrp_port_state_get(const vtss_inst_t      inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-            mrp_data = &vtss_state->mrp.data[mrp_idx];
-            if (mrp_data->conf.p_port == port) {
-                *state = mrp_data->p_port_state;
-            }
-            if (mrp_data->conf.s_port == port) {
-                *state = mrp_data->s_port_state;
-            }
-            if (mrp_data->conf.i_port == port) {
-                *state = mrp_data->i_port_state;
-            }
+        mrp_data = &vtss_state->mrp.data[mrp_idx];
+        if (mrp_data->conf.p_port == port) {
+            *state = mrp_data->p_port_state;
+        }
+        if (mrp_data->conf.s_port == port) {
+            *state = mrp_data->s_port_state;
+        }
+        if (mrp_data->conf.i_port == port) {
+            *state = mrp_data->i_port_state;
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -661,20 +661,25 @@ static char *debug_mac_string(const vtss_mac_t *m)
 static char *debug_ring_role_string(const vtss_mrp_ring_role_t  role)
 {
     switch (role) {
-        case VTSS_MRP_RING_ROLE_DISABLED:  return("DIS");
-        case VTSS_MRP_RING_ROLE_CLIENT:    return("MRC");
-        case VTSS_MRP_RING_ROLE_MANAGER:   return("MRM");
+    case VTSS_MRP_RING_ROLE_DISABLED:
+        return "DIS";
+    case VTSS_MRP_RING_ROLE_CLIENT:
+        return "MRC";
+    case VTSS_MRP_RING_ROLE_MANAGER:
+        return "MRM";
     }
-    return("INVALID");
+    return "INVALID";
 }
 
 static char *debug_ring_state_string(const vtss_mrp_ring_state_t  state)
 {
     switch (state) {
-        case VTSS_MRP_RING_STATE_CLOSED:  return("CLOSED");
-        case VTSS_MRP_RING_STATE_OPEN:    return("OPEN");
+    case VTSS_MRP_RING_STATE_CLOSED:
+        return "CLOSED";
+    case VTSS_MRP_RING_STATE_OPEN:
+        return "OPEN";
     }
-    return("INVALID");
+    return "INVALID";
 }
 
 void vtss_mrp_debug_print(vtss_state_t *vtss_state,
@@ -690,8 +695,9 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
     vtss_mrp_status_t      mrp_status;
     vtss_mrp_counters_t    mrp_counters;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MRP))
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MRP)) {
         return;
+    }
 
     div = 0;
     mrp_idx = 0;
@@ -725,7 +731,7 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
     if (!info->has_action || mrp) { /* MRP configuration must be printed */
         pr("MRP instance Config:\n\n");
 
-        for (i=0; i<VTSS_MRP_CNT; ++i) {
+        for (i = 0; i < VTSS_MRP_CNT; ++i) {
             if (mrp && (div > 1) && (mrp_idx != i)) {   /* A specific MRP instance must be printed - this is not the one */
                 continue;
             }
@@ -770,9 +776,9 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
 
                 if (info->full || mrp_data->active) {
                     pr("EVENT enable:%4s  itst_loc:%s  tst_loc:%s\n",
-                    YN(mrp_event_mask != VTSS_MRP_EVENT_MASK_NONE),
-                    YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_ITST_LOC),
-                    YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_TST_LOC));
+                       YN(mrp_event_mask != VTSS_MRP_EVENT_MASK_NONE),
+                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_ITST_LOC),
+                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_TST_LOC));
                     pr("-----\n");
                 }
                 pr("\n");
@@ -784,7 +790,7 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
     if (!info->has_action || status) { /* MRP status must be printed */
         pr("MRP Status:\n\n");
 
-        for (i=0; i<VTSS_MRP_CNT; ++i) {
+        for (i = 0; i < VTSS_MRP_CNT; ++i) {
             if (status && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
