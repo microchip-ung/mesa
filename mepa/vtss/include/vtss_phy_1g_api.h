@@ -1008,6 +1008,21 @@ vtss_rc vtss_phy_gpio_set(const vtss_inst_t          inst,
                           const u8                   gpio_no,
                           BOOL                       value);
 
+/**
+ * \brief Enable/Disable Isolate Mode
+ *
+ * \param inst    [IN]  Target instance reference.
+ * \param port_no [IN]  Any port number within the chip containing the GPIO.
+ * \param iso_en   [IN]  Enable/Disable Isolate Mode
+ *
+ * \return VTSS_RC_OK when setting was done correctly else error code.
+ **/
+
+vtss_rc vtss_phy_isolate_mode_conf(const vtss_inst_t          inst,
+                          const vtss_port_no_t      port_no,
+                          const BOOL                iso_en);
+
+
 /* - VeriPHY ------------------------------------------------------- */
 
 /**

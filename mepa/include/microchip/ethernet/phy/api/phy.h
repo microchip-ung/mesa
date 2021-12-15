@@ -171,5 +171,10 @@ mepa_rc mepa_link_base_port(struct mepa_device *dev,
 mepa_rc mepa_phy_info_get(struct mepa_device *dev,
                           mepa_phy_info_t *const phy_info);
 
+// Isolation mode as defined by IEEE 802.3-2012 section 22.2.4.1.6
+mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
+                               const mepa_bool_t iso_en);
+
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

@@ -526,6 +526,16 @@ mepa_rc mepa_phy_info_get(struct mepa_device *dev,
     return dev->drv->mepa_driver_phy_info_get(dev, phy_info);
 }
 
+mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
+                               const mepa_bool_t iso_en)
+{
+    if (!dev || !dev->drv->mepa_driver_phy_info_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_isolate_mode_conf(dev, iso_en);
+}
+
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {

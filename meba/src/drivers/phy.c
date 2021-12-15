@@ -452,3 +452,11 @@ mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_inf
     }
     return mepa_phy_info_get(inst->phy_devices[port_no], phy_info);
 }
+
+mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no,            const mepa_bool_t iso_en)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_isolate_mode_conf(inst->phy_devices[port_no], iso_en);
+}

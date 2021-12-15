@@ -7019,6 +7019,24 @@ static vtss_rc vtss_phy_gpio_set_private(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc vtss_phy_iso_set_private(vtss_state_t         *vtss_state,
+                                         const vtss_port_no_t port_no,
+                                         const BOOL           iso_en)
+{
+
+    if(iso_en) {
+        VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_MODE_CONTROL,
+                                   VTSS_F_PHY_MODE_CONTROL_ISOLATE,
+                                   VTSS_F_PHY_MODE_CONTROL_ISOLATE)); // Isolate Mode Enable
+    } else {
+        VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_MODE_CONTROL,
+                                   0,
+                                   VTSS_F_PHY_MODE_CONTROL_ISOLATE)); // Isolate Mode Disable
+    }
+
+    return VTSS_RC_OK;
+}
+
 
 /************************************************************************/
 /* Interrupt functions                                               */
@@ -13956,6 +13974,23 @@ vtss_rc vtss_phy_gpio_set(const vtss_inst_t          inst,
     VTSS_EXIT();
     return rc;
 }
+
+// Enable/Disable Isolate mode
+vtss_rc vtss_phy_isolate_mode_conf(const vtss_inst_t          inst,
+                          const vtss_port_no_t      port_no,
+                          const BOOL                iso_en)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = vtss_phy_iso_set_private(vtss_state, port_no,   iso_en);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 
 // ****************************************************************************
 

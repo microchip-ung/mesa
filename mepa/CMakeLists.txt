@@ -6,10 +6,6 @@ project(MEPA)
 cmake_minimum_required(VERSION 2.8.12)
 include(.cmake/mepa-macros.cmake)
 
-# Old master branch did this (by acident!) Needed for now to surpress all the
-# warnings. Eventually we need to clean this up!
-#set(CMAKE_C_FLAGS "")
-
 include_directories(common/include)
 
 # Offer an options for CI to get good compliation coverage

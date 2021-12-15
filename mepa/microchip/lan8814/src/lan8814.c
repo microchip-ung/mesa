@@ -970,6 +970,23 @@ static mepa_rc indy_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t *gp
     MEPA_EXIT(dev);
     return rc;
 }
+
+// Set Isolate mode
+static mepa_rc indy_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
+{
+
+    MEPA_ENTER(dev);
+
+    if (iso_en == TRUE) {
+        WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_ISO_MODE_EN, INDY_F_BASIC_CTRL_ISO_MODE_EN);
+    } else {
+        WRM(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_ISO_MODE_EN);
+    }
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t value)
 {
     uint16_t val = 0;
@@ -1133,6 +1150,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_ts = &indy_ts_drivers,
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
             .mepa_driver_phy_info_get = indy_info_get,
+            .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1162,6 +1180,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
             .mepa_driver_phy_info_get = indy_info_get,
+            .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
         },
     };
 

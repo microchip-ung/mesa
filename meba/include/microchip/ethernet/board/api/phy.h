@@ -107,5 +107,9 @@ mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
 
 // Get the phy info
 mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info);
+
+// Enable/Disable isolate mode
+mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no,            const mepa_bool_t iso_en);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H
