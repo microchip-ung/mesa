@@ -1,0 +1,1995 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+#ifndef _VTSS_LAGUNA_REGS_TZC_CSS_H_
+#define _VTSS_LAGUNA_REGS_TZC_CSS_H_
+
+#include "vtss_laguna_regs_common.h"
+
+/***********************************************************************
+ *
+ * Target: \a TZC_CSS
+ *
+ *
+ *
+ ***********************************************************************/
+
+/**
+ * Register Group: \a TZC_CSS:APB
+ *
+ * Not documented
+ */
+
+
+/**
+ * \brief Build Configuration Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:BUILD_CONFIG
+ */
+#define VTSS_TZC_CSS_BUILD_CONFIG            VTSS_IOREG(VTSS_TO_TZC_CSS,0x0)
+
+/**
+ * \brief
+ * Number of regions minus one
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_BUILD_CONFIG . NO_OF_REGIONS
+ */
+#define  VTSS_F_TZC_CSS_BUILD_CONFIG_NO_OF_REGIONS(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_TZC_CSS_BUILD_CONFIG_NO_OF_REGIONS     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_TZC_CSS_BUILD_CONFIG_NO_OF_REGIONS(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+
+/**
+ * \brief
+ * Address width  minus one
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_BUILD_CONFIG . ADDRESS_WIDTH
+ */
+#define  VTSS_F_TZC_CSS_BUILD_CONFIG_ADDRESS_WIDTH(x)  VTSS_ENCODE_BITFIELD(x,8,6)
+#define  VTSS_M_TZC_CSS_BUILD_CONFIG_ADDRESS_WIDTH     VTSS_ENCODE_BITMASK(8,6)
+#define  VTSS_X_TZC_CSS_BUILD_CONFIG_ADDRESS_WIDTH(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
+
+/**
+ * \brief
+ * Number of filters -minus one
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_BUILD_CONFIG . NO_OF_FILTERS
+ */
+#define  VTSS_F_TZC_CSS_BUILD_CONFIG_NO_OF_FILTERS(x)  VTSS_ENCODE_BITFIELD(x,24,2)
+#define  VTSS_M_TZC_CSS_BUILD_CONFIG_NO_OF_FILTERS     VTSS_ENCODE_BITMASK(24,2)
+#define  VTSS_X_TZC_CSS_BUILD_CONFIG_NO_OF_FILTERS(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
+
+
+/**
+ * \brief Action Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:ACTION
+ */
+#define VTSS_TZC_CSS_ACTION                  VTSS_IOREG(VTSS_TO_TZC_CSS,0x1)
+
+/**
+ * \brief
+ * Failure Reaction
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_ACTION . REACTION_VALUE
+ */
+#define  VTSS_F_TZC_CSS_ACTION_REACTION_VALUE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_TZC_CSS_ACTION_REACTION_VALUE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_TZC_CSS_ACTION_REACTION_VALUE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief Gate Keeper Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:GATE_KEEPER
+ */
+#define VTSS_TZC_CSS_GATE_KEEPER             VTSS_IOREG(VTSS_TO_TZC_CSS,0x2)
+
+/**
+ * \brief
+ * Gate keeper open request
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_GATE_KEEPER . OPEN_REQUEST
+ */
+#define  VTSS_F_TZC_CSS_GATE_KEEPER_OPEN_REQUEST(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_GATE_KEEPER_OPEN_REQUEST  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_GATE_KEEPER_OPEN_REQUEST(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Gate keeper open status
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_GATE_KEEPER . OPEN_STATUS
+ */
+#define  VTSS_F_TZC_CSS_GATE_KEEPER_OPEN_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_TZC_CSS_GATE_KEEPER_OPEN_STATUS  VTSS_BIT(16)
+#define  VTSS_X_TZC_CSS_GATE_KEEPER_OPEN_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+
+/**
+ * \brief Speculation Control Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:SPECULATION_CTRL
+ */
+#define VTSS_TZC_CSS_SPECULATION_CTRL        VTSS_IOREG(VTSS_TO_TZC_CSS,0x3)
+
+/**
+ * \brief
+ * Read speculation disable control
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_SPECULATION_CTRL . READ_SPEC_DISABLE
+ */
+#define  VTSS_F_TZC_CSS_SPECULATION_CTRL_READ_SPEC_DISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_SPECULATION_CTRL_READ_SPEC_DISABLE  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_SPECULATION_CTRL_READ_SPEC_DISABLE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Write speculation disable control
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_SPECULATION_CTRL . WRITE_SPEC_DISABLE
+ */
+#define  VTSS_F_TZC_CSS_SPECULATION_CTRL_WRITE_SPEC_DISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_TZC_CSS_SPECULATION_CTRL_WRITE_SPEC_DISABLE  VTSS_BIT(1)
+#define  VTSS_X_TZC_CSS_SPECULATION_CTRL_WRITE_SPEC_DISABLE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+
+/**
+ * \brief Interrupt Status Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:INT_STATUS
+ */
+#define VTSS_TZC_CSS_INT_STATUS              VTSS_IOREG(VTSS_TO_TZC_CSS,0x4)
+
+/**
+ * \brief
+ * Interrupt status
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_INT_STATUS . STATUS
+ */
+#define  VTSS_F_TZC_CSS_INT_STATUS_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_INT_STATUS_STATUS     VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_INT_STATUS_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Interrupt status - overrun
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_INT_STATUS . OVERRUN
+ */
+#define  VTSS_F_TZC_CSS_INT_STATUS_OVERRUN(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_TZC_CSS_INT_STATUS_OVERRUN    VTSS_BIT(8)
+#define  VTSS_X_TZC_CSS_INT_STATUS_OVERRUN(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Interrupt status - overlap
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_INT_STATUS . OVERLAP
+ */
+#define  VTSS_F_TZC_CSS_INT_STATUS_OVERLAP(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_TZC_CSS_INT_STATUS_OVERLAP    VTSS_BIT(16)
+#define  VTSS_X_TZC_CSS_INT_STATUS_OVERLAP(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+
+/**
+ * \brief Interrupt Clear Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:INT_CLEAR
+ */
+#define VTSS_TZC_CSS_INT_CLEAR               VTSS_IOREG(VTSS_TO_TZC_CSS,0x5)
+
+/**
+ * \brief
+ * Interrupt clear
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_INT_CLEAR . CLEAR
+ */
+#define  VTSS_F_TZC_CSS_INT_CLEAR_CLEAR(x)    VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_INT_CLEAR_CLEAR       VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_INT_CLEAR_CLEAR(x)    VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Fail Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:FAIL_ADDRESS_LOW_0
+ */
+#define VTSS_TZC_CSS_FAIL_ADDRESS_LOW_0      VTSS_IOREG(VTSS_TO_TZC_CSS,0x8)
+
+/**
+ * \brief
+ * Failure access's low address
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_ADDRESS_LOW_0 . ADDR_STATUS_LOW
+ */
+#define  VTSS_F_TZC_CSS_FAIL_ADDRESS_LOW_0_ADDR_STATUS_LOW(x)  (x)
+#define  VTSS_M_TZC_CSS_FAIL_ADDRESS_LOW_0_ADDR_STATUS_LOW     0xffffffff
+#define  VTSS_X_TZC_CSS_FAIL_ADDRESS_LOW_0_ADDR_STATUS_LOW(x)  (x)
+
+
+/**
+ * \brief Fail Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:FAIL_ADDRESS_HIGH_0
+ */
+#define VTSS_TZC_CSS_FAIL_ADDRESS_HIGH_0     VTSS_IOREG(VTSS_TO_TZC_CSS,0x9)
+
+/**
+ * \brief
+ * Fail Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_ADDRESS_HIGH_0 . FAIL_ADDRESS_HIGH_0
+ */
+#define  VTSS_F_TZC_CSS_FAIL_ADDRESS_HIGH_0_FAIL_ADDRESS_HIGH_0(x)  (x)
+#define  VTSS_M_TZC_CSS_FAIL_ADDRESS_HIGH_0_FAIL_ADDRESS_HIGH_0     0xffffffff
+#define  VTSS_X_TZC_CSS_FAIL_ADDRESS_HIGH_0_FAIL_ADDRESS_HIGH_0(x)  (x)
+
+
+/**
+ * \brief Fail Control register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:FAIL_CONTROL_0
+ */
+#define VTSS_TZC_CSS_FAIL_CONTROL_0          VTSS_IOREG(VTSS_TO_TZC_CSS,0xa)
+
+/**
+ * \brief
+ * Failure access's privileged value
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_CONTROL_0 . PRIVILEGED
+ */
+#define  VTSS_F_TZC_CSS_FAIL_CONTROL_0_PRIVILEGED(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_TZC_CSS_FAIL_CONTROL_0_PRIVILEGED  VTSS_BIT(20)
+#define  VTSS_X_TZC_CSS_FAIL_CONTROL_0_PRIVILEGED(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/**
+ * \brief
+ * Failure access's security value
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_CONTROL_0 . NONSECURE
+ */
+#define  VTSS_F_TZC_CSS_FAIL_CONTROL_0_NONSECURE(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_TZC_CSS_FAIL_CONTROL_0_NONSECURE  VTSS_BIT(21)
+#define  VTSS_X_TZC_CSS_FAIL_CONTROL_0_NONSECURE(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/**
+ * \brief
+ * Failure access's direction
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_CONTROL_0 . DIRECTION
+ */
+#define  VTSS_F_TZC_CSS_FAIL_CONTROL_0_DIRECTION(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_TZC_CSS_FAIL_CONTROL_0_DIRECTION  VTSS_BIT(24)
+#define  VTSS_X_TZC_CSS_FAIL_CONTROL_0_DIRECTION(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+
+/**
+ * \brief Fail ID Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:FAIL_ID_0
+ */
+#define VTSS_TZC_CSS_FAIL_ID_0               VTSS_IOREG(VTSS_TO_TZC_CSS,0xb)
+
+/**
+ * \brief
+ * Failure access's ID
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_ID_0 . ID
+ */
+#define  VTSS_F_TZC_CSS_FAIL_ID_0_ID(x)       VTSS_ENCODE_BITFIELD(x,0,9)
+#define  VTSS_M_TZC_CSS_FAIL_ID_0_ID          VTSS_ENCODE_BITMASK(0,9)
+#define  VTSS_X_TZC_CSS_FAIL_ID_0_ID(x)       VTSS_EXTRACT_BITFIELD(x,0,9)
+
+/**
+ * \brief
+ * Failure access's virtual network
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_FAIL_ID_0 . VNET
+ */
+#define  VTSS_F_TZC_CSS_FAIL_ID_0_VNET(x)     VTSS_ENCODE_BITFIELD(x,24,4)
+#define  VTSS_M_TZC_CSS_FAIL_ID_0_VNET        VTSS_ENCODE_BITMASK(24,4)
+#define  VTSS_X_TZC_CSS_FAIL_ID_0_VNET(x)     VTSS_EXTRACT_BITFIELD(x,24,4)
+
+
+/**
+ * \brief Region 0 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_0
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_0       VTSS_IOREG(VTSS_TO_TZC_CSS,0x40)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_0 . BASE_ADDRESS_LOW_0
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_0_BASE_ADDRESS_LOW_0(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_0_BASE_ADDRESS_LOW_0     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_0_BASE_ADDRESS_LOW_0(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 0 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_0
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_0      VTSS_IOREG(VTSS_TO_TZC_CSS,0x41)
+
+/**
+ * \brief
+ * Region 0 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_0 . REGION_BASE_HIGH_0
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_0_REGION_BASE_HIGH_0(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_0_REGION_BASE_HIGH_0     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_0_REGION_BASE_HIGH_0(x)  (x)
+
+
+/**
+ * \brief Region 0 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_0
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_0        VTSS_IOREG(VTSS_TO_TZC_CSS,0x42)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_0 . TOP_ADDRESS_LOW_0
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_0_TOP_ADDRESS_LOW_0(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_0_TOP_ADDRESS_LOW_0     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_0_TOP_ADDRESS_LOW_0(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 0 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_0
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_0       VTSS_IOREG(VTSS_TO_TZC_CSS,0x43)
+
+/**
+ * \brief
+ * Region 0 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_0 . REGION_TOP_HIGH_0
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_0_REGION_TOP_HIGH_0(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_0_REGION_TOP_HIGH_0     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_0_REGION_TOP_HIGH_0(x)  (x)
+
+
+/**
+ * \brief Region 0 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_0
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_0     VTSS_IOREG(VTSS_TO_TZC_CSS,0x44)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_0 . REGION_ATTRIBUTES_0_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_0 . REGION_ATTRIBUTES_0_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_0 . REGION_ATTRIBUTES_0_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_0_REGION_ATTRIBUTES_0_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 0 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_0
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_0      VTSS_IOREG(VTSS_TO_TZC_CSS,0x45)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_0 . REGION_ID_ACCESS_0_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_0 . REGION_ID_ACCESS_0_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_0_REGION_ID_ACCESS_0_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 1 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_1
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_1       VTSS_IOREG(VTSS_TO_TZC_CSS,0x48)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_1 . BASE_ADDRESS_LOW_1
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_1_BASE_ADDRESS_LOW_1(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_1_BASE_ADDRESS_LOW_1     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_1_BASE_ADDRESS_LOW_1(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 1 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_1
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_1      VTSS_IOREG(VTSS_TO_TZC_CSS,0x49)
+
+/**
+ * \brief
+ * Region 1 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_1 . REGION_BASE_HIGH_1
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_1_REGION_BASE_HIGH_1(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_1_REGION_BASE_HIGH_1     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_1_REGION_BASE_HIGH_1(x)  (x)
+
+
+/**
+ * \brief Region 1 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_1
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_1        VTSS_IOREG(VTSS_TO_TZC_CSS,0x4a)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_1 . TOP_ADDRESS_LOW_1
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_1_TOP_ADDRESS_LOW_1(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_1_TOP_ADDRESS_LOW_1     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_1_TOP_ADDRESS_LOW_1(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 1 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_1
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_1       VTSS_IOREG(VTSS_TO_TZC_CSS,0x4b)
+
+/**
+ * \brief
+ * Region 1 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_1 . REGION_TOP_HIGH_1
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_1_REGION_TOP_HIGH_1(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_1_REGION_TOP_HIGH_1     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_1_REGION_TOP_HIGH_1(x)  (x)
+
+
+/**
+ * \brief Region 1 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_1
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_1     VTSS_IOREG(VTSS_TO_TZC_CSS,0x4c)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_1 . REGION_ATTRIBUTES_1_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_1 . REGION_ATTRIBUTES_1_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_1 . REGION_ATTRIBUTES_1_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_1_REGION_ATTRIBUTES_1_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 1 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_1
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_1      VTSS_IOREG(VTSS_TO_TZC_CSS,0x4d)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_1 . REGION_ID_ACCESS_1_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_1 . REGION_ID_ACCESS_1_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_1_REGION_ID_ACCESS_1_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 2 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_2
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_2       VTSS_IOREG(VTSS_TO_TZC_CSS,0x50)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_2 . BASE_ADDRESS_LOW_2
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_2_BASE_ADDRESS_LOW_2(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_2_BASE_ADDRESS_LOW_2     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_2_BASE_ADDRESS_LOW_2(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 2 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_2
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_2      VTSS_IOREG(VTSS_TO_TZC_CSS,0x51)
+
+/**
+ * \brief
+ * Region 2 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_2 . REGION_BASE_HIGH_2
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_2_REGION_BASE_HIGH_2(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_2_REGION_BASE_HIGH_2     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_2_REGION_BASE_HIGH_2(x)  (x)
+
+
+/**
+ * \brief Region 2 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_2
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_2        VTSS_IOREG(VTSS_TO_TZC_CSS,0x52)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_2 . TOP_ADDRESS_LOW_2
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_2_TOP_ADDRESS_LOW_2(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_2_TOP_ADDRESS_LOW_2     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_2_TOP_ADDRESS_LOW_2(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 2 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_2
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_2       VTSS_IOREG(VTSS_TO_TZC_CSS,0x53)
+
+/**
+ * \brief
+ * Region 2 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_2 . REGION_TOP_HIGH_2
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_2_REGION_TOP_HIGH_2(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_2_REGION_TOP_HIGH_2     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_2_REGION_TOP_HIGH_2(x)  (x)
+
+
+/**
+ * \brief Region 2 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_2
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_2     VTSS_IOREG(VTSS_TO_TZC_CSS,0x54)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_2 . REGION_ATTRIBUTES_2_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_2 . REGION_ATTRIBUTES_2_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_2 . REGION_ATTRIBUTES_2_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_2_REGION_ATTRIBUTES_2_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 2 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_2
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_2      VTSS_IOREG(VTSS_TO_TZC_CSS,0x55)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_2 . REGION_ID_ACCESS_2_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_2 . REGION_ID_ACCESS_2_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_2_REGION_ID_ACCESS_2_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 3 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_3
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_3       VTSS_IOREG(VTSS_TO_TZC_CSS,0x58)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_3 . BASE_ADDRESS_LOW_3
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_3_BASE_ADDRESS_LOW_3(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_3_BASE_ADDRESS_LOW_3     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_3_BASE_ADDRESS_LOW_3(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 3 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_3
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_3      VTSS_IOREG(VTSS_TO_TZC_CSS,0x59)
+
+/**
+ * \brief
+ * Region 3 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_3 . REGION_BASE_HIGH_3
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_3_REGION_BASE_HIGH_3(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_3_REGION_BASE_HIGH_3     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_3_REGION_BASE_HIGH_3(x)  (x)
+
+
+/**
+ * \brief Region 3 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_3
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_3        VTSS_IOREG(VTSS_TO_TZC_CSS,0x5a)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_3 . TOP_ADDRESS_LOW_3
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_3_TOP_ADDRESS_LOW_3(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_3_TOP_ADDRESS_LOW_3     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_3_TOP_ADDRESS_LOW_3(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 3 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_3
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_3       VTSS_IOREG(VTSS_TO_TZC_CSS,0x5b)
+
+/**
+ * \brief
+ * Region 3 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_3 . REGION_TOP_HIGH_3
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_3_REGION_TOP_HIGH_3(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_3_REGION_TOP_HIGH_3     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_3_REGION_TOP_HIGH_3(x)  (x)
+
+
+/**
+ * \brief Region 3 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_3
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_3     VTSS_IOREG(VTSS_TO_TZC_CSS,0x5c)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_3 . REGION_ATTRIBUTES_3_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_3 . REGION_ATTRIBUTES_3_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_3 . REGION_ATTRIBUTES_3_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_3_REGION_ATTRIBUTES_3_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 3 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_3
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_3      VTSS_IOREG(VTSS_TO_TZC_CSS,0x5d)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_3 . REGION_ID_ACCESS_3_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_3 . REGION_ID_ACCESS_3_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_3_REGION_ID_ACCESS_3_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 4 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_4
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_4       VTSS_IOREG(VTSS_TO_TZC_CSS,0x60)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_4 . BASE_ADDRESS_LOW_4
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_4_BASE_ADDRESS_LOW_4(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_4_BASE_ADDRESS_LOW_4     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_4_BASE_ADDRESS_LOW_4(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 4 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_4
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_4      VTSS_IOREG(VTSS_TO_TZC_CSS,0x61)
+
+/**
+ * \brief
+ * Region 4 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_4 . REGION_BASE_HIGH_4
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_4_REGION_BASE_HIGH_4(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_4_REGION_BASE_HIGH_4     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_4_REGION_BASE_HIGH_4(x)  (x)
+
+
+/**
+ * \brief Region 4 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_4
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_4        VTSS_IOREG(VTSS_TO_TZC_CSS,0x62)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_4 . TOP_ADDRESS_LOW_4
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_4_TOP_ADDRESS_LOW_4(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_4_TOP_ADDRESS_LOW_4     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_4_TOP_ADDRESS_LOW_4(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 4 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_4
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_4       VTSS_IOREG(VTSS_TO_TZC_CSS,0x63)
+
+/**
+ * \brief
+ * Region 4 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_4 . REGION_TOP_HIGH_4
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_4_REGION_TOP_HIGH_4(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_4_REGION_TOP_HIGH_4     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_4_REGION_TOP_HIGH_4(x)  (x)
+
+
+/**
+ * \brief Region 4 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_4
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_4     VTSS_IOREG(VTSS_TO_TZC_CSS,0x64)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_4 . REGION_ATTRIBUTES_4_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_4 . REGION_ATTRIBUTES_4_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_4 . REGION_ATTRIBUTES_4_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_4_REGION_ATTRIBUTES_4_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 4 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_4
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_4      VTSS_IOREG(VTSS_TO_TZC_CSS,0x65)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_4 . REGION_ID_ACCESS_4_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_4 . REGION_ID_ACCESS_4_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_4_REGION_ID_ACCESS_4_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 5 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_5
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_5       VTSS_IOREG(VTSS_TO_TZC_CSS,0x68)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_5 . BASE_ADDRESS_LOW_5
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_5_BASE_ADDRESS_LOW_5(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_5_BASE_ADDRESS_LOW_5     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_5_BASE_ADDRESS_LOW_5(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 5 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_5
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_5      VTSS_IOREG(VTSS_TO_TZC_CSS,0x69)
+
+/**
+ * \brief
+ * Region 5 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_5 . REGION_BASE_HIGH_5
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_5_REGION_BASE_HIGH_5(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_5_REGION_BASE_HIGH_5     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_5_REGION_BASE_HIGH_5(x)  (x)
+
+
+/**
+ * \brief Region 5 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_5
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_5        VTSS_IOREG(VTSS_TO_TZC_CSS,0x6a)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_5 . TOP_ADDRESS_LOW_5
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_5_TOP_ADDRESS_LOW_5(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_5_TOP_ADDRESS_LOW_5     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_5_TOP_ADDRESS_LOW_5(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 5 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_5
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_5       VTSS_IOREG(VTSS_TO_TZC_CSS,0x6b)
+
+/**
+ * \brief
+ * Region 5 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_5 . REGION_TOP_HIGH_5
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_5_REGION_TOP_HIGH_5(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_5_REGION_TOP_HIGH_5     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_5_REGION_TOP_HIGH_5(x)  (x)
+
+
+/**
+ * \brief Region 5 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_5
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_5     VTSS_IOREG(VTSS_TO_TZC_CSS,0x6c)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_5 . REGION_ATTRIBUTES_5_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_5 . REGION_ATTRIBUTES_5_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_5 . REGION_ATTRIBUTES_5_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_5_REGION_ATTRIBUTES_5_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 5 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_5
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_5      VTSS_IOREG(VTSS_TO_TZC_CSS,0x6d)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_5 . REGION_ID_ACCESS_5_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_5 . REGION_ID_ACCESS_5_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_5_REGION_ID_ACCESS_5_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 6 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_6
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_6       VTSS_IOREG(VTSS_TO_TZC_CSS,0x70)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_6 . BASE_ADDRESS_LOW_6
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_6_BASE_ADDRESS_LOW_6(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_6_BASE_ADDRESS_LOW_6     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_6_BASE_ADDRESS_LOW_6(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 6 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_6
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_6      VTSS_IOREG(VTSS_TO_TZC_CSS,0x71)
+
+/**
+ * \brief
+ * Region 6 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_6 . REGION_BASE_HIGH_6
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_6_REGION_BASE_HIGH_6(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_6_REGION_BASE_HIGH_6     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_6_REGION_BASE_HIGH_6(x)  (x)
+
+
+/**
+ * \brief Region 6 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_6
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_6        VTSS_IOREG(VTSS_TO_TZC_CSS,0x72)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_6 . TOP_ADDRESS_LOW_6
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_6_TOP_ADDRESS_LOW_6(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_6_TOP_ADDRESS_LOW_6     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_6_TOP_ADDRESS_LOW_6(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 6 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_6
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_6       VTSS_IOREG(VTSS_TO_TZC_CSS,0x73)
+
+/**
+ * \brief
+ * Region 6 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_6 . REGION_TOP_HIGH_6
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_6_REGION_TOP_HIGH_6(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_6_REGION_TOP_HIGH_6     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_6_REGION_TOP_HIGH_6(x)  (x)
+
+
+/**
+ * \brief Region 6 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_6
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_6     VTSS_IOREG(VTSS_TO_TZC_CSS,0x74)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_6 . REGION_ATTRIBUTES_6_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_6 . REGION_ATTRIBUTES_6_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_6 . REGION_ATTRIBUTES_6_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_6_REGION_ATTRIBUTES_6_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 6 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_6
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_6      VTSS_IOREG(VTSS_TO_TZC_CSS,0x75)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_6 . REGION_ID_ACCESS_6_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_6 . REGION_ID_ACCESS_6_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_6_REGION_ID_ACCESS_6_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 7 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_7
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_7       VTSS_IOREG(VTSS_TO_TZC_CSS,0x78)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_7 . BASE_ADDRESS_LOW_7
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_7_BASE_ADDRESS_LOW_7(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_7_BASE_ADDRESS_LOW_7     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_7_BASE_ADDRESS_LOW_7(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 7 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_7
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_7      VTSS_IOREG(VTSS_TO_TZC_CSS,0x79)
+
+/**
+ * \brief
+ * Region 7 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_7 . REGION_BASE_HIGH_7
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_7_REGION_BASE_HIGH_7(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_7_REGION_BASE_HIGH_7     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_7_REGION_BASE_HIGH_7(x)  (x)
+
+
+/**
+ * \brief Region 7 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_7
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_7        VTSS_IOREG(VTSS_TO_TZC_CSS,0x7a)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_7 . TOP_ADDRESS_LOW_7
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_7_TOP_ADDRESS_LOW_7(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_7_TOP_ADDRESS_LOW_7     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_7_TOP_ADDRESS_LOW_7(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 7 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_7
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_7       VTSS_IOREG(VTSS_TO_TZC_CSS,0x7b)
+
+/**
+ * \brief
+ * Region 7 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_7 . REGION_TOP_HIGH_7
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_7_REGION_TOP_HIGH_7(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_7_REGION_TOP_HIGH_7     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_7_REGION_TOP_HIGH_7(x)  (x)
+
+
+/**
+ * \brief Region 7 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_7
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_7     VTSS_IOREG(VTSS_TO_TZC_CSS,0x7c)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_7 . REGION_ATTRIBUTES_7_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_7 . REGION_ATTRIBUTES_7_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_7 . REGION_ATTRIBUTES_7_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_7_REGION_ATTRIBUTES_7_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 7 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_7
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_7      VTSS_IOREG(VTSS_TO_TZC_CSS,0x7d)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_7 . REGION_ID_ACCESS_7_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_7 . REGION_ID_ACCESS_7_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_7_REGION_ID_ACCESS_7_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Region 8 Base Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_LOW_8
+ */
+#define VTSS_TZC_CSS_REGION_BASE_LOW_8       VTSS_IOREG(VTSS_TO_TZC_CSS,0x80)
+
+/**
+ * \brief
+ * Region base address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_LOW_8 . BASE_ADDRESS_LOW_8
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_LOW_8_BASE_ADDRESS_LOW_8(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_BASE_LOW_8_BASE_ADDRESS_LOW_8     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_BASE_LOW_8_BASE_ADDRESS_LOW_8(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 8 Base Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_BASE_HIGH_8
+ */
+#define VTSS_TZC_CSS_REGION_BASE_HIGH_8      VTSS_IOREG(VTSS_TO_TZC_CSS,0x81)
+
+/**
+ * \brief
+ * Region 8 Base Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_BASE_HIGH_8 . REGION_BASE_HIGH_8
+ */
+#define  VTSS_F_TZC_CSS_REGION_BASE_HIGH_8_REGION_BASE_HIGH_8(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_BASE_HIGH_8_REGION_BASE_HIGH_8     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_BASE_HIGH_8_REGION_BASE_HIGH_8(x)  (x)
+
+
+/**
+ * \brief Region 8 Top Address Low Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_LOW_8
+ */
+#define VTSS_TZC_CSS_REGION_TOP_LOW_8        VTSS_IOREG(VTSS_TO_TZC_CSS,0x82)
+
+/**
+ * \brief
+ * Region top address lower 32bits.
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_LOW_8 . TOP_ADDRESS_LOW_8
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_LOW_8_TOP_ADDRESS_LOW_8(x)  VTSS_ENCODE_BITFIELD(x,12,20)
+#define  VTSS_M_TZC_CSS_REGION_TOP_LOW_8_TOP_ADDRESS_LOW_8     VTSS_ENCODE_BITMASK(12,20)
+#define  VTSS_X_TZC_CSS_REGION_TOP_LOW_8_TOP_ADDRESS_LOW_8(x)  VTSS_EXTRACT_BITFIELD(x,12,20)
+
+
+/**
+ * \brief Region 8 Top Address High Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_TOP_HIGH_8
+ */
+#define VTSS_TZC_CSS_REGION_TOP_HIGH_8       VTSS_IOREG(VTSS_TO_TZC_CSS,0x83)
+
+/**
+ * \brief
+ * Region 8 Top Address High Register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_TOP_HIGH_8 . REGION_TOP_HIGH_8
+ */
+#define  VTSS_F_TZC_CSS_REGION_TOP_HIGH_8_REGION_TOP_HIGH_8(x)  (x)
+#define  VTSS_M_TZC_CSS_REGION_TOP_HIGH_8_REGION_TOP_HIGH_8     0xffffffff
+#define  VTSS_X_TZC_CSS_REGION_TOP_HIGH_8_REGION_TOP_HIGH_8(x)  (x)
+
+
+/**
+ * \brief Region 8 Attribute Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ATTRIBUTES_8
+ */
+#define VTSS_TZC_CSS_REGION_ATTRIBUTES_8     VTSS_IOREG(VTSS_TO_TZC_CSS,0x84)
+
+/**
+ * \brief
+ * Region filter enables
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_8 . REGION_ATTRIBUTES_8_FILTER_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_FILTER_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_FILTER_EN  VTSS_BIT(0)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_FILTER_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * \brief
+ * Region secure read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_8 . REGION_ATTRIBUTES_8_S_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_RD_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_RD_EN  VTSS_BIT(30)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
+
+/**
+ * \brief
+ * Region secure write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ATTRIBUTES_8 . REGION_ATTRIBUTES_8_S_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_WR_EN(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_WR_EN  VTSS_BIT(31)
+#define  VTSS_X_TZC_CSS_REGION_ATTRIBUTES_8_REGION_ATTRIBUTES_8_S_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+
+/**
+ * \brief Region 8 ID Access Register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:REGION_ID_ACCESS_8
+ */
+#define VTSS_TZC_CSS_REGION_ID_ACCESS_8      VTSS_IOREG(VTSS_TO_TZC_CSS,0x85)
+
+/**
+ * \brief
+ * Region non-secure access ID read enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_8 . REGION_ID_ACCESS_8_NSAID_RD_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_RD_EN(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_RD_EN     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_RD_EN(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * \brief
+ * Region non-secure access ID write enable
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_REGION_ID_ACCESS_8 . REGION_ID_ACCESS_8_NSAID_WR_EN
+ */
+#define  VTSS_F_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_WR_EN(x)  VTSS_ENCODE_BITFIELD(x,16,16)
+#define  VTSS_M_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_WR_EN     VTSS_ENCODE_BITMASK(16,16)
+#define  VTSS_X_TZC_CSS_REGION_ID_ACCESS_8_REGION_ID_ACCESS_8_NSAID_WR_EN(x)  VTSS_EXTRACT_BITFIELD(x,16,16)
+
+
+/**
+ * \brief Peripheral Identification 4 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID4
+ */
+#define VTSS_TZC_CSS_PID4                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f4)
+
+/**
+ * \brief
+ * JEP106 continuation code
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID4 . JEP106_C_CODE
+ */
+#define  VTSS_F_TZC_CSS_PID4_JEP106_C_CODE(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_TZC_CSS_PID4_JEP106_C_CODE     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_TZC_CSS_PID4_JEP106_C_CODE(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+/**
+ * \brief
+ * Number of 4Kbyte address blocks
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID4 . COUNT_4KB
+ */
+#define  VTSS_F_TZC_CSS_PID4_COUNT_4KB(x)     VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_TZC_CSS_PID4_COUNT_4KB        VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_TZC_CSS_PID4_COUNT_4KB(x)     VTSS_EXTRACT_BITFIELD(x,4,4)
+
+
+/**
+ * \brief Peripheral Identification 5 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID5
+ */
+#define VTSS_TZC_CSS_PID5                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f5)
+
+/**
+ * \brief
+ * Peripheral Identification 5 register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID5 . PID5
+ */
+#define  VTSS_F_TZC_CSS_PID5_PID5(x)          (x)
+#define  VTSS_M_TZC_CSS_PID5_PID5             0xffffffff
+#define  VTSS_X_TZC_CSS_PID5_PID5(x)          (x)
+
+
+/**
+ * \brief Peripheral Identification 6 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID6
+ */
+#define VTSS_TZC_CSS_PID6                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f6)
+
+/**
+ * \brief
+ * Peripheral Identification 6 register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID6 . PID6
+ */
+#define  VTSS_F_TZC_CSS_PID6_PID6(x)          (x)
+#define  VTSS_M_TZC_CSS_PID6_PID6             0xffffffff
+#define  VTSS_X_TZC_CSS_PID6_PID6(x)          (x)
+
+
+/**
+ * \brief Peripheral Identification 7 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID7
+ */
+#define VTSS_TZC_CSS_PID7                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f7)
+
+/**
+ * \brief
+ * Peripheral Identification 7 register
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID7 . PID7
+ */
+#define  VTSS_F_TZC_CSS_PID7_PID7(x)          (x)
+#define  VTSS_M_TZC_CSS_PID7_PID7             0xffffffff
+#define  VTSS_X_TZC_CSS_PID7_PID7(x)          (x)
+
+
+/**
+ * \brief Peripheral Identification 0 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID0
+ */
+#define VTSS_TZC_CSS_PID0                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f8)
+
+/**
+ * \brief
+ * Part number lower 8 bits
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID0 . PID0_PART_NUMBER_0
+ */
+#define  VTSS_F_TZC_CSS_PID0_PID0_PART_NUMBER_0(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_TZC_CSS_PID0_PID0_PART_NUMBER_0     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_TZC_CSS_PID0_PID0_PART_NUMBER_0(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Peripheral Identification 1 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID1
+ */
+#define VTSS_TZC_CSS_PID1                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3f9)
+
+/**
+ * \brief
+ * Part number top 4 bits
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID1 . PID1_PART_NUMBER_0
+ */
+#define  VTSS_F_TZC_CSS_PID1_PID1_PART_NUMBER_0(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_TZC_CSS_PID1_PID1_PART_NUMBER_0     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_TZC_CSS_PID1_PID1_PART_NUMBER_0(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+/**
+ * \brief
+ * JEP106 ARM's identification code bits 3 down to 0
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID1 . JEP106_ID_3_0
+ */
+#define  VTSS_F_TZC_CSS_PID1_JEP106_ID_3_0(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_TZC_CSS_PID1_JEP106_ID_3_0     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_TZC_CSS_PID1_JEP106_ID_3_0(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+
+/**
+ * \brief Peripheral Identification 2 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID2
+ */
+#define VTSS_TZC_CSS_PID2                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3fa)
+
+/**
+ * \brief
+ * JEP106 ARM's identification code bits 6 down to 4
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID2 . JEP106_ID_6_4
+ */
+#define  VTSS_F_TZC_CSS_PID2_JEP106_ID_6_4(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_TZC_CSS_PID2_JEP106_ID_6_4     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_TZC_CSS_PID2_JEP106_ID_6_4(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+/**
+ * \brief
+ * Indicates the use of JEP106 manufacturer's identity code
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID2 . JEDEC_USED
+ */
+#define  VTSS_F_TZC_CSS_PID2_JEDEC_USED(x)    VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_TZC_CSS_PID2_JEDEC_USED       VTSS_BIT(3)
+#define  VTSS_X_TZC_CSS_PID2_JEDEC_USED(x)    VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Revision
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID2 . REVISION
+ */
+#define  VTSS_F_TZC_CSS_PID2_REVISION(x)      VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_TZC_CSS_PID2_REVISION         VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_TZC_CSS_PID2_REVISION(x)      VTSS_EXTRACT_BITFIELD(x,4,4)
+
+
+/**
+ * \brief Peripheral Identification 3 register
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:PID3
+ */
+#define VTSS_TZC_CSS_PID3                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3fb)
+
+/**
+ * \brief
+ * Modification Number
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID3 . MOD_NUMBER
+ */
+#define  VTSS_F_TZC_CSS_PID3_MOD_NUMBER(x)    VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_TZC_CSS_PID3_MOD_NUMBER       VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_TZC_CSS_PID3_MOD_NUMBER(x)    VTSS_EXTRACT_BITFIELD(x,0,4)
+
+/**
+ * \brief
+ * User Modifiable Revision Number
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_PID3 . REVAND
+ */
+#define  VTSS_F_TZC_CSS_PID3_REVAND(x)        VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_TZC_CSS_PID3_REVAND           VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_TZC_CSS_PID3_REVAND(x)        VTSS_EXTRACT_BITFIELD(x,4,4)
+
+
+/**
+ * \brief Component Identification 0
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:CID0
+ */
+#define VTSS_TZC_CSS_CID0                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3fc)
+
+/**
+ * \brief
+ * Conponent identity 0
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_CID0 . COMP_ID_0
+ */
+#define  VTSS_F_TZC_CSS_CID0_COMP_ID_0(x)     VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_TZC_CSS_CID0_COMP_ID_0        VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_TZC_CSS_CID0_COMP_ID_0(x)     VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Component Identification 1
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:CID1
+ */
+#define VTSS_TZC_CSS_CID1                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3fd)
+
+/**
+ * \brief
+ * Conponent identity 1
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_CID1 . COMP_ID_1
+ */
+#define  VTSS_F_TZC_CSS_CID1_COMP_ID_1(x)     VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_TZC_CSS_CID1_COMP_ID_1        VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_TZC_CSS_CID1_COMP_ID_1(x)     VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Component Identification 2
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:CID2
+ */
+#define VTSS_TZC_CSS_CID2                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3fe)
+
+/**
+ * \brief
+ * Conponent identity 2
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_CID2 . COMP_ID_2
+ */
+#define  VTSS_F_TZC_CSS_CID2_COMP_ID_2(x)     VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_TZC_CSS_CID2_COMP_ID_2        VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_TZC_CSS_CID2_COMP_ID_2(x)     VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Component Identification 3
+ *
+ * \details
+ * Register: \a TZC_CSS:APB:CID3
+ */
+#define VTSS_TZC_CSS_CID3                    VTSS_IOREG(VTSS_TO_TZC_CSS,0x3ff)
+
+/**
+ * \brief
+ * Conponent identity 3
+ *
+ * \details
+ * Field: ::VTSS_TZC_CSS_CID3 . COMP_ID_3
+ */
+#define  VTSS_F_TZC_CSS_CID3_COMP_ID_3(x)     VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_TZC_CSS_CID3_COMP_ID_3        VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_TZC_CSS_CID3_COMP_ID_3(x)     VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+#endif /* _VTSS_LAGUNA_REGS_TZC_CSS_H_ */
