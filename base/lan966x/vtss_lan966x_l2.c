@@ -803,7 +803,7 @@ void vtss_lan966x_is1_action_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *
     conf = &sdx->conf;
     psfp = &conf->psfp;
     action->dlb_enable = conf->dlb_enable;
-    action->dlb = conf->dlb_id;
+    action->dlb = sdx->pol_idx;
     if (psfp->filter_enable) {
         filter = &vtss_state->l2.psfp.filter[psfp->filter_id];
         action->sfid_enable = psfp->filter_enable;
