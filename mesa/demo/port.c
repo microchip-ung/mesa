@@ -387,7 +387,8 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
     mepa_status_t        status;
 
     T_N("Enter, port %d", port_no);
-    if (entry->media_type == MSCC_PORT_TYPE_CU) {
+    if (!entry->in_bound_status) {
+        status.link = ps->link;
         if ((rc = meba_phy_status_poll(meba_global_inst, port_no, &status)) == MESA_RC_OK) {
             ps->link = status.link;
             ps->speed = status.speed;
@@ -1427,12 +1428,19 @@ static void port_init(meba_inst_t inst)
                 T_E("meba_phy_reset(%u) failed: %d", port_no, rc);
                 continue;
             }
+            if (entry->meba.mac_if == MESA_PORT_INTERFACE_QXGMII) {
+                entry->in_bound_status = TRUE;
+            } else {
+                entry->in_bound_status = FALSE;
+            }
+
         } else {
             /* Disable Clause 37 per default */
             mesa_port_clause_37_control_t ctrl = {0};
             if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) != MESA_RC_OK) {
                 T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             }
+            entry->in_bound_status = TRUE;
         }
 
         port_setup(port_no, FALSE, TRUE);

@@ -49,6 +49,8 @@ typedef struct {
     meba_sfp_transreceiver_t sfp_type;
     meba_sfp_device_t     *sfp_device;
     meba_sfp_driver_t     sfp_driver;
+    mesa_bool_t           in_bound_status; /* TRUE:  get status from switch.
+                                              FALSE: get status from phy */
 } port_entry_t;
 
 mesa_rc mscc_appl_port_status_get(const mesa_port_no_t  port_no,
