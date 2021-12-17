@@ -70,11 +70,11 @@
 #define FA_RES_CFG_MAX_COLOUR_IDX 323
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
-#define FA_BUFFER_MEMORY      157285 /* (?) */
-#define FA_BUFFER_REFERENCE   2279   /* (?) */
+#define FA_BUFFER_MEMORY      131072 /* bytes (128 kB) */
+#define FA_BUFFER_REFERENCE   712    /* Mem/184 */
 #else
-#define FA_BUFFER_MEMORY      1572855 /* TBD (12Mbit) */
-#define FA_BUFFER_REFERENCE   8548    /* TBD */
+#define FA_BUFFER_MEMORY      2097152 /* bytes (2 MB) */
+#define FA_BUFFER_REFERENCE   11397   /* Mem/184 */
 #endif
 #endif
 
