@@ -504,8 +504,8 @@ static void init_port_jr2(meba_inst_t inst, mesa_port_no_t port_no, meba_port_en
                 entry->map.chip_port       = port_no + 25;
                 entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;
                 entry->map.miim_addr       = port_no;
-                entry->mac_if              = MESA_PORT_INTERFACE_SGMII;
-                entry->cap                 = MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_SERDES_RX_INVERT |MEBA_PORT_CAP_SERDES_TX_INVERT|MEBA_PORT_CAP_NO_FORCE;
+                entry->mac_if              = MESA_PORT_INTERFACE_SGMII_2G5;
+                entry->cap                 = MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_SERDES_RX_INVERT | MEBA_PORT_CAP_SERDES_TX_INVERT;
             } else if ((port_no == 24 || port_no == 25) && jr2_10g_detect(inst)) {
                 /* API Port 26,27 = XAUI chip ports 49,50 - possibly VTSS PHYs */
                 if (board->port_cfg == VTSS_BOARD_CONF_DEFAULT_VENICE_1G_MODE) {
@@ -2537,7 +2537,7 @@ static mesa_rc jr2_status_led_set(meba_inst_t inst,
 {
     mesa_rc rc = MESA_RC_ERROR;
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
-        T_I(inst, "LED:%d, color=%d", type, color);
+        T_D(inst, "LED:%d, color=%d", type, color);
         switch (color) {
             case MEBA_LED_COLOR_OFF:
                 (void) mesa_gpio_write(NULL, 0, STATUSLED_R_GPIO, false);

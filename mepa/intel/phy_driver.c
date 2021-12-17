@@ -240,7 +240,74 @@ static mesa_rc intl_reset(mepa_device_t *dev,
 static mesa_rc intl_conf_set(mepa_device_t *dev,
                              const mepa_conf_t *config)
 {
-    return MEPA_RC_OK;
+    int rc;
+    struct gpy211_device *phy = GPY211_DEVICE(dev);
+
+    phy->link.advertising = 0;
+    if (config->aneg.speed_10m_hdx) {
+        phy->link.advertising |= GPY2XX_ADVERTISED_10baseT_Half;
+    }
+    if (config->aneg.speed_10m_fdx) {
+        phy->link.advertising |= (u64)GPY2XX_ADVERTISED_10baseT_Full;
+    }
+    if (config->aneg.speed_100m_hdx) {
+        phy->link.advertising |= GPY2XX_ADVERTISED_100baseT_Half;
+    }
+    if (config->aneg.speed_100m_fdx) {
+        phy->link.advertising |= GPY2XX_ADVERTISED_100baseT_Full;
+    }
+    if (config->flow_control) {
+        phy->link.advertising |=  GPY2XX_ADVERTISED_Pause;
+        phy->link.advertising |=  GPY2XX_ADVERTISED_Asym_Pause;
+    }
+    if (config->aneg.speed_1g_hdx) {
+        phy->link.advertising |= GPY2XX_ADVERTISED_1000baseT_Half;
+    }
+    if (config->aneg.speed_1g_fdx) {
+        phy->link.advertising |= (u64)GPY2XX_ADVERTISED_1000baseT_Full;
+    }
+    if (config->aneg.speed_2g5_fdx) {
+        phy->link.advertising |= GPY2XX_ADVERTISED_2500baseT_Full;
+        phy->link.advertising |= 1 << 15;
+    }
+
+    switch (config->speed) {
+    case MESA_SPEED_10M:
+        phy->link.speed = SPEED_10;
+        break;
+    case MESA_SPEED_100M:
+        phy->link.speed = SPEED_100;
+        break;
+    case MESA_SPEED_1G:
+        phy->link.speed = SPEED_1000;
+        break;
+    case MESA_SPEED_2500M:
+        phy->link.speed = SPEED_2500;
+        break;
+    case MESA_SPEED_AUTO:
+        /* in auto mode, link.speed is the resolved speed */
+        break;
+    case MESA_SPEED_UNDEFINED:
+    default:
+        T_E("Illegal speed");
+        return MESA_RC_ERROR;
+    }
+
+    if (config->fdx) {
+        phy->link.duplex = DUPLEX_FULL;
+    } else {
+        phy->link.duplex = DUPLEX_HALF;
+    }
+
+    if (config->speed == MESA_SPEED_AUTO) {
+        phy->link.autoneg = 1;
+    } else {
+        phy->link.autoneg = 0;
+    }
+
+    rc = gpy2xx_config_aneg(phy);
+
+    return rc ? MEPA_RC_ERROR : MEPA_RC_OK;
 }
 
 static mesa_rc intl_status_1g_get(mepa_device_t    *dev,
@@ -248,6 +315,69 @@ static mesa_rc intl_status_1g_get(mepa_device_t    *dev,
 {
     return MEPA_RC_OK;
 }
+
+static mepa_rc intl_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_info->cap = 0;
+    phy_info->part_number = dev->drv->id;
+    phy_info->revision = dev->drv->id & 0xF;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc intl_miim_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    return dev->callout->miim_read(dev->callout_ctx, address, value);
+}
+
+static mepa_rc intl_miim_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    return dev->callout->miim_write(dev->callout_ctx, address, value);
+}
+
+static mepa_rc intl_mmd_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+
+    return dev->callout->mmd_read(dev->callout_ctx, page_mmd, addr, value);
+}
+
+static mepa_rc intl_mmd_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+
+    return dev->callout->mmd_write(dev->callout_ctx, page_mmd, addr, value);
+}
+
+static mepa_rc intl_event_enable_set(mepa_device_t *dev, mepa_event_t event,
+                                     mesa_bool_t enable)
+{
+    uint16_t mask = 0;
+
+    if (event == MESA_PHY_LINK_FFAIL_EV) {
+        mask |= 1; // Link down IRQ
+    }
+    return dev->callout->mmd_write(dev->callout_ctx, 0, 25, mask);
+}
+
+static mepa_rc intl_event_poll(mepa_device_t *dev, mepa_event_t *status)
+{
+    uint16_t value;
+
+    dev->callout->mmd_read(dev->callout_ctx, 0, 26, &value);
+    *status = (value & 0x1) ? MESA_PHY_LINK_FFAIL_EV : 0;
+    return MEPA_RC_OK;
+}
+
+static mesa_rc intl_if_set(mepa_device_t *dev,
+                           mesa_port_interface_t mac_if)
+{
+    return MEPA_RC_OK;
+}
+
+
 
 mepa_drivers_t mepa_intel_driver_init()
 {
@@ -268,6 +398,14 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_media_set = NULL;
     intl_drivers[0].mepa_driver_probe = intl_probe;
     intl_drivers[0].mepa_driver_aneg_status_get = intl_status_1g_get;
+    intl_drivers[0].mepa_driver_phy_info_get = intl_info_get,
+    intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
+    intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
+    intl_drivers[0].mepa_driver_clause45_read  = intl_mmd_read,
+    intl_drivers[0].mepa_driver_clause45_write = intl_mmd_write,
+    intl_drivers[0].mepa_driver_event_enable_set = intl_event_enable_set,
+    intl_drivers[0].mepa_driver_event_poll = intl_event_poll,
+    intl_drivers[0].mepa_driver_if_set = intl_if_set,
 
     res.phy_drv = intl_drivers;
     res.count = NR_INTL_PHY;

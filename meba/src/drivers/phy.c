@@ -298,6 +298,9 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     vtss_phy_10g_status_t status_10g;
     meba_port_entry_t     entry;
 
+    // Intel/ML driver uses the old link-status
+    status_mepa.link = status->link;
+
     MESA_RC(mesa_port_conf_get(NULL, port_no, &conf));
     switch (conf.if_type) {
     case MESA_PORT_INTERFACE_SERDES:

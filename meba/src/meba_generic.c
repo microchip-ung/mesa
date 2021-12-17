@@ -323,10 +323,10 @@ void meba_phy_driver_init(meba_inst_t inst)
                                                      &board_conf);
 
             if (inst->phy_devices[port_no]) {
-                T_I(inst, "Phy has been probed on port %d", port_no);
+                T_I(inst, "Phy has been probed on port %d, MAC I/F = %d", port_no, entry.mac_if);
                 rc = mepa_if_set(inst->phy_devices[port_no], entry.mac_if);
-                if (rc != MESA_RC_OK) {
-                    T_E(inst, "Failed to set MAC interface on PHY: %d", port_no);
+                if (rc != MESA_RC_OK && rc != MESA_RC_NOT_IMPLEMENTED) {
+                    T_E(inst, "Failed to set MAC interface on PHY: %d (MAC I/F = %d), rc = %d = 0x%x", port_no, entry.mac_if, rc, rc);
                 }
 
             } else {

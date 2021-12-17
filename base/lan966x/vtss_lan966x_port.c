@@ -872,7 +872,8 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         break;
     case VTSS_SPEED_2500M:
         if (conf->if_type == VTSS_PORT_INTERFACE_SERDES ||
-            conf->if_type == VTSS_PORT_INTERFACE_VAUI) {
+            conf->if_type == VTSS_PORT_INTERFACE_VAUI   ||
+            conf->if_type == VTSS_PORT_INTERFACE_SGMII_2G5) {
             break;
         }
         // Fall through
@@ -894,6 +895,10 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         disable_serdes = 1;
         sgmii = 1;
+        break;
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
+        sgmii = 1;
+        mode = VTSS_SERDES_MODE_2G5;
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         mode = VTSS_SERDES_MODE_QSGMII;
