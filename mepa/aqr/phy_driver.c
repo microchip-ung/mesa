@@ -608,6 +608,14 @@ static mesa_rc aqr_status_1g_get(mepa_device_t     *dev,
     return AQR_2_MESA_RC(aq_rc);
 }
 
+static mepa_rc aqr_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    memset(phy_info, 0, sizeof(*phy_info));
+    phy_info->part_number = dev->drv->id;
+    phy_info->cap = MEPA_CAP_SPEED_MASK_10G;
+    return MEPA_RC_OK;
+}
+
 mepa_drivers_t mepa_aqr_driver_init()
 {
 #define NR_AQR_PHY 11
@@ -626,6 +634,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[0].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[0].mepa_driver_probe = aqr_probe;
     aqr_drivers[0].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[0].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[1].id = 0xB582;
     aqr_drivers[1].mask = 0x0000FFff;
@@ -638,6 +647,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[1].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[1].mepa_driver_probe = aqr_probe;
     aqr_drivers[1].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[1].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[2].id = 0xB581;
     aqr_drivers[2].mask = 0x00000FFff;
@@ -650,6 +660,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[2].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[2].mepa_driver_probe = aqr_probe;
     aqr_drivers[2].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[2].mepa_driver_phy_info_get = aqr_info_get,
 
     // 409
     aqr_drivers[3].id = 0xB692;
@@ -663,6 +674,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[3].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[3].mepa_driver_probe = aqr_probe;
     aqr_drivers[3].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[3].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[4].id = 0xB572;
     aqr_drivers[4].mask = 0x0000FFff;
@@ -675,6 +687,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[4].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[4].mepa_driver_probe = aqr_probe;
     aqr_drivers[4].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[4].mepa_driver_phy_info_get = aqr_info_get,
 
     // 411
     aqr_drivers[5].id = 0xB6E0;
@@ -688,6 +701,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[5].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[5].mepa_driver_probe = aqr_probe;
     aqr_drivers[5].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[5].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[6].id = 0xB700;
     aqr_drivers[6].mask = 0x0000FFff;
@@ -700,6 +714,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[6].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[6].mepa_driver_probe = aqr_probe;
     aqr_drivers[6].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[6].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[7].id = 0xB6E2;
     aqr_drivers[7].mask = 0x0000FFff;
@@ -712,6 +727,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[7].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[7].mepa_driver_probe = aqr_probe;
     aqr_drivers[7].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[7].mepa_driver_phy_info_get = aqr_info_get,
 
     // 412
     aqr_drivers[8].id = 0xB6F0;
@@ -725,6 +741,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[8].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[8].mepa_driver_probe = aqr_probe;
     aqr_drivers[8].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[8].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[9].id = 0xB710;
     aqr_drivers[9].mask = 0x0000FFff;
@@ -737,6 +754,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[9].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[9].mepa_driver_probe = aqr_probe;
     aqr_drivers[9].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[9].mepa_driver_phy_info_get = aqr_info_get,
 
     aqr_drivers[10].id = 0xB6F2;
     aqr_drivers[10].mask = 0x0000FFff;
@@ -749,6 +767,7 @@ mepa_drivers_t mepa_aqr_driver_init()
     aqr_drivers[10].mepa_driver_cable_diag_get = aqr_veriphy_get;
     aqr_drivers[10].mepa_driver_probe = aqr_probe;
     aqr_drivers[10].mepa_driver_aneg_status_get = aqr_status_1g_get;
+    aqr_drivers[10].mepa_driver_phy_info_get = aqr_info_get,
 
     res.phy_drv = aqr_drivers;
     res.count = NR_AQR_PHY;
