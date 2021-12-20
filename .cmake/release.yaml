@@ -135,6 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
+    - MESA-774 # Not resolved yet.
 
   # See the 'del' section above for a description
   #
