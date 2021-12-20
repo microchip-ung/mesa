@@ -145,6 +145,10 @@ def run cmd, flags = []
     pid = nil
     raw = nil
     raw_not_raw_detected = false
+    no_nest = false
+    if flags.include? "no_nest"
+        no_nest = true
+    end
 
     begin
         Open3::popen3(cmd) do |_i, _o, _e, _t|
@@ -160,6 +164,10 @@ def run cmd, flags = []
             chunk_size = 4096
             fds_ = [_o, _e]
 
+            if no_nest
+                xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid}
+            end
+
             while not fds_.empty?
                 fds = select(fds_, nil, nil, nil)
                 ts = Time.now
@@ -167,7 +175,7 @@ def run cmd, flags = []
                 attr = {"pid" => _t.pid, "ts-rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts)}
 
                 # detect raw formating
-                if first_line and fds[0].include? _o
+                if not no_nest and first_line and fds[0].include? _o
                     begin
                         obuf.append _o.readpartial(chunk_size)
                     rescue EOFError
@@ -188,6 +196,11 @@ def run cmd, flags = []
                     end
                 end
 
+                if no_nest
+                    raw_not_raw_detected = true
+                    raw = false
+                end
+
                 # if it starts to chat on stderr, then it is not raw!
                 if fds[0].include? _e and not raw_not_raw_detected
                     raw = false
@@ -196,7 +209,7 @@ def run cmd, flags = []
 
                 # We now know, and we can print the header...
                 if raw_not_raw_detected and first_line
-                    if not raw
+                    if not raw and not no_nest
                         xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid}
                     end
                     first_line = false

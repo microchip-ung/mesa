@@ -1303,6 +1303,12 @@ def git_info cmd, env = nil, default = "UNKNOWN"
     end
 end
 
+$FPGAs = {
+    # To promote a new FPGA such that it can be installed go to soft00 and use
+    # the promote-lan969x-fpga.sh <version> command
+    "9698@6849-Sunrise" => { :v => "H11130BAA", :t => "lan969x-fpga", :n => "lan969-sr", :f => "sunrise_top_"}
+}
+
 def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     # URI:
     #    telnet://  -> if using a terminal server
@@ -1321,6 +1327,21 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
         labels["platform"]  = conf["platform_name"]
     else
         labels["platform"]  = "Name_missing_in_topology_file"
+    end
+
+    fpga_key = "#{conf["dut"]["vsc"].to_i.to_s(16)}@#{conf["dut"]["pcb"]}"
+    if $FPGAs[fpga_key]
+        ver = ""
+        if ENV["FPGA"]
+            ver = ENV["FPGA"]
+        else
+            ver = $FPGAs[fpga_key][:v]
+        end
+
+        type = "#{$FPGAs[fpga_key][:t]}/#{ver}"
+        name = "#{$FPGAs[fpga_key][:n]}-#{ver}"
+        run "mscc-install-pkg -t #{type} #{name}", ["no_nest"]
+        run "et fpga-upload /opt/mscc/#{$FPGAs[fpga_key][:n]}-#{ver}/#{$FPGAs[fpga_key][:f]}#{ver}.bit", ["no_nest"]
     end
 
     hist_name = "#{file_base_name}@#{labels["platform"]}_history"
