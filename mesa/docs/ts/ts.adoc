@@ -387,6 +387,21 @@ If the capability `MESA_CAP_SYNCE` is non-zero, Synchronous Ethernet (ITU-T Rec.
 === Possible frequencies
 The frequency transmitted on the clock interface depends on a configurable divider parameter (`mesa_synce_divider_t`) and the selected interface speed. This is depending on the chip family.
 
+if `MESA_CHIP_FAMILY_LAN966X`::
+Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
++
+[width="50%"]
+[cols="1,1"]
+|===
+
+| Interface speed     | Frequency
+|2.5G                 | 312.5 MHZ
+|  1G (CU)            | 125 MHz
+|  1G                 | 125 MHz
+|===
++
+These frequencies can be divided by output configuration (`mesa_synce_divider_t`).
+
 if `MESA_CHIP_FAMILY_SPARX5`::
 Undivided (`MESA_SYNCE_DIVIDER_1`) clock interface frequencies: +
 +
