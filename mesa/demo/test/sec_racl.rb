@@ -22,7 +22,6 @@ $conf_table =
     [
      {
          idx: 0,
-         rleg: 10,
          vid: 10,
          ip: "1.1.1.1",
          ipv6: "2000::0101:0101",
@@ -30,7 +29,6 @@ $conf_table =
      },
      {
          idx: 1,
-         rleg: 20,
          vid: 20,
          ip: "2.2.2.2",
          ipv6: "2000::0202:0202",
@@ -38,7 +36,6 @@ $conf_table =
      },
      {
          idx: 2, 
-         rleg: 30,
          vid: 30,
          ip: "3.3.3.3",
          ipv6: "2000::0303:0303",
@@ -46,7 +43,6 @@ $conf_table =
      },
      {
          idx: 3,
-         rleg: 40,
          vid: 40,
          ip: "4.4.4.4",
          ipv6: "2000::0404:0404",
@@ -64,8 +60,11 @@ test "conf" do
         $ts.dut.call("mesa_l3_common_set", conf)
     end
 
-    $conf_table.each do |e|
+    # Router Leg IDs are calculated based on number of Router Legs
+    rl_cnt = cap_get("L3_RLEG_CNT") / 4
+    $conf_table.each_with_index do |e, i|
         port = $ts.dut.p[e[:idx]]
+        e[:rleg] = (i * rl_cnt)
         test "port #{port}, vid #{e[:vid]}, dip #{e[:ip]}/#{e[:ipv6]}" do
             conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
             conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
@@ -93,7 +92,7 @@ test "conf" do
             }
             $ts.dut.call("mesa_l3_rleg_add", rl)
             
-            e[:cnt] = $ts.dut.call("mesa_l3_counters_rleg_get", e[:rleg])
+            e[:cnt] = $ts.dut.call("mesa_l3_counters_rleg_get", e[:vid])
 
             ipv4 = ipv4_str2int(e[:ip])
             rt = {
@@ -634,9 +633,9 @@ test_table.each do |t|
 end
 
 $conf_table.each do |e|
-    rleg = e[:rleg]
-    test "rleg #{rleg} counters" do
-        cnt = $ts.dut.call("mesa_l3_counters_rleg_get", rleg)
+    vid = e[:vid]
+    test "VID #{vid} counters" do
+        cnt = $ts.dut.call("mesa_l3_counters_rleg_get", vid)
         exp = e[:cnt]
         msg = "cnt: #{cnt}, exp: #{exp}"
         if (cnt == exp)

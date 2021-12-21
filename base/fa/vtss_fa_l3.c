@@ -92,7 +92,13 @@ static vtss_rc fa_l3_rleg_hw_stat_poll(vtss_state_t *vtss_state,
                                        &prev->ipv4mc_transmitted_octets, &counter->ipv4mc_transmitted_octets));
 
     /* IPv6 counters */
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    rleg += 16;
+#elif defined(VTSS_ARCH_LAN969X)
+    rleg += 128;
+#else
     rleg += 512;
+#endif
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv6uc_received_frames, &counter->ipv6uc_received_frames));
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_BYTES,

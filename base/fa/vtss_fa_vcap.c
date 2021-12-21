@@ -80,8 +80,16 @@ typedef enum {
 #define FA_VCAP_SUPER_CLM_C_ACTION_BASE (FA_VCAP_SUPER_CLM_B_ACTION_BASE + 2*VTSS_CHIP_PORTS_ALL)
 #define FA_VCAP_SUPER_IS2_ACTION_BASE   (FA_VCAP_SUPER_CLM_C_ACTION_BASE + 2*VTSS_CHIP_PORTS_ALL)
 
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define FA_ES2_CNT    4    /* ES2   : 4 entries with 12 subwords */
+#define FA_IP6PFX_CNT 4    /* IP6PFX: 4 entries with 2 subwords */
+#elif defined(VTSS_ARCH_LAN969X)
+#define FA_ES2_CNT    512  /* ES2   : 512 entries with 12 subwords */
+#define FA_IP6PFX_CNT 256  /* IP6PFX: 256 entries with 2 subwords */
+#else
 #define FA_ES2_CNT    1024 /* ES2   : 1024 entries with 12 subwords */
 #define FA_IP6PFX_CNT 512  /* IP6PFX: 512 entries with 2 subwords */
+#endif
 
 static const fa_vcap_props_t fa_vcap_info[] = {
     [FA_VCAP_SUPER] = {
@@ -5193,7 +5201,7 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
             idx = (i == 2 && j == 1 ? FA_VCAP_IS2_KEY_SEL_VD0 :
                    i == 3 && j == 0 ? FA_VCAP_IS2_KEY_SEL_ERLEG : FA_VCAP_IS2_KEY_SEL_IRLEG);
             k = (j == 0 ? &is2_racl : &is2_ipmc);
-            REG_WR(VTSS_ANA_ACL_VCAP_S2_KEY_SEL(70 + idx, i),
+            REG_WR(VTSS_ANA_ACL_VCAP_S2_KEY_SEL(VTSS_CHIP_PORTS_ALL + idx, i),
                    VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_KEY_SEL_ENA(1) |
                    VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IGR_PORT_MASK_SEL(1) |
                    VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP4_MC_KEY_SEL(k->ip4_mc) |
