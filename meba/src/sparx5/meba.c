@@ -1085,21 +1085,23 @@ static void mmd_wrm(uint16_t ctrl, uint16_t miim, uint16_t mmd, uint16_t addr,  
 }
 
 
-#define GPY_LED_OFF                0xf000
+#define GPY_LED_OFF                0xfd00
+#define GPY_LED_OFF_MASK           0xff00
 #define GPY_LED_1G_LINK_ON         0xf001 // Left green
 #define GPY_LED_100M_LINK_ON       0xf004 // right green
-#define GPY_LED_100M_1G_LINK_MASK  0xff05
-#define GPY_LED_2G5_LINK_ON        0xf002 // right orange
+#define GPY_LED_2G5_LINK_ON        0xfD02 // right orange
 #define GPY_LED_2G5_LINK_MASK      0xff02
 #define GPY_LED_CONTROL            0,27   // LED control register mmd,addr
+#define GPY_LED_DEFAULT            0xfd00
+#define GPY_LED_DEFAULT_MASK       0xff00
 
 /*
-   PHYLED0: Left Green     1G speed
-   PHYLED1: Right Orange   2G5 speed
-   PHYLED2: Right Green    10m/100M speed
+   PHYLED0: Left Green     10m/100M speed : Default phy control incl. blinking when traffic
+   PHYLED1: Right Orange   2G5 speed      : Manual control, no blinking
+   PHYLED2: Right Green    1G speed       : Default phy control incl. blinking when traffic
 
    Note: Due to board layout issue PHYLED1 (orange) is controlled from the neighbour phy (miim addr +/-1).
-         The LED control is manual and traffic blinking is not a part of this
+         The LED control is manual and traffic blinking is off
 */
 
 static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
@@ -1108,6 +1110,7 @@ static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const me
     meba_port_entry_t  *entry = &board->port[port_no].map;
     uint16_t           phyled_0_2_value = GPY_LED_OFF, neighbor_addr;
     uint16_t           phyled_1_value = GPY_LED_OFF;
+    uint16_t           phyled_0_2_mask = 0;
 
     if (entry->map.chip_port < 56 || entry->map.chip_port > 59) {
         return; /* Not GPY phy connected ports */
@@ -1117,15 +1120,14 @@ static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const me
         switch (status->speed) {
         case MESA_SPEED_10M:
         case MESA_SPEED_100M:
-            phyled_0_2_value = GPY_LED_100M_LINK_ON;
-            phyled_1_value   = GPY_LED_OFF;
-            break;
         case MESA_SPEED_1G:
-            phyled_0_2_value = GPY_LED_1G_LINK_ON;
+            phyled_0_2_value = GPY_LED_DEFAULT;
+            phyled_0_2_mask  = GPY_LED_DEFAULT_MASK;
             phyled_1_value   = GPY_LED_OFF;
             break;
         case MESA_SPEED_2500M:
             phyled_0_2_value = GPY_LED_OFF;
+            phyled_0_2_mask  = GPY_LED_OFF_MASK;
             phyled_1_value   = GPY_LED_2G5_LINK_ON;
             break;
         default:
@@ -1133,7 +1135,7 @@ static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const me
         }
     }
     /* Update 10/100/1G LEDs */
-    mmd_wrm(entry->map.miim_controller, entry->map.miim_addr, GPY_LED_CONTROL, phyled_0_2_value, GPY_LED_100M_1G_LINK_MASK);
+    mmd_wrm(entry->map.miim_controller, entry->map.miim_addr, GPY_LED_CONTROL, phyled_0_2_value, phyled_0_2_mask);
 
     if (entry->map.miim_addr == 0 || entry->map.miim_addr == 2) {
         neighbor_addr = entry->map.miim_addr + 1;
