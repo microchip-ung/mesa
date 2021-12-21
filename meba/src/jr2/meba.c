@@ -31,6 +31,8 @@
 
 #define PHY_ID_GPY241 0xDC00
 
+#define VTSS_MSLEEP(m) usleep((m) * 1000)
+
 /* JR2 Ref board port configurations  */
 typedef enum {
     VTSS_BOARD_CONF_20x1G_4x2G5_4xSFI_NPI,
@@ -906,8 +908,9 @@ static void jr2_init_cu48(meba_inst_t inst)
 
 static void jr2_init_sfp24(meba_inst_t inst)
 {
-    mesa_sgpio_conf_t conf;
-    uint32_t port, gpio_no;
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_sgpio_conf_t  conf;
+    uint32_t           port, gpio_no;
 
     // Configure GPIOs for MIIM/MDIO
     for (gpio_no = 56; gpio_no < 58; gpio_no++) {
@@ -1016,6 +1019,11 @@ static void jr2_init_sfp24(meba_inst_t inst)
         conf.port_conf[26].mode[0] = MESA_SGPIO_MODE_ON; // X2 B
 
         (void)mesa_sgpio_conf_set(NULL, 0, 2, &conf);
+    }
+
+    if (board->gpy241_sb_present) {
+        // It takes a while for the Intel/MaxLinear PHYs to get out of reset.
+        VTSS_MSLEEP(1000);
     }
 }
 
@@ -1689,7 +1697,6 @@ static mesa_rc jr2_port_entry_get(meba_inst_t inst,
 //    ready for operation.
 //
 // Refer to DS-N2104_AQR407H_Data_Sheet_v0.6
-#define VTSS_MSLEEP(m) usleep((m) * 1000)
 static void jr2_hard_reset_wait_aqr(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
