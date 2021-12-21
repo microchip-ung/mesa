@@ -1076,6 +1076,74 @@ static mesa_rc fa_status_led_set(meba_inst_t inst,
     return rc;
 }
 
+static void mmd_wrm(uint16_t ctrl, uint16_t miim, uint16_t mmd, uint16_t addr,  uint16_t value, uint16_t mask)
+{
+    uint16_t val;
+    mesa_mmd_read(NULL, 0, ctrl, miim, mmd, addr, &val);
+    val = ((val & ~mask) | (value & mask));
+    mesa_mmd_write(NULL, 0, ctrl, miim, mmd, addr, val);
+}
+
+
+#define GPY_LED_OFF                0xf000
+#define GPY_LED_1G_LINK_ON         0xf001 // Left green
+#define GPY_LED_100M_LINK_ON       0xf004 // right green
+#define GPY_LED_100M_1G_LINK_MASK  0xff05
+#define GPY_LED_2G5_LINK_ON        0xf002 // right orange
+#define GPY_LED_2G5_LINK_MASK      0xff02
+#define GPY_LED_CONTROL            0,27   // LED control register mmd,addr
+
+/*
+   PHYLED0: Left Green     1G speed
+   PHYLED1: Right Orange   2G5 speed
+   PHYLED2: Right Green    10m/100M speed
+
+   Note: Due to board layout issue PHYLED1 (orange) is controlled from the neighbour phy (miim addr +/-1).
+         The LED control is manual and traffic blinking is not a part of this
+*/
+
+static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    meba_port_entry_t  *entry = &board->port[port_no].map;
+    uint16_t           phyled_0_2_value = GPY_LED_OFF, neighbor_addr;
+    uint16_t           phyled_1_value = GPY_LED_OFF;
+
+    if (entry->map.chip_port < 56 || entry->map.chip_port > 59) {
+        return; /* Not GPY phy connected ports */
+    }
+
+    if (status->link) {
+        switch (status->speed) {
+        case MESA_SPEED_10M:
+        case MESA_SPEED_100M:
+            phyled_0_2_value = GPY_LED_100M_LINK_ON;
+            phyled_1_value   = GPY_LED_OFF;
+            break;
+        case MESA_SPEED_1G:
+            phyled_0_2_value = GPY_LED_1G_LINK_ON;
+            phyled_1_value   = GPY_LED_OFF;
+            break;
+        case MESA_SPEED_2500M:
+            phyled_0_2_value = GPY_LED_OFF;
+            phyled_1_value   = GPY_LED_2G5_LINK_ON;
+            break;
+        default:
+            break;
+        }
+    }
+    /* Update 10/100/1G LEDs */
+    mmd_wrm(entry->map.miim_controller, entry->map.miim_addr, GPY_LED_CONTROL, phyled_0_2_value, GPY_LED_100M_1G_LINK_MASK);
+
+    if (entry->map.miim_addr == 0 || entry->map.miim_addr == 2) {
+        neighbor_addr = entry->map.miim_addr + 1;
+    } else {
+        neighbor_addr = entry->map.miim_addr - 1;
+    }
+    /* Update 2.5G LED from the neighbour phy */
+    mmd_wrm(entry->map.miim_controller, neighbor_addr, GPY_LED_CONTROL, phyled_1_value, GPY_LED_2G5_LINK_MASK);
+}
+
 static void fa_aqr_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
 {
 #define AQR_LED_OFF             0x0000
@@ -1157,6 +1225,12 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
     mesa_sgpio_mode_t  mode_green = MESA_SGPIO_MODE_OFF, mode_yellow = MESA_SGPIO_MODE_OFF, mode_green_tower = MESA_SGPIO_MODE_OFF;
     mesa_sgpio_mode_t  mode_yellow_tower = MESA_SGPIO_MODE_OFF;
 
+    T_N(inst, "port(%d): Link - %d", port_no, status->link);
+
+    if (!port_activity(inst, port_no, status)) {
+        return rc;
+    }
+
     switch (board->type) {
     case BOARD_TYPE_SPARX5_PCB125:
         return MESA_RC_OK;
@@ -1176,6 +1250,9 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
             // If AQR then update AQR LED
             (void)fa_aqr_led_update(inst, port_no, status);
             return MESA_RC_OK;
+        } else if (board->gpy241_present && (board_port >= 48) && (board_port <= 51)) {
+            (void)fa_gpy_led_update(inst, port_no, status);
+            return MESA_RC_OK;
         }
         if (sgpio_port >= 28 && sgpio_port <= 31) {
             // Only LED update for the 4x25G ports
@@ -1192,11 +1269,6 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    T_N(inst, "port(%d): Link - %d", port_no, status->link);
-
-    if (!port_activity(inst, port_no, status)) {
-        return rc;
-    }
     /* If link then auto update LED */
     if (status->link && state->enable) {
         if (status->speed >= MESA_SPEED_1G) {
