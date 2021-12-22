@@ -228,15 +228,23 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     vtss_packet_rx_queue_map_t *map = &conf->map;
     vtss_packet_rx_port_conf_t *port_conf;
     vtss_port_no_t             port_no;
-    u32                        port, i, j, cap_cfg, queue;
+    u32                        port, i, j, cap_cfg, queue, offs;
     BOOL                       cpu_only;
     vtss_fa_l2cp_conf_t        l2cp_conf;
 
     // Each CPU queue gets reserved extraction buffer space. No sharing at port or buffer level
+    offs = 2048; // Egress/destination memory
+    port = VTSS_CHIP_PORT_CPU_1;
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-        REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue), conf->queue[queue].size / FA_BUFFER_CELL_SZ);
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+        i = 15;
+#else
+        i =  conf->queue[queue].size / FA_BUFFER_CELL_SZ;
+#endif
+        REG_WR(VTSS_QRES_RES_CFG(offs + port * VTSS_PRIOS + queue), i);
     }
-    REG_WR(VTSS_QRES_RES_CFG(2048 /* egress */ + FA_RES_CFG_MAX_PORT_IDX /* per-port reservation */ + VTSS_CHIP_PORT_CPU), 0); // No extra shared space at port level
+    // Per-port reservation, no extra shared space
+    REG_WR(VTSS_QRES_RES_CFG(offs + FA_RES_CFG_MAX_PORT_IDX + port), 0);
 
     // Setup Rx registrations that we only have per-switch API support for (not per-port)
     cap_cfg = VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA  (reg->mld_cpu_only)       |
@@ -1055,7 +1063,8 @@ static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t   *const info)
 {
-    u32 qu;
+    u32  qu, i, j, cfg, cur, max;
+
     vtss_fa_debug_reg_header(pr, "FRAME_COPY_CFG");
     for (qu = 0; qu < 12; qu++) {
         if (qu < 8)
@@ -1087,6 +1096,35 @@ static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
         u32 port = VTSS_CHIP_PORT(qu);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ASM_PORT_STICKY(port), port, "PORT_STATUS");
         REG_WR(VTSS_ASM_PORT_STICKY(port), 0xFFFFFFFF);
+    }
+    pr("\n");
+
+    vtss_fa_debug_reg_header(pr, "DEVCPU_QS");
+    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_CFG, "XTR_CFG");
+    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_VTSS_DBG, "INJ_FRM_CNT");
+    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_DATA_PRESENT, "XTR_DATA_PRESENT");
+    for (i = 0; i < 2; i++) {
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_XTR_GRP_CFG(i), i, "XTR_GRP_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_INJ_GRP_CFG(i), i, "INJ_GRP_CFG");
+    }
+    pr("\n");
+
+    vtss_fa_debug_reg_header(pr, "QFWD");
+    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
+        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_SWITCH_PORT_MODE(i), i, "PORT_MODE");
+    }
+    pr("\n");
+
+    pr("IDX   Port/Queue    CFG   CUR   MAX\n");
+    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
+        for (qu = 0; qu < VTSS_PRIOS; qu++) {
+            j = (2048 + i * VTSS_PRIOS + qu);
+            REG_RD(VTSS_QRES_RES_CFG(j), &cfg);
+            REG_RD(VTSS_QRES_RES_STAT_CUR(j), &cur);
+            REG_RD(VTSS_QRES_RES_STAT(j), &max);
+            pr("%-6u%u (CPU_%u_%u)  %-6u%-6u%-6u\n",
+               j, i, i - VTSS_CHIP_PORT_CPU, qu, cfg, cur, max);
+        }
     }
     pr("\n");
 

@@ -164,10 +164,25 @@ test "frame-io" do
     idx_tx = $if_table[0][:port]
     idx_rx = $if_table[1][:port]
     
+    # Reduce table for platforms with few ARP entries
+    arp_cnt = (cap_get("L3_ARP_CNT") / 2)
+    cnt = 0
+    $route_table.each do |rt|
+        new_cnt = (cnt + rt[:cnt])
+        if ((new_cnt + 8) > arp_cnt)
+            rt[:cnt] = 0
+        else
+            cnt = new_cnt
+        end
+    end
+
     # Test once with multiple nexthops, then with single nexthop
     [true, false].each do |add|
         route_conf(add)
         $route_table.each do |rt|
+            if (rt[:cnt] == 0)
+                break
+            end
             for i in 0..7
                 # Incrementing SIP, calculate nexthop (4-bit XOR of SIP)
                 xor = 0

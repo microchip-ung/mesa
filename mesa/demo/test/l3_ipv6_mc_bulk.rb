@@ -34,6 +34,11 @@ $conf_table =
   },
   ]
 
+lpm_cnt = cap_get("L3_LPM_CNT")
+if (lpm_cnt < 100)
+    $conf_table[0][:no_of_mcasts] = (lpm_cnt / 8)
+end
+
 #---------- Configuration -----------------------------------------------------
 $rleg_vid = []
 $mc_conf = []

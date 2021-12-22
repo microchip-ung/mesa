@@ -206,7 +206,7 @@ int cli_parm_port_no(cli_req_t *req)
     int error;
 
     // NB: Port 0 == "PORT_NONE"
-    error = cli_parm_u32(req, &value, 0, mesa_port_cnt(NULL));
+    error = cli_parm_u32(req, &value, 0, cli_port_cnt);
     if (!error) {
         req->port_no = uport2iport(value);
     }
@@ -342,7 +342,7 @@ static int cli_parm_port_list(cli_req_t *req)
 {
     int error;
     
-    error = cli_parse_list(req->cmd, req->port_list, 1, mesa_port_cnt(NULL), 1);
+    error = cli_parse_list(req->cmd, req->port_list, 1, cli_port_cnt, 1);
     cli_remove_unused_ports(req);
     return error;
 }
