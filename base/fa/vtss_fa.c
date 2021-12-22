@@ -691,8 +691,8 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
 {
     vtss_internal_bw_t max_port_bw;
 
-    if (port_no >= VTSS_PORTS) {
-        // Internal ports (and ports outside of port map)
+    if (port_no >= VTSS_CHIP_PORTS) {
+        // Internal ports
         *port = (VTSS_CHIP_PORT_CPU + port_no - VTSS_CHIP_PORTS);
         if (port_no == VTSS_CHIP_PORT_CPU_0 || port_no == VTSS_CHIP_PORT_CPU_1) {
             return FA_CAL_SPEED_2G5; // Equals 1.25G
@@ -715,9 +715,15 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
             // IPinIP gets only idle BW
             return FA_CAL_SPEED_NONE;
         } else {
-            // not in port map
+            // Unknown internal port
             return FA_CAL_SPEED_NONE;
         }
+    }
+
+    if (port_no >= VTSS_PORTS) {
+        // Switch port outside port map
+        *port = CHIP_PORT_UNUSED;
+        return FA_CAL_SPEED_NONE;
     }
 
     // Switch port. Use the port map.
@@ -1010,31 +1016,31 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
 static char *cal2txt(u32 port, fa_cal_speed_t spd) {
     switch (spd) {
     case FA_CAL_SPEED_1G:
-        if (port < 65) {
+        if (port < VTSS_CHIP_PORTS) {
             return "1G";
         } else {
             return "500M";
         }
     case FA_CAL_SPEED_2G5:
-        if (port < 65) {
+        if (port < VTSS_CHIP_PORTS) {
             return "2G5";
         } else {
             return "1.25G";
         }
     case FA_CAL_SPEED_5G:
-        if (port < 65) {
+        if (port < VTSS_CHIP_PORTS) {
             return "5G";
         } else {
             return "2G5";
         }
     case FA_CAL_SPEED_10G:
-        if (port < 65) {
+        if (port < VTSS_CHIP_PORTS) {
             return "10G";
         } else {
             return "5G";
         }
     case FA_CAL_SPEED_25G:
-        if (port < 65) {
+        if (port < VTSS_CHIP_PORTS) {
             return "25G";
         } else {
             return "12.5G";
@@ -1123,7 +1129,7 @@ static vtss_rc fa_dsm_calc_calender(vtss_state_t *vtss_state, u32 taxi, u32 *sch
     // Map ports to taxi positions
     for (u32 i = 0; i < FA_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
         port = taxi_ports[i];
-        if (port < 70) {
+        if (port < VTSS_CHIP_PORTS_ALL) {
             taxi_speeds[i] = port_speeds[port];
         } else {
             taxi_speeds[i] = 0;
@@ -1319,8 +1325,14 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
         if (spd == 0) {
             continue;
         }
-        pr("port:%d gets reserved spd:%s %s\n",port, cal2txt(port, spd), port == 65 ? "(CPU1)" : port == 66 ? "(CPU2)" :
-           port == 67 ? "(IPMC)" : port == 68 ? "(AFI/OAM)" : port == 69 ? "(ipinip" : "");
+        pr("port:%d gets reserved spd:%s %s\n",
+           port,
+           cal2txt(port, spd),
+           port == VTSS_CHIP_PORT_CPU_0 ? "(CPU0)" :
+           port == VTSS_CHIP_PORT_CPU_1 ? "(CPU1)" :
+           port == VTSS_CHIP_PORT_VD0 ? "(IPMC)" :
+           port == VTSS_CHIP_PORT_VD1 ? "(AFI/OAM)" :
+           port == VTSS_CHIP_PORT_VD2 ? "(IPinIP)" : "");
         this_bw = (spd == FA_CAL_SPEED_1G ? 1000 : spd == FA_CAL_SPEED_2G5 ? 2500 :
                    spd == FA_CAL_SPEED_5G ? 5000 : spd == FA_CAL_SPEED_10G ? 10000 : 25000);
         if (port >= VTSS_CHIP_PORTS) {
