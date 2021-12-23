@@ -243,6 +243,14 @@ static mesa_rc intl_conf_set(mepa_device_t *dev,
     int rc;
     struct gpy211_device *phy = GPY211_DEVICE(dev);
 
+    if (!config->admin.enable) {
+        // Force link down by removing all capablities
+        phy->link.autoneg = 1;
+        phy->link.advertising = 0;
+        rc = gpy2xx_config_aneg(phy);
+        return rc ? MEPA_RC_ERROR : MEPA_RC_OK;
+    }
+
     phy->link.advertising = 0;
     if (config->aneg.speed_10m_hdx) {
         phy->link.advertising |= GPY2XX_ADVERTISED_10baseT_Half;
