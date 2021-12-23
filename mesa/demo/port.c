@@ -354,7 +354,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                 // The Phy is configured. When the link comes up the switch gets configured.
                 return;
             }
-            conf.speed = pc->autoneg ? MESA_SPEED_1G : pc->speed;
+            conf.speed = pc->speed;
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
             if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
