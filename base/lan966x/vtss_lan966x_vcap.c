@@ -1757,7 +1757,8 @@ static vtss_rc lan966x_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_po
            ANA_VCAP_S2_CFG_ARP_DIS(key->arp == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
            ANA_VCAP_S2_CFG_IP_TCPUDP_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
            ANA_VCAP_S2_CFG_IP_OTHER_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
-           ANA_VCAP_S2_CFG_IP6_CFG(ipv6));
+           ANA_VCAP_S2_CFG_IP6_CFG(ipv6) |
+           ANA_VCAP_S2_CFG_OAM_DIS(lookup));
 
     REG_WRM(ANA_VCAP_CFG(port),
             ANA_VCAP_CFG_PAG_VAL(enable ? conf->policy_no : 0),
