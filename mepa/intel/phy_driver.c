@@ -377,32 +377,6 @@ static mesa_rc intl_if_set(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc intl_event_enable_set(mepa_device_t *dev, mepa_event_t event,
-                                     mesa_bool_t enable)
-{
-    uint16_t mask = 0;
-
-    if (event == MESA_PHY_LINK_FFAIL_EV) {
-        mask |= 1; // Link down IRQ
-    }
-    return dev->callout->mmd_write(dev->callout_ctx, 0, 25, mask);
-}
-
-static mepa_rc intl_event_poll(mepa_device_t *dev, mepa_event_t *status)
-{
-    uint16_t value;
-
-    dev->callout->mmd_read(dev->callout_ctx, 0, 26, &value);
-    *status = (value & 0x1) ? MESA_PHY_LINK_FFAIL_EV : 0;
-    return MEPA_RC_OK;
-}
-
-static mesa_rc intl_if_set(mepa_device_t *dev,
-                           mesa_port_interface_t mac_if)
-{
-    return MEPA_RC_OK;
-}
-
 
 
 mepa_drivers_t mepa_intel_driver_init()
@@ -425,14 +399,6 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_probe = intl_probe;
     intl_drivers[0].mepa_driver_aneg_status_get = intl_status_1g_get;
     intl_drivers[0].mepa_driver_phy_info_get = intl_info_get,
-    intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
-    intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
-    intl_drivers[0].mepa_driver_clause45_read  = intl_mmd_read,
-    intl_drivers[0].mepa_driver_clause45_write = intl_mmd_write,
-    intl_drivers[0].mepa_driver_event_enable_set = intl_event_enable_set,
-    intl_drivers[0].mepa_driver_event_poll = intl_event_poll,
-    intl_drivers[0].mepa_driver_if_set = intl_if_set,
-
     intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
     intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,
     intl_drivers[0].mepa_driver_clause45_read  = intl_mmd_read,
