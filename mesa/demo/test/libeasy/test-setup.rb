@@ -1330,7 +1330,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     end
 
     fpga_key = "#{conf["dut"]["vsc"].to_i.to_s(16)}@#{conf["dut"]["pcb"]}"
-    if $FPGAs[fpga_key]
+    if false and $FPGAs[fpga_key]
         ver = ""
         if ENV["FPGA"]
             ver = ENV["FPGA"]
