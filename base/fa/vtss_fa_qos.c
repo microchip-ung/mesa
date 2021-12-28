@@ -1327,6 +1327,9 @@ static vtss_rc fa_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vtss
     for (queue = 0; queue < 8; queue++) {
         u32 se = FA_HSCH_L0_SE(chip_port, queue);
         VTSS_RC(vtss_fa_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue], layer, se, chip_port, queue));
+        REG_WRM(VTSS_HSCH_SE_CFG(se),
+                VTSS_F_HSCH_SE_CFG_SE_AVB_ENA(conf->shaper_queue[queue].credit_enable),
+                VTSS_M_HSCH_SE_CFG_SE_AVB_ENA);
     }
 
     VTSS_D("Exit");
