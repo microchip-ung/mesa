@@ -93,7 +93,7 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [220,305,2],   true,              [0,3,7]) # On Caracal some lower priority frames are slipping through
     else
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [150,500,2],  true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
+        measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [150,535,2],  true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
     else
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [210,500,0.3], true,             [0,3,7]) # On LAN966X some lower priority frames are slipping through
