@@ -154,7 +154,7 @@ test "Weighted scheduling with 10, 30 and 60 percent test from #{ig_list} to #{$
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_CARACAL"))
         measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6.8,5.3],   true,              [0,1,2])
     else
-        measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6.4,5.1],   true,              [0,1,2])
+        measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6.5,5.1],   true,              [0,1,2])
     end
     end
 end
