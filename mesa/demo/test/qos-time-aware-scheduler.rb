@@ -525,7 +525,7 @@ def jira_appl_3433_test
 
     t_i ("Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $loop_port0)
-    conf["max_sdu"].each_index {|i| conf["max_sdu"][i] = 10240}
+    conf["max_sdu"].each_index {|i| conf["max_sdu"][i] = 10240}     # Note that the MAXSDU size is very high
     conf["gate_enabled"] = true
     conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
     conf["cycle_time"] = cycle_time
@@ -583,7 +583,7 @@ def jira_appl_3433_test
     if ($ts.dut.pcb == 135)
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [4.1],          true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [4.2],          true,              [2])
     end
 
     t_i ("Stop GCL")
