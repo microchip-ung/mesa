@@ -16,9 +16,29 @@
 
 === General
 
-==== PHY API Restructured
+==== MEPA/MESA Split
 
-In this release, the code has been restructured to allow separate release of the PHY API (MEPA). This following has been done:
+In this release, the PHY support in Unified-API/MESA has been moved to MEPA.
+
+This includes support of the following PHYs:
+
+* Cobra: VSC8211, VSC8221
+* Quatro: VSC8224, VSC8244
+* Nano: VSC8501, VSC8502
+* Tesla: VSC8504, VSC8552, VSC8572, VSC8574
+* Atom12: VSC8512, VSC8522
+* Elise: VSC8514
+* Malibu: VSC8256, VSC8257, VSC8258
+* Venice: VSC8489, VSC8490, VSC8491
+* Viper: VSC8562, VSC8564, VSC8575, VSC8582, VSC8584
+* 8488: VSC8487, VSC8488, VSC8487-15, VSC8488-15
+* Others: VSC8484, VSC8486
+
+In earlier releases, these PHYs were supported by the Switch API. From this
+release and forward these PHYs are supported by the `mepa_drv_vtss` libraries
+(exist in different variants).
+
+The following has been done:
 
 * VSC PHY implementation moved from base/phy to mepa/vtss/src.
 * VSC PHY header files moved from include to mepa/vtss/include.
@@ -35,3 +55,117 @@ For switch applications, it is recommended to control the PHYs using MEBA:
 
 * MEPA drivers are installed using meba_phy_driver_init().
 * PHY control is then done using meba_phy_*() functions.
+
+==== MEPA Free standing functions
+
+In this release, the MEPA function pointers have been replaced by a set of
+free-standing functions (see `mepa/include/microchip/ethernet/phy/api/phy.h`).
+
+In earlier releases, MEPA functionality was defined and used as exemplified
+below:
+
+----
+// Header definition
+typedef mepa_rc (*mepa_driver_conf_set_t)(
+    struct mepa_device *dev, const mepa_driver_conf_t *conf);
+
+typedef struct mepa_driver {
+    ...
+    mepa_driver_conf_set_t             mepa_driver_conf_set;
+    ...
+} mepa_driver_t;
+
+// Calling the function is done like this:
+dev->drv->mepa_driver_conf_set_t(dev, &some_config);
+----
+
+With this change, we now have clean free standing C functions:
+
+----
+// Header definition
+mepa_rc mepa_conf_set(struct mepa_device *dev,
+                      const mepa_driver_conf_t *conf);
+
+// Calling the function is done like this:
+mepa_conf_set(dev, &some_config);
+----
+
+
+==== MEPA Initialization
+
+This release changes how MEPA is initialized. The `mscc_phy_driver_address_t`
+structure has been replaced by `mepa_callout_t`, and a simple `mepa_create`
+function is now used to create MEPA instances.
+
+The conceptual pseudo code below shows how to create MEPA instances:
+
+----
+typedef struct mepa_callout_cxt {
+   // Add application specific stuff needed to reach the PHY registers here.
+} mepa_callout_cxt_t;
+
+// board/bsp specific content goes here
+mepa_rc APPL_mmd_read(struct mepa_callout_cxt *cxt, uint8_t mmd,
+                     uint16_t addr, uint16_t *const value) { return -1; }
+mepa_rc APPL_mmd_read_inc(struct mepa_callout_cxt *cxt, uint8_t mmd, uint16_t addr,
+                         uint16_t *const buf, uint8_t count) { return -1; }
+mepa_rc APPL_mmd_write(struct mepa_callout_cxt *cxt, uint8_t mmd, uint16_t addr,
+                      uint16_t value) { return -1; }
+mepa_rc APPL_miim_read(struct mepa_callout_cxt *cxt, uint8_t addr,
+                      uint16_t *const value) { return -1; }
+mepa_rc APPL_miim_write(struct mepa_callout_cxt *cxt, uint8_t addr,
+                       uint16_t value) { return -1; }
+
+void APPL_trace_func(const mepa_trace_data_t *data, va_list args) {
+   // Do filtering, and optionally add more details.
+   vprintf(data->format, args);
+}
+
+void *APPL_mem_alloc(struct mepa_callout_cxt *cxt, size_t size) { return malloc(size); }
+void APPL_mem_free(struct mepa_callout_cxt *cxt, void *ptr) { free(ptr); }
+
+static mepa_callout_t APPL_mepa_callout = {
+   .mepa_mmd_read = APPL_mmd_read,
+   .mepa_mmd_read_inc = APPL_mmd_read_inc,
+   .mepa_mmd_write = APPL_mmd_write,
+   .mepa_miim_read = APPL_miim_read,
+   .mepa_miim_write = APPL_miim_write,
+   .mepa_mem_alloc = APPL_mem_alloc,
+   .mepa_mem_free = APPL_mem_free,
+
+   // .lock_enter   must be set if used with multi-thread
+   // .lock_exit    must be set if used with multi-thread
+};
+
+static mepa_callout_cxt_t APPL_mepa_callout_cxt[APPL_PORT_CNT];
+static mepa_device *APPL_mepa_devices[APPL_PORT_CNT];
+void mepa_init() {
+   int i;
+
+   MEPA_TRACE_FUNCTION = APPL_trace_func;
+   for (i = 0; i < APPL_PORT_CNT; ++i) {
+       mepa_board_conf conf = {};
+       conf.numeric_handle = i;
+       APPL_fill_port_data(i, &APPL_mepa_callout_cxt[i]);
+       APPL_mepa_devices[i] = mepa_create(&APPL_mepa_callout,
+                                          &APPL_mepa_callout_cxt[i],
+                                          &conf);
+   }
+
+   // optionally link to base port if dealing with dual/quad phy;
+   for (i = 0; i < APPL_PORT_CNT; ++i) {
+       if (APPL_phy_base_dev(i, &APPL_mepa_callout_cxt[i])) {
+           mepa_link_base_port(APPL_mepa_devices[i],
+                               APPL_phy_base_dev(i, &APPL_mepa_callout_cxt[i]),
+                               APPL_phy_pkg_idx(i, &APPL_mepa_callout_cxt[i]));
+       }
+   }
+}
+----
+
+==== MEPA time-stamping (TS) APIs added
+
+This release adds time-stamping support in MEPA. See
+`mepa/include/microchip/ethernet/phy/api/phy_ts.h` for details.
+
+
