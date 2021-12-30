@@ -27,6 +27,10 @@ check_capabilities do
     $cap_tx_ifh_size = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_TX_IFH_SIZE")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     $cap_vop_cfm = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_CFM") != 0) ? true : false
+    $cap_xflow = ($ts.dut.call("mesa_capability", "MESA_CAP_L2_XFLOW") != 0) ? true : false
+    if ($cap_oam_v2 || ($cap_oam_v1 && $cap_vop_cfm))
+        assert($cap_xflow, "VOP V2 and V1 with full CFM need XFLOW")
+        end
     t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v0 #{$cap_oam_v0}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  $cap_vop_cfm #{$cap_vop_cfm}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
 end
 

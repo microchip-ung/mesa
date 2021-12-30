@@ -11,8 +11,11 @@ $ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5). or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x).")
+    assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) ||
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ||
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x)")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     loop_pair_check
     $loop_port0 = $ts.dut.looped_port_list[0]
@@ -27,6 +30,12 @@ $port1 = 2
 $cpu_queue = 7
 $vlan = 100
 $acl_id = 1
+
+$max_diff = 4000
+# This is as long as Laguna is an FPGA with longer forwarding time
+if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+    $max_diff = 7600
+end
 
 def tod_internal_mode_ingress_node_test
     test "tod_internal_mode_ingress_node_test" do
@@ -93,7 +102,7 @@ def tod_internal_mode_ingress_node_test
     # check that the transmitted frame is containing expected TS in reserved fields
     diff = frame_ts - (tod_nano_tx>>16)
     t_i("Difference between frame and TX-FIFO #{diff}")
-    if ((diff < 0) || (diff > 4000))
+    if ((diff < 0) || (diff > $max_diff))
         t_e("SYNC PDU reserved field not as expected.   frame_ts #{frame_ts}   tod_nano_tx #{tod_nano_tx>>16}")
     end
 
@@ -172,11 +181,11 @@ def tod_internal_mode_egress_node_test
 
     t_i("calculate the smallest expected correction value. The tod_nano_tx is not egress time in this node but close")
     smallest_corr_value = (tod_nano_tx >> 16) - ingress_node_tod_nanoseconds
-    diff = (nano_correction >> 16) - smallest_corr_value    # The difference the actual correction value and the calculated smallest value is due to the difference between the frame TX timestamp and the actual node TX timestamap approx 4000 nanoseconds
+    diff = (nano_correction >> 16) - smallest_corr_value    # The difference the actual correction value and the calculated smallest value is due to the difference between the frame TX timestamp and the actual node TX timestamap approx $max_diff nanoseconds
     t_i("Difference between frame and TX-FIFO #{diff}  nano_correction #{nano_correction >> 16}   tod_nano_tx #{tod_nano_tx >> 16}   smallest_corr_value #{smallest_corr_value}")
 
     # check that the transmitted frame is containing expected correction field
-    if ((diff < 0) || (diff > 4000))
+    if ((diff < 0) || (diff > $max_diff))
         t_e("SYNC PDU correction field not as expected.")
     end
 
