@@ -346,6 +346,19 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t           *vtss_state,
     mask = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL_M;
     REG_WRM(MEP_BASIC_CTRL(voe_idx), value, mask);
 
+    switch (conf->tagging) {
+    case VTSS_PORT_MAX_TAGS_NONE:
+        value = ANA_OAM_CFG_OAM_CFG(0x01);
+        break;
+    case VTSS_PORT_MAX_TAGS_ONE:
+        value = ANA_OAM_CFG_OAM_CFG(0x02);
+        break;
+    case VTSS_PORT_MAX_TAGS_TWO:
+        value = ANA_OAM_CFG_OAM_CFG(0x03);
+        break;
+    }
+    REG_WRM(ANA_OAM_CFG(voe_idx), value, ANA_OAM_CFG_OAM_CFG_M);  /* voe_idx is the chip port number */
+
     /* Update the level filtering mask */
     VTSS_RC(level_filtering_conf(vtss_state, voe_idx, conf));
 

@@ -151,6 +151,8 @@ typedef struct {
 
     // Block OAM PDUs with MEG level higher than the VOE MEG level
     mesa_bool_t            block_mel_high  CAP(VOP_V2);
+
+    mesa_port_max_tags_t   tagging  CAP(VOP_TAGGING);  // OAM PDU is behind this many tags
 } mesa_voe_conf_t CAP(VOP);
 
 // Set VOE Basic configuration.

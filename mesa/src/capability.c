@@ -1387,6 +1387,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_VOP_TAGGING:
+#if defined(VTSS_FEATURE_VOP_TAGGING)
+        c = 1;
+#endif
+        break;
+
     case MESA_CAP_VOP_PATH_SERVICE_VOE_CNT:
 #if defined(VTSS_PATH_SERVICE_VOE_CNT)
         c = VTSS_PATH_SERVICE_VOE_CNT;

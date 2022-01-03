@@ -176,6 +176,9 @@ typedef struct {
     // Block OAM PDUs with MEG level higher than the VOE MEG level
     BOOL                   block_mel_high;
 #endif
+#if defined(VTSS_FEATURE_VOP_TAGGING)
+    vtss_port_max_tags_t   tagging;         // OAM PDU is behind this many tags
+#endif
 } vtss_voe_conf_t;
 
 // Set VOE configuration.

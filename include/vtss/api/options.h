@@ -93,6 +93,7 @@
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #define VTSS_FEATURE_RCL                          /**< Real-time Control List */
 #define VTSS_FEATURE_VOP_V1                    /**< Version 1 OAM implementation. Serval-1 platform */
+#define VTSS_FEATURE_VOP_TAGGING                  /**< VOE can handle different tagging by configuration of the VOE residence port */
 #endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \
