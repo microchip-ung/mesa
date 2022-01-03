@@ -149,7 +149,7 @@ test "Weighted scheduling with 10, 30 and 60 percent test from #{ig_list} to #{$
 
        #measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000,       tolerance=1,   with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-        measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [3.4,6.4,3.6], true,              [0,1,2])
+        measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [3.5,6.4,3.6], true,              [0,1,2])
     else
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_CARACAL"))
         measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6.8,5.3],   true,              [0,1,2])
