@@ -328,7 +328,8 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
             IFH_SET(ifh, PDU_TYPE, pdu_type_calc(info->oam_type));
             IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
 
-            if (info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_TST ||
+            if (info->oam_type == VTSS_PACKET_OAM_TYPE_CCM     ||
+                info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_TST ||
                 info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_ITST) {
                 if (info->pdu_offset <= 14) {
                     etype_ofs = 0;
