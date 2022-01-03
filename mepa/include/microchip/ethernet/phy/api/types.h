@@ -326,6 +326,7 @@ typedef struct {
 // PHY type
 typedef enum {
     MEPA_CAP_SPEED_MASK_1G = 0x1,  // PHY supports maximum speed of 1G.
+    MEPA_CAP_SPEED_MASK_2G5 = 0x40,// PHY supports maximum speed of 2G5.
     MEPA_CAP_SPEED_MASK_10G = 0x2, // PHY supports maximum speed of 10G.
     MEPA_CAP_TS_MASK_GEN_1 = 0x4,  // PHY supports timestamping capability of GEN-1 devices such as vsc8574.
     MEPA_CAP_TS_MASK_GEN_2 = 0x8,  // PHY supports timestamping capability of GEN-2 devices such as vsc8584, vsc8490.

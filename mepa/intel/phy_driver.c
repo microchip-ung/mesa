@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2004-2021 Microsemi Corporation "Microsemi".
+ Copyright (c) 2004-2022 Microsemi Corporation "Microsemi".
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@
 
 #define TRUE 1
 #define FALSE 0
+#define PHY_MSLEEP(m) usleep((m)*1000)
 
 #define INTL_PHY_CHIPID 0x67c9dc00
 
@@ -114,10 +115,31 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
     return -1;
 }
 
+static bool intl_mode_is_usxgmii(mepa_device_t *dev)
+{
+    uint16_t reg_val = 0;
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000a, 0x0100);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x001a, 0x0000);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000c, 0xdffc);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000e, 0x05d3);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000c, 0xdc2c);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000e, 0x00d3);
+    PHY_MSLEEP(1);
+    dev->callout->mmd_read(dev->callout_ctx, 0x1e, 0x000a, &reg_val);
+    if (reg_val == 0x400) {
+        return true;
+    }
+    return false;
+}
+
 static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
                            mesa_port_interface_t *mac_if)
 {
-    *mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
+    if (intl_mode_is_usxgmii(dev)) {
+        *mac_if = MESA_PORT_INTERFACE_QXGMII;
+    } else {
+        *mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
+    }
 
     return MEPA_RC_OK;
 }
@@ -329,7 +351,7 @@ static mepa_rc intl_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info
     phy_info->cap = 0;
     phy_info->part_number = dev->drv->id;
     phy_info->revision = dev->drv->id & 0xF;
-    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_2G5;
     return MEPA_RC_OK;
 }
 
