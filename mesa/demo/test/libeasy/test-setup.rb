@@ -1330,7 +1330,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     end
 
     fpga_key = "#{conf["dut"]["vsc"].to_i.to_s(16)}@#{conf["dut"]["pcb"]}"
-    if false and $FPGAs[fpga_key]
+    if $FPGAs[fpga_key]
         ver = ""
         if ENV["FPGA"]
             ver = ENV["FPGA"]
@@ -1341,7 +1341,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
         type = "#{$FPGAs[fpga_key][:t]}/#{ver}"
         name = "#{$FPGAs[fpga_key][:n]}-#{ver}"
         run "mscc-install-pkg -t #{type} #{name}", ["no_nest"]
-        run "et fpga-upload /opt/mscc/#{$FPGAs[fpga_key][:n]}-#{ver}/#{$FPGAs[fpga_key][:f]}#{ver}.bit", ["no_nest"]
+        run "/easytest/easytest/test-setup-server/et fpga-upload /opt/mscc/#{$FPGAs[fpga_key][:n]}-#{ver}/#{$FPGAs[fpga_key][:f]}#{ver}.bit", ["no_nest"]
     end
 
     hist_name = "#{file_base_name}@#{labels["platform"]}_history"
