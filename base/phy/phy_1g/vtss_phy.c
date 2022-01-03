@@ -15962,9 +15962,11 @@ vtss_rc vtss_phy_mac_serdes_ob_cntrl_get(const vtss_inst_t    inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc = VTSS_RC_ERROR;
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
     u8           mcb_bus = 0;
     u8           cfg_buf[MAX_CFG_BUF_SIZE] = {0};
     u8           stat_buf[MAX_STAT_BUF_SIZE] = {0};
+#endif
 
     VTSS_ENTER();
     VTSS_D("Enter vtss_phy_mac_serdes_ob_cntrl_get port_no:%d", port_no);
@@ -16037,9 +16039,11 @@ vtss_rc vtss_phy_serdes_prbs_conf_get (const vtss_inst_t    inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc = VTSS_RC_ERROR;
+#if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
     u8           mcb_bus = 0;
     u8           cfg_buf[MAX_CFG_BUF_SIZE] = {0};
     u8           stat_buf[MAX_STAT_BUF_SIZE] = {0};
+#endif
 
     VTSS_ENTER();
     VTSS_D("Enter vtss_phy_serdes_prbs_conf_get port_no:%d", port_no);
