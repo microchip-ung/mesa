@@ -73,7 +73,7 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_SFI:           return "SFI";
     case MESA_PORT_INTERFACE_SXGMII:        return "SXGMII";
     case MESA_PORT_INTERFACE_USGMII:        return "USGMII";
-    case MESA_PORT_INTERFACE_QXGMII:        return "QXGMII";
+    case MESA_PORT_INTERFACE_QXGMII:        return "USX-QXGMII";
     case MESA_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
     case MESA_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     }
@@ -898,11 +898,19 @@ static void cli_cmd_phy_scan(cli_req_t *req)
 
 static void cli_cmd_phy_id(cli_req_t *req)
 {
+    mesa_port_interface_t mac_if;
     mepa_phy_info_t phy_id;
     mesa_rc rc;
+    char spd[80];
+
+    cli_printf("Port       part-id   Rev    Max speed      Host IF\n");
+    cli_printf("---------------------------------------------------\n");
+
     for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
         if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
-            cli_printf("Port:%d Phy part number:%d/0x%x. Rev:%d. CAP:%x\n", port_no, phy_id.part_number, phy_id.part_number, phy_id.revision, phy_id.cap);
+            meba_phy_if_get(meba_global_inst, port_no, 1, &mac_if);
+            sprintf(spd, "%s", phy_id.cap & MEPA_CAP_SPEED_MASK_2G5 ? "2G5" : phy_id.cap & MEPA_CAP_SPEED_MASK_10G ? "10G" : "1G");
+            cli_printf("%-10d %-10d %-10d %-10s %s\n", port_no, phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
         }
     }
 }
