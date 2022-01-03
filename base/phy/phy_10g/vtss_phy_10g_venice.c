@@ -5743,7 +5743,9 @@ static vtss_rc phy_10g_mode_conf_set(vtss_state_t *vtss_state,
             /* To satisfy LINT */
             break;
     }
-    VTSS_RC(phy_10g_f2df_conf_set(vtss_state, pma_port));
+    if (vtss_state->phy_10g_state[port_no].srefclk.enable) {
+        VTSS_RC(phy_10g_f2df_conf_set(vtss_state, pma_port));
+    }
     if(venice_rev_a(vtss_state, port_no)){
         /* Apply internal ROM settings. This speeds up the configuration.  
            Applicable only to Venice-A,B 
