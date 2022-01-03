@@ -7774,6 +7774,24 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_get(vtss_state_t *vtss_state,
 }
 #endif // VTSS_FEATURE_VCAP
 
+BOOL vtss_vlan_counters_enabled(vtss_state_t *vtss_state)
+{
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    if (!vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+        // VLAN counters are not supported by target
+        return FALSE;
+    }
+#endif
+#if defined(VTSS_FEATURE_VLAN_COUNTERS)
+    if (!vtss_state->init_conf.vlan_counters_disable) {
+        // VLAN counters are supported and enabled
+        return TRUE;
+    }
+#endif
+    // VLAN counters are not supported or disabled
+    return FALSE;
+}
+
 /* - SDX, counters, policers --------------------------------------- */
 #if defined(VTSS_SDX_CNT)
 
@@ -7782,12 +7800,10 @@ vtss_sdx_entry_t *vtss_cmn_sdx_alloc(vtss_state_t *vtss_state, vtss_port_no_t po
     vtss_sdx_entry_t *sdx;
     vtss_sdx_list_t  *list = (isdx ? &vtss_state->l2.sdx_info.isdx : &vtss_state->l2.sdx_info.esdx);
 
-#if defined(VTSS_FEATURE_VLAN_COUNTERS)
-    if (!vtss_state->init_conf.vlan_counters_disable) {
+    if (vtss_vlan_counters_enabled(vtss_state)) {
         VTSS_I("SDX allocation not possible, VLAN counters are used");
         return NULL;
     }
-#endif
 
     if ((sdx = list->free) == NULL) {
         VTSS_I("%sSDX alloc failed, port_no: %u", isdx ? "I" : "E", port_no);

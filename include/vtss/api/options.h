@@ -21,12 +21,6 @@
 
 #if defined(VTSS_CHIP_969X)
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
-/* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
-#define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
-//#define VTSS_FEATURE_SYNCE                      /**< SYNCE - L1 syncronization feature */
-#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
-#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
-#define VTSS_FEATURE_VLAN_COUNTERS                /**< VLAN counters are only supported for SMB devices without OAM */
 #if defined(VTSS_OPT_FPGA)
 #define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
 #endif // VTSS_OPT_FPGA
@@ -247,6 +241,7 @@
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
+/* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 //#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */

@@ -942,6 +942,7 @@ void vtss_port_mask_port(struct vtss_state_s *vtss_state,
                          vtss_port_no_t port_no,
                          vtss_port_mask_t *pmask);
 
+BOOL vtss_vlan_counters_enabled(struct vtss_state_s *vtss_state);
 #if defined(VTSS_SDX_CNT)
 vtss_sdx_entry_t *vtss_cmn_sdx_alloc(struct vtss_state_s *vtss_state, vtss_port_no_t port_no, u16 id, BOOL isdx);
 void vtss_cmn_sdx_free(struct vtss_state_s *vtss_state, vtss_sdx_entry_t *sdx, BOOL isdx);

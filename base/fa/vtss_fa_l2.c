@@ -1934,7 +1934,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     vtss_vlan_port_conf_t *conf = &state->vlan_port_conf[0];
     vtss_port_no_t        port_no;
     u32                   port, msti, i, j, value, frames;
-    BOOL                  vlan_counters = FALSE;
+    BOOL                  vlan_counters = vtss_vlan_counters_enabled(vtss_state);
     BOOL                  psfp_counters = FALSE;
 
     /* Setup number of available PGIDs */
@@ -2025,13 +2025,6 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     }
 #endif
 
-    /* VLAN counters */
-#if defined(VTSS_FEATURE_VLAN_COUNTERS)
-    if (!vtss_state->init_conf.vlan_counters_disable) {
-        vlan_counters = TRUE;
-    }
-#endif /* VTSS_FEATURE_VLAN_COUNTERS */
-
 #if defined(VTSS_FEATURE_PSFP)
     if (vtss_state->vtss_features[FEATURE_PSFP]) {
         /* PSFP CycleTime polling every 10 usec */
@@ -2089,15 +2082,8 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
     vtss_l2_state_t *state = &vtss_state->l2;
     vtss_stat_idx_t stat_idx;
     u32             i, idx;
-    BOOL            vlan_counters_disable = TRUE;
 
-#if defined(VTSS_FEATURE_VLAN_COUNTERS)
-    if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
-        vlan_counters_disable = vtss_state->init_conf.vlan_counters_disable;
-    }
-#endif
-
-    if (vlan_counters_disable) {
+    if (!vtss_vlan_counters_enabled(vtss_state)) {
         /* Poll counters for 30 SDX entries, giving 8192/30 = 273 seconds between each poll.
            This ensures that any counter can wrap only once between each poll.
            The worst case is a 32-bit frame counter on a 10Gbps port, which takes about
@@ -2112,16 +2098,14 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
         }
     } else {
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
-        if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
-            vtss_vlan_counter_info_t *vlan_info = &vtss_state->l2.vlan_counters_info;
+        vtss_vlan_counter_info_t *vlan_info = &vtss_state->l2.vlan_counters_info;
 
-            /* For 100Gbps, 32-bit counter wrap time is about 26 seconds.
-               We poll 200 VLAN counters per second, giving approximately 20 seconds between each poll */
-            for (i = 0; i < 200; i++) {
-                idx = (vlan_info->poll_idx + 1);
-                vlan_info->poll_idx = (idx < (VTSS_VIDS - 1) ? idx : 0);
-                VTSS_RC(fa_vlan_counters_update(vtss_state, idx, NULL, FALSE));
-            }
+        /* For 100Gbps, 32-bit counter wrap time is about 26 seconds.
+           We poll 200 VLAN counters per second, giving approximately 20 seconds between each poll */
+        for (i = 0; i < 200; i++) {
+            idx = (vlan_info->poll_idx + 1);
+            vlan_info->poll_idx = (idx < (VTSS_VIDS - 1) ? idx : 0);
+            VTSS_RC(fa_vlan_counters_update(vtss_state, idx, NULL, FALSE));
         }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
     }
