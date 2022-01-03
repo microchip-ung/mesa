@@ -282,7 +282,7 @@ typedef struct {
 #define VTSS_IPMC_SRC_MAX 256
 #define VTSS_IPMC_DST_MAX 2048
 #else
-#if defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_IPMC_DST_MAX (2*64)  /* Half IS2 rules */
 #elif defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_IPMC_DST_MAX (4*6*64) /* Quarter IS2 rules in VCAP_SUPER */
