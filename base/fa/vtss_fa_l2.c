@@ -2025,7 +2025,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_REW_COMMON_CTRL, VTSS_F_REW_COMMON_CTRL_RTAG_TPID_ENA(1));
 
         /* Set FRER TicksPerSecond to 1000 */
-        i = (1000000000/(8*1024*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
+        i = (1000000000/(8*VTSS_MSTREAM_CNT*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
         REG_WR(VTSS_EACL_FRER_CFG, VTSS_F_EACL_FRER_CFG_WATCHDOG_PRESCALER(i));
     }
 #endif

@@ -2123,6 +2123,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             FA_DEBUG_BITS(CLM, "tcp", NORMAL_TCP);
             FA_DEBUG_BITS(CLM, "l4_sport", NORMAL_L4_SPORT);
             FA_DEBUG_BITS(CLM, "l4_rng", NORMAL_L4_RNG);
+            pr("\n");
             break;
         }
         /* CLM_X6_TYPE_NORMAL_5TUPLE_IP4K */
