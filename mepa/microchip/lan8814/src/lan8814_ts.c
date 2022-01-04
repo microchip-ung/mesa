@@ -798,134 +798,129 @@ static mepa_rc indy_ts_rx_classifier_conf_get (mepa_device_t *dev, uint16_t flow
 
 }
 
-#if 1
-
-#define INDY_EP_RDP(d,p,s,a,v)
-
-#endif
-
-#if 0
-
-#define INDY_EP_RDP(d,p,s,a,v) \
-                indy_ext_reg_rd(d,a,v); \
-                printf("%-10lu %-40s    %d - 0x%-15x 0x%-18x\n",p,s,a,*v) \
-
-#endif
+static void indy_ts_deb_pr_reg (mepa_device_t *dev,
+                                mepa_port_no_t port_no,
+                                const char *str, uint16_t page, uint16_t addr, uint16_t *value)
+{
+    if(MEPA_RC_OK == indy_ext_reg_rd(dev, page, addr, value)) {
+        T_D(MEPA_TRACE_GRP_TS, "%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, port_no, page, addr, *value);
+    }
+}
 
 static mepa_rc indy_ts_classifier_conf_reg_dump(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no;
-    port_no = data->port_no;
+    uint16_t val = 0;
+    mepa_port_no_t port_no = data->port_no;
 
     // Suppress warnings
     if (port_no < 0) {
         return MEPA_RC_OK;
     }
 
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_HI", INDY_PTP_RX_USER_MAC_HI, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_MID", INDY_PTP_RX_USER_MAC_MID, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_MAC_LO", INDY_PTP_RX_USER_MAC_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_MAC_HI", INDY_PTP_RX_USER_MAC_HI, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_MAC_MID", INDY_PTP_RX_USER_MAC_MID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_MAC_LO", INDY_PTP_RX_USER_MAC_LO, &val);
 
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_0", INDY_PTP_RX_USER_IP_ADDR_0, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_1", INDY_PTP_RX_USER_IP_ADDR_1, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_2", INDY_PTP_RX_USER_IP_ADDR_2, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_3", INDY_PTP_RX_USER_IP_ADDR_3, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_4", INDY_PTP_RX_USER_IP_ADDR_4, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_5", INDY_PTP_RX_USER_IP_ADDR_5, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_6", INDY_PTP_RX_USER_IP_ADDR_6, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_7", INDY_PTP_RX_USER_IP_ADDR_7, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_0", INDY_PTP_RX_USER_IP_ADDR_0, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_1", INDY_PTP_RX_USER_IP_ADDR_1, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_2", INDY_PTP_RX_USER_IP_ADDR_2, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_3", INDY_PTP_RX_USER_IP_ADDR_3, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_4", INDY_PTP_RX_USER_IP_ADDR_4, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_5", INDY_PTP_RX_USER_IP_ADDR_5, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_6", INDY_PTP_RX_USER_IP_ADDR_6, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_ADDR_7", INDY_PTP_RX_USER_IP_ADDR_7, &val);
 
     //PTP User IP Mask Registers
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_0", INDY_PTP_RX_USER_IP_MASK_0, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_1", INDY_PTP_RX_USER_IP_MASK_1, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_2", INDY_PTP_RX_USER_IP_MASK_2, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_3", INDY_PTP_RX_USER_IP_MASK_3, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_4", INDY_PTP_RX_USER_IP_MASK_4, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_5", INDY_PTP_RX_USER_IP_MASK_5, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_6", INDY_PTP_RX_USER_IP_MASK_6, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_7", INDY_PTP_RX_USER_IP_MASK_7, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_0", INDY_PTP_RX_USER_IP_MASK_0, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_1", INDY_PTP_RX_USER_IP_MASK_1, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_2", INDY_PTP_RX_USER_IP_MASK_2, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_3", INDY_PTP_RX_USER_IP_MASK_3, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_4", INDY_PTP_RX_USER_IP_MASK_4, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_5", INDY_PTP_RX_USER_IP_MASK_5, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_6", INDY_PTP_RX_USER_IP_MASK_6, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_USER_IP_MASK_7", INDY_PTP_RX_USER_IP_MASK_7, &val);
 
     // VLAN Registers for both ingress and Egress
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_VLAN_TYPE_ID", INDY_PTP_VLAN_ETH_TYPE_ID, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_TYPE_ID", INDY_VLAN1_TYPE_ID, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_ID_MASK", INDY_VLAN1_ID_MASK, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_UP", INDY_VLAN1_VID_RANGE_UP, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN1_VID_RANGE_LO", INDY_VLAN1_VID_RANGE_LO, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_TYPE_ID", INDY_VLAN2_TYPE_ID, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_ID_MASK", INDY_VLAN2_ID_MASK, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_UP", INDY_VLAN2_VID_RANGE_UP, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_VLAN2_VID_RANGE_LO", INDY_VLAN2_VID_RANGE_LO, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_LLC_TYPE_ID", INDY_LLC_TYPE_ID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_VLAN_TYPE_ID", INDY_PTP_VLAN_ETH_TYPE_ID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN1_TYPE_ID", INDY_VLAN1_TYPE_ID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN1_ID_MASK", INDY_VLAN1_ID_MASK, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN1_VID_RANGE_UP", INDY_VLAN1_VID_RANGE_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN1_VID_RANGE_LO", INDY_VLAN1_VID_RANGE_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN2_TYPE_ID", INDY_VLAN2_TYPE_ID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN2_ID_MASK", INDY_VLAN2_ID_MASK, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN2_VID_RANGE_UP", INDY_VLAN2_VID_RANGE_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_VLAN2_VID_RANGE_LO", INDY_VLAN2_VID_RANGE_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_LLC_TYPE_ID", INDY_LLC_TYPE_ID, &val);
 
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_CAP_INFO", INDY_PTP_CAP_INFO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_CAP_INFO", INDY_PTP_CAP_INFO, &val);
     //PTP TX USER MAC ADDRESS
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_HI", INDY_PTP_TX_USER_MAC_HI, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_MID", INDY_PTP_TX_USER_MAC_MID, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_MAC_LO", INDY_PTP_TX_USER_MAC_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_MAC_HI", INDY_PTP_TX_USER_MAC_HI, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_MAC_MID", INDY_PTP_TX_USER_MAC_MID, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_MAC_LO", INDY_PTP_TX_USER_MAC_LO, &val);
     //PTP TX USER IP ADDRESS REGISTERS
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_0", INDY_PTP_TX_USER_IP_ADDR_0, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_1", INDY_PTP_TX_USER_IP_ADDR_1, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_2", INDY_PTP_TX_USER_IP_ADDR_2, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_3", INDY_PTP_TX_USER_IP_ADDR_3, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_4", INDY_PTP_TX_USER_IP_ADDR_4, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_5", INDY_PTP_TX_USER_IP_ADDR_5, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_6", INDY_PTP_TX_USER_IP_ADDR_6, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_7", INDY_PTP_TX_USER_IP_ADDR_7, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_0", INDY_PTP_TX_USER_IP_ADDR_0, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_1", INDY_PTP_TX_USER_IP_ADDR_1, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_2", INDY_PTP_TX_USER_IP_ADDR_2, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_3", INDY_PTP_TX_USER_IP_ADDR_3, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_4", INDY_PTP_TX_USER_IP_ADDR_4, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_5", INDY_PTP_TX_USER_IP_ADDR_5, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_6", INDY_PTP_TX_USER_IP_ADDR_6, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_ADDR_7", INDY_PTP_TX_USER_IP_ADDR_7, &val);
     //PTP TX USER IP MASK REGISTERS
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_0", INDY_PTP_TX_USER_IP_MASK_0, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_1", INDY_PTP_TX_USER_IP_MASK_1, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_2", INDY_PTP_TX_USER_IP_MASK_2, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_3", INDY_PTP_TX_USER_IP_MASK_3, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_4", INDY_PTP_TX_USER_IP_MASK_4, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_5", INDY_PTP_TX_USER_IP_MASK_5, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_6", INDY_PTP_TX_USER_IP_MASK_6, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_7", INDY_PTP_TX_USER_IP_MASK_7, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_0", INDY_PTP_TX_USER_IP_MASK_0, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_1", INDY_PTP_TX_USER_IP_MASK_1, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_2", INDY_PTP_TX_USER_IP_MASK_2, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_3", INDY_PTP_TX_USER_IP_MASK_3, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_4", INDY_PTP_TX_USER_IP_MASK_4, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_5", INDY_PTP_TX_USER_IP_MASK_5, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_6", INDY_PTP_TX_USER_IP_MASK_6, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_USER_IP_MASK_7", INDY_PTP_TX_USER_IP_MASK_7, &val);
     //PTP RX Parsing Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_CONFIG", INDY_PTP_RX_PARSE_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_CONFIG", INDY_PTP_RX_PARSE_CONFIG, &val);
     //PTP RX Parsing VLAN Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_VLAN_CONFIG", INDY_PTP_RX_PARSE_VLAN_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_VLAN_CONFIG", INDY_PTP_RX_PARSE_VLAN_CONFIG, &val);
     //PTP RX Parsing Layer2 Format Address Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_L2_ADDR_EN", INDY_PTP_RX_PARSE_L2_ADDR_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_L2_ADDR_EN", INDY_PTP_RX_PARSE_L2_ADDR_EN, &val);
     //PTP RX Parsing IP Format Address Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_IP_ADDR_EN", INDY_PTP_RX_PARSE_IP_ADDR_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_IP_ADDR_EN", INDY_PTP_RX_PARSE_IP_ADDR_EN, &val);
     //PTP RX Parsing UDP Source Port Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_SRC_PORT", INDY_PTP_RX_PARSE_UDP_SRC_PORT, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_SRC_PORT", INDY_PTP_RX_PARSE_UDP_SRC_PORT, &val);
     //PTP RX Parsing UDP Destination Port Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_DEST_PORT", INDY_PTP_RX_PARSE_UDP_DEST_PORT, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_PARSE_UDP_DEST_PORT", INDY_PTP_RX_PARSE_UDP_DEST_PORT, &val);
     //PTP RX Version Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_VERSION", INDY_PTP_RX_VERSION, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_VERSION", INDY_PTP_RX_VERSION, &val);
     //PTP RX Domain / Domain Range Lower Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_DOMAIN_LO", INDY_PTP_RX_DOMAIN_DOMAIN_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_DOMAIN_DOMAIN_LO", INDY_PTP_RX_DOMAIN_DOMAIN_LO, &val);
     //PTP RX Domain Mask / Domain Range Upper Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_RX_DOMAIN_MASK_DOMAIN_UP, &val);
     //PTP RX SdoId / SdoId Range Lower Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_SDOID_LO", INDY_PTP_RX_SDOID_SDOID_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_SDOID_SDOID_LO", INDY_PTP_RX_SDOID_SDOID_LO, &val);
     //PTP RX SdoId Mask / SdoId Range Upper Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_SDOID_MASK_SDOID_UP", INDY_PTP_RX_SDOID_MASK_SDOID_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_SDOID_MASK_SDOID_UP", INDY_PTP_RX_SDOID_MASK_SDOID_UP, &val);
 
     //PTP TX Parsing Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_CONFIG", INDY_PTP_TX_PARSE_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_CONFIG", INDY_PTP_TX_PARSE_CONFIG, &val);
     //PTP TX Parsing VLAN Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_VLAN_CONFIG", INDY_PTP_TX_PARSE_VLAN_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_VLAN_CONFIG", INDY_PTP_TX_PARSE_VLAN_CONFIG, &val);
     //PTP TX Parsing Layer2 Format Address Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_L2_ADDR_EN", INDY_PTP_TX_PARSE_L2_ADDR_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_L2_ADDR_EN", INDY_PTP_TX_PARSE_L2_ADDR_EN, &val);
     //PTP TX Parsing IP Format Address Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_IP_ADDR_EN", INDY_PTP_TX_PARSE_IP_ADDR_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_IP_ADDR_EN", INDY_PTP_TX_PARSE_IP_ADDR_EN, &val);
     //PTP TX Parsing UDP Source Port Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_SRC_PORT", INDY_PTP_TX_PARSE_UDP_SRC_PORT, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_SRC_PORT", INDY_PTP_TX_PARSE_UDP_SRC_PORT, &val);
     //PTP TX Parsing UDP Destination Port Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_DEST_PORT", INDY_PTP_TX_PARSE_UDP_DEST_PORT, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_PARSE_UDP_DEST_PORT", INDY_PTP_TX_PARSE_UDP_DEST_PORT, &val);
     // PTP TX Version Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_VERSION", INDY_PTP_TX_VERSION, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_VERSION", INDY_PTP_TX_VERSION, &val);
     // PTP TX Domain / Domain Range Lower Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_DOMAIN_LO", INDY_PTP_TX_DOMAIN_DOMAIN_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_DOMAIN_DOMAIN_LO", INDY_PTP_TX_DOMAIN_DOMAIN_LO, &val);
     // PTP TX Domain Mask / Domain Range Upper Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP", INDY_PTP_TX_DOMAIN_MASK_DOMAIN_UP, &val);
     // PTP TX SdoId / SdoId Range Lower Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_SDOID_LO", INDY_PTP_TX_SDOID_SDOID_LO, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_SDOID_SDOID_LO", INDY_PTP_TX_SDOID_SDOID_LO, &val);
     // PTP TX SdoId Mask / SdoId Range Upper Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_SDOID_MASK_SDOID_UP", INDY_PTP_TX_SDOID_MASK_SDOID_UP, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_SDOID_MASK_SDOID_UP", INDY_PTP_TX_SDOID_MASK_SDOID_UP, &val);
 
     //MEPA_EXIT(dev);
     return MEPA_RC_OK;
@@ -934,54 +929,55 @@ static mepa_rc indy_ts_clock_conf_reg_dump(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_port_no_t port_no;
+    uint16_t val = 0;
     port_no = data->port_no;
     // Suppress warnings
     if (port_no < 0) {
         return MEPA_RC_OK;
     }
     // PTP TSU Interrupt Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_EN", INDY_PTP_TSU_INT_EN, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_INT_STS", INDY_PTP_TSU_INT_STS, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TSU_INT_EN", INDY_PTP_TSU_INT_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TSU_INT_STS", INDY_PTP_TSU_INT_STS, &val);
 
     //PTP RX Timestamp Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_EN", INDY_PTP_RX_TIMESTAMP_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_EN", INDY_PTP_RX_TIMESTAMP_EN, &val);
     //PTP RX Timestamp Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_CONFIG", INDY_PTP_RX_TIMESTAMP_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_TIMESTAMP_CONFIG", INDY_PTP_RX_TIMESTAMP_CONFIG, &val);
     //PTP RX Modification Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_MOD", INDY_PTP_RX_MOD, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_MOD", INDY_PTP_RX_MOD, &val);
     //PTP RX Reserved Bytes Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_RSVD_BYTE_CFG", INDY_PTP_RX_RSVD_BYTE_CFG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_RSVD_BYTE_CFG", INDY_PTP_RX_RSVD_BYTE_CFG, &val);
     //PTP RX Tail Tag Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_TAIL_TAG", INDY_PTP_RX_TAIL_TAG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_TAIL_TAG", INDY_PTP_RX_TAIL_TAG, &val);
     //PTP RX Correction Field Modification Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_MOD_EN", INDY_PTP_RX_CF_MOD_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_CF_MOD_EN", INDY_PTP_RX_CF_MOD_EN, &val);
     //PTP RX Correction Field Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_RX_CF_CFG", INDY_PTP_RX_CF_CFG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_RX_CF_CFG", INDY_PTP_RX_CF_CFG, &val);
 
     // PTP TX Timestamp Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_EN", INDY_PTP_TX_TIMESTAMP_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_EN", INDY_PTP_TX_TIMESTAMP_EN, &val);
     // PTP TX Timestamp Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_CONFIG", INDY_PTP_TX_TIMESTAMP_CONFIG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_TIMESTAMP_CONFIG", INDY_PTP_TX_TIMESTAMP_CONFIG, &val);
     // PTP TX Modification Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MOD", INDY_PTP_TX_MOD, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_MOD", INDY_PTP_TX_MOD, &val);
     // PTP TX Reserved Bytes Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_RSVD_BYTE_CFG", INDY_PTP_TX_RSVD_BYTE_CFG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_RSVD_BYTE_CFG", INDY_PTP_TX_RSVD_BYTE_CFG, &val);
     // PTP TX Tail Tag Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_TAIL_TAG", INDY_PTP_TX_TAIL_TAG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_TAIL_TAG", INDY_PTP_TX_TAIL_TAG, &val);
     // PTP TX Correction Field Modification Enable Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_MOD_EN", INDY_PTP_TX_CF_MOD_EN, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_CF_MOD_EN", INDY_PTP_TX_CF_MOD_EN, &val);
     // PTP TX Correction Field Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_CF_CFG", INDY_PTP_TX_CF_CFG, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_CF_CFG", INDY_PTP_TX_CF_CFG, &val);
     // PTP TX Message Header
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER1", INDY_PTP_TX_MSG_HEADER1, &val);
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER2", INDY_PTP_TX_MSG_HEADER2, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER1", INDY_PTP_TX_MSG_HEADER1, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TX_MSG_HEADER2", INDY_PTP_TX_MSG_HEADER2, &val);
 
     // TSU General Configuration Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_GEN_CONF", INDY_PTP_TSU_GEN_CONF, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TSU_GEN_CONF", INDY_PTP_TSU_GEN_CONF, &val);
     // TSU Hard Reset Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_HARD_RESET", INDY_PTP_TSU_HARD_RESET, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TSU_HARD_RESET", INDY_PTP_TSU_HARD_RESET, &val);
     // TSU Soft Reset Register
-    INDY_EP_RDP(dev,  port_no,  "INDY_PTP_TSU_SOFT_RESET", INDY_PTP_TSU_SOFT_RESET, &val);
+    indy_ts_deb_pr_reg(dev,  port_no,  "INDY_PTP_TSU_SOFT_RESET", INDY_PTP_TSU_SOFT_RESET, &val);
     return MEPA_RC_OK;
 }
 static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ts_classifier_ptp_t *ptp_hdr_conf)
