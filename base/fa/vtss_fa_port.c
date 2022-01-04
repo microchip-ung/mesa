@@ -2437,6 +2437,12 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     u32               pause_start = 20;    // Number of cells (chip default)
     u32               pause_stop  = 0xFFF - 1; // Max number of cells - Disables FC (default) (JIRA APPL-2649)
     u32               atop        = VTSS_M_QSYS_ATOP_ATOP;   // Default disabled
+    u32               fc_start    = 6; // start when fc is enabled (frames)
+    u32               fc_stop     = 4; // stop when fc is enabled (frames)
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    fc_start = 5;
+    fc_stop = 3;
+#endif
 
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
@@ -2453,8 +2459,8 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     /* If FC is enabled then set the FC WMs */
     if (pfc || fc_gen || fc_obey) {
         atop        = wm_enc(20 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
-        pause_start = wm_enc(6  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
-        pause_stop  = wm_enc(4  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+        pause_start = wm_enc(fc_start * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+        pause_stop  = wm_enc(fc_stop * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
     }
 
     /* No ingress drops in FC */
