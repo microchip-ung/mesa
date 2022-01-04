@@ -831,8 +831,13 @@ static vtss_rc fa_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_count
                 counters->rx_yellow.bytes = 0;
                 counters->rx_sdu_discard = counters->rx_red.bytes;
                 counters->rx_red.bytes = 0;
+#if defined(VTSS_ARCH_LAN969X)
+                counters->rx_sdu_pass = (counters->rx_match - counters->rx_sdu_discard);
+                counters->rx_gate_pass = (counters->rx_sdu_pass - counters->rx_gate_discard);
+#else
                 counters->rx_gate_pass = (counters->rx_match - counters->rx_gate_discard);
                 counters->rx_sdu_pass = (counters->rx_gate_pass - counters->rx_sdu_discard);
+#endif
             }
         }
 #endif
@@ -2069,6 +2074,11 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
                VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(value));
     }
 
+#if defined(VTSS_ARCH_LAN969X)
+    // Include blocked frames in MaxSDU discard counter
+    REG_WR(VTSS_ANA_AC_TSN_SF_TSN_SF,
+           VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(1));
+#endif
     return VTSS_RC_OK;
 }
 

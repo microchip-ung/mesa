@@ -19,17 +19,23 @@ $istat = 0
 $pol = 0
 $filter_id = 10
 $gate_id = 20
-$is_fireant = false
+$is_fireant_arch = false
+$is_correct_order = true
 $fa_rev0 = false
 
 test "conf" do
-    if (cap_get("PACKET_IFH_EPID") == 11)
-        $is_fireant = true
+    epid = cap_get("PACKET_IFH_EPID")
+    if (epid == 11)
+        $is_fireant_arch = true
+        $is_correct_order = false
         chip_id = $ts.dut.call("mesa_chip_id_get")
         if (chip_id["revision"] == 0)
             # FireAnt revision 0 does not support priority change and discard of small frames
             $fa_rev0 = true
         end
+    elsif (epid == 14)
+        # Laguna
+        $is_fireant_arch = true
     end
 
     # Ingress counters
@@ -177,18 +183,18 @@ test "frame-filter" do
     # Counter check
     cnt = $ts.dut.call("mesa_ingress_cnt_get", $istat, 0)
     cnt_check(cnt, "rx_match", 8)
-    if ($is_fireant)
-        # Order: Gate->Filter->Policer
-        cnt_check(cnt, "rx_gate_discard", 1)
-        cnt_check(cnt, "rx_gate_pass", 7)
-        cnt_check(cnt, "rx_sdu_discard", 2)
-        cnt_check(cnt, "rx_sdu_pass", 5)
-    else
+    if ($is_correct_order)
         # Order: Filter->Gate->Policer
         cnt_check(cnt, "rx_sdu_discard", 4)
         cnt_check(cnt, "rx_sdu_pass", 4)
         cnt_check(cnt, "rx_gate_discard", 1)
         cnt_check(cnt, "rx_gate_pass", 3)
+    else
+        # Order: Gate->Filter->Policer
+        cnt_check(cnt, "rx_gate_discard", 1)
+        cnt_check(cnt, "rx_gate_pass", 7)
+        cnt_check(cnt, "rx_sdu_discard", 2)
+        cnt_check(cnt, "rx_sdu_pass", 5)
     end
 end
 
@@ -296,7 +302,7 @@ test "frame-policer" do
     prio = 0
     len = 1024
     conf = $ts.dut.call("mesa_dlb_policer_conf_get", $pol, 0)
-    if ($is_fireant)
+    if ($is_fireant_arch)
         # FireAnt: Send 10 frames, expect 1-2 frames
         tx_cnt = 10
         rx_min = 1
