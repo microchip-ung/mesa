@@ -1979,6 +1979,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
         c = 1;
 #endif
+        break;
+
+        // FPGA based chip
+    case MESA_CAP_MISC_FPGA:
+#if defined(VTSS_OPT_FPGA)
+        c = 1;
+#endif
+        break;
 
     default:
         {
