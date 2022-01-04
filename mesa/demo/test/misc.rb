@@ -290,3 +290,19 @@ test "dlb-policer" do
     $ts.pc.run("sudo ef name f1 eth et 0xaaaa data pattern cnt #{len - 18} tx #{$ts.pc.p[idx]} rep 10 name f1")
     $ts.dut.run("mesa-cmd port stati pac")
 end
+
+test "acl-etype-counter" do
+    break
+    idx = 0
+    port = $ts.dut.p[idx]
+    ace = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
+    ace["id"] = 1
+    ace["port_list"] = "#{port}"
+    etype = ace["frame"]["etype"]["etype"]
+    etype["value"] = [0x89,0x02]
+    etype["mask"] = [0xff,0xff]
+    $ts.dut.call("mesa_ace_add", 0, ace)
+    run_ef_tx_rx_cmd($ts, idx, [1,2,3], "eth et 0x8902")
+    cnt = $ts.dut.call("mesa_ace_counter_get", ace["id"])
+    check_counter("ace", cnt, 1)
+end
