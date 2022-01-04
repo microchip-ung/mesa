@@ -26,6 +26,8 @@ check_capabilities do
            "Two front ports must be looped")
 end
 
+$cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
+
 def send_and_verify(tx, rx)
     cmd =  "sudo ef name f-#{tx} eth dmac ff:ff:ff:ff:ff:ff smac ::1 "
     cmd += "tx #{$ts.pc.p[tx]} name f-#{tx} "
@@ -74,8 +76,14 @@ test "Test SFP loop" do
         conf = $ts.dut.call "mesa_port_conf_get", $ts.dut.looped_port_list[i]
         if conf["serdes"]["media_type"].include? "DAC"
             dac = 1
-            if conf["speed"].include? "25G" then spds = ["25g","10g","5g","2500","1000fdx"] end
-            if conf["speed"].include? "10G" then spds = ["10g","5g","2500","1000fdx","100fdx"] end
+            if conf["speed"].include? "25G"
+                spds = ["25g","10g","5g","2500","1000fdx"] #100FX not supported on 25G ports
+            else
+                if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && $ts.dut.looped_port_list[i] < 12)
+                    spds = ["10g","5g","2500","1000fdx","100fdx"] # 10G port
+                else
+                    spds = ["10g","5g","2500","1000fdx"] end # 25G port. The DAC does not support 25G and 100FX not supported on 25G ports
+            end
         else
             dac = 0
             if conf["speed"].include? "25G" then spds = ["25g"] end
