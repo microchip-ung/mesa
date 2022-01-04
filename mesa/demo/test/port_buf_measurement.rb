@@ -25,6 +25,10 @@ $frame_size    = 1518
 $num_of_frames = 2000  # Start burst size
 $min_buf_cap   = 20000 # Error if the buffer capacity in bytes is below this number
 
+if $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA") == 1
+    $min_buf_cap = 8000 # Less frame buffer in FPGA
+end
+
 #---------- Configuration -----------------------------------------------------
 console("Adding static entry on the last port, i.e. no need for frame learning")
 entry = {
