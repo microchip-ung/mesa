@@ -1917,7 +1917,12 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
                                  const vtss_debug_info_t  *const info)
 {
     u32 value, q, shr_id, qinf, srcport, dstport, prio, port_no, ports[100] = {0}, killed, qsz;
+#if defined(VTSS_ARCH_LAN969X)
+    const u32 FA_CORE_QUEUE_CNT = 9030;
+#endif
+#if defined(VTSS_ARCH_SPARX5)
     const u32 FA_CORE_QUEUE_CNT = 40460; // 70 ports * 8 prio * 72 scheduling elements + 2 * 70 (superprio)
+#endif
 
 
     pr ("\nQueue limitation check/status\n");
@@ -1939,6 +1944,35 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         REG_WR(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), 0);
     }
 
+    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &value);
+    pr("QLIMIT_SHR_TOP %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &value);
+    pr("QLIMIT_SHR_ATOP %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), &value);
+    pr("QLIMIT_SHR_CTOP %u\n", VTSS_X_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), &value);
+    pr("QLIMIT_SHR_QLIM %u\n", VTSS_X_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(0), &value);
+    pr("QLIMIT_SHR_QDIV %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(value));
+    REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), &value);
+    pr("QLIMIT_QUE_CONG %u\n", VTSS_X_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(value));
+    REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), &value);
+    pr("QLIMIT_SE_CONG %u\n", VTSS_X_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(0), &value);
+    pr("QLIMIT_SHR_QDIVMAX %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(value));
+    REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(0), &value);
+    pr("QLIMIT_SE_EIR %u\n", VTSS_X_XQS_QLIMIT_SE_EIR_CFG_QLIMIT_SE_EIR(value));
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(0), &value);
+    pr("QLIMIT_CONG_CNT %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_STAT_QLIMIT_CONG_CNT(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(0), &value);
+    pr("QLIMIT_SHR_FILL %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_STAT_QLIMIT_SHR_FILL(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(0), &value);
+    pr("QLIMIT_SHR_WM %u\n", VTSS_X_XQS_QLIMIT_SHR_WM_STAT_QLIMIT_SHR_WM(value));
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(0), &value);
+    pr("QLIMIT_CONG_CNT_MAX %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_MAX_STAT_QLIMIT_CONG_CNT_MAX(value));
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(0), &value);
+    pr("QLIMIT_SHR_FILL_MAX %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_MAX_STAT_QLIMIT_SHR_FILL_MAX(value));
+
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         ports[VTSS_CHIP_PORT(port_no)] = 1;
     }
@@ -1948,6 +1982,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
 
     pr ("\nQueues hit by queue limitation:\n");
     for (q = 0; q < FA_CORE_QUEUE_CNT; q++) {
+#if defined(VTSS_ARCH_SPARX5)
         if (q < 0x8c00) { // 70 * 512
             // Src < 64
             srcport = q & 0x3F;
@@ -1959,6 +1994,12 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
             prio = (q >> 3) & 0x7;
             dstport = (q - 0x8c00) >> 6;
         }
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+        srcport = q%32;
+        prio=(q/32)%8;
+        dstport=(q/256);
+#endif
         if (!ports[srcport] || !ports[dstport]) {
             continue;
         }
@@ -1968,7 +2009,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         qsz = VTSS_X_XQS_QUEUE_SIZE_QUEUE_SIZE(qinf);
 
         if (killed || qsz) {
-            pr ("Qu indx:%d Src-chip-port:%d Dst-chip-port:%d prio:%d. Killed:%1u CurSize:%u (%d bytes)\n",
+            pr ("Qu indx:%5d Src-chip-port:%2d Dst-chip-port:%2d prio:%d. Killed:%1u CurSize:%5u (%d bytes)\n",
                 q, srcport, dstport, prio, killed, qsz, qsz * FA_BUFFER_CELL_SZ);
             REG_WR(VTSS_XQS_QUEUE_SIZE(0), 0);
         }
@@ -4641,7 +4682,7 @@ static void fa_debug_qres_print(vtss_state_t *vtss_state, const vtss_debug_print
 {
     char buf[20];
 
-    pr("%4u %-8s %7s %9d %4u %10u\n", idx, fa_qsys_resource_to_str(resource), fa_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
+    pr("%-4u %-8s %7s %9d %4u %10u\n", idx, fa_qsys_resource_to_str(resource), fa_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
 }
 
 vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, BOOL res_stat_cur)

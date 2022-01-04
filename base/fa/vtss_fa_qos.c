@@ -3890,17 +3890,18 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 {
     vtss_port_no_t      port_no, chip_port, tas_port=0;
     u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, tas_list_idx = 0, div = 0, addr, len;
+    u32                 qno, src, prio, dst;
     u64                 min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
     BOOL                show_act, basics_act, ingr_mapping_act, gen_pol_act, service_pol_grp_act, service_pol_set_act, port_pol_act,
                         storm_pol_act, schedul_act, band_act, shape_act, leak_act, wred_act, tag_remark_act, egr_mapping_act, tas_act,
-                        tas_state_act, tas_count_act;
+                        tas_state_act, tas_count_act, print_queue_act;
 
     VTSS_D("has_action %u  action %u", info->has_action, info->action);
 
     show_act = basics_act = ingr_mapping_act = gen_pol_act = service_pol_grp_act = service_pol_set_act = port_pol_act =
     storm_pol_act = schedul_act = tas_act = band_act = shape_act = leak_act = wred_act = tag_remark_act = egr_mapping_act =
-    tas_state_act = tas_count_act = FALSE;
+    tas_state_act = tas_count_act = print_queue_act = FALSE;
 
     if (info->has_action) { /* Action parameter is present */
         show_act =             (info->action == 0)  ? TRUE : FALSE;
@@ -3921,9 +3922,10 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         egr_mapping_act =      (info->action == 15) ? TRUE : FALSE;
         service_pol_grp_act =  (info->action == 16) ? TRUE : FALSE;
         service_pol_set_act =  (info->action == 17) ? TRUE : FALSE;
+        print_queue_act =      (info->action == 18) ? TRUE : FALSE;
     }
 
-    if (info->action > 17) { /* This potentially a Service policing set action or TAS configuration or analyze action */
+    if (info->action > 18) { /* This potentially a Service policing set action or TAS configuration or analyze action */
         for (i = 0, div = 10000; i < 5; ++i, (div = div / 10)) {
             tas_act = ((info->action / div) == 7) ? TRUE : FALSE;
             tas_state_act = ((info->action / div) == 8) ? TRUE : FALSE;
@@ -3970,6 +3972,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("    15:     Print Egress mapping configurations\n");
         pr("    16:     Print Service policing group configurations\n");
         pr("    17XXXX: Print Service policing set XXXX configurations\n");
+        pr("    18:     Print queue information\n");
         pr("\n");
     }
 
@@ -4179,6 +4182,62 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                lb_group_lb_max_rate_calc(max_burst, group->pup_interval),
                min_token, group->pup_interval, group->frame_size, group->lb_set_count, ((group->pup_interval / 4) - 1));
         }
+        pr("\n");
+    }
+
+    if ((!info->has_action && info->full) || print_queue_act) {
+        vtss_debug_print_header(pr, "QoS queue info printing");
+
+        for (qno=0; qno<9030; qno++) {
+            REG_WR(VTSS_XQS_MAP_CFG_CFG, qno);
+            REG_RD(VTSS_XQS_QUEUE_SIZE(0), &value);
+            if (VTSS_X_XQS_QUEUE_SIZE_QUEUE_KILLED(value) ||
+                VTSS_X_XQS_QUEUE_SIZE_QUEUE_SIZE(value) ||
+                VTSS_X_XQS_QUEUE_SIZE_QUEUE_DENY(value)) {
+                src=qno%32;
+                prio=(qno/32)%8;
+                dst=(qno/256);
+                pr("queue %4u  (src=%u, prio=%u, dst=%u)\n", qno, src, prio, dst);
+                if (VTSS_X_XQS_QUEUE_SIZE_QUEUE_KILLED(value)) {
+                    pr("Frame drops seen\n");
+                }
+                if (VTSS_X_XQS_QUEUE_SIZE_QUEUE_DENY(value)) {
+                    pr("Deny queuing seen\n");
+                }
+                if (VTSS_X_XQS_QUEUE_SIZE_QUEUE_SIZE(value)) {
+                    pr("Not empty queue Size %u\n", VTSS_X_XQS_QUEUE_SIZE_QUEUE_SIZE(value));
+                }
+                pr("\n");
+            }
+        }
+        REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &value);
+        pr("QLIMIT_SHR_TOP %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &value);
+        pr("QLIMIT_SHR_ATOP %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), &value);
+        pr("QLIMIT_SHR_CTOP %u\n", VTSS_X_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), &value);
+        pr("QLIMIT_SHR_QLIM %u\n", VTSS_X_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(0), &value);
+        pr("QLIMIT_SHR_QDIV %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(value));
+        REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), &value);
+        pr("QLIMIT_QUE_CONG %u\n", VTSS_X_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(value));
+        REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), &value);
+        pr("QLIMIT_SE_CONG %u\n", VTSS_X_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(0), &value);
+        pr("QLIMIT_SHR_QDIVMAX %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(value));
+        REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(0), &value);
+        pr("QLIMIT_SE_EIR %u\n", VTSS_X_XQS_QLIMIT_SE_EIR_CFG_QLIMIT_SE_EIR(value));
+        REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(0), &value);
+        pr("QLIMIT_CONG_CNT %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_STAT_QLIMIT_CONG_CNT(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(0), &value);
+        pr("QLIMIT_SHR_FILL %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_STAT_QLIMIT_SHR_FILL(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(0), &value);
+        pr("QLIMIT_SHR_WM %u\n", VTSS_X_XQS_QLIMIT_SHR_WM_STAT_QLIMIT_SHR_WM(value));
+        REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(0), &value);
+        pr("QLIMIT_CONG_CNT_MAX %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_MAX_STAT_QLIMIT_CONG_CNT_MAX(value));
+        REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(0), &value);
+        pr("QLIMIT_SHR_FILL_MAX %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_MAX_STAT_QLIMIT_SHR_FILL_MAX(value));
         pr("\n");
     }
 
