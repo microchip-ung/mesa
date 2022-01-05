@@ -41,64 +41,64 @@ test_table =
     [
      {
          txt: "rx pcp to pcp",
-         rx_cfg: {id: 1, key: "PCP", pcp: 7, "pcp" => 5},
+         rx_cfg: {id: 0, key: "PCP", pcp: 7, "pcp" => 5},
          tx_cfg: {},
          tx_frm: {pcp: 7}, # Mapped to PCP = 5
          rx_frm: {pcp: 5}  # Classified value
      },
      {
          txt: "rx pcp to dei",
-         rx_cfg: {id: 2, key: "PCP", pcp: 6, "dei" => 1},
+         rx_cfg: {id: 1, key: "PCP", pcp: 6, "dei" => 1},
          tx_cfg: {},
          tx_frm: {pcp: 6}, # Mapped to DEI = 1
          rx_frm: {dei: 1}  # Classified value
      },
      {
          txt: "rx dscp to dscp",
-         rx_cfg: {id: 3, key: "DSCP", dscp: 39, "dscp" => 40},
+         rx_cfg: {id: 2, key: "DSCP", dscp: 39, "dscp" => 40},
          tx_cfg: {emode: "REMARK"},
          tx_frm: {tpid: 0, dscp: 39}, # Mapped to DSCP = 40
          rx_frm: {dscp: 40}           # Classified value
      },
      {
          txt: "rx pcp to cos",
-         rx_cfg: {id: 4, key: "PCP", pcp: 7, "cos" => 4},
+         rx_cfg: {id: 3, key: "PCP", pcp: 7, "cos" => 4},
          tx_cfg: {mode: "MAPPED"},
          tx_frm: {pcp: 7}, # Mapped to (COS, DPL) = (4, 0)
          rx_frm: {pcp: 4}  # Mapped using port egress mapping
      },
      {
          txt: "rx pcp_dei to dpl",
-         rx_cfg: {id: 5, key: "PCP_DEI", pcp: 4, dei: 0, "dpl" => 1},
+         rx_cfg: {id: 4, key: "PCP_DEI", pcp: 4, dei: 0, "dpl" => 1},
          tx_cfg: {mode: "MAPPED"},
          tx_frm: {pcp: 4, dei: 0}, # Mapped to (COS, DPL) = (0, 1)
          rx_frm: {pcp: 1, dei: 1}  # Mapped using port egress mapping
      },
      {
          txt: "rx pcp to cosid/tx cosid to dscp",
-         rx_cfg: {id: 6, key: "PCP", pcp: 5, "cosid" => 6},
-         tx_cfg: {id: 7, key: "COSID", cosid: 6, "dscp" => 21},
+         rx_cfg: {id: 5, key: "PCP", pcp: 5, "cosid" => 6},
+         tx_cfg: {id: 0, key: "COSID", cosid: 6, "dscp" => 21},
          tx_frm: {pcp: 5, dscp: 0}, # Mapped to COSID = 6
          rx_frm: {dscp: 21}         # Mapped from COSID
      },
      {
          txt: "rx pcp to cosid_dpl/tx cosid_dpl to dscp",
-         rx_cfg: {id: 8, key: "PCP", pcp: 4, "cosid" => 5, "dpl" => 1},
-         tx_cfg: {id: 9, key: "COSID_DPL", cosid: 5, dpl: 1, "dscp" => 22},
+         rx_cfg: {id: 6, key: "PCP", pcp: 4, "cosid" => 5, "dpl" => 1},
+         tx_cfg: {id: 1, key: "COSID_DPL", cosid: 5, dpl: 1, "dscp" => 22},
          tx_frm: {pcp: 4, dscp: 0}, # Mapped to (COSID, DPL) = (5, 1)
          rx_frm: {dscp: 22}         # Mapped from (COSID, DPL)
      },
      {
          txt: "rx dscp to dscp/tx dscp to dscp",
-         rx_cfg: {id: 10, key: "DSCP", dscp: 42, "dscp" => 43, "dpl" => 1},
-         tx_cfg: {id: 11, key: "DSCP", dscp: 43, "dscp" => 44},
+         rx_cfg: {id: 7, key: "DSCP", dscp: 42, "dscp" => 43, "dpl" => 1},
+         tx_cfg: {id: 2, key: "DSCP", dscp: 43, "dscp" => 44},
          tx_frm: {dscp: 42}, # Mapped to DSCP = 43
          rx_frm: {dscp: 44}  # Mapped from DSCP
      },
      {
          txt: "rx pcp to dscp_dpl/tx dscp_dpl to pcp",
-         rx_cfg: {id: 12, key: "PCP", pcp: 4, "dscp" => 45, "dpl" => 3},
-         tx_cfg: {id: 13, key: "DSCP_DPL", dscp: 45, dpl: 3, "pcp" => 5},
+         rx_cfg: {id: 6, key: "PCP", pcp: 4, "dscp" => 45, "dpl" => 3},
+         tx_cfg: {id: 3, key: "DSCP_DPL", dscp: 45, dpl: 3, "pcp" => 5},
          tx_frm: {pcp: 4, dscp: 0}, # Mapped to (DSCP, DPL) = (45, 3)
          rx_frm: {pcp: 5, dscp: 0}  # Mapped from (DSCP, DPL)
      },
@@ -133,9 +133,11 @@ test_table.each do |t|
         $ts.dut.call("mesa_qos_port_conf_set", port, conf)
 
         # Ingress map
+        imap_id = nil
         if (cfg.key?:key)
             map = $ts.dut.call("mesa_qos_ingress_map_init", "MESA_QOS_INGRESS_MAP_KEY_" + cfg[:key])
-            map["id"] = cfg[:id]
+            imap_id = cfg[:id]
+            map["id"] = imap_id
 
             maps = map["maps"]
             case (cfg[:key])
@@ -166,9 +168,11 @@ test_table.each do |t|
         $ts.dut.call("mesa_qos_port_conf_set", port, conf)
 
         # Egress map
+        emap_id = nil
         if (cfg.key?:key)
             map = $ts.dut.call("mesa_qos_egress_map_init", "MESA_QOS_EGRESS_MAP_KEY_" + cfg[:key])
-            map["id"] = cfg[:id]
+            emap_id = cfg[:id]
+            map["id"] = emap_id
 
             maps = map["maps"]
             case (cfg[:key])
@@ -219,6 +223,12 @@ test_table.each do |t|
         cmd += " rx #{$ts.pc.p[$idx_rx]} name f2"
         t_i("Test '#{t[:txt]}'")
         $ts.pc.run(cmd)
+
+        if (imap_id != nil)
+            $ts.dut.call("mesa_qos_ingress_map_del", imap_id)
+        end
+        if (emap_id != nil)
+            $ts.dut.call("mesa_qos_egress_map_del", emap_id)
+        end
     end
 end
-

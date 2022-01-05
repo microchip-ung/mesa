@@ -109,24 +109,24 @@ typedef struct {
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#define VTSS_QOS_INGRESS_MAP_ROWS 512                                     /**< Number of rows in hardware */
+#define VTSS_QOS_INGRESS_MAP_ROWS        (VTSS_QOS_INGRESS_MAP_IDS * 2)   /**< Number of rows in hardware */
+#define VTSS_QOS_INGRESS_ROW_MIN         10                               /**< (DSCP, PCP/DEI) mapping is 10*8 = 80 entries */
+#if (VTSS_QOS_INGRESS_MAP_ROWS > 2*VTSS_QOS_INGRESS_ROW_MIN)
+#define VTSS_QOS_INGRESS_MAP_IX_RESERVED (VTSS_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN) /**< Start of area reserved at the end. Used in move operations */
 #else
-#define VTSS_QOS_INGRESS_MAP_ROWS 256                                     /**< Number of rows in hardware */
-#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) */
-
-#define VTSS_QOS_INGRESS_MAP_IX_RESERVED (VTSS_QOS_INGRESS_MAP_ROWS - 10) /**< Start of area reserved at the end. Used in move operations */
+#define VTSS_QOS_INGRESS_MAP_IX_RESERVED VTSS_QOS_INGRESS_MAP_ROWS // No reserved rows available
+#endif
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#define VTSS_QOS_EGRESS_MAP_ROWS  512                                     /**< Number of rows in hardware */
+#define VTSS_QOS_EGRESS_MAP_ROWS        VTSS_QOS_EGRESS_MAP_IDS           /**< Number of rows in hardware */
+#define VTSS_QOS_EGRESS_ROW_MIN         32                                /**< (DP, DSCP) mapping is 32*8 = 256 entries */
+#if (VTSS_QOS_EGRESS_MAP_ROWS > 2*VTSS_QOS_EGRESS_ROW_MIN)
+#define VTSS_QOS_EGRESS_MAP_IX_RESERVED (VTSS_QOS_EGRESS_MAP_ROWS - VTSS_QOS_EGRESS_ROW_MIN) /**< Start of area reserved at the end. Used in move operations */
 #else
-#define VTSS_QOS_EGRESS_MAP_ROWS  256                                     /**< Number of rows in hardware */
-#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) */
-
-#define VTSS_QOS_EGRESS_MAP_IX_RESERVED (VTSS_QOS_EGRESS_MAP_ROWS - 32)   /**< Start of area reserved at the end. Used in move operations */
+#define VTSS_QOS_EGRESS_MAP_IX_RESERVED VTSS_QOS_EGRESS_MAP_ROWS // No reserved rows available
+#endif
 
 /* Egress map action flags */
 #define VTSS_QOS_EGRESS_MAP_ACTION_PCP     0x01
