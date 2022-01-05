@@ -52,6 +52,7 @@ cmd1 += "rx #{$ts.pc.p[$port_tx4]} name f#{$port_tx3} "
 
 test "Frame forwarding and receiving" do
     $ts.pc.try cmd1
+    $ts.dut.run "mesa-cmd port statis pac"
 end
 
 $ts.dut.run "mesa-cmd port statis clear"
@@ -62,6 +63,7 @@ cmd2 += "tx #{$ts.pc.p[$port_tx4]} rep #{$bulk_frames} name f#{$port_tx4} "
 
 test "Bulk forwarding" do
     $ts.pc.try cmd2
+    $ts.dut.run "mesa-cmd port statis pac"
     $ts.dut.p.each do |port|
         cnt = $ts.dut.call "mesa_port_counters_get", port
         tx_frames = cnt['if_group']['ifOutUcastPkts']
