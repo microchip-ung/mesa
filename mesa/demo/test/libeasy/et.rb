@@ -165,7 +165,7 @@ def run cmd, flags = []
             fds_ = [_o, _e]
 
             if no_nest
-                xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid}
+                xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid, "on" => "LOCAL"}
             end
 
             while not fds_.empty?
@@ -210,7 +210,7 @@ def run cmd, flags = []
                 # We now know, and we can print the header...
                 if raw_not_raw_detected and first_line
                     if not raw and not no_nest
-                        xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid}
+                        xml_tag_start "run", {"cmd" => cmd, "ts" => xml_ts(ts_begin), "pid" => _t.pid, "on" => "LOCAL"}
                     end
                     first_line = false
                 end
