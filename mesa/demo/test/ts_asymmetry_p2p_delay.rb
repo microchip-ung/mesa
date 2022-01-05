@@ -39,6 +39,9 @@ def tod_asymmetry_p2p_delay_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))    #Test on internal Copper PHY
         diff_max = 185
     end
+    if ($ts.dut.pcb == "6849-Sunrise")
+        diff_max = 670
+    end
 
     if ($cap_core_clock != 0)
         misc = $ts.dut.call("mesa_misc_get")
@@ -64,7 +67,7 @@ def tod_asymmetry_p2p_delay_test
         else
             t_i("CF ok")
         end
-    else if (($ts.dut.pcb == "8281-SVB") || ($ts.dut.pcb == "8290"))
+    else if (($ts.dut.pcb == "8281-SVB") || ($ts.dut.pcb == "6849-Sunrise"))
         if ((lowest_corr_none > 6800) || (lowest_corr_none < 0))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else

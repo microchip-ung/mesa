@@ -53,13 +53,23 @@ test "test_run" do
         exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
     end
     if ($pcb == 135)    #Test on Copper PHY
-        if ((lowest_corr_none > 2380) || (lowest_corr_none < 1805))
+        if ((lowest_corr_none > 2700) || (lowest_corr_none < 1830))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        else
+            t_i("CF ok")
         end
-    else
-        if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) != exp_corr))
+    else if (($ts.dut.pcb == "8281-SVB") || ($ts.dut.pcb == "6849-Sunrise"))
+        if ((lowest_corr_none > 6800) || (lowest_corr_none < 0))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
+        else
+            t_i("CF ok")
         end
+    else if ((lowest_corr_none < 0) || ((lowest_corr_none / 1000) > exp_corr))
+            t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}  exp_corr = #{exp_corr}")
+        else
+            t_i("CF ok")
+        end
+    end
     end
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
@@ -69,6 +79,9 @@ test "test_run" do
     end
     if ($pcb == 135)    #Test on Copper PHY
         diff_max = 500
+    end
+    if ($ts.dut.pcb == "6849-Sunrise")
+        diff_max = 930
     end
 
     t_i("Clean up the test by calling the example code command")
