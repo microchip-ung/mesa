@@ -384,7 +384,7 @@ typedef struct {
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x7F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           100
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0x3FFF+1)
@@ -398,6 +398,12 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x1F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           16
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0xFFF+1)
+#endif
+
+#if defined(VTSS_ARCH_LAN969X)
+#define VTSS_TAS_NUMBER_OF_LISTS              (0x3F+1)
+#define VTSS_TAS_NUMBER_OF_PROFILES           60
+#define VTSS_TAS_NUMBER_OF_ENTRIES            (0x1FFF+1)
 #endif
 
 typedef struct {

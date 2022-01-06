@@ -113,6 +113,7 @@ frame_size = 500
 frame_time = ((frame_size + 20) * 8).to_f / 1000000000
 $short_cycle = Array.new(8,0)
 $long_cycle = Array.new(8,0)
+$ok_cycle = Array.new(8,0)
 curr_pcp = 8    # 8 is not a valid PCP
 distance_count = 0
 
@@ -169,10 +170,11 @@ Open3.popen2e("tcpdump -ttttt -en -r #{$pcap_file}") do |stdin, stdout, wait_thr
                                     if (cycle_time < (exp_cycle_f - max_diff)) # Count cycles too short
                                         $short_cycle[pcp_idx] += 1
                                         puts("short  pcp_idx #{pcp_idx}  last_time #{last_time}  cycle_time #{cycle_time}  diff #{exp_cycle_f - cycle_time}  max_diff #{max_diff}  percent #{((exp_cycle_f - cycle_time) / exp_cycle_f) * 100}")
-                                    end
-                                    if (cycle_time > (exp_cycle_f + max_diff)) # Count cycles too long
+                                    elsif (cycle_time > (exp_cycle_f + max_diff)) # Count cycles too long
                                         $long_cycle[pcp_idx] += 1
                                         puts("long  pcp_idx #{pcp_idx}  last_time #{last_time}  cycle_time #{cycle_time}  diff #{cycle_time - exp_cycle_f}  max_diff #{max_diff}  percent #{((cycle_time - exp_cycle_f) / exp_cycle_f) * 100}")
+                                    else
+                                        $ok_cycle[pcp_idx] += 1
                                     end
                                     max_cycle[pcp_idx] = (cycle_time > max_cycle[pcp_idx]) ? cycle_time : max_cycle[pcp_idx]
                                     min_cycle[pcp_idx] = (cycle_time < min_cycle[pcp_idx]) ? cycle_time : min_cycle[pcp_idx]
@@ -259,11 +261,11 @@ if ($options[:frame_count] == :pcp)
                 puts "min #{min}  max #{max}  min_lim #{exp_cycle_f - max_diff}  max_lim #{exp_cycle_f + max_diff}\n\
                       min_percent #{((exp_cycle_f - min) / exp_cycle_f) * 100}  max_percent #{((max - exp_cycle_f) / exp_cycle_f) * 100}"
                 puts "short #{short}  long #{long}  distance_count #{distance_count}  frame_time #{frame_time}"
-                puts "short_cycle #{$short_cycle}  long_cycle #{$long_cycle}"
+                puts "ok_cycle #{$ok_cycle}  short_cycle #{$short_cycle}  long_cycle #{$long_cycle}"
                 exit 7
             end
         end
-        puts "------Expected cycle length measured. short_cycle #{$short_cycle}  long_cycle #{$long_cycle}------"
+        puts "------Expected cycle length measured. distance_count #{distance_count}  ok_cycle #{$ok_cycle}  short_cycle #{$short_cycle}  long_cycle #{$long_cycle}------"
     end
 
     puts "------Analyze succeeded.------"
