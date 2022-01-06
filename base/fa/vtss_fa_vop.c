@@ -1677,6 +1677,10 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     /* All VOEs are disabled in hardware by default - Disable VOP */
     REG_WR(VTSS_VOP_VOP_CTRL, 0);
 
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+        /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */
+    loc_base = 594; /* ns */
+#else
     switch (vtss_state->init_conf.core_clock.freq) {
         case VTSS_CORE_CLOCK_625MHZ:
         case VTSS_CORE_CLOCK_DEFAULT:
@@ -1692,7 +1696,7 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
             loc_base = 200; /* ns */
             break;
     }
-
+#endif
 
     /* Configure LOC periods used for CCM LOC: */
     REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)), (     3333ULL * 1000) / loc_base);

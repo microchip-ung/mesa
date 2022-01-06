@@ -639,7 +639,7 @@ def tx_ifh_create(vid, port = 0, oam_type = "MESA_PACKET_OAM_TYPE_NONE", voi = f
     tx_info["tag"]["vid"] = vid
     tx_info["iflow_id"] = up ? IFLOW_ID_NONE : iflow
 
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 36)
     else
         if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
@@ -677,6 +677,12 @@ def rx_ifh_create(isdx=IGNORE, port=IGNORE)
         $ifh += "ifh-mas ign "
         if (port != IGNORE)
             $ifh += "src-port #{$port_map[port]["chip_port"]} "
+        end
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        $ifh += "ifh-la ign "
+        if (port != IGNORE)
+            $ifh += "f-src-port #{$port_map[port]["chip_port"]} "
         end
     end
     end
