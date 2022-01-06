@@ -82,6 +82,11 @@ typedef mepa_rc (*mepa_ts_fifo_empty_t)(struct mepa_device *dev);
 // Sample Test configurations
 typedef mepa_rc (*mepa_ts_test_config_t) (struct mepa_device *dev, uint16_t test_id, mepa_bool_t reg_dump);
 
+// Debug dump API for PHY
+typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
+                             const mepa_debug_print_t pr,
+                             const mepa_debug_info_t   *const info);
+
 // PHY Timestamp Driver
 typedef struct mepa_ts_driver {
     mepa_ts_init_conf_get_t                 mepa_ts_init_conf_get;
@@ -120,6 +125,7 @@ typedef struct mepa_ts_driver {
     mepa_ts_test_config_t                   mepa_ts_test_config;
     mepa_ts_fifo_read_install_t             mepa_ts_fifo_read_install;
     mepa_ts_fifo_empty_t                    mepa_ts_fifo_empty;
+    mepa_debug_info_dump_t                  mepa_debug_info_dump;
 } mepa_ts_driver_t;
 
 #endif

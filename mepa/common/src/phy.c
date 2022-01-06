@@ -1049,11 +1049,22 @@ mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
     return dev->drv->mepa_ts->mepa_ts_test_config(dev, test_id, reg_dump);
 }
 
-mepa_rc mepa_driver_reg_dump(struct mepa_device *dev)
+mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
+                             const mepa_debug_print_t pr,
+                             const mepa_debug_info_t   *const info)
 {
-    if (!dev || !dev->drv->mepa_driver_reg_dump) {
+    if (!dev || !dev->drv->mepa_debug_info_dump) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_reg_dump(dev);
+    //PHY Module
+    mepa_rc  rc = dev->drv->mepa_debug_info_dump(dev, pr, info);
+
+    //PHY TS Module
+    if (rc && dev->drv->mepa_ts->mepa_debug_info_dump) {
+        rc = dev->drv->mepa_ts->mepa_debug_info_dump(dev, pr, info);
+    }
+
+    //Anyother module??
+    return rc;
 }

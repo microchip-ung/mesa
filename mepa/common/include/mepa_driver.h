@@ -163,8 +163,10 @@ typedef mepa_rc (*mepa_driver_phy_info_get_t)(struct mepa_device *dev, mepa_phy_
 // Enable/Disable Isolate mode
 typedef mepa_rc (*mepa_driver_isolate_mode_conf_t)(struct mepa_device *dev, const mepa_bool_t iso_en);
 
-// Phy register dump
-typedef mepa_rc (*mepa_driver_reg_dump_t)(struct mepa_device *dev);
+// Debug dump API for PHY
+typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
+                             const mepa_debug_print_t pr,
+                             const mepa_debug_info_t   *const info);
 
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
@@ -196,7 +198,7 @@ typedef struct mepa_driver {
     mepa_driver_link_base_port_t       mepa_driver_link_base_port;
     mepa_driver_phy_info_get_t         mepa_driver_phy_info_get;
     mepa_driver_isolate_mode_conf_t    mepa_driver_isolate_mode_conf;
-    mepa_driver_reg_dump_t             mepa_driver_reg_dump;
+    mepa_debug_info_dump_t             mepa_debug_info_dump;
     mepa_ts_driver_t                   *mepa_ts;
 
     uint32_t id;                  // Id of the driver

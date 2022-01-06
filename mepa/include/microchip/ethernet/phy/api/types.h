@@ -45,6 +45,7 @@ typedef mesa_phy_reset_conf_t mepa_reset_conf_t;
 typedef mesa_phy_event_t mepa_event_t;
 typedef mesa_phy_veriphy_status_t mepa_cable_diag_status_t;
 typedef mesa_port_admin_state_t mepa_port_admin_state_t;
+typedef mesa_debug_printf_t mepa_debug_print_t;
 
 // Advertise disable flags.
 typedef enum {
@@ -341,5 +342,30 @@ typedef struct {
     mepa_phy_cap_t       cap;             // PHY capability 1G or 10G phy.
     mepa_port_no_t       ts_base_port;    // Timestamping base port number. VSC-phys like vsc8574 have 2 different timestamping base ports 0 and 1 in a phy. See note above.
 } mepa_phy_info_t;
+
+// Debug layer
+typedef enum {
+    MPSA_DEBUG_LAYER_ALL, // All layers
+} mepa_debug_layer_t;
+
+ // Debug function group
+typedef enum {
+    MEPA_DEBUG_GROUP_ALL,       // All groups
+    MEPA_DEBUG_GROUP_INIT,      // Initialization
+    MEPA_DEBUG_GROUP_MISC,      // Miscellaneous
+    MEPA_DEBUG_GROUP_PORT,      // Port configuration
+    MEPA_DEBUG_GROUP_PHY,       // PHY
+    MEPA_DEBUG_GROUP_PHY_TS,    // PHY TS
+    MEPA_DEBUG_GROUP_MACSEC,    // 802.1AE MacSec
+
+    // New groups are added above this line
+    MEPA_DEBUG_GROUP_COUNT      // Number of groups
+} mepa_debug_group_t;
+
+// Debug information structure
+typedef struct {
+    mepa_debug_layer_t layer;      // Layer
+    mepa_debug_group_t group;      // Function group
+} mepa_debug_info_t;
 #include <microchip/ethernet/hdr_end.h>  // ALL INCLUDE ABOVE THIS LINE
 #endif // _MICROCHIP_ETHERNET_PHY_API_TYPES_H_

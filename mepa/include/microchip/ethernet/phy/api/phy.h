@@ -175,7 +175,10 @@ mepa_rc mepa_phy_info_get(struct mepa_device *dev,
 mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
                                const mepa_bool_t iso_en);
 
-mepa_rc mepa_driver_reg_dump(struct mepa_device *dev);
+// Debug dump API for PHY
+mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
+                             const mepa_debug_print_t pr,
+                             const mepa_debug_info_t   *const info);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif
