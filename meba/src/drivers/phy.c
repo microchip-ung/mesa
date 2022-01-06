@@ -418,43 +418,35 @@ mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
                                   const mesa_debug_printf_t pr,
                                   const mesa_debug_info_t   *const info)
 {
-    vtss_debug_info_t phy_info;
     mepa_debug_info_t mepa_dbg;
-    vtss_port_no_t    port_no;
+    mepa_port_no_t    port_no;
 
     // Map from MESA to PHY info
-    phy_info.layer = (info->layer == MESA_DEBUG_LAYER_AIL ? VTSS_DEBUG_LAYER_AIL :
-                      info->layer == MESA_DEBUG_LAYER_CIL ? VTSS_DEBUG_LAYER_CIL :
-                      VTSS_DEBUG_LAYER_ALL);
+    mepa_dbg.full = info->full;
+    mepa_dbg.clear = info->clear;
+    mepa_dbg.vml_format = info->vml_format;
+    mepa_dbg.layer = (info->layer == MESA_DEBUG_LAYER_AIL ? MEPA_DEBUG_LAYER_AIL :
+                      info->layer == MESA_DEBUG_LAYER_CIL ? MEPA_DEBUG_LAYER_CIL :
+                      MEPA_DEBUG_LAYER_ALL);
     if (info->group == MESA_DEBUG_GROUP_ALL) {
-        phy_info.group = VTSS_DEBUG_GROUP_ALL;
         mepa_dbg.group = MEPA_DEBUG_GROUP_ALL;
     } else if (info->group == MESA_DEBUG_GROUP_PHY) {
-        phy_info.group = VTSS_DEBUG_GROUP_PHY;
         mepa_dbg.group = MEPA_DEBUG_GROUP_PHY;
     } else if (info->group == MESA_DEBUG_GROUP_PHY_TS) {
-        phy_info.group = VTSS_DEBUG_GROUP_PHY_TS;
         mepa_dbg.group = MEPA_DEBUG_GROUP_PHY_TS;
     } else if (info->group == MESA_DEBUG_GROUP_MACSEC) {
-        phy_info.group = VTSS_DEBUG_GROUP_MACSEC;
         mepa_dbg.group = MEPA_DEBUG_GROUP_MACSEC;
     } else {
         return MESA_RC_OK;
     }
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
-        phy_info.port_list[port_no] = (port_no < mesa_port_cnt(NULL) ?
-                                       mesa_port_list_get(&info->port_list, port_no) : 0);
-        if ((port_no >= 0) && (port_no < inst->phy_device_cnt)) {
-            //Invoke MEPA debug API
+    for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
+        if ((port_no < mesa_port_cnt(NULL)) &&
+            (mesa_port_list_get(&info->port_list, port_no)))
+        {
+            pr("PHY %03d\n=======\n", port_no);
             (void) mepa_debug_info_dump(inst->phy_devices[port_no], pr, &mepa_dbg);
         }
     }
-    //TODO: VTSS API need to be pulled under MEPA
-    phy_info.full = info->full;
-    phy_info.clear = info->clear;
-    phy_info.vml_format = info->vml_format;
-    vtss_phy_debug_info_print(NULL, pr, &phy_info);
-
     return MESA_RC_OK;
 }
 

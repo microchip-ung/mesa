@@ -842,6 +842,39 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
     return dev;
 }
 
+// Debug dump API for PHY
+mepa_rc phy_debug_info_dump(struct mepa_device *dev,
+                             const mepa_debug_print_t pr,
+                             const mepa_debug_info_t   *const info)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    vtss_port_no_t    port_no = data->port_no;
+    vtss_debug_info_t phy_info;
+
+    // Map from MESA to PHY info
+    phy_info.layer = (info->layer == MEPA_DEBUG_LAYER_AIL ? VTSS_DEBUG_LAYER_AIL :
+                      info->layer == MEPA_DEBUG_LAYER_CIL ? VTSS_DEBUG_LAYER_CIL :
+                      VTSS_DEBUG_LAYER_ALL);
+    if (info->group == MEPA_DEBUG_GROUP_ALL) {
+        phy_info.group = VTSS_DEBUG_GROUP_ALL;
+    } else if (info->group == MEPA_DEBUG_GROUP_PHY) {
+        phy_info.group = VTSS_DEBUG_GROUP_PHY;
+    } else if (info->group == MEPA_DEBUG_GROUP_PHY_TS) {
+        phy_info.group = VTSS_DEBUG_GROUP_PHY_TS;
+    } else if (info->group == MEPA_DEBUG_GROUP_MACSEC) {
+        phy_info.group = VTSS_DEBUG_GROUP_MACSEC;
+    } else {
+        return MESA_RC_OK;
+    }
+    phy_info.port_list[port_no] = 1;
+    phy_info.full = info->full;
+    phy_info.clear = info->clear;
+    phy_info.vml_format = info->vml_format;
+    vtss_phy_debug_info_print(NULL, pr, &phy_info);
+
+    return vtss_phy_debug_info_print((NULL, pr, &phy_info);
+}
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -876,6 +909,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
         },
         {
             // Tesla
@@ -908,6 +942,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_link_base_port = phy_1g_link_base_port,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
         },
         {
@@ -941,6 +976,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_link_base_port = phy_1g_link_base_port,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
         },
         {
@@ -974,6 +1010,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_link_base_port = phy_1g_link_base_port,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
         },
         {
             // Cicada (all models)
@@ -1005,6 +1042,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
         }
     };
 
@@ -1102,6 +1140,7 @@ mepa_drivers_t mepa_default_phy_driver_init()
             .mepa_driver_synce_clock_conf_set = phy_1g_synce_clk_conf_set,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_debug_info_dump = phy_debug_info_dump,
         }
     };
 

@@ -1057,14 +1057,5 @@ mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    //PHY Module
-    mepa_rc  rc = dev->drv->mepa_debug_info_dump(dev, pr, info);
-
-    //PHY TS Module
-    if (rc && dev->drv->mepa_ts->mepa_debug_info_dump) {
-        rc = dev->drv->mepa_ts->mepa_debug_info_dump(dev, pr, info);
-    }
-
-    //Anyother module??
-    return rc;
+    return dev->drv->mepa_debug_info_dump(dev, pr, info);
 }

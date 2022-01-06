@@ -150,8 +150,8 @@ static mepa_rc indy_reg_dump(struct mepa_device *dev,
     uint16_t id = 0;
 
     //Direct registers
-    T_D(MEPA_TRACE_GRP_GEN, "%-45s   PORT_NO PAGE_ID REG_ADDR   VALUE\n", "REG_NAME");
-    T_D(MEPA_TRACE_GRP_GEN, "Main Page Registers\n");
+    pr("%-45s   PORT_NO PAGE_ID REG_ADDR   VALUE\n", "REG_NAME");
+    pr("Main Page Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 0, 0, 0, "Basic Control Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 0, 1, "Basic Status Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 0, 2, "Device Identifier 1 Register", &val);
@@ -184,7 +184,7 @@ static mepa_rc indy_reg_dump(struct mepa_device *dev,
     indy_phy_deb_pr_reg(dev, pr, 0, 0, 31, "Control Register", &val);
 
     //Extended page-0,1,2,3,4,5,7,28,29,31 registers
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-0 Registers\n");
+    pr("Extended Page-0 Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 0, 1, 0, "Debug-Mode First-Level-Select Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 1, 1, "Debug-Mode Second-Level-Select for DIGITOP Part 1 Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 1, 2, "Debug-Mode Second-Level-Select for DIGITOP Part 2 Register", &val);
@@ -203,48 +203,48 @@ static mepa_rc indy_reg_dump(struct mepa_device *dev,
     indy_phy_deb_pr_reg(dev, pr, 0, 1, 15, "Fast Link Fail (FLF) Configuration and Status Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 1, 16, "Link Partner Force FD Override Register", &val);
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-1 Registers\n");
+    pr("Extended Page-1 Registers\n");
     for(id = 0; id < 239; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 2, id, "Extended Page 1 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-2 Registers\n");
+    pr("Extended Page-2 Registers\n");
     for(id = 0; id < 111; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 3, id, "Extended Page 2 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-3 Registers\n");
+    pr("Extended Page-3 Registers\n");
     for(id = 0; id < 28; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 4, id, "Extended Page 3 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-4 Registers\n");
+    pr("Extended Page-4 Registers\n");
     for(id = 0; id < 772; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 5, id, "Extended Page 4 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-5 Registers\n");
+    pr("Extended Page-5 Registers\n");
     for(id = 0; id < 708; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 6, id, "Extended Page 5 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-7 Registers\n");
+    pr("Extended Page-7 Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 0, 8, 58, "EP7 Register 58", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 8, 59, "EP7 Register 59", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 8, 62, "EEE Link Partner Ability Override Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 8, 63, "EEE Message Code Register", &val);
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-28 Registers\n");
+    pr("Extended Page-28 Registers\n");
     for(id = 0; id < 80; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 29, id, "Extended Page 28 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-29 Registers\n");
+    pr("Extended Page-29 Registers\n");
     for(id = 0; id < 80; id++) {
         indy_phy_deb_pr_reg(dev, pr, 0, 30, id, "Extended Page 29 Registers", &val);
     }
 
-    T_D(MEPA_TRACE_GRP_GEN, "Extended Page-31 Registers\n");
+    pr("Extended Page-31 Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 0, 32, 0, "Speed Mode with TESTBUS Control Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 32, 8, "Clock Management Mode 0", &val);
     indy_phy_deb_pr_reg(dev, pr, 0, 32, 9, "Clock Management Mode 1", &val);
@@ -258,13 +258,13 @@ static mepa_rc indy_reg_dump(struct mepa_device *dev,
     indy_phy_deb_pr_reg(dev, pr, 0, 32, 17, "Clock Management Mode 9", &val);
 
     //MMD-3,7 registers
-    T_D(MEPA_TRACE_GRP_GEN, "%-45s   PORT_NO DEV_ID REG_ADDR   VALUE\n", "REG_NAME");
-    T_D(MEPA_TRACE_GRP_GEN, "MMD-3 Registers\n");
+    pr("%-45s   PORT_NO DEV_ID REG_ADDR   VALUE\n", "REG_NAME");
+    pr("MMD-3 Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 3, 0x0, 0, "PCS Control 1 Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 3, 0x0, 1, "PCS Status 1 Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 3, 0x0, 20,"EEE Control and Capability Register", &val);
 
-    T_D(MEPA_TRACE_GRP_GEN, "MMD-7 Registers\n");
+    pr("MMD-7 Registers\n");
     indy_phy_deb_pr_reg(dev, pr, 7, 0x0, 60,"EEE Advertisement Register", &val);
     indy_phy_deb_pr_reg(dev, pr, 7, 0x0, 61,"EEE Link Partner Ability Register", &val);
 
@@ -277,7 +277,7 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
 {
     mepa_rc rc = MEPA_RC_OK;
 
-    MEPA_ENTER(dev);
+    //PHY Debugging
     switch(info->group)
     {
         case MEPA_DEBUG_GROUP_ALL:
@@ -285,13 +285,18 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
         case MEPA_DEBUG_GROUP_PHY:
         case MEPA_DEBUG_GROUP_INIT:
         {
+            MEPA_ENTER(dev);
             rc = indy_reg_dump(dev, pr);
+            MEPA_EXIT(dev);
         }
         break;
         default:
             rc = MEPA_RC_OK;
     }
-    MEPA_EXIT(dev);
+
+    //PHY_TS Debugging
+    indy_ts_debug_info_dump(dev, pr, info);
+
     return rc;
 }
 

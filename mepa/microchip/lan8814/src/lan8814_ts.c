@@ -2181,19 +2181,12 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_ts_reg_dump(struct mepa_device *dev,
-                                const mepa_debug_print_t pr)
-{
-    return MEPA_RC_OK;
-}
-
-static mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
+mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
                                     const mepa_debug_print_t pr,
                                     const mepa_debug_info_t   *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
 
-    MEPA_ENTER(dev);
     switch(info->group)
     {
         case MEPA_DEBUG_GROUP_ALL:
@@ -2201,14 +2194,15 @@ static mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
         case MEPA_DEBUG_GROUP_PHY_TS:
         case MEPA_DEBUG_GROUP_INIT:
         {
+            MEPA_ENTER(dev);
             indy_ts_classifier_conf_reg_dump(dev, pr);
             indy_ts_clock_conf_reg_dump(dev, pr);
+            MEPA_EXIT(dev);
         }
         break;
         default:
             rc = MEPA_RC_OK;
     }
-    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -2249,6 +2243,5 @@ mepa_ts_driver_t indy_ts_drivers = {
     .mepa_ts_fifo_read_install          = indy_ts_fifo_read_install,
     .mepa_ts_fifo_empty                 = indy_ts_tx_ts_get,
     .mepa_ts_test_config                = indy_ts_test_config,
-    .mepa_debug_info_dump               = indy_ts_debug_info_dump,
 };
 

@@ -23,6 +23,9 @@ mepa_rc indy_ext_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16
 mepa_rc indy_ext_reg_wr(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t value, uint16_t mask);
 mepa_rc indy_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t *value);
 mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t value, uint16_t mask);
+mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
+                                const mepa_debug_print_t pr,
+                                const mepa_debug_info_t   *const info);
 
 //Direct register access macros
 #define RD(dev, addr, value) indy_direct_reg_rd(dev, addr, value)
