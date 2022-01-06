@@ -3011,7 +3011,7 @@ static vtss_rc vtss_phy_pre_init_seq_viper_rev_b(vtss_state_t *vtss_state, vtss_
     VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_EXTENDED_CONTROL_AND_STATUS, 0x0001, 0x0001));
     VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_BYPASS_CONTROL, 0x0008, 0x0008));
     VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
-    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_TX_CRC_ERROR_COUNTER, 0x2000));
+    // Breaks frame preemption: VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_TX_CRC_ERROR_COUNTER, 0x2000));
     VTSS_RC(vtss_phy_page_test(vtss_state, port_no));
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_TEST_PAGE_5, 0x1f20));
     VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_TEST_PAGE_8, 0x8000, 0x8000));

@@ -3435,6 +3435,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
                VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_1SHOT(1));
     }
 
+#if defined(VTSS_ARCH_SPARX5)
     if (vtss_state->misc.chip_id.revision == 0) {
         /* Avoid forced FCS update for revision 0 if preemption is enabled */
         enable_tx = 0;
@@ -3447,6 +3448,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
                 VTSS_F_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL(enable_tx ? 0 : 1),
                 VTSS_M_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL);
     }
+#endif
     (void)fa_qos_tas_update(vtss_state, port_no);
 
     return VTSS_RC_OK;

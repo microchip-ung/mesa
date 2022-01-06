@@ -3126,8 +3126,14 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
 
     /* Always update FCS, needed for Frame Preemption */
+    value = 1;
+#if defined(VTSS_ARCH_SPARX5)
+    if (vtss_state->misc.chip_id.revision == 0) {
+        value = 0;
+    }
+#endif
     REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
-            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(vtss_state->misc.chip_id.revision ? 1 : 0),
+            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
             VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
 
     /* Setup QoS - in reset */
@@ -3213,7 +3219,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    tgt = VTSS_TO_HIGH_DEV(port);
     u32                    pcs = VTSS_TO_PCS_TGT(port);
-    u32                    clk_spd = 0, muxed_ports = 0;
+    u32                    clk_spd = 0, muxed_ports = 0, value;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SFI;
     BOOL                   pcs_usx = FALSE;
     u32                    sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -3324,8 +3330,14 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
 
     /* Always update FCS, needed for Frame Preemption */
+    value = 2;
+#if defined(VTSS_ARCH_SPARX5)
+    if (vtss_state->misc.chip_id.revision == 0) {
+        value = 0;
+    }
+#endif
     REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
-            VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(vtss_state->misc.chip_id.revision ? 2 : 0),
+            VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(value),
             VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
 
     /* Setup QoS - in reset */
