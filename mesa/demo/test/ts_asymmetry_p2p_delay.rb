@@ -40,7 +40,7 @@ def tod_asymmetry_p2p_delay_test
         diff_max = 185
     end
     if ($ts.dut.pcb == "6849-Sunrise")
-        diff_max = 670
+        diff_max = 930
     end
 
     if ($cap_core_clock != 0)
