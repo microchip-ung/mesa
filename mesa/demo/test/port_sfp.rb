@@ -75,6 +75,9 @@ test "Test SFP loop" do
     loop do
         conf = $ts.dut.call "mesa_port_conf_get", $ts.dut.looped_port_list[i]
         type = conf["if_type"]
+        if (type == "MESA_PORT_INTERFACE_SGMII" or type == "MESA_PORT_INTERFACE_QSGMII")
+            continue; # SFP test only
+        end
         if conf["serdes"]["media_type"].include? "DAC"
             dac = 1
             if conf["speed"].include? "25G" then spds = ["25g","10g","5g","2500","1000fdx","100fdx"] end
@@ -82,7 +85,8 @@ test "Test SFP loop" do
             if conf["speed"].include? "2500" then spds = ["2500","1000fdx","100fdx"] end
             if conf["speed"].include? "1G" then spds = ["1000fdx","100fdx"] end
 
-            if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && $ts.dut.looped_port_list[i] > 11)
+            if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && $ts.dut.looped_port_list[i] > 11) ||
+                ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")))
                 spds.pop # Remove 100fdx
             end
         else
@@ -107,9 +111,7 @@ test "Test SFP loop" do
         vlan_add(3, $vlan3ports)
 
         spds.each {|spd|
-            if (type != "MESA_PORT_INTERFACE_SGMII" or type != "MESA_PORT_INTERFACE_QSGMII")
-                $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
-            end
+            $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
             t_i("==========================================================");
             t_i("======== DAC ports:#{cli_ports} speed:#{spd} =============")
             sleep 3
