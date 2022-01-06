@@ -12,7 +12,7 @@ $ts = get_test_setup("mesa_pc_b2b_4x", {}, "-v")
 
 $idx_rx = 3
 $vid_a  = 10
-$emap = 20
+$emap = 3
 
 $cap_l26 = (cap_get("MEP_LUTON26") != 0)
 $cap_emap = (cap_get("QOS_EGRESS_MAP_CNT") != 0)
@@ -269,7 +269,7 @@ test "conf-common" do
         conf = $ts.dut.call("mesa_dlb_policer_conf_set", pol, cosid, conf)
     end
     # Ingress map, PCP -> COSID (0-3)
-    $imap = 10
+    $imap = 7
     if ($cap_imap)
         map = $ts.dut.call("mesa_qos_ingress_map_init", "MESA_QOS_INGRESS_MAP_KEY_PCP")
         map["id"] = $imap
