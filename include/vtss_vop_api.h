@@ -12,7 +12,19 @@
 extern "C" {
 #endif
 
-#if defined(VTSS_FEATURE_VOP_V1)     /* VOP V1 */
+#if defined(VTSS_FEATURE_VOP_V0)     /* VOP V0 */
+
+#  define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
+#  define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.
+#  if defined(VTSS_ARCH_LAN966X)   /* Maserati */
+#    define VTSS_PORT_VOE_CNT           (8)                        // Number of port VOEs in HW
+#    define VTSS_PATH_SERVICE_VOE_CNT   (0)                        // Number of path/service VOEs in HW
+#    define VTSS_PORT_VOE_BASE_IDX      (0)                        // Index of first port VOE
+#  else
+#    error "not defined expected architure for VOP V0"
+#  endif
+
+#elif defined(VTSS_FEATURE_VOP_V1)     /* VOP V1 */
 
 #  define VTSS_DOWN_VOI_CNT           (0)                         // No VOIs (MIPs) in HW
 #  define VTSS_UP_VOI_CNT             (0)                         // No VOIs (MIPs) in HW.

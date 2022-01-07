@@ -293,7 +293,7 @@ typedef enum {
     // OAM
     MESA_CAP_VOP = 1200,                    /**< OAM/VOE support */
     MESA_CAP_VOP_CFM,                       /**< OAM/VOE supporting full 802.1 CFM implementation */
-    MESA_CAP_VOP_V9,                        /**< OAM generation 0 (Maserati) */
+    MESA_CAP_VOP_V0,                        /**< OAM generation 0 (Maserati) */
     MESA_CAP_VOP_V1,                        /**< OAM generation 1 (Serval-1) */
     MESA_CAP_VOP_V2,                        /**< OAM generation 2 (Jaguar-2/Serval-T/SparX-5) */
     MESA_CAP_VOP_TAGGING,                   /**< VOE can handle different tagging by configuration of the VOE residence port */
