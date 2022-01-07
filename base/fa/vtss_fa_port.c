@@ -726,6 +726,13 @@ static u16 wm_enc(u16 value)
     return value;
 }
 
+static u32 wm_dec(u32 value)
+{
+    if (value >= FA_MULTIPLIER_BIT) {
+        return (value - FA_MULTIPLIER_BIT) * 16;
+    }
+    return value;
+}
 
 /* - CIL functions ------------------------------------------------- */
 
@@ -1895,7 +1902,7 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
     // QLIM WM setup from MOT 15/8/2019:
     // Set legacy share levels to max for src_mem and src_ref
     for (res = 0; res < 2; res++) {
-        for (prio=0; prio<8; prio++) {
+        for (prio = 0; prio < 8; prio++) {
             REG_WR(VTSS_QRES_RES_CFG(prio + FA_RES_CFG_MAX_PRIO_IDX + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
         }
         for (dp = 0; dp < 4; dp++) {
@@ -1931,7 +1938,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
     for (shr_id=0; shr_id<1; shr_id++) {
         pr ("\nCurrent consumption tracked (share %d):\n",shr_id);
         REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(shr_id), &value);
-        pr ("Current fill level...................: %5u (%d bytes) \n", value, value * FA_BUFFER_CELL_SZ);
+        pr ("Current fill level...................: %5u (%d bytes)\n", value, value * FA_BUFFER_CELL_SZ);
         REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(shr_id), &value);
         pr ("Current congested SE count...........: %5u\n\n", value);
         pr ("\nMaximum consumption tracked (share %d):\n",shr_id);
@@ -1943,31 +1950,29 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         REG_WR(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(shr_id), 0);
         REG_WR(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), 0);
     }
-
-    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &value);
-    pr("QLIMIT_SHR_TOP %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
+    pr("QLIMIT_SHR_TOP      %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &value);
-    pr("QLIMIT_SHR_ATOP %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
+    pr("QLIMIT_SHR_ATOP     %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), &value);
-    pr("QLIMIT_SHR_CTOP %u\n", VTSS_X_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP(value));
+    pr("QLIMIT_SHR_CTOP     %u\n", VTSS_X_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), &value);
-    pr("QLIMIT_SHR_QLIM %u\n", VTSS_X_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM(value));
+    pr("QLIMIT_SHR_QLIM     %u\n", VTSS_X_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(0), &value);
-    pr("QLIMIT_SHR_QDIV %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(value));
+    pr("QLIMIT_SHR_QDIV     %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(value));
     REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), &value);
-    pr("QLIMIT_QUE_CONG %u\n", VTSS_X_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(value));
+    pr("QLIMIT_QUE_CONG     %u\n", VTSS_X_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(value));
     REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), &value);
-    pr("QLIMIT_SE_CONG %u\n", VTSS_X_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(value));
+    pr("QLIMIT_SE_CONG      %u\n", VTSS_X_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(0), &value);
-    pr("QLIMIT_SHR_QDIVMAX %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(value));
+    pr("QLIMIT_SHR_QDIVMAX  %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(value));
     REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(0), &value);
-    pr("QLIMIT_SE_EIR %u\n", VTSS_X_XQS_QLIMIT_SE_EIR_CFG_QLIMIT_SE_EIR(value));
+    pr("QLIMIT_SE_EIR       %u\n", VTSS_X_XQS_QLIMIT_SE_EIR_CFG_QLIMIT_SE_EIR(value));
     REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(0), &value);
-    pr("QLIMIT_CONG_CNT %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_STAT_QLIMIT_CONG_CNT(value));
+    pr("QLIMIT_CONG_CNT     %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_STAT_QLIMIT_CONG_CNT(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(0), &value);
-    pr("QLIMIT_SHR_FILL %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_STAT_QLIMIT_SHR_FILL(value));
+    pr("QLIMIT_SHR_FILL     %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_STAT_QLIMIT_SHR_FILL(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(0), &value);
-    pr("QLIMIT_SHR_WM %u\n", VTSS_X_XQS_QLIMIT_SHR_WM_STAT_QLIMIT_SHR_WM(value));
+    pr("QLIMIT_SHR_WM       %u\n", VTSS_X_XQS_QLIMIT_SHR_WM_STAT_QLIMIT_SHR_WM(value));
     REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(0), &value);
     pr("QLIMIT_CONG_CNT_MAX %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_MAX_STAT_QLIMIT_CONG_CNT_MAX(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(0), &value);
@@ -1996,9 +2001,9 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         }
 #endif
 #if defined(VTSS_ARCH_LAN969X)
-        srcport = q%32;
-        prio=(q/32)%8;
-        dstport=(q/256);
+        srcport = q % 32;
+        prio = (q / 32) % 8;
+        dstport = (q / 256);
 #endif
         if (!ports[srcport] || !ports[dstport]) {
             continue;
@@ -2480,6 +2485,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     u32               atop        = VTSS_M_QSYS_ATOP_ATOP;   // Default disabled
     u32               fc_start    = 6; // start when fc is enabled (frames)
     u32               fc_stop     = 4; // stop when fc is enabled (frames)
+    u32               atop_tot    = VTSS_M_QSYS_ATOP_TOT_CFG_ATOP_TOT;
 #if defined(VTSS_ARCH_LAN969X_FPGA)
     fc_start = 5;
     fc_stop = 3;
@@ -2502,6 +2508,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
         atop        = wm_enc(20 * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
         pause_start = wm_enc(fc_start * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
         pause_stop  = wm_enc(fc_stop * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
+        atop_tot    = 0; /* = VTSS_QSYS_ATOP controls tail drop alone */
     }
 
     /* No ingress drops in FC */
@@ -2520,8 +2527,14 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
             VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA); // enabled after reset
 
     /* Port ATOP. Frames are tail dropped when this WM is hit */
-    REG_WR(VTSS_QSYS_ATOP(port),
-           VTSS_F_QSYS_ATOP_ATOP(atop));
+    REG_WRM(VTSS_QSYS_ATOP(port),
+            VTSS_F_QSYS_ATOP_ATOP(atop),
+            VTSS_M_QSYS_ATOP_ATOP);
+
+    /*  When 'port ATOP' and 'common ATOP_TOT' are exceeded, tail dropping is activated on port */
+    REG_WRM(VTSS_QSYS_ATOP_TOT_CFG,
+            VTSS_F_QSYS_ATOP_TOT_CFG_ATOP_TOT(atop_tot),
+            VTSS_M_QSYS_ATOP_TOT_CFG_ATOP_TOT);
 
     /* Set SMAC of Pause frame */
     REG_WR(VTSS_DSM_MAC_ADDR_BASE_HIGH_CFG(port), (smac[0]<<16) | (smac[1]<<8) | smac[2]);
@@ -4748,14 +4761,44 @@ static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t  *const info)
 {
+    u32 val, port;
+
     pr("General info:\n");
     pr("-------------\n");
-    pr("Total Buffer           : %d bytes\n",FA_BUFFER_MEMORY);
-    pr("Total Frame References : %d\n",FA_BUFFER_REFERENCE);
-    pr("Cell size              : %d bytes\n",FA_BUFFER_CELL_SZ);
-    pr("Num of external ports (vtss_state->port_count)  : %d\n",vtss_state->port_count);
-    pr("Num of internal ports  : 5\n");
-    pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n");
+    pr("Total Buffer           : %d bytes\n", FA_BUFFER_MEMORY);
+    pr("Total Frame References : %d\n", FA_BUFFER_REFERENCE);
+    pr("Cell size              : %d bytes\n", FA_BUFFER_CELL_SZ);
+    pr("Num of external ports (vtss_state->port_count)  : %d\n", vtss_state->port_count);
+    pr("Num of internal ports  : %d\n", VTSS_CHIP_PORTS_ALL - VTSS_CHIP_PORT_CPU);
+
+    REG_RD(VTSS_QRES_RES_CFG(0 + FA_RES_CFG_MAX_PRIO_IDX + 0 * 1024), &val);
+    if (VTSS_X_QRES_RES_CFG_WM_HIGH(val) == VTSS_M_QRES_RES_CFG_WM_HIGH) {
+        pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n");
+    } else {
+        pr("Buffer mode: Queue Limit mode is disabled\n");
+    }
+    pr("\n");
+    for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        if (!info->port_list[port_no]) {
+            continue;
+        }
+        port = VTSS_CHIP_PORT(port_no);
+        pr("Flow Control:\n");
+        pr("------------\n");
+        REG_RD(VTSS_QSYS_PFC_CFG(port), &val);
+        pr("PFC ena (mask)      : 0x%x\n", VTSS_X_QSYS_PFC_CFG_TX_PFC_ENA(val));
+        REG_RD(VTSS_DSM_RX_PAUSE_CFG(port), &val);
+        pr("FC Rx ena (standard): %d\n", VTSS_X_QSYS_PAUSE_CFG_PAUSE_ENA(val));
+        REG_RD(VTSS_QSYS_PAUSE_CFG(port), &val);
+        pr("FC Tx ena (standard): %d\n", VTSS_X_QSYS_PAUSE_CFG_PAUSE_ENA(val));
+        pr("FC Start            : %d  (%d bytes)\n", VTSS_X_QSYS_PAUSE_CFG_PAUSE_START(val), wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_START(val)) * FA_BUFFER_CELL_SZ);
+        pr("FC Stop             : %d  (%d bytes)\n", VTSS_X_QSYS_PAUSE_CFG_PAUSE_STOP(val), wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_STOP(val)) * FA_BUFFER_CELL_SZ);
+        REG_RD(VTSS_QSYS_ATOP(port), &val);
+        pr("FC Atop             : %d  (%d bytes)\n", VTSS_X_QSYS_ATOP_ATOP(val), wm_dec(VTSS_X_QSYS_ATOP_ATOP(val)) * FA_BUFFER_CELL_SZ);
+        REG_RD(VTSS_QSYS_ATOP_TOT_CFG, &val);
+        pr("FC tot atop         : %d  (%d bytes)\n", VTSS_X_QSYS_ATOP_TOT_CFG_ATOP_TOT(val), wm_dec(VTSS_X_QSYS_ATOP_TOT_CFG_ATOP_TOT(val)) * FA_BUFFER_CELL_SZ);
+        pr("\n");
+    }
 
     VTSS_RC(fa_debug_wm_qlim(vtss_state, pr, info));
 
