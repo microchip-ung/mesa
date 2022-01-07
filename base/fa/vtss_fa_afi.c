@@ -156,25 +156,33 @@ typedef struct {
 } fa_afi_qu_ref_t;
 
 /*
-Frames to internal dst ports:
-  QNUM=(C_INT_BASE_SE+(dst-C_INT_FIRST_DST)) *8+ prio
+  Laguna/FireAnt constants:
+   QUEUE_SP0 = 8960 (FA:40320)
+   QUEUE_SP1 = 8995 (FA:40390)
+   ETHPORT_CNT = 30 (FA:65)
+   SE_INT_DEF = 960 (FA:5031)
+   SE_HIGH   = 1120 (FA:4480)
+   LARGE_CFG_RATIO = 4 (FA:8)
 
-Frames to frontports:
- QNUM=dst*512+prio*64+src, for src<64
- QNUM=dst*64+prio*8+(src-64)+C_QNUM_HIGH, for src>=64
-
-Frames transmitted with super priority:
-  QNUM=C_SP0_BASE_Q+dst
-
-Frames transmitted with super priority after port shaper
-  QNUM=C_SP1_BASE_Q+dst
-
-C_INT_BASE_SE is 5031
-C_INT_FIRST_DST is 65
-C_QNUM_HIGH is 35840
-C_SP0_BASE_Q is 40320
-C_SP1_BASE_Q is 40390
+   Queue mapping for FA og LA:
+    Super0: QUEUE_SP0 + port
+    Super1: QUEUE_SP1 + port
+    Internal:  SE_INT_DEF * 8 + (port - ETHPORT_CNT) + prio
+    External from CPU port:
+     LA: (8 * port + prio) * LARGE_CFG_RATIO * 8 + src = port * 256 + prio * 32 + src
+     FA: (8 * port + prio) * LARGE_CFG_RATIO + SE_HIGH * 8 + src - 8 * LARGE_CFG_RATIO = port * 64 + prio * 8 + 4480 * 8 + src - 64
 */
+
+#if defined(VTSS_ARCH_SPARX5)
+#define FA_QUEUE_SP0  40320
+#define FA_QUEUE_SP1  40390
+#define FA_SE_INT_DEF 5031
+#else
+#define FA_QUEUE_SP0  8960
+#define FA_QUEUE_SP1  8995
+#define FA_SE_INT_DEF 960
+#endif
+
 static vtss_rc fa_afi_port_prio_2_qu_ref(vtss_state_t *vtss_state, vtss_port_no_t port_no,
                                          vtss_prio_t prio, fa_afi_qu_ref_t *qu_ref)
 {
@@ -182,19 +190,23 @@ static vtss_rc fa_afi_port_prio_2_qu_ref(vtss_state_t *vtss_state, vtss_port_no_
 
     if (prio == VTSS_PRIO_SUPER) {
         // Super priority
-        qu_ref->qu_num = (40320 + qu_ref->chip_port);
+        qu_ref->qu_num = (FA_QUEUE_SP0 + qu_ref->chip_port);
     } else if (prio > VTSS_PRIO_SUPER) {
         // Super priority after shaper
-        qu_ref->qu_num = (40390 + qu_ref->chip_port);
+        qu_ref->qu_num = (FA_QUEUE_SP1 + qu_ref->chip_port);
     } else if (qu_ref->chip_port == VTSS_CHIP_PORT_VD1) {
         // Internal VD0 port
-        qu_ref->qu_num = ((5031 + VTSS_CHIP_PORT_VD0 - VTSS_CHIP_PORTS) * 8 + prio);
+        qu_ref->qu_num = (FA_SE_INT_DEF * 8 + VTSS_CHIP_PORT_VD0 - VTSS_CHIP_PORTS + prio);
     } else {
         // Front port, CPU_0 is used as source
+#if defined(VTSS_ARCH_SPARX5)
         qu_ref->qu_num = (qu_ref->chip_port * 64 + prio * 8 + VTSS_CHIP_PORT_CPU_0 - 64 + 35840);
+#else
+        qu_ref->qu_num = (qu_ref->chip_port * 256 + prio * 32 + VTSS_CHIP_PORT_CPU_0);
+#endif
     }
 
-    VTSS_I("port_no = %d, prio = %u => qu_num = %u", port_no, prio, qu_ref->qu_num);
+    VTSS_I("(port_no = %d, prio = %u) => (chip_port = %u, qu_num = %u)", port_no, prio, qu_ref->chip_port, qu_ref->qu_num);
 
     return VTSS_RC_OK;
 }
