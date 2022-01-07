@@ -245,7 +245,12 @@ class TestRun
         o["description"] = "no description"
         o["fullName"] = "no name"
 
-        @labels["parentSuite"] = @labels["platform"]
+        p = @labels["platform"]
+        b = @labels["git_branch"]
+        if (b != nil and b != "master")
+            p += "@#{b}"
+        end
+        @labels["parentSuite"] = p
         @labels["suite"] = @labels["test_suite"]
 
         o["labels"] = (@labels.to_a.map{|e| {"name": e[0], "value": e[1]}})
