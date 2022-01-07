@@ -40,7 +40,7 @@ test "test_run" do
     t_i("Priority 0 test")
     erate = (1000000000 * 10) / 100  #Priority 0 is 10%
 
-    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))   # For some reason the current FPGA cannot parse this test with any policing.
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) && ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))   # For some reason the current FPGA cannot parse this test with any policing.
                                                                         # Strange thing is that it does not result in aging
         t_i("Setup ingress port policer to avoid queue aging")
         pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
@@ -56,7 +56,7 @@ test "test_run" do
     t_i("Priority 4 test")
     erate = (1000000000 * 30) / 100  #Priority 4 is 30%
 
-    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) && ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))   # For some reason the current FPGA cannot parse this test with any policing.
         t_i("Setup ingress port policer to avoid queue aging")
         pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
         pconf[0]["frame_rate"] = false
@@ -71,7 +71,7 @@ test "test_run" do
     t_i("Priority 7 test")
     erate = (1000000000 * 60) / 100  #Priority 7 is 60%
 
-    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) && ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))   # For some reason the current FPGA cannot parse this test with any policing.
         t_i("Setup ingress port policer to avoid queue aging")
         pconf = $ts.dut.call("mesa_qos_port_policer_conf_get", $ts.dut.p[ig[0]], $pol_cnt)
         pconf[0]["frame_rate"] = false
