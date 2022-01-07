@@ -167,13 +167,30 @@ static u32 fa_port2upsid(vtss_state_t *vtss_state, u32 *port)
     return upsid;
 }
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+#define PMACACCESS_CMD_IDLE  0
+#define PMACACCESS_CMD_READ  1
+#define PMACACCESS_CMD_WRITE 2
+#define PMACACCESS_CMD_INIT  3
+static vtss_rc fa_pmac_table_idle(vtss_state_t *vtss_state)
+{
+    u32 cmd;
+
+    while (1) {
+        REG_RD(VTSS_ANA_L2_PMAC_ACCESS_CTRL, &cmd);
+        if (VTSS_X_ANA_L2_PMAC_ACCESS_CTRL_PMAC_ACCESS_CMD(cmd) == PMACACCESS_CMD_IDLE) {
+            break;
+        }
+    }
+    return VTSS_RC_OK;
+}
+#endif
+
 static vtss_rc fa_mac_table_add(vtss_state_t *vtss_state,
                                  const vtss_mac_table_entry_t *const entry, u32 pgid)
 {
-    u32 cfg0, cfg1, cfg2, addr, upsid = 0, aged = 0, fwd_kill = 0, addr_type;
+    u32 cfg0, cfg1, cfg2, addr, upsid, aged = 0, fwd_kill = 0, addr_type;
     u32 copy_to_cpu = entry->copy_to_cpu_smac;
-
-    vtss_mach_macl_get(&entry->vid_mac, &cfg0, &cfg1);
 
     /* Set FWD_KILL to make the switch discard frames in SMAC lookup */
     fwd_kill = (copy_to_cpu || (pgid != vtss_state->l2.pgid_drop) ? 0 : 1);
@@ -187,8 +204,28 @@ static vtss_rc fa_mac_table_add(vtss_state_t *vtss_state,
         /* Use local (UPSID, UPSPN) */
         addr_type = MAC_ENTRY_ADDR_TYPE_UPSID_PN;
         upsid = fa_port2upsid(vtss_state, &addr);
+        addr += (upsid << 5);
     }
-    cfg2 = (VTSS_F_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_ADDR(addr + (upsid << 5)) |
+
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    if (entry->index_table) {
+        REG_WR(VTSS_ANA_L2_PMAC_INDEX,
+               VTSS_F_ANA_L2_PMAC_INDEX_PMAC_INDEX(vtss_state->l2.mac_index_table.idx_add));
+        cfg2 = (VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_CPU_QU(0) |
+                VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_CPU_COPY(0) |
+                VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_VLAN_IGNORE(0) |
+                VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_ADDR_TYPE(addr_type) |
+                VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_ADDR(addr) |
+                VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_VLD(1));
+        REG_WR(VTSS_ANA_L2_PMAC_ACCESS_CFG_2, cfg2);
+        REG_WR(VTSS_ANA_L2_PMAC_ACCESS_CTRL,
+               VTSS_F_ANA_L2_PMAC_ACCESS_CTRL_PMAC_ACCESS_CMD(PMACACCESS_CMD_WRITE));
+        return fa_pmac_table_idle(vtss_state);
+    }
+#endif
+
+    vtss_mach_macl_get(&entry->vid_mac, &cfg0, &cfg1);
+    cfg2 = (VTSS_F_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_ADDR(addr) |
             VTSS_F_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_ADDR_TYPE(addr_type) |
             VTSS_F_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_SRC_KILL_FWD(fwd_kill) |
             VTSS_F_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_CPU_COPY(copy_to_cpu) |
@@ -212,6 +249,19 @@ static vtss_rc fa_mac_table_add(vtss_state_t *vtss_state,
 static vtss_rc fa_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
 {
     u32 cfg0, cfg1;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    u32 idx = vtss_state->l2.mac_index_table.idx_get;
+
+    if (idx <= VTSS_M_ANA_L2_PMAC_INDEX_PMAC_INDEX) {
+        // Delete from index table
+        REG_WR(VTSS_ANA_L2_PMAC_INDEX, VTSS_F_ANA_L2_PMAC_INDEX_PMAC_INDEX(idx));
+        REG_WR(VTSS_ANA_L2_PMAC_ACCESS_CFG_2,
+               VTSS_F_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_VLD(0));
+        REG_WR(VTSS_ANA_L2_PMAC_ACCESS_CTRL,
+               VTSS_F_ANA_L2_PMAC_ACCESS_CTRL_PMAC_ACCESS_CMD(PMACACCESS_CMD_WRITE));
+        return fa_pmac_table_idle(vtss_state);
+    }
+#endif
 
     vtss_mach_macl_get(vid_mac, &cfg0, &cfg1);
     VTSS_D("mach: 0x%08x, macl: 0x%08x", cfg0, cfg1);
@@ -224,6 +274,25 @@ static vtss_rc fa_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *
            VTSS_F_LRN_COMMON_ACCESS_CTRL_MAC_TABLE_ACCESS_SHOT(1));
 
     return fa_mac_table_idle(vtss_state);
+}
+
+static vtss_rc fa_mac_type_addr_pgid_get(vtss_state_t *vtss_state,
+                                         u32 type, u32 addr, u32 *pgid)
+{
+    switch (type) {
+    case MAC_ENTRY_ADDR_TYPE_UPSID_PN:
+        *pgid = vtss_fa_vtss_pgid(vtss_state, addr & 0x7f);
+        break;
+    case MAC_ENTRY_ADDR_TYPE_MC_IDX:
+        /* Multicast PGID */
+        *pgid = vtss_fa_vtss_pgid(vtss_state, addr + VTSS_CHIP_PORTS);
+        break;
+    default:
+        VTSS_E("unsupported addr type: %u", type);
+        return VTSS_RC_ERROR;
+    }
+
+    return VTSS_RC_OK;
 }
 
 /* Return the result from MAC table get operations */
@@ -258,25 +327,35 @@ static vtss_rc fa_mac_table_result(vtss_state_t *vtss_state, vtss_mac_table_entr
     entry->vid_mac.mac.addr[4] = ((cfg1 >> 8)  & 0xff);
     entry->vid_mac.mac.addr[5] = ((cfg1 >> 0)  & 0xff);
 
-    switch (type) {
-    case MAC_ENTRY_ADDR_TYPE_UPSID_PN:
-        *pgid = vtss_fa_vtss_pgid(vtss_state, addr & 0x7f);
-        break;
-    case MAC_ENTRY_ADDR_TYPE_MC_IDX:
-        /* Multicast PGID */
-        *pgid = vtss_fa_vtss_pgid(vtss_state, addr + VTSS_CHIP_PORTS);
-        break;
-    default:
-        VTSS_E("unsupported addr type: %u", type);
-        return VTSS_RC_ERROR;
-    }
-
-    return VTSS_RC_OK;
+    return fa_mac_type_addr_pgid_get(vtss_state, type, addr, pgid);
 }
 
 static vtss_rc fa_mac_table_get(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     u32 cfg0, cfg1;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    u32 cfg2, type, addr;
+
+    if (entry->index_table) {
+        // Get from index table
+        REG_WR(VTSS_ANA_L2_PMAC_INDEX,
+               VTSS_F_ANA_L2_PMAC_INDEX_PMAC_INDEX(vtss_state->l2.mac_index_table.idx_get));
+        REG_WR(VTSS_ANA_L2_PMAC_ACCESS_CTRL,
+               VTSS_F_ANA_L2_PMAC_ACCESS_CTRL_PMAC_ACCESS_CMD(PMACACCESS_CMD_READ));
+        VTSS_RC(fa_pmac_table_idle(vtss_state));
+        REG_RD(VTSS_ANA_L2_PMAC_ACCESS_CFG_2, &cfg2);
+        if (VTSS_X_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_VLD(cfg2) == 0) {
+            return VTSS_RC_ERROR;
+        }
+        entry->copy_to_cpu = VTSS_X_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_CPU_COPY(cfg2);
+        entry->copy_to_cpu_smac = 0;
+        entry->locked = 1;
+        entry->aged = 0;
+        type = VTSS_X_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_ADDR_TYPE(cfg2);
+        addr = VTSS_X_ANA_L2_PMAC_ACCESS_CFG_2_PMAC_ENTRY_ADDR(cfg2);
+        return fa_mac_type_addr_pgid_get(vtss_state, type, addr, pgid);
+    }
+#endif
 
     /* Get entry */
     vtss_mach_macl_get(&entry->vid_mac, &cfg0, &cfg1);
@@ -455,6 +534,25 @@ static vtss_rc fa_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_
 
     return VTSS_RC_OK;
 }
+
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+static vtss_rc fa_mac_index_update(vtss_state_t *vtss_state)
+{
+    vtss_mac_index_table_t *t = &vtss_state->l2.mac_index_table;
+    u32                    i, vid;
+
+    REG_WR(VTSS_ANA_L2_PMAC_CFG,
+           VTSS_F_ANA_L2_PMAC_CFG_PMAC_ENA(t->cnt ? 1 : 0) |
+           VTSS_F_ANA_L2_PMAC_CFG_PMAC_OUI(t->oui));
+    for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        vid = t->e[i].vid;
+        REG_WR(VTSS_ANA_L2_PMAC_VLAN_CFG(i),
+               VTSS_F_ANA_L2_PMAC_VLAN_CFG_PMAC_VLAN_ENA(vid ? 1 : 0) |
+               VTSS_F_ANA_L2_PMAC_VLAN_CFG_PMAC_VLAN(vid));
+    }
+    return VTSS_RC_OK;
+}
+#endif
 
 static vtss_rc fa_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -1698,6 +1796,16 @@ static vtss_rc fa_debug_mac_table(vtss_state_t *vtss_state,
     /* Flood masks */
     VTSS_RC(fa_debug_pgid_table(vtss_state, pr, info, PGID_UC_FLOOD, PGID_IPV6_MC_CTRL + 1));
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_fa_debug_reg_header(pr, "PMAC");
+    FA_DEBUG_REG_NAME(pr, ANA_L2, PMAC_CFG, "PMAC_CFG");
+    FA_DEBUG_REG_NAME(pr, ANA_L2, PMAC_CFG_2, "PMAC_CFG_2");
+    for (u32 i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
+        FA_DEBUG_REGX_NAME(pr, ANA_L2, PMAC_VLAN_CFG, i, "PMAC_VLAN_CFG");
+    }
+    pr("\n");
+#endif
+
     /* Read and clear sticky bits */
     if (info->full) {
         vtss_fa_debug_reg_header(pr, "STICKY");
@@ -2175,6 +2283,9 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mac_table_age_time_set      = fa_mac_table_age_time_set;
         state->mac_table_age               = fa_mac_table_age;
         state->mac_table_status_get        = fa_mac_table_status_get;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+        state->mac_index_update            = fa_mac_index_update;
+#endif
         state->learn_port_mode_set         = fa_learn_port_mode_set;
         state->learn_state_set             = fa_learn_state_set;
         state->mstp_state_set              = fa_mstp_state_set;

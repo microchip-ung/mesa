@@ -237,10 +237,6 @@
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN969X)
-//#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
 /* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
@@ -248,6 +244,7 @@
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
+#define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #endif // VTSS_ARCH_LAN969X
 
 #if defined(VTSS_ARCH_S5I)

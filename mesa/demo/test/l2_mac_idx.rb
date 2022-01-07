@@ -47,17 +47,17 @@ test_table =
     {
         txt: "get-next",
         get_next: 1,
-        mac: [{vid: 10},{vid: 20, idx: 10},{vid: 20, idx: 15, index_table: false},{vid: 20, idx: 20},{vid: 30}]
+        mac: [{vid: 10},{vid: 20, idx: 10},{vid: 20, idx: 13, index_table: false},{vid: 20, idx: 15},{vid: 30}]
     },
     {
         txt: "forward",
-        mac: [{vid: 10, oui: 0x020406, idx: 0x102, dst: [1,2] }],
-        frm: [{dmac: "02:04:06:00:01:02", vid: 10, idx_tx: 0, idx_rx: [1,2]}]
+        mac: [{vid: 10, oui: 0x020406, idx: 0xf, dst: [1,2] }],
+        frm: [{dmac: "02:04:06:00:00:0f", vid: 10, idx_tx: 0, idx_rx: [1,2]}]
     },
     {
         txt: "cpu_copy",
-        mac: [{vid: 20, oui: 0x020406, idx: 0x102, cpu_copy: true }],
-        frm: [{dmac: "02:04:06:00:01:02", vid: 20, idx_tx: 3, idx_npi: 1}]
+        mac: [{vid: 20, oui: 0x020406, idx: 0xf, cpu_copy: true }],
+        frm: [{dmac: "02:04:06:00:00:0f", vid: 20, idx_tx: 3, idx_npi: 1}]
     },
 ]
 
