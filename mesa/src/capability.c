@@ -1375,6 +1375,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_VOP_V0:
+#if defined(VTSS_FEATURE_VOP) && defined(VTSS_FEATURE_VOP_V0)
+        c = 1;
+#endif
+        break;
+
     case MESA_CAP_VOP_V1:
 #if defined(VTSS_FEATURE_VOP) && defined(VTSS_FEATURE_VOP_V1)
         c = 1;

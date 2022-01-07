@@ -30,12 +30,19 @@ OAM is Operations, Administration, and Maintenance based on 802.1Q section 20. +
 * Frame (CCM/LBM) updating.
 
 There are VOE (Versatile OAM Endpoint) resources that enable configuration of MEPs. There are two different kinds of VOEs.
-Port VOEa are statically allocated one for each port in the switch and a frame can only hit the Port VOE on the ingress and egress port.
+Port VOEs are statically allocated one for each port in the switch and a frame can only hit the Port VOE on the ingress and egress port.
 Service VOEs are dynamically allocated from a pool and a frame is mapped to hit the VOE at both ingress and egress. +
 A Port VOE is only handling a frame as an OAM PDU if it has not hit a Service VOE.
 
-If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
+If MESA capability `MESA_CAP_VOP_V0` is not zero the following applies::
+On this platform the VOP does not have full CFM capabilities only CCM. See MESA API Reference vop.h. +
+There are only the statically allocated Port VOEs - no service VOEs.
 
+If MESA capability `MESA_CAP_VOP_V0` or `MESA_CAP_VOP_V1` is not zero the following applies::
+There are NO VOI (Versatile OAM Intermediate) resources that enable configuration of Half-MIPs (MHF). +
+It is possible to implement VOI like functionality by using ACE rules.
+
+If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
 There are VOI (Versatile OAM Intermediate) resources that enable configuration of Half-MIPs (MHF).
 VOIs are dynamically allocated from a pool and a frame is mapped to hit the VOI at both ingress and egress. +
 
@@ -89,6 +96,13 @@ If MESA capability `MESA_CAP_VOP_V2` is not zero the following applies::
 --
 
 === VOP Detailed.
+If MESA capability `MESA_CAP_VOP_V0` is not zero the following applies::
+
+--
+.Frame flow
+image:./v0-vop-flow.svg[]
+--
+
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
 
 --
@@ -106,10 +120,15 @@ image:./v2-vop-flow.svg[]
 ==== Active VOE.
 The active VOE is doing the level filtering and the OAM processing.
 
-When a frame match a VCE it can be marked as OAM and give an IFLOW that point it to a VOE.
-When a frame match a TCE it can give an EFLOW that point it to a VOE.
+If MESA capability `MESA_CAP_VOP_V0` is not zero the following applies::
+There are no VCE/TCE or IFLOW/EFLOW involved in the MEP configuration. The VOE is just allocated and configured. +
+There are only Port VOEs.
 
-There are two different kinds of VOEs - a Port VOE and a Service VOE. If an OAM marked frame is pointed to a Service VOE on the right level,
+If MESA capability `MESA_CAP_VOP_V1` or `MESA_CAP_VOP_V2` is not zero the following applies::
+When a frame match a VCE it can be marked as OAM and give an IFLOW that point it to a VOE. +
+When a frame match a TCE it can give an EFLOW that point it to a VOE. +
++
+There are two different kinds of VOEs - a Port VOEs and a Service VOEs. If an OAM marked frame is pointed to a Service VOE on the right level,
 it will become the active VOE.
 
 A frame will always indirectly hit the Port VOE. If an OAM frame is directed to an active Service VOE it also hit the Port VOE afterwards but then only as data.
@@ -137,6 +156,12 @@ If no EFLOW is configured an OAM marked frame on egress will (indirectly) hit an
 meaning the Port VOE will handle the frame as data. +
 
 ==== Ingress Port VCE and IFLOW.
+If MESA capability `MESA_CAP_VOP_V0` is not zero the following applies::
+On Port 1-2-3 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM with TAG and MEG level C. +
+Action is to mark as not OAM (to avoid Port VOE OAM handling) and give IFLOW and <<bookmark-ace,VOI-PAG>> value. +
+The IFLOW is not configured (`mesa_iflow_conf_t`) to point to an allocated Service VOE. +
+If this frame is copied to CPU by the VOI ACE entries the ISDX can be used to identify that it is related to the VOI. +
+
 If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
 On Port 1-2-3 one VCE entry is configured (`mesa_vce_t`) with key matching on OAM with no TAG and MEG level 0-7. Action is to mark as OAM behind no TAG and give IFLOW. +
 The IFLOW is not configured (`mesa_iflow_conf_t`) to point to any Service VOE and therefore it will hit the Port VOE as the OAM handling VOE. +
@@ -207,14 +232,16 @@ IMPORTANT: Note that on all ports a frame not hitting a TCE and EFLOW will by de
 handled as data (not OAM) by any Port VOE on egress. +
 
 ==== [#bookmark-ace]#ACE#.
-If MESA capability `MESA_CAP_VOP_V1` is not zero the following applies::
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode RAPS (and RAPS MC-MAC). Action is to control copy to CPU and forwarding. +
+If MESA capability `MESA_CAP_VOP_V0` or `MESA_CAP_VOP_V1` is not zero the following applies::
+On Port 1-2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode RAPS (and RAPS MC-MAC). Action is to control copy to CPU and forwarding. +
  +
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LTM (and Class-2 MC-MAC). Action is to control copy to CPU and forwarding. +
+On Port 1-2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LTM (and Class-2 MC-MAC). Action is to control copy to CPU and forwarding. +
  +
-On Port 2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LBM (and UC-MAC). Action is to control copy to CPU and forwarding. +
+On Port 1-2-3 one ACE entry is configured (`mesa_ace_t`) with key matching on VOI-PAG value and opcode LBM (and UC-MAC). Action is to control copy to CPU and forwarding. +
 +
-IMPORTANT: Note that the VOI-PAG value can be used by multiple/all VOIs. The RAPS and LTM ACE rules can be used by multiple/all VOIs. The LBM ACE must be per VOI due to different UC-MAC.
+IMPORTANT: Note that the VOI-PAG value can be used by multiple/all VOIs. +
+The RAPS and LTM ACE rules can be used by multiple/all VOIs. +
+The LBM ACE must be per VOI due to different UC-MAC.
 
 ==== VOP.
 The VOP common attributes are configured (`mesa_vop_conf_t`)
