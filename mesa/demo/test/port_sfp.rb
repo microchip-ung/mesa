@@ -114,7 +114,7 @@ test "Test SFP loop" do
             $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
             t_i("==========================================================");
             t_i("======== DAC ports:#{cli_ports} speed:#{spd} =============")
-            sleep 3
+            sleep 5
             test "Frame forwarding with broadcast frames" do
                 if spd == "100fdx"
                     send_and_verify($tx_port[0], $tx_port[1])
