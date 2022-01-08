@@ -258,7 +258,7 @@ class TestRun
         o["name"] = @labels["filename"]
 
         o["parameters"] = [
-            {"name": "platform", "value": @labels["platform"]}
+            {"name": "platform", "value": p}
         ]
         o["stage"] = "finished"
         o["start"] = @ts_start
