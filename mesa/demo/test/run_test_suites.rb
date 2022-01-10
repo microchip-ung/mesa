@@ -98,7 +98,7 @@ def start_test(system)
 
     puts("Start test suites on system #{system[:name]} in a thread")
     t = Thread.new do
-        system "./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-#{system[:branch]}-test/test --image #{jenkins_images}/#{system[:image]}"
+        system "GIT_BRANCH_NAME=#{system[:branch]} ./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-#{system[:branch]}-test/test --image #{jenkins_images}/#{system[:image]}"
     end
     t
 end
