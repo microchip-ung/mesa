@@ -1138,7 +1138,6 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 {
     u32 i, domain, clk_in_ps;
     u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, nominal_tod_increment;
-
     vtss_rc rc = VTSS_RC_OK;
 
     /* Disable PTP (all 3 domains)*/
