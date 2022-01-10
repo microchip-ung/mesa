@@ -12,9 +12,6 @@
 #include "meba_generic.h"
 #include "meba_common.h"
 
-#define STATUSLED_G_GPIO 12
-#define STATUSLED_R_GPIO 13
-#define AQR_RESET 19
 #define PHY_ID_GPY241 0xDC00
 #define INDY_COMA_GPIO 16
 #define VTSS_TS_IO_ARRAY_SIZE       4

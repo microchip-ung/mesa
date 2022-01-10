@@ -569,12 +569,9 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
                                           vtss_port_clause_37_status_t *const status)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 adv, aneg, port = VTSS_CHIP_PORT(port_no);
-    u32 tgt;
+    u32 tgt, adv, aneg, port = VTSS_CHIP_PORT(port_no);
     vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
-
     vtss_port_usxgmii_aneg_t *usxgmii = &status->autoneg.partner.usxgmii;
-    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
 
     if (if_type == VTSS_PORT_INTERFACE_QXGMII || if_type == VTSS_PORT_INTERFACE_DXGMII_5G) {
         tgt = VTSS_TO_DEV2G5(port);
