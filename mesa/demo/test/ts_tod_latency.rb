@@ -30,6 +30,8 @@ check_capabilities do
            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ||
            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x)")
+    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
+    assert(($cap_fpga == 0), "This test cannot pass on FPGA")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     assert((($ts.dut.looped_port_list != nil) && (($ts.dut.looped_port_list.length % 2) == 0)),
