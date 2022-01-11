@@ -31,7 +31,7 @@
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
 #endif
 #ifndef VTSS_IO_ORIGIN2_OFFSET
-#define VTSS_IO_ORIGIN2_OFFSET 0x000000000 /*! amba_axi_top region*/
+#define VTSS_IO_ORIGIN2_OFFSET 0x0e0000000 /*! amba_axi_top region*/
 #endif
 #ifndef VTSS_IO_ORIGIN2_SIZE
 #define VTSS_IO_ORIGIN2_SIZE 0x010000000
@@ -71,6 +71,7 @@
 #define VTSS_TO_QRES            VTSS_IO_OFFSET1(0x00280000) /*!< Base offset for target QRES */
 #define VTSS_TO_QSYS            VTSS_IO_OFFSET1(0x000a0000) /*!< Base offset for target QSYS */
 #define VTSS_TO_REW             VTSS_IO_OFFSET1(0x00600000) /*!< Base offset for target REW */
+#define VTSS_TO_RB_0            VTSS_IO_OFFSET1(0x010f4000) /*!< Base offset for target RB_0 */
 #define VTSS_TO_VCAP_ES0        VTSS_IO_OFFSET1(0x000e0000) /*!< Base offset for target VCAP_ES0 */
 #define VTSS_TO_VCAP_ES2        VTSS_IO_OFFSET1(0x000d0000) /*!< Base offset for target VCAP_ES2 */
 #define VTSS_TO_VCAP_IP6PFX     VTSS_IO_OFFSET1(0x00090000) /*!< Base offset for target VCAP_IP6PFX */

@@ -37,8 +37,8 @@
 /**
  * \brief
  * Configures VOE for Down-MEP or Up-MEP operation.Note:Port VOEs only
- * support Down-MEP functionality. UPMEP_ENA must be set to 0.L3 VOEs only
- * support Up-MEP functionality. UPMEP_ENA must be set to 1.
+ * support Down-MEP functionality. UPMEP_ENA must be set to 0.DLR VOEs only
+ * support Down-MEP functionality. UPMEP_ENA must be set to 0.
  *
  * \details
  * 0: Configure VOE for Down-MEP functionality.
@@ -129,15 +129,16 @@
  * \brief
  * If set, the DLR Advertise frame's Sequence ID is checked against the
  * expected sequence identifier and frames for which the Sequence ID does
- * not match the expected value are forwarded using ERR_FWD_SEL. For frames
- * failing the check, OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY is set. The
- * expected value is calculated as OAM_MEP:DLR:DLR_RX_SEQ_CFG+1. The
- * frame's Sequence ID is stored in OAM_MEP:DLR:DLR_RX_SEQ_CFG as the
+ * not match the expected value are copied to the CPU using the
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU queue.For frames failing the check,
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.ADV_SEQ_ERR_STICKY is set. The expected
+ * value is calculated as VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ[1]+1. The frame's
+ * Sequence ID is stored in VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ[1] as the
  * latest valid sequence identifier.Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_RX_SEQ_CFG- OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . ADV_CHK_SEQ_ENA
@@ -150,15 +151,16 @@
  * \brief
  * If set, the DLR Beacon frame's Sequence ID is checked against the
  * expected sequence identifier and frames for which the Sequence ID does
- * not match the expected value are forwarded using ERR_FWD_SEL. For frames
- * failing the check, OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY is set. The
- * expected value is calculated as OAM_MEP:DLR:DLR_RX_SEQ_CFG+1. The
- * frame's Sequence ID is stored in OAM_MEP:DLR:DLR_RX_SEQ_CFG as the
+ * not match the expected value are copied to the CPU using the
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU queue. For frames failing the check,
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.BCN_SEQ_ERR_STICKY is set. The expected
+ * value is calculated as VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ[0]+1. The frame's
+ * Sequence ID is stored in VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ[0] as the
  * latest valid sequence identifier.Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_RX_SEQ_CFG- OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.BCN_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . BCN_CHK_SEQ_ENA
@@ -175,9 +177,10 @@
  * frames.DMAC = 01-21-6C-00-00-03: Used by Announce, Locate_Fault, and
  * Flush_Tables frames.DMAC = 01-21-6C-00-00-04: Used by Advertise
  * frames.DMAC = 01-21-6C-00-00-05: Used by Learning_Update frames.Related
- * parameters:- OAM_MEP:DLR:DLR_CTRL.CHK_DMAC_ENA-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_STICKY.DMAC_ERR_STICKY
+ * parameters:- VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_DMAC_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.DMAC_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . CHK_DMAC_ENA
@@ -189,10 +192,12 @@
 /**
  * \brief
  * If set, DLR Ring Protocol Version must be according to
- * OAM_MEP:DLR:DLR_CTRL.DLR_VERSION.Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.CHK_VERSION_ENA- OAM_MEP:DLR:DLR_CTRL.DLR_VERSION-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_STICKY.VERSION_ERR_STICKY
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.DLR_VERSION.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_VERSION_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.DLR_VERSION-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.VERSION_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . CHK_VERSION_ENA
@@ -204,7 +209,8 @@
 /**
  * \brief
  * The expected DLR Ring Protocol Version.Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.CHK_VERSION_ENA- OAM_MEP:DLR:DLR_CTRL.DLR_VERSION
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_VERSION_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.DLR_VERSION
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . DLR_VERSION
@@ -217,7 +223,8 @@
  * \brief
  * If set, Advertise frames are checked by the DLR endpoint and valid
  * Advertise frames may clear the associated miss counter.Related
- * parameters:- OAM_MEP:DLR:ADV_FWD_CTRL- OAM_MEP:DLR:ADV_CFG
+ * parameters:- VOP_DLR:VOE_CONF_DLR:ADV_FWD_CTRL-
+ * VOP_DLR:VOE_CONF_DLR:ADV_CFG
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . DLR_ADV_ENA
@@ -230,7 +237,7 @@
  * \brief
  * If set, Beacon frames are checked by the DLR endpoint and valid Beacon
  * frames may clear the associated miss counter.Related parameters:-
- * OAM_MEP:DLR:BCN_FWD_CTRL- OAM_MEP:DLR:BCN_CFG
+ * VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL- VOP_DLR:VOE_CONF_DLR:BCN_CFG
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . DLR_BCN_ENA
@@ -241,7 +248,7 @@
 
 /**
  * \brief
- * Configures whther the DLR endpoint is active.
+ * Configures whether the DLR endpoint is active.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_CTRL . DLR_ENA
@@ -271,7 +278,7 @@
 /**
  * \brief
  * If set, DLR frames except Learning_Update frames are forwarded using
- * OAM_MEP:DLR:DLR_MASK_CFG. Note, settings in DLR_FWD_CTRL or
+ * VOP_DLR:VOE_CONF_DLR:DLR_MASK_CFG. Note, settings in DLR_FWD_CTRL or
  * BCN_FWD_CTRL/ADV_FWD_CTRL are also applied and the port mask is not
  * applied when the frame is redirected or discarded.
  *
@@ -285,13 +292,12 @@
 /**
  * \brief
  * Forward selection for DLR frames failing one of the optional PDU
- * checks:- DLR version- DLR DMAC- DLR sequence identifierFrames not
- * failing these checks are considered valid frames.Related paramenters:-
- * OAM_MEP:DLR:DLR_CTRL.CHK_DMAC_ENA- OAM_MEP:DLR:DLR_CTRL.CHK_VERSION_ENA-
- * OAM_MEP:DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_STICKY
+ * checks:- DLR version- DLR DMACFrames not failing these checks are
+ * considered valid frames.Related paramenters:-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_DMAC_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_VERSION_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_DLR:VOE_STAT_DLR:DLR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . ERR_FWD_SEL
@@ -303,12 +309,12 @@
 /**
  * \brief
  * Forward selection for Beacon frames. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.DLR_BCN_CPU_QU. Only applicable when hardware
+ * VOP::CPU_EXTR_DLR.DLR_BCN_CPU_QU. Only applicable when hardware
  * processing of Beacon frames is disabled (DLR_CTRL.DLR_BCN_ENA). When
  * hardware processing of Beacon frames is enabled, setting DLR_BCN_FWD_SEL
  * > 0 triggers a CPU copy after the hardware processing is done.
  * Effectively, a NOP is changed to a COPY and a DISC is changed to a
- * REDIR. The CPU queue is set to OAM_MEP::DLR_CPU_CFG.DLR_BCN_CPU_QU.
+ * REDIR. The CPU queue is set to VOP::CPU_EXTR_DLR.DLR_BCN_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_BCN_FWD_SEL
@@ -320,7 +326,7 @@
 /**
  * \brief
  * Forward selection for Neighbor_Check_Request and frames. The CPU queue
- * is configured in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * is configured in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_NCREQ_FWD_SEL
@@ -332,7 +338,7 @@
 /**
  * \brief
  * Forward selection for Neighbor_Check_Response frames. The CPU queue is
- * configured in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * configured in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_NCRSP_FWD_SEL
@@ -344,7 +350,7 @@
 /**
  * \brief
  * Forward selection for Link_Status/Neighbor_Status frames. The CPU queue
- * is configured in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * is configured in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_LINK_FWD_SEL
@@ -356,7 +362,7 @@
 /**
  * \brief
  * Forward selection for Locate_Fault frames. The CPU queue is configured
- * in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_LOC_FWD_SEL
@@ -368,7 +374,7 @@
 /**
  * \brief
  * Forward selection for Announce frames. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_ANN_FWD_SEL
@@ -380,7 +386,7 @@
 /**
  * \brief
  * Forward selection for Sign_On frames. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_SIGN_FWD_SEL
@@ -392,12 +398,12 @@
 /**
  * \brief
  * Forward selection for Advertise frames. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.DLR_ADV_CPU_QU. Only applicable when hardware
+ * VOP::CPU_EXTR_DLR.DLR_ADV_CPU_QU. Only applicable when hardware
  * processing of Advertise frames is disabled (DLR_CTRL.DLR_ADV_ENA). When
  * hardware processing of Advertise frames is enabled, setting
  * DLR_ADV_FWD_SEL > 0 triggers a CPU copy after the hardware processing is
  * done. Effectively, a NOP is changed to a COPY and a DISC is changed to a
- * REDIR. The CPU queue is set to OAM_MEP::DLR_CPU_CFG.DLR_ADV_CPU_QU.
+ * REDIR. The CPU queue is set to VOP::CPU_EXTR_DLR.DLR_ADV_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_ADV_FWD_SEL
@@ -409,7 +415,7 @@
 /**
  * \brief
  * Forward selection for Flush_Tables frames. The CPU queue is configured
- * in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_FLSH_FWD_SEL
@@ -421,7 +427,7 @@
 /**
  * \brief
  * Forward selection for Learning_Update frames. The CPU queue is
- * configured in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * configured in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . DLR_LRN_FWD_SEL
@@ -433,7 +439,7 @@
 /**
  * \brief
  * Forward selection for DLR frames not covered by other selections. The
- * CPU queue is configured in OAM_MEP::DLR_CPU_CFG.DLR_OTHER_CPU_QU.
+ * CPU queue is configured in VOP::CPU_EXTR_DLR.DLR_OTHER_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_FWD_CTRL . OTHER_FWD_SEL
@@ -479,48 +485,13 @@
  * 3: Discard frame (DISC)
  *
  * Related parameters:
- * - OAM_MEP:DLR:DLR_FWD_CTRL.DLR_MASK_ENA
+ * - VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.DLR_MASK_ENA
  *
  * Register: \a VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
 #define VTSS_VOP_DLR_BCN_FWD_CTRL(gi)        VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,4)
-
-/**
- * \brief
- * Extract next valid DLR Beacon frame from active supervisor with ring
- * state RING_FAULT_STATE to CPU according to configuration in
- * OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.
- *
- * \details
- * 0: Disable (no CPU hitme once copy)
- * 1: Enable the next frame to be sent to CPU.
- *
- * The bit is cleared by HW when a CPU copy has been made.
- *
- * Field: ::VTSS_VOP_DLR_BCN_FWD_CTRL . NXT_FAULT_CPU_HITME_ONCE
- */
-#define  VTSS_F_VOP_DLR_BCN_FWD_CTRL_NXT_FAULT_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
-#define  VTSS_M_VOP_DLR_BCN_FWD_CTRL_NXT_FAULT_CPU_HITME_ONCE  VTSS_BIT(9)
-#define  VTSS_X_VOP_DLR_BCN_FWD_CTRL_NXT_FAULT_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
-
-/**
- * \brief
- * Extract next DLR Beacon frame subject to clearing the LOC miss counter
- * to CPU according to configuration in OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.
- *
- * \details
- * 0: Disable (no CPU hitme once copy)
- * 1: Enable the next frame to be sent to CPU.
- *
- * The bit is cleared by HW when a CPU copy has been made.
- *
- * Field: ::VTSS_VOP_DLR_BCN_FWD_CTRL . NXT_LOC_CPU_HITME_ONCE
- */
-#define  VTSS_F_VOP_DLR_BCN_FWD_CTRL_NXT_LOC_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_VOP_DLR_BCN_FWD_CTRL_NXT_LOC_CPU_HITME_ONCE  VTSS_BIT(8)
-#define  VTSS_X_VOP_DLR_BCN_FWD_CTRL_NXT_LOC_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * \details
@@ -542,9 +513,11 @@
  * \brief
  * Forward selection for Beacon frames for which frame's SMAC matches
  * DLR_MAC and the DLR ring state is not RING_FAULT_STATE. The CPU queue is
- * configured in OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.Related parameters:-
- * OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FWD_SEL- OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU-
- * OAM_MEP:DLR:DLR_MAC_LSB.DLR_MAC_LSB- OAM_MEP:DLR:DLR_MAC_MSB.DLR_MAC_MSB
+ * configured in VOP::CPU_EXTR_DLR.ACT_CPU_QU.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL.ACT_FWD_SEL-
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU-
+ * VOP_DLR:VOE_CONF_DLR:DLR_MAC_LSB.DLR_MAC_LSB-
+ * VOP_DLR:VOE_CONF_DLR:DLR_MAC_MSB.DLR_MAC_MSB
  *
  * \details
  * Field: ::VTSS_VOP_DLR_BCN_FWD_CTRL . ACT_FWD_SEL
@@ -557,10 +530,11 @@
  * \brief
  * Forward selection for Beacon frames for which frame's SMAC matches
  * DLR_MAC and the DLR ring state is set to RING_FAULT_STATE. The CPU queue
- * is configured in OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.Related parameters:-
- * OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FAULT_FWD_SEL-
- * OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU- OAM_MEP:DLR:DLR_MAC_LSB.DLR_MAC_LSB-
- * OAM_MEP:DLR:DLR_MAC_MSB.DLR_MAC_MSB
+ * is configured in VOP::CPU_EXTR_DLR.ACT_CPU_QU.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL.ACT_FAULT_FWD_SEL-
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU-
+ * VOP_DLR:VOE_CONF_DLR:DLR_MAC_LSB.DLR_MAC_LSB-
+ * VOP_DLR:VOE_CONF_DLR:DLR_MAC_MSB.DLR_MAC_MSB
  *
  * \details
  * Field: ::VTSS_VOP_DLR_BCN_FWD_CTRL . ACT_FAULT_FWD_SEL
@@ -606,9 +580,9 @@
  * \details
  * Field: ::VTSS_VOP_DLR_BCN_CFG . FAULT_ENA
  */
-#define  VTSS_F_VOP_DLR_BCN_CFG_FAULT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
-#define  VTSS_M_VOP_DLR_BCN_CFG_FAULT_ENA     VTSS_BIT(13)
-#define  VTSS_X_VOP_DLR_BCN_CFG_FAULT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,13,1)
+#define  VTSS_F_VOP_DLR_BCN_CFG_FAULT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_VOP_DLR_BCN_CFG_FAULT_ENA     VTSS_BIT(5)
+#define  VTSS_X_VOP_DLR_BCN_CFG_FAULT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
@@ -619,45 +593,17 @@
  * \details
  * Field: ::VTSS_VOP_DLR_BCN_CFG . CLR_MISS_CNT_ENA
  */
-#define  VTSS_F_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA  VTSS_BIT(12)
-#define  VTSS_X_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+#define  VTSS_F_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA  VTSS_BIT(4)
+#define  VTSS_X_VOP_DLR_BCN_CFG_CLR_MISS_CNT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
- * Specifies the maximum number of timeout periods without Beacon frames
- * from the supervisor.
- *
- * \details
- * Field: ::VTSS_VOP_DLR_BCN_CFG . MAX_MISS_CNT
- */
-#define  VTSS_F_VOP_DLR_BCN_CFG_MAX_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,8,4)
-#define  VTSS_M_VOP_DLR_BCN_CFG_MAX_MISS_CNT     VTSS_ENCODE_BITMASK(8,4)
-#define  VTSS_X_VOP_DLR_BCN_CFG_MAX_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,8,4)
-
-/**
- * \brief
- * Specifies the number of timeout periods without Beacon frames received
- * from the supervisor. Cleared by HW when receiving a valid Beacon frame.
- *
- * \details
- * n<MAX_MISS_CNT: No Loss of continuity
- * n==MAX_MISS_CNT: Loss of continuity
- *
- * Field: ::VTSS_VOP_DLR_BCN_CFG . MISS_CNT
- */
-#define  VTSS_F_VOP_DLR_BCN_CFG_MISS_CNT(x)   VTSS_ENCODE_BITFIELD(x,4,4)
-#define  VTSS_M_VOP_DLR_BCN_CFG_MISS_CNT      VTSS_ENCODE_BITMASK(4,4)
-#define  VTSS_X_VOP_DLR_BCN_CFG_MISS_CNT(x)   VTSS_EXTRACT_BITFIELD(x,4,4)
-
-/**
- * \brief
- * LOC period used by endpoint. Related parameters:-
- * OAM_MEP::LOC_PERIOD_CFG
+ * LOC period used by endpoint. Related parameters:- VOP::LOC_PERIOD_CFG
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in OAM_MEP::LOC_PERIOD_CFG[n-1] in use.
+ * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
  *
  * Field: ::VTSS_VOP_DLR_BCN_CFG . LOC_PERIOD
  */
@@ -678,7 +624,7 @@
  * 3: Discard frame (DISC)
  *
  * Related parameters:
- * - OAM_MEP:DLR:DLR_FWD_CTRL.DLR_MASK_ENA
+ * - VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.DLR_MASK_ENA
  *
  * Register: \a VOP_DLR:VOE_CONF_DLR:ADV_FWD_CTRL
  *
@@ -688,30 +634,13 @@
 
 /**
  * \brief
- * Extract next DLR Advertise frame subject to clearing the LOC miss
- * counter to CPU according to configuration in
- * OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.
- *
- * \details
- * 0: Disable (no CPU hitme once copy)
- * 1: Enable the next frame to be sent to CPU.
- *
- * The bit is cleared by HW when a CPU copy has been made.
- *
- * Field: ::VTSS_VOP_DLR_ADV_FWD_CTRL . NXT_ADV_LOC_CPU_HITME_ONCE
- */
-#define  VTSS_F_VOP_DLR_ADV_FWD_CTRL_NXT_ADV_LOC_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_VOP_DLR_ADV_FWD_CTRL_NXT_ADV_LOC_CPU_HITME_ONCE  VTSS_BIT(6)
-#define  VTSS_X_VOP_DLR_ADV_FWD_CTRL_NXT_ADV_LOC_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
-
-/**
- * \brief
  * Forward selection for Advertise frame from gateway with higher
  * precedence. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.NEW_CPU_QU.Related parameters:-
- * OAM_MEP:DLR:ADV_FWD_CTRL.GW_HI_PRIO_FWD_SEL-
- * OAM_MEP::DLR_CPU_CFG.NEW_CPU_QU- OAM_MEP:DLR:GW_MAC_LSB.GW_MAC_LSB-
- * OAM_MEP:DLR:GW_MAC_MSB.GW_MAC_MSB
+ * VOP::CPU_EXTR_DLR.NEW_CPU_QU.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:ADV_FWD_CTRL.GW_HI_PRIO_FWD_SEL-
+ * VOP::CPU_EXTR_DLR.NEW_CPU_QU-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_LSB.GW_MAC_LSB-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_MSB.GW_MAC_MSB
  *
  * \details
  * Field: ::VTSS_VOP_DLR_ADV_FWD_CTRL . GW_HI_PRIO_FWD_SEL
@@ -724,10 +653,11 @@
  * \brief
  * Forward selection for Advertise frame from gateway with lower
  * precedence. The CPU queue is configured in
- * OAM_MEP::DLR_CPU_CFG.NEW_CPU_QU.Related parameters:-
- * OAM_MEP:DLR:ADV_FWD_CTRL.GW_LO_PRIO_FWD_SEL-
- * OAM_MEP::DLR_CPU_CFG.NEW_CPU_QU- OAM_MEP:DLR:GW_MAC_LSB.GW_MAC_LSB-
- * OAM_MEP:DLR:GW_MAC_MSB.GW_MAC_MSB
+ * VOP::CPU_EXTR_DLR.NEW_CPU_QU.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:ADV_FWD_CTRL.GW_LO_PRIO_FWD_SEL-
+ * VOP::CPU_EXTR_DLR.NEW_CPU_QU-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_LSB.GW_MAC_LSB-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_MSB.GW_MAC_MSB
  *
  * \details
  * Field: ::VTSS_VOP_DLR_ADV_FWD_CTRL . GW_LO_PRIO_FWD_SEL
@@ -740,9 +670,11 @@
  * \brief
  * Forward selection for Advertise frame for which frame's SMAC matches
  * GW_MAC and the gateway state is not FAULT_STATE. The CPU queue is
- * configured in OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU.Related parameters:-
- * OAM_MEP:DLR:ADV_FWD_CTRL.GW_FWD_SEL- OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU-
- * OAM_MEP:DLR:GW_MAC_LSB.GW_MAC_LSB- OAM_MEP:DLR:GW_MAC_MSB.GW_MAC_MSB
+ * configured in VOP::CPU_EXTR_DLR.ACT_CPU_QU.Related parameters:-
+ * VOP_DLR:VOE_CONF_DLR:ADV_FWD_CTRL.GW_FWD_SEL-
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_LSB.GW_MAC_LSB-
+ * VOP_DLR:VOE_CONF_DLR:GW_MAC_MSB.GW_MAC_MSB
  *
  * \details
  * Field: ::VTSS_VOP_DLR_ADV_FWD_CTRL . GW_FWD_SEL
@@ -782,42 +714,13 @@
  * \details
  * Field: ::VTSS_VOP_DLR_ADV_CFG . ADV_CLR_MISS_CNT_ENA
  */
-#define  VTSS_F_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA  VTSS_BIT(12)
-#define  VTSS_X_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+#define  VTSS_F_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA  VTSS_BIT(4)
+#define  VTSS_X_VOP_DLR_ADV_CFG_ADV_CLR_MISS_CNT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
- * Specifies the maximum number of timeout periods without Advertise frames
- * from the gateway.
- *
- * \details
- * Field: ::VTSS_VOP_DLR_ADV_CFG . ADV_MAX_MISS_CNT
- */
-#define  VTSS_F_VOP_DLR_ADV_CFG_ADV_MAX_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,8,4)
-#define  VTSS_M_VOP_DLR_ADV_CFG_ADV_MAX_MISS_CNT     VTSS_ENCODE_BITMASK(8,4)
-#define  VTSS_X_VOP_DLR_ADV_CFG_ADV_MAX_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,8,4)
-
-/**
- * \brief
- * Specifies the number of timeout periods without Advertise frames
- * received from the gateway. Cleared by HW when receiving a valid
- * Advertise frame.
- *
- * \details
- * n<TBD: No Loss of continuity
- * n==TBD: Loss of continuity
- *
- * Field: ::VTSS_VOP_DLR_ADV_CFG . ADV_MISS_CNT
- */
-#define  VTSS_F_VOP_DLR_ADV_CFG_ADV_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,4,4)
-#define  VTSS_M_VOP_DLR_ADV_CFG_ADV_MISS_CNT     VTSS_ENCODE_BITMASK(4,4)
-#define  VTSS_X_VOP_DLR_ADV_CFG_ADV_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
-
-/**
- * \brief
- * LOC period used by endpoint. Related parameters:-
- * OAM_MEP::LOC_PERIOD_CFG
+ * LOC period used by endpoint. Related parameters:- VOP::LOC_PERIOD_CFG
  *
  * \details
  * Field: ::VTSS_VOP_DLR_ADV_CFG . ADV_LOC_PERIOD
@@ -828,39 +731,6 @@
 
 
 /**
- * \brief DLR sequence identifier
- *
- * \details
- * Configures the expected value of the sequence identifier for the next
- * Beacon/Advertise frame (DLR sequence Id). The value is incremented every
- * time a valid frame is received.
- *
- * Related parameters:
- * - OAM_MEP:DLR:DLR_CTRL.ADV_CHK_SEQ_ENA
- * - OAM_MEP:DLR:DLR_CTRL.BCN_CHK_SEQ_ENA
- * - OAM_MEP::CPU_CFG.CPU_ERR_QU
- * - OAM_MEP:DLR:DLR_RX_SEQ_CFG.RX_SEQ
- * - OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
- *
- * Register: \a VOP_DLR:VOE_CONF_DLR:DLR_RX_SEQ_CFG
- *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
- */
-#define VTSS_VOP_DLR_DLR_RX_SEQ_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,8)
-
-/**
- * \brief
- * Configures DLR frame's sequence identifier.
- *
- * \details
- * Field: ::VTSS_VOP_DLR_DLR_RX_SEQ_CFG . RX_SEQ
- */
-#define  VTSS_F_VOP_DLR_DLR_RX_SEQ_CFG_RX_SEQ(x)  (x)
-#define  VTSS_M_VOP_DLR_DLR_RX_SEQ_CFG_RX_SEQ     0xffffffff
-#define  VTSS_X_VOP_DLR_DLR_RX_SEQ_CFG_RX_SEQ(x)  (x)
-
-
-/**
  * \brief DLR precedence configuration
  *
  * \details
@@ -868,7 +738,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_DLR_PREC_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,9)
+#define VTSS_VOP_DLR_DLR_PREC_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,8)
 
 /**
  * \brief
@@ -898,16 +768,16 @@
  *
  * \details
  * Related parameters:
- * - OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FWD_SEL
- * - OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU
- * - OAM_MEP:DLR:DLR_MAC_LSB.DLR_MAC_LSB
- * - OAM_MEP:DLR:DLR_MAC_MSB.DLR_MAC_MSB
+ * - VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL.ACT_FWD_SEL
+ * - VOP::CPU_EXTR_DLR.ACT_CPU_QU
+ * - VOP_DLR:VOE_CONF_DLR:DLR_MAC_LSB.DLR_MAC_LSB
+ * - VOP_DLR:VOE_CONF_DLR:DLR_MAC_MSB.DLR_MAC_MSB
  *
  * Register: \a VOP_DLR:VOE_CONF_DLR:DLR_MAC_LSB
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_DLR_MAC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,10)
+#define VTSS_VOP_DLR_DLR_MAC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,9)
 
 /**
  * \brief
@@ -926,16 +796,16 @@
  *
  * \details
  * Related parameters:
- * - OAM_MEP:DLR:BCN_FWD_CTRL.ACT_FWD_SEL
- * - OAM_MEP::DLR_CPU_CFG.ACT_CPU_QU
- * - OAM_MEP:DLR:DLR_MAC_LSB.DLR_MAC_LSB
- * - OAM_MEP:DLR:DLR_MAC_MSB.DLR_MAC_MSB
+ * - VOP_DLR:VOE_CONF_DLR:BCN_FWD_CTRL.ACT_FWD_SEL
+ * - VOP::CPU_EXTR_DLR.ACT_CPU_QU
+ * - VOP_DLR:VOE_CONF_DLR:DLR_MAC_LSB.DLR_MAC_LSB
+ * - VOP_DLR:VOE_CONF_DLR:DLR_MAC_MSB.DLR_MAC_MSB
  *
  * Register: \a VOP_DLR:VOE_CONF_DLR:DLR_MAC_MSB
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_DLR_MAC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,11)
+#define VTSS_VOP_DLR_DLR_MAC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,10)
 
 /**
  * \brief
@@ -960,7 +830,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_GW_MAC_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,12)
+#define VTSS_VOP_DLR_GW_MAC_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,11)
 
 /**
  * \brief
@@ -985,7 +855,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_GW_MAC_MSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,13)
+#define VTSS_VOP_DLR_GW_MAC_MSB(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,0,12)
 
 /**
  * \brief
@@ -1016,7 +886,7 @@
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  * @param ri Register: DLR_TX_CFG (??), 0-1
  */
-#define VTSS_VOP_DLR_DLR_TX_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,ri,14)
+#define VTSS_VOP_DLR_DLR_TX_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x0,gi,16,ri,13)
 
 /**
  * \brief
@@ -1065,6 +935,175 @@
 
 
 /**
+ * \brief DLR sequence identifier
+ *
+ * \details
+ * Configures the expected value of the sequence identifier for the next
+ * Beacon/Advertise frame (DLR sequence Id). The value is incremented every
+ * time a valid frame is received.
+ *
+ * Index 0: Configuration applies to DLR_BCN frames.
+ * Index 1: Configuration applies to DLR_ADV frames.
+ *
+ * Related parameters:
+ * - VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA
+ * - VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA
+ * - VOP::CPU_EXTR_CFG.CPU_ERR_QU
+ * - VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ.RX_SEQ
+ * - VOP_DLR:VOE_STAT_DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
+ *
+ * Register: \a VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ * @param ri Register: DLR_RX_SEQ (??), 0-1
+ */
+#define VTSS_VOP_DLR_DLR_RX_SEQ(gi,ri)       VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,ri,0)
+
+/**
+ * \brief
+ * Configures DLR frame's sequence identifier.
+ *
+ * \details
+ * Field: ::VTSS_VOP_DLR_DLR_RX_SEQ . RX_SEQ
+ */
+#define  VTSS_F_VOP_DLR_DLR_RX_SEQ_RX_SEQ(x)  (x)
+#define  VTSS_M_VOP_DLR_DLR_RX_SEQ_RX_SEQ     0xffffffff
+#define  VTSS_X_VOP_DLR_DLR_RX_SEQ_RX_SEQ(x)  (x)
+
+
+/**
+ * \brief DLR sequence identifier
+ *
+ * \details
+ * Configures the expected value of the sequence identifier for the next
+ * Beacon/Advertise frame (DLR sequence Id). The value is incremented every
+ * time a frame is transmitted.
+ *
+ * Index 0: Configuration applies to DLR_BCN frames.
+ * Index 1: Configuration applies to DLR_ADV frames.
+ *
+ * Related parameters:
+ * - VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA
+ * - VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA
+ * - VOP::CPU_EXTR_CFG.CPU_ERR_QU
+ * - VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ.RX_SEQ
+ * - VOP_DLR:VOE_STAT_DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
+ *
+ * Register: \a VOP_DLR:VOE_STAT_DLR:DLR_TX_SEQ
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ * @param ri Register: DLR_TX_SEQ (??), 0-1
+ */
+#define VTSS_VOP_DLR_DLR_TX_SEQ(gi,ri)       VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,ri,2)
+
+/**
+ * \brief
+ * Configures DLR frame's sequence identifier.
+ *
+ * \details
+ * Field: ::VTSS_VOP_DLR_DLR_TX_SEQ . TX_SEQ
+ */
+#define  VTSS_F_VOP_DLR_DLR_TX_SEQ_TX_SEQ(x)  (x)
+#define  VTSS_M_VOP_DLR_DLR_TX_SEQ_TX_SEQ     0xffffffff
+#define  VTSS_X_VOP_DLR_DLR_TX_SEQ_TX_SEQ(x)  (x)
+
+
+/**
+ * \brief Status of DLR BCN handling
+ *
+ * \details
+ * Register: \a VOP_DLR:VOE_STAT_DLR:BCN_STAT
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ */
+#define VTSS_VOP_DLR_BCN_STAT(gi)            VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,4)
+
+/**
+ * \brief
+ * Specifies the maximum number of timeout periods without Beacon frames
+ * from the supervisor.
+ *
+ * \details
+ * Field: ::VTSS_VOP_DLR_BCN_STAT . MAX_MISS_CNT
+ */
+#define  VTSS_F_VOP_DLR_BCN_STAT_MAX_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_VOP_DLR_BCN_STAT_MAX_MISS_CNT     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_VOP_DLR_BCN_STAT_MAX_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * Specifies the number of timeout periods without Beacon frames received
+ * from the supervisor. Cleared by HW when receiving a valid Beacon frame.
+ *
+ * \details
+ * n<MAX_MISS_CNT: No Loss of continuity
+ * n==MAX_MISS_CNT: Loss of continuity
+ *
+ * Field: ::VTSS_VOP_DLR_BCN_STAT . MISS_CNT
+ */
+#define  VTSS_F_VOP_DLR_BCN_STAT_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_VOP_DLR_BCN_STAT_MISS_CNT     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_VOP_DLR_BCN_STAT_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+
+/**
+ * \brief Configuration of BCN_FAULT hit me once
+ *
+ * \details
+ * Register: \a VOP_DLR:VOE_STAT_DLR:BCN_FAULT_HMO
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ */
+#define VTSS_VOP_DLR_BCN_FAULT_HMO(gi)       VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,5)
+
+/**
+ * \brief
+ * Extract next valid DLR Beacon frame from active supervisor with ring
+ * state RING_FAULT_STATE to CPU according to configuration in
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU.
+ *
+ * \details
+ * 0: Disable (no CPU hitme once copy)
+ * 1: Enable the next frame to be sent to CPU.
+ *
+ * The bit is cleared by HW when a CPU copy has been made.
+ *
+ * Field: ::VTSS_VOP_DLR_BCN_FAULT_HMO . NXT_FAULT_CPU_HITME_ONCE
+ */
+#define  VTSS_F_VOP_DLR_BCN_FAULT_HMO_NXT_FAULT_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_VOP_DLR_BCN_FAULT_HMO_NXT_FAULT_CPU_HITME_ONCE  VTSS_BIT(0)
+#define  VTSS_X_VOP_DLR_BCN_FAULT_HMO_NXT_FAULT_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of BCN_LOC hit me once
+ *
+ * \details
+ * Register: \a VOP_DLR:VOE_STAT_DLR:BCN_LOC_HMO
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ */
+#define VTSS_VOP_DLR_BCN_LOC_HMO(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,6)
+
+/**
+ * \brief
+ * Extract next DLR Beacon frame subject to clearing the LOC miss counter
+ * to CPU according to configuration in VOP::CPU_EXTR_DLR.ACT_CPU_QU.
+ *
+ * \details
+ * 0: Disable (no CPU hitme once copy)
+ * 1: Enable the next frame to be sent to CPU.
+ *
+ * The bit is cleared by HW when a CPU copy has been made.
+ *
+ * Field: ::VTSS_VOP_DLR_BCN_LOC_HMO . NXT_LOC_CPU_HITME_ONCE
+ */
+#define  VTSS_F_VOP_DLR_BCN_LOC_HMO_NXT_LOC_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_VOP_DLR_BCN_LOC_HMO_NXT_LOC_CPU_HITME_ONCE  VTSS_BIT(0)
+#define  VTSS_X_VOP_DLR_BCN_LOC_HMO_NXT_LOC_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
  * \brief Counts number of received valid DLR Beacon frames subject to DLR Beacon processing
  *
  * \details
@@ -1075,7 +1114,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_BCN_RX_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,0)
+#define VTSS_VOP_DLR_BCN_RX_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,7)
 
 /**
  * \brief
@@ -1101,7 +1140,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_BCN_RX_LOC_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,1)
+#define VTSS_VOP_DLR_BCN_RX_LOC_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,8)
 
 /**
  * \brief
@@ -1116,6 +1155,74 @@
 
 
 /**
+ * \brief Status of DLR ADV handling
+ *
+ * \details
+ * Register: \a VOP_DLR:VOE_STAT_DLR:ADV_STAT
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ */
+#define VTSS_VOP_DLR_ADV_STAT(gi)            VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,9)
+
+/**
+ * \brief
+ * Specifies the maximum number of timeout periods without Advertise frames
+ * from the gateway.
+ *
+ * \details
+ * Field: ::VTSS_VOP_DLR_ADV_STAT . ADV_MAX_MISS_CNT
+ */
+#define  VTSS_F_VOP_DLR_ADV_STAT_ADV_MAX_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_VOP_DLR_ADV_STAT_ADV_MAX_MISS_CNT     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_VOP_DLR_ADV_STAT_ADV_MAX_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * Specifies the number of timeout periods without Advertise frames
+ * received from the gateway. Cleared by HW when receiving a valid
+ * Advertise frame.
+ *
+ * \details
+ * n<TBD: No Loss of continuity
+ * n==TBD: Loss of continuity
+ *
+ * Field: ::VTSS_VOP_DLR_ADV_STAT . ADV_MISS_CNT
+ */
+#define  VTSS_F_VOP_DLR_ADV_STAT_ADV_MISS_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_VOP_DLR_ADV_STAT_ADV_MISS_CNT     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_VOP_DLR_ADV_STAT_ADV_MISS_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+
+/**
+ * \brief Configuration of ADV_LOC hit me once
+ *
+ * \details
+ * Register: \a VOP_DLR:VOE_STAT_DLR:ADV_LOC_HMO
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
+ */
+#define VTSS_VOP_DLR_ADV_LOC_HMO(gi)         VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,10)
+
+/**
+ * \brief
+ * Extract next DLR Advertise frame subject to clearing the LOC miss
+ * counter to CPU according to configuration in
+ * VOP::CPU_EXTR_DLR.ACT_CPU_QU.
+ *
+ * \details
+ * 0: Disable (no CPU hitme once copy)
+ * 1: Enable the next frame to be sent to CPU.
+ *
+ * The bit is cleared by HW when a CPU copy has been made.
+ *
+ * Field: ::VTSS_VOP_DLR_ADV_LOC_HMO . NXT_ADV_LOC_CPU_HITME_ONCE
+ */
+#define  VTSS_F_VOP_DLR_ADV_LOC_HMO_NXT_ADV_LOC_CPU_HITME_ONCE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_VOP_DLR_ADV_LOC_HMO_NXT_ADV_LOC_CPU_HITME_ONCE  VTSS_BIT(0)
+#define  VTSS_X_VOP_DLR_ADV_LOC_HMO_NXT_ADV_LOC_CPU_HITME_ONCE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
  * \brief Counts number of received valid DLR Advertise frames subject to DLR Advertise processing
  *
  * \details
@@ -1126,7 +1233,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_ADV_RX_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,2)
+#define VTSS_VOP_DLR_ADV_RX_CNT(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,11)
 
 /**
  * \brief
@@ -1152,7 +1259,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_ADV_RX_LOC_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,3)
+#define VTSS_VOP_DLR_ADV_RX_LOC_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,12)
 
 /**
  * \brief
@@ -1174,7 +1281,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_DLR_STICKY(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,4)
+#define VTSS_VOP_DLR_DLR_STICKY(gi)          VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,13)
 
 /**
  * \brief
@@ -1183,9 +1290,9 @@
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_STICKY . DLR_RX_STICKY
  */
-#define  VTSS_F_VOP_DLR_DLR_STICKY_DLR_RX_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_VOP_DLR_DLR_STICKY_DLR_RX_STICKY  VTSS_BIT(6)
-#define  VTSS_X_VOP_DLR_DLR_STICKY_DLR_RX_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+#define  VTSS_F_VOP_DLR_DLR_STICKY_DLR_RX_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_DLR_RX_STICKY  VTSS_BIT(7)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_DLR_RX_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
 
 /**
  * \brief
@@ -1194,51 +1301,68 @@
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_STICKY . DLR_RX_PROC_STICKY
  */
-#define  VTSS_F_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY  VTSS_BIT(5)
-#define  VTSS_X_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+#define  VTSS_F_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY  VTSS_BIT(6)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_DLR_RX_PROC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
  * Set if frame with unexpected DMAC was received. Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.CHK_DMAC_ENA- OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
- * OAM_MEP::CPU_CFG.CPU_ERR_QU- OAM_MEP:DLR:DLR_STICKY.DMAC_ERR_STICKY
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_DMAC_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.DMAC_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_STICKY . DMAC_ERR_STICKY
  */
-#define  VTSS_F_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY  VTSS_BIT(4)
-#define  VTSS_X_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+#define  VTSS_F_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY  VTSS_BIT(5)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_DMAC_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
  * Set if frame with unexpected version was received. Related parameters:-
- * OAM_MEP:DLR:DLR_CTRL.CHK_VERSION_ENA- OAM_MEP:DLR:DLR_CTRL.DLR_VERSION-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_STICKY.VERSION_ERR_STICKY
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.CHK_VERSION_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.DLR_VERSION-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU-
+ * VOP_DLR:VOE_STAT_DLR:DLR_STICKY.VERSION_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_DLR_DLR_STICKY . VERSION_ERR_STICKY
  */
-#define  VTSS_F_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY  VTSS_BIT(3)
-#define  VTSS_X_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+#define  VTSS_F_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY  VTSS_BIT(4)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_VERSION_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
- * Related parameters:- OAM_MEP:DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
- * OAM_MEP:DLR:DLR_FWD_CTRL.ERR_FWD_SEL- OAM_MEP::CPU_CFG.CPU_ERR_QU-
- * OAM_MEP:DLR:DLR_RX_SEQ_CFG.RX_SEQ-
- * OAM_MEP:DLR:DLR_STICKY.RX_SEQ_ERR_STICKY
+ * Related parameters:- VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ.RX_SEQ
  *
  * \details
- * Field: ::VTSS_VOP_DLR_DLR_STICKY . RX_SEQ_ERR_STICKY
+ * Field: ::VTSS_VOP_DLR_DLR_STICKY . BCN_SEQ_ERR_STICKY
  */
-#define  VTSS_F_VOP_DLR_DLR_STICKY_RX_SEQ_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_VOP_DLR_DLR_STICKY_RX_SEQ_ERR_STICKY  VTSS_BIT(2)
-#define  VTSS_X_VOP_DLR_DLR_STICKY_RX_SEQ_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+#define  VTSS_F_VOP_DLR_DLR_STICKY_BCN_SEQ_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_BCN_SEQ_ERR_STICKY  VTSS_BIT(3)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_BCN_SEQ_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Related parameters:- VOP_DLR:VOE_CONF_DLR:DLR_CTRL.BCN_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_CTRL.ADV_CHK_SEQ_ENA-
+ * VOP_DLR:VOE_CONF_DLR:DLR_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_DLR:VOE_STAT_DLR:DLR_RX_SEQ.RX_SEQ
+ *
+ * \details
+ * Field: ::VTSS_VOP_DLR_DLR_STICKY . ADV_SEQ_ERR_STICKY
+ */
+#define  VTSS_F_VOP_DLR_DLR_STICKY_ADV_SEQ_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_VOP_DLR_DLR_STICKY_ADV_SEQ_ERR_STICKY  VTSS_BIT(2)
+#define  VTSS_X_VOP_DLR_DLR_STICKY_ADV_SEQ_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
 
 /**
  * \brief
@@ -1279,7 +1403,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE (??), 0-37
  */
-#define VTSS_VOP_DLR_DLR_INTR_ENA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,8,0,5)
+#define VTSS_VOP_DLR_DLR_INTR_ENA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP_DLR,0x400,gi,16,0,14)
 
 /**
  * \brief

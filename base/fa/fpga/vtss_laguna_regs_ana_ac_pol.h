@@ -55,9 +55,9 @@
  *
  * Field: ::VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG . STORM_RATE
  */
-#define  VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,20)
-#define  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE     VTSS_ENCODE_BITMASK(0,20)
-#define  VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,20)
+#define  VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,19)
+#define  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE     VTSS_ENCODE_BITMASK(0,19)
+#define  VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG_STORM_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,19)
 
 
 /**
@@ -243,9 +243,9 @@
  *
  * Field: ::VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG . ACL_RATE
  */
-#define  VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,20)
-#define  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE     VTSS_ENCODE_BITMASK(0,20)
-#define  VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,20)
+#define  VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,19)
+#define  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE     VTSS_ENCODE_BITMASK(0,19)
+#define  VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG_ACL_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,19)
 
 
 /**
@@ -806,11 +806,11 @@
  * \brief
  * This configuration will affect the policing rate unit for the storm, ACL
  * and port policers. The rate unit is calculated as follows:Rate unit =
- * SYS_CLK / (POL_UPD_INT * 32) bpsRecommended value and corresponding rate
- * unit:250MHz: 312 => 25040bps500MHz: 624 => 25040bps625MHz: 780 =>
- * 25040bpsFrame rate mode is also affected be this setting. The default
- * frame rate unit is 10fps (frames per second). This is scaled according
- * to this formula:Frame rate = 10fps * (Rate unit / 25040bps)
+ * SYS_CLK / (POL_UPD_INT * 16) bpsRecommended value and corresponding rate
+ * unit:280 MHz: 700 => 25000 bpsFrame rate mode is also affected be this
+ * setting. The default frame rate unit is 10fps (frames per second). This
+ * is scaled according to this formula:Frame rate = 10fps * (Rate unit /
+ * 25000 bps)
  *
  * \details
  * 0-31: Not allowed
@@ -1312,9 +1312,9 @@
  *
  * Field: ::VTSS_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG . PORT_RATE
  */
-#define  VTSS_F_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,20)
-#define  VTSS_M_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE     VTSS_ENCODE_BITMASK(0,20)
-#define  VTSS_X_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,20)
+#define  VTSS_F_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE(x)  VTSS_ENCODE_BITFIELD(x,0,19)
+#define  VTSS_M_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE     VTSS_ENCODE_BITMASK(0,19)
+#define  VTSS_X_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG_PORT_RATE(x)  VTSS_EXTRACT_BITFIELD(x,0,19)
 
 /**
  * Register Group: \a ANA_AC_POL:POL_PORT_CTRL
