@@ -1798,8 +1798,10 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     val = 1;
     val = val | INDY_PTP_TSU_GEN_CONF_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+    #if 0
     indy_ts_classifier_conf_reg_dump(dev, NULL);
     indy_ts_clock_conf_reg_dump(dev, NULL);
+    #endif
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
