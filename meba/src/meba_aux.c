@@ -224,6 +224,66 @@ known_dpll:
     return rc;
 }
 
+
+// do reading of SW version from DPLL
+static mesa_rc meba_synce_spi_if_do_read_dpll_fw_ver(meba_inst_t inst, meba_synce_clock_fw_ver_t *detected_dpll_ver)
+{
+    mesa_rc rc = MESA_RC_OK;
+
+    // attempt to read SW version
+    if (known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773) {
+        // select page 0
+        uint8_t tx_data[2] = {0x7F, 0};
+        uint8_t rx_data[2];
+        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+            T_E(inst, "Could not do SPI transfer to DPLL. Most likely the board does not support a SyncE DPLL.");
+            return MESA_RC_ERROR;
+        }
+        // read 2 byte SW version
+        *detected_dpll_ver = 0;
+        tx_data[0] = 0x85; tx_data[1] = 0;
+        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+            return MESA_RC_ERROR;
+        }
+        *detected_dpll_ver |= rx_data[1];
+        *detected_dpll_ver <<= 8;
+        tx_data[0] = 0x86; tx_data[1] = 0;
+        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+            return MESA_RC_ERROR;
+        }
+        *detected_dpll_ver |= rx_data[1];
+        return rc;
+     } else {
+        T_I(inst, "Fetch of SW version not supported on this DPLL");
+        return MESA_RC_ERROR;
+     }
+}
+
+// fetch FW version of DPLL
+mesa_rc meba_synce_spi_if_dpll_fw_ver_get(meba_inst_t inst, meba_synce_clock_fw_ver_t *dpll_ver)
+{
+    meba_synce_clock_fw_ver_t tmp_dpll_ver;
+    mesa_rc rc = MESA_RC_OK;
+
+    if ((MESA_CAP(MESA_CAP_MISC_CHIP_FAMILY) == MESA_CHIP_FAMILY_SERVALT) && MESA_CAP(MESA_CAP_CLOCK)) {
+        T_I(inst, "Using ServalT's builtin DPLL for SyncE.");
+        *dpll_ver = 0; // ??
+        rc = MESA_RC_ERROR;
+    } else {
+        // fetch FW version of DPLL
+        if (meba_synce_spi_if_do_read_dpll_fw_ver(inst, &tmp_dpll_ver) == MESA_RC_OK) {
+            // ok
+            *dpll_ver = tmp_dpll_ver;
+        } else {
+            *dpll_ver = 0; // ??
+            rc = MESA_RC_ERROR;
+        }
+    }
+    return rc;
+}
+
 mesa_rc meba_synce_spi_if_find_spidev(meba_inst_t inst, const char *id, char *spi_file, size_t max_size)
 {
     // Find the spidev device that corresponds to the CPLD

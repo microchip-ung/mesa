@@ -250,6 +250,8 @@ typedef enum {
     MEBA_SYNCE_CLOCK_HW_ZL_30773   // Zarlink ZL 30773 clock present
 } meba_synce_clock_hw_id_t;
 
+typedef uint32_t meba_synce_clock_fw_ver_t;
+
 // Get the synce clock graph for the given board instance.
 // conf [OUT] The MEBA synce clock graph.
 typedef mesa_rc (*meba_synce_graph_get_t)(struct meba_inst *inst,
@@ -292,12 +294,18 @@ typedef mesa_rc (*meba_synce_spi_if_find_spidev_t)(struct meba_inst *inst,
                                                    char             *spi_file,
                                                    size_t            max_size);
 
+
+typedef mesa_rc (*meba_synce_spi_if_dpll_fw_ver_get_t)(meba_inst_t inst,
+                                                       meba_synce_clock_fw_ver_t *dpll_ver);
+
+
 #define MEBA_LIST_OF_API_SYNCE_CALLS   \
     X(meba_synce_graph_get)            \
     X(meba_synce_mux_set)              \
     X(meba_synce_spi_if_spi_transfer)  \
     X(meba_synce_spi_if_get_dpll_type) \
     X(meba_synce_spi_if_find_spidev)   \
+    X(meba_synce_spi_if_dpll_fw_ver_get)  \
 
 typedef struct {
     meba_synce_graph_get_t             meba_synce_graph_get;
@@ -305,6 +313,7 @@ typedef struct {
     meba_synce_spi_if_spi_transfer_t   meba_synce_spi_if_spi_transfer;
     meba_synce_spi_if_get_dpll_type_t  meba_synce_spi_if_get_dpll_type;
     meba_synce_spi_if_find_spidev_t    meba_synce_spi_if_find_spidev;
+    meba_synce_spi_if_dpll_fw_ver_get_t meba_synce_spi_if_dpll_fw_ver_get;
 } meba_api_synce_t;
 
 #include <microchip/ethernet/board/api/hdr_end.h>
