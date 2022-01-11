@@ -318,7 +318,7 @@ class Sample < ::Ox::Sax
                 if $env_prop_db[a[:name]].nil?
                     $env_prop_db[a[:name]] = e[:data]
                 else
-                    raise "env not stable!" if $env_prop_db[a[:name]] != e[:data]
+                    raise "env not stable!" if $env_prop_db[a[:name]] != e[:data] and a[:name] != "git_branch"
                 end
             end
 
