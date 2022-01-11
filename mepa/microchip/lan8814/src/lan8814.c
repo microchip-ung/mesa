@@ -281,9 +281,7 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
     switch(info->group)
     {
         case MEPA_DEBUG_GROUP_ALL:
-        case MEPA_DEBUG_GROUP_PORT:
         case MEPA_DEBUG_GROUP_PHY:
-        case MEPA_DEBUG_GROUP_INIT:
         {
             MEPA_ENTER(dev);
             rc = indy_reg_dump(dev, pr);

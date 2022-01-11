@@ -2190,9 +2190,7 @@ mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
     switch(info->group)
     {
         case MEPA_DEBUG_GROUP_ALL:
-        case MEPA_DEBUG_GROUP_PORT:
         case MEPA_DEBUG_GROUP_PHY_TS:
-        case MEPA_DEBUG_GROUP_INIT:
         {
             MEPA_ENTER(dev);
             indy_ts_classifier_conf_reg_dump(dev, pr);

@@ -353,48 +353,10 @@ typedef enum {
 
  // Debug function group
 typedef enum {
-    MEPA_DEBUG_GROUP_ALL,       /**< All groups */
-    MEPA_DEBUG_GROUP_INIT,      /**< Initialization */
-    MEPA_DEBUG_GROUP_MISC,      /**< Miscellaneous */
-    MEPA_DEBUG_GROUP_PORT,      /**< Port configuration */
-    MEPA_DEBUG_GROUP_PORT_CNT,  /**< Port counters */
-    MEPA_DEBUG_GROUP_PHY,       /**< PHY */
-    MEPA_DEBUG_GROUP_VLAN,      /**< VLAN */
-    MEPA_DEBUG_GROUP_PVLAN,     /**< PVLAN */
-    MEPA_DEBUG_GROUP_MAC_TABLE, /**< MAC address table */
-    MEPA_DEBUG_GROUP_ACL,       /**< ACL */
-    MEPA_DEBUG_GROUP_QOS,       /**< QoS */
-    MEPA_DEBUG_GROUP_AGGR,      /**< Link aggregation */
-    MEPA_DEBUG_GROUP_GLAG,      /**< Global link aggregation */
-    MEPA_DEBUG_GROUP_STP,       /**< Spanning Tree */
-    MEPA_DEBUG_GROUP_MIRROR,    /**< Mirroring */
-    MEPA_DEBUG_GROUP_EVC,       /**< EVC */
-    MEPA_DEBUG_GROUP_ERPS,      /**< ERPS */
-    MEPA_DEBUG_GROUP_EPS,       /**< EPS */
-    MEPA_DEBUG_GROUP_SR,        /**< Seamless Redundancy */
-    MEPA_DEBUG_GROUP_PACKET,    /**< Packet control */
-    MEPA_DEBUG_GROUP_FDMA,      /**< Obsoleted */
-    MEPA_DEBUG_GROUP_TS,        /**< TS: TimeStamping */
-    MEPA_DEBUG_GROUP_PHY_TS,    /**< PHY_TS: PHY TimeStamping */
-    MEPA_DEBUG_GROUP_WM,        /**< WaterMarks */
-    MEPA_DEBUG_GROUP_LRN,       /**< DEPRECATED. Use MEPA_DEBUG_GROUP_MAC_TABLE instead */
-    MEPA_DEBUG_GROUP_IPMC,      /**< IP Multicast */
-    MEPA_DEBUG_GROUP_STACK,     /**< Stacking */
-    MEPA_DEBUG_GROUP_CMEF,      /**< Congestion Management */
-    MEPA_DEBUG_GROUP_HOST,      /**< CE-MAX Host configuration */
-    MEPA_DEBUG_GROUP_MPLS,      /**< MPLS */
-    MEPA_DEBUG_GROUP_HW_PROT,   /**< HW Protection */
-    MEPA_DEBUG_GROUP_HQOS,      /**< Hierarchical Quality of Service */
-    MEPA_DEBUG_GROUP_VXLAT,     /**< VLAN Translation */
-    MEPA_DEBUG_GROUP_OAM,       /**< OAM, incl. VOEs/VOP */
-    MEPA_DEBUG_GROUP_MRP,       /**< Media Redundancy Protocol (MRP) */
-    MEPA_DEBUG_GROUP_SER_GPIO,  /**< Serial GPIO configuration */
-    MEPA_DEBUG_GROUP_L3,        /**< L3 services */
-    MEPA_DEBUG_GROUP_AFI,       /**< Automatic Frame Injector */
-    MEPA_DEBUG_GROUP_MACSEC,    /**< 802.1AE MacSec */
-    MEPA_DEBUG_GROUP_SERDES,    /**< Serdes Macroes */
-    MEPA_DEBUG_GROUP_KR,        /**< 5G/10G/25Base-KR */
-    MEPA_DEBUG_GROUP_MUX,       /**< Mux mode */
+    MEPA_DEBUG_GROUP_ALL    ,    /**< All groups */
+    MEPA_DEBUG_GROUP_PHY    ,    /**< PHY */
+    MEPA_DEBUG_GROUP_PHY_TS ,    /**< PHY_TS: PHY TimeStamping */
+    MEPA_DEBUG_GROUP_MACSEC ,    /**< 802.1AE MacSec */
 
     /* New groups are added above this line */
     MEPA_DEBUG_GROUP_COUNT      /**< Number of groups */
