@@ -10247,8 +10247,8 @@ AQ_Retcode   AQ_API_SetPktGenControl
   uint16_t netIntfPktGenFlag = 0;
   uint16_t rateVal = 0;
   AQ_API_10G_SystemOperatingMode _10G_SystemOperatingMode;
-  AQ_API_10G_NetworkOperatingMode _10G_NetworkOperatingMode;
-  AQ_API_1G_NetworkOperatingMode _1G_NetworkOperatingMode;
+  AQ_API_10G_NetworkOperatingMode _10G_NetworkOperatingMode = { 0 };
+  AQ_API_1G_NetworkOperatingMode _1G_NetworkOperatingMode = { 0 };
 
   AQ_API_DeclareLocalStruct(AQ_PhyXS_Transmit_xauiRx_ReservedVendorProvisioning, regGroup)
 

@@ -13,7 +13,7 @@
 typedef uint32_t u32;
 typedef uint16_t u16;
 
-meba_inst_t meba_global_inst;
+extern meba_inst_t meba_global_inst;
 kr_appl_conf_t *kr_conf_state;
 
 // For debug

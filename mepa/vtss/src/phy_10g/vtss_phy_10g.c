@@ -4442,8 +4442,8 @@ vtss_rc vtss_phy_10g_prbs_mon_conf_get(const vtss_inst_t            inst,
                                        const vtss_port_no_t         port_no,
                                        vtss_phy_10g_prbs_mon_conf_t *const conf)
 {
-    vtss_phy_10g_prbs_monitor_conf_t   monitor_conf;
-    vtss_phy_10g_prbs_monitor_status_t monitor_status;
+    vtss_phy_10g_prbs_monitor_conf_t   monitor_conf = { 0 };
+    vtss_phy_10g_prbs_monitor_status_t monitor_status = { 0 };
 
     if (conf == NULL) {
         VTSS_E("parm *conf* is not set on port %u ",port_no);
