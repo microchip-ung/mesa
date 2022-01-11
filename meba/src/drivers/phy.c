@@ -414,7 +414,7 @@ mepa_rc meba_port_test_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const 
     return mesa_port_test_conf_set(NULL, port_no, conf);
 }
 
-mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
+mepa_rc meba_phy_debug_info_print(const meba_inst_t         inst,
                                   const mesa_debug_printf_t pr,
                                   const mesa_debug_info_t   *const info)
 {
@@ -440,12 +440,8 @@ mepa_rc meba_phy_debug_info_print(const mesa_inst_t         inst,
         return MESA_RC_OK;
     }
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
-        if ((port_no < mesa_port_cnt(NULL)) &&
-            (mesa_port_list_get(&info->port_list, port_no)))
-        {
-            pr("PHY %03d\n=======\n", port_no);
-            (void) mepa_debug_info_dump(inst->phy_devices[port_no], pr, &mepa_dbg);
-        }
+        pr("PHY %03d\n=======\n", port_no);
+        (void) mepa_debug_info_dump(inst->phy_devices[port_no], pr, &mepa_dbg);
     }
     return MESA_RC_OK;
 }
