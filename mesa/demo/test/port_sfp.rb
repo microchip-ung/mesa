@@ -95,6 +95,10 @@ test "Test SFP loop" do
             if conf["speed"].include? "10G" then spds = ["10g"] end
             if conf["speed"].include? "1G" then spds = ["1000fdx"] end
             if conf["speed"].include? "100M" then spds = ["100fdx"] end
+
+            if (type == "MESA_PORT_INTERFACE_SGMII" || type == "MESA_PORT_INTERFACE_QSGMII")
+                spds = ["1000fdx"]
+            end
         end
 
         if (spds == nil)
@@ -111,7 +115,9 @@ test "Test SFP loop" do
         vlan_add(3, $vlan3ports)
 
         spds.each {|spd|
-            $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
+            if (type != "MESA_PORT_INTERFACE_SGMII" && type != "MESA_PORT_INTERFACE_QSGMII")
+                $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"
+            end
             t_i("==========================================================");
             t_i("======== DAC ports:#{cli_ports} speed:#{spd} =============")
             sleep 5
