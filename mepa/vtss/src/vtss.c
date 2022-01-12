@@ -870,7 +870,6 @@ mepa_rc phy_debug_info_dump(struct mepa_device *dev,
     phy_info.full = info->full;
     phy_info.clear = info->clear;
     phy_info.vml_format = info->vml_format;
-    vtss_phy_debug_info_print(NULL, pr, &phy_info);
 
     return vtss_phy_debug_info_print(NULL, pr, &phy_info);
 }
