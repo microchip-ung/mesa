@@ -145,7 +145,6 @@ static void indy_phy_deb_pr_reg (mepa_device_t *dev,
 static mepa_rc indy_reg_dump(struct mepa_device *dev,
                              const mepa_debug_print_t pr)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t val = 0;
     uint16_t id = 0;
 
