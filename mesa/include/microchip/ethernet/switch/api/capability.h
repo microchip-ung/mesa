@@ -133,6 +133,7 @@ typedef enum {
     MESA_CAP_L2_FRER_IFLOW_POP,             /**< FRER R-tag popping per ingress flow */
     MESA_CAP_L2_RCL,                        /**< Real-time Control List */
     MESA_CAP_L2_MAC_INDEX_TABLE,            /**< Index-based MAC address table */
+    MESA_CAP_L2_REDBOX_CNT,                 /**< Number of RedBoxes */
 
     // Layer 3
     MESA_CAP_L3 = 500,                      /**< Layer 3 switching */

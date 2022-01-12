@@ -785,6 +785,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = 1;
 #endif
         break;
+    case MESA_CAP_L2_REDBOX_CNT:
+#if defined(VTSS_FEATURE_REDBOX)
+        c = VTSS_REDBOX_CNT;
+#endif
+        break;
 
     // Layer 3
     case MESA_CAP_L3:

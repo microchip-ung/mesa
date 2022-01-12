@@ -1559,6 +1559,149 @@ static vtss_rc fa_policer_status_get(vtss_state_t *vtss_state,
 }
 #endif
 
+#if defined(VTSS_FEATURE_REDBOX)
+static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
+                             const vtss_rb_id_t rb_id,
+                             vtss_rb_cap_t *const cap)
+{
+    vtss_port_no_t port_no;
+    u32            port, id;
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        port = VTSS_CHIP_PORT(port_no);
+        id = (port < 8 ? 0 :
+              port < 16 ? 1 :
+              port < 24 ? 2 :
+              port < 26 ? 3 :
+              port < 28 ? 4 : 0);
+        cap->port_list[port_no] = (id == rb_id ? 1 : 0);
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
+                              const vtss_rb_id_t rb_id)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_counters_update(vtss_state_t *vtss_state,
+                                     const vtss_rb_id_t rb_id,
+                                     BOOL clear)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_add(vtss_state_t *vtss_state,
+                              const vtss_rb_id_t rb_id,
+                              const vtss_mac_t *const mac,
+                              const vtss_rb_node_type_t type)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_del(vtss_state_t *vtss_state,
+                              const vtss_rb_id_t rb_id,
+                              const vtss_mac_t *const mac)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_table_clear(vtss_state_t *vtss_state,
+                                      const vtss_rb_id_t rb_id)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_get(vtss_state_t *vtss_state,
+                              const vtss_rb_id_t rb_id,
+                              const vtss_mac_t   *const mac,
+                              vtss_rb_node_t     *const entry)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_get_next(vtss_state_t *vtss_state,
+                                   const vtss_rb_id_t rb_id,
+                                   const vtss_mac_t   *const mac,
+                                   vtss_rb_node_t     *const entry)
+{
+    u8 i = mac->addr[5];
+
+    if (i == 0) {
+        i = 1;
+    } else if (i == 1) {
+        i = 3;
+    } else {
+        return VTSS_RC_ERROR;
+    }
+    entry->mac.addr[5] = i;
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_node_id_get_next(vtss_state_t *vtss_state,
+                                      const vtss_rb_id_t rb_id,
+                                      const vtss_rb_node_id_t id,
+                                      vtss_rb_node_t     *const entry)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_add(vtss_state_t *vtss_state,
+                                     const vtss_rb_id_t rb_id,
+                                    const vtss_mac_t *const mac)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_del(vtss_state_t *vtss_state,
+                                    const vtss_rb_id_t rb_id,
+                                    const vtss_mac_t *const mac)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_table_clear(vtss_state_t *vtss_state,
+                                            const vtss_rb_id_t rb_id)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_get(vtss_state_t *vtss_state,
+                                    const vtss_rb_id_t rb_id,
+                                    const vtss_mac_t *const mac,
+                                    vtss_rb_proxy_node_t *const entry)
+{
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_get_next(vtss_state_t *vtss_state,
+                                         const vtss_rb_id_t rb_id,
+                                         const vtss_mac_t *const mac,
+                                         vtss_rb_proxy_node_t *const entry)
+{
+    u8 i = mac->addr[5];
+
+    if (i == 0) {
+        i = 2;
+    } else if (i == 2) {
+        i = 4;
+    } else {
+        return VTSS_RC_ERROR;
+    }
+    entry->mac.addr[5] = i;
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_proxy_node_id_get_next(vtss_state_t *vtss_state,
+                                            const vtss_rb_id_t rb_id,
+                                            const vtss_rb_proxy_node_id_t id,
+                                            vtss_rb_proxy_node_t *const entry)
+{
+    return VTSS_RC_OK;
+}
+#endif
+
 /* - Debug print --------------------------------------------------- */
 
 static void fa_debug_pmask_header(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const char *name)
@@ -2025,6 +2168,15 @@ static vtss_rc fa_debug_mirror(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_REDBOX)
+static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
+                               const vtss_debug_printf_t pr,
+                               const vtss_debug_info_t *const info)
+{
+    return VTSS_RC_OK;
+}
+#endif
+
 vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
                                 const vtss_debug_printf_t pr,
                                 const vtss_debug_info_t   *const info)
@@ -2036,6 +2188,9 @@ vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR,      fa_debug_aggr,      vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP,       fa_debug_stp,       vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR,    fa_debug_mirror,    vtss_state, pr, info));
+#if defined(VTSS_FEATURE_REDBOX)
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_REDBOX,    fa_debug_redbox,    vtss_state, pr, info));
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2267,6 +2422,14 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
         }
     }
 #endif
+#if defined(VTSS_FEATURE_REDBOX)
+    // RedBox counters must also be polled at least every 288 seconds (32-bit at 10 Gbps)
+    idx = state->rb_poll_idx;
+    if (idx < VTSS_REDBOX_CNT && state->rb_conf[idx].mode != VTSS_RB_MODE_DISABLED) {
+        VTSS_RC(fa_rb_counters_update(vtss_state, idx, FALSE));
+    }
+    state->rb_poll_idx = (idx < 288 ? (idx + 1) : 0);
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2359,6 +2522,23 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->counters_update = fa_evc_counters_update;
         state->isdx_update = vtss_fa_isdx_update;
         state->sdx_info.max_count = VTSS_SDX_CNT;
+#if defined(VTSS_FEATURE_REDBOX)
+        state->rb_cap_get = fa_rb_cap_get;
+        state->rb_conf_set = fa_rb_conf_set;
+        state->rb_counters_update = fa_rb_counters_update;
+        state->rb_node_add = fa_rb_node_add;
+        state->rb_node_del = fa_rb_node_del;
+        state->rb_node_table_clear = fa_rb_node_table_clear;
+        state->rb_node_get = fa_rb_node_get;
+        state->rb_node_get_next = fa_rb_node_get_next;
+        state->rb_node_id_get_next = fa_rb_node_id_get_next;
+        state->rb_proxy_node_add = fa_rb_proxy_node_add;
+        state->rb_proxy_node_del = fa_rb_proxy_node_del;
+        state->rb_proxy_node_table_clear = fa_rb_proxy_node_table_clear;
+        state->rb_proxy_node_get = fa_rb_proxy_node_get;
+        state->rb_proxy_node_get_next = fa_rb_proxy_node_get_next;
+        state->rb_proxy_node_id_get_next = fa_rb_proxy_node_id_get_next;
+#endif
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(fa_l2_init(vtss_state));

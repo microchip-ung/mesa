@@ -321,6 +321,40 @@ Each RCE includes a key structure (`mesa_rce_key_t`) with fields used for
 matching received frames and an action structure (`mesa_rce_action_t`) with the
 resulting forwarding properties.
 
+== PRP/HSR RedBox
+If the capability `MESA_CAP_L2_REDBOX_CNT` is non-zero, the PRP/HSR RedBox feature is available.
+The capability specifies the maximum number of RedBox instances, which can be added.
+Each RedBox is identified by an ID (`mesa_rb_id_t`) and setup using `mesa_rb_conf_set()`.
+There are restrictions to the ports, which can be selected as HSR/PRP ports for a RedBox.
+The available ports for a given RedBox are returned by `mesa_rb_cap_get()`.
+Switch port roles are changed when selected as HSR/PRP ports:
+
+* Port A: The corresponding switch port is used as Interlink (aka. port C).
+* Port B: The corresponding switch port is unused.
+
+The diagram below shows an example of a system with a RedBox in HSR-SAN mode:
+
+* Port 0 is selected as RedBox port A and connected to a Doubly Attached Node with HSR (DANH).
+* Port 1 is selected as RedBox port B and connected to a Doubly Attached Node with HSR (DANH).
+* Port 3 is connected directly to a Singly Attached Node (SAN).
+* Forwarding between switch port 0 and 3 is done using a VLAN.
+
+image::./redbox.svg[align=center]
+
+++++
+<br>
+++++
+
+The RedBox provides counters for each port (A/B/C) using `mesa_rb_counters_get()`.
+
+Static entries can be added to the Node Table using `mesa_rb_node_add()`.
+The Node Table can be traversed based on MAC address (`mesa_rb_node_get_next()`) or
+node ID (`mesa_rb_node_id_get_next()`).
+
+Static entries can be added to the Proxy Node Table using `mesa_rb_proxy_node_add()`.
+The Proxy Node Table can be traversed based on MAC address (`mesa_rb_proxy_node_get_next()`) or
+proxy node ID (`mesa_rb_proxy_node_id_get_next()`).
+
 == API Functions
 `mesa_mac_table_add()` +
 `mesa_mac_table_del()` +
@@ -452,4 +486,21 @@ resulting forwarding properties.
 `mesa_rcl_vid_del()` +
 `mesa_rce_init()` +
 `mesa_rce_add()` +
-`mesa_rce_del()`
+`mesa_rce_del()` +
+`mesa_rb_cap_get()` +
+`mesa_rb_conf_get()` +
+`mesa_rb_conf_set()` +
+`mesa_rb_counters_get()` +
+`mesa_rb_counters_clear()` +
+`mesa_rb_node_add()` +
+`mesa_rb_node_del()` +
+`mesa_rb_node_table_clear()` +
+`mesa_rb_node_get()` +
+`mesa_rb_node_get_next()` +
+`mesa_rb_node_id_get_next()` +
+`mesa_rb_proxy_node_add()` +
+`mesa_rb_proxy_node_del()` +
+`mesa_rb_proxy_node_table_clear()` +
+`mesa_rb_proxy_node_get()` +
+`mesa_rb_proxy_node_get_next()` +
+`mesa_rb_proxy_node_id_get_next()`

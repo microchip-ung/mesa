@@ -7996,8 +7996,334 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 }
 #endif /* VTSS_FEATURE_RCL */
 
-#if VTSS_OPT_DEBUG_PRINT
+#if defined(VTSS_FEATURE_REDBOX)
+static vtss_rc vtss_rb_id_check(const vtss_rb_id_t id)
+{
+    if (id < VTSS_REDBOX_CNT) {
+        return VTSS_RC_OK;
+    }
+    VTSS_E("illegal redbox id: %u", id);
+    return VTSS_RC_ERROR;
+}
 
+vtss_rc vtss_rb_cap_get(const vtss_inst_t  inst,
+                        const vtss_rb_id_t rb_id,
+                        vtss_rb_cap_t      *const cap)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_cap_get, rb_id, cap);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_conf_get(const vtss_inst_t  inst,
+                         const vtss_rb_id_t rb_id,
+                         vtss_rb_conf_t     *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        *conf = vtss_state->l2.rb_conf[rb_id];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
+                         const vtss_rb_id_t   rb_id,
+                         const vtss_rb_conf_t *const conf)
+{
+    vtss_state_t   *vtss_state;
+    vtss_rc        rc;
+    vtss_rb_cap_t  cap;
+    vtss_port_no_t port_a, port_b;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = VTSS_FUNC(l2.rb_cap_get, rb_id, &cap)) == VTSS_RC_OK) {
+        port_a = conf->port_a;
+        port_b = conf->port_b;
+        if (conf->mode == VTSS_RB_MODE_DISABLED ||
+            (port_a != port_b && cap.port_list[port_a] && cap.port_list[port_b])) {
+            vtss_state->l2.rb_conf[rb_id] = *conf;
+            rc = VTSS_FUNC(l2.rb_conf_set, rb_id);
+        } else {
+            VTSS_E("illegal port A/B: %u/%u", port_a, port_b);
+            rc = VTSS_RC_ERROR;
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+static void vtss_rb_port_cnt_get(vtss_rb_port_cnt_t *cnt,
+                                 vtss_rb_port_counters_t *const counters)
+{
+    counters->tx = cnt->tx.value;
+    counters->rx = cnt->rx.value;
+    counters->rx_wrong_lan = cnt->rx_wrong_lan.value;
+    counters->rx_own = cnt->rx_own.value;
+    counters->tx_dupl_zero = cnt->tx_dupl_zero.value;
+    counters->tx_dupl_one = cnt->tx_dupl_one.value;
+    counters->tx_dupl_multi = cnt->tx_dupl_multi.value;
+}
+
+static vtss_rc vtss_rb_cnt_get(vtss_state_t *vtss_state,
+                             const vtss_rb_id_t rb_id,
+                             vtss_rb_counters_t *const counters)
+{
+    vtss_rc       rc;
+    vtss_rb_cnt_t *cnt;
+
+    if ((rc = VTSS_FUNC(l2.rb_counters_update, rb_id, FALSE)) == VTSS_RC_OK) {
+        cnt = &vtss_state->l2.rb_cnt[rb_id];
+        vtss_rb_port_cnt_get(&cnt->port_a, &counters->port_a);
+        vtss_rb_port_cnt_get(&cnt->port_b, &counters->port_b);
+        vtss_rb_port_cnt_get(&cnt->port_c, &counters->port_c);
+    }
+    return rc;
+}
+
+vtss_rc vtss_rb_counters_get(const vtss_inst_t  inst,
+                             const vtss_rb_id_t rb_id,
+                             vtss_rb_counters_t *const counters)
+{
+    vtss_state_t  *vtss_state;
+    vtss_rc       rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = vtss_rb_cnt_get(vtss_state, rb_id, counters);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_counters_clear(const vtss_inst_t  inst,
+                               const vtss_rb_id_t rb_id)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_counters_update, rb_id, TRUE);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_add(const vtss_inst_t         inst,
+                         const vtss_rb_id_t        rb_id,
+                         const vtss_mac_t          *const mac,
+                         const vtss_rb_node_type_t type)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_add, rb_id, mac, type);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_del(const vtss_inst_t  inst,
+                         const vtss_rb_id_t rb_id,
+                         const vtss_mac_t   *const mac)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_del, rb_id, mac);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_table_clear(const vtss_inst_t  inst,
+                                 const vtss_rb_id_t rb_id)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_table_clear, rb_id);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_get(const vtss_inst_t  inst,
+                         const vtss_rb_id_t rb_id,
+                         const vtss_mac_t   *const mac,
+                         vtss_rb_node_t     *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_get, rb_id, mac, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_get_next(const vtss_inst_t  inst,
+                              const vtss_rb_id_t rb_id,
+                              const vtss_mac_t   *const mac,
+                              vtss_rb_node_t     *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_get_next, rb_id, mac, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_node_id_get_next(const vtss_inst_t       inst,
+                                 const vtss_rb_id_t      rb_id,
+                                 const vtss_rb_node_id_t id,
+                                 vtss_rb_node_t          *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_node_id_get_next, rb_id, id, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t  inst,
+                               const vtss_rb_id_t rb_id,
+                               const vtss_mac_t   *const mac)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_add, rb_id, mac);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_del(const vtss_inst_t  inst,
+                               const vtss_rb_id_t rb_id,
+                               const vtss_mac_t   *const mac)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_del, rb_id, mac);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t  inst,
+                                       const vtss_rb_id_t rb_id)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_table_clear, rb_id);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_get(const vtss_inst_t    inst,
+                               const vtss_rb_id_t   rb_id,
+                               const vtss_mac_t     *const mac,
+                               vtss_rb_proxy_node_t *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_get, rb_id, mac, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_get_next(const vtss_inst_t    inst,
+                                    const vtss_rb_id_t   rb_id,
+                                    const vtss_mac_t     *const mac,
+                                    vtss_rb_proxy_node_t *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_get_next, rb_id, mac, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_proxy_node_id_get_next(const vtss_inst_t             inst,
+                                       const vtss_rb_id_t            rb_id,
+                                       const vtss_rb_proxy_node_id_t id,
+                                       vtss_rb_proxy_node_t          *const entry)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(l2.rb_proxy_node_id_get_next, rb_id, id, entry);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+#endif /* VTSS_FEATURE_REDBOX */
+
+#if VTSS_OPT_DEBUG_PRINT
 /* - Debug print --------------------------------------------------- */
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -8581,6 +8907,143 @@ static void vtss_debug_print_ipmc(vtss_state_t              *vtss_state,
 }
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
+#if defined(VTSS_FEATURE_REDBOX)
+static void vtss_debug_cnt(const vtss_debug_printf_t pr,
+                           const char *col1, const char *col2,
+                           vtss_counter_t c1, vtss_counter_t c2)
+{
+    char buf[64];
+
+    if (col1 != NULL) {
+        sprintf(buf, "Rx %s:", col1);
+        pr("%-19s%19" PRIu64 "   ", buf, c1);
+    } else {
+        pr("%-41s", "");
+    }
+    if (col2 != NULL) {
+        sprintf(buf, "Tx %s:", strlen(col2) ? col2 : col1);
+        pr("%-19s%19" PRIu64, buf, c2);
+    }
+    pr("\n");
+}
+
+static void vtss_debug_rb_cnt(const vtss_debug_printf_t pr,
+                              int i, const char *txt, vtss_rb_port_counters_t *c)
+{
+    pr("RedBox %u, port %s counters:\n", i, txt);
+    vtss_debug_cnt(pr, "Total", "", c->rx, c->tx);
+    vtss_debug_cnt(pr, "WrongLan", "DuplZero", c->rx_wrong_lan, c->tx_dupl_zero);
+    vtss_debug_cnt(pr, "Own", "DuplOne", c->rx_own, c->tx_dupl_one);
+    vtss_debug_cnt(pr, NULL, "DuplMulti", 0, c->tx_dupl_multi);
+    pr("\n");
+}
+
+static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
+                                    const vtss_debug_printf_t pr,
+                                    const vtss_debug_info_t   *const info)
+{
+    int                  i, header = 1;
+    vtss_rb_conf_t       *conf;
+    vtss_rb_counters_t   cnt;
+    vtss_rb_mode_t       m;
+    vtss_rb_node_t       node;
+    vtss_rb_proxy_node_t pnode;
+    u8                   *p;
+    char                 buf[32];
+
+    // RedBox configuration
+    for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+        conf = &vtss_state->l2.rb_conf[i];
+        m = conf->mode;
+        if (m == VTSS_RB_MODE_DISABLED && !info->full) {
+            continue;
+        }
+        if (header) {
+            header = 0;
+            pr("ID  Mode      Port A/B  NetId  LanId  NT Age  PNT Age\n");
+        }
+        sprintf(buf, "%u/%u", conf->port_a, conf->port_b);
+        pr("%-4u%-10s%-10s%-7u%-7u%-8u%u\n",
+           i,
+           m == VTSS_RB_MODE_DISABLED ? "Disabled" :
+           m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN" :
+           m == VTSS_RB_MODE_HSR_SAN ? "HSR-SAN" :
+           m == VTSS_RB_MODE_HSR_PRP ? "HSR-PRP" :
+           m == VTSS_RB_MODE_HSR_HSR ? "HSR-HSR" : "?",
+           buf,
+           conf->net_id,
+           conf->lan_id,
+           conf->nt_age_time,
+           conf->pnt_age_time);
+    }
+    if (!header) {
+        pr("\n");
+        header = 1;
+    }
+
+    // RedBox counters
+    for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+        if ((vtss_state->l2.rb_conf[i].mode == VTSS_RB_MODE_DISABLED && !info->full) ||
+            vtss_rb_cnt_get(vtss_state, i, &cnt) != VTSS_RC_OK) {
+            continue;
+        }
+        vtss_debug_rb_cnt(pr, i, "A", &cnt.port_a);
+        vtss_debug_rb_cnt(pr, i, "B", &cnt.port_b);
+        vtss_debug_rb_cnt(pr, i, "C", &cnt.port_c);
+        if (info->clear) {
+            VTSS_FUNC(l2.rb_counters_update, i, TRUE);
+        }
+    }
+
+    // RedBox Node Table and Proxy Node Table
+    for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+        if (vtss_state->l2.rb_conf[i].mode == VTSS_RB_MODE_DISABLED && !info->full) {
+            continue;
+        }
+
+        memset(&node, 0, sizeof(node));
+        while (VTSS_FUNC(l2.rb_node_get_next, i, &node.mac, &node) == VTSS_RC_OK) {
+            if (header) {
+                pr("RedBox %u Node Table:\n", i);
+                pr("MAC Address        Locked  Type   Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
+                header = 0;
+            }
+            p = node.mac.addr;
+            pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
+            pr("%-8u%-7s", node.locked,
+               node.type == VTSS_RB_NODE_TYPE_DAN ? "DAN" :
+               node.type == VTSS_RB_NODE_TYPE_SAN_A ? "SAN-A" :
+               node.type == VTSS_RB_NODE_TYPE_SAN_B ? "SAN-B" : "?");
+            sprintf(buf, "%u/%u", node.age_a, node.age_b);
+            pr("%-9s", buf);
+            sprintf(buf, "%u/%u", node.cnt_a.rx, node.cnt_b.rx);
+            pr("%-23s", buf);
+            pr("%u/%u\n", node.cnt_a.rx_wrong_lan, node.cnt_b.rx_wrong_lan);
+        }
+        if (!header) {
+            pr("\n");
+            header = 1;
+        }
+
+        memset(&pnode, 0, sizeof(pnode));
+        while (VTSS_FUNC(l2.rb_proxy_node_get_next, i, &pnode.mac, &pnode) == VTSS_RC_OK) {
+            if (header) {
+                pr("RedBox %u Proxy Node Table:\n", i);
+                pr("MAC Address        Locked  Age     Rx Total\n");
+                header = 0;
+            }
+            p = pnode.mac.addr;
+            pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
+            pr("%-8u%-8u%u\n", pnode.locked, pnode.age, pnode.cnt.rx);
+        }
+        if (!header) {
+            pr("\n");
+            header = 1;
+        }
+    }
+}
+#endif
+
 void vtss_l2_debug_print(vtss_state_t *vtss_state,
                          const vtss_debug_printf_t pr,
                          const vtss_debug_info_t   *const info)
@@ -8610,6 +9073,10 @@ void vtss_l2_debug_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
     vtss_debug_print_ipmc(vtss_state, pr, info);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
+#if defined(VTSS_FEATURE_REDBOX)
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_REDBOX))
+        vtss_debug_print_redbox(vtss_state, pr, info);
+#endif
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

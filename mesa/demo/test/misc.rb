@@ -305,6 +305,17 @@ test "acl-etype-counter" do
     run_ef_tx_rx_cmd($ts, idx, [1,2,3], "eth et 0x8902")
     cnt = $ts.dut.call("mesa_ace_counter_get", ace["id"])
     check_counter("ace", cnt, 1)
+
+test "redbox" do
+    break
+    rb_id = 0
+    cap = $ts.dut.call("mesa_rb_cap_get", rb_id)
+    conf = $ts.dut.call("mesa_rb_conf_get", rb_id)
+    conf["mode"] = "MESA_RB_MODE_HSR_SAN"
+    conf["port_a"] = 0
+    conf["port_b"] = 1
+    $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
+    $ts.dut.run("mesa-cmd deb api ai redbox")
 end
 
 test "acl-frame-policer" do

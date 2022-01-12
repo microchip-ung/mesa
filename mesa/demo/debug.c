@@ -174,6 +174,7 @@ static const char * const cli_api_group_table[MESA_DEBUG_GROUP_COUNT] = {
     [MESA_DEBUG_GROUP_ERPS]      = "erps",
     [MESA_DEBUG_GROUP_EPS]       = "eps",
     [MESA_DEBUG_GROUP_SR]        = "sr",
+    [MESA_DEBUG_GROUP_REDBOX]    = "redbox",
     [MESA_DEBUG_GROUP_PACKET]    = "packet",
     [MESA_DEBUG_GROUP_FDMA]      = "fdma",
     [MESA_DEBUG_GROUP_TS]        = "ts",

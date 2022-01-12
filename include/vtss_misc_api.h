@@ -181,6 +181,7 @@ typedef enum {
     VTSS_DEBUG_GROUP_ERPS,      /**< ERPS */
     VTSS_DEBUG_GROUP_EPS,       /**< EPS */
     VTSS_DEBUG_GROUP_SR,        /**< Seamless Redundancy */
+    VTSS_DEBUG_GROUP_REDBOX,    /**< RedBox */
     VTSS_DEBUG_GROUP_PACKET,    /**< Packet control */
     VTSS_DEBUG_GROUP_FDMA,      /**< Obsoleted */
     VTSS_DEBUG_GROUP_TS,        /**< TS: TimeStamping */

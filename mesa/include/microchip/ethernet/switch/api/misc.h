@@ -144,6 +144,7 @@ typedef enum {
     MESA_DEBUG_GROUP_ERPS,      // ERPS
     MESA_DEBUG_GROUP_EPS,       // EPS
     MESA_DEBUG_GROUP_SR,        // Seamless Redundancy
+    MESA_DEBUG_GROUP_REDBOX,    // RedBox
     MESA_DEBUG_GROUP_PACKET,    // Packet control
     MESA_DEBUG_GROUP_FDMA,      // Obsoleted
     MESA_DEBUG_GROUP_TS,        // TS: TimeStamping

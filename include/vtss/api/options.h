@@ -245,6 +245,7 @@
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
+#define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
 #endif // VTSS_ARCH_LAN969X
 
 #if defined(VTSS_ARCH_S5I)

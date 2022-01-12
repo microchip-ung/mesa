@@ -530,6 +530,24 @@ typedef struct {
 } vtss_rcl_vid_entry_t;
 #endif
 
+#if defined(VTSS_FEATURE_REDBOX)
+typedef struct {
+    vtss_chip_counter_t tx;
+    vtss_chip_counter_t rx;
+    vtss_chip_counter_t rx_wrong_lan;
+    vtss_chip_counter_t rx_own;
+    vtss_chip_counter_t tx_dupl_zero;
+    vtss_chip_counter_t tx_dupl_one;
+    vtss_chip_counter_t tx_dupl_multi;
+} vtss_rb_port_cnt_t;
+
+typedef struct {
+    vtss_rb_port_cnt_t port_a;
+    vtss_rb_port_cnt_t port_b;
+    vtss_rb_port_cnt_t port_c;
+} vtss_rb_cnt_t;
+#endif
+
 typedef struct {
     /* CIL function pointers */
     vtss_rc (* mac_table_add)(struct vtss_state_s *vtss_state,
@@ -706,6 +724,57 @@ typedef struct {
 #if defined(VTSS_FEATURE_RCL)
     vtss_rc (* rcl_vid_conf_set)(struct vtss_state_s *vtss_state, const u8 idx);
 #endif
+#if defined(VTSS_FEATURE_REDBOX)
+    vtss_rc (* rb_cap_get)(struct vtss_state_s *vtss_state,
+                           const vtss_rb_id_t rb_id,
+                           vtss_rb_cap_t *const cap);
+    vtss_rc (* rb_conf_set)(struct vtss_state_s *vtss_state,
+                            const vtss_rb_id_t rb_id);
+    vtss_rc (* rb_counters_update)(struct vtss_state_s *vtss_state,
+                                   const vtss_rb_id_t rb_id,
+                                   BOOL clear);
+    vtss_rc (* rb_node_add)(struct vtss_state_s *vtss_state,
+                            const vtss_rb_id_t rb_id,
+                            const vtss_mac_t *const mac,
+                            const vtss_rb_node_type_t type);
+    vtss_rc (* rb_node_del)(struct vtss_state_s *vtss_state,
+                            const vtss_rb_id_t rb_id,
+                            const vtss_mac_t *const mac);
+    vtss_rc (* rb_node_table_clear)(struct vtss_state_s *vtss_state,
+                                    const vtss_rb_id_t rb_id);
+    vtss_rc (* rb_node_get)(struct vtss_state_s *vtss_state,
+                            const vtss_rb_id_t rb_id,
+                            const vtss_mac_t   *const mac,
+                            vtss_rb_node_t     *const entry);
+    vtss_rc (* rb_node_get_next)(struct vtss_state_s *vtss_state,
+                                 const vtss_rb_id_t rb_id,
+                                 const vtss_mac_t   *const mac,
+                                 vtss_rb_node_t     *const entry);
+    vtss_rc (* rb_node_id_get_next)(struct vtss_state_s *vtss_state,
+                                    const vtss_rb_id_t rb_id,
+                                    const vtss_rb_node_id_t id,
+                                    vtss_rb_node_t     *const entry);
+    vtss_rc (* rb_proxy_node_add)(struct vtss_state_s *vtss_state,
+                                  const vtss_rb_id_t rb_id,
+                                  const vtss_mac_t *const mac);
+    vtss_rc (* rb_proxy_node_del)(struct vtss_state_s *vtss_state,
+                                  const vtss_rb_id_t rb_id,
+                                  const vtss_mac_t *const mac);
+    vtss_rc (* rb_proxy_node_table_clear)(struct vtss_state_s *vtss_state,
+                                          const vtss_rb_id_t rb_id);
+    vtss_rc (* rb_proxy_node_get)(struct vtss_state_s *vtss_state,
+                                  const vtss_rb_id_t rb_id,
+                                  const vtss_mac_t *const mac,
+                                  vtss_rb_proxy_node_t *const entry);
+    vtss_rc (* rb_proxy_node_get_next)(struct vtss_state_s *vtss_state,
+                                       const vtss_rb_id_t rb_id,
+                                       const vtss_mac_t *const mac,
+                                       vtss_rb_proxy_node_t *const entry);
+    vtss_rc (* rb_proxy_node_id_get_next)(struct vtss_state_s *vtss_state,
+                                          const vtss_rb_id_t rb_id,
+                                          const vtss_rb_proxy_node_id_t id,
+                                          vtss_rb_proxy_node_t *const entry);
+#endif
 
     /* Configuration/state */
     /* Aggregated forwarding information */
@@ -830,6 +899,11 @@ typedef struct {
 #endif
 #if defined(VTSS_FEATURE_RCL)
     vtss_rcl_vid_entry_t rcl_vid[VTSS_RCL_VID_CNT];
+#endif
+#if defined(VTSS_FEATURE_REDBOX)
+    vtss_rb_conf_t rb_conf[VTSS_REDBOX_CNT];
+    vtss_rb_cnt_t  rb_cnt[VTSS_REDBOX_CNT];
+    u32            rb_poll_idx; // Counter polling index
 #endif
 } vtss_l2_state_t;
 

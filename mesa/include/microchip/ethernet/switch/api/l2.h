@@ -1565,5 +1565,228 @@ typedef int mesa_vstax_upsid_t;
 // Unit Port Set Port Number
 typedef uint32_t mesa_vstax_upspn_t;
 
+/* - PRP/HSR RedBox ------------------------------------------------ */
+
+// RedBox ID, zero-based
+typedef uint8_t mesa_rb_id_t;
+
+// RedBox capabilities
+typedef struct {
+    mesa_port_list_t port_list; // Switch ports available for RedBox as port A/B
+} mesa_rb_cap_t;
+
+// Get RedBox capabilities.
+// rb_id [IN]  RedBox ID.
+// cap [OUT]   RedBox capabilities.
+mesa_rc mesa_rb_cap_get(const mesa_inst_t  inst,
+                        const mesa_rb_id_t rb_id,
+                        mesa_rb_cap_t      *const cap);
+
+// RedBox mode
+typedef enum {
+    MESA_RB_MODE_DISABLED, // Disabled
+    MESA_RB_MODE_PRP_SAN,  // PRP-SAN
+    MESA_RB_MODE_HSR_SAN,  // HSR-SAN
+    MESA_RB_MODE_HSR_PRP,  // HSR-PRP
+    MESA_RB_MODE_HSR_HSR   // HSR-HSR
+} mesa_rb_mode_t;
+
+// Age time in seconds
+typedef uint16_t mesa_rb_age_time_t;
+
+// RedBox configuration
+typedef struct {
+    mesa_rb_mode_t     mode;         // Mode
+    mesa_port_no_t     port_a;       // Port A (corresponding switch port is Interlink)
+    mesa_port_no_t     port_b;       // Port B (corresponding switch port is unused)
+    uint8_t            net_id;       // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
+    uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
+    mesa_rb_age_time_t nt_age_time;  // Node Table age time
+    mesa_rb_age_time_t pnt_age_time; // Proxy Node Table age time
+} mesa_rb_conf_t;
+
+// Get RedBox configuration.
+// rb_id [IN]  RedBox ID.
+// conf [OUT]  RedBox configuration structure.
+mesa_rc mesa_rb_conf_get(const mesa_inst_t  inst,
+                         const mesa_rb_id_t rb_id,
+                         mesa_rb_conf_t     *const conf);
+
+// Set RedBox configuration.
+// rb_id [IN]  RedBox ID.
+// conf [IN]   RedBox configuration structure.
+mesa_rc mesa_rb_conf_set(const mesa_inst_t    inst,
+                         const mesa_rb_id_t   rb_id,
+                         const mesa_rb_conf_t *const conf);
+
+// RedBox port counters
+typedef struct {
+    mesa_counter_t tx;            // Tx frames
+    mesa_counter_t rx;            // Rx frames
+    mesa_counter_t rx_wrong_lan;  // Rx frames with wrong LanId (PRP port)
+    mesa_counter_t rx_own;        // Rx frames from this RedBox (HSR port)
+    mesa_counter_t tx_dupl_zero;  // Tx frames with zero duplicates
+    mesa_counter_t tx_dupl_one;   // Tx frames with one duplicate discarded
+    mesa_counter_t tx_dupl_multi; // Tx frames with multiple duplicates discarded
+} mesa_rb_port_counters_t;
+
+// RedBox counters
+typedef struct {
+    mesa_rb_port_counters_t port_a; // Port A counters
+    mesa_rb_port_counters_t port_b; // Port B counters
+    mesa_rb_port_counters_t port_c; // Port C counters (Interlink)
+} mesa_rb_counters_t;
+
+// Get RedBox counters.
+// rb_id [IN]      RedBox ID.
+// counters [OUT]  RedBox counters.
+mesa_rc mesa_rb_counters_get(const mesa_inst_t  inst,
+                             const mesa_rb_id_t rb_id,
+                             mesa_rb_counters_t *const counters);
+
+// Clear RedBox counters.
+// rb_id [IN]  RedBox ID.
+mesa_rc mesa_rb_counters_clear(const mesa_inst_t  inst,
+                               const mesa_rb_id_t rb_id);
+
+// Node ID
+typedef uint16_t mesa_rb_node_id_t;
+
+// Node type
+typedef enum {
+    MESA_RB_NODE_TYPE_DAN,   // DANP/DANH
+    MESA_RB_NODE_TYPE_SAN_A, // SAN_A (PRP)
+    MESA_RB_NODE_TYPE_SAN_B, // SAN_B (PRP)
+} mesa_rb_node_type_t;
+
+// Node counters
+typedef struct {
+    uint32_t rx;           // Rx frames
+    uint32_t rx_wrong_lan; // Rx frames with wrong LanId (PRP port)
+} mesa_rb_node_counters_t;
+
+// Node entry
+typedef struct {
+    mesa_mac_t              mac;    // MAC address (key)
+    mesa_rb_node_id_t       id;     // Node ID (alternative key)
+    mesa_bool_t             locked; // Locked/static flag
+    mesa_rb_node_type_t     type;   // Node type
+    mesa_rb_age_time_t      age_a;  // Port A age (PRP)
+    mesa_rb_age_time_t      age_b;  // Port B age (PRP)
+    mesa_rb_node_counters_t cnt_a;  // Port A counters
+    mesa_rb_node_counters_t cnt_b;  // Port B counters
+} mesa_rb_node_t;
+
+// Add static node entry.
+// rb_id [IN]  RedBox ID.
+// mac [IN]    MAC address.
+// type [IN]   Node type.
+mesa_rc mesa_rb_node_add(const mesa_inst_t         inst,
+                         const mesa_rb_id_t        rb_id,
+                         const mesa_mac_t          *const mac,
+                         const mesa_rb_node_type_t type);
+
+// Delete node entry.
+// rb_id [IN]  RedBox ID.
+// mac [IN]    MAC address.
+mesa_rc mesa_rb_node_del(const mesa_inst_t  inst,
+                         const mesa_rb_id_t rb_id,
+                         const mesa_mac_t   *const mac);
+
+// Clear node table.
+// rb_id [IN]   RedBox ID.
+mesa_rc mesa_rb_node_table_clear(const mesa_inst_t  inst,
+                                 const mesa_rb_id_t rb_id);
+
+// Get node entry based on MAC address.
+// rb_id [IN]   RedBox ID.
+// mac [IN]     MAC address.
+// entry [OUT]  Node entry.
+mesa_rc mesa_rb_node_get(const mesa_inst_t  inst,
+                         const mesa_rb_id_t rb_id,
+                         const mesa_mac_t   *const mac,
+                         mesa_rb_node_t     *const entry);
+
+// Get next node entry based on MAC address.
+// rb_id [IN]   RedBox ID.
+// mac [IN]     MAC address.
+// entry [OUT]  Node entry.
+mesa_rc mesa_rb_node_get_next(const mesa_inst_t  inst,
+                              const mesa_rb_id_t rb_id,
+                              const mesa_mac_t   *const mac,
+                              mesa_rb_node_t     *const entry);
+
+// Get next node entry based on ID (for IEC-62439-3-MIB).
+// rb_id [IN]   RedBox ID.
+// id [IN]      Node ID, use zero to get first entry.
+// entry [OUT]  Node entry.
+mesa_rc mesa_rb_node_id_get_next(const mesa_inst_t       inst,
+                                 const mesa_rb_id_t      rb_id,
+                                 const mesa_rb_node_id_t id,
+                                 mesa_rb_node_t          *const entry);
+
+// Proxy node ID
+typedef uint16_t mesa_rb_proxy_node_id_t;
+
+// Proxy node counters
+typedef struct {
+    uint32_t rx; // Rx frames
+} mesa_rb_proxy_node_counters_t;
+
+// Proxy node entry.
+typedef struct {
+    mesa_mac_t                    mac;    // MAC address (key)
+    mesa_rb_proxy_node_id_t       id;     // Proxy node ID (alternative key)
+    mesa_bool_t                   locked; // Locked/static flag
+    mesa_rb_age_time_t            age;    // Age
+    mesa_rb_proxy_node_counters_t cnt;    // Port C counters
+} mesa_rb_proxy_node_t;
+
+// Add static proxy node entry.
+// rb_id [IN]  RedBox ID.
+// mac [IN]    MAC address.
+mesa_rc mesa_rb_proxy_node_add(const mesa_inst_t  inst,
+                               const mesa_rb_id_t rb_id,
+                               const mesa_mac_t   *const mac);
+
+// Delete proxy node entry.
+// rb_id [IN]  RedBox ID.
+// mac [IN]    MAC address.
+mesa_rc mesa_rb_proxy_node_del(const mesa_inst_t  inst,
+                               const mesa_rb_id_t rb_id,
+                               const mesa_mac_t   *const mac);
+
+// Clear proxy node table.
+// rb_id [IN]   RedBox ID.
+mesa_rc mesa_rb_proxy_node_table_clear(const mesa_inst_t  inst,
+                                       const mesa_rb_id_t rb_id);
+
+// Get proxy node entry based on MAC address.
+// rb_id [IN]   RedBox ID.
+// mac [IN]     MAC address.
+// entry [OUT]  Proxy node entry.
+mesa_rc mesa_rb_proxy_node_get(const mesa_inst_t    inst,
+                               const mesa_rb_id_t   rb_id,
+                               const mesa_mac_t     *const mac,
+                               mesa_rb_proxy_node_t *const entry);
+
+// Get next proxy node entry based on MAC address.
+// rb_id [IN]   RedBox ID.
+// mac [IN]     MAC address.
+// entry [OUT]  Proxy node entry.
+mesa_rc mesa_rb_proxy_node_get_next(const mesa_inst_t    inst,
+                                    const mesa_rb_id_t   rb_id,
+                                    const mesa_mac_t     *const mac,
+                                    mesa_rb_proxy_node_t *const entry);
+
+// Get next proxy node entry based on ID (for IEC-62439-3-MIB).
+// rb_id [IN]   RedBox ID.
+// id [IN]      Proxy node ID, use zero to get first entry.
+// entry [OUT]  Proxy node entry.
+mesa_rc mesa_rb_proxy_node_id_get_next(const mesa_inst_t             inst,
+                                       const mesa_rb_id_t            rb_id,
+                                       const mesa_rb_proxy_node_id_t id,
+                                       mesa_rb_proxy_node_t          *const entry);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_L2_
