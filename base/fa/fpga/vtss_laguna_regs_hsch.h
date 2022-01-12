@@ -27,9 +27,9 @@
  * \details
  * Register: \a HSCH:HSCH_L0_CFG:HSCH_L0_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
-#define VTSS_HSCH_HSCH_L0_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_HSCH,0x2800,gi,1,0,0)
+#define VTSS_HSCH_HSCH_L0_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_HSCH,0x5800,gi,1,0,0)
 
 /**
  * \brief
@@ -100,7 +100,7 @@
  *
  * @param gi Replicator: x_GAZ_HSCH_SE_CNT[1] (??), 0-15
  */
-#define VTSS_HSCH_HSCH_L1_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_HSCH,0x2380,gi,1,0,0)
+#define VTSS_HSCH_HSCH_L1_CFG(gi)            VTSS_IOREG_IX(VTSS_TO_HSCH,0x2bf0,gi,1,0,0)
 
 /**
  * \brief
@@ -137,7 +137,7 @@
  * \details
  * Register: \a HSCH:HSCH_CFG:CIR_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_CIR_CFG(gi)                VTSS_IOREG_IX(VTSS_TO_HSCH,0x0,gi,8,0,0)
 
@@ -172,7 +172,7 @@
  * \details
  * Register: \a HSCH:HSCH_CFG:EIR_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_EIR_CFG(gi)                VTSS_IOREG_IX(VTSS_TO_HSCH,0x0,gi,8,0,1)
 
@@ -206,7 +206,7 @@
  * \details
  * Register: \a HSCH:HSCH_CFG:SE_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_SE_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_HSCH,0x0,gi,8,0,2)
 
@@ -222,9 +222,9 @@
  *
  * Field: ::VTSS_HSCH_SE_CFG . SE_DWRR_CNT
  */
-#define  VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(x)    VTSS_ENCODE_BITFIELD(x,6,5)
-#define  VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT       VTSS_ENCODE_BITMASK(6,5)
-#define  VTSS_X_HSCH_SE_CFG_SE_DWRR_CNT(x)    VTSS_EXTRACT_BITFIELD(x,6,5)
+#define  VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(x)    VTSS_ENCODE_BITFIELD(x,6,6)
+#define  VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT       VTSS_ENCODE_BITMASK(6,6)
+#define  VTSS_X_HSCH_SE_CFG_SE_DWRR_CNT(x)    VTSS_EXTRACT_BITFIELD(x,6,6)
 
 /**
  * \brief
@@ -294,7 +294,7 @@
  * \details
  * Register: \a HSCH:HSCH_CFG:SE_CONNECT
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_SE_CONNECT(gi)             VTSS_IOREG_IX(VTSS_TO_HSCH,0x0,gi,8,0,3)
 
@@ -316,7 +316,7 @@
  * \details
  * Register: \a HSCH:HSCH_CFG:SE_DLB_SENSE
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_SE_DLB_SENSE(gi)           VTSS_IOREG_IX(VTSS_TO_HSCH,0x0,gi,8,0,4)
 
@@ -407,7 +407,7 @@
  * \details
  * Register: \a HSCH:HSCH_STATUS:CIR_STATE
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_CIR_STATE(gi)              VTSS_IOREG_IX(VTSS_TO_HSCH,0x4000,gi,4,0,0)
 
@@ -429,7 +429,7 @@
  * \details
  * Register: \a HSCH:HSCH_STATUS:EIR_STATE
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_EIR_STATE(gi)              VTSS_IOREG_IX(VTSS_TO_HSCH,0x4000,gi,4,0,1)
 
@@ -451,7 +451,7 @@
  * \details
  * Register: \a HSCH:HSCH_STATUS:SE_STATE
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_SE_STATE(gi)               VTSS_IOREG_IX(VTSS_TO_HSCH,0x4000,gi,4,0,2)
 
@@ -479,9 +479,9 @@
  * \details
  * Register: \a HSCH:QSHP_CFG:QSHP_CIR_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-31
+ * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-39
  */
-#define VTSS_HSCH_QSHP_CIR_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSCH,0x2300,gi,2,0,0)
+#define VTSS_HSCH_QSHP_CIR_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSCH,0x3b00,gi,2,0,0)
 
 /**
  * \brief
@@ -514,9 +514,9 @@
  * \details
  * Register: \a HSCH:QSHP_CFG:QSHP_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-31
+ * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-39
  */
-#define VTSS_HSCH_QSHP_CFG(gi)               VTSS_IOREG_IX(VTSS_TO_HSCH,0x2300,gi,2,0,1)
+#define VTSS_HSCH_QSHP_CFG(gi)               VTSS_IOREG_IX(VTSS_TO_HSCH,0x3b00,gi,2,0,1)
 
 /**
  * \brief
@@ -549,7 +549,7 @@
  * \details
  * Register: \a HSCH:QSHP_ALLOC_CFG:QSHP_ALLOC_CFG
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_QSHP_ALLOC_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_HSCH,0x3000,gi,2,0,0)
 
@@ -560,9 +560,9 @@
  * \details
  * Field: ::VTSS_HSCH_QSHP_ALLOC_CFG . QSHP_MIN
  */
-#define  VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_MIN(x)  VTSS_ENCODE_BITFIELD(x,21,5)
-#define  VTSS_M_HSCH_QSHP_ALLOC_CFG_QSHP_MIN     VTSS_ENCODE_BITMASK(21,5)
-#define  VTSS_X_HSCH_QSHP_ALLOC_CFG_QSHP_MIN(x)  VTSS_EXTRACT_BITFIELD(x,21,5)
+#define  VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_MIN(x)  VTSS_ENCODE_BITFIELD(x,21,6)
+#define  VTSS_M_HSCH_QSHP_ALLOC_CFG_QSHP_MIN     VTSS_ENCODE_BITMASK(21,6)
+#define  VTSS_X_HSCH_QSHP_ALLOC_CFG_QSHP_MIN(x)  VTSS_EXTRACT_BITFIELD(x,21,6)
 
 /**
  * \brief
@@ -572,9 +572,9 @@
  * \details
  * Field: ::VTSS_HSCH_QSHP_ALLOC_CFG . QSHP_MAX
  */
-#define  VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_MAX(x)  VTSS_ENCODE_BITFIELD(x,14,5)
-#define  VTSS_M_HSCH_QSHP_ALLOC_CFG_QSHP_MAX     VTSS_ENCODE_BITMASK(14,5)
-#define  VTSS_X_HSCH_QSHP_ALLOC_CFG_QSHP_MAX(x)  VTSS_EXTRACT_BITFIELD(x,14,5)
+#define  VTSS_F_HSCH_QSHP_ALLOC_CFG_QSHP_MAX(x)  VTSS_ENCODE_BITFIELD(x,14,6)
+#define  VTSS_M_HSCH_QSHP_ALLOC_CFG_QSHP_MAX     VTSS_ENCODE_BITMASK(14,6)
+#define  VTSS_X_HSCH_QSHP_ALLOC_CFG_QSHP_MAX(x)  VTSS_EXTRACT_BITFIELD(x,14,6)
 
 /**
  * \brief
@@ -594,7 +594,7 @@
  * \details
  * Register: \a HSCH:QSHP_ALLOC_CFG:QSHP_CONNECT
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1119
+ * @param gi Replicator: x_GAZ_HSCH_SE_CNT[0] (??), 0-1399
  */
 #define VTSS_HSCH_QSHP_CONNECT(gi)           VTSS_IOREG_IX(VTSS_TO_HSCH,0x3000,gi,2,0,1)
 
@@ -622,9 +622,9 @@
  * \details
  * Register: \a HSCH:QSHP_STATUS:QSHP_CIR_STATE
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-31
+ * @param gi Replicator: x_GAZ_HSCH_SE_WID[0] (??), 0-39
  */
-#define VTSS_HSCH_QSHP_CIR_STATE(gi)         VTSS_IOREG_IX(VTSS_TO_HSCH,0x2340,gi,1,0,0)
+#define VTSS_HSCH_QSHP_CIR_STATE(gi)         VTSS_IOREG_IX(VTSS_TO_HSCH,0x2bc0,gi,1,0,0)
 
 /**
  * \brief
@@ -649,8 +649,10 @@
  *
  * \details
  * Register: \a HSCH:HSCH_INP_STATE:INP_STATE
+ *
+ * @param gi Replicator: x_GAZ_HSCH_SE_INPST_CNT (??), 0-1
  */
-#define VTSS_HSCH_INP_STATE                  VTSS_IOREG(VTSS_TO_HSCH,0x23a4)
+#define VTSS_HSCH_INP_STATE(gi)              VTSS_IOREG_IX(VTSS_TO_HSCH,0x2bec,gi,1,0,0)
 
 /**
  * \brief
@@ -677,9 +679,9 @@
  * \details
  * Register: \a HSCH:HSCH_DWRR:DWRR_ENTRY
  *
- * @param gi Replicator: x_GAZ_HSCH_SE_WID_MAX (??), 0-31
+ * @param gi Replicator: x_GAZ_HSCH_SE_WID_MAX (??), 0-39
  */
-#define VTSS_HSCH_DWRR_ENTRY(gi)             VTSS_IOREG_IX(VTSS_TO_HSCH,0x2360,gi,1,0,0)
+#define VTSS_HSCH_DWRR_ENTRY(gi)             VTSS_IOREG_IX(VTSS_TO_HSCH,0x2fc0,gi,1,0,0)
 
 /**
  * \brief
@@ -717,7 +719,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_MISC_CFG
  */
-#define VTSS_HSCH_HSCH_MISC_CFG              VTSS_IOREG(VTSS_TO_HSCH,0x2c60)
+#define VTSS_HSCH_HSCH_MISC_CFG              VTSS_IOREG(VTSS_TO_HSCH,0x3b50)
 
 /**
  * \brief
@@ -739,7 +741,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_HSCH_HSCH_MISC_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_HSCH,0x2c61 + (ri))
+#define VTSS_HSCH_HSCH_MISC_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_HSCH,0x3b51 + (ri))
 
 /**
  * \brief
@@ -759,7 +761,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_CFG_CFG
  */
-#define VTSS_HSCH_HSCH_CFG_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x2ca7)
+#define VTSS_HSCH_HSCH_CFG_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x3b97)
 
 /**
  * \brief
@@ -809,7 +811,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_ETHPORT_CNT (??), 0-29
  */
-#define VTSS_HSCH_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_HSCH,0x2ca8 + (ri))
+#define VTSS_HSCH_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_HSCH,0x3b98 + (ri))
 
 /**
  * \brief
@@ -847,9 +849,9 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_LARGE_ENA
  *
- * @param ri Replicator: x_GAZ_HSCH_LARGE_CFG_SIZE (??), 0-8
+ * @param ri Replicator: x_GAZ_HSCH_LARGE_CFG_SIZE (??), 0-10
  */
-#define VTSS_HSCH_HSCH_LARGE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x2ce9 + (ri))
+#define VTSS_HSCH_HSCH_LARGE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x3bd9 + (ri))
 
 /**
  * \brief
@@ -874,7 +876,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:EVENTS_CORE
  */
-#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x2cfd)
+#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x3bed)
 
 /**
  * \brief
@@ -911,7 +913,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:DEBUG_CTRL
  */
-#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2cfe)
+#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x3bee)
 
 /**
  * \brief
@@ -933,7 +935,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_UPDATE_STAT
  */
-#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x2cff)
+#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x3bef)
 
 /**
  * \brief
@@ -954,7 +956,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:SYS_CLK_PER
  */
-#define VTSS_HSCH_SYS_CLK_PER                VTSS_IOREG(VTSS_TO_HSCH,0x2d00)
+#define VTSS_HSCH_SYS_CLK_PER                VTSS_IOREG(VTSS_TO_HSCH,0x3bf0)
 
 /**
  * \brief
@@ -974,7 +976,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_FORCE_CTRL
  */
-#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x2d01)
+#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x3bf1)
 
 /**
  * \brief
@@ -1031,7 +1033,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_TIMER_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x23a6,gi,8,ri,0)
+#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x3bf2,gi,8,ri,0)
 
 /**
  * \brief
@@ -1065,7 +1067,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_LEAK_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x23a6,gi,8,ri,4)
+#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x3bf2,gi,8,ri,4)
 
 /**
  * \brief
@@ -1103,7 +1105,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:EQ_STAT
  */
-#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x2d02)
+#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x3c12)
 
 /**
  * \brief
@@ -1123,7 +1125,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:FLUSH_CTRL
  */
-#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2d03)
+#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x3c13)
 
 /**
  * \brief
@@ -1216,7 +1218,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x2d04 + (ri))
+#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x3c14 + (ri))
 
 /**
  * \brief
@@ -1292,7 +1294,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_INTPORT_CNT (??), 0-4
  */
-#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x2d4a + (ri))
+#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x3c5a + (ri))
 
 /**
  * \brief
@@ -1322,7 +1324,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:OUTB_CPU_SHARE_ENA
  */
-#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x2d4f)
+#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x3c5f)
 
 /**
  * \brief
@@ -1351,7 +1353,7 @@
  * \details
  * Register: \a HSCH:MMGT:MMGT
  */
-#define VTSS_HSCH_MMGT                       VTSS_IOREG(VTSS_TO_HSCH,0x23c6)
+#define VTSS_HSCH_MMGT                       VTSS_IOREG(VTSS_TO_HSCH,0x2fe8)
 
 /**
  * \brief
@@ -1382,7 +1384,7 @@
  * \details
  * Register: \a HSCH:MMGT:MMGT_FAST
  */
-#define VTSS_HSCH_MMGT_FAST                  VTSS_IOREG(VTSS_TO_HSCH,0x23c7)
+#define VTSS_HSCH_MMGT_FAST                  VTSS_IOREG(VTSS_TO_HSCH,0x2fe9)
 
 /**
  * \brief
@@ -1418,7 +1420,7 @@
  *
  * Register: \a HSCH:MMGT:RESET_CFG
  */
-#define VTSS_HSCH_RESET_CFG                  VTSS_IOREG(VTSS_TO_HSCH,0x23c8)
+#define VTSS_HSCH_RESET_CFG                  VTSS_IOREG(VTSS_TO_HSCH,0x2fea)
 
 /**
  * \brief
@@ -1438,7 +1440,7 @@
  * \details
  * Register: \a HSCH:MMGT:PMEM_SIZE
  */
-#define VTSS_HSCH_PMEM_SIZE                  VTSS_IOREG(VTSS_TO_HSCH,0x23c9)
+#define VTSS_HSCH_PMEM_SIZE                  VTSS_IOREG(VTSS_TO_HSCH,0x2feb)
 
 /**
  * \brief
@@ -1447,9 +1449,9 @@
  * \details
  * Field: ::VTSS_HSCH_PMEM_SIZE . PMEM_SIZE
  */
-#define  VTSS_F_HSCH_PMEM_SIZE_PMEM_SIZE(x)   VTSS_ENCODE_BITFIELD(x,0,7)
-#define  VTSS_M_HSCH_PMEM_SIZE_PMEM_SIZE      VTSS_ENCODE_BITMASK(0,7)
-#define  VTSS_X_HSCH_PMEM_SIZE_PMEM_SIZE(x)   VTSS_EXTRACT_BITFIELD(x,0,7)
+#define  VTSS_F_HSCH_PMEM_SIZE_PMEM_SIZE(x)   VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_HSCH_PMEM_SIZE_PMEM_SIZE      VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_HSCH_PMEM_SIZE_PMEM_SIZE(x)   VTSS_EXTRACT_BITFIELD(x,0,5)
 
 /**
  * Register Group: \a HSCH:TAS_CONFIG
@@ -1464,7 +1466,7 @@
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL
  */
-#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x23ca)
+#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x2fec)
 
 /**
  * \brief
@@ -1530,7 +1532,7 @@
  *
  * Register: \a HSCH:TAS_CONFIG:TAS_GATE_STATE_CTRL
  */
-#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x23cb)
+#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x2fed)
 
 /**
  * \brief
@@ -1551,7 +1553,7 @@
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL2
  */
-#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x23cc)
+#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x2fee)
 
 /**
  * \brief
@@ -1576,7 +1578,7 @@
  *
  * Register: \a HSCH:TAS_CONFIG:TAS_STATEMACHINE_CFG
  */
-#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x23cd)
+#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x2fef)
 
 /**
  * \brief
@@ -1607,7 +1609,7 @@
  * @param gi Replicator: x_GAZ_CORE_TAS_PROFILE_CNT (??), 0-59
  * @param ri Register: TAS_QMAXSDU_CFG (??), 0-7
  */
-#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2400,gi,16,ri,0)
+#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2c00,gi,16,ri,0)
 
 /**
  * \brief
@@ -1637,7 +1639,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_TAS_PROFILE_CNT (??), 0-59
  */
-#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2400,gi,16,0,8)
+#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2c00,gi,16,0,8)
 
 /**
  * \brief
@@ -1719,7 +1721,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_BASE_TIME_NSEC
  */
-#define VTSS_HSCH_TAS_BASE_TIME_NSEC         VTSS_IOREG(VTSS_TO_HSCH,0x2390)
+#define VTSS_HSCH_TAS_BASE_TIME_NSEC         VTSS_IOREG(VTSS_TO_HSCH,0x2ff0)
 
 /**
  * \brief
@@ -1742,7 +1744,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_BASE_TIME_SEC_LSB
  */
-#define VTSS_HSCH_TAS_BASE_TIME_SEC_LSB      VTSS_IOREG(VTSS_TO_HSCH,0x2391)
+#define VTSS_HSCH_TAS_BASE_TIME_SEC_LSB      VTSS_IOREG(VTSS_TO_HSCH,0x2ff1)
 
 /**
  * \brief
@@ -1762,7 +1764,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_BASE_TIME_SEC_MSB
  */
-#define VTSS_HSCH_TAS_BASE_TIME_SEC_MSB      VTSS_IOREG(VTSS_TO_HSCH,0x2392)
+#define VTSS_HSCH_TAS_BASE_TIME_SEC_MSB      VTSS_IOREG(VTSS_TO_HSCH,0x2ff2)
 
 /**
  * \brief
@@ -1782,7 +1784,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_NEXT_OPER_TIME_NSEC
  */
-#define VTSS_HSCH_TAS_NEXT_OPER_TIME_NSEC    VTSS_IOREG(VTSS_TO_HSCH,0x2393)
+#define VTSS_HSCH_TAS_NEXT_OPER_TIME_NSEC    VTSS_IOREG(VTSS_TO_HSCH,0x2ff3)
 
 /**
  * \brief
@@ -1802,7 +1804,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_NEXT_OPER_TIME_SEC_LSB
  */
-#define VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_LSB  VTSS_IOREG(VTSS_TO_HSCH,0x2394)
+#define VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_LSB  VTSS_IOREG(VTSS_TO_HSCH,0x2ff4)
 
 /**
  * \brief
@@ -1822,7 +1824,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_NEXT_OPER_TIME_SEC_MSB
  */
-#define VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_MSB  VTSS_IOREG(VTSS_TO_HSCH,0x2395)
+#define VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_MSB  VTSS_IOREG(VTSS_TO_HSCH,0x2ff5)
 
 /**
  * \brief
@@ -1842,7 +1844,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_CYCLE_TIME_CFG
  */
-#define VTSS_HSCH_TAS_CYCLE_TIME_CFG         VTSS_IOREG(VTSS_TO_HSCH,0x2396)
+#define VTSS_HSCH_TAS_CYCLE_TIME_CFG         VTSS_IOREG(VTSS_TO_HSCH,0x2ff6)
 
 /**
  * \brief
@@ -1866,7 +1868,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_STARTUP_CFG
  */
-#define VTSS_HSCH_TAS_STARTUP_CFG            VTSS_IOREG(VTSS_TO_HSCH,0x2397)
+#define VTSS_HSCH_TAS_STARTUP_CFG            VTSS_IOREG(VTSS_TO_HSCH,0x2ff7)
 
 /**
  * \brief
@@ -1917,7 +1919,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_CFG
  */
-#define VTSS_HSCH_TAS_LIST_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x2398)
+#define VTSS_HSCH_TAS_LIST_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x2ff8)
 
 /**
  * \brief
@@ -1949,7 +1951,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_STATE
  */
-#define VTSS_HSCH_TAS_LIST_STATE             VTSS_IOREG(VTSS_TO_HSCH,0x2399)
+#define VTSS_HSCH_TAS_LIST_STATE             VTSS_IOREG(VTSS_TO_HSCH,0x2ff9)
 
 /**
  * \brief
@@ -1999,7 +2001,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_PTR_STATE
  */
-#define VTSS_HSCH_TAS_LIST_PTR_STATE         VTSS_IOREG(VTSS_TO_HSCH,0x239a)
+#define VTSS_HSCH_TAS_LIST_PTR_STATE         VTSS_IOREG(VTSS_TO_HSCH,0x2ffa)
 
 /**
  * \brief
@@ -2019,7 +2021,7 @@
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_STATE_INT
  */
-#define VTSS_HSCH_TAS_LIST_STATE_INT         VTSS_IOREG(VTSS_TO_HSCH,0x239b)
+#define VTSS_HSCH_TAS_LIST_STATE_INT         VTSS_IOREG(VTSS_TO_HSCH,0x2ffb)
 
 /**
  * \brief
@@ -2045,7 +2047,7 @@
  * \details
  * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_CTRL_CFG
  */
-#define VTSS_HSCH_TAS_GCL_CTRL_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x23a0)
+#define VTSS_HSCH_TAS_GCL_CTRL_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x2be8)
 
 /**
  * \brief
@@ -2104,7 +2106,7 @@
  * \details
  * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_CTRL_CFG2
  */
-#define VTSS_HSCH_TAS_GCL_CTRL_CFG2          VTSS_IOREG(VTSS_TO_HSCH,0x23a1)
+#define VTSS_HSCH_TAS_GCL_CTRL_CFG2          VTSS_IOREG(VTSS_TO_HSCH,0x2be9)
 
 /**
  * \brief
@@ -2149,7 +2151,7 @@
  * \details
  * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_TIME_CFG
  */
-#define VTSS_HSCH_TAS_GCL_TIME_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x23a2)
+#define VTSS_HSCH_TAS_GCL_TIME_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x2bea)
 
 /**
  * \brief
@@ -2178,7 +2180,7 @@
  * \details
  * Register: \a HSCH:HSCH_TAS_STATE:TAS_GATE_STATE
  */
-#define VTSS_HSCH_TAS_GATE_STATE             VTSS_IOREG(VTSS_TO_HSCH,0x23a5)
+#define VTSS_HSCH_TAS_GATE_STATE             VTSS_IOREG(VTSS_TO_HSCH,0x2bee)
 
 /**
  * \brief

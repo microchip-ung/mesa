@@ -123,23 +123,6 @@
 #define  VTSS_M_DEVCPU_GCB_FEA_DIS_FEA_DIS     0xffffffff
 #define  VTSS_X_DEVCPU_GCB_FEA_DIS_FEA_DIS(x)  (x)
 
-
-/**
- * \brief FPGA drop identifier
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:BUILDID
- */
-#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2a)
-
-/**
- * \details
- * Field: ::VTSS_DEVCPU_GCB_BUILDID . BUILDID
- */
-#define  VTSS_F_DEVCPU_GCB_BUILDID_BUILDID(x)  (x)
-#define  VTSS_M_DEVCPU_GCB_BUILDID_BUILDID     0xffffffff
-#define  VTSS_X_DEVCPU_GCB_BUILDID_BUILDID(x)  (x)
-
 /**
  * Register Group: \a DEVCPU_GCB:SI_REGS
  *
@@ -153,7 +136,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CTRL
  */
-#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2b)
+#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2a)
 
 /**
  * \brief
@@ -185,7 +168,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CFGSTAT
  */
-#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2c)
+#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2b)
 
 /**
  * \brief
@@ -228,7 +211,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,0)
+#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,0)
 
 /**
  * \brief
@@ -315,7 +298,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,1)
+#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,1)
 
 /**
  * \brief
@@ -340,7 +323,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,2)
+#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,2)
 
 /**
  * \brief
@@ -456,7 +439,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,3)
+#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,3)
 
 /**
  * \brief
@@ -492,7 +475,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,4)
+#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,4)
 
 /**
  * \brief
@@ -557,7 +540,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,5)
+#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,5)
 
 /**
  * \brief
@@ -590,7 +573,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,6)
+#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,6)
 
 /**
  * \brief
@@ -625,7 +608,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,7)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,7)
 
 /**
  * \brief
@@ -652,7 +635,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2d,gi,9,0,8)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x2c,gi,9,0,8)
 
 /**
  * \brief
@@ -683,7 +666,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3f + (ri))
+#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3e + (ri))
 
 /**
  * \brief
@@ -718,7 +701,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x41 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x40 + (ri))
 
 /**
  * \brief
@@ -740,7 +723,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CFG
  */
-#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
+#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x44)
 
 /**
  * \brief
@@ -954,7 +937,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CLOCK
  */
-#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46)
+#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
 
 /**
  * \brief
@@ -992,7 +975,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_PORT_CNT (??), 0-31
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x47 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46 + (ri))
 
 /**
  * \brief
@@ -1060,7 +1043,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_PORT_ENA
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x67)
+#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x66)
 
 /**
  * \brief
@@ -1086,7 +1069,7 @@
  *
  * @param ri Register: SIO_PWM_CFG (??), 0-2
  */
-#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x68 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x67 + (ri))
 
 /**
  * \brief
@@ -1111,7 +1094,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6b + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6a + (ri))
 
 /**
  * \brief
@@ -1138,7 +1121,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6f + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6e + (ri))
 
 /**
  * \brief
@@ -1162,7 +1145,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x73 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x72 + (ri))
 
 /**
  * \brief
@@ -1201,7 +1184,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x77 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x76 + (ri))
 
 /**
  * \brief
@@ -1223,7 +1206,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7b + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7a + (ri))
 
 /**
  * \brief
@@ -1249,7 +1232,7 @@
  *
  * @param ri Register: SIO_INTR_ENA (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7f + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7e + (ri))
 
 /**
  * \brief
@@ -1275,7 +1258,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x83 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x82 + (ri))
 
 /**
  * \brief

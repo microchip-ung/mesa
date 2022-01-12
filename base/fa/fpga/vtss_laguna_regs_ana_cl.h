@@ -1958,9 +1958,8 @@
  * E-tag information is available for classification, including CLM keys.
  * Any VLAN tags and PDU below the E-tag are parsed.If E-tag unaware, the
  * frame's E-tag is not analyzed and the frame is considered a frame with
- * ETYPE=0x893F.ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA and
- * ANA_CL:COMMON:RTAG_CFG.HSR_TPID_ENA must be set to 0 when E-tag
- * awareness is enabled.
+ * ETYPE=0x893F.ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA shall be set to 0 when
+ * E-tag awareness is enabled.
  *
  * \details
  * Field: ::VTSS_ANA_CL_ETAG_CFG . ETAG_TPID_ENA
@@ -1980,34 +1979,14 @@
 
 /**
  * \brief
- * Enable HSR tag awareness.If HSR tag aware, the frame's HSR-tag is parsed
- * and HSR-tag information is available for stream recovery. Any VLAN tags
- * before or after the HSR-tag are parsed (maximum two VLAN tags are
- * supported together with an HSR-tag). The PDU below the tags is parsed.If
- * HSR-tag unaware, the frame's HSR-tag is not analyzed and the frame is
- * considered a frame with ETYPE=0xF1C1. Any VLAN tags before the HSR-tag
- * are still analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA and
- * ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA must be set to 0 when HSR-tag
- * awareness is enabled.
- *
- * \details
- * Field: ::VTSS_ANA_CL_RTAG_CFG . HSR_TPID_ENA
- */
-#define  VTSS_F_ANA_CL_RTAG_CFG_HSR_TPID_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_ANA_CL_RTAG_CFG_HSR_TPID_ENA  VTSS_BIT(1)
-#define  VTSS_X_ANA_CL_RTAG_CFG_HSR_TPID_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
  * Enable R-tag awareness.If R-tag aware, the frame's R-tag is parsed and
  * R-tag information is available for stream recovery. Any VLAN tags before
  * or after the R-tag are parsed (maximum two VLAN tags are supported
  * together with an R-tag). The PDU below the tags is parsed.If R-tag
  * unaware, the frame's R-tag is not analyzed and the frame is considered a
  * frame with ETYPE=0xF1C1. Any VLAN tags before the R-tag are still
- * analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA and
- * ANA_CL:COMMON:RTAG_CFG.HSR_TPID_ENA must be set to 0 when R-tag
- * awareness is enabled.
+ * analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA shall be set to 0 when
+ * R-tag awareness is enabled.
  *
  * \details
  * Field: ::VTSS_ANA_CL_RTAG_CFG . RTAG_TPID_ENA

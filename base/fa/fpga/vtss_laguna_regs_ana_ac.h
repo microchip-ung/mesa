@@ -1594,17 +1594,6 @@
 
 /**
  * \brief
- * Set if ACL requested no CPU destinations.Write 1 to clear this field.
- *
- * \details
- * Field: ::VTSS_ANA_AC_PS_STICKY_STICKY . ACL_CPU_DIS_STICKY
- */
-#define  VTSS_F_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
-#define  VTSS_M_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY  VTSS_BIT(27)
-#define  VTSS_X_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
-
-/**
- * \brief
  * Set if a forwarder virtual LAG profile from PGID table has been
  * used.Write 1 to clear this field.
  *
@@ -1868,17 +1857,6 @@
  * @param gi Replicator: x_ANA_NUM_CONCURRENT_CNT (??), 0-3
  */
 #define VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x54d0,gi,16,0,0)
-
-/**
- * \brief
- * Mask to enable counting of sticky event.
- *
- * \details
- * Field: ::VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK . ACL_CPU_DIS_STICKY_MASK
- */
-#define  VTSS_F_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
-#define  VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK  VTSS_BIT(27)
-#define  VTSS_X_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
 
 /**
  * \brief

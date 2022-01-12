@@ -244,8 +244,8 @@
  * ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_ENA enables secure forwarding with
  * CPU-redirection on a per VLAN basis. Frames with unknown SMAC are
  * redirected to the CPU using CPU queue
- * ANA_L2:COMMON:LRN_CFG.CPU_LRN_QU.See:ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_E
- * NA
+ * ANA_L2:COMON:LRN_CFG.CPU_LRN_QU.See:ANA_L3:VLAN:VLAN_CFG.VLAN_SEC_FWD_EN
+ * A
  *
  * \details
  * 0: No redirection
@@ -1471,35 +1471,6 @@
 #define  VTSS_M_ANA_L2_INTR_IDENT_ISDX_LIMIT_INTR_IDENT  VTSS_BIT(0)
 #define  VTSS_X_ANA_L2_INTR_IDENT_ISDX_LIMIT_INTR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
-
-/**
- * \brief Secure learn configuration
- *
- * \details
- * Configures secure forwarding per port
- *
- * Register: \a ANA_L2:COMMON:LRN_SECUR_LOCKED_COPY_CFG
- */
-#define VTSS_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG  VTSS_IOREG(VTSS_TO_ANA_L2,0x22271)
-
-/**
- * \brief
- * Configures copy of frames from known stations with changed port
- * (LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_ADDR_TYPE and
- * LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_ADDR) in the source entry and the LOCKED
- * bit (LRN::MAC_ACCESS_CFG_2.MAC_ENTRY_LOCKED) set.Copies are sent to the
- * CPU queue specified by ANA_L2::LRN_CFG.CPU_LRN_QU.
- *
- * \details
- * x0x: Disable drop of incoming learn frames for the port
- * x1x: Enable drop of incoming learn frames received on this port
- *
- * Field: ::VTSS_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG . COPY_MOVED_LOCKED_ENA
- */
-#define  VTSS_F_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,30)
-#define  VTSS_M_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA     VTSS_ENCODE_BITMASK(0,30)
-#define  VTSS_X_ANA_L2_LRN_SECUR_LOCKED_COPY_CFG_COPY_MOVED_LOCKED_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,30)
-
 /**
  * Register Group: \a ANA_L2:LRN_LIMIT
  *
@@ -2155,7 +2126,7 @@
  * replaced:SERVICE_CTRL.LPORT_REMOVE_ENASERVICE_CTRL.PORT_MASK_REPLACE_ENA
  * SERVICE_CTRL.AGGR_VALSERVICE_CTRL.SRC_MASK_DISSERVICE_CTRL.AGGR_REPLACE_
  * ENASERVICE_CTRL.ES0_ISDX_KEY_ENAQGRP_CFG.QGRP_IDXQGRP_CFG.QGRP_OAM_TYPEM
- * ISC_CFG.CT_DISPORT_MASK_CFG.PORT_MASKRelated
+ * ISC_CFG.CT_DISPORT_MASK_CFG.PORT_MASKPORT_MASK_CFG1.PORT_MASK1Related
  * parameters:ANA_L3:VMID:VMID_MISC.RSDX
  *
  * \details
@@ -2401,7 +2372,7 @@
  * \details
  * Register: \a ANA_L2:STICKY:STICKY
  */
-#define VTSS_ANA_L2_STICKY                   VTSS_IOREG(VTSS_TO_ANA_L2,0x22274)
+#define VTSS_ANA_L2_STICKY                   VTSS_IOREG(VTSS_TO_ANA_L2,0x22271)
 
 /**
  * \brief
@@ -2737,7 +2708,7 @@
  *
  * @param gi Replicator: x_FFL_ANA_NUM_CONCURRENT_CNTS (??), 0-3
  */
-#define VTSS_ANA_L2_STICKY_MASK(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22275,gi,1,0,0)
+#define VTSS_ANA_L2_STICKY_MASK(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_L2,0x22272,gi,1,0,0)
 
 /**
  * \brief
@@ -3010,7 +2981,7 @@
  *
  * Register: \a ANA_L2:PMAC:PMAC_ACCESS_CTRL
  */
-#define VTSS_ANA_L2_PMAC_ACCESS_CTRL         VTSS_IOREG(VTSS_TO_ANA_L2,0x22279)
+#define VTSS_ANA_L2_PMAC_ACCESS_CTRL         VTSS_IOREG(VTSS_TO_ANA_L2,0x22276)
 
 /**
  * \brief
@@ -3036,7 +3007,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_INDEX
  */
-#define VTSS_ANA_L2_PMAC_INDEX               VTSS_IOREG(VTSS_TO_ANA_L2,0x2227a)
+#define VTSS_ANA_L2_PMAC_INDEX               VTSS_IOREG(VTSS_TO_ANA_L2,0x22277)
 
 /**
  * \brief
@@ -3058,7 +3029,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_ACCESS_CFG_2
  */
-#define VTSS_ANA_L2_PMAC_ACCESS_CFG_2        VTSS_IOREG(VTSS_TO_ANA_L2,0x2227b)
+#define VTSS_ANA_L2_PMAC_ACCESS_CFG_2        VTSS_IOREG(VTSS_TO_ANA_L2,0x22278)
 
 /**
  * \brief
@@ -3137,7 +3108,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_CFG
  */
-#define VTSS_ANA_L2_PMAC_CFG                 VTSS_IOREG(VTSS_TO_ANA_L2,0x2227c)
+#define VTSS_ANA_L2_PMAC_CFG                 VTSS_IOREG(VTSS_TO_ANA_L2,0x22279)
 
 /**
  * \brief
@@ -3167,7 +3138,7 @@
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_CFG_2
  */
-#define VTSS_ANA_L2_PMAC_CFG_2               VTSS_IOREG(VTSS_TO_ANA_L2,0x2227d)
+#define VTSS_ANA_L2_PMAC_CFG_2               VTSS_IOREG(VTSS_TO_ANA_L2,0x2227a)
 
 /**
  * \brief
@@ -3203,7 +3174,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_NUM_PMAC_TABLE_VLANS (??), 0-3
  */
-#define VTSS_ANA_L2_PMAC_VLAN_CFG(ri)        VTSS_IOREG(VTSS_TO_ANA_L2,0x2227e + (ri))
+#define VTSS_ANA_L2_PMAC_VLAN_CFG(ri)        VTSS_IOREG(VTSS_TO_ANA_L2,0x2227b + (ri))
 
 /**
  * \brief

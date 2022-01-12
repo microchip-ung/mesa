@@ -10,6 +10,7 @@
 #ifndef VTSS_IO_OFFSET1
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
 #endif
+#define VTSS_IO_ORIGIN2_OFFSET 0x000000000 /*! amba_axi_top region*/
 #ifndef VTSS_IO_ORIGIN2_SIZE
 #define VTSS_IO_ORIGIN2_SIZE 0x000000000
 #endif

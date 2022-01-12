@@ -161,8 +161,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000E are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
+ * and EPID=0x000B are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use ES0 to generate an ENCAP_ID and insert the encapsulation in front
  * of the IFH:
@@ -200,8 +200,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000E are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
+ * and EPID=0x000B are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use ES0 to generate an ENCAP_ID and insert the encapsulation in front
  * of the IFH:
@@ -1777,8 +1777,8 @@
  * 1: Keep IFH without modifications. Frames are not updated. IFH is kept
  * 2: Encapsulate IFH.
  *    The frame's DMAC, SMAC and a fixed TAG with ETYPE=8880 (Microchip)
- * and EPID=0x000E are inserted in front of the IFH:
- *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000E][IFH][FRAME]
+ * and EPID=0x000B are inserted in front of the IFH:
+ *	 [FRM_DMAC][FRM_SMAC][0x8880][0x000B][IFH][FRAME]
  * 3: Encapsulate IFH using the ENCAP table
  *    Use GCPU_UPSID and GCPU_UPSPN or ES0 to generate an ENCAP_ID and
  * insert the encapsulation in front of the IFH:
@@ -4120,9 +4120,9 @@
 /**
  * \brief
  * Enable IFH encapsulation mode for this entry.The frame link layer format
- * is changed to:[LL_DMAC][LL_SMAC][0x8880][0x000E]Optionally one VLAN tag
+ * is changed to:[LL_DMAC][LL_SMAC][0x8880][0x000B]Optionally one VLAN tag
  * can be added if LL_TAG_CFG.TAG_CFG =
- * 1[LL_DMAC][LL_SMAC][LL_TAG:0][0x8880][0x000E]None of the other
+ * 1[LL_DMAC][LL_SMAC][LL_TAG:0][0x8880][0x000B]None of the other
  * encapsulation fields are used in this mode
  *
  * \details

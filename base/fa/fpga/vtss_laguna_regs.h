@@ -31,7 +31,6 @@
 #include "vtss_laguna_regs_qres.h"
 #include "vtss_laguna_regs_qsys.h"
 #include "vtss_laguna_regs_rew.h"
-#include "vtss_laguna_regs_rb.h"
 #include "vtss_laguna_regs_vcap_es0.h"
 #include "vtss_laguna_regs_vcap_es2.h"
 #include "vtss_laguna_regs_vcap_ip6pfx.h"

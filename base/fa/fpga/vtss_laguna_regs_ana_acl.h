@@ -1197,36 +1197,6 @@
 
 /**
  * \brief
- * Applies to MAC frames.
- *
- * \details
- * 0: Use selection from ARP_KEY_SEL.
- * 1: Match against IP_7TUPLE entries.
-
- *
- * Field: ::VTSS_ANA_ACL_VCAP_S2_KEY_SEL . ARP_7TUPLE_ENA
- */
-#define  VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
-#define  VTSS_M_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA  VTSS_BIT(15)
-#define  VTSS_X_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
-
-/**
- * \brief
- * Applies to MAC_ETYPE frames.
- *
- * \details
- * 0: Match against MAC_ETYPE entries.
- * 1: Match against IP_7TUPLE entries.
-
- *
- * Field: ::VTSS_ANA_ACL_VCAP_S2_KEY_SEL . MAC_KEY_SEL
- */
-#define  VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
-#define  VTSS_M_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL  VTSS_BIT(14)
-#define  VTSS_X_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
-
-/**
- * \brief
  * If set, this profile's configuration is applicable for key selection
  * process. Note, a port's configuration is always available.
  *

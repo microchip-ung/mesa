@@ -37,8 +37,8 @@
 /**
  * \brief
  * Configures VOE for Down-MEP or Up-MEP operation.Note:Port VOEs only
- * support Down-MEP functionality. UPMEP_ENA must be set to 0.MRP VOEs only
- * support Down-MEP functionality. UPMEP_ENA must be set to 0.
+ * support Down-MEP functionality. UPMEP_ENA must be set to 0.L3 VOEs only
+ * support Up-MEP functionality. UPMEP_ENA must be set to 1.
  *
  * \details
  * 0: Configure VOE for Down-MEP functionality.
@@ -129,18 +129,18 @@
  * \brief
  * If set, the MRP_InTest frame's MRP_SequenceID is checked against the
  * expected sequence identifier and frames for which the sequenceID does
- * not match the expected value are copied to the CPU using either the
- * VOP::CPU_EXTR_MRP.OWN_CPU_QU or VOP::CPU_EXTR_MRP.REM_CPU_QU queue. The
- * selected queue depends on the frame MRP_SA. For frames failing the
- * check, VOP_MRP:VOE_STAT_MRP:MRP_STICKY.ITST_RX_SEQ_ERR_STICKY is set.
- * The expected value is calculated as
- * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[1]+1. The frame's MRP_SequenceID is
- * stored in VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[1] as the latest valid
+ * not match the expected value are forwarded using ERR_FWD_SEL. For frames
+ * failing the check,
+ * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.ITST_RX_SEQ_ERR_STICKY is set. The
+ * expected value is calculated as
+ * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ_CFG[1]+1. The frame's MRP_SequenceID is
+ * stored in VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ_CFG[1] as the latest valid
  * sequence identifier.Related parameters:-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
- * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ-
- * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.ITST_RX_SEQ_ERR_STICKY
+ * VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG-
+ * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_CTRL . ITST_CHK_SEQ_ENA
@@ -153,18 +153,17 @@
  * \brief
  * If set, the MRP_Test frame's MRP_SequenceID is checked against the
  * expected sequence identifier and frames for which the sequenceID does
- * not match the expected value are copied to the CPU using either the
- * VOP::CPU_EXTR_MRP.OWN_CPU_QU or VOP::CPU_EXTR_MRP.REM_CPU_QU queue. The
- * selected queue depends on the frame MRP_SA.For frames failing the check,
- * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.TST_RX_SEQ_ERR_STICKY is set. The
- * expected value is calculated as VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[0]+1.
- * The frame's MRP_SequenceID is stored in
- * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[0] as the latest valid sequence
- * identifier.Related parameters:-
+ * not match the expected value are forwarded using ERR_FWD_SEL. For frames
+ * failing the check, VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY is
+ * set. The expected value is calculated as
+ * VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG[0]+1. The frame's MRP_SequenceID is
+ * stored in VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG[0] as the latest valid
+ * sequence identifier.Related parameters:-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
- * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ-
- * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.TST_RX_SEQ_ERR_STICKY
+ * VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL-
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG-
+ * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_CTRL . TST_CHK_SEQ_ENA
@@ -334,7 +333,9 @@
 /**
  * \brief
  * Forward selection for MRP frames failing one of the optional PDU
- * checks:- MRP Version- MRP DMAC Related paramenters:-
+ * checks:- MRP Version- MRP DMAC - MRP SequenceIDRelated paramenters:-
+ * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
+ * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.CHK_VERSION_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.CHK_DMAC_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL-
@@ -356,7 +357,7 @@
  * MRP_Test frames is enabled, setting MRP_TST_FWD_SEL > 0 triggers a CPU
  * copy after the hardware processing is done. Effectively, a NOP is
  * changed to a COPY and a DISC is changed to a REDIR. The CPU queue is set
- * to VOP::CPU_EXTR_MRP.MRP_TST_CPU_QU.
+ * to MRP_CPU_CFG.MRP_TST_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_FWD_CTRL . MRP_TST_FWD_SEL
@@ -420,7 +421,7 @@
  * frames is enabled, setting MRP_ITST_FWD_SEL > 0 triggers a CPU copy
  * after the hardware processing is done. Effectively, a NOP is changed to
  * a COPY and a DISC is changed to a REDIR. The CPU queue is set to
- * VOP::CPU_EXTR_MRP.MRP_ITST_CPU_QU.
+ * MRP_CPU_CFG.MRP_ITST_CPU_QU.
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_FWD_CTRL . MRP_ITST_FWD_SEL
@@ -593,8 +594,8 @@
  * \brief
  * Default forward selection for MRP_Test frames from a remote MRP (MRP_SA
  * does not match MRP_MAC). The CPU queue is configured in
- * VOP::CPU_EXTR_MRP.REM_CPU_QU. More filters may be applied to further
- * process the MRP_Test frame, see TST_CFG.CHK_REM_PRIO_ENA and
+ * MRP_CPU_CFG.REM_CPU_QU. More filters may be applied to further process
+ * the MRP_Test frame, see TST_CFG.CHK_REM_PRIO_ENA and
  * TST_CFG.CHK_BEST_MRM_ENA.Related parameters:-
  * VOP_MRP:VOE_CONF_MRP:TST_FWD_CTRL.REM_FWD_SEL-
  * VOP::CPU_EXTR_MRP.REM_CPU_QU-
@@ -611,7 +612,7 @@
 /**
  * \brief
  * Forward selection for MRP_Test frames for which MRP_SA matches MRP_MAC.
- * The CPU queue is configured in VOP::CPU_EXTR_MRP.OWN_CPU_QU.Related
+ * The CPU queue is configured in MRP_CPU_CFG.OWN_CPU_QU.Related
  * parameters:- VOP_MRP:VOE_CONF_MRP:TST_FWD_CTRL.OWN_FWD_SEL-
  * VOP::CPU_EXTR_MRP.OWN_CPU_QU-
  * VOP_MRP:VOE_CONF_MRP:MRP_MAC_LSB.MRP_MAC_LSB-
@@ -659,7 +660,7 @@
 
 /**
  * \brief
- * If set, the TST_PRIO_STAT.BEST_PRIO is updated with the frame's MRP_PRIO
+ * If set, the TST_PRIO_CFG.BEST_PRIO is updated with the frame's MRP_PRIO
  * for valid MRP_Test frames when the frame's priority is worse than MRP
  * endpoint's own priority.
  *
@@ -672,7 +673,7 @@
 
 /**
  * \brief
- * If set, the TST_PRIO_STAT.BEST_PRIO is updated with the frame's MRP_PRIO
+ * If set, the TST_PRIO_CFG.BEST_PRIO is updated with the frame's MRP_PRIO
  * for valid MRP_Test frames when the frame's priority is better than MRP
  * endpoint's own priority.
  *
@@ -789,9 +790,9 @@
  * \brief
  * Forward selection for MRP_InTest frames from a remote MIM (MRP_SA does
  * not match MRP_MAC). The CPU queue is configured in
- * VOP::CPU_EXTR_MRP.REM_CPU_QU The RING_PORTMASK may be applied when no
- * changes to forwarding or frame is copied to the CPU. Related
- * parameters:- VOP_MRP:VOE_CONF_MRP:ITST_FWD_CTRL.ITST_REM_FWD_SEL-
+ * MRP_CPU_CFG.REM_CPU_QU. The RING_PORTMASK may be applied when no changes
+ * to forwarding or frame is copied to the CPU. Related parameters:-
+ * VOP_MRP:VOE_CONF_MRP:ITST_FWD_CTRL.ITST_REM_FWD_SEL-
  * VOP::CPU_EXTR_MRP.REM_CPU_QU-
  * VOP_MRP:VOE_CONF_MRP:MRP_MAC_LSB.MRP_MAC_LSB-
  * VOP_MRP:VOE_CONF_MRP:MRP_MAC_MSB.MRP_MAC_MSB
@@ -811,9 +812,8 @@
 /**
  * \brief
  * Forward selection for MRP_InTest frames for which MRP_SA matches
- * MRP_MAC. The CPU queue is configured in
- * VOP::CPU_EXTR_MRP.OWN_CPU_QU.Related parameters:-
- * VOP_MRP:VOE_CONF_MRP:ITST_FWD_CTRL.ITST_OWN_FWD_SEL-
+ * MRP_MAC. The CPU queue is configured in MRP_CPU_CFG.OWN_CPU_QU.Related
+ * parameters:- VOP_MRP:VOE_CONF_MRP:ITST_FWD_CTRL.ITST_OWN_FWD_SEL-
  * VOP::CPU_EXTR_MRP.OWN_CPU_QU-
  * VOP_MRP:VOE_CONF_MRP:MRP_MAC_LSB.MRP_MAC_LSB-
  * VOP_MRP:VOE_CONF_MRP:MRP_MAC_MSB.MRP_MAC_MSB
@@ -985,8 +985,8 @@
  * Index 0: Configuration applies to MRP_Test frames.
  * Index 1: Configuration applies to MRP_InTest frames.
  *
- * To use the configuration, IFH field OAM_TYPE must be set to the MRP PDU
- * type.
+ * To use the configuration, IFH field REW_OAM must be set and IFH field
+ * OAM_TYPE must be set to MRP PDU type.
 
  *
  * Register: \a VOP_MRP:VOE_CONF_MRP:MRP_TX_CFG
@@ -999,7 +999,7 @@
 /**
  * \brief
  * If set, the time stamps in MRP_Test/MRP_InTest frames transmitted on
- * this VOE are updated with the value in VOP::MRP_TS_CFG.MRP_TS.
+ * this port are updated with the value in MRP_TX_TS_CFG.MRP_TX_TS.
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_TX_CFG . MRP_TIMESTAMP_UPD_ENA
@@ -1011,9 +1011,9 @@
 /**
  * \brief
  * If set, the sequence numbers in MRP_Test/MRP_InTest frames transmitted
- * on this VOE are updated with the value in
- * VOP_MRP:VOE_STAT_MRP:MRP_TX_SEQ[n].TX_SEQ. The sequence number is
- * auto-incremented after use.
+ * on this port are updated with the value in PTP_SEQ_NO selected by
+ * frame's IFH field SEQ_NUM. The sequence number is auto-incremented after
+ * use.
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_TX_CFG . MRP_SEQ_UPD_ENA
@@ -1025,7 +1025,7 @@
 /**
  * \brief
  * If set, the transistion number, portrole, and ringstate/instate in
- * MRP_Test/MRP_InTest frames transmitted on this VOE are updated with the
+ * MRP_Test/MRP_InTest frames transmitted on this port are updated with the
  * values in MRP_TX_CFG.MRP_TRANS, MRP_TX_CFG.MRP_PORTROLE, and
  * MRP_TX_CFG.MRP_STATE.
  *
@@ -1064,7 +1064,7 @@
 
 /**
  * \brief
- * Configures the transition to be transmitted in the next
+ * Configures the transistion to be transmitted in the next
  * MRP_Test/MRP_InTest frame. Used when MRP_TX_CFG.MRP_MISC_UPD_ENA is set.
  *
  * \details
@@ -1349,8 +1349,8 @@
  * - VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA
  * - VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL
  * - VOP::CPU_EXTR_CFG.CPU_ERR_QU
- * - VOP_MRP:VOE_STAT_MRP:MRP_STICKY.TST_RX_SEQ_ERR_STICKY
- * - VOP_MRP:VOE_STAT_MRP:MRP_STICKY.ITST_RX_SEQ_ERR_STICKY
+ * - VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG
+ * - VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY
  *
  * Register: \a VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ
  *
@@ -1475,8 +1475,8 @@
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL-
- * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ-
- * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.TST_RX_SEQ_ERR_STICKY
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG-
+ * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_STICKY . TST_RX_SEQ_ERR_STICKY
@@ -1491,8 +1491,8 @@
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_FWD_CTRL.ERR_FWD_SEL-
- * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ-
- * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.ITST_RX_SEQ_ERR_STICKY
+ * VOP::CPU_EXTR_CFG.CPU_ERR_QU- VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ_CFG-
+ * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.RX_SEQ_ERR_STICKY
  *
  * \details
  * Field: ::VTSS_VOP_MRP_MRP_STICKY . ITST_RX_SEQ_ERR_STICKY

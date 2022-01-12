@@ -951,7 +951,7 @@
  * all subsequent frames regardless of number of tokens in DLB's
  * buckets.Related
  * parameters:ANA_AC_SDLB:MISC:MARK_ALL_FRMS_RED_SETANA_AC_SDLB:MISC:MARK_A
- * LL_FRMS_RED_CLRANA_AC_SDLB:LBSET_TBL:DLB_MISC.MARK_ALL_FRMS_RED_MODE
+ * LL_FRMS_RED_CLR
  *
  * \details
  * Field: ::VTSS_ANA_AC_SDLB_DLB_MISC . MARK_ALL_FRMS_RED_ENA
@@ -959,25 +959,6 @@
 #define  VTSS_F_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
 #define  VTSS_M_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_ENA  VTSS_BIT(6)
 #define  VTSS_X_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
-
-/**
- * \brief
- * Criteria for when to set MarkAllFramesRed=1 (i.e. drop all frames).This
- * parameter is only applicable if MARK_ALL_FRMS_RED_ENA=1.Mode 0 should be
- * used if DLB is used as a single LB, i.e. EIR bucket is always closed and
- * only CIR bucket is used to police traffic.Mode 1 should be used if both
- * LBs are used.Related
- * parameters:ANA_AC_SDLB:LBSET_TBL:DLB_MISC.MARK_ALL_FRMS_RED_ENA
- *
- * \details
- * 0: Enter state MarkAllFramesRed=1 if both buckets of DLB are closed.
- * 1: Enter state MarkAllFramesRed=1 EIR bucket is closed.
- *
- * Field: ::VTSS_ANA_AC_SDLB_DLB_MISC . MARK_ALL_FRMS_RED_MODE
- */
-#define  VTSS_F_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_MODE  VTSS_BIT(7)
-#define  VTSS_X_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_MODE(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
 
 /**
  * \brief
