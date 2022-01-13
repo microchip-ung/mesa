@@ -219,6 +219,9 @@ def equal_interval_gcl_reconfig_test
         pcp0 = 1100
         pcp3 = 1300
     end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        pcp0 = 900
+    end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
@@ -350,6 +353,9 @@ def equal_interval_3_prio_1_port_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
         pcp3 = 1300
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        pcp0 = 900
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
