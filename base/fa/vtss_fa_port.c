@@ -681,11 +681,11 @@ static vtss_rc fa_miim_cmd(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 mmd_error:
     if(report_errors) {
-        /* VTSS_E("miim failed, cmd: %s, miim_addr: %u, addr: %u, miim_controller:%u, sof:%u", */
-        /*        cmd == PHY_CMD_READ ? "PHY_CMD_READ" : */
-        /*        cmd == PHY_CMD_WRITE ? "PHY_CMD_WRITE" : */
-        /*        cmd == PHY_CMD_ADDRESS ? "PHY_CMD_ADDRESS" : "PHY_CMD_READ_INC", */
-        /*        miim_addr, addr, miim_controller, sof); */
+        VTSS_E("miim failed, cmd: %s, miim_addr: %u, addr: %u, miim_controller:%u, sof:%u",
+               cmd == PHY_CMD_READ ? "PHY_CMD_READ" :
+               cmd == PHY_CMD_WRITE ? "PHY_CMD_WRITE" :
+               cmd == PHY_CMD_ADDRESS ? "PHY_CMD_ADDRESS" : "PHY_CMD_READ_INC",
+               miim_addr, addr, miim_controller, sof);
     }
 
     return VTSS_RC_ERROR;
