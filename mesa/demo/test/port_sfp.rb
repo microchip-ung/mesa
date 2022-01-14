@@ -75,9 +75,6 @@ test "Test SFP loop" do
     loop do
         conf = $ts.dut.call "mesa_port_conf_get", $ts.dut.looped_port_list[i]
         type = conf["if_type"]
-        if (type == "MESA_PORT_INTERFACE_SGMII" or type == "MESA_PORT_INTERFACE_QSGMII")
-            continue; # SFP test only
-        end
         if conf["serdes"]["media_type"].include? "DAC"
             dac = 1
             if conf["speed"].include? "25G" then spds = ["25g","10g","5g","2500","1000fdx","100fdx"] end
