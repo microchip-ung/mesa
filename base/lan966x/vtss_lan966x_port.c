@@ -1368,7 +1368,7 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
     if_group->ifOutErrors = (c->tx_drops.value + c->tx_aging.value);
 
     /* Ethernet-like counters */
-    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause);
+    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause) + CNT_SUM(c->rx_control);
     elike->dot3OutPauseFrames = CNT_SUM(c->tx_pause);
 
     /* Bridge counters */

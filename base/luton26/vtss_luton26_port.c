@@ -1774,7 +1774,7 @@ static vtss_rc l26_port_counters_read(vtss_state_t *vtss_state,
     if_group->ifOutErrors = c->tx_drops.value + c->tx_aging.value;
 
     /* Ethernet-like counters */
-    elike->dot3InPauseFrames = c->rx_pause.value;
+    elike->dot3InPauseFrames = c->rx_pause.value + c->rx_control.value;
     elike->dot3OutPauseFrames = c->tx_pause.value;
 
     /* Bridge counters */

@@ -3315,7 +3315,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     elike->dot3StatsFrameTooLongs = CNT_SUM(c->rx_oversize);
     elike->dot3StatsSymbolErrors = CNT_SUM(c->rx_symbol_err);
     elike->dot3ControlInUnknownOpcodes = CNT_SUM(c->rx_unsup_opcode);
-    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause);
+    elike->dot3InPauseFrames = CNT_SUM(c->rx_pause) + CNT_SUM(c->rx_unsup_opcode);
 
     /* Ethernet-like Tx counters */
     elike->dot3StatsSingleCollisionFrames = c->tx_backoff1.value;

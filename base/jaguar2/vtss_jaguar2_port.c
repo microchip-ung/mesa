@@ -2629,7 +2629,7 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
     elike->dot3StatsFrameTooLongs = c->rx_oversize.value;
     elike->dot3StatsSymbolErrors = c->rx_symbol_err.value;
     elike->dot3ControlInUnknownOpcodes = c->rx_unsup_opcode.value;
-    elike->dot3InPauseFrames = c->rx_pause.value;
+    elike->dot3InPauseFrames = c->rx_pause.value + c->rx_unsup_opcode.value;
 
     /* Ethernet-like Tx counters */
     elike->dot3StatsSingleCollisionFrames = c->tx_backoff1.value;

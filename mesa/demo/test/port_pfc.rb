@@ -118,6 +118,7 @@ $test_list.each do |entry|
         [$ts.dut.p[$port_tx1], $ts.dut.p[$port_tx2]].each do |port|
             cnt = $ts.dut.call "mesa_port_counters_get", port
             tx_pause_cnt = cnt['ethernet_like']['dot3OutPauseFrames']
+            rx_pause_cnt = cnt['ethernet_like']['dot3InPauseFrames']
             tx_frame_cnt = cnt["if_group"]["ifOutUcastPkts"]
             rx_frame_cnt = cnt["if_group"]["ifInUcastPkts"]
             rx_mc_cnt = cnt["if_group"]["ifInMulticastPkts"]
@@ -144,6 +145,11 @@ $test_list.each do |entry|
                 end
             end
             if port == $ts.dut.p[$port_tx2]
+                if (tx_pause)
+                    if (rx_pause_cnt == 0)
+                        t_e("No rx pause frames")
+                    end
+                end
                 if (frameloss)
                     if (tx_frame_cnt == $num_of_frames)
                         t_e("Failure: Expected too see frameloss")
