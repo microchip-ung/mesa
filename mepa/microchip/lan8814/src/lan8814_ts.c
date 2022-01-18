@@ -802,11 +802,10 @@ static void indy_ts_deb_pr_reg (mepa_device_t *dev,
                                 const mepa_debug_print_t pr,
                                 const char *str, uint16_t page, uint16_t addr, uint16_t *value)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no = data->port_no;
-
-    if(MEPA_RC_OK == indy_ext_reg_rd(dev, page, addr, value)) {
-        if(pr != NULL) {
+    if(pr != NULL) {
+        phy_data_t *data = (phy_data_t *)dev->data;
+        mepa_port_no_t port_no = data->port_no;
+        if(MEPA_RC_OK == indy_ext_reg_rd(dev, page, addr, value)) {
             pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, port_no, page, addr, *value);
         }
     }
