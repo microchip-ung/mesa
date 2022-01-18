@@ -12,14 +12,6 @@
 #define MEPA_LABS(arg)                labs(arg)                /**< long to abs */
 #define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor)) /**< support for 64 bit division */
 
-//#define TS_DEBUG 1
-#if TS_DEBUG
-#define INDY_TS_DEBUG_PRINT(p,s,e,a,v) \
-            printf("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", s, p, e, a, *v)
-#else
-#define INDY_TS_DEBUG_PRINT(p,s,e,a,v)
-#endif
-
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,10 speeds
     {  000, 0000, 00000 },
@@ -814,11 +806,8 @@ static void indy_ts_deb_pr_reg (mepa_device_t *dev,
     mepa_port_no_t port_no = data->port_no;
 
     if(MEPA_RC_OK == indy_ext_reg_rd(dev, page, addr, value)) {
-        if(pr) {
+        if(pr != NULL) {
             pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, port_no, page, addr, *value);
-        }
-        else {
-            INDY_TS_DEBUG_PRINT(port_no, str, page, addr, value);
         }
     }
 }
