@@ -1033,7 +1033,7 @@ static void taxi2ports(u32 taxi, u32 *port_ptr) {
 static vtss_rc fa_dsm_calc_calender(vtss_state_t *vtss_state, u32 taxi, u32 *schedule, i32 *avg_dist) {
     u32 gcd, k, i, a, sum = 0, min = 25000, factor, adjusted_speed;
     u32 num_of_slots, slot_spd, raw_spd, spd, empty_slots;
-    u32 indices_len, act, ts;
+    u32 indices_len, act, ts, cal_spd, port_spd;
     i32 port = 0, cnt;
     u32 num_of_old_slots, num_of_new_slots, tgt_score;
     u32 taxi_bw, slow_mode, clk_period_ps;
@@ -1061,7 +1061,9 @@ static vtss_rc fa_dsm_calc_calender(vtss_state_t *vtss_state, u32 taxi, u32 *sch
     schedule[0] = DSM_CAL_MAX_DEVS_PER_TAXI;
 
     for (u32 p = 0; p < vtss_state->port_count; p++) {
-        port_speeds[port] = calspd2int(fa_cal_speed_get(vtss_state, p, &port, 0, 0));
+        cal_spd = fa_cal_speed_get(vtss_state, p, &port, 0, 0);
+        port_spd = calspd2int(cal_spd);
+        port_speeds[port] = port_spd;
     }
     // Map ports to taxi positions
     for (u32 i = 0; i < DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
