@@ -208,6 +208,8 @@ typedef mesa_rc (*meba_gpio_func_info_get_t)(struct meba_inst *inst,
 typedef mesa_rc (*meba_serdes_tap_get_t)(struct meba_inst *inst,
                                          mesa_port_no_t port_no, mesa_port_speed_t speed, mesa_port_serdes_tap_enum_t tap, uint32_t *value);
 
+typedef mesa_rc (*meba_ptp_external_io_conf_get_t)(meba_inst_t inst, uint32_t io_pin,
+                                                   meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id);
 
 typedef struct {
     meba_deinitialize_t             meba_deinitialize;
@@ -233,6 +235,7 @@ typedef struct {
     meba_ptp_rs422_conf_get_t       meba_ptp_rs422_conf_get;
     meba_gpio_func_info_get_t       meba_gpio_func_info_get;
     meba_serdes_tap_get_t           meba_serdes_tap_get;
+    meba_ptp_external_io_conf_get_t meba_ptp_external_io_conf_get;
 } meba_api_t;
 
 
@@ -260,7 +263,8 @@ typedef struct {
     X(meba_irq_handler)              \
     X(meba_irq_requested)            \
     X(meba_event_enable)             \
-    X(meba_ptp_rs422_conf_get)
+    X(meba_ptp_rs422_conf_get)       \
+    X(meba_ptp_external_io_conf_get)
 
 #include <microchip/ethernet/board/api/hdr_end.h>
 #endif  // _MICROCHIP_ETHERNET_BOARD_BASE_H_

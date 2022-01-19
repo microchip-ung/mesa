@@ -40,6 +40,12 @@ typedef enum {
     LED_TOWER_MODE_CNT
 } led_tower_mode_t;
 
+static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT)
+};
+
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_SYNC};
+
 static const sgpio_mapping_t tower_led_mapping_lu26[LED_TOWER_MODE_CNT][2] = {
     {{2, 2} /* tower 0 green */, {3, 2} /* tower 0 yellow */},
     {{4, 2} /* tower 1 green */, {5, 2} /* tower 1 yellow */},
@@ -164,6 +170,16 @@ static const mesa_fan_conf_t fan_conf_lu10 = {
     .type = MESA_FAN_3_WIRE_TYPE,              // 3-wire
     .ppr = 2,                                  // 2 PPR
 };
+
+static mesa_rc caracal_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+{
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+    *board_assignment = pin_conf[io_pin];
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
+}
 
 const sgpio_mapping_t *sgpio_map_led(meba_board_state_t *board, int i)
 {
@@ -1419,7 +1435,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_irq_requested              = caracal_irq_requested;
     inst->api.meba_event_enable               = caracal_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
-
+    inst->api.meba_ptp_external_io_conf_get   = caracal_ptp_external_io_conf_get;
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();
     inst->api_poe = meba_poe_get();

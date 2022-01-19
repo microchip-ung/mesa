@@ -1589,7 +1589,6 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = VTSS_TS_IO_ARRAY_SIZE;
 #endif
         break;
-
     case MESA_CAP_TS_DOMAIN_CNT:
 #if defined(VTSS_TS_DOMAIN_ARRAY_SIZE)
         c = VTSS_TS_DOMAIN_ARRAY_SIZE;

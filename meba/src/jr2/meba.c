@@ -176,6 +176,23 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
+
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
+
+static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_PHY_SYNC),
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_TIME_IF_OUT)
+};
+
+static const uint32_t pin_conf_pcb111[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_UNUSED)
+};
+
 #define MALIBU_PORT_START 49    // Iport start
 #define MALIBU_PORT_END   52    // Iport end (incl)
 static const jr2_malibu_gpio_port_map_t malibu_gpio_map[] = {
@@ -2634,6 +2651,26 @@ static mesa_rc jr2_ptp_rs422_conf_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc jr2_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+
+{
+    mesa_rc rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+
+    if (board->type == BOARD_TYPE_JAGUAR2_CU48)
+    {
+        *board_assignment = pin_conf_pcb111[io_pin];
+    } else {
+        *board_assignment = pin_conf[io_pin];
+    }
+    *source_id = init_int_source_id[io_pin];
+    return rc;
+}
+
 // IRQ Support
 
 static mesa_bool_t jr2_24_sgpio_maps_to_sfp_port(meba_board_state_t *board,
@@ -3407,24 +3444,25 @@ meba_inst_t meba_initialize(size_t callouts_size,
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");
-    inst->api.meba_capability                 = jr2_capability;
-    inst->api.meba_port_entry_get             = jr2_port_entry_get;
-    inst->api.meba_reset                      = jr2_reset;
-    inst->api.meba_sensor_get                 = jr2_sensor_get;
-    inst->api.meba_sfp_i2c_xfer               = jr2_sfp_i2c_xfer;
-    inst->api.meba_sfp_insertion_status_get   = jr2_sfp_insertion_status_get;
-    inst->api.meba_sfp_status_get             = jr2_sfp_status_get;
-    inst->api.meba_port_admin_state_set       = jr2_port_admin_state_set;
-    inst->api.meba_status_led_set             = jr2_status_led_set;
-    inst->api.meba_port_led_update            = jr2_port_led_update;
-    inst->api.meba_led_intensity_set          = jr2_led_intensity_set;
-    inst->api.meba_fan_param_get              = jr2_fan_param_get;
-    inst->api.meba_fan_conf_get               = jr2_fan_conf_get;
-    inst->api.meba_irq_handler                = jr2_irq_handler;
-    inst->api.meba_irq_requested              = jr2_irq_requested;
-    inst->api.meba_event_enable               = jr2_event_enable;
-    inst->api.meba_deinitialize               = meba_deinitialize;
-    inst->api.meba_ptp_rs422_conf_get         = jr2_ptp_rs422_conf_get;
+    inst->api.meba_capability                     = jr2_capability;
+    inst->api.meba_port_entry_get                 = jr2_port_entry_get;
+    inst->api.meba_reset                          = jr2_reset;
+    inst->api.meba_sensor_get                     = jr2_sensor_get;
+    inst->api.meba_sfp_i2c_xfer                   = jr2_sfp_i2c_xfer;
+    inst->api.meba_sfp_insertion_status_get       = jr2_sfp_insertion_status_get;
+    inst->api.meba_sfp_status_get                 = jr2_sfp_status_get;
+    inst->api.meba_port_admin_state_set           = jr2_port_admin_state_set;
+    inst->api.meba_status_led_set                 = jr2_status_led_set;
+    inst->api.meba_port_led_update                = jr2_port_led_update;
+    inst->api.meba_led_intensity_set              = jr2_led_intensity_set;
+    inst->api.meba_fan_param_get                  = jr2_fan_param_get;
+    inst->api.meba_fan_conf_get                   = jr2_fan_conf_get;
+    inst->api.meba_irq_handler                    = jr2_irq_handler;
+    inst->api.meba_irq_requested                  = jr2_irq_requested;
+    inst->api.meba_event_enable                   = jr2_event_enable;
+    inst->api.meba_deinitialize                   = meba_deinitialize;
+    inst->api.meba_ptp_rs422_conf_get             = jr2_ptp_rs422_conf_get;
+    inst->api.meba_ptp_external_io_conf_get       = jr2_ptp_external_io_conf_get;
 
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();

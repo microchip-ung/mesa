@@ -63,7 +63,7 @@ static const meba_aux_rawio_t rawio = {
 static const meba_ptp_rs422_conf_t pcb123_rs422_conf = {
     .gpio_rs422_1588_mstoen = (15<<8)+1,
     .gpio_rs422_1588_slvoen = (15<<8)+0,
-    .ptp_pin_ldst           = 2,
+    .ptp_pin_ldst           = 3,
     .ptp_pin_ppso           = 0,
     .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_0,
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
@@ -77,6 +77,24 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_0,
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
+
+static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_TIME_IF_OUT | MEBA_PTP_IO_CAP_PIN_OUT),
+ MEBA_PTP_IO_CAP_UNUSED,
+ MEBA_PTP_IO_CAP_UNUSED,
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN)
+};
+
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0,MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_3};
+
+static const uint32_t pin_conf_pcb120[MESA_CAP_TS_IO_CNT] = {
+MEBA_PTP_IO_CAP_PIN_IN,
+MEBA_PTP_IO_CAP_UNUSED,
+MEBA_PTP_IO_CAP_PHY_SYNC,
+MEBA_PTP_IO_CAP_UNUSED
+};
+
+
 
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
 #define DUAL_PORT_2_BOARD_PORT(board, p) (board->port[p].board_port_dual)
@@ -1335,6 +1353,25 @@ static mesa_rc ocelot_ptp_rs422_conf_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc ocelot_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+
+    if (board->type == BOARD_TYPE_OCELOT_PCB120)
+    {
+        *board_assignment = pin_conf_pcb120[io_pin];
+    } else{
+        *board_assignment = pin_conf[io_pin];
+    }
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
+}
+
 static mesa_rc ocelot_event_enable(meba_inst_t inst,
                                    meba_event_t event_id,
                                    mesa_bool_t enable)
@@ -1802,6 +1839,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_event_enable               = ocelot_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get         = ocelot_ptp_rs422_conf_get;
+    inst->api.meba_ptp_external_io_conf_get   = ocelot_ptp_external_io_conf_get;
 
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();

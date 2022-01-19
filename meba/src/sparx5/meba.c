@@ -58,6 +58,22 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
 
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
+
+static const uint32_t pin_conf_pcb134[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_TIME_IF_OUT)
+};
+
+static const uint32_t pin_conf_pcb135[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_UNUSED), // left unused in case of using it for any phy related conf.
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_TIME_IF_OUT)
+};
+
 #define PCB134_GPIO_FUNC_INFO_SIZE 4
 static const mesa_gpio_func_info_t pcb134_gpio_func_info[PCB134_GPIO_FUNC_INFO_SIZE] = {
     {.gpio_no = 8, //MESA_GPIO_FUNC_PTP_0
@@ -1346,6 +1362,23 @@ static mesa_rc fa_ptp_rs422_conf_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc fa_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+    if (board->type == BOARD_TYPE_SPARX5_PCB135)
+    {
+        *board_assignment = pin_conf_pcb135[io_pin];
+    } else {
+        *board_assignment = pin_conf_pcb134[io_pin]; //default
+    }
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
+}
+
 // The Serdes Tx equalizer settings depends on the board layout and can vary from port to port.
 // The API calls this function after applying general Serdes settings and updates the Tx equalizer.
 static mesa_rc fa_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
@@ -2236,6 +2269,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api_poe                             = meba_poe_get();
     inst->api_cpu_port                        = board->ls1046 ? fa_ls1046_cpu_ports : NULL;
     inst->api.meba_serdes_tap_get             = fa_serdes_tap_get;
+    inst->api.meba_ptp_external_io_conf_get   = fa_ptp_external_io_conf_get;
     return inst;
 
 error_out:

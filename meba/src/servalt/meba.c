@@ -76,6 +76,15 @@ static const meba_ptp_rs422_conf_t rs422_conf = {
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
 
+static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT),
+ MEBA_PTP_IO_CAP_PIN_IN,
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
+ MEBA_PTP_IO_CAP_TIME_IF_OUT
+};
+
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
+
 /* SGPIO LED mapping */
 typedef struct {
     uint8_t port;
@@ -882,6 +891,16 @@ static mesa_rc servalt_ptp_rs422_conf_get(meba_inst_t inst,
     *conf = rs422_conf;
     return rc;
 }
+static mesa_rc servalt_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+
+{
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+    *board_assignment = pin_conf[io_pin];
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
+}
 
 static mesa_port_no_t srvlt_map_sgpio_to_port(meba_board_state_t *board,
                                               uint32_t sgpio_port)
@@ -1225,6 +1244,7 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
     inst->api.meba_event_enable               = servalt_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get         = servalt_ptp_rs422_conf_get;
+    inst->api.meba_ptp_external_io_conf_get   = servalt_ptp_external_io_conf_get;
 
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();

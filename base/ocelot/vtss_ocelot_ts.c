@@ -44,7 +44,7 @@ SRVL_WRM(VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(pin),                     \
 #define TIMESTAMPER_SKEW 0
 
 /* Ocelot GPIO configuration */
-static const u8 ptp_gpio[4] = {
+static const u8 ptp_gpio[VTSS_TS_IO_ARRAY_SIZE] = {
     18, /* PTP_0 */
     19, /* PTP_1 */
     10, /* PTP_2 */
@@ -350,7 +350,7 @@ static vtss_rc srvl_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const 
 }
 
 static vtss_rc srvl_ts_alt_clock_saved_timeofday_get(vtss_state_t *vtss_state,
-                                                     vtss_timestamp_t               *ts)
+                                                     vtss_timestamp_t  *ts)
 {
     vtss_rc rc ;
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
@@ -1010,6 +1010,233 @@ static vtss_rc srvl_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
         return VTSS_RC_ERROR;
     }
 }
+#if !defined(VTSS_ARCH_OCELOT)
+/* serval gpio config*/
+static const u8 ptp_gpio_srvl[4] = {
+    30, /* GPIO_30 */
+    31, /* GPIO_31 */
+    15, /* GPIO_15 */
+    16  /* GPIO_16 */
+};
+#endif
+
+static vtss_rc srvl_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss_timestamp_t *ts, u64 *tc)
+{
+    vtss_rc rc = VTSS_RC_OK ;
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+    VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+#if defined(VTSS_ARCH_OCELOT)
+    u32 tc_ns;
+    rc = ocelot_ts_io_pin_timeofday_get_no_action(vtss_state, ts, io);
+    VTSS_D("io pin %d, sec %d, nanosec %d", io, ts->seconds, ts->nanoseconds);
+    SRVL_RD(VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(io), &tc_ns);
+    *tc = VTSS_X_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC_PTP_TOD_NSEC(tc_ns);
+    if (*tc >= 0x3ffffff0 && *tc <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        *tc = 999999984 + (*tc & 0xf);
+    }
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
+    } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
+    }
+
+#else
+    u32 saved;
+    u32 saved_ns;
+    u32 reg = (io == 0?0:1) ;
+    VTSS_RC(srvl_ts_timeofday_read(vtss_state, ts, tc));
+    SRVL_RD(VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT(reg), &saved);
+    // saved ns counter (not clock cycles as described in the register doc.
+    saved = VTSS_X_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT_EXT_SYNC_CURRENT_TIME(saved);
+    *tc = saved;
+    if (saved < (((u32)HW_NS_PR_SEC * 3) / (u32)HW_CLK_CNT_PR_SEC)) {
+        saved = saved + HW_NS_PR_SEC;
+    }
+    saved_ns = saved - (((u32)HW_NS_PR_SEC * 3) / (u32)HW_CLK_CNT_PR_SEC);
+    //saved_ns = saved >= HW_NS_PR_SEC ? saved - HW_NS_PR_SEC : saved;
+    VTSS_D("saved:  %u, saved_ns %u, s %u, ns %u", saved, saved_ns, ts->seconds, ts->nanoseconds);
+    if (saved_ns > ts->nanoseconds) {
+        if (--ts->seconds == 0xffffffff) --ts->sec_msb;
+    }
+    ts->nanoseconds = saved_ns;
+    VTSS_D("s %u, ns %u", ts->seconds, ts->nanoseconds);
+#endif
+    return rc;
+}
+
+static vtss_rc srvl_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io) {
+
+#if defined(VTSS_ARCH_OCELOT)
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+    ext_io_mode->domain = 0;
+    VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_IN);
+    }
+
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+        u32 dividers = HW_NS_PR_SEC/ext_io_mode->freq;
+        u32 high_div = dividers/2;
+        u32 low_div  = (dividers+1)/2;
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(io),
+                   VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD_PIN_WFH(high_div));
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(io),
+                   VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD_PIN_WFL(low_div));
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_ALT_0);
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, 0);
+    } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(io),
+                   VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(io), 0);
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_ALT_0);
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
+
+        // on ocelot both EXT_PPS_PIN and EXT_CLK_PIN are used as 1PPS output
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN], VTSS_GPIO_ALT_0);
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(EXT_CLK_PIN),
+        VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
+        SRVL_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(EXT_CLK_PIN), 0);
+        OCELOT_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_ALT_0);
+        OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+         OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+         (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_ALT_0);
+         OCELOT_PTP_PIN_ACTION (io, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
+    }
+    return VTSS_RC_OK;
+#else
+
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+    vtss_gpio_mode_t gpio_alternate_mode;
+    u32 cfg_bit_field_in = 0, ri;
+    u32 cfg_bit_field_out = 0;
+
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+    ext_io_mode->domain = 0;
+
+    if (io == 0) {
+#if defined(VTSS_ARCH_SEVILLE_2)
+        return VTSS_RC_ERROR;
+#endif
+        if (ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_OUTPUT || ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+            return VTSS_RC_ERROR;
+        }
+        cfg_bit_field_in = 0x1;
+        ri = 0;
+        gpio_alternate_mode = VTSS_GPIO_ALT_0;
+    } else if (io == 1) {
+#if defined(VTSS_ARCH_SEVILLE_2)
+        return VTSS_RC_ERROR;
+#endif
+        if (ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_LOAD || ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+             return VTSS_RC_ERROR;
+        }
+        cfg_bit_field_out = 0x1;
+        ri = 0;
+        gpio_alternate_mode = VTSS_GPIO_ALT_0;
+    } else if (io == 2) {
+        if (ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_OUTPUT || ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+            return VTSS_RC_ERROR;
+        }
+        cfg_bit_field_in = 0x2;
+        ri = 1;
+#if !defined(VTSS_ARCH_SEVILLE_2)
+        gpio_alternate_mode = VTSS_GPIO_ALT_1;
+#endif /* VTSS_ARCH_SEVILLE_2 */
+    } else if (io == 3) {
+        if (ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_LOAD || ext_io_mode->pin == VTSS_TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+            return VTSS_RC_ERROR;
+        }
+        cfg_bit_field_out = 0x2;
+        ri = 1;
+        gpio_alternate_mode = VTSS_GPIO_ALT_0;
+#if !defined(VTSS_ARCH_SEVILLE_2)
+        gpio_alternate_mode = VTSS_GPIO_ALT_1;
+#endif /* VTSS_ARCH_SEVILLE_2 */
+    }
+VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+
+    #if !defined(VTSS_ARCH_SEVILLE_2)
+    /* Set gpio mode */
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio_srvl[io], VTSS_GPIO_IN);
+    } else {
+        (void) vtss_srvl_gpio_mode(vtss_state, 0, ptp_gpio_srvl[io],gpio_alternate_mode);
+    }
+    #endif
+    SRVL_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG(ri),
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_SYNC_ENA);
+
+    /* Set pin configuration */
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+        /* set dividers; enable clock output. */
+        u32 dividers = (HW_CLK_CNT_PR_SEC/(ext_io_mode->freq));
+        u32 high_div = (dividers/2)-1;
+        u32 low_div =  ((dividers+1)/2)-1;
+        SRVL_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG(ri),
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_SYNC_ENA);
+        SRVL_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA(cfg_bit_field_out));
+        SRVL_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG(ri), high_div  &
+               VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
+        SRVL_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG(ri), low_div  &
+               VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
+    } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
+        /* disable clock output, 1 pps output enabled */
+        SRVL_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG(ri),
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_SYNC_ENA);
+        SRVL_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL(cfg_bit_field_out) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA(cfg_bit_field_out));
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+        SRVL_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG(ri),
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_SYNC_ENA);
+        SRVL_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA(cfg_bit_field_in) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_CAP_ENA(cfg_bit_field_in));
+        SRVL_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA(cfg_bit_field_in));
+    } else if(ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
+        /*  load enabled */
+        SRVL_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA(cfg_bit_field_in));
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        SRVL_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL(cfg_bit_field_out) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA(cfg_bit_field_out) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA(cfg_bit_field_in) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_CAP_ENA(cfg_bit_field_in) |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA(cfg_bit_field_in));
+    } else {
+        VTSS_E("invalid pin cfg: %u", ext_io_mode->pin);
+        return VTSS_RC_ERROR;
+    }
+    return VTSS_RC_OK;
+#endif
+}
 
 /* - Initialization ------------------------------------------------ */
 
@@ -1078,7 +1305,8 @@ vtss_rc vtss_srvl_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->domain_timeofday_next_pps_get = srvl_ts_domain_timeofday_next_pps_get;
         state->domain_timeofday_offset_set = srvl_ts_domain_timeofday_offset_set;
         state->domain_adjtimer_set = srvl_ts_domain_adjtimer_set;
-
+        state->saved_timeofday_get = srvl_ts_saved_timeofday_get;
+        state->external_io_mode_set = srvl_ts_external_io_mode_set;
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(srvl_ts_init(vtss_state));

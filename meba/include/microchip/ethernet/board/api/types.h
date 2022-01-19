@@ -424,6 +424,15 @@ typedef enum {
     MEBA_EVENT_LAST
 } meba_event_t;
 
+typedef enum {
+    MEBA_PTP_IO_CAP_UNUSED       = 0x0,
+    MEBA_PTP_IO_CAP_TIME_IF_IN   = 0x1,
+    MEBA_PTP_IO_CAP_TIME_IF_OUT  = 0x2,
+    MEBA_PTP_IO_CAP_PIN_IN       = 0x4,
+    MEBA_PTP_IO_CAP_PIN_OUT      = 0x8,
+    MEBA_PTP_IO_CAP_PHY_SYNC     = 0x10
+} meba_ptp_io_cap_t;
+
 // Interrupt signalling callback type
 // source_id   [IN] The interrupt source which fired.
 // instance_no [IN] The interrupt instance which fired

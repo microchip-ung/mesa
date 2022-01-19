@@ -82,10 +82,15 @@ extern "C" {
 #define VTSS_TS_IO_ARRAY_SIZE       7
 /** \brief Number of separate clock domains in LAN966X */
 #define VTSS_TS_DOMAIN_ARRAY_SIZE   3
+#elif defined(VTSS_ARCH_OCELOT)
+/** \brief Number of Ocelot PTP pins that can be used as 1 PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       4
+/** \brief Number of separate clock domains in Ocelot */
+#define VTSS_TS_DOMAIN_ARRAY_SIZE   1
 #else
 /** \brief Number of L26 or Serval PTP pins, that can be used as 1PPS or clock output/input. */
 #define VTSS_TS_IO_ARRAY_SIZE       1
-/** \brief Number of separate clock domains in L26 and Serval */
+/** \brief Number of separate clock domains in L26 */
 #define VTSS_TS_DOMAIN_ARRAY_SIZE   1
 #endif
 
@@ -520,7 +525,7 @@ vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t           inst,
 vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t              inst,
                                         const vtss_ts_ext_clock_mode_t *const ext_clock_mode);
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /**
  * \brief parameter for setting the external io mode.
  * Architecture:

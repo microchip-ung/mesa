@@ -24,6 +24,11 @@
 #define SPEED_INDEX_2500M 3
 #define SPEED_INDEX_MAX   4
 
+#define L26_PTP_IO_PIN    0 // used as index in ptp_gpio
+// L26 gpio configuration
+static const u8 ptp_gpio[VTSS_TS_IO_ARRAY_SIZE] = {
+    7
+};
 /*
  * Note: The values i have added to the table below ensures the correct path delay, byt the asymmetry may not be correct.
  */
@@ -93,6 +98,48 @@ l26_ts_timeofday_get(vtss_state_t      *vtss_state,
         }
     }
     ts->nanoseconds = x*HW_NS_PR_CLK_CNT;
+
+    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds, ts->nanoseconds);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io,
+                                                vtss_timestamp_t *ts, u64 *tc)
+{
+    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    u32 value;
+    u32 value_ns;
+    i32 x;
+    u32 cu,saved, deltat;
+
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_RC(l26_ts_hw_timeofday_read(vtss_state, &value, &value_ns, tc, FALSE));
+    ts->sec_msb = 0; /* to be maintained in one sec interrupt */
+    ts->seconds = conf->sec_offset + value;
+    x = VTSS_X_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS_PTP_TOD_NANOSECS(value_ns);
+    /* DURING THE ADJUSTMENT PHASE THE ADJUST IS DONE IN sw */
+    if (conf->awaiting_adjustment) {
+        x -= conf->outstanding_corr;
+        if (x < 0) {
+            ts->seconds--;
+            x += HW_CLK_CNT_PR_SEC;
+        } else if (x >= HW_CLK_CNT_PR_SEC) {
+            ts->seconds++;
+            x -= HW_CLK_CNT_PR_SEC;
+        }
+    }
+    ts->nanoseconds = x*HW_NS_PR_CLK_CNT;
+
+    L26_RD(VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT,&cu);
+    cu -= EXT_SYNC_INPUT_LATCH_LATENCY;
+    saved =  cu * HW_NS_PR_CLK_CNT;
+    deltat = (ts->nanoseconds > saved)? ts->nanoseconds-saved :ts->nanoseconds-saved + HW_NS_PR_SEC;
+    ts->nanoseconds-=deltat;
+    tc-=deltat;
 
     VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds, ts->nanoseconds);
     return VTSS_RC_OK;
@@ -338,10 +385,10 @@ l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
         L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG, 
                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
         /* disable alternate 1 for GPIO_7 (clock output). */
-        (void) vtss_l26_gpio_mode(vtss_state, 0, 7, VTSS_GPIO_IN);
+        (void) vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN], VTSS_GPIO_IN);
     } else {
         /* enable alternate 1 for GPIO_7 (clock output). */
-        (void) vtss_l26_gpio_mode(vtss_state, 0, 7, VTSS_GPIO_ALT_0);
+        (void) vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN], VTSS_GPIO_ALT_0);
 
         if (conf->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
             /* 1 pps output enabled */
@@ -381,6 +428,77 @@ l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
                         VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
             L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
         }
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc l26_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io) {
+    vtss_ts_ext_io_mode_t *ext_io_mode;
+    if (io >= VTSS_TS_IO_ARRAY_SIZE) {
+        VTSS_E("invalid io pin: %u", io);
+        return VTSS_RC_ERROR;
+    }
+    ext_io_mode = &vtss_state->ts.io_cfg[io];
+    ext_io_mode->domain = 0;
+    u32 dividers;
+    u32 high_div;
+    u32 low_div;
+    VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
+
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA);
+        /* disable clock output */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
+        L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+
+        (void) vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_IN);
+    } else {
+        (void) vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[io], VTSS_GPIO_ALT_0);
+    }
+    if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
+     /* clock frequency output */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+     /* set dividers; enable clock output. */
+        dividers = (HW_CLK_CNT_PR_SEC/(ext_io_mode->freq));
+        high_div = (dividers/2)-1;
+        low_div =  ((dividers+1)/2)-1;
+        L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG, high_div  &
+                        VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
+        L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG, low_div  &
+                        VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
+        L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+    } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
+        /* 1 pps output enabled */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
+        L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+
+    } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+         /* 1 pps input enabled */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+        L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
     }
     return VTSS_RC_OK;
 }
@@ -667,6 +785,8 @@ vtss_rc vtss_l26_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->adjtimer_set = l26_ts_adjtimer_set;
         state->freq_offset_get = l26_ts_freq_offset_get;
         state->external_clock_mode_set = l26_ts_external_clock_mode_set;
+        state->external_io_mode_set = l26_ts_external_io_mode_set;
+        state->saved_timeofday_get = l26_ts_saved_timeofday_get;
         state->ingress_latency_set = l26_ts_ingress_latency_set;
         state->p2p_delay_set = l26_ts_p2p_delay_set;
         state->egress_latency_set = l26_ts_egress_latency_set;
