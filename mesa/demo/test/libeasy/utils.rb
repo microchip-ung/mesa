@@ -990,6 +990,16 @@ def qspi_init
     $ts.dut.run("sh -c 'cat /overlays/qspi_overlay.dtbo > #{ol}/dtbo'")
 end
 
+def io_read_val(txt)
+    i = txt.index("value: ")
+    if (i == nil)
+        txt = "0xdeaddead"
+    else
+        txt = txt[(i + 7)..(i + 16)]
+    end
+    txt
+end
+
 def io_fpga_rw(cmd)
     if ($io_fpga_dev == nil)
         # Detect device (device 0 currently fails, so we count down)
@@ -1007,17 +1017,21 @@ def io_fpga_rw(cmd)
             t_e("IO-FPGA device not detected")
             return
         else
+            txt = $ts.pc.run("mera-iofpga-rw #{$io_fpga_dev} read 0x218")[:out]
+            val = io_read_val(txt).to_i(16)
             t_i("IO-FPGA device: #{$io_fpga_dev}")
+            exp = 47 # Expect at least this version
+            txt = "IO-FPGA version: #{val}, expected >= #{exp}"
+            if (val < exp)
+                t_e(txt)
+            else
+                t_i(txt)
+            end
         end
     end
     txt = $ts.pc.run("mera-iofpga-rw #{$io_fpga_dev} #{cmd}")[:out]
     if (cmd.include? "read")
-        i = txt.index("value: ")
-        if (i == nil)
-            txt = "0xdeaddead"
-        else
-            txt = txt[(i + 7)..(i + 16)]
-        end
+        txt = io_read_val(txt)
     end
     txt
 end
@@ -1025,12 +1039,7 @@ end
 def io_sram_rw(cmd)
     txt = $ts.dut.run("mera-sram-rw #{cmd}")[:out]
     if (cmd.include? "read")
-        i = txt.index("value: ")
-        if (i == nil)
-            txt = "0xdeaddead"
-        else
-            txt = txt[(i + 7)..(i + 16)]
-        end
+        txt = io_read_val(txt)
     end
     txt
 end
