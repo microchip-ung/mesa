@@ -623,6 +623,11 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(e->flags & VLAN_FLAGS_ISOLATED ? 1 : 0) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(e->flags & VLAN_FLAGS_MIRROR ? 1 : 0));
     REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(e->rl_id));
+#if defined(VTSS_FEATURE_QOS_OT)
+    REG_WR(VTSS_ANA_L3_QGRP_CFG(vid),
+           VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX(conf->ot ? 1 : 0) |
+           VTSS_F_ANA_L3_QGRP_CFG_QGRP_OAM_TYPE(0));
+#endif
 
     return VTSS_RC_OK;
 }
@@ -838,6 +843,13 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
 
     /* Use ISDX key in ES0 */
     REG_WR(VTSS_ANA_L2_SERVICE_CTRL(isdx), VTSS_F_ANA_L2_SERVICE_CTRL_ES0_ISDX_KEY_ENA(0));
+
+#if defined(VTSS_FEATURE_QOS_OT)
+    REG_WR(VTSS_ANA_L2_QGRP_CFG(isdx),
+           VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(conf->ot ? 1 : 0) |
+           VTSS_F_ANA_L2_QGRP_CFG_QGRP_IDX(1) |
+           VTSS_F_ANA_L2_QGRP_CFG_QGRP_OAM_TYPE(0));
+#endif
 
     /* DLB/ISDX mappings */
     VTSS_RC(vtss_fa_isdx_update(vtss_state, sdx));
@@ -1723,17 +1735,18 @@ static vtss_rc fa_debug_vlan_entry(vtss_state_t *vtss_state,
                                    vtss_vid_t vid,
                                    BOOL header)
 {
-    u32              value;
+    u32              value, qcfg;
     vtss_port_mask_t pmask;
     char             buf[64];
 
     REG_RDX_PMASK(VTSS_ANA_L3_VLAN_MASK_CFG, vid, &pmask);
     REG_RD(VTSS_ANA_L3_VLAN_CFG(vid), &value);
+    REG_RD(VTSS_ANA_L3_QGRP_CFG(vid), &qcfg);
 
     if (header) {
-        fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/F/P");
+        fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/F/P  QGRP");
     }
-    VTSS_SPRINTF(buf, "%-6u%-6u%-6u%u/%u/%u/%u/%u",
+    VTSS_SPRINTF(buf, "%-6u%-6u%-6u%u/%u/%u/%u/%u  %u",
             vid,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FID(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(value),
@@ -1741,7 +1754,8 @@ static vtss_rc fa_debug_vlan_entry(vtss_state_t *vtss_state,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
-            VTSS_X_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(value));
+            VTSS_X_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(value),
+            VTSS_X_ANA_L3_QGRP_CFG_QGRP_IDX(qcfg));
     fa_debug_pmask(pr, buf, &pmask);
 
     return VTSS_RC_OK;

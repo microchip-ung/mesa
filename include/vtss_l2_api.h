@@ -620,6 +620,9 @@ typedef struct
     BOOL       flooding; /**< Enable/disable flooding */
     BOOL       mirror;   /**< Enable/disable mirroring */
     BOOL       ingress_filter; /**< Ingress filtering */
+#if defined(VTSS_FEATURE_QOS_OT)
+    BOOL       ot;       /**< Operational Traffic classification */
+#endif
 #if defined(VTSS_FEATURE_VLAN_SVL)
     vtss_vid_t fid;      /**< Forwarding ID for SVL/IVL control */
 #endif /* VTSS_FEATURE_VLAN_SVL */
@@ -1202,6 +1205,9 @@ typedef struct
 #endif
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
     BOOL                   cut_through_disable; // Force store-and-forward
+#endif
+#if defined(VTSS_FEATURE_QOS_OT)
+    BOOL                   ot;       /**< Operational Traffic classification */
 #endif
 } vtss_iflow_conf_t;
 

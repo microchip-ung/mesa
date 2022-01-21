@@ -1192,6 +1192,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_QOS_OT:
+#if defined(VTSS_FEATURE_QOS_OT)
+        c = 1;
+#endif
+        break;
+
     // Security/ACL
     case MESA_CAP_ACL_POLICER_CNT:
         c = VTSS_ACL_POLICERS;

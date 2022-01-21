@@ -240,6 +240,7 @@
 /* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
+#define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */
 //#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */

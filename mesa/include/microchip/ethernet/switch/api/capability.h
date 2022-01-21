@@ -227,6 +227,7 @@ typedef enum {
     MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MAX,
     MESA_CAP_DSCP_CNT,
     MESA_CAP_QOS_CPU_QUEUE_SHAPER,
+    MESA_CAP_QOS_OT,                        /**< Operational Technology traffic handling */
 
     // Security/ACL
     MESA_CAP_ACL_POLICER_CNT = 800,         /**< Number of ACL policers */

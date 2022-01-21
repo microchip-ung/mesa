@@ -286,6 +286,7 @@ typedef struct
     mesa_bool_t flooding;        // Enable/disable flooding
     mesa_bool_t mirror;          // Enable/disable mirroring
     mesa_bool_t ingress_filter;  // Ingress filtering
+    mesa_bool_t ot CAP(QOS_OT);  // Operational Traffic classification
     mesa_vid_t  fid CAP(L2_SVL); // Forwarding ID for SVL/IVL control
 } mesa_vlan_vid_conf_t;
 
@@ -694,6 +695,7 @@ typedef struct
     mesa_frer_iflow_conf_t frer CAP(L2_FRER);   // FRER ingress flow configuration
     mesa_psfp_iflow_conf_t psfp CAP(L2_PSFP);   // PSFP ingress flow configuration
     mesa_bool_t            cut_through_disable CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Force store-and-forward
+    mesa_bool_t            ot CAP(QOS_OT);      // Operational Traffic classification
 } mesa_iflow_conf_t;
 
 // Get ingress flow configuration.

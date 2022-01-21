@@ -8401,14 +8401,24 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
             pr("FID   ");
 #endif /* VTSS_FEATURE_VLAN_SVL */
             vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
+#if defined(VTSS_FEATURE_QOS_OT)
+            pr("OT  ");
+#endif
             header = 0;
         }
         pr("%-6u", vid);
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
+
 #if defined(VTSS_ARCH_JAGUAR_2)
         mgmt = entry->mgmt;
+#endif
+
+#if defined(VTSS_FEATURE_QOS_OT)
+        pr("%-4u", entry->conf.ot);
+#endif
+
         if ((entry->vsi_enable) && (entry->vsi != NULL)) {
             pr("%-6u", entry->vsi->vsi);
         } else
@@ -8434,6 +8444,9 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6s", "");
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_FEATURE_QOS_OT)
+        pr("%-4s", "");
+#endif
         VTSS_PORT_BF_CLR(erps_discard);
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             VTSS_PORT_BF_SET(erps_discard,

@@ -305,6 +305,7 @@ test "acl-etype-counter" do
     run_ef_tx_rx_cmd($ts, idx, [1,2,3], "eth et 0x8902")
     cnt = $ts.dut.call("mesa_ace_counter_get", ace["id"])
     check_counter("ace", cnt, 1)
+end
 
 test "redbox" do
     break
@@ -317,6 +318,7 @@ test "redbox" do
     $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
     $ts.dut.run("mesa-cmd deb api ai redbox")
 end
+
 
 test "acl-frame-policer" do
     break
@@ -333,4 +335,12 @@ test "acl-frame-policer" do
     $ts.dut.call("mesa_acl_policer_conf_set", pol, conf)
     $ts.pc.run("ef name f1 eth tx #{$ts.pc.p[idx]} rep 100 name f1")
     $ts.dut.run("mesa-cmd port stati pac")
+end
+test "vlan-ot" do
+    break
+    vid = 1
+    conf = $ts.dut.call("mesa_vlan_vid_conf_get", vid)
+    conf["ot"] = true
+    conf = $ts.dut.call("mesa_vlan_vid_conf_set", vid, conf)
+    $ts.dut.run("mesa-cmd deb api vlan")
 end
