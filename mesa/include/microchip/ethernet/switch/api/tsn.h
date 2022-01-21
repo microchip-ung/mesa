@@ -292,6 +292,8 @@ typedef enum {
 //      A GCE with HOLD_MAC all queues opened must be Express queues.
 //      A GCE with RELEASE_MAC all queues opened must be Preemptable queues.
 //      The same queue cannot be open in both a HOLD_MAC and a RELEASE_MAC entry.
+// Note that if a list ends with gate operation HOLD_MAC then this MAC state is not changed when a new list is taking over.
+// To assure the MAC is released, the new list should contain a RELEASE_MAC gate operation.
 typedef struct {
     mesa_qos_tas_gco_t gate_operation; // Gate Control Operation.
 
