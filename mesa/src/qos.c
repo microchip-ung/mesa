@@ -410,8 +410,8 @@ mesa_rc mesa_qos_port_policer_conf_get(const mesa_inst_t            inst,
         pol->learning = pol_ext->learning;
         pol->limit_noncpu_traffic = pol_ext->limit_noncpu_traffic;
         pol->limit_cpu_traffic = pol_ext->limit_cpu_traffic;
-        pol->flow_control = pol_ext->flow_control;
 #endif
+        pol->flow_control = pol_ext->flow_control;
     }
     return VTSS_RC_OK;
 }

@@ -1762,7 +1762,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
                                  const vtss_debug_info_t    *const info)
 {
     u32            i, j, port, pir, value, mode, terminal_se, dwrr_se;
-    u32            cir, qmap, tas_list_idx = 0, div = 0;
+    u32            cir, qmap, tas_list_idx = 0, div = 0, policer;
     int            queue;
     BOOL           header = 1;
     vtss_port_no_t port_no, tas_port = 0;
@@ -2163,6 +2163,14 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
             port = VTSS_CHIP_PORT(port_no);
             vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_CFG(port)), port, "POL_CFG");
             vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_FLOWC(port)), port, "POL_FLOWC");
+
+            policer = LAN966X_POLICER_PORT + port_no;
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_STATE(policer)), port, "POL_STATE");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_PIR_CFG(policer)), port, "POL_PIR_CFG");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_PIR_STATE(policer)), port, "POL_PIR_STATE");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_CIR_CFG(policer)), port, "POL_CIR_CFG");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_CIR_STATE(policer)), port, "POL_CIR_STATE");
+            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_POL_MODE(policer)), port, "POL_MODE");
         }
         pr("\n");
     }
