@@ -118,18 +118,12 @@ static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
 static bool intl_mode_is_usxgmii(mepa_device_t *dev)
 {
     uint16_t reg_val = 0;
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000a, 0x0100);
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x001a, 0x0000);
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000c, 0xdffc);
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000e, 0x05d3);
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000c, 0xdc2c);
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x000e, 0x00d3);
-    PHY_MSLEEP(1);
-    dev->callout->mmd_read(dev->callout_ctx, 0x1e, 0x000a, &reg_val);
-    if (reg_val == 0x400) {
-        return true;
-    }
-    return false;
+
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x0006, 0x8800);
+    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x0007, 0x00d2);
+    dev->callout->mmd_read(dev->callout_ctx, 0x1e, 0x0005, &reg_val);
+
+    return reg_val == 2 ? true : false;
 }
 
 static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
@@ -404,6 +398,18 @@ static mepa_rc intl_event_poll(mepa_device_t *dev, mepa_event_t *status)
 static mesa_rc intl_if_set(mepa_device_t *dev,
                            mesa_port_interface_t mac_if)
 {
+    mesa_port_interface_t int_if;
+
+    intl_if_get(dev, 1, &int_if);
+
+    if (mac_if == MESA_PORT_INTERFACE_SGMII) {
+        mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
+    }
+    if (mac_if != int_if) {
+        T_E("Configured phy interface mode (%d) does not match phy pin strapping (%d)", mac_if, int_if);
+        return MEPA_RC_ERROR;
+    }
+
     return MEPA_RC_OK;
 }
 
