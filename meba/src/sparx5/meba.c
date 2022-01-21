@@ -254,15 +254,15 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
         entry->map.miim_addr       = chip_port == 8 ? 3 : chip_port == 24 ? 0 : chip_port == 40 ? 2 : 1;
         entry->map.max_bw          = bw;
-        entry->cap  = (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE);
+        entry->cap  = (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_NO_FORCE | MEBA_PORT_CAP_10M_FDX);
         entry->cap &= ~MEBA_PORT_CAP_SD_ENABLE; // Signal detect is disabled when connected to GPY phys
-    } else if (if_type == MESA_PORT_INTERFACE_SGMII) {
+    } else if (if_type == MESA_PORT_INTERFACE_SGMII || if_type == MESA_PORT_INTERFACE_SGMII_2G5) {
         entry->map.chip_port       = chip_port;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_3;
         entry->map.miim_addr       = chip_port == 64 ? 28 : (chip_port - 56); // NPI or GPY-241 x 4
         entry->map.max_bw          = bw;
         entry->mac_if              = if_type;
-        entry->cap                 = chip_port == 64 ? MEBA_PORT_CAP_TRI_SPEED_COPPER : MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER;
+        entry->cap                 = chip_port == 64 ? MEBA_PORT_CAP_TRI_SPEED_COPPER : (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_10M_FDX);
     }
     entry->cap &= ~MEBA_PORT_CAP_SD_INTERNAL; // Signal detect (LOS) comes from SFP module (and not from Serdes)
     entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed
@@ -390,7 +390,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 if_type = MESA_PORT_INTERFACE_NO_CONNECTION;
                 bw = MESA_BW_1G;
             } else if (board->gpy241_present) {
-                if_type = MESA_PORT_INTERFACE_SGMII;
+                if_type = MESA_PORT_INTERFACE_SGMII_2G5;
                 bw = MESA_BW_2G5;
             } else {
                 if_type = MESA_PORT_INTERFACE_SFI;

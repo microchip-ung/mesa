@@ -1396,6 +1396,7 @@ static void port_init(meba_inst_t inst)
             break;
         case MESA_PORT_INTERFACE_GMII:
         case MESA_PORT_INTERFACE_SGMII:
+        case MESA_PORT_INTERFACE_SGMII_2G5:
         case MESA_PORT_INTERFACE_RGMII:
         case MESA_PORT_INTERFACE_QSGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
