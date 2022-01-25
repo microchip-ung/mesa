@@ -202,7 +202,7 @@ def tod_external_io_1pps_tod_offset_test
 
     diff = ts2["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff} in TOD nanoseconds must be approx 0")
-    if ((diff > $diff_high) || (diff < -$diff_low))
+    if ((diff > 2) || (diff < -$diff_low))
         t_e("Difference is not as expected")
     end
     end
