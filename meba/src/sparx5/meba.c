@@ -61,15 +61,15 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
 static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
 
 static const uint32_t pin_conf_pcb134[MESA_CAP_TS_IO_CNT] = {
-(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
-(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_PIN_OUT), // enabling as PIN_IN is causing continuous interrupt generation.
+(MEBA_PTP_IO_CAP_PIN_OUT), // used by MEBA_CAP_ONE_PPS_INT_ID
 (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_TIME_IF_OUT)
 };
 
 static const uint32_t pin_conf_pcb135[MESA_CAP_TS_IO_CNT] = {
-(MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
-(MEBA_PTP_IO_CAP_UNUSED), // left unused in case of using it for any phy related conf.
+(MEBA_PTP_IO_CAP_PIN_OUT), // Need to validate PIN_IN
+(MEBA_PTP_IO_CAP_PIN_OUT), // used by MEBA_CAP_ONE_PPS_INT_ID
 (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_TIME_IF_OUT)
 };
