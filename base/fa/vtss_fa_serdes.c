@@ -498,10 +498,10 @@ vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_n
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 
-    if (VTSS_PORT_IS_10G(port)) {
-        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
-    } else {
+    if (VTSS_PORT_IS_25G(port)) {
         VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
+    } else {
+        VTSS_RC(fa_port_10g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
     }
 
     return VTSS_RC_OK;
@@ -512,10 +512,10 @@ vtss_rc fa_port_kr_tap_get(vtss_state_t *vtss_state, const vtss_port_no_t port_n
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 
-    if (VTSS_PORT_IS_10G(port)) {
-        VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
-    } else {
+    if (VTSS_PORT_IS_25G(port)) {
         VTSS_RC(fa_port_25g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
+    } else {
+        VTSS_RC(fa_port_10g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
     }
 
     return VTSS_RC_OK;
