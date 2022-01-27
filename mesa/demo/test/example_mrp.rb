@@ -50,8 +50,8 @@ def mrp_test(tag_vid = 0)
     test "Transmit TST frame on ring ports to see no forwarding and clear of LOC" do
     frame_tx(frametx, $p_port, "", "", "", "")
     frame_tx(frametx, $s_port, "", "", "", "")
-    $ts.dut.run("mesa-cmd example run mrp command 0 exp-state-p-loc 0 exp-seen-p-mrp 1 exp-seen-p-seq 0 exp-count-p-tst 1\
-                                                    exp-state-s-loc 0 exp-seen-s-mrp 1 exp-seen-s-seq 0 exp-count-s-tst 1")
+    $ts.dut.run("mesa-cmd example run mrp command 0 exp-state-p-loc 0 exp-seen-p-mrp 1 exp-count-p-tst 1\
+                                                    exp-state-s-loc 0 exp-seen-s-mrp 1 exp-count-s-tst 1")
     $ts.dut.run("mesa-cmd example run mrp command 1 exp_event_loc_p 1 exp_event_loc_s 1")
     end
 
@@ -59,14 +59,6 @@ def mrp_test(tag_vid = 0)
     sleep(4)
     $ts.dut.run("mesa-cmd example run mrp command 0 exp-state-p-loc 1 exp-state-s-loc 1")
     $ts.dut.run("mesa-cmd example run mrp command 1 exp_event_loc_p 1 exp_event_loc_s 1")
-    end
-
-    test "Transmit TST frame on ring ports to see sequence number error and no clear og LOC" do
-    frame_tx(frametx, $p_port, "", "", "", "")
-    frame_tx(frametx, $s_port, "", "", "", "")
-    $ts.dut.run("mesa-cmd example run mrp command 0 exp-state-p-loc 1 exp-seen-p-seq 1 exp-count-p-tst 1\
-                                                    exp-state-s-loc 1 exp-seen-s-seq 1 exp-count-s-tst 1")
-    $ts.dut.run("mesa-cmd example run mrp command 1 exp_event_loc_p 0 exp_event_loc_s 0")
     end
 
     test "Inject a Test frame from the MRP and check incrementing sequence number" do

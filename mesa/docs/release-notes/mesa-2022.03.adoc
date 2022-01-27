@@ -1,0 +1,21 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2022.03
+
+== MESA-2022.03
+
+|===
+|Version:          |MESA-2022.03
+|Previous Version: |MESA-2021.12
+|Date:             |2022-04-01
+|Description:      |Roadmap release
+|===
+
+=== Disclaimers
+
+=== General
+
+==== IEC 62439-2, Media Redundancy Protocol
+The MRP API has undergone a major overhaul with many non-backward compatible
+changes.

@@ -24,14 +24,13 @@ typedef enum {
 typedef struct {
     vtss_mrp_ring_role_t  ring_role;    // MRP ring role
     vtss_mrp_ring_role_t  in_ring_role; // MRP Interconnect ring role
-    BOOL                  mra;          // MRP is MRA. The actual roles is given by 'role' and vtss_mrp_ring_role_set()
+    BOOL                  mra;          // MRP is MRA. The actual role is given by 'ring_role' and can be changed with vtss_mrp_ring_role_set()
     uint32_t              mra_priority; // MRA priority
+    BOOL                  in_rc_mode;   // Is interconnection in RC-mode (TRUE) or LC-mode (FALSE)?
     vtss_port_no_t        p_port;       // Port with Primary port role
     vtss_port_no_t        s_port;       // Port with Secondary port role
     vtss_port_no_t        i_port;       // Port with Interconnect port role
-    vtss_mac_t            p_mac;        // Primary port MRP endpoint MAC address
-    vtss_mac_t            s_mac;        // Secondary port MRP endpoint MAC address
-    vtss_mac_t            i_mac;        // Interconnect port MRP endpoint MAC address
+    vtss_mac_t            mac;          // MAC address (MRP_TS_SA)
 } vtss_mrp_conf_t;
 
 // Add an MRP instance with configuration.
@@ -54,48 +53,32 @@ vtss_rc vtss_mrp_get(const vtss_inst_t      inst,
 vtss_rc vtss_mrp_del(const vtss_inst_t      inst,
                      const vtss_mrp_idx_t   mrp_idx);
 
-// Set an MRP instance ring role.
+// Set an MRP instance ring role. Requires MRP instance is configured as MRA.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // role     [IN] The MRP ring role.
-vtss_rc vtss_mrp_ring_role_set(const vtss_inst_t           inst,
-                               const vtss_mrp_idx_t        mrp_idx,
-                               const vtss_mrp_ring_role_t  role);
+vtss_rc vtss_mrp_ring_role_set(const vtss_inst_t          inst,
+                               const vtss_mrp_idx_t       mrp_idx,
+                               const vtss_mrp_ring_role_t role);
 
-vtss_rc vtss_mrp_ring_role_get(const vtss_inst_t     inst,
-                               const vtss_mrp_idx_t  mrp_idx,
-                               vtss_mrp_ring_role_t  *const role);
+vtss_rc vtss_mrp_ring_role_get(const vtss_inst_t    inst,
+                               const vtss_mrp_idx_t mrp_idx,
+                               vtss_mrp_ring_role_t *const role);
 
-// Set an MRP instance interconnect ring role.
+// Set the port number of the primary port. This is used to swap the port roles
+// of the two ring ports.
+// After swapping ports vtss_mrp_port_state_set() must be called with updated
+// port state.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-// role     [IN] The MRP ring role.
-vtss_rc vtss_mrp_in_ring_role_set(const vtss_inst_t           inst,
-                                  const vtss_mrp_idx_t        mrp_idx,
-                                  const vtss_mrp_ring_role_t  role);
+// port_no  [IN] The new primary port. Must be one of the already configured ring ports.
+vtss_rc vtss_mrp_primary_port_set(const vtss_inst_t    inst,
+                                  const vtss_mrp_idx_t mrp_idx,
+                                  const vtss_port_no_t port_no);
 
-vtss_rc vtss_mrp_in_ring_role_get(const vtss_inst_t     inst,
-                                  const vtss_mrp_idx_t  mrp_idx,
-                                  vtss_mrp_ring_role_t  *const role);
-
-// MRP ports
-typedef struct {
-    vtss_port_no_t   p_port;       // Port with Primary port role
-    vtss_port_no_t   s_port;       // Port with Secondary port role
-} vtss_mrp_ports_t;
-
-// The Primary and Secondary ring port numbers can only be swapped.
-// After swapping ports vtss_mrp_port_state_set() must be called with updated port state.
-// inst     [IN] Target instance reference.
-// mrp_idx  [IN] Index of the configured MRP instance.
-// ports    [IN] The ports.
-vtss_rc vtss_mrp_ports_set(const vtss_inst_t       inst,
-                           const vtss_mrp_idx_t    mrp_idx,
-                           const vtss_mrp_ports_t  *const ports);
-
-vtss_rc vtss_mrp_ports_get(const vtss_inst_t       inst,
-                           const vtss_mrp_idx_t    mrp_idx,
-                           vtss_mrp_ports_t        *const ports);
+vtss_rc vtss_mrp_primary_port_get(const vtss_inst_t    inst,
+                                  const vtss_mrp_idx_t mrp_idx,
+                                  vtss_port_no_t       *const port_no);
 
 // MRP ring state.
 typedef enum {
@@ -149,25 +132,27 @@ vtss_rc vtss_mrp_port_state_get(const vtss_inst_t      inst,
                                 const vtss_port_no_t   port,
                                 vtss_mrp_port_state_t  *const state);
 
-// MRP instance best information.
+// MRP instance's best MRM information.
 typedef struct {
-    vtss_mac_t  mac;       // Best MAC address
-} vtss_mrp_best_t;
+    vtss_mac_t mac;  // Best MAC address
+    uint32_t   prio; // Best priority
+} vtss_mrp_best_mrm_t;
 
 // Set an MRP instance's best received priority and MAC.
 // This information can be received by MRP_TestMgrNAck or MRP_TestPropagate.
 // It is used to check for TST reception from current best MRM.
+// Can only be called if configured as an MRA.
 //
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // best     [IN] Best parameters for MRP.
-vtss_rc vtss_mrp_best_set(const vtss_inst_t      inst,
-                          const vtss_mrp_idx_t   mrp_idx,
-                          const vtss_mrp_best_t  *const best);
+vtss_rc vtss_mrp_best_mrm_set(const vtss_inst_t         inst,
+                              const vtss_mrp_idx_t      mrp_idx,
+                              const vtss_mrp_best_mrm_t *const best);
 
-vtss_rc vtss_mrp_best_get(const vtss_inst_t      inst,
-                          const vtss_mrp_idx_t   mrp_idx,
-                          vtss_mrp_best_t        *const best);
+vtss_rc vtss_mrp_best_mrm_get(const vtss_inst_t    inst,
+                              const vtss_mrp_idx_t mrp_idx,
+                              vtss_mrp_best_mrm_t  *const best);
 
 // MRP TST LOC configuration.
 typedef struct {
@@ -176,39 +161,63 @@ typedef struct {
 
     u32  itst_interval;   // The expected ITST frame reception interval in microseconds
     u32  itst_mon_count;  // The ITST monitoring count of intervals without ITST generating ITST LOC
-} vtss_mrp_tst_loc_t;
+} vtss_mrp_tst_loc_conf_t;
 
 // Set an MRP instance TST LOC configuration.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // conf     [IN] The TST LOC configuration.
-vtss_rc vtss_mrp_tst_loc_set(const vtss_inst_t         inst,
-                             const vtss_mrp_idx_t      mrp_idx,
-                             const vtss_mrp_tst_loc_t  *const conf);
+vtss_rc vtss_mrp_tst_loc_conf_set(const vtss_inst_t             inst,
+                                  const vtss_mrp_idx_t          mrp_idx,
+                                  const vtss_mrp_tst_loc_conf_t *const conf);
 
-vtss_rc vtss_mrp_tst_loc_get(const vtss_inst_t     inst,
-                             const vtss_mrp_idx_t  mrp_idx,
-                             vtss_mrp_tst_loc_t    *const conf);
+vtss_rc vtss_mrp_tst_loc_conf_get(const vtss_inst_t       inst,
+                                  const vtss_mrp_idx_t    mrp_idx,
+                                  vtss_mrp_tst_loc_conf_t *const conf);
 
-// MRP TST copy configuration.
+// This function causes the next MRP_Test PDU that causes the LoC miss counter
+// to be cleared to be copied to the CPU.
+// This is needed after a LoC interrupt, to indicate to the application software
+// that valid MRP_Test PDUs are arriving again.
+// inst     [IN] Target instance reference.
+// mrp_idx  [IN] Index of the configured MRP instance.
+vtss_rc vtss_mrp_tst_hitme_once(const vtss_inst_t    inst,
+                                const vtss_mrp_idx_t mrp_idx);
+
+// This function causes the next MRP_InTest PDU that causes the LoC miss counter
+// to be cleared to be copied to the CPU.
+// This is needed after a LoC interrupt, to indicate to the application software
+// that valid MRP_InTest PDUs are arriving again.
+// This only works for MIM-RC instances.
+// inst     [IN] Target instance reference.
+// mrp_idx  [IN] Index of the configured MRP instance.
+vtss_rc vtss_mrp_itst_hitme_once(const vtss_inst_t   inst,
+                                 const vtss_mrp_idx_t mrp_idx);
+
+// Copy of remote MRP_Test/MRP_InTest PDUs to the CPU.
 typedef struct {
-    BOOL  tst_low_prio;    // Copy TST with lower MRA priority to CPU
-    BOOL  tst_clear_loc;   // Copy next TST that clear TST LOC to CPU
+    BOOL tst_to_cpu;  // Copy MRP_Test PDUs from remote MRM to CPU if we are currently an MRM.
+    BOOL itst_to_cpu; // Copy MRP_InTest PDUs from remote MIM to CPU if we are a MIM-RC.
+} vtss_mrp_tst_copy_conf_t;
 
-    BOOL  itst_clear_loc;  // Copy next ITST that clear ITST LOC to CPU
-} vtss_mrp_copy_tst_t;
-
-// Set an MRP instance's TST copy to CPU configuration.
+// Configure copying of MRP_Test and MRP_InTest PDUs from remote MRMs and/or
+// MIMs to the CPU.
+// This is usually needed if the application wishes to detect multiple MRMs/MIMs
+// on the (interconnection) ring if it's currently operating as an MRM/MIM
+// itself. In order not to be overwhelmed with remote MRP_[In]Test PDUs this can
+// be turned on and off periodically. It does not affect H/W-based forwarding in
+// any way.
+// It only takes effect if operating as an MRM/MIM.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // copy     [IN] The copy configuration.
-vtss_rc vtss_mrp_copy_tst_set(const vtss_inst_t          inst,
-                              const vtss_mrp_idx_t       mrp_idx,
-                              const vtss_mrp_copy_tst_t  *const copy);
+vtss_rc vtss_mrp_tst_copy_conf_set(const vtss_inst_t              inst,
+                                   const vtss_mrp_idx_t           mrp_idx,
+                                   const vtss_mrp_tst_copy_conf_t *const copy);
 
-vtss_rc vtss_mrp_copy_tst_get(const vtss_inst_t     inst,
-                              const vtss_mrp_idx_t  mrp_idx,
-                              vtss_mrp_copy_tst_t   *const copy);
+vtss_rc vtss_mrp_tst_copy_conf_get(const vtss_inst_t        inst,
+                                   const vtss_mrp_idx_t     mrp_idx,
+                                   vtss_mrp_tst_copy_conf_t *const copy);
 
 // MRP status.
 typedef struct {
@@ -219,7 +228,6 @@ typedef struct {
     BOOL  mrp_proc_seen;  // MRP frame received and processed
     BOOL  dmac_err_seen;  // MRP frame received with DMAC error
     BOOL  vers_err_seen;  // MRP frame received with version error
-    BOOL  seq_err_seen;   // MRP frame received with sequence error
 } vtss_mrp_port_status_t;
 
 typedef struct {
@@ -238,8 +246,8 @@ vtss_rc vtss_mrp_status_get(const vtss_inst_t     inst,
 
 // MRP counters.
 typedef struct {
-    u64   tst_rx_count;   // Number of received valid TST frames subject to MRP_Test processing.
-    u64   itst_rx_count;  // Number of received valid ITST frames subject to MRP_Test processing.
+    u64 tst_rx_count;  // Number of received valid MRP_Test frames subject to MRP_Test processing.
+    u64 itst_rx_count; // Number of received valid MRP_InTest frames subject to MRP_InTest processing.
 } vtss_mrp_port_counters_t;
 
 typedef struct {
@@ -267,12 +275,12 @@ vtss_rc vtss_mrp_counters_clear(const vtss_inst_t     inst,
 // The events are represented by a bit in an event mask.
 // VTSS_CAP(VTSS_CAP_MRP_EVENT_SUPPORTED) will return an event mask with the
 // events supported on a given platform.
-#define VTSS_MRP_EVENT_MASK_NONE               0x00
-// Change in ITST frame Loss of Continuity (LOC) state
-#define VTSS_MRP_EVENT_MASK_ITST_LOC           0x01
+#define VTSS_MRP_EVENT_MASK_NONE     0x00
 // Change in TST frame Loss of Continuity (LOC) state
-#define VTSS_MRP_EVENT_MASK_TST_LOC            0x02
-#define VTSS_MRP_EVENT_MASK_ALL                0x0F
+#define VTSS_MRP_EVENT_MASK_TST_LOC  0x01
+// Change in ITST frame Loss of Continuity (LOC) state
+#define VTSS_MRP_EVENT_MASK_ITST_LOC 0x02
+#define VTSS_MRP_EVENT_MASK_ALL      0x0F
 
 // MRP event generation enable/disable.
 // inst     [IN] Target instance reference.
