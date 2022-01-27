@@ -261,9 +261,8 @@ static vtss_rc fa_get_lane_target(u32 type, u32 indx)
 u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
 
     u32 serdes_no;
-    u32 sd_type;
 
-    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &serdes_no, &sd_type));
+    serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     if (cmu_type == 0) {
         // Main CMU of FA
@@ -3696,10 +3695,7 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
 
 vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state)
 {
-    for (u32 cmu = 0; cmu < 14; cmu++) {
-        vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu);
-    }
-
+    /* Done later */
     return VTSS_RC_OK;
 }
 

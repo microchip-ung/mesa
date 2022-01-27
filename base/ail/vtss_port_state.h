@@ -583,6 +583,7 @@ typedef struct {
     vtss_serdes_mode_t            sd6g40_mode[VTSS_SD6G_40_CNT];
 #if defined(VTSS_ARCH_SPARX5)
     vtss_serdes_mode_t            sd28_mode[VTSS_SD28_CNT];
+    u32                           cmu_enable_mask;
 #endif
     vtss_serdes_mode_t            serdes_mode[VTSS_PORT_ARRAY_SIZE];
     vtss_port_clause_37_control_t clause_37[VTSS_PORT_ARRAY_SIZE];

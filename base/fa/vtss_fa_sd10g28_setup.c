@@ -29,7 +29,11 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
 	u32 cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 	u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
     u32 spd10g = 1;
- 
+
+    if (vtss_state->port.cmu_enable_mask & VTSS_BIT(cmu_num)) {
+        return VTSS_RC_OK; // Already enabled
+    }
+
     if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
         spd10g = 0;
     }
@@ -137,6 +141,8 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
                 VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_PMA_TX_CK_PD);
 
 
+    vtss_state->port.cmu_enable_mask |= VTSS_BIT(cmu_num);
+
   return rc;
 }
 
@@ -145,12 +151,13 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
     u32 value;
     u32 sd_lane_tgt;
     u32 sd_tgt;
-   // u32 cmu_num;
-
-/*    cmu_num=vtss_fa_sd10g28_get_cmu(vtss_state, res_struct->cmu_sel[0],port_no);*/
-/*    vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu_num);*/
-
     u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
+    u32 cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, res_struct->cmu_sel[0], port_no);
+
+    if (vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu_num) != VTSS_RC_OK) {
+        VTSS_E("Could not enable CMU:%d\n", cmu_num);
+    }
+
     if(res_struct->is_6g[0] == 1) {
         sd_tgt = VTSS_TO_SD6G_LANE(indx);
         sd_lane_tgt = VTSS_TO_SD_LANE(indx);
