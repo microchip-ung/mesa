@@ -2467,11 +2467,11 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_DEV1G_PCS_FX100_CFG_RXBITSEL);
 
         // Set the Serdes to correct clock freq (not handled by UTE)
-        u32 sd_indx, sd_type, sd;
         u32 freq = vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ ? 2
             : vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_500MHZ ? 1 : 0;
-        (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
-        sd = VTSS_TO_SD_LANE(sd_indx + VTSS_SERDES_10G_START);
+        u32 sd, sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
+
+        sd = VTSS_TO_SD_LANE(sd_indx);
         REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd),
                 VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(freq),
                 VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);
@@ -2909,8 +2909,8 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 
         if (status->link_down) {
             /* Reset the serdes for re-calibration */
-            u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-            u32 sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
+            u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
+            u32 sd_lane_tgt = VTSS_TO_SD_LANE(indx);
             REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
                     VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST(1),
                     VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
