@@ -1036,7 +1036,7 @@ static vtss_rc lan966x_mrp_add(vtss_state_t          *vtss_state,
     vtss_port_no_t  port_no;
     vtss_rc         rc;
 
-    VTSS_D("mra = %d, ring_role = %d, in_ring_role = %d, in_rc_mode = %d", conf->mra, conf->ring_role, conf->in_ring_role, conf->in_rc_mode);
+    VTSS_D("mra = %d, ring_role = %s, in_ring_role = %s, in_rc_mode = %d", conf->mra, ring_role2txt(conf->ring_role), ring_role2txt(conf->in_ring_role), conf->in_rc_mode);
 
     if (mrp_data->active) {
         VTSS_E("MRP instance already active");

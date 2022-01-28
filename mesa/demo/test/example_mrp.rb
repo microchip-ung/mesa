@@ -16,6 +16,9 @@ check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
 end
 
+# Uncomment this if you want trace in the output
+# $ts.dut.run("mesa-cmd deb trace api_cil mrp debug")
+
 $p_port = 0
 $s_port = 1
 $i_port = 2
@@ -97,9 +100,9 @@ def mrp_test(tag_vid = 0)
     t_i("Create MC_IControl frame")
     frame = frame_create(MC_ICONTROL, SC_STRING, 0, 0, "mrp")
 
-    test "Transmit InTopologyChange frame on Interconnect port to see forwarding and copy to CPU" do
+    test "Transmit InTopologyChange frame on Interconnect port to see no forwarding, but copy to CPU" do
     frametx = frame.dup + "mrp_topo t_type 7 "
-    frame_tx(frametx, $i_port, frametx, frametx, "", "")
+    frame_tx(frametx, $i_port, "", "", "", "")
     $ts.dut.run("mesa-cmd example run mrp command 2 exp-mrp-type 7")
     end
 
@@ -117,6 +120,10 @@ test "test_run" do
 end
 
 test "test_clean_up" do
+    # In case the test fails, it's nice to have the output of
+    # 'deb api [cil] mrp'
+    $ts.dut.run("mesa-cmd deb api mrp")
+
     t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 end

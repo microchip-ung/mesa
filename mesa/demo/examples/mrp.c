@@ -92,12 +92,16 @@ static int mrp_init(int argc, const char *argv[])
     RC(mesa_mrp_get(NULL, state.mrp_idx, &mrp_conf))
     mrp_conf.ring_role = ring_role;
     mrp_conf.in_ring_role = in_ring_role;
+    mrp_conf.in_rc_mode = TRUE;
     mrp_conf.p_port = state.p_port;
     mrp_conf.s_port = state.s_port;
     mrp_conf.i_port = state.i_port;
     mrp_conf.mra = FALSE;
     memcpy(mrp_conf.mac.addr, test_uc_addr, sizeof(mrp_conf.mac.addr));
-    RC(mesa_mrp_add(NULL, state.mrp_idx, &mrp_conf))
+    RC(mesa_mrp_add(NULL, state.mrp_idx, &mrp_conf));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.p_port, MESA_MRP_PORT_STATE_FORWARDING));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.s_port, MESA_MRP_PORT_STATE_FORWARDING));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.i_port, MESA_MRP_PORT_STATE_FORWARDING));
     // snippet_end
 
     // snippet_begin ex-mrp-loc
