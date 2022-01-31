@@ -92,9 +92,13 @@ macro(MEBA_LIB)
 
     if (${BUILD_MEBA_STATIC_${A_LIB_NAME}})
         message(STATUS "Build STATIC ${A_LIB_NAME} including ${A_MEBA_DEFINES}")
+        set_target_properties(meba_${A_LIB_NAME}_static PROPERTIES EXCLUDE_FROM_ALL FALSE)
         set_target_properties(meba_${A_LIB_NAME}_static_target PROPERTIES EXCLUDE_FROM_ALL FALSE)
+        set_target_properties(meba_only_${A_LIB_NAME} PROPERTIES EXCLUDE_FROM_ALL FALSE)
     else()
+        set_target_properties(meba_${A_LIB_NAME}_static PROPERTIES EXCLUDE_FROM_ALL TRUE)
         set_target_properties(meba_${A_LIB_NAME}_static_target PROPERTIES EXCLUDE_FROM_ALL TRUE)
+        set_target_properties(meba_only_${A_LIB_NAME}  PROPERTIES EXCLUDE_FROM_ALL TRUE)
     endif()
 endmacro()
 
