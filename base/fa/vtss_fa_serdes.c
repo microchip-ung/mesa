@@ -281,7 +281,7 @@ u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_ty
             return 0;
         } else if (serdes_no < 10 ) {
             return 3;
-        } else if (serdes_no < 16) {
+        } else if (serdes_no < 17) {
             return 6;
         } else if (serdes_no < 19) {
             return 9;
