@@ -281,8 +281,7 @@ static vtss_rc srvl_voe_event_mask_set(vtss_state_t          *vtss_state,
                ((mask & VTSS_VOE_EVENT_MASK_CCM_RX_RDI)      ? VTSS_F_OAM_MEP_VOE_STICKY_CCM_RX_RDI_STICKY      : 0) |
                ((mask & VTSS_VOE_EVENT_MASK_CCM_LOC)         ? VTSS_F_OAM_MEP_VOE_STICKY_CCM_LOC_STICKY         : 0) |
                ((mask & VTSS_VOE_EVENT_MASK_CCM_MEP_ID)      ? VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEPID_STICKY       : 0) |
-               ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID)      ? VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEGID_STICKY       : 0) |
-               ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL)   ? VTSS_F_OAM_MEP_VOE_STICKY_OAM_MEL_STICKY         : 0);
+               ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID)      ? VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEGID_STICKY       : 0);
 
     /* Calculate new enable mask */
     enable_mask = enable ? (enable_mask | reg_mask) : (enable_mask & ~reg_mask);
@@ -316,8 +315,7 @@ static vtss_rc srvl_voe_event_get(vtss_state_t          *vtss_state,
             (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_CCM_RX_RDI_STICKY) != 0)      ? VTSS_VOE_EVENT_MASK_CCM_RX_RDI      : 0) |
             (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_CCM_LOC_STICKY) != 0)         ? VTSS_VOE_EVENT_MASK_CCM_LOC         : 0) |
             (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEPID_STICKY) != 0)       ? VTSS_VOE_EVENT_MASK_CCM_MEP_ID      : 0) |
-            (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEGID_STICKY) != 0)       ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID      : 0) |
-            (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_OAM_MEL_STICKY) != 0)         ? VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL   : 0);
+            (((sticky_mask & VTSS_F_OAM_MEP_VOE_STICKY_CCM_MEGID_STICKY) != 0)       ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID      : 0);
 
     VTSS_D("Exit  mask %X", *mask);
 
