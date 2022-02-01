@@ -342,7 +342,7 @@ void meba_phy_driver_init(meba_inst_t inst)
         if (phy_dev && inst->phy_devices[entry.phy_base_port]) {
             (void)mepa_link_base_port(phy_dev,
                                       inst->phy_devices[entry.phy_base_port],
-                                      entry.map.miim_addr % 4);
+                                      entry.map.chip_port);
         }
     }
 }

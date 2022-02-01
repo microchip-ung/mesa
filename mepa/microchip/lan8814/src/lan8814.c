@@ -1243,8 +1243,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
         clkout_src = 7; // Forces Recovered Clock Output to 0
         break;
     case MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA:
-        clkout_src = data->packet_idx;
-        //clkout_src = 0b000; // Recovered Clock Input Port-0/Channel-0
+        clkout_src = data->packet_idx % 4;
         break;
     case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1:
         clkout_src = 0b100; // Recovered Clock Input 1
@@ -1261,7 +1260,7 @@ static mepa_rc indy_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock
     if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
         EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_1, clkout_src);
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_1, divider);
-    } else {
+    } else if (conf->dst == MEPA_SYNCE_CLOCK_DST_2) {
         EP_WR(dev, INDY_RCVRD_CLK_OUT_SEL_2, clkout_src);
         EP_WR(dev, INDY_RCVRD_CLK_OUT_DIV_2, divider);
     }
