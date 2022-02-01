@@ -13,9 +13,10 @@ require_relative 'oam_lib'
 $ts = get_test_setup("mesa_pc_b2b_4x")
 
 check_capabilities do
+    $cap_oam_v0 = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_V0") != 0) ? true : false
     $cap_oam_v1 = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_V1") != 0) ? true : false
     $cap_oam_v2 = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_V2") != 0) ? true : false
-    assert(($cap_oam_v1 == true) || ($cap_oam_v2 == true), "VOP must be V1 or V2,  (cap_oam_v1=#{$cap_oam_v1} $cap_oam_v2=#{$cap_oam_v1})")
+    assert(($cap_oam_v0 == true) || ($cap_oam_v1 == true) || ($cap_oam_v2 == true), "VOP must be V0 or V1 or V2,  (cap_oam_v1=#{$cap_oam_v1} $cap_oam_v2=#{$cap_oam_v1})")
 
     $cap_event_supported = $ts.dut.call("mesa_capability", "MESA_CAP_VOP_EVENT_SUPPORTED")
     $cap_ccm_defects = $ts.dut.call("mesa_capability", "MESA_CAP_VOP_CCM_DEFECT")
@@ -26,7 +27,7 @@ check_capabilities do
     $cap_tx_ifh_size = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_TX_IFH_SIZE")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     $cap_vop_cfm = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_CFM") != 0) ? true : false
-    t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  $cap_vop_cfm #{$cap_vop_cfm}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
+    t_i("cap_event_supported #{$cap_event_supported}  cap_ccm_defects #{$cap_ccm_defects}  cap_oam_v0 #{$cap_oam_v0}  cap_oam_v1 #{$cap_oam_v1}  cap_oam_v2 #{$cap_oam_v2}  $cap_vop_cfm #{$cap_vop_cfm}  cap_cosid #{$cap_cosid}  cap_vstax #{$cap_vstax}  $cap_epid #{$cap_epid}  $cap_family #{$cap_family}  cap_tx_ifh_size #{$cap_tx_ifh_size}  cap_port_cnt #{$cap_port_cnt}")
 end
 
 $p_vce         = 1
@@ -59,7 +60,7 @@ $vid = 100
 if ($cap_oam_v2)
     $p_voe_meg_level = 6    # ON V2 Independent MEL in supported so the Port domain level can be higher that the VLAN domain level
 end
-if ($cap_oam_v1)            # ON V1 Independent MEL in not supported in all use cases so the Port domain level must be lower that the VLAN domain level
+if ($cap_oam_v0 || $cap_oam_v1)            # ON V1 Independent MEL in not supported in all use cases so the Port domain level must be lower that the VLAN domain level
     $p_voe_meg_level = 2
 end
 $v_voe_meg_level = 3
@@ -1447,7 +1448,7 @@ test "test_config" do
         eflow_config($p1_inj_eflow, $p1_voe_idx, VOI_IDX_NONE)
     end
 
-    if ($cap_oam_v1 && $cap_vop_cfm)
+    if ($cap_oam_v1)
         # Allocate iflow's
         $p_voe_iflow = $ts.dut.call("mesa_iflow_alloc")
         $p1_voe_iflow = $ts.dut.call("mesa_iflow_alloc")
@@ -1485,7 +1486,7 @@ test "test_config" do
         tce_config($p1_blk_tce, $ts.dut.port_list[$port1], $pvid, IFLOW_ID_NONE, $p1_inj_eflow)
     end
 
-    if ($cap_oam_v1 && $cap_vop_cfm)
+    if ($cap_oam_v1)
         # Configure VCE
         #vce_config(id, port, vid, level_val, level_mask, flow_id, oam_detect)
         vce_config($p_vce, "#{$ts.dut.port_list[$port0]}", 0, 0, 0, $p_voe_iflow, "MESA_OAM_DETECT_UNTAGGED")   #Always match on all levels in port domain
@@ -1504,7 +1505,7 @@ test "test_config" do
     #voe_config(voe_idx, meg_level, iflow_id)
     voe_config($p_voe_idx, $p_voe_meg_level, $p_voe_iflow)
     voe_config($p1_voe_idx, $p_voe_meg_level, $p1_voe_iflow)
-    if ($cap_oam_v1 && $cap_vop_cfm)
+    if ($cap_oam_v1)
         voe_config($d_voe_idx, $v_voe_meg_level, $inj_iflow)
     end
     if ($cap_oam_v2)
@@ -1583,7 +1584,7 @@ test "test_clean_up" do
         $ts.dut.call("mesa_tce_del", $p1_blk_tce)
     end
 
-    if ($cap_oam_v1 && $cap_vop_cfm)
+    if ($cap_oam_v1)
         $ts.dut.call("mesa_iflow_free", $p_voe_iflow)
         $ts.dut.call("mesa_iflow_free", $p1_voe_iflow)
         $ts.dut.call("mesa_iflow_free", $d_voe_iflow)
