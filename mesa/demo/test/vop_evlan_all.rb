@@ -495,7 +495,6 @@ def voe_cc_block_test_func(voe_idx, level, tag_vid)
     frame = frame_create(MC_STRING, SC_STRING, tag_vid)
 
     test "Transmit CCM frame behind VOE to be filtered/blocked." do
-    t_i("The following transmit blocking test is failing on Maserati as the functionality is not yet implemented")
     frametx = frame.dup
     frametx += ccm_pdu_create(level, $period, 0, $peer_mepid, $megid)
     if (tag_vid != 0)
