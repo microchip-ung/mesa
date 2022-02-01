@@ -1568,13 +1568,13 @@ static vtss_rc lan966x_es0_entry_add(vtss_state_t *vtss_state,
     // Check key size
     if (idx->key_size != VTSS_VCAP_KEY_SIZE_FULL) {
         VTSS_E("unsupported key_size: %s", vtss_vcap_key_size2txt(idx->key_size));
-        return VTSS_RC_OK;
+        return VTSS_RC_ERROR;
     }
 
     // Check key type
     if (key->type == VTSS_ES0_TYPE_ISDX) {
         VTSS_E("ISDX key not supported");
-        return VTSS_RC_OK;
+        return VTSS_RC_ERROR;
     }
 
     info.vcap = VTSS_LAN966X_VCAP_ES0;
