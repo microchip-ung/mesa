@@ -732,7 +732,7 @@ def check_voe_event(voe_idx, events)
                 t_e("Meg event not found")
             end
         elsif events[index] == EVENT_LEVEL
-            if (mask & EVENT_MASK_CCM_MEG_LEVEL) == 0
+            if ($cap_oam_v2 && ((mask & EVENT_MASK_CCM_MEG_LEVEL) == 0))
                 t_e("Level event not found")
             end
         elsif events[index] == EVENT_NONE
