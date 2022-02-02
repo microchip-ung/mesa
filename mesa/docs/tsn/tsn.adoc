@@ -41,12 +41,19 @@ Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`
 
 == Time Aware Scheduler
 If the capability `MESA_CAP_QOS_TAS` is non-zero, IEEE 802.1Q Enhancements for scheduled traffic is supported.
-Time Aware Scheduling can be enabled on a port and is executing a Gate Control List (GCL) that controls the transmission gate state per queue on that port:
+Time Aware Scheduling can be enabled on a port and is executing a Gate Control List (GCL)
+that controls the transmission gate state per queue on that port:
 
 * After initialization, TAS is not active on any port.
 * A GCL list can be configured per port (`mesa_qos_tas_port_gcl_conf_set()`).
 * TAS executing the GCL can be enabled and disabled per port (`mesa_qos_tas_port_conf_set()`)
 * TAS status can be retrieved per port  (`mesa_qos_tas_port_status_get()`)
+
+Each entry in a GCL list has a gate operation. One of the operations (SET_AND_HOLD_MAC) can bring the MAC in hold state,
+another (SET_AND_RELEASE_MAC) can release this.
+
+IMPORTANT: If a list ends with gate operation SET_AND_HOLD_MAC then this MAC state is not changed when a new list is taking over.
+To assure the MAC is released, the new list should contain a SET_AND_RELEASE_MAC gate operation.
 
 == API Functions
 `mesa_frer_cstream_conf_get()` +
