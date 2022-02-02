@@ -897,8 +897,11 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_SGMII_2G5:
-        sgmii = 1;
-        mode = VTSS_SERDES_MODE_2G5;
+        if (speed == VTSS_SPEED_2500M) {
+            mode = VTSS_SERDES_MODE_2G5;
+        } else {
+            sgmii = 1;
+        }
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         mode = VTSS_SERDES_MODE_QSGMII;
@@ -1042,6 +1045,9 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     VTSS_NSLEEP(1000);
     REG_WR(DEV_MAC_HDX_CFG(port), value);
 
+    // Choose SGMII or SerDes PCS mode
+    REG_WR(DEV_PCS1G_MODE_CFG(port), DEV_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii));
+
     // PCS setup
     if (sgmii) {
         // Set whole register
@@ -1059,7 +1065,8 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     // Enable/disable PCS
     REG_WR(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA(disable ? 0 : 1));
 
-    if (conf->if_type == VTSS_PORT_INTERFACE_SGMII) {
+    if (conf->if_type == VTSS_PORT_INTERFACE_SGMII ||
+        conf->if_type == VTSS_PORT_INTERFACE_SGMII_2G5) {
         REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
     } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         // Complete SGMII aneg
