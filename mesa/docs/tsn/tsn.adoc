@@ -39,9 +39,9 @@ For each port, Frame Preemption can be enabled in the egress direction, and each
 The port status can be retrieved (`mesa_qos_fp_port_status_t`), including the verfication state (`mesa_mm_status_verify_t`).
 Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`).
 
-== Time Aware Scheduler
+== Time Aware Shaper
 If the capability `MESA_CAP_QOS_TAS` is non-zero, IEEE 802.1Q Enhancements for scheduled traffic is supported.
-Time Aware Scheduling can be enabled on a port and is executing a Gate Control List (GCL)
+Time Aware Shaper can be enabled on a port and is executing a Gate Control List (GCL)
 that controls the transmission gate state per queue on that port:
 
 * After initialization, TAS is not active on any port.

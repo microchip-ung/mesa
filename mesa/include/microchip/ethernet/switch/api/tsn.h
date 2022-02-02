@@ -258,7 +258,7 @@ typedef struct {
 
 /* - TAS ---------------------------------------------------------- */
 
-// Time Aware Scheduling (802.1Qbv) global configuration
+// Time Aware Shaper (802.1Qbv) global configuration
 typedef struct {
     // If a GCL contains HOLD_MAC and RELEASE_MAC operation:
     //     When TRUE a guard band is implemented on all queues, both Express and Preemptible queues.
@@ -268,26 +268,26 @@ typedef struct {
     mesa_bool_t always_guard_band CAP(MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT);
 } mesa_qos_tas_conf_t CAP(QOS_TAS);
 
-// Get Time Aware Scheduling (802.1Qbv) global configuration.
+// Get Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [OUT] Scheduled Traffic configuration structure.
 mesa_rc mesa_qos_tas_conf_get(const mesa_inst_t    inst,
                               mesa_qos_tas_conf_t  *const conf)
     CAP(QOS_TAS);
 
-// Set Time Aware Scheduling (802.1Qbv) global configuration.
+// Set Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [IN] Scheduled Traffic configuration structure.
 mesa_rc mesa_qos_tas_conf_set(const mesa_inst_t         inst,
                               const mesa_qos_tas_conf_t *const conf)
     CAP(QOS_TAS);
 
-// Time Aware Scheduling (802.1Qbv) Gate Control Operations
+// Time Aware Shaper (802.1Qbv) Gate Control Operations
 typedef enum {
     MESA_QOS_TAS_GCO_SET_GATE_STATES,     // Set GateState
     MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC,    // Set GateState and stop preemption
     MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC  // Set GateState and resume preemption
 } mesa_qos_tas_gco_t CAP(QOS_TAS);
 
-// Time Aware Scheduling (802.1Qbv) gate control list entry
+// Time Aware Shaper (802.1Qbv) gate control list entry
 // CAP(MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT):
 //      A GCE with HOLD_MAC all queues opened must be Express queues.
 //      A GCE with RELEASE_MAC all queues opened must be Preemptable queues.
@@ -305,7 +305,7 @@ typedef struct {
     uint32_t           time_interval;
 } mesa_qos_tas_gce_t CAP(QOS_TAS);
 
-// Get Time Aware Scheduling (802.1Qbv) port Gate Control List.
+// Get Time Aware Shaper (802.1Qbv) port Gate Control List.
 // port_no    [IN]   Port number.
 // cnt        [IN]   Size of the 'gcl' array delivered by caller.
 // gcl        [OUT]  Scheduled Traffic Gate Control List array of size 'cnt' delivered by caller.
@@ -318,7 +318,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t     inst,
                                        uint32_t              *const gce_cnt)
     CAP(QOS_TAS);
 
-// Set Time Aware Scheduling (802.1Qbv) port Gate Control List.
+// Set Time Aware Shaper (802.1Qbv) port Gate Control List.
 // port_no    [IN]  Port number.
 // gce_cnt    [IN]  Number of GCE in the 'gcl' array delivered by caller.
 // gcl        [IN]  Scheduled Traffic Gate Control List.
@@ -328,7 +328,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
                                        const mesa_qos_tas_gce_t   *const gcl)
     CAP(QOS_TAS);
 
-// Time Aware Scheduling (802.1Qbv) port configuration
+// Time Aware Shaper (802.1Qbv) port configuration
 typedef struct {
     // Maximum SDU size supported by each queue in bytes. Minimum 64 bytes.
     // This parameter is also used to calculate the guard band time: gbt = max_sdu[]*8 / LINK_SPEED
@@ -368,7 +368,7 @@ typedef struct {
     mesa_bool_t      config_change;
 } mesa_qos_tas_port_conf_t CAP(QOS_TAS);
 
-// Get Time Aware Scheduling (802.1Qbv) port configuration.
+// Get Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN]  Port number.
 // conf    [OUT] Scheduled Traffic configuration structure.
 mesa_rc mesa_qos_tas_port_conf_get(const mesa_inst_t       inst,
@@ -376,7 +376,7 @@ mesa_rc mesa_qos_tas_port_conf_get(const mesa_inst_t       inst,
                                    mesa_qos_tas_port_conf_t *const conf)
     CAP(QOS_TAS);
 
-// Set Time Aware Scheduling (802.1Qbv) port configuration.
+// Set Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN] Port number.
 // conf    [IN] Scheduled Traffic configuration structure.
 mesa_rc mesa_qos_tas_port_conf_set(const mesa_inst_t             inst,
@@ -384,7 +384,7 @@ mesa_rc mesa_qos_tas_port_conf_set(const mesa_inst_t             inst,
                                    const mesa_qos_tas_port_conf_t *const conf)
     CAP(QOS_TAS);
 
-// Time Aware Scheduling (802.1Qbv) port status.
+// Time Aware Shaper (802.1Qbv) port status.
 typedef struct {
     // The value of the ConfigPending state machine variable.
     // The value is TRUE if a configuration change is in progress but has not yet completed.
@@ -402,7 +402,7 @@ typedef struct {
     mesa_bool_t         gate_open[MESA_QUEUE_ARRAY_SIZE];
 } mesa_qos_tas_port_status_t CAP(QOS_TAS);
 
-// Get Time Aware Scheduling (802.1Qbv) status for port.
+// Get Time Aware Shaper (802.1Qbv) status for port.
 // port_no [IN]  Port number.
 // status  [OUT] Scheduled Traffic status structure.
 mesa_rc mesa_qos_tas_port_status_get(const mesa_inst_t          inst,

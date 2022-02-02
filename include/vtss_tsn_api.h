@@ -284,7 +284,7 @@ typedef struct {
 #endif
 
 #if defined(VTSS_FEATURE_QOS_TAS)
-// Time Aware Scheduling (802.1Qbv) global configuration
+// Time Aware Shaper (802.1Qbv) global configuration
 typedef struct {
     // When set a quard band is implemented even for scheduled queues
     // to scheduled queue transition.
@@ -295,24 +295,24 @@ typedef struct {
     BOOL always_guard_band;
 } vtss_qos_tas_conf_t;
 
-// Get Time Aware Scheduling (802.1Qbv) global configuration.
+// Get Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [OUT] Scheduled Traffic configuration structure.
 vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t    inst,
                               vtss_qos_tas_conf_t  *const conf);
 
-// Set Time Aware Scheduling (802.1Qbv) global configuration.
+// Set Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [IN] Scheduled Traffic configuration structure.
 vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t         inst,
                               const vtss_qos_tas_conf_t *const conf);
 
-// Time Aware Scheduling (802.1Qbv) Gate Control Operations
+// Time Aware Shaper (802.1Qbv) Gate Control Operations
 typedef enum {
     VTSS_QOS_TAS_GCO_SET_GATE_STATES,     // Set GateState
     VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC,    // Set GateState and stop preemption
     VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC  // Set GateState and resume preemption
 } vtss_qos_tas_gco_t;
 
-// Time Aware Scheduling (802.1Qbv) gate control list entry
+// Time Aware Shaper (802.1Qbv) gate control list entry
 typedef struct {
     vtss_qos_tas_gco_t gate_operation; // Gate Control Operation.
 
@@ -324,7 +324,7 @@ typedef struct {
     u32                time_interval;
 } vtss_qos_tas_gce_t;
 
-// Time Aware Scheduling (802.1Qbv) port configuration
+// Time Aware Shaper (802.1Qbv) port configuration
 typedef struct {
     // Maximum SDU size supported by each queue in bytes. Minimum 64 bytes.
     // This parameter contribute to calculating the guard band time max_sdu[]*8 / LINK_SPEED
@@ -364,21 +364,21 @@ typedef struct {
     vtss_qos_tas_gce_t   gcl[VTSS_QOS_TAS_GCL_LEN_MAX];
 } vtss_qos_tas_port_conf_t;
 
-// Get Time Aware Scheduling (802.1Qbv) port configuration.
+// Get Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN]  Port number.
 // conf    [OUT] Scheduled Traffic configuration structure.
 vtss_rc vtss_qos_tas_port_conf_get(const vtss_inst_t         inst,
                                    const vtss_port_no_t      port_no,
                                    vtss_qos_tas_port_conf_t  *const conf);
 
-// Set Time Aware Scheduling (802.1Qbv) port configuration.
+// Set Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN] Port number.
 // conf    [IN] Scheduled Traffic configuration structure.
 vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t               inst,
                                    const vtss_port_no_t            port_no,
                                    const vtss_qos_tas_port_conf_t  *const conf);
 
-// Time Aware Scheduling (802.1Qbv) port status.
+// Time Aware Shaper (802.1Qbv) port status.
 typedef struct {
     // The value of the ConfigPending state machine variable.
     // The value is TRUE if a configuration change is in progress but has not yet completed.
@@ -396,7 +396,7 @@ typedef struct {
     BOOL                gate_open[VTSS_QUEUE_ARRAY_SIZE];
 } vtss_qos_tas_port_status_t;
 
-// Get Time Aware Scheduling (802.1Qbv) status for port.
+// Get Time Aware Shaper (802.1Qbv) status for port.
 // port_no [IN]  Port number.
 // status  [OUT] Scheduled Traffic status structure.
 vtss_rc vtss_qos_tas_port_status_get(const vtss_inst_t          inst,
