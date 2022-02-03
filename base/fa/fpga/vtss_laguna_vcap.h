@@ -5,7 +5,7 @@
     Start: Auto-generated content, do not edit.
 
     Generated using 'make c_header' in directory 'design/exb_vcap_lib'
-    @ 2021-12-09 09:33:53 UTC.
+    @ 2022-02-03 07:55:19 UTC.
  * ================================================================= */
 
 
@@ -66,7 +66,9 @@
 #define CLM_KL_NORMAL_7TUPLE_DEI2                    1
 #define CLM_KO_NORMAL_7TUPLE_VID2                    (CLM_KO_NORMAL_7TUPLE_DEI2 + CLM_KL_NORMAL_7TUPLE_DEI2)
 #define CLM_KL_NORMAL_7TUPLE_VID2                    12
-#define CLM_KO_NORMAL_7TUPLE_L2_DMAC_0               (CLM_KO_NORMAL_7TUPLE_VID2 + CLM_KL_NORMAL_7TUPLE_VID2)
+#define CLM_KO_NORMAL_7TUPLE_RED_TAGGED              (CLM_KO_NORMAL_7TUPLE_VID2 + CLM_KL_NORMAL_7TUPLE_VID2)
+#define CLM_KL_NORMAL_7TUPLE_RED_TAGGED              1
+#define CLM_KO_NORMAL_7TUPLE_L2_DMAC_0               (CLM_KO_NORMAL_7TUPLE_RED_TAGGED + CLM_KL_NORMAL_7TUPLE_RED_TAGGED)
 #define CLM_KL_NORMAL_7TUPLE_L2_DMAC_0               32
 #define CLM_KO_NORMAL_7TUPLE_L2_DMAC_1               (CLM_KO_NORMAL_7TUPLE_L2_DMAC_0 + CLM_KL_NORMAL_7TUPLE_L2_DMAC_0)
 #define CLM_KL_NORMAL_7TUPLE_L2_DMAC_1               16
@@ -205,6 +207,8 @@
 #define CLM_KL_X6_DEI2                               1
 #define CLM_KO_X6_VID2                               (CLM_KO_X6_DEI2 + CLM_KL_X6_DEI2)
 #define CLM_KL_X6_VID2                               12
+#define CLM_KO_X6_RED_TAGGED                         (CLM_KO_X6_VID2 + CLM_KL_X6_VID2)
+#define CLM_KL_X6_RED_TAGGED                         1
 
 /* CLM X6 LL_FULL key fields */
 #define CLM_KO_LL_FULL_IGR_PORT                      (CLM_KO_X6_FIRST + CLM_KL_X6_FIRST)
@@ -235,7 +239,9 @@
 #define CLM_KL_LL_FULL_DEI2                          1
 #define CLM_KO_LL_FULL_VID2                          (CLM_KO_LL_FULL_DEI2 + CLM_KL_LL_FULL_DEI2)
 #define CLM_KL_LL_FULL_VID2                          12
-#define CLM_KO_LL_FULL_L2_DMAC_0                     (CLM_KO_LL_FULL_VID2 + CLM_KL_LL_FULL_VID2)
+#define CLM_KO_LL_FULL_RED_TAGGED                    (CLM_KO_LL_FULL_VID2 + CLM_KL_LL_FULL_VID2)
+#define CLM_KL_LL_FULL_RED_TAGGED                    1
+#define CLM_KO_LL_FULL_L2_DMAC_0                     (CLM_KO_LL_FULL_RED_TAGGED + CLM_KL_LL_FULL_RED_TAGGED)
 #define CLM_KL_LL_FULL_L2_DMAC_0                     32
 #define CLM_KO_LL_FULL_L2_DMAC_1                     (CLM_KO_LL_FULL_L2_DMAC_0 + CLM_KL_LL_FULL_L2_DMAC_0)
 #define CLM_KL_LL_FULL_L2_DMAC_1                     16
@@ -273,7 +279,7 @@
 #define CLM_KL_LL_FULL_L4_RNG                        8
 
 /* CLM X6 NORMAL key fields */
-#define CLM_KO_NORMAL_DST_ENTRY                      (CLM_KO_X6_VID2 + CLM_KL_X6_VID2)
+#define CLM_KO_NORMAL_DST_ENTRY                      (CLM_KO_X6_RED_TAGGED + CLM_KL_X6_RED_TAGGED)
 #define CLM_KL_NORMAL_DST_ENTRY                      1
 #define CLM_KO_NORMAL_L2_SMAC_0                      (CLM_KO_NORMAL_DST_ENTRY + CLM_KL_NORMAL_DST_ENTRY)
 #define CLM_KL_NORMAL_L2_SMAC_0                      32
@@ -309,7 +315,7 @@
 #define CLM_KL_NORMAL_L4_RNG                         8
 
 /* CLM X6 NORMAL_5TUPLE_IP4 key fields */
-#define CLM_KO_NORMAL_5TUPLE_IP4_IP_MC               (CLM_KO_X6_VID2 + CLM_KL_X6_VID2)
+#define CLM_KO_NORMAL_5TUPLE_IP4_IP_MC               (CLM_KO_X6_RED_TAGGED + CLM_KL_X6_RED_TAGGED)
 #define CLM_KL_NORMAL_5TUPLE_IP4_IP_MC               1
 #define CLM_KO_NORMAL_5TUPLE_IP4_IP4                 (CLM_KO_NORMAL_5TUPLE_IP4_IP_MC + CLM_KL_NORMAL_5TUPLE_IP4_IP_MC)
 #define CLM_KL_NORMAL_5TUPLE_IP4_IP4                 1
@@ -384,7 +390,9 @@
 #define CLM_KL_MLL_TPID1                             3
 #define CLM_KO_MLL_VID1                              (CLM_KO_MLL_TPID1 + CLM_KL_MLL_TPID1)
 #define CLM_KL_MLL_VID1                              12
-#define CLM_KO_MLL_L2_DMAC_0                         (CLM_KO_MLL_VID1 + CLM_KL_MLL_VID1)
+#define CLM_KO_MLL_RED_TAGGED                        (CLM_KO_MLL_VID1 + CLM_KL_MLL_VID1)
+#define CLM_KL_MLL_RED_TAGGED                        1
+#define CLM_KO_MLL_L2_DMAC_0                         (CLM_KO_MLL_RED_TAGGED + CLM_KL_MLL_RED_TAGGED)
 #define CLM_KL_MLL_L2_DMAC_0                         32
 #define CLM_KO_MLL_L2_DMAC_1                         (CLM_KO_MLL_L2_DMAC_0 + CLM_KL_MLL_L2_DMAC_0)
 #define CLM_KL_MLL_L2_DMAC_1                         16
@@ -509,7 +517,9 @@
 #define CLM_KL_TRI_VID_DEI2                          1
 #define CLM_KO_TRI_VID_VID2                          (CLM_KO_TRI_VID_DEI2 + CLM_KL_TRI_VID_DEI2)
 #define CLM_KL_TRI_VID_VID2                          12
-#define CLM_KO_TRI_VID_L4_RNG                        (CLM_KO_TRI_VID_VID2 + CLM_KL_TRI_VID_VID2)
+#define CLM_KO_TRI_VID_RED_TAGGED                    (CLM_KO_TRI_VID_VID2 + CLM_KL_TRI_VID_VID2)
+#define CLM_KL_TRI_VID_RED_TAGGED                    1
+#define CLM_KO_TRI_VID_L4_RNG                        (CLM_KO_TRI_VID_RED_TAGGED + CLM_KL_TRI_VID_RED_TAGGED)
 #define CLM_KL_TRI_VID_L4_RNG                        8
 #define CLM_KO_TRI_VID_OAM_Y1731                     (CLM_KO_TRI_VID_L4_RNG + CLM_KL_TRI_VID_L4_RNG)
 #define CLM_KL_TRI_VID_OAM_Y1731                     1
@@ -553,7 +563,9 @@
 #define CLM_KL_TRI_VID_IDX_TPID2                     3
 #define CLM_KO_TRI_VID_IDX_VID2                      (CLM_KO_TRI_VID_IDX_TPID2 + CLM_KL_TRI_VID_IDX_TPID2)
 #define CLM_KL_TRI_VID_IDX_VID2                      12
-#define CLM_KO_TRI_VID_IDX_L4_RNG                    (CLM_KO_TRI_VID_IDX_VID2 + CLM_KL_TRI_VID_IDX_VID2)
+#define CLM_KO_TRI_VID_IDX_RED_TAGGED                (CLM_KO_TRI_VID_IDX_VID2 + CLM_KL_TRI_VID_IDX_VID2)
+#define CLM_KL_TRI_VID_IDX_RED_TAGGED                1
+#define CLM_KO_TRI_VID_IDX_L4_RNG                    (CLM_KO_TRI_VID_IDX_RED_TAGGED + CLM_KL_TRI_VID_IDX_RED_TAGGED)
 #define CLM_KL_TRI_VID_IDX_L4_RNG                    8
 #define CLM_KO_TRI_VID_IDX_OAM_Y1731                 (CLM_KO_TRI_VID_IDX_L4_RNG + CLM_KL_TRI_VID_IDX_L4_RNG)
 #define CLM_KL_TRI_VID_IDX_OAM_Y1731                 1
@@ -609,7 +621,9 @@
 #define CLM_KL_DBL_VID_IDX_VID0                      12
 #define CLM_KO_DBL_VID_IDX_VID1                      (CLM_KO_DBL_VID_IDX_VID0 + CLM_KL_DBL_VID_IDX_VID0)
 #define CLM_KL_DBL_VID_IDX_VID1                      12
-#define CLM_KO_DBL_VID_IDX_OAM_Y1731                 (CLM_KO_DBL_VID_IDX_VID1 + CLM_KL_DBL_VID_IDX_VID1)
+#define CLM_KO_DBL_VID_IDX_RED_TAGGED                (CLM_KO_DBL_VID_IDX_VID1 + CLM_KL_DBL_VID_IDX_VID1)
+#define CLM_KL_DBL_VID_IDX_RED_TAGGED                1
+#define CLM_KO_DBL_VID_IDX_OAM_Y1731                 (CLM_KO_DBL_VID_IDX_RED_TAGGED + CLM_KL_DBL_VID_IDX_RED_TAGGED)
 #define CLM_KL_DBL_VID_IDX_OAM_Y1731                 1
 #define CLM_KO_DBL_VID_IDX_OAM_MEL_FLAGS             (CLM_KO_DBL_VID_IDX_OAM_Y1731 + CLM_KL_DBL_VID_IDX_OAM_Y1731)
 #define CLM_KL_DBL_VID_IDX_OAM_MEL_FLAGS             7
@@ -1139,7 +1153,9 @@
 #define IS2_KL_X12_L2_BC                             1
 #define IS2_KO_X12_VLAN_TAGGED                       (IS2_KO_X12_L2_BC + IS2_KL_X12_L2_BC)
 #define IS2_KL_X12_VLAN_TAGGED                       1
-#define IS2_KO_X12_SERVICE_FRM                       (IS2_KO_X12_VLAN_TAGGED + IS2_KL_X12_VLAN_TAGGED)
+#define IS2_KO_X12_RED_TAGGED                        (IS2_KO_X12_VLAN_TAGGED + IS2_KL_X12_VLAN_TAGGED)
+#define IS2_KL_X12_RED_TAGGED                        1
+#define IS2_KO_X12_SERVICE_FRM                       (IS2_KO_X12_RED_TAGGED + IS2_KL_X12_RED_TAGGED)
 #define IS2_KL_X12_SERVICE_FRM                       1
 #define IS2_KO_X12_ISDX                              (IS2_KO_X12_SERVICE_FRM + IS2_KL_X12_SERVICE_FRM)
 #define IS2_KL_X12_ISDX                              5
@@ -1221,7 +1237,11 @@
 #define IS2_KL_IP6_TCP_UDP_L4_PAYLOAD_1              32
 
 /* IS2 X12 IP_7TUPLE key fields */
-#define IS2_KO_IP_7TUPLE_IP4                         (IS2_KO_X12_L2_SMAC_1 + IS2_KL_X12_L2_SMAC_1)
+#define IS2_KO_IP_7TUPLE_ETYPE_LEN                   (IS2_KO_X12_L2_SMAC_1 + IS2_KL_X12_L2_SMAC_1)
+#define IS2_KL_IP_7TUPLE_ETYPE_LEN                   1
+#define IS2_KO_IP_7TUPLE_IP_SNAP                     (IS2_KO_IP_7TUPLE_ETYPE_LEN + IS2_KL_IP_7TUPLE_ETYPE_LEN)
+#define IS2_KL_IP_7TUPLE_IP_SNAP                     1
+#define IS2_KO_IP_7TUPLE_IP4                         (IS2_KO_IP_7TUPLE_IP_SNAP + IS2_KL_IP_7TUPLE_IP_SNAP)
 #define IS2_KL_IP_7TUPLE_IP4                         1
 #define IS2_KO_IP_7TUPLE_L3_TTL_GT0                  (IS2_KO_IP_7TUPLE_IP4 + IS2_KL_IP_7TUPLE_IP4)
 #define IS2_KL_IP_7TUPLE_L3_TTL_GT0                  1
@@ -1275,6 +1295,8 @@
 #define IS2_KL_IP_7TUPLE_L4_PAYLOAD_0                32
 #define IS2_KO_IP_7TUPLE_L4_PAYLOAD_1                (IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + IS2_KL_IP_7TUPLE_L4_PAYLOAD_0)
 #define IS2_KL_IP_7TUPLE_L4_PAYLOAD_1                32
+#define IS2_KO_IP_7TUPLE_OAM_Y1731                   (IS2_KO_IP_7TUPLE_L4_PAYLOAD_1 + IS2_KL_IP_7TUPLE_L4_PAYLOAD_1)
+#define IS2_KL_IP_7TUPLE_OAM_Y1731                   1
 
 /* IS2 X12 CUSTOM_1 key fields */
 #define IS2_KO_CUSTOM_1_CUSTOM_14                    (IS2_KO_X12_L3_DST + IS2_KL_X12_L3_DST)
@@ -1341,7 +1363,9 @@
 #define IS2_KL_X6_L2_BC                              1
 #define IS2_KO_X6_VLAN_TAGGED                        (IS2_KO_X6_L2_BC + IS2_KL_X6_L2_BC)
 #define IS2_KL_X6_VLAN_TAGGED                        1
-#define IS2_KO_X6_SERVICE_FRM                        (IS2_KO_X6_VLAN_TAGGED + IS2_KL_X6_VLAN_TAGGED)
+#define IS2_KO_X6_RED_TAGGED                         (IS2_KO_X6_VLAN_TAGGED + IS2_KL_X6_VLAN_TAGGED)
+#define IS2_KL_X6_RED_TAGGED                         1
+#define IS2_KO_X6_SERVICE_FRM                        (IS2_KO_X6_RED_TAGGED + IS2_KL_X6_RED_TAGGED)
 #define IS2_KL_X6_SERVICE_FRM                        1
 #define IS2_KO_X6_ISDX                               (IS2_KO_X6_SERVICE_FRM + IS2_KL_X6_SERVICE_FRM)
 #define IS2_KL_X6_ISDX                               5
@@ -1625,7 +1649,9 @@
 #define IS2_AL_BASE_TYPE_CPU_COPY_ENA                1
 #define IS2_AO_BASE_TYPE_CPU_QU_NUM                  (IS2_AO_BASE_TYPE_CPU_COPY_ENA + IS2_AL_BASE_TYPE_CPU_COPY_ENA)
 #define IS2_AL_BASE_TYPE_CPU_QU_NUM                  3
-#define IS2_AO_BASE_TYPE_CPU_DIS                     (IS2_AO_BASE_TYPE_CPU_QU_NUM + IS2_AL_BASE_TYPE_CPU_QU_NUM)
+#define IS2_AO_BASE_TYPE_CPU_DIS_MODE                (IS2_AO_BASE_TYPE_CPU_QU_NUM + IS2_AL_BASE_TYPE_CPU_QU_NUM)
+#define IS2_AL_BASE_TYPE_CPU_DIS_MODE                1
+#define IS2_AO_BASE_TYPE_CPU_DIS                     (IS2_AO_BASE_TYPE_CPU_DIS_MODE + IS2_AL_BASE_TYPE_CPU_DIS_MODE)
 #define IS2_AL_BASE_TYPE_CPU_DIS                     1
 #define IS2_AO_BASE_TYPE_LRN_DIS                     (IS2_AO_BASE_TYPE_CPU_DIS + IS2_AL_BASE_TYPE_CPU_DIS)
 #define IS2_AL_BASE_TYPE_LRN_DIS                     1
@@ -1671,7 +1697,9 @@
 #define IS2_AL_BASE_TYPE_CNT_ID                      5
 #define IS2_AO_BASE_TYPE_SWAP_MAC_ENA                (IS2_AO_BASE_TYPE_CNT_ID + IS2_AL_BASE_TYPE_CNT_ID)
 #define IS2_AL_BASE_TYPE_SWAP_MAC_ENA                1
-#define IS2_AO_BASE_TYPE_ACL_RT_MODE                 (IS2_AO_BASE_TYPE_SWAP_MAC_ENA + IS2_AL_BASE_TYPE_SWAP_MAC_ENA)
+#define IS2_AO_BASE_TYPE_MAC_REW_SEL                 (IS2_AO_BASE_TYPE_SWAP_MAC_ENA + IS2_AL_BASE_TYPE_SWAP_MAC_ENA)
+#define IS2_AL_BASE_TYPE_MAC_REW_SEL                 2
+#define IS2_AO_BASE_TYPE_ACL_RT_MODE                 (IS2_AO_BASE_TYPE_MAC_REW_SEL + IS2_AL_BASE_TYPE_MAC_REW_SEL)
 #define IS2_AL_BASE_TYPE_ACL_RT_MODE                 4
 #define IS2_AO_BASE_TYPE_ACL_MAC_0                   (IS2_AO_BASE_TYPE_ACL_RT_MODE + IS2_AL_BASE_TYPE_ACL_RT_MODE)
 #define IS2_AL_BASE_TYPE_ACL_MAC_0                   32
@@ -2066,7 +2094,9 @@
 #define ES2_KL_IP_7TUPLE_ISDX                        5
 #define ES2_KO_IP_7TUPLE_VLAN_TAGGED                 (ES2_KO_IP_7TUPLE_ISDX + ES2_KL_IP_7TUPLE_ISDX)
 #define ES2_KL_IP_7TUPLE_VLAN_TAGGED                 1
-#define ES2_KO_IP_7TUPLE_XVID                        (ES2_KO_IP_7TUPLE_VLAN_TAGGED + ES2_KL_IP_7TUPLE_VLAN_TAGGED)
+#define ES2_KO_IP_7TUPLE_RED_TAGGED                  (ES2_KO_IP_7TUPLE_VLAN_TAGGED + ES2_KL_IP_7TUPLE_VLAN_TAGGED)
+#define ES2_KL_IP_7TUPLE_RED_TAGGED                  1
+#define ES2_KO_IP_7TUPLE_XVID                        (ES2_KO_IP_7TUPLE_RED_TAGGED + ES2_KL_IP_7TUPLE_RED_TAGGED)
 #define ES2_KL_IP_7TUPLE_XVID                        13
 #define ES2_KO_IP_7TUPLE_EGR_PORT_MASK_RNG           (ES2_KO_IP_7TUPLE_XVID + ES2_KL_IP_7TUPLE_XVID)
 #define ES2_KL_IP_7TUPLE_EGR_PORT_MASK_RNG           3
@@ -2098,7 +2128,11 @@
 #define ES2_KL_IP_7TUPLE_L2_SMAC_0                   32
 #define ES2_KO_IP_7TUPLE_L2_SMAC_1                   (ES2_KO_IP_7TUPLE_L2_SMAC_0 + ES2_KL_IP_7TUPLE_L2_SMAC_0)
 #define ES2_KL_IP_7TUPLE_L2_SMAC_1                   16
-#define ES2_KO_IP_7TUPLE_IP4                         (ES2_KO_IP_7TUPLE_L2_SMAC_1 + ES2_KL_IP_7TUPLE_L2_SMAC_1)
+#define ES2_KO_IP_7TUPLE_ETYPE_LEN                   (ES2_KO_IP_7TUPLE_L2_SMAC_1 + ES2_KL_IP_7TUPLE_L2_SMAC_1)
+#define ES2_KL_IP_7TUPLE_ETYPE_LEN                   1
+#define ES2_KO_IP_7TUPLE_IP_SNAP                     (ES2_KO_IP_7TUPLE_ETYPE_LEN + ES2_KL_IP_7TUPLE_ETYPE_LEN)
+#define ES2_KL_IP_7TUPLE_IP_SNAP                     1
+#define ES2_KO_IP_7TUPLE_IP4                         (ES2_KO_IP_7TUPLE_IP_SNAP + ES2_KL_IP_7TUPLE_IP_SNAP)
 #define ES2_KL_IP_7TUPLE_IP4                         1
 #define ES2_KO_IP_7TUPLE_L3_TTL_GT0                  (ES2_KO_IP_7TUPLE_IP4 + ES2_KL_IP_7TUPLE_IP4)
 #define ES2_KL_IP_7TUPLE_L3_TTL_GT0                  1
@@ -2152,6 +2186,8 @@
 #define ES2_KL_IP_7TUPLE_L4_PAYLOAD_0                32
 #define ES2_KO_IP_7TUPLE_L4_PAYLOAD_1                (ES2_KO_IP_7TUPLE_L4_PAYLOAD_0 + ES2_KL_IP_7TUPLE_L4_PAYLOAD_0)
 #define ES2_KL_IP_7TUPLE_L4_PAYLOAD_1                32
+#define ES2_KO_IP_7TUPLE_OAM_Y1731                   (ES2_KO_IP_7TUPLE_L4_PAYLOAD_1 + ES2_KL_IP_7TUPLE_L4_PAYLOAD_1)
+#define ES2_KL_IP_7TUPLE_OAM_Y1731                   1
 
 /* ES2 X6 key types */
 #define ES2_X6_TYPE_MAC_ETYPE                        0
@@ -2180,7 +2216,9 @@
 #define ES2_KL_X6_ISDX                               5
 #define ES2_KO_X6_VLAN_TAGGED                        (ES2_KO_X6_ISDX + ES2_KL_X6_ISDX)
 #define ES2_KL_X6_VLAN_TAGGED                        1
-#define ES2_KO_X6_XVID                               (ES2_KO_X6_VLAN_TAGGED + ES2_KL_X6_VLAN_TAGGED)
+#define ES2_KO_X6_RED_TAGGED                         (ES2_KO_X6_VLAN_TAGGED + ES2_KL_X6_VLAN_TAGGED)
+#define ES2_KL_X6_RED_TAGGED                         1
+#define ES2_KO_X6_XVID                               (ES2_KO_X6_RED_TAGGED + ES2_KL_X6_RED_TAGGED)
 #define ES2_KL_X6_XVID                               13
 #define ES2_KO_X6_EGR_PORT_MASK_RNG                  (ES2_KO_X6_XVID + ES2_KL_X6_XVID)
 #define ES2_KL_X6_EGR_PORT_MASK_RNG                  3
@@ -2373,7 +2411,9 @@
 #define ES2_KL_IP4_VID_ISDX                          5
 #define ES2_KO_IP4_VID_VLAN_TAGGED                   (ES2_KO_IP4_VID_ISDX + ES2_KL_IP4_VID_ISDX)
 #define ES2_KL_IP4_VID_VLAN_TAGGED                   1
-#define ES2_KO_IP4_VID_XVID                          (ES2_KO_IP4_VID_VLAN_TAGGED + ES2_KL_IP4_VID_VLAN_TAGGED)
+#define ES2_KO_IP4_VID_RED_TAGGED                    (ES2_KO_IP4_VID_VLAN_TAGGED + ES2_KL_IP4_VID_VLAN_TAGGED)
+#define ES2_KL_IP4_VID_RED_TAGGED                    1
+#define ES2_KO_IP4_VID_XVID                          (ES2_KO_IP4_VID_RED_TAGGED + ES2_KL_IP4_VID_RED_TAGGED)
 #define ES2_KL_IP4_VID_XVID                          13
 #define ES2_KO_IP4_VID_PCP                           (ES2_KO_IP4_VID_XVID + ES2_KL_IP4_VID_XVID)
 #define ES2_KL_IP4_VID_PCP                           3
