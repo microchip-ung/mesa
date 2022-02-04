@@ -18,6 +18,9 @@ check_capabilities do
     if (c == chip_family_to_id("MESA_CHIP_FAMILY_SERVALT"))
         hdx_support = false
     end
+
+    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
+    assert(($cap_fpga == 0), "Feature not supported on FPGA")
 end
 
 #---------- Description -------------------------------------------------------
