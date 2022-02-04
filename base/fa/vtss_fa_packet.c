@@ -194,7 +194,7 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
 }
 
 /* Setup L2CP Profile */
-vtss_rc vtss_fa_l2cp_conf_set(vtss_state_t *vtss_state, u32 profile, u32 l2cp, vtss_fa_l2cp_conf_t *conf)
+static vtss_rc fa_l2cp_conf_set(vtss_state_t *vtss_state, u32 profile, u32 l2cp, vtss_fa_l2cp_conf_t *conf)
 {
     u32 reg;
 
@@ -251,6 +251,9 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
               VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IP4_MC_COPY_ENA(reg->ipmc_ctrl_cpu_copy) |
               VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IGMP_REDIR_ENA (reg->igmp_cpu_only);
 
+    // Calculate offset for port L2CP profiles
+    offs = (VTSS_X_ANA_CL_ISDX_CFG_L2CP_IDX(VTSS_M_ANA_CL_ISDX_CFG_L2CP_IDX) + 1);
+
     // Setup Rx registrations that we have per-port
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
@@ -278,8 +281,8 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
                 // Use global registration
                 l2cp_conf.reg = (cpu_only ? VTSS_PACKET_REG_CPU_ONLY : VTSS_PACKET_REG_FORWARD);
             }
-            /* Use L2CP profile 64-128 for ports */
-            VTSS_RC(vtss_fa_l2cp_conf_set(vtss_state, port + 64, i, &l2cp_conf));
+            /* Use L2CP profile at offset for ports */
+            VTSS_RC(fa_l2cp_conf_set(vtss_state, port + offs, i, &l2cp_conf));
         }
         REG_WR(VTSS_ANA_CL_CAPTURE_CFG(port), cap_cfg);
     }
