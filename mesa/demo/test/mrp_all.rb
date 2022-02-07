@@ -12,7 +12,7 @@ require_relative 'oam_lib'
 # Set one of the following RUN_TEST_xxx to 0 if you run this script by hand and
 # don't want all tests to execute (because some of them are quite lengthy).
 # The entire test (including overhead) takes ~23 minutes (without compilation).
-RUN_TEST_FORWARDING = 1 # Takes ~15 minutes
+RUN_TEST_FORWARDING = 0 # Takes ~15 minutes
 RUN_TEST_TX_MODIF   = 1 # Takes ~ 3 minutes
 RUN_TEST_LOC        = 1 # Takes ~ 2 minutes
 RUN_TEST_CPU_COPY   = 1 # Takes ~ 3 minutes
