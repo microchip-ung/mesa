@@ -751,7 +751,10 @@ static vtss_rc fa_vlan_port_conf_update(vtss_state_t *vtss_state,
             VTSS_F_REW_PORT_VLAN_CFG_PORT_VID(uvid),
             VTSS_M_REW_PORT_VLAN_CFG_PORT_VID);
 
+#if 0 //fixme
     return vtss_fa_vcap_port_update(vtss_state, port_no);
+#endif
+    return VTSS_RC_OK;
 }
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -805,12 +808,15 @@ static vtss_rc fa_vlan_counters_clear(vtss_state_t *vtss_state, vtss_vid_t vid)
 
 static vtss_rc fa_vcl_port_conf_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
+#if 0 //fixme
     vtss_vcl_port_conf_t *conf = &vtss_state->l2.vcl_port_conf[port_no];
 
     VTSS_RC(vtss_cmn_vcl_port_conf_set(vtss_state, port_no));
 
     /* Set port key */
     return vtss_fa_vcap_port_key_set(vtss_state, port_no, 2, conf->key_type, conf->dmac_dip);
+#endif
+    return VTSS_RC_OK;
 }
 
 #if defined(VTSS_FEATURE_PSFP)
@@ -819,9 +825,10 @@ static u32 fa_psfp_sfid(const vtss_psfp_filter_id_t id)
     return (id + 1);
 }
 #endif
-
+#if 0 // Fixme
 static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
 {
+
     vtss_sdx_entry_t  *sdx = vtss_iflow_lookup(vtss_state, id);
     vtss_port_mask_t  pmask;
     u32               isdx, voe_valid;
@@ -911,10 +918,10 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
                VTSS_F_ANA_L2_TSN_CFG_TSN_SFID(conf->psfp.filter_enable ? fa_psfp_sfid(conf->psfp.filter_id) : 0));
     }
 #endif
-
     return VTSS_RC_OK;
 }
-
+#endif // Fixme
+#if defined(VTSS_FEATURE_XSTAT)
 static vtss_rc fa_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
 {
     vtss_stat_idx_t     sidx;
@@ -971,7 +978,9 @@ static vtss_rc fa_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counte
     }
     return VTSS_RC_OK;
 }
+#endif
 
+#if 0 //Fixme
 static vtss_rc fa_evc_policer_update(vtss_state_t *vtss_state, u16 idx)
 {
     return vtss_fa_policer_conf_set(vtss_state, idx, &vtss_state->l2.pol_conf[idx]);
@@ -983,6 +992,8 @@ static vtss_rc fa_evc_counters_update(vtss_state_t *vtss_state,
 {
     return vtss_fa_sdx_counters_update(vtss_state, stat_idx, NULL, clear);
 }
+#endif
+
 
 /* ================================================================= *
  *  Layer 2 - PVLAN / Isolated ports
@@ -2088,8 +2099,10 @@ static vtss_rc fa_debug_vxlat(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr,
                               const vtss_debug_info_t *const info)
 {
+#if 0 //fixme
     VTSS_RC(vtss_fa_debug_clm_b(vtss_state, pr, info));
     VTSS_RC(vtss_fa_debug_es0(vtss_state, pr, info));
+#endif
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {
         VTSS_RC(fa_debug_frer(vtss_state, pr, info));
@@ -2364,6 +2377,7 @@ static vtss_rc fa_l2_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if 0
 static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 {
     vtss_l2_state_t *state = &vtss_state->l2;
@@ -2447,6 +2461,8 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#endif
+
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
     vtss_l2_state_t *state = &vtss_state->l2;
@@ -2510,7 +2526,9 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_group_get     = vtss_cmn_vlan_trans_group_get;
         state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
         state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
+#if 0 //Fixme
         state->iflow_conf_set = fa_iflow_conf_set;
+#endif
 #if defined(VTSS_FEATURE_FRER)
         if (vtss_state->vtss_features[FEATURE_FRER]) {
             state->cstream_conf_set = fa_cstream_conf_set;
@@ -2528,14 +2546,18 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->policer_status_get = fa_policer_status_get;
         }
 #endif
+#if 0 //Fixme
         state->icnt_get = fa_icnt_get;
         state->ecnt_get = fa_ecnt_get;
+#endif
         state->ac_count = 16;
 // FA-FIXME        state->vsi_info.max_count = VTSS_VSI_CNT;
+#if 0 //Fixme
         state->policer_update = fa_evc_policer_update;
         state->counters_update = fa_evc_counters_update;
         state->isdx_update = vtss_fa_isdx_update;
         state->sdx_info.max_count = VTSS_SDX_CNT;
+#endif
 #if defined(VTSS_FEATURE_REDBOX)
         state->rb_cap_get = fa_rb_cap_get;
         state->rb_conf_set = fa_rb_conf_set;
@@ -2561,7 +2583,9 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(fa_l2_port_map_set(vtss_state));
         break;
     case VTSS_INIT_CMD_POLL:
+#if 0 //Fixme
         VTSS_RC(fa_l2_poll(vtss_state));
+#endif
         break;
     default:
         break;

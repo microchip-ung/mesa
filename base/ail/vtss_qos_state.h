@@ -90,9 +90,11 @@ typedef struct {
 #define VTSS_EVC_POL_CNT  512  /* EVC policers */
 #define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
 #elif defined(VTSS_ARCH_LAN969X_FPGA)
+#if 0 // fixme
 #define VTSS_JR_SDX_CNT   31
 #define VTSS_EVC_POL_CNT  32    /* EVC policers */
 #define VTSS_EVC_STAT_CNT 32    /* EVC statistics */
+#endif
 #elif defined(VTSS_ARCH_LAN969X)
 #define VTSS_JR_SDX_CNT   1023
 #define VTSS_EVC_POL_CNT  1024 /* EVC policers */
@@ -105,7 +107,10 @@ typedef struct {
 #if defined(VTSS_FEATURE_VOP)
 #define VTSS_SDX_CNT VTSS_JR_SDX_CNT
 #endif
+#if 0 // fixme
 #define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_EVC_POL_CNT + (port * 8) + queue)
+#endif
+#define VTSS_QUEUE_POL_IDX(port, queue) (0 + (port * 8) + queue)
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)

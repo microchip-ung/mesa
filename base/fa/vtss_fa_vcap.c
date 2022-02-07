@@ -90,7 +90,7 @@ typedef enum {
 #define FA_ES2_CNT    1024 /* ES2   : 1024 entries with 12 subwords */
 #define FA_IP6PFX_CNT 512  /* IP6PFX: 512 entries with 2 subwords */
 #endif
-
+#if 0 // fixme
 static const fa_vcap_props_t fa_vcap_info[] = {
     [FA_VCAP_SUPER] = {
         .name = "VCAP_SUPER",
@@ -229,6 +229,8 @@ typedef struct {
     u32            action_width;
     u32            cnt_width;
 } vtss_fa_vcap_reg_info_t;
+
+
 
 static vtss_rc fa_vcap_reg_info_get(vtss_fa_vcap_reg_info_t *info)
 {
@@ -5279,9 +5281,10 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
 
     return VTSS_RC_OK;
 }
-
+#endif
 vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
+#if 0 // fixme
     vtss_vcap_state_t     *state = &vtss_state->vcap;
     vtss_vcap_super_obj_t *vcap_super = &state->vcap_super;
     vtss_vcap_obj_t       *clm_a = &state->clm_a.obj;
@@ -5292,9 +5295,10 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     vtss_vcap_obj_t       *is2_b = &state->is2_b.obj;
     vtss_vcap_obj_t       *es0 = &state->es0.obj;
     vtss_vcap_obj_t       *es2 = &state->es2.obj;
-
+#endif
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
+#if 0// fixme
         /* VCAP_SUPER */
         vcap_super->block_map = fa_vcap_super_block_map;
         vcap_super->block_move = fa_vcap_super_block_move;
@@ -5378,15 +5382,20 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->hace_del = fa_hace_del;
         state->hace_counter_get = fa_hace_counter_get;
         state->hace_counter_clear = fa_hace_counter_clear;
+#endif
         break;
 
     case VTSS_INIT_CMD_INIT:
+#if 0// fixme
         vtss_state->vcap.acl_user = VTSS_IS2_USER_IPACL;
         VTSS_RC(fa_vcap_init(vtss_state));
+#endif
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
+#if 0// fixme
         VTSS_RC(fa_vcap_port_map(vtss_state));
+#endif
         break;
 
     default:

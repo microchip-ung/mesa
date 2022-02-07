@@ -1307,9 +1307,9 @@
  *
  * Field: ::VTSS_VOP_LOC_CTRL . LOC_BASE_TICK_CNT
  */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_ENCODE_BITFIELD(x,11,8)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_BASE_TICK_CNT     VTSS_ENCODE_BITMASK(11,8)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_EXTRACT_BITFIELD(x,11,8)
+#define  VTSS_F_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_ENCODE_BITFIELD(x,14,8)
+#define  VTSS_M_VOP_LOC_CTRL_LOC_BASE_TICK_CNT     VTSS_ENCODE_BITMASK(14,8)
+#define  VTSS_X_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_EXTRACT_BITFIELD(x,14,8)
 
 /**
  * \brief
@@ -1328,9 +1328,9 @@
  *
  * Field: ::VTSS_VOP_LOC_CTRL . LOC_SPACE_BETWEEN_ENTRY_SCAN
  */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_ENCODE_BITFIELD(x,9,2)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN     VTSS_ENCODE_BITMASK(9,2)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_EXTRACT_BITFIELD(x,9,2)
+#define  VTSS_F_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_ENCODE_BITFIELD(x,12,2)
+#define  VTSS_M_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN     VTSS_ENCODE_BITMASK(12,2)
+#define  VTSS_X_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 /**
  * \brief
@@ -1356,16 +1356,19 @@
  * bit 4 = 1: Force a scan of LOC scan timer 4
  * bit 5 = 1: Force a scan of LOC scan timer 5
  * bit 6 = 1: Force a scan of LOC scan timer 6
- * bit 7 = 1: Force a scan of HMO scan timer 0; (using HMO slot configured
+ * bit 7 = 1: Force a scan of LOC scan timer 7
+ * bit 8 = 1: Force a scan of LOC scan timer 8
+ * bit 9 = 1: Force a scan of LOC scan timer 9
+ * bit 10 = 1: Force a scan of HMO scan timer 0; (using HMO slot configured
  * in VOP::HMO_FORCE_SLOT_CFG(0).HMO_FORCE_SLOT)
- * bit 8 = 1: Force a scan of HMO scan timer 1; (using HMO slot configured
+ * bit 11 = 1: Force a scan of HMO scan timer 1; (using HMO slot configured
  * in VOP::HMO_FORCE_SLOT_CFG(1).HMO_FORCE_SLOT)
  *
  * Field: ::VTSS_VOP_LOC_CTRL . LOC_FORCE_HW_SCAN_ENA
  */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,9)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA     VTSS_ENCODE_BITMASK(0,9)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,9)
+#define  VTSS_F_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 
 /**
@@ -1410,7 +1413,7 @@
  *
  * Register: \a VOP:COMMON:LOC_PERIOD_CFG
  *
- * @param ri Replicator: x_VTSS_OAM_MEP_NUM_LOC_SCAN_CNT (??), 0-6
+ * @param ri Replicator: x_VTSS_OAM_MEP_NUM_LOC_SCAN_CNT (??), 0-9
  */
 #define VTSS_VOP_LOC_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb53 + (ri))
 
@@ -1504,7 +1507,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb5a + (ri))
+#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb5d + (ri))
 
 /**
  * \brief
@@ -1549,7 +1552,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0xb5c + (ri))
+#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0xb5f + (ri))
 
 /**
  * \brief
@@ -1585,7 +1588,7 @@
  *
  * Register: \a VOP:COMMON:HMO_TIMER_CFG
  */
-#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0xb5e)
+#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0xb61)
 
 /**
  * \brief
@@ -1799,7 +1802,7 @@
  *
  * Register: \a VOP:COMMON:LOC_SCAN_STICKY
  */
-#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0xb5f)
+#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0xb62)
 
 /**
  * \brief
@@ -1813,9 +1816,9 @@
  *
  * Field: ::VTSS_VOP_LOC_SCAN_STICKY . LOC_SCAN_ONGOING_STATUS
  */
-#define  VTSS_F_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_ENCODE_BITFIELD(x,3,9)
-#define  VTSS_M_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS     VTSS_ENCODE_BITMASK(3,9)
-#define  VTSS_X_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,3,9)
+#define  VTSS_F_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_ENCODE_BITFIELD(x,3,12)
+#define  VTSS_M_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS     VTSS_ENCODE_BITMASK(3,12)
+#define  VTSS_X_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,3,12)
 
 /**
  * \brief
@@ -1882,7 +1885,7 @@
  *
  * Register: \a VOP:COMMON:MASTER_INTR_CTRL
  */
-#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0xb60)
+#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0xb63)
 
 /**
  * \brief
@@ -1939,7 +1942,7 @@
  *
  * Register: \a VOP:COMMON:VOE32_INTR
  */
-#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0xb61)
+#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0xb64)
 
 /**
  * \brief
@@ -1984,7 +1987,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE_DIV32_CEIL (??), 0-1
  */
-#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0xb63 + (ri))
+#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0xb66 + (ri))
 
 /**
  * \brief
@@ -2034,7 +2037,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_LSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0xb86)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0xb89)
 
 /**
  * \brief
@@ -2072,7 +2075,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_MSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0xb87)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0xb8a)
 
 /**
  * \brief
@@ -2092,7 +2095,7 @@
  * \details
  * Register: \a VOP:COMMON:CPU_EXTR_MRP
  */
-#define VTSS_VOP_CPU_EXTR_MRP                VTSS_IOREG(VTSS_TO_VOP,0xb88)
+#define VTSS_VOP_CPU_EXTR_MRP                VTSS_IOREG(VTSS_TO_VOP,0xb8b)
 
 /**
  * \brief
@@ -2188,7 +2191,7 @@
  * \details
  * Register: \a VOP:COMMON:CPU_EXTR_DLR
  */
-#define VTSS_VOP_CPU_EXTR_DLR                VTSS_IOREG(VTSS_TO_VOP,0xb89)
+#define VTSS_VOP_CPU_EXTR_DLR                VTSS_IOREG(VTSS_TO_VOP,0xb8c)
 
 /**
  * \brief
@@ -2263,7 +2266,7 @@
  *
  * Register: \a VOP:COMMON:TICK_CFG
  */
-#define VTSS_VOP_TICK_CFG                    VTSS_IOREG(VTSS_TO_VOP,0xb8a)
+#define VTSS_VOP_TICK_CFG                    VTSS_IOREG(VTSS_TO_VOP,0xb8d)
 
 /**
  * \brief
@@ -2285,7 +2288,7 @@
  *
  * Register: \a VOP:COMMON:MRP_TS_CFG
  */
-#define VTSS_VOP_MRP_TS_CFG                  VTSS_IOREG(VTSS_TO_VOP,0xb8b)
+#define VTSS_VOP_MRP_TS_CFG                  VTSS_IOREG(VTSS_TO_VOP,0xb8e)
 
 /**
  * \brief

@@ -737,7 +737,10 @@
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
  *
  * Field: ::VTSS_VOP_MRP_TST_CFG . LOC_PERIOD
  */
@@ -868,7 +871,10 @@
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
  *
  * Field: ::VTSS_VOP_MRP_ITST_CFG . ITST_LOC_PERIOD
  */

@@ -272,10 +272,14 @@ static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_fa_l3_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_VCAP)
+#if 0 //fixme
     VTSS_RC(vtss_fa_vcap_debug_print(vtss_state, pr, info));
+#endif
 #endif /* VTSS_FEATURE_VCAP */
 #if defined(VTSS_FEATURE_QOS)
+#if 0 //fixme
     VTSS_RC(vtss_fa_qos_debug_print(vtss_state, pr, info));
+#endif
 #endif /* VTSS_FEATURE_QOS */
     VTSS_RC(vtss_fa_packet_debug_print(vtss_state, pr, info));
 #if defined(VTSS_FEATURE_AFI_SWC)

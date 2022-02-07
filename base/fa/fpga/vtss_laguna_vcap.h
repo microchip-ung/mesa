@@ -1,11 +1,8 @@
-// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
-// SPDX-License-Identifier: MIT
-
 /* ================================================================= *
     Start: Auto-generated content, do not edit.
 
     Generated using 'make c_header' in directory 'design/exb_vcap_lib'
-    @ 2022-02-03 07:55:19 UTC.
+    @ 2022-02-04 12:59:56 UTC.
  * ================================================================= */
 
 
@@ -1678,7 +1675,7 @@
 #define IS2_AO_BASE_TYPE_MIRROR_PROBE                (IS2_AO_BASE_TYPE_RSDX_VAL + IS2_AL_BASE_TYPE_RSDX_VAL)
 #define IS2_AL_BASE_TYPE_MIRROR_PROBE                2
 #define IS2_AO_BASE_TYPE_REW_CMD                     (IS2_AO_BASE_TYPE_MIRROR_PROBE + IS2_AL_BASE_TYPE_MIRROR_PROBE)
-#define IS2_AL_BASE_TYPE_REW_CMD                     11
+#define IS2_AL_BASE_TYPE_REW_CMD                     16
 #define IS2_AO_BASE_TYPE_TTL_UPDATE_ENA              (IS2_AO_BASE_TYPE_REW_CMD + IS2_AL_BASE_TYPE_REW_CMD)
 #define IS2_AL_BASE_TYPE_TTL_UPDATE_ENA              1
 #define IS2_AO_BASE_TYPE_SAM_SEQ_ENA                 (IS2_AO_BASE_TYPE_TTL_UPDATE_ENA + IS2_AL_BASE_TYPE_TTL_UPDATE_ENA)
@@ -1719,6 +1716,10 @@
 #define IS2_AL_BASE_TYPE_IGR_ACL_ENA                 1
 #define IS2_AO_BASE_TYPE_EGR_ACL_ENA                 (IS2_AO_BASE_TYPE_IGR_ACL_ENA + IS2_AL_BASE_TYPE_IGR_ACL_ENA)
 #define IS2_AL_BASE_TYPE_EGR_ACL_ENA                 1
+#define IS2_AO_BASE_TYPE_RB_FWD_SEL                  (IS2_AO_BASE_TYPE_EGR_ACL_ENA + IS2_AL_BASE_TYPE_EGR_ACL_ENA)
+#define IS2_AL_BASE_TYPE_RB_FWD_SEL                  2
+#define IS2_AO_BASE_TYPE_RB_TC0_ENA                  (IS2_AO_BASE_TYPE_RB_FWD_SEL + IS2_AL_BASE_TYPE_RB_FWD_SEL)
+#define IS2_AL_BASE_TYPE_RB_TC0_ENA                  1
 
 /* ================================================================= *
  *  VCAP LPM
@@ -2027,13 +2028,13 @@
 #define ES0_AO_ES0_ESDX_COSID_OFFSET                 (ES0_AO_ES0_ESDX_BASE_P + ES0_AL_ES0_ESDX_BASE_P)
 #define ES0_AL_ES0_ESDX_COSID_OFFSET                 24
 #define ES0_AO_ES0_MAP_0_IDX                         (ES0_AO_ES0_ESDX_COSID_OFFSET + ES0_AL_ES0_ESDX_COSID_OFFSET)
-#define ES0_AL_ES0_MAP_0_IDX                         5
+#define ES0_AL_ES0_MAP_0_IDX                         8
 #define ES0_AO_ES0_MAP_1_IDX                         (ES0_AO_ES0_MAP_0_IDX + ES0_AL_ES0_MAP_0_IDX)
-#define ES0_AL_ES0_MAP_1_IDX                         5
+#define ES0_AL_ES0_MAP_1_IDX                         8
 #define ES0_AO_ES0_MAP_2_IDX                         (ES0_AO_ES0_MAP_1_IDX + ES0_AL_ES0_MAP_1_IDX)
-#define ES0_AL_ES0_MAP_2_IDX                         5
+#define ES0_AL_ES0_MAP_2_IDX                         8
 #define ES0_AO_ES0_MAP_3_IDX                         (ES0_AO_ES0_MAP_2_IDX + ES0_AL_ES0_MAP_2_IDX)
-#define ES0_AL_ES0_MAP_3_IDX                         5
+#define ES0_AL_ES0_MAP_3_IDX                         8
 #define ES0_AO_ES0_MAP_0_KEY                         (ES0_AO_ES0_MAP_3_IDX + ES0_AL_ES0_MAP_3_IDX)
 #define ES0_AL_ES0_MAP_0_KEY                         4
 #define ES0_AO_ES0_MAP_1_KEY                         (ES0_AO_ES0_MAP_0_KEY + ES0_AL_ES0_MAP_0_KEY)

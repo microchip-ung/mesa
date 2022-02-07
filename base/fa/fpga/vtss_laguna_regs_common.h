@@ -25,7 +25,7 @@
 #define VTSS_IO_ORIGIN1_OFFSET 0x0e2000000 /*! default region*/
 #endif
 #ifndef VTSS_IO_ORIGIN1_SIZE
-#define VTSS_IO_ORIGIN1_SIZE 0x010000000
+#define VTSS_IO_ORIGIN1_SIZE 0x001000000
 #endif
 #ifndef VTSS_IO_OFFSET1
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
@@ -34,12 +34,12 @@
 #define VTSS_IO_ORIGIN2_OFFSET 0x0e0000000 /*! amba_axi_top region*/
 #endif
 #ifndef VTSS_IO_ORIGIN2_SIZE
-#define VTSS_IO_ORIGIN2_SIZE 0x010000000
+#define VTSS_IO_ORIGIN2_SIZE 0x001000000
 #endif
 #ifndef VTSS_IO_OFFSET2
 #define VTSS_IO_OFFSET2(offset) (VTSS_IO_ORIGIN2_OFFSET + offset)
 #endif
-#define VTSS_TO_CPU             VTSS_IO_OFFSET1(0x00130000) /*!< Base offset for target CPU */
+#define VTSS_TO_CPU             VTSS_IO_OFFSET1(0x00110000) /*!< Base offset for target CPU */
 #define VTSS_TO_AFI             VTSS_IO_OFFSET1(0x00240000) /*!< Base offset for target AFI */
 #define VTSS_TO_ANA_AC          VTSS_IO_OFFSET1(0x00900000) /*!< Base offset for target ANA_AC */
 #define VTSS_TO_ANA_AC_OAM_MOD  VTSS_IO_OFFSET1(0x00070000) /*!< Base offset for target ANA_AC_OAM_MOD */

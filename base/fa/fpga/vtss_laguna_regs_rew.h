@@ -35,7 +35,7 @@
  *
  * Register: \a REW:COMMON:OWN_UPSID
  */
-#define VTSS_REW_OWN_UPSID                   VTSS_IOREG(VTSS_TO_REW,0x3e08)
+#define VTSS_REW_OWN_UPSID                   VTSS_IOREG(VTSS_TO_REW,0x3e80)
 
 /**
  * \brief
@@ -58,7 +58,7 @@
  * \details
  * Register: \a REW:COMMON:COMMON_CTRL
  */
-#define VTSS_REW_COMMON_CTRL                 VTSS_IOREG(VTSS_TO_REW,0x3e0b)
+#define VTSS_REW_COMMON_CTRL                 VTSS_IOREG(VTSS_TO_REW,0x3e83)
 
 /**
  * \brief
@@ -148,7 +148,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_REW_IFH_CTRL(ri)                VTSS_IOREG(VTSS_TO_REW,0x3e0c + (ri))
+#define VTSS_REW_IFH_CTRL(ri)                VTSS_IOREG(VTSS_TO_REW,0x3e84 + (ri))
 
 /**
  * \brief
@@ -186,7 +186,7 @@
  *
  * Register: \a REW:COMMON:IFH_CTRL_CPUVD
  */
-#define VTSS_REW_IFH_CTRL_CPUVD              VTSS_IOREG(VTSS_TO_REW,0x3e4d)
+#define VTSS_REW_IFH_CTRL_CPUVD              VTSS_IOREG(VTSS_TO_REW,0x3ec5)
 
 /**
  * \brief
@@ -227,7 +227,7 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_PORT_CTRL(ri)               VTSS_IOREG(VTSS_TO_REW,0x3e4e + (ri))
+#define VTSS_REW_PORT_CTRL(ri)               VTSS_IOREG(VTSS_TO_REW,0x3ec6 + (ri))
 
 /**
  * \brief
@@ -472,16 +472,29 @@
  *
  * @param ri Replicator: x_FFL_REW_NUM_PHYS_PORTS (??), 0-34
  */
-#define VTSS_REW_RTAG_ETAG_CTRL(ri)          VTSS_IOREG(VTSS_TO_REW,0x3e94 + (ri))
+#define VTSS_REW_RTAG_ETAG_CTRL(ri)          VTSS_IOREG(VTSS_TO_REW,0x3f0c + (ri))
+
+/**
+ * \brief
+ * If set, REW pushes a HSR tag in same location as RedBox would have done.
+ * Gated by RB_ENA and IFH.RB.RB_TC0.
+ *
+ * \details
+ * Field: ::VTSS_REW_RTAG_ETAG_CTRL . RB_ADD_HSR_ENA
+ */
+#define  VTSS_F_REW_RTAG_ETAG_CTRL_RB_ADD_HSR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_REW_RTAG_ETAG_CTRL_RB_ADD_HSR_ENA  VTSS_BIT(11)
+#define  VTSS_X_REW_RTAG_ETAG_CTRL_RB_ADD_HSR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
 
 /**
  * \brief
  * If set, the REW transfers Redbox specific fields from the IFH to the
- * preamble
+ * preamble and optionally push an HSR tag if this is enabled by the IFH
+ * and the RB_ADD_HSR_ENA configuration
  *
  * \details
- * 0: Don't modify preamble
- * 1: Transfer Redbox IRI to preamble
+ * 0: Don't do RB preamble and frame modifications
+ * 1: Transfer Redbox IRI to preamble and enable HSR frame modifications
  *
  * Field: ::VTSS_REW_RTAG_ETAG_CTRL . RB_ENA
  */
@@ -554,7 +567,7 @@
  *
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_REW_TPID_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3eda + (ri))
+#define VTSS_REW_TPID_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3f52 + (ri))
 
 /**
  * \brief
@@ -578,7 +591,7 @@
  * \details
  * Register: \a REW:COMMON:ES0_CTRL
  */
-#define VTSS_REW_ES0_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3edd)
+#define VTSS_REW_ES0_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3f55)
 
 /**
  * \brief
@@ -685,7 +698,7 @@
  * \details
  * Register: \a REW:COMMON:MIP_CTRL
  */
-#define VTSS_REW_MIP_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3ede)
+#define VTSS_REW_MIP_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3f56)
 
 /**
  * \brief
@@ -732,7 +745,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_PROBE_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3edf + (ri))
+#define VTSS_REW_MIRROR_PROBE_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3f57 + (ri))
 
 /**
  * \brief
@@ -800,7 +813,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_TAG_A_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3ee2 + (ri))
+#define VTSS_REW_MIRROR_TAG_A_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3f5a + (ri))
 
 /**
  * \brief
@@ -892,7 +905,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_MIR_PROBES (??), 0-2
  */
-#define VTSS_REW_MIRROR_TAG_B_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3ee5 + (ri))
+#define VTSS_REW_MIRROR_TAG_B_CFG(ri)        VTSS_IOREG(VTSS_TO_REW,0x3f5d + (ri))
 
 /**
  * \brief
@@ -985,7 +998,7 @@
  *
  * Register: \a REW:COMMON:DP_MAP
  */
-#define VTSS_REW_DP_MAP                      VTSS_IOREG(VTSS_TO_REW,0x3ee8)
+#define VTSS_REW_DP_MAP                      VTSS_IOREG(VTSS_TO_REW,0x3f60)
 
 /**
  * \brief
@@ -1014,7 +1027,7 @@
  *
  * @param ri Register: DSCP_REMAP (??), 0-63
  */
-#define VTSS_REW_DSCP_REMAP(ri)              VTSS_IOREG(VTSS_TO_REW,0x3ee9 + (ri))
+#define VTSS_REW_DSCP_REMAP(ri)              VTSS_IOREG(VTSS_TO_REW,0x3f61 + (ri))
 
 /**
  * \brief
@@ -1034,7 +1047,7 @@
  * \details
  * Register: \a REW:COMMON:RLEG_CFG_0
  */
-#define VTSS_REW_RLEG_CFG_0                  VTSS_IOREG(VTSS_TO_REW,0x3f29)
+#define VTSS_REW_RLEG_CFG_0                  VTSS_IOREG(VTSS_TO_REW,0x3fa1)
 
 /**
  * \brief
@@ -1063,7 +1076,7 @@
  * \details
  * Register: \a REW:COMMON:RLEG_CFG_1
  */
-#define VTSS_REW_RLEG_CFG_1                  VTSS_IOREG(VTSS_TO_REW,0x3f2a)
+#define VTSS_REW_RLEG_CFG_1                  VTSS_IOREG(VTSS_TO_REW,0x3fa2)
 
 /**
  * \brief
@@ -1119,7 +1132,7 @@
  * \details
  * Register: \a REW:COMMON:CNT_CTRL
  */
-#define VTSS_REW_CNT_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3f2b)
+#define VTSS_REW_CNT_CTRL                    VTSS_IOREG(VTSS_TO_REW,0x3fa3)
 
 /**
  * \brief
@@ -1210,7 +1223,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT_COUNT
  */
-#define VTSS_REW_STICKY_EVENT_COUNT          VTSS_IOREG(VTSS_TO_REW,0x3f2c)
+#define VTSS_REW_STICKY_EVENT_COUNT          VTSS_IOREG(VTSS_TO_REW,0x3fa4)
 
 /**
  * \brief
@@ -1233,7 +1246,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT_CNT_MASK_CFG
  */
-#define VTSS_REW_STICKY_EVENT_CNT_MASK_CFG   VTSS_IOREG(VTSS_TO_REW,0x3f2d)
+#define VTSS_REW_STICKY_EVENT_CNT_MASK_CFG   VTSS_IOREG(VTSS_TO_REW,0x3fa5)
 
 /**
  * \brief
@@ -1480,7 +1493,7 @@
  * \details
  * Register: \a REW:COMMON:STICKY_EVENT
  */
-#define VTSS_REW_STICKY_EVENT                VTSS_IOREG(VTSS_TO_REW,0x3f2e)
+#define VTSS_REW_STICKY_EVENT                VTSS_IOREG(VTSS_TO_REW,0x3fa6)
 
 /**
  * \brief
@@ -1760,7 +1773,7 @@
  *
  * @param ri Register: GCPU_CFG (??), 0-7
  */
-#define VTSS_REW_GCPU_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3f2f + (ri))
+#define VTSS_REW_GCPU_CFG(ri)                VTSS_IOREG(VTSS_TO_REW,0x3fa7 + (ri))
 
 /**
  * \brief
@@ -1896,7 +1909,7 @@
  *
  * @param ri Register: VSTAX_PORT_GRP_CFG (??), 0-1
  */
-#define VTSS_REW_VSTAX_PORT_GRP_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x3f37 + (ri))
+#define VTSS_REW_VSTAX_PORT_GRP_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x3faf + (ri))
 
 /**
  * \brief
@@ -1959,7 +1972,7 @@
  *
  * @param ri Register: GCPU_TAG_CFG (??), 0-1
  */
-#define VTSS_REW_GCPU_TAG_CFG(ri)            VTSS_IOREG(VTSS_TO_REW,0x3f39 + (ri))
+#define VTSS_REW_GCPU_TAG_CFG(ri)            VTSS_IOREG(VTSS_TO_REW,0x3fb1 + (ri))
 
 /**
  * \brief
@@ -2048,7 +2061,7 @@
  *
  * Register: \a REW:COMMON:MIP_STICKY_EVENT
  */
-#define VTSS_REW_MIP_STICKY_EVENT            VTSS_IOREG(VTSS_TO_REW,0x3f3b)
+#define VTSS_REW_MIP_STICKY_EVENT            VTSS_IOREG(VTSS_TO_REW,0x3fb3)
 
 /**
  * \brief
@@ -2171,9 +2184,9 @@
  *
  * Register: \a REW:MAP_RES_A:MAP_VAL_A
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-255
  */
-#define VTSS_REW_MAP_VAL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,2,0,0)
+#define VTSS_REW_MAP_VAL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,0)
 
 /**
  * \brief
@@ -2262,9 +2275,9 @@
  *
  * Register: \a REW:MAP_RES_A:MAP_LBL_A
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-255
  */
-#define VTSS_REW_MAP_LBL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,2,0,1)
+#define VTSS_REW_MAP_LBL_A(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,1)
 
 /**
  * \brief
@@ -2294,9 +2307,9 @@
  *
  * Register: \a REW:MAP_RES_B:MAP_VAL_B
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-255
  */
-#define VTSS_REW_MAP_VAL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,0)
+#define VTSS_REW_MAP_VAL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4000,gi,2,0,0)
 
 /**
  * \brief
@@ -2385,9 +2398,9 @@
  *
  * Register: \a REW:MAP_RES_B:MAP_LBL_B
  *
- * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-31
+ * @param gi Replicator: x_FFL_REW_NUM_MAP_TBL_ENTRIES (??), 0-255
  */
-#define VTSS_REW_MAP_LBL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2a00,gi,2,0,1)
+#define VTSS_REW_MAP_LBL_B(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x4000,gi,2,0,1)
 
 /**
  * \brief
@@ -3062,7 +3075,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_MIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,0)
+#define VTSS_REW_MIP_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,8,0,0)
 
 /**
  * \brief
@@ -3194,7 +3207,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_CCM_HMO_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,1)
+#define VTSS_REW_CCM_HMO_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,8,0,1)
 
 /**
  * \brief
@@ -3230,7 +3243,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_MIP_VID_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,2)
+#define VTSS_REW_MIP_VID_CTRL(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,8,0,2)
 
 /**
  * \brief
@@ -3273,7 +3286,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_LBM_MAC_HIGH(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,3)
+#define VTSS_REW_LBM_MAC_HIGH(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,8,0,3)
 
 /**
  * \brief
@@ -3296,7 +3309,7 @@
  *
  * @param gi Replicator: x_FFL_REW_NUM_MIP_TBL_ENTRIES (??), 0-7
  */
-#define VTSS_REW_LBM_MAC_LOW(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x2a40,gi,8,0,4)
+#define VTSS_REW_LBM_MAC_LOW(gi)             VTSS_IOREG_IX(VTSS_TO_REW,0x28c0,gi,8,0,4)
 
 /**
  * \brief
@@ -3477,7 +3490,7 @@
  * \details
  * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO
  */
-#define VTSS_REW_PTP_RSRV_NOT_ZERO           VTSS_IOREG(VTSS_TO_REW,0x2ad2)
+#define VTSS_REW_PTP_RSRV_NOT_ZERO           VTSS_IOREG(VTSS_TO_REW,0x3e22)
 
 /**
  * \brief
@@ -3498,7 +3511,7 @@
  * \details
  * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO1
  */
-#define VTSS_REW_PTP_RSRV_NOT_ZERO1          VTSS_IOREG(VTSS_TO_REW,0x2ad3)
+#define VTSS_REW_PTP_RSRV_NOT_ZERO1          VTSS_IOREG(VTSS_TO_REW,0x3e23)
 
 /**
  * \brief
@@ -3521,7 +3534,7 @@
  *
  * @param ri Register: PTP_GEN_STAMP_FMT (??), 0-3
  */
-#define VTSS_REW_PTP_GEN_STAMP_FMT(ri)       VTSS_IOREG(VTSS_TO_REW,0x2ad5 + (ri))
+#define VTSS_REW_PTP_GEN_STAMP_FMT(ri)       VTSS_IOREG(VTSS_TO_REW,0x3e25 + (ri))
 
 /**
  * \brief
@@ -4121,9 +4134,9 @@
  * \brief
  * Enable IFH encapsulation mode for this entry.The frame link layer format
  * is changed to:[LL_DMAC][LL_SMAC][0x8880][0x000E]Optionally one VLAN tag
- * can be added if LL_TAG_CFG.TAG_CFG =
- * 1[LL_DMAC][LL_SMAC][LL_TAG:0][0x8880][0x000E]None of the other
- * encapsulation fields are used in this mode
+ * can be added if LL_TAG_CFG.TAG_CFG = 1[LL_DMAC][LL_SMAC][LL_TAG:0]Note:
+ * The [0x8880][0x000E] fields are not pushed when LL_TAG_CFG.TAG_CFG =
+ * 1None of the other encapsulation fields are used in this mode
  *
  * \details
  * 0: Normal encapsulation mode
@@ -4255,7 +4268,8 @@
  * \details
  * 0: Classified PCP
  * 1: Encapsulation TAG_PCP_VAL:n
- * 2-3: Reserved
+ * 2: Reserved
+ * 3: Set to the highest CPU queue number in IFH.MISC.CPU_MASK
  * 4: Mapped using mapping table 0, otherwise use LL_TAG_VAL[N].TAG_PCP_VAL
  * 5: Mapped using mapping table 1, otherwise use mapping table 0
  * 6: Mapped using mapping table 2, otherwise use LL_TAG_VAL[N].TAG_PCP_VAL
@@ -4559,7 +4573,7 @@
  *
  * @param gi Replicator: x_FFL_CHIP_RLEG_CNT (??), 0-14
  */
-#define VTSS_REW_RLEG_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x2ac0,gi,1,0,0)
+#define VTSS_REW_RLEG_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_REW,0x3e10,gi,1,0,0)
 
 /**
  * \brief
@@ -4655,7 +4669,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_VOE_X_NUM_PRIO (??), 0-63
  */
-#define VTSS_REW_SRV_LM_CNT_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x2a80,gi,1,0,0)
+#define VTSS_REW_SRV_LM_CNT_LSB(gi)          VTSS_IOREG_IX(VTSS_TO_REW,0x3bc0,gi,1,0,0)
 
 /**
  * \brief
@@ -4982,7 +4996,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_REW_DM_PTP_DOMAIN_CFG(ri)       VTSS_IOREG(VTSS_TO_REW,0x2ad9 + (ri))
+#define VTSS_REW_DM_PTP_DOMAIN_CFG(ri)       VTSS_IOREG(VTSS_TO_REW,0x3fb4 + (ri))
 
 /**
  * \brief
@@ -5029,7 +5043,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_REW_PTP_NTP_OFFSET_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x2b1a + (ri))
+#define VTSS_REW_PTP_NTP_OFFSET_CFG(ri)      VTSS_IOREG(VTSS_TO_REW,0x3ff5 + (ri))
 
 /**
  * \brief
@@ -5057,7 +5071,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_LM_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_LM_CNT_LSB     VTSS_IOREG(VTSS_TO_REW,0x2b1d)
+#define VTSS_REW_RD_LAST_PORT_LM_CNT_LSB     VTSS_IOREG(VTSS_TO_REW,0x3ff8)
 
 /**
  * \brief
@@ -5086,7 +5100,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_FRM_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_FRM_CNT_LSB    VTSS_IOREG(VTSS_TO_REW,0x2b1e)
+#define VTSS_REW_RD_LAST_PORT_FRM_CNT_LSB    VTSS_IOREG(VTSS_TO_REW,0x3ff9)
 
 /**
  * \brief
@@ -5115,7 +5129,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_MSB
  */
-#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_MSB   VTSS_IOREG(VTSS_TO_REW,0x2b1f)
+#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_MSB   VTSS_IOREG(VTSS_TO_REW,0x3ffa)
 
 /**
  * \brief
@@ -5144,7 +5158,7 @@
  *
  * Register: \a REW:PDU_MOD_CFG:RD_LAST_PORT_BYTE_CNT_LSB
  */
-#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_LSB   VTSS_IOREG(VTSS_TO_REW,0x2b20)
+#define VTSS_REW_RD_LAST_PORT_BYTE_CNT_LSB   VTSS_IOREG(VTSS_TO_REW,0x3ffb)
 
 /**
  * \brief
@@ -5176,7 +5190,7 @@
  *
  * Register: \a REW:RAM_CTRL:RAM_INIT
  */
-#define VTSS_REW_RAM_INIT                    VTSS_IOREG(VTSS_TO_REW,0x2b21)
+#define VTSS_REW_RAM_INIT                    VTSS_IOREG(VTSS_TO_REW,0x3e08)
 
 /**
  * \brief
@@ -5215,7 +5229,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_ADDR
  */
-#define VTSS_REW_CM_ADDR                     VTSS_IOREG(VTSS_TO_REW,0x2b22)
+#define VTSS_REW_CM_ADDR                     VTSS_IOREG(VTSS_TO_REW,0x3e09)
 
 /**
  * \brief
@@ -5235,7 +5249,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_DATA_WR
  */
-#define VTSS_REW_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_REW,0x2b23)
+#define VTSS_REW_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_REW,0x3e0a)
 
 /**
  * \brief
@@ -5257,7 +5271,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_DATA_RD
  */
-#define VTSS_REW_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_REW,0x2b24)
+#define VTSS_REW_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_REW,0x3e0b)
 
 /**
  * \brief
@@ -5277,7 +5291,7 @@
  * \details
  * Register: \a REW:COREMEM:CM_OP
  */
-#define VTSS_REW_CM_OP                       VTSS_IOREG(VTSS_TO_REW,0x2b25)
+#define VTSS_REW_CM_OP                       VTSS_IOREG(VTSS_TO_REW,0x3e0c)
 
 /**
  * \brief
@@ -5297,6 +5311,318 @@
 #define  VTSS_F_REW_CM_OP_CM_OP(x)            VTSS_ENCODE_BITFIELD(x,0,2)
 #define  VTSS_M_REW_CM_OP_CM_OP               VTSS_ENCODE_BITMASK(0,2)
 #define  VTSS_X_REW_CM_OP_CM_OP(x)            VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
+ * Register Group: \a REW:GPTP_DOM
+ *
+ * gPTP configuration and status Registers
+ */
+
+
+/**
+ * \brief Time stamp of latest SYNC frame
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_ITS
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_ITS(gi)                  VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,0)
+
+/**
+ * \brief
+ * Time stamp of latest SYNC frame.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_ITS . GM_ITS
+ */
+#define  VTSS_F_REW_GM_ITS_GM_ITS(x)          (x)
+#define  VTSS_M_REW_GM_ITS_GM_ITS             0xffffffff
+#define  VTSS_X_REW_GM_ITS_GM_ITS(x)          (x)
+
+
+/**
+ * \brief Origin time from latest SYNC frame, 16 MSBs of the seconds
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_IORG_SEC_MSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_IORG_SEC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,1)
+
+/**
+ * \brief
+ * Origin time from latest SYNC frame, 16 MSBs of the seconds.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_IORG_SEC_MSB . GM_IORG_SEC_MSB
+ */
+#define  VTSS_F_REW_GM_IORG_SEC_MSB_GM_IORG_SEC_MSB(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_REW_GM_IORG_SEC_MSB_GM_IORG_SEC_MSB     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_REW_GM_IORG_SEC_MSB_GM_IORG_SEC_MSB(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+
+/**
+ * \brief Origin time from latest SYNC frame, 32 LSBs of the seconds
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_IORG_SEC_LSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_IORG_SEC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,2)
+
+/**
+ * \brief
+ * Origin time from latest SYNC frame, 32 LSBs of the seconds.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_IORG_SEC_LSB . GM_IORG_SEC_LSB
+ */
+#define  VTSS_F_REW_GM_IORG_SEC_LSB_GM_IORG_SEC_LSB(x)  (x)
+#define  VTSS_M_REW_GM_IORG_SEC_LSB_GM_IORG_SEC_LSB     0xffffffff
+#define  VTSS_X_REW_GM_IORG_SEC_LSB_GM_IORG_SEC_LSB(x)  (x)
+
+
+/**
+ * \brief Origin time from latest SYNC frame, nanoseconds part
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_IORG_NSEC
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_IORG_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,3)
+
+/**
+ * \brief
+ * Origin time from latest SYNC frame, nanoseconds part.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_IORG_NSEC . GM_IORG_NSEC
+ */
+#define  VTSS_F_REW_GM_IORG_NSEC_GM_IORG_NSEC(x)  (x)
+#define  VTSS_M_REW_GM_IORG_NSEC_GM_IORG_NSEC     0xffffffff
+#define  VTSS_X_REW_GM_IORG_NSEC_GM_IORG_NSEC(x)  (x)
+
+
+/**
+ * \brief CF field from latest SYNC frame, MSB
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_ICF_MSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_ICF_MSB(gi)              VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,4)
+
+/**
+ * \brief
+ * CF field from latests SYNC frame, 32 MSBs.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_ICF_MSB . GM_ICF_MSB
+ */
+#define  VTSS_F_REW_GM_ICF_MSB_GM_ICF_MSB(x)  (x)
+#define  VTSS_M_REW_GM_ICF_MSB_GM_ICF_MSB     0xffffffff
+#define  VTSS_X_REW_GM_ICF_MSB_GM_ICF_MSB(x)  (x)
+
+
+/**
+ * \brief CF field from latest SYNC frame, LSB
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_ICF_LSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_ICF_LSB(gi)              VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,5)
+
+/**
+ * \brief
+ * CF field from latests SYNC frame, 32 LSBs.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_ICF_LSB . GM_ICF_LSB
+ */
+#define  VTSS_F_REW_GM_ICF_LSB_GM_ICF_LSB(x)  (x)
+#define  VTSS_M_REW_GM_ICF_LSB_GM_ICF_LSB     0xffffffff
+#define  VTSS_X_REW_GM_ICF_LSB_GM_ICF_LSB(x)  (x)
+
+
+/**
+ * \brief CF rateratio update value
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_ICF_SUB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_ICF_SUB(gi)              VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,6)
+
+/**
+ * \brief
+ * CF rateration update value
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_ICF_SUB . GM_ICF_SUB
+ */
+#define  VTSS_F_REW_GM_ICF_SUB_GM_ICF_SUB(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_REW_GM_ICF_SUB_GM_ICF_SUB     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_REW_GM_ICF_SUB_GM_ICF_SUB(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+
+/**
+ * \brief Local rateratio of this domain
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_RATERATIO
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_RATERATIO(gi)            VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,7)
+
+/**
+ * \brief
+ * Local rateratio of this domain, with unit 2**-41. Ie 100ppm encoded as
+ * 100*(10**-6) / (2**-41).
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_RATERATIO . GM_RATERATIO
+ */
+#define  VTSS_F_REW_GM_RATERATIO_GM_RATERATIO(x)  (x)
+#define  VTSS_M_REW_GM_RATERATIO_GM_RATERATIO     0xffffffff
+#define  VTSS_X_REW_GM_RATERATIO_GM_RATERATIO(x)  (x)
+
+
+/**
+ * \brief PTP clock identifier MSB
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:PTP_CLOCK_ID_MSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_PTP_CLOCK_ID_MSB(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,8)
+
+/**
+ * \brief
+ * Bits 63:32 of clockIdentifier used in portIdentity.
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_CLOCK_ID_MSB . CLOCK_ID_MSB
+ */
+#define  VTSS_F_REW_PTP_CLOCK_ID_MSB_CLOCK_ID_MSB(x)  (x)
+#define  VTSS_M_REW_PTP_CLOCK_ID_MSB_CLOCK_ID_MSB     0xffffffff
+#define  VTSS_X_REW_PTP_CLOCK_ID_MSB_CLOCK_ID_MSB(x)  (x)
+
+
+/**
+ * \brief PTP clock identifier LSB
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:PTP_CLOCK_ID_LSB
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_PTP_CLOCK_ID_LSB(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,9)
+
+/**
+ * \brief
+ * Bits 31:0 of clockIdentifier used in portIdentity.
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_CLOCK_ID_LSB . CLOCK_ID_LSB
+ */
+#define  VTSS_F_REW_PTP_CLOCK_ID_LSB_CLOCK_ID_LSB(x)  (x)
+#define  VTSS_M_REW_PTP_CLOCK_ID_LSB_CLOCK_ID_LSB     0xffffffff
+#define  VTSS_X_REW_PTP_CLOCK_ID_LSB_CLOCK_ID_LSB(x)  (x)
+
+
+/**
+ * \brief PTP domain configuration used in sourcePortIdentity
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:PTP_SRC_PORT_CFG
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_PTP_SRC_PORT_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,10)
+
+/**
+ * \brief
+ * If set, lowest 7 bits in portIdentity is taken from
+ * GPTP_PORTID_CFG.GPTP_PORTID_VAL. Otherwise, portIdentity is taken from
+ * PTP_SRC_PORT_CFG.PORT_NUM.
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_SRC_PORT_CFG . PORT_NUM_SEL
+ */
+#define  VTSS_F_REW_PTP_SRC_PORT_CFG_PORT_NUM_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_REW_PTP_SRC_PORT_CFG_PORT_NUM_SEL  VTSS_BIT(16)
+#define  VTSS_X_REW_PTP_SRC_PORT_CFG_PORT_NUM_SEL(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
+
+/**
+ * \brief
+ * Port number used in portIdentity.
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_SRC_PORT_CFG . PORT_NUM
+ */
+#define  VTSS_F_REW_PTP_SRC_PORT_CFG_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_REW_PTP_SRC_PORT_CFG_PORT_NUM     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_REW_PTP_SRC_PORT_CFG_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+/**
+ * Register Group: \a REW:GPTP_COMMON_CFG
+ *
+ * gPTP port configuration Registers
+ */
+
+
+/**
+ * \brief Detected neighbor rate ratios
+ *
+ * \details
+ * Register: \a REW:GPTP_COMMON_CFG:GPTP_NRR_CFG
+ *
+ * @param ri Replicator: x_PTP_CFG_NUM_PORTS (??), 0-31
+ */
+#define VTSS_REW_GPTP_NRR_CFG(ri)            VTSS_IOREG(VTSS_TO_REW,0x4200 + (ri))
+
+/**
+ * \brief
+ * Neighbor rate ration per ingress port encoded as the GM_RATERATIO
+ *
+ * \details
+ * Field: ::VTSS_REW_GPTP_NRR_CFG . GPTP_NRR_CFG
+ */
+#define  VTSS_F_REW_GPTP_NRR_CFG_GPTP_NRR_CFG(x)  (x)
+#define  VTSS_M_REW_GPTP_NRR_CFG_GPTP_NRR_CFG     0xffffffff
+#define  VTSS_X_REW_GPTP_NRR_CFG_GPTP_NRR_CFG(x)  (x)
+
+
+/**
+ * \brief Port identity per egress port
+ *
+ * \details
+ * Register: \a REW:GPTP_COMMON_CFG:GPTP_PORTID_CFG
+ *
+ * @param ri Replicator: x_PTP_CFG_NUM_PORTS (??), 0-31
+ */
+#define VTSS_REW_GPTP_PORTID_CFG(ri)         VTSS_IOREG(VTSS_TO_REW,0x4220 + (ri))
+
+/**
+ * \brief
+ * Neighbor rate ration per ingress port encoded as the GM_RATERATIO
+ *
+ * \details
+ * Field: ::VTSS_REW_GPTP_PORTID_CFG . GPTP_PORTID_VAL
+ */
+#define  VTSS_F_REW_GPTP_PORTID_CFG_GPTP_PORTID_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,16)
+#define  VTSS_M_REW_GPTP_PORTID_CFG_GPTP_PORTID_VAL     VTSS_ENCODE_BITMASK(0,16)
+#define  VTSS_X_REW_GPTP_PORTID_CFG_GPTP_PORTID_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
 
 
 #endif /* _VTSS_LAGUNA_REGS_REW_H_ */

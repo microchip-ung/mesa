@@ -22,12 +22,73 @@
 
 
 /**
+ * \brief Configures how the RB is connected to the TAXI bus
+ *
+ * \details
+ * Register: \a RB:COMMON:TAXI_IF_CFG
+ */
+#define VTSS_RB_TAXI_IF_CFG                  VTSS_IOREG(VTSS_TO_RB_0,0x0)
+
+/**
+ * \brief
+ * Control how the right RB port (LREB) is connected:0: The LREB is
+ * connected to a TAXI bus port. See LREB_PORT_NO1: The LREB is connected
+ * to LREA of the RB located to the right of this RBMust be 0 for the right
+ * most RB
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_NEXT
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREB_NEXT      VTSS_BIT(9)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Control how the left RB port (LREA) is connected:0: The LREA is
+ * connected to a TAXI bus port. See LREA_PORT_NO1: The LREA is connected
+ * to LREB of the RB located to the left of this RBMust be 0 for the left
+ * most RB
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_NEXT
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREA_NEXT      VTSS_BIT(8)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * The LREB port is connected to this TAXI bus port number. Must always be
+ * configured
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_PORT_NO
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREB_PORT_NO     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * The LREA port is connected to this TAXI bus port number. Must always be
+ * configured
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_PORT_NO
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREA_PORT_NO     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+
+/**
  * \brief CPU extraction queue configurations
  *
  * \details
  * Register: \a RB:COMMON:CPU_CFG
  */
-#define VTSS_RB_CPU_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x0)
+#define VTSS_RB_CPU_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x1)
 
 /**
  * \brief
@@ -108,7 +169,20 @@
  * \details
  * Register: \a RB:COMMON:NETID_CFG
  */
-#define VTSS_RB_NETID_CFG                    VTSS_IOREG(VTSS_TO_RB_0,0x1)
+#define VTSS_RB_NETID_CFG                    VTSS_IOREG(VTSS_TO_RB_0,0x2)
+
+/**
+ * \brief
+ * If set, hardware does not auto-learn entries in the host table
+ * (RB:HOST_TBL) for frames subject to NetId filtering.Related
+ * paramenters:RB::NETID_CFG.NETID_FILTER_ENA
+ *
+ * \details
+ * Field: ::VTSS_RB_NETID_CFG . NETID_HOST_TBL_DIS
+ */
+#define  VTSS_F_RB_NETID_CFG_NETID_HOST_TBL_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_RB_NETID_CFG_NETID_HOST_TBL_DIS  VTSS_BIT(12)
+#define  VTSS_X_RB_NETID_CFG_NETID_HOST_TBL_DIS(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
 
 /**
  * \brief
@@ -158,7 +232,27 @@
  * \details
  * Register: \a RB:COMMON:RB_CFG
  */
-#define VTSS_RB_RB_CFG                       VTSS_IOREG(VTSS_TO_RB_0,0x2)
+#define VTSS_RB_RB_CFG                       VTSS_IOREG(VTSS_TO_RB_0,0x3)
+
+/**
+ * \brief
+ * Configuration of overall PTP encapsulation awareness. Also controls
+ * latency through RedBox.Related
+ * parameters:RB::PTP_FILTER_CFG.PTP_FILTER_SELRB::PTP_FILTER_CFG.PTP_VID_S
+ * ELRB::PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
+ *
+ * \details
+ * 0: PTP not recognized.
+ * 1: PTPoE (DMAC, VID)
+ * 2: PTPoIP4oUDP (DMAC, VID, HSR, DIP-IPv4, DPORT)
+ * 3: PTPoIP6oUDP (DMAC, VID, HSR, DIP-IPv6, DPORT)
+
+ *
+ * Field: ::VTSS_RB_RB_CFG . PTP_AWARE_SEL
+ */
+#define  VTSS_F_RB_RB_CFG_PTP_AWARE_SEL(x)    VTSS_ENCODE_BITFIELD(x,13,2)
+#define  VTSS_M_RB_RB_CFG_PTP_AWARE_SEL       VTSS_ENCODE_BITMASK(13,2)
+#define  VTSS_X_RB_RB_CFG_PTP_AWARE_SEL(x)    VTSS_EXTRACT_BITFIELD(x,13,2)
 
 /**
  * \brief
@@ -168,9 +262,9 @@
  * \details
  * Field: ::VTSS_RB_RB_CFG . KEEP_INT_ENA
  */
-#define  VTSS_F_RB_RB_CFG_KEEP_INT_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),10,1)
-#define  VTSS_M_RB_RB_CFG_KEEP_INT_ENA        VTSS_BIT(10)
-#define  VTSS_X_RB_RB_CFG_KEEP_INT_ENA(x)     VTSS_EXTRACT_BITFIELD(x,10,1)
+#define  VTSS_F_RB_RB_CFG_KEEP_INT_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_RB_RB_CFG_KEEP_INT_ENA        VTSS_BIT(12)
+#define  VTSS_X_RB_RB_CFG_KEEP_INT_ENA(x)     VTSS_EXTRACT_BITFIELD(x,12,1)
 
 /**
  * \brief
@@ -189,9 +283,9 @@
  *
  * Field: ::VTSS_RB_RB_CFG . HSR_TAG_SEL
  */
-#define  VTSS_F_RB_RB_CFG_HSR_TAG_SEL(x)      VTSS_ENCODE_BITFIELD(x,8,2)
-#define  VTSS_M_RB_RB_CFG_HSR_TAG_SEL         VTSS_ENCODE_BITMASK(8,2)
-#define  VTSS_X_RB_RB_CFG_HSR_TAG_SEL(x)      VTSS_EXTRACT_BITFIELD(x,8,2)
+#define  VTSS_F_RB_RB_CFG_HSR_TAG_SEL(x)      VTSS_ENCODE_BITFIELD(x,10,2)
+#define  VTSS_M_RB_RB_CFG_HSR_TAG_SEL         VTSS_ENCODE_BITMASK(10,2)
+#define  VTSS_X_RB_RB_CFG_HSR_TAG_SEL(x)      VTSS_EXTRACT_BITFIELD(x,10,2)
 
 /**
  * \brief
@@ -201,9 +295,9 @@
  * \details
  * Field: ::VTSS_RB_RB_CFG . ACCEPT_LANID_ERR_ENA
  */
-#define  VTSS_F_RB_RB_CFG_ACCEPT_LANID_ERR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_RB_RB_CFG_ACCEPT_LANID_ERR_ENA  VTSS_BIT(7)
-#define  VTSS_X_RB_RB_CFG_ACCEPT_LANID_ERR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+#define  VTSS_F_RB_RB_CFG_ACCEPT_LANID_ERR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_RB_RB_CFG_ACCEPT_LANID_ERR_ENA  VTSS_BIT(9)
+#define  VTSS_X_RB_RB_CFG_ACCEPT_LANID_ERR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
 
 /**
  * \brief
@@ -215,9 +309,9 @@
  * \details
  * Field: ::VTSS_RB_RB_CFG . LOCAL_DST_REDIR_ENA
  */
-#define  VTSS_F_RB_RB_CFG_LOCAL_DST_REDIR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_RB_RB_CFG_LOCAL_DST_REDIR_ENA  VTSS_BIT(6)
-#define  VTSS_X_RB_RB_CFG_LOCAL_DST_REDIR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+#define  VTSS_F_RB_RB_CFG_LOCAL_DST_REDIR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_RB_RB_CFG_LOCAL_DST_REDIR_ENA  VTSS_BIT(8)
+#define  VTSS_X_RB_RB_CFG_LOCAL_DST_REDIR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * \brief
@@ -232,9 +326,9 @@
  *
  * Field: ::VTSS_RB_RB_CFG . KEEP_PRP_ENA
  */
-#define  VTSS_F_RB_RB_CFG_KEEP_PRP_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_RB_RB_CFG_KEEP_PRP_ENA        VTSS_BIT(5)
-#define  VTSS_X_RB_RB_CFG_KEEP_PRP_ENA(x)     VTSS_EXTRACT_BITFIELD(x,5,1)
+#define  VTSS_F_RB_RB_CFG_KEEP_PRP_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_RB_RB_CFG_KEEP_PRP_ENA        VTSS_BIT(7)
+#define  VTSS_X_RB_RB_CFG_KEEP_PRP_ENA(x)     VTSS_EXTRACT_BITFIELD(x,7,1)
 
 /**
  * \brief
@@ -250,9 +344,9 @@
  *
  * Field: ::VTSS_RB_RB_CFG . ACCEPT_MODE_ENA
  */
-#define  VTSS_F_RB_RB_CFG_ACCEPT_MODE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_RB_RB_CFG_ACCEPT_MODE_ENA     VTSS_BIT(4)
-#define  VTSS_X_RB_RB_CFG_ACCEPT_MODE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+#define  VTSS_F_RB_RB_CFG_ACCEPT_MODE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_RB_RB_CFG_ACCEPT_MODE_ENA     VTSS_BIT(6)
+#define  VTSS_X_RB_RB_CFG_ACCEPT_MODE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
@@ -266,9 +360,9 @@
  *
  * Field: ::VTSS_RB_RB_CFG . FWD_MODE_T_ENA
  */
-#define  VTSS_F_RB_RB_CFG_FWD_MODE_T_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_RB_RB_CFG_FWD_MODE_T_ENA      VTSS_BIT(3)
-#define  VTSS_X_RB_RB_CFG_FWD_MODE_T_ENA(x)   VTSS_EXTRACT_BITFIELD(x,3,1)
+#define  VTSS_F_RB_RB_CFG_FWD_MODE_T_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_RB_RB_CFG_FWD_MODE_T_ENA      VTSS_BIT(4)
+#define  VTSS_X_RB_RB_CFG_FWD_MODE_T_ENA(x)   VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
@@ -318,7 +412,7 @@
  *
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_RB_TPID_CFG(ri)                 VTSS_IOREG(VTSS_TO_RB_0,0x3 + (ri))
+#define VTSS_RB_TPID_CFG(ri)                 VTSS_IOREG(VTSS_TO_RB_0,0x4 + (ri))
 
 /**
  * \brief
@@ -338,7 +432,7 @@
  * \details
  * Register: \a RB:COMMON:SPV_CFG
  */
-#define VTSS_RB_SPV_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x6)
+#define VTSS_RB_SPV_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x7)
 
 /**
  * \brief
@@ -412,64 +506,129 @@
 
 
 /**
- * \brief Configures how the RB is connected to the TAXI bus
+ * \brief PTP data registers
  *
  * \details
- * Register: \a RB:COMMON:TAXI_IF_CFG
+ * Generic registers containing match data for PTP filters.
+ * PTPoE filter - 8 filters in total. Filter 0:
+ * - PTP_DATA[0]: DMAC[31:0]
+ * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
+ * PTP_DATA[2] and PTP_DATA[3] for filter 1 etc.
+ *
+ * PTPoIPv4oUDP filter - 4 filters in total. Filter 0:
+ * - PTP_DATA[0]: DMAC[31:0]
+ * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
+ * - PTP_DATA[2]: IPv4 DIP
+ * - PTP_DATA[3][15:0]: DPORT
+ * PTP_DATA[4]-PTP_DATA[7] for filter 1 etc.
+ *
+ * PTPoIPv6oUDP filter - 2 filters in total. Filter 0:
+ * - PTP_DATA[0]: DMAC[31:0]
+ * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
+ * - PTP_DATA[2]: IPv6 DIP[31:0]
+ * - PTP_DATA[3]: IPv6 DIP[63:32]
+ * - PTP_DATA[4]: IPv6 DIP[95:64]
+ * - PTP_DATA[5]: IPv6 DIP[127:96]
+ * - PTP_DATA[6][15:0]: DPORT
+ * PTP_DATA[8]-PTP_DATA[14] for filter 1.
+
+ *
+ * Register: \a RB:COMMON:PTP_DATA
+ *
+ * @param ri Replicator: x_RB_CFG_NUM_PTP_DATA (??), 0-7
  */
-#define VTSS_RB_TAXI_IF_CFG                  VTSS_IOREG(VTSS_TO_RB_0,0x7)
+#define VTSS_RB_PTP_DATA(ri)                 VTSS_IOREG(VTSS_TO_RB_0,0x8 + (ri))
 
 /**
  * \brief
- * Control how the right RB port (LREB) is connected:0: The LREB is
- * connected to a TAXI bus port. See LREB_PORT_NO1: The LREB is connected
- * to LREA of the RB located to the right of this RBMust be 0 for the right
- * most RB
+ * See register description for details.Related
+ * parameters:RB::RB_CFG.PTP_AWARE_SELRB::PTP_FILTER_CFG.PTP_FILTER_SELRB::
+ * PTP_FILTER_CFG.PTP_VID_SELRB::PTP_FILTER_CFG.PTP_HSR_SEL
  *
  * \details
- * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_NEXT
+ * Field: ::VTSS_RB_PTP_DATA . PTP_DATA
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),9,1)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREB_NEXT      VTSS_BIT(9)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,9,1)
+#define  VTSS_F_RB_PTP_DATA_PTP_DATA(x)       (x)
+#define  VTSS_M_RB_PTP_DATA_PTP_DATA          0xffffffff
+#define  VTSS_X_RB_PTP_DATA_PTP_DATA(x)       (x)
+
+
+/**
+ * \brief PTP filter configurations per filter
+ *
+ * \details
+ * Number of active filters depends on the frame depth of the analysis,
+ * which is controlled in RB::RB_CFG.PTP_AWARE_SEL.
+ *
+ * For PTPoE, 8 filters are available.
+ * For PTPoIPv4oUDP, 4 filters are available, indexed 0 through 3.
+ * For PTPoIPv6oUDP, 2 filters are available, indexed 0 through 1.
+
+ *
+ * Register: \a RB:COMMON:PTP_FILTER_CFG
+ *
+ * @param ri Replicator: x_RB_CFG_NUM_PTP_FILTERS (??), 0-3
+ */
+#define VTSS_RB_PTP_FILTER_CFG(ri)           VTSS_IOREG(VTSS_TO_RB_0,0x10 + (ri))
 
 /**
  * \brief
- * Control how the left RB port (LREA) is connected:0: The LREA is
- * connected to a TAXI bus port. See LREA_PORT_NO1: The LREA is connected
- * to LREB of the RB located to the left of this RBMust be 0 for the left
- * most RB
+ * Configuration of the L2-HSR filter element, used when enabled in
+ * PTP_FILTER_SEL.Related
+ * parameters:RB::RB_CFG.PTP_AWARE_SELRB::PTP_FILTER_CFG.PTP_FILTER_SELRB::
+ * PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
  *
  * \details
- * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_NEXT
+ * 0: Frame must be HSR-tagged
+ * 1: Frame must be HSR-untagged
+ *
+ * Field: ::VTSS_RB_PTP_FILTER_CFG . PTP_HSR_SEL
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREA_NEXT      VTSS_BIT(8)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,8,1)
+#define  VTSS_F_RB_PTP_FILTER_CFG_PTP_HSR_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_RB_PTP_FILTER_CFG_PTP_HSR_SEL  VTSS_BIT(6)
+#define  VTSS_X_RB_PTP_FILTER_CFG_PTP_HSR_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
- * The LREB port is connected to this TAXI bus port number. Must always be
- * configured
+ * Configuration of the L2-VID filter element, used when enabled in
+ * PTP_FILTER_SEL.Related
+ * parameters:RB::RB_CFG.PTP_AWARE_SELRB::PTP_FILTER_CFG.PTP_FILTER_SELRB::
+ * PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
  *
  * \details
- * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_PORT_NO
+ * 0: Frame must be untagged
+ * 1: Frame must be VLAN tagged and outermost VID must match the filter's
+ * match data.
+
+ *
+ * Field: ::VTSS_RB_PTP_FILTER_CFG . PTP_VID_SEL
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,4,4)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREB_PORT_NO     VTSS_ENCODE_BITMASK(4,4)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+#define  VTSS_F_RB_PTP_FILTER_CFG_PTP_VID_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_RB_PTP_FILTER_CFG_PTP_VID_SEL  VTSS_BIT(5)
+#define  VTSS_X_RB_PTP_FILTER_CFG_PTP_VID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
- * The LREA port is connected to this TAXI bus port number. Must always be
- * configured
+ * Filter element settings. RB::RB_CFG.PTP_AWARE_SEL defines the overall
+ * PTP classification capabilities and L3 and L4 filter elements are only
+ * applicable when PTPoIPv4oUDP or PTPoIPv6oUDP are set in
+ * PTP_AWARE_SEL.Related
+ * parameters:RB::RB_CFG.PTP_AWARE_SELRB::PTP_FILTER_CFG.PTP_VID_SELRB::PTP
+ * _FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
  *
  * \details
- * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_PORT_NO
+ * 0: Disabled
+ * xxxx1: L2-DMAC enabled (DMAC)
+ * xxx1x: L2-VID enabled (VID)
+ * xx1xx: L2-HSR enabled (HSR)
+ * x1xxx: L3 enabled (DIP)
+ * 1xxxx: L4 enabled (DPORT)
+ *
+ * Field: ::VTSS_RB_PTP_FILTER_CFG . PTP_FILTER_SEL
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREA_PORT_NO     VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+#define  VTSS_F_RB_PTP_FILTER_CFG_PTP_FILTER_SEL(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_RB_PTP_FILTER_CFG_PTP_FILTER_SEL     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_RB_PTP_FILTER_CFG_PTP_FILTER_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
 /**
  * Register Group: \a RB:PORT
@@ -486,7 +645,7 @@
  *
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_TBL_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x8,gi,5,0,0)
+#define VTSS_RB_TBL_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,0)
 
 /**
  * \brief
@@ -639,7 +798,7 @@
  *
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_BPDU_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x8,gi,5,0,1)
+#define VTSS_RB_BPDU_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,1)
 
 /**
  * \brief
@@ -730,7 +889,7 @@
  *
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_FWD_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x8,gi,5,0,2)
+#define VTSS_RB_FWD_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,2)
 
 /**
  * \brief
@@ -840,7 +999,7 @@
  *
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PORT_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x8,gi,5,0,3)
+#define VTSS_RB_PORT_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,3)
 
 /**
  * \brief
@@ -851,9 +1010,9 @@
  * \details
  * Field: ::VTSS_RB_PORT_CFG . CT_EGR_ENA
  */
-#define  VTSS_F_RB_PORT_CFG_CT_EGR_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),21,1)
-#define  VTSS_M_RB_PORT_CFG_CT_EGR_ENA        VTSS_BIT(21)
-#define  VTSS_X_RB_PORT_CFG_CT_EGR_ENA(x)     VTSS_EXTRACT_BITFIELD(x,21,1)
+#define  VTSS_F_RB_PORT_CFG_CT_EGR_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_RB_PORT_CFG_CT_EGR_ENA        VTSS_BIT(22)
+#define  VTSS_X_RB_PORT_CFG_CT_EGR_ENA(x)     VTSS_EXTRACT_BITFIELD(x,22,1)
 
 /**
  * \brief
@@ -864,9 +1023,9 @@
  * \details
  * Field: ::VTSS_RB_PORT_CFG . CT_IGR_ENA
  */
-#define  VTSS_F_RB_PORT_CFG_CT_IGR_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),20,1)
-#define  VTSS_M_RB_PORT_CFG_CT_IGR_ENA        VTSS_BIT(20)
-#define  VTSS_X_RB_PORT_CFG_CT_IGR_ENA(x)     VTSS_EXTRACT_BITFIELD(x,20,1)
+#define  VTSS_F_RB_PORT_CFG_CT_IGR_ENA(x)     VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_RB_PORT_CFG_CT_IGR_ENA        VTSS_BIT(21)
+#define  VTSS_X_RB_PORT_CFG_CT_IGR_ENA(x)     VTSS_EXTRACT_BITFIELD(x,21,1)
 
 /**
  * \brief
@@ -890,9 +1049,9 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . TAG_MODE
  */
-#define  VTSS_F_RB_PORT_CFG_TAG_MODE(x)       VTSS_ENCODE_BITFIELD(x,18,2)
-#define  VTSS_M_RB_PORT_CFG_TAG_MODE          VTSS_ENCODE_BITMASK(18,2)
-#define  VTSS_X_RB_PORT_CFG_TAG_MODE(x)       VTSS_EXTRACT_BITFIELD(x,18,2)
+#define  VTSS_F_RB_PORT_CFG_TAG_MODE(x)       VTSS_ENCODE_BITFIELD(x,19,2)
+#define  VTSS_M_RB_PORT_CFG_TAG_MODE          VTSS_ENCODE_BITMASK(19,2)
+#define  VTSS_X_RB_PORT_CFG_TAG_MODE(x)       VTSS_EXTRACT_BITFIELD(x,19,2)
 
 /**
  * \brief
@@ -905,9 +1064,9 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . HSR_LSDU_ERR_INT_DISC_ENA
  */
-#define  VTSS_F_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
-#define  VTSS_M_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA  VTSS_BIT(17)
-#define  VTSS_X_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+#define  VTSS_F_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA  VTSS_BIT(18)
+#define  VTSS_X_RB_PORT_CFG_HSR_LSDU_ERR_INT_DISC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
 
 /**
  * \brief
@@ -922,9 +1081,9 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . HSR_FILTER_CFG
  */
-#define  VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(x)  VTSS_ENCODE_BITFIELD(x,15,2)
-#define  VTSS_M_RB_PORT_CFG_HSR_FILTER_CFG     VTSS_ENCODE_BITMASK(15,2)
-#define  VTSS_X_RB_PORT_CFG_HSR_FILTER_CFG(x)  VTSS_EXTRACT_BITFIELD(x,15,2)
+#define  VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(x)  VTSS_ENCODE_BITFIELD(x,16,2)
+#define  VTSS_M_RB_PORT_CFG_HSR_FILTER_CFG     VTSS_ENCODE_BITMASK(16,2)
+#define  VTSS_X_RB_PORT_CFG_HSR_FILTER_CFG(x)  VTSS_EXTRACT_BITFIELD(x,16,2)
 
 /**
  * \brief
@@ -939,9 +1098,9 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . HSR_SPV_FWD_SEL
  */
-#define  VTSS_F_RB_PORT_CFG_HSR_SPV_FWD_SEL(x)  VTSS_ENCODE_BITFIELD(x,13,2)
-#define  VTSS_M_RB_PORT_CFG_HSR_SPV_FWD_SEL     VTSS_ENCODE_BITMASK(13,2)
-#define  VTSS_X_RB_PORT_CFG_HSR_SPV_FWD_SEL(x)  VTSS_EXTRACT_BITFIELD(x,13,2)
+#define  VTSS_F_RB_PORT_CFG_HSR_SPV_FWD_SEL(x)  VTSS_ENCODE_BITFIELD(x,14,2)
+#define  VTSS_M_RB_PORT_CFG_HSR_SPV_FWD_SEL     VTSS_ENCODE_BITMASK(14,2)
+#define  VTSS_X_RB_PORT_CFG_HSR_SPV_FWD_SEL(x)  VTSS_EXTRACT_BITFIELD(x,14,2)
 
 /**
  * \brief
@@ -956,17 +1115,17 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . PRP_SPV_FWD_SEL
  */
-#define  VTSS_F_RB_PORT_CFG_PRP_SPV_FWD_SEL(x)  VTSS_ENCODE_BITFIELD(x,11,2)
-#define  VTSS_M_RB_PORT_CFG_PRP_SPV_FWD_SEL     VTSS_ENCODE_BITMASK(11,2)
-#define  VTSS_X_RB_PORT_CFG_PRP_SPV_FWD_SEL(x)  VTSS_EXTRACT_BITFIELD(x,11,2)
+#define  VTSS_F_RB_PORT_CFG_PRP_SPV_FWD_SEL(x)  VTSS_ENCODE_BITFIELD(x,12,2)
+#define  VTSS_M_RB_PORT_CFG_PRP_SPV_FWD_SEL     VTSS_ENCODE_BITMASK(12,2)
+#define  VTSS_X_RB_PORT_CFG_PRP_SPV_FWD_SEL(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 /**
  * \details
  * Field: ::VTSS_RB_PORT_CFG . TRANS_NETID
  */
-#define  VTSS_F_RB_PORT_CFG_TRANS_NETID(x)    VTSS_ENCODE_BITFIELD(x,8,3)
-#define  VTSS_M_RB_PORT_CFG_TRANS_NETID       VTSS_ENCODE_BITMASK(8,3)
-#define  VTSS_X_RB_PORT_CFG_TRANS_NETID(x)    VTSS_EXTRACT_BITFIELD(x,8,3)
+#define  VTSS_F_RB_PORT_CFG_TRANS_NETID(x)    VTSS_ENCODE_BITFIELD(x,9,3)
+#define  VTSS_M_RB_PORT_CFG_TRANS_NETID       VTSS_ENCODE_BITMASK(9,3)
+#define  VTSS_X_RB_PORT_CFG_TRANS_NETID(x)    VTSS_EXTRACT_BITFIELD(x,9,3)
 
 /**
  * \brief
@@ -983,9 +1142,9 @@
  *
  * Field: ::VTSS_RB_PORT_CFG . TRANS_NETID_SEL
  */
-#define  VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(x)  VTSS_ENCODE_BITFIELD(x,6,2)
-#define  VTSS_M_RB_PORT_CFG_TRANS_NETID_SEL     VTSS_ENCODE_BITMASK(6,2)
-#define  VTSS_X_RB_PORT_CFG_TRANS_NETID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,2)
+#define  VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(x)  VTSS_ENCODE_BITFIELD(x,7,2)
+#define  VTSS_M_RB_PORT_CFG_TRANS_NETID_SEL     VTSS_ENCODE_BITMASK(7,2)
+#define  VTSS_X_RB_PORT_CFG_TRANS_NETID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,7,2)
 
 /**
  * \brief
@@ -996,9 +1155,20 @@
  * \details
  * Field: ::VTSS_RB_PORT_CFG . NETID
  */
-#define  VTSS_F_RB_PORT_CFG_NETID(x)          VTSS_ENCODE_BITFIELD(x,3,3)
-#define  VTSS_M_RB_PORT_CFG_NETID             VTSS_ENCODE_BITMASK(3,3)
-#define  VTSS_X_RB_PORT_CFG_NETID(x)          VTSS_EXTRACT_BITFIELD(x,3,3)
+#define  VTSS_F_RB_PORT_CFG_NETID(x)          VTSS_ENCODE_BITFIELD(x,4,3)
+#define  VTSS_M_RB_PORT_CFG_NETID             VTSS_ENCODE_BITMASK(4,3)
+#define  VTSS_X_RB_PORT_CFG_NETID(x)          VTSS_EXTRACT_BITFIELD(x,4,3)
+
+/**
+ * \brief
+ * LanId used by port for injected frames.
+ *
+ * \details
+ * Field: ::VTSS_RB_PORT_CFG . RING_LANID
+ */
+#define  VTSS_F_RB_PORT_CFG_RING_LANID(x)     VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_RB_PORT_CFG_RING_LANID        VTSS_BIT(3)
+#define  VTSS_X_RB_PORT_CFG_RING_LANID(x)     VTSS_EXTRACT_BITFIELD(x,3,1)
 
 /**
  * \brief
@@ -1035,6 +1205,47 @@
 
 
 /**
+ * \brief PTP configurations
+ *
+ * \details
+ * Register: \a RB:PORT:PTP_CFG
+ *
+ * @param gi Register: PORT (??), 0-2
+ */
+#define VTSS_RB_PTP_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,4)
+
+/**
+ * \brief
+ * If set, frames matching the PTP filter are no subject to duplicate
+ * discard on any egress ports.
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_CFG . PTP_DUPL_DISC_DIS
+ */
+#define  VTSS_F_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_RB_PTP_CFG_PTP_DUPL_DISC_DIS  VTSS_BIT(1)
+#define  VTSS_X_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Handling of frames matching the PTP filter.HSR-xxx:Frames received on an
+ * LRE port:- Frames matching PTP filter and forwarded to the other LRE
+ * port are redirected to the interlink. Frames received on Interlink:- No
+ * specific actions
+ *
+ * \details
+ * 0: No action
+ * 1: Redirect to Interlink
+ * 2: ?
+ *
+ * Field: ::VTSS_RB_PTP_CFG . PTP_ENA
+ */
+#define  VTSS_F_RB_PTP_CFG_PTP_ENA(x)         VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_RB_PTP_CFG_PTP_ENA            VTSS_BIT(0)
+#define  VTSS_X_RB_PTP_CFG_PTP_ENA(x)         VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
  * \brief Sticky diagnostic status
  *
  * \details
@@ -1042,7 +1253,51 @@
  *
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_STICKY(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x8,gi,5,0,4)
+#define VTSS_RB_STICKY(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x14,gi,6,0,5)
+
+/**
+ * \brief
+ * Set if PTP frame destined for a LRE port was redirected to interlink.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . PTP_INT_STICKY
+ */
+#define  VTSS_F_RB_STICKY_PTP_INT_STICKY(x)   VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_RB_STICKY_PTP_INT_STICKY      VTSS_BIT(21)
+#define  VTSS_X_RB_STICKY_PTP_INT_STICKY(x)   VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/**
+ * \brief
+ * Set if PTPoE frame was detected.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . PTP_ETH_STICKY
+ */
+#define  VTSS_F_RB_STICKY_PTP_ETH_STICKY(x)   VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_RB_STICKY_PTP_ETH_STICKY      VTSS_BIT(20)
+#define  VTSS_X_RB_STICKY_PTP_ETH_STICKY(x)   VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/**
+ * \brief
+ * Set if PTPoIPv4oUDP frame was detected.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . PTP_IP4_STICKY
+ */
+#define  VTSS_F_RB_STICKY_PTP_IP4_STICKY(x)   VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_RB_STICKY_PTP_IP4_STICKY      VTSS_BIT(19)
+#define  VTSS_X_RB_STICKY_PTP_IP4_STICKY(x)   VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/**
+ * \brief
+ * Set if PTPoIPv6oUDP frame was detected.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . PTP_IP6_STICKY
+ */
+#define  VTSS_F_RB_STICKY_PTP_IP6_STICKY(x)   VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_RB_STICKY_PTP_IP6_STICKY      VTSS_BIT(18)
+#define  VTSS_X_RB_STICKY_PTP_IP6_STICKY(x)   VTSS_EXTRACT_BITFIELD(x,18,1)
 
 /**
  * \brief
@@ -1263,7 +1518,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,0)
+#define VTSS_RB_CNT_TX(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,0)
 
 /**
  * \brief
@@ -1288,7 +1543,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,1)
+#define VTSS_RB_CNT_RX(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,1)
 
 /**
  * \brief
@@ -1313,7 +1568,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_WRONG_LAN(gi)         VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,2)
+#define VTSS_RB_CNT_RX_WRONG_LAN(gi)         VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,2)
 
 /**
  * \brief
@@ -1339,7 +1594,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_OWN(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,3)
+#define VTSS_RB_CNT_RX_OWN(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,3)
 
 /**
  * \brief
@@ -1367,7 +1622,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ZERO(gi)            VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,4)
+#define VTSS_RB_CNT_DUPL_ZERO(gi)            VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,4)
 
 /**
  * \brief
@@ -1395,7 +1650,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ONE(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,5)
+#define VTSS_RB_CNT_DUPL_ONE(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,5)
 
 /**
  * \brief
@@ -1423,7 +1678,7 @@
  *
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_TWO(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x17,gi,7,0,6)
+#define VTSS_RB_CNT_DUPL_TWO(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x26,gi,7,0,6)
 
 /**
  * \brief
@@ -1451,7 +1706,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CTRL
  */
-#define VTSS_RB_HOST_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x2c)
+#define VTSS_RB_HOST_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x3b)
 
 /**
  * \brief
@@ -1570,7 +1825,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_0
  */
-#define VTSS_RB_HOST_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x2d)
+#define VTSS_RB_HOST_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x3c)
 
 /**
  * \brief
@@ -1606,7 +1861,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_1
  */
-#define VTSS_RB_HOST_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x2e)
+#define VTSS_RB_HOST_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x3d)
 
 /**
  * \brief
@@ -1631,7 +1886,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_2
  */
-#define VTSS_RB_HOST_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x2f)
+#define VTSS_RB_HOST_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x3e)
 
 /**
  * \details
@@ -1749,7 +2004,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_0
  */
-#define VTSS_RB_HOST_ACCESS_STAT_0           VTSS_IOREG(VTSS_TO_RB_0,0x30)
+#define VTSS_RB_HOST_ACCESS_STAT_0           VTSS_IOREG(VTSS_TO_RB_0,0x3f)
 
 /**
  * \brief
@@ -1771,7 +2026,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_1
  */
-#define VTSS_RB_HOST_ACCESS_STAT_1           VTSS_IOREG(VTSS_TO_RB_0,0x31)
+#define VTSS_RB_HOST_ACCESS_STAT_1           VTSS_IOREG(VTSS_TO_RB_0,0x40)
 
 /**
  * \brief
@@ -1793,7 +2048,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_2
  */
-#define VTSS_RB_HOST_ACCESS_STAT_2           VTSS_IOREG(VTSS_TO_RB_0,0x32)
+#define VTSS_RB_HOST_ACCESS_STAT_2           VTSS_IOREG(VTSS_TO_RB_0,0x41)
 
 /**
  * \brief
@@ -1815,7 +2070,7 @@
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_3
  */
-#define VTSS_RB_HOST_ACCESS_STAT_3           VTSS_IOREG(VTSS_TO_RB_0,0x33)
+#define VTSS_RB_HOST_ACCESS_STAT_3           VTSS_IOREG(VTSS_TO_RB_0,0x42)
 
 /**
  * \brief
@@ -1869,13 +2124,13 @@
  *
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG(ri)         VTSS_IOREG(VTSS_TO_RB_0,0x34 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG(ri)         VTSS_IOREG(VTSS_TO_RB_0,0x43 + (ri))
 
 /**
  * \brief
  * Sets the unit time of PERIOD_VAL. Internally the auto aging
  * state-machine computes the aging period by shifting
- * RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL by ceiling_log2(UNIT_SIZE).
+ * RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
  *
  * \details
  * 0: 81: 1282: 20483: 32768
@@ -1888,16 +2143,18 @@
 
 /**
  * \brief
- * Time between automatic ageing of an entry in 128 units of clock cycles.
+ * Time between automatic ageing of a row in
+ * RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
  *
  * \details
  * n: Age period in RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE amount of clock
  * cycles, i.e. for an RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL = 1 the
  * hardware will age an row every RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE
  * clock cycles.
- *	   e.g. To achieve a 60s aging period at 1 GHz frequency then we
- * can choose UNIT_SIZE = 128 and PERIOD_VAL = ceil((60000000 us *
- * 1000MHz)/128)
+ *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
+ * then every row should age every ~234375 us. At 1 GHz frequency we can
+ * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
+ * 1000MHz)/(32768)) = 7153
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . PERIOD_VAL
  */
@@ -1916,7 +2173,7 @@
  *
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_1(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x36 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_1(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x45 + (ri))
 
 /**
  * \brief
@@ -1955,7 +2212,7 @@
  *
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_2(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x38 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_2(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x47 + (ri))
 
 /**
  * \brief
@@ -1982,7 +2239,7 @@
  * \details
  * Register: \a RB:HOST_TBL:HOST_EVENT_STICKY
  */
-#define VTSS_RB_HOST_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x3a)
+#define VTSS_RB_HOST_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x49)
 
 /**
  * \brief
@@ -2294,7 +2551,7 @@
  * \details
  * Register: \a RB:HOST_TBL:HOST_LATEST_POS_STATUS
  */
-#define VTSS_RB_HOST_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x3b)
+#define VTSS_RB_HOST_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x4a)
 
 /**
  * \brief
@@ -2345,7 +2602,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CTRL
  */
-#define VTSS_RB_DISC_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x3c)
+#define VTSS_RB_DISC_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x4b)
 
 /**
  * \brief
@@ -2472,7 +2729,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_0
  */
-#define VTSS_RB_DISC_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x3d)
+#define VTSS_RB_DISC_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x4c)
 
 /**
  * \brief
@@ -2508,7 +2765,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_1
  */
-#define VTSS_RB_DISC_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x3e)
+#define VTSS_RB_DISC_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x4d)
 
 /**
  * \brief
@@ -2533,7 +2790,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_2
  */
-#define VTSS_RB_DISC_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x3f)
+#define VTSS_RB_DISC_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x4e)
 
 /**
  * \brief
@@ -2644,13 +2901,13 @@
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG             VTSS_IOREG(VTSS_TO_RB_0,0x40)
+#define VTSS_RB_DISC_AUTOAGE_CFG             VTSS_IOREG(VTSS_TO_RB_0,0x4f)
 
 /**
  * \brief
  * Sets the unit time of PERIOD_VAL. Internally the auto aging
  * state-machine computes the aging period by shifting
- * RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL by ceiling_log2(UNIT_SIZE).
+ * RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
  *
  * \details
  * 0: 81: 1282: 20483: 32768
@@ -2663,16 +2920,18 @@
 
 /**
  * \brief
- * Time between automatic ageing of an entry in 128 units of clock cycles.
+ * Time between automatic ageing of a row in
+ * RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
  *
  * \details
  * n: Age period in RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE amount of clock
  * cycles, i.e. for an RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL = 1 the
  * hardware will age an row every RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE
  * clock cycles.
- *	   e.g. To achieve a 60s aging period at 1 GHz frequency then we
- * can choose UNIT_SIZE = 128 and PERIOD_VAL = ceil((60000000 us *
- * 1000MHz)/128)
+ *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
+ * then every row should age every ~234375 us. At 1 GHz frequency we can
+ * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
+ * 1000MHz)/(32768)) = 7153
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . PERIOD_VAL
  */
@@ -2689,7 +2948,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG_1
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_1           VTSS_IOREG(VTSS_TO_RB_0,0x41)
+#define VTSS_RB_DISC_AUTOAGE_CFG_1           VTSS_IOREG(VTSS_TO_RB_0,0x50)
 
 /**
  * \brief
@@ -2726,7 +2985,7 @@
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG_2
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_2           VTSS_IOREG(VTSS_TO_RB_0,0x42)
+#define VTSS_RB_DISC_AUTOAGE_CFG_2           VTSS_IOREG(VTSS_TO_RB_0,0x51)
 
 /**
  * \brief
@@ -2753,7 +3012,7 @@
  * \details
  * Register: \a RB:DISC_TBL:DISC_EVENT_STICKY
  */
-#define VTSS_RB_DISC_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x43)
+#define VTSS_RB_DISC_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x52)
 
 /**
  * \brief
@@ -3103,7 +3362,7 @@
  * \details
  * Register: \a RB:DISC_TBL:DISC_LATEST_POS_STATUS
  */
-#define VTSS_RB_DISC_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x44)
+#define VTSS_RB_DISC_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x53)
 
 /**
  * \brief

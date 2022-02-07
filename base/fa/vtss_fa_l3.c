@@ -465,8 +465,9 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
         pr("\n");
         header = 1;
     }
-
+#if 0 //fixme
     VTSS_RC(vtss_fa_debug_lpm(vtss_state, pr, info));
+#endif
 
     for (i = 0; i < VTSS_ARP_CNT; i++) {
         REG_RD(VTSS_ANA_L3_ARP_CFG_0(i), &cfg0);

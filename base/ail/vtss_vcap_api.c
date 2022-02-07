@@ -1093,6 +1093,7 @@ void vtss_vcap_es0_init(vtss_vcap_data_t *data, vtss_es0_entry_t *entry)
 /* Update ES0 action fields based on VLAN and QoS port configuration */
 void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
 {
+#if 0
     vtss_es0_action_t *action = &es0->entry->action;
 
     if (es0->flags & (VTSS_ES0_FLAG_OT_VLAN | VTSS_ES0_FLAG_IT_VLAN)) {
@@ -1140,6 +1141,7 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
         vtss_qos_port_conf_t   *conf = &vtss_state->qos.port_conf[es0->port_no];
         vtss_tag_remark_mode_t mode = conf->tag_remark_mode;
 
+
 #if defined(VTSS_ARCH_LUTON26)
         if (es0->flags & VTSS_ES0_FLAG_OT_QOS) {
             action->qos = (mode == VTSS_TAG_REMARK_MODE_CLASSIFIED ? VTSS_ES0_QOS_CLASS :
@@ -1186,6 +1188,7 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
         }
 #endif
     }
+#endif
 }
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)

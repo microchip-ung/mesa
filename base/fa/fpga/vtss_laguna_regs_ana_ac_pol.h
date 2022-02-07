@@ -807,10 +807,10 @@
  * This configuration will affect the policing rate unit for the storm, ACL
  * and port policers. The rate unit is calculated as follows:Rate unit =
  * SYS_CLK / (POL_UPD_INT * 16) bpsRecommended value and corresponding rate
- * unit:280 MHz: 700 => 25000 bpsFrame rate mode is also affected be this
- * setting. The default frame rate unit is 10fps (frames per second). This
- * is scaled according to this formula:Frame rate = 10fps * (Rate unit /
- * 25000 bps)
+ * unit:160 MHz: 400 => 25000 bps320 MHz: 800 => 25000 bpsFrame rate mode
+ * is also affected be this setting. The default frame rate unit is 10fps
+ * (frames per second). This is scaled according to this formula:Frame rate
+ * = 10fps * (Rate unit / 25000 bps)
  *
  * \details
  * 0-31: Not allowed

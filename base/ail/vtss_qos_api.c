@@ -171,7 +171,9 @@ vtss_rc vtss_qce_add(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+#if 0 //fixme
         rc = VTSS_FUNC(qos.qce_add, qcl_id, qce_id, qce);
+#endif
     }
     VTSS_EXIT();
     return rc;
@@ -188,7 +190,9 @@ vtss_rc vtss_qce_del(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+#if 0 //fixme
         rc = VTSS_FUNC(qos.qce_del, qcl_id, qce_id);
+#endif
     }
     VTSS_EXIT();
     return rc;

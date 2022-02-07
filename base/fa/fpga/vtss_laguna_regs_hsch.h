@@ -33,6 +33,17 @@
 
 /**
  * \brief
+ * This small element is a part of a large scheduling element.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_HSCH_L0_CFG . LARGE
+ */
+#define  VTSS_F_HSCH_HSCH_L0_CFG_LARGE(x)     VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_HSCH_HSCH_L0_CFG_LARGE        VTSS_BIT(22)
+#define  VTSS_X_HSCH_HSCH_L0_CFG_LARGE(x)     VTSS_EXTRACT_BITFIELD(x,22,1)
+
+/**
+ * \brief
  * Next layer for queue scheduled through the layer 0 element.
  *
  * \details
@@ -717,7 +728,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_MISC_CFG
  */
-#define VTSS_HSCH_HSCH_MISC_CFG              VTSS_IOREG(VTSS_TO_HSCH,0x2c60)
+#define VTSS_HSCH_HSCH_MISC_CFG              VTSS_IOREG(VTSS_TO_HSCH,0x23a6)
 
 /**
  * \brief
@@ -739,7 +750,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_HSCH_HSCH_MISC_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_HSCH,0x2c61 + (ri))
+#define VTSS_HSCH_HSCH_MISC_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_HSCH,0x23a7 + (ri))
 
 /**
  * \brief
@@ -759,7 +770,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_CFG_CFG
  */
-#define VTSS_HSCH_HSCH_CFG_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x2ca7)
+#define VTSS_HSCH_HSCH_CFG_CFG               VTSS_IOREG(VTSS_TO_HSCH,0x23ed)
 
 /**
  * \brief
@@ -809,7 +820,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_ETHPORT_CNT (??), 0-29
  */
-#define VTSS_HSCH_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_HSCH,0x2ca8 + (ri))
+#define VTSS_HSCH_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_HSCH,0x23ee + (ri))
 
 /**
  * \brief
@@ -842,31 +853,6 @@
 
 
 /**
- * \brief Enable large scheduling elements
- *
- * \details
- * Register: \a HSCH:HSCH_MISC:HSCH_LARGE_ENA
- *
- * @param ri Replicator: x_GAZ_HSCH_LARGE_CFG_SIZE (??), 0-8
- */
-#define VTSS_HSCH_HSCH_LARGE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x2ce9 + (ri))
-
-/**
- * \brief
- * Bit n in replication k enables extended width on scheduling element
- * (32k+n)*2. Scheduling element (32k+n)*2+1 must not be used if enabled.
- * Fx. if scheduling element 180 should handle 16 inputs, HSCH_LARGE_ENA[2]
- * bit 26 should be set to 1, and element 181 must not be used.
- *
- * \details
- * Field: ::VTSS_HSCH_HSCH_LARGE_ENA . HSCH_LARGE_ENA
- */
-#define  VTSS_F_HSCH_HSCH_LARGE_ENA_HSCH_LARGE_ENA(x)  (x)
-#define  VTSS_M_HSCH_HSCH_LARGE_ENA_HSCH_LARGE_ENA     0xffffffff
-#define  VTSS_X_HSCH_HSCH_LARGE_ENA_HSCH_LARGE_ENA(x)  (x)
-
-
-/**
  * \brief Core events from the Scheduler
  *
  * \details
@@ -874,7 +860,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:EVENTS_CORE
  */
-#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x2cfd)
+#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x242f)
 
 /**
  * \brief
@@ -911,7 +897,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:DEBUG_CTRL
  */
-#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2cfe)
+#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2430)
 
 /**
  * \brief
@@ -933,7 +919,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_UPDATE_STAT
  */
-#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x2cff)
+#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x2431)
 
 /**
  * \brief
@@ -949,32 +935,12 @@
 
 
 /**
- * \brief System clock period configuration
- *
- * \details
- * Register: \a HSCH:HSCH_MISC:SYS_CLK_PER
- */
-#define VTSS_HSCH_SYS_CLK_PER                VTSS_IOREG(VTSS_TO_HSCH,0x2d00)
-
-/**
- * \brief
- * Must be set to the system clock period with unit 100 picoseconds.
- *
- * \details
- * Field: ::VTSS_HSCH_SYS_CLK_PER . SYS_CLK_PER_100PS
- */
-#define  VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
  * \brief Force update of an element in the hierarchy
  *
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_FORCE_CTRL
  */
-#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x2d01)
+#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x2432)
 
 /**
  * \brief
@@ -1031,7 +997,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_TIMER_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x23a6,gi,8,ri,0)
+#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x2433,gi,8,ri,0)
 
 /**
  * \brief
@@ -1065,7 +1031,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_LEAK_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x23a6,gi,8,ri,4)
+#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x2433,gi,8,ri,4)
 
 /**
  * \brief
@@ -1103,7 +1069,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:EQ_STAT
  */
-#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x2d02)
+#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x2453)
 
 /**
  * \brief
@@ -1123,7 +1089,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:FLUSH_CTRL
  */
-#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2d03)
+#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2454)
 
 /**
  * \brief
@@ -1216,7 +1182,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x2d04 + (ri))
+#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x2455 + (ri))
 
 /**
  * \brief
@@ -1292,7 +1258,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_INTPORT_CNT (??), 0-4
  */
-#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x2d4a + (ri))
+#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x249b + (ri))
 
 /**
  * \brief
@@ -1322,7 +1288,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:OUTB_CPU_SHARE_ENA
  */
-#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x2d4f)
+#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x24a0)
 
 /**
  * \brief
@@ -1351,7 +1317,7 @@
  * \details
  * Register: \a HSCH:MMGT:MMGT
  */
-#define VTSS_HSCH_MMGT                       VTSS_IOREG(VTSS_TO_HSCH,0x23c6)
+#define VTSS_HSCH_MMGT                       VTSS_IOREG(VTSS_TO_HSCH,0x24a1)
 
 /**
  * \brief
@@ -1382,7 +1348,7 @@
  * \details
  * Register: \a HSCH:MMGT:MMGT_FAST
  */
-#define VTSS_HSCH_MMGT_FAST                  VTSS_IOREG(VTSS_TO_HSCH,0x23c7)
+#define VTSS_HSCH_MMGT_FAST                  VTSS_IOREG(VTSS_TO_HSCH,0x24a2)
 
 /**
  * \brief
@@ -1418,7 +1384,7 @@
  *
  * Register: \a HSCH:MMGT:RESET_CFG
  */
-#define VTSS_HSCH_RESET_CFG                  VTSS_IOREG(VTSS_TO_HSCH,0x23c8)
+#define VTSS_HSCH_RESET_CFG                  VTSS_IOREG(VTSS_TO_HSCH,0x24a3)
 
 /**
  * \brief
@@ -1438,7 +1404,7 @@
  * \details
  * Register: \a HSCH:MMGT:PMEM_SIZE
  */
-#define VTSS_HSCH_PMEM_SIZE                  VTSS_IOREG(VTSS_TO_HSCH,0x23c9)
+#define VTSS_HSCH_PMEM_SIZE                  VTSS_IOREG(VTSS_TO_HSCH,0x24a4)
 
 /**
  * \brief
@@ -1464,7 +1430,7 @@
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL
  */
-#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x23ca)
+#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x24a5)
 
 /**
  * \brief
@@ -1516,9 +1482,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_CFG_CTRL . GCL_ENTRY_NUM
  */
-#define  VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(x)  VTSS_ENCODE_BITFIELD(x,0,13)
-#define  VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM     VTSS_ENCODE_BITMASK(0,13)
-#define  VTSS_X_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(x)  VTSS_EXTRACT_BITFIELD(x,0,13)
+#define  VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 
 /**
@@ -1530,7 +1496,7 @@
  *
  * Register: \a HSCH:TAS_CONFIG:TAS_GATE_STATE_CTRL
  */
-#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x23cb)
+#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x24a6)
 
 /**
  * \brief
@@ -1551,7 +1517,7 @@
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL2
  */
-#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x23cc)
+#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x24a7)
 
 /**
  * \brief
@@ -1576,7 +1542,7 @@
  *
  * Register: \a HSCH:TAS_CONFIG:TAS_STATEMACHINE_CFG
  */
-#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x23cd)
+#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x24a8)
 
 /**
  * \brief
@@ -1587,9 +1553,35 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . REVISIT_DLY
  */
-#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_ENCODE_BITFIELD(x,22,8)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY     VTSS_ENCODE_BITMASK(22,8)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,22,8)
+
+/**
+ * \brief
+ * The predicted run rate of the egress pipe will be adjusted by 1/value.
+ * Even values increases bandwidth a bit with potential overshooting a tas
+ * window. Odd values reduces bandwidth a bit with potential loss of
+ * throughput.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_CBSHP_ADJ
+ */
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_ENCODE_BITFIELD(x,10,12)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ     VTSS_ENCODE_BITMASK(10,12)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_EXTRACT_BITFIELD(x,10,12)
+
+/**
+ * \brief
+ * Tas actions will taken place this amount of nsec in advance to better
+ * hit timing on the physical interfaces
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_PIPE_DLY_NS
+ */
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_ENCODE_BITFIELD(x,0,10)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS     VTSS_ENCODE_BITMASK(0,10)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
 
 /**
  * Register Group: \a HSCH:TAS_PROFILE_CFG
@@ -1599,56 +1591,14 @@
 
 
 /**
- * \brief MAX SDU for traffic classes
- *
- * \details
- * Register: \a HSCH:TAS_PROFILE_CFG:TAS_QMAXSDU_CFG
- *
- * @param gi Replicator: x_GAZ_CORE_TAS_PROFILE_CNT (??), 0-59
- * @param ri Register: TAS_QMAXSDU_CFG (??), 0-7
- */
-#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2400,gi,16,ri,0)
-
-/**
- * \brief
- * Specifies maximum allowed SDU for the traffic class N, when transmitted
- * in this profile P. P is the register group replication index, and N is
- * the register index.Value used for guard banding. It is together with
- * link_speed determining the time prior to a gate closing where the
- * scheduler stops selecting the class. The unit is 64 bytes times the
- * value of link_speedThe time specified with qmaxsdu_val and link_speed
- * should be smaller than the smallest value of time_interval in use for
- * this profile. A queue will always be opened for a small amount of time,
- * even if the specified guard-banding is larger than qmaxsdu_val.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_QMAXSDU_CFG . QMAXSDU_VAL
- */
-#define  VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
  * \brief Time aware gate configuration register
  *
  * \details
  * Register: \a HSCH:TAS_PROFILE_CFG:TAS_PROFILE_CONFIG
  *
- * @param gi Replicator: x_GAZ_CORE_TAS_PROFILE_CNT (??), 0-59
+ * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
  */
-#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x2400,gi,16,0,8)
-
-/**
- * \brief
- * Port to which to send Hold-MAC / Release-MAC requests
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . PORT_NUM
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,19,5)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_PORT_NUM     VTSS_ENCODE_BITMASK(19,5)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,19,5)
+#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24a9,gi,17,0,0)
 
 /**
  * \brief
@@ -1668,9 +1618,9 @@
  *
  * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . LINK_SPEED
  */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_ENCODE_BITFIELD(x,16,3)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED     VTSS_ENCODE_BITMASK(16,3)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_ENCODE_BITFIELD(x,23,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED     VTSS_ENCODE_BITMASK(23,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,23,3)
 
 /**
  * \brief
@@ -1687,9 +1637,9 @@
  *
  * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . SCH_TRAFFIC_QUEUES
  */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_ENCODE_BITFIELD(x,8,8)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES     VTSS_ENCODE_BITMASK(8,8)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_ENCODE_BITFIELD(x,15,8)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES     VTSS_ENCODE_BITMASK(15,8)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_EXTRACT_BITFIELD(x,15,8)
 
 /**
  * \brief
@@ -1702,9 +1652,120 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . HOLDADVANCE
  */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_ENCODE_BITFIELD(x,7,8)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE     VTSS_ENCODE_BITMASK(7,8)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_EXTRACT_BITFIELD(x,7,8)
+
+/**
+ * \brief
+ * A TAS gate will open a delay prior to the configured gate control
+ * time.The delay is the sum of TAS_PIPE_DLY_NS and TAS_PORT_DLY. Unit is
+ * 64 byte times on the port.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_PORT_DLY
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_ENCODE_BITFIELD(x,4,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY     VTSS_ENCODE_BITMASK(4,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,4,3)
+
+/**
+ * \brief
+ * A TAS gate will close a delay prior to the configured gate control
+ * time.The delay is the sum of TAS_PIPE_DLY_NS, TAS_PORT_DLY,
+ * TAS_CLOSE_DLY and the QMAXSDU based guard banding configured. Unit is 64
+ * byte times on the port.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CLOSE_DLY
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_ENCODE_BITFIELD(x,1,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY     VTSS_ENCODE_BITMASK(1,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_EXTRACT_BITFIELD(x,1,3)
+
+/**
+ * \brief
+ * Enable shaping of egress cell bus to accomplish better TAS window
+ * accuracy.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CBSHP_ENA
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA  VTSS_BIT(0)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief MAX SDU for traffic classes
+ *
+ * \details
+ * Register: \a HSCH:TAS_PROFILE_CFG:TAS_QMAXSDU_CFG
+ *
+ * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
+ * @param ri Register: TAS_QMAXSDU_CFG (??), 0-7
+ */
+#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24a9,gi,17,ri,1)
+
+/**
+ * \brief
+ * Specifies maximum allowed SDU for the traffic class N, when transmitted
+ * on port P. P is the register group replication index, and N is the
+ * register index.Value used for guard banding. It is together with
+ * link_speed determining the time prior to a gate closing where the
+ * scheduler stops selecting the class. The unit is 64 bytes times the
+ * value of link_speedThe time specified with qmaxsdu_val and link_speed
+ * should be smaller than the smallest value of time_interval in use for
+ * this port. A queue will always be opened for a small amount of time,
+ * even if the specified guard-banding is larger than qmaxsdu_val.
+ * This setting can also be used for enqueue discards if QMAXSDU_DISC_ENA
+ * is set
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_QMAXSDU_CFG . QMAXSDU_VAL
+ */
+#define  VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief MAX SDU discard for traffic classes
+ *
+ * \details
+ * Register: \a HSCH:TAS_PROFILE_CFG:QMAXSDU_DISC_CFG
+ *
+ * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
+ * @param ri Register: QMAXSDU_DISC_CFG (??), 0-7
+ */
+#define VTSS_HSCH_QMAXSDU_DISC_CFG(gi,ri)    VTSS_IOREG_IX(VTSS_TO_HSCH,0x24a9,gi,17,ri,9)
+
+/**
+ * \brief
+ * Specifies the 6 LSBs of the allowed maximum frame size for the traffic
+ * class N, when transmitted on port P. Size is compared against the
+ * ingress frame size, as discards are taking place before the egress path.
+ * Discards are only taking place if enabled by the QMAXSDU_DISC_ENA
+ * setting
+ *
+ * \details
+ * Field: ::VTSS_HSCH_QMAXSDU_DISC_CFG . QMAXSDU_LSB
+ */
+#define  VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+
+/**
+ * \brief
+ * Enables discards of traffic per class using the QMAXSDU_VAL and
+ * QMAXSDU_LSB values.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_QMAXSDU_DISC_CFG . QMAXSDU_DISC_ENA
+ */
+#define  VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA  VTSS_BIT(8)
+#define  VTSS_X_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * Register Group: \a HSCH:TAS_LIST_CFG
@@ -1921,15 +1982,37 @@
 
 /**
  * \brief
- * Set the base address in the 4800 entries long control pool for the
+ * Scheduling hierarchy location this list should operate on
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_HSCH_POS
+ */
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_ENCODE_BITFIELD(x,19,11)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_HSCH_POS     VTSS_ENCODE_BITMASK(19,11)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_EXTRACT_BITFIELD(x,19,11)
+
+/**
+ * \brief
+ * Physical port number this tas list operates on
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_PORT_NUM
+ */
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,14,5)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_PORT_NUM     VTSS_ENCODE_BITMASK(14,5)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,14,5)
+
+/**
+ * \brief
+ * Set the base address in the 3000 entries long control pool for the
  * selected list.
  *
  * \details
  * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_BASE_ADDR
  */
-#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_ENCODE_BITFIELD(x,0,13)
-#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR     VTSS_ENCODE_BITMASK(0,13)
-#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,0,13)
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 /**
  * \brief
@@ -1938,9 +2021,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_TOD_DOM
  */
-#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_ENCODE_BITFIELD(x,13,2)
-#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_TOD_DOM     VTSS_ENCODE_BITMASK(13,2)
-#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_EXTRACT_BITFIELD(x,13,2)
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_ENCODE_BITFIELD(x,12,2)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_TOD_DOM     VTSS_ENCODE_BITMASK(12,2)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 
 /**
@@ -2008,9 +2091,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_LIST_PTR_STATE . CUR_PTR
  */
-#define  VTSS_F_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,13)
-#define  VTSS_M_HSCH_TAS_LIST_PTR_STATE_CUR_PTR     VTSS_ENCODE_BITMASK(0,13)
-#define  VTSS_X_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,13)
+#define  VTSS_F_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_HSCH_TAS_LIST_PTR_STATE_CUR_PTR     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 
 /**
@@ -2046,18 +2129,6 @@
  * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_CTRL_CFG
  */
 #define VTSS_HSCH_TAS_GCL_CTRL_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x23a0)
-
-/**
- * \brief
- * Select to which port the control entry should be applied.
-
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_GCL_CTRL_CFG . HSCH_POS
- */
-#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(x)  VTSS_ENCODE_BITFIELD(x,10,11)
-#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS     VTSS_ENCODE_BITMASK(10,11)
-#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(x)  VTSS_EXTRACT_BITFIELD(x,10,11)
 
 /**
  * \brief
@@ -2108,17 +2179,6 @@
 
 /**
  * \brief
- * TAS_PROFILE index to use for this entry
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_GCL_CTRL_CFG2 . PORT_PROFILE
- */
-#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(x)  VTSS_ENCODE_BITFIELD(x,13,6)
-#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE     VTSS_ENCODE_BITMASK(13,6)
-#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(x)  VTSS_EXTRACT_BITFIELD(x,13,6)
-
-/**
- * \brief
  * Points to the next GCL entry in the list after
  *	   this entry. The end of a list is marked by a GCL entry pointing
  * back
@@ -2138,9 +2198,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_GCL_CTRL_CFG2 . NEXT_GCL
  */
-#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_ENCODE_BITFIELD(x,0,13)
-#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL     VTSS_ENCODE_BITMASK(0,13)
-#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_EXTRACT_BITFIELD(x,0,13)
+#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 
 /**

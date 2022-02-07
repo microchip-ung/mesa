@@ -20,10 +20,13 @@
 
 u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state,  u32 length);
 vtss_rc lan969x_tas_list_free(vtss_state_t *vtss_state,  u32 list_idx);
+#if 0 //fixme
 vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_qos_tas_port_conf_t *current_port_conf);
+
 vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                                u32 list_idx, u32 obsolete_list_idx,
                                vtss_qos_tas_port_conf_t *port_conf, u32 startup_time);
+#endif
 vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s   *vtss_state,
                                      const vtss_port_no_t  port_no);
 void tas_list_state_write(vtss_state_t *vtss_state, u32 list_idx, u32 state);

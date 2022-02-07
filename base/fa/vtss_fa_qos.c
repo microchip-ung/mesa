@@ -27,7 +27,7 @@
 #define LB_THRES_HYS_MIN              (LB_THRES_MAX+1)  /* The minimum bucket open hysteresis */
 #define LB_THRES_HYS_NONE             0                 /* No hysteresis */
 #define LB_2CYCLES_TYPE2_THRES_OFFSET 13                /* FA specific value */
-
+#if 0 // fixme
 static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
 {
@@ -4996,13 +4996,14 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
-
+#endif // fixme
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_qos_state_t   *state = &vtss_state->qos;
+//    vtss_qos_state_t   *state = &vtss_state->qos;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
+#if 0 // fixme
         state->conf_set = fa_qos_conf_set;
 
         state->port_conf_set = vtss_cmn_qos_port_conf_set;
@@ -5041,13 +5042,17 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->fp_port_status_get = fa_qos_fp_port_status_get;
         }
 #endif
-
+#endif // fixme
         break;
     case VTSS_INIT_CMD_INIT:
+#if 0 // fixme
         VTSS_RC(fa_qos_init(vtss_state));
+#endif
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+#if 0 // fixme
         VTSS_RC(fa_qos_port_map_set(vtss_state));
+#endif
         break;
     default:
         break;

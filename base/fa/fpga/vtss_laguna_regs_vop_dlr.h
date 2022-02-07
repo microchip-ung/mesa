@@ -603,7 +603,10 @@
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
  *
  * Field: ::VTSS_VOP_DLR_BCN_CFG . LOC_PERIOD
  */
@@ -723,6 +726,12 @@
  * LOC period used by endpoint. Related parameters:- VOP::LOC_PERIOD_CFG
  *
  * \details
+ * 0: No LOC period in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
+ *
  * Field: ::VTSS_VOP_DLR_ADV_CFG . ADV_LOC_PERIOD
  */
 #define  VTSS_F_VOP_DLR_ADV_CFG_ADV_LOC_PERIOD(x)  VTSS_ENCODE_BITFIELD(x,0,4)
