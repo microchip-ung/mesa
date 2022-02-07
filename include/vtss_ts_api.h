@@ -525,8 +525,7 @@ vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t           inst,
 vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t              inst,
                                         const vtss_ts_ext_clock_mode_t *const ext_clock_mode);
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||
-    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /**
  * \brief parameter for setting the external io mode.
  * Architecture:
