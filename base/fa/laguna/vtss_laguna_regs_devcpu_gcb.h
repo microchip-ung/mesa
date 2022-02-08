@@ -1613,7 +1613,7 @@
 
 /**
  * \brief
- * Number of clock cycles per capture time unit. The default value of 2800
+ * Number of clock cycles per capture time unit. The default value of 3200
  * corresponds to a 10us base time unit.
  *
  * \details

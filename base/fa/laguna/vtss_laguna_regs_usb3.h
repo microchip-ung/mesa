@@ -8606,8 +8606,10 @@ This register indicates whether a USB endpoint is active in a given configuratio
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DEV:RSVD
+ *
+ * @param ri Register: RSVD (??), 0-31
  */
-#define VTSS_USB3_RSVD                       VTSS_IOREG(VTSS_TO_USB3,0x31c9)
+#define VTSS_USB3_RSVD(ri)                   VTSS_IOREG(VTSS_TO_USB3,0x31c9 + (ri))
 
 /**
  * \brief
@@ -8629,8 +8631,10 @@ This register indicates the physical endpoint command Parameter 2. It must be pr
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DEV:DEPCMDPAR2
+ *
+ * @param ri Register: DEPCMDPAR2 (??), 0-7
  */
-#define VTSS_USB3_DEPCMDPAR2                 VTSS_IOREG(VTSS_TO_USB3,0x3200)
+#define VTSS_USB3_DEPCMDPAR2(ri)             VTSS_IOREG(VTSS_TO_USB3,0x3200 + (ri))
 
 /**
  * \brief
@@ -8649,8 +8653,10 @@ This register indicates the physical endpoint command Parameter 2. It must be pr
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DEV:DEPCMDPAR1
+ *
+ * @param ri Register: DEPCMDPAR1 (??), 0-7
  */
-#define VTSS_USB3_DEPCMDPAR1                 VTSS_IOREG(VTSS_TO_USB3,0x3201)
+#define VTSS_USB3_DEPCMDPAR1(ri)             VTSS_IOREG(VTSS_TO_USB3,0x3201 + (ri))
 
 /**
  * \brief
@@ -8669,8 +8675,10 @@ This register indicates the physical endpoint command Parameter 2. It must be pr
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DEV:DEPCMDPAR0
+ *
+ * @param ri Register: DEPCMDPAR0 (??), 0-7
  */
-#define VTSS_USB3_DEPCMDPAR0                 VTSS_IOREG(VTSS_TO_USB3,0x3202)
+#define VTSS_USB3_DEPCMDPAR0(ri)             VTSS_IOREG(VTSS_TO_USB3,0x3202 + (ri))
 
 /**
  * \brief
@@ -8693,8 +8701,10 @@ Several fields (including Command Type) are write-only, so their read values are
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DEV:DEPCMD
+ *
+ * @param ri Register: DEPCMD (??), 0-7
  */
-#define VTSS_USB3_DEPCMD                     VTSS_IOREG(VTSS_TO_USB3,0x3203)
+#define VTSS_USB3_DEPCMD(ri)                 VTSS_IOREG(VTSS_TO_USB3,0x3203 + (ri))
 
 /**
  * \brief
@@ -11913,8 +11923,10 @@ Programming this field with random data will cause side effect i.e. Register Acc
  *
  * \details
  * Register: \a USB3:DWC_USB3_BLOCK_DOORBELL_REGISTER:DB
+ *
+ * @param ri Register: DB (??), 0-64
  */
-#define VTSS_USB3_DB                         VTSS_IOREG(VTSS_TO_USB3,0x120)
+#define VTSS_USB3_DB(ri)                     VTSS_IOREG(VTSS_TO_USB3,0x120 + (ri))
 
 /**
  * \brief

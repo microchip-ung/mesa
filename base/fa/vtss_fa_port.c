@@ -3354,17 +3354,19 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
             VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(value),
             VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
-
+#if 0 // fixme
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
+#endif
 
     /* Configure flow control */
     if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
         VTSS_E("Could not configure FC port: %u", port);
     }
-
+#if 0 // fixme
     /* Update policer flow control configuration */
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
+#endif
 
     /* Enable MAC module */
     REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
@@ -3398,9 +3400,10 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     if (conf->flow_control.generate) {
         REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
     }
-
+#if 0 // fixme
     /* Setup QoS - out of reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
+#endif
 
     VTSS_D("chip port: %u (10G),is configured", port);
 #endif // !defined(VTSS_ARCH_LAN969X_FPGA)

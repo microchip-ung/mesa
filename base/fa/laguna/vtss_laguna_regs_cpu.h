@@ -3091,6 +3091,22 @@
 #define  VTSS_M_CPU_DDRC_INTR_RAW_STAT_ECC_AP_ERR_INTR_RAW_STAT  VTSS_BIT(3)
 #define  VTSS_X_CPU_DDRC_INTR_RAW_STAT_ECC_AP_ERR_INTR_RAW_STAT(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
+/**
+ * \brief
+ * This interrupt is asserted when a parity or CRC error is detected on the
+ * DFI interface. It may be cleared by writing to
+ * DDR_UMCTL2:UMCTL2_REGS:CRCPARCTL0.dfi_alert_err_int_clr register field.
+ *
+ * \details
+ * 0 : Interrupt deasserted.
+ * 1 : Interrupt asserted.
+ *
+ * Field: ::VTSS_CPU_DDRC_INTR_RAW_STAT . DFI_ALERT_ERR_INTR_RAW_STAT
+ */
+#define  VTSS_F_CPU_DDRC_INTR_RAW_STAT_DFI_ALERT_ERR_INTR_RAW_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CPU_DDRC_INTR_RAW_STAT_DFI_ALERT_ERR_INTR_RAW_STAT  VTSS_BIT(4)
+#define  VTSS_X_CPU_DDRC_INTR_RAW_STAT_DFI_ALERT_ERR_INTR_RAW_STAT(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
 
 /**
  * \brief DDR controller interrupt mask register
@@ -3155,6 +3171,20 @@
 #define  VTSS_F_CPU_DDRC_INTR_MASK_ECC_AP_ERR_INTR_MASK(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
 #define  VTSS_M_CPU_DDRC_INTR_MASK_ECC_AP_ERR_INTR_MASK  VTSS_BIT(3)
 #define  VTSS_X_CPU_DDRC_INTR_MASK_ECC_AP_ERR_INTR_MASK(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Mask for DFI ALERT error interrupt
+ *
+ * \details
+ * 0 : Interrupt disabled
+ * 1: Interrupt enabled
+ *
+ * Field: ::VTSS_CPU_DDRC_INTR_MASK . DFI_ALERT_ERR_INTR_MASK
+ */
+#define  VTSS_F_CPU_DDRC_INTR_MASK_DFI_ALERT_ERR_INTR_MASK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CPU_DDRC_INTR_MASK_DFI_ALERT_ERR_INTR_MASK  VTSS_BIT(4)
+#define  VTSS_X_CPU_DDRC_INTR_MASK_DFI_ALERT_ERR_INTR_MASK(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 
 /**
@@ -3238,6 +3268,21 @@
 #define  VTSS_X_CPU_DDRC_INTR_MASKED_STAT_ECC_AP_ERR_INTR_STAT(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
 /**
+ * \brief
+ * Status for DFI ALERT error interrupt after taking interrupt mask into
+ * account.
+ *
+ * \details
+ * 0 : Interrupt deasserted.
+ * 1 : Interrupt asserted.
+ *
+ * Field: ::VTSS_CPU_DDRC_INTR_MASKED_STAT . DFI_ALERT_ERR_INTR_STAT
+ */
+#define  VTSS_F_CPU_DDRC_INTR_MASKED_STAT_DFI_ALERT_ERR_INTR_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CPU_DDRC_INTR_MASKED_STAT_DFI_ALERT_ERR_INTR_STAT  VTSS_BIT(4)
+#define  VTSS_X_CPU_DDRC_INTR_MASKED_STAT_DFI_ALERT_ERR_INTR_STAT(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
  * Register Group: \a CPU:SFR_REGS
  *
  * HSS block configuration
@@ -3255,26 +3300,14 @@
 /**
  * \brief
  *
- * Clock gating for UHPHS0: Clock Disbaled1: Clock Enabled
+ * Clock gating for USB DRD0: Clock Disbaled1: Clock Enabled
  *
  * \details
- * Field: ::VTSS_CPU_CLK_GATING . UHPHS_CLK_GATING
+ * Field: ::VTSS_CPU_CLK_GATING . USB_DRD_CLK_GATING
  */
-#define  VTSS_F_CPU_CLK_GATING_UHPHS_CLK_GATING(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
-#define  VTSS_M_CPU_CLK_GATING_UHPHS_CLK_GATING  VTSS_BIT(11)
-#define  VTSS_X_CPU_CLK_GATING_UHPHS_CLK_GATING(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
-
-/**
- * \brief
- *
- * Clock gating for UDPHS0: Clock Disbaled1: Clock Enabled
- *
- * \details
- * Field: ::VTSS_CPU_CLK_GATING . UDPHS_CLK_GATING
- */
-#define  VTSS_F_CPU_CLK_GATING_UDPHS_CLK_GATING(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
-#define  VTSS_M_CPU_CLK_GATING_UDPHS_CLK_GATING  VTSS_BIT(10)
-#define  VTSS_X_CPU_CLK_GATING_UDPHS_CLK_GATING(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+#define  VTSS_F_CPU_CLK_GATING_USB_DRD_CLK_GATING(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_CPU_CLK_GATING_USB_DRD_CLK_GATING  VTSS_BIT(10)
+#define  VTSS_X_CPU_CLK_GATING_USB_DRD_CLK_GATING(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
 
 /**
  * \brief
@@ -3430,47 +3463,12 @@
 
 
 /**
- * \brief USB device configuration
- *
- * \details
- * Register: \a CPU:SFR_REGS:UDPHS
- */
-#define VTSS_CPU_UDPHS                       VTSS_IOREG(VTSS_TO_CPU,0xb9)
-
-/**
- * \brief
- *
- * USB Deivce (UDPHS) ahb cachable configuration. UDPHS instance in HSS
- * block0: not cachable1: cachable
- *
- * \details
- * Field: ::VTSS_CPU_UDPHS . UDPHS_AHB_CACHABLE
- */
-#define  VTSS_F_CPU_UDPHS_UDPHS_AHB_CACHABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_CPU_UDPHS_UDPHS_AHB_CACHABLE  VTSS_BIT(8)
-#define  VTSS_X_CPU_UDPHS_UDPHS_AHB_CACHABLE(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
-
-/**
- * \brief
- *
- * USB Deivce (UDPHS) ahb buffarable configuration. UDPHS instance in HSS
- * block0: not bufferable1:bufferable
- *
- * \details
- * Field: ::VTSS_CPU_UDPHS . UDPHS_AHB_BUFFERABLE
- */
-#define  VTSS_F_CPU_UDPHS_UDPHS_AHB_BUFFERABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_CPU_UDPHS_UDPHS_AHB_BUFFERABLE  VTSS_BIT(0)
-#define  VTSS_X_CPU_UDPHS_UDPHS_AHB_BUFFERABLE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
  * \brief HSS DDR configuration
  *
  * \details
  * Register: \a CPU:SFR_REGS:UDDR
  */
-#define VTSS_CPU_UDDR                        VTSS_IOREG(VTSS_TO_CPU,0xba)
+#define VTSS_CPU_UDDR                        VTSS_IOREG(VTSS_TO_CPU,0xb9)
 
 /**
  * \brief

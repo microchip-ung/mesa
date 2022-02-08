@@ -457,8 +457,6 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         return VTSS_RC_OK;
     }
 
-
-
     /* Enable DPLL fractional mode (if not enabled already, MESA-825) */
     REG_RD(VTSS_LCPLL28_LCPLL_CONFIG2, &val);
     if (VTSS_X_LCPLL28_LCPLL_CONFIG2_F(val) == 0) {
@@ -517,17 +515,12 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(clk_period/100),
             VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
 
-#if defined(VTSS_ARCH_SPARX5)
     for(u8 i = 0; i < 3; i++) {
         REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(i),
                 VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
                 VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
     }
-#else
-    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
-            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
-            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
-#endif
+
     REG_WRM(VTSS_HSCH_TAS_STATEMACHINE_CFG,
             VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY((256 * 1000) / clk_period),
             VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY);
@@ -536,7 +529,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(pol_upd_int),
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT);
 
-#endif
+#endif //#defined(VTSS_ARCH_SPARX5)
 
     VTSS_I("Setting Core Clock - done");
     return VTSS_RC_OK;

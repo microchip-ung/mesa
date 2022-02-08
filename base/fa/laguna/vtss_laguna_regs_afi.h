@@ -1021,16 +1021,16 @@
 /**
  * \brief
  * Length of TTI Base Tick.Unit: One system clock cycle.In default
- * configuration and a clock cycle of 3572 ps, the tick length corresponds
+ * configuration and a clock cycle of 3125 ps, the tick length corresponds
  * to 52us.If the device is uses a longer clock cycle, then the value of
  * BASE_LEN must be reconfigured accordingly.
  *
  * \details
  * Field: ::VTSS_AFI_TTI_TICK_BASE . BASE_LEN
  */
-#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,14)
-#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_LEN     VTSS_ENCODE_BITMASK(0,14)
-#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,14)
+#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_ENCODE_BITFIELD(x,0,15)
+#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_LEN     VTSS_ENCODE_BITMASK(0,15)
+#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_LEN(x)  VTSS_EXTRACT_BITFIELD(x,0,15)
 
 /**
  * \brief
@@ -1039,9 +1039,9 @@
  * \details
  * Field: ::VTSS_AFI_TTI_TICK_BASE . BASE_CNT
  */
-#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_ENCODE_BITFIELD(x,16,14)
-#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_CNT     VTSS_ENCODE_BITMASK(16,14)
-#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_EXTRACT_BITFIELD(x,16,14)
+#define  VTSS_F_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_ENCODE_BITFIELD(x,16,15)
+#define  VTSS_M_AFI_TTI_TICK_BASE_BASE_CNT     VTSS_ENCODE_BITMASK(16,15)
+#define  VTSS_X_AFI_TTI_TICK_BASE_BASE_CNT(x)  VTSS_EXTRACT_BITFIELD(x,16,15)
 
 
 /**

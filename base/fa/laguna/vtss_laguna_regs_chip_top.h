@@ -15,6 +15,584 @@
  ***********************************************************************/
 
 /**
+ * Register Group: \a CHIP_TOP:SJTAG_MUX_CFG
+ *
+ * Controls the mux of the SJTAG.
+ */
+
+
+/**
+ * \brief Controls the mux of the SJTAG.
+ *
+ * \details
+ * Register: \a CHIP_TOP:SJTAG_MUX_CFG:SJTAG_MUX_CTRL
+ */
+#define VTSS_CHIP_TOP_SJTAG_MUX_CTRL         VTSS_IOREG(VTSS_TO_CHIP_TOP,0x0)
+
+/**
+ * \brief
+ * One-shot event. Write 1 to set HOLD on the SJTAG mux. This action has an
+ * effect only if the SJTAG is already in OPEN mode.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SJTAG_MUX_CTRL . HOLD_SET
+ */
+#define  VTSS_F_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_SET(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_SET  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_SET(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * One-shot event. Write 1 to clear the HOLD on the SJTAG mux.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SJTAG_MUX_CTRL . HOLD_CLR
+ */
+#define  VTSS_F_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_CLR(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_CLR  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_CLR(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Status of HOLD on SJTAG mux.
+ *
+ * \details
+ * 1: The selection of the SJTAG mux is locked. Any change in the SJTAG IP
+ * or the SJTAG strapping will not have any effect. Pin reset does not
+ * change the mux selection. Only a power-cycle , or writing to HOLD_CLR
+ * can release the SJTAG mux.
+ * 0: The SJTAG mux selection is controlled by the SJTAG IP and the
+ * strapping.
+ *
+ * Field: ::VTSS_CHIP_TOP_SJTAG_MUX_CTRL . HOLD_STAT
+ */
+#define  VTSS_F_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_SJTAG_MUX_CTRL_HOLD_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a CHIP_TOP:RESET_CFG
+ *
+ * Not documented
+ */
+
+
+/**
+ * \brief Configuration of chip reset
+ *
+ * \details
+ * Register: \a CHIP_TOP:RESET_CFG:RESET_CFG
+ */
+#define VTSS_CHIP_TOP_RESET_CFG              VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1)
+
+/**
+ * \brief
+ * When enabled the over voltage monitor is allowed to do a chip reset in
+ * case an over voltage event is detected.
+ *
+ * \details
+ * 0: Disable UV reset
+ * 1: Allow UV reset
+ *
+ * Field: ::VTSS_CHIP_TOP_RESET_CFG . OV_RST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_RESET_CFG_OV_RST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_RESET_CFG_OV_RST_ENA  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_RESET_CFG_OV_RST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * When enabled the under voltage monitor is allowed to do a chip reset in
+ * case an under voltage event is detected.
+ *
+ * \details
+ * 0: Disable UV reset
+ * 1: Allow UV reset
+ *
+ * Field: ::VTSS_CHIP_TOP_RESET_CFG . UV_RST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_RESET_CFG_UV_RST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_RESET_CFG_UV_RST_ENA  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_RESET_CFG_UV_RST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a CHIP_TOP:MBIST_STAT
+ *
+ * Status of power on memory BIST
+ */
+
+
+/**
+ * \brief Chip memory BIST status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:MBIST_STAT
+ */
+#define VTSS_CHIP_TOP_MBIST_STAT             VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2)
+
+/**
+ * \brief
+ * The power on MBIST testing of all memories has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_MBIST_STAT . MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_MBIST_STAT_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_MBIST_STAT_MBIST_PASS  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_MBIST_STAT_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * The power on MBIST testing has completed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_MBIST_STAT . MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_MBIST_STAT_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_MBIST_STAT_MBIST_DONE  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_MBIST_STAT_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * The MBIST did not complete within expected time
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_MBIST_STAT . MBIST_TIMED_OUT
+ */
+#define  VTSS_F_CHIP_TOP_MBIST_STAT_MBIST_TIMED_OUT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_MBIST_STAT_MBIST_TIMED_OUT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_MBIST_STAT_MBIST_TIMED_OUT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief HSIO_SWC memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:HSIO_SWC_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_HSIO_SWC_MBIST_PASS    VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3)
+
+/**
+ * \brief
+ * The HSIO_SWC MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_HSIO_SWC_MBIST_PASS . HSIO_SWC_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_HSIO_SWC_MBIST_PASS_HSIO_SWC_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_HSIO_SWC_MBIST_PASS_HSIO_SWC_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_HSIO_SWC_MBIST_PASS_HSIO_SWC_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief HSIO_SWC memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:HSIO_SWC_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_HSIO_SWC_MBIST_DONE    VTSS_IOREG(VTSS_TO_CHIP_TOP,0x4)
+
+/**
+ * \brief
+ * The HSIO_SWC MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_HSIO_SWC_MBIST_DONE . HSIO_SWC_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_HSIO_SWC_MBIST_DONE_HSIO_SWC_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_HSIO_SWC_MBIST_DONE_HSIO_SWC_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_HSIO_SWC_MBIST_DONE_HSIO_SWC_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief REW memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:REW_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_REW_MBIST_PASS         VTSS_IOREG(VTSS_TO_CHIP_TOP,0x5)
+
+/**
+ * \brief
+ * The REW MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_REW_MBIST_PASS . REW_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_REW_MBIST_PASS_REW_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_REW_MBIST_PASS_REW_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_REW_MBIST_PASS_REW_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief REW memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:REW_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_REW_MBIST_DONE         VTSS_IOREG(VTSS_TO_CHIP_TOP,0x6)
+
+/**
+ * \brief
+ * The REW MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_REW_MBIST_DONE . REW_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_REW_MBIST_DONE_REW_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_REW_MBIST_DONE_REW_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_REW_MBIST_DONE_REW_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief QSYS memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:QSYS_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_QSYS_MBIST_PASS        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x7)
+
+/**
+ * \brief
+ * The QSYS MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_QSYS_MBIST_PASS . QSYS_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_QSYS_MBIST_PASS_QSYS_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_QSYS_MBIST_PASS_QSYS_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_QSYS_MBIST_PASS_QSYS_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief QSYS memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:QSYS_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_QSYS_MBIST_DONE        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x8)
+
+/**
+ * \brief
+ * The QSYS MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_QSYS_MBIST_DONE . QSYS_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_QSYS_MBIST_DONE_QSYS_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_QSYS_MBIST_DONE_QSYS_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_QSYS_MBIST_DONE_QSYS_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief PMEM memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:PMEM_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_PMEM_MBIST_PASS        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x9)
+
+/**
+ * \brief
+ * The PMEM MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_PMEM_MBIST_PASS . PMEM_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_PMEM_MBIST_PASS_PMEM_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_PMEM_MBIST_PASS_PMEM_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_PMEM_MBIST_PASS_PMEM_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief PMEM memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:PMEM_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_PMEM_MBIST_DONE        VTSS_IOREG(VTSS_TO_CHIP_TOP,0xa)
+
+/**
+ * \brief
+ * The PMEM MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_PMEM_MBIST_DONE . PMEM_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_PMEM_MBIST_DONE_PMEM_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_PMEM_MBIST_DONE_PMEM_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_PMEM_MBIST_DONE_PMEM_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief VCAP memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:VCAP_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_VCAP_MBIST_PASS        VTSS_IOREG(VTSS_TO_CHIP_TOP,0xb)
+
+/**
+ * \brief
+ * The VCAP MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_VCAP_MBIST_PASS . VCAP_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_VCAP_MBIST_PASS_VCAP_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_VCAP_MBIST_PASS_VCAP_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_VCAP_MBIST_PASS_VCAP_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief VCAP memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:VCAP_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_VCAP_MBIST_DONE        VTSS_IOREG(VTSS_TO_CHIP_TOP,0xc)
+
+/**
+ * \brief
+ * The VCAP MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_VCAP_MBIST_DONE . VCAP_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_VCAP_MBIST_DONE_VCAP_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_VCAP_MBIST_DONE_VCAP_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_VCAP_MBIST_DONE_VCAP_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief ANA_CL32 memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:ANA_CL32_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_ANA_CL32_MBIST_PASS    VTSS_IOREG(VTSS_TO_CHIP_TOP,0xd)
+
+/**
+ * \brief
+ * The ANA_CL32 MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_ANA_CL32_MBIST_PASS . ANA_CL32_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_ANA_CL32_MBIST_PASS_ANA_CL32_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_ANA_CL32_MBIST_PASS_ANA_CL32_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_ANA_CL32_MBIST_PASS_ANA_CL32_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief ANA_CL32 memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:ANA_CL32_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_ANA_CL32_MBIST_DONE    VTSS_IOREG(VTSS_TO_CHIP_TOP,0xe)
+
+/**
+ * \brief
+ * The ANA_CL32 MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_ANA_CL32_MBIST_DONE . ANA_CL32_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_ANA_CL32_MBIST_DONE_ANA_CL32_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_ANA_CL32_MBIST_DONE_ANA_CL32_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_ANA_CL32_MBIST_DONE_ANA_CL32_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief ANA_AC memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:ANA_AC_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_ANA_AC_MBIST_PASS      VTSS_IOREG(VTSS_TO_CHIP_TOP,0xf)
+
+/**
+ * \brief
+ * The ANA_AC MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_ANA_AC_MBIST_PASS . ANA_AC_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_ANA_AC_MBIST_PASS_ANA_AC_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_ANA_AC_MBIST_PASS_ANA_AC_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_ANA_AC_MBIST_PASS_ANA_AC_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief ANA_AC memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:ANA_AC_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_ANA_AC_MBIST_DONE      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x10)
+
+/**
+ * \brief
+ * The ANA_AC MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_ANA_AC_MBIST_DONE . ANA_AC_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_ANA_AC_MBIST_DONE_ANA_AC_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_ANA_AC_MBIST_DONE_ANA_AC_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_ANA_AC_MBIST_DONE_ANA_AC_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief DEVCPU0 memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:DEVCPU0_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_DEVCPU0_MBIST_PASS     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x11)
+
+/**
+ * \brief
+ * The DEVCPU0 MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DEVCPU0_MBIST_PASS . DEVCPU0_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_DEVCPU0_MBIST_PASS_DEVCPU0_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_DEVCPU0_MBIST_PASS_DEVCPU0_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_DEVCPU0_MBIST_PASS_DEVCPU0_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief DEVCPU0 memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:DEVCPU0_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_DEVCPU0_MBIST_DONE     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x12)
+
+/**
+ * \brief
+ * The DEVCPU0 MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DEVCPU0_MBIST_DONE . DEVCPU0_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_DEVCPU0_MBIST_DONE_DEVCPU0_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_DEVCPU0_MBIST_DONE_DEVCPU0_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_DEVCPU0_MBIST_DONE_DEVCPU0_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief DEVCPU1 memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:DEVCPU1_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_DEVCPU1_MBIST_PASS     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x13)
+
+/**
+ * \brief
+ * The DEVCPU1 MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DEVCPU1_MBIST_PASS . DEVCPU1_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_DEVCPU1_MBIST_PASS_DEVCPU1_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_DEVCPU1_MBIST_PASS_DEVCPU1_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_DEVCPU1_MBIST_PASS_DEVCPU1_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief DEVCPU1 memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:DEVCPU1_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_DEVCPU1_MBIST_DONE     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x14)
+
+/**
+ * \brief
+ * The DEVCPU1 MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DEVCPU1_MBIST_DONE . DEVCPU1_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_DEVCPU1_MBIST_DONE_DEVCPU1_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_DEVCPU1_MBIST_DONE_DEVCPU1_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_DEVCPU1_MBIST_DONE_DEVCPU1_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief PROC memory bist pass status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:PROC_MBIST_PASS
+ */
+#define VTSS_CHIP_TOP_PROC_MBIST_PASS        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x15)
+
+/**
+ * \brief
+ * The PROC MBIST has passed
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_PROC_MBIST_PASS . PROC_MBIST_PASS
+ */
+#define  VTSS_F_CHIP_TOP_PROC_MBIST_PASS_PROC_MBIST_PASS(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_PROC_MBIST_PASS_PROC_MBIST_PASS     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_PROC_MBIST_PASS_PROC_MBIST_PASS(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief PROC memory bist done status
+ *
+ * \details
+ * Register: \a CHIP_TOP:MBIST_STAT:PROC_MBIST_DONE
+ */
+#define VTSS_CHIP_TOP_PROC_MBIST_DONE        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x16)
+
+/**
+ * \brief
+ * The PROC MBIST is done
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_PROC_MBIST_DONE . PROC_MBIST_DONE
+ */
+#define  VTSS_F_CHIP_TOP_PROC_MBIST_DONE_PROC_MBIST_DONE(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_CHIP_TOP_PROC_MBIST_DONE_PROC_MBIST_DONE     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_CHIP_TOP_PROC_MBIST_DONE_PROC_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
+ * Register Group: \a CHIP_TOP:GPIO_CLK_MON
+ *
+ * Not documented
+ */
+
+
+/**
+ * \brief Configuration of clock monitors
+ *
+ * \details
+ * Register: \a CHIP_TOP:GPIO_CLK_MON:GPIO_CLK_MON
+ */
+#define VTSS_CHIP_TOP_GPIO_CLK_MON           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x17)
+
+/**
+ * \brief
+ * When enabled the respective GPIO index starting from 40 is multiplexed
+ * to output a subdivided PLL clock for monitoring.
+ *
+ * \details
+ * 0: Disable clock monitor for GPIO index1: Enable clock monitoring
+ *
+ * Field: ::VTSS_CHIP_TOP_GPIO_CLK_MON . ENA
+ */
+#define  VTSS_F_CHIP_TOP_GPIO_CLK_MON_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_GPIO_CLK_MON_ENA     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_GPIO_CLK_MON_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
  * Register Group: \a CHIP_TOP:OTP_MEM
  *
  * OTP memory
@@ -27,7 +605,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_CFG
  */
-#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x0)
+#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x18)
 
 /**
  * \brief
@@ -49,7 +627,7 @@
  *
  * @param ri Register: OTP_RCR (??), 0-2
  */
-#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1 + (ri))
+#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x19 + (ri))
 
 /**
  * \details
@@ -78,7 +656,7 @@
  *
  * @param ri Register: OTP_MSC (??), 0-3
  */
-#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x4 + (ri))
+#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1c + (ri))
 
 /**
  * \details
@@ -95,7 +673,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_ID
  */
-#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x8)
+#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x20)
 
 /**
  * \details
@@ -114,7 +692,7 @@
  *
  * @param ri Register: OTP_RND (??), 0-7
  */
-#define VTSS_CHIP_TOP_OTP_RND(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x9 + (ri))
+#define VTSS_CHIP_TOP_OTP_RND(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x21 + (ri))
 
 /**
  * \details
@@ -133,7 +711,7 @@
  *
  * @param ri Register: OTP_PRD (??), 0-7
  */
-#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x11 + (ri))
+#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x29 + (ri))
 
 /**
  * \details
@@ -142,6 +720,1230 @@
 #define  VTSS_F_CHIP_TOP_OTP_PRD_OTP_PRD(x)   (x)
 #define  VTSS_M_CHIP_TOP_OTP_PRD_OTP_PRD      0xffffffff
 #define  VTSS_X_CHIP_TOP_OTP_PRD_OTP_PRD(x)   (x)
+
+/**
+ * Register Group: \a CHIP_TOP:CPU_PLL_CFG
+ *
+ * CPU PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_CPU_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x31)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDAT_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_UPDATE_ACK  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_TEST_ENA  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * This settings is ignored while CPU_PLL_CFG.ENA_CFG is 0. Bypass PLL and
+ * output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_BYPASS_ENA  VTSS_BIT(5)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_ENABLE_PLL  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * This bit allows user control. Must toggle from 0 to 1 to update the
+ * generated PLL frequency. See ENA_CFG
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_UPDATE_CFG  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration. All register based PLL setting
+ * are ignored while this bit is 0Frequency change procedure:Switch CPU
+ * clock to spare PLL. See SPARE_PLL_CFG.ASSIGN_TO_CPU. Make sure that the
+ * SPARE_PLL is generating a valid frequency before the switch
+ * over.Reconfigure CPU_PLL_FREQ_CFGSet ENA_CFG = 1, UPDATE_CFG = 0,
+ * ENABLE_PLL = 0 and ENABLE_CLOCK = 0Set ENA_CFG = 1, UPDATE_CFG = 1,
+ * ENABLE_PLL = 1 and ENABLE_CLOCK = 1Switch CPU clock back to the
+ * reconfigured CPU_PLL. See SPARE_PLL_CFG.ASSIGN_TO_CPU.
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_ENA_CFG  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Settings in this register are ignored while CPU_PLL_CFG.ENA_CFG is 0.
+ *
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x32)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_CPU_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_CPU_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_CPU_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
+ * Register Group: \a CHIP_TOP:DDR_PLL_CFG
+ *
+ * CPU PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_DDR_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x33)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDAT_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_UPDATE_ACK  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_TEST_ENA  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * This settings is ignored while DDR_PLL_CFG.ENA_CFG is 0. Bypass PLL and
+ * output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_BYPASS_ENA  VTSS_BIT(5)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_ENABLE_PLL  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Update signal divider ratio
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_UPDATE_CFG  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration. All register based PLL setting
+ * are ignored while this bit is 0Changing of the DDR frequency is not
+ * glitch free and must be done as part of the DDR initialization
+ * procedure.Configuration procedure:Reconfigure DDR_PLL_FREQ_CFG to
+ * desired frequency.Set ENA_CFG = 1, UPDATE_CFG = 0, ENABLE_PLL = 0 and
+ * ENABLE_CLOCK = 0Set ENA_CFG = 1, UPDATE_CFG = 1, ENABLE_PLL = 1 and
+ * ENABLE_CLOCK = 1
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_ENA_CFG  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Settings in this register are ignored while DDR_PLL_CFG.ENA_CFG is 0.
+ *
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x34)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_DDR_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_DDR_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_DDR_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
+ * Register Group: \a CHIP_TOP:CORE_PLL_CFG
+ *
+ * CPU PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_CORE_PLL_CFG           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x35)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDAT_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_UPDATE_ACK  VTSS_BIT(9)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_TEST_ENA  VTSS_BIT(8)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * This settings is ignored while CORE_PLL_CFG.ENA_CFG is 0. Bypass PLL and
+ * output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_BYPASS_ENA  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_ENABLE_PLL  VTSS_BIT(5)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Update signal divider ratio
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_UPDATE_CFG  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Allow configuration based selection of the reference clock. This setting
+ * is ignored while ENA_CFG is 0.
+ *
+ * \details
+ * 0: Use strapping pin
+ * 1: Force 39.0625MHz reference clock
+ * 2: Force 25Mhz reference clock
+ * 3: Reserved
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . REF_CLK_SEL
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_REF_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(x,2,2)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_REF_CLK_SEL     VTSS_ENCODE_BITMASK(2,2)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_REF_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,2,2)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration. All register based PLL setting
+ * are ignored while this bit is 0Frequency change procedure:Switch core
+ * clock to spare PLL. See SPARE_PLL_CFG.ASSIGN_TO_CORE. Make sure that the
+ * SPARE_PLL is generating a valid frequency before the switch
+ * over.Reconfigure CORE_PLL_FREQ_CFG to desired valuesSet ENA_CFG = 1,
+ * UPDATE_CFG = 0, ENABLE_PLL = 0 and ENABLE_CLOCK = 0Set ENA_CFG = 1,
+ * UPDATE_CFG = 1, ENABLE_PLL = 1 and ENABLE_CLOCK = 1Switch CORE clock
+ * back to the reconfigured CORE_PLL. See SPARE_PLL_CFG.ASSIGN_TO_CORE.
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_ENA_CFG  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Settings in this register are ignored while CORE_PLL_CFG.ENA_CFG is 0.
+ *
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x36)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_CORE_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
+ * Register Group: \a CHIP_TOP:RGMII_PLL_CFG
+ *
+ * CPU PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_RGMII_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x37)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDATE_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_UPDATE_ACK  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_TEST_ENA  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * This settings is ignored while RGMII_PLL_CFG.ENA_CFG is 0. Bypass PLL
+ * and output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_BYPASS_ENA  VTSS_BIT(5)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_ENABLE_PLL  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Update signal divider ratio
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_UPDATE_CFG  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration.
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_ENA_CFG  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x38)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_RGMII_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_RGMII_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_RGMII_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
+ * Register Group: \a CHIP_TOP:FX100_PLL_CFG
+ *
+ * CPU PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_FX100_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x39)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDATE_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_UPDATE_ACK  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_TEST_ENA  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * This settings is ignored while FX100_PLL_CFG.ENA_CFG is 0. Bypass PLL
+ * and output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_BYPASS_ENA  VTSS_BIT(5)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_ENABLE_PLL  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Update signal divider ratio
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_UPDATE_CFG  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration. All register based PLL setting
+ * are ignored while this bit is 0
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_ENA_CFG  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3a)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+/**
+ * Register Group: \a CHIP_TOP:SPARE_PLL_CFG
+ *
+ * Spare PLL configuration
+ */
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_CFG
+ */
+#define VTSS_CHIP_TOP_SPARE_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3b)
+
+/**
+ * \brief
+ * Update acknowledge from PLL. Will be low when UPDATE_CFG is low and then
+ * toggle high when UPDAT_CFG toggles high.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . UPDATE_ACK
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_UPDATE_ACK(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_UPDATE_ACK  VTSS_BIT(11)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_UPDATE_ACK(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
+ * Enable test mode
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . TEST_ENA
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_TEST_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_TEST_ENA  VTSS_BIT(10)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_TEST_ENA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * This settings is ignored while SPARE_PLL_CFG.ENA_CFG is 0. Bypass PLL
+ * and output the reference clock directly. Should not be set in normal
+ * operation
+ *
+ * \details
+ * 0: Track reference clock
+ * 1: Bypass PLL. Output reference clock directly
+
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . BYPASS_ENA
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_BYPASS_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_BYPASS_ENA  VTSS_BIT(9)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_BYPASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Enable PLL clock output
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . ENABLE_CLOCK
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ENABLE_CLOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ENABLE_CLOCK  VTSS_BIT(8)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_ENABLE_CLOCK(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Enable PLL
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . ENABLE_PLL
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ENABLE_PLL(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ENABLE_PLL  VTSS_BIT(7)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_ENABLE_PLL(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Update signal divider ratio
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . UPDATE_CFG
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_UPDATE_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_UPDATE_CFG  VTSS_BIT(6)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_UPDATE_CFG(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Allow configuration based selection of the reference clock. This setting
+ * is ignored while ENA_CFG is 0.
+ *
+ * \details
+ * 0: Use strapping pin
+ * 1: Force 39.0625MHz reference clock
+ * 2: Force 25Mhz reference clock
+ * 3: Reserved
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . REF_CLK_SEL
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_REF_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(x,4,2)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_REF_CLK_SEL     VTSS_ENCODE_BITMASK(4,2)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_REF_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
+
+/**
+ * \brief
+ * Allow modification of PLL configuration. All register based PLL setting
+ * are ignored while this bit is 0The spare PLL is unused while
+ * ASSIGN_TO_CPU=0 and ASSIGN_TO_CORE=0 and can be reconfigured freely
+ * while unused.Frequency change procedure:Reconfigure SPARE_PLL_FREQ_CFG
+ * to desired frequencySet ENA_CFG = 1, UPDATE_CFG = 0, ENABLE_PLL = 0 and
+ * ENABLE_CLOCK = 0Set ENA_CFG = 1, UPDATE_CFG = 1, ENABLE_PLL = 1 and
+ * ENABLE_CLOCK = 1
+ *
+ * \details
+ * 0: Use fixed configuration
+ * 1: Allow modification of ND, QD and FRACR parameters
+
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . ENA_CFG
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ENA_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ENA_CFG  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_ENA_CFG(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * When this bit is set, the CPU clock is generated by the SPARE_PLL. The
+ * switch over between the CPU- and spare PLLs is glitch free. The Spare
+ * PLL is unused and can be reconfigured while this bit is '0'
+ *
+ * \details
+ * 0: Use CPU_PLL to generate CPU clock
+ * 1: Use SPARE_PLL to generate CPU clock
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . ASSIGN_TO_CPU
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CPU(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CPU  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CPU(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * When this bit is set the core clock is generated by the SPARE_PLL. The
+ * switch over between the core- and spare PLLs is glitch free. The Spare
+ * PLL is unused and can be reconfigured while this bit is '0'
+ *
+ * \details
+ * 0: Use CORE_PLL to generate core clock
+ * 1: Use SPARE_PLL to generate core clock
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . ASSIGN_TO_CORE
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Read lock status signal from PLL
+ *
+ * \details
+ * 0: PLL is not locked to reference clock
+ * 1: PLL is locked
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_CFG . LOCK_STAT
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_CFG_LOCK_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_CFG_LOCK_STAT  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_CFG_LOCK_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief CPU PLL configuration
+ *
+ * \details
+ * Settings in this register are ignored while SPARE_PLL_CFG.ENA_CFG is 0.
+ *
+ * This register configures the out frequency of the PLL:
+ *
+ * Reference clock frequency: Fin
+ *
+ * Fvco = Fin * (ND + FRACR*2^(-12)). Fvco must be between 750MHz and
+ * 1500MHz
+ *
+ * The PLL output frequency is calculated as:
+ * Fout = Fvco / (QD+1)
+
+ *
+ * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_FREQ_CFG
+ */
+#define VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3c)
+
+/**
+ * \brief
+ * This sets the PLL loop filter to work with the post divider reference
+ * frequency
+ *
+ * \details
+ * TBD
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG . FILTER_CTRL
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_FILTER_CTRL     VTSS_ENCODE_BITMASK(28,4)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_EXTRACT_BITFIELD(x,28,4)
+
+/**
+ * \brief
+ * Fractional loop divider value. See register description
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
+
+/**
+ * \brief
+ * Post scalar divider for output clock. Divide Fvco frequency by QD
+ *
+ * \details
+ * 0: Reserved
+ * N: Divide by N
+ *
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG . QD
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_QD(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_QD     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_FREQ_CFG_QD(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
+
+/**
+ * \brief
+ * Integer loop multiplier value. Controls Fvco frequency
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG . ND
+ */
+#define  VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_ND(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_ND     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_CHIP_TOP_SPARE_PLL_FREQ_CFG_ND(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 #endif /* _VTSS_LAGUNA_REGS_CHIP_TOP_H_ */

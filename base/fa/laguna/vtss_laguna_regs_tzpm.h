@@ -201,20 +201,6 @@
 
 /**
  * \brief
- * Programmable secure access control for USB Device target
- *
- * \details
- * 0: Secure Accesses only are allowed
- * 1: Non Secure Accesses are allowed
- *
- * Field: ::VTSS_TZPM_TZPCTL0 . UDPHS0
- */
-#define  VTSS_F_TZPM_TZPCTL0_UDPHS0(x)        VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_TZPM_TZPCTL0_UDPHS0           VTSS_BIT(2)
-#define  VTSS_X_TZPM_TZPCTL0_UDPHS0(x)        VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
  * Programmable secure access control for QSPI0 target
  *
  * \details
@@ -326,20 +312,6 @@
 #define  VTSS_F_TZPM_TZPCTL1_FLEXCOM2(x)      VTSS_ENCODE_BITFIELD(!!(x),16,1)
 #define  VTSS_M_TZPM_TZPCTL1_FLEXCOM2         VTSS_BIT(16)
 #define  VTSS_X_TZPM_TZPCTL1_FLEXCOM2(x)      VTSS_EXTRACT_BITFIELD(x,16,1)
-
-/**
- * \brief
- * Programmable secure access control for QSPI1 target
- *
- * \details
- * 0: Secure Accesses only are allowed
- * 1: Non Secure Accesses are allowed
- *
- * Field: ::VTSS_TZPM_TZPCTL1 . QSPI1
- */
-#define  VTSS_F_TZPM_TZPCTL1_QSPI1(x)         VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_TZPM_TZPCTL1_QSPI1            VTSS_BIT(5)
-#define  VTSS_X_TZPM_TZPCTL1_QSPI1(x)         VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief

@@ -133,7 +133,7 @@
                                   || (port >= 14 && port <= 15) || (port == 18) || (port == 19) || (port == 22) || (port == 23) || (port == 28) || (port == 29))
 #define VTSS_PORT_IS_5G(port)    ((port == 0) || (port == 4) || (port == 9) || (port == 13) || (port == 17) || (port == 21))
 #define VTSS_PORT_IS_10G(port)   ((port == 8) || (port == 12) || (port == 16) || (port == 20) || (port >= 24 && port <= 27))
-#define VTSS_PORT_IS_25G(port)   0
+#define VTSS_PORT_IS_25G(port)   (port != port) // Always false for compile reason
 // Macros for block address targets:
 #define VTSS_TO_DEV2G5(port)   vtss_to_dev2g5(port)
 #define VTSS_TO_DEV5G(port)    vtss_to_dev5g(port)

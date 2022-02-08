@@ -318,8 +318,8 @@
  * queueing group, with 8 queues attached. The queue number is looked up in
  * the tables at index qgrp.In MBH mode, the QoS is looked up at index
  * qgrp, and the scheduling index is looked up at index "(grp and not 0xf)
- * + qos_value".Internal ports defaults to Hier mode, and front ports
- * defaults to normal mode
+ * + qos_value".In default mode, the vport qos_sel determines whether the
+ * queues will run in hier mode or normal mode
  *
  * \details
  * 0: Normal mode
@@ -701,7 +701,8 @@
  * elements between multiple vports.
  *
  * \details
- * x0: Selected QoS used in mapping
+ * 00: Selected QoS used in mapping into small elements
+ * 10: Use NORMAL mode for ports with default mapping
  * 01: Selected QoS mod 4 used in mapping
  * 11: Selected (QoS mod 4)+4 used in mapping
 
@@ -959,17 +960,6 @@
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
 #define VTSS_XQS_QLIMIT_PORT_CFG(ri)         VTSS_IOREG(VTSS_TO_XQS,0x5cd + (ri))
-
-/**
- * \brief
- * Index of shared resource to use
- *
- * \details
- * Field: ::VTSS_XQS_QLIMIT_PORT_CFG . QLIMIT_SHR_VAL
- */
-#define  VTSS_F_XQS_QLIMIT_PORT_CFG_QLIMIT_SHR_VAL(x)  VTSS_ENCODE_BITFIELD(x,4,2)
-#define  VTSS_M_XQS_QLIMIT_PORT_CFG_QLIMIT_SHR_VAL     VTSS_ENCODE_BITMASK(4,2)
-#define  VTSS_X_XQS_QLIMIT_PORT_CFG_QLIMIT_SHR_VAL(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
 
 /**
  * \brief

@@ -20,11 +20,12 @@
 #define VTSS_BITOPS_DEFINED
 #endif /* VTSS_BITOPS_DEFINED */
 
+/* Main target address offsets */
 #ifndef VTSS_IO_ORIGIN1_OFFSET
 #define VTSS_IO_ORIGIN1_OFFSET 0x0e2000000 /*! default region*/
 #endif
 #ifndef VTSS_IO_ORIGIN1_SIZE
-#define VTSS_IO_ORIGIN1_SIZE 0x010000000
+#define VTSS_IO_ORIGIN1_SIZE 0x001000000
 #endif
 #ifndef VTSS_IO_OFFSET1
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
@@ -33,17 +34,26 @@
 #define VTSS_IO_ORIGIN2_OFFSET 0x0e0000000 /*! amba_axi_top region*/
 #endif
 #ifndef VTSS_IO_ORIGIN2_SIZE
-#define VTSS_IO_ORIGIN2_SIZE 0x010000000
+#define VTSS_IO_ORIGIN2_SIZE 0x001000000
 #endif
 #ifndef VTSS_IO_OFFSET2
 #define VTSS_IO_OFFSET2(offset) (VTSS_IO_ORIGIN2_OFFSET + offset)
+#endif
+#ifndef VTSS_IO_ORIGIN3_OFFSET
+#define VTSS_IO_ORIGIN3_OFFSET 0x000000000 /*! amba_axi_top_mem region*/
+#endif
+#ifndef VTSS_IO_ORIGIN3_SIZE
+#define VTSS_IO_ORIGIN3_SIZE 0x001000000
+#endif
+#ifndef VTSS_IO_OFFSET3
+#define VTSS_IO_OFFSET3(offset) (VTSS_IO_ORIGIN3_OFFSET + offset)
 #endif
 #define VTSS_TO_AES             VTSS_IO_OFFSET2(0x0004c000) /*!< Base offset for target AES */
 #define VTSS_TO_AESB_ASC        VTSS_IO_OFFSET2(0x00050000) /*!< Base offset for target AESB_ASC */
 #define VTSS_TO_CPU             VTSS_IO_OFFSET2(0x000c0000) /*!< Base offset for target CPU */
 #define VTSS_TO_TZC_MAIN_HSS    VTSS_IO_OFFSET2(0x00098000) /*!< Base offset for target TZC_MAIN_HSS */
 #define VTSS_TO_TZC_CSS         VTSS_IO_OFFSET2(0x00099000) /*!< Base offset for target TZC_CSS */
-#define VTSS_TO_DDR4_PHY        VTSS_IO_OFFSET2(0x00084000) /*!< Base offset for target DDR4_PHY */
+#define VTSS_TO_DDR_PHY         VTSS_IO_OFFSET2(0x00084000) /*!< Base offset for target DDR_PHY */
 #define VTSS_TO_DDR_UMCTL2      VTSS_IO_OFFSET2(0x00080000) /*!< Base offset for target DDR_UMCTL2 */
 #define VTSS_TO_FDMA            VTSS_IO_OFFSET2(0x000c0400) /*!< Base offset for target FDMA */
 #define VTSS_TO_FLEXCOM_0       VTSS_IO_OFFSET2(0x00040000) /*!< Base offset for target FLEXCOM_0 */
@@ -53,7 +63,7 @@
 #define VTSS_TO_FLEXCOM_4       VTSS_IO_OFFSET2(0x00070000) /*!< Base offset for target FLEXCOM_4 */
 #define VTSS_TO_CPU_SYSCNT      VTSS_IO_OFFSET2(0x08000000) /*!< Base offset for target CPU_SYSCNT */
 #define VTSS_TO_CPU_SYSCNT_RO   VTSS_IO_OFFSET2(0x08000000) /*!< Base offset for target CPU_SYSCNT_RO */
-#define VTSS_TO_GIC500          VTSS_IO_OFFSET2(0x02304000) /*!< Base offset for target GIC500 */
+#define VTSS_TO_GIC400          VTSS_IO_OFFSET2(0x08c10000) /*!< Base offset for target GIC400 */
 #define VTSS_TO_GPV             VTSS_IO_OFFSET2(0x08b00000) /*!< Base offset for target GPV */
 #define VTSS_TO_HICM            VTSS_IO_OFFSET2(0x00810000) /*!< Base offset for target HICM */
 #define VTSS_TO_HMATRIX2        VTSS_IO_OFFSET2(0x00800000) /*!< Base offset for target HMATRIX2 */
@@ -61,6 +71,11 @@
 #define VTSS_TO_MCAN_1          VTSS_IO_OFFSET2(0x00820000) /*!< Base offset for target MCAN_1 */
 #define VTSS_TO_MCAN_TIMER      VTSS_IO_OFFSET2(0x00824000) /*!< Base offset for target MCAN_TIMER */
 #define VTSS_TO_OTP             VTSS_IO_OFFSET2(0x00021000) /*!< Base offset for target OTP */
+#define VTSS_TO_PCIE_CFG        VTSS_IO_OFFSET2(0x000d0000) /*!< Base offset for target PCIE_CFG */
+#define VTSS_TO_PCIE_DBI        VTSS_IO_OFFSET2(0x00400000) /*!< Base offset for target PCIE_DBI */
+#define VTSS_TO_PCIE_PHY_PCS    VTSS_IO_OFFSET2(0x00088000) /*!< Base offset for target PCIE_PHY_PCS */
+#define VTSS_TO_PCIE_PHY_PMA    VTSS_IO_OFFSET1(0x00100000) /*!< Base offset for target PCIE_PHY_PMA */
+#define VTSS_TO_PCIE_PHY_WRAP   VTSS_IO_OFFSET1(0x000f0000) /*!< Base offset for target PCIE_PHY_WRAP */
 #define VTSS_TO_QSPI_0          VTSS_IO_OFFSET2(0x00804000) /*!< Base offset for target QSPI_0 */
 #define VTSS_TO_QSPI_2          VTSS_IO_OFFSET2(0x00834000) /*!< Base offset for target QSPI_2 */
 #define VTSS_TO_SDMMC           VTSS_IO_OFFSET2(0x00830000) /*!< Base offset for target SDMMC */
@@ -71,7 +86,7 @@
 #define VTSS_TO_TZAESBNS        VTSS_IO_OFFSET2(0x00814000) /*!< Base offset for target TZAESBNS */
 #define VTSS_TO_TZAESBS         VTSS_IO_OFFSET2(0x00818000) /*!< Base offset for target TZAESBS */
 #define VTSS_TO_TZPM            VTSS_IO_OFFSET2(0x00004000) /*!< Base offset for target TZPM */
-#define VTSS_TO_USB3            VTSS_IO_OFFSET0(0x0007c000) /*!< Base offset for target USB3 */
+#define VTSS_TO_USB3            VTSS_IO_OFFSET3(0x00300000) /*!< Base offset for target USB3 */
 #define VTSS_TO_WDT             VTSS_IO_OFFSET2(0x00090000) /*!< Base offset for target WDT */
 #define VTSS_TO_XDMAC           VTSS_IO_OFFSET2(0x00068000) /*!< Base offset for target XDMAC */
 #define VTSS_TO_AFI             VTSS_IO_OFFSET1(0x00240000) /*!< Base offset for target AFI */
@@ -85,7 +100,6 @@
 #define VTSS_TO_ANA_L3          VTSS_IO_OFFSET1(0x00480000) /*!< Base offset for target ANA_L3 */
 #define VTSS_TO_ASM             VTSS_IO_OFFSET1(0x01200000) /*!< Base offset for target ASM */
 #define VTSS_TO_CHIP_TOP        VTSS_IO_OFFSET1(0x00020000) /*!< Base offset for target CHIP_TOP */
-#define VTSS_TO_CLKGEN          VTSS_IO_OFFSET1(0x00100000) /*!< Base offset for target CLKGEN */
 #define VTSS_TO_DEV2G5_1        VTSS_IO_OFFSET1(0x01010000) /*!< Base offset for target DEV2G5_1 */
 #define VTSS_TO_DEV2G5_2        VTSS_IO_OFFSET1(0x01014000) /*!< Base offset for target DEV2G5_2 */
 #define VTSS_TO_DEV2G5_3        VTSS_IO_OFFSET1(0x01018000) /*!< Base offset for target DEV2G5_3 */
@@ -154,7 +168,6 @@
 #define VTSS_TO_EACL            VTSS_IO_OFFSET1(0x002c0000) /*!< Base offset for target EACL */
 #define VTSS_TO_HSCH            VTSS_IO_OFFSET1(0x00580000) /*!< Base offset for target HSCH */
 #define VTSS_TO_HSIO_WRAP       VTSS_IO_OFFSET1(0x01408000) /*!< Base offset for target HSIO_WRAP */
-#define VTSS_TO_LCPLL28_1       VTSS_IO_OFFSET1(0x000f0000) /*!< Base offset for target LCPLL28_1 */
 #define VTSS_TO_LRN             VTSS_IO_OFFSET1(0x00060000) /*!< Base offset for target LRN */
 #define VTSS_TO_PORT_CONF       VTSS_IO_OFFSET1(0x010f0000) /*!< Base offset for target PORT_CONF */
 #define VTSS_TO_QFWD            VTSS_IO_OFFSET1(0x000b0000) /*!< Base offset for target QFWD */

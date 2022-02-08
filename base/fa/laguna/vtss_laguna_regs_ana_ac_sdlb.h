@@ -560,8 +560,8 @@
 /**
  * \brief
  * Number of clock cycles between each Periodic UPdate (PUP) for LBs in LB
- * Group. The MSB of this register must be set to 0.Together with
- * PUP_TOKENS (configured per LB) this controls the rate of the LB.
+ * Group. Together with PUP_TOKENS (configured per LB) this controls the
+ * rate of the LB.
  *
  * \details
  * Field: ::VTSS_ANA_AC_SDLB_PUP_INTERVAL . PUP_INTERVAL
@@ -585,9 +585,8 @@
  * \brief
  * Delta time between updating LBs within an LB Set, i.e. PUP_LB_DT
  * specifies the number of clock cycles between each LB update within LB
- * Set. The MSB of this register must be set to 0.Can be used to avoid many
- * LBs opening concurrently.Should be set to PUP_INTERVAL/<number of LBs in
- * LB Group>.
+ * Set. Can be used to avoid many LBs opening concurrently.Should be set to
+ * PUP_INTERVAL/<number of LBs in LB Group>.
  *
  * \details
  * Field: ::VTSS_ANA_AC_SDLB_PUP_CTRL . PUP_LB_DT

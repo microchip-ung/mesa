@@ -96,9 +96,11 @@ typedef struct {
 #define VTSS_EVC_STAT_CNT 32    /* EVC statistics */
 #endif
 #elif defined(VTSS_ARCH_LAN969X)
+#if 0 // fixme
 #define VTSS_JR_SDX_CNT   1023
 #define VTSS_EVC_POL_CNT  1024 /* EVC policers */
 #define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
+#endif
 #else
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_EVC_POL_CNT  4096 /* EVC policers */

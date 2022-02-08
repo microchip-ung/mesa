@@ -157,9 +157,9 @@
  * VOP::CPU_EXTR_MRP.OWN_CPU_QU or VOP::CPU_EXTR_MRP.REM_CPU_QU queue. The
  * selected queue depends on the frame MRP_SA.For frames failing the check,
  * VOP_MRP:VOE_STAT_MRP:MRP_STICKY.TST_RX_SEQ_ERR_STICKY is set. The
- * expected value is calculated as VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ[0]+1.
+ * expected value is calculated as VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[0]+1.
  * The frame's MRP_SequenceID is stored in
- * VOP_MRP:VOE_CONF_MRP:MRP_RX_SEQ[0] as the latest valid sequence
+ * VOP_MRP:VOE_STAT_MRP:MRP_RX_SEQ[0] as the latest valid sequence
  * identifier.Related parameters:-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.TST_CHK_SEQ_ENA-
  * VOP_MRP:VOE_CONF_MRP:MRP_CTRL.ITST_CHK_SEQ_ENA-
@@ -737,7 +737,10 @@
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
  *
  * Field: ::VTSS_VOP_MRP_TST_CFG . LOC_PERIOD
  */
@@ -868,7 +871,10 @@
  *
  * \details
  * 0: No LOC period in use.
- * n>0: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 1-7: Reserved by CCM if CCM is enabled. Can be used if CCM is not
+ * enabled.
+ * 8-10: LOC period configured in VOP::LOC_PERIOD_CFG[n-1] in use.
+ * 11-15: Reserved
  *
  * Field: ::VTSS_VOP_MRP_ITST_CFG . ITST_LOC_PERIOD
  */
