@@ -27,18 +27,16 @@
 #define LB_THRES_HYS_MIN              (LB_THRES_MAX+1)  /* The minimum bucket open hysteresis */
 #define LB_THRES_HYS_NONE             0                 /* No hysteresis */
 #define LB_2CYCLES_TYPE2_THRES_OFFSET 13                /* FA specific value */
-#if 0 // fixme
+
 static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
 {
-    u32  clk_cfg, clk_period_in_100ps;
+    u32  clk_in_ps;
     u64  clk_in_hz;
 
-    /* Read the nominal system clock period length in 100 ps */
-    REG_RD(VTSS_HSCH_SYS_CLK_PER, &clk_cfg);
-    clk_period_in_100ps = VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_cfg);
-    clk_in_hz = 10*1000*1000 / clk_period_in_100ps;
-    clk_in_hz *= 1000;
+    /* Get the nominal system clock period length in ps */
+    clk_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
+    clk_in_hz = (u64)1000*(u64)1000*(u64)1000*(u64)1000 / (u64)clk_in_ps;
     return(clk_in_hz);
 }
 
@@ -1042,7 +1040,7 @@ static vtss_rc fa_qos_leak_list_init(vtss_state_t *vtss_state)
     ll->entries = VTSS_HSCH_L3_QSHPS;
 
     // TBD_VK: Check that this register is being set during init.
-    REG_RD(VTSS_HSCH_SYS_CLK_PER, &sys_clk_per_100ps);
+    sys_clk_per_100ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq) / 100;
 
     /* We use the same leak chain setup for all layers. Setup layer 0 and then final copy to other layers */
     ll = &vtss_state->qos.leak_conf.layer[0];
@@ -1607,8 +1605,9 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_M_REW_DSCP_MAP_DSCP_REMAP_ENA);
 
     // Update ES0-based default port QoS egress mapping
+#if 0 //fixme
     VTSS_RC(vtss_fa_vcap_port_update(vtss_state, port_no));
-
+#endif
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
@@ -1974,6 +1973,7 @@ static vtss_rc fa_qos_ingress_map_del(vtss_state_t *vtss_state, const vtss_qos_i
     return vtss_cmn_qos_map_del(vtss_state, &vtss_state->qos.imap, id);
 }
 
+#if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
 static vtss_rc fa_qos_egress_map_vcap_update(vtss_state_t *vtss_state,
                                               const u16    id)
 {
@@ -2162,6 +2162,7 @@ static vtss_rc fa_qos_egress_map_del(vtss_state_t *vtss_state, const vtss_qos_eg
     VTSS_D("Redirecting to AIL with egress map id %u", id);
     return vtss_cmn_qos_map_del(vtss_state, &vtss_state->qos.emap, id);
 }
+#endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
 static vtss_rc fa_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
@@ -3548,8 +3549,6 @@ static vtss_rc fa_debug_qos_leak_chain(vtss_state_t              *vtss_state,
 
     vtss_debug_print_header(pr, "QoS Leak List Configuration");
 
-    REG_RD(VTSS_HSCH_SYS_CLK_PER, &value);
-    pr("SYS_CLK_PER_100PS: %u\n\n", VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(value));
     for (layer = 0; layer < VTSS_HSCH_LAYERS; layer++) {
         // Select layer to be accessed.
         REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
@@ -3770,9 +3769,11 @@ static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
                     (void) fa_debug_qos_ingress_mapping(vtss_state, pr, i, 1);
                 }
             } else {
+#if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
                 for (i = 0; i < VTSS_QOS_EGRESS_MAP_ROWS; i++) {
                     (void) fa_debug_qos_egress_mapping(vtss_state, pr, res, i, 1);
                 }
+#endif
             }
         } else {
             int  len;
@@ -3834,9 +3835,12 @@ static char *debug_tas_state_string(u32 value)
 
 static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,  u32 *entry_idx)
 {
-    u32 i, value, profile_idx;
+    u32 value;
 #if defined(VTSS_ARCH_LAN969X)
     u32 value1;
+#endif
+#if defined(VTSS_ARCH_SPARX5)
+    u32 i, profile_idx;
 #endif
 
     pr("    Enty Index: %u\n", *entry_idx);
@@ -3853,12 +3857,13 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
 #if defined(VTSS_ARCH_LAN969X)
     REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG, &value);
     REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG2, &value1);
-    profile_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(value1);
     *entry_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(value1);
 #endif
     pr("        %s: 0x%X\n", "GATE_STATE", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(value));
+#if defined(VTSS_ARCH_SPARX5)
     pr("        %s: %u\n", "PORT_PROFILE", profile_idx);
     pr("        %s: %u\n", "HSCH_POS", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(value));
+#endif
 #if defined(VTSS_ARCH_LAN969X)
     pr("        %s: %u\n", "OP_TYPE", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_OP_TYPE(value));
 #endif
@@ -3866,6 +3871,7 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
     REG_RD(VTSS_HSCH_TAS_GCL_TIME_CFG, &value);
     pr("        %s: %u\n", "TIME_INTERVAL", value);
 
+#if defined(VTSS_ARCH_SPARX5)
     /* Read max SDU configuration in the profile */
     pr("        %s: ", "QMAXSDU_VAL");
     for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
@@ -3879,9 +3885,6 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
     pr("        %s: %u\n", "PORT_NUM", VTSS_X_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(value));
     pr("        %s: %u\n", "LINK_SPEED", VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(value));
     pr("        %s: 0x%X\n", "SCH_TRAFFIC_QUEUES", VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value));
-#if defined(VTSS_ARCH_LAN969X)
-    pr("        %s: 0x%X\n", "HOLDADVANCE", VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value));
-    pr("        %s: 0x%X\n", "NEXT_GCL", VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(value1));
 #endif
 
     return VTSS_RC_OK;
@@ -3889,11 +3892,14 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
 
 static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,  u32 list_idx,  BOOL any_state)
 {
-    u32 value, state, entry_idx;
+    u32 i, value, state, entry_idx;
 #if !defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
-    u32 i, gcl_length = 0;
+    u32 gcl_length = 0;
 #else
     u32 entry_first;
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+    u32 profile_idx;
 #endif
 
     /* Select the list */
@@ -3916,9 +3922,46 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "STARTUP_TIME", VTSS_X_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(value));
         pr("    %s: %u\n", "STARTUP_ERROR", VTSS_X_HSCH_TAS_STARTUP_CFG_STARTUP_ERROR(value));
         REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
+
+#if defined(VTSS_ARCH_LAN969X)
+        profile_idx = VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(value);
+        /* Read max SDU configuration in the profile */
+        pr("        %s: ", "QMAXSDU_VAL");
+        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+            REG_RD(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), &value);
+            pr("%u-", VTSS_X_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(value));
+        }
+        pr("\n");
+        pr("        %s: ", "QMAXSDU_LSB");
+        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+            REG_RD(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i), &value);
+            pr("%u-", VTSS_X_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(value));
+        }
+        pr("\n");
+        pr("        %s: ", "QMAXSDU_DISC_ENA");
+        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+            REG_RD(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i), &value);
+            pr("%u-", VTSS_X_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA(value));
+        }
+        pr("\n");
+
+        /* Read scheduled configuration in the profile */
+        REG_RD(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), &value);
+        pr("        %s: %u\n", "LINK_SPEED", VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(value));
+        pr("        %s: 0x%X\n", "SCH_TRAFFIC_QUEUES", VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value));
+        pr("        %s: %u\n", "HOLDADVANCE", VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value));
+        pr("        %s: %u\n", "TAS_PORT_DLY", VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(value));
+        pr("        %s: %u\n", "TAS_CLOSE_DLY", VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(value));
+        pr("        %s: %u\n", "TAS_CBSHP_ENA", VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(value));
+#endif
+
 #if !defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
         gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value);
         pr("    %s: %u\n", "LIST_LENGTH", gcl_length);
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+        pr("    %s: %u\n", "LIST_HSCH_POS", VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(value));
+        pr("    %s: %u\n", "LIST_PORT_NUM", VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(value));
 #endif
         pr("    %s: %u\n", "LIST_TOD_DOM", VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(value));
         entry_idx = VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(value);
@@ -4876,12 +4919,13 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("\n");
     }
 
+#if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
     if (!info->has_action || egr_mapping_act) { /* Egress mapping configuration must be printed */
         vtss_debug_print_header(pr, "QoS egress mapping tables");
         fa_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.emap);
         pr("\n");
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -4996,34 +5040,34 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
-#endif // fixme
+
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-//    vtss_qos_state_t   *state = &vtss_state->qos;
+    vtss_qos_state_t   *state = &vtss_state->qos;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-#if 0 // fixme
         state->conf_set = fa_qos_conf_set;
 
         state->port_conf_set = vtss_cmn_qos_port_conf_set;
         state->port_conf_update = fa_qos_port_conf_set;
 
+#if defined(VTSS_FEATURE_QCL)
         state->qce_add = vtss_cmn_qce_add;
         state->qce_del = vtss_cmn_qce_del;
-
+#endif
         state->ingress_map_add         = fa_qos_ingress_map_add;
         state->ingress_map_del         = fa_qos_ingress_map_del;
         state->ingress_map_vcap_update = fa_qos_ingress_map_vcap_update;
         state->ingress_map_hw_update   = fa_qos_ingress_map_hw_update;
         state->ingress_map_hw_copy     = fa_qos_ingress_map_hw_copy;
-
+#if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
         state->egress_map_add          = fa_qos_egress_map_add;
         state->egress_map_del          = fa_qos_egress_map_del;
         state->egress_map_vcap_update  = fa_qos_egress_map_vcap_update;
         state->egress_map_hw_update    = fa_qos_egress_map_hw_update;
         state->egress_map_hw_copy      = fa_qos_egress_map_hw_copy;
-
+#endif
         state->cpu_port_shaper_set = fa_qos_cpu_port_shaper_set;
 
         state->prio_count = FA_PRIOS;
@@ -5036,6 +5080,7 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->tas_port_status_get = fa_qos_tas_port_status_get;
 #endif
 
+#if 0 // fixme
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
         if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
             state->fp_port_conf_set = fa_qos_fp_port_conf_set;
@@ -5045,14 +5090,10 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif // fixme
         break;
     case VTSS_INIT_CMD_INIT:
-#if 0 // fixme
         VTSS_RC(fa_qos_init(vtss_state));
-#endif
         break;
     case VTSS_INIT_CMD_PORT_MAP:
-#if 0 // fixme
         VTSS_RC(fa_qos_port_map_set(vtss_state));
-#endif
         break;
     default:
         break;

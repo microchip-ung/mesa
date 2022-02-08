@@ -420,8 +420,8 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
-#if 0 // fixme
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf);
+#if 0 // fixme
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
 #endif
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,

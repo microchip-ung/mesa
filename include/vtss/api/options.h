@@ -135,28 +135,28 @@
 #define VTSS_FEATURE_EXC_COL_CONT                 /**< Excessive collision continuation */
 #define VTSS_FEATURE_PORT_CNT_ETHER_LIKE          /**< Ethernet-like counters */
 #define VTSS_FEATURE_PORT_CNT_BRIDGE              /**< Bridge counters */
-// Fix me #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
+#define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
 #define VTSS_FEATURE_QOS                          /**< QoS */
 /* Fix me #define VTSS_FEATURE_QCL                          /\**< QoS: QoS Control Lists *\/ */
 /* Fix me #define VTSS_FEATURE_QCL_KEY_INNER_TAG            /\**< QoS: QoS Control Lists has inner tag *\/ */
 /* Fix me #define VTSS_FEATURE_QCL_KEY_DMAC                 /\**< QoS: QoS Control Lists has destination MAC address *\/ */
 /* Fix me #define VTSS_FEATURE_QCL_KEY_DIP                  /\**< QoS: QoS Control Lists has destination IP address *\/ */
 /* Fix me #define VTSS_FEATURE_QCL_MAP_ACTION               /\**< QoS: QoS Control Lists has ingress map action *\/ */
-//Fix me #define VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL    /**< QoS: Port Policer has Drop Precedence Bypas Level support */
-/* Fix me #define VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2  /\**< QoS: Port Policer has Traffic_Type Mask version 2 support *\/ */
-/* Fix me #define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT       /\**< QoS: Scheduler supports variable number of DWRR inputs *\/ */
-/* Fix me #define VTSS_FEATURE_QOS_COSID_CLASSIFICATION     /\**< QoS: Has COSID classification per port *\/ */
-/* Fix me #define VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT        /\**< Qos: Egress shapers have rate type support - line or date rate *\/ */
+#define VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL    /**< QoS: Port Policer has Drop Precedence Bypas Level support */
+#define VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2  /**< QoS: Port Policer has Traffic_Type Mask version 2 support */
+#define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT       /**< QoS: Scheduler supports variable number of DWRR inputs */
+#define VTSS_FEATURE_QOS_COSID_CLASSIFICATION     /**< QoS: Has COSID classification per port */
+#define VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT        /**< Qos: Egress shapers have rate type support - line or date rate */
 //WRED is not supported on Fireant #define VTSS_FEATURE_QOS_WRED_V3                  /**< QoS: WRED global - per queue (0..7), per dpl (1..3), per group (0..2) */
 #define VTSS_FEATURE_QOS_INGRESS_MAP              /**< QoS: Has Ingress Map Table */
 //Fix me #define VTSS_FEATURE_QOS_EGRESS_MAP               /**< QoS: Has Egress Map Table */
 #define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS          /**< QoS: Has leak lists for scheduler elements */
 #define VTSS_FEATURE_QOS_POLICER_DLB             /**< DLB policers */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
-//Fix me #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
+#define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER         /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
-//Fix me #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
+#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 // Unused VTSS_FEATURE_QOS_ defines (they exist for backwards compatibility):
 #define VTSS_FEATURE_QCL_V2                       /**< QoS: QoS Control Lists, V2 features */
 #define VTSS_FEATURE_QCL_KEY_S_TAG                /**< QoS: QoS Control Lists has S tag support */

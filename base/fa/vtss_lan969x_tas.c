@@ -233,7 +233,9 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
     REG_WR(VTSS_HSCH_TAS_CYCLE_TIME_CFG, cycle_time);
     REG_WR(VTSS_HSCH_TAS_STARTUP_CFG, VTSS_F_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE) ? obsolete_list_idx : list_idx) |
                                       VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time/256));
-    REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+    REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(chip_port) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port)) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 
     /* Configure the profile */
@@ -244,10 +246,12 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
     hold_advance = (fp_enable_tx != 0) ? (VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value) + 1) : 0;
-    REG_WR(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_PORT_NUM(chip_port) |
-                                              VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(0) |
+    REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(0) |
                                               VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(hold_advance) |
-                                              VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)));
+                                              VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),
+                                              VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES |
+                                              VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE |
+                                              VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
 
     /* Configure the list elements */
     for (gcl_idx = 0; gcl_idx < gcl_length; ++gcl_idx) {
@@ -262,10 +266,8 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
 
         /* Configure the list entry */
         REG_WR(VTSS_HSCH_TAS_GCL_CTRL_CFG, VTSS_F_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(vtss_bool8_to_u8(gcl[gcl_idx].gate_open)) |
-                                           VTSS_F_HSCH_TAS_GCL_CTRL_CFG_OP_TYPE(tas_op_type_calc(gcl[gcl_idx].gate_operation)) |
-                                           VTSS_F_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(FA_HSCH_TAS_SE(chip_port)));
-        REG_WR(VTSS_HSCH_TAS_GCL_CTRL_CFG2, VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_PORT_PROFILE(profile_idx) |
-                                            VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(entry_idx));
+                                           VTSS_F_HSCH_TAS_GCL_CTRL_CFG_OP_TYPE(tas_op_type_calc(gcl[gcl_idx].gate_operation)));
+        REG_WR(VTSS_HSCH_TAS_GCL_CTRL_CFG2, VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(entry_idx));
         REG_WR(VTSS_HSCH_TAS_GCL_TIME_CFG, gcl[gcl_idx].time_interval);
 
         /* Calculate the sum of time intervals */

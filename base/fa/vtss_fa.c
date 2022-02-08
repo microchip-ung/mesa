@@ -499,10 +499,6 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
 
     clk_period = vtss_fa_clk_period(freq);
-    REG_WRM(VTSS_HSCH_SYS_CLK_PER,
-            VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_period/100),
-            VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS);
-
     REG_WRM(VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL,
             VTSS_F_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS(clk_period/100),
             VTSS_M_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS);
