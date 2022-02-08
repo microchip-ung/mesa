@@ -1605,9 +1605,8 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_M_REW_DSCP_MAP_DSCP_REMAP_ENA);
 
     // Update ES0-based default port QoS egress mapping
-#if 0 //fixme
     VTSS_RC(vtss_fa_vcap_port_update(vtss_state, port_no));
-#endif
+
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
@@ -5080,14 +5079,12 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->tas_port_status_get = fa_qos_tas_port_status_get;
 #endif
 
-#if 0 // fixme
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
         if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
             state->fp_port_conf_set = fa_qos_fp_port_conf_set;
             state->fp_port_status_get = fa_qos_fp_port_status_get;
         }
 #endif
-#endif // fixme
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(fa_qos_init(vtss_state));

@@ -173,10 +173,8 @@ extern vtss_rc vtss_fa_emul_init(vtss_state_t *vtss_state);
 extern vtss_rc (*vtss_fa_wr)(vtss_state_t *vtss_state, u32 addr, u32 value);
 extern vtss_rc (*vtss_fa_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
 vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask);
-#if 0 // fixme
 vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, vtss_evc_counters_t *const cnt, BOOL clr);
-#endif
 BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 
 #define REG_RD(p, value)                 \
@@ -421,9 +419,7 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf);
-#if 0 // fixme
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
-#endif
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);

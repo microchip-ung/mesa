@@ -2425,19 +2425,17 @@ static vtss_rc fa_dsm_wm_set(vtss_state_t *vtss_state, const vtss_port_no_t port
 /* Configure 802.1Qbb Priority Flow Control */
 static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
-    u32 pfc_mask = 0;
+    u32 q, pfc_mask = 0;
     u32 spd = (conf->speed == VTSS_SPEED_25G)   ? 0 :
               (conf->speed == VTSS_SPEED_10G)   ? 1 :
               (conf->speed == VTSS_SPEED_2500M) ? 2 :
               (conf->speed == VTSS_SPEED_1G)    ? 3 :
               (conf->speed == VTSS_SPEED_100M)  ? 4 :
               (conf->speed == VTSS_SPEED_10M)   ? 5 : 6;
-#if 0 // fixme
-    u32 q;
+
     for (q = 0; q < VTSS_PRIOS; q++) {
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
     }
-#endif
 
     /* QSYS / Tx enable */
     REG_WRM(VTSS_QSYS_PFC_CFG(port),
@@ -2476,7 +2474,7 @@ static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t 
 
 static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
-    u8                *smac = &conf->flow_control.smac.addr[0];
+    u8                *smac = &conf->flow_control.smac.addr[0], q;
     BOOL              pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     u32               pause_start = 20;    // Number of cells (chip default)
     u32               pause_stop  = 0xFFF - 1; // Max number of cells - Disables FC (default) (JIRA APPL-2649)
@@ -2488,8 +2486,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     fc_start = 5;
     fc_stop = 3;
 #endif
-#if 0 // fixme
-    u8 q
+
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
             pfc = 1;
@@ -2499,7 +2496,6 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
             }
         }
     }
-#endif
     /* Configure 802.1Qbb PFC */
     VTSS_RC(fa_port_pfc(vtss_state, port, conf));
 
@@ -3148,19 +3144,17 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
             VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
             VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
-#if 0 // fixme
+
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
-#endif
 
     /* Configure flow control */
     if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
         VTSS_E("Could not configure FC port: %u", port);
     }
-#if 0 // fixme
+
     /* Update policer flow control configuration */
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
-#endif
 
     /* Enable MAC module */
     REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
@@ -3216,10 +3210,10 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         /* Enable the usx extender (only for the last port in the QXGMII group and only once) */
         VTSS_RC(fa_enable_usx_extender(vtss_state, port_no));
     }
-#if 0 // fixme
+
     /* Setup QoS - out of reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
-#endif
+
     VTSS_D("Chip port: %u (1G) is configured", port);
 
     return VTSS_RC_OK;
@@ -3354,19 +3348,17 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     REG_WRM(VTSS_DEV10G_DEV_MISC_CFG(tgt),
             VTSS_F_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL(value),
             VTSS_M_DEV10G_DEV_MISC_CFG_TX_FCS_UPDATE_SEL);
-#if 0 // fixme
+
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
-#endif
 
     /* Configure flow control */
     if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
         VTSS_E("Could not configure FC port: %u", port);
     }
-#if 0 // fixme
+
     /* Update policer flow control configuration */
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
-#endif
 
     /* Enable MAC module */
     REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
@@ -3400,10 +3392,9 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     if (conf->flow_control.generate) {
         REG_WRM_SET(VTSS_QSYS_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_ENA);
     }
-#if 0 // fixme
+
     /* Setup QoS - out of reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
-#endif
 
     VTSS_D("chip port: %u (10G),is configured", port);
 #endif // !defined(VTSS_ARCH_LAN969X_FPGA)
@@ -3710,7 +3701,6 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 
 #define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
 
-#if 0 // fixme
 static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
                                            u32 *addr, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd)
 {
@@ -3722,7 +3712,6 @@ static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-#endif
 
 /* Index of ANA_AC port counters */
 #define REG_CNT_ANA_AC_PORT_FILTER        0
@@ -3737,13 +3726,12 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
                                      vtss_port_counters_t *const counters,
                                      vtss_counter_cmd_t          cmd)
 {
-    u32                                i, port;
+    u32                                i, addr, port;
     vtss_port_counter_t                rx_errors;
     vtss_port_rmon_counters_t          *rmon;
     vtss_port_if_group_counters_t      *if_group;
     vtss_port_ethernet_like_counters_t *elike;
-//  vtss_port_proprietary_counters_t   *prop;
-//  u32 addr;
+    vtss_port_proprietary_counters_t   *prop;
 
     if (port_no >= vtss_state->port_count) {
         /* CPU/virtual port */
@@ -3855,7 +3843,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
         }
 #endif
     }
-#if 0 // fixme
+
     /* QSYS counters */
     REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(port));
     addr = 16;
@@ -3880,26 +3868,26 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     for (i = 0; i < VTSS_PRIOS; i++) {
         REG_CNT_ANA_AC(QUEUE_STAT_LSB_CNT(port*8 + i, REG_CNT_ANA_AC_QUEUE_PRIO), &c->rx_class[i], cmd);
     }
-#endif
+
     if (counters == NULL) {
         return VTSS_RC_OK;
     }
-#if 0 //fixme
+
     /* Proprietary counters */
     prop = &counters->prop;
     for (i = 0; i < VTSS_PRIOS; i++) {
         prop->rx_prio[i] = c->rx_class[i].value;
         prop->tx_prio[i] = (c->tx_yellow_class[i].value + c->tx_green_class[i].value);
     }
-#endif
+
     /* RMON Rx counters */
     rmon = &counters->rmon;
     rmon->rx_etherStatsDropEvents = c->rx_policer_drops.value;
-#if 0 //fixme
+
     for (i = 0; i < VTSS_PRIOS; i++) {
         rmon->rx_etherStatsDropEvents += (c->rx_green_drops[i].value + c->rx_yellow_drops[i].value);
     }
-#endif
+
     rmon->rx_etherStatsOctets = (CNT_SUM(c->rx_ok_bytes) + CNT_SUM(c->rx_bad_bytes));
     rx_errors = (CNT_SUM(c->rx_crc_err) +  CNT_SUM(c->rx_undersize) + CNT_SUM(c->rx_oversize) +
                  CNT_SUM(c->rx_symbol_err) + CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_fragments));
@@ -4544,8 +4532,8 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
                                        const vtss_debug_printf_t pr,
                                        const vtss_debug_info_t   *const info, vtss_port_no_t port_no)
 {
-//  u32                     i;
-//  char                    rx_buf[32], tx_buf[32];
+  u32                     i;
+  char                    rx_buf[32], tx_buf[32];
     vtss_port_fa_counters_t cnt;
 
     VTSS_MEMSET(&cnt, 0, sizeof(vtss_port_fa_counters_t));
@@ -4585,7 +4573,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
         }
 #endif
     }
-#if 0 // fixme
+
     if (info->full || info->action == 1 || info->action == 3) {
         vtss_fa_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
         vtss_fa_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
@@ -4608,7 +4596,6 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
             vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
         }
     }
-#endif
     pr("\n");
 
     return VTSS_RC_OK;
