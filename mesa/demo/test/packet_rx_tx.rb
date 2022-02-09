@@ -34,6 +34,7 @@ test "frame-xtr-inj" do
         cmd += "name f1 eth dmac 01:80:c2:00:00:00 data pattern cnt #{len - 18} "
         cmd += "tx #{$ts.pc.p[$idx_tx]} name f1 "
         cmd += "rx #{$ts.pc.p[$idx_rx]} name f1 "
+        cmd += "rx #{$ts.pc.p[$idx_tx]} "
         cmd += "rx #{$ts.pc.p[$idx_no]}"
         $ts.pc.run(cmd)
     end
@@ -65,4 +66,10 @@ test "frame-cpu-queue-shaper" do
             end
         end
     end
+end
+
+test "dump" do
+    break
+    $ts.dut.run("mesa-cmd deb api ci cou act 1")
+    $ts.dut.run("mesa-cmd deb api ci pac")
 end
