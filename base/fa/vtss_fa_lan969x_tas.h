@@ -16,7 +16,7 @@
 #define TAS_ENTRY_IDX_NONE   0xFFFFFFFF
 
 #if defined(VTSS_ARCH_LAN969X)
-#define FA_HSCH_TAS_SE(port) (1400 + 16 + port)
+#define FA_HSCH_TAS_SE(port) (VTSS_HSCH_L0_SES + port)
 #include "vtss_api.h"
 #include "vtss_tsn_api.h"
 

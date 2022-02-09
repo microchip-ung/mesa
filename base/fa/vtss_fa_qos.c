@@ -2210,6 +2210,7 @@ static vtss_rc fa_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *st
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_ARCH_SPARX5)
 static u32 tas_profile_allocate(vtss_state_t *vtss_state,  const vtss_port_no_t port_no)
 {
     u32                 profile_idx;
@@ -2244,6 +2245,7 @@ vtss_rc tas_profile_free(vtss_state_t *vtss_state,  u32 profile_idx)
 
     return VTSS_RC_OK;
 }
+#endif
 
 static u32 tas_list_allocate(vtss_state_t *vtss_state,  u32 length)
 {
@@ -2351,11 +2353,12 @@ static vtss_rc tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
         }
     }
 
+#if defined(VTSS_ARCH_SPARX5)
     if (!tas_lists[list_idx].inherit_profile) {   /* Inherit profiles are not freed */
         (void)tas_profile_free(vtss_state, tas_lists[list_idx].profile_idx); /* Free any possible profile */
         (void)tas_profile_free(vtss_state, tas_lists[list_idx].hold_profile_idx); /* Free any possible hold MAC profile */
     }
-
+#endif
     tas_lists[list_idx].in_use = FALSE; /* Free the list */
     tas_lists[list_idx].inherit_profile = FALSE;
     tas_lists[list_idx].profile_idx = TAS_PROFILE_IDX_NONE;
@@ -3189,12 +3192,17 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
                 VTSS_I("No TAS list was allocated");
                 return VTSS_RC_ERROR;
             }
+#if defined(VTSS_ARCH_SPARX5)
             if ((profile_idx = tas_profile_allocate(vtss_state, port_no)) == TAS_PROFILE_IDX_NONE) {    /* Allocate new profile */
                 tas_list_free(vtss_state, list_idx);
                 tas_list_free(vtss_state, trunk_list_idx);
                 VTSS_I("No TAS profiles was allocated");
                 return VTSS_RC_ERROR;
             }
+#else
+            /* On Laguna the used profile is indexed by the chip port number of the list */
+            profile_idx = VTSS_CHIP_PORT(port_no);
+#endif
             tas_lists[list_idx].profile_idx = profile_idx;
             tas_lists[list_idx].inherit_profile = FALSE;
 #if defined(VTSS_ARCH_SPARX5)
@@ -3920,10 +3928,11 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "OBSOLETE_IDX", VTSS_X_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX(value));
         pr("    %s: %u\n", "STARTUP_TIME", VTSS_X_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(value));
         pr("    %s: %u\n", "STARTUP_ERROR", VTSS_X_HSCH_TAS_STARTUP_CFG_STARTUP_ERROR(value));
-        REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
 
 #if defined(VTSS_ARCH_LAN969X)
+        REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
         profile_idx = VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(value);
+
         /* Read max SDU configuration in the profile */
         pr("        %s: ", "QMAXSDU_VAL");
         for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
@@ -3955,9 +3964,12 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
 #endif
 
 #if !defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
+        REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
         gcl_length = VTSS_X_HSCH_TAS_LIST_CFG_LIST_LENGTH(value);
         pr("    %s: %u\n", "LIST_LENGTH", gcl_length);
 #endif
+
+        REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
 #if defined(VTSS_ARCH_LAN969X)
         pr("    %s: %u\n", "LIST_HSCH_POS", VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(value));
         pr("    %s: %u\n", "LIST_PORT_NUM", VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(value));

@@ -122,10 +122,6 @@ vtss_rc lan969x_tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
         } while(entry_idx != tas_lists[list_idx].entry_idx);
     }
 
-    if (!tas_lists[list_idx].inherit_profile) {   /* Inherit profiles are not freed */
-        (void)tas_profile_free(vtss_state, tas_lists[list_idx].profile_idx); /* Free any possible profile */
-    }
-
     tas_lists[list_idx].in_use = FALSE; /* Free the list */
     tas_lists[list_idx].inherit_profile = FALSE;
     tas_lists[list_idx].profile_idx = TAS_PROFILE_IDX_NONE;
@@ -245,7 +241,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
     }
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
-    hold_advance = (fp_enable_tx != 0) ? (VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value) + 1) : 0;
+    hold_advance = (fp_enable_tx != 0) ? (VTSS_X_DSM_PREEMPT_CFG_P_MIN_SIZE(value) + 1) : 0;
     REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx), VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(0) |
                                               VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(hold_advance) |
                                               VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),

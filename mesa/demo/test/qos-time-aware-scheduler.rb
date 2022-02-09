@@ -215,15 +215,18 @@ def equal_interval_gcl_reconfig_test
 
     pcp0 = 770
     pcp3 = 850
+    pcp7 = 2
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
         pcp3 = 1300
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        pcp0 = 900
         pcp3 = 1600
+    end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-        pcp3 = 1780
+        pcp0 = 10
+        pcp3 = 200
+        pcp7 = 0.1
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
@@ -353,6 +356,7 @@ def equal_interval_3_prio_1_port_test
 
     pcp0 = 770
     pcp3 = 850
+    pcp7 = 2
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         pcp0 = 1100
         pcp3 = 1300
@@ -362,15 +366,17 @@ def equal_interval_3_prio_1_port_test
         pcp3 = 1400
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-        pcp3 = 1780
+        pcp0 = 10
+        pcp3 = 200
+        pcp7 = 0.1
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
     # Only expect frames in the highest priority queue when running strict scheduling
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
-   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1,   with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [pcp0,pcp3,2], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1,      with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+    measure(ig, eg, frame_size, 1,     false,            false,           [0,0,990000000],  [pcp0,pcp3,pcp7], true,              [0,3,7]) # On SparX-5 some lower priority frames are slipping through
 
     t_i ("Stop dummy GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[ig[0]])
@@ -797,6 +803,9 @@ def jira_appl_4898_test
 end
 
 def jira_appl_3433_test
+if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+    t_e("This test must be checked for passing without large MAXSDU size")
+end
     ig = 0
     eg = $loop_port0
     eg_measure = 1

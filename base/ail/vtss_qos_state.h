@@ -307,13 +307,18 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       57 /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-// TBD_VK: Check the numbers below when the datasheet is ready.
+#elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
 #define VTSS_HSCH_L0_SES                     5040 /**< Number of scheduler elements in layer 0 */
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       70 /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
+#define VTSS_HSCH_L0_SES                     1120 /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES                       32 /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES                       35 /**< Number of scheduler elements in layer 2 */
+#define VTSS_HSCH_L3_QSHPS                   1120 /**< Number of queue shapers in layer 3 */
 #endif /* defined(VTSS_ARCH_SERVAL_T) */
 
 #define VTSS_HSCH_LEAK_LISTS                    4 /**< Number of leak list groups per layer */
