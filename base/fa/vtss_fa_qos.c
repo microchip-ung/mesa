@@ -954,7 +954,11 @@ static vtss_rc fa_qos_dwrr_conf_set(vtss_state_t *vtss_state, const vtss_port_no
 {
     vtss_qos_port_conf_t *conf        = &vtss_state->qos.port_conf[port_no];
     u32                  chip_port    = VTSS_CHIP_PORT(port_no);
+#if defined(VTSS_ARCH_LAN969X)
+    u32                  layer        = 1;         /* Default layer for DWRR when HQoS is not present */
+#else
     u32                  layer        = 2;         /* Default layer for DWRR when HQoS is not present */
+#endif
     u32                  se           = chip_port; /* Default se when HQoS is not present */
     u8                   dwrr_cost[8] = {0};
     u32                  dwrr_cnt, dwrr_num;
