@@ -668,15 +668,15 @@ static char *debug_mac_string(const vtss_mac_t *m)
     return buf;
 }
 
-static char *debug_ring_role_string(const vtss_mrp_ring_role_t  role)
+static char *debug_ring_role_string(const vtss_mrp_ring_role_t role, BOOL in)
 {
     switch (role) {
     case VTSS_MRP_RING_ROLE_DISABLED:
         return "DIS";
     case VTSS_MRP_RING_ROLE_CLIENT:
-        return "MRC";
+        return in ? "MIC" : "MRC";
     case VTSS_MRP_RING_ROLE_MANAGER:
-        return "MRM";
+        return in ? "MIM" : "MRM";
     }
     return "INVALID";
 }
@@ -749,18 +749,23 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
                 mrp_tst_loc_conf = &vtss_state->mrp.data[i].tst_loc_conf;
                 mrp_event_mask = vtss_state->mrp.data[i].event_mask;
 
-                pr("MRP:%4u  active:%s  tst_loc_idx: %u  ring_role:%s  p_port:%u  s_port:%u\n",
+                pr("MRP:%4u  active:%s  tst_loc_idx: %u  itst_loc_idx: %u  ring_role:%s  in_ring_role:%s%s  p_port:%u  s_port:%u  i_port:%d\n",
                    i,
                    YN(mrp_data->active),
                    mrp_data->tst_loc_idx,
-                   debug_ring_role_string(mrp_data->conf.ring_role),
+                   mrp_data->itst_loc_idx,
+                   debug_ring_role_string(mrp_data->conf.ring_role, FALSE),
+                   debug_ring_role_string(mrp_data->conf.in_ring_role, TRUE),
+                   mrp_data->conf.in_ring_role != VTSS_MRP_RING_ROLE_DISABLED ? mrp_data->conf.in_rc_mode ? "-RC" : "-LC" : "",
                    mrp_data->conf.p_port,
-                   mrp_data->conf.s_port);
+                   mrp_data->conf.s_port,
+                   mrp_data->conf.i_port);
                 pr("------------------------------------------------------------------\n");
 
                 if (info->full || mrp_data->active) {
-                    pr("ring_state:%s  mac:%s\n",
+                    pr("ring_state:%s  in_ring_state:%s  mac:%s\n",
                        debug_ring_state_string(mrp_data->ring_state),
+                       debug_ring_state_string(mrp_data->in_ring_state),
                        debug_mac_string(&mrp_data->conf.mac));
                     pr("-----\n");
                 }
@@ -775,10 +780,10 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
                 }
 
                 if (info->full || mrp_data->active) {
-                    pr("EVENT enable:%4s  itst_loc:%s  tst_loc:%s\n",
+                    pr("EVENT enable:%4s  tst_loc:%s  itst_loc:%s\n",
                        YN(mrp_event_mask != VTSS_MRP_EVENT_MASK_NONE),
-                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_ITST_LOC),
-                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_TST_LOC));
+                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_TST_LOC),
+                       YN(mrp_event_mask &  VTSS_MRP_EVENT_MASK_ITST_LOC));
                     pr("-----\n");
                 }
                 pr("\n");
@@ -797,12 +802,15 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
             if (info->full || vtss_state->mrp.data[i].active) {
                 mrp_data = &vtss_state->mrp.data[i];
 
-                pr("MRP:%4u  active:%s  ring_role:%s  p_port:%u  s_port:%u\n",
+                pr("MRP:%4u  active:%s  ring_role:%s  in_ring_role:%s%s  p_port:%u  s_port:%u  i_port:%d\n",
                    i,
                    YN(mrp_data->active),
-                   debug_ring_role_string(mrp_data->conf.ring_role),
+                   debug_ring_role_string(mrp_data->conf.ring_role, FALSE),
+                   debug_ring_role_string(mrp_data->conf.in_ring_role, TRUE),
+                   mrp_data->conf.in_ring_role != VTSS_MRP_RING_ROLE_DISABLED ? mrp_data->conf.in_rc_mode ? "-RC" : "-LC" : "",
                    mrp_data->conf.p_port,
-                   mrp_data->conf.s_port);
+                   mrp_data->conf.s_port,
+                   mrp_data->conf.i_port);
                 pr("------------------------------------------------------------------\n");
 
                 // Cannot get inactive status & counters without a trace error
@@ -826,6 +834,13 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
                        YN(mrp_status.s_status.mrp_proc_seen),
                        YN(mrp_status.s_status.dmac_err_seen),
                        YN(mrp_status.s_status.vers_err_seen));
+                    pr("i-port: tst_loc %s  itst_loc %s  mrp_seen %s  mrp_proc_seen %s  dmac_err_seen %s  vers_err_seen %s\n",
+                       YN(mrp_status.i_status.tst_loc),
+                       YN(mrp_status.i_status.itst_loc),
+                       YN(mrp_status.i_status.mrp_seen),
+                       YN(mrp_status.i_status.mrp_proc_seen),
+                       YN(mrp_status.i_status.dmac_err_seen),
+                       YN(mrp_status.i_status.vers_err_seen));
                     pr("-----\n");
                 }
 
@@ -837,6 +852,9 @@ void vtss_mrp_debug_print(vtss_state_t *vtss_state,
                     pr("s-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
                        mrp_counters.s_counters.tst_rx_count,
                        mrp_counters.s_counters.itst_rx_count);
+                    pr("i-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
+                       mrp_counters.i_counters.tst_rx_count,
+                       mrp_counters.i_counters.itst_rx_count);
                     pr("-----\n");
                 }
                 pr("\n");
