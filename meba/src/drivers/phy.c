@@ -420,6 +420,7 @@ mepa_rc meba_phy_debug_info_print(const meba_inst_t         inst,
 {
     mepa_debug_info_t mepa_dbg;
     mepa_port_no_t    port_no;
+    mepa_lock_t       mepa_lock;
 
     // Map from MESA to PHY info
     mepa_dbg.full = info->full;
@@ -439,10 +440,31 @@ mepa_rc meba_phy_debug_info_print(const meba_inst_t         inst,
     } else {
         return MESA_RC_OK;
     }
+
+    mepa_lock.function = __FUNCTION__;
+    mepa_lock.file = __FILE__;
+
     for (port_no = 0; port_no < inst->phy_device_cnt; port_no++) {
-        pr("PHY %03d\n=======\n", port_no);
-        (void) mepa_debug_info_dump(inst->phy_devices[port_no], pr, &mepa_dbg);
+        if (!mesa_port_list_get(&info->port_list, port_no)) {
+            continue;
+        }
+
+        if (inst->iface.lock_enter) {
+            mepa_lock.line = (__LINE__ + 1);
+            inst->iface.lock_enter(&mepa_lock);
+        }
+
+        pr("\nPHY %3d\n=======\n", port_no);
+
+        if (inst->iface.lock_exit) {
+            mepa_lock.line = (__LINE__ + 1);
+            inst->iface.lock_exit(&mepa_lock);
+        }
+
+
+        (void)mepa_debug_info_dump(inst->phy_devices[port_no], pr, &mepa_dbg);
     }
+
     return MESA_RC_OK;
 }
 
