@@ -24,6 +24,7 @@ check_capabilities do
     $cap_vstax = ($ts.dut.call("mesa_capability", "MESA_CAP_PACKET_VSTAX") != 0) ? true : false
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
+    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
     $cap_tx_ifh_size = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_TX_IFH_SIZE")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     $cap_vop_cfm = ($ts.dut.call("mesa_capability", "MESA_CAP_VOP_CFM") != 0) ? true : false
@@ -1549,15 +1550,19 @@ test "test_run" do
 
         if ($cap_oam_v2)
             voi_raps_rx_test_func($d_voi_idx, $voi_meg_level, $vid, $d_vo_iflow, $port0, $port0, $port1)
-            voi_raps_rx_test_func($u_voi_idx, $voi_meg_level, $vid, $u_voi_iflow, $port0, $port1, $port0)
+            if (!$cap_fpga)
+                voi_raps_rx_test_func($u_voi_idx, $voi_meg_level, $vid, $u_voi_iflow, $port0, $port1, $port0)
+            end
             voi_raps_inject_test_func($d_voi_idx, $voi_meg_level, $vid, false)
             voi_raps_inject_test_func($u_voi_idx, $voi_meg_level, $vid, true)
             voi_lbm_ltm_rx_test_func($d_voi_idx, $voi_meg_level, $vid, 3, false)
-            voi_lbm_ltm_rx_test_func($u_voi_idx, $voi_meg_level, $vid, 3, true)
             voi_lbm_ltm_rx_test_func($d_voi_idx, $voi_meg_level, $vid, 5, false)
-            voi_lbm_ltm_rx_test_func($u_voi_idx, $voi_meg_level, $vid, 5, true)
             voi_handled_test_func($d_voi_idx, $voi_meg_level, $vid, false)
-            voi_handled_test_func($u_voi_idx, $voi_meg_level, $vid, true)
+            if (!$cap_fpga)
+                voi_lbm_ltm_rx_test_func($u_voi_idx, $voi_meg_level, $vid, 3, true)
+                voi_lbm_ltm_rx_test_func($u_voi_idx, $voi_meg_level, $vid, 5, true)
+                voi_handled_test_func($u_voi_idx, $voi_meg_level, $vid, true)
+            end
         end
     end
 end
