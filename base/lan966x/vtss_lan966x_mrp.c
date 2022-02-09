@@ -764,7 +764,7 @@ static vtss_rc mrp_in_loc_configure(vtss_state_t *vtss_state, vtss_mrp_data_t *m
 {
     BOOL           process = mrp->conf.in_ring_role == VTSS_MRP_RING_ROLE_MANAGER && mrp->conf.in_rc_mode;
     vtss_port_no_t port_no;
-    u32            chip_port;
+    u32            chip_port, cnt;
     int            p;
 
     // Configure LOC on all ports
@@ -781,11 +781,21 @@ static vtss_rc mrp_in_loc_configure(vtss_state_t *vtss_state, vtss_mrp_data_t *m
                 MEP_MRP_CTRL_MRP_ITST_ENA(process ? 1 : 0),
                 MEP_MRP_CTRL_MRP_ITST_ENA_M);
 
+
+        // Chip bug: The standard's Table 61 says MRP_InTest monitoring count
+        // must be 8 (independent of recovery profile). This means that we would
+        // like to write 16 to the MAX_MISS_CNT field, but this field is only
+        // four bits wide, so it'll become 0, causing LoC forever. We fix it
+        // here, by writing 15 if itst_mon_count is > 7.
+        // Perhaps a better fix is to use itst_mon_count as is, but modify the
+        // LoC period to be twice the value specified in itst_interval.
+        cnt = mrp->tst_loc_conf.itst_mon_count > 7 ? 15 : 2 * mrp->tst_loc_conf.itst_mon_count;
+
         // Configure LoC timer index.
         REG_WRM(MEP_ITST_CFG(chip_port),
-                MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA(process ? 1 : 0)                  |
-                MEP_ITST_CFG_ITST_MAX_MISS_CNT(mrp->tst_loc_conf.itst_mon_count * 2) |
-                MEP_ITST_CFG_ITST_MISS_CNT(0)                                        |
+                MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA(process ? 1 : 0) |
+                MEP_ITST_CFG_ITST_MAX_MISS_CNT(cnt)                 |
+                MEP_ITST_CFG_ITST_MISS_CNT(0)                       |
                 MEP_ITST_CFG_ITST_LOC_PERIOD(process ? mrp->itst_loc_idx + 1 : 0),
                 MEP_ITST_CFG_ITST_CLR_MISS_CNT_ENA_M |
                 MEP_ITST_CFG_ITST_MAX_MISS_CNT_M     |
@@ -1644,9 +1654,9 @@ static vtss_rc lan966x_mrp_status_get(vtss_state_t         *vtss_state,
 
         // Get port LOC status
         REG_RD(MEP_TST_CFG(chip_port), &value);
-        port_status->tst_loc = MEP_TST_CFG_MISS_CNT_X(value) == MEP_TST_CFG_MAX_MISS_CNT_X(value);
+        port_status->tst_loc = MEP_TST_CFG_LOC_PERIOD_X(value) != 0 && MEP_TST_CFG_MISS_CNT_X(value) == MEP_TST_CFG_MAX_MISS_CNT_X(value);
         REG_RD(MEP_ITST_CFG(p_chip_port), &value);
-        port_status->itst_loc = MEP_ITST_CFG_ITST_MISS_CNT_X(value) == MEP_ITST_CFG_ITST_MAX_MISS_CNT_X(value);
+        port_status->itst_loc = MEP_ITST_CFG_ITST_LOC_PERIOD_X(value) != 0 && MEP_ITST_CFG_ITST_MISS_CNT_X(value) == MEP_ITST_CFG_ITST_MAX_MISS_CNT_X(value);
 
         // Get port seen status
         // We cannot get seq_err_seen, because we never enable sequence error
