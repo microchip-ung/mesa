@@ -1525,7 +1525,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_SYNCE_SEPARATE_TIMING_DOMAINS:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)
         c = 1;
 #endif
         break;
@@ -1659,7 +1659,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1677,7 +1677,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_HAS_PTP_IO_PIN:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1717,13 +1717,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_HW_FWD_P2P_1STEP:
-#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
 
     case MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL:
-#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined (VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1735,7 +1735,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_INTERNAL_MODE_SUPPORTED:
-#if defined(VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
