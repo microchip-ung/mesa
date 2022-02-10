@@ -252,7 +252,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
               VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IGMP_REDIR_ENA (reg->igmp_cpu_only);
 
     // Calculate offset for port L2CP profiles
-    offs = (VTSS_X_ANA_CL_ISDX_CFG_L2CP_IDX(VTSS_M_ANA_CL_ISDX_CFG_L2CP_IDX) + 1);
+    offs = REG_FLD_CNT(ANA_CL_ISDX_CFG_L2CP_IDX);
 
     // Setup Rx registrations that we have per-port
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {

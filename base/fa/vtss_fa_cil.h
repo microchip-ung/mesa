@@ -261,6 +261,9 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
         } while (_x_ & (_mask_));                                                   \
     }
 
+// Determine instance count based on register field
+#define REG_FLD_CNT(name) (VTSS_X_##name(VTSS_M_##name) + 1)
+
 /* ================================================================= *
  *  Port masks
  * ================================================================= */

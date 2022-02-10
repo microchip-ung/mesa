@@ -75,6 +75,7 @@ end
 test_table =
 [
     {
+        sel: 1,
         txt: "HSR-SAN, port A to port B/C/D",
         cfg: {mode: "HSR_SAN"},
         fwd: [{idx_tx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
@@ -139,7 +140,6 @@ test_table =
               {idx: $idx_d}],
     },
     {
-        sel: 1,
         txt: "PRP-SAN, port A wrong LAN",
         cfg: {mode: "PRP_SAN"},
         fwd: [{idx_tx: $idx_a, prp: {lan_id: 0}}],
@@ -301,5 +301,5 @@ test_table.each do |t|
 end
 
 test "dump" do
-    #$ts.dut.run("mesa-cmd deb api redbox")
+    $ts.dut.run("mesa-cmd deb api redbox")
 end

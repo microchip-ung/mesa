@@ -2802,7 +2802,11 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 /* - PRP/HSR RedBox ------------------------------------------------ */
 
 // Number of RedBox instances
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_REDBOX_CNT 1
+#else
 #define VTSS_REDBOX_CNT 5
+#endif
 
 // RedBox ID, zero-based
 typedef uint8_t vtss_rb_id_t;
@@ -2891,37 +2895,24 @@ typedef uint16_t vtss_rb_node_id_t;
 
 // Node type
 typedef enum {
-    VTSS_RB_NODE_TYPE_DAN,   // DANP/DANH
-    VTSS_RB_NODE_TYPE_SAN_A, // SAN_A (PRP)
-    VTSS_RB_NODE_TYPE_SAN_B, // SAN_B (PRP)
+    VTSS_RB_NODE_TYPE_DAN, // DANP/DANH
+    VTSS_RB_NODE_TYPE_SAN, // SAN (PRP)
 } vtss_rb_node_type_t;
 
-// Node counters
+// Node configuration
 typedef struct {
-    uint32_t rx;           // Rx frames
-    uint32_t rx_wrong_lan; // Rx frames with wrong LanId (PRP port)
-} vtss_rb_node_counters_t;
-
-// Node entry
-typedef struct {
-    vtss_mac_t              mac;    // MAC address (key)
-    vtss_rb_node_id_t       id;     // Node ID (alternative key)
-    BOOL                    locked; // Locked/static flag
-    vtss_rb_node_type_t     type;   // Node type
-    vtss_rb_age_time_t      age_a;  // Port A age (PRP)
-    vtss_rb_age_time_t      age_b;  // Port B age (PRP)
-    vtss_rb_node_counters_t cnt_a;  // Port A counters
-    vtss_rb_node_counters_t cnt_b;  // Port B counters
-} vtss_rb_node_t;
+    vtss_rb_node_type_t type;  // Node type
+    BOOL                san_a; // SAN: Port A indication
+} vtss_rb_node_conf_t;
 
 // Add static node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
-// type [IN]   Node type.
+// conf [IN]   Node configuration.
 vtss_rc vtss_rb_node_add(const vtss_inst_t         inst,
                          const vtss_rb_id_t        rb_id,
                          const vtss_mac_t          *const mac,
-                         const vtss_rb_node_type_t type);
+                         const vtss_rb_node_conf_t *const conf);
 
 // Delete node entry.
 // rb_id [IN]  RedBox ID.
@@ -2930,10 +2921,42 @@ vtss_rc vtss_rb_node_del(const vtss_inst_t  inst,
                          const vtss_rb_id_t rb_id,
                          const vtss_mac_t   *const mac);
 
+// Redbox table clear command
+typedef enum {
+    VTSS_RB_CLEAR_ALL,      // Remove all entries
+    VTSS_RB_CLEAR_UNLOCKED, // Remove all unlocked entries
+    VTSS_RB_CLEAR_LOCKED,   // Remove all locked entries
+} vtss_rb_clear_t;
+
 // Clear node table.
-// rb_id [IN]   RedBox ID.
-vtss_rc vtss_rb_node_table_clear(const vtss_inst_t  inst,
-                                 const vtss_rb_id_t rb_id);
+// rb_id [IN]  RedBox ID.
+// clear [IN]  Clear command
+vtss_rc vtss_rb_node_table_clear(const vtss_inst_t     inst,
+                                 const vtss_rb_id_t    rb_id,
+                                 const vtss_rb_clear_t clear);
+
+// Node counters
+typedef struct {
+    uint32_t rx;           // Rx frames
+    uint32_t rx_wrong_lan; // Rx frames with wrong LanId (PRP port)
+} vtss_rb_node_counters_t;
+
+// Node port A/B information
+typedef struct {
+    BOOL                    fwd; // Forwarding
+    vtss_rb_age_time_t      age; // Age (PRP)
+    vtss_rb_node_counters_t cnt; // Counters
+} vtss_rb_node_port_t;
+
+// Node entry
+typedef struct {
+    vtss_mac_t          mac;    // MAC address (key)
+    vtss_rb_node_id_t   id;     // Node ID (alternative key)
+    BOOL                locked; // Locked/static flag
+    vtss_rb_node_type_t type;   // Node type
+    vtss_rb_node_port_t port_a; // Port A
+    vtss_rb_node_port_t port_b; // Port B
+} vtss_rb_node_t;
 
 // Get node entry based on MAC address.
 // rb_id [IN]   RedBox ID.
@@ -2965,20 +2988,6 @@ vtss_rc vtss_rb_node_id_get_next(const vtss_inst_t       inst,
 // Proxy node ID
 typedef uint16_t vtss_rb_proxy_node_id_t;
 
-// Proxy node counters
-typedef struct {
-    uint32_t rx; // Rx frames
-} vtss_rb_proxy_node_counters_t;
-
-// Proxy node entry.
-typedef struct {
-    vtss_mac_t                    mac;    // MAC address (key)
-    vtss_rb_proxy_node_id_t       id;     // Proxy node ID (alternative key)
-    BOOL                          locked; // Locked/static flag
-    vtss_rb_age_time_t            age;    // Age
-    vtss_rb_proxy_node_counters_t cnt;    // Port C counters
-} vtss_rb_proxy_node_t;
-
 // Add static proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
@@ -2994,9 +3003,25 @@ vtss_rc vtss_rb_proxy_node_del(const vtss_inst_t  inst,
                                const vtss_mac_t   *const mac);
 
 // Clear proxy node table.
-// rb_id [IN]   RedBox ID.
-vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t  inst,
-                                       const vtss_rb_id_t rb_id);
+// rb_id [IN]  RedBox ID.
+// clear [IN]  Clear command
+vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t     inst,
+                                       const vtss_rb_id_t    rb_id,
+                                       const vtss_rb_clear_t clear);
+
+// Proxy node counters
+typedef struct {
+    uint32_t rx; // Rx frames
+} vtss_rb_proxy_node_counters_t;
+
+// Proxy node entry.
+typedef struct {
+    vtss_mac_t                    mac;    // MAC address (key)
+    vtss_rb_proxy_node_id_t       id;     // Proxy node ID (alternative key)
+    BOOL                          locked; // Locked/static flag
+    vtss_rb_age_time_t            age;    // Age
+    vtss_rb_proxy_node_counters_t cnt;    // Port C counters
+} vtss_rb_proxy_node_t;
 
 // Get proxy node entry based on MAC address.
 // rb_id [IN]   RedBox ID.

@@ -8128,7 +8128,7 @@ vtss_rc vtss_rb_counters_clear(const vtss_inst_t  inst,
 vtss_rc vtss_rb_node_add(const vtss_inst_t         inst,
                          const vtss_rb_id_t        rb_id,
                          const vtss_mac_t          *const mac,
-                         const vtss_rb_node_type_t type)
+                         const vtss_rb_node_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -8136,7 +8136,7 @@ vtss_rc vtss_rb_node_add(const vtss_inst_t         inst,
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.rb_node_add, rb_id, mac, type);
+        rc = VTSS_FUNC(l2.rb_node_add, rb_id, mac, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -8158,8 +8158,9 @@ vtss_rc vtss_rb_node_del(const vtss_inst_t  inst,
     return rc;
 }
 
-vtss_rc vtss_rb_node_table_clear(const vtss_inst_t  inst,
-                                 const vtss_rb_id_t rb_id)
+vtss_rc vtss_rb_node_table_clear(const vtss_inst_t     inst,
+                                 const vtss_rb_id_t    rb_id,
+                                 const vtss_rb_clear_t clear)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -8167,7 +8168,7 @@ vtss_rc vtss_rb_node_table_clear(const vtss_inst_t  inst,
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.rb_node_table_clear, rb_id);
+        rc = VTSS_FUNC(l2.rb_node_table_clear, rb_id, clear);
     }
     VTSS_EXIT();
     return rc;
@@ -8256,8 +8257,9 @@ vtss_rc vtss_rb_proxy_node_del(const vtss_inst_t  inst,
     return rc;
 }
 
-vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t  inst,
-                                       const vtss_rb_id_t rb_id)
+vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t     inst,
+                                       const vtss_rb_id_t    rb_id,
+                                       const vtss_rb_clear_t clear)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -8265,7 +8267,7 @@ vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t  inst,
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.rb_proxy_node_table_clear, rb_id);
+        rc = VTSS_FUNC(l2.rb_proxy_node_table_clear, rb_id, clear);
     }
     VTSS_EXIT();
     return rc;
@@ -8955,6 +8957,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info)
 {
+    vtss_rc              rc;
     int                  i, header = 1;
     vtss_rb_conf_t       *conf;
     vtss_rb_counters_t   cnt;
@@ -9015,23 +9018,28 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         }
 
         memset(&node, 0, sizeof(node));
-        while (VTSS_FUNC(l2.rb_node_get_next, i, &node.mac, &node) == VTSS_RC_OK) {
-            if (header) {
+        while (1) {
+            rc = (info->action ? VTSS_FUNC(l2.rb_node_id_get_next, i, node.id, &node) :
+                  VTSS_FUNC(l2.rb_node_get_next, i, &node.mac, &node));
+            if (rc != VTSS_RC_OK) {
+                break;
+            } else if (header) {
                 pr("RedBox %u Node Table:\n", i);
-                pr("MAC Address        Locked  Type   Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
+                pr("MAC Address        ID    Locked  Type   Fwd A/B  Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
                 header = 0;
             }
             p = node.mac.addr;
             pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
-            pr("%-8u%-7s", node.locked,
+            pr("%-6u%-8u%-7s", node.id, node.locked,
                node.type == VTSS_RB_NODE_TYPE_DAN ? "DAN" :
-               node.type == VTSS_RB_NODE_TYPE_SAN_A ? "SAN-A" :
-               node.type == VTSS_RB_NODE_TYPE_SAN_B ? "SAN-B" : "?");
-            sprintf(buf, "%u/%u", node.age_a, node.age_b);
+               node.type == VTSS_RB_NODE_TYPE_SAN ? "SAN-B" : "?");
+            sprintf(buf, "%u/%u", node.port_a.fwd, node.port_b.fwd);
             pr("%-9s", buf);
-            sprintf(buf, "%u/%u", node.cnt_a.rx, node.cnt_b.rx);
+            sprintf(buf, "%u/%u", node.port_a.age, node.port_b.age);
+            pr("%-9s", buf);
+            sprintf(buf, "%u/%u", node.port_a.cnt.rx, node.port_b.cnt.rx);
             pr("%-23s", buf);
-            pr("%u/%u\n", node.cnt_a.rx_wrong_lan, node.cnt_b.rx_wrong_lan);
+            pr("%u/%u\n", node.port_a.cnt.rx_wrong_lan, node.port_b.cnt.rx_wrong_lan);
         }
         if (!header) {
             pr("\n");
@@ -9039,15 +9047,19 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         }
 
         memset(&pnode, 0, sizeof(pnode));
-        while (VTSS_FUNC(l2.rb_proxy_node_get_next, i, &pnode.mac, &pnode) == VTSS_RC_OK) {
-            if (header) {
+        while (1) {
+            rc = (info->action ? VTSS_FUNC(l2.rb_proxy_node_id_get_next, i, pnode.id, &pnode) :
+                  VTSS_FUNC(l2.rb_proxy_node_get_next, i, &pnode.mac, &pnode));
+            if (rc != VTSS_RC_OK) {
+                break;
+            } else if (header) {
                 pr("RedBox %u Proxy Node Table:\n", i);
-                pr("MAC Address        Locked  Age     Rx Total\n");
+                pr("MAC Address        ID    Locked  Age     Rx Total\n");
                 header = 0;
             }
             p = pnode.mac.addr;
             pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
-            pr("%-8u%-8u%u\n", pnode.locked, pnode.age, pnode.cnt.rx);
+            pr("%-6u%-8u%-8u%u\n", pnode.id, pnode.locked, pnode.age, pnode.cnt.rx);
         }
         if (!header) {
             pr("\n");
