@@ -604,6 +604,13 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
 
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    REG_RD(VTSS_DEVCPU_GCB_BUILDID, &i);
+    if (i != FPGA_BUILDID) {
+        VTSS_E("Unexpected build id. Chip: 0x%08x, Header files: 0x%08x", i, FPGA_BUILDID);
+    }
+#endif
+
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
         VTSS_E("Switchcore initialization error");
