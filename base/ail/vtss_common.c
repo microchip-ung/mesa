@@ -390,6 +390,7 @@ static void vtss_debug_print_init(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_CORE_CLOCK)
     pr("Core clock : %s\n", vtss_core_freq_to_txt(vtss_state->init_conf.core_clock.freq));
 #endif /* VTSS_FEATURE_PORT_MUX */
+    pr("VTSS_PORTS : %d\n", VTSS_PORTS);
     pr("State Size : %zu\n", sizeof(*vtss_state));
 #if defined(VTSS_FEATURE_MISC)
     pr("Misc Size  : %zu\n", sizeof(vtss_state->misc));
