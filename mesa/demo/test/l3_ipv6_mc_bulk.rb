@@ -10,10 +10,6 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 
 #---------- Capabilities -----------------------------------------------------
 cap_check_exit("L3")
-check_capabilities do
-    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
-    assert(($cap_fpga == 0), "Feature not supported on FPGA")
-end
 
 #---------- Test parameters ----------------------------------------------------
 # Test: Multiple  MC-routes.
