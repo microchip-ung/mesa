@@ -2881,7 +2881,8 @@
  * \brief
  * Signed value to add to CF when frame is transmitted on this port. Field
  * is used if requested through the analyzer match rule. This value can be
- * used as the egress asymmetry delay for the particular PTP flow.
+ * used as the egress asymmetry delay for the particular PTP flow. Format
+ * is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_EDLY_CFG . PTP_EDLY_VAL
@@ -2905,7 +2906,8 @@
  * \brief
  * Signed value to add to CF when frame is transmitted on this port. Field
  * is used if requested through the analyzer match rule. This value can be
- * used as the egress asymmetry delay for the particular PTP flow.
+ * used as the egress asymmetry delay for the particular PTP flow. Format
+ * is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_EDLY_CFG1 . PTP_EDLY_VAL1
@@ -2930,7 +2932,7 @@
  * Signed value to add to CF when frame is received on this port. Field is
  * used if requested through the analyzer match rule. This value can be
  * used as the ingress asymmetry or ingress asymmetry+path delay for the
- * particular PTP flow.
+ * particular PTP flow.  Format is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_IDLY1_CFG . PTP_IDLY1_VAL
@@ -2955,7 +2957,7 @@
  * Signed value to add to CF when frame is received on this port. Field is
  * used if requested through the analyzer match rule. This value can be
  * used as the ingress asymmetry or ingress asymmetry+path delay for the
- * particular PTP flow.
+ * particular PTP flow.  Format is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_IDLY1_CFG1 . PTP_IDLY1_VAL1
@@ -2980,7 +2982,7 @@
  * Signed value to add to CF when frame is received on this port. Field is
  * used if requested through the analyzer match rule. This value can be
  * used as the ingress asymmetry or ingress asymmetry+path delay for the
- * particular PTP flow.
+ * particular PTP flow.  Format is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_IDLY2_CFG . PTP_IDLY2_VAL
@@ -3005,7 +3007,7 @@
  * Signed value to add to CF when frame is received on this port. Field is
  * used if requested through the analyzer match rule. This value can be
  * used as the ingress asymmetry or ingress asymmetry+path delay for the
- * particular PTP flow.
+ * particular PTP flow.  Format is 32.8 fixedpoint.
  *
  * \details
  * Field: ::VTSS_REW_PTP_IDLY2_CFG1 . PTP_IDLY2_VAL1
@@ -5573,6 +5575,30 @@
 #define  VTSS_F_REW_PTP_SRC_PORT_CFG_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,0,16)
 #define  VTSS_M_REW_PTP_SRC_PORT_CFG_PORT_NUM     VTSS_ENCODE_BITMASK(0,16)
 #define  VTSS_X_REW_PTP_SRC_PORT_CFG_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,0,16)
+
+
+/**
+ * \brief Domain specific delay to apply on
+ *
+ * \details
+ * Register: \a REW:GPTP_DOM:GM_DELAY
+ *
+ * @param gi Register: GPTP_DOM (??), 0-3
+ */
+#define VTSS_REW_GM_DELAY(gi)                VTSS_IOREG_IX(VTSS_TO_REW,0x3e40,gi,16,0,11)
+
+/**
+ * \brief
+ * Delay will be added to CF when the rewrite command selects the
+ * PTP_IDLY1_CFG register. Used as a domain specific delay.  Format is 24.8
+ * fixedpoint.
+ *
+ * \details
+ * Field: ::VTSS_REW_GM_DELAY . GM_PEER_DELAY
+ */
+#define  VTSS_F_REW_GM_DELAY_GM_PEER_DELAY(x)  (x)
+#define  VTSS_M_REW_GM_DELAY_GM_PEER_DELAY     0xffffffff
+#define  VTSS_X_REW_GM_DELAY_GM_PEER_DELAY(x)  (x)
 
 /**
  * Register Group: \a REW:GPTP_COMMON_CFG

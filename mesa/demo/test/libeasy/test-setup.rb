@@ -1306,7 +1306,7 @@ end
 $FPGAs = {
     # To promote a new FPGA such that it can be installed go to soft00 and use
     # the promote-lan969x-fpga.sh <version> command
-    "9698@6849-Sunrise" => { :v => "H20204BAA", :t => "lan969x-fpga", :n => "lan969-sr", :f => "sunrise_top_"}
+    "9698@6849-Sunrise" => { :v => "H20213AAA", :t => "lan969x-fpga", :n => "lan969-sr", :f => "sunrise_top_"}
 }
 
 def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")

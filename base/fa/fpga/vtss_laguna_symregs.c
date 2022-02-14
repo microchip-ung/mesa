@@ -1,5 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
+
 #include "../vtss_fa_cil.h"
 #ifdef VTSS_ARCH_LAN969X
 #ifdef VTSS_OPT_SYMREG
@@ -1898,23 +1899,23 @@ static const vtss_symreg_reg_t regs_within_HSCH_HSCH_TAS_STATE[] = {
 static const vtss_symreg_reggrp_t reggrps_within_HSCH[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
     {"HSCH_L0_CFG"                          , 0x00002800, 0x00000460, 0x00000001, regs_within_HSCH_HSCH_L0_CFG},
-    {"HSCH_L1_CFG"                          , 0x00002380, 0x00000010, 0x00000001, regs_within_HSCH_HSCH_L1_CFG},
+    {"HSCH_L1_CFG"                          , 0x00002340, 0x00000023, 0x00000001, regs_within_HSCH_HSCH_L1_CFG},
     {"HSCH_CFG"                             , 0x00000000, 0x00000460, 0x00000008, regs_within_HSCH_HSCH_CFG},
     {"HSCH_STATUS"                          , 0x00004000, 0x00000460, 0x00000004, regs_within_HSCH_HSCH_STATUS},
     {"QSHP_CFG"                             , 0x00002300, 0x00000020, 0x00000002, regs_within_HSCH_QSHP_CFG},
     {"QSHP_ALLOC_CFG"                       , 0x00003000, 0x00000460, 0x00000002, regs_within_HSCH_QSHP_ALLOC_CFG},
-    {"QSHP_STATUS"                          , 0x00002340, 0x00000020, 0x00000001, regs_within_HSCH_QSHP_STATUS},
-    {"HSCH_INP_STATE"                       , 0x000023a4, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_INP_STATE},
-    {"HSCH_DWRR"                            , 0x00002360, 0x00000020, 0x00000001, regs_within_HSCH_HSCH_DWRR},
-    {"HSCH_MISC"                            , 0x000023a6, 0x00000001, 0x0000008d, regs_within_HSCH_HSCH_MISC},
-    {"HSCH_LEAK_LISTS"                      , 0x00002433, 0x00000004, 0x00000008, regs_within_HSCH_HSCH_LEAK_LISTS},
-    {"SYSTEM"                               , 0x00002453, 0x00000001, 0x0000004e, regs_within_HSCH_SYSTEM},
-    {"MMGT"                                 , 0x000024a1, 0x00000001, 0x00000004, regs_within_HSCH_MMGT},
-    {"TAS_CONFIG"                           , 0x000024a5, 0x00000001, 0x00000004, regs_within_HSCH_TAS_CONFIG},
-    {"TAS_PROFILE_CFG"                      , 0x000024a9, 0x0000001e, 0x00000011, regs_within_HSCH_TAS_PROFILE_CFG},
-    {"TAS_LIST_CFG"                         , 0x00002390, 0x00000001, 0x00000010, regs_within_HSCH_TAS_LIST_CFG},
-    {"TAS_GCL_CFG"                          , 0x000023a0, 0x00000001, 0x00000004, regs_within_HSCH_TAS_GCL_CFG},
-    {"HSCH_TAS_STATE"                       , 0x000023a5, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_TAS_STATE},
+    {"QSHP_STATUS"                          , 0x00002380, 0x00000020, 0x00000001, regs_within_HSCH_QSHP_STATUS},
+    {"HSCH_INP_STATE"                       , 0x00002363, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_INP_STATE},
+    {"HSCH_DWRR"                            , 0x000023a0, 0x00000020, 0x00000001, regs_within_HSCH_HSCH_DWRR},
+    {"HSCH_MISC"                            , 0x000023c0, 0x00000001, 0x0000008d, regs_within_HSCH_HSCH_MISC},
+    {"HSCH_LEAK_LISTS"                      , 0x0000244d, 0x00000004, 0x00000008, regs_within_HSCH_HSCH_LEAK_LISTS},
+    {"SYSTEM"                               , 0x0000246d, 0x00000001, 0x0000004e, regs_within_HSCH_SYSTEM},
+    {"MMGT"                                 , 0x00002369, 0x00000001, 0x00000004, regs_within_HSCH_MMGT},
+    {"TAS_CONFIG"                           , 0x000024bb, 0x00000001, 0x00000004, regs_within_HSCH_TAS_CONFIG},
+    {"TAS_PROFILE_CFG"                      , 0x000024bf, 0x0000001e, 0x00000011, regs_within_HSCH_TAS_PROFILE_CFG},
+    {"TAS_LIST_CFG"                         , 0x00002370, 0x00000001, 0x00000010, regs_within_HSCH_TAS_LIST_CFG},
+    {"TAS_GCL_CFG"                          , 0x00002364, 0x00000001, 0x00000004, regs_within_HSCH_TAS_GCL_CFG},
+    {"HSCH_TAS_STATE"                       , 0x00002368, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_TAS_STATE},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_HSIOWRAP_SYNC_ETH_CFG[] = {
@@ -1922,23 +1923,15 @@ static const vtss_symreg_reg_t regs_within_HSIOWRAP_SYNC_ETH_CFG[] = {
     {"SYNC_ETH_CFG"                         , 0x00000000, 0x00000004, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_HSIOWRAP_GPIO_CFG[] = {
+static const vtss_symreg_reg_t regs_within_HSIOWRAP_XMII_CFG[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
-    {"GPIO_CFG"                             , 0x00000000, 0x00000040, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_HSIOWRAP_TEMP_SENSOR[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"TEMP_SENSOR_CTRL"                     , 0x00000000, 0x00000001, 0x00000001},
-    {"TEMP_SENSOR_CFG"                      , 0x00000001, 0x00000001, 0x00000001},
-    {"TEMP_SENSOR_STAT"                     , 0x00000002, 0x00000001, 0x00000001},
+    {"XMII_CFG"                             , 0x00000000, 0x00000002, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reggrp_t reggrps_within_HSIOWRAP[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
     {"SYNC_ETH_CFG"                         , 0x00000000, 0x00000001, 0x00000004, regs_within_HSIOWRAP_SYNC_ETH_CFG},
-    {"GPIO_CFG"                             , 0x00000004, 0x00000001, 0x00000040, regs_within_HSIOWRAP_GPIO_CFG},
-    {"TEMP_SENSOR"                          , 0x00000044, 0x00000001, 0x00000003, regs_within_HSIOWRAP_TEMP_SENSOR},
+    {"XMII_CFG"                             , 0x00000004, 0x00000001, 0x00000002, regs_within_HSIOWRAP_XMII_CFG},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_LRN_COMMON[] = {
@@ -2306,6 +2299,7 @@ static const vtss_symreg_reg_t regs_within_REW_GPTP_DOM[] = {
     {"PTP_CLOCK_ID_MSB"                     , 0x00000008, 0x00000001, 0x00000001},
     {"PTP_CLOCK_ID_LSB"                     , 0x00000009, 0x00000001, 0x00000001},
     {"PTP_SRC_PORT_CFG"                     , 0x0000000a, 0x00000001, 0x00000001},
+    {"GM_DELAY"                             , 0x0000000b, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_REW_GPTP_COMMON_CFG[] = {
