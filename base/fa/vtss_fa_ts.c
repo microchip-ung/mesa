@@ -1200,7 +1200,8 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
     }
 
-    /* Get the GPIO functionallity information */
+    /* Get the GPIO functionality information */
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
         VTSS_MEMSET(ptp_gpio, 0, sizeof(ptp_gpio));
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_0, &ptp_gpio[0]);
@@ -1213,6 +1214,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     } else {
         VTSS_E("gpio_func_info_get is NULL");
     }
+#endif
     for (i = 0; i < PCB134_GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
         switch (ptp_gpio[i].alt) {
             case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;

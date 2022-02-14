@@ -493,6 +493,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_SEL |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA |
             VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
+#else
+    u32 clk_period, pol_upd_int;
+    pol_upd_int = 211;
+#endif
 
     clk_period = vtss_fa_clk_period(freq);
     REG_WRM(VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL,
@@ -507,11 +511,17 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(clk_period/100),
             VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
 
+#if defined(VTSS_ARCH_SPARX5)
     for(u8 i = 0; i < 3; i++) {
         REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(i),
                 VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
                 VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
     }
+#else
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
+#endif
 
     REG_WRM(VTSS_HSCH_TAS_STATEMACHINE_CFG,
             VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY((256 * 1000) / clk_period),
@@ -520,8 +530,6 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     REG_WRM(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG,
             VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(pol_upd_int),
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT);
-
-#endif //#defined(VTSS_ARCH_SPARX5)
 
     VTSS_I("Setting Core Clock - done");
     return VTSS_RC_OK;
