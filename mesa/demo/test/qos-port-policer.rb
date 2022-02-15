@@ -17,6 +17,8 @@ ig = idx_list[0]
 eg = idx_list[1]
 t_i("ig: #{ig}  eg: #{eg}")
 
+dut_port_state_up([$ts.dut.p[ig], $ts.dut.p[eg]])
+
 # Save configuration
 $pconf = []
 [ig, eg].each do |idx|
