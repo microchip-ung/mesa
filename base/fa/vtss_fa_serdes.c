@@ -3665,7 +3665,7 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t *vtss_state, vtss_port_no_
                     VTSS_F_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0(value),
                     VTSS_M_SD25G_TARGET_LANE_03_LN_CFG_TAP_DLY_4_0);
 
-        } else {
+        } else if (sd_type == FA_SERDES_TYPE_10G) {
             sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_04(sd_tgt),
                     VTSS_F_SD10G_LANE_TARGET_LANE_04_CFG_TAP_DLY_4_0(value),
