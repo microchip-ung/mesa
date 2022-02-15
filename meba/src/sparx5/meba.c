@@ -842,7 +842,7 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_PCB107_CPLD_CS_VIA_MUX:
             return 0;
         case MEBA_CAP_BOARD_HAS_PCB135_CPLD:
-            return (board->type == BOARD_TYPE_SPARX5_PCB135);
+            return (board->type == BOARD_TYPE_SPARX5_PCB135) && (!board->gpy241_present);
         case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:
             return -1;
         case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:
