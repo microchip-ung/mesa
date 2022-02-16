@@ -1202,6 +1202,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 
     /* Get the GPIO functionality information */
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
+    vtss_rc rc = VTSS_RC_OK;
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
         VTSS_MEMSET(ptp_gpio, 0, sizeof(ptp_gpio));
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_0, &ptp_gpio[0]);
