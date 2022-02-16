@@ -825,6 +825,10 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_1588_REF_CLK_SEL:
             return 0;
         case MEBA_CAP_TEMP_SENSORS:
+            if ((board->type == BOARD_TYPE_SPARX5_PCB135) && (board->gpy241_present)) {
+                // This is PCB135 rev C. Temp sensors not yet implemented for INDY
+                return 0;
+            }
             return 1;
         case MEBA_CAP_BOARD_PORT_COUNT:
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
