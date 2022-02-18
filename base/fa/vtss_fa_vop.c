@@ -387,7 +387,7 @@ static vtss_rc fa_voe_alloc(vtss_state_t                *vtss_state,
 {
     u32 i, offset, v;
 
-    VTSS_D("Enter  type %u  port %u  direction %u", type, port, direction);
+    VTSS_D("Enter  type %u  port %u  direction %u  voe_alloc_idx %u", type, port, direction, voe_alloc_idx);
 
     if (type == VTSS_VOE_TYPE_SERVICE) {
         for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT && vtss_state->oam.voe_alloc_data[voe_alloc_idx].allocated; ++i) {
@@ -1676,6 +1676,8 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
 {
     /* All VOEs are disabled in hardware by default - Disable VOP */
     REG_WR(VTSS_VOP_VOP_CTRL, 0);
+
+    voe_alloc_idx = 0;
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
         /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */
