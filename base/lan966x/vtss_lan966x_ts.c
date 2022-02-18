@@ -915,19 +915,10 @@ static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(0));
 
     /* Configure the nominal TOD increment per clock cycle */
-    clk_in_ps = vtss_lan966x_clk_period_ps(vtss_state);
-
-    // Bit 63:59 are nano seconds, bit 58:0 is the rest (pico seconds)
-    nsec = (clk_in_ps / 1000);
-    psec = (clk_in_ps % 1000);
-
-    // This calculation could overflow: psec = ((psec << 59) / 1000)
-    if (psec < 256) {
-        psec = ((psec << 56) / 125);
-    } else {
-        psec = (((psec << 54) / 125) << 2);
-    }
-    nominal_tod_increment = ((nsec << 59) + psec);
+    /* This is based on 165.625MHz clock frequency that gives period of 6.0377358490566037735ns */
+    /* 1 ns is 0x0800000000000000. */
+    /* 0x0800000000000000 * 0.0377358490566037735 gives ~004D4873 ECADE305 */
+    nominal_tod_increment = ((u64)(6) << 59) + (u64)0x004D4873ECADE305;
 
     /* Configure the calculated increment */
     REG_WRM(PTP_DOM_CFG, PTP_DOM_CFG_CLKCFG_DIS(7), PTP_DOM_CFG_CLKCFG_DIS_M);
