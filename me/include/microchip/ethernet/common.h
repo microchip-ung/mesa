@@ -517,6 +517,7 @@ typedef struct
 typedef enum
 {
     MESA_SERDES_MODE_DISABLE,   // Disable serdes
+    MESA_SERDES_MODE_NONE,      // No serdes connected
     MESA_SERDES_MODE_XAUI_12G,  // XAUI 12G mode
     MESA_SERDES_MODE_XAUI,      // XAUI 10G mode
     MESA_SERDES_MODE_RXAUI,     // RXAUI 10G mode

@@ -612,6 +612,7 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
 {
     switch (serdes) {
     case VTSS_SERDES_MODE_DISABLE:   return "Disabled";
+    case VTSS_SERDES_MODE_NONE:      return "None";
     case VTSS_SERDES_MODE_XAUI_12G:  return "XAUI_12G";
     case VTSS_SERDES_MODE_XAUI:      return "XAUI";
     case VTSS_SERDES_MODE_RXAUI:     return "RXAUI";

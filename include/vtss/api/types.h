@@ -488,6 +488,7 @@ typedef struct
 typedef enum
 {
     VTSS_SERDES_MODE_DISABLE,   /**< Disable serdes */
+    VTSS_SERDES_MODE_NONE,      /**< No serdes connected */
     VTSS_SERDES_MODE_XAUI_12G,  /**< XAUI 12G mode  */
     VTSS_SERDES_MODE_XAUI,      /**< XAUI 10G mode  */
     VTSS_SERDES_MODE_RXAUI,     /**< RXAUI 10G mode */

@@ -816,7 +816,6 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 #endif
-
 static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
                                   vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
@@ -833,6 +832,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
 
     if (port_type != PORT_TYPE_SD) {
         VTSS_I("port %u port_type %u is not a SERDES port", port, port_type);
+        vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_NONE;
         return VTSS_RC_OK;
     }
 
@@ -844,6 +844,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
         vtss_state->port.sd6g40_mode[idx] = mode;
         rc = lan966x_serdes_conf_set(vtss_state, idx, mode);
     }
+    vtss_state->port.serdes_mode[port_no] = mode;
 #endif
     return rc;
 }
