@@ -908,8 +908,7 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc lan966x_ts_init(vtss_state_t *vtss_state)
 {
-    u32 domain, clk_in_ps, i, rc=0;
-    u64 nsec, psec;
+    u32 domain, i, rc=0;
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(PTP_DOM_CFG, PTP_DOM_CFG_ENA(0));
