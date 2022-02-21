@@ -70,7 +70,7 @@ def tx_len_test(len)
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = "MERA_RTP_TYPE_PN"
     time = conf["time"]
-    time["interval"] = 1000000000 # One second
+    time["interval"] = 128000000 # 128 msec
     conf["port"] = $port_tx
     conf["length"] = len
     payload = ""
@@ -88,7 +88,7 @@ def tx_len_test(len)
         conf["data"][i] = d
     end
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
-    cmd = "sudo ef -t 900 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
+    cmd = "sudo ef -t 60 name f1 eth et 0xaaaa data pattern cnt #{len - 18}"
     cmd += cmd_payload_push(payload)
     $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
@@ -201,8 +201,8 @@ def tx_dg_test(intf, ral_id, opc = false)
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     time = conf["time"]
-    time["offset"] = 1000000 # One msec
-    time["interval"] = 1000000000 # One second
+    time["offset"]   =   1000000 # 1 msec
+    time["interval"] = 128000000 # 128 msec
     conf["port"] = $port_tx
     conf["length"] = len
     payload = ""
@@ -296,13 +296,12 @@ def tx_dg_test(intf, ral_id, opc = false)
 
     # Start RAL timer
     conf = $ts.dut.call("mera_ib_ral_conf_get", ral_id)
-    time = conf["time"]
-    conf["time"]["interval"] = 1000000000 # One second, offset zero
+    conf["time"]["interval"] = 128000000 # 128 msec, offset zero
     $ts.dut.call("mera_ib_ral_conf_set", ral_id, conf)
     sleep(1)
 
-    # Easyframe runs a little longer, so 900 msec means about a second.
-    cmd = "sudo ef -t 900 name f1 eth et 0xaaaa"
+    # Easyframe runs a little longer than the specified time
+    cmd = "sudo ef -t 60 name f1 eth et 0xaaaa"
     cmd += cmd_payload_push(payload)
     $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
@@ -327,13 +326,13 @@ test "tx-data-max" do
 end
 
 test "tx-interval-min" do
-    # 10 usec
-    tx_time_test(10000, 2)
+    # 31.25 usec
+    tx_time_test(31250, 2)
 end
 
 test "tx-interval-max" do
-    # 10 msec
-    tx_time_test(10000000, 20)
+    # 128 msec
+    tx_time_test(128000000, 20)
 end
 
 test "otf" do
