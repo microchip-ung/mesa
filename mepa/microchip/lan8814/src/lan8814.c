@@ -590,7 +590,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         status->speed = (speed == 0) ? MEPA_SPEED_10M :
                         (speed == 1) ? MEPA_SPEED_100M :
                         (speed == 2) ? MEPA_SPEED_1G : MEPA_SPEED_UNDEFINED;
-        status->fdx = !!(val & INDY_F_BASIC_CTRL_DUP_MODE);
+        status->fdx = !!(val2 & INDY_F_BASIC_CTRL_DUP_MODE);
         //check that aneg is not enabled.
         if (val2 & INDY_F_BASIC_CTRL_ANEG_ENA) {
             T_W(MEPA_TRACE_GRP_GEN, "Aneg is enabled for forced speed config on port %d", data->port_no);
