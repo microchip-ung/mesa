@@ -1637,6 +1637,7 @@ void port_poll(meba_inst_t inst)
 
         /* Poll port status and update the status data structure */
         if (port_status_poll(port_no) != MESA_RC_OK) {
+            entry->valid = FALSE;
             continue;
         }
 
