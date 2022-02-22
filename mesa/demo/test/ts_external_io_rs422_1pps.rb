@@ -11,10 +11,8 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
     assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
-           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) ||
-           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ||
-           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x)")
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5)")
     assert(($ts.ts_external_clock_looped == true),
            "External clock must be looped")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
