@@ -8,15 +8,9 @@ require_relative 'libeasy/suite'
 $suite_name = "l2_basics"
 
 run %w{./check_wireing.rb}, {:name => "check_wireing@l2_basics", :abort_on_err => true}
-run %w{./acl.rb}
-run %w{./acl_range.rb}
-run %w{./acl_redir.rb}
 run %w{./l2_aggr.rb}
-run %w{./l2_eps.rb}
-run %w{./l2_erps.rb}
 run %w{./l2_evlan.rb}
 run %w{./l2_flood.rb}
-run %w{./l2_frer.rb}
 run %w{./l2_igmp.rb}
 run %w{./l2_isolation.rb}
 run %w{./l2_mac_idx.rb}
@@ -33,13 +27,3 @@ run %w{./l2_vlan.rb}
 run %w{./l2_vlan_counters.rb}
 run %w{./l2_vlan_tag.rb}
 run %w{./l2_vlan_translation.rb}
-run %w{./mrp_all.rb}
-run %w{./sec_acl.rb}
-run %w{./sec_auth.rb}
-run %w{./sec_hacl.rb}
-run %w{./sec_racl.rb}
-run %w{./rcl.rb}
-run %w{./packet_afi.rb}
-run %w{./packet_npi_tx.rb}
-run %w{./packet_rx_tx.rb}
-
