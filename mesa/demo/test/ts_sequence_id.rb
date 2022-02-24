@@ -27,6 +27,17 @@ def tod_sequence_id_test(sec_cntr)
 
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
 
+    t_i "Transmit a SYNC frame without sequence number update into NPI port with frame check"
+    $tod_ts  = $ts.dut.call("mesa_ts_timeofday_get")
+    $tod_ts[0]["seconds"] = 9
+    $tod_ts[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0])
+
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP") +
+              frameHdrTx.dup + sync_pdu_create()
+    framerx = frameHdrTx.dup + sync_pdu_rx_create(IGNORE, 9, IGNORE, IGNORE, true)
+    frame_tx(frametx, $npi_port, framerx, " ", " ", " ")
+
     t_i "Transmit a SYNC frame into NPI port with no frame check"
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", sec_cntr<<16, 0, sec_cntr) +
               frameHdrTx.dup + sync_pdu_create(0, sec_cntr)
