@@ -2972,19 +2972,22 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         break;
     default:{ VTSS_E("Speed not supported"); }
     }
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Enable the Serdes if disabled */
     if (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
-
+#endif
     /* Port disable and flush procedure: */
     VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
 
+
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Configure the Serdes Macro to 'serdes_mode' */
     if (serdes_mode != vtss_state->port.sd28_mode[sd_indx]) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
+#endif
 
     /* Enable ASM/DSM 1G/2Gg5 counters */
     REG_WRM(VTSS_ASM_PORT_CFG(port),
@@ -3214,8 +3217,23 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     /* Setup QoS - out of reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
 
-    VTSS_D("Chip port: %u (1G) is configured", port);
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    // Need to reset the Synopsis serdes after all ports are setup in QSGMII
+    if (serdes_mode != vtss_state->port.sd28_mode[sd_indx] && port_no == 3) {
+        VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
+        for (u32 id = 0; id < 3; id++) {
+            REG_WRM(VTSS_SUNRISE_TOP_SERDES_CFG(id),
+                    VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_ALL(1),
+                    VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+            VTSS_MSLEEP(100);
+            REG_WRM(VTSS_SUNRISE_TOP_SERDES_CFG(id),
+                    VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_ALL(0),
+                    VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+        }
+    }
+#endif
 
+    VTSS_D("Chip port: %u (1G) is configured", port);
     return VTSS_RC_OK;
 }
 
