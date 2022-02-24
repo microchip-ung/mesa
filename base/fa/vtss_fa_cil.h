@@ -335,6 +335,8 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
 
 /* Common functions */
 vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state,
+                          u32 taxi, vtss_port_no_t port_no, u32 *taxi_port);
 
 /* Port functions */
 vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

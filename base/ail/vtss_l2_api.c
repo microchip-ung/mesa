@@ -9025,15 +9025,15 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
             if (rc != VTSS_RC_OK) {
                 break;
             } else if (header) {
-                pr("RedBox %u Node Table:\n", i);
-                pr("MAC Address        ID    Locked  Type   Fwd A/B  Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
+                pr("RedBox %u Node Table:\n\n", i);
+                pr("MAC Address        ID    Locked  Type  Fwd A/B  Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
                 header = 0;
             }
             p = node.mac.addr;
             pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
-            pr("%-6u%-8u%-7s", node.id, node.locked,
+            pr("%-6u%-8u%-6s", node.id, node.locked,
                node.type == VTSS_RB_NODE_TYPE_DAN ? "DAN" :
-               node.type == VTSS_RB_NODE_TYPE_SAN ? "SAN-B" : "?");
+               node.type == VTSS_RB_NODE_TYPE_SAN ? "SAN" : "?");
             sprintf(buf, "%u/%u", node.port_a.fwd, node.port_b.fwd);
             pr("%-9s", buf);
             sprintf(buf, "%u/%u", node.port_a.age, node.port_b.age);
@@ -9054,7 +9054,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
             if (rc != VTSS_RC_OK) {
                 break;
             } else if (header) {
-                pr("RedBox %u Proxy Node Table:\n", i);
+                pr("RedBox %u Proxy Node Table:\n\n", i);
                 pr("MAC Address        ID    Locked  Age     Rx Total\n");
                 header = 0;
             }

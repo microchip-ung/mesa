@@ -12,3 +12,4 @@ run %w{./l2_eps.rb}
 run %w{./l2_erps.rb}
 run %w{./l2_frer.rb}
 run %w{./mrp_all.rb}
+run %w{./redbox.rb}

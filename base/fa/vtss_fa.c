@@ -1095,6 +1095,23 @@ static void taxi2ports(u32 taxi, u32 *port_ptr) {
 }
 #endif /* defined(VTSS_ARCH_LAN969X) */
 
+vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state,
+                          u32 taxi, vtss_port_no_t port_no, u32 *taxi_port)
+{
+    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
+    u32 i, port = VTSS_CHIP_PORT(port_no);
+
+    taxi2ports(taxi, taxi_ports);
+    for (i = 0; i < FA_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
+        if (taxi_ports[i] == port) {
+            // Found chip port at taxi port
+            *taxi_port = i;
+            return VTSS_RC_OK;
+        }
+    }
+    return VTSS_RC_ERROR;
+}
+
 static vtss_rc fa_dsm_calc_calender(vtss_state_t *vtss_state, u32 taxi, u32 *schedule, i32 *avg_dist) {
     u32 gcd, k, i, a, sum = 0, min = 25000, factor, adjusted_speed;
     u32 num_of_slots, slot_spd, raw_spd, spd, empty_slots;
