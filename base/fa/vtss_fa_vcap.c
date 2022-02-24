@@ -1723,6 +1723,9 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         FA_ACT_SET(CLM, CLASSIFICATION_FWD_DIS, action->fwd_disable);
         FA_ACT_SET(CLM, CLASSIFICATION_MIP_SEL, action->mip_enable ? 1 : 0);
         FA_ACT_SET(CLM, CLASSIFICATION_OAM_Y1731_SEL, oam);
+#if defined(VTSS_ARCH_LAN969X)
+        FA_ACT_SET(CLM, CLASSIFICATION_OAM_MRP_ENA, action->mrp_enable);
+#endif
         FA_ACT_SET(CLM, CLASSIFICATION_PAG_OVERRIDE_MASK, pag_mask);
         FA_ACT_SET(CLM, CLASSIFICATION_PAG_VAL, pag_val);
         FA_ACT_SET(CLM, CLASSIFICATION_PIPELINE_FORCE_ENA, action->pipe_enable);
@@ -1750,6 +1753,9 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         FA_ACT_SET(CLM, FULL_CPU_Q, action->cpu_queue);
         FA_ACT_SET(CLM, FULL_MIP_SEL, action->mip_enable ? 1 : 0);
         FA_ACT_SET(CLM, FULL_OAM_Y1731_SEL, oam);
+#if defined(VTSS_ARCH_LAN969X)
+        FA_ACT_SET(CLM, FULL_OAM_MRP_ENA, action->mrp_enable);
+#endif
         FA_ACT_SET(CLM, FULL_PAG_OVERRIDE_MASK, pag_mask);
         FA_ACT_SET(CLM, FULL_PAG_VAL, pag_val);
         FA_ACT_SET(CLM, FULL_PIPELINE_FORCE_ENA, action->pipe_enable);
@@ -1926,6 +1932,9 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             FA_DEBUG_ACT(CLM, "oam_y1731_sel", CLASSIFICATION_OAM_Y1731_SEL);
             FA_DEBUG_ACT(CLM, "oam_twamp_ena", CLASSIFICATION_OAM_TWAMP_ENA);
             FA_DEBUG_ACT(CLM, "oam_ip_pfd_ena", CLASSIFICATION_OAM_IP_BFD_ENA);
+#if defined(VTSS_ARCH_LAN969X)
+            FA_DEBUG_ACT(CLM, "mrp_ena", CLASSIFICATION_OAM_MRP_ENA);
+#endif
             pr("\n");
             FA_DEBUG_ACT(CLM, "pag_override_mask", CLASSIFICATION_PAG_OVERRIDE_MASK);
             FA_DEBUG_ACT(CLM, "pag_val", CLASSIFICATION_PAG_VAL);
@@ -1982,6 +1991,9 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             FA_DEBUG_ACT(CLM, "oam_y1731_sel", FULL_OAM_Y1731_SEL);
             FA_DEBUG_ACT(CLM, "oam_twamp_ena", FULL_OAM_TWAMP_ENA);
             FA_DEBUG_ACT(CLM, "oam_ip_pfd_ena", FULL_OAM_IP_BFD_ENA);
+#if defined(VTSS_ARCH_LAN969X)
+            FA_DEBUG_ACT(CLM, "mrp_ena", FULL_OAM_MRP_ENA);
+#endif
             pr("\n");
             FA_DEBUG_ACT(CLM, "rsvd_lbl_val", FULL_RSVD_LBL_VAL);
             FA_DEBUG_ACT(CLM, "tc_label", FULL_TC_LABEL);

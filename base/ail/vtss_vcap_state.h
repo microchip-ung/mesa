@@ -458,6 +458,7 @@ typedef struct {
 #endif /* VTSS_ARCH_OCELOT */
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
     vtss_oam_detect_t oam_detect;   /**< OAM detection */
+    BOOL              mrp_enable;   /**< MRP enable */
 #endif /* VTSS_ARCH_OCELOT || VTSS_ARCH_JAGUAR_2 */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_vid_t      gvid;           /**< Classified GVID */

@@ -6156,6 +6156,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     }
 #if defined(VTSS_FEATURE_VOP)
     action->oam_detect = vce->action.oam_detect;
+    action->mrp_enable = vce->action.mrp_enable;
 #endif
 #if defined(VTSS_ARCH_OCELOT)
     action->oam_enable = (vce->action.oam_detect != VTSS_OAM_DETECT_NONE) ? 1 : 0;

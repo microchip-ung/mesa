@@ -928,6 +928,7 @@ typedef struct
 #if defined(VTSS_FEATURE_XFLOW)
     vtss_iflow_id_t           flow_id;    /**< Ingress flow ID */
     vtss_oam_detect_t         oam_detect; /**< OAM detection. Mark this frame as containing OAM behind a number of tags. */
+    BOOL                      mrp_enable; // Enable MRP
 #endif
     BOOL                      prio_enable; // Enable priority classification
     vtss_prio_t               prio;        // Priority value

@@ -344,3 +344,16 @@ test "vlan-ot" do
     conf = $ts.dut.call("mesa_vlan_vid_conf_set", vid, conf)
     $ts.dut.run("mesa-cmd deb api vlan")
 end
+
+test "mrp-enable" do
+    break
+    vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ANY")
+    vce["id"] = 1
+    vce["key"]["port_list"] = "#{$ts.dut.p[0]}"
+    vce["action"]["mrp_enable"] = true
+    $ts.dut.call("mesa_vce_add", 0, vce)
+    vce["id"] = 2
+    vce["action"]["mrp_enable"] = false
+    $ts.dut.call("mesa_vce_add", 0, vce)
+    $ts.dut.run("mesa-cmd deb api ci vx")
+end

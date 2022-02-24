@@ -513,6 +513,7 @@ typedef struct
     mesa_iflow_id_t           flow_id;     // Ingress flow ID.
                                            // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be handled by the possibly enabled port-VOE.
     mesa_oam_detect_t         oam_detect;  // OAM detection
+    mesa_bool_t               mrp_enable;  // Enable MRP
     mesa_bool_t               prio_enable; // Enable priority classification
     mesa_prio_t               prio;        // Priority value
     mesa_bool_t               dp_enable;   // Enable DP classification
