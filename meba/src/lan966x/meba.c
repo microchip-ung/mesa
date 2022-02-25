@@ -197,6 +197,9 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
         (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
 
+        // GPIO 39 is used for delivering 1pps to PHY.
+        gpio_no = 39;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
         break;
     default:
         break;
