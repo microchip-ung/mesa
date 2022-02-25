@@ -144,37 +144,6 @@ def dut_cap_check_exit(cap)
     end
 end
 
-def check_val(name, val, exp, fmt)
-    v = (fmt % val);
-    e = (fmt % exp);
-    msg = "#{name}: #{v}, expected: #{e}"
-    if (val == exp)
-        t_i(msg)
-    else
-        t_e(msg)
-    end
-end
-
-def check_counter(name, val, exp)
-    check_val(name, val, exp, "%u")
-end
-
-def check_val_hex_u8(name, val, exp)
-    check_val(name, val, exp, "0x%02x")
-end
-
-def check_val_hex_u16(name, val, exp)
-    check_val(name, val, exp, "0x%04x")
-end
-
-def check_val_hex_u32(name, val, exp)
-    check_val(name, val, exp, "0x%08x")
-end
-
-def check_val_str(name, val, exp)
-    check_val(name, val, exp, "%s")
-end
-
 def loop_pair_check
     port_list = $ts.dut.looped_port_list
 
