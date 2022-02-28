@@ -18,18 +18,6 @@ typedef uint8_t mesa_bool_t;
 
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
-// TODO - should not be needed by MEPA!!!
-// MII management controller
-typedef enum
-{
-    MESA_MIIM_CONTROLLER_0    = 0,  // MIIM controller 0
-    MESA_MIIM_CONTROLLER_1    = 1,  // MIIM controller 1
-    MESA_MIIM_CONTROLLER_2    = 2,  // MIIM controller 2
-    MESA_MIIM_CONTROLLER_3    = 3,  // MIIM controller 3
-    MESA_MIIM_CONTROLLERS,          // Number of MIIM controllers
-    MESA_MIIM_CONTROLLER_NONE = -1  // Unassigned MIIM controller
-} mesa_miim_controller_t;
-
 // Port speed
 typedef enum
 {

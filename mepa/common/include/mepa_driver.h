@@ -6,20 +6,21 @@
 
 #include <mepa_ts_driver.h>
 #include <microchip/ethernet/phy/api.h>
-#include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
+#include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
-// PHY DRIVER
-//
-// This API defines the interface used by the switch application to interact
-// with the PHY. Using this interface the switch application should not know
-// which PHY it is using.
-//
-// Each PHY driver needs to implement the following methods for a minimum
-// configuration:
-//  mepa_driver_delete_t
-//  mepa_driver_probe_t
-//  mepa_driver_poll_t
-//  mepa_driver_conf_set_t
+/** PHY DRIVER
+ *
+ * This API defines the interface used by the switch application to interact
+ * with the PHY. Using this interface the switch application should not know
+ * which PHY it is using.
+ *
+ * Each PHY driver needs to implement the following methods for a minimum
+ * configuration:
+ *  mepa_driver_delete_t
+ *  mepa_driver_probe_t
+ *  mepa_driver_poll_t
+ *  mepa_driver_conf_set_t
+ */
 
 void MEPA_trace(mepa_trace_group_t  group,
                 mepa_trace_level_t  level,
@@ -28,142 +29,404 @@ void MEPA_trace(mepa_trace_group_t  group,
                 const char         *format,
                 ...);
 
-// Clears up the data allocated in the probe function.
+/**
+ * \brief Clears up the data allocated in the probe function.
+ *
+ * \param dev [IN] Driver Instance.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_delete_t)(struct mepa_device *dev);
 
-// Resets PHY.
-// intf   [IN] Interface to which to reset the phy.
+/**
+ * \brief Resets PHY.
+ *
+ * \param dev      [IN]    Driver instance.
+ * \param rst_conf [IN]    Reset configurations.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_reset_t)(
         struct mepa_device *dev,
         const mepa_reset_param_t *rst_conf);
 
-// Get the current status of the PHY.
-// status        [OUT] PHY status.
+/**
+ * \brief Get the current status of the PHY.
+ *
+ * \param dev    [IN]       Driver instance.
+ * \param status [OUT]      Represents the status of the PHY.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_poll_t)(
         struct mepa_device *dev,
         mepa_status_t *status);
 
-// Set the configuration to the PHY.
-// conf          [IN] PHY configuration.
+/**
+ * \brief Set the configuration of the PHY.
+ * \brief conf   [IN] PHY configuration.
+ *
+ * \param dev  [IN]   Driver Instance.
+ * \param conf [IN]   PHY configuration.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_conf_set_t)(
     struct mepa_device *dev, const mepa_conf_t *conf);
 
-// Get the current interface configuration of PHY
+/**
+ * \brief Get the current interface configuraton of the PHY.
+ *
+ * \param dev  [IN]    Driver instance.
+ * \param conf [OUT]   PHY configuration.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_conf_t *const conf);
 
+/**
+ * \brief   Set the PHY interface.
+ *
+ * \param   dev  [IN]     Driver instance.
+ * \param   intf [IN]     The current interface configuration of PHY.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_if_set_t)(
         struct mepa_device *dev,
         mepa_port_interface_t intf);
 
-// Get the PHY interface based on speed.
-// speed         [IN] Speed.
-// intf          [OUT] Interface that is needed to be used by the port.
+/**
+ * \brief Get the PHY interface based on speed.
+ *
+ * \param dev    [IN]  Driver instance.
+ * \param speed  [IN]  The PHY interface based on speed.
+ * \param intf   [OUT] The current interface configuration of PHY.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_if_get_t)(
         struct mepa_device *dev,
         mepa_port_speed_t speed,
         mepa_port_interface_t *intf);
 
-//  Sets the power mode.
-//  power         [IN] Power.
+/**
+ * \brief Sets the power mode.
+ *
+ * \param dev    [IN]  Driver instance.
+ * \param power  [IN]  Power mode.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.
+ **/
 typedef mepa_rc (*mepa_driver_power_set_t)(
         struct mepa_device *dev,
         mepa_power_mode_t power);
 
-//  Starts cable_diag.
-//  mode          [IN] Mode in which to start.
+/**
+ * \brief Starts cable diag.
+ *
+ * \param dev  [IN]  Driver instance.
+ * \param mode [IN]  Mode in which to start.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_cable_diag_start_t)(
     struct mepa_device *dev, int mode);
 
-//  Gets result from cable diagnostics.
-//  result        [OUT] Result from cable diagnostics.
+/**
+ * \brief Gets result from cable diagnostics.
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param  result  [OUT] Result from cable diagnostics.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_cable_diag_get_t)(
     struct mepa_device *dev, mepa_cable_diag_result_t *result);
 
-//  Sets the media type in case the port is a dual media port with external phy.
-//  phy_media_if  [IN] Media type.
+/**
+ * \brief Sets the media type in case the port is a dual media port with external phy.
+ *
+ *  \param dev           [IN]  Driver instance.
+ *  \param phy_media_if  [IN]  Media type.
+ *
+ *  \return
+ *     MEPA_RC_NOT_IMPLEMENTED when not supported.
+ **/
 typedef mepa_rc (*mepa_driver_media_set_t)(
     struct mepa_device *dev, mepa_media_interface_t phy_media_if);
 
-//  Create an instance of the driver and initialize the PHY.
-//  mode           [IN] Address mode.
+/**
+ *  \brief Create an instance of the driver and initialize the PHY.
+ **/
 typedef struct mepa_device *(*mepa_driver_probe_t)(
     struct mepa_driver                  *dev,
     const mepa_callout_t    MEPA_SHARED_PTR *callout,
     struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
     struct mepa_board_conf              *conf);
 
-//  Gets copper PHY auto-negotiation status.
-//  mode           [IN] PHY 1G status.
+/**
+ * \brief  Gets copper PHY auto-negotiation status.
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param  mode [OUT]  PHY 1G status.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
 typedef mepa_rc (*mepa_driver_aneg_status_get_t)(
     struct mepa_device *dev, mepa_aneg_status_t *status);
 
-// PHY register read access using clause22 format for debugging
-// address : bits 0 - 4 : address within page
-//                5 - 31: page number
+/**
+ * \brief  PHY register read access using clause22 format for debugging
+ *         address : bits 0 - 4 : address within page
+ *                        5 - 31: page number
+ *
+ * \param dev     [IN]   Driver instance.
+ * \param address [IN]   Address.
+ * \param value   [OUT]  Value.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.\n
+ **/
 typedef mepa_rc (*mepa_driver_clause22_read_t)(struct mepa_device *dev,
                  uint32_t address, uint16_t *const value);
 
-// PHY register write access using clause22 format for debugging
-// address : bits 0 - 4 : address within page
-//                5 - 31: page number
+/**
+ * \brief  PHY register write access using clause22 format for debugging
+ *         address : bits 0 - 4 : address within page
+ *                 5 - 31: page number
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param address [IN]  Address.
+ * \param value   [IN]  Value.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_clause22_write_t)(struct mepa_device *dev,
                  uint32_t address, uint16_t value);
 
-// PHY register read access using clause45 format for debugging
-// address : bits 0  - 15 : address within page
-//                16 - 31 : page number
+/**
+ * \brief  PHY register read access using clause45 format for debugging
+ *         address : bits 0  - 15 : address within page
+ *                 16 - 31 : page number
+ *
+ *  \param dev     [IN]  Driver instance.
+ *  \param address [IN]  Address.
+ *  \param value   [OUT] Value.
+ *
+ *  \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_clause45_read_t)(struct mepa_device *dev,
                  uint32_t address, uint16_t *const value);
 
-// PHY register write access using clause45 format for debugging
-// address : bits 0  - 15 : address within page
-//                16 - 31 : page number
+/**
+ * \brief  PHY register write access using clause45 format for debugging
+ *         address : bits 0  - 15 : address within page
+ *                 16 - 31 : page number
+ *
+ *  \param dev     [IN]  Driver instance.
+ *  \param address [OUT] Address.
+ *  \param value   [IN]  Value.
+ *
+ *  \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_clause45_write_t)(struct mepa_device *dev,
                  uint32_t address, uint16_t value);
 
-//  Enable PHY events.
-//  event          [IN] PHY event mask to be enabled.
-//  enable         [IN] enable or disable the event
+/**
+ * \brief  Enable PHY events.
+ *
+ * \param dev    [IN] Driver instance.
+ * \param event  [IN] PHY event mask to be enabled.
+ * \param enable [IN] Enable or disable the event.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_event_enable_set_t)(struct mepa_device *dev,
                  mepa_event_t event, mesa_bool_t enable);
 
-//  Get the PHY events currently enabled.
-//  event          [OUT] Event mask which is currently enabled in PHY
+/**
+ * \brief  Get the PHY events currently enabled.
+ *
+ * \param dev    [IN]  Driver instance.
+ * \param event  [OUT] Event mask which is currently enabled in PHY.
+ *
+ * \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_event_enable_get_t)(struct mepa_device *dev,
                  mepa_event_t *const event);
 
-//  Poll the status of PHY events
-//  ev_mask        [OUT] Event mask containing current status of PHY events.
+/**
+ * \brief Poll the status of PHY events.
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param  ev_mask [OUT] Event mask containing current status of PHY events.
+ *
+ * \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_event_poll_t)(struct mepa_device *dev, mepa_event_t *const ev_mask);
 
-// Set loopback. Used for debugging purpose
+/**
+ * \brief Set loopback. Used for debugging purpose
+ *
+ * \param dev       [IN] Driver Instance.
+ * \param loopback  [IN] Loopback Types.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.
+ **/
 typedef mepa_rc (*mepa_driver_loopback_set_t)(struct mepa_device *dev, const mepa_loopback_t *loopback);
 
-// Get current loopback configuration
+/**
+ * \brief  Get current loopback configuration.
+ *
+ * \param dev       [IN]  Driver instance.
+ * \param loopback  [OUT] Loopback Types.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_loopback_get_t)(struct mepa_device *dev, mepa_loopback_t *const loopback);
 
-// Set the GPIO pin mode to input, output or alternate function
+/**
+ * \brief Set the GPIO pin mode to input, output or alternate function.
+ *
+ * \param dev  [IN]  Driver instance.
+ * \param data [OUT] GPIO configuration.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_gpio_mode_set_t)(struct mepa_device *dev, const mepa_gpio_conf_t *data);
 
-// Set the GPIO pin value
+/**
+ * \brief  Set the GPIO pin value.
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param gpio_no [IN]  GPIO Number.
+ * \param value   [IN]  Value.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_gpio_out_set_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t value);
 
-// Get the GPIO pin value
+/**
+ * \brief  Get the GPIO pin value.
+ *
+ * \param dev      [IN]   Driver Instance.
+ * \param gpio_no  [IN]   GPIO Number.
+ * \param value    [OUT]  Value.
+ *
+ * \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t * const value);
 
-// Configure recovered clock
+/**
+ * \brief Configure recovered clock
+ *
+ * \param dev  [IN] Driver instance.
+ * \param conf [IN] Synce recovered clock configuration.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_synce_clock_conf_set_t)(struct mepa_device *dev, const mepa_synce_clock_conf_t *conf);
 
-// Link Base Port. Used for accessing the chip leavel common resources
+/**
+ * \brief  Link Base Port. Used for accessing the chip leavel common resources.
+ *
+ * \param dev         [IN] Driver instance.
+ * \param base_dev    [IN] Base port driver instance.
+ * \param packet_idx  [IN] Link status.
+ *
+ * \return
+ *  MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *  MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_link_base_port_t)(struct mepa_device *dev, struct mepa_device *base_dev, uint8_t packet_idx);
 
-// Get phy information like phy-id, revision etc.
+/**
+ * \brief Get phy information like phy-id, revision etc.
+ *
+ * \param dev       [IN]   Driver instance.
+ * \param phy_info  [OUT]  Phy information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_phy_info_get_t)(struct mepa_device *dev, mepa_phy_info_t *const phy_info);
 
-// Enable/Disable Isolate mode
+/**
+ * \brief  Isolation mode as defined by IEEE 802.3-2012 section 22.2.4.1.6
+ *
+ * \param dev     [IN]    Driver instance.
+ * \param iso_en  [OUT]   Enable /disable isolation mode.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_driver_isolate_mode_conf_t)(struct mepa_device *dev, const mepa_bool_t iso_en);
 
-// Debug dump API for PHY
+/**
+ * \brief  Debug dump API for PHY.
+ *
+ * \param dev  [IN]   Driver instance.
+ * \param pr   [IN]   Debug printf function.
+ * \param info [OUT]  Debug information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
 typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
                              const mepa_debug_print_t pr,
                              const mepa_debug_info_t   *const info);
@@ -201,14 +464,14 @@ typedef struct mepa_driver {
     mepa_debug_info_dump_t             mepa_debug_info_dump;
     mepa_ts_driver_t                   *mepa_ts;
 
-    uint32_t id;                  // Id of the driver
-    uint32_t mask;                // Mask of the driver
-    struct mepa_driver *next; // Pointer to the next driver
+    uint32_t id;                  /**< Id of the driver */
+    uint32_t mask;                /**< Mask of the driver */
+    struct mepa_driver *next; /**< Pointer to the next driver */
 } mepa_driver_t;
 
-// Represents the instance of the driver
+/** \brief Represents the instance of the driver */
 typedef struct mepa_device {
-    // Pointer to the driver that creates the device
+    /** \brief Pointer to the driver that creates the device */
     mepa_driver_t *drv;
 
     uint32_t numeric_handle;
@@ -216,14 +479,15 @@ typedef struct mepa_device {
     const mepa_callout_t    *callout;
     struct mepa_callout_ctx *callout_ctx;
 
-    void *data; // Private data
+    void *data; /**< Private data */
 } mepa_device_t;
 
-// Wrapper over an array and counter. It is used by init functions to return the
-// array of drivers
+/** \brief Wrapper over an array and counter. It is used by init functions to
+ *         return the array of drivers
+ **/
 typedef struct mepa_drivers {
-    mepa_driver_t *phy_drv; // Pointer to an array of drivers
-    unsigned int count;         // Number of entries in phy_drv
+    mepa_driver_t *phy_drv; /**< Pointer to an array of drivers */
+    unsigned int count;         /**< Number of entries in phy_drv */
 } mepa_drivers_t;
 
 void *mepa_mem_alloc_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
@@ -234,7 +498,7 @@ void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
                        struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                        void                                    *ptr);
 
-// Internal function for drivers to use to build mepa_inst structure
+/** \brief Internal function for drivers to use to build mepa_inst structure */
 struct mepa_device *mepa_create_int(
         mepa_driver_t                           *drv,
         const mepa_callout_t    MEPA_SHARED_PTR *callout,
@@ -244,29 +508,29 @@ struct mepa_device *mepa_create_int(
 
 mepa_rc mepa_delete_int(mepa_device_t *dev);
 
-// Default driver that match any PHY
+/** \brief Default driver that match any PHY */
 mepa_drivers_t mepa_default_phy_driver_init();
 
-// Returns drivers for mscc PHY
+/** \brief Returns drivers for mscc PHY */
 mepa_drivers_t mepa_mscc_driver_init();
 
-// Returns drivers for malibu PHY
+/** \brief Returns drivers for malibu PHY */
 mepa_drivers_t mepa_malibu_driver_init();
 
-// Returns drivers for venice PHY
+/** \brief Returns drivers for venice PHY */
 mepa_drivers_t mepa_venice_driver_init();
 
-// Returns drivers for AQR PHY
+/** \brief Returns drivers for AQR PHY */
 mepa_drivers_t mepa_aqr_driver_init();
 
-// Returns drivers for intel PHY
+/** \brief Returns drivers for intel PHY */
 mepa_drivers_t mepa_intel_driver_init();
 
-// Returns drivers for ksz PHY
+/** \brief Returns drivers for ksz PHY */
 mepa_drivers_t mepa_ksz9031_driver_init();
 
-// Returns drivers for lan8814 PHY
+/** \brief Returns drivers for lan8814 PHY */
 mepa_drivers_t mepa_lan8814_driver_init();
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
+#endif /**< _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_ */

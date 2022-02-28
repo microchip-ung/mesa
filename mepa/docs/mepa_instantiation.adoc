@@ -1,0 +1,346 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA Instantiation
+== MEPA Instantiation
+
+== Introduction
+
+The MEPA library operates on MEPA instances, which represents the physical
+PHYs. Some products contains multiple PHYs in a single packets (example a quad
+PHY), here the multiple PHYs may share some resources like GPIOs, or maybe they
+uses a single QSGMII host interface. In case of a multi-PHY product MEPA
+requires an instance for each PHY, the instances are then linked together to
+coordinate any potential resource sharing.
+
+As the first step, even before creating instances, a trace functions can be
+installed. This will allow MEPA to print diagnostics which can be very helpful
+to debug potential issues. Registering a trace functions is a matter of
+assigning a function pointer of type `mepa_trace_func_t` to MEPA_TRACE_FUNCTION.
+
+The MEPA instances needs to be created by the application. A MEPA instance is
+created by calling `mepa_create()`, which on success returns a `mepa_device_t`
+pointer. The `mepa_device_t` represents a single PHY, and must be used with all
+other MEPA APIs operating on a given PHY.
+
+In order for MEPA to be able to configure/query a given PHY, it needs to access
+the registers in side the PHY. To access PHY registers, some kind of
+bus-controller is needed (example MIIM), and if it is a shared bus, some
+addresses are needed. To keep MEPA board and OS agnostic, a set of call-back
+functions facilitating register access must be provided when creating a MEPA
+instance (see `struct mepa_callout`). A given board may have multiple buses,
+multiple PHYs, which lead to board specific needs for addressing a given PHYs.
+To avoid board dependencies in MEPA, all the callback functions therefore have a
+`struct mepa_callout_cxt`, defined and provided by the application itself, and
+only used by the application when the callback functions are used. Both the
+`mepa_callout_t` and `mepa_callout_ctx` object pointers are considered shared
+pointers, meaning that the memory pointing to must remain valid during the
+entire life time of the `mepa_device_t` instance. Multiple `mepa_device_t` may
+use the same `mepa_callout_t` object (all PHYs on the same bus _must_ use the
+same `mepa_callout_t` object, this is because they all share the bus resources,
+and in multi-threaded application accesses to the bus needs to be synchronized),
+and each `mepa_device_t` instance should have its own unique `struct
+mepa_callout_ctx`.
+
+== Callout APIs
+
+Callout APIs are API functions provided by the customer which are passed into
+MEPA in an argument of the `mepa_create()` function.
+
+These functions include callbacks for MIIM read/writes used access registers.
+Synchronization callbacks provide support for lock enter/exit needed in
+multi-threaded environments. Trace callback functions provide debug support.
+
+Register/MIIM accessor functions are used in the MEPA Bus Access Function layer as
+illustarted in link:#mepa/docs/introduction[Architecture] section.
+
+=== Trace
+
+The API `mepa_trace_func_t()` provides a trace system, which may be controlled and
+mapped into the trace system of the application software. Trace macros inside the
+API have these properties:
+
+* Trace group (`mepa_trace_group_t`)
+* Trace level (`mepa_trace_level_t`)
+* Location, line and format.
+
+The current trace level can be controlled per group. Trace levels may
+be changed before initialization for debugging the startup.
+
+The MEPA trace function is a single global variable. Traces will only work when
+a function is assigned to MEPA_TRACE_FUNCTION.
+
+For trace callback `mepa_trace_func_t`, application specific implementation
+must be passed to print the traces supported by API. For Indy, the trace flag
+`MEPA_TRACE_GRP_GEN` can be used to enable General PHY related traces. Each
+application may have its own conditions on when to enable traces. When the
+callback `mepa_trace_func_t` is executed, application can print or ignore the
+trace call depending on its own enabling conditions.
+
+=== Register Access
+
+Device registers can be accessed using these APIs (`mepa_mmd_read_t`,
+`mepa_mmd_read_inc_t`, `mepa_mmd_write_t`, `mepa_miim_read_t`,
+`mepa_miim_write_t`).
+
+=== Synchronization Functions
+
+The APIs `mepa_callout_t::lock_enter` and
+`mepa_callout_t::lock_exit` are synchronization callbacks for
+which application specific semaphore implementation must be allocated,
+initialized, and passed in `mepa_driver_probe_t`.
+
+These APIs are called before entering API and exiting API. These callbacks
+provide synchronized access for all the MEPA calls.
+
+Example pseudo code::
+
+The following pseudo code provides an example on how MEPA instance can be
+created.
+
+NOTE: The code is conceptual, and does not include application specific
+examples and does not include the needed error handling.
+
+----
+// Define the application specific addressing parameters.
+typedef struct mepa_callout_cxt {
+   // Add application specific stuff needed address a specific PHY
+} mepa_callout_cxt_t;
+
+// Implementation of callback functions to access registers in the PHYs. This
+// example only have the prototypes, real applications will need to provide a
+// working implementation.
+mepa_rc APPL_mmd_read(struct mepa_callout_cxt *cxt, uint8_t mmd,
+                      uint16_t addr, uint16_t *const value);
+mepa_rc APPL_mmd_read_inc(struct mepa_callout_cxt *cxt, uint8_t mmd,
+                          uint16_t addr, uint16_t *const buf, uint8_t count);
+mepa_rc APPL_mmd_write(struct mepa_callout_cxt *cxt, uint8_t mmd, uint16_t addr,
+                      uint16_t value) { return -1; }
+mepa_rc APPL_miim_read(struct mepa_callout_cxt *cxt, uint8_t addr,
+                      uint16_t *const value) { return -1; }
+mepa_rc APPL_miim_write(struct mepa_callout_cxt *cxt, uint8_t addr,
+                       uint16_t value) { return -1; }
+
+// Callback function to allocate memory. In this example the requests are
+// forwarded to the standard malloc/free functions. Custom application may
+// provide alternative implementation, which optionally may use static allocated
+// memory instead of this dynamic approach.
+void *APPL_mem_alloc(struct mepa_callout_cxt *cxt, size_t size)
+{ return malloc(size); }
+void APPL_mem_free(struct mepa_callout_cxt *cxt, void *ptr)
+{ free(ptr); }
+
+// Implements the trance function. Read applications should filter the trace
+// messages being emitted.
+void APPL_trace_func(const mepa_trace_data_t *data, va_list args) {
+   // Do filtering, and optionally add more details.
+   vprintf(data->format, args);
+}
+
+// Hook up the needed callback functions in a static allocated structure.
+static mepa_callout_t APPL_mepa_callout = {
+   .mepa_mmd_read = APPL_mmd_read,
+   .mepa_mmd_read_inc = APPL_mmd_read_inc,
+   .mepa_mmd_write = APPL_mmd_write,
+   .mepa_miim_read = APPL_miim_read,
+   .mepa_miim_write = APPL_miim_write,
+   .mepa_mem_alloc = APPL_mem_alloc,
+   .mepa_mem_free = APPL_mem_free,
+
+   // .lock_enter   must be set if used with multi-thread
+   // .lock_exit    must be set if used with multi-thread
+};
+
+// Prepare static memory for context objects.
+static mepa_callout_cxt_t APPL_mepa_callout_cxt[APPL_PORT_CNT];
+
+// Static array to store the pointers returned when creating the MEPA instances.
+static mepa_device_t *APPL_mepa_devices[APPL_PORT_CNT];
+
+// Function to perform the init sequence.
+void mepa_init() {
+   int i;
+
+   // Hook in the trace function.
+   MEPA_TRACE_FUNCTION = APPL_trace_func;
+
+   // If board has a GPIO which needs to be toggled to release PHYs from reset,
+   // then this can be done here.
+
+   // Loop through all ports (PHYs) in the system.
+   for (i = 0; i < APPL_PORT_CNT; ++i) {
+       // Configure the board configuration (note temporary life time).
+       mepa_board_conf conf = {};
+       conf.numeric_handle = i;
+
+       // Fill application specific data in the context area. This is likely to
+       // include bus instance, MDIO address etc.
+       APPL_fill_port_data(i, &APPL_mepa_callout_cxt[i]);
+
+       // Create the MEPA devices (real applications needs to check for error as
+       // well).
+       APPL_mepa_devices[i] = mepa_create(&APPL_mepa_callout,
+                                          &APPL_mepa_callout_cxt[i],
+                                          &conf);
+   }
+
+   // Optionally link to base port if dealing with dual/quad phy;
+   for (i = 0; i < APPL_PORT_CNT; ++i) {
+       // The application needs to keep track on which PHYs is located in common
+       // packets.
+       if (APPL_phy_base_dev(i, &APPL_mepa_callout_cxt[i])) {
+           mepa_link_base_port(APPL_mepa_devices[i],
+                               APPL_phy_base_dev(i, &APPL_mepa_callout_cxt[i]),
+                               APPL_phy_pkg_idx(i, &APPL_mepa_callout_cxt[i]));
+       }
+   }
+}
+----
+
+== General MEPA usage
+
+Once the MEPA instance has been created, the MEPA API can be used. In the
+example above all the instances are kept in the `APPL_mepa_devices` array. When
+calling the MEPA APIs, this array needs to be referenced to get the `struct
+mepa_device *` pointer. This is shown in the example below:
+
+----
+void APPL_example1(int port_no) {
+    mepa_rc rc;
+
+    mepa_aneg_status_t aneg_status;
+    rc = mepa_aneg_status_get(APPL_mepa_devices[port_no], &aneg_status);
+    if (rc != MEPA_RC_OK) {
+        // handle error!
+    }
+
+    // Use aneg_status
+}
+----
+
+
+MEPA functions which requires a structure as input, but which is not
+configuration, should ensure that the entire structure is set to zero before
+configuring the input parameters. This is because future MEPA releases may add
+more structure members, and to gain backwards compatibility, MEPA is designed
+such that the default/neutral value is null. `mepa_reset` is performing an
+action, and is therefore not considered configuration. Calling this API is shown
+below:
+
+----
+void APPL_example2_a(int port_no) {
+    mepa_rc rc;
+    mepa_reset_param_t rst_conf = {};
+    rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;
+    rst_conf.reset_point= MEPA_RESET_POINT_PRE;
+
+    rc = mepa_reset(APPL_mepa_devices[port_no], &rst_conf);
+    if (rc != MEPA_RC_OK) {
+        // handle error!
+    }
+}
+
+void APPL_example2_b(int port_no) {
+    mepa_rc rc;
+    mepa_reset_param_t rst_conf;
+    memset(&rst_conf, 0, sizeif(rst_conf));
+    rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;
+    rst_conf.reset_point= MEPA_RESET_POINT_PRE;
+
+    rc = mepa_reset(APPL_mepa_devices[port_no], &rst_conf);
+    if (rc != MEPA_RC_OK) {
+        // handle error!
+    }
+}
+----
+
+== MEPA Configurations
+
+MEPA functions which requires a structure as input, and which is used to
+configure the PHY, and which offers a `_get()/_set()` variant, should call the
+get before setting. Again, this is to gain backwards compatibility, as future
+MEPA versions may add more members which is does not necessary have a
+default/neutral null setting.
+
+----
+void APPL_example3(int port_no) {
+    mepa_rc rc;
+    mepa_conf_t conf;
+
+    rc = mepa_conf_get(APPL_mepa_devices[port_no], &conf);
+    if (rc != MEPA_RC_OK) {
+        // handle error!
+    }
+
+    // Update config
+    conf.admin.enable = 1;
+
+    rc = mepa_conf_set(APPL_mepa_devices[port_no], &conf);
+    if (rc != MEPA_RC_OK) {
+        // handle error!
+    }
+}
+----
+
+== MEPA Reset Considerations
+
+The MEPA library offers a `mepa_reset()` function to perform a soft-reset of the
+PHY.
+
+Beside from the software reset procedure, some boards may introduce SW
+requirements to the board code to either perform a hardware reset, or take the
+PHYs out of reset (or coma-mode) in the first place. The hardware reset is
+typically done by controlling a GPIO, and is out of scope from MEPA.
+
+The required reset sequence is still (unfortunately) still slightly different
+for the individual PHYs. For some PHYs the soft reset is optional if a HW reset
+is performed, and some PHYs requires a multi stage reset procedure.
+
+[none]
+* `mepa_reset_point_t` Point at which reset to be performed
+** PRE_RESET Used to program microcontroller in the PHY, this is to be called
+once per the whole PHY , for the base port of the PHY i.e. the PHY port which
+is mapped to channel 0.  This has to be called before PHY reset.
+** DEFAULT Used to reset or reinitialize PHY. This is to be called when CHIP
+doing cold reset. But not while doing warm reset.
+** POST_RESET Used after PHY reset is done and it can be used for all the ports
+within PHY.
+** POST_MAC_RESET Used to reset PHY after MAC initialization.
+
+== Link Up Sequence
+
+Once reset is done and successful, port needs to be
+configured using `mepa_conf_set()` with the appropriate settings
+`mepa_conf_t`. These configurations mainly include speed, flow control
+and full duplex mode. Once these configurations are successfully applied,
+port current status will be shared to the link partner. Both of them will negotiate
+master and slave status. During auto-negotiation, link partners advertise
+capabilities to each other and compare their own capabilities with those they
+received from link partner. The highest speed and duplex settings common to the
+two link partners is selected as the best operating mode. Finally, link will
+come up after auto-negotiation is completed.
+
+Link Base port::
+Some Microchip devices support multiple PHYs within a single chip. When this
+is the case, there will be common or shared resources among the PHY ports.
+These resources are allocated as part of the first PHY port (base port) of the
+chip. All other PHYs within that multi-PHY chip will then link to this base
+port using API `mepa_link_base_port()` to have access to the chip-level
+(common) resources.
+
+PHY Status Poll:: Once the links auto-negotiation is completed, the link
+state(up/down) can be retrieved by polling PHY using `mepa_poll()` API
+which includes:
+
+* Link status(up/down), Full duplex and Dual-media port(copper/fiber) status.
+* `mepa_aneg_t` Auto-negotiation status.
+* `mepa_port_speed_t` Port speed.
+
+Sequence of APIs to be called is as following::
+
+. PHY Create : `mepa_create()`
+. PHY Configuration Get : `mepa_conf_get()`
+. PHY Configuration Set : `mepa_conf_set()`
+. PHY Reset : `mepa_reset()`
+. PHY Link Base port : `mepa_link_base_port()`
+. PHY Status : `mepa_poll()`

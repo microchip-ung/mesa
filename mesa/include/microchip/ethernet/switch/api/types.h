@@ -623,6 +623,17 @@ typedef struct {
     uint64_t uscaled_ns_low;  // nanoseconds
 } mesa_uscaled_ns_t;
 
+// MII management controller
+typedef enum
+{
+    MESA_MIIM_CONTROLLER_0    = 0,  // MIIM controller 0
+    MESA_MIIM_CONTROLLER_1    = 1,  // MIIM controller 1
+    MESA_MIIM_CONTROLLER_2    = 2,  // MIIM controller 2
+    MESA_MIIM_CONTROLLER_3    = 3,  // MIIM controller 3
+    MESA_MIIM_CONTROLLERS,          // Number of MIIM controllers
+    MESA_MIIM_CONTROLLER_NONE = -1  // Unassigned MIIM controller
+} mesa_miim_controller_t;
+
 #define MESA_CLOCK_IDENTITY_LENGTH 8 // Length of unique PTP identifier
 
 // PTP clock unique identifier

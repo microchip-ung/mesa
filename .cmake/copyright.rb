@@ -63,6 +63,12 @@ end
   next if /mesa.docs.resources.jquery/ =~ f
   next if /mesa.docs.resources.bootstrap/ =~ f
 
+  next if "mepa/docs/resources/asciidoctor-default.css" == f
+  next if "mepa/docs/resources/pygments.css" == f
+  next if /mepa.docs.resources.font/ =~ f
+  next if /mepa.docs.resources.jquery/ =~ f
+  next if /mepa.docs.resources.bootstrap/ =~ f
+
   next if [".vsd", ".svg", ".png", ".graphml", ".xls", ".txt"].include? ext
   next if [".gitattributes", ".gitignore", "Gemfile.lock", "catch.hpp", "TODO"].include? base
 

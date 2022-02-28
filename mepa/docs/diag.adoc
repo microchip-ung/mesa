@@ -1,0 +1,22 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Cable Diagnostics
+
+Cable diagnostic suite provides extensive network cable information such as
+link status, cable length, termination status and open/short fault location.
+
+The API `mepa_cable_diag_start()` helps to start cable diagnostic
+process. It signals API that cable diagnostic is running. Mode parameters
+passed in this API helps in stating the mode in which it is running.
+
+The API `mepa_cable_diag_get()` runs cable diagnostic process for one
+iteration and checks the status iteratively and signals API when it is done.
+The result is stored in data structure `mepa_cable_diag_result_t` which holds
+the cable information.
+
+=== API References
+
+`mepa_cable_diag_start()` +
+`mepa_cable_diag_get()`

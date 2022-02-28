@@ -1,0 +1,39 @@
+// Copyright (c) 2004-2021 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= README
+
+== README
+
+MEPA (Microchip Ethernet PHY API) is a C library supporting the Microchip
+product line of Ethernet PHYs.
+
+For a gentle introduction to MEPA (and its associated components), then
+read the link:#mepa/docs/introduction[Introduction] section.
+
+// If you are in a hurry, then read the link:#mepa/docs/getting-started[Getting
+// Started] section.
+
+=== Audience
+
+This material is targeting engineers integrating Microchip PHYs.
+The library is written in `C` and it is expected that the
+audience is fluent in `C`.
+
+Even though the MEPA library is OS agnostic, a Linux based development
+environment is assumed. The user should also be familiar with normal application
+development under Linux before reading this.
+
+== Readers guide
+
+This documentation material is a combination of release-notes, high-level
+introduction documents, detailed technical documents, and C-header files.
+
+The header files should be considered as reference material. This is the real
+header files from the source archives, only processed with color coding, and a
+cross reference DB.
+
+When reading this material, you will find extensive use of cross-references.
+This is to help the reader find the relevant C-symbols, documents, and/or
+examples. Every C symbol is cross-referenced, and it is easy to jump between
+definitions, use of symbol and documents mention a symbol.

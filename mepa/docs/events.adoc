@@ -1,0 +1,22 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== PHY Event Interrupt
+These APIs allows setting interrupt mask, reading current masked interrupts
+, polling for given interrupts.
+
+The API `mepa_event_enable_set()` allows to enable PHY interrupt specified
+in `mepa_event_t` for a given PHY.
+
+The API `mepa_event_enable_get()` allows to get status of currently
+enabled events of a given PHY, provided event mask.
+
+The API `mepa_event_poll()` helps polling for all the supported
+interrupts on a given PHY.
+
+=== API References
+
+`mepa_event_enable_set()` +
+`mepa_event_enable_get()` +
+`mepa_event_poll()`

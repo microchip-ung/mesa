@@ -1,0 +1,78 @@
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+---
+conf:
+    rel_name: "MEPA-V2021.12-PRE-2"
+
+pages:
+    - name: "README"
+      src:  "mepa/docs/readme.adoc"
+
+    - name: "Release notes"
+      pages:
+        - name: "MEPA-V2021.12-PRE-2"
+          src:  "mepa/docs/release-notes/mepa-v2021.12-pre-2.adoc"
+
+    - name: "Introduction"
+      src:  "mepa/docs/introduction.adoc"
+
+    - name: "Getting started"
+      src:  "mepa/docs/getting-started.adoc"
+
+    - name: "Functional descriptions"
+      pages:
+        - src: "mepa/docs/mepa_instantiation.adoc"
+        - src: "mepa/docs/basic.adoc"
+        - src: "mepa/docs/diag.adoc"
+        - src: "mepa/docs/events.adoc"
+
+    - name: "MEPA API Reference"
+      pages:
+        - src:  "me/include/microchip/ethernet/common.h"
+        - src:  "mepa/common/include/mepa_driver.h"
+        - src:  "mepa/common/include/mepa_ts_driver.h"
+        - src:  "mepa/include/microchip/ethernet/phy/api/phy_ts.h"
+        - src:  "mepa/include/microchip/ethernet/phy/api/types.h"
+        - src:  "mepa/include/microchip/ethernet/phy/api/phy.h"
+        - src:  "mepa/include/microchip/ethernet/phy/api.h"
+
+    - name: "Licenses"
+      src:  "mepa/docs/licenses.adoc"
+
+...
+
+# README
+#
+# Release Notes
+#
+# Introduction
+#   MEPA overview
+#     Unified-API
+#     Toolchain
+#   Architecture
+#   Unified-API vs MEPA
+#   MEPA Framework
+#   Directory layout
+#   MEPA Capabilities
+#
+# Getting started
+#   Building system
+#   Demo application
+#     Basic port status
+#     API Call syntax
+#   Integration guide
+#     MEPA
+#
+# Functional descriptions
+#   PHY and basic L2
+#     - PHY
+#     - Port/device mapping
+#     - VLAN
+#   Time stamping
+#   ??
+#
+# Cookbook examples
+#
+# API Reference
+#

@@ -1,0 +1,127 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Register Accessor Functions
+
+These APIs allows to read/write PHY registers. For convenience, registers are
+grouped and arranged page wise like general purpose registers in a page,
+extended registers in few pages, GPIO registers in a page, 1588 registers in
+a page, MACSEC registers in a page.
+
+The API `mepa_clause22_read()` helps to read register of a PHY, given
+regsiter address and page address embedded in address parameter.
+The API `mepa_clause22_write()` helps to write register of a PHY,
+given register address and page address embedded in address parameter and
+value to be written.
+
+Extended page registers can be accessed using `mepa_clause45_read()`
+and `mepa_clause45_write()` APIs.
+
+== PHY Information Details
+
+The API `mepa_phy_info_get()` allows to get current PHY information
+which includes `mepa_phy_info_t` details.
+
+== Port Interface
+
+Based on speed (`mepa_port_speed_t`) of the port, PHY interface details
+(`mepa_port_interface_t`) are fetched using `mepa_if_get()`.
+
+== Auto-Negotiation Status
+
+Auto-negotiation allows UTP (unshielded twisted pair) link partners to select
+the highest common mode of operation. During auto-negotiation, link partners
+advertise capabilities across the UTP link to each other, and then compare
+their own capabilities with those they received from their link partners. The
+highest speed and duplex setting that is common to the two link partners is
+selected as the operating mode.
+
+The API `mepa_aneg_status_get()` is used to get auto negotiation
+status of copper PHY using struct `mepa_aneg_status_t`.
+
+== Power Mode Configuration
+
+The API `mepa_power_set()` is used to configure power modes.
+Supported modes are `mepa_power_mode_t` which is listed as following:
+
+NOMINAL:: Default power settings to restore the original power level.
+ACTIPHY:: Actiphy Power Mgmt mode that supports power sensitive applications.
+DYNAMIC:: Enables PerfectReach capability at link-up to adjust power output
+based on cable length.
+ENABLED:: Enables Actiphy and PerfectReach together at link-up.
+
+== Media Configuration
+
+In case if port is dual media port with external PHY, media type
+(`mepa_media_interface_t`) is set using API `mepa_media_set()`
+
+== Loopbacks
+
+These APIs are used for debug purpose to check transmit and receive data
+paths using different loopback modes (`mepa_loopback_t`).
+
+The API `mepa_loopback_get()` allows getting loopback configuration
+on a given PHY.
+
+The API `mepa_loopback_set()` allows setting internal loopback on
+a given PHY.
+
+== PHY GPIO Configuration
+
+GPIOs are general purpose Input/output pins which can be used for multiple
+purposes. Few of those purposes are it can act as an input to a PIN, output
+to a pin, to drive an internal signal and output the generated interrupt
+from the PHY.
+
+The API `mepa_gpio_mode_set()` helps to configure GPIO pin mode to
+input , output and alternate function using struture `mepa_gpio_conf_t`.
+
+The API `mepa_gpio_in_get()` allows to get the current GPIO configuration
+on a given GPIO pin.
+
+The API `mepa_gpio_out_set()` allows to set GPIO configuration, given
+GPIO pin number and value to be written.
+
+== Isolate Mode
+
+The PHY may be forced to electrically isolate its data paths from MII or GMII.
+When isolated, PHY shall respond to management trasactions.
+
+The API `mepa_isolate_mode_conf()` can be used to enable or disable isolation
+of PHY from MII or GMII interface.
+
+== Register Dump
+
+The API `mepa_debug_info_dump()` is used for debugging purpose ONLY.
+This API will use trace function from callout APIs to dump information.
+It will dump following registers:
+
+* PHY registers like Basic and Extended page(0,1,2,3,4,5,7,28,29,31) registers.
+* TS registers like classifier(IP, MAC, VLAN) configuration, TS general settings
+and TS TX/RX settings.
+
+== Delete PHY Instance
+
+The API `mepa_delete()` is used to delete MEPA instance created for a
+PHY. It clears up the data allocated in `mepa_create()` function.
+
+== API References
+
+`mepa_clause22_read()` +
+`mepa_clause22_write()` +
+`mepa_clause45_read()` +
+`mepa_clause45_write()` +
+`mepa_phy_info_get()` +
+`mepa_if_get()` +
+`mepa_aneg_status_get()` +
+`mepa_power_set()` +
+`mepa_media_set()` +
+`mepa_loopback_get()` +
+`mepa_loopback_set()` +
+`mepa_gpio_mode_set()` +
+`mepa_gpio_in_get()` +
+`mepa_gpio_out_set()` +
+`mepa_isolate_mode_conf()` +
+`mepa_debug_info_dump()` +
+`mepa_delete()`

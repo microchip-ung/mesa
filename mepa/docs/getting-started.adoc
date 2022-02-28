@@ -1,0 +1,125 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= Getting started
+
+== Getting started
+
+The easiest and best way to get started with the MEPA library is to start using
+it.
+
+== Pre-requests and preparations
+
+In order to follow this getting started guide, a version of the MESA package
+and a PHY is needed.
+
+To build and load the MEPA library a Linux development machine with root access
+is needed. This guide is using a Ubuntu Server version 18.04.
+
+=== Installing basic SW dependencies
+
+The first step is to install a couple of host tools needed by MEPA. The package
+manager and the name of the specific packages differ from one Linux distribution
+to another. Here are the instructions on how to do this on Ubuntu 18:
+
+----
+sudo apt-get install cmake cmake-curses-gui build-essential ruby
+----
+
+== Extracting the sources
+
+The first step is to extract the MESA package:
+
+----
+$ tar xf mesa-<version>.tar.gz
+$ cd mesa-<version>
+----
+Note: MEPA related source is present in mesa-<version>/mepa.
+
+== Selecting the Target and Building the SW
+
+MEPA package supports cmake build infrastructure. Project configuration settings
+may be specified interactively through the ccmake GUI.
+
+The CMake project allows you to select what targets to build. By default, BUILD_mepa
+(mepa common) and MEPA_vtss_opt_1g are selected. Other targets should be selected as per
+requirement.
+
+Sample run of LAN8814(Indy) library:
+
+----
+cd mepa
+mkdir build
+----
+
+Run cmake:
+
+----
+cmake ..
+----
+
+Run ccmake:
+
+----
+ccmake .
+----
+
+Select MEPA_lan8814 target from ccmake GUI as below:
+
+----
+BUILD_mepa                       ON
+CMAKE_BUILD_TYPE
+CMAKE_INSTALL_PREFIX             /usr/local
+MEPA_aqr                         OFF
+MEPA_gpy211                      OFF
+MEPA_ksz9031                     OFF
+MEPA_lan8814                     ON
+MEPA_vtss                        OFF
+MEPA_vtss_opt_10g                OFF
+MEPA_vtss_opt_1g                 ON
+MEPA_vtss_opt_cnt                64
+MEPA_vtss_opt_macsec             OFF
+MEPA_vtss_opt_ts                 OFF
+
+
+
+
+
+MEPA_lan8814: Add LAN8814 support in libmeba
+Press [enter] to edit option Press [d] to delete an entry CMake Version 3.16.3
+Press [c] to configure
+Press [h] for help Press [q] to quit without generating
+Press [t] to toggle advanced mode (Currently Off)
+----
+
+Note:: To list of all targets available, use option 't' in the GUI:
+
+Run make:
+
+----
+$ make
+Scanning dependencies of target mepa_common
+[ 0%] Building C object CMakeFiles/mepa_common.dir/common/src/phy.c.o
+[ 33%] Linking C static library libmepa_common.a
+[ 33%] Built target mepa_common
+Scanning dependencies of target mepa_drv_lan8814
+[ 66%] Building C object microchip/lan8814/CMakeFiles/mepa_drv_lan8814.dir/src/lan8814.c.o
+[ 66%] Building C object microchip/lan8814/CMakeFiles/mepa_drv_lan8814.dir/src/lan8814_ts.c.o
+[ 66%] Linking C static library libmepa_drv_lan8814.a
+[ 66%] Built target mepa_drv_lan8814
+Scanning dependencies of target mepa_target
+[100%] Bundling mepa
+[100%] Built target mepa_target
+$
+----
+
+Once the build is done, the generated static libraries can be found as below:
+
+----
+$ find . -name "*.a"
+./libmepa.a
+./libmepa_common.a
+./microchip/lan8814/libmepa_drv_lan8814.a
+$
+----
+//TODO : What is final static library supposed to be used (all or one of above)

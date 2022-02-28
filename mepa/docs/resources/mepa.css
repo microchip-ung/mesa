@@ -1,0 +1,67 @@
+/* Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries. */
+/* SPDX-License-Identifier: MIT */
+
+
+table.code {
+    background:#fff;
+    margin:0px;
+    padding:0px;
+    border: none;
+    white-space: nowrap;
+    /*font-family: Menlo,Monaco,Consolas,"Courier New",monospace;*/
+    /* border:solid 1px #dedede */
+}
+
+table.code thead,table.code tfoot{
+    background:#f7f8f7;
+}
+
+table.code thead tr th,table.code thead tr td,table.code tfoot tr th,table.code tfoot tr td{
+    /* padding:.5em .625em .625em; */
+    font-size:inherit;
+    color:rgba(0,0,0,.8);
+    text-align:left;
+}
+
+table.code tr th,table.code tr td{
+    padding:0px;
+    font-size:inherit;
+    color:rgba(0,0,0,.8);
+}
+
+table.code tr.even,table.code tr.alt {
+    background:#f8f8f7;
+}
+
+table.code thead tr th,table.code tfoot tr th,table.code tbody tr td,table.code tr td,table.code tfoot tr td{
+    display:table-cell;
+    line-height:1.6;
+}
+
+table.code table.code tbody tr td pre,table.code tr td pre,table.code tfoot tr td pre{
+    display:table-cell;
+    line-height:1.2;
+    border: none;
+    padding: 0 10px 0 0;
+    margin: 0;
+}
+
+pre.lineno>a.link {
+    color:DarkGray;
+    text-decoration:none
+}
+
+pre.lineno>a.link {
+    color:DarkGray
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.well{
+    padding:0;
+    border:none;
+    -webkit-box-shadow:none;
+    box-shadow:none;
+}
