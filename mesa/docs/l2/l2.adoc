@@ -158,7 +158,7 @@ before adding VCE rules including the ingress port.
 For each VLAN, the port member list can be configured (`mesa_vlan_port_members_set()`).
 The port member list for the classified VID is used for VLAN filtering:
 
-* Ingress Filtering: If the ingress port is not a member of the VLAN and VLAN ingress filtering is enabled (`mesa_vlan_port_conf_t`), the frame is discarded.
+* Ingress Filtering: If the ingress port is not a member of the VLAN and VLAN ingress filtering is enabled (`mesa_vlan_port_conf_t` or `mesa_vlan_vid_conf_t`), the frame is discarded.
 * Egress Filtering: If an egress port is not a member of the VLAN, the port is removed from the egress port list.
 
 If the capability `MESA_CAP_L2_VLAN_COUNTERS` is non-zero, counters per

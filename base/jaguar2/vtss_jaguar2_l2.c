@@ -543,12 +543,16 @@ vtss_rc vtss_jr2_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 
     value = (VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR(vlan_entry->msti) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_FID(conf->fid == 0 ? vid : conf->fid) |
+             VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA(conf->ingress_filter ? 1 : 0) |
+             VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(conf->learning ? 0 : 1) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_RLEG_ENA(vlan_entry->rl_enable) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(vlan_entry->isolated) |
              VTSS_F_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(conf->mirror));
     mask = (VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR |
             VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_FID |
+            VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA |
+            VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_FLOOD_DIS |
             VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS |
             VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_RLEG_ENA |
             VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA |
@@ -1270,27 +1274,23 @@ static vtss_rc jr2_debug_vlan_entry(vtss_state_t *vtss_state,
 {
     u32  value;
     u64  pmask;
-    char buf[64], buf1[32], *p = buf1;
+    char buf[64];
 
     JR2_RDX_PMASK(VTSS_ANA_L3_VLAN_VLAN_MASK_CFG, vlan_idx, &pmask);
     JR2_RD(VTSS_ANA_L3_VLAN_VLAN_CFG(vlan_idx), &value);
 
     if (header) {
-        jr2_debug_pmask_header(vtss_state, pr, "VID  IDX/VSI   FID  MSTI  L/M/P");
+        jr2_debug_pmask_header(vtss_state, pr, "VID  IDX   FID  MSTI  L/F/M/F/P");
     }
-    p += sprintf(p, "%u/", vlan_idx);
-    if (vlan_idx < VTSS_VIDS) {
-        p += sprintf(p, "%s", "-");
-    } else {
-        p += sprintf(p, "%u", vlan_idx - VTSS_VIDS);
-    }
-    sprintf(buf, "%-5u%-10s%-5u%-6u%u/%u/%u",
+    sprintf(buf, "%-5u%-6u%-5u%-6u%u/%u/%u/%u/%u",
             vid,
-            buf1,
+            vlan_idx,
             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FID(value),
             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR(value),
             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(value) ? 0 : 1,
+            VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(value),
+            VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(value));
     jr2_debug_pmask(pr, buf, pmask);
 

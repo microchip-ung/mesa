@@ -285,6 +285,7 @@ typedef struct
     mesa_bool_t learning;        // Enable/disable learning
     mesa_bool_t flooding;        // Enable/disable flooding
     mesa_bool_t mirror;          // Enable/disable mirroring
+    mesa_bool_t ingress_filter;  // Ingress filtering
     mesa_vid_t  fid CAP(L2_SVL); // Forwarding ID for SVL/IVL control
 } mesa_vlan_vid_conf_t;
 

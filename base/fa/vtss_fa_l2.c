@@ -519,6 +519,7 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(vlan_entry->msti) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(conf->fid == 0 ? vid : conf->fid) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(conf->ingress_filter ? 1 : 0) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(conf->learning ? 0 : 1) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(vlan_entry->rl_enable) |
@@ -1479,15 +1480,16 @@ static vtss_rc fa_debug_vlan_entry(vtss_state_t *vtss_state,
     REG_RD(VTSS_ANA_L3_VLAN_CFG(vid), &value);
 
     if (header) {
-        fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/P");
+        fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/F/P");
     }
-    sprintf(buf, "%-6u%-6u%-6u%u/%u/%u/%u",
+    sprintf(buf, "%-6u%-6u%-6u%u/%u/%u/%u/%u",
             vid,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FID(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(value) ? 0 : 1,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(value),
+            VTSS_X_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(value));
     fa_debug_pmask(pr, buf, &pmask);
 

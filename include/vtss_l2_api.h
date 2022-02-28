@@ -613,6 +613,7 @@ typedef struct
     BOOL       learning; /**< Enable/disable learning */
     BOOL       flooding; /**< Enable/disable flooding */
     BOOL       mirror;   /**< Enable/disable mirroring */
+    BOOL       ingress_filter; /**< Ingress filtering */
 #if defined(VTSS_FEATURE_VLAN_SVL)
     vtss_vid_t fid;      /**< Forwarding ID for SVL/IVL control */
 #endif /* VTSS_FEATURE_VLAN_SVL */

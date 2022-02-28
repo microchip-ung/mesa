@@ -1102,6 +1102,8 @@ static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED;
     if (vlan_entry->conf.mirror)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR;
+    if (vlan_entry->conf.ingress_filter)
+        value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK;
     L26_WR(VTSS_ANA_ANA_TABLES_VLANTIDX, value);
 
     /* VLAN mask */
@@ -1289,12 +1291,13 @@ static vtss_rc l26_debug_vlan(vtss_state_t *vtss_state,
         L26_RD(VTSS_ANA_ANA_TABLES_VLANTIDX, &value);
 
         if (header)
-            vtss_l26_debug_print_port_header(vtss_state, pr, "VID   Lrn  Mir  Prv  ");
+            vtss_l26_debug_print_port_header(vtss_state, pr, "VID   Lrn  Mir  Flt  Prv  ");
         header = 0;
 
-        pr("%-6u%-5u%-5u%-5u", vid,
+        pr("%-6u%-5u%-5u%-5u%-5u", vid,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED ? 0 : 1,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR ? 1 : 0,
+           value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK ? 1 : 0,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN ? 1 : 0);
         l26_debug_print_mask(pr, mask);
 

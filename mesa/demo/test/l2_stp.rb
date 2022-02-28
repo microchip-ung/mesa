@@ -32,14 +32,17 @@ test "conf" do
         conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
         conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
         conf["untagged_vid"] = 0
-        conf["ingress_filter"] = ingress_filter
         $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
     end
     
     t_i("Set VLAN memberships and MSTP mappings")
     $vid_table.each do |e|
-        $ts.dut.call("mesa_vlan_port_members_set", e[:vid], $ts.dut.p.join(","))
-        $ts.dut.call("mesa_mstp_vlan_msti_set", e[:vid], e[:msti])
+        vid = e[:vid]
+        $ts.dut.call("mesa_vlan_port_members_set", vid, $ts.dut.p.join(","))
+        conf = $ts.dut.call("mesa_vlan_vid_conf_get", vid)
+        conf["ingress_filter"] = ingress_filter
+        $ts.dut.call("mesa_vlan_vid_conf_set", vid, conf);
+        $ts.dut.call("mesa_mstp_vlan_msti_set", vid, e[:msti])
         $ts.dut.port_list.each_with_index do |port, idx|
             state = (idx == $mstp_port_idx ? e[:state] : "FORWARDING")
             $ts.dut.call("mesa_mstp_port_msti_state_set", port, e[:msti], "MESA_STP_STATE_" + state)
@@ -71,4 +74,10 @@ test "frame-io" do
             run_ef_tx_rx_cmd($ts, idx_tx, idx_list, cmd)
         end
     end
+end
+
+test "dump" do
+    break
+    $ts.dut.run("mesa-cmd deb api stp")
+    $ts.dut.run("mesa-cmd deb api vlan")
 end

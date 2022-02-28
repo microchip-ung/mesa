@@ -555,7 +555,8 @@ static vtss_rc srvl_vlan_mask_update(vtss_state_t *vtss_state,
             VTSS_F_ANA_ANA_TABLES_VLANTIDX_V_INDEX(vid) |
             (vlan_entry->isolated ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN : 0) |
             (conf->learning ? 0 : VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED) |
-            (conf->mirror ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR : 0));
+            (conf->mirror ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR : 0) |
+            (conf->ingress_filter ? VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK : 0));
 
     /* VLAN mask */
     SRVL_WR(VTSS_ANA_ANA_TABLES_VLANACCESS,
@@ -1090,12 +1091,13 @@ static vtss_rc srvl_debug_vlan(vtss_state_t *vtss_state,
         fid = vid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
         if (header)
-            vtss_srvl_debug_print_port_header(vtss_state, pr, "VID   FID  Lrn  Mir  Prv  ");
+            vtss_srvl_debug_print_port_header(vtss_state, pr, "VID   FID  Lrn  Mir  Flt  Prv  ");
         header = 0;
 
-        pr("%-6u%-5u%-5u%-5u%-5u", vid, fid,
+        pr("%-6u%-5u%-5u%-5u%-5u%-5u", vid, fid,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED ? 0 : 1,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR ? 1 : 0,
+           value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK ? 1 : 0,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN ? 1 : 0);
         vtss_srvl_debug_print_mask(pr, mask);
 
