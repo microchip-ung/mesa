@@ -68,83 +68,226 @@ end
 #---------- Configuration -----------------------------------------------------
 
 # Each entry in the test table has these fields:
-# 1: Text string printed during test
-# 2: Configuration of RedBox and switch
-# 3: Basic frame properties (optional)
-# 4: Forwarding properties for each port (A/B/C/D)
+# - Text string printed during test
+# - Configuration of RedBox and switch
+# - Table of frames with forwarding properties for each port (A/B/C/D)
+# - Counter exceptions (optional)
 test_table =
 [
+    # HSR-SAN tests
     {
         txt: "HSR-SAN, port A to port B/C/D",
         cfg: {mode: "HSR_SAN"},
-        fwd: [{idx_tx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
-              {idx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
-              {idx: $idx_c},
-              {idx: $idx_d}]
+        tab: [{fwd: [{idx_tx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
+                     {idx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
+                     {idx: $idx_c},
+                     {idx: $idx_d}]}]
     },
     {
         txt: "HSR-SAN, port B to port A/C/D",
         cfg: {mode: "HSR_SAN"},
-        fwd: [{idx_tx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
-              {idx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
-              {idx: $idx_c},
-              {idx: $idx_d}]
+        tab: [{fwd: [{idx_tx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
+                     {idx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
+                     {idx: $idx_c},
+                     {idx: $idx_d}]}]
     },
     {
         txt: "HSR-SAN, port C to port A/B/D",
         cfg: {mode: "HSR_SAN", net_id: 7},
-        fwd: [{idx_tx: $idx_c},
-              {idx: $idx_a, hsr: {net_id: 7}},
-              {idx: $idx_b, hsr: {net_id: 7}},
-              {idx: $idx_d}]
+        tab: [{fwd: [{idx_tx: $idx_c},
+                     {idx: $idx_a, hsr: {net_id: 7}},
+                     {idx: $idx_b, hsr: {net_id: 7}},
+                     {idx: $idx_d}]}]
     },
     {
         txt: "HSR-SAN, port D to port A/B/C",
         cfg: {mode: "HSR_SAN", net_id: 7},
-        fwd: [{idx_tx: $idx_d},
-              {idx: $idx_a, hsr: {net_id: 7}},
-              {idx: $idx_b, hsr: {net_id: 7}},
-              {idx: $idx_c}]
+        tab: [{fwd: [{idx_tx: $idx_d},
+                     {idx: $idx_a, hsr: {net_id: 7}},
+                     {idx: $idx_b, hsr: {net_id: 7}},
+                     {idx: $idx_c}]}]
     },
     {
         txt: "HSR-SAN with VLANs, port A to port B/C",
         cfg: {mode: "HSR_SAN",
               vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
                                      {idx: $idx_c, pvid: 10, uvid: 10}]}},
-        fwd: [{idx_tx: $idx_a, vid: 10, hsr: {}},
-              {idx: $idx_b, vid: 10, hsr: {}},
-              {idx: $idx_c}]
+        tab: [{fwd: [{idx_tx: $idx_a, vid: 10, hsr: {}},
+                     {idx: $idx_b, vid: 10, hsr: {}},
+                     {idx: $idx_c}]}]
     },
     {
         txt: "HSR-SAN with VLANs, port D to port A/B",
         cfg: {mode: "HSR_SAN", net_id: 6,
               vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
                                      {idx: $idx_d, pvid: 10, uvid: 10}]}},
-        fwd: [{idx_tx: $idx_d},
-              {idx: $idx_a, vid: 10, hsr: {net_id: 6}},
-              {idx: $idx_b, vid: 10, hsr: {net_id: 6}}]
+        tab: [{fwd: [{idx_tx: $idx_d},
+                     {idx: $idx_a, vid: 10, hsr: {net_id: 6}},
+                     {idx: $idx_b, vid: 10, hsr: {net_id: 6}}]}]
     },
     {
+        # Fails, Jira-208: Two tagged frames
+        txt: "HSR-SAN with VLANs, forwarding two tagged frames fails",
+        cfg: {mode: "HSR_SAN",
+              vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
+                                     {idx: $idx_d, pvid: 10, uvid: 10}]}},
+        tab: [
+            {fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, vid: 1, hsr: {}},
+                   {idx: $idx_b, vid: 1, hsr: {}},
+                   {idx: $idx_d, vid: 1}]},
+            {fwd: [{idx_tx: $idx_d},
+                   {idx: $idx_a, vid: 10, hsr: {}},
+                   {idx: $idx_b, vid: 10, hsr: {}}]},
+        ]
+    },
+    {
+        # Fails, DMAC-PNT filtering not working
+        txt: "HSR-SAN, DMAC-PNT filtering on Interlink->LRE",
+        cfg: {mode: "HSR_SAN"},
+        tab: [
+            # Learn SMAC in PNT and flush switch port
+            {frm: {smac: 0xcc},
+             flush: $idx_c,
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            # Send to DMAC on Interlink, expect discard on LRE
+            {frm: {dmac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_d}]}
+        ]
+    },
+    {
+        txt: "HSR-SAN, DMAC-PNT filtering on LRE->LRE",
+        cfg: {mode: "HSR_SAN"},
+        tab: [
+            # Learn SMAC in PNT (and on switch port C)
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            # Send to DMAC on LRE, expect discard on LRE
+            {frm: {dmac: 0xcc},
+             fwd: [{idx_tx: $idx_a, hsr: {}},
+                   {idx: $idx_c}]}
+        ]
+    },
+    {
+        txt: "HSR-SAN, SMAC-PNT filtering on LRE->interlink",
+        cfg: {mode: "HSR_SAN"},
+        tab: [
+            # Learn SMAC in PNT
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            # Send from SMAC on LRE, expect discard on Interlink
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}}]}
+        ]
+    },
+    {
+        txt: "HSR-SAN, DMAC-NT filtering on LRE->interlink",
+        cfg: {mode: "HSR_SAN", node: {mac: 0xbb}},
+        tab: [{frm: {dmac: 0xbb},
+               fwd: [{idx_tx: $idx_a, hsr:{}},
+                     {idx: $idx_b, hsr: {}}]}]
+    },
+
+    # PRP-SAN tests
+    {
+        # Fails, PRP size 6 bytes too long
         txt: "PRP-SAN, port A to port C/D",
         cfg: {mode: "PRP_SAN"},
-        fwd: [{idx_tx: $idx_a, prp: {lan_id: 0}},
-              {idx: $idx_c},
-              {idx: $idx_d}]
+        tab: [{fwd: [{idx_tx: $idx_a, prp: {lan_id: 0}},
+                     {idx: $idx_c},
+                     {idx: $idx_d}]}]
     },
     {
+        # Fails, PRP size 6 bytes too long
         txt: "PRP-SAN, port B to port C/D",
         cfg: {mode: "PRP_SAN"},
-        fwd: [{idx_tx: $idx_b, prp: {lan_id: 1}},
-              {idx: $idx_c},
-              {idx: $idx_d}],
+        tab: [{fwd: [{idx_tx: $idx_b, prp: {lan_id: 1}},
+                     {idx: $idx_c},
+                     {idx: $idx_d}]}]
     },
     {
         txt: "PRP-SAN, port A wrong LAN",
         cfg: {mode: "PRP_SAN"},
-        fwd: [{idx_tx: $idx_a, prp: {lan_id: 1}},
-              {idx: $idx_c, prp: {lan_id: 1}},
-              {idx: $idx_d, prp: {lan_id: 1}}],
-        cnt: [{port: "port_a", name: "rx_wrong_lan", val: 1}],
+        tab: [{fwd: [{idx_tx: $idx_a, prp: {lan_id: 1}},
+                     {idx: $idx_c, prp: {lan_id: 1}},
+                     {idx: $idx_d, prp: {lan_id: 1}}]}],
+        cnt: [{port: "port_a", name: "rx_wrong_lan", val: 1}]
+    },
+    {
+        # Fails, no PRP trailer added
+        txt: "PRP-SAN, port C to port A/B with sequence numbers",
+        cfg: {mode: "PRP_SAN"},
+        tab: [
+            {fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, prp: {lan_id: 0}},
+                   {idx: $idx_b, prp: {lan_id: 1}},
+                   {idx: $idx_d}]},
+            {fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, prp: {lan_id: 0}},
+                   {idx: $idx_b, prp: {lan_id: 1}},
+                   {idx: $idx_d}]},
+        ]
+    },
+    {
+        txt: "PRP-SAN, forward to SAN on port A",
+        cfg: {mode: "PRP_SAN"},
+        tab: [
+            # Learn SAN on port A
+            {frm: {smac: 0xaa},
+             fwd: [{idx_tx: $idx_a},
+                   {idx: $idx_c},
+                   {idx: $idx_d}]},
+            # Forward to SAN on port A
+            {frm: {dmac: 0xaa},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a}]},
+        ]
+    },
+    {
+        txt: "PRP-SAN, forward to SAN on port B",
+        cfg: {mode: "PRP_SAN"},
+        tab: [
+            # Learn SAN on port B
+            {frm: {smac: 0xbb},
+             fwd: [{idx_tx: $idx_b},
+                   {idx: $idx_c},
+                   {idx: $idx_d}]},
+            # Forward to SAN on port B
+            {frm: {dmac: 0xbb},
+             fwd: [{idx_tx: $idx_d},
+                   {idx: $idx_b}]},
+        ]
+    },
+
+    # HSR-PRP tests
+    {
+        # Fails, translation to NetId 5 not working
+        txt: "HSR-PRP, port A to port C/D",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{fwd: [{idx_tx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}},
+                     {idx: $idx_c, prp: {}},
+                     {idx: $idx_d, prp: {}}]}]
+    },
+    {
+        # Fails, PRP size 6 bytes too long
+        txt: "HSR-PRP, port C to port A/B",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{fwd: [{idx_tx: $idx_c, prp: {}},
+                     {idx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}},
+                     {idx: $idx_d, prp: {}}]}]
     },
 ]
 
@@ -157,6 +300,10 @@ def vlan_port_conf_set(idx, e)
     conf["frame_type"] = "MESA_VLAN_FRAME_ALL"
     conf["ingress_filter"] = false
     $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
+end
+
+def cnt_incr(c, port_name, cnt_name, incr = 1)
+    c[port_name][cnt_name] = (c[port_name][cnt_name] + incr)
 end
 
 def redbox_test(t)
@@ -174,6 +321,21 @@ def redbox_test(t)
     conf["net_id"] = fld_get(cfg, :net_id)
     conf = $ts.dut.call("mesa_rb_conf_set", $rb_id, conf)
 
+    # Remove nodes and proxy nodes from previous tests
+    $ts.dut.call("mesa_rb_node_table_clear", $rb_id, "MESA_RB_CLEAR_ALL")
+    $ts.dut.call("mesa_rb_proxy_node_table_clear", $rb_id, "MESA_RB_CLEAR_ALL")
+
+    # Node entry
+    node = fld_get(cfg, :node, nil)
+    if (node != nil)
+        mac = fld_get(node, :mac, 0xee)
+        mac = {addr: [0,0,0,0,0,mac]}
+        type = ("MESA_RB_NODE_TYPE_" + fld_get(node, :type, "DAN"))
+        san_a = fld_get(node, :san_a, false)
+        conf = {type: type, san_a: san_a}
+        $ts.dut.call("mesa_rb_node_add", $rb_id, mac, conf)
+    end
+
     # VLAN configuration
     vlan = fld_get(cfg, :vlan, nil)
     vlan_idx_list = []
@@ -188,95 +350,102 @@ def redbox_test(t)
         $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(vlan_idx_list))
     end
 
-    # Clear counters
-    $ts.dut.call("mesa_rb_counters_clear", $rb_id)
-    exp = $ts.dut.call("mesa_rb_counters_get", $rb_id)
-
-    # Frame test
     idx_name = []
     $ts.dut.p.each_index do |idx|
         s = (idx == $idx_a ? "a" : idx == $idx_b ? "b" : idx == $idx_c ? "c" : "d")
         idx_name[idx] = s
     end
-    f = fld_get(t, :frm, {})
-    len = fld_get(f, :len, 46)
-    cmd = " sudo ef"
-    cmd_add = ""
-    idx_list = []
-    idx_tx = nil
-    smac = 1
-    fwd = fld_get(t, :fwd, [])
-    fwd.each_with_index do |e, i|
-        idx = e[:idx_tx]
-        dir = "rx"
-        if (idx == nil)
-            idx = e[:idx]
-        else
-            idx_tx = idx
-            smac = "0x#{idx_name[idx]}"
-            dir = "tx"
-        end
-        name = " name f_#{idx_name[idx]}"
-        cmd_add += " #{dir} #{$ts.pc.p[idx]} #{name}"
-        cmd += name
-        cmd += " eth"
-        if (f.key?:dmac)
-            cmd += " dmac #{f[:dmac]}"
-        end
-        cmd += " smac #{smac}"
-        if (e.key?:vid)
-            cmd += " ctag vid #{e[:vid]}"
-        end
-        hsr = fld_get(e, :hsr, nil)
-        if (hsr != nil)
-            net_id = fld_get(hsr, :net_id, 0)
-            lan_id = fld_get(hsr, :lan_id, 0)
-            path_id = ((net_id << 1) + lan_id)
-            size = fld_get(hsr, :size, len + 6)
-            seqn = fld_get(hsr, :seqn, 0)
-            cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
-        end
-        cmd += " et 0xeeee data pattern cnt #{len}"
-        prp = fld_get(e, :prp, nil)
-        if (prp != nil)
-            seqn = fld_get(prp, :seqn, 0)
-            net_id = fld_get(prp, :net_id, 5)
-            lan_id = fld_get(prp, :lan_id, 0)
-            path_id = ((net_id << 1) + lan_id)
-            size = fld_get(prp, :size, len + 12) # Should be '+ 6' but FPGA needs update
-            cmd += " prp seqn #{seqn} lanid #{path_id} size #{size}"
-        end
-        idx_list.push(idx)
-    end
-    cmd += cmd_add
-    $ts.dut.p.each_index do |idx|
-        if (!idx_list.include?idx)
-            cmd += " rx #{$ts.pc.p[idx]}"
-        end
-    end
-    $ts.pc.try(cmd)
 
-    # Restore VLAN port configuration
-    vlan_idx_list.each do |idx|
-        vlan_port_conf_set(idx, {})
+    # Clear counters
+    $ts.dut.call("mesa_rb_counters_clear", $rb_id)
+    exp = $ts.dut.call("mesa_rb_counters_get", $rb_id)
+
+    tab = fld_get(t, :tab, [])
+    tab.each do |entry|
+        # Frame test
+        cmd = "sudo ef"
+        cmd_add = ""
+        idx_list = []
+        idx_tx = nil
+        smac = 1
+        f = fld_get(entry, :frm, {})
+        len = fld_get(f, :len, 46)
+        fwd = fld_get(entry, :fwd, [])
+        fwd.each_with_index do |e, i|
+            idx = e[:idx_tx]
+            dir = "rx"
+            if (idx == nil)
+                idx = e[:idx]
+            else
+                idx_tx = idx
+                smac = fld_get(f, :smac, "0x#{idx_name[idx]}")
+                dir = "tx"
+            end
+            name = " name f_#{idx_name[idx]}"
+            cmd_add += " #{dir} #{$ts.pc.p[idx]} #{name}"
+            cmd += name
+            cmd += " eth"
+            if (f.key?:dmac)
+                cmd += " dmac #{f[:dmac]}"
+            end
+            cmd += " smac #{smac}"
+            if (e.key?:vid)
+                cmd += " ctag vid #{e[:vid]}"
+            end
+            hsr = fld_get(e, :hsr, nil)
+            if (hsr != nil)
+                net_id = fld_get(hsr, :net_id, 0)
+                lan_id = fld_get(hsr, :lan_id, 0)
+                path_id = ((net_id << 1) + lan_id)
+                size = fld_get(hsr, :size, len + 6)
+                seqn = fld_get(hsr, :seqn, 1)
+                cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
+            end
+            cmd += " et 0xeeee data pattern cnt #{len}"
+            prp = fld_get(e, :prp, nil)
+            if (prp != nil)
+                seqn = fld_get(prp, :seqn, 1)
+                net_id = fld_get(prp, :net_id, 5)
+                lan_id = fld_get(prp, :lan_id, 0)
+                path_id = ((net_id << 1) + lan_id)
+                size = fld_get(prp, :size, len + 6)
+                cmd += " prp seqn #{seqn} lanid #{path_id} size #{size}"
+            end
+            idx_list.push(idx)
+        end
+        cmd += cmd_add
+        $ts.dut.p.each_index do |idx|
+            if (!idx_list.include?idx)
+                cmd += " rx #{$ts.pc.p[idx]}"
+            end
+        end
+        $ts.pc.try(cmd)
+
+        flush_idx = fld_get(entry, :flush, nil)
+        if (flush_idx != nil)
+            # Flush switch core port
+            $ts.dut.call("mesa_mac_table_port_flush", $ts.dut.p[flush_idx])
+        end
+
+        # Update expected counters
+        if (idx_tx == $idx_a)
+            cnt_incr(exp, "port_a", "rx")
+        elsif (idx_list.include?($idx_a))
+            cnt_incr(exp, "port_a", "tx")
+        end
+        if (idx_tx == $idx_b)
+            cnt_incr(exp, "port_b", "rx")
+        elsif (idx_list.include?($idx_b))
+            cnt_incr(exp, "port_b", "tx")
+        end
+        if (idx_tx == $idx_c || idx_tx == $idx_d)
+            cnt_incr(exp, "port_c", "rx")
+        elsif (idx_list.include?($idx_c) or idx_list.include?($idx_d))
+            cnt_incr(exp, "port_c", "tx")
+        end
     end
 
     # Check RedBox counters
-    if (idx_tx == $idx_a)
-        exp["port_a"]["rx"] = 1
-    elsif (idx_list.include?($idx_a))
-        exp["port_a"]["tx"] = 1
-    end
-    if (idx_tx == $idx_b)
-        exp["port_b"]["rx"] = 1
-    elsif (idx_list.include?($idx_b))
-        exp["port_b"]["tx"] = 1
-    end
-    if (idx_tx == $idx_c || idx_tx == $idx_d)
-        exp["port_c"]["rx"] = 1
-    elsif (idx_list.include?($idx_c) or idx_list.include?($idx_d))
-        exp["port_c"]["tx"] = 1
-    end
     cnt = fld_get(t, :cnt, [])
     cnt.each do |c|
         # Override default expected counters
@@ -289,6 +458,11 @@ def redbox_test(t)
             name = "#{port_name}[#{cnt_name}]"
             #check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name])
         end
+    end
+
+    # Restore VLAN port configuration
+    vlan_idx_list.each do |idx|
+        vlan_port_conf_set(idx, {})
     end
 end
 
@@ -304,5 +478,6 @@ end
 test "dump" do
     break
     $ts.dut.run("mesa-cmd deb api redbox")
+    #$ts.dut.run("mesa-cmd deb api ai vlan")
     $ts.dut.run("mesa-cmd port stati pac")
 end

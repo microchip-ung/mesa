@@ -1633,7 +1633,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
                                    vtss_rb_conf_t *conf)
 {
     u32 tag_mode = 0, hsr_aware = 0, prp_aware = 0, ht = FA_HT_NONE;
-    u32 lre, lan_id = conf->lan_id;
+    u32 lre, lan_id = conf->lan_id, trans_netid = 0;
     u32 prxy_smac_msk = FA_RB_MSK_ALL, prxy_dmac_msk = FA_RB_MSK_ALL;
     u32 node_smac_msk = FA_RB_MSK_ALL, node_dmac_msk = FA_RB_MSK_ALL;
 
@@ -1668,11 +1668,16 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             prp_aware = 1;
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
+            trans_netid = 5;
         }
         break;
     case VTSS_RB_MODE_HSR_HSR:
         tag_mode = 2;
         hsr_aware = 1;
+        if (lre) {
+        } else {
+            trans_netid = conf->net_id;
+        }
         break;
     default:
         break;
@@ -1686,7 +1691,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     REG_WR(RB_ADDRX(VTSS_RB_TBL_CFG, rb_id, j),
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
-           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(ht == FA_HT_NONE ? 0 : 1));
+           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(ht == FA_HT_NONE ? 0 : 1) |
+           VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1));
 
     REG_WR(RB_ADDRX(VTSS_RB_BPDU_CFG, rb_id, j), 0);
 
@@ -1700,6 +1706,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
+           VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |
+           VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(trans_netid ? 2 : 0) |
            VTSS_F_RB_PORT_CFG_NETID(conf->net_id) |
            VTSS_F_RB_PORT_CFG_LANID(lan_id) |
            VTSS_F_RB_PORT_CFG_HSR_AWARE_ENA(hsr_aware) |
@@ -1712,7 +1720,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
                               const vtss_rb_id_t rb_id)
 {
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
-    u32            mode, ena, port_a = 0, port_b = 0, j;
+    u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
 
     mode = (conf->mode == VTSS_RB_MODE_PRP_SAN ? FA_RB_MODE_PRP_SAN:
             conf->mode == VTSS_RB_MODE_HSR_SAN ? FA_RB_MODE_HSR_SAN :
@@ -1730,6 +1738,24 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     REG_WR(RB_ADDR(VTSS_RB_TAXI_IF_CFG, rb_id),
            VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(port_a) |
            VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(port_b));
+
+    // NetId filtering on Interlink
+    switch (conf->mode) {
+        break;
+    case VTSS_RB_MODE_HSR_SAN:
+    case VTSS_RB_MODE_HSR_PRP:
+    case VTSS_RB_MODE_HSR_HSR:
+        net_id = conf->net_id;
+        break;
+    case VTSS_RB_MODE_PRP_SAN:
+    default:
+        break;
+    }
+    REG_WR(RB_ADDR(VTSS_RB_NETID_CFG, rb_id),
+           VTSS_F_RB_NETID_CFG_NETID_FILTER_ENA(net_id == 0 ? 0 : 1) |
+           VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
+
+    // Port configuration
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         VTSS_RC(fa_rb_port_conf_set(vtss_state, rb_id, j, conf));
     }
@@ -1905,6 +1931,7 @@ typedef struct {
     u32               idx;
     BOOL              locked;
     u8                type;
+    u16               seq_no;
     fa_rb_host_port_t port[VTSS_RB_PORT_CNT];
 } fa_rb_host_t;
 
@@ -1913,7 +1940,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
                                BOOL proxy,
                                fa_rb_host_t *host)
 {
-    u32               cfg2, stat3, mask;
+    u32               cfg0, cfg2, stat3, mask;
     fa_rb_host_port_t *p;
 
     // Extract fields for entry after read/lookup
@@ -1922,6 +1949,8 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
+    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_0, rb_id), &cfg0);
+    host->seq_no = VTSS_X_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_SEQ_NO(cfg0);
     host->locked = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(cfg2);
     host->type = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_TYPE(cfg2);
     mask = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PORTMASK(cfg2);
@@ -1979,15 +2008,16 @@ static vtss_rc fa_rb_host_mac_read(vtss_state_t *vtss_state,
     *skip = fa_rb_host_skip(cfg2, proxy);
     if (*skip == 0) {
         REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_0, rb_id), mach);
+        *mach = VTSS_X_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_MAC_MSB(*mach);
         REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_1, rb_id), macl);
     }
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_rb_host_get_next(vtss_state_t *vtss_state,
+                                   BOOL proxy,
                                    const vtss_rb_id_t rb_id,
                                    const vtss_mac_t *const mac,
-                                   BOOL proxy,
                                    fa_rb_host_t *host)
 {
     u64  old, new = 0, cur;
@@ -2024,9 +2054,9 @@ static vtss_rc fa_rb_host_get_next(vtss_state_t *vtss_state,
 }
 
 static vtss_rc fa_rb_host_id_get_next(vtss_state_t *vtss_state,
+                                      BOOL proxy,
                                       const vtss_rb_id_t rb_id,
                                       uint16_t id,
-                                      BOOL proxy,
                                       fa_rb_host_t *host)
 {
     u32  idx, mach, macl;
@@ -2119,7 +2149,7 @@ static vtss_rc fa_rb_node_get_next(vtss_state_t *vtss_state,
 {
     fa_rb_host_t host;
 
-    VTSS_RC(fa_rb_host_get_next(vtss_state, rb_id, mac, 0, &host));
+    VTSS_RC(fa_rb_host_get_next(vtss_state, 0, rb_id, mac, &host));
     return fa_rb_host2node(vtss_state, rb_id, entry, &host);
 }
 
@@ -2130,7 +2160,7 @@ static vtss_rc fa_rb_node_id_get_next(vtss_state_t *vtss_state,
 {
     fa_rb_host_t host;
 
-    VTSS_RC(fa_rb_host_id_get_next(vtss_state, rb_id, id, 0, &host));
+    VTSS_RC(fa_rb_host_id_get_next(vtss_state, 0, rb_id, id, &host));
     return fa_rb_host2node(vtss_state, rb_id, entry, &host);
 }
 
@@ -2188,7 +2218,7 @@ static vtss_rc fa_rb_proxy_node_get_next(vtss_state_t *vtss_state,
 {
     fa_rb_host_t host;
 
-    VTSS_RC(fa_rb_host_get_next(vtss_state, rb_id, mac, 1, &host));
+    VTSS_RC(fa_rb_host_get_next(vtss_state, 1, rb_id, mac, &host));
     return fa_rb_host2proxy(vtss_state, rb_id, entry, &host);
 }
 
@@ -2199,7 +2229,7 @@ static vtss_rc fa_rb_proxy_node_id_get_next(vtss_state_t *vtss_state,
 {
     fa_rb_host_t host;
 
-    VTSS_RC(fa_rb_host_id_get_next(vtss_state, rb_id, id, 1, &host));
+    VTSS_RC(fa_rb_host_id_get_next(vtss_state, 1, rb_id, id, &host));
     return fa_rb_host2proxy(vtss_state, rb_id, entry, &host);
 }
 #endif
@@ -2673,12 +2703,42 @@ static vtss_rc fa_debug_mirror(vtss_state_t *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_REDBOX)
+void fa_print_host_entry(const vtss_debug_printf_t pr,
+                         const char *name,
+                         BOOL *header,
+                         fa_rb_host_t *host)
+{
+    u8 j, *b = host->mac.addr;
+    fa_rb_host_port_t *p;
+
+    if (*header) {
+        *header = 0;
+        pr("%s\n\n", name);
+        pr("MAC Address        IDX  Type   Lock  SeqNo  Port  Fwd  Age  RxWrongLan  Rx\n");
+    }
+    pr("%02x-%02x-%02x-%02x-%02x-%02x  ", b[0], b[1], b[2], b[3], b[4], b[5]);
+    pr("%-5u%-7s%-6u%-7u", host->idx,
+       host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
+       host->type == FA_HT_SAN ? "SAN" : "LOCAL",
+       host->locked, host->seq_no);
+    for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
+        p = &host->port[j];
+        if (j) {
+            pr("%-44s", "");
+        }
+        pr("%-6u%-5u%-5u%-12u%u\n", j, p->fwd, p->age, p->rx_wrong_lan, p->rx);
+    }
+}
+
 static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t *const info)
 {
-    char buf[32];
-    u32 i, j, val, m;
+    char         buf[64];
+    u32          i, j, val, m;
+    fa_rb_host_t host;
+    vtss_rc      rc;
+    BOOL         header;
 
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
         REG_RD(RB_ADDR(VTSS_RB_RB_CFG, i), &val);
@@ -2715,6 +2775,26 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             vtss_fa_debug_reg(vtss_state, pr, RB_ADDRX(VTSS_RB_CNT_RX, i, j), "CNT_RX");
             vtss_fa_debug_reg(vtss_state, pr, RB_ADDRX(VTSS_RB_CNT_TX, i, j), "CNT_TX");
             pr("\n");
+        }
+
+        // Node table and proxy node table
+        for (j = 0; j < 2; j++) {
+            memset(&host, 0, sizeof(host));
+            header = 1;
+            sprintf(buf, "RedBox %u %sNode Table", i, j ? "Proxy " : "");
+            while (1) {
+                rc = (info->action ?
+                      fa_rb_host_id_get_next(vtss_state, j, i, host.idx, &host) :
+                      fa_rb_host_get_next(vtss_state, j, i, &host.mac, &host));
+                if (rc != VTSS_RC_OK) {
+                    break;
+                }
+                fa_print_host_entry(pr, buf, &header, &host);
+            }
+            if (!header) {
+                header = 1;
+                pr("\n");
+            }
         }
     }
     return VTSS_RC_OK;

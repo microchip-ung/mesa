@@ -8017,6 +8017,7 @@ vtss_rc vtss_rb_cap_get(const vtss_inst_t  inst,
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        memset(cap, 0, sizeof(*cap));
         rc = VTSS_FUNC(l2.rb_cap_get, rb_id, cap);
     }
     VTSS_EXIT();
