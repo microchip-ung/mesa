@@ -308,6 +308,25 @@ typedef enum {
 } vtss_packet_ptp_action_t;
 
 /**
+ * PDU encapsulation type
+ */
+typedef enum {
+    VTSS_PACKET_ENCAP_TYPE_NONE,  // inj_encap is not used
+    VTSS_PACKET_ENCAP_TYPE_ETHER, // PDU as indicated in ptp_action or oam_type ETHERNET encapsulated (no IP)
+    VTSS_PACKET_ENCAP_TYPE_IP4,   // PDU as indicated in ptp_action IPV4 encapsulated
+    VTSS_PACKET_ENCAP_TYPE_IP6,   // PDU as indicated in ptp_action IPV6 encapsulated
+} vtss_packet_encap_type_t;
+
+/**
+ * PDU injection encapsulation
+ */
+typedef struct {
+    vtss_packet_encap_type_t type;         // The type of encapsulation
+    uint32_t                 tag_count;    // Number of ETHERNET tags
+}vtss_packet_inj_encap_t;
+
+
+/**
  * Tag type the frame was received with.
  */
 typedef enum {
@@ -529,9 +548,13 @@ typedef struct {
                         // Allocate timestamp id for a two step transmission must be in the nano second part (id << 16)
                         // Sequence counter index for a PTP transmission must be in the nano second part (id << 16)
     vtss_packet_oam_type_t oam_type;
+#if defined VTSS_FEATURE_PACKET_INJ_ENCAP
+    vtss_packet_inj_encap_t inj_encap;
+#endif
     vtss_iflow_id_t iflow_id;
     vtss_port_no_t masquerade_port;
-    u32 pdu_offset;
+    u32 pdu_offset; // When encap_type is not MESA_PACKET_ENCAP_NONE then pdu_offset is the ETHERNET encapsulation size
+                    // When encap_type is MESA_PACKET_ENCAP_NONE then pdu_offset is the start of the PDU
     u32                       sequence_idx;
 #if defined(VTSS_FEATURE_AFI_SWC)
     vtss_afi_id_t afi_id;

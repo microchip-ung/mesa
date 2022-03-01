@@ -489,6 +489,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_PACKET_INJ_ENCAP:
+#if defined(VTSS_FEATURE_PACKET_INJ_ENCAP)
+        c = 1;
+#endif
+        break;
+
     // AFI
     case MESA_CAP_AFI_V1:
 #if defined(VTSS_AFI_V1)

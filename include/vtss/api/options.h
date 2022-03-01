@@ -51,6 +51,7 @@
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
 //#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */

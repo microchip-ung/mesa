@@ -85,7 +85,8 @@ typedef enum {
     MESA_CAP_PACKET_MASQ_PORT,              /**< Masquerade port support */
     MESA_CAP_PACKET_INS_TAG,                /**< Insert of tag used internally */
     MESA_CAP_PACKET_PTP_ACTION,             /**< PTP legal action mask */
-    MESA_CAP_PACKET_AUTO_TAGGING,            /**< Indicates that switch can do tagging automatically at egress without need for using FDMA */
+    MESA_CAP_PACKET_AUTO_TAGGING,           /**< Indicates that switch can do tagging automatically at egress without need for using FDMA */
+    MESA_CAP_PACKET_INJ_ENCAP,              /**< Packet Tx supports injection with specific encapsulation */
 
     // AFI
     MESA_CAP_AFI_V1 = 300,                  /**< AFI version 1 */

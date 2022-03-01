@@ -216,17 +216,29 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     return VTSS_RC_OK;
 }
 
-static u32 pdu_type_calc(vtss_packet_oam_type_t oam_type)
+static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
 {
-    switch (oam_type) {
-    case VTSS_PACKET_OAM_TYPE_CCM:      return 1;
-    case VTSS_PACKET_OAM_TYPE_MRP_TST:  return 2;
-    case VTSS_PACKET_OAM_TYPE_MRP_ITST: return 3;
-    case VTSS_PACKET_OAM_TYPE_DLR_BCN:  return 4;
-    case VTSS_PACKET_OAM_TYPE_DLR_ADV:  return 5;
-    default:
-        VTSS_E("Invalid oam_type (%u)", oam_type);
+    switch (info->oam_type) {
+    case VTSS_PACKET_OAM_TYPE_NONE:       break;  // Do nothing
+    case VTSS_PACKET_OAM_TYPE_CCM:        return 1;
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:    return 2;
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST:   return 3;
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:    return 4;
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:    return 5;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1:  return 0;  // Not supported
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2:  return 0;  // Not supported
+    default:                              return 9;  // Y1731_NON_CCM
     }
+
+    if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
+        if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP4) {
+            return 7;
+        }
+        if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP6) {
+            return 8;
+        }
+    }
+
     return 0;
 }
 
@@ -257,6 +269,11 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         *ifh_len = LAN966X_IFH_SIZE;
         return VTSS_RC_OK;
     } else if (*ifh_len < LAN966X_IFH_SIZE) {
+        return VTSS_RC_ERROR;
+    }
+
+    if ((info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) && (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE)) {
+        VTSS_E("Invalid PDU type indication oam_type %u  ptp_action %u", info->oam_type, info->ptp_action);
         return VTSS_RC_ERROR;
     }
 
@@ -323,22 +340,26 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         if (rew_cmd) {
             IFH_SET(ifh, REW_CMD, (info->ptp_domain << 6) | rew_cmd);
         }
+
+        IFH_SET(ifh, PDU_TYPE, pdu_type_calc(info));
+
+        etype_ofs = 0;
+        if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_NONE) {
+            if (info->pdu_offset > 14) {
+                etype_ofs = (info->pdu_offset - 14) / 4;
+            }
+        } else {
+            etype_ofs = MIN(3, info->inj_encap.tag_count);
+        }
+        IFH_SET(ifh, ETYPE_OFS, etype_ofs);
+
         if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             IFH_SET(ifh, REW_OAM, 1);
-            IFH_SET(ifh, PDU_TYPE, pdu_type_calc(info->oam_type));
             IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
 
             if (info->oam_type == VTSS_PACKET_OAM_TYPE_CCM     ||
                 info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_TST ||
                 info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_ITST) {
-                if (info->pdu_offset <= 14) {
-                    etype_ofs = 0;
-                } else {
-                    etype_ofs = (info->pdu_offset - 14) / 4;
-                }
-
-                IFH_SET(ifh, ETYPE_OFS, etype_ofs);
-
                 // Don't set "do not rewrite", because then some fields of the
                 // MRP_[In]Test PDUs won't get updated in that case.
                 pop_cnt = 0;

@@ -237,6 +237,19 @@ typedef enum {
     MESA_PACKET_PTP_ACTION_AFI_NONE,             // Update sequence number in AFI but no PTP updates
 } mesa_packet_ptp_action_t;
 
+// PDU encapsulation type
+typedef enum {
+    MESA_PACKET_ENCAP_TYPE_NONE,  // inj_encap is not used
+    MESA_PACKET_ENCAP_TYPE_ETHER, // PDU as indicated in ptp_action or oam_type ETHERNET encapsulated (no IP)
+    MESA_PACKET_ENCAP_TYPE_IP4,   // PDU as indicated in ptp_action IPV4 encapsulated
+    MESA_PACKET_ENCAP_TYPE_IP6,   // PDU as indicated in ptp_action IPV6 encapsulated
+} mesa_packet_encap_type_t;
+
+typedef struct {
+    mesa_packet_encap_type_t type;
+    uint32_t                 tag_count;    // Number of ETHERNET tags
+}mesa_packet_inj_encap_t;
+
 // Tag type the frame was received with.
 typedef enum {
     MESA_TAG_TYPE_UNTAGGED = 0,    // Frame was received untagged or on an unaware port or with a tag that didn't match the port type.
@@ -462,6 +475,9 @@ typedef struct {
     // OAM type, used if #ptp_action is MESA_PACKET_PTP_ACTION_NONE (not used for Luton26).
     mesa_packet_oam_type_t oam_type;
 
+    // The injected PDU encapsulation.
+    mesa_packet_inj_encap_t inj_encap CAP(PACKET_INJ_ENCAP);
+
     // Ingress flow ID used for egress lookup, if not MESA_IFLOW_ID_NONE (not used for Luton26).
     mesa_iflow_id_t iflow_id;
 
@@ -471,7 +487,7 @@ typedef struct {
     mesa_port_no_t masquerade_port;
 
     // PDU offset in 8 bit word counts (not used for Luton26 and Serval)
-    // Used in ptp-action's to indicate the start of the PTP PDU.
+    // Used in PTP or OAM injections.
     uint32_t pdu_offset;
 
     // On LAN966X:
