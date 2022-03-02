@@ -51,10 +51,6 @@ u32 vtss_to_sd10g_lane(u32 indx)
 {
     return 0;
 }
-vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
-{
-    return VTSS_RC_OK;
-}
 u32 vtss_to_sd_lane(u32 indx)
 {
     return VTSS_RC_OK;
@@ -91,6 +87,65 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 #endif /* VTSS_ARCH_LAN969X_FPGA */
+
+#if defined(VTSS_ARCH_LAN969X)
+/*  In:  API port
+    Out: Index (sd_indx) of the Serdes: 0-9
+    Type is always  FA_SERDES_TYPE_10G
+ */
+vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type)
+{
+    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    u32 p = VTSS_CHIP_PORT(port_no);
+
+    switch (if_type) {
+    case VTSS_PORT_INTERFACE_QSGMII:
+        if (p <= 23) {
+            u32 Q = (p -  p % 4) / 4;
+            *sd_indx = Q;
+            VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
+        if (p >= 8 && p <= 23) {
+            u32 R = (p -  p % 4) / 4;
+            *sd_indx = R;
+            VTSS_N("(R QUAD 2G5 SD) QXGMII p:%d SD10G_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode 'U'.*/
+        if (p >= 8 && p <= 21) {
+            int U = p <= 9 ? 2 : p <= 13 ? 3 : p <= 17 ? 4 : 5;
+            *sd_indx = U;
+            VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD10G_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    default:
+        if (p == 0 || p == 4 || p == 8 || p == 12 || p == 16 || p == 20 || p == 24) {
+            *sd_indx = p / 4;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d",p, *sd_indx);
+        } else if (p > 24 && p < 28)  {
+            *sd_indx = 6 + p - 24;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+    }
+
+    if (sd_type != NULL) {
+        *sd_type = FA_SERDES_TYPE_10G;
+    }
+
+    return VTSS_RC_OK;
+}
+#endif /* VTSS_ARCH_LAN969X */
+
 
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
 #include "vtss_fa_sd10g28_setup.h"
@@ -3477,6 +3532,7 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
     return rc;
 }
 
+#if defined(VTSS_ARCH_SPARX5)
 /*  In:  API port
     Out: Index (sd_indx) of the Serdes:
       0-12 for 6G ports
@@ -3497,7 +3553,7 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
 {
     *sd_indx = 0;
     *sd_type = FA_SERDES_TYPE_UNKNOWN;
-#if defined(VTSS_ARCH_SPARX5)
+
     u32 p = VTSS_CHIP_PORT(port_no);
 
     switch (vtss_state->port.conf[port_no].if_type) {
@@ -3507,6 +3563,8 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
             *sd_indx = Q;
             *sd_type = FA_SERDES_TYPE_10G;
             VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
         }
         break;
     case VTSS_PORT_INTERFACE_USGMII:
@@ -3515,6 +3573,8 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
             *sd_indx = X + 4;
             *sd_type = FA_SERDES_TYPE_10G;
             VTSS_N("(X OCTAL 1G SD) USGMII p:%d SD10G_LANE index: %d",p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
         }
         break;
     case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
@@ -3529,6 +3589,8 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
                 *sd_type = FA_SERDES_TYPE_25G;
                 VTSS_N("(R QUAD 2G5 SD) 10USXGMII p:%d SD25G_LANE index: %d",p, *sd_indx);
             }
+        } else {
+            return VTSS_RC_ERROR;
         }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode 'U'.*/
@@ -3543,6 +3605,8 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
                 *sd_type = FA_SERDES_TYPE_25G;
                 VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD25G_LANE index: %d",p, *sd_indx);
             }
+        } else {
+            return VTSS_RC_ERROR;
         }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_5G: /* DXGMII_5G: 2x2G5 devices. Mode 'F'.*/
@@ -3561,6 +3625,8 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
                 *sd_type = FA_SERDES_TYPE_25G;
                 VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD25G_LANE index: %d",p, *sd_indx);
             }
+        } else {
+            return VTSS_RC_ERROR;
         }
         break;
     default:
@@ -3586,25 +3652,18 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
             *sd_type = FA_SERDES_TYPE_6G;
             VTSS_N("Single Serdes p:%d SD6G_LANE index: %d",p, *sd_indx);
         } else {
-            VTSS_E("illegal port/interface mode");
+            VTSS_D("illegal port/interface mode %d/%d",p,vtss_state->port.conf[port_no].if_type);
             return VTSS_RC_ERROR;
         }
     }
 
-    /* if (type == FA_SERDES_TYPE_6G) { */
-        /*     sd_tgt = VTSS_TO_SD6G_LANE(indx); */
-        /* } else if (type == FA_SERDES_TYPE_10G) { */
-        /*     sd_tgt = VTSS_TO_SD10G_LANE(indx); */
-        /* } else { */
-        /*     sd_tgt = VTSS_TO_SD25G_LANE(indx); */
-        /* } */
-#endif
     return VTSS_RC_OK;
 }
+#endif /* defined(VTSS_ARCH_SPARX5) */
 
-/* Returns index 0-12 for 6G ports  */
-/* Returns index 0-11 for 10G ports */
-/* Returns index 0-7  for 25G ports  */
+/* Returns index 0-12 for 6G ports, FA only  */
+/* Returns index 0-11 for 10G ports, 0-9 for Laguna */
+/* Returns index 0-7  for 25G ports, FA only  */
 u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 sd_indx = 0, sd_type;
@@ -3612,10 +3671,11 @@ u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     return sd_indx;
 }
 
-/* Returns serdes LANE index 0-33 */
+/* Returns serdes LANE index 0-33 for FA and 0-9 for Laguna */
 u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 indx = 0, type;
+
     (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &type);
     if (type == FA_SERDES_TYPE_6G) {
         return indx;

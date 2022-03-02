@@ -1865,3 +1865,17 @@ vtss_rc vtss_phy_callout_set(const vtss_inst_t        inst,
 
     return rc;
 }
+
+vtss_rc vtss_phy_callout_del(const vtss_inst_t inst,
+                             const vtss_port_no_t  port_no) {
+    vtss_state_t *vtss_state;
+    vtss_rc rc = VTSS_RC_OK;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        vtss_state->callout_ctx[port_no] = NULL;
+    }
+    VTSS_EXIT();
+
+    return rc;
+}

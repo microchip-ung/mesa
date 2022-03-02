@@ -2142,24 +2142,26 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no])
             continue;
+
         if (header) {
             header = 0;
             VTSS_SPRINTF(buf, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
             vtss_debug_print_header(pr, buf);
             pr("Port  Chip Port  Chip  ");
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
             pr("Max BW  ");
 #endif
             pr("MIIM Bus  MIIM Addr  MIIM Chip\n");
         }
         map = &vtss_state->port.map[port_no];
         pr("%-6u%-11d%-6u", port_no, map->chip_port, map->chip_no);
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
         pr("%-8s", map->max_bw == VTSS_BW_1G ? "1G" :
            map->max_bw == VTSS_BW_2G5 ? "2G5" :
            map->max_bw == VTSS_BW_5G  ? "5G" :
            map->max_bw == VTSS_BW_10G ? "10G" :
-           map->max_bw == VTSS_BW_25G ? "25G" : "N/A");
+           map->max_bw == VTSS_BW_25G ? "25G" :
+           map->max_bw == VTSS_BW_NONE ? "None" : "N/A");
 #endif
         pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr, map->miim_chip_no);
     }

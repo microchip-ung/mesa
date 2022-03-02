@@ -2972,22 +2972,19 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         break;
     default:{ VTSS_E("Speed not supported"); }
     }
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
     /* Enable the Serdes if disabled */
     if (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
-#endif
+
     /* Port disable and flush procedure: */
     VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
 
-
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Configure the Serdes Macro to 'serdes_mode' */
     if (serdes_mode != vtss_state->port.sd28_mode[sd_indx]) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
-#endif
 
     /* Enable ASM/DSM 1G/2Gg5 counters */
     REG_WRM(VTSS_ASM_PORT_CFG(port),
@@ -3218,19 +3215,25 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, FALSE));
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
-    // Need to reset the Synopsis serdes after all ports are setup in QSGMII
-    if (serdes_mode != vtss_state->port.sd28_mode[sd_indx] && port_no == 3) {
-        VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
-        for (u32 id = 0; id < 3; id++) {
-            REG_WRM(VTSS_SUNRISE_TOP_SERDES_CFG(id),
-                    VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_ALL(1),
-                    VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+    if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
+        u32 rst = (port / 4) * 4 + 3; // The last port in the QSGMII group
+        // Need to reset the Xilinx serdes after all ports are setup in QSGMII
+        if (vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_NO_CONNECTION &&
+            port == rst) {
+            VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
+            for (u32 id = 0; id < 3; id++) {
+                REG_WRM_SET(VTSS_SUNRISE_TOP_SERDES_CFG(id),
+                            VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+            }
             VTSS_MSLEEP(100);
-            REG_WRM(VTSS_SUNRISE_TOP_SERDES_CFG(id),
-                    VTSS_F_SUNRISE_TOP_SERDES_CFG_RESET_ALL(0),
-                    VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+            for (u32 id = 0; id < 3; id++) {
+                REG_WRM_CLR(VTSS_SUNRISE_TOP_SERDES_CFG(id),
+                            VTSS_M_SUNRISE_TOP_SERDES_CFG_RESET_ALL);
+
+            }
         }
     }
+
 #endif
 
     VTSS_D("Chip port: %u (1G) is configured", port);
@@ -3241,6 +3244,9 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 /* Configuration of the 5G, 10G and 25G devices (dev10G architecture) */
 static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    VTSS_RC(fa_serdes_set(vtss_state, port_no, VTSS_SERDES_MODE_SFI));
+#endif
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
@@ -3420,12 +3426,100 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 
 }
 
+#if defined(VTSS_FEATURE_PORT_DYNAMIC)
+static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t old_sd)
+{
+    vtss_port_interface_t new_if_type = vtss_state->port.conf[port_no].if_type;
+    u32 sd, new_sd_idx = vtss_fa_sd_lane_indx(vtss_state, port_no);
+    vtss_serdes_mode_t new_sd = vtss_state->port.sd28_mode[new_sd_idx];
+    vtss_port_interface_t cur_if;
+    u32 st;
+
+    if (new_sd == old_sd || old_sd == VTSS_SERDES_MODE_DISABLE) {
+        return VTSS_RC_OK; /* no calendar change needed */
+    }
+
+    if (new_sd == VTSS_SERDES_MODE_QXGMII ||
+        new_sd == VTSS_SERDES_MODE_QSGMII ||
+        new_sd == VTSS_SERDES_MODE_SFI    ||
+        new_sd == VTSS_SERDES_MODE_DXGMII_10G) {
+        /* when going from multi device to single device serdes (or vice versa) then calendar change is needed */
+    } else {
+        return VTSS_RC_OK; /* no calendar change needed */
+    }
+
+    /* Run through all ports for this serdes and reset BW to zero */
+    for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        cur_if = vtss_state->port.conf[p].if_type;
+        vtss_state->port.conf[p].if_type = VTSS_PORT_INTERFACE_QSGMII;
+        if (vtss_fa_port2sd(vtss_state, p, &sd, &st) != VTSS_RC_OK) {
+            vtss_state->port.conf[p].if_type = cur_if;
+            continue;
+        }
+        sd += (st == FA_SERDES_TYPE_10G) ? VTSS_SERDES_10G_START : VTSS_SERDES_25G_START;
+        if (sd == new_sd_idx) {
+            if (p != port_no) {
+                vtss_state->port.conf[p].if_type = VTSS_PORT_INTERFACE_NO_CONNECTION;
+            } else {
+                vtss_state->port.conf[p].if_type = cur_if;
+            }
+            vtss_state->port.map[p].max_bw = VTSS_BW_NONE;
+        } else {
+            vtss_state->port.conf[p].if_type = cur_if;
+        }
+    }
+    /* Apply the reduced BW to cell calendar */
+    VTSS_RC(fa_cell_calendar_auto(vtss_state));
+
+    /* Set the new BW requirements for the ports that belong to this serdes */
+    for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        cur_if = vtss_state->port.conf[p].if_type;
+        vtss_state->port.conf[p].if_type = new_if_type;
+        if (vtss_fa_port2sd(vtss_state, p, &sd, &st) != VTSS_RC_OK) {
+            vtss_state->port.conf[p].if_type = cur_if;
+            continue;
+        }
+        sd += (st == FA_SERDES_TYPE_10G) ? VTSS_SERDES_10G_START : VTSS_SERDES_25G_START;
+
+        if (sd == new_sd_idx) {
+            switch (new_if_type) {
+            case VTSS_PORT_INTERFACE_QSGMII:
+                vtss_state->port.map[p].max_bw = VTSS_BW_1G;
+                break;
+            case VTSS_PORT_INTERFACE_QXGMII:
+                vtss_state->port.map[p].max_bw = VTSS_BW_2G5;
+                break;
+            case VTSS_PORT_INTERFACE_DXGMII_10G:
+                vtss_state->port.map[p].max_bw = VTSS_BW_5G;
+                break;
+            case VTSS_PORT_INTERFACE_SFI:
+                if (vtss_state->port.conf[p].speed == VTSS_SPEED_5G) {
+                    vtss_state->port.map[p].max_bw = VTSS_BW_5G;
+                } else {
+                    vtss_state->port.map[p].max_bw = VTSS_BW_10G;
+                }
+                break;
+            default:
+                VTSS_E("Should not occur\n");
+            }
+        }
+        vtss_state->port.conf[p].if_type = cur_if;
+    }
+    /* Apply the new BW to cell and taxi calendar */
+   VTSS_RC(fa_cell_calendar_auto(vtss_state));
+   return fa_dsm_calc_and_apply_calendar(vtss_state);
+}
+#endif /* defined(VTSS_FEATURE_PORT_DYNAMIC) */
+
 static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
     u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
-
+#if defined(VTSS_FEATURE_PORT_DYNAMIC)
+    u32                   sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
+    vtss_serdes_mode_t    old_sd = vtss_state->port.sd28_mode[sd_indx];
+#endif
     VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
            port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
            VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
@@ -3439,9 +3533,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     /* Only one of them can be active and attached to the switch core at a time. */
     /* Every time the devices changes a port flush (shut down) must be performed on the DEV that is not active. */
     if (fa_change_device(vtss_state, port_no)) {
-
         VTSS_I("port_no:%d (chip port:%d) shutdown the %s device", port_no, port, use_primary_dev ? "shadow" : "primary");
-
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Shutdown the not-in-use device */
         VTSS_RC(fa_port_flush(vtss_state, port_no, !use_primary_dev));
@@ -3462,17 +3554,19 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
         REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
                 VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA(!use_primary_dev),
                 VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV10G_SHADOW_ENA);
-
         /* Read port counters ignoring updates */
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+        if (!fa_is_high_speed_device(vtss_state, port_no)) { // No high speed devices on FPGA
+            VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_REBASE));
+        }
+#else
         VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_REBASE));
+#endif
     }
-
     /* Configure USXGMII/USGMII/QSGMII port muxing (if needed) */
    VTSS_RC(fa_port_mux_set(vtss_state, port_no));
-
     /* Configure MAC vlan awareness */
    VTSS_RC(vtss_fa_port_max_tags_set(vtss_state, port_no));
-
    /* Enable/disable serdes power saving mode  */
     VTSS_RC(fa_sd_power_save(vtss_state, port_no, conf->power_down));
 
@@ -3483,7 +3577,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
             VTSS_RC(fa_port_conf_2g5_set(vtss_state, port_no));
         }
     }
-
 #if defined(VTSS_FEATURE_SYNCE)
     if (vtss_state->vtss_features[FEATURE_SYNCE]) {
         vtss_synce_clk_port_t clk_port;
@@ -3496,11 +3589,9 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
         }
     }
 #endif
-
     vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
     vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
     vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
-
 #if defined(VTSS_FEATURE_QOS_TAS)
     /* Time Aware Scheduling setup depends on link speed */
     VTSS_RC(vtss_fa_qos_tas_port_conf_update(vtss_state, port_no));
@@ -3509,11 +3600,12 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
     VTSS_RC(fa_port_kr_speed_set(vtss_state, port_no));
 #endif
+#if defined(VTSS_FEATURE_PORT_DYNAMIC)
+    VTSS_RC(fa_calendar_check(vtss_state, port_no, old_sd));
+#endif
 
     return VTSS_RC_OK;
 }
-
-
 
 /* Get status of the SFI and 100FX ports. */
 /* Note: Status for SERDES is handled through clause_37_status_get. Status for SGMII is retrieved from the Phy */
@@ -4087,16 +4179,16 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
                                    const vtss_debug_info_t   *const info,
                                    vtss_port_no_t port_no)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32  port = VTSS_CHIP_PORT(port_no);
-    u32  value, pcs_st, sd_indx, sd_type, sd, val2;
+    u32  sd_indx, sd_type, sd;
     u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     BOOL lock, hi_ber;
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
-        u32 pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
-        BOOL spd25g = vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G;
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+        u32 value, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
+
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_DEV_RST_CTRL(tgt), port, "DEV_RST_CTRL");
         FA_DEBUG_10G_MAC(pr, TX_MONITOR_STICKY(tgt), port, "TX_MONITOR_STICKY");
         FA_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
@@ -4122,7 +4214,7 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
            lock, hi_ber, vtss_state->port.kr_fec[port_no].rs_fec);
         // Clear the stickies
         REG_WR(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), 0xFFFFFFFF);
-
+#endif
     } else {
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_DEV_RST_CTRL(tgt), port, "DEV_RST_CTRL");
         FA_DEBUG_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
@@ -4144,14 +4236,19 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
         }
     }
 
-    pr("\nSerdes:\n"),
-    (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
-    if (sd_type == FA_SERDES_TYPE_10G) {
-        sd = sd_indx + VTSS_SERDES_10G_START;
-    } else if (sd_type == FA_SERDES_TYPE_25G) {
-        sd = sd_indx + VTSS_SERDES_25G_START;
+    pr("\nSerdes:\n");
+    if (vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type) == VTSS_RC_OK) {
+        if (sd_type == FA_SERDES_TYPE_10G) {
+            sd = sd_indx + VTSS_SERDES_10G_START;
+        } else if (sd_type == FA_SERDES_TYPE_25G) {
+            sd = sd_indx + VTSS_SERDES_25G_START;
+        } else {
+            sd = sd_indx;
+        }
     } else {
-        sd = sd_indx;
+        sd_type = FA_SERDES_TYPE_UNKNOWN;
+        sd_indx = 0;
+        sd = 0;
     }
     pr("Port is mapped to serdes %s index %d (S%d)\n",
        (sd_type == FA_SERDES_TYPE_6G) ? "SD6G" :
@@ -4160,14 +4257,13 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     pr("\n");
 
     if (info->full) {
-        pr("DSM Taxi calender mappings:\n");
+        pr("DSM Taxi calendar mappings:\n");
         (void)vtss_fa_dsm_cal_debug(vtss_state, pr);
         pr("\n");
-        pr("Cell bus auto calender mappings:\n");
+        pr("Cell bus auto calendar mappings:\n");
         (void)vtss_fa_cell_cal_debug(vtss_state, pr);
     }
 
-#endif
     return VTSS_RC_OK;
 }
 #if !defined(VTSS_ARCH_LAN969X_FPGA)

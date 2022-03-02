@@ -74,6 +74,7 @@ typedef enum {
     MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT,    /**< Number of PTP ports counting physical and virtual ports */
     MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD, /**< The max length of the frames counted in the last range of the frame counter group */
     MESA_CAP_PORT_PCS_CONF,                 /**< Specific control of the 1G PCS */
+    MESA_CAP_PORT_DYNAMIC,                  /**< Support for dynamic (run-time) port change within a serdes  */
 
     // Packet
     MESA_CAP_PACKET_RX_QUEUE_CNT = 200,     /**< Number of Rx packet queues */

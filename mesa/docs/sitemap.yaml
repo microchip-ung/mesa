@@ -186,6 +186,11 @@ pages:
             name: "Description"
           - src: "mesa/demo/examples/ts-transparent-clock.c"
 
+        - name: "Dynamic port"
+          pages:
+          - src: "mesa/docs/examples/dynamic-port.adoc"
+            name: "Description"
+
     - name: "MEBA (Board API)"
       src: "mesa/docs/meba/meba.adoc"
 

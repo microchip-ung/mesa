@@ -314,6 +314,10 @@ void meba_phy_driver_init(meba_inst_t inst)
         // steps during their initialization that require no
         // activity on the MAC interface as it interferes with
         // the calibration.
+        if (inst->phy_devices[port_no] != NULL) {
+            continue; // Already probed
+        }
+
         inst->api.meba_port_entry_get(inst, port_no, &entry);
         mepa_port_interface_t mac_if = rgmii_id_convert(entry.mac_if);
         meba_port_cap_t port_cap = entry.cap;

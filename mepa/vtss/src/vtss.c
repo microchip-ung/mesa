@@ -173,7 +173,11 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 static mepa_rc mscc_vtss_destroy(mepa_device_t *dev)
 {
     if (vtss_inst_cnt) {
-        vtss_inst_cnt--;
+        if (vtss_phy_callout_del(vtss_inst, dev->numeric_handle) == VTSS_RC_OK) {
+            vtss_inst_cnt--;
+        } else {
+            return MEPA_RC_ERROR;
+        }
         if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(dev->callout, dev->callout_ctx, vtss_inst) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }

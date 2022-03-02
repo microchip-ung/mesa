@@ -85,6 +85,12 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // care, and a MAC-to-MAC driver should be used right away (copper backplane).
 #define MEBA_PORT_CAP_SFP_INACCESSIBLE  0x200000000
 
+// Port supports dynamic interface changes (run-time) which requires
+// reconfiguration of the switch core calendars.
+// The dynamic ports comes in groups of 4 were a typical change
+// is between 4 x QSGMII <--> 1 x SFI
+#define MEBA_PORT_CAP_DYNAMIC           0x400000000
+
 #define MEBA_PORT_CAP_HDX        \
         (MEBA_PORT_CAP_10M_HDX | \
          MEBA_PORT_CAP_100M_HDX)

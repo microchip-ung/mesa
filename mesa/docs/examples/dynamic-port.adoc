@@ -1,0 +1,98 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Example how to use the 'Dynamic Port' feature
+
+LAN969X comes in different skews where the bandwidth is limited to e.g. 40/60/80Gbps in the internal switchcore.
+I.e. the user can have a port configuration where all the BW is utilized and then wants to change to a different port configuration.
+Without the 'Dynamic Port' feature (`VTSS_FEATURE_PORT_DYNAMIC`) a reboot would be needed to apply the new port configuration. +
+
+The `VTSS_FEATURE_PORT_DYNAMIC` feature enables the user to change the port configuration run-time (within a Serdes). +
+
+I.e. if the user wants to change from a 4 x QSGMII to 1 x 10G port then the BW must be reallocated from 4 ports to 1 port (or vice versa).
+
+An example could be hot-pluggable cards that can be inserted into the board chassis on-the-fly.
+I.e. replace a 10G card with a 4 x 1G QSGMII or a 2 x 5G card. +
+
+There are no special APIs for the for utilizing this feature.  There are however few things the application SW needs to be aware off. +
+
+MEBA::
+A capability should be added to ports that are support this feature `MEBA_PORT_CAP_DYNAMIC`. +
+Also a superset of speed capabilities should be set. This informs the application of this feature. +
+The following MEBA configuration groups 4 ports with different speed capabilities. +
+Port 12 supports 10G, ports 13-14 supports 5G and port 15 supports 2G5. They are all connected to the same serdes. +
+This setup would support 4 x QSGMII + 2 x 5G and 1 x 10G plug-in cards.
+
+
+[source,c++,linenums]
+----
+Chip_port,   Miim,   Port interface,    Capabilities
+{12,         0,      QSGMII,            CAP_10G | CAP_5G  | CAP_2G5 | CAP_1G | CAP_DYNAMIC),
+{13,         1,      QSGMII,            CAP_5G  | CAP_2G5 | CAP_1G  | CAP_DYNAMIC),
+{14,         2,      QSGMII,            CAP_5G  | CAP_2G5 | CAP_1G  | CAP_DYNAMIC),
+{15,         3,      QSGMII,            CAP_2G5 | CAP_1G  | CAP_DYNAMIC),
+----
+
+Those 4 ports form a serdes group.  The default port interface can be any of the supported port types.  Phy miim address must be given here and used when there is a phy in the system.
+The group members can be identified by the integer value of [chip_port/4].  The application needs the group id to identify which ports belong together.  The application can also figure out which port should form 2x5G and 1x10G from the speed capabilities.
+
+Application::
+To support this new features a new functionality must be added to the application.
+Below is a description of how this is handled in the Mesa Demo application and can be fully controlled through CLI commands.
+The source can be found in port.c `cli_cmd_deb_port_dynamic()`.
+The starting point is a normal 4 x QSGMII setup.  The related status can be viewed through a CLI command:
+
+[source,c++,linenums]
+----
+# mesa-cmd deb port dynamic
+Port  chip-port  Group  Interface  Poll?  Phy?  Capability
+----  ---------  -----  ---------  -----  ----  ----------
+13    12         3      QSGMII     Yes    Yes   1G 2G5 5G 10G
+14    13         3      QSGMII     Yes    Yes   1G 2G5 5G
+15    14         3      QSGMII     Yes    Yes   1G 2G5 5G
+16    16         3      QSGMII     Yes    Yes   1G
+----
+
+At some point the user decides to change to 1 x 10G. Only one port in the port group supports this.  The phys are leaving and must be removed from the system. The application finds the group ID for that port and then finds the other 3 group members to delete the phy instance.
+[source,c++,linenums]
+----
+# mesa-cmd deb port dynamic 13 10g
+Phy 12 instance deleted
+Phy 13 instance deleted
+Phy 14 instance deleted
+Phy 15 instance deleted
+
+# mesa-cmd deb port dynamic
+Port  chip-port  Group  Interface  Poll?  Phy?  Capability
+----  ---------  -----  ---------  -----  ----  ----------
+13    12         3      SFI        Yes    No    1G 2G5 5G 10G
+14    13         3      N/C        No     No    1G 2G5 5G
+15    14         3      N/C        No     No    1G 2G5 5G
+16    15         3      N/C        No     No    1G
+----
+
+Now all 4 phy instances are deleted and the application stops polling/accessing those phys.
+Port 13 is a normal 10G port while ports 14-16 doesn't have any assigned BW on the internal switchcore and have given an interface type `MESA_PORT_INTERFACE_NO_CONNECTION` (by the API).
+The application can choose not to show them at all during a normal show port status request.
+Port 13 inherits all the configuration from the previous configuration, just as it would do in a normal 10G -> 1G change.
+
+Now the user wants to change back to 4 x QSGMII:
+
+[source,c++,linenums]
+----
+# mesa-cmd deb port dynamic 13-16 1000fdx
+Re-initilize (probe) phys instances - done
+# mesa-cmd deb port dynamic
+Port  chip-port  Group  Interface  Poll?  Phy?  Capability
+----  ---------  -----  ---------  -----  ----  ----------
+13    12         3      QSGMII     Yes    Yes   1G 2G5 5G 10G
+14    13         3      QSGMII     Yes    Yes   1G 2G5 5G
+15    14         3      QSGMII     Yes    Yes   1G 2G5 5G
+16    15         3      QSGMII     Yes    Yes   1G
+----
+
+The application calls `mesa_port_conf_set()` in a normal fashion.  This re-installs the devices to the switch core.
+Then it calls `meba_phy_driver_init()`, which probes and installs the phys again.
+The phys could be the same as before or they could be some new ones.  Polling/phy access is allowed again.
+Port 13 inherits its previous configuration while ports 14-16 defaults to a default configuration, i.e. the application does not remember anything.

@@ -1999,6 +1999,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_PORT_DYNAMIC:
+#if defined(VTSS_FEATURE_PORT_DYNAMIC)
+        c = 1;
+#endif
+        break;
+
+
     default:
         {
             mesa_cap_callback_data_t *hook = NULL;

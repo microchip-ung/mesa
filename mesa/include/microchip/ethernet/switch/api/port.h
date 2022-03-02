@@ -18,6 +18,7 @@ typedef enum
     MESA_BW_5G,          // Max 5G
     MESA_BW_10G,         // Max 10G
     MESA_BW_25G,         // Max 25G
+    MESA_BW_NONE,        // No BW assigned
     MESA_BW_UNDEFINED,   // Undefined
 } mesa_internal_bw_t;
 

@@ -598,6 +598,21 @@ mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     return mepa_framepreempt_get(inst->phy_devices[port_no], value);
+
+// Delete the PHY
+mepa_rc meba_phy_delete(meba_inst_t inst, mepa_port_no_t port_no)
+{
+    T_I(inst, "Called");
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+
+    if (mepa_delete(inst->phy_devices[port_no]) == VTSS_RC_OK) {
+        inst->phy_devices[port_no] = NULL;
+    } else {
+        return MESA_RC_ERROR;
+    }
+    return MESA_RC_OK;
 }
 
 // Start PHY Self-Test

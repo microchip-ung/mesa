@@ -445,6 +445,7 @@ typedef struct {
     mesa_bool_t dac5m;
     mesa_bool_t compact;
     mesa_bool_t full;
+    mesa_bool_t force;
 } port_cli_req_t;
 
 static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
@@ -811,6 +812,7 @@ static void cli_cmd_port_cap(cli_req_t *req)
             PR_CAP(NO_FORCE);
             PR_CAP(CPU);
             PR_CAP(SFP_INACCESSIBLE);
+            PR_CAP(DYNAMIC);
             cli_printf("%s\n", cap_all == 0 ? "None" : "");
         }
     }
@@ -1097,6 +1099,186 @@ static void cli_cmd_port_stats(cli_req_t *req)
     } /* Port loop */
 }
 
+static void dynamic_phy_setup(mesa_port_no_t port_no)
+{
+    mepa_reset_param_t    phy_reset = {};
+    mepa_conf_t           phy_conf = {};
+    mesa_rc               rc;
+
+    // Pre reset PHY
+    phy_reset.reset_point = MEPA_RESET_POINT_PRE;
+    phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
+    rc = (meba_phy_reset(meba_global_inst, port_no, &phy_reset));
+    if (rc == MESA_RC_NOT_IMPLEMENTED || rc == MESA_RC_ERR_PHY_BASE_NO_NOT_FOUND || rc == MESA_RC_OK) {
+        // We don't care if its not implemented (third party) or if its not the base port (only one of them is)
+    } else {
+        T_E("meba_pre_phy_reset(%u) failed: %d", port_no, rc);
+    }
+
+    // Normal reset PHY
+    phy_reset.reset_point = MEPA_RESET_POINT_DEFAULT;
+    rc = (meba_phy_reset(meba_global_inst, port_no, &phy_reset));
+    if (rc == MESA_RC_NOT_IMPLEMENTED || rc == MESA_RC_OK) {
+        // We don't care if its not implemented (third party)
+    } else {
+        T_E("meba_phy_reset(%u) failed: %d", port_no, rc);
+    }
+
+    // Setup PHY to default
+    phy_conf.speed = MESA_SPEED_AUTO;
+    phy_conf.admin.enable = TRUE;
+    if (meba_phy_conf_set(meba_global_inst, port_no, &phy_conf) != MESA_RC_OK) {
+        T_E("meba_phy_conf_set(%u) failed", port_no);
+        return;
+    }
+}
+
+
+static void cli_cmd_deb_port_dynamic(cli_req_t *req)
+{
+    mesa_port_no_t        uport, iport;
+    port_entry_t          *entry;
+    mesa_bool_t           first = TRUE, phy_probed = FALSE;
+    port_cli_req_t        *mreq = req->module_req;
+    mesa_port_conf_t      conf;
+    mepa_phy_info_t       phy_id;
+    uint32_t              dyna_group_set = 0;
+    char                  capa[100] = {}, *p;
+    char                  bw_buf[20];
+    uint32_t              port_cnt = MEBA_WRAP(meba_capability, meba_global_inst, MEBA_CAP_BOARD_PORT_COUNT);
+    uint32_t              port_max_cnt = mesa_port_cnt(NULL);
+    mesa_port_map_t       map[port_max_cnt];
+
+    if (mesa_port_map_get(NULL, port_cnt, map) != MESA_RC_OK) {
+        cli_printf("Error:Could not get port map");
+    }
+
+    for (iport = 0; iport < port_cnt; iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0) {
+            continue;
+        }
+        entry = &port_table[iport];
+        if (!mreq->force) {
+            if (!(entry->meba.cap & MEBA_PORT_CAP_DYNAMIC)) {
+                continue;
+            }
+        }
+
+        if (mesa_port_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
+            cli_printf("Error: mesa_port_conf_get(%u) failed", iport);
+            return;
+        }
+
+        if (req->set) {
+            if (!mreq->force) {
+                if (((mreq->speed == MESA_SPEED_2500M) && !(entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX)) ||
+                    ((mreq->speed == MESA_SPEED_10G) && !(entry->meba.cap & MEBA_PORT_CAP_10G_FDX))) {
+                    cli_printf("Speed not supported\n");
+                    return;
+                }
+            }
+            conf.speed = mreq->speed;
+            if (mreq->speed == MESA_SPEED_1G) {
+                conf.if_type = MESA_PORT_INTERFACE_QSGMII;
+            } else if (mreq->speed == MESA_SPEED_2500M) {
+                conf.if_type = MESA_PORT_INTERFACE_QXGMII;
+            } else if (mreq->speed == MESA_SPEED_10G || mreq->speed == MESA_SPEED_5G) {
+                conf.if_type = MESA_PORT_INTERFACE_SFI;
+            }
+
+            if (mesa_port_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
+                cli_printf("Error: mesa_port_conf_set(%u) failed %d\n",iport);
+            }
+
+            dyna_group_set = entry->meba.map.chip_port / 4;
+        } else {
+            if (first) {
+                cli_table_header("Port  chip-port  Group  Interface  Poll?  Phy?     Capability     Max-bw");
+                first = 0;
+            }
+
+            if ((meba_phy_info_get(meba_global_inst, iport, &phy_id)) == MESA_RC_OK) {
+                phy_probed = TRUE;
+            } else {
+                phy_probed = FALSE;
+            }
+            p = &capa[0];
+            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_1G_FDX   ? "1G"   : "");
+            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX ? " 2G5" : "");
+            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_5G_FDX   ? " 5G"  : "");
+            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_10G_FDX  ? " 10G" : "");
+
+            sprintf(&bw_buf[0], "%-8s",
+                    map[iport].max_bw == MESA_BW_1G   ? "BW-1G"   :
+                    map[iport].max_bw == MESA_BW_2G5  ? "BW-2G5"  :
+                    map[iport].max_bw == MESA_BW_5G   ? "BW-5G"   :
+                    map[iport].max_bw == MESA_BW_10G  ? "BW-10G"  :
+                    map[iport].max_bw == MESA_BW_25G  ? "BW-25G"  :
+                    map[iport].max_bw == MESA_BW_NONE ? "BW-None" : "N/A");
+
+            cli_printf("%-6u%-11d%-7d%-11s%-7s%-9s%-15s%-10s\n",
+                       uport,  entry->meba.map.chip_port, entry->meba.map.chip_port / 4,
+                       mesa_port_if2txt(conf.if_type), entry->valid ? "Yes" : "No", phy_probed ? "Yes" : "No-Phy", capa, bw_buf);
+
+        }
+    }
+
+    // Now handle the phys (if they exist)
+    // Based on what occured above, the phys need to be removed or added to/from the meba driver
+    if (req->set) {
+
+        for (iport = 0; iport < port_cnt; iport++) {
+            entry = &port_table[iport];
+
+            if (!mreq->force) {
+                // If port has not dynamic CAP or phy CAP then skip
+                if (!(entry->meba.cap & MEBA_PORT_CAP_DYNAMIC) ||
+                    (!(entry->meba.cap & MEBA_PORT_CAP_COPPER))) {
+                    continue;
+                }
+            }
+
+            // Only handle the dynamic group from above
+            if (dyna_group_set != entry->meba.map.chip_port / 4) {
+                continue;
+            }
+
+            if (mesa_port_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
+                cli_printf("Error: mesa_port_conf_get (%u) failed", iport);
+                return;
+            }
+
+            // Phys are added
+            if (conf.if_type == MESA_PORT_INTERFACE_QSGMII ||
+                conf.if_type == MESA_PORT_INTERFACE_QXGMII) {
+                if (meba_global_inst->phy_devices[iport] == NULL) {
+                    MEBA_WRAP(meba_reset, meba_global_inst, MEBA_PHY_INITIALIZE);
+                    cli_printf("Re-initilize (probe) phys instances - done\n");
+                }
+                entry->in_bound_status = FALSE;
+                // Reset and setup phy
+                dynamic_phy_setup(iport);
+
+            } else {
+             // Phys are removed
+                if (meba_global_inst->phy_devices[iport] != NULL) {
+                    if (meba_phy_delete(meba_global_inst, iport) != MESA_RC_OK) {
+                        cli_printf("Error: Could not delete phy instance %d\n",iport);
+                    }
+                    cli_printf("Phy %d instance deleted\n",iport);
+                    entry->in_bound_status = TRUE;
+                }
+            }
+            if (conf.if_type == MESA_PORT_INTERFACE_NO_CONNECTION) {
+                entry->valid = FALSE;
+            } else {
+                entry->valid = TRUE;
+            }
+        }
+    }
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {
         "Port State [<port_list>] [enable|disable]",
@@ -1154,6 +1336,11 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_polling
     },
     {
+        "Debug Port dynamic [<port_list>] [1000fdx|2500|5g|10g] [force]",
+        "Dynamic port mode setting",
+        cli_cmd_deb_port_dynamic
+    },
+    {
         "Debug SFP [<port_list>] [full]",
         "Shows all detected SFPs",
         cli_cmd_sfp_dump
@@ -1192,6 +1379,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->clear = 1;
     else if (!strncasecmp(found, "compact", 7))
         mreq->compact = 1;
+    else if (!strncasecmp(found, "force", 5))
+        mreq->force = 1;
     else if (!strncasecmp(found, "discards", 8))
         mreq->discards = 1;
     else if (!strncasecmp(found, "errors", 6))
@@ -1343,6 +1532,23 @@ static cli_parm_t cli_parm_table[] = {
         cli_parm_keyword,
         cli_cmd_sfp_dump
     },
+    {
+        "1000fdx|2500|5g|10g",
+        "1000       : 1 Gbps\n"
+        "2500       : 2.5 Gbps\n"
+        "10g        : 5g Gbps\n"
+        "10g        : 10 Gbps\n"
+        "(default: Show dynamic settings)",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+    {
+        "force",
+        "Force config even though capabilities are not there",
+        CLI_PARM_FLAG_NONE,
+        cli_parm_keyword
+    },
+
 };
 
 static void port_cli_init(void)

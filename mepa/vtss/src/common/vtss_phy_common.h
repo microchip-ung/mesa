@@ -163,6 +163,9 @@ vtss_rc vtss_phy_callout_set(const vtss_inst_t inst,
                              const mepa_callout_t    *co,
                              struct mepa_callout_ctx *c);
 
+vtss_rc vtss_phy_callout_del(const vtss_inst_t inst,
+                             const vtss_port_no_t  port_no);
+
 
 #ifdef __cplusplus
 }
