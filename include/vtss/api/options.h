@@ -233,7 +233,6 @@
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
-#define VTSS_FEATURE_PORT_DYNAMIC               /**< Support for dynamic (run-time) port change within a serdes  */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -247,6 +246,7 @@
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
+#define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
 #endif // VTSS_ARCH_LAN969X
 
 #if defined(VTSS_ARCH_S5I)
