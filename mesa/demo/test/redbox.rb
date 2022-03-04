@@ -126,19 +126,18 @@ test_table =
                      {idx: $idx_b, vid: 10, hsr: {net_id: 6}}]}]
     },
     {
-        # Fails, Jira-208: Two tagged frames
+        # Fails, Jira-208: Two frames forwarded differently (payload depedent)
         txt: "HSR-SAN with VLANs, forwarding two tagged frames fails",
-        cfg: {mode: "HSR_SAN",
-              vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
-                                     {idx: $idx_d, pvid: 10, uvid: 10}]}},
+        cfg: {mode: "HSR_SAN"},
         tab: [
             {fwd: [{idx_tx: $idx_c},
-                   {idx: $idx_a, vid: 1, hsr: {}},
-                   {idx: $idx_b, vid: 1, hsr: {}},
-                   {idx: $idx_d, vid: 1}]},
-            {fwd: [{idx_tx: $idx_d},
-                   {idx: $idx_a, vid: 10, hsr: {}},
-                   {idx: $idx_b, vid: 10, hsr: {}}]},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            {fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {seqn: 2}},
+                   {idx: $idx_b, hsr: {seqn: 2}},
+                   {idx: $idx_d}]},
         ]
     },
     {
@@ -148,16 +147,24 @@ test_table =
         tab: [
             # Learn SMAC in PNT and flush switch port
             {frm: {smac: 0xcc},
-             flush: $idx_c,
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
-                   {idx: $idx_d}]},
+                   {idx: $idx_d}],
+             flush: $idx_c},
             # Send to DMAC on Interlink, expect discard on LRE
             {frm: {dmac: 0xcc},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_d}]}
         ]
+    },
+    {
+        txt: "HSR-SAN, DMAC-PNT-STATIC filtering on Interlink->LRE",
+        cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
+        # Send to DMAC on Interlink, expect discard on LRE
+        tab: [{frm: {dmac: 0xcc},
+               fwd: [{idx_tx: $idx_c},
+                     {idx: $idx_d}]}]
     },
     {
         txt: "HSR-SAN, DMAC-PNT filtering on LRE->LRE",
@@ -176,20 +183,45 @@ test_table =
         ]
     },
     {
-        txt: "HSR-SAN, SMAC-PNT filtering on LRE->interlink",
-        cfg: {mode: "HSR_SAN"},
+        txt: "HSR-SAN, DMAC-PNT-STATIC filtering on LRE->LRE",
+        cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
+        # Send to DMAC on LRE, expect discard on LRE
+        tab: [{frm: {dmac: 0xcc},
+               fwd: [{idx_tx: $idx_b, hsr: {}},
+                     {idx: $idx_c},
+                     {idx: $idx_d}]}]
+    },
+    {
+        txt: "HSR-SAN, SMAC-PNT filtering/ageing on LRE->interlink",
+        cfg: {mode: "HSR_SAN", pnt_age_time: 20},
         tab: [
             # Learn SMAC in PNT
             {frm: {smac: 0xcc},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
-                   {idx: $idx_d}]},
+                   {idx: $idx_d}],
+             wait: 10},
             # Send from SMAC on LRE, expect discard on Interlink
             {frm: {smac: 0xcc},
              fwd: [{idx_tx: $idx_a, hsr: {}},
-                   {idx: $idx_b, hsr: {}}]}
+                   {idx: $idx_b, hsr: {}}],
+             wait: 10},
+            # Send from SMAC on LRE, expect forward on Interlink
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_c},
+                   {idx: $idx_d}]}
         ]
+    },
+    {
+        txt: "HSR-SAN, SMAC-PNT-STATIC filtering on LRE->interlink",
+        cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
+        # Send from SMAC on LRE, expect discard on Interlink
+        tab: [{frm: {smac: 0xcc},
+               fwd: [{idx_tx: $idx_b, hsr: {}},
+                     {idx: $idx_a, hsr: {}}]}]
     },
     {
         txt: "HSR-SAN, DMAC-NT filtering on LRE->interlink",
@@ -225,7 +257,7 @@ test_table =
         cnt: [{port: "port_a", name: "rx_wrong_lan", val: 1}]
     },
     {
-        # Fails, no PRP trailer added
+        # Fails, Jira-210: No PRP trailer added
         txt: "PRP-SAN, port C to port A/B with sequence numbers",
         cfg: {mode: "PRP_SAN"},
         tab: [
@@ -241,32 +273,46 @@ test_table =
     },
     {
         txt: "PRP-SAN, forward to SAN on port A",
-        cfg: {mode: "PRP_SAN"},
+        cfg: {mode: "PRP_SAN", nt_age_time: 20},
         tab: [
             # Learn SAN on port A
             {frm: {smac: 0xaa},
              fwd: [{idx_tx: $idx_a},
                    {idx: $idx_c},
-                   {idx: $idx_d}]},
+                   {idx: $idx_d}],
+             wait: 10},
             # Forward to SAN on port A
             {frm: {dmac: 0xaa},
              fwd: [{idx_tx: $idx_c},
-                   {idx: $idx_a}]},
+                   {idx: $idx_a}],
+             wait: 10},
+            # Node timeout, forward to SAN on port A/B
+            {frm: {dmac: 0xaa},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, prp: {lan_id: 0}},
+                   {idx: $idx_b, prp: {lan_id: 1}}]},
         ]
     },
     {
         txt: "PRP-SAN, forward to SAN on port B",
-        cfg: {mode: "PRP_SAN"},
+        cfg: {mode: "PRP_SAN", nt_age_time: 20},
         tab: [
             # Learn SAN on port B
             {frm: {smac: 0xbb},
              fwd: [{idx_tx: $idx_b},
                    {idx: $idx_c},
-                   {idx: $idx_d}]},
+                   {idx: $idx_d}],
+             wait: 10},
             # Forward to SAN on port B
             {frm: {dmac: 0xbb},
-             fwd: [{idx_tx: $idx_d},
-                   {idx: $idx_b}]},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a}],
+             wait: 10},
+            # Node timeout, forward to SAN on port A/B
+            {frm: {dmac: 0xbb},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, prp: {lan_id: 0}},
+                   {idx: $idx_b, prp: {lan_id: 1}}]},
         ]
     },
 
@@ -319,6 +365,9 @@ def redbox_test(t)
     conf["port_a"] = port_a
     conf["port_b"] = port_b
     conf["net_id"] = fld_get(cfg, :net_id)
+    conf["lan_id"] = fld_get(cfg, :lan_id)
+    conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
+    conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
     conf = $ts.dut.call("mesa_rb_conf_set", $rb_id, conf)
 
     # Remove nodes and proxy nodes from previous tests
@@ -334,6 +383,14 @@ def redbox_test(t)
         san_a = fld_get(node, :san_a, false)
         conf = {type: type, san_a: san_a}
         $ts.dut.call("mesa_rb_node_add", $rb_id, mac, conf)
+    end
+
+    # Proxy Node entry
+    proxy = fld_get(cfg, :proxy, nil)
+    if (proxy != nil)
+        mac = fld_get(proxy, :mac, 0xee)
+        mac = {addr: [0,0,0,0,0,mac]}
+        $ts.dut.call("mesa_rb_proxy_node_add", $rb_id, mac)
     end
 
     # VLAN configuration
@@ -382,7 +439,7 @@ def redbox_test(t)
                 dir = "tx"
             end
             name = " name f_#{idx_name[idx]}"
-            cmd_add += " #{dir} #{$ts.pc.p[idx]} #{name}"
+            cmd_add += " #{dir} #{$ts.pc.p[idx]}#{name}"
             cmd += name
             cmd += " eth"
             if (f.key?:dmac)
@@ -401,7 +458,7 @@ def redbox_test(t)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
             end
-            cmd += " et 0xeeee data pattern cnt #{len}"
+            cmd += " et 0xeeee data repeat #{len} 0xbb"
             prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
@@ -425,6 +482,12 @@ def redbox_test(t)
         if (flush_idx != nil)
             # Flush switch core port
             $ts.dut.call("mesa_mac_table_port_flush", $ts.dut.p[flush_idx])
+        end
+
+        wait = fld_get(entry, :wait)
+        if (wait > 0)
+            # Wait a number of seconds
+            sleep(wait)
         end
 
         # Update expected counters
@@ -477,7 +540,8 @@ end
 
 test "dump" do
     break
-    $ts.dut.run("mesa-cmd deb api redbox")
+    $ts.dut.run("mesa-cmd deb api cil redbox")
     #$ts.dut.run("mesa-cmd deb api ai vlan")
     $ts.dut.run("mesa-cmd port stati pac")
+    #$ts.dut.run("mesa-cmd mac dump")
 end
