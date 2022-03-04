@@ -1207,8 +1207,6 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
 }
 
 
-#if defined(VTSS_ARCH_SPARX5)
-
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
@@ -1315,9 +1313,13 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         D_COM(pr, HMO_TIMER_CFG);
         D_COM(pr, LOC_SCAN_STICKY);
         D_COM(pr, MASTER_INTR_CTRL);
+#if defined(VTSS_ARCH_LAN969X)
+        D_COM(pr, VOE32_INTR);
+#else
         for (i = 0; i < 2; ++i) {
             D_COM_I(pr, VOE32_INTR, i);
         }
+#endif
         for (i = 0; i < 7; ++i) {
             D_COM_I(pr, INTR, i);
         }
@@ -1561,18 +1563,6 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
 #undef DR_COM_I
 #undef DR_VOE_I
 #undef DR_VOE_II
-
-#endif /* defined(VTSS_ARCH_SPARX5) */
-
-#if defined(VTSS_ARCH_LAN969X)
-vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
-                                const vtss_debug_printf_t pr,
-                                const vtss_debug_info_t   *const info)
-{
-    return VTSS_RC_OK;
-}
-
-#endif
 
 /* - Initialization ------------------------------------------------ */
 /* - Initialization ------------------------------------------------ */
