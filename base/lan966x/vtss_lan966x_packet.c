@@ -65,10 +65,39 @@ static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 ph
 }
 
 static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
-                                           u32            ns,
+                                           u32            frame_ns,
                                            u64            *ts_cnt)
 {
+    vtss_timestamp_t ts;
+    u64              tc;
+    u32              tod_ns, diff;
+
+    /* The frame_ns parameter is a one mia (one second) wrapping nano second counter, extracted from the received packet (inserted by the PHY) */
+
+    while (frame_ns >= VTSS_ONE_MIA) {
+        /* skip sec part */
+        frame_ns -= VTSS_ONE_MIA;
+        VTSS_I("decrement frame_ns value (%d)", frame_ns);
+    }
+
+    /* The time of day is sampled 2 or more times pr sec, assumed frame stamping belong to domain 0 */
+    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
+    if (ts.nanoseconds < frame_ns) {
+        tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns from the frame. TOD nanoseconds has wrapped */
+    } else {
+        tod_ns = ts.nanoseconds;
+    }
+
+    diff = tod_ns - frame_ns;               /* Calculate the difference between FRAME and TOD 30 bit wrapping nano second counter */
+    *ts_cnt = tc - (u64)((u64)diff << 16);  /* Difference in 16 bit nano second fragments */
+    VTSS_I("frame_ns %u  tod_ns %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64 "", frame_ns, tod_ns, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
+
     return VTSS_RC_OK;
+}
+
+static u32 lan966x_packet_unpack32(const u8 *buf)
+{
+    return (buf[0]<<24) + (buf[1]<<16) + (buf[2]<<8) + buf[3];
 }
 
 static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_state,
@@ -80,8 +109,14 @@ static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_s
                                          BOOL                            *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
-        VTSS_E("PHY timestamp feature not supported");
-        return VTSS_RC_ERROR;
+        u32 packet_ns = lan966x_packet_unpack32(frm);
+        if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
+            /* convert to jaguar 32 bit NSF */
+            (void)lan966x_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            *timestamp_ok = rx_info->hw_tstamp_decoded;
+        } else {
+            VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
+        }
     } else {
         /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits nsec + 16 bits sub nsec) wrapping) */
         *rxTime = rx_info->hw_tstamp;

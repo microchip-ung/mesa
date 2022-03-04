@@ -564,6 +564,14 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
             handled = 1;
         }
     }
+    // Check the timestamp events.
+    if (board->type == BOARD_TYPE_8PORT) {
+        for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                handled++;
+            }
+        }
+    }
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
@@ -575,7 +583,7 @@ static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 static mesa_rc cu_phy_handler(meba_inst_t inst, meba_board_state_t *board,
                               mesa_irq_t irq, meba_event_signal_t signal_notifier)
 {
-    if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE || board->type == BOARD_TYPE_8PORT) {
+    if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE) {
         return MESA_RC_ERROR;
     }
     return meba_generic_phy_event_check(inst, irq - MESA_IRQ_CU_PHY_0, signal_notifier);
@@ -700,6 +708,22 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
 
         if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
+        }
+        break;
+    case MEBA_EVENT_INGR_ENGINE_ERR:
+    case MEBA_EVENT_INGR_RW_PREAM_ERR:
+    case MEBA_EVENT_INGR_RW_FCS_ERR:
+    case MEBA_EVENT_EGR_ENGINE_ERR:
+    case MEBA_EVENT_EGR_RW_FCS_ERR:
+    case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
+    case MEBA_EVENT_EGR_FIFO_OVERFLOW:
+        {
+            mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
+                    T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
+                }
+            }
         }
         break;
     default:

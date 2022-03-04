@@ -2011,14 +2011,17 @@ static mepa_rc indy_ts_event_poll(mepa_device_t *dev, mepa_ts_event_t  *const st
 
     MEPA_ASSERT(status == NULL);
     MEPA_ENTER(dev);
-
     do {
-        rc = EP_RD(dev, INDY_PTP_TSU_INT_STS, &val);
-        if (val & INDY_PTP_TX_TS_OVRFL_INT) {
-            *status |= data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_FIFO_OVERFLOW;
-        }
-        if (val & INDY_PTP_TX_TS_INT) {
-            *status |= data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_TIMESTAMP_CAPTURED;
+        uint32_t chip_port = data->packet_idx % 4;
+        rc = EP_RD(dev, INDY_CHIP_LVL_INTR_STATUS, &val);
+        if (val & (1 << chip_port)) {
+            rc = EP_RD(dev, INDY_PTP_TSU_INT_STS, &val);
+            if (val & INDY_PTP_TX_TS_OVRFL_INT) {
+                *status |= data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_FIFO_OVERFLOW;
+            }
+            if (val & INDY_PTP_TX_TS_INT) {
+                *status |= data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_TIMESTAMP_CAPTURED;
+            }
         }
     } while (0);
     MEPA_EXIT(dev);
