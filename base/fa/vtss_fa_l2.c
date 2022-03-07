@@ -1635,6 +1635,18 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 #define FA_HT_CMD_WRITE   4
 #define FA_HT_CMD_CLEAR   7
 
+// Tag modes
+#define FA_RB_TAG_NONE     0
+#define FA_RB_TAG_PRP_NONE 1
+#define FA_RB_TAG_HSR      2
+#define FA_RB_TAG_PRP      3
+
+// HSR tag filter
+#define FA_RB_FLT_NONE    0
+#define FA_RB_FLT_HSR     1
+#define FA_RB_FLT_NOT_HSR 2
+#define FA_RB_FLT_REDIR   3
+
 // Forwarding masks
 #define FA_RB_MSK_NONE 0x0 // No ports
 #define FA_RB_MSK_LRE  0x3 // LRE ports (A/B)
@@ -1646,8 +1658,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
                                    u32 j,
                                    vtss_rb_conf_t *conf)
 {
-    u32 tag_mode = 0, hsr_aware = 0, prp_aware = 0, ht = FA_HT_NONE;
-    u32 lre, age, lan_id = conf->lan_id, trans_netid = 0;
+    u32 tag_mode = FA_RB_TAG_NONE, hsr_aware = 0, prp_aware = 0, ht = FA_HT_NONE;
+    u32 lre, age, lan_id = conf->lan_id, trans_netid = 0, hsr_filter = FA_RB_FLT_NONE;
     u32 prxy_smac_msk = FA_RB_MSK_ALL, prxy_dmac_msk = FA_RB_MSK_ALL;
     u32 node_smac_msk = FA_RB_MSK_ALL, node_dmac_msk = FA_RB_MSK_ALL;
 
@@ -1655,7 +1667,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     switch (conf->mode) {
     case VTSS_RB_MODE_PRP_SAN:
         if (lre) {
-            tag_mode = 1;
+            tag_mode = FA_RB_TAG_PRP_NONE;
             prp_aware = 1;
             lan_id = (j & 1);
             ht = FA_HT_SAN;   // Learn SANs on LREs
@@ -1665,31 +1677,37 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         break;
     case VTSS_RB_MODE_HSR_SAN:
         if (lre) {
-            tag_mode = 2;
+            tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
             prxy_smac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if SMAC is proxy
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
+            hsr_filter = 1;                 // Discard HSR-tagged frames on Interlink
         }
         break;
     case VTSS_RB_MODE_HSR_PRP:
         if (lre) {
-            tag_mode = 2;
+            tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
-            tag_mode = 3;
+            tag_mode = FA_RB_TAG_PRP;
             prp_aware = 1;
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
+            hsr_filter = FA_RB_FLT_HSR;     // Discard HSR-tagged frames on Interlink
         }
         break;
     case VTSS_RB_MODE_HSR_HSR:
-        tag_mode = 2;
+        tag_mode = FA_RB_TAG_HSR;
         hsr_aware = 1;
         if (lre) {
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
+            ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
         }
         break;
     default:
@@ -1721,7 +1739,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
-           VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |
+           VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(trans_netid ? 2 : 0) |
            VTSS_F_RB_PORT_CFG_NETID(conf->net_id) |
            VTSS_F_RB_PORT_CFG_LANID(lan_id) |
@@ -2752,12 +2770,15 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
 
 static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
                             const u32 *val, u32 mask,
-                            const char *name, const char *prefix, u32 cnt)
+                            const char *name, const char *prefix, BOOL newline, u32 cnt)
 {
     u32 i, j, v;
-    char buf[64];
+    char buf[128], *p;
 
     sprintf(buf, "%s%s", prefix ? prefix : "", name);
+    if ((p = strstr(buf, "_CFG_")) != NULL) {
+        p[4] = ':';
+    }
     pr("%-28s ", buf);
     for (i = 0; i < cnt; i++) {
         v = (val[i] & mask);
@@ -2770,16 +2791,22 @@ static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
         sprintf(buf, v > 9 ? "0x%x" : "%u", v);
         pr("%-6s", buf);
     }
-    pr("\n");
+    if (newline) {
+        pr("\n");
+    }
 }
 
 #define FA_DEBUG_RB_FLD(val, fld)                       \
-    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, 1)
+    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, TRUE, 1)
+#define FA_DEBUG_RB_FLD_NL(val, fld)                                    \
+    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, FALSE, 1)
 #define FA_DEBUG_RB_PORT_FLD(val, fld)                  \
-    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, 3)
+    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, TRUE, 3)
+#define FA_DEBUG_RB_PORT_FLD_NL(val, fld)                               \
+    fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, FALSE, 3)
 #define FA_DEBUG_RB_PORT_STICKY(val, fld)                               \
-    fa_debug_rb_fld(pr, val, VTSS_M_RB_STICKY_##fld##_STICKY, "STICKY_"#fld, NULL, 3)
-#define FA_DEBUG_RB_REG(addr, name)                             \
+    fa_debug_rb_fld(pr, val, VTSS_M_RB_STICKY_##fld##_STICKY, #fld, "STICKY:", TRUE, 3)
+#define FA_DEBUG_RB_REG(addr, name)                     \
     vtss_fa_debug_reg(vtss_state, pr, addr, name)
 
 static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
@@ -2815,7 +2842,10 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
 
         REG_RD(RB_ADDR(VTSS_RB_RB_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, RB_CFG_RB_ENA);
-        FA_DEBUG_RB_FLD(&val, RB_CFG_RB_MODE);
+        FA_DEBUG_RB_FLD_NL(&val, RB_CFG_RB_MODE);
+        pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
+           FA_RB_MODE_PRP_SAN, FA_RB_MODE_HSR_SAN,
+           FA_RB_MODE_HSR_PRP, FA_RB_MODE_HSR_HSR);
         FA_DEBUG_RB_FLD(&val, RB_CFG_HSR_TAG_SEL);
         REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREA_PORT_NO);
@@ -2824,15 +2854,15 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_FILTER_ENA);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_MASK);
         for (j = 0; j < 2; j++) {
-            sprintf(buf, "%s", j == FA_RB_AGE_IDX_NT ? "NT_" : "PNT_");
+            sprintf(buf, "%s", j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_UNIT_SIZE,
-                            "UNIT_SIZE", buf, 1);
+                            "UNIT_SIZE", buf, TRUE, 1);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_PERIOD_VAL,
-                            "PERIOD_VAL", buf, 1);
+                            "PERIOD_VAL", buf, TRUE, 1);
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
-                            "INTERVAL_ENA", buf, 1);
+                            "INTERVAL_ENA", buf, TRUE, 1);
         }
         pr("\n");
 
@@ -2840,11 +2870,13 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             x[j] = j;
         }
         sprintf(buf, "RedBox %u, port A/B/C:", i);
-        fa_debug_rb_fld(pr, x, 0x3, buf, NULL, 3);
+        fa_debug_rb_fld(pr, x, 0x3, buf, NULL, TRUE, 3);
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(RB_ADDRX(VTSS_RB_TBL_CFG, i, j), &x[j]);
         }
-        FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_HOST_TYPE);
+        FA_DEBUG_RB_PORT_FLD_NL(x, TBL_CFG_HOST_TYPE);
+        pr("(%u:PROXY, %u:DAN, %u:SAN, %u:LOCAL)\n",
+           FA_HT_PROXY, FA_HT_DAN, FA_HT_SAN, FA_HT_LOCAL);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_HOST_TBL_ENA);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_SEQ_NUM_ENA);
 
@@ -2861,9 +2893,17 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(RB_ADDRX(VTSS_RB_PORT_CFG, i, j), &x[j]);
         }
-        FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_TAG_MODE);
+        FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_CT_EGR_ENA);
+        FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_CT_IGR_ENA);
+        FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_TAG_MODE);
+        pr("(%u:NONE, %u:PRP_NONE, %u:HSR, %u:PRP)\n",
+           FA_RB_TAG_NONE, FA_RB_TAG_PRP_NONE, FA_RB_TAG_HSR, FA_RB_TAG_PRP);
+        FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_HSR_FILTER_CFG);
+        pr("(%u:NONE, %u:HSR, %u:NOT_HSR, %u:REDIR)\n",
+           FA_RB_FLT_NONE, FA_RB_FLT_HSR, FA_RB_FLT_NOT_HSR, FA_RB_FLT_REDIR);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_TRANS_NETID);
-        FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_TRANS_NETID_SEL);
+        FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_TRANS_NETID_SEL);
+        pr("(0:NONE, 1:TRANS, 2:ALL, 3:RESV)\n");
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_NETID);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_LANID);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_HSR_AWARE_ENA);
@@ -2906,8 +2946,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_SPV_CFG, i), "SPV_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_HOST_EVENT_STICKY, i), "HOST_STICKY");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_DISC_EVENT_STICKY, i), "DISC_STICKY");
-            FA_DEBUG_REGX_NAME(pr, REW, RTAG_ETAG_CTRL, 0, "RTAG_ETAG_CTRL");
             pr("\n");
+
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
                 sprintf(buf, "Port %s", j == 0 ? "A" : j == 1 ? "B" : "C");
                 vtss_fa_debug_reg_header(pr, buf);

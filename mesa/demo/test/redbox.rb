@@ -108,6 +108,20 @@ test_table =
                      {idx: $idx_c}]}]
     },
     {
+        txt: "HSR-SAN, discard HSR-tagged on Interlink",
+        cfg: {mode: "HSR_SAN"},
+        tab: [{fwd: [{idx_tx: $idx_c, hsr: {}},
+                     {idx: $idx_d, hsr: {}}]}]
+    },
+    {
+        txt: "HSR-SAN, discard non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_SAN"},
+        tab: [
+            {fwd: [{idx_tx: $idx_a}]},
+            {fwd: [{idx_tx: $idx_b}]},
+        ]
+    },
+    {
         txt: "HSR-SAN with VLANs, port A to port B/C",
         cfg: {mode: "HSR_SAN",
               vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
@@ -141,7 +155,6 @@ test_table =
         ]
     },
     {
-        # Fails, DMAC-PNT filtering not working
         txt: "HSR-SAN, DMAC-PNT filtering on Interlink->LRE",
         cfg: {mode: "HSR_SAN"},
         tab: [
@@ -335,6 +348,123 @@ test_table =
                      {idx: $idx_b, hsr: {}},
                      {idx: $idx_d, prp: {}}]}]
     },
+    {
+        txt: "HSR-PRP, discard HSR-tagged on Interlink",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{fwd: [{idx_tx: $idx_c, hsr: {}},
+                     {idx: $idx_d, hsr: {}}]}]
+    },
+    {
+        txt: "HSR-PRP, discard non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_PRP"},
+        tab: [
+            {fwd: [{idx_tx: $idx_a}]},
+            {fwd: [{idx_tx: $idx_b}]},
+        ]
+    },
+    {
+        txt: "HSR-PRP, DMAC-PNT filtering on Interlink->LRE",
+        cfg: {mode: "HSR_PRP"},
+        tab: [
+            # Learn SMAC in PNT and flush switch port
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}],
+             flush: $idx_c},
+            # Send to DMAC on Interlink, expect discard on LRE
+            {frm: {dmac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_d}]}
+        ]
+    },
+    {
+        txt: "HSR-PRP, DMAC-PNT filtering on LRE->LRE",
+        cfg: {mode: "HSR_PRP"},
+        tab: [
+            # Learn SMAC in PNT (and on switch port C)
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            # Send to DMAC on LRE, expect discard on LRE
+            {frm: {dmac: 0xcc},
+             fwd: [{idx_tx: $idx_a, hsr: {}},
+                   {idx: $idx_c, prp: {}}]}
+        ]
+    },
+    {
+        txt: "HSR-PRP, DMAC-NT filtering on LRE->interlink",
+        cfg: {mode: "HSR_PRP", node: {mac: 0xbb}},
+        tab: [{frm: {dmac: 0xbb},
+               fwd: [{idx_tx: $idx_a, hsr:{}},
+                     {idx: $idx_b, hsr: {}}]}]
+    },
+
+    # HSR-HSR tests
+    {
+        txt: "HSR-HSR, port A to port B/C/D",
+        cfg: {mode: "HSR_HSR"},
+        tab: [{fwd: [{idx_tx: $idx_a, hsr: {net_id: 3}},
+                     {idx: $idx_b, hsr: {net_id: 3}},
+                     {idx: $idx_c, hsr: {net_id: 3}},
+                     {idx: $idx_d, hsr: {net_id: 3}}]}]
+    },
+    {
+        txt: "HSR-HSR, port C to port A/B/D",
+        cfg: {mode: "HSR_HSR"},
+        tab: [{fwd: [{idx_tx: $idx_c, hsr: {net_id: 3}},
+                     {idx: $idx_a, hsr: {net_id: 3}},
+                     {idx: $idx_b, hsr: {net_id: 3}},
+                     {idx: $idx_d, hsr: {net_id: 3}}]}]
+    },
+    {
+        txt: "HSR-HSR, discard non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_HSR"},
+        tab: [
+            {fwd: [{idx_tx: $idx_a}]},
+            {fwd: [{idx_tx: $idx_b}]},
+        ]
+    },
+    {
+        txt: "HSR-HSR, DMAC-PNT filtering on LRE->LRE",
+        cfg: {mode: "HSR_HSR"},
+        tab: [
+            # Learn SMAC in PNT (and on switch port C)
+            {frm: {smac: 0xcc},
+             fwd: [{idx_tx: $idx_c},
+                   {idx: $idx_a, hsr: {}},
+                   {idx: $idx_b, hsr: {}},
+                   {idx: $idx_d}]},
+            # Send to DMAC on LRE, expect discard on LRE
+            {frm: {dmac: 0xcc},
+             fwd: [{idx_tx: $idx_a, hsr: {}},
+                   {idx: $idx_c, hsr: {}}]}
+        ]
+    },
+    {
+        txt: "HSR-HSR, DMAC-NT filtering on LRE->interlink",
+        cfg: {mode: "HSR_HSR", node: {mac: 0xbb}},
+        tab: [{frm: {dmac: 0xbb},
+               fwd: [{idx_tx: $idx_a, hsr:{}},
+                     {idx: $idx_b, hsr: {}}]}]
+    },
+    {
+        txt: "HSR-HSR, NetId filtering/translation",
+        cfg: {mode: "HSR_HSR", net_id: 4},
+        tab: [
+            # NetId 4 not forwarded to Interlink
+            {fwd: [{idx_tx: $idx_a, hsr: {net_id: 4}},
+                   {idx: $idx_b, hsr: {net_id: 4}}]},
+            # Other NetIds translated to 4 on Interlink
+            {fwd: [{idx_tx: $idx_a, hsr: {net_id: 3}},
+                   {idx: $idx_b, hsr: {net_id: 3}},
+                   {idx: $idx_c, hsr: {net_id: 4}},
+                   {idx: $idx_b, hsr: {net_id: 4}}]},
+        ]
+    },
 ]
 
 def vlan_port_conf_set(idx, e)
@@ -373,6 +503,9 @@ def redbox_test(t)
     # Remove nodes and proxy nodes from previous tests
     $ts.dut.call("mesa_rb_node_table_clear", $rb_id, "MESA_RB_CLEAR_ALL")
     $ts.dut.call("mesa_rb_proxy_node_table_clear", $rb_id, "MESA_RB_CLEAR_ALL")
+
+    # Flush MAC addresses learned previously
+    $ts.dut.call("mesa_mac_table_flush")
 
     # Node entry
     node = fld_get(cfg, :node, nil)
@@ -458,7 +591,7 @@ def redbox_test(t)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
             end
-            cmd += " et 0xeeee data repeat #{len} 0xbb"
+            cmd += " et 0xeeee data repeat #{len} 0x00" # TBD: Using zeros is work-around
             prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
