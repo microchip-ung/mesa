@@ -111,7 +111,7 @@ end
 
 test "test_conf" do
     $ts.dut.run("mesa-cmd example help mrp")
-    t_i("Configure the test to Port MEP by calling the example code command")
+    t_i("Configure the test to Port MRP by calling the example code command")
     $ts.dut.run("mesa-cmd example init mrp p-port #{$ts.dut.p[$p_port]+1} s-port #{$ts.dut.p[$s_port]+1} i-port #{$ts.dut.p[$i_port]+1}")
 end
 

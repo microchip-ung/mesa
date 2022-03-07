@@ -33,9 +33,14 @@ The ring is opened after add to increment the Test PDU transaction counter.\n\
 ";
 
 static struct {
+    uint32_t                 v0, v1;
     mesa_port_no_t           p_port;
     mesa_port_no_t           s_port;
     mesa_port_no_t           i_port;
+    mesa_iflow_id_t          iflow_id[3];
+    mesa_iflow_id_t          eflow_id[3];
+    mesa_vce_id_t            vce_id[3];
+    mesa_vce_id_t            tce_id[3];
     mesa_mrp_idx_t           mrp_idx;
     mesa_vlan_port_conf_t    vlan_conf[2];
 } state;
@@ -54,6 +59,57 @@ static int init_port_configuration(mesa_port_no_t port,  uint32_t idx)
     return 0;
 }
 
+static int mrp_flow_configuration(mesa_port_no_t port, uint32_t port_idx, mesa_voe_idx_t voe_idx)
+{
+    mesa_iflow_conf_t iflow_conf;
+    mesa_eflow_conf_t eflow_conf;
+    mesa_vce_t        vce;
+    mesa_tce_t        tce;
+
+    RC(mesa_iflow_alloc(NULL, &state.iflow_id[port_idx]));
+    RC(mesa_iflow_conf_get(NULL, state.iflow_id[port_idx], &iflow_conf));
+    iflow_conf.voe_idx = voe_idx;
+    RC(mesa_iflow_conf_set(NULL, state.iflow_id[port_idx], &iflow_conf));
+
+    RC(mesa_eflow_alloc(NULL, &state.eflow_id[port_idx]));
+    RC(mesa_eflow_conf_get(NULL, state.eflow_id[port_idx], &eflow_conf));
+    eflow_conf.voe_idx = voe_idx;
+    RC(mesa_eflow_conf_set(NULL, state.eflow_id[port_idx], &eflow_conf));
+
+    // snippet_begin ex-add-vce
+    // Add the front port VCE
+    RC(mesa_vce_init(NULL, MESA_VCE_TYPE_ETYPE, &vce));
+    state.vce_id[port_idx]     = 1 + port_idx;
+    vce.id = state.vce_id[port_idx];
+    mesa_port_list_clear(&vce.key.port_list);
+    mesa_port_list_set(&vce.key.port_list, port, TRUE);
+    vce.key.type = MESA_VCE_TYPE_ETYPE;
+    vce.key.tag.tagged = MESA_VCAP_BIT_0;
+    vce.key.frame.etype.etype.value[0] = 0x88;
+    vce.key.frame.etype.etype.value[1] = 0xE3;
+    vce.key.frame.etype.etype.mask[0] = 0xFF;
+    vce.key.frame.etype.etype.mask[1] = 0xFF;
+    vce.action.flow_id = state.iflow_id[port_idx];
+    vce.action.mrp_enable = TRUE;
+    RC(mesa_vce_add(NULL, MESA_VCE_ID_LAST, &vce));
+
+    // snippet_endbegin ex-add-tce
+    // Add injection TCE
+    RC(mesa_tce_init(NULL, &tce));
+    state.tce_id[port_idx] = 1 + port_idx;
+    tce.id = state.tce_id[port_idx];
+    mesa_port_list_clear(&tce.key.port_list);
+    mesa_port_list_set(&tce.key.port_list, port, TRUE);
+    tce.key.flow_enable = TRUE;
+    tce.key.flow_id = state.iflow_id[port_idx];
+    tce.action.flow_id = state.eflow_id[port_idx];
+    tce.action.tag.tpid = MESA_TPID_SEL_NONE;
+    RC(mesa_tce_add(NULL, MESA_TCE_ID_LAST, &tce));
+    // snippet_end ex-add-tce
+
+    return 0;
+}
+
 static int mrp_init(int argc, const char *argv[])
 {
     mesa_port_no_t         p_port = ARGV_INT("p-port", "Is the primary port.");
@@ -65,6 +121,7 @@ static int mrp_init(int argc, const char *argv[])
     uint8_t                frame[1600];
     mesa_packet_rx_info_t  rx_info;
     mesa_vop_conf_t        vop_conf;
+    mesa_mrp_voe_idx_t     voe_idx;
 
     EXAMPLE_BARRIER(argc);
 
@@ -73,6 +130,13 @@ static int mrp_init(int argc, const char *argv[])
     state.p_port = p_port - 1;
     state.s_port = s_port - 1;
     state.i_port = i_port - 1;
+
+    state.v0 = mesa_capability(NULL, MESA_CAP_MRP_V0);
+    state.v1 = mesa_capability(NULL, MESA_CAP_MRP_V1);
+    if (!state.v0 && !state.v1) {
+        cli_printf("MRP is not supported on this platform\n");
+        return -1;
+    }
 
     // Must be called to enable rx packet polling
     (void)mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info);
@@ -104,6 +168,22 @@ static int mrp_init(int argc, const char *argv[])
     RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.i_port, MESA_MRP_PORT_STATE_FORWARDING));
     // snippet_end
 
+    // snippet_begin ex-mrp-flow_configuration
+    if (state.v1) {
+        RC(mesa_mrp_voe_index_get(NULL, state.mrp_idx, &voe_idx));
+
+        if (voe_idx.p_voe_idx != MESA_VOE_IDX_NONE) {
+            RC(mrp_flow_configuration(state.p_port, 0, voe_idx.p_voe_idx));
+        }
+        if (voe_idx.s_voe_idx != MESA_VOE_IDX_NONE) {
+            RC(mrp_flow_configuration(state.s_port, 1, voe_idx.s_voe_idx));
+        }
+        if (voe_idx.i_voe_idx != MESA_VOE_IDX_NONE) {
+            RC(mrp_flow_configuration(state.i_port, 2, voe_idx.i_voe_idx));
+        }
+    }
+    // snippet_end
+
     // snippet_begin ex-mrp-loc
     RC(mesa_mrp_tst_loc_conf_get(NULL, state.mrp_idx, &loc_conf))
     loc_conf.tst_interval = tst_interval;
@@ -126,9 +206,30 @@ static int mrp_init(int argc, const char *argv[])
 
 static int mrp_clean()
 {
+    uint32_t i;
+
     RC(mesa_vlan_port_conf_set(NULL, state.p_port, &state.vlan_conf[0]));
     RC(mesa_vlan_port_conf_set(NULL, state.s_port, &state.vlan_conf[0]));
     RC(mesa_vlan_port_conf_set(NULL, state.i_port, &state.vlan_conf[0]));
+
+    // snippet_begin ex-mrp-flow_configuration
+    if (state.v1) {
+        for (i = 0; i < 3; ++i) {
+            if (state.iflow_id[i] != MESA_IFLOW_ID_NONE) {
+                RC(mesa_iflow_free(NULL, state.iflow_id[i]));
+            }
+            if (state.eflow_id[i] != MESA_EFLOW_ID_NONE) {
+                RC(mesa_eflow_free(NULL, state.eflow_id[i]));
+            }
+            if (state.vce_id[i] != MESA_VCE_ID_LAST) {
+                RC(mesa_vce_del(NULL, state.vce_id[i]));
+            }
+            if (state.tce_id[i] != MESA_TCE_ID_LAST) {
+                RC(mesa_tce_del(NULL, state.tce_id[i]));
+            }
+        }
+    }
+    // snippet_end
 
     RC(mesa_mrp_del(NULL, state.mrp_idx));
 
