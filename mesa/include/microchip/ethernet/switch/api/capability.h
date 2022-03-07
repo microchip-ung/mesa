@@ -406,6 +406,8 @@ typedef enum {
     // MRP
     MESA_CAP_MRP = 2200,                    /**< Media Redundancy Protocol - IEC 62439-2 MRP */
     MESA_CAP_MRP_CNT,                       /**< Total count of MRPs */
+    MESA_CAP_MRP_V0,                        /**< OAM generation 0 (Maserati) */
+    MESA_CAP_MRP_V1,                        /**< OAM generation 1 (Laguna) */
 
 } mesa_cap_t;
 

@@ -480,6 +480,14 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_info_t   *const info);
 #endif /* VTSS_FEATURE_VOP */
 
+#if defined(VTSS_FEATURE_MRP)
+/* MRP functions */
+vtss_rc vtss_lan969x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_lan969x_mrp_debug_print(vtss_state_t *vtss_state,
+                                     const vtss_debug_printf_t pr,
+                                     const vtss_debug_info_t   *const info);
+#endif /* VTSS_FEATURE_MRP */
+
 /* VCAP functions */
 #if defined(VTSS_FEATURE_VCAP)
 vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

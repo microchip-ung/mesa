@@ -625,7 +625,8 @@ def tx_ifh_create(vid, port = 0, oam_type = "MESA_PACKET_OAM_TYPE_NONE", voi = f
     test "tx_ifh_create.  vid = #{vid}  port = #{port}  oam_type = #{oam_type}  voi #{voi}  up #{up}  iflow #{iflow}  pcp #{pcp}" do
 
     tx_info = $ts.dut.call("mesa_packet_tx_info_init")
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) ||
+       ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         tx_info["dst_port"] = port
     else
         tx_info["dst_port_mask"] = up ? 0 : (0x01 << port)

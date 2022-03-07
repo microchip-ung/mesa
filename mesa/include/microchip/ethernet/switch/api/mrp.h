@@ -45,6 +45,23 @@ mesa_rc mesa_mrp_get(const mesa_inst_t    inst,
                      const mesa_mrp_idx_t mrp_idx,
                      mesa_mrp_conf_t      *const conf)  CAP(MRP);
 
+typedef struct {
+    mesa_voe_idx_t p_voe_idx;
+    mesa_voe_idx_t s_voe_idx;
+    mesa_voe_idx_t i_voe_idx;
+} mesa_mrp_voe_idx_t;
+
+// When an MRP instance is added, a VOE is allocated per port.
+// Each VOE has an index that must be known by the application to be used as
+// parameter when configuring IFLOW and EFLOW.
+//
+// inst     [IN]  Target instance reference.
+// mrp_idx  [IN]  Index of the configured MRP instance.
+// voe_idx  [OUT] Allocated VOE indices per port for MRP. VTSS_VOE_IDX_NONE indicates that no VOE is allocated.
+mesa_rc mesa_mrp_voe_index_get(const mesa_inst_t    inst,
+                               const mesa_mrp_idx_t mrp_idx,
+                               mesa_mrp_voe_idx_t   *const voe_idx)  CAP(MRP);
+
 // Delete an MRP instance.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the deleted MRP instance.

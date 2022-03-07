@@ -44,6 +44,32 @@ do_exit:
     return rc;
 }
 
+vtss_rc vtss_mrp_voe_index_get(const vtss_inst_t      inst,
+                               const vtss_mrp_idx_t   mrp_idx,
+                               vtss_mrp_voe_idx_t     *const voe_idx)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_D("Enter");
+
+    memset(voe_idx, 0, sizeof(*voe_idx));
+
+    if (mrp_idx >= VTSS_MRP_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        // This may be called without the instance being active to get defaults.
+        voe_idx->p_voe_idx = vtss_state->mrp.data[mrp_idx].p_voe_idx;
+        voe_idx->s_voe_idx = vtss_state->mrp.data[mrp_idx].s_voe_idx;
+        voe_idx->i_voe_idx = vtss_state->mrp.data[mrp_idx].i_voe_idx;
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_mrp_get(const vtss_inst_t      inst,
                      const vtss_mrp_idx_t   mrp_idx,
                      vtss_mrp_conf_t        *const conf)

@@ -287,6 +287,9 @@ static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VOP)
     VTSS_RC(vtss_fa_vop_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_VOP */
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_lan969x_mrp_debug_print(vtss_state, pr, info));
+#endif /* VTSS_FEATURE_MRP */
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_FDMA)) {
         if (vtss_state->fdma_state.fdma_func.fdma_debug_print != NULL) {
@@ -334,6 +337,10 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 #if defined(VTSS_FEATURE_VOP)
     VTSS_RC(vtss_fa_vop_init(vtss_state, cmd));
+#endif
+
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_lan969x_mrp_init(vtss_state, cmd));
 #endif
 
 #if defined(VTSS_FEATURE_CLOCK)

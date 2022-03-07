@@ -1021,9 +1021,10 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
 #endif
                 voe_event_mask = vtss_state->oam.voe_event_mask[i];
 
-                pr("VOE:%4u  allocated:%s  type:%s  port:%u  direction:%s\n",
+                pr("VOE:%4u  allocated:%s  function %s  type:%s  port:%u  direction:%s\n",
                    i,
                    YN(voe_alloc->allocated),
+                   ((voe_alloc->function == VTSS_VOE_FUNCTION_OAM) ? "y1731-OAM" : "MRP"),
                    ((voe_alloc->type == VTSS_VOE_TYPE_SERVICE) ? "Service" : "Port"),
                    voe_alloc->port,
                    ((voe_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down" : "Up"));
@@ -1157,6 +1158,9 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
                 voe_alloc = &vtss_state->oam.voe_alloc_data[i];
                 voe_conf = &vtss_state->oam.voe_conf[i];
 
+                if (!voe_conf->enable) {
+                    continue;
+                }
                 pr("VOE:%4u  allocated:%s  type:%s  port:%u  direction:%s\n",
                    i,
                    YN(voe_alloc->allocated),

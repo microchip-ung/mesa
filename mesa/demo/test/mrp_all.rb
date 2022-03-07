@@ -19,6 +19,10 @@ RUN_TEST_CPU_COPY   = 1 # Takes ~ 3 minutes
 RUN_TEST_HITME_ONCE = 1 # Takes ~30 seconds
 RUN_TEST_ERROR      = 1 # Takes ~ 2 seconds
 
+MESA_VOE_IDX_NONE = 0xFFFFFFFF
+$p_inj_iflow = [IFLOW_ID_NONE, IFLOW_ID_NONE, IFLOW_ID_NONE, IFLOW_ID_NONE]
+$p_inj_eflow = [IFLOW_ID_NONE, IFLOW_ID_NONE, IFLOW_ID_NONE, IFLOW_ID_NONE]
+
 $ts = get_test_setup("mesa_pc_b2b_4x")
 
 # Uncomment this if you want trace in the output
@@ -96,6 +100,35 @@ $ring_roles = [:mrm, :mrc]
 $ic_roles   = [:none, :mim, :mic]
 $ic_modes   = [:rc, :lc]
 
+def mrp_vce_config(id, port_list, flow_id)
+    test "mrp_vce_config id = #{id}, port_list = #{port_list}, flow_id = #{flow_id}" do
+
+    vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ETYPE")
+
+    vce["id"] = id
+
+    key = vce["key"]
+    key["port_list"]   = port_list
+    key["type"]        = "MESA_VCE_TYPE_ETYPE"
+    tag                = key["tag"]
+    tag["tagged"]      = "MESA_VCAP_BIT_0"
+    tag["s_tag"]       = "MESA_VCAP_BIT_ANY"
+    tag["dei"]         = "MESA_VCAP_BIT_ANY"
+    tag["pcp"]["mask"] = 0
+    frame = key["frame"]["etype"]
+    frame["etype"]["value"][0] = 0x88
+    frame["etype"]["value"][1] = 0xE3
+    frame["etype"]["mask"][0]  = 0xFF
+    frame["etype"]["mask"][1]  = 0xFF
+
+    action = vce["action"]
+    action["flow_id"] = flow_id
+    action["mrp_enable"] = true
+
+    $ts.dut.call("mesa_vce_add", 0, vce)
+    end
+end
+
 def state_print()
     return "mra = #{$state[:mra]}, ring_role = #{$state[:ring_role]}, ic_role = #{$state[:ic_role]}, ic_mode = #{$state[:ic_mode]}, p1_fwd = #{$state[:forwarding][:port1]}, p2_fwd = #{$state[:forwarding][:port2]}, ic_fwd = #{$state[:forwarding][:ic_port]}"
 end
@@ -134,6 +167,22 @@ def mrp_conf_default()
     $mrp_conf["mac"]["addr"] = MRP_SA_OWN_AS_ARRAY
 end
 
+def mrp_flow_configuration(port_idx, voe_idx)
+    t_i "mrp_flow_configuration port_idx = #{port_idx}, voe_idx = #{voe_idx}"
+
+    p_vce     = 1 + voe_idx
+    p_inj_tce = 1 + voe_idx
+
+    $p_inj_iflow[port_idx] = $ts.dut.call("mesa_iflow_alloc")
+    iflow_config($p_inj_iflow[port_idx], voe_idx, VOI_IDX_NONE)
+
+    $p_inj_eflow[port_idx] = $ts.dut.call("mesa_eflow_alloc")
+    eflow_config($p_inj_eflow[port_idx], voe_idx, VOI_IDX_NONE)
+
+    mrp_vce_config(p_vce, "#{$ts.dut.port_list[port_idx]}", $p_inj_iflow[port_idx])
+    tce_config(p_inj_tce, $ts.dut.port_list[port_idx], 0, $p_inj_iflow[port_idx], $p_inj_eflow[port_idx])
+end
+
 def mrp_add()
     $mrp_conf["ring_role"]    = $state[:ring_role] == :mrm ? "MESA_MRP_RING_ROLE_MANAGER" : "MESA_MRP_RING_ROLE_CLIENT"
     $mrp_conf["in_ring_role"] = $state[:ic_role]   == :mim ? "MESA_MRP_RING_ROLE_MANAGER" : $state[:ic_role] == :mic ? "MESA_MRP_RING_ROLE_CLIENT" : "MESA_MRP_RING_ROLE_DISABLED"
@@ -141,6 +190,20 @@ def mrp_add()
     $mrp_conf["mra_priority"] = $mrp_prio
     $mrp_conf["in_rc_mode"]   = $state[:ic_mode] == :rc ? true : false
     $ts.dut.call("mesa_mrp_add", 0, $mrp_conf)
+
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        voe_idx = $ts.dut.call("mesa_mrp_voe_index_get", 0)
+
+        if (voe_idx["p_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_configuration($ring_port1, voe_idx["p_voe_idx"])
+        end
+        if (voe_idx["s_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_configuration($ring_port2, voe_idx["s_voe_idx"])
+        end
+        if (voe_idx["i_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_configuration($ring_port_in, voe_idx["i_voe_idx"])
+        end
+    end
 
     # By default, all ports are blocking and all counters are cleared, so
     # reflect that in our $state.
@@ -156,7 +219,31 @@ def mrp_add()
     $state[:cpu_copy_conf]["itst_to_cpu"] = false
 end
 
+def mrp_flow_del(port_idx, voe_idx)
+    p_vce     = 1 + voe_idx
+    p_inj_tce = 1 + voe_idx
+
+    $ts.dut.call("mesa_iflow_free", $p_inj_iflow[port_idx])
+    $ts.dut.call("mesa_eflow_free", $p_inj_eflow[port_idx])
+    $ts.dut.call("mesa_vce_del",    p_vce)
+    $ts.dut.call("mesa_tce_del",    p_inj_tce)
+end
+
 def mrp_del()
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        voe_idx = $ts.dut.call("mesa_mrp_voe_index_get", 0)
+
+        if (voe_idx["p_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_del($ring_port1, voe_idx["p_voe_idx"])
+        end
+        if (voe_idx["s_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_del($ring_port2, voe_idx["s_voe_idx"])
+        end
+        if (voe_idx["i_voe_idx"] != MESA_VOE_IDX_NONE)
+            mrp_flow_del($ring_port_in, voe_idx["i_voe_idx"])
+        end
+    end
+
     $ts.dut.call("mesa_mrp_del", 0)
 end
 
@@ -738,7 +825,8 @@ end
 # correct number in IFH.SEQ_NUM? Sounds impractical.
 # Finally, it somehow seems to count per port, which I can't find that it should
 # anywhere in the register list.
-$seq_cnt               = {:port1 => 0, :port2 => 0, :ic_port => 0}
+$tst_seq_cnt           = {:port1 => 0, :port2 => 0, :ic_port => 0}
+$itst_seq_cnt          = {:port1 => 0, :port2 => 0, :ic_port => 0}
 $prv_primary_port_type = $port_types[0]
 $prv_ring_state        = "MESA_MRP_RING_STATE_OPEN"
 $prv_in_ring_state     = "MESA_MRP_RING_STATE_OPEN"
@@ -826,8 +914,9 @@ def tx_modif_test_do(new_primary_port_type, new_ring_state, new_in_ring_state)
         mrp_intest_tx_ifh = Hash.new()
         $port_types.each {|port_type|
             port_no = port_type_to_dut_port(port_type)
-            mrp_test_tx_ifh[port_type]   = tx_ifh_create(0, port_no, "MESA_PACKET_OAM_TYPE_MRP_TST")
-            mrp_intest_tx_ifh[port_type] = tx_ifh_create(0, port_no, "MESA_PACKET_OAM_TYPE_MRP_ITST")
+            port_idx = port_type_to_pc_port(port_type)
+            mrp_test_tx_ifh[port_type]   = tx_ifh_create(0, port_no, "MESA_PACKET_OAM_TYPE_MRP_TST",  false, false, $p_inj_iflow[port_idx])
+            mrp_intest_tx_ifh[port_type] = tx_ifh_create(0, port_no, "MESA_PACKET_OAM_TYPE_MRP_ITST", false, false, $p_inj_iflow[port_idx])
         }
 
         test "From CPU Tx two MRP_Test PDUs with abnormal variable fields and check the chip overwrites with expected values" do
@@ -839,7 +928,7 @@ def tx_modif_test_do(new_primary_port_type, new_ring_state, new_in_ring_state)
                 frm_tx = mrp_test_tx_ifh[port_type] + mc_test_frm.dup() + "mrp_tst t_sa #{MRP_SA_OWN} t_role 3 c_seq_num 10000 t_state 5 t_trans 1211 "
 
                 [0, 1].each {|cnt|
-                    t_i("Tx MRP_Test on #{port_type}, expect MRP_PortRole = #{port_role[port_type]}, MRP_RingState = #{expect_ring_state}, MRP_Transition = #{$transition_cnt[:mrp_test]}, MRP_Sequence_ID = #{$seq_cnt[port_type]}")
+                    t_i("Tx MRP_Test on #{port_type}, expect MRP_PortRole = #{port_role[port_type]}, MRP_RingState = #{expect_ring_state}, MRP_Transition = #{$transition_cnt[:mrp_test]}, MRP_Sequence_ID = #{$tst_seq_cnt[port_type]}")
                     # MRP_Test Rx expect mask looks like:
                     # TX:      01154e00000100000000050788e3-0001-0212-000000000000050a-0003-0005-04bb-00000000-0112-2710-0000000000000000000000000000000000000000000000000000000000000000000000000000
                     # RX:      01154e00000100000000050788e3-0001-0212-000000000000050a-0000-0000-0006-000246eb-0112-0064-0000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -848,8 +937,8 @@ def tx_modif_test_do(new_primary_port_type, new_ring_state, new_in_ring_state)
                     #                     |                                              |    |    |                  |
                     #              DMAC, SMAC, EtherType                         MRP_PortRole | MRP_Transition    MRP_SequenceID
                     #                                                                    MRP_RingState
-                    frm_rx = mc_test_frm.dup() + "mrp_tst ignore c_seq_num #{$seq_cnt[port_type]} t_role #{port_role[port_type]} t_state #{expect_ring_state} t_trans #{$transition_cnt[:mrp_test]} "
-                    $seq_cnt[port_type] += 1
+                    frm_rx = mc_test_frm.dup() + "mrp_tst ignore c_seq_num #{$tst_seq_cnt[port_type]} t_role #{port_role[port_type]} t_state #{expect_ring_state} t_trans #{$transition_cnt[:mrp_test]} "
+                    $tst_seq_cnt[port_type] += 1
                     frame_tx(frm_tx, $npi_port, port_type == :port1 ? frm_rx : "", port_type == :port2 ? frm_rx : "", "", "")
                 }
             }
@@ -863,7 +952,7 @@ def tx_modif_test_do(new_primary_port_type, new_ring_state, new_in_ring_state)
                 frm_tx = mrp_intest_tx_ifh[port_type] + mc_intest_frm.dup() + "mrp_tst t_sa #{MRP_SA_OWN} t_type 6 t_role 3 c_seq_num 10000 t_state 5 t_trans 1211 "
 
                 [0, 1].each {|cnt|
-                    t_i("Tx MRP_InTest on #{port_type}, expect MRP_PortRole = #{port_role[port_type]}, MRP_RingState = #{expect_in_ring_state}, MRP_Transition = #{$transition_cnt[:mrp_intest]}, MRP_Sequence_ID = #{$seq_cnt[port_type]}")
+                    t_i("Tx MRP_InTest on #{port_type}, expect MRP_PortRole = #{port_role[port_type]}, MRP_RingState = #{expect_in_ring_state}, MRP_Transition = #{$transition_cnt[:mrp_intest]}, MRP_Sequence_ID = #{$itst_seq_cnt[port_type]}")
 
                     # MRP_InTest Rx expect Mask looks like:
                     # TX:      01154e00000300000000050788e3-0001-0612-000000000000050a-0003-0005-04bb-00000000-0112-2710-0000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -873,8 +962,15 @@ def tx_modif_test_do(new_primary_port_type, new_ring_state, new_in_ring_state)
                     #                     |                                              |    |    |                  |
                     #              DMAC, SMAC, EtherType                         MRP_PortRole | MRP_Transition    MRP_SequenceID
                     #                                                                    MRP_RingState
-                    frm_rx = mc_intest_frm.dup() + "mrp_tst ignore c_seq_num #{$seq_cnt[port_type]} t_role #{port_role[port_type]} t_state #{expect_in_ring_state} t_trans #{$transition_cnt[:mrp_intest]} "
-                    $seq_cnt[port_type] += 1
+                    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+                        # On Maserati, TST and ITST are sharing a sequence number counting instance
+                        frm_rx = mc_intest_frm.dup() + "mrp_tst ignore c_seq_num #{$tst_seq_cnt[port_type]} t_role #{port_role[port_type]} t_state #{expect_in_ring_state} t_trans #{$transition_cnt[:mrp_intest]} "
+                        $tst_seq_cnt[port_type] += 1
+                    else
+                        # On Laguna, TST and ITST have separate sequence number counting registers
+                        frm_rx = mc_intest_frm.dup() + "mrp_tst ignore c_seq_num #{$itst_seq_cnt[port_type]} t_role #{port_role[port_type]} t_state #{expect_in_ring_state} t_trans #{$transition_cnt[:mrp_intest]} "
+                        $itst_seq_cnt[port_type] += 1
+                    end
                     frame_tx(frm_tx, $npi_port, port_type == :port1 ? frm_rx : "", port_type == :port2 ? frm_rx : "", port_type == :ic_port ? frm_rx : "", "")
                 }
             }

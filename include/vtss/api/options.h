@@ -103,6 +103,7 @@
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
 #define VTSS_FEATURE_MRP                          /**< IEC 62439-2 MRP */
+#define VTSS_FEATURE_MRP_V0                       /**< Version 0 MRP implementation. */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #define VTSS_FEATURE_RCL                          /**< Real-time Control List */
@@ -240,6 +241,8 @@
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */
+#define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
+#define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
 //Fix me #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */

@@ -818,6 +818,26 @@ static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width
 /*****************************************************************************/
 // fa_tx_hdr_encode()
 /*****************************************************************************/
+static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
+{
+    switch (info->oam_type) {
+    case VTSS_PACKET_OAM_TYPE_NONE:       break;  // Do nothing
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:    return 10;
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST:   return 10;
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:    return 11;
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:    return 11;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1:  return 2;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2:  return 2;
+    default:                              return 1;  // Y1731 OAM
+    }
+
+    if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
+        return 5;
+    }
+
+    return 0;
+}
+
 static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
                                 const vtss_packet_tx_info_t *const info,
                                 u8                          *const bin_hdr,
@@ -883,6 +903,8 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE, 2);  /* FWD.MIRROR_PROBE = Ingress mirror probe. 1-based in this field */
         }
 
+        pdu_type = pdu_type_calc(info);
+
         if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
             // PTP injection
             u32 rew_cmd;
@@ -892,13 +914,11 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain, info->afi_id != VTSS_AFI_ID_NONE, &rew_cmd));
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "", rew_cmd, info->ptp_timestamp);
             IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX+32, 10); // VSTAX.REW_CMD = PTP rewrite command. (when FWD_MODE == FWD_LLOOKUP).
-            pdu_type = 5; // DST.PDU_TYPE = PTP
             pl_pt = VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE;
         } else if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             // OAM injection
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "OAM Injecting");
             IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX+59, 1); // VSTAX.SP = 1. Super Priority
-            pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
             pl_pt = info->pipeline_pt;
 
             if (info->pipeline_pt != VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE || info->oam_type == VTSS_PACKET_OAM_TYPE_LCK) {

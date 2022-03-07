@@ -240,6 +240,12 @@ static vtss_rc fa_vop_conf_set(vtss_state_t            *vtss_state,
              VTSS_F_VOP_CPU_EXTR_CFG_1_LT_CPU_QU(conf->voe_queue_lt));
     REG_WR(VTSS_VOP_CPU_EXTR_CFG_1, value);
 
+    value = VTSS_F_VOP_CPU_EXTR_MRP_REM_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_OWN_CPU_QU(conf->mrp_queue) |
+            VTSS_F_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU(conf->mrp_queue) |
+            VTSS_F_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU(conf->mrp_queue) |
+            VTSS_F_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU(conf->mrp_queue);
+    REG_WR(VTSS_VOP_CPU_EXTR_MRP, value);
+
     for (i = 0; i < VTSS_DOWN_VOI_CNT; ++i) {   /* The number of Down and Up MIPs are the same in HW */
         REG_WRM(VTSS_ANA_CL_MIP_CFG(i), VTSS_F_ANA_CL_MIP_CFG_CPU_MIP_QU(conf->voi_queue), VTSS_M_ANA_CL_MIP_CFG_CPU_MIP_QU);
         REG_WRM(VTSS_REW_MIP_CFG(i), VTSS_F_REW_MIP_CFG_CPU_MIP_QU(conf->voi_queue), VTSS_M_REW_MIP_CFG_CPU_MIP_QU);
@@ -378,8 +384,54 @@ VTSS_D("sticky_mask %X", sticky_mask);
     return (VTSS_RC_OK);
 }
 
-static u32 voe_alloc_idx;
-static vtss_rc fa_voe_alloc(vtss_state_t                *vtss_state,
+static u32 service_voe_alloc_idx;
+vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t         *vtss_state,
+                                         vtss_voe_function_t  function)
+{
+    u32 i;
+
+    for (i = 0; (i < VTSS_PATH_SERVICE_VOE_CNT) && vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated; ++i) {
+        service_voe_alloc_idx = (service_voe_alloc_idx + 1) % VTSS_PATH_SERVICE_VOE_CNT;
+    }
+    if (i >= VTSS_PATH_SERVICE_VOE_CNT) {
+        VTSS_E("No free Service VOE to allocate");
+        return VTSS_PATH_SERVICE_VOE_CNT;
+    }
+    vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated = TRUE;
+    vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].function = function;
+    return service_voe_alloc_idx;
+}
+
+vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
+                                 vtss_voe_function_t  function,
+                                 vtss_voe_idx_t       voe_idx)
+{
+    vtss_voe_alloc_t  *alloc_data;
+
+    if (voe_idx >= VTSS_VOE_CNT) {
+        VTSS_D("VOE index is invalid  voe_idx %u", voe_idx);
+        return (VTSS_RC_OK);
+    }
+    if (voe_idx >= VTSS_PATH_SERVICE_VOE_CNT) {
+        VTSS_D("VOE index is not a service VOE  voe_idx %u", voe_idx);
+        return (VTSS_RC_OK);
+    }
+    alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
+    if (!alloc_data->allocated) {
+        VTSS_D("VOE not allocated  voe_idx %u", voe_idx);
+        return (VTSS_RC_OK);
+    }
+    if (alloc_data->function != function) {
+        VTSS_E("VOE does not have correct function  voe_idx %u  function %u  allocated function %u", voe_idx, function, alloc_data->function);
+        return (VTSS_RC_ERROR);
+    }
+    alloc_data->allocated = FALSE;
+
+    service_voe_alloc_idx = voe_idx;
+    return (VTSS_RC_OK);
+}
+
+static vtss_rc fa_voe_alloc(vtss_state_t                 *vtss_state,
                              const vtss_voe_type_t       type,
                              const vtss_port_no_t        port,
                              const vtss_oam_direction_t  direction,
@@ -387,31 +439,28 @@ static vtss_rc fa_voe_alloc(vtss_state_t                *vtss_state,
 {
     u32 i, offset, v;
 
-    VTSS_D("Enter  type %u  port %u  direction %u  voe_alloc_idx %u", type, port, direction, voe_alloc_idx);
+    VTSS_D("Enter  type %u  port %u  direction %u  service_voe_alloc_idx %u", type, port, direction, service_voe_alloc_idx);
 
     if (type == VTSS_VOE_TYPE_SERVICE) {
-        for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT && vtss_state->oam.voe_alloc_data[voe_alloc_idx].allocated; ++i) {
-            voe_alloc_idx = (voe_alloc_idx + 1) % VTSS_PATH_SERVICE_VOE_CNT;
-        }
-        if (i == VTSS_PATH_SERVICE_VOE_CNT) {
+        i = vtss_fa_service_voe_alloc(vtss_state, VTSS_VOE_FUNCTION_OAM);
+        if (i >= VTSS_PATH_SERVICE_VOE_CNT) {
             VTSS_E("No free Service VOE to allocate");
             return VTSS_RC_ERROR;
         }
-        i = voe_alloc_idx;
     } else {
         if (direction == VTSS_OAM_DIRECTION_UP) {
             VTSS_E("Port VOE cannot be up");
             return VTSS_RC_ERROR;
         }
         i = VTSS_CHIP_PORT(port) + VTSS_PORT_VOE_BASE_IDX;
-        if (i >= VTSS_VOE_CNT  ||  vtss_state->oam.voe_alloc_data[i].allocated) {
+        if ((i >= VTSS_VOE_CNT)  ||  vtss_state->oam.voe_alloc_data[i].allocated) {
             VTSS_E("No free Port VOE to allocate");
             return VTSS_RC_ERROR;
         }
+        vtss_state->oam.voe_alloc_data[i].allocated = TRUE;
     }
 
     *voe_idx = i;
-    vtss_state->oam.voe_alloc_data[*voe_idx].allocated = TRUE;
     vtss_state->oam.voe_alloc_data[*voe_idx].type = type;
     vtss_state->oam.voe_alloc_data[*voe_idx].port = port;
     vtss_state->oam.voe_alloc_data[*voe_idx].direction = direction;
@@ -502,21 +551,21 @@ static vtss_rc fa_voe_alloc(vtss_state_t                *vtss_state,
 }
 
 static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
-                            const vtss_voe_idx_t  voe_idx)
+                           const vtss_voe_idx_t  voe_idx)
 {
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t  *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    if (!alloc_data->allocated) {
-        VTSS_D("VOE not allocated  voe_idx %u", voe_idx);
-        return (VTSS_RC_OK);
-    }
-    alloc_data->allocated = FALSE;
-
     if (voe_idx < VTSS_PATH_SERVICE_VOE_CNT) {
-        voe_alloc_idx = voe_idx;
+        rc = vtss_fa_service_voe_free(vtss_state, VTSS_VOE_FUNCTION_OAM, voe_idx);
+    } else {
+        if (!alloc_data->allocated) {
+            VTSS_D("VOE not allocated  voe_idx %u", voe_idx);
+            return (VTSS_RC_OK);
+        }
+        alloc_data->allocated = FALSE;
     }
 
     if ((rc = voe_default_set(vtss_state, voe_idx)) != VTSS_RC_OK) {
@@ -1667,7 +1716,7 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     /* All VOEs are disabled in hardware by default - Disable VOP */
     REG_WR(VTSS_VOP_VOP_CTRL, 0);
 
-    voe_alloc_idx = 0;
+    service_voe_alloc_idx = 0;
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
         /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */

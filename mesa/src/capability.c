@@ -1985,6 +1985,18 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_MRP_V0:
+#if defined(VTSS_FEATURE_MRP) && defined(VTSS_FEATURE_MRP_V0)
+        c = 1;
+#endif
+        break;
+
+    case MESA_CAP_MRP_V1:
+#if defined(VTSS_FEATURE_MRP) && defined(VTSS_FEATURE_MRP_V1)
+        c = 1;
+#endif
+        break;
+
     // SGPIO to signal detect mapping
     case MESA_CAP_MISC_SGPIO_MAP:
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)

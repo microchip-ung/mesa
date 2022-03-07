@@ -32,6 +32,10 @@ typedef struct {
     vtss_mrp_internal_counters_t p_counters;       /* P port chip counters */
     vtss_mrp_internal_counters_t s_counters;       /* S port chip counters */
     vtss_mrp_internal_counters_t i_counters;       /* I port chip counters */
+
+    vtss_voe_idx_t p_voe_idx;       /* P port VOE index */
+    vtss_voe_idx_t s_voe_idx;       /* S port VOE index */
+    vtss_voe_idx_t i_voe_idx;       /* I port VOE index */
 } vtss_mrp_data_t;
 
 typedef struct {

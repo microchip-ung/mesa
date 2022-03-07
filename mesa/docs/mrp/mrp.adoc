@@ -29,8 +29,29 @@ This is according to IEC 62439-2 +
 .The handling has impact on the frame on egress:
 * Updating fields in transmitted MRP_Test and MRP_InTest PDUs
 
-There are MRP resources per switch port that enable configuration of MRPs
+There are MRP HW resources allocated per switch port that support adding and configuration of MRP instances
 that can have two ring ports and one interconnected port.
+
+=== MRP Detailed.
+The MRP HW resources are hit by MRP frames differently depending of the MRP version.
+The following drawing outline the details.
+
+If MESA capability `MESA_CAP_MRP_V0` is not zero the following applies::
+The MRP resources are hit automatically, no additional configuration is required.
+
+--
+.Frame flow
+image:./v0-mrp-flow.svg[]
+--
+
+If MESA capability `MESA_CAP_MRP_V1` is not zero the following applies::
+The MRP resourced are implemented by VOEs in HW. In order to hit the MRP-VOE the ingress
+and injected MRP frames must be directed by additional configuration.
+
+--
+.Frame flow
+image:./v1-mrp-flow.svg[]
+--
 
 === Adding a MRP.
 `mesa_mrp_add()` +
@@ -43,6 +64,32 @@ Handling of MRP PDUs will be depending on the given ring roles according to IEC 
 There can only be one MRP instance on a port. +
  +
 A MRP instance can be deleted.
+
+=== Getting allocated MRP-VOE indices.
+If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+`mesa_mrp_voe_index_get()` +
++
+When a MRP instance has been added, calling this function will return (`mesa_mrp_voe_idx_t`) the allocated VOE indices to
+be used when doing additional configuration required for MRP frames to hit MRP-VOE.
+
+==== Ingress Port VCE and IFLOW.
+If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+`mesa_vce_add` +
+`mesa_iflow_alloc` +
++
+On P-Port + S-Port + I-Port one VCE entry is configured (`mesa_vce_t`) with key matching on MRP with no TAG. Action is to mark as MRP and give IFLOW. +
+The IFLOW is configured (`mesa_iflow_conf_t`) to point to the allocated MRP-VOE that will be the MRP frame handling VOE. +
+The IFLOW is also used as the Egress IFLOW.
+
+==== Egress Port TCE and EFLOW.
+If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+`mesa_tce_add` +
+`mesa_eflow_alloc` +
++
+On P-Port + S-Port + I-Port one TCE entry is configured (`mesa_tce_t`) with key matching on specific IFLOW. Action is to give EFLOW. +
+The EFLOW is configured (`mesa_eflow_conf_t`) to point to the allocated MRP-VOE that will be the MRP frame handling VOE +
+The TCE key IFLOW is used when OAM frames are injected. +
+The IFLOW is the same as the one used as Ingress IFLOW.
 
 === Changing MRP role
 `mesa_mrp_ring_role_set()` +

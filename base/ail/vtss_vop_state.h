@@ -34,6 +34,11 @@ typedef struct {
     } voe;
 } vtss_oam_voe_internal_counters_t;
 
+typedef enum {
+    VTSS_VOE_FUNCTION_OAM,
+    VTSS_VOE_FUNCTION_MRP,
+} vtss_voe_function_t;
+
 typedef struct {
     vtss_oam_voe_internal_counters_t counters;       /* Chip counters for a VOE */
     u32                              tx_next_lbm_transaction_id;
@@ -42,6 +47,7 @@ typedef struct {
 
 typedef struct {
     BOOL                   allocated;
+    vtss_voe_function_t    function;
     vtss_port_no_t         port;
     vtss_voe_type_t        type;
     vtss_oam_direction_t   direction;
