@@ -855,15 +855,16 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no), i, p;
     u32                    value, link_speed = 1, delay = 0, pfc_mask;
-    BOOL                   disable = conf->power_down, disable_serdes = 0, giga = TRUE;
+    BOOL                   disable = conf->power_down, disable_serdes = 0, giga = 1;
     BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST);
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
+#if !defined(VTSS_OPT_FPGA)
     u32                    idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t     mode_req = VTSS_SERDES_MODE_DISABLE;
     port_type_t            port_type = PORT_TYPE_NONE;
-
+#endif
 
     /* Verify speed and interface type */
     switch (speed) {
@@ -1007,11 +1008,18 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         value = (conf->flow_control.obey ? DEV_MAC_MODE_CFG_FC_WORD_SYNC_ENA_M : 0);
     }
 
+#if !defined(VTSS_OPT_FPGA)
     VTSS_RC(lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req));
     if (port_type != PORT_TYPE_SD && link_speed != 1) {
         /* RGMII or Internal phy in 10/100 mode = GIG mode disabled */
         giga = 0;
     }
+#endif
+#if defined(VTSS_OPT_FPGA)
+    if (port > 1) {
+        giga = link_speed == 1 ? 1 : 0;
+    }
+#endif
     if (giga) {
         value |= DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M;
     }
