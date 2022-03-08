@@ -2414,7 +2414,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 
     /* GIG/FDX mode */
     REG_WRM(VTSS_DEV1G_MAC_MODE_CFG(tgt),
-            VTSS_F_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA(speed == VTSS_SPEED_1G || speed == VTSS_SPEED_2500M) |
+            VTSS_F_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA(1) |
             VTSS_F_DEV1G_MAC_MODE_CFG_FDX_ENA(fdx),
             VTSS_M_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA |
             VTSS_M_DEV1G_MAC_MODE_CFG_FDX_ENA);
