@@ -1489,7 +1489,8 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_PORT_RESET:
             if (board->type == BOARD_TYPE_SPARX5_PCB135 && !board->gpy241_present) {
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
-                    if (port_no % 4 == 0 && (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
+                    if (board->port[port_no].map.map.chip_port % 4 == 0 &&
+                        (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
                         if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
                             T_E(inst, "Could not pre reset phy %d", port_no);
                         }
