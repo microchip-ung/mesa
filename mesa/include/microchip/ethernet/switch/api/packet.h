@@ -512,6 +512,9 @@ typedef struct {
     // Chip pipeline injection point (not used for Luton26 and Serval)
     // Specifies where a frame is injected into the chip.
     mesa_packet_pipeline_pt_t pipeline_pt;
+
+    // RedBox HSR/PRP tag disable
+    mesa_bool_t rb_tag_disable;
 } mesa_packet_tx_info_t;
 
 // Decode binary extraction/Rx header.

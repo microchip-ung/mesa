@@ -992,6 +992,10 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     }
     IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp>>8) & 0xFFFFFFFFFF), 232, 40); // TS = 40 bits PTP time stamp
 
+    if (info->rb_tag_disable) {
+        IFH_ENCODE_BITFIELD(bin_hdr, 1, 277, 1); // Disable RedBox tagging
+    }
+
     VTSS_IG(VTSS_TRACE_GROUP_PACKET, "IFH:");
     VTSS_IG_HEX(VTSS_TRACE_GROUP_PACKET, &bin_hdr[0], *bin_hdr_len);
 

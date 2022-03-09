@@ -8048,6 +8048,7 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
     vtss_rc        rc;
     vtss_rb_cap_t  cap;
     vtss_port_no_t port_a, port_b;
+    vtss_rb_conf_t *rb_conf;
 
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
@@ -8057,7 +8058,9 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
         port_b = conf->port_b;
         if (conf->mode == VTSS_RB_MODE_DISABLED ||
             (port_a != port_b && cap.port_list[port_a] && cap.port_list[port_b])) {
-            vtss_state->l2.rb_conf[rb_id] = *conf;
+            rb_conf = &vtss_state->l2.rb_conf[rb_id];
+            vtss_state->l2.rb_conf_old = *rb_conf;
+            *rb_conf = *conf;
             rc = VTSS_FUNC(l2.rb_conf_set, rb_id);
         } else {
             VTSS_E("illegal port A/B: %u/%u", port_a, port_b);

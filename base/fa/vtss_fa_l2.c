@@ -1659,7 +1659,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
                                    vtss_rb_conf_t *conf)
 {
     u32 tag_mode = FA_RB_TAG_NONE, hsr_aware = 0, prp_aware = 0, ht = FA_HT_NONE;
-    u32 lre, age, lan_id = conf->lan_id, trans_netid = 0, hsr_filter = FA_RB_FLT_NONE;
+    u32 lre, age, trans_netid = 0, hsr_filter = FA_RB_FLT_NONE;
+    u32 lan_id = conf->lan_id, netid = conf->net_id;
     u32 prxy_smac_msk = FA_RB_MSK_ALL, prxy_dmac_msk = FA_RB_MSK_ALL;
     u32 node_smac_msk = FA_RB_MSK_ALL, node_dmac_msk = FA_RB_MSK_ALL;
 
@@ -1684,7 +1685,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         } else {
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
-            hsr_filter = 1;                 // Discard HSR-tagged frames on Interlink
+            hsr_filter = FA_RB_FLT_HSR;     // Discard HSR-tagged frames on Interlink
         }
         break;
     case VTSS_RB_MODE_HSR_PRP:
@@ -1698,6 +1699,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
             hsr_filter = FA_RB_FLT_HSR;     // Discard HSR-tagged frames on Interlink
+            netid = 5;
         }
         break;
     case VTSS_RB_MODE_HSR_HSR:
@@ -1727,7 +1729,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(ht == FA_HT_NONE ? 0 : 1) |
            VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1));
 
-    REG_WR(RB_ADDRX(VTSS_RB_BPDU_CFG, rb_id, j), 0);
+    REG_WR(RB_ADDRX(VTSS_RB_BPDU_CFG, rb_id, j),
+           VTSS_F_RB_BPDU_CFG_BPDU_REDIR_ENA(lre ? 0xffff : 0));
 
     REG_WR(RB_ADDRX(VTSS_RB_FWD_CFG, rb_id, j),
            VTSS_F_RB_FWD_CFG_PROXY_DST_FWD_MASK(prxy_dmac_msk) |
@@ -1740,8 +1743,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
+           VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(trans_netid ? 2 : 0) |
-           VTSS_F_RB_PORT_CFG_NETID(conf->net_id) |
+           VTSS_F_RB_PORT_CFG_NETID(netid) |
            VTSS_F_RB_PORT_CFG_LANID(lan_id) |
            VTSS_F_RB_PORT_CFG_HSR_AWARE_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_PRP_AWARE_ENA(prp_aware));
@@ -1753,8 +1757,9 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
                               const vtss_rb_id_t rb_id)
 {
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
+    vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
     u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
-    u32            age, clk_period, val;
+    u32            age, clk_period, val, hsr_spv = 0, prp_spv = 0;
 
     mode = (conf->mode == VTSS_RB_MODE_PRP_SAN ? FA_RB_MODE_PRP_SAN:
             conf->mode == VTSS_RB_MODE_HSR_SAN ? FA_RB_MODE_HSR_SAN :
@@ -1772,6 +1777,18 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     REG_WR(RB_ADDR(VTSS_RB_TAXI_IF_CFG, rb_id),
            VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(port_a) |
            VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(port_b));
+    if (old->mode != VTSS_RB_MODE_DISABLED) {
+        // Disable IFH/preamble transfers for old port A
+        port_a = VTSS_CHIP_PORT(old->port_a);
+        REG_WRM_CLR(VTSS_ASM_PORT_CFG(port_a), VTSS_M_ASM_PORT_CFG_RB_ENA);
+        REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port_a), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+    }
+    if (ena) {
+        // Enable IFH/preamble transfers for new port A
+        port_a = VTSS_CHIP_PORT(conf->port_a);
+        REG_WRM_SET(VTSS_ASM_PORT_CFG(port_a), VTSS_M_ASM_PORT_CFG_RB_ENA);
+        REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port_a), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+    }
 
     // NetId filtering on Interlink
     switch (conf->mode) {
@@ -1779,15 +1796,24 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     case VTSS_RB_MODE_HSR_SAN:
     case VTSS_RB_MODE_HSR_PRP:
     case VTSS_RB_MODE_HSR_HSR:
+        hsr_spv = 2; // Redirect to CPU
         net_id = conf->net_id;
         break;
     case VTSS_RB_MODE_PRP_SAN:
+        prp_spv = 2; // Redirect to CPU
+        break;
     default:
         break;
     }
     REG_WR(RB_ADDR(VTSS_RB_NETID_CFG, rb_id),
            VTSS_F_RB_NETID_CFG_NETID_FILTER_ENA(net_id == 0 ? 0 : 1) |
            VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
+    REG_WR(RB_ADDR(VTSS_RB_SPV_CFG, rb_id),
+           VTSS_F_RB_SPV_CFG_DMAC_ENA(1) |
+           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_spv) |
+           VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
+           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_spv) |
+           VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
 
     // Ageing
     clk_period = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
@@ -2789,7 +2815,7 @@ static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
             }
         }
         sprintf(buf, v > 9 ? "0x%x" : "%u", v);
-        pr("%-6s", buf);
+        pr("%-8s", buf);
     }
     if (newline) {
         pr("\n");
@@ -2815,7 +2841,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
 {
     vtss_rb_conf_t *conf;
     char           buf[64];
-    u32            i, j, val, m, x[3];
+    u32            i, j, val, m, x[3], port_a, port_b;
     fa_rb_host_t   host;
     vtss_rc        rc;
     BOOL           header;
@@ -2829,14 +2855,16 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         m = (m ? VTSS_X_RB_RB_CFG_RB_MODE(val) : 10);
         REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
         conf =  &vtss_state->l2.rb_conf[i];
+        port_a = VTSS_CHIP_PORT(conf->port_a);
+        port_b = VTSS_CHIP_PORT(conf->port_b);
         pr("RedBox %u (%s), port %u/%u, taxi %u/%u:\n\n",
            i,
            m == FA_RB_MODE_PRP_SAN ? "PRP-SAN":
            m == FA_RB_MODE_HSR_SAN ? "HSR-SAN":
            m == FA_RB_MODE_HSR_PRP ? "HSR-PRP":
            m == FA_RB_MODE_HSR_HSR ? "HSR-HSR": "NONE",
-           VTSS_CHIP_PORT(conf->port_a),
-           VTSS_CHIP_PORT(conf->port_b),
+           port_a,
+           port_b,
            VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(val),
            VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(val));
 
@@ -2846,18 +2874,29 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
            FA_RB_MODE_PRP_SAN, FA_RB_MODE_HSR_SAN,
            FA_RB_MODE_HSR_PRP, FA_RB_MODE_HSR_HSR);
-        FA_DEBUG_RB_FLD(&val, RB_CFG_HSR_TAG_SEL);
+        FA_DEBUG_RB_FLD_NL(&val, RB_CFG_HSR_TAG_SEL);
+        pr("(0:OUTER, 1:MIDDLE, 2:INNER, 3:RESV)\n");
         REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREA_PORT_NO);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREB_PORT_NO);
         REG_RD(RB_ADDR(VTSS_RB_NETID_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_FILTER_ENA);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_MASK);
+        REG_RD(RB_ADDR(VTSS_RB_SPV_CFG, i), &val);
+        FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
+        FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
+        sprintf(buf, "(0:NONE, 1:COPY, 2:REDIR)\n");
+        pr(buf);
+        FA_DEBUG_RB_FLD(&val, SPV_CFG_HSR_MAC_LSB);
+        FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
+        pr(buf);
+        FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
         for (j = 0; j < 2; j++) {
-            sprintf(buf, "%s", j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
+            sprintf(buf, j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_UNIT_SIZE,
-                            "UNIT_SIZE", buf, TRUE, 1);
+                            "UNIT_SIZE", buf, FALSE, 1);
+            pr("(0:8, 1:128, 2:2048, 3:32768)\n");
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_PERIOD_VAL,
                             "PERIOD_VAL", buf, TRUE, 1);
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, i, j), &val);
@@ -2901,6 +2940,11 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_HSR_FILTER_CFG);
         pr("(%u:NONE, %u:HSR, %u:NOT_HSR, %u:REDIR)\n",
            FA_RB_FLT_NONE, FA_RB_FLT_HSR, FA_RB_FLT_NOT_HSR, FA_RB_FLT_REDIR);
+        FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_HSR_SPV_FWD_SEL);
+        sprintf(buf, "(0:NONE, 1:COPY, 2:REDIR, 3:DISCARD)\n");
+        pr(buf);
+        FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_PRP_SPV_FWD_SEL);
+        pr(buf);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_TRANS_NETID);
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_TRANS_NETID_SEL);
         pr("(0:NONE, 1:TRANS, 2:ALL, 3:RESV)\n");
@@ -2908,6 +2952,23 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_LANID);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_HSR_AWARE_ENA);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_PRP_AWARE_ENA);
+
+        for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
+            REG_RD(RB_ADDRX(VTSS_RB_BPDU_CFG, i, j), &x[j]);
+        }
+        FA_DEBUG_RB_PORT_FLD(x, BPDU_CFG_BPDU_REDIR_ENA);
+
+        for (j = 0; j < 2; j++) {
+            REG_RD(VTSS_ASM_PORT_CFG(j ? port_b : port_a), &x[j]);
+        }
+        fa_debug_rb_fld(pr, x, VTSS_M_ASM_PORT_CFG_RB_ENA,
+                        "ASM:PORT_CFG_RB_ENA", NULL, TRUE, 2);
+
+        for (j = 0; j < 2; j++) {
+            REG_RD(VTSS_REW_RTAG_ETAG_CTRL(j ? port_b : port_a), &x[j]);
+        }
+        fa_debug_rb_fld(pr, x, VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA,
+                        "REW:RTAG_ETAG_CTRL:RB_ENA", NULL, TRUE, 2);
 
         if (info->full) {
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {

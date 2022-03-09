@@ -904,6 +904,7 @@ typedef struct {
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
     vtss_rb_conf_t rb_conf[VTSS_REDBOX_CNT];
+    vtss_rb_conf_t rb_conf_old;
     vtss_rb_cnt_t  rb_cnt[VTSS_REDBOX_CNT];
     u32            rb_poll_idx; // Counter polling index
 #endif

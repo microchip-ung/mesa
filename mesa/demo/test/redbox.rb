@@ -76,7 +76,7 @@ test_table =
 [
     # HSR-SAN tests
     {
-        txt: "HSR-SAN, port A to port B/C/D",
+        txt: "port A to port B/C/D",
         cfg: {mode: "HSR_SAN"},
         tab: [{fwd: [{idx_tx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
                      {idx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
@@ -84,7 +84,7 @@ test_table =
                      {idx: $idx_d}]}]
     },
     {
-        txt: "HSR-SAN, port B to port A/C/D",
+        txt: "port B to port A/C/D",
         cfg: {mode: "HSR_SAN"},
         tab: [{fwd: [{idx_tx: $idx_b, hsr: {net_id: 2, lan_id: 1}},
                      {idx: $idx_a, hsr: {net_id: 2, lan_id: 1}},
@@ -92,7 +92,7 @@ test_table =
                      {idx: $idx_d}]}]
     },
     {
-        txt: "HSR-SAN, port C to port A/B/D",
+        txt: "port C to port A/B/D",
         cfg: {mode: "HSR_SAN", net_id: 7},
         tab: [{fwd: [{idx_tx: $idx_c},
                      {idx: $idx_a, hsr: {net_id: 7}},
@@ -100,7 +100,7 @@ test_table =
                      {idx: $idx_d}]}]
     },
     {
-        txt: "HSR-SAN, port D to port A/B/C",
+        txt: "port D to port A/B/C",
         cfg: {mode: "HSR_SAN", net_id: 7},
         tab: [{fwd: [{idx_tx: $idx_d},
                      {idx: $idx_a, hsr: {net_id: 7}},
@@ -108,13 +108,13 @@ test_table =
                      {idx: $idx_c}]}]
     },
     {
-        txt: "HSR-SAN, discard HSR-tagged on Interlink",
+        txt: "discard HSR-tagged on Interlink",
         cfg: {mode: "HSR_SAN"},
         tab: [{fwd: [{idx_tx: $idx_c, hsr: {}},
                      {idx: $idx_d, hsr: {}}]}]
     },
     {
-        txt: "HSR-SAN, discard non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_SAN"},
         tab: [
             {fwd: [{idx_tx: $idx_a}]},
@@ -122,7 +122,7 @@ test_table =
         ]
     },
     {
-        txt: "HSR-SAN with VLANs, port A to port B/C",
+        txt: "VLANs, port A to port B/C",
         cfg: {mode: "HSR_SAN",
               vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
                                      {idx: $idx_c, pvid: 10, uvid: 10}]}},
@@ -131,7 +131,7 @@ test_table =
                      {idx: $idx_c}]}]
     },
     {
-        txt: "HSR-SAN with VLANs, port D to port A/B",
+        txt: "VLANs, port D to port A/B",
         cfg: {mode: "HSR_SAN", net_id: 6,
               vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
                                      {idx: $idx_d, pvid: 10, uvid: 10}]}},
@@ -141,7 +141,7 @@ test_table =
     },
     {
         # Fails, Jira-208: Two frames forwarded differently (payload depedent)
-        txt: "HSR-SAN with VLANs, forwarding two tagged frames fails",
+        txt: "forwarding two frames fails",
         cfg: {mode: "HSR_SAN"},
         tab: [
             {fwd: [{idx_tx: $idx_c},
@@ -155,73 +155,73 @@ test_table =
         ]
     },
     {
-        txt: "HSR-SAN, DMAC-PNT filtering on Interlink->LRE",
+        txt: "DMAC-PNT filtering on Interlink->LRE",
         cfg: {mode: "HSR_SAN"},
         tab: [
             # Learn SMAC in PNT and flush switch port
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}],
              flush: $idx_c},
             # Send to DMAC on Interlink, expect discard on LRE
-            {frm: {dmac: 0xcc},
+            {frm: {dmac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_d}]}
         ]
     },
     {
-        txt: "HSR-SAN, DMAC-PNT-STATIC filtering on Interlink->LRE",
+        txt: "DMAC-PNT-STATIC filtering on Interlink->LRE",
         cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
         # Send to DMAC on Interlink, expect discard on LRE
-        tab: [{frm: {dmac: 0xcc},
+        tab: [{frm: {dmac: ":cc"},
                fwd: [{idx_tx: $idx_c},
                      {idx: $idx_d}]}]
     },
     {
-        txt: "HSR-SAN, DMAC-PNT filtering on LRE->LRE",
+        txt: "DMAC-PNT filtering on LRE->LRE",
         cfg: {mode: "HSR_SAN"},
         tab: [
             # Learn SMAC in PNT (and on switch port C)
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}]},
             # Send to DMAC on LRE, expect discard on LRE
-            {frm: {dmac: 0xcc},
+            {frm: {dmac: ":cc"},
              fwd: [{idx_tx: $idx_a, hsr: {}},
                    {idx: $idx_c}]}
         ]
     },
     {
-        txt: "HSR-SAN, DMAC-PNT-STATIC filtering on LRE->LRE",
+        txt: "DMAC-PNT-STATIC filtering on LRE->LRE",
         cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
         # Send to DMAC on LRE, expect discard on LRE
-        tab: [{frm: {dmac: 0xcc},
+        tab: [{frm: {dmac: ":cc"},
                fwd: [{idx_tx: $idx_b, hsr: {}},
                      {idx: $idx_c},
                      {idx: $idx_d}]}]
     },
     {
-        txt: "HSR-SAN, SMAC-PNT filtering/ageing on LRE->interlink",
+        txt: "SMAC-PNT filtering/ageing on LRE->interlink",
         cfg: {mode: "HSR_SAN", pnt_age_time: 20},
         tab: [
             # Learn SMAC in PNT
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}],
              wait: 10},
             # Send from SMAC on LRE, expect discard on Interlink
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}}],
              wait: 10},
             # Send from SMAC on LRE, expect forward on Interlink
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_c},
@@ -229,25 +229,56 @@ test_table =
         ]
     },
     {
-        txt: "HSR-SAN, SMAC-PNT-STATIC filtering on LRE->interlink",
+        txt: "SMAC-PNT-STATIC filtering on LRE->interlink",
         cfg: {mode: "HSR_SAN", proxy: {mac: 0xcc}},
         # Send from SMAC on LRE, expect discard on Interlink
-        tab: [{frm: {smac: 0xcc},
+        tab: [{frm: {smac: ":cc"},
                fwd: [{idx_tx: $idx_b, hsr: {}},
                      {idx: $idx_a, hsr: {}}]}]
     },
     {
-        txt: "HSR-SAN, DMAC-NT filtering on LRE->interlink",
+        txt: "DMAC-NT filtering on LRE->interlink",
         cfg: {mode: "HSR_SAN", node: {mac: 0xbb}},
-        tab: [{frm: {dmac: 0xbb},
+        tab: [{frm: {dmac: ":bb"},
                fwd: [{idx_tx: $idx_a, hsr:{}},
+                     {idx: $idx_b, hsr: {}}]}]
+    },
+    {
+        txt: "BPDU Rx on LRE",
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "BPDU Tx to LREs",
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
+                     {idx: $idx_a},
+                     {idx: $idx_b}]}]
+    },
+    {
+        txt: "Supervision Rx on LRE",
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+               fwd: [{idx_tx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "Supervision Tx to LREs",
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
+                     {idx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}}]}]
     },
 
     # PRP-SAN tests
     {
         # Fails, PRP size 6 bytes too long
-        txt: "PRP-SAN, port A to port C/D",
+        txt: "port A to port C/D",
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: $idx_a, prp: {lan_id: 0}},
                      {idx: $idx_c},
@@ -255,14 +286,14 @@ test_table =
     },
     {
         # Fails, PRP size 6 bytes too long
-        txt: "PRP-SAN, port B to port C/D",
+        txt: "port B to port C/D",
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: $idx_b, prp: {lan_id: 1}},
                      {idx: $idx_c},
                      {idx: $idx_d}]}]
     },
     {
-        txt: "PRP-SAN, port A wrong LAN",
+        txt: "port A wrong LAN",
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: $idx_a, prp: {lan_id: 1}},
                      {idx: $idx_c, prp: {lan_id: 1}},
@@ -271,7 +302,7 @@ test_table =
     },
     {
         # Fails, Jira-210: No PRP trailer added
-        txt: "PRP-SAN, port C to port A/B with sequence numbers",
+        txt: "port C to port A/B with sequence numbers",
         cfg: {mode: "PRP_SAN"},
         tab: [
             {fwd: [{idx_tx: $idx_c},
@@ -285,54 +316,84 @@ test_table =
         ]
     },
     {
-        txt: "PRP-SAN, forward to SAN on port A",
+        txt: "forward to SAN on port A",
         cfg: {mode: "PRP_SAN", nt_age_time: 20},
         tab: [
             # Learn SAN on port A
-            {frm: {smac: 0xaa},
+            {frm: {smac: ":aa"},
              fwd: [{idx_tx: $idx_a},
                    {idx: $idx_c},
                    {idx: $idx_d}],
              wait: 10},
             # Forward to SAN on port A
-            {frm: {dmac: 0xaa},
+            {frm: {dmac: ":aa"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a}],
              wait: 10},
             # Node timeout, forward to SAN on port A/B
-            {frm: {dmac: 0xaa},
+            {frm: {dmac: ":aa"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, prp: {lan_id: 0}},
                    {idx: $idx_b, prp: {lan_id: 1}}]},
         ]
     },
     {
-        txt: "PRP-SAN, forward to SAN on port B",
+        txt: "forward to SAN on port B",
         cfg: {mode: "PRP_SAN", nt_age_time: 20},
         tab: [
             # Learn SAN on port B
-            {frm: {smac: 0xbb},
+            {frm: {smac: ":bb"},
              fwd: [{idx_tx: $idx_b},
                    {idx: $idx_c},
                    {idx: $idx_d}],
              wait: 10},
             # Forward to SAN on port B
-            {frm: {dmac: 0xbb},
+            {frm: {dmac: ":bb"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a}],
              wait: 10},
             # Node timeout, forward to SAN on port A/B
-            {frm: {dmac: 0xbb},
+            {frm: {dmac: ":bb"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, prp: {lan_id: 0}},
                    {idx: $idx_b, prp: {lan_id: 1}}]},
         ]
     },
+    {
+        txt: "BPDU Rx on LRE",
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "BPDU Tx to LREs",
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
+                     {idx: $idx_a},
+                     {idx: $idx_b}]}]
+    },
+    {
+        txt: "Supervision Rx on LRE",
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: $idx_a, prp: {}},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "Supervision Tx to LREs",
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
+                     {idx: $idx_a, prp: {}},
+                     {idx: $idx_b, prp: {lan_id: 1}}]}]
+    },
 
     # HSR-PRP tests
     {
         # Fails, translation to NetId 5 not working
-        txt: "HSR-PRP, port A to port C/D",
+        txt: "port A to port C/D",
         cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
@@ -341,7 +402,7 @@ test_table =
     },
     {
         # Fails, PRP size 6 bytes too long
-        txt: "HSR-PRP, port C to port A/B",
+        txt: "port C to port A/B",
         cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: $idx_c, prp: {}},
                      {idx: $idx_a, hsr: {}},
@@ -349,13 +410,13 @@ test_table =
                      {idx: $idx_d, prp: {}}]}]
     },
     {
-        txt: "HSR-PRP, discard HSR-tagged on Interlink",
+        txt: "discard HSR-tagged on Interlink",
         cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: $idx_c, hsr: {}},
                      {idx: $idx_d, hsr: {}}]}]
     },
     {
-        txt: "HSR-PRP, discard non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_PRP"},
         tab: [
             {fwd: [{idx_tx: $idx_a}]},
@@ -363,49 +424,49 @@ test_table =
         ]
     },
     {
-        txt: "HSR-PRP, DMAC-PNT filtering on Interlink->LRE",
+        txt: "DMAC-PNT filtering on Interlink->LRE",
         cfg: {mode: "HSR_PRP"},
         tab: [
             # Learn SMAC in PNT and flush switch port
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}],
              flush: $idx_c},
             # Send to DMAC on Interlink, expect discard on LRE
-            {frm: {dmac: 0xcc},
+            {frm: {dmac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_d}]}
         ]
     },
     {
-        txt: "HSR-PRP, DMAC-PNT filtering on LRE->LRE",
+        txt: "DMAC-PNT filtering on LRE->LRE",
         cfg: {mode: "HSR_PRP"},
         tab: [
             # Learn SMAC in PNT (and on switch port C)
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}]},
             # Send to DMAC on LRE, expect discard on LRE
-            {frm: {dmac: 0xcc},
+            {frm: {dmac: :":cc"},
              fwd: [{idx_tx: $idx_a, hsr: {}},
                    {idx: $idx_c, prp: {}}]}
         ]
     },
     {
-        txt: "HSR-PRP, DMAC-NT filtering on LRE->interlink",
+        txt: "DMAC-NT filtering on LRE->interlink",
         cfg: {mode: "HSR_PRP", node: {mac: 0xbb}},
-        tab: [{frm: {dmac: 0xbb},
+        tab: [{frm: {dmac: ":bb"},
                fwd: [{idx_tx: $idx_a, hsr:{}},
                      {idx: $idx_b, hsr: {}}]}]
     },
 
     # HSR-HSR tests
     {
-        txt: "HSR-HSR, port A to port B/C/D",
+        txt: "port A to port B/C/D",
         cfg: {mode: "HSR_HSR"},
         tab: [{fwd: [{idx_tx: $idx_a, hsr: {net_id: 3}},
                      {idx: $idx_b, hsr: {net_id: 3}},
@@ -413,7 +474,7 @@ test_table =
                      {idx: $idx_d, hsr: {net_id: 3}}]}]
     },
     {
-        txt: "HSR-HSR, port C to port A/B/D",
+        txt: "port C to port A/B/D",
         cfg: {mode: "HSR_HSR"},
         tab: [{fwd: [{idx_tx: $idx_c, hsr: {net_id: 3}},
                      {idx: $idx_a, hsr: {net_id: 3}},
@@ -421,7 +482,7 @@ test_table =
                      {idx: $idx_d, hsr: {net_id: 3}}]}]
     },
     {
-        txt: "HSR-HSR, discard non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_HSR"},
         tab: [
             {fwd: [{idx_tx: $idx_a}]},
@@ -429,30 +490,30 @@ test_table =
         ]
     },
     {
-        txt: "HSR-HSR, DMAC-PNT filtering on LRE->LRE",
+        txt: "DMAC-PNT filtering on LRE->LRE",
         cfg: {mode: "HSR_HSR"},
         tab: [
             # Learn SMAC in PNT (and on switch port C)
-            {frm: {smac: 0xcc},
+            {frm: {smac: ":cc"},
              fwd: [{idx_tx: $idx_c},
                    {idx: $idx_a, hsr: {}},
                    {idx: $idx_b, hsr: {}},
                    {idx: $idx_d}]},
             # Send to DMAC on LRE, expect discard on LRE
-            {frm: {dmac: 0xcc},
+            {frm: {dmac: ":cc"},
              fwd: [{idx_tx: $idx_a, hsr: {}},
                    {idx: $idx_c, hsr: {}}]}
         ]
     },
     {
-        txt: "HSR-HSR, DMAC-NT filtering on LRE->interlink",
+        txt: "DMAC-NT filtering on LRE->interlink",
         cfg: {mode: "HSR_HSR", node: {mac: 0xbb}},
-        tab: [{frm: {dmac: 0xbb},
+        tab: [{frm: {dmac: ":bb"},
                fwd: [{idx_tx: $idx_a, hsr:{}},
                      {idx: $idx_b, hsr: {}}]}]
     },
     {
-        txt: "HSR-HSR, NetId filtering/translation",
+        txt: "NetId filtering/translation",
         cfg: {mode: "HSR_HSR", net_id: 4},
         tab: [
             # NetId 4 not forwarded to Interlink
@@ -464,6 +525,37 @@ test_table =
                    {idx: $idx_c, hsr: {net_id: 4}},
                    {idx: $idx_b, hsr: {net_id: 4}}]},
         ]
+    },
+    {
+        txt: "BPDU Rx on LRE",
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "BPDU Tx to LREs",
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
+                     {idx: $idx_a},
+                     {idx: $idx_b}]}]
+    },
+    {
+        txt: "Supervision Rx on LRE",
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+               fwd: [{idx_tx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}},
+                     {idx: $idx_d, hsr: {}, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "Supervision Tx to LREs",
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+               fwd: [{idx_tx: $idx_d, hsr: {}, ifh_tx: $idx_a},
+                     {idx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}}]}]
     },
 ]
 
@@ -540,6 +632,21 @@ def redbox_test(t)
         $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(vlan_idx_list))
     end
 
+    # NPI port
+    idx_npi = fld_get(cfg, :npi, nil)
+    if (idx_npi != nil)
+        # Map CPU queue 0 to NPI port
+        conf = $ts.dut.call("mesa_packet_rx_conf_get")
+        conf["queue"][0]["npi"]["enable"] = true
+        $ts.dut.call("mesa_packet_rx_conf_set", conf)
+
+        # Enable NPI port
+        conf = $ts.dut.call("mesa_npi_conf_get")
+        conf["enable"] = true
+        conf["port_no"] = $ts.dut.p[idx_npi]
+        $ts.dut.call("mesa_npi_conf_set", conf)
+    end
+
     idx_name = []
     $ts.dut.p.each_index do |idx|
         s = (idx == $idx_a ? "a" : idx == $idx_b ? "b" : idx == $idx_c ? "c" : "d")
@@ -557,8 +664,9 @@ def redbox_test(t)
         cmd_add = ""
         idx_list = []
         idx_tx = nil
-        smac = 1
+        smac = "01"
         f = fld_get(entry, :frm, {})
+        et = fld_get(f, :et, 0xeeee)
         len = fld_get(f, :len, 46)
         fwd = fld_get(entry, :fwd, [])
         fwd.each_with_index do |e, i|
@@ -568,12 +676,22 @@ def redbox_test(t)
                 idx = e[:idx]
             else
                 idx_tx = idx
-                smac = fld_get(f, :smac, "0x#{idx_name[idx]}")
+                smac = fld_get(f, :smac, ":0#{idx_name[idx]}")
                 dir = "tx"
             end
             name = " name f_#{idx_name[idx]}"
             cmd_add += " #{dir} #{$ts.pc.p[idx]}#{name}"
             cmd += name
+            ifh_rx = fld_get(e, :ifh_rx, nil)
+            if (ifh_rx != nil)
+                cmd += (" " + cmd_rx_ifh_push({port_idx: ifh_rx}))
+            end
+            ifh_tx = fld_get(e, :ifh_tx, nil)
+            if (ifh_tx != nil)
+                rb_tag_dis = fld_get(e, :rb_tag_dis, false)
+                port = $ts.dut.p[ifh_tx]
+                cmd += (" " + cmd_tx_ifh_push({dst_port: port, rb_tag_disable: rb_tag_dis}))
+            end
             cmd += " eth"
             if (f.key?:dmac)
                 cmd += " dmac #{f[:dmac]}"
@@ -591,7 +709,7 @@ def redbox_test(t)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
             end
-            cmd += " et 0xeeee data repeat #{len} 0x00" # TBD: Using zeros is work-around
+            cmd += " et #{et} data repeat #{len} 0x00" # TBD: Using zeros is work-around
             prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
@@ -660,20 +778,41 @@ def redbox_test(t)
     vlan_idx_list.each do |idx|
         vlan_port_conf_set(idx, {})
     end
+
+    # Restore NPI configuration
+    if (idx_npi != nil)
+        conf = $ts.dut.call("mesa_npi_conf_get")
+        conf["enable"] = false
+        $ts.dut.call("mesa_npi_conf_set", conf)
+    end
 end
 
 # Run all or selected test
 sel = table_lookup(test_table, :sel)
+cnt_ok = 0
+cnt_err = 0
 test_table.each do |t|
     next if (t[:sel] != sel)
-    test t[:txt] do
+    cfg = fld_get(t, :cfg, nil)
+    mode = fld_get(cfg, :mode, "?")
+    txt = (mode + ", " + t[:txt])
+    test txt do
+        err = $test_stack[-1][:cnt_err]
         redbox_test(t)
+        if ($test_stack[-1][:cnt_err] == err)
+            cnt_ok += 1
+        else
+            cnt_err += 1
+        end
     end
 end
+t_i("Total : #{cnt_ok + cnt_err}")
+t_i("Ok    : #{cnt_ok}")
+t_i("Errors: #{cnt_err}")
 
 test "dump" do
     break
-    $ts.dut.run("mesa-cmd deb api cil redbox")
+    $ts.dut.run("mesa-cmd deb api redbox")
     #$ts.dut.run("mesa-cmd deb api ai vlan")
     $ts.dut.run("mesa-cmd port stati pac")
     #$ts.dut.run("mesa-cmd mac dump")
