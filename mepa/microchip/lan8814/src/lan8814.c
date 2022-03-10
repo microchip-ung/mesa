@@ -434,11 +434,11 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
     EP_WR(dev, INDY_POWER_MGMT_MODE_7, 0x0077);
     EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
     EP_WR(dev, INDY_POWER_MGMT_MODE_9, 0x4377);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6777);
     EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x0777);
     EP_WR(dev, INDY_POWER_MGMT_MODE_12, 0x0777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6677);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6777);
 
     // Rev C work-around done.
     if (data->dev.rev >= 2) {
