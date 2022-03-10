@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 oc/op/j2/j48/st/ca1/ca2/fa/mi/ms/me/mr/ml [<test_server>] <test_script> [brief]"
+   echo "Usage: $0 oc/op/j2/j48/st/ca1/ca2/fa/mi/ms/me/mr/ml [<test_server>] <test_script> [short]"
    exit
 fi
 
@@ -114,8 +114,13 @@ esac
 cnt=$#
 suffix=""
 last=${!#}
+
 if [ $last == "brief" ]; then
     suffix="--brief"
+fi
+
+if [ $last == "short" ]; then
+    suffix="--short"
     ((cnt--))
 fi
 

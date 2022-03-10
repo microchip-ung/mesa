@@ -19,6 +19,10 @@ OptionParser.new do |opts|
     opts.on("--brief", "") do |v|
         $options[:brief] = true
     end
+
+    opts.on("--short", "") do |v|
+        $options[:short] = true
+    end
 end.parse!
 
 
@@ -96,7 +100,11 @@ class Sample < ::Ox::Sax
             indent += "    "
         end
 
-        puts "#{@time_now_rel_s} #{pre_indent} #{indent}#{msg}"
+        if $options[:short]
+            puts "#{msg}"
+        else
+            puts "#{@time_now_rel_s} #{pre_indent} #{indent}#{msg}"
+        end
     end
 
     def start_element(name)
@@ -278,7 +286,11 @@ class Brief < ::Ox::Sax
             indent += "    "
         end
 
-        puts "#{@time_now_rel_s} #{pre_indent} #{indent}#{msg}"
+        if $options[:short]
+            puts "#{msg}"
+        else
+            puts "#{@time_now_rel_s} #{pre_indent} #{indent}#{msg}"
+        end
     end
 
     def start_element(name)
