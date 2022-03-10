@@ -1016,9 +1016,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     }
 #endif
 #if defined(VTSS_OPT_FPGA)
-    if (port > 1) {
         giga = link_speed == 1 ? 1 : 0;
-    }
 #endif
     if (giga) {
         value |= DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M;
