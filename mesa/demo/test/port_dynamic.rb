@@ -37,7 +37,7 @@ $p2 = $ts.dut.p[1] + 1
 $p3 = $ts.dut.p[2] + 1
 $p4 = $ts.dut.p[3] + 1
 
-$test_with_traffic = FALSE
+$test_with_traffic = false
 
 # PCB-135 Test config:
 # p1 = 16
