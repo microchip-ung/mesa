@@ -1647,11 +1647,23 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 #define FA_RB_FLT_NOT_HSR 2
 #define FA_RB_FLT_REDIR   3
 
+// Supervision frame forwarding
+#define FA_RB_SV_FORWARD  0
+#define FA_RB_SV_CPU_COPY 1
+#define FA_RB_SV_CPU_ONLY 2
+#define FA_RB_SV_DISCARD  3
+
 // Forwarding masks
 #define FA_RB_MSK_NONE 0x0 // No ports
 #define FA_RB_MSK_LRE  0x3 // LRE ports (A/B)
 #define FA_RB_MSK_IL   0x4 // Interlink (C)
 #define FA_RB_MSK_ALL  0x7 // All ports (A/B/C)
+
+static u32 fa_rb_sv(vtss_rb_sv_t sv)
+{
+    return (sv == VTSS_RB_SV_CPU_COPY ? FA_RB_SV_CPU_COPY :
+            sv == VTSS_RB_SV_CPU_ONLY ? FA_RB_SV_CPU_ONLY : FA_RB_SV_FORWARD);
+}
 
 static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
                                    const vtss_rb_id_t rb_id,
@@ -1759,7 +1771,8 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
     u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
-    u32            age, clk_period, val, hsr_spv = 0, prp_spv = 0;
+    u32            hsr_sv = FA_RB_SV_FORWARD, prp_sv = FA_RB_SV_FORWARD;
+    u32            age, clk_period, val;
 
     mode = (conf->mode == VTSS_RB_MODE_PRP_SAN ? FA_RB_MODE_PRP_SAN:
             conf->mode == VTSS_RB_MODE_HSR_SAN ? FA_RB_MODE_HSR_SAN :
@@ -1792,15 +1805,14 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
 
     // NetId filtering on Interlink
     switch (conf->mode) {
-        break;
     case VTSS_RB_MODE_HSR_SAN:
     case VTSS_RB_MODE_HSR_PRP:
     case VTSS_RB_MODE_HSR_HSR:
-        hsr_spv = 2; // Redirect to CPU
+        hsr_sv = fa_rb_sv(conf->sv);
         net_id = conf->net_id;
         break;
     case VTSS_RB_MODE_PRP_SAN:
-        prp_spv = 2; // Redirect to CPU
+        prp_sv = fa_rb_sv(conf->sv);
         break;
     default:
         break;
@@ -1810,9 +1822,9 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
     REG_WR(RB_ADDR(VTSS_RB_SPV_CFG, rb_id),
            VTSS_F_RB_SPV_CFG_DMAC_ENA(1) |
-           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_spv) |
+           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_sv) |
            VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
-           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_spv) |
+           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_sv) |
            VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
 
     // Ageing
@@ -2885,7 +2897,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(RB_ADDR(VTSS_RB_SPV_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
-        sprintf(buf, "(0:NONE, 1:COPY, 2:REDIR)\n");
+        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR)\n",
+                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_HSR_MAC_LSB);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
@@ -2941,7 +2954,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:NONE, %u:HSR, %u:NOT_HSR, %u:REDIR)\n",
            FA_RB_FLT_NONE, FA_RB_FLT_HSR, FA_RB_FLT_NOT_HSR, FA_RB_FLT_REDIR);
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_HSR_SPV_FWD_SEL);
-        sprintf(buf, "(0:NONE, 1:COPY, 2:REDIR, 3:DISCARD)\n");
+        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
+                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
         pr(buf);
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_PRP_SPV_FWD_SEL);
         pr(buf);

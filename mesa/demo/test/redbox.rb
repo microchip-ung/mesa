@@ -65,6 +65,18 @@ check_capabilities do
     end
 end
 
+test "show-redbox" do
+    port_cnt = cap_get("PORT_CNT")
+    pmap = $ts.dut.call("mesa_port_map_get", port_cnt)
+    t_i("RedBox #{$rb_id}:")
+    name = ["A", "B", "C", "D"]
+    [$idx_a, $idx_b, $idx_c, $idx_d].each do |idx|
+        port = $ts.dut.p[idx]
+        chip_port = pmap[port]["chip_port"]
+        t_i("Port #{name[idx]}: #{port}(#{chip_port}) - #{$ts.pc.p[idx]}")
+    end
+end
+
 #---------- Configuration -----------------------------------------------------
 
 # Each entry in the test table has these fields:
@@ -260,8 +272,8 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_SAN", npi: $idx_d},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
@@ -376,7 +388,7 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: $idx_d},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, prp: {}},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
@@ -463,6 +475,15 @@ test_table =
                fwd: [{idx_tx: $idx_a, hsr:{}},
                      {idx: $idx_b, hsr: {}}]}]
     },
+    {
+        txt: "Supervision Rx on LRE",
+        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: $idx_a, hsr: {}},
+                     {idx: $idx_b, hsr: {}},
+                     {idx: $idx_c, prp: {}},
+                     {idx: $idx_d, prp: {}, ifh_rx: $idx_a}]}]
+    },
 
     # HSR-HSR tests
     {
@@ -544,7 +565,7 @@ test_table =
     {
         txt: "Supervision Rx on LRE",
         cfg: {mode: "HSR_HSR", npi: $idx_d},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
                      {idx: $idx_d, hsr: {}, ifh_rx: $idx_a}]}]
@@ -590,6 +611,7 @@ def redbox_test(t)
     conf["lan_id"] = fld_get(cfg, :lan_id)
     conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
     conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
+    conf["sv"] = ("MESA_RB_SV_" + fld_get(cfg, :sv, "FORWARD"))
     conf = $ts.dut.call("mesa_rb_conf_set", $rb_id, conf)
 
     # Remove nodes and proxy nodes from previous tests
@@ -709,7 +731,7 @@ def redbox_test(t)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn}"
             end
-            cmd += " et #{et} data repeat #{len} 0x00" # TBD: Using zeros is work-around
+            cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0x00" # TBD: Using zeros is work-around
             prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
@@ -812,7 +834,7 @@ t_i("Errors: #{cnt_err}")
 
 test "dump" do
     break
-    $ts.dut.run("mesa-cmd deb api redbox")
+    $ts.dut.run("mesa-cmd deb api cil redbox")
     #$ts.dut.run("mesa-cmd deb api ai vlan")
     $ts.dut.run("mesa-cmd port stati pac")
     #$ts.dut.run("mesa-cmd mac dump")

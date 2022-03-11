@@ -2836,6 +2836,13 @@ typedef enum {
 // Age time in seconds
 typedef uint16_t vtss_rb_age_time_t;
 
+// Forwarding of Supervision frames
+typedef enum {
+    VTSS_RB_SV_FORWARD,  // Forward normally
+    VTSS_RB_SV_CPU_COPY, // Copy to CPU (Tx Interlink only)
+    VTSS_RB_SV_CPU_ONLY, // Redirect to CPU (Tx Interlink only)
+} vtss_rb_sv_t;
+
 // RedBox configuration
 typedef struct {
     vtss_rb_mode_t     mode;         // Mode
@@ -2845,6 +2852,7 @@ typedef struct {
     uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
     vtss_rb_age_time_t nt_age_time;  // Node Table age time
     vtss_rb_age_time_t pnt_age_time; // Proxy Node Table age time
+    vtss_rb_sv_t       sv;           // Interlink Supervision frame forwarding
 } vtss_rb_conf_t;
 
 // Get RedBox configuration.
