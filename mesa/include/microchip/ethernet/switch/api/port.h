@@ -236,6 +236,26 @@ mesa_rc mesa_port_status_get(const mesa_inst_t     inst,
                              const mesa_port_no_t  port_no,
                              mesa_port_status_t    *const status);
 
+// Port bulk config state
+typedef enum
+{
+    MESA_PORT_BULK_DISABLED, /**< Port bulk set disabled */
+    MESA_PORT_BULK_ENABLED,  /**< Port conf written to internal state only */
+    MESA_PORT_BULK_APPLY,    /**< Port internal state applied to hardware */
+} mesa_port_bulk_t CAP(PORT_CONF_BULK);
+
+
+// Set port bulk state
+// Used when configuring multiple ports to the same config, speeds up the config.
+// 1. Enable bulk state
+// 2. Configure ports in normal manner (configuration is not applied to HW)
+// 3. Apply bulk state (configuration is applied to HW)
+// bulk [IN]  bulk state (disable/enabled/apply)
+mesa_rc mesa_port_conf_bulk_set(const mesa_inst_t      inst,
+                                const mesa_port_bulk_t bulk)
+    CAP(PORT_CONF_BULK);
+
+
 /******************************************************************************/
 /* Port Counters                                                              */
 /******************************************************************************/

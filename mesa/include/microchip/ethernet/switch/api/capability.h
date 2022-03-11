@@ -75,6 +75,7 @@ typedef enum {
     MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD, /**< The max length of the frames counted in the last range of the frame counter group */
     MESA_CAP_PORT_PCS_CONF,                 /**< Specific control of the 1G PCS */
     MESA_CAP_PORT_DYNAMIC,                  /**< Support for dynamic (run-time) port change within a serdes  */
+    MESA_CAP_PORT_CONF_BULK,                /**< Configuration of multiple ports applied to hardware for speed-up */
 
     // Packet
     MESA_CAP_PACKET_RX_QUEUE_CNT = 200,     /**< Number of Rx packet queues */

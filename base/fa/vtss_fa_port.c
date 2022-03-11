@@ -666,7 +666,6 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     } else {
         VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
-
     return VTSS_RC_OK;
 }
 
@@ -2341,11 +2340,17 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode)
 {
+
     u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
+    if (vtss_state->port.bulk_state != VTSS_PORT_BULK_DISABLED) {
+        vtss_state->port.sd28_mode[indx] = serdes_mode;
+        return VTSS_RC_OK;
+    }
+    vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
-    /* Store the serdes mode */
     vtss_state->port.sd28_mode[indx] = serdes_mode;
+    vtss_state->port.bulk_port_mask &= ~VTSS_BIT64(port_no);
 
     /* Also update the port.serdes_mode[port_no] - for backward compatability */
     if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
@@ -2369,6 +2374,7 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
     } else {
         vtss_state->port.serdes_mode[port_no] = serdes_mode;
     }
+
     return VTSS_RC_OK;
 }
 
@@ -3520,6 +3526,13 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32                   sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
     vtss_serdes_mode_t    old_sd = vtss_state->port.sd28_mode[sd_indx];
 #endif
+
+    /* If bulk config is enabled then chip config is skipped */
+    if (vtss_state->port.bulk_state == VTSS_PORT_BULK_ENABLED) {
+        vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+        return VTSS_RC_OK;
+    }
+
     VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d",
            port_no, port, VTSS_PORT_IS_25G(port) ? "25G" : VTSS_PORT_IS_10G(port) ? "10G": \
            VTSS_PORT_IS_5G(port) ? "5G" : "2G5", vtss_port_if_txt(conf->if_type),
@@ -4165,6 +4178,81 @@ static vtss_rc fa_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+/* Apply the port configuration to hardware */
+/* Configuration is applied in parallel where possible */
+static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
+{
+    vtss_port_conf_t *conf;
+    BOOL found_next_if;
+    u32 sdi, this_type, sd_type_org;
+    vtss_port_no_t port_no, start_port = 0;
+    vtss_sd10g_media_type_t md_type_org = VTSS_SD10G_MEDIA_PR_NONE;
+    vtss_serdes_mode_t this_mode, sd_mode_org = VTSS_SERDES_MODE_DISABLE;
+    vtss_port_speed_t speed_org = VTSS_SPEED_UNDEFINED;
+    u64 bulk_port_mask = vtss_state->port.bulk_port_mask;
+
+    /* Apply the stored port config in normal manner - serdes'es are skipped */
+    for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        if (bulk_port_mask & VTSS_BIT64(port_no)) {
+            if (fa_port_conf_set(vtss_state, port_no) != VTSS_RC_OK) {
+                VTSS_E("Could not apply port conf to port %d",port_no);
+            }
+        }
+    }
+
+    /* Now configure the serdes'es in parallel */
+    while(1) {
+        found_next_if = FALSE;
+        vtss_state->port.bulk_port_mask = 0;
+
+        /* Find serdes'es with identical configuration: serdes-mode, arch-type, media-type and speed  */
+        for (port_no = start_port; port_no < vtss_state->port_count; port_no++) {
+            if (!(bulk_port_mask & VTSS_BIT64(port_no))) {
+                continue;
+            }
+            conf = &vtss_state->port.conf[port_no];
+            if (!found_next_if) {
+                found_next_if = TRUE;
+                /* serdes properties to be applied to all common ones */
+                start_port = port_no;
+                vtss_fa_port2sd(vtss_state, port_no, &sdi, &sd_type_org);
+                md_type_org = conf->serdes.media_type;
+                sd_mode_org = vtss_state->port.sd28_mode[vtss_fa_sd_lane_indx(vtss_state, port_no)];
+                speed_org = conf->speed;
+            } else {
+                /* if next interface is different then break and apply */
+                vtss_fa_port2sd(vtss_state, port_no, &sdi, &this_type);
+                this_mode = vtss_state->port.sd28_mode[vtss_fa_sd_lane_indx(vtss_state, port_no)];
+                if ((sd_mode_org != this_mode) ||
+                    (sd_type_org != this_type) ||
+                    (md_type_org != conf->serdes.media_type) ||
+                    (speed_org   != conf->speed)) {
+                    break;
+                }
+            }
+            if (!(sd_mode_org == VTSS_SERDES_MODE_QSGMII && ((VTSS_CHIP_PORT(port_no) % 4) != 0))) {
+                vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+            }
+        }
+
+        /* Apply the config to serdes'es defined in 'vtss_state->port.bulk_port_mask' */
+        if (vtss_fa_sd_cfg(vtss_state, start_port, sd_mode_org) != VTSS_RC_OK) {
+            VTSS_E("Could not set common serdes");
+        }
+
+        if (port_no == vtss_state->port_count) {
+            break;
+        }
+
+        start_port = port_no;
+    }
+
+    vtss_state->port.bulk_state = VTSS_PORT_BULK_DISABLED;
+    vtss_state->port.bulk_port_mask = 0;
+    return VTSS_RC_OK;
+}
+#endif /* VTSS_FEATURE_PORT_CONF_BULK */
 
 /* - Debug print --------------------------------------------------- */
 
@@ -5007,6 +5095,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->serdes_debug_set = fa_port_serdes_debug;
         state->kr_ctle_adjust = fa_port_kr_ctle_adjust;
         state->kr_ctle_get = fa_port_kr_ctle_get;
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+        state->conf_set_bulk = fa_port_conf_set_bulk;
+#endif
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;

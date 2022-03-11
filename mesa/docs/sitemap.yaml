@@ -191,6 +191,12 @@ pages:
           - src: "mesa/docs/examples/dynamic-port.adoc"
             name: "Description"
 
+        - name: "Port bulk configuration"
+          pages:
+          - src: "mesa/docs/examples/port_conf_bulk.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/port_conf_bulk.c"
+
     - name: "MEBA (Board API)"
       src: "mesa/docs/meba/meba.adoc"
 

@@ -1,0 +1,31 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Example how to use the 'Port bulk configuration' feature
+
+Normally the port setup occurs in a serial fashion: One port and one serdes (and one CMU) is configured at time. +
+I.e. number of ports affects how long it takes to get the system from power-on to port link-up. +
+
+To speed up the configuration a new feature is introduced `VTSS_FEATURE_PORT_CONF_BULK` which is currently supported by Sparx5/LAN969x designs. This means that the configuration is initally cached and then applied for all ports simultanously, minimizing certain wait cycles for each port/serdes. +
+This results in reduced configuration time and the size of the system has less impact of boot time. +
+
+The below snippet shows how to enable bulk config by adding an extra API call before and after the mesa_port_conf_set() function: +
+
+[source,c++,linenums]
+----
+// Enable bulk config
+if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK)) {
+      RC(mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_ENABLED));
+}
+
+// Apply the configuration to any number of ports
+for (port_no = from_port; port_no <= to_port; port_no++) {
+      RC(mesa_port_conf_set(NULL, port_no, &<some_config>));
+}
+
+// Apply the stored configuration in parallel
+if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK)) {
+      RC(mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_APPLY));
+}
+----

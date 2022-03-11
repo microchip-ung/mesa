@@ -491,6 +491,9 @@ typedef struct {
                                       vtss_port_clause_37_control_t  *const control);
     vtss_rc (* clause_37_control_set)(struct vtss_state_s *vtss_state,
                                       const vtss_port_no_t port_no);
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+    vtss_rc (* conf_set_bulk)(struct vtss_state_s *vtss_state);
+#endif /* VTSS_FEATURE_PORT_CONF_BULK */
 
 #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_rc (* kr_conf_set)(struct vtss_state_s *vtss_state,
@@ -585,6 +588,10 @@ typedef struct {
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_serdes_mode_t            sd28_mode[VTSS_SD28_CNT];
     u32                           cmu_enable_mask;
+    BOOL                          link[VTSS_PORT_ARRAY_SIZE];
+    BOOL                          ctle_done[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_bulk_t              bulk_state;
+    u64                           bulk_port_mask;
 #endif
     vtss_serdes_mode_t            serdes_mode[VTSS_PORT_ARRAY_SIZE];
     vtss_port_clause_37_control_t clause_37[VTSS_PORT_ARRAY_SIZE];
@@ -592,8 +599,6 @@ typedef struct {
     vtss_port_speed_t             current_speed[VTSS_PORT_ARRAY_SIZE];
     vtss_port_interface_t         current_if_type[VTSS_PORT_ARRAY_SIZE];
     vtss_sd10g_media_type_t       current_mt[VTSS_PORT_ARRAY_SIZE];
-    BOOL                          link[VTSS_PORT_ARRAY_SIZE];
-    BOOL                          ctle_done[VTSS_PORT_ARRAY_SIZE];
 #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_fec_t            kr_fec[VTSS_PORT_ARRAY_SIZE];

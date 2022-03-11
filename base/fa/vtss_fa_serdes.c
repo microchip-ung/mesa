@@ -3708,6 +3708,11 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
     if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_DISABLE) {
         sd_cfg.reg_rst = 1; // Must start with RST
     }
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+    if (vtss_state->port.bulk_state == VTSS_PORT_BULK_APPLY) {
+        sd_cfg.reg_rst = 1;
+    }
+#endif
      /* Apply the serdes mode */
     switch (mode) {
         case VTSS_SERDES_MODE_IDLE:
@@ -3887,7 +3892,6 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t *vtss_state, vtss_port_no_
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode)
 {
     u32 sd_indx, sd_type;
-
     /* Map API port to Serdes instance */
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
 
@@ -3901,7 +3905,6 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
 
     /*  Apply board specific TX equalizer settings */
     VTSS_RC(vtss_fa_sd_board_settings(vtss_state, port_no, sd_indx, sd_type));
-
     return VTSS_RC_OK;
 }
 

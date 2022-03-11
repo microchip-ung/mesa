@@ -49,6 +49,7 @@ static meba_sfp_driver_t *sfp_drivers = NULL;
 static port_entry_t *port_table;
 static mesa_bool_t  port_polling = 1;
 static uint32_t     port_poll_cnt;
+static mesa_bool_t  port_bulk_setup = TRUE;
 
 const char *mesa_port_if2txt(mesa_port_interface_t if_type)
 {
@@ -1582,7 +1583,6 @@ static void port_init(meba_inst_t inst)
     if (port_table != NULL) {
         free(port_table);
     }
-
     // Initialize ports
     if ((port_table = calloc(port_cnt, sizeof(*port_table))) == NULL) {
         T_E("port_table calloc() failed");
@@ -1598,7 +1598,15 @@ static void port_init(meba_inst_t inst)
     MEBA_WRAP(meba_reset, inst, MEBA_PHY_INITIALIZE);
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET);
 
+    if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
+        // Save port config to internal state
+        if (mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_ENABLED) != MESA_RC_OK) {
+            T_E("mesa_port_conf_bulk_set failed");
+        }
+    }
+
     for (port_no = 0; port_no < port_cnt; port_no++) {
+
         entry = &port_table[port_no];
         pc = &entry->conf;
         if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &entry->meba) != MESA_RC_OK) {
@@ -1746,6 +1754,12 @@ static void port_init(meba_inst_t inst)
             }
         }
     } // Port loop
+    if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
+        // Apply config to HW
+        if (mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_APPLY) != MESA_RC_OK) {
+            T_E("mesa_port_conf_bulk_set failed");
+        }
+    }
 
     // Install known SFPs (used for comparision when a SFP is insterted)
     sfp_drivers_prepend(meba_cisco_driver_init());

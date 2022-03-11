@@ -309,6 +309,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_PORT_CONF_BULK:
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+        c = 1;
+#endif
+        break;
+
+
     // Miscellaneous
     case MESA_CAP_MISC_GPIO_CNT:
 #if defined(VTSS_GPIOS)

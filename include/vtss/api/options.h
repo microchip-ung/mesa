@@ -136,6 +136,7 @@
 #define VTSS_FEATURE_EXC_COL_CONT                 /**< Excessive collision continuation */
 #define VTSS_FEATURE_PORT_CNT_ETHER_LIKE          /**< Ethernet-like counters */
 #define VTSS_FEATURE_PORT_CNT_BRIDGE              /**< Bridge counters */
+#define VTSS_FEATURE_PORT_CONF_BULK               /**< Bulk port configuration support for fast configuration */
 #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */

@@ -364,6 +364,7 @@ vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
 
 /* Serdes functions */
 #define FA_SERDES_TYPE_UNKNOWN  0
+#define FA_SERDES_CMU 14
 #define FA_SERDES_TYPE_6G  6
 #define FA_SERDES_TYPE_10G 10
 #define FA_SERDES_TYPE_25G 25

@@ -28,84 +28,111 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
     u32 value;
     u32 sd_lane_tgt;
     u32 sd25g_tgt;
+    u32 indx, p;
 
-    u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-    sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
-    sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
-
-/* Note: SerDes SD_LANE_25 is configured in 25G_LAN mode */
     if( res_struct->reg_rst[0] == 1) {
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
-                VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(1),
-                VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+        for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+            if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+                continue;
+            }
 
-    VTSS_MSLEEP(1);
+            indx = vtss_fa_port2sd_indx(vtss_state, p);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+            if (sd_lane_tgt == 0) {
+                return VTSS_RC_ERROR;
+            }
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
-                VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
-                VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+            REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                    VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(1),
+                    VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+        }
 
-    } 
+        VTSS_MSLEEP(1);
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+        for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+            if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+                continue;
+            }
+            indx = vtss_fa_port2sd_indx(vtss_state, p);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+
+            REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                    VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
+                    VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+        }
+    }
+
+    for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+            continue;
+        }
+        indx = vtss_fa_port2sd_indx(vtss_state, p);
+        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+        sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
+
+        if (sd_lane_tgt == 0 || sd25g_tgt == 0) {
+            return VTSS_RC_ERROR;
+        }
+
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST(1),
                 VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_1A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_FROM_HWT(res_struct->r_DwidthCtrl_from_hwt[0]) |
-        VTSS_F_SD25G_TARGET_CMU_1A_R_REG_MANUAL(res_struct->r_reg_manual[0]),
+                VTSS_F_SD25G_TARGET_CMU_1A_R_REG_MANUAL(res_struct->r_reg_manual[0]),
                 VTSS_M_SD25G_TARGET_CMU_1A_R_DWIDTHCTRL_FROM_HWT |
-        VTSS_M_SD25G_TARGET_CMU_1A_R_REG_MANUAL);
+                VTSS_M_SD25G_TARGET_CMU_1A_R_REG_MANUAL);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_31(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_31(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0(res_struct->cfg_common_reserve_7_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_09(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_09(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_09_CFG_EN_DUMMY(res_struct->cfg_en_dummy[0]),
                 VTSS_M_SD25G_TARGET_CMU_09_CFG_EN_DUMMY);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_13(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_13(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_13_CFG_PLL_RESERVE_3_0(res_struct->cfg_pll_reserve_3_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_13_CFG_PLL_RESERVE_3_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_40(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_40(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_40_L0_CFG_TXCAL_EN(res_struct->l0_cfg_txcal_en[0]),
                 VTSS_M_SD25G_TARGET_CMU_40_L0_CFG_TXCAL_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_46(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_46(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_46_L0_CFG_TX_RESERVE_15_8(res_struct->l0_cfg_tx_reserve_15_8[0]),
                 VTSS_M_SD25G_TARGET_CMU_46_L0_CFG_TX_RESERVE_15_8);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_45(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_45(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_45_L0_CFG_TX_RESERVE_7_0(res_struct->l0_cfg_tx_reserve_7_0[0]),
                 VTSS_M_SD25G_TARGET_CMU_45_L0_CFG_TX_RESERVE_7_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_0B(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_0B(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_0B_CFG_VCO_CAL_RESETN(0),
                 VTSS_M_SD25G_TARGET_CMU_0B_CFG_VCO_CAL_RESETN);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_0B(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_0B(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_0B_CFG_VCO_CAL_RESETN(1),
                 VTSS_M_SD25G_TARGET_CMU_0B_CFG_VCO_CAL_RESETN);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_19(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_19(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_19_R_CK_RESETB(0),
                 VTSS_M_SD25G_TARGET_CMU_19_R_CK_RESETB);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_19(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_19(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_19_R_CK_RESETB(1),
                 VTSS_M_SD25G_TARGET_CMU_19_R_CK_RESETB);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_18(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_18(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_18_R_PLL_RSTN(0),
                 VTSS_M_SD25G_TARGET_CMU_18_R_PLL_RSTN);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_18(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_18(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_18_R_PLL_RSTN(1),
                 VTSS_M_SD25G_TARGET_CMU_18_R_PLL_RSTN);
 
@@ -276,207 +303,225 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 VTSS_M_SD25G_TARGET_LANE_07_LN_CFG_EN_ADV |
         VTSS_M_SD25G_TARGET_LANE_07_LN_CFG_EN_DLY);
 
-} 
+}
     REG_WRM(VTSS_SD25G_TARGET_LANE_43(sd25g_tgt),
-                VTSS_F_SD25G_TARGET_LANE_43_LN_CFG_TX_RESERVE_15_8(res_struct->ln_cfg_tx_reserve_15_8[0]),
-                VTSS_M_SD25G_TARGET_LANE_43_LN_CFG_TX_RESERVE_15_8);
+            VTSS_F_SD25G_TARGET_LANE_43_LN_CFG_TX_RESERVE_15_8(res_struct->ln_cfg_tx_reserve_15_8[0]),
+            VTSS_M_SD25G_TARGET_LANE_43_LN_CFG_TX_RESERVE_15_8);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_42(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_42(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_42_LN_CFG_TX_RESERVE_7_0(res_struct->ln_cfg_tx_reserve_7_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_42_LN_CFG_TX_RESERVE_7_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_05(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_05(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_05_LN_CFG_BW_1_0(res_struct->ln_cfg_bw_1_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_05_LN_CFG_BW_1_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_0B(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_0B(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0B_LN_CFG_TXCAL_MAN_EN(res_struct->ln_cfg_txcal_man_en[0]),
                 VTSS_M_SD25G_TARGET_LANE_0B_LN_CFG_TXCAL_MAN_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_0A(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_0A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0A_LN_CFG_TXCAL_SHIFT_CODE_5_0(res_struct->ln_cfg_txcal_shift_code_5_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_0A_LN_CFG_TXCAL_SHIFT_CODE_5_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_09(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_09(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_09_LN_CFG_TXCAL_VALID_SEL_3_0(res_struct->ln_cfg_txcal_valid_sel_3_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_09_LN_CFG_TXCAL_VALID_SEL_3_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1A(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1A_LN_CFG_CDR_KF_2_0(res_struct->ln_cfg_cdr_kf_2_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_1A_LN_CFG_CDR_KF_2_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1B(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1B(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1B_LN_CFG_CDR_M_7_0(res_struct->ln_cfg_cdr_m_7_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_1B_LN_CFG_CDR_M_7_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2B(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2B(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2B_LN_CFG_PI_BW_3_0(res_struct->ln_cfg_pi_bw_3_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_2B_LN_CFG_PI_BW_3_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2C(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2C(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2C_LN_CFG_DIS_2NDORDER(res_struct->ln_cfg_dis_2ndorder[0]),
                 VTSS_M_SD25G_TARGET_LANE_2C_LN_CFG_DIS_2NDORDER);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_CTLE_RSTN(res_struct->ln_cfg_ctle_rstn[0]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_CTLE_RSTN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_00(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0(res_struct->ln_cfg_itx_ipcml_base_1_0[0]) |
-        VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(8),
+                VTSS_F_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0(8),
                 VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_IPCML_BASE_1_0 |
-        VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
+                VTSS_M_SD25G_TARGET_LANE_00_LN_CFG_ITX_VC_DRIVER_3_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_44(sd25g_tgt),
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_44(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_44_LN_CFG_RX_RESERVE_7_0(res_struct->ln_cfg_rx_reserve_7_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_44_LN_CFG_RX_RESERVE_7_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_45(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_45(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_45_LN_CFG_RX_RESERVE_15_8(res_struct->ln_cfg_rx_reserve_15_8[0]),
                 VTSS_M_SD25G_TARGET_LANE_45_LN_CFG_RX_RESERVE_15_8);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_0D(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_0D(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0D_LN_CFG_DFECK_EN(res_struct->ln_cfg_dfeck_en[0]) |
-        VTSS_F_SD25G_TARGET_LANE_0D_LN_CFG_RXTERM_2_0(res_struct->ln_cfg_rxterm_2_0[0]),
+                VTSS_F_SD25G_TARGET_LANE_0D_LN_CFG_RXTERM_2_0(res_struct->ln_cfg_rxterm_2_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_0D_LN_CFG_DFECK_EN |
-        VTSS_M_SD25G_TARGET_LANE_0D_LN_CFG_RXTERM_2_0);
+                VTSS_M_SD25G_TARGET_LANE_0D_LN_CFG_RXTERM_2_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_21(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_21(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0(res_struct->ln_cfg_vga_ctrl_byp_4_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_22(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_22(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_22_LN_CFG_EQR_FORCE_3_0(res_struct->ln_cfg_eqr_force_3_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_22_LN_CFG_EQR_FORCE_3_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_EQC_FORCE_3_0(res_struct->ln_cfg_eqc_force_3_0[0]) |
-        VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD(res_struct->ln_cfg_dfe_pd[0]),
+                VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD(res_struct->ln_cfg_dfe_pd[0]),
                 VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_EQC_FORCE_3_0 |
-        VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD);
+                VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1E_LN_CFG_SUM_SETCM_EN(res_struct->ln_cfg_sum_setcm_en[0]),
                 VTSS_M_SD25G_TARGET_LANE_1E_LN_CFG_SUM_SETCM_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_25(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_25(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_25_LN_CFG_INIT_POS_ISCAN_6_0(res_struct->ln_cfg_init_pos_iscan_6_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_25_LN_CFG_INIT_POS_ISCAN_6_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_26(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_26(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_26_LN_CFG_INIT_POS_IPI_6_0(res_struct->ln_cfg_init_pos_ipi_6_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_26_LN_CFG_INIT_POS_IPI_6_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_18(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_18_LN_CFG_ERRAMP_PD(res_struct->ln_cfg_erramp_pd[0]),
                 VTSS_M_SD25G_TARGET_LANE_18_LN_CFG_ERRAMP_PD);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_0E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_0E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0E_LN_CFG_DFEDIG_M_2_0(res_struct->ln_cfg_dfedig_m_2_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_0E_LN_CFG_DFEDIG_M_2_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_0E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_0E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0E_LN_CFG_EN_DFEDIG(res_struct->ln_cfg_en_dfedig[0]),
                 VTSS_M_SD25G_TARGET_LANE_0E_LN_CFG_EN_DFEDIG);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_40(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_40_LN_R_TX_POL_INV(res_struct->ln_r_tx_pol_inv[0]) |
-        VTSS_F_SD25G_TARGET_LANE_40_LN_R_RX_POL_INV(res_struct->ln_r_rx_pol_inv[0]),
+                VTSS_F_SD25G_TARGET_LANE_40_LN_R_RX_POL_INV(res_struct->ln_r_rx_pol_inv[0]),
                 VTSS_M_SD25G_TARGET_LANE_40_LN_R_TX_POL_INV |
-        VTSS_M_SD25G_TARGET_LANE_40_LN_R_RX_POL_INV);
+                VTSS_M_SD25G_TARGET_LANE_40_LN_R_RX_POL_INV);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_RX2TX_LP_EN(res_struct->ln_cfg_rx2tx_lp_en[0]) |
-        VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_TX2RX_LP_EN(res_struct->ln_cfg_tx2rx_lp_en[0]),
+                VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_TX2RX_LP_EN(res_struct->ln_cfg_tx2rx_lp_en[0]),
                 VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_RX2TX_LP_EN |
-        VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_TX2RX_LP_EN);
+                VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_TX2RX_LP_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1E_LN_CFG_RXLB_EN(res_struct->ln_cfg_rxlb_en[0]),
                 VTSS_M_SD25G_TARGET_LANE_1E_LN_CFG_RXLB_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_19(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_19(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_19_LN_CFG_TXLB_EN(res_struct->ln_cfg_txlb_en[0]),
                 VTSS_M_SD25G_TARGET_LANE_19_LN_CFG_TXLB_EN);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(res_struct->ln_cfg_rstn_dfedig[0]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG(res_struct->ln_cfg_rstn_dfedig[1]),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_RSTN_DFEDIG);
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST(0),
                 VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_MACRO_RST);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_CDR_RSTN(0),
                 VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_CDR_RSTN);
+    }
 
     VTSS_MSLEEP(1);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
+    for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+            continue;
+        }
+        indx = vtss_fa_port2sd_indx(vtss_state, p);
+        sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
+
+        REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_CDR_RSTN(1),
                 VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_CDR_RSTN);
+    }
 
     VTSS_MSLEEP(10);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+    for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+
+        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+            continue;
+        }
+        indx = vtss_fa_port2sd_indx(vtss_state, p);
+        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+        sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
-    REG_RD(VTSS_SD25G_TARGET_CMU_C0(sd25g_tgt), &value);
-    value = VTSS_X_SD25G_TARGET_CMU_C0_PLL_LOL_UDL(value);
-    value = (value > 0) ? 1 : 0;
-    if(value != 0x0) {
-        VTSS_E("The expected value for CMU_C0 pll_lol_udl was 0x0 but is 0x%x\n", value);
-        rc = VTSS_RC_ERROR;
-    } else {
-        VTSS_D("Note: The value of CMU_C0 pll_lol_udl was 0x%x\n", value);
-    }
+        REG_RD(VTSS_SD25G_TARGET_CMU_C0(sd25g_tgt), &value);
+        value = VTSS_X_SD25G_TARGET_CMU_C0_PLL_LOL_UDL(value);
+        value = (value > 0) ? 1 : 0;
+        if(value != 0x0) {
+            VTSS_E("The expected value for CMU_C0 pll_lol_udl was 0x0 but is 0x%x\n", value);
+            rc = VTSS_RC_ERROR;
+        } else {
+            VTSS_D("Note: The value of CMU_C0 pll_lol_udl was 0x%x\n", value);
+        }
 
-    REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
-    value = VTSS_X_SD25G_CFG_TARGET_SD_LANE_STAT_PMA_RST_DONE(value);
-    value = (value > 0) ? 1 : 0;
-    if(value != 0x1) {
-        VTSS_E("The expected value for sd_lane_stat pma_rst_done was 0x1 but is 0x%x\n", value);
-        rc = VTSS_RC_ERROR;
-    } else {
-        VTSS_D("Note: The value of sd_lane_stat pma_rst_done was 0x%x\n", value);
-    }
+        REG_RD(VTSS_SD25G_CFG_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
+        value = VTSS_X_SD25G_CFG_TARGET_SD_LANE_STAT_PMA_RST_DONE(value);
+        value = (value > 0) ? 1 : 0;
+        if(value != 0x1) {
+            VTSS_E("The expected value for sd_lane_stat pma_rst_done was 0x1 but is 0x%x\n", value);
+            rc = VTSS_RC_ERROR;
+        } else {
+            VTSS_D("Note: The value of sd_lane_stat pma_rst_done was 0x%x\n", value);
+        }
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_2A(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_2A(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_2A_R_DBG_LOL_STATUS(0x1),
                 VTSS_M_SD25G_TARGET_CMU_2A_R_DBG_LOL_STATUS);
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_SER_RST(sd_lane_tgt),
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_SER_RST(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_SER_RST_SER_RST(0x0),
                 VTSS_M_SD25G_CFG_TARGET_SD_SER_RST_SER_RST);
 
-    REG_WRM(VTSS_SD25G_CFG_TARGET_SD_DES_RST(sd_lane_tgt),
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_DES_RST(sd_lane_tgt),
                 VTSS_F_SD25G_CFG_TARGET_SD_DES_RST_DES_RST(0x0),
                 VTSS_M_SD25G_CFG_TARGET_SD_DES_RST_DES_RST);
 
-    REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2D(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2D(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2D_LN_CFG_ALOS_THR_2_0(res_struct->ln_cfg_alos_thr_2_0[0]),
                 VTSS_M_SD25G_TARGET_LANE_2D_LN_CFG_ALOS_THR_2_0);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_DIS_SQ(0),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_DIS_SQ);
 
-    REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
+        REG_WRM(VTSS_SD25G_TARGET_LANE_2E(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ(0),
                 VTSS_M_SD25G_TARGET_LANE_2E_LN_CFG_PD_SQ);
 
-
-  return rc;
+    }
+    return rc;
 }
 
 vtss_rc vtss_ant_sd25g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd25g28_setup_args_t config, vtss_port_no_t port_no) {

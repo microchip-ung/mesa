@@ -458,6 +458,31 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t          inst,
                                     const vtss_port_no_t       port_no,
                                     const vtss_port_forward_t  forward);
 
+/** \brief Port bulk config state */
+typedef enum
+{
+    VTSS_PORT_BULK_DISABLED, /**< Port bulk set disabled */
+    VTSS_PORT_BULK_ENABLED,  /**< Port conf written to internal state only */
+    VTSS_PORT_BULK_APPLY,    /**< Port internal state applied to hardware */
+} vtss_port_bulk_t;
+
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+/**
+ * \brief Set port bulk state
+ *  Used when configuring multiple ports to the same config, speeds up the config.
+ *  1. Enable bulk state
+ *  2. Configure ports in normal manner (configuration is not applied to HW)
+ *  3. Apply bulk state (configuration is applied to HW)
+ *
+ * \param inst [IN]  Target instance reference.
+ * \param bulk [IN]  bulk state (disable/enabled/apply)
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t      inst,
+                                const vtss_port_bulk_t bulk);
+#endif /* VTSS_FEATURE_PORT_CONF_BULK */
+
 #if defined(VTSS_FEATURE_PORT_IFH)
 /** \brief Port Internal Frame Header structure */
 typedef struct

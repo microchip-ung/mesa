@@ -210,6 +210,25 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t       inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_PORT_CONF_BULK)
+vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t       inst,
+                                const vtss_port_bulk_t bulk)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        vtss_state->port.bulk_state = bulk;
+        if (bulk == VTSS_PORT_BULK_APPLY) {
+            rc = VTSS_FUNC_COLD(port.conf_set_bulk);
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+#endif /* VTSS_FEATURE_PORT_CONF_BULK */
+
 #if defined(VTSS_FEATURE_PORT_IFH)
 vtss_rc vtss_port_ifh_conf_set(const vtss_inst_t       inst,
                                const vtss_port_no_t    port_no,
