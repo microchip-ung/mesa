@@ -138,29 +138,35 @@ static mesa_rc intl_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
     return MEPA_RC_OK;
 }
 
-void intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
+static mesa_rc intl_phy_sgmii_conf(mepa_device_t *dev, mepa_status_t *status)
 {
-    uint16_t reg_val = 0;
+    int rc;
+    struct gpy211_device *phy = GPY211_DEVICE(dev);
+    struct gpy211_sgmii sgmii;
 
-    reg_val |= (status->fdx ? 1 : 0) << 8;
+    sgmii.linkcfg_dir = SGMII_LINKCFG_TPI;
+    sgmii.aneg_mode = SGMII_ANEG_1000BX;
+    sgmii.link.autoneg = 0;
     switch (status->speed) {
     case (MESA_SPEED_2500M):
-        reg_val |= (1 << 13 | 1 << 6);
+        sgmii.link.speed = 2500;
         break;
     case (MESA_SPEED_1G):
-        reg_val |= (0 << 13 | 1 << 6);
+        sgmii.link.speed = 1000;
         break;
     case (MESA_SPEED_100M):
-        reg_val |= (1 << 13 | 0 << 6);
+        sgmii.link.speed = 100;
         break;
     case (MESA_SPEED_10M):
-        reg_val |= (0 << 13 | 0 << 6);
+        sgmii.link.speed = 10;
         break;
     default:
-        return;
+        return MESA_RC_ERROR;
     }
-    reg_val |= 1 << 1;
-    dev->callout->mmd_write(dev->callout_ctx, 0x1e, 0x8, reg_val);
+
+    rc = gpy2xx_sgmii_config_aneg(phy, &sgmii);
+
+    return rc < 0 ? MESA_RC_ERROR : MESA_RC_OK;
 }
 
 static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
@@ -206,7 +212,7 @@ static mesa_rc intl_poll(mepa_device_t *dev, mepa_status_t *status)
 
     if (link_change && status->link) {
         T_D("link change");
-        intl_phy_sgmii_conf(dev, status);
+        return(intl_phy_sgmii_conf(dev, status));
     }
 
     return MEPA_RC_OK;
@@ -422,7 +428,7 @@ mepa_drivers_t mepa_intel_driver_init()
     static mepa_driver_t intl_drivers[NR_INTL_PHY] = {};
 
     intl_drivers[0].id = INTL_PHY_CHIPID;
-    intl_drivers[0].mask = 0xffffffff;
+    intl_drivers[0].mask = 0xffff0000;
     intl_drivers[0].mepa_driver_delete = intl_delete;
     intl_drivers[0].mepa_driver_reset = intl_reset;
     intl_drivers[0].mepa_driver_poll = intl_poll;

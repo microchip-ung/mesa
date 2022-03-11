@@ -1,0 +1,98 @@
+Project
+===============================================================================
+The GPY211 is a Gigabit Ethernet (GbE) Ethernet Network Connection device
+with one Ethernet PHY, supporting speeds of 10, 100, 1000 and 2500 Mbps.
+It also supports a four-speed (10/100/1000/2500 Mbps) SGMII interface for
+connecting with an external chip.
+
+Release Version
+===============================================================================
+Version 1.6.1
+-------------
+This version is released with basic PHY configuration as below.
+	a) Link speed/status, ANEG/Advertising parameters.
+	b) All MDIO/MMD device register access as per IEEE standard.
+	c) Setting error events and Getting corresponding error count.
+	d) Different loopback models.
+	e) Different test modes.
+	f) External interrupts for different events.
+	g) LED functions.
+
+Version 2.3.1
+-------------
+This version is released with MACSec functionalities for PHY as below.
+	a) Adding MACSec encryption/decryption rules.
+	b) SA match and no-match action control.
+	c) Getting MACSec counters.
+	d) Adding Control-Packet classification rules.
+	e) Setting various thresholds and interrupt events for MACSec.
+	f) Basic Smart-AZ APIs for getting GMAC-Full counters, LPI configuration.
+	g) Buffer Manager configuration APIs for PTP packet threshold to start
+	   dequeuing after the buffered frame length reaches x bytes from SoP.
+
+Version 2.4.1
+-------------
+This version is released with MACSec enhancements and PTP functions for PHY as below.
+	a) Added MACSec VLAN parsing for using parsed 'Ether-Type' as match in MACSec rule.
+	b) Added MACSec Secure Association (SA)'s current Sequence Number (SN) for triggering
+	   Association Number (AN) change in dynamic MACSec keying.
+	c) New 'Field Firmware Upgrading' feature for updating FW in flash using MDIO.
+	d) Basic PTP feature.
+
+Version 2.5.1
+-------------
+This version is released with SyncE, ADS, ULP, FFU enhancement/bug-fix.
+	a) SyncE is fully implemented in v2.5.1. It works with firmware version 0x8747 onwards.
+	b) Auto-down-speed (ADS) is fully implemented in v2.5.1. It works with firmware version 0x8747 onwards.
+	c) Ultra-low-power (ULP) mode support is added. It works with firmware version 0x8747 onwards.
+	d) Firmware Boot Mode Indication is added. There is no firmware version dependency.
+	e) Field Firmware Upgrade (FFU) is enhanced to solve 20% failure with MDIO Clause 22 access.
+	   It works with firmware version 0x8730 and 0x8747.
+	f) 1588/PTP is enhanced. There is no firmware version dependency.
+
+Version 2.6.1
+-------------
+This version is released with GPY24x support and PTP enhancement.
+	a) Functional support for GPY115/GPY21x is extended for GPY24x.
+	b) USXGMII Tx/Rx EQ configure for GPY24x.
+	c) Auxiliary time stamp support.
+	d) GPY115/GPY21x/GPY24x chip variant detection.
+
+Version 2.6.1.2
+---------------
+This version is patched version of v2.6.1 for:
+	a) LED pulse only mode is supported.
+	b) Remove obsolete file from example script.
+	c) Fix FFU check failure in GPY24x.
+
+Version 2.6.1.3
+---------------
+This version is enhancement on top of v2.6.1.2 for:
+	a) Remove non-supported options (light sensor mode and mix mode)
+	   from LED API.
+	b) Bug fix in PTP API to detect egress PTP packets.
+	c) Support for GPY115/GPY21x C-step chips.
+
+Version 2.7.1.1
+---------------
+This version is enhancement on top of v2.6.1.3 for:
+	a) USSXGMII APIs are newly added for GPY24X chips.
+	b) Changes to use base + offset model rather than absolute address.
+	   In order to use the same API for both GPY21X and GPY24X, we adopted base + offset rather than absolute address.
+	   Offset remains same for both GPY21X and GPY24X but base address changes.
+	c) LED brightness control for constant level of max at 15 or user input in range 0 to 15.
+	   0 to turn off the LED, 1 being the lowest brightness and 15 being highest.
+	d) LED API is update to input validate the max LEDs supported on GPY24X are to 3 from that of 4 on GPY21X.
+	e) PTP APIs updated to remove unwanted precision less than 1sec related calculations.
+	   It is also enhanced to calculate few values like sub_sec/sub_nsec update, addend, update frequency internally
+	   from given PTP clock frequency.
+	f) PTP bug fixed to remove an invalid input validation check of 'MAX_SEC_IN_DAY'. It is required to initialize
+	   the system time from year 1970 up to today's date given in seconds.
+	g) PTP APIs are optimized by removing unwanted settings in GMAC-Lite.
+	h) Added two new APIs for enable/disabling MACsec by clubbing few APIs and removing unwanted configurable options.
+	i) GPY2XX init is updated to read and store HW capabilities once during init like SyncE/MACsec support etc.
+	j) Force speed setting API is updated to select Master/Slave port type manually, and disable this selection
+	   when ANEG is enabled.
+	k) External interrupt APIs are updated to separate standard vs extended interrupts and it's status.
+	l) SyncE APIs are updated to differentiate b/n GPY21X vs GPY24X and use appropriate registers dynamically.
+	m) FFU APIs is inpute valideted to make sure it always uses master slice address and return error otherwise.

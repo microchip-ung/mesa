@@ -1,0 +1,786 @@
+//-----------------------------------------------------------------------------
+// LSD Generator
+//-----------------------------------------------------------------------------
+// Perl Package        : LSD::generator::targetC (v1.1)
+// LSD Source          : /home/p34x/p34x_chip/v_reddydev.priv.p34x_chip.chip_work/ipg_lsd/lsd_sys/source_32b/xml/reg_files/chip_usxgmii/XPCS_VS_MII_1_MMD_def.xml
+// Register File Name  : XPCS_VS_MII_1_MMD
+// Register File Title : XPCS VS MII 1 MMD
+// Register Width      : 32
+// Note                : Doxygen compliant comments
+//-----------------------------------------------------------------------------
+
+#ifndef _XPCS_VS_MII_1_MMD_H
+#define _XPCS_VS_MII_1_MMD_H
+
+//! \defgroup XPCS_VS_MII_1_MMD Register File XPCS_VS_MII_1_MMD - XPCS VS MII 1 MMD
+//! @{
+
+//! Base Address of XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_MODULE_BASE 0x00680000u
+
+//! \defgroup XPCS_SR_MII_1_CTRL Register XPCS_SR_MII_1_CTRL - XPCS SR MII 1 CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_CTRL 0x0
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_CTRL 0x00680000u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_CTRL_RST 0x00000140u
+
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_CTRL_RESERVED_4_0_POS 0
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_CTRL_RESERVED_4_0_MASK 0x1Fu
+
+//! Field SS5 - SS5
+#define XPCS_SR_MII_1_CTRL_SS5_POS 5
+//! Field SS5 - SS5
+#define XPCS_SR_MII_1_CTRL_SS5_MASK 0x20u
+
+//! Field SS6 - SS6
+#define XPCS_SR_MII_1_CTRL_SS6_POS 6
+//! Field SS6 - SS6
+#define XPCS_SR_MII_1_CTRL_SS6_MASK 0x40u
+
+//! Field RESERVED_7 - Reserved_7
+#define XPCS_SR_MII_1_CTRL_RESERVED_7_POS 7
+//! Field RESERVED_7 - Reserved_7
+#define XPCS_SR_MII_1_CTRL_RESERVED_7_MASK 0x80u
+
+//! Field DUPLEX_MODE - DUPLEX_MODE
+#define XPCS_SR_MII_1_CTRL_DUPLEX_MODE_POS 8
+//! Field DUPLEX_MODE - DUPLEX_MODE
+#define XPCS_SR_MII_1_CTRL_DUPLEX_MODE_MASK 0x100u
+
+//! Field RESTART_AN - RESTART_AN
+#define XPCS_SR_MII_1_CTRL_RESTART_AN_POS 9
+//! Field RESTART_AN - RESTART_AN
+#define XPCS_SR_MII_1_CTRL_RESTART_AN_MASK 0x200u
+
+//! Field RESERVED_10 - Reserved_10
+#define XPCS_SR_MII_1_CTRL_RESERVED_10_POS 10
+//! Field RESERVED_10 - Reserved_10
+#define XPCS_SR_MII_1_CTRL_RESERVED_10_MASK 0x400u
+
+//! Field LPM - LPM
+#define XPCS_SR_MII_1_CTRL_LPM_POS 11
+//! Field LPM - LPM
+#define XPCS_SR_MII_1_CTRL_LPM_MASK 0x800u
+
+//! Field AN_ENABLE - AN_ENABLE
+#define XPCS_SR_MII_1_CTRL_AN_ENABLE_POS 12
+//! Field AN_ENABLE - AN_ENABLE
+#define XPCS_SR_MII_1_CTRL_AN_ENABLE_MASK 0x1000u
+
+//! Field SS13 - SS13
+#define XPCS_SR_MII_1_CTRL_SS13_POS 13
+//! Field SS13 - SS13
+#define XPCS_SR_MII_1_CTRL_SS13_MASK 0x2000u
+
+//! Field LBE - LBE
+#define XPCS_SR_MII_1_CTRL_LBE_POS 14
+//! Field LBE - LBE
+#define XPCS_SR_MII_1_CTRL_LBE_MASK 0x4000u
+
+//! Field RST - RST
+#define XPCS_SR_MII_1_CTRL_RST_POS 15
+//! Field RST - RST
+#define XPCS_SR_MII_1_CTRL_RST_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_STS Register XPCS_SR_MII_1_STS - XPCS SR MII 1 STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_STS 0x4
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_STS 0x00680004u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_STS_RST 0x00000189u
+
+//! Field EXT_REG_CAP - EXT_REG_CAP
+#define XPCS_SR_MII_1_STS_EXT_REG_CAP_POS 0
+//! Field EXT_REG_CAP - EXT_REG_CAP
+#define XPCS_SR_MII_1_STS_EXT_REG_CAP_MASK 0x1u
+
+//! Field RESERVED_1 - Reserved_1
+#define XPCS_SR_MII_1_STS_RESERVED_1_POS 1
+//! Field RESERVED_1 - Reserved_1
+#define XPCS_SR_MII_1_STS_RESERVED_1_MASK 0x2u
+
+//! Field LINK_STS - LINK_STS
+#define XPCS_SR_MII_1_STS_LINK_STS_POS 2
+//! Field LINK_STS - LINK_STS
+#define XPCS_SR_MII_1_STS_LINK_STS_MASK 0x4u
+
+//! Field AN_ABL - AN_ABL
+#define XPCS_SR_MII_1_STS_AN_ABL_POS 3
+//! Field AN_ABL - AN_ABL
+#define XPCS_SR_MII_1_STS_AN_ABL_MASK 0x8u
+
+//! Field RF - RF
+#define XPCS_SR_MII_1_STS_RF_POS 4
+//! Field RF - RF
+#define XPCS_SR_MII_1_STS_RF_MASK 0x10u
+
+//! Field AN_CMPL - AN_CMPL
+#define XPCS_SR_MII_1_STS_AN_CMPL_POS 5
+//! Field AN_CMPL - AN_CMPL
+#define XPCS_SR_MII_1_STS_AN_CMPL_MASK 0x20u
+
+//! Field MF_PRE_SUP - MF_PRE_SUP
+#define XPCS_SR_MII_1_STS_MF_PRE_SUP_POS 6
+//! Field MF_PRE_SUP - MF_PRE_SUP
+#define XPCS_SR_MII_1_STS_MF_PRE_SUP_MASK 0x40u
+
+//! Field UN_DIR_ABL - UN_DIR_ABL
+#define XPCS_SR_MII_1_STS_UN_DIR_ABL_POS 7
+//! Field UN_DIR_ABL - UN_DIR_ABL
+#define XPCS_SR_MII_1_STS_UN_DIR_ABL_MASK 0x80u
+
+//! Field EXT_STS_ABL - EXT_STS_ABL
+#define XPCS_SR_MII_1_STS_EXT_STS_ABL_POS 8
+//! Field EXT_STS_ABL - EXT_STS_ABL
+#define XPCS_SR_MII_1_STS_EXT_STS_ABL_MASK 0x100u
+
+//! Field HD100T - HD100T
+#define XPCS_SR_MII_1_STS_HD100T_POS 9
+//! Field HD100T - HD100T
+#define XPCS_SR_MII_1_STS_HD100T_MASK 0x200u
+
+//! Field FD100T - FD100T
+#define XPCS_SR_MII_1_STS_FD100T_POS 10
+//! Field FD100T - FD100T
+#define XPCS_SR_MII_1_STS_FD100T_MASK 0x400u
+
+//! Field HD10ABL - HD10ABL
+#define XPCS_SR_MII_1_STS_HD10ABL_POS 11
+//! Field HD10ABL - HD10ABL
+#define XPCS_SR_MII_1_STS_HD10ABL_MASK 0x800u
+
+//! Field FD10ABL - FD10ABL
+#define XPCS_SR_MII_1_STS_FD10ABL_POS 12
+//! Field FD10ABL - FD10ABL
+#define XPCS_SR_MII_1_STS_FD10ABL_MASK 0x1000u
+
+//! Field HD100ABL - HD100ABL
+#define XPCS_SR_MII_1_STS_HD100ABL_POS 13
+//! Field HD100ABL - HD100ABL
+#define XPCS_SR_MII_1_STS_HD100ABL_MASK 0x2000u
+
+//! Field FD100ABL - FD100ABL
+#define XPCS_SR_MII_1_STS_FD100ABL_POS 14
+//! Field FD100ABL - FD100ABL
+#define XPCS_SR_MII_1_STS_FD100ABL_MASK 0x4000u
+
+//! Field ABL100T4 - ABL100T4
+#define XPCS_SR_MII_1_STS_ABL100T4_POS 15
+//! Field ABL100T4 - ABL100T4
+#define XPCS_SR_MII_1_STS_ABL100T4_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_DEV_ID1 Register XPCS_SR_MII_1_DEV_ID1 - XPCS SR MII 1 DEV ID1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_DEV_ID1 0x8
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_DEV_ID1 0x00680008u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_DEV_ID1_RST 0x00007996u
+
+//! Field VS_MII_DEV_OUI_3_18 - VS_MII_DEV_OUI_3_18
+#define XPCS_SR_MII_1_DEV_ID1_VS_MII_DEV_OUI_3_18_POS 0
+//! Field VS_MII_DEV_OUI_3_18 - VS_MII_DEV_OUI_3_18
+#define XPCS_SR_MII_1_DEV_ID1_VS_MII_DEV_OUI_3_18_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_DEV_ID2 Register XPCS_SR_MII_1_DEV_ID2 - XPCS SR MII 1 DEV ID2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_DEV_ID2 0xC
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_DEV_ID2 0x0068000Cu
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_DEV_ID2_RST 0x0000CED0u
+
+//! Field VS_MMD_DEV_RN_3_0 - VS_MMD_DEV_RN_3_0
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_RN_3_0_POS 0
+//! Field VS_MMD_DEV_RN_3_0 - VS_MMD_DEV_RN_3_0
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_RN_3_0_MASK 0xFu
+
+//! Field VS_MMD_DEV_MMN_5_0 - VS_MMD_DEV_MMN_5_0
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_MMN_5_0_POS 4
+//! Field VS_MMD_DEV_MMN_5_0 - VS_MMD_DEV_MMN_5_0
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_MMN_5_0_MASK 0x3F0u
+
+//! Field VS_MMD_DEV_OUI_19_24 - VS_MMD_DEV_OUI_19_24
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_OUI_19_24_POS 10
+//! Field VS_MMD_DEV_OUI_19_24 - VS_MMD_DEV_OUI_19_24
+#define XPCS_SR_MII_1_DEV_ID2_VS_MMD_DEV_OUI_19_24_MASK 0xFC00u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_AN_ADV Register XPCS_SR_MII_1_AN_ADV - XPCS SR MII 1 AN ADV
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_AN_ADV 0x10
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_AN_ADV 0x00680010u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_AN_ADV_RST 0x00000020u
+
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_4_0_POS 0
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_4_0_MASK 0x1Fu
+
+//! Field FD - FD
+#define XPCS_SR_MII_1_AN_ADV_FD_POS 5
+//! Field FD - FD
+#define XPCS_SR_MII_1_AN_ADV_FD_MASK 0x20u
+
+//! Field HD - HD
+#define XPCS_SR_MII_1_AN_ADV_HD_POS 6
+//! Field HD - HD
+#define XPCS_SR_MII_1_AN_ADV_HD_MASK 0x40u
+
+//! Field PAUSE - PAUSE
+#define XPCS_SR_MII_1_AN_ADV_PAUSE_POS 7
+//! Field PAUSE - PAUSE
+#define XPCS_SR_MII_1_AN_ADV_PAUSE_MASK 0x180u
+
+//! Field RESERVED_11_9 - Reserved_11_9
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_11_9_POS 9
+//! Field RESERVED_11_9 - Reserved_11_9
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_11_9_MASK 0xE00u
+
+//! Field RF - RF
+#define XPCS_SR_MII_1_AN_ADV_RF_POS 12
+//! Field RF - RF
+#define XPCS_SR_MII_1_AN_ADV_RF_MASK 0x3000u
+
+//! Field RESERVED_14 - Reserved_14
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_14_POS 14
+//! Field RESERVED_14 - Reserved_14
+#define XPCS_SR_MII_1_AN_ADV_RESERVED_14_MASK 0x4000u
+
+//! Field NP - NP
+#define XPCS_SR_MII_1_AN_ADV_NP_POS 15
+//! Field NP - NP
+#define XPCS_SR_MII_1_AN_ADV_NP_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_LP_BABL Register XPCS_SR_MII_1_LP_BABL - XPCS SR MII 1 LP BABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_LP_BABL 0x14
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_LP_BABL 0x00680014u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_LP_BABL_RST 0x00000000u
+
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_LP_BABL_RESERVED_4_0_POS 0
+//! Field RESERVED_4_0 - Reserved_4_0
+#define XPCS_SR_MII_1_LP_BABL_RESERVED_4_0_MASK 0x1Fu
+
+//! Field LP_FD - LP_FD
+#define XPCS_SR_MII_1_LP_BABL_LP_FD_POS 5
+//! Field LP_FD - LP_FD
+#define XPCS_SR_MII_1_LP_BABL_LP_FD_MASK 0x20u
+
+//! Field LP_HD - LP_HD
+#define XPCS_SR_MII_1_LP_BABL_LP_HD_POS 6
+//! Field LP_HD - LP_HD
+#define XPCS_SR_MII_1_LP_BABL_LP_HD_MASK 0x40u
+
+//! Field LP_PAUSE - LP_PAUSE
+#define XPCS_SR_MII_1_LP_BABL_LP_PAUSE_POS 7
+//! Field LP_PAUSE - LP_PAUSE
+#define XPCS_SR_MII_1_LP_BABL_LP_PAUSE_MASK 0x180u
+
+//! Field RESERVED_11_9 - Reserved_11_9
+#define XPCS_SR_MII_1_LP_BABL_RESERVED_11_9_POS 9
+//! Field RESERVED_11_9 - Reserved_11_9
+#define XPCS_SR_MII_1_LP_BABL_RESERVED_11_9_MASK 0xE00u
+
+//! Field LP_RF - LP_RF
+#define XPCS_SR_MII_1_LP_BABL_LP_RF_POS 12
+//! Field LP_RF - LP_RF
+#define XPCS_SR_MII_1_LP_BABL_LP_RF_MASK 0x3000u
+
+//! Field LP_ACK - LP_ACK
+#define XPCS_SR_MII_1_LP_BABL_LP_ACK_POS 14
+//! Field LP_ACK - LP_ACK
+#define XPCS_SR_MII_1_LP_BABL_LP_ACK_MASK 0x4000u
+
+//! Field LP_NP - LP_NP
+#define XPCS_SR_MII_1_LP_BABL_LP_NP_POS 15
+//! Field LP_NP - LP_NP
+#define XPCS_SR_MII_1_LP_BABL_LP_NP_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_AN_EXPN Register XPCS_SR_MII_1_AN_EXPN - XPCS SR MII 1 AN EXPN
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_AN_EXPN 0x18
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_AN_EXPN 0x00680018u
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_AN_EXPN_RST 0x00000000u
+
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_SR_MII_1_AN_EXPN_RESERVED_0_POS 0
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_SR_MII_1_AN_EXPN_RESERVED_0_MASK 0x1u
+
+//! Field PG_RCVD - PG_RCVD
+#define XPCS_SR_MII_1_AN_EXPN_PG_RCVD_POS 1
+//! Field PG_RCVD - PG_RCVD
+#define XPCS_SR_MII_1_AN_EXPN_PG_RCVD_MASK 0x2u
+
+//! Field LD_NP_ABL - LD_NP_ABL
+#define XPCS_SR_MII_1_AN_EXPN_LD_NP_ABL_POS 2
+//! Field LD_NP_ABL - LD_NP_ABL
+#define XPCS_SR_MII_1_AN_EXPN_LD_NP_ABL_MASK 0x4u
+
+//! Field RESERVED_15_3 - Reserved_15_3
+#define XPCS_SR_MII_1_AN_EXPN_RESERVED_15_3_POS 3
+//! Field RESERVED_15_3 - Reserved_15_3
+#define XPCS_SR_MII_1_AN_EXPN_RESERVED_15_3_MASK 0xFFF8u
+
+//! @}
+
+//! \defgroup XPCS_SR_MII_1_EXT_STS Register XPCS_SR_MII_1_EXT_STS - XPCS SR MII 1 EXT STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_MII_1_EXT_STS 0x3C
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_SR_MII_1_EXT_STS 0x0068003Cu
+
+//! Register Reset Value
+#define XPCS_SR_MII_1_EXT_STS_RST 0x0000C000u
+
+//! Field RESERVED_11_0 - Reserved_11_0
+#define XPCS_SR_MII_1_EXT_STS_RESERVED_11_0_POS 0
+//! Field RESERVED_11_0 - Reserved_11_0
+#define XPCS_SR_MII_1_EXT_STS_RESERVED_11_0_MASK 0xFFFu
+
+//! Field CAP_1G_T_HD - CAP_1G_T_HD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_T_HD_POS 12
+//! Field CAP_1G_T_HD - CAP_1G_T_HD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_T_HD_MASK 0x1000u
+
+//! Field CAP_1G_T_FD - CAP_1G_T_FD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_T_FD_POS 13
+//! Field CAP_1G_T_FD - CAP_1G_T_FD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_T_FD_MASK 0x2000u
+
+//! Field CAP_1G_X_HD - CAP_1G_X_HD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_X_HD_POS 14
+//! Field CAP_1G_X_HD - CAP_1G_X_HD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_X_HD_MASK 0x4000u
+
+//! Field CAP_1G_X_FD - CAP_1G_X_FD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_X_FD_POS 15
+//! Field CAP_1G_X_FD - CAP_1G_X_FD
+#define XPCS_SR_MII_1_EXT_STS_CAP_1G_X_FD_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_DIG_CTRL1 Register XPCS_VR_MII_1_DIG_CTRL1 - XPCS VR MII 1 DIG CTRL1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_DIG_CTRL1 0x20000
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_DIG_CTRL1 0x006A0000u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_DIG_CTRL1_RST 0x00002400u
+
+//! Field PHY_MODE_CTRL - PHY_MODE_CTRL
+#define XPCS_VR_MII_1_DIG_CTRL1_PHY_MODE_CTRL_POS 0
+//! Field PHY_MODE_CTRL - PHY_MODE_CTRL
+#define XPCS_VR_MII_1_DIG_CTRL1_PHY_MODE_CTRL_MASK 0x1u
+
+//! Field BYP_PWRUP - BYP_PWRUP
+#define XPCS_VR_MII_1_DIG_CTRL1_BYP_PWRUP_POS 1
+//! Field BYP_PWRUP - BYP_PWRUP
+#define XPCS_VR_MII_1_DIG_CTRL1_BYP_PWRUP_MASK 0x2u
+
+//! Field EN_2_5G_MODE - EN_2_5G_MODE
+#define XPCS_VR_MII_1_DIG_CTRL1_EN_2_5G_MODE_POS 2
+//! Field EN_2_5G_MODE - EN_2_5G_MODE
+#define XPCS_VR_MII_1_DIG_CTRL1_EN_2_5G_MODE_MASK 0x4u
+
+//! Field CL37_TMR_OVR_RIDE - CL37_TMR_OVR_RIDE
+#define XPCS_VR_MII_1_DIG_CTRL1_CL37_TMR_OVR_RIDE_POS 3
+//! Field CL37_TMR_OVR_RIDE - CL37_TMR_OVR_RIDE
+#define XPCS_VR_MII_1_DIG_CTRL1_CL37_TMR_OVR_RIDE_MASK 0x8u
+
+//! Field DTXLANED_0 - DTXLANED_0
+#define XPCS_VR_MII_1_DIG_CTRL1_DTXLANED_0_POS 4
+//! Field DTXLANED_0 - DTXLANED_0
+#define XPCS_VR_MII_1_DIG_CTRL1_DTXLANED_0_MASK 0x10u
+
+//! Field USRA_RST - USRA_RST
+#define XPCS_VR_MII_1_DIG_CTRL1_USRA_RST_POS 5
+//! Field USRA_RST - USRA_RST
+#define XPCS_VR_MII_1_DIG_CTRL1_USRA_RST_MASK 0x20u
+
+//! Field PRE_EMP - PRE_EMP
+#define XPCS_VR_MII_1_DIG_CTRL1_PRE_EMP_POS 6
+//! Field PRE_EMP - PRE_EMP
+#define XPCS_VR_MII_1_DIG_CTRL1_PRE_EMP_MASK 0x40u
+
+//! Field MSK_RD_ERR - MSK_RD_ERR
+#define XPCS_VR_MII_1_DIG_CTRL1_MSK_RD_ERR_POS 7
+//! Field MSK_RD_ERR - MSK_RD_ERR
+#define XPCS_VR_MII_1_DIG_CTRL1_MSK_RD_ERR_MASK 0x80u
+
+//! Field INIT - INIT
+#define XPCS_VR_MII_1_DIG_CTRL1_INIT_POS 8
+//! Field INIT - INIT
+#define XPCS_VR_MII_1_DIG_CTRL1_INIT_MASK 0x100u
+
+//! Field MAC_AUTO_SW - MAC_AUTO_SW
+#define XPCS_VR_MII_1_DIG_CTRL1_MAC_AUTO_SW_POS 9
+//! Field MAC_AUTO_SW - MAC_AUTO_SW
+#define XPCS_VR_MII_1_DIG_CTRL1_MAC_AUTO_SW_MASK 0x200u
+
+//! Field CS_EN - CS_EN
+#define XPCS_VR_MII_1_DIG_CTRL1_CS_EN_POS 10
+//! Field CS_EN - CS_EN
+#define XPCS_VR_MII_1_DIG_CTRL1_CS_EN_MASK 0x400u
+
+//! Field PWRSV - PWRSV
+#define XPCS_VR_MII_1_DIG_CTRL1_PWRSV_POS 11
+//! Field PWRSV - PWRSV
+#define XPCS_VR_MII_1_DIG_CTRL1_PWRSV_MASK 0x800u
+
+//! Field CL37_BP - CL37_BP
+#define XPCS_VR_MII_1_DIG_CTRL1_CL37_BP_POS 12
+//! Field CL37_BP - CL37_BP
+#define XPCS_VR_MII_1_DIG_CTRL1_CL37_BP_MASK 0x1000u
+
+//! Field EN_VSMMD1 - EN_VSMMD1
+#define XPCS_VR_MII_1_DIG_CTRL1_EN_VSMMD1_POS 13
+//! Field EN_VSMMD1 - EN_VSMMD1
+#define XPCS_VR_MII_1_DIG_CTRL1_EN_VSMMD1_MASK 0x2000u
+
+//! Field R2TLBE - R2TLBE
+#define XPCS_VR_MII_1_DIG_CTRL1_R2TLBE_POS 14
+//! Field R2TLBE - R2TLBE
+#define XPCS_VR_MII_1_DIG_CTRL1_R2TLBE_MASK 0x4000u
+
+//! Field VR_RST - VR_RST
+#define XPCS_VR_MII_1_DIG_CTRL1_VR_RST_POS 15
+//! Field VR_RST - VR_RST
+#define XPCS_VR_MII_1_DIG_CTRL1_VR_RST_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_AN_CTRL Register XPCS_VR_MII_1_AN_CTRL - XPCS VR MII 1 AN CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_AN_CTRL 0x20004
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_AN_CTRL 0x006A0004u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_AN_CTRL_RST 0x00000000u
+
+//! Field MII_AN_INTR_EN - MII_AN_INTR_EN
+#define XPCS_VR_MII_1_AN_CTRL_MII_AN_INTR_EN_POS 0
+//! Field MII_AN_INTR_EN - MII_AN_INTR_EN
+#define XPCS_VR_MII_1_AN_CTRL_MII_AN_INTR_EN_MASK 0x1u
+
+//! Field PCS_MODE - PCS_MODE
+#define XPCS_VR_MII_1_AN_CTRL_PCS_MODE_POS 1
+//! Field PCS_MODE - PCS_MODE
+#define XPCS_VR_MII_1_AN_CTRL_PCS_MODE_MASK 0x6u
+
+//! Field TX_CONFIG - TX_CONFIG
+#define XPCS_VR_MII_1_AN_CTRL_TX_CONFIG_POS 3
+//! Field TX_CONFIG - TX_CONFIG
+#define XPCS_VR_MII_1_AN_CTRL_TX_CONFIG_MASK 0x8u
+
+//! Field SGMII_LINK_STS - SGMII_LINK_STS
+#define XPCS_VR_MII_1_AN_CTRL_SGMII_LINK_STS_POS 4
+//! Field SGMII_LINK_STS - SGMII_LINK_STS
+#define XPCS_VR_MII_1_AN_CTRL_SGMII_LINK_STS_MASK 0x10u
+
+//! Field RESERVED_7_5 - Reserved_7_5
+#define XPCS_VR_MII_1_AN_CTRL_RESERVED_7_5_POS 5
+//! Field RESERVED_7_5 - Reserved_7_5
+#define XPCS_VR_MII_1_AN_CTRL_RESERVED_7_5_MASK 0xE0u
+
+//! Field MII_CTRL - MII_CTRL
+#define XPCS_VR_MII_1_AN_CTRL_MII_CTRL_POS 8
+//! Field MII_CTRL - MII_CTRL
+#define XPCS_VR_MII_1_AN_CTRL_MII_CTRL_MASK 0x100u
+
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_VR_MII_1_AN_CTRL_RESERVED_15_9_POS 9
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_VR_MII_1_AN_CTRL_RESERVED_15_9_MASK 0xFE00u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_AN_INTR_STS Register XPCS_VR_MII_1_AN_INTR_STS - XPCS VR MII 1 AN INTR STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_AN_INTR_STS 0x20008
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_AN_INTR_STS 0x006A0008u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_AN_INTR_STS_RST 0x0000000Au
+
+//! Field CL37_ANCMPLT_INTR - CL37_ANCMPLT_INTR
+#define XPCS_VR_MII_1_AN_INTR_STS_CL37_ANCMPLT_INTR_POS 0
+//! Field CL37_ANCMPLT_INTR - CL37_ANCMPLT_INTR
+#define XPCS_VR_MII_1_AN_INTR_STS_CL37_ANCMPLT_INTR_MASK 0x1u
+
+//! Field CL37_ANSGM_STS - CL37_ANSGM_STS
+#define XPCS_VR_MII_1_AN_INTR_STS_CL37_ANSGM_STS_POS 1
+//! Field CL37_ANSGM_STS - CL37_ANSGM_STS
+#define XPCS_VR_MII_1_AN_INTR_STS_CL37_ANSGM_STS_MASK 0x1Eu
+
+//! Field LP_EEE_CAP - LP_EEE_CAP
+#define XPCS_VR_MII_1_AN_INTR_STS_LP_EEE_CAP_POS 5
+//! Field LP_EEE_CAP - LP_EEE_CAP
+#define XPCS_VR_MII_1_AN_INTR_STS_LP_EEE_CAP_MASK 0x20u
+
+//! Field LP_CK_STP - LP_CK_STP
+#define XPCS_VR_MII_1_AN_INTR_STS_LP_CK_STP_POS 6
+//! Field LP_CK_STP - LP_CK_STP
+#define XPCS_VR_MII_1_AN_INTR_STS_LP_CK_STP_MASK 0x40u
+
+//! Field RESERVED_7 - Reserved_7
+#define XPCS_VR_MII_1_AN_INTR_STS_RESERVED_7_POS 7
+//! Field RESERVED_7 - Reserved_7
+#define XPCS_VR_MII_1_AN_INTR_STS_RESERVED_7_MASK 0x80u
+
+//! Field USXG_AN_STS - USXG_AN_STS
+#define XPCS_VR_MII_1_AN_INTR_STS_USXG_AN_STS_POS 8
+//! Field USXG_AN_STS - USXG_AN_STS
+#define XPCS_VR_MII_1_AN_INTR_STS_USXG_AN_STS_MASK 0x7F00u
+
+//! Field RESERVED_15 - Reserved_15
+#define XPCS_VR_MII_1_AN_INTR_STS_RESERVED_15_POS 15
+//! Field RESERVED_15 - Reserved_15
+#define XPCS_VR_MII_1_AN_INTR_STS_RESERVED_15_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_DBG_CTRL Register XPCS_VR_MII_1_DBG_CTRL - XPCS VR MII 1 DBG CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_DBG_CTRL 0x20014
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_DBG_CTRL 0x006A0014u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_DBG_CTRL_RST 0x00000000u
+
+//! Field RESTAR_SYNC - RESTAR_SYNC
+#define XPCS_VR_MII_1_DBG_CTRL_RESTAR_SYNC_POS 0
+//! Field RESTAR_SYNC - RESTAR_SYNC
+#define XPCS_VR_MII_1_DBG_CTRL_RESTAR_SYNC_MASK 0x1u
+
+//! Field SUPRESS_LOS_DET - SUPRESS_LOS_DET
+#define XPCS_VR_MII_1_DBG_CTRL_SUPRESS_LOS_DET_POS 4
+//! Field SUPRESS_LOS_DET - SUPRESS_LOS_DET
+#define XPCS_VR_MII_1_DBG_CTRL_SUPRESS_LOS_DET_MASK 0x10u
+
+//! Field SUPRESS_EEE_LOS_DET - SUPRESS_EEE_LOS_DET
+#define XPCS_VR_MII_1_DBG_CTRL_SUPRESS_EEE_LOS_DET_POS 5
+//! Field SUPRESS_EEE_LOS_DET - SUPRESS_EEE_LOS_DET
+#define XPCS_VR_MII_1_DBG_CTRL_SUPRESS_EEE_LOS_DET_MASK 0x20u
+
+//! Field RX_DT_EN_CTL - RX_DT_EN_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_RX_DT_EN_CTL_POS 6
+//! Field RX_DT_EN_CTL - RX_DT_EN_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_RX_DT_EN_CTL_MASK 0x40u
+
+//! Field RX_SYNC_CTL - RX_SYNC_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_RX_SYNC_CTL_POS 7
+//! Field RX_SYNC_CTL - RX_SYNC_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_RX_SYNC_CTL_MASK 0x80u
+
+//! Field TX_PMBL_CTL - TX_PMBL_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_TX_PMBL_CTL_POS 8
+//! Field TX_PMBL_CTL - TX_PMBL_CTL
+#define XPCS_VR_MII_1_DBG_CTRL_TX_PMBL_CTL_MASK 0x100u
+
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_VR_MII_1_DBG_CTRL_RESERVED_15_9_POS 9
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_VR_MII_1_DBG_CTRL_RESERVED_15_9_MASK 0xFE00u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_LINK_TIMER_CTRL Register XPCS_VR_MII_1_LINK_TIMER_CTRL - XPCS VR MII 1 LINK TIMER CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_LINK_TIMER_CTRL 0x20028
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_LINK_TIMER_CTRL 0x006A0028u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_LINK_TIMER_CTRL_RST 0x00000000u
+
+//! Field CL37_LINK_TIME - CL37_LINK_TIME
+#define XPCS_VR_MII_1_LINK_TIMER_CTRL_CL37_LINK_TIME_POS 0
+//! Field CL37_LINK_TIME - CL37_LINK_TIME
+#define XPCS_VR_MII_1_LINK_TIMER_CTRL_CL37_LINK_TIME_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_DIG_STS Register XPCS_VR_MII_1_DIG_STS - XPCS VR MII 1 DIG STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_DIG_STS 0x20040
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_DIG_STS 0x006A0040u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_DIG_STS_RST 0x00000010u
+
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_VR_MII_1_DIG_STS_RESERVED_0_POS 0
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_VR_MII_1_DIG_STS_RESERVED_0_MASK 0x1u
+
+//! Field LB_ACTIVE - LB_ACTIVE
+#define XPCS_VR_MII_1_DIG_STS_LB_ACTIVE_POS 1
+//! Field LB_ACTIVE - LB_ACTIVE
+#define XPCS_VR_MII_1_DIG_STS_LB_ACTIVE_MASK 0x2u
+
+//! Field PSEQ_STATE - PSEQ_STATE
+#define XPCS_VR_MII_1_DIG_STS_PSEQ_STATE_POS 2
+//! Field PSEQ_STATE - PSEQ_STATE
+#define XPCS_VR_MII_1_DIG_STS_PSEQ_STATE_MASK 0x1Cu
+
+//! Field RXFIFO_UNDF - RXFIFO_UNDF
+#define XPCS_VR_MII_1_DIG_STS_RXFIFO_UNDF_POS 5
+//! Field RXFIFO_UNDF - RXFIFO_UNDF
+#define XPCS_VR_MII_1_DIG_STS_RXFIFO_UNDF_MASK 0x20u
+
+//! Field RXFIFO_OVF - RXFIFO_OVF
+#define XPCS_VR_MII_1_DIG_STS_RXFIFO_OVF_POS 6
+//! Field RXFIFO_OVF - RXFIFO_OVF
+#define XPCS_VR_MII_1_DIG_STS_RXFIFO_OVF_MASK 0x40u
+
+//! Field INV_XGM_SOP - INV_XGM_SOP
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_SOP_POS 7
+//! Field INV_XGM_SOP - INV_XGM_SOP
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_SOP_MASK 0x80u
+
+//! Field INV_XGM_T - INV_XGM_T
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_T_POS 8
+//! Field INV_XGM_T - INV_XGM_T
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_T_MASK 0x100u
+
+//! Field INV_XGM_CHAR - INV_XGM_CHAR
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_CHAR_POS 9
+//! Field INV_XGM_CHAR - INV_XGM_CHAR
+#define XPCS_VR_MII_1_DIG_STS_INV_XGM_CHAR_MASK 0x200u
+
+//! Field LRX_STATE - LRX_STATE
+#define XPCS_VR_MII_1_DIG_STS_LRX_STATE_POS 10
+//! Field LRX_STATE - LRX_STATE
+#define XPCS_VR_MII_1_DIG_STS_LRX_STATE_MASK 0x1C00u
+
+//! Field LTX_STATE - LTX_STATE
+#define XPCS_VR_MII_1_DIG_STS_LTX_STATE_POS 13
+//! Field LTX_STATE - LTX_STATE
+#define XPCS_VR_MII_1_DIG_STS_LTX_STATE_MASK 0xE000u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_ICG_ERRCNT1 Register XPCS_VR_MII_1_ICG_ERRCNT1 - XPCS VR MII 1 ICG ERRCNT1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_ICG_ERRCNT1 0x20044
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_ICG_ERRCNT1 0x006A0044u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_ICG_ERRCNT1_RST 0x00000000u
+
+//! Field EC0 - EC0
+#define XPCS_VR_MII_1_ICG_ERRCNT1_EC0_POS 0
+//! Field EC0 - EC0
+#define XPCS_VR_MII_1_ICG_ERRCNT1_EC0_MASK 0xFFu
+
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_VR_MII_1_ICG_ERRCNT1_RESERVED_15_8_POS 8
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_VR_MII_1_ICG_ERRCNT1_RESERVED_15_8_MASK 0xFF00u
+
+//! @}
+
+//! \defgroup XPCS_VR_MII_1_DIG_ERRCNT_SEL Register XPCS_VR_MII_1_DIG_ERRCNT_SEL - XPCS VR MII 1 DIG ERRCNT SEL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL 0x20388
+//! Register Offset (absolute) for 1st Instance XPCS_VS_MII_1_MMD
+#define XPCS_VS_MII_1_MMD_XPCS_VR_MII_1_DIG_ERRCNT_SEL 0x006A0388u
+
+//! Register Reset Value
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_RST 0x00000000u
+
+//! Field COR - COR
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_COR_POS 0
+//! Field COR - COR
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_COR_MASK 0x1u
+
+//! Field RESERVED_3_1 - Reserved_3_1
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_RESERVED_3_1_POS 1
+//! Field RESERVED_3_1 - Reserved_3_1
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_RESERVED_3_1_MASK 0xEu
+
+//! Field INV_EC_EN - INV_EC_EN
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_INV_EC_EN_POS 4
+//! Field INV_EC_EN - INV_EC_EN
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_INV_EC_EN_MASK 0x10u
+
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_RESERVED_15_5_POS 5
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_VR_MII_1_DIG_ERRCNT_SEL_RESERVED_15_5_MASK 0xFFE0u
+
+//! @}
+
+//! @}
+
+#endif

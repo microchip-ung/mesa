@@ -1,0 +1,1691 @@
+//-----------------------------------------------------------------------------
+// LSD Generator
+//-----------------------------------------------------------------------------
+// Perl Package        : LSD::generator::targetC (v1.1)
+// LSD Source          : /home/p34x/p34x_chip/v_reddydev.priv.p34x_chip.chip_work/ipg_lsd/lsd_sys/source_32b/xml/reg_files/chip_usxgmii/XPCS_PMA_MMD_def.xml
+// Register File Name  : XPCS_PMA_MMD
+// Register File Title : XPCS PMA MMD
+// Register Width      : 32
+// Note                : Doxygen compliant comments
+//-----------------------------------------------------------------------------
+
+#ifndef _XPCS_PMA_MMD_H
+#define _XPCS_PMA_MMD_H
+
+//! \defgroup XPCS_PMA_MMD Register File XPCS_PMA_MMD - XPCS PMA MMD
+//! @{
+
+//! Base Address of XPCS_PMA_MMD
+#define XPCS_PMA_MMD_MODULE_BASE 0x00040000u
+
+//! \defgroup XPCS_SR_PMA_CTRL1 Register XPCS_SR_PMA_CTRL1 - XPCS SR PMA CTRL1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_CTRL1 0x0
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_CTRL1 0x00040000u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_CTRL1_RST 0x00000040u
+
+//! Field LB - LB
+#define XPCS_SR_PMA_CTRL1_LB_POS 0
+//! Field LB - LB
+#define XPCS_SR_PMA_CTRL1_LB_MASK 0x1u
+
+//! Field RESERVED_1 - Reserved_1
+#define XPCS_SR_PMA_CTRL1_RESERVED_1_POS 1
+//! Field RESERVED_1 - Reserved_1
+#define XPCS_SR_PMA_CTRL1_RESERVED_1_MASK 0x2u
+
+//! Field SS_5_2 - SS_5_2
+#define XPCS_SR_PMA_CTRL1_SS_5_2_POS 2
+//! Field SS_5_2 - SS_5_2
+#define XPCS_SR_PMA_CTRL1_SS_5_2_MASK 0x3Cu
+
+//! Field SS6 - SS6
+#define XPCS_SR_PMA_CTRL1_SS6_POS 6
+//! Field SS6 - SS6
+#define XPCS_SR_PMA_CTRL1_SS6_MASK 0x40u
+
+//! Field RESERVED_10_7 - Reserved_10_7
+#define XPCS_SR_PMA_CTRL1_RESERVED_10_7_POS 7
+//! Field RESERVED_10_7 - Reserved_10_7
+#define XPCS_SR_PMA_CTRL1_RESERVED_10_7_MASK 0x780u
+
+//! Field LPM - LPM
+#define XPCS_SR_PMA_CTRL1_LPM_POS 11
+//! Field LPM - LPM
+#define XPCS_SR_PMA_CTRL1_LPM_MASK 0x800u
+
+//! Field RESERVED_12 - Reserved_12
+#define XPCS_SR_PMA_CTRL1_RESERVED_12_POS 12
+//! Field RESERVED_12 - Reserved_12
+#define XPCS_SR_PMA_CTRL1_RESERVED_12_MASK 0x1000u
+
+//! Field SS13 - SS13
+#define XPCS_SR_PMA_CTRL1_SS13_POS 13
+//! Field SS13 - SS13
+#define XPCS_SR_PMA_CTRL1_SS13_MASK 0x2000u
+
+//! Field RESERVED_14 - Reserved_14
+#define XPCS_SR_PMA_CTRL1_RESERVED_14_POS 14
+//! Field RESERVED_14 - Reserved_14
+#define XPCS_SR_PMA_CTRL1_RESERVED_14_MASK 0x4000u
+
+//! Field RST - RST
+#define XPCS_SR_PMA_CTRL1_RST_POS 15
+//! Field RST - RST
+#define XPCS_SR_PMA_CTRL1_RST_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_STATUS1 Register XPCS_SR_PMA_STATUS1 - XPCS SR PMA STATUS1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_STATUS1 0x4
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_STATUS1 0x00040004u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_STATUS1_RST 0x00000002u
+
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_SR_PMA_STATUS1_RESERVED_0_POS 0
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_SR_PMA_STATUS1_RESERVED_0_MASK 0x1u
+
+//! Field LPMS - LPMS
+#define XPCS_SR_PMA_STATUS1_LPMS_POS 1
+//! Field LPMS - LPMS
+#define XPCS_SR_PMA_STATUS1_LPMS_MASK 0x2u
+
+//! Field RLU - RLU
+#define XPCS_SR_PMA_STATUS1_RLU_POS 2
+//! Field RLU - RLU
+#define XPCS_SR_PMA_STATUS1_RLU_MASK 0x4u
+
+//! Field RESERVED_6_3 - Reserved_6_3
+#define XPCS_SR_PMA_STATUS1_RESERVED_6_3_POS 3
+//! Field RESERVED_6_3 - Reserved_6_3
+#define XPCS_SR_PMA_STATUS1_RESERVED_6_3_MASK 0x78u
+
+//! Field FLT - FLT
+#define XPCS_SR_PMA_STATUS1_FLT_POS 7
+//! Field FLT - FLT
+#define XPCS_SR_PMA_STATUS1_FLT_MASK 0x80u
+
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_SR_PMA_STATUS1_RESERVED_15_8_POS 8
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_SR_PMA_STATUS1_RESERVED_15_8_MASK 0xFF00u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_DEV_ID_1 Register XPCS_SR_PMA_DEV_ID_1 - XPCS SR PMA DEV ID 1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_DEV_ID_1 0x8
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_DEV_ID_1 0x00040008u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_DEV_ID_1_RST 0x00000000u
+
+//! Field PMA_DEV_OUI_3_18 - PMA_DEV_OUI_3_18
+#define XPCS_SR_PMA_DEV_ID_1_PMA_DEV_OUI_3_18_POS 0
+//! Field PMA_DEV_OUI_3_18 - PMA_DEV_OUI_3_18
+#define XPCS_SR_PMA_DEV_ID_1_PMA_DEV_OUI_3_18_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_DEV_ID_2 Register XPCS_SR_PMA_DEV_ID_2 - XPCS SR PMA DEV ID 2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_DEV_ID_2 0xC
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_DEV_ID_2 0x0004000Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_DEV_ID_2_RST 0x00000000u
+
+//! Field PMA_DEV_RN_3_0 - PMA_DEV_RN_3_0
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_RN_3_0_POS 0
+//! Field PMA_DEV_RN_3_0 - PMA_DEV_RN_3_0
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_RN_3_0_MASK 0xFu
+
+//! Field PMA_DEV_MMN_5_0 - PMA_DEV_MMN_5_0
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_MMN_5_0_POS 4
+//! Field PMA_DEV_MMN_5_0 - PMA_DEV_MMN_5_0
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_MMN_5_0_MASK 0x3F0u
+
+//! Field PMA_DEV_OUI_19_24 - PMA_DEV_OUI_19_24
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_OUI_19_24_POS 10
+//! Field PMA_DEV_OUI_19_24 - PMA_DEV_OUI_19_24
+#define XPCS_SR_PMA_DEV_ID_2_PMA_DEV_OUI_19_24_MASK 0xFC00u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_SPD_ABL Register XPCS_SR_PMA_SPD_ABL - XPCS SR PMA SPD ABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_SPD_ABL 0x10
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_SPD_ABL 0x00040010u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_SPD_ABL_RST 0x00000011u
+
+//! Field XGC - XGC
+#define XPCS_SR_PMA_SPD_ABL_XGC_POS 0
+//! Field XGC - XGC
+#define XPCS_SR_PMA_SPD_ABL_XGC_MASK 0x1u
+
+//! Field RESERVED_3_1 - Reserved_3_1
+#define XPCS_SR_PMA_SPD_ABL_RESERVED_3_1_POS 1
+//! Field RESERVED_3_1 - Reserved_3_1
+#define XPCS_SR_PMA_SPD_ABL_RESERVED_3_1_MASK 0xEu
+
+//! Field GC - GC
+#define XPCS_SR_PMA_SPD_ABL_GC_POS 4
+//! Field GC - GC
+#define XPCS_SR_PMA_SPD_ABL_GC_MASK 0x10u
+
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_SPD_ABL_RESERVED_15_5_POS 5
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_SPD_ABL_RESERVED_15_5_MASK 0xFFE0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_DEV_PKG1 Register XPCS_SR_PMA_DEV_PKG1 - XPCS SR PMA DEV PKG1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_DEV_PKG1 0x14
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_DEV_PKG1 0x00040014u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_DEV_PKG1_RST 0x0000008Au
+
+//! Field CLS22 - CLS22
+#define XPCS_SR_PMA_DEV_PKG1_CLS22_POS 0
+//! Field CLS22 - CLS22
+#define XPCS_SR_PMA_DEV_PKG1_CLS22_MASK 0x1u
+
+//! Field PMA_PMD - PMA_PMD
+#define XPCS_SR_PMA_DEV_PKG1_PMA_PMD_POS 1
+//! Field PMA_PMD - PMA_PMD
+#define XPCS_SR_PMA_DEV_PKG1_PMA_PMD_MASK 0x2u
+
+//! Field WIS - WIS
+#define XPCS_SR_PMA_DEV_PKG1_WIS_POS 2
+//! Field WIS - WIS
+#define XPCS_SR_PMA_DEV_PKG1_WIS_MASK 0x4u
+
+//! Field PCS - PCS
+#define XPCS_SR_PMA_DEV_PKG1_PCS_POS 3
+//! Field PCS - PCS
+#define XPCS_SR_PMA_DEV_PKG1_PCS_MASK 0x8u
+
+//! Field PHYXS - PHYXS
+#define XPCS_SR_PMA_DEV_PKG1_PHYXS_POS 4
+//! Field PHYXS - PHYXS
+#define XPCS_SR_PMA_DEV_PKG1_PHYXS_MASK 0x10u
+
+//! Field DTEXS - DTEXS
+#define XPCS_SR_PMA_DEV_PKG1_DTEXS_POS 5
+//! Field DTEXS - DTEXS
+#define XPCS_SR_PMA_DEV_PKG1_DTEXS_MASK 0x20u
+
+//! Field TC - TC
+#define XPCS_SR_PMA_DEV_PKG1_TC_POS 6
+//! Field TC - TC
+#define XPCS_SR_PMA_DEV_PKG1_TC_MASK 0x40u
+
+//! Field AN - AN
+#define XPCS_SR_PMA_DEV_PKG1_AN_POS 7
+//! Field AN - AN
+#define XPCS_SR_PMA_DEV_PKG1_AN_MASK 0x80u
+
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_SR_PMA_DEV_PKG1_RESERVED_15_8_POS 8
+//! Field RESERVED_15_8 - Reserved_15_8
+#define XPCS_SR_PMA_DEV_PKG1_RESERVED_15_8_MASK 0xFF00u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_DEV_PKG2 Register XPCS_SR_PMA_DEV_PKG2 - XPCS SR PMA DEV PKG2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_DEV_PKG2 0x18
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_DEV_PKG2 0x00040018u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_DEV_PKG2_RST 0x0000C000u
+
+//! Field RESERVED_13_0 - Reserved_13_0
+#define XPCS_SR_PMA_DEV_PKG2_RESERVED_13_0_POS 0
+//! Field RESERVED_13_0 - Reserved_13_0
+#define XPCS_SR_PMA_DEV_PKG2_RESERVED_13_0_MASK 0x3FFFu
+
+//! Field VSD1 - VSD1
+#define XPCS_SR_PMA_DEV_PKG2_VSD1_POS 14
+//! Field VSD1 - VSD1
+#define XPCS_SR_PMA_DEV_PKG2_VSD1_MASK 0x4000u
+
+//! Field VSD2 - VSD2
+#define XPCS_SR_PMA_DEV_PKG2_VSD2_POS 15
+//! Field VSD2 - VSD2
+#define XPCS_SR_PMA_DEV_PKG2_VSD2_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_CTRL2 Register XPCS_SR_PMA_CTRL2 - XPCS SR PMA CTRL2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_CTRL2 0x1C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_CTRL2 0x0004001Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_CTRL2_RST 0x00000000u
+
+//! Field PMA_TYPE - PMA_TYPE
+#define XPCS_SR_PMA_CTRL2_PMA_TYPE_POS 0
+//! Field PMA_TYPE - PMA_TYPE
+#define XPCS_SR_PMA_CTRL2_PMA_TYPE_MASK 0x3Fu
+
+//! Field RESERVED_15_6 - Reserved_15_6
+#define XPCS_SR_PMA_CTRL2_RESERVED_15_6_POS 6
+//! Field RESERVED_15_6 - Reserved_15_6
+#define XPCS_SR_PMA_CTRL2_RESERVED_15_6_MASK 0xFFC0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_STATUS2 Register XPCS_SR_PMA_STATUS2 - XPCS SR PMA STATUS2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_STATUS2 0x20
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_STATUS2 0x00040020u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_STATUS2_RST 0x00009301u
+
+//! Field PMA_LOOP - PMA_LOOP
+#define XPCS_SR_PMA_STATUS2_PMA_LOOP_POS 0
+//! Field PMA_LOOP - PMA_LOOP
+#define XPCS_SR_PMA_STATUS2_PMA_LOOP_MASK 0x1u
+
+//! Field XGEWEN - XGEWEN
+#define XPCS_SR_PMA_STATUS2_XGEWEN_POS 1
+//! Field XGEWEN - XGEWEN
+#define XPCS_SR_PMA_STATUS2_XGEWEN_MASK 0x2u
+
+//! Field XGLWEN - XGLWEN
+#define XPCS_SR_PMA_STATUS2_XGLWEN_POS 2
+//! Field XGLWEN - XGLWEN
+#define XPCS_SR_PMA_STATUS2_XGLWEN_MASK 0x4u
+
+//! Field XGSWEN - XGSWEN
+#define XPCS_SR_PMA_STATUS2_XGSWEN_POS 3
+//! Field XGSWEN - XGSWEN
+#define XPCS_SR_PMA_STATUS2_XGSWEN_MASK 0x8u
+
+//! Field LX4_ABL - LX4_ABL
+#define XPCS_SR_PMA_STATUS2_LX4_ABL_POS 4
+//! Field LX4_ABL - LX4_ABL
+#define XPCS_SR_PMA_STATUS2_LX4_ABL_MASK 0x10u
+
+//! Field ER_ABL - ER_ABL
+#define XPCS_SR_PMA_STATUS2_ER_ABL_POS 5
+//! Field ER_ABL - ER_ABL
+#define XPCS_SR_PMA_STATUS2_ER_ABL_MASK 0x20u
+
+//! Field LR_ABL - LR_ABL
+#define XPCS_SR_PMA_STATUS2_LR_ABL_POS 6
+//! Field LR_ABL - LR_ABL
+#define XPCS_SR_PMA_STATUS2_LR_ABL_MASK 0x40u
+
+//! Field SR_ABL - SR_ABL
+#define XPCS_SR_PMA_STATUS2_SR_ABL_POS 7
+//! Field SR_ABL - SR_ABL
+#define XPCS_SR_PMA_STATUS2_SR_ABL_MASK 0x80u
+
+//! Field TD_ABL - TD_ABL
+#define XPCS_SR_PMA_STATUS2_TD_ABL_POS 8
+//! Field TD_ABL - TD_ABL
+#define XPCS_SR_PMA_STATUS2_TD_ABL_MASK 0x100u
+
+//! Field EXT_ABL - EXT_ABL
+#define XPCS_SR_PMA_STATUS2_EXT_ABL_POS 9
+//! Field EXT_ABL - EXT_ABL
+#define XPCS_SR_PMA_STATUS2_EXT_ABL_MASK 0x200u
+
+//! Field RF - RF
+#define XPCS_SR_PMA_STATUS2_RF_POS 10
+//! Field RF - RF
+#define XPCS_SR_PMA_STATUS2_RF_MASK 0x400u
+
+//! Field TF - TF
+#define XPCS_SR_PMA_STATUS2_TF_POS 11
+//! Field TF - TF
+#define XPCS_SR_PMA_STATUS2_TF_MASK 0x800u
+
+//! Field PRFA - PRFA
+#define XPCS_SR_PMA_STATUS2_PRFA_POS 12
+//! Field PRFA - PRFA
+#define XPCS_SR_PMA_STATUS2_PRFA_MASK 0x1000u
+
+//! Field PTFA - PTFA
+#define XPCS_SR_PMA_STATUS2_PTFA_POS 13
+//! Field PTFA - PTFA
+#define XPCS_SR_PMA_STATUS2_PTFA_MASK 0x2000u
+
+//! Field DP - DP
+#define XPCS_SR_PMA_STATUS2_DP_POS 14
+//! Field DP - DP
+#define XPCS_SR_PMA_STATUS2_DP_MASK 0xC000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TX_DIS Register XPCS_SR_PMA_TX_DIS - XPCS SR PMA TX DIS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TX_DIS 0x24
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TX_DIS 0x00040024u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TX_DIS_RST 0x00000000u
+
+//! Field GTD - GTD
+#define XPCS_SR_PMA_TX_DIS_GTD_POS 0
+//! Field GTD - GTD
+#define XPCS_SR_PMA_TX_DIS_GTD_MASK 0x1u
+
+//! Field PMA_TX_DIS_0 - PMA_TX_DIS_0
+#define XPCS_SR_PMA_TX_DIS_PMA_TX_DIS_0_POS 1
+//! Field PMA_TX_DIS_0 - PMA_TX_DIS_0
+#define XPCS_SR_PMA_TX_DIS_PMA_TX_DIS_0_MASK 0x2u
+
+//! Field PMA_TX_DIS_3_1 - PMA_TX_DIS_3_1
+#define XPCS_SR_PMA_TX_DIS_PMA_TX_DIS_3_1_POS 2
+//! Field PMA_TX_DIS_3_1 - PMA_TX_DIS_3_1
+#define XPCS_SR_PMA_TX_DIS_PMA_TX_DIS_3_1_MASK 0x1Cu
+
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_TX_DIS_RESERVED_15_5_POS 5
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_TX_DIS_RESERVED_15_5_MASK 0xFFE0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_RX_SIG_DET Register XPCS_SR_PMA_RX_SIG_DET - XPCS SR PMA RX SIG DET
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_RX_SIG_DET 0x28
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_RX_SIG_DET 0x00040028u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_RX_SIG_DET_RST 0x00000000u
+
+//! Field RX_DET - RX_DET
+#define XPCS_SR_PMA_RX_SIG_DET_RX_DET_POS 0
+//! Field RX_DET - RX_DET
+#define XPCS_SR_PMA_RX_SIG_DET_RX_DET_MASK 0x1u
+
+//! Field PMA_RX_DET_0 - PMA_RX_DET_0
+#define XPCS_SR_PMA_RX_SIG_DET_PMA_RX_DET_0_POS 1
+//! Field PMA_RX_DET_0 - PMA_RX_DET_0
+#define XPCS_SR_PMA_RX_SIG_DET_PMA_RX_DET_0_MASK 0x2u
+
+//! Field PMA_RX_DET_3_1 - PMA_RX_DET_3_1
+#define XPCS_SR_PMA_RX_SIG_DET_PMA_RX_DET_3_1_POS 2
+//! Field PMA_RX_DET_3_1 - PMA_RX_DET_3_1
+#define XPCS_SR_PMA_RX_SIG_DET_PMA_RX_DET_3_1_MASK 0x1Cu
+
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_RX_SIG_DET_RESERVED_15_5_POS 5
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_SR_PMA_RX_SIG_DET_RESERVED_15_5_MASK 0xFFE0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_EXT_ABL Register XPCS_SR_PMA_EXT_ABL - XPCS SR PMA EXT ABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_EXT_ABL 0x2C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_EXT_ABL 0x0004002Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_EXT_ABL_RST 0x00000050u
+
+//! Field XGBCX4_ABL - XGBCX4_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBCX4_ABL_POS 0
+//! Field XGBCX4_ABL - XGBCX4_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBCX4_ABL_MASK 0x1u
+
+//! Field XGBLRM_ABL - XGBLRM_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBLRM_ABL_POS 1
+//! Field XGBLRM_ABL - XGBLRM_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBLRM_ABL_MASK 0x2u
+
+//! Field XGBT_ABL - XGBT_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBT_ABL_POS 2
+//! Field XGBT_ABL - XGBT_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBT_ABL_MASK 0x4u
+
+//! Field XGKX4_ABL - XGKX4_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGKX4_ABL_POS 3
+//! Field XGKX4_ABL - XGKX4_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGKX4_ABL_MASK 0x8u
+
+//! Field XGBKR_ABL - XGBKR_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBKR_ABL_POS 4
+//! Field XGBKR_ABL - XGBKR_ABL
+#define XPCS_SR_PMA_EXT_ABL_XGBKR_ABL_MASK 0x10u
+
+//! Field GBT_ABL - GBT_ABL
+#define XPCS_SR_PMA_EXT_ABL_GBT_ABL_POS 5
+//! Field GBT_ABL - GBT_ABL
+#define XPCS_SR_PMA_EXT_ABL_GBT_ABL_MASK 0x20u
+
+//! Field R_100BKX_ABL - R_100BKX_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_100BKX_ABL_POS 6
+//! Field R_100BKX_ABL - R_100BKX_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_100BKX_ABL_MASK 0x40u
+
+//! Field R_100BT_ABL - R_100BT_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_100BT_ABL_POS 7
+//! Field R_100BT_ABL - R_100BT_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_100BT_ABL_MASK 0x80u
+
+//! Field R_10BT_ABL - R_10BT_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_10BT_ABL_POS 8
+//! Field R_10BT_ABL - R_10BT_ABL
+#define XPCS_SR_PMA_EXT_ABL_R_10BT_ABL_MASK 0x100u
+
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_SR_PMA_EXT_ABL_RESERVED_15_9_POS 9
+//! Field RESERVED_15_9 - Reserved_15_9
+#define XPCS_SR_PMA_EXT_ABL_RESERVED_15_9_MASK 0xFE00u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_PKG1 Register XPCS_SR_PMA_PKG1 - XPCS SR PMA PKG1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_PKG1 0x38
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_PKG1 0x00040038u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_PKG1_RST 0x00000000u
+
+//! Field PMA_PKG_OUI_3_18 - PMA_PKG_OUI_3_18
+#define XPCS_SR_PMA_PKG1_PMA_PKG_OUI_3_18_POS 0
+//! Field PMA_PKG_OUI_3_18 - PMA_PKG_OUI_3_18
+#define XPCS_SR_PMA_PKG1_PMA_PKG_OUI_3_18_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_PKG2 Register XPCS_SR_PMA_PKG2 - XPCS SR PMA PKG2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_PKG2 0x3C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_PKG2 0x0004003Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_PKG2_RST 0x00000000u
+
+//! Field PMA_PKG_RN_3_0 - PMA_PKG_RN_3_0
+#define XPCS_SR_PMA_PKG2_PMA_PKG_RN_3_0_POS 0
+//! Field PMA_PKG_RN_3_0 - PMA_PKG_RN_3_0
+#define XPCS_SR_PMA_PKG2_PMA_PKG_RN_3_0_MASK 0xFu
+
+//! Field PMA_PKG_MMN_5_0 - PMA_PKG_MMN_5_0
+#define XPCS_SR_PMA_PKG2_PMA_PKG_MMN_5_0_POS 4
+//! Field PMA_PKG_MMN_5_0 - PMA_PKG_MMN_5_0
+#define XPCS_SR_PMA_PKG2_PMA_PKG_MMN_5_0_MASK 0x3F0u
+
+//! Field PMA_PKG_OUI_19_24 - PMA_PKG_OUI_19_24
+#define XPCS_SR_PMA_PKG2_PMA_PKG_OUI_19_24_POS 10
+//! Field PMA_PKG_OUI_19_24 - PMA_PKG_OUI_19_24
+#define XPCS_SR_PMA_PKG2_PMA_PKG_OUI_19_24_MASK 0xFC00u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_2PT5G_5G_EXT_ABL Register XPCS_SR_PMA_2PT5G_5G_EXT_ABL - XPCS SR PMA 2PT5G 5G EXT ABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL 0x54
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_2PT5G_5G_EXT_ABL 0x00040054u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_RST 0x00000008u
+
+//! Field ABL_2PT5GT - ABL_2PT5GT
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_2PT5GT_POS 0
+//! Field ABL_2PT5GT - ABL_2PT5GT
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_2PT5GT_MASK 0x1u
+
+//! Field ABL_5GT - ABL_5GT
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_5GT_POS 1
+//! Field ABL_5GT - ABL_5GT
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_5GT_MASK 0x2u
+
+//! Field ABL_2PT5GKX - ABL_2PT5GKX
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_2PT5GKX_POS 2
+//! Field ABL_2PT5GKX - ABL_2PT5GKX
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_2PT5GKX_MASK 0x4u
+
+//! Field ABL_5GKR - ABL_5GKR
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_5GKR_POS 3
+//! Field ABL_5GKR - ABL_5GKR
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_ABL_5GKR_MASK 0x8u
+
+//! Field RESERVED_15_4 - Reserved_15_4
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_RESERVED_15_4_POS 4
+//! Field RESERVED_15_4 - Reserved_15_4
+#define XPCS_SR_PMA_2PT5G_5G_EXT_ABL_RESERVED_15_4_MASK 0xFFF0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_PMD_CTRL Register XPCS_SR_PMA_KR_PMD_CTRL - XPCS SR PMA KR PMD CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_PMD_CTRL 0x258
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_PMD_CTRL 0x00040258u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_PMD_CTRL_RST 0x00000000u
+
+//! Field RS_TR - RS_TR
+#define XPCS_SR_PMA_KR_PMD_CTRL_RS_TR_POS 0
+//! Field RS_TR - RS_TR
+#define XPCS_SR_PMA_KR_PMD_CTRL_RS_TR_MASK 0x1u
+
+//! Field TR_EN - TR_EN
+#define XPCS_SR_PMA_KR_PMD_CTRL_TR_EN_POS 1
+//! Field TR_EN - TR_EN
+#define XPCS_SR_PMA_KR_PMD_CTRL_TR_EN_MASK 0x2u
+
+//! Field RESERVE_15_2 - Reserve_15_2
+#define XPCS_SR_PMA_KR_PMD_CTRL_RESERVE_15_2_POS 2
+//! Field RESERVE_15_2 - Reserve_15_2
+#define XPCS_SR_PMA_KR_PMD_CTRL_RESERVE_15_2_MASK 0xFFFCu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_PMD_STS Register XPCS_SR_PMA_KR_PMD_STS - XPCS SR PMA KR PMD STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_PMD_STS 0x25C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_PMD_STS 0x0004025Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_PMD_STS_RST 0x00000000u
+
+//! Field RCV_STS - RCV_STS
+#define XPCS_SR_PMA_KR_PMD_STS_RCV_STS_POS 0
+//! Field RCV_STS - RCV_STS
+#define XPCS_SR_PMA_KR_PMD_STS_RCV_STS_MASK 0x1u
+
+//! Field FRM_LCK - FRM_LCK
+#define XPCS_SR_PMA_KR_PMD_STS_FRM_LCK_POS 1
+//! Field FRM_LCK - FRM_LCK
+#define XPCS_SR_PMA_KR_PMD_STS_FRM_LCK_MASK 0x2u
+
+//! Field SU_PR_DTD - SU_PR_DTD
+#define XPCS_SR_PMA_KR_PMD_STS_SU_PR_DTD_POS 2
+//! Field SU_PR_DTD - SU_PR_DTD
+#define XPCS_SR_PMA_KR_PMD_STS_SU_PR_DTD_MASK 0x4u
+
+//! Field TR_FAIL - TR_FAIL
+#define XPCS_SR_PMA_KR_PMD_STS_TR_FAIL_POS 3
+//! Field TR_FAIL - TR_FAIL
+#define XPCS_SR_PMA_KR_PMD_STS_TR_FAIL_MASK 0x8u
+
+//! Field RESERVED_15_4 - Reserved_15_4
+#define XPCS_SR_PMA_KR_PMD_STS_RESERVED_15_4_POS 4
+//! Field RESERVED_15_4 - Reserved_15_4
+#define XPCS_SR_PMA_KR_PMD_STS_RESERVED_15_4_MASK 0xFFF0u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_LP_CEU Register XPCS_SR_PMA_KR_LP_CEU - XPCS SR PMA KR LP CEU
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_LP_CEU 0x260
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_LP_CEU 0x00040260u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_LP_CEU_RST 0x00000000u
+
+//! Field LP_CFF_UPDTM1 - LP_CFF_UPDTM1
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDTM1_POS 0
+//! Field LP_CFF_UPDTM1 - LP_CFF_UPDTM1
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDTM1_MASK 0x3u
+
+//! Field LP_CFF_UPDT0 - LP_CFF_UPDT0
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDT0_POS 2
+//! Field LP_CFF_UPDT0 - LP_CFF_UPDT0
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDT0_MASK 0xCu
+
+//! Field LP_CFF_UPDT1 - LP_CFF_UPDT1
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDT1_POS 4
+//! Field LP_CFF_UPDT1 - LP_CFF_UPDT1
+#define XPCS_SR_PMA_KR_LP_CEU_LP_CFF_UPDT1_MASK 0x30u
+
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_SR_PMA_KR_LP_CEU_RESERVED_11_6_POS 6
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_SR_PMA_KR_LP_CEU_RESERVED_11_6_MASK 0xFC0u
+
+//! Field LP_INIT - LP_INIT
+#define XPCS_SR_PMA_KR_LP_CEU_LP_INIT_POS 12
+//! Field LP_INIT - LP_INIT
+#define XPCS_SR_PMA_KR_LP_CEU_LP_INIT_MASK 0x1000u
+
+//! Field PRST - PRST
+#define XPCS_SR_PMA_KR_LP_CEU_PRST_POS 13
+//! Field PRST - PRST
+#define XPCS_SR_PMA_KR_LP_CEU_PRST_MASK 0x2000u
+
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KR_LP_CEU_RESERVED_15_14_POS 14
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KR_LP_CEU_RESERVED_15_14_MASK 0xC000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_LP_CESTS Register XPCS_SR_PMA_KR_LP_CESTS - XPCS SR PMA KR LP CESTS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_LP_CESTS 0x264
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_LP_CESTS 0x00040264u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_LP_CESTS_RST 0x00000000u
+
+//! Field LP_CFF_STSM0 - LP_CFF_STSM0
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STSM0_POS 0
+//! Field LP_CFF_STSM0 - LP_CFF_STSM0
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STSM0_MASK 0x3u
+
+//! Field LP_CFF_STS0 - LP_CFF_STS0
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STS0_POS 2
+//! Field LP_CFF_STS0 - LP_CFF_STS0
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STS0_MASK 0xCu
+
+//! Field LP_CFF_STS1 - LP_CFF_STS1
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STS1_POS 4
+//! Field LP_CFF_STS1 - LP_CFF_STS1
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_CFF_STS1_MASK 0x30u
+
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_SR_PMA_KR_LP_CESTS_RESERVED_14_6_POS 6
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_SR_PMA_KR_LP_CESTS_RESERVED_14_6_MASK 0x7FC0u
+
+//! Field LP_RR - LP_RR
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_RR_POS 15
+//! Field LP_RR - LP_RR
+#define XPCS_SR_PMA_KR_LP_CESTS_LP_RR_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_LD_CEU Register XPCS_SR_PMA_KR_LD_CEU - XPCS SR PMA KR LD CEU
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_LD_CEU 0x268
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_LD_CEU 0x00040268u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_LD_CEU_RST 0x00000000u
+
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDTM1_POS 0
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDTM1_MASK 0x3u
+
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDT0_POS 2
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDT0_MASK 0xCu
+
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDT1_POS 4
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_SR_PMA_KR_LD_CEU_CFF_UPDT1_MASK 0x30u
+
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_SR_PMA_KR_LD_CEU_RESERVED_11_6_POS 6
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_SR_PMA_KR_LD_CEU_RESERVED_11_6_MASK 0xFC0u
+
+//! Field INIT - INIT
+#define XPCS_SR_PMA_KR_LD_CEU_INIT_POS 12
+//! Field INIT - INIT
+#define XPCS_SR_PMA_KR_LD_CEU_INIT_MASK 0x1000u
+
+//! Field PRST - PRST
+#define XPCS_SR_PMA_KR_LD_CEU_PRST_POS 13
+//! Field PRST - PRST
+#define XPCS_SR_PMA_KR_LD_CEU_PRST_MASK 0x2000u
+
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KR_LD_CEU_RESERVED_15_14_POS 14
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KR_LD_CEU_RESERVED_15_14_MASK 0xC000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_LD_CESTS Register XPCS_SR_PMA_KR_LD_CESTS - XPCS SR PMA KR LD CESTS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_LD_CESTS 0x26C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_LD_CESTS 0x0004026Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_LD_CESTS_RST 0x00000000u
+
+//! Field CFF_STSM0 - CFF_STSM0
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STSM0_POS 0
+//! Field CFF_STSM0 - CFF_STSM0
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STSM0_MASK 0x3u
+
+//! Field CFF_STS0 - CFF_STS0
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STS0_POS 2
+//! Field CFF_STS0 - CFF_STS0
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STS0_MASK 0xCu
+
+//! Field CFF_STS1 - CFF_STS1
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STS1_POS 4
+//! Field CFF_STS1 - CFF_STS1
+#define XPCS_SR_PMA_KR_LD_CESTS_CFF_STS1_MASK 0x30u
+
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_SR_PMA_KR_LD_CESTS_RESERVED_14_6_POS 6
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_SR_PMA_KR_LD_CESTS_RESERVED_14_6_MASK 0x7FC0u
+
+//! Field RR - RR
+#define XPCS_SR_PMA_KR_LD_CESTS_RR_POS 15
+//! Field RR - RR
+#define XPCS_SR_PMA_KR_LD_CESTS_RR_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KX_CTRL Register XPCS_SR_PMA_KX_CTRL - XPCS SR PMA KX CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KX_CTRL 0x280
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KX_CTRL 0x00040280u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KX_CTRL_RST 0x00000000u
+
+//! Field TOC - TOC
+#define XPCS_SR_PMA_KX_CTRL_TOC_POS 0
+//! Field TOC - TOC
+#define XPCS_SR_PMA_KX_CTRL_TOC_MASK 0x1u
+
+//! Field RESERVED_15_1 - Reserved_15_1
+#define XPCS_SR_PMA_KX_CTRL_RESERVED_15_1_POS 1
+//! Field RESERVED_15_1 - Reserved_15_1
+#define XPCS_SR_PMA_KX_CTRL_RESERVED_15_1_MASK 0xFFFEu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KX_STS Register XPCS_SR_PMA_KX_STS - XPCS SR PMA KX STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KX_STS 0x284
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KX_STS 0x00040284u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KX_STS_RST 0x00001100u
+
+//! Field SD - SD
+#define XPCS_SR_PMA_KX_STS_SD_POS 0
+//! Field SD - SD
+#define XPCS_SR_PMA_KX_STS_SD_MASK 0x1u
+
+//! Field RESERVED_7_1 - Reserved_7_1
+#define XPCS_SR_PMA_KX_STS_RESERVED_7_1_POS 1
+//! Field RESERVED_7_1 - Reserved_7_1
+#define XPCS_SR_PMA_KX_STS_RESERVED_7_1_MASK 0xFEu
+
+//! Field PMA_TDA - PMA_TDA
+#define XPCS_SR_PMA_KX_STS_PMA_TDA_POS 8
+//! Field PMA_TDA - PMA_TDA
+#define XPCS_SR_PMA_KX_STS_PMA_TDA_MASK 0x100u
+
+//! Field RESERVED_9 - Reserved_9
+#define XPCS_SR_PMA_KX_STS_RESERVED_9_POS 9
+//! Field RESERVED_9 - Reserved_9
+#define XPCS_SR_PMA_KX_STS_RESERVED_9_MASK 0x200u
+
+//! Field RX_F - RX_F
+#define XPCS_SR_PMA_KX_STS_RX_F_POS 10
+//! Field RX_F - RX_F
+#define XPCS_SR_PMA_KX_STS_RX_F_MASK 0x400u
+
+//! Field TX_F - TX_F
+#define XPCS_SR_PMA_KX_STS_TX_F_POS 11
+//! Field TX_F - TX_F
+#define XPCS_SR_PMA_KX_STS_TX_F_MASK 0x800u
+
+//! Field RFA - RFA
+#define XPCS_SR_PMA_KX_STS_RFA_POS 12
+//! Field RFA - RFA
+#define XPCS_SR_PMA_KX_STS_RFA_MASK 0x1000u
+
+//! Field TFA - TFA
+#define XPCS_SR_PMA_KX_STS_TFA_POS 13
+//! Field TFA - TFA
+#define XPCS_SR_PMA_KX_STS_TFA_MASK 0x2000u
+
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KX_STS_RESERVED_15_14_POS 14
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_SR_PMA_KX_STS_RESERVED_15_14_MASK 0xC000u
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_ABL Register XPCS_SR_PMA_KR_FEC_ABL - XPCS SR PMA KR FEC ABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_ABL 0x2A8
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_ABL 0x000402A8u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_ABL_RST 0x00000003u
+
+//! Field FEC_ABL - FEC_ABL
+#define XPCS_SR_PMA_KR_FEC_ABL_FEC_ABL_POS 0
+//! Field FEC_ABL - FEC_ABL
+#define XPCS_SR_PMA_KR_FEC_ABL_FEC_ABL_MASK 0x1u
+
+//! Field ERR_IND_ABL - ERR_IND_ABL
+#define XPCS_SR_PMA_KR_FEC_ABL_ERR_IND_ABL_POS 1
+//! Field ERR_IND_ABL - ERR_IND_ABL
+#define XPCS_SR_PMA_KR_FEC_ABL_ERR_IND_ABL_MASK 0x2u
+
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_KR_FEC_ABL_RESERVED_15_2_POS 2
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_KR_FEC_ABL_RESERVED_15_2_MASK 0xFFFCu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_CTRL Register XPCS_SR_PMA_KR_FEC_CTRL - XPCS SR PMA KR FEC CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_CTRL 0x2AC
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_CTRL 0x000402ACu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_CTRL_RST 0x00000000u
+
+//! Field FEC_EN - FEC_EN
+#define XPCS_SR_PMA_KR_FEC_CTRL_FEC_EN_POS 0
+//! Field FEC_EN - FEC_EN
+#define XPCS_SR_PMA_KR_FEC_CTRL_FEC_EN_MASK 0x1u
+
+//! Field EN_ERR_IND - EN_ERR_IND
+#define XPCS_SR_PMA_KR_FEC_CTRL_EN_ERR_IND_POS 1
+//! Field EN_ERR_IND - EN_ERR_IND
+#define XPCS_SR_PMA_KR_FEC_CTRL_EN_ERR_IND_MASK 0x2u
+
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_KR_FEC_CTRL_RESERVED_15_2_POS 2
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_KR_FEC_CTRL_RESERVED_15_2_MASK 0xFFFCu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_CORR_BLK1 Register XPCS_SR_PMA_KR_FEC_CORR_BLK1 - XPCS SR PMA KR FEC CORR BLK1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK1 0x2B0
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_CORR_BLK1 0x000402B0u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK1_RST 0x00000000u
+
+//! Field CORR_B_CNT1 - CORR_B_CNT1
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK1_CORR_B_CNT1_POS 0
+//! Field CORR_B_CNT1 - CORR_B_CNT1
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK1_CORR_B_CNT1_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_CORR_BLK2 Register XPCS_SR_PMA_KR_FEC_CORR_BLK2 - XPCS SR PMA KR FEC CORR BLK2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK2 0x2B4
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_CORR_BLK2 0x000402B4u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK2_RST 0x00000000u
+
+//! Field CORR_B_CNT2 - CORR_B_CNT2
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK2_CORR_B_CNT2_POS 0
+//! Field CORR_B_CNT2 - CORR_B_CNT2
+#define XPCS_SR_PMA_KR_FEC_CORR_BLK2_CORR_B_CNT2_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_UCORR_BLK1 Register XPCS_SR_PMA_KR_FEC_UCORR_BLK1 - XPCS SR PMA KR FEC UCORR BLK1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK1 0x2B8
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_UCORR_BLK1 0x000402B8u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK1_RST 0x00000000u
+
+//! Field UCORR_B_CNT1 - UCORR_B_CNT1
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK1_UCORR_B_CNT1_POS 0
+//! Field UCORR_B_CNT1 - UCORR_B_CNT1
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK1_UCORR_B_CNT1_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_KR_FEC_UCORR_BLK2 Register XPCS_SR_PMA_KR_FEC_UCORR_BLK2 - XPCS SR PMA KR FEC UCORR BLK2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK2 0x2BC
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_KR_FEC_UCORR_BLK2 0x000402BCu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK2_RST 0x00000000u
+
+//! Field UCORR_B_CNT2 - UCORR_B_CNT2
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK2_UCORR_B_CNT2_POS 0
+//! Field UCORR_B_CNT2 - UCORR_B_CNT2
+#define XPCS_SR_PMA_KR_FEC_UCORR_BLK2_UCORR_B_CNT2_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_PMA_ABL Register XPCS_SR_PMA_TIME_SYNC_PMA_ABL - XPCS SR PMA TIME SYNC PMA ABL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL 0x1C20
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_PMA_ABL 0x00041C20u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_RST 0x00000003u
+
+//! Field PMA_RX_DLY_ABL - PMA_RX_DLY_ABL
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_PMA_RX_DLY_ABL_POS 0
+//! Field PMA_RX_DLY_ABL - PMA_RX_DLY_ABL
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_PMA_RX_DLY_ABL_MASK 0x1u
+
+//! Field PMA_TX_DLY_ABL - PMA_TX_DLY_ABL
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_PMA_TX_DLY_ABL_POS 1
+//! Field PMA_TX_DLY_ABL - PMA_TX_DLY_ABL
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_PMA_TX_DLY_ABL_MASK 0x2u
+
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_RESERVED_15_2_POS 2
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_SR_PMA_TIME_SYNC_PMA_ABL_RESERVED_15_2_MASK 0xFFFCu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR Register XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR - XPCS SR PMA TIME SYNC TX MAX DLY LWR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR 0x1C24
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR 0x00041C24u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR_RST 0x00000000u
+
+//! Field PMA_TX_MAX_DLY_LWR - PMA_TX_MAX_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR_PMA_TX_MAX_DLY_LWR_POS 0
+//! Field PMA_TX_MAX_DLY_LWR - PMA_TX_MAX_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_LWR_PMA_TX_MAX_DLY_LWR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR Register XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR - XPCS SR PMA TIME SYNC TX MAX DLY UPR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR 0x1C28
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR 0x00041C28u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR_RST 0x00000000u
+
+//! Field PMA_TX_MAX_DLY_UPR - PMA_TX_MAX_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR_PMA_TX_MAX_DLY_UPR_POS 0
+//! Field PMA_TX_MAX_DLY_UPR - PMA_TX_MAX_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MAX_DLY_UPR_PMA_TX_MAX_DLY_UPR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR Register XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR - XPCS SR PMA TIME SYNC TX MIN DLY LWR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR 0x1C2C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR 0x00041C2Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR_RST 0x00000000u
+
+//! Field PMA_TX_MIN_DLY_LWR - PMA_TX_MIN_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR_PMA_TX_MIN_DLY_LWR_POS 0
+//! Field PMA_TX_MIN_DLY_LWR - PMA_TX_MIN_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_LWR_PMA_TX_MIN_DLY_LWR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR Register XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR - XPCS SR PMA TIME SYNC TX MIN DLY UPR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR 0x1C30
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR 0x00041C30u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR_RST 0x00000000u
+
+//! Field PMA_TX_MIN_DLY_UPR - PMA_TX_MIN_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR_PMA_TX_MIN_DLY_UPR_POS 0
+//! Field PMA_TX_MIN_DLY_UPR - PMA_TX_MIN_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_TX_MIN_DLY_UPR_PMA_TX_MIN_DLY_UPR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR Register XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR - XPCS SR PMA TIME SYNC RX MAX DLY LWR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR 0x1C34
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR 0x00041C34u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR_RST 0x00000000u
+
+//! Field PMA_RX_MAX_DLY_LWR - PMA_RX_MAX_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR_PMA_RX_MAX_DLY_LWR_POS 0
+//! Field PMA_RX_MAX_DLY_LWR - PMA_RX_MAX_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_LWR_PMA_RX_MAX_DLY_LWR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR Register XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR - XPCS SR PMA TIME SYNC RX MAX DLY UPR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR 0x1C38
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR 0x00041C38u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR_RST 0x00000000u
+
+//! Field PMA_RX_MAX_DLY_UPR - PMA_RX_MAX_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR_PMA_RX_MAX_DLY_UPR_POS 0
+//! Field PMA_RX_MAX_DLY_UPR - PMA_RX_MAX_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MAX_DLY_UPR_PMA_RX_MAX_DLY_UPR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR Register XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR - XPCS SR PMA TIME SYNC RX MIN DLY LWR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR 0x1C3C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR 0x00041C3Cu
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR_RST 0x00000000u
+
+//! Field PMA_RX_MIN_DLY_LWR - PMA_RX_MIN_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR_PMA_RX_MIN_DLY_LWR_POS 0
+//! Field PMA_RX_MIN_DLY_LWR - PMA_RX_MIN_DLY_LWR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_LWR_PMA_RX_MIN_DLY_LWR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR Register XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR - XPCS SR PMA TIME SYNC RX MIN DLY UPR
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR 0x1C40
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR 0x00041C40u
+
+//! Register Reset Value
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR_RST 0x00000000u
+
+//! Field PMA_RX_MIN_DLY_UPR - PMA_RX_MIN_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR_PMA_RX_MIN_DLY_UPR_POS 0
+//! Field PMA_RX_MIN_DLY_UPR - PMA_RX_MIN_DLY_UPR
+#define XPCS_SR_PMA_TIME_SYNC_RX_MIN_DLY_UPR_PMA_RX_MIN_DLY_UPR_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_DIG_CTRL1 Register XPCS_VR_PMA_DIG_CTRL1 - XPCS VR PMA DIG CTRL1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_DIG_CTRL1 0x20000
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_DIG_CTRL1 0x00060000u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_DIG_CTRL1_RST 0x00000000u
+
+//! Field CL72_AUTO - CL72_AUTO
+#define XPCS_VR_PMA_DIG_CTRL1_CL72_AUTO_POS 0
+//! Field CL72_AUTO - CL72_AUTO
+#define XPCS_VR_PMA_DIG_CTRL1_CL72_AUTO_MASK 0x1u
+
+//! Field BYP_PWRUP - BYP_PWRUP
+#define XPCS_VR_PMA_DIG_CTRL1_BYP_PWRUP_POS 1
+//! Field BYP_PWRUP - BYP_PWRUP
+#define XPCS_VR_PMA_DIG_CTRL1_BYP_PWRUP_MASK 0x2u
+
+//! Field RESERVED_3_2 - Reserved_3_2
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_3_2_POS 2
+//! Field RESERVED_3_2 - Reserved_3_2
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_3_2_MASK 0xCu
+
+//! Field DTXLANED_0 - DTXLANED_0
+#define XPCS_VR_PMA_DIG_CTRL1_DTXLANED_0_POS 4
+//! Field DTXLANED_0 - DTXLANED_0
+#define XPCS_VR_PMA_DIG_CTRL1_DTXLANED_0_MASK 0x10u
+
+//! Field DTXLANED_3_1 - DTXLANED_3_1
+#define XPCS_VR_PMA_DIG_CTRL1_DTXLANED_3_1_POS 5
+//! Field DTXLANED_3_1 - DTXLANED_3_1
+#define XPCS_VR_PMA_DIG_CTRL1_DTXLANED_3_1_MASK 0xE0u
+
+//! Field RESERVED_10_8 - Reserved_10_8
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_10_8_POS 8
+//! Field RESERVED_10_8 - Reserved_10_8
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_10_8_MASK 0x700u
+
+//! Field PWRSV - PWRSV
+#define XPCS_VR_PMA_DIG_CTRL1_PWRSV_POS 11
+//! Field PWRSV - PWRSV
+#define XPCS_VR_PMA_DIG_CTRL1_PWRSV_MASK 0x800u
+
+//! Field RESERVED_14_12 - Reserved_14_12
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_14_12_POS 12
+//! Field RESERVED_14_12 - Reserved_14_12
+#define XPCS_VR_PMA_DIG_CTRL1_RESERVED_14_12_MASK 0x7000u
+
+//! Field VR_RST - VR_RST
+#define XPCS_VR_PMA_DIG_CTRL1_VR_RST_POS 15
+//! Field VR_RST - VR_RST
+#define XPCS_VR_PMA_DIG_CTRL1_VR_RST_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_PRBS_CTRL0 Register XPCS_VR_PMA_KRTR_PRBS_CTRL0 - XPCS VR PMA KRTR PRBS CTRL0
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0 0x2000C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_PRBS_CTRL0 0x0006000Cu
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_RST 0x00000000u
+
+//! Field PRBS_MODE_EN - PRBS_MODE_EN
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_PRBS_MODE_EN_POS 0
+//! Field PRBS_MODE_EN - PRBS_MODE_EN
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_PRBS_MODE_EN_MASK 0x1u
+
+//! Field PRBS31_EN - PRBS31_EN
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_PRBS31_EN_POS 1
+//! Field PRBS31_EN - PRBS31_EN
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_PRBS31_EN_MASK 0x2u
+
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_RESERVED_15_2_POS 2
+//! Field RESERVED_15_2 - Reserved_15_2
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL0_RESERVED_15_2_MASK 0xFFFCu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_PRBS_CTRL1 Register XPCS_VR_PMA_KRTR_PRBS_CTRL1 - XPCS VR PMA KRTR PRBS CTRL1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL1 0x20010
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_PRBS_CTRL1 0x00060010u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL1_RST 0x00007270u
+
+//! Field PRBS_TIM_LMT - PRBS_TIM_LMT
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL1_PRBS_TIM_LMT_POS 0
+//! Field PRBS_TIM_LMT - PRBS_TIM_LMT
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL1_PRBS_TIM_LMT_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_PRBS_CTRL2 Register XPCS_VR_PMA_KRTR_PRBS_CTRL2 - XPCS VR PMA KRTR PRBS CTRL2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL2 0x20014
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_PRBS_CTRL2 0x00060014u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL2_RST 0x00000000u
+
+//! Field PRBS_ERR_LMT - PRBS_ERR_LMT
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL2_PRBS_ERR_LMT_POS 0
+//! Field PRBS_ERR_LMT - PRBS_ERR_LMT
+#define XPCS_VR_PMA_KRTR_PRBS_CTRL2_PRBS_ERR_LMT_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_TIMER_CTRL0 Register XPCS_VR_PMA_KRTR_TIMER_CTRL0 - XPCS VR PMA KRTR TIMER CTRL0
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL0 0x20018
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_TIMER_CTRL0 0x00060018u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL0_RST 0x00009502u
+
+//! Field MAX_WAIT_TIME - MAX_WAIT_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL0_MAX_WAIT_TIME_POS 0
+//! Field MAX_WAIT_TIME - MAX_WAIT_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL0_MAX_WAIT_TIME_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_TIMER_CTRL1 Register XPCS_VR_PMA_KRTR_TIMER_CTRL1 - XPCS VR PMA KRTR TIMER CTRL1
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL1 0x2001C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_TIMER_CTRL1 0x0006001Cu
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL1_RST 0x000026EBu
+
+//! Field WAIT_TIME - WAIT_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL1_WAIT_TIME_POS 0
+//! Field WAIT_TIME - WAIT_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL1_WAIT_TIME_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_TIMER_CTRL2 Register XPCS_VR_PMA_KRTR_TIMER_CTRL2 - XPCS VR PMA KRTR TIMER CTRL2
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL2 0x20020
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_TIMER_CTRL2 0x00060020u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL2_RST 0x00005968u
+
+//! Field RX_TRAIN_TIME - RX_TRAIN_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL2_RX_TRAIN_TIME_POS 0
+//! Field RX_TRAIN_TIME - RX_TRAIN_TIME
+#define XPCS_VR_PMA_KRTR_TIMER_CTRL2_RX_TRAIN_TIME_MASK 0xFFFFu
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_RX_EQ_CTRL Register XPCS_VR_PMA_KRTR_RX_EQ_CTRL - XPCS VR PMA KRTR RX EQ CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL 0x20024
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_RX_EQ_CTRL 0x00060024u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RST 0x00000000u
+
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDTM1_POS 0
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDTM1_MASK 0x3u
+
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDT0_POS 2
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDT0_MASK 0xCu
+
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDT1_POS 4
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_CFF_UPDT1_MASK 0x30u
+
+//! Field INIT - INIT
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_INIT_POS 6
+//! Field INIT - INIT
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_INIT_MASK 0x40u
+
+//! Field PRST - PRST
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_PRST_POS 7
+//! Field PRST - PRST
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_PRST_MASK 0x80u
+
+//! Field RR_RDY - RR_RDY
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RR_RDY_POS 8
+//! Field RR_RDY - RR_RDY
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RR_RDY_MASK 0x100u
+
+//! Field RESERVED_14_9 - Reserved_14_9
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RESERVED_14_9_POS 9
+//! Field RESERVED_14_9 - Reserved_14_9
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RESERVED_14_9_MASK 0x7E00u
+
+//! Field RX_EQ_MM - RX_EQ_MM
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RX_EQ_MM_POS 15
+//! Field RX_EQ_MM - RX_EQ_MM
+#define XPCS_VR_PMA_KRTR_RX_EQ_CTRL_RX_EQ_MM_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL Register XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL - XPCS VR PMA KRTR TX EQ STS CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL 0x2002C
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL 0x0006002Cu
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_RST 0x00000000u
+
+//! Field CFF_STSM1 - CFF_STSM1
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STSM1_POS 0
+//! Field CFF_STSM1 - CFF_STSM1
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STSM1_MASK 0x3u
+
+//! Field CFF_STS0 - CFF_STS0
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STS0_POS 2
+//! Field CFF_STS0 - CFF_STS0
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STS0_MASK 0xCu
+
+//! Field CFF_STS1 - CFF_STS1
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STS1_POS 4
+//! Field CFF_STS1 - CFF_STS1
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_CFF_STS1_MASK 0x30u
+
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_RESERVED_14_6_POS 6
+//! Field RESERVED_14_6 - Reserved_14_6
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_RESERVED_14_6_MASK 0x7FC0u
+
+//! Field TX_EQ_MM - TX_EQ_MM
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_TX_EQ_MM_POS 15
+//! Field TX_EQ_MM - TX_EQ_MM
+#define XPCS_VR_PMA_KRTR_TX_EQ_STS_CTRL_TX_EQ_MM_MASK 0x8000u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL Register XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL - XPCS VR PMA KRTR TX EQ CFF CTRL
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL 0x20030
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL 0x00060030u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_RST 0x00000000u
+
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDTM1_POS 0
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDTM1_MASK 0x3u
+
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDT0_POS 2
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDT0_MASK 0xCu
+
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDT1_POS 4
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_UPDT1_MASK 0x30u
+
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_RESERVED_11_6_POS 6
+//! Field RESERVED_11_6 - Reserved_11_6
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_RESERVED_11_6_MASK 0xFC0u
+
+//! Field CFF_INIT - CFF_INIT
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_INIT_POS 12
+//! Field CFF_INIT - CFF_INIT
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_INIT_MASK 0x1000u
+
+//! Field CFF_PRST - CFF_PRST
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_PRST_POS 13
+//! Field CFF_PRST - CFF_PRST
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_CFF_PRST_MASK 0x2000u
+
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_RESERVED_15_14_POS 14
+//! Field RESERVED_15_14 - Reserved_15_14
+#define XPCS_VR_PMA_KRTR_TX_EQ_CFF_CTRL_RESERVED_15_14_MASK 0xC000u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_PHY_TX_EQ_STS Register XPCS_VR_PMA_PHY_TX_EQ_STS - XPCS VR PMA PHY TX EQ STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_PHY_TX_EQ_STS 0x20034
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_PHY_TX_EQ_STS 0x00060034u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_RST 0x00000000u
+
+//! Field EQ_STSM1 - EQ_STSM1
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STSM1_POS 0
+//! Field EQ_STSM1 - EQ_STSM1
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STSM1_MASK 0x3u
+
+//! Field EQ_STS0 - EQ_STS0
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STS0_POS 2
+//! Field EQ_STS0 - EQ_STS0
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STS0_MASK 0xCu
+
+//! Field EQ_STS1 - EQ_STS1
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STS1_POS 4
+//! Field EQ_STS1 - EQ_STS1
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_EQ_STS1_MASK 0x30u
+
+//! Field RESERVED_7_6 - Reserved_7_6
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_RESERVED_7_6_POS 6
+//! Field RESERVED_7_6 - Reserved_7_6
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_RESERVED_7_6_MASK 0xC0u
+
+//! Field STSM1_VLD - STSM1_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STSM1_VLD_POS 8
+//! Field STSM1_VLD - STSM1_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STSM1_VLD_MASK 0x100u
+
+//! Field STS0_VLD - STS0_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STS0_VLD_POS 9
+//! Field STS0_VLD - STS0_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STS0_VLD_MASK 0x200u
+
+//! Field STS1_VLD - STS1_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STS1_VLD_POS 10
+//! Field STS1_VLD - STS1_VLD
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_STS1_VLD_MASK 0x400u
+
+//! Field RESERVED_15_11 - Reserved_15_11
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_RESERVED_15_11_POS 11
+//! Field RESERVED_15_11 - Reserved_15_11
+#define XPCS_VR_PMA_PHY_TX_EQ_STS_RESERVED_15_11_MASK 0xF800u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_PHY_RX_EQ_CEU Register XPCS_VR_PMA_PHY_RX_EQ_CEU - XPCS VR PMA PHY RX EQ CEU
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU 0x20038
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_PHY_RX_EQ_CEU 0x00060038u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_RST 0x00000000u
+
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDTM1_POS 0
+//! Field CFF_UPDTM1 - CFF_UPDTM1
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDTM1_MASK 0x3u
+
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT0_POS 2
+//! Field CFF_UPDT0 - CFF_UPDT0
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT0_MASK 0xCu
+
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT1_POS 4
+//! Field CFF_UPDT1 - CFF_UPDT1
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT1_MASK 0x30u
+
+//! Field RESERVED_7_6 - Reserved_7_6
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_RESERVED_7_6_POS 6
+//! Field RESERVED_7_6 - Reserved_7_6
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_RESERVED_7_6_MASK 0xC0u
+
+//! Field CFF_UPDTM1_VLD - CFF_UPDTM1_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDTM1_VLD_POS 8
+//! Field CFF_UPDTM1_VLD - CFF_UPDTM1_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDTM1_VLD_MASK 0x100u
+
+//! Field CFF_UPDT0_VLD - CFF_UPDT0_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT0_VLD_POS 9
+//! Field CFF_UPDT0_VLD - CFF_UPDT0_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT0_VLD_MASK 0x200u
+
+//! Field CFF_UPDT1_VLD - CFF_UPDT1_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT1_VLD_POS 10
+//! Field CFF_UPDT1_VLD - CFF_UPDT1_VLD
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_CFF_UPDT1_VLD_MASK 0x400u
+
+//! Field RESERVED_15_11 - Reserved_15_11
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_RESERVED_15_11_POS 11
+//! Field RESERVED_15_11 - Reserved_15_11
+#define XPCS_VR_PMA_PHY_RX_EQ_CEU_RESERVED_15_11_MASK 0xF800u
+
+//! @}
+
+//! \defgroup XPCS_VR_PMA_DIG_STS Register XPCS_VR_PMA_DIG_STS - XPCS VR PMA DIG STS
+//! @{
+
+//! Register Offset (relative)
+#define XPCS_VR_PMA_DIG_STS 0x20040
+//! Register Offset (absolute) for 1st Instance XPCS_PMA_MMD
+#define XPCS_PMA_MMD_XPCS_VR_PMA_DIG_STS 0x00060040u
+
+//! Register Reset Value
+#define XPCS_VR_PMA_DIG_STS_RST 0x00000010u
+
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_VR_PMA_DIG_STS_RESERVED_0_POS 0
+//! Field RESERVED_0 - Reserved_0
+#define XPCS_VR_PMA_DIG_STS_RESERVED_0_MASK 0x1u
+
+//! Field LB_ACTIVE - LB_ACTIVE
+#define XPCS_VR_PMA_DIG_STS_LB_ACTIVE_POS 1
+//! Field LB_ACTIVE - LB_ACTIVE
+#define XPCS_VR_PMA_DIG_STS_LB_ACTIVE_MASK 0x2u
+
+//! Field PSEQ_STATE - PSEQ_STATE
+#define XPCS_VR_PMA_DIG_STS_PSEQ_STATE_POS 2
+//! Field PSEQ_STATE - PSEQ_STATE
+#define XPCS_VR_PMA_DIG_STS_PSEQ_STATE_MASK 0x1Cu
+
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_VR_PMA_DIG_STS_RESERVED_15_5_POS 5
+//! Field RESERVED_15_5 - Reserved_15_5
+#define XPCS_VR_PMA_DIG_STS_RESERVED_15_5_MASK 0xFFE0u
+
+//! @}
+
+//! @}
+
+#endif
