@@ -1252,6 +1252,67 @@ class Mesa_Pc_b2b
     end
 end
 
+def show_mesa_setup(ts)
+    test "show_setup" do
+        port_cnt = ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
+        pmap = ts.dut.call("mesa_port_map_get", port_cnt)
+
+        max = 0
+        cnt = ts.dut.p.length
+        cnt.times do |idx|
+            len = ts.pc.p[idx].length
+            if (len > max)
+                max = len
+            end
+        end
+
+        # Show diagram of PC and DUT with port links
+        cnt.times do |idx|
+            port = ts.dut.p[idx]
+            chip_port = pmap[port]["chip_port"]
+            name = ts.pc.p[idx]
+            str = "|         |- #{name} "
+            (max - name.length).times do
+                str += "-"
+            end
+            str += "---"
+            str += "-" if (port < 10)
+            str += " #{port} -| #{chip_port}"
+            str += " " if (chip_port < 10)
+            str += "      |"
+
+            txt = ""
+            len = (str.length - 22)
+            len.times do
+                txt += " "
+            end
+
+            t_i("+---------+" + txt + "+---------+") if (idx == 0)
+            t_i(str)
+            if (idx == ((cnt / 2) - 1))
+                t_i("|   PC    |" + txt + "|   DUT   |")
+            elsif (idx == (cnt - 1))
+                t_i("+---------+" + txt + "+---------+") if (idx == (cnt - 1))
+            else
+                t_i("|         |" + txt + "|         |")
+            end
+        end
+
+        # Show looped ports
+        [ts.dut.looped_port_list, ts.dut.looped_port_list_10g].each_with_index do |port_list, idx|
+            cnt = (port_list == nil ? 0 : (port_list.length / 2))
+            cnt.times do |i|
+                p1 = port_list[2 * i]
+                p2 = port_list[2 * i + 1]
+                cp1 = pmap[p1]["chip_port"]
+                cp2 = pmap[p2]["chip_port"]
+                str = (idx == 0 ? "1G_#{i} " : "10G_#{i}")
+                t_i("Loop_#{str}: #{p1}-#{p2} (#{cp1}-#{cp2})")
+            end
+        end
+    end
+end
+
 def dut_init_block name
     ts_begin = Time.now
     has_err = false
@@ -1283,9 +1344,13 @@ end
 def get_test_setup_inner(setup, conf, mesa_args, topo_name)
     case setup
     when "mesa_pc_b2b_4x"
-        return Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name)
+        ts = Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name)
+        show_mesa_setup(ts)
+        return ts
     when "mesa_pc_b2b_2x"
-        return Mesa_Pc_b2b.new(conf, mesa_args, 2, topo_name)
+        ts = Mesa_Pc_b2b.new(conf, mesa_args, 2, topo_name)
+        show_mesa_setup(ts)
+        return ts
     when "switchdev_pc_b2b_4x"
         return Switchdev_Pc_b2b_4x.new(conf, mesa_args, topo_name)
     when "switchdev_pc_bsp"
