@@ -760,7 +760,10 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     vtss_debug_print_value(pr, "L3_UC",    conf->map.l3_uc_queue);
     vtss_debug_print_value(pr, "L3_OTHER", conf->map.l3_other_queue);
 #endif /* VTSS_FEATURE_LAYER3 */
-
+#if defined(VTSS_FEATURE_REDBOX)
+    vtss_debug_print_value(pr, "SV",       conf->map.sv_queue);
+    vtss_debug_print_value(pr, "NON_HSR",  conf->map.non_hsr_queue);
+#endif
     pr("\n");
 
     vtss_debug_print_header(pr, "NPI");

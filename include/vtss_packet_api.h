@@ -89,6 +89,10 @@ typedef struct
     vtss_packet_rx_queue_t l3_uc_queue;       /**< L3 routing unicast queue */
     vtss_packet_rx_queue_t l3_other_queue;    /**< L3 routing other frames queue */
 #endif /* VTSS_FEATURE_LAYER3 */
+#if defined(VTSS_FEATURE_REDBOX)
+    vtss_packet_rx_queue_t sv_queue;          /**< Supervision frames */
+    vtss_packet_rx_queue_t non_hsr_queue;     /**< Non-HSR frames on HSR ports */
+#endif
 } vtss_packet_rx_queue_map_t;
 
 /** \brief CPU Rx configuration */

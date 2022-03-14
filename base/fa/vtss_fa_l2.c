@@ -1574,15 +1574,6 @@ static vtss_rc fa_policer_status_get(vtss_state_t *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_REDBOX)
-
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define RB_ADDR(addr, i)        addr
-#define RB_ADDRX(addr, i, j)    addr(j)
-#else
-#define RB_ADDR(addr, i)        addr(i)
-#define RB_ADDRX(addr, i, j)    addr(i, j)
-#endif
-
 static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
                              const vtss_rb_id_t rb_id,
                              vtss_rb_cap_t *const cap)
@@ -1693,7 +1684,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
             prxy_smac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if SMAC is proxy
-            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
@@ -1704,7 +1695,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         if (lre) {
             tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
-            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             tag_mode = FA_RB_TAG_PRP;
             prp_aware = 1;
@@ -1718,7 +1709,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         tag_mode = FA_RB_TAG_HSR;
         hsr_aware = 1;
         if (lre) {
-            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink

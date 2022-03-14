@@ -322,6 +322,15 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_UC_FAIL_QU         (map->l3_uc_queue)    |
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_IP_TTL_FAIL_QU     (map->l3_other_queue));
 #endif
+#if defined(VTSS_FEATURE_REDBOX)
+    // RedBox CPU queues
+    for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+        REG_WR(RB_ADDR(VTSS_RB_CPU_CFG, i),
+               VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
+               VTSS_F_RB_CPU_CFG_HSR_CPUQ(map->non_hsr_queue) |
+               VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
+    }
+#endif
     // Configure Rx Queue #i to map to an Rx group.
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
         if (conf->grp_map[i]) {

@@ -126,12 +126,10 @@ test_table =
                      {idx: $idx_d, hsr: {}}]}]
     },
     {
-        txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_SAN"},
-        tab: [
-            {fwd: [{idx_tx: $idx_a}]},
-            {fwd: [{idx_tx: $idx_b}]},
-        ]
+        txt: "redirect non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_SAN", npi: $idx_d, non_hsr_queue: 1},
+        tab: [{fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "VLANs, port A to port B/C",
@@ -257,14 +255,14 @@ test_table =
     },
     {
         txt: "BPDU Rx on LRE",
-        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        cfg: {mode: "HSR_SAN", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_a},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        cfg: {mode: "HSR_SAN", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx: $idx_a},
@@ -272,7 +270,7 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", npi: $idx_d},
+        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
@@ -280,7 +278,7 @@ test_table =
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "HSR_SAN", npi: $idx_d},
+        cfg: {mode: "HSR_SAN", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
                      {idx: $idx_a, hsr: {}},
@@ -373,14 +371,14 @@ test_table =
     },
     {
         txt: "BPDU Rx on LRE",
-        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        cfg: {mode: "PRP_SAN", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_a},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        cfg: {mode: "PRP_SAN", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx: $idx_a},
@@ -388,14 +386,14 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: $idx_d},
+        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, prp: {}},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "PRP_SAN", npi: $idx_d},
+        cfg: {mode: "PRP_SAN", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
                      {idx: $idx_a, prp: {}},
@@ -428,12 +426,10 @@ test_table =
                      {idx: $idx_d, hsr: {}}]}]
     },
     {
-        txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_PRP"},
-        tab: [
-            {fwd: [{idx_tx: $idx_a}]},
-            {fwd: [{idx_tx: $idx_b}]},
-        ]
+        txt: "redirect non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_PRP", npi: $idx_d, non_hsr_queue: 1},
+        tab: [{fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -477,7 +473,7 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: $idx_d},
+        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: $idx_d, sv_queue: 2},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
@@ -503,12 +499,10 @@ test_table =
                      {idx: $idx_d, hsr: {net_id: 3}}]}]
     },
     {
-        txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_HSR"},
-        tab: [
-            {fwd: [{idx_tx: $idx_a}]},
-            {fwd: [{idx_tx: $idx_b}]},
-        ]
+        txt: "redirect non-HSR-tagged on LRE ports",
+        cfg: {mode: "HSR_HSR", npi: $idx_d, non_hsr_queue: 1},
+        tab: [{fwd: [{idx_tx: $idx_a},
+                     {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "DMAC-PNT filtering on LRE->LRE",
@@ -549,14 +543,14 @@ test_table =
     },
     {
         txt: "BPDU Rx on LRE",
-        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        cfg: {mode: "HSR_HSR", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_a},
                      {idx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        cfg: {mode: "HSR_HSR", npi: $idx_d, bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx: $idx_a},
@@ -564,7 +558,7 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        cfg: {mode: "HSR_HSR", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx: $idx_b, hsr: {}},
@@ -572,7 +566,7 @@ test_table =
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "HSR_HSR", npi: $idx_d},
+        cfg: {mode: "HSR_HSR", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
                fwd: [{idx_tx: $idx_d, hsr: {}, ifh_tx: $idx_a},
                      {idx: $idx_a, hsr: {}},
@@ -593,6 +587,14 @@ end
 
 def cnt_incr(c, port_name, cnt_name, incr = 1)
     c[port_name][cnt_name] = (c[port_name][cnt_name] + incr)
+end
+
+def queue_set(cfg, conf, name, fld)
+    q = fld_get(cfg, fld, nil)
+    if (q != nil)
+        conf["queue"][q]["npi"]["enable"] = true
+    end
+    conf["map"][name] = (q == nil ? 0 : q)
 end
 
 def redbox_test(t)
@@ -657,9 +659,14 @@ def redbox_test(t)
     # NPI port
     idx_npi = fld_get(cfg, :npi, nil)
     if (idx_npi != nil)
-        # Map CPU queue 0 to NPI port
+        # Map one CPU queue to NPI port
         conf = $ts.dut.call("mesa_packet_rx_conf_get")
-        conf["queue"][0]["npi"]["enable"] = true
+        8.times do |q|
+            conf["queue"][q]["npi"]["enable"] = false
+        end
+        queue_set(cfg, conf, "bpdu_queue", :bpdu_queue)
+        queue_set(cfg, conf, "sv_queue", :sv_queue)
+        queue_set(cfg, conf, "non_hsr_queue", :non_hsr_queue)
         $ts.dut.call("mesa_packet_rx_conf_set", conf)
 
         # Enable NPI port
