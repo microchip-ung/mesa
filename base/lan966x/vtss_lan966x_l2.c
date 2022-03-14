@@ -616,6 +616,7 @@ static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
 {
     vtss_vlan_entry_t    *vlan_entry = &vtss_state->l2.vlan_table[vid];
     vtss_vlan_vid_conf_t *conf = &vlan_entry->conf;
+    u32                  mask = VTSS_BIT(VTSS_CHIP_PORT_CPU);
 
     /* Index and properties */
     REG_WR(ANA_VLANTIDX,
@@ -627,8 +628,8 @@ static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
            ANA_VLANTIDX_VLAN_SRC_CHK(conf->ingress_filter ? 1 : 0));
 
     /* VLAN mask */
-    REG_WR(ANA_VLAN_PORT_MASK,
-           ANA_VLAN_PORT_MASK_VLAN_PORT_MASK(vtss_lan966x_port_mask(vtss_state, member)));
+    mask |= ANA_VLAN_PORT_MASK_VLAN_PORT_MASK(vtss_lan966x_port_mask(vtss_state, member));
+    REG_WR(ANA_VLAN_PORT_MASK, mask);
 
     /* VLAN write command */
     REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_WRITE));
