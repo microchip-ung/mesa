@@ -131,6 +131,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                  *state,
 
     vtss_packet_port_filter_t *port_filter;
     BOOL                      vlan_filter = 0, vlan_member[VTSS_PORT_ARRAY_SIZE];
+    BOOL                      vlan_rx_filter = 0;
     vtss_vlan_port_conf_t     *vlan_port_conf;
 
     port_rx = info->port_no;
@@ -138,6 +139,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                  *state,
     memset(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
     if (vid != VTSS_VID_NULL) {
         vlan_filter = 1;
+        vlan_rx_filter = state->l2.vlan_table[vid].conf.ingress_filter;
         VTSS_RC(vtss_cmn_vlan_members_get(state, vid, vlan_member));
     }
 
@@ -155,7 +157,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                  *state,
             }
 
             if (vlan_filter && vlan_member[port_rx] == 0 &&
-                state->l2.vlan_port_conf[port_rx].ingress_filter) {
+                (vlan_rx_filter || state->l2.vlan_port_conf[port_rx].ingress_filter)) {
                 /* VLAN/MSTP/ERPS/.. ingress filtering */
                 VTSS_N("port_rx %u not member of VLAN %u", port_rx, vid);
                 continue;
