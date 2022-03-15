@@ -426,20 +426,6 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
     EP_WR(dev, INDY_ANALOG_CONTROL_1, 0x40);
     EP_WR(dev, INDY_ANALOG_CONTROL_10, 0x1);
 
-    // Magjack center tapped ports
-    EP_WR(dev, INDY_POWER_MGMT_MODE_3, 0x6677);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_4, 0x6677);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_5, 0x6677);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_6, 0x6677);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_7, 0x0077);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_9, 0x4377);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x0777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_12, 0x0777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6777);
-
     // Rev C work-around done.
     if (data->dev.rev >= 2) {
         return MEPA_RC_OK;
@@ -481,6 +467,20 @@ static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
 
     // Set Rx-clk to avoid crc errors in near-end loopback
     WRM(dev, INDY_UNH_TEST, INDY_F_TEST_RX_CLK, INDY_F_TEST_RX_CLK);
+
+    // Magjack center tapped ports
+    EP_WR(dev, INDY_POWER_MGMT_MODE_3, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_4, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_5, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_6, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_7, 0x0077);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_9, 0x4377);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x0777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_12, 0x0777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6777);
 
     return MEPA_RC_OK;
 }
