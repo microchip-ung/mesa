@@ -105,6 +105,19 @@ mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_p
 #endif
     }
 
+#if defined(VTSS_FEATURE_QOS_OT)
+    out->ot_dwrr_enable = in->ot_dwrr_enable;
+    out->ot_dwrr_cnt = in->ot_dwrr_cnt;
+    for (queue = 0; queue < VTSS_QUEUES; queue++) {
+        out->ot_queue[queue].pct = in->ot_queue_pct[queue];
+        mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->ot_shaper_queue[queue], &out->ot_queue[queue].shaper);
+    }
+    out->ot_it_dwrr_enable = in->ot_it_dwrr_enable;
+    out->ot_pct = in->ot_pct;
+    mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->ot_shaper, &out->ot_shaper);
+    mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->it_shaper, &out->it_shaper);
+#endif /* VTSS_FEATURE_QOS_OT */
+
     return VTSS_RC_OK;
 }
 
@@ -149,6 +162,19 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
         out->cut_through_enable[queue] = in->queue[queue].cut_through_enable;
 #endif
     }
+
+#if defined(VTSS_FEATURE_QOS_OT)
+    out->ot_dwrr_enable = in->ot_dwrr_enable;
+    out->ot_dwrr_cnt = in->ot_dwrr_cnt;
+    for (queue = 0; queue < VTSS_QUEUES; queue++) {
+        out->ot_queue_pct[queue] = in->ot_queue[queue].pct;
+        mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->ot_queue[queue].shaper, &out->ot_shaper_queue[queue]);
+    }
+    out->ot_it_dwrr_enable = in->ot_it_dwrr_enable;
+    out->ot_pct = in->ot_pct;
+    mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->ot_shaper, &out->ot_shaper);
+    mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->it_shaper, &out->it_shaper);
+#endif /* VTSS_FEATURE_QOS_OT */
 
     return VTSS_RC_OK;
 }

@@ -132,7 +132,7 @@ vtss_rc lan969x_tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
 
 vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_qos_tas_port_conf_t *current_port_conf)
 {
-    u32                   msb, store, value, entry_idx, entry_first, gcl_idx, gate_state;
+    u32                   msb, store, value, entry_idx, entry_first, gcl_idx, gate_state, se;
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
 
     memset(current_port_conf, 0, sizeof(*current_port_conf));
@@ -149,6 +149,8 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_n
     /* Read the based address of the first entry in the list */
     REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
     entry_idx = entry_first = VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(value);
+    se = VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(value);
+    current_port_conf->ot = ((se >= FA_HSCH_L0_OT_SE(0)) && (se < VTSS_HSCH_L0_SES)) ? TRUE : FALSE;
 
     /* Read the list elements */
     gcl_idx = 0;
@@ -210,7 +212,8 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
     u32  fp_enable_tx = FALSE;
 #endif
 
-    VTSS_D("Enter list_idx %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u", list_idx, obsolete_list_idx, entry_idx, profile_idx, chip_port);
+    VTSS_D("Enter list_idx %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u  chip_port %u  se %u  ot %u  gcl_length %u  gate_open[0] %X",
+           list_idx, obsolete_list_idx, entry_idx, profile_idx, chip_port, FA_HSCH_TAS_SE(chip_port, port_conf->ot), port_conf->ot, gcl_length, vtss_bool8_to_u8(gcl[0].gate_open));
 
     /* Select the list */
     REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM(list_idx), VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM);
@@ -230,7 +233,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
     REG_WR(VTSS_HSCH_TAS_STARTUP_CFG, VTSS_F_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE) ? obsolete_list_idx : list_idx) |
                                       VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time/256));
     REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(chip_port) |
-                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port)) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port, port_conf->ot)) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 

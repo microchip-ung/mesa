@@ -342,11 +342,20 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #   define VTSS_HSCH_MAX_RATE_GROUP_2     6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
 #   define VTSS_HSCH_MAX_RATE_GROUP_3    26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
 #   endif /* defined(VTSS_CHIP_7538) */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_HSCH_MAX_RATE_GROUP_0        1048568 /**< Maximum bit rate for group 0 in kbps ( 1.049 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_1        2621420 /**< Maximum bit rate for group 1 in kbps ( 2.621 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_2       10485680 /**< Maximum bit rate for group 2 in kbps (10.486 Gbps) */
 #define VTSS_HSCH_MAX_RATE_GROUP_3       26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_HSCH_MAX_RATE_GROUP_0         655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
+#define VTSS_HSCH_MAX_RATE_GROUP_1        1048568 /**< Maximum bit rate for group 1 in kbps ( 1.049 Gbps) */
+#define VTSS_HSCH_MAX_RATE_GROUP_2        6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
+#define VTSS_HSCH_MAX_RATE_GROUP_3       10485680 /**< Maximum bit rate for group 3 in kbps (10.486 Gbps) */
+#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_0   1048568 /**< Maximum bit rate for QSHP group 0 in kbps ( 1.049 Gbps) */
+#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_1   2621420 /**< Maximum bit rate for QSHP group 1 in kbps ( 2.621 Gbps) */
+#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_2   6553550 /**< Maximum bit rate for QSHP group 2 in kbps ( 6.554 Gbps) */
+#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_3  10485680 /**< Maximum bit rate for QSHP group 3 in kbps (10.486 Gbps) */
 #endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) */
 
 /** \brief Leak Chain entry */
@@ -379,7 +388,7 @@ typedef struct {
 typedef struct {
     vtss_qos_leak_layer_t layer[VTSS_HSCH_LAYERS];      /**< Per layer data */
     vtss_qos_leak_entry_t l0_alloc[VTSS_HSCH_L0_SES];   /**< Allocation of layer 0 entries. Only accessed through layer[0].entry above */
-//  vtss_qos_leak_entry_t l1_alloc[VTSS_HSCH_L1_SES];   /**< Allocation of layer 1 entries. Currently not used */
+    vtss_qos_leak_entry_t l1_alloc[VTSS_HSCH_L1_SES];   /**< Allocation of layer 1 entries. Currently not used */
     vtss_qos_leak_entry_t l2_alloc[VTSS_HSCH_L2_SES];   /**< Allocation of layer 2 entries. Only accessed through layer[2].entry above */
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_qos_leak_entry_t l3_alloc[VTSS_HSCH_L3_QSHPS]; /**< Allocation of layer 3 (queue shaper) entries. Only accessed through layer[3].entry above */

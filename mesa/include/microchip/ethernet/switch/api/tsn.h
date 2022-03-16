@@ -330,6 +330,8 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
 
 // Time Aware Shaper (802.1Qbv) port configuration
 typedef struct {
+    mesa_bool_t      ot CAP(QOS_OT);    // TAS is configured in IT or OT frame flow
+
     // Maximum SDU size supported by each queue in bytes. Minimum 64 bytes.
     // This parameter is also used to calculate the guard band time: gbt = max_sdu[]*8 / LINK_SPEED
     // In case of HOLD_MAC gate operaton, the guard band time in preemptable queues is automatically selected as the min fragment size plus 64 bytes.

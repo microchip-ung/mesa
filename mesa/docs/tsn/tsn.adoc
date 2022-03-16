@@ -72,6 +72,9 @@ another (SET_AND_RELEASE_MAC) can release this.
 IMPORTANT: If a list ends with gate operation SET_AND_HOLD_MAC then this MAC state is not changed when a new list is taking over.
 To assure the MAC is released, the new list should contain a SET_AND_RELEASE_MAC gate operation.
 
+If MESA capability `MESA_CAP_QOS_OT` is not zero there is a separate shaper for IT and for OT frame flow.
+The TAS (Time Aware Shaper) in IT or OT frame flow can be configured in `mesa_qos_tas_port_conf_t` member ot.
+
 == API Functions
 `mesa_frer_cstream_conf_get()` +
 `mesa_frer_cstream_conf_set()` +

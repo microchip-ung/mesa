@@ -120,7 +120,20 @@ A policer can be configured to reduce the ingress information rate (either frame
 === QOS Egress Detailed.
 
 .Egress frame flow
+This is the egress flow when IT/OT Network slicing is not supported - MESA capability `MESA_CAP_QOS_OT` is zero.
 image:./qos-flow-egress.svg[]
+
+.Egress frame flow - IT/OT
+This is the egress flow when IT/OT Network slicing is supported - MESA capability `MESA_CAP_QOS_OT` is not zero.
+
+At egress there are separate shaper and scheduling paths
+for IT and OT classified frames. +
+
+The two paths has allocated separate queue buffer resources so that IT and OT frame does not share resources.
+Frames are classified as either a IT or OT frame at ingress.
+It is configured (`mesa_vlan_vid_conf_t::ot`) as a per VID property so all frames classified to a specific VID
+is classified as OT. Default a frame is classified as IT.
+image:./qos-flow-egress-it-ot.svg[]
 
 ==== Weighted Random Early Discard - WRED.
 
@@ -129,25 +142,67 @@ Detection can be configured (`mesa_wred_conf_t`). All frames goes through the
 WRED that can discard frames depending on the queue filling of the classified
 Priority and the classified DPL.
 
+==== Priority shaper.
+
+All frames are going through a priority shaper that shapes frames with a specific classified priority (queue).
+The shaper is configured in `mesa_qos_port_conf_t::queue` per port per priority (queue). A priority shaper is reducing
+the egress bit rate of a specific priority (queue).
+
+If MESA capability `MESA_CAP_QOS_OT` is not zero there is a separate priority shaper for IT and for OT frame flow. +
+Configuration of IT in `mesa_qos_port_conf_t::queue` +
+Configuration of OT in `mesa_qos_port_conf_t::ot_queue`
+
 ==== Scheduler.
 
 The scheduler that controls the transmission of all frames from the priority
-queues can be configured (`mesa_qos_port_conf_t`).
+queues can be configured in +
+`mesa_qos_port_conf_t::dwrr_enable` +
+`mesa_qos_port_conf_t::dwrr_cnt` +
+`mesa_qos_port_queue_conf_t::pct`
 
 .The scheduling can be configured in two different modes:
 * Strict scheduling where all queues are equally prioritized (default).
 * Weighted (DWRR) scheduling where queues are prioritized after a percentual weight.
 
-==== Priority shaper.
+If MESA capability `MESA_CAP_QOS_OT` is not zero there is a separate scheduler for IT and for OT frame flow. +
+Configuration of IT in +
+`mesa_qos_port_conf_t::dwrr_enable` +
+`mesa_qos_port_conf_t::dwrr_cnt` +
+`mesa_qos_port_queue_conf_t::pct`
 
-All frames are going through a priority shaper that shapes frames with a specific classified priority (queue).
-The shaper is configured (`mesa_qos_port_queue_conf_t`) per port per priority (queue). A priority shaper is reducing
-the egress bit rate of a specific priority (queue).
+Configuration of OT in +
+`mesa_qos_port_conf_t::ot_dwrr_enable` +
+`mesa_qos_port_conf_t::ot_dwrr_cnt` +
+`mesa_qos_port_ot_queue_conf_t::pct`
+
+==== Shaper.
+If MESA capability `MESA_CAP_QOS_OT` is not zero there is a separate shaper for IT and for OT frame flow. +
+
+All frames (IT/OT) on a port are going through the shaper configured
+(`mesa_qos_port_conf_t`) for that port. A shaper is reducing the
+egress bit rate on the port.
+
+Configuration of IT in `mesa_qos_port_conf_t::it_shaper`. +
+Configuration of OT in `mesa_qos_port_conf_t::ot_shaper`.
+
+The TAS (Time Aware Shaper) in IT or OT frame flow can be configured in `mesa_qos_tas_port_conf_t::ot`.
+
+==== OT/IT Scheduler.
+If MESA capability `MESA_CAP_QOS_OT` is not zero there is a scheduler that schedules between IT and for OT frame flows.
+
+The scheduler that controls the transmission of all frames from either
+OT or IT input can be configured in +
+`mesa_qos_port_conf_t::ot_it_dwrr_enable` +
+`mesa_qos_port_conf_t::ot_pct`.
+
+.The scheduling can be configured in two different modes:
+* Strict scheduling where IT and OT are equally prioritized (default).
+* Weighted (DWRR) scheduling where IT and OT are prioritized after a percentual weight.
 
 ==== Port shaper.
 
 All frames on a port are going through a Port shaper configured
-(`mesa_qos_port_conf_t`) for that port. A shaper is reducing the
+in `mesa_qos_port_conf_t::shaper` for that port. A shaper is reducing the
 egress bit rate on the port.
 
 ==== [#bookmark-ddm]#DSCP/DPL to DSCP mapping#.

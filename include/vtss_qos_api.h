@@ -359,6 +359,19 @@ typedef struct {
 #endif /* VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT */
     vtss_pct_t queue_pct[VTSS_QUEUE_ARRAY_SIZE];                 /**< Queue percentages */
 
+#if defined(VTSS_FEATURE_QOS_OT)
+    BOOL          ot_dwrr_enable;                                /**< Enable DWRR fairness scheduling between OT queues. */
+    u8            ot_dwrr_cnt;                                   /**< Number of OT queues running in DWRR mode. */
+    vtss_pct_t    ot_queue_pct[VTSS_QUEUE_ARRAY_SIZE];           /**< OT Queue percentages */
+    vtss_shaper_t ot_shaper_queue[VTSS_QUEUE_ARRAY_SIZE];        /**< OT egress queue shapers */
+
+    BOOL          ot_it_dwrr_enable;                             /**< Enable DWRR fairness scheduling between OT and IT traffic. */
+    vtss_pct_t    ot_pct;                                        /**< The DWRR OT traffic percentage. Rest is IT traffic. */
+
+    vtss_shaper_t ot_shaper;                                     /**< Egress OT traffic shapers */
+    vtss_shaper_t it_shaper;                                     /**< Egress IT traffic shapers */
+#endif /* VTSS_FEATURE_QOS_OT */
+
 #if defined(VTSS_FEATURE_QCL_DMAC_DIP)
     BOOL       dmac_dip;                                         /**< Enable DMAC/DIP matching in QCLs (default SMAC/SIP) */
 #endif /* VTSS_FEATURE_QCL_DMAC_DIP */

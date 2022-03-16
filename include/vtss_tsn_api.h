@@ -331,6 +331,9 @@ typedef struct {
 
 // Time Aware Shaper (802.1Qbv) port configuration
 typedef struct {
+#if defined(VTSS_FEATURE_QOS_OT)
+    BOOL             ot;    // TAS is IT or OT traffic shaping
+#endif
     // Maximum SDU size supported by each queue in bytes. Minimum 64 bytes.
     // This parameter contribute to calculating the guard band time max_sdu[]*8 / LINK_SPEED
     u16              max_sdu[VTSS_QUEUE_ARRAY_SIZE];
