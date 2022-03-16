@@ -186,8 +186,8 @@ typedef struct {
                                               u32                 *offset);
 #endif
     vtss_rc (* seq_cnt_get) (struct vtss_state_s *vtss_state,
-                             uint32_t                   sec_cntr,
-                             uint16_t *const            cnt_val);
+                             u32                 sec_cntr,
+                             u16 *const          cnt_val);
 #if defined(VTSS_ARCH_OCELOT)
     vtss_rc (* alt_clock_saved_timeofday_get) (struct vtss_state_s *vtss_state,
                                      vtss_timestamp_t               *ts);

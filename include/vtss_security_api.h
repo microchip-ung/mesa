@@ -400,13 +400,11 @@ typedef u32 vtss_ace_id_t;
 
 #define VTSS_ACE_ID_LAST 0 /**< Special value used to add last in list */
 
-/** \brief ACE 1 bit */
-typedef enum
-{
-    VTSS_ACE_BIT_ANY, /**< Value 0 or 1 */
-    VTSS_ACE_BIT_0,   /**< Value 0 */
-    VTSS_ACE_BIT_1    /**< Value 1 */
-} vtss_ace_bit_t;
+
+typedef vtss_vcap_bit_t  vtss_ace_bit_t;
+#define VTSS_ACE_BIT_ANY VTSS_VCAP_BIT_ANY
+#define VTSS_ACE_BIT_0   VTSS_VCAP_BIT_0
+#define VTSS_ACE_BIT_1   VTSS_VCAP_BIT_1
 
 /** \brief ACE 8 bit value and mask */
 typedef vtss_vcap_u8_t vtss_ace_u8_t;

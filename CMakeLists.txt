@@ -15,6 +15,9 @@ option(BUILD_MESA_ALL    "Build the MESA libraries" OFF)
 option(BUILD_DOXYGEN     "Build doxygen" OFF)
 option(MESA_PRE_AG       "Use pre-generated mesa-ag layer if exist" ON)
 option(BUILD_MESA_DEMO   "Build the MESA demo" ON)
+option(MESA_OPSYS_LINUX  "Build the MESA for Linux" ON)
+option(MESA_OPSYS_LMSTAX "Build the MESA for LMStaX" OFF)
+option(MESA_WRAP         "Generate and build the MESA Wrapper" ON)
 
 mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
 
@@ -27,7 +30,23 @@ include_directories(mesa/include)
 include_directories(meba/include)
 include_directories(mepa/include)
 
-add_subdirectory(meba)
+set (OS_CNT 0)
+if (${MESA_OPSYS_LINUX})
+    MATH(EXPR OS_CNT "${OS_CNT} + 1")
+endif ()
+
+if (${MESA_OPSYS_LMSTAX})
+    MATH(EXPR OS_CNT "${OS_CNT} + 1")
+endif ()
+
+if (NOT ${OS_CNT} EQUAL 1)
+    message(FATAL_ERROR "Enable one and only one OS layer")
+endif ()
+
+# MEBA is only supported on Linux
+if (${MESA_OPSYS_LINUX})
+    add_subdirectory(meba)
+endif ()
 
 #find_program(CCACHE_FOUND ccache)
 #if(CCACHE_FOUND)
@@ -38,23 +57,27 @@ add_subdirectory(meba)
 INCLUDE (CheckIncludeFiles)
 INCLUDE (CheckCSourceCompiles)
 
-CHECK_INCLUDE_FILES("endian.h" VTSS_HAS_ENDIAN_H)
-IF(NOT VTSS_HAS_ENDIAN_H)
-    message(FATAL_ERROR "endian.h was not found or did not compile. See CMakeFiles/CMakeError.log for more details.")
-ENDIF()
+if (${MESA_OPSYS_LINUX})
+    CHECK_INCLUDE_FILES("endian.h" VTSS_HAS_ENDIAN_H)
+    IF(NOT VTSS_HAS_ENDIAN_H)
+        message(FATAL_ERROR "endian.h was not found or did not compile. See CMakeFiles/CMakeError.log for more details.")
+    ENDIF()
 
-CHECK_INCLUDE_FILES("asm/byteorder.h" VTSS_HAS_ASM_BYTEORDER_H)
-IF(NOT VTSS_HAS_ASM_BYTEORDER_H)
-    message(FATAL_ERROR "asm/byteorder.h was not found or did not compile. See CMakeFiles/CMakeError.log for more details.")
-ENDIF()
+    CHECK_INCLUDE_FILES("asm/byteorder.h" VTSS_HAS_ASM_BYTEORDER_H)
+    IF(NOT VTSS_HAS_ASM_BYTEORDER_H)
+        message(FATAL_ERROR "asm/byteorder.h was not found or did not compile. See CMakeFiles/CMakeError.log for more details.")
+    ENDIF()
+endif ()
 
 file(GLOB_RECURSE API_UNI_SRC  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "base/*.c")
 file(GLOB_RECURSE API_UNI_HDR  RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/include" "include/**.h")
 file(GLOB_RECURSE API_UNI_HDR_ABS "include/**.h")
 
-file(GLOB_RECURSE API_MESA_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "mesa/src/**.c")
-file(GLOB_RECURSE API_MESA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mesa/include" "mesa/include/**.h")
-file(GLOB_RECURSE API_MEBA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/meba/include" "meba/include/**.h")
+if (${MESA_WRAP})
+    file(GLOB_RECURSE API_MESA_SRC RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "mesa/src/**.c")
+    file(GLOB_RECURSE API_MESA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mesa/include" "mesa/include/**.h")
+    file(GLOB_RECURSE API_MEBA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/meba/include" "meba/include/**.h")
+endif ()
 file(GLOB_RECURSE API_MEPA_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mepa/include" "mepa/include/**.h")
 file(GLOB_RECURSE API_MEPA_VTSS_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/mepa/vtss/include" "mepa/vtss/include/*.h")
 file(GLOB_RECURSE API_ME_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/me/include" "me/include/**.h")
@@ -62,6 +85,7 @@ file(GLOB_RECURSE API_ME_HDR RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/me/include" "
 list(REMOVE_ITEM API_MESA_SRC mesa/src/capability_dumper.c)
 
 ### MESA-PROCESSING START #####################################################################################################################################
+if (${MESA_WRAP})
 if (EXISTS mesa/ag/mesa.c AND EXISTS mesa/ag/mesa.h AND ${MESA_PRE_AG})
 
 message(STATUS "Using pre-generated mesa-ag layer")
@@ -145,6 +169,7 @@ list(APPEND API_MESA_SRC ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/)
 ### MESA-PROCESSING END #######################################################################################################################################
 endif()
+endif()
 
 include_directories(include)
 
@@ -152,7 +177,11 @@ include_directories(include)
 
 set(LIST_OF_API_TARGETS)
 
-set(GLOBAL_DEFS -DVTSS_OPSYS_LINUX -DVTSS_OPT_SYMREG=1)
+if (${MESA_OPSYS_LINUX})
+    set(GLOBAL_DEFS -DVTSS_OPSYS_LINUX -DVTSS_OPT_SYMREG=1)
+elseif (${MESA_OPSYS_LMSTAX})
+    set(GLOBAL_DEFS -DVTSS_OPSYS_LMSTAX -DVTSS_OPT_SYMREG=0)
+endif ()
 
 macro(API_TARGET)
   set(oneValueArgs LIB CHIP)

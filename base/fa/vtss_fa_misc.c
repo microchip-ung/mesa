@@ -503,7 +503,7 @@ static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *s
 {
     u32 val, uio_irqs, dest;
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     // Which interrupts are taken care of in user-space?
     if (vtss_state->sys_config.using_pcie) {
@@ -1042,7 +1042,7 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
     pr("\n");
 
     for (g = 0; g < VTSS_SGPIO_GROUPS; g++) {
-        sprintf(name, "SGPIOs Group:%u", g);
+        VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
         vtss_fa_debug_reg_header(pr, name);
         for (i = 0; i < 4; i++) {
             FA_DEBUG_SIO_INST(pr, INPUT_DATA(g,i), i, "INPUT_DATA");

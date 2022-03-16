@@ -322,7 +322,7 @@ static vtss_rc lan966x_synce_clock_in_set(vtss_state_t *vtss_state, const u32 cl
     u32                      idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
     port_type_t              port_type;
-    i32                      clk_src = 0;
+    u32                      clk_src = 0;
     BOOL                     ena;
     u32                      link_stat, clk_div, sd_ena;
 
@@ -358,7 +358,7 @@ static vtss_rc lan966x_synce_clock_in_set(vtss_state_t *vtss_state, const u32 cl
         break;
     }
 
-    VTSS_D("clk_port %X, port_no %u, enable %u, squelch %u, clk_src %d\n", clk_port, conf->port_no, ena, conf->squelsh, clk_src);
+    VTSS_D("clk_port %X, port_no %u, enable %u, squelch %u, clk_src %u\n", clk_port, conf->port_no, ena, conf->squelsh, clk_src);
 
     /* Configure the SerDes to select for recovered clock */
     REG_WRM(HSIO_SYNC_ETH_CFG(clk_port),
@@ -1477,7 +1477,7 @@ static vtss_rc lan966x_port_counters_get(vtss_state_t *vtss_state,
                                          const vtss_port_no_t port_no,
                                          vtss_port_counters_t *const counters)
 {
-    memset(counters, 0, sizeof(*counters));
+    VTSS_MEMSET(counters, 0, sizeof(*counters));
     return lan966x_port_counters_cmd(vtss_state, port_no, counters, 0);
 }
 
@@ -1547,13 +1547,13 @@ static vtss_rc lan966x_debug_port(vtss_state_t *vtss_state,
 #if !defined(VTSS_OPT_FPGA)
     u32            i;
 
-    sprintf(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
+    VTSS_SPRINTF(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
     vtss_lan966x_debug_reg_header(pr, buf);
     vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_HW_CFG), "HW_CFG");
     pr("\n");
 
     for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
-        sprintf(buf, "SD6G[%u]: %s", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+        VTSS_SPRINTF(buf, "SD6G[%u]: %s", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG(i)), "SD_CFG");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG2(i)), "SD_CFG2");
@@ -1567,7 +1567,7 @@ static vtss_rc lan966x_debug_port(vtss_state_t *vtss_state,
         if (port_no == VTSS_PORT_NO_NONE) {
             continue;
         }
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_CLOCK_CFG(port)), "CLOCK_CFG");
         vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_ENA_CFG(port)), "MAC_ENA_CFG");
@@ -1596,8 +1596,8 @@ static void lan966x_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
 {
     char buf1[80], buf2[80];
 
-    sprintf(buf1, "%s_%u", col1 && strlen(col1) ? col1 : col2, i);
-    sprintf(buf2, "%s_%u", col2 && strlen(col2) ? col2 : col1, i);
+    VTSS_SPRINTF(buf1, "%s_%u", col1 && VTSS_STRLEN(col1) ? col1 : col2, i);
+    VTSS_SPRINTF(buf2, "%s_%u", col2 && VTSS_STRLEN(col2) ? col2 : col1, i);
     vtss_lan966x_debug_cnt(pr, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
 }
 
@@ -1617,14 +1617,14 @@ static void lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, co
             name = "emac";
             c = &c1->emac;
         }
-        sprintf(buf1, "%s_%s", name, col1);
+        VTSS_SPRINTF(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
             vtss_lan966x_debug_cnt(pr, buf1, NULL, c, NULL);
         } else {
-            if (strlen(col2) != 0) {
-                sprintf(buf2, "%s_%s", name, col2);
+            if (VTSS_STRLEN(col2) != 0) {
+                VTSS_SPRINTF(buf2, "%s_%s", name, col2);
             } else {
-                strcpy(buf2, "");
+                VTSS_STRCPY(buf2, "");
             }
             vtss_lan966x_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
         }

@@ -287,7 +287,7 @@ static vtss_rc jr2_voe_event_active_get(vtss_state_t   *vtss_state,
 
     u32 i, v;
 
-    memset(active, 0, sizeof(active_size));
+    VTSS_MEMSET(active, 0, sizeof(active_size));
     JR2_RD(VTSS_VOP_COMMON_MASTER_INTR_CTRL, &v);
     if (!VTSS_X_VOP_COMMON_MASTER_INTR_CTRL_OAM_MEP_INTR(v)) {
         VTSS_D("No interrupts are enabled");
@@ -1365,7 +1365,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             }
             DR_VOE_I(CONF_VOE_CTRL, i, v);
             if (info->full  ||  (v & VTSS_M_VOP_VOE_CONF_VOE_CTRL_VOE_ENA) != 0) {
-                sprintf(buf, "VOE_CONF %u", i);
+                VTSS_SPRINTF(buf, "VOE_CONF %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 DR_VOE_I(CONF_REG_VOE_MISC_CONFIG, i, w);
                 D_VOE_I(pr, CONF_REG_VOE_MISC_CONFIG, i);
@@ -1418,7 +1418,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             DR_VOE_I(CONF_VOE_CTRL, i, v);
             DR_VOE_I(CONF_REG_VOE_MISC_CONFIG, i, w);
             if (info->full  ||  (v & VTSS_M_VOP_VOE_CONF_VOE_CTRL_VOE_ENA) != 0) {
-                sprintf(buf, "VOE_STAT %u", i);
+                VTSS_SPRINTF(buf, "VOE_STAT %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 D_VOE_I(pr, STAT_RX_SEL_OAM_CNT, i);
                 D_VOE_I(pr, STAT_RX_OAM_FRM_CNT, i);
@@ -1469,7 +1469,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             }
             DR_VOE_I(CONF_VOE_CTRL, i, voe_ctrl);
             if ((voe_ctrl & VTSS_M_VOP_VOE_CONF_VOE_CTRL_VOE_ENA) != 0) {  /* Only print for active VOEs */
-                sprintf(buf, "VOE_LM_COUNTERS %u", i);
+                VTSS_SPRINTF(buf, "VOE_LM_COUNTERS %u", i);
                 pr("VOE_LM_COUNTERS %u\n", i);
                 pr("COS     TX counter      RX counter\n");
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) { /* Print RX and TX count for each COS */
@@ -1538,7 +1538,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             JR2_RD(VTSS_ANA_CL_MIP_TBL_MIP_CFG(i), &v)
 #if defined(VTSS_ARCH_JAGUAR_2_C)
             if ((v & VTSS_M_ANA_CL_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
-                sprintf(buf, "DOWN_MIP_CONF %u", i);
+                VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 D_D_MIP_I(pr, MIP_CFG, i);
                 D_D_MIP_I(pr, CCM_HMO_CTRL, i);
@@ -1548,7 +1548,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             }
 #else
             if ((v & VTSS_M_ANA_CL_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
-                sprintf(buf, "DOWN_MIP_CONF %u", i);
+                VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 D_D_MIP_I(pr, MIP_CFG, i);
                 D_D_MIP_I(pr, LBM_MAC_HIGH, i);
@@ -1567,7 +1567,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             JR2_RD(VTSS_REW_MIP_TBL_MIP_CFG(i), &v)
 #if defined(VTSS_ARCH_JAGUAR_2_C)
             if ((v & VTSS_M_REW_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
-                sprintf(buf, "UP_MIP_CONF %u", i);
+                VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 D_U_MIP_I(pr, MIP_CFG, i);
                 D_U_MIP_I(pr, CCM_HMO_CTRL, i);
@@ -1577,7 +1577,7 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
             }
 #else
             if ((v & VTSS_M_REW_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
-                sprintf(buf, "UP_MIP_CONF %u", i);
+                VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
                 vtss_jr2_debug_reg_header(pr, buf);
                 D_U_MIP_I(pr, MIP_CFG, i);
                 D_U_MIP_I(pr, LBM_MAC_HIGH, i);
@@ -1588,12 +1588,12 @@ static vtss_rc jr2_debug_oam(vtss_state_t               *vtss_state,
     }
 
     if (!info->has_action || mip_status) { /* MIP status must be printed */
-        sprintf(buf, "DOWN_MIP_STAT");
+        VTSS_SPRINTF(buf, "DOWN_MIP_STAT");
         vtss_jr2_debug_reg_header(pr, buf);
         D_D_MIP_S(pr, MIP_STICKY);
         pr("\n");
 
-        sprintf(buf, "UP_MIP_STAT");
+        VTSS_SPRINTF(buf, "UP_MIP_STAT");
         vtss_jr2_debug_reg_header(pr, buf);
         D_U_MIP_S(pr, MIP_STICKY_EVENT);
     }
@@ -1630,13 +1630,13 @@ static vtss_rc voe_default_set(vtss_state_t          *vtss_state,
 {
     vtss_rc  rc, ret_rc = VTSS_RC_OK;
 
-    memset(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_cc_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_cc_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_rdi_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_rdi_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_lt_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lt_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_lb_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lb_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_laps_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_laps_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_event_mask[voe_idx], 0, sizeof(vtss_state->oam.voe_event_mask[voe_idx])); 
+    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_cc_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_cc_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_rdi_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_rdi_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_lt_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lt_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_lb_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lb_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_laps_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_laps_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0, sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
     if ((rc = jr2_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;
@@ -1677,7 +1677,7 @@ static vtss_rc voi_default_set(vtss_state_t          *vtss_state,
 {
     vtss_rc  rc;
 
-    memset(&vtss_state->oam.voi_conf[voe_idx], 0, sizeof(vtss_state->oam.voi_conf[voe_idx])); 
+    VTSS_MEMSET(&vtss_state->oam.voi_conf[voe_idx], 0, sizeof(vtss_state->oam.voi_conf[voe_idx]));
 
     rc = jr2_voi_conf_set(vtss_state, voe_idx, &vtss_state->oam.voi_conf[voe_idx]);
 

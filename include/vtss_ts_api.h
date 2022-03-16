@@ -609,7 +609,7 @@ vtss_rc vtss_ts_saved_timeofday_get(const vtss_inst_t               inst,
  * \return Return code.
  */
 vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
-                                             const uint32_t    io,
+                                             const u32         io,
                                              u32               *const offset);
 #endif
 
@@ -914,7 +914,7 @@ typedef void (*vtss_ts_timestamp_alloc_cb_t)(void *context, u32 port_no,
 /** \brief Timestamp allocation */
 typedef struct vtss_ts_timestamp_alloc_t {
     /** Identify the ports that a timestamp id is allocated to */
-    u64 port_mask;
+    uint64_t port_mask;
 
     /** Application specific context used as parameter in the call-out */
     void * context;
@@ -1023,8 +1023,8 @@ vtss_rc vtss_ts_smac_get(const vtss_inst_t    inst,
  * \return Return code.
  */
 vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t                inst,
-                            const uint32_t                   sec_cntr,
-                            uint16_t *const                  cnt_val);
+                            const u32                        sec_cntr,
+                            u16 *const                       cnt_val);
 
 #ifdef __cplusplus
 }

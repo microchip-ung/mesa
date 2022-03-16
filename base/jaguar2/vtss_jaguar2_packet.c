@@ -597,7 +597,7 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t          *const state,
         return VTSS_RC_ERROR;
     }
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
 
     info->hw_tstamp         = (u64)tstamp<<16;
     info->length            = meta->length;
@@ -671,8 +671,8 @@ static vtss_rc jr2_rx_frame(vtss_state_t         *vtss_state,
         VTSS_RC(jr2_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
-        memcpy(xtr_hdr, ifh, sizeof(ifh));
-        memset(&meta, 0, sizeof(meta));
+        VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
+        VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         p = &data[length - 4];
         meta.fcs = ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);

@@ -361,7 +361,7 @@ static void lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u1
 {
     int i;
 
-    memset(out, 0, sizeof(*out));
+    VTSS_MEMSET(out, 0, sizeof(*out));
     for (i = 0; i < 2; i++) {
         out->value = ((out->value << 8) + in->value[i]);
         out->mask = ((out->mask << 8) + in->mask[i]);
@@ -372,7 +372,7 @@ static void lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u3
 {
     int i;
 
-    memset(out, 0, sizeof(*out));
+    VTSS_MEMSET(out, 0, sizeof(*out));
     for (i = 0; i < 4; i++) {
         out->value = ((out->value << 8) + in->value[i]);
         out->mask = ((out->mask << 8) + in->mask[i]);
@@ -474,11 +474,11 @@ static void lan966x_debug_bits(lan966x_vcap_info_t *info, const char *name, u32 
 static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name, u32 offs, u32 offs_val, u32 len, BOOL debug_bits)
 {
     vtss_debug_printf_t pr = info->pr;
-    int                 i, length = strlen(name);
+    int                 i, length = VTSS_STRLEN(name);
     BOOL                enable = vtss_bs_bit_get(info->data.action, offs);
 
     for (i = 0; i < length; i++) {
-        pr("%c", enable ? toupper(name[i]) : tolower(name[i]));
+        pr("%c", enable ? VTSS_TOUPPER(name[i]) : VTSS_TOLOWER(name[i]));
     }
     if (debug_bits) {
         lan966x_debug_bits(info, "", offs_val, len);
@@ -1699,7 +1699,7 @@ static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_efl
         esdx = stat->idx;
     }
 
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
@@ -1728,7 +1728,7 @@ static vtss_rc lan966x_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_
     vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
     vtss_policer_conf_t     pol_conf;
 
-    memset(&pol_conf, 0, sizeof(pol_conf));
+    VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
     if (conf->bit_rate_enable) {
         pol_conf.eir = conf->bit_rate;
         pol_conf.ebs = 1; /* Minimum burst size */
@@ -1830,7 +1830,7 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
     }
 
     // Check that half entry can be added
-    memset(&chg, 0, sizeof(chg));
+    VTSS_MEMSET(&chg, 0, sizeof(chg));
     chg.add_key[key_size] = 1;
     if (vtss_vcap_lookup(vtss_state, obj, user, ace->id, &data, NULL) == VTSS_RC_OK) {
         chg.del_key[data.key_size] = 1;
@@ -2646,7 +2646,7 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
     const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
     lan966x_vcap_info_t                  info = {0};
     u32                                  port, cnt, tgt = va->instance, rule_index = 0;
-    int                                  i, j, found;
+    i32                                  i, j, found;
 
     pr("Name     : %s\n", va->name);
     pr("Instance : %u\n", tgt);
@@ -2673,7 +2673,7 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
     info.vcap = vcap;
     info.pr = pr;
     for (i = (va->rows + va->default_cnt - 1); i >= 0; i--) {
-        if (i >= va->rows) {
+        if ((u32)i >= va->rows) {
             // Default action
             info.cmd = LAN966X_VCAP_CMD_READ;
             info.sel = (LAN966X_VCAP_SEL_ACTION | LAN966X_VCAP_SEL_COUNTER);

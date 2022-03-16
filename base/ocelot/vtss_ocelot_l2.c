@@ -628,7 +628,7 @@ static vtss_rc srvl_ip_mc_update(vtss_state_t *vtss_state,
     vtss_port_no_t        port_no;
 
     if (cmd == VTSS_IPMC_CMD_CHECK) {
-        memset(&res, 0, sizeof(res));
+        VTSS_MEMSET(&res, 0, sizeof(res));
         if (ipmc->dst_add) {
             res.add_key[key_size] = 1;
         }
@@ -722,7 +722,7 @@ static vtss_rc srvl_mirror_ingress_set(vtss_state_t *vtss_state)
      * ports.)
      */
 
-    memset(set, 0, sizeof(set));
+    VTSS_MEMSET(set, 0, sizeof(set));
     for (vp_idx = VTSS_MPLS_VPROFILE_RESERVED_CNT; vp_idx < VTSS_MPLS_VPROFILE_CNT; vp_idx++) {
         vtss_mpls_vprofile_t *vp = &VP_P(vp_idx);
         set[vp_idx] = (vp->port < vtss_state->port_count)  &&  vtss_state->l2.mirror_ingress[vp->port];
@@ -1049,12 +1049,12 @@ static vtss_rc srvl_debug_vlan(vtss_state_t *vtss_state,
             /* Normal ports */
             if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
                 continue;
-            sprintf(buf, "Port %u (%u)", port, port_no);
+            VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         } else {
             /* CPU ports */
             if (!info->full)
                 continue;
-            sprintf(buf, "Port %u (CPU)", port);
+            VTSS_SPRINTF(buf, "Port %u (CPU)", port);
         }
 
         vtss_srvl_debug_reg_header(pr, buf);

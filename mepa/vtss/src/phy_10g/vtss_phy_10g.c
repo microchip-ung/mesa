@@ -1424,7 +1424,7 @@ static vtss_rc vtss_phy_10g_edc_fw_status_private(vtss_state_t *vtss_state,
     u16 value, value2;
     VTSS_D("Enter");
     VTSS_RC(vtss_mmd_rd(vtss_state, port_no, MMD_GLOBAL, 0x7FE1, &value));  
-    VTSS_MSLEEP(100);
+    MEPA_MSLEEP(100);
     VTSS_RC(vtss_mmd_rd(vtss_state, port_no, MMD_GLOBAL, 0x7FE1, &value2));  
     if (value == value2) {
         status->icpu_activity = 0;
@@ -4039,7 +4039,7 @@ vtss_rc vtss_phy_10g_i2c_reset(const vtss_inst_t                inst,
             if ((rc = VTSS_PHY_WR_MASKED(port_no, 1, 0xc006, 0x1, 0x1)) != VTSS_RC_OK) {
                 VTSS_D("i2c reset sequence failed port_no:%u\n", port_no);
             }
-            VTSS_MSLEEP(5);
+            MEPA_MSLEEP(5);
             if ((rc = VTSS_PHY_WR_MASKED(port_no, 1, 0xAE00, 0x8000, 0x8000)) != VTSS_RC_OK) {
                 VTSS_D("i2c block reset failed port_no:%u\n", port_no);
             }
@@ -4063,7 +4063,7 @@ vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t                inst,
         if (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_VENICE ||
                 vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU) {
             if ((rc = vtss_mmd_wr(vtss_state,port_no,mmd,addr_reg,addr)) == VTSS_RC_OK ) {
-                VTSS_MSLEEP(1);
+                MEPA_MSLEEP(1);
                 if (((rc = vtss_mmd_rd(vtss_state,port_no,mmd,data_reg,value)) == VTSS_RC_OK)) {
                     if (*value & 0x8000) {
                         VTSS_E("I2C bus is busy\n");
@@ -4096,7 +4096,7 @@ vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t                inst,
         if (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_VENICE ||
                                 vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU) {
             if ((rc = vtss_mmd_wr(vtss_state,port_no,mmd,wr_cntrl_reg,addr|(*value << 8))) == VTSS_RC_OK ) {
-                VTSS_MSLEEP(1);
+                MEPA_MSLEEP(1);
                 if (((rc = vtss_mmd_rd(vtss_state,port_no,mmd,wr_status,&is_bsy)) == VTSS_RC_OK)) {
                     if((is_bsy & 0x01)) {
                         VTSS_E("I2C bus is busy or no ACK \n");

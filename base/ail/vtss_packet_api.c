@@ -136,7 +136,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                  *state,
 
     port_rx = info->port_no;
     vid = info->vid;
-    memset(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
+    VTSS_MEMSET(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
     if (vid != VTSS_VID_NULL) {
         vlan_filter = 1;
         vlan_rx_filter = state->l2.vlan_table[vid].conf.ingress_filter;
@@ -262,14 +262,14 @@ vtss_rc vtss_packet_frame_filter(const vtss_inst_t               inst,
 
 void vtss_packet_frame_info_init(vtss_packet_frame_info_t *const info)
 {
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
     info->port_no = VTSS_PORT_NO_NONE;
     info->port_tx = VTSS_PORT_NO_NONE;
 }
 
 vtss_rc vtss_packet_port_info_init(vtss_packet_port_info_t *const info)
 {
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
     info->port_no = VTSS_PORT_NO_NONE;
     return VTSS_RC_OK;
 }
@@ -296,7 +296,7 @@ vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t         inst,
     BOOL           member[VTSS_PORT_ARRAY_SIZE];
 
     if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
-        memset(filter, 0, VTSS_PORT_ARRAY_SIZE * sizeof(vtss_packet_vlan_filter_t));
+        VTSS_MEMSET(filter, 0, VTSS_PORT_ARRAY_SIZE * sizeof(vtss_packet_vlan_filter_t));
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             /* Rx and Tx forwarding */
             filter[port_no].rx_forward = vtss_state->l2.rx_forward[port_no];
@@ -377,7 +377,7 @@ vtss_rc vtss_packet_tx_info_init(const vtss_inst_t                  inst,
         return VTSS_RC_ERROR;
     }
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
     info->masquerade_port = VTSS_PORT_NO_NONE; // Default to not masquerading.
 #if VTSS_ISDX_NONE != 0
     info->isdx            = VTSS_ISDX_NONE;    // Default to not injecting on an ISDX.
@@ -471,7 +471,7 @@ vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t  inst,
 /* - PTP get timestamp --------------------------------------------- */
 
 vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                   inst,
-                               const u8 *const                     frm,
+                               const u8                            frm[VTSS_PTP_FRAME_TS_LENGTH],
                                const vtss_packet_rx_info_t *const  rx_info,
                                vtss_packet_ptp_message_type_t      message_type,
                                vtss_packet_timestamp_props_t       ts_props,
@@ -603,7 +603,7 @@ vtss_port_no_t vtss_cmn_chip_to_logical_port(const vtss_state_t       *const sta
 {
     vtss_port_no_t port_no;
     for (port_no = VTSS_PORT_NO_START; port_no < state->port_count; port_no++) {
-        if (VTSS_CHIP_PORT_FROM_STATE(state, port_no) == chip_port && VTSS_CHIP_NO_FROM_STATE(state, port_no) == chip_no) {
+        if ((u32)VTSS_CHIP_PORT_FROM_STATE(state, port_no) == chip_port && VTSS_CHIP_NO_FROM_STATE(state, port_no) == chip_no) {
             return port_no;
         }
     }
@@ -737,7 +737,7 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
 
     vtss_debug_print_value(pr, "BPDU", conf->reg.bpdu_cpu_only);
     for (i = 0; i < 16; i++) {
-        sprintf(buf, "GARP_%u", i);
+        VTSS_SPRINTF(buf, "GARP_%u", i);
         vtss_debug_print_value(pr, buf, conf->reg.garp_cpu_only[i]);
     }
     vtss_debug_print_value(pr, "IPMC", conf->reg.ipmc_ctrl_cpu_copy);
@@ -766,7 +766,7 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
         vtss_debug_print_value(pr, "NPI_PORT", vtss_state->packet.npi_conf.port_no);
         for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
-            sprintf(buf, "REDIR:CPUQ_%u", i);
+            VTSS_SPRINTF(buf, "REDIR:CPUQ_%u", i);
             vtss_debug_print_value(pr, buf, conf->queue[i].npi.enable);
         }
     }
@@ -784,7 +784,7 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
     vtss_debug_print_header(pr, "CPU Queue Shaper");
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
-        sprintf(buf, "CPU_Queue_%u", i);
+        VTSS_SPRINTF(buf, "CPU_Queue_%u", i);
         vtss_debug_print_value(pr, buf, conf->queue[i].rate);
     }
 #endif

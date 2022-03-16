@@ -729,7 +729,7 @@ typedef struct {
 } vtss_is2_entry_t;
 
 // Internal port action used for SSM
-#define VTSS_ACL_PORT_ACTION_PGID 1000
+#define VTSS_ACL_PORT_ACTION_PGID 100
 
 typedef struct {
     BOOL redir;                     /* Port redirect flag */

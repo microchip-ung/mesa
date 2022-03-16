@@ -354,7 +354,7 @@
  * @param t - target base offset
  * @param o - subtarget offset
  */
-#define VTSS_IOREG(t,o)      (*((volatile uint32_t*)(VTSS_IOADDR(t,o))))
+#define VTSS_IOREG(t,o)      (*((volatile u32*)(VTSS_IOADDR(t,o))))
 #endif
 
 /* IO indexed register access macro - may be changed for platform */

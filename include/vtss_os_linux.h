@@ -15,6 +15,21 @@
 
 #include <endian.h>
 #include <asm/byteorder.h>
+#include <stdint.h>
+#include <inttypes.h>
+
+/** \brief C99 Integer types */
+typedef signed char        i8;   /**<  8-bit signed */
+typedef int16_t            i16;  /**< 16-bit signed */
+typedef int32_t            i32;  /**< 32-bit signed */
+typedef int64_t            i64;  /**< 64-bit signed */
+
+typedef uint8_t            u8;   /**<  8-bit unsigned */
+typedef uint16_t           u16;  /**< 16-bit unsigned */
+typedef uint32_t           u32;  /**< 32-bit unsigned */
+typedef uint64_t           u64;  /**< 64-bit unsigned */
+
+typedef u8            BOOL; /**< Boolean implemented as 8-bit unsigned */
 
 /**
  * \brief VTSS_OS_BIG_ENDIAN:
@@ -359,6 +374,18 @@ static inline int __builtin_ctzl(unsigned long val32)
  * Wrap of call to rand() defined in stdlib.h
  */
 #define VTSS_OS_RAND() rand()
+
+#define VTSS_MEMSET(s, c, n) memset(s, c, n)
+#define VTSS_MEMCMP(s, c, n) memcmp(s, c, n)
+#define VTSS_MEMCPY(s, c, n) memcpy(s, c, n)
+
+#define VTSS_STRLEN(s) strlen(s)
+#define VTSS_STRCPY(sd, ss) strcpy(sd, ss)
+#define VTSS_SPRINTF(...) sprintf(__VA_ARGS__)
+#define VTSS_SNPRINTF(...) snprintf(__VA_ARGS__)
+
+#define VTSS_TOUPPER(arg) (toupper(arg))
+#define VTSS_TOLOWER(arg) (toupper(arg))
 
 #endif /* _VTSS_OS_LINUX_H_ */
 

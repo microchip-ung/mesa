@@ -279,7 +279,7 @@ static vtss_rc l26_ip_mc_update(vtss_state_t *vtss_state,
     id = l26_ip_mc_vcap_id(&ipmc->src, ipmc->ipv6);
 
     /* MAC address */
-    memset(&mac_entry, 0, sizeof(mac_entry));
+    VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
     mac_entry.locked = 1;
     l26_ip_mc_mac_get(vid_mac, &ipmc->dst, ipmc->ipv6);
     
@@ -374,7 +374,7 @@ static vtss_rc l26_ip_mc_update(vtss_state_t *vtss_state,
                 /* SSM entry, clear ASM add flag if DIP matches */
                 for (dst_asm = dst_asm_first; dst_asm != NULL; dst_asm = dst_asm->next) {
                     if (dst_asm->add && 
-                        memcmp(&dst->data.dip, &dst_asm->data.dip, sizeof(vtss_ip_addr_internal_t)) == 0)
+                        VTSS_MEMCMP(&dst->data.dip, &dst_asm->data.dip, sizeof(vtss_ip_addr_internal_t)) == 0)
                         dst_asm->add = 0;
                     if (dst_asm == dst_asm_last)
                         break;
@@ -427,7 +427,7 @@ static vtss_rc l26_ip_mc_update(vtss_state_t *vtss_state,
         }
         
         /* Clear destination set */
-        memset(mac_entry.destination, 0, port_count);
+        VTSS_MEMSET(mac_entry.destination, 0, port_count);
         dmac_found = 0;
     }
     
@@ -1261,7 +1261,7 @@ static vtss_rc l26_debug_vlan(vtss_state_t *vtss_state,
     char              buf[32];
 
     for (port = 0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
-        sprintf(buf, "Port %u", port);
+        VTSS_SPRINTF(buf, "Port %u", port);
         vtss_l26_debug_reg_header(pr, buf);
         if (port != VTSS_CHIP_PORT_CPU_1) {
             vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VLAN_CFG(port), port, "ANA:VLAN_CFG");
@@ -1513,7 +1513,7 @@ static vtss_rc l26_debug_ipmc(vtss_state_t *vtss_state,
 
     /* MAC address table in chip */
     header = TRUE;
-    memset(&mac_entry, 0, sizeof(mac_entry));
+    VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
     p = &mac_entry.vid_mac.mac.addr[0];
     while (l26_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
         if (header)

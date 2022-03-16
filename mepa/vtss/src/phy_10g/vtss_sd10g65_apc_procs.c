@@ -38,7 +38,7 @@
 #include "vtss_sd10g65_procs.h"
 #include "vtss_sd10g65_apc_procs.h"
 
-static u8 to_u8(const BOOL a) {
+static u8 to_u8_(const BOOL a) {
     return (a == TRUE) ? 1 : 0;
 }
 
@@ -194,7 +194,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     u32     f_pll_khz_plain, optimize_for_1g = FALSE;
     u8      thresh_init;
 
-    f_pll_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
     rc = vtss_sd10g65_apc_set_default_preset_values(config.chip_name, &preset);
 
     if (cfg_f_pll.f_pll_khz <= 2.5e6 && config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
@@ -388,7 +388,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
 
     ret_val->apc_common_cfg0__apc_fsm_recover_mode[0]  = 1;
     ret_val->apc_common_cfg0__hml_errcorr_ena[0]       = 0;
-    ret_val->apc_common_cfg0__skip_cal[0]              = to_u8(config.skip_cal);
+    ret_val->apc_common_cfg0__skip_cal[0]              = to_u8_(config.skip_cal);
     ret_val->apc_common_cfg0__if_width[0]              = sd10g65_apc_get_iw_setting(config.if_width);
     ret_val->apc_common_cfg0__reset_apc[0]             = 1;
     ret_val->apc_common_cfg0__apc_direct_ena[0]        = 1;
@@ -414,7 +414,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     } else {
         if (config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
             ret_val->calibration_time_ms[0] =   0; // not used at all
-            ret_val->calibration_time_ms[1] = (u16) (VTSS_DIV64((((u64)1<<(2*ret_val->apc_ld_cal_cfg__cal_clk_div[0]))*(ret_val->apc_is_cal_cfg1__cal_num_iterations[0]+1)*156500*config.if_width)+(f_pll_khz_plain-1), f_pll_khz_plain));
+            ret_val->calibration_time_ms[1] = (u16) (MEPA_DIV64((((u64)1<<(2*ret_val->apc_ld_cal_cfg__cal_clk_div[0]))*(ret_val->apc_is_cal_cfg1__cal_num_iterations[0]+1)*156500*config.if_width)+(f_pll_khz_plain-1), f_pll_khz_plain));
         } else {
             ret_val->calibration_time_ms[0] =  50;
             ret_val->calibration_time_ms[1] = 200;
@@ -428,7 +428,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->apc_dfe2_par_cfg__dfe2_ini[0]                = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
     ret_val->apc_dfe3_par_cfg__dfe3_ini[0]                = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini;
     ret_val->apc_dfe4_par_cfg__dfe4_ini[0]                = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini;
-    ret_val->throttle_mode[0]                             = to_u8(config.throttle_mode);
+    ret_val->throttle_mode[0]                             = to_u8_(config.throttle_mode);
     ret_val->sd10g65_ib_cfg0__ib_vscope_ena[0]            = 1;    /* CML sampler always active */
     ret_val->apc_parctrl_sync_cfg__fsm1_op_mode[0]        = 1;    /* one-time operation */
     if (config.throttle_mode == TRUE) {
@@ -438,7 +438,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     }
     ret_val->apc_top_ctrl_cfg__sleep_time[0]              = 4500; /* number of inactive cycles */
     ret_val->apc_common_cfg0__throttle_mode[0]            = 1;    /* enable throttle mode */
-    ret_val->single_step[0]                               = to_u8(config.single_step);
+    ret_val->single_step[0]                               = to_u8_(config.single_step);
     ret_val->apc_eqz_ld_ctrl__ld_lev_ini[0]               = preset.ld_lev_ini;
     ret_val->apc_eqz_ld_ctrl_cfg0__ld_t_deadtime_wrk[0]   = 65535;
     ret_val->apc_eqz_ld_ctrl_cfg0__ld_t_timeout_wrk[0]    = 1000;
@@ -483,7 +483,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     }
 
     /* L anc C control either forced or enabled for higher data rates only */
-    ret_val->force_eqz_l[0] = to_u8(config.force_eqz_l);
+    ret_val->force_eqz_l[0] = to_u8_(config.force_eqz_l);
     if (config.force_eqz_l == TRUE) {
         /* # force L or C */
         ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]  = 1; /* use forced values */
@@ -515,7 +515,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
         ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0]    = 0; /* disabled */
     }
 
-    ret_val->force_eqz_c[0] = to_u8(config.force_eqz_c);
+    ret_val->force_eqz_c[0] = to_u8_(config.force_eqz_c);
     if (config.force_eqz_c == TRUE) {
         /* # force L or C */
         ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]  = 1; /* use forced values */
@@ -585,9 +585,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->apc_eqz_common_cfg__eqz_gain_chg_mode[0]       = preset.gain_chg_mode;
 
     /* do calibration if desired */
-    ret_val->skip_cal[0]    = to_u8(config.skip_cal);
-    ret_val->is_2pt_cal[0]  = to_u8(config.is_2pt_cal);
-    ret_val->incl_ld_cal[0] = to_u8(config.incl_ld_cal);
+    ret_val->skip_cal[0]    = to_u8_(config.skip_cal);
+    ret_val->is_2pt_cal[0]  = to_u8_(config.is_2pt_cal);
+    ret_val->incl_ld_cal[0] = to_u8_(config.incl_ld_cal);
 
     thresh_init = 31;
     ret_val->sd10g65_ib_cfg8__ib_inv_thr_cal_val[0] = 0;

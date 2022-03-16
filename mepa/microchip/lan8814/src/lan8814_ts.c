@@ -809,7 +809,7 @@ static void indy_ts_deb_pr_reg (mepa_device_t *dev,
         phy_data_t *data = (phy_data_t *)dev->data;
         mepa_port_no_t port_no = data->port_no;
         if(MEPA_RC_OK == indy_ext_reg_rd(dev, page, addr, value)) {
-            pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, port_no, page, addr, *value);
+            pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), page, addr, *value);
         }
     }
 }
@@ -817,14 +817,7 @@ static void indy_ts_deb_pr_reg (mepa_device_t *dev,
 static mepa_rc indy_ts_classifier_conf_reg_dump(mepa_device_t *dev,
                                                 const mepa_debug_print_t pr)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t val = 0;
-    mepa_port_no_t port_no = data->port_no;
-
-    // Suppress warnings
-    if (port_no < 0) {
-        return MEPA_RC_OK;
-    }
 
     indy_ts_deb_pr_reg(dev,  pr,  "INDY_PTP_RX_USER_MAC_HI", INDY_PTP_RX_USER_MAC_HI, &val);
     indy_ts_deb_pr_reg(dev,  pr,  "INDY_PTP_RX_USER_MAC_MID", INDY_PTP_RX_USER_MAC_MID, &val);
@@ -936,14 +929,8 @@ static mepa_rc indy_ts_classifier_conf_reg_dump(mepa_device_t *dev,
 static mepa_rc indy_ts_clock_conf_reg_dump(mepa_device_t *dev,
                                            const mepa_debug_print_t pr)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_port_no_t port_no;
     uint16_t val = 0;
-    port_no = data->port_no;
-    // Suppress warnings
-    if (port_no < 0) {
-        return MEPA_RC_OK;
-    }
+
     // PTP TSU Interrupt Enable Register
     indy_ts_deb_pr_reg(dev,  pr,  "INDY_PTP_TSU_INT_EN", INDY_PTP_TSU_INT_EN, &val);
     indy_ts_deb_pr_reg(dev,  pr,  "INDY_PTP_TSU_INT_STS", INDY_PTP_TSU_INT_STS, &val);
@@ -1221,6 +1208,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
         switch (vlan_conf->num_tag) {
         case 2:
             vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_VLAN2_CHECK_EN;
+            /* fall-through */
         case 1:
             vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_VLAN1_CHECK_EN;
             vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_CHECK_EN;
@@ -1236,6 +1224,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
         switch (vlan_conf->num_tag) {
         case 2:
             vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_VLAN2_CHECK_EN;
+            /* fall-through */
         case 1:
             vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_VLAN1_CHECK_EN;
             vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_CHECK_EN;
@@ -1269,6 +1258,7 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
             EP_WRM(dev, INDY_VLAN2_TYPE_ID, vid, INDY_DEF_MASK);
             EP_WRM(dev, INDY_VLAN2_ID_MASK, mask, INDY_DEF_MASK);
         }
+        /* fall-through */
     case 1:
         if (vlan_conf->inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
             range_up = 0, range_lo = 0;

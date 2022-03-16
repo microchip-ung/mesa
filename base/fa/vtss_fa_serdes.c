@@ -311,7 +311,7 @@ static void buf_set(char *buf, u32 *u_ptr)
     for (int a = 7; a >= 0; a--) {
         num = u_ptr[a];
         for (int i = 7; i >= 0; i--) {
-            sprintf(buf + strlen(buf), "%d",(num & (1 << i)) >> i);
+            VTSS_SPRINTF(buf + VTSS_STRLEN(buf), "%d",(num & (1 << i)) >> i);
         }
     }
 }
@@ -1653,13 +1653,13 @@ vtss_rc fa_serdes_tx_eq_tune(vtss_state_t *vtss_state, const vtss_debug_printf_t
     }
 
     if (action_sts == 0) {
-        sprintf(action_out, "NOT_UPDATED");
+        VTSS_SPRINTF(action_out, "NOT_UPDATED");
     } else if (action_sts == 1) {
-        sprintf(action_out, "UPDATED");
+        VTSS_SPRINTF(action_out, "UPDATED");
     } else if (action_sts == 2) {
-        sprintf(action_out, "MIN");
+        VTSS_SPRINTF(action_out, "MIN");
     } else if (action_sts == 3) {
-        sprintf(action_out, "MAX");
+        VTSS_SPRINTF(action_out, "MAX");
     }
     pr("Results: %s [CM(tap_adv):%d CP(tap_dly):%d C0(amp):%d]\n", action_out, status_out.cm1, status_out.cp1, status_out.c0);
 
@@ -3200,34 +3200,34 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
 
     (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type);
     if (sd_type == FA_SERDES_TYPE_10G) {
-        sprintf(buf3,"(10G_SD_%d)",indx);
+        VTSS_SPRINTF(buf3,"(10G_SD_%d)",indx);
     } else if (sd_type == FA_SERDES_TYPE_25G) {
-        sprintf(buf3,"(25G_SD_%d)",indx);
+        VTSS_SPRINTF(buf3,"(25G_SD_%d)",indx);
     } else {
-        sprintf(buf3,"(5G_SD_%d)",indx);
+        VTSS_SPRINTF(buf3,"(5G_SD_%d)",indx);
     }
     if (vtss_fa_port_is_high_speed(vtss_state, port)) {
         if (sd_type == FA_SERDES_TYPE_10G) {
-            sprintf(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
+            VTSS_SPRINTF(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
                     vtss_serdes_preset_txt(serdes2preset(vtss_state->port.conf[port_no].serdes.media_type)));
         } else if (sd_type == FA_SERDES_TYPE_25G) {
-            sprintf(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
+            VTSS_SPRINTF(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
                     vtss_serdes25g_preset_txt(serdes2preset_25g(vtss_state->port.conf[port_no].serdes.media_type, vtss_state->port.conf[port_no].speed)));
         } else {
-            sprintf(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
+            VTSS_SPRINTF(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
                     vtss_serdes_preset_txt(serdes2preset(vtss_state->port.serdes_mode[port_no])));
         }
     } else {
-        sprintf(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
+        VTSS_SPRINTF(buf2,"%-6s : %s",vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]),
                 vtss_serdes_preset_txt(serdes2preset(vtss_state->port.conf[port_no].serdes.media_type)));
     }
     if (vtss_fa_port_is_high_speed(vtss_state, port)) {
-        sprintf(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
+        VTSS_SPRINTF(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
                 ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
     } else {
-        sprintf(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, "2G5", port);
+        VTSS_SPRINTF(buf, "Chip port %-2u (API %-2u) Dev%s_%d", port, port_no, "2G5", port);
     }
-    sprintf(buf1,"SD%-2d %s", sd_indx, buf3);
+    VTSS_SPRINTF(buf1,"SD%-2d %s", sd_indx, buf3);
     if (info->action == 1) {
         vtss_fa_debug_reg_header(pr, buf);
     } else {

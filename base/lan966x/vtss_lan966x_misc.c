@@ -487,7 +487,7 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t *vtss_state,
             case VTSS_SGPIO_MODE_1_ACTIVITY_INV:
                 val -= 2;
                 cfg |= GCB_SIO_PORT_CFG_BIT_POLARITY(1 << bit_idx);
-                // Inverse polarity and fall through
+                /* fall-through */
             default:
                 val = VTSS_ENCODE_BITFIELD(val, (bit_idx * 3), 3);
                 cfg |= GCB_SIO_PORT_CFG_BIT_SOURCE(val);

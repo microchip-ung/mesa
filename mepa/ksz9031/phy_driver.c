@@ -101,16 +101,13 @@ int phy_modify(mepa_device_t *dev, uint32_t regnum, uint16_t mask, uint16_t set)
 {
     uint16_t  value;
 
-    if ((value = phy_read(dev, regnum)) < 0) {
-        return -1;
-    }
+    value = phy_read(dev, regnum);
 
     value &= ~mask;
     value |= (set & mask);
 
-    if ((value = phy_write(dev, regnum, value)) < 0) {
-        return -1;
-    }
+    value = phy_write(dev, regnum, value);
+
     return 0;
 }
 

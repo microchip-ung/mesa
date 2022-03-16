@@ -82,7 +82,7 @@ vtss_rc vtss_frer_cstream_cnt_clear(const vtss_inst_t            inst,
 // For each stream ID and egress port, configuration and counters are available.
 // Individual recovery can be enabled to eliminate duplicate frames.
 // Frames can also be mapped to a compound stream.
-typedef uint16_t vtss_frer_mstream_id_t;
+typedef u16 vtss_frer_mstream_id_t;
 
 // Allocate FRER member stream ID block.
 // port_list [IN]  Egress port list, maximum 8 ports enabled

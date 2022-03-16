@@ -25,7 +25,7 @@ typedef struct {
     vtss_mrp_ring_role_t  ring_role;    // MRP ring role
     vtss_mrp_ring_role_t  in_ring_role; // MRP Interconnect ring role
     BOOL                  mra;          // MRP is MRA. The actual role is given by 'ring_role' and can be changed with vtss_mrp_ring_role_set()
-    uint32_t              mra_priority; // MRA priority
+    u32                   mra_priority; // MRA priority
     BOOL                  in_rc_mode;   // Is interconnection in RC-mode (TRUE) or LC-mode (FALSE)?
     vtss_port_no_t        p_port;       // Port with Primary port role
     vtss_port_no_t        s_port;       // Port with Secondary port role
@@ -135,7 +135,7 @@ vtss_rc vtss_mrp_port_state_get(const vtss_inst_t      inst,
 // MRP instance's best MRM information.
 typedef struct {
     vtss_mac_t mac;  // Best MAC address
-    uint32_t   prio; // Best priority
+    u32        prio; // Best priority
 } vtss_mrp_best_mrm_t;
 
 // Set an MRP instance's best received priority and MAC.

@@ -13,54 +13,7 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/time.h>
-
-/** Sleep for \param msec milliseconds */
-#define VTSS_MSLEEP(msec) usleep((msec)*1000)
-
-/** \brief Timer structure */
-typedef struct {
-    struct timeval timeout;   /**< Timeout */
-    struct timeval now;       /**< Time right now */
-} vtss_mtimer_t;
-
-#define VTSS_MTIMER_START(timer,msec) { \
-    (void) gettimeofday(&((timer)->timeout),NULL);   \
-    (timer)->timeout.tv_usec+=msec*1000; \
-    if ((timer)->timeout.tv_usec>=1000000) { (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000; (timer)->timeout.tv_usec%=1000000; } \
-} /**< Start timer */
-
-#define VTSS_MTIMER_TIMEOUT(timer) (gettimeofday(&((timer)->now),NULL)==0 && timercmp(&((timer)->now),&((timer)->timeout),>)) /**< Timer timeout */
-
-#define VTSS_MTIMER_CANCEL(timer) /**< No action in this implementation. */
-
-/**< Time of day struct */
-typedef struct {
-    time_t sec; /**< Time of day in seconds */
-} vtss_timeofday_t;
-
-#define VTSS_TIME_OF_DAY(tod) { \
-    struct timeval tve; \
-    (void)gettimeofday(&tve,NULL);  \
-    tod.sec = tve.tv_sec; \
-} /**< Time of day macro */
-
-/**
- * VTSS_DIV64 - perform 64/32 bit division yelding 32 bit (at least) output
- */
-#define VTSS_DIV64(dividend, divisor) ((dividend) / (divisor))
-/**
- * VTSS_MOD64 - perform 64/32 bit modulus yelding 32 bit (at least) output
- */
-#define VTSS_MOD64(dividend, divisor) ((dividend) % (divisor))
-/**
- * VTSS_LABS - perform abs() on long
- */
-#define VTSS_LABS(arg)                labs(arg)
-
-/**
- * VTSS_LLABS - perform abs() on long long
- */
-#define VTSS_LLABS(arg)               llabs(arg)
+#include <mepa_driver.h>
 
 #if __INTPTR_MAX__ == __INT32_MAX__
 #if !defined(PRIu64)

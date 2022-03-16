@@ -1530,7 +1530,7 @@ static vtss_rc l26_port_status_get(vtss_state_t *vtss_state,
     u32              value;
 
     if (conf->power_down) {
-        memset(status, 0, sizeof(*status));
+        VTSS_MEMSET(status, 0, sizeof(*status));
         return VTSS_RC_OK;
     }
 
@@ -1871,7 +1871,7 @@ static vtss_rc l26_port_counters_get(vtss_state_t *vtss_state,
                                      const vtss_port_no_t port_no,
                                      vtss_port_counters_t *const counters)
 {
-    memset(counters, 0, sizeof(*counters));
+    VTSS_MEMSET(counters, 0, sizeof(*counters));
     return l26_port_counters_cmd(vtss_state, port_no, counters, 0);
 }
 
@@ -2296,7 +2296,7 @@ static vtss_rc l26_debug_port(vtss_state_t *vtss_state,
        vtss_state->init_conf.mux_mode, VTSS_X_DEVCPU_GCB_MISC_MISC_CFG_SW_MODE(value));
 
     for (i = 0; info->full && i < 8; i++) {
-        sprintf(buf, "SerDes1G_%u", i);
+        VTSS_SPRINTF(buf, "SerDes1G_%u", i);
         vtss_l26_debug_reg_header(pr, buf);
         VTSS_RC(l26_sd1g_read(vtss_state, 1 << i));
         L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
@@ -2316,7 +2316,7 @@ static vtss_rc l26_debug_port(vtss_state_t *vtss_state,
     }
 
     for (i = 0; info->full && i < 4; i++) {
-        sprintf(buf, "SerDes6G_%u", i);
+        VTSS_SPRINTF(buf, "SerDes6G_%u", i);
         vtss_l26_debug_reg_header(pr, buf);
         VTSS_RC(l26_sd6g_read(vtss_state, 1 << i));
         L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
@@ -2345,7 +2345,7 @@ static vtss_rc l26_debug_port(vtss_state_t *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u", port);
+        VTSS_SPRINTF(buf, "Port %u", port);
         vtss_l26_debug_reg_header(pr, buf);
         tgt = VTSS_TO_DEV(port);
         vtss_l26_debug_reg_inst(vtss_state, pr,
@@ -2379,10 +2379,10 @@ static void l26_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const 
 {
     char buf[400];
 
-    sprintf(buf, "rx_%s:", col1);
+    VTSS_SPRINTF(buf, "rx_%s:", col1);
     pr("%-19s%19" PRIu64, buf, c1->prev);
     if (col2 != NULL) {
-        sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
+        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
         pr("   %-19s%19" PRIu64, buf, c2->prev);
     }
     pr("\n");
@@ -2394,7 +2394,7 @@ static void l26_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
 {
     char buf[200];
 
-    sprintf(buf, "%s_%u", col1, i);
+    VTSS_SPRINTF(buf, "%s_%u", col1, i);
     l26_debug_cnt(pr, buf, col2, c1, c2);
 }
 

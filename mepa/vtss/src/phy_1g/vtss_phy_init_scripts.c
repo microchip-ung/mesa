@@ -138,7 +138,7 @@ vtss_rc vtss_phy_wait_for_micro_complete(vtss_state_t *vtss_state, vtss_port_no_
     while (reg18g & 0x8000 && timeout > 0) {
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, &reg18g));
         timeout--; // Make sure that we don't run forever
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
         VTSS_D("MCB timer, port_no %u, timeout = %d", port_no , timeout);
     }
 

@@ -927,8 +927,8 @@ static vtss_rc fa_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 #endif //defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 
 static vtss_rc fa_ts_seq_cnt_get(vtss_state_t *vtss_state,
-                                 uint32_t                   sec_cntr,
-                                 uint16_t *const            cnt_val)
+                                 u32                   sec_cntr,
+                                 u16 *const            cnt_val)
 {
     vtss_rc rc = VTSS_RC_OK;
     u32 value;
@@ -954,7 +954,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
 
     /* REW:PORT */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "REW:PORT[%u]", port);
+        VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_MODE_CFG(port, 0), "PTP_MODE_CFG[0]");
         vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_MODE_CFG(port, 1), "PTP_MODE_CFG[1]");
@@ -982,7 +982,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
-        sprintf(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
+        VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx), "PTP_PIN_CFG");
         vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(idx), "PTP_TOD_SEC_MSB");
@@ -1002,13 +1002,13 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
     /* ANA_ACL::PTP_MASTER */
     vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MASTER_CFG");
     for (idx = 0; idx <= VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
-        sprintf(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
+        VTSS_SPRINTF(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx), buf);
-        sprintf(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
+        VTSS_SPRINTF(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx), buf);
-        sprintf(buf, "PTP_SRC_PORT_CFG[%u]", idx);
+        VTSS_SPRINTF(buf, "PTP_SRC_PORT_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx), buf);
-        sprintf(buf, "PTP_MISC_CFG[%u]", idx);
+        VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_MISC_CFG(idx), buf);
     }
 
@@ -1023,7 +1023,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
-            sprintf(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
+            VTSS_SPRINTF(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
             vtss_fa_debug_reg_header(pr, buf);
             vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port)), "PTP_CFG");
             vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV2G5(port)), "PTP_RXDLY_CFG");
@@ -1035,7 +1035,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         case VTSS_PORT_INTERFACE_SFI:
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
-            sprintf(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
+            VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
             vtss_fa_debug_reg_header(pr, buf);
             vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV10G(port)), "PTP_CFG");
             vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV10G(port)), "PTP_RXDLY_CFG");
@@ -1101,7 +1101,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 
     /* Get the GPIO functionallity information */
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
-        memset(ptp_gpio, 0, sizeof(ptp_gpio));
+        VTSS_MEMSET(ptp_gpio, 0, sizeof(ptp_gpio));
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_0, &ptp_gpio[0]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_1, &ptp_gpio[1]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_2, &ptp_gpio[2]);
@@ -1120,12 +1120,12 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         }
     }
 
-    memset(seriel_1G_delay, 0, sizeof(seriel_1G_delay));
-    memset(seriel_10G_delay, 0, sizeof(seriel_10G_delay));
-    memset(seriel_2dot5G_delay, 0, sizeof(seriel_2dot5G_delay));
-    memset(seriel_5G_delay, 0, sizeof(seriel_5G_delay));
-    memset(seriel_25G_delay, 0, sizeof(seriel_25G_delay));
-    memset(qsgmii_1G_delay, 0, sizeof(qsgmii_1G_delay));
+    VTSS_MEMSET(seriel_1G_delay, 0, sizeof(seriel_1G_delay));
+    VTSS_MEMSET(seriel_10G_delay, 0, sizeof(seriel_10G_delay));
+    VTSS_MEMSET(seriel_2dot5G_delay, 0, sizeof(seriel_2dot5G_delay));
+    VTSS_MEMSET(seriel_5G_delay, 0, sizeof(seriel_5G_delay));
+    VTSS_MEMSET(seriel_25G_delay, 0, sizeof(seriel_25G_delay));
+    VTSS_MEMSET(qsgmii_1G_delay, 0, sizeof(qsgmii_1G_delay));
 
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ) {
         /* The below is based on numbers from front end simulation and is only valid for 250 MHZ. */

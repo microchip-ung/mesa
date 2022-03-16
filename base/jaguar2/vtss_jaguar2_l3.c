@@ -247,8 +247,8 @@ static vtss_rc jr2_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
     u32               i, sum = 0;
     u8                sip_mask;
 
-    memset(&data, 0, sizeof(data));
-    memset(&entry, 0, sizeof(entry));
+    VTSS_MEMSET(&data, 0, sizeof(data));
+    VTSS_MEMSET(&entry, 0, sizeof(entry));
     data.u.lpm.entry = &entry;
 
     VTSS_RC(jr2_l3_mc_rt_rleg_add(vtss_state, rt));
@@ -298,8 +298,8 @@ static vtss_rc jr2_l3_rt_add(vtss_state_t *vtss_state,
     vtss_ip_addr_t    *addr = &net->network;
     u32               i, j, n, mask = 0, len = net->prefix_size;
 
-    memset(&data, 0, sizeof(data));
-    memset(&entry, 0, sizeof(entry));
+    VTSS_MEMSET(&data, 0, sizeof(data));
+    VTSS_MEMSET(&entry, 0, sizeof(entry));
     data.u.lpm.entry = &entry;
     if (addr->type == VTSS_IP_TYPE_IPV4) {
         data.key_size = VTSS_VCAP_KEY_SIZE_SIXTEENTH;
@@ -435,11 +435,11 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t *vtss_state,
         JR2_RD(VTSS_ANA_L3_VMID_RLEG_CTRL(i), &value);
         JR2_RD(VTSS_ANA_L3_VMID_VRRP_CFG(i, 0), &cfg0);
         JR2_RD(VTSS_ANA_L3_VMID_VRRP_CFG(i, 1), &cfg1);
-        sprintf(buf0, "%u (%u/%u)",
+        VTSS_SPRINTF(buf0, "%u (%u/%u)",
                 VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_VRID_ENA(value),
                 VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP4_VRID(cfg0),
                 VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP4_VRID(cfg1));
-        sprintf(buf1, "%u (%u/%u)",
+        VTSS_SPRINTF(buf1, "%u (%u/%u)",
                 VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_VRID_ENA(value),
                 VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP6_VRID(cfg0),
                 VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP6_VRID(cfg1));

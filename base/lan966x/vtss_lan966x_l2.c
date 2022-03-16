@@ -29,7 +29,7 @@ static u32 lan966x_vtss_pgid(vtss_state_t *vtss_state, u32 pgid)
 
     if (pgid < VTSS_CHIP_PORTS) {
         for (port_no = 0; port_no < vtss_state->port_count; port_no++)
-            if (VTSS_CHIP_PORT(port_no) == pgid)
+            if ((u32)VTSS_CHIP_PORT(port_no) == pgid)
                 break;
         return port_no;
     } else {
@@ -697,7 +697,7 @@ static vtss_rc lan966x_ip_mc_update(vtss_state_t *vtss_state,
     vtss_port_no_t        port_no;
 
     if (cmd == VTSS_IPMC_CMD_CHECK) {
-        memset(&res, 0, sizeof(res));
+        VTSS_MEMSET(&res, 0, sizeof(res));
         if (ipmc->dst_add) {
             res.add_key[key_size] = 1;
         }
@@ -1557,7 +1557,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         idx = ms->idx;
         for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_PORT_BF_GET(ms->port_list, port_no)) {
-                sprintf(buf, "MSID %u, port %u", i, port_no);
+                VTSS_SPRINTF(buf, "MSID %u, port %u", i, port_no);
                 vtss_lan966x_debug_reg_header(pr, buf);
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_CFG_MBM(idx)), idx, "FRER_CFG_MBM");
                 REG_WRM(QSYS_FRER_CFG, QSYS_FRER_CFG_ADDR(idx), QSYS_FRER_CFG_ADDR_M);
@@ -1572,7 +1572,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
         if (vtss_state->l2.cstream_conf[i].recovery == 0) {
             continue;
         }
-        sprintf(buf, "CSID %u", i);
+        VTSS_SPRINTF(buf, "CSID %u", i);
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_CFG_CMP(i)), i, "QSYS:FRER_CFG_CMP");
         REG_WRM(QSYS_FRER_CFG, QSYS_FRER_CFG_ADDR(i), QSYS_FRER_CFG_ADDR_M);
@@ -1610,7 +1610,7 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t *vtss_state,
 
     for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
-            sprintf(buf, "PSFP Gate %u", i);
+            VTSS_SPRINTF(buf, "PSFP Gate %u", i);
             vtss_lan966x_debug_reg_header(pr, buf);
             REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(i));
             vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_1), "SG_CFG_1");
@@ -1659,12 +1659,12 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
             /* Normal ports */
             if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
                 continue;
-            sprintf(buf, "Port %u (%u)", port, port_no);
+            VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         } else {
             /* CPU ports */
             if (!info->full)
                 continue;
-            sprintf(buf, "Port %u (CPU)", port);
+            VTSS_SPRINTF(buf, "Port %u (CPU)", port);
         }
 
         vtss_lan966x_debug_reg_header(pr, buf);

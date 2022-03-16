@@ -453,7 +453,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     VTSS_RC(srvl_qos_port_policer_fc_set(vtss_state, port_no, port));
 
     /* Port policer configuration */
-    memset(&pol_cfg, 0, sizeof(pol_cfg));
+    VTSS_MEMSET(&pol_cfg, 0, sizeof(pol_cfg));
     if (conf->policer_port[0].rate != VTSS_BITRATE_DISABLED) {
         pol_cfg.frame_rate = conf->policer_ext_port[0].frame_rate;
         pol_cfg.eir = conf->policer_port[0].rate;
@@ -465,7 +465,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
 
     /* Queue policer configuration */
     for (queue = 0; queue < 8; queue++) {
-        memset(&pol_cfg, 0, sizeof(pol_cfg));
+        VTSS_MEMSET(&pol_cfg, 0, sizeof(pol_cfg));
         if (conf->policer_queue[queue].rate != VTSS_BITRATE_DISABLED) {
             pol_cfg.eir = conf->policer_queue[queue].rate;
             pol_cfg.ebs = conf->policer_queue[queue].level;
@@ -628,7 +628,7 @@ static vtss_rc srvl_evc_policer_conf_set(vtss_state_t *vtss_state,
     vtss_policer_conf_t      pol_conf;
 
     /* Convert to Serval policer configuration */
-    memset(&pol_conf, 0, sizeof(pol_conf));
+    VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
     if (conf->enable) {
         /* Use configured values if policer enabled */
         pol_conf.data_rate = (conf->line_rate ? 0 : 1);
@@ -673,7 +673,7 @@ static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss
     for (i = 0; i < 2; i++) {
         /* CPU port shaper at level 1 (kbps) */
         se = (CPU_PORT_0_SE_INDEX + i);
-        memset(&shaper, 0, sizeof(shaper));
+        VTSS_MEMSET(&shaper, 0, sizeof(shaper));
         shaper.rate  = rate;       // kbps
         shaper.level = (4096 * 4); // 16 kbytes burst size
         VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0, NULL));
@@ -695,7 +695,7 @@ static vtss_rc srvl_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *
 {
     u32 value;
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     /* Read and clear sticky register */
     SRVL_RD(VTSS_ANA_ANA_ANEVENTS, &value);
@@ -811,9 +811,9 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
             for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
                 const char *delim = ((pcp == VTSS_PCP_START) && (dei == VTSS_DEI_START)) ? "" : ",";
                 SRVL_RD(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(port, (8*dei + pcp)), &value);
-                class_ct += snprintf(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim,
+                class_ct += VTSS_SNPRINTF(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim,
                                      VTSS_X_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(value));
-                dpl_ct   += snprintf(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim,
+                dpl_ct   += VTSS_SNPRINTF(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim,
                                      VTSS_BOOL(value & VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_DP_PCP_DEI_VAL));
             }
         }
@@ -830,11 +830,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
                 continue;
             }
             port = VTSS_CHIP_PORT(port_no);
-            sprintf(buf, "%2u", port_no);
+            VTSS_SPRINTF(buf, "%2u", port_no);
         } else {
             i = (port_no - vtss_state->port_count);
             port = (VTSS_CHIP_PORT_CPU_0 + i);
-            sprintf(buf, "C%u", i);
+            VTSS_SPRINTF(buf, "C%u", i);
         }
         dwrr_se = TERMINAL_SE_INDEX_OFFSET + port;
         SRVL_RD(VTSS_QSYS_QMAP_QMAP(port), &qmap);
@@ -866,11 +866,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
                 continue;
             }
             port = VTSS_CHIP_PORT(port_no);
-            sprintf(buf, "%2u", port_no);
+            VTSS_SPRINTF(buf, "%2u", port_no);
         } else {
             i = (port_no - vtss_state->port_count);
             port = (VTSS_CHIP_PORT_CPU_0 + i);
-            sprintf(buf, "C%u", i);
+            VTSS_SPRINTF(buf, "C%u", i);
         }
         terminal_se = TERMINAL_SE_INDEX_OFFSET + port;
 
@@ -1003,9 +1003,9 @@ static vtss_rc srvl_debug_qos(vtss_state_t *vtss_state,
             for (dpl = 0; dpl < 2; dpl++) {
                 const char *delim = ((class == VTSS_QUEUE_START) && (dpl == 0)) ? "" : ",";
                 SRVL_RD(VTSS_REW_PORT_PCP_DEI_QOS_MAP_CFG(port, (8*dpl + class)), &value);
-                pcp_ct += snprintf(pcp_buf + pcp_ct, sizeof(pcp_buf) - pcp_ct, "%s%u", delim,
+                pcp_ct += VTSS_SNPRINTF(pcp_buf + pcp_ct, sizeof(pcp_buf) - pcp_ct, "%s%u", delim,
                                    VTSS_X_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(value));
-                dei_ct += snprintf(dei_buf + dei_ct, sizeof(dei_buf) - dei_ct, "%s%u",  delim,
+                dei_ct += VTSS_SNPRINTF(dei_buf + dei_ct, sizeof(dei_buf) - dei_ct, "%s%u",  delim,
                                    VTSS_BOOL(value & VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL));
             }
         }
@@ -1127,7 +1127,7 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
     case VTSS_INIT_CMD_INIT:
         /* Setup discard policer */
-        memset(&pol_conf, 0, sizeof(pol_conf));
+        VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
         pol_conf.frame_rate = 1;
         VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_DISCARD, &pol_conf));
         break;

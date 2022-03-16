@@ -322,7 +322,7 @@ typedef enum {
  */
 typedef struct {
     vtss_packet_encap_type_t type;         // The type of encapsulation
-    uint32_t                 tag_count;    // Number of ETHERNET tags
+    u32                      tag_count;    // Number of ETHERNET tags
 }vtss_packet_inj_encap_t;
 
 
@@ -750,7 +750,7 @@ typedef struct {
  * \return Return code.
  **/
 vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                   inst,
-                               const uint8_t                       frm[VTSS_PTP_FRAME_TS_LENGTH],
+                               const u8                            frm[VTSS_PTP_FRAME_TS_LENGTH],
                                const vtss_packet_rx_info_t *const  rx_info,
                                vtss_packet_ptp_message_type_t      message_type,
                                vtss_packet_timestamp_props_t       ts_props,

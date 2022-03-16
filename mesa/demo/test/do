@@ -76,7 +76,7 @@ case $chip in
      ;;
 
      me)
-     ts=dk-t33-0
+     ts=dk-t33-5
      img=armv7_lan966x.itb
      dir=build-arm
      ;;

@@ -256,6 +256,18 @@ void vtss_callout_free(void *ptr, vtss_mem_flags_t flags);
  */
 #define VTSS_OS_INTERRUPT_RESTORE(flags) NOT_NEEDED
 
+#define VTSS_MEMSET(s, c, n) memset(s, c, n)
+#define VTSS_MEMCMP(s, c, n) memcmp(s, c, n)
+#define VTSS_MEMCPY(s, c, n) memcpy(s, c, n)
+
+#define VTSS_STRLEN(s) strlen(s)
+#define VTSS_STRCPY(sd, ss) strcpy(sd, ss)
+#define VTSS_SPRINTF(...) sprintf(__VA_ARGS__)
+#define VTSS_SNPRINTF(...) snprintf(__VA_ARGS__)
+
+#define VTSS_TOUPPER(arg) (toupper(arg))
+#define VTSS_TOLOWER(arg) (toupper(arg))
+
 #ifdef __cplusplus
 }
 #endif

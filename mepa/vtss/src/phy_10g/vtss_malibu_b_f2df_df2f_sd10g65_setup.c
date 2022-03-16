@@ -247,7 +247,7 @@ static vtss_rc malibu_b_f2df_df2f_apc10g_register_cfg(vtss_state_t *vtss_state, 
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_ACC_APC_COMMON_CFG0_APC_MODE(res_struct->apc_common_cfg0__apc_mode[0]),
         VTSS_M_F2DF_DF2F_32BIT_SD10G65_ACC_APC_COMMON_CFG0_APC_MODE);
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->apc_common_cfg0__reset_apc[1]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_ACC_APC_COMMON_CFG0,
@@ -274,7 +274,7 @@ static vtss_rc malibu_b_f2df_df2f_apc10g_register_cfg(vtss_state_t *vtss_state, 
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_ACC_APC_COMMON_CFG0_RESET_APC);
     }
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     if (1) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_ACC_APC_IS_CAL_CFG1,
@@ -287,7 +287,7 @@ static vtss_rc malibu_b_f2df_df2f_apc10g_register_cfg(vtss_state_t *vtss_state, 
     }
 
 } 
-    VTSS_MSLEEP(res_struct->calibration_time_ms[1]);
+    MEPA_MSLEEP(res_struct->calibration_time_ms[1]);
 
     if( res_struct->incl_ld_cal[0] == 1 ) {
     CSR_RD(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_ACC_APC_LD_CAL_CFG, &value);
@@ -436,7 +436,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
     }
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     } 
 
@@ -829,7 +829,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
     }
 
     if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[1]),
@@ -845,7 +845,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[3]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -857,7 +857,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[4]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -869,7 +869,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[5]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -881,7 +881,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[2]),
@@ -897,7 +897,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[7]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -909,7 +909,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[8]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -921,7 +921,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->tx_synth_cfg0__synth_hrate_ena[9]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0,
@@ -933,16 +933,16 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[0]),
         VTSS_M_F2DF_DF2F_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    VTSS_MSLEEP(50);
+    MEPA_MSLEEP(50);
 
     }  else {
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
 } 
     if (res_struct->tx_rcpll_cfg0__pllf_ena[1]) {
@@ -965,7 +965,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_df2f_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_RD(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0, &value);
     value &= VTSS_F_F2DF_DF2F_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0_PLLF_LOCK_STAT;
@@ -1694,7 +1694,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
     }
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     } 
 
@@ -2429,7 +2429,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
     }
 
     if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[2]),
@@ -2445,7 +2445,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[3]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2457,7 +2457,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[4]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2469,7 +2469,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[5]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2481,7 +2481,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[2]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2493,7 +2493,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[3]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2505,7 +2505,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[4]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2517,7 +2517,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[5]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2529,7 +2529,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[3]),
@@ -2545,7 +2545,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[7]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2557,7 +2557,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[8]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2569,7 +2569,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_hrate_ena[9]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2581,7 +2581,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[6]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2593,7 +2593,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[7]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2605,7 +2605,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[8]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2617,7 +2617,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     if (res_struct->rx_synth_cfg0__synth_ena[9]) {
         CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0,
@@ -2629,16 +2629,16 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_WARM_WRM(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0,
         VTSS_F_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[1]),
         VTSS_M_F2DF_DF2F_32BIT_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    VTSS_MSLEEP(50);
+    MEPA_MSLEEP(50);
 
     }  else {
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
 } 
     if (res_struct->rx_rcpll_cfg0__pllf_ena[1]) {
@@ -2661,7 +2661,7 @@ static vtss_rc malibu_b_f2df_df2f_sd10g_f2df_register_cfg(vtss_state_t *vtss_sta
             VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
     }
 
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_RD(port_no, VTSS_F2DF_DF2F_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0, &value);
     value &= VTSS_F_F2DF_DF2F_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0_PLLF_LOCK_STAT;

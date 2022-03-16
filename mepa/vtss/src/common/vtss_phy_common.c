@@ -1531,7 +1531,7 @@ vtss_rc phy_10g_mac_conf(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL 
             0,
             VTSS_F_HOST_MAC_CONFIG_MAC_ENA_CFG_RX_ENA);
     // Wait for 2 ms
-    VTSS_MSLEEP(2);
+    MEPA_MSLEEP(2);
 
     CSR_COLD_WRM(port_no, VTSS_LINE_MAC_CONFIG_MAC_MODE_CFG, disable_dic,
                  VTSS_F_LINE_MAC_CONFIG_MAC_MODE_CFG_DISABLE_DIC);

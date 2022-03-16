@@ -2069,7 +2069,7 @@ static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t 
             char buf[300];
             buf[sizeof(buf) - 1] = '\0';
 
-            cnt = snprintf(buf, sizeof(buf) - 1, "QRES:RES_CTRL[chip-port = %u]:RES_STAT\n", port);
+            cnt = VTSS_SNPRINTF(buf, sizeof(buf) - 1, "QRES:RES_CTRL[chip-port = %u]:RES_STAT\n", port);
 
             for (resource = 0; resource < 4; resource++) {
                 base = resource * 1024 + port * VTSS_PRIOS;
@@ -2077,7 +2077,7 @@ static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t 
                     idx = base + prio;
                     REG_RD(VTSS_QRES_RES_STAT(idx), &value);
                     if (value) {
-                        cnt += snprintf(buf + cnt, sizeof(buf) - 1 - cnt,  "res = %u, prio = %u => idx = %u val = %u\n", resource, prio, idx, value);
+                        cnt += VTSS_SNPRINTF(buf + cnt, sizeof(buf) - 1 - cnt,  "res = %u, prio = %u => idx = %u val = %u\n", resource, prio, idx, value);
                     }
                 }
             }
@@ -3400,7 +3400,7 @@ static vtss_rc fa_port_counters_get(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_counters_t *const counters)
 {
-    memset(counters, 0, sizeof(*counters));
+    VTSS_MEMSET(counters, 0, sizeof(*counters));
     return fa_port_counters(vtss_state, port_no, counters, VTSS_COUNTER_CMD_UPDATE);
 }
 
@@ -3820,10 +3820,10 @@ static vtss_rc fa_debug_port(vtss_state_t *vtss_state,
         port = VTSS_CHIP_PORT(port_no);
 
         if (fa_is_high_speed_device(vtss_state, port_no)) {
-            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
+            VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, VTSS_PORT_IS_25G(port) ? "25G" :  VTSS_PORT_IS_10G(port)\
                     ? "10G": VTSS_PORT_IS_5G(port) ? "5G" : "2G5", VTSS_PORT_DEV_INDX(port));
         } else {
-            sprintf(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
+            VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5", port);
         }
 
         vtss_fa_debug_reg_header(pr, buf);
@@ -3851,17 +3851,17 @@ static void fa_debug_dual_cnt(const vtss_debug_printf_t pr, const char *col1, co
             name = "emac";
             c = &c1->emac;
         }
-        sprintf(buf1, "%s_%s", name, col1);
+        VTSS_SPRINTF(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
             vtss_fa_debug_cnt(pr, buf1, NULL, c, NULL);
         } else {
             if (mixed) {
-                sprintf(buf2, "%s", col2);
+                VTSS_SPRINTF(buf2, "%s", col2);
                 col2 = NULL;
-            } else if (strlen(col2) != 0) {
-                sprintf(buf2, "%s_%s", name, col2);
+            } else if (VTSS_STRLEN(col2) != 0) {
+                VTSS_SPRINTF(buf2, "%s_%s", name, col2);
             } else {
-                strcpy(buf2, "");
+                VTSS_STRCPY(buf2, "");
             }
             vtss_fa_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
         }
@@ -3891,7 +3891,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
     char                    rx_buf[32], tx_buf[32];
     vtss_port_fa_counters_t cnt;
 
-    memset(&cnt, 0, sizeof(vtss_port_fa_counters_t));
+    VTSS_MEMSET(&cnt, 0, sizeof(vtss_port_fa_counters_t));
     VTSS_RC(fa_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
     if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
@@ -3932,20 +3932,20 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
         vtss_fa_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
 
         for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(rx_buf, "class_%u", i);
-            sprintf(tx_buf, "green_%u", i);
+            VTSS_SPRINTF(rx_buf, "class_%u", i);
+            VTSS_SPRINTF(tx_buf, "green_%u", i);
             vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i], &cnt.tx_green_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(tx_buf, "yellow_%u", i);
+            VTSS_SPRINTF(tx_buf, "yellow_%u", i);
             vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(tx_buf, "green_drops_%u", i);
+            VTSS_SPRINTF(tx_buf, "green_drops_%u", i);
             vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(tx_buf, "yellow_drops_%u", i);
+            VTSS_SPRINTF(tx_buf, "yellow_drops_%u", i);
             vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
         }
     }
@@ -3995,37 +3995,37 @@ static char *fa_chip_port_to_str(vtss_state_t *vtss_state, vtss_phys_port_no_t c
     switch (chip_port) {
     case -1:
        // Special case just to get the print function print something special
-       strcpy(buf, "SHARED");
+       VTSS_STRCPY(buf, "SHARED");
        break;
 
     case VTSS_CHIP_PORT_CPU_0:
-       strcpy(buf, "CPU0");
+       VTSS_STRCPY(buf, "CPU0");
        break;
 
     case VTSS_CHIP_PORT_CPU_1:
-       strcpy(buf, "CPU1");
+       VTSS_STRCPY(buf, "CPU1");
        break;
 
     case VTSS_CHIP_PORT_VD0:
-       strcpy(buf, "VD0");
+       VTSS_STRCPY(buf, "VD0");
        break;
 
     case VTSS_CHIP_PORT_VD1:
-        strcpy(buf, "VD1");
+        VTSS_STRCPY(buf, "VD1");
         break;
 
     case VTSS_CHIP_PORT_VD2:
-        strcpy(buf, "VD2");
+        VTSS_STRCPY(buf, "VD2");
         break;
 
     default:
         port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
-            sprintf(buf, "%u", port_no);
+            VTSS_SPRINTF(buf, "%u", port_no);
         } else {
             // Port is not in port map. Odd.
             VTSS_E("chip_port = %u not in port map", chip_port);
-            strcpy(buf, "N/A");
+            VTSS_STRCPY(buf, "N/A");
         }
 
         break;

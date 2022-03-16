@@ -40,7 +40,7 @@ void MEPA_trace(mepa_trace_group_t  group,
 uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
                          struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx)
 {
-    int i;
+    uint32_t i;
     uint32_t phy_id = 0;
     uint16_t reg2 = 0;
     uint16_t reg3 = 0;
@@ -231,7 +231,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
             continue;
         }
 
-        for (int j = 0; j < MEPA_phy_lib[i].count; j++) {
+        for (uint32_t j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
             if ((driver->id & driver->mask) == (phy_id & driver->mask)) {

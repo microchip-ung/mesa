@@ -316,7 +316,7 @@ static vtss_rc lan966x_afi_frm_hijack(vtss_state_t *vtss_state, i32 frm_idx, vts
     fi->dstp = VTSS_CHIP_PORT(port_no);
     fi->eprio = prio;
     fi->fshort = 0;
-    VTSS_I("idx: %u, info: 0x%08x, fp/dstp/eprio/short: %u/%u/%u/%u", frm_idx, frm_info, fi->fp, fi->dstp, fi->eprio, fi->fshort);
+    VTSS_I("idx: %i, info: 0x%08x, fp/dstp/eprio/short: %u/%u/%u/%u", frm_idx, frm_info, fi->fp, fi->dstp, fi->eprio, fi->fshort);
 
     // Setup FRM_TBL entry
     REG_WRM(AFI_FRM_NXT_AND_TYPE(frm_idx),
@@ -574,7 +574,7 @@ static vtss_rc lan966x_afi_tti_start(vtss_state_t *vtss_state,  u32 tti_idx, BOO
     }
 
     // Set TICK_CNT to a random value in range [1-TIMER_LEN]
-    rand_tick_cnt = tti->start_cfg.first_frame_urgent ? 1 : 1 + (rand() % tti->timer_len);
+    rand_tick_cnt = tti->start_cfg.first_frame_urgent ? 1 : 1 + (VTSS_OS_RAND() % tti->timer_len);
 
     REG_WRM(AFI_TTI_TICKS(tti_idx),
             AFI_TTI_TICKS_TICK_CNT(rand_tick_cnt),

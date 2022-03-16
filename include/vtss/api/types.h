@@ -12,75 +12,11 @@
 #define _VTSS_API_TYPES_H_
 
 #include <vtss/api/options.h>
+#include <vtss_os.h>            /* This defines the *runtime* OS environment */
 
 // TODO, all the _VTSS_MAIN_TYPES_H_ needs to be deleted then the API split is
 // complete
 #ifndef _VTSS_MAIN_TYPES_H_
-/*
- * This determines whether to use integer standard types as defined by
- * <stdint.h>. If a particular compiler has this, but the check below
- * fails, you can either define VTSS_USE_STDINT_H or instruct the
- * compiler to turn on C99 mode or similar. (GCC: -std=gnu99).
- */
-#if !defined(__KERNEL__)
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) || \
-    defined(__linux__) || defined(__unix__) || defined(VTSS_USE_STDINT_H)
-
-#include <stdint.h>
-#include <inttypes.h>
-
-/** \brief C99 Integer types */
-typedef signed char        i8;   /**<  8-bit signed */
-typedef int16_t            i16;  /**< 16-bit signed */
-typedef int32_t            i32;  /**< 32-bit signed */
-typedef int64_t            i64;  /**< 64-bit signed */
-
-typedef uint8_t            u8;   /**<  8-bit unsigned */
-typedef uint16_t           u16;  /**< 16-bit unsigned */
-typedef uint32_t           u32;  /**< 32-bit unsigned */
-typedef uint64_t           u64;  /**< 64-bit unsigned */
-
-typedef uint8_t            BOOL; /**< Boolean implemented as 8-bit unsigned */
-
-#else  /* Apparently cannot use stdint.h, fallback */
-
-#include <sys/bsdtypes.h>
-/** \brief Fallback Integer types */
-typedef signed char        i8;   /**<  8-bit signed */
-typedef signed short       i16;  /**< 16-bit signed */
-typedef signed int         i32;  /**< 32-bit signed */
-typedef signed long long   i64;  /**< 64-bit signed */
-
-typedef unsigned char      u8;   /**<  8-bit unsigned */
-typedef unsigned short     u16;  /**< 16-bit unsigned */
-typedef unsigned int       u32;  /**< 32-bit unsigned */
-typedef unsigned long long u64;  /**< 64-bit unsigned */
-
-typedef unsigned char      BOOL; /**< Boolean implemented as 8-bit unsigned */
-typedef unsigned int       uintptr_t; /**< Unsigned integer big enough to hold pointers */
-
-#endif
-
-#else /* __KERNEL__ */
-
-/** \brief Integer types */
-#if !defined(VTSS_HAVE_I_TYPES)
-typedef signed char        i8;   /**<  8-bit signed */
-typedef signed short       i16;  /**< 16-bit signed */
-typedef signed int         i32;  /**< 32-bit signed */
-typedef signed long long   i64;  /**< 64-bit signed */
-#endif
-
-#if !defined(VTSS_HAVE_U_TYPES)
-typedef unsigned char      u8;   /**<  8-bit unsigned */
-typedef unsigned short     u16;  /**< 16-bit unsigned */
-typedef unsigned int       u32;  /**< 32-bit unsigned */
-typedef unsigned long long u64;  /**< 64-bit unsigned */
-#endif
-
-typedef unsigned char      BOOL; /**< Boolean implemented as 8-bit unsigned */
-//typedef unsigned int       uintptr_t; /**< Unsigned integer big enough to hold pointers */
-#endif /* __KERNEL__ */
 
 /** \brief Max/min values for 64 signed integer */
 #define VTSS_I64_MAX  0x7FFFFFFFFFFFFFFFLL  /**<  Max value for 64 bit signed integer */
@@ -527,7 +463,7 @@ typedef u32 vtss_voi_idx_t;
 #define VTSS_VOI_IDX_NONE 0xFFFFFFFF /**< Special value meaning no VOI (MIP) */
 
 // MRP index
-typedef uint32_t vtss_mrp_idx_t;
+typedef u32 vtss_mrp_idx_t;
 
 #define VTSS_MRP_IDX_NONE 0xFFFFFFFF /**< Special value meaning no MRP */
 
@@ -1072,7 +1008,7 @@ typedef struct {
  * VCAP types
  ****************************************************************************/
 /** \brief VCAP 1 bit */
-typedef enum
+typedef enum vtss_vcap_bit
 {
     VTSS_VCAP_BIT_ANY, /**< Value 0 or 1 */
     VTSS_VCAP_BIT_0,   /**< Value 0 */
@@ -1237,7 +1173,7 @@ typedef struct {
 #endif
 
 /** \brief MPLS TC bits */
-typedef uint8_t vtss_mpls_tc_t;
+typedef u8 vtss_mpls_tc_t;
 
 /****************************************************************************
  * 1588 types

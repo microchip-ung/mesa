@@ -247,7 +247,7 @@ static vtss_rc srvl_voe_event_active_get(vtss_state_t   *vtss_state,
 
     u32 i, v;
 
-    memset(active, 0, sizeof(active_size));
+    VTSS_MEMSET(active, 0, sizeof(active_size));
     SRVL_RD(VTSS_OAM_MEP_COMMON_MASTER_INTR_CTRL, &v);
     if ((VTSS_F_OAM_MEP_COMMON_MASTER_INTR_CTRL_OAM_MEP_INTR_ENA & v) == 0) {
         VTSS_D("No interrupts are enabled");
@@ -1006,7 +1006,7 @@ static vtss_rc srvl_debug_oam(vtss_state_t *vtss_state,
 
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full  ||  (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                sprintf(buf, "VOE %u", i);
+                VTSS_SPRINTF(buf, "VOE %u", i);
                 vtss_srvl_debug_reg_header(pr, buf);
                 D_COM_I(pr, VOE_CFG, i);
                 D_COM_I(pr, UPMEP_LM_CNT_VLD, i);
@@ -1048,7 +1048,7 @@ static vtss_rc srvl_debug_oam(vtss_state_t *vtss_state,
 
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full  ||  (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                sprintf(buf, "VOE %u", i);
+                VTSS_SPRINTF(buf, "VOE %u", i);
                 vtss_srvl_debug_reg_header(pr, buf);
                 D_VOE_I(pr, LBR_RX_FRM_CNT, i);
                 D_VOE_I(pr, LBR_RX_TRANSID_CFG, i);
@@ -1085,11 +1085,11 @@ static vtss_rc srvl_debug_oam(vtss_state_t *vtss_state,
 
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full  ||  (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                sprintf(buf, "VOE %u", i);
+                VTSS_SPRINTF(buf, "VOE %u", i);
                 vtss_srvl_debug_reg_header(pr, buf);
 
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) {
-                    sprintf(buf, "Priority %u", k);
+                    VTSS_SPRINTF(buf, "Priority %u", k);
                     if (i < VTSS_PATH_SERVICE_VOE_CNT) {
                         D_RX_VOE_PM_I(pr, MEP_RX_FRM_CNT, i, k);
                         D_TX_VOE_PM_I(pr, MEP_TX_FRM_CNT, i, k);
@@ -1150,13 +1150,13 @@ static vtss_rc voe_default_set(vtss_state_t          *vtss_state,
 {
     vtss_rc  rc, ret_rc = VTSS_RC_OK;
 
-    memset(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_cc_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_cc_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_rdi_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_rdi_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_lt_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lt_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_lb_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lb_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_laps_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_laps_conf[voe_idx])); 
-    memset(&vtss_state->oam.voe_event_mask[voe_idx], 0, sizeof(vtss_state->oam.voe_event_mask[voe_idx])); 
+    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_cc_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_cc_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_rdi_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_rdi_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_lt_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lt_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_lb_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_lb_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_laps_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_laps_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0, sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
     if ((rc = srvl_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;

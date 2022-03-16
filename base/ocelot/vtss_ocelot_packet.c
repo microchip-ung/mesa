@@ -36,21 +36,21 @@ static char *srvl_afi_chip_port_to_str(vtss_state_t *vtss_state, vtss_phys_port_
     switch (chip_port) {
     case (vtss_phys_port_no_t)-1:
        // Special case just to get the print function print something special
-       strcpy(buf, "SHARED");
+       VTSS_STRCPY(buf, "SHARED");
        break;
 
     case VTSS_CHIP_PORT_CPU:
-       strcpy(buf, "CPU");
+       VTSS_STRCPY(buf, "CPU");
        break;
 
     default:
         port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
-            sprintf(buf, "%u", port_no);
+            VTSS_SPRINTF(buf, "%u", port_no);
         } else {
             // Port is not in port map. Odd.
             VTSS_E("chip_port = %u not in port map", chip_port);
-            strcpy(buf, "N/A");
+            VTSS_STRCPY(buf, "N/A");
         }
 
         break;
@@ -1143,7 +1143,7 @@ static vtss_rc srvl_rx_hdr_decode(const vtss_state_t          *const state,
                  ((u64)xtr_hdr[offset + 4] << 24) | ((u64)xtr_hdr[offset + 5] << 16) | ((u64)xtr_hdr[offset + 6] <<  8) | ((u64)xtr_hdr[offset + 7] <<  0);
     }
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
 
     info->length    = meta->length;
 
@@ -1223,8 +1223,8 @@ static vtss_rc srvl_rx_frame(struct vtss_state_s  *vtss_state,
         VTSS_RC(srvl_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
-        memcpy(xtr_hdr, ifh, sizeof(ifh));
-        memset(&meta, 0, sizeof(meta));
+        VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
+        VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         rc = srvl_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
@@ -1432,7 +1432,7 @@ static vtss_rc srvl_tx_hdr_encode(      vtss_state_t          *const state,
         }
 
         if (info->cos >= 8) {
-            // Inject super priority by setting ACL_HIT (IFH[31]) to 0 (done by memset() above) and ACL_ID[4] (IFH[41]) to 1
+            // Inject super priority by setting ACL_HIT (IFH[31]) to 0 (done by VTSS_MEMSET() above) and ACL_ID[4] (IFH[41]) to 1
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1, 41, 1); // acl_id[4].
         }
 
@@ -1486,7 +1486,7 @@ static vtss_rc srvl_debug_pkt(vtss_state_t *vtss_state,
 
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "Port %u", port);
+        VTSS_SPRINTF(buf, "Port %u", port);
         vtss_srvl_debug_reg_header(pr, buf);
         SRVL_DEBUG_CPU_FWD(pr, CFG(port), port, "CFG");
         SRVL_DEBUG_CPU_FWD(pr, BPDU_CFG(port), port, "BPDU_CFG");

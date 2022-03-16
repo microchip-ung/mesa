@@ -906,23 +906,23 @@ static vtss_rc srvl_serdes_inst_get(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    uint8_t mode0_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1};
-    uint8_t mode0_inst_no[] = {0, 1, 2, 3, 4, 5, SRVL_SERDES_INST_NONE, 0, 1, SRVL_SERDES_INST_NONE, 2};
+    u8 mode0_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1};
+    u8 mode0_inst_no[] = {0, 1, 2, 3, 4, 5, SRVL_SERDES_INST_NONE, 0, 1, SRVL_SERDES_INST_NONE, 2};
 
-    uint8_t mode1_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0};
-    uint8_t mode1_inst_no[] = {0, 1, 2, 3, 4, 5, SRVL_SERDES_INST_NONE, 0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE};
+    u8 mode1_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0};
+    u8 mode1_inst_no[] = {0, 1, 2, 3, 4, 5, SRVL_SERDES_INST_NONE, 0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE};
 
-    uint8_t mode2_serd6[] =   {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1};
-    uint8_t mode2_inst_no[] = {0, 1, 2, 3, 0, 0, 0, 0, 1, 4, 2};
+    u8 mode2_serd6[] =   {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1};
+    u8 mode2_inst_no[] = {0, 1, 2, 3, 0, 0, 0, 0, 1, 4, 2};
 
-    uint8_t mode3_serd6[] =   {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0};
-    uint8_t mode3_inst_no[] = {0, 1, 2, 3, 0, 0, 0, 0, 1, 4, 5};
+    u8 mode3_serd6[] =   {0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0};
+    u8 mode3_inst_no[] = {0, 1, 2, 3, 0, 0, 0, 0, 1, 4, 5};
 
-    uint8_t mode4_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1};
-    uint8_t mode4_inst_no[] = {0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE, 2, 5, 3, 0, 1, 4, 2};
+    u8 mode4_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1};
+    u8 mode4_inst_no[] = {0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE, 2, 5, 3, 0, 1, 4, 2};
 
-    uint8_t mode5_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0};
-    uint8_t mode5_inst_no[] = {0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE, 2, 5, 3, 0, 1, 4, SRVL_SERDES_INST_NONE};
+    u8 mode5_serd6[] =   {0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0};
+    u8 mode5_inst_no[] = {0, 1, SRVL_SERDES_INST_NONE, SRVL_SERDES_INST_NONE, 2, 5, 3, 0, 1, 4, SRVL_SERDES_INST_NONE};
 
     vtss_port_mux_mode_t mux_mode = vtss_state->init_conf.mux_mode;
 
@@ -1911,7 +1911,7 @@ static vtss_rc srvl_port_status_get(vtss_state_t *vtss_state,
     u32              value;
     
     if (conf->power_down) {
-        memset(status, 0, sizeof(*status));
+        VTSS_MEMSET(status, 0, sizeof(*status));
         return VTSS_RC_OK;
     }
 
@@ -2232,7 +2232,7 @@ static vtss_rc srvl_port_counters_get(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_counters_t *const counters)
 {
-    memset(counters, 0, sizeof(*counters)); 
+    VTSS_MEMSET(counters, 0, sizeof(*counters));
     return srvl_port_counters_cmd(vtss_state, port_no, counters, 0);
 }
 
@@ -2641,7 +2641,7 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
         if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE)
             continue;
 
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_srvl_debug_reg_header(pr, buf);
         tgt = VTSS_TO_DEV(port);
         vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt), port, "CLOCK_CFG");
@@ -2671,10 +2671,10 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
         }
         
         if (serdes6g) {
-            sprintf(buf, "SerDes6G_%u", inst);
+            VTSS_SPRINTF(buf, "SerDes6G_%u", inst);
             (void)srvl_debug_serdes6g(vtss_state, pr, inst, buf);
         } else {
-            sprintf(buf, "SerDes1G_%u", inst);
+            VTSS_SPRINTF(buf, "SerDes1G_%u", inst);
             vtss_srvl_debug_reg_header(pr, buf);
             VTSS_RC(srvl_sd1g_read(vtss_state, 1 << inst));
             SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
@@ -2725,7 +2725,7 @@ static vtss_rc srvl_debug_port(vtss_state_t *vtss_state,
 
     if (vtss_state->sys_config.using_pcie) {
         inst = 2; /* Serdes2 == PCIe */
-        sprintf(buf, "SerDes6G_%u (PCIe)", inst);
+        VTSS_SPRINTF(buf, "SerDes6G_%u (PCIe)", inst);
         (void)srvl_debug_serdes6g(vtss_state, pr, inst, buf);
     }
 
@@ -2738,8 +2738,8 @@ static void srvl_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
 {
     char buf1[80], buf2[80];
     
-    sprintf(buf1, "%s_%u", col1 && strlen(col1) ? col1 : col2, i);
-    sprintf(buf2, "%s_%u", col2 && strlen(col2) ? col2 : col1, i);
+    VTSS_SPRINTF(buf1, "%s_%u", col1 && strlen(col1) ? col1 : col2, i);
+    VTSS_SPRINTF(buf2, "%s_%u", col2 && strlen(col2) ? col2 : col1, i);
     vtss_srvl_debug_cnt(pr, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
 }
 

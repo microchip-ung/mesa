@@ -4,6 +4,7 @@
 #ifndef _VTSS_LAN966X_VCAP_TYPES_H_
 #define _VTSS_LAN966X_VCAP_TYPES_H_
 
+#include "vtss/api/types.h"
 #include "vtss_api.h"
 typedef BOOL bool;
 
@@ -18,11 +19,10 @@ enum vtss_lan966x_vcap_version {
     VTSS_LAN966X_VCAP_VERSION_2
 };
 
-enum vtss_lan966x_vcap_bit {
-    VTSS_LAN966X_VCAP_BIT_ANY,
-    VTSS_LAN966X_VCAP_BIT_0,
-    VTSS_LAN966X_VCAP_BIT_1
-};
+#define vtss_lan966x_vcap_bit vtss_vcap_bit
+#define VTSS_LAN966X_VCAP_BIT_ANY VTSS_VCAP_BIT_ANY
+#define VTSS_LAN966X_VCAP_BIT_0 VTSS_VCAP_BIT_0
+#define VTSS_LAN966X_VCAP_BIT_1 VTSS_VCAP_BIT_1
 
 struct vtss_lan966x_vcap_u8 {
     u8 value;

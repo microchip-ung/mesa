@@ -645,7 +645,7 @@ static void jr2_debug_bits(jr2_vcap_data_t *data, const char *name, u32 offset, 
         j = (len - 1 - i);
         if (i != 0) {
             if (len > 63 && (j % 32) == 31) {
-                n = (strlen(name) + 1);
+                n = (VTSS_STRLEN(name) + 1);
                 pr("\n%-*s", n, "");
             } else if ((j % 8) == 7)
                 pr(".");
@@ -663,7 +663,7 @@ static void jr2_debug_action_ena(jr2_vcap_data_t *data, const char *name, u32 of
     vtss_debug_printf_t pr = data->pr;
     BOOL                enable, multi = 0;
     u32                 num = 0;
-    int                 i, length = strlen(name);
+    int                 i, length = VTSS_STRLEN(name);
 
     if (offs_val && (offs_val - offs) != 1) {
         /* 'Enable' field consists of multiple bits */
@@ -1087,7 +1087,7 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
     jr2_clm_key_info_t     info;
     BOOL                   sipv6_copy = 0, y1731 = FALSE, ip = 0;
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = type;
 
     if (key->type == VTSS_IS1_TYPE_MPLS_MLL) {
@@ -1117,7 +1117,7 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
     vcap_data->masqueraded = key->masqueraded;
 
     /* Setup key fields */
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     switch (key->type) {
     case VTSS_IS1_TYPE_ANY:
         if (key->key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR) {
@@ -1625,7 +1625,7 @@ static vtss_rc jr2_clm_entry_update_masq_hit_ena(vtss_state_t *vtss_state,
 
     if ((idx->key_size == VTSS_VCAP_KEY_SIZE_FULL) || (idx->key_size == VTSS_VCAP_KEY_SIZE_HALF)) {     /* This is the "old" implementation with full or half size keys. Hitting the rule was disable by preventing hit by masqueraded frames. */
         if (enable) {   /* Enable means restore the "original" IGR_PORT_MASK_SEL key based on AIL key */
-            memset(&key, 0, sizeof(key));
+            VTSS_MEMSET(&key, 0, sizeof(key));
             key.port_hit = vcap_data->port_hit;
             key.looped = vcap_data->looped;
             key.masqueraded = vcap_data->masqueraded;
@@ -2230,11 +2230,11 @@ static vtss_rc jr2_debug_clm_all(vtss_state_t *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_jr2_debug_reg_header(pr, buf);
         for (i = 0; i < 2; i++) {
             j = ((type == VTSS_VCAP_TYPE_CLM_A ? 0 : type == VTSS_VCAP_TYPE_CLM_B ? 2 : 4) + i);
-            sprintf(buf, "ADV_CL_CFG_%u", port);
+            VTSS_SPRINTF(buf, "ADV_CL_CFG_%u", port);
             vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_PORT_ADV_CL_CFG(port, j), j, buf);
         }
         pr("\n");
@@ -2276,7 +2276,7 @@ static vtss_rc jr2_lpm_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     vtss_vid_mac_t       vid_mac;
     u32                  addr, mach, macl;
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_LPM;
     addr = jr2_vcap_entry_addr(vtss_state, data->vcap_type, idx);
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, addr);
@@ -2603,7 +2603,7 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     BOOL                   tcp, found = 0;
     vtss_vcap_bit_t        oam;
 
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     data.tg = (vcap_data->key_size == VTSS_VCAP_KEY_SIZE_FULL ? JR2_VCAP_TG_X16 :
                vcap_data->key_size == VTSS_VCAP_KEY_SIZE_HALF ? JR2_VCAP_TG_X8 : JR2_VCAP_TG_X4);
     addr = jr2_vcap_entry_addr(vtss_state, VTSS_VCAP_TYPE_IS2, idx);
@@ -2678,8 +2678,8 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
         jr2_ace_key_bit_set(&data, IS2_KO_X16_TTL, ipv4 ? ipv4->ttl : ipv6->ttl);
         if (ipv4) {
             /* IPv4 */
-            memset(&sip, 0, sizeof(sip));
-            memset(&dip, 0, sizeof(dip));
+            VTSS_MEMSET(&sip, 0, sizeof(sip));
+            VTSS_MEMSET(&dip, 0, sizeof(dip));
             if (ipv4->fragment != VTSS_ACE_BIT_ANY) {
                 // DIP bit 127 is L3_FRAGMENT
                 m = (1 << 7);
@@ -2910,7 +2910,7 @@ static vtss_rc jr2_is2_entry_get(vtss_state_t *vtss_state,
     jr2_vcap_data_t data;
     u32             addr, cnt_id;
 
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     data.vcap_type = VTSS_VCAP_TYPE_IS2;
     data.tg = JR2_VCAP_TG_X8;
     data.type = JR2_VCAP_TG_X4;
@@ -3240,7 +3240,7 @@ typedef struct {
 
 static BOOL jr2_es0_map_update(vtss_state_t *vtss_state, vtss_qos_egress_map_id_t map_id, jr2_es0_map_t *map)
 {
-    memset(map, 0, sizeof(*map));
+    VTSS_MEMSET(map, 0, sizeof(*map));
     if (map_id < VTSS_QOS_EGRESS_MAP_IDS) {
         const vtss_qos_map_adm_t *const m = &vtss_state->qos.emap;
 
@@ -3411,7 +3411,7 @@ static vtss_rc jr2_es0_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
     u32               addr, port = 0, mask = 0, vid_isdx;
     BOOL              key_isdx = (key->type == VTSS_ES0_TYPE_ISDX ? 1 : 0);
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = JR2_VCAP_TG_X1;
     data->type = JR2_VCAP_TG_X1;
@@ -3576,13 +3576,13 @@ static void jr2_debug_es0_tag(const char *name, jr2_vcap_data_t *data,
        x == ES0_ACT_TPID_SEL_CUSTOM_3 ? "c3" :
        x == ES0_ACT_TPID_SEL_CLASS ? "class" : "?");
 
-    sprintf(buf, "vid_%s", name);
+    VTSS_SPRINTF(buf, "vid_%s", name);
     x = jr2_act_get(data, vid_sel, ES0_AL_TAG_A_VID_SEL);
     pr("%s_sel:%u (%s) ", buf, x, x ? "vid" : vid_sel == ES0_AO_TAG_C_VID_SEL ? "cl_vid" : "vid+cl_vid");
     jr2_debug_action(data, buf, vid_val, ES0_AL_VID_A_VAL);
     pr("\n");
 
-    sprintf(buf, "pcp_%s", name);
+    VTSS_SPRINTF(buf, "pcp_%s", name);
     x = jr2_act_get(data, pcp_sel, ES0_AL_TAG_A_PCP_SEL);
     pr("%s_sel:%u (%s) ", buf, x,
        x == ES0_ACT_PCP_SEL_CL_PCP ? "cl-pcp" :
@@ -3594,7 +3594,7 @@ static void jr2_debug_es0_tag(const char *name, jr2_vcap_data_t *data,
        x == ES0_ACT_PCP_SEL_MAP_3 ? "map_3" : "?");
     jr2_debug_action(data, buf, pcp_val, ES0_AL_PCP_A_VAL);
 
-    sprintf(buf, "dei_%s", name);
+    VTSS_SPRINTF(buf, "dei_%s", name);
     x = jr2_act_get(data, dei_sel, ES0_AL_TAG_A_DEI_SEL);
     pr("%s_sel:%u (%s) ", buf, x,
        x == ES0_ACT_DEI_SEL_CL_DEI ? "cl-dei" :
@@ -3789,7 +3789,7 @@ static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                  ipv4, ipv6, value, mask, enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
 
     /* PAG setup in CLM_A */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_CLM_A;
     addr = jr2_vcap_action_addr(data->vcap_type, port, 0);
     VTSS_I("addr: %u", addr);
@@ -3818,7 +3818,7 @@ static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     JR2_WRM(VTSS_ANA_ACL_VCAP_S2_VCAP_S2_CFG(port), (ipv4 ? value : 0) | (enable ? mask : 0), value | mask);
 
     /* Setup action */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     VTSS_RC(jr2_is2_action_set(vtss_state, data, &conf->action, jr2_acl_port_cnt_id(port), 0));
     addr = jr2_vcap_action_addr(VTSS_VCAP_TYPE_IS2, port, 0);
     return jr2_vcap_entry_cmd(vtss_state, data, addr, data->type, JR2_VCAP_CMD_WRITE, JR2_VCAP_SEL_ACTION);
@@ -3936,8 +3936,8 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
 
     /* Add/delete SIP/SMAC entry */
     if (sip_smac_new) {
-        memset(&data, 0, sizeof(data));
-        memset(&entry_lpm, 0, sizeof(entry_lpm));
+        VTSS_MEMSET(&data, 0, sizeof(data));
+        VTSS_MEMSET(&entry_lpm, 0, sizeof(entry_lpm));
         data.u.lpm.entry = &entry_lpm;
         data.key_size = key_lpm;
         entry_lpm.key.type = VTSS_LPM_KEY_SGL_IP4;
@@ -4028,7 +4028,7 @@ static vtss_rc jr2_debug_acl(vtss_state_t *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_jr2_debug_reg_header(pr, buf);
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_VCAP_S2_CFG(port), port, "VCAP_S2_CFG");
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_PORT_VCAP_S2_KEY_SEL(port, 0), port, "S2_KEY_SEL_0");
@@ -4037,7 +4037,7 @@ static vtss_rc jr2_debug_acl(vtss_state_t *vtss_state,
     }
 
     for (i = 0; i < VTSS_ACL_POLICERS; i++) {
-        sprintf(buf, "Policer %u", i);
+        VTSS_SPRINTF(buf, "Policer %u", i);
         vtss_jr2_debug_reg_header(pr, buf);
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(i), i, "ACL_CTRL");
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG(i), i, "ACL_RATE_CFG");
@@ -4046,7 +4046,7 @@ static vtss_rc jr2_debug_acl(vtss_state_t *vtss_state,
     }
 
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        sprintf(buf, "Range %u", i);
+        VTSS_SPRINTF(buf, "Range %u", i);
         vtss_jr2_debug_reg_header(pr, buf);
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_VCAP_S2_RNG_CTRL(i), i, "S2_RNG_CTRL");
         vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_VCAP_S2_RNG_VALUE_CFG(i), i, "S2_RNG_VAL");
@@ -4085,7 +4085,7 @@ vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t *vtss_state, vtss_port_no_t po
     BOOL                     port_tag = FALSE;
 
     /* Egress QoS map setup using ES0 default action */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     addr = jr2_vcap_action_addr(data->vcap_type, port, 0);
     VTSS_I("port_no: %u, port: %u, addr: %u, map: %u", port_no, port, addr, map_id);
@@ -4093,7 +4093,7 @@ vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t *vtss_state, vtss_port_no_t po
     data->type = JR2_VCAP_TG_X1;
 
     /* Setup TAG_C */
-    memset(&tag, 0, sizeof(tag));
+    VTSS_MEMSET(&tag, 0, sizeof(tag));
     if (jr2_es0_map_update(vtss_state, map_id, &map)) {
         VTSS_I("map_act: %u", map.act);
         /* Egress QoS map used, push TAG_C */
@@ -4127,7 +4127,7 @@ vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t *vtss_state, vtss_port_no_t po
     JR2_ACT_SET(ES0, DEI_C_VAL, tag.dei.val);
 
     /* Setup TAG_A */
-    memset(&tag, 0, sizeof(tag));
+    VTSS_MEMSET(&tag, 0, sizeof(tag));
     tag.tag_sel = (port_tag ? ES0_ACT_PUSH_OT_PORT_ENA : ES0_ACT_PUSH_OT_NONE);
     jr2_es0_outer_tag_update(vtss_state, data, &tag);
 
@@ -4148,7 +4148,7 @@ vtss_rc vtss_jr2_vcap_port_qos_update(vtss_state_t *vtss_state, vtss_port_no_t p
     u32                  addr, port = VTSS_CHIP_PORT(port_no);
 
     /* Ingress map setup in CLM_A0 */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_CLM_A;
     addr = jr2_vcap_action_addr(data->vcap_type, port, 0);
     VTSS_I("port_no: %u, port: %u, addr: %u", port_no, port, addr);
@@ -4174,7 +4174,7 @@ static vtss_rc jr2_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 e
 
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = JR2_VCAP_TG_X1;
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->esdx != esdx_old) {
@@ -4229,7 +4229,7 @@ static vtss_rc jr2_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_i
 
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = JR2_VCAP_TG_X1;
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
@@ -4328,7 +4328,7 @@ static vtss_rc jr2_debug_clm_raw(vtss_state_t *vtss_state, jr2_vcap_data_t *data
         return VTSS_RC_ERROR;
     }
     for (ofs = 0; ofs < len; ofs += 32) {
-        sprintf(name, "%3u", ofs);
+        VTSS_SPRINTF(name, "%3u", ofs);
         jr2_debug_bits(data, name, ofs, (ofs + 32 > len ? len - ofs : 32));
         pr("\n");
     }

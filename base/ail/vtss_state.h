@@ -18,7 +18,7 @@
 #define VTSS_BF_SIZE(n)      ((n+7)/8)
 #define VTSS_BF_GET(a, n)    ((a[(n)/8] & (1<<((n)%8))) ? 1 : 0)
 #define VTSS_BF_SET(a, n, v) do { if (v) { a[(n)/8] |= (1U<<((n)%8)); } else { a[(n)/8] &= ~(1U<<((n)%8)); }} while (0)
-#define VTSS_BF_CLR(a, n)    (memset(a, 0, VTSS_BF_SIZE(n)))
+#define VTSS_BF_CLR(a, n)    (VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
 
 /* Port member bit field macros */
 #define VTSS_PORT_BF_SIZE                VTSS_BF_SIZE(VTSS_PORTS)

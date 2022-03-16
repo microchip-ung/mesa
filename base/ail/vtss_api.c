@@ -227,7 +227,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL)
         return VTSS_RC_ERROR;
 
-    memset(vtss_state, 0, sizeof(*vtss_state));
+    VTSS_MEMSET(vtss_state, 0, sizeof(*vtss_state));
     vtss_state->cookie = VTSS_STATE_COOKIE;
     vtss_state->create = *create;
     vtss_state->chip_count = 1;
@@ -940,7 +940,7 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
     info->chip_no = VTSS_CHIP_NO_ALL;
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
         info->port_list[port_no] = 1;

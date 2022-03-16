@@ -86,7 +86,8 @@ typedef struct
     u32                    bit;    /**< SGPIO bit (0-3) */
 } vtss_port_sgpio_map_t;
 
-#define CHIP_PORT_UNUSED -1 /**< Signifies an unused chip port */
+ /** Signifies an unused chip port */
+#define CHIP_PORT_UNUSED -1
 
 /** \brief Port map structure */
 typedef struct

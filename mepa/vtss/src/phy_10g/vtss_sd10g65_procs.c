@@ -36,7 +36,7 @@
 
 #include "vtss_sd10g65_procs.h"
 
-static u8 to_u8(const BOOL in) {
+static u8 to_u8_(const BOOL in) {
     if (in == TRUE) {
         return 1;
     } else {
@@ -114,12 +114,12 @@ static u64  sd10g65_calc_gcd(const u64 num_in,
     u64 num;
     u64 div;
 
-    rem = VTSS_MOD64(num_in, div_in);
+    rem = MEPA_MOD64(num_in, div_in);
     div = div_in;
     while (rem != 0) {
         num = div;
         div = rem;
-        rem = VTSS_MOD64(num, div);
+        rem = MEPA_MOD64(num, div);
     }
     return div;
 }
@@ -133,7 +133,7 @@ static vtss_rc sd10g65_synth_settings_calc (u64 num_in,
     u64 freqn;
     u64 gcd;
 
-    ret_val->freq_mult = (u16)VTSS_DIV64((u64)8192 * num_in, div_in);
+    ret_val->freq_mult = (u16)MEPA_DIV64((u64)8192 * num_in, div_in);
     /* check what was cut by the above formula */
     numerator = ((u64)8192 * num_in) - (ret_val->freq_mult * div_in);
 
@@ -145,8 +145,8 @@ static vtss_rc sd10g65_synth_settings_calc (u64 num_in,
         gcd = sd10g65_calc_gcd(numerator, div_in);
 
         /* and cancel out numerator and divisor with the gcd */
-        freqm = VTSS_DIV64(numerator, gcd);
-        freqn = VTSS_DIV64(div_in, gcd);
+        freqm = MEPA_DIV64(numerator, gcd);
+        freqn = MEPA_DIV64(div_in, gcd);
 
         /* choose largest possible values to keep adaption time low;              */
         /* a 4G mode, that reqiured a 0.6 it showed, that the adaption time took  */
@@ -346,7 +346,7 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
     num_in_tmp = (u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num;
     div_in_tmp = (u64)f_pll_in.ratio_den * 2500000;
 
-    dr_khz = VTSS_DIV64((u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num, (u64)f_pll_in.ratio_den);
+    dr_khz = MEPA_DIV64((u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num, (u64)f_pll_in.ratio_den);
 
     if (dr_khz < ((u64) 2.5e6 * 2/3)) {
         VTSS_E("Target frequency to small. Target frequency for the synthesizer must be 2/3 * 2.5 GHz <= f <= 4/3 * 10Ghz\n");
@@ -595,7 +595,7 @@ vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
         rslt = vtss_sd10g65_get_f_pll_from_f_mode(config.f_mode, &cfg_f_pll);
     }
 
-    f_pll_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
     if (f_pll_khz_plain < 2500000) {
         half_rate_mode = 1;
         f_pll_khz_plain = f_pll_khz_plain * 2;
@@ -838,7 +838,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     if (config.f_mode != VTSS_SD10G65_MODE_NONE) {
         rslt |= vtss_sd10g65_get_f_pll_from_f_mode(config.f_mode, &cfg_f_pll);
     }
-    f_pll_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_pll.f_pll_khz * (u64) cfg_f_pll.ratio_num), (u64) cfg_f_pll.ratio_den));
 
     // Mode dependent settings (ib_rib_adj 2-complement: 8=>-8,15=>-1,0=>0,7=>7)
 
@@ -1405,7 +1405,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         return rslt;
     }
 
-    f_in_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_in.f_pll_khz * (u64) cfg_f_in.ratio_num), (u64) cfg_f_in.ratio_den));
+    f_in_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_in.f_pll_khz * (u64) cfg_f_in.ratio_num), (u64) cfg_f_in.ratio_den));
     if (f_in_khz_plain < 1000) {
         VTSS_E("Input frequency = %d kHz to low, has to be >= 1e6Hz", f_in_khz_plain);
         rslt =  VTSS_RC_ERROR;
@@ -1465,7 +1465,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     cfg_f_sam.ratio_num = cfg_f_in.ratio_num;
     cfg_f_sam.ratio_den = cfg_f_in.ratio_den;
 
-    f_sam_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_sam.f_pll_khz * (u64) cfg_f_sam.ratio_num), (u64) cfg_f_sam.ratio_den));
+    f_sam_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_sam.f_pll_khz * (u64) cfg_f_sam.ratio_num), (u64) cfg_f_sam.ratio_den));
 
     ret_val->f_pll_khz_plain[0] = f_sam_khz_plain;
     ret_val->f_pll_f_pll_khz[0] = cfg_f_sam.f_pll_khz;
@@ -1930,7 +1930,7 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     }
 
 
-    f_out_khz_plain = (u32) (VTSS_DIV64( ((u64) cfg_f_out.f_pll_khz * (u64) cfg_f_out.ratio_num), (u64) cfg_f_out.ratio_den));
+    f_out_khz_plain = (u32) (MEPA_DIV64( ((u64) cfg_f_out.f_pll_khz * (u64) cfg_f_out.ratio_num), (u64) cfg_f_out.ratio_den));
 
     if (config.use_par_clk == FALSE) {
         if (f_out_khz_plain > 500000) {
@@ -2297,8 +2297,8 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     /* # Perform setup_df2f config                                           */
     /* ##################################################################### */
     /* ##################################################################### */
-    ret_val->use_par_clk[0]                      = to_u8(config.use_par_clk);
-    ret_val->use_clk_gen[0]                      = to_u8(use_clk_gen);
+    ret_val->use_par_clk[0]                      = to_u8_(config.use_par_clk);
+    ret_val->use_clk_gen[0]                      = to_u8_(use_clk_gen);
     /* default values */
     ret_val->dft_clk_gen_cfg__cg_per_cfg[0]      = 0;
     ret_val->dft_clk_gen_cfg__cg_per_jump_cfg[0] = 0;

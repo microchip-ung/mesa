@@ -182,7 +182,7 @@ void vtss_srvl_debug_reg_header(const vtss_debug_printf_t pr, const char *name)
 {
     char buf[64];
     
-    sprintf(buf, "%-32s  Tgt   Addr  ", name);
+    VTSS_SPRINTF(buf, "%-32s  Tgt   Addr  ", name);
     vtss_debug_print_reg_header(pr, buf);
 }
 
@@ -193,7 +193,7 @@ void vtss_srvl_debug_reg(vtss_state_t *vtss_state,
     char buf[200];
 
     if (vtss_srvl_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        sprintf(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f, addr & 0x3fff);
+        VTSS_SPRINTF(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f, addr & 0x3fff);
         vtss_debug_print_reg(pr, buf, value);
     }
 }
@@ -203,7 +203,7 @@ void vtss_srvl_debug_reg_inst(vtss_state_t *vtss_state,
 {
     char buf[64];
 
-    sprintf(buf, "%s_%u", name, i);
+    VTSS_SPRINTF(buf, "%s_%u", name, i);
     vtss_srvl_debug_reg(vtss_state, pr, addr, buf);
 }
 
@@ -215,11 +215,11 @@ void vtss_srvl_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
     if (col1 == NULL) {
         pr("%-41s", "");
     } else {
-        sprintf(buf, "rx_%s:", col1);
+        VTSS_SPRINTF(buf, "rx_%s:", col1);
         pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
     }
     if (col2 != NULL) {
-        sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
+        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
         pr("%-28s%10" PRIu64, buf, c2 ? c2->prev : (u64) 0);
     }
     pr("\n");

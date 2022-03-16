@@ -305,20 +305,20 @@ char * vtss_routing_entry_to_string(const vtss_routing_entry_t *const entry,
 {
     switch( entry->type ) {
     case VTSS_ROUTING_ENTRY_TYPE_INVALID:
-        snprintf(buf, size, "INVALID");
+        VTSS_SNPRINTF(buf, size, "INVALID");
         break;
 
     case VTSS_ROUTING_ENTRY_TYPE_IPV6_UC:
-        snprintf(buf, size, IPV6_UC_FORMAT,
+        VTSS_SNPRINTF(buf, size, IPV6_UC_FORMAT,
                  IPV6_UC_ARGS(entry->route.ipv6_uc));
         break;
 
     case VTSS_ROUTING_ENTRY_TYPE_IPV4_UC:
-        snprintf(buf, size, IPV4_UC_FORMAT,
+        VTSS_SNPRINTF(buf, size, IPV4_UC_FORMAT,
                  IPV4_UC_ARGS(entry->route.ipv4_uc));
         break;
     default:
-        snprintf(buf, size, "UNKNOWN");
+        VTSS_SNPRINTF(buf, size, "UNKNOWN");
         break;
     }
 
@@ -331,10 +331,10 @@ char * vtss_routing_mc_entry_to_string(const vtss_routing_mc_entry_t *const entr
                                        unsigned size)
 {
     if ( entry->type == VTSS_RT_TYPE_IPV4_MC) {
-        snprintf(buf, size, IPV4_MC_FORMAT,
+        VTSS_SNPRINTF(buf, size, IPV4_MC_FORMAT,
                  IPV4_MC_ARGS(entry->route.ipv4_mc));
     } else {
-        snprintf(buf, size, IPV6_MC_FORMAT,
+        VTSS_SNPRINTF(buf, size, IPV6_MC_FORMAT,
                  IPV6_MC_ARGS(entry->route.ipv6_mc));
     }
 
@@ -349,7 +349,7 @@ char * vtss_neighbour_to_string(const vtss_l3_neighbour_t* const entry,
 {
     unsigned c;
 
-    c = snprintf(buf, size, "dmac: " MAC_FORMAT ", vid: %u, ip: ",
+    c = VTSS_SNPRINTF(buf, size, "dmac: " MAC_FORMAT ", vid: %u, ip: ",
                  MAC_ARGS(entry->dmac), entry->vlan);
 
     if (c + 1 >= size)
@@ -359,19 +359,19 @@ char * vtss_neighbour_to_string(const vtss_l3_neighbour_t* const entry,
 
     switch (entry->dip.type) {
     case VTSS_IP_TYPE_NONE:
-        snprintf(buf + c, size, "INVALID");
+        VTSS_SNPRINTF(buf + c, size, "INVALID");
         break;
 
     case VTSS_IP_TYPE_IPV4:
-        snprintf(buf + c, size, IPV4_FORMAT, IPV4_ARGS(entry->dip.addr.ipv4));
+        VTSS_SNPRINTF(buf + c, size, IPV4_FORMAT, IPV4_ARGS(entry->dip.addr.ipv4));
         break;
 
     case VTSS_IP_TYPE_IPV6:
-        snprintf(buf + c, size, IPV6_FORMAT, IPV6_ARGS(entry->dip.addr.ipv6));
+        VTSS_SNPRINTF(buf + c, size, IPV6_FORMAT, IPV6_ARGS(entry->dip.addr.ipv6));
         break;
 
     default:
-        snprintf(buf + c, size, "UNKNOWN");
+        VTSS_SNPRINTF(buf + c, size, "UNKNOWN");
         break;
     }
 
@@ -440,7 +440,7 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
         cnt = (VTSS_L3_ARP_COL_CNT / 2);
     }
 
-    memset(info, 0, sizeof(info));
+    VTSS_MEMSET(info, 0, sizeof(info));
     done = 0;
     for (i = 0; i < VTSS_L3_ARP_ROW_CNT && !done; i++) {
         row = &arp->row[i];
@@ -726,7 +726,7 @@ static inline vtss_rc nh_grp_update(vtss_state_t     *vtss_state,
     u32          idx = grp->idx;
     int          cmp;
 
-    memset(&nb_zero, 0, sizeof(nb_zero));
+    VTSS_MEMSET(&nb_zero, 0, sizeof(nb_zero));
     for (nh = grp->list, nb = vtss_state->l3.nb.list; nh != NULL; ) {
         cmp = (nb == NULL ? -1 : nh_cmp(&nh->nh, &nb->nh));
         if (cmp > 0) {
@@ -843,7 +843,7 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
         /* Single next-hop */
         if (nb == NULL) {
             nb = &nb_zero;
-            memset(nb, 0, sizeof(*nb));
+            VTSS_MEMSET(nb, 0, sizeof(*nb));
         }
         I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
     } else {
@@ -914,7 +914,7 @@ static inline vtss_l3_nb_t *nb_lookup(vtss_state_t     *vtss_state,
 static inline void route2net(const vtss_routing_entry_t *route,
                              vtss_l3_net_t *net)
 {
-    memset(net, 0, sizeof(*net));
+    VTSS_MEMSET(net, 0, sizeof(*net));
     if (route->type == VTSS_ROUTING_ENTRY_TYPE_IPV4_UC) {
         const vtss_ipv4_uc_t *ipv4 = &route->route.ipv4_uc;
 
@@ -937,7 +937,7 @@ static inline void route2net(const vtss_routing_entry_t *route,
 static inline void route2mc_rt(const vtss_routing_mc_entry_t *route,
                                 vtss_l3_mc_rt_t *net)
 {
-    memset(net, 0, sizeof(*net));
+    VTSS_MEMSET(net, 0, sizeof(*net));
     if (route->type == VTSS_RT_TYPE_IPV4_MC) {
         const vtss_ipv4_mc_t *ipv4 = &route->route.ipv4_mc;
         net->network.type = VTSS_IP_TYPE_IPV4;
@@ -958,7 +958,7 @@ static vtss_rc rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_cnt
 {
     vtss_res_chg_t res;
 
-    memset(&res, 0, sizeof(res));
+    VTSS_MEMSET(&res, 0, sizeof(res));
     res.add_key[VTSS_VCAP_KEY_SIZE_SIXTEENTH] = ipv4_cnt;
     res.add_key[VTSS_VCAP_KEY_SIZE_QUARTER] = ipv6_cnt;
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
@@ -968,7 +968,7 @@ static vtss_rc mc_rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_
 {
     vtss_res_chg_t res;
 
-    memset(&res, 0, sizeof(res));
+    VTSS_MEMSET(&res, 0, sizeof(res));
     res.add_key[VTSS_VCAP_KEY_SIZE_EIGHTH] = ipv4_cnt;
     res.add_key[VTSS_VCAP_KEY_SIZE_HALF] = ipv6_cnt;
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
@@ -998,7 +998,7 @@ static BOOL mc_tbl_find(vtss_l3_mc_tbl_t *tbl, u32 *rlegs, u8 rpf, u16 *id)
             if (tbl[i].cnt == 0) {
                 continue;
             }
-            if ((memcmp(rlegs, tbl[i].rlegs, sizeof(tbl[i].rlegs)) == 0) && (tbl[i].rpf == rpf)) {
+            if ((VTSS_MEMCMP(rlegs, tbl[i].rlegs, sizeof(tbl[i].rlegs)) == 0) && (tbl[i].rpf == rpf)) {
                 // found a match
                 *id = i;
                 return TRUE;
@@ -1602,7 +1602,7 @@ static inline vtss_rc nb_del(vtss_state_t              *vtss_state,
     info->free_cnt++;
 
     /* Clear DMAC and update hardware */
-    memset(&cur->dmac, 0, sizeof(cur->dmac));
+    VTSS_MEMSET(&cur->dmac, 0, sizeof(cur->dmac));
     return nb_update(vtss_state, cur);
 }
 
@@ -1825,7 +1825,7 @@ vtss_rc vtss_l3_counters_reset(const vtss_inst_t inst)
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(l3.rleg_counters_reset);
-        memset(&(vtss_state->l3.statistics), 0, sizeof(vtss_l3_statistics_t));
+        VTSS_MEMSET(&(vtss_state->l3.statistics), 0, sizeof(vtss_l3_statistics_t));
     }
     VTSS_L3_EXIT();
 
@@ -1842,7 +1842,7 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        memset(counters, 0, sizeof(*counters));
+        VTSS_MEMSET(counters, 0, sizeof(*counters));
         for (i = 0; i < VTSS_RLEG_CNT; i++) {
             if (vtss_state->l3.rleg_conf[i].vlan != 0 &&
                 VTSS_FUNC(l3.rleg_counters_get, i) == VTSS_RC_OK) {
@@ -1934,7 +1934,7 @@ vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t   inst,
     DO(vtss_inst_check(inst, &vtss_state));
     DO(rleg_id_get(vtss_state->l3.rleg_conf, vlan, &rleg, 0));
     if (rc == VTSS_RC_OK) {
-        (void) memset(&(vtss_state->l3.statistics.interface_counter[rleg]), 0,
+        (void) VTSS_MEMSET(&(vtss_state->l3.statistics.interface_counter[rleg]), 0,
                       sizeof(vtss_l3_counters_t));
     }
     VTSS_L3_EXIT();
@@ -2279,7 +2279,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
             pr("NextHop\n");
         }
         if (type == VTSS_IP_TYPE_IPV4) {
-            sprintf(buf, IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), net->prefix_size);
+            VTSS_SPRINTF(buf, IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), net->prefix_size);
             pr("%-20s", buf);
             if (net->grp == NULL) {
                 pr(IPV4_FORMAT "\n", IPV4_ARGS(net->nh.dip.addr.ipv4));
@@ -2292,7 +2292,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
                 }
             }
         } else {
-            sprintf(buf, IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), net->prefix_size);
+            VTSS_SPRINTF(buf, IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), net->prefix_size);
             pr("%-45s", buf);
             if (net->grp == NULL) {
                 pr(IPV6_FORMAT "-%u\n", IPV6_ARGS(net->nh.dip.addr.ipv6), net->nh.vid);
@@ -2347,7 +2347,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
             pr("\n");
         }
         if (type == VTSS_IP_TYPE_IPV4) {
-            sprintf(buf, IPV4_FORMAT, IPV4_ARGS(nb->nh.dip.addr.ipv4));
+            VTSS_SPRINTF(buf, IPV4_FORMAT, IPV4_ARGS(nb->nh.dip.addr.ipv4));
             pr("%-17s" MAC_FORMAT "\n", buf, MAC_ARGS(nb->dmac));
         } else {
             pr(IPV6_FORMAT "  " MAC_FORMAT "  %u\n",
@@ -2390,23 +2390,23 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
             pr("Could not get entry\n");
         }
         if (mc_net->network.type == VTSS_IP_TYPE_IPV4) {
-            sprintf(buf, IPV4N_FORMAT, IPV4_ARGS(mc_net->network.addr.ipv4), 32);
+            VTSS_SPRINTF(buf, IPV4N_FORMAT, IPV4_ARGS(mc_net->network.addr.ipv4), 32);
             pr("%-20s  ", buf);
             if (mc_net->sip.addr.ipv4 > 0) {
-                sprintf(buf, IPV4N_FORMAT, IPV4_ARGS(mc_net->sip.addr.ipv4), 32);
+                VTSS_SPRINTF(buf, IPV4N_FORMAT, IPV4_ARGS(mc_net->sip.addr.ipv4), 32);
             } else {
-                sprintf(buf, "don't care");
+                VTSS_SPRINTF(buf, "don't care");
             }
         } else {
-            sprintf(buf, IPV6N_FORMAT, IPV6_ARGS(mc_net->network.addr.ipv6), 128);
+            VTSS_SPRINTF(buf, IPV6N_FORMAT, IPV6_ARGS(mc_net->network.addr.ipv6), 128);
             pr("%-45s\n", buf);
             for (j = 0, i = 0; i < 16; i++) {
                 j += mc_net->sip.addr.ipv6.addr[i];
             }
             if (j > 0) {
-                sprintf(buf, IPV6N_FORMAT, IPV6_ARGS(mc_net->sip.addr.ipv6), 32);
+                VTSS_SPRINTF(buf, IPV6N_FORMAT, IPV6_ARGS(mc_net->sip.addr.ipv6), 32);
             } else {
-                sprintf(buf, "don't care");
+                VTSS_SPRINTF(buf, "don't care");
             }
         }
         pr("%-20s  ", buf);

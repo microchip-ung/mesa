@@ -643,7 +643,7 @@ static vtss_rc jr2_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *
 {
     u32 val, uio_irqs, dest;
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     // Which interrupts are taken care of in user-space?
     if (vtss_state->sys_config.using_pcie) {
@@ -1281,7 +1281,7 @@ static vtss_rc jr2_debug_misc(vtss_state_t *vtss_state,
     count = 3;
 #endif /* VTSS_ARCH_SERVAL_T */
     for (g = 0; g < count; g++) {
-        sprintf(name, "SGPIOs Group:%u", g);
+        VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
         vtss_jr2_debug_reg_header(pr, name);
 #if defined(VTSS_ARCH_SERVAL_T)
         for (i = 0; i < 4; i++) {

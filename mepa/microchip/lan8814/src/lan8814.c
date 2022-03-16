@@ -138,7 +138,7 @@ static void indy_phy_deb_pr_reg (mepa_device_t *dev,
         rc = indy_direct_reg_rd(dev, addr, value);
     }
     if(pr && (MEPA_RC_OK == rc)) {
-        pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, port_no, id, addr, *value);
+        pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), id, addr, *value);
     }
 }
 
@@ -333,7 +333,7 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
     if (data->dev.model == 0x26) {
         if (data->packet_idx == 0) {
             //EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
-            PHY_MSLEEP(1);
+            MEPA_MSLEEP(1);
 
             if (!data->qsgmii_phy_aneg_dis) {
                 // Disable QSGMII auto-negotiation common for 4 ports.
@@ -506,7 +506,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         }
     }
 
-    PHY_MSLEEP(1);
+    MEPA_MSLEEP(1);
     // Some of the work-around registers get cleared after reset. So, they are called here
     // after every reset.
     indy_workaround_after_reset(dev);
@@ -740,7 +740,7 @@ static mepa_bool_t indy_wait_for_cable_diagnostics(mepa_device_t *dev)
     while (cnt < 100) { // wait for utmost 1 second
         RD(dev, INDY_CABLE_DIAG, &value);
         if (value & INDY_F_CABLE_DIAG_TEST_ENA) {
-            PHY_MSLEEP(10);
+            MEPA_MSLEEP(10);
             cnt++;
         } else {
             ret = TRUE;
@@ -754,9 +754,9 @@ static mepa_bool_t indy_wait_for_cable_diagnostics(mepa_device_t *dev)
 static mepa_rc indy_cab_diag_enter_config(mepa_device_t *dev)
 {
     WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
-    PHY_MSLEEP(1);
+    MEPA_MSLEEP(1);
     WR(dev, INDY_BASIC_CONTROL, 0x140);
-    PHY_MSLEEP(50);
+    MEPA_MSLEEP(50);
     return MEPA_RC_OK;
 }
 // After exiting cable diagnostics, restore phy configuration.

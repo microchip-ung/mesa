@@ -428,7 +428,7 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t          *const state,
         return VTSS_RC_ERROR;
     }
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
 
     info->length    = meta->length;
 
@@ -495,7 +495,7 @@ static vtss_rc l26_rx_frame(struct vtss_state_s   *vtss_state,
     if (val) {
         VTSS_RC(l26_rx_frame_rd(vtss_state, 0, ifh, VTSS_L26_RX_IFH_SIZE, NULL));
         VTSS_RC(l26_rx_frame_rd(vtss_state, 0, data, buflen, &len));
-        memset(&meta, 0, sizeof(meta));
+        VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (len - 4);
         rc = l26_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
     }
@@ -746,7 +746,7 @@ static vtss_rc l26_debug_pkt(vtss_state_t *vtss_state,
 
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "Port %u", port);
+        VTSS_SPRINTF(buf, "Port %u", port);
         vtss_l26_debug_reg_header(pr, buf);
         L26_DEBUG_CPU_FWD(pr, CFG(port), port, "CFG");
         L26_DEBUG_CPU_FWD(pr, BPDU_CFG(port), port, "BPDU_CFG");

@@ -878,7 +878,7 @@ static vtss_rc srvl_debug_ts(vtss_state_t *vtss_state,
 
     /* DEVCPU_PTP:PTP_PINS */
     for (ix = 0; ix <= 4; ix++) {
-        sprintf(buf, "DEVCPU_PTP:PTP_PINS[%u]", ix);
+        VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", ix);
         vtss_srvl_debug_reg_header(pr, buf);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(ix), "PTP_PIN_CFG");
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_MSB(ix), "PTP_TOD_SEC_MSB");
@@ -908,9 +908,9 @@ static vtss_rc srvl_debug_ts(vtss_state_t *vtss_state,
     /* DEV:PORT_MODE */
     vtss_srvl_debug_reg_header(pr, "DEV:PORT_MODE");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "RX_PATH_DELAY_%u", port);
+        VTSS_SPRINTF(buf, "RX_PATH_DELAY_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEV_PORT_MODE_RX_PATH_DELAY(VTSS_TO_DEV(port)), buf);
-        sprintf(buf, "TX_PATH_DELAY_%u", port);
+        VTSS_SPRINTF(buf, "TX_PATH_DELAY_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEV_PORT_MODE_TX_PATH_DELAY(VTSS_TO_DEV(port)), buf);
     }
 
@@ -924,19 +924,19 @@ static vtss_rc srvl_debug_ts(vtss_state_t *vtss_state,
     /* SYS_PORT:PTP (common to Serval1 and Ocelot) */
     vtss_srvl_debug_reg_header(pr, "REW:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "PTP_CFG_%u", port);
+        VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_CFG(port), buf);
-        sprintf(buf, "PTP_DLY1_CFG_%u", port);
+        VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_DLY1_CFG(port), buf);
     }
     /* ANA_PORT:PTP (common to Serval1 and Ocelot) */
     vtss_srvl_debug_reg_header(pr, "ANA:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "PTP_CFG_%u", port);
+        VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_CFG(port), buf);
-        sprintf(buf, "PTP_DLY1_CFG_%u", port);
+        VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_DLY1_CFG(port), buf);
-        sprintf(buf, "PTP_DLY2_CFG_%u", port);
+        VTSS_SPRINTF(buf, "PTP_DLY2_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_DLY2_CFG(port), buf);
     }
 

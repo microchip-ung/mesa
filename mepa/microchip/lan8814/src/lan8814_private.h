@@ -50,8 +50,6 @@ mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
 #define MMD_WR(dev, mmd_addr, value) indy_mmd_reg_wr(dev, mmd_addr, value, 0xffff)
 #define MMD_WRM(dev, mmd_addr, val, mask) indy_mmd_reg_wr(dev, mmd_addr, val, mask)
 
-#define PHY_MSLEEP(m) usleep((m)*1000)
-
 #define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
@@ -135,7 +133,7 @@ typedef struct {
 
 typedef struct {
     mepa_bool_t              init_done;
-    uint8_t                  packet_idx;
+    uint8_t                       packet_idx;
     mepa_port_no_t           port_no;
     mepa_conf_t              conf;
     mepa_event_t             events;

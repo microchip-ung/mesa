@@ -11,7 +11,7 @@
 
 void vtss_port_mask_clear(vtss_port_mask_t *pmask)
 {
-    memset(pmask, 0, sizeof(*pmask));
+    VTSS_MEMSET(pmask, 0, sizeof(*pmask));
 }
 
 void vtss_port_mask_get(vtss_state_t *vtss_state,
@@ -240,7 +240,7 @@ static vtss_rc vtss_mac_entry_update(vtss_state_t *vtss_state, vtss_mac_entry_t 
 {
     vtss_mac_table_entry_t entry;
 
-    memset(&entry, 0, sizeof(entry));
+    VTSS_MEMSET(&entry, 0, sizeof(entry));
     vtss_mach_macl_set(&entry.vid_mac, cur->mach, cur->macl);
     entry.locked = 1;
     entry.aged = 0;
@@ -429,8 +429,8 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
         VTSS_D("warm start, returning");
         return VTSS_RC_OK;
     }
-    memset(rx_forward, 0, sizeof(rx_forward));
-    memset(tx_forward, 0, sizeof(tx_forward));
+    VTSS_MEMSET(rx_forward, 0, sizeof(rx_forward));
+    VTSS_MEMSET(tx_forward, 0, sizeof(tx_forward));
 
     /* Determine learning, Rx and Tx forwarding state per port */
     for (i_port = VTSS_PORT_NO_START; i_port < port_count; i_port++) {
@@ -483,7 +483,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     /* Update source masks */
     for (i_port = VTSS_PORT_NO_START; src_update && i_port < port_count; i_port++) {
         /* Exclude all ports by default */
-        memset(member, 0, sizeof(member));
+        VTSS_MEMSET(member, 0, sizeof(member));
 
         /* Store Rx forward information */
         if (vtss_state->l2.rx_forward[i_port] != rx_forward[i_port]) {
@@ -495,7 +495,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
         /* Special case - NPI port */
         if (vtss_state->packet.npi_conf.enable && i_port == vtss_state->packet.npi_conf.port_no) {
             // Allow all forwarding ports but myself
-            memcpy(member, tx_forward, sizeof(member));
+            VTSS_MEMCPY(member, tx_forward, sizeof(member));
             member[i_port] = FALSE;
         } else if (rx_forward[i_port]) {
             /* Check if ingress forwarding is allowed */
@@ -630,7 +630,7 @@ static void vtss_mac_oui_idx_get(const vtss_mac_t *mac, vtss_oui_idx_t *oi)
 {
     u32 i;
 
-    memset(oi, 0, sizeof(*oi));
+    VTSS_MEMSET(oi, 0, sizeof(*oi));
     for (i = 0; i < 3; i++) {
         oi->oui = ((oi->oui << 8) + mac->addr[i]);
         oi->idx = ((oi->idx << 8) + mac->addr[i + 3]);
@@ -1288,7 +1288,7 @@ vtss_rc vtss_mac_table_status_get(const vtss_inst_t        inst,
             status->learned = 1;
         if (vtss_state->l2.mac_status.aged)
             status->aged = 1;
-        memset(&vtss_state->l2.mac_status, 0, sizeof(*status));
+        VTSS_MEMSET(&vtss_state->l2.mac_status, 0, sizeof(*status));
     }
     VTSS_EXIT();
     return rc;
@@ -2687,7 +2687,7 @@ vtss_rc vtss_vce_init(const vtss_inst_t inst,
     vtss_vce_key_t *key = &vce->key;
 
     VTSS_D("type: %d", type);
-    memset(vce, 0, sizeof(*vce));
+    VTSS_MEMSET(vce, 0, sizeof(*vce));
     key->type = type;
     key->mac.dmac_mc = VTSS_VCAP_BIT_ANY;
     key->mac.dmac_bc = VTSS_VCAP_BIT_ANY;
@@ -2974,7 +2974,7 @@ static vtss_rc vtss_cmn_pol_clear(vtss_state_t *vtss_state, u16 idx)
 
     /* Clear and update policer configuration */
     conf = &vtss_state->l2.pol_conf[idx];
-    memset(conf, 0, sizeof(*conf));
+    VTSS_MEMSET(conf, 0, sizeof(*conf));
     return VTSS_FUNC(l2.policer_update, idx);
 }
 
@@ -3126,7 +3126,7 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
         u16 row_count;  /* Smallest number of used entries */
     } info[8 + 1], *pi; /* Info per size (1/2/4/8), allow 1-based indexing */
 
-    memset(info, 0, sizeof(info));
+    VTSS_MEMSET(info, 0, sizeof(info));
 
     if (count == 0) {
         /* Silently ignore if no allocation required */
@@ -3328,7 +3328,7 @@ static vtss_rc vtss_mstream_clear(vtss_state_t *vtss_state, u16 idx)
 
     /* Clear and update stream */
     conf = &vtss_state->l2.mstream_conf[idx];
-    memset(conf, 0, sizeof(*conf));
+    VTSS_MEMSET(conf, 0, sizeof(*conf));
     return VTSS_FUNC(l2.mstream_conf_set, idx);
 }
 #endif
@@ -3992,7 +3992,7 @@ vtss_rc vtss_iflow_alloc(const vtss_inst_t inst,
                 prev->next = sdx;
             }
             conf = &sdx->conf;
-            memset(conf, 0, sizeof(*conf));
+            VTSS_MEMSET(conf, 0, sizeof(*conf));
 #if defined(VTSS_FEATURE_VOP)
             conf->voe_idx = VTSS_VOE_IDX_NONE;
 #endif
@@ -4162,7 +4162,7 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
 vtss_rc vtss_tce_init(const vtss_inst_t inst,
                       vtss_tce_t        *const tce)
 {
-    memset(tce, 0, sizeof(*tce));
+    VTSS_MEMSET(tce, 0, sizeof(*tce));
     tce->action.inner_tag.tpid = VTSS_TPID_SEL_NONE;
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
     tce->action.tag.map_id = VTSS_QOS_EGRESS_MAP_ID_NONE;
@@ -4373,7 +4373,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
         es0->esdx = stat->idx;
 #endif
         for (cosid = 0; cosid < 8; cosid++) {
-            entry.action.esdx_cosid_offset |= ((cosid < stat->cnt ? cosid : (stat->cnt - 1))<< (cosid * 3));
+            entry.action.esdx_cosid_offset |= ((cosid < stat->cnt ? cosid : (u32)(stat->cnt - 1)) << (cosid * 3));
         }
     }
 #endif
@@ -4617,7 +4617,7 @@ vtss_rc vtss_eflow_alloc(const vtss_inst_t inst,
             if (!eflow->used) {
                 eflow->used = 1;
                 conf = &eflow->conf;
-                memset(conf, 0, sizeof(*conf));
+                VTSS_MEMSET(conf, 0, sizeof(*conf));
 #if defined(VTSS_FEATURE_VOP)
                 conf->voe_idx = VTSS_VOE_IDX_NONE;
 #endif
@@ -5009,7 +5009,7 @@ static vtss_rc vtss_mac_table_sync(vtss_state_t *vtss_state)
     /* Step 1:
        Delete static hardware entries not present in the API table.
        Reuse PGIDs for entries present in the API table */
-    memset(&mac_entry, 0, sizeof(mac_entry));
+    VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
     while (1) {
         if (next) {
             /* Get next static HW entry */
@@ -5645,7 +5645,7 @@ static vtss_rc vtss_cmn_ip_mc_add(vtss_state_t *vtss_state, vtss_ipmc_data_t *ip
             /* Found matching key, save allocated FID */
             ipmc->src.fid = src->data.fid;
             if (!ipmc->ipv6 ||
-                memcmp(&src->data.sip.ipv6, &ipmc->src.sip.ipv6, sizeof(vtss_ipv6_t)) == 0) {
+                VTSS_MEMCMP(&src->data.sip.ipv6, &ipmc->src.sip.ipv6, sizeof(vtss_ipv6_t)) == 0) {
                 /* Found identical entry */
                 break;
             }
@@ -5671,9 +5671,9 @@ static vtss_rc vtss_cmn_ip_mc_add(vtss_state_t *vtss_state, vtss_ipmc_data_t *ip
 
             if (dip == ipmc_dip &&
                 (!ipmc->ipv6 ||
-                 memcmp(&dst->data.dip.ipv6, &ipmc->dst.dip.ipv6, sizeof(vtss_ipv6_t)) == 0)) {
+                 VTSS_MEMCMP(&dst->data.dip.ipv6, &ipmc->dst.dip.ipv6, sizeof(vtss_ipv6_t)) == 0)) {
                 /* Found identical entry */
-                memcpy(dst->data.member, ipmc->dst.member, VTSS_PORT_BF_SIZE);
+                VTSS_MEMCPY(dst->data.member, ipmc->dst.member, VTSS_PORT_BF_SIZE);
                 ipmc->dst.id = dst->data.id;
                 break;
             }
@@ -5752,7 +5752,7 @@ static vtss_rc vtss_cmn_ip_mc_del(vtss_state_t *vtss_state, vtss_ipmc_data_t *ip
         if (src->data.vid == ipmc->src.vid &&
             ((!ipmc->ipv6 && ipmc->src.sip.ipv4 == src->data.sip.ipv4) ||
              (ipmc->ipv6 &&
-              memcmp(&src->data.sip.ipv6, &ipmc->src.sip.ipv6, sizeof(vtss_ipv6_t)) == 0))) {
+              VTSS_MEMCMP(&src->data.sip.ipv6, &ipmc->src.sip.ipv6, sizeof(vtss_ipv6_t)) == 0))) {
             ipmc->src.fid = src->data.fid;
             /* Found entry */
             break;
@@ -5769,7 +5769,7 @@ static vtss_rc vtss_cmn_ip_mc_del(vtss_state_t *vtss_state, vtss_ipmc_data_t *ip
     for (dst = src->dest; dst != NULL; dst_prev = dst, dst = dst->next) {
         if ((!ipmc->ipv6 && dst->data.dip.ipv4 == ipmc->dst.dip.ipv4) ||
             (ipmc->ipv6 &&
-             memcmp(&dst->data.dip.ipv6, &ipmc->dst.dip.ipv6, sizeof(vtss_ipv6_t)) == 0)) {
+             VTSS_MEMCMP(&dst->data.dip.ipv6, &ipmc->dst.dip.ipv6, sizeof(vtss_ipv6_t)) == 0)) {
             /* Found entry */
             ipmc->dst.id = dst->data.id;
             break;
@@ -5816,7 +5816,7 @@ static void vtss_cmn_ipv4_mc_data_init(vtss_ipmc_data_t *ipmc,
                                        const vtss_ip_t  sip,
                                        const vtss_ip_t  dip)
 {
-    memset(ipmc, 0, sizeof(*ipmc));
+    VTSS_MEMSET(ipmc, 0, sizeof(*ipmc));
     ipmc->src.vid = vid;
     ipmc->src.sip.ipv4 = sip;
     ipmc->dst.dip.ipv4 = dip;
@@ -5862,13 +5862,13 @@ static void vtss_cmn_ipv6_mc_data_init(vtss_ipmc_data_t  *ipmc,
 {
     vtss_ipv6_t sipv6;
 
-    memset(ipmc, 0, sizeof(*ipmc));
+    VTSS_MEMSET(ipmc, 0, sizeof(*ipmc));
     ipmc->ipv6 = 1;
     ipmc->src.vid = vid;
     ipmc->src.sip.ipv6 = sip;
     ipmc->dst.dip.ipv6 = dip;
-    memset(&sipv6, 0, sizeof(sipv6));
-    if (memcmp(&sip, &sipv6, sizeof(sipv6)) == 0) {
+    VTSS_MEMSET(&sipv6, 0, sizeof(sipv6));
+    if (VTSS_MEMCMP(&sip, &sipv6, sizeof(sipv6)) == 0) {
         /* Zero SIP indicates ASM */
         ipmc->src.fid = vid;
     } else {
@@ -5987,7 +5987,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     }
 
     /* Check if main entry exists */
-    memset(&res_chg, 0, sizeof(res_chg));
+    VTSS_MEMSET(&res_chg, 0, sizeof(res_chg));
     if (vtss_vcap_lookup(vtss_state, obj, user, vce->id, &data, NULL) == VTSS_RC_OK) {
         /* Free any old range checkers */
         VTSS_RC(vtss_vcap_range_free(&range_new, is1->vid_range));
@@ -6068,7 +6068,7 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id, c
     action->dei            = vce->action.dei;
 
     /* Copy key data */
-    memcpy(key->port_list, vce->key.port_list, sizeof(key->port_list));
+    VTSS_MEMCPY(key->port_list, vce->key.port_list, sizeof(key->port_list));
 
     key->mac.dmac_mc = vce->key.mac.dmac_mc;
     key->mac.dmac_bc = vce->key.mac.dmac_bc;
@@ -6358,10 +6358,10 @@ static void vtss_debug_print_istat(vtss_state_t *vtss_state,
             first = FALSE;
             pr("Ingress Counters:\n\n");
             pr("ID    SDX   IDX   CNT  COSID  Green/Yellow/Red Frames  ");
-            strcpy(buf, "Green/Yellow/Red Bytes");
+            VTSS_STRCPY(buf, "Green/Yellow/Red Bytes");
 #if defined(VTSS_FEATURE_PSFP)
             if (vtss_state->init_conf.psfp_counters_enable) {
-                strcpy(buf, "Match/GateDiscard/SduDiscard");
+                VTSS_STRCPY(buf, "Match/GateDiscard/SduDiscard");
             }
 #endif
             pr("%s\n", buf);
@@ -6374,7 +6374,7 @@ static void vtss_debug_print_istat(vtss_state_t *vtss_state,
             }
             pr("%-7u", j);
             if (VTSS_FUNC(l2.icnt_get, vtss_icnt_idx(stat, j), &cnt) == VTSS_RC_OK) {
-                sprintf(buf, "%"PRIu64"/%"PRIu64"/%"PRIu64,
+                VTSS_SPRINTF(buf, "%"PRIu64"/%"PRIu64"/%"PRIu64,
                         cnt.rx_green.frames, cnt.rx_yellow.frames, cnt.rx_red.frames);
                 pr("%-25s", buf);
                 c[0] = cnt.rx_green.bytes;
@@ -6426,7 +6426,7 @@ static void vtss_debug_print_estat(vtss_state_t *vtss_state,
             }
             pr("%-7u", j);
             if (VTSS_FUNC(l2.ecnt_get, stat->idx + j, &cnt) == VTSS_RC_OK) {
-                sprintf(buf, "%"PRIu64"/%"PRIu64, cnt.tx_green.frames, cnt.tx_yellow.frames);
+                VTSS_SPRINTF(buf, "%"PRIu64"/%"PRIu64, cnt.tx_green.frames, cnt.tx_yellow.frames);
                 pr("%-21s", buf);
                 pr("%"PRIu64"/%"PRIu64, cnt.tx_green.bytes, cnt.tx_yellow.bytes);
             }
@@ -6443,9 +6443,9 @@ static void vtss_debug_print_estat(vtss_state_t *vtss_state,
 static char *vtss_opt_bool_str(vtss_opt_bool_t *b, char *buf)
 {
     if (b->enable) {
-        sprintf(buf, "%u", b->value ? 1 : 0);
+        VTSS_SPRINTF(buf, "%u", b->value ? 1 : 0);
     } else {
-        sprintf(buf, "%s", "-");
+        VTSS_SPRINTF(buf, "%s", "-");
     }
     return buf;
 }
@@ -6529,7 +6529,7 @@ static void vtss_debug_frer_cnt(const vtss_debug_printf_t pr, const char *name, 
 {
     char buf[80];
 
-    sprintf(buf, "%s:", name);
+    VTSS_SPRINTF(buf, "%s:", name);
     pr("%-19s%19" PRIu64 "   \n", buf, cnt);
 }
 
@@ -6626,20 +6626,25 @@ static void vtss_debug_print_frer(vtss_state_t *vtss_state,
 static char *vtss_opt_prio_str(vtss_opt_prio_t *p, char *buf)
 {
     if (p->enable) {
-        sprintf(buf, "%u", p->value);
+        VTSS_SPRINTF(buf, "%u", p->value);
     } else {
-        sprintf(buf, "%s", "-");
+        VTSS_SPRINTF(buf, "%s", "-");
     }
     return buf;
 }
 
 static char *vtss_ts_str(vtss_timestamp_t *ts, char *buf, int max)
 {
+#if defined(VTSS_OPSYS_LINUX)
     time_t time = ts->seconds;
     struct tm timeinfo;
     struct tm *t = localtime_r(&time, &timeinfo);
     strftime(buf, max, "%Y-%m-%d %H:%M:%S", t);
-    sprintf(buf + strlen(buf), ".%09u (%u-%u)", ts->nanoseconds, ts->seconds, ts->nanoseconds);
+#else
+    VTSS_MEMSET(buf, 0, max);
+#endif
+    VTSS_SPRINTF((buf + VTSS_STRLEN(buf)), ".%09u (%u-%u)", ts->nanoseconds, ts->seconds, ts->nanoseconds);
+
     return buf;
 }
 
@@ -6790,7 +6795,7 @@ static void vtss_debug_print_vlan_trans(vtss_state_t *vtss_state,
 
     pr("VLAN Translation Group Table\n");
     pr("----------------------------\n");
-    memset(&conf, 0, sizeof(vtss_vlan_trans_grp2vlan_conf_t));
+    VTSS_MEMSET(&conf, 0, sizeof(vtss_vlan_trans_grp2vlan_conf_t));
     while ((vtss_cmn_vlan_trans_group_get(vtss_state, &conf, next)) == VTSS_RC_OK) {
         if (!next) {
             pr("GroupID  VID   Trans_VID  Direction\n");
@@ -6803,7 +6808,7 @@ static void vtss_debug_print_vlan_trans(vtss_state_t *vtss_state,
     pr("---------------------------\n");
     next = FALSE;
     //vtss_cmn_vlan_trans_port_conf_get(vtss_vlan_trans_port2grp_conf_t *conf, BOOL next);
-    memset(&port_conf, 0, sizeof(vtss_vlan_trans_port2grp_conf_t));
+    VTSS_MEMSET(&port_conf, 0, sizeof(vtss_vlan_trans_port2grp_conf_t));
     while ((vtss_cmn_vlan_trans_port_conf_get(vtss_state, &port_conf, next)) == VTSS_RC_OK) {
         if (!next) {
             pr("GroupID  Ports\n");
@@ -7210,10 +7215,10 @@ static vtss_rc vtss_vlan_trans_port_list_get(vtss_state_t *vtss_state,
     vtss_vlan_trans_port2grp_t       *list = &vtss_state->l2.vt_port_conf;
     vtss_vlan_trans_port2grp_entry_t *tmp;
 
-    memset(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
+    VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
     for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
         if (tmp->conf.group_id == group_id) {
-            memcpy(ports, tmp->conf.ports, VTSS_VLAN_TRANS_PORT_BF_SIZE);
+            VTSS_MEMCPY(ports, tmp->conf.ports, VTSS_VLAN_TRANS_PORT_BF_SIZE);
             return VTSS_RC_OK;
         }
     }
@@ -7393,7 +7398,7 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
     vtss_res_chg_t                  *chg;
     vtss_vlan_trans_grp2vlan_conf_t conf;
 
-    memset(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
+    VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
     /* Fetch port_list for this group */
     if ((vtss_vlan_trans_port_list_get(vtss_state, conf_add->group_id, ports)) != VTSS_RC_OK) {
         ports_exist = FALSE;
@@ -7474,7 +7479,7 @@ vtss_rc vtss_cmn_vlan_trans_group_del(vtss_state_t *vtss_state,
     vtss_vlan_trans_grp2vlan_conf_t conf;
     BOOL                            ports_exist = TRUE;
 
-    memset(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
+    VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
     /* Fetch port_list for this group */
     if ((vtss_vlan_trans_port_list_get(vtss_state, conf_del->group_id, ports)) != VTSS_RC_OK) {
         ports_exist = FALSE;
@@ -7605,7 +7610,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(vtss_state_t *vtss_state,
             prev->next = new;
         }
 
-        memset(&old_conf, 0, sizeof(old_conf));
+        VTSS_MEMSET(&old_conf, 0, sizeof(old_conf));
         if (vtss_vlan_trans_group_port_list_update(vtss_state, conf->group_id, old_conf.ports,
                                                    conf->ports, FALSE) != VTSS_RC_OK)
         {
@@ -7765,7 +7770,7 @@ vtss_rc vtss_rcl_vid_del(const vtss_inst_t inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((rc = vtss_rcl_vid_lookup(vtss_state, vid, &idx, FALSE)) == VTSS_RC_OK) {
             entry = &vtss_state->l2.rcl_vid[idx];
-            memset(entry, 0, sizeof(*entry));
+            VTSS_MEMSET(entry, 0, sizeof(*entry));
             rc = VTSS_FUNC(l2.rcl_vid_conf_set, idx);
         } else {
             VTSS_E("VID %u not found", vid);
@@ -7778,7 +7783,7 @@ vtss_rc vtss_rcl_vid_del(const vtss_inst_t inst,
 vtss_rc vtss_rce_init(const vtss_inst_t inst,
                       vtss_rce_t        *const rce)
 {
-    memset(rce, 0, sizeof(*rce));
+    VTSS_MEMSET(rce, 0, sizeof(*rce));
     return VTSS_RC_OK;
 }
 
@@ -7801,7 +7806,7 @@ static vtss_rc vtss_cmn_rce_add(vtss_state_t *vtss_state,
     }
 
     // Check that entry can be added
-    memset(&res, 0, sizeof(res));
+    VTSS_MEMSET(&res, 0, sizeof(res));
     if (vtss_vcap_lookup(vtss_state, obj, user, rce->id, &data, NULL) == VTSS_RC_OK) {
         res.del_key[data.key_size] = 1;
     }
@@ -7872,9 +7877,9 @@ static void vtss_debug_vlan_cnt(const vtss_debug_printf_t pr,
 {
     char buf[80];
 
-    sprintf(buf, "%s Packets:", name);
+    VTSS_SPRINTF(buf, "%s Packets:", name);
     pr("%-19s%19" PRIu64 "   ", buf, cnt->frames);
-    sprintf(buf, "%s Octets:", name);
+    VTSS_SPRINTF(buf, "%s Octets:", name);
     pr("%-19s%19" PRIu64, buf, cnt->bytes);
     pr("\n");
 }
@@ -8104,7 +8109,7 @@ static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
         }
         pr("\n");
 
-        memset(&mac_entry, 0, sizeof(mac_entry));
+        VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
         while (vtss_mac_index_get(vtss_state, &mac_entry, &pgid, 1) == VTSS_RC_OK) {
             vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
             vtss_debug_print_mac_entry(pr, "Index Entries", &header, &mac_entry, pgid);
@@ -8138,7 +8143,7 @@ static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
 
     /* MAC address table in chip */
     header = 1;
-    memset(&mac_entry, 0, sizeof(mac_entry));
+    VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
     while (vtss_state->l2.mac_table_get_next != NULL &&
            vtss_state->l2.mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
         vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
@@ -8333,9 +8338,9 @@ static void vtss_debug_print_eps(vtss_state_t *vtss_state,
         }
         eps = &vtss_state->l2.port_protect[port_no];
         if (eps->conf.port_no == VTSS_PORT_NO_NONE)
-            strcpy(buf, "None");
+            VTSS_STRCPY(buf, "None");
         else
-            sprintf(buf, "%-4u", eps->conf.port_no);
+            VTSS_SPRINTF(buf, "%-4u", eps->conf.port_no);
         pr("%-4u  %-10s  %-4s  %s\n",
            port_no, buf, eps->conf.type == VTSS_EPS_PORT_1_PLUS_1 ? "1+1" : "1:1",
            eps->selector == VTSS_EPS_SELECTOR_WORKING ? "Working" : "Protection");
@@ -8386,7 +8391,7 @@ static void vtss_debug_print_ipmc(vtss_state_t              *vtss_state,
 
     /* SIP Table */
     for (ipv6 = 0; ipv6 < 2; ipv6++) {
-        sprintf(buf, ipv6 ? "  %-40s" : "  %-11s", "DIP");
+        VTSS_SPRINTF(buf, ipv6 ? "  %-40s" : "  %-11s", "DIP");
         for (src = ipmc->obj.src_used[ipv6]; src != NULL; src = src->next) {
             pr("%-6s%-6s%-6s%s\n", "Type", "VID", "FID", "SIP");
             pr("%-6s%-6u%-6u", src->data.ssm ? "SSM" : "ASM", src->data.vid, src->data.fid);

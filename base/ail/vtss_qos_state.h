@@ -591,7 +591,7 @@ u32 vtss_cmn_qos_chip_prio(struct vtss_state_s *vtss_state, const vtss_prio_t pr
 u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit);
 u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode);
 vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, size_t num, u8 bit_width);
+vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8 bit_width);
 vtss_rc vtss_cmn_qce_add(struct vtss_state_s *vtss_state,
                          const vtss_qcl_id_t qcl_id, const vtss_qce_id_t qce_id, const vtss_qce_t *const qce);
 vtss_rc vtss_cmn_qce_del(struct vtss_state_s *vtss_state,

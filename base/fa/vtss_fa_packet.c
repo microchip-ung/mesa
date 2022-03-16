@@ -575,7 +575,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
         return VTSS_RC_ERROR;
     }
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
 
     info->hw_tstamp         = tstamp<<8;
     info->length            = meta->length;
@@ -642,8 +642,8 @@ static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
         VTSS_RC(fa_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
-        memcpy(xtr_hdr, ifh, sizeof(ifh));
-        memset(&meta, 0, sizeof(meta));
+        VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
+        VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         rc = fa_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
@@ -653,7 +653,7 @@ static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
 /*****************************************************************************/
 // fa_ptp_action_to_ifh()
 /*****************************************************************************/
-static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, uint8_t ptp_domain, BOOL afi, u32 *result)  /* TBD_henrikb */
+static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u8 ptp_domain, BOOL afi, u32 *result)  /* TBD_henrikb */
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -730,7 +730,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     }
 
     *bin_hdr_len = FA_IFH_BYTES;
-    memset(bin_hdr, 0, FA_IFH_BYTES); /* IFH is all zero. From now on bits can be set by OR. No bit clear should be required */
+    VTSS_MEMSET(bin_hdr, 0, FA_IFH_BYTES); /* IFH is all zero. From now on bits can be set by OR. No bit clear should be required */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX+79, 1); // VSTAX.RSV = 1. MSBit must be 1
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX+55, 1); // VSTAX.INGR_DROP_MODE = Enable. Don't make head-of-line blocking

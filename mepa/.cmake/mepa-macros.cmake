@@ -12,6 +12,10 @@ macro(MEPA_DRV)
 
     add_library(${A_LIB_NAME} STATIC ${A_SRCS})
     target_include_directories(${A_LIB_NAME} PUBLIC ${A_INCL_PUB} PRIVATE ${A_INCL_PRI})
+
+    if (${MEPA_OPSYS_LMSTAX})
+        list(APPEND A_DEFS -DMEPA_OPSYS_LMSTAX=1)
+    endif()
     target_compile_definitions(${A_LIB_NAME} PUBLIC ${A_DEFS})
 
     if (${BUILD_ALL})
@@ -79,6 +83,9 @@ macro(MEPA_LIB)
 
     set(lib_common ${A_LIB_NAME}_common)
     add_library(${lib_common} STATIC EXCLUDE_FROM_ALL ${MEPA_SOURCE_DIR}/common/src/phy.c)
+    if (${MEPA_OPSYS_LMSTAX})
+        list(APPEND A_DEFS -DMEPA_OPSYS_LMSTAX=1)
+    endif()
     target_compile_definitions(${lib_common} PRIVATE ${A_DEFS})
     target_include_directories(${lib_common}
                                PUBLIC  ${MEPA_SOURCE_DIR}/../me/include

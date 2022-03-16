@@ -207,7 +207,7 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
 {
     u32 port, tci;
 
-    memset(info, 0, sizeof(*info));
+    VTSS_MEMSET(info, 0, sizeof(*info));
     info->length = meta->length;
 
     // Ingress port
@@ -313,7 +313,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
     }
 
     *ifh_len = LAN966X_IFH_SIZE;
-    memset(ifh, 0, LAN966X_IFH_SIZE);
+    VTSS_MEMSET(ifh, 0, LAN966X_IFH_SIZE);
 
     if (info->switch_frm) {
         port_no = info->masquerade_port;
@@ -649,8 +649,8 @@ static vtss_rc lan966x_rx_frame(struct vtss_state_s  *vtss_state,
         VTSS_RC(lan966x_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
-        memcpy(xtr_hdr, ifh, sizeof(ifh));
-        memset(&meta, 0, sizeof(meta));
+        VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
+        VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         rc = lan966x_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
@@ -811,7 +811,7 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t *vtss_state,
 
     // Analyzer CPU forwarding registers
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "Port %u", port);
+        VTSS_SPRINTF(buf, "Port %u", port);
         vtss_lan966x_debug_reg_header(pr, buf);
         vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPU_FWD_CFG(port)), port, "FWD_CFG");
         vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPU_FWD_BPDU_CFG(port)), port, "BPDU_CFG");

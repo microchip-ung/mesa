@@ -242,7 +242,7 @@ static vtss_rc fa_mac_table_result(vtss_state_t *vtss_state, vtss_mac_table_entr
     VTSS_D("mach: 0x%08x, macl: 0x%08x, cfg2: 0x%08x", cfg0, cfg1, cfg2);
 
     /* Extract fields from Jaguar registers */
-    memset(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     entry->aged        = VTSS_BOOL(VTSS_X_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_AGE_FLAG(cfg2));
     entry->copy_to_cpu = 0;
     entry->copy_to_cpu_smac = VTSS_BOOL(cfg2 & VTSS_M_LRN_MAC_ACCESS_CFG_2_MAC_ENTRY_CPU_COPY);
@@ -298,7 +298,7 @@ static vtss_rc fa_mac_table_get_next(vtss_state_t *vtss_state, vtss_mac_table_en
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[VTSS_PGID_NONE];
 
     /* Clear PGID entry for IPMC/GLAG entries */
-    memset(pgid_entry, 0, sizeof(*pgid_entry));
+    VTSS_MEMSET(pgid_entry, 0, sizeof(*pgid_entry));
 
     vtss_mach_macl_get(&entry->vid_mac, &cfg0, &cfg1);
     VTSS_D("address 0x%08x%08x", cfg0, cfg1);
@@ -413,7 +413,7 @@ static vtss_rc fa_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_
 {
     u32 value;
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     /* Detect port move events */
     REG_RD(VTSS_ANA_L2_STICKY, &value);
@@ -807,13 +807,13 @@ static vtss_rc fa_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_count
     vtss_stat_idx_t     sidx;
     vtss_evc_counters_t cnt;
 
-    memset(&cnt, 0, sizeof(cnt));
+    VTSS_MEMSET(&cnt, 0, sizeof(cnt));
     sidx.idx = idx;
     sidx.edx = 0;
     VTSS_RC(vtss_fa_sdx_counters_update(vtss_state, &sidx, &cnt, counters == NULL));
 
     if (counters != NULL) {
-        memset(counters, 0, sizeof(*counters));
+        VTSS_MEMSET(counters, 0, sizeof(*counters));
         counters->rx_green = cnt.rx_green;
         counters->rx_yellow = cnt.rx_yellow;
         counters->rx_red = cnt.rx_red;
@@ -840,7 +840,7 @@ static vtss_rc fa_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counte
     vtss_stat_idx_t     sidx;
     vtss_evc_counters_t cnt;
 
-    memset(&cnt, 0, sizeof(cnt));
+    VTSS_MEMSET(&cnt, 0, sizeof(cnt));
     sidx.idx = 0;
     sidx.edx = idx;
     VTSS_RC(vtss_fa_sdx_counters_update(vtss_state, &sidx, &cnt, counters == NULL));
@@ -1029,7 +1029,7 @@ static vtss_rc fa_ip_mc_update(vtss_state_t *vtss_state,
     int                    i;
 
     if (cmd == VTSS_IPMC_CMD_CHECK) {
-        memset(&res, 0, sizeof(res));
+        VTSS_MEMSET(&res, 0, sizeof(res));
         if (ipmc->dst_add) {
             res.add_key[key_size] = 1;
         }
@@ -1457,7 +1457,7 @@ static void fa_debug_pmask_header(vtss_state_t *vtss_state, const vtss_debug_pri
 {
     char buf[64];
 
-    sprintf(buf, "%-33s", name == NULL ? "Port" : name);
+    VTSS_SPRINTF(buf, "%-33s", name == NULL ? "Port" : name);
     vtss_fa_debug_print_port_header(vtss_state, pr, buf);
 }
 
@@ -1482,7 +1482,7 @@ static vtss_rc fa_debug_vlan_entry(vtss_state_t *vtss_state,
     if (header) {
         fa_debug_pmask_header(vtss_state, pr, "VID   FID   MSTI  L/F/M/F/P");
     }
-    sprintf(buf, "%-6u%-6u%-6u%u/%u/%u/%u/%u",
+    VTSS_SPRINTF(buf, "%-6u%-6u%-6u%u/%u/%u/%u/%u",
             vid,
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_FID(value),
             VTSS_X_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(value),
@@ -1513,7 +1513,7 @@ static vtss_rc fa_debug_vlan(vtss_state_t *vtss_state,
             continue;
         }
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_VLAN_FILTER_CTRL(port, 0), port, "ANA:VLAN_FILTER_CTRL");
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_VLAN_CTRL(port),      port, "ANA:VLAN_CTRL");
@@ -1566,7 +1566,7 @@ static vtss_rc fa_debug_src_table(vtss_state_t *vtss_state,
     fa_debug_pmask_header(vtss_state, pr, NULL);
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         REG_RDX_PMASK(VTSS_ANA_AC_SRC_SRC_CFG, port, &pmask);
-        sprintf(buf, "%u", port);
+        VTSS_SPRINTF(buf, "%u", port);
         fa_debug_pmask(pr, buf, &pmask);
     }
     pr("\n");
@@ -1586,7 +1586,7 @@ static vtss_rc fa_debug_aggr_table(vtss_state_t *vtss_state,
     fa_debug_pmask_header(vtss_state, pr, "AC");
     for (ac = 0; ac < 16; ac++) {
         REG_RDX_PMASK(VTSS_ANA_AC_AGGR_AGGR_CFG, ac, &pmask);
-        sprintf(buf, "%u", ac);
+        VTSS_SPRINTF(buf, "%u", ac);
         fa_debug_pmask(pr, buf, &pmask);
     }
     pr("\n");
@@ -1612,7 +1612,7 @@ static vtss_rc fa_debug_pgid_table(vtss_state_t *vtss_state,
         if (pgid > 80 && pmask.m[0] == 0 && pmask.m[1] == 0 && pmask.m[2] == 0 && !info->full) {
             continue;
         }
-        sprintf(buf, "%-5u%-11s%-5u%-5u",
+        VTSS_SPRINTF(buf, "%-5u%-11s%-5u%-5u",
                 pgid,
                 pgid == PGID_UC_FLOOD ? "UC" :
                 pgid == PGID_MC_FLOOD ? "MC" :
@@ -1662,7 +1662,7 @@ static vtss_rc fa_debug_mac_table(vtss_state_t *vtss_state,
     pr("\n");
 
     /* Dump MAC address table */
-    memset(&mac_entry, 0, sizeof(mac_entry));
+    VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
 
     while (fa_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
         vtss_debug_print_mac_entry(pr, "Dynamic Entries (GET_NEXT)", &header, &mac_entry, pgid);
@@ -1727,7 +1727,7 @@ static vtss_rc fa_debug_frer(vtss_state_t *vtss_state,
         idx = ms->idx;
         for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_PORT_BF_GET(ms->port_list, port_no)) {
-                sprintf(buf, "MSID %u, port %u", i, port_no);
+                VTSS_SPRINTF(buf, "MSID %u, port %u", i, port_no);
                 vtss_fa_debug_reg_header(pr, buf);
                 vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_EACL_FRER_CFG_MEMBER(idx), idx, "EACL:FRER_CFG_MEMBER");
                 REG_WRM(VTSS_EACL_FRER_CFG,
@@ -1744,7 +1744,7 @@ static vtss_rc fa_debug_frer(vtss_state_t *vtss_state,
         if (vtss_state->l2.cstream_conf[i].recovery == 0) {
             continue;
         }
-        sprintf(buf, "CSID %u", i);
+        VTSS_SPRINTF(buf, "CSID %u", i);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_EACL_FRER_CFG_COMPOUND(i), i, "EACL:FRER_CFG_COMPOUND");
         REG_WRM(VTSS_EACL_FRER_CFG,
@@ -1785,7 +1785,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
     for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
             id = fa_psfp_sgid(i);
-            sprintf(buf, "PSFP Gate %u (%u)", i, id);
+            VTSS_SPRINTF(buf, "PSFP Gate %u (%u)", i, id);
             vtss_fa_debug_reg_header(pr, buf);
             REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL,
                    VTSS_F_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(id));
@@ -1863,10 +1863,10 @@ static vtss_rc fa_debug_stp(vtss_state_t *vtss_state,
     fa_debug_pmask_header(vtss_state, pr, NULL);
     for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
         REG_RDX_PMASK(VTSS_ANA_L3_MSTP_LRN_CFG, msti, &pmask);
-        sprintf(buf, "MSTP_LRN_CFG_%u", msti);
+        VTSS_SPRINTF(buf, "MSTP_LRN_CFG_%u", msti);
         fa_debug_pmask(pr, buf, &pmask);
         REG_RDX_PMASK(VTSS_ANA_L3_MSTP_FWD_CFG, msti, &pmask);
-        sprintf(buf, "MSTP_FWD_CFG_%u", msti);
+        VTSS_SPRINTF(buf, "MSTP_FWD_CFG_%u", msti);
         fa_debug_pmask(pr, buf, &pmask);
     }
     pr("\n");
@@ -1883,7 +1883,7 @@ static vtss_rc fa_debug_mirror(vtss_state_t *vtss_state,
     char             buf[32];
 
     for (i = 0; i < 3; i++) {
-        sprintf(buf, "%s Probe", i == FA_MIRROR_PROBE_RX ? "Rx" : i == FA_MIRROR_PROBE_TX ? "Tx" : "VLAN");
+        VTSS_SPRINTF(buf, "%s Probe", i == FA_MIRROR_PROBE_RX ? "Rx" : i == FA_MIRROR_PROBE_TX ? "Tx" : "VLAN");
         vtss_fa_debug_reg_header(pr, buf);
         j = QFWD_FRAME_COPY_CFG_MIRROR_PROBE(i);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(j),    j, "QFWD:FRAME_COPY_CFG");
@@ -1895,7 +1895,7 @@ static vtss_rc fa_debug_mirror(vtss_state_t *vtss_state,
 
         fa_debug_pmask_header(vtss_state, pr, NULL);
         REG_RDX_PMASK(VTSS_ANA_AC_MIRROR_PROBE_PROBE_PORT_CFG, i, &pmask);
-        sprintf(buf, "PROBE_PORT_CFG_%u", i);
+        VTSS_SPRINTF(buf, "PROBE_PORT_CFG_%u", i);
         fa_debug_pmask(pr, buf, &pmask);
         pr("\n");
     }

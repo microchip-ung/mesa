@@ -139,7 +139,7 @@ vtss_rc vtss_fa_emul_init(vtss_state_t *vtss_state)
         VTSS_E("malloc register memory failed");
         return VTSS_RC_ERROR;
     }
-    memset(vtss_reg_mem, 0, size); 
+    VTSS_MEMSET(vtss_reg_mem, 0, size);
     return VTSS_RC_OK;
 }
 #endif

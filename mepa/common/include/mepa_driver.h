@@ -4,6 +4,7 @@
 #ifndef _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 
+#include <mepa_os.h>
 #include <mepa_ts_driver.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */

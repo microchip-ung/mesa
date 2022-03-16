@@ -663,7 +663,7 @@ static char *debug_mac_string(const vtss_mac_t *m)
 {
     static char buf[20];
 
-    sprintf(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1], m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
+    VTSS_SPRINTF(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1], m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
 
     return buf;
 }

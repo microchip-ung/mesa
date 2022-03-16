@@ -367,7 +367,7 @@ static vtss_rc fa_vcap_initialize(vtss_state_t *vtss_state, fa_vcap_type_t bank)
     VTSS_I("init %s, entry_count: %u, action_count: %u", props->name, props->entry_count, props->action_count);
 
     /* First write entries */
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     info.bank = bank;
     info.update_cmd = FA_VCAP_CMD_INITIALIZE;
     info.update_sel = FA_VCAP_SEL_ALL;
@@ -471,7 +471,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
     addr_count = fa_vcap_tg_count(tg_in);
     for (i = 0; i < addr_count; i++) {
         addr = (addr_base + i);
-        memset(&info, 0, sizeof(info));
+        VTSS_MEMSET(&info, 0, sizeof(info));
         info.bank = bank;
         info.update_addr = addr;
         info.update_cmd = cmd;
@@ -631,7 +631,7 @@ static vtss_rc fa_vcap_entry_del(vtss_state_t *vtss_state, vtss_vcap_type_t type
     vtss_fa_vcap_reg_info_t    info;
 
     VTSS_I("%s, row: %u, col: %u, addr: %u", props->name, idx->row, idx->col, addr);
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     info.bank = bank;
     info.update_addr = addr;
     info.update_cmd = FA_VCAP_CMD_INITIALIZE;
@@ -656,7 +656,7 @@ static vtss_rc fa_vcap_entry_move(vtss_state_t *vtss_state,
     addr = (fa_vcap_entry_addr(vtss_state, type, idx) - (count - 1) * cnt);
     VTSS_I("%s, row: %u, col: %u, %s, count: %u, up: %u, addr: %u",
            props->name, idx->row, idx->col, vtss_vcap_key_size2txt(idx->key_size), count, up, addr);
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     info.bank = bank;
     info.update_addr = addr;
     info.update_cmd = (up ? FA_VCAP_CMD_MOVE_UP : FA_VCAP_CMD_MOVE_DOWN);
@@ -720,7 +720,7 @@ static vtss_rc fa_vcap_super_block_move(vtss_state_t *vtss_state, u32 block, BOO
     cnt = (vcap_super->row_count * FA_VCAP_SUPER_SW_COUNT);
     addr = ((FA_VCAP_SUPER_BLK_COUNT - block - 1) * cnt);
     VTSS_I("block: %i, up: %u, addr: %u, cnt: %u", block, up, addr, cnt);
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     info.bank = FA_VCAP_TYPE_CLM_A; /* VCAP_SUPER */
     info.update_addr = addr;
     info.update_cmd = (up ? FA_VCAP_CMD_MOVE_UP : FA_VCAP_CMD_MOVE_DOWN);
@@ -746,7 +746,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_type_t v
     vtss_vcap_range_chk_table_t *table = fa_vcap_range_get(vtss_state, vcap_type);
 
     if (new_table != NULL) {
-        if (!memcmp(table, new_table, sizeof(*table))) {
+        if (!VTSS_MEMCMP(table, new_table, sizeof(*table))) {
             /* Table unchanged */
             return VTSS_RC_OK;
         }
@@ -913,7 +913,7 @@ static void fa_debug_action(fa_vcap_data_t *data, const char *name, u32 offs, u3
 static void fa_debug_action_ena(fa_vcap_data_t *data, const char *name, u32 offs, u32 offs_val, u32 len)
 {
     vtss_debug_printf_t pr = data->pr;
-    int                 i, length = strlen(name);
+    int                 i, length = VTSS_STRLEN(name);
     BOOL                enable = vtss_bs_bit_get(data->action, offs);
 
     for (i = 0; i < length; i++) {
@@ -926,7 +926,7 @@ static void fa_debug_bits(fa_vcap_data_t *data, const char *name, u32 offset, u3
 {
     vtss_debug_printf_t pr = data->pr;
     u32                 i,j;
-    int                 n = strlen(name);
+    int                 n = VTSS_STRLEN(name);
 
     pr("%s:", name);
     for (i = 0; i < len; i++) {
@@ -990,7 +990,7 @@ static vtss_rc fa_debug_vcap(vtss_state_t *vtss_state,
 
     vtss_debug_print_header(pr, props->name);
 
-    memset(&reg_info, 0, sizeof(reg_info));
+    VTSS_MEMSET(&reg_info, 0, sizeof(reg_info));
     reg_info.bank = bank;
     VTSS_RC(fa_vcap_reg_info_get(&reg_info));
 
@@ -1334,7 +1334,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
     vtss_vcap_bit_t        first, y1731 = VTSS_VCAP_BIT_ANY;
     vtss_port_no_t         port_no;
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = type;
 
     if (key->type == VTSS_IS1_TYPE_MPLS_MLL) {
@@ -1358,7 +1358,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
     VTSS_I("%s, row: %u, col: %u, addr: %u", vtss_vcap_type_txt(type), idx->row, idx->col, addr);
 
     /* Setup key fields */
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
     switch (key->type) {
     case VTSS_IS1_TYPE_ANY:
         if (key->key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR) {
@@ -2205,11 +2205,11 @@ static vtss_rc fa_debug_clm_all(vtss_state_t *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_fa_debug_reg_header(pr, buf);
         for (i = 0; i < 2; i++) {
             j = ((type == VTSS_VCAP_TYPE_CLM_A ? 0 : type == VTSS_VCAP_TYPE_CLM_B ? 2 : 4) + i);
-            sprintf(buf, "ADV_CL_CFG_%u", port);
+            VTSS_SPRINTF(buf, "ADV_CL_CFG_%u", port);
             vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_ADV_CL_CFG(port, j), j, buf);
         }
         pr("\n");
@@ -2251,7 +2251,7 @@ static vtss_rc fa_lpm_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     vtss_vid_mac_t       vid_mac;
     u32                  addr, mach, macl;
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_LPM;
     addr = fa_vcap_entry_addr(vtss_state, data->vcap_type, idx);
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, addr);
@@ -2672,7 +2672,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
 
     addr = fa_vcap_entry_addr(vtss_state, vcap_type, idx);
     VTSS_I("row: %u, col: %u, addr: %u, type: %u", idx->row, idx->col, addr, key->type);
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     l4_rng = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
               (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
     data->tg = (idx->key_size == VTSS_VCAP_KEY_SIZE_FULL ? FA_VCAP_TG_X12 :
@@ -2738,8 +2738,8 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
         fa_vcap_key_u8_set(data, IS2_KO_IP_7TUPLE_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
         if (ipv4) {
             /* IPv4 */
-            memset(&sip, 0, sizeof(sip));
-            memset(&dip, 0, sizeof(dip));
+            VTSS_MEMSET(&sip, 0, sizeof(sip));
+            VTSS_MEMSET(&dip, 0, sizeof(dip));
             if (ipv4->fragment != VTSS_ACE_BIT_ANY) {
                 // DIP bit 126-127 is L3_FRAGMENT_TYPE
                 m = (1 << 6);
@@ -2963,7 +2963,7 @@ static vtss_rc fa_is2_entry_get(vtss_state_t *vtss_state, vtss_vcap_type_t type,
     fa_vcap_data_t data;
     u32            addr, cnt_id;
 
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     data.vcap_type = type;
     data.tg = FA_VCAP_TG_X6;
     data.type = FA_VCAP_TG_X3;
@@ -3345,7 +3345,7 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     VTSS_I("row: %u, col: %u, addr: %u, type: %u", idx->row, idx->col, addr, key->type);
 
     /* X6 rule */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->tg = FA_VCAP_TG_X6;
     data->vcap_type = VTSS_VCAP_TYPE_ES2;
     switch (key->type) {
@@ -3516,7 +3516,7 @@ static vtss_rc fa_es2_entry_get(vtss_state_t *vtss_state,
     fa_vcap_data_t data;
     u32            addr, cnt_id;
 
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     data.vcap_type = VTSS_VCAP_TYPE_ES2;
     data.tg = FA_VCAP_TG_X6;
     data.type = FA_VCAP_TG_X3;
@@ -3680,22 +3680,22 @@ static vtss_rc fa_debug_acl(vtss_state_t *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        sprintf(buf, "Port %u (%u)", port, port_no);
+        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_CFG(port), port, "VCAP_S2_CFG");
         for (i = 0; i < 4; i++) {
-            sprintf(buf, "IS2_KEY_SEL_%u", i);
+            VTSS_SPRINTF(buf, "IS2_KEY_SEL_%u", i);
             vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_KEY_SEL(port, i), port, buf);
         }
         for (i = 0; i < 2; i++) {
-            sprintf(buf, "ES2_KEY_SEL_%u", i);
+            VTSS_SPRINTF(buf, "ES2_KEY_SEL_%u", i);
             vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_EACL_VCAP_ES2_KEY_SEL(port, i), port, buf);
         }
         pr("\n");
     }
 
     for (i = 0; i < VTSS_ACL_POLICERS; i++) {
-        sprintf(buf, "Policer %u", i);
+        VTSS_SPRINTF(buf, "Policer %u", i);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(i), i, "ACL_CTRL");
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG(i), i, "ACL_RATE_CFG");
@@ -3704,7 +3704,7 @@ static vtss_rc fa_debug_acl(vtss_state_t *vtss_state,
     }
 
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        sprintf(buf, "Range %u", i);
+        VTSS_SPRINTF(buf, "Range %u", i);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_RNG_CTRL(i), i, "S2_RNG_CTRL");
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_RNG_VALUE_CFG(i), i, "S2_RNG_VAL");
@@ -3967,7 +3967,7 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
     }
 
     /* Calculate number of new rules port masks */
-    memset(prl_range, 0, sizeof(prl_range));
+    VTSS_MEMSET(prl_range, 0, sizeof(prl_range));
     if (racl) {
         if (key->type == VTSS_ACE_TYPE_IPV6) {
             /* IPv6 uses X12 rules with 64 router legs each */
@@ -4072,8 +4072,8 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
 
     /* Add/delete SIP/SMAC entry */
     if (sip_smac_new) {
-        memset(&data, 0, sizeof(data));
-        memset(&entry_lpm, 0, sizeof(entry_lpm));
+        VTSS_MEMSET(&data, 0, sizeof(data));
+        VTSS_MEMSET(&entry_lpm, 0, sizeof(entry_lpm));
         data.u.lpm.entry = &entry_lpm;
         data.key_size = key_lpm;
         entry_lpm.key.type = VTSS_LPM_KEY_SGL_IP4;
@@ -4256,7 +4256,7 @@ static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
            VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_KEY_SEL(conf->key.arp == VTSS_ACL_KEY_ETYPE ? 0 : 1));
 
     /* Setup action */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     fa_action_old2new(&conf->action, &action);
     data->vcap_type = VTSS_VCAP_TYPE_IS2;
     VTSS_RC(fa_is2_action_set(vtss_state, data, &action, fa_acl_port_cnt_id(port), 0));
@@ -4446,7 +4446,7 @@ typedef struct {
 
 static BOOL fa_es0_map_update(vtss_state_t *vtss_state, vtss_qos_egress_map_id_t map_id, fa_es0_map_t *map)
 {
-    memset(map, 0, sizeof(*map));
+    VTSS_MEMSET(map, 0, sizeof(*map));
     if (map_id < VTSS_QOS_EGRESS_MAP_IDS) {
         const vtss_qos_map_adm_t *const m = &vtss_state->qos.emap;
 
@@ -4571,7 +4571,7 @@ static vtss_rc fa_es0_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
     u32               addr;
     BOOL              key_isdx = (key->type == VTSS_ES0_TYPE_ISDX ? 1 : 0);
 
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = FA_VCAP_TG_X1;
     data->type = FA_VCAP_TG_X1;
@@ -4710,7 +4710,7 @@ vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_n
     BOOL                     port_tag = FALSE;
 
     /* Egress QoS map setup using ES0 default action */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     addr = fa_vcap_action_addr(data->vcap_type, port, 0);
     VTSS_I("port_no: %u, port: %u, addr: %u, map: %u", port_no, port, addr, map_id);
@@ -4718,7 +4718,7 @@ vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_n
     data->type = FA_VCAP_TG_X1;
 
     /* Setup TAG_C */
-    memset(&tag, 0, sizeof(tag));
+    VTSS_MEMSET(&tag, 0, sizeof(tag));
     if (fa_es0_map_update(vtss_state, map_id, &map)) {
         VTSS_I("map_act: %u", map.act);
         /* Egress QoS map used, push TAG_C */
@@ -4752,7 +4752,7 @@ vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_n
     FA_ACT_SET(ES0, ES0_DEI_C_VAL, tag.dei.val);
 
     /* Setup TAG_A */
-    memset(&tag, 0, sizeof(tag));
+    VTSS_MEMSET(&tag, 0, sizeof(tag));
     tag.tag_sel = (port_tag ? ES0_ACT_PUSH_OT_PORT_ENA : ES0_ACT_PUSH_OT_NONE);
     fa_es0_outer_tag_update(vtss_state, data, &tag);
 
@@ -4783,7 +4783,7 @@ static void fa_debug_es0_tag(const char *name, fa_vcap_data_t *data,
        x == ES0_ACT_TPID_SEL_CUSTOM_3 ? "c3" :
        x == ES0_ACT_TPID_SEL_INGRESS ? "ingress" : "?");
 
-    sprintf(buf, "vid_%s", name);
+    VTSS_SPRINTF(buf, "vid_%s", name);
     x = fa_act_get(data, vid_sel, ES0_AL_ES0_TAG_A_VID_SEL);
     pr("%s_sel:%u (%s) ", buf, x,
        x == ES0_ACT_VID_SEL_CL_VID ? "cl_vid" :
@@ -4792,7 +4792,7 @@ static void fa_debug_es0_tag(const char *name, fa_vcap_data_t *data,
     fa_debug_action(data, buf, vid_val, ES0_AL_ES0_VID_A_VAL);
     pr("\n");
 
-    sprintf(buf, "pcp_%s", name);
+    VTSS_SPRINTF(buf, "pcp_%s", name);
     x = fa_act_get(data, pcp_sel, ES0_AL_ES0_TAG_A_PCP_SEL);
     pr("%s_sel:%u (%s) ", buf, x,
        x == ES0_ACT_PCP_SEL_CL_PCP ? "cl-pcp" :
@@ -4804,7 +4804,7 @@ static void fa_debug_es0_tag(const char *name, fa_vcap_data_t *data,
        x == ES0_ACT_PCP_SEL_MAP_3 ? "map_3" : "?");
     fa_debug_action(data, buf, pcp_val, ES0_AL_ES0_PCP_A_VAL);
 
-    sprintf(buf, "dei_%s", name);
+    VTSS_SPRINTF(buf, "dei_%s", name);
     x = fa_act_get(data, dei_sel, ES0_AL_ES0_TAG_A_DEI_SEL);
     pr("%s_sel:%u (%s) ", buf, x,
        x == ES0_ACT_DEI_SEL_CL_DEI ? "cl-dei" :
@@ -4926,7 +4926,7 @@ static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 es
 
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = FA_VCAP_TG_X1;
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->esdx != esdx_old) {
@@ -4983,7 +4983,7 @@ static vtss_rc fa_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id
 
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = FA_VCAP_TG_X1;
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
@@ -5064,7 +5064,7 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
     is2_pacl.arp = 1;    /* ARP */
 
     /* I-VACL key: ETYPE */
-    memset(&is2_vacl, 0, sizeof(is2_vacl));
+    VTSS_MEMSET(&is2_vacl, 0, sizeof(is2_vacl));
 
     /* I-RACL/E-RACL key */
     is2_racl = is2_vacl;
@@ -5152,7 +5152,7 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
     }
 
     /* Initialize IS2 lookup 1-3 default actions */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->type = FA_VCAP_TG_X3;
     data->vcap_type = VTSS_VCAP_TYPE_IS2;
     for (port = 0; port < 3; port++) {
@@ -5171,7 +5171,7 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
            VTSS_M_ANA_CL_ADV_CL_CFG_LOOKUP_ENA);
 
     /* IPMC: Setup CLM-A0 default action for VD0 */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->type = FA_VCAP_TG_X3;
     data->vcap_type = VTSS_VCAP_TYPE_CLM_A;
     addr = fa_vcap_action_addr(data->vcap_type, port, 0);

@@ -217,7 +217,7 @@ static void srvl_debug_bytes(srvl_debug_info_t *info, const char *name, u32 offs
         /* Three or more chunks, use one output line for each */
         count = VTSS_DIV_ROUND_UP(len, 32);
         for (i = 0; i < count; i++) {
-            sprintf(buf, "%s_%u", name, count - i - 1);
+            VTSS_SPRINTF(buf, "%s_%u", name, count - i - 1);
             srvl_debug_bits(info, buf, offset, n);
             if (n <= 24)
                 info->pr("\n");
@@ -284,7 +284,7 @@ static void srvl_debug_action_len(srvl_debug_info_t *info,
     srvl_tcam_data_t    *data = &info->data;
     BOOL                enable, multi = 0;
     u32                 num = 0;
-    int                 i, length = strlen(name);
+    int                 i, length = VTSS_STRLEN(name);
 
     if (offs_val != 0 && len != 1) {
         /* 'Enable' field consists of multiple bits */
@@ -529,7 +529,7 @@ static vtss_rc srvl_vcap_initialize(vtss_state_t *vtss_state, int bank)
     srvl_tcam_data_t   data;
     u32                tgt = tcam->target;
 
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     
     /* First write entries */
     VTSS_RC(srvl_vcap_entry2cache(vtss_state, tcam, &data));
@@ -630,7 +630,7 @@ static vtss_rc srvl_vcap_entry_get(vtss_state_t *vtss_state,
     VTSS_I("%s, row: %u", tcam->name, idx->row);
 
     /* Read row */
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     VTSS_RC(srvl_vcap_row_cmd(vtss_state, tcam, idx->row, VTSS_TCAM_CMD_READ, VTSS_TCAM_SEL_ALL));
     VTSS_RC(srvl_vcap_cache2action(vtss_state, tcam, data));
     VTSS_RC(srvl_vcap_cache2entry(vtss_state, tcam, data));
@@ -1183,8 +1183,8 @@ static vtss_rc srvl_is0_entry_add(vtss_state_t *vtss_state,
             srvl_vcap_key_set(data, IS0_FKO_MLL_TTYPE, IS0_FKL_MLL_TTYPE,       key->mll.tag_type,     MASK(key->mll.tag_type_dontcare,  IS0_FKL_MLL_TTYPE));
             srvl_vcap_key_set(data, IS0_FKO_MLL_BVID, IS0_FKL_MLL_BVID,         key->mll.b_vid,        MASK(key->mll.b_vid_dontcare || key->mll.tag_type == VTSS_IS0_TAGTYPE_UNTAGGED, IS0_FKL_MLL_BVID));
             srvl_vcap_key_set(data, IS0_FKO_MLL_E_TYPE, IS0_FKL_MLL_E_TYPE,     key->mll.ether_type,   MASK(key->mll.ether_type_dontcare, IS0_FKL_MLL_E_TYPE));
-            memcpy(mac.value, &key->mll.dmac, 6);  memset(mac.mask, key->mll.dmac_dontcare ? 0 : 0xff, sizeof(mac.mask));  srvl_vcap_key_u48_set(data, IS0_FKO_MLL_M_DMAC, &mac);
-            memcpy(mac.value, &key->mll.smac, 6);  memset(mac.mask, key->mll.smac_dontcare ? 0 : 0xff, sizeof(mac.mask));  srvl_vcap_key_u48_set(data, IS0_FKO_MLL_M_SMAC, &mac);
+            VTSS_MEMCPY(mac.value, &key->mll.dmac, 6);  VTSS_MEMSET(mac.mask, key->mll.dmac_dontcare ? 0 : 0xff, sizeof(mac.mask));  srvl_vcap_key_u48_set(data, IS0_FKO_MLL_M_DMAC, &mac);
+            VTSS_MEMCPY(mac.value, &key->mll.smac, 6);  VTSS_MEMSET(mac.mask, key->mll.smac_dontcare ? 0 : 0xff, sizeof(mac.mask));  srvl_vcap_key_u48_set(data, IS0_FKO_MLL_M_SMAC, &mac);
 #undef MASK
 
             // Action
@@ -1561,7 +1561,7 @@ static vtss_rc srvl_is1_entry_add(vtss_state_t *vtss_state,
     }
 
     /* Initialize IS1 info */
-    memset(&info, 0, sizeof(info));
+    VTSS_MEMSET(&info, 0, sizeof(info));
 
     /* VLAN value/range */
     vid = &key->tag.vid;
@@ -2027,7 +2027,7 @@ vtss_rc vtss_srvl_debug_is1_all(vtss_state_t *vtss_state,
         header = 0;
         vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VCAP_CFG(port), port, "VCAP_CFG");
         for (i = 0; i < 3; i++) {
-            sprintf(buf, "VCAP_S1_CFG_%u", port);
+            VTSS_SPRINTF(buf, "VCAP_S1_CFG_%u", port);
             vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VCAP_S1_KEY_CFG(port, i), i, buf);
         }
     }
@@ -3036,7 +3036,7 @@ static vtss_rc srvl_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_
         mep_idx = eflow->conf.voe_idx;
     }
 
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
         if (cur->data.u.es0.flow_id == flow_id) {
             /* Update action fields */
@@ -3068,7 +3068,7 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
         
         /* Loop over TAG_A/TAG_B fields */
         for (i = 0; i < 2; i++) {
-            sprintf(buf, "_%s", i ? "b" : "a");
+            VTSS_SPRINTF(buf, "_%s", i ? "b" : "a");
             offs = (i ? (ES0_AO_TAG_B_TPID_SEL - ES0_AO_TAG_A_TPID_SEL) : 0);
             x = srvl_act_bs_get(info, ES0_AO_TAG_A_TPID_SEL + offs, ES0_AL_TAG_A_TPID_SEL);
             pr("tpid%s:%u (%s) ", buf, x,
@@ -3095,12 +3095,12 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
                x == ES0_ACT_DEI_SEL_DP ? "dp" : "?");
             
             offs = (i ? (ES0_AO_VID_B_VAL - ES0_AO_VID_A_VAL) : 0);
-            sprintf(buf_1, "_%s_val", i ? "b" : "a");
-            sprintf(buf, "vid%s", buf_1);
+            VTSS_SPRINTF(buf_1, "_%s_val", i ? "b" : "a");
+            VTSS_SPRINTF(buf, "vid%s", buf_1);
             srvl_debug_fld(info, buf, ES0_AO_VID_A_VAL + offs, ES0_AL_VID_A_VAL);
-            sprintf(buf, "pcp%s", buf_1);
+            VTSS_SPRINTF(buf, "pcp%s", buf_1);
             srvl_debug_fld(info, buf, ES0_AO_PCP_A_VAL + offs, ES0_AL_PCP_A_VAL);
-            sprintf(buf, "dei%s", buf_1);
+            VTSS_SPRINTF(buf, "dei%s", buf_1);
             srvl_debug_fld(info, buf, ES0_AO_DEI_A_VAL + offs, ES0_AL_DEI_A_VAL);
             pr("\n");
         }
@@ -3154,7 +3154,7 @@ static vtss_rc srvl_acl_policer_set(vtss_state_t *vtss_state,
     vtss_acl_policer_conf_t  *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
     vtss_policer_conf_t      pol_conf;
     
-    memset(&pol_conf, 0, sizeof(pol_conf));
+    VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
     if (conf->bit_rate_enable) {
         pol_conf.eir = conf->bit_rate;
         pol_conf.ebs = 1; /* Minimum burst size */
@@ -3197,7 +3197,7 @@ static vtss_rc srvl_acl_port_conf_set(vtss_state_t *vtss_state,
              VTSS_M_ANA_PORT_VCAP_CFG_PAG_VAL);
     
     /* Set action */
-    memset(&data, 0, sizeof(data));
+    VTSS_MEMSET(&data, 0, sizeof(data));
     data.action_offset = tcam->action_type_width;
     VTSS_RC(srvl_is2_action_set(vtss_state, &data, &conf->action, 0, 0));
     VTSS_RC(srvl_vcap_action2cache(vtss_state, tcam, &data));
@@ -3251,7 +3251,7 @@ static vtss_rc srvl_ace_add(vtss_state_t *vtss_state,
     }
 
     /* Check that half entry can be added */
-    memset(&chg, 0, sizeof(chg));
+    VTSS_MEMSET(&chg, 0, sizeof(chg));
     chg.add_key[key_size] = 1;
     if (vtss_vcap_lookup(vtss_state, obj, user, ace->id, &data, NULL) == VTSS_RC_OK) {
         chg.del_key[data.key_size] = 1;

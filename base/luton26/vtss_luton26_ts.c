@@ -686,7 +686,7 @@ static vtss_rc l26_debug_ts(vtss_state_t *vtss_state,
     vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
     vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_DELAY, "PTP_DELAY");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "PTP_CFG(%u)", port);
+        VTSS_SPRINTF(buf, "PTP_CFG(%u)", port);
         vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_CFG(port), buf);
     }
 

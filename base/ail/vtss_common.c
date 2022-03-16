@@ -251,7 +251,7 @@ void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
                                         const char                *header,
                                         BOOL                      layer)
 {
-    int i, len = strlen(header);
+    int i, len = VTSS_STRLEN(header);
 
     pr("%s\n", header);
     for (i = 0; i < len; i++)
@@ -619,7 +619,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t *vtss_state,
         if (info->chip_no != VTSS_CHIP_NO_ALL && chip_no != info->chip_no)
             continue;
         VTSS_SELECT_CHIP(chip_no);
-        sprintf(buf, "Chip Interface Layer[%u]", chip_no);
+        VTSS_SPRINTF(buf, "Chip Interface Layer[%u]", chip_no);
         vtss_debug_print_header_underlined(pr, buf, 1);
         rc = VTSS_FUNC(cil.debug_info_print, pr, info);
     }

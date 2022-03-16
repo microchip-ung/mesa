@@ -97,7 +97,7 @@ vtss_rc vtss_phy_ts_sw_pop_fifo(vtss_state_t *vtss_state,
         VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
                                       VTSS_PTP_INGR_IP_1588_DEBUG_REGISTERS_INGR_SW_POP_FIFO,
                                       &value));
-        //    VTSS_MSLEEP(1);
+        //    MEPA_MSLEEP(1);
 
         value = 0;
         VTSS_RC(VTSS_PHY_TS_READ_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
@@ -116,7 +116,7 @@ vtss_rc vtss_phy_ts_sw_pop_fifo(vtss_state_t *vtss_state,
         VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
                                       VTSS_PTP_EGR_IP_1588_DEBUG_REGISTERS_EGR_SW_POP_FIFO,
                                       &value));
-        //   VTSS_MSLEEP(1);
+        //   MEPA_MSLEEP(1);
 
         value = 0;
 
@@ -133,7 +133,7 @@ vtss_rc vtss_phy_ts_sw_pop_fifo(vtss_state_t *vtss_state,
         VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
                                       VTSS_PTP_INGR_IP_1588_DEBUG_REGISTERS_INGR_SW_POP_FIFO,
                                       &value));
-        //    VTSS_MSLEEP(1);
+        //    MEPA_MSLEEP(1);
 
         value = 0;
         VTSS_RC(VTSS_PHY_TS_READ_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
@@ -150,7 +150,7 @@ vtss_rc vtss_phy_ts_sw_pop_fifo(vtss_state_t *vtss_state,
         VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
                                       VTSS_PTP_EGR_IP_1588_DEBUG_REGISTERS_EGR_SW_POP_FIFO,
                                       &value));
-        //   VTSS_MSLEEP(1);
+        //   MEPA_MSLEEP(1);
 
         value = 0;
         VTSS_RC(VTSS_PHY_TS_READ_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
@@ -322,7 +322,7 @@ static vtss_rc vtss_phy_10g_oos_core_patch( vtss_state_t *vtss_state,
     VTSS_I("VTSS_PHY_1588_PPS_0_MUX_CTRL Port_no %u Value 0x%x\n", port_no, reg);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //TeslaCsrWrite $port $proc_id 0x00 0x42;#Disable 1588 bypass
     vtss_phy_ts_bypass_set(vtss_state, port_no, FALSE, TRUE);
@@ -332,7 +332,7 @@ static vtss_rc vtss_phy_10g_oos_core_patch( vtss_state_t *vtss_state,
     VTSS_RC(vtss_phy_ts_sw_pop_fifo(vtss_state, port_no, FALSE));
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //ExtMiiWrite $port 29 0x8042;#Enable EPG
     VTSS_RC(vtss_phy_page_ext(vtss_state, port_no));        // Switch to extended register-page 1
@@ -349,7 +349,7 @@ static vtss_rc vtss_phy_10g_oos_core_patch( vtss_state_t *vtss_state,
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, EPG_CTRL_REG_1, reg));
 
     //after 10
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     //TeslaCsrWrite $port $proc_id 0x00 0x46;#Enable 1588 Bypass
     vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, TRUE);
@@ -366,7 +366,7 @@ static vtss_rc vtss_phy_10g_oos_core_patch( vtss_state_t *vtss_state,
     VTSS_I("VTSS_PHY_1588_PPS_0_MUX_CTRL Port_no %u Value 0x%x\n", port_no, reg);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //TeslaCsrWrite $port $proc_id 0x00 0x42;#Disable 1588 bypass
     vtss_phy_ts_bypass_set(vtss_state, port_no, FALSE, TRUE);
@@ -501,7 +501,7 @@ vtss_rc vtss_phy_ts_isolate_phy(vtss_state_t *vtss_state,
     VTSS_RC(vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, TRUE));
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //TrWrite $port mac_isolate_rx -1 1;#Prevent mac side traffic
     VTSS_I("3.Configure mac_isolate_rx and wait for 1m (to prevent media side traffic) \n");
@@ -529,7 +529,7 @@ vtss_rc vtss_phy_1588_oos_mitigation_isolate_phy(vtss_state_t *vtss_state,
     rc = vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, TRUE);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //TrWrite $port mac_isolate_rx -1 1;#Prevent mac side traffic
     VTSS_I("3.Configure mac_isolate_rx and wait for 1m (to prevent media side traffic) \n");
@@ -586,7 +586,7 @@ static vtss_rc  vtss_phy_1588_oos_mitigation_media_interface_link_status(vtss_st
         VTSS_I("VTSS_PHY_1000BASE_T_STATUS 14:12 still not set\n");
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_STATUS, &reg));
         VTSS_I("VTSS_PHY_1000BASE_T_STATUS value %x", reg);
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
     }
 
     VTSS_RC(vtss_phy_page_std(vtss_state, port_no));    // Go to standard Page
@@ -615,11 +615,11 @@ static vtss_rc vtss_phy_1588_oos_mitigation_check_frames_remote_local_good(vtss_
         VTSS_I("VTSS_PHY_1000BASE_T_STATUS 14:12 still not set\n");
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_STATUS, &reg));
         VTSS_I("VTSS_PHY_1000BASE_T_STATUS value %x", reg);
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
     }
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
 
     VTSS_RC(vtss_phy_page_ext(vtss_state, port_no));
@@ -663,7 +663,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_check_frames_remote_local_good(vtss_
         if ((rec_cnt == 0) && (rx_er == 0) && (tx_cnt == 0)) {
             check_for_no_frames = 0;
         }
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
     }
     VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
 
@@ -687,13 +687,13 @@ static vtss_rc vtss_phy_1588_oos_mitigation_soft_reset_pop_fifo(vtss_state_t *vt
     VTSS_I("VTSS_PHY_1588_PPS_0_MUX_CTRL Port_no %u Value 0x%x\n", port_no, reg);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //TeslaCsrWrite $port $proc_id 0x00 0x42;#Disable 1588 bypass
     vtss_phy_ts_bypass_set(vtss_state, port_no, FALSE, TRUE);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
     //TeslaCsrWrite $port $proc_id 0x9F 0x69;#SW_POP_FIFO
     //TeslaCsrWrite $port $proc_id 0xC0 0x69
     VTSS_RC(vtss_phy_ts_sw_pop_fifo(vtss_state, port_no, FALSE));
@@ -752,13 +752,13 @@ static vtss_rc vtss_phy_1588_oos_mitigation_epg_transmit_frames(vtss_state_t *vt
                 return VTSS_RC_ERROR;
             }
             VTSS_I("Waiting to transmit EPG frames\n");
-            VTSS_MSLEEP(1);
+            MEPA_MSLEEP(1);
             VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, EPG_CTRL_REG_1, &reg));
             count++;
         }
     }
     //after 10
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     //set rec_cnt [hex2dec [ExtMiiReadBits $port 18 13 0]]
     VTSS_RC(vtss_phy_page_ext(vtss_state, port_no));
@@ -844,7 +844,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_restore_setup(vtss_state_t *vtss_sta
     rc = token_reg_write_func(vtss_state, port_no, 0x0cc0, 0x0, 0x2, 0x610, 0x610);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_EXTENDED_PHY_CONTROL, *reg23));
 
@@ -857,7 +857,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_restore_setup(vtss_state_t *vtss_sta
     rc = token_reg_write_func(vtss_state, port_no, 0x0c80, 0x0005, 0x0085, 0x1000, 0x1000);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     VTSS_I("Normal Operation being restored\n");
     //MiiWrite $port 9 $reg9
@@ -1039,7 +1039,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
     }
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
     if(rc == VTSS_RC_OK){
         rc = vtss_phy_intr_status(vtss_state, port_no, &overflow_conf);
     }
@@ -1057,13 +1057,13 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
     rc = vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, TRUE);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_soft_reset_pop_fifo(vtss_state, port_no);
 
     //after 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_epg_transmit_frames(vtss_state, port_no, copper);
@@ -1074,13 +1074,13 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_soft_reset_pop_fifo(vtss_state, port_no);
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_execute_core_patch_execute(vtss_state, port_no);
 
     //After 1
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     //Enable 1588 Bypass
 
@@ -1090,7 +1090,7 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_restore_setup(vtss_state, port_no,&reg0, &reg9, &extreg29, &reg23);
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_ts_bypass_set(vtss_state, port_no, FALSE, TRUE);

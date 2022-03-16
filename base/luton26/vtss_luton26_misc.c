@@ -148,7 +148,7 @@ static vtss_rc lu26_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
 {
     u32 val, uio_irqs;
     
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     // Which interrupts are taken care of in user-space?
     uio_irqs = vtss_state->misc.irq_user_space_owned_mask;
@@ -932,7 +932,7 @@ static vtss_rc l26_debug_misc(vtss_state_t *vtss_state,
     L26_DEBUG_TGT(pr, DEVCPU_PI);
     L26_DEBUG_TGT(pr, MACRO_CTRL);
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
-        sprintf(buf, "DEV_%u", port);
+        VTSS_SPRINTF(buf, "DEV_%u", port);
         l26_debug_tgt(pr, buf, VTSS_TO_DEV(port));
     }
     pr("\n");

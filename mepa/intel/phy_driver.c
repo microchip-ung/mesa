@@ -47,7 +47,6 @@
 
 #define TRUE 1
 #define FALSE 0
-#define PHY_MSLEEP(m) usleep((m)*1000)
 
 #define INTL_PHY_CHIPID 0x67c9dc00
 
@@ -64,10 +63,10 @@ typedef struct {
 #define INTL_PORT(dev) (&(((INTL_priv_data_t *)dev->data)->port_param))
 #define PRIV_DATA(dev) ((INTL_priv_data_t *)dev->data)
 
-static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
+static int (mdiobus_read)(void *mdiobus_data, uint16_t addr, uint32_t regnum)
 {
     mepa_device_t *dev = ((Intl_Port_t *)mdiobus_data)->dev;
-    u16 value;
+    uint16_t value;
     bool mmd_access = false;
     uint8_t devtype, regaddr;
 
@@ -90,7 +89,7 @@ static int (mdiobus_read)(void *mdiobus_data, u16 addr, u32 regnum)
     return -1;
 }
 
-static int (mdiobus_write)(void *mdiobus_data, u16 addr, u32 regnum, u16 val)
+static int (mdiobus_write)(void *mdiobus_data, uint16_t addr, uint32_t regnum, uint16_t val)
 {
     mepa_device_t *dev = ((Intl_Port_t *)mdiobus_data)->dev;
     bool mmd_access = false;
@@ -278,7 +277,7 @@ static mesa_rc intl_conf_set(mepa_device_t *dev,
         phy->link.advertising |= GPY2XX_ADVERTISED_10baseT_Half;
     }
     if (config->aneg.speed_10m_fdx) {
-        phy->link.advertising |= (u64)GPY2XX_ADVERTISED_10baseT_Full;
+        phy->link.advertising |= (uint64_t)GPY2XX_ADVERTISED_10baseT_Full;
     }
     if (config->aneg.speed_100m_hdx) {
         phy->link.advertising |= GPY2XX_ADVERTISED_100baseT_Half;
@@ -294,7 +293,7 @@ static mesa_rc intl_conf_set(mepa_device_t *dev,
         phy->link.advertising |= GPY2XX_ADVERTISED_1000baseT_Half;
     }
     if (config->aneg.speed_1g_fdx) {
-        phy->link.advertising |= (u64)GPY2XX_ADVERTISED_1000baseT_Full;
+        phy->link.advertising |= (uint64_t)GPY2XX_ADVERTISED_1000baseT_Full;
     }
     if (config->aneg.speed_2g5_fdx) {
         phy->link.advertising |= GPY2XX_ADVERTISED_2500baseT_Full;

@@ -10,7 +10,6 @@
  *  Register access
  * ================================================================= */
 void vtss_lan966x_reg_error(const char *file, int line) {
-    printf("\n\nFATAL ERROR at %s:%d> Index exceed replication!\n\n", file, line);
     vtss_callout_trace_printf(VTSS_TRACE_LAYER, VTSS_TRACE_GROUP_DEFAULT,
                               VTSS_TRACE_LEVEL_ERROR, file, line, file,
                               "Index exceed replication!");
@@ -105,7 +104,7 @@ void vtss_lan966x_debug_reg_header(const vtss_debug_printf_t pr, const char *nam
 {
     char buf[64];
 
-    sprintf(buf, "%-32s  ", name);
+    VTSS_SPRINTF(buf, "%-32s  ", name);
     vtss_debug_print_reg_header(pr, buf);
 }
 
@@ -116,7 +115,7 @@ void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
     char buf[200];
 
     if (vtss_lan966x_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        sprintf(buf, "%-32s  ", name);
+        VTSS_SPRINTF(buf, "%-32s  ", name);
         vtss_debug_print_reg(pr, buf, value);
     }
 }
@@ -126,7 +125,7 @@ void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
 {
     char buf[64];
 
-    sprintf(buf, "%s_%u", name, i);
+    VTSS_SPRINTF(buf, "%s_%u", name, i);
     vtss_lan966x_debug_reg(vtss_state, pr, addr, buf);
 }
 
@@ -136,13 +135,13 @@ void vtss_lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, cons
     char buf[80];
 
     if (col1 != NULL) {
-        sprintf(buf, "rx_%s:", col1);
+        VTSS_SPRINTF(buf, "rx_%s:", col1);
         pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
     } else {
         pr("%-41s", "");
     }
     if (col2 != NULL) {
-        sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
+        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
         pr("%-28s%10" PRIu64, buf, c2 ? c2->prev : (u64) 0);
     }
     pr("\n");

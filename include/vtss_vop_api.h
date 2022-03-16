@@ -327,7 +327,7 @@ typedef struct {
 
     // LBM Transaction ID to use on Tx. VTSS_VOE_LBM_TRANSACTION_ID_NONE means unchanged.
     // Auto increment of Tx LBM transaction ID is always enabled
-    uint32_t             trans_id;
+    u32                  trans_id;
 } vtss_voe_lb_conf_t;
 
 // VOE Loop Back configuration set.

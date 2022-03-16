@@ -108,7 +108,7 @@ static vtss_rc  malibu_b_line_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
             VTSS_F_LINE_PLL5G_L_PLL5G_L_PLL5G_CFG2A_DISABLE_FSM);
     }
 
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     if (1) {
         CSR_WARM_WRM(port_no, VTSS_LINE_PLL5G_L_PLL5G_L_PLL5G_INTR_MASK,
@@ -120,7 +120,7 @@ static vtss_rc  malibu_b_line_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
             VTSS_F_LINE_PLL5G_L_PLL5G_L_PLL5G_INTR_MASK_LOCK_STATUS_INTR_MASK);
     }
 
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     CSR_RD(port_no, VTSS_LINE_PLL5G_L_PLL5G_L_PLL5G_STATUS1B, &value);
     value = VTSS_X_LINE_PLL5G_L_PLL5G_L_PLL5G_STATUS1B_GAIN_STAT(value);
@@ -138,7 +138,7 @@ static vtss_rc  malibu_b_line_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
 } 
 } 
     if( res_struct->unlock[0] == 0 ) {
-    VTSS_MSLEEP(5);
+    MEPA_MSLEEP(5);
 
     } 
 
@@ -238,7 +238,7 @@ static vtss_rc  malibu_b_host_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
             VTSS_F_HOST_PLL5G_H_PLL5G_H_PLL5G_CFG2A_DISABLE_FSM);
     }
 
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     if (1) {
         CSR_WARM_WRM(port_no, VTSS_HOST_PLL5G_H_PLL5G_H_PLL5G_INTR_MASK,
@@ -250,7 +250,7 @@ static vtss_rc  malibu_b_host_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
             VTSS_F_HOST_PLL5G_H_PLL5G_H_PLL5G_INTR_MASK_LOCK_STATUS_INTR_MASK);
     }
 
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     CSR_RD(port_no, VTSS_HOST_PLL5G_H_PLL5G_H_PLL5G_STATUS1B, &value);
     value = VTSS_X_HOST_PLL5G_H_PLL5G_H_PLL5G_STATUS1B_GAIN_STAT(value);
@@ -268,7 +268,7 @@ static vtss_rc  malibu_b_host_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_
 } 
 } 
     if( res_struct->unlock[0] == 0 ) {
-    VTSS_MSLEEP(5);
+    MEPA_MSLEEP(5);
 
     } 
 

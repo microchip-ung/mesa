@@ -458,7 +458,7 @@ vtss_rc  vtss_irq_conf_get(const vtss_inst_t inst,
     vtss_rc      rc = VTSS_RC_ERROR;
 
     VTSS_ENTER();
-    if (irq >= 0 && irq < VTSS_IRQ_MAX &&
+    if (irq < VTSS_IRQ_MAX &&
         (rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *conf = vtss_state->misc.irq_conf[irq];
     }
@@ -477,7 +477,7 @@ vtss_rc  vtss_irq_conf_set(const vtss_inst_t inst,
     vtss_rc      rc = VTSS_RC_ERROR;
 
     VTSS_ENTER();
-    if (irq >= 0 && irq < VTSS_IRQ_MAX &&
+    if (irq < VTSS_IRQ_MAX &&
         (rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if((rc = VTSS_FUNC(misc.irq_cfg, irq, conf)) == VTSS_RC_OK) {
             vtss_state->misc.irq_conf[irq] = *conf;
@@ -696,7 +696,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t *vtss_state,
     /* Print CIL information for all devices and groups */
     for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
         for (group = 0; group < vtss_state->misc.sgpio_group_count; group++) {
-            sprintf(buf, "Device %u, Group %u", chip_no, group);
+            VTSS_SPRINTF(buf, "Device %u, Group %u", chip_no, group);
             vtss_debug_print_header(pr, buf);
             
             conf  = &vtss_state->misc.sgpio_conf[chip_no][group]; 

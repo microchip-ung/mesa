@@ -138,26 +138,26 @@ static vtss_rc tr_raw_read(vtss_state_t *vtss_state,
                            const vtss_port_no_t port, const u16 TrSubchanNodeAddr, u32 *tr_raw_data)
 {
     u16 x;
-    vtss_mtimer_t timer;
+    mepa_mtimer_t timer;
     u32 base;
 
     /* Determine base address */
     /* base = (port_family(port) == VTSS_PHY_FAMILY_MUSTANG ? 0 : 16); */
     base = VTSS_PHY_1_GEN_DSP(port) ? 0 : 16;
     VTSS_RC(vtss_phy_wr(vtss_state, port, base, (5 << 13) | TrSubchanNodeAddr));
-    VTSS_MTIMER_START(&timer, 500);
+    MEPA_MTIMER_START(&timer, 500);
 
     while (1) {
         VTSS_RC(vtss_phy_rd(vtss_state, port, base, &x));
         if (x & 0x8000) {
             break;
         }
-        if (VTSS_MTIMER_TIMEOUT(&timer)) {
-            VTSS_MTIMER_CANCEL(&timer);
+        if (MEPA_MTIMER_TIMEOUT(&timer)) {
+            MEPA_MTIMER_CANCEL(&timer);
             return VTSS_RC_ERROR; /*- should not happen */
         }
     }
-    VTSS_MTIMER_CANCEL(&timer);
+    MEPA_MTIMER_CANCEL(&timer);
 
     VTSS_RC(vtss_phy_rd(vtss_state, port, base + 2, &x)); /*- high part */
     *tr_raw_data = (u32) x << 16;
@@ -189,24 +189,24 @@ static vtss_rc tr_raw_long_read(vtss_state_t *vtss_state,
                                 u8 subchan_phy, const u16 TrSubchanNode)
 {
     u16 x, phy_num;
-    vtss_mtimer_t timer;
+    mepa_mtimer_t timer;
 
     phy_num = subchan_phy & 0x3f;
     VTSS_RC(vtss_phy_page_tr(vtss_state, phy_num));
     VTSS_RC(vtss_phy_wr(vtss_state, phy_num, 0, TrSubchanNode));
 
-    VTSS_MTIMER_START(&timer, 500);
+    MEPA_MTIMER_START(&timer, 500);
     while (1) {
         VTSS_RC(vtss_phy_rd(vtss_state, phy_num, 0, &x));
         if (x & 0x8000) {
             break;
         }
-        if (VTSS_MTIMER_TIMEOUT(&timer)) {
-            VTSS_MTIMER_CANCEL(&timer);
+        if (MEPA_MTIMER_TIMEOUT(&timer)) {
+            MEPA_MTIMER_CANCEL(&timer);
             return VTSS_RC_ERROR; /*- should not happen */
         }
     }
-    VTSS_MTIMER_CANCEL(&timer);
+    MEPA_MTIMER_CANCEL(&timer);
     return VTSS_RC_OK;
 }
 
@@ -256,7 +256,7 @@ static vtss_rc process_ec_result(vtss_state_t *vtss_state,
         /*- This case cannot happen -*/
         return -1;
     }
-    if (ret >= (1L << (bitwidth - 1))) {
+    if (ret >= (u32)(1L << (bitwidth - 1))) {
         ret -= (1L << bitwidth);
     }
 
@@ -1019,7 +1019,7 @@ static short c51_idata *readAvgECNCECVar_65nm(vtss_state_t *vtss_state,
 static BOOL checkValidity(vtss_state_t *vtss_state,
                           vtss_veriphy_task_t c51_idata *tsk, short noiseLimit)
 {
-    vtss_mtimer_t timer;
+    mepa_mtimer_t timer;
     i8 timeout = 0;
     vtss_phy_family_t family;
 
@@ -1046,12 +1046,12 @@ static BOOL checkValidity(vtss_state_t *vtss_state,
         VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, 0)); /*- EcVar<subchan>ForceIdle = 0 */
     }
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
     /* if (family != VTSS_PHY_FAMILY_MUSTANG) { */
     if (!VTSS_PHY_1_GEN_DSP(tsk->port)) {
         VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0188/*0, 3, 4*/, tsk->tr_raw0188)); /*- restore */
     }
-    VTSS_MTIMER_START(&timer, 200);
+    MEPA_MTIMER_START(&timer, 200);
     while (1) {
         if ((readAvgECNCECVar(vtss_state,
                               (tsk->subchan << 6) | tsk->port,
@@ -1060,12 +1060,12 @@ static BOOL checkValidity(vtss_state_t *vtss_state,
                               0xb8), vtss_state->phy_inst_state.maxAbsCoeff) >= ((tsk->stat[(int)tsk->subchan] == 0) ? 4 : 1)) {
             break;
         }
-        if (VTSS_MTIMER_TIMEOUT(&timer)) {
+        if (MEPA_MTIMER_TIMEOUT(&timer)) {
             timeout = 1;
             break;
         }
     }
-    VTSS_MTIMER_CANCEL(&timer);
+    MEPA_MTIMER_CANCEL(&timer);
     /* if (family == VTSS_PHY_FAMILY_MUSTANG) { */
     if (VTSS_PHY_1_GEN_DSP(tsk->port)) {
         VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0b6/*0, 1, 1b*/, tsk->tr_raw0188 | 1)); /*- EcVarForceIdle = 1 */
@@ -1119,7 +1119,7 @@ static BOOL checkValidity_65nm(vtss_state_t *vtss_state,
                                vtss_veriphy_task_t c51_idata *tsk,
                                unsigned char noiseLimit)
 {
-    vtss_mtimer_t timer;
+    mepa_mtimer_t timer;
     int  retryCnt = 0;
     i8 timeout = 0;
 
@@ -1139,32 +1139,32 @@ static BOOL checkValidity_65nm(vtss_state_t *vtss_state,
     VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, (0x02 << (int)tsk->subchan))); /*- EcVar<subchan>ForceIdle = 1 */
     VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, 0));                      /*- EcVar<subchan>ForceIdle = 0 */
 
-    VTSS_MSLEEP(1);
+    MEPA_MSLEEP(1);
 
     /*- Restore the previous states */
     VTSS_RC(vtss_phy_page_tr(vtss_state, tsk->port));
     VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0188/*0, 3, 4*/, tsk->tr_raw0188));
 
     retryCnt = 0;
-    VTSS_MTIMER_START(&timer, 200);  // Originally 200
+    MEPA_MTIMER_START(&timer, 200);  // Originally 200
     while (1) {
         /*- We are getting silence on the line, Retry until we get something that is not too quiet  */
         /*- Maybe there is spurious noise, Was this a length measurement or a Anomolous measurement */
         if ((readAvgECNCECVar_65nm(vtss_state,
                                    tsk,
                                    72,
-                                   (-8 << 3) | 7),  // Don't clobber the coeff that we have
+                                   (i8)((u8)(-8) << 3) | 7),  // Don't clobber the coeff that we have
              vtss_state->phy_inst_state.maxAbsCoeff) < ((tsk->stat[(int)tsk->subchan] == 0) ? 4 : 1)) {
-            VTSS_MSLEEP(2);   // Originally 2
+            MEPA_MSLEEP(2);   // Originally 2
             break;
         }
-        if (VTSS_MTIMER_TIMEOUT(&timer)) {
+        if (MEPA_MTIMER_TIMEOUT(&timer)) {
             timeout = 1;
             break;
         }
         retryCnt++;
     }
-    VTSS_MTIMER_CANCEL(&timer);
+    MEPA_MTIMER_CANCEL(&timer);
 
     VTSS_RC(vtss_phy_page_tr(vtss_state, tsk->port));
     VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, (0x02 << (int)tsk->subchan))); /*- EcVar<subchan>ForceIdle = 1 */
@@ -1511,7 +1511,7 @@ vtss_rc vtss_phy_veriphy_task_start(vtss_state_t *vtss_state, vtss_port_no_t por
             VTSS_D("PHY_API: VeriPHY algorithm initialized, Port=%d, State=%d", tsk->port, tsk->task_state);
             //**printf("PHY_API: VeriPHY algorithm in PHY API initialized, Port=%d, State=%d\n", tsk->port, tsk->task_state);
             //fprintf(fp,"VeriPHY algorithm in PHY API initialized, Port=%d, State=%d\n", tsk->port, tsk->task_state);
-            VTSS_MTIMER_START(&tsk->timeout, 1); /*- start now */
+            MEPA_MTIMER_START(&tsk->timeout, 1); /*- start now */
 
             /* Save Reg23 - to be restored after VeriPHY completes */
             /* select copper */
@@ -1544,7 +1544,7 @@ vtss_rc vtss_phy_veriphy_task_start(vtss_state_t *vtss_state, vtss_port_no_t por
                 VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_VERIPHY_CTRL_REG1, VTSS_F_PHY_VERIPHY_CTRL_REG1_TRIGGER));
                 VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
             }
-            VTSS_MTIMER_START(&tsk->timeout, 60000); /*- Run for max 60 sec. */
+            MEPA_MTIMER_START(&tsk->timeout, 60000); /*- Run for max 60 sec. */
         }
 
     return VTSS_RC_OK;
@@ -1649,7 +1649,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
 
             return VTSS_RC_OK; // Signal Veriphy Done
 
-        } else if (VTSS_MTIMER_TIMEOUT(&tsk->timeout)) {
+        } else if (MEPA_MTIMER_TIMEOUT(&tsk->timeout)) {
             VTSS_RC(vtss_phy_page_std(vtss_state, tsk->port));
             VTSS_I("VeriPhY Returning ERROR, port:%d", tsk->port);
             //printf("VeriPhY ERROR, port:%d\n", tsk->port);
@@ -1666,7 +1666,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
 
 
     /* Veriphy is run Externally via the API for the following platforms */
-    if (!VTSS_MTIMER_TIMEOUT(&tsk->timeout)) {
+    if (!MEPA_MTIMER_TIMEOUT(&tsk->timeout)) {
         //printf("VeriPhY Timeout, port:%d \n", tsk->port);
         //fprintf(fp, " >>>>> VeriPhY Timeout, port:%d \n", tsk->port);
         VTSS_N(" >>>>> VeriPhY Timeout, port:%d ", tsk->port);
@@ -1785,7 +1785,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
 
             /*- Link-up mode VeriPHY now completed, read valid bit! */
             if (tsk->flags & VERIPHY_FLAGS_LINKUP) {
-                VTSS_MSLEEP(10);              /*- Wait for valid flag to complete */
+                MEPA_MSLEEP(10);              /*- Wait for valid flag to complete */
 
                 if ((family == VTSS_PHY_FAMILY_MUSTANG) ||
                     (family == VTSS_PHY_FAMILY_COBRA) ||
@@ -2010,7 +2010,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
         if (!VTSS_PHY_1_GEN_DSP(tsk->port)) {
             /*- T(TR_MOD_PORT,TR_LVL_CRIT,"VeriPHY delay 750ms"); */
             /*- Wait for 750 ms for locRcvrStatus fall to propagate to link-down */
-            VTSS_MTIMER_START(&tsk->timeout, 750); /*- 150 ticks or x 5 ms/tick = 750 ms delay */
+            MEPA_MTIMER_START(&tsk->timeout, 750); /*- 150 ticks or x 5 ms/tick = 750 ms delay */
         }
 
         VTSS_D("VERIPHY_STATE_INIT_0: flags:0x%x, flags2: 0x%x, thresh[0]: %d, thresh[1]: %d, numCoeffs: %d",
@@ -2094,7 +2094,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             VTSS_D("VERIPHY_STATE_INIT_1: flags:0x%x, flags2: 0x%x, thresh[0]: %d, thresh[1]: %d, numCoeffs: %d", tsk->flags, tsk->flags2, tsk->thresh[0], tsk->thresh[1], tsk->numCoeffs);
         } else {
             tsk->thresh[0]   = 400;                /*- N: Setup timeout after N*5 ms of LinkControl1000 asserted */
-            VTSS_MTIMER_START(&tsk->timeout, 10);  /*- Sleep for 2 Ticks or 10ms before polling MrSpeedStatus the first time */
+            MEPA_MTIMER_START(&tsk->timeout, 10);  /*- Sleep for 2 Ticks or 10ms before polling MrSpeedStatus the first time */
 
             tsk->task_state  = VERIPHY_STATE_INIT3_LINKDOWN;
             VTSS_D("VeriPHY link-dn setting state = VERIPHY_STATE_INIT3_LINKDOWN ");
@@ -2139,12 +2139,12 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             VTSS_D("VeriPHY link-down anomalySearch");
             if (VTSS_PHY_GEN_2_DSP(tsk->port)) {
                 tsk->task_state  = VERIPHY_STATE_INIT4_LINKDOWN;
-                VTSS_MTIMER_START(&tsk->timeout, 20); /*- Sleep for (ECretrain_time=4 ticks or 20ms before polling MrSpeedStatus again */
+                MEPA_MTIMER_START(&tsk->timeout, 20); /*- Sleep for (ECretrain_time=4 ticks or 20ms before polling MrSpeedStatus again */
             } else {
                 tsk->task_state = VERIPHY_STATE_INIT_ANOMSEARCH_0;
             }
         } else if (--(tsk->thresh[0]) > 0) { /* Threshold is being used as a timer/counter for timeout */
-            VTSS_MTIMER_START(&tsk->timeout, 5); /*- Sleep for 5ms before polling MrSpeedStatus again */
+            MEPA_MTIMER_START(&tsk->timeout, 5); /*- Sleep for 5ms before polling MrSpeedStatus again */
         } else { /*- timed out waiting for MrSpeedStatus to indicate LinkControl1000 asserted! */
             //tsk->task_state |= 0x80; /*- Abort VeriPHY task */
             tsk->task_state |= VERIPHY_STATE_ABORT; /*- Abort VeriPHY task */
@@ -2180,10 +2180,10 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             tsk->log2VGAx256 += 256;
             VTSS_D("VERIPHY_STATE_INIT4_LINKDOWN, Boosting  log2VGAx256: %d", tsk->log2VGAx256);
             FFEinit4_7_65nm(vtss_state, tsk, (FFEinit4_7anomSearch_65nm << (tsk->log2VGAx256 >> 8)) );
-            VTSS_MTIMER_START(&tsk->timeout, 20); /*- Sleep for (ECretrain_time=4 ticks or 20ms before polling MrSpeedStatus again */
+            MEPA_MTIMER_START(&tsk->timeout, 20); /*- Sleep for (ECretrain_time=4 ticks or 20ms before polling MrSpeedStatus again */
             break;
         }
-
+        /* fall-through */
     case VERIPHY_STATE_INIT_ANOMSEARCH_0:
         VTSS_D("VERIPHY_STATE_INIT_ANOMSEARCH_0: chan: %d,    nc: %d,   flags: 0x%x", tsk->subchan, tsk->nc, tsk->flags);
         //fprintf(fp,"VERIPHY_STATE_INIT_ANOMSEARCH_0: chan: %d,    nc: %d,   flags: 0x%x\n", tsk->subchan, tsk->nc, tsk->flags);
@@ -2219,6 +2219,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                 VTSS_D("VERIPHY_STATE_INIT_ANOMSEARCH_0: VERIPHY_MODE_ANOM_ONLY - Setting nc = %d", tsk->nc);
             }
         }
+        /* fall-through */
     // Fall through to the InitAnomSearch_1 state!
 
     case VERIPHY_STATE_INIT_ANOMSEARCH_1 :
@@ -2226,6 +2227,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
         //fprintf(fp,"VERIPHY_STATE_INIT_ANOMSEARCH_1: chan: %d,    nc: %d,   flags: 0x%x\n", tsk->subchan, tsk->nc, tsk->flags);
         tsk->thresh[1] = 0; /*- Clear EC invalid count (previous value) */
         tsk->thresh[0] = 0; /*- Clear EC invalid count (current value) */
+        /* fall-through */
     /*- fall through into VERIPHY_STATE_ANOMSEARCH_0 state */
 
     /*- Search for anomalous pair-coupling, pair-shorts, anomalous termination */
@@ -2247,7 +2249,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             tsk->tr_raw0188 = 0;
             /*- allow EC blip time to train to anomaly location */
             if (tsk->nc == 0) {
-                VTSS_MTIMER_START(&tsk->timeout, 500);
+                MEPA_MTIMER_START(&tsk->timeout, 500);
             }
         } else {
             VTSS_RC(vtss_phy_page_tr(vtss_state, tsk->port));
@@ -2269,7 +2271,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             /*- This allowing the Hardware State machine to settle -*/
             /* If we don't find an anomoly within 500ms, then give up, because the anomoly doesn't exist */
             /*- allow blip time to train to anomaly location */
-            VTSS_MTIMER_START(&tsk->timeout, 500);/*- Sleep for 100 ticks or 500ms before polling MrSpeedStatus again */
+            MEPA_MTIMER_START(&tsk->timeout, 500);/*- Sleep for 100 ticks or 500ms before polling MrSpeedStatus again */
         }
         tsk->task_state = VERIPHY_STATE_ANOMSEARCH_1;
         break;
@@ -2345,7 +2347,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                     tsk->thresh[2] += tsk->thresh[0] - 1;
 
                     /*- Continue on w/the anomaly search */
-                    VTSS_MTIMER_START(&tsk->timeout, 200); /*- 200 Was 500, Ticks=200/5, Allow blip time to train to anomaly location */
+                    MEPA_MTIMER_START(&tsk->timeout, 200); /*- 200 Was 500, Ticks=200/5, Allow blip time to train to anomaly location */
                     tsk->subchan     = 0;     /*- Start search with subchannel A */
                     tsk->task_state  = VERIPHY_STATE_ANOMSEARCH_2;
                     VTSS_D("VeriPHY %d: Anomoly Search just starting, nc= %d, Next: VERIPHY_STATE_ANOMSEARCH_2: subchan: %d!", tsk->port, tsk->nc, tsk->subchan);
@@ -2364,7 +2366,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                     //fprintf(fp,"VeriPHY %d: After blip is ZERO at all delays, Restart Search, reset to NC: %d!\n", tsk->port, tsk->nc);
 
                     /*- delay before restarting anomaly search on NC 3 */
-                    VTSS_MTIMER_START(&tsk->timeout, 500); /*- 100 ticks or x 5 ms/tick = 500 ms delay */
+                    MEPA_MTIMER_START(&tsk->timeout, 500); /*- 100 ticks or x 5 ms/tick = 500 ms delay */
                     tsk->task_state  = VERIPHY_STATE_ANOMSEARCH_0;
                 }
             }
@@ -2394,14 +2396,14 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             /*- Continue on w/the anomaly search */
             /* if (family == VTSS_PHY_FAMILY_MUSTANG)  */
             if (VTSS_PHY_1_GEN_DSP(tsk->port)) {
-                VTSS_MTIMER_START(&tsk->timeout, 200);/*- Allow blip time to train to anomaly location */
+                MEPA_MTIMER_START(&tsk->timeout, 200);/*- Allow blip time to train to anomaly location */
             } else {
                 if (VTSS_PHY_GEN_2_DSP(tsk->port)) {
-                    VTSS_MTIMER_START(&tsk->timeout, 200);    /*- Orig=200, Ticks=200/5, Allow blip time to train to anomaly location */
+                    MEPA_MTIMER_START(&tsk->timeout, 200);    /*- Orig=200, Ticks=200/5, Allow blip time to train to anomaly location */
                     VTSS_D("VeriPHY %d: No Invalid EC Blips, Continue Anomoly Search, subchan: %d, nc: %d!", tsk->port, tsk->subchan, tsk->nc);
                 } else {
                     if (tsk->nc == 0) {
-                        VTSS_MTIMER_START(&tsk->timeout, 200);    /*- Allow blip time to train to anomaly location */
+                        MEPA_MTIMER_START(&tsk->timeout, 200);    /*- Allow blip time to train to anomaly location */
                         VTSS_D("VeriPHY %d: No Invalid EC Blips, Continue Anomoly Search, subchan: %d, nc: %d!", tsk->port, tsk->subchan, tsk->nc);
                     }
                 }
@@ -2734,7 +2736,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                 VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, 0));   /*- EcVarForceIdle = 0 */
             }
 
-            VTSS_MTIMER_START(&tsk->timeout, 10);    /*- Orig=10, 2 Tick Delay = 10ms, Allow blip time to train to anomaly location */
+            MEPA_MTIMER_START(&tsk->timeout, 10);    /*- Orig=10, 2 Tick Delay = 10ms, Allow blip time to train to anomaly location */
             tsk->task_state = VERIPHY_STATE_INIT_CABLELEN2;
         }
         break;
@@ -2763,9 +2765,9 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
 
                     if (VTSS_PHY_GEN_2_DSP(tsk->port)) {
                         //(void) readAvgECNCECVar_65nm(vtss_state, (tsk->subchan << 6) | tsk->port, 72, 0xf8);
-                        (void) readAvgECNCECVar_65nm(vtss_state, tsk, 72, ((-8 << 3) | 7));
+                        (void) readAvgECNCECVar_65nm(vtss_state, tsk, 72, (i8)(((u8)(-8) << 3) | 7));
                         if (vtss_state->phy_inst_state.maxAbsCoeff < 4) {
-                            VTSS_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2, 2ms, Allow blip time to train to anomaly location */
+                            MEPA_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2, 2ms, Allow blip time to train to anomaly location */
                         } else {
                             tsk->thresh[(int)tsk->subchan] = vtss_state->phy_inst_state.maxAbsCoeff;
                         }
@@ -2775,7 +2777,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                                                 0xf8);
 
                         if (vtss_state->phy_inst_state.maxAbsCoeff < ((tsk->flags & VERIPHY_FLAGS_LINKUP) ? 1 : 4)) {
-                            VTSS_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2, 2ms, Allow blip time to train to anomaly location */
+                            MEPA_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2, 2ms, Allow blip time to train to anomaly location */
                         } else {
                             tsk->thresh[(int)tsk->subchan] = vtss_state->phy_inst_state.maxAbsCoeff;
                         }
@@ -2880,7 +2882,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             }
         }
 
-        VTSS_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2 2ms, Allow blip time to train to anomaly location */
+        MEPA_MTIMER_START(&tsk->timeout, 2);    /*- Orig=2 2ms, Allow blip time to train to anomaly location */
         tsk->task_state = VERIPHY_STATE_GETCABLELEN_0;
         break;
 
@@ -2990,7 +2992,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
                 VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, 1));     /*- EcVarForceIdle = 1 */
                 VTSS_RC(tr_raw_write(vtss_state, tsk->port, 0x0184/*0, 3, 2*/, 0));     /*- EcVarForceIdle = 0 */
                 //tsk->delay_ticks = 2;
-                VTSS_MTIMER_START(&tsk->timeout, 10);   // Orig_value = 10
+                MEPA_MTIMER_START(&tsk->timeout, 10);   // Orig_value = 10
 
             } else if (tsk->firstCoeff != 0) {
                 tsk->firstCoeff -= 8;
@@ -3396,7 +3398,7 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
 
     if (tsk->task_state == VERIPHY_STATE_IDLE) { /*- also covers FINISH state */
         VTSS_D("<--- Cancelling Timer - VeriPHY state of port %d is: 0x%02x", tsk->port, tsk->task_state);
-        VTSS_MTIMER_CANCEL(&tsk->timeout);
+        MEPA_MTIMER_CANCEL(&tsk->timeout);
     }
 
     VTSS_D("<--- EXIT VeriPHY state of port %d is: 0x%02x", tsk->port, tsk->task_state);

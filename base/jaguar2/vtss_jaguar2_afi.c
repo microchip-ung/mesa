@@ -6,7 +6,6 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_AFI
 #include "vtss_jaguar2_cil.h"
 #include <unistd.h>
-#include <sys/syscall.h>
 
 #if defined(VTSS_ARCH_JAGUAR_2) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
 
@@ -238,7 +237,7 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
         // Get pointer to first frame table entry
         JR2_RD(VTSS_AFI_DTI_TBL_DTI_FRM(idx), &frm_ptr);
         frm_ptr = VTSS_X_AFI_DTI_TBL_DTI_FRM_FIRST_FRM_PTR(frm_ptr);
-        sprintf(buf0, "%u", idx);
+        VTSS_SPRINTF(buf0, "%u", idx);
 
         while (1) {
             u32 frm_next, frm_type, inj_cnt, frm_info, delay_cc;
@@ -257,15 +256,15 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
 
             if (frm_type == 0) {
                 // Frame
-                sprintf(buf1, "%6u",    inj_cnt);  // Injection count
-                sprintf(buf2, "0x%05x", frm_info); // Frame info
-                sprintf(buf3, "%10s",   "");       // Delay is N/A
+                VTSS_SPRINTF(buf1, "%6u",    inj_cnt);  // Injection count
+                VTSS_SPRINTF(buf2, "0x%05x", frm_info); // Frame info
+                VTSS_SPRINTF(buf3, "%10s",   "");       // Delay is N/A
             } else {
                 // Delay
                 delay_ns = VTSS_DIV64(((u64)delay_cc * vtss_state->afi.clk_period_ps), 1000LLU);
-                sprintf(buf1, "%6s",        "");       // Injection count is N/A
-                sprintf(buf2, "%7s",        "");       // Frame info is N/A
-                sprintf(buf3, "%10" PRIu64, delay_ns); // Delay in nanoseconds
+                VTSS_SPRINTF(buf1, "%6s",        "");       // Injection count is N/A
+                VTSS_SPRINTF(buf2, "%7s",        "");       // Frame info is N/A
+                VTSS_SPRINTF(buf3, "%10" PRIu64, delay_ns); // Delay in nanoseconds
             }
 
             pr("%3s 0x%04x %-5s 0x%05x %s %s %s 0x%08x\n",
@@ -581,16 +580,16 @@ static vtss_rc jr2_afi_hijack_error_print(vtss_state_t *const vtss_state)
     u32  cnt, val, idx;
     char buf1[300], buf2[300];
 
-    cnt = snprintf(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", VTSS_CHIP_PORT_VD1);
+    cnt = VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
-        cnt += snprintf(buf1 + cnt, sizeof(buf1) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
+        cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    cnt = snprintf(buf2, sizeof(buf2), "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", VTSS_CHIP_PORT_VD1);
+    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2), "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT_CUR(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
-        cnt += snprintf(buf2 + cnt, sizeof(buf2) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
+        cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
     }
 
     VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1, buf2);

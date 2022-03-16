@@ -22,7 +22,7 @@ vtss_rc vtss_mep_policer_conf_get(const vtss_inst_t       inst,
                                   vtss_dlb_policer_conf_t *const conf)
 {
     VTSS_D("port: %u, prio: %u", port_no, prio);
-    memset(conf, 0, sizeof(*conf));
+    VTSS_MEMSET(conf, 0, sizeof(*conf));
     return VTSS_RC_OK;
 }
 
@@ -151,7 +151,7 @@ vtss_rc vtss_qce_init(const vtss_inst_t      inst,
 {
     VTSS_D("type: %d", type);
 
-    memset(qce, 0, sizeof(*qce));
+    VTSS_MEMSET(qce, 0, sizeof(*qce));
     qce->key.type = type;
 
     return VTSS_RC_OK;
@@ -693,7 +693,7 @@ vtss_rc vtss_qos_ingress_map_init(const vtss_inst_t                inst,
         return VTSS_RC_ERROR;
     }
 
-    memset(map, 0, sizeof(*map));
+    VTSS_MEMSET(map, 0, sizeof(*map));
     map->id  = VTSS_QOS_INGRESS_MAP_ID_NONE;
     map->key = key;
 
@@ -879,7 +879,7 @@ vtss_rc vtss_qos_egress_map_init(const vtss_inst_t               inst,
         return VTSS_RC_ERROR;
     }
 
-    memset(map, 0, sizeof(*map));
+    VTSS_MEMSET(map, 0, sizeof(*map));
     map->id  = VTSS_QOS_EGRESS_MAP_ID_NONE;
     map->key = key;
 
@@ -1548,7 +1548,7 @@ vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
  *
  * \return Return code.
  **/
-vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, size_t num, u8 bit_width)
+vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8 bit_width)
 {
     u32 i, c_max;
     vtss_pct_t w_min = 100;
@@ -1672,7 +1672,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
 #endif
 
     /* Check if main entry exists */
-    memset(&res_chg, 0, sizeof(res_chg));
+    VTSS_MEMSET(&res_chg, 0, sizeof(res_chg));
     if (vtss_vcap_lookup(vtss_state, obj, user, qce->id, &data, NULL) == VTSS_RC_OK) {
         is1->entry = &entry; /* NOTE: Restore entry pointer which was overwritten by vtss_vcap_lookup() */
         res_chg.del_key[key_size] = 1;
@@ -1714,7 +1714,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_QCL_MAP_ACTION */
 
     /* Copy key data */
-    memcpy(key->port_list, qce->key.port_list, sizeof(key->port_list));
+    VTSS_MEMCPY(key->port_list, qce->key.port_list, sizeof(key->port_list));
 
     key->mac.dmac_mc = qce->key.mac.dmac_mc;
     key->mac.dmac_bc = qce->key.mac.dmac_bc;
@@ -2179,8 +2179,8 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
         for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
                 const char *delim = ((pcp == VTSS_PCP_START) && (dei == VTSS_DEI_START)) ? "" : ",";
-                class_ct += snprintf(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim, port_conf->qos_class_map[pcp][dei]);
-                dpl_ct   += snprintf(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim, port_conf->dp_level_map[pcp][dei]);
+                class_ct += VTSS_SNPRINTF(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim, port_conf->qos_class_map[pcp][dei]);
+                dpl_ct   += VTSS_SNPRINTF(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim, port_conf->dp_level_map[pcp][dei]);
             }
         }
         pr("%4u %s %s\n", port_no, class_buf, dpl_buf);
@@ -2365,8 +2365,8 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
         for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class++) {
             for (dpl = 0; dpl < 2; dpl++) {
                 const char *delim = ((class == VTSS_QUEUE_START) && (dpl == 0)) ? "" : ",";
-                pcp_ct += snprintf(pcp_buf + pcp_ct, sizeof(pcp_buf) - pcp_ct, "%s%u", delim, port_conf->tag_pcp_map[class][dpl]);
-                dei_ct += snprintf(dei_buf + dei_ct, sizeof(dei_buf) - dei_ct, "%s%u",  delim, port_conf->tag_dei_map[class][dpl]);
+                pcp_ct += VTSS_SNPRINTF(pcp_buf + pcp_ct, sizeof(pcp_buf) - pcp_ct, "%s%u", delim, port_conf->tag_pcp_map[class][dpl]);
+                dei_ct += VTSS_SNPRINTF(dei_buf + dei_ct, sizeof(dei_buf) - dei_ct, "%s%u",  delim, port_conf->tag_dei_map[class][dpl]);
             }
         }
         pr("%4u %s %s\n", port_no, pcp_buf, dei_buf);
@@ -2427,7 +2427,7 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_tas_port_conf_t *tas_port_conf = &vtss_state->qos.tas.port_conf[port_no];
-        int i;
+        u32 i;
         if (info->port_list[port_no] == 0) {
             continue;
         }

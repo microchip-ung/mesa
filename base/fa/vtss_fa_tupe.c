@@ -216,7 +216,7 @@ vtss_rc fa_tupe_test(vtss_state_t *vtss_state)
     // Test VTSS_TUPE_CMD_START_BLOCKING:
     use_comb = (vtss_state->tupe.tupe_bits_bits + vtss_state->tupe.tupe_vals_bits) > TUPE_CTRL_MAX ? 1 : 0;
     for (loop = 0; loop < 10 && ok; ++loop) {
-        memset(&parms, 0, sizeof(parms));
+        VTSS_MEMSET(&parms, 0, sizeof(parms));
         if ((rand() % 1024) < 512) {
             j = rand() % TUPE_VALS_MAX;
             if (j == 0) {
@@ -263,7 +263,7 @@ vtss_rc fa_tupe_test(vtss_state_t *vtss_state)
             pmask |= (rand() % 1024) < 512 ? 0 : vtss_fa_port_mask(vtss_state, parms.clr_port_list);
         }
         org_pmask = pmask;
-        memset(vlan_change, 0, sizeof(vlan_change));
+        VTSS_MEMSET(vlan_change, 0, sizeof(vlan_change));
         for (i = 0; i < max_addr; ++i) {
             if ((rand() % 1024) < 700) {
                 if (fa_tupe_vlan_set(vtss_state, i, v < TUPE_VALS_MAX ? VTSS_TUPE_TYPE_VALUE : VTSS_TUPE_TYPE_BITS, v) != VTSS_RC_OK) {
@@ -341,7 +341,7 @@ vtss_rc fa_tupe_test(vtss_state_t *vtss_state)
     }
     // Test VTSS_TUPE_CMD_START_NONBLOCKING:
     for (loop = 0; loop < 10 && ok; ++loop) {
-        memset(&parms, 0, sizeof(parms));
+        VTSS_MEMSET(&parms, 0, sizeof(parms));
         if ((rand() % 1024) < 512) {
             j = rand() % TUPE_VALS_MAX;
             if (j == 0) {
@@ -388,7 +388,7 @@ vtss_rc fa_tupe_test(vtss_state_t *vtss_state)
             pmask |= (rand() % 1024) < 512 ? 0 : vtss_fa_port_mask(vtss_state, parms.clr_port_list);
         }
         org_pmask = pmask;
-        memset(vlan_change, 0, sizeof(vlan_change));
+        VTSS_MEMSET(vlan_change, 0, sizeof(vlan_change));
         for (i = 0; i < max_addr; ++i) {
             if ((rand() % 1024) < 700) {
                 if (fa_tupe_vlan_set(vtss_state, i, v < TUPE_VALS_MAX ? VTSS_TUPE_TYPE_VALUE : VTSS_TUPE_TYPE_BITS, v) != VTSS_RC_OK) {
@@ -502,9 +502,9 @@ vtss_rc fa_tupe_realloc_test(vtss_state_t *vtss_state)
     for (loop = 0; loop < 10 && ok; ++loop) {
         printf("loop %u/10 (%u + %u bits)...", loop + 1, vtss_state->tupe.tupe_bits_bits, vtss_state->tupe.tupe_vals_bits);
         // allocate half the TUPE entries (randomize)
-        memset(tupe_vals, 0, sizeof(tupe_vals));
-        memset(from_vals, 0, sizeof(tupe_vals));
-        memset(tupe_bits, 0, sizeof(tupe_bits));
+        VTSS_MEMSET(tupe_vals, 0, sizeof(tupe_vals));
+        VTSS_MEMSET(from_vals, 0, sizeof(tupe_vals));
+        VTSS_MEMSET(tupe_bits, 0, sizeof(tupe_bits));
         vals_next = 0;
         bits_next = 0;
         for (i = 0; i < ((TUPE_VALS_MAX / 2) - 1); ++i) {
@@ -526,7 +526,7 @@ vtss_rc fa_tupe_realloc_test(vtss_state_t *vtss_state)
             bits_next++;
         }
         // configure random VLAN/VSI entries using random TUPE entries from above
-        memset(vlan_vals, 0, sizeof(vlan_vals));
+        VTSS_MEMSET(vlan_vals, 0, sizeof(vlan_vals));
         for (i = 0; i < max_addr; ++i) {
             if ((rand() % 1024) < 512) {
                 tupe_type = VTSS_TUPE_TYPE_VALUE;
@@ -615,8 +615,8 @@ vtss_rc fa_tupe_realloc_test(vtss_state_t *vtss_state)
         // update tupe_vals and tupe_bits:
         vals_next = 0;
         bits_next = 0;
-        memset(tupe_vals, 0, sizeof(tupe_vals));
-        memset(tupe_bits, 0, sizeof(tupe_bits));
+        VTSS_MEMSET(tupe_vals, 0, sizeof(tupe_vals));
+        VTSS_MEMSET(tupe_bits, 0, sizeof(tupe_bits));
         for (i = 0; i < max_addr; ++i) {
             if (vlan_vals[i] == 0) {
                 continue;
@@ -752,7 +752,7 @@ vtss_rc fa_afi_tupe_test(vtss_state_t *vtss_state)
     }
     // Test VTSS_TUPE_CMD_START_BLOCKING:
     for (loop = 0; loop < 10 && ok; ++loop) {
-        memset(&parms, 0, sizeof(parms));
+        VTSS_MEMSET(&parms, 0, sizeof(parms));
         do {
             parms.start_addr = rand() % max_addr;
             parms.end_addr   = rand() % max_addr;
@@ -853,7 +853,7 @@ vtss_rc fa_afi_tupe_test(vtss_state_t *vtss_state)
     }
     // Test VTSS_TUPE_CMD_START_NONBLOCKING:
     for (loop = 0; loop < 10 && ok; ++loop) {
-        memset(&parms, 0, sizeof(parms));
+        VTSS_MEMSET(&parms, 0, sizeof(parms));
         do {
             parms.start_addr = rand() % max_addr;
             parms.end_addr   = rand() % max_addr;

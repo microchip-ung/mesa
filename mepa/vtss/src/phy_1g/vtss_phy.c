@@ -265,7 +265,7 @@ static vtss_rc vtss_phy_i2c_wait_for_ready(vtss_state_t *vtss_state, vtss_port_n
     while ((reg_value & 0x8000) == 0 && timeout > 0) {
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_2, &reg_value));
         timeout--; // Make sure that we don't run forever
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
     }
     VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
 
@@ -892,7 +892,7 @@ static vtss_rc vtss_phy_100BaseT_long_linkup_workaround(vtss_state_t *vtss_state
 // In: port_no : The phy port number to be soft reset
 static vtss_rc vtss_phy_soft_reset_port(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-    vtss_mtimer_t         timer;
+    mepa_mtimer_t         timer;
     u16                   reg;
     vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
     vtss_rc               rc = VTSS_RC_ERROR;
@@ -919,19 +919,19 @@ static vtss_rc vtss_phy_soft_reset_port(vtss_state_t *vtss_state, vtss_port_no_t
             break;
         }
 
-        VTSS_MSLEEP(1);/* pause after reset */
-        VTSS_MTIMER_START(&timer, 5000); /* Wait up to 5 seconds */
+        MEPA_MSLEEP(1);/* pause after reset */
+        MEPA_MTIMER_START(&timer, 5000); /* Wait up to 5 seconds */
         while (1) {
             if (PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_CONTROL, &reg) == VTSS_RC_OK && (reg & VTSS_F_PHY_MODE_CONTROL_SW_RESET) == 0) {
                 break;
             }
-            VTSS_MSLEEP(1);
-            if (VTSS_MTIMER_TIMEOUT(&timer)) {
+            MEPA_MSLEEP(1);
+            if (MEPA_MTIMER_TIMEOUT(&timer)) {
                 VTSS_E("port_no %u, reset timeout, reg = 0x%X", port_no, reg);
                 return VTSS_RC_ERROR;
             }
         }
-        VTSS_MTIMER_CANCEL(&timer);
+        MEPA_MTIMER_CANCEL(&timer);
         // After reset of a port, we need to re-configure it
         VTSS_RC(vtss_phy_conf_1g_set_private(vtss_state, port_no));
 
@@ -1121,7 +1121,7 @@ static vtss_rc vtss_phy_power_opt(vtss_state_t *vtss_state, const vtss_port_no_t
 
         if (done != 0) {
             if (done < 0) {
-                VTSS_MSLEEP(50);
+                MEPA_MSLEEP(50);
             }
             ++done;
         } else {
@@ -2066,8 +2066,8 @@ static vtss_rc vtss_phy_pll5g_cfg2_wr_private(vtss_state_t        *vtss_state,
 }
 
 // Macro for making sure that we don't run forever
-//#define SD6G_TIMEOUT(timeout_var) if (timeout_var-- == 0) {goto macro_6g_err;} else {VTSS_MSLEEP(1);}
-#define SD6G_TIMEOUT(timeout_var) if (timeout_var-- == 0) {VTSS_E("TIMEOUT_ERROR: SD6G MACRO NOT CONFIGURED CORRECTLY! for port:%d", port_no); return VTSS_RC_ERR_PHY_6G_MACRO_SETUP;} else {VTSS_MSLEEP(1);}
+//#define SD6G_TIMEOUT(timeout_var) if (timeout_var-- == 0) {goto macro_6g_err;} else {MEPA_MSLEEP(1);}
+#define SD6G_TIMEOUT(timeout_var) if (timeout_var-- == 0) {VTSS_E("TIMEOUT_ERROR: SD6G MACRO NOT CONFIGURED CORRECTLY! for port:%d", port_no); return VTSS_RC_ERR_PHY_6G_MACRO_SETUP;} else {MEPA_MSLEEP(1);}
 
 // trigger a write to the spcified MCB
 static vtss_rc vtss_phy_mcb_wr_trig_private(vtss_state_t *vtss_state,
@@ -2268,6 +2268,7 @@ static vtss_rc vtss_phy_sd6g_ob_post_wr_private(vtss_state_t       *vtss_state,
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     /*-   viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);    -- Uncomment for Viper RevA if needed */
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -2331,6 +2332,7 @@ static vtss_rc vtss_phy_sd6g_ob_lev_wr_private(vtss_state_t        *vtss_state,
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     /*-   viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);    -- Uncomment for Viper RevA if needed */
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -2439,6 +2441,7 @@ static vtss_rc vtss_phy_sd6g_csr_reg_rd_dbg_private(vtss_state_t        *vtss_st
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     /*-   viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);    -- Uncomment for Viper RevA if needed */
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -2519,6 +2522,7 @@ static vtss_rc vtss_phy_sd6g_csr_reg_wr_dbg_private(vtss_state_t        *vtss_st
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     /*-   viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);    -- Uncomment for Viper RevA if needed */
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -2694,6 +2698,7 @@ static vtss_rc vtss_phy_sd6g_patch_private(vtss_state_t                *vtss_sta
     // Note: Viper Rev. A is different from Viper Rev B and Elise SerDes, which are the same design
     case VTSS_PHY_FAMILY_VIPER:
         viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -3022,6 +3027,7 @@ static vtss_rc vtss_phy_eee_ena_private(vtss_state_t *vtss_state, const vtss_por
                 VTSS_RC(vtss_atom_patch_suspend(vtss_state, port_no, TRUE)); // Suspend 8051 Patch.
             }
         }
+        /* fall-through */
     // Pass through
     case VTSS_PHY_FAMILY_TESLA:
     case VTSS_PHY_FAMILY_VIPER:
@@ -4207,6 +4213,7 @@ static BOOL vtss_phy_chk_serdes_init_mac_mode_private(vtss_state_t              
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     // viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         // See TN1052 6G SerDes Table for Elise and Viper_RevA
@@ -4414,6 +4421,7 @@ static BOOL vtss_phy_chk_serdes_patch_init_private(vtss_state_t                 
     // These chips support the 6G macro setup
     case VTSS_PHY_FAMILY_VIPER:
     // viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         VTSS_RC(vtss_phy_mcb_rd_trig_private(vtss_state, phy_id.base_port_no, 0x3f, 0)); // read 6G MCB into CSRs
@@ -5275,7 +5283,7 @@ static vtss_rc vtss_phy_mac_media_if_atom_setup(vtss_state_t *vtss_state,
 
     // Port must be reset in order to update the media setting for register 23
     VTSS_RC(vtss_phy_soft_reset_port(vtss_state, port_no));
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     // Bugzilla#8714 - LabQual failures in QSGMII operation on FFFF parts
     // The sequence of PHY writes setting register 20E3.2 must be after the soft-reset.
@@ -5913,7 +5921,7 @@ static vtss_rc vtss_phy_mac_media_if_tesla_setup(vtss_state_t *vtss_state, const
         }
 #endif
     }
-    VTSS_MSLEEP(10);
+    MEPA_MSLEEP(10);
 
     if (!vtss_state->sync_calling_private) {
         if (conf->media_if == VTSS_PHY_MEDIA_IF_CU) {
@@ -5926,14 +5934,14 @@ static vtss_rc vtss_phy_mac_media_if_tesla_setup(vtss_state_t *vtss_state, const
             VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
             VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80e1 | (0x0100 << (vtss_phy_chip_port(vtss_state, port_no) % 4))));
             VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
-            VTSS_MSLEEP(10);
+            MEPA_MSLEEP(10);
         } else {
             // Setup media in micro program. Bit 8-11 is bit for the corresponding port (See TN1080)
             VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
             // Should be warmstart checked, but not possible at the moment (Bugzilla#11826)
             VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80C1 | (0x0100 << (vtss_phy_chip_port(vtss_state, port_no) % 4)) | micro_cmd_100fx));
             VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
-            VTSS_MSLEEP(10);
+            MEPA_MSLEEP(10);
         }
     }
     // Setup Media interface
@@ -8299,6 +8307,7 @@ vtss_rc vtss_phy_reset_private(vtss_state_t *vtss_state, const vtss_port_no_t po
         VTSS_RC(vtss_phy_page_test(vtss_state, port_no));
         VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_TEST_PAGE_28, 0x8 , 0x8));
         VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ATOM:
         VTSS_RC(vtss_phy_mac_media_if_atom_setup(vtss_state, port_no, conf));
@@ -8478,11 +8487,13 @@ vtss_rc vtss_phy_reset_private(vtss_state_t *vtss_state, const vtss_port_no_t po
         VTSS_RC(vtss_phy_100BaseT_long_linkup_workaround(vtss_state, port_no, TRUE));
 
     }
+        /* fall-through */
     // Intentionally Fall thru to Elise.... because Elise is Cu only
 
     case VTSS_PHY_FAMILY_ELISE:
         // Force Clear Default Settings for Inhibit Odd Start on MAC and MEDIA I/F Reg16E3.2=0 and Reg23E3.4=0
         VTSS_RC(vtss_phy_mac_media_inhibit_odd_start_private(vtss_state, port_no, FALSE, FALSE));
+        /* fall-through */
     // Intentionally Fall thru to EEE
 
     case VTSS_PHY_FAMILY_TESLA:
@@ -8612,6 +8623,7 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                 if (prev_mdi_value != 0xC) {
                     restart_aneg = TRUE;
                 }
+                /* fall-through */
             case VTSS_PHY_MDI:
                 if (prev_mdi_value != 0x8) {
                     restart_aneg = TRUE;
@@ -9937,9 +9949,10 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                        changing speed on SmartBit */
                     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MODE_CONTROL, reg | (1 << 11)));
                     status->link = 0;
-                    VTSS_MSLEEP(100);
+                    MEPA_MSLEEP(100);
                     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MODE_CONTROL, reg));
                 }
+                /* fall-through */
                 /*lint -e(616) */ /* Fall through OK. */
             case VTSS_PHY_FAMILY_SPYDER:
             case VTSS_PHY_FAMILY_LUTON:
@@ -9998,7 +10011,7 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                             VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_EXTENDED_CONTROL_AND_STATUS,
                                                        0,
                                                        VTSS_PHY_EXTENDED_CONTROL_AND_STATUS_FORCE_10BASE_T_HIGH));
-                            VTSS_MSLEEP(20); // Make sure that status register is updated before we clear it (20 ms chosen due to link pulse interval timer).
+                            MEPA_MSLEEP(20); // Make sure that status register is updated before we clear it (20 ms chosen due to link pulse interval timer).
                             VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_STATUS, &reg)); // Clear the status register, to get rid of the false link up, due to that we have just forced the link up/down.
                             VTSS_D("Bugzilla#8381 work-around 10 MBit force high - port_no:%d reg:0x%X", port_no, reg);
                         } else {
@@ -10190,6 +10203,7 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                 /* On link up ,modifying latency values according to speed */
                 VTSS_RC(vtss_phy_ts_phy_status_change_priv(vtss_state, port_no));
 #endif
+            /* fall-through */
             /* Falling thru - Intentional */
 
             case VTSS_PHY_FAMILY_COOPER:
@@ -10443,6 +10457,7 @@ static vtss_rc vtss_phy_set_micro_set_addr_private(vtss_state_t *vtss_state,
             }
             break;
         }
+        /* fall-through */
     // Let Luton26, Atom12, and Tesla rev. A fall through to error
     default:
         VTSS_E("Micro peek/poke not supported, PHY family %d, revision %u", ps->family, ps->type.revision);
@@ -10475,6 +10490,7 @@ static vtss_rc vtss_phy_micro_peek_private(vtss_state_t *vtss_state,
         if (ps->type.revision > VTSS_PHY_ATOM_REV_A) {
             break;
         }
+        /* fall-through */
     // Let Luton26, Atom12, and Tesla rev. A fall through to error
     default:
         VTSS_E("Micro peek/poke not supported, PHY family %d, revision %u", ps->family, ps->type.revision);
@@ -10519,6 +10535,7 @@ static vtss_rc vtss_phy_micro_poke_private(vtss_state_t *vtss_state,
         if (ps->type.revision > VTSS_PHY_ATOM_REV_A) {
             break;
         }
+        /* fall-through */
     // Let Luton26, Atom12, and Tesla rev. A fall through to error
     default:
         VTSS_E("Micro peek/poke not supported, PHY family %d, revision %u", ps->family, ps->type.revision);
@@ -11151,7 +11168,7 @@ short vtss_phy_tmon_adjust_private ( const u8 adc_val, const u8 offset_adj, cons
 static vtss_rc vtss_phy_read_temp_reg (vtss_state_t *vtss_state,
                                        vtss_port_no_t port_no, u8 *temp_reading)
 {
-    vtss_mtimer_t         timer;
+    mepa_mtimer_t         timer;
     u8                    timeout = 255; // Used to make sure that we don't run forever in while loop.
     u16                   reg = 0;
     vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
@@ -11223,7 +11240,7 @@ static vtss_rc vtss_phy_read_temp_reg (vtss_state_t *vtss_state,
         VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_TEMP_CONF, 0x0, 0x0040));
         VTSS_RC(PHY_WR_MASKED_PAGE(vtss_state, port_no, VTSS_PHY_TEMP_CONF, 0x0040, 0x0040));
 
-        VTSS_MTIMER_START(&timer, 200); /* Wait up to 200 msecs */
+        MEPA_MTIMER_START(&timer, 200); /* Wait up to 200 msecs */
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no)); // Change to GPIO page
         // Wait for Done, Use Reg28 Bit 8
         while (1) {
@@ -11231,13 +11248,13 @@ static vtss_rc vtss_phy_read_temp_reg (vtss_state_t *vtss_state,
                 break;
             }
 
-            VTSS_MSLEEP(2); // 2msec sleep
-            if (VTSS_MTIMER_TIMEOUT(&timer)) {
+            MEPA_MSLEEP(2); // 2msec sleep
+            if (MEPA_MTIMER_TIMEOUT(&timer)) {
                 VTSS_E("port_no %u, reset timeout, reg = 0x%X", port_no, reg);
                 return VTSS_RC_ERROR;
             }
         }
-        VTSS_MTIMER_CANCEL(&timer);
+        MEPA_MTIMER_CANCEL(&timer);
 
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_TEMP_VAL, &reg));
         *temp_reading = reg & 0xFF; // adc_val - Only bottom 8
@@ -14818,6 +14835,7 @@ static vtss_rc vtss_phy_pll5g_reset(vtss_state_t                *vtss_state,
     case VTSS_PHY_FAMILY_VIPER:
 //        viper_rev_a = (ps->type.revision == VTSS_PHY_VIPER_REV_A);
 
+        /* fall-through */
     // Fall through on purpose
     case VTSS_PHY_FAMILY_ELISE:
         break;
@@ -14837,7 +14855,7 @@ static vtss_rc vtss_phy_pll5g_reset(vtss_state_t                *vtss_state,
     VTSS_RC(vtss_phy_mcb_wr_trig_private(vtss_state, port_no, 0x11, 0)); // write back LCPLL MCB
 
     // Delay
-    VTSS_MSLEEP(10); // 10msec sleep while LCPLL is held in reset
+    MEPA_MSLEEP(10); // 10msec sleep while LCPLL is held in reset
 
     VTSS_RC(vtss_phy_mcb_rd_trig_private(vtss_state, port_no, 0x11, 0)); // read LCPLL MCB into CSRs
     dis_fsm = 0;
@@ -14898,7 +14916,7 @@ static vtss_rc vtss_phy_reset_lcpll_private(vtss_state_t *vtss_state, vtss_port_
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80c0));  // Rewrite PLL Config Vector
         VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
 
-        VTSS_MSLEEP(10); // 10msec sleep
+        MEPA_MSLEEP(10); // 10msec sleep
 
         VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8506));  // Poke to De-Assert Reset of PLL State Machine, clear disable_fsm:bit 119
@@ -14908,7 +14926,7 @@ static vtss_rc vtss_phy_reset_lcpll_private(vtss_state_t *vtss_state, vtss_port_
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80c0));  // Rewrite PLL Config Vector
         VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
 
-        VTSS_MSLEEP(10); // 10msec sleep
+        MEPA_MSLEEP(10); // 10msec sleep
 
         VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_STATUS, &reg_val));
@@ -14930,7 +14948,7 @@ static vtss_rc vtss_phy_reset_lcpll_private(vtss_state_t *vtss_state, vtss_port_
         break;
     }
 
-    VTSS_MSLEEP(110); // 110msec sleep to allow re-calibration of LCPLL
+    MEPA_MSLEEP(110); // 110msec sleep to allow re-calibration of LCPLL
 
     return (rc);
 }
@@ -15903,7 +15921,7 @@ static vtss_rc vtss_phy_epg_gen_kat_frame_private(vtss_state_t *vtss_state, cons
         if (!(reg29e & VTSS_F_EPG_CTRL_REG_1_EPG_RUN_STOP)) {   // Bit 14: 1=Run, 0=Stop
             break;
         }
-        VTSS_MSLEEP(1);
+        MEPA_MSLEEP(1);
         loop_cnt--;
     } while (loop_cnt > 0);
     VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, EPG_CTRL_REG_1, &reg29e));     /* Write 30E1 to Select UDP Dport=319  */

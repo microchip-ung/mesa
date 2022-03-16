@@ -14,7 +14,7 @@
 /* Initialize resource change information */
 void vtss_cmn_res_init(vtss_res_t *res)
 {
-    memset(res, 0, sizeof(*res));
+    VTSS_MEMSET(res, 0, sizeof(*res));
 }
 
 /* Check VCAP resource usage */
@@ -331,7 +331,7 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
 
 vtss_rc vtss_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_range_chk_table_t *range_new)
 {
-    if (memcmp(&vtss_state->vcap.range, range_new, sizeof(*range_new))) {
+    if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new))) {
         /* The temporary working copy has changed - Save it and commit */
         vtss_state->vcap.range = *range_new;
         return VTSS_FUNC_COLD_0(vcap.range_commit);
@@ -416,7 +416,7 @@ char *vtss_vcap_id_txt(vtss_state_t *vtss_state, vtss_vcap_id_t id)
 
     vtss_state->txt_buf_index++;
     txt = &vtss_state->txt_buf[(vtss_state->txt_buf_index & 1) ? 0 : 32];
-    sprintf(txt, "0x%08x:0x%08x", high, low);
+    VTSS_SPRINTF(txt, "0x%08x:0x%08x", high, low);
     return txt;
 }
 
@@ -431,7 +431,7 @@ vtss_rc vtss_vcap_lookup(vtss_state_t *vtss_state,
 
     VTSS_D("VCAP %s, id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
 
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
 
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         key_size = cur->data.key_size;
@@ -643,7 +643,7 @@ vtss_rc vtss_vcap_del(vtss_state_t *vtss_state,
 
     VTSS_D("VCAP %s, id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
 
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; prev = cur, cur = cur->next) {
         key_size = cur->data.key_size;
         if (cur->user == user && cur->id == id) {
@@ -671,7 +671,7 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
     u32                  *rule_count = &obj->rule_count;
 
     key_size_new = (data ? data->key_size : VTSS_VCAP_KEY_SIZE_FULL);
-    memset(ndx_old_key, 0, sizeof(ndx_old_key));
+    VTSS_MEMSET(ndx_old_key, 0, sizeof(ndx_old_key));
 
     VTSS_D("VCAP %s, key_size: %s, id: %s, ins_id: %s",
            obj->name, vtss_vcap_key_size2txt(key_size_new),
@@ -735,7 +735,7 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
 
     /* Check if resources are available */
     if (old == NULL || old->data.key_size != key_size_new) {
-        memset(&chg, 0, sizeof(chg));
+        VTSS_MEMSET(&chg, 0, sizeof(chg));
 
         /* Calculate added resources */
         if ((obj->key_count[key_size_new] % vtss_vcap_key_rule_count(key_size_new)) == 0)
@@ -927,8 +927,8 @@ void vtss_vcap_is0_init(vtss_vcap_data_t *data, vtss_is0_entry_t *entry)
 {
     vtss_is0_data_t *is0 = &data->u.is0;
 
-    memset(data, 0, sizeof(*data));
-    memset(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     is0->entry = entry;
 }
 #endif /* VTSS_FEATURE_IS0 */
@@ -948,8 +948,8 @@ void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry)
 {
     vtss_is1_data_t *is1 = &data->u.is1;
 
-    memset(data, 0, sizeof(*data));
-    memset(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     is1->vid_range = VTSS_VCAP_RANGE_CHK_NONE;
     is1->dscp_range = VTSS_VCAP_RANGE_CHK_NONE;
     is1->sport_range = VTSS_VCAP_RANGE_CHK_NONE;
@@ -968,7 +968,7 @@ vtss_rc vtss_vcap_is1_update(vtss_state_t *vtss_state, vtss_is1_action_t *act)
     vtss_vcap_idx_t      idx;
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
 
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         data = &cur->data;
         key_size = data->key_size;
@@ -1014,7 +1014,7 @@ vtss_rc vtss_vcap_clm_update(vtss_state_t *vtss_state, const vtss_qos_egress_map
             type = VTSS_VCAP_TYPE_CLM_C;
             break;
         }
-        memset(ndx, 0, sizeof(ndx));
+        VTSS_MEMSET(ndx, 0, sizeof(ndx));
         for (cur = obj->used; cur != NULL; cur = cur->next) {
             key_size = cur->data.key_size;
             data = &cur->data.u.is1;
@@ -1052,7 +1052,7 @@ vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t *vtss_state,
         type = VTSS_VCAP_TYPE_CLM_B;
         VTSS_E("VCAP %s, id: %s  VCAP type not detected", obj->name, vtss_vcap_id_txt(vtss_state, id));
     }
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         key_size = cur->data.key_size;
         if (cur->user == user && cur->id == id) {
@@ -1073,8 +1073,8 @@ void vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry)
 {
     vtss_is2_data_t *is2 = &data->u.is2;
 
-    memset(data, 0, sizeof(*data));
-    memset(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     is2->srange = VTSS_VCAP_RANGE_CHK_NONE;
     is2->drange = VTSS_VCAP_RANGE_CHK_NONE;
     is2->entry = entry;
@@ -1084,8 +1084,8 @@ void vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry)
 #if defined(VTSS_FEATURE_ES0)
 void vtss_vcap_es0_init(vtss_vcap_data_t *data, vtss_es0_entry_t *entry)
 {
-    memset(data, 0, sizeof(*data));
-    memset(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     data->u.es0.entry = entry;
     entry->key.rx_port_no = VTSS_PORT_NO_NONE;
 }
@@ -1200,7 +1200,7 @@ vtss_rc vtss_vcap_es0_emap_update(vtss_state_t *vtss_state, vtss_qos_egress_map_
     if (vtss_state->warm_start_cur)
         return VTSS_RC_OK;
 
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = vtss_state->vcap.es0.obj.used; cur != NULL; cur = cur->next, idx.row++) {
         data = &cur->data.u.es0;
         if (((data->flags & VTSS_ES0_FLAG_MAP_ID_OT) && data->map_id_ot == map_id) ||
@@ -1228,7 +1228,7 @@ vtss_rc vtss_vcap_es0_update(vtss_state_t *vtss_state,
     if (vtss_state->warm_start_cur)
         return VTSS_RC_OK;
 
-    memset(&idx, 0, sizeof(idx));
+    VTSS_MEMSET(&idx, 0, sizeof(idx));
     for (cur = vtss_state->vcap.es0.obj.used; cur != NULL; cur = cur->next, idx.row++) {
         data = &cur->data.u.es0;
         if ((data->port_no == port_no && (data->flags & flags & VTSS_ES0_FLAG_MASK_PORT)) ||
@@ -1267,7 +1267,7 @@ vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
     }
 
     /* Update IS2 rules */
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         idx.key_size = cur->data.key_size;
         is2 = &cur->data.u.is2;
@@ -1355,9 +1355,9 @@ vtss_rc vtss_cmn_ace_counter_clear(vtss_state_t *vtss_state, const vtss_ace_id_t
 char *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf)
 {
     if (policy_no == VTSS_ACL_POLICY_NO_NONE)
-        strcpy(buf, "None");
+        VTSS_STRCPY(buf, "None");
     else
-        sprintf(buf, "%u", policy_no);
+        VTSS_SPRINTF(buf, "%u", policy_no);
     return buf;
 }
 
@@ -1498,7 +1498,7 @@ vtss_rc vtss_ace_init(const vtss_inst_t      inst,
 {
     VTSS_D("type: %d", type);
 
-    memset(ace, 0, sizeof(*ace));
+    VTSS_MEMSET(ace, 0, sizeof(*ace));
     ace->type = type;
     ace->action.learn = 1;
 
@@ -1643,7 +1643,7 @@ vtss_rc vtss_hace_init(const vtss_inst_t     inst,
 
     VTSS_D("type: %d", type);
 
-    memset(hace, 0, sizeof(*hace));
+    VTSS_MEMSET(hace, 0, sizeof(*hace));
     key->type = type;
 
     switch (type) {
@@ -1760,7 +1760,7 @@ static vtss_rc vtss_vcap_sync_obj(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj
     VTSS_I("VCAP %s", obj->name);
 
     /* Add/update entries */
-    memset(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         if (cur->copy == NULL) {
             VTSS_E("VCAP %s: No saved copy", obj->name);
@@ -2267,15 +2267,15 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
            port_no, vtss_acl_policy_no_txt(conf->policy_no, buf),
            act->cpu, act->cpu_once, act->cpu_queue);
         if (act->police)
-            sprintf(buf, "%u (ACL)", act->policer_no);
+            VTSS_SPRINTF(buf, "%u (ACL)", act->policer_no);
 #if defined(VTSS_ARCH_LUTON26) && defined(VTSS_FEATURE_QOS_POLICER_DLB)
         else if (act->evc_police)
-            sprintf(buf, "%u (EVC)", act->evc_policer_id);
+            VTSS_SPRINTF(buf, "%u (EVC)", act->evc_policer_id);
 #endif /* VTSS_ARCH_LUTON26 && VTSS_FEATURE_QOS_POLICER_DLB */
         else
-            strcpy(buf, "Disabled");
+            VTSS_STRCPY(buf, "Disabled");
         pr("%-9s%-7u", buf, act->learn);
-        sprintf(buf, "%s/%s/%s",
+        VTSS_SPRINTF(buf, "%s/%s/%s",
                 vtss_acl_key_txt(conf->key.ipv4),
                 vtss_acl_key_txt(conf->key.ipv6),
                 vtss_acl_key_txt(conf->key.arp));
@@ -2306,24 +2306,24 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         if (pol_conf->bit_rate_enable) {
             rate = pol_conf->bit_rate;
             if (rate == VTSS_BITRATE_DISABLED) {
-                strcpy(buf, "Disabled");
+                VTSS_STRCPY(buf, "Disabled");
             } else if (rate < 100000) {
-                sprintf(buf, "%u kbps", rate);
+                VTSS_SPRINTF(buf, "%u kbps", rate);
             } else if (rate < 100000000) {
-                sprintf(buf, "%u Mbps", rate/1000);
+                VTSS_SPRINTF(buf, "%u Mbps", rate/1000);
             } else {
-                sprintf(buf, "%u Gbps", rate/1000000);
+                VTSS_SPRINTF(buf, "%u Gbps", rate/1000000);
             }
         } else {
             rate = pol_conf->rate;
             if (rate == VTSS_PACKET_RATE_DISABLED) {
-                strcpy(buf, "Disabled");
+                VTSS_STRCPY(buf, "Disabled");
             } else if (rate < 100000) {
-                sprintf(buf, "%u pps", rate);
+                VTSS_SPRINTF(buf, "%u pps", rate);
             } else if (rate < 100000000) {
-                sprintf(buf, "%u kpps", rate/1000);
+                VTSS_SPRINTF(buf, "%u kpps", rate/1000);
             } else {
-                sprintf(buf, "%u Mpps", rate/1000000);
+                VTSS_SPRINTF(buf, "%u Mpps", rate/1000000);
             }
         }
         pr("%-9u%-12s", policer_no, buf);

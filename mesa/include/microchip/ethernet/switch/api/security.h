@@ -219,12 +219,10 @@ typedef uint32_t mesa_ace_id_t;
 #define MESA_ACE_ID_LAST 0 // Special value used to add last in list
 
 // ACE 1 bit
-typedef enum
-{
-    MESA_ACE_BIT_ANY, // Value 0 or 1
-    MESA_ACE_BIT_0,   // Value 0
-    MESA_ACE_BIT_1    // Value 1
-} mesa_ace_bit_t;
+typedef mesa_vcap_bit_t  mesa_ace_bit_t;
+#define MESA_ACE_BIT_ANY MESA_VCAP_BIT_ANY
+#define MESA_ACE_BIT_0   MESA_VCAP_BIT_0
+#define MESA_ACE_BIT_1   MESA_VCAP_BIT_1
 
 // ACE 8 bit value and mask
 typedef mesa_vcap_u8_t mesa_ace_u8_t;

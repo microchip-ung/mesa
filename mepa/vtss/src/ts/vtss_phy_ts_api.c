@@ -3314,7 +3314,7 @@ static vtss_rc vtss_phy_ts_csr_set_priv(vtss_state_t *vtss_state,
         value = 0;
         if (ti != 0) {
             /* one Mia*2**16/|adj| */
-            val = VTSS_DIV64(1000000000ULL * 0x10000ULL,  (u64)VTSS_LLABS(ti));
+            val = MEPA_DIV64(1000000000ULL * 0x10000ULL,  (u64)MEPA_LLABS(ti));
             if (val > 1000000000ULL) {
                 val = 1000000000ULL;
             }
@@ -22603,7 +22603,7 @@ vtss_rc vtss_phy_ts_bypass_set(vtss_state_t    *vtss_state,
             VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, blk_id,
                     VTSS_PTP_IP_1588_TOP_CFG_STAT_INTERFACE_CTL, &value));
             // wait for 1ms after 1588 bypass
-            //           VTSS_MSLEEP(1);
+            //           MEPA_MSLEEP(1);
             //        }
         } else {
             /*5. Enable 1588 datapath */

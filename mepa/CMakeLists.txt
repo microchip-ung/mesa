@@ -10,7 +10,10 @@ include_directories(common/include)
 
 # Offer an options for CI to get good compliation coverage
 option(BUILD_MEPA_ALL "Build all MEPA libraries" OFF)
+option(MEPA_OPSYS_LMSTAX "Build MEPA with OS abstraction for LMSTAX" OFF)
+
 mark_as_advanced(BUILD_MEPA_ALL)
+mark_as_advanced(MEPA_OPSYS_LMSTAX)
 
 # The various drivers append to this, if user select the corresponding options
 set(mepa_drvs)
@@ -72,3 +75,6 @@ MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
          DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -DMEPA_HAS_LAN8814
          DRVS     mepa_drv_vtss    mepa_drv_ksz9031    mepa_drv_lan8814)
 
+MEPA_LIB(LIB_NAME mepa_lmstax_lan966x ADVANCED
+         DEFS     -DMEPA_HAS_LAN8814
+         DRVS     mepa_drv_lan8814)

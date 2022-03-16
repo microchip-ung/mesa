@@ -68,7 +68,7 @@ typedef enum {
 
 typedef struct {
     /* Variables common to all tasks */
-    vtss_mtimer_t timeout;      /**< Absolute timeout */
+    mepa_mtimer_t timeout;      /**< Absolute timeout */
     unsigned char task_state;   /**< Task State   */
     /* 0x00 ==> idle (but still serviced) */
     /* 0x01 - 0x7f ==> task-defined, */

@@ -26,23 +26,23 @@ typedef enum {
 typedef struct {
     // ETH
     mepa_bool_t pbb_en;
-    uint16_t tpid;
-    uint16_t etype;
+    u16 tpid;
+    u16 etype;
     // IP
-    uint8_t ip_mode;
-    uint16_t sport_val;
-    uint16_t sport_mask;
-    uint16_t dport_val;
-    uint16_t dport_mask;
+    u8 ip_mode;
+    u16 sport_val;
+    u16 sport_mask;
+    u16 dport_val;
+    u16 dport_mask;
 } phy_ts_eng_comm_t;
 // flow configuration from 'mepa_ts_classifier_eth_t' && 'mepa_ts_classifier_ip_t' which is unique to each flow of engine.
 typedef struct {
     // ETH
     mepa_ts_mac_match_mode_t    mac_match_mode;
     mepa_ts_mac_match_select_t  mac_match_select;
-    uint8_t                     mac_addr[6];
+    u8                          mac_addr[6];
     mepa_bool_t                 vlan_check;
-    uint8_t                     num_tag;
+    u8                          num_tag;
     mepa_ts_match_uint16_t      outer_tag;
     mepa_ts_match_uint16_t      inner_tag;
 
@@ -57,7 +57,7 @@ typedef struct {
 
 typedef struct {
     mepa_ts_pkt_encap_t      pkt_encap_type;
-    uint8_t                  clock_id;
+    u8                       clock_id;
     mepa_bool_t              eng_enable; // engine enable
     phy_ts_eng_comm_t        comm;
     phy_ts_eng_flow_t        flow[TS_FLOWS_PER_ENG];

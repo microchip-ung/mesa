@@ -109,7 +109,7 @@ static vtss_rc mrp_counter_update(vtss_state_t         *vtss_state,
 
 static void mrp_instance_default(vtss_state_t *vtss_state, vtss_mrp_data_t *mrp)
 {
-    memset(mrp, 0, sizeof(*mrp));
+    VTSS_MEMSET(mrp, 0, sizeof(*mrp));
     mrp->ring_state    = VTSS_MRP_RING_STATE_OPEN;
     mrp->in_ring_state = VTSS_MRP_RING_STATE_OPEN;
     mrp->tst_loc_idx   = LOC_PERIOD_CNT;
@@ -223,7 +223,7 @@ static vtss_rc mrp_uninit_port(vtss_state_t *vtss_state, vtss_port_no_t port)
 
     // Clear counters, by writing directly to the chip, because
     // mrp_counter_update() updates the shadow counter values, not the chip
-    // counter values. The shadow counter values will be cleared by a memset()
+    // counter values. The shadow counter values will be cleared by a VTSS_MEMSET()
     // in just a moment.
     REG_WR(MEP_TST_RX_CNT(chip_port), 0);
     REG_WR(MEP_ITST_RX_CNT(chip_port), 0);
@@ -982,7 +982,7 @@ u32 find_unused_loc_idx(vtss_mrp_data_t *mrp_array)
 {
     u32  i;
     BOOL idx_used[LOC_PERIOD_CNT];
-    memset(idx_used, 0, sizeof(idx_used));
+    VTSS_MEMSET(idx_used, 0, sizeof(idx_used));
 
     for (i = 0; i < VTSS_MRP_CNT; ++i) {
         if (!mrp_array[i].active) {
@@ -1642,7 +1642,7 @@ static vtss_rc lan966x_mrp_status_get(vtss_state_t         *vtss_state,
         i_chip_port = VTSS_CHIP_PORT(mrp_data->conf.i_port);
     }
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     for (p = 0; p < 3; p++) {
         if (p == 2 && mrp_data->conf.in_ring_role == VTSS_MRP_RING_ROLE_DISABLED) {
@@ -1688,7 +1688,7 @@ static vtss_rc lan966x_mrp_counters_get(vtss_state_t          *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    memset(counters, 0, sizeof(*counters));
+    VTSS_MEMSET(counters, 0, sizeof(*counters));
 
     /* Poll so we get the most recent counter values */
     if (mrp_counter_update(vtss_state, mrp_idx, FALSE) != VTSS_RC_OK) {
@@ -1782,7 +1782,7 @@ static vtss_rc lan966x_mrp_event_get(vtss_state_t         *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    memset(events, 0, sizeof(*events));
+    VTSS_MEMSET(events, 0, sizeof(*events));
 
     for (p = 0; p < 3; p++) {
         if (p == 2 && mrp_data->conf.in_ring_role == VTSS_MRP_RING_ROLE_DISABLED) {
@@ -1864,7 +1864,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
 
             REG_RD(MEP_MRP_CTRL(i), &v);
             if (info->full  ||  MEP_MRP_CTRL_MRP_ENA_X(v)) {
-                sprintf(buf, "MRP %u", i);
+                VTSS_SPRINTF(buf, "MRP %u", i);
                 vtss_lan966x_debug_reg_header(pr, buf);
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_CTRL(i)), i, "MEP_MRP_CTRL");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_FWD_CTRL(i)), i, "MEP_MRP_FWD_CTRL");
@@ -1898,7 +1898,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t               *vtss_state,
 
             REG_RD(MEP_MRP_CTRL(i), &v);
             if (info->full  ||  MEP_MRP_CTRL_MRP_ENA_X(v)) {
-                sprintf(buf, "MRP %u", i);
+                VTSS_SPRINTF(buf, "MRP %u", i);
                 vtss_lan966x_debug_reg_header(pr, buf);
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_MRP_STICKY(i)), i, "MEP_MRP_STICKY");
                 vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(MEP_TST_RX_CNT(i)), i, "MEP_TST_RX_CNT");

@@ -109,92 +109,92 @@ vtss_rc vtss_macsec_tx_sc_status_get(const vtss_inst_t inst, const vtss_macsec_p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, const uint32_t lowest_pn, const vtss_macsec_sak_t *const sak)
+vtss_rc vtss_macsec_rx_sa_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, const u32 lowest_pn, const vtss_macsec_sak_t *const sak)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, uint32_t *const lowest_pn, vtss_macsec_sak_t *const sak, BOOL *const active)
+vtss_rc vtss_macsec_rx_sa_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, u32 *const lowest_pn, vtss_macsec_sak_t *const sak, BOOL *const active)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_activate(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an)
+vtss_rc vtss_macsec_rx_sa_activate(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_disable(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an)
+vtss_rc vtss_macsec_rx_sa_disable(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_del(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an)
+vtss_rc vtss_macsec_rx_sa_del(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_lowest_pn_update(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, const uint32_t lowest_pn)
+vtss_rc vtss_macsec_rx_sa_lowest_pn_update(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, const u32 lowest_pn)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, vtss_macsec_rx_sa_status_t *const status)
+vtss_rc vtss_macsec_rx_sa_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, vtss_macsec_rx_sa_status_t *const status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_seca_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, const vtss_macsec_pkt_num_t lowest_pn, const vtss_macsec_sak_t *const sak, const vtss_macsec_ssci_t *const ssci)
+vtss_rc vtss_macsec_rx_seca_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, const vtss_macsec_pkt_num_t lowest_pn, const vtss_macsec_sak_t *const sak, const vtss_macsec_ssci_t *const ssci)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_seca_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, vtss_macsec_pkt_num_t *const lowest_pn, vtss_macsec_sak_t *const sak, BOOL *const active, vtss_macsec_ssci_t *const ssci)
+vtss_rc vtss_macsec_rx_seca_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, vtss_macsec_pkt_num_t *const lowest_pn, vtss_macsec_sak_t *const sak, BOOL *const active, vtss_macsec_ssci_t *const ssci)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_seca_lowest_pn_update(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, const vtss_macsec_pkt_num_t lowest_pn)
+vtss_rc vtss_macsec_rx_seca_lowest_pn_update(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, const vtss_macsec_pkt_num_t lowest_pn)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, const uint32_t next_pn, const BOOL confidentiality, const vtss_macsec_sak_t *const sak)
+vtss_rc vtss_macsec_tx_sa_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, const u32 next_pn, const BOOL confidentiality, const vtss_macsec_sak_t *const sak)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, uint32_t *const next_pn, BOOL *const confidentiality, vtss_macsec_sak_t *const sak, BOOL *const active)
+vtss_rc vtss_macsec_tx_sa_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, u32 *const next_pn, BOOL *const confidentiality, vtss_macsec_sak_t *const sak, BOOL *const active)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_activate(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an)
+vtss_rc vtss_macsec_tx_sa_activate(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_disable(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an)
+vtss_rc vtss_macsec_tx_sa_disable(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_del(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an)
+vtss_rc vtss_macsec_tx_sa_del(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, vtss_macsec_tx_sa_status_t *const status)
+vtss_rc vtss_macsec_tx_sa_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, vtss_macsec_tx_sa_status_t *const status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_seca_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, const vtss_macsec_pkt_num_t next_pn, const BOOL confidentiality, const vtss_macsec_sak_t *const sak, const vtss_macsec_ssci_t *const ssci)
+vtss_rc vtss_macsec_tx_seca_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, const vtss_macsec_pkt_num_t next_pn, const BOOL confidentiality, const vtss_macsec_sak_t *const sak, const vtss_macsec_ssci_t *const ssci)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_seca_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, vtss_macsec_pkt_num_t *const next_pn, BOOL *const confidentiality, vtss_macsec_sak_t *const sak, BOOL *const active, vtss_macsec_ssci_t *const ssci)
+vtss_rc vtss_macsec_tx_seca_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, vtss_macsec_pkt_num_t *const next_pn, BOOL *const confidentiality, vtss_macsec_sak_t *const sak, BOOL *const active, vtss_macsec_ssci_t *const ssci)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -244,27 +244,27 @@ vtss_rc vtss_macsec_tx_sc_counters_get(const vtss_inst_t inst, const vtss_macsec
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_tx_sa_counters_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an, vtss_macsec_tx_sa_counters_t *const counters)
+vtss_rc vtss_macsec_tx_sa_counters_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an, vtss_macsec_tx_sa_counters_t *const counters)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rx_sa_counters_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, vtss_macsec_rx_sa_counters_t *const counters)
+vtss_rc vtss_macsec_rx_sa_counters_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, vtss_macsec_rx_sa_counters_t *const counters)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_control_frame_match_conf_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_macsec_control_frame_match_conf_t *const conf, uint32_t *const rule_id)
+vtss_rc vtss_macsec_control_frame_match_conf_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_macsec_control_frame_match_conf_t *const conf, u32 *const rule_id)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_control_frame_match_conf_del(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t rule_id)
+vtss_rc vtss_macsec_control_frame_match_conf_del(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 rule_id)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_control_frame_match_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_control_frame_match_conf_t *const conf, uint32_t rule_id)
+vtss_rc vtss_macsec_control_frame_match_conf_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_control_frame_match_conf_t *const conf, u32 rule_id)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -329,7 +329,7 @@ vtss_rc vtss_macsec_frame_capture_set(const vtss_inst_t inst, const vtss_port_no
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_frame_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t buf_length, uint32_t *const return_length, uint8_t *const frame)
+vtss_rc vtss_macsec_frame_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 buf_length, u32 *const return_length, u8 *const frame)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -349,22 +349,22 @@ vtss_rc vtss_macsec_event_poll(const vtss_inst_t inst, const vtss_port_no_t port
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_event_seq_threshold_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t threshold)
+vtss_rc vtss_macsec_event_seq_threshold_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 threshold)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_event_seq_threshold_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *const threshold)
+vtss_rc vtss_macsec_event_seq_threshold_get(const vtss_inst_t inst, const vtss_port_no_t port_no, u32 *const threshold)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_csr_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t mmd, const uint32_t addr, uint32_t *const value)
+vtss_rc vtss_macsec_csr_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 mmd, const u32 addr, u32 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_csr_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t mmd, const uint32_t addr, const uint32_t value)
+vtss_rc vtss_macsec_csr_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 mmd, const u32 addr, const u32 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -424,7 +424,7 @@ vtss_rc vtss_macsec_controlled_counters_clear(const vtss_inst_t inst, const vtss
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rxsa_counters_clear(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an)
+vtss_rc vtss_macsec_rxsa_counters_clear(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -434,7 +434,7 @@ vtss_rc vtss_macsec_rxsc_counters_clear(const vtss_inst_t inst, const vtss_macse
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_txsa_counters_clear(const vtss_inst_t inst, const vtss_macsec_port_t port, const uint16_t an)
+vtss_rc vtss_macsec_txsa_counters_clear(const vtss_inst_t inst, const vtss_macsec_port_t port, const u16 an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -454,22 +454,22 @@ vtss_rc vtss_macsec_port_enable_status_get(const vtss_inst_t inst, const vtss_po
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_rxsa_an_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const uint16_t an, BOOL *status)
+vtss_rc vtss_macsec_rxsa_an_status_get(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, const u16 an, BOOL *status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_mac_block_mtu_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t *const mtu_value, BOOL *const mtu_tag_check)
+vtss_rc vtss_mac_block_mtu_get(const vtss_inst_t inst, const vtss_port_no_t port_no, u16 *const mtu_value, BOOL *const mtu_tag_check)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_mac_block_mtu_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t mtu_value, const BOOL mtu_tag_check)
+vtss_rc vtss_mac_block_mtu_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 mtu_value, const BOOL mtu_tag_check)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_fcbuf_frame_gap_comp_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t frm_gap)
+vtss_rc vtss_macsec_fcbuf_frame_gap_comp_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 frm_gap)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -484,12 +484,12 @@ vtss_rc vtss_macsec_dbg_frm_match_handling_ctrl_reg_dump(const vtss_inst_t inst,
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_dbg_update_seq_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, uint16_t an, BOOL egr, const BOOL disable)
+vtss_rc vtss_macsec_dbg_update_seq_set(const vtss_inst_t inst, const vtss_macsec_port_t port, const vtss_macsec_sci_t *const sci, u16 an, BOOL egr, const BOOL disable)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_macsec_egr_intr_sa_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_port_t *const port, uint16_t *const an)
+vtss_rc vtss_macsec_egr_intr_sa_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_port_t *const port, u16 *const an)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -926,12 +926,12 @@ vtss_rc vtss_phy_10g_edc_fw_status_get(const vtss_inst_t inst, const vtss_port_n
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_csr_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t dev, const uint32_t addr, uint32_t *const value)
+vtss_rc vtss_phy_10g_csr_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 dev, const u32 addr, u32 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_csr_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t dev, const uint32_t addr, const uint32_t value)
+vtss_rc vtss_phy_10g_csr_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 dev, const u32 addr, const u32 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -946,12 +946,12 @@ vtss_rc vtss_phy_10g_sgmii_mode_set(const vtss_inst_t inst, const vtss_port_no_t
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, uint16_t *value)
+vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 addr, u16 *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t addr, const uint16_t *value)
+vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 addr, const u16 *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -998,7 +998,7 @@ vtss_rc vtss_phy_reset_get(const vtss_inst_t inst, const vtss_port_no_t port_no,
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_chip_temp_get(const vtss_inst_t inst, const vtss_port_no_t port_no, int16_t *const temp)
+vtss_rc vtss_phy_chip_temp_get(const vtss_inst_t inst, const vtss_port_no_t port_no, i16 *const temp)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1083,68 +1083,68 @@ vtss_rc vtss_phy_clock_conf_get(const vtss_inst_t inst, const vtss_port_no_t por
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr, const uint8_t i2c_device_addr, uint8_t *const value, uint8_t cnt, BOOL word_access)
+vtss_rc vtss_phy_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, u8 *const value, u8 cnt, BOOL word_access)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr, const uint8_t i2c_device_addr, uint8_t *value, uint8_t cnt, BOOL word_access)
+vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, u8 *value, u8 cnt, BOOL word_access)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t addr, uint16_t *const value)
+vtss_rc vtss_phy_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 addr, u16 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_read_page(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t page, const uint32_t addr, uint16_t *const value)
+vtss_rc vtss_phy_read_page(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 page, const u32 addr, u16 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mmd_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t devad, const uint32_t addr, uint16_t *const value)
+vtss_rc vtss_phy_mmd_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 devad, const u32 addr, u16 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mmd_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t devad, const uint32_t addr, uint16_t value)
+vtss_rc vtss_phy_mmd_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 devad, const u32 addr, u16 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t addr, const uint16_t value)
+vtss_rc vtss_phy_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 addr, const u16 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_write_masked(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t addr, const uint16_t value, const uint16_t mask)
+vtss_rc vtss_phy_write_masked(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 addr, const u16 value, const u16 mask)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_write_masked_page(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t page, const uint16_t addr, const uint16_t value, const uint16_t mask)
+vtss_rc vtss_phy_write_masked_page(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 page, const u16 addr, const u16 value, const u16 mask)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_gpio_mode(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t gpio_no, const vtss_phy_gpio_mode_t mode)
+vtss_rc vtss_phy_gpio_mode(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 gpio_no, const vtss_phy_gpio_mode_t mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_gpio_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t gpio_no, BOOL *value)
+vtss_rc vtss_phy_gpio_get(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 gpio_no, BOOL *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_gpio_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t gpio_no, BOOL value)
+vtss_rc vtss_phy_gpio_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 gpio_no, BOOL value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
 #if !VTSS_PHY_OPT_VERIPHY
-vtss_rc vtss_phy_veriphy_start(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t mode)
+vtss_rc vtss_phy_veriphy_start(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1217,7 +1217,7 @@ vtss_rc vtss_phy_eee_power_save_state_get(const vtss_inst_t inst, const vtss_por
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_eee_link_partner_advertisements_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *advertisement)
+vtss_rc vtss_phy_eee_link_partner_advertisements_get(const vtss_inst_t inst, const vtss_port_no_t port_no, u8 *advertisement)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1242,12 +1242,12 @@ vtss_rc vtss_squelch_workaround(const vtss_inst_t inst, const vtss_port_no_t por
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_csr_wr(const vtss_inst_t inst, const uint16_t page, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, const uint32_t value)
+vtss_rc vtss_phy_csr_wr(const vtss_inst_t inst, const u16 page, const vtss_port_no_t port_no, const u16 target, const u32 csr_reg_addr, const u32 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_csr_rd(const vtss_inst_t inst, const uint16_t page, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t *value)
+vtss_rc vtss_phy_csr_rd(const vtss_inst_t inst, const u16 page, const vtss_port_no_t port_no, const u16 target, const u32 csr_reg_addr, u32 *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1277,17 +1277,17 @@ vtss_rc vtss_phy_loopback_get(const vtss_inst_t inst, const vtss_port_no_t port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_is_8051_crc_ok(const vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t code_length, uint16_t expected_crc)
+vtss_rc vtss_phy_is_8051_crc_ok(const vtss_inst_t inst, const vtss_port_no_t port_no, u16 code_length, u16 expected_crc)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_cfg_ob_post0(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t value)
+vtss_rc vtss_phy_cfg_ob_post0(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_cfg_ib_cterm(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t ib_cterm_ena, const uint8_t ib_eq_mode)
+vtss_rc vtss_phy_cfg_ib_cterm(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 ib_cterm_ena, const u8 ib_eq_mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1307,11 +1307,11 @@ vtss_rc vtss_phy_lcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-void vtss_phy_reg_decode_status(vtss_port_no_t port_no, uint16_t lp_auto_neg_advertisment_reg, uint16_t lp_1000base_t_status_reg, uint16_t mii_status_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
+void vtss_phy_reg_decode_status(vtss_port_no_t port_no, u16 lp_auto_neg_advertisment_reg, u16 lp_1000base_t_status_reg, u16 mii_status_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
 {
 }
 
-vtss_rc vtss_phy_flowcontrol_decode_status(const vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t lp_auto_neg_advertisment_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
+vtss_rc vtss_phy_flowcontrol_decode_status(const vtss_inst_t inst, const vtss_port_no_t port_no, u16 lp_auto_neg_advertisment_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1346,12 +1346,12 @@ vtss_rc vtss_phy_ext_connector_loopback(const vtss_inst_t inst, const vtss_port_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_serdes_sgmii_loopback(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t mode)
+vtss_rc vtss_phy_serdes_sgmii_loopback(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_serdes_fmedia_loopback(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t mode)
+vtss_rc vtss_phy_serdes_fmedia_loopback(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1381,22 +1381,22 @@ vtss_rc vtss_phy_reset_lcpll(const vtss_inst_t inst, const vtss_port_no_t port_n
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_post_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *ob_post0, uint8_t *ob_post1)
+vtss_rc vtss_phy_sd6g_ob_post_rd(vtss_inst_t inst, const vtss_port_no_t port_no, u8 *ob_post0, u8 *ob_post1)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_post_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t ob_post0, const uint8_t ob_post1)
+vtss_rc vtss_phy_sd6g_ob_post_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const u8 ob_post0, const u8 ob_post1)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_lev_rd(vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *ob_level)
+vtss_rc vtss_phy_sd6g_ob_lev_rd(vtss_inst_t inst, const vtss_port_no_t port_no, u8 *ob_level)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_sd6g_ob_lev_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const uint8_t ob_level)
+vtss_rc vtss_phy_sd6g_ob_lev_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const u8 ob_level)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1421,17 +1421,17 @@ vtss_rc vtss_phy_fefi_detect(vtss_inst_t inst, const vtss_port_no_t port_no, BOO
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mse_100m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *mse)
+vtss_rc vtss_phy_mse_100m_get(vtss_inst_t inst, const vtss_port_no_t port_no, u32 *mse)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_mse_1000m_get(vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *mseA, uint32_t *mseB, uint32_t *mseC, uint32_t *mseD)
+vtss_rc vtss_phy_mse_1000m_get(vtss_inst_t inst, const vtss_port_no_t port_no, u32 *mseA, u32 *mseB, u32 *mseC, u32 *mseD)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_read_tr_addr(vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t tr_addr, uint16_t *tr_lower, uint16_t *tr_upper)
+vtss_rc vtss_phy_read_tr_addr(vtss_inst_t inst, const vtss_port_no_t port_no, u16 tr_addr, u16 *tr_lower, u16 *tr_upper)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1446,24 +1446,24 @@ vtss_rc vtss_phy_ext_event_poll(const vtss_inst_t inst, const vtss_port_no_t por
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_firmware_update(const vtss_inst_t inst, const vtss_port_no_t port_no, uint8_t *const fw, uint32_t *const len)
+vtss_rc vtss_phy_firmware_update(const vtss_inst_t inst, const vtss_port_no_t port_no, u8 *const fw, u32 *const len)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_macsec_csr_sd6g_rd(vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t *value)
+vtss_rc vtss_phy_macsec_csr_sd6g_rd(vtss_inst_t inst, const vtss_port_no_t port_no, const u16 target, const u32 csr_reg_addr, u32 *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_macsec_csr_sd6g_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t target, const uint32_t csr_reg_addr, uint32_t value)
+vtss_rc vtss_phy_macsec_csr_sd6g_wr(vtss_inst_t inst, const vtss_port_no_t port_no, const u16 target, const u32 csr_reg_addr, u32 value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 #endif // defined(VTSS_CHIP_CU_PHY)
 
 #if !defined(VTSS_OPT_PHY_TIMESTAMP)
-vtss_rc vtss_phy_ts_alt_clock_saved_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint32_t *const saved)
+vtss_rc vtss_phy_ts_alt_clock_saved_get(const vtss_inst_t inst, const vtss_port_no_t port_no, u32 *const saved)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1563,12 +1563,12 @@ vtss_rc vtss_phy_ts_sertod_get(const vtss_inst_t inst, const vtss_port_no_t port
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_loadpulse_delay_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint16_t *const delay)
+vtss_rc vtss_phy_ts_loadpulse_delay_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const u16 *const delay)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_loadpulse_delay_get(const vtss_inst_t inst, const vtss_port_no_t port_no, uint16_t *const delay)
+vtss_rc vtss_phy_ts_loadpulse_delay_get(const vtss_inst_t inst, const vtss_port_no_t port_no, u16 *const delay)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1588,7 +1588,7 @@ vtss_rc vtss_phy_ts_ptptime_adj1ns(const vtss_inst_t inst, const vtss_port_no_t 
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_timeofday_offset_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const int32_t offset)
+vtss_rc vtss_phy_ts_timeofday_offset_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const i32 offset)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1645,7 +1645,7 @@ vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t inst, vtss_phy_ts_fifo_re
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_ingress_engine_init(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_engine_t eng_id, const vtss_phy_ts_encap_t encap_type, const uint8_t flow_st_index, const uint8_t flow_end_index, const vtss_phy_ts_engine_flow_match_t flow_match_mode)
+vtss_rc vtss_phy_ts_ingress_engine_init(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_engine_t eng_id, const vtss_phy_ts_encap_t encap_type, const u8 flow_st_index, const u8 flow_end_index, const vtss_phy_ts_engine_flow_match_t flow_match_mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1660,7 +1660,7 @@ vtss_rc vtss_phy_ts_ingress_engine_clear(const vtss_inst_t inst, const vtss_port
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_egress_engine_init(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_engine_t eng_id, const vtss_phy_ts_encap_t encap_type, const uint8_t flow_st_index, const uint8_t flow_end_index, const vtss_phy_ts_engine_flow_match_t flow_match_mode)
+vtss_rc vtss_phy_ts_egress_engine_init(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_engine_t eng_id, const vtss_phy_ts_encap_t encap_type, const u8 flow_st_index, const u8 flow_end_index, const vtss_phy_ts_engine_flow_match_t flow_match_mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1765,12 +1765,12 @@ vtss_rc vtss_phy_ts_nphase_status_get(const vtss_inst_t inst, const vtss_port_no
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_1588_csr_reg_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t blk_id, const uint16_t csr_address, const uint32_t *const value)
+vtss_rc vtss_phy_1588_csr_reg_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 blk_id, const u16 csr_address, const u32 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_1588_csr_reg_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const uint32_t blk_id, const uint16_t csr_address, uint32_t *const value)
+vtss_rc vtss_phy_1588_csr_reg_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u32 blk_id, const u16 csr_address, u32 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
@@ -1780,7 +1780,7 @@ vtss_rc vtss_phy_ts_viper_fifo_reset(const vtss_inst_t inst, const vtss_port_no_
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_ts_flow_clear_cf_set(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL ingress, const vtss_phy_ts_engine_t eng_id, uint8_t act_id, const vtss_phy_ts_ptp_message_type_t msgtype)
+vtss_rc vtss_phy_ts_flow_clear_cf_set(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL ingress, const vtss_phy_ts_engine_t eng_id, u8 act_id, const vtss_phy_ts_ptp_message_type_t msgtype)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }

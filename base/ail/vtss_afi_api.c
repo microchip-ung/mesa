@@ -263,7 +263,7 @@ static const char *afi_state_to_str(vtss_afi_entry_state_t state)
  */
 static void afi_frm_init(vtss_afi_frm_t *frm)
 {
-    memset(frm, 0, sizeof(*frm));
+    VTSS_MEMSET(frm, 0, sizeof(*frm));
 }
 
 /*
@@ -279,9 +279,9 @@ static vtss_rc afi_frm_alloc(vtss_state_t *const vtss_state, i32 *const frm_idx,
         return rc;
     }
 
-    VTSS_D("Allocated entry in FRM_TBL[%u]", *frm_idx);
+    VTSS_D("Allocated entry in FRM_TBL[%u]", (u32)(*frm_idx));
 
-    entry = &vtss_state->afi.frm_tbl[*frm_idx];
+    entry = &vtss_state->afi.frm_tbl[(u32)(*frm_idx)];
     afi_frm_init(entry);
 
     // It's either a frame entry (0) or a delay entry (1)
@@ -301,11 +301,11 @@ static vtss_rc afi_frm_alloc(vtss_state_t *const vtss_state, i32 *const frm_idx,
 static vtss_rc afi_frm_free(vtss_state_t *const vtss_state, i32 frm_idx)
 {
     if (frm_idx >= VTSS_AFI_FRM_CNT) {
-        VTSS_E("frm_idx=%u > %u", frm_idx, VTSS_AFI_FRM_CNT);
+        VTSS_E("frm_idx=%i > %u", frm_idx, VTSS_AFI_FRM_CNT);
         return VTSS_RC_ERROR;
     }
 
-    memset(&vtss_state->afi.frm_tbl[frm_idx], 0, sizeof(vtss_state->afi.frm_tbl[frm_idx]));
+    VTSS_MEMSET(&vtss_state->afi.frm_tbl[frm_idx], 0, sizeof(vtss_state->afi.frm_tbl[frm_idx]));
     return afi_res_free(vtss_state, vtss_state->afi.frms_alloced, frm_idx);
 }
 
@@ -320,7 +320,7 @@ static vtss_rc afi_frm_free(vtss_state_t *const vtss_state, i32 frm_idx)
  */
 static void afi_dti_init(vtss_afi_dti_t *dti)
 {
-    memset(dti, 0, sizeof(vtss_afi_dti_t));
+    VTSS_MEMSET(dti, 0, sizeof(vtss_afi_dti_t));
     dti->paused  = 1;  // Not started yet
 }
 
@@ -463,7 +463,7 @@ static vtss_rc afi_dti_delay_alloc(vtss_state_t *const vtss_state, vtss_afi_dti_
  */
 static void afi_tti_init(vtss_afi_tti_t *tti)
 {
-    memset(tti, 0, sizeof(vtss_afi_tti_t));
+    VTSS_MEMSET(tti, 0, sizeof(vtss_afi_tti_t));
     tti->frm_idx = -1; // frm_idx == -1 <=> No FRM allocated.
     tti->paused  = 1;  // Not started yet
 }
@@ -516,12 +516,12 @@ static vtss_rc afi_tti_free(vtss_state_t *const vtss_state, const u32 tti_idx)
 vtss_rc afi_frm_idx_chk(struct vtss_state_s *const vtss_state, i32 frm_idx)
 {
     if (frm_idx < 0 || frm_idx >= VTSS_AFI_FRM_CNT) {
-        VTSS_E("frm_idx == %d illegal", frm_idx);
+        VTSS_E("frm_idx == %i illegal", frm_idx);
         return VTSS_RC_ERROR;
     }
 
     if (afi_res_is_free(vtss_state->afi.frms_alloced, frm_idx)) {
-        VTSS_E("frm_idx == %d not alloced", frm_idx);
+        VTSS_E("frm_idx == %i not alloced", frm_idx);
         return VTSS_RC_ERROR;
     }
 
@@ -577,7 +577,7 @@ static vtss_rc afi_tti_idx_chk(struct vtss_state_s *const vtss_state, u32 tti_id
  */
 static int afi_tti_start_cfg_cmp(const vtss_afi_slow_inj_start_cfg_t *const cfg1, const vtss_afi_slow_inj_start_cfg_t *const cfg2)
 {
-    return memcmp(cfg1, cfg2, sizeof(vtss_afi_slow_inj_start_cfg_t));
+    return VTSS_MEMCMP(cfg1, cfg2, sizeof(vtss_afi_slow_inj_start_cfg_t));
 }
 
 /*
@@ -587,7 +587,7 @@ static int afi_tti_start_cfg_cmp(const vtss_afi_slow_inj_start_cfg_t *const cfg1
  */
 static void afi_tti_start_cfg_cp(vtss_afi_slow_inj_start_cfg_t *const cfg1, const vtss_afi_slow_inj_start_cfg_t *const cfg2)
 {
-    memcpy(cfg1, cfg2, sizeof(vtss_afi_slow_inj_start_cfg_t));
+    VTSS_MEMCPY(cfg1, cfg2, sizeof(vtss_afi_slow_inj_start_cfg_t));
 }
 
 /*
@@ -725,7 +725,7 @@ static vtss_rc afi_dti_delay_calc_do(vtss_state_t *const vtss_state, u32 dti_idx
     //     If excess >= 12 cycles, fine-tune BW with an additional delay entry.
     //     If excess <  12 cycles, add one to the last delay to ensure actual
     //     BW gets below requested BW.
-    memset(frame_indices, 0, sizeof(frame_indices));
+    VTSS_MEMSET(frame_indices, 0, sizeof(frame_indices));
     for (frm_idx = dti->first_frm_idx; frm_idx != 0; frm_idx = frm_tbl[frm_idx].next_ptr) {
         if (cnt >= VTSS_ARRSZ(frame_indices)) {
             VTSS_E("Corrupt frame table for DTI #%u", dti_idx);
@@ -786,7 +786,7 @@ static vtss_rc afi_dti_delay_calc_do(vtss_state_t *const vtss_state, u32 dti_idx
 
             // We are definitely going to need a delay element.
             // Allocate one and link it in.
-            VTSS_RC((afi_dti_delay_alloc(vtss_state, dti, &frm_tbl_delay_idx, last_frm_tbl_idx, i < dti->frm_cnt - 1 ? frame_indices[i + 1] : 0)));
+            VTSS_RC((afi_dti_delay_alloc(vtss_state, dti, &frm_tbl_delay_idx, last_frm_tbl_idx, i < (u32)(dti->frm_cnt - 1) ? frame_indices[i + 1] : 0)));
             last_frm_tbl_idx = frm_tbl_delay_idx;
             last_delay_slot = &frm_tbl[frm_tbl_delay_idx].frm_delay.delay;
 
@@ -847,7 +847,7 @@ static vtss_rc afi_dti_delay_calc_do(vtss_state_t *const vtss_state, u32 dti_idx
             for (delay = 1; delay <= inj_cnt; delay++) {
                 i32 carry_xm_diff = (i32)((delay * scale) / inj_cnt - delay_xm);
 
-                VTSS_N("inj_cnt = %u, delay = %u, carry_xm_diff = %d", inj_cnt, delay, carry_xm_diff);
+                VTSS_N("inj_cnt = %u, delay = %u, carry_xm_diff = %i", inj_cnt, delay, carry_xm_diff);
 
                 // Delay must be bigger than the carry (otherwise BW will be
                 // above requested rate).
@@ -1353,7 +1353,7 @@ vtss_rc vtss_afi_fast_inj_frm_hijack(const vtss_inst_t inst, vtss_afi_fastid_t f
         vtss_afi_fast_inj_start_cfg_t pseudo_cfg;
 
         VTSS_I("Hijacking done. Pseudo-starting flow");
-        memset(&pseudo_cfg, 0, sizeof(pseudo_cfg));
+        VTSS_MEMSET(&pseudo_cfg, 0, sizeof(pseudo_cfg));
         pseudo_cfg.bps = VTSS_AFI_FAST_INJ_BPS_MIN;
         if ((rc = afi_dti_inj_start(vtss_state, fastid, &pseudo_cfg, FALSE)) != VTSS_RC_OK) {
             goto do_exit;
@@ -1893,7 +1893,7 @@ void vtss_afi_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr
         }
 
         tti = &afi->tti_tbl[res_idx];
-        pr("%4u %4d %4s %4u %11" PRIu64 " %7u %6u %3u %9d %7u %10s %12s\n", res_idx,
+        pr("%4u %4d %4s %4u %11" PRIu64 " %7u %6u %3u %9i %7u %10s %12s\n", res_idx,
            tti->port_no == VTSS_PORT_NO_NONE ? tti->masquerade_port_no : tti->port_no,
            tti->port_no == VTSS_PORT_NO_NONE ? "Up" : "Down",
            tti->prio, tti->start_cfg.fph, tti->tick_idx,
@@ -1917,7 +1917,7 @@ void vtss_afi_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr
            dti->prio, dti->frm_inj_cnt,
            afi_state_to_str(dti->state), dti->paused ? "Paused" : "Running");
         for (frm_idx = dti->first_frm_idx; frm_idx != 0; frm_idx = afi->frm_tbl[frm_idx].next_ptr) {
-            pr(" %u", frm_idx);
+            pr(" %i", frm_idx);
         }
 
         pr("\n");
@@ -1952,7 +1952,7 @@ void vtss_afi_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr
     pr("---- ----\n");
     for (port_no = 0; port_no < VTSS_ARRSZ(vtss_state->afi.port_tbl); port_no++) {
         vtss_afi_port_t *afi_port = &vtss_state->afi.port_tbl[port_no];
-        pr("%4d %4s\n", port_no == VTSS_ARRSZ(vtss_state->afi.port_tbl) - 1 ? -1 : port_no, afi_port->link ? "Yes" : "No");
+        pr("%4d %4s\n", port_no == VTSS_ARRSZ(vtss_state->afi.port_tbl) - 1 ? (u32)(-1) : port_no, afi_port->link ? "Yes" : "No");
     }
 
     pr("\n");

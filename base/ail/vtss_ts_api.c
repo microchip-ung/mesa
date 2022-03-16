@@ -694,7 +694,7 @@ vtss_rc vtss_ts_saved_timeofday_get(const vtss_inst_t               inst,
 }
 
 vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
-                                             const uint32_t    io,
+                                             const u32    io,
                                              u32               *const offset)
 {
     vtss_state_t *vtss_state;
@@ -1317,8 +1317,8 @@ vtss_rc vtss_ts_smac_get(const vtss_inst_t    inst,
 #endif //defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 
 vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t                inst,
-                            const uint32_t                   sec_cntr,
-                            uint16_t *const                  cnt_val)
+                            const u32                   sec_cntr,
+                            u16 *const                  cnt_val)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -1379,7 +1379,7 @@ void vtss_ts_debug_print(vtss_state_t *vtss_state,
 
     pr("One-Second Timer:\n");
     for (i = 0; i < VTSS_TS_DOMAIN_ARRAY_SIZE; i++) {
-        pr("Adjustment rate[%u]: %d ppb, \nOne_pps mode: %s ExternalClockOut mode: %s freq %d Hz\nClock offset %d sec\n",
+        pr("Adjustment rate[%u]: %i ppb, \nOne_pps mode: %s ExternalClockOut mode: %s freq %d Hz\nClock offset %d sec\n",
                     i, ts_conf->adj[i],
                     one_pps_mode_disp(ts_conf->ext_clock_mode.one_pps_mode),
                     ts_conf->ext_clock_mode.enable ? "enable" : "disable",
@@ -1390,7 +1390,7 @@ void vtss_ts_debug_print(vtss_state_t *vtss_state,
     pr("Port  IngressLatency  PeerDelay  EgressLatency  OperationMode\n");
     for (i = 0; i < VTSS_PORT_ARRAY_SIZE; i++) {
         ts_port_conf = &vtss_state->ts.port_conf[i];
-        pr("%-4d  %-14d  %-9d  %-13d  %-d\n",
+        pr("%-4d  %-14i  %-9i  %-13i  %-d\n",
            i,
            VTSS_INTERVAL_NS(ts_port_conf->ingress_latency),
            VTSS_INTERVAL_NS(ts_port_conf->p2p_delay),

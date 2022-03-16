@@ -68,7 +68,7 @@ void vtss_fa_debug_reg_header(const vtss_debug_printf_t pr, const char *name)
 {
     char buf[64];
 
-    sprintf(buf, "%-34s", name);
+    VTSS_SPRINTF(buf, "%-34s", name);
     vtss_debug_print_reg_header(pr, buf);
 }
 
@@ -80,7 +80,7 @@ static void fa_debug_reg_clr(vtss_state_t *vtss_state,
 
     if (vtss_fa_rd(vtss_state, addr, &value) == VTSS_RC_OK &&
         (clr == 0 || vtss_fa_wr(vtss_state, addr, value) == VTSS_RC_OK)) {
-        sprintf(buf, "%-34s", name);
+        VTSS_SPRINTF(buf, "%-34s", name);
         vtss_debug_print_reg(pr, buf, value);
     }
 }
@@ -96,7 +96,7 @@ void vtss_fa_debug_reg_inst(vtss_state_t *vtss_state,
 {
     char buf[64];
 
-    sprintf(buf, "%s_%u", name, i);
+    VTSS_SPRINTF(buf, "%s_%u", name, i);
     vtss_fa_debug_reg(vtss_state, pr, addr, buf);
 }
 
@@ -114,11 +114,11 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
     if (col1 == NULL) {
         pr("%-41s", "");
     } else {
-        sprintf(buf, "rx_%s:", col1);
+        VTSS_SPRINTF(buf, "rx_%s:", col1);
         pr("%-28s%10" PRIu64 "   ", buf, c1->value);
     }
     if (col2 != NULL) {
-        sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
+        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
         pr("%-28s%10" PRIu64, buf, c2->value);
     }
     pr("\n");
@@ -731,7 +731,7 @@ static vtss_rc fa_calendar_auto(vtss_state_t *vtss_state)
     VTSS_I("Using Auto calendar");
     max_core_bw = clock2bw(vtss_state->init_conf.core_clock.freq);
     // Setup the calendar, i.e. the BW to each device
-    memset(cal, 0, sizeof(cal));
+    VTSS_MEMSET(cal, 0, sizeof(cal));
     for (port_no = 0; port_no < VTSS_CHIP_PORTS_ALL; port_no++) {
         spd = fa_cal_speed_get(vtss_state, port_no, &port, bw, max_core_bw);
         if (port == CHIP_PORT_UNUSED || spd == FA_CAL_SPEED_NONE) {
@@ -1030,7 +1030,7 @@ static void taxi2ports(u32 taxi, u32 *port_ptr) {
         {56,63,54,55,99,99,99,99,99,99,99,99,99},
         {64,99,99,99,99,99,99,99,99,99,99,99,99},
     };
-    memcpy(port_ptr, &taxi_ports[taxi], sizeof(u32) * DSM_CAL_MAX_DEVS_PER_TAXI);
+    VTSS_MEMCPY(port_ptr, &taxi_ports[taxi], sizeof(u32) * DSM_CAL_MAX_DEVS_PER_TAXI);
 }
 
 
@@ -1178,12 +1178,12 @@ static vtss_rc fa_dsm_calc_calender(vtss_state_t *vtss_state, u32 taxi, u32 *sch
         ts = 0;
 
         if (num_of_new_slots > num_of_old_slots) {
-            memcpy(short_list, schedule, sizeof(short_list));
-            memcpy(long_list, new_slots, sizeof(long_list));
+            VTSS_MEMCPY(short_list, schedule, sizeof(short_list));
+            VTSS_MEMCPY(long_list, new_slots, sizeof(long_list));
             tgt_score = 100000 * num_of_old_slots / num_of_new_slots;
         } else {
-            memcpy(short_list, new_slots, sizeof(short_list));
-            memcpy(long_list, schedule, sizeof(long_list));
+            VTSS_MEMCPY(short_list, new_slots, sizeof(short_list));
+            VTSS_MEMCPY(long_list, schedule, sizeof(long_list));
             tgt_score = 100000 * num_of_new_slots / num_of_old_slots;
         }
 

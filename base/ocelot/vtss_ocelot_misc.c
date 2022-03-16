@@ -592,7 +592,7 @@ static vtss_rc srvl_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
 {
     u32 val, uio_irqs, dest;
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     // Which interrupts are taken care of in user-space?
     if (vtss_state->sys_config.using_pcie) {
@@ -1053,7 +1053,7 @@ static vtss_rc srvl_debug_misc(vtss_state_t *vtss_state,
     SRVL_DEBUG_TGT(pr, OAM_MEP);
 #endif  /* VTSS_TO_OAM_MEP */
     for (i = 0; i < VTSS_CHIP_PORTS; i++) {
-        sprintf(buf, "DEV_%u", i);
+        VTSS_SPRINTF(buf, "DEV_%u", i);
         srvl_debug_tgt(pr, buf, VTSS_TO_DEV(i));
     }
     pr("\n");

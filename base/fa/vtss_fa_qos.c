@@ -835,7 +835,7 @@ static vtss_rc fa_queue_policer_set(vtss_state_t *vtss_state,
         u32                     pol_idx = VTSS_QUEUE_POL_IDX(port, queue);
         vtss_dlb_policer_conf_t dlb_conf;
 
-        memset(&dlb_conf, 0, sizeof(dlb_conf));
+        VTSS_MEMSET(&dlb_conf, 0, sizeof(dlb_conf));
         dlb_conf.type = VTSS_POLICER_TYPE_SINGLE;
         dlb_conf.enable = (conf->rate == VTSS_BITRATE_DISABLED) ? FALSE : TRUE;
         dlb_conf.line_rate = 1;
@@ -2096,7 +2096,7 @@ static vtss_rc fa_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_b
     u32            port, queue, packet_rate, se;
 
     VTSS_D("Enter");
-    memset(&shaper, 0, sizeof(shaper));
+    VTSS_MEMSET(&shaper, 0, sizeof(shaper));
     shaper.rate  = rate;       // kbps
     shaper.level = (4096 * 4); // 16 kbytes burst size
     for (port = VTSS_CHIP_PORT_CPU_0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
@@ -2352,7 +2352,7 @@ static BOOL tas_trunk_port_conf_calc(vtss_qos_tas_port_conf_t  *current_port_con
     u32 trunk_duration, interval_sum = 0, i = 0;
     vtss_timestamp_t  trunk_duration_time;
 
-    memset(trunk_port_conf, 0, sizeof(*trunk_port_conf));
+    VTSS_MEMSET(trunk_port_conf, 0, sizeof(*trunk_port_conf));
 
     /* Calculate max duration of trunk list */
     trunk_duration_time = *new_start_time;
@@ -2364,7 +2364,7 @@ static BOOL tas_trunk_port_conf_calc(vtss_qos_tas_port_conf_t  *current_port_con
     trunk_duration = trunk_duration_time.nanoseconds + trunk_duration_time.seconds * 1000000000; /* Without including 'sec_msb' the gap can be up to 136 years - must be enough */
 
     /* Copy the full current port configuration toe trunk */
-    memcpy(trunk_port_conf, current_port_conf, sizeof(*trunk_port_conf));
+    VTSS_MEMCPY(trunk_port_conf, current_port_conf, sizeof(*trunk_port_conf));
 
     /* Calculate the required number of GCL list entries in the trunk list */
     for (i = 0; i < current_port_conf->gcl_length; ++i) {
@@ -2394,13 +2394,13 @@ static BOOL tas_trunk_port_conf_calc(vtss_qos_tas_port_conf_t  *current_port_con
 
 static void tas_stop_port_conf_calc(vtss_timestamp_t *current_end_time, BOOL *gate_open, vtss_qos_tas_port_conf_t *stop_port_conf)
 {
-    memset(stop_port_conf, 0, sizeof(*stop_port_conf));
+    VTSS_MEMSET(stop_port_conf, 0, sizeof(*stop_port_conf));
 
     stop_port_conf->base_time = *current_end_time;
     stop_port_conf->cycle_time = 1000;
     stop_port_conf->gcl_length = 1;
     stop_port_conf->gcl[0].gate_operation = VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC;
-    memcpy(stop_port_conf->gcl[0].gate_open, gate_open, sizeof(stop_port_conf->gcl[0].gate_open));
+    VTSS_MEMCPY(stop_port_conf->gcl[0].gate_open, gate_open, sizeof(stop_port_conf->gcl[0].gate_open));
     stop_port_conf->gcl[0].time_interval = 1000;
 }
 
@@ -2411,7 +2411,7 @@ static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     vtss_tas_list_t       *tas_lists = vtss_state->qos.tas.tas_lists;
 
-    memset(current_port_conf, 0, sizeof(*current_port_conf));
+    VTSS_MEMSET(current_port_conf, 0, sizeof(*current_port_conf));
     if (gcl_state->curr_list_idx == TAS_LIST_IDX_NONE) {
         return VTSS_RC_OK;
     }
@@ -2597,7 +2597,7 @@ static BOOL tas_current_end_time_calc(vtss_state_t *vtss_state,  u32 current_lis
     u32               current_cycle_time;
     u64               diff_base_time_u64, current_elapse_time;
 
-    memset(current_end_time, 0, sizeof(*current_end_time));
+    VTSS_MEMSET(current_end_time, 0, sizeof(*current_end_time));
 
     if (current_list_idx != TAS_LIST_IDX_NONE) {
         /* Get the base time of current list */
@@ -2974,7 +2974,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     list_idx = trunk_list_idx = obsolete_list_idx = stop_list_idx = TAS_LIST_IDX_NONE;
     profile_idx = trunk_profile_idx = TAS_PROFILE_IDX_NONE;
     trunk_startup_time = stop_startup_time = time_gap = 0;
-    memset(&current_end_time, 0, sizeof(current_end_time));
+    VTSS_MEMSET(&current_end_time, 0, sizeof(current_end_time));
 
     /* Update the GCL state */
     tas_gcl_state_update(vtss_state, port_no);
@@ -3222,7 +3222,7 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
     u32                   list_idx = TAS_LIST_IDX_NONE;
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
 
-    memset(status, 0, sizeof(*status));
+    VTSS_MEMSET(status, 0, sizeof(*status));
 
     /* Update the GCL state */
     tas_gcl_state_update(vtss_state, port_no);
@@ -3517,7 +3517,7 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t              *vtss_stat
         pr("Index %u, (%u of %u)\n", ix, len + 1, length);
         pr("%-32s: PATH  TC  DP  COSID  QOS  DEI  PCP  DSCP\n", "");
         REG_RD(VTSS_ANA_CL_SET_CTRL(ix), &value);
-        sprintf(buf, "    MAP_TBL[%u]:SET_CTRL", ix);
+        VTSS_SPRINTF(buf, "    MAP_TBL[%u]:SET_CTRL", ix);
         pr("%-32s: %4u  %2u  %2u  %5u  %3u  %3u  %3u  %4u\n",
                buf,
                VTSS_X_ANA_CL_SET_CTRL_PATH_ENA(value),
@@ -3531,7 +3531,7 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t              *vtss_stat
         pr("%-32s: FWD_DIS  PATH_COLOR  PATH_COSID  TC  DP  COSID  QOS  DEI  PCP  DSCP\n", "");
         for (col = 0; col < 8; col++) {
             REG_RD(VTSS_ANA_CL_MAP_ENTRY(ix, col), &value);
-            sprintf(buf, "    MAP_TBL[%u]:MAP_ENTRY[%u]", ix, col);
+            VTSS_SPRINTF(buf, "    MAP_TBL[%u]:MAP_ENTRY[%u]", ix, col);
             pr("%-32s: %7u  %10u  %10u  %2u  %2u  %5u  %3u  %3u  %3u  %4u\n",
                buf,
                VTSS_X_ANA_CL_MAP_ENTRY_FWD_DIS(value),
@@ -3562,13 +3562,13 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t              *vtss_state
 
     for (len = 0; len < length; len++) {
         ix = ix_start + len;
-        sprintf(buf, "Index %u, (%u of %u)", ix, len + 1, length);
+        VTSS_SPRINTF(buf, "Index %u, (%u of %u)", ix, len + 1, length);
         pr("%-32s: OAM_COLOR  OAM_COSID  TC  DSCP  DEI  PCP\n", buf);
         for (col = 0; col < 8; col++) {
             addr = (ix * 8) + col;
             if (res == 0) { // Resource A
                 REG_RD(VTSS_REW_MAP_VAL_A(addr), &value);
-                sprintf(buf, "    MAP_RES_A[%u]:MAP_VAL_A", addr);
+                VTSS_SPRINTF(buf, "    MAP_RES_A[%u]:MAP_VAL_A", addr);
                 pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n",
                    buf,
                    VTSS_X_REW_MAP_VAL_A_OAM_COLOR(value),
@@ -3579,7 +3579,7 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t              *vtss_state
                    VTSS_X_REW_MAP_VAL_A_PCP_VAL(value));
             } else { // Resource B
                 REG_RD(VTSS_REW_MAP_VAL_B(addr), &value);
-                sprintf(buf, "    MAP_RES_B[%u]:MAP_VAL_B", addr);
+                VTSS_SPRINTF(buf, "    MAP_RES_B[%u]:MAP_VAL_B", addr);
                 pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n",
                    buf,
                    VTSS_X_REW_MAP_VAL_B_OAM_COLOR(value),
@@ -3607,7 +3607,7 @@ static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
         if (m->ix[res].entry == NULL) {
             continue; /* Resource not present */
         }
-        sprintf(buf, "QoS %s Mapping Tables Res %u", m->name, res);
+        VTSS_SPRINTF(buf, "QoS %s Mapping Tables Res %u", m->name, res);
         vtss_debug_print_header(pr, buf);
         if (info->full) {
             if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
@@ -3868,9 +3868,9 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                 for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
                     const char *delim = (pcp == VTSS_PCP_START) ? " | " : ",";
                     REG_RD(VTSS_ANA_CL_PCP_DEI_MAP_CFG(chip_port, (8 * dei + pcp)), &value);
-                    class_ct += snprintf(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim,
+                    class_ct += VTSS_SNPRINTF(class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u", delim,
                                         VTSS_X_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_QOS_VAL(value));
-                    dpl_ct   += snprintf(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim,
+                    dpl_ct   += VTSS_SNPRINTF(dpl_buf   + dpl_ct,   sizeof(dpl_buf)   - dpl_ct,   "%s%u",  delim,
                                         VTSS_X_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_DP_VAL(value));
                 }
             }
@@ -4374,7 +4374,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             for (i = VTSS_QUEUE_START; i < VTSS_QUEUE_END; i++) {
                 const char *delim = (i == VTSS_QUEUE_START) ? "" : " ";
                 REG_RD(VTSS_HSCH_DWRR_ENTRY(i), &value);
-                cost_ct += snprintf(cost_buf + cost_ct, sizeof(cost_buf) - cost_ct, "%s%2u",
+                cost_ct += VTSS_SNPRINTF(cost_buf + cost_ct, sizeof(cost_buf) - cost_ct, "%s%2u",
                                 delim,
                                 VTSS_X_HSCH_DWRR_ENTRY_DWRR_COST(value));
             }
@@ -4433,7 +4433,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             u32  port, tgt;
             if (info->port_list[port_no]) {
                 port = VTSS_CHIP_PORT(port_no);
-                sprintf(buf, "Port %u (%u)", port, port_no);
+                VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
                 vtss_fa_debug_reg_header(pr, buf);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
                     tgt = VTSS_TO_HIGH_DEV(port);
@@ -4563,16 +4563,16 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                 REG_RD(VTSS_REW_PCP_MAP_DE1(port_no, i), &pcp_de1);
                 REG_RD(VTSS_REW_DEI_MAP_DE0(port_no, i), &dei_de0);
                 REG_RD(VTSS_REW_DEI_MAP_DE1(port_no, i), &dei_de1);
-                pcp_de0_ct += snprintf(pcp_de0_buf + pcp_de0_ct, sizeof(pcp_de0_buf) - pcp_de0_ct, "%s%u",
+                pcp_de0_ct += VTSS_SNPRINTF(pcp_de0_buf + pcp_de0_ct, sizeof(pcp_de0_buf) - pcp_de0_ct, "%s%u",
                                 delim,
                                 VTSS_X_REW_PCP_MAP_DE0_PCP_DE0(pcp_de0));
-                pcp_de1_ct += snprintf(pcp_de1_buf + pcp_de1_ct, sizeof(pcp_de1_buf) - pcp_de1_ct, "%s%u",
+                pcp_de1_ct += VTSS_SNPRINTF(pcp_de1_buf + pcp_de1_ct, sizeof(pcp_de1_buf) - pcp_de1_ct, "%s%u",
                                 delim,
                                 VTSS_X_REW_PCP_MAP_DE1_PCP_DE1(pcp_de1));
-                dei_de0_ct += snprintf(dei_de0_buf + dei_de0_ct, sizeof(dei_de0_buf) - dei_de0_ct, "%s%u",
+                dei_de0_ct += VTSS_SNPRINTF(dei_de0_buf + dei_de0_ct, sizeof(dei_de0_buf) - dei_de0_ct, "%s%u",
                                 delim,
                                 VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de0));
-                dei_de1_ct += snprintf(dei_de1_buf + dei_de1_ct, sizeof(dei_de1_buf) - dei_de1_ct, "%s%u",
+                dei_de1_ct += VTSS_SNPRINTF(dei_de1_buf + dei_de1_ct, sizeof(dei_de1_buf) - dei_de1_ct, "%s%u",
                                 delim,
                                 VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de1));
             }
@@ -4658,10 +4658,10 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         vtss_state->qos.fp.port_conf[port_no].add_frag_size = 1;    // P_MIN_SIZE default value is 1
 #endif
     }
-    memset(&vtss_state->qos.tas.tas_lists, 0, sizeof(vtss_state->qos.tas.tas_lists));
-    memset(&vtss_state->qos.tas.tas_profiles, 0, sizeof(vtss_state->qos.tas.tas_profiles));
-    memset(&vtss_state->qos.tas.tas_entry_blocks, 0, sizeof(vtss_state->qos.tas.tas_entry_blocks));
-    memset(&vtss_state->qos.tas.tas_entry_rows, 0, sizeof(vtss_state->qos.tas.tas_entry_rows));
+    VTSS_MEMSET(&vtss_state->qos.tas.tas_lists, 0, sizeof(vtss_state->qos.tas.tas_lists));
+    VTSS_MEMSET(&vtss_state->qos.tas.tas_profiles, 0, sizeof(vtss_state->qos.tas.tas_profiles));
+    VTSS_MEMSET(&vtss_state->qos.tas.tas_entry_blocks, 0, sizeof(vtss_state->qos.tas.tas_entry_blocks));
+    VTSS_MEMSET(&vtss_state->qos.tas.tas_entry_rows, 0, sizeof(vtss_state->qos.tas.tas_entry_rows));
 
     for (i = 0; i < VTSS_TAS_NUMBER_OF_LISTS; i++) {
         vtss_state->qos.tas.tas_lists[i].profile_idx = TAS_PROFILE_IDX_NONE;

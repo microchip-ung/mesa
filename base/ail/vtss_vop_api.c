@@ -819,7 +819,7 @@ static char *debug_mac_string(const vtss_mac_t *m)
 {
     static char buf[20];
 
-    sprintf(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1], m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
+    VTSS_SPRINTF(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1], m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
 
     return buf;
 }
@@ -882,23 +882,23 @@ static char *to_string(u8 *megid, u32 length)
         length = sizeof(buf_ret);
     }
 
-    snprintf(buf_ret, length, "%s", megid);
+    VTSS_SNPRINTF(buf_ret, length, "%s", megid);
 
     return(buf_ret);
 }
 
 static char *debug_megid_string(u8  *megid)
 {
-    static char buf_ret[220];   /* Have to make this buffer extra long as the compiler generates warning when doing snprintf() if the composed string is longer than the buffer size !!! */
+    static char buf_ret[220];   /* Have to make this buffer extra long as the compiler generates warning when doing VTSS_SNPRINTF() if the composed string is longer than the buffer size !!! */
     u32 domain_length, name_length, name_off;
 
     if (megid[0] == 01) {   /* Maintenance name not present. */
-        snprintf(buf_ret, sizeof(buf_ret), "%02u-%02u-%02u-%s", megid[0], megid[1], megid[2], &megid[3]);
+        VTSS_SNPRINTF(buf_ret, sizeof(buf_ret), "%02u-%02u-%02u-%s", megid[0], megid[1], megid[2], &megid[3]);
     } else {   /* Maintenance name present.*/
         domain_length = megid[1];
         name_length = megid[3 + domain_length];
         name_off = 2 + domain_length;
-        snprintf(buf_ret, sizeof(buf_ret), "%02u-%02u-%s-%02u-%02u-%s", megid[0], megid[1], to_string(&megid[2], domain_length),
+        VTSS_SNPRINTF(buf_ret, sizeof(buf_ret), "%02u-%02u-%s-%02u-%02u-%s", megid[0], megid[1], to_string(&megid[2], domain_length),
                                                                         megid[name_off], megid[name_off+1], to_string(&megid[name_off+2], name_length));
     }
     return(buf_ret);

@@ -21,7 +21,7 @@ typedef enum
     MESA_BW_UNDEFINED,   // Undefined
 } mesa_internal_bw_t;
 
-// Enable/disable SD-to-SGPIO mapping */
+// Enable/disable SD-to-SGPIO mapping
 typedef enum
 {
     MESA_SD_SGPIO_MAP_IGNORE,   /**< No mapping as default */
@@ -38,7 +38,8 @@ typedef struct
     uint32_t               bit;    // SGPIO bit (0-3)
 } mesa_port_sgpio_map_t;
 
-#define CHIP_PORT_UNUSED -1 // Signifies an unused chip port
+// Signifies an unused chip port
+#define CHIP_PORT_UNUSED -1
 
 // Port map structure
 typedef struct
