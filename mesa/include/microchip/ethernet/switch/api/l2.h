@@ -1594,7 +1594,7 @@ typedef enum {
     MESA_RB_MODE_HSR_HSR   // HSR-HSR
 } mesa_rb_mode_t;
 
-// Age time in seconds
+// Age time
 typedef uint16_t mesa_rb_age_time_t;
 
 // Forwarding of Supervision frames on Interlink
@@ -1611,8 +1611,9 @@ typedef struct {
     mesa_port_no_t     port_b;       // Port B (corresponding switch port is unused)
     uint8_t            net_id;       // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
     uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
-    mesa_rb_age_time_t nt_age_time;  // Node Table age time
-    mesa_rb_age_time_t pnt_age_time; // Proxy Node Table age time
+    mesa_rb_age_time_t nt_age_time;  // Node Table age time [seconds]
+    mesa_rb_age_time_t pnt_age_time; // Proxy Node Table age time [seconds]
+    mesa_rb_age_time_t dd_age_time;  // Duplicate Discard age time [milliseconds]
     mesa_rb_sv_t       sv;           // Interlink Supervision frame forwarding
 } mesa_rb_conf_t;
 

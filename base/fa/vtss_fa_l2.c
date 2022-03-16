@@ -1626,6 +1626,15 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 #define FA_HT_CMD_WRITE   4
 #define FA_HT_CMD_CLEAR   7
 
+// Duplicate discard table rows and columns
+#define FA_DT_COL_CNT REG_FLD_CNT(RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL)
+#define FA_DT_ROW_CNT REG_FLD_CNT(RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW)
+#define FA_DT_CNT     (FA_DT_COL_CNT * FA_DT_ROW_CNT)
+
+// Duplicate discard table commands
+#define FA_DT_CMD_READ    3
+#define FA_DT_CMD_CLEAR   7
+
 // Tag modes
 #define FA_RB_TAG_NONE     0
 #define FA_RB_TAG_PRP_NONE 1
@@ -1712,7 +1721,6 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
-            ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
         }
         break;
     default:
@@ -1727,8 +1735,10 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     age = (ht == FA_HT_PROXY ? FA_RB_AGE_IDX_PNT : FA_RB_AGE_IDX_NT);
     REG_WR(RB_ADDRX(VTSS_RB_TBL_CFG, rb_id, j),
+           VTSS_F_RB_TBL_CFG_DUPL_DISC_ENA(1) |
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
            VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(age) |
+           VTSS_F_RB_TBL_CFG_UPD_DISC_TBL_ENA(1) |
            VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(ht == FA_HT_NONE ? 0 : 1) |
            VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1));
 
@@ -1834,6 +1844,17 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
                VTSS_F_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(age ? 1 : 0));
     }
 
+    // Duplicate discard ageing
+    age = (conf->dd_age_time ? conf->dd_age_time : 4); // Milliseconds
+    val = (1000000000 / 8);
+    val /= (FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
+    val *= age;
+    REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, rb_id),
+           VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(0) | // Unit 8
+           VTSS_F_RB_DISC_AUTOAGE_CFG_PERIOD_VAL(val));
+    REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, rb_id),
+           VTSS_F_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(1));
+
     // Port configuration
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         VTSS_RC(fa_rb_port_conf_set(vtss_state, rb_id, j, conf));
@@ -1884,6 +1905,24 @@ static vtss_rc fa_rb_host_cmd(vtss_state_t *vtss_state,
     do {
         REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CTRL, rb_id), &val);
     } while VTSS_X_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(val);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc fa_rb_disc_cmd(vtss_state_t *vtss_state,
+                              const vtss_rb_id_t rb_id,
+                              u32 cmd,
+                              u32 idx)
+{
+    u32 val;
+
+    REG_WR(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, rb_id),
+           VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_DT_COL_CNT) |
+           VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_DT_COL_CNT) |
+           VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
+           VTSS_F_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(1));
+    do {
+        REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, rb_id), &val);
+    } while VTSS_X_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(val);
     return VTSS_RC_OK;
 }
 
@@ -2775,7 +2814,7 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
                          BOOL *header,
                          fa_rb_host_t *host)
 {
-    u8 j, *b = host->mac.addr;
+    u8                j;
     fa_rb_host_port_t *p;
 
     if (*header) {
@@ -2783,8 +2822,9 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
         pr("%s\n\n", name);
         pr("MAC Address        IDX  Type   Lock  SeqNo  Port  Fwd  Age  RxWrongLan  Rx\n");
     }
-    pr("%02x-%02x-%02x-%02x-%02x-%02x  ", b[0], b[1], b[2], b[3], b[4], b[5]);
-    pr("%-5u%-7s%-6u%-7u", host->idx,
+    pr("%s  %-5u%-7s%-6u%-7u",
+       vtss_mac_txt(&host->mac),
+       host->idx,
        host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
        host->type == FA_HT_SAN ? "SAN" : "LOCAL",
        host->locked, host->seq_no);
@@ -2795,6 +2835,40 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
         }
         pr("%-6u%-5u%-5u%-12u%u\n", j, p->fwd, p->age, p->rx_wrong_lan, p->rx);
     }
+}
+
+static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
+                                   const vtss_debug_printf_t pr, u32 i, u32 j, BOOL *header)
+{
+    u32        cfg0, cfg1, cfg2, mask;
+    vtss_mac_t mac;
+
+    VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_READ, j));
+    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_2, i), &cfg2);
+    if (VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_VLD(cfg2) == 0) {
+        return VTSS_RC_OK;
+    }
+    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_0, i), &cfg0);
+    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_1, i), &cfg1);
+    if (*header) {
+        *header = 0;
+        pr("RedBox %u Duplicate Discard Table\n\n", i);
+        pr("IDX  MAC Address        SeqNo  Age  A/B/C Mask  A/B/C Discards\n");
+    }
+    fa_mac_set(&mac, cfg0, cfg1);
+    mask = VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_PORTMASK(cfg2);
+    pr("%-5u%s  %-7u%-5u%u/%u/%u%8u/%u/%u\n",
+       j,
+       vtss_mac_txt(&mac),
+       VTSS_X_RB_DISC_ACCESS_CFG_0_DISC_ENTRY_SEQ_NO(cfg0),
+       VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_AGE_FLAG(cfg2),
+       mask & 1 ? 1 : 0,
+       mask & 2 ? 1 : 0,
+       mask & 4 ? 1 : 0,
+       VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_0(cfg2),
+       VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_1(cfg2),
+       VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_2(cfg2));
+    return VTSS_RC_OK;
 }
 
 static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
@@ -2844,7 +2918,9 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
 {
     vtss_rb_conf_t *conf;
     char           buf[64];
-    u32            i, j, val, m, x[3], port_a, port_b;
+    const char     *prefix;
+    u32            i, j, val, m, x[3], port_a, port_b, cfg0, cfg1, cfg2, idx_next;
+    u64            cur, new, old;
     fa_rb_host_t   host;
     vtss_rc        rc;
     BOOL           header;
@@ -2895,18 +2971,29 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
+        sprintf(buf, "(0:8, 1:128, 2:2048, 3:32768)\n");
         for (j = 0; j < 2; j++) {
-            sprintf(buf, j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
+            prefix = (j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_UNIT_SIZE,
-                            "UNIT_SIZE", buf, FALSE, 1);
-            pr("(0:8, 1:128, 2:2048, 3:32768)\n");
+                            "UNIT_SIZE", prefix, FALSE, 1);
+            pr(buf);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_PERIOD_VAL,
-                            "PERIOD_VAL", buf, TRUE, 1);
+                            "PERIOD_VAL", prefix, TRUE, 1);
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
-                            "INTERVAL_ENA", buf, TRUE, 1);
+                            "INTERVAL_ENA", prefix, TRUE, 1);
         }
+        prefix = "DD:";
+        REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, i), &val);
+        fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_UNIT_SIZE,
+                        "UNIT_SIZE", prefix, FALSE, 1);
+        pr(buf);
+        fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_PERIOD_VAL,
+                        "PERIOD_VAL", prefix, TRUE, 1);
+        REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, i), &val);
+        fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
+                        "INTERVAL_ENA", prefix, TRUE, 1);
         pr("\n");
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
@@ -2917,10 +3004,12 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(RB_ADDRX(VTSS_RB_TBL_CFG, i, j), &x[j]);
         }
+        FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_DUPL_DISC_ENA);
         FA_DEBUG_RB_PORT_FLD_NL(x, TBL_CFG_HOST_TYPE);
         pr("(%u:PROXY, %u:DAN, %u:SAN, %u:LOCAL)\n",
            FA_HT_PROXY, FA_HT_DAN, FA_HT_SAN, FA_HT_LOCAL);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_HOST_TBL_ENA);
+        FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_DISC_TBL_ENA);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_SEQ_NUM_ENA);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
@@ -3048,6 +3137,52 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                 header = 1;
                 pr("\n");
             }
+        }
+
+        // Duplicate discard table
+        header = 1;
+        if (info->action) {
+            // Get-next based on index
+            for (j = 0; j < FA_DT_CNT; j++) {
+                VTSS_RC(fa_print_disc_entry(vtss_state, pr, i, j, &header));
+            }
+        } else {
+            // Get-next based on (MAC, seq_no)
+            idx_next = FA_DT_CNT;
+            old = 0;
+            new = 0;
+            j = 0;
+            while (1) {
+                VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_READ, j));
+                REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_2, i), &cfg2);
+                if (VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_VLD(cfg2)) {
+                    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_0, i), &cfg0);
+                    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_1, i), &cfg1);
+                    cur = VTSS_X_RB_DISC_ACCESS_CFG_0_DISC_ENTRY_SMAC_MSB(cfg0);
+                    cur <<= 32;
+                    cur += VTSS_X_RB_DISC_ACCESS_CFG_1_DISC_ENTRY_SMAC_LSB(cfg1);
+                    cur <<= 16;
+                    cur += VTSS_X_RB_DISC_ACCESS_CFG_0_DISC_ENTRY_SEQ_NO(cfg0);
+                    if (cur > old && (idx_next == FA_DT_CNT || cur < new)) {
+                        new = cur;
+                        idx_next = j;
+                    }
+                }
+                j++;
+                if (j == FA_DT_CNT) {
+                    if (idx_next == FA_DT_CNT) {
+                        break;
+                    }
+                    VTSS_RC(fa_print_disc_entry(vtss_state, pr, i, idx_next, &header));
+                    j = 0;
+                    idx_next = FA_DT_CNT;
+                    old = new;
+                }
+            }
+        }
+        if (!header) {
+            header = 1;
+            pr("\n");
         }
     }
     return VTSS_RC_OK;
@@ -3222,6 +3357,8 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_REDBOX)
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
         VTSS_RC(fa_rb_host_cmd(vtss_state, i, FA_HT_CMD_CLEAR, 0));
+        VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_CLEAR, 0));
+        vtss_state->l2.rb_conf[i].dd_age_time = 4;
     }
 #endif
     return VTSS_RC_OK;

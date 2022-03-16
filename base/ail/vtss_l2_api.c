@@ -8981,10 +8981,10 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         }
         if (header) {
             header = 0;
-            pr("ID  Mode      Port A/B  NetId  LanId  NT Age  PNT Age\n");
+            pr("ID  Mode      Port A/B  NetId  LanId  NT Age  PNT Age  DD Age\n");
         }
         sprintf(buf, "%u/%u", conf->port_a, conf->port_b);
-        pr("%-4u%-10s%-10s%-7u%-7u%-8u%u\n",
+        pr("%-4u%-10s%-10s%-7u%-7u%-8u%-9u%u\n",
            i,
            m == VTSS_RB_MODE_DISABLED ? "Disabled" :
            m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN" :
@@ -8995,7 +8995,8 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
            conf->net_id,
            conf->lan_id,
            conf->nt_age_time,
-           conf->pnt_age_time);
+           conf->pnt_age_time,
+           conf->dd_age_time);
     }
     if (!header) {
         pr("\n");

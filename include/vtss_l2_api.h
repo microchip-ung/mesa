@@ -2833,7 +2833,7 @@ typedef enum {
     VTSS_RB_MODE_HSR_HSR   // HSR-HSR
 } vtss_rb_mode_t;
 
-// Age time in seconds
+// Age time
 typedef uint16_t vtss_rb_age_time_t;
 
 // Forwarding of Supervision frames
@@ -2850,8 +2850,9 @@ typedef struct {
     vtss_port_no_t     port_b;       // Port B (corresponding switch port is unused)
     uint8_t            net_id;       // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
     uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
-    vtss_rb_age_time_t nt_age_time;  // Node Table age time
-    vtss_rb_age_time_t pnt_age_time; // Proxy Node Table age time
+    vtss_rb_age_time_t nt_age_time;  // Node Table age time [seconds]
+    vtss_rb_age_time_t pnt_age_time; // Proxy Node Table age time [secondss]
+    vtss_rb_age_time_t dd_age_time;  // Duplicate Discard age time [milliseconds]
     vtss_rb_sv_t       sv;           // Interlink Supervision frame forwarding
 } vtss_rb_conf_t;
 

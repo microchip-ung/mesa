@@ -34,6 +34,7 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode);
 #endif
 
 const char *vtss_bool_txt(BOOL enabled);
+char *vtss_mac_txt(vtss_mac_t *mac);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_cmn_debug_info_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,

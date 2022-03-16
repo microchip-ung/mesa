@@ -247,6 +247,15 @@ const char *vtss_bool_txt(BOOL enabled)
     return (enabled ? "Enabled" : "Disabled");
 }
 
+char *vtss_mac_txt(vtss_mac_t *mac)
+{
+    static char buf[18];
+    u8 *p = mac->addr;
+
+    sprintf(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4], p[5]);
+    return buf;
+}
+
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
                                         const char                *header,
