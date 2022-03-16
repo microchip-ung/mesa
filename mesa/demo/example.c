@@ -29,6 +29,10 @@ int  EXAMPLE_FATAL_ERROR = 0;
 int  EXAMPLE_FATAL_ERROR_LINE = 0;
 const char *EXAMPLE_FATAL_ERROR_FILE = 0;
 
+/* Store the meba inst globally */
+meba_inst_t meba_example_inst;
+
+
 #define PR_APPEND(buf, fmt, ...) \
     do { \
         if (buf ## _VALID < sizeof(buf)) { \
@@ -56,6 +60,11 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 };
 
 static mesa_example_register_t *example_first = NULL;
+
+meba_inst_t mesa_example_meba_inst()
+{
+    return meba_example_inst;
+}
 
 void mesa_example_register(mesa_example_register_t  *example)
 {
@@ -360,6 +369,7 @@ void mscc_appl_example_init(mscc_appl_init_t *init)
         for (int i = 0; i < sizeof(cli_cmd_table)/sizeof(cli_cmd_t); i++) {
             mscc_appl_cli_cmd_reg(&cli_cmd_table[i]);
         }
+        meba_example_inst = init->board_inst;
         break;
 
    case MSCC_INIT_CMD_INIT_WARM:

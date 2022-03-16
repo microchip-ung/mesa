@@ -22,4 +22,6 @@ run %w{./example_tsn_frer.rb}
 run %w{./example_tsn_psfp.rb}
 run %w{./example_vop.rb}
 run %w{./example_mrp.rb}
+run %w{./example_port_conf_bulk.rb}
+run %w{./example_port_dynamic.rb}
 

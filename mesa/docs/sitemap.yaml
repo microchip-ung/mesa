@@ -190,6 +190,7 @@ pages:
           pages:
           - src: "mesa/docs/examples/dynamic-port.adoc"
             name: "Description"
+          - src: "mesa/demo/examples/port_dynamic.c"
 
         - name: "Port bulk configuration"
           pages:

@@ -31,6 +31,7 @@ void mesa_example_register(mesa_example_register_t  *example);
 int mesa_example_argv_find_key(char *key, int argc, const char *argv[]);
 int mesa_example_arg_int(int run, int man, int def, char *key, char *help, int argc,
                          const char *argv[]);
+meba_inst_t mesa_example_meba_inst();
 
 #define RC(expr)                                     \
     {                                                \

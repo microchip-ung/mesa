@@ -9,19 +9,28 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 
 #---------- Description -------------------------------------------------------
 # Purpose:
-# Verify that a por bulk change is working as expected.
-# This means that a number of ports can be changed without applying to HW.
-# When the change is complete, the whole configuration is applied, which means that
-# some time consuming functions (especially the Serdeses) can be done in parallel, speeding the config up.
-# Verify frame forwarding after the change.
+# Verify that a dynamic port change (within a serdes) is working as expected.
+# This means that ports within a serdes can go from 4->1 and 1->4 without disturbing traffic on other ports.
+# A complete SQA test would require boards supporting hot-plugging out/in different cards.
+# We don't have such a setup, so we only test that we can perform the change with CLI commands and inspcet that the API looks correct.
+# Also verify traffic after the change.
 #
-#---------- Capabilities -----------------------------------------------------
-cap_check_exit("PORT_CONF_BULK")
-check_capabilities do
-    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
-    assert(($cap_fpga == 0), "Feature not supported on FPGA")
-end
+# Note this test is identical to the port_dynamic.rb test - but is using an example code instead of the demo-cli.
+#
+# Test procedure:
+# Use example code in port_dynamic to change port mode and to inspect the changes
+# 1. Change a QSGMII port to 5G or 10G
+# 2. Verify that the core BW for that port is 5G/10G and none for other ports
+# 3. Verify that the phys are deleted
+# 4. Verify that the interface type is as expeted
+# 5. Change the port back to QSGMII
+# 6. Verify that the core BW for all ports is 1G
+# 7. Verify that the phys are back
+# 8. Verify that the interface type is as expeted
+# 9. Verify normal traffic forwarding
 
+#---------- Capabilities -----------------------------------------------------
+cap_check_exit("PORT_DYNAMIC")
 
 def test_frame_fwd()
     test "Frame-Forwarding" do
@@ -63,20 +72,25 @@ def test_frame_fwd()
     end
 end
 
-test "test_conf" do
-    t_i("Configure the test by calling the example code command")
-    port_from = $ts.dut.p[0] > $ts.dut.p[3] ? $ts.dut.p[3] : $ts.dut.p[0]
-    port_to   = $ts.dut.p[0] > $ts.dut.p[3] ? $ts.dut.p[0] : $ts.dut.p[3]
-    $ts.dut.run("mesa-cmd example init port_conf_bulk port1 #{port_from} port2 #{port_to}")
+$ts.dut.run("mesa-cmd deb port poll disable")
+port_to_change = $ts.dut.p[0]
+
+test "1 port per Serdes in SFI mode" do
+    t_i("Configure the test by calling the example code command with interface SFI/5G")
+    $ts.dut.run("mesa-cmd example init port_dynamic port_to_change #{port_to_change} interface 0")
+    $ts.dut.run("mesa-cmd example uninit")
+    $ts.dut.run("mesa-cmd deb api ail port")
+end
+
+test "4 ports per Serdes in QSGMII mode" do
+    t_i("Configure the test by calling the example code command with interface QSGMII")
+    $ts.dut.run("mesa-cmd example init port_dynamic port_to_change #{port_to_change} interface 1")
+    $ts.dut.run("mesa-cmd example uninit")
+    $ts.dut.run("mesa-cmd deb api ail port")
 end
 
 test "test_run" do
+    sleep 5
     t_i("Verify with frame forwarding")
     test_frame_fwd()
-end
-
-test "test_clean_up" do
-    t_i("Clean up the test by calling the example code command")
-    $ts.dut.run("mesa-cmd example uninit")
-
 end
