@@ -34,7 +34,7 @@ $acl_id = 1
 $max_diff = 4000
 # This is as long as Laguna is an FPGA with longer forwarding time
 if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-    $max_diff = 7600
+    $max_diff = 7650
 end
 
 def tod_internal_mode_ingress_node_test
