@@ -1253,7 +1253,7 @@ class Mesa_Pc_b2b
 end
 
 def show_mesa_setup(ts)
-    test "show_setup" do
+    test "show-setup" do
         port_cnt = ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
         pmap = ts.dut.call("mesa_port_map_get", port_cnt)
 
@@ -1271,7 +1271,7 @@ def show_mesa_setup(ts)
             port = ts.dut.p[idx]
             chip_port = pmap[port]["chip_port"]
             name = ts.pc.p[idx]
-            str = "|         |- #{name} "
+            str = "|       #{idx} |- #{name} "
             (max - name.length).times do
                 str += "-"
             end
