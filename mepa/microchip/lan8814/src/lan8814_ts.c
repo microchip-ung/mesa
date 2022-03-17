@@ -35,10 +35,6 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
         T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
-    if (ts_init_conf->rx_ts_pos != MEPA_TS_RX_TIMESTAMP_POS_IN_PTP) {
-        T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp position not supported::  Port : %d\n", data->port_no);
-        return MEPA_RC_ERROR;
-    }
     if (ts_init_conf->tx_fifo_mode != MEPA_TS_FIFO_MODE_NORMAL) {
         T_E(MEPA_TRACE_GRP_TS, "TX TS FIFO mode not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
@@ -117,6 +113,13 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 {
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
+
+    if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
+		val = val | INDY_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
+		val = val | INDY_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
+		val = val | INDY_PTP_RX_TAIL_TAG_ER_FORWARD;
+		EP_WRM(dev, INDY_PTP_RX_TAIL_TAG, val, INDY_DEF_MASK);
+    }
 
 #if 1 // Hardware default values are not aligned
     // Ingress latencies

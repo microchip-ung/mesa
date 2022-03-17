@@ -518,6 +518,13 @@
 
 //PTP RX Tail Tag Register
 #define INDY_PTP_RX_TAIL_TAG                            INDY_EXT_PAGE_5, 593
+#define INDY_PTP_RX_TAIL_TAG_ER_FORWARD                 INDY_BIT(8)
+#define INDY_PTP_RX_TAIL_TAG_INSERT_IFG_F(x)            INDY_ENCODE_BITFIELD(x, 4, 3)
+#define INDY_PTP_RX_TAIL_TAG_INSERT_IFG(x)              INDY_ENCODE_BITMASK(x, 4, 3)
+#define INDY_PTP_RX_TAIL_TAG_INSERT                     INDY_BIT(3)
+#define INDY_PTP_RX_TAIL_TAG_ALL                        INDY_BIT(2)
+#define INDY_PTP_RX_TAIL_TAG_ALL_1588                   INDY_BIT(1)
+#define INDY_PTP_RX_TAIL_TAG_EN                         INDY_BIT(0)
 
 //PTP RX Correction Field Modification Enable Register
 #define INDY_PTP_RX_CF_MOD_EN                           INDY_EXT_PAGE_5, 594
