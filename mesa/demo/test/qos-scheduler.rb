@@ -7,8 +7,12 @@ require_relative 'libeasy/et'
 
 $ts = get_test_setup("mesa_pc_b2b_4x")
 
-$dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
-$chip_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
+check_capabilities do
+    $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
+    $chip_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
+    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
+    assert(($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) || ($cap_fpga != 0), "This test must be checked on Laguna chip")
+end
 
 MESA_CHIP_FAMILY_CARACAL = 2
 
@@ -104,6 +108,9 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [260,500,0.3], true,             [0,3,7]) # On LAN966X some lower priority frames are slipping through
     else
+    if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        measure(ig, eg, 600, 1,      false,            false,           [0,0,990000000],  [10,500,1],   true,              [0,3,7]) # On LAN966X some lower priority frames are slipping through
+    else
     if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT"))
         measure(ig, eg, 1000, 1,     false,            false,           [0,0,990000000],  [340,380,2],  true,              [0,3,7]) # On Ocelot some lower priority frames are slipping through
     else
@@ -112,7 +119,9 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     end
     end
     end
+    end
 end
+exit 0
 
 test "Weighted scheduling with equal weights test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Expect equal distribution of frames in queue 0..2
