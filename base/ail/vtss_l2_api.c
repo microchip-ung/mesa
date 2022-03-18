@@ -8095,6 +8095,7 @@ static vtss_rc vtss_rb_cnt_get(vtss_state_t *vtss_state,
         vtss_rb_port_cnt_get(&cnt->port_a, &counters->port_a);
         vtss_rb_port_cnt_get(&cnt->port_b, &counters->port_b);
         vtss_rb_port_cnt_get(&cnt->port_c, &counters->port_c);
+        counters->port_c.rx_own = 0; // Always zero for interlink
     }
     return rc;
 }

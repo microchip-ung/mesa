@@ -1754,6 +1754,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_FWD_CFG_NODE_SRC_FWD_MASK(node_smac_msk));
 
     REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
+           VTSS_F_RB_PORT_CFG_CT_EGR_ENA(lre) |
+           VTSS_F_RB_PORT_CFG_CT_IGR_ENA(lre) |
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |
@@ -1774,6 +1776,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
     u32            hsr_sv = FA_RB_SV_FORWARD, prp_sv = FA_RB_SV_FORWARD;
     u32            age, clk_period, val;
+    u64            x64;
 
     mode = (conf->mode == VTSS_RB_MODE_PRP_SAN ? FA_RB_MODE_PRP_SAN:
             conf->mode == VTSS_RB_MODE_HSR_SAN ? FA_RB_MODE_HSR_SAN :
@@ -1833,12 +1836,12 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     for (j = 0; j < 2; j++) {
         age = (j == FA_RB_AGE_IDX_NT ? conf->nt_age_time : conf->pnt_age_time);
         // Calculate PERIOD_VAL, avoiding u32 overflow
-        // 1.000.000.000.000 / 32768 = 244.140.125 / 8
-        val = (244140125 / 8);
-        val /= (FA_HT_ROW_CNT * FA_RB_AGE_CNT);
-        val = (age * val) / clk_period;
+        x64 = 1000000;
+        x64 *= x64;
+        x64 /= (128 * FA_RB_AGE_CNT * FA_HT_ROW_CNT * clk_period);
+        val = (x64 * age);
         REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, rb_id, j),
-               VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(3) | // Unit 32768
+               VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(1) | // Unit 128
                VTSS_F_RB_HOST_AUTOAGE_CFG_PERIOD_VAL(val));
         REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, rb_id, j),
                VTSS_F_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(age ? 1 : 0));
@@ -1846,8 +1849,8 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
 
     // Duplicate discard ageing
     age = (conf->dd_age_time ? conf->dd_age_time : 4); // Milliseconds
-    val = (1000000000 / 8);
-    val /= (FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
+    val = 1000000000;
+    val /= (8 * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
     val *= age;
     REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, rb_id),
            VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(0) | // Unit 8
@@ -2892,14 +2895,38 @@ static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
             }
         }
         sprintf(buf, v > 9 ? "0x%x" : "%u", v);
-        pr("%-8s", buf);
+        pr(cnt == 1 ? "%-12s" : "%-8s", buf);
     }
     if (newline) {
         pr("\n");
     }
 }
 
-#define FA_DEBUG_RB_FLD(val, fld)                       \
+static void fa_debug_rb_age(const vtss_debug_printf_t pr,
+                            u32 val, u32 unit, u32 row_cnt, u32 clk)
+{
+    u64 x64 = val;
+    u32 age;
+    const char *str = "usec";
+
+    unit = (unit == 0 ? 8 : unit == 1 ? 128 : unit == 2 ? 2048 : 32768);
+    x64 *= unit;
+    x64 *= (FA_RB_AGE_CNT * row_cnt * clk);
+    x64 /= 1000000;  // psec -> usec
+    if (x64 > 100000) {
+        x64 /= 1000; // usec -> msec
+        str = "msec";
+    }
+    if (x64 > 100000) {
+        x64 /= 1000; // msec -> sec
+        str = "sec";
+    }
+    age = x64;
+    pr("(0x%x * %u * %u * %u * %u psec = %u %s)\n",
+       val, unit, FA_RB_AGE_CNT, row_cnt, clk, age, str);
+}
+
+#define FA_DEBUG_RB_FLD(val, fld)                                       \
     fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, TRUE, 1)
 #define FA_DEBUG_RB_FLD_NL(val, fld)                                    \
     fa_debug_rb_fld(pr, val, VTSS_M_RB_##fld, #fld, NULL, FALSE, 1)
@@ -2919,7 +2946,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf;
     char           buf[64];
     const char     *prefix;
-    u32            i, j, val, m, x[3], port_a, port_b, cfg0, cfg1, cfg2, idx_next;
+    u32            i, j, val, m, x[3], port_a, port_b, clk, cfg0, cfg1, cfg2, idx_next;
     u64            cur, new, old;
     fa_rb_host_t   host;
     vtss_rc        rc;
@@ -2972,6 +2999,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
         sprintf(buf, "(0:8, 1:128, 2:2048, 3:32768)\n");
+        clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
         for (j = 0; j < 2; j++) {
             prefix = (j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, i, j), &val);
@@ -2979,18 +3007,28 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                             "UNIT_SIZE", prefix, FALSE, 1);
             pr(buf);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_PERIOD_VAL,
-                            "PERIOD_VAL", prefix, TRUE, 1);
+                            "PERIOD_VAL", prefix, FALSE, 1);
+            fa_debug_rb_age(pr,
+                            VTSS_X_RB_HOST_AUTOAGE_CFG_PERIOD_VAL(val),
+                            VTSS_X_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(val),
+                            FA_HT_ROW_CNT,
+                            clk);
             REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, i, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
                             "INTERVAL_ENA", prefix, TRUE, 1);
         }
-        prefix = "DD:";
+        prefix = "DDT:";
         REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, i), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_UNIT_SIZE,
                         "UNIT_SIZE", prefix, FALSE, 1);
         pr(buf);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_PERIOD_VAL,
-                        "PERIOD_VAL", prefix, TRUE, 1);
+                        "PERIOD_VAL", prefix, FALSE, 1);
+        fa_debug_rb_age(pr,
+                        VTSS_X_RB_DISC_AUTOAGE_CFG_PERIOD_VAL(val),
+                        VTSS_X_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(val),
+                        FA_DT_ROW_CNT,
+                        clk);
         REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, i), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
                         "INTERVAL_ENA", prefix, TRUE, 1);
