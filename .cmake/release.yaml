@@ -22,7 +22,7 @@ conf:
 
   # git_tag_prv points to a GIT changeset corresponding to the previous release.
   # MANDATORY.
-  git_tag_prv: origin/2021.12-soak
+  git_tag_prv: origin/2022.03-soak
 
   # git_tag_cur points to a GIT changeset corresponding to the upcoming release.
   # In general, this can be set to HEAD, but for release note generation based
@@ -36,8 +36,8 @@ conf:
   # these names are used.
   #
   # MANDATORY.
-  friendly_name_prv: MESA-2021.12
-  friendly_name_cur: MESA-2022.03
+  friendly_name_prv: MESA-2022.03
+  friendly_name_cur: MESA-2022.06
 
   # Disclaimer input file. Will be added as is between a small header and the
   # new-features section of the release note.
