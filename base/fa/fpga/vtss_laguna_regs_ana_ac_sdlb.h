@@ -31,7 +31,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:MISC:XLB_NEXT_TR_CTRL
  */
-#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_CTRL    VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1100)
+#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_CTRL    VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f00)
 
 /**
  * \brief
@@ -53,7 +53,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:XLB_NEXT_TR_ORG
  */
-#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_ORG     VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1101)
+#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_ORG     VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f01)
 
 /**
  * \brief
@@ -75,7 +75,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:XLB_NEXT_TR_NEW
  */
-#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_NEW     VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1102)
+#define VTSS_ANA_AC_SDLB_XLB_NEXT_TR_NEW     VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f02)
 
 /**
  * \brief
@@ -106,7 +106,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:MISC:MISC_CTRL
  */
-#define VTSS_ANA_AC_SDLB_MISC_CTRL           VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1103)
+#define VTSS_ANA_AC_SDLB_MISC_CTRL           VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f03)
 
 /**
  * \brief
@@ -127,7 +127,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:MISC:MISC_RATE_CTRL
  */
-#define VTSS_ANA_AC_SDLB_MISC_RATE_CTRL      VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1104)
+#define VTSS_ANA_AC_SDLB_MISC_RATE_CTRL      VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f04)
 
 /**
  * \brief
@@ -150,7 +150,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:MISC:MARK_ALL_FRMS_RED_SET
  */
-#define VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET  VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1105)
+#define VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET  VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f05)
 
 /**
  * \brief
@@ -189,7 +189,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:MISC:MARK_ALL_FRMS_RED_CLR
  */
-#define VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR  VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1106)
+#define VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR  VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f06)
 
 /**
  * \brief
@@ -228,7 +228,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:WARN
  */
-#define VTSS_ANA_AC_SDLB_WARN                VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1107)
+#define VTSS_ANA_AC_SDLB_WARN                VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f07)
 
 /**
  * \brief
@@ -320,7 +320,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:FAIL
  */
-#define VTSS_ANA_AC_SDLB_FAIL                VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1108)
+#define VTSS_ANA_AC_SDLB_FAIL                VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f08)
 
 /**
  * \brief
@@ -430,7 +430,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:TBL_ACC_CTRL
  */
-#define VTSS_ANA_AC_SDLB_TBL_ACC_CTRL        VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1109)
+#define VTSS_ANA_AC_SDLB_TBL_ACC_CTRL        VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f09)
 
 /**
  * \brief
@@ -501,7 +501,7 @@
  *
  * Register: \a ANA_AC_SDLB:MISC:TBL_ACC_VAL
  */
-#define VTSS_ANA_AC_SDLB_TBL_ACC_VAL         VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x110a)
+#define VTSS_ANA_AC_SDLB_TBL_ACC_VAL         VTSS_IOREG(VTSS_TO_ANA_AC_SDLB,0x1f0a)
 
 /**
  * \brief
@@ -533,7 +533,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_XLB_START(gi)       VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,0)
+#define VTSS_ANA_AC_SDLB_XLB_START(gi)       VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,0)
 
 /**
  * \brief
@@ -555,7 +555,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_PUP_INTERVAL(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,1)
+#define VTSS_ANA_AC_SDLB_PUP_INTERVAL(gi)    VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,1)
 
 /**
  * \brief
@@ -579,7 +579,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_PUP_CTRL(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,2)
+#define VTSS_ANA_AC_SDLB_PUP_CTRL(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,2)
 
 /**
  * \brief
@@ -615,7 +615,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_LBGRP_MISC(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,3)
+#define VTSS_ANA_AC_SDLB_LBGRP_MISC(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,3)
 
 /**
  * \brief
@@ -639,7 +639,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_FRM_RATE_TOKENS(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,4)
+#define VTSS_ANA_AC_SDLB_FRM_RATE_TOKENS(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,4)
 
 /**
  * \brief
@@ -662,7 +662,7 @@
  *
  * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBGRP_CNT (??), 0-4
  */
-#define VTSS_ANA_AC_SDLB_LBGRP_STATE_TBL(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x110b,gi,6,0,5)
+#define VTSS_ANA_AC_SDLB_LBGRP_STATE_TBL(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x1f0b,gi,6,0,5)
 
 /**
  * \brief
@@ -713,7 +713,7 @@
  *
  * Register: \a ANA_AC_SDLB:LBSET_TBL:PUP_TOKENS
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  * @param ri Replicator: x_LB_2CYCLES_TYPE2_LBSET_LB_CNT (??), 0-1
  */
 #define VTSS_ANA_AC_SDLB_PUP_TOKENS(gi,ri)   VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,ri,0)
@@ -748,7 +748,7 @@
  *
  * Register: \a ANA_AC_SDLB:LBSET_TBL:THRES
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  * @param ri Replicator: x_LB_2CYCLES_TYPE2_LBSET_LB_CNT (??), 0-1
  */
 #define VTSS_ANA_AC_SDLB_THRES(gi,ri)        VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,ri,2)
@@ -788,7 +788,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:LBSET_TBL:XLB_NEXT
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  */
 #define VTSS_ANA_AC_SDLB_XLB_NEXT(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,0,4)
 
@@ -825,7 +825,7 @@
  *
  * Register: \a ANA_AC_SDLB:LBSET_TBL:INH_CTRL
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  * @param ri Replicator: x_LB_2CYCLES_TYPE2_LBSET_LB_CNT (??), 0-1
  */
 #define VTSS_ANA_AC_SDLB_INH_CTRL(gi,ri)     VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,ri,5)
@@ -900,7 +900,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:LBSET_TBL:INH_LBSET_ADDR
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  */
 #define VTSS_ANA_AC_SDLB_INH_LBSET_ADDR(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,0,7)
 
@@ -927,7 +927,7 @@
  *
  * Register: \a ANA_AC_SDLB:LBSET_TBL:DLB_MISC
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  */
 #define VTSS_ANA_AC_SDLB_DLB_MISC(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,0,8)
 
@@ -1000,7 +1000,7 @@
  * \details
  * Register: \a ANA_AC_SDLB:LBSET_TBL:DLB_CFG
  *
- * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-271
+ * @param gi Replicator: x_LB_2CYCLES_TYPE2_LBSET_CNT (??), 0-495
  */
 #define VTSS_ANA_AC_SDLB_DLB_CFG(gi)         VTSS_IOREG_IX(VTSS_TO_ANA_AC_SDLB,0x0,gi,16,0,9)
 

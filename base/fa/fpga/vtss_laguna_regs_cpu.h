@@ -84,6 +84,26 @@
 
 
 /**
+ * \brief Interrupt raw status
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_RAW3
+ */
+#define VTSS_CPU_INTR_RAW3                   VTSS_IOREG(VTSS_TO_CPU,0x3)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_RAW.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_RAW3 . INTR_RAW3
+ */
+#define  VTSS_F_CPU_INTR_RAW3_INTR_RAW3(x)    (x)
+#define  VTSS_M_CPU_INTR_RAW3_INTR_RAW3       0xffffffff
+#define  VTSS_X_CPU_INTR_RAW3_INTR_RAW3(x)    (x)
+
+
+/**
  * \brief Interrupt trigger mode
  *
  * \details
@@ -91,7 +111,7 @@
  *
  * @param ri Register: INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x3 + (ri))
+#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x4 + (ri))
 
 /**
  * \brief
@@ -131,7 +151,7 @@
  *
  * @param ri Register: INTR_TRIGGER1 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x5 + (ri))
+#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x6 + (ri))
 
 /**
  * \brief
@@ -158,7 +178,7 @@
  *
  * @param ri Register: INTR_TRIGGER2 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x7 + (ri))
+#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x8 + (ri))
 
 /**
  * \brief
@@ -178,12 +198,39 @@
 
 
 /**
+ * \brief Interrupt trigger mode
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_TRIGGER3
+ *
+ * @param ri Register: INTR_TRIGGER3 (??), 0-1
+ */
+#define VTSS_CPU_INTR_TRIGGER3(ri)           VTSS_IOREG(VTSS_TO_CPU,0xa + (ri))
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_TRIGGER.
+ *
+ * \details
+ * 0: Interrupt is level-activated
+ * 1: Interrupt is edge-triggered
+ * 2: Interrupt is falling-edge-triggered
+ * 3: Interrupt is rising-edge-triggered
+ *
+ * Field: ::VTSS_CPU_INTR_TRIGGER3 . INTR_TRIGGER3
+ */
+#define  VTSS_F_CPU_INTR_TRIGGER3_INTR_TRIGGER3(x)  (x)
+#define  VTSS_M_CPU_INTR_TRIGGER3_INTR_TRIGGER3     0xffffffff
+#define  VTSS_X_CPU_INTR_TRIGGER3_INTR_TRIGGER3(x)  (x)
+
+
+/**
  * \brief Interrupt force sticky event
  *
  * \details
  * Register: \a CPU:INTR:INTR_FORCE
  */
-#define VTSS_CPU_INTR_FORCE                  VTSS_IOREG(VTSS_TO_CPU,0x9)
+#define VTSS_CPU_INTR_FORCE                  VTSS_IOREG(VTSS_TO_CPU,0xc)
 
 /**
  * \brief
@@ -204,7 +251,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_FORCE1
  */
-#define VTSS_CPU_INTR_FORCE1                 VTSS_IOREG(VTSS_TO_CPU,0xa)
+#define VTSS_CPU_INTR_FORCE1                 VTSS_IOREG(VTSS_TO_CPU,0xd)
 
 /**
  * \brief
@@ -224,7 +271,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_FORCE2
  */
-#define VTSS_CPU_INTR_FORCE2                 VTSS_IOREG(VTSS_TO_CPU,0xb)
+#define VTSS_CPU_INTR_FORCE2                 VTSS_IOREG(VTSS_TO_CPU,0xe)
 
 /**
  * \brief
@@ -239,12 +286,32 @@
 
 
 /**
+ * \brief Interrupt force sticky event
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_FORCE3
+ */
+#define VTSS_CPU_INTR_FORCE3                 VTSS_IOREG(VTSS_TO_CPU,0xf)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_FORCE.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_FORCE3 . INTR_FORCE3
+ */
+#define  VTSS_F_CPU_INTR_FORCE3_INTR_FORCE3(x)  (x)
+#define  VTSS_M_CPU_INTR_FORCE3_INTR_FORCE3     0xffffffff
+#define  VTSS_X_CPU_INTR_FORCE3_INTR_FORCE3(x)  (x)
+
+
+/**
  * \brief Interrupt sticky status
  *
  * \details
  * Register: \a CPU:INTR:INTR_STICKY
  */
-#define VTSS_CPU_INTR_STICKY                 VTSS_IOREG(VTSS_TO_CPU,0xc)
+#define VTSS_CPU_INTR_STICKY                 VTSS_IOREG(VTSS_TO_CPU,0x10)
 
 /**
  * \brief
@@ -266,7 +333,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_STICKY1
  */
-#define VTSS_CPU_INTR_STICKY1                VTSS_IOREG(VTSS_TO_CPU,0xd)
+#define VTSS_CPU_INTR_STICKY1                VTSS_IOREG(VTSS_TO_CPU,0x11)
 
 /**
  * \brief
@@ -286,7 +353,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_STICKY2
  */
-#define VTSS_CPU_INTR_STICKY2                VTSS_IOREG(VTSS_TO_CPU,0xe)
+#define VTSS_CPU_INTR_STICKY2                VTSS_IOREG(VTSS_TO_CPU,0x12)
 
 /**
  * \brief
@@ -301,12 +368,32 @@
 
 
 /**
+ * \brief Interrupt sticky status
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_STICKY3
+ */
+#define VTSS_CPU_INTR_STICKY3                VTSS_IOREG(VTSS_TO_CPU,0x13)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_STICKY.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_STICKY3 . INTR_STICKY3
+ */
+#define  VTSS_F_CPU_INTR_STICKY3_INTR_STICKY3(x)  (x)
+#define  VTSS_M_CPU_INTR_STICKY3_INTR_STICKY3     0xffffffff
+#define  VTSS_X_CPU_INTR_STICKY3_INTR_STICKY3(x)  (x)
+
+
+/**
  * \brief Interrupt bypass enable
  *
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS
  */
-#define VTSS_CPU_INTR_BYPASS                 VTSS_IOREG(VTSS_TO_CPU,0xf)
+#define VTSS_CPU_INTR_BYPASS                 VTSS_IOREG(VTSS_TO_CPU,0x14)
 
 /**
  * \brief
@@ -334,7 +421,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS1
  */
-#define VTSS_CPU_INTR_BYPASS1                VTSS_IOREG(VTSS_TO_CPU,0x10)
+#define VTSS_CPU_INTR_BYPASS1                VTSS_IOREG(VTSS_TO_CPU,0x15)
 
 /**
  * \brief
@@ -354,7 +441,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_BYPASS2
  */
-#define VTSS_CPU_INTR_BYPASS2                VTSS_IOREG(VTSS_TO_CPU,0x11)
+#define VTSS_CPU_INTR_BYPASS2                VTSS_IOREG(VTSS_TO_CPU,0x16)
 
 /**
  * \brief
@@ -369,12 +456,32 @@
 
 
 /**
+ * \brief Interrupt bypass enable
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_BYPASS3
+ */
+#define VTSS_CPU_INTR_BYPASS3                VTSS_IOREG(VTSS_TO_CPU,0x17)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_BYPASS.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_BYPASS3 . INTR_BYPASS3
+ */
+#define  VTSS_F_CPU_INTR_BYPASS3_INTR_BYPASS3(x)  (x)
+#define  VTSS_M_CPU_INTR_BYPASS3_INTR_BYPASS3     0xffffffff
+#define  VTSS_X_CPU_INTR_BYPASS3_INTR_BYPASS3(x)  (x)
+
+
+/**
  * \brief Interrupt enable
  *
  * \details
  * Register: \a CPU:INTR:INTR_ENA
  */
-#define VTSS_CPU_INTR_ENA                    VTSS_IOREG(VTSS_TO_CPU,0x12)
+#define VTSS_CPU_INTR_ENA                    VTSS_IOREG(VTSS_TO_CPU,0x18)
 
 /**
  * \brief
@@ -397,7 +504,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA1
  */
-#define VTSS_CPU_INTR_ENA1                   VTSS_IOREG(VTSS_TO_CPU,0x13)
+#define VTSS_CPU_INTR_ENA1                   VTSS_IOREG(VTSS_TO_CPU,0x19)
 
 /**
  * \brief
@@ -417,7 +524,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA2
  */
-#define VTSS_CPU_INTR_ENA2                   VTSS_IOREG(VTSS_TO_CPU,0x14)
+#define VTSS_CPU_INTR_ENA2                   VTSS_IOREG(VTSS_TO_CPU,0x1a)
 
 /**
  * \brief
@@ -432,12 +539,32 @@
 
 
 /**
+ * \brief Interrupt enable
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_ENA3
+ */
+#define VTSS_CPU_INTR_ENA3                   VTSS_IOREG(VTSS_TO_CPU,0x1b)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_ENA.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_ENA3 . INTR_ENA3
+ */
+#define  VTSS_F_CPU_INTR_ENA3_INTR_ENA3(x)    (x)
+#define  VTSS_M_CPU_INTR_ENA3_INTR_ENA3       0xffffffff
+#define  VTSS_X_CPU_INTR_ENA3_INTR_ENA3(x)    (x)
+
+
+/**
  * \brief Atomic clear of interrupt enable
  *
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR
  */
-#define VTSS_CPU_INTR_ENA_CLR                VTSS_IOREG(VTSS_TO_CPU,0x15)
+#define VTSS_CPU_INTR_ENA_CLR                VTSS_IOREG(VTSS_TO_CPU,0x1c)
 
 /**
  * \brief
@@ -458,7 +585,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR1
  */
-#define VTSS_CPU_INTR_ENA_CLR1               VTSS_IOREG(VTSS_TO_CPU,0x16)
+#define VTSS_CPU_INTR_ENA_CLR1               VTSS_IOREG(VTSS_TO_CPU,0x1d)
 
 /**
  * \brief
@@ -478,7 +605,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_CLR2
  */
-#define VTSS_CPU_INTR_ENA_CLR2               VTSS_IOREG(VTSS_TO_CPU,0x17)
+#define VTSS_CPU_INTR_ENA_CLR2               VTSS_IOREG(VTSS_TO_CPU,0x1e)
 
 /**
  * \brief
@@ -493,12 +620,32 @@
 
 
 /**
+ * \brief Atomic clear of interrupt enable
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_ENA_CLR3
+ */
+#define VTSS_CPU_INTR_ENA_CLR3               VTSS_IOREG(VTSS_TO_CPU,0x1f)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_ENA_CLR.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_ENA_CLR3 . INTR_ENA_CLR3
+ */
+#define  VTSS_F_CPU_INTR_ENA_CLR3_INTR_ENA_CLR3(x)  (x)
+#define  VTSS_M_CPU_INTR_ENA_CLR3_INTR_ENA_CLR3     0xffffffff
+#define  VTSS_X_CPU_INTR_ENA_CLR3_INTR_ENA_CLR3(x)  (x)
+
+
+/**
  * \brief Atomic set of interrupt
  *
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET
  */
-#define VTSS_CPU_INTR_ENA_SET                VTSS_IOREG(VTSS_TO_CPU,0x18)
+#define VTSS_CPU_INTR_ENA_SET                VTSS_IOREG(VTSS_TO_CPU,0x20)
 
 /**
  * \brief
@@ -519,7 +666,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET1
  */
-#define VTSS_CPU_INTR_ENA_SET1               VTSS_IOREG(VTSS_TO_CPU,0x19)
+#define VTSS_CPU_INTR_ENA_SET1               VTSS_IOREG(VTSS_TO_CPU,0x21)
 
 /**
  * \brief
@@ -539,7 +686,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_ENA_SET2
  */
-#define VTSS_CPU_INTR_ENA_SET2               VTSS_IOREG(VTSS_TO_CPU,0x1a)
+#define VTSS_CPU_INTR_ENA_SET2               VTSS_IOREG(VTSS_TO_CPU,0x22)
 
 /**
  * \brief
@@ -554,12 +701,32 @@
 
 
 /**
+ * \brief Atomic set of interrupt
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_ENA_SET3
+ */
+#define VTSS_CPU_INTR_ENA_SET3               VTSS_IOREG(VTSS_TO_CPU,0x23)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_ENA_SET.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_ENA_SET3 . INTR_ENA_SET3
+ */
+#define  VTSS_F_CPU_INTR_ENA_SET3_INTR_ENA_SET3(x)  (x)
+#define  VTSS_M_CPU_INTR_ENA_SET3_INTR_ENA_SET3     0xffffffff
+#define  VTSS_X_CPU_INTR_ENA_SET3_INTR_ENA_SET3(x)  (x)
+
+
+/**
  * \brief Currently active interrupt sources
  *
  * \details
  * Register: \a CPU:INTR:INTR_IDENT
  */
-#define VTSS_CPU_INTR_IDENT                  VTSS_IOREG(VTSS_TO_CPU,0x1b)
+#define VTSS_CPU_INTR_IDENT                  VTSS_IOREG(VTSS_TO_CPU,0x24)
 
 /**
  * \brief
@@ -581,7 +748,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_IDENT1
  */
-#define VTSS_CPU_INTR_IDENT1                 VTSS_IOREG(VTSS_TO_CPU,0x1c)
+#define VTSS_CPU_INTR_IDENT1                 VTSS_IOREG(VTSS_TO_CPU,0x25)
 
 /**
  * \brief
@@ -601,7 +768,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_IDENT2
  */
-#define VTSS_CPU_INTR_IDENT2                 VTSS_IOREG(VTSS_TO_CPU,0x1d)
+#define VTSS_CPU_INTR_IDENT2                 VTSS_IOREG(VTSS_TO_CPU,0x26)
 
 /**
  * \brief
@@ -616,6 +783,26 @@
 
 
 /**
+ * \brief Currently active interrupt sources
+ *
+ * \details
+ * Register: \a CPU:INTR:INTR_IDENT3
+ */
+#define VTSS_CPU_INTR_IDENT3                 VTSS_IOREG(VTSS_TO_CPU,0x27)
+
+/**
+ * \brief
+ * Bit 96-127 of field INTR_IDENT.
+ *
+ * \details
+ * Field: ::VTSS_CPU_INTR_IDENT3 . INTR_IDENT3
+ */
+#define  VTSS_F_CPU_INTR_IDENT3_INTR_IDENT3(x)  (x)
+#define  VTSS_M_CPU_INTR_IDENT3_INTR_IDENT3     0xffffffff
+#define  VTSS_X_CPU_INTR_IDENT3_INTR_IDENT3(x)  (x)
+
+
+/**
  * \brief Mapping of source to destination interrupts
  *
  * \details
@@ -625,7 +812,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP(ri)            VTSS_IOREG(VTSS_TO_CPU,0x1e + (ri))
+#define VTSS_CPU_DST_INTR_MAP(ri)            VTSS_IOREG(VTSS_TO_CPU,0x28 + (ri))
 
 /**
  * \brief
@@ -651,7 +838,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x27 + (ri))
+#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x31 + (ri))
 
 /**
  * \brief
@@ -675,7 +862,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x30 + (ri))
+#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x3a + (ri))
 
 /**
  * \brief
@@ -690,6 +877,30 @@
 
 
 /**
+ * \brief Mapping of source to destination interrupts
+ *
+ * \details
+ * Replicated per destination interrupt.
+ *
+ * Register: \a CPU:INTR:DST_INTR_MAP3
+ *
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ */
+#define VTSS_CPU_DST_INTR_MAP3(ri)           VTSS_IOREG(VTSS_TO_CPU,0x43 + (ri))
+
+/**
+ * \brief
+ * Bit 96-127 of field DST_INTR_MAP.
+ *
+ * \details
+ * Field: ::VTSS_CPU_DST_INTR_MAP3 . DST_INTR_MAP3
+ */
+#define  VTSS_F_CPU_DST_INTR_MAP3_DST_INTR_MAP3(x)  (x)
+#define  VTSS_M_CPU_DST_INTR_MAP3_DST_INTR_MAP3     0xffffffff
+#define  VTSS_X_CPU_DST_INTR_MAP3_DST_INTR_MAP3(x)  (x)
+
+
+/**
  * \brief Currently active interrupt sources per destination
  *
  * \details
@@ -699,7 +910,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x39 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x4c + (ri))
 
 /**
  * \brief
@@ -726,7 +937,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x42 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x55 + (ri))
 
 /**
  * \brief
@@ -750,7 +961,7 @@
  *
  * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
  */
-#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x4b + (ri))
+#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x5e + (ri))
 
 /**
  * \brief
@@ -765,12 +976,36 @@
 
 
 /**
+ * \brief Currently active interrupt sources per destination
+ *
+ * \details
+ * Replicated per destination interrupt.
+ *
+ * Register: \a CPU:INTR:DST_INTR_IDENT3
+ *
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ */
+#define VTSS_CPU_DST_INTR_IDENT3(ri)         VTSS_IOREG(VTSS_TO_CPU,0x67 + (ri))
+
+/**
+ * \brief
+ * Bit 96-127 of field DST_INTR_IDENT.
+ *
+ * \details
+ * Field: ::VTSS_CPU_DST_INTR_IDENT3 . DST_INTR_IDENT3
+ */
+#define  VTSS_F_CPU_DST_INTR_IDENT3_DST_INTR_IDENT3(x)  (x)
+#define  VTSS_M_CPU_DST_INTR_IDENT3_DST_INTR_IDENT3     0xffffffff
+#define  VTSS_X_CPU_DST_INTR_IDENT3_DST_INTR_IDENT3(x)  (x)
+
+
+/**
  * \brief External source interrupt polarity
  *
  * \details
  * Register: \a CPU:INTR:EXT_SRC_INTR_POL
  */
-#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x54)
+#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x70)
 
 /**
  * \brief
@@ -794,7 +1029,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_POL
  */
-#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x55)
+#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x71)
 
 /**
  * \brief
@@ -818,7 +1053,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_DRV
  */
-#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0x56)
+#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0x72)
 
 /**
  * \brief
@@ -843,7 +1078,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_POL
  */
-#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0x57)
+#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0x73)
 
 /**
  * \brief
@@ -867,7 +1102,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_RAW
  */
-#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0x58)
+#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0x74)
 
 /**
  * \brief
@@ -891,7 +1126,7 @@
  *
  * @param ri Register: DEV_INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0x59 + (ri))
+#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0x75 + (ri))
 
 /**
  * \brief
@@ -931,7 +1166,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_STICKY
  */
-#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0x5b)
+#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0x77)
 
 /**
  * \brief
@@ -953,7 +1188,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_BYPASS
  */
-#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0x5c)
+#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0x78)
 
 /**
  * \brief
@@ -976,7 +1211,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_ENA
  */
-#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0x5d)
+#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0x79)
 
 /**
  * \brief
@@ -997,7 +1232,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_IDENT
  */
-#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0x5e)
+#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0x7a)
 
 /**
  * \brief
@@ -1019,7 +1254,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_CFG
  */
-#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0x5f)
+#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0x7b)
 
 /**
  * \brief
@@ -1087,7 +1322,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_DOORBELL_ADDR
  */
-#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0x60)
+#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0x7c)
 
 /**
  * \brief
@@ -1109,7 +1344,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING
  */
-#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0x61)
+#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0x7d)
 
 /**
  * \brief
@@ -1129,7 +1364,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING1
  */
-#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0x62)
+#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0x7e)
 
 /**
  * \brief
@@ -1149,7 +1384,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING2
  */
-#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0x63)
+#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0x7f)
 
 /**
  * \brief
@@ -1161,6 +1396,26 @@
 #define  VTSS_F_CPU_MSIX_INTR_PENDING2_MSIX_INTR_PENDING2(x)  (x)
 #define  VTSS_M_CPU_MSIX_INTR_PENDING2_MSIX_INTR_PENDING2     0xffffffff
 #define  VTSS_X_CPU_MSIX_INTR_PENDING2_MSIX_INTR_PENDING2(x)  (x)
+
+
+/**
+ * \brief MSI-X interrupt pending
+ *
+ * \details
+ * Register: \a CPU:INTR:MSIX_INTR_PENDING3
+ */
+#define VTSS_CPU_MSIX_INTR_PENDING3          VTSS_IOREG(VTSS_TO_CPU,0x80)
+
+/**
+ * \brief
+ * Bit 96-127 of field MSIX_INTR_PENDING.
+ *
+ * \details
+ * Field: ::VTSS_CPU_MSIX_INTR_PENDING3 . MSIX_INTR_PENDING3
+ */
+#define  VTSS_F_CPU_MSIX_INTR_PENDING3_MSIX_INTR_PENDING3(x)  (x)
+#define  VTSS_M_CPU_MSIX_INTR_PENDING3_MSIX_INTR_PENDING3     0xffffffff
+#define  VTSS_X_CPU_MSIX_INTR_PENDING3_MSIX_INTR_PENDING3(x)  (x)
 
 
 #endif /* _VTSS_LAGUNA_REGS_CPU_H_ */

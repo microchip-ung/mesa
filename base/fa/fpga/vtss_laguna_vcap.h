@@ -5,7 +5,7 @@
     Start: Auto-generated content, do not edit.
 
     Generated using 'make c_header' in directory 'design/exb_vcap_lib'
-    @ 2022-02-11 14:11:58 UTC.
+    @ 2022-03-18 15:20:06 UTC.
  * ================================================================= */
 
 
@@ -1102,7 +1102,11 @@
 #define CLM_AL_CLASS_REDUCED_MIP_SEL                 2
 #define CLM_AO_CLASS_REDUCED_OAM_Y1731_SEL           (CLM_AO_CLASS_REDUCED_MIP_SEL + CLM_AL_CLASS_REDUCED_MIP_SEL)
 #define CLM_AL_CLASS_REDUCED_OAM_Y1731_SEL           3
-#define CLM_AO_CLASS_REDUCED_LPORT_ENA               (CLM_AO_CLASS_REDUCED_OAM_Y1731_SEL + CLM_AL_CLASS_REDUCED_OAM_Y1731_SEL)
+#define CLM_AO_CLASS_REDUCED_OAM_MRP_ENA             (CLM_AO_CLASS_REDUCED_OAM_Y1731_SEL + CLM_AL_CLASS_REDUCED_OAM_Y1731_SEL)
+#define CLM_AL_CLASS_REDUCED_OAM_MRP_ENA             1
+#define CLM_AO_CLASS_REDUCED_OAM_DLR_ENA             (CLM_AO_CLASS_REDUCED_OAM_MRP_ENA + CLM_AL_CLASS_REDUCED_OAM_MRP_ENA)
+#define CLM_AL_CLASS_REDUCED_OAM_DLR_ENA             1
+#define CLM_AO_CLASS_REDUCED_LPORT_ENA               (CLM_AO_CLASS_REDUCED_OAM_DLR_ENA + CLM_AL_CLASS_REDUCED_OAM_DLR_ENA)
 #define CLM_AL_CLASS_REDUCED_LPORT_ENA               1
 #define CLM_AO_CLASS_REDUCED_INJ_MASQ_LPORT          (CLM_AO_CLASS_REDUCED_LPORT_ENA + CLM_AL_CLASS_REDUCED_LPORT_ENA)
 #define CLM_AL_CLASS_REDUCED_INJ_MASQ_LPORT          6
@@ -2076,6 +2080,8 @@
 #define ES0_AL_ES0_LOOP_ENA                          1
 #define ES0_AO_ES0_QS_INFO                           (ES0_AO_ES0_LOOP_ENA + ES0_AL_ES0_LOOP_ENA)
 #define ES0_AL_ES0_QS_INFO                           12
+#define ES0_AO_ES0_RB_RTAG_ENA                       (ES0_AO_ES0_QS_INFO + ES0_AL_ES0_QS_INFO)
+#define ES0_AL_ES0_RB_RTAG_ENA                       1
 
 /* ================================================================= *
  *  VCAP ES2
@@ -2468,7 +2474,7 @@
 #define ES2_AO_BASE_TYPE_ES2_REW_CMD                 (ES2_AO_BASE_TYPE_POLICE_IDX + ES2_AL_BASE_TYPE_POLICE_IDX)
 #define ES2_AL_BASE_TYPE_ES2_REW_CMD                 3
 #define ES2_AO_BASE_TYPE_CNT_ID                      (ES2_AO_BASE_TYPE_ES2_REW_CMD + ES2_AL_BASE_TYPE_ES2_REW_CMD)
-#define ES2_AL_BASE_TYPE_CNT_ID                      10
+#define ES2_AL_BASE_TYPE_CNT_ID                      9
 #define ES2_AO_BASE_TYPE_IGNORE_PIPELINE_CTRL        (ES2_AO_BASE_TYPE_CNT_ID + ES2_AL_BASE_TYPE_CNT_ID)
 #define ES2_AL_BASE_TYPE_IGNORE_PIPELINE_CTRL        1
 

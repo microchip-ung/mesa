@@ -243,7 +243,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_RATE_CTRL(ri)               VTSS_IOREG(VTSS_TO_DSM,0x25 + (ri))
+#define VTSS_DSM_RATE_CTRL(ri)               VTSS_IOREG(VTSS_TO_DSM,0x48 + (ri))
 
 /**
  * \brief
@@ -268,7 +268,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_IPG_SHRINK_CFG(ri)          VTSS_IOREG(VTSS_TO_DSM,0x45 + (ri))
+#define VTSS_DSM_IPG_SHRINK_CFG(ri)          VTSS_IOREG(VTSS_TO_DSM,0x8b + (ri))
 
 /**
  * \brief
@@ -305,7 +305,7 @@
  *
  * @param ri Replicator: x_DSM_CELL_BUFS_DIV32_CEIL (??), 0-2
  */
-#define VTSS_DSM_CLR_BUF(ri)                 VTSS_IOREG(VTSS_TO_DSM,0x65 + (ri))
+#define VTSS_DSM_CLR_BUF(ri)                 VTSS_IOREG(VTSS_TO_DSM,0xce + (ri))
 
 /**
  * \brief
@@ -335,7 +335,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_SCH_STOP_WM_CFG(ri)         VTSS_IOREG(VTSS_TO_DSM,0x68 + (ri))
+#define VTSS_DSM_SCH_STOP_WM_CFG(ri)         VTSS_IOREG(VTSS_TO_DSM,0xd3 + (ri))
 
 /**
  * \brief
@@ -363,7 +363,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_TX_START_WM_CFG(ri)         VTSS_IOREG(VTSS_TO_DSM,0x88 + (ri))
+#define VTSS_DSM_TX_START_WM_CFG(ri)         VTSS_IOREG(VTSS_TO_DSM,0x116 + (ri))
 
 /**
  * \brief
@@ -394,7 +394,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_DEV_TX_STOP_WM_CFG(ri)      VTSS_IOREG(VTSS_TO_DSM,0xa8 + (ri))
+#define VTSS_DSM_DEV_TX_STOP_WM_CFG(ri)      VTSS_IOREG(VTSS_TO_DSM,0x159 + (ri))
 
 /**
  * \brief
@@ -454,7 +454,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_RX_PAUSE_CFG(ri)            VTSS_IOREG(VTSS_TO_DSM,0xc8 + (ri))
+#define VTSS_DSM_RX_PAUSE_CFG(ri)            VTSS_IOREG(VTSS_TO_DSM,0x19c + (ri))
 
 /**
  * \brief
@@ -504,7 +504,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_ETH_FC_CFG(ri)              VTSS_IOREG(VTSS_TO_DSM,0xe8 + (ri))
+#define VTSS_DSM_ETH_FC_CFG(ri)              VTSS_IOREG(VTSS_TO_DSM,0x1df + (ri))
 
 /**
  * \brief
@@ -539,7 +539,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_ETH_PFC_CFG(ri)             VTSS_IOREG(VTSS_TO_DSM,0x108 + (ri))
+#define VTSS_DSM_ETH_PFC_CFG(ri)             VTSS_IOREG(VTSS_TO_DSM,0x222 + (ri))
 
 /**
  * \brief
@@ -589,7 +589,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_MAC_CFG(ri)                 VTSS_IOREG(VTSS_TO_DSM,0x128 + (ri))
+#define VTSS_DSM_MAC_CFG(ri)                 VTSS_IOREG(VTSS_TO_DSM,0x265 + (ri))
 
 /**
  * \brief
@@ -671,7 +671,7 @@
  *
  * @param ri Replicator: x_DSM_NUM_PAUSE_FRM_MAC_ADDR (??), 0-29
  */
-#define VTSS_DSM_MAC_ADDR_BASE_HIGH_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x148 + (ri))
+#define VTSS_DSM_MAC_ADDR_BASE_HIGH_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x2a8 + (ri))
 
 /**
  * \brief
@@ -698,7 +698,7 @@
  *
  * @param ri Replicator: x_DSM_NUM_PAUSE_FRM_MAC_ADDR (??), 0-29
  */
-#define VTSS_DSM_MAC_ADDR_BASE_LOW_CFG(ri)   VTSS_IOREG(VTSS_TO_DSM,0x166 + (ri))
+#define VTSS_DSM_MAC_ADDR_BASE_LOW_CFG(ri)   VTSS_IOREG(VTSS_TO_DSM,0x2e9 + (ri))
 
 /**
  * \brief
@@ -721,7 +721,7 @@
  *
  * Register: \a DSM:CFG:DBG_CTRL
  */
-#define VTSS_DSM_DBG_CTRL                    VTSS_IOREG(VTSS_TO_DSM,0x184)
+#define VTSS_DSM_DBG_CTRL                    VTSS_IOREG(VTSS_TO_DSM,0x32a)
 
 /**
  * \brief
@@ -753,7 +753,7 @@
  *
  * @param ri Replicator: x_DSM_NUM_OF_TAXI (??), 0-5
  */
-#define VTSS_DSM_TAXI_CAL_CFG(ri)            VTSS_IOREG(VTSS_TO_DSM,0x185 + (ri))
+#define VTSS_DSM_TAXI_CAL_CFG(ri)            VTSS_IOREG(VTSS_TO_DSM,0x32b + (ri))
 
 /**
  * \brief
@@ -861,7 +861,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_PREEMPT_CFG(ri)             VTSS_IOREG(VTSS_TO_DSM,0x18b + (ri))
+#define VTSS_DSM_PREEMPT_CFG(ri)             VTSS_IOREG(VTSS_TO_DSM,0x334 + (ri))
 
 /**
  * \brief
@@ -897,7 +897,7 @@
  *
  * @param ri Replicator: x_DSM_CELL_BUFS (??), 0-64
  */
-#define VTSS_DSM_AGED_FRMS(ri)               VTSS_IOREG(VTSS_TO_DSM,0x1ab + (ri))
+#define VTSS_DSM_AGED_FRMS(ri)               VTSS_IOREG(VTSS_TO_DSM,0x377 + (ri))
 
 /**
  * \brief
@@ -922,7 +922,7 @@
  *
  * Register: \a DSM:STATUS:CELL_BUS_STICKY
  */
-#define VTSS_DSM_CELL_BUS_STICKY             VTSS_IOREG(VTSS_TO_DSM,0x1ec)
+#define VTSS_DSM_CELL_BUS_STICKY             VTSS_IOREG(VTSS_TO_DSM,0x3fe)
 
 /**
  * \brief
@@ -968,7 +968,7 @@
  *
  * @param ri Replicator: x_DSM_CELL_BUFS_DIV32_CEIL (??), 0-2
  */
-#define VTSS_DSM_BUF_OFLW_STICKY(ri)         VTSS_IOREG(VTSS_TO_DSM,0x1ed + (ri))
+#define VTSS_DSM_BUF_OFLW_STICKY(ri)         VTSS_IOREG(VTSS_TO_DSM,0x3ff + (ri))
 
 /**
  * \brief
@@ -997,7 +997,7 @@
  *
  * @param ri Replicator: x_DSM_CELL_BUFS_DIV32_CEIL (??), 0-2
  */
-#define VTSS_DSM_BUF_UFLW_STICKY(ri)         VTSS_IOREG(VTSS_TO_DSM,0x1f0 + (ri))
+#define VTSS_DSM_BUF_UFLW_STICKY(ri)         VTSS_IOREG(VTSS_TO_DSM,0x404 + (ri))
 
 /**
  * \brief
@@ -1024,7 +1024,7 @@
  *
  * Register: \a DSM:STATUS:PRE_CNT_OFLW_STICKY
  */
-#define VTSS_DSM_PRE_CNT_OFLW_STICKY         VTSS_IOREG(VTSS_TO_DSM,0x1f3)
+#define VTSS_DSM_PRE_CNT_OFLW_STICKY         VTSS_IOREG(VTSS_TO_DSM,0x409)
 
 /**
  * \brief
@@ -1050,7 +1050,7 @@
  *
  * @param ri Replicator: x_DSM_CELL_BUFS (??), 0-64
  */
-#define VTSS_DSM_BUF_MAX_FILL(ri)            VTSS_IOREG(VTSS_TO_DSM,0x1f4 + (ri))
+#define VTSS_DSM_BUF_MAX_FILL(ri)            VTSS_IOREG(VTSS_TO_DSM,0x40a + (ri))
 
 /**
  * \brief
@@ -1082,7 +1082,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_TX_RATE_LIMIT_MODE(ri)      VTSS_IOREG(VTSS_TO_DSM,0x235 + (ri))
+#define VTSS_DSM_TX_RATE_LIMIT_MODE(ri)      VTSS_IOREG(VTSS_TO_DSM,0x491 + (ri))
 
 /**
  * \brief
@@ -1229,7 +1229,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_TX_IPG_STRETCH_RATIO_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x255 + (ri))
+#define VTSS_DSM_TX_IPG_STRETCH_RATIO_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x4d4 + (ri))
 
 /**
  * \brief
@@ -1266,7 +1266,7 @@
  *
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
-#define VTSS_DSM_TX_FRAME_RATE_START_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x275 + (ri))
+#define VTSS_DSM_TX_FRAME_RATE_START_CFG(ri)  VTSS_IOREG(VTSS_TO_DSM,0x517 + (ri))
 
 /**
  * \brief
@@ -1295,7 +1295,7 @@
  *
  * Register: \a DSM:RATE_LIMIT_CFG:TX_RATE_LIMIT_HDR_CFG
  */
-#define VTSS_DSM_TX_RATE_LIMIT_HDR_CFG       VTSS_IOREG(VTSS_TO_DSM,0x295)
+#define VTSS_DSM_TX_RATE_LIMIT_HDR_CFG       VTSS_IOREG(VTSS_TO_DSM,0x55a)
 
 /**
  * \brief
@@ -1328,7 +1328,7 @@
  *
  * Register: \a DSM:RATE_LIMIT_STATUS:TX_RATE_LIMIT_STICKY
  */
-#define VTSS_DSM_TX_RATE_LIMIT_STICKY        VTSS_IOREG(VTSS_TO_DSM,0x296)
+#define VTSS_DSM_TX_RATE_LIMIT_STICKY        VTSS_IOREG(VTSS_TO_DSM,0x55b)
 
 /**
  * \brief

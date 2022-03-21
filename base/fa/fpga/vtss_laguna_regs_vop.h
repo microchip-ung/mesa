@@ -1280,39 +1280,6 @@
 
 /**
  * \brief
- * Specifies the number of system clock cycles for each LOC base time
- * tick.The system clock is: 2 ns (500 MHz).The default base tick is set to
- * 50 = 100 nsThe base tick, is the event used for incrementing the 7 LOC
- * counters. The time at which each of the LOC timers will timeout is
- * specified in:  * VOP::LOC_PERIOD_CFG::LOC_PERIOD_VALEthernet
- * VOEs:------------------------When a LOC timer expires it causes a LOC
- * Scan event, which will increment the CCM miss counter
- * (VOP:VOE_STAT:CCM_STAT.CCM_MISS_CNT) for each VOE assigned to that
- * particular LOC timer.The CCM miss counter for each VOE (CCM_MISS_CNT)
- * will be cleared each time the VOE receives a valid CCM or CCM-LM
- * frame.If the CCM_MISS count reaches 7 it will optionally cause an
- * interrupt.MPLS-TP VOEs:------------------------When a LOC timer expires
- * it causes a LOC Scan event, which will increment the BFD miss counter
- * (VOP_MPLS:VOE_STAT_MPLS:BFD_STAT.BFD_MISS_CNT) for each VOE assigned to
- * that particular LOC timer.The LOC counter for each VOE (BFD_MISS_CNT)
- * will be cleared each time the VOE receives a valid BFD-CC or BFD-CV
- * PDU.If the BFD_MISS_CNT count reaches the configured Detect Multiplier
- * it will optionally cause an interrupt.
- *
- * \details
- * 0: Illegal value
- * 1: One clock between interval increment
- * ...
- * n: n clock between interval increment
- *
- * Field: ::VTSS_VOP_LOC_CTRL . LOC_BASE_TICK_CNT
- */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_ENCODE_BITFIELD(x,14,8)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_BASE_TICK_CNT     VTSS_ENCODE_BITMASK(14,8)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(x)  VTSS_EXTRACT_BITFIELD(x,14,8)
-
-/**
- * \brief
  * Specifies the number of clk cycle before another scan entry can be
  * attempted.This can be used to space the LOC miss scanning of the VOEs.If
  * an active SCAN is ongoing, the VOE will scan through the VOE_STAT and
@@ -1328,9 +1295,9 @@
  *
  * Field: ::VTSS_VOP_LOC_CTRL . LOC_SPACE_BETWEEN_ENTRY_SCAN
  */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_ENCODE_BITFIELD(x,12,2)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN     VTSS_ENCODE_BITMASK(12,2)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
+#define  VTSS_F_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_ENCODE_BITFIELD(x,29,2)
+#define  VTSS_M_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN     VTSS_ENCODE_BITMASK(29,2)
+#define  VTSS_X_VOP_LOC_CTRL_LOC_SPACE_BETWEEN_ENTRY_SCAN(x)  VTSS_EXTRACT_BITFIELD(x,29,2)
 
 /**
  * \brief
@@ -1344,8 +1311,8 @@
  * the LOC timers indicated in the mask had expired.A forced scan will
  * start as soon as any currently active scan completesActive scan can be
  * stopped by disabling the LOC scan controller.The width of the SCAN_MASK
- * is 9 bits which are allocated as follows:bits 0-6: LOC scan timer 0 -
- * 6bits 7-8: HMO scan timer 0 - 1
+ * is 29 bits which are allocated as follows:bits 0-26: LOC scan timer 0 -
+ * 26bits 27-28: HMO scan timer 0 - 1
  *
  * \details
  * 0: No force
@@ -1357,18 +1324,19 @@
  * bit 5 = 1: Force a scan of LOC scan timer 5
  * bit 6 = 1: Force a scan of LOC scan timer 6
  * bit 7 = 1: Force a scan of LOC scan timer 7
- * bit 8 = 1: Force a scan of LOC scan timer 8
- * bit 9 = 1: Force a scan of LOC scan timer 9
- * bit 10 = 1: Force a scan of HMO scan timer 0; (using HMO slot configured
+ * ...
+ * bit 25 = 1: Force a scan of LOC scan timer 25
+ * bit 26 = 1: Force a scan of LOC scan timer 26
+ * bit 27 = 1: Force a scan of HMO scan timer 0; (using HMO slot configured
  * in VOP::HMO_FORCE_SLOT_CFG(0).HMO_FORCE_SLOT)
- * bit 11 = 1: Force a scan of HMO scan timer 1; (using HMO slot configured
+ * bit 28 = 1: Force a scan of HMO scan timer 1; (using HMO slot configured
  * in VOP::HMO_FORCE_SLOT_CFG(1).HMO_FORCE_SLOT)
  *
  * Field: ::VTSS_VOP_LOC_CTRL . LOC_FORCE_HW_SCAN_ENA
  */
-#define  VTSS_F_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,29)
+#define  VTSS_M_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA     VTSS_ENCODE_BITMASK(0,29)
+#define  VTSS_X_VOP_LOC_CTRL_LOC_FORCE_HW_SCAN_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,29)
 
 
 /**
@@ -1384,10 +1352,8 @@
  * every LOC timer expiry.
  *
  * For configuration of the LOC base tick, see bit field:
- *  * VOP::LOC_CTRL.LOC_BASE_TICK_CNT
+ *  * VOP::LOC_CTRL_2.LOC_BASE_TICK_CNT
  *
- * The default value for the LOC base tick is 200 ns, which means that the
- * LOC timer counters are incremented every 200 ns.
  *
  * A LOC miss count scan is initiated at half the configured LOC PERIOD.
  *
@@ -1413,18 +1379,19 @@
  *
  * Register: \a VOP:COMMON:LOC_PERIOD_CFG
  *
- * @param ri Replicator: x_VTSS_OAM_MEP_NUM_LOC_SCAN_CNT (??), 0-9
+ * @param ri Replicator: x_VTSS_OAM_MEP_NUM_LOC_SCAN_CNT (??), 0-26
  */
 #define VTSS_VOP_LOC_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb53 + (ri))
 
 /**
  * \brief
- * Configures Expiry Period of the 7 LOC timers as the number of BASE_TICKs
- * between every LOC timer expiry.The BASE_TICK is configured:
- * VOP::LOC_CTRL.LOC_BASE_TICK_CNT
+ * Configures Expiry Period of the 27 LOC timers as the number of
+ * BASE_TICKs between every LOC timer expiry.The BASE_TICK is configured:
+ * VOP::LOC_CTRL_2.LOC_BASE_TICK_CNT
  *
  * \details
- * A value of 0 disables the timeout for this counter.
+ * A value of 0 disables the timeout for this counter. Configuration
+ * example when LOC_BASE_TICK_CNT is 100ns:
  * 100: 10us
  * 1000: 100us
  * 10000: 1 ms
@@ -1466,9 +1433,7 @@
  * timer must be set to expire every 125 us.
  *
  * For configuration of the LOC base tick, see bit field:
- *  * VOP::LOC_CTRL.LOC_BASE_TICK_CNT
- *
- * The default value for the LOC base tick is 200 ns.
+ *  * VOP::LOC_CTRL_2.LOC_BASE_TICK_CNT
  *
  * A HMO scan is initiated at half the configured HMO PERIOD, because this
  * is the way the scans are implemented for LOC scanning.
@@ -1507,18 +1472,18 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb5d + (ri))
+#define VTSS_VOP_HMO_PERIOD_CFG(ri)          VTSS_IOREG(VTSS_TO_VOP,0xb6e + (ri))
 
 /**
  * \brief
  * Configures expiry period of the 2 HMO timers as the number of BASE_TICKs
  * between every LOC timer expiry.The BASE_TICK is configured: *
- * VOP::LOC_CTRL.LOC_BASE_TICK_CNTDefault HMO timer is set to 0, which
+ * VOP::LOC_CTRL_2.LOC_BASE_TICK_CNTDefault HMO timer is set to 0, which
  * causes the HMO timer to never expire.
  *
  * \details
- * For the default value of the LOC_BASE_TICK_CNTthe HMO scan timer will
- * expire with the following intervals.
+ * With a LOC_BASE_TICK_CNT value of 200ns the HMO scan timer will expire
+ * with the following intervals.
  *
  * A value of 0 disables the timeout for this counter.
  * 50: 10us
@@ -1552,7 +1517,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_HMO_SCAN_CNT (??), 0-1
  */
-#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0xb5f + (ri))
+#define VTSS_VOP_HMO_FORCE_SLOT_CFG(ri)      VTSS_IOREG(VTSS_TO_VOP,0xb70 + (ri))
 
 /**
  * \brief
@@ -1588,7 +1553,7 @@
  *
  * Register: \a VOP:COMMON:HMO_TIMER_CFG
  */
-#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0xb61)
+#define VTSS_VOP_HMO_TIMER_CFG               VTSS_IOREG(VTSS_TO_VOP,0xb72)
 
 /**
  * \brief
@@ -1802,7 +1767,7 @@
  *
  * Register: \a VOP:COMMON:LOC_SCAN_STICKY
  */
-#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0xb62)
+#define VTSS_VOP_LOC_SCAN_STICKY             VTSS_IOREG(VTSS_TO_VOP,0xb73)
 
 /**
  * \brief
@@ -1816,9 +1781,9 @@
  *
  * Field: ::VTSS_VOP_LOC_SCAN_STICKY . LOC_SCAN_ONGOING_STATUS
  */
-#define  VTSS_F_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_ENCODE_BITFIELD(x,3,12)
-#define  VTSS_M_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS     VTSS_ENCODE_BITMASK(3,12)
-#define  VTSS_X_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,3,12)
+#define  VTSS_F_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_ENCODE_BITFIELD(x,3,29)
+#define  VTSS_M_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS     VTSS_ENCODE_BITMASK(3,29)
+#define  VTSS_X_VOP_LOC_SCAN_STICKY_LOC_SCAN_ONGOING_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,3,29)
 
 /**
  * \brief
@@ -1885,7 +1850,7 @@
  *
  * Register: \a VOP:COMMON:MASTER_INTR_CTRL
  */
-#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0xb63)
+#define VTSS_VOP_MASTER_INTR_CTRL            VTSS_IOREG(VTSS_TO_VOP,0xb74)
 
 /**
  * \brief
@@ -1942,7 +1907,7 @@
  *
  * Register: \a VOP:COMMON:VOE32_INTR
  */
-#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0xb64)
+#define VTSS_VOP_VOE32_INTR                  VTSS_IOREG(VTSS_TO_VOP,0xb75)
 
 /**
  * \brief
@@ -1987,7 +1952,7 @@
  *
  * @param ri Replicator: x_VTSS_OAM_MEP_NUM_TOTAL_VOE_DIV32_CEIL (??), 0-1
  */
-#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0xb66 + (ri))
+#define VTSS_VOP_INTR(ri)                    VTSS_IOREG(VTSS_TO_VOP,0xb77 + (ri))
 
 /**
  * \brief
@@ -2037,7 +2002,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_LSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0xb89)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_LSB       VTSS_IOREG(VTSS_TO_VOP,0xb9a)
 
 /**
  * \brief
@@ -2075,7 +2040,7 @@
  *
  * Register: \a VOP:COMMON:COMMON_MEP_MC_MAC_MSB
  */
-#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0xb8a)
+#define VTSS_VOP_COMMON_MEP_MC_MAC_MSB       VTSS_IOREG(VTSS_TO_VOP,0xb9b)
 
 /**
  * \brief
@@ -2090,12 +2055,56 @@
 
 
 /**
+ * \brief Loss Of Continuity Controller base tick configuration
+ *
+ * \details
+ * Configures LOC Controller base tick value
+
+ *
+ * Register: \a VOP:COMMON:LOC_CTRL_2
+ */
+#define VTSS_VOP_LOC_CTRL_2                  VTSS_IOREG(VTSS_TO_VOP,0xb9c)
+
+/**
+ * \brief
+ * Specifies the number of system clock cycles for each LOC base time
+ * tick.The base tick, is the event used for incrementing the 27 LOC
+ * counters. The time at which each of the LOC timers will timeout is
+ * specified in:  * VOP::LOC_PERIOD_CFG::LOC_PERIOD_VALEthernet
+ * VOEs:------------------------When a LOC timer expires it causes a LOC
+ * Scan event, which will increment the CCM miss counter
+ * (VOP:VOE_STAT:CCM_STAT.CCM_MISS_CNT) for each VOE assigned to that
+ * particular LOC timer.The CCM miss counter for each VOE (CCM_MISS_CNT)
+ * will be cleared each time the VOE receives a valid CCM or CCM-LM
+ * frame.If the CCM_MISS count reaches 7 it will optionally cause an
+ * interrupt.MPLS-TP VOEs:------------------------When a LOC timer expires
+ * it causes a LOC Scan event, which will increment the BFD miss counter
+ * (VOP_MPLS:VOE_STAT_MPLS:BFD_STAT.BFD_MISS_CNT) for each VOE assigned to
+ * that particular LOC timer.The LOC counter for each VOE (BFD_MISS_CNT)
+ * will be cleared each time the VOE receives a valid BFD-CC or BFD-CV
+ * PDU.If the BFD_MISS_CNT count reaches the configured Detect Multiplier
+ * it will optionally cause an interrupt.
+ *
+ * \details
+ * 0: Illegal value
+ * 1: One clock between interval increment
+ * ...
+ * n: n clock between interval increment
+ *
+ * Field: ::VTSS_VOP_LOC_CTRL_2 . LOC_BASE_TICK_CNT
+ */
+#define  VTSS_F_VOP_LOC_CTRL_2_LOC_BASE_TICK_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_VOP_LOC_CTRL_2_LOC_BASE_TICK_CNT     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_VOP_LOC_CTRL_2_LOC_BASE_TICK_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
  * \brief Configuration for CPU-copied MRP frames
  *
  * \details
  * Register: \a VOP:COMMON:CPU_EXTR_MRP
  */
-#define VTSS_VOP_CPU_EXTR_MRP                VTSS_IOREG(VTSS_TO_VOP,0xb8b)
+#define VTSS_VOP_CPU_EXTR_MRP                VTSS_IOREG(VTSS_TO_VOP,0xb9d)
 
 /**
  * \brief
@@ -2191,7 +2200,7 @@
  * \details
  * Register: \a VOP:COMMON:CPU_EXTR_DLR
  */
-#define VTSS_VOP_CPU_EXTR_DLR                VTSS_IOREG(VTSS_TO_VOP,0xb8c)
+#define VTSS_VOP_CPU_EXTR_DLR                VTSS_IOREG(VTSS_TO_VOP,0xb9e)
 
 /**
  * \brief
@@ -2266,7 +2275,7 @@
  *
  * Register: \a VOP:COMMON:TICK_CFG
  */
-#define VTSS_VOP_TICK_CFG                    VTSS_IOREG(VTSS_TO_VOP,0xb8d)
+#define VTSS_VOP_TICK_CFG                    VTSS_IOREG(VTSS_TO_VOP,0xb9f)
 
 /**
  * \brief
@@ -2288,7 +2297,7 @@
  *
  * Register: \a VOP:COMMON:MRP_TS_CFG
  */
-#define VTSS_VOP_MRP_TS_CFG                  VTSS_IOREG(VTSS_TO_VOP,0xb8e)
+#define VTSS_VOP_MRP_TS_CFG                  VTSS_IOREG(VTSS_TO_VOP,0xba0)
 
 /**
  * \brief
@@ -9930,11 +9939,49 @@
  * \brief Context data
  *
  * \details
+ * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_DATA_ANA
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
+ */
+#define VTSS_VOP_CT_OAM_DATA_ANA(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,7)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_DATA_ANA . CT_OAM_DATA_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA(x)  (x)
+#define  VTSS_M_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA     0xffffffff
+#define  VTSS_X_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA(x)  (x)
+
+
+/**
+ * \brief Context data
+ *
+ * \details
+ * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_DATA1_ANA
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
+ */
+#define VTSS_VOP_CT_OAM_DATA1_ANA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,8)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_DATA1_ANA . CT_OAM_DATA1_ANA
+ */
+#define  VTSS_F_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA(x)  (x)
+#define  VTSS_M_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA     0xffffffff
+#define  VTSS_X_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA(x)  (x)
+
+
+/**
+ * \brief Context data
+ *
+ * \details
  * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_MRP_DELTA_TS_ANA
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_MRP_DELTA_TS_ANA(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,7)
+#define VTSS_VOP_CT_OAM_MRP_DELTA_TS_ANA(gi)  VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,9)
 
 /**
  * \details
@@ -9953,7 +10000,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_MRP_SEQ_ANA(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,8)
+#define VTSS_VOP_CT_OAM_MRP_SEQ_ANA(gi)      VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,10)
 
 /**
  * \details
@@ -9980,7 +10027,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_MRP_INFO_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,9)
+#define VTSS_VOP_CT_OAM_MRP_INFO_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,11)
 
 /**
  * \details
@@ -10127,7 +10174,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
  */
-#define VTSS_VOP_CT_OAM_DLR_INFO_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,10)
+#define VTSS_VOP_CT_OAM_DLR_INFO_ANA(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,12)
 
 /**
  * \details
@@ -10272,44 +10319,6 @@
 #define  VTSS_F_VOP_CT_OAM_DLR_INFO_ANA_CT_ADV_RX_SEQ_UPD_ANA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
 #define  VTSS_M_VOP_CT_OAM_DLR_INFO_ANA_CT_ADV_RX_SEQ_UPD_ANA  VTSS_BIT(0)
 #define  VTSS_X_VOP_CT_OAM_DLR_INFO_ANA_CT_ADV_RX_SEQ_UPD_ANA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Context data
- *
- * \details
- * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_DATA_ANA
- *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
- */
-#define VTSS_VOP_CT_OAM_DATA_ANA(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,11)
-
-/**
- * \details
- * Field: ::VTSS_VOP_CT_OAM_DATA_ANA . CT_OAM_DATA_ANA
- */
-#define  VTSS_F_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA(x)  (x)
-#define  VTSS_M_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA     0xffffffff
-#define  VTSS_X_VOP_CT_OAM_DATA_ANA_CT_OAM_DATA_ANA(x)  (x)
-
-
-/**
- * \brief Context data
- *
- * \details
- * Register: \a VOP:VOE_CONTEXT_ANA:CT_OAM_DATA1_ANA
- *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_INB_PORTS (??), 0-124
- */
-#define VTSS_VOP_CT_OAM_DATA1_ANA(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x2800,gi,16,0,12)
-
-/**
- * \details
- * Field: ::VTSS_VOP_CT_OAM_DATA1_ANA . CT_OAM_DATA1_ANA
- */
-#define  VTSS_F_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA(x)  (x)
-#define  VTSS_M_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA     0xffffffff
-#define  VTSS_X_VOP_CT_OAM_DATA1_ANA_CT_OAM_DATA1_ANA(x)  (x)
 
 /**
  * Register Group: \a VOP:VOE_CONTEXT_REW
@@ -10865,25 +10874,6 @@
 
 
 /**
- * \brief Context for MRP OAM PDUs.
- *
- * \details
- * Register: \a VOP:VOE_CONTEXT_REW:CT_OAM_MRP_INFO_REW
- *
- * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
- */
-#define VTSS_VOP_CT_OAM_MRP_INFO_REW(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,7)
-
-/**
- * \details
- * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_REW . CT_FRM_TYPE_REW
- */
-#define  VTSS_F_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW     VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
-
-
-/**
  * \brief Context data
  *
  * \details
@@ -10891,7 +10881,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
  */
-#define VTSS_VOP_CT_OAM_DATA_REW(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,8)
+#define VTSS_VOP_CT_OAM_DATA_REW(gi)         VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,7)
 
 /**
  * \details
@@ -10910,7 +10900,7 @@
  *
  * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
  */
-#define VTSS_VOP_CT_OAM_DATA1_REW(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,9)
+#define VTSS_VOP_CT_OAM_DATA1_REW(gi)        VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,8)
 
 /**
  * \details
@@ -10919,6 +10909,25 @@
 #define  VTSS_F_VOP_CT_OAM_DATA1_REW_CT_OAM_DATA1_REW(x)  (x)
 #define  VTSS_M_VOP_CT_OAM_DATA1_REW_CT_OAM_DATA1_REW     0xffffffff
 #define  VTSS_X_VOP_CT_OAM_DATA1_REW_CT_OAM_DATA1_REW(x)  (x)
+
+
+/**
+ * \brief Context for MRP OAM PDUs.
+ *
+ * \details
+ * Register: \a VOP:VOE_CONTEXT_REW:CT_OAM_MRP_INFO_REW
+ *
+ * @param gi Replicator: x_VTSS_OAM_MEP_NUM_CELLBUS_OUTB_PORTS (??), 0-64
+ */
+#define VTSS_VOP_CT_OAM_MRP_INFO_REW(gi)     VTSS_IOREG_IX(VTSS_TO_VOP,0x3000,gi,16,0,9)
+
+/**
+ * \details
+ * Field: ::VTSS_VOP_CT_OAM_MRP_INFO_REW . CT_FRM_TYPE_REW
+ */
+#define  VTSS_F_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_VOP_CT_OAM_MRP_INFO_REW_CT_FRM_TYPE_REW(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 /**
  * Register Group: \a VOP:VOE_CRC_ERR

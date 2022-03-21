@@ -102,9 +102,9 @@
  * \details
  * Register: \a HSIOWRAP:XMII_CFG:XMII_CFG
  *
- * @param ri Register: XMII_CFG (??), 0-1
+ * @param gi Register: XMII_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_XMII_CFG(ri)           VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x4 + (ri))
+#define VTSS_HSIOWRAP_XMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,0)
 
 /**
  * \details
@@ -115,9 +115,412 @@
  *
  * Field: ::VTSS_HSIOWRAP_XMII_CFG . GPIO_XMII_CFG
  */
-#define  VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG     VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+#define  VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_ENCODE_BITFIELD(x,1,2)
+#define  VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG     VTSS_ENCODE_BITMASK(1,2)
+#define  VTSS_X_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,2)
+
+/**
+ * \brief
+ * Enable the MAC-MERGE Layer Receive block.
+ *
+ * \details
+ * Must reflect the value of
+ * DEVRGMII[0-1]:MM_CONFIG:ENABLE_CONFIG.MM_RX_ENA
+ *
+ * Field: ::VTSS_HSIOWRAP_XMII_CFG . MM_RX_ENA
+ */
+#define  VTSS_F_HSIOWRAP_XMII_CFG_MM_RX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_XMII_CFG_MM_RX_ENA   VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_XMII_CFG_MM_RX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RGMII mode
+ *
+ * \details
+ * Register: \a HSIOWRAP:XMII_CFG:RGMII_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_RGMII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,1)
+
+/**
+ * \brief
+ * Link status received inband
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_LINK_STATUS
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS  VTSS_BIT(15)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+
+/**
+ * \brief
+ * Duplex status received inband
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_DUPLEX
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX  VTSS_BIT(14)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+
+/**
+ * \brief
+ * Speed status received inband
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_SPEED
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_SPEED(x)  VTSS_ENCODE_BITFIELD(x,12,2)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_SPEED     VTSS_ENCODE_BITMASK(12,2)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
+
+/**
+ * \brief
+ * Llink status to signal  inband
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_LINK_STATUS
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS  VTSS_BIT(11)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
+ * FDX mode to signal inband
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_FDX
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_FDX(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_FDX  VTSS_BIT(10)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_FDX(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * MII speed to signal inband
+ *
+ * \details
+ * 0: 100M
+ * 1: 10M
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_MII_SPD
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD  VTSS_BIT(9)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
+
+/**
+ * \brief
+ * Signal inband that the transmission speed is 1G
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_SPD_1G
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G  VTSS_BIT(8)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Enable transmission of inband RGMII status
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_ENA
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_ENA  VTSS_BIT(7)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Enable reception of inband RGMII data
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_ENA
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_ENA  VTSS_BIT(6)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Enable transmitting and reception of inband RGMII information. Must be
+ * set to enable inband functionality
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_ENA
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_ENA     VTSS_BIT(5)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Configure TX clock frequency
+ *
+ * \details
+ * 0: Disable TX clock generation
+ * 1: 125MHz for 1000Mbps operation
+ * 2: 25MHz for 100Mbps operation
+ * 3: 2.5MHz for 10Mbps operation
+ * 4-7: Reserved
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . TX_CLK_CFG
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(x)  VTSS_ENCODE_BITFIELD(x,2,3)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_TX_CLK_CFG     VTSS_ENCODE_BITMASK(2,3)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,3)
+
+/**
+ * \brief
+ * Reset RGMII Tx clock domains
+ *
+ * \details
+ * 0: The RGMII Tx clock domain is not reset
+ * 1: The RGMII Tx clock domain is reset.
+ *
+ * Note: The RGMII Tx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . RGMII_TX_RST
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST  VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Reset RGMII Rx clock domains
+ *
+ * \details
+ * 0: The RGMII Rx clock domain is not reset
+ * 1: The RGMII Rx clock domain is reset.
+ *
+ * Note: The RGMII Rx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . RGMII_RX_RST
+ */
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST  VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RMII mode
+ *
+ * \details
+ * Used when the port is in RMII mode
+ *
+ * Register: \a HSIOWRAP:XMII_CFG:RMII_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_RMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,2)
+
+/**
+ * \details
+ * 0: Use internally generated 50MHz RMII reference clock.
+ * 1: Use GPIO4 or GPIO16 pin as external RMII reference clock
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_REF_CLK_SEL
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL  VTSS_BIT(6)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Select clock edge to use when driving RMII TXD and TX_EN outputs
+ *
+ * \details
+ * 0: Use positive edge
+ * 1: Use negative edge
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_CFG_TX_EDGE
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE  VTSS_BIT(5)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Configure duplex mode of the RMII interface
+ *
+ * \details
+ * 0: HDX
+ * 1: FDX
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_FDX_CFG
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_FDX_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_FDX_CFG  VTSS_BIT(4)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_FDX_CFG(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Configure speed of RMII interface
+ *
+ * \details
+ * 0: 10M
+ * 1: 100M
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_SPEED_CFG
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG  VTSS_BIT(3)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Reset RMII Tx clock domains
+ *
+ * \details
+ * 0: The RMII Tx clock domain is not reset.
+ * 1: The RMII Tx clock domain is reset.
+ *
+ * Note: The RMII Tx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_TX_RST
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_TX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_TX_RST  VTSS_BIT(2)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_TX_RST(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Reset RMII Rx clock domains
+ *
+ * \details
+ * 0: The RMII Rx clock domain is not reset
+ * 1: The RMII Rx clock domain is reset.
+ *
+ * Note: The RMII Rx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_RX_RST
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_RX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_RX_RST  VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_RX_RST(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Enable RMII mode.
+ *
+ * \details
+ * 0: RGMII mode
+ * 1: RMII mode
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_ENA
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_ENA    VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RGMII delay lines
+ *
+ * \details
+ * RGMII delay line configuration.
+ *
+ * There are two RGMII delay lines. The replication is as follows:
+ *
+ * 0: RGMII_RXC (RX clock)
+ * 1: RGMII_TXC (TX clock)
+
+ *
+ * Register: \a HSIOWRAP:XMII_CFG:DLL_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ * @param ri Register: DLL_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_DLL_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,ri,3)
+
+/**
+ * \brief
+ * When enabled the DLL is used in RGMII clock paths. When '0' the DLL is
+ * bypassed
+ *
+ * \details
+ * 0: Bypass DLL
+ * 1: Use DLL
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_CLK_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA  VTSS_BIT(17)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+
+/**
+ * \brief
+ * Default tap used to prevent glitches that might occur when delay is
+ * first locked
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_SEL
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_ENCODE_BITFIELD(x,10,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_SEL      VTSS_ENCODE_BITMASK(10,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_EXTRACT_BITFIELD(x,10,7)
+
+/**
+ * \brief
+ * Default value used to adjust the tuned tap to compensate output mux
+ * delay
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_ADJ
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_ENCODE_BITFIELD(x,3,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_ADJ      VTSS_ENCODE_BITMASK(3,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,3,7)
+
+/**
+ * \brief
+ * Enable or disable delay line in signal path
+ *
+ * \details
+ * 1: clk_2ns_delay -> clk_source_out
+ * 0: clk_source_in -> clk_source_out
+
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DELAY_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DELAY_ENA    VTSS_BIT(2)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Enable delay by starting the delay tune FSM
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA      VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Reset the DLL. Active high
+ *
+ * \details
+ * 0: The DLL can be used
+ * 1: Reset
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_RST
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST      VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_RST(x)   VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 #endif /* _VTSS_LAGUNA_REGS_HSIOWRAP_H_ */
