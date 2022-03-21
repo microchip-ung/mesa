@@ -307,6 +307,7 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     case MESA_PORT_INTERFACE_XAUI:
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_QXGMII:
+    case MESA_PORT_INTERFACE_SGMII_CISCO:
         // For certain interface types, switch and 10G PHY status are combined
         break;
     default:
