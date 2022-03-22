@@ -1838,10 +1838,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         // Calculate PERIOD_VAL, avoiding u32 overflow
         x64 = 1000000;
         x64 *= x64;
-        x64 /= (128 * FA_RB_AGE_CNT * FA_HT_ROW_CNT * clk_period);
+        x64 /= (256 * FA_RB_AGE_CNT * FA_HT_ROW_CNT * clk_period);
         val = (x64 * age);
         REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, rb_id, j),
-               VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(1) | // Unit 128
+               VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(1) | // Unit 256
                VTSS_F_RB_HOST_AUTOAGE_CFG_PERIOD_VAL(val));
         REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, rb_id, j),
                VTSS_F_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(age ? 1 : 0));
@@ -1850,10 +1850,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     // Duplicate discard ageing
     age = (conf->dd_age_time ? conf->dd_age_time : 4); // Milliseconds
     val = 1000000000;
-    val /= (8 * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
+    val /= (16 * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
     val *= age;
     REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, rb_id),
-           VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(0) | // Unit 8
+           VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(0) | // Unit 16
            VTSS_F_RB_DISC_AUTOAGE_CFG_PERIOD_VAL(val));
     REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, rb_id),
            VTSS_F_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(1));
@@ -2155,7 +2155,7 @@ static vtss_rc fa_rb_host_get_next(vtss_state_t *vtss_state,
     idx = idx_next;
     if (idx < FA_HT_CNT) {
         fa_mac_set(&host->mac, new >> 32, new);
-        host->idx = idx;
+        host->idx = (idx + 1); // Return 1-based ID
         VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_READ, idx));
         return fa_rb_host_read(vtss_state, rb_id, proxy, host);
     }
@@ -2177,7 +2177,7 @@ static vtss_rc fa_rb_host_id_get_next(vtss_state_t *vtss_state,
             continue;
         }
         fa_mac_set(&host->mac, mach, macl);
-        host->idx = idx;
+        host->idx = (idx + 1); // Return 1-based ID
         return fa_rb_host_read(vtss_state, rb_id, proxy, host);
     }
     return VTSS_RC_ERROR;
@@ -2819,22 +2819,25 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
 {
     u8                j;
     fa_rb_host_port_t *p;
+    u32               idx = (host->idx - 1); // Show 0-based IDX
+    char              buf[16];
 
     if (*header) {
         *header = 0;
         pr("%s\n\n", name);
-        pr("MAC Address        IDX  Type   Lock  SeqNo  Port  Fwd  Age  RxWrongLan  Rx\n");
+        pr("MAC Address        IDX/Row/Col  Type   Lock  SeqNo  Port  Fwd  Age  RxWrongLan  Rx\n");
     }
-    pr("%s  %-5u%-7s%-6u%-7u",
+    sprintf(buf, "%u/%u/%u", idx, idx / FA_HT_COL_CNT, idx % FA_HT_COL_CNT);
+    pr("%s  %-13s%-7s%-6u%-7u",
        vtss_mac_txt(&host->mac),
-       host->idx,
+       buf,
        host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
        host->type == FA_HT_SAN ? "SAN" : "LOCAL",
        host->locked, host->seq_no);
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         p = &host->port[j];
         if (j) {
-            pr("%-44s", "");
+            pr("-%-51s", "");
         }
         pr("%-6u%-5u%-5u%-12u%u\n", j, p->fwd, p->age, p->rx_wrong_lan, p->rx);
     }
@@ -2845,6 +2848,7 @@ static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
 {
     u32        cfg0, cfg1, cfg2, mask;
     vtss_mac_t mac;
+    char       buf[16];
 
     VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_READ, j));
     REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_2, i), &cfg2);
@@ -2856,12 +2860,13 @@ static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
     if (*header) {
         *header = 0;
         pr("RedBox %u Duplicate Discard Table\n\n", i);
-        pr("IDX  MAC Address        SeqNo  Age  A/B/C Mask  A/B/C Discards\n");
+        pr("IDX/Row/Col  MAC Address        SeqNo  Age  A/B/C Mask  A/B/C Discards\n");
     }
     fa_mac_set(&mac, cfg0, cfg1);
+    sprintf(buf, "%u/%u/%u", j, j / FA_DT_COL_CNT, j % FA_DT_COL_CNT);
     mask = VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_PORTMASK(cfg2);
-    pr("%-5u%s  %-7u%-5u%u/%u/%u%8u/%u/%u\n",
-       j,
+    pr("%-13s%s  %-7u%-5u%u/%u/%u%8u/%u/%u\n",
+       buf,
        vtss_mac_txt(&mac),
        VTSS_X_RB_DISC_ACCESS_CFG_0_DISC_ENTRY_SEQ_NO(cfg0),
        VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_AGE_FLAG(cfg2),
@@ -2909,7 +2914,7 @@ static void fa_debug_rb_age(const vtss_debug_printf_t pr,
     u32 age;
     const char *str = "usec";
 
-    unit = (unit == 0 ? 8 : unit == 1 ? 128 : unit == 2 ? 2048 : 32768);
+    unit = (unit == 0 ? 16 : unit == 1 ? 256 : unit == 2 ? 4096 : 65536);
     x64 *= unit;
     x64 *= (FA_RB_AGE_CNT * row_cnt * clk);
     x64 /= 1000000;  // psec -> usec
@@ -2998,7 +3003,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
-        sprintf(buf, "(0:8, 1:128, 2:2048, 3:32768)\n");
+        sprintf(buf, "(0:16, 1:256, 2:4096, 3:65536)\n");
         clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
         for (j = 0; j < 2; j++) {
             prefix = (j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");

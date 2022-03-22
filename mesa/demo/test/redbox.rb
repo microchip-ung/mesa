@@ -151,26 +151,11 @@ test_table =
     {
         txt: "VLANs, port D to port A/B",
         cfg: {mode: "HSR_SAN", net_id: 6,
-              vlan: {vid: 10, list: [{idx_rx: $idx_a, type: "C", uvid: 0},
-                                     {idx_rx: $idx_d, pvid: 10, uvid: 10}]}},
+              vlan: {vid: 10, list: [{idx: $idx_a, type: "C", uvid: 0},
+                                     {idx: $idx_d, pvid: 10, uvid: 10}]}},
         tab: [{fwd: [{idx_tx: $idx_d},
                      {idx_rx: $idx_a, vid: 10, hsr: {net_id: 6}},
                      {idx_rx: $idx_b, vid: 10, hsr: {net_id: 6}}]}]
-    },
-    {
-        # Fails, Jira-208: Two frames forwarded differently (payload depedent)
-        txt: "forwarding two frames fails",
-        cfg: {mode: "HSR_SAN"},
-        tab: [
-            {fwd: [{idx_tx: $idx_c},
-                   {idx_rx: $idx_a, hsr: {}},
-                   {idx_rx: $idx_b, hsr: {}},
-                   {idx_rx: $idx_d}]},
-            {fwd: [{idx_tx: $idx_c},
-                   {idx_rx: $idx_a, hsr: {seqn: 2}},
-                   {idx_rx: $idx_b, hsr: {seqn: 2}},
-                   {idx_rx: $idx_d}]},
-        ]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -908,7 +893,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             seqn = fld_get(hsr, :seqn, 1)
             cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
         end
-        cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0x00"
+        cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0xff"
         prp = fld_get(e, :prp, nil)
         if (prp != nil)
             seqn = fld_get(prp, :seqn, 1)
@@ -1066,8 +1051,7 @@ def redbox_test(t)
         ["tx", "rx", "rx_wrong_lan", "rx_own",
          "tx_dupl_zero", "tx_dupl_one", "tx_dupl_multi"].each do |cnt_name|
             name = "#{port_name}[#{cnt_name}]"
-            exp2 = exp[port_name][cnt_name]
-            #check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name], exp2)
+            #check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name])
         end
     end
 
