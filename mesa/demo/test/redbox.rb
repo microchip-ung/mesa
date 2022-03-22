@@ -664,22 +664,6 @@ test_table =
                      {idx_rx: $idx_d, ifh_rx: $idx_a}]}]
     },
     {
-        txt: "DMAC-PNT filtering on LRE->LRE",
-        cfg: {mode: "HSR_HSR"},
-        tab: [
-            # Learn SMAC in PNT (and on switch port C)
-            {frm: {smac: ":cc"},
-             fwd: [{idx_tx: $idx_c},
-                   {idx_rx: $idx_a, hsr: {}},
-                   {idx_rx: $idx_b, hsr: {}},
-                   {idx_rx: $idx_d}]},
-            # Send to DMAC on LRE, expect discard on LRE
-            {frm: {dmac: ":cc"},
-             fwd: [{idx_tx: $idx_a, hsr: {}},
-                   {idx_rx: $idx_c, hsr: {}}]}
-        ]
-    },
-    {
         txt: "DMAC-NT filtering on LRE->interlink",
         cfg: {mode: "HSR_HSR", node: {mac: 0xbb}},
         tab: [{frm: {dmac: ":bb"},
