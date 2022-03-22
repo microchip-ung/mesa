@@ -19,7 +19,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
     if (dev->callout->miim_read(dev->callout_ctx, addr, value) != MESA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "miim read failed\n");
+        T_E(MEPA_TRACE_GRP_GEN, "Port %d miim read failed\n", dev->numeric_handle);
     }
     return MEPA_RC_OK;
 }
@@ -37,10 +37,10 @@ mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, ui
         }
         rc = dev->callout->miim_write(dev->callout_ctx, addr, reg_val);
         if (rc != MESA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "miim write failed\n");
+            T_E(MEPA_TRACE_GRP_GEN, "Port %d miim write failed\n", dev->numeric_handle);
         }
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "miim write failed\n");
+        T_E(MEPA_TRACE_GRP_GEN, "Port %d miim write failed\n", dev->numeric_handle);
     }
     return MEPA_RC_OK;
 }
