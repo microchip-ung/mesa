@@ -42,7 +42,7 @@ manager and the name of the specific packets differs from distributions to
 distribution. Here are the instructions on how to do this on Ubuntu 18:
 
 ----
-sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet
+sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet libjson-c-dev
 ----
 
 Next we need a folder called `mscc` in `/opt` where the toolchains
