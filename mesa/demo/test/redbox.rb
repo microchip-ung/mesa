@@ -257,7 +257,7 @@ test_table =
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "HSR_SAN", npi: $idx_d, bpdu_queue: 2},
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx_rx: $idx_a},
@@ -273,7 +273,7 @@ test_table =
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "HSR_SAN", npi: $idx_d, sv_queue: 3},
+        cfg: {mode: "HSR_SAN", npi: $idx_d},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
                      {idx_rx: $idx_a, hsr: {}},
@@ -427,7 +427,7 @@ test_table =
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "PRP_SAN", npi: $idx_d, bpdu_queue: 2},
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx_rx: $idx_a},
@@ -442,7 +442,7 @@ test_table =
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "PRP_SAN", npi: $idx_d, sv_queue: 3},
+        cfg: {mode: "PRP_SAN", npi: $idx_d},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
                      {idx_rx: $idx_a, prp: {}},
@@ -566,13 +566,36 @@ test_table =
                      {idx_rx: $idx_b, hsr: {}}]}]
     },
     {
+        txt: "BPDU Rx on LRE",
+        cfg: {mode: "HSR_PRP", npi: $idx_d, bpdu_queue: 2},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_a},
+                     {idx_rx: $idx_d, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "BPDU Tx to LREs",
+        cfg: {mode: "HSR_PRP", npi: $idx_d},
+        tab: [{frm: {dmac: "01:80:c2:00:00:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
+                     {idx_rx: $idx_a},
+                     {idx_rx: $idx_b}]}]
+    },
+    {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: $idx_d, sv_queue: 2},
+        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: $idx_d, sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: $idx_a, hsr: {}},
                      {idx_rx: $idx_b, hsr: {}},
                      {idx_rx: $idx_c, prp: {}},
                      {idx_rx: $idx_d, prp: {}, ifh_rx: $idx_a}]}]
+    },
+    {
+        txt: "Supervision Tx to LREs",
+        cfg: {mode: "HSR_PRP", npi: $idx_d},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+               fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a},
+                     {idx_rx: $idx_a, hsr: {}},
+                     {idx_rx: $idx_b, hsr: {}}]}]
     },
     {
         txt: "port A duplicate discard towards port B/C/D",
@@ -708,7 +731,7 @@ test_table =
     },
     {
         txt: "BPDU Tx to LREs",
-        cfg: {mode: "HSR_HSR", npi: $idx_d, bpdu_queue: 2},
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: $idx_d, ifh_tx: $idx_a, rb_tag_dis: true},
                      {idx_rx: $idx_a},
@@ -724,7 +747,7 @@ test_table =
     },
     {
         txt: "Supervision Tx to LREs",
-        cfg: {mode: "HSR_HSR", npi: $idx_d, sv_queue: 3},
+        cfg: {mode: "HSR_HSR", npi: $idx_d},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
                fwd: [{idx_tx: $idx_d, hsr: {}, ifh_tx: $idx_a},
                      {idx_rx: $idx_a, hsr: {}},
@@ -848,6 +871,9 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             dir = "tx"
         end
         name = " name f_#{idx_name[idx]}"
+        if (index > 0)
+            name += "_#{index + 1}"
+        end
         cmd_add += " #{dir} #{$ts.pc.p[idx]}#{name}"
         cmd += name
         ifh_rx = fld_get(e, :ifh_rx, nil)
