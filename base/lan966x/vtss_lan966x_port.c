@@ -1325,10 +1325,6 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
 
     /* RMON Rx counters */
     rmon->rx_etherStatsDropEvents = c->dr_tail.value;
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        rmon->rx_etherStatsDropEvents += (c->dr_yellow_class[i].value + c->dr_green_class[i].value);
-    }
-
     rmon->rx_etherStatsOctets = CNT_SUM(c->rx_octets);
     rmon->rx_etherStatsPkts =
         (CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) + CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs) +
@@ -1351,6 +1347,10 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
 
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = (c->tx_drops.value + c->tx_aging.value);
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        rmon->tx_etherStatsDropEvents += (c->dr_yellow_class[i].value + c->dr_green_class[i].value);
+    }
+
     rmon->tx_etherStatsOctets = CNT_SUM(c->tx_octets);
     rmon->tx_etherStatsPkts =
         (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) + CNT_SUM(c->tx_256_511) +
@@ -1383,6 +1383,7 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_sta
     if_group->ifOutMulticastPkts = CNT_SUM(c->tx_multicast);
     if_group->ifOutBroadcastPkts = CNT_SUM(c->tx_broadcast);
     if_group->ifOutNUcastPkts = (CNT_SUM(c->tx_multicast) + CNT_SUM(c->tx_broadcast));
+    if_group->ifOutDiscards = rmon->tx_etherStatsDropEvents;
     if_group->ifOutErrors = (c->tx_drops.value + c->tx_aging.value);
 
     /* Ethernet-like counters */
@@ -1593,10 +1594,11 @@ static void lan966x_debug_cnt_inst(const vtss_debug_printf_t pr, u32 i,
                                    const char *col1, const char *col2,
                                    vtss_chip_counter_t *c1, vtss_chip_counter_t *c2)
 {
-    char buf[80];
+    char buf1[80], buf2[80];
 
-    sprintf(buf, "%s_%u", col1, i);
-    vtss_lan966x_debug_cnt(pr, buf, col2, c1, c2);
+    sprintf(buf1, "%s_%u", col1 && strlen(col1) ? col1 : col2, i);
+    sprintf(buf2, "%s_%u", col2 && strlen(col2) ? col2 : col1, i);
+    vtss_lan966x_debug_cnt(pr, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
 }
 
 static void lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
@@ -1717,11 +1719,9 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
                 lan966x_debug_cnt_inst(pr, i, "yellow", "",
                                        &cnt->rx_yellow_class[i], &cnt->tx_yellow_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "red", NULL, &cnt->rx_red_class[i], NULL);
+                lan966x_debug_cnt_inst(pr, i, "red", "dr_green", &cnt->rx_red_class[i], &cnt->dr_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "dr_green", NULL, &cnt->dr_green_class[i], NULL);
-            for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "dr_yellow", NULL, &cnt->dr_yellow_class[i], NULL);
+                lan966x_debug_cnt_inst(pr, i, NULL, "dr_yellow", NULL, &cnt->dr_yellow_class[i]);
         }
         pr("\n");
     }
@@ -1962,6 +1962,9 @@ vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
                    SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) |
                    SYS_STAT_CFG_STAT_VIEW(port));
         }
+
+        // Count QS drops at egress port
+        REG_WRM_SET(QSYS_STAT_CFG, QSYS_STAT_CFG_DROP_COUNT_EGRESS(1));
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:

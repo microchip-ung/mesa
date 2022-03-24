@@ -2525,10 +2525,10 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
     addr = 16;
 #endif /* VTSS_ARCH_JAGUAR_2_B */
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->rx_green_drops[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_green_drops[i], clr));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->rx_yellow_drops[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_drops[i], clr));
     }
     addr = 256;
     for (i = 0; i < VTSS_PRIOS; i++) {
@@ -2560,9 +2560,6 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
     /* RMON Rx counters */
     rmon = &counters->rmon;
     rmon->rx_etherStatsDropEvents = c->rx_policer_drops.value;
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        rmon->rx_etherStatsDropEvents += (c->rx_green_drops[i].value + c->rx_yellow_drops[i].value);
-    }
     rmon->rx_etherStatsOctets = (c->rx_ok_bytes.value + c->rx_bad_bytes.value);
     rx_errors = (c->rx_crc_err.value +  c->rx_undersize.value + c->rx_oversize.value +
                  c->rx_symbol_err.value + c->rx_jabbers.value + c->rx_fragments.value);
@@ -2588,6 +2585,9 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
 
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = c->tx_queue_drops.value;
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        rmon->tx_etherStatsDropEvents += (c->tx_green_drops[i].value + c->tx_yellow_drops[i].value);
+    }
     rmon->tx_etherStatsPkts = (c->tx_unicast.value + c->tx_multicast.value +
                                c->tx_broadcast.value + c->tx_late_coll.value);
     rmon->tx_etherStatsOctets = c->tx_ok_bytes.value;
@@ -3320,17 +3320,20 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
 
     for (i = 0; i < VTSS_PRIOS; i++) {
         sprintf(rx_buf, "class_%u", i);
-        vtss_jr2_debug_cnt(pr, rx_buf, NULL, &cnt.rx_class[i], NULL);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "green_drops_%u", i);
         sprintf(tx_buf, "green_%u", i);
-        vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_green_drops[i], &cnt.tx_green_class[i]);
+        vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i], &cnt.tx_green_class[i]);
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "yellow_drops_%u", i);
         sprintf(tx_buf, "yellow_%u", i);
-        vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_yellow_drops[i], &cnt.tx_yellow_class[i]);
+        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
+    }
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        sprintf(tx_buf, "green_drops_%u", i);
+        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
+    }
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        sprintf(tx_buf, "yellow_drops_%u", i);
+        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
     }
     pr("\n");
 
@@ -3877,6 +3880,13 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
                     VTSS_M_XQS_QLIMIT_PORT_QLIMIT_DIS_CFG_QLIMIT_EGR_DIS);
     }
 #endif /* various archs */
+
+    // Count QS drops at egress port
+#if defined(VTSS_ARCH_SERVAL_T)
+    JR2_WR(VTSS_QFWD_SYSTEM_STAT_CNT_CFG, VTSS_F_QFWD_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
+#else
+    JR2_WR(VTSS_XQS_SYSTEM_STAT_CNT_CFG, VTSS_F_XQS_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
+#endif
 
     // Make sure the ports are not VStaX aware, because that will cause the
     // switch to move a possible VStaX header from the frame into the IFH.

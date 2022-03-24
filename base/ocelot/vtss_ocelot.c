@@ -212,8 +212,12 @@ void vtss_srvl_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
 {
     char buf[80];
     
-    sprintf(buf, "rx_%s:", col1);
-    pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
+    if (col1 == NULL) {
+        pr("%-41s", "");
+    } else {
+        sprintf(buf, "rx_%s:", col1);
+        pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
+    }
     if (col2 != NULL) {
         sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
         pr("%-28s%10" PRIu64, buf, c2 ? c2->prev : (u64) 0);

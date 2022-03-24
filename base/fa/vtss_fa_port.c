@@ -3222,10 +3222,10 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(port));
     addr = 16;
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_green_drops[i], cmd));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_green_drops[i], cmd));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->rx_yellow_drops[i], cmd));
+        VTSS_RC(vtss_fa_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_drops[i], cmd));
     }
     addr = 256;
     for (i = 0; i < VTSS_PRIOS; i++) {
@@ -3257,9 +3257,6 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
     /* RMON Rx counters */
     rmon = &counters->rmon;
     rmon->rx_etherStatsDropEvents = c->rx_policer_drops.value;
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        rmon->rx_etherStatsDropEvents += (c->rx_green_drops[i].value + c->rx_yellow_drops[i].value);
-    }
     rmon->rx_etherStatsOctets = (CNT_SUM(c->rx_ok_bytes) + CNT_SUM(c->rx_bad_bytes));
     rx_errors = (CNT_SUM(c->rx_crc_err) +  CNT_SUM(c->rx_undersize) + CNT_SUM(c->rx_oversize) +
                  CNT_SUM(c->rx_symbol_err) + CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_fragments));
@@ -3285,6 +3282,9 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
 
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = c->tx_queue_drops.value;
+    for (i = 0; i < VTSS_PRIOS; i++) {
+        rmon->tx_etherStatsDropEvents += (c->tx_green_drops[i].value + c->tx_yellow_drops[i].value);
+    }
     rmon->tx_etherStatsPkts = (CNT_SUM(c->tx_unicast) + CNT_SUM(c->tx_multicast) +
                                CNT_SUM(c->tx_broadcast) + c->tx_late_coll.value);
     rmon->tx_etherStatsOctets = CNT_SUM(c->tx_ok_bytes);
@@ -3933,17 +3933,20 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
 
         for (i = 0; i < VTSS_PRIOS; i++) {
             sprintf(rx_buf, "class_%u", i);
-            vtss_fa_debug_cnt(pr, rx_buf, NULL, &cnt.rx_class[i], NULL);
-        }
-        for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(rx_buf, "green_drops_%u", i);
             sprintf(tx_buf, "green_%u", i);
-            vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_green_drops[i], &cnt.tx_green_class[i]);
+            vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i], &cnt.tx_green_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            sprintf(rx_buf, "yellow_drops_%u", i);
             sprintf(tx_buf, "yellow_%u", i);
-            vtss_fa_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_yellow_drops[i], &cnt.tx_yellow_class[i]);
+            vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(tx_buf, "green_drops_%u", i);
+            vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(tx_buf, "yellow_drops_%u", i);
+            vtss_fa_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
         }
     }
     pr("\n");
@@ -4161,6 +4164,9 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
     /* Setup ANA_AC to count non-FCS errors per queue */
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(REG_CNT_ANA_AC_QUEUE_PRIO),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(0));
+
+    // Count QS drops at egress port
+    REG_WR(VTSS_XQS_STAT_CNT_CFG, VTSS_F_XQS_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
 
     /* Reset the Port Mux (not done through chip-soft-reset) */
     REG_WR(VTSS_PORT_CONF_DEV5G_MODES,  0);

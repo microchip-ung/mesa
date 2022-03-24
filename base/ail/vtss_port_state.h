@@ -210,8 +210,6 @@ typedef struct {
     vtss_chip_counter_t rx_size1519_max;
     vtss_chip_counter_t rx_local_drops;
 #if defined(VTSS_FEATURE_QOS)
-    vtss_chip_counter_t rx_green_drops[VTSS_PRIOS];
-    vtss_chip_counter_t rx_yellow_drops[VTSS_PRIOS];
     vtss_chip_counter_t rx_class[VTSS_PRIOS];
 #endif
     vtss_chip_counter_t rx_policer_drops;
@@ -233,6 +231,8 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t tx_yellow_class[VTSS_PRIOS];
     vtss_chip_counter_t tx_green_class[VTSS_PRIOS];
+    vtss_chip_counter_t tx_green_drops[VTSS_PRIOS];
+    vtss_chip_counter_t tx_yellow_drops[VTSS_PRIOS];
 #endif
     vtss_chip_counter_t tx_queue_drops;
     vtss_chip_counter_t tx_multi_coll;
@@ -271,8 +271,6 @@ typedef struct {
     vtss_dual_counter_t rx_size1519_max;
     vtss_chip_counter_t rx_local_drops;
 #if defined(VTSS_FEATURE_QOS)
-    vtss_chip_counter_t rx_green_drops[VTSS_PRIOS];
-    vtss_chip_counter_t rx_yellow_drops[VTSS_PRIOS];
     vtss_chip_counter_t rx_class[VTSS_PRIOS];
 #endif
     vtss_chip_counter_t rx_policer_drops;
@@ -294,6 +292,8 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS)
     vtss_chip_counter_t tx_yellow_class[VTSS_PRIOS];
     vtss_chip_counter_t tx_green_class[VTSS_PRIOS];
+    vtss_chip_counter_t tx_green_drops[VTSS_PRIOS];
+    vtss_chip_counter_t tx_yellow_drops[VTSS_PRIOS];
 #endif
     vtss_chip_counter_t tx_queue_drops;
     vtss_chip_counter_t tx_multi_coll;
