@@ -295,6 +295,8 @@ def meas(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000000
     res = 0
     tx_prio3_0 = 0
     tx_prio3_1 = 0
+    tx_prio3 = 0
+    diff_prio3 = 0
 
     test "meas  ig: #{ig}  eg: #{eg}  size: #{size}  sec: #{sec}  frame_rate #{frame_rate}  data_rate #{data_rate}  erate #{erate}  etolerance #{etolerance}  with_pre_tx: #{with_pre_tx}  pcp #{pcp}  cycle_time #{cycle_time}" do
 
@@ -329,12 +331,20 @@ def meas(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000000
     tx_prio3_0 = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[$eg])["prio"][3]["tx"]
     sleep 1
     tx_prio3_1 = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[$eg])["prio"][3]["tx"]
-    t_i"*****************tx_prio3 #{tx_prio3_1.to_i - tx_prio3_0.to_i}"
+    diff_prio3 = tx_prio3_1.to_i - tx_prio3_0.to_i
+    t_i"*****************diff_prio3 #{diff_prio3}"
 
 #        $ts.dut.run("mesa-cmd deb sym read XQS:QLIMIT_SHR[0-3]")
-#    if (tx_prio3_1.to_i - tx_prio3_0.to_i) > 1000
+    if (diff_prio3) > 1000
+        sleep 1
+        tx_prio = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[$eg])["prio"][3]["tx"]
+        t_i"*****************tx_prio3 #{tx_prio.to_i}"
+        sleep 1
+        tx_prio = $ts.dut.call("mesa_port_counters_get", $ts.dut.p[$eg])["prio"][3]["tx"]
+        t_i"*****************tx_prio3 #{tx_prio.to_i}"
+#        return diff_prio3
 #        $ts.dut.run("mesa-cmd deb sym read XQS:QLIMIT_SHR[0-3]")
-#    end
+    end
 
     t_i("Kill Easy Frame transmitters")
     pid_ef.each do |pid|
@@ -352,7 +362,7 @@ def meas(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000000
     end
 
     end
-    return tx_prio3_1.to_i - tx_prio3_0.to_i
+    return tx_prio3
 end
 
 def ot_scheduling_strict_counter_test
@@ -360,12 +370,14 @@ test "OT scheduling strict counter test" do
     # Only expect frames in the highest priority queue when running strict scheduling
     results = Array.new(30, 0)
     for i in 0..29
-        res = meas($ig, $eg, 600, 1,     false,            false,           [0,0,990000000],  [150,535,2],  true,              [0,3,7])
+$ts.pc.run("sudo ef tx #{$ts.pc.p[$eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid #{$ot_vid} ipv4 dscp 0")
+sleep 0.5
+        res = meas($ig, $eg, 600, 3600,     false,            false,           [0,0,990000000],  [150,535,2],  true,              [0,3,7])
         results[i] = res
         if res > 1000
             t_e"+++++++++++++FAILED with res = #{res}"
-#            t_i"Results = #{results}"
-#            exit 7
+            t_i"Results = #{results}"
+            exit 7
         end
     end
     t_i"Results = #{results}"
@@ -431,14 +443,14 @@ def ot_scheduling
 
     $ts.pc.run("sudo ef tx #{$ts.pc.p[$eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid #{$it_vid} ipv4 dscp 0")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[$eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid #{$ot_vid} ipv4 dscp 0")
-#    ot_scheduling_strict_counter_test
-    ot_scheduling_strict_test
-    ot_scheduling_with_weighted_10_30_and_60_percent_test
-    qos_tas_equal_interval_3_prio_1_port_test($eg, $ig, $it_vid, $ot_vid, true)
+    ot_scheduling_strict_counter_test
+#    ot_scheduling_strict_test
+#    ot_scheduling_with_weighted_10_30_and_60_percent_test
+#    qos_tas_equal_interval_3_prio_1_port_test($eg, $ig, $it_vid, $ot_vid, true)
 end
 
 test "run_test" do
-    port_shaper_test
+#    port_shaper_test
 
     t_i("Configure port shaper to assure queues are never emptied in the following tests")
     qconf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[$eg])
@@ -446,14 +458,14 @@ test "run_test" do
     qconf["shaper"]["rate"] = 990000
     $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[$eg], qconf)
 
-    port_scheduling_strict_test
-    it_ot_scheduling_with_weighted_30_and_70_percent_test
-    it_shaper_test
-    ot_shaper_test
-    it_queue_shaper_tests
-    ot_queue_shaper_tests
+#    port_scheduling_strict_test
+#    it_ot_scheduling_with_weighted_30_and_70_percent_test
+#    it_shaper_test
+#    ot_shaper_test
+#    it_queue_shaper_tests
+#    ot_queue_shaper_tests
 
     ot_scheduling
 
-    it_scheduling
+#    it_scheduling
 end
