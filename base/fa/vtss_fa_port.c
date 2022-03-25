@@ -3984,8 +3984,6 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t *vtss_state,
         VTSS_EXIT_ENTER();
         (void)fa_debug_port_counters(vtss_state, pr, info, port_no);
     }
-    pr("\n");
-
     return VTSS_RC_OK;
 }
 

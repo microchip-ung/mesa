@@ -3286,19 +3286,14 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
     memset(&cnt, 0, sizeof(vtss_port_jr2_counters_t));
     VTSS_RC(jr2_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
-    if (port_no < vtss_state->port_count) {
+    if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
         vtss_jr2_debug_cnt(pr, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes, &cnt.tx_out_bytes);
         vtss_jr2_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
         vtss_jr2_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
         vtss_jr2_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
     }
 
-    if (!info->full) {
-        pr("\n");
-        return VTSS_RC_OK;
-    }
-
-    if (port_no < vtss_state->port_count) {
+    if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
         vtss_jr2_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
         vtss_jr2_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
         vtss_jr2_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
@@ -3315,25 +3310,28 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
         vtss_jr2_debug_cnt(pr, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
         vtss_jr2_debug_cnt(pr, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
     }
-    vtss_jr2_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
-    vtss_jr2_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
 
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(rx_buf, "class_%u", i);
-        sprintf(tx_buf, "green_%u", i);
-        vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i], &cnt.tx_green_class[i]);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(tx_buf, "yellow_%u", i);
-        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(tx_buf, "green_drops_%u", i);
-        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
-    }
-    for (i = 0; i < VTSS_PRIOS; i++) {
-        sprintf(tx_buf, "yellow_drops_%u", i);
-        vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
+    if (info->full || info->action == 1 || info->action == 3) {
+        vtss_jr2_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
+        vtss_jr2_debug_cnt(pr, "policer_drops", "queue_drops", &cnt.rx_policer_drops, &cnt.tx_queue_drops);
+
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(rx_buf, "class_%u", i);
+            sprintf(tx_buf, "green_%u", i);
+            vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i], &cnt.tx_green_class[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(tx_buf, "yellow_%u", i);
+            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(tx_buf, "green_drops_%u", i);
+            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
+        }
+        for (i = 0; i < VTSS_PRIOS; i++) {
+            sprintf(tx_buf, "yellow_drops_%u", i);
+            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
+        }
     }
     pr("\n");
 
@@ -3346,22 +3344,30 @@ static vtss_rc jr2_debug_port_cnt(vtss_state_t *vtss_state,
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
     vtss_port_no_t port_no;
+    BOOL           cpu_port = (info->action == 1);
+
+    if (info->has_action && info->action == 0) {
+        pr("Port counter actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Show CPU and VD counters\n");
+        pr("2: Show MAC counters only\n");
+        pr("3: Show QS counters only\n");
+        return VTSS_RC_OK;
+    }
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count + 4; port_no++) {
         if (port_no < vtss_state->port_count) {
-            if (info->port_list[port_no] == 0)
+            if (info->port_list[port_no] == 0 || cpu_port)
                 continue;
             pr("Counters for port: %u (chip_port: %u):\n\n", port_no, VTSS_CHIP_PORT(port_no));
         } else {
-            if (!info->full)
+            if (!cpu_port)
                 continue;
             pr("Counters for chip_port: %u:\n\n", VTSS_CHIP_PORT_CPU + port_no - vtss_state->port_count);
         }
         VTSS_EXIT_ENTER();
         (void)jr2_debug_port_counters(vtss_state, pr, info, port_no);
     }
-    pr("\n");
-
     return VTSS_RC_OK;
 }
 

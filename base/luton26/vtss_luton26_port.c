@@ -1771,6 +1771,7 @@ static vtss_rc l26_port_counters_read(vtss_state_t *vtss_state,
     if_group->ifOutMulticastPkts = c->tx_multicast.value;
     if_group->ifOutBroadcastPkts = c->tx_broadcast.value;
     if_group->ifOutNUcastPkts = c->tx_multicast.value + c->tx_broadcast.value;
+    if_group->ifOutDiscards = rmon->tx_etherStatsDropEvents;
     if_group->ifOutErrors = c->tx_drops.value + c->tx_aging.value;
 
     /* Ethernet-like counters */
@@ -2382,7 +2383,7 @@ static void l26_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const 
     pr("%-19s%19" PRIu64, buf, c1->prev);
     if (col2 != NULL) {
         sprintf(buf, "tx_%s:", strlen(col2) ? col2 : col1);
-        pr("%-19s%19" PRIu64, buf, c2->prev);
+        pr("   %-19s%19" PRIu64, buf, c2->prev);
     }
     pr("\n");
 }
@@ -2407,17 +2408,26 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t *vtss_state,
     vtss_port_luton26_counters_t *cnt;
     BOOL                         cpu_port;
 
+    if (info->has_action && info->action == 0) {
+        pr("Port counter actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Show CPU and VD counters\n");
+        pr("2: Show MAC counters only\n");
+        pr("3: Show QS counters only\n");
+        return VTSS_RC_OK;
+    }
+
     for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count; port_no++) {
         cpu_port = (port_no == vtss_state->port_count);
         if (cpu_port) {
             /* CPU port */
-            if (!info->full)
+            if (info->action != 1)
                 continue;
             port = VTSS_CHIP_PORT_CPU;
             cnt = &vtss_state->port.cpu_counters.counter.luton26;
         } else {
             /* Normal port */
-            if (info->port_list[port_no] == 0)
+            if (info->action == 1 || info->port_list[port_no] == 0)
                 continue;
             port = VTSS_CHIP_PORT(port_no);
             cnt = &vtss_state->port.counters[port_no].counter.luton26;
@@ -2430,15 +2440,15 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t *vtss_state,
             pr("Counters CPU port: %u\n\n", port);
         } else {
             pr("Counters for port: %u (port_no %u):\n\n", port, port_no);
-            l26_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
-            l26_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
-            l26_debug_cnt(pr, "mc", "", &cnt->rx_multicast, &cnt->tx_multicast);
-            l26_debug_cnt(pr, "bc", "", &cnt->rx_broadcast, &cnt->tx_broadcast);
-        }
+            if (info->full || info->action != 3) {
+                l26_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
+                l26_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
+                l26_debug_cnt(pr, "mc", "", &cnt->rx_multicast, &cnt->tx_multicast);
+                l26_debug_cnt(pr, "bc", "", &cnt->rx_broadcast, &cnt->tx_broadcast);
+            }
 
-        /* Detailed counters */
-        if (info->full) {
-            if (!cpu_port) {
+            /* Detailed MAC counters */
+            if (info->full || info->action == 2) {
                 l26_debug_cnt(pr, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
                 l26_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
                 l26_debug_cnt(pr, "65_127", "", &cnt->rx_65_127, &cnt->tx_65_127);
@@ -2448,11 +2458,6 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t *vtss_state,
                 l26_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526, &cnt->tx_1024_1526);
                 l26_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max, &cnt->tx_1527_max);
             }
-            l26_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
-                          &cnt->rx_classified_drops, &cnt->tx_drops);
-            l26_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
-                          &cnt->dr_local, &cnt->tx_aging);
-            l26_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
             if (!cpu_port) {
                 l26_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
                 l26_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
@@ -2461,6 +2466,15 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t *vtss_state,
                 l26_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
                 l26_debug_cnt(pr, "control", NULL, &cnt->rx_control, NULL);
             }
+        }
+
+        if (info->full || info->action == 1 || info->action == 3) {
+            /* Queue system counters */
+            l26_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
+                          &cnt->rx_classified_drops, &cnt->tx_drops);
+            l26_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
+                          &cnt->dr_local, &cnt->tx_aging);
+            l26_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
             for (i = 0; i < VTSS_PRIOS; i++)
                 l26_debug_cnt_inst(pr, i, "green", "",
                                    &cnt->rx_green_class[i], &cnt->tx_green_class[i]);
@@ -2476,7 +2490,6 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t *vtss_state,
         }
         pr("\n");
     }
-
     return VTSS_RC_OK;
 }
 
