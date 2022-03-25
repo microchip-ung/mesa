@@ -1400,41 +1400,41 @@ static mesa_rc fa_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
 
     if (board->type == BOARD_TYPE_SPARX5_PCB134) {
         if (speed == MESA_SPEED_10G && tap == MESA_SERDES_POST_CURSOR) {
-            if (port_no < 4) {
+            if ((chip_port >= 12) && (chip_port <= 15)) {
                 *ret_val = 0x14; // 10G Serdes, chip ports 12-15.
                 rc = MESA_RC_OK;
-            } else if (port_no < 8) {
+            } else if ((chip_port >= 49) && (chip_port <= 51)) {
                 *ret_val = 0xD;  // 10G Serdes, chip ports 49-51.
                 rc = MESA_RC_OK;
-            } else if (port_no < 12) {
+            } else if ((chip_port >= 52) && (chip_port <= 55)) {
                 *ret_val = 0xA;  // 10G Serdes, chip ports 52-55.
                 rc = MESA_RC_OK;
-            } else if ((chip_port >= 56) && (63 >= chip_port)) {
+            } else if ((chip_port >= 56) && (chip_port <= 63)) {
                 *ret_val = 0x66; // 25G Serdes, chip ports 56-63.
                 rc = MESA_RC_OK;
             }
         } else if (speed == MESA_SPEED_5G && tap == MESA_SERDES_POST_CURSOR) {
-            if (port_no < 4) {
+            if ((chip_port >= 12) && (chip_port <= 15)) {
                 *ret_val = 0x14; // 10G Serdes, chip ports 12-15.
                 rc = MESA_RC_OK;
-            } else if (port_no < 8) {
+            } else if ((chip_port >= 49) && (chip_port <= 51)) {
                 *ret_val = 0xD;  // 10G Serdes, chip ports 49-51.
                 rc = MESA_RC_OK;
-            } else if (port_no < 12) {
+            } else if ((chip_port >= 52) && (chip_port <= 55)) {
                 *ret_val = 0xA;  // 10G Serdes, chip ports 52-55.
                 rc = MESA_RC_OK;
-            } else if ((chip_port >= 56) && (63 >= chip_port)) {
+            } else if ((chip_port >= 56) && (chip_port <= 63)) {
                 *ret_val = 0x6; // 25G Serdes, chip ports 56-63.
                 rc = MESA_RC_OK;
             }
         } else if (speed == MESA_SPEED_2500M && tap == MESA_SERDES_POST_CURSOR) {
-            if (port_no < 4) {
+            if ((chip_port >= 12) && (chip_port <= 15)) {
                 *ret_val = 0x8; // 10G Serdes, chip ports 12-15.
                 rc = MESA_RC_OK;
-            } else if (port_no < 12) {
+            } else if ((chip_port >= 49) && (chip_port <= 55)) {
                 *ret_val = 0x4;  // 10G Serdes, chip ports 49-55.
                 rc = MESA_RC_OK;
-            } else if ((chip_port >= 56) && (63 >= chip_port)) {
+            } else if ((chip_port >= 56) && (chip_port <= 63)) {
                 *ret_val = 0; // 25G Serdes, chip ports 56-63.
                 rc = MESA_RC_OK;
             }
