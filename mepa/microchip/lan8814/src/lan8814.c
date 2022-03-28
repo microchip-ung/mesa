@@ -730,58 +730,105 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_cable_diag_start(mepa_device_t *dev, int mode)
+// wait in loop while cable diagnostics is running.
+static mepa_bool_t indy_wait_for_cable_diagnostics(mepa_device_t *dev)
 {
-    uint16_t value, mask = 0;
+    uint8_t cnt = 0;
+    uint16_t value;
+    mepa_bool_t ret = FALSE;
 
-    MEPA_ENTER(dev);
-    //check if cable diagnostics has not started.
-    RD(dev, INDY_CABLE_DIAG, &value);
-    if (!(value & INDY_F_CABLE_DIAG_TEST_ENA)) {
-        value |= INDY_F_CABLE_DIAG_TEST_ENA;
-        value |= INDY_F_CABLE_TEST_PAIR(0); // Pair A by default
-        mask |= INDY_F_CABLE_DIAG_TEST_ENA | INDY_M_CABLE_TEST_PAIR;
-        WRM(dev, INDY_CABLE_DIAG, value, mask);
-    }
-    MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, "cable diagnostics started");
-    return MEPA_RC_OK;
-}
-
-static mepa_rc indy_cable_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
-{
-    uint16_t value, status;
-
-    MEPA_ENTER(dev);
-    RD(dev, INDY_CABLE_DIAG, &value);
-    if (value & INDY_F_CABLE_DIAG_TEST_ENA) {
-        res->status[0] = MEPA_CABLE_DIAG_STATUS_RUNNING; // only Pair A status currently. Other pairs need to be added.
-        MEPA_EXIT(dev);
-        return MEPA_RC_INCOMPLETE;
-    } else {
-        status = INDY_X_CABLE_DIAG_STATUS(value);
-        switch (status) { // Only Pair A result
-        case 0:
-            res->status[0] = MEPA_CABLE_DIAG_STATUS_OK;
-            res->length[0] = 0; // cannot measure length
-            res->link = TRUE;
-            break;
-        case 1:
-            res->status[0] = MEPA_CABLE_DIAG_STATUS_OPEN;
-            break;
-        case 2:
-            res->status[0] = MEPA_CABLE_DIAG_STATUS_SHORT;
-            break;
-        case 3:
-            res->status[0] = MEPA_CABLE_DIAG_STATUS_ABNORM;
-            break;
-        default:
-            res->status[0] = MEPA_CABLE_DIAG_STATUS_OPEN;
+    while (cnt < 100) { // wait for utmost 1 second
+        RD(dev, INDY_CABLE_DIAG, &value);
+        if (value & INDY_F_CABLE_DIAG_TEST_ENA) {
+            PHY_MSLEEP(10);
+            cnt++;
+        } else {
+            ret = TRUE;
             break;
         }
     }
+    T_D(MEPA_TRACE_GRP_GEN, "ret = %d cnt= %d value=0x%x\n", ret, cnt, value);
+    return ret;
+}
+//Before starting cable diagnostics, do necessary phy configuration like reset speed config.
+static mepa_rc indy_cab_diag_enter_config(mepa_device_t *dev)
+{
+    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
+    PHY_MSLEEP(1);
+    WR(dev, INDY_BASIC_CONTROL, 0x140);
+    PHY_MSLEEP(1);
+    return MEPA_RC_OK;
+}
+// After exiting cable diagnostics, restore phy configuration.
+static mepa_rc indy_cab_diag_exit_config(mepa_device_t *dev)
+{
+    mepa_reset_param_t rst_cfg = {};
+
+    rst_cfg.reset_point = MEPA_RESET_POINT_DEFAULT;
+    // Restore configuration after cable diagnostics.
+    indy_reset(dev, &rst_cfg);
+    return MEPA_RC_OK;
+}
+// Indy phy dignostics is calculated only when there is no remote link partner for the port.
+// For mode values {0,1} corresponding to {VTSS_PHY_MODE_ANEG, VTSS_PHY_MODE_FORCED}, diagnostics is calculated.
+// For power down mode(2), diagnostics is not calculated.
+static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int mode)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t value, mask = 0, pair, status;
+    mepa_cable_diag_result_t *res = &data->cable_diag;
+
+    T_I(MEPA_TRACE_GRP_GEN, "port=%d mode=%d\n", data->port_no, mode);
+    MEPA_ENTER(dev);
+    // Initialize diagnostics
+    for (pair = 0; pair < 4; pair++) {
+        res->status[pair] = MEPA_CABLE_DIAG_STATUS_UNKNOWN;
+        res->length[pair] = 0;
+        res->link = FALSE;
+    }
+    // return for power down mode
+    if (mode == INDY_CABLE_MODE_POWER_DOWN) {
+        MEPA_EXIT(dev);
+        return MEPA_RC_ERROR;
+    }
+    indy_cab_diag_enter_config(dev);
+    for (pair = 0; pair < 4; pair++) {
+        // clear diag test ena before starting
+        WRM(dev, INDY_CABLE_DIAG, 0, INDY_F_CABLE_DIAG_TEST_ENA);
+
+        value = mask = status = 0;
+        value |= INDY_F_CABLE_DIAG_TEST_ENA;
+        value |= INDY_F_CABLE_TEST_PAIR(pair);
+        mask |= INDY_F_CABLE_DIAG_TEST_ENA | INDY_M_CABLE_TEST_PAIR;
+        WRM(dev, INDY_CABLE_DIAG, value, mask);
+        if (indy_wait_for_cable_diagnostics(dev)) {
+            RD(dev, INDY_CABLE_DIAG, &value);
+            status = INDY_X_CABLE_DIAG_STATUS(value);
+            if ((status == INDY_CABLE_OPEN) || (status == INDY_CABLE_SHORT)) {
+                res->status[pair] = (status == INDY_CABLE_SHORT) ? MEPA_CABLE_DIAG_STATUS_SHORT : MEPA_CABLE_DIAG_STATUS_OPEN;
+                res->length[pair] = 0.8 * (INDY_X_CABLE_DIAG_DATA(value) - 22);
+                res->link = TRUE;
+                T_I(MEPA_TRACE_GRP_GEN, "pair=%d status=%d length=%d\n", pair, res->status[pair], res->length[pair]);
+            } else if (status == INDY_CABLE_FAIL) {
+                res->status[pair] = MEPA_CABLE_DIAG_STATUS_ABNORM;
+                res->link = FALSE;
+                T_I(MEPA_TRACE_GRP_GEN, "link status failed for pair %d \n", pair);
+            } else { // status as INDY_CABLE_NORMAL
+                res->link = TRUE;
+                T_I(MEPA_TRACE_GRP_GEN, "pair=%d status=%d \n", pair, status);
+            }
+        }
+    }
     MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, "cable diagnostics result status[0] %d", res->status[0]);
+    indy_cab_diag_exit_config(dev);
+    return MEPA_RC_OK;
+}
+static mepa_rc indy_cab_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    MEPA_ENTER(dev);
+    *res = data->cable_diag;
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 
@@ -1311,8 +1358,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_conf_get = indy_conf_get,
             .mepa_driver_if_set = indy_if_set,
             .mepa_driver_if_get = indy_if_get,
-            .mepa_driver_cable_diag_start = indy_cable_diag_start,
-            .mepa_driver_cable_diag_get = indy_cable_diag_get,
+            .mepa_driver_cable_diag_start = indy_cab_diag_start,
+            .mepa_driver_cable_diag_get = indy_cab_diag_get,
             .mepa_driver_probe = indy_probe,
             .mepa_driver_aneg_status_get = indy_aneg_status_get,
             .mepa_driver_clause22_read = indy_direct_reg_read,
@@ -1344,8 +1391,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_conf_get = indy_conf_get,
             .mepa_driver_if_set = mas_if_set,
             .mepa_driver_if_get = mas_if_get,
-            .mepa_driver_cable_diag_start = indy_cable_diag_start,
-            .mepa_driver_cable_diag_get = indy_cable_diag_get,
+            .mepa_driver_cable_diag_start = indy_cab_diag_start,
+            .mepa_driver_cable_diag_get = indy_cab_diag_get,
             .mepa_driver_probe = indy_probe,
             .mepa_driver_aneg_status_get = indy_aneg_status_get,
             .mepa_driver_clause22_read = indy_direct_reg_read,

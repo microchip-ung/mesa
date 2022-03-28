@@ -16,6 +16,14 @@
 #define EXT_PAGE 1 // extended page access
 #define MMD_DEV  2 // MMD device access
 
+// cable diagnostics constants
+#define INDY_CABLE_MODE_POWER_DOWN 2
+
+#define INDY_CABLE_NORMAL 0
+#define INDY_CABLE_OPEN   1
+#define INDY_CABLE_SHORT  2
+#define INDY_CABLE_FAIL   3
+
 // register access functions
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value);
 mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uint16_t mask);
@@ -126,17 +134,18 @@ typedef struct {
 } indy_ts_data_t;
 
 typedef struct {
-    mepa_bool_t             init_done;
-    uint8_t                 packet_idx;
-    mepa_port_no_t          port_no;
-    mepa_conf_t             conf;
-    mepa_event_t            events;
-    mepa_loopback_t         loopback;
-    mepa_bool_t             qsgmii_phy_aneg_dis;
-    phy_dev_info_t          dev;
-    mepa_synce_clock_conf_t synce_conf;
-    mepa_device_t           *base_dev; // Pointer to the device of base port on the phy chip
-    mepa_bool_t             link_status;
+    mepa_bool_t              init_done;
+    uint8_t                  packet_idx;
+    mepa_port_no_t           port_no;
+    mepa_conf_t              conf;
+    mepa_event_t             events;
+    mepa_loopback_t          loopback;
+    mepa_bool_t              qsgmii_phy_aneg_dis;
+    phy_dev_info_t           dev;
+    mepa_synce_clock_conf_t  synce_conf;
+    mepa_device_t            *base_dev; // Pointer to the device of base port on the phy chip
+    mepa_bool_t              link_status;
+    mepa_cable_diag_result_t cable_diag;
     indy_ts_data_t          ts_state;
 } phy_data_t;
 
