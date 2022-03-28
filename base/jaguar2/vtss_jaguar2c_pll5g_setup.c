@@ -77,12 +77,12 @@ static vtss_rc  jaguar2c_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_pll5g
     value = VTSS_X_HSIO_PLL5G_STATUS_PLL5G_STATUS1_GAIN_STAT(value);
 
 
-    if( value > 2 && value < 0xa) {
+    if( value >= 2 ) {
     break;
     } 
 
     }
-    if( value <= 2 || value >= 0xa) {
+    if( value < 2 ) {
     VTSS_E("Failed to initialize LCPLL as the gain was not within limits");
     } 
 
