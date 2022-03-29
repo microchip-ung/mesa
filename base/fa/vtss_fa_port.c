@@ -1371,9 +1371,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    u32 port = VTSS_CHIP_PORT(port_no);
 
-    if (VTSS_PORT_IS_10G(port) && fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
+    if (fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
         u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
         /* Training is interruptet, restart serdes and kr blocks */
         vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;

@@ -832,7 +832,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
             status = VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
         } else if (_tap_adv > tap_adv_max) {
-            status = VTSS_COEF_MINIMUM;
+            status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_14;
         }
         break;
@@ -881,7 +881,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
             status = VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
         } else if (_tap_adv > tap_adv_max) {
-            status = VTSS_COEF_MINIMUM;
+            status = action == VTSS_COEF_INCR ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
         }
 
@@ -1248,7 +1248,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
             status = VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
         } else if (_tap_adv > tap_adv_max) {
-            status = VTSS_COEF_MINIMUM;
+            status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
         } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
             status = VTSS_COEF_MINIMUM;
@@ -1423,10 +1423,10 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
             status = VTSS_COEF_MAXIMUM;
             sts_code = VTSS_KR_STS_TAP_ADV_BELOW_0;
         } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
-            status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM; // Workaround
+            status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
         } else if (_tap_adv > tap_adv_max) {
-            status = VTSS_COEF_MINIMUM;
+            status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_TAP_ADV_ABOVE_LIMIT;
         }
 

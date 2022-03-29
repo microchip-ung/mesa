@@ -1779,12 +1779,13 @@ static void kr_ber_training(vtss_state_t *vtss_state,
     case VTSS_BER_MOVE_TO_MID_MARK:
         if (irq == KR_LPSVALID) {
             krs->ignore_fail = TRUE;
-            if (lp_status == STATUS_UPDATED || lp_status == STATUS_MINIMUM) {
+            if (lp_status == STATUS_UPDATED || lp_status == STATUS_MINIMUM || lp_status == STATUS_MAXIMUM) {
+                // Note: STATUS_MAXIMUM should not occur but we must support it
                 kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
                 if (krs->decr_cnt > 0) {
                     krs->decr_cnt--;
                 }
-                if (krs->decr_cnt == 0 || lp_status == STATUS_MINIMUM) {
+                if (krs->decr_cnt == 0 || lp_status == STATUS_MINIMUM || lp_status == STATUS_MAXIMUM) {
                     if (krs->current_tap == kr_ber_next_tap(krs->current_tap, 0)) {
                         krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
                     } else {
