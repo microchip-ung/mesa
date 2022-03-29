@@ -12,10 +12,26 @@
 |Description:      |Roadmap release
 |===
 
-=== Disclaimers
-
 === General
 
 ==== IEC 62439-2, Media Redundancy Protocol
+
 The MRP API has undergone a major overhaul with many non-backward compatible
 changes.
+
+==== LAN966x updates
+
+Capability `MESA_CAP_PACKET_INJ_ENCAP` and `MESA_CAP_VOP_V0` is added.
+
+`MESA_CAP_PACKET_INJ_ENCAP`: Packet Tx supports injection with specific
+encapsulation. This is currently only supported on LAN966x.
+
+`MESA_CAP_VOP_V0`: Is used to distinguish VOP (OAM) differences between LAN966x
+and Serval-1 (in earlier version both was covered by `MESA_CAP_VOP_V1`).
+
+==== Per VLAN Ingress filtering
+
+It is now possible to configure per VLAN ingress filtering using
+`mesa_vlan_vid_conf_t::ingress_filter`. This feature may be used to allow
+VLAN-based FRER configuration to co-exist with MSTP on platforms which do not
+support the `MESA_CAP_L2_MSTP_HW` capability.
