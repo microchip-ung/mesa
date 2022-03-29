@@ -156,7 +156,7 @@ int main(int argc, char * const argv[])
         }
     }
 
-    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC);
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0) {
         perror("open");
         goto EXIT;

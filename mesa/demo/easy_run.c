@@ -618,7 +618,8 @@ int main(int argc, char *const argv[], char *const envp[]) {
     }
 
     if (run_in_background)
-        daemon(1, 1);
+        if (daemon(1, 1) < 0)
+            return report_perror("Daemon failed");
 
     //sigemptyset(&mask);
     //sigaddset(&mask, SIGCHLD);
@@ -627,9 +628,12 @@ int main(int argc, char *const argv[], char *const envp[]) {
     sigprocmask(SIG_BLOCK, &mask, NULL);
     sigfd = signalfd(-1, &mask, SFD_NONBLOCK);
 
-    pipe(pipe_stdin);
-    pipe(pipe_stdout);
-    pipe(pipe_stderr);
+    if (pipe(pipe_stdin) < 0)
+       return report_perror("Pipe stdin failed");
+    if (pipe(pipe_stdout) < 0)
+       return report_perror("Pipe stdout failed");
+    if (pipe(pipe_stderr) < 0)
+       return report_perror("Pipe stderr failed");
 
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     pid = fork();

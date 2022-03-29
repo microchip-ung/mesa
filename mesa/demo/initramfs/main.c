@@ -223,7 +223,7 @@ static void basic_linux_system_init() {
     int res, line;
 
     // Very basic stuff
-    chdir("/");
+    FATAL(chdir("/"), "Failed to change dir");
     setsid();
     putenv((char *)"HOME=/");
     putenv((char *)"TERM=linux");
@@ -245,7 +245,9 @@ static void basic_linux_system_init() {
     fd = open("/proc/sys/kernel/sysrq", O_WRONLY);
     static const char *one = "1\n";
     if (fd != -1) {
-        write(fd, one, strlen(one));
+        res = write(fd, one, strlen(one));
+        if (res <= 0)
+            return;
         close(fd);
         fd = -1;
     }
