@@ -455,13 +455,20 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
                               vtss_state->l2.stp_state[i_port] == VTSS_STP_STATE_FORWARDING &&
                               VTSS_PORT_TX_FORWARDING(vtss_state->port.forward[i_port]) &&
                               vtss_state->l2.auth_state[i_port] != VTSS_AUTH_STATE_NONE);
+    }
 
-        /* Store Tx forward information */
-        if (vtss_state->l2.tx_forward[i_port] != tx_forward[i_port]) {
-            vtss_state->l2.tx_forward[i_port] = tx_forward[i_port];
-            vtss_state->l2.vlan_filter_changed = TRUE;
+#if defined(VTSS_FEATURE_REDBOX)
+    // Tx forwarding also depends on RedBox configuration
+    for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
+        vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
+        if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
+            vtss_state->l2.port_state[rb_conf->port_b]) {
+            // Port A is forwarding, port B is discarding
+            tx_forward[rb_conf->port_a] = 1;
+            tx_forward[rb_conf->port_b] = 0;
         }
     }
+#endif
 
     /* Determine state for protection ports */
     for (i_port = VTSS_PORT_NO_START; i_port < port_count; i_port++) {
@@ -474,6 +481,12 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             protect->selector == VTSS_EPS_SELECTOR_WORKING) {
             learn[port_p] = 0;
             rx_forward[port_p] = 0;
+        }
+
+        /* Store Tx forward information */
+        if (vtss_state->l2.tx_forward[i_port] != tx_forward[i_port]) {
+            vtss_state->l2.tx_forward[i_port] = tx_forward[i_port];
+            vtss_state->l2.vlan_filter_changed = TRUE;
         }
     }
 
@@ -8066,6 +8079,10 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
             VTSS_E("illegal port A/B: %u/%u", port_a, port_b);
             rc = VTSS_RC_ERROR;
         }
+    }
+    if (rc == VTSS_RC_OK) {
+        // Update aggregation masks
+        rc = vtss_update_masks(vtss_state, 0, 0, 1);
     }
     VTSS_EXIT();
     return rc;

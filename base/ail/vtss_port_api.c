@@ -2274,7 +2274,8 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             vtss_debug_print_header(pr, "Forwarding");
             pr("Port  State  Forwarding  STP State   Auth State  Rx Fwd    Tx Fwd    Aggr Fwd\n");
         }
-        pr("%-6u%-7s%-12s%-12s%-12s%-10s%-10s%s\n",
+
+        pr("%-6u%-7s%-12s%-12s%-12s%-10s%-10s%-8s",
            port_no,
            vtss_state->l2.port_state[port_no] ? "Up" : "Down",
            fwd == VTSS_PORT_FORWARD_ENABLED ? "Enabled" :
@@ -2290,6 +2291,17 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
            vtss_bool_txt(vtss_state->l2.rx_forward[port_no]),
            vtss_bool_txt(vtss_state->l2.tx_forward[port_no]),
            vtss_bool_txt(vtss_state->l2.tx_forward_aggr[port_no]));
+#if defined(VTSS_FEATURE_REDBOX)
+        for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
+            vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
+            if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
+                (rb_conf->port_a == port_no || rb_conf->port_b == port_no)) {
+                pr(" (RedBox %u, port %s)", id, rb_conf->port_a == port_no ? "A" : "B");
+                break;
+            }
+        }
+#endif
+        pr("\n");
     }
     if (!header)
         pr("\n");
