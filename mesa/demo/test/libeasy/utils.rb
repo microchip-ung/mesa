@@ -235,8 +235,7 @@ def cmd_rx_ifh_push(ifh={})
 
     if (ifh.key?:port_idx)
         # Match chip port
-        port_cnt = cap_get("PORT_CNT")
-        pmap = $ts.dut.call("mesa_port_map_get", port_cnt)
+        pmap = $ts.port_map
         port = $ts.dut.port_list[ifh[:port_idx]]
         cmd += " #{port_name} #{pmap[port]["chip_port"]}"
     end

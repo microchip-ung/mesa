@@ -1115,7 +1115,7 @@ class Qemu_Pc
 end
 
 class Mesa_Pc_b2b
-    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin
+    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin, :port_map
 
     def initialize conf, mesa_args, port_cnt, topo_name
         #Default topology
@@ -1228,6 +1228,9 @@ class Mesa_Pc_b2b
                 end
             end
         end
+
+        cnt = @dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
+        @port_map = @dut.call("mesa_port_map_get", cnt)
     end
 
     def reboot_dut conf
@@ -1254,8 +1257,7 @@ end
 
 def show_mesa_setup(ts)
     test "show-setup" do
-        port_cnt = ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-        pmap = ts.dut.call("mesa_port_map_get", port_cnt)
+        pmap = ts.port_map
 
         max = 0
         cnt = ts.dut.p.length
