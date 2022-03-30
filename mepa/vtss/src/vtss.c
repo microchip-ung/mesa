@@ -248,49 +248,49 @@ static mepa_rc mscc_1g_poll(mepa_device_t *dev,
 static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    vtss_phy_conf_t phy_config = {}, cur_conf;
+    vtss_phy_conf_t phy_config = {};
     vtss_phy_conf_1g_t cfg_neg = {};
 
     phy_config.mdi = VTSS_PHY_MDIX_AUTO;
-    if (config->admin.enable) {
-        if (config->speed == MESA_SPEED_AUTO ||
-            config->speed == MESA_SPEED_1G) {
-            phy_config.mode = VTSS_PHY_MODE_ANEG;
+    if (vtss_phy_conf_get(NULL, data->port_no,&phy_config) == MESA_RC_OK) {
+        if (config->admin.enable) {
+            if (config->speed == MESA_SPEED_AUTO ||
+                    config->speed == MESA_SPEED_1G) {
+                phy_config.mode = VTSS_PHY_MODE_ANEG;
 
-            phy_config.aneg.speed_2g5_fdx = config->aneg.speed_2g5_fdx;
-            phy_config.aneg.speed_5g_fdx = config->aneg.speed_5g_fdx;
-            phy_config.aneg.speed_10g_fdx = config->aneg.speed_10g_fdx;
-            phy_config.aneg.speed_10m_hdx = config->aneg.speed_10m_hdx;
-            phy_config.aneg.speed_10m_fdx = config->aneg.speed_10m_fdx;
-            phy_config.aneg.speed_100m_hdx = config->aneg.speed_100m_hdx;
-            phy_config.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
-            phy_config.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
-            phy_config.aneg.no_restart_aneg = config->aneg.no_restart_aneg;
+                phy_config.aneg.speed_2g5_fdx = config->aneg.speed_2g5_fdx;
+                phy_config.aneg.speed_5g_fdx = config->aneg.speed_5g_fdx;
+                phy_config.aneg.speed_10g_fdx = config->aneg.speed_10g_fdx;
+                phy_config.aneg.speed_10m_hdx = config->aneg.speed_10m_hdx;
+                phy_config.aneg.speed_10m_fdx = config->aneg.speed_10m_fdx;
+                phy_config.aneg.speed_100m_hdx = config->aneg.speed_100m_hdx;
+                phy_config.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
+                phy_config.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
+                phy_config.aneg.no_restart_aneg = config->aneg.no_restart_aneg;
 
-            // We don't support 1G half duplex
-            phy_config.aneg.speed_1g_hdx = 0;
-            phy_config.aneg.symmetric_pause = config->flow_control;
-            phy_config.aneg.asymmetric_pause = config->flow_control;
+                // We don't support 1G half duplex
+                phy_config.aneg.speed_1g_hdx = 0;
+                phy_config.aneg.symmetric_pause = config->flow_control;
+                phy_config.aneg.asymmetric_pause = config->flow_control;
 
-            // manual negotiation
-            if (config->man_neg) {
-                cfg_neg.master.cfg = true;
-                cfg_neg.master.val = config->man_neg == MEPA_MANUAL_NEG_REF ? true : false;
+                // manual negotiation
+                if (config->man_neg) {
+                    cfg_neg.master.cfg = true;
+                    cfg_neg.master.val = config->man_neg == MEPA_MANUAL_NEG_REF ? true : false;
+                }
+                (void)vtss_phy_conf_1g_set(NULL, data->port_no, &cfg_neg);
+            } else {
+                phy_config.mode = VTSS_PHY_MODE_FORCED;
+                phy_config.forced.speed = config->speed;
+                phy_config.forced.fdx = config->fdx;
             }
-            (void)vtss_phy_conf_1g_set(NULL, data->port_no, &cfg_neg);
         } else {
-            phy_config.mode = VTSS_PHY_MODE_FORCED;
-            phy_config.forced.speed = config->speed;
-            phy_config.forced.fdx = config->fdx;
+            phy_config.mode = VTSS_PHY_MODE_POWER_DOWN;
         }
-    } else {
-        phy_config.mode = VTSS_PHY_MODE_POWER_DOWN;
-    }
-    phy_config.mac_if_pcs.serdes_aneg_ena = config->mac_if_aneg_ena;
-    if (vtss_phy_conf_get(NULL, data->port_no, &cur_conf) == MESA_RC_OK) {
-        if (phy_config.mac_if_pcs.serdes_aneg_ena && (cur_conf.mac_if_pcs.serdes_aneg_ena != phy_config.mac_if_pcs.serdes_aneg_ena)) {
+        if (phy_config.mac_if_pcs.serdes_aneg_ena != config->mac_if_aneg_ena) {
             phy_config.mac_if_pcs.aneg_restart = true;
         }
+        phy_config.mac_if_pcs.serdes_aneg_ena = config->mac_if_aneg_ena;
     }
     return vtss_phy_conf_set(NULL, data->port_no, &phy_config);
 }
@@ -302,32 +302,34 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     phy_data_t *data = (phy_data_t *)dev->data;
     *conf = (const mepa_conf_t) {};
 
-    if (vtss_phy_conf_get(NULL, data->port_no, &phy_conf) == MESA_RC_OK) {
-        if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
-            conf->speed = MEPA_SPEED_AUTO;
-            conf->flow_control = phy_conf.aneg.symmetric_pause;
-            conf->aneg.speed_2g5_fdx = phy_conf.aneg.speed_2g5_fdx;
-            conf->aneg.speed_5g_fdx = phy_conf.aneg.speed_5g_fdx;
-            conf->aneg.speed_10g_fdx = phy_conf.aneg.speed_10g_fdx;
-            conf->aneg.speed_10m_hdx = phy_conf.aneg.speed_10m_hdx;
-            conf->aneg.speed_10m_fdx = phy_conf.aneg.speed_10m_fdx;
-            conf->aneg.speed_100m_hdx = phy_conf.aneg.speed_100m_hdx;
-            conf->aneg.speed_100m_fdx = phy_conf.aneg.speed_100m_fdx;
-            conf->aneg.speed_1g_fdx = phy_conf.aneg.speed_1g_fdx;
-            conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
-
-            // Get manual negotiation options
-            if (vtss_phy_conf_1g_get(NULL, data->port_no, &cfg_neg) == MESA_RC_OK) {
-                conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
-                                cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
-            }
-        } else if (phy_conf.mode == VTSS_PHY_MODE_FORCED) {
-            conf->speed = phy_conf.forced.speed;
-            conf->fdx = phy_conf.forced.fdx;
-        }
-        conf->mac_if_aneg_ena = phy_conf.mac_if_pcs.serdes_aneg_ena;
-        conf->admin.enable = phy_conf.mode != VTSS_PHY_MODE_POWER_DOWN ? true : false;
+    if (vtss_phy_conf_get(NULL, data->port_no, &phy_conf) != MESA_RC_OK) {
+        return (MEPA_RC_ERROR);
     }
+    conf->flow_control = phy_conf.aneg.symmetric_pause;
+    conf->aneg.speed_2g5_fdx = phy_conf.aneg.speed_2g5_fdx;
+    conf->aneg.speed_5g_fdx = phy_conf.aneg.speed_5g_fdx;
+    conf->aneg.speed_10g_fdx = phy_conf.aneg.speed_10g_fdx;
+    conf->aneg.speed_10m_hdx = phy_conf.aneg.speed_10m_hdx;
+    conf->aneg.speed_10m_fdx = phy_conf.aneg.speed_10m_fdx;
+    conf->aneg.speed_100m_hdx = phy_conf.aneg.speed_100m_hdx;
+    conf->aneg.speed_100m_fdx = phy_conf.aneg.speed_100m_fdx;
+    conf->aneg.speed_1g_fdx = phy_conf.aneg.speed_1g_fdx;
+    conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
+
+    if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
+        conf->speed = MEPA_SPEED_AUTO;
+
+        // Get manual negotiation options
+        if (vtss_phy_conf_1g_get(NULL, data->port_no, &cfg_neg) == MESA_RC_OK) {
+            conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
+                cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
+        }
+    } else if (phy_conf.mode == VTSS_PHY_MODE_FORCED) {
+        conf->speed = phy_conf.forced.speed;
+    }
+    conf->fdx = phy_conf.forced.fdx;
+    conf->mac_if_aneg_ena = phy_conf.mac_if_pcs.serdes_aneg_ena;
+    conf->admin.enable = phy_conf.mode != VTSS_PHY_MODE_POWER_DOWN ? true : false;
     return MEPA_RC_OK;
 }
 
