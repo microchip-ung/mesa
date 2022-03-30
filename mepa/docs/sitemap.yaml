@@ -3,7 +3,7 @@
 
 ---
 conf:
-    rel_name: "MEPA-V2021.12-PRE-2"
+    rel_name: "MEPA-2022.03"
 
 pages:
     - name: "README"
@@ -13,6 +13,8 @@ pages:
       pages:
         - name: "MEPA-V2021.12-PRE-2"
           src:  "mepa/docs/release-notes/mepa-v2021.12-pre-2.adoc"
+        - name: "MEPA-2022.03"
+          src:  "mepa/docs/release-notes/mepa-2022.03.adoc"
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"

@@ -1,0 +1,48 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2022.03
+
+== MEPA-2022.03
+
+|===
+|Version:          |MEPA-2022.03
+|Previous Version: |MEPA-V2021.12-PRE-2
+|Date:             |2022-04-01
+|Description:      |Roadmap Release
+|===
+
+=== Disclaimers
+
+=== General
+
+This release contains following contents:
+
+* LAN8814 specific register dumps
+* Tail tagging which supports appending timestamps instead of updating in reserved field
+* Documentation for MEPA infrastructure, general PHY APIs and Timestamping APIs
+* Bug fixes
+
+=== API Enhancements
+
+
+=== New Features
+
+==== LAN8814
+
+* MEPA-97     Indy P4 Features: PHY Registers dump
+* MEPA-105    Indy P4 Features: TS Registers dump
+* MEPA-127    Indy P4 Features: In-band time stamping
+
+
+=== Documentation updates
+
+* MEPA-103    Documentation for MEPA General PHY APIs
+* MEPA-116    Documentation for MEPA TS APIs
+
+
+=== Bug Fixes
+
+* MEPA-115    Cable Diagnostics for LAN8814
+* MEPA-113    Indy(lan8814) phy issue when there is forced speed/duplex configuration
+* MEPA-114    configuring admin.enable = FALSE in mepa_driver_conf_set causes VSC8574 PHY config to be cleared as seen with mepa_driver_conf_get
