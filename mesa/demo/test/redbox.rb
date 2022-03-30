@@ -1268,7 +1268,6 @@ end
 sel = table_lookup(test_table, :sel)
 cnt_ok = 0
 cnt_err = 0
-port_map = $ts.dut.call("mesa_port_map_get", cap_get("PORT_CNT"))
 $rb_table.each_with_index do |rb, rb_idx|
     #next if rb_idx != 0
     $rb = rb
@@ -1279,7 +1278,7 @@ $rb_table.each_with_index do |rb, rb_idx|
             ["a", "b", "c", "d"].each do |name|
                 idx = rb_idx(name)
                 port = $ts.dut.p[idx]
-                chip_port = port_map[port]["chip_port"]
+                chip_port = $ts.port_map[port]["chip_port"]
                 t_i("Port #{name}: #{port}(#{chip_port}) - #{$ts.pc.p[idx]}")
             end
             err = $test_stack[-1][:cnt_err]
