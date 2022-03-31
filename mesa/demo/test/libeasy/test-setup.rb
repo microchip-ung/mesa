@@ -884,7 +884,7 @@ def upload_utils conf
 
 end
 
-$easyframes_sha = "86838615a524404f3d597cc3ff0425e03b0220f2"
+$easyframes_sha = "ce45ec85871ad2f1412a964868f8ad11bf581bfc"
 
 class Switchdev_Pc_b2b_4x
     attr_accessor :dut, :pc, :links, :vinst, :vconn, :ts_external_clock_looped, :port_admin
