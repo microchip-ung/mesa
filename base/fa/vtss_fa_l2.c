@@ -3151,7 +3151,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             vtss_fa_debug_reg_header(pr, buf);
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_RB_CFG, i), "RB_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), "TAXI_IF_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_QSYS_CFG, i), "QSYS_CFG");
+            //FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_QSYS_CFG, i), "QSYS_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_NETID_CFG, i), "NETID_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_CPU_CFG, i), "CPU_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_SPV_CFG, i), "SPV_CFG");
