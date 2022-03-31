@@ -81,6 +81,12 @@ case $chip in
      dir=build-arm
      ;;
 
+     ms8)
+     ts=dk-t33-5
+     img=armv7_lan966x.itb
+     dir=build-arm
+     ;;
+
      *)
      echo "Illegal chip: $chip"
      exit
