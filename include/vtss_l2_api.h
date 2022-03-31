@@ -2839,6 +2839,7 @@ typedef uint16_t vtss_rb_age_time_t;
 // Forwarding of Supervision frames
 typedef enum {
     VTSS_RB_SV_FORWARD,  // Forward normally
+    VTSS_RB_SV_DISCARD,  // Discard
     VTSS_RB_SV_CPU_COPY, // Copy to CPU (Tx Interlink only)
     VTSS_RB_SV_CPU_ONLY, // Redirect to CPU (Tx Interlink only)
 } vtss_rb_sv_t;

@@ -1661,7 +1661,8 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 
 static u32 fa_rb_sv(vtss_rb_sv_t sv)
 {
-    return (sv == VTSS_RB_SV_CPU_COPY ? FA_RB_SV_CPU_COPY :
+    return (sv == VTSS_RB_SV_DISCARD ? FA_RB_SV_DISCARD :
+            sv == VTSS_RB_SV_CPU_COPY ? FA_RB_SV_CPU_COPY :
             sv == VTSS_RB_SV_CPU_ONLY ? FA_RB_SV_CPU_ONLY : FA_RB_SV_FORWARD);
 }
 
@@ -2883,6 +2884,7 @@ static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
        VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_0(cfg2),
        VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_1(cfg2),
        VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_CNT_2(cfg2));
+    VTSS_EXIT_ENTER();
     return VTSS_RC_OK;
 }
 
@@ -3002,8 +3004,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(RB_ADDR(VTSS_RB_SPV_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
-        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR)\n",
-                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY);
+        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
+                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_HSR_MAC_LSB);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
@@ -3149,6 +3151,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             vtss_fa_debug_reg_header(pr, buf);
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_RB_CFG, i), "RB_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), "TAXI_IF_CFG");
+            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_QSYS_CFG, i), "QSYS_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_NETID_CFG, i), "NETID_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_CPU_CFG, i), "CPU_CFG");
             FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_SPV_CFG, i), "SPV_CFG");
@@ -3185,6 +3188,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                     break;
                 }
                 fa_print_host_entry(pr, buf, &cnt, &host);
+                VTSS_EXIT_ENTER();
             }
             if (cnt) {
                 pr("\nNumber of entries: %u\n\n", cnt);

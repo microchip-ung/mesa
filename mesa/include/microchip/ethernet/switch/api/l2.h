@@ -1600,6 +1600,7 @@ typedef uint16_t mesa_rb_age_time_t;
 // Forwarding of Supervision frames on Interlink
 typedef enum {
     MESA_RB_SV_FORWARD,  // Forward normally
+    MESA_RB_SV_DISCARD,  // Discard
     MESA_RB_SV_CPU_COPY, // Copy to CPU
     MESA_RB_SV_CPU_ONLY, // Redirect to CPU
 } mesa_rb_sv_t;
