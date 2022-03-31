@@ -756,7 +756,7 @@ static mepa_rc indy_cab_diag_enter_config(mepa_device_t *dev)
     WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
     PHY_MSLEEP(1);
     WR(dev, INDY_BASIC_CONTROL, 0x140);
-    PHY_MSLEEP(1);
+    PHY_MSLEEP(50);
     return MEPA_RC_OK;
 }
 // After exiting cable diagnostics, restore phy configuration.
