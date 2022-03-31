@@ -1742,9 +1742,6 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
                 ts_insert = SYNC_PACKET;
                 cf_update = DELAY_REQ_PACKET;
             }
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
             break;
         case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:
             if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
