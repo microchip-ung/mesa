@@ -810,7 +810,7 @@
  *
  * Register: \a CPU:INTR:DST_INTR_MAP
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
 #define VTSS_CPU_DST_INTR_MAP(ri)            VTSS_IOREG(VTSS_TO_CPU,0x28 + (ri))
 
@@ -836,9 +836,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_MAP1
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x31 + (ri))
+#define VTSS_CPU_DST_INTR_MAP1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x2f + (ri))
 
 /**
  * \brief
@@ -860,9 +860,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_MAP2
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x3a + (ri))
+#define VTSS_CPU_DST_INTR_MAP2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x36 + (ri))
 
 /**
  * \brief
@@ -884,9 +884,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_MAP3
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_MAP3(ri)           VTSS_IOREG(VTSS_TO_CPU,0x43 + (ri))
+#define VTSS_CPU_DST_INTR_MAP3(ri)           VTSS_IOREG(VTSS_TO_CPU,0x3d + (ri))
 
 /**
  * \brief
@@ -908,9 +908,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_IDENT
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x4c + (ri))
+#define VTSS_CPU_DST_INTR_IDENT(ri)          VTSS_IOREG(VTSS_TO_CPU,0x44 + (ri))
 
 /**
  * \brief
@@ -935,9 +935,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_IDENT1
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x55 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT1(ri)         VTSS_IOREG(VTSS_TO_CPU,0x4b + (ri))
 
 /**
  * \brief
@@ -959,9 +959,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_IDENT2
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x5e + (ri))
+#define VTSS_CPU_DST_INTR_IDENT2(ri)         VTSS_IOREG(VTSS_TO_CPU,0x52 + (ri))
 
 /**
  * \brief
@@ -983,9 +983,9 @@
  *
  * Register: \a CPU:INTR:DST_INTR_IDENT3
  *
- * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-8
+ * @param ri Replicator: x_VCORE5_INTR_DST_CNT (??), 0-6
  */
-#define VTSS_CPU_DST_INTR_IDENT3(ri)         VTSS_IOREG(VTSS_TO_CPU,0x67 + (ri))
+#define VTSS_CPU_DST_INTR_IDENT3(ri)         VTSS_IOREG(VTSS_TO_CPU,0x59 + (ri))
 
 /**
  * \brief
@@ -1005,7 +1005,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_SRC_INTR_POL
  */
-#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x70)
+#define VTSS_CPU_EXT_SRC_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x60)
 
 /**
  * \brief
@@ -1018,9 +1018,9 @@
  *
  * Field: ::VTSS_CPU_EXT_SRC_INTR_POL . EXT_SRC_INTR_POL
  */
-#define  VTSS_F_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_CPU_EXT_SRC_INTR_POL_EXT_SRC_INTR_POL(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 
 /**
@@ -1029,7 +1029,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_POL
  */
-#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x71)
+#define VTSS_CPU_EXT_DST_INTR_POL            VTSS_IOREG(VTSS_TO_CPU,0x61)
 
 /**
  * \brief
@@ -1042,9 +1042,9 @@
  *
  * Field: ::VTSS_CPU_EXT_DST_INTR_POL . EXT_DST_INTR_POL
  */
-#define  VTSS_F_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_CPU_EXT_DST_INTR_POL_EXT_DST_INTR_POL(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 
 /**
@@ -1053,7 +1053,7 @@
  * \details
  * Register: \a CPU:INTR:EXT_DST_INTR_DRV
  */
-#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0x72)
+#define VTSS_CPU_EXT_DST_INTR_DRV            VTSS_IOREG(VTSS_TO_CPU,0x62)
 
 /**
  * \brief
@@ -1067,9 +1067,9 @@
  *
  * Field: ::VTSS_CPU_EXT_DST_INTR_DRV . EXT_DST_INTR_DRV
  */
-#define  VTSS_F_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_CPU_EXT_DST_INTR_DRV_EXT_DST_INTR_DRV(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 
 /**
@@ -1078,7 +1078,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_POL
  */
-#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0x73)
+#define VTSS_CPU_DEV_INTR_POL                VTSS_IOREG(VTSS_TO_CPU,0x63)
 
 /**
  * \brief
@@ -1102,7 +1102,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_RAW
  */
-#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0x74)
+#define VTSS_CPU_DEV_INTR_RAW                VTSS_IOREG(VTSS_TO_CPU,0x64)
 
 /**
  * \brief
@@ -1126,7 +1126,7 @@
  *
  * @param ri Register: DEV_INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0x75 + (ri))
+#define VTSS_CPU_DEV_INTR_TRIGGER(ri)        VTSS_IOREG(VTSS_TO_CPU,0x65 + (ri))
 
 /**
  * \brief
@@ -1166,7 +1166,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_STICKY
  */
-#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0x77)
+#define VTSS_CPU_DEV_INTR_STICKY             VTSS_IOREG(VTSS_TO_CPU,0x67)
 
 /**
  * \brief
@@ -1188,7 +1188,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_BYPASS
  */
-#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0x78)
+#define VTSS_CPU_DEV_INTR_BYPASS             VTSS_IOREG(VTSS_TO_CPU,0x68)
 
 /**
  * \brief
@@ -1211,7 +1211,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_ENA
  */
-#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0x79)
+#define VTSS_CPU_DEV_INTR_ENA                VTSS_IOREG(VTSS_TO_CPU,0x69)
 
 /**
  * \brief
@@ -1232,7 +1232,7 @@
  * \details
  * Register: \a CPU:INTR:DEV_INTR_IDENT
  */
-#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0x7a)
+#define VTSS_CPU_DEV_INTR_IDENT              VTSS_IOREG(VTSS_TO_CPU,0x6a)
 
 /**
  * \brief
@@ -1254,7 +1254,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_CFG
  */
-#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0x7b)
+#define VTSS_CPU_MSIX_CFG                    VTSS_IOREG(VTSS_TO_CPU,0x6b)
 
 /**
  * \brief
@@ -1322,7 +1322,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_DOORBELL_ADDR
  */
-#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0x7c)
+#define VTSS_CPU_MSIX_DOORBELL_ADDR          VTSS_IOREG(VTSS_TO_CPU,0x6c)
 
 /**
  * \brief
@@ -1344,7 +1344,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING
  */
-#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0x7d)
+#define VTSS_CPU_MSIX_INTR_PENDING           VTSS_IOREG(VTSS_TO_CPU,0x6d)
 
 /**
  * \brief
@@ -1364,7 +1364,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING1
  */
-#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0x7e)
+#define VTSS_CPU_MSIX_INTR_PENDING1          VTSS_IOREG(VTSS_TO_CPU,0x6e)
 
 /**
  * \brief
@@ -1384,7 +1384,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING2
  */
-#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0x7f)
+#define VTSS_CPU_MSIX_INTR_PENDING2          VTSS_IOREG(VTSS_TO_CPU,0x6f)
 
 /**
  * \brief
@@ -1404,7 +1404,7 @@
  * \details
  * Register: \a CPU:INTR:MSIX_INTR_PENDING3
  */
-#define VTSS_CPU_MSIX_INTR_PENDING3          VTSS_IOREG(VTSS_TO_CPU,0x80)
+#define VTSS_CPU_MSIX_INTR_PENDING3          VTSS_IOREG(VTSS_TO_CPU,0x70)
 
 /**
  * \brief

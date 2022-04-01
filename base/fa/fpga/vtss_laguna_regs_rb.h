@@ -546,6 +546,7 @@
  * 0: No change to forwarding
  * 1: Copy to CPU
  * 2: Redirect to CPU
+ * 3: Discard
  *
  * Field: ::VTSS_RB_SPV_CFG . HSR_SPV_INT_FWD_SEL
  */
