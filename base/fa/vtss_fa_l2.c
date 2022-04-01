@@ -1626,6 +1626,9 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 #define FA_HT_CMD_WRITE   4
 #define FA_HT_CMD_CLEAR   7
 
+// Maximum number of reads in get-next before exit/enter
+#define FA_HT_READ_MAX    64
+
 // Duplicate discard table rows and columns
 #define FA_DT_COL_CNT REG_FLD_CNT(RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL)
 #define FA_DT_ROW_CNT REG_FLD_CNT(RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW)
@@ -2149,6 +2152,9 @@ static vtss_rc fa_rb_host_get_next(vtss_state_t *vtss_state,
     idx_next = FA_HT_CNT;
     for (idx = 0; idx < FA_HT_CNT; idx++) {
         VTSS_RC(fa_rb_host_mac_read(vtss_state, rb_id, idx, proxy, &skip, &mach, &macl));
+        if ((idx % FA_HT_READ_MAX) == (FA_HT_READ_MAX - 1)) {
+            VTSS_EXIT_ENTER();
+        }
         if (skip) {
             continue;
         }
@@ -2181,6 +2187,9 @@ static vtss_rc fa_rb_host_id_get_next(vtss_state_t *vtss_state,
 
     for (idx = id; idx < FA_HT_CNT; idx++) {
         VTSS_RC(fa_rb_host_mac_read(vtss_state, rb_id, idx, proxy, &skip, &mach, &macl));
+        if (((idx - id) % FA_HT_READ_MAX) == (FA_HT_READ_MAX - 1)) {
+            VTSS_EXIT_ENTER();
+        }
         if (skip) {
             continue;
         }

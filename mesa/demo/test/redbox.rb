@@ -96,7 +96,7 @@ test_table =
     },
     {
         txt: "port B to port A/C/D - burst",
-        cfg: {mode: "HSR_SAN", dd_age_time: 10000},
+        cfg: {mode: "HSR_SAN"},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "b", hsr: {net_id: 2, lan_id: 1}},
                      {idx_rx: "a", hsr: {net_id: 2, lan_id: 1}},
@@ -318,6 +318,13 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}]
     },
     {
+        txt: "Supervision Discard on LRE",
+        cfg: {mode: "HSR_SAN", sv: "DISCARD"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}}]}]
+    },
+    {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "HSR_SAN", npi: "d"},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
@@ -495,7 +502,7 @@ test_table =
         cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", prp: {}},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", prp: {}, ifh_rx: "a"}]}]
     },
     {
         txt: "Supervision Tx to LREs",
@@ -824,7 +831,7 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_HSR", npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_HSR", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
@@ -939,6 +946,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     cmd = "sudo ef"
     cmd_add = ""
     idx_list = []
+    idx_name_list = []
     idx_tx = nil
     idx_tx_name = nil
     smac = "01"
@@ -948,18 +956,19 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
     fwd.each_with_index do |e, i|
-        idx = e[:idx_tx]
+        idx_name = e[:idx_tx]
         dir = "rx"
-        if (idx == nil)
-            idx = e[:idx_rx]
+        if (idx_name == nil)
+            idx_name = e[:idx_rx]
         else
-            smac = fld_get(f, :smac, ":0#{idx}")
+            smac = fld_get(f, :smac, ":0#{idx_name}")
             dir = "tx"
-            idx_tx_name = idx_tx
-            idx_tx = rb_idx(idx)
+            idx_tx_name = idx_name
+            idx_tx = rb_idx(idx_name)
         end
-        name = " name f_#{idx}"
-        idx = rb_idx(idx)
+        name = " name f_#{idx_name}"
+        idx_name_list.push(idx_name)
+        idx = rb_idx(idx_name)
         idx_list.push(idx)
         if (index > 0)
             name += "_#{index + 1}"
@@ -1040,19 +1049,19 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     dupl_incr *= rep
     if (idx_tx_name == "a")
         cnt_incr(exp, "port_a", "rx", rep)
-    elsif (idx_list.include?("a"))
+    elsif (idx_name_list.include?("a"))
         cnt_incr(exp, "port_a", "tx", rep)
         cnt_incr(exp, "port_a", "tx_dupl_zero", dupl_incr)
     end
     if (idx_tx_name == "b")
         cnt_incr(exp, "port_b", "rx", rep)
-    elsif (idx_list.include?("b"))
+    elsif (idx_name_list.include?("b"))
         cnt_incr(exp, "port_b", "tx", rep)
         cnt_incr(exp, "port_b", "tx_dupl_zero", dupl_incr)
     end
     if (idx_tx_name == "c" || idx_tx_name == "d")
         cnt_incr(exp, "port_c", "rx", rep)
-    elsif (idx_list.include?("c") or idx_list.include?("d"))
+    elsif (idx_name_list.include?("c") or idx_name_list.include?("d"))
         cnt_incr(exp, "port_c", "tx", rep)
         cnt_incr(exp, "port_c", "tx_dupl_zero", dupl_incr)
     end
@@ -1268,6 +1277,7 @@ end
 sel = table_lookup(test_table, :sel)
 cnt_ok = 0
 cnt_err = 0
+fail_list = []
 $rb_table.each_with_index do |rb, rb_idx|
     #next if rb_idx != 0
     $rb = rb
@@ -1287,6 +1297,7 @@ $rb_table.each_with_index do |rb, rb_idx|
                 cnt_ok += 1
             else
                 cnt_err += 1
+                fail_list << txt
             end
         end
     end
@@ -1294,6 +1305,9 @@ end
 t_i("Total : #{cnt_ok + cnt_err}")
 t_i("Ok    : #{cnt_ok}")
 t_i("Errors: #{cnt_err}")
+fail_list.each do |txt|
+    #t_i("Failed: " + txt)
+end
 
 test "dump" do
     break
