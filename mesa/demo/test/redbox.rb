@@ -73,6 +73,7 @@ end
 #---------- Configuration -----------------------------------------------------
 
 test "disable-flow-control" do
+    $ts.dut.run("mesa-cmd port maxframe 1524")
     $ts.dut.run("mesa-cmd port flow control disable")
     sleep(1)
     dut_port_state_up($ts.dut.p)
@@ -95,6 +96,15 @@ test_table =
                      {idx_rx: "d"}]}]
     },
     {
+        txt: "port A to port B/C/D - max-length",
+        cfg: {mode: "HSR_SAN"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}]
+    },
+    {
         txt: "port B to port A/C/D - burst",
         cfg: {mode: "HSR_SAN"},
         tab: [{cnt: 10,
@@ -109,6 +119,15 @@ test_table =
         tab: [{fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {net_id: 7}},
                      {idx_rx: "b", hsr: {net_id: 7}},
+                     {idx_rx: "d"}]}]
+    },
+    {
+        txt: "port C to port A/B/D - max-length",
+        cfg: {mode: "HSR_SAN"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "c"},
+                     {idx_rx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
                      {idx_rx: "d"}]}]
     },
     {
@@ -399,6 +418,14 @@ test_table =
                      {idx_rx: "d"}]}]
     },
     {
+        txt: "port A to port C/D - max-length",
+        cfg: {mode: "PRP_SAN"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "a", prp: {lan_id: 0}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}]
+    },
+    {
         txt: "port B to port C/D - burst",
         cfg: {mode: "PRP_SAN", dd_age_time: 10000},
         tab: [{cnt: 10,
@@ -410,6 +437,15 @@ test_table =
         txt: "port C to port A/B/D",
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: "c"},
+                     {idx_rx: "a", prp: {lan_id: 0}},
+                     {idx_rx: "b", prp: {lan_id: 1}},
+                     {idx_rx: "d"}]}]
+    },
+    {
+        txt: "port C to port A/B/D - max-length",
+        cfg: {mode: "PRP_SAN"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "c"},
                      {idx_rx: "a", prp: {lan_id: 0}},
                      {idx_rx: "b", prp: {lan_id: 1}},
                      {idx_rx: "d"}]}]
@@ -570,6 +606,15 @@ test_table =
                      {idx_rx: "d", prp: {}}]}]
     },
     {
+        txt: "port A to port B/C/D - max-length",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", prp: {}},
+                     {idx_rx: "d", prp: {}}]}]
+    },
+    {
         txt: "port B to port A/C/D - burst",
         cfg: {mode: "HSR_PRP", dd_age_time: 10000},
         tab: [{cnt: 20,
@@ -582,6 +627,15 @@ test_table =
         txt: "port C to port A/B/D",
         cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: "c", prp: {}},
+                     {idx_rx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "d", prp: {}}]}]
+    },
+    {
+        txt: "port C to port A/B/D - max-length",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "c", prp: {}},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
                      {idx_rx: "d", prp: {}}]}]
@@ -793,12 +847,30 @@ test_table =
                      {idx_rx: "d", hsr: {net_id: 3}}]}]
     },
     {
+        txt: "port A to port B/C/D - max-length",
+        cfg: {mode: "HSR_HSR"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", hsr: {}},
+                     {idx_rx: "d", hsr: {}}]}]
+    },
+    {
         txt: "port C to port A/B/D",
         cfg: {mode: "HSR_HSR"},
         tab: [{fwd: [{idx_tx: "c", hsr: {net_id: 3}},
                      {idx_rx: "a", hsr: {net_id: 3}},
                      {idx_rx: "b", hsr: {net_id: 3}},
                      {idx_rx: "d", hsr: {net_id: 3}}]}]
+    },
+    {
+        txt: "port C to port A/B/D - max-length",
+        cfg: {mode: "HSR_HSR"},
+        tab: [{frm: {len: 1500},
+               fwd: [{idx_tx: "c", hsr: {}},
+                     {idx_rx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "d", hsr: {}}]}]
     },
     {
         txt: "redirect non-HSR-tagged on LRE ports",
