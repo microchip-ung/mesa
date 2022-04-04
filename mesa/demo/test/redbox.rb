@@ -153,7 +153,12 @@ test_table =
         txt: "redirect non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_SAN", npi: "d", non_hsr_queue: 1},
         tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
     },
     {
         txt: "VLANs, port A to port B/C",
@@ -260,7 +265,9 @@ test_table =
         tab: [{proxy: {mac: 0xcc},
                frm: {smac: ":cc"},
                fwd: [{idx_tx: "b", hsr: {}},
-                     {idx_rx: "a", hsr: {}}]}]
+                     {idx_rx: "a", hsr: {}}]}],
+        # Expect own counter on port B
+        cnt: [{port: "port_b", name: "rx_own", val: 1}]
     },
     {
         txt: "DMAC-NT-STATIC filtering on LRE->interlink",
@@ -299,7 +306,12 @@ test_table =
         cfg: {mode: "HSR_SAN", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -487,7 +499,13 @@ test_table =
         cfg: {mode: "PRP_SAN", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
+
     },
     {
         txt: "BPDU Tx to LREs",
@@ -613,7 +631,12 @@ test_table =
         txt: "redirect non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_PRP", npi: "d", non_hsr_queue: 1},
         tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -661,7 +684,13 @@ test_table =
         cfg: {mode: "HSR_PRP", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
+
     },
     {
         txt: "BPDU Tx to LREs",
@@ -775,7 +804,12 @@ test_table =
         txt: "redirect non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_HSR", npi: "d", non_hsr_queue: 1},
         tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
     },
     {
         txt: "DMAC-NT-STATIC filtering on LRE->interlink",
@@ -819,7 +853,12 @@ test_table =
         cfg: {mode: "HSR_HSR", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", ifh_rx: "a"}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_dupl_zero", val: 0}
+        ]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -955,6 +994,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     len = fld_get(f, :len, 46)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
+    rx_cnt = rep
     fwd.each_with_index do |e, i|
         idx_name = e[:idx_tx]
         dir = "rx"
@@ -1020,6 +1060,9 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             path_id = ((net_id << 1) + lan_id)
             size = fld_get(prp, :size, len + 6)
             cmd += " prp seqn #{seqn + index} lanid #{path_id} size #{size}"
+        elsif (dir == "tx" and hsr == nil)
+            # Do not count untagged Rx on port A/B
+            rx_cnt = 0
         end
     end
     cmd += cmd_add
@@ -1048,13 +1091,13 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     # Update expected counters
     dupl_incr *= rep
     if (idx_tx_name == "a")
-        cnt_incr(exp, "port_a", "rx", rep)
+        cnt_incr(exp, "port_a", "rx", rx_cnt)
     elsif (idx_name_list.include?("a"))
         cnt_incr(exp, "port_a", "tx", rep)
         cnt_incr(exp, "port_a", "tx_dupl_zero", dupl_incr)
     end
     if (idx_tx_name == "b")
-        cnt_incr(exp, "port_b", "rx", rep)
+        cnt_incr(exp, "port_b", "rx", rx_cnt)
     elsif (idx_name_list.include?("b"))
         cnt_incr(exp, "port_b", "tx", rep)
         cnt_incr(exp, "port_b", "tx_dupl_zero", dupl_incr)
@@ -1250,7 +1293,7 @@ def redbox_test(t)
         ["tx", "rx", "rx_wrong_lan", "rx_own",
          "tx_dupl_zero", "tx_dupl_one", "tx_dupl_multi"].each do |cnt_name|
             name = "#{port_name}[#{cnt_name}]"
-            #check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name])
+            check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name])
         end
     end
 
