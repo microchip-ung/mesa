@@ -27,7 +27,7 @@ end
 
 # Convert MAC address array to string
 def mac_to_txt(mac)
-    mac.map {|s| s.to_s(16)}.join ":"
+    mac.map {|s| s.to_s(16).rjust(2,'0')}.join ":"
 end
 
 # Convert IPv4 integer to string

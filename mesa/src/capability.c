@@ -1319,6 +1319,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_ACL_MAC_IGR:
+#if defined(VTSS_ARCH_LAN969X)
+        c = 1;
+#endif
+        break;
+
     // EVC
     case MESA_CAP_EVC_EVC_CNT:
         break;

@@ -2489,7 +2489,7 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     vtss_acl_port_action_t     act = action->port_action;
     vtss_acl_ptp_action_conf_t *ptp = &action->ptp;
     vtss_port_no_t             port_no;
-    u32                        discard = 0, port, ptp_cmd, ptp_add, ptp_opt;
+    u32                        discard = 0, port, ptp_cmd, ptp_add, ptp_opt, rew_sel = 0;
     u32                        sip_idx = 0, rt_mode, mach, macl, dmac_offset_ena = 0, match_id, log_msg_int;
     vtss_vid_mac_t             vid_mac;
 
@@ -2601,11 +2601,25 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
     case VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB:
         dmac_offset_ena = 1;
         break;
+#if defined(VTSS_ARCH_LAN969X)
+    case VTSS_ACL_ADDR_UPDATE_IGR_MAC_SWAP:
+        rew_sel = 1;
+        break;
+    case VTSS_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR:
+        rew_sel = 2;
+        break;
+    case VTSS_ACL_ADDR_UPDATE_IGR_DMAC_INCR_SMAC_REPLACE:
+        rew_sel = 3;
+        break;
+#endif
     default:
         rt_mode = 0; /* Routing mode */
         break;
     }
-    FA_ACT_SET(IS2, BASE_TYPE_ACL_RT_MODE, rt_mode);
+#if defined(VTSS_ARCH_LAN969X)
+    FA_ACT_SET(IS2, BASE_TYPE_MAC_REW_SEL, rew_sel);
+#endif
+    FA_ACT_SET(IS2, BASE_TYPE_ACL_RT_MODE, rew_sel ? 0 : rt_mode);
 
     vid_mac.vid = 0;
     vid_mac.mac = action->addr.mac;
@@ -3114,7 +3128,11 @@ static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_ACT_BITS(IS2, "match_id", BASE_TYPE_MATCH_ID);
         FA_DEBUG_ACT_BITS(IS2, "match_id_mask", BASE_TYPE_MATCH_ID_MASK);
         FA_DEBUG_ACT(IS2, "swap_mac_ena", BASE_TYPE_SWAP_MAC_ENA);
+        pr("\n");
         FA_DEBUG_ACT(IS2, "acl_rt_mode", BASE_TYPE_ACL_RT_MODE);
+#if defined(VTSS_ARCH_LAN969X)
+        FA_DEBUG_ACT(IS2, "mac_rew_sel", BASE_TYPE_MAC_REW_SEL);
+#endif
         pr("\n");
         fa_debug_bits(data, "acl_mac", IS2_AO_BASE_TYPE_ACL_MAC_0, 48);
         FA_DEBUG_ACT(IS2, "dmac_offset_ena", BASE_TYPE_DMAC_OFFSET_ENA);

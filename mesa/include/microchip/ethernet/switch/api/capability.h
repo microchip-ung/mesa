@@ -252,6 +252,7 @@ typedef enum {
     MESA_CAP_ACL_HACL,                      /**< Hierarchical ACLs */
     MESA_CAP_ACL_EXT_DIP,                   /**< ACL extended IPv6 rule with DIP matching */
     MESA_CAP_ACL_EXT_MAC,                   /**< ACL extended IPv4/IPv6 rules with MAC address matching */
+    MESA_CAP_ACL_MAC_IGR,                   /**< ACL ingress MAC address operations */
 
     // EVC
     MESA_CAP_EVC_EVC_CNT = 900,             /**< Number of EVCs */

@@ -241,7 +241,10 @@ typedef enum {
     VTSS_ACL_ADDR_UPDATE_MAC_SWAP,         /**< Swap SMAC and DMAC */
     VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE,     /**< Replace DMAC */
     VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB, /**< Replace 40 MSB of DMAC */
-    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC    /**< Swap MAC addresses if DMAC is unicast. Replace SMAC if DMAC is multicast. Same for SIP/DIP */
+    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC,   /**< Swap MAC addresses if DMAC is unicast. Replace SMAC if DMAC is multicast. Same for SIP/DIP */
+    VTSS_ACL_ADDR_UPDATE_IGR_MAC_SWAP,              /**< Ingress: Swap SMAC and DMAC */
+    VTSS_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR,        /**< Ingress: Increment DMAC and SMAC */
+    VTSS_ACL_ADDR_UPDATE_IGR_DMAC_INCR_SMAC_REPLACE /**< Ingress: Increment DMAC, replace SMAC */
 } vtss_acl_addr_update_t;
 
 /** \brief ACL address action configuration */
