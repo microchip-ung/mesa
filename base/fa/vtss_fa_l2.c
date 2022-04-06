@@ -1763,8 +1763,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_FWD_CFG_NODE_SRC_FWD_MASK(node_smac_msk));
 
     REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
-           VTSS_F_RB_PORT_CFG_CT_EGR_ENA(lre) |
-           VTSS_F_RB_PORT_CFG_CT_IGR_ENA(lre) |
+           VTSS_F_RB_PORT_CFG_CT_EGR_ENA(hsr_aware) |
+           VTSS_F_RB_PORT_CFG_CT_IGR_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |

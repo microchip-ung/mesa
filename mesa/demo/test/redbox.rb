@@ -132,7 +132,7 @@ test_table =
     },
     {
         txt: "port D to port A/B/C - burst",
-        cfg: {mode: "HSR_SAN", net_id: 7, dd_age_time: 10000},
+        cfg: {mode: "HSR_SAN", net_id: 7},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a", hsr: {net_id: 7}},
@@ -427,7 +427,7 @@ test_table =
     },
     {
         txt: "port B to port C/D - burst",
-        cfg: {mode: "PRP_SAN", dd_age_time: 10000},
+        cfg: {mode: "PRP_SAN"},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "b", prp: {lan_id: 1}},
                      {idx_rx: "c"},
@@ -452,7 +452,7 @@ test_table =
     },
     {
         txt: "port D to port A/B/C - burst",
-        cfg: {mode: "PRP_SAN", dd_age_time: 10000},
+        cfg: {mode: "PRP_SAN"},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a", prp: {lan_id: 0}},
@@ -616,7 +616,7 @@ test_table =
     },
     {
         txt: "port B to port A/C/D - burst",
-        cfg: {mode: "HSR_PRP", dd_age_time: 10000},
+        cfg: {mode: "HSR_PRP"},
         tab: [{cnt: 20,
                fwd: [{idx_tx: "b", hsr: {}},
                      {idx_rx: "a", hsr: {}},
@@ -659,7 +659,7 @@ test_table =
     },
     {
         txt: "port D to port A/B/C - untagged burst",
-        cfg: {mode: "HSR_PRP", dd_age_time: 10000},
+        cfg: {mode: "HSR_PRP"},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a", hsr: {}},
