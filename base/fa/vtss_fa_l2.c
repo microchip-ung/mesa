@@ -1792,10 +1792,13 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
             conf->mode == VTSS_RB_MODE_HSR_PRP ? FA_RB_MODE_HSR_PRP :
             conf->mode == VTSS_RB_MODE_HSR_HSR ? FA_RB_MODE_HSR_HSR : 0);
     ena = (conf->mode == VTSS_RB_MODE_DISABLED ? 0 : 1);
-    REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id),
-           VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) |
+    val = (VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) |
            VTSS_F_RB_RB_CFG_RB_MODE(mode) |
            VTSS_F_RB_RB_CFG_RB_ENA(ena));
+#if defined(VTSS_M_RB_RB_CFG_IRI_ENA)
+    val |= VTSS_F_RB_RB_CFG_IRI_ENA(1);
+#endif
+    REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id), val);
     if (ena) {
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_a, &port_a));
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_b, &port_b));
@@ -1839,6 +1842,25 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
            VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_sv) |
            VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
+
+#if defined(VTSS_RB_QSYS_CFG)
+    // Cut-through setup in QSYS
+    switch (conf->mode) {
+    case VTSS_RB_MODE_HSR_SAN:
+    case VTSS_RB_MODE_HSR_PRP:
+        val = 0x05;
+        break;
+    case VTSS_RB_MODE_HSR_HSR:
+        val = 0x3f;
+        break;
+    default:
+        val = 0;
+        break;
+    }
+    REG_WRM(RB_ADDR(VTSS_RB_QSYS_CFG, rb_id),
+            VTSS_F_RB_QSYS_CFG_QUE_CT_ENA(val),
+            VTSS_M_RB_QSYS_CFG_QUE_CT_ENA);
+#endif
 
     // Ageing
     clk_period = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
@@ -1930,6 +1952,7 @@ static vtss_rc fa_rb_disc_cmd(vtss_state_t *vtss_state,
     u32 val;
 
     REG_WR(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, rb_id),
+           VTSS_F_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(0xe) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_DT_COL_CNT) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_DT_COL_CNT) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
@@ -2007,6 +2030,7 @@ static vtss_rc fa_rb_host_mac_set(vtss_state_t *vtss_state,
            VTSS_F_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_MAC_MSB(mach));
     REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_1, rb_id),
            VTSS_F_RB_HOST_ACCESS_CFG_1_HOST_ENTRY_MAC_LSB(macl));
+    REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id), 0); // Clear VLD in case of LOOKUP
     return VTSS_RC_OK;
 }
 
@@ -3002,6 +3026,9 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
            FA_RB_MODE_PRP_SAN, FA_RB_MODE_HSR_SAN,
            FA_RB_MODE_HSR_PRP, FA_RB_MODE_HSR_HSR);
+#if defined(VTSS_M_RB_RB_CFG_IRI_ENA)
+        FA_DEBUG_RB_FLD(&val, RB_CFG_IRI_ENA);
+#endif
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_HSR_TAG_SEL);
         pr("(0:OUTER, 1:MIDDLE, 2:INNER, 3:RESV)\n");
         REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
@@ -3010,6 +3037,12 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(RB_ADDR(VTSS_RB_NETID_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_FILTER_ENA);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_MASK);
+#if defined(VTSS_RB_QSYS_CFG)
+        REG_RD(RB_ADDR(VTSS_RB_QSYS_CFG, i), &val);
+        FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_CT_ENA);
+        FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_EXPAND_ENA);
+        FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_DROP_STICKY);
+#endif
         REG_RD(RB_ADDR(VTSS_RB_SPV_CFG, i), &val);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
@@ -3020,6 +3053,10 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
+        REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, i), &val);
+        fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA,
+                        "AUTO_REPLACE_RULE_ENA", "DISC:", FALSE, 1);
+        pr("(B0:DUPL, B1:SEQ, B2:AGE, B3:RANDOM)\n");
         p = buf;
         for (j = 0; j < 4; j++) {
             p += sprintf(p, "%s%u:%u%s",
