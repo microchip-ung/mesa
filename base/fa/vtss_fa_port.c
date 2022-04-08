@@ -1919,11 +1919,6 @@ static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t 
             VTSS_M_DSM_ETH_PFC_CFG_PFC_XOFF_MIN_UPDATE_ENA |
             VTSS_M_DSM_ETH_PFC_CFG_PFC_ENA);
 
-    /* No ingress drops in FC */
-    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
-            VTSS_F_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!VTSS_BOOL(pfc_mask)),
-            VTSS_M_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
-
     /* Asm / Rx enable */
     REG_WR(VTSS_ASM_PFC_CFG(port),
            VTSS_F_ASM_PFC_CFG_RX_PFC_ENA(pfc_mask) |
@@ -1973,6 +1968,12 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
         pause_start = wm_enc(6  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
         pause_stop  = wm_enc(4  * (VTSS_MAX_FRAME_LENGTH_STANDARD / FA_BUFFER_CELL_SZ));
     }
+
+    /* No ingress drops in FC */
+    REG_WRM(VTSS_QFWD_SWITCH_PORT_MODE(port),
+            VTSS_F_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!fc_obey),
+            VTSS_M_QFWD_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
+
 
     /* Set Pause WM hysteresis */
     REG_WRM(VTSS_QSYS_PAUSE_CFG(port),
