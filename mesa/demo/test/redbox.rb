@@ -338,7 +338,9 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}]
+                     {idx_rx: "b"}]}],
+        # Expect zero counter
+        cnt: [{port: "port_c", name: "rx", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -549,7 +551,9 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}]
+                     {idx_rx: "b"}]}],
+        # Expect zero counter
+        cnt: [{port: "port_c", name: "rx", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -752,7 +756,9 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}]
+                     {idx_rx: "b"}]}],
+        # Expect zero counter
+        cnt: [{port: "port_c", name: "rx", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -938,7 +944,9 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}]
+                     {idx_rx: "b"}]}],
+        # Expect zero counter
+        cnt: [{port: "port_c", name: "rx", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -1057,7 +1065,6 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     cmd = "sudo ef"
     cmd_add = ""
     idx_list = []
-    idx_name_list = []
     idx_tx = nil
     idx_tx_name = nil
     smac = "01"
@@ -1066,7 +1073,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     len = fld_get(f, :len, 46)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
-    rx_cnt = rep
+    port_c_done = false
     fwd.each_with_index do |e, i|
         idx_name = e[:idx_tx]
         dir = "rx"
@@ -1079,62 +1086,82 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             idx_tx = rb_idx(idx_name)
         end
         name = " name f_#{idx_name}"
-        idx_name_list.push(idx_name)
         idx = rb_idx(idx_name)
         idx_list.push(idx)
         if (index > 0)
             name += "_#{index + 1}"
         end
-        if (rep > 1 and dir == "rx")
-            next
+        if (rep == 1 or dir == "tx")
+            cmd_add += " #{dir} #{$ts.pc.p[idx]}"
+            if (rep > 1)
+                cmd_add += " rep #{rep}"
+            end
+            cmd_add += name
+            cmd += name
+            ifh_rx = fld_get(e, :ifh_rx, nil)
+            if (ifh_rx != nil)
+                ifh_rx = rb_idx(ifh_rx)
+                cmd += (" " + cmd_rx_ifh_push({port_idx: ifh_rx}))
+            end
+            ifh_tx = fld_get(e, :ifh_tx, nil)
+            if (ifh_tx != nil)
+                rb_tag_dis = fld_get(e, :rb_tag_dis, false)
+                ifh_tx = rb_idx(ifh_tx)
+                port = $ts.dut.p[ifh_tx]
+                cmd += (" " + cmd_tx_ifh_push({dst_port: port, rb_tag_disable: rb_tag_dis}))
+            end
+            cmd += " eth"
+            if (f.key?:dmac)
+                cmd += " dmac #{f[:dmac]}"
+            end
+            cmd += " smac #{smac}"
+            if (e.key?:vid)
+                cmd += " ctag vid #{e[:vid]}"
+            end
+            hsr = fld_get(e, :hsr, nil)
+            if (hsr != nil)
+                net_id = fld_get(hsr, :net_id, 0)
+                lan_id = fld_get(hsr, :lan_id, 0)
+                path_id = ((net_id << 1) + lan_id)
+                size = fld_get(hsr, :size, len + 6)
+                seqn = fld_get(hsr, :seqn, 1)
+                cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
+            end
+            cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0xff"
+            prp = fld_get(e, :prp, nil)
+            if (prp != nil)
+                seqn = fld_get(prp, :seqn, 1)
+                net_id = fld_get(prp, :net_id, 5)
+                lan_id = fld_get(prp, :lan_id, 0)
+                path_id = ((net_id << 1) + lan_id)
+                size = fld_get(prp, :size, len + 6)
+                cmd += " prp seqn #{seqn + index} lanid #{path_id} size #{size}"
+            end
         end
-        cmd_add += " #{dir} #{$ts.pc.p[idx]}"
-        if (rep > 1)
-            cmd_add += " rep #{rep}"
+
+        # Update expected counters
+        cnt = rep
+        case idx_name
+        when "a", "b"
+            # Do not count untagged frames on port A/B
+            if (cnt == 1 and prp == nil and hsr == nil)
+                cnt = 0
+            end
+        else
+            # Count RedBox port C for switch port C/D
+            idx_name = "c"
+            if (port_c_done)
+                cnt = 0
+            else
+                port_c_done = true
+            end
         end
-        cmd_add += name
-        cmd += name
-        ifh_rx = fld_get(e, :ifh_rx, nil)
-        if (ifh_rx != nil)
-            ifh_rx = rb_idx(ifh_rx)
-            cmd += (" " + cmd_rx_ifh_push({port_idx: ifh_rx}))
-        end
-        ifh_tx = fld_get(e, :ifh_tx, nil)
-        if (ifh_tx != nil)
-            rb_tag_dis = fld_get(e, :rb_tag_dis, false)
-            ifh_tx = rb_idx(ifh_tx)
-            port = $ts.dut.p[ifh_tx]
-            cmd += (" " + cmd_tx_ifh_push({dst_port: port, rb_tag_disable: rb_tag_dis}))
-        end
-        cmd += " eth"
-        if (f.key?:dmac)
-            cmd += " dmac #{f[:dmac]}"
-        end
-        cmd += " smac #{smac}"
-        if (e.key?:vid)
-            cmd += " ctag vid #{e[:vid]}"
-        end
-        hsr = fld_get(e, :hsr, nil)
-        if (hsr != nil)
-            net_id = fld_get(hsr, :net_id, 0)
-            lan_id = fld_get(hsr, :lan_id, 0)
-            path_id = ((net_id << 1) + lan_id)
-            size = fld_get(hsr, :size, len + 6)
-            seqn = fld_get(hsr, :seqn, 1)
-            cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
-        end
-        cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0xff"
-        prp = fld_get(e, :prp, nil)
-        if (prp != nil)
-            seqn = fld_get(prp, :seqn, 1)
-            net_id = fld_get(prp, :net_id, 5)
-            lan_id = fld_get(prp, :lan_id, 0)
-            path_id = ((net_id << 1) + lan_id)
-            size = fld_get(prp, :size, len + 6)
-            cmd += " prp seqn #{seqn + index} lanid #{path_id} size #{size}"
-        elsif (dir == "tx" and hsr == nil)
-            # Do not count untagged Rx on port A/B
-            rx_cnt = 0
+        port_name = ("port_" + idx_name)
+        if (dir == "tx")
+            cnt_incr(exp, port_name, "rx", cnt)
+        else
+            cnt_incr(exp, port_name, "tx", cnt)
+            cnt_incr(exp, port_name, "tx_dupl_zero", cnt * dupl_incr)
         end
     end
     cmd += cmd_add
@@ -1158,27 +1185,6 @@ def rb_frame_test(entry, exp, dupl_incr, index)
     if (wait > 0)
         # Wait a number of seconds
         sleep(wait)
-    end
-
-    # Update expected counters
-    dupl_incr *= rep
-    if (idx_tx_name == "a")
-        cnt_incr(exp, "port_a", "rx", rx_cnt)
-    elsif (idx_name_list.include?("a"))
-        cnt_incr(exp, "port_a", "tx", rep)
-        cnt_incr(exp, "port_a", "tx_dupl_zero", dupl_incr)
-    end
-    if (idx_tx_name == "b")
-        cnt_incr(exp, "port_b", "rx", rx_cnt)
-    elsif (idx_name_list.include?("b"))
-        cnt_incr(exp, "port_b", "tx", rep)
-        cnt_incr(exp, "port_b", "tx_dupl_zero", dupl_incr)
-    end
-    if (idx_tx_name == "c" || idx_tx_name == "d")
-        cnt_incr(exp, "port_c", "rx", rep)
-    elsif (idx_name_list.include?("c") or idx_name_list.include?("d"))
-        cnt_incr(exp, "port_c", "tx", rep)
-        cnt_incr(exp, "port_c", "tx_dupl_zero", dupl_incr)
     end
 end
 
