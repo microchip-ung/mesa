@@ -63,6 +63,7 @@ static vtss_rc ocelot_ts_io_pin_timeofday_get_no_action(vtss_state_t *vtss_state
         VTSS_RC(vtss_timestampSubSec(ts));
         ts->nanoseconds = 999999984 + (ts->nanoseconds & 0xf);
     }
+    ts->nanosecondsfrac = 0;
     return VTSS_RC_OK;
 }
 

@@ -1759,7 +1759,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_TX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
         // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
-        cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD;
+        cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD | INDY_PTP_TX_PTP_MAX_CF_DIS;
         EP_WRM(dev, INDY_PTP_TX_CF_CFG, cf_config, INDY_DEF_MASK);
         ts_config = ts_config | INDY_PTP_TX_PTP_ALT_MASTER_EN;
         ts_config = ts_config | INDY_PTP_TX_PTP_UDP_CHKSUM_DIS;
