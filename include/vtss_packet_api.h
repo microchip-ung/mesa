@@ -576,6 +576,7 @@ typedef struct {
     vtss_packet_pipeline_pt_t pipeline_pt;
 #endif /* defined(VTSS_FEATURE_PACKET_PIPELINE_PT) */
     BOOL rb_tag_disable;
+    BOOL rb_dd_disable;
 } vtss_packet_tx_info_t;
 
 /**

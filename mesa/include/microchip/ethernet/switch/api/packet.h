@@ -517,6 +517,9 @@ typedef struct {
 
     // RedBox HSR/PRP tag disable
     mesa_bool_t rb_tag_disable;
+
+    // RedBox HSR duplicate discard disable
+    mesa_bool_t rb_dd_disable;
 } mesa_packet_tx_info_t;
 
 // Decode binary extraction/Rx header.

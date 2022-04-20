@@ -1105,10 +1105,13 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             end
             ifh_tx = fld_get(e, :ifh_tx, nil)
             if (ifh_tx != nil)
-                rb_tag_dis = fld_get(e, :rb_tag_dis, false)
+                info = {}
                 ifh_tx = rb_idx(ifh_tx)
-                port = $ts.dut.p[ifh_tx]
-                cmd += (" " + cmd_tx_ifh_push({dst_port: port, rb_tag_disable: rb_tag_dis}))
+                info[:dst_port] = $ts.dut.p[ifh_tx]
+                rb_tag_dis = fld_get(e, :rb_tag_dis, false)
+                info[:rb_tag_disable] = rb_tag_dis
+                info[:rb_dd_disable] = rb_tag_dis
+                cmd += (" " + cmd_tx_ifh_push(info))
             end
             cmd += " eth"
             if (f.key?:dmac)

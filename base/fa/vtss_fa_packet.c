@@ -1004,6 +1004,9 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     if (info->rb_tag_disable) {
         IFH_ENCODE_BITFIELD(bin_hdr, 1, 273, 1); // Disable RedBox tagging
     }
+    if (info->rb_dd_disable) {
+        IFH_ENCODE_BITFIELD(bin_hdr, 1, 276, 1); // Disable RedBox Duplicate Discard processing
+    }
 
     VTSS_IG(VTSS_TRACE_GROUP_PACKET, "IFH:");
     VTSS_IG_HEX(VTSS_TRACE_GROUP_PACKET, &bin_hdr[0], *bin_hdr_len);
