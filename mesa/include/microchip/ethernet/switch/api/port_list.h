@@ -68,6 +68,14 @@ struct mesa_port_list_t {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i) _private[i] = 0;
     }
 
+    bool is_empty() {
+        for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i) {
+            if (_private[i] != 0) return false;
+        }
+
+        return true;
+    }
+
     void set_all() {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
             _private[i] = 0xff;
