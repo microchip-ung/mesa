@@ -107,19 +107,23 @@ test_table =
     {
         txt: "port B to port A/C/D - burst",
         cfg: {mode: "HSR_SAN"},
-        tab: [{cnt: 10,
+        tab: [{node: {mac: 0x0b}},
+              {cnt: 10,
                fwd: [{idx_tx: "b", hsr: {net_id: 2, lan_id: 1}},
                      {idx_rx: "a", hsr: {net_id: 2, lan_id: 1}},
                      {idx_rx: "c"},
-                     {idx_rx: "d"}]}]
+                     {idx_rx: "d"}]},
+              {node: {mac: 0x0b, cmd: "get", cnt: [{port: "b", name: "rx", val: 10}]}}]
     },
     {
         txt: "port C to port A/B/D",
         cfg: {mode: "HSR_SAN", net_id: 7},
-        tab: [{fwd: [{idx_tx: "c"},
+        tab: [{proxy: {mac: 0x0c}},
+              {fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {net_id: 7}},
                      {idx_rx: "b", hsr: {net_id: 7}},
-                     {idx_rx: "d"}]}]
+                     {idx_rx: "d"}]},
+              {proxy: {mac: 0x0c, cmd: "get", cnt: 1}}]
     },
     {
         txt: "port C to port A/B/D - max-length",
@@ -137,7 +141,8 @@ test_table =
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a", hsr: {net_id: 7}},
                      {idx_rx: "b", hsr: {net_id: 7}},
-                     {idx_rx: "c"}]}]
+                     {idx_rx: "c"}]},
+              {proxy: {mac: 0x0d, cmd: "get", cnt: 10}}]
     },
     {
         txt: "port D to port A/B/C - repeated burst",
@@ -261,7 +266,7 @@ test_table =
                    {idx_rx: "d"}],
              wait: 10},
             # Send from SMAC on LRE, expect discard on Interlink
-            {proxy: {mac: 0xcc, cmd: "get"},
+            {proxy: {mac: 0xcc, cmd: "get", cnt: 1},
              frm: {smac: ":cc"},
              fwd: [{idx_tx: "a", hsr: {}},
                    {idx_rx: "b", hsr: {}}],
@@ -475,7 +480,10 @@ test_table =
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: "a", prp: {lan_id: 1}},
                      {idx_rx: "c", prp: {lan_id: 1}},
-                     {idx_rx: "d", prp: {lan_id: 1}}]}],
+                     {idx_rx: "d", prp: {lan_id: 1}}]},
+              {node: {mac: 0x0a, cmd: "get",
+                      cnt: [{port: "a", name: "rx", val: 1},
+                            {port: "a", name: "rx_wrong_lan", val: 1}]}}],
         cnt: [{port: "port_a", name: "rx_wrong_lan", val: 1}]
     },
     {
@@ -483,7 +491,10 @@ test_table =
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: "b", prp: {}},
                      {idx_rx: "c", prp: {}},
-                     {idx_rx: "d", prp: {}}]}],
+                     {idx_rx: "d", prp: {}}]},
+              {node: {mac: 0x0b, cmd: "get",
+                      cnt: [{port: "b", name: "rx", val: 1},
+                            {port: "b", name: "rx_wrong_lan", val: 1}]}}],
         cnt: [{port: "port_b", name: "rx_wrong_lan", val: 1}]
     },
     {
@@ -519,8 +530,7 @@ test_table =
                    {idx_rx: "d"}],
              wait: 10},
             # Forward to SAN on port B
-            {node: {mac: 0xbb, cmd: "get"},
-             frm: {dmac: ":bb"},
+            {node: {mac: 0xbb, cmd: "get", cnt: [{port: "b", name: "rx", val: 1}]},
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a"}],
              wait: 10},
@@ -1295,6 +1305,7 @@ def redbox_test(t)
             san_a = fld_get(node, :san_a, false)
             conf = {type: type, san_a: san_a}
             cmd = fld_get(node, :cmd, "add")
+            cnt = fld_get(node, :cnt, [])
             err = fld_get(node, :err, false)
             if (cmd == "add")
                 $ts.dut.call("mesa_rb_node_add", rb_id, mac, conf)
@@ -1307,6 +1318,19 @@ def redbox_test(t)
                     e = $ts.dut.try("mesa_rb_node_get", rb_id, mac)
                     if (e != nil)
                         check_mac("node_get", e["mac"], mac)
+                    end
+                    ["a", "b"].each do |port_name|
+                        ["rx", "rx_wrong_lan"].each do |cnt_name|
+                            x = 0
+                            cnt.each do |c|
+                                if (c[:port] == port_name and c[:name] == cnt_name)
+                                    x = c[:val]
+                                end
+                            end
+                            pname = ("port_" + port_name)
+                            name = "#{pname}[#{cnt_name}]"
+                            check_counter(name, e[pname]["cnt"][cnt_name], x)
+                        end
                     end
                 end
             elsif (cmd == "get_next")
@@ -1342,6 +1366,8 @@ def redbox_test(t)
                     if (e != nil)
                         check_mac("proxy_node_get", e["mac"], mac)
                     end
+                    x = fld_get(proxy, :cnt)
+                    check_counter("rx", e["cnt"]["rx"], x)
                 end
             elsif (cmd == "get_next")
                 if (err)
