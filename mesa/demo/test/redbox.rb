@@ -353,7 +353,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "d", ifh_rx: "a"}]}]
+                     {idx_rx: "d", hsr: {}, ifh_rx: "a"}]}]
     },
     {
         txt: "Supervision Discard on LRE",
