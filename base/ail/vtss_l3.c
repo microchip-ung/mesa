@@ -10,7 +10,7 @@
 #include <sys/time.h>
 #include "vtss_api.h"
 #include "vtss_state.h"
-#include "vtss_os_linux.h"
+#include "vtss_os.h"
 
 // Allow to do bulk opertations for ~20ms
 #define BULK_TIME_MAX 20

@@ -5,6 +5,7 @@
 #define _MEPA_OS_LMSTAX_H_
 
 #include "lm_utils.h"
+#include "lm_os.h"
 
 typedef signed char        i8;
 typedef signed short       i16;
@@ -15,7 +16,6 @@ typedef unsigned char      u8;
 typedef unsigned short     u16;
 typedef unsigned int       u32;
 typedef unsigned long long u64;
-
 typedef unsigned char      BOOL;
 //typedef unsigned int       uintptr_t; /**< Unsigned integer big enough to hold pointers */
 
@@ -24,9 +24,11 @@ typedef unsigned char      BOOL;
 
 #define MEPA_LABS(arg) ((arg > 0) ? arg : -arg)
 
+#define MEPA_MSLEEP(msec) { lm_os_nssleep(msec * 1000000); }
+
 typedef struct {
-    long    tv_sec;    /* seconds since Jan. 1, 1970 */
-    long    tv_usec;   /* and microseconds */
+    long int tv_sec;
+    long int tv_usec;
 } mepa_timeval_t;
 
 typedef struct {
@@ -34,17 +36,14 @@ typedef struct {
     mepa_timeval_t now;
 } mepa_mtimer_t;
 
-#define MEPA_MSLEEP(msec)
-
-#define MEPA_GETTIMEOFDAY(time) ((time)->tv_sec = (time)->tv_usec = 0)
 #define MEPA_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? TRUE : FALSE)
 
 #define MEPA_MTIMER_START(timer, msec) { \
-    (void) MEPA_GETTIMEOFDAY(&((timer)->timeout));   \
+    lm_os_timeval_init(&((timer)->timeout));   \
     (timer)->timeout.tv_usec+=msec*1000; \
     if ((timer)->timeout.tv_usec>=1000000) { (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000; (timer)->timeout.tv_usec%=1000000; } \
-} /**< Start timer */
+}
 
-#define MEPA_MTIMER_TIMEOUT(timer) (MEPA_GETTIMEOFDAY(&((timer)->now))==0 && MEPA_TIMERCMP(&((timer)->now),&((timer)->timeout),>))
+#define MEPA_MTIMER_TIMEOUT(timer) (lm_os_timeval_init(&((timer)->now)) && MEPA_TIMERCMP((timer)->now, (timer)->timeout, >))
 
 #endif //  _MEPA_OS_LMSTAX_H_

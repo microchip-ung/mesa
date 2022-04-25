@@ -6,7 +6,6 @@
 
 #include "vtss/api/types.h"
 #include "vtss_api.h"
-typedef BOOL bool;
 
 enum vtss_lan966x_vcap_instance {
     VTSS_LAN966X_VCAP_INSTANCE_ES0,

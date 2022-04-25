@@ -9,8 +9,6 @@
 #include "lan8814_ts_registers.h"
 #include "lan8814_private.h"
 #include <string.h>
-#define MEPA_LABS(arg)                labs(arg)                /**< long to abs */
-#define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor)) /**< support for 64 bit division */
 
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,10 speeds

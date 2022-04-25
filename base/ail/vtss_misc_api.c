@@ -291,7 +291,7 @@ vtss_rc vtss_sgpio_conf_get(const vtss_inst_t        inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        *conf = vtss_state->misc.sgpio_conf[chip_no][group];
+       *conf = vtss_state->misc.sgpio_conf[chip_no][group];
     }
     VTSS_EXIT();
     return rc;

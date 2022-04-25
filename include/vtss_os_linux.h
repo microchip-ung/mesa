@@ -196,17 +196,6 @@ static __always_inline int vtss_mtimer_timeout(vtss_mtimer_t *t)
 
 #define VTSS_MTIMER_CANCEL(timer) /* No action in this implementation. */
 
-/**< Time of day struct */
-typedef struct {
-    time_t sec; /**< Time of day in seconds */
-} vtss_timeofday_t;
-
-#define VTSS_TIME_OF_DAY(tod) { \
-    struct timeval tve; \
-    (void)do_gettimeofday(&tve);  \
-    tod.sec = tve.tv_sec; \
-} /**< Time of day macro */
-
 #define VTSS_DIV64 div64_u64
 
 static inline u32 vtss_mod64(u64 div, u32 base)
