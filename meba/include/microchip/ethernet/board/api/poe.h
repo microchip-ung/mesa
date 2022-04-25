@@ -99,7 +99,9 @@ typedef mesa_rc (*meba_poe_do_detection_t)(
 
 // Perform chip initialization.
 typedef mesa_rc (*meba_poe_chip_initialization_t)(
-    struct meba_inst   *inst);
+    struct meba_inst   *inst,
+    mesa_bool_t interruptible_power,
+    int16_t     restart_cause);
 
 // Perform chip synchronization
 typedef mesa_rc (*meba_poe_sync_t)(
@@ -109,7 +111,7 @@ typedef mesa_rc (*meba_poe_sync_t)(
 // cfg    [IN]  Port configuration.
 typedef mesa_rc (*meba_poe_cfg_set_t)(
         struct meba_inst               *inst,
-        meba_poe_cfg_t                 *cfg);
+        meba_poe_global_cfg_t          *cfg);
 
 // Get PoE controller status.
 // status [OUT] Controller status.

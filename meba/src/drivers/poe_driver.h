@@ -8,10 +8,88 @@
 #include <microchip/ethernet/board/api/types.h>
 #include <microchip/ethernet/switch/api/types.h>
 
+
+typedef enum
+{
+    ePORT_MAX_POWER_15W = 15,
+    ePORT_MAX_POWER_30W = 30,
+    ePORT_MAX_POWER_60W = 60,
+    ePORT_MAX_POWER_90W = 90,
+} POE_PORT_MAX_POWER_e;
+
+
 typedef struct {
     const char *i2c_device;
     const uint8_t i2c_address;
 } i2c_config_t;
+
+
+typedef void (*pointer_to_meba_poe_io_reset_t)(mesa_bool_t);
+
+
+typedef struct {
+
+    mesa_bool_t             IsBT_mode_user_config;
+
+    // PD692x0 family detection method
+    PoE_Controller_Type_e   ePoE_Controller_Type_default;
+
+    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
+    POE_PORT_MAX_POWER_e   ePoE_port_max_power_default;
+
+    // BT Port Operation Mode for legacy
+    uint8_t bt_port_type_operation_mode_for_legacy_15W_default;
+    uint8_t bt_port_type_operation_mode_for_legacy_30W_default;
+    uint8_t bt_port_type_operation_mode_for_legacy_60W_default;
+    uint8_t bt_port_type_operation_mode_for_legacy_90W_default;
+
+    // pointer to poe reset io function
+    pointer_to_meba_poe_io_reset_t pointer_to_meba_poe_io_reset;
+
+    // power higher priority port.
+    uint8_t indv_mask_AT_ignore_higher_priority_default;
+
+    // En/Dis support of legacy detection.
+    uint8_t indv_mask_AT_supports_legact_detection_default;
+
+    // en/Dis MESSAGE_READY pin notification.
+    uint8_t indv_mask_AT_message_ready_notify_default;
+
+    // En/Dis Layer 2 PD commands.
+    uint8_t indv_mask_AT_layer2_lldp_enable_default;
+
+    // accept/ignored Port Priority recived from the PD
+    uint8_t indv_mask_AT_layer2_priority_by_PD_default;
+
+    // use 4-pair matrix commands.
+    uint8_t indv_mask_AT_matrix_support_4P_default;
+
+    // power higher priority port.
+    uint8_t indv_mask_BT_ignore_higher_priority_default;
+
+    // expand Resistor detection range up to range to 55 K.
+    uint8_t indv_mask_BT_support_high_res_detection_default;
+
+    // Initialization of the I2C module system after 10 seconds of inactivity.
+    uint8_t indv_mask_BT_i2c_restart_enable_default;
+
+    // led stream type
+    uint8_t indv_mask_BT_led_stream_type_default;
+
+
+    // -----------  AT Power Management mode of operation  ----------------------//
+
+    // Selects the method of calculating total power consumption.
+    uint8_t AT_pm1_default;
+
+    // Selects the power limit at the port (maximum or according to class or predefined).
+    uint8_t AT_PM2_default;
+
+    // Selects the start condition. (Not recommended for new designs, keep 0x00).
+    uint8_t AT_PM3_default;
+
+} meba_poe_parameters_t;
+
 
 /**
  * \brief Open an I2C device and configure I2C address
@@ -48,7 +126,8 @@ void meba_pd69200_driver_init(
     uint32_t                    port_map_length,
     meba_poe_psu_input_prob_t   *psu_map,
     uint32_t                    psu_map_length,
-    meba_debug_t                debug);
+    meba_debug_t                debug,
+    meba_poe_parameters_t       tMeba_poe_parameters);
 
 /**
  * \brief Initialize driver
@@ -75,6 +154,7 @@ void meba_pd69200bt_driver_init(
     uint32_t                    port_map_length,
     meba_poe_psu_input_prob_t   *psu_map,
     uint32_t                    psu_map_length,
-    meba_debug_t                debug);
+    meba_debug_t                debug,
+    meba_poe_parameters_t       tMeba_poe_parameters);
 
 #endif // _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_

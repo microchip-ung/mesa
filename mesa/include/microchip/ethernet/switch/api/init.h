@@ -429,9 +429,9 @@ typedef uint16_t mesa_version_t;
 
 // Restart type
 typedef enum {
-    MESA_RESTART_COLD, // Cold: Chip and CPU restart, e.g. power cycling
-    MESA_RESTART_COOL, // Cool: Chip and CPU restart done by CPU
-    MESA_RESTART_WARM  // Warm: CPU restart only
+    MESA_RESTART_COLD = 0, // Cold: Chip and CPU restart, e.g. power cycling
+    MESA_RESTART_COOL,     // Cool: Chip and CPU restart done by CPU
+    MESA_RESTART_WARM      // Warm: CPU restart only
 } mesa_restart_t;
 
 // Restart status

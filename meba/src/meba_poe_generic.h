@@ -9,7 +9,9 @@
 #include "microchip/ethernet/board/api.h"
 
 mesa_rc meba_poe_generic_chip_initialization(
-    const meba_inst_t               inst);
+    const meba_inst_t               inst,
+    mesa_bool_t                     interruptible_power,
+    int16_t                         restart_cause);
 
 mesa_rc meba_poe_generic_sync(
     const meba_inst_t               inst);
@@ -26,7 +28,7 @@ mesa_rc meba_poe_generic_version_get(
 
 mesa_rc meba_poe_generic_cfg_set(
     const meba_inst_t               inst,
-    meba_poe_cfg_t                  *cfg);
+    meba_poe_global_cfg_t           *cfg);
 
 mesa_rc meba_poe_generic_status_get(
     const meba_inst_t               inst,
