@@ -1054,7 +1054,7 @@ static vtss_rc l26_vlan_port_conf_apply(vtss_state_t *vtss_state,
              VTSS_F_REW_PORT_TAG_CFG_TAG_VID_CFG |
              VTSS_F_REW_PORT_TAG_CFG_TAG_CFG(
                  conf->untagged_vid == VTSS_VID_ALL ? TAG_CFG_DISABLE :
-                 conf->untagged_vid == VTSS_VID_NULL ? TAG_CFG_ALL : TAG_CFG_ALL_NPV_NNUL));
+                 conf->untagged_vid == VTSS_VID_NULL ? TAG_CFG_ALL_NNUL : TAG_CFG_ALL_NPV_NNUL));
     L26_WRM(VTSS_REW_PORT_TAG_CFG(port), value, 
             VTSS_M_REW_PORT_TAG_CFG_TAG_TPID_CFG | 
             VTSS_F_REW_PORT_TAG_CFG_TAG_VID_CFG |

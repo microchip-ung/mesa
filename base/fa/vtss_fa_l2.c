@@ -640,7 +640,7 @@ static vtss_rc fa_vlan_port_conf_update(vtss_state_t *vtss_state,
 
     /* Rewriter VLAN tag configuration */
     REG_WRM(VTSS_REW_TAG_CTRL(port),
-            VTSS_F_REW_TAG_CTRL_TAG_CFG(uvid == VTSS_VID_ALL ? 0 : uvid == VTSS_VID_NULL ? 3 : 1) |
+            VTSS_F_REW_TAG_CTRL_TAG_CFG(uvid == VTSS_VID_ALL ? 0 : uvid == VTSS_VID_NULL ? 2 : 1) |
             VTSS_F_REW_TAG_CTRL_TAG_TPID_CFG(tpid),
             VTSS_M_REW_TAG_CTRL_TAG_CFG |
             VTSS_M_REW_TAG_CTRL_TAG_TPID_CFG);

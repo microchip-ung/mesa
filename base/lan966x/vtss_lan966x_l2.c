@@ -580,7 +580,7 @@ static vtss_rc lan966x_vlan_port_conf_apply(vtss_state_t *vtss_state,
     value = (REW_TAG_CFG_TAG_TPID_CFG(tpid) |
              REW_TAG_CFG_TAG_CFG(
                  uvid == VTSS_VID_ALL ? TAG_CFG_DISABLE :
-                 uvid == VTSS_VID_NULL ? TAG_CFG_ALL : TAG_CFG_ALL_NPV_NNUL));
+                 uvid == VTSS_VID_NULL ? TAG_CFG_ALL_NNUL : TAG_CFG_ALL_NPV_NNUL));
     REG_WRM(REW_TAG_CFG(port), value,
             REW_TAG_CFG_TAG_TPID_CFG_M |
             REW_TAG_CFG_TAG_CFG_M);
