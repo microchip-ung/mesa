@@ -1234,9 +1234,14 @@ def redbox_test(t)
     conf["lan_id"] = fld_get(cfg, :lan_id)
     conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
     conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
-    dd_age_time = fld_get(cfg, :dd_age_time)
-    conf["dd_age_time"] = dd_age_time
     conf["sv"] = ("MESA_RB_SV_" + fld_get(cfg, :sv, "FORWARD"))
+    dd_age_time = fld_get(cfg, :dd_age_time)
+    if (conf["dd_age_time"] > 1000 and dd_age_time > 1000)
+        # Briefly use minimum age to flush DD table from previous test
+        conf["dd_age_time"] = 1
+        $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
+    end
+    conf["dd_age_time"] = dd_age_time
     $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
 
     # Remove nodes and proxy nodes from previous tests
