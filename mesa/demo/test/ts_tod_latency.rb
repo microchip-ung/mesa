@@ -7,6 +7,7 @@ require_relative 'libeasy/et'
 require_relative 'ts_lib'
 
 $ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
+$meba_cap = 0
 
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
@@ -160,6 +161,9 @@ def tod_latency_test(port0, port1)
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
     min = -2
     max = 18  #Value 17 is seen on Fireant Jenkins test
+    if $meba_cap[:out].include?("COPPER")
+        min = -5
+    end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         min = -11
         max = 11
@@ -298,11 +302,18 @@ test "test_run" do
             next
         end
 
+        $meba_cap = $ts.dut.run "mesa-cmd deb port cap #{port0+1}"
+
         # Test egress and ingress latency
         t_i("------------ Measuring 1G mode -----------------")
-        $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
-        $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
-        tod_latency_test(port0, port1)
+        if $meba_cap[:out].include?("1G_FDX")
+            t_i "Supports 1G"
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
+            tod_latency_test(port0, port1)
+        else
+            t_i "Do not Supports 1G"
+        end
 
         if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) &&
             ($ts.dut.pcb != "8309"))
@@ -310,9 +321,14 @@ test "test_run" do
         end
 
         t_i("------------ Measuring 2.5G mode -----------------")
-        $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
-        $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
-        tod_latency_test(port0, port1)
+        if $meba_cap[:out].include?("2_5G_FDX")
+            t_i "Supports 2.5G"
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
+            tod_latency_test(port0, port1)
+        else
+            t_i "Do not Supports 2.5G"
+        end
 
         if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
             next
@@ -320,22 +336,37 @@ test "test_run" do
 
         if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
             t_i("------------ Measuring 5G mode -----------------")
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
-            tod_latency_test(port0, port1)
+            if $meba_cap[:out].include?("5G_FDX")
+                t_i "Supports 5G"
+                $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
+                $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
+                tod_latency_test(port0, port1)
+            else
+                t_i "Do not Supports 5G"
+            end
 
             t_i("------------ Measuring 10G mode -----------------")
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 10g")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 10g")
-            tod_latency_test(port0, port1)
+            if $meba_cap[:out].include?("10G_FDX")
+                t_i "Supports 10G"
+                $ts.dut.run("mesa-cmd port mode #{port0+1} 10g")
+                $ts.dut.run("mesa-cmd port mode #{port1+1} 10g")
+                tod_latency_test(port0, port1)
+            else
+                t_i "Do not Supports 10G"
+            end
         end
     end
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         t_i("------------ Measuring 10G mode -----------------")
-        $ts.dut.run("mesa-cmd port mode #{$loop_port0_10g+1} 10g")
-        $ts.dut.run("mesa-cmd port mode #{$loop_port1_10g+1} 10g")
-        tod_latency_test($loop_port0_10g, $loop_port1_10g)
+        if $meba_cap[:out].include?("10G_FDX")
+            t_i "Supports 10G"
+            $ts.dut.run("mesa-cmd port mode #{$loop_port0_10g+1} 10g")
+            $ts.dut.run("mesa-cmd port mode #{$loop_port1_10g+1} 10g")
+            tod_latency_test($loop_port0_10g, $loop_port1_10g)
+        else
+            t_i "Do not Supports 10G"
+        end
     end
 
 end
