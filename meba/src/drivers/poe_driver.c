@@ -2188,7 +2188,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
 
     poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
 
-    PoE_Controller_Type_e ePoE_detected_controller_type =  ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION;
+    meba_poe_controller_type_t ePoE_detected_controller_type =  ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION;
 
     int fd = -1;
 

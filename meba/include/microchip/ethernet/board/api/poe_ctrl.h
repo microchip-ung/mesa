@@ -274,21 +274,20 @@ typedef enum {
 } meba_poe_pd_power_priority_t;
 
 
-typedef enum
-{
+typedef enum {
     ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION,
     ePD69200_CONTROLLER_TYPE ,
     ePD69210_CONTROLLER_TYPE ,
     ePD69220_CONTROLLER_TYPE ,
     ePD69200M_CONTROLLER_TYPE
-}PoE_Controller_Type_e;
+} meba_poe_controller_type_t;
 
 
 typedef enum
 {
     ePoE_System_Mode_AT = 0,
     ePoE_System_Mode_BT
-} PoE_System_Mode_e;
+} meba_poe_system_mode_t;
 
 
 
@@ -361,10 +360,10 @@ typedef struct {
     uint16_t                    adc_value;
 
     // controller type PD69200,PD69210,PD69220
-    PoE_Controller_Type_e       ePoE_Controller_Type;
+    meba_poe_controller_type_t  ePoE_Controller_Type;
 
     // detected poe mode - ports mode BT or AT
-    PoE_System_Mode_e           eDetected_PoE_System_Mode;
+    meba_poe_system_mode_t      eDetected_PoE_System_Mode;
 
     // poe firmware info
     uint8_t                     prod_number;
