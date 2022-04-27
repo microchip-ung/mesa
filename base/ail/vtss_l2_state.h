@@ -532,10 +532,14 @@ typedef struct {
 
 #if defined(VTSS_FEATURE_REDBOX)
 typedef struct {
-    vtss_chip_counter_t tx;
-    vtss_chip_counter_t rx;
+    vtss_chip_counter_t rx_local;
+    vtss_chip_counter_t rx_untagged;
+    vtss_chip_counter_t rx_tagged;
     vtss_chip_counter_t rx_wrong_lan;
     vtss_chip_counter_t rx_own;
+    vtss_chip_counter_t tx_local;
+    vtss_chip_counter_t tx_untagged;
+    vtss_chip_counter_t tx_tagged;
     vtss_chip_counter_t tx_dupl_zero;
     vtss_chip_counter_t tx_dupl_one;
     vtss_chip_counter_t tx_dupl_multi;

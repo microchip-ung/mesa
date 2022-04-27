@@ -180,7 +180,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
     },
@@ -333,7 +333,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
     },
@@ -345,7 +345,7 @@ test_table =
                      {idx_rx: "a"},
                      {idx_rx: "b"}]}],
         # Expect zero counter
-        cnt: [{port: "port_c", name: "rx", val: 0}]
+        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -432,6 +432,35 @@ test_table =
                      {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
+=begin
+    # Jira-270
+    {
+        sel: 1,
+        txt: "port A/B duplicate discard towards port A/B/C/D",
+        cfg: {mode: "HSR_SAN", dd_age_time: 20000},
+        tab: [
+            # Forward and learn default sequence number
+            {frm: {smac: ":ab"},
+             fwd: [{idx_tx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "c"},
+                   {idx_rx: "d"}]},
+            # Discard default sequence number from port B to port C
+            {frm: {smac: ":ab"},
+             fwd: [{idx_tx: "b", hsr: {}},
+                   {idx_rx: "a", hsr: {}}]},
+        ],
+    },
+    {
+        sel: 1,
+        txt: "port B to port C/D - burst",
+        cfg: {mode: "PRP_SAN"},
+        tab: [{cnt: 2,
+               fwd: [{idx_tx: "b", prp: {lan_id: 1}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}]
+    },
+=end
     {
         txt: "port B to port C/D - burst",
         cfg: {mode: "PRP_SAN"},
@@ -550,7 +579,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
 
@@ -563,7 +592,7 @@ test_table =
                      {idx_rx: "a"},
                      {idx_rx: "b"}]}],
         # Expect zero counter
-        cnt: [{port: "port_c", name: "rx", val: 0}]
+        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -702,7 +731,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
     },
@@ -755,7 +784,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
 
@@ -768,7 +797,7 @@ test_table =
                      {idx_rx: "a"},
                      {idx_rx: "b"}]}],
         # Expect zero counter
-        cnt: [{port: "port_c", name: "rx", val: 0}]
+        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -895,7 +924,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
     },
@@ -944,7 +973,7 @@ test_table =
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
         cnt: [
-            {port: "port_c", name: "tx", val: 0},
+            {port: "port_c", name: "tx_untagged", val: 0},
             {port: "port_c", name: "tx_dupl_zero", val: 0}
         ]
     },
@@ -956,7 +985,7 @@ test_table =
                      {idx_rx: "a"},
                      {idx_rx: "b"}]}],
         # Expect zero counter
-        cnt: [{port: "port_c", name: "rx", val: 0}]
+        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -1140,7 +1169,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
             end
-            cmd += " et 0x#{et.to_s(16)} data repeat #{len} 0xff"
+            cmd += " et 0x#{et.to_s(16)} data pattern cnt #{len}"
             prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
@@ -1154,6 +1183,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
 
         # Update expected counters
         cnt = rep
+        type = "tagged"
         case idx_name
         when "a", "b"
             # Do not count untagged frames on port A/B
@@ -1162,6 +1192,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             end
         else
             # Count RedBox port C for switch port C/D
+            type = "untagged"
             idx_name = "c"
             if (port_c_done)
                 cnt = 0
@@ -1171,9 +1202,9 @@ def rb_frame_test(entry, exp, dupl_incr, index)
         end
         port_name = ("port_" + idx_name)
         if (dir == "tx")
-            cnt_incr(exp, port_name, "rx", cnt)
+            cnt_incr(exp, port_name, "rx_" + type, cnt)
         else
-            cnt_incr(exp, port_name, "tx", cnt)
+            cnt_incr(exp, port_name, "tx_" + type, cnt)
             cnt_incr(exp, port_name, "tx_dupl_zero", cnt * dupl_incr)
         end
     end
@@ -1402,7 +1433,8 @@ def redbox_test(t)
     end
     cnt = $ts.dut.call("mesa_rb_counters_get", rb_id)
     ["port_a", "port_b", "port_c"].each do |port_name|
-        ["tx", "rx", "rx_wrong_lan", "rx_own",
+        ["rx_local", "rx_untagged", "rx_tagged", "rx_wrong_lan", "rx_own",
+         "tx_local", "tx_untagged", "tx_tagged",
          "tx_dupl_zero", "tx_dupl_one", "tx_dupl_multi"].each do |cnt_name|
             name = "#{port_name}[#{cnt_name}]"
             check_counter(name, cnt[port_name][cnt_name], exp[port_name][cnt_name])

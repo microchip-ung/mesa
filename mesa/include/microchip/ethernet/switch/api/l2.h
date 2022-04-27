@@ -1634,10 +1634,14 @@ mesa_rc mesa_rb_conf_set(const mesa_inst_t    inst,
 
 // RedBox port counters
 typedef struct {
-    mesa_counter_t tx;            // Tx frames
-    mesa_counter_t rx;            // Rx frames
+    mesa_counter_t rx_local;      // Rx link-local (BPDU) frames
+    mesa_counter_t rx_untagged;   // Rx frames without HSR/PRP tag
+    mesa_counter_t rx_tagged;     // Rx frames with HSR/PRP tag
     mesa_counter_t rx_wrong_lan;  // Rx frames with wrong LanId (PRP port)
     mesa_counter_t rx_own;        // Rx frames from this RedBox (HSR port)
+    mesa_counter_t tx_local;      // Tx link-local (BPDU) frames
+    mesa_counter_t tx_untagged;   // Tx frames without HSR/PRP tag
+    mesa_counter_t tx_tagged;     // Tx frames with HSR/PRP tag
     mesa_counter_t tx_dupl_zero;  // Tx frames with zero duplicates
     mesa_counter_t tx_dupl_one;   // Tx frames with one duplicate discarded
     mesa_counter_t tx_dupl_multi; // Tx frames with multiple duplicates discarded

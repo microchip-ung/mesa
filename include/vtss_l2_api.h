@@ -2873,10 +2873,14 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
 
 // RedBox port counters
 typedef struct {
-    vtss_counter_t tx;            // Tx frames
-    vtss_counter_t rx;            // Rx frames
+    vtss_counter_t rx_local;      // Rx link-local (BPDU) frames
+    vtss_counter_t rx_untagged;   // Rx frames without HSR/PRP tag
+    vtss_counter_t rx_tagged;     // Rx frames with HSR/PRP tag
     vtss_counter_t rx_wrong_lan;  // Rx frames with wrong LanId (PRP port)
     vtss_counter_t rx_own;        // Rx frames from this RedBox (HSR port)
+    vtss_counter_t tx_local;      // Tx link-local (BPDU) frames
+    vtss_counter_t tx_untagged;   // Tx frames without HSR/PRP tag
+    vtss_counter_t tx_tagged;     // Tx frames with HSR/PRP tag
     vtss_counter_t tx_dupl_zero;  // Tx frames with zero duplicates
     vtss_counter_t tx_dupl_one;   // Tx frames with one duplicate discarded
     vtss_counter_t tx_dupl_multi; // Tx frames with multiple duplicates discarded

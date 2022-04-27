@@ -8091,10 +8091,14 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
 static void vtss_rb_port_cnt_get(vtss_rb_port_cnt_t *cnt,
                                  vtss_rb_port_counters_t *const counters)
 {
-    counters->tx = cnt->tx.value;
-    counters->rx = cnt->rx.value;
+    counters->rx_local = cnt->rx_local.value;
+    counters->rx_untagged = cnt->rx_untagged.value;
+    counters->rx_tagged = cnt->rx_tagged.value;
     counters->rx_wrong_lan = cnt->rx_wrong_lan.value;
     counters->rx_own = cnt->rx_own.value;
+    counters->tx_local = cnt->tx_local.value;
+    counters->tx_untagged = cnt->tx_untagged.value;
+    counters->tx_tagged = cnt->tx_tagged.value;
     counters->tx_dupl_zero = cnt->tx_dupl_zero.value;
     counters->tx_dupl_one = cnt->tx_dupl_one.value;
     counters->tx_dupl_multi = cnt->tx_dupl_multi.value;
@@ -8969,7 +8973,9 @@ static void vtss_debug_rb_cnt(const vtss_debug_printf_t pr,
                               int i, const char *txt, vtss_rb_port_counters_t *c)
 {
     pr("RedBox %u, port %s counters:\n", i, txt);
-    vtss_debug_cnt(pr, "Total", "", c->rx, c->tx);
+    vtss_debug_cnt(pr, "Local", "", c->rx_local, c->tx_local);
+    vtss_debug_cnt(pr, "Untagged", "", c->rx_untagged, c->tx_untagged);
+    vtss_debug_cnt(pr, "Tagged", "", c->rx_tagged, c->tx_tagged);
     vtss_debug_cnt(pr, "WrongLan", "DuplZero", c->rx_wrong_lan, c->tx_dupl_zero);
     vtss_debug_cnt(pr, "Own", "DuplOne", c->rx_own, c->tx_dupl_one);
     vtss_debug_cnt(pr, NULL, "DuplMulti", 0, c->tx_dupl_multi);

@@ -1915,8 +1915,17 @@ static vtss_rc fa_rb_counters_update(vtss_state_t *vtss_state,
 
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         c = (j == 0 ? &cnt->port_a : j == 1 ? &cnt->port_b : &cnt->port_c);
-        RB_CNT(VTSS_RB_CNT_TX, rb_id, j, &c->tx, clear);
-        RB_CNT(VTSS_RB_CNT_RX, rb_id, j, &c->rx, clear);
+#if defined(VTSS_M_RB_CNT_RX_CNT_RX)
+        RB_CNT(VTSS_RB_CNT_TX, rb_id, j, j == 2 ? &c->tx_untagged : &c->tx_tagged, clear);
+        RB_CNT(VTSS_RB_CNT_RX, rb_id, j, j == 2 ? &c->rx_untagged : &c->rx_tagged, clear);
+#else
+        RB_CNT(VTSS_RB_CNT_TX_TAG, rb_id, j, &c->tx_tagged, clear);
+        RB_CNT(VTSS_RB_CNT_TX_UNT, rb_id, j, &c->tx_untagged, clear);
+        RB_CNT(VTSS_RB_CNT_TX_LL, rb_id, j, &c->tx_local, clear);
+        RB_CNT(VTSS_RB_CNT_RX_TAG, rb_id, j, &c->rx_tagged, clear);
+        RB_CNT(VTSS_RB_CNT_RX_UNT, rb_id, j, &c->rx_untagged, clear);
+        RB_CNT(VTSS_RB_CNT_RX_LL, rb_id, j, &c->rx_local, clear);
+#endif
         RB_CNT(VTSS_RB_CNT_RX_WRONG_LAN, rb_id, j, &c->rx_wrong_lan, clear);
         RB_CNT(VTSS_RB_CNT_RX_OWN, rb_id, j, &c->rx_own, clear);
         RB_CNT(VTSS_RB_CNT_DUPL_ZERO, rb_id, j, &c->tx_dupl_zero, clear);
@@ -3213,8 +3222,17 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_FWD_CFG, i, j), "FWD_CFG");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_PORT_CFG, i, j), "PORT_CFG");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_STICKY, i, j), "STICKY");
+#if defined(VTSS_M_RB_CNT_RX_CNT_RX)
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX, i, j), "CNT_RX");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX, i, j), "CNT_TX");
+#else
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_LL, i, j), "CNT_RX_LL");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_UNT, i, j), "CNT_RX_UNT");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_TAG, i, j), "CNT_RX_TAG");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_LL, i, j), "CNT_TX_LL");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_UNT, i, j), "CNT_TX_UNT");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_TAG, i, j), "CNT_TX_TAG");
+#endif
                 pr("\n");
             }
         } else {
