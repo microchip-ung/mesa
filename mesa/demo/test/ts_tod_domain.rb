@@ -17,8 +17,6 @@ check_capabilities do
     $cap_phy_ts = $ts.dut.call("mesa_capability", "MESA_CAP_PHY_TS")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
     loop_pair_check
-    $loop_port0 = $ts.dut.looped_port_list[0]
-    $loop_port1 = $ts.dut.looped_port_list[1]
 end
 
 loop_pair_check
@@ -28,6 +26,8 @@ $pcb = $ts.dut.pcb
 $port0 = 0
 $npi_port = 1
 $cpu_queue = 7
+$loop_port0 = 0
+$loop_port1 = 0
 
 $port_map = $ts.dut.call("mesa_port_map_get", $cap_port_cnt)
 
@@ -315,6 +315,33 @@ test "test_conf" do
     $ts.dut.call("mesa_mac_table_add", entry)
 
     $ts.dut.run "mesa-cmd Debug Port Polling disable"
+
+    $loop_port0 = $ts.dut.looped_port_list[0]
+    $loop_port1 = $ts.dut.looped_port_list[1]
+
+    i = 0
+    while (i < $ts.dut.looped_port_list.length) do
+        if ((i % 2) != 0)
+            port0 = $ts.dut.looped_port_list[i-1]
+            port1 = $ts.dut.looped_port_list[i]
+            i = i + 1
+        else
+            i = i + 1
+            next
+        end
+
+        if ((port0 >= $cap_port_cnt) || (port1 >= $cap_port_cnt))
+            next
+        end
+
+        cap = $ts.dut.run "mesa-cmd deb port cap #{port0+1}"
+        if cap[:out].include?("SFP_ONLY")
+            t_i "Prefer SFP port  port0 #{port0} port1 #{port1}"
+            $loop_port0 = port0
+            $loop_port1 = port1
+            break;
+        end
+    end
 end
 
 test "test_run" do
