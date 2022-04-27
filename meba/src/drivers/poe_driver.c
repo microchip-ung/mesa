@@ -4891,12 +4891,8 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
         MESA_RC(meba_poe_pd69200bt_ctrl_get_BT_port_parameters(
             inst ,handle,port_cfg_POEMCU));
 
-        extern uint8_t poe_init_done;
-        if(!poe_init_done)
-        {
-            MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
-            DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings \n\r");
-        }
+        MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings \n\r");
 
         printf("\n\r");
     }
