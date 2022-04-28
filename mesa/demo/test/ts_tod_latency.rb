@@ -162,7 +162,7 @@ def tod_latency_test(port0, port1)
     min = -2
     max = 18  #Value 17 is seen on Fireant Jenkins test
     if $meba_cap[:out].include?("COPPER")
-        min = -5
+        min = -11
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         min = -11
