@@ -39,6 +39,23 @@ For each port, Frame Preemption can be enabled in the egress direction, and each
 The port status can be retrieved (`mesa_qos_fp_port_status_t`), including the verfication state (`mesa_mm_status_verify_t`).
 Counters are available for the MAC Merge sublayer (`mesa_port_dot3br_counters_t`).
 
+Frame Preemption may be negotiated using LLDP and/or IEEE 802.3br Verify function.
+
+If Frame Preemption is enabled (statically or via LLDP) and Verify is enabled, this is done on link up:
+
+* Set `mesa_qos_fp_port_conf_t::enable_tx` to enable the egress direction.
+* Clear all queues in `mesa_qos_fp_port_conf_t::admin_status`.
+* Clear `mesa_qos_fp_port_conf_t::verify_disable_tx` to enable Verify.
+* Call `mesa_qos_fp_port_conf_set()`.
+* Call `mesa_qos_fp_port_status_t` until status is resolved.
+
+If Verify is disabled or status is `MESA_MM_STATUS_VERIFY_SUCCEEDED`, this is then done:
+
+* Set `mesa_qos_fp_port_conf_t::enable_tx` to enable the egress direction.
+* Set preemptable queues in `mesa_qos_fp_port_conf_t::admin_status`.
+* Set `mesa_qos_fp_port_conf_t::verify_disable_tx` to disable Verify.
+* Call `mesa_qos_fp_port_conf_set()`
+
 == Time Aware Shaper
 If the capability `MESA_CAP_QOS_TAS` is non-zero, IEEE 802.1Q Enhancements for scheduled traffic is supported.
 Time Aware Shaper can be enabled on a port and is executing a Gate Control List (GCL)
