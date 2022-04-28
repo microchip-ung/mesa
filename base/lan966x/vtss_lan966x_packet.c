@@ -109,10 +109,9 @@ static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_s
                                          BOOL                            *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
-        u32 packet_ns = lan966x_packet_unpack32(frm);
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
-            /* convert to jaguar 32 bit NSF */
-            (void)lan966x_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            // rxTime is similar to tc returned from lan966x_ts_io_pin_timeofday_get
+            *rxTime = ((u64)lan966x_packet_unpack32(frm)) << 16;
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
