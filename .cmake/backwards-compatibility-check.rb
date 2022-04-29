@@ -276,7 +276,7 @@ $default_configs = "istax_multi.mk"
 
 # As part of the PoE upgrade, a few types has been modified
 check("backwards-check",              # Name of check
-      "e365359205@master.pds-family.tar.gz", # Appl release to use
+      "e365359205@master.pds-family", # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
