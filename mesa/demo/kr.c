@@ -248,6 +248,7 @@ typedef struct {
     mesa_bool_t all;
     mesa_bool_t train;
     mesa_bool_t no_rem;
+    mesa_bool_t no_eq_apply;
     mesa_bool_t fec;
     mesa_bool_t rsfec;
     mesa_bool_t adv25g;
@@ -295,6 +296,8 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->train = 1;
     } else if (!strncasecmp(found, "no-remote", 4)) {
         mreq->no_rem = 1;
+    } else if (!strncasecmp(found, "no-eq-apply", 4)) {
+        mreq->no_eq_apply = 1;
     } else if (!strncasecmp(found, "all", 3)) {
         mreq->all = 1;
     } else if (!strncasecmp(found, "disable", 3)) {
@@ -422,6 +425,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.train.no_remote = mreq->no_rem;
+                conf.train.no_eq_apply = kr_conf_state[iport].no_eq_apply;
                 conf.train.test_mode = mreq->test;
                 conf.train.test_repeat = 10;
                 conf.train.use_ber_cnt = kr_conf_state[iport].use_ber;
@@ -533,6 +537,10 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
                 kr_conf_state[iport].ctle = 1;
             }
             printf("Port %d: ctle tuning %s\n",uport, kr_conf_state[iport].ctle ? "enabled" : "disabled");
+        }
+        if (mreq->no_eq_apply) {
+            kr_conf_state[iport].no_eq_apply = !kr_conf_state[iport].no_eq_apply;
+            printf("Port %d: no_eq_apply %s\n",uport, kr_conf_state[iport].no_eq_apply ? "enabled" : "disabled");
         }
     }
 }
@@ -1262,7 +1270,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_port_kr_status
     },
     {
-        "Port KR debug [<port_list>] [stop] [irq] [sm] [use-ber] [all] [pd] [disable] [ctl]",
+        "Port KR debug [<port_list>] [stop] [irq] [sm] [use-ber] [all] [pd] [disable] [ctl] [no-eq-apply]",
         "Toggle debug",
         cli_cmd_port_kr_debug
     },
@@ -1361,13 +1369,20 @@ static cli_parm_t cli_parm_table[] = {
     },
     {
         "no-remote",
-        "train: Do not train remote partner",
+        "no-remote: Do not train remote partner",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },
     {
+        "no-eq-apply",
+        "no-eq-apply: Do not apply EQ settings to local HW",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
+
+    {
         "test",
-        "train: train in test mode",
+        "test: train in test mode",
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_keyword
     },

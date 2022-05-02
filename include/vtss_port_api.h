@@ -754,6 +754,7 @@ typedef struct {
 typedef struct {
     BOOL enable;            /**< Enable KR training, BER method used */
     BOOL no_remote;         /**< Do not train remote, only local */
+    BOOL no_eq_apply;       /**< Do not apply TxEq settings to HW (debug only) */
     BOOL use_ber_cnt;       /**< Use BER count instead of eye height */
     BOOL test_mode;         /**< Debug only */
     u32  test_repeat;       /**< Debug only */

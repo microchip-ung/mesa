@@ -626,6 +626,7 @@ typedef struct {
 typedef struct {
     mesa_bool_t enable;                        // Enable KR training, BER method used
     mesa_bool_t no_remote   CAP(PORT_KR_IRQ);  // Do not train remote, only local
+    mesa_bool_t no_eq_apply CAP(PORT_KR_IRQ);  // Do not apply EQ settings to HW (debug only)
     mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ);  // Use BER count instead of eye height
     mesa_bool_t test_mode   CAP(PORT_KR_IRQ);  // Debug only
     uint32_t test_repeat    CAP(PORT_KR_IRQ);  // Debug only

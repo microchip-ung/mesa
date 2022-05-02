@@ -100,6 +100,7 @@ typedef struct {
     uint32_t aneg_sm_state;
     uint32_t aneg_sm_deb;
     mesa_bool_t debug_ena;
+    mesa_bool_t no_eq_apply;
     mesa_bool_t aneg_enable;
     mesa_bool_t tr_done;
     mesa_bool_t pd;

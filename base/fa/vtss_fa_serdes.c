@@ -1490,6 +1490,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
     vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
     vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
     vtss_port_kr_status_codes_t int_status;
+    vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 amplitude = st->amplitude, tap_dly=st->tap_dly, tap_adv=st->tap_adv;
 
     // 1. Calculate next settings based on coeficent request INIT/PRESET/INCR/DECR
@@ -1520,15 +1521,6 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
         if (raw_sts2enum(sts_tmp) == VTSS_COEF_MINIMUM ||
             raw_sts2enum(sts_tmp) == VTSS_COEF_MAXIMUM ||
             raw_sts2enum(sts_tmp) == VTSS_COEF_UPDATED) {
-            /* if (port_no == 13) { */
-            /* printf("p:%d Tap:%s Action:%s. Amp_code:%d->%d, Tap_dly:%d->%d, Tap_adv:%d->%d, (tap_dly+tap_adv=%d) --> Status:%s (Reason:%s)\n", */
-            /*        port_no, vtss_kr_coef2txt(coef2tap(coef_in)), vtss_kr_upd2txt(coef2act(coef_in)), */
-            /*        st->amplitude, amplitude, */
-            /*        st->tap_dly, tap_dly, */
-            /*        st->tap_adv, tap_adv, */
-            /*        tap_adv + tap_dly, */
-            /*        raw_sts2txt(sts_tmp), vtss_kr_sts_code2txt(int_status)); */
-            /* } */
         }
     }
 
@@ -1536,7 +1528,9 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
         st->amplitude = amplitude;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
-        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, amplitude)); // Apply the settings
+        if (!kr->train.no_eq_apply) { // for debug support
+            VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, amplitude)); // Apply the settings
+        }
     }
 
     status_out->status = sts_tmp; // Return status report
