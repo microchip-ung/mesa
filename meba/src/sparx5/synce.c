@@ -1463,7 +1463,7 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
 
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_1),
-    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_20,         dpll_port_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_56,         dpll_port_4),
 
 
 };
