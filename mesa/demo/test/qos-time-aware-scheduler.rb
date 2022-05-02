@@ -227,7 +227,7 @@ def equal_interval_gcl_reconfig_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         pcp0 = 10
         pcp3 = 335
-        pcp7 = 0.1
+        pcp7 = 0.15
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
