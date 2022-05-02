@@ -70,11 +70,11 @@
  * OTP Address
  *
  * \details
- * Field: ::VTSS_OTP_OTP_ADDR_HI . OTP_ADDR_15_11
+ * Field: ::VTSS_OTP_OTP_ADDR_HI . OTP_ADDR_16_11
  */
-#define  VTSS_F_OTP_OTP_ADDR_HI_OTP_ADDR_15_11(x)  VTSS_ENCODE_BITFIELD(x,0,5)
-#define  VTSS_M_OTP_OTP_ADDR_HI_OTP_ADDR_15_11     VTSS_ENCODE_BITMASK(0,5)
-#define  VTSS_X_OTP_OTP_ADDR_HI_OTP_ADDR_15_11(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+#define  VTSS_F_OTP_OTP_ADDR_HI_OTP_ADDR_16_11(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_OTP_OTP_ADDR_HI_OTP_ADDR_16_11     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_OTP_OTP_ADDR_HI_OTP_ADDR_16_11(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 
 /**
@@ -471,6 +471,29 @@
  * Register: \a OTP:OTP_REGS:OTP_STATUS
  */
 #define VTSS_OTP_OTP_STATUS                  VTSS_IOREG(VTSS_TO_OTP,0xc)
+
+/**
+ * \brief
+ * OTP Loaded Status.Indicates that HW readout of OTP after reset is
+ * completed.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_STATUS . OTP_LOADED
+ */
+#define  VTSS_F_OTP_OTP_STATUS_OTP_LOADED(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_OTP_OTP_STATUS_OTP_LOADED     VTSS_BIT(7)
+#define  VTSS_X_OTP_OTP_STATUS_OTP_LOADED(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * OTP MEM Lock status.This is a direct read of the LOCK output of the OTP.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_STATUS . OTP_LOCK
+ */
+#define  VTSS_F_OTP_OTP_STATUS_OTP_LOCK(x)    VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_OTP_OTP_STATUS_OTP_LOCK       VTSS_BIT(4)
+#define  VTSS_X_OTP_OTP_STATUS_OTP_LOCK(x)    VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
@@ -1466,9 +1489,9 @@
  * the JTAG key after the Boot ROM has accessed
  * them.
  *
- * Register: \a OTP:OTP_REGS:OTP_READ_PROTECT
+ * Register: \a OTP:OTP_REGS:OTP_READ_PROTECT0
  */
-#define VTSS_OTP_OTP_READ_PROTECT            VTSS_IOREG(VTSS_TO_OTP,0x80)
+#define VTSS_OTP_OTP_READ_PROTECT0           VTSS_IOREG(VTSS_TO_OTP,0x80)
 
 /**
  * \brief
@@ -1481,11 +1504,107 @@
  * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[7:0]field are also set.
  *
  * \details
- * Field: ::VTSS_OTP_OTP_READ_PROTECT . OTP_READ_PROTECT_7_0
+ * Field: ::VTSS_OTP_OTP_READ_PROTECT0 . OTP_READ_PROTECT_7_0
  */
-#define  VTSS_F_OTP_OTP_READ_PROTECT_OTP_READ_PROTECT_7_0(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_READ_PROTECT_OTP_READ_PROTECT_7_0     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_READ_PROTECT_OTP_READ_PROTECT_7_0(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_OTP_OTP_READ_PROTECT0_OTP_READ_PROTECT_7_0(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_READ_PROTECT0_OTP_READ_PROTECT_7_0     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_READ_PROTECT0_OTP_READ_PROTECT_7_0(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief OTP_READ_PROTECT Register
+ *
+ * \details
+ * OTP_READ_PROTECT Register
+ * (RESET=0X0000_0000)
+ * OTP read locking is used to protect private keys stored in OTP such as
+ * the JTAG key after the Boot ROM has accessed
+ * them.
+ *
+ * Register: \a OTP:OTP_REGS:OTP_READ_PROTECT1
+ */
+#define VTSS_OTP_OTP_READ_PROTECT1           VTSS_IOREG(VTSS_TO_OTP,0x81)
+
+/**
+ * \brief
+ * Each bit in the OTP_READ_PROTECT[15:8] field corresponds to aregion of
+ * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
+ * a bit in the OTP_READ_PROTECT[15:8] field blocksthe corresponding OTP
+ * region from being read.A value of zero is returned when a protected area
+ * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[15:8]
+ * fieldare only valid if the corresponding bits in
+ * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[15:8]field are also set.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_READ_PROTECT1 . OTP_READ_PROTECT_15_8
+ */
+#define  VTSS_F_OTP_OTP_READ_PROTECT1_OTP_READ_PROTECT_15_8(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_READ_PROTECT1_OTP_READ_PROTECT_15_8     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_READ_PROTECT1_OTP_READ_PROTECT_15_8(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief OTP_READ_PROTECT Register
+ *
+ * \details
+ * OTP_READ_PROTECT Register
+ * (RESET=0X0000_0000)
+ * OTP read locking is used to protect private keys stored in OTP such as
+ * the JTAG key after the Boot ROM has accessed
+ * them.
+ *
+ * Register: \a OTP:OTP_REGS:OTP_READ_PROTECT2
+ */
+#define VTSS_OTP_OTP_READ_PROTECT2           VTSS_IOREG(VTSS_TO_OTP,0x82)
+
+/**
+ * \brief
+ * Each bit in the OTP_READ_PROTECT[23:16] field corresponds to aregion of
+ * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
+ * a bit in the OTP_READ_PROTECT[23:16] field blocksthe corresponding OTP
+ * region from being read.A value of zero is returned when a protected area
+ * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[23:16]
+ * fieldare only valid if the corresponding bits in
+ * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[23:16]field are also set.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_READ_PROTECT2 . OTP_READ_PROTECT_23_16
+ */
+#define  VTSS_F_OTP_OTP_READ_PROTECT2_OTP_READ_PROTECT_23_16(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_READ_PROTECT2_OTP_READ_PROTECT_23_16     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_READ_PROTECT2_OTP_READ_PROTECT_23_16(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief OTP_READ_PROTECT Register
+ *
+ * \details
+ * OTP_READ_PROTECT Register
+ * (RESET=0X0000_0000)
+ * OTP read locking is used to protect private keys stored in OTP such as
+ * the JTAG key after the Boot ROM has accessed
+ * them.
+ *
+ * Register: \a OTP:OTP_REGS:OTP_READ_PROTECT3
+ */
+#define VTSS_OTP_OTP_READ_PROTECT3           VTSS_IOREG(VTSS_TO_OTP,0x83)
+
+/**
+ * \brief
+ * Each bit in the OTP_READ_PROTECT[31:24] field corresponds to aregion of
+ * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
+ * a bit in the OTP_READ_PROTECT[31:24] field blocksthe corresponding OTP
+ * region from being read.A value of zero is returned when a protected area
+ * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[31:24]
+ * fieldare only valid if the corresponding bits in
+ * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[31:24]field are also set.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_READ_PROTECT3 . OTP_READ_PROTECT_31_24
+ */
+#define  VTSS_F_OTP_OTP_READ_PROTECT3_OTP_READ_PROTECT_31_24(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_READ_PROTECT3_OTP_READ_PROTECT_31_24     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_READ_PROTECT3_OTP_READ_PROTECT_31_24(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**

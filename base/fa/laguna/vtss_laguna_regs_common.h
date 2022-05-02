@@ -51,8 +51,6 @@
 #define VTSS_TO_AES             VTSS_IO_OFFSET2(0x0004c000) /*!< Base offset for target AES */
 #define VTSS_TO_AESB_ASC        VTSS_IO_OFFSET2(0x00050000) /*!< Base offset for target AESB_ASC */
 #define VTSS_TO_CPU             VTSS_IO_OFFSET2(0x000c0000) /*!< Base offset for target CPU */
-#define VTSS_TO_TZC_MAIN_HSS    VTSS_IO_OFFSET2(0x00098000) /*!< Base offset for target TZC_MAIN_HSS */
-#define VTSS_TO_TZC_CSS         VTSS_IO_OFFSET2(0x00099000) /*!< Base offset for target TZC_CSS */
 #define VTSS_TO_DDR_PHY         VTSS_IO_OFFSET2(0x00084000) /*!< Base offset for target DDR_PHY */
 #define VTSS_TO_DDR_UMCTL2      VTSS_IO_OFFSET2(0x00080000) /*!< Base offset for target DDR_UMCTL2 */
 #define VTSS_TO_FDMA            VTSS_IO_OFFSET2(0x000c0400) /*!< Base offset for target FDMA */
@@ -60,7 +58,6 @@
 #define VTSS_TO_FLEXCOM_1       VTSS_IO_OFFSET2(0x00044000) /*!< Base offset for target FLEXCOM_1 */
 #define VTSS_TO_FLEXCOM_2       VTSS_IO_OFFSET2(0x00060000) /*!< Base offset for target FLEXCOM_2 */
 #define VTSS_TO_FLEXCOM_3       VTSS_IO_OFFSET2(0x00064000) /*!< Base offset for target FLEXCOM_3 */
-#define VTSS_TO_FLEXCOM_4       VTSS_IO_OFFSET2(0x00070000) /*!< Base offset for target FLEXCOM_4 */
 #define VTSS_TO_CPU_SYSCNT      VTSS_IO_OFFSET2(0x08000000) /*!< Base offset for target CPU_SYSCNT */
 #define VTSS_TO_CPU_SYSCNT_RO   VTSS_IO_OFFSET2(0x08000000) /*!< Base offset for target CPU_SYSCNT_RO */
 #define VTSS_TO_GIC400          VTSS_IO_OFFSET2(0x08c10000) /*!< Base offset for target GIC400 */
@@ -76,16 +73,20 @@
 #define VTSS_TO_PCIE_PHY_PCS    VTSS_IO_OFFSET2(0x00088000) /*!< Base offset for target PCIE_PHY_PCS */
 #define VTSS_TO_PCIE_PHY_PMA    VTSS_IO_OFFSET1(0x00100000) /*!< Base offset for target PCIE_PHY_PMA */
 #define VTSS_TO_PCIE_PHY_WRAP   VTSS_IO_OFFSET1(0x000f0000) /*!< Base offset for target PCIE_PHY_WRAP */
+#define VTSS_TO_PKE             VTSS_IO_OFFSET3(0x00080000) /*!< Base offset for target PKE */
 #define VTSS_TO_QSPI_0          VTSS_IO_OFFSET2(0x00804000) /*!< Base offset for target QSPI_0 */
 #define VTSS_TO_QSPI_2          VTSS_IO_OFFSET2(0x00834000) /*!< Base offset for target QSPI_2 */
-#define VTSS_TO_SDMMC           VTSS_IO_OFFSET2(0x00830000) /*!< Base offset for target SDMMC */
+#define VTSS_TO_SDMMC_0         VTSS_IO_OFFSET2(0x00830000) /*!< Base offset for target SDMMC_0 */
+#define VTSS_TO_SDMMC_1         VTSS_IO_OFFSET2(0x00838000) /*!< Base offset for target SDMMC_1 */
 #define VTSS_TO_SHA             VTSS_IO_OFFSET2(0x0006c000) /*!< Base offset for target SHA */
 #define VTSS_TO_SJTAG           VTSS_IO_OFFSET2(0x00020000) /*!< Base offset for target SJTAG */
 #define VTSS_TO_TIMERS          VTSS_IO_OFFSET2(0x0008c000) /*!< Base offset for target TIMERS */
 #define VTSS_TO_TRNG            VTSS_IO_OFFSET2(0x00048000) /*!< Base offset for target TRNG */
 #define VTSS_TO_TZAESBNS        VTSS_IO_OFFSET2(0x00814000) /*!< Base offset for target TZAESBNS */
 #define VTSS_TO_TZAESBS         VTSS_IO_OFFSET2(0x00818000) /*!< Base offset for target TZAESBS */
-#define VTSS_TO_TZPM            VTSS_IO_OFFSET2(0x00004000) /*!< Base offset for target TZPM */
+#define VTSS_TO_TZC_MAIN_HSS    VTSS_IO_OFFSET2(0x00098000) /*!< Base offset for target TZC_MAIN_HSS */
+#define VTSS_TO_TZC_CSS         VTSS_IO_OFFSET2(0x00099000) /*!< Base offset for target TZC_CSS */
+#define VTSS_TO_TZPM            VTSS_IO_OFFSET2(0x00000000) /*!< Base offset for target TZPM */
 #define VTSS_TO_USB3            VTSS_IO_OFFSET3(0x00300000) /*!< Base offset for target USB3 */
 #define VTSS_TO_WDT             VTSS_IO_OFFSET2(0x00090000) /*!< Base offset for target WDT */
 #define VTSS_TO_XDMAC           VTSS_IO_OFFSET2(0x00068000) /*!< Base offset for target XDMAC */
@@ -116,12 +117,12 @@
 #define VTSS_TO_DEV2G5_23       VTSS_IO_OFFSET1(0x010b0000) /*!< Base offset for target DEV2G5_23 */
 #define VTSS_TO_DEVRGMII_0      VTSS_IO_OFFSET1(0x010e4000) /*!< Base offset for target DEVRGMII_0 */
 #define VTSS_TO_DEVRGMII_1      VTSS_IO_OFFSET1(0x010e8000) /*!< Base offset for target DEVRGMII_1 */
-#define VTSS_TO_DEV2G5_0        VTSS_IO_OFFSET1(0x01004000) /*!< Base offset for target DEV2G5_0 */
-#define VTSS_TO_DEV2G5_4        VTSS_IO_OFFSET1(0x0101c000) /*!< Base offset for target DEV2G5_4 */
 #define VTSS_TO_DEV2G5_9        VTSS_IO_OFFSET1(0x01040000) /*!< Base offset for target DEV2G5_9 */
 #define VTSS_TO_DEV2G5_13       VTSS_IO_OFFSET1(0x01060000) /*!< Base offset for target DEV2G5_13 */
 #define VTSS_TO_DEV2G5_17       VTSS_IO_OFFSET1(0x01080000) /*!< Base offset for target DEV2G5_17 */
 #define VTSS_TO_DEV2G5_21       VTSS_IO_OFFSET1(0x010a0000) /*!< Base offset for target DEV2G5_21 */
+#define VTSS_TO_DEV2G5_0        VTSS_IO_OFFSET1(0x01004000) /*!< Base offset for target DEV2G5_0 */
+#define VTSS_TO_DEV2G5_4        VTSS_IO_OFFSET1(0x0101c000) /*!< Base offset for target DEV2G5_4 */
 #define VTSS_TO_DEV2G5_8        VTSS_IO_OFFSET1(0x01034000) /*!< Base offset for target DEV2G5_8 */
 #define VTSS_TO_DEV2G5_12       VTSS_IO_OFFSET1(0x01054000) /*!< Base offset for target DEV2G5_12 */
 #define VTSS_TO_DEV2G5_16       VTSS_IO_OFFSET1(0x01074000) /*!< Base offset for target DEV2G5_16 */
@@ -130,34 +131,34 @@
 #define VTSS_TO_DEV2G5_25       VTSS_IO_OFFSET1(0x010c0000) /*!< Base offset for target DEV2G5_25 */
 #define VTSS_TO_DEV2G5_26       VTSS_IO_OFFSET1(0x010cc000) /*!< Base offset for target DEV2G5_26 */
 #define VTSS_TO_DEV2G5_27       VTSS_IO_OFFSET1(0x010d8000) /*!< Base offset for target DEV2G5_27 */
-#define VTSS_TO_DEV5G_0         VTSS_IO_OFFSET1(0x01008000) /*!< Base offset for target DEV5G_0 */
-#define VTSS_TO_DEV5G_1         VTSS_IO_OFFSET1(0x01020000) /*!< Base offset for target DEV5G_1 */
-#define VTSS_TO_DEV5G_2         VTSS_IO_OFFSET1(0x01044000) /*!< Base offset for target DEV5G_2 */
-#define VTSS_TO_DEV5G_3         VTSS_IO_OFFSET1(0x01064000) /*!< Base offset for target DEV5G_3 */
-#define VTSS_TO_DEV5G_4         VTSS_IO_OFFSET1(0x01084000) /*!< Base offset for target DEV5G_4 */
-#define VTSS_TO_DEV5G_5         VTSS_IO_OFFSET1(0x010a4000) /*!< Base offset for target DEV5G_5 */
-#define VTSS_TO_PCS5G_BR_0      VTSS_IO_OFFSET1(0x0100c000) /*!< Base offset for target PCS5G_BR_0 */
-#define VTSS_TO_PCS5G_BR_1      VTSS_IO_OFFSET1(0x01024000) /*!< Base offset for target PCS5G_BR_1 */
-#define VTSS_TO_PCS5G_BR_2      VTSS_IO_OFFSET1(0x01048000) /*!< Base offset for target PCS5G_BR_2 */
-#define VTSS_TO_PCS5G_BR_3      VTSS_IO_OFFSET1(0x01068000) /*!< Base offset for target PCS5G_BR_3 */
-#define VTSS_TO_PCS5G_BR_4      VTSS_IO_OFFSET1(0x01088000) /*!< Base offset for target PCS5G_BR_4 */
-#define VTSS_TO_PCS5G_BR_5      VTSS_IO_OFFSET1(0x010a8000) /*!< Base offset for target PCS5G_BR_5 */
-#define VTSS_TO_DEV10G_0        VTSS_IO_OFFSET1(0x01038000) /*!< Base offset for target DEV10G_0 */
-#define VTSS_TO_DEV10G_1        VTSS_IO_OFFSET1(0x01058000) /*!< Base offset for target DEV10G_1 */
-#define VTSS_TO_DEV10G_2        VTSS_IO_OFFSET1(0x01078000) /*!< Base offset for target DEV10G_2 */
-#define VTSS_TO_DEV10G_3        VTSS_IO_OFFSET1(0x01098000) /*!< Base offset for target DEV10G_3 */
-#define VTSS_TO_DEV10G_4        VTSS_IO_OFFSET1(0x010b8000) /*!< Base offset for target DEV10G_4 */
-#define VTSS_TO_DEV10G_5        VTSS_IO_OFFSET1(0x010c4000) /*!< Base offset for target DEV10G_5 */
-#define VTSS_TO_DEV10G_6        VTSS_IO_OFFSET1(0x010d0000) /*!< Base offset for target DEV10G_6 */
-#define VTSS_TO_DEV10G_7        VTSS_IO_OFFSET1(0x010dc000) /*!< Base offset for target DEV10G_7 */
-#define VTSS_TO_PCS10G_BR_0     VTSS_IO_OFFSET1(0x0103c000) /*!< Base offset for target PCS10G_BR_0 */
-#define VTSS_TO_PCS10G_BR_1     VTSS_IO_OFFSET1(0x0105c000) /*!< Base offset for target PCS10G_BR_1 */
-#define VTSS_TO_PCS10G_BR_2     VTSS_IO_OFFSET1(0x0107c000) /*!< Base offset for target PCS10G_BR_2 */
-#define VTSS_TO_PCS10G_BR_3     VTSS_IO_OFFSET1(0x0109c000) /*!< Base offset for target PCS10G_BR_3 */
-#define VTSS_TO_PCS10G_BR_4     VTSS_IO_OFFSET1(0x010bc000) /*!< Base offset for target PCS10G_BR_4 */
-#define VTSS_TO_PCS10G_BR_5     VTSS_IO_OFFSET1(0x010c8000) /*!< Base offset for target PCS10G_BR_5 */
-#define VTSS_TO_PCS10G_BR_6     VTSS_IO_OFFSET1(0x010d4000) /*!< Base offset for target PCS10G_BR_6 */
-#define VTSS_TO_PCS10G_BR_7     VTSS_IO_OFFSET1(0x010e0000) /*!< Base offset for target PCS10G_BR_7 */
+#define VTSS_TO_DEV5G_0         VTSS_IO_OFFSET1(0x01044000) /*!< Base offset for target DEV5G_0 */
+#define VTSS_TO_DEV5G_1         VTSS_IO_OFFSET1(0x01064000) /*!< Base offset for target DEV5G_1 */
+#define VTSS_TO_DEV5G_2         VTSS_IO_OFFSET1(0x01084000) /*!< Base offset for target DEV5G_2 */
+#define VTSS_TO_DEV5G_3         VTSS_IO_OFFSET1(0x010a4000) /*!< Base offset for target DEV5G_3 */
+#define VTSS_TO_PCS5G_BR_0      VTSS_IO_OFFSET1(0x01048000) /*!< Base offset for target PCS5G_BR_0 */
+#define VTSS_TO_PCS5G_BR_1      VTSS_IO_OFFSET1(0x01068000) /*!< Base offset for target PCS5G_BR_1 */
+#define VTSS_TO_PCS5G_BR_2      VTSS_IO_OFFSET1(0x01088000) /*!< Base offset for target PCS5G_BR_2 */
+#define VTSS_TO_PCS5G_BR_3      VTSS_IO_OFFSET1(0x010a8000) /*!< Base offset for target PCS5G_BR_3 */
+#define VTSS_TO_DEV10G_0        VTSS_IO_OFFSET1(0x01008000) /*!< Base offset for target DEV10G_0 */
+#define VTSS_TO_DEV10G_1        VTSS_IO_OFFSET1(0x01020000) /*!< Base offset for target DEV10G_1 */
+#define VTSS_TO_DEV10G_2        VTSS_IO_OFFSET1(0x01038000) /*!< Base offset for target DEV10G_2 */
+#define VTSS_TO_DEV10G_3        VTSS_IO_OFFSET1(0x01058000) /*!< Base offset for target DEV10G_3 */
+#define VTSS_TO_DEV10G_4        VTSS_IO_OFFSET1(0x01078000) /*!< Base offset for target DEV10G_4 */
+#define VTSS_TO_DEV10G_5        VTSS_IO_OFFSET1(0x01098000) /*!< Base offset for target DEV10G_5 */
+#define VTSS_TO_DEV10G_6        VTSS_IO_OFFSET1(0x010b8000) /*!< Base offset for target DEV10G_6 */
+#define VTSS_TO_DEV10G_7        VTSS_IO_OFFSET1(0x010c4000) /*!< Base offset for target DEV10G_7 */
+#define VTSS_TO_DEV10G_8        VTSS_IO_OFFSET1(0x010d0000) /*!< Base offset for target DEV10G_8 */
+#define VTSS_TO_DEV10G_9        VTSS_IO_OFFSET1(0x010dc000) /*!< Base offset for target DEV10G_9 */
+#define VTSS_TO_PCS10G_BR_0     VTSS_IO_OFFSET1(0x0100c000) /*!< Base offset for target PCS10G_BR_0 */
+#define VTSS_TO_PCS10G_BR_1     VTSS_IO_OFFSET1(0x01024000) /*!< Base offset for target PCS10G_BR_1 */
+#define VTSS_TO_PCS10G_BR_2     VTSS_IO_OFFSET1(0x0103c000) /*!< Base offset for target PCS10G_BR_2 */
+#define VTSS_TO_PCS10G_BR_3     VTSS_IO_OFFSET1(0x0105c000) /*!< Base offset for target PCS10G_BR_3 */
+#define VTSS_TO_PCS10G_BR_4     VTSS_IO_OFFSET1(0x0107c000) /*!< Base offset for target PCS10G_BR_4 */
+#define VTSS_TO_PCS10G_BR_5     VTSS_IO_OFFSET1(0x0109c000) /*!< Base offset for target PCS10G_BR_5 */
+#define VTSS_TO_PCS10G_BR_6     VTSS_IO_OFFSET1(0x010bc000) /*!< Base offset for target PCS10G_BR_6 */
+#define VTSS_TO_PCS10G_BR_7     VTSS_IO_OFFSET1(0x010c8000) /*!< Base offset for target PCS10G_BR_7 */
+#define VTSS_TO_PCS10G_BR_8     VTSS_IO_OFFSET1(0x010d4000) /*!< Base offset for target PCS10G_BR_8 */
+#define VTSS_TO_PCS10G_BR_9     VTSS_IO_OFFSET1(0x010e0000) /*!< Base offset for target PCS10G_BR_9 */
 #define VTSS_TO_DEVCPU_GCB      VTSS_IO_OFFSET1(0x00010000) /*!< Base offset for target DEVCPU_GCB */
 #define VTSS_TO_DEVCPU_ORG0     VTSS_IO_OFFSET1(0x00000000) /*!< Base offset for target DEVCPU_ORG0 */
 #define VTSS_TO_DEVCPU_ORG1     VTSS_IO_OFFSET1(0x01000000) /*!< Base offset for target DEVCPU_ORG1 */
@@ -327,8 +328,6 @@ enum vtss_target_PCS_10GBASE_R_e {
     VTSS_TOE_PCS5G_BR_1      = VTSS_TO_PCS5G_BR_1,
     VTSS_TOE_PCS5G_BR_2      = VTSS_TO_PCS5G_BR_2,
     VTSS_TOE_PCS5G_BR_3      = VTSS_TO_PCS5G_BR_3,
-    VTSS_TOE_PCS5G_BR_4      = VTSS_TO_PCS5G_BR_4,
-    VTSS_TOE_PCS5G_BR_5      = VTSS_TO_PCS5G_BR_5,
     VTSS_TOE_PCS10G_BR_0     = VTSS_TO_PCS10G_BR_0,
     VTSS_TOE_PCS10G_BR_1     = VTSS_TO_PCS10G_BR_1,
     VTSS_TOE_PCS10G_BR_2     = VTSS_TO_PCS10G_BR_2,
@@ -337,6 +336,8 @@ enum vtss_target_PCS_10GBASE_R_e {
     VTSS_TOE_PCS10G_BR_5     = VTSS_TO_PCS10G_BR_5,
     VTSS_TOE_PCS10G_BR_6     = VTSS_TO_PCS10G_BR_6,
     VTSS_TOE_PCS10G_BR_7     = VTSS_TO_PCS10G_BR_7,
+    VTSS_TOE_PCS10G_BR_8     = VTSS_TO_PCS10G_BR_8,
+    VTSS_TOE_PCS10G_BR_9     = VTSS_TO_PCS10G_BR_9,
 };
 
 /**
@@ -347,8 +348,6 @@ enum vtss_target_DEV10G_e {
     VTSS_TOE_DEV5G_1         = VTSS_TO_DEV5G_1,
     VTSS_TOE_DEV5G_2         = VTSS_TO_DEV5G_2,
     VTSS_TOE_DEV5G_3         = VTSS_TO_DEV5G_3,
-    VTSS_TOE_DEV5G_4         = VTSS_TO_DEV5G_4,
-    VTSS_TOE_DEV5G_5         = VTSS_TO_DEV5G_5,
     VTSS_TOE_DEV10G_0        = VTSS_TO_DEV10G_0,
     VTSS_TOE_DEV10G_1        = VTSS_TO_DEV10G_1,
     VTSS_TOE_DEV10G_2        = VTSS_TO_DEV10G_2,
@@ -357,6 +356,8 @@ enum vtss_target_DEV10G_e {
     VTSS_TOE_DEV10G_5        = VTSS_TO_DEV10G_5,
     VTSS_TOE_DEV10G_6        = VTSS_TO_DEV10G_6,
     VTSS_TOE_DEV10G_7        = VTSS_TO_DEV10G_7,
+    VTSS_TOE_DEV10G_8        = VTSS_TO_DEV10G_8,
+    VTSS_TOE_DEV10G_9        = VTSS_TO_DEV10G_9,
 };
 
 /**
@@ -367,7 +368,6 @@ enum vtss_target_FLEXCOM_e {
     VTSS_TOE_FLEXCOM_1       = VTSS_TO_FLEXCOM_1,
     VTSS_TOE_FLEXCOM_2       = VTSS_TO_FLEXCOM_2,
     VTSS_TOE_FLEXCOM_3       = VTSS_TO_FLEXCOM_3,
-    VTSS_TOE_FLEXCOM_4       = VTSS_TO_FLEXCOM_4,
 };
 
 /**
@@ -406,12 +406,12 @@ enum vtss_target_DEV1G_e {
     VTSS_TOE_DEV2G5_23       = VTSS_TO_DEV2G5_23,
     VTSS_TOE_DEVRGMII_0      = VTSS_TO_DEVRGMII_0,
     VTSS_TOE_DEVRGMII_1      = VTSS_TO_DEVRGMII_1,
-    VTSS_TOE_DEV2G5_0        = VTSS_TO_DEV2G5_0,
-    VTSS_TOE_DEV2G5_4        = VTSS_TO_DEV2G5_4,
     VTSS_TOE_DEV2G5_9        = VTSS_TO_DEV2G5_9,
     VTSS_TOE_DEV2G5_13       = VTSS_TO_DEV2G5_13,
     VTSS_TOE_DEV2G5_17       = VTSS_TO_DEV2G5_17,
     VTSS_TOE_DEV2G5_21       = VTSS_TO_DEV2G5_21,
+    VTSS_TOE_DEV2G5_0        = VTSS_TO_DEV2G5_0,
+    VTSS_TOE_DEV2G5_4        = VTSS_TO_DEV2G5_4,
     VTSS_TOE_DEV2G5_8        = VTSS_TO_DEV2G5_8,
     VTSS_TOE_DEV2G5_12       = VTSS_TO_DEV2G5_12,
     VTSS_TOE_DEV2G5_16       = VTSS_TO_DEV2G5_16,
@@ -432,6 +432,14 @@ enum vtss_target_SD10G_CMU_TARGET_e {
     VTSS_TOE_SD_CMU_3        = VTSS_TO_SD_CMU_3,
     VTSS_TOE_SD_CMU_4        = VTSS_TO_SD_CMU_4,
     VTSS_TOE_SD_CMU_5        = VTSS_TO_SD_CMU_5,
+};
+
+/**
+  * \brief Target SDMMC target offset(s)
+  */
+enum vtss_target_SDMMC_e {
+    VTSS_TOE_SDMMC_0         = VTSS_TO_SDMMC_0,
+    VTSS_TOE_SDMMC_1         = VTSS_TO_SDMMC_1,
 };
 
 /**

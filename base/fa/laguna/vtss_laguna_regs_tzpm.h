@@ -89,6 +89,20 @@
 
 /**
  * \brief
+ * Programmable secure access control for SDMMC target
+ *
+ * \details
+ * 0: Secure Accesses only are allowed
+ * 1: Non Secure Accesses are allowed
+ *
+ * Field: ::VTSS_TZPM_TZPCTL0 . SDMMC1
+ */
+#define  VTSS_F_TZPM_TZPCTL0_SDMMC1(x)        VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_TZPM_TZPCTL0_SDMMC1           VTSS_BIT(14)
+#define  VTSS_X_TZPM_TZPCTL0_SDMMC1(x)        VTSS_EXTRACT_BITFIELD(x,14,1)
+
+/**
+ * \brief
  * Programmable secure access control for QSPI2 target
  *
  * \details
@@ -109,11 +123,11 @@
  * 0: Secure Accesses only are allowed
  * 1: Non Secure Accesses are allowed
  *
- * Field: ::VTSS_TZPM_TZPCTL0 . SDMMC
+ * Field: ::VTSS_TZPM_TZPCTL0 . SDMMC0
  */
-#define  VTSS_F_TZPM_TZPCTL0_SDMMC(x)         VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_TZPM_TZPCTL0_SDMMC            VTSS_BIT(12)
-#define  VTSS_X_TZPM_TZPCTL0_SDMMC(x)         VTSS_EXTRACT_BITFIELD(x,12,1)
+#define  VTSS_F_TZPM_TZPCTL0_SDMMC0(x)        VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_TZPM_TZPCTL0_SDMMC0           VTSS_BIT(12)
+#define  VTSS_X_TZPM_TZPCTL0_SDMMC0(x)        VTSS_EXTRACT_BITFIELD(x,12,1)
 
 /**
  * \brief
@@ -412,17 +426,18 @@
 
 /**
  * \brief
- * Programmable secure access control for PKCC target
+ * Programmable secure access control for PKE(Public Key Crypto Engine)
+ * target
  *
  * \details
  * 0: Secure Accesses only are allowed
  * 1: Non Secure Accesses are allowed
  *
- * Field: ::VTSS_TZPM_TZPCTL2 . PKCC
+ * Field: ::VTSS_TZPM_TZPCTL2 . PKE
  */
-#define  VTSS_F_TZPM_TZPCTL2_PKCC(x)          VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_TZPM_TZPCTL2_PKCC             VTSS_BIT(0)
-#define  VTSS_X_TZPM_TZPCTL2_PKCC(x)          VTSS_EXTRACT_BITFIELD(x,0,1)
+#define  VTSS_F_TZPM_TZPCTL2_PKE(x)           VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZPM_TZPCTL2_PKE              VTSS_BIT(0)
+#define  VTSS_X_TZPM_TZPCTL2_PKE(x)           VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 /**
@@ -458,20 +473,6 @@
 
 /**
  * \brief
- * Programmable secure/non-secure transactions generation for RTE Initiator
- *
- * \details
- * 0 : Secure transactions are generated.
- * 1: Non-secure transactions are generated.
- *
- * Field: ::VTSS_TZPM_TZPCTL3 . RTE
- */
-#define  VTSS_F_TZPM_TZPCTL3_RTE(x)           VTSS_ENCODE_BITFIELD(!!(x),26,1)
-#define  VTSS_M_TZPM_TZPCTL3_RTE              VTSS_BIT(26)
-#define  VTSS_X_TZPM_TZPCTL3_RTE(x)           VTSS_EXTRACT_BITFIELD(x,26,1)
-
-/**
- * \brief
  * Programmable secure/non-secure transactions generation for FDMA
  * Initiator
  *
@@ -499,6 +500,31 @@
 #define  VTSS_F_TZPM_TZPCTL3_EXT_INITIATOR(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
 #define  VTSS_M_TZPM_TZPCTL3_EXT_INITIATOR    VTSS_BIT(24)
 #define  VTSS_X_TZPM_TZPCTL3_EXT_INITIATOR(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+
+/**
+ * \brief Trust Zone peripheral manager Special function register
+ *
+ * \details
+ * Register: \a TZPM:TZPM_REGS:TZPM_SFR
+ */
+#define VTSS_TZPM_TZPM_SFR                   VTSS_IOREG(VTSS_TO_TZPM,0x6)
+
+/**
+ * \brief
+ * GIC400 CFGSDISABLE:Secure software has to configure this bit for extra
+ * security and this will prevent modifications to certain security
+ * registers in GIC400, PLease refer GIC400 doc for more info..
+ *
+ * \details
+ *  1: Extra security enabled for GIC400
+ *  0: Extra security disabled for GIC400
+ *
+ * Field: ::VTSS_TZPM_TZPM_SFR . GIC400_CFGSDISABLE
+ */
+#define  VTSS_F_TZPM_TZPM_SFR_GIC400_CFGSDISABLE(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_TZPM_TZPM_SFR_GIC400_CFGSDISABLE  VTSS_BIT(0)
+#define  VTSS_X_TZPM_TZPM_SFR_GIC400_CFGSDISABLE(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 #endif /* _VTSS_LAGUNA_REGS_TZPM_H_ */

@@ -10,6 +10,8 @@
  *
  * Target: \a SDMMC
  *
+ * \see vtss_target_SDMMC_e
+ *
  * Secure Digital MultiMedia Card Controller
  *
  ***********************************************************************/
@@ -29,8 +31,10 @@
  * transfers or the second argument for Auto CMD23.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_SSAR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_SSAR                VTSS_IOREG(VTSS_TO_SDMMC,0x0)
+#define VTSS_SDMMC_SDMMC_SSAR(target)        VTSS_IOREG(target,0x0)
 
 /**
  * \brief
@@ -64,8 +68,10 @@
  * SDMMC_BSBCR = {SDMMC_BCR[15:0], SDMMC_BSR[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_BSBCR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_BSBCR               VTSS_IOREG(VTSS_TO_SDMMC,0x1)
+#define VTSS_SDMMC_SDMMC_BSBCR(target)       VTSS_IOREG(target,0x1)
 
 /**
  * \brief
@@ -140,8 +146,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_ARG1R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_ARG1R               VTSS_IOREG(VTSS_TO_SDMMC,0x2)
+#define VTSS_SDMMC_SDMMC_ARG1R(target)       VTSS_IOREG(target,0x2)
 
 /**
  * \brief
@@ -184,8 +192,10 @@
  * 1,  1, Zero. Stop Multiple Transfer
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_TMCR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_TMCR                VTSS_IOREG(VTSS_TO_SDMMC,0x3)
+#define VTSS_SDMMC_SDMMC_TMCR(target)        VTSS_IOREG(target,0x3)
 
 /**
  * \brief
@@ -397,8 +407,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RR0
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RR0                 VTSS_IOREG(VTSS_TO_SDMMC,0x4)
+#define VTSS_SDMMC_SDMMC_RR0(target)         VTSS_IOREG(target,0x4)
 
 /**
  * \brief
@@ -445,8 +457,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RR1
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RR1                 VTSS_IOREG(VTSS_TO_SDMMC,0x5)
+#define VTSS_SDMMC_SDMMC_RR1(target)         VTSS_IOREG(target,0x5)
 
 /**
  * \brief
@@ -493,8 +507,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RR2
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RR2                 VTSS_IOREG(VTSS_TO_SDMMC,0x6)
+#define VTSS_SDMMC_SDMMC_RR2(target)         VTSS_IOREG(target,0x6)
 
 /**
  * \brief
@@ -541,8 +557,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RR3
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RR3                 VTSS_IOREG(VTSS_TO_SDMMC,0x7)
+#define VTSS_SDMMC_SDMMC_RR3(target)         VTSS_IOREG(target,0x7)
 
 /**
  * \brief
@@ -589,8 +607,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_BDPR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_BDPR                VTSS_IOREG(VTSS_TO_SDMMC,0x8)
+#define VTSS_SDMMC_SDMMC_BDPR(target)        VTSS_IOREG(target,0x8)
 
 /**
  * \brief
@@ -610,8 +630,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_PSR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_PSR                 VTSS_IOREG(VTSS_TO_SDMMC,0x9)
+#define VTSS_SDMMC_SDMMC_PSR(target)         VTSS_IOREG(target,0x9)
 
 /**
  * \brief
@@ -809,10 +831,10 @@
  * margin to receive correct data.This bit is cleared to 0 when a command
  * is issued by setting Execute Tuning (EXTUN) in SDMMC_HC2R.A change from
  * 0 to 1 raises the Retuning Event (RTEVT) status flag in SDMMC_NIEI_STR
- * if RTEVT is setto 1. An interrupt is generated if RTEVT is set to 1.This
- * bit is not set to 1 if Sampling Clock Select (SCLKSEL) in SDMMC_HC2R is
- * set to 0 (using a fixed sampling clock). SeeRetuning Modes (RTMOD) in
- * SDMMC_CA1R.
+ * if SDMMC_NIEI_STER.RTEVT is setto 1. An interrupt is generated if
+ * SDMMC_NIEI_SIGER.RTEVT is set to 1.This bit is not set to 1 if Sampling
+ * Clock Select (SCLKSEL) in SDMMC_HC2R is set to 0 (using a fixed sampling
+ * clock). SeeRetuning Modes (RTMOD) in SDMMC_CA1R.
  *
  * \details
  * 0: Fixed or well-tuned sampling clock.
@@ -945,8 +967,10 @@
  * SDMMC_HC1R[7:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_HC1R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_HC1R                VTSS_IOREG(VTSS_TO_SDMMC,0xa)
+#define VTSS_SDMMC_SDMMC_HC1R(target)        VTSS_IOREG(target,0xa)
 
 /**
  * \brief
@@ -1264,8 +1288,10 @@
  * SDMMC_CTSR = {SDMMC_SRR[7:0], SDMMC_TCR[7:0], SDMMC_CCR[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CTSR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CTSR                VTSS_IOREG(VTSS_TO_SDMMC,0xb)
+#define VTSS_SDMMC_SDMMC_CTSR(target)        VTSS_IOREG(target,0xb)
 
 /**
  * \brief
@@ -1487,8 +1513,10 @@
  * SDMMC_NIEI_STR = {SDMMC_EISTR[15:0], SDMMC_NISTR[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_NIEI_STR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_NIEI_STR            VTSS_IOREG(VTSS_TO_SDMMC,0xc)
+#define VTSS_SDMMC_SDMMC_NIEI_STR(target)    VTSS_IOREG(target,0xc)
 
 /**
  * \brief
@@ -2055,8 +2083,10 @@
  * SDMMC_NIEI_STER = {SDMMC_EISTER[15:0], SDMMC_NISTER[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_NIEI_STER
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_NIEI_STER           VTSS_IOREG(VTSS_TO_SDMMC,0xd)
+#define VTSS_SDMMC_SDMMC_NIEI_STER(target)   VTSS_IOREG(target,0xd)
 
 /**
  * \brief
@@ -2420,8 +2450,10 @@
  * SDMMC_NIEI_SIGER = {SDMMC_EISIER[15:0], SDMMC_NISIER[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_NIEI_SIGER
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_NIEI_SIGER          VTSS_IOREG(VTSS_TO_SDMMC,0xe)
+#define VTSS_SDMMC_SDMMC_NIEI_SIGER(target)  VTSS_IOREG(target,0xe)
 
 /**
  * \brief
@@ -2816,8 +2848,10 @@
  * SDMMC_ACESR_HC2R = {SDMMC_HC2R [15:0], SDMMC_ACESR[15:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_ACESR_HC2R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_ACESR_HC2R          VTSS_IOREG(VTSS_TO_SDMMC,0xf)
+#define VTSS_SDMMC_SDMMC_ACESR_HC2R(target)  VTSS_IOREG(target,0xf)
 
 /**
  * \brief
@@ -3087,8 +3121,10 @@
  * Write Enable (CAPWREN) is set to 1 in SDMMC_CACR.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CA0R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CA0R                VTSS_IOREG(VTSS_TO_SDMMC,0x10)
+#define VTSS_SDMMC_SDMMC_CA0R(target)        VTSS_IOREG(target,0x10)
 
 /**
  * \brief
@@ -3341,8 +3377,10 @@
  * Write Enable (CAPWREN) is set to 1 in SDMMC_CACR.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CA1R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CA1R                VTSS_IOREG(VTSS_TO_SDMMC,0x11)
+#define VTSS_SDMMC_SDMMC_CA1R(target)        VTSS_IOREG(target,0x11)
 
 /**
  * \brief
@@ -3517,8 +3555,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_MCCAR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_MCCAR               VTSS_IOREG(VTSS_TO_SDMMC,0x12)
+#define VTSS_SDMMC_SDMMC_MCCAR(target)       VTSS_IOREG(target,0x12)
 
 /**
  * \brief
@@ -3575,8 +3615,10 @@
 
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_FCES_FEIS
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_FCES_FEIS           VTSS_IOREG(VTSS_TO_SDMMC,0x14)
+#define VTSS_SDMMC_SDMMC_FCES_FEIS(target)   VTSS_IOREG(target,0x14)
 
 /**
  * \brief
@@ -3805,8 +3847,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_AESR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_AESR                VTSS_IOREG(VTSS_TO_SDMMC,0x15)
+#define VTSS_SDMMC_SDMMC_AESR(target)        VTSS_IOREG(target,0x15)
 
 /**
  * \brief
@@ -3855,8 +3899,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_ASAR0
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_ASAR0               VTSS_IOREG(VTSS_TO_SDMMC,0x16)
+#define VTSS_SDMMC_SDMMC_ASAR0(target)       VTSS_IOREG(target,0x16)
 
 /**
  * \brief
@@ -3885,8 +3931,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_ASAR1
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_ASAR1               VTSS_IOREG(VTSS_TO_SDMMC,0x17)
+#define VTSS_SDMMC_SDMMC_ASAR1(target)       VTSS_IOREG(target,0x17)
 
 /**
  * \brief
@@ -3972,8 +4020,10 @@
  * set to 1 after the initialization is completed.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_PVR01
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_PVR01               VTSS_IOREG(VTSS_TO_SDMMC,0x18)
+#define VTSS_SDMMC_SDMMC_PVR01(target)       VTSS_IOREG(target,0x18)
 
 /**
  * \brief
@@ -4104,8 +4154,10 @@
  * set to 1 after the initialization is completed.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_PVR23
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_PVR23               VTSS_IOREG(VTSS_TO_SDMMC,0x19)
+#define VTSS_SDMMC_SDMMC_PVR23(target)       VTSS_IOREG(target,0x19)
 
 /**
  * \brief
@@ -4236,8 +4288,10 @@
  * set to 1 after the initialization is completed.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_PVR45
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_PVR45               VTSS_IOREG(VTSS_TO_SDMMC,0x1a)
+#define VTSS_SDMMC_SDMMC_PVR45(target)       VTSS_IOREG(target,0x1a)
 
 /**
  * \brief
@@ -4368,8 +4422,10 @@
  * set to 1 after the initialization is completed.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_PVR67
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_PVR67               VTSS_IOREG(VTSS_TO_SDMMC,0x1b)
+#define VTSS_SDMMC_SDMMC_PVR67(target)       VTSS_IOREG(target,0x1b)
 
 /**
  * \brief
@@ -4443,8 +4499,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_SBCR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_SBCR                VTSS_IOREG(VTSS_TO_SDMMC,0x38)
+#define VTSS_SDMMC_SDMMC_SBCR(target)        VTSS_IOREG(target,0x38)
 
 /**
  * \brief
@@ -4518,8 +4576,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_SISR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_SISR                VTSS_IOREG(VTSS_TO_SDMMC,0x3f)
+#define VTSS_SDMMC_SDMMC_SISR(target)        VTSS_IOREG(target,0x3f)
 
 /**
  * \brief
@@ -4566,9 +4626,9 @@
  * \details
  * Field: ::VTSS_SDMMC_SDMMC_SISR . INTSSL
  */
-#define  VTSS_F_SDMMC_SDMMC_SISR_INTSSL(x)    VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_SDMMC_SDMMC_SISR_INTSSL       VTSS_BIT(0)
-#define  VTSS_X_SDMMC_SDMMC_SISR_INTSSL(x)    VTSS_EXTRACT_BITFIELD(x,0,1)
+#define  VTSS_F_SDMMC_SDMMC_SISR_INTSSL(x)    VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_SDMMC_SDMMC_SISR_INTSSL       VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_SDMMC_SDMMC_SISR_INTSSL(x)    VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -4576,8 +4636,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_APSR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_APSR                VTSS_IOREG(VTSS_TO_SDMMC,0x80)
+#define VTSS_SDMMC_SDMMC_APSR(target)        VTSS_IOREG(target,0x80)
 
 /**
  * \brief
@@ -4605,8 +4667,10 @@
 
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_MCR_DEBR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_MCR_DEBR            VTSS_IOREG(VTSS_TO_SDMMC,0x81)
+#define VTSS_SDMMC_SDMMC_MCR_DEBR(target)    VTSS_IOREG(target,0x81)
 
 /**
  * \brief
@@ -4823,8 +4887,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_ACR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_ACR                 VTSS_IOREG(VTSS_TO_SDMMC,0x82)
+#define VTSS_SDMMC_SDMMC_ACR(target)         VTSS_IOREG(target,0x82)
 
 /**
  * \brief
@@ -4905,8 +4971,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CC2R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CC2R                VTSS_IOREG(VTSS_TO_SDMMC,0x83)
+#define VTSS_SDMMC_SDMMC_CC2R(target)        VTSS_IOREG(target,0x83)
 
 /**
  * \brief
@@ -4938,8 +5006,10 @@
  * Note: SDMMC_RTC_1R2R[15:8] bits have write-only access.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RTC_1R2R
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RTC_1R2R            VTSS_IOREG(VTSS_TO_SDMMC,0x84)
+#define VTSS_SDMMC_SDMMC_RTC_1R2R(target)    VTSS_IOREG(target,0x84)
 
 /**
  * \brief
@@ -4976,8 +5046,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RTCVR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RTCVR               VTSS_IOREG(VTSS_TO_SDMMC,0x85)
+#define VTSS_SDMMC_SDMMC_RTCVR(target)       VTSS_IOREG(target,0x85)
 
 /**
  * \brief
@@ -5003,8 +5075,10 @@
  * SDMMC_RTI_STSIER = {16'h0, SDMMC_RTISIER[7:0], SDMMC_RTISTER[7:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RTI_STSIER
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RTI_STSIER          VTSS_IOREG(VTSS_TO_SDMMC,0x86)
+#define VTSS_SDMMC_SDMMC_RTI_STSIER(target)  VTSS_IOREG(target,0x86)
 
 /**
  * \brief
@@ -5046,8 +5120,10 @@
  * SDMMC_RTISTR_RTSSR = {16'h0, SDMMC_RTSSR[7:0], SDMMC_RTISTR[7:0]}
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_RTISTR_RTSSR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_RTISTR_RTSSR        VTSS_IOREG(VTSS_TO_SDMMC,0x87)
+#define VTSS_SDMMC_SDMMC_RTISTR_RTSSR(target)  VTSS_IOREG(target,0x87)
 
 /**
  * \brief
@@ -5058,9 +5134,9 @@
  * \details
  * Field: ::VTSS_SDMMC_SDMMC_RTISTR_RTSSR . TEVTSLOT
  */
-#define  VTSS_F_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT  VTSS_BIT(8)
-#define  VTSS_X_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+#define  VTSS_F_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT(x)  VTSS_ENCODE_BITFIELD(x,8,8)
+#define  VTSS_M_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT     VTSS_ENCODE_BITMASK(8,8)
+#define  VTSS_X_SDMMC_SDMMC_RTISTR_RTSSR_TEVTSLOT(x)  VTSS_EXTRACT_BITFIELD(x,8,8)
 
 /**
  * \brief
@@ -5085,8 +5161,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_TUNCR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_TUNCR               VTSS_IOREG(VTSS_TO_SDMMC,0x88)
+#define VTSS_SDMMC_SDMMC_TUNCR(target)       VTSS_IOREG(target,0x88)
 
 /**
  * \brief
@@ -5109,8 +5187,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_TUNSR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_TUNSR               VTSS_IOREG(VTSS_TO_SDMMC,0x89)
+#define VTSS_SDMMC_SDMMC_TUNSR(target)       VTSS_IOREG(target,0x89)
 
 /**
  * \brief
@@ -5148,8 +5228,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_FSMTR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_FSMTR               VTSS_IOREG(VTSS_TO_SDMMC,0x8a)
+#define VTSS_SDMMC_SDMMC_FSMTR(target)       VTSS_IOREG(target,0x8a)
 
 /**
  * \brief
@@ -5414,8 +5496,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CACR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CACR                VTSS_IOREG(VTSS_TO_SDMMC,0x8c)
+#define VTSS_SDMMC_SDMMC_CACR(target)        VTSS_IOREG(target,0x8c)
 
 /**
  * \brief
@@ -5454,8 +5538,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_DBGR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_DBGR                VTSS_IOREG(VTSS_TO_SDMMC,0x8d)
+#define VTSS_SDMMC_SDMMC_DBGR(target)        VTSS_IOREG(target,0x8d)
 
 /**
  * \brief
@@ -5479,8 +5565,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_EDBGR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_EDBGR               VTSS_IOREG(VTSS_TO_SDMMC,0x8e)
+#define VTSS_SDMMC_SDMMC_EDBGR(target)       VTSS_IOREG(target,0x8e)
 
 /**
  * \brief
@@ -5497,6 +5585,21 @@
 #define  VTSS_F_SDMMC_SDMMC_EDBGR_EDBGR_KEY(x)  VTSS_ENCODE_BITFIELD(x,24,8)
 #define  VTSS_M_SDMMC_SDMMC_EDBGR_EDBGR_KEY     VTSS_ENCODE_BITMASK(24,8)
 #define  VTSS_X_SDMMC_SDMMC_EDBGR_EDBGR_KEY(x)  VTSS_EXTRACT_BITFIELD(x,24,8)
+
+/**
+ * \brief
+ * DOORP: DLL Out Of Range Protect
+ *
+ * \details
+ * This bit can only be written if KEY corresponds to 0x46.
+ * 0: Disables the DLL out of range protection.
+ * 1: Enables the DLL out of range protection.
+ *
+ * Field: ::VTSS_SDMMC_SDMMC_EDBGR . DOORP
+ */
+#define  VTSS_F_SDMMC_SDMMC_EDBGR_DOORP(x)    VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_SDMMC_SDMMC_EDBGR_DOORP       VTSS_BIT(4)
+#define  VTSS_X_SDMMC_SDMMC_EDBGR_DOORP(x)    VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
@@ -5566,8 +5669,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_CALCR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_CALCR               VTSS_IOREG(VTSS_TO_SDMMC,0x90)
+#define VTSS_SDMMC_SDMMC_CALCR(target)       VTSS_IOREG(target,0x90)
 
 /**
  * \brief
@@ -5726,8 +5831,10 @@
  * completed.
  *
  * Register: \a SDMMC:SDMMC_REG:SDMMC_EPVR8
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_EPVR8               VTSS_IOREG(VTSS_TO_SDMMC,0x91)
+#define VTSS_SDMMC_SDMMC_EPVR8(target)       VTSS_IOREG(target,0x91)
 
 /**
  * \brief
@@ -5768,8 +5875,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_TXPHTR
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_TXPHTR              VTSS_IOREG(VTSS_TO_SDMMC,0x9c)
+#define VTSS_SDMMC_SDMMC_TXPHTR(target)      VTSS_IOREG(target,0x9c)
 
 /**
  * \brief
@@ -5893,8 +6002,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_VERSION1
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_VERSION1            VTSS_IOREG(VTSS_TO_SDMMC,0xba)
+#define VTSS_SDMMC_SDMMC_VERSION1(target)    VTSS_IOREG(target,0xba)
 
 /**
  * \brief
@@ -5918,8 +6029,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_VERSION2
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_VERSION2            VTSS_IOREG(VTSS_TO_SDMMC,0xbb)
+#define VTSS_SDMMC_SDMMC_VERSION2(target)    VTSS_IOREG(target,0xbb)
 
 /**
  * \brief
@@ -5943,8 +6056,10 @@
  *
  * \details
  * Register: \a SDMMC:SDMMC_REG:SDMMC_VERSION3
+ *
+ * @param target A \a ::vtss_target_SDMMC_e target
  */
-#define VTSS_SDMMC_SDMMC_VERSION3            VTSS_IOREG(VTSS_TO_SDMMC,0xbf)
+#define VTSS_SDMMC_SDMMC_VERSION3(target)    VTSS_IOREG(target,0xbf)
 
 /**
  * \brief

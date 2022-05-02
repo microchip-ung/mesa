@@ -33,7 +33,7 @@
  *
  * Register: \a ANA_AC:RAM_CTRL:RAM_INIT
  */
-#define VTSS_ANA_AC_RAM_CTRL_RAM_INIT        VTSS_IOREG(VTSS_TO_ANA_AC,0x91c4)
+#define VTSS_ANA_AC_RAM_CTRL_RAM_INIT        VTSS_IOREG(VTSS_TO_ANA_AC,0xc544)
 
 /**
  * \brief
@@ -72,7 +72,7 @@
  * \details
  * Register: \a ANA_AC:COREMEM:CM_ADDR
  */
-#define VTSS_ANA_AC_COREMEM_CM_ADDR          VTSS_IOREG(VTSS_TO_ANA_AC,0x91c5)
+#define VTSS_ANA_AC_COREMEM_CM_ADDR          VTSS_IOREG(VTSS_TO_ANA_AC,0xc545)
 
 /**
  * \brief
@@ -92,7 +92,7 @@
  * \details
  * Register: \a ANA_AC:COREMEM:CM_DATA_WR
  */
-#define VTSS_ANA_AC_COREMEM_CM_DATA_WR       VTSS_IOREG(VTSS_TO_ANA_AC,0x91c6)
+#define VTSS_ANA_AC_COREMEM_CM_DATA_WR       VTSS_IOREG(VTSS_TO_ANA_AC,0xc546)
 
 /**
  * \brief
@@ -114,7 +114,7 @@
  * \details
  * Register: \a ANA_AC:COREMEM:CM_DATA_RD
  */
-#define VTSS_ANA_AC_COREMEM_CM_DATA_RD       VTSS_IOREG(VTSS_TO_ANA_AC,0x91c7)
+#define VTSS_ANA_AC_COREMEM_CM_DATA_RD       VTSS_IOREG(VTSS_TO_ANA_AC,0xc547)
 
 /**
  * \brief
@@ -134,7 +134,7 @@
  * \details
  * Register: \a ANA_AC:COREMEM:CM_OP
  */
-#define VTSS_ANA_AC_COREMEM_CM_OP            VTSS_IOREG(VTSS_TO_ANA_AC,0x91c8)
+#define VTSS_ANA_AC_COREMEM_CM_OP            VTSS_IOREG(VTSS_TO_ANA_AC,0xc548)
 
 /**
  * \brief
@@ -168,7 +168,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:MISC_CTRL
  */
-#define VTSS_ANA_AC_PS_COMMON_MISC_CTRL      VTSS_IOREG(VTSS_TO_ANA_AC,0xc520)
+#define VTSS_ANA_AC_PS_COMMON_MISC_CTRL      VTSS_IOREG(VTSS_TO_ANA_AC,0xc620)
 
 /**
  * \brief
@@ -242,7 +242,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:PS_COMMON_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_PS_COMMON_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc521)
+#define VTSS_ANA_AC_PS_COMMON_PS_COMMON_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc621)
 
 /**
  * \brief
@@ -315,7 +315,7 @@
  *
  * Register: \a ANA_AC:PS_COMMON:SFLOW_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_SFLOW_CFG      VTSS_IOREG(VTSS_TO_ANA_AC,0xc522)
+#define VTSS_ANA_AC_PS_COMMON_SFLOW_CFG      VTSS_IOREG(VTSS_TO_ANA_AC,0xc622)
 
 /**
  * \brief
@@ -339,7 +339,7 @@
  *
  * Register: \a ANA_AC:PS_COMMON:SFLOW_RESET_CTRL
  */
-#define VTSS_ANA_AC_PS_COMMON_SFLOW_RESET_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC,0xc523)
+#define VTSS_ANA_AC_PS_COMMON_SFLOW_RESET_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC,0xc623)
 
 /**
  * \brief
@@ -365,7 +365,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:PHYS_SRC_AGGR_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_PHYS_SRC_AGGR_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc524)
+#define VTSS_ANA_AC_PS_COMMON_PHYS_SRC_AGGR_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc624)
 
 /**
  * \brief
@@ -393,7 +393,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:STACK_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_STACK_CFG      VTSS_IOREG(VTSS_TO_ANA_AC,0xc527)
+#define VTSS_ANA_AC_PS_COMMON_STACK_CFG      VTSS_IOREG(VTSS_TO_ANA_AC,0xc627)
 
 /**
  * \brief
@@ -416,7 +416,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:STACK_A_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_STACK_A_CFG    VTSS_IOREG(VTSS_TO_ANA_AC,0xc52a)
+#define VTSS_ANA_AC_PS_COMMON_STACK_A_CFG    VTSS_IOREG(VTSS_TO_ANA_AC,0xc62a)
 
 /**
  * \brief
@@ -453,7 +453,7 @@
  *
  * Register: \a ANA_AC:PS_COMMON:OWN_UPSID
  */
-#define VTSS_ANA_AC_PS_COMMON_OWN_UPSID      VTSS_IOREG(VTSS_TO_ANA_AC,0xc52d)
+#define VTSS_ANA_AC_PS_COMMON_OWN_UPSID      VTSS_IOREG(VTSS_TO_ANA_AC,0xc62d)
 
 /**
  * \brief
@@ -476,7 +476,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:COMMON_VSTAX_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_COMMON_VSTAX_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc530)
+#define VTSS_ANA_AC_PS_COMMON_COMMON_VSTAX_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc630)
 
 /**
  * \brief
@@ -754,7 +754,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:COMMON_EQUAL_STACK_LINK_TTL_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_COMMON_EQUAL_STACK_LINK_TTL_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc531)
+#define VTSS_ANA_AC_PS_COMMON_COMMON_EQUAL_STACK_LINK_TTL_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc631)
 
 /**
  * \brief
@@ -803,7 +803,7 @@
  *
  * @param ri Replicator: x_ANA_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_AC_PS_COMMON_VSTAX_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc532 + (ri))
+#define VTSS_ANA_AC_PS_COMMON_VSTAX_CTRL(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc632 + (ri))
 
 /**
  * \brief
@@ -826,7 +826,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:VSTAX_GMIRROR_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_VSTAX_GMIRROR_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc573)
+#define VTSS_ANA_AC_PS_COMMON_VSTAX_GMIRROR_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc673)
 
 /**
  * \brief
@@ -848,7 +848,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:CPU_CFG
  */
-#define VTSS_ANA_AC_PS_COMMON_CPU_CFG        VTSS_IOREG(VTSS_TO_ANA_AC,0xc576)
+#define VTSS_ANA_AC_PS_COMMON_CPU_CFG        VTSS_IOREG(VTSS_TO_ANA_AC,0xc676)
 
 /**
  * \brief
@@ -878,7 +878,7 @@
  * \details
  * Register: \a ANA_AC:PS_COMMON:PS_DBG_CTRL
  */
-#define VTSS_ANA_AC_PS_COMMON_PS_DBG_CTRL    VTSS_IOREG(VTSS_TO_ANA_AC,0xc577)
+#define VTSS_ANA_AC_PS_COMMON_PS_DBG_CTRL    VTSS_IOREG(VTSS_TO_ANA_AC,0xc677)
 
 /**
  * \brief
@@ -925,7 +925,7 @@
  *
  * @param gi Replicator: x_ANA_AC_NUM_PROBE (??), 0-2
  */
-#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc578,gi,8,0,0)
+#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc678,gi,8,0,0)
 
 /**
  * \brief
@@ -1042,7 +1042,7 @@
  *
  * @param gi Replicator: x_ANA_AC_NUM_PROBE (??), 0-2
  */
-#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_CFG2(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc578,gi,8,0,1)
+#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_CFG2(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc678,gi,8,0,1)
 
 /**
  * \brief
@@ -1087,7 +1087,7 @@
  *
  * @param gi Replicator: x_ANA_AC_NUM_PROBE (??), 0-2
  */
-#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_PORT_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc578,gi,8,0,2)
+#define VTSS_ANA_AC_MIRROR_PROBE_PROBE_PORT_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc678,gi,8,0,2)
 
 /**
  * \brief
@@ -1135,7 +1135,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_AGGR (??), 0-15
  */
-#define VTSS_ANA_AC_AGGR_AGGR_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc480,gi,4,0,0)
+#define VTSS_ANA_AC_AGGR_AGGR_CFG(gi)        VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc580,gi,4,0,0)
 
 /**
  * \brief
@@ -1165,7 +1165,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_SRC_ENTRIES (??), 0-66
  */
-#define VTSS_ANA_AC_SRC_SRC_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x9180,gi,1,0,0)
+#define VTSS_ANA_AC_SRC_SRC_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc500,gi,1,0,0)
 
 /**
  * \brief
@@ -1195,7 +1195,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_AC_SFLOW_SFLOW_CTRL(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc4c0,gi,2,0,0)
+#define VTSS_ANA_AC_SFLOW_SFLOW_CTRL(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc5c0,gi,2,0,0)
 
 /**
  * \brief
@@ -1254,7 +1254,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_ETH_PORTS (??), 0-29
  */
-#define VTSS_ANA_AC_SFLOW_SFLOW_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc4c0,gi,2,0,1)
+#define VTSS_ANA_AC_SFLOW_SFLOW_CNT(gi)      VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc5c0,gi,2,0,1)
 
 /**
  * \brief
@@ -1362,7 +1362,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_GLAG (??), 0-31
  */
-#define VTSS_ANA_AC_GLAG_MBR_CNT_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x91e0,gi,1,0,0)
+#define VTSS_ANA_AC_GLAG_MBR_CNT_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc460,gi,1,0,0)
 
 /**
  * \brief
@@ -1562,7 +1562,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_FV_LAG (??), 0-7
  */
-#define VTSS_ANA_AC_LAG_RST_LAG_RST_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc460,gi,4,0,0)
+#define VTSS_ANA_AC_LAG_RST_LAG_RST_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc560,gi,4,0,0)
 
 /**
  * \brief
@@ -1590,7 +1590,7 @@
  *
  * Register: \a ANA_AC:PS_STICKY:STICKY
  */
-#define VTSS_ANA_AC_PS_STICKY_STICKY         VTSS_IOREG(VTSS_TO_ANA_AC,0x91c9)
+#define VTSS_ANA_AC_PS_STICKY_STICKY         VTSS_IOREG(VTSS_TO_ANA_AC,0xc549)
 
 /**
  * \brief
@@ -1867,7 +1867,7 @@
  *
  * @param gi Replicator: x_ANA_NUM_CONCURRENT_CNT (??), 0-3
  */
-#define VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc590,gi,16,0,0)
+#define VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc690,gi,16,0,0)
 
 /**
  * \brief
@@ -2143,7 +2143,7 @@
  * \details
  * Register: \a ANA_AC:FRER_GEN_STATE_ACC:FRER_GEN_STATE_ACC
  */
-#define VTSS_ANA_AC_FRER_GEN_STATE_ACC_FRER_GEN_STATE_ACC  VTSS_IOREG(VTSS_TO_ANA_AC,0x91ca)
+#define VTSS_ANA_AC_FRER_GEN_STATE_ACC_FRER_GEN_STATE_ACC  VTSS_IOREG(VTSS_TO_ANA_AC,0xc54a)
 
 /**
  * \brief
@@ -2169,7 +2169,7 @@
  * \details
  * Register: \a ANA_AC:FRER_GEN_STATE:FRER_GEN_STATE
  */
-#define VTSS_ANA_AC_FRER_GEN_STATE_FRER_GEN_STATE  VTSS_IOREG(VTSS_TO_ANA_AC,0x91c3)
+#define VTSS_ANA_AC_FRER_GEN_STATE_FRER_GEN_STATE  VTSS_IOREG(VTSS_TO_ANA_AC,0xc543)
 
 /**
  * \brief
@@ -2195,7 +2195,7 @@
  * \details
  * Register: \a ANA_AC:TSN_SF:TSN_SF
  */
-#define VTSS_ANA_AC_TSN_SF_TSN_SF            VTSS_IOREG(VTSS_TO_ANA_AC,0x91cb)
+#define VTSS_ANA_AC_TSN_SF_TSN_SF            VTSS_IOREG(VTSS_TO_ANA_AC,0xc54b)
 
 /**
  * \brief
@@ -2271,9 +2271,9 @@
  *
  * Register: \a ANA_AC:TSN_SF_CFG:TSN_SF_CFG
  *
- * @param gi Replicator: x_FFL_ANA_TSN_SFID_CNT (??), 0-1023
+ * @param gi Replicator: x_FFL_ANA_TSN_SFID_CNT (??), 0-255
  */
-#define VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc800,gi,1,0,0)
+#define VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x9100,gi,1,0,0)
 
 /**
  * \brief
@@ -2300,15 +2300,15 @@
 
 /**
  * \brief
- * Stream Gate ID.Valid range: 0-1023If set to 0, no Stream Gate is
+ * Stream Gate ID.Valid range: 0-255If set to 0, no Stream Gate is
  * applied.Related parameters:ANA_AC:SG_ACCESS:SG_ACCESS_CTRL.SGID
  *
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_CFG_TSN_SF_CFG . TSN_SGID
  */
-#define  VTSS_F_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID(x)  VTSS_ENCODE_BITFIELD(x,16,10)
-#define  VTSS_M_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID     VTSS_ENCODE_BITMASK(16,10)
-#define  VTSS_X_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID(x)  VTSS_EXTRACT_BITFIELD(x,16,10)
+#define  VTSS_F_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID(x)  VTSS_ENCODE_BITFIELD(x,16,8)
+#define  VTSS_M_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID     VTSS_ENCODE_BITMASK(16,8)
+#define  VTSS_X_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_SGID(x)  VTSS_EXTRACT_BITFIELD(x,16,8)
 
 /**
  * \brief
@@ -2379,9 +2379,9 @@
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS . FRM_LEN
  */
-#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN(x)  VTSS_ENCODE_BITFIELD(x,12,14)
-#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN     VTSS_ENCODE_BITMASK(12,14)
-#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN(x)  VTSS_EXTRACT_BITFIELD(x,12,14)
+#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN(x)  VTSS_ENCODE_BITFIELD(x,10,14)
+#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN     VTSS_ENCODE_BITMASK(10,14)
+#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_FRM_LEN(x)  VTSS_EXTRACT_BITFIELD(x,10,14)
 
 /**
  * \brief
@@ -2391,9 +2391,9 @@
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS . DLB_DROP
  */
-#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
-#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP  VTSS_BIT(11)
-#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP  VTSS_BIT(9)
+#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_DLB_DROP(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
 
 /**
  * \brief
@@ -2403,9 +2403,9 @@
  * \details
  * Field: ::VTSS_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS . TSN_SFID
  */
-#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID(x)  VTSS_ENCODE_BITFIELD(x,1,10)
-#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID     VTSS_ENCODE_BITMASK(1,10)
-#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID(x)  VTSS_EXTRACT_BITFIELD(x,1,10)
+#define  VTSS_F_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID(x)  VTSS_ENCODE_BITFIELD(x,1,8)
+#define  VTSS_M_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID     VTSS_ENCODE_BITMASK(1,8)
+#define  VTSS_X_ANA_AC_TSN_SF_STATUS_TSN_SF_STATUS_TSN_SFID(x)  VTSS_EXTRACT_BITFIELD(x,1,8)
 
 /**
  * \brief
@@ -2474,21 +2474,21 @@
  * \details
  * Register: \a ANA_AC:SG_ACCESS:SG_ACCESS_CTRL
  */
-#define VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC,0x91cc)
+#define VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL  VTSS_IOREG(VTSS_TO_ANA_AC,0xc54c)
 
 /**
  * \brief
  * Specifies the Stream gate identifier (SGID) to which the
  * SG_CONFIG/SG_STATUS register group(s) are applicable.Valid range:
- * 0-1023Note: This value needs to be set first before accessing any of
+ * 0-255Note: This value needs to be set first before accessing any of
  * SG_CONFIG/SG_STATUS register groups.
  *
  * \details
  * Field: ::VTSS_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL . SGID
  */
-#define  VTSS_F_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(x)  VTSS_ENCODE_BITFIELD(x,0,10)
-#define  VTSS_M_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID     VTSS_ENCODE_BITMASK(0,10)
-#define  VTSS_X_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
+#define  VTSS_F_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_ANA_AC_SG_ACCESS_SG_ACCESS_CTRL_SGID(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 /**
  * \brief
@@ -2520,7 +2520,7 @@
  *
  * Register: \a ANA_AC:SG_ACCESS:SG_PTP_DOMAIN_CFG
  */
-#define VTSS_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0x91cd)
+#define VTSS_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG  VTSS_IOREG(VTSS_TO_ANA_AC,0xc54d)
 
 /**
  * \brief
@@ -2547,7 +2547,7 @@
  *
  * Register: \a ANA_AC:SG_ACCESS:SG_CYCLETIME_UPDATE_PERIOD
  */
-#define VTSS_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD  VTSS_IOREG(VTSS_TO_ANA_AC,0x91ce)
+#define VTSS_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD  VTSS_IOREG(VTSS_TO_ANA_AC,0xc54e)
 
 /**
  * \brief
@@ -2589,7 +2589,7 @@
  * \details
  * Register: \a ANA_AC:SG_CONFIG:SG_CONFIG_REG_1
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_1  VTSS_IOREG(VTSS_TO_ANA_AC,0xc50c)
+#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_1  VTSS_IOREG(VTSS_TO_ANA_AC,0xc60c)
 
 /**
  * \brief
@@ -2612,7 +2612,7 @@
  * \details
  * Register: \a ANA_AC:SG_CONFIG:SG_CONFIG_REG_2
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_2  VTSS_IOREG(VTSS_TO_ANA_AC,0xc50d)
+#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_2  VTSS_IOREG(VTSS_TO_ANA_AC,0xc60d)
 
 /**
  * \brief
@@ -2635,7 +2635,7 @@
  * \details
  * Register: \a ANA_AC:SG_CONFIG:SG_CONFIG_REG_3
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3  VTSS_IOREG(VTSS_TO_ANA_AC,0xc50e)
+#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3  VTSS_IOREG(VTSS_TO_ANA_AC,0xc60e)
 
 /**
  * \brief
@@ -2790,7 +2790,7 @@
  * \details
  * Register: \a ANA_AC:SG_CONFIG:SG_CONFIG_REG_4
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_4  VTSS_IOREG(VTSS_TO_ANA_AC,0xc50f)
+#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_4  VTSS_IOREG(VTSS_TO_ANA_AC,0xc60f)
 
 /**
  * \brief
@@ -2814,7 +2814,7 @@
  * \details
  * Register: \a ANA_AC:SG_CONFIG:SG_CONFIG_REG_5
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_5  VTSS_IOREG(VTSS_TO_ANA_AC,0xc510)
+#define VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_5  VTSS_IOREG(VTSS_TO_ANA_AC,0xc610)
 
 /**
  * \brief
@@ -2838,7 +2838,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_TSN_NUM_SG_GCL_ENTRIES (??), 0-3
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_GS_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc500 + (ri))
+#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_GS_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc600 + (ri))
 
 /**
  * \brief
@@ -2880,7 +2880,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_TSN_NUM_SG_GCL_ENTRIES (??), 0-3
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_TI_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc504 + (ri))
+#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_TI_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc604 + (ri))
 
 /**
  * \brief
@@ -2905,7 +2905,7 @@
  *
  * @param ri Replicator: x_FFL_ANA_TSN_NUM_SG_GCL_ENTRIES (??), 0-3
  */
-#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_OCT_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc508 + (ri))
+#define VTSS_ANA_AC_SG_CONFIG_SG_GCL_OCT_CONFIG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc608 + (ri))
 
 /**
  * \brief
@@ -3094,7 +3094,7 @@
  * \details
  * Register: \a ANA_AC:SG_STATUS_STICKY:SG_STICKY
  */
-#define VTSS_ANA_AC_SG_STATUS_STICKY_SG_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC,0x91cf)
+#define VTSS_ANA_AC_SG_STATUS_STICKY_SG_STICKY  VTSS_IOREG(VTSS_TO_ANA_AC,0xc54f)
 
 /**
  * \brief
@@ -3145,7 +3145,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-3
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x91d0 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc550 + (ri))
 
 /**
  * \brief
@@ -3195,7 +3195,7 @@
  * \details
  * Register: \a ANA_AC:STAT_GLOBAL_CFG_PORT:STAT_RESET
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET  VTSS_IOREG(VTSS_TO_ANA_AC,0x91d4)
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET  VTSS_IOREG(VTSS_TO_ANA_AC,0xc554)
 
 /**
  * \brief
@@ -3229,7 +3229,7 @@
  *
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-34
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xcc00,gi,16,0,0)
+#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_EVENTS_STICKY(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc800,gi,16,0,0)
 
 /**
  * \brief
@@ -3258,7 +3258,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-34
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-3
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xcc00,gi,16,ri,1)
+#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc800,gi,16,ri,1)
 
 /**
  * \brief
@@ -3340,7 +3340,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-34
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-3
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_LSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xcc00,gi,16,ri,5)
+#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_LSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc800,gi,16,ri,5)
 
 /**
  * \brief
@@ -3363,7 +3363,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-34
  * @param ri Replicator: x_STAT_CNT_MSB_PER_FLW_ID (??), 0-3
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xcc00,gi,16,ri,9)
+#define VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc800,gi,16,ri,9)
 
 /**
  * \brief
@@ -3399,7 +3399,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x91d5 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc555 + (ri))
 
 /**
  * \brief
@@ -3435,7 +3435,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x91d7 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc557 + (ri))
 
 /**
  * \brief
@@ -3461,7 +3461,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0x91d9 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ACL_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc559 + (ri))
 
 /**
  * \brief
@@ -3506,7 +3506,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_ACL_STAT_LSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x9100,gi,4,ri,0)
+#define VTSS_ANA_AC_STAT_CNT_CFG_ACL_STAT_LSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc480,gi,4,ri,0)
 
 /**
  * \brief
@@ -3529,7 +3529,7 @@
  * @param gi Replicator: x_STAT_NUM_FLW_ID (??), 0-31
  * @param ri Replicator: x_STAT_CNT_MSB_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_CNT_CFG_ACL_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0x9100,gi,4,ri,2)
+#define VTSS_ANA_AC_STAT_CNT_CFG_ACL_STAT_MSB_CNT(gi,ri)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc480,gi,4,ri,2)
 
 /**
  * \brief
@@ -3565,7 +3565,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5d0 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6d0 + (ri))
 
 /**
  * \brief
@@ -3601,7 +3601,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5d2 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6d2 + (ri))
 
 /**
  * \brief
@@ -3627,7 +3627,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5d4 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6d4 + (ri))
 
 /**
  * \brief
@@ -3727,7 +3727,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5d6 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6d6 + (ri))
 
 /**
  * \brief
@@ -3763,7 +3763,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5dd + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6dd + (ri))
 
 /**
  * \brief
@@ -3789,7 +3789,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-6
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5e4 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6e4 + (ri))
 
 /**
  * \brief
@@ -3927,7 +3927,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5eb + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6eb + (ri))
 
 /**
  * \brief
@@ -3963,7 +3963,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5ed + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6ed + (ri))
 
 /**
  * \brief
@@ -3989,7 +3989,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-1
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5ef + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BDLB_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6ef + (ri))
 
 /**
  * \brief
@@ -4092,7 +4092,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5f1 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6f1 + (ri))
 
 /**
  * \brief
@@ -4128,7 +4128,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5f7 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6f7 + (ri))
 
 /**
  * \brief
@@ -4154,7 +4154,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-5
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc5fd + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_BUM_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc6fd + (ri))
 
 /**
  * \brief
@@ -4263,7 +4263,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc603 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc703 + (ri))
 
 /**
  * \brief
@@ -4299,7 +4299,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc60b + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc70b + (ri))
 
 /**
  * \brief
@@ -4325,7 +4325,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc613 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc713 + (ri))
 
 /**
  * \brief
@@ -4440,7 +4440,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc61b + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc71b + (ri))
 
 /**
  * \brief
@@ -4476,7 +4476,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc623 + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc723 + (ri))
 
 /**
  * \brief
@@ -4502,7 +4502,7 @@
  *
  * @param ri Replicator: x_STAT_CNT_PER_FLW_ID (??), 0-7
  */
-#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc62b + (ri))
+#define VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(ri)  VTSS_IOREG(VTSS_TO_ANA_AC,0xc72b + (ri))
 
 /**
  * \brief

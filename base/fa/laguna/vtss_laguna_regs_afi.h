@@ -1021,7 +1021,7 @@
 /**
  * \brief
  * Length of TTI Base Tick.Unit: One system clock cycle.In default
- * configuration and a clock cycle of 3125 ps, the tick length corresponds
+ * configuration and a clock cycle of 3048 ps, the tick length corresponds
  * to 52us.If the device is uses a longer clock cycle, then the value of
  * BASE_LEN must be reconfigured accordingly.
  *

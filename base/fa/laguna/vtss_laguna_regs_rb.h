@@ -43,9 +43,9 @@
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_NEXT
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),9,1)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREB_NEXT      VTSS_BIT(9)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,9,1)
+#define  VTSS_F_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREB_NEXT      VTSS_BIT(17)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREB_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,17,1)
 
 /**
  * \brief
@@ -57,9 +57,9 @@
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_NEXT
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREA_NEXT      VTSS_BIT(8)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,8,1)
+#define  VTSS_F_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREA_NEXT      VTSS_BIT(16)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREA_NEXT(x)   VTSS_EXTRACT_BITFIELD(x,16,1)
 
 /**
  * \brief
@@ -69,9 +69,9 @@
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_PORT_NO
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,4,4)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREB_PORT_NO     VTSS_ENCODE_BITMASK(4,4)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+#define  VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,12,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREB_PORT_NO     VTSS_ENCODE_BITMASK(12,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,12,4)
 
 /**
  * \brief
@@ -81,9 +81,91 @@
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_PORT_NO
  */
-#define  VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_RB_TAXI_IF_CFG_LREA_PORT_NO     VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+#define  VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_ENCODE_BITFIELD(x,8,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREA_PORT_NO     VTSS_ENCODE_BITMASK(8,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(x)  VTSS_EXTRACT_BITFIELD(x,8,4)
+
+/**
+ * \brief
+ * The amount of outstanding taxi words towards the LREB device. Set to 0
+ * to use full device fifo
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_STOP_WM
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREB_STOP_WM(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREB_STOP_WM     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREB_STOP_WM(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * The amount of outstanding taxi words towards the LREA device. Set to 0
+ * to use full device fifo
+ *
+ * \details
+ * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_STOP_WM
+ */
+#define  VTSS_F_RB_TAXI_IF_CFG_LREA_STOP_WM(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_RB_TAXI_IF_CFG_LREA_STOP_WM     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_RB_TAXI_IF_CFG_LREA_STOP_WM(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
+
+/**
+ * \brief Configuration and status for redbox queues. Egress port D have queues 2D and 2D+1, whereas the first contains frame from the first LRE not being the port itself. Ie - queue 2 is frames from port 0 to port 1, queue 5 contains frames from port 1 to port 2.
+ *
+ * \details
+ * Register: \a RB:COMMON:QSYS_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ */
+#define VTSS_RB_QSYS_CFG(target)             VTSS_IOREG(target,0x1)
+
+/**
+ * \brief
+ * Enable queue cut-through
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . QUE_CT_ENA
+ */
+#define  VTSS_F_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_ENCODE_BITFIELD(x,18,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_CT_ENA        VTSS_ENCODE_BITMASK(18,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_EXTRACT_BITFIELD(x,18,6)
+
+/**
+ * \brief
+ * Enable expansion slot. This is needed for queues that produce more data
+ * in the rewriter than what is enqueued
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . QUE_EXPAND_ENA
+ */
+#define  VTSS_F_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_ENCODE_BITFIELD(x,12,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_EXPAND_ENA     VTSS_ENCODE_BITMASK(12,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,6)
+
+/**
+ * \brief
+ * Enable passage of preamble through queue. This is needed for frames
+ * going towards the interlink port, and should be disabled for ports
+ * facing ethernet devices.
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . QUE_PREAMBLE_PASS_ENA
+ */
+#define  VTSS_F_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_ENCODE_BITFIELD(x,6,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA     VTSS_ENCODE_BITMASK(6,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,6)
+
+/**
+ * \brief
+ * One or more frames have been discarded due to queue overflow
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . QUE_DROP_STICKY
+ */
+#define  VTSS_F_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_DROP_STICKY     VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
 
 
 /**
@@ -94,7 +176,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_CPU_CFG(target)              VTSS_IOREG(target,0x1)
+#define VTSS_RB_CPU_CFG(target)              VTSS_IOREG(target,0x2)
 
 /**
  * \brief
@@ -177,7 +259,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_NETID_CFG(target)            VTSS_IOREG(target,0x2)
+#define VTSS_RB_NETID_CFG(target)            VTSS_IOREG(target,0x3)
 
 /**
  * \brief
@@ -242,7 +324,75 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_RB_CFG(target)               VTSS_IOREG(target,0x3)
+#define VTSS_RB_RB_CFG(target)               VTSS_IOREG(target,0x4)
+
+/**
+ * \brief
+ * If set, frames missing an RCT are discarded.Only applicable to HSR-PRP
+ * mode.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . RCT_MISSING_DISC_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_RB_RB_CFG_RCT_MISSING_DISC_ENA  VTSS_BIT(19)
+#define  VTSS_X_RB_RB_CFG_RCT_MISSING_DISC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/**
+ * \brief
+ * If set, frames received on the interlink are validated against their
+ * source entries in the host table. If the host table entry has
+ * HOST_ENTRY_PROXY_DAN set, frame must have a valid RCT. Otherwise, frame
+ * is discarded. If the host table entry has HOST_ENTRY_PROXY_DAN cleared,
+ * frame is considered untagged and any RCT in the frame is ignored.Only
+ * applicable to HSR-PRP mode.Related
+ * parameters:RB::RB_CFG.RCT_MISSING_DISC_ENARB:HOST_TBL:HOST_ACCESS_CFG_2.
+ * HOST_ENTRY_RCT_MISSINGRB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_PROXY_DAN
+ * RB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_TYPERB:PORT:STICKY.RCT_MISSING_
+ * STICKYRB:PORT:STICKY.RCT_MISSING_DISC_STICKY
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . RCT_VALIDATE_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_RB_RB_CFG_RCT_VALIDATE_ENA    VTSS_BIT(18)
+#define  VTSS_X_RB_RB_CFG_RCT_VALIDATE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
+
+/**
+ * \brief
+ * If set, Node-DAN sources are detected when a valid RCT is received from
+ * both LRE A and LRE B. Associated host table entry is then changed from
+ * Node-SAN to Node-DAN.Only applicable to PRP-SAN mode.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . DAN_DETECT_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_RB_RB_CFG_DAN_DETECT_ENA      VTSS_BIT(17)
+#define  VTSS_X_RB_RB_CFG_DAN_DETECT_ENA(x)   VTSS_EXTRACT_BITFIELD(x,17,1)
+
+/**
+ * \brief
+ * If set, RedBox looks for pseudo HSR tags on Interlink used for
+ * transferring a sequence number from the switch to the RedBox.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . HSR_SEQNO_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_HSR_SEQNO_ENA(x)    VTSS_ENCODE_BITFIELD(!!(x),16,1)
+#define  VTSS_M_RB_RB_CFG_HSR_SEQNO_ENA       VTSS_BIT(16)
+#define  VTSS_X_RB_RB_CFG_HSR_SEQNO_ENA(x)    VTSS_EXTRACT_BITFIELD(x,16,1)
+
+/**
+ * \brief
+ * If set, IRI is extracted from preamble.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . IRI_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_IRI_ENA(x)          VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_RB_RB_CFG_IRI_ENA             VTSS_BIT(15)
+#define  VTSS_X_RB_RB_CFG_IRI_ENA(x)          VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /**
  * \brief
@@ -361,8 +511,9 @@
 /**
  * \brief
  * Enables RedBox forwarding mode T. If cleared, RedBox can be configured
- * to operate in either default mode H or mode U.In Mode T, frames are
- * untagged and always forwarded. No duplicate discard actions.
+ * to operate in either default mode H, U, or mode X.In Mode T, frames are
+ * untagged and always forwarded. No duplicate discard actions.Related
+ * parameters:RB:PORT:TBL_CFG.UPD_DISC_TBL_SRC_ENA
  *
  * \details
  * 0: Default mode.
@@ -423,7 +574,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_RB_TPID_CFG(target,ri)          VTSS_IOREG(target,0x4 + (ri))
+#define VTSS_RB_TPID_CFG(target,ri)          VTSS_IOREG(target,0x5 + (ri))
 
 /**
  * \brief
@@ -445,7 +596,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_SPV_CFG(target)              VTSS_IOREG(target,0x7)
+#define VTSS_RB_SPV_CFG(target)              VTSS_IOREG(target,0x8)
 
 /**
  * \brief
@@ -468,6 +619,7 @@
  * 0: No change to forwarding
  * 1: Copy to CPU
  * 2: Redirect to CPU
+ * 3: Discard
  *
  * Field: ::VTSS_RB_SPV_CFG . HSR_SPV_INT_FWD_SEL
  */
@@ -497,6 +649,7 @@
  * 0: No change to forwarding
  * 1: Copy to CPU
  * 2: Redirect to CPU
+ * 3: Discard
  *
  * Field: ::VTSS_RB_SPV_CFG . PRP_SPV_INT_FWD_SEL
  */
@@ -551,7 +704,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_PTP_DATA (??), 0-15
  */
-#define VTSS_RB_PTP_DATA(target,ri)          VTSS_IOREG(target,0x8 + (ri))
+#define VTSS_RB_PTP_DATA(target,ri)          VTSS_IOREG(target,0x9 + (ri))
 
 /**
  * \brief
@@ -584,7 +737,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_PTP_FILTERS (??), 0-7
  */
-#define VTSS_RB_PTP_FILTER_CFG(target,ri)    VTSS_IOREG(target,0x18 + (ri))
+#define VTSS_RB_PTP_FILTER_CFG(target,ri)    VTSS_IOREG(target,0x19 + (ri))
 
 /**
  * \brief
@@ -661,7 +814,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_TBL_CFG(target,gi)           VTSS_IOREG_IX(target,0x20,gi,6,0,0)
+#define VTSS_RB_TBL_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,0)
 
 /**
  * \brief
@@ -742,9 +895,23 @@
  *
  * Field: ::VTSS_RB_TBL_CFG . HOST_AGE_INTERVAL
  */
-#define  VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(x)  VTSS_ENCODE_BITFIELD(x,5,2)
-#define  VTSS_M_RB_TBL_CFG_HOST_AGE_INTERVAL     VTSS_ENCODE_BITMASK(5,2)
-#define  VTSS_X_RB_TBL_CFG_HOST_AGE_INTERVAL(x)  VTSS_EXTRACT_BITFIELD(x,5,2)
+#define  VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_RB_TBL_CFG_HOST_AGE_INTERVAL  VTSS_BIT(6)
+#define  VTSS_X_RB_TBL_CFG_HOST_AGE_INTERVAL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * If set, the duplicate discard table (RB:DISC_TBL) is updated with source
+ * port information for valid frames (FCS valid) preventing frames from
+ * being sent to a port where the same frame has been received.
+ * UPD_DISC_TBL_SRC_ENA can be used to enable RedBox forwarding mode X.
+ *
+ * \details
+ * Field: ::VTSS_RB_TBL_CFG . UPD_DISC_TBL_SRC_ENA
+ */
+#define  VTSS_F_RB_TBL_CFG_UPD_DISC_TBL_SRC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_RB_TBL_CFG_UPD_DISC_TBL_SRC_ENA  VTSS_BIT(5)
+#define  VTSS_X_RB_TBL_CFG_UPD_DISC_TBL_SRC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
@@ -815,7 +982,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_BPDU_CFG(target,gi)          VTSS_IOREG_IX(target,0x20,gi,6,0,1)
+#define VTSS_RB_BPDU_CFG(target,gi)          VTSS_IOREG_IX(target,0x21,gi,6,0,1)
 
 /**
  * \brief
@@ -907,7 +1074,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_FWD_CFG(target,gi)           VTSS_IOREG_IX(target,0x20,gi,6,0,2)
+#define VTSS_RB_FWD_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,2)
 
 /**
  * \brief
@@ -1018,7 +1185,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PORT_CFG(target,gi)          VTSS_IOREG_IX(target,0x20,gi,6,0,3)
+#define VTSS_RB_PORT_CFG(target,gi)          VTSS_IOREG_IX(target,0x21,gi,6,0,3)
 
 /**
  * \brief
@@ -1148,10 +1315,12 @@
 
 /**
  * \brief
- * Enables egress NetId translation. If a frame's NetId matches the egress
- * port configuration RB:PORT:PORT_CFG.TRANS_NETID, then the frame's NetId
- * is replaced with TRANS_NETID. Frames with other NetId values are
- * unchanged.
+ * Enables ingress NetId translation. If a frame's NetId matches the
+ * ingress port configuration RB:PORT:PORT_CFG.TRANS_NETID, then the
+ * frame's NetId is replaced with RB:PORT:PORT_CFG.NETID. Frames with other
+ * NetId values are unchanged. Applies to HSR-tagged frames
+ * only.Example:TRANS_NETID_SEL = 1TRANS_NETID = 4NETID = 5NetId = 4 is
+ * translated to NetId = 5. Other NetIds are untoched.
  *
  * \details
  * 0: No translation
@@ -1232,7 +1401,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PTP_CFG(target,gi)           VTSS_IOREG_IX(target,0x20,gi,6,0,4)
+#define VTSS_RB_PTP_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,4)
 
 /**
  * \brief
@@ -1274,7 +1443,33 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_STICKY(target,gi)            VTSS_IOREG_IX(target,0x20,gi,6,0,5)
+#define VTSS_RB_STICKY(target,gi)            VTSS_IOREG_IX(target,0x21,gi,6,0,5)
+
+/**
+ * \brief
+ * Set if frame was discarded due to RCT missing condition.Related
+ * parameters:RB::RB_CFG.RCT_MISSING_DISC_ENA
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . RCT_MISSING_DISC_STICKY
+ */
+#define  VTSS_F_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_DISC_STICKY  VTSS_BIT(23)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/**
+ * \brief
+ * Set if frames was discarded due to missing RCT (HSR-PRP mode with
+ * RB_CFG.RCT_VALIDATE_ENA set).Related
+ * parameters:RB::RB_CFG.RCT_VALIDATE_ENARB:HOST_TBL:HOST_ACCESS_CFG_2.HOST
+ * _ENTRY_RCT_MISSING
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . RCT_MISSING_STICKY
+ */
+#define  VTSS_F_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_STICKY  VTSS_BIT(22)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
 
 /**
  * \brief
@@ -1532,52 +1727,154 @@
  * \brief Tx HSR/PRP counter
  *
  * \details
- * lreCntTx counter. Counts number of frames sent over port with HSR-tag or
- * PRP trailer. Untagged frames are not counted.
+ * Counts number of frames sent over port with HSR-tag or PRP trailer. Link
+ * local frames are counted in CNT_TX_LL.
  *
- * Register: \a RB:STAT:CNT_TX
+ * Register: \a RB:STAT:CNT_TX_TAG
  *
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX(target,gi)            VTSS_IOREG_IX(target,0x32,gi,7,0,0)
+#define VTSS_RB_CNT_TX_TAG(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,0)
 
 /**
  * \brief
  * Counter. See register description.
  *
  * \details
- * Field: ::VTSS_RB_CNT_TX . CNT_TX
+ * Field: ::VTSS_RB_CNT_TX_TAG . CNT_TX_TAG
  */
-#define  VTSS_F_RB_CNT_TX_CNT_TX(x)           (x)
-#define  VTSS_M_RB_CNT_TX_CNT_TX              0xffffffff
-#define  VTSS_X_RB_CNT_TX_CNT_TX(x)           (x)
+#define  VTSS_F_RB_CNT_TX_TAG_CNT_TX_TAG(x)   (x)
+#define  VTSS_M_RB_CNT_TX_TAG_CNT_TX_TAG      0xffffffff
+#define  VTSS_X_RB_CNT_TX_TAG_CNT_TX_TAG(x)   (x)
+
+
+/**
+ * \brief Tx untagged counter
+ *
+ * \details
+ * Counts number of frames sent over port without HSR-tag or PRP trailer.
+ * Link local frames are counted in CNT_TX_LL.
+ *
+ * Register: \a RB:STAT:CNT_TX_UNT
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ * @param gi Register: STAT (??), 0-2
+ */
+#define VTSS_RB_CNT_TX_UNT(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,1)
+
+/**
+ * \brief
+ * Counter. See register description.
+ *
+ * \details
+ * Field: ::VTSS_RB_CNT_TX_UNT . CNT_TX_UNT
+ */
+#define  VTSS_F_RB_CNT_TX_UNT_CNT_TX_UNT(x)   (x)
+#define  VTSS_M_RB_CNT_TX_UNT_CNT_TX_UNT      0xffffffff
+#define  VTSS_X_RB_CNT_TX_UNT_CNT_TX_UNT(x)   (x)
+
+
+/**
+ * \brief Tx link local counter
+ *
+ * \details
+ * Counts number of link local frames (BPDUs) sent over port.
+ *
+ * Register: \a RB:STAT:CNT_TX_LL
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ * @param gi Register: STAT (??), 0-2
+ */
+#define VTSS_RB_CNT_TX_LL(target,gi)         VTSS_IOREG_IX(target,0x33,gi,11,0,2)
+
+/**
+ * \brief
+ * Counter. See register description.
+ *
+ * \details
+ * Field: ::VTSS_RB_CNT_TX_LL . CNT_TX_LL
+ */
+#define  VTSS_F_RB_CNT_TX_LL_CNT_TX_LL(x)     (x)
+#define  VTSS_M_RB_CNT_TX_LL_CNT_TX_LL        0xffffffff
+#define  VTSS_X_RB_CNT_TX_LL_CNT_TX_LL(x)     (x)
 
 
 /**
  * \brief Rx HSR/PRP counter
  *
  * \details
- * lreCntRx counter. Counts number of frames received from port with
- * HSR-tag or PRP trailer. Untagged frames are not counted.
+ * Counts number of frames received from port with HSR-tag or PRP trailer.
+ * Link local frames are counted in CNT_RX_LL.
  *
- * Register: \a RB:STAT:CNT_RX
+ * Register: \a RB:STAT:CNT_RX_TAG
  *
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX(target,gi)            VTSS_IOREG_IX(target,0x32,gi,7,0,1)
+#define VTSS_RB_CNT_RX_TAG(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,3)
 
 /**
  * \brief
  * Counter. See register description.
  *
  * \details
- * Field: ::VTSS_RB_CNT_RX . CNT_RX
+ * Field: ::VTSS_RB_CNT_RX_TAG . CNT_RX_TAG
  */
-#define  VTSS_F_RB_CNT_RX_CNT_RX(x)           (x)
-#define  VTSS_M_RB_CNT_RX_CNT_RX              0xffffffff
-#define  VTSS_X_RB_CNT_RX_CNT_RX(x)           (x)
+#define  VTSS_F_RB_CNT_RX_TAG_CNT_RX_TAG(x)   (x)
+#define  VTSS_M_RB_CNT_RX_TAG_CNT_RX_TAG      0xffffffff
+#define  VTSS_X_RB_CNT_RX_TAG_CNT_RX_TAG(x)   (x)
+
+
+/**
+ * \brief Rx untagged counter
+ *
+ * \details
+ * Counts number of frames received from port without HSR-tag or PRP
+ * trailer. Link local frames are counted in CNT_RX_LL.
+ *
+ * Register: \a RB:STAT:CNT_RX_UNT
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ * @param gi Register: STAT (??), 0-2
+ */
+#define VTSS_RB_CNT_RX_UNT(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,4)
+
+/**
+ * \brief
+ * Counter. See register description.
+ *
+ * \details
+ * Field: ::VTSS_RB_CNT_RX_UNT . CNT_RX_UNT
+ */
+#define  VTSS_F_RB_CNT_RX_UNT_CNT_RX_UNT(x)   (x)
+#define  VTSS_M_RB_CNT_RX_UNT_CNT_RX_UNT      0xffffffff
+#define  VTSS_X_RB_CNT_RX_UNT_CNT_RX_UNT(x)   (x)
+
+
+/**
+ * \brief Rx link local counter
+ *
+ * \details
+ * Counts number of link local frames (BPDUs) received from port.
+ *
+ * Register: \a RB:STAT:CNT_RX_LL
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ * @param gi Register: STAT (??), 0-2
+ */
+#define VTSS_RB_CNT_RX_LL(target,gi)         VTSS_IOREG_IX(target,0x33,gi,11,0,5)
+
+/**
+ * \brief
+ * Counter. See register description.
+ *
+ * \details
+ * Field: ::VTSS_RB_CNT_RX_LL . CNT_RX_LL
+ */
+#define  VTSS_F_RB_CNT_RX_LL_CNT_RX_LL(x)     (x)
+#define  VTSS_M_RB_CNT_RX_LL_CNT_RX_LL        0xffffffff
+#define  VTSS_X_RB_CNT_RX_LL_CNT_RX_LL(x)     (x)
 
 
 /**
@@ -1592,7 +1889,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_WRONG_LAN(target,gi)  VTSS_IOREG_IX(target,0x32,gi,7,0,2)
+#define VTSS_RB_CNT_RX_WRONG_LAN(target,gi)  VTSS_IOREG_IX(target,0x33,gi,11,0,6)
 
 /**
  * \brief
@@ -1619,7 +1916,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_OWN(target,gi)        VTSS_IOREG_IX(target,0x32,gi,7,0,3)
+#define VTSS_RB_CNT_RX_OWN(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,7)
 
 /**
  * \brief
@@ -1648,7 +1945,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ZERO(target,gi)     VTSS_IOREG_IX(target,0x32,gi,7,0,4)
+#define VTSS_RB_CNT_DUPL_ZERO(target,gi)     VTSS_IOREG_IX(target,0x33,gi,11,0,8)
 
 /**
  * \brief
@@ -1677,7 +1974,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ONE(target,gi)      VTSS_IOREG_IX(target,0x32,gi,7,0,5)
+#define VTSS_RB_CNT_DUPL_ONE(target,gi)      VTSS_IOREG_IX(target,0x33,gi,11,0,9)
 
 /**
  * \brief
@@ -1706,7 +2003,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_TWO(target,gi)      VTSS_IOREG_IX(target,0x32,gi,7,0,6)
+#define VTSS_RB_CNT_DUPL_TWO(target,gi)      VTSS_IOREG_IX(target,0x33,gi,11,0,10)
 
 /**
  * \brief
@@ -1736,7 +2033,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CTRL(target)     VTSS_IOREG(target,0x47)
+#define VTSS_RB_HOST_ACCESS_CTRL(target)     VTSS_IOREG(target,0x54)
 
 /**
  * \brief
@@ -1752,9 +2049,9 @@
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_DIRECT_COL
  */
-#define  VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_ENCODE_BITFIELD(x,15,2)
-#define  VTSS_M_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL     VTSS_ENCODE_BITMASK(15,2)
-#define  VTSS_X_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_EXTRACT_BITFIELD(x,15,2)
+#define  VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_ENCODE_BITFIELD(x,17,2)
+#define  VTSS_M_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL     VTSS_ENCODE_BITMASK(17,2)
+#define  VTSS_X_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_EXTRACT_BITFIELD(x,17,2)
 
 /**
  * \brief
@@ -1772,9 +2069,9 @@
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_DIRECT_ROW
  */
-#define  VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_ENCODE_BITFIELD(x,7,8)
-#define  VTSS_M_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW     VTSS_ENCODE_BITMASK(7,8)
-#define  VTSS_X_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_EXTRACT_BITFIELD(x,7,8)
+#define  VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_ENCODE_BITFIELD(x,7,10)
+#define  VTSS_M_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW     VTSS_ENCODE_BITMASK(7,10)
+#define  VTSS_X_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_EXTRACT_BITFIELD(x,7,10)
 
 /**
  * \brief
@@ -1857,7 +2154,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x48)
+#define VTSS_RB_HOST_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x55)
 
 /**
  * \brief
@@ -1895,7 +2192,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x49)
+#define VTSS_RB_HOST_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x56)
 
 /**
  * \brief
@@ -1922,7 +2219,74 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x4a)
+#define VTSS_RB_HOST_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x57)
+
+/**
+ * \brief
+ * Extra bit for future additions.
+ *
+ * \details
+ * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_SPARE
+ */
+#define  VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_SPARE(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_SPARE  VTSS_BIT(22)
+#define  VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_SPARE(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+
+/**
+ * \brief
+ * Set if frame was received without a valid RCT when HOST_ENTRY_PROXY_DAN
+ * is set and HOST_ENTRY_TYPE is PROXY. RB::RB_CFG.RCT_VALIDATE_ENA must be
+ * set.Related
+ * parameters:RB::RB_CFG.RCT_VALIDATE_ENARB:PORT:STICKY.RCT_MISSING_STICKY
+ *
+ * \details
+ * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_RCT_MISSING
+ */
+#define  VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_MISSING(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_MISSING  VTSS_BIT(21)
+#define  VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_MISSING(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/**
+ * \brief
+ * Set if entry is considered a Proxy-DAN entry. HOST_ENTRY_TYPE must be
+ * PROXY. Related parameters:RB::RB_CFG.RCT_VALIDATE_ENA
+ *
+ * \details
+ * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_PROXY_DAN
+ */
+#define  VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
+#define  VTSS_M_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN  VTSS_BIT(20)
+#define  VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
+
+/**
+ * \brief
+ * Flag indicates whether a frame was received with a valid RCT on LRE B
+ * port.
+ *
+ * \details
+ * 0: Last frame received did not have a valid RCT
+ * 1: Last received had a valid RCT.
+ *
+ * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_RCT_VALID_1
+ */
+#define  VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_1(x)  VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_1  VTSS_BIT(19)
+#define  VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_1(x)  VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/**
+ * \brief
+ * Flag indicates whether a frame was received with a valid RCT on LRE A
+ * port.
+ *
+ * \details
+ * 0: Last frame received did not have a valid RCT
+ * 1: Last received had a valid RCT.
+ *
+ * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_RCT_VALID_0
+ */
+#define  VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_0(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_0  VTSS_BIT(18)
+#define  VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_0(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
 
 /**
  * \details
@@ -2042,7 +2406,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_0(target)   VTSS_IOREG(target,0x4b)
+#define VTSS_RB_HOST_ACCESS_STAT_0(target)   VTSS_IOREG(target,0x58)
 
 /**
  * \brief
@@ -2066,7 +2430,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_1(target)   VTSS_IOREG(target,0x4c)
+#define VTSS_RB_HOST_ACCESS_STAT_1(target)   VTSS_IOREG(target,0x59)
 
 /**
  * \brief
@@ -2090,7 +2454,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_2(target)   VTSS_IOREG(target,0x4d)
+#define VTSS_RB_HOST_ACCESS_STAT_2(target)   VTSS_IOREG(target,0x5a)
 
 /**
  * \brief
@@ -2114,7 +2478,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_3(target)   VTSS_IOREG(target,0x4e)
+#define VTSS_RB_HOST_ACCESS_STAT_3(target)   VTSS_IOREG(target,0x5b)
 
 /**
  * \brief
@@ -2169,7 +2533,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG(target,ri)  VTSS_IOREG(target,0x4f + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG(target,ri)  VTSS_IOREG(target,0x5c + (ri))
 
 /**
  * \brief
@@ -2178,7 +2542,7 @@
  * RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
  *
  * \details
- * 0: 81: 1282: 20483: 32768
+ * 0: 161: 2562: 40963: 65536
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -2219,7 +2583,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_1(target,ri)  VTSS_IOREG(target,0x51 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_1(target,ri)  VTSS_IOREG(target,0x5e + (ri))
 
 /**
  * \brief
@@ -2259,7 +2623,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_2(target,ri)  VTSS_IOREG(target,0x53 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_2(target,ri)  VTSS_IOREG(target,0x60 + (ri))
 
 /**
  * \brief
@@ -2275,9 +2639,9 @@
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG_2 . NEXT_AGED_ROW
  */
-#define  VTSS_F_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW(x)  VTSS_ENCODE_BITFIELD(x,0,10)
+#define  VTSS_M_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW     VTSS_ENCODE_BITMASK(0,10)
+#define  VTSS_X_RB_HOST_AUTOAGE_CFG_2_NEXT_AGED_ROW(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
 
 
 /**
@@ -2288,7 +2652,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_EVENT_STICKY(target)    VTSS_IOREG(target,0x55)
+#define VTSS_RB_HOST_EVENT_STICKY(target)    VTSS_IOREG(target,0x62)
 
 /**
  * \brief
@@ -2602,7 +2966,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x56)
+#define VTSS_RB_HOST_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x63)
 
 /**
  * \brief
@@ -2617,9 +2981,9 @@
  *
  * Field: ::VTSS_RB_HOST_LATEST_POS_STATUS . LATEST_ROW
  */
-#define  VTSS_F_RB_HOST_LATEST_POS_STATUS_LATEST_ROW(x)  VTSS_ENCODE_BITFIELD(x,4,8)
-#define  VTSS_M_RB_HOST_LATEST_POS_STATUS_LATEST_ROW     VTSS_ENCODE_BITMASK(4,8)
-#define  VTSS_X_RB_HOST_LATEST_POS_STATUS_LATEST_ROW(x)  VTSS_EXTRACT_BITFIELD(x,4,8)
+#define  VTSS_F_RB_HOST_LATEST_POS_STATUS_LATEST_ROW(x)  VTSS_ENCODE_BITFIELD(x,4,10)
+#define  VTSS_M_RB_HOST_LATEST_POS_STATUS_LATEST_ROW     VTSS_ENCODE_BITMASK(4,10)
+#define  VTSS_X_RB_HOST_LATEST_POS_STATUS_LATEST_ROW(x)  VTSS_EXTRACT_BITFIELD(x,4,10)
 
 /**
  * \brief
@@ -2655,7 +3019,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CTRL(target)     VTSS_IOREG(target,0x57)
+#define VTSS_RB_DISC_ACCESS_CTRL(target)     VTSS_IOREG(target,0x64)
 
 /**
  * \brief
@@ -2784,7 +3148,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x58)
+#define VTSS_RB_DISC_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x65)
 
 /**
  * \brief
@@ -2822,7 +3186,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x59)
+#define VTSS_RB_DISC_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x66)
 
 /**
  * \brief
@@ -2849,7 +3213,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x5a)
+#define VTSS_RB_DISC_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x67)
 
 /**
  * \brief
@@ -2962,7 +3326,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG(target)     VTSS_IOREG(target,0x5b)
+#define VTSS_RB_DISC_AUTOAGE_CFG(target)     VTSS_IOREG(target,0x68)
 
 /**
  * \brief
@@ -2971,7 +3335,7 @@
  * RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
  *
  * \details
- * 0: 81: 1282: 20483: 32768
+ * 0: 161: 2562: 40963: 65536
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -3011,7 +3375,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_1(target)   VTSS_IOREG(target,0x5c)
+#define VTSS_RB_DISC_AUTOAGE_CFG_1(target)   VTSS_IOREG(target,0x69)
 
 /**
  * \brief
@@ -3050,7 +3414,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_2(target)   VTSS_IOREG(target,0x5d)
+#define VTSS_RB_DISC_AUTOAGE_CFG_2(target)   VTSS_IOREG(target,0x6a)
 
 /**
  * \brief
@@ -3079,7 +3443,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_EVENT_STICKY(target)    VTSS_IOREG(target,0x5e)
+#define VTSS_RB_DISC_EVENT_STICKY(target)    VTSS_IOREG(target,0x6b)
 
 /**
  * \brief
@@ -3246,14 +3610,15 @@
  * duplicates.
  *		      3: Replaced an entry with the same mac and the max.
  * sequence number.
- *		      4: Replaced an Found the max sequence number.
+ *		      4: Replaced an entry with the older age_flag.
+ *		      5: Replaced a random entry.
 
  *
- * Field: ::VTSS_RB_DISC_EVENT_STICKY . AUTO_LRN_ACTION_STICKY
+ * Field: ::VTSS_RB_DISC_EVENT_STICKY . AUTO_LRN_REPLACE_ACTION_STICKY
  */
-#define  VTSS_F_RB_DISC_EVENT_STICKY_AUTO_LRN_ACTION_STICKY(x)  VTSS_ENCODE_BITFIELD(x,11,3)
-#define  VTSS_M_RB_DISC_EVENT_STICKY_AUTO_LRN_ACTION_STICKY     VTSS_ENCODE_BITMASK(11,3)
-#define  VTSS_X_RB_DISC_EVENT_STICKY_AUTO_LRN_ACTION_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,11,3)
+#define  VTSS_F_RB_DISC_EVENT_STICKY_AUTO_LRN_REPLACE_ACTION_STICKY(x)  VTSS_ENCODE_BITFIELD(x,11,3)
+#define  VTSS_M_RB_DISC_EVENT_STICKY_AUTO_LRN_REPLACE_ACTION_STICKY     VTSS_ENCODE_BITMASK(11,3)
+#define  VTSS_X_RB_DISC_EVENT_STICKY_AUTO_LRN_REPLACE_ACTION_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,11,3)
 
 /**
  * \brief
@@ -3431,7 +3796,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x5f)
+#define VTSS_RB_DISC_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x6c)
 
 /**
  * \brief

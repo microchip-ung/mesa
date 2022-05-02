@@ -90,294 +90,437 @@
 #define  VTSS_X_HSIOWRAP_SYNC_ETH_CFG_RECO_CLK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
 
 /**
- * Register Group: \a HSIOWRAP:GPIO_CFG
+ * Register Group: \a HSIOWRAP:XMII_CFG
  *
- * Registers for accessing the GPIO pad cell configuration
+ * RGMII and RMII configuration
  */
 
 
 /**
- * \brief GPIO pad cell configuration
+ * \brief RGMII and RMII configuration
  *
  * \details
- * Register: \a HSIOWRAP:GPIO_CFG:GPIO_CFG
+ * Register: \a HSIOWRAP:XMII_CFG:XMII_CFG
  *
- * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-63
+ * @param gi Register: XMII_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_GPIO_CFG(ri)           VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x4 + (ri))
+#define VTSS_HSIOWRAP_XMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,0)
+
+/**
+ * \details
+ * 0: GPIO
+ * 1: RGMII
+ * 2: RMII
+ * 3: reserved
+ *
+ * Field: ::VTSS_HSIOWRAP_XMII_CFG . GPIO_XMII_CFG
+ */
+#define  VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_ENCODE_BITFIELD(x,1,2)
+#define  VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG     VTSS_ENCODE_BITMASK(1,2)
+#define  VTSS_X_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(x)  VTSS_EXTRACT_BITFIELD(x,1,2)
 
 /**
  * \brief
- * Controls the drive strength of GPIO outputs
+ * Enable the MAC-MERGE Layer Receive block.
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_GPIO_CFG . G_DS
+ * Must reflect the value of
+ * DEVRGMII[0-1]:MM_CONFIG:ENABLE_CONFIG.MM_RX_ENA
+ *
+ * Field: ::VTSS_HSIOWRAP_XMII_CFG . MM_RX_ENA
  */
-#define  VTSS_F_HSIOWRAP_GPIO_CFG_G_DS(x)     VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_HSIOWRAP_GPIO_CFG_G_DS        VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_HSIOWRAP_GPIO_CFG_G_DS(x)     VTSS_EXTRACT_BITFIELD(x,0,2)
+#define  VTSS_F_HSIOWRAP_XMII_CFG_MM_RX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_XMII_CFG_MM_RX_ENA   VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_XMII_CFG_MM_RX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RGMII mode
+ *
+ * \details
+ * Register: \a HSIOWRAP:XMII_CFG:RGMII_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_RGMII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,1)
 
 /**
  * \brief
- * Enable schmitt trigger function on GPIO inputs
+ * Link status received inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_GPIO_CFG . G_ST
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_LINK_STATUS
  */
-#define  VTSS_F_HSIOWRAP_GPIO_CFG_G_ST(x)     VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_HSIOWRAP_GPIO_CFG_G_ST        VTSS_BIT(2)
-#define  VTSS_X_HSIOWRAP_GPIO_CFG_G_ST(x)     VTSS_EXTRACT_BITFIELD(x,2,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS  VTSS_BIT(15)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_LINK_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /**
  * \brief
- * Enable pull up resistor on GPIO inputs. Should not be set to '1' when
- * G_PD is '1'
+ * Duplex status received inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_GPIO_CFG . G_PU
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_DUPLEX
  */
-#define  VTSS_F_HSIOWRAP_GPIO_CFG_G_PU(x)     VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_HSIOWRAP_GPIO_CFG_G_PU        VTSS_BIT(3)
-#define  VTSS_X_HSIOWRAP_GPIO_CFG_G_PU(x)     VTSS_EXTRACT_BITFIELD(x,3,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX  VTSS_BIT(14)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_DUPLEX(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 /**
  * \brief
- * Enable pull down resistor on GPIO inputs. Should not be set to '1' when
- * G_PU is '1'
+ * Speed status received inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_GPIO_CFG . G_PD
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_SPEED
  */
-#define  VTSS_F_HSIOWRAP_GPIO_CFG_G_PD(x)     VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_HSIOWRAP_GPIO_CFG_G_PD        VTSS_BIT(4)
-#define  VTSS_X_HSIOWRAP_GPIO_CFG_G_PD(x)     VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * Register Group: \a HSIOWRAP:TEMP_SENSOR
- *
- * Temperature sensor control
- */
-
-
-/**
- * \brief Temperature Sensor Control
- *
- * \details
- * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CTRL
- */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x44)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_SPEED(x)  VTSS_ENCODE_BITFIELD(x,12,2)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_SPEED     VTSS_ENCODE_BITMASK(12,2)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 /**
  * \brief
- * Set to force reading of temperature. This field only works when
- * SAMPLE_ENA is cleared. The read will either instantaneously or
- * synchronized to the RDY output of the temperature sensor if the sensor
- * is enabled.	The temperature sensor can be configured to run
- * continuously by using these settings:FORCE_POWER_UP = 1Wait 50
- * usFORCE_CLK = 1Wait 5 usFORCE_NO_RST = 1Wait 5 usFORCE_RUN =
- * 1FORCE_TEMP_RD= 1This will cause the temperature sensor to sample
- * continuously and provide the result in TEMP_SENSOR_STAT.TEMP.  The
- * status TEMP_SENSOR_STAT.TEMP_VALID will be 1 after the first sample.
+ * Llink status to signal  inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CTRL . FORCE_TEMP_RD
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_LINK_STATUS
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD  VTSS_BIT(4)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS  VTSS_BIT(11)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_LINK_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
 
 /**
  * \brief
- * Set to force RUN signal towards temperature sensor. This field only
- * works when SAMPLE_ENA is cleared.
+ * FDX mode to signal inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CTRL . FORCE_RUN
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_FDX
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_RUN(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_RUN  VTSS_BIT(3)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_RUN(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_FDX(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_FDX  VTSS_BIT(10)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_FDX(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
 
 /**
  * \brief
- * Set to force the RSTN signal towards temperature sensor (release of
- * reset). This field only works when SAMPLE_ENA is cleared.
+ * MII speed to signal inband
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CTRL . FORCE_NO_RST
+ * 0: 100M
+ * 1: 10M
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_MII_SPD
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_NO_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_NO_RST  VTSS_BIT(2)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_NO_RST(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD(x)  VTSS_ENCODE_BITFIELD(!!(x),9,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD  VTSS_BIT(9)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_MII_SPD(x)  VTSS_EXTRACT_BITFIELD(x,9,1)
 
 /**
  * \brief
- * Set to force the PD signal towards temperature sensor. This field only
- * works when SAMPLE_ENA is cleared.
+ * Signal inband that the transmission speed is 1G
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CTRL . FORCE_POWER_UP
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_SPD_1G
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_POWER_UP(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_POWER_UP  VTSS_BIT(1)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_POWER_UP(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G  VTSS_BIT(8)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_SPD_1G(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * \brief
- * Set to force a clock signal towards the temperature sensor. The clock
- * frequency will be controlled by the TEMP_SENSOR_CFG.CLK_CYCLES_1US
- * setting. This field only works when SAMPLE_ENA is cleared.
+ * Enable transmission of inband RGMII status
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CTRL . FORCE_CLK
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_TX_ENA
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_CLK(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_CLK  VTSS_BIT(0)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CTRL_FORCE_CLK(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Temperature Sensor Configuration
- *
- * \details
- * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_CFG
- */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x45)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_TX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_TX_ENA  VTSS_BIT(7)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_TX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
 
 /**
  * \brief
- * The number of system clock cycles in one 1us. This is used to generated
- * the temperature sensor clock signal (CLK.)  The frequency of CLK must be
- * higher than 0.75Mhz and lower than 2Mhz.
+ * Enable reception of inband RGMII data
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . CLK_CYCLES_1US
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_RX_ENA
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_ENCODE_BITFIELD(x,15,9)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US     VTSS_ENCODE_BITMASK(15,9)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_EXTRACT_BITFIELD(x,15,9)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_RX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_RX_ENA  VTSS_BIT(6)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_RX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
- * Trim value. This value should only be modified as a result of a sensor
- * calibration
+ * Enable transmitting and reception of inband RGMII information. Must be
+ * set to enable inband functionality
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . TRIM_VAL
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . IB_ENA
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_TRIM_VAL(x)  VTSS_ENCODE_BITFIELD(x,11,4)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_TRIM_VAL     VTSS_ENCODE_BITMASK(11,4)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_TRIM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,11,4)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_IB_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_IB_ENA     VTSS_BIT(5)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_IB_ENA(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
- * Set this field to enable calibration of the sensor. A 0.7V signal must
- * be applied to the calibration input.The calibration procedure is as
- * follows:Set SAMPLE_ENA to 0Apply 0.7V +/- 10% to the calibration input
- * pinMeasure actual voltage on calibration input with highest possible
- * precisionSet CAL_ENA to 1Set SAMPLE_ENA to 1Read TEMP_SENSOR_STAT.TEMP
- * and use this value and the calibration voltage to calculate the
- * calibration temperature.Find TRIM_VAL:Set SAMPLE_ENA to 0Set CAL_ENA to
- * 0Set SAMPLE_ENA to 1Change TRIM_VAL until TEMP_SENSOR_STAT.TEMP results
- * in a temperature as close as possible to the calibration
- * temperatureNormal mode:Set SAMPLE_ENA to 1Use TRIM_VAL obtained from
- * calibration
+ * Configure TX clock frequency
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . CAL_ENA
+ * 0: Disable TX clock generation
+ * 1: 125MHz for 1000Mbps operation
+ * 2: 25MHz for 100Mbps operation
+ * 3: 2.5MHz for 10Mbps operation
+ * 4-7: Reserved
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . TX_CLK_CFG
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CAL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CAL_ENA  VTSS_BIT(10)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_CAL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(x)  VTSS_ENCODE_BITFIELD(x,2,3)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_TX_CLK_CFG     VTSS_ENCODE_BITMASK(2,3)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(x)  VTSS_EXTRACT_BITFIELD(x,2,3)
 
 /**
  * \brief
- * Power up delay. The unit is number of sensor CLK cycles. See:
- * CLK_CYCLES_1USDefault value corresponds to a 50us delay, which is the
- * minimum required value.
+ * Reset RGMII Tx clock domains
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . PWR_UP_DELAY
+ * 0: The RGMII Tx clock domain is not reset
+ * 1: The RGMII Tx clock domain is reset.
+ *
+ * Note: The RGMII Tx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . RGMII_TX_RST
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_PWR_UP_DELAY(x)  VTSS_ENCODE_BITFIELD(x,3,7)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_PWR_UP_DELAY     VTSS_ENCODE_BITMASK(3,7)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_PWR_UP_DELAY(x)  VTSS_EXTRACT_BITFIELD(x,3,7)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST  VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
 
 /**
  * \brief
- * Set this bit to start a temperature sample cycle. This is only used if
- * continuous sampling is disabled.Procedure:Set START_CAPTURE to 1Wait
- * until hardware clears START_CAPTURE Read temperature from
- * TEMP_SENSOR_STAT.TEMP
+ * Reset RGMII Rx clock domains
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . START_CAPTURE
+ * 0: The RGMII Rx clock domain is not reset
+ * 1: The RGMII Rx clock domain is reset.
+ *
+ * Note: The RGMII Rx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RGMII_CFG . RGMII_RX_RST
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_START_CAPTURE(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_START_CAPTURE  VTSS_BIT(2)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_START_CAPTURE(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+#define  VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST  VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RMII mode
+ *
+ * \details
+ * Used when the port is in RMII mode
+ *
+ * Register: \a HSIOWRAP:XMII_CFG:RMII_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_RMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,2)
+
+/**
+ * \details
+ * 0: Use internally generated 50MHz RMII reference clock.
+ * 1: Use GPIO4 or GPIO16 pin as external RMII reference clock
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_REF_CLK_SEL
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL  VTSS_BIT(6)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
- * Set this field to enable continuous sampling of temperature. The latest
- * sample value will be available in TEMP_SENSOR_STAT.TEMP
+ * Select clock edge to use when driving RMII TXD and TX_EN outputs
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . CONTINUOUS_MODE
+ * 0: Use positive edge
+ * 1: Use negative edge
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_CFG_TX_EDGE
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CONTINUOUS_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CONTINUOUS_MODE  VTSS_BIT(1)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_CONTINUOUS_MODE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE  VTSS_BIT(5)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
- * Set this field to enable sampling of temperature. The sensor will be
- * taken out of power down mode and the temperature sampling is stared when
- * SAMPLE_ENA is set to 1
+ * Configure duplex mode of the RMII interface
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_CFG . SAMPLE_ENA
- */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA  VTSS_BIT(0)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
-
-/**
- * \brief Temperature Sensor Status
+ * 0: HDX
+ * 1: FDX
  *
- * \details
- * Register: \a HSIOWRAP:TEMP_SENSOR:TEMP_SENSOR_STAT
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_FDX_CFG
  */
-#define VTSS_HSIOWRAP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x46)
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_FDX_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_FDX_CFG  VTSS_BIT(4)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_FDX_CFG(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
- * This field is set when valid temperature data is available in
- * TEMP_SENSOR_STAT.TEMP
+ * Configure speed of RMII interface
  *
  * \details
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_STAT . TEMP_VALID
+ * 0: 10M
+ * 1: 100M
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_SPEED_CFG
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID  VTSS_BIT(12)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG  VTSS_BIT(3)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
 /**
  * \brief
- * Temperature data readout This field is valid when
- * TEMP_SENSOR_STAT.TEMP_VALID is set. This field is continually updated
- * while the temperature sensor is enabled. See TEMP_SENSOR_CFG.SAMPLE_ENA
- * for more information.
+ * Reset RMII Tx clock domains
  *
  * \details
- * Temp(C) = TEMP_SENSOR_STAT.TEMP / 4096 * 352.2 - 109.4
+ * 0: The RMII Tx clock domain is not reset.
+ * 1: The RMII Tx clock domain is reset.
  *
- * Field: ::VTSS_HSIOWRAP_TEMP_SENSOR_STAT . TEMP
+ * Note: The RMII Tx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_TX_RST
  */
-#define  VTSS_F_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_HSIOWRAP_TEMP_SENSOR_STAT_TEMP     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_TX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_TX_RST  VTSS_BIT(2)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_TX_RST(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Reset RMII Rx clock domains
+ *
+ * \details
+ * 0: The RMII Rx clock domain is not reset
+ * 1: The RMII Rx clock domain is reset.
+ *
+ * Note: The RMII Rx clock domain remains reset until 0 is written to this
+ * register field.
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_RX_RST
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_RX_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_RX_RST  VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_RX_RST(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Enable RMII mode.
+ *
+ * \details
+ * 0: RGMII mode
+ * 1: RMII mode
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_ENA
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_ENA    VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Configuration of RGMII delay lines
+ *
+ * \details
+ * RGMII delay line configuration.
+ *
+ * There are two RGMII delay lines. The replication is as follows:
+ *
+ * 0: RGMII_RXC (RX clock)
+ * 1: RGMII_TXC (TX clock)
+
+ *
+ * Register: \a HSIOWRAP:XMII_CFG:DLL_CFG
+ *
+ * @param gi Register: XMII_CFG (??), 0-1
+ * @param ri Register: DLL_CFG (??), 0-1
+ */
+#define VTSS_HSIOWRAP_DLL_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,ri,3)
+
+/**
+ * \brief
+ * When enabled the DLL is used in RGMII clock paths. When '0' the DLL is
+ * bypassed
+ *
+ * \details
+ * 0: Bypass DLL
+ * 1: Use DLL
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_CLK_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA  VTSS_BIT(17)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+
+/**
+ * \brief
+ * Default tap used to prevent glitches that might occur when delay is
+ * first locked
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_SEL
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_ENCODE_BITFIELD(x,10,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_SEL      VTSS_ENCODE_BITMASK(10,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_EXTRACT_BITFIELD(x,10,7)
+
+/**
+ * \brief
+ * Default value used to adjust the tuned tap to compensate output mux
+ * delay
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_ADJ
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_ENCODE_BITFIELD(x,3,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_ADJ      VTSS_ENCODE_BITMASK(3,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,3,7)
+
+/**
+ * \brief
+ * Enable or disable delay line in signal path
+ *
+ * \details
+ * 1: clk_2ns_delay -> clk_source_out
+ * 0: clk_source_in -> clk_source_out
+
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DELAY_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DELAY_ENA    VTSS_BIT(2)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Enable delay by starting the delay tune FSM
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA      VTSS_BIT(1)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Reset the DLL. Active high
+ *
+ * \details
+ * 0: The DLL can be used
+ * 1: Reset
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_RST
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST      VTSS_BIT(0)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_RST(x)   VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 #endif /* _VTSS_LAGUNA_REGS_HSIOWRAP_H_ */

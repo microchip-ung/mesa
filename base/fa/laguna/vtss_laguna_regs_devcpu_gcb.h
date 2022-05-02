@@ -152,37 +152,6 @@
 
 
 /**
- * \brief Various status indications
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:HW_STAT
- */
-#define VTSS_DEVCPU_GCB_HW_STAT              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4)
-
-/**
- * \brief
- * PLL_CONF strapping value from GPIOs sampled after reset release.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_HW_STAT . PLL_CONF
- */
-#define  VTSS_F_DEVCPU_GCB_HW_STAT_PLL_CONF(x)  VTSS_ENCODE_BITFIELD(x,3,2)
-#define  VTSS_M_DEVCPU_GCB_HW_STAT_PLL_CONF     VTSS_ENCODE_BITMASK(3,2)
-#define  VTSS_X_DEVCPU_GCB_HW_STAT_PLL_CONF(x)  VTSS_EXTRACT_BITFIELD(x,3,2)
-
-/**
- * \brief
- * Strapped value for Secure JTAG multiplexer. Sampled on reset release.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_HW_STAT . SJTAG_MUX
- */
-#define  VTSS_F_DEVCPU_GCB_HW_STAT_SJTAG_MUX(x)  VTSS_ENCODE_BITFIELD(x,0,3)
-#define  VTSS_M_DEVCPU_GCB_HW_STAT_SJTAG_MUX     VTSS_ENCODE_BITMASK(0,3)
-#define  VTSS_X_DEVCPU_GCB_HW_STAT_SJTAG_MUX(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
-
-
-/**
  * \brief SGPIO to Signal Detect map
  *
  * \details
@@ -190,7 +159,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_FPORT_CNT (??), 0-29
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x5 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4 + (ri))
 
 /**
  * \brief
@@ -212,7 +181,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SERDES_CNT (??), 0-9
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x23 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x22 + (ri))
 
 /**
  * \brief
@@ -232,7 +201,7 @@
  * \details
  * Register: \a DEVCPU_GCB:CHIP_REGS:BUILDID
  */
-#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2d)
+#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2c)
 
 /**
  * \details
@@ -255,7 +224,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CTRL
  */
-#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2e)
+#define VTSS_DEVCPU_GCB_IF_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2d)
 
 /**
  * \brief
@@ -287,7 +256,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SI_REGS:IF_CFGSTAT
  */
-#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2f)
+#define VTSS_DEVCPU_GCB_IF_CFGSTAT           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2e)
 
 /**
  * \brief
@@ -334,7 +303,7 @@
  *
  * Register: \a DEVCPU_GCB:SW_REGS:SW_INTR
  */
-#define VTSS_DEVCPU_GCB_SW_INTR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x30)
+#define VTSS_DEVCPU_GCB_SW_INTR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2f)
 
 /**
  * \brief
@@ -373,7 +342,7 @@
  * \details
  * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_CTRL
  */
-#define VTSS_DEVCPU_GCB_VA_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x31)
+#define VTSS_DEVCPU_GCB_VA_CTRL              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x30)
 
 /**
  * \brief
@@ -447,7 +416,7 @@
  * \details
  * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_ADDR
  */
-#define VTSS_DEVCPU_GCB_VA_ADDR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x32)
+#define VTSS_DEVCPU_GCB_VA_ADDR              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x31)
 
 /**
  * \brief
@@ -478,7 +447,7 @@
  *
  * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA
  */
-#define VTSS_DEVCPU_GCB_VA_DATA              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x33)
+#define VTSS_DEVCPU_GCB_VA_DATA              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x32)
 
 /**
  * \brief
@@ -516,7 +485,7 @@
  * \details
  * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA_INCR
  */
-#define VTSS_DEVCPU_GCB_VA_DATA_INCR         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x34)
+#define VTSS_DEVCPU_GCB_VA_DATA_INCR         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x33)
 
 /**
  * \brief
@@ -539,7 +508,7 @@
  * \details
  * Register: \a DEVCPU_GCB:VCORE_ACCESS:VA_DATA_INERT
  */
-#define VTSS_DEVCPU_GCB_VA_DATA_INERT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x35)
+#define VTSS_DEVCPU_GCB_VA_DATA_INERT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x34)
 
 /**
  * \brief
@@ -568,7 +537,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET
  */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_SET         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x36)
+#define VTSS_DEVCPU_GCB_GPIO_OUT_SET         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x35)
 
 /**
  * \brief
@@ -592,7 +561,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET1
  */
-#define VTSS_DEVCPU_GCB_GPIO_OUT_SET1        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x37)
+#define VTSS_DEVCPU_GCB_GPIO_OUT_SET1        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x36)
 
 /**
  * \brief
@@ -607,6 +576,29 @@
 #define  VTSS_F_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1(x)  (x)
 #define  VTSS_M_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1     0xffffffff
 #define  VTSS_X_DEVCPU_GCB_GPIO_OUT_SET1_G_OUT_SET1(x)  (x)
+
+
+/**
+ * \brief GPIO output set
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_SET2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_OUT_SET2        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x37)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_OUT_SET.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in GPIO_OUT.G_OUT is set.
+ *
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_SET2 . G_OUT_SET2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_SET2_G_OUT_SET2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
 
 
 /**
@@ -657,6 +649,29 @@
 
 
 /**
+ * \brief GPIO output clear
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT_CLR2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_OUT_CLR2        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3a)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_OUT_CLR.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in GPIO_OUT.G_OUT is cleared.
+ *
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT_CLR2 . G_OUT_CLR2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_OUT_CLR2_G_OUT_CLR2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO output
  *
  * \details
@@ -666,7 +681,7 @@
  *
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT
  */
-#define VTSS_DEVCPU_GCB_GPIO_OUT             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3a)
+#define VTSS_DEVCPU_GCB_GPIO_OUT             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3b)
 
 /**
  * \brief
@@ -692,7 +707,7 @@
  *
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT1
  */
-#define VTSS_DEVCPU_GCB_GPIO_OUT1            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3b)
+#define VTSS_DEVCPU_GCB_GPIO_OUT1            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3c)
 
 /**
  * \brief
@@ -707,12 +722,36 @@
 
 
 /**
+ * \brief GPIO output
+ *
+ * \details
+ * In a multi-threaded software environment using the registers
+ * GPIO_OUT_SET and GPIO_OUT_CLR for modifying GPIO values removes the need
+ * for software-locked access.
+ *
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_OUT2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_OUT2            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3d)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_OUT.
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_OUT2 . G_OUT2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_OUT2_G_OUT2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_OUT2_G_OUT2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_OUT2_G_OUT2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO input
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_IN
  */
-#define VTSS_DEVCPU_GCB_GPIO_IN              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3c)
+#define VTSS_DEVCPU_GCB_GPIO_IN              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3e)
 
 /**
  * \brief
@@ -733,7 +772,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_IN1
  */
-#define VTSS_DEVCPU_GCB_GPIO_IN1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3d)
+#define VTSS_DEVCPU_GCB_GPIO_IN1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3f)
 
 /**
  * \brief
@@ -748,12 +787,32 @@
 
 
 /**
+ * \brief GPIO input
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_IN2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_IN2             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x40)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_IN.
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_IN2 . G_IN2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_IN2_G_IN2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_IN2_G_IN2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_IN2_G_IN2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO pin direction
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OE
  */
-#define VTSS_DEVCPU_GCB_GPIO_OE              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3e)
+#define VTSS_DEVCPU_GCB_GPIO_OE              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x41)
 
 /**
  * \brief
@@ -776,7 +835,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_OE1
  */
-#define VTSS_DEVCPU_GCB_GPIO_OE1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x3f)
+#define VTSS_DEVCPU_GCB_GPIO_OE1             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x42)
 
 /**
  * \brief
@@ -794,12 +853,35 @@
 
 
 /**
+ * \brief GPIO pin direction
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_OE2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_OE2             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x43)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_OE.
+ *
+ * \details
+ * '0': Input
+ * '1': Output
+ *
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_OE2 . G_OE2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_OE2_G_OE2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_OE2_G_OE2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_OE2_G_OE2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO interrupt
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x40)
+#define VTSS_DEVCPU_GCB_GPIO_INTR            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x44)
 
 /**
  * \brief
@@ -822,7 +904,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR1
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR1           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x41)
+#define VTSS_DEVCPU_GCB_GPIO_INTR1           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
 
 /**
  * \brief
@@ -840,12 +922,35 @@
 
 
 /**
+ * \brief GPIO interrupt
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_INTR2           VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_INTR.
+ *
+ * \details
+ * '0': No change
+ * '1': GPIO has changed
+ *
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR2 . G_INTR2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_INTR2_G_INTR2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_INTR2_G_INTR2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_INTR2_G_INTR2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO interrupt enable
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x42)
+#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x47)
 
 /**
  * \brief
@@ -865,7 +970,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA1
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA1       VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x43)
+#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA1       VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x48)
 
 /**
  * \brief
@@ -880,12 +985,32 @@
 
 
 /**
+ * \brief GPIO interrupt enable
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_ENA2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_INTR_ENA2       VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x49)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_INTR_ENA.
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_ENA2 . G_INTR_ENA2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_ENA2_G_INTR_ENA2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO interrupt identity
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x44)
+#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4a)
 
 /**
  * \brief
@@ -907,7 +1032,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT1
  */
-#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT1     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x45)
+#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT1     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4b)
 
 /**
  * \brief
@@ -922,6 +1047,26 @@
 
 
 /**
+ * \brief GPIO interrupt identity
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_INTR_IDENT2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_INTR_IDENT2     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4c)
+
+/**
+ * \brief
+ * Bit 64-66 of field G_INTR_IDENT.
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_INTR_IDENT2 . G_INTR_IDENT2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_INTR_IDENT2_G_INTR_IDENT2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO alternate functions
  *
  * \details
@@ -929,7 +1074,7 @@
  *
  * @param ri Register: GPIO_ALT (??), 0-2
  */
-#define VTSS_DEVCPU_GCB_GPIO_ALT(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x46 + (ri))
+#define VTSS_DEVCPU_GCB_GPIO_ALT(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4d + (ri))
 
 /**
  * \brief
@@ -966,7 +1111,7 @@
  *
  * @param ri Register: GPIO_ALT1 (??), 0-2
  */
-#define VTSS_DEVCPU_GCB_GPIO_ALT1(ri)        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x49 + (ri))
+#define VTSS_DEVCPU_GCB_GPIO_ALT1(ri)        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x50 + (ri))
 
 /**
  * \brief
@@ -990,14 +1135,45 @@
 
 
 /**
+ * \brief GPIO alternate functions
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO:GPIO_ALT2
+ *
+ * @param ri Register: GPIO_ALT2 (??), 0-2
+ */
+#define VTSS_DEVCPU_GCB_GPIO_ALT2(ri)        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x53 + (ri))
+
+/**
+ * \brief
+ * Bit 64-66 of field G_ALT.
+ *
+ * \details
+ * 000: GPIO mode
+ * 001: Alternate mode 1
+ * 010: Alternate mode 2
+ * 011: Alternate mode 3
+ * 100: Alternate mode 4
+ * 101: Alternate mode 5
+ * 110: Alternate mode 6
+ * 111: Reserved
+ *
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_ALT2 . G_ALT2
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_ALT2_G_ALT2(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_DEVCPU_GCB_GPIO_ALT2_G_ALT2     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_ALT2_G_ALT2(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief GPIO Signal Detect Mapping to DEVs
  *
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_SD_DEV_MAP
  *
- * @param ri Register: GPIO_SD_DEV_MAP (??), 0-5
+ * @param ri Replicator: x_FFL_DEVCPU_PARALLEL_SFP_SD_CNT (??), 0-9
  */
-#define VTSS_DEVCPU_GCB_GPIO_SD_DEV_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4c + (ri))
+#define VTSS_DEVCPU_GCB_GPIO_SD_DEV_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x56 + (ri))
 
 /**
  * \brief
@@ -1023,9 +1199,9 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO:GPIO_SD_SERDES_MAP
  *
- * @param ri Register: GPIO_SD_SERDES_MAP (??), 0-5
+ * @param ri Replicator: x_FFL_DEVCPU_PARALLEL_SFP_SD_CNT (??), 0-9
  */
-#define VTSS_DEVCPU_GCB_GPIO_SD_SERDES_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x52 + (ri))
+#define VTSS_DEVCPU_GCB_GPIO_SD_SERDES_MAP(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x60 + (ri))
 
 /**
  * \brief
@@ -1053,7 +1229,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,0)
+#define VTSS_DEVCPU_GCB_MII_STATUS(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,0)
 
 /**
  * \brief
@@ -1140,7 +1316,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,1)
+#define VTSS_DEVCPU_GCB_MII_CFG_7226(gi)     VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,1)
 
 /**
  * \brief
@@ -1165,7 +1341,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,2)
+#define VTSS_DEVCPU_GCB_MII_CMD(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,2)
 
 /**
  * \brief
@@ -1281,7 +1457,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,3)
+#define VTSS_DEVCPU_GCB_MII_DATA(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,3)
 
 /**
  * \brief
@@ -1317,7 +1493,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,4)
+#define VTSS_DEVCPU_GCB_MII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,4)
 
 /**
  * \brief
@@ -1382,7 +1558,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,5)
+#define VTSS_DEVCPU_GCB_MII_SCAN_0(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,5)
 
 /**
  * \brief
@@ -1415,7 +1591,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,6)
+#define VTSS_DEVCPU_GCB_MII_SCAN_1(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,6)
 
 /**
  * \brief
@@ -1450,7 +1626,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,7)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,7)
 
 /**
  * \brief
@@ -1477,7 +1653,7 @@
  *
  * @param gi Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x58,gi,9,0,8)
+#define VTSS_DEVCPU_GCB_MII_SCAN_LAST_RSLTS_VLD(gi)  VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6a,gi,9,0,8)
 
 /**
  * \brief
@@ -1508,7 +1684,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_MIIM_CNT (??), 0-1
  */
-#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x6a + (ri))
+#define VTSS_DEVCPU_GCB_MII_SCAN_RSLTS_STICKY(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7c + (ri))
 
 /**
  * \brief
@@ -1539,12 +1715,11 @@
  * \brief Mappings of shared FLEXCOM Chip Selects
  *
  * \details
- * Register: \a DEVCPU_GCB:FLEXCOM_SHARED:SS_MASK
+ * Register: \a DEVCPU_GCB:FLEXCOM_SHARED:CS0
  *
- * @param gi Register: FLEXCOM_SHARED (??), 0-4
- * @param ri Register: SS_MASK (??), 0-1
+ * @param ri Register: CS0 (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SS_MASK(gi,ri)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_GCB,0x6c,gi,2,ri,0)
+#define VTSS_DEVCPU_GCB_CS0(ri)              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7e + (ri))
 
 /**
  * \brief
@@ -1553,11 +1728,35 @@
  * \details
  * One-cold
  *
- * Field: ::VTSS_DEVCPU_GCB_SS_MASK . MASK
+ * Field: ::VTSS_DEVCPU_GCB_CS0 . MASK0
  */
-#define  VTSS_F_DEVCPU_GCB_SS_MASK_MASK(x)    VTSS_ENCODE_BITFIELD(x,0,21)
-#define  VTSS_M_DEVCPU_GCB_SS_MASK_MASK       VTSS_ENCODE_BITMASK(0,21)
-#define  VTSS_X_DEVCPU_GCB_SS_MASK_MASK(x)    VTSS_EXTRACT_BITFIELD(x,0,21)
+#define  VTSS_F_DEVCPU_GCB_CS0_MASK0(x)       VTSS_ENCODE_BITFIELD(x,0,21)
+#define  VTSS_M_DEVCPU_GCB_CS0_MASK0          VTSS_ENCODE_BITMASK(0,21)
+#define  VTSS_X_DEVCPU_GCB_CS0_MASK0(x)       VTSS_EXTRACT_BITFIELD(x,0,21)
+
+
+/**
+ * \brief Mappings of shared FLEXCOM Chip Selects
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:FLEXCOM_SHARED:CS1
+ *
+ * @param ri Register: CS1 (??), 0-3
+ */
+#define VTSS_DEVCPU_GCB_CS1(ri)              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x82 + (ri))
+
+/**
+ * \brief
+ * Each bit corresponds to a shared chip-select.
+ *
+ * \details
+ * One-cold
+ *
+ * Field: ::VTSS_DEVCPU_GCB_CS1 . MASK1
+ */
+#define  VTSS_F_DEVCPU_GCB_CS1_MASK1(x)       VTSS_ENCODE_BITFIELD(x,0,21)
+#define  VTSS_M_DEVCPU_GCB_CS1_MASK1          VTSS_ENCODE_BITMASK(0,21)
+#define  VTSS_X_DEVCPU_GCB_CS1_MASK1(x)       VTSS_EXTRACT_BITFIELD(x,0,21)
 
 /**
  * Register Group: \a DEVCPU_GCB:ROSC
@@ -1572,9 +1771,9 @@
  * \details
  * Register: \a DEVCPU_GCB:ROSC:ROSC_CFG
  *
- * @param ri Replicator: x_FFL_DEVCPU_ROSC_CNT (??), 0-4
+ * @param ri Replicator: x_FFL_DEVCPU_ROSC_CNT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_ROSC_CFG(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x76 + (ri))
+#define VTSS_DEVCPU_GCB_ROSC_CFG(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x86 + (ri))
 
 /**
  * \brief
@@ -1609,11 +1808,11 @@
  * \details
  * Register: \a DEVCPU_GCB:ROSC:ROSC_MEASURE_CFG
  */
-#define VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7b)
+#define VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8a)
 
 /**
  * \brief
- * Number of clock cycles per capture time unit. The default value of 3200
+ * Number of clock cycles per capture time unit. The default value of 3281
  * corresponds to a 10us base time unit.
  *
  * \details
@@ -1656,9 +1855,9 @@
  * \details
  * Field: ::VTSS_DEVCPU_GCB_ROSC_MEASURE_CFG . ROSC_SEL
  */
-#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_ENCODE_BITFIELD(x,0,3)
-#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL     VTSS_ENCODE_BITMASK(0,3)
-#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+#define  VTSS_F_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_DEVCPU_GCB_ROSC_MEASURE_CFG_ROSC_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 
 /**
@@ -1667,7 +1866,7 @@
  * \details
  * Register: \a DEVCPU_GCB:ROSC:ROSC_FREQ_CNT
  */
-#define VTSS_DEVCPU_GCB_ROSC_FREQ_CNT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7c)
+#define VTSS_DEVCPU_GCB_ROSC_FREQ_CNT        VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8b)
 
 /**
  * \brief
@@ -1699,7 +1898,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x7d + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INPUT_DATA(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x8c + (ri))
 
 /**
  * \brief
@@ -1721,7 +1920,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CFG
  */
-#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x81)
+#define VTSS_DEVCPU_GCB_SIO_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x90)
 
 /**
  * \brief
@@ -1935,7 +2134,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_CLOCK
  */
-#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x82)
+#define VTSS_DEVCPU_GCB_SIO_CLOCK            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x91)
 
 /**
  * \brief
@@ -1973,7 +2172,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_PORT_CNT (??), 0-31
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x83 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PORT_CFG(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x92 + (ri))
 
 /**
  * \brief
@@ -2041,7 +2240,7 @@
  * \details
  * Register: \a DEVCPU_GCB:SIO_CTRL:SIO_PORT_ENA
  */
-#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xa3)
+#define VTSS_DEVCPU_GCB_SIO_PORT_ENA         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb2)
 
 /**
  * \brief
@@ -2067,7 +2266,7 @@
  *
  * @param ri Register: SIO_PWM_CFG (??), 0-2
  */
-#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xa4 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_PWM_CFG(ri)      VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb3 + (ri))
 
 /**
  * \brief
@@ -2092,7 +2291,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xa7 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_POL(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb6 + (ri))
 
 /**
  * \brief
@@ -2119,7 +2318,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xab + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_RAW(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xba + (ri))
 
 /**
  * \brief
@@ -2143,7 +2342,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xaf + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xbe + (ri))
 
 /**
  * \brief
@@ -2182,7 +2381,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb3 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc2 + (ri))
 
 /**
  * \brief
@@ -2204,7 +2403,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xb7 + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc6 + (ri))
 
 /**
  * \brief
@@ -2230,7 +2429,7 @@
  *
  * @param ri Register: SIO_INTR_ENA (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xbb + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_ENA(ri)     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xca + (ri))
 
 /**
  * \brief
@@ -2256,7 +2455,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SIO_IOS_PR_PORT (??), 0-3
  */
-#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xbf + (ri))
+#define VTSS_DEVCPU_GCB_SIO_INTR_IDENT(ri)   VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xce + (ri))
 
 /**
  * \brief
@@ -2287,7 +2486,7 @@
  * \details
  * Register: \a DEVCPU_GCB:FAN_CTRL:FAN_CFG
  */
-#define VTSS_DEVCPU_GCB_FAN_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc3)
+#define VTSS_DEVCPU_GCB_FAN_CFG              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd2)
 
 /**
  * \brief
@@ -2362,7 +2561,7 @@
  * \details
  * Register: \a DEVCPU_GCB:FAN_CTRL:PWM_FREQ
  */
-#define VTSS_DEVCPU_GCB_PWM_FREQ             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc4)
+#define VTSS_DEVCPU_GCB_PWM_FREQ             VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd3)
 
 /**
  * \brief
@@ -2394,7 +2593,7 @@
  * \details
  * Register: \a DEVCPU_GCB:FAN_CTRL:FAN_CNT
  */
-#define VTSS_DEVCPU_GCB_FAN_CNT              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc5)
+#define VTSS_DEVCPU_GCB_FAN_CNT              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd4)
 
 /**
  * \brief
@@ -2425,7 +2624,7 @@
  * \details
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_CTRL
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_CTRL         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc6)
+#define VTSS_DEVCPU_GCB_MEMITGR_CTRL         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd5)
 
 /**
  * \brief
@@ -2460,7 +2659,7 @@
  * \details
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_STAT
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_STAT         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc7)
+#define VTSS_DEVCPU_GCB_MEMITGR_STAT         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd6)
 
 /**
  * \brief
@@ -2550,7 +2749,7 @@
  *
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_INFO
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_INFO         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc8)
+#define VTSS_DEVCPU_GCB_MEMITGR_INFO         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd7)
 
 /**
  * \brief
@@ -2637,7 +2836,7 @@
  *
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_IDX
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_IDX          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xc9)
+#define VTSS_DEVCPU_GCB_MEMITGR_IDX          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd8)
 
 /**
  * \brief
@@ -2659,7 +2858,7 @@
  * \details
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_DIV
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_DIV          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xca)
+#define VTSS_DEVCPU_GCB_MEMITGR_DIV          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xd9)
 
 /**
  * \brief
@@ -2683,7 +2882,7 @@
  * \details
  * Register: \a DEVCPU_GCB:MEMITGR:MEMITGR_DBG
  */
-#define VTSS_DEVCPU_GCB_MEMITGR_DBG          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xcb)
+#define VTSS_DEVCPU_GCB_MEMITGR_DBG          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xda)
 
 /**
  * \brief
@@ -2820,7 +3019,7 @@
  * \details
  * Register: \a DEVCPU_GCB:VRAP:VRAP_ACCESS_STAT
  */
-#define VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xcc)
+#define VTSS_DEVCPU_GCB_VRAP_ACCESS_STAT     VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xdb)
 
 /**
  * \brief
@@ -2870,6 +3069,176 @@
 #define  VTSS_F_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
 #define  VTSS_M_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY  VTSS_BIT(0)
 #define  VTSS_X_DEVCPU_GCB_VRAP_ACCESS_STAT_REPLY_ABORT_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+/**
+ * Register Group: \a DEVCPU_GCB:GPIO_CFG
+ *
+ * Registers for accessing the GPIO pad cell configuration
+ */
+
+
+/**
+ * \brief GPIO pad cell configuration
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:GPIO_CFG:GPIO_CFG
+ *
+ * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-66
+ */
+#define VTSS_DEVCPU_GCB_GPIO_CFG(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xdc + (ri))
+
+/**
+ * \brief
+ * Bus hold enable
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . HE
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_HE(x)     VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_HE        VTSS_BIT(7)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_HE(x)     VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Schmitt-trigger
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . ST
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_ST(x)     VTSS_ENCODE_BITFIELD(x,5,2)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_ST        VTSS_ENCODE_BITMASK(5,2)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_ST(x)     VTSS_EXTRACT_BITFIELD(x,5,2)
+
+/**
+ * \brief
+ * Slew rate limit enable
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . SL
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_SL(x)     VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_SL        VTSS_BIT(4)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_SL(x)     VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable pull up resistor on GPIO inputs. Should not be set to '1' when
+ * G_PD is '1'
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . PU
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_PU(x)     VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_PU        VTSS_BIT(3)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_PU(x)     VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Enable pull down resistor on GPIO inputs. Should not be set to '1' when
+ * G_PU is '1'
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . PD
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_PD(x)     VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_PD        VTSS_BIT(2)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_PD(x)     VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Controls the drive strength of GPIO outputs
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_GPIO_CFG . DS
+ */
+#define  VTSS_F_DEVCPU_GCB_GPIO_CFG_DS(x)     VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_DEVCPU_GCB_GPIO_CFG_DS        VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_DEVCPU_GCB_GPIO_CFG_DS(x)     VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
+ * Register Group: \a DEVCPU_GCB:PAD_CFG
+ *
+ * Registers for accessing the pad cell configuration
+ */
+
+
+/**
+ * \brief Pad cell configuration
+ *
+ * \details
+ * Register: \a DEVCPU_GCB:PAD_CFG:PAD_CFG
+ *
+ * @param ri Replicator: x_FFL_DEVCPU_QSPI_PAD_CNT (??), 0-5
+ */
+#define VTSS_DEVCPU_GCB_PAD_CFG(ri)          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x11f + (ri))
+
+/**
+ * \brief
+ * Bus hold enable
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . HE
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_HE(x)      VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_HE         VTSS_BIT(7)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_HE(x)      VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Schmitt-trigger
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . ST
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_ST(x)      VTSS_ENCODE_BITFIELD(x,5,2)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_ST         VTSS_ENCODE_BITMASK(5,2)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_ST(x)      VTSS_EXTRACT_BITFIELD(x,5,2)
+
+/**
+ * \brief
+ * Slew rate limit enable
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . SL
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_SL(x)      VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_SL         VTSS_BIT(4)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_SL(x)      VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable pull up resistor on inputs. Should not be set to '1' when G_PD is
+ * '1'
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . PU
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_PU(x)      VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_PU         VTSS_BIT(3)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_PU(x)      VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Enable pull down resistor on inputs. Should not be set to '1' when G_PU
+ * is '1'
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . PD
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_PD(x)      VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_PD         VTSS_BIT(2)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_PD(x)      VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Drive strength
+ *
+ * \details
+ * Field: ::VTSS_DEVCPU_GCB_PAD_CFG . DS
+ */
+#define  VTSS_F_DEVCPU_GCB_PAD_CFG_DS(x)      VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_DEVCPU_GCB_PAD_CFG_DS         VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_DEVCPU_GCB_PAD_CFG_DS(x)      VTSS_EXTRACT_BITFIELD(x,0,2)
 
 
 #endif /* _VTSS_LAGUNA_REGS_DEVCPU_GCB_H_ */

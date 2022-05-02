@@ -666,6 +666,28 @@
 #define  VTSS_X_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
 
 /**
+ * \brief
+ * Use LOL for squelching of recovered clock.
+ *
+ * \details
+ * Field: ::VTSS_SD_LANE_TARGET_SYNC_ETH_SD_CFG . SD_LOL_ENA
+ */
+#define  VTSS_F_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_ENA  VTSS_BIT(6)
+#define  VTSS_X_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Polarity of LOL for squelching the recovered clock.
+ *
+ * \details
+ * Field: ::VTSS_SD_LANE_TARGET_SYNC_ETH_SD_CFG . SD_LOL_POL
+ */
+#define  VTSS_F_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_POL(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_POL  VTSS_BIT(7)
+#define  VTSS_X_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_LOL_POL(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
  * Register Group: \a SD_LANE_TARGET:HW_CFG
  *
  * Hardware Configuration

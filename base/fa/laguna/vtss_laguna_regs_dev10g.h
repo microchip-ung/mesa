@@ -5830,9 +5830,9 @@ Tx OK Bytes Counter - MSB
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . PHAD_LOCK
  */
-#define  VTSS_F_DEV10G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
-#define  VTSS_M_DEV10G_PHAD_CTRL_PHAD_LOCK    VTSS_BIT(22)
-#define  VTSS_X_DEV10G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+#define  VTSS_F_DEV10G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_DEV10G_PHAD_CTRL_PHAD_LOCK    VTSS_BIT(21)
+#define  VTSS_X_DEV10G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
 
 /**
  * \brief
@@ -5841,9 +5841,9 @@ Tx OK Bytes Counter - MSB
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . DIV_STATE
  */
-#define  VTSS_F_DEV10G_PHAD_CTRL_DIV_STATE(x)  VTSS_ENCODE_BITFIELD(x,18,4)
-#define  VTSS_M_DEV10G_PHAD_CTRL_DIV_STATE     VTSS_ENCODE_BITMASK(18,4)
-#define  VTSS_X_DEV10G_PHAD_CTRL_DIV_STATE(x)  VTSS_EXTRACT_BITFIELD(x,18,4)
+#define  VTSS_F_DEV10G_PHAD_CTRL_DIV_STATE(x)  VTSS_ENCODE_BITFIELD(x,17,4)
+#define  VTSS_M_DEV10G_PHAD_CTRL_DIV_STATE     VTSS_ENCODE_BITMASK(17,4)
+#define  VTSS_X_DEV10G_PHAD_CTRL_DIV_STATE(x)  VTSS_EXTRACT_BITFIELD(x,17,4)
 
 /**
  * \brief
@@ -5853,9 +5853,9 @@ Tx OK Bytes Counter - MSB
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . PHAD_ADJ
  */
-#define  VTSS_F_DEV10G_PHAD_CTRL_PHAD_ADJ(x)  VTSS_ENCODE_BITFIELD(x,16,2)
-#define  VTSS_M_DEV10G_PHAD_CTRL_PHAD_ADJ     VTSS_ENCODE_BITMASK(16,2)
-#define  VTSS_X_DEV10G_PHAD_CTRL_PHAD_ADJ(x)  VTSS_EXTRACT_BITFIELD(x,16,2)
+#define  VTSS_F_DEV10G_PHAD_CTRL_PHAD_ADJ(x)  VTSS_ENCODE_BITFIELD(x,15,2)
+#define  VTSS_M_DEV10G_PHAD_CTRL_PHAD_ADJ     VTSS_ENCODE_BITMASK(15,2)
+#define  VTSS_X_DEV10G_PHAD_CTRL_PHAD_ADJ(x)  VTSS_EXTRACT_BITFIELD(x,15,2)
 
 /**
  * \brief
@@ -5865,9 +5865,9 @@ Tx OK Bytes Counter - MSB
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  VTSS_F_DEV10G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
-#define  VTSS_M_DEV10G_PHAD_CTRL_ERR_MAX_ENA  VTSS_BIT(15)
-#define  VTSS_X_DEV10G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+#define  VTSS_F_DEV10G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_DEV10G_PHAD_CTRL_ERR_MAX_ENA  VTSS_BIT(14)
+#define  VTSS_X_DEV10G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 /**
  * \brief
@@ -5877,13 +5877,13 @@ Tx OK Bytes Counter - MSB
  * 0: Do not divide.
  * 1: Divide port clock by two.
  * 2: Divide port clock by four.
- * 15: Automode.
+ * 7: Automode.
  *
  * Field: ::VTSS_DEV10G_PHAD_CTRL . DIV_CFG
  */
-#define  VTSS_F_DEV10G_PHAD_CTRL_DIV_CFG(x)   VTSS_ENCODE_BITFIELD(x,11,4)
-#define  VTSS_M_DEV10G_PHAD_CTRL_DIV_CFG      VTSS_ENCODE_BITMASK(11,4)
-#define  VTSS_X_DEV10G_PHAD_CTRL_DIV_CFG(x)   VTSS_EXTRACT_BITFIELD(x,11,4)
+#define  VTSS_F_DEV10G_PHAD_CTRL_DIV_CFG(x)   VTSS_ENCODE_BITFIELD(x,11,3)
+#define  VTSS_M_DEV10G_PHAD_CTRL_DIV_CFG      VTSS_ENCODE_BITMASK(11,3)
+#define  VTSS_X_DEV10G_PHAD_CTRL_DIV_CFG(x)   VTSS_EXTRACT_BITFIELD(x,11,3)
 
 /**
  * \brief
@@ -5891,11 +5891,9 @@ Tx OK Bytes Counter - MSB
  *
  * \details
  * x00: Count once and adjust 0.2 fs at reallignment
- * x01: Count once and adjust 16 fs at reallignment
- * x10: Recount and disable error feedback from allignment
- * x11: Count once after change in reset or phad_ena and keep as fixed
- * 0xx: Count for 1k port cycles when evaluating port period
- * 1xx: Count for 16k port cycle when evaluating port period
+ * xx1: Tune in on the port period at double speed
+ * x1x: Reserved
+ * 1xx: Reserved
  *
  * Field: ::VTSS_DEV10G_PHAD_CTRL . TWEAKS
  */
@@ -5932,7 +5930,8 @@ Tx OK Bytes Counter - MSB
 
 /**
  * \brief
- * Alignment offset 2**-x nsec
+ * When phase is outside expected range but within locked range, adjust
+ * phase 8ps x (2**REALIGN_OFS)
  *
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . REALIGN_OFS
@@ -5943,7 +5942,7 @@ Tx OK Bytes Counter - MSB
 
 /**
  * \brief
- * Accuracy of lock logic 2**-x nsec
+ * Phase is assumed locked when it is never outside 60 ps x (2**LOCK_ACC)
  *
  * \details
  * Field: ::VTSS_DEV10G_PHAD_CTRL . LOCK_ACC

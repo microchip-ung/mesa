@@ -729,8 +729,8 @@ static vtss_rc loc_period_configure(vtss_state_t *vtss_state, u32 loc_idx, u64 i
     base_tick_ps = 593750; /* ps */
 #else
     // Calculate the LOC period base tick count and LOC interval in picoseconds
-    REG_RD(VTSS_VOP_LOC_CTRL, &value);
-    value = VTSS_X_VOP_LOC_CTRL_LOC_BASE_TICK_CNT(value);    /* This is the LOC base tick in clock cycles */
+    REG_RD(VTSS_VOP_LOC_CTRL_2, &value);
+    value = VTSS_X_VOP_LOC_CTRL_2_LOC_BASE_TICK_CNT(value);    /* This is the LOC base tick in clock cycles */
     u32 clk_period_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);  /* Get the clock period in picoseconds */
     base_tick_ps = clk_period_in_ps * value;
 #endif

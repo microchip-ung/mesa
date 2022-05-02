@@ -370,8 +370,6 @@ u32 vtss_to_dev5g(u32 port)
     case 1:  return VTSS_TO_DEV5G_1;
     case 2:  return VTSS_TO_DEV5G_2;
     case 3:  return VTSS_TO_DEV5G_3;
-    case 4:  return VTSS_TO_DEV5G_4;
-    case 5:  return VTSS_TO_DEV5G_5;
     default:
         VTSS_E("illegal 5G port number %d",port);
         return 0;
@@ -460,8 +458,6 @@ u32 vtss_to_pcs5g(u32 port)
     case 1:  return VTSS_TO_PCS5G_BR_1;
     case 2:  return VTSS_TO_PCS5G_BR_2;
     case 3:  return VTSS_TO_PCS5G_BR_3;
-    case 4:  return VTSS_TO_PCS5G_BR_4;
-    case 5:  return VTSS_TO_PCS5G_BR_5;
     default:
         VTSS_E("illegal 5G port number %d",p);
         return 0;

@@ -241,6 +241,18 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state,
     } else if (freq == VTSS_CORE_CLOCK_500MHZ) {
         system_clock_freq_in_1us = 500;
     }
+#if defined(VTSS_ARCH_LAN969X)
+    // Clock cycles per us
+    REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
+            VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
+            VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
+
+    // Enable/Disable
+    REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
+            enable ? 1 : 0,
+            VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA);
+#endif
+#if defined(VTSS_ARCH_SPARX5)
     // Clock cycles per us
     REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
             VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
@@ -251,6 +263,7 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state,
             enable ? 1 : 0,
             VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA);
 
+#endif
     return VTSS_RC_OK;
 }
 
@@ -258,6 +271,18 @@ static vtss_rc fa_temp_sensor_get(vtss_state_t *vtss_state,
                                    i16  *temp_celsius)
 {
     u32 val;
+#if defined(VTSS_ARCH_LAN969X)
+    REG_RD(VTSS_CHIP_TOP_TEMP_SENSOR_STAT, &val);
+
+    // Check if the data is valid.
+    if (!VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+        return VTSS_RC_ERROR;
+    }
+
+    // See VML:'
+    *temp_celsius = ((i16)(VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
+#endif
+#if defined(VTSS_ARCH_SPARX5)
     REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &val);
 
     // Check if the data is valid.
@@ -267,7 +292,7 @@ static vtss_rc fa_temp_sensor_get(vtss_state_t *vtss_state,
 
     // See VML:'
     *temp_celsius = ((i16)(VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
-
+#endif
     return VTSS_RC_OK;
 }
 
