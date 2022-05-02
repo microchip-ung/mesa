@@ -151,7 +151,14 @@ test_table =
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a"},
                      {idx_rx: "b"},
-                     {idx_rx: "c"}]}]
+                     {idx_rx: "c"}]}],
+        # Expect tagged counters
+        cnt: [
+            {port: "a", name: "tx_untagged", val: 0},
+            {port: "a", name: "tx_tagged", val: 1000},
+            {port: "b", name: "tx_untagged", val: 0},
+            {port: "b", name: "tx_tagged", val: 1000}
+        ]
     },
     {
         txt: "port C to port B/D - port A disabled",
@@ -178,11 +185,8 @@ test_table =
         cfg: {mode: "HSR_SAN", npi: "d", non_hsr_queue: 1},
         tab: [{fwd: [{idx_tx: "a"},
                      {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
+        # Expect zero counter
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
     },
     {
         txt: "VLANs, port A to port B/C",
@@ -280,7 +284,7 @@ test_table =
                    {idx_rx: "d"}]}
         ],
         # Expect own counter on port A
-        cnt: [{port: "port_a", name: "rx_own", val: 1}]
+        cnt: [{port: "a", name: "rx_own", val: 1}]
     },
     {
         txt: "SMAC-PNT-STATIC filtering on LRE->interlink",
@@ -291,7 +295,7 @@ test_table =
                fwd: [{idx_tx: "b", hsr: {}},
                      {idx_rx: "a", hsr: {}}]}],
         # Expect own counter on port B
-        cnt: [{port: "port_b", name: "rx_own", val: 1}]
+        cnt: [{port: "b", name: "rx_own", val: 1}]
     },
     {
         txt: "DMAC-NT-STATIC filtering on LRE->interlink",
@@ -330,12 +334,7 @@ test_table =
         cfg: {mode: "HSR_SAN", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
+                     {idx_rx: "d", ifh_rx: "a"}]}]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -343,9 +342,7 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}],
-        # Expect zero counter
-        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
+                     {idx_rx: "b"}]}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -407,12 +404,12 @@ test_table =
         ],
         # Expect duplicate counters on port A/B/C
         cnt: [
-            {port: "port_a", name: "tx_dupl_zero", val: 0},
-            {port: "port_a", name: "tx_dupl_one", val: 1},
-            {port: "port_b", name: "tx_dupl_zero", val: 0},
-            {port: "port_b", name: "tx_dupl_one", val: 1},
-            {port: "port_c", name: "tx_dupl_zero", val: 0},
-            {port: "port_c", name: "tx_dupl_multi", val: 1},
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "a", name: "tx_dupl_one", val: 1},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_one", val: 1},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_dupl_multi", val: 1},
         ]
     },
 
@@ -432,35 +429,6 @@ test_table =
                      {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
-=begin
-    # Jira-270
-    {
-        sel: 1,
-        txt: "port A/B duplicate discard towards port A/B/C/D",
-        cfg: {mode: "HSR_SAN", dd_age_time: 20000},
-        tab: [
-            # Forward and learn default sequence number
-            {frm: {smac: ":ab"},
-             fwd: [{idx_tx: "a", hsr: {}},
-                   {idx_rx: "b", hsr: {}},
-                   {idx_rx: "c"},
-                   {idx_rx: "d"}]},
-            # Discard default sequence number from port B to port C
-            {frm: {smac: ":ab"},
-             fwd: [{idx_tx: "b", hsr: {}},
-                   {idx_rx: "a", hsr: {}}]},
-        ],
-    },
-    {
-        sel: 1,
-        txt: "port B to port C/D - burst",
-        cfg: {mode: "PRP_SAN"},
-        tab: [{cnt: 2,
-               fwd: [{idx_tx: "b", prp: {lan_id: 1}},
-                     {idx_rx: "c"},
-                     {idx_rx: "d"}]}]
-    },
-=end
     {
         txt: "port B to port C/D - burst",
         cfg: {mode: "PRP_SAN"},
@@ -502,7 +470,14 @@ test_table =
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a"},
                      {idx_rx: "b"},
-                     {idx_rx: "c"}]}]
+                     {idx_rx: "c"}]}],
+        # Expect tagged counters
+        cnt: [
+            {port: "a", name: "tx_untagged", val: 0},
+            {port: "a", name: "tx_tagged", val: 1000},
+            {port: "b", name: "tx_untagged", val: 0},
+            {port: "b", name: "tx_tagged", val: 1000}
+        ]
     },
     {
         txt: "port A wrong LAN",
@@ -513,7 +488,12 @@ test_table =
               {node: {mac: 0x0a, cmd: "get",
                       cnt: [{port: "a", name: "rx", val: 1},
                             {port: "a", name: "rx_wrong_lan", val: 1}]}}],
-        cnt: [{port: "port_a", name: "rx_wrong_lan", val: 1}]
+        cnt: [
+            {port: "a", name: "rx_wrong_lan", val: 1},
+            {port: "c", name: "tx_untagged", val: 1},
+            {port: "c", name: "tx_tagged", val: 0},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+        ]
     },
     {
         txt: "port B wrong LAN",
@@ -524,7 +504,12 @@ test_table =
               {node: {mac: 0x0b, cmd: "get",
                       cnt: [{port: "b", name: "rx", val: 1},
                             {port: "b", name: "rx_wrong_lan", val: 1}]}}],
-        cnt: [{port: "port_b", name: "rx_wrong_lan", val: 1}]
+        cnt: [
+            {port: "b", name: "rx_wrong_lan", val: 1},
+            {port: "c", name: "tx_untagged", val: 1},
+            {port: "c", name: "tx_tagged", val: 0},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+        ]
     },
     {
         txt: "forward to SAN on port A",
@@ -546,7 +531,9 @@ test_table =
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a", prp: {lan_id: 0}},
                    {idx_rx: "b", prp: {lan_id: 1}}]},
-        ]
+        ],
+        # Expect zero counter
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
     },
     {
         txt: "forward to SAN on port B",
@@ -560,8 +547,9 @@ test_table =
              wait: 10},
             # Forward to SAN on port B
             {node: {mac: 0xbb, cmd: "get", cnt: [{port: "b", name: "rx", val: 1}]},
+             frm: {dmac: ":bb"},
              fwd: [{idx_tx: "c"},
-                   {idx_rx: "a"}],
+                   {idx_rx: "b"}],
              wait: 10},
             # Node timeout, forward to SAN on port A/B
             {node: {mac: 0xbb, cmd: "get", err: true},
@@ -569,20 +557,16 @@ test_table =
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a", prp: {lan_id: 0}},
                    {idx_rx: "b", prp: {lan_id: 1}}]},
-        ]
+        ],
+        # Expect zero counter
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
     },
     {
         txt: "BPDU Rx on LRE",
         cfg: {mode: "PRP_SAN", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
-
+                     {idx_rx: "d", ifh_rx: "a"}]}]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -590,9 +574,7 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}],
-        # Expect zero counter
-        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
+                     {idx_rx: "b"}]}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -634,8 +616,8 @@ test_table =
         ],
         # Expect multiple duplicate counters on port C
         cnt: [
-            {port: "port_c", name: "tx_dupl_zero", val: 0},
-            {port: "port_c", name: "tx_dupl_multi", val: 1},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_dupl_multi", val: 1},
         ]
     },
 
@@ -660,7 +642,7 @@ test_table =
     {
         txt: "port B to port A/C/D - burst",
         cfg: {mode: "HSR_PRP"},
-        tab: [{cnt: 20,
+        tab: [{cnt: 10,
                fwd: [{idx_tx: "b", hsr: {}},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "c", prp: {}},
@@ -730,10 +712,7 @@ test_table =
         tab: [{fwd: [{idx_tx: "a"},
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -781,13 +760,7 @@ test_table =
         cfg: {mode: "HSR_PRP", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
-
+                     {idx_rx: "d", ifh_rx: "a"}]}]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -795,9 +768,7 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}],
-        # Expect zero counter
-        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
+                     {idx_rx: "b"}]}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -842,10 +813,10 @@ test_table =
         ],
         # Expect duplicate counters on port B/C
         cnt: [
-            {port: "port_b", name: "tx_dupl_zero", val: 0},
-            {port: "port_b", name: "tx_dupl_one", val: 1},
-            {port: "port_c", name: "tx_dupl_zero", val: 0},
-            {port: "port_c", name: "tx_dupl_one", val: 1},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_one", val: 1},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_dupl_one", val: 1},
         ]
     },
     {
@@ -875,10 +846,10 @@ test_table =
         ],
         # Expect duplicate counters on port A/B
         cnt: [
-            {port: "port_a", name: "tx_dupl_zero", val: 0},
-            {port: "port_a", name: "tx_dupl_one", val: 1},
-            {port: "port_b", name: "tx_dupl_zero", val: 0},
-            {port: "port_b", name: "tx_dupl_one", val: 1},
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "a", name: "tx_dupl_one", val: 1},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_one", val: 1},
         ]
     },
 
@@ -923,10 +894,7 @@ test_table =
         tab: [{fwd: [{idx_tx: "a"},
                      {idx_rx: "d", ifh_rx: "a"}]}],
         # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
     },
     {
         txt: "DMAC-NT-STATIC filtering on LRE->interlink",
@@ -970,12 +938,7 @@ test_table =
         cfg: {mode: "HSR_HSR", npi: "d", bpdu_queue: 2},
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "port_c", name: "tx_untagged", val: 0},
-            {port: "port_c", name: "tx_dupl_zero", val: 0}
-        ]
+                     {idx_rx: "d", ifh_rx: "a"}]}]
     },
     {
         txt: "BPDU Tx to LREs",
@@ -983,9 +946,7 @@ test_table =
         tab: [{frm: {dmac: "01:80:c2:00:00:00"},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_tag_dis: true},
                      {idx_rx: "a"},
-                     {idx_rx: "b"}]}],
-        # Expect zero counter
-        cnt: [{port: "port_c", name: "rx_untagged", val: 0}]
+                     {idx_rx: "b"}]}]
     },
     {
         txt: "Supervision Rx on LRE",
@@ -1029,10 +990,10 @@ test_table =
         ],
         # Expect duplicate counters on port B/C
         cnt: [
-            {port: "port_b", name: "tx_dupl_zero", val: 0},
-            {port: "port_b", name: "tx_dupl_one", val: 1},
-            {port: "port_c", name: "tx_dupl_zero", val: 0},
-            {port: "port_c", name: "tx_dupl_one", val: 1},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_one", val: 1},
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_dupl_one", val: 1},
         ]
     },
     {
@@ -1062,10 +1023,10 @@ test_table =
         ],
         # Expect duplicate counters on port A/B
         cnt: [
-            {port: "port_a", name: "tx_dupl_zero", val: 0},
-            {port: "port_a", name: "tx_dupl_one", val: 1},
-            {port: "port_b", name: "tx_dupl_zero", val: 0},
-            {port: "port_b", name: "tx_dupl_one", val: 1},
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "a", name: "tx_dupl_one", val: 1},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_one", val: 1},
         ]
     },
 ]
@@ -1100,7 +1061,7 @@ def rb_idx(name)
 end
 
 # Frame test
-def rb_frame_test(entry, exp, dupl_incr, index)
+def rb_frame_test(mode, entry, exp, dupl_incr, index)
     cmd = "sudo ef"
     cmd_add = ""
     idx_list = []
@@ -1130,6 +1091,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
         if (index > 0)
             name += "_#{index + 1}"
         end
+        bpdu = false
         if (rep == 1 or dir == "tx")
             cmd_add += " #{dir} #{$ts.pc.p[idx]}"
             if (rep > 1)
@@ -1154,7 +1116,9 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             end
             cmd += " eth"
             if (f.key?:dmac)
-                cmd += " dmac #{f[:dmac]}"
+                dmac = f[:dmac]
+                cmd += " dmac #{dmac}"
+                bpdu = (dmac == "01:80:c2:00:00:00")
             end
             cmd += " smac #{smac}"
             if (e.key?:vid)
@@ -1183,16 +1147,16 @@ def rb_frame_test(entry, exp, dupl_incr, index)
 
         # Update expected counters
         cnt = rep
-        type = "tagged"
+        type = (bpdu ? "local" : (prp == nil and hsr == nil) ? "untagged" : "tagged")
+        dd = !bpdu
         case idx_name
         when "a", "b"
-            # Do not count untagged frames on port A/B
-            if (cnt == 1 and prp == nil and hsr == nil)
-                cnt = 0
+            # In PRP-SAN mode, no duplicate discard towards LRE ports
+            if (mode == "PRP_SAN")
+                dd = false
             end
         else
             # Count RedBox port C for switch port C/D
-            type = "untagged"
             idx_name = "c"
             if (port_c_done)
                 cnt = 0
@@ -1205,7 +1169,7 @@ def rb_frame_test(entry, exp, dupl_incr, index)
             cnt_incr(exp, port_name, "rx_" + type, cnt)
         else
             cnt_incr(exp, port_name, "tx_" + type, cnt)
-            cnt_incr(exp, port_name, "tx_dupl_zero", cnt * dupl_incr)
+            cnt_incr(exp, port_name, "tx_dupl_zero", dd ? (cnt * dupl_incr) : 0)
         end
     end
     cmd += cmd_add
@@ -1421,7 +1385,7 @@ def redbox_test(t)
 
         cnt = fld_get(entry, :cnt, 1)
         cnt.times do |index|
-            rb_frame_test(entry, exp, dd_age_time > 1000 ? 0 : 1, index)
+            rb_frame_test(mode, entry, exp, dd_age_time > 1000 ? 0 : 1, index)
         end
     end
 
@@ -1429,7 +1393,7 @@ def redbox_test(t)
     cnt = fld_get(t, :cnt, [])
     cnt.each do |c|
         # Override default expected counters
-        exp[c[:port]][c[:name]] = c[:val]
+        exp["port_" + c[:port]][c[:name]] = c[:val]
     end
     cnt = $ts.dut.call("mesa_rb_counters_get", rb_id)
     ["port_a", "port_b", "port_c"].each do |port_name|
