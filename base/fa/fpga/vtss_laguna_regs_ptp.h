@@ -27,7 +27,7 @@
  * \details
  * Register: \a PTP:PTP_CFG:PTP_PIN_INTR
  */
-#define VTSS_PTP_PTP_PIN_INTR                VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x50)
+#define VTSS_PTP_PTP_PIN_INTR                VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x80)
 
 /**
  * \brief
@@ -36,9 +36,9 @@
  * \details
  * Field: ::VTSS_PTP_PTP_PIN_INTR . INTR_PTP
  */
-#define  VTSS_F_PTP_PTP_PIN_INTR_INTR_PTP(x)  VTSS_ENCODE_BITFIELD(x,0,5)
-#define  VTSS_M_PTP_PTP_PIN_INTR_INTR_PTP     VTSS_ENCODE_BITMASK(0,5)
-#define  VTSS_X_PTP_PTP_PIN_INTR_INTR_PTP(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+#define  VTSS_F_PTP_PTP_PIN_INTR_INTR_PTP(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_PTP_PTP_PIN_INTR_INTR_PTP     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_PTP_PTP_PIN_INTR_INTR_PTP(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -47,7 +47,7 @@
  * \details
  * Register: \a PTP:PTP_CFG:PTP_PIN_INTR_ENA
  */
-#define VTSS_PTP_PTP_PIN_INTR_ENA            VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x51)
+#define VTSS_PTP_PTP_PIN_INTR_ENA            VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x81)
 
 /**
  * \brief
@@ -56,9 +56,9 @@
  * \details
  * Field: ::VTSS_PTP_PTP_PIN_INTR_ENA . INTR_PTP_ENA
  */
-#define  VTSS_F_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,5)
-#define  VTSS_M_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA     VTSS_ENCODE_BITMASK(0,5)
-#define  VTSS_X_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+#define  VTSS_F_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -67,7 +67,7 @@
  * \details
  * Register: \a PTP:PTP_CFG:PTP_INTR_IDENT
  */
-#define VTSS_PTP_PTP_INTR_IDENT              VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x52)
+#define VTSS_PTP_PTP_INTR_IDENT              VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x82)
 
 /**
  * \brief
@@ -76,9 +76,9 @@
  * \details
  * Field: ::VTSS_PTP_PTP_INTR_IDENT . INTR_PTP_IDENT
  */
-#define  VTSS_F_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  VTSS_ENCODE_BITFIELD(x,0,5)
-#define  VTSS_M_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT     VTSS_ENCODE_BITMASK(0,5)
-#define  VTSS_X_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+#define  VTSS_F_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_PTP_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -90,7 +90,7 @@
  *
  * Register: \a PTP:PTP_CFG:PTP_DOM_CFG
  */
-#define VTSS_PTP_PTP_DOM_CFG                 VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x53)
+#define VTSS_PTP_PTP_DOM_CFG                 VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x83)
 
 /**
  * \brief
@@ -168,7 +168,7 @@
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  * @param ri Register: CLK_PER_CFG (??), 0-1
  */
-#define VTSS_PTP_CLK_PER_CFG(gi,ri)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,ri,0)
+#define VTSS_PTP_CLK_PER_CFG(gi,ri)          VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,ri,0)
 
 /**
  * \brief
@@ -192,7 +192,7 @@
  *
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_PTP_PTP_CUR_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,0,2)
+#define VTSS_PTP_PTP_CUR_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,0,2)
 
 /**
  * \brief
@@ -216,7 +216,7 @@
  *
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_PTP_PTP_CUR_NSEC_FRAC(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,0,3)
+#define VTSS_PTP_PTP_CUR_NSEC_FRAC(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,0,3)
 
 /**
  * \brief
@@ -239,7 +239,7 @@
  *
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_PTP_PTP_CUR_SEC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,0,4)
+#define VTSS_PTP_PTP_CUR_SEC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,0,4)
 
 /**
  * \brief
@@ -261,7 +261,7 @@
  *
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_PTP_PTP_CUR_SEC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,0,5)
+#define VTSS_PTP_PTP_CUR_SEC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,0,5)
 
 /**
  * \brief
@@ -285,7 +285,7 @@
  *
  * @param gi Replicator: x_PTP_CFG_NUM_TOD_DOMAINS (??), 0-2
  */
-#define VTSS_PTP_NTP_CUR_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x54,gi,7,0,6)
+#define VTSS_PTP_NTP_CUR_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x84,gi,7,0,6)
 
 /**
  * \brief
@@ -314,7 +314,7 @@
  *
  * Register: \a PTP:PTP_PINS:PTP_PIN_CFG
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PTP_PIN_CFG(gi)             VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,0)
 
@@ -356,9 +356,9 @@
  *
  * Field: ::VTSS_PTP_PTP_PIN_CFG . PTP_PIN_ACTION
  */
-#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(x)  VTSS_ENCODE_BITFIELD(x,26,3)
-#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_ACTION     VTSS_ENCODE_BITMASK(26,3)
-#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(x)  VTSS_EXTRACT_BITFIELD(x,26,3)
+#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(x)  VTSS_ENCODE_BITFIELD(x,27,3)
+#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_ACTION     VTSS_ENCODE_BITMASK(27,3)
+#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(x)  VTSS_EXTRACT_BITFIELD(x,27,3)
 
 /**
  * \brief
@@ -373,9 +373,9 @@
  * \details
  * Field: ::VTSS_PTP_PTP_PIN_CFG . PTP_PIN_SYNC
  */
-#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(x)  VTSS_ENCODE_BITFIELD(x,24,2)
-#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_SYNC     VTSS_ENCODE_BITMASK(24,2)
-#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(x)  VTSS_EXTRACT_BITFIELD(x,24,2)
+#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(x)  VTSS_ENCODE_BITFIELD(x,25,2)
+#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_SYNC     VTSS_ENCODE_BITMASK(25,2)
+#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(x)  VTSS_EXTRACT_BITFIELD(x,25,2)
 
 /**
  * \brief
@@ -388,9 +388,9 @@
  *
  * Field: ::VTSS_PTP_PTP_PIN_CFG . PTP_PIN_INV_POL
  */
-#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
-#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL  VTSS_BIT(23)
-#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL  VTSS_BIT(24)
+#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
 
 /**
  * \brief
@@ -399,9 +399,9 @@
  * \details
  * Field: ::VTSS_PTP_PTP_PIN_CFG . PTP_PIN_SELECT
  */
-#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(x)  VTSS_ENCODE_BITFIELD(x,21,2)
-#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_SELECT     VTSS_ENCODE_BITMASK(21,2)
-#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(x)  VTSS_EXTRACT_BITFIELD(x,21,2)
+#define  VTSS_F_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(x)  VTSS_ENCODE_BITFIELD(x,21,3)
+#define  VTSS_M_PTP_PTP_PIN_CFG_PTP_PIN_SELECT     VTSS_ENCODE_BITMASK(21,3)
+#define  VTSS_X_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(x)  VTSS_EXTRACT_BITFIELD(x,21,3)
 
 /**
  * \brief
@@ -484,7 +484,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PTP_TOD_SEC_MSB
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PTP_TOD_SEC_MSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,1)
 
@@ -506,7 +506,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PTP_TOD_SEC_LSB
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PTP_TOD_SEC_LSB(gi)         VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,2)
 
@@ -528,7 +528,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PTP_TOD_NSEC
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PTP_TOD_NSEC(gi)            VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,3)
 
@@ -554,7 +554,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PTP_TOD_NSEC_FRAC
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PTP_TOD_NSEC_FRAC(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,4)
 
@@ -576,7 +576,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:NTP_NSEC
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_NTP_NSEC(gi)                VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,5)
 
@@ -599,7 +599,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PIN_WF_HIGH_PERIOD
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PIN_WF_HIGH_PERIOD(gi)      VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,6)
 
@@ -623,7 +623,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PIN_WF_LOW_PERIOD
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PIN_WF_LOW_PERIOD(gi)       VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,7)
 
@@ -645,7 +645,7 @@
  * \details
  * Register: \a PTP:PTP_PINS:PIN_IOBOUNCH_DELAY
  *
- * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-4
+ * @param gi Replicator: x_PTP_CFG_NUM_LS_CTRLS (??), 0-7
  */
 #define VTSS_PTP_PIN_IOBOUNCH_DELAY(gi)      VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x0,gi,16,0,8)
 
@@ -690,7 +690,7 @@
  * \details
  * Register: \a PTP:PTP_TS_FIFO:PTP_TWOSTEP_CTRL
  */
-#define VTSS_PTP_PTP_TWOSTEP_CTRL            VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x69)
+#define VTSS_PTP_PTP_TWOSTEP_CTRL            VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x99)
 
 /**
  * \brief
@@ -765,7 +765,7 @@
  * \details
  * Register: \a PTP:PTP_TS_FIFO:PTP_TWOSTEP_STAMP_NSEC
  */
-#define VTSS_PTP_PTP_TWOSTEP_STAMP_NSEC      VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x6a)
+#define VTSS_PTP_PTP_TWOSTEP_STAMP_NSEC      VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x9a)
 
 /**
  * \brief
@@ -785,7 +785,7 @@
  * \details
  * Register: \a PTP:PTP_TS_FIFO:PTP_TWOSTEP_STAMP_SUBNS
  */
-#define VTSS_PTP_PTP_TWOSTEP_STAMP_SUBNS     VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x6b)
+#define VTSS_PTP_PTP_TWOSTEP_STAMP_SUBNS     VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x9b)
 
 /**
  * \brief
@@ -805,7 +805,7 @@
  * \details
  * Register: \a PTP:PTP_TS_FIFO:PTP_WRP
  */
-#define VTSS_PTP_PTP_WRP                     VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x6c)
+#define VTSS_PTP_PTP_WRP                     VTSS_IOREG(VTSS_TO_DEVCPU_PTP,0x9c)
 
 /**
  * \brief
@@ -841,9 +841,9 @@
  *
  * Register: \a PTP:PHASE_DETECTOR_CTRL:PHAD_CTRL
  *
- * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-4
+ * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-7
  */
-#define VTSS_PTP_PHAD_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x6d,gi,3,0,0)
+#define VTSS_PTP_PHAD_CTRL(gi)               VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x9d,gi,3,0,0)
 
 /**
  * \brief
@@ -852,9 +852,9 @@
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_LOCK
  */
-#define  VTSS_F_PTP_PHAD_CTRL_PHAD_LOCK(x)    VTSS_ENCODE_BITFIELD(!!(x),22,1)
-#define  VTSS_M_PTP_PHAD_CTRL_PHAD_LOCK       VTSS_BIT(22)
-#define  VTSS_X_PTP_PHAD_CTRL_PHAD_LOCK(x)    VTSS_EXTRACT_BITFIELD(x,22,1)
+#define  VTSS_F_PTP_PHAD_CTRL_PHAD_LOCK(x)    VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_PTP_PHAD_CTRL_PHAD_LOCK       VTSS_BIT(21)
+#define  VTSS_X_PTP_PHAD_CTRL_PHAD_LOCK(x)    VTSS_EXTRACT_BITFIELD(x,21,1)
 
 /**
  * \brief
@@ -863,9 +863,9 @@
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . DIV_STATE
  */
-#define  VTSS_F_PTP_PHAD_CTRL_DIV_STATE(x)    VTSS_ENCODE_BITFIELD(x,18,4)
-#define  VTSS_M_PTP_PHAD_CTRL_DIV_STATE       VTSS_ENCODE_BITMASK(18,4)
-#define  VTSS_X_PTP_PHAD_CTRL_DIV_STATE(x)    VTSS_EXTRACT_BITFIELD(x,18,4)
+#define  VTSS_F_PTP_PHAD_CTRL_DIV_STATE(x)    VTSS_ENCODE_BITFIELD(x,17,4)
+#define  VTSS_M_PTP_PHAD_CTRL_DIV_STATE       VTSS_ENCODE_BITMASK(17,4)
+#define  VTSS_X_PTP_PHAD_CTRL_DIV_STATE(x)    VTSS_EXTRACT_BITFIELD(x,17,4)
 
 /**
  * \brief
@@ -875,9 +875,9 @@
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . PHAD_ADJ
  */
-#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_ENCODE_BITFIELD(x,16,2)
-#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ADJ        VTSS_ENCODE_BITMASK(16,2)
-#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_EXTRACT_BITFIELD(x,16,2)
+#define  VTSS_F_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_ENCODE_BITFIELD(x,15,2)
+#define  VTSS_M_PTP_PHAD_CTRL_PHAD_ADJ        VTSS_ENCODE_BITMASK(15,2)
+#define  VTSS_X_PTP_PHAD_CTRL_PHAD_ADJ(x)     VTSS_EXTRACT_BITFIELD(x,15,2)
 
 /**
  * \brief
@@ -887,9 +887,9 @@
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  VTSS_F_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
-#define  VTSS_M_PTP_PHAD_CTRL_ERR_MAX_ENA     VTSS_BIT(15)
-#define  VTSS_X_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+#define  VTSS_F_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_PTP_PHAD_CTRL_ERR_MAX_ENA     VTSS_BIT(14)
+#define  VTSS_X_PTP_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 /**
  * \brief
@@ -899,13 +899,13 @@
  * 0: Do not divide.
  * 1: Divide port clock by two.
  * 2: Divide port clock by four.
- * 15: Automode.
+ * 7: Automode.
  *
  * Field: ::VTSS_PTP_PHAD_CTRL . DIV_CFG
  */
-#define  VTSS_F_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_ENCODE_BITFIELD(x,11,4)
-#define  VTSS_M_PTP_PHAD_CTRL_DIV_CFG         VTSS_ENCODE_BITMASK(11,4)
-#define  VTSS_X_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_EXTRACT_BITFIELD(x,11,4)
+#define  VTSS_F_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_ENCODE_BITFIELD(x,11,3)
+#define  VTSS_M_PTP_PHAD_CTRL_DIV_CFG         VTSS_ENCODE_BITMASK(11,3)
+#define  VTSS_X_PTP_PHAD_CTRL_DIV_CFG(x)      VTSS_EXTRACT_BITFIELD(x,11,3)
 
 /**
  * \brief
@@ -913,11 +913,9 @@
  *
  * \details
  * x00: Count once and adjust 0.2 fs at reallignment
- * x01: Count once and adjust 16 fs at reallignment
- * x10: Recount and disable error feedback from allignment
- * x11: Count once after change in reset or phad_ena and keep as fixed
- * 0xx: Count for 1k port cycles when evaluating port period
- * 1xx: Count for 16k port cycle when evaluating port period
+ * xx1: Tune in on the port period at double speed
+ * x1x: Reserved
+ * 1xx: Reserved
  *
  * Field: ::VTSS_PTP_PHAD_CTRL . TWEAKS
  */
@@ -954,7 +952,8 @@
 
 /**
  * \brief
- * Alignment offset 2**-x nsec
+ * When phase is outside expected range but within locked range, adjust
+ * phase 8ps x (2**REALIGN_OFS)
  *
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . REALIGN_OFS
@@ -965,7 +964,7 @@
 
 /**
  * \brief
- * Accuracy of lock logic 2**-x nsec
+ * Phase is assumed locked when it is never outside 60 ps x (2**LOCK_ACC)
  *
  * \details
  * Field: ::VTSS_PTP_PHAD_CTRL . LOCK_ACC
@@ -983,9 +982,9 @@
  *
  * Register: \a PTP:PHASE_DETECTOR_CTRL:PHAD_CYC_STAT
  *
- * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-4
+ * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-7
  */
-#define VTSS_PTP_PHAD_CYC_STAT(gi)           VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x6d,gi,3,0,1)
+#define VTSS_PTP_PHAD_CYC_STAT(gi)           VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x9d,gi,3,0,1)
 
 /**
  * \brief
@@ -1007,9 +1006,9 @@
  *
  * Register: \a PTP:PHASE_DETECTOR_CTRL:PHAD_ERR_STAT
  *
- * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-4
+ * @param gi Replicator: x_PHASE_DETECTOR_INSTANCES (??), 0-7
  */
-#define VTSS_PTP_PHAD_ERR_STAT(gi)           VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x6d,gi,3,0,2)
+#define VTSS_PTP_PHAD_ERR_STAT(gi)           VTSS_IOREG_IX(VTSS_TO_DEVCPU_PTP,0x9d,gi,3,0,2)
 
 /**
  * \brief

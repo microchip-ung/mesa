@@ -1510,11 +1510,11 @@ static const vtss_symreg_reg_t regs_within_PTP_PHASE_DETECTOR_CTRL[] = {
 };
 static const vtss_symreg_reggrp_t reggrps_within_PTP[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"PTP_CFG"                              , 0x00000050, 0x00000001, 0x00000004, regs_within_PTP_PTP_CFG},
-    {"PTP_TOD_DOMAINS"                      , 0x00000054, 0x00000003, 0x00000007, regs_within_PTP_PTP_TOD_DOMAINS},
-    {"PTP_PINS"                             , 0x00000000, 0x00000005, 0x00000010, regs_within_PTP_PTP_PINS},
-    {"PTP_TS_FIFO"                          , 0x00000069, 0x00000001, 0x00000004, regs_within_PTP_PTP_TS_FIFO},
-    {"PHASE_DETECTOR_CTRL"                  , 0x0000006d, 0x00000005, 0x00000003, regs_within_PTP_PHASE_DETECTOR_CTRL},
+    {"PTP_CFG"                              , 0x00000080, 0x00000001, 0x00000004, regs_within_PTP_PTP_CFG},
+    {"PTP_TOD_DOMAINS"                      , 0x00000084, 0x00000003, 0x00000007, regs_within_PTP_PTP_TOD_DOMAINS},
+    {"PTP_PINS"                             , 0x00000000, 0x00000008, 0x00000010, regs_within_PTP_PTP_PINS},
+    {"PTP_TS_FIFO"                          , 0x00000099, 0x00000001, 0x00000004, regs_within_PTP_PTP_TS_FIFO},
+    {"PHASE_DETECTOR_CTRL"                  , 0x0000009d, 0x00000008, 0x00000003, regs_within_PTP_PHASE_DETECTOR_CTRL},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_DEVCPU_QS_XTR[] = {
@@ -1836,10 +1836,11 @@ static const vtss_symreg_reg_t regs_within_HSCH_HSCH_MISC[] = {
     {"HSCH_MISC_PORT_CFG"                   , 0x00000001, 0x00000023, 0x00000001},
     {"HSCH_CFG_CFG"                         , 0x00000047, 0x00000001, 0x00000001},
     {"PFC_CFG"                              , 0x00000048, 0x0000001e, 0x00000001},
-    {"EVENTS_CORE"                          , 0x00000089, 0x00000001, 0x00000001},
-    {"DEBUG_CTRL"                           , 0x0000008a, 0x00000001, 0x00000001},
-    {"HSCH_UPDATE_STAT"                     , 0x0000008b, 0x00000001, 0x00000001},
-    {"HSCH_FORCE_CTRL"                      , 0x0000008c, 0x00000001, 0x00000001},
+    {"HSCH_LARGE_ENA"                       , 0x00000089, 0x00000008, 0x00000001},
+    {"EVENTS_CORE"                          , 0x00000091, 0x00000001, 0x00000001},
+    {"DEBUG_CTRL"                           , 0x00000092, 0x00000001, 0x00000001},
+    {"HSCH_UPDATE_STAT"                     , 0x00000093, 0x00000001, 0x00000001},
+    {"HSCH_FORCE_CTRL"                      , 0x00000094, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_HSCH_HSCH_LEAK_LISTS[] = {
@@ -1919,12 +1920,12 @@ static const vtss_symreg_reggrp_t reggrps_within_HSCH[] = {
     {"QSHP_STATUS"                          , 0x00002380, 0x00000020, 0x00000001, regs_within_HSCH_QSHP_STATUS},
     {"HSCH_INP_STATE"                       , 0x00002363, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_INP_STATE},
     {"HSCH_DWRR"                            , 0x000023a0, 0x00000020, 0x00000001, regs_within_HSCH_HSCH_DWRR},
-    {"HSCH_MISC"                            , 0x000023c0, 0x00000001, 0x0000008d, regs_within_HSCH_HSCH_MISC},
-    {"HSCH_LEAK_LISTS"                      , 0x0000244d, 0x00000004, 0x00000008, regs_within_HSCH_HSCH_LEAK_LISTS},
-    {"SYSTEM"                               , 0x0000246d, 0x00000001, 0x0000004e, regs_within_HSCH_SYSTEM},
+    {"HSCH_MISC"                            , 0x000023c0, 0x00000001, 0x00000095, regs_within_HSCH_HSCH_MISC},
+    {"HSCH_LEAK_LISTS"                      , 0x00002455, 0x00000004, 0x00000008, regs_within_HSCH_HSCH_LEAK_LISTS},
+    {"SYSTEM"                               , 0x00002475, 0x00000001, 0x0000004e, regs_within_HSCH_SYSTEM},
     {"MMGT"                                 , 0x00002369, 0x00000001, 0x00000004, regs_within_HSCH_MMGT},
-    {"TAS_CONFIG"                           , 0x000024bb, 0x00000001, 0x00000004, regs_within_HSCH_TAS_CONFIG},
-    {"TAS_PROFILE_CFG"                      , 0x000024bf, 0x0000001e, 0x00000011, regs_within_HSCH_TAS_PROFILE_CFG},
+    {"TAS_CONFIG"                           , 0x000024c3, 0x00000001, 0x00000004, regs_within_HSCH_TAS_CONFIG},
+    {"TAS_PROFILE_CFG"                      , 0x000024c7, 0x0000001e, 0x00000011, regs_within_HSCH_TAS_PROFILE_CFG},
     {"TAS_LIST_CFG"                         , 0x00002370, 0x00000001, 0x00000010, regs_within_HSCH_TAS_LIST_CFG},
     {"TAS_GCL_CFG"                          , 0x00002364, 0x00000001, 0x00000004, regs_within_HSCH_TAS_GCL_CFG},
     {"HSCH_TAS_STATE"                       , 0x00002368, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_TAS_STATE},
@@ -2376,13 +2377,17 @@ static const vtss_symreg_reg_t regs_within_RB_PORT[] = {
 };
 static const vtss_symreg_reg_t regs_within_RB_STAT[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
-    {"CNT_TX"                               , 0x00000000, 0x00000001, 0x00000001},
-    {"CNT_RX"                               , 0x00000001, 0x00000001, 0x00000001},
-    {"CNT_RX_WRONG_LAN"                     , 0x00000002, 0x00000001, 0x00000001},
-    {"CNT_RX_OWN"                           , 0x00000003, 0x00000001, 0x00000001},
-    {"CNT_DUPL_ZERO"                        , 0x00000004, 0x00000001, 0x00000001},
-    {"CNT_DUPL_ONE"                         , 0x00000005, 0x00000001, 0x00000001},
-    {"CNT_DUPL_TWO"                         , 0x00000006, 0x00000001, 0x00000001},
+    {"CNT_TX_TAG"                           , 0x00000000, 0x00000001, 0x00000001},
+    {"CNT_TX_UNT"                           , 0x00000001, 0x00000001, 0x00000001},
+    {"CNT_TX_LL"                            , 0x00000002, 0x00000001, 0x00000001},
+    {"CNT_RX_TAG"                           , 0x00000003, 0x00000001, 0x00000001},
+    {"CNT_RX_UNT"                           , 0x00000004, 0x00000001, 0x00000001},
+    {"CNT_RX_LL"                            , 0x00000005, 0x00000001, 0x00000001},
+    {"CNT_RX_WRONG_LAN"                     , 0x00000006, 0x00000001, 0x00000001},
+    {"CNT_RX_OWN"                           , 0x00000007, 0x00000001, 0x00000001},
+    {"CNT_DUPL_ZERO"                        , 0x00000008, 0x00000001, 0x00000001},
+    {"CNT_DUPL_ONE"                         , 0x00000009, 0x00000001, 0x00000001},
+    {"CNT_DUPL_TWO"                         , 0x0000000a, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_RB_HOST_TBL[] = {
@@ -2419,9 +2424,9 @@ static const vtss_symreg_reggrp_t reggrps_within_RB[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
     {"COMMON"                               , 0x00000000, 0x00000001, 0x00000015, regs_within_RB_COMMON},
     {"PORT"                                 , 0x00000015, 0x00000003, 0x00000006, regs_within_RB_PORT},
-    {"STAT"                                 , 0x00000027, 0x00000003, 0x00000007, regs_within_RB_STAT},
-    {"HOST_TBL"                             , 0x0000003c, 0x00000001, 0x00000010, regs_within_RB_HOST_TBL},
-    {"DISC_TBL"                             , 0x0000004c, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
+    {"STAT"                                 , 0x00000027, 0x00000003, 0x0000000b, regs_within_RB_STAT},
+    {"HOST_TBL"                             , 0x00000048, 0x00000001, 0x00000010, regs_within_RB_HOST_TBL},
+    {"DISC_TBL"                             , 0x00000058, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_VCAP_ES0_VCAP_CORE_CFG[] = {
