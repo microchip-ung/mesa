@@ -40,7 +40,7 @@ In that case, IPv4 multicast forwarding entries per (VID, SIP, DIP) can be added
 
 == IPv6 Multicast
 If the capability `MESA_CAP_L2_IPV6_MC_SIP` is non-zero, Source Specific Multicast forwarding is supported for IPv6.
-In that case, IPv6 multicast forwarding entries per (VID, SIP, DIP) can be added (`mesa_ipv4_mc_add()`) for MLDv2 snooping.
+In that case, IPv6 multicast forwarding entries per (VID, SIP, DIP) can be added (`mesa_ipv6_mc_add()`) for MLDv2 snooping.
 
 == Port Operational State
 The operational state of each port must be setup when the port goes up/down (`mesa_port_state_set()`).

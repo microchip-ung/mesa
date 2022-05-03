@@ -1296,7 +1296,7 @@ mesa_rc mesa_ipv4_mc_flood_members_set(const mesa_inst_t      inst,
 
 // Add IPv4 multicast entry.
 // vid [IN]     VLAN ID.
-// sip [IN]     Source IP address.
+// sip [IN]     Source IP address (zero means any source).
 // dip [IN]     Destination IP address.
 // member [IN]  Port member list.
 mesa_rc mesa_ipv4_mc_add(const mesa_inst_t      inst,
@@ -1348,7 +1348,7 @@ mesa_rc mesa_ipv6_mc_ctrl_flood_set(const mesa_inst_t  inst,
 
 // Add IPv6 multicast entry.
 // vid [IN]     VLAN ID.
-// sip [IN]     Source IP address.
+// sip [IN]     Source IP address (zero means any source).
 // dip [IN]     Destination IP address.
 // member [IN]  Port member list.
 mesa_rc mesa_ipv6_mc_add(const mesa_inst_t      inst,
