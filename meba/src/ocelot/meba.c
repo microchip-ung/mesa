@@ -1528,43 +1528,73 @@ static mesa_rc meba_phy_event_check(meba_inst_t inst,
     return rc;
 }
 
+//VTSS_DEVCPU_GCB_GPIO_GPIO_INTR
+#define SRVL_DEVCPU_GCB_GPIO_INTR       0x41c012
+//VTSS_DEVCPU_GCB_GPIO_GPIO_INTR_IDENT
+#define SRVL_DEVCPU_GCB_GPIO_INTR_IDENT 0x41c014
+
+// INDY_CHIP_LVL_INTR_STATUS - 4.51
+#define INDY_CHIP_INTR_STATUS           0x40033
 static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
     int            handled = 0, polled = 0;
     mesa_port_no_t port_no;
     mepa_event_t events = 0;
+    uint32_t val=0;
+    uint16_t phy_intr;
+    uint32_t cnt = 0;
 
     if (board->type != BOARD_TYPE_OCELOT_PCB123_LAN8814) {
         return MESA_RC_ERROR;
     }
-    // On ocelot + lan8814 platform, port number starts with port 4
-    for (port_no = 4; port_no < board->port_cnt; port_no++) {
-        if (meba_phy_event_check(inst, port_no, &events) == MESA_RC_OK) {
-            polled++;
-        }
-    }
-    if (polled) {
-        port_no = 4;
-        if (events & VTSS_PHY_LINK_FFAIL_EV) {
-            signal_notifier(MEBA_EVENT_FLNK, port_no);
-            handled++;
-        }
 
-        if (events & VTSS_PHY_LINK_LOS_EV) {
-            signal_notifier(MEBA_EVENT_LOS, port_no);
-            handled++;
+    // poll gpio intr
+    mesa_reg_read(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR_IDENT, &val);
+    mesa_reg_write(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR, val); // Clear gpio interrupt. set 4th bit to clear sticky.
+    // Disable gpio interrupt for gpio 4 on which phy is connected.
+    (void)mesa_gpio_mode_set(NULL, 0, 4, MESA_GPIO_IN);
+
+    do {
+        // read chip level interrupt status using port 4 to avoid polling on every phy port for all types of events.
+        meba_phy_clause45_read(inst, 4, INDY_CHIP_INTR_STATUS, &phy_intr);
+        if (phy_intr >> 4) { //general phy interrupts start from 4th bit onwards
+            // On ocelot + lan8814 platform, port number starts with port 4
+            for (port_no = 4; port_no < board->port_cnt; port_no++) {
+                if (meba_phy_event_check(inst, port_no, &events) == MESA_RC_OK) {
+                    polled++;
+                }
+            }
+            if (polled) {
+                port_no = 4;
+                if (events & VTSS_PHY_LINK_FFAIL_EV) {
+                    signal_notifier(MEBA_EVENT_FLNK, port_no);
+                    handled++;
+                }
+
+                if (events & VTSS_PHY_LINK_LOS_EV) {
+                    signal_notifier(MEBA_EVENT_LOS, port_no);
+                    handled++;
+                }
+            }
         }
-    }
-    // Check the timestamp events.
-    for (port_no = 4; port_no < board->port_cnt; port_no++) {
-        if (board->port[port_no].ts_phy) {
-            if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
-                handled++;
+        if (phy_intr & 0xF) {// first 4 bits represent timestamp events from correponding port.
+            // Check the timestamp events.
+            for (port_no = 4; port_no < board->port_cnt; port_no++) {
+                if (board->port[port_no].ts_phy && (phy_intr & (1 << (port_no - 4)))) {
+                    if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
+                        handled++;
+                }
+            }
         }
-    }
-    uint32_t val=0;
-    mesa_reg_read(NULL, 0,0x41c012, &val);
-    mesa_reg_write(NULL, 0, 0x41c012, val); // Clear gpio interrupt. set 4th bit to clear sticky.
+        // Before enabling interrupt again, check if there are pending interrupts.
+        mesa_reg_read(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR, &val);
+        if (val) {
+            mesa_reg_write(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR, val); // clear interrupts
+        }
+    } while (val && (cnt++ < 5)); //repeat this for utmost 5 iterations
+
+    // Enable gpio interrupt for gpio 4 on which phy is connected.
+    (void)mesa_gpio_mode_set(NULL, 0, 4, MESA_GPIO_IN_INT);
 
     T_I(inst, "events %x handled %d", events, handled);
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
