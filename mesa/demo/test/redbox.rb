@@ -529,8 +529,8 @@ test_table =
             # Node timeout, forward to SAN on port A/B
             {frm: {dmac: ":aa"},
              fwd: [{idx_tx: "c"},
-                   {idx_rx: "a", prp: {lan_id: 0}},
-                   {idx_rx: "b", prp: {lan_id: 1}}]},
+                   {idx_rx: "a", prp: {lan_id: 0, seqn: 2}},
+                   {idx_rx: "b", prp: {lan_id: 1, seqn: 2}}]},
         ],
         # Expect zero counter
         cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
@@ -555,8 +555,8 @@ test_table =
             {node: {mac: 0xbb, cmd: "get", err: true},
              frm: {dmac: ":bb"},
              fwd: [{idx_tx: "c"},
-                   {idx_rx: "a", prp: {lan_id: 0}},
-                   {idx_rx: "b", prp: {lan_id: 1}}]},
+                   {idx_rx: "a", prp: {lan_id: 0, seqn: 2}},
+                   {idx_rx: "b", prp: {lan_id: 1, seqn: 2}}]},
         ],
         # Expect zero counter
         cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
@@ -698,7 +698,14 @@ test_table =
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a"},
                      {idx_rx: "b"},
-                     {idx_rx: "c"}]}]
+                     {idx_rx: "c"}]}],
+        # Expect tagged counters
+        cnt: [
+            {port: "a", name: "tx_untagged", val: 0},
+            {port: "a", name: "tx_tagged", val: 1000},
+            {port: "b", name: "tx_untagged", val: 0},
+            {port: "b", name: "tx_tagged", val: 1000}
+        ]
     },
     {
         txt: "discard HSR-tagged on Interlink",

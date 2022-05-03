@@ -1750,8 +1750,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
            VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(age) |
            VTSS_F_RB_TBL_CFG_UPD_DISC_TBL_ENA(1) |
-           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(ht == FA_HT_NONE ? 0 : 1) |
-           VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1));
+           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(1) |
+           VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1) |
+           VTSS_F_RB_TBL_CFG_NEW_HOST_TBL_DIS(ht == FA_HT_NONE ? 1 : 0));
 
     REG_WR(RB_ADDRX(VTSS_RB_BPDU_CFG, rb_id, j),
            VTSS_F_RB_BPDU_CFG_BPDU_REDIR_ENA(lre ? 0xffff : 0));
@@ -3109,6 +3110,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_HOST_TBL_ENA);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_DISC_TBL_ENA);
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_UPD_SEQ_NUM_ENA);
+        FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_NEW_HOST_TBL_DIS);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(RB_ADDRX(VTSS_RB_FWD_CFG, i, j), &x[j]);
