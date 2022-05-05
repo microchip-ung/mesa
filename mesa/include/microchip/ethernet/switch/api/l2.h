@@ -1607,15 +1607,16 @@ typedef enum {
 
 // RedBox configuration
 typedef struct {
-    mesa_rb_mode_t     mode;         // Mode
-    mesa_port_no_t     port_a;       // Port A (corresponding switch port is Interlink)
-    mesa_port_no_t     port_b;       // Port B (corresponding switch port is unused)
-    uint8_t            net_id;       // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
-    uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
-    mesa_rb_age_time_t nt_age_time;  // Node Table age time [seconds]
-    mesa_rb_age_time_t pnt_age_time; // Proxy Node Table age time [seconds]
-    mesa_rb_age_time_t dd_age_time;  // Duplicate Discard age time [milliseconds]
-    mesa_rb_sv_t       sv;           // Interlink Supervision frame forwarding
+    mesa_rb_mode_t     mode;            // Mode
+    mesa_port_no_t     port_a;          // Port A (corresponding switch port is Interlink)
+    mesa_port_no_t     port_b;          // Port B (corresponding switch port is unused)
+    uint8_t            net_id;          // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
+    uint8_t            lan_id;          // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
+    mesa_bool_t        nt_dmac_disable; // Disable Node Table DMAC filtering
+    mesa_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
+    mesa_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [seconds]
+    mesa_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
+    mesa_rb_sv_t       sv;              // Interlink Supervision frame forwarding
 } mesa_rb_conf_t;
 
 // Get RedBox configuration.
@@ -1764,12 +1765,25 @@ mesa_rc mesa_rb_node_id_get_next(const mesa_inst_t       inst,
 // Proxy node ID
 typedef uint16_t mesa_rb_proxy_node_id_t;
 
+// Proxy node type (HSR-PRP)
+typedef enum {
+    MESA_RB_PROXY_NODE_TYPE_DAN, // DANP
+    MESA_RB_PROXY_NODE_TYPE_SAN, // SAN
+} mesa_rb_proxy_node_type_t;
+
+// Proxy node configuration
+typedef struct {
+    mesa_rb_proxy_node_type_t type;  // Proxy node type
+} mesa_rb_proxy_node_conf_t;
+
 // Add static proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
-mesa_rc mesa_rb_proxy_node_add(const mesa_inst_t  inst,
-                               const mesa_rb_id_t rb_id,
-                               const mesa_mac_t   *const mac);
+// conf [IN]   Proxy node configuration.
+mesa_rc mesa_rb_proxy_node_add(const mesa_inst_t               inst,
+                               const mesa_rb_id_t              rb_id,
+                               const mesa_mac_t                *const mac,
+                               const mesa_rb_proxy_node_conf_t *const conf);
 
 // Delete proxy node entry.
 // rb_id [IN]  RedBox ID.
@@ -1795,6 +1809,7 @@ typedef struct {
     mesa_mac_t                    mac;    // MAC address (key)
     mesa_rb_proxy_node_id_t       id;     // Proxy node ID (alternative key)
     mesa_bool_t                   locked; // Locked/static flag
+    mesa_rb_proxy_node_type_t     type;   // Proxy node type
     mesa_rb_age_time_t            age;    // Age
     mesa_rb_proxy_node_counters_t cnt;    // Port C counters
 } mesa_rb_proxy_node_t;

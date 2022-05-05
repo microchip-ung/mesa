@@ -1740,7 +1740,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     if (hsr_aware && lre) {
         // Common forwarding rules for HSR aware LRE ports
-        node_dmac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if DMAC is node
+        if (!conf->nt_dmac_disable) {
+            node_dmac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if DMAC is node
+        }
         prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
     }
 
@@ -1795,11 +1797,14 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
             conf->mode == VTSS_RB_MODE_HSR_PRP ? FA_RB_MODE_HSR_PRP :
             conf->mode == VTSS_RB_MODE_HSR_HSR ? FA_RB_MODE_HSR_HSR : 0);
     ena = (conf->mode == VTSS_RB_MODE_DISABLED ? 0 : 1);
-    val = (VTSS_F_RB_RB_CFG_IRI_ENA(1) |
+    REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id),
+           VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
+           VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
+           VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) |
+           VTSS_F_RB_RB_CFG_IRI_ENA(1) |
            VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) |
            VTSS_F_RB_RB_CFG_RB_MODE(mode) |
            VTSS_F_RB_RB_CFG_RB_ENA(ena));
-    REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id), val);
     if (ena) {
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_a, &port_a));
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_b, &port_b));
@@ -2040,10 +2045,12 @@ static vtss_rc fa_rb_host_add(vtss_state_t *vtss_state,
                               const vtss_rb_id_t rb_id,
                               const vtss_mac_t *const mac,
                               u32 ht,
-                              u32 mask)
+                              u32 mask,
+                              u32 pdan)
 {
     VTSS_RC(fa_rb_host_mac_set(vtss_state, rb_id, mac));
     REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id),
+           VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(pdan) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(1) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_VLD(1) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_TYPE(ht) |
@@ -2068,6 +2075,7 @@ static vtss_rc fa_rb_host_del(vtss_state_t *vtss_state,
 typedef struct {
     u8 age;
     u8 fwd;
+    u8 rct;
     u32 rx;
     u32 rx_wrong_lan;
 } fa_rb_host_port_t;
@@ -2077,6 +2085,7 @@ typedef struct {
     u32               idx;
     BOOL              locked;
     u8                type;
+    BOOL              pdan;
     u16               seq_no;
     fa_rb_host_port_t port[VTSS_RB_PORT_CNT];
 } fa_rb_host_t;
@@ -2099,6 +2108,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     host->seq_no = VTSS_X_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_SEQ_NO(cfg0);
     host->locked = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(cfg2);
     host->type = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_TYPE(cfg2);
+    host->pdan = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(cfg2);
     mask = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PORTMASK(cfg2);
     REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_3, rb_id), &stat3);
 
@@ -2106,6 +2116,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     p = &host->port[0];
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_0(cfg2);
     p->fwd = (mask & 1 ? 1 : 0);
+    p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_0(cfg2);
     REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_0, rb_id), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_0(stat3);
 
@@ -2113,6 +2124,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     p = &host->port[1];
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_1(cfg2);
     p->fwd = (mask & 2 ? 1 : 0);
+    p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_1(cfg2);
     REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_1, rb_id), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_1(stat3);
 
@@ -2120,6 +2132,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     p = &host->port[2];
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_2(cfg2);
     p->fwd = (mask & 4 ? 1 : 0);
+    p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_MISSING(cfg2);
     REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_2, rb_id), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_2(stat3);
 
@@ -2240,7 +2253,7 @@ static vtss_rc fa_rb_node_add(vtss_state_t *vtss_state,
         ht = FA_HT_SAN;
         mask = (conf->san_a ? 0x1 : 0x2);
     }
-    return fa_rb_host_add(vtss_state, rb_id, mac, ht, mask);
+    return fa_rb_host_add(vtss_state, rb_id, mac, ht, mask, 0);
 }
 
 static vtss_rc fa_rb_node_del(vtss_state_t *vtss_state,
@@ -2318,9 +2331,12 @@ static vtss_rc fa_rb_node_id_get_next(vtss_state_t *vtss_state,
 
 static vtss_rc fa_rb_proxy_node_add(vtss_state_t *vtss_state,
                                     const vtss_rb_id_t rb_id,
-                                    const vtss_mac_t *const mac)
+                                    const vtss_mac_t *const mac,
+                                    const vtss_rb_proxy_node_conf_t *const conf)
 {
-    return fa_rb_host_add(vtss_state, rb_id, mac, FA_HT_PROXY, 0x4);
+    u32 pdan = (conf->type == VTSS_RB_PROXY_NODE_TYPE_DAN ? 1 : 0);
+
+    return fa_rb_host_add(vtss_state, rb_id, mac, FA_HT_PROXY, 0x4, pdan);
 }
 
 static vtss_rc fa_rb_proxy_node_del(vtss_state_t *vtss_state,
@@ -2347,6 +2363,7 @@ static vtss_rc fa_rb_host2proxy(vtss_state_t *vtss_state,
     entry->mac = host->mac;
     entry->id = host->idx;
     entry->locked = host->locked;
+    entry->type = (host->pdan ? VTSS_RB_PROXY_NODE_TYPE_DAN : VTSS_RB_PROXY_NODE_TYPE_SAN);
     entry->age = (age_time * host->port[2].age / FA_RB_AGE_CNT);
     entry->cnt.rx = host->port[2].rx;
     return VTSS_RC_OK;
@@ -2867,22 +2884,22 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
 
     if (*cnt == 0) {
         pr("%s\n\n", name);
-        pr("MAC Address        IDX/Row/Col  Type   Lock  SeqNo  Port  Fwd  Age  RxWrongLan  Rx\n");
+        pr("MAC Address        IDX/Row/Col  Type       Lock  SeqNo  Port  Fwd  Age  RCT  RxWrongLan  Rx\n");
     }
     *cnt = (*cnt + 1);
     sprintf(buf, "%u/%u/%u", idx, idx / FA_HT_COL_CNT, idx % FA_HT_COL_CNT);
-    pr("%s  %-13s%-7s%-6u%-7u",
-       vtss_mac_txt(&host->mac),
-       buf,
-       host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
-       host->type == FA_HT_SAN ? "SAN" : "LOCAL",
-       host->locked, host->seq_no);
+    pr("%s  %-13s", vtss_mac_txt(&host->mac), buf);
+    sprintf(buf, "%s%s",
+            host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
+            host->type == FA_HT_SAN ? "SAN" : "LOCAL",
+            host->type != FA_HT_PROXY ? "" : host->pdan ? "-DAN" : "-SAN");
+    pr("%-11s%-6u%-7u", buf, host->locked, host->seq_no);
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         p = &host->port[j];
         if (j) {
-            pr("-%-51s", "");
+            pr("-%-55s", "");
         }
-        pr("%-6u%-5u%-5u%-12u%u\n", j, p->fwd, p->age, p->rx_wrong_lan, p->rx);
+        pr("%-6u%-5u%-5u%-5u%-12u%u\n", j, p->fwd, p->age, p->rct, p->rx_wrong_lan, p->rx);
     }
 }
 
@@ -3028,6 +3045,9 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
            FA_RB_MODE_PRP_SAN, FA_RB_MODE_HSR_SAN,
            FA_RB_MODE_HSR_PRP, FA_RB_MODE_HSR_HSR);
+        FA_DEBUG_RB_FLD(&val, RB_CFG_RCT_MISSING_DISC_ENA);
+        FA_DEBUG_RB_FLD(&val, RB_CFG_RCT_VALIDATE_ENA);
+        FA_DEBUG_RB_FLD(&val, RB_CFG_DAN_DETECT_ENA);
         FA_DEBUG_RB_FLD(&val, RB_CFG_IRI_ENA);
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_HSR_TAG_SEL);
         pr("(0:OUTER, 1:MIDDLE, 2:INNER, 3:RESV)\n");

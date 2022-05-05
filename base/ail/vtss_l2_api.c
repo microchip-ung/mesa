@@ -8252,9 +8252,10 @@ vtss_rc vtss_rb_node_id_get_next(const vtss_inst_t       inst,
     return rc;
 }
 
-vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t  inst,
-                               const vtss_rb_id_t rb_id,
-                               const vtss_mac_t   *const mac)
+vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t               inst,
+                               const vtss_rb_id_t              rb_id,
+                               const vtss_mac_t                *const mac,
+                               const vtss_rb_proxy_node_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
@@ -8262,7 +8263,7 @@ vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t  inst,
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.rb_proxy_node_add, rb_id, mac);
+        rc = VTSS_FUNC(l2.rb_proxy_node_add, rb_id, mac, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -9005,10 +9006,10 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         }
         if (header) {
             header = 0;
-            pr("ID  Mode      Port A/B  NetId  LanId  NT Age  PNT Age  DD Age\n");
+            pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age\n");
         }
         sprintf(buf, "%u/%u", conf->port_a, conf->port_b);
-        pr("%-4u%-10s%-10s%-7u%-7u%-8u%-9u%u\n",
+        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%u\n",
            i,
            m == VTSS_RB_MODE_DISABLED ? "Disabled" :
            m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN" :
@@ -9018,6 +9019,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
            buf,
            conf->net_id,
            conf->lan_id,
+           conf->nt_dmac_disable,
            conf->nt_age_time,
            conf->pnt_age_time,
            conf->dd_age_time);
@@ -9084,12 +9086,18 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
                 break;
             } else if (header) {
                 pr("RedBox %u Proxy Node Table:\n\n", i);
-                pr("MAC Address        ID    Locked  Age     Rx Total\n");
+                pr("MAC Address        ID    Locked  Type  Age    Rx Total\n");
                 header = 0;
             }
             p = pnode.mac.addr;
             pr("%02x-%02x-%02x-%02x-%02x-%02x  ", p[0], p[1], p[2], p[3], p[4], p[5]);
-            pr("%-6u%-8u%-8u%u\n", pnode.id, pnode.locked, pnode.age, pnode.cnt.rx);
+            pr("%-6u%-8u%-6s%-7u%u\n",
+               pnode.id,
+               pnode.locked,
+               pnode.type == VTSS_RB_PROXY_NODE_TYPE_DAN ? "DAN" :
+               pnode.type == VTSS_RB_PROXY_NODE_TYPE_SAN ? "SAN" : "?",
+               pnode.age,
+               pnode.cnt.rx);
         }
         if (!header) {
             pr("\n");

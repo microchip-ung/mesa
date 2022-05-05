@@ -2810,7 +2810,7 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 #endif
 
 // RedBox ID, zero-based
-typedef uint8_t vtss_rb_id_t;
+typedef u8 vtss_rb_id_t;
 
 // RedBox capabilities
 typedef struct {
@@ -2834,7 +2834,7 @@ typedef enum {
 } vtss_rb_mode_t;
 
 // Age time
-typedef uint16_t vtss_rb_age_time_t;
+typedef u16 vtss_rb_age_time_t;
 
 // Forwarding of Supervision frames
 typedef enum {
@@ -2846,15 +2846,16 @@ typedef enum {
 
 // RedBox configuration
 typedef struct {
-    vtss_rb_mode_t     mode;         // Mode
-    vtss_port_no_t     port_a;       // Port A (corresponding switch port is Interlink)
-    vtss_port_no_t     port_b;       // Port B (corresponding switch port is unused)
-    uint8_t            net_id;       // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
-    uint8_t            lan_id;       // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
-    vtss_rb_age_time_t nt_age_time;  // Node Table age time [seconds]
-    vtss_rb_age_time_t pnt_age_time; // Proxy Node Table age time [secondss]
-    vtss_rb_age_time_t dd_age_time;  // Duplicate Discard age time [milliseconds]
-    vtss_rb_sv_t       sv;           // Interlink Supervision frame forwarding
+    vtss_rb_mode_t     mode;            // Mode
+    vtss_port_no_t     port_a;          // Port A (corresponding switch port is Interlink)
+    vtss_port_no_t     port_b;          // Port B (corresponding switch port is unused)
+    u8                 net_id;          // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
+    u8                 lan_id;          // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
+    BOOL               nt_dmac_disable; // Disable Node Table DMAC filtering
+    vtss_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
+    vtss_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [secondss]
+    vtss_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
+    vtss_rb_sv_t       sv;              // Interlink Supervision frame forwarding
 } vtss_rb_conf_t;
 
 // Get RedBox configuration.
@@ -2906,7 +2907,7 @@ vtss_rc vtss_rb_counters_clear(const vtss_inst_t  inst,
                                const vtss_rb_id_t rb_id);
 
 // Node ID
-typedef uint16_t vtss_rb_node_id_t;
+typedef u16 vtss_rb_node_id_t;
 
 // Node type
 typedef enum {
@@ -2952,8 +2953,8 @@ vtss_rc vtss_rb_node_table_clear(const vtss_inst_t     inst,
 
 // Node counters
 typedef struct {
-    uint32_t rx;           // Rx frames
-    uint32_t rx_wrong_lan; // Rx frames with wrong LanId (PRP port)
+    u32 rx;           // Rx frames
+    u32 rx_wrong_lan; // Rx frames with wrong LanId (PRP port)
 } vtss_rb_node_counters_t;
 
 // Node port A/B information
@@ -3001,15 +3002,27 @@ vtss_rc vtss_rb_node_id_get_next(const vtss_inst_t       inst,
                                  vtss_rb_node_t          *const entry);
 
 // Proxy node ID
-typedef uint16_t vtss_rb_proxy_node_id_t;
+typedef u16 vtss_rb_proxy_node_id_t;
+
+// Proxy node type (HSR-PRP)
+typedef enum {
+    VTSS_RB_PROXY_NODE_TYPE_DAN, // DANP
+    VTSS_RB_PROXY_NODE_TYPE_SAN, // SAN
+} vtss_rb_proxy_node_type_t;
+
+// Proxy node configuration
+typedef struct {
+    vtss_rb_proxy_node_type_t type;  // Proxy node type
+} vtss_rb_proxy_node_conf_t;
 
 // Add static proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
-vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t  inst,
-                               const vtss_rb_id_t rb_id,
-                               const vtss_mac_t   *const mac);
-
+// conf [IN]   Proxy node configuration.
+vtss_rc vtss_rb_proxy_node_add(const vtss_inst_t               inst,
+                               const vtss_rb_id_t              rb_id,
+                               const vtss_mac_t                *const mac,
+                               const vtss_rb_proxy_node_conf_t *const conf);
 // Delete proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
@@ -3026,7 +3039,7 @@ vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t     inst,
 
 // Proxy node counters
 typedef struct {
-    uint32_t rx; // Rx frames
+    u32 rx; // Rx frames
 } vtss_rb_proxy_node_counters_t;
 
 // Proxy node entry.
@@ -3034,6 +3047,7 @@ typedef struct {
     vtss_mac_t                    mac;    // MAC address (key)
     vtss_rb_proxy_node_id_t       id;     // Proxy node ID (alternative key)
     BOOL                          locked; // Locked/static flag
+    vtss_rb_proxy_node_type_t     type;   // Proxy node type
     vtss_rb_age_time_t            age;    // Age
     vtss_rb_proxy_node_counters_t cnt;    // Port C counters
 } vtss_rb_proxy_node_t;

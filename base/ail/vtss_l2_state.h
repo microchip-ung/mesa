@@ -761,7 +761,8 @@ typedef struct {
                                     vtss_rb_node_t     *const entry);
     vtss_rc (* rb_proxy_node_add)(struct vtss_state_s *vtss_state,
                                   const vtss_rb_id_t rb_id,
-                                  const vtss_mac_t *const mac);
+                                  const vtss_mac_t *const mac,
+                                  const vtss_rb_proxy_node_conf_t *const conf);
     vtss_rc (* rb_proxy_node_del)(struct vtss_state_s *vtss_state,
                                   const vtss_rb_id_t rb_id,
                                   const vtss_mac_t *const mac);

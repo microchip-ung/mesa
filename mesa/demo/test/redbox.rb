@@ -417,7 +417,7 @@ test_table =
     {
         txt: "port A to port C/D",
         cfg: {mode: "PRP_SAN"},
-        tab: [{fwd: [{idx_tx: "a", prp: {lan_id: 0}},
+        tab: [{fwd: [{idx_tx: "a", prp: {}},
                      {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
@@ -425,7 +425,7 @@ test_table =
         txt: "port A to port C/D - max-length",
         cfg: {mode: "PRP_SAN"},
         tab: [{frm: {len: 1500},
-               fwd: [{idx_tx: "a", prp: {lan_id: 0}},
+               fwd: [{idx_tx: "a", prp: {}},
                      {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
@@ -433,7 +433,7 @@ test_table =
         txt: "port B to port C/D - burst",
         cfg: {mode: "PRP_SAN"},
         tab: [{cnt: 10,
-               fwd: [{idx_tx: "b", prp: {lan_id: 1}},
+               fwd: [{idx_tx: "b", prp: {}},
                      {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
@@ -441,8 +441,8 @@ test_table =
         txt: "port C to port A/B/D",
         cfg: {mode: "PRP_SAN"},
         tab: [{fwd: [{idx_tx: "c"},
-                     {idx_rx: "a", prp: {lan_id: 0}},
-                     {idx_rx: "b", prp: {lan_id: 1}},
+                     {idx_rx: "a", prp: {}},
+                     {idx_rx: "b", prp: {}},
                      {idx_rx: "d"}]}]
     },
     {
@@ -450,8 +450,8 @@ test_table =
         cfg: {mode: "PRP_SAN"},
         tab: [{frm: {len: 1500},
                fwd: [{idx_tx: "c"},
-                     {idx_rx: "a", prp: {lan_id: 0}},
-                     {idx_rx: "b", prp: {lan_id: 1}},
+                     {idx_rx: "a", prp: {}},
+                     {idx_rx: "b", prp: {}},
                      {idx_rx: "d"}]}]
     },
     {
@@ -459,8 +459,8 @@ test_table =
         cfg: {mode: "PRP_SAN"},
         tab: [{cnt: 10,
                fwd: [{idx_tx: "d"},
-                     {idx_rx: "a", prp: {lan_id: 0}},
-                     {idx_rx: "b", prp: {lan_id: 1}},
+                     {idx_rx: "a", prp: {}},
+                     {idx_rx: "b", prp: {}},
                      {idx_rx: "c"}]}]
     },
     {
@@ -485,7 +485,7 @@ test_table =
         tab: [{fwd: [{idx_tx: "a", prp: {lan_id: 1}},
                      {idx_rx: "c", prp: {lan_id: 1}},
                      {idx_rx: "d", prp: {lan_id: 1}}]},
-              {node: {mac: 0x0a, cmd: "get",
+              {node: {mac: 0x0a, cmd: "get", type: "SAN",
                       cnt: [{port: "a", name: "rx", val: 1},
                             {port: "a", name: "rx_wrong_lan", val: 1}]}}],
         cnt: [
@@ -498,10 +498,10 @@ test_table =
     {
         txt: "port B wrong LAN",
         cfg: {mode: "PRP_SAN"},
-        tab: [{fwd: [{idx_tx: "b", prp: {}},
-                     {idx_rx: "c", prp: {}},
-                     {idx_rx: "d", prp: {}}]},
-              {node: {mac: 0x0b, cmd: "get",
+        tab: [{fwd: [{idx_tx: "b", prp: {lan_id: 0}},
+                     {idx_rx: "c", prp: {lan_id: 0}},
+                     {idx_rx: "d", prp: {lan_id: 0}}]},
+              {node: {mac: 0x0b, cmd: "get", type: "SAN",
                       cnt: [{port: "b", name: "rx", val: 1},
                             {port: "b", name: "rx_wrong_lan", val: 1}]}}],
         cnt: [
@@ -529,8 +529,8 @@ test_table =
             # Node timeout, forward to SAN on port A/B
             {frm: {dmac: ":aa"},
              fwd: [{idx_tx: "c"},
-                   {idx_rx: "a", prp: {lan_id: 0, seqn: 2}},
-                   {idx_rx: "b", prp: {lan_id: 1, seqn: 2}}]},
+                   {idx_rx: "a", prp: {seqn: 2}},
+                   {idx_rx: "b", prp: {seqn: 2}}]},
         ],
         # Expect zero counter
         cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
@@ -546,7 +546,7 @@ test_table =
                    {idx_rx: "d"}],
              wait: 10},
             # Forward to SAN on port B
-            {node: {mac: 0xbb, cmd: "get", cnt: [{port: "b", name: "rx", val: 1}]},
+            {node: {mac: 0xbb, cmd: "get", type: "SAN", cnt: [{port: "b", name: "rx", val: 1}]},
              frm: {dmac: ":bb"},
              fwd: [{idx_tx: "c"},
                    {idx_rx: "b"}],
@@ -555,11 +555,55 @@ test_table =
             {node: {mac: 0xbb, cmd: "get", err: true},
              frm: {dmac: ":bb"},
              fwd: [{idx_tx: "c"},
-                   {idx_rx: "a", prp: {lan_id: 0, seqn: 2}},
-                   {idx_rx: "b", prp: {lan_id: 1, seqn: 2}}]},
+                   {idx_rx: "a", prp: {seqn: 2}},
+                   {idx_rx: "b", prp: {seqn: 2}}]},
         ],
         # Expect zero counter
         cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
+    },
+    {
+        txt: "forward to DAN on port A/B",
+        cfg: {mode: "PRP_SAN", nt_age_time: 20},
+        tab: [
+            # Learn DAN as SAN on port A
+            {frm: {smac: ":ab"},
+             fwd: [{idx_tx: "a", prp: {}},
+                   {idx_rx: "c"},
+                   {idx_rx: "d"}],
+             wait: 10},
+            # Forward to SAN on port A
+            {node: {mac: 0xab, cmd: "get", type: "SAN", cnt: [{port: "a", name: "rx", val: 1}]},
+             frm: {dmac: ":ab"},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a"}]},
+            # Learn DAN on port B
+            {frm: {smac: ":ab"},
+             fwd: [{idx_tx: "b", prp: {}},
+                   {idx_rx: "c"},
+                   {idx_rx: "d"}]},
+            # Forward to DAN on port A/B
+            {node: {mac: 0xab, cmd: "get", cnt: [{port: "a", name: "rx", val: 1},
+                                                 {port: "b", name: "rx", val: 1}]},
+             frm: {dmac: ":ab"},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", prp: {seqn: 2}},
+                   {idx_rx: "b", prp: {seqn: 2}}],
+             wait: 10},
+            # Node timeout on port A, forward to DAN on port A/B
+            {node: {mac: 0xab, cmd: "get", cnt: [{port: "a", name: "rx", val: 1},
+                                                 {port: "b", name: "rx", val: 1}]},
+             frm: {dmac: ":ab"},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", prp: {seqn: 3}},
+                   {idx_rx: "b", prp: {seqn: 3}}],
+             wait: 10},
+            # Node timeout on port B, forward to SAN on port A/B
+            {node: {mac: 0xab, cmd: "get", err: true},
+             frm: {dmac: ":ab"},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", prp: {seqn: 4}},
+                   {idx_rx: "b", prp: {seqn: 4}}]}
+        ],
     },
     {
         txt: "BPDU Rx on LRE",
@@ -589,7 +633,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", ifh_tx: "a"},
                      {idx_rx: "a", prp: {}},
-                     {idx_rx: "b", prp: {lan_id: 1}}]}]
+                     {idx_rx: "b", prp: {}}]}]
     },
     {
         txt: "port A duplicate discard towards port C/D",
@@ -624,11 +668,11 @@ test_table =
     # HSR-PRP tests
     {
         txt: "port A to port B/C/D",
-        cfg: {mode: "HSR_PRP"},
+        cfg: {mode: "HSR_PRP", lan_id: 1},
         tab: [{fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "c", prp: {}},
-                     {idx_rx: "d", prp: {}}]}]
+                     {idx_rx: "c", prp: {lan_id: 1}},
+                     {idx_rx: "d", prp: {lan_id: 1}}]}]
     },
     {
         txt: "port A to port B/C/D - max-length",
@@ -651,35 +695,47 @@ test_table =
     {
         txt: "port C to port A/B/D",
         cfg: {mode: "HSR_PRP"},
-        tab: [{fwd: [{idx_tx: "c", prp: {}},
-                     {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}},
-                     {idx_rx: "d", prp: {}}]}]
+        tab: [{proxy: {mac: 0x0c, type: "DAN"},
+               fwd: [{idx_tx: "c", prp: {seqn: 10}},
+                     {idx_rx: "a", hsr: {seqn: 10}},
+                     {idx_rx: "b", hsr: {seqn: 10}},
+                     {idx_rx: "d", prp: {seqn: 10}}]},
+              {fwd: [{idx_tx: "c"},
+                     {idx_rx: "d"}]}
+             ]
     },
     {
         txt: "port C to port A/B/D - max-length",
         cfg: {mode: "HSR_PRP"},
         tab: [{frm: {len: 1500},
-               fwd: [{idx_tx: "c", prp: {}},
-                     {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}},
-                     {idx_rx: "d", prp: {}}]}]
+               fwd: [{idx_tx: "c", prp: {seqn: 7}},
+                     {idx_rx: "a", hsr: {}, prp: {seqn: 7}},
+                     {idx_rx: "b", hsr: {}, prp: {seqn: 7, lan_id: 0}},
+                     {idx_rx: "d", prp: {seqn: 7}}]}]
     },
     {
         txt: "port D to port A/B/C - burst",
         cfg: {mode: "HSR_PRP"},
-        tab: [{cnt: 10,
+        tab: [{proxy: {mac: 0x0d, type: "DAN"},
+               cnt: 10,
                fwd: [{idx_tx: "d", prp: {}},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
                      {idx_rx: "c", prp: {}}]}]
     },
     {
-        txt: "port C to port A/B/D - untagged",
+        txt: "port C to port A/B/D - untagged SAN",
         cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
+                     {idx_rx: "d"}]}]
+    },
+    {
+        txt: "port C to port D - untagged DAN discard",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{proxy: {mac: 0x0c, type: "DAN"},
+               fwd: [{idx_tx: "c"},
                      {idx_rx: "d"}]}]
     },
     {
@@ -831,7 +887,8 @@ test_table =
         cfg: {mode: "HSR_PRP", dd_age_time: 20000},
         tab: [
             # Forward and learn default sequence number
-            {fwd: [{idx_tx: "c", prp: {}},
+            {proxy: {mac: 0x0c, type: "DAN"},
+             fwd: [{idx_tx: "c", prp: {}},
                    {idx_rx: "a", hsr: {}},
                    {idx_rx: "b", hsr: {}},
                    {idx_rx: "d", prp: {}}],
@@ -908,8 +965,18 @@ test_table =
         cfg: {mode: "HSR_HSR"},
         tab: [{node: {mac: 0xbb},
                frm: {dmac: ":bb"},
-               fwd: [{idx_tx: "a", hsr:{}},
+               fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}}]}]
+    },
+    {
+        txt: "DMAC-NT-STATIC filtering disabled on LRE->interlink",
+        cfg: {mode: "HSR_HSR", nt_dmac_dis: true},
+        tab: [{node: {mac: 0xbb},
+               frm: {dmac: ":bb"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", hsr: {}},
+                     {idx_rx: "d", hsr: {}}]}]
     },
     {
         txt: "NetId filtering/translation",
@@ -1132,20 +1199,20 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 cmd += " ctag vid #{e[:vid]}"
             end
             hsr = fld_get(e, :hsr, nil)
+            prp = fld_get(e, :prp, nil)
             if (hsr != nil)
                 net_id = fld_get(hsr, :net_id, 0)
                 lan_id = fld_get(hsr, :lan_id, 0)
                 path_id = ((net_id << 1) + lan_id)
-                size = fld_get(hsr, :size, len + 6)
+                size = fld_get(hsr, :size, len + 6 + (prp == nil ? 0 : 6))
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
             end
             cmd += " et 0x#{et.to_s(16)} data pattern cnt #{len}"
-            prp = fld_get(e, :prp, nil)
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
                 net_id = fld_get(prp, :net_id, 5)
-                lan_id = fld_get(prp, :lan_id, 0)
+                lan_id = fld_get(prp, :lan_id, idx_name == "b" ? 1 : 0)
                 path_id = ((net_id << 1) + lan_id)
                 size = fld_get(prp, :size, len + 6)
                 cmd += " prp seqn #{seqn + index} lanid #{path_id} size #{size}"
@@ -1214,6 +1281,15 @@ def check_mac(name, val, exp)
     end
 end
 
+def check_str(name, val, exp)
+    msg = "#{name}: #{val}, expected: #{exp}"
+    if (val == exp)
+        t_i(msg)
+    else
+        t_e(msg)
+    end
+end
+
 def redbox_test(t)
     cfg = t[:cfg]
 
@@ -1234,6 +1310,7 @@ def redbox_test(t)
     conf["port_b"] = $ts.dut.p[$rb[:idx_b]]
     conf["net_id"] = fld_get(cfg, :net_id)
     conf["lan_id"] = fld_get(cfg, :lan_id)
+    conf["nt_dmac_disable"] = fld_get(cfg, :nt_dmac_dis, false)
     conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
     conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
     conf["sv"] = ("MESA_RB_SV_" + fld_get(cfg, :sv, "FORWARD"))
@@ -1325,6 +1402,7 @@ def redbox_test(t)
                     e = $ts.dut.try("mesa_rb_node_get", rb_id, mac)
                     if (e != nil)
                         check_mac("node_get", e["mac"], mac)
+                        check_str("node_get", e["type"], type)
                     end
                     ["a", "b"].each do |port_name|
                         ["rx", "rx_wrong_lan"].each do |cnt_name|
@@ -1359,10 +1437,11 @@ def redbox_test(t)
         if (proxy != nil)
             mac = fld_get(proxy, :mac, 0xee)
             mac = {addr: [0,0,0,0,0,mac]}
+            type = ("MESA_RB_PROXY_NODE_TYPE_" + fld_get(proxy, :type, "SAN"))
             cmd = fld_get(proxy, :cmd, "add")
             err = fld_get(proxy, :err, false)
             if (cmd == "add")
-                $ts.dut.call("mesa_rb_proxy_node_add", rb_id, mac)
+                $ts.dut.call("mesa_rb_proxy_node_add", rb_id, mac, {type: type})
             elsif (cmd == "del")
                 $ts.dut.call("mesa_rb_proxy_node_del", rb_id, mac)
             elsif (cmd == "get")
@@ -1372,6 +1451,7 @@ def redbox_test(t)
                     e = $ts.dut.try("mesa_rb_proxy_node_get", rb_id, mac)
                     if (e != nil)
                         check_mac("proxy_node_get", e["mac"], mac)
+                        check_str("proxy_node_get", e["type"], type)
                     end
                     x = fld_get(proxy, :cnt)
                     check_counter("rx", e["cnt"]["rx"], x)
