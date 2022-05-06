@@ -15,15 +15,24 @@
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,10 speeds
     {  000, 0000, 00000 },
-    {  429, 2346, 8874 },
+    {  417, 1441, 8380 },
     {  415, 1447, 8359 }, // 415 1447
 };
 
 static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,100 speeds
     {  000, 0000, 00000 },
-    {  201, 705, 11850},
-    {  186, 296, 11335 }, // 186 296
+    {  189,  300, 11355 },
+    {  186,  296, 11335 }, // 186 296
+};
+
+static uint16_t indy_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
+  //     10M,100M, 1G
+    {0,    0,   0,  0},
+    {0,    0,   0,  0},
+    {0,11197,1125,120}, //200Mhz
+    {0,11198,1120,115}, //250Mhz : 100mbps cannot be compensated due to defailt value less than compensated value.
+    {0,    0,   0,  0},
 };
 
 static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
@@ -75,8 +84,9 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
     switch (ts_init_conf->clk_freq) {
     case MEPA_TS_CLOCK_FREQ_200M:
         // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
-        pll_div = pll_div | INDY_1588_PLL_DIVQ_F(8); //
-        pll_div = pll_div | INDY_1588_PLL_DIVF_F(32); //
+        pll_div = pll_div | INDY_1588_PLL_DIVQ_F(3);    // 3h = /8
+        pll_div = pll_div | INDY_1588_PLL_DIVF_F(0x1F); //1Fh = /32
+        pll_div = pll_div | INDY_1588_PLL_DIVR_F(4);
         EP_WRM(dev, INDY_1588_PLL_DIVEDER, pll_div, INDY_DEF_MASK);
         clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(5);
         break;
@@ -639,63 +649,131 @@ static mepa_rc indy_ts_clock_egress_latency_get(mepa_device_t *dev, mepa_timeint
 
     return MEPA_RC_OK;
 }
-static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
+
+// Latencies are different for 1-step and 2-step clock. New adjustments must consider it using two_step flag input.
+static mepa_rc indy_ts_clock_egress_latency_set_priv(mepa_device_t *dev, const mepa_timeinterval_t *const input_latency, mepa_bool_t two_step)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
-    phy_data_t *base_phy;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
     uint16_t val = 0;
+    mepa_timeinterval_t latency;
+
+    switch (data->conf.speed) {
+        case MEPA_SPEED_10M:
+            latency = base_data->ts_state.default_latencies.tx10mbps;
+            if (two_step) {
+                latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M] << 16; //two_step adjustment
+            }
+            latency += *input_latency;
+            if (latency >= 0) {
+                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+            } else {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
+                break;
+            }
+            EP_WR(dev, INDY_PTP_TX_LATENCY_10, val);
+            data->ts_state.ts_port_conf.port_latencies.tx10mbps = *input_latency;
+            break;
+
+        case MEPA_SPEED_100M:
+            latency = base_data->ts_state.default_latencies.tx100mbps;
+            if (two_step) {
+                latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M] << 16; //two_step adjustment
+            }
+            latency += *input_latency;
+            if (latency >= 0) {
+                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+            } else {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
+                break;
+            }
+            EP_WR(dev, INDY_PTP_TX_LATENCY_100, val);
+            data->ts_state.ts_port_conf.port_latencies.tx100mbps = *input_latency;
+            break;
+
+        case MEPA_SPEED_1G:
+        case MEPA_SPEED_AUTO:
+            latency = base_data->ts_state.default_latencies.tx1000mbps;
+            if (two_step) {
+                latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G] << 16; //two_step adjustment
+            }
+            latency += *input_latency;
+            if (latency >= 0) {
+                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+            } else {
+                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
+                break;
+            }
+            EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
+            data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *input_latency;
+            break;
+
+        default:
+            T_I(MEPA_TRACE_GRP_TS, "Lan8814 phy allows latency configuration for 10/100/1000Mbps only");
+            break;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_ts_clock_egress_latency_set(mepa_device_t *dev, const mepa_timeinterval_t *const latency)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data         = (phy_data_t *)dev->data;
+    mepa_bool_t two_step_lat = FALSE;
+    mepa_ts_ptp_clock_conf_t *ptpclock_conf;
 
     MEPA_ASSERT(latency == NULL);
-
-    base_phy = (phy_data_t *)base_dev->data;
     MEPA_ENTER(dev);
-    val = (MEPA_LABS(*latency) >> 16) & 0xFFFF;
-    switch (data->conf.speed) {
-    case MEPA_SPEED_10M:
-        if (*latency >= 0) {
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16) & 0xFFFF) + val;
-        } else {
-            if ((base_phy->ts_state.default_latencies.tx10mbps >> 16) <= val) {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                break;
-            }
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx10mbps >> 16) & 0xFFFF) - val;
-        }
-        EP_WRM(dev, INDY_PTP_TX_LATENCY_10, val, INDY_DEF_MASK);
-        data->ts_state.ts_port_conf.port_latencies.tx10mbps = *latency;
-        break;
-    case MEPA_SPEED_100M:
-        if (*latency >= 0) {
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16) & 0xFFFF) + val;
-        } else {
-            if ((base_phy->ts_state.default_latencies.tx100mbps >> 16) <= val) {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                break;
-            }
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx100mbps >> 16) & 0xFFFF) - val;
-        }
-        EP_WRM(dev, INDY_PTP_TX_LATENCY_100, val, INDY_DEF_MASK);
-        data->ts_state.ts_port_conf.port_latencies.tx100mbps = *latency;
-        break;
-    case MEPA_SPEED_1G:
-    case MEPA_SPEED_AUTO:
-        if (*latency >= 0) {
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16) & 0xFFFF) + val;
-        } else {
-            if ((base_phy->ts_state.default_latencies.tx1000mbps >> 16) <= val) {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *latency);
-                break;
-            }
-            val = (uint16_t)((base_phy->ts_state.default_latencies.tx1000mbps >> 16) & 0xFFFF) - val;
-        }
-        EP_WRM(dev, INDY_PTP_TX_LATENCY_1000, val, INDY_DEF_MASK);
-        data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *latency;
-        break;
-    default:
-        break;
+    ptpclock_conf = &data->ts_state.ts_port_conf.tx_clock_conf;
+    if (ptpclock_conf->enable && (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP ||
+                ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
+        two_step_lat = TRUE;
     }
+    rc = indy_ts_clock_egress_latency_set_priv(dev, latency, two_step_lat);
     MEPA_EXIT(dev);
+    return rc;
+}
+
+// Before enabling clock configuration every time, this function need to be called so that
+// any differences in latencies based on 1-step or 2-step clock are compensated on Tx side.
+// latencies are stored or configured in units of mepa_timeinterval_t which is obtained from
+// nanoseconds using (nanoseconds << 16). Additional details can be found in mepa/include/microchip/ethernet/phy/api/phy_ts.h.
+mepa_rc indy_ts_reload_egress_latency(mepa_device_t *dev, mepa_bool_t two_step)
+{
+    phy_data_t    *data      = (phy_data_t *)dev->data;
+    mepa_device_t *base_dev  = data->base_dev;
+    phy_data_t    *base_data = (phy_data_t *)base_dev->data;
+    mepa_timeinterval_t latency;
+    uint16_t val;
+
+    // 10m speed
+    latency = base_data->ts_state.default_latencies.tx10mbps;
+    if (two_step) {
+        latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M] << 16; //two_step adjustment
+    }
+    latency += data->ts_state.ts_port_conf.port_latencies.tx10mbps; // user configured latency.
+    val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
+    EP_WR(dev, INDY_PTP_TX_LATENCY_10, val);
+
+    // 100m speed
+    latency = base_data->ts_state.default_latencies.tx100mbps;
+    if (two_step) {
+        latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M] << 16; //two_step adjustment
+    }
+    latency += data->ts_state.ts_port_conf.port_latencies.tx100mbps; // user configured latency.
+    val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
+    EP_WR(dev, INDY_PTP_TX_LATENCY_100, val);
+
+    // 1000m speed
+    latency = base_data->ts_state.default_latencies.tx1000mbps;
+    if (two_step) {
+        latency -= indy_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G] << 16; //two_step adjustment
+    }
+    latency += data->ts_state.ts_port_conf.port_latencies.tx1000mbps; // user configured latency.
+    val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
+    EP_WR(dev, INDY_PTP_TX_LATENCY_1000, val);
 
     return MEPA_RC_OK;
 }
@@ -785,7 +863,6 @@ static mepa_rc indy_ts_clock_ingress_latency_set(mepa_device_t *dev, const mepa_
 
     return MEPA_RC_OK;
 }
-
 
 static mepa_rc indy_ts_rx_classifier_conf_get (mepa_device_t *dev, uint16_t flow_index, mepa_ts_classifier_t *const pkt_conf)
 {
@@ -1693,8 +1770,15 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     uint16_t ts_insert = 0, cf_update = 0, val = 0, tx_mod = 0, ts_config = 0, cf_config = 0;
     mepa_rc rc;
     phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_bool_t two_step_lat = FALSE;
 
     MEPA_ENTER(dev);
+    if (ptpclock_conf->enable && (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP ||
+                ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
+        two_step_lat = TRUE;
+    }
+    // Reload egress latencies based on clock type i.e. 1-step or 2-step
+    indy_ts_reload_egress_latency(dev, two_step_lat);
     rc = indy_ts_classifier_ptp_conf_priv(dev, TRUE, &ptpclock_conf->ptp_class_conf);
     if (rc != MEPA_RC_OK) {
         T_I(MEPA_TRACE_GRP_TS, "PTP tx classifier conf set error");
