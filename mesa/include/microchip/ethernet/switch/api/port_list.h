@@ -88,6 +88,13 @@ struct mesa_port_list_t {
         return *this;
     }
 
+    mesa_port_list_t &operator&=(const mesa_port_list_t &rhs) {
+        for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
+            _private[i] &= rhs._private[i];
+
+        return *this;
+    }
+
     mesa_port_list_ref operator[](size_t bit) {
         return static_cast<mesa_port_list_ref&&>(mesa_port_list_ref(this, bit));
     }
