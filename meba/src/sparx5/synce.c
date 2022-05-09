@@ -1461,8 +1461,8 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_11a_port_out_0,      indy_phy_mux_10a_reco_clk_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_11b_port_out_1,      indy_phy_mux_10b_reco_clk_in_1),
 
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_3),
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_56,         dpll_port_4),
 
 
@@ -1470,8 +1470,8 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
 
 static const meba_synce_terminal_attr_t attr_fireant_56_revc_w_zls30772_board[] = {
     //              device                 attr-type             attr-value
-    MESA_SYNCE_ATTR(dpll_port_0,           MEBA_ATTR_CLOCK_ID,   1),
-    MESA_SYNCE_ATTR(dpll_port_1,           MEBA_ATTR_CLOCK_ID,   2),
+    MESA_SYNCE_ATTR(dpll_port_2,           MEBA_ATTR_CLOCK_ID,   1),
+    MESA_SYNCE_ATTR(dpll_port_3,           MEBA_ATTR_CLOCK_ID,   2),
     MESA_SYNCE_ATTR(dpll_port_4,           MEBA_ATTR_CLOCK_ID,   3),
 
     MESA_SYNCE_ATTR(eth_port_0,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
