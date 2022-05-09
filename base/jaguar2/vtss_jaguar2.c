@@ -2046,7 +2046,9 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
     /*lint -esym(459, vtss_jr2_rd, vtss_jr2_wr) */
     u32 value, pending, j, i;
     u32 gpio_oe, gpio_oe1, gpio_out, gpio_out1, if_ctrl = 0, if_cfgstat = 0;
+#if defined(VTSS_ARCH_JAGUAR_2_C) || VTSS_OPT_TRACE
     u16 revision;
+#endif
 
     // Note; by design - all gazwrap init registers have the same field layout
     struct {
@@ -2118,7 +2120,9 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
 
     /* Read chip ID to check CPU interface */
     VTSS_RC(vtss_jr2_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
+#if defined(VTSS_ARCH_JAGUAR_2_C) || VTSS_OPT_TRACE
     revision = vtss_state->misc.chip_id.revision;
+#endif
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
            vtss_state->misc.chip_id.part_number, revision);
 #if !defined(VTSS_ARCH_SERVAL_T)

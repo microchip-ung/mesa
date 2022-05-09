@@ -659,6 +659,8 @@ vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 static void vtss_debug_print_misc(vtss_state_t *vtss_state,
@@ -761,6 +763,7 @@ void vtss_misc_debug_print(vtss_state_t *vtss_state,
     vtss_debug_print_ser_gpio(vtss_state, pr, info);
 #endif
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_misc_appdata_get(const vtss_inst_t inst,
                               void **data)

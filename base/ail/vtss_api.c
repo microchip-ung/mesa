@@ -934,6 +934,8 @@ vtss_rc vtss_restart_conf_set(const vtss_inst_t inst,
 }
 #endif /* VTSS_FEATURE_WARM_START */
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug information functions ------------------------------- */
 
 vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
@@ -961,6 +963,7 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t         inst,
 
     return rc;
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_debug_lock(const vtss_inst_t       inst,
                         const vtss_debug_lock_t *const lock)

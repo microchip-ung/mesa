@@ -1586,7 +1586,9 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t *vtss_state,
 static vtss_rc jr2_clm_entry_update(vtss_state_t *vtss_state,
                                     vtss_vcap_type_t type, vtss_vcap_idx_t *idx, vtss_is1_data_t *is1)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
+#endif
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     u32                    addr;
 
@@ -1610,7 +1612,9 @@ static vtss_rc jr2_clm_entry_update(vtss_state_t *vtss_state,
 static vtss_rc jr2_clm_entry_update_masq_hit_ena(vtss_state_t *vtss_state,
                                                  vtss_vcap_type_t type, vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, BOOL enable)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
+#endif
     vtss_is1_key_t         key;
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     u32                    addr;
@@ -2924,7 +2928,9 @@ static vtss_rc jr2_is2_entry_get(vtss_state_t *vtss_state,
 
 static vtss_rc jr2_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
+#endif
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     vtss_port_no_t         port_no;
     u32                    addr, port, member;
@@ -3511,7 +3517,9 @@ static vtss_rc jr2_es0_entry_get(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
 /* Update outer tag TPID for ES0 entry if VLAN port type has changed */
 static vtss_rc jr2_es0_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_es0_data_t *es0)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
+#endif
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     vtss_es0_action_t      *action = &es0->entry->action;
     jr2_es0_tag_t          tag;
@@ -4164,7 +4172,9 @@ vtss_rc vtss_jr2_vcap_port_qos_update(vtss_state_t *vtss_state, vtss_port_no_t p
 
 static vtss_rc jr2_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
+#endif
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     u32                    addr;
     vtss_vcap_obj_t        *obj = &vtss_state->vcap.es0.obj;
@@ -4200,7 +4210,9 @@ static vtss_rc jr2_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 e
 
 static vtss_rc jr2_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
+#if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
+#endif
     jr2_vcap_data_t        jr2_data, *data = &jr2_data;
     u32                    addr;
     vtss_vcap_obj_t        *obj = &vtss_state->vcap.es0.obj;

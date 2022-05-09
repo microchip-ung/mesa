@@ -298,6 +298,7 @@ static vtss_rc rleg_update(vtss_state_t              *vtss_state,
     return rc;
 }
 
+#if VTSS_OPT_TRACE
 static
 char * vtss_routing_entry_to_string(const vtss_routing_entry_t *const entry,
                                     char * buf,
@@ -341,7 +342,6 @@ char * vtss_routing_mc_entry_to_string(const vtss_routing_mc_entry_t *const entr
     return buf;
 }
 
-
 static
 char * vtss_neighbour_to_string(const vtss_l3_neighbour_t* const entry,
                                 char * buf,
@@ -378,6 +378,7 @@ char * vtss_neighbour_to_string(const vtss_l3_neighbour_t* const entry,
 END:
     return buf;
 }
+#endif
 
 static inline int ipv4_cmp(const vtss_ipv4_t a, const vtss_ipv4_t b)
 {
@@ -1948,7 +1949,9 @@ vtss_rc vtss_l3_route_add(const vtss_inst_t          inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_routing_entry_to_string(entry, buf, sizeof(buf)));
 
@@ -2019,7 +2022,9 @@ vtss_rc vtss_l3_route_del(const vtss_inst_t          inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_routing_entry_to_string(entry, buf, sizeof(buf)));
 
@@ -2045,7 +2050,9 @@ vtss_rc vtss_l3_neighbour_add(const vtss_inst_t         inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_neighbour_to_string(entry, buf, sizeof(buf)));
 
@@ -2063,7 +2070,9 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t         inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_neighbour_to_string(entry, buf, sizeof(buf)));
 
@@ -2081,7 +2090,9 @@ vtss_rc vtss_l3_mc_route_add(const vtss_inst_t              inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
 
@@ -2100,7 +2111,9 @@ vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t              inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
 
@@ -2119,7 +2132,9 @@ vtss_rc vtss_l3_mc_route_del(const vtss_inst_t              inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
 
@@ -2138,7 +2153,9 @@ vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t              inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("Add rleg:%d for group %s", dest_rleg,
       vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
@@ -2158,7 +2175,9 @@ vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t              inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+#if VTSS_OPT_TRACE
     char         buf[128];
+#endif
 
     I("Del rleg:%d for %s", dest_rleg,
       vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));

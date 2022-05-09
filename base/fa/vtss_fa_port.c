@@ -499,7 +499,9 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
     vtss_synce_clock_in_t      *conf;
     vtss_synce_clock_in_type_t port_type;
     vtss_port_conf_t           *port_conf;
+#if VTSS_OPT_TRACE
     i32                        chip_port = 0;
+#endif
     i32                        clk_src;
     BOOL                       ena;
     u32                        sd_indx, sd_type, clk_div, sd_ena, sd_lane_tgt;
@@ -2019,7 +2021,9 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
 static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t port)
 {
     u32  value, resource, prio, delay_cnt = 0;
+#if VTSS_OPT_TRACE
     char *failing_mem = "";
+#endif
     BOOL poll_src;
 
 #if defined(VTSS_FEATURE_AFI_SWC)
@@ -2050,7 +2054,9 @@ static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t 
             for (prio = 0; prio < VTSS_PRIOS; prio++) {
                 REG_RD(VTSS_QRES_RES_STAT(base + prio), &value);
                 if (value) {
+#if VTSS_OPT_TRACE
                     failing_mem = resource == 0 ? "DST-MEM" : "SRC-MEM";
+#endif
                     empty = FALSE;
 
                     // Here, it could be tempting to exit the loop, but because

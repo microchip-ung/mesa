@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 oc/op/j2/j48/st/ca1/ca2/fa/mi/ms/me [<test_server>] <test_script>"
+   echo "Usage: $0 oc/op/j2/j48/st/ca1/ca2/fa/mi/ms/me/ml [<test_server>] <test_script> [brief]"
    exit
 fi
 
@@ -81,6 +81,12 @@ case $chip in
      dir=build-arm
      ;;
 
+     ml)
+     ts=dk-t33-5
+     img=armv7_lan966x_lm.itb
+     dir=build-arm
+     ;;
+
      ms8)
      ts=dk-t33-5
      img=armv7_lan966x.itb
@@ -93,7 +99,15 @@ case $chip in
      ;;
 esac
 
-if [ $# == 2 ]; then
+cnt=$#
+suffix=""
+last=${!#}
+if [ $last == "brief" ]; then
+    suffix="--brief"
+    ((cnt--))
+fi
+
+if [ $cnt == 2 ]; then
   file=$2
 else
   ts=$2
@@ -125,7 +139,7 @@ et upload mesa/demo/$img
 cd -
 
 echo "----Run test----"
-./$file | libeasy/xml2console.rb
+./$file | libeasy/xml2console.rb $suffix
 if [ $rel == 1 ]; then
     et release
 fi

@@ -215,13 +215,19 @@ vtss_rc vtss_port_ifh_conf_set(const vtss_inst_t       inst,
                                const vtss_port_no_t    port_no,
                                const vtss_port_ifh_t  *const conf)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t   *vtss_state;
+    vtss_rc        rc;
+    vtss_port_no_t npi_port = VTSS_PORT_NO_NONE;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (port_no == vtss_state->packet.npi_conf.port_no) {
+#if defined(VTSS_FEATURE_PACKET)
+        if (vtss_state->packet.npi_conf.enable) {
+            npi_port = vtss_state->packet.npi_conf.port_no;
+        }
+#endif
+        if (port_no == npi_port) {
             rc = VTSS_RC_ERROR;
         } else {
             vtss_state->port.ifh_conf[port_no] = *conf;
@@ -1145,6 +1151,7 @@ vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
     return VTSS_PORT_NO_NONE;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t *vtss_state,
                                      const vtss_debug_info_t *const info, u32 chip_port)
 {
@@ -1159,6 +1166,7 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t *vtss_state,
     }
     return VTSS_PORT_NO_NONE;
 }
+#endif
 
 vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
 {
@@ -2089,6 +2097,8 @@ vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t               inst,
     return rc;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
@@ -2382,5 +2392,6 @@ void vtss_port_debug_print(vtss_state_t *vtss_state,
     vtss_port_debug_print_conf(vtss_state, pr, info);
     vtss_port_debug_print_counters(vtss_state, pr, info);
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 #endif /* VTSS_FEATURE_PORT_CONTROL */

@@ -409,7 +409,10 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
                              const u8             flags,
                              const void          *const map)
 {
-    u16     old_res, res, old_free, old_ix, new_ix;
+#if VTSS_OPT_TRACE
+    u16     old_free;
+#endif
+    u16     old_res, res, old_ix, new_ix;
     int     old_key   = 0;
     int     old_len   = 0;
     u8      old_flags = 0;
@@ -452,7 +455,9 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
         if (m->ix[res].entry == NULL) {
             continue; /* Resource not present */
         }
+#if VTSS_OPT_TRACE
         old_free = m->ix[res].free;
+#endif
         if ((new_ix = vtss_qos_map_new_ix(vtss_state, m, res, key)) != VTSS_QOS_MAP_ID_NONE) {
             /* If vtss_qos_map_compact() has been called by vtss_qos_map_new_ix() then old_ix could move. Read it again */
             old_ix = m->id.entry[id].ix;

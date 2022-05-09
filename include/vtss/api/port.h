@@ -126,24 +126,24 @@ typedef struct
 /** \brief Port proprietary counter structure */
 typedef struct
 {
-#if defined(VTSS_FEATURE_QOS)
+#if defined(VTSS_FEATURE_PORT_CONTROL)
     vtss_port_counter_t rx_prio[VTSS_PRIOS];        /**< Rx frames */
     vtss_port_counter_t tx_prio[VTSS_PRIOS];        /**< Tx frames */
-#endif /* VTSS_FEATURE_LAYER2 */
+#endif
 } vtss_port_proprietary_counters_t;
 
-#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
 /** \brief Port 802.3br counter structure */
 typedef struct
 {
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     vtss_port_counter_t aMACMergeFrameAssErrorCount; /**< Rx counter */
     vtss_port_counter_t aMACMergeFrameSmdErrorCount; /**< Rx counter */
     vtss_port_counter_t aMACMergeFrameAssOkCount;    /**< Rx counter */
     vtss_port_counter_t aMACMergeFragCountRx;        /**< Rx counter */
     vtss_port_counter_t aMACMergeFragCountTx;        /**< Tx counter */
     vtss_port_counter_t aMACMergeHoldCount;          /**< Tx counter */
-} vtss_port_dot3br_counters_t;
 #endif /* VTSS_FEATURE_QOS_FRAME_PREEMPTION */
+} vtss_port_dot3br_counters_t;
 
 /** \brief Port counter structure */
 typedef struct

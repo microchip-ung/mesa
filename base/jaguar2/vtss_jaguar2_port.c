@@ -1105,7 +1105,9 @@ static vtss_rc jr2_serdes_cfg(vtss_state_t *vtss_state, const vtss_port_no_t por
 static vtss_rc jr2_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t port)
 {
     u32  value, resource, prio, delay_cnt = 0;
+#if VTSS_OPT_TRACE
     char *failing_mem = "";
+#endif
     BOOL poll_src;
 
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_FEATURE_AFI_SWC)
@@ -1136,7 +1138,9 @@ static vtss_rc jr2_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t
             for (prio = 0; prio < VTSS_PRIOS; prio++) {
                 JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(base + prio), &value);
                 if (value) {
+#if VTSS_OPT_TRACE
                     failing_mem = resource == 0 ? "DST-MEM" : "SRC-MEM";
+#endif
                     empty = FALSE;
 
                     // Here, it could be tempting to exit the loop, but because

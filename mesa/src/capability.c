@@ -407,15 +407,21 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_HDR_SIZE:
+#if defined(VTSS_PACKET_HDR_SIZE_BYTES)
         c = VTSS_PACKET_HDR_SIZE_BYTES;
+#endif
         break;
 
     case MESA_CAP_PACKET_RX_IFH_SIZE:
+#if defined(VTSS_PACKET_RX_IFH_MAX)
         c = VTSS_PACKET_RX_IFH_MAX;
+#endif
         break;
 
     case MESA_CAP_PACKET_TX_IFH_SIZE:
+#if defined(VTSS_PACKET_TX_IFH_MAX)
         c = VTSS_PACKET_TX_IFH_MAX;
+#endif
         break;
 
     case MESA_CAP_PACKET_PORT_L2CP_REG:
@@ -768,7 +774,9 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_QOS_PORT_POLICER_CNT:
+#if defined(VTSS_PORT_POLICERS)
         c = VTSS_PORT_POLICERS;
+#endif
         break;
 
     case MESA_CAP_QOS_WRED_GROUP_CNT:

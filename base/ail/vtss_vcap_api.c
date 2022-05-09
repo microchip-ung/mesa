@@ -1609,6 +1609,7 @@ vtss_rc vtss_ace_status_get(const vtss_inst_t    inst,
     return rc;
 }
 #endif /* VTSS_ARCH_LUTON26 */
+#endif // VTSS_FEATURE_VCAP
 
 /* - Hierarchical ACLs --------------------------------------------- */
 
@@ -1634,6 +1635,7 @@ BOOL vtss_rleg_list_get(const vtss_rleg_list_t *l, vtss_l3_rleg_id_t rleg)
     return (i < VTSS_RLEG_LIST_ARRAY_SIZE && (l->_private[i] & m) ? 1 : 0);
 }
 
+#if defined(VTSS_FEATURE_VCAP)
 #if defined(VTSS_FEATURE_HACL)
 vtss_rc vtss_hace_init(const vtss_inst_t     inst,
                        const vtss_ace_type_t type,

@@ -9,7 +9,7 @@
 #include "vtss_lan966x_vcap_ag_api.h"
 #include "vtss_lan966x_vcap.h"
 
-#if defined(VTSS_ARCH_LAN966X) && !defined(VTSS_OPT_FPGA)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_VCAP) && !defined(VTSS_OPT_FPGA)
 
 /*******************************************************************************
  * VCAP ES0

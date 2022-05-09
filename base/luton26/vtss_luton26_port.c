@@ -136,6 +136,7 @@ static vtss_rc l26_port_clause_37_status_get(vtss_state_t *vtss_state,
  *  Serdes configuration
  * =================================================================*/
 
+#if VTSS_OPT_TRACE
 static const char *l26_serdes_mode_txt(vtss_serdes_mode_t mode)
 {
     return (mode == VTSS_SERDES_MODE_DISABLE ? "DISABLE" :
@@ -143,6 +144,7 @@ static const char *l26_serdes_mode_txt(vtss_serdes_mode_t mode)
             mode == VTSS_SERDES_MODE_QSGMII ? "QSGMII" :
             mode == VTSS_SERDES_MODE_SGMII ? "SGMII" : "?");
 }
+#endif
 
 /* Serdes1G: Read/write data */
 static vtss_rc l26_sd1g_read_write(vtss_state_t *vtss_state, u32 addr, BOOL write, u32 nsec)

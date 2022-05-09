@@ -422,6 +422,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     u32                 aggr_index[VTSS_PORT_ARRAY_SIZE], n;
     vtss_port_eps_t     *protect;
     vtss_chip_no_t      chip_no = vtss_state->chip_no;
+    vtss_port_no_t      npi_port = VTSS_PORT_NO_NONE;
 
     VTSS_N("enter");
 
@@ -480,6 +481,12 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     if (src_update && (rc = VTSS_FUNC(l2.learn_state_set, learn)) != VTSS_RC_OK)
         return rc;
 
+#if defined(VTSS_FEATURE_PACKET)
+    if (vtss_state->packet.npi_conf.enable) {
+        npi_port = vtss_state->packet.npi_conf.port_no;
+    }
+#endif
+
     /* Update source masks */
     for (i_port = VTSS_PORT_NO_START; src_update && i_port < port_count; i_port++) {
         /* Exclude all ports by default */
@@ -493,7 +500,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
         vtss_state->l2.learn[i_port] = learn[i_port];
 
         /* Special case - NPI port */
-        if (vtss_state->packet.npi_conf.enable && i_port == vtss_state->packet.npi_conf.port_no) {
+        if (i_port == npi_port) {
             // Allow all forwarding ports but myself
             VTSS_MEMCPY(member, tx_forward, sizeof(member));
             member[i_port] = FALSE;
@@ -602,8 +609,11 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
                 return rc;
 
             /* Update IS2 if first aggregation mask changed */
-            if (chg && (rc = vtss_vcap_is2_update(vtss_state)) != VTSS_RC_OK)
-                return rc;
+            if (chg) {
+#if defined(VTSS_FEATURE_VCAP)
+                VTSS_RC(vtss_vcap_is2_update(vtss_state));
+#endif
+            }
         }
 
         /* Update port map table on aggregation changes */
@@ -1369,7 +1379,6 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
         if (!vtss_state->l2.port_state[port_no] && state) {
             (void)VTSS_FUNC(ts.link_up, port_no);
         }
-    }
 #endif
 
         vtss_state->l2.port_state[port_no] = state;
@@ -1385,7 +1394,7 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
             (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
-
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1427,6 +1436,7 @@ vtss_rc vtss_stp_port_state_set(const vtss_inst_t       inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_L2_MSTP)
 vtss_rc vtss_mstp_vlan_msti_get(const vtss_inst_t  inst,
                                 const vtss_vid_t   vid,
                                 vtss_msti_t        *const msti)
@@ -1509,7 +1519,9 @@ vtss_rc vtss_mstp_port_msti_state_set(const vtss_inst_t       inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_L2_MSTP
 
+#if defined(VTSS_FEATURE_L2_ERPS)
 static vtss_rc vtss_erpi_check(const vtss_erpi_t erpi)
 {
     if (erpi >= VTSS_ERPI_END) {
@@ -1622,12 +1634,12 @@ static BOOL vtss_erps_port_update(vtss_state_t *vtss_state,
                 /* Change to forwarding state */
                 count--;
                 if (count == 0)
-                    vlan_entry->update = 1;
+                    vlan_entry->flags |= VLAN_FLAGS_UPDATE;
             } else {
                 /* Change to discarding state */
                 count++;
                 if (count == 1)
-                    vlan_entry->update = 1;
+                    vlan_entry->flags |= VLAN_FLAGS_UPDATE;
             }
             vlan_entry->erps_discard_cnt[port_no] = count;
         }
@@ -1657,6 +1669,7 @@ vtss_rc vtss_erps_port_state_set(const vtss_inst_t       inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_L2_ERPS
 
 /* - VLAN ---------------------------------------------------------- */
 
@@ -1752,11 +1765,11 @@ vtss_rc vtss_vlan_port_members_set(const vtss_inst_t  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        vlan_entry->enabled = 0;
+        vlan_entry->flags &= ~VLAN_FLAGS_ENABLED;
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             VTSS_PORT_BF_SET(vlan_entry->member, port_no, member[port_no]);
             if (member[port_no])
-                vlan_entry->enabled = 1;
+                vlan_entry->flags |= VLAN_FLAGS_ENABLED;
         }
         rc = VTSS_FUNC_COLD(l2.vlan_port_members_set, vid);
     }
@@ -1768,13 +1781,21 @@ vtss_rc vtss_vlan_vid_conf_get(const vtss_inst_t    inst,
                                const vtss_vid_t     vid,
                                vtss_vlan_vid_conf_t *const conf)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t      *vtss_state;
+    vtss_rc           rc;
+    vtss_vlan_entry_t *e;
 
     VTSS_RC(vtss_vid_check(vid));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        *conf = vtss_state->l2.vlan_table[vid].conf;
+        e = &vtss_state->l2.vlan_table[vid];
+        conf->learning = (e->flags & VLAN_FLAGS_LEARN ? 1 : 0);
+        conf->flooding = (e->flags & VLAN_FLAGS_FLOOD ? 1 : 0);
+        conf->mirror = (e->flags & VLAN_FLAGS_MIRROR ? 1 : 0);
+        conf->ingress_filter = (e->flags & VLAN_FLAGS_FILTER ? 1 : 0);
+#if defined(VTSS_FEATURE_VLAN_SVL)
+        conf->fid = e->fid;
+#endif /* VTSS_FEATURE_VLAN_SVL */
     }
     VTSS_EXIT();
     return rc;
@@ -1784,19 +1805,44 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t          inst,
                                const vtss_vid_t           vid,
                                const vtss_vlan_vid_conf_t *const conf)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t      *vtss_state;
+    vtss_rc           rc;
+    vtss_vlan_entry_t *e;
 
     VTSS_RC(vtss_vid_check(vid));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_state->l2.vlan_table[vid].conf = *conf;
+        e = &vtss_state->l2.vlan_table[vid];
+        if (conf->learning) {
+            e->flags |= VLAN_FLAGS_LEARN;
+        } else {
+            e->flags &= ~VLAN_FLAGS_LEARN;
+        }
+        if (conf->flooding) {
+            e->flags |= VLAN_FLAGS_FLOOD;
+        } else {
+            e->flags &= ~VLAN_FLAGS_FLOOD;
+        }
+        if (conf->mirror) {
+            e->flags |= VLAN_FLAGS_MIRROR;
+        } else {
+            e->flags &= ~VLAN_FLAGS_MIRROR;
+        }
+        if (conf->ingress_filter) {
+            e->flags |= VLAN_FLAGS_FILTER;
+        } else {
+            e->flags &= ~VLAN_FLAGS_FILTER;
+        }
+#if defined(VTSS_FEATURE_VLAN_SVL)
+        e->fid = conf->fid;
+#endif /* VTSS_FEATURE_VLAN_SVL */
         rc = vtss_cmn_vlan_members_set(vtss_state, vid);
     }
     VTSS_EXIT();
     return rc;
 }
 
+#if defined(VTSS_FEATURE_VCAP)
 vtss_rc vtss_vlan_tx_tag_get(const vtss_inst_t  inst,
                              const vtss_vid_t   vid,
                              vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE])
@@ -1833,6 +1879,7 @@ vtss_rc vtss_vlan_tx_tag_set(const vtss_inst_t        inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_VCAP
 
 /* - Port Isolation------------------------------------------------- */
 
@@ -1840,13 +1887,16 @@ vtss_rc vtss_isolated_vlan_get(const vtss_inst_t  inst,
                                const vtss_vid_t   vid,
                                BOOL               *const isolated)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t      *vtss_state;
+    vtss_rc           rc;
+    vtss_vlan_entry_t *e;
 
     VTSS_RC(vtss_vid_check(vid));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        *isolated = vtss_state->l2.vlan_table[vid].isolated;
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        e = &vtss_state->l2.vlan_table[vid];
+        *isolated = (e->flags & VLAN_FLAGS_ISOLATED ? 1 : 0);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1855,13 +1905,19 @@ vtss_rc vtss_isolated_vlan_set(const vtss_inst_t  inst,
                                const vtss_vid_t   vid,
                                const BOOL         isolated)
 {
-    vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_state_t      *vtss_state;
+    vtss_rc           rc;
+    vtss_vlan_entry_t *e;
 
     VTSS_RC(vtss_vid_check(vid));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_state->l2.vlan_table[vid].isolated = isolated;
+        e = &vtss_state->l2.vlan_table[vid];
+        if (isolated) {
+            e->flags |= VLAN_FLAGS_ISOLATED;
+        } else {
+            e->flags &= ~VLAN_FLAGS_ISOLATED;
+        }
         rc = VTSS_FUNC_COLD(l2.isolated_vlan_set, vid);
     }
     VTSS_EXIT();
@@ -2641,6 +2697,7 @@ vtss_rc vtss_ipv6_mc_ctrl_flood_set(const vtss_inst_t  inst,
     return rc;
 }
 
+#if defined(VTSS_FEATURE_VCAP)
 vtss_rc vtss_vcl_port_conf_get(const vtss_inst_t    inst,
                                const vtss_port_no_t port_no,
                                vtss_vcl_port_conf_t *const conf)
@@ -2746,6 +2803,7 @@ vtss_rc vtss_vce_del(const vtss_inst_t    inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_VCAP
 
 #if defined(VTSS_FEATURE_PSFP)
 static vtss_rc vtss_psfp_gate_id_check(const vtss_psfp_gate_id_t id)
@@ -3111,7 +3169,9 @@ static vtss_rc vtss_xrow_free(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr,
 
 static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr, u8 count, u16 *idx)
 {
+#if VTSS_OPT_TRACE
     const              char *txt;
+#endif
     vtss_xrow_entry_t  *row, *row_free;
     vtss_xcol_entry_t  *col;
     u16                row_idx, row_max = (hdr->max_count / 8), row_new = row_max;
@@ -3145,7 +3205,9 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
                 hdr->count -= count;
                 hdr->count_size[count] -= count;
                 row->count -= count;
+#if VTSS_OPT_TRACE
                 txt = "reallocate";
+#endif
                 clear = FALSE;
                 goto alloc_ok;
             }
@@ -3169,8 +3231,10 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
                 if (row->col[col_idx].used) {
                     /* Skip used column */
                 } else if (size == count) {
+#if VTSS_OPT_TRACE
                     txt = "new column";
-                    goto alloc_ok;
+#endif
+                            goto alloc_ok;
                 } else {
                     pi->free_count += size;
                 }
@@ -3185,7 +3249,9 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
     if (row_new < row_max) {
         row_idx = row_new;
         col_idx = 0;
+#if VTSS_OPT_TRACE
         txt = "new row";
+#endif
         goto alloc_ok;
     }
 
@@ -3234,7 +3300,9 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
                 }
             }
         }
+#if VTSS_OPT_TRACE
         txt = "freed row";
+#endif
         row_free->count = 0;
         row_idx = pi->row_idx;
         col_idx = 0;
@@ -4157,6 +4225,8 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
 }
 #endif /* VTSS_FEATURE_XFLOW */
 
+#if defined(VTSS_FEATURE_VCAP)
+
 /* - Tag Control List ---------------------------------------------- */
 
 vtss_rc vtss_tce_init(const vtss_inst_t inst,
@@ -4465,6 +4535,7 @@ vtss_rc vtss_tce_del(const vtss_inst_t   inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_VCAP
 
 #if defined(VTSS_FEATURE_XSTAT)
 
@@ -4695,6 +4766,8 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t       inst,
 }
 #endif /* VTSS_FEATURE_XFLOW */
 
+#if defined(VTSS_FEATURE_VCAP)
+
 /* - VLAN translation ---------------------------------------------- */
 
 static const char *vtss_vlan_trans_dir_txt(const vtss_vlan_trans_dir_t dir)
@@ -4852,6 +4925,7 @@ vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t           inst,
     return rc;
 }
 #endif
+#endif // VTSS_FEATURE_VCAP
 
 /* VLAN counters */
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -5057,12 +5131,14 @@ vtss_rc vtss_l2_restart_sync(vtss_state_t *vtss_state)
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_FUNC_RC(l2.learn_port_mode_set, port_no);
         VTSS_FUNC_RC(l2.vlan_port_conf_set, port_no);
+#if defined(VTSS_FEATURE_VCAP)
 #if defined(VTSS_ARCH_OCELOT)
         vtss_state->vcap.port_conf_old = vtss_state->vcap.port_conf[port_no];
         VTSS_FUNC_RC(l2.vcap_port_conf_set, port_no);
 #endif /* VTSS_ARCH_OCELOT */
         vtss_state->l2.vcl_port_conf_old = vtss_state->l2.vcl_port_conf[port_no];
         VTSS_FUNC_RC(l2.vcl_port_conf_set, port_no);
+#endif // VTSS_FEATURE_VCAP
     }
 
     VTSS_FUNC_RC_0(l2.isolated_port_members_set);
@@ -5089,7 +5165,6 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
     vtss_vlan_port_conf_t *vlan;
     vtss_vid_t            vid;
     vtss_vlan_entry_t     *vlan_entry;
-    vtss_mstp_entry_t     *mstp_entry;
     u32                   i;
 
     vtss_state->l2.vlan_conf.s_etype = VTSS_ETYPE_TAG_S; /* Default S-tag Ethernet type */
@@ -5123,25 +5198,32 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
     /* Initialize VLAN table */
     for (vid = 0; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
+#if defined(VTSS_FEATURE_L2_MSTP)
         vlan_entry->msti = VTSS_MSTI_START;
+#endif
         if (vid != VTSS_VID_NULL) {
-            vlan_entry->conf.learning = 1;
-            vlan_entry->conf.flooding = 1;
+            vlan_entry->flags = (VLAN_FLAGS_LEARN | VLAN_FLAGS_FLOOD);
         }
 #if defined(VTSS_FEATURE_VLAN_SVL)
-        vlan_entry->conf.fid = vid;
+        vlan_entry->fid = vid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
         if (vid != VTSS_VID_DEFAULT)
             continue;
-        vlan_entry->enabled = 1;
+        vlan_entry->flags |= VLAN_FLAGS_ENABLED;
         for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
             VTSS_PORT_BF_SET(vlan_entry->member, port_no, 1);
     }
 
+#if defined(VTSS_FEATURE_L2_MSTP)
+    {
     /* All ports are forwarding in first MSTP instance */
-    mstp_entry = &vtss_state->l2.mstp_table[VTSS_MSTI_START];
-    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
-        mstp_entry->state[port_no] = VTSS_STP_STATE_FORWARDING;
+        vtss_mstp_entry_t  *mstp_entry;
+
+        mstp_entry = &vtss_state->l2.mstp_table[VTSS_MSTI_START];
+        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
+            mstp_entry->state[port_no] = VTSS_STP_STATE_FORWARDING;
+    }
+#endif
 
     vtss_state->l2.aggr_mode.smac_enable = 1;
 
@@ -5156,6 +5238,7 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
     }
     vtss_state->l2.mac_age_time = 300;
 
+#if defined(VTSS_FEATURE_VCAP)
     {
         vtss_vlan_trans_grp2vlan_entry_t *grp_entry;
         vtss_vlan_trans_grp2vlan_t       *grp_conf;
@@ -5181,6 +5264,7 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
             port_conf->free = port_entry;
         }
     }
+#endif // VTSS_FEATURE_VCAP
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
     {
         vtss_ipmc_info_t *ipmc = &vtss_state->l2.ipmc;
@@ -5256,18 +5340,23 @@ vtss_rc vtss_cmn_vlan_members_get(vtss_state_t *state,
                                   BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t    port_no, port_p, mirror_port;
-    vtss_vlan_entry_t *vlan_entry;
-    vtss_mstp_entry_t *mstp_entry;
+    vtss_vlan_entry_t *vlan_entry = &state->l2.vlan_table[vid];
+#if defined(VTSS_FEATURE_L2_MSTP)
+    vtss_mstp_entry_t *mstp_entry = &state->l2.mstp_table[vlan_entry->msti];
+#endif
     vtss_port_eps_t   *protect;
+    vtss_port_no_t    npi_port = VTSS_PORT_NO_NONE;
 
     VTSS_N("update %d", vid);
 
-    /* Lookup VLAN, MSTP and ERPS entries */
-    vlan_entry = &state->l2.vlan_table[vid];
-    mstp_entry = &state->l2.mstp_table[vlan_entry->msti];
-
     /* Mirror port and forwarding mode */
     mirror_port = (state->l2.mirror_conf.fwd_enable ? VTSS_PORT_NO_NONE : state->l2.mirror_conf.port_no);
+
+#if defined(VTSS_FEATURE_PACKET)
+    if (state->packet.npi_conf.enable) {
+        npi_port = state->packet.npi_conf.port_no;
+    }
+#endif
 
     /* Determine VLAN port members */
     for (port_no = VTSS_PORT_NO_START; port_no < state->port_count; port_no++) {
@@ -5275,11 +5364,15 @@ vtss_rc vtss_cmn_vlan_members_get(vtss_state_t *state,
             /* Include VLAN member port */
             VTSS_PORT_BF_GET(vlan_entry->member, port_no) &&
             /* Exclude MSTP/ERPS discarding port */
+#if defined(VTSS_FEATURE_L2_MSTP)
             mstp_entry->state[port_no] == VTSS_STP_STATE_FORWARDING &&
-            port_no != mirror_port &&
-            vlan_entry->erps_discard_cnt[port_no] == 0);
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
+            vlan_entry->erps_discard_cnt[port_no] == 0 &&
+#endif
+            port_no != mirror_port);
         /* Exclude NPI port */
-        if (state->packet.npi_conf.enable && port_no == state->packet.npi_conf.port_no) {
+        if (port_no == npi_port) {
             member[port_no] = 0;
         }
     }
@@ -5337,14 +5430,19 @@ vtss_rc vtss_cmn_vlan_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
 {
     vtss_rc               rc;
     vtss_vlan_port_conf_t conf;
+#if defined(VTSS_FEATURE_PACKET)
     vtss_npi_conf_t       *npi_conf;
+#endif
+#if defined(VTSS_FEATURE_ES0)
     u16                   flags = 0;
+#endif
 
     if (vtss_state->l2.vlan_port_conf_update == NULL)
         return VTSS_RC_ERROR;
 
     conf = vtss_state->l2.vlan_port_conf[port_no];
 
+#if defined(VTSS_FEATURE_PACKET)
     npi_conf = &vtss_state->packet.npi_conf;
     if (npi_conf->enable && npi_conf->port_no == port_no) {
         /* Setup NPI port as C-aware */
@@ -5355,6 +5453,7 @@ vtss_rc vtss_cmn_vlan_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
         // CPU as source port).
         conf.ingress_filter = FALSE;
     }
+#endif
 
     rc = vtss_state->l2.vlan_port_conf_update(vtss_state, port_no, &conf);
 
@@ -5377,6 +5476,7 @@ vtss_rc vtss_cmn_vlan_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     return rc;
 }
 
+#if defined(VTSS_FEATURE_ES0)
 static void vtss_cmn_es0_data_set(vtss_state_t *vtss_state,
                                   vtss_port_no_t port_no, vtss_vid_t vid, vtss_vid_t new_vid,
                                   BOOL tag_enable,
@@ -5489,10 +5589,11 @@ vtss_rc vtss_cmn_vlan_tx_tag_set(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_ES0
 
 static BOOL vtss_cmn_vlan_enabled(vtss_vlan_entry_t *vlan_entry)
 {
-    return (vlan_entry->enabled);
+    return (vlan_entry->flags & VLAN_FLAGS_ENABLED ? 1 : 0);
 }
 
 /* Update all VLANs */
@@ -5505,6 +5606,7 @@ vtss_rc vtss_cmn_vlan_update_all(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_L2_MSTP)
 vtss_rc vtss_cmn_mstp_state_set(vtss_state_t *vtss_state,
                                 const vtss_port_no_t   port_no,
                                 const vtss_msti_t      msti)
@@ -5521,7 +5623,9 @@ vtss_rc vtss_cmn_mstp_state_set(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif
 
+#if defined(VTSS_FEATURE_L2_ERPS)
 vtss_rc vtss_cmn_erps_vlan_member_set(vtss_state_t *vtss_state,
                                       const vtss_erpi_t erpi,
                                       const vtss_vid_t  vid)
@@ -5539,8 +5643,8 @@ vtss_rc vtss_cmn_erps_port_state_set(vtss_state_t *vtss_state,
     /* Update all VLANs changed by ERPS */
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        if (vlan_entry->update) {
-            vlan_entry->update = 0;
+        if (vlan_entry->flags & VLAN_FLAGS_UPDATE) {
+            vlan_entry->flags &= ~VLAN_FLAGS_UPDATE;
             if (vtss_cmn_vlan_enabled(vlan_entry))
                 VTSS_RC(vtss_cmn_vlan_members_set(vtss_state, vid));
         }
@@ -5548,6 +5652,7 @@ vtss_rc vtss_cmn_erps_port_state_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 
 }
+#endif // VTSS_FEATURE_L2_ERPS
 
 vtss_rc vtss_cmn_eps_port_set(vtss_state_t *vtss_state,
                               const vtss_port_no_t port_w)
@@ -5904,6 +6009,7 @@ vtss_rc vtss_cmn_ipv6_mc_del(vtss_state_t      *vtss_state,
 }
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
+#if defined(VTSS_FEATURE_VCAP)
 #if defined(VTSS_ARCH_OCELOT)
 vtss_vcap_key_type_t vtss_vcl_key_type_get(vtss_vcap_key_type_t key_type_a, vtss_vcap_key_type_t key_type_b)
 {
@@ -6166,7 +6272,9 @@ vtss_rc vtss_cmn_vce_del(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id)
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_VCAP
 
+#if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_XFLOW)
 static void vtss_debug_print_w6(const vtss_debug_printf_t pr, BOOL enable, u32 val)
 {
@@ -6759,6 +6867,7 @@ static void vtss_debug_print_rcl(vtss_state_t *vtss_state,
 }
 #endif
 
+#if defined(VTSS_FEATURE_VCAP)
 static void vtss_debug_print_vcl(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info)
@@ -6850,7 +6959,10 @@ static void vtss_debug_print_vlan_trans(vtss_state_t *vtss_state,
     vtss_debug_print_rcl(vtss_state, pr, info);
 #endif
 }
+#endif // VTSS_FEATURE_VCAP
+#endif // VTSS_OPT_DEBUG_PRINT
 
+#if defined(VTSS_FEATURE_VCAP)
 /* VTE(VLAN Translation Entry) ID */
 static vtss_vcap_id_t vtss_vt_is1_vte_id_get(const vtss_vlan_trans_grp2vlan_conf_t *conf)
 {
@@ -7660,6 +7772,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_get(vtss_state_t *vtss_state,
     }
     return VTSS_RC_ERROR;
 }
+#endif // VTSS_FEATURE_VCAP
 
 /* - SDX, counters, policers --------------------------------------- */
 #if defined(VTSS_SDX_CNT)
@@ -7867,6 +7980,8 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 }
 #endif /* VTSS_FEATURE_RCL */
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -7895,7 +8010,11 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
     BOOL                  header = 1;
     vtss_port_no_t        port_no;
     vtss_vlan_port_conf_t *conf;
+#if defined(VTSS_FEATURE_L2_ERPS)
     u8                    erps_discard[VTSS_PORT_BF_SIZE];
+#endif
+    u32                   msti = 0;
+    BOOL                  mgmt = 0;
 
     pr("S-tag Etype: 0x%04x\n\n", vtss_state->l2.vlan_conf.s_etype);
 
@@ -7932,7 +8051,7 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         entry = &vtss_state->l2.vlan_table[vid];
-        if (!entry->enabled && !info->full)
+        if (!(entry->flags & VLAN_FLAGS_ENABLED) && !info->full)
             continue;
         if (header) {
             pr("VID   ");
@@ -7944,16 +8063,31 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
         }
         pr("%-6u", vid);
 #if defined(VTSS_FEATURE_VLAN_SVL)
-        pr("%-6u", entry->conf.fid);
+        pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_ARCH_JAGUAR_2)
+        mgmt = entry->mgmt;
         if ((entry->vsi_enable) && (entry->vsi != NULL)) {
             pr("%-6u", entry->vsi->vsi);
-        } else {
+        } else
+#endif
+        {
             pr("%-6s", "-");
         }
-        pr("%-6u%-6u%-5u%-5u%-5u%-5u%-5u", entry->mgmt, entry->msti, entry->conf.learning, entry->conf.flooding, entry->conf.mirror, entry->conf.ingress_filter, entry->isolated);
+#if defined(VTSS_FEATURE_L2_MSTP)
+        msti = entry->msti;
+#endif
+        pr("%-6u%-6u%-5u%-5u%-5u%-5u%-5u",
+           mgmt,
+           msti,
+           entry->flags & VLAN_FLAGS_LEARN ? 1 : 0,
+           entry->flags & VLAN_FLAGS_FLOOD ? 1 : 0,
+           entry->flags & VLAN_FLAGS_MIRROR ? 1 : 0,
+           entry->flags & VLAN_FLAGS_FILTER ? 1 : 0,
+           entry->flags & VLAN_FLAGS_ISOLATED ? 1 : 0);
         vtss_debug_print_ports(vtss_state, pr, entry->member, 0);
         pr(" <- VLAN Members\n");
+#if defined(VTSS_FEATURE_L2_ERPS)
         pr("%-49s", "");
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6s", "");
@@ -7966,16 +8100,7 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
         }
         vtss_debug_print_ports(vtss_state, pr, erps_discard, 0);
         pr(" <- ERPS Discard\n");
-
-#if defined(VTSS_FEATURE_HW_PROT)
-        pr("%-39s", "");
-#if defined(VTSS_FEATURE_VLAN_SVL)
-        pr("%-6s", "");
-#endif /* VTSS_FEATURE_VLAN_SVL */
-        vtss_debug_print_ports(vtss_state, pr, entry->hw_prot_disable, 0);
-        pr(" <- HWPG Discard\n");
-
-#endif /* VTSS_FEATURE_HW_PROT */
+#endif // VTSS_FEATURE_L2_ERPS
 
         /* Leave critical region briefly */
         VTSS_EXIT_ENTER();
@@ -7987,7 +8112,7 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
         vtss_vlan_counters_t counters;
 
         entry = &vtss_state->l2.vlan_table[vid];
-        if ((!entry->enabled && !info->full) || VTSS_FUNC(l2.vlan_counters_get, vid, &counters) != VTSS_RC_OK)
+        if ((!(entry->flags & VLAN_FLAGS_ENABLED) && !info->full) || VTSS_FUNC(l2.vlan_counters_get, vid, &counters) != VTSS_RC_OK)
             continue;
         pr("VLAN ID %u Counters:\n\n", vid);
         vtss_debug_vlan_cnt(pr, "Unicast", &counters.rx_vlan_unicast);
@@ -8234,19 +8359,23 @@ static void vtss_debug_print_stp(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info)
 {
-    vtss_msti_t msti;
-
     vtss_debug_print_port_header(vtss_state, pr, "STP   ", 0, 1);
     pr("      ");
     vtss_debug_print_stp_state(vtss_state, pr, vtss_state->l2.stp_state);
     pr("\n");
 
-    vtss_debug_print_port_header(vtss_state, pr, "MSTI  ", 0, 1);
-    for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
-        pr("%-4u  ", msti);
-        vtss_debug_print_stp_state(vtss_state, pr, vtss_state->l2.mstp_table[msti].state);
+#if defined(VTSS_FEATURE_L2_MSTP)
+    {
+        vtss_msti_t msti;
+
+        vtss_debug_print_port_header(vtss_state, pr, "MSTI  ", 0, 1);
+        for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
+            pr("%-4u  ", msti);
+            vtss_debug_print_stp_state(vtss_state, pr, vtss_state->l2.mstp_table[msti].state);
+        }
+        pr("\n");
     }
-    pr("\n");
+#endif
 }
 
 static void vtss_debug_print_port_none(const vtss_debug_printf_t pr,
@@ -8293,6 +8422,7 @@ static void vtss_debug_print_mirror(vtss_state_t *vtss_state,
     pr("\n");
 }
 
+#if defined(VTSS_FEATURE_L2_ERPS)
 static void vtss_debug_print_erps(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info)
@@ -8319,6 +8449,7 @@ static void vtss_debug_print_erps(vtss_state_t *vtss_state,
     }
     pr("\n");
 }
+#endif // VTSS_FEATURE_L2_ERPS
 
 static void vtss_debug_print_eps(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
@@ -8450,15 +8581,20 @@ void vtss_l2_debug_print(vtss_state_t *vtss_state,
         vtss_debug_print_stp(vtss_state, pr, info);
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MIRROR))
         vtss_debug_print_mirror(vtss_state, pr, info);
+#if defined(VTSS_FEATURE_L2_ERPS)
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_ERPS))
         vtss_debug_print_erps(vtss_state, pr, info);
+#endif
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EPS))
         vtss_debug_print_eps(vtss_state, pr, info);
+#if defined(VTSS_FEATURE_VCAP)
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VXLAT))
         vtss_debug_print_vlan_trans(vtss_state, pr, info);
+#endif
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
     vtss_debug_print_ipmc(vtss_state, pr, info);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 #endif /* VTSS_FEATURE_LAYER2 */

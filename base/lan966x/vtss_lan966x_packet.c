@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PACKET
 #include "vtss_lan966x_cil.h"
 
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_PACKET)
 
 /* ================================================================= *
  *  NPI
@@ -68,6 +68,7 @@ static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
                                            u32            frame_ns,
                                            u64            *ts_cnt)
 {
+#if defined(VTSS_FEATURE_TIMESTAMP)
     vtss_timestamp_t ts;
     u64              tc;
     u32              tod_ns, diff;
@@ -91,7 +92,7 @@ static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
     diff = tod_ns - frame_ns;               /* Calculate the difference between FRAME and TOD 30 bit wrapping nano second counter */
     *ts_cnt = tc - (u64)((u64)diff << 16);  /* Difference in 16 bit nano second fragments */
     VTSS_I("frame_ns %u  tod_ns %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64 "", frame_ns, tod_ns, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -276,6 +277,7 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
     return 0;
 }
 
+#if defined(VTSS_FEATURE_VOP)
 static u32 seq_num_oam_calc(vtss_packet_oam_type_t oam_type, u32 chip_port)
 {
     switch (oam_type) {
@@ -289,6 +291,7 @@ static u32 seq_num_oam_calc(vtss_packet_oam_type_t oam_type, u32 chip_port)
     }
     return 0;
 }
+#endif
 
 static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      const vtss_packet_tx_info_t *const info,
@@ -296,8 +299,11 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      u32                   *const ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, seq_num_chip_port = 0, etype_ofs;
-    const vtss_vlan_tag_t *tag = &info->tag;
+    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, etype_ofs;
+#if defined(VTSS_FEATURE_VOP)
+    u32            seq_num_chip_port = 0;
+#endif
+        const vtss_vlan_tag_t *tag = &info->tag;
 
     if (ifh == NULL) {
         *ifh_len = LAN966X_IFH_SIZE;
@@ -341,7 +347,9 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         }
         for (port_no = 0; port_no < state->port_count; port_no++) {
             if (dst_mask & (1 << port_no)) {
+#if defined(VTSS_FEATURE_VOP)
                 seq_num_chip_port = VTSS_CHIP_PORT_FROM_STATE(state, port_no);
+#endif
                 mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, port_no));
             }
         }
@@ -387,6 +395,7 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         }
         IFH_SET(ifh, ETYPE_OFS, etype_ofs);
 
+#if defined(VTSS_FEATURE_VOP)
         if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             IFH_SET(ifh, REW_OAM, 1);
             IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
@@ -407,11 +416,14 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                 IFH_SET(ifh, SEQ_NUM, ((VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + VTSS_VOE_CNT) + info->sequence_idx);
             }
         }
+#endif
 
+#if defined(VTSS_AFI_V2)
         // AFI
         if (info->afi_id != VTSS_AFI_ID_NONE) {
             IFH_SET(ifh, AFI, 1);
         }
+#endif
 
         // DP and priority
         IFH_SET(ifh, DP, info->dp);
@@ -799,6 +811,8 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
     return lan966x_npi_mask_set(vtss_state);
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_pkt(vtss_state_t *vtss_state,
@@ -842,6 +856,7 @@ vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, lan966x_debug_pkt, vtss_state, pr, info);
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

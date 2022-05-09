@@ -625,7 +625,9 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t *vtss_state,
 static vtss_rc fa_vcap_entry_del(vtss_state_t *vtss_state, vtss_vcap_type_t type, vtss_vcap_idx_t *idx)
 {
     fa_vcap_type_t             bank = fa_vcap_type(type);
+#if VTSS_OPT_TRACE
     const fa_vcap_type_props_t *props = &fa_vcap_type_info[bank];
+#endif
     u32                        addr = fa_vcap_entry_addr(vtss_state, type, idx);
     u32                        size = fa_vcap_tg_count(fa_vcap_key_type(type, idx->key_size));
     vtss_fa_vcap_reg_info_t    info;
@@ -670,8 +672,10 @@ static vtss_rc fa_vcap_entry_move(vtss_state_t *vtss_state,
 static vtss_rc fa_vcap_entry_get(vtss_state_t *vtss_state,
                                  vtss_vcap_type_t type, vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
 {
+#if VTSS_OPT_TRACE
     fa_vcap_type_t             bank = fa_vcap_type(type);
     const fa_vcap_type_props_t *props = &fa_vcap_type_info[bank];
+#endif
     u32                        addr;
     fa_vcap_data_t             data;
 
@@ -3017,7 +3021,9 @@ static vtss_rc fa_is2_b_entry_get(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx
 
 static vtss_rc fa_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
 {
+#if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_SUPER];
+#endif
     fa_vcap_data_t        fa_data, *data = &fa_data;
     vtss_port_no_t        port_no;
     u32                   addr, port, member;
@@ -4650,7 +4656,9 @@ static vtss_rc fa_es0_entry_get(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
 /* Update outer tag TPID for ES0 entry if VLAN port type has changed */
 static vtss_rc fa_es0_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_es0_data_t *es0)
 {
+#if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
+#endif
     fa_vcap_data_t        fa_data, *data = &fa_data;
     vtss_es0_action_t     *action = &es0->entry->action;
     fa_es0_tag_t          tag;
@@ -4916,7 +4924,9 @@ vtss_rc vtss_fa_debug_es0(vtss_state_t *vtss_state,
 
 static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
 {
+#if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
+#endif
     fa_vcap_data_t        fa_data, *data = &fa_data;
     u32                   addr;
     vtss_vcap_obj_t       *obj = &vtss_state->vcap.es0.obj;
@@ -4952,7 +4962,9 @@ static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 es
 
 static vtss_rc fa_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
+#if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
+#endif
     fa_vcap_data_t        fa_data, *data = &fa_data;
     u32                   addr;
     vtss_vcap_obj_t       *obj = &vtss_state->vcap.es0.obj;

@@ -25,6 +25,7 @@ mesa_rc mesa_conv_mesa_port_list_t_to_uint8_t(const mesa_port_list_t *in, mesa_b
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_VCAP)
 #define VTSS_BF_GET(a, n)    ((a[(n)/8] & (1<<((n)%8))) ? 1 : 0)
 #define VTSS_BF_SET(a, n, v) do { if (v) { a[(n)/8] |= (1U<<((n)%8)); } else { a[(n)/8] &= ~(1U<<((n)%8)); }} while (0)
 
@@ -101,12 +102,14 @@ mesa_rc mesa_conv2_mesa_vce_key_t_to_vtss_vce_key_t(const mesa_vce_key_t *in, vt
     }
     return VTSS_RC_OK;
 }
+#endif
 
 mesa_rc mesa_vlan_tx_tag_get(const mesa_inst_t  inst,
                              const mesa_vid_t   vid,
                              const uint32_t     cnt,
                              mesa_vlan_tx_tag_t *const tx_tag)
 {
+#if defined(VTSS_FEATURE_VCAP)
     mesa_rc            rc;
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
@@ -120,6 +123,9 @@ mesa_rc mesa_vlan_tx_tag_get(const mesa_inst_t  inst,
         }
     }
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
@@ -127,6 +133,7 @@ mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
                              const uint32_t           cnt,
                              const mesa_vlan_tx_tag_t *const tx_tag)
 {
+#if defined(VTSS_FEATURE_VCAP)
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
 
@@ -137,24 +144,35 @@ mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
         mesa_conv_mesa_vlan_tx_tag_t_to_vtss_vlan_tx_tag_t(&tx_tag[port_no], &tag[port_no]);
     }
     return vtss_vlan_tx_tag_set((const vtss_inst_t)inst, vid, tag);
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_vlan_trans_group_add(const mesa_inst_t                     inst,
                                   const mesa_vlan_trans_grp2vlan_conf_t *const conf)
 {
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vlan_trans_grp2vlan_conf_t vtss_conf;
 
     mesa_conv_mesa_vlan_trans_grp2vlan_conf_t_to_vtss_vlan_trans_grp2vlan_conf_t(conf, &vtss_conf);
     return vtss_vlan_trans_group_conf_add((const vtss_inst_t)inst, &vtss_conf);
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_vlan_trans_group_del(const mesa_inst_t                     inst,
                                   const mesa_vlan_trans_grp2vlan_conf_t *const conf)
 {
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vlan_trans_grp2vlan_conf_t vtss_conf;
 
     mesa_conv_mesa_vlan_trans_grp2vlan_conf_t_to_vtss_vlan_trans_grp2vlan_conf_t(conf, &vtss_conf);
     return vtss_vlan_trans_group_conf_del((const vtss_inst_t)inst, &vtss_conf);
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 static mesa_rc mesa_vtr_grp_get(const mesa_inst_t                     inst,
@@ -162,6 +180,7 @@ static mesa_rc mesa_vtr_grp_get(const mesa_inst_t                     inst,
                                 mesa_vlan_trans_grp2vlan_conf_t       *conf,
                                 BOOL next)
 {
+#if defined(VTSS_FEATURE_VCAP)
     mesa_rc                         rc;
     vtss_vlan_trans_grp2vlan_conf_t vtss_conf;
 
@@ -170,6 +189,9 @@ static mesa_rc mesa_vtr_grp_get(const mesa_inst_t                     inst,
         mesa_conv_vtss_vlan_trans_grp2vlan_conf_t_to_mesa_vlan_trans_grp2vlan_conf_t(&vtss_conf, conf);
     }
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_vlan_trans_group_get(const mesa_inst_t                     inst,
@@ -191,6 +213,7 @@ static mesa_rc mesa_vtr_grp_to_port_get(const mesa_inst_t               inst,
                                         mesa_vlan_trans_port2grp_conf_t *conf,
                                         BOOL                            next)
 {
+#if defined(VTSS_FEATURE_VCAP)
     mesa_rc                         rc;
     vtss_vlan_trans_port2grp_conf_t vtss_conf;
 
@@ -199,6 +222,9 @@ static mesa_rc mesa_vtr_grp_to_port_get(const mesa_inst_t               inst,
         mesa_conv_vtss_vlan_trans_port2grp_conf_t_to_mesa_vlan_trans_port2grp_conf_t(&vtss_conf, conf);
     }
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_vlan_trans_group_to_port_get(const mesa_inst_t               inst,
@@ -217,9 +243,13 @@ mesa_rc mesa_vlan_trans_group_to_port_get_next(const mesa_inst_t               i
 
 mesa_rc mesa_vlan_trans_group_to_port_set(const mesa_inst_t inst, const mesa_vlan_trans_port2grp_conf_t *const conf)
 {
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vlan_trans_port2grp_conf_t vtss_conf;
 
     mesa_conv_mesa_vlan_trans_port2grp_conf_t_to_vtss_vlan_trans_port2grp_conf_t(conf, &vtss_conf);
     return vtss_vlan_trans_group_to_port_set((const vtss_inst_t)inst, &vtss_conf);
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 

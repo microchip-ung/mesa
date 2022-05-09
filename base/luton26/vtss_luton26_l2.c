@@ -127,7 +127,7 @@ static vtss_rc l26_ip_mc_fid_alloc(vtss_state_t *vtss_state, vtss_vid_t *fid, BO
     /* Search for free VID from 4094 -> 2 */
     for (vid = (VTSS_VID_RESERVED - 1); vid > VTSS_VID_DEFAULT; vid--) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        if (vlan_entry->enabled || (vlan_entry->ipmc_used & mask) != 0)
+        if ((vlan_entry->flags & VLAN_FLAGS_ENABLED) || (vlan_entry->ipmc_used & mask) != 0)
             continue;
         
         if (vlan_entry->ipmc_used == IPMC_USED_NONE) {
@@ -1091,18 +1091,18 @@ static vtss_rc l26_vlan_table_idle(vtss_state_t *vtss_state)
 static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
                                     vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
-    vtss_vlan_entry_t *vlan_entry = &vtss_state->l2.vlan_table[vid];
+    vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
     u32               value;
 
     /* Index and properties */
     value = VTSS_F_ANA_ANA_TABLES_VLANTIDX_V_INDEX(vid);
-    if(vlan_entry->isolated)
+    if (e->flags & VLAN_FLAGS_ISOLATED)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN;
-    if (!vlan_entry->conf.learning)
+    if (!(e->flags & VLAN_FLAGS_LEARN))
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_LEARN_DISABLED;
-    if (vlan_entry->conf.mirror)
+    if (e->flags & VLAN_FLAGS_MIRROR)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR;
-    if (vlan_entry->conf.ingress_filter)
+    if (e->flags & VLAN_FLAGS_FILTER)
         value |= VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK;
     L26_WR(VTSS_ANA_ANA_TABLES_VLANTIDX, value);
 
@@ -1112,7 +1112,7 @@ static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
     L26_WR(VTSS_ANA_ANA_TABLES_VLANACCESS, value);
 
     /* Adjust IP multicast entries if neccessary */
-    if (vlan_entry->enabled && vlan_entry->ipmc_used) {
+    if ((e->flags & VLAN_FLAGS_ENABLED) && e->ipmc_used) {
         VTSS_RC(l26_ip_mc_fid_adjust(vtss_state, vid));
     }
 
@@ -1278,7 +1278,7 @@ static vtss_rc l26_debug_vlan(vtss_state_t *vtss_state,
     
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        if (!vlan_entry->enabled && !info->full)
+        if (!(vlan_entry->flags & VLAN_FLAGS_ENABLED) && !info->full)
             continue;
 
         L26_WR(VTSS_ANA_ANA_TABLES_VLANTIDX, VTSS_F_ANA_ANA_TABLES_VLANTIDX_V_INDEX(vid));

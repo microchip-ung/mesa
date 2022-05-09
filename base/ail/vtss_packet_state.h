@@ -83,10 +83,11 @@ vtss_rc vtss_cmn_packet_hints_update(const struct vtss_state_s          *const s
                                      const vtss_etype_t                 etype,
                                            vtss_packet_rx_info_t *const info);
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_packet_debug_print(struct vtss_state_s *vtss_state,
                              const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info);
-
+#endif
 #endif /* VTSS_FEATURE_PACKET */
 
 #endif /* _VTSS_PACKET_STATE_H_ */

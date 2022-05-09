@@ -216,9 +216,11 @@ typedef struct {
     vtss_rc (* restart_conf_set)(struct vtss_state_s *vtss_state);
 #endif /* VTSS_FEATURE_WARM_START */
 
+#if VTSS_OPT_DEBUG_PRINT
     vtss_rc (* debug_info_print)(struct vtss_state_s *vtss_state,
                                  const vtss_debug_printf_t prntf,
                                  const vtss_debug_info_t   *const info);
+#endif
 } vtss_cil_func_t;
 
 /* ================================================================= *
@@ -416,10 +418,10 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #define VTSS_D(...)
 #define VTSS_N(...)
 
-#define VTSS_EG(grp, ...)
-#define VTSS_IG(grp, ...)
-#define VTSS_DG(grp, ...)
-#define VTSS_NG(grp, ...)
+#define VTSS_E_HEX(grp, ...)
+#define VTSS_I_HEX(grp, ...)
+#define VTSS_D_HEX(grp, ...)
+#define VTSS_N_HEX(grp, ...)
 
 #define VTSS_EG(_grp, ...)
 #define VTSS_IG(_grp, ...)

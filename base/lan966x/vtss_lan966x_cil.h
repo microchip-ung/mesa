@@ -216,6 +216,7 @@ u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state);
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
 vtss_rc vtss_lan966x_counter_update(vtss_state_t *vtss_state,
                                     u32 *addr, vtss_chip_counter_t *counter, BOOL clear);
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
                                           const vtss_debug_printf_t pr, const char *txt);
 void vtss_lan966x_debug_print_mask(const vtss_debug_printf_t pr, u32 mask);
@@ -226,33 +227,42 @@ void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr, u32 addr, u32 i, const char *name);
 void vtss_lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
                             vtss_chip_counter_t *c1, vtss_chip_counter_t *c2);
+#endif
 
 // Port API
 vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_port_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state);
 u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue);
 
 // Packet API
 vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
                                         const vtss_debug_printf_t pr,
                                         const vtss_debug_info_t   *const info);
+#endif
 
 // AFI API
 vtss_rc vtss_lan966x_afi_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_afi_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+#endif
 
 // MISC API
 vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
                                const vtss_chip_no_t   chip_no,
                                const vtss_gpio_no_t   gpio_no,
@@ -260,26 +270,36 @@ vtss_rc vtss_lan966x_gpio_mode(vtss_state_t *vtss_state,
 
 // L2 API
 vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if defined(VTSS_FEATURE_VCAP)
 void vtss_lan966x_is1_action_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, vtss_is1_action_t *action);
+#endif
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info);
+#endif
 
+#if defined(VTSS_FEATURE_QOS)
 // QoS API
 vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_lan966x_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
                                               const vtss_port_no_t  port_no);
 vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset);
 vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t *vtss_state, u32 policer, vtss_policer_conf_t *conf);
+#endif
 
 // TS API
 vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info);
+#endif
 
 // VCAP API
 vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -290,6 +310,7 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
                                             vtss_vcap_key_type_t key_new,
                                             vtss_vcap_key_type_t key_old,
                                             BOOL                 dmac_dip_new);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t *vtss_state,
                                       const vtss_debug_printf_t pr,
                                       const vtss_debug_info_t   *const info);
@@ -302,18 +323,23 @@ vtss_rc vtss_lan966x_debug_is1(vtss_state_t *vtss_state,
 vtss_rc vtss_lan966x_debug_es0(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info);
+#endif
 
 // OAM API
 vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+#endif
 
 // MRP API
 vtss_rc vtss_lan966x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_mrp_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+#endif
 
 #endif /* VTSS_ARCH_LAN966X */
 #endif /* _VTSS_MAS_CIL_H_ */

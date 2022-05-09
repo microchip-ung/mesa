@@ -14,6 +14,11 @@
 /* ================================================================= *
  *  Features
  * ================================================================= */
+/**< Lightweight option for minimal feature set */
+#if !defined(VTSS_OPT_LIGHT)
+#define VTSS_OPT_LIGHT 0
+#endif
+
 #if defined(VTSS_CHIP_966X)
 #define VTSS_ARCH_LAN966X                         /**< LAN966X architecture */
 #if defined(VTSS_OPT_FPGA)
@@ -23,12 +28,18 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_PORT_MUX                     /**< Port mux between serdes blocks and ports */
-#define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
 #define VTSS_FEATURE_PORT_IFH                     /**< Port IFH control */
 #define VTSS_FEATURE_PORT_CNT_BRIDGE              /**< Bridge counters */
 #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
+#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
+#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
+#define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
+//#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
+#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
@@ -50,12 +61,7 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
-#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
-#define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
-#define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
-//#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
-#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
-#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
+#define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
 #define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
@@ -95,6 +101,7 @@
 #define VTSS_FEATURE_RCL                          /**< Real-time Control List */
 #define VTSS_FEATURE_VOP_V0                       /**< Version 0 OAM implementation. VOP is inheritet from Serval-1 (version 1) platform but not compleately */
 #define VTSS_FEATURE_VOP_TAGGING                  /**< VOE can handle different tagging by configuration of the VOE residence port */
+#endif // !VTSS_OPT_LIGHT
 #endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) || \
@@ -593,6 +600,11 @@
 
 #define VTSS_FEATURE_WARM_START                /**< Warm start */
 
+#if defined(VTSS_FEATURE_LAYER2) && !VTSS_OPT_LIGHT
+#define VTSS_FEATURE_L2_ERPS                   /**< ERPS */
+#define VTSS_FEATURE_L2_MSTP                   /**< MSTP */
+#endif
+
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
 #endif
@@ -608,6 +620,10 @@
 #ifndef VTSS_OPT_TRACE
 #define VTSS_OPT_TRACE 1 /**< Trace enabled by default */
 #endif /* VTSS_OPT_TRACE */
+
+#ifndef VTSS_OPT_DEBUG_PRINT
+#define VTSS_OPT_DEBUG_PRINT 1 /**< Debug print enabled by default */
+#endif /* VTSS_OPT_DEBUG_PRINT */
 
 /* VAUI equalization control, change value to 10 if PCB trace is more than 15 cm */
 #if !defined(VTSS_OPT_VAUI_EQ_CTRL)

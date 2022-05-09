@@ -139,7 +139,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                  *state,
     VTSS_MEMSET(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
     if (vid != VTSS_VID_NULL) {
         vlan_filter = 1;
-        vlan_rx_filter = state->l2.vlan_table[vid].conf.ingress_filter;
+        vlan_rx_filter = (state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER ? 1 : 0);
         VTSS_RC(vtss_cmn_vlan_members_get(state, vid, vlan_member));
     }
 
@@ -675,6 +675,8 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t          *const state,
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 static const char *vtss_packet_reg_txt(vtss_packet_reg_type_t type)
@@ -789,5 +791,5 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
     }
 #endif
 }
-
+#endif // VTSS_OPT_DEBUG_PRINT
 #endif /* VTSS_FEATURE_PACKET */

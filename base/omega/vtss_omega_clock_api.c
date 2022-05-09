@@ -107,7 +107,9 @@ static BOOL es6514_check_pll_lock(vtss_state_t *vtss_state,
     u8 i;
     u8 lock_found;
     u32 rd_val;
+#if VTSS_OPT_TRACE
     u32 addr;
+#endif
 
     for (i = 0; i < 30; i++) {
         /* wait 20 us */
@@ -126,25 +128,33 @@ static BOOL es6514_check_pll_lock(vtss_state_t *vtss_state,
     VTSS_E("%s-RCPLL in SD10G65_%d could not find lock\n", (direction == rx) ? ("RX") : ("TX"), clock);
     VTSS_E("lock_found is %u\n", lock_found);
     if (direction == rx) {
+#if VTSS_OPT_TRACE
         addr = ES6514_ADDR_X(SD10G65, SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0, VTSS_TO_SD10G65(clock));
+#endif
         for (i = 0; i < 2; i++) {
             ES6514_RDX(SD10G65, SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0, VTSS_TO_SD10G65(clock), &rd_val);
             VTSS_E("The content of SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
         }
 
+#if VTSS_OPT_TRACE
         addr = ES6514_ADDR_X(SD10G65, SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1, VTSS_TO_SD10G65(clock));
+#endif
         for (i = 0; i < 2; i++) {
             ES6514_RDX(SD10G65, SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1, VTSS_TO_SD10G65(clock), &rd_val);
             VTSS_E("The content of SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
         }
     } else { /* direction == tx */
+#if VTSS_OPT_TRACE
         addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0, VTSS_TO_SD10G65(clock));
+#endif
         for (i = 0; i < 2; i++) {
             ES6514_RDX(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0, VTSS_TO_SD10G65(clock), &rd_val);
             VTSS_E("The content of SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
         }
 
+#if VTSS_OPT_TRACE
         addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1, VTSS_TO_SD10G65(clock));
+#endif
         for (i = 0; i < 2; i++) {
             ES6514_RDX(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1, VTSS_TO_SD10G65(clock), &rd_val);
             VTSS_E("The content of SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
@@ -1602,7 +1612,9 @@ static vtss_rc es6514_clock_priority_set(vtss_state_t                         *v
     u8  ena[4];
     u8  disable[4] = {0, 0, 0, 0};
     u8  ctrl_eec_state;
+#if VTSS_OPT_TRACE
     u8  ctrl_eec_src_sel;
+#endif
     u8  ctrl_inp_src_sel;
     u8  forced_flag = 0;
 
@@ -1726,7 +1738,9 @@ static vtss_rc es6514_clock_priority_set(vtss_state_t                         *v
             (vtss_state->clock.selection_conf[dpll].mode == VTSS_CLOCK_SELECTION_MODE_AUTOMATIC_REVERTIVE)) {
             ES6514_RDX(OMG_MAIN, OMG_CTRL_OMG_CTRL_STAT, dpll, &rd_val);
             ctrl_inp_src_sel = ES6514_GET_FLD(OMG_MAIN, OMG_CTRL_OMG_CTRL_STAT, CTRL_INP_SRC_SEL, rd_val);
+#if VTSS_OPT_TRACE
             ctrl_eec_src_sel = ES6514_GET_FLD(OMG_MAIN, OMG_CTRL_OMG_CTRL_STAT, CTRL_EEC_SRC_SEL, rd_val);
+#endif
             ctrl_eec_state   = ES6514_GET_FLD(OMG_MAIN, OMG_CTRL_OMG_CTRL_STAT, CTRL_EEC_STATE,   rd_val);
             VTSS_I("dpll %d, clock_input %d, ctrl_inp_src_sel %d, ctrl_eec_src_sel %d, ctrl_eec_state %d", dpll, clock_input, ctrl_inp_src_sel, ctrl_eec_src_sel, ctrl_eec_state);
             if (ctrl_inp_src_sel == clock_input) {
@@ -2344,7 +2358,9 @@ static vtss_rc es6514_clock_output_frequency_ratio_set(vtss_state_t             
     u32  tx_svn_id;
 
     u32  rd_val;
+#if VTSS_OPT_TRACE
     u32  addr;
+#endif
 
     if ((vtss_state->clock.output_frequency[clock_output]           != freq_khz) ||
         (vtss_state->clock.par_output_frequency[clock_output]       != par_freq_khz) ||
@@ -2646,33 +2662,51 @@ static vtss_rc es6514_clock_output_frequency_ratio_set(vtss_state_t             
         if (es6514_check_pll_lock(vtss_state, tx, clock_output) == FALSE) {
             VTSS_E("RC-PLL was not able to get in lock\n");
             /* return some register values for debug */
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
 
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
 
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_SSC_CFG0, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_SSC_CFG0, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_SSC_CFG0 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
+#if VTSS_OPT_TRACE
             addr = ES6514_ADDR_X(SD10G65, SD10G65_TX_SYNTH_SD10G65_SSC_CFG1, tgt);
+#endif
             ES6514_RDX(SD10G65, SD10G65_TX_SYNTH_SD10G65_SSC_CFG1, tgt, &rd_val);
             VTSS_E("The content of SD10G65_TX_SYNTH_SD10G65_SSC_CFG1 (addr 0x%04x) is 0x%08x\n", addr, rd_val);
             return VTSS_RC_ERROR;

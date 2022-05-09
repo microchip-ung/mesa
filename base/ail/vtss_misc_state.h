@@ -120,9 +120,11 @@ typedef struct {
 } vtss_misc_state_t;
 
 vtss_rc vtss_misc_inst_create(struct vtss_state_s *vtss_state);
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_misc_debug_print(struct vtss_state_s *vtss_state,
                            const vtss_debug_printf_t pr,
                            const vtss_debug_info_t   *const info);
+#endif
 
 #endif /* VTSS_FEATURE_MISC */
 

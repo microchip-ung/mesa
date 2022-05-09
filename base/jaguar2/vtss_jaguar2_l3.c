@@ -464,7 +464,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t *vtss_state,
     }
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
-        if (!vtss_state->l2.vlan_table[vid].enabled && !info->full) {
+        if (!(vtss_state->l2.vlan_table[vid].flags & VLAN_FLAGS_ENABLED) && !info->full) {
             continue;
         }
         

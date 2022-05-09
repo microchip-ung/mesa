@@ -34,6 +34,7 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode);
 #endif
 
 const char *vtss_bool_txt(BOOL enabled);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_cmn_debug_info_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
@@ -66,6 +67,7 @@ void vtss_debug_print_sticky(const vtss_debug_printf_t pr,
 void vtss_debug_print_value(const vtss_debug_printf_t pr, const char *name, u32 value);
 void vtss_debug_print_reg_header(const vtss_debug_printf_t pr, const char *name);
 void vtss_debug_print_reg(const vtss_debug_printf_t pr, const char *name, u32 value);
+#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos);
 

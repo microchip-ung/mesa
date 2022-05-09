@@ -5,6 +5,7 @@
 #include <vtss_api.h>
 #include <mesa.h>
 
+#if defined(VTSS_FEATURE_PACKET)
 mesa_rc mesa_conv2_vtss_packet_rx_queue_conf_t_to_mesa_packet_rx_queue_conf_t(const vtss_packet_rx_queue_conf_t *in, mesa_packet_rx_queue_conf_t *out)
 {
     return VTSS_RC_OK;
@@ -44,12 +45,18 @@ mesa_rc mesa_conv2_mesa_packet_tx_info_t_to_vtss_packet_tx_info_t(const mesa_pac
 {
     return VTSS_RC_OK;
 }
+#else
+void mesa_packet_frame_info_init(mesa_packet_frame_info_t *const info)
+{
+}
+#endif
 
 mesa_rc mesa_packet_port_filter_get(const mesa_inst_t             inst,
                                     const mesa_packet_port_info_t *const info,
                                     const uint32_t                cnt,
                                     mesa_packet_port_filter_t     *const filter)
 {
+#if defined(VTSS_FEATURE_PACKET)
     mesa_rc                   rc;
     vtss_port_no_t            port_no;
     vtss_packet_port_info_t   vtss_info;
@@ -65,12 +72,16 @@ mesa_rc mesa_packet_port_filter_get(const mesa_inst_t             inst,
         }
     }
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_packet_vlan_filter_get(const mesa_inst_t         inst,
                                     const uint32_t            cnt,
                                     mesa_packet_vlan_filter_t *const filter)
 {
+#if defined(VTSS_FEATURE_PACKET)
     mesa_rc                   rc;
     vtss_port_no_t            port_no;
     vtss_packet_vlan_filter_t vtss_filter[VTSS_PORTS];
@@ -83,7 +94,10 @@ mesa_rc mesa_packet_vlan_filter_get(const mesa_inst_t         inst,
             mesa_conv_vtss_packet_vlan_filter_t_to_mesa_packet_vlan_filter_t(&vtss_filter[port_no], &filter[port_no]);
         }
     }
-    return VTSS_RC_OK;
+    return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_packet_tx_hdr_encode(const mesa_inst_t           inst,
@@ -92,11 +106,15 @@ mesa_rc mesa_packet_tx_hdr_encode(const mesa_inst_t           inst,
                                   uint8_t                     *const bin_hdr,
                                   uint32_t                    *const bin_hdr_len)
 {
+#if defined(VTSS_FEATURE_PACKET)
     vtss_packet_tx_info_t vtss_info;
 
     mesa_conv_mesa_packet_tx_info_t_to_vtss_packet_tx_info_t(info, &vtss_info);
     *bin_hdr_len = bin_hdr_max_len; // INOUT in VTSS API
     return vtss_packet_tx_hdr_encode((const vtss_inst_t)inst, &vtss_info, bin_hdr, bin_hdr_len);
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 mesa_rc mesa_afi_alloc(const mesa_inst_t          inst,

@@ -363,7 +363,7 @@ static vtss_rc fa_mac_table_age_cmd(vtss_state_t *vtss_state,
                                     BOOL             age)
 {
     u32        port, addr = 0, addr_type = MAC_ENTRY_ADDR_TYPE_UPSID_PN;
-    vtss_vid_t fid = vtss_state->l2.vlan_table[vid].conf.fid;
+    vtss_vid_t fid = vtss_state->l2.vlan_table[vid].fid;
 
     if (pgid_age) {
         if (pgid < vtss_state->port_count) {
@@ -513,19 +513,18 @@ static vtss_rc fa_vlan_conf_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 {
-    vtss_vlan_entry_t    *vlan_entry = &vtss_state->l2.vlan_table[vid];
-    vtss_vlan_vid_conf_t *conf = &vlan_entry->conf;
+    vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
 
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(vlan_entry->msti) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(conf->fid == 0 ? vid : conf->fid) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(conf->ingress_filter ? 1 : 0) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(conf->learning ? 0 : 1) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(vlan_entry->rl_enable) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(vlan_entry->isolated) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(conf->mirror));
-    REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(vlan_entry->rl_id));
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(e->msti) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(e->fid == 0 ? vid : e->fid) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(e->flags & VLAN_FLAGS_FILTER ? 1 : 0) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(e->flags & VLAN_FLAGS_FLOOD ? 0 : 1) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(e->flags & VLAN_FLAGS_LEARN ? 0 : 1) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(e->rl_enable) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(e->flags & VLAN_FLAGS_ISOLATED ? 1 : 0) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(e->flags & VLAN_FLAGS_MIRROR ? 1 : 0));
+    REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(e->rl_id));
 
     return VTSS_RC_OK;
 }
@@ -1541,7 +1540,7 @@ static vtss_rc fa_debug_vlan(vtss_state_t *vtss_state,
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        if (info->full || vlan_entry->enabled) {
+        if (info->full || (vlan_entry->flags & VLAN_FLAGS_ENABLED)) {
             VTSS_RC(fa_debug_vlan_entry(vtss_state, pr, vid, header));
             header = 0;
             /* Leave critical region briefly */

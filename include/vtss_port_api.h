@@ -221,7 +221,7 @@ typedef struct
     BOOL       obey;            /**< TRUE if 802.3x PAUSE frames should be obeyed */
     BOOL       generate;        /**< TRUE if 802.3x PAUSE frames should generated */
     vtss_mac_t smac;            /**< Port MAC address used as SMAC in PAUSE frames */
-#if defined(VTSS_FEATURE_QOS)
+#if defined(VTSS_FEATURE_PFC)
     BOOL       pfc[VTSS_PRIOS]; /**< TRUE if 802.1Qbb Priority Flow Control should be generated and obeyed.
                                      Cannot be enabled together with 802.3x Flowcontrol */
 #endif

@@ -382,8 +382,11 @@ static vtss_rc lan966x_mac_table_age(vtss_state_t *vtss_state,
                                      BOOL             vid_age,
                                      const vtss_vid_t vid)
 {
-    vtss_vid_t fid = vtss_state->l2.vlan_table[vid].conf.fid;
+    vtss_vid_t fid = 0;
 
+#if defined(VTSS_FEATURE_VLAN_SVL)
+    fid = vtss_state->l2.vlan_table[vid].fid;
+#endif
     if (fid == 0 || fid > LAN966X_FID_MAX) {
         fid = vid;
     }
@@ -614,18 +617,22 @@ static vtss_rc lan966x_vlan_table_idle(vtss_state_t *vtss_state)
 static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
                                         vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
-    vtss_vlan_entry_t    *vlan_entry = &vtss_state->l2.vlan_table[vid];
-    vtss_vlan_vid_conf_t *conf = &vlan_entry->conf;
-    u32                  mask = VTSS_BIT(VTSS_CHIP_PORT_CPU);
+    vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
+    u32               mask = VTSS_BIT(VTSS_CHIP_PORT_CPU);
+    vtss_vid_t        fid = 0;
+
+#if defined(VTSS_FEATURE_VLAN_SVL)
+    fid = e->fid;
+#endif
 
     /* Index and properties */
     REG_WR(ANA_VLANTIDX,
            ANA_VLANTIDX_V_INDEX(vid) |
-           ANA_VLANTIDX_VLAN_FLOOD_DIS(conf->flooding ? 0 : 1) |
-           ANA_VLANTIDX_VLAN_PRIV_VLAN(vlan_entry->isolated) |
-           ANA_VLANTIDX_VLAN_LEARN_DISABLED(conf->learning ? 0 : 1) |
-           ANA_VLANTIDX_VLAN_MIRROR(conf->mirror ? 1 : 0) |
-           ANA_VLANTIDX_VLAN_SRC_CHK(conf->ingress_filter ? 1 : 0));
+           ANA_VLANTIDX_VLAN_FLOOD_DIS(e->flags & VLAN_FLAGS_FLOOD ? 0 : 1) |
+           ANA_VLANTIDX_VLAN_PRIV_VLAN(e->flags & VLAN_FLAGS_ISOLATED ? 1 : 0) |
+           ANA_VLANTIDX_VLAN_LEARN_DISABLED(e->flags & VLAN_FLAGS_LEARN ? 0 : 1) |
+           ANA_VLANTIDX_VLAN_MIRROR(e->flags & VLAN_FLAGS_MIRROR ? 1 : 0) |
+           ANA_VLANTIDX_VLAN_SRC_CHK(e->flags & VLAN_FLAGS_FILTER ? 1 : 0));
 
     /* VLAN mask */
     mask |= ANA_VLAN_PORT_MASK_VLAN_PORT_MASK(vtss_lan966x_port_mask(vtss_state, member));
@@ -635,8 +642,7 @@ static vtss_rc lan966x_vlan_mask_update(vtss_state_t *vtss_state,
     REG_WR(ANA_VLANACCESS, ANA_VLANACCESS_VLAN_TBL_CMD(VLANACCESS_CMD_WRITE));
 
     /* FID */
-    REG_WR(ANA_FID_MAP(vid),
-           ANA_FID_MAP_FID_VAL(conf->fid > LAN966X_FID_MAX ? 0 : conf->fid));
+    REG_WR(ANA_FID_MAP(vid), ANA_FID_MAP_FID_VAL(fid > LAN966X_FID_MAX ? 0 : fid));
 
     return lan966x_vlan_table_idle(vtss_state);
 }
@@ -682,6 +688,7 @@ static vtss_rc lan966x_flood_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_IPV4_MC_SIP)
 static vtss_rc lan966x_ip_mc_update(vtss_state_t *vtss_state,
                                     vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
@@ -736,6 +743,7 @@ static vtss_rc lan966x_ip_mc_update(vtss_state_t *vtss_state,
     }
     return vtss_vcap_add(vtss_state, obj, user, ipmc->dst.id, ipmc->id_next, &data, 0);
 }
+#endif
 
 /* ================================================================= *
  *  Layer 2 - Mirror
@@ -785,6 +793,7 @@ static vtss_rc lan966x_mirror_egress_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_VCAP)
 static vtss_rc lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_vcap_port_conf_t *conf = &vtss_state->vcap.port_conf[port_no];
@@ -1009,7 +1018,9 @@ static vtss_rc lan966x_policer_update(vtss_state_t *vtss_state, u16 idx)
     }
     return vtss_lan966x_qos_policer_conf_set(vtss_state, LAN966X_POLICER_DLB + idx, &pol_conf);
 }
+#endif /* VTSS_FEATURE_VCAP */
 
+#if defined(VTSS_FEATURE_FRER)
 /* ================================================================= *
  *  FRER
  * ================================================================= */
@@ -1113,7 +1124,9 @@ static vtss_rc lan966x_mstream_cnt_get(vtss_state_t *vtss_state,
 {
     return lan966x_mstream_cnt_update(vtss_state, idx, counters, counters == NULL);
 }
+#endif // VTSS_FEATURE_FRER
 
+#if defined(VTSS_FEATURE_PSFP)
 /* ================================================================= *
  *  PSFP
  * ================================================================= */
@@ -1236,7 +1249,9 @@ static vtss_rc lan966x_policer_status_get(vtss_state_t *vtss_state,
     status->mark_all_red = ANA_POL_STATE_MARK_ALL_FRMS_RED_SET_X(value);
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_PSFP
 
+#if defined(VTSS_FEATURE_VCAP)
 static vtss_rc lan966x_rcl_vid_conf_set(vtss_state_t *vtss_state, const u8 idx)
 {
     vtss_rcl_vid_entry_t *entry = &vtss_state->l2.rcl_vid[idx];
@@ -1253,6 +1268,7 @@ static vtss_rc lan966x_rcl_vid_conf_set(vtss_state_t *vtss_state, const u8 idx)
            ANA_RT_VLAN_PCP_VLAN_PCP_ENA(entry->enable ? 1 : 0));
     return VTSS_RC_OK;
 }
+#endif
 
 /* ================================================================= *
  *  SFLOW
@@ -1337,6 +1353,7 @@ static vtss_rc lan966x_sflow_port_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 /* ================================================================= *
  *  Debug print
  * ================================================================= */
@@ -1504,6 +1521,7 @@ static vtss_rc lan966x_debug_stp(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_FRER)
 static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info)
@@ -1582,7 +1600,9 @@ static vtss_rc lan966x_debug_frer(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_FRER
 
+#if defined(VTSS_FEATURE_PSFP)
 static vtss_rc lan966x_debug_psfp(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info)
@@ -1631,7 +1651,9 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_PSFP
 
+#if defined(VTSS_FEATURE_VCAP)
 static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    const vtss_debug_info_t   *const info)
@@ -1642,6 +1664,7 @@ static vtss_rc lan966x_debug_vxlat(vtss_state_t *vtss_state,
     VTSS_RC(lan966x_debug_psfp(vtss_state, pr, info));
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
@@ -1683,7 +1706,7 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t *vtss_state,
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
-        if (!vlan_entry->enabled && !info->full)
+        if (!(vlan_entry->flags & VLAN_FLAGS_ENABLED) && !info->full)
             continue;
 
         REG_WR(ANA_VLANTIDX, ANA_VLANTIDX_V_INDEX(vid));
@@ -1761,12 +1784,15 @@ vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN, lan966x_debug_vlan, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN, lan966x_debug_pvlan, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE, lan966x_debug_mac_table, vtss_state, pr, info));
+#if defined(VTSS_FEATURE_VCAP)
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT, lan966x_debug_vxlat, vtss_state, pr, info));
+#endif
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR, lan966x_debug_aggr, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, lan966x_debug_stp, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR, lan966x_debug_mirror, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 
@@ -1862,6 +1888,7 @@ static vtss_rc lan966x_l2_init(vtss_state_t *vtss_state)
 
 static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_FEATURE_FRER)
     vtss_l2_state_t *state = &vtss_state->l2;
     vtss_stat_idx_t sidx;
     u32             idx, i;
@@ -1892,7 +1919,7 @@ static vtss_rc lan966x_l2_poll(vtss_state_t *vtss_state)
     }
     idx++;
     state->poll_idx = (idx < (VTSS_MSTREAM_CNT + VTSS_CSTREAM_CNT) ? idx : 0);
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1912,10 +1939,14 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mac_index_update = lan966x_mac_index_update;
         state->learn_port_mode_set = lan966x_learn_port_mode_set;
         state->learn_state_set = lan966x_learn_state_set;
+#if defined(VTSS_FEATURE_L2_MSTP)
         state->mstp_state_set = vtss_cmn_mstp_state_set;
         state->mstp_vlan_msti_set = vtss_cmn_vlan_members_set;
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
         state->erps_vlan_member_set = vtss_cmn_erps_vlan_member_set;
         state->erps_port_state_set = vtss_cmn_erps_port_state_set;
+#endif
         state->pgid_table_write = lan966x_pgid_table_write;
         state->src_table_write = lan966x_src_table_write;
         state->aggr_table_write = lan966x_aggr_table_write;
@@ -1926,15 +1957,16 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_port_conf_update = lan966x_vlan_port_conf_update;
         state->vlan_port_members_set = vtss_cmn_vlan_members_set;
         state->vlan_mask_update = lan966x_vlan_mask_update;
-        state->vlan_tx_tag_set = vtss_cmn_vlan_tx_tag_set;
         state->isolated_vlan_set = vtss_cmn_vlan_members_set;
         state->isolated_port_members_set = lan966x_isolated_port_members_set;
         state->flood_conf_set = lan966x_flood_conf_set;
+#if defined(VTSS_FEATURE_IPV4_MC_SIP)
         state->ipv4_mc_add = vtss_cmn_ipv4_mc_add;
         state->ipv4_mc_del = vtss_cmn_ipv4_mc_del;
         state->ipv6_mc_add = vtss_cmn_ipv6_mc_add;
         state->ipv6_mc_del = vtss_cmn_ipv6_mc_del;
         state->ip_mc_update = lan966x_ip_mc_update;
+#endif
         state->mirror_port_set = lan966x_mirror_port_set;
         state->mirror_ingress_set = lan966x_mirror_ingress_set;
         state->mirror_egress_set = lan966x_mirror_egress_set;
@@ -1943,6 +1975,8 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->eps_port_set = vtss_cmn_eps_port_set;
         state->sflow_port_conf_set = lan966x_sflow_port_conf_set;
         state->sflow_sampling_rate_convert = lan966x_sflow_sampling_rate_convert;
+#if defined(VTSS_FEATURE_VCAP)
+        state->vlan_tx_tag_set = vtss_cmn_vlan_tx_tag_set;
         state->vcl_port_conf_set = vtss_lan966x_vcap_port_conf_set;
         state->vce_add = vtss_cmn_vce_add;
         state->vce_del = vtss_cmn_vce_del;
@@ -1958,18 +1992,27 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->policer_update = lan966x_policer_update;
         state->counters_update = lan966x_counters_update;
         state->isdx_update = lan966x_isdx_update;
+#endif
+#if defined(VTSS_FEATURE_FRER)
         state->cstream_conf_set = lan966x_cstream_conf_set;
         state->mstream_conf_set = lan966x_mstream_conf_set;
         state->cstream_cnt_get = lan966x_cstream_cnt_get;
         state->mstream_cnt_get = lan966x_mstream_cnt_get;
+#endif
+#if defined(VTSS_FEATURE_PSFP)
         state->psfp_gate_conf_set = lan966x_gate_conf_set;
         state->psfp_gate_status_get = lan966x_gate_status_get;
         state->psfp_filter_conf_set = lan966x_filter_conf_set;
         state->psfp_filter_status_get = lan966x_filter_status_get;
         state->policer_status_get = lan966x_policer_status_get;
+#endif
+#if defined(VTSS_FEATURE_VCAP)
         state->rcl_vid_conf_set = lan966x_rcl_vid_conf_set;
+#endif
         state->ac_count = LAN966X_ACS;
+#if defined(VTSS_SDX_CNT)
         state->sdx_info.max_count = VTSS_SDX_CNT;
+#endif
         break;
 
     case VTSS_INIT_CMD_INIT:

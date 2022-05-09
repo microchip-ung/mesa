@@ -54,7 +54,9 @@ extern "C" {
 
     By default, automatic learning and ageing is enabled.
 */
-#if defined(VTSS_ARCH_JAGUAR_2)
+#if VTSS_OPT_LIGHT
+#define VTSS_MAC_ADDRS     128    /**< Number of MAC addresses */
+#elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_MAC_ADDRS     32768  /**< Number of MAC addresses */
 #else
 #define VTSS_MAC_ADDRS     8192   /**< Number of MAC addresses */
@@ -389,6 +391,8 @@ vtss_rc vtss_stp_port_state_set(const vtss_inst_t       inst,
 
 
 
+#if defined(VTSS_FEATURE_L2_MSTP)
+
 /** \brief MSTP instance number */
 typedef u32 vtss_msti_t;
 
@@ -456,7 +460,7 @@ vtss_rc vtss_mstp_port_msti_state_set(const vtss_inst_t       inst,
                                       const vtss_port_no_t    port_no, 
                                       const vtss_msti_t       msti, 
                                       const vtss_stp_state_t  state);
-
+#endif // VTSS_FEATURE_L2_MSTP
 
 /* - VLAN ---------------------------------------------------------- */
 
@@ -720,6 +724,8 @@ vtss_rc vtss_vlan_counters_clear(const vtss_inst_t    inst,
 
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
+#if defined(VTSS_FEATURE_VCAP)
+
 /* - VCL ----------------------------------------------------------- */
 
 /** \page layer2
@@ -978,6 +984,7 @@ vtss_rc vtss_vce_add(const vtss_inst_t    inst,
  **/
 vtss_rc vtss_vce_del(const vtss_inst_t    inst,
                      const vtss_vce_id_t  vce_id);
+#endif // VTSS_FEATURE_VCAP
 
 /** \brief Class/COSID count */
 typedef u8 vtss_class_cnt_t;
@@ -1224,6 +1231,8 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t       inst,
 
 #endif /* VTSS_FEATURE_XFLOW */
 
+#if defined(VTSS_FEATURE_VCAP)
+
 /* - Tag Control List ---------------------------------------------- */
 
 /** \brief TCE ID type */
@@ -1358,6 +1367,7 @@ vtss_rc vtss_tce_add(const vtss_inst_t   inst,
  **/
 vtss_rc vtss_tce_del(const vtss_inst_t   inst,
                      const vtss_tce_id_t tce_id);
+#endif // VTSS_FEATURE_VCAP
 
 #if defined(VTSS_FEATURE_XSTAT)
 
@@ -1494,6 +1504,8 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t       inst,
                             const vtss_eflow_conf_t *const conf);
 
 #endif /* VTSS_FEATURE_XFLOW */
+
+#if defined(VTSS_FEATURE_VCAP)
 
 /* - VLAN translation ---------------------------------------------- */
 
@@ -1669,6 +1681,8 @@ vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t           inst,
                                 const vtss_port_no_t        port_no,
                                 const vtss_vcap_port_conf_t *const conf);
 #endif /* VTSS_ARCH_OCELOT */
+
+#endif // VTSS_FEATURE_VCAP
 
 /* - Port Isolation------------------------------------------------- */
 
@@ -2596,6 +2610,8 @@ vtss_rc vtss_eps_port_selector_set(const vtss_inst_t          inst,
                                    const vtss_port_no_t       port_no, 
                                    const vtss_eps_selector_t  selector);
 
+#if defined(VTSS_FEATURE_L2_ERPS)
+
 /* - Ethernet Ring Protection Swiching ----------------------------- */
 
 /** \page layer2
@@ -2689,6 +2705,8 @@ vtss_rc vtss_erps_port_state_set(const vtss_inst_t       inst,
                                  const vtss_erpi_t       erpi, 
                                  const vtss_port_no_t    port_no, 
                                  const vtss_erps_state_t state);
+
+#endif // VTSS_FEATURE_L2_ERPS
 
 #endif /* VTSS_FEATURE_LAYER2 */
 

@@ -1243,7 +1243,9 @@ vtss_rc vtss_afi_fast_inj_free(const vtss_inst_t inst, vtss_afi_fastid_t fastid)
     vtss_state_t   *vtss_state;
     vtss_afi_dti_t *dti;
     vtss_rc        rc;
+#if VTSS_OPT_TRACE
     vtss_port_no_t port_no = -2;
+#endif
 
     VTSS_I("Enter, fastid = %u", fastid);
 
@@ -1259,7 +1261,9 @@ vtss_rc vtss_afi_fast_inj_free(const vtss_inst_t inst, vtss_afi_fastid_t fastid)
 
     dti = &vtss_state->afi.dti_tbl[fastid];
 
+#if VTSS_OPT_TRACE
     port_no = dti->port_no;
+#endif
 
     if (dti->state != VTSS_AFI_ENTRY_STATE_STOPPED) {
         VTSS_E("Injection must be stopped before freeing");

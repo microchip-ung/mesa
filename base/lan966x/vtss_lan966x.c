@@ -80,6 +80,8 @@ vtss_rc vtss_lan966x_counter_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* ================================================================= *
  *  Debug print utility functions
  * ================================================================= */
@@ -157,10 +159,18 @@ static vtss_rc lan966x_debug_info_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_lan966x_misc_debug_print(vtss_state, pr, info));
     VTSS_RC(vtss_lan966x_port_debug_print(vtss_state, pr, info));
     VTSS_RC(vtss_lan966x_l2_debug_print(vtss_state, pr, info));
+#if defined(VTSS_FEATURE_VCAP)
     VTSS_RC(vtss_lan966x_vcap_debug_print(vtss_state, pr, info));
+#endif
+#if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_lan966x_qos_debug_print(vtss_state, pr, info));
+#endif
+#if defined(VTSS_FEATURE_PACKET)
     VTSS_RC(vtss_lan966x_packet_debug_print(vtss_state, pr, info));
+#endif
+#if defined(VTSS_AFI_V2)
     VTSS_RC(vtss_lan966x_afi_debug_print(vtss_state, pr, info));
+#endif
 #if defined(VTSS_FEATURE_TIMESTAMP)
     VTSS_RC(vtss_lan966x_ts_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_TIMESTAMP */
@@ -172,16 +182,25 @@ static vtss_rc lan966x_debug_info_print(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_MRP */
     return VTSS_RC_OK;
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
     VTSS_RC(vtss_lan966x_port_init(vtss_state, cmd));
     VTSS_RC(vtss_lan966x_misc_init(vtss_state, cmd));
+#if defined(VTSS_FEATURE_PACKET)
     VTSS_RC(vtss_lan966x_packet_init(vtss_state, cmd));
+#endif
+#if defined(VTSS_AFI_V2)
     VTSS_RC(vtss_lan966x_afi_init(vtss_state, cmd));
+#endif
     VTSS_RC(vtss_lan966x_l2_init(vtss_state, cmd));
+#if defined(VTSS_FEATURE_VCAP)
     VTSS_RC(vtss_lan966x_vcap_init(vtss_state, cmd));
+#endif
+#if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_lan966x_qos_init(vtss_state, cmd));
+#endif
 #if defined(VTSS_FEATURE_TIMESTAMP)
     VTSS_RC(vtss_lan966x_ts_init(vtss_state, cmd));
 #endif
@@ -306,7 +325,9 @@ vtss_rc vtss_lan966x_inst_create(vtss_state_t *vtss_state)
     vtss_state->cil.init_conf_set = lan966x_init_conf_set;
     vtss_state->cil.register_access_mode_set = lan966x_register_access_mode_set;
     vtss_state->cil.restart_conf_set = lan966x_restart_conf_set;
+#if VTSS_OPT_DEBUG_PRINT
     vtss_state->cil.debug_info_print = lan966x_debug_info_print;
+#endif
     vtss_state->port.map_set = lan966x_port_map_set;
 
     /* Create function groups */

@@ -247,6 +247,7 @@ const char *vtss_bool_txt(BOOL enabled)
     return (enabled ? "Enabled" : "Disabled");
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
                                         const char                *header,
                                         BOOL                      layer)
@@ -633,6 +634,7 @@ vtss_rc vtss_cmn_debug_info_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_ail_print(vtss_state, pr, info));
     return vtss_debug_cil_print(vtss_state, pr, info);
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
 {

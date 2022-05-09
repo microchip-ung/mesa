@@ -693,7 +693,6 @@ vtss_rc vtss_ace_status_get(const vtss_inst_t    inst,
                             const vtss_ace_id_t  ace_id,
                             vtss_ace_status_t    *const status);
 #endif /* VTSS_ARCH_LUTON26 */
-
 #endif /* VTSS_FEATURE_ACL */
 
 /** \brief Hierarchical ACL type */

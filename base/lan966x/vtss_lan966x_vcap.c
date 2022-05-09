@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_VCAP
 #include "vtss_lan966x_cil.h"
 
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_VCAP)
 
 #if defined(VTSS_OPT_FPGA)
 #include "vtss_lan966x_vcap_ag_api_fpga.h"

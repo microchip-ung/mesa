@@ -5,7 +5,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_lan966x_cil.h"
 
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_QOS)
 
 #define TERMINAL_SE_INDEX_OFFSET 80
 #define TERMINAL_SE_INDEX_LIMIT  255

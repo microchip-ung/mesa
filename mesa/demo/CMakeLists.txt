@@ -235,6 +235,7 @@ APP_TARGET(NAME app_vsc7546TSN         MESA vsc7546TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7558TSN         MESA vsc7558TSN         MEBA meba_sparx5)
 APP_TARGET(NAME app_vsc7556            MESA vsc7556            MEBA meba_sparx5)
 APP_TARGET(NAME app_lan966x            MESA lan966x            MEBA meba_lan966x)
+APP_TARGET(NAME app_lan966x_lm         MESA lan966x_lm         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_sr         MESA lan966x_sr         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan966x_ad         MESA lan966x_ad         MEBA meba_lan966x)
 
@@ -290,6 +291,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     # TODO, need to merge the BBB and none BBB versions
     IMG_TARGET(NAME armv7_lan966x         TYPE fit    APP app_lan966x         MACHINE lan966x)
+    IMG_TARGET(NAME armv7_lan966x_lm      TYPE fit    APP app_lan966x_lm      MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_sr      TYPE fit    APP app_lan966x_sr      MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_ad      TYPE fit    APP app_lan966x_ad      MACHINE lan966x)
 

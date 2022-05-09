@@ -144,27 +144,46 @@ typedef struct {
 } vtss_vsi_info_t;
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
+#define VLAN_FLAGS_ENABLED  0x01
+#define VLAN_FLAGS_UPDATE   0x02
+#define VLAN_FLAGS_ISOLATED 0x04
+#define VLAN_FLAGS_LEARN    0x08
+#define VLAN_FLAGS_FLOOD    0x10
+#define VLAN_FLAGS_MIRROR   0x20
+#define VLAN_FLAGS_FILTER   0x40
+
 /* VLAN entry */
 typedef struct {
-    BOOL        enabled;                   /* At least one port enabled */
-    BOOL        update;                    /* Update flag */
+    u8          flags;
     u8          member[VTSS_PORT_BF_SIZE]; /* Port members */
 #if defined(VTSS_FEATURE_HW_PROT)
     u8          hw_prot_disable[VTSS_PORT_BF_SIZE]; /* Inactive HW protection ports */
 #endif /* VTSS_FEATURE_HW_PROT */
+#if defined(VTSS_FEATURE_VCAP)
     u8          tx_tag[VTSS_PORT_ARRAY_SIZE]; /* Tx tagging */
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
     vtss_erps_counter_t erps_discard_cnt[VTSS_PORT_ARRAY_SIZE]; /* ERPS discard counter */
+#endif
+#if defined(VTSS_FEATURE_L2_MSTP)
     vtss_msti_t msti;                      /* MSTP instance */
-    BOOL        isolated;                  /* Port isolation */
+#endif
+#if defined(VTSS_ARCH_LUTON26)
     BOOL        ipmc_used;                 /* In use for SSM */
+#endif
+#if defined(VTSS_ARCH_JAGUAR_2)
     BOOL        vsi_enable;                /* VSI enable */
     BOOL        vsi_vlan_forward_disable;  /* If VSI is enabled this decides if VLAN forwarding is disabled */
     vtss_vsi_entry_t  *vsi;                /* VSI entry */
     BOOL        mgmt;                      /* VLAN management flag */
+#endif
+#if defined(VTSS_FEATURE_LAYER3)
     BOOL        rl_enable;                 /* RL enable */
     u16         rl_id;                     /* RL ID */
-    u32         mask;                      /* Previous mask written */
-    vtss_vlan_vid_conf_t conf;             /* VID configuration */
+#endif
+#if defined(VTSS_FEATURE_VLAN_SVL)
+    vtss_vid_t  fid;
+#endif
 } vtss_vlan_entry_t;
 
 /* MSTP entry */
@@ -184,6 +203,7 @@ typedef struct {
     vtss_eps_selector_t  selector; /* Selector */
 } vtss_port_eps_t;
 
+#if defined(VTSS_FEATURE_VCAP)
 /* VLAN Translation Group entry (Group to VLAN Translation mappings) */
 typedef struct vtss_vlan_trans_grp2vlan_entry_t {
     struct vtss_vlan_trans_grp2vlan_entry_t     *next;                             /* Next in list                      */
@@ -209,6 +229,7 @@ typedef struct {
     vtss_vlan_trans_port2grp_entry_t   *free;                                      /* free list                         */
     vtss_vlan_trans_port2grp_entry_t   port_list[VTSS_VLAN_TRANS_GROUP_MAX_CNT];   /* Actual storage for list members   */
 } vtss_vlan_trans_port2grp_t;
+#endif
 
 typedef struct {
     vtss_chip_counter_t frames;                         /**< Frame counters */
@@ -524,17 +545,21 @@ typedef struct {
                                     const vtss_port_no_t port_no);
     vtss_rc (* learn_state_set)(struct vtss_state_s *vtss_state,
                                 const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+#if defined(VTSS_FEATURE_L2_MSTP)
     vtss_rc (* mstp_vlan_msti_set)(struct vtss_state_s *vtss_state,
                                    const vtss_vid_t vid);
     vtss_rc (* mstp_state_set)(struct vtss_state_s *vtss_state,
                                const vtss_port_no_t port_no,
                                const vtss_msti_t    msti);
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
     vtss_rc (* erps_vlan_member_set)(struct vtss_state_s *vtss_state,
                                      const vtss_erpi_t erpi,
                                      const vtss_vid_t  vid);
     vtss_rc (* erps_port_state_set)(struct vtss_state_s *vtss_state,
                                     const vtss_erpi_t    erpi,
                                     const vtss_port_no_t port_no);
+#endif
     vtss_rc (* vlan_conf_set)(struct vtss_state_s *vtss_state);
     vtss_rc (* vlan_port_conf_set)(struct vtss_state_s *vtss_state,
                                    const vtss_port_no_t port_no);
@@ -589,6 +614,7 @@ typedef struct {
                                    vtss_port_no_t port_no, const vtss_sflow_port_conf_t *const conf);
     vtss_rc (*sflow_sampling_rate_convert)(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out);
 
+#if defined(VTSS_FEATURE_VCAP)
     vtss_rc (* vcl_port_conf_set)(struct vtss_state_s *vtss_state,
                                   const vtss_port_no_t port_no);
     vtss_rc (* vce_add)(struct vtss_state_s *vtss_state,
@@ -610,6 +636,7 @@ typedef struct {
     vtss_rc (* vcap_port_conf_set)(struct vtss_state_s *vtss_state,
                                    const vtss_port_no_t port_no);
 #endif
+#endif // VTSS_FEATURE_VCAP
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     vtss_rc (* vlan_counters_get)(struct vtss_state_s *vtss_state,
                                   const vtss_vid_t          vid,
@@ -696,14 +723,20 @@ typedef struct {
     vtss_vlan_port_type_t         vlan_port_type[VTSS_PORT_ARRAY_SIZE];
     vtss_vid_t                    vlan_port_uvid[VTSS_PORT_ARRAY_SIZE];
     vtss_vlan_port_conf_t         vlan_port_conf[VTSS_PORT_ARRAY_SIZE];
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vcl_port_conf_t          vcl_port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_vcl_port_conf_t          vcl_port_conf_old;
+#endif
     BOOL                          l3_dt[VTSS_PORT_ARRAY_SIZE];
     vtss_port_eps_t               port_protect[VTSS_PORT_ARRAY_SIZE];
     BOOL                          vlan_filter_changed;
     vtss_vlan_entry_t             vlan_table[VTSS_VIDS];
+#if defined(VTSS_FEATURE_L2_MSTP)
     vtss_mstp_entry_t             mstp_table[VTSS_MSTI_ARRAY_SIZE];
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
     vtss_erps_entry_t             erps_table[VTSS_ERPI_ARRAY_SIZE];
+#endif
     vtss_learn_mode_t             learn_mode[VTSS_PORT_ARRAY_SIZE];
     BOOL                          isolated_port[VTSS_PORT_ARRAY_SIZE];
     BOOL                          uc_flood[VTSS_PORT_ARRAY_SIZE];
@@ -742,8 +775,10 @@ typedef struct {
     u32                           sflow_ena_cnt; /* Count - the number of ports on which sFlow is enabled */
 #endif
 
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vlan_trans_grp2vlan_t    vt_trans_conf;
     vtss_vlan_trans_port2grp_t    vt_port_conf;
+#endif
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     vtss_vlan_counter_info_t      vlan_counters_info;
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
@@ -815,26 +850,32 @@ vtss_rc vtss_cmn_vlan_tx_tag_set(struct vtss_state_s *vtss_state,
                                  const vtss_vid_t         vid,
                                  const vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE]);
 vtss_rc vtss_cmn_vlan_update_all(struct vtss_state_s *vtss_state);
+#if defined(VTSS_FEATURE_L2_MSTP)
 vtss_rc vtss_cmn_mstp_state_set(struct vtss_state_s *vtss_state,
                                 const vtss_port_no_t   port_no,
                                 const vtss_msti_t      msti);
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
 vtss_rc vtss_cmn_erps_vlan_member_set(struct vtss_state_s *vtss_state,
                                       const vtss_erpi_t erpi,
                                       const vtss_vid_t  vid);
 vtss_rc vtss_cmn_erps_port_state_set(struct vtss_state_s *vtss_state,
                                      const vtss_erpi_t    erpi,
                                      const vtss_port_no_t port_no);
+#endif
 vtss_rc vtss_cmn_eps_port_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_w);
 #if defined(VTSS_FEATURE_HW_PROT)
 vtss_rc vtss_cmn_hw_prot_port_disable_set(struct vtss_state_s *vtss_state,
                                           const vtss_vid_t    vid,
                                           const BOOL          member[VTSS_PORT_ARRAY_SIZE]);
 #endif /* VTSS_FEATURE_HW_PROT */
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_debug_print_mac_entry(const vtss_debug_printf_t pr,
                                 const char *name,
                                 BOOL *header,
                                 vtss_mac_table_entry_t *entry,
                                 u32 pgid);
+#endif
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
 u32 vtss_cmn_ip2u32(vtss_ip_addr_internal_t *ip, BOOL ipv6);
 vtss_rc vtss_cmn_ipv4_mc_add(struct vtss_state_s     *vtss_state,
@@ -857,6 +898,7 @@ vtss_rc vtss_cmn_ipv6_mc_del(struct vtss_state_s      *vtss_state,
                              const vtss_ipv6_t dip);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
+#if defined(VTSS_FEATURE_VCAP)
 #if defined(VTSS_ARCH_OCELOT)
 vtss_vcap_key_type_t vtss_vcl_key_type_get(vtss_vcap_key_type_t key_type_a, vtss_vcap_key_type_t key_type_b);
 #endif
@@ -875,6 +917,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(struct vtss_state_s *vtss_state,
 vtss_rc vtss_cmn_vlan_trans_port_conf_get(struct vtss_state_s *vtss_state,
                                           vtss_vlan_trans_port2grp_conf_t *conf, BOOL next);
 vtss_rc vtss_rcl_vid_lookup(struct vtss_state_s *vtss_state, vtss_vid_t vid, u8 *idx, BOOL lookup_free);
+#endif // VTSS_FEATURE_VCAP
 
 /* Generic port mask */
 typedef struct {
@@ -905,10 +948,11 @@ vtss_eflow_entry_t *vtss_eflow_lookup(struct vtss_state_s *vtss_state, vtss_eflo
 vtss_xstat_entry_t *vtss_estat_lookup(struct vtss_state_s *vtss_state, const vtss_egress_cnt_id_t id);
 #endif
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_l2_debug_print(struct vtss_state_s *vtss_state,
                          const vtss_debug_printf_t pr,
                          const vtss_debug_info_t   *const info);
-
+#endif
 #endif /* VTSS_FEATURE_LAYER2 */
 
 #endif /* _VTSS_L2_STATE_H_ */
