@@ -717,7 +717,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
     case MEBA_EVENT_EGR_RW_FCS_ERR:
     case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
     case MEBA_EVENT_EGR_FIFO_OVERFLOW:
-        {
+        if (board->type == BOARD_TYPE_8PORT) {
             mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
