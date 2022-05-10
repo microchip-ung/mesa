@@ -68,7 +68,7 @@ struct mesa_port_list_t {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i) _private[i] = 0;
     }
 
-    bool is_empty() {
+    bool is_empty() const {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i) {
             if (_private[i] != 0) return false;
         }
@@ -95,7 +95,7 @@ struct mesa_port_list_t {
         return *this;
     }
 
-    mesa_port_list_t operator&(const mesa_port_list_t &rhs) {
+    mesa_port_list_t operator&(const mesa_port_list_t &rhs) const {
         mesa_port_list_t res(*this);
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
             res[i] &= rhs._private[i];
@@ -103,7 +103,7 @@ struct mesa_port_list_t {
         return res;
     }
 
-    mesa_port_list_t operator|(const mesa_port_list_t &rhs) {
+    mesa_port_list_t operator|(const mesa_port_list_t &rhs) const {
         mesa_port_list_t res(*this);
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
             res[i] |= rhs._private[i];
