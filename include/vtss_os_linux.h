@@ -29,7 +29,8 @@ typedef uint16_t           u16;  /**< 16-bit unsigned */
 typedef uint32_t           u32;  /**< 32-bit unsigned */
 typedef uint64_t           u64;  /**< 64-bit unsigned */
 
-typedef u8            BOOL; /**< Boolean implemented as 8-bit unsigned */
+typedef u8                 BOOL; /**< Boolean implemented as 8-bit unsigned */
+typedef BOOL               bool;
 
 /**
  * \brief VTSS_OS_BIG_ENDIAN:
