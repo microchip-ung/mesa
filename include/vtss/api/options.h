@@ -39,6 +39,7 @@
 #define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
 //#define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
+#define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QOS                          /**< QoS */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
@@ -87,7 +88,6 @@
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_SYNCE                        /**< SYNCE - L1 syncronization feature */
 #endif
-#define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
 #define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
