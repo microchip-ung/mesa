@@ -1722,15 +1722,6 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
             }
             break;
         case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-            }
             break;
         default:
             T_E(MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
@@ -1825,15 +1816,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
             }
             break;
         case MEPA_TS_PTP_CLOCK_MODE_TC2STEP:
-            if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
-                // Peer-to-Peer delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-            } else {
-                // End-to-End delay measurement method
-                //ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET| PDELAY_RESP_PACKET;
-                cf_update = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-            }
+            ts_insert = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
             break;
         default:
             break;
