@@ -531,8 +531,8 @@
 
 //PTP RX Correction Field Configuration Register
 #define INDY_PTP_RX_CF_CFG                              INDY_EXT_PAGE_5, 595
-#define INDY_PTP_TX_PTP_MAX_CF_DIS                      INDY_BIT(1)
-#define INDY_PTP_TX_PTP_CF_METHOD                       INDY_BIT(0)
+#define INDY_PTP_RX_PTP_MAX_CF_DIS                      INDY_BIT(1)
+#define INDY_PTP_RX_PTP_CF_METHOD                       INDY_BIT(0)
 
 //PTP RX Ingress Timestamp
 #define INDY_PTP_RX_TS_NS_HI                            INDY_EXT_PAGE_5, 596
