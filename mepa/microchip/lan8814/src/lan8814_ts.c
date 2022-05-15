@@ -1674,6 +1674,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_get(mepa_device_t *dev, uint16_t clock_
 static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
     uint16_t ts_insert = 0, cf_update = 0, val = 0, rx_mod = 0, ts_config = 0, cf_config = 0;
+    uint16_t rx_pdelay_upd = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
     MEPA_ENTER(dev);
@@ -1693,6 +1694,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
             if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
                 ts_insert = SYNC_PACKET | DELAY_REQ_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                rx_pdelay_upd |= INDY_F_PTP_RX_PDREQ_AUTO_UPDATE;
                 //ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
             } else {
                 // End-to-End delay measurement method
@@ -1727,6 +1729,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
             T_E(MEPA_TRACE_GRP_TS, "EGR Clock: Clock Type not supported. Port : %d\n", data->port_no);
             break;
         }
+        EP_WRM(dev, INDY_PTP_RX_PDREQ_NS_HI, rx_pdelay_upd, INDY_F_PTP_RX_PDREQ_AUTO_UPDATE);
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
         // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
@@ -1784,16 +1787,13 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         case MEPA_TS_PTP_CLOCK_MODE_BC1STEP:
             if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
-                cf_update = DELAY_REQ_PACKET;
+                cf_update = PDELAY_REQ_PACKET;
+                tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
             } else {
                 // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET;
                 cf_update = DELAY_REQ_PACKET;
             }
             tx_mod = tx_mod | INDY_PTP_TX_MOD_SYNC_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TS_INSERT;
-            tx_mod = tx_mod | INDY_PTP_TX_MOD_PDRESP_TA_INSERT; // Update correction field with turn  around time in PD_RESP
             break;
         case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
             if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {

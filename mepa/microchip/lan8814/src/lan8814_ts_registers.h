@@ -552,6 +552,7 @@
 #define INDY_PTP_RX_PDREQ_SEC_MID                       INDY_EXT_PAGE_5, 603
 #define INDY_PTP_RX_PDREQ_SEC_LOW                       INDY_EXT_PAGE_5, 604
 #define INDY_PTP_RX_PDREQ_NS_HI                         INDY_EXT_PAGE_5, 605
+#define INDY_F_PTP_RX_PDREQ_AUTO_UPDATE                 INDY_BIT(15)
 #define INDY_PTP_RX_PDREQ_NS_LO                         INDY_EXT_PAGE_5, 606
 
 //PTP RX Raw Ingress Time Seconds Register
