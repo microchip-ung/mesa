@@ -280,7 +280,7 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)               # Configs to build
 # More PoE updates
 check("backwards-check",              # Name of check
-      "27e2ceb283@master.tar.gz", # Appl release to use
+      "27e2ceb283@master", # Appl release to use
       $default_configs)               # Configs to build
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
