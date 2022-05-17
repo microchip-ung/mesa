@@ -141,8 +141,8 @@ typedef mesa_rc (*meba_poe_save_command_t)(
 typedef mesa_rc (*meba_poe_debug_t)(
         struct meba_inst               *inst,
         mesa_port_no_t                  port_no,
-        char                            *var,
-        uint32_t                        str_len);
+        uint8_t                        *buf,
+        int                             buf_size);
 
 // Perform the Firmware upgrade.
 // This function upgrades the PoE controller firmware.  The poe_firmware_upgrade

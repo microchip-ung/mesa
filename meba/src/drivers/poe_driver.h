@@ -32,7 +32,7 @@ typedef struct {
     mesa_bool_t             IsBT_mode_user_config;
 
     // PD692x0 family detection method
-    meba_poe_controller_type_t ePoE_Controller_Type_default;
+    meba_poe_controller_type_t   ePoE_Controller_Type_default;
 
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
     POE_PORT_MAX_POWER_e   ePoE_port_max_power_default;

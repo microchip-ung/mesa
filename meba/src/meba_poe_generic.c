@@ -172,14 +172,13 @@ int meba_poe_generic_firmware_upgrade(
 
     int count = 0;
     for (i=0; i<system->controller_count; ++i) {
-        if (MESA_RC_OK == system->controllers[i].api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i], reset, size, data)) {
+        if (MESA_RC_OK ==  system->controllers[i].api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i], reset, size, data)) {
             count++;
         }
     }
     return count;
 }
 
-// return MESA_RC_ERR_POE_FIRMWARE_VER_NOT_NEW if firmware update is needed for any of the controllers. otherwise returns MESA_RC_OK
 mesa_rc meba_poe_generic_prepare_firmware_upgrade(
     const meba_inst_t               inst,
     mesa_bool_t                     version_check,
@@ -326,16 +325,16 @@ mesa_rc meba_poe_generic_port_capabilities_get(
 }
 
 mesa_rc meba_poe_generic_debug(
-    const meba_inst_t               inst,
-    mesa_port_no_t                  port_no,
-    char                            *var,
-    uint32_t                        str_len)
+    const meba_inst_t             inst,
+    mesa_port_no_t                port_no,
+    uint8_t                      *buf,
+    int                           buf_size)
 {
     meba_poe_ctrl_inst_t *controller;
     meba_poe_port_handle_t handle;
     if ( inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle ) {
         if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) == MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_debug(controller, var, str_len) == MESA_RC_OK) {
+            if (controller->api->meba_poe_ctrl_debug(controller, buf, buf_size) == MESA_RC_OK) {
                 return MESA_RC_OK;
             }
         }

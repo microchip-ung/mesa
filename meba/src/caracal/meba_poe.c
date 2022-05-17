@@ -190,18 +190,17 @@ mesa_rc meba_poe_caracal_get_controller_handle(meba_inst_t inst,
 // - MESA_RC_ERROR : when one or more controllers are responded with MESA_RC_ERROR
 mesa_rc meba_poe_caracal_do_detection(meba_inst_t inst)
 {
-    mesa_rc rc = MESA_RC_ERROR;
+    int i;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
-    for (int i = 0; i < caracal_pd69200_system.controller_count; ++i)
+    for (i = 0; i < caracal_pd69200_system.controller_count; ++i)
     {
         if (caracal_pd69200_system.controllers[i].api->meba_poe_ctrl_do_detection(&caracal_pd69200_system.controllers[i]) == MESA_RC_ERROR)
         {
-            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "Detection Failed for controller: %d", i);
-        } else {
-            rc = MESA_RC_OK;
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "Detection Failed: %d", i);
+            return MESA_RC_ERROR;
         }
     }
-    return rc;
+    return MESA_RC_OK;
 }
 
 static meba_api_poe_t public_functions = {

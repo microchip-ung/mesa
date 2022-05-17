@@ -283,10 +283,12 @@ typedef enum {
 } meba_poe_controller_type_t;
 
 
-typedef enum {
+typedef enum
+{
     ePoE_System_Mode_AT = 0,
     ePoE_System_Mode_BT
 } meba_poe_system_mode_t;
+
 
 
 // The maximum length of buffer used to hold the PoE firmware version string.
@@ -352,7 +354,7 @@ typedef struct {
     uint32_t                    operational_controller_count;
 
     // Total power.
-    uint16_t                    total_power;
+    //uint16_t                    total_power;
 
     // adc value
     uint16_t                    adc_value;
@@ -361,14 +363,13 @@ typedef struct {
     meba_poe_controller_type_t  ePoE_Controller_Type;
 
     // detected poe mode - ports mode BT or AT
-    meba_poe_system_mode_t     eDetected_PoE_System_Mode;
+    meba_poe_system_mode_t      eDetected_PoE_System_Mode;
 
     // poe firmware info
-    uint8_t                     prod_number_detected;
-    uint16_t                    sw_version_detected;
+    uint8_t                     prod_number;
+    uint8_t                     sw_version_detected;
     uint8_t                     param_number_detected;
-    uint8_t                     prod_number_from_file;
-    uint16_t                    sw_version_from_file;
+    uint8_t                     sw_version_from_file;
     uint8_t                     param_number_from_file;
 
 } meba_poe_status_t;
@@ -525,8 +526,6 @@ typedef struct {
     meba_poe_port_state_t       meba_poe_port_state;
 
     uint8_t                     poe_port_status;
-
-    char                        poe_port_status_description[100];
 
     mesa_bool_t                 IsPOEBT;
 
@@ -726,8 +725,8 @@ typedef mesa_rc (*meba_poe_ctrl_chipset_get_t)(
 // buf_size  [IN]  Size of buffer.
 typedef mesa_rc (*meba_poe_ctrl_debug_t)(
         const meba_poe_ctrl_inst_t     *const inst,
-        char                            *var,
-        uint32_t                        str_len);
+        uint8_t                        *trace_buf,
+        int                             buf_size);
 
 // Get PoE port capabilities
 // handle        [IN]  Port handle
