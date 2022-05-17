@@ -49,6 +49,7 @@ node('blademaster') {
             stage("Archiving results") {
                 try {
                     archive 'images/**'
+                    archive 'release_ws/*.log'
                 } catch (error) {
                     currentBuild.result = 'FAILURE'
                     throw error
