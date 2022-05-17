@@ -28,7 +28,7 @@
 // Set system mode BT or AT firmware:
 // ePoE_System_Mode_AT - AT mode
 // ePoE_System_Mode_BT - BT mode
-#define POE_SYSTEM_MODE_DEFAULT                        ePoE_System_Mode_BT
+#define POE_SYSTEM_MODE_DEFAULT                        ePoE_System_Mode_AT
 
 
 // Set unit max power as fixed or variable through Web & CLI
