@@ -66,18 +66,6 @@ mesa_rc meba_poe_sparx5_system_get(
     return MESA_RC_OK;
 }
 
-/* The PCB135 reference design with support for PoE is a bit silly. It is possible to
-   make one PoE controller managing all 48 ports. However, as we have a 24 port PoE
-   add-on module, we are just using two 24 port PoE controllers instead of one large.
-
-  The implementation for PCB135 therefore supports both:
-  - no PoE controllers mounted
-  - Poe Controller mounted covering the first 24 ports
-  - PoE Controller mounted covering the last 24 ports
-  - 2 PoE controllers mounted covering both the first and the last 24 ports
-
-  In any production design, do only use one PoE controller.
-*/
 
 mesa_rc meba_poe_sparx5_system_initialize(
         meba_inst_t                     inst)
@@ -172,10 +160,9 @@ mesa_rc meba_poe_sparx5_get_controller_handle(meba_inst_t inst,
 // - MESA_RC_ERROR : when one or more controllers are responded with MESA_RC_ERROR
 mesa_rc meba_poe_sparx5_do_detection(meba_inst_t inst)
 {
-    int i;
     mesa_rc rc = MESA_RC_ERROR;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
-    for (i = 0; i < sparx5_pd69200_system.controller_count; ++i)
+    for (int i = 0; i < sparx5_pd69200_system.controller_count; ++i)
     {
         if (sparx5_pd69200_system.controllers[i].api->meba_poe_ctrl_do_detection(&sparx5_pd69200_system.controllers[i]) == MESA_RC_ERROR)
         {

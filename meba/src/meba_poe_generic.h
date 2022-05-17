@@ -67,8 +67,8 @@ mesa_rc meba_poe_generic_save_command(
 mesa_rc meba_poe_generic_debug(
     const meba_inst_t               inst,
     mesa_port_no_t                  port_no,
-    uint8_t                         *buf,
-    int                             buf_size);
+    char                            *var,
+    uint32_t                        str_len);
 
 mesa_rc meba_poe_generic_supply_limits_get(
     const meba_inst_t          inst,
