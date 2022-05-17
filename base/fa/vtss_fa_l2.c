@@ -3235,9 +3235,14 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_LL, i, j), "CNT_RX_LL");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_UNT, i, j), "CNT_RX_UNT");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_TAG, i, j), "CNT_RX_TAG");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_WRONG_LAN, i, j), "CNT_RX_WRONG_LAN");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_OWN, i, j), "CNT_RX_OWN");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_LL, i, j), "CNT_TX_LL");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_UNT, i, j), "CNT_TX_UNT");
                 FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_TAG, i, j), "CNT_TX_TAG");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_ZERO, i, j), "CNT_DUPL_ZERO");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_ONE, i, j), "CNT_DUPL_ONE");
+                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_TWO, i, j), "CNT_DUPL_TWO");
                 pr("\n");
             }
         } else {
