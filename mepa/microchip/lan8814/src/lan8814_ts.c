@@ -122,6 +122,9 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
+    // Reset all timestamp fifos
+    EP_WR(dev, INDY_PTP_TSU_HARD_RESET, 0x1);
+    MEPA_MSLEEP(2);
     if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
 		val = val | INDY_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
 		val = val | INDY_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
