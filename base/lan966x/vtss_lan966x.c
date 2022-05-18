@@ -10,9 +10,11 @@
  *  Register access
  * ================================================================= */
 void vtss_lan966x_reg_error(const char *file, int line) {
+#if VTSS_OPT_TRACE
     vtss_callout_trace_printf(VTSS_TRACE_LAYER, VTSS_TRACE_GROUP_DEFAULT,
                               VTSS_TRACE_LEVEL_ERROR, file, line, file,
                               "Index exceed replication!");
+#endif
 }
 
 /* Read target register using current CPU interface */

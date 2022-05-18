@@ -236,7 +236,9 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
 
 static vtss_rc lan966x_vcap_entry_del(vtss_state_t *vtss_state, enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx)
 {
+#if VTSS_OPT_TRACE
     const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
+#endif
     lan966x_vcap_info_t                  info = {0};
 
     info.vcap = vcap;
@@ -273,7 +275,9 @@ static vtss_rc lan966x_vcap_entry_move(vtss_state_t *vtss_state,
 static vtss_rc lan966x_vcap_entry_get(vtss_state_t *vtss_state,
                                       enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
 {
+#if VTSS_OPT_TRACE
     const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
+#endif
     lan966x_vcap_info_t                  info = {0};
 
     info.vcap = vcap;

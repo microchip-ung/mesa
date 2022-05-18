@@ -15,6 +15,7 @@
 #define CONFIG_INTEST   1
 #define LOC_PERIOD_CNT  10
 
+#if VTSS_OPT_TRACE
 static const char *sel2txt(u32 sel)
 {
     switch (sel) {
@@ -58,6 +59,7 @@ static const char *port_state2txt(vtss_mrp_port_state_t state)
         return "ERROR!";
     }
 }
+#endif
 
 static vtss_rc mrp_counter_update(vtss_state_t         *vtss_state,
                                   const vtss_mrp_idx_t mrp_idx,
