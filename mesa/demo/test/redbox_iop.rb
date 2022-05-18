@@ -34,33 +34,47 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 #    |                     |
 #    +---------------------+
 
-# On the IE4000, select configuration and boot, either:
+# On the IE4000, select configuration and reboot, one of these:
 #
-# 'copy hsr-san-config startup-config' and 'reload'
-#
-# or:
-#
-# 'copy prp-san-config startup-config' and 'reload'
+# HSR-SAN : 'copy hsr-san-config startup-config' and 'reload'
+# HSR-VLAN: 'copy hsr-vlan-config startup-config' and 'reload'
+# PRP-SAN : 'copy prp-san-config startup-config' and 'reload'
+# PRP-VLAN: 'copy prp-vlan-config startup-config' and 'reload'
 
-# Before test, select HSR-SAN or PRP-SAN mode
-$hsr = false
+# Before test, RedBox mode is selected
+$mode = "PRP_SAN"
+#$mode = "HSR_SAN"
+
+# Select if VLAN tagging is used on LRE ports
+$vlan = false
 
 test "conf" do
-    # RedBox configuration
-    rb_id = 0
-    conf = $ts.dut.call("mesa_rb_conf_get", rb_id)
-    conf["mode"] = ("MESA_RB_MODE_" + ($hsr ? "HSR_SAN" : "PRP_SAN"))
-    conf["port_a"] = 2
-    conf["port_b"] = 3
-    conf["dd_age_time"] = 10000
-    if (true)
-        # RedBox setup
-        $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
-    else
+    if ($vlan)
+        # VLAN tagging on LRE ports
+        [2,3].each do |port|
+            conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
+            conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
+            conf["untagged_vid"] = 0
+            $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
+        end
+    end
+
+    if ($mode == nil)
         # PVLAN setup for debugging frames
         $ts.dut.call("mesa_pvlan_port_members_set", 0, "0,2")
         $ts.dut.call("mesa_pvlan_port_members_set", 1, "1,3")
+        break
     end
+
+    # RedBox configuration
+    rb_id = 0
+    conf = $ts.dut.call("mesa_rb_conf_get", rb_id)
+    conf["mode"] = ("MESA_RB_MODE_" + $mode)
+    conf["port_a"] = 2
+    conf["port_b"] = 3
+    conf["dd_age_time"] = 10000
+    conf["sv"] = "MESA_RB_SV_CPU_ONLY"
+    $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
 end
 
 test "frame-io" do
@@ -68,24 +82,13 @@ test "frame-io" do
     tx_list = idx_list
     #tx_list = [2]
     tx_list.each do |idx_tx|
-        cmd = "sudo ef"
-        cmd += " name f1 eth smac #{idx_tx + 1} et 0xaaaa data pattern cnt 46"
-        # In HSR-SAN mode, Supervision frames are seen when proxy node is learned
-        sv = ($hsr and idx_tx > 1)
-        if (sv)
-            # Ignoring 46 bytes data using IPv6(40) and HSR(6) headers
-            cmd += " name sv eth ign dmac 01:15:4e:00:01:00 ipv6 ign htag ign"
-        end
+        cmd = "sudo ef name f1 eth smac #{idx_tx + 1} et 0xaaaa data pattern cnt 46"
         idx_list.each do |idx|
             name = $ts.pc.p[idx]
             if (idx == idx_tx)
                 cmd += " tx #{name} name f1"
             else
                 cmd += " rx #{name} name f1"
-                if (sv and idx < 2)
-                    # Ignore Supervision frames
-                    cmd += " rx #{name} name sv"
-                end
             end
         end
         $ts.pc.try(cmd)
