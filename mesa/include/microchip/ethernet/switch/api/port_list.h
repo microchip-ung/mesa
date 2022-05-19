@@ -111,6 +111,14 @@ struct mesa_port_list_t {
         return res;
     }
 
+    mesa_port_list_t operator~() const {
+        mesa_port_list_t res;
+        for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
+            res[i] = ~_private[i];
+
+        return res;
+    }
+
     mesa_port_list_ref operator[](size_t bit) {
         return static_cast<mesa_port_list_ref&&>(mesa_port_list_ref(this, bit));
     }
