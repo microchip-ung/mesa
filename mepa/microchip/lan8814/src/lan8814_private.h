@@ -129,6 +129,7 @@ typedef struct {
     mepa_bool_t                   tx_spi_en;            // TS access through SPI enaled
     mepa_ts_fifo_read_t           fifo_cb;              // Fifo TS callback
     indy_ts_port_latencies_t      default_latencies;    // Default port latencies
+    mepa_ts_pps_conf_t            pps;
 } indy_ts_data_t;
 
 typedef struct {

@@ -33,6 +33,8 @@ static uint16_t indy_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
     {0,    0,   0,  0},
 };
 
+static mepa_rc indy_ltc_target_seconds(mepa_device_t *dev, uint32_t sec);
+
 static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
     uint16_t val = 0, clock_cfg = 0, pll_div = 0;
@@ -398,6 +400,7 @@ static mepa_rc indy_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const
     uint16_t val = 0, cmd = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
 
     MEPA_ASSERT((ts == NULL) || (base_dev == NULL) );
     MEPA_ENTER(dev);
@@ -422,6 +425,11 @@ static mepa_rc indy_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const
         val = ts->nanoseconds & 0xFFFF;
         EP_WRM(base_dev, INDY_PTP_LTC_SET_NS_LO, val, INDY_DEF_MASK);
         EP_WRM(base_dev, INDY_PTP_LTC_EXT_ADJ_CFG, INDY_PTP_LTC_EXT_ADJ_LOAD_EN, INDY_PTP_LTC_EXT_ADJ_LOAD_EN);
+
+        if (base_data->ts_state.pps.pps_output_enable) {
+            // Reload the ltc targets
+            indy_ltc_target_seconds(dev, ts->seconds.low + 2);
+        }
     }
 
     MEPA_EXIT(dev);
@@ -1857,37 +1865,79 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 
 static mepa_rc indy_ts_pps_conf_get (mepa_device_t *dev, mepa_ts_pps_conf_t *const phy_pps_conf)
 {
+    phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ENTER(dev);
-    // Enable 1PPS Output
+    *phy_pps_conf = data->ts_state.pps;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_ltc_target_seconds(mepa_device_t *dev, uint32_t sec)
+{
+    uint16_t val = sec & 0xFFFF;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
+
+    EP_WR(dev, INDY_PTP_LTC_TARGET_SEC_LO_A, val);
+    val = (sec >> 16);
+    EP_WR(dev, INDY_PTP_LTC_TARGET_SEC_HI_A, val);
+    val = base_data->ts_state.pps.pps_offset & 0xFFFF;
+    EP_WR(dev, INDY_PTP_LTC_TARGET_NS_LO_A, val);
+    val = base_data->ts_state.pps.pps_offset >> 16;
+    EP_WR(dev, INDY_PTP_LTC_TARGET_NS_HI_A, val);
+
+    return MEPA_RC_OK;
+}
 static mepa_rc indy_ts_pps_conf_set (mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf)
 {
     uint16_t val = 0;
+    uint32_t pps[] = {100,500,1000,5000,10000,50000,100000,500000,1000000,5000000,10000000,50000000,100000000,200000000};
+    uint16_t pps_num = sizeof(pps)/sizeof(pps[0]);
+    mepa_timestamp_t ts = {};
+    uint16_t i;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
 
+    indy_ts_ltc_get(dev, &ts);
     MEPA_ENTER(dev);
-    val = 0;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_SEC_HI_A, val, INDY_DEF_MASK);
-    val = 2;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_SEC_LO_A, val, INDY_DEF_MASK);
-    val = 0;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_NS_LO_A, val, INDY_DEF_MASK);
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_NS_LO_A, val, INDY_DEF_MASK);
+    data->ts_state.pps = *phy_pps_conf;
+    base_data->ts_state.pps = *phy_pps_conf;
+    if (phy_pps_conf->pps_output_enable) {
+        // configure target for 1pps trigger as current ltc + 2 seconds.
+        indy_ltc_target_seconds(dev, ts.seconds.low + 2);
 
-    // Reload after every sec
-    val = 0;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_HI_A, val, INDY_DEF_MASK);
-    val = 1;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_LO_A, val, INDY_DEF_MASK);
-    val = 0;
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_HI_A, val, INDY_DEF_MASK);
-    EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_LO_A, val, INDY_DEF_MASK);
-    val = 0x42; //
-    EP_WRM(dev, INDY_PTP_GENERAL_CONFIG, val, INDY_DEF_MASK);
+        // Reload after every sec
+        val = 0;
+        EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_HI_A, val, INDY_DEF_MASK);
+        val = 1;
+        EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_SEC_LO_A, val, INDY_DEF_MASK);
+        val = 0;
+        EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_HI_A, val, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_LTC_TARGET_RELOAD_NS_LO_A, val, INDY_DEF_MASK);
+
+        // find suitable pps width option among list of allowed pps width options.
+        for (i = 0; i < pps_num; i++) {
+            if (phy_pps_conf->pps_width_adj <= pps[i]) {
+                break;
+            }
+        }
+        if (i >= pps_num) {
+            i = pps_num - 1;
+        }
+        val = (i << 4) | 0x2; // event A
+        EP_WRM(dev, INDY_PTP_GENERAL_CONFIG, val, INDY_DEF_MASK);
+    } else {
+        // configure target for 1pps trigger as 0.
+        indy_ltc_target_seconds(dev, 0);
+        val = 0;
+        EP_WR(dev, INDY_PTP_GENERAL_CONFIG, val);
+    }
+    data->ts_state.pps = *phy_pps_conf;
+    base_data->ts_state.pps = *phy_pps_conf;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
