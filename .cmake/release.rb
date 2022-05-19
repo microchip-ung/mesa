@@ -200,7 +200,7 @@ def compile(ws, odir, preset, c)
             otar = "#{ws}/#{preset}.tar"
             run "tar -xf #{otar}"
             run "rm -f #{otar}"
-            run "cp #{ws}/sg-#{preset}.log #{ws}.images"
+            run "cp #{ws}/sg-#{preset}.log #{ws}/images"
         end
     end
 
