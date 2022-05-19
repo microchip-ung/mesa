@@ -360,6 +360,13 @@ test_table =
                      {idx_rx: "b", hsr: {}}]}]
     },
     {
+        txt: "Supervision Discard on Interlink",
+        cfg: {mode: "HSR_SAN"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "c"},
+                     {idx_rx: "d"}]}]
+    },
+    {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "HSR_SAN", npi: "d"},
         tab: [{frm: {dmac: "01:15:4e:00:01:00"},
@@ -628,6 +635,13 @@ test_table =
                      {idx_rx: "d", prp: {}, ifh_rx: "a"}]}]
     },
     {
+        txt: "Supervision Discard on Interlink",
+        cfg: {mode: "PRP_SAN"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "c"},
+                     {idx_rx: "d"}]}]
+    },
+    {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "PRP_SAN", npi: "d"},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
@@ -835,12 +849,18 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_PRP", sv: "CPU_COPY", npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_PRP", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "c", prp: {}},
-                     {idx_rx: "d", prp: {}, ifh_rx: "a"}]}]
+                     {idx_rx: "d", hsr: {}, ifh_rx: "a"}]}]
+    },
+    {
+        txt: "Supervision Discard on Interlink",
+        cfg: {mode: "HSR_PRP"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "c"},
+                     {idx_rx: "d"}]}]
     },
     {
         txt: "Supervision Tx to LREs",
@@ -1024,11 +1044,21 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_HSR", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_HSR", sv: "CPU_COPY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", hsr: {}},
                      {idx_rx: "d", hsr: {}, ifh_rx: "a"}]}]
+    },
+    {
+        txt: "Supervision Forward on Interlink",
+        cfg: {mode: "HSR_HSR"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "c", hsr: {}},
+                     {idx_rx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "d", hsr: {}}]}]
     },
     {
         txt: "Supervision Tx to LREs",

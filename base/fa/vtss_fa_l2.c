@@ -1684,8 +1684,10 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     u32 lan_id = conf->lan_id, netid = conf->net_id;
     u32 prxy_smac_msk = FA_RB_MSK_ALL, prxy_dmac_msk = FA_RB_MSK_ALL;
     u32 node_smac_msk = FA_RB_MSK_ALL, node_dmac_msk = FA_RB_MSK_ALL;
+    u32 sv;
 
     lre = (j < 2 ? 1 : 0);
+    sv = (lre ? FA_RB_SV_FORWARD : FA_RB_SV_DISCARD); // Discard Supervision frames from Interlink
     switch (conf->mode) {
     case VTSS_RB_MODE_PRP_SAN:
         if (lre) {
@@ -1732,6 +1734,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
+            sv = FA_RB_SV_FORWARD;          // Forward Supervision frames from Interlink
         }
         break;
     default:
@@ -1772,6 +1775,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_PORT_CFG_CT_IGR_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
+           VTSS_F_RB_PORT_CFG_HSR_SPV_FWD_SEL(sv) |
+           VTSS_F_RB_PORT_CFG_PRP_SPV_FWD_SEL(sv) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID(trans_netid) |
            VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(trans_netid ? 2 : 0) |
            VTSS_F_RB_PORT_CFG_NETID(netid) |
