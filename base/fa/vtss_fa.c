@@ -350,7 +350,7 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
 
 static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 {
-    u32 clk_div, clk_period, pol_upd_int;
+    u32 clk_div, clk_period, pol_upd_int, val;
     vtss_core_clock_freq_t freq, f = vtss_state->init_conf.core_clock.freq;
     freq = f;
 
@@ -420,6 +420,32 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
+
+    /* Enable DPLL fractional mode (if not enabled already, MESA-825) */
+    REG_RD(VTSS_LCPLL28_LCPLL_CONFIG2, &val);
+    if (VTSS_X_LCPLL28_LCPLL_CONFIG2_F(val) == 0) {
+        REG_RD(VTSS_DEVCPU_GCB_HW_STAT, &val);
+
+        switch (VTSS_X_DEVCPU_GCB_HW_STAT_PLL0_CONF(val)) {
+        case 0: val = 80;  break;  /* 125Mhz   */
+        case 1: val = 64;  break;  /* 156.2Mhz */
+        case 4: val = 400; break;  /* 25Mhz    */
+        default:
+            VTSS_E("PLL0 value not supported");
+            return VTSS_RC_ERROR;
+        }
+        REG_WRM(VTSS_LCPLL28_LCPLL_CONFIG2,
+                VTSS_F_LCPLL28_LCPLL_CONFIG2_F(val),
+                VTSS_M_LCPLL28_LCPLL_CONFIG2_F);
+
+        REG_WRM(VTSS_LCPLL28_LCPLL_CONFIG3,
+                VTSS_F_LCPLL28_LCPLL_CONFIG3_R(511),
+                VTSS_M_LCPLL28_LCPLL_CONFIG3_R);
+
+        REG_WRM(VTSS_LCPLL28_LCPLL_CONFIG3,
+                VTSS_F_LCPLL28_LCPLL_CONFIG3_PDSIG(0),
+                VTSS_M_LCPLL28_LCPLL_CONFIG3_PDSIG);
+    }
 
     /* Configure the LCPLL */
     REG_WRM(VTSS_CLKGEN_LCPLL1_CORE_CLK_CFG,
