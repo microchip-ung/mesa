@@ -369,10 +369,15 @@ test_table =
     {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "HSR_SAN", npi: "d"},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
-               fwd: [{idx_tx: "d", ifh_tx: "a"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}}]}]
+                     {idx_rx: "b", hsr: {}}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+        ]
     },
     {
         txt: "port A/B duplicate discard towards port A/B/C/D",
@@ -645,9 +650,14 @@ test_table =
         txt: "Supervision Tx to LREs",
         cfg: {mode: "PRP_SAN", npi: "d"},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
-               fwd: [{idx_tx: "d", ifh_tx: "a"},
+               fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", prp: {}},
-                     {idx_rx: "b", prp: {}}]}]
+                     {idx_rx: "b", prp: {}}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+        ]
     },
     {
         txt: "port A duplicate discard towards port C/D",
@@ -865,10 +875,15 @@ test_table =
     {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "HSR_PRP", npi: "d"},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
-               fwd: [{idx_tx: "d", ifh_tx: "a"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}}]}]
+                     {idx_rx: "b", hsr: {}}]}],
+        # Expect zero counters
+        cnt: [
+            {port: "a", name: "tx_dupl_zero", val: 0},
+            {port: "b", name: "tx_dupl_zero", val: 0},
+        ]
     },
     {
         txt: "port A duplicate discard towards port B/C/D",
@@ -1063,7 +1078,7 @@ test_table =
     {
         txt: "Supervision Tx to LREs",
         cfg: {mode: "HSR_HSR", npi: "d"},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00"},
+        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", hsr: {}, ifh_tx: "a"},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}}]}]
@@ -1216,6 +1231,8 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 rb_tag_dis = fld_get(e, :rb_tag_dis, false)
                 info[:rb_tag_disable] = rb_tag_dis
                 info[:rb_dd_disable] = rb_tag_dis
+                rb_fwd = fld_get(e, :rb_fwd, "DEFAULT")
+                info[:rb_fwd] = ("MESA_PACKET_RB_FWD_" + rb_fwd)
                 cmd += (" " + cmd_tx_ifh_push(info))
             end
             cmd += " eth"

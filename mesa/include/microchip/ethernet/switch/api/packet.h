@@ -423,6 +423,14 @@ typedef enum {
 
 #define MESA_ISDX_CPU_TX 1023 // ISDX used for CPU transmissions
 
+// RedBox forward selection
+typedef enum {
+    MESA_PACKET_RB_FWD_DEFAULT, // Forwarding determined by RedBox
+    MESA_PACKET_RB_FWD_A,       // Forwarding to port A only
+    MESA_PACKET_RB_FWD_B,       // Forwarding to port B only
+    MESA_PACKET_RB_FWD_BOTH     // Forwarding to port A and B
+} mesa_packet_rb_fwd_t;
+
 // Injection Properties.
 //
 // Structural properties used to compose a binary injection header useful
@@ -520,6 +528,9 @@ typedef struct {
 
     // RedBox HSR duplicate discard disable
     mesa_bool_t rb_dd_disable;
+
+    // RedBox forwarding selection
+    mesa_packet_rb_fwd_t rb_fwd;
 } mesa_packet_tx_info_t;
 
 // Decode binary extraction/Rx header.

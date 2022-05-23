@@ -537,6 +537,14 @@ typedef enum {
 
 #define VTSS_ISDX_CPU_TX 1023 /**< ISDX used for CPU transmissions */
 
+// RedBox forward selection
+typedef enum {
+    VTSS_PACKET_RB_FWD_DEFAULT, // Forwarding determined by RedBox
+    VTSS_PACKET_RB_FWD_A,       // Forwarding to port A only
+    VTSS_PACKET_RB_FWD_B,       // Forwarding to port B only
+    VTSS_PACKET_RB_FWD_BOTH     // Forwarding to port A and B
+} vtss_packet_rb_fwd_t;
+
 /**
  * \brief Injection Properties.
  *
@@ -575,8 +583,9 @@ typedef struct {
 #if defined(VTSS_FEATURE_PACKET_PIPELINE_PT)
     vtss_packet_pipeline_pt_t pipeline_pt;
 #endif /* defined(VTSS_FEATURE_PACKET_PIPELINE_PT) */
-    BOOL rb_tag_disable;
-    BOOL rb_dd_disable;
+    BOOL                 rb_tag_disable; // RedBox HSR/PRP tag disable
+    BOOL                 rb_dd_disable;  // RedBox HSR duplicate discard disable
+    vtss_packet_rb_fwd_t rb_fwd;         // RedBox forwarding selection
 } vtss_packet_tx_info_t;
 
 /**
