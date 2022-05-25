@@ -1548,6 +1548,11 @@ static vtss_rc jr2_port_kr_conf_set(vtss_state_t *vtss_state,
         JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1),
                 VTSS_BIT(10),
                 VTSS_BIT(10));
+
+        // Freeze page detect timer (disable parallel detect)
+        JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1),
+                VTSS_BIT(6),
+                VTSS_BIT(6));
     }
 
     // Disable Training if requested
