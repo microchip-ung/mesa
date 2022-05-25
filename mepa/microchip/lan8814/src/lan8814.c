@@ -637,7 +637,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             }
             mask |= (INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
             if (config->aneg.speed_1g_fdx != data->conf.aneg.speed_1g_fdx ||
-                config->man_neg           != data->conf.man_neg) {
+                (config->man_neg && (config->man_neg != data->conf.man_neg))) {
                 restart_aneg = TRUE;
             }
             WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, new_value, mask);
