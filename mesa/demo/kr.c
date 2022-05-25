@@ -440,8 +440,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 (void)mesa_port_kr_fec_set(NULL, iport, &fec);
                 conf.aneg.enable = mreq->dis ? 0 : 1;
                 conf.train.enable = mreq->train || mreq->all;
-//                conf.train.no_remote = mreq->no_rem;
-                conf.train.no_remote = 1;
+                conf.train.no_remote = mreq->no_rem;
                 conf.train.no_eq_apply = kr_conf_state[iport].no_eq_apply;
                 conf.train.test_mode = mreq->test;
                 conf.train.test_repeat = 10;
@@ -450,7 +449,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 conf.aneg.adv_2g5 = mreq->adv2g5 || mreq->all;
                 conf.aneg.adv_5g = mreq->adv5g || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
-                conf.aneg.no_pd = 1;
+                conf.aneg.no_pd = mreq->no_pd;
 
                 if (kr_conf_state[iport].cap_25g) {
                     conf.aneg.adv_25g = mreq->adv25g || mreq->all;
