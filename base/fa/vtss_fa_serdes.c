@@ -710,8 +710,6 @@ static vtss_port_kr_coef_update_t coef2act(u16 frm_in)
     }
 }
 
-
-
 static vtss_port_kr_coef_status_t coef2sts(u16 frm_in)
 {
     u16 action = 0;
@@ -733,10 +731,10 @@ static vtss_port_kr_coef_status_t coef2sts(u16 frm_in)
     return VTSS_COEF_NOT_UPDATED;
 }
 
-static vtss_port_kr_coef_status_t sts2rawsts(vtss_port_kr_coef_type_t tap, vtss_port_kr_coef_status_t status)
+static u16 sts2rawsts(vtss_port_kr_coef_type_t tap, vtss_port_kr_coef_status_t status, u16 sts_out)
 {
     if ((tap == VTSS_COEF_PRESET) || (tap == VTSS_COEF_INIT)) {
-        return ((status << 4) | (status << 2) |  status);
+        return (sts_out);
     } else if (tap == VTSS_COEF_CP1) {
         return (status = status << 4);
     } else if (tap == VTSS_COEF_C0) {
@@ -745,10 +743,9 @@ static vtss_port_kr_coef_status_t sts2rawsts(vtss_port_kr_coef_type_t tap, vtss_
     return status;
 }
 
-
 // GUC algorithm for 10G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef_in,
-                                                           u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+                                                           u32 *pcs2pma, u32 *tap_dly, u32 *tap_adv, u16 *status_out, BOOL verify_only)
 {
     u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
     int _pcs2pma = *pcs2pma, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
@@ -762,11 +759,13 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
         _pcs2pma = 192;
         _tap_adv = 0;
         _tap_dly = 0;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_MAXIMUM << 2) |  VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_INIT:
         _pcs2pma = 192;
         _tap_adv = 4;
         _tap_dly = 22;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_UPDATED << 2) |  VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_CP1:
         if (action == VTSS_COEF_HOLD) {
@@ -1012,7 +1011,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
 
-    *status_out = sts2rawsts(tap, status);
+    *status_out = sts2rawsts(tap, status, *status_out);
     *tap_dly = _tap_dly;
     *pcs2pma = _pcs2pma;
     *tap_adv = _tap_adv;
@@ -1022,7 +1021,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
 
 // GUC algorithm for 25G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef_in,
-                                                          u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+                                                          u32 *amp_code, u32 *tap_dly, u32 *tap_adv, u16 *status_out, BOOL verify_only)
 {
     int _amp_code = *amp_code, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
     vtss_port_kr_coef_status_t status = VTSS_COEF_UPDATED;
@@ -1035,11 +1034,13 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
         _amp_code = 80;
         _tap_adv = 0;
         _tap_dly = 0;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_MAXIMUM << 2) |  VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_INIT:
         _amp_code = 80;
         _tap_adv = 4;
         _tap_dly = 22;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_UPDATED << 2) |  VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_CP1:
         if (action == VTSS_COEF_HOLD) {
@@ -1123,7 +1124,8 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
                _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code));
     }
 
-    *status_out = sts2rawsts(tap, status);
+    *status_out = sts2rawsts(tap, status, *status_out);
+
     *tap_dly    = _tap_dly;
     *amp_code   = _amp_code;
     *tap_adv    = _tap_adv;
@@ -1134,7 +1136,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
 //BOOL c0_done[VTSS_PORTS] = {0};
 // GUC algorithm for 25G @ 10G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vtss_state, u32 p, const u16 coef_in,
-                                                              u32 *amp_code, u32 *tap_dly, u32 *tap_adv, vtss_port_kr_coef_status_t *status_out, BOOL verify_only)
+                                                              u32 *amp_code, u32 *tap_dly, u32 *tap_adv, u16 *status_out, BOOL verify_only)
 {
     u32 dG = 0, dCd = 0, dCa = 0, adv_dly_sum = 99, tap_adv_max = 99;
     int _amp_code = *amp_code, _tap_dly = *tap_dly, _tap_adv = *tap_adv;
@@ -1147,15 +1149,17 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
     switch (tap) {
     case VTSS_COEF_PRESET:
         _amp_code = 80;
-        _tap_adv = 4;
-        _tap_dly = 22;
+        _tap_adv = 0;
+        _tap_dly = 0;
         *c0_done = FALSE;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_MAXIMUM << 2) | VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_INIT:
         _amp_code = 80;
         _tap_adv = 4;
         _tap_dly = 22;
         *c0_done = FALSE;
+        *status_out = ((VTSS_COEF_UPDATED << 4) | (VTSS_COEF_UPDATED << 2) | VTSS_COEF_UPDATED);
         break;
     case VTSS_COEF_CP1:
         if (action == VTSS_COEF_HOLD) {
@@ -1329,7 +1333,6 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
             sts_code = VTSS_KR_STS_TAP_DLY_ABOVE_31;
         } else if ((_tap_adv + _tap_dly) > adv_dly_sum) {
             status = (action == VTSS_COEF_INCR) ? VTSS_COEF_MAXIMUM : VTSS_COEF_MINIMUM; // Workaround
-//            status = VTSS_COEF_MINIMUM;
             sts_code = VTSS_KR_STS_ADV_DLY_ABOVE_LIMIT;
         }
         break;
@@ -1465,15 +1468,16 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
             sts_code = VTSS_KR_STS_ADV_DLY_OUT_OF_RANGE;
         }
     }
-
-    if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
-        ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
-        VTSS_E("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n",
-               p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv,
-               _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only);
+    if (tap == VTSS_COEF_CP1 || tap == VTSS_COEF_C0 || tap == VTSS_COEF_CM1) {
+        if (((action == VTSS_COEF_INCR) && (status == VTSS_COEF_MINIMUM)) ||
+            ((action == VTSS_COEF_DECR) && (status == VTSS_COEF_MAXIMUM))) {
+            VTSS_E("FAILURE! p:%d Tap:%s Action:%s amp_code=%d->%d tap_dly=%d->%d tap_adv=%d->%d (dly+adv=%d) --> Status:%s (Reason:%s) (verify:%d)\n",
+                   p, vtss_kr_coef2txt(tap), vtss_kr_upd2txt(action), *amp_code, _amp_code,*tap_dly,_tap_dly,*tap_adv,_tap_adv,
+                   _tap_adv+_tap_dly, vtss_kr_status2txt(status), vtss_kr_sts_code2txt(sts_code), verify_only);
+        }
     }
 
-    *status_out = sts2rawsts(tap, status);
+    *status_out = sts2rawsts(tap, status, *status_out);
     *tap_dly    = _tap_dly;
     *amp_code   = _amp_code;
     *tap_adv    = _tap_adv;
@@ -1487,7 +1491,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           vtss_kr_status_results_t *const status_out)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
-    vtss_port_kr_coef_status_t sts_tmp = VTSS_COEF_NOT_UPDATED;
+    u16 sts_tmp = 0;
     vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
     vtss_port_kr_status_codes_t int_status;
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
@@ -1495,8 +1499,8 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
 
     // 1. Calculate next settings based on coeficent request INIT/PRESET/INCR/DECR
     // 2. Verify calculated settings
-    // 3. If status == UPDATED: Apply calculated settings to the Tx-EQ
-    // 4. Return Status report
+    // 3. If PRESET/INIT or status == UPDATED: Apply calculated settings to the Tx-EQ
+    // 4. Return Status report incl actual TxEq settings
 
     if (VTSS_PORT_IS_10G(port)) { // 10GSD @ 10G
         int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 10G Calculate
@@ -1517,14 +1521,9 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
         }
     }
 
-    if (coef2act(coef_in) != VTSS_COEF_HOLD) {
-        if (raw_sts2enum(sts_tmp) == VTSS_COEF_MINIMUM ||
-            raw_sts2enum(sts_tmp) == VTSS_COEF_MAXIMUM ||
-            raw_sts2enum(sts_tmp) == VTSS_COEF_UPDATED) {
-        }
-    }
-
-    if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED) {
+    if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED ||
+        coef2tap(coef_in) == VTSS_COEF_PRESET ||
+        coef2tap(coef_in) == VTSS_COEF_INIT) {
         st->amplitude = amplitude;
         st->tap_dly = tap_dly;
         st->tap_adv = tap_adv;
@@ -1532,11 +1531,11 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
             VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, amplitude)); // Apply the settings
         }
     }
-
     status_out->status = sts_tmp; // Return status report
-    status_out->cm1 = tap_adv;
+    status_out->cm1 = tap_adv; // Also return the EQ values for debug purposes
     status_out->cp1 = tap_dly;
     status_out->c0 = amplitude;
+
     return VTSS_RC_OK;
 }
 

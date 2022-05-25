@@ -1698,6 +1698,9 @@ static void kr_ber_training(vtss_state_t *vtss_state,
         kr_send_coef_update(vtss_state, krs, p, COEF_INIT);
         krs->ber_training_stage = VTSS_BER_GO_TO_MIN;
         krs->current_tap = kr_ber_next_tap(0, 1); // Give us the first tap
+        // Sometimes the signal is unstable right after TRAIN start
+        // Disable fail checking and enable after first step in VTSS_BER_GO_TO_MIN
+        krs->ignore_fail = TRUE;
         return;
     }
 
@@ -1738,6 +1741,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
         }
+        krs->ignore_fail = FALSE;
         return;
     case VTSS_BER_CALCULATE_BER:
         krs->ignore_fail = TRUE; // Basically its to late to deal with errors in the CALC_BER stage
@@ -1745,11 +1749,8 @@ static void kr_ber_training(vtss_state_t *vtss_state,
             krs->ber_busy = TRUE;
         } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
             krs->ber_busy = FALSE;
-            krs->ber_cnt[krs->current_tap][krs->tap_idx] = fa_port_kr_ber_cnt(vtss_state, p);
-            // Don't perform eye measurement on a noisy channel
-            if (krs->ber_cnt[krs->current_tap][krs->tap_idx] == 0) {
-                krs->eye_height[krs->current_tap][krs->tap_idx] = kr_eye_height_get(vtss_state, p);
-            }
+            krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] = fa_port_kr_ber_cnt(vtss_state, p);
+            krs->eye_height[krs->current_tap][krs->tap_idx - 1] = kr_eye_height_get(vtss_state, p);
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
                 if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {

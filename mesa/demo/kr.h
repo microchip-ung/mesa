@@ -66,6 +66,9 @@ typedef struct {
     uint16_t lp_bp0;
     uint16_t lp_bp1;
     uint16_t lp_bp2;
+    uint16_t lp_np0;
+    uint16_t lp_np1;
+    uint16_t lp_np2;
     uint32_t port;
 } kr_irq_t;
 

@@ -709,6 +709,9 @@ typedef struct {
     u16  lp_bp0;              /**< (debug) LP Base page 0-15           */
     u16  lp_bp1;              /**< (debug) LP Base page 16-31          */
     u16  lp_bp2;              /**< (debug) LP Base page 32-47          */
+    u16  lp_np0;              /**< (debug) LP Base page 0-15           */
+    u16  lp_np1;              /**< (debug) LP Base page 16-31          */
+    u16  lp_np2;              /**< (debug) LP Base page 32-47          */
 } vtss_port_kr_status_aneg_t;
 
 /** \brief  KR Training status */
@@ -748,6 +751,7 @@ typedef struct {
     BOOL r_fec_req;        /**< Request R-FEC          */
     BOOL rs_fec_req;       /**< Request RS-FEC         */
     BOOL next_page;        /**< Use next page when adv.*/
+    BOOL no_pd;            /**< Do not enable parallel detect */
 } vtss_port_kr_aneg_t;
 
 /** \brief  KR Training config */

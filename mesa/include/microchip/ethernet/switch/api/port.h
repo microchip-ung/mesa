@@ -581,6 +581,9 @@ typedef struct {
     uint16_t          lp_bp0        CAP(PORT_KR_IRQ); // (debug) LP Base page 0-15
     uint16_t          lp_bp1        CAP(PORT_KR_IRQ); // (debug) LP Base page 16-31
     uint16_t          lp_bp2        CAP(PORT_KR_IRQ); // (debug) LP Base page 32-47
+    uint16_t          lp_np0        CAP(PORT_KR_IRQ); // (debug) LP Next page 0-15
+    uint16_t          lp_np1        CAP(PORT_KR_IRQ); // (debug) LP Next page 16-31
+    uint16_t          lp_np2        CAP(PORT_KR_IRQ); // (debug) LP Next page 32-47
 } mesa_port_kr_status_aneg_t        CAP(PORT_KR);
 
 // KR Training status
@@ -620,6 +623,7 @@ typedef struct {
     mesa_bool_t r_fec_req;                    // Request R-FEC
     mesa_bool_t rs_fec_req  CAP(PORT_KR_IRQ); // Request RS-FEC (25G)
     mesa_bool_t next_page   CAP(PORT_KR_IRQ); // Use next page when advertise
+    mesa_bool_t no_pd       CAP(PORT_KR_IRQ); // Do not enable parallel detect
 } mesa_port_kr_aneg_t       CAP(PORT_KR);
 
 // KR Training config
