@@ -1341,6 +1341,9 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             abil |= kr->aneg.rs_fec_req ? VTSS_BIT(12) : 0; // F2
             abil |= kr->aneg.r_fec_req  ? VTSS_BIT(13) : 0; // F3
             abil |= VTSS_BIT(15); // FEC requested
+        } else if (kr->aneg.r_fec_req) {
+            abil |= VTSS_BIT(13); // F3
+            abil |= VTSS_BIT(15); // FEC requested
         }
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(12) | VTSS_BIT(13) |  VTSS_BIT(14) |  VTSS_BIT(15) );
     }
