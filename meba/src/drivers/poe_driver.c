@@ -2616,7 +2616,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_WARNING, "No TPE!");
         // Reset - Section 5.1 - step 9
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Sending 'E' - erasing memory - Section 5.1 - step 3");
@@ -2626,7 +2626,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 5); // read TOE\r\n - Section 5.1 - step 3;
     if ((buf[0] != 'T') || (buf[1] != 'O') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "No TOE!");
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Erasure may last up to 5 seconds. - Section 5.1 - step 4");
@@ -2635,14 +2635,14 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 4); // read TE\r\n - Section 5.1 - step 4
     if ((buf[0] != 'T') || (buf[1] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "No TE!");
-        //        goto out;
+        goto error_out;
     }
     VTSS_MSLEEP(100);
 
     pd69200_firm_update_rd(inst, buf, 5); // read TPE\r\n - Section 5.1 - step 4
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "No TPE!");
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Sending 'P' - program memory - Section 5.1 - step 5");
@@ -2652,7 +2652,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 5); // read TOP\r\n - Section 5.1 - step 5
     if ((buf[0] != 'T') || (buf[1] != 'O') || (buf[2] != 'P')) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "No TOP");
-        //        goto out;
+        goto error_out;
     }
 
     if (!microsemi_firmware) { // Use built-in firmware
