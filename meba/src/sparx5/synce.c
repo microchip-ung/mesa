@@ -70,6 +70,7 @@
 #define station_clock_fireant_20             MESA_SYNCE_DEV_CLOCK_IN(    21,      0)
 #define station_clock_fireant_56             MESA_SYNCE_DEV_CLOCK_IN(    57,      0)
 #define station_clock_fireant_8              MESA_SYNCE_DEV_CLOCK_IN(     9,      0)
+#define station_clock_fireant_14             MESA_SYNCE_DEV_CLOCK_IN(    15,      0)
 
 #define divider_switch_mux_port_0_in      MESA_SYNCE_DEV_DIVIDER(      200,      MESA_SYNCE_DEV_INPUT | 0)
 #define divider_switch_mux_port_0_out     MESA_SYNCE_DEV_DIVIDER(      200,      0)
@@ -1138,7 +1139,7 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_10_4_w_zls3
     MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_13_out,  switch_mux_port_in_13),
     MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_2,           dpll_port_0),
     MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_3,           dpll_port_1),
-    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_20,        dpll_port_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_14,        dpll_port_4),
 };
 
 static const meba_synce_terminal_attr_t attr_fireant_10_4_w_zls30772_board[] = {
