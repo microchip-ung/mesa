@@ -211,7 +211,7 @@ enum ePORT_STATUS
     eAT_0x24_OFF_EXT_VOLT_INJ_CAP_DET_MODE    = 36, //#                  # Port fails cap det due to voltage being applied to the port
     eAT_0x25_OFF_IMPROPER_CAP_DET_MODE        = 37, //#                  # Port fails Capacitor detection due to out-of-range cap value
     eAT_0x26_OFF_DISCHARGED_LOAD_CAP_DET_MODE = 38, //#                  # Port fails Cap Det due to discharged capacitor
-                                                 //#                  #
+                                                    //#                  #
     eAT_0x2B_ON__FORCE                        = 43, //# eTEST            # Port was forced to turn on
     eAT_0x2C_OFF_FORCE_ERROR                  = 44, //# eOTHERFAULT      # Port was forced to ON, and shut down due to other error was shut down
     eAT_0x2D_OFF_FORCE_PS_TOO_HIGH            = 45, //# eOTHERFAULT      # Port was forced to ON, and detected that power supply is to high
@@ -228,7 +228,7 @@ enum ePORT_STATUS
     eAT_0x38_OFF_FORCE_PWR_ERR_SHORT_CIRCUIT  = 56, //# eFAULT           # Short in the port during force On
     eAT_0x39_OFF_FORCE_PWR_ERR_CH_OVER_TEMP   = 57, //# eOTHERFAULT      # Channel over temperature during Force-ON
     eAT_0x3A_OFF_FORCE_PWR_ERR_CHIP_OVER_TEMP = 58, //# eOTHERFAULT      # Device over temperature during force-ON
-                                                 //#                  #
+                                                    //#                  #
     eAT_0x3C_OFF_PWR_MANAGEMENT_STATIC        = 60, //# eOTHERFAULT      # Calculated power > power limit
     eAT_0x3D_OFF_PWR_MANAGEMENT_STATIC_OV     = 61, //# eOTHERFAULT      # PD class report > user predefined power value
     eAT_0x3E_OFF_FORCE_PWR_ERR_MNGMNT_STAT    = 62, //# eOTHERFAULT      # Calculated power > power limit during Force-ON
@@ -336,13 +336,13 @@ typedef enum
 
 
 /*
-typedef enum
-{
-    ePort_PM_Dynamic                                   = 0,
-    ePort_PM_TPPL_BT                                   = 1,
-    ePort_PM_dynamic_for_non_LLDP_and_TPPL_BT_for_LLDP = 2,
-    ePort_PM_No_change                                 = 0xFF
-} BT_port_PM_mode_e;
+  typedef enum
+  {
+  ePort_PM_Dynamic                                   = 0,
+  ePort_PM_TPPL_BT                                   = 1,
+  ePort_PM_dynamic_for_non_LLDP_and_TPPL_BT_for_LLDP = 2,
+  ePort_PM_No_change                                 = 0xFF
+  } BT_port_PM_mode_e;
 */
 
 
@@ -445,10 +445,10 @@ Prod prod;
  *              MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED - poe firmware update needed
  *---------------------------------------------------------------------*/
 mesa_rc Get_15Bytes_CommProtocol_Reply(const meba_poe_ctrl_inst_t* const inst,
-                   uint8_t* data,
-                   uint8_t byTxEcho,
-                   mesa_bool_t *pePOE_BOOL_Is_system_status,
-                   Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error);
+                                       uint8_t* data,
+                                       uint8_t byTxEcho,
+                                       mesa_bool_t *pePOE_BOOL_Is_system_status,
+                                       Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error);
 
 
 
@@ -477,7 +477,7 @@ static char* print_as_hex_string(uint8_t* in, int in_size, char* out, int out_si
             goto OUT;
     }
 
- OUT:
+OUT:
     out[size_old - 1] = 0;
 
     return out;
@@ -601,7 +601,7 @@ void meba_poe_pd69200_set_chipset(
     meba_poe_chip_state_t  chip_state)
 {
     meba_poe_status_t* current_status =
-        &(((poe_driver_private_t*)(inst->private_data))->status.global);
+            &(((poe_driver_private_t*)(inst->private_data))->status.global);
 
     current_status->chip_state = chip_state;
 }
@@ -615,7 +615,7 @@ meba_poe_chip_state_t meba_poe_pd69200_get_chipset(
     }
 
     meba_poe_status_t* current_status =
-        &(((poe_driver_private_t*)(inst->private_data))->status.global);
+            &(((poe_driver_private_t*)(inst->private_data))->status.global);
 
     return current_status->chip_state;
 }
@@ -767,7 +767,7 @@ static mesa_bool_t report_key_ok(
         {
             report_key_ok_v = false;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s Failed, Failed Execution/Conflict in Subject Bytes \n", __FUNCTION__);
-//            S_I("PoE-Control: poe software module use unsupported communication message");
+            //S_I("PoE-Control: poe software module use unsupported communication message");
         }
         else if  (buf2_3 >= 0x8001 && buf2_3 <= 0x8FFF)
         {
@@ -862,10 +862,10 @@ static mesa_rc pd69200_tx(
     Telemetry_at_Boot_Up_Error_e    eTelemetry_at_Boot_Up_Error = eBoot_Unknown_error;
 
     rc = Get_15Bytes_CommProtocol_Reply(inst,
-                   buf,
-                   buf_tx[1],
-                   &ePOE_BOOL_Is_system_status,
-                   &eTelemetry_at_Boot_Up_Error);
+                                        buf,
+                                        buf_tx[1],
+                                        &ePOE_BOOL_Is_system_status,
+                                        &eTelemetry_at_Boot_Up_Error);
 
     // Do the I2C transmission and check report key.
     if (rc ==  MESA_RC_OK)
@@ -916,27 +916,27 @@ typedef struct
 
 // Get serial number
 mesa_rc pd69200bt_get_serial_number(const meba_poe_ctrl_inst_t* const inst,
-       poebt_serial_number_t *ptSN )
+                                    poebt_serial_number_t *ptSN )
 {
     // Send request to get serial number
     unsigned char buf[PD_BUFFER_SIZE] = { REQUEST_KEY,
-        DUMMY_SEQ_NUM,
-        GLBL_KEY,
-        PRDCTINFO_KEY,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE
+                                          DUMMY_SEQ_NUM,
+                                          GLBL_KEY,
+                                          PRDCTINFO_KEY,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE,
+                                          DUMMY_BYTE
     };
 
-//    T_DG(VTSS_TRACE_POEBT_GRP_CUSTOM, "pd69200bt_get_serial_number");
+    // T_DG(VTSS_TRACE_POEBT_GRP_CUSTOM, "pd69200bt_get_serial_number");
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
@@ -947,12 +947,12 @@ mesa_rc pd69200bt_get_serial_number(const meba_poe_ctrl_inst_t* const inst,
     ptSN->PN                  = ((uint16_t)buf[6] << 8) | (uint16_t)buf[7];
     ptSN->UN                  = ((uint32_t)buf[8] << 16) | ((uint32_t)buf[9] << 8) | (uint32_t)buf[10];
 
-//    T_DG(VTSS_TRACE_POEBT_GRP_CUSTOM, "(GET_SERIAL_NUMBER):CH=%d,Year=%d,Week=%d,PN=%d,UN=%d",
-//         ptSN->NumOfCh_HC08_Sprt,
-//         ptSN->Year,
-//         ptSN->Week,
-//         ptSN->PN,
-//         ptSN->UN);
+    /* T_DG(VTSS_TRACE_POEBT_GRP_CUSTOM, "(GET_SERIAL_NUMBER):CH=%d,Year=%d,Week=%d,PN=%d,UN=%d", */
+    /*      ptSN->NumOfCh_HC08_Sprt, */
+    /*      ptSN->Year, */
+    /*      ptSN->Week, */
+    /*      ptSN->PN, */
+    /*      ptSN->UN); */
 
     return MESA_RC_OK;
 }
@@ -1015,7 +1015,7 @@ mesa_rc meba_poe_pd69200_individual_mask_set(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf))
 
-    return MESA_RC_OK;
+            return MESA_RC_OK;
 }
 
 
@@ -1081,7 +1081,7 @@ mesa_rc meba_poe_pd69200_set_pm_method(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf))
 
-    return MESA_RC_OK;
+            return MESA_RC_OK;
 }
 
 static mesa_rc meba_poe_pd69200_set_power_banks(
@@ -1249,87 +1249,87 @@ static mesa_rc meba_poe_pd69200_ctrl_set_port_priority(
 
 /*
 
-static
-mesa_rc meba_poe_pd69200_ctrl_set_bt_port_layer2_lldp_pd_request(
-    const meba_poe_ctrl_inst_t* const inst,
-    meba_poe_port_handle_t      channel,
-    uint16_t                    pd_request_power_single,  // deciwatt
-    uint16_t                    pd_request_power_dual_a,  // deciwatt
-    uint16_t                    pd_request_power_dual_b,  // deciwatt
-    uint8_t                     cable_len_plus_req_autoclass,
-    uint8_t                     l2_cfg)
-{
-    // Transmit the command
-    uint8_t buf[PD_BUFFER_SIZE] = {
-        COMMAND_KEY,
-        DUMMY_SEQ_NUM,
-        CHANNEL_KEY,
-        LAYER2_BT_LLDP_PD_KEY,
-        channel,
-        (uint8_t)((pd_request_power_single >> 8) & 0xFF),
-        (uint8_t)(pd_request_power_single & 0xFF),
-        (uint8_t)((pd_request_power_dual_a >> 8) & 0xFF),
-        (uint8_t)(pd_request_power_dual_a & 0xFF),
-        (uint8_t)((pd_request_power_dual_b >> 8) & 0xFF),
-        (uint8_t)(pd_request_power_dual_b & 0xFF),
-        cable_len_plus_req_autoclass,
-        l2_cfg,
-        DUMMY_BYTE
-    };
+  static
+  mesa_rc meba_poe_pd69200_ctrl_set_bt_port_layer2_lldp_pd_request(
+  const meba_poe_ctrl_inst_t* const inst,
+  meba_poe_port_handle_t      channel,
+  uint16_t                    pd_request_power_single,  // deciwatt
+  uint16_t                    pd_request_power_dual_a,  // deciwatt
+  uint16_t                    pd_request_power_dual_b,  // deciwatt
+  uint8_t                     cable_len_plus_req_autoclass,
+  uint8_t                     l2_cfg)
+  {
+  // Transmit the command
+  uint8_t buf[PD_BUFFER_SIZE] = {
+  COMMAND_KEY,
+  DUMMY_SEQ_NUM,
+  CHANNEL_KEY,
+  LAYER2_BT_LLDP_PD_KEY,
+  channel,
+  (uint8_t)((pd_request_power_single >> 8) & 0xFF),
+  (uint8_t)(pd_request_power_single & 0xFF),
+  (uint8_t)((pd_request_power_dual_a >> 8) & 0xFF),
+  (uint8_t)(pd_request_power_dual_a & 0xFF),
+  (uint8_t)((pd_request_power_dual_b >> 8) & 0xFF),
+  (uint8_t)(pd_request_power_dual_b & 0xFF),
+  cable_len_plus_req_autoclass,
+  l2_cfg,
+  DUMMY_BYTE
+  };
 
-    MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
-    return MESA_RC_OK;
-}
-
-
+  MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+  return MESA_RC_OK;
+  }
 
 
-static
-mesa_rc meba_poe_pd69200_ctrl_get_bt_port_layer2_lldp_pse_data(
-    const meba_poe_ctrl_inst_t* const inst,
-    meba_poe_port_handle_t      channel,
-    uint16_t* pse_allocated_power_alt_A,
-    uint16_t* pse_allocated_power_alt_B,
-    uint16_t* pse_max_power,
-    uint8_t* assigned_class,
-    uint8_t* layer2_status,
-    uint8_t* ieee_bt_power_bits,
-    uint8_t* cable_len,
-    uint8_t* l2_cfg)
-{
-    // Transmit the command
 
-    uint8_t  buf[PD_BUFFER_SIZE] = {
-        REQUEST_KEY,
-        DUMMY_SEQ_NUM,
-        CHANNEL_KEY,
-        LAYER2_BT_LLDP_PSE_KEY,
-        channel,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE,
-        DUMMY_BYTE
-    };
 
-    MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+  static
+  mesa_rc meba_poe_pd69200_ctrl_get_bt_port_layer2_lldp_pse_data(
+  const meba_poe_ctrl_inst_t* const inst,
+  meba_poe_port_handle_t      channel,
+  uint16_t* pse_allocated_power_alt_A,
+  uint16_t* pse_allocated_power_alt_B,
+  uint16_t* pse_max_power,
+  uint8_t* assigned_class,
+  uint8_t* layer2_status,
+  uint8_t* ieee_bt_power_bits,
+  uint8_t* cable_len,
+  uint8_t* l2_cfg)
+  {
+  // Transmit the command
 
-    *pse_allocated_power_alt_A  = (buf[2] << 8) + buf[3];
-    *pse_allocated_power_alt_B  = (buf[4] << 8) + buf[5];
-    *pse_max_power              = (buf[6] << 8) + buf[7];
-    *assigned_class             =  buf[8];
-    *layer2_status              =  buf[9];
-    *ieee_bt_power_bits         =  buf[10];
-    *cable_len                  =  buf[11];
-    *l2_cfg                     =  buf[12];
+  uint8_t  buf[PD_BUFFER_SIZE] = {
+  REQUEST_KEY,
+  DUMMY_SEQ_NUM,
+  CHANNEL_KEY,
+  LAYER2_BT_LLDP_PSE_KEY,
+  channel,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE,
+  DUMMY_BYTE
+  };
 
-    return MESA_RC_OK;
-}
+  MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+  *pse_allocated_power_alt_A  = (buf[2] << 8) + buf[3];
+  *pse_allocated_power_alt_B  = (buf[4] << 8) + buf[5];
+  *pse_max_power              = (buf[6] << 8) + buf[7];
+  *assigned_class             =  buf[8];
+  *layer2_status              =  buf[9];
+  *ieee_bt_power_bits         =  buf[10];
+  *cable_len                  =  buf[11];
+  *l2_cfg                     =  buf[12];
+
+  return MESA_RC_OK;
+  }
 
 */
 
@@ -1689,79 +1689,79 @@ mesa_rc pd69200_program_global_matrix(
  *              MESA_RC_OK                   - operation succeed
  *---------------------------------------------------------------------*/
 mesa_rc check_for_poe_firmware_errors(const meba_poe_ctrl_inst_t* const inst,
-                                              uint8_t *buf,
-                                              Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
+                                      uint8_t *buf,
+                                      Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
 {
-	char boot_up_error_1         = buf[2];
-	//char cpu_status2_error_codes = buf[3];
-	//char factory_default         = buf[4];
-	char boot_up_error_2         = buf[5];
-	//char ram_private_label       = buf[6];
-	//char nvm_private_label       = buf[7];
-	//char found_devices           = buf[8];
-	//char event_exist             = buf[12];
+    char boot_up_error_1         = buf[2];
+    //char cpu_status2_error_codes = buf[3];
+    //char factory_default         = buf[4];
+    char boot_up_error_2         = buf[5];
+    //char ram_private_label       = buf[6];
+    //char nvm_private_label       = buf[7];
+    //char found_devices           = buf[8];
+    //char event_exist             = buf[12];
 
-	if(peTelemetry_at_Boot_Up_Error)
+    if(peTelemetry_at_Boot_Up_Error)
         *peTelemetry_at_Boot_Up_Error = eBoot_Unknown_error;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: buf[0]:%d ,buf[1]:%d ,buf[2]:%d ,buf[3]:%d , buf[4]:%d ,buf[5]:%d ,buf[6]:%d ,buf[7]:%d ,buf[8]:%d ", __FUNCTION__ ,buf[0] , buf[1] , buf[2] , buf[3] , buf[4], buf[5] , buf[6] , buf[7] , buf[8]  );
 
-	// Telemetry at Boot Up Error
-	if ((boot_up_error_1 != 0) || (boot_up_error_2 != 0))
-	{
-		char err_code       = buf[5];
-		char err_info1      = buf[6];
-		char err_info2      = buf[7];
-		char download_type  = buf[8];
+    // Telemetry at Boot Up Error
+    if ((boot_up_error_1 != 0) || (boot_up_error_2 != 0))
+    {
+        char err_code       = buf[5];
+        char err_info1      = buf[6];
+        char err_info2      = buf[7];
+        char download_type  = buf[8];
 
-		if ((err_code == 0x4E) && (err_info1 == 0x4E) && (err_info2 == 0x4E) && (download_type == 0x4E))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_Application_CRC_error_Download_is_required_for_PD69200;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Application CRC error Download is required for PD69200", __FUNCTION__);
-		}
-		else if ((err_code == 0x4E) && (err_info1 == 0x4E) && (err_info2 == 0x4E) && (download_type == 0x33))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_Application_CRC_error_Download_is_required_for_PD69210_PD69220;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Application CRC error Download is required for PD69210_PD69220", __FUNCTION__);
-		}
-		else if ((err_code == 0x02) && (err_info1 == 0x33) && (err_info2 == 0x2C) && (download_type == 0x33))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_hw_error_from_Boot_try_to_program_a_PD69200_firmware_into_PD69210_PD69220_device;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: HW error from Boot Try to program a PD69200 firmware into PD69210_PD69220 device", __FUNCTION__);
-		}
-		else if ((err_code == 0x02) && (err_info1 == 0x2C) && (err_info2 == 0x33) && (download_type == 0x4E))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_hW_error_from_Boot_try_to_program_a_PD69210_PD69220_firmware_into_PD69200_device;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: HW error from Boot Try to program a PD69210_PD69220 firmware into PD69200 device", __FUNCTION__);
-		}
-		else if ((err_code == 0x03) && (err_info1 == 0x40) && (err_info2 == 0x41) && (download_type == 0x4E))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69220_firmware_into_PD69210_device;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Sys Type error from APP Try to program a PD69220 firmware into PD69210 device", __FUNCTION__);
-		}
-		else if ((err_code == 0x03) && (err_info1 == 0x41) && (err_info2 == 0x40) && (download_type == 0x4E))
-		{
-			if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69210_firmware_into_PD69220_device;
-			DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Sys Type error from APP Try to program a PD69210 firmware into PD69220 device", __FUNCTION__);
-		}
+        if ((err_code == 0x4E) && (err_info1 == 0x4E) && (err_info2 == 0x4E) && (download_type == 0x4E))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_Application_CRC_error_Download_is_required_for_PD69200;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Application CRC error Download is required for PD69200", __FUNCTION__);
+        }
+        else if ((err_code == 0x4E) && (err_info1 == 0x4E) && (err_info2 == 0x4E) && (download_type == 0x33))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_Application_CRC_error_Download_is_required_for_PD69210_PD69220;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Application CRC error Download is required for PD69210_PD69220", __FUNCTION__);
+        }
+        else if ((err_code == 0x02) && (err_info1 == 0x33) && (err_info2 == 0x2C) && (download_type == 0x33))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_hw_error_from_Boot_try_to_program_a_PD69200_firmware_into_PD69210_PD69220_device;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: HW error from Boot Try to program a PD69200 firmware into PD69210_PD69220 device", __FUNCTION__);
+        }
+        else if ((err_code == 0x02) && (err_info1 == 0x2C) && (err_info2 == 0x33) && (download_type == 0x4E))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_hW_error_from_Boot_try_to_program_a_PD69210_PD69220_firmware_into_PD69200_device;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: HW error from Boot Try to program a PD69210_PD69220 firmware into PD69200 device", __FUNCTION__);
+        }
+        else if ((err_code == 0x03) && (err_info1 == 0x40) && (err_info2 == 0x41) && (download_type == 0x4E))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69220_firmware_into_PD69210_device;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Sys Type error from APP Try to program a PD69220 firmware into PD69210 device", __FUNCTION__);
+        }
+        else if ((err_code == 0x03) && (err_info1 == 0x41) && (err_info2 == 0x40) && (download_type == 0x4E))
+        {
+            if(peTelemetry_at_Boot_Up_Error) *peTelemetry_at_Boot_Up_Error = eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69210_firmware_into_PD69220_device;
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Sys Type error from APP Try to program a PD69210 firmware into PD69220 device", __FUNCTION__);
+        }
         else
         {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: unknown boot error", __FUNCTION__);
             return MESA_RC_ERROR;
         }
 
-		DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: boot up error", __FUNCTION__);
-		return MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED;
-	}
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: boot up error", __FUNCTION__);
+        return MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED;
+    }
 
-//	if ((cpu_status2_error_codes != 0)) {
-//		DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: cpu error=%d", __FUNCTION__, cpu_status2_error_codes);
-//		return MESA_RC_ERROR;
-//	}
+    //	if ((cpu_status2_error_codes != 0)) {
+    //		DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: cpu error=%d", __FUNCTION__, cpu_status2_error_codes);
+    //		return MESA_RC_ERROR;
+    //	}
 
     // if we are here we have valid message
 
-	return MESA_RC_OK;
+    return MESA_RC_OK;
 }
 
 
@@ -1784,23 +1784,23 @@ mesa_rc check_for_poe_firmware_errors(const meba_poe_ctrl_inst_t* const inst,
  *              MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED - poe firmware update needed
  *---------------------------------------------------------------------*/
 mesa_rc Get_15Bytes_CommProtocol_Reply(const meba_poe_ctrl_inst_t* const inst,
-                   uint8_t* data,
-                   uint8_t byTxEcho,
-                   mesa_bool_t *pePOE_BOOL_Is_system_status,
-                   Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
+                                       uint8_t* data,
+                                       uint8_t byTxEcho,
+                                       mesa_bool_t *pePOE_BOOL_Is_system_status,
+                                       Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
 {
-	uint8_t      bRxMsg[PD_BUFFER_SIZE];
+    uint8_t      bRxMsg[PD_BUFFER_SIZE];
 
     iFF_byte_count = 0;   // no i2c response
     i00_byte_count = 0;   // poe data buffer empty
 
-	memset(data, 0, sizeof(PD_BUFFER_SIZE));
+    memset(data, 0, sizeof(PD_BUFFER_SIZE));
 
     VTSS_MSLEEP(50); // Wait 50ms
 
-	while ((iFF_byte_count < 30) && (i00_byte_count < 30)) /* 30 bytes with value 0 means that I2C driver has no data to send */
-	{
-		/* Read the 1 first byte (SUB0) from PoE Device */
+    while ((iFF_byte_count < 30) && (i00_byte_count < 30)) /* 30 bytes with value 0 means that I2C driver has no data to send */
+    {
+        /* Read the 1 first byte (SUB0) from PoE Device */
         MESA_RC(pd69200_rd(inst, bRxMsg, 1));
 
         CheckReadingByte(bRxMsg[0]);
@@ -1816,7 +1816,7 @@ mesa_rc Get_15Bytes_CommProtocol_Reply(const meba_poe_ctrl_inst_t* const inst,
 
 	    /* second msg byte - echo */
 	    if ((bRxMsg[0] == byTxEcho) ||     									     	/* original messsage */
-	       ((data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))   /* system status on startup */
+                ((data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))   /* system status on startup */
 	    {
 		data[1] = bRxMsg[0];     /* store echo */
 
@@ -1844,13 +1844,13 @@ mesa_rc Get_15Bytes_CommProtocol_Reply(const meba_poe_ctrl_inst_t* const inst,
                     return check_for_poe_firmware_errors(inst, data, peTelemetry_at_Boot_Up_Error);
                 }
 
-				if (data[1] == byTxEcho) // ECHO ok
-				{
-					return MESA_RC_OK;
-				}
-			}
-		}
-	}
+                if (data[1] == byTxEcho) // ECHO ok
+                {
+                    return MESA_RC_OK;
+                }
+            }
+        }
+    }
 
     if(i00_byte_count >= 15)
     {
@@ -1864,7 +1864,7 @@ mesa_rc Get_15Bytes_CommProtocol_Reply(const meba_poe_ctrl_inst_t* const inst,
         return MESA_RC_ERROR;
     }
 
-	return MESA_RC_ERROR;
+    return MESA_RC_ERROR;
 }
 
 
@@ -1904,14 +1904,14 @@ static mesa_rc meba_poe_pd69200_ctrl_get_system_status(
 static
 mesa_rc meba_poe_pd69200bt_ctrl_get_bt_system_status(
     const meba_poe_ctrl_inst_t* const inst)
-    /*uint8_t* boot_up_error,
-    uint8_t* cpu_status2_err_codes,
-    uint8_t* fact_def_param_in_use,
-    uint8_t* private_label,
-    uint8_t* user_byte,
-    uint8_t* found_devices,
-    uint8_t* active_devices_found,
-    uint8_t* event_exist)*/
+        /*uint8_t* boot_up_error,
+          uint8_t* cpu_status2_err_codes,
+          uint8_t* fact_def_param_in_use,
+          uint8_t* private_label,
+          uint8_t* user_byte,
+          uint8_t* found_devices,
+          uint8_t* active_devices_found,
+          uint8_t* event_exist)*/
 {
     uint8_t buf[PD_BUFFER_SIZE] = {
         REQUEST_KEY,
@@ -2077,10 +2077,10 @@ mesa_rc meba_poe_pd69200_ctrl_get_adc_value(
         DUMMY_BYTE
     };
 
-    #ifndef POE_READ_ADC_PIN
+#ifndef POE_READ_ADC_PIN
     *sensor_reading = 0;
     return MESA_RC_OK;
-    #endif
+#endif
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
@@ -2124,30 +2124,30 @@ char* get_port_max_power_string(const meba_poe_ctrl_inst_t* const inst, POE_PORT
     switch (ePOE_PORT_MAX_POWER)
     {
         case ePORT_MAX_POWER_15W:
-        {
-            return "15W";
-        }
+            {
+                return "15W";
+            }
 
         case ePORT_MAX_POWER_30W:
-        {
-            return "30W";
-        }
+            {
+                return "30W";
+            }
 
         case ePORT_MAX_POWER_60W:
-        {
-            return "60W";
-        }
+            {
+                return "60W";
+            }
 
         case ePORT_MAX_POWER_90W:
-        {
-            return "90W";
-        }
+            {
+                return "90W";
+            }
 
-    default:
-        {
-            DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Unable to determine port max power string. ePOE_PORT_MAX_POWER: %d \n", ePOE_PORT_MAX_POWER);
-            return "";
-        }
+        default:
+            {
+                DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Unable to determine port max power string. ePOE_PORT_MAX_POWER: %d \n", ePOE_PORT_MAX_POWER);
+                return "";
+            }
     }
 }
 
@@ -2170,7 +2170,7 @@ void meba_poe_io_reset(const meba_poe_ctrl_inst_t* const inst)
 // if identical returns true , otherwise returns false
 static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* const inst, const char* microsemi_firmware)
 {
-    #define MAX_FIRMWARE_HEADER_LEN 300
+#define MAX_FIRMWARE_HEADER_LEN 300
 
     uint8_t    hw_version = 0;
     uint8_t    prod_number = 0;
@@ -2216,23 +2216,23 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
     // on startup we got single system status from boot with detailed boot error
     if ((private_data->eTelemetry_at_Boot_Up_Error != eBoot_Unknown_error) && (private_data->IsBootError == true))
     {
-         memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
-         eTelemetry_at_Boot_Up_Error = private_data->eTelemetry_at_Boot_Up_Error;
+        memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
+        eTelemetry_at_Boot_Up_Error = private_data->eTelemetry_at_Boot_Up_Error;
 
-         private_data->eTelemetry_at_Boot_Up_Error = eBoot_Unknown_error;
-         private_data->IsBootError = false;
+        private_data->eTelemetry_at_Boot_Up_Error = eBoot_Unknown_error;
+        private_data->IsBootError = false;
 
-         rc = MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED;
-         DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BootError deteceted on startup.\n");
+        rc = MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED;
+        DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BootError deteceted on startup.\n");
     }
     else // no error from boot - lets try to read PoE MCU RX buffer
     {
         // check for valid communication with PoE MCU
         rc = Get_15Bytes_CommProtocol_Reply(inst,
-                       buf_rx,
-                       255,
-                       &ePOE_BOOL_Is_system_status,
-                       &eTelemetry_at_Boot_Up_Error);
+                                            buf_rx,
+                                            255,
+                                            &ePOE_BOOL_Is_system_status,
+                                            &eTelemetry_at_Boot_Up_Error);
 
         // no answer from poe
         if ((rc != MESA_RC_OK) && (rc != MESA_RC_ERR_POE_RX_BUF_EMPTY))
@@ -2244,10 +2244,10 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             VTSS_MSLEEP(5000);
 
             rc = Get_15Bytes_CommProtocol_Reply(inst,
-                       buf_rx,
-                       255,
-                       &ePOE_BOOL_Is_system_status,
-                       &eTelemetry_at_Boot_Up_Error);
+                                                buf_rx,
+                                                255,
+                                                &ePOE_BOOL_Is_system_status,
+                                                &eTelemetry_at_Boot_Up_Error);
         }
 
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"Normal firmware flow.\n");
@@ -2257,39 +2257,39 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
     {
         switch (eTelemetry_at_Boot_Up_Error)
         {
-        case eBoot_error_Application_CRC_error_Download_is_required_for_PD69200:
-        case eBoot_error_hW_error_from_Boot_try_to_program_a_PD69210_PD69220_firmware_into_PD69200_device:
-            {
-                ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
-                break;
-            }
+            case eBoot_error_Application_CRC_error_Download_is_required_for_PD69200:
+            case eBoot_error_hW_error_from_Boot_try_to_program_a_PD69210_PD69220_firmware_into_PD69200_device:
+                {
+                    ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
+                    break;
+                }
 
-        case eBoot_error_Application_CRC_error_Download_is_required_for_PD69210_PD69220:
-        case eBoot_error_hw_error_from_Boot_try_to_program_a_PD69200_firmware_into_PD69210_PD69220_device:
-        case eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69220_firmware_into_PD69210_device:
-            {
-                ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
-                break;
-            }
+            case eBoot_error_Application_CRC_error_Download_is_required_for_PD69210_PD69220:
+            case eBoot_error_hw_error_from_Boot_try_to_program_a_PD69200_firmware_into_PD69210_PD69220_device:
+            case eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69220_firmware_into_PD69210_device:
+                {
+                    ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
+                    break;
+                }
 
-        case eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69210_firmware_into_PD69220_device:
-            {
-                ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
-                break;
-            }
+            case eBoot_error_sys_type_error_from_APP_try_to_program_a_PD69210_firmware_into_PD69220_device:
+                {
+                    ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
+                    break;
+                }
 
-        default:
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Unable to determine poe firmware.\n");
-                break;
-            }
+            default:
+                {
+                    DEBUG(inst, MEBA_TRACE_LVL_ERROR,"Unable to determine poe firmware.\n");
+                    break;
+                }
         }
 
         // in case user select specific PoE controller - use it instead of the auto detected PoE controller and warn if different
         if (private_data->tPoE_parameters.ePoE_Controller_Type_default != ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION)
         {
-             DEBUG(inst, MEBA_TRACE_LVL_WARNING,"Detected PoE controller: %d is different than USER selection: %d.\n", ePoE_detected_controller_type , ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION);
-             ePoE_detected_controller_type = private_data->tPoE_parameters.ePoE_Controller_Type_default;
+            DEBUG(inst, MEBA_TRACE_LVL_WARNING,"Detected PoE controller: %d is different than USER selection: %d.\n", ePoE_detected_controller_type , ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION);
+            ePoE_detected_controller_type = private_data->tPoE_parameters.ePoE_Controller_Type_default;
         }
     }
     else // RC timeout or OK - try to read the product number
@@ -2318,71 +2318,71 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
         switch(prod_number)
         {
             case ePD69200_AT:
-            {
-                ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 AT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 AT firmware.");
+                    break;
+                }
             case ePD69200_BT:
-            {
-                ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 BT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69200_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 BT firmware.");
+                    break;
+                }
             case ePD69210_AT:
-            {
-                ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 AT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 AT firmware.");
+                    break;
+                }
             case ePD69210_BT:
-            {
-                ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 BT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69210_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 BT firmware.");
+                    break;
+                }
             case ePD69220_AT:
-            {
-                ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 AT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 AT firmware.");
+                    break;
+                }
             case ePD69220_BT:
-            {
-                ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 BT firmware.");
-                break;
-            }
+                {
+                    ePoE_detected_controller_type = ePD69220_CONTROLLER_TYPE;
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 BT firmware.");
+                    break;
+                }
             case ePD69200M_AT:
-            {
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M AT firmware.");
-                break;
-            }
+                {
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M AT firmware.");
+                    break;
+                }
             case ePD69200M_BT:
-            {
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M BT firmware.");
-                break;
-            }
+                {
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M BT firmware.");
+                    break;
+                }
             default:
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
-                break;
-            }
+                {
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
+                    break;
+                }
         }
 
         // if detected controller type is unknown - exit with error message
         if (ePoE_detected_controller_type == ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION)
         {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Controller product number error: %d.\n", prod_number);
-//          S_E("SYS-BOOTING: Controller product number error: %d.\n", prod_number);
+            //          S_E("SYS-BOOTING: Controller product number error: %d.\n", prod_number);
             private_data->status.global.prod_number_detected = prod_number;
             private_data->status.global.sw_version_detected = sw_version;
             private_data->status.global.param_number_detected = param_number;
@@ -2513,7 +2513,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
     private_data->status.global.param_number_from_file = param_from_file;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected: %d - %d.%d , from_file: %d - %d.%d",
-              prod_number, sw_version ,param_number , prod_number_from_file, sw_ver_from_file , param_from_file);
+          prod_number, sw_version ,param_number , prod_number_from_file, sw_ver_from_file , param_from_file);
 
     if ((sw_ver_from_file == sw_version) &&
         (sw_version != 0) &&
@@ -2658,7 +2658,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     if (!microsemi_firmware) { // Use built-in firmware
         struct stat st;
         poe_driver_private_t* private_data =
-            (poe_driver_private_t*)(inst->private_data);
+                (poe_driver_private_t*)(inst->private_data);
 
         // check valid builtin_firmware file
         if (private_data->builtin_firmware == NULL)
@@ -2703,12 +2703,12 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
         // Print out progress
         progress = (byte_cnt * 10) / firmware_size;
         if (progress != prev_progress) {
-            printf("PoE Firmware update progress:%d %%\n\r", progress * 10);
+            printf("PoE Firmware update progress (%s):%d %%\n\r", inst->adapter_name, progress * 10);
             prev_progress = progress;
         }
 
         if (byteArr[0] == 10) {
-            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Skipping LF (Line Feed)");
+            DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Skipping LF (Line Feed)");
             microsemi_firmware++;
             byte_cnt++;
             byteArr = microsemi_firmware;
@@ -2721,14 +2721,17 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
         if (byteArr[1] == '0') { //skip line that starts with "S0"
             DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Skipping lines starting with S0");
+            char line[256];
+            char *pline = line;
 
             // If greater than 127 then we have reached end of file
             while (*microsemi_firmware != '\n' && *microsemi_firmware < 127 && byte_cnt <= firmware_size) {
+                *pline++ = *microsemi_firmware;
                 byte_cnt++;
                 DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Skipping S0 lines microsemi_firmware:0x%X, byte_cnt:%u", *microsemi_firmware, byte_cnt);
                 microsemi_firmware++;
             }
-
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s", line);
             // Lines Starting with S3 or S7
         } else if (byteArr[1] == '3' || byteArr[1] == '7') {
             DEBUG(inst, MEBA_TRACE_LVL_NOISE, "Lines Starting with S3 or S7 - Section 5.1 - step 6");
@@ -2756,7 +2759,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
                 DEBUG(inst, MEBA_TRACE_LVL_NOISE, "NOT END of File");
             } else if (buf[0] == 'T' && buf[1] == 'P') { // if read TP\r\n
                 DEBUG(inst, MEBA_TRACE_LVL_NOISE, "END of File");     // Reset - Section 5.1 - step 7
-                printf("PoE Firmware update progress:100 %%\n\r");
+                printf("PoE Firmware update progress (%s):100 %%\n\r", inst->adapter_name);
                 break; //end of file
             } else {
                 DEBUG(inst, MEBA_TRACE_LVL_ERROR, "No Ack");
@@ -2789,10 +2792,10 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
     // check for emerging system status
     rc = Get_15Bytes_CommProtocol_Reply(inst,
-                   buf_rx,
-                   255,
-                   &ePOE_BOOL_Is_system_status,
-                   &eTelemetry_at_Boot_Up_Error);
+                                        buf_rx,
+                                        255,
+                                        &ePOE_BOOL_Is_system_status,
+                                        &eTelemetry_at_Boot_Up_Error);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "ePOE_BOOL_Is_system_status: %d , eTelemetry_at_Boot_Up_Error: %d", ePOE_BOOL_Is_system_status, eTelemetry_at_Boot_Up_Error);
 
@@ -2802,12 +2805,12 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
         if (eTelemetry_at_Boot_Up_Error != eBoot_Unknown_error)
         {
-             DEBUG(inst, MEBA_TRACE_LVL_INFO, "Boot_Up_Error detected");
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "Boot_Up_Error detected");
 
-             poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
-             private_data->IsBootError = true;
-             private_data->eTelemetry_at_Boot_Up_Error = eTelemetry_at_Boot_Up_Error;
-             memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
+            poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
+            private_data->IsBootError = true;
+            private_data->eTelemetry_at_Boot_Up_Error = eTelemetry_at_Boot_Up_Error;
+            memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
         }
     }
 
@@ -2823,7 +2826,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
     meba_poe_pd69200_set_chipset(inst, MEBA_POE_CHIPSET_FOUND);
 
- error_out:
+error_out:
     if (fd >= 0) {
         if (mapped_memory) {
             munmap(mapped_memory, mapped_memory_size);
@@ -2881,13 +2884,13 @@ mesa_rc meba_poe_pd69200_ctrl_cfg_set(
     uint16_t  power_limit;
 
     MESA_RC(pd69200_get_power_supply_parameters(
-                inst,
-                &power_consumption,
-                &max_shutdown_voltage,
-                &min_shutdown_voltage,
-                &guard_band,
-                &bank,
-                &power_limit));
+        inst,
+        &power_consumption,
+        &max_shutdown_voltage,
+        &min_shutdown_voltage,
+        &guard_band,
+        &bank,
+        &power_limit));
 
     if ((guard_band != 0x2) || (power_limit != cfg_global->primary_max_power))
     {
@@ -2895,12 +2898,12 @@ mesa_rc meba_poe_pd69200_ctrl_cfg_set(
         guard_band = 0x2;           // We set guard to 2W in order to get priority to take over as soon as possible.
 
         MESA_RC(meba_poe_pd69200_set_power_banks(
-                inst,
-                bank,
-                power_limit,
-                max_shutdown_voltage,
-                min_shutdown_voltage,
-                guard_band));
+            inst,
+            bank,
+            power_limit,
+            max_shutdown_voltage,
+            min_shutdown_voltage,
+            guard_band));
     }
 
     *current_global_cfg = *cfg_global;
@@ -3064,14 +3067,14 @@ mesa_rc meba_poe_pd69200_ctrl_version_get(
     }
 
     MESA_RC(meba_poe_pd69200_ctrl_get_software_version(
-                inst,
-                &hw_version,
-                &prod_number,
-                &sw_version,
-                &param_number,
-                &build_number,
-                &internal_sw_version,
-                &asic_patch_number));
+        inst,
+        &hw_version,
+        &prod_number,
+        &sw_version,
+        &param_number,
+        &build_number,
+        &internal_sw_version,
+        &asic_patch_number));
 
     snprintf(value, max_size,
              "HW Ver.:%d, Prod:%d, sw ver:%d, param:%d, build:%d, internal sw ver:%d, Asic Patch Num:%d",
@@ -3140,7 +3143,7 @@ static mesa_rc pd69200_active_matrix_verify(
                 (port_b != inst->port_map[i].phys_port_b))
             {
                 DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s ,matrix param mismatch at logical port index= %d, port_a- exist:%d , required:%d , port_b- exist:%d , required:%d",
-                       __FUNCTION__, i , port_a, inst->port_map[i].phys_port_a,  port_b, inst->port_map[i].phys_port_b);
+                      __FUNCTION__, i , port_a, inst->port_map[i].phys_port_a,  port_b, inst->port_map[i].phys_port_b);
                 return MESA_RC_ERROR;
             }
         }
@@ -3168,7 +3171,7 @@ static mesa_rc pd69200_active_matrix_verify(
     {
         uint8_t port_a, port_b;
         MESA_RC(meba_poe_pd69200_ctrl_get_active_matrix(
-                    inst, i, &port_a, &port_b));
+            inst, i, &port_a, &port_b));
 
         // in case it's AT port - the port_b which not in use returns the value 78
         if (port_b == 78)
@@ -3233,10 +3236,10 @@ mesa_rc meba_poe_pd69200_do_detection(
 
     // check for emerging system status
     mesa_rc rc = Get_15Bytes_CommProtocol_Reply(inst,
-                   buf_rx,
-                   255,
-                   &ePOE_BOOL_Is_system_status,
-                   &eTelemetry_at_Boot_Up_Error);
+                                                buf_rx,
+                                                255,
+                                                &ePOE_BOOL_Is_system_status,
+                                                &eTelemetry_at_Boot_Up_Error);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "ePOE_BOOL_Is_system_status: %d , eTelemetry_at_Boot_Up_Error: %d , rc: %d", ePOE_BOOL_Is_system_status, eTelemetry_at_Boot_Up_Error , rc);
 
@@ -3247,12 +3250,12 @@ mesa_rc meba_poe_pd69200_do_detection(
         // if poe boot sent error message - keep it for later use
         if (eTelemetry_at_Boot_Up_Error != eBoot_Unknown_error)
         {
-             DEBUG(inst, MEBA_TRACE_LVL_INFO, "Boot_Up_Error detected");
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "Boot_Up_Error detected");
 
-             poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
-             private_data->IsBootError = true;
-             private_data->eTelemetry_at_Boot_Up_Error = eTelemetry_at_Boot_Up_Error;
-             memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
+            poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
+            private_data->IsBootError = true;
+            private_data->eTelemetry_at_Boot_Up_Error = eTelemetry_at_Boot_Up_Error;
+            memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);
         }
     }
 
@@ -3287,14 +3290,14 @@ mesa_rc meba_poe_pd69200_do_detection(
     uint16_t  asic_patch_number;
 
     rc = meba_poe_pd69200_ctrl_get_software_version(
-                inst,
-                &hw_version,
-                &prod_number,
-                &sw_version,
-                &param_number,
-                &build_number,
-                &internal_sw_version,
-                &asic_patch_number);
+        inst,
+        &hw_version,
+        &prod_number,
+        &sw_version,
+        &param_number,
+        &build_number,
+        &internal_sw_version,
+        &asic_patch_number);
 
     // check for error
     if (rc == MESA_RC_ERROR)
@@ -3315,64 +3318,64 @@ mesa_rc meba_poe_pd69200_do_detection(
             case ePD69210_AT:
             case ePD69220_AT:
             case ePD69200M_AT:
-            {
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: AT firmware: %d", prod_number);
+                {
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_AT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: AT firmware: %d", prod_number);
 
-                rc = meba_poe_pd69200_ctrl_get_system_status(inst);  //, &cpu_status1, &cpu_status2, &factory_default,NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+                    rc = meba_poe_pd69200_ctrl_get_system_status(inst);  //, &cpu_status1, &cpu_status2, &factory_default,NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-                break;
-            }
+                    break;
+                }
             case ePD69200_BT:
             case ePD69210_BT:
             case ePD69220_BT:
             case ePD69200M_BT:
-            {
-                private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: BT firmware: %d", prod_number);
+                {
+                    private_data->status.global.eDetected_PoE_System_Mode = ePoE_System_Mode_BT;
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: BT firmware: %d", prod_number);
 
-                rc = meba_poe_pd69200bt_ctrl_get_bt_system_status(inst);
+                    rc = meba_poe_pd69200bt_ctrl_get_bt_system_status(inst);
 
-                break;
-            }
+                    break;
+                }
             default:
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
-                return MESA_RC_ERROR;
-            }
+                {
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
+                    return MESA_RC_ERROR;
+                }
         }
 
         switch(prod_number)
         {
             case ePD69200_AT:
             case ePD69200_BT:
-            {
-                private_data->status.global.ePoE_Controller_Type = ePD69200_CONTROLLER_TYPE;
-                break;
-            }
+                {
+                    private_data->status.global.ePoE_Controller_Type = ePD69200_CONTROLLER_TYPE;
+                    break;
+                }
             case ePD69210_AT:
             case ePD69210_BT:
-            {
-                private_data->status.global.ePoE_Controller_Type = ePD69210_CONTROLLER_TYPE;
-                break;
-            }
+                {
+                    private_data->status.global.ePoE_Controller_Type = ePD69210_CONTROLLER_TYPE;
+                    break;
+                }
             case ePD69220_AT:
             case ePD69220_BT:
-            {
-                private_data->status.global.ePoE_Controller_Type = ePD69220_CONTROLLER_TYPE;
-                break;
-            }
+                {
+                    private_data->status.global.ePoE_Controller_Type = ePD69220_CONTROLLER_TYPE;
+                    break;
+                }
             case ePD69200M_AT:
             case ePD69200M_BT:
-            {
-                private_data->status.global.ePoE_Controller_Type = ePD69200M_CONTROLLER_TYPE;
-                break;
-            }
+                {
+                    private_data->status.global.ePoE_Controller_Type = ePD69200M_CONTROLLER_TYPE;
+                    break;
+                }
             default:
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
-                return MESA_RC_ERROR;
-            }
+                {
+                    DEBUG(inst, MEBA_TRACE_LVL_INFO,"Unknown detected poe firmware: %d .\n", prod_number);
+                    return MESA_RC_ERROR;
+                }
         }
     }
 
@@ -3439,7 +3442,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
         bChangedFlag = true;
     }
 
-        // See table in section 4.5.9 in PD69200 user guide
+    // See table in section 4.5.9 in PD69200 user guide
     uint8_t enable_LLDP_mode;
     MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LAYER2_LLDP_ENABLE, &enable_LLDP_mode));      // get Enable LLDP mode.
     if (enable_LLDP_mode != tPoE_parameters.indv_mask_AT_layer2_lldp_enable_default)
@@ -3486,29 +3489,29 @@ mesa_rc meba_poe_pd69200_chip_initialization(
     uint16_t  power_limit;
 
     MESA_RC(pd69200_get_power_supply_parameters(
-                inst,
-                &power_consumption,
-                &max_shutdown_voltage,
-                &min_shutdown_voltage,
-                &guard_band,
-                &bank,
-                &power_limit));
-/*
-    if ((guard_band != 0x2) || (power_limit != cfg_global->primary_max_power))
-    {
-        power_limit = cfg_global->primary_max_power;
-        guard_band = 0x2;           // We set guard to 2W in order to get priority to take over as soon as possible.
-        bChangedFlag = true;
+        inst,
+        &power_consumption,
+        &max_shutdown_voltage,
+        &min_shutdown_voltage,
+        &guard_band,
+        &bank,
+        &power_limit));
+    /*
+          if ((guard_band != 0x2) || (power_limit != cfg_global->primary_max_power))
+          {
+          power_limit = cfg_global->primary_max_power;
+          guard_band = 0x2;           // We set guard to 2W in order to get priority to take over as soon as possible.
+          bChangedFlag = true;
 
-        MESA_RC(meba_poe_pd69200_set_power_banks(
-                inst,
-                bank,
-                power_limit,
-                max_shutdown_voltage,
-                min_shutdown_voltage,
-                guard_band));
-    }
-*/
+          MESA_RC(meba_poe_pd69200_set_power_banks(
+          inst,
+          bank,
+          power_limit,
+          max_shutdown_voltage,
+          min_shutdown_voltage,
+          guard_band));
+          }
+    */
 
     // Read active matrix and compare with intended matrix before programming it.
     // Get physical port number from active matrix
@@ -3544,7 +3547,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
     // matrix was changed - or -
     // cold start and somthing was modified
     if ( bMatrixUpdatedFlag ||
-        ((restart_cause == 0) && (bChangedFlag == true)))
+         ((restart_cause == 0) && (bChangedFlag == true)))
     {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings");
         MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
@@ -3559,124 +3562,124 @@ char* GetAT_TitleByPortsStatus(uint8_t bt_port_status)
 {
     switch (bt_port_status)
     {
-    case eAT_0x00_ON__LEGACY_PD_DET:
-        return "0x06: LEGACY PD DET";
-    case eAT_0x01_ON__802_2PAIR_3AF_DET:
-        return "0x07: 802 2PAIR 3AF DET";
-    case eAT_0x02_ON__802_4PAIR_DET:
-        return "0x08: 802 4PAIR DET";
-    case eAT_0x03_ON__802_2PAIR_POWER_SEQUENCE:
-        return "0x0C: 802 2PAIR POWER SEQUENCE";
-    case eAT_0x04_ON__802_4PAIR_POWER_SEQUENCE:
-        return "0x11: 802 4PAIR POWER SEQUENCE";
-    case eAT_0x06_OFF_MAIN_PS_TO_HIGH:
-        return "0x12: MAIN PS TO HIGH";
-    case eAT_0x07_OFF_MAIN_PS_TO_LOW:
-        return "0x1A: MAIN PS TO LOW";
-    case eAT_0x08_OFF_DIS_ALL_PORTS_PIN_ACT:
-        return "0x1B: DIS ALL PORTS PIN ACT";
-    case eAT_0x09_OFF_DERATING_TEMPERATURE_HIGH:
-        return "0x1c: DERATING TEMPERATURE HIGH";
-    case eAT_0x0C_OFF_NON_EXIST_PORT_NUM:
-        return "0x1E: NON EXIST PORT NUM";
-    case eAT_0x11_OFF_PWR_UP_IN_PROCESS:
-        return "0x1F: PWR UP IN PROCESS";
-    case eAT_0x12_OFF_INTERNAL_HW_FAULT:
-        return "0x20: INTERNAL HW FAULT";
-    case eAT_0x1A_OFF_USER_SETTING:
-        return "0x22: USER SETTING";
-    case eAT_0x1B_OFF_DET_IN_PROCESS:
-        return "0x24: DET IN PROCESS";
-    case eAT_0x1C_OFF_NON_802_3AF_PD:
-        return "0x25: NON 802 3AF PD";
-    case eAT_0x1D_OFF_SUCCESION_OF_OVL_AND_UDL:
-        return "0x26: SUCCESION OF OVL AND UDL";
-    case eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL:
-        return "0x34: UNDERLOAD OR CAP TO SMALL";
-    case eAT_0x1F_OFF_OVERLOAD_OR_CAP_TO_BIG:
-        return "0x35: OVERLOAD OR CAP TO BIG";
-    case eAT_0x20_OFF_PWR_BUDGET_EXCEDDED:
-        return "0x36: PWR BUDGET EXCEDDED";
-    case eAT_0x21_OFF_INTERNAL_HW_ROUTING_ERROR:
-        return "0x37: INTERNAL HW ROUTING ERROR";
-    case eAT_0x24_OFF_EXT_VOLT_INJ_CAP_DET_MODE:
-        return "0x3C: EXT VOLT INJ CAP DET MODE";
-    case eAT_0x25_OFF_IMPROPER_CAP_DET_MODE:
-        return "0x3D: IMPROPER CAP DET MODE";
-    case eAT_0x26_OFF_DISCHARGED_LOAD_CAP_DET_MODE:
-        return "0x41: DISCHARGED LOAD CAP DET MODE";
-    case eAT_0x2B_ON__FORCE:
-        return "0x43: FORCE";
+        case eAT_0x00_ON__LEGACY_PD_DET:
+            return "0x06: LEGACY PD DET";
+        case eAT_0x01_ON__802_2PAIR_3AF_DET:
+            return "0x07: 802 2PAIR 3AF DET";
+        case eAT_0x02_ON__802_4PAIR_DET:
+            return "0x08: 802 4PAIR DET";
+        case eAT_0x03_ON__802_2PAIR_POWER_SEQUENCE:
+            return "0x0C: 802 2PAIR POWER SEQUENCE";
+        case eAT_0x04_ON__802_4PAIR_POWER_SEQUENCE:
+            return "0x11: 802 4PAIR POWER SEQUENCE";
+        case eAT_0x06_OFF_MAIN_PS_TO_HIGH:
+            return "0x12: MAIN PS TO HIGH";
+        case eAT_0x07_OFF_MAIN_PS_TO_LOW:
+            return "0x1A: MAIN PS TO LOW";
+        case eAT_0x08_OFF_DIS_ALL_PORTS_PIN_ACT:
+            return "0x1B: DIS ALL PORTS PIN ACT";
+        case eAT_0x09_OFF_DERATING_TEMPERATURE_HIGH:
+            return "0x1c: DERATING TEMPERATURE HIGH";
+        case eAT_0x0C_OFF_NON_EXIST_PORT_NUM:
+            return "0x1E: NON EXIST PORT NUM";
+        case eAT_0x11_OFF_PWR_UP_IN_PROCESS:
+            return "0x1F: PWR UP IN PROCESS";
+        case eAT_0x12_OFF_INTERNAL_HW_FAULT:
+            return "0x20: INTERNAL HW FAULT";
+        case eAT_0x1A_OFF_USER_SETTING:
+            return "0x22: USER SETTING";
+        case eAT_0x1B_OFF_DET_IN_PROCESS:
+            return "0x24: DET IN PROCESS";
+        case eAT_0x1C_OFF_NON_802_3AF_PD:
+            return "0x25: NON 802 3AF PD";
+        case eAT_0x1D_OFF_SUCCESION_OF_OVL_AND_UDL:
+            return "0x26: SUCCESION OF OVL AND UDL";
+        case eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL:
+            return "0x34: UNDERLOAD OR CAP TO SMALL";
+        case eAT_0x1F_OFF_OVERLOAD_OR_CAP_TO_BIG:
+            return "0x35: OVERLOAD OR CAP TO BIG";
+        case eAT_0x20_OFF_PWR_BUDGET_EXCEDDED:
+            return "0x36: PWR BUDGET EXCEDDED";
+        case eAT_0x21_OFF_INTERNAL_HW_ROUTING_ERROR:
+            return "0x37: INTERNAL HW ROUTING ERROR";
+        case eAT_0x24_OFF_EXT_VOLT_INJ_CAP_DET_MODE:
+            return "0x3C: EXT VOLT INJ CAP DET MODE";
+        case eAT_0x25_OFF_IMPROPER_CAP_DET_MODE:
+            return "0x3D: IMPROPER CAP DET MODE";
+        case eAT_0x26_OFF_DISCHARGED_LOAD_CAP_DET_MODE:
+            return "0x41: DISCHARGED LOAD CAP DET MODE";
+        case eAT_0x2B_ON__FORCE:
+            return "0x43: FORCE";
 	case eAT_0x2C_OFF_FORCE_ERROR:
-		return "0x44: FORCE ERROR";
+            return "0x44: FORCE ERROR";
 	case eAT_0x2D_OFF_FORCE_PS_TOO_HIGH:
-		return "0x45: FORCE PS TOO HIGH";
+            return "0x45: FORCE PS TOO HIGH";
 	case eAT_0x2E_OFF_FORCE_PS_TOO_LOW:
-		return "0x46: FORCE PS TOO LOW";
+            return "0x46: FORCE PS TOO LOW";
 	case eAT_0x2F_OFF_FORCE_DIS_PDU_FLAG_WAS_RAISE:
-		return "0x47: FORCE DIS PDU FLAG WAS RAISE";
+            return "0x47: FORCE DIS PDU FLAG WAS RAISE";
 	case eAT_0x30_OFF_FORCE_DIS_COMMAND_WAS_REC:
-		return "0x48: FORCE DIS COMMAND WAS REC";
+            return "0x48: FORCE DIS COMMAND WAS REC";
 	case eAT_0x31_OFF_FORCE_802_3AF_OVERLOAD:
-		return "0x49: FORCE 802 3AF OVERLOAD";
+            return "0x49: FORCE 802 3AF OVERLOAD";
 	case eAT_0x32_OFF_FORCE_OUT_OF_PWR_BUDGET:
-		return "0x43: FORCE OUT OF PWR BUDGET";
+            return "0x43: FORCE OUT OF PWR BUDGET";
 	case eAT_0x33_UNKNOWN_FORCE_COMMUNICATION_ERR:
-		return "0x43: UNKNOWN FORCE COMMUNICATION ERR";
+            return "0x43: UNKNOWN FORCE COMMUNICATION ERR";
 	case eAT_0x34_OFF_SHORT_CONDITION:
-		return "0x43: SHORT CONDITION";
-    case eAT_0x35_OFF_OVER_TEMP_AT_PORT:
-        return "0x80: OVER TEMP AT PORT";
-    case eAT_0x36_OFF_DEVICE_TOO_HOT:
-        return "0x81: DEVICE TOO HOT";
-    case eAT_0x37_OFF_UNKNOWN_DEVICE_PORT_STATUS:
-        return "0x82: UNKNOWN DEVICE PORT STATUS";
-    case eAT_0x38_OFF_FORCE_PWR_ERR_SHORT_CIRCUIT:
-        return "0x83: FORCE PWR ERR SHORT CIRCUIT";
-    case eAT_0x39_OFF_FORCE_PWR_ERR_CH_OVER_TEMP:
-        return "0x84: FORCE PWR ERR CH OVER TEMP";
-    case eAT_0x3A_OFF_FORCE_PWR_ERR_CHIP_OVER_TEMP:
-        return "0x85: FORCE PWR ERR CHIP OVER TEMP";
-    case eAT_0x3C_OFF_PWR_MANAGEMENT_STATIC:
-        return "0x86: PWR MANAGEMENT STATIC";
-    case eAT_0x3D_OFF_PWR_MANAGEMENT_STATIC_OV:
-        return "0x87: PWR MANAGEMENT STATIC OV";
-    case eAT_0x3E_OFF_FORCE_PWR_ERR_MNGMNT_STAT:
-        return "0x88: FORCE PWR ERR MNGMNT STAT";
-    case eAT_0x3F_OFF_FORCE_PWR_ERR_MNGMNT_STAT_OV:
-        return "0x89: FORCE PWR ERR MNGMNT STAT OV";
-    case eAT_0x40_ON__HIGH_POWER_PORT_IS_ON:
-        return "0x90: HIGH POWER PORT IS ON";
-    case eAT_0x41_OFF_CHIP_OVER_POWER:
-        return "0x91: CHIP OVER POWER";
-    case eAT_0x42_OFF_FORCE_PWR_ERR_CHIP_OVR_PWR:
-        return "0xA0: FORCE PWR ERR CHIP OVR PWR";
-    case eAT_0x43_OFF_CLASS_ERROR:
-        return "0xA7: CLASS ERROR";
-    case eAT_0x44_OFF_DURING_HOST_CRASH:
-        return "0xA8: DURING HOST CRASH";
-    case eAT_0x45_OFF_FROM_DELIVERED_TO_HOST_SHUTDOWN:
-        return "0xA8: FROM DELIVERED TO HOST SHUTDOWN";
-    case eAT_0x46_OFF_FROM_ENABLED_TO_HOST_SHUTDOWN:
-        return "0xA8: FROM ENABLED TO HOST SHUTDOWN";
-    case eAT_0x47_OFF_FORCE_POWER_CRASH_ERROR:
-        return "0xA8: FORCE POWER CRASH ERROR";
-    case eAT_0x48_OFF_RECOVERY_UDL:
-        return "0xA8: RECOVERY UDL";
-    case eAT_0x49_OFF_RECOVERY_PG_EVENT:
-        return "0xA8: RECOVERY PG EVENT";
-    case eAT_0x4A_OFF_RECOVERY_OVL:
-        return "0xA8: RECOVERY OVL";
-    case eAT_0x4B_OFF_RECOVERY_SC:
-        return "0xA8: RECOVERY SC";
-    case eAT_0x4C_OFF_RECOVERY_VOLTAGE_INJECTION:
-        return "0xA8: RECOVERY VOLTAGE INJECTION";
-    case eAT_0x4D_OFF_DVDT_FAIL_DURING_STARTUP:
-        return "0xA8: DVDT FAIL DURING STARTUP";
-    default:
-        {
-            return "?????";
-        }
+            return "0x43: SHORT CONDITION";
+        case eAT_0x35_OFF_OVER_TEMP_AT_PORT:
+            return "0x80: OVER TEMP AT PORT";
+        case eAT_0x36_OFF_DEVICE_TOO_HOT:
+            return "0x81: DEVICE TOO HOT";
+        case eAT_0x37_OFF_UNKNOWN_DEVICE_PORT_STATUS:
+            return "0x82: UNKNOWN DEVICE PORT STATUS";
+        case eAT_0x38_OFF_FORCE_PWR_ERR_SHORT_CIRCUIT:
+            return "0x83: FORCE PWR ERR SHORT CIRCUIT";
+        case eAT_0x39_OFF_FORCE_PWR_ERR_CH_OVER_TEMP:
+            return "0x84: FORCE PWR ERR CH OVER TEMP";
+        case eAT_0x3A_OFF_FORCE_PWR_ERR_CHIP_OVER_TEMP:
+            return "0x85: FORCE PWR ERR CHIP OVER TEMP";
+        case eAT_0x3C_OFF_PWR_MANAGEMENT_STATIC:
+            return "0x86: PWR MANAGEMENT STATIC";
+        case eAT_0x3D_OFF_PWR_MANAGEMENT_STATIC_OV:
+            return "0x87: PWR MANAGEMENT STATIC OV";
+        case eAT_0x3E_OFF_FORCE_PWR_ERR_MNGMNT_STAT:
+            return "0x88: FORCE PWR ERR MNGMNT STAT";
+        case eAT_0x3F_OFF_FORCE_PWR_ERR_MNGMNT_STAT_OV:
+            return "0x89: FORCE PWR ERR MNGMNT STAT OV";
+        case eAT_0x40_ON__HIGH_POWER_PORT_IS_ON:
+            return "0x90: HIGH POWER PORT IS ON";
+        case eAT_0x41_OFF_CHIP_OVER_POWER:
+            return "0x91: CHIP OVER POWER";
+        case eAT_0x42_OFF_FORCE_PWR_ERR_CHIP_OVR_PWR:
+            return "0xA0: FORCE PWR ERR CHIP OVR PWR";
+        case eAT_0x43_OFF_CLASS_ERROR:
+            return "0xA7: CLASS ERROR";
+        case eAT_0x44_OFF_DURING_HOST_CRASH:
+            return "0xA8: DURING HOST CRASH";
+        case eAT_0x45_OFF_FROM_DELIVERED_TO_HOST_SHUTDOWN:
+            return "0xA8: FROM DELIVERED TO HOST SHUTDOWN";
+        case eAT_0x46_OFF_FROM_ENABLED_TO_HOST_SHUTDOWN:
+            return "0xA8: FROM ENABLED TO HOST SHUTDOWN";
+        case eAT_0x47_OFF_FORCE_POWER_CRASH_ERROR:
+            return "0xA8: FORCE POWER CRASH ERROR";
+        case eAT_0x48_OFF_RECOVERY_UDL:
+            return "0xA8: RECOVERY UDL";
+        case eAT_0x49_OFF_RECOVERY_PG_EVENT:
+            return "0xA8: RECOVERY PG EVENT";
+        case eAT_0x4A_OFF_RECOVERY_OVL:
+            return "0xA8: RECOVERY OVL";
+        case eAT_0x4B_OFF_RECOVERY_SC:
+            return "0xA8: RECOVERY SC";
+        case eAT_0x4C_OFF_RECOVERY_VOLTAGE_INJECTION:
+            return "0xA8: RECOVERY VOLTAGE INJECTION";
+        case eAT_0x4D_OFF_DVDT_FAIL_DURING_STARTUP:
+            return "0xA8: DVDT FAIL DURING STARTUP";
+        default:
+            {
+                return "?????";
+            }
     }
 }
 
@@ -3733,15 +3736,15 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     uint8_t four_pair_enable;
 
     MESA_RC(meba_poe_pd69200_ctrl_get_single_port_status(
-                inst,
-                channel,
-                &enable,
-                &port_state,
-                &force_power_enable,
-                &latch,
-                &pd_class,
-                &af_at_poh,
-                &four_pair_enable));
+        inst,
+        channel,
+        &enable,
+        &port_state,
+        &force_power_enable,
+        &latch,
+        &pd_class,
+        &af_at_poh,
+        &four_pair_enable));
 
     port_status->assigned_pd_class_a = pd_class;
     port_status->assigned_pd_class_b = -1;
@@ -3765,34 +3768,34 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x03_ON__802_2PAIR_POWER_SEQUENCE:
         case eAT_0x04_ON__802_4PAIR_POWER_SEQUENCE:
         case eAT_0x40_ON__HIGH_POWER_PORT_IS_ON:    // high power port
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;
-            port_status->pd_structure = MEBA_POE_PORT_PD_STRUCTURE_2P_LEGACY;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;
+                port_status->pd_structure = MEBA_POE_PORT_PD_STRUCTURE_2P_LEGACY;
+                break;
+            }
 
         case eAT_0x01_ON__802_2PAIR_3AF_DET:              // LED is ON (delivering power)
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;
-            port_status->pd_structure = MEBA_POE_PORT_PD_STRUCTURE_2P_IEEE;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;
+                port_status->pd_structure = MEBA_POE_PORT_PD_STRUCTURE_2P_IEEE;
+                break;
+            }
 
         case eAT_0x1A_OFF_USER_SETTING:
         case eAT_0x08_OFF_DIS_ALL_PORTS_PIN_ACT:
-        {
-           port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DISABLED;
-           break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DISABLED;
+                break;
+            }
 
-        // Port was forced to ON
+            // Port was forced to ON
         case eAT_0x2B_ON__FORCE:
             {
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_TEST;
                 break;
             }
 
-        // Port is enabled, at the moment a valid PD device will be connected it will get power
+            // Port is enabled, at the moment a valid PD device will be connected it will get power
         case eAT_0x11_OFF_PWR_UP_IN_PROCESS:            // should not happend since HC08 starts faster
         case eAT_0x1B_OFF_DET_IN_PROCESS:               // Port Status #27 ------------ NORMAL SITUATION --------
         case eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL:    // Port Status #30
@@ -3802,7 +3805,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
                 break;
             }
 
-        // Port was FORCED to ON, and due to some error  it enter to TEST-ERROR state, or usual errors
+            // Port was FORCED to ON, and due to some error  it enter to TEST-ERROR state, or usual errors
         case eAT_0x1F_OFF_OVERLOAD_OR_CAP_TO_BIG:
         case eAT_0x25_OFF_IMPROPER_CAP_DET_MODE:
         case eAT_0x31_OFF_FORCE_802_3AF_OVERLOAD:
@@ -3810,12 +3813,12 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x38_OFF_FORCE_PWR_ERR_SHORT_CIRCUIT:
         case eAT_0x4A_OFF_RECOVERY_OVL:
         case eAT_0x4B_OFF_RECOVERY_SC:
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_FAULT;
+                break;
+            }
 
-        // All other fault conditions
+            // All other fault conditions
         case eAT_0x06_OFF_MAIN_PS_TO_HIGH:
         case eAT_0x07_OFF_MAIN_PS_TO_LOW:
         case eAT_0x09_OFF_DERATING_TEMPERATURE_HIGH:
@@ -3853,23 +3856,23 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x49_OFF_RECOVERY_PG_EVENT:
         case eAT_0x4C_OFF_RECOVERY_VOLTAGE_INJECTION:
         case eAT_0x4D_OFF_DVDT_FAIL_DURING_STARTUP:
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
+                break;
+            }
 
         default:
-        {
-            // This shall never happen all states should be covered.
-            DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X", inst->port_map[handle].port_no, port_state);
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
-            break;
-        }
+            {
+                // This shall never happen all states should be covered.
+                DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X", inst->port_map[handle].port_no, port_state);
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
+                break;
+            }
     }
 
 
 
-   // See table 4 in the user guide for understanding the conversion - we do not support all status values.
+    // See table 4 in the user guide for understanding the conversion - we do not support all status values.
     switch (port_state)
     {
         case eAT_0x00_ON__LEGACY_PD_DET:
@@ -3879,45 +3882,45 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x04_ON__802_4PAIR_POWER_SEQUENCE:
         case eAT_0x2B_ON__FORCE:
         case eAT_0x40_ON__HIGH_POWER_PORT_IS_ON:
-        {
-            // Note: MEBA_POE_PD_ON_POEBT doesent mapped in AT mode
-            port_status->meba_poe_port_state = MEBA_POE_PD_ON;
-            break;
-        }
+            {
+                // Note: MEBA_POE_PD_ON_POEBT doesent mapped in AT mode
+                port_status->meba_poe_port_state = MEBA_POE_PD_ON;
+                break;
+            }
 
         case eAT_0x08_OFF_DIS_ALL_PORTS_PIN_ACT:
         case eAT_0x1A_OFF_USER_SETTING:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_DISABLED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_DISABLED;
+                break;
+            }
 
-        // typical value when nothing is connected to the port
-        // Port is enabled, at the moment a valid PD device will be connected it will get power
+            // typical value when nothing is connected to the port
+            // Port is enabled, at the moment a valid PD device will be connected it will get power
         case eAT_0x11_OFF_PWR_UP_IN_PROCESS:            // should not happend if PoE code starts faster
         case eAT_0x1B_OFF_DET_IN_PROCESS:               // NORMAL SITUATION
         case eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL:
         case eAT_0x48_OFF_RECOVERY_UDL:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_NO_PD_DETECTED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_NO_PD_DETECTED;
+                break;
+            }
 
         case eAT_0x1F_OFF_OVERLOAD_OR_CAP_TO_BIG:
         case eAT_0x31_OFF_FORCE_802_3AF_OVERLOAD:
         case eAT_0x4A_OFF_RECOVERY_OVL:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PD_OVERLOAD;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PD_OVERLOAD;
+                break;
+            }
 
         case eAT_0x20_OFF_PWR_BUDGET_EXCEDDED:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_POWER_BUDGET_EXCEEDED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_POWER_BUDGET_EXCEEDED;
+                break;
+            }
 
-        // Port is off due to PD reasones
+            // Port is off due to PD reasones
         case eAT_0x1C_OFF_NON_802_3AF_PD:
         case eAT_0x1D_OFF_SUCCESION_OF_OVL_AND_UDL:
         case eAT_0x25_OFF_IMPROPER_CAP_DET_MODE:
@@ -3926,12 +3929,12 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x38_OFF_FORCE_PWR_ERR_SHORT_CIRCUIT:
         case eAT_0x4B_OFF_RECOVERY_SC:
         case eAT_0x4D_OFF_DVDT_FAIL_DURING_STARTUP:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_FAULT;  // PD fault
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_FAULT;  // PD fault
+                break;
+            }
 
-        // Port is off due to PSE reasones
+            // Port is off due to PSE reasones
         case eAT_0x06_OFF_MAIN_PS_TO_HIGH:
         case eAT_0x07_OFF_MAIN_PS_TO_LOW:
         case eAT_0x09_OFF_DERATING_TEMPERATURE_HIGH:
@@ -3964,30 +3967,30 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x47_OFF_FORCE_POWER_CRASH_ERROR:
         case eAT_0x49_OFF_RECOVERY_PG_EVENT:
         case eAT_0x4C_OFF_RECOVERY_VOLTAGE_INJECTION:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PSE_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PSE_FAULT;
+                break;
+            }
 
         default:
-        {
-            // statuses to be mapped on higher software level:
-            // MEBA_POE_NOT_SUPPORTED
-            // MEBA_POE_UNKNOWN_STATE
-            // MEBA_POE_DISABLED_INTERFACE_SHUTDOWN
+            {
+                // statuses to be mapped on higher software level:
+                // MEBA_POE_NOT_SUPPORTED
+                // MEBA_POE_UNKNOWN_STATE
+                // MEBA_POE_DISABLED_INTERFACE_SHUTDOWN
 
-            // This shall never happen all states should be covered.
-            DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X",
-                  inst->port_map[handle].port_no, port_state);
-            port_status->meba_poe_port_state = MEBA_POE_UNKNOWN_STATE;
-            break;
-        }
+                // This shall never happen all states should be covered.
+                DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X",
+                      inst->port_map[handle].port_no, port_state);
+                port_status->meba_poe_port_state = MEBA_POE_UNKNOWN_STATE;
+                break;
+            }
     }
 
 
     if(( port_status->poe_port_status == eAT_0x1C_OFF_NON_802_3AF_PD)
-    || ( port_status->poe_port_status == eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL)
-	|| ( port_status->poe_port_status == eAT_0x25_OFF_IMPROPER_CAP_DET_MODE))
+       || ( port_status->poe_port_status == eAT_0x1E_OFF_UNDERLOAD_OR_CAP_TO_SMALL)
+       || ( port_status->poe_port_status == eAT_0x25_OFF_IMPROPER_CAP_DET_MODE))
         port_status->IsFault_link_without_power = true;
     else
         port_status->IsFault_link_without_power = false;
@@ -4023,16 +4026,16 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     uint16_t power_indicator;
 
     MESA_RC(meba_poe_pd69200_ctrl_get_port_layer2_lldp_pse_data(
-                inst,
-                handle,
-                &pse_allocated_power,
-                &pd_requested_power,
-                &pse_power_type,
-                &power_class,
-                &pse_power_pair,
-                &mdi_power_status,
-                &cable_len,
-                &power_indicator));
+        inst,
+        handle,
+        &pse_allocated_power,
+        &pd_requested_power,
+        &pse_power_type,
+        &power_class,
+        &pse_power_pair,
+        &mdi_power_status,
+        &cable_len,
+        &power_indicator));
 
     port_status->pse_data.pse_allocated_power   = pse_allocated_power;
     port_status->pse_data.pd_requested_power    = pd_requested_power;
@@ -4149,7 +4152,7 @@ mesa_rc Check_reply_validation_debug(
     mesa_rc rc = MESA_RC_ERROR;
 
     // check report key
-	if (((tx_buf[0] == COMMAND_KEY || tx_buf[0] == PROGRAM_KEY)) &&
+    if (((tx_buf[0] == COMMAND_KEY || tx_buf[0] == PROGRAM_KEY)) &&
         ( rx_buf[0] != REPORT_KEY ))
     {
         DEBUG(inst, MEBA_TRACE_LVL_WARNING, "%s COMMAND_KEY or PROGRAM_KEY should be answered with REPORT_KEY \n",  __FUNCTION__);
@@ -4243,11 +4246,11 @@ ValidNum_e checkArgument(char* s)
         else if (((ch >= 'a') && (ch <= 'f')) ||
                  ((ch >= 'A') && (ch <= 'F')))
         {
-             eValidNum = eValidNum_Hex;
+            eValidNum = eValidNum_Hex;
         }
         else // if argument is not decimal and not hex - declare as invalid argument
         {
-             return eValidNum_InValid;
+            return eValidNum_InValid;
         }
     }
 
@@ -4361,7 +4364,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
         // Update checksum
         if(str_len == 28)
         {
-           bUpdate_check_cum = TRUE;
+            bUpdate_check_cum = TRUE;
         }
     }
     // <Num> <Num> <Num> <Num> <Num> [<Num>] [<Num>] [<Num>] [<Num>] [<Num>] [<Num>] [<Num>] [<Num>] [<Num>] [<Num>]
@@ -4456,7 +4459,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
         // Update checksum
         if (args_count < 15)
         {
-           bUpdate_check_cum = TRUE;
+            bUpdate_check_cum = TRUE;
         }
 
         printf("\n\rstr: %s: args_count:%d , str_len:%d \n\r", s, args_count , str_len);
@@ -4526,10 +4529,10 @@ mesa_rc meba_poe_pd69200_ctrl_port_capabilities_get(
     meba_poe_port_handle_t          handle,
     meba_poe_port_cap_t* capabilities)
 {
-//    if (meba_poe_pd69200_get_chipset(inst) != MEBA_POE_CHIPSET_FOUND) {
-//        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Device not ready for reading", __FUNCTION__);
-//        return MESA_RC_ERROR;
-//    }
+    //    if (meba_poe_pd69200_get_chipset(inst) != MEBA_POE_CHIPSET_FOUND) {
+    //        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Device not ready for reading", __FUNCTION__);
+    //        return MESA_RC_ERROR;
+    //    }
 
     if (handle >= inst->port_map_length) {
         DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s Invalid handle: %d", __FUNCTION__, handle);
@@ -4839,88 +4842,88 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_parameters(
     cfg_POEMCU->priority                   = buf[7] ;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO,
-               "[GET_BT_PORT_PARAM] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Operation_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
-               handle,
-               cfg_POEMCU->enable,
-               cfg_POEMCU->ignored_inrush_check,
-               cfg_POEMCU->ignore_pd_auto_class_request,
-               cfg_POEMCU->bt_port_pm_mode,
-               cfg_POEMCU->class_error_selection,
-               cfg_POEMCU->port_operation_mode,
-               cfg_POEMCU->legacy_support,
-               cfg_POEMCU->add_power_for_port_mode_dW,
-               cfg_POEMCU->priority);
+          "[GET_BT_PORT_PARAM] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Operation_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
+          handle,
+          cfg_POEMCU->enable,
+          cfg_POEMCU->ignored_inrush_check,
+          cfg_POEMCU->ignore_pd_auto_class_request,
+          cfg_POEMCU->bt_port_pm_mode,
+          cfg_POEMCU->class_error_selection,
+          cfg_POEMCU->port_operation_mode,
+          cfg_POEMCU->legacy_support,
+          cfg_POEMCU->add_power_for_port_mode_dW,
+          cfg_POEMCU->priority);
 
     return MESA_RC_OK;
 }
 
 
 /********************************************************************
-* Set_BT_ParamsByOperationMode()
-*
-*   This function fill the local product database for each port depend on it's classification (which result in port maximum power).
-*   BT_PORT_MAX_POWER_DEFAULT is the enum for PoE port max power 15/30/60/90
-*
-* Return: void
-*********************************************************************/
+ * Set_BT_ParamsByOperationMode()
+ *
+ *   This function fill the local product database for each port depend on it's classification (which result in port maximum power).
+ *   BT_PORT_MAX_POWER_DEFAULT is the enum for PoE port max power 15/30/60/90
+ *
+ * Return: void
+ *********************************************************************/
 void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t* inst)
 {
     meba_poe_parameters_t tPoE_parameters = ((poe_driver_private_t *)(inst->private_data))->tPoE_parameters;
 
     switch(tPoE_parameters.ePoE_port_max_power_default)
     {
-		case ePORT_MAX_POWER_15W:
-	{
+        case ePORT_MAX_POWER_15W:
+            {
 		prod.poe_port_mode_max_power_index = 0;
 		prod.poe_class_max_pwr        = ePOE_CLASS_MAX_PWR_15W;                  //  Class-3 = 15W
-            prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_15W_default; //  POEMCU PoE legacy operation mode = 0x13
+                prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_15W_default; //  POEMCU PoE legacy operation mode = 0x13
 		prod.port_type_operation_mode[1] = ePORT_TYPE_OPERATION_MODE_FOR_BT_15W;     //  POEMCU PoE BT mode = 3
-			prod.class_error_selection[0]    = 0x1;  // legacy
-			prod.class_error_selection[1]    = 0;    // BT
+                prod.class_error_selection[0]    = 0x1;  // legacy
+                prod.class_error_selection[1]    = 0;    // BT
 		break;
-	}
+            }
 
 	case ePORT_MAX_POWER_30W:
-	{
+            {
 		prod.poe_port_mode_max_power_index = 1;
 		prod.poe_class_max_pwr           = ePOE_CLASS_MAX_PWR_30W;                    //  Class-4 = 30W
 		prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_30W_default;  //  POEMCU PoE legacy operation mode = 0x12
 		prod.port_type_operation_mode[1] = ePORT_TYPE_OPERATION_MODE_FOR_BT_30W;      //  POEMCU PoE BT mode = 2
-			prod.class_error_selection[0]    = 0x2;  // legacy
-			prod.class_error_selection[1]    = 0;    // BT
-	    break;
-	}
+                prod.class_error_selection[0]    = 0x2;  // legacy
+                prod.class_error_selection[1]    = 0;    // BT
+                break;
+            }
 
 	case ePORT_MAX_POWER_60W:
-	{
+            {
 		prod.poe_port_mode_max_power_index = 2;
 		prod.poe_class_max_pwr           = ePOE_CLASS_MAX_PWR_60W;                    //  Class-6 = 60W
 		prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_60W_default;  //  POEMCU PoE legacy operation mode = 0x21
 		prod.port_type_operation_mode[1] = ePORT_TYPE_OPERATION_MODE_FOR_BT_60W;      //  POEMCU PoE BT mode = 1
-			prod.class_error_selection[0]    = 0x3;  // legacy
-			prod.class_error_selection[1]    = 0;    // BT
-	    break;
-	}
+                prod.class_error_selection[0]    = 0x3;  // legacy
+                prod.class_error_selection[1]    = 0;    // BT
+                break;
+            }
 
 	case ePORT_MAX_POWER_90W:
-	{
+            {
 		prod.poe_port_mode_max_power_index = 3;
 		prod.poe_class_max_pwr           = ePOE_CLASS_MAX_PWR_90W;                    //  Class-8 = 90W
 		prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_90W_default;  //  POEMCU PoE legacy operation mode = 0x20
 		prod.port_type_operation_mode[1] = ePORT_TYPE_OPERATION_MODE_FOR_BT_90W;      //  POEMCU PoE BT mode = 0
-			prod.class_error_selection[0]    = 0x4;  // legacy
-			prod.class_error_selection[1]    = 0;    // BT
-	    break;
-	}
+                prod.class_error_selection[0]    = 0x4;  // legacy
+                prod.class_error_selection[1]    = 0;    // BT
+                break;
+            }
 
 	default:
-	{
+            {
 		prod.poe_port_mode_max_power_index = 2;
 		prod.poe_class_max_pwr           = ePOE_CLASS_MAX_PWR_60W;                    //  Class-6 = 60W
 		prod.port_type_operation_mode[0] = tPoE_parameters.bt_port_type_operation_mode_for_legacy_60W_default;  //  POEMCU PoE legacy operation mode = 0x21
 		prod.port_type_operation_mode[1] = ePORT_TYPE_OPERATION_MODE_FOR_BT_60W;      //  POEMCU PoE BT mode =1
-	    break;
-	}
+                break;
+            }
     }
 
     prod.port_max_pwr_per_type_mW = ClassMode_MaxPower_W[prod.poe_port_mode_max_power_index] * 1000;
@@ -5091,29 +5094,29 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
 
     // read parameters from PoE
     MESA_RC(meba_poe_pd69200bt_ctrl_get_BT_port_parameters(
-            inst ,handle,port_cfg_POEMCU));
+        inst ,handle,port_cfg_POEMCU));
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "[ReqPortCfg_______] CH=%d,EnDis:%d,Priority:%d,legacy:%d,IgAutoClass:%d", handle,
-            req_port_cfg->enable,
-            req_port_cfg->priority,
-            req_port_cfg->legacy_support,
-            req_port_cfg->ignore_pd_auto_class_request);
+          req_port_cfg->enable,
+          req_port_cfg->priority,
+          req_port_cfg->legacy_support,
+          req_port_cfg->ignore_pd_auto_class_request);
 
-   DEBUG(inst, MEBA_TRACE_LVL_INFO, "[PortCfg__________] CH=%d,EnDis:%d,Priority:%d,legacy:%d,IgAutoClass:%d", handle,
-            port_cfg->enable,
-            port_cfg->priority,
-            port_cfg->legacy_support,
-            port_cfg->ignore_pd_auto_class_request);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[PortCfg__________] CH=%d,EnDis:%d,Priority:%d,legacy:%d,IgAutoClass:%d", handle,
+          port_cfg->enable,
+          port_cfg->priority,
+          port_cfg->legacy_support,
+          port_cfg->ignore_pd_auto_class_request);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "Update configuration for controller port %d",  handle);
-/*
-    DEBUG(inst,
-          MEBA_TRACE_LVL_INFO, "%s, priority: %s legacy_support %s PD_Auto_Class_request: %s",
-          req_port_cfg->enable ? "Enabled" : "Disabled",
-          req_port_cfg->priority == MEBA_POE_PORT_PRIO_CRITICAL ? "crit" : req_port_cfg->priority == MEBA_POE_PORT_PRIO_HIGH ? "high" : "low",
-          req_port_cfg->legacy_support ? "Enabled" : "Disabled" ,
-          req_port_cfg->ignore_pd_auto_class_request ? "Enabled" : "Disabled");
-*/
+    /*
+      DEBUG(inst,
+      MEBA_TRACE_LVL_INFO, "%s, priority: %s legacy_support %s PD_Auto_Class_request: %s",
+      req_port_cfg->enable ? "Enabled" : "Disabled",
+      req_port_cfg->priority == MEBA_POE_PORT_PRIO_CRITICAL ? "crit" : req_port_cfg->priority == MEBA_POE_PORT_PRIO_HIGH ? "high" : "low",
+      req_port_cfg->legacy_support ? "Enabled" : "Disabled" ,
+      req_port_cfg->ignore_pd_auto_class_request ? "Enabled" : "Disabled");
+    */
 
     mesa_bool_t bParamChanged = false;   // Flag which indicate that we need to update the change into the POEMCU. We need to send "Set BT Port Parameters"
 
@@ -5156,7 +5159,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
     if(port_cfg_POEMCU->port_operation_mode != port_cfg->port_operation_mode)
     {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d Op mode from 0x%X to 0x%X",
-                    handle, port_cfg_POEMCU->port_operation_mode, port_cfg->port_operation_mode );
+              handle, port_cfg_POEMCU->port_operation_mode, port_cfg->port_operation_mode );
 
         BT_port_Operation_Mode = port_cfg->port_operation_mode;
 
@@ -5171,13 +5174,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
         if (port_cfg_POEMCU->enable != port_cfg->enable)
         {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d ON/OFF from %d to %d",
-                        handle, port_cfg_POEMCU->enable, port_cfg->enable);
+                  handle, port_cfg_POEMCU->enable, port_cfg->enable);
         }
 
         if (port_cfg_POEMCU->ignored_inrush_check != port_cfg->ignored_inrush_check)
         {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d Ignore inrush from %d to %d",
-                        handle, port_cfg_POEMCU->ignored_inrush_check, port_cfg->ignored_inrush_check);
+                  handle, port_cfg_POEMCU->ignored_inrush_check, port_cfg->ignored_inrush_check);
         }
 
         Port_Enable_Modes = port_cfg->enable;  // 0 or 1
@@ -5193,7 +5196,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
     if ( port_cfg_POEMCU->ignore_pd_auto_class_request != global_cfg->ignore_pd_auto_class_request )
     {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d Ignore Auto Class from %d to %d",
-                    handle, port_cfg_POEMCU->ignore_pd_auto_class_request, global_cfg->ignore_pd_auto_class_request);
+              handle, port_cfg_POEMCU->ignore_pd_auto_class_request, global_cfg->ignore_pd_auto_class_request);
         bParamChanged = true;
 
         Special_Port_Configuration_Bits_4_7 = global_cfg->ignore_pd_auto_class_request ;
@@ -5206,22 +5209,22 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
     if (( port_cfg_POEMCU->bt_port_pm_mode != 0 ) ||
         ( port_cfg->bt_port_pm_mode != 0 ))
     {
-            port_cfg->bt_port_pm_mode = 0;
+        port_cfg->bt_port_pm_mode = 0;
 
-            if (port_cfg_POEMCU->bt_port_pm_mode != 0)
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d bt_port_pm_mode from %d to 0",
-                            handle, port_cfg_POEMCU->bt_port_pm_mode );
-            }
+        if (port_cfg_POEMCU->bt_port_pm_mode != 0)
+        {
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d bt_port_pm_mode from %d to 0",
+                  handle, port_cfg_POEMCU->bt_port_pm_mode );
+        }
 
-            if (port_cfg->bt_port_pm_mode != 0)
-            {
-                DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Set config CH-%02d bt_port_pm_mode from %d to 0",
-                            handle, port_cfg->bt_port_pm_mode );
-            }
+        if (port_cfg->bt_port_pm_mode != 0)
+        {
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Set config CH-%02d bt_port_pm_mode from %d to 0",
+                  handle, port_cfg->bt_port_pm_mode );
+        }
 
-            BT_port_PM_mode = port_cfg->bt_port_pm_mode;
-            bParamChanged = true;
+        BT_port_PM_mode = port_cfg->bt_port_pm_mode;
+        bParamChanged = true;
     }
 
     if (port_cfg->enable) // update only if port is active - otherwise - set "no change"
@@ -5232,13 +5235,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
             if ( port_cfg_POEMCU->class_error_selection != prod.class_error_selection[port_cfg->bt_en] )
             {
                 DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d class_error_selection from %d to %d",
-                            handle,  port_cfg_POEMCU->class_error_selection, prod.class_error_selection[port_cfg->bt_en] );
+                      handle,  port_cfg_POEMCU->class_error_selection, prod.class_error_selection[port_cfg->bt_en] );
             }
 
             if ( port_cfg->class_error_selection != prod.class_error_selection[port_cfg->bt_en] )
             {
                 DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Set Config CH-%02d class_error_selection from %d to %d",
-                            handle,  port_cfg->class_error_selection, prod.class_error_selection[port_cfg->bt_en] );
+                      handle,  port_cfg->class_error_selection, prod.class_error_selection[port_cfg->bt_en] );
             }
 
             port_cfg->class_error_selection = prod.class_error_selection[port_cfg->bt_en];
@@ -5269,39 +5272,39 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
     //    Add_power_for_port_mode_dW = port_cfg->add_power_for_port_mode_dW;
     //}
 
-     // check Port priority for each port
-     if ( port_cfg_POEMCU->priority != port_cfg->priority )
-     {
-         DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d Priority from %d to %d",handle,
-                     port_cfg_POEMCU->priority,
-                     port_cfg->priority );
+    // check Port priority for each port
+    if ( port_cfg_POEMCU->priority != port_cfg->priority )
+    {
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "* Change POEMCU CH-%02d Priority from %d to %d",handle,
+              port_cfg_POEMCU->priority,
+              port_cfg->priority );
 
-         Priority = port_cfg->priority;
-         bParamChanged = true;
-     }
+        Priority = port_cfg->priority;
+        bParamChanged = true;
+    }
 
     if(bParamChanged == true)
     {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "[CFG-SET_BT_PORT_PARAMS] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Oper_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
-               handle,
-               port_cfg->enable,
-               port_cfg->ignored_inrush_check,
-               port_cfg->ignore_pd_auto_class_request,
-               port_cfg->bt_port_pm_mode,
-               port_cfg->class_error_selection,
-               port_cfg->port_operation_mode,
-               port_cfg->legacy_support,
-               port_cfg->add_power_for_port_mode_dW,
-               port_cfg->priority);
+              handle,
+              port_cfg->enable,
+              port_cfg->ignored_inrush_check,
+              port_cfg->ignore_pd_auto_class_request,
+              port_cfg->bt_port_pm_mode,
+              port_cfg->class_error_selection,
+              port_cfg->port_operation_mode,
+              port_cfg->legacy_support,
+              port_cfg->add_power_for_port_mode_dW,
+              port_cfg->priority);
 
 
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET_BT_PORT_PARAMETERS] CH=%d,CFG1=0x%X,CFG2=0x%X,Op_mode=0x%X,Add_Pwr=%d,Prio=0x%X",
-                   handle ,
-                   CFG1,
-                   CFG2,
-                   BT_port_Operation_Mode,
-                   Add_power_for_port_mode_dW,
-                   Priority);
+              handle ,
+              CFG1,
+              CFG2,
+              BT_port_Operation_Mode,
+              Add_power_for_port_mode_dW,
+              Priority);
 
 
         // 4.3.6        Set BT Port Parameters
@@ -5426,13 +5429,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_cfg_set(
     uint16_t  power_limit;
 
     MESA_RC(pd69200_get_power_supply_parameters(
-                inst,
-                &power_consumption,
-                &max_shutdown_voltage,
-                &min_shutdown_voltage,
-                &guard_band,
-                &bank,
-                &power_limit));
+        inst,
+        &power_consumption,
+        &max_shutdown_voltage,
+        &min_shutdown_voltage,
+        &guard_band,
+        &bank,
+        &power_limit));
 
     if ((guard_band != 0x2) || (power_limit != cfg->primary_max_power))
     {
@@ -5440,12 +5443,12 @@ mesa_rc meba_poe_pd69200bt_ctrl_cfg_set(
         guard_band = 0x2;           // We set guard to 2W in order to get priority to take over as soon as possible.
 
         MESA_RC(meba_poe_pd69200_set_power_banks(
-                inst,
-                bank,
-                power_limit,
-                max_shutdown_voltage,
-                min_shutdown_voltage,
-                guard_band));
+            inst,
+            bank,
+            power_limit,
+            max_shutdown_voltage,
+            min_shutdown_voltage,
+            guard_band));
     }
 
     *current_cfg = *cfg;
@@ -5459,106 +5462,106 @@ char* GetBT_TitleByPortsStatus(uint8_t bt_port_status)
     switch (bt_port_status)
     {
         //--- Port off ---//
-    case eBT_0x06_OFF_Main_supply_voltage_is_high:
-        return "0x06: P.S Voltage to High";
-    case eBT_0x07_OFF_Main_supply_voltage_is_low:
-        return "0x07: P.S Voltage to Low";
-    case eBT_0x08_OFF_Disable_all_ports_pin_is_active:
-        return "0x08: Disable all Port by I/O pin";
-    case eBT_0x0C_OFF_Non_existing_port_number:
-        return "0x0C: Invalid Port Index";
-    case eBT_0x11_OFF_Port_is_yet_undefined:
-        return "0x11: Port is yet undefined";
-    case eBT_0x12_OFF_Internal_hardware_fault:
-        return "0x12: Internal Hardware Fault";
-    case eBT_0x1A_OFF_User_setting:
-        return "0x1A: Disable Command";
-    case eBT_0x1B_OFF_Detection_is_in_process:
-        return "0x1B: Detection in process (searching)";
-    case eBT_0x1C_OFF_Non_802_3AF_AT_powered_device:
-        return "0x1c: None-standard 802.3AF-AT PD";
-    case eBT_0x1E_OFF_Underload_state:
-        return "0x1E: Underload";
-    case eBT_0x1F_OFF_Overload_state:
-        return "0x1F: Overload";
-    case eBT_0x20_OFF_Power_budget_exceeded:
-        return "0x20: Exceeded Overall Power Budget";
-    case eBT_0x22_OFF_Configuration_change:
-        return "0x22: Configuration Update In Procerss";
-    case eBT_0x24_OFF_Voltage_injection_into_the_port:
-        return "0x24: Ext Voltage Was injected";
-    case eBT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short:
-        return "0x25: PD Capacitor out of range";
-    case eBT_0x26_OFF_Discharged_load:
-        return "0x26: Discharged load";
-    case eBT_0x34_OFF_Short_condition:
-        return "0x34: Shortage";
-    case eBT_0x35_OFF_Over_temperature_at_the_port:
-        return "0x35: Port Over Temperature";
-    case eBT_0x36_OFF_Device_is_too_hot:
-        return "0x36: Silicon-Die Over Temperature";
-    case eBT_0x37_Unknown_device_port_status:
-        return "0x37: Unknown device port status";
-    case eBT_0x3C_OFF_Power_Mng_Static_calc_pwr_exceed_pwr_limit:
-        return "0x3C: Stat Pwr Management > Pwr Limit";
-    case eBT_0x3D_OFF_Power_Management_Static_ovl:
-        return "0x3D: PD Class > Port Max Pwr";
-    case eBT_0x41_OFF_Power_denied_Hardware_power_limit:
-        return "0x41: PD Class > PoE-IC max Class";
-    case eBT_0x43_OFF_Class_Error:
-        return "0x43: Class_Error";
+        case eBT_0x06_OFF_Main_supply_voltage_is_high:
+            return "0x06: P.S Voltage to High";
+        case eBT_0x07_OFF_Main_supply_voltage_is_low:
+            return "0x07: P.S Voltage to Low";
+        case eBT_0x08_OFF_Disable_all_ports_pin_is_active:
+            return "0x08: Disable all Port by I/O pin";
+        case eBT_0x0C_OFF_Non_existing_port_number:
+            return "0x0C: Invalid Port Index";
+        case eBT_0x11_OFF_Port_is_yet_undefined:
+            return "0x11: Port is yet undefined";
+        case eBT_0x12_OFF_Internal_hardware_fault:
+            return "0x12: Internal Hardware Fault";
+        case eBT_0x1A_OFF_User_setting:
+            return "0x1A: Disable Command";
+        case eBT_0x1B_OFF_Detection_is_in_process:
+            return "0x1B: Detection in process (searching)";
+        case eBT_0x1C_OFF_Non_802_3AF_AT_powered_device:
+            return "0x1c: None-standard 802.3AF-AT PD";
+        case eBT_0x1E_OFF_Underload_state:
+            return "0x1E: Underload";
+        case eBT_0x1F_OFF_Overload_state:
+            return "0x1F: Overload";
+        case eBT_0x20_OFF_Power_budget_exceeded:
+            return "0x20: Exceeded Overall Power Budget";
+        case eBT_0x22_OFF_Configuration_change:
+            return "0x22: Configuration Update In Procerss";
+        case eBT_0x24_OFF_Voltage_injection_into_the_port:
+            return "0x24: Ext Voltage Was injected";
+        case eBT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short:
+            return "0x25: PD Capacitor out of range";
+        case eBT_0x26_OFF_Discharged_load:
+            return "0x26: Discharged load";
+        case eBT_0x34_OFF_Short_condition:
+            return "0x34: Shortage";
+        case eBT_0x35_OFF_Over_temperature_at_the_port:
+            return "0x35: Port Over Temperature";
+        case eBT_0x36_OFF_Device_is_too_hot:
+            return "0x36: Silicon-Die Over Temperature";
+        case eBT_0x37_Unknown_device_port_status:
+            return "0x37: Unknown device port status";
+        case eBT_0x3C_OFF_Power_Mng_Static_calc_pwr_exceed_pwr_limit:
+            return "0x3C: Stat Pwr Management > Pwr Limit";
+        case eBT_0x3D_OFF_Power_Management_Static_ovl:
+            return "0x3D: PD Class > Port Max Pwr";
+        case eBT_0x41_OFF_Power_denied_Hardware_power_limit:
+            return "0x41: PD Class > PoE-IC max Class";
+        case eBT_0x43_OFF_Class_Error:
+            return "0x43: Class_Error";
 	case eBT_0x44_OFF_Port_turn_off_during_host_crash:
-		return "0x44: port turn off during host crash";
+            return "0x44: port turn off during host crash";
 	case eBT_0x45_OFF_Delivering_power_forced_off_during_host_crash:
-		return "0x45: pwr forced off during host crash";
+            return "0x45: pwr forced off during host crash";
 	case eBT_0x46_OFF_Enabled_port_forced_off_during_host_crash:
-		return "0x46: forced off during host crash";
+            return "0x46: forced off during host crash";
 	case eBT_0x47_OFF_Forced_power_crash_error:
-		return "0x47: Forced power crash_error";
+            return "0x47: Forced power crash_error";
 	case eBT_0x48_OFF_recovery_UDL:
-		return "0x48: recovery UDL";
+            return "0x48: recovery UDL";
 	case eBT_0x49_OFF_recovery_PG:
-		return "0x49: recovery PG";
+            return "0x49: recovery PG";
 	case eBT_0x4A_OFF_recovery_OVL:
-		return "0x43: recovery OVL";
+            return "0x43: recovery OVL";
 	case eBT_0x4B_OFF_recovery_SC:
-		return "0x43: recovery SC";
+            return "0x43: recovery SC";
 	case eBT_0x4C_OFF_recovery_voltage_injection:
-		return "0x43: recovery voltage injection";
-    case eBT_0x80_ON_2P_Port_delivering_non_IEEE:
-        return "0x80: 2P None IEEE";
-    case eBT_0x81_ON_2P_Port_delivering_IEEE:
-        return "0x81: 2P IEEE";
-    case eBT_0x82_ON_4P_Port_that_deliver_only_2_Pair_non_IEEE:
-        return "0x82: 4P Pwr on 2P None IEEE";
-    case eBT_0x83_ON_4P_Port_delivering_2P_non_IEEE:
-        return "0x83: 4P Pwr on 2P None IEEE";
-    case eBT_0x84_ON_4P_Port_delivering_4P_non_IEEE:
-        return "0x84: 4P Pwr on 4P None IEEE";
-    case eBT_0x85_ON_4P_Port_delivering_2P_IEEE_SSPD:
-        return "0x85: 4P Pwr on 2P IEEE SSPD";
-    case eBT_0x86_ON_4P_Port_delivering_4P_IEEE_SSPD:
-        return "0x86: 4P Pwr on 4P IEEE SSPD";
-    case eBT_0x87_ON_4P_Port_delivering_4P_IEEE_DSPD_1st_phase:
-        return "0x87: 4P Pwr on 2P IEEE DSPD 1st-phase";
-    case eBT_0x88_ON_4P_Port_delivering_2P_IEEE_DSPD:
-        return "0x88: 4P Pwr on 2P IEEE DSPD";
-    case eBT_0x89_ON_4P_Port_delivering_4P_IEEE_DSPD:
-        return "0x89: 4P Pwr on 4P IEEE DSPD";
-    case eBT_0x90_ON_Force_Power_BT_2P:
-        return "0x90: 2P Force Power BT";
-    case eBT_0x91_ON_Force_Power_BT_4P:
-        return "0x91: 4P Force Power BT";
-    case eBT_0xA0_OFF_Force_Power_BT_Error:
-        return "0xA0: Force Pwr-BT Error";
-    case eBT_0xA7_OFF_Connection_Check_error:
-        return "0xA7: None PoE Ethernet Device";
-    case eBT_0xA8_OFF_Open_Port_is_not_connected:
-        return "0xA8: No Device (open)";
-    default:
-        {
-            return "?????";
-        }
+            return "0x43: recovery voltage injection";
+        case eBT_0x80_ON_2P_Port_delivering_non_IEEE:
+            return "0x80: 2P None IEEE";
+        case eBT_0x81_ON_2P_Port_delivering_IEEE:
+            return "0x81: 2P IEEE";
+        case eBT_0x82_ON_4P_Port_that_deliver_only_2_Pair_non_IEEE:
+            return "0x82: 4P Pwr on 2P None IEEE";
+        case eBT_0x83_ON_4P_Port_delivering_2P_non_IEEE:
+            return "0x83: 4P Pwr on 2P None IEEE";
+        case eBT_0x84_ON_4P_Port_delivering_4P_non_IEEE:
+            return "0x84: 4P Pwr on 4P None IEEE";
+        case eBT_0x85_ON_4P_Port_delivering_2P_IEEE_SSPD:
+            return "0x85: 4P Pwr on 2P IEEE SSPD";
+        case eBT_0x86_ON_4P_Port_delivering_4P_IEEE_SSPD:
+            return "0x86: 4P Pwr on 4P IEEE SSPD";
+        case eBT_0x87_ON_4P_Port_delivering_4P_IEEE_DSPD_1st_phase:
+            return "0x87: 4P Pwr on 2P IEEE DSPD 1st-phase";
+        case eBT_0x88_ON_4P_Port_delivering_2P_IEEE_DSPD:
+            return "0x88: 4P Pwr on 2P IEEE DSPD";
+        case eBT_0x89_ON_4P_Port_delivering_4P_IEEE_DSPD:
+            return "0x89: 4P Pwr on 4P IEEE DSPD";
+        case eBT_0x90_ON_Force_Power_BT_2P:
+            return "0x90: 2P Force Power BT";
+        case eBT_0x91_ON_Force_Power_BT_4P:
+            return "0x91: 4P Force Power BT";
+        case eBT_0xA0_OFF_Force_Power_BT_Error:
+            return "0xA0: Force Pwr-BT Error";
+        case eBT_0xA7_OFF_Connection_Check_error:
+            return "0xA7: None PoE Ethernet Device";
+        case eBT_0xA8_OFF_Open_Port_is_not_connected:
+            return "0xA8: No Device (open)";
+        default:
+            {
+                return "?????";
+            }
     }
 }
 
@@ -5619,14 +5622,14 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     uint8_t  port_event;
 
     MESA_RC(meba_poe_pd69200bt_ctrl_get_BT_port_status(
-                inst,
-                channel,
-                &port_state,
-                &enable,
-                &assigned_class,
-                &measured_port_power,
-                &last_shutdown_error_status,
-                &port_event));
+        inst,
+        channel,
+        &port_state,
+        &enable,
+        &assigned_class,
+        &measured_port_power,
+        &last_shutdown_error_status,
+        &port_event));
     port_status->assigned_pd_class_a = (assigned_class & 0xF0) >> 4;
     port_status->assigned_pd_class_b = assigned_class & 0xF;
 
@@ -5655,54 +5658,54 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         case  eBT_0x87_ON_4P_Port_delivering_4P_IEEE_DSPD_1st_phase:
         case  eBT_0x88_ON_4P_Port_delivering_2P_IEEE_DSPD:
         case  eBT_0x89_ON_4P_Port_delivering_4P_IEEE_DSPD:
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;  // POEBT
-            port_status->IsPOEBT = true;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;  // POEBT
+                port_status->IsPOEBT = true;
+                break;
+            }
 
         case  eBT_0x80_ON_2P_Port_delivering_non_IEEE:
         case  eBT_0x82_ON_4P_Port_that_deliver_only_2_Pair_non_IEEE:
         case  eBT_0x83_ON_4P_Port_delivering_2P_non_IEEE:
         case  eBT_0x84_ON_4P_Port_delivering_4P_non_IEEE:
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;  // LEGACY
-            port_status->IsPOEBT = false;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER;  // LEGACY
+                port_status->IsPOEBT = false;
+                break;
+            }
 
         case eBT_0x90_ON_Force_Power_BT_2P:
         case eBT_0x91_ON_Force_Power_BT_4P:
-        {
+            {
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_TEST;
                 break;
-        }
+            }
 
         case eBT_0x08_OFF_Disable_all_ports_pin_is_active:
         case eBT_0x1A_OFF_User_setting:
         case eBT_0x22_OFF_Configuration_change:
-        {
+            {
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_DISABLED;
                 break;
-        }
+            }
 
-        // Interim state, detection going on  -     eOFF_Detection_is_in_process
+            // Interim state, detection going on  -     eOFF_Detection_is_in_process
         case eBT_0x1B_OFF_Detection_is_in_process:
         case eBT_0xA8_OFF_Open_Port_is_not_connected:  // typical value when nothing is connected to the port
-        {
+            {
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_SEARCHING;
                 break;
-        }
+            }
 
-        // Port is off due to miselenious reasones
+            // Port is off due to miselenious reasones
         case eBT_0x1F_OFF_Overload_state:
         case eBT_0x34_OFF_Short_condition:
         case eBT_0x4A_OFF_recovery_OVL:
         case eBT_0x4B_OFF_recovery_SC:
-        {
+            {
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_FAULT;
                 break;
-        }
+            }
 
         case eBT_0x06_OFF_Main_supply_voltage_is_high:
         case eBT_0x07_OFF_Main_supply_voltage_is_low:
@@ -5733,19 +5736,19 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         case eBT_0xA0_OFF_Force_Power_BT_Error:
         case eBT_0xA7_OFF_Connection_Check_error:      // normal status when Ethernet link as laptop is conencted to this port
         case eBT_0xFF_PORT_STATUS_ONKNOWN:
-        {
-            port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
+                break;
+            }
 
         default:
-        {
+            {
                 // This shall never happen all states should be covered.
                 DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X",
                       inst->port_map[handle].port_no, port_state);
                 port_status->meba_poe_ieee_port_state = MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT;
                 break;
-        }
+            }
     }
 
 
@@ -5757,50 +5760,50 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         case  eBT_0x87_ON_4P_Port_delivering_4P_IEEE_DSPD_1st_phase:
         case  eBT_0x88_ON_4P_Port_delivering_2P_IEEE_DSPD:
         case  eBT_0x89_ON_4P_Port_delivering_4P_IEEE_DSPD:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PD_ON;  // ON POEBT
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PD_ON;  // ON POEBT
+                break;
+            }
 
         case  eBT_0x80_ON_2P_Port_delivering_non_IEEE:
         case  eBT_0x82_ON_4P_Port_that_deliver_only_2_Pair_non_IEEE:
         case  eBT_0x83_ON_4P_Port_delivering_2P_non_IEEE:
         case  eBT_0x84_ON_4P_Port_delivering_4P_non_IEEE:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PD_ON;  // ON LEGACY
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PD_ON;  // ON LEGACY
+                break;
+            }
 
         case eBT_0x08_OFF_Disable_all_ports_pin_is_active:
         case eBT_0x1A_OFF_User_setting:
         case eBT_0x22_OFF_Configuration_change:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_DISABLED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_DISABLED;
+                break;
+            }
 
-        // Interim state, detection going on  -     eOFF_Detection_is_in_process
+            // Interim state, detection going on  -     eOFF_Detection_is_in_process
         case eBT_0x1B_OFF_Detection_is_in_process:
         case eBT_0xA8_OFF_Open_Port_is_not_connected:  // typical value when nothing is connected to the port
-        {
-            port_status->meba_poe_port_state = MEBA_POE_NO_PD_DETECTED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_NO_PD_DETECTED;
+                break;
+            }
 
         case eBT_0x1F_OFF_Overload_state:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PD_OVERLOAD;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PD_OVERLOAD;
+                break;
+            }
 
         case eBT_0x20_OFF_Power_budget_exceeded:
         case eBT_0x4A_OFF_recovery_OVL:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_POWER_BUDGET_EXCEEDED;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_POWER_BUDGET_EXCEEDED;
+                break;
+            }
 
-        // Port is off due to miselenious reasones
+            // Port is off due to miselenious reasones
         case eBT_0x1C_OFF_Non_802_3AF_AT_powered_device: // Non-standart PD connected
         case eBT_0x1E_OFF_Underload_state:
         case eBT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short:
@@ -5808,10 +5811,10 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         case eBT_0x48_OFF_recovery_UDL:
         case eBT_0x4B_OFF_recovery_SC:
         case eBT_0xA7_OFF_Connection_Check_error:      // normal status when Ethernet link as laptop is conencted to this port
-        {
-            port_status->meba_poe_port_state = MEBA_POE_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_FAULT;
+                break;
+            }
 
         case eBT_0x06_OFF_Main_supply_voltage_is_high:
         case eBT_0x07_OFF_Main_supply_voltage_is_low:
@@ -5834,29 +5837,29 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         case eBT_0x4C_OFF_recovery_voltage_injection:
         case eBT_0xA0_OFF_Force_Power_BT_Error:
         case eBT_0xFF_PORT_STATUS_ONKNOWN:
-        {
-            port_status->meba_poe_port_state = MEBA_POE_PSE_FAULT;
-            break;
-        }
+            {
+                port_status->meba_poe_port_state = MEBA_POE_PSE_FAULT;
+                break;
+            }
         default:
-        {
-            // statuses to be mapped on higher software level:
-            // MEBA_POE_NOT_SUPPORTED
-            // MEBA_POE_UNKNOWN_STATE
-            // MEBA_POE_DISABLED_INTERFACE_SHUTDOWN
+            {
+                // statuses to be mapped on higher software level:
+                // MEBA_POE_NOT_SUPPORTED
+                // MEBA_POE_UNKNOWN_STATE
+                // MEBA_POE_DISABLED_INTERFACE_SHUTDOWN
 
-            // This shall never happen all states should be covered.
-            DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X",
-                  inst->port_map[handle].port_no, port_state);
-            port_status->meba_poe_port_state = MEBA_POE_UNKNOWN_STATE;
-            break;
-        }
+                // This shall never happen all states should be covered.
+                DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Port %d: Unknown port state: 0x%X",
+                      inst->port_map[handle].port_no, port_state);
+                port_status->meba_poe_port_state = MEBA_POE_UNKNOWN_STATE;
+                break;
+            }
     }
 
     if(( port_status->poe_port_status == eBT_0x1C_OFF_Non_802_3AF_AT_powered_device)
-    || ( port_status->poe_port_status == eBT_0x1E_OFF_Underload_state)
-    || ( port_status->poe_port_status == eBT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short)
-	|| ( port_status->poe_port_status == eBT_0xA7_OFF_Connection_Check_error))
+       || ( port_status->poe_port_status == eBT_0x1E_OFF_Underload_state)
+       || ( port_status->poe_port_status == eBT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short)
+       || ( port_status->poe_port_status == eBT_0xA7_OFF_Connection_Check_error))
         port_status->IsFault_link_without_power = true;
     else
         port_status->IsFault_link_without_power = false;
@@ -5875,17 +5878,17 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
 
         // 'Get BT Class Power' driver
         MESA_RC(meba_poe_pd69200bt_ctrl_get_BT_port_class(
-                    inst,
-                    channel,
-                    &port_state,
-                    &port_phy_info,
-                    &measured_class,
-                    &requested_class,
-                    &requested_power,
-                    &assigned_class,
-                    &assigned_power,
-                    &auto_class_support,
-                    &auto_class_measurement));
+            inst,
+            channel,
+            &port_state,
+            &port_phy_info,
+            &measured_class,
+            &requested_class,
+            &requested_power,
+            &assigned_class,
+            &assigned_power,
+            &auto_class_support,
+            &auto_class_measurement));
 
         port_status->requested_power = assigned_power * 100; // Convert from deciwatt to milliWatts
         port_status->pd_structure = port_phy_info & 0x0F;
@@ -5950,14 +5953,14 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     uint8_t  power_bits;
 
     MESA_RC(meba_poe_pd69200bt_ctrl_get_port_layer2_lldp_pse_data(
-                inst,
-                channel,
-                &pse_allocated_power_a_or_single,
-                &pse_allocated_power_b,
-                &pse_max_power,
-                &assigned_class,
-                &layer2_status,
-                &power_bits));
+        inst,
+        channel,
+        &pse_allocated_power_a_or_single,
+        &pse_allocated_power_b,
+        &pse_max_power,
+        &assigned_class,
+        &layer2_status,
+        &power_bits));
 
     port_status->power_pairs_control_ability = false;  // TODO assign real value
     port_status->pse_alloc_power_alt_a = pse_allocated_power_a_or_single * 100;
@@ -6050,13 +6053,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_bt_data_set(
     }
 
     MESA_RC(meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
-                inst,
-                handle,
-                pd_data->pd_requested_power_single / 100, // convert from milliwatt to deciwatt
-                pd_data->pd_requested_power_alt_a / 100, // convert from milliwatt to deciwatt
-                pd_data->pd_requested_power_alt_b / 100, // convert from milliwatt to deciwatt
-                10, // corresponds to 100m
-                0));
+        inst,
+        handle,
+        pd_data->pd_requested_power_single / 100, // convert from milliwatt to deciwatt
+        pd_data->pd_requested_power_alt_a / 100, // convert from milliwatt to deciwatt
+        pd_data->pd_requested_power_alt_b / 100, // convert from milliwatt to deciwatt
+        10, // corresponds to 100m
+        0));
 
     meba_poe_port_private_status_t* current_port_status = &(((poe_driver_private_t*)(inst->private_data))->status.ports[handle]);
 
@@ -6089,20 +6092,20 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_data_clear(
 
     // change only auto class state
     MESA_RC(meba_poe_pd69200bt_ctrl_port_cfg_set(
-                inst,
-                handle,
-                &req_port_cfg));
+        inst,
+        handle,
+        &req_port_cfg));
 
     req_port_cfg.enable =  true;
     req_port_cfg.priority = port_cfg->priority;
     req_port_cfg.legacy_support = port_cfg->legacy_support;
     req_port_cfg.ignore_pd_auto_class_request = port_cfg->ignore_pd_auto_class_request;
 
-     // change only auto class state
+    // change only auto class state
     MESA_RC(meba_poe_pd69200bt_ctrl_port_cfg_set(
-                inst,
-                handle,
-                &req_port_cfg));
+        inst,
+        handle,
+        &req_port_cfg));
 
     meba_poe_port_private_status_t* current_port_status = &(((poe_driver_private_t*)(inst->private_data))->status.ports[handle]);
 
@@ -6201,12 +6204,12 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
         }
     }
 
-   if ( bMatrixUpdatedFlag ||
-        ((restart_cause == 0) && (bChangedFlag == true))) // cold start and somthing was modified
-   {
+    if ( bMatrixUpdatedFlag ||
+         ((restart_cause == 0) && (bChangedFlag == true))) // cold start and somthing was modified
+    {
         MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings");
-   }
+    }
 
     meba_poe_global_cfg_t *global_cfg = &(((poe_driver_private_t*)(inst->private_data))->cfg.global);
 
