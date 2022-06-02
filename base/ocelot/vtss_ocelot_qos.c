@@ -34,6 +34,7 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t *vtss_state,
     pbs = conf->ebs;
     if (conf->frame_rate) {
         /* Frame rate policing (single leaky bucket) */
+        pbs = (pir ? 64 : 0); // Use 64 frames burst if rate non-zero
         if (pir >= 100) {
             mode = POL_MODE_FRMRATE_100FPS;
             pir = VTSS_DIV_ROUND_UP(pir, 100); /* Resolution is in steps of 100 fps */
@@ -457,7 +458,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     if (conf->policer_port[0].rate != VTSS_BITRATE_DISABLED) {
         pol_cfg.frame_rate = conf->policer_ext_port[0].frame_rate;
         pol_cfg.eir = conf->policer_port[0].rate;
-        pol_cfg.ebs = pol_cfg.frame_rate ? 64 : conf->policer_port[0].level; /* If frame_rate we always use 64 frames as burst value */
+        pol_cfg.ebs = conf->policer_port[0].level;
     } else {
         pol_cfg.disable = TRUE;
     }

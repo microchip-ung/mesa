@@ -306,3 +306,20 @@ test "acl-etype-counter" do
     cnt = $ts.dut.call("mesa_ace_counter_get", ace["id"])
     check_counter("ace", cnt, 1)
 end
+
+test "acl-frame-policer" do
+    break
+    idx = 0
+    pol = 0
+    port = $ts.dut.p[idx]
+    conf = $ts.dut.call("mesa_acl_port_conf_get", port)
+    action = conf["action"]
+    action["police"] = true
+    action["policer_no"] = pol
+    $ts.dut.call("mesa_acl_port_conf_set", port, conf)
+    conf = $ts.dut.call("mesa_acl_policer_conf_get", pol)
+    conf["rate"] = 30
+    $ts.dut.call("mesa_acl_policer_conf_set", pol, conf)
+    $ts.pc.run("ef name f1 eth tx #{$ts.pc.p[idx]} rep 100 name f1")
+    $ts.dut.run("mesa-cmd port stati pac")
+end
