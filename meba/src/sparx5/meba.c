@@ -862,7 +862,7 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
             return 0;
         case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
-            if (board->type == BOARD_TYPE_SPARX5_PCB134) {
+            if (board->type == BOARD_TYPE_SPARX5_PCB134 || board->type == BOARD_TYPE_SPARX5_PCB135) {
                 meba_synce_clock_hw_id_t dpll_type;
 
                 if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) &&
