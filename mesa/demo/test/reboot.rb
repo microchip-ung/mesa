@@ -13,3 +13,5 @@ meta = {
 }
 
 $ts = get_test_setup("mesa_pc_b2b_2x")
+
+$ts.dut.run("mesa-cmd deb sym read DEVCPU_PTP:PTP_TOD_DOMAINS[0-2]:CLK_PER_CFG")

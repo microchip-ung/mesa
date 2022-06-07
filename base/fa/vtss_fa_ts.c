@@ -1064,7 +1064,6 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf
 static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 {
     u32 i, domain;
-    u32 clk_in_100ps, clk_cfg;
     vtss_rc rc = VTSS_RC_OK;
 
     /* Disable PTP (all 3 domains)*/
@@ -1076,12 +1075,22 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
             VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA | VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52);
 
     /* Configure the nominal TOD increment per clock cycle */
-    /* Read the nominal system clock period length in 100 ps */
-    REG_RD(VTSS_HSCH_SYS_CLK_PER, &clk_cfg);
-    clk_in_100ps = VTSS_X_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_cfg);
-
-    /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
-    nominal_tod_increment = ((clk_in_100ps/10) * 0x0800000000000000) + (((clk_in_100ps%10) * 0x0800000000000000)/10);
+    switch (vtss_state->init_conf.core_clock.freq) {
+    /* 250 MHz gives 4.0 ns */
+    /* Due to fractional mode 250 MHz gives 3.99218750 ns - MESA-825*/
+    /* 1 ns is 0x0800000000000000. */
+    /* 0x0800000000000000 * 0.99609375 gives 7F00000000000 */
+    case VTSS_CORE_CLOCK_250MHZ: nominal_tod_increment = ((u64)(3) << 59) + (u64)0x0007F00000000000;
+    /* Due to fractional mode 500 MHz gives 1.99609375 ns - MESA-825 */
+    /* 1 ns is 0x0800000000000000. */
+    /* 0x0800000000000000 * 0.99609375 gives 7F80000000000 */
+    case VTSS_CORE_CLOCK_500MHZ: nominal_tod_increment = ((u64)(1) << 59) + (u64)0x0007F80000000000;
+    /* Due to fractional mode 625 MHz gives 1.59687500 ns - MESA-825 */
+    /* 1 ns is 0x0800000000000000. */
+    /* 0x0800000000000000 * 0.59687500 gives 4C66666666666 */
+    case VTSS_CORE_CLOCK_625MHZ: nominal_tod_increment = ((u64)(1) << 59) + (u64)0x0004C66666666666;
+    default: {};
+    }
 
     /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
