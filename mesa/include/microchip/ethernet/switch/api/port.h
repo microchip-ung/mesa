@@ -623,7 +623,7 @@ typedef struct {
     mesa_bool_t r_fec_req;                    // Request R-FEC
     mesa_bool_t rs_fec_req  CAP(PORT_KR_IRQ); // Request RS-FEC (25G)
     mesa_bool_t next_page   CAP(PORT_KR_IRQ); // Use next page when advertise
-    mesa_bool_t no_pd       CAP(PORT_KR_IRQ); // Do not enable parallel detect
+    mesa_bool_t no_pd;                        // Do not enable parallel detect
 } mesa_port_kr_aneg_t       CAP(PORT_KR);
 
 // KR Training config
