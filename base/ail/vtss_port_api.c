@@ -2048,6 +2048,16 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         (void)kr_fw_req(vtss_state, port_no, &req_msg);
     }
 
+    // KR_AN_GOOD (Aneg is completed and link is up)
+    if ((irq & KR_AN_GOOD) && krs->signal_detect) {
+        // Make sure that port.status_get agrees
+        vtss_port_status_t ps;
+        VTSS_FUNC(port.status_get, port_no, &ps);
+        if (!ps.link) {
+            VTSS_FUNC_COLD(port.kr_conf_set, port_no);
+        }
+    }
+
     return VTSS_RC_OK;
 }
 
