@@ -1079,16 +1079,22 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     /* 250 MHz gives 4.0 ns */
     /* Due to fractional mode 250 MHz gives 3.99218750 ns - MESA-825*/
     /* 1 ns is 0x0800000000000000. */
-    /* 0x0800000000000000 * 0.99609375 gives 7F00000000000 */
-    case VTSS_CORE_CLOCK_250MHZ: nominal_tod_increment = ((u64)(3) << 59) + (u64)0x0007F00000000000;
+    /* 0x0800000000000000 * 0.99218750 gives 0x07F0000000000000 */
+    case VTSS_CORE_CLOCK_250MHZ:
+        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x07F0000000000000;
+        break;
     /* Due to fractional mode 500 MHz gives 1.99609375 ns - MESA-825 */
     /* 1 ns is 0x0800000000000000. */
-    /* 0x0800000000000000 * 0.99609375 gives 7F80000000000 */
-    case VTSS_CORE_CLOCK_500MHZ: nominal_tod_increment = ((u64)(1) << 59) + (u64)0x0007F80000000000;
+    /* 0x0800000000000000 * 0.99609375 gives 0x07F8000000000000 */
+    case VTSS_CORE_CLOCK_500MHZ:
+        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x07F8000000000000;
+        break;
     /* Due to fractional mode 625 MHz gives 1.59687500 ns - MESA-825 */
     /* 1 ns is 0x0800000000000000. */
-    /* 0x0800000000000000 * 0.59687500 gives 4C66666666666 */
-    case VTSS_CORE_CLOCK_625MHZ: nominal_tod_increment = ((u64)(1) << 59) + (u64)0x0004C66666666666;
+    /* 0x0800000000000000 * 0.59687500 gives 0x04C6666666666666 */
+    case VTSS_CORE_CLOCK_625MHZ:
+        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x04C6666666666666;
+        break;
     default: {};
     }
 
