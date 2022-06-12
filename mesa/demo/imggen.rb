@@ -110,7 +110,7 @@ $machines = {
           {
             :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-pcb8290.dtb",
             :overlays => [
-                { :name => "lan9662_ung8290_0_at_lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
+                { :name => "lan9668_ung8290_0_at_lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8290_0.dtso"},
             ]
           },
           {
