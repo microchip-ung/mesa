@@ -765,8 +765,10 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
     return FA_CAL_SPEED_NONE;
 }
 
-
 static i32 clock2bw(vtss_core_clock_freq_t freq) {
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    return 84210/3;
+#endif
     if (freq == VTSS_CORE_CLOCK_250MHZ) {
         return 83000; /* 250000 / 3 */
     } else if (freq == VTSS_CORE_CLOCK_500MHZ) {

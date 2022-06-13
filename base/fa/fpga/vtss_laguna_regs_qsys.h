@@ -50,7 +50,7 @@
  * \details
  * Register: \a QSYS:SYSTEM:EEE_THRES
  */
-#define VTSS_QSYS_EEE_THRES                  VTSS_IOREG(VTSS_TO_QSYS,0x1e)
+#define VTSS_QSYS_EEE_THRES                  VTSS_IOREG(VTSS_TO_QSYS,0x41)
 
 /**
  * \brief
@@ -83,7 +83,7 @@
  * \details
  * Register: \a QSYS:SYSTEM:FRM_AGING
  */
-#define VTSS_QSYS_FRM_AGING                  VTSS_IOREG(VTSS_TO_QSYS,0x1f)
+#define VTSS_QSYS_FRM_AGING                  VTSS_IOREG(VTSS_TO_QSYS,0x42)
 
 /**
  * \brief
@@ -114,7 +114,7 @@
  * \details
  * Register: \a QSYS:SYSTEM:DP_MAP
  */
-#define VTSS_QSYS_DP_MAP                     VTSS_IOREG(VTSS_TO_QSYS,0x20)
+#define VTSS_QSYS_DP_MAP                     VTSS_IOREG(VTSS_TO_QSYS,0x43)
 
 /**
  * \brief
@@ -141,7 +141,7 @@
  * \details
  * Register: \a QSYS:SYSTEM:STAT_CFG
  */
-#define VTSS_QSYS_STAT_CFG                   VTSS_IOREG(VTSS_TO_QSYS,0x21)
+#define VTSS_QSYS_STAT_CFG                   VTSS_IOREG(VTSS_TO_QSYS,0x44)
 
 /**
  * \brief
@@ -164,7 +164,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_ETHPORT_CNT (??), 0-29
  */
-#define VTSS_QSYS_IQUEUE_CFG(ri)             VTSS_IOREG(VTSS_TO_QSYS,0x22 + (ri))
+#define VTSS_QSYS_IQUEUE_CFG(ri)             VTSS_IOREG(VTSS_TO_QSYS,0x45 + (ri))
 
 /**
  * \brief
@@ -187,7 +187,7 @@
  *
  * Register: \a QSYS:SYSTEM:DBG_UTIL
  */
-#define VTSS_QSYS_DBG_UTIL                   VTSS_IOREG(VTSS_TO_QSYS,0x40)
+#define VTSS_QSYS_DBG_UTIL                   VTSS_IOREG(VTSS_TO_QSYS,0x86)
 
 /**
  * \brief
@@ -226,7 +226,7 @@
  *
  * Register: \a QSYS:MISC:EVENTS_CORE
  */
-#define VTSS_QSYS_EVENTS_CORE                VTSS_IOREG(VTSS_TO_QSYS,0x41)
+#define VTSS_QSYS_EVENTS_CORE                VTSS_IOREG(VTSS_TO_QSYS,0x87)
 
 /**
  * \brief
@@ -265,7 +265,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_PAUSE_CFG(ri)              VTSS_IOREG(VTSS_TO_QSYS,0x42 + (ri))
+#define VTSS_QSYS_PAUSE_CFG(ri)              VTSS_IOREG(VTSS_TO_QSYS,0x88 + (ri))
 
 /**
  * \brief
@@ -277,9 +277,9 @@
  *
  * Field: ::VTSS_QSYS_PAUSE_CFG . PAUSE_START
  */
-#define  VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(x)  VTSS_ENCODE_BITFIELD(x,9,7)
-#define  VTSS_M_QSYS_PAUSE_CFG_PAUSE_START     VTSS_ENCODE_BITMASK(9,7)
-#define  VTSS_X_QSYS_PAUSE_CFG_PAUSE_START(x)  VTSS_EXTRACT_BITFIELD(x,9,7)
+#define  VTSS_F_QSYS_PAUSE_CFG_PAUSE_START(x)  VTSS_ENCODE_BITFIELD(x,14,7)
+#define  VTSS_M_QSYS_PAUSE_CFG_PAUSE_START     VTSS_ENCODE_BITMASK(14,7)
+#define  VTSS_X_QSYS_PAUSE_CFG_PAUSE_START(x)  VTSS_EXTRACT_BITFIELD(x,14,7)
 
 /**
  * \brief
@@ -322,7 +322,7 @@
  * \details
  * Register: \a QSYS:PAUSE_CFG:PAUSE_TOT_CFG
  */
-#define VTSS_QSYS_PAUSE_TOT_CFG              VTSS_IOREG(VTSS_TO_QSYS,0x65)
+#define VTSS_QSYS_PAUSE_TOT_CFG              VTSS_IOREG(VTSS_TO_QSYS,0xce)
 
 /**
  * \brief
@@ -334,9 +334,9 @@
  *
  * Field: ::VTSS_QSYS_PAUSE_TOT_CFG . PAUSE_TOT_START
  */
-#define  VTSS_F_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START(x)  VTSS_ENCODE_BITFIELD(x,7,7)
-#define  VTSS_M_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START     VTSS_ENCODE_BITMASK(7,7)
-#define  VTSS_X_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START(x)  VTSS_EXTRACT_BITFIELD(x,7,7)
+#define  VTSS_F_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START(x)  VTSS_ENCODE_BITFIELD(x,12,7)
+#define  VTSS_M_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START     VTSS_ENCODE_BITMASK(12,7)
+#define  VTSS_X_QSYS_PAUSE_TOT_CFG_PAUSE_TOT_START(x)  VTSS_EXTRACT_BITFIELD(x,12,7)
 
 /**
  * \brief
@@ -361,7 +361,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_ATOP(ri)                   VTSS_IOREG(VTSS_TO_QSYS,0x66 + (ri))
+#define VTSS_QSYS_ATOP(ri)                   VTSS_IOREG(VTSS_TO_QSYS,0xcf + (ri))
 
 /**
  * \brief
@@ -386,7 +386,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_FWD_PRESSURE(ri)           VTSS_IOREG(VTSS_TO_QSYS,0x89 + (ri))
+#define VTSS_QSYS_FWD_PRESSURE(ri)           VTSS_IOREG(VTSS_TO_QSYS,0x115 + (ri))
 
 /**
  * \brief
@@ -428,7 +428,7 @@
  * \details
  * Register: \a QSYS:PAUSE_CFG:ATOP_TOT_CFG
  */
-#define VTSS_QSYS_ATOP_TOT_CFG               VTSS_IOREG(VTSS_TO_QSYS,0xac)
+#define VTSS_QSYS_ATOP_TOT_CFG               VTSS_IOREG(VTSS_TO_QSYS,0x15b)
 
 /**
  * \brief
@@ -454,7 +454,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_QSYS,0xad + (ri))
+#define VTSS_QSYS_PFC_CFG(ri)                VTSS_IOREG(VTSS_TO_QSYS,0x15c + (ri))
 
 /**
  * \brief
@@ -493,7 +493,7 @@
  * \details
  * Register: \a QSYS:MMGT_PORT:MMGT_PORT_VIEW
  */
-#define VTSS_QSYS_MMGT_PORT_VIEW             VTSS_IOREG(VTSS_TO_QSYS,0xd0)
+#define VTSS_QSYS_MMGT_PORT_VIEW             VTSS_IOREG(VTSS_TO_QSYS,0x17f)
 
 /**
  * \brief
@@ -513,7 +513,7 @@
  * \details
  * Register: \a QSYS:MMGT_PORT:MMGT_PORT_USE
  */
-#define VTSS_QSYS_MMGT_PORT_USE              VTSS_IOREG(VTSS_TO_QSYS,0xd1)
+#define VTSS_QSYS_MMGT_PORT_USE              VTSS_IOREG(VTSS_TO_QSYS,0x180)
 
 /**
  * \brief
@@ -536,7 +536,7 @@
  *
  * @param ri Register: MMGT_PRIO_USE (??), 0-7
  */
-#define VTSS_QSYS_MMGT_PRIO_USE(ri)          VTSS_IOREG(VTSS_TO_QSYS,0xd2 + (ri))
+#define VTSS_QSYS_MMGT_PRIO_USE(ri)          VTSS_IOREG(VTSS_TO_QSYS,0x181 + (ri))
 
 /**
  * \brief
@@ -557,7 +557,7 @@
  * \details
  * Register: \a QSYS:MMGT_PORT:MMGT_IQ_STAT
  */
-#define VTSS_QSYS_MMGT_IQ_STAT               VTSS_IOREG(VTSS_TO_QSYS,0xda)
+#define VTSS_QSYS_MMGT_IQ_STAT               VTSS_IOREG(VTSS_TO_QSYS,0x189)
 
 /**
  * \brief
@@ -577,7 +577,7 @@
  * \details
  * Register: \a QSYS:MMGT_PORT:MMGT_TAILDROP_CNT
  */
-#define VTSS_QSYS_MMGT_TAILDROP_CNT          VTSS_IOREG(VTSS_TO_QSYS,0xdb)
+#define VTSS_QSYS_MMGT_TAILDROP_CNT          VTSS_IOREG(VTSS_TO_QSYS,0x18a)
 
 /**
  * \brief
@@ -605,7 +605,7 @@
  * \details
  * Register: \a QSYS:SOFDATA_POOL:SOFDATA_STAT_SHR
  */
-#define VTSS_QSYS_SOFDATA_STAT_SHR           VTSS_IOREG(VTSS_TO_QSYS,0xdc)
+#define VTSS_QSYS_SOFDATA_STAT_SHR           VTSS_IOREG(VTSS_TO_QSYS,0x18b)
 
 /**
  * \brief
@@ -627,7 +627,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_SOFDATA_STAT(ri)           VTSS_IOREG(VTSS_TO_QSYS,0xdd + (ri))
+#define VTSS_QSYS_SOFDATA_STAT(ri)           VTSS_IOREG(VTSS_TO_QSYS,0x18c + (ri))
 
 /**
  * \brief
@@ -649,7 +649,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_QSYS_SOFDATA_CFG(ri)            VTSS_IOREG(VTSS_TO_QSYS,0x100 + (ri))
+#define VTSS_QSYS_SOFDATA_CFG(ri)            VTSS_IOREG(VTSS_TO_QSYS,0x1d2 + (ri))
 
 /**
  * \brief
@@ -683,7 +683,7 @@
  *
  * @param ri Register: SOFDATA_WM_VAL (??), 0-4
  */
-#define VTSS_QSYS_SOFDATA_WM_VAL(ri)         VTSS_IOREG(VTSS_TO_QSYS,0x123 + (ri))
+#define VTSS_QSYS_SOFDATA_WM_VAL(ri)         VTSS_IOREG(VTSS_TO_QSYS,0x218 + (ri))
 
 /**
  * \brief
@@ -716,7 +716,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_CBC_AUTO_REGS (??), 0-3
  */
-#define VTSS_QSYS_CAL_AUTO(ri)               VTSS_IOREG(VTSS_TO_QSYS,0x128 + (ri))
+#define VTSS_QSYS_CAL_AUTO(ri)               VTSS_IOREG(VTSS_TO_QSYS,0x21d + (ri))
 
 /**
  * \brief
@@ -750,7 +750,7 @@
  * \details
  * Register: \a QSYS:CALCFG:CAL_SEQ
  */
-#define VTSS_QSYS_CAL_SEQ                    VTSS_IOREG(VTSS_TO_QSYS,0x12c)
+#define VTSS_QSYS_CAL_SEQ                    VTSS_IOREG(VTSS_TO_QSYS,0x224)
 
 /**
  * \brief
@@ -759,9 +759,9 @@
  * \details
  * Field: ::VTSS_QSYS_CAL_SEQ . CAL_SEQ_LEN
  */
-#define  VTSS_F_QSYS_CAL_SEQ_CAL_SEQ_LEN(x)   VTSS_ENCODE_BITFIELD(x,13,11)
-#define  VTSS_M_QSYS_CAL_SEQ_CAL_SEQ_LEN      VTSS_ENCODE_BITMASK(13,11)
-#define  VTSS_X_QSYS_CAL_SEQ_CAL_SEQ_LEN(x)   VTSS_EXTRACT_BITFIELD(x,13,11)
+#define  VTSS_F_QSYS_CAL_SEQ_CAL_SEQ_LEN(x)   VTSS_ENCODE_BITFIELD(x,15,11)
+#define  VTSS_M_QSYS_CAL_SEQ_CAL_SEQ_LEN      VTSS_ENCODE_BITMASK(15,11)
+#define  VTSS_X_QSYS_CAL_SEQ_CAL_SEQ_LEN(x)   VTSS_EXTRACT_BITFIELD(x,15,11)
 
 /**
  * \brief
@@ -772,9 +772,9 @@
  * \details
  * Field: ::VTSS_QSYS_CAL_SEQ . CAL_SEQ_CUR_VAL
  */
-#define  VTSS_F_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL(x)  VTSS_ENCODE_BITFIELD(x,7,6)
-#define  VTSS_M_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL     VTSS_ENCODE_BITMASK(7,6)
-#define  VTSS_X_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL(x)  VTSS_EXTRACT_BITFIELD(x,7,6)
+#define  VTSS_F_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL(x)  VTSS_ENCODE_BITFIELD(x,8,6)
+#define  VTSS_M_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL     VTSS_ENCODE_BITMASK(8,6)
+#define  VTSS_X_QSYS_CAL_SEQ_CAL_SEQ_CUR_VAL(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
 
 /**
  * \brief
@@ -807,7 +807,7 @@
  *
  * Register: \a QSYS:CALCFG:CAL_SEQ_SEL_CFG
  */
-#define VTSS_QSYS_CAL_SEQ_SEL_CFG            VTSS_IOREG(VTSS_TO_QSYS,0x12d)
+#define VTSS_QSYS_CAL_SEQ_SEL_CFG            VTSS_IOREG(VTSS_TO_QSYS,0x225)
 
 /**
  * \brief
@@ -854,12 +854,12 @@
  * \details
  * Register: \a QSYS:CALCFG:CAL_CTRL
  */
-#define VTSS_QSYS_CAL_CTRL                   VTSS_IOREG(VTSS_TO_QSYS,0x12e)
+#define VTSS_QSYS_CAL_CTRL                   VTSS_IOREG(VTSS_TO_QSYS,0x226)
 
 /**
  * \brief
- * When ever no ports needs a grant, the slot will be marked as available
- * to internal ports. Every 256 times this value cycles, the next idle slot
+ * Whenever no ports needs a grant, the slot will be marked as available to
+ * internal ports. Every 256 times this value cycles, the next idle slot
  * will be marked as forced idle, assuring processing time for background
  * processes in the involved pipelines.
  *
@@ -890,9 +890,9 @@
 
 /**
  * \brief
- * Configures the time between bus grants to 10g ports, in 0.1 nanosecond
- * unit. Other speeds will be adjusted relative to the 10g setting. Default
- * value of 8 matches the nominal minimum packet time on a 10g port.
+ * Configures the time between bus grants to 1g ports, in nanosecond unit.
+ * Other speeds will be adjusted relative to this. Default value of 670 ns
+ * corresponds to the minimum packet time (64 bytes) added minor overspeed.
  *
  * \details
  * Field: ::VTSS_QSYS_CAL_CTRL . CAL_AUTO_GRANT_RATE
@@ -931,7 +931,7 @@
  *
  * Register: \a QSYS:RAM_CTRL:RAM_INIT
  */
-#define VTSS_QSYS_RAM_INIT                   VTSS_IOREG(VTSS_TO_QSYS,0x12f)
+#define VTSS_QSYS_RAM_INIT                   VTSS_IOREG(VTSS_TO_QSYS,0x227)
 
 /**
  * \brief
@@ -970,7 +970,7 @@
  * \details
  * Register: \a QSYS:COREMEM:CM_ADDR
  */
-#define VTSS_QSYS_CM_ADDR                    VTSS_IOREG(VTSS_TO_QSYS,0x130)
+#define VTSS_QSYS_CM_ADDR                    VTSS_IOREG(VTSS_TO_QSYS,0x228)
 
 /**
  * \brief
@@ -990,7 +990,7 @@
  * \details
  * Register: \a QSYS:COREMEM:CM_DATA_WR
  */
-#define VTSS_QSYS_CM_DATA_WR                 VTSS_IOREG(VTSS_TO_QSYS,0x131)
+#define VTSS_QSYS_CM_DATA_WR                 VTSS_IOREG(VTSS_TO_QSYS,0x229)
 
 /**
  * \brief
@@ -1012,7 +1012,7 @@
  * \details
  * Register: \a QSYS:COREMEM:CM_DATA_RD
  */
-#define VTSS_QSYS_CM_DATA_RD                 VTSS_IOREG(VTSS_TO_QSYS,0x132)
+#define VTSS_QSYS_CM_DATA_RD                 VTSS_IOREG(VTSS_TO_QSYS,0x22a)
 
 /**
  * \brief
@@ -1032,7 +1032,7 @@
  * \details
  * Register: \a QSYS:COREMEM:CM_OP
  */
-#define VTSS_QSYS_CM_OP                      VTSS_IOREG(VTSS_TO_QSYS,0x133)
+#define VTSS_QSYS_CM_OP                      VTSS_IOREG(VTSS_TO_QSYS,0x22b)
 
 /**
  * \brief

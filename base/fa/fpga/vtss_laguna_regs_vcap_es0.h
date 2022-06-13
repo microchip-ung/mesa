@@ -1203,7 +1203,7 @@
  *
  * Register: \a VCAP_ES0:TCAM_BIST:BIST_DIAG_BITMAPA_STAT
  *
- * @param ri Register: BIST_DIAG_BITMAPA_STAT (??), 0-2
+ * @param ri Register: BIST_DIAG_BITMAPA_STAT (??), 0-1
  */
 #define VTSS_VCAP_ES0_BIST_DIAG_BITMAPA_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_ES0,0x108 + (ri))
 
@@ -1235,9 +1235,9 @@
  *
  * Register: \a VCAP_ES0:TCAM_BIST:BIST_DIAG_BITMAPB_STAT
  *
- * @param ri Register: BIST_DIAG_BITMAPB_STAT (??), 0-2
+ * @param ri Register: BIST_DIAG_BITMAPB_STAT (??), 0-1
  */
-#define VTSS_VCAP_ES0_BIST_DIAG_BITMAPB_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10b + (ri))
+#define VTSS_VCAP_ES0_BIST_DIAG_BITMAPB_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10a + (ri))
 
 /**
  * \brief
@@ -1261,7 +1261,7 @@
  * \details
  * Register: \a VCAP_ES0:TCAM_BIST:RCR_CTRL
  */
-#define VTSS_VCAP_ES0_RCR_CTRL               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10e)
+#define VTSS_VCAP_ES0_RCR_CTRL               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10c)
 
 /**
  * \brief
@@ -1341,7 +1341,7 @@
  * \details
  * Register: \a VCAP_ES0:TCAM_BIST:RCR_STAT
  */
-#define VTSS_VCAP_ES0_RCR_STAT               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10f)
+#define VTSS_VCAP_ES0_RCR_STAT               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10d)
 
 /**
  * \brief
@@ -1370,7 +1370,7 @@
  * \details
  * Register: \a VCAP_ES0:ECC_CHK:ECC_CTRL
  */
-#define VTSS_VCAP_ES0_ECC_CTRL               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x110)
+#define VTSS_VCAP_ES0_ECC_CTRL               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10e)
 
 /**
  * \brief
@@ -1420,7 +1420,7 @@
  * \details
  * Register: \a VCAP_ES0:ECC_CHK:ECC_STAT
  */
-#define VTSS_VCAP_ES0_ECC_STAT               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x111)
+#define VTSS_VCAP_ES0_ECC_STAT               VTSS_IOREG(VTSS_TO_VCAP_ES0,0x10f)
 
 /**
  * \brief
@@ -1452,7 +1452,7 @@
  * \details
  * Register: \a VCAP_ES0:ECC_CHK:ECC_BLK_DLY
  */
-#define VTSS_VCAP_ES0_ECC_BLK_DLY            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x112)
+#define VTSS_VCAP_ES0_ECC_BLK_DLY            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x110)
 
 /**
  * \brief
@@ -1477,7 +1477,7 @@
  * \details
  * Register: \a VCAP_ES0:ECC_CHK:ECC_INV
  */
-#define VTSS_VCAP_ES0_ECC_INV                VTSS_IOREG(VTSS_TO_VCAP_ES0,0x113)
+#define VTSS_VCAP_ES0_ECC_INV                VTSS_IOREG(VTSS_TO_VCAP_ES0,0x111)
 
 /**
  * \brief
@@ -1528,7 +1528,7 @@
  * \details
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_CTRL
  */
-#define VTSS_VCAP_ES0_MEMITGR_CTRL           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x114)
+#define VTSS_VCAP_ES0_MEMITGR_CTRL           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x112)
 
 /**
  * \brief
@@ -1563,7 +1563,7 @@
  * \details
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_STAT
  */
-#define VTSS_VCAP_ES0_MEMITGR_STAT           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x115)
+#define VTSS_VCAP_ES0_MEMITGR_STAT           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x113)
 
 /**
  * \brief
@@ -1653,7 +1653,7 @@
  *
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_INFO
  */
-#define VTSS_VCAP_ES0_MEMITGR_INFO           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x116)
+#define VTSS_VCAP_ES0_MEMITGR_INFO           VTSS_IOREG(VTSS_TO_VCAP_ES0,0x114)
 
 /**
  * \brief
@@ -1740,7 +1740,7 @@
  *
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_IDX
  */
-#define VTSS_VCAP_ES0_MEMITGR_IDX            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x117)
+#define VTSS_VCAP_ES0_MEMITGR_IDX            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x115)
 
 /**
  * \brief
@@ -1762,7 +1762,7 @@
  * \details
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_DIV
  */
-#define VTSS_VCAP_ES0_MEMITGR_DIV            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x118)
+#define VTSS_VCAP_ES0_MEMITGR_DIV            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x116)
 
 /**
  * \brief
@@ -1786,7 +1786,7 @@
  * \details
  * Register: \a VCAP_ES0:MEMITGR:MEMITGR_DBG
  */
-#define VTSS_VCAP_ES0_MEMITGR_DBG            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x119)
+#define VTSS_VCAP_ES0_MEMITGR_DBG            VTSS_IOREG(VTSS_TO_VCAP_ES0,0x117)
 
 /**
  * \brief

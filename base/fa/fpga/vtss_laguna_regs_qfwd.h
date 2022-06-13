@@ -161,7 +161,7 @@
  * \details
  * Register: \a QFWD:SYSTEM:FWD_CTRL
  */
-#define VTSS_QFWD_FWD_CTRL                   VTSS_IOREG(VTSS_TO_QFWD,0x23)
+#define VTSS_QFWD_FWD_CTRL                   VTSS_IOREG(VTSS_TO_QFWD,0x46)
 
 /**
  * \brief
@@ -210,7 +210,7 @@
  *
  * @param ri Register: FRAME_COPY_CFG (??), 0-11
  */
-#define VTSS_QFWD_FRAME_COPY_CFG(ri)         VTSS_IOREG(VTSS_TO_QFWD,0x24 + (ri))
+#define VTSS_QFWD_FRAME_COPY_CFG(ri)         VTSS_IOREG(VTSS_TO_QFWD,0x47 + (ri))
 
 /**
  * \brief
@@ -272,7 +272,7 @@
  * \details
  * Register: \a QFWD:SYSTEM:FWD_PRESS_DROP_CNT
  */
-#define VTSS_QFWD_FWD_PRESS_DROP_CNT         VTSS_IOREG(VTSS_TO_QFWD,0x30)
+#define VTSS_QFWD_FWD_PRESS_DROP_CNT         VTSS_IOREG(VTSS_TO_QFWD,0x53)
 
 /**
  * \brief
@@ -293,7 +293,7 @@
  * \details
  * Register: \a QFWD:SYSTEM:AFWD_PRESS_DROP_CNT
  */
-#define VTSS_QFWD_AFWD_PRESS_DROP_CNT        VTSS_IOREG(VTSS_TO_QFWD,0x31)
+#define VTSS_QFWD_AFWD_PRESS_DROP_CNT        VTSS_IOREG(VTSS_TO_QFWD,0x54)
 
 /**
  * \brief

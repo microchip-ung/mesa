@@ -2479,7 +2479,7 @@
  *
  * Register: \a ASM:CFG:STAT_CFG
  */
-#define VTSS_ASM_STAT_CFG                    VTSS_IOREG(VTSS_TO_ASM,0xf00)
+#define VTSS_ASM_STAT_CFG                    VTSS_IOREG(VTSS_TO_ASM,0x11e0)
 
 /**
  * \brief
@@ -2504,7 +2504,7 @@
  *
  * @param ri Replicator: x_NUM_ASM_PORTS (??), 0-31
  */
-#define VTSS_ASM_MAC_ADDR_HIGH_CFG(ri)       VTSS_IOREG(VTSS_TO_ASM,0xf01 + (ri))
+#define VTSS_ASM_MAC_ADDR_HIGH_CFG(ri)       VTSS_IOREG(VTSS_TO_ASM,0x11e1 + (ri))
 
 /**
  * \brief
@@ -2531,7 +2531,7 @@
  *
  * @param ri Replicator: x_NUM_ASM_PORTS (??), 0-31
  */
-#define VTSS_ASM_MAC_ADDR_LOW_CFG(ri)        VTSS_IOREG(VTSS_TO_ASM,0xf21 + (ri))
+#define VTSS_ASM_MAC_ADDR_LOW_CFG(ri)        VTSS_IOREG(VTSS_TO_ASM,0x1224 + (ri))
 
 /**
  * \brief
@@ -2561,7 +2561,7 @@
  *
  * @param ri Replicator: x_NUM_ASM_PORTS (??), 0-31
  */
-#define VTSS_ASM_PORT_CFG(ri)                VTSS_IOREG(VTSS_TO_ASM,0xf41 + (ri))
+#define VTSS_ASM_PORT_CFG(ri)                VTSS_IOREG(VTSS_TO_ASM,0x1267 + (ri))
 
 /**
  * \brief
@@ -2765,7 +2765,7 @@
  * \details
  * Register: \a ASM:CFG:CPU_FC_CFG
  */
-#define VTSS_ASM_CPU_FC_CFG                  VTSS_IOREG(VTSS_TO_ASM,0xf61)
+#define VTSS_ASM_CPU_FC_CFG                  VTSS_IOREG(VTSS_TO_ASM,0x12aa)
 
 /**
  * \brief
@@ -2800,7 +2800,7 @@
  *
  * @param ri Replicator: x_NUM_ASM_PORTS (??), 0-31
  */
-#define VTSS_ASM_PAUSE_CFG(ri)               VTSS_IOREG(VTSS_TO_ASM,0xf62 + (ri))
+#define VTSS_ASM_PAUSE_CFG(ri)               VTSS_IOREG(VTSS_TO_ASM,0x12ab + (ri))
 
 /**
  * \brief
@@ -2844,7 +2844,7 @@
  * \details
  * Register: \a ASM:CFG:INJ_VLAN_CFG
  */
-#define VTSS_ASM_INJ_VLAN_CFG                VTSS_IOREG(VTSS_TO_ASM,0xf82)
+#define VTSS_ASM_INJ_VLAN_CFG                VTSS_IOREG(VTSS_TO_ASM,0x12ee)
 
 /**
  * \brief
@@ -2877,7 +2877,7 @@
  * \details
  * Register: \a ASM:CFG:TIME_TICK_CFG
  */
-#define VTSS_ASM_TIME_TICK_CFG               VTSS_IOREG(VTSS_TO_ASM,0xf83)
+#define VTSS_ASM_TIME_TICK_CFG               VTSS_IOREG(VTSS_TO_ASM,0x12ef)
 
 /**
  * \brief
@@ -2911,7 +2911,7 @@
  *
  * Register: \a ASM:DBG:DBG_CFG
  */
-#define VTSS_ASM_DBG_CFG                     VTSS_IOREG(VTSS_TO_ASM,0xf84)
+#define VTSS_ASM_DBG_CFG                     VTSS_IOREG(VTSS_TO_ASM,0xf00)
 
 /**
  * \brief
@@ -2989,7 +2989,7 @@
  *
  * @param ri Replicator: x_NUM_OF_TAXI (??), 0-5
  */
-#define VTSS_ASM_ERR_STICKY(ri)              VTSS_IOREG(VTSS_TO_ASM,0xf85 + (ri))
+#define VTSS_ASM_ERR_STICKY(ri)              VTSS_IOREG(VTSS_TO_ASM,0xf01 + (ri))
 
 /**
  * \brief
@@ -3151,7 +3151,7 @@
  *
  * Register: \a ASM:DBG:PRE_CNT_OFLW_STICKY
  */
-#define VTSS_ASM_PRE_CNT_OFLW_STICKY         VTSS_IOREG(VTSS_TO_ASM,0xf8b)
+#define VTSS_ASM_PRE_CNT_OFLW_STICKY         VTSS_IOREG(VTSS_TO_ASM,0xf0a)
 
 /**
  * \brief
@@ -3196,7 +3196,7 @@
  *
  * @param ri Replicator: x_NUM_OF_TAXI (??), 0-5
  */
-#define VTSS_ASM_CELLBUF_STAT(ri)            VTSS_IOREG(VTSS_TO_ASM,0xf8c + (ri))
+#define VTSS_ASM_CELLBUF_STAT(ri)            VTSS_IOREG(VTSS_TO_ASM,0xf0b + (ri))
 
 /**
  * \brief
@@ -3226,7 +3226,7 @@
  *
  * @param ri Replicator: x_NUM_ASM_PORTS (??), 0-31
  */
-#define VTSS_ASM_PORT_STICKY(ri)             VTSS_IOREG(VTSS_TO_ASM,0xf92 + (ri))
+#define VTSS_ASM_PORT_STICKY(ri)             VTSS_IOREG(VTSS_TO_ASM,0xf14 + (ri))
 
 /**
  * \brief
@@ -3347,7 +3347,7 @@
  *
  * @param ri Register: PFC_TIMER_MAX (??), 0-6
  */
-#define VTSS_ASM_PFC_TIMER_MAX(ri)           VTSS_IOREG(VTSS_TO_ASM,0xfb2 + (ri))
+#define VTSS_ASM_PFC_TIMER_MAX(ri)           VTSS_IOREG(VTSS_TO_ASM,0xf34 + (ri))
 
 /**
  * \brief
@@ -3380,7 +3380,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_VD_PORTS (??), 0-2
  */
-#define VTSS_ASM_VD_FC_WM(ri)                VTSS_IOREG(VTSS_TO_ASM,0xfb9 + (ri))
+#define VTSS_ASM_VD_FC_WM(ri)                VTSS_IOREG(VTSS_TO_ASM,0xf3b + (ri))
 
 /**
  * \brief
@@ -3409,7 +3409,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_CELLBUS_OUTB_DIV_32 (??), 0-2
  */
-#define VTSS_ASM_LBK_AGING_DIS(ri)           VTSS_IOREG(VTSS_TO_ASM,0xfbc + (ri))
+#define VTSS_ASM_LBK_AGING_DIS(ri)           VTSS_IOREG(VTSS_TO_ASM,0xf3e + (ri))
 
 /**
  * \brief
@@ -3435,7 +3435,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_VDS_PLUS_ONE (??), 0-3
  */
-#define VTSS_ASM_LBK_FIFO_CFG(ri)            VTSS_IOREG(VTSS_TO_ASM,0xfbf + (ri))
+#define VTSS_ASM_LBK_FIFO_CFG(ri)            VTSS_IOREG(VTSS_TO_ASM,0xf43 + (ri))
 
 /**
  * \brief
@@ -3463,7 +3463,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_CELLBUS_OUTB_DIV_32 (??), 0-2
  */
-#define VTSS_ASM_LBK_OVFLW_STICKY(ri)        VTSS_IOREG(VTSS_TO_ASM,0xfc3 + (ri))
+#define VTSS_ASM_LBK_OVFLW_STICKY(ri)        VTSS_IOREG(VTSS_TO_ASM,0xf47 + (ri))
 
 /**
  * \brief
@@ -3487,7 +3487,7 @@
  *
  * @param ri Replicator: x_FFL_CHIP_NUM_CELLBUS_OUTB_DIV_32 (??), 0-2
  */
-#define VTSS_ASM_LBK_AGING_STICKY(ri)        VTSS_IOREG(VTSS_TO_ASM,0xfc6 + (ri))
+#define VTSS_ASM_LBK_AGING_STICKY(ri)        VTSS_IOREG(VTSS_TO_ASM,0xf4c + (ri))
 
 /**
  * \brief
@@ -3521,7 +3521,7 @@
  *
  * Register: \a ASM:RAM_CTRL:RAM_INIT
  */
-#define VTSS_ASM_RAM_INIT                    VTSS_IOREG(VTSS_TO_ASM,0xfc9)
+#define VTSS_ASM_RAM_INIT                    VTSS_IOREG(VTSS_TO_ASM,0xf51)
 
 /**
  * \brief
@@ -3560,7 +3560,7 @@
  * \details
  * Register: \a ASM:COREMEM:CM_ADDR
  */
-#define VTSS_ASM_CM_ADDR                     VTSS_IOREG(VTSS_TO_ASM,0xfca)
+#define VTSS_ASM_CM_ADDR                     VTSS_IOREG(VTSS_TO_ASM,0xf52)
 
 /**
  * \brief
@@ -3580,7 +3580,7 @@
  * \details
  * Register: \a ASM:COREMEM:CM_DATA_WR
  */
-#define VTSS_ASM_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_ASM,0xfcb)
+#define VTSS_ASM_CM_DATA_WR                  VTSS_IOREG(VTSS_TO_ASM,0xf53)
 
 /**
  * \brief
@@ -3602,7 +3602,7 @@
  * \details
  * Register: \a ASM:COREMEM:CM_DATA_RD
  */
-#define VTSS_ASM_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_ASM,0xfcc)
+#define VTSS_ASM_CM_DATA_RD                  VTSS_IOREG(VTSS_TO_ASM,0xf54)
 
 /**
  * \brief
@@ -3622,7 +3622,7 @@
  * \details
  * Register: \a ASM:COREMEM:CM_OP
  */
-#define VTSS_ASM_CM_OP                       VTSS_IOREG(VTSS_TO_ASM,0xfcd)
+#define VTSS_ASM_CM_OP                       VTSS_IOREG(VTSS_TO_ASM,0xf55)
 
 /**
  * \brief

@@ -316,6 +316,20 @@
 
 /**
  * \brief
+ * Port mask indicating to which egress ports forwarding is allowed. If a
+ * port is cleared, frames are not sent to that port. By default, all ports
+ * should be set. However, when for instance a port is down, it can be
+ * cleared in the port mask so that Tx counters stop incrementing.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . DEFAULT_FWD_MASK
+ */
+#define  VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(x)  VTSS_ENCODE_BITFIELD(x,20,3)
+#define  VTSS_M_RB_RB_CFG_DEFAULT_FWD_MASK     VTSS_ENCODE_BITMASK(20,3)
+#define  VTSS_X_RB_RB_CFG_DEFAULT_FWD_MASK(x)  VTSS_EXTRACT_BITFIELD(x,20,3)
+
+/**
+ * \brief
  * If set, frames missing an RCT are discarded.Only applicable to HSR-PRP
  * mode.
  *
@@ -329,11 +343,15 @@
 /**
  * \brief
  * If set, frames received on the interlink are validated against their
- * source entry in the host table. If the host table entry has
+ * source entries in the host table. If the host table entry has
  * HOST_ENTRY_PROXY_DAN set, frame must have a valid RCT. Otherwise, frame
  * is discarded. If the host table entry has HOST_ENTRY_PROXY_DAN cleared,
  * frame is considered untagged and any RCT in the frame is ignored.Only
- * applicable to HSR-PRP mode.
+ * applicable to HSR-PRP mode.Related
+ * parameters:RB::RB_CFG.RCT_MISSING_DISC_ENARB:HOST_TBL:HOST_ACCESS_CFG_2.
+ * HOST_ENTRY_RCT_MISSINGRB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_PROXY_DAN
+ * RB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_TYPERB:PORT:STICKY.RCT_MISSING_
+ * STICKYRB:PORT:STICKY.RCT_MISSING_DISC_STICKY
  *
  * \details
  * Field: ::VTSS_RB_RB_CFG . RCT_VALIDATE_ENA
@@ -796,6 +814,19 @@
 
 /**
  * \brief
+ * Disable clearing of age_flag when host table entry mismatches
+ * expectations for source port. For instance, when PROXY entry is found
+ * for frame on LRE port.
+ *
+ * \details
+ * Field: ::VTSS_RB_TBL_CFG . CLR_AGE_FLAG_DIS
+ */
+#define  VTSS_F_RB_TBL_CFG_CLR_AGE_FLAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_RB_TBL_CFG_CLR_AGE_FLAG_DIS   VTSS_BIT(14)
+#define  VTSS_X_RB_TBL_CFG_CLR_AGE_FLAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+
+/**
+ * \brief
  * If set, the host table entry's port mask is used for forwarding. Applies
  * to the destination MAC address lookup. If cleared, the port mask is not
  * used.Related parameters:
@@ -804,9 +835,9 @@
  * \details
  * Field: ::VTSS_RB_TBL_CFG . USE_PORTMASK_ENA
  */
-#define  VTSS_F_RB_TBL_CFG_USE_PORTMASK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_RB_TBL_CFG_USE_PORTMASK_ENA   VTSS_BIT(12)
-#define  VTSS_X_RB_TBL_CFG_USE_PORTMASK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+#define  VTSS_F_RB_TBL_CFG_USE_PORTMASK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),13,1)
+#define  VTSS_M_RB_TBL_CFG_USE_PORTMASK_ENA   VTSS_BIT(13)
+#define  VTSS_X_RB_TBL_CFG_USE_PORTMASK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,13,1)
 
 /**
  * \brief
@@ -822,9 +853,23 @@
  *
  * Field: ::VTSS_RB_TBL_CFG . ADD_PORTMASK_ENA
  */
-#define  VTSS_F_RB_TBL_CFG_ADD_PORTMASK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
-#define  VTSS_M_RB_TBL_CFG_ADD_PORTMASK_ENA   VTSS_BIT(11)
-#define  VTSS_X_RB_TBL_CFG_ADD_PORTMASK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+#define  VTSS_F_RB_TBL_CFG_ADD_PORTMASK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_RB_TBL_CFG_ADD_PORTMASK_ENA   VTSS_BIT(12)
+#define  VTSS_X_RB_TBL_CFG_ADD_PORTMASK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/**
+ * \brief
+ * When learning an entry in the host table, the PROXY_DAN is set to this
+ * configured value.
+ *
+ * \details
+ * Same as RB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_PROXY_DAN.
+ *
+ * Field: ::VTSS_RB_TBL_CFG . HOST_PROXY_DAN
+ */
+#define  VTSS_F_RB_TBL_CFG_HOST_PROXY_DAN(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_RB_TBL_CFG_HOST_PROXY_DAN     VTSS_BIT(11)
+#define  VTSS_X_RB_TBL_CFG_HOST_PROXY_DAN(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
 
 /**
  * \brief
@@ -1420,7 +1465,8 @@
 
 /**
  * \brief
- * Set if frame was discarded due to RCT missing condition.
+ * Set if frame was discarded due to RCT missing condition.Related
+ * parameters:RB::RB_CFG.RCT_MISSING_DISC_ENA
  *
  * \details
  * Field: ::VTSS_RB_STICKY . RCT_MISSING_DISC_STICKY
@@ -2175,6 +2221,9 @@
 #define VTSS_RB_HOST_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x4b)
 
 /**
+ * \brief
+ * Extra bit for future additions.
+ *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_SPARE
  */
@@ -2184,8 +2233,10 @@
 
 /**
  * \brief
- * Set if frame was received in interlink without a valid RCT when
- * HOST_ENTRY_PROXY_DAN is set.
+ * Set if frame was received without a valid RCT when HOST_ENTRY_PROXY_DAN
+ * is set and HOST_ENTRY_TYPE is PROXY. RB::RB_CFG.RCT_VALIDATE_ENA must be
+ * set.Related
+ * parameters:RB::RB_CFG.RCT_VALIDATE_ENARB:PORT:STICKY.RCT_MISSING_STICKY
  *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_RCT_MISSING
@@ -2197,9 +2248,7 @@
 /**
  * \brief
  * Set if entry is considered a Proxy-DAN entry. HOST_ENTRY_TYPE must be
- * PROXY. If set, frame is expected to have an RCT. If an RCT is not
- * available then HOST_ENTRY_RCT_INVALID is set and frame is discarded. If
- * cleared, frame is treated as untagged. Only applicable in HSR-PRP mode.
+ * PROXY. Related parameters:RB::RB_CFG.RCT_VALIDATE_ENA
  *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_CFG_2 . HOST_ENTRY_PROXY_DAN

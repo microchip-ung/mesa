@@ -5,7 +5,7 @@
     Start: Auto-generated content, do not edit.
 
     Generated using 'make c_header' in directory 'design/exb_vcap_lib'
-    @ 2022-04-29 12:05:52 UTC.
+    @ 2022-06-07 07:43:06 UTC.
  * ================================================================= */
 
 
@@ -1727,6 +1727,8 @@
 #define IS2_AL_BASE_TYPE_RB_FWD_SEL                  2
 #define IS2_AO_BASE_TYPE_RB_TC0_ENA                  (IS2_AO_BASE_TYPE_RB_FWD_SEL + IS2_AL_BASE_TYPE_RB_FWD_SEL)
 #define IS2_AL_BASE_TYPE_RB_TC0_ENA                  1
+#define IS2_AO_BASE_TYPE_RB_PTP_ENA                  (IS2_AO_BASE_TYPE_RB_TC0_ENA + IS2_AL_BASE_TYPE_RB_TC0_ENA)
+#define IS2_AL_BASE_TYPE_RB_PTP_ENA                  1
 
 /* ================================================================= *
  *  VCAP LPM

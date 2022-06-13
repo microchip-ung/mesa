@@ -2797,9 +2797,53 @@
  * \details
  * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_EGR_DIS
  */
-#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(6)
-#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(10)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * Specified whether the redbox connected to this SwC port operates as a
+ * HSR-PRP-A or HSR-PRP-B.
+ *
+ * \details
+ *
+ *	     00:Not in HSR-PRP mode
+ *	     01:Undefined
+ *	     10:Port operates as HSR-PRP-A
+ *	     11:Port operates as HSR-PRP-B
+
+ *
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_PRP_LAN
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_ENCODE_BITFIELD(x,8,2)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN     VTSS_ENCODE_BITMASK(8,2)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_EXTRACT_BITFIELD(x,8,2)
+
+/**
+ * \brief
+ * Disable Redbox tagging for frames passed trhough the ptp rewriter
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_TAG_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS  VTSS_BIT(7)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Select which sourceport id field to insert LRE number into.
+ *
+ * \details
+ * 0: Use ID field 13:12
+ * 1: Use ID field 15:14
+ *
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_ID_SEL
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_ID_SEL  VTSS_BIT(6)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
